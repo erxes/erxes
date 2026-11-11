@@ -9,7 +9,7 @@ interface PosOrderFormProps {
   control: Control<TPosOrderFormData>;
   summary?: Record<string, number>;
   paidAmounts?: PosPaidAmount[];
-  posName?: string;
+  disabled?: boolean;
 }
 
 const formatNumberWithCommas = (value: string | number | undefined) => {
@@ -22,7 +22,7 @@ export const PosOrderForm = ({
   control,
   summary,
   paidAmounts,
-  posName,
+  disabled,
 }: PosOrderFormProps) => {
   const paymentTypes = React.useMemo(() => {
     const summaryKeys = Object.keys(summary || {});
@@ -40,7 +40,7 @@ export const PosOrderForm = ({
   }, [summary, paidAmounts]);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="grid gap-3 @3xl/record-panel:grid-cols-2 @3xl/record-panel:gap-x-6">
       {paymentTypes.map((paymentType) => {
         const paymentOption = options.find((opt) => opt.value === paymentType);
         const label = paymentOption?.label || paymentType;
@@ -59,6 +59,7 @@ export const PosOrderForm = ({
                     {...field}
                     type="text"
                     placeholder="0"
+                    disabled={disabled}
                     value={formatNumberWithCommas(field.value)}
                     onChange={(e) => {
                       const raw = e.target.value.replace(/,/g, '');

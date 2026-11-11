@@ -1,6 +1,5 @@
 export { AmenityRecordTable } from './_components/AmenityRecordTable';
-export { AmenityCreateSheet } from './_components/AmenityCreateSheet';
-export { AmenityEditSheet } from './_components/AmenityEditSheet';
+export { AMENITY_PANEL, AmenityCreateButton } from './_components/AmenityPanel';
 export { AmenityCommandBar } from './_components/AmenityCommandBar';
 export { AmenityFilter } from './_components/AmenityFilter';
 export { amenityColumns } from './_components/AmenityColumns';

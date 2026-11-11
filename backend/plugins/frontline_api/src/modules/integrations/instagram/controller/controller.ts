@@ -4,39 +4,11 @@ import { receiveComment } from '@/integrations/instagram/controller/receiveComme
 import { receiveMessage } from '@/integrations/instagram/controller/receiveMessage';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { hasValidWebhookSignature } from '@/integrations/instagram/webhookSignature';
 import type { IModels } from '~/connectionResolvers';
 import type { IMessageData } from '@/integrations/instagram/@types/utils';
 import { getErrorMessage } from '@/integrations/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
-
-const SIGNATURE_ALGORITHMS = {
-  'x-hub-signature-256': { prefix: 'sha256=', algorithm: 'sha256' },
-  'x-hub-signature': { prefix: 'sha1=', algorithm: 'sha1' },
-} as const;
-
-const hasValidWebhookSignature = (
-  rawBody: Buffer | string | undefined,
-  headers: Record<string, string | undefined>,
-  appSecret: string | undefined,
-) => {
-  if (!rawBody || !appSecret) return false;
-  return Object.entries(SIGNATURE_ALGORITHMS).some(
-    ([header, { prefix, algorithm }]) => {
-      const signature = headers[header];
-      if (!signature) return false;
-      const expected = `${prefix}${createHmac(algorithm, appSecret)
-        .update(rawBody)
-        .digest('hex')}`;
-      const actualBuffer = Buffer.from(signature);
-      const expectedBuffer = Buffer.from(expected);
-      return (
-        actualBuffer.length === expectedBuffer.length &&
-        timingSafeEqual(actualBuffer, expectedBuffer)
-      );
-    },
-  );
-};
 
 export const instagramGetPost = async (req, res, next) => {
   try {
@@ -185,7 +157,14 @@ export const instagramWebhook = async (
       'x-hub-signature-256': req.get('x-hub-signature-256'),
       'x-hub-signature': req.get('x-hub-signature'),
     };
-    if (!hasValidWebhookSignature(req.rawBody, signatureHeaders, appSecret)) {
+    if (
+      !hasValidWebhookSignature(
+        req.rawBody,
+        req.body,
+        signatureHeaders,
+        appSecret,
+      )
+    ) {
       const hasSignature = Object.values(signatureHeaders).some(Boolean);
       console.error(
         '[instagram]',

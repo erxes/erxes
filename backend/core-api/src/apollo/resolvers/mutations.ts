@@ -17,6 +17,7 @@ import { internalNoteMutations } from '@/internalNote/graphql/mutations';
 import { brandMutations } from '@/organization/brand/graphql/mutations';
 import { organizationConfigMutations } from '@/organization/settings/graphql/configs/mutations';
 import { favoriteMutations } from '@/organization/settings/graphql/favorites/mutations';
+import { dashboardLayoutMutations } from '@/organization/settings/graphql/dashboardLayouts/mutations';
 import { structureMutations } from '@/organization/structure/graphql/resolvers/mutations';
 import { userMutations } from '@/organization/team-member/graphql/mutations';
 import { permissionMutations } from '~/modules/permissions/graphql/resolvers/mutations/permission';
@@ -26,6 +27,8 @@ import { productMutations } from '@/products/graphql/resolvers/mutations';
 import { relationsMutations } from '@/relations/graphql/mutations';
 import { segmentMutations } from '@/segments/graphql/resolvers/mutations';
 import { tagMutations } from '@/tags/graphql/mutations';
+import { dataExtensionMutations } from '@/data-extensions/graphql/resolvers';
+import { isDataExtensionsServiceEnabled } from 'erxes-api-shared/core-modules';
 import { broadcastMutations } from '~/modules/broadcast/graphql/resolvers/mutations';
 import { notificationMutations } from '~/modules/notifications/graphql/resolver/mutations';
 import { propertiesMutations } from '~/modules/properties/graphql/resolvers/mutations';
@@ -60,6 +63,7 @@ export const mutations = {
   ...conformityMutations,
   ...relationsMutations,
   ...favoriteMutations,
+  ...dashboardLayoutMutations,
   ...structureMutations,
   ...brandMutations,
   ...permissionMutations,
@@ -84,4 +88,6 @@ export const mutations = {
   ...agentsConnectionMutations,
   ...agentsThreadMutations,
   ...agentsSettingsMutations,
+  // Served by the standalone app when it runs (see apollo/schema/schema.ts).
+  ...(isDataExtensionsServiceEnabled() ? {} : dataExtensionMutations),
 };

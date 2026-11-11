@@ -37,12 +37,50 @@ const getDatePart = (value: string) => {
   return `${year}-${month}-${day}`;
 };
 
-export const getReportPeriodParam = (
-  key: 'fromDate' | 'toDate',
-  date: Date,
-) => {
-  const datePart = formatDate(date, 'yyyy-MM-dd');
-  return key === 'toDate' ? `${datePart} 23:59:59.999` : `${datePart} 00:00:00`;
+type ReportPeriodKey = 'fromDate' | 'toDate';
+
+type ReportPeriodTime = { hour: number; minute: number };
+
+export const REPORT_PERIOD_DEFAULT_TIME: Record<
+  ReportPeriodKey,
+  ReportPeriodTime
+> = {
+  fromDate: { hour: 0, minute: 0 },
+  toDate: { hour: 23, minute: 59 },
+};
+
+export const setReportPeriodTime = (
+  day: Date,
+  { hour, minute }: ReportPeriodTime,
+) => new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour, minute);
+
+export const getReportPeriodParam = (key: ReportPeriodKey, date: Date) => {
+  const minutePart = formatDate(date, 'yyyy-MM-dd HH:mm');
+  return key === 'toDate' ? `${minutePart}:59.999` : `${minutePart}:00`;
+};
+
+export const formatReportPeriodQuery = (value: unknown) => {
+  if (typeof value !== 'string' || !value) {
+    return '';
+  }
+
+  return formatDate(value, 'yyyy-MM-dd HH:mm');
+};
+
+const isBefore = (left: string, right: string) =>
+  new Date(left).getTime() < new Date(right).getTime();
+
+const setDayWithinPeriod = (params: URLSearchParams, datePart: string) => {
+  const dayStart = `${datePart} 00:00:00`;
+  const dayEnd = `${datePart} 23:59:59.999`;
+  const fromDate = params.get('fromDate');
+  const toDate = params.get('toDate');
+
+  params.set(
+    'fromDate',
+    fromDate && isBefore(dayStart, fromDate) ? fromDate : dayStart,
+  );
+  params.set('toDate', toDate && isBefore(toDate, dayEnd) ? toDate : dayEnd);
 };
 
 export const getReportGroupsFromAttr = (attr: string) =>
@@ -75,8 +113,7 @@ export const buildDetailedReportPath = (
     if (group === 'date') {
       const datePart = getDatePart(id);
       if (datePart) {
-        params.set('fromDate', `${datePart} 00:00:00`);
-        params.set('toDate', `${datePart} 23:59:59.999`);
+        setDayWithinPeriod(params, datePart);
       }
       return;
     }

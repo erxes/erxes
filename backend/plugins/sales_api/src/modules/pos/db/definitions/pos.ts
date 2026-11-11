@@ -126,6 +126,9 @@ export const productGroupSchema = schemaWrapper(
       label: 'Category ids',
     },
 
+    productIds: { type: [String], optional: true, label: 'Include Product ids' },
+    tagIds: { type: [String], optional: true, label: 'Include Tag ids' },
+    excludeTagIds: { type: [String], optional: true, label: 'Exclude Tag ids' },
     excludedCategoryIds: {
       type: [String],
       optional: true,

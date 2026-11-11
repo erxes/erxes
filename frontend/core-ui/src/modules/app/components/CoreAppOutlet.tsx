@@ -7,6 +7,8 @@ import { NavigationChildControlsProvider } from '@/navigation/components/app-sid
 import { NavigationCorePanelContent } from '@/navigation/components/app-sidebar/NavigationCoreModules';
 import { Outlet, useLocation } from 'react-router-dom';
 import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
+import { DataExtensionsContextNavigation } from '@/data-extensions/components/DataExtensionsSidebar';
+import { TemplatesContextNavigation } from '@/templates/components/TemplatesContextNavigation';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
 import { SETTINGS_TAB_ID } from '@/navigation/hooks/useAppTabs';
@@ -17,6 +19,12 @@ import {
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { useTranslation } from 'react-i18next';
 
+const AppPageOutlet = () => (
+  <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <Outlet />
+  </div>
+);
+
 const getCoreModuleSidebar = (
   activity: INavigationActivity,
   pathname: string,
@@ -25,8 +33,16 @@ const getCoreModuleSidebar = (
     return <SegmentsContextNavigation />;
   }
 
+  if (pathname.startsWith('/templates')) {
+    return <TemplatesContextNavigation />;
+  }
+
   if (pathname.startsWith(`/${AppPath.Documents}`)) {
     return <DocumentsContextNavigation />;
+  }
+
+  if (pathname.startsWith(`/${AppPath.DataExtensions}`)) {
+    return <DataExtensionsContextNavigation />;
   }
 
   if (activity.modules.some((module) => module.submenus?.length)) {
@@ -67,7 +83,7 @@ export const CoreAppOutlet = () => {
         title={t('organization-settings')}
         sidebar={<SettingsSidebar />}
       >
-        <Outlet />
+        <AppPageOutlet />
       </AppLayout>
     );
   }
@@ -86,7 +102,7 @@ export const CoreAppOutlet = () => {
       <NavigationChildControlsProvider
         activity={activity?.kind === 'plugin' ? activity : undefined}
       >
-        <Outlet />
+        <AppPageOutlet />
       </NavigationChildControlsProvider>
     );
   }
@@ -102,7 +118,7 @@ export const CoreAppOutlet = () => {
         </NavigationChildControlsProvider>
       }
     >
-      <Outlet />
+      <AppPageOutlet />
     </AppLayout>
   );
 };

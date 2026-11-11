@@ -1,0 +1,6 @@
+node_modules
+dist
+.env
+*.log
+# printed GraphQL schema (pnpm schema:print)
+generated/

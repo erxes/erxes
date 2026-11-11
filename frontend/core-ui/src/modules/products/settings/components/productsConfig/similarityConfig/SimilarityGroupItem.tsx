@@ -1,9 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Collapsible, Input, Label, useToast } from 'erxes-ui';
+import { Button, Input, Label, useToast } from 'erxes-ui';
 import {
-  IconSettings,
-  IconChevronDown,
   IconPlus,
   IconTrash,
   IconCheck,
@@ -19,8 +17,6 @@ import { nanoid } from 'nanoid';
 interface ISimilarityGroupItemProps {
   codeGroupKey: string;
   config: ISimilarityGroupConfig;
-  isOpen?: boolean;
-  onToggle?: () => void;
   onSave: (
     oldCodeGroupKey: string,
     newCodeGroupKey: string,
@@ -32,8 +28,6 @@ interface ISimilarityGroupItemProps {
 export const SimilarityGroupItem = ({
   codeGroupKey: initialCodeGroup,
   config: initialConfig,
-  isOpen = false,
-  onToggle,
   onSave,
   onDelete,
 }: ISimilarityGroupItemProps) => {
@@ -131,141 +125,126 @@ export const SimilarityGroupItem = ({
   }, [initialCodeGroup, onDelete, toast, t]);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={() => onToggle?.()}>
-      <Collapsible.Trigger className="flex gap-3 items-center px-4 py-3 w-full border-b">
-        <IconSettings size={20} className="text-muted-foreground" />
-        <span className="flex-1 font-medium text-left">
-          {title || t('new-similarity-group', 'New similarity group')}
-        </span>
-        <IconChevronDown
-          size={18}
-          className={`text-muted-foreground transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-        />
-      </Collapsible.Trigger>
-      <Collapsible.Content>
-        <div className="p-4 space-y-4 border-b">
-          <div className="grid grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label>{t('title', 'Title')}</Label>
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={t('new-similarity-group', 'New similarity group')}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('filter-field', 'Filter Field')}</Label>
-              <FilterFieldSelect
-                value={filterField}
-                onValueChange={setFilterField}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('code-mask', 'Code Mask')}</Label>
-              <Input
-                value={codeGroupKey}
-                onChange={(e) => setCodeGroupKey(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('default-product', 'Default Product')}</Label>
-              <SelectProduct
-                value={defaultProduct || ''}
-                defaultSearchValue={codeGroupKey}
-                onValueChange={(value) =>
-                  setDefaultProduct(
-                    Array.isArray(value) ? value[0] || '' : value,
-                  )
-                }
-              />
-            </div>
-          </div>
-
-          {rules.length > 0 && (
-            <div className="space-y-2">
-              {rules.map((rule, index) => (
-                <div key={rule.id} className="flex gap-2 items-end w-full">
-                  <div className="space-y-2 w-full">
-                    <Label>{t('title', 'Title')}</Label>
-                    <Input
-                      value={rule.title}
-                      onChange={(e) =>
-                        handleRuleChange(index, 'title', e.target.value)
-                      }
-                      placeholder={t('enter-title', 'Enter title')}
-                    />
-                  </div>
-
-                  <div className="space-y-2 w-full">
-                    <Label>{t('field-group', 'Field Group')}</Label>
-                    <RuleGroupSelect
-                      value={rule.groupId}
-                      onValueChange={(value) =>
-                        handleRuleChange(index, 'groupId', value)
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2 w-full">
-                    <Label>{t('field', 'Field')}</Label>
-                    <RuleFieldSelect
-                      groupId={rule.groupId}
-                      value={rule.fieldId}
-                      onValueChange={(value) =>
-                        handleRuleChange(index, 'fieldId', value)
-                      }
-                    />
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveRule(index)}
-                    className="text-destructive shrink-0"
-                  >
-                    <IconTrash size={16} />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="secondary" onClick={handleAddRule}>
-              <IconPlus size={16} />
-              {t('add-rule', 'Add Rule')}
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting || isSaving}
-            >
-              {isDeleting ? (
-                <IconLoader2 size={16} className="animate-spin" />
-              ) : (
-                <IconTrash size={16} />
-              )}
-              {isDeleting ? t('deleting', 'Deleting...') : t('delete', 'Delete')}
-            </Button>
-            <Button
-              type="button"
-              onClick={handleSave}
-              disabled={isSaving || isDeleting}
-            >
-              {isSaving ? (
-                <IconLoader2 size={16} className="animate-spin" />
-              ) : (
-                <IconCheck size={16} />
-              )}
-              {isSaving ? t('saving', 'Saving...') : t('save', 'Save')}
-            </Button>
-          </div>
+    <div className="p-4 space-y-4 border-b">
+      <div className="grid grid-cols-1 gap-4 @min-[480px]/record-panel:grid-cols-2">
+        <div className="space-y-2">
+          <Label>{t('title', 'Title')}</Label>
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={t('new-similarity-group', 'New similarity group')}
+          />
         </div>
-      </Collapsible.Content>
-    </Collapsible>
+        <div className="space-y-2">
+          <Label>{t('filter-field', 'Filter Field')}</Label>
+          <FilterFieldSelect
+            value={filterField}
+            onValueChange={setFilterField}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>{t('code-mask', 'Code Mask')}</Label>
+          <Input
+            value={codeGroupKey}
+            onChange={(e) => setCodeGroupKey(e.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>{t('default-product', 'Default Product')}</Label>
+          <SelectProduct
+            value={defaultProduct || ''}
+            defaultSearchValue={codeGroupKey}
+            onValueChange={(value) =>
+              setDefaultProduct(Array.isArray(value) ? value[0] || '' : value)
+            }
+          />
+        </div>
+      </div>
+
+      {rules.length > 0 && (
+        <div className="space-y-2">
+          {rules.map((rule, index) => (
+            <div
+              key={rule.id}
+              className="grid grid-cols-1 gap-3 w-full @min-[480px]/record-panel:grid-cols-2"
+            >
+              <div className="space-y-2 w-full">
+                <Label>{t('title', 'Title')}</Label>
+                <Input
+                  value={rule.title}
+                  onChange={(e) =>
+                    handleRuleChange(index, 'title', e.target.value)
+                  }
+                  placeholder={t('enter-title', 'Enter title')}
+                />
+              </div>
+
+              <div className="space-y-2 w-full">
+                <Label>{t('field-group', 'Field Group')}</Label>
+                <RuleGroupSelect
+                  value={rule.groupId}
+                  onValueChange={(value) =>
+                    handleRuleChange(index, 'groupId', value)
+                  }
+                />
+              </div>
+
+              <div className="space-y-2 w-full">
+                <Label>{t('field', 'Field')}</Label>
+                <RuleFieldSelect
+                  groupId={rule.groupId}
+                  value={rule.fieldId}
+                  onValueChange={(value) =>
+                    handleRuleChange(index, 'fieldId', value)
+                  }
+                />
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemoveRule(index)}
+                className="text-destructive shrink-0"
+              >
+                <IconTrash size={16} />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-2 justify-end">
+        <Button type="button" variant="secondary" onClick={handleAddRule}>
+          <IconPlus size={16} />
+          {t('add-rule', 'Add Rule')}
+        </Button>
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={handleDelete}
+          disabled={isDeleting || isSaving}
+        >
+          {isDeleting ? (
+            <IconLoader2 size={16} className="animate-spin" />
+          ) : (
+            <IconTrash size={16} />
+          )}
+          {isDeleting ? t('deleting', 'Deleting...') : t('delete', 'Delete')}
+        </Button>
+        <Button
+          type="button"
+          onClick={handleSave}
+          disabled={isSaving || isDeleting}
+        >
+          {isSaving ? (
+            <IconLoader2 size={16} className="animate-spin" />
+          ) : (
+            <IconCheck size={16} />
+          )}
+          {isSaving ? t('saving', 'Saving...') : t('save', 'Save')}
+        </Button>
+      </div>
+    </div>
   );
 };

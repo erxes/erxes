@@ -10,7 +10,6 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import { ReactNode, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
 import {
   DndContext,
   PointerSensor,
@@ -31,20 +30,17 @@ import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
-import { CmsSidebar } from '../shared/CmsSidebar';
 
-import {
-  ICustomFieldGroup,
-  ICustomField,
-  FieldFormValues,
-} from './types/customFieldTypes';
+import { ICustomFieldGroup, ICustomField } from './types/customFieldTypes';
 import { useCustomFieldGroups } from './hooks/useCustomFieldGroups';
-import { FieldGroupDrawer } from './components/field-group-drawer/FieldGroupDrawer';
-import { FieldDrawer } from './components/field-drawer/FieldDrawer';
 import { CustomFieldGroupItem } from './components/CustomFieldGroupItem';
-import { CMS_CUSTOM_POST_TYPES } from '../graphql/queries';
 import { useSyncedState } from './hooks/useSyncedState';
-import { getValidCustomFieldOptions } from './utils/getValidCustomFieldOptions';
+import { getCustomFieldPanelId } from './CustomFieldPanels';
+import {
+  CMS_CUSTOM_FIELD_CONTENT_TYPE,
+  CMS_FIELD_GROUP_CONTENT_TYPE,
+} from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 
 /** Provides drag positioning and handle props for a custom-field group. */
 function SortableGroup({
@@ -77,22 +73,17 @@ function SortableGroup({
 export function CustomFields() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
-  const [isGroupDrawerOpen, setIsGroupDrawerOpen] = useState(false);
-  const [isFieldDrawerOpen, setIsFieldDrawerOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<ICustomFieldGroup | null>(
     null,
   );
-  const [editingGroup, setEditingGroup] = useState<ICustomFieldGroup | null>(
-    null,
-  );
-  const [editingField, setEditingField] = useState<ICustomField | null>(null);
   const { confirm } = useConfirm();
+  const groupPanel = useContentPanel(CMS_FIELD_GROUP_CONTENT_TYPE);
+  const fieldPanel = useContentPanel(CMS_CUSTOM_FIELD_CONTENT_TYPE);
 
   const {
     groups,
     loading,
     refetch,
-    addGroup,
     editGroup,
     removeGroup,
     reorderGroups,
@@ -123,112 +114,17 @@ export function CustomFields() {
     reorderGroups(next);
   };
 
-  const { data: customTypesData } = useQuery(CMS_CUSTOM_POST_TYPES, {
-    variables: { clientPortalId: websiteId },
-    skip: !websiteId,
-  });
-
-  const customTypes = customTypesData?.cmsCustomPostTypes || [];
-
-  const handleGroupSubmit = (data: any) => {
-    const input = {
-      label: data.label,
-      code: data.code,
-      clientPortalId: websiteId,
-      customPostTypeIds: data.customPostTypeIds || [],
-      enabledPageIds: data.enabledPageIds || [],
-      enabledCategoryIds: data.enabledCategoryIds || [],
-      enabledPostIds: data.enabledPostIds || [],
-      fields: editingGroup?.fields || [],
-    };
-
-    if (editingGroup) {
-      editGroup({
-        variables: {
-          _id: editingGroup._id,
-          input,
-        },
-      });
-    } else {
-      addGroup({
-        variables: {
-          input,
-        },
-      });
-    }
-    setIsGroupDrawerOpen(false);
-    setEditingGroup(null);
-  };
-
-  const handleFieldSubmit = async (data: FieldFormValues) => {
-    if (!selectedGroup) return;
-
-    const latestGroup =
-      groups.find((g) => g._id === selectedGroup._id) || selectedGroup;
-
-    const newField = {
-      _id: editingField?._id || `field_${Date.now()}`,
-      label: data.label,
-      code: data.code,
-      type: data.type,
-      description: data.description,
-      isRequired: data.isRequired,
-      options: getValidCustomFieldOptions(
-        data.options.split(',').map((option) => option.trim()),
-      ),
-    };
-
-    const currentFields = Array.isArray(latestGroup.fields)
-      ? latestGroup.fields
-      : [];
-    let updatedFields;
-
-    if (editingField) {
-      updatedFields = currentFields.map((f: any) =>
-        f._id === editingField._id ? newField : f,
-      );
-    } else {
-      updatedFields = [...currentFields, newField];
-    }
-
-    editGroup({
-      variables: {
-        _id: latestGroup._id,
-        input: {
-          label: latestGroup.label,
-          clientPortalId: websiteId || '',
-          customPostTypeIds: latestGroup.customPostTypeIds || [],
-          fields: updatedFields,
-        },
-      },
-      onCompleted: async () => {
-        toast({
-          title: t('success'),
-          description: editingField ? t('field-updated') : t('field-created'),
-        });
-        setIsFieldDrawerOpen(false);
-        setEditingField(null);
-        const result = await refetch();
-        if (result.data?.cmsCustomFieldGroupList?.list) {
-          const updatedGroup = result.data.cmsCustomFieldGroupList.list.find(
-            (g: ICustomFieldGroup) => g._id === latestGroup._id,
-          );
-          if (updatedGroup) {
-            setSelectedGroup(updatedGroup);
-          }
-        }
-      },
-    });
+  const handleAddGroup = () => {
+    groupPanel.openDraft({ clientPortalId: websiteId });
   };
 
   const handleEditGroup = (group: ICustomFieldGroup) => {
-    setEditingGroup(group);
-    setIsGroupDrawerOpen(true);
+    groupPanel.openDetail(group._id);
   };
 
   const handleEditField = (field: ICustomField) => {
-    setEditingField(field);
-    setIsFieldDrawerOpen(true);
+    if (!selectedGroup) return;
+    fieldPanel.openDetail(getCustomFieldPanelId(selectedGroup._id, field._id));
   };
 
   const handleDeleteGroup = (groupId: string) => {
@@ -279,15 +175,9 @@ export function CustomFields() {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <CustomFieldsHeader>
-          <Button
-            onClick={() => {
-              setEditingGroup(null);
-              setIsGroupDrawerOpen(true);
-            }}
-          >
+          <Button onClick={handleAddGroup}>
             <IconPlus className="w-4 h-4 mr-2" />
             {t('add-group')}
           </Button>
@@ -317,13 +207,7 @@ export function CustomFields() {
                     <p className="text-muted-foreground mb-4">
                       {t('no-field-groups-yet')}
                     </p>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setEditingGroup(null);
-                        setIsGroupDrawerOpen(true);
-                      }}
-                    >
+                    <Button variant="secondary" onClick={handleAddGroup}>
                       <IconPlus className="w-4 h-4 mr-2" />
                       {t('create-first-group')}
                     </Button>
@@ -354,8 +238,7 @@ export function CustomFields() {
                                 dragHandleProps={dragHandleProps}
                                 onAddField={() => {
                                   setSelectedGroup(group);
-                                  setEditingField(null);
-                                  setIsFieldDrawerOpen(true);
+                                  fieldPanel.openDraft({ groupId: group._id });
                                 }}
                               />
                             )}
@@ -370,28 +253,6 @@ export function CustomFields() {
           </div>
         </div>
       </div>
-
-      <FieldGroupDrawer
-        isOpen={isGroupDrawerOpen}
-        onClose={() => {
-          setIsGroupDrawerOpen(false);
-          setEditingGroup(null);
-        }}
-        onSubmit={handleGroupSubmit}
-        editingGroup={editingGroup}
-        customTypes={customTypes}
-        websiteId={websiteId || ''}
-      />
-
-      <FieldDrawer
-        isOpen={isFieldDrawerOpen}
-        onClose={() => {
-          setIsFieldDrawerOpen(false);
-          setEditingField(null);
-        }}
-        onSubmit={handleFieldSubmit}
-        editingField={editingField}
-      />
     </PageContainer>
   );
 }

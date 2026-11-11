@@ -1,3 +1,4 @@
+import { useSidePanel } from 'ui-modules';
 import {
   IconCalendarPlus,
   IconEye,
@@ -16,14 +17,16 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  useQueryState,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { articlesMoreColumn } from '@/knowledgebase/articles/components/ArticlesMoreColumn';
 import { useEditArticleField } from '@/knowledgebase/articles/hooks/useArticleMutations';
-import { ARTICLE_STATUSES } from '@/knowledgebase/constants';
+import {
+  ARTICLE_STATUSES,
+  KB_RECORD_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
 import {
   kbColumn,
   kbDateColumn,
@@ -75,7 +78,7 @@ const TitleCell = ({
   t: TFunction;
 }) => {
   const article = cell.row.original;
-  const [, setEditId] = useQueryState<string>('editId');
+  const { openRecord } = useSidePanel();
 
   return (
     <TextCell
@@ -83,7 +86,14 @@ const TitleCell = ({
       field="title"
       placeholder={t('kb-untitled-article', 'Untitled article')}
     >
-      <RecordTableInlineCell.Anchor onClick={() => setEditId(article._id)}>
+      <RecordTableInlineCell.Anchor
+        onClick={() =>
+          openRecord({
+            contentType: KB_RECORD_CONTENT_TYPES.article,
+            contentId: article._id,
+          })
+        }
+      >
         {article.title || t('kb-untitled-article', 'Untitled article')}
       </RecordTableInlineCell.Anchor>
     </TextCell>

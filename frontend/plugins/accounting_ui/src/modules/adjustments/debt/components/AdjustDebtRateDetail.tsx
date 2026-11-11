@@ -14,6 +14,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   Spinner,
+  useConfirm,
   useQueryState,
 } from 'erxes-ui';
 import { useAdjustDebtRateRemove } from '../hooks/useAdjustDebtRateChange';
@@ -24,7 +25,7 @@ import { ADJUST_DEBT_RATE_CONTENT_TYPE } from '@/adjustments/constants/adjustmen
 import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 import { useAdjustDebtRateRun } from '../hooks/useAdjustDebtRateRun';
 import type { IAdjustDebtRateDetail } from '../types/AdjustDebtRate';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { BranchBadge, DepartmentBadge } from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
 import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
 import { getTransactionNumbers } from '@/adjustments/utils/getTransactionNumbers';
@@ -63,14 +64,14 @@ const AmountCell = ({ amount }: { amount?: number }) => (
 
 const BranchCell = ({ branchId }: { branchId?: string }) => (
   <RecordTableInlineCell>
-    {branchId ? <SelectBranches.InlineCell branchIds={[branchId]} /> : '-'}
+    {branchId ? <BranchBadge branchId={branchId} renderAsPlainText /> : '-'}
   </RecordTableInlineCell>
 );
 
 const DepartmentCell = ({ departmentId }: { departmentId?: string }) => (
   <RecordTableInlineCell>
     {departmentId ? (
-      <SelectDepartments.InlineCell departmentIds={[departmentId]} />
+      <DepartmentBadge departmentId={departmentId} renderAsPlainText />
     ) : (
       '-'
     )}
@@ -170,6 +171,7 @@ const adjustDebtRateDetailColumns = (
 
 export const AdjustDebtRateDetail = () => {
   const { t } = useTranslation('accounting');
+  const { confirm } = useConfirm();
   const [id] = useQueryState<string>('id');
   const { openDetail } = useSettingsPanel(ADJUST_DEBT_RATE_CONTENT_TYPE);
 
@@ -208,11 +210,13 @@ export const AdjustDebtRateDetail = () => {
   }
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this adjustment?')) {
+    void confirm({
+      message: t('Are you sure you want to delete this adjustment?'),
+    }).then(() =>
       removeAdjustDebtRate({
         variables: { adjustDebtRateIds: [id] },
-      });
-    }
+      }),
+    );
   };
 
   const handleCalculate = () => {

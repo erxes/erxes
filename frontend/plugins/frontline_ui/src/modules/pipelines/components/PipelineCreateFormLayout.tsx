@@ -14,6 +14,7 @@ import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
 import { DEFAULT_TICKET_CREATE_LAYOUT } from '@/ticket/constants/createLayout';
 
+/** Combines pipeline layout data, field rules, and editor state. */
 const usePipelineCreateFormLayout = (pipelineId?: string) => {
   const { pipeline, loading: pipelineLoading } = useGetPipeline(pipelineId);
   const { updatePipeline, loading: saving } = useUpdatePipeline();
@@ -26,7 +27,7 @@ const usePipelineCreateFormLayout = (pipelineId?: string) => {
   } = useTicketLayoutFields();
   const [open, setOpen] = useState(false);
 
-  const isCustom = !!pipeline?.createLayout?.length;
+  const isCustom = Boolean(pipeline?.createLayout?.length);
   const rows = isCustom
     ? (pipeline?.createLayout ?? [])
     : DEFAULT_TICKET_CREATE_LAYOUT;
@@ -35,13 +36,18 @@ const usePipelineCreateFormLayout = (pipelineId?: string) => {
     .flat()
     .filter((id) => itemById.get(id)?.dimmed).length;
 
+  /** Saves the pipeline layout and closes the editor after completion. */
   const handleSave = (layout: string[][] | null) => {
     if (!pipeline) {
       return;
     }
 
     updatePipeline({
-      variables: { _id: pipeline._id, name: pipeline.name, createLayout: layout },
+      variables: {
+        _id: pipeline._id,
+        name: pipeline.name,
+        createLayout: layout,
+      },
       onCompleted: () => setOpen(false),
     });
   };
@@ -62,6 +68,7 @@ const usePipelineCreateFormLayout = (pipelineId?: string) => {
   };
 };
 
+/** Previews and edits the ticket creation layout for a pipeline. */
 export const PipelineCreateFormLayout = ({
   pipelineId,
 }: {

@@ -177,7 +177,7 @@ export const loadSupportGrantClass = (models: IModels, subdomain: string) => {
       return models.SupportGrants.getPolicy();
     }
 
-    /** A verified staff member: enters on an active grant or the allow window, otherwise asks the owner. */
+    /** A verified staff member: enters on an active grant, the allow window or as trusted, otherwise asks the owner. */
     public static async enter(staff: ISupportStaff): Promise<SupportVisit> {
       const policy = await models.SupportGrants.getPolicy();
 
@@ -191,7 +191,7 @@ export const loadSupportGrantClass = (models: IModels, subdomain: string) => {
         ...active(),
       });
 
-      if (!grant && policy.mode === 'allow') {
+      if (!grant && (policy.mode === 'allow' || staff.trusted)) {
         grant = await models.SupportGrants.create({
           ...staffFields(staff),
           userId,

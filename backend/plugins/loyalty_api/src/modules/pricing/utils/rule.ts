@@ -1,6 +1,7 @@
 import { shortStrToDate } from 'erxes-api-shared/utils';
 import dayjs from 'dayjs';
-import { CalculatedRule } from '../types';
+import { CalculatedRule, OrderItem } from '../types';
+import { IPricingPlan } from '../@types/pricingPlan';
 
 /**
  * Calculation of discount amount by type
@@ -72,87 +73,6 @@ export const checkRuleValidity = (rule: any, checkValue: number): boolean => {
     default:
       return false;
   }
-};
-
-// Helper functions for checkRepeatRule
-const checkEveryDayRule = (rule: any, now: dayjs.Dayjs): boolean => {
-  if (!rule.dayStartValue || !rule.dayEndValue) return false;
-  
-  const startHour = dayjs(rule.dayStartValue).hour();
-  const startMinute = dayjs(rule.dayStartValue).minute();
-  const endHour = dayjs(rule.dayEndValue).hour();
-  const endMinute = dayjs(rule.dayEndValue).minute();
-  
-  const currentHour = now.hour();
-  const currentMinute = now.minute();
-  
-  if (currentHour < startHour || (currentHour === startHour && currentMinute < startMinute)) {
-    return false;
-  }
-  
-  if (currentHour > endHour || (currentHour === endHour && currentMinute > endMinute)) {
-    return false;
-  }
-  
-  return true;
-};
-
-const checkEveryWeekRule = (rule: any, now: dayjs.Dayjs): boolean => {
-  return rule.weekValue?.some((item: any) => item.value === now.day().toString()) ?? false;
-};
-
-const checkEveryMonthRule = (rule: any, now: dayjs.Dayjs): boolean => {
-  return rule.monthValue?.some((item: any) => item.value === now.date().toString()) ?? false;
-};
-
-const checkEveryYearRule = (rule: any, now: dayjs.Dayjs): boolean => {
-  if (!rule.yearStartValue || !rule.yearEndValue) return false;
-  return now.isAfter(dayjs(rule.yearStartValue)) && now.isBefore(dayjs(rule.yearEndValue));
-};
-
-/**
- * Check repeat rules
- * @param plan
- * @returns
- */
-export const checkRepeatRule = (plan: any): boolean => {
-  // If repeat rule is disabled, rule passes
-  if (!plan.isRepeatEnabled) {
-    return true;
-  }
-  
-  // If no repeat rules, rule fails
-  if (!plan.repeatRules?.length) {
-    return false;
-  }
-
-  const now = dayjs(new Date());
-  let rulePassCount = 0;
-
-  for (const rule of plan.repeatRules) {
-    let rulePassed = false;
-    
-    switch (rule.type) {
-      case 'everyDay':
-        rulePassed = checkEveryDayRule(rule, now);
-        break;
-      case 'everyWeek':
-        rulePassed = checkEveryWeekRule(rule, now);
-        break;
-      case 'everyMonth':
-        rulePassed = checkEveryMonthRule(rule, now);
-        break;
-      case 'everyYear':
-        rulePassed = checkEveryYearRule(rule, now);
-        break;
-    }
-    
-    if (rulePassed) {
-      rulePassCount++;
-    }
-  }
-
-  return rulePassCount === plan.repeatRules.length;
 };
 
 // Helper functions for price rule calculation
@@ -445,9 +365,9 @@ const processExpiryRule = (
 };
 
 export const calculateExpiryRule = (
-  plan: any,
-  item: any,
-  defaultValue: number
+  plan: Pick<IPricingPlan, 'isExpiryEnabled' | 'expiryRules'>,
+  item: OrderItem,
+  defaultValue: number,
 ): CalculatedRule => {
   const now = dayjs(new Date());
   const result: CalculatedRule = {

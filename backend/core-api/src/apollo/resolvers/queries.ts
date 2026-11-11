@@ -22,6 +22,7 @@ import { notificationQueries } from '@/notifications/graphql/resolver/queries';
 import { brandQueries } from '@/organization/brand/graphql/queries';
 import { organizationConfigQueries } from '@/organization/settings/graphql/configs/queries';
 import { favoriteQueries } from '@/organization/settings/graphql/favorites/queries';
+import { dashboardLayoutQueries } from '@/organization/settings/graphql/dashboardLayouts/queries';
 import { structureQueries } from '@/organization/structure/graphql/resolvers/queries';
 import { userQueries } from '@/organization/team-member/graphql/queries';
 import { permissionQueries } from '~/modules/permissions/graphql/resolvers/queries/permission';
@@ -48,6 +49,8 @@ import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
 import { agentsThreadsQueries } from '@/agents/graphql/resolvers/queries/threads';
 import { agentsSettingsQueries } from '@/agents/graphql/resolvers/queries/settings';
 import { agentsToolsQueries } from '@/agents/graphql/resolvers/queries/tools';
+import { dataExtensionQueries } from '@/data-extensions/graphql/resolvers';
+import { isDataExtensionsServiceEnabled } from 'erxes-api-shared/core-modules';
 
 const sentryTestQueries = {
   _sentryGraphqlTest: () => {
@@ -78,6 +81,7 @@ export const queries = {
   ...segmentQueries,
   ...relationsQueries,
   ...favoriteQueries,
+  ...dashboardLayoutQueries,
   ...structureQueries,
   ...brandQueries,
   ...organizationConfigQueries,
@@ -110,4 +114,6 @@ export const queries = {
   ...agentsThreadsQueries,
   ...agentsSettingsQueries,
   ...agentsToolsQueries,
+  // Served by the standalone app when it runs (see apollo/schema/schema.ts).
+  ...(isDataExtensionsServiceEnabled() ? {} : dataExtensionQueries),
 };

@@ -7,7 +7,10 @@ import {
   formSetupValuesAtom,
   resetFormSetupAtom,
 } from '../states/formSetupStates';
-import { FORM_CONFIRMATION_SCHEMA } from '../constants/formSchema';
+import {
+  FORM_CONFIRMATION_SCHEMA,
+  LEAD_DATA_SCHEMA,
+} from '../constants/formSchema';
 import {
   FORM_BULK_ACTION,
   CRAETE_LEAD_INTEGRATION,
@@ -18,11 +21,14 @@ import { isDefined, toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 import { useTranslation } from 'react-i18next';
 import { useFormConversionTranslation } from '../conversionTranslations';
+import { isRecord } from '@/shared/utils/isRecord';
+import { groupFieldsIntoSteps } from '../utils/groupFieldsIntoSteps';
 
 type FormField = {
   tempFieldId?: string;
   type?: string;
   expectedType?: string;
+  pageNumber?: number;
 } & Record<string, unknown>;
 
 const buildEditFieldsVariables = (
@@ -71,15 +77,41 @@ export const useFormMutate = () => {
 
     try {
       if (id) {
+        const existingFields = (formDetail?.fields ?? []).filter(isDefined);
+        const savedPages = new Map(
+          existingFields.map((field) => [field._id, field.pageNumber]),
+        );
+        const savedSteps = LEAD_DATA_SCHEMA.parse(formDetail?.leadData).steps;
+        const initialSteps =
+          savedSteps ??
+          (existingFields.length
+            ? groupFieldsIntoSteps(undefined, existingFields)
+            : undefined);
         const fieldVariables = buildEditFieldsVariables(
           id,
           formFields,
-          (formDetail?.fields ?? []).filter(isDefined),
+          existingFields,
         );
-        const converting = fieldVariables.updatedFields.some(
-          (field) => field.expectedType && field.expectedType !== field.type,
-        );
-        if (!converting)
+        const requiresAtomicSave =
+          (isRecord(formDetail?.leadData) &&
+            Object.prototype.hasOwnProperty.call(
+              formDetail.leadData,
+              'steps',
+            ) &&
+            savedSteps === undefined) ||
+          Object.keys(formValues.leadData.steps).some(
+            (key) => initialSteps !== undefined && !initialSteps[key],
+          ) ||
+          Object.entries(initialSteps ?? {}).some(
+            ([key, step]) =>
+              formValues.leadData.steps[key]?.order !== step.order,
+          ) ||
+          fieldVariables.updatedFields.some(
+            (field) =>
+              (field.expectedType && field.expectedType !== field.type) ||
+              (field._id && field.pageNumber !== savedPages.get(field._id)),
+          );
+        if (!requiresAtomicSave)
           await editForm({
             variables: {
               ...formValues,
@@ -90,7 +122,7 @@ export const useFormMutate = () => {
         await fieldsBulkAction({
           variables: {
             ...fieldVariables,
-            ...(converting
+            ...(requiresAtomicSave
               ? {
                   formChanges: {
                     ...formValues,

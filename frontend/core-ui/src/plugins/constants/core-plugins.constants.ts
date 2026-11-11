@@ -12,6 +12,7 @@ import {
   IconTrash,
   IconUser,
   IconUsersGroup,
+  IconVariable,
 } from '@tabler/icons-react';
 import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
@@ -53,6 +54,11 @@ export const GET_CORE_MODULES = (
       name: t('segments'),
       icon: IconChartPie,
       path: 'segments',
+    },
+    {
+      name: t('data-extensions'),
+      icon: IconVariable,
+      path: 'data-extensions',
     },
     {
       name: t('automations'),

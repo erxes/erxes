@@ -78,7 +78,7 @@ const FilterTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof Button> & {
     isFiltered?: boolean;
   }
->(({ isFiltered, ...props }, ref) => {
+>(({ isFiltered, className, ...props }, ref) => {
   const { t } = useTranslation();
 
   return (
@@ -90,6 +90,9 @@ const FilterTrigger = React.forwardRef<
               ref={ref}
               variant="ghost"
               size={isFiltered ? 'icon' : 'default'}
+              // Its icon lines up with the page's content, as the first
+              // breadcrumb's does, with or without the label.
+              className={cn(isFiltered ? '-ml-1.5' : '-ml-2 pl-2', className)}
               {...props}
             >
               <IconFilter2 className="w-4 h-4" />

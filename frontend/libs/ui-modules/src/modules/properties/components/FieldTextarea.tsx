@@ -43,6 +43,7 @@ export const FieldTextareaDetail = (props: SpecificFieldProps) => {
   return (
     <Textarea
       id={id}
+      placeholder={props.field.name}
       value={currentValue}
       onChange={(e) => setCurrentValue(e.target.value)}
       onBlur={() => currentValue !== value && handleChange(currentValue)}

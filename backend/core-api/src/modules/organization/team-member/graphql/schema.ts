@@ -69,6 +69,11 @@ export const types = `
     category: String
   }
 
+  type UserAppearance {
+    layout: String
+    frameColor: String
+  }
+
   type User @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     createdAt: Date
@@ -85,6 +90,7 @@ export const types = `
     activity(days: Int): UserActivity
     emailSignatures: JSON
     getNotificationByEmail: Boolean
+    appearance: UserAppearance
 
     currentOrganization: Organization
     organizations: [CookieOrganization]
@@ -232,6 +238,13 @@ export const queries = `
 `;
 
 export const mutations = `
+  usersEditProfilePatch(
+    username: String,
+    email: String,
+    details: UserDetails,
+    links: JSON,
+    positionIds: [String!]
+  ): User
   usersResetMemberPassword(_id: String!, newPassword: String!): User
   usersEditProfile(
     username: String!,
@@ -249,6 +262,7 @@ export const mutations = `
   usersConfirmInvitation(token: String): String
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User
+  usersConfigAppearance(layout: String!, frameColor: String): User
   usersSetChatStatus(_id: String!, status: UserChatStatus): User
   editOrganizationInfo(icon: String, logo: String, link: String, name: String, iconColor: String, backgroundColor: String, description: String, domain: String, favicon: String, textColor: String): Organization
   editOrganizationDomain(type: String, domain: String): Organization

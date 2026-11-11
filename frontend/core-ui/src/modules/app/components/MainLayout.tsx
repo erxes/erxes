@@ -1,4 +1,4 @@
-import { Button, Sidebar, useQueryState } from 'erxes-ui';
+import { Button, Sidebar, cn, useQueryState } from 'erxes-ui';
 
 import { CoreAppOutlet } from '@/app/components/CoreAppOutlet';
 import { CoreTab } from '@/navigation/components/core-tab/CoreTab';
@@ -15,6 +15,10 @@ import {
   useEnterAnimation,
 } from '@/navigation/hooks/useEnterAnimation';
 import { useRef } from 'react';
+import { resolveFrameStyle } from '@/app/constants/appearance';
+import { FrameBackdrop } from '@/app/components/FrameBackdrop';
+import { GlobalSidebar } from '@/global-sidebar/components/GlobalSidebar';
+import { useAppearanceValue } from '@/app/hooks/useAppearance';
 import { Outlet, useLocation } from 'react-router';
 import { WelcomeNotificationEffect } from '@/app/effect-components/WelcomeNotificationEffect';
 import { SupportAccessBanner } from '@/settings/support-access/components/SupportAccessBanner';
@@ -65,29 +69,54 @@ const AppWorkspace = () => {
 
 export const DefaultLayout = () => {
   const [inPreview] = useQueryState<boolean>('inPreview');
+  const { layout, frameColor } = useAppearanceValue();
+  const isSidebar = layout === 'sidebar';
+  const isFramed = layout !== 'default';
+  const frame = isFramed ? resolveFrameStyle(frameColor) : null;
 
   if (inPreview) {
     return <Outlet />;
   }
 
-  // Core draws no sidebar; the provider only backs Sidebar.* parts used on
-  // pages without an AppLayout (apps nest their own provider). The side
-  // panel runs the full window height, beside the top bar too.
+  // Core draws no app sidebar; the provider only backs Sidebar.* parts used
+  // on pages without an AppLayout (apps nest their own provider). The side
+  // panel sits beside the workspace. Framed layouts (notch, sidebar) put core
+  // navigation on a colored frame, styled via group/layout, and inset the app
+  // as a card.
   return (
     <RecordViewContext.Provider value={SidePanelRecord}>
       <Sidebar.Provider
-        className="h-svh w-screen overflow-hidden"
+        className="group/layout relative h-svh w-screen overflow-hidden"
+        data-framed={isFramed}
         sidebarKeyboardShortcut={false}
       >
+        {frame && <FrameBackdrop frame={frame} />}
         <SkipToMainContent />
         <GlobalSearch />
         <WelcomeNotificationEffect />
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <SupportAccessBanner />
-          <CoreTab />
-          <AppWorkspace />
+        <div
+          className={cn(
+            'relative flex min-w-0 flex-1 overflow-hidden',
+            !isSidebar && 'flex-col',
+          )}
+        >
+          {!isFramed && <SupportAccessBanner />}
+          <CoreTab orientation={isSidebar ? 'vertical' : 'horizontal'} />
+          <div
+            className={cn(
+              'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
+              isFramed && 'mb-2 mr-2 rounded-md bg-background shadow-sm',
+              isFramed && (isSidebar ? 'mt-2' : 'ml-2'),
+            )}
+          >
+            {isFramed && <SupportAccessBanner />}
+            <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+              <AppWorkspace />
+              <SidePanelLayout />
+              <GlobalSidebar />
+            </div>
+          </div>
         </div>
-        <SidePanelLayout />
       </Sidebar.Provider>
     </RecordViewContext.Provider>
   );

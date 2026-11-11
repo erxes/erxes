@@ -13,14 +13,11 @@ import {
   Command,
   CurrencyCode,
   CurrencyFormatedDisplay,
-  Input,
   Popover,
-  PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
   useConfirm,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
@@ -32,44 +29,16 @@ import {
 } from '../utils/transactionNavigation';
 
 // Create named components for cell renderers to fix React Hook usage
-const NumberCell = ({ getValue, row }: any) => {
-  const [number, setNumber] = useState(getValue() as string);
-  const { _id } = row.original;
+const NumberCell = ({ row }: { row: Row<ITransaction> }) => {
+  const { number } = row.original;
 
-  return (
-    <PopoverScoped scope={`accounting-${_id}-number`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
+  return <RecordTableInlineCell>{number}</RecordTableInlineCell>;
 };
 
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
-  const { _id } = row.original;
+const DescriptionCell = ({ row }: { row: Row<ITransaction> }) => {
+  const { description } = row.original;
 
-  return (
-    <PopoverScoped scope={`accounting-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
+  return <RecordTableInlineCell>{description}</RecordTableInlineCell>;
 };
 
 const StatusCell = ({ row }: { row: Row<ITransaction> }) => {
@@ -95,41 +64,16 @@ const JournalCell = ({ row }: { row: Row<ITransaction> }) => {
   );
 };
 
-const SumDebitCell = ({ getValue, row }: any) => {
-  const sumDt = getValue() as number;
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`accounting-${_id}-sumDt`}>
-      <RecordTableInlineCell.Trigger>
-        <CurrencyFormatedDisplay
-          currencyValue={{
-            currencyCode: CurrencyCode.MNT,
-            amountMicros: sumDt,
-          }}
-        />
-      </RecordTableInlineCell.Trigger>
-    </PopoverScoped>
-  );
-};
-
-const SumCreditCell = ({ getValue, row }: any) => {
-  const sumCt = getValue() as number;
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`accounting-${_id}-sumCt`}>
-      <RecordTableInlineCell.Trigger>
-        <CurrencyFormatedDisplay
-          currencyValue={{
-            currencyCode: CurrencyCode.MNT,
-            amountMicros: sumCt,
-          }}
-        />
-      </RecordTableInlineCell.Trigger>
-    </PopoverScoped>
-  );
-};
+const AmountCell = ({ value }: { value?: number }) => (
+  <RecordTableInlineCell>
+    <CurrencyFormatedDisplay
+      currencyValue={{
+        currencyCode: CurrencyCode.MNT,
+        amountMicros: value ?? 0,
+      }}
+    />
+  </RecordTableInlineCell>
+);
 
 const BranchCell = ({ row }: any) => {
   const { branch } = row.original;
@@ -285,7 +229,7 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('number')} />
     ),
     accessorKey: 'number',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <NumberCell row={row} />,
   },
   {
     id: 'date',
@@ -302,9 +246,7 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
+    cell: ({ row }) => <DescriptionCell row={row} />,
     size: 200,
   },
   {
@@ -329,7 +271,7 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('debit-amount')} />
     ),
     accessorKey: 'sumDt',
-    cell: ({ getValue, row }) => <SumDebitCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <AmountCell value={row.original.sumDt} />,
   },
   {
     id: 'sumCt',
@@ -337,9 +279,7 @@ export const transactionColumns = (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('credit-amount')} />
     ),
     accessorKey: 'sumCt',
-    cell: ({ getValue, row }) => (
-      <SumCreditCell getValue={getValue} row={row} />
-    ),
+    cell: ({ row }) => <AmountCell value={row.original.sumCt} />,
   },
   {
     id: 'branch',

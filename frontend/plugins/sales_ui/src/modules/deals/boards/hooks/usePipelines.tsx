@@ -259,6 +259,8 @@ export const usePipelineEdit = () => {
           });
         }
         cache.evict({ id: 'ROOT_QUERY', fieldName: 'salesStages' });
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'productsMain' });
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'productsTotalCount' });
         cache.gc();
       },
       onError: (error) => {

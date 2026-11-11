@@ -26,8 +26,8 @@ export const AutomationHistoryViewModeToggle = () => {
       }
     >
       <ToggleGroup.Item
-        value={AutomationHistoryViewMode.Sheet}
-        aria-label={t('history-open-in-sheet')}
+        value={AutomationHistoryViewMode.Panel}
+        aria-label={t('history-open-in-side-panel', 'Open in side panel')}
       >
         <IconLayoutSidebarRightExpand />
       </ToggleGroup.Item>

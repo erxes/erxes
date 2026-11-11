@@ -4,6 +4,8 @@ import {
   TSettingPath,
 } from '@/types/paths/SettingsPath';
 import {
+  IconActivity,
+  IconLayoutDashboard,
   IconAdjustmentsAlt,
   IconBolt,
   IconBroadcast,
@@ -130,6 +132,16 @@ export const SETTINGS_PATH_DATA = (
       name: t('profile'),
       icon: IconUserCircle,
       path: SettingsPath.Profile,
+    },
+    {
+      name: t('my-activity', 'My activity'),
+      icon: IconActivity,
+      path: SettingsPath.MyActivity,
+    },
+    {
+      name: t('appearance', 'Appearance'),
+      icon: IconLayoutDashboard,
+      path: SettingsPath.Appearance,
     },
     {
       name: t('notification'),

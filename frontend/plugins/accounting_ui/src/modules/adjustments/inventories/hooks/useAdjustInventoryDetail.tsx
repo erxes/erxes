@@ -6,9 +6,8 @@ import type { QueryHookOptions } from '@apollo/client';
 import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { useEffect } from 'react';
-import { ADJUST_INVENTORY_DETAIL_QUERY } from '../graphql/adjustInventoryQueries';
-
-import { ACCOUNTING_ADJUST_INVENTORY_CHANGED } from '../graphql/adjustInventorySubscription';
+import { ADJUST_INVENTORY_DETAIL_QUERY } from '@/adjustments/inventories/graphql/adjustInventoryQueries';
+import { ACCOUNTING_ADJUST_INVENTORY_CHANGED } from '@/adjustments/inventories/graphql/adjustInventorySubscription';
 
 export const useAdjustInventoryDetail = (
   options: QueryHookOptions<
@@ -16,65 +15,40 @@ export const useAdjustInventoryDetail = (
     AccountingAdjustInventoryDetailQueryVariables
   >,
 ) => {
+  const adjustId = options.variables?._id;
   const {
     data: queryData,
     loading,
     error,
     subscribeToMore,
-    client,
   } = useQuery(ADJUST_INVENTORY_DETAIL_QUERY, {
     ...options,
+    fetchPolicy: 'cache-and-network',
   });
   const data = toGraphqlView(queryData);
 
-  const adjustInventory = data?.adjustInventoryDetail;
-
   useEffect(() => {
-    const adjustId = options.variables?._id;
-    if (!adjustId) return;
-    const unsubscribe = subscribeToMore({
+    if (!adjustId) {
+      return undefined;
+    }
+
+    return subscribeToMore({
       document: ACCOUNTING_ADJUST_INVENTORY_CHANGED,
-      variables: {
-        adjustId,
-      },
+      variables: { adjustId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        const changed = subscriptionData.data?.accountingAdjustInventoryChanged;
 
-        const newAdjustInventoryDetail =
-          subscriptionData.data.accountingAdjustInventoryChanged;
-
-        try {
-          // Get the cache ID for the conversation
-          const newAdjustId = client.cache.identify({
-            __typename: 'AdjustInventoryDetail',
-            _id: options.variables?._id,
-          });
-
-          if (newAdjustId) {
-            // Update the conversation in the cache
-            client.cache.modify({
-              id: newAdjustId,
-              fields: {
-                newAdjustInventoryDetail: () => newAdjustInventoryDetail,
-              },
-            });
-          }
-        } catch (error) {
-          console.error('Error updating cache:', error);
+        if (!prev || !changed) {
+          return prev;
         }
 
-        return {
-          adjustInventoryDetail: newAdjustInventoryDetail,
-        };
+        return { adjustInventoryDetail: changed };
       },
     });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  }, [adjustId, subscribeToMore]);
 
   return {
-    adjustInventory,
+    adjustInventory: data?.adjustInventoryDetail,
     loading,
     error,
   };

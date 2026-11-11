@@ -4,13 +4,17 @@ import {
   dealTotalCountBoardAtom,
 } from '@/deals/states/dealsTotalCountState';
 
+import { dealsViewAtom } from '@/deals/states/dealsViewState';
 import { useAtomValue } from 'jotai';
 
 export const DealsTotalCount = () => {
   const totalCount = useAtomValue(dealTotalCountAtom);
   const dealCountByBoard = useAtomValue(dealTotalCountBoardAtom);
+  const view = useAtomValue(dealsViewAtom);
 
-  const totalCountToShow = dealCountByBoard || totalCount;
+  // The board's per-column counts are deals; the Points view counts movements.
+  const totalCountToShow =
+    view === 'points' ? totalCount : dealCountByBoard || totalCount;
 
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">

@@ -6,59 +6,42 @@ import dayjs from 'dayjs';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
-  Input,
-  PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
   fixNum,
+  formatAmount,
+  Skeleton,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useMemo, useState } from 'react';
-import { ProductsInline } from 'ui-modules';
+import { useMemo } from 'react';
+import { ProductsInline, BranchesInline, DepartmentsInline } from 'ui-modules';
+import { useFixedAssetDetail } from '@/settings/fixed-assets/hooks/useFixedAssetDetail';
 import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
 import { activeJournalState } from '../states/trStates';
 import { ITBalanceTransaction } from '../types/TBalance';
 
-// Create named components for cell renderers to fix React Hook usage
-const NumberCell = ({ getValue, row }: any) => {
-  const [number, setNumber] = useState(getValue() as string);
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`tbalance-${_id}-number`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
+export const getTBalanceLocation = (
+  row: ITBalanceTransaction,
+  dimension: 'branch' | 'department',
+) => {
+  const idKey = dimension === 'branch' ? 'branchId' : 'departmentId';
+  const detailLocation = row.detail[dimension];
+  const rootLocation = row[dimension];
+  const id =
+    row.detail[idKey] ??
+    row[idKey] ??
+    detailLocation?._id ??
+    rootLocation?._id ??
+    '';
+  const location = [detailLocation, rootLocation].find(
+    (value) => value?._id === id,
   );
+  return { id, location };
 };
 
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`tbalance-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="w-80">
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
-};
+const TextCell = ({ value }: { value?: string }) => (
+  <RecordTableInlineCell>{value}</RecordTableInlineCell>
+);
 
 const AmountCell = ({ value }: { value: number }) => {
   return (
@@ -73,10 +56,16 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const AmountProdCell = ({ row, value }: { row: any; value: number }) => {
+const AmountProdCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITBalanceTransaction>;
+  value: number;
+}) => {
   const { detail } = row.original;
-  if (!detail.productId) {
-    return undefined;
+  if (!detail.productId && !detail.fixedAssetId) {
+    return null;
   }
 
   return (
@@ -89,6 +78,21 @@ const AmountProdCell = ({ row, value }: { row: any; value: number }) => {
       />
     </RecordTableInlineCell>
   );
+};
+
+const CountProdCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITBalanceTransaction>;
+  value: number;
+}) => {
+  const { detail } = row.original;
+  if (!detail.productId && !detail.fixedAssetId) {
+    return null;
+  }
+
+  return <RecordTableInlineCell>{formatAmount(value)}</RecordTableInlineCell>;
 };
 
 const DebitCell = ({ row }: any) => {
@@ -106,23 +110,23 @@ const CreditCell = ({ row }: any) => {
 };
 
 const BranchCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
-  const branch = row.original.detail.branch || row.original.branch;
-
-  return (
-    <RecordTableInlineCell>
-      {[branch?.code, branch?.title].filter(Boolean).join(' - ')}
-    </RecordTableInlineCell>
+  const { id, location } = getTBalanceLocation(row.original, 'branch');
+  const content = location ? (
+    [location.code, location.title].filter(Boolean).join(' - ') || '-'
+  ) : (
+    <BranchesInline branchIds={[id]} placeholder="-" />
   );
+  return <RecordTableInlineCell>{id ? content : '-'}</RecordTableInlineCell>;
 };
 
 const DepartmentCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
-  const department = row.original.detail.department || row.original.department;
-
-  return (
-    <RecordTableInlineCell>
-      {[department?.code, department?.title].filter(Boolean).join(' - ')}
-    </RecordTableInlineCell>
+  const { id, location } = getTBalanceLocation(row.original, 'department');
+  const content = location ? (
+    [location.code, location.title].filter(Boolean).join(' - ') || '-'
+  ) : (
+    <DepartmentsInline departmentIds={[id]} placeholder="-" />
   );
+  return <RecordTableInlineCell>{id ? content : '-'}</RecordTableInlineCell>;
 };
 
 const DateCell = ({ getValue }: any) => {
@@ -151,20 +155,34 @@ const AccountCell = ({ row }: any) => {
   );
 };
 
-const ProductCell = ({ row }: any) => {
-  const { detail } = row.original;
-  if (!detail.productId) {
-    return undefined;
-  }
-
+const FixedAssetItemCell = ({ fixedAssetId }: { fixedAssetId: string }) => {
+  const { fixedAssetDetail, loading } = useFixedAssetDetail(fixedAssetId);
   return (
     <RecordTableInlineCell>
-      <ProductsInline
-        productIds={[detail.productId]}
-        products={detail.product && [detail.product]}
-      />
+      {loading ? (
+        <Skeleton className="h-4 w-32" />
+      ) : (
+        [fixedAssetDetail?.code, fixedAssetDetail?.name]
+          .filter(Boolean)
+          .join(' - ') || '-'
+      )}
     </RecordTableInlineCell>
   );
+};
+
+const ItemCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
+  const { detail } = row.original;
+  if (detail.productId) {
+    return (
+      <RecordTableInlineCell>
+        <ProductsInline productIds={[detail.productId]} />
+      </RecordTableInlineCell>
+    );
+  }
+  if (detail.fixedAssetId) {
+    return <FixedAssetItemCell fixedAssetId={detail.fixedAssetId} />;
+  }
+  return null;
 };
 
 const TransactionMoreColumnCell = ({
@@ -210,7 +228,7 @@ export const tbalanceColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('number')} />
     ),
     accessorKey: 'number',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
+    cell: ({ getValue }) => <TextCell value={getValue() as string} />,
   },
   {
     id: 'date',
@@ -237,31 +255,31 @@ export const tbalanceColumns = (
     cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
   },
   {
-    id: 'product-inv',
+    id: 'item-details',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label={t('inventory')} />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('item')} />
     ),
-    accessorKey: 'product-inv',
-    cell: ({ row }) => <ProductCell row={row} />,
+    accessorKey: 'item-details',
+    cell: ({ row }) => <ItemCell row={row} />,
   },
   {
-    id: 'unitPrice-inv',
+    id: 'unitPrice-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('unit-price')} />
     ),
-    accessorKey: 'unitPrice-inv',
+    accessorKey: 'unitPrice-details',
     cell: ({ row }) => (
       <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />
     ),
   },
   {
-    id: 'count-inv',
+    id: 'count-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('quantity-label')} />
     ),
-    accessorKey: 'count-inv',
+    accessorKey: 'count-details',
     cell: ({ row }) => (
-      <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />
+      <CountProdCell row={row} value={row.original?.detail?.count ?? 0} />
     ),
   },
   {
@@ -286,9 +304,7 @@ export const tbalanceColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
+    cell: ({ getValue }) => <TextCell value={getValue() as string} />,
     size: 300,
   },
 ];

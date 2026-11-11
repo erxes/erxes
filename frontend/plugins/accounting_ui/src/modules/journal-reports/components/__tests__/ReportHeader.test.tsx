@@ -17,8 +17,8 @@ jest.mock('erxes-ui', () => ({
     [
       {
         report: 'tb',
-        fromDate: '2026-10-01',
-        toDate: '2026-10-31',
+        fromDate: '2026-10-01 00:00:00',
+        toDate: '2026-10-31 18:30:59.999',
       }[key],
     ] as const,
 }));
@@ -89,7 +89,7 @@ describe('ReportHeader organization name', () => {
   it('leaves a blank line to sign by hand when no company name is configured', async () => {
     renderHeader([structureResponse(null)]);
 
-    await screen.findByText('2026-10-01 - 2026-10-31');
+    await screen.findByText('2026-10-01 00:00 - 2026-10-31 18:30');
     expect(screen.queryByText('OrgName')).toBeNull();
     expect(organizationLine()?.textContent).toBe('');
   });

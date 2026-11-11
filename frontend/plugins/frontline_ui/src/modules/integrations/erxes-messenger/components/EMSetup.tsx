@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { EMAppearance } from '@/integrations/erxes-messenger/components/EMAppearance';
 import { EMGreeting } from '@/integrations/erxes-messenger/components/EMGreeting';
 import { EMIntro } from '@/integrations/erxes-messenger/components/EMIntro';
@@ -5,67 +6,72 @@ import { useAtomValue } from 'jotai';
 import { EMHoursAvailability } from '@/integrations/erxes-messenger/components/EmHoursAvailability';
 import { EMSettings } from '@/integrations/erxes-messenger/components/EMSettings';
 import { EMConfig } from '@/integrations/erxes-messenger/components/EMConfig';
-import { Preview, Resizable, Separator, Sheet, Spinner } from 'erxes-ui';
+import { Preview, Separator, Spinner, Tabs } from 'erxes-ui';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 
-export const EMSetup = ({
-  title,
-  loading,
-}: {
-  title: React.ReactNode;
-  loading?: boolean;
-}) => {
-  const step = useAtomValue(erxesMessengerSetupStepAtom);
-  return (
-    <Sheet.View
-      className="gap-0 flex-col flex sm:max-w-none md:w-[calc(100vw-(--spacing(4)))]"
-      aria-describedby=""
-    >
-      <Sheet.Header>
-        <Sheet.Title>{title}</Sheet.Title>
-        <Sheet.Close />
-      </Sheet.Header>
+/** Displays the messenger preview and its navigation toolbar. */
+const EMSetupPreview = () => {
+  const previewPath = `/frontline/settings/channels${FrontlinePaths.ErxesMessengerPreview}?inPreview=true`;
 
+  return (
+    <Preview>
+      <div className="bg-background shrink-0 overflow-x-auto">
+        <div className="w-max min-w-full">
+          <Preview.Toolbar path={previewPath} />
+        </div>
+      </div>
+      <Separator />
+      <Preview.View iframeSrc={previewPath} />
+    </Preview>
+  );
+};
+
+/** Displays the active messenger setup step and preview tabs. */
+export const EMSetup = ({ loading }: { loading?: boolean }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  const step = useAtomValue(erxesMessengerSetupStepAtom);
+  const editorTabs = (
+    <Tabs
+      defaultValue="editor"
+      className="flex flex-1 min-h-0 flex-col overflow-hidden"
+    >
+      <Tabs.List className="flex shrink-0 px-3 gap-x-2">
+        <Tabs.Trigger value="editor">{t('edit')}</Tabs.Trigger>
+        <Tabs.Trigger value="preview">{t('preview')}</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content
+        value="editor"
+        forceMount
+        className="flex flex-1 min-h-0 flex-col overflow-hidden data-[state=inactive]:hidden"
+      >
+        {step === 1 && <EMAppearance />}
+        {step === 2 && <EMGreeting />}
+        {step === 3 && <EMIntro />}
+        {step === 4 && <EMHoursAvailability />}
+        {step === 5 && <EMSettings />}
+        {step === 6 && <EMConfig />}
+      </Tabs.Content>
+      <Tabs.Content
+        value="preview"
+        className="flex flex-1 min-h-0 flex-col overflow-hidden"
+      >
+        <EMSetupPreview />
+      </Tabs.Content>
+    </Tabs>
+  );
+
+  return (
+    <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       {loading ? (
         <div className="flex flex-1 items-center justify-center w-full">
           <Spinner />
         </div>
       ) : (
-        <Resizable.PanelGroup direction="horizontal">
-          <Resizable.Panel className="flex flex-col" defaultSize={40}>
-            {step === 1 && <EMAppearance />}
-            {step === 2 && <EMGreeting />}
-            {step === 3 && <EMIntro />}
-            {step === 4 && <EMHoursAvailability />}
-            {step === 5 && <EMSettings />}
-            {step === 6 && <EMConfig />}
-          </Resizable.Panel>
-
-          <Resizable.Handle />
-          <Resizable.Panel className="flex flex-col h-full" defaultSize={60}>
-            <Preview>
-              <div className="bg-background">
-                <Preview.Toolbar
-                  path={
-                    '/frontline/settings/channels' +
-                    FrontlinePaths.ErxesMessengerPreview +
-                    '?inPreview=true'
-                  }
-                />
-              </div>
-              <Separator />
-              <Preview.View
-                iframeSrc={
-                  '/frontline/settings/channels' +
-                  FrontlinePaths.ErxesMessengerPreview +
-                  '?inPreview=true'
-                }
-              />
-            </Preview>
-          </Resizable.Panel>
-        </Resizable.PanelGroup>
+        editorTabs
       )}
-    </Sheet.View>
+    </div>
   );
 };

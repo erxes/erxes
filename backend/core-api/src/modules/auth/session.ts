@@ -295,6 +295,29 @@ export const revokeUserSession = async (
 export const readSessionCookie = (cookies?: Record<string, string>) =>
   cookies?.[SECURE_SESSION_COOKIE] || cookies?.[SESSION_COOKIE] || '';
 
+/**
+ * The live session behind a cookie, without touching it. For core-api pages
+ * reached directly (OAuth sign-in), where no gateway verified the request.
+ */
+export const readActiveSession = async (
+  subdomain: string,
+  sid: string,
+): Promise<ISession | null> => {
+  if (!sid) {
+    return null;
+  }
+
+  const raw = await redis.get(sessionKey(subdomain, hashSid(sid)));
+
+  if (!raw) {
+    return null;
+  }
+
+  const session = JSON.parse(raw) as ISession;
+
+  return session.expiresAt > Date.now() ? session : null;
+};
+
 // SaaS custom domains and SAME_SITE=none deployments call the API cross-site
 const isCrossSite = async (subdomain: string, req: Request) => {
   if (getEnv({ name: 'VERSION' }) === 'saas') {

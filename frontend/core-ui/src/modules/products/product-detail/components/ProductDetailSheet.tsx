@@ -192,9 +192,7 @@ const ProductDetailSheetView = ({
 }) => {
   const { activeSideTab } = useFocusSheet();
 
-  const widthClass = activeSideTab
-    ? 'w-[90%] md:w-[90%] lg:w-[90%]'
-    : 'w-[70%] md:w-[70%] lg:w-[70%]';
+  const widthClass = activeSideTab ? 'lg:w-[90%]' : 'lg:w-[70%]';
 
   return (
     <FocusSheet.View
@@ -387,7 +385,7 @@ export const ProductDetailSheet = () => {
         errorState={<ProductDetailErrorState />}
       >
         <FocusSheet.Header title={productDetail?.name || t('product-detail')} />
-        <FocusSheet.Content className="flex overflow-hidden flex-row flex-1 min-w-0 min-h-0">
+        <FocusSheet.Content className="flex overflow-hidden flex-1 min-w-0 min-h-0">
           <FocusSheet.SideBar>
             <ProductDetailSidebar />
           </FocusSheet.SideBar>

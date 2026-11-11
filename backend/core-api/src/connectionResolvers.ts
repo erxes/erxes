@@ -60,6 +60,11 @@ import {
   IFavoritesModel,
   loadFavoritesClass,
 } from '@/organization/settings/db/models/Favorites';
+import { IDashboardLayoutDocument } from '@/organization/settings/db/definitions/dashboardLayouts';
+import {
+  IDashboardLayoutModel,
+  loadDashboardLayoutClass,
+} from '@/organization/settings/db/models/DashboardLayouts';
 import {
   IBranchDocument,
   IDepartmentDocument,
@@ -118,7 +123,10 @@ import {
   IActivityLogDocument,
   IUserActivityDailyDocument,
   IAutomationDocument,
+  getDataExtensionModels,
   IAutomationExecutionDocument,
+  IDataExtensionFieldModel,
+  IDataExtensionSchemaVersionModel,
   IEmailAddressDocument,
   IEmailDeliveryDocument,
   IEmailRampDocument,
@@ -412,6 +420,8 @@ import {
 } from '@/agents/db/models/Settings';
 
 export interface IModels {
+  DataExtensionFields: IDataExtensionFieldModel;
+  DataExtensionSchemaVersions: IDataExtensionSchemaVersionModel;
   Brands: IBrandModel;
   Customers: ICustomerModel;
   Companies: ICompanyModel;
@@ -446,6 +456,7 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
+  DashboardLayouts: IDashboardLayoutModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
@@ -749,6 +760,11 @@ export const loadClasses = (
     loadFavoritesClass(models),
   );
 
+  models.DashboardLayouts = db.model<
+    IDashboardLayoutDocument,
+    IDashboardLayoutModel
+  >('dashboard_layouts', loadDashboardLayoutClass(models));
+
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
     'documents',
     loadDocumentClass(models, subdomain),
@@ -1033,6 +1049,7 @@ export const loadClasses = (
     IAgentsSettingsDocument,
     IAgentsSettingsModel
   >('agents_settings', loadAgentsSettingsClass(models));
+  Object.assign(models, getDataExtensionModels(db));
 
   const db_name = db.name;
 

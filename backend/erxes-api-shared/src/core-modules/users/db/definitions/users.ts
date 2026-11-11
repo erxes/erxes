@@ -2,6 +2,7 @@ import { Schema } from 'mongoose';
 import { mongooseField, schemaWrapper } from '../../../../utils';
 
 import { customFieldSchema } from '../../../common/db/definitions/common';
+import { applyDataExtensionsNamespace } from '../../../data-extensions/namespaceGuard';
 import { USER_MOVEMENT_STATUSES, USER_ROLES } from '../../constants';
 
 enum IUserChatStatus {
@@ -107,6 +108,11 @@ export const userSchema = schemaWrapper(
       type: [emailSignatureSchema],
       label: 'Email signatures',
     }),
+    appearance: mongooseField({
+      type: Object,
+      optional: true,
+      label: 'Appearance',
+    }),
     starredConversationIds: mongooseField({
       type: [String],
       label: 'Starred conversations',
@@ -203,6 +209,8 @@ export const userSchema = schemaWrapper(
     }),
   }),
 );
+
+applyDataExtensionsNamespace(userSchema);
 
 export const userMovemmentSchema = schemaWrapper(
   new Schema({

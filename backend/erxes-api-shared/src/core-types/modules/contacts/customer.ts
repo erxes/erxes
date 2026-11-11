@@ -54,6 +54,8 @@ export interface ICustomer {
   trackedData?: ICustomField[];
   customFieldsData?: ICustomField[];
   propertiesData?: IPropertyField;
+  contactRoles?: string[];
+  dataExtensions?: Record<string, unknown>;
   lastSeenAt?: Date;
   isOnline?: boolean;
   sessionCount?: number;
