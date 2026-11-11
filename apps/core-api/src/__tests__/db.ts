@@ -1,6 +1,7 @@
-import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
+import { closeDb, configureDb, runMigrations, schema } from '@erxes/core-db';
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { randomBytes } from 'node:crypto';
-import { Client } from 'pg';
+import { Client, Pool } from 'pg';
 import { afterAll, beforeAll, describe } from 'vitest';
 
 const baseUrl = process.env.DATA_TEST_URL ?? '';
@@ -8,8 +9,14 @@ const baseUrl = process.env.DATA_TEST_URL ?? '';
 /** Runs the suite only when DATA_TEST_URL points at a Postgres (CI sets it). */
 export const describeWithDb = baseUrl ? describe : describe.skip;
 
-const admin = async (statement: string) => {
-  const client = new Client({ connectionString: baseUrl });
+/**
+ * The API under test acts as this role: no BYPASSRLS, data rights only, like
+ * production's runtime role — so row level security is really exercised.
+ */
+export const TEST_RUNTIME_ROLE = 'erxes_core_test_runtime';
+
+const admin = async (statement: string, url = baseUrl) => {
+  const client = new Client({ connectionString: url });
 
   await client.connect();
 
@@ -21,9 +28,33 @@ const admin = async (statement: string) => {
 };
 
 let currentUrl = '';
+let ownerPool: Pool | null = null;
+let owner: NodePgDatabase<typeof schema> | null = null;
 
 /** The throwaway database's address (after `useTestDatabase` set it up). */
 export const testDatabaseUrl = () => currentUrl;
+
+/**
+ * The owner's connection, for fixtures and checks only (it bypasses row
+ * level security). Code under test uses `db()` / scopes as the runtime role.
+ */
+export const adminDb = () => {
+  if (!owner) throw new Error('adminDb() is only available inside useTestDatabase()');
+
+  return owner;
+};
+
+/**
+ * A session connection (SET ROLE must stick to the connection): Supabase's
+ * transaction pooler (6543) → its session pooler (5432).
+ */
+const sessionUrl = (url: string) => {
+  const parsed = new URL(url);
+
+  if (parsed.port === '6543') parsed.port = '5432';
+
+  return parsed.toString();
+};
 
 /** A throwaway database for this test file, migrated from packages/db/drizzle. */
 export const useTestDatabase = () => {
@@ -31,13 +62,31 @@ export const useTestDatabase = () => {
 
   beforeAll(async () => {
     await admin(`CREATE DATABASE ${name}`);
+    // Cluster-wide, once: the runtime role, and the right for the login to act as it.
+    await admin(`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${TEST_RUNTIME_ROLE}') THEN
+          CREATE ROLE ${TEST_RUNTIME_ROLE} NOLOGIN NOBYPASSRLS NOSUPERUSER;
+        END IF;
+      END $$;
+    `).catch(() => undefined);
+    await admin(`GRANT ${TEST_RUNTIME_ROLE} TO current_user`).catch(() => undefined);
 
     const url = new URL(baseUrl);
     url.pathname = `/${name}`;
 
     currentUrl = url.toString();
-    configureDb({ url: currentUrl, applicationName: 'erxes-core-test' });
+
+    // Migrate as the owner, then grant the runtime role.
+    configureDb({ url: currentUrl, applicationName: 'erxes-core-test-migrate' });
     await runMigrations();
+    await closeDb();
+    await admin(`SELECT core_grant_runtime('${TEST_RUNTIME_ROLE}')`, currentUrl);
+
+    ownerPool = new Pool({ connectionString: currentUrl, max: 3, application_name: 'erxes-core-test-owner' });
+    owner = drizzle(ownerPool, { schema, casing: 'snake_case' });
+
+    configureDb({ url: sessionUrl(currentUrl), role: TEST_RUNTIME_ROLE, poolMax: 5, applicationName: 'erxes-core-test' });
 
     // The test plugin (`hr`, from CORE_PLUGIN_KEYS in vitest.config.ts).
     const { syncPluginSecrets } = await import('~/modules/plugins/plugins.service');
@@ -47,6 +96,19 @@ export const useTestDatabase = () => {
 
   afterAll(async () => {
     await closeDb();
+    await ownerPool?.end();
+    ownerPool = null;
+    owner = null;
     await admin(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
   });
+};
+
+/** A member token at their current session version (after resets, disables, …). */
+export const currentToken = async (userId: string, orgId: string) => {
+  const { users } = await import('@erxes/core-db');
+  const { eq } = await import('drizzle-orm');
+  const { signAccessToken } = await import('~/http/auth');
+  const [row] = await adminDb().select({ sessionVersion: users.sessionVersion }).from(users).where(eq(users.id, userId)).limit(1);
+
+  return signAccessToken(userId, orgId, undefined, row?.sessionVersion ?? 1);
 };

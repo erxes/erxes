@@ -5,7 +5,7 @@ import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { liveHub } from '~/modules/live/hub';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
+import { adminDb, describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
 import { pluginToken } from './plugin';
 
 
@@ -88,7 +88,7 @@ describeWithDb('live updates (/core/v1/stream)', () => {
 
     orgId = acme.organization.id;
     memberId = newId();
-    await db().insert(users).values({ id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' });
+    await adminDb().insert(users).values({ id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' });
     ownerToken = signAccessToken(acme.owner.id, orgId);
     memberToken = signAccessToken(memberId, orgId);
     otherToken = signAccessToken(globex.owner.id, globex.organization.id);

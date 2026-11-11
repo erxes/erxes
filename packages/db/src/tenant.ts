@@ -1,0 +1,72 @@
+import { sql } from 'drizzle-orm';
+import { rootDb, type Transaction } from './client';
+import { currentScope, scopeStorage } from './scope';
+
+/**
+ * Tenant isolation. Every core table with `org_id` has row level security
+ * (forced, so the table owner obeys it too): a row is visible and writable
+ * only when the transaction says it works for that organisation
+ * (`app.org_id`, set locally with `set_config(…, true)`), or for the system
+ * (`app.system`, jobs that span organisations). Settings are
+ * transaction-local, so a pooled connection never carries them over.
+ *
+ * - `withOrg(orgId, fn)`: everything `db()` does inside runs in one
+ *   transaction for that organisation (every API request does this).
+ * - `withSystem(reason, fn)`: the same, across organisations, for jobs and
+ *   the few lookups before an organisation is known (sign-in discovery).
+ *
+ * Nested calls reuse the open transaction; asking for another organisation
+ * inside a scope is a bug and throws.
+ */
+export const withOrg = async <T>(orgId: string, fn: (tx: Transaction) => Promise<T>): Promise<T> => {
+  const current = currentScope();
+
+  if (current) {
+    if (current.orgId !== null && current.orgId !== orgId) {
+      throw new Error(`tenant scope mismatch: in ${current.orgId}, asked for ${orgId}`);
+    }
+
+    return fn(current.tx as Transaction);
+  }
+
+  return rootDb().transaction(async (tx) => {
+    await tx.execute(sql`select set_config('app.org_id', ${orgId}, true)`);
+
+    return scopeStorage.run({ tx, orgId }, () => fn(tx));
+  });
+};
+
+export const withSystem = async <T>(reason: string, fn: (tx: Transaction) => Promise<T>): Promise<T> => {
+  const current = currentScope();
+
+  if (current) {
+    if (current.orgId !== null) {
+      throw new Error(`system scope (${reason}) asked for inside the scope of ${current.orgId}`);
+    }
+
+    return fn(current.tx as Transaction);
+  }
+
+  return rootDb().transaction(async (tx) => {
+    await tx.execute(sql`select set_config('app.system', 'on', true)`);
+
+    return scopeStorage.run({ tx, orgId: null, reason }, () => fn(tx));
+  });
+};
+
+/** The organisation of the current scope (null for system scopes and outside any). */
+export const scopedOrgId = () => currentScope()?.orgId ?? null;
+
+/**
+ * Who the database sees us as. Production refuses a role that bypasses row
+ * level security (a superuser or BYPASSRLS): isolation would be off.
+ */
+export const runtimeRole = async () => {
+  const result = await rootDb().execute<{ name: string; bypass: boolean; superuser: boolean }>(sql`
+    select current_user as name, r.rolbypassrls as bypass, r.rolsuper as superuser
+    from pg_roles r where r.rolname = current_user
+  `);
+  const row = result.rows[0];
+
+  return { name: row?.name ?? 'unknown', bypassesRls: Boolean(row?.bypass || row?.superuser) };
+};

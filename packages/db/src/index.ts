@@ -1,6 +1,8 @@
 export * from './client';
 export * from './ids';
 export * from './migrate';
+export * from './scope';
+export * from './tenant';
 export * as schema from './schema';
 export {
   ACTIVITY_TARGETS,

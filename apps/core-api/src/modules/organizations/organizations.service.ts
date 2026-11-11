@@ -1,4 +1,4 @@
-import { Db, newId, organizations, users, withTransaction } from '@erxes/core-db';
+import { Db, newId, organizations, users, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { installPluginsForNewOrganization } from '~/modules/plugins/plugins.service';
@@ -65,7 +65,7 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
 /** Creates an organisation with its first owner (bootstrap script, setup, tests). */
 export const createOrganization = async (input: NewOrganization) => {
   try {
-    return await withTransaction((tx) => insertOrganization(tx, input));
+    return await withSystem('create organization', (tx) => insertOrganization(tx, input));
   } catch (error) {
     if (pgCode(error) === '23505') {
       throw new HttpError(409, 'SUBDOMAIN_TAKEN', 'This subdomain is already used');

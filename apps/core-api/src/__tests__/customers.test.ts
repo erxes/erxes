@@ -4,7 +4,7 @@ import { afterAll, beforeAll, expect, it } from 'vitest';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
 
 describeWithDb('customers (/core/v1/customers)', () => {
   useTestDatabase();
@@ -31,7 +31,7 @@ describeWithDb('customers (/core/v1/customers)', () => {
     });
     const memberId = newId();
 
-    await db().insert(users).values({
+    await adminDb().insert(users).values({
       id: memberId,
       orgId: acme.organization.id,
       email: 'member@acme.mn',

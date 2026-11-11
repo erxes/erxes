@@ -1,5 +1,5 @@
 import { coreContract } from '@erxes/core-contract';
-import { db, pluginInstallations, plugins, users } from '@erxes/core-db';
+import { db, pluginInstallations, plugins, users, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -198,11 +198,13 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
     return next(unauthorized());
   }
 
-  db()
-    .select({ id: users.id, orgId: users.orgId, role: users.role, status: users.status, sessionVersion: users.sessionVersion })
-    .from(users)
-    .where(and(eq(users.id, claims.sub), eq(users.orgId, claims.org)))
-    .limit(1)
+  withOrg(claims.org, (tx) =>
+    tx
+      .select({ id: users.id, orgId: users.orgId, role: users.role, status: users.status, sessionVersion: users.sessionVersion })
+      .from(users)
+      .where(and(eq(users.id, claims.sub), eq(users.orgId, claims.org)))
+      .limit(1),
+  )
     .then(([user]) => {
       // Disabled, or the session predates a password change, reset or sign-out everywhere.
       if (!user || user.status !== 'active' || user.sessionVersion !== claims.sv) {
@@ -239,11 +241,14 @@ const authenticatePlugin = (req: Request, token: string, next: NextFunction) => 
         return next();
       }
 
-      const [installation] = await db()
-        .select({ status: pluginInstallations.status, grantedScopes: pluginInstallations.grantedScopes })
-        .from(pluginInstallations)
-        .where(and(eq(pluginInstallations.orgId, payload.org), eq(pluginInstallations.plugin, payload.sub)))
-        .limit(1);
+      const org = payload.org;
+      const [installation] = await withOrg(org, (tx) =>
+        tx
+          .select({ status: pluginInstallations.status, grantedScopes: pluginInstallations.grantedScopes })
+          .from(pluginInstallations)
+          .where(and(eq(pluginInstallations.orgId, org), eq(pluginInstallations.plugin, payload.sub)))
+          .limit(1),
+      );
 
       if (installation?.status !== 'active') return next(unauthorized());
 

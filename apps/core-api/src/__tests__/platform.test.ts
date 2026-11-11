@@ -3,11 +3,11 @@ import { rm } from 'node:fs/promises';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { resolve } from 'node:path';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
 import { pluginToken, requestPluginToken } from './plugin';
 
 /** The database's own message behind a Drizzle query error. */
@@ -45,7 +45,7 @@ describeWithDb('platform services', () => {
     memberId = newId();
     disabledId = newId();
 
-    await db()
+    await adminDb()
       .insert(users)
       .values([
         { id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' },
@@ -58,6 +58,12 @@ describeWithDb('platform services', () => {
 
     server = createApp().listen(0);
     base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  });
+
+  // Password changes and resets end sessions: each test starts with current ones.
+  beforeEach(async () => {
+    ownerToken = await currentToken(ownerId, orgId);
+    memberToken = await currentToken(memberId, orgId);
   });
 
   afterAll(async () => {
@@ -504,7 +510,7 @@ describeWithDb('platform services', () => {
       const { db, activities } = await import('@erxes/core-db');
       const { eq } = await import('drizzle-orm');
 
-      expect(await db().select().from(activities).where(eq(activities.targetId, a.body.id))).toHaveLength(0);
+      expect(await adminDb().select().from(activities).where(eq(activities.targetId, a.body.id))).toHaveLength(0);
     });
 
     it('lets plugins add entries, retry-safe, to records of their organisation', async () => {
@@ -549,7 +555,7 @@ describeWithDb('platform services', () => {
       const { eq } = await import('drizzle-orm');
       const { hashPassword } = await import('~/modules/auth/password');
 
-      await db()
+      await adminDb()
         .update(users)
         .set({ passwordHash: await hashPassword('Owner-pass-123') })
         .where(eq(users.id, ownerId));
@@ -570,6 +576,9 @@ describeWithDb('platform services', () => {
       expect(wrong.body.code).toBe('WRONG_PASSWORD');
       expect(same.body.code).toBe('SAME_PASSWORD');
       expect(changed.status).toBe(200);
+      // The change ended every other session, this bearer token's too.
+      expect((await call(ownerToken, '/auth/me')).status).toBe(401);
+      ownerToken = await currentToken(ownerId, orgId);
 
       // A failed and a successful sign-in show up in my list, not in others'.
       await fetch(`${base}/core/v1/auth/sign-in`, {
@@ -662,19 +671,19 @@ describeWithDb('platform services', () => {
         body: { firstName: 'Streamed', primaryEmail: 'streamed@mail.mn', ownerId: memberId },
       });
 
-      await db()
+      await adminDb()
         .transaction(async (tx) => {
           await tx.execute(sql`select core_publish_event(${orgId}, 'hr', 'hr.contract.drafted', '{}'::jsonb, 'customer', ${customer.body.id}, 'Drafted a contract')`);
           throw new Error('roll back');
         })
         .catch(() => undefined);
-      await db().execute(
+      await adminDb().execute(
         sql`select core_publish_event(${orgId}, 'hr', 'hr.contract.signed', '{"contractId":"c1"}'::jsonb, 'customer', ${customer.body.id}, 'Signed contract C-1', '/hr/contracts/c1', null, 'contract-c1')`,
       );
-      await db().execute(
+      await adminDb().execute(
         sql`select core_publish_event(${orgId}, 'hr', 'hr.contract.signed', '{}'::jsonb, 'customer', ${customer.body.id}, 'Signed contract C-1', null, null, 'contract-c1')`,
       );
-      expect(await dbError(db().execute(sql`select core_publish_event(${orgId}, 'hr', 'ecom.order.paid')`))).toMatch(/must start with "hr\."/);
+      expect(await dbError(adminDb().execute(sql`select core_publish_event(${orgId}, 'hr', 'ecom.order.paid')`))).toMatch(/must start with "hr\."/);
 
       const { processEvents } = await import('~/modules/events/processor');
 
@@ -760,7 +769,7 @@ describeWithDb('platform services', () => {
         'INVALID_TYPE',
       );
 
-      await db().execute(sql`select core_record_audit(${orgId}, 'hr', 'hr.salary.changed', ${ownerId}, 'employee', 'e2', 'Saraa', '{"salary":[1,2]}'::jsonb)`);
+      await adminDb().execute(sql`select core_record_audit(${orgId}, 'hr', 'hr.salary.changed', ${ownerId}, 'employee', 'e2', 'Saraa', '{"salary":[1,2]}'::jsonb)`);
 
       const fromHr = await call(ownerToken, '/audit?source=hr');
 
@@ -779,17 +788,17 @@ describeWithDb('platform services', () => {
       const { sql } = await import('drizzle-orm');
 
       expect((await call(ownerToken, '/audit/verify')).body).toMatchObject({ ok: true, brokenAt: null });
-      expect(await dbError(db().execute(sql`update core_audit_logs set target_label = 'x' where org_id = ${orgId}`))).toMatch(/append-only/);
-      expect(await dbError(db().execute(sql`delete from core_audit_logs where org_id = ${orgId}`))).toMatch(/append-only/);
-      expect(await dbError(db().execute(sql`truncate core_audit_logs`))).toMatch(/append-only/);
+      expect(await dbError(adminDb().execute(sql`update core_audit_logs set target_label = 'x' where org_id = ${orgId}`))).toMatch(/append-only/);
+      expect(await dbError(adminDb().execute(sql`delete from core_audit_logs where org_id = ${orgId}`))).toMatch(/append-only/);
+      expect(await dbError(adminDb().execute(sql`truncate core_audit_logs`))).toMatch(/append-only/);
 
       // Someone with database rights switches the guard off and edits an entry.
-      await db().execute(sql`alter table core_audit_logs disable trigger core_audit_logs_append_only`);
-      await db().execute(sql`
+      await adminDb().execute(sql`alter table core_audit_logs disable trigger core_audit_logs_append_only`);
+      await adminDb().execute(sql`
         update core_audit_logs set target_label = 'tampered'
         where id = (select id from core_audit_logs where org_id = ${orgId} order by chain_seq limit 1 offset 2)
       `);
-      await db().execute(sql`alter table core_audit_logs enable trigger core_audit_logs_append_only`);
+      await adminDb().execute(sql`alter table core_audit_logs enable trigger core_audit_logs_append_only`);
 
       const check = await call(ownerToken, '/audit/verify');
 
@@ -802,7 +811,7 @@ describeWithDb('platform services', () => {
       const { sql } = await import('drizzle-orm');
       const { pruneAudit } = await import('~/modules/audit/audit.service');
 
-      await db().execute(sql`
+      await adminDb().execute(sql`
         insert into core_audit_logs (id, org_id, actor_type, action, created_at)
         values ('old-entry-1', ${otherOrgId}, 'system', 'test.old', now() - interval '400 days'),
                ('old-entry-2', ${otherOrgId}, 'system', 'test.recent', now() - interval '40 days')
@@ -814,9 +823,9 @@ describeWithDb('platform services', () => {
         maxRetentionDays: 365,
       });
 
-      expect(await pruneAudit(db(), 365)).toBeGreaterThanOrEqual(2);
+      expect(await pruneAudit(adminDb(), 365)).toBeGreaterThanOrEqual(2);
 
-      const left = await db().execute(sql`select id from core_audit_logs where id in ('old-entry-1', 'old-entry-2')`);
+      const left = await adminDb().execute(sql`select id from core_audit_logs where id in ('old-entry-1', 'old-entry-2')`);
 
       expect(left.rows).toHaveLength(0);
     });

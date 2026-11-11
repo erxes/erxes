@@ -17,7 +17,9 @@
     "db:generate": "pnpm --filter @erxes/core-db db:generate",
     "db:check": "pnpm --filter @erxes/core-db db:check",
     "bootstrap": "pnpm --filter @erxes/core-api bootstrap",
-    "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret"
+    "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
+    "db:migrate": "pnpm --filter @erxes/core-api db:migrate",
+    "db:grant": "pnpm --filter @erxes/core-api db:grant"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

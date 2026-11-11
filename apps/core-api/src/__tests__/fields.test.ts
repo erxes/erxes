@@ -4,7 +4,7 @@ import { afterAll, beforeAll, expect, it } from 'vitest';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
 
 describeWithDb('field groups, archiving and field settings', () => {
   useTestDatabase();
@@ -21,7 +21,7 @@ describeWithDb('field groups, archiving and field settings', () => {
     const globex = await createOrganization({ subdomain: 'globex', name: 'Globex', owner: { email: 'owner@globex.mn' } });
     const memberId = newId();
 
-    await db().insert(users).values({ id: memberId, orgId: acme.organization.id, email: 'member@acme.mn', status: 'active' });
+    await adminDb().insert(users).values({ id: memberId, orgId: acme.organization.id, email: 'member@acme.mn', status: 'active' });
 
     ownerToken = signAccessToken(acme.owner.id, acme.organization.id);
     memberToken = signAccessToken(memberId, acme.organization.id);

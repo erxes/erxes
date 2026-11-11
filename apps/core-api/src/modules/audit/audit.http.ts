@@ -1,4 +1,4 @@
-import { auditLogs, db } from '@erxes/core-db';
+import { auditLogs, withOrg } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
@@ -81,12 +81,16 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
     res.write(format === 'csv' ? `${COLUMNS.join(',')}\n` : '[');
 
     while (written < MAX_ROWS) {
-      const rows: (typeof auditLogs.$inferSelect)[] = await db()
-        .select()
-        .from(auditLogs)
-        .where(and(scope, after ? sql`(${auditLogs.createdAt}, ${auditLogs.id}) < (${after.createdAt}, ${after.id})` : undefined))
-        .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
-        .limit(Math.min(BATCH, MAX_ROWS - written));
+      const cursor = after;
+      // A short scoped transaction per batch: the export may stream for a while.
+      const rows: (typeof auditLogs.$inferSelect)[] = await withOrg(actor.orgId, (tx) =>
+        tx
+          .select()
+          .from(auditLogs)
+          .where(and(scope, cursor ? sql`(${auditLogs.createdAt}, ${auditLogs.id}) < (${cursor.createdAt}, ${cursor.id})` : undefined))
+          .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
+          .limit(Math.min(BATCH, MAX_ROWS - written)),
+      );
 
       if (!rows.length) break;
 
@@ -111,12 +115,12 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
 
     if (format === 'json') res.write('\n]\n');
 
-    await recordAudit(db(), userCaller(actor), {
+    await withOrg(actor.orgId, (tx) => recordAudit(tx, userCaller(actor), {
       action: 'audit.exported',
       targetType: 'organization',
       targetId: actor.orgId,
       metadata: { format, rows: written, filters },
-    });
+    }));
     res.end();
   };
 

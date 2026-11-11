@@ -1,4 +1,4 @@
-import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
+import { closeDb, configureDb, runMigrations, runtimeRole } from '@erxes/core-db';
 import { createApp } from '~/app';
 import { config } from '~/config';
 import { startMaintenance } from '~/lib/maintenance';
@@ -12,10 +12,26 @@ const start = async () => {
 
   loadSigningKeys();
 
-  const applied = await runMigrations();
+  // Production migrates with its own command and role (`pnpm db:migrate`);
+  // development migrates on start for convenience.
+  if (config.data.migrateOnStart) {
+    const applied = await runMigrations();
 
-  if (applied.length) {
-    console.log(`[core] applied migrations: ${applied.join(', ')}`);
+    if (applied.length) {
+      console.log(`[core] applied migrations: ${applied.join(', ')}`);
+    }
+  }
+
+  // Tenant isolation relies on row level security: a role that bypasses it
+  // (superuser, BYPASSRLS) turns it off. Refused in production.
+  const role = await runtimeRole();
+
+  if (role.bypassesRls) {
+    const message = `[core] the database role "${role.name}" bypasses row level security: tenant isolation is off. Use a runtime role (pnpm db:grant -- <role>).`;
+
+    if (config.isProduction) throw new Error(message);
+
+    console.warn(message);
   }
 
   await syncPluginSecrets();

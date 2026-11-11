@@ -1,5 +1,5 @@
 import { recordAudit } from '~/modules/audit/audit.service';
-import { type Db, organizations, withTransaction } from '@erxes/core-db';
+import { type Db, organizations, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { HttpError } from '~/http/errors';
@@ -42,7 +42,8 @@ export const runSetup = async (input: {
 
   const passwordHash = await hashPassword(input.password);
 
-  return withTransaction(async (tx) => {
+  // Before any organisation exists: a system scope, under a lock.
+  return withSystem('first-run setup', async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext('core:setup'))`);
 
     if (await hasOrganization(tx)) {

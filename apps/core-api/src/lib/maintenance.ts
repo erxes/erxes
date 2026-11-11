@@ -1,4 +1,4 @@
-import { db } from '@erxes/core-db';
+import { withSystem } from '@erxes/core-db';
 import { config } from '~/config';
 import { pruneAudit } from '~/modules/audit/audit.service';
 import { signAuditCheckpoints } from '~/modules/audit/checkpoints';
@@ -17,10 +17,15 @@ const HOUR = 60 * 60 * 1000;
 export const startMaintenance = () => {
   const run = async () => {
     try {
-      const uploads = await pruneUploads(db(), config.files.pendingTtlHours);
-      const audit = await pruneAudit(db(), config.retention.auditDays);
-      const read = await pruneNotifications(db(), config.retention.readNotificationDays);
-      const handled = await pruneEvents(db(), config.retention.eventDays, CONSUMERS.map((consumer) => consumer.name));
+      // Each step spans organisations: a system scope of its own.
+      const uploads = await withSystem('cleanup: uploads', (tx) => pruneUploads(tx, config.files.pendingTtlHours));
+      const audit = await withSystem('cleanup: audit', (tx) => pruneAudit(tx, config.retention.auditDays));
+      const read = await withSystem('cleanup: notifications', (tx) =>
+        pruneNotifications(tx, config.retention.readNotificationDays),
+      );
+      const handled = await withSystem('cleanup: events', (tx) =>
+        pruneEvents(tx, config.retention.eventDays, CONSUMERS.map((consumer) => consumer.name)),
+      );
 
       if (uploads || audit || read || handled) {
         console.log(
@@ -34,7 +39,7 @@ export const startMaintenance = () => {
 
   // Signed audit checkpoints every 10 minutes: tampering is caught back to the last one.
   const checkpoint = () =>
-    signAuditCheckpoints(db()).catch((error: unknown) => console.error('[core] audit checkpoints failed', error));
+    withSystem('audit checkpoints', (tx) => signAuditCheckpoints(tx)).catch((error: unknown) => console.error('[core] audit checkpoints failed', error));
 
   const first = setTimeout(run, 60_000);
   const timer = setInterval(run, HOUR);

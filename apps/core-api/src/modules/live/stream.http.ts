@@ -1,4 +1,4 @@
-import { db, users } from '@erxes/core-db';
+import { users, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { config } from '~/config';
@@ -119,11 +119,13 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
       return;
     }
 
-    db()
-      .select({ status: users.status, sessionVersion: users.sessionVersion })
-      .from(users)
-      .where(and(eq(users.id, actor.userId), eq(users.orgId, actor.orgId)))
-      .limit(1)
+    withOrg(actor.orgId, (tx) =>
+      tx
+        .select({ status: users.status, sessionVersion: users.sessionVersion })
+        .from(users)
+        .where(and(eq(users.id, actor.userId), eq(users.orgId, actor.orgId)))
+        .limit(1),
+    )
       .then(([user]) => {
         if (user?.status !== 'active') {
           send('bye', { reason: 'member-inactive' });

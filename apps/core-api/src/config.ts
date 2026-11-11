@@ -112,6 +112,15 @@ export const config = {
     /** Skip certificate verification: development only (refused in production). */
     sslInsecure: process.env.DATA_SSL_INSECURE === 'true',
     poolMax: readNumber('DATA_POOL_MAX', 10),
+    /**
+     * The owner role for migrations (`pnpm db:migrate`): DDL rights the API's
+     * runtime role (DATA_URL) must not have. Falls back to DATA_URL.
+     */
+    migrationUrl: readSecret('DATA_MIGRATION_URL'),
+    /** Apply migrations when the API starts: development only by default. */
+    migrateOnStart: (process.env.DATA_MIGRATE_ON_START ?? (isProduction ? 'false' : 'true')) === 'true',
+    /** A role to `SET ROLE` to on each connection (session connections only). */
+    role: process.env.DATA_ROLE?.trim() || undefined,
     statementTimeoutMs: readNumber('DATA_STATEMENT_TIMEOUT_MS', 15_000),
   },
   live: {

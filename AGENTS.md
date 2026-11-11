@@ -51,9 +51,23 @@ it is built.
   with plugins (`<plugin>_<name>`): never read or write a plugin's tables.
   Schema change → edit `packages/db/src/schema`, run `pnpm db:generate`, commit
   the SQL. Never edit a released migration; never use `drizzle-kit push`.
-- **Migrations** run at API startup in one transaction under
-  `pg_advisory_xact_lock(hashtext('core:migrate'))`, tracked in
-  `public.__drizzle_migrations_core`. Only transaction-scoped locks (poolers).
+- **Migrations** run with `pnpm db:migrate` as the owner role
+  (`DATA_MIGRATION_URL`; `DATA_RUNTIME_ROLE` gets its grants after), in one
+  transaction under `pg_advisory_xact_lock(hashtext('core:migrate'))`, tracked
+  in `public.__drizzle_migrations_core`. The API migrates on start only in
+  development (`DATA_MIGRATE_ON_START`). Only transaction-scoped locks (poolers).
+- **Tenant isolation (row level security).** Every core table with `org_id`
+  (and `core_organizations`) has RLS, forced, with policy `core_tenant`
+  (`core_tenant_visible(org_id)`): rows are visible only when the transaction
+  set `app.org_id` (or `app.system` for jobs). Code runs in scopes from
+  `@erxes/core-db`: `withOrg(orgId, fn)` (every oRPC call for a member or
+  plugin runs in one, set by the router middleware) and `withSystem(reason,
+  fn)` (jobs, sign-in discovery, setup). Inside a scope `db()` is the scope's
+  transaction; outside, RLS lets nothing through (fails closed). Express routes
+  outside oRPC scope themselves. A new table with `org_id` needs RLS in its
+  migration (`tenancy.test.ts` fails otherwise). The API's role must not
+  bypass RLS (refused in production; `pnpm db:grant -- <role>` creates one).
+  Services still filter by `org_id`: RLS is the safety net, not the filter.
 - **Responses never carry credentials or `org_id`**: map rows to DTOs
   (`toUserDto`, …).
 - **Errors** are oRPC's `{ code, status, message, data? }`: services throw

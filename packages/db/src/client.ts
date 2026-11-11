@@ -7,6 +7,7 @@ import {
 import { PgTransaction } from 'drizzle-orm/pg-core';
 import { Pool, types } from 'pg';
 import * as schema from './schema';
+import { currentScope } from './scope';
 
 // Counts and BIGINT columns fit JS numbers for core data.
 types.setTypeParser(types.builtins.INT8, (value: string) => Number(value));
@@ -29,6 +30,12 @@ export interface DbOptions {
   sslCa?: string;
   /** Development only: TLS without verifying the certificate. */
   sslInsecure?: boolean;
+  /**
+   * A role to act as on every connection (`SET ROLE`), e.g. the runtime role
+   * when the login is the owner. Only with session connections (direct
+   * Postgres, a session pooler): a transaction pooler would not keep it.
+   */
+  role?: string;
   poolMax?: number;
   statementTimeoutMs?: number;
   applicationName?: string;
@@ -62,6 +69,16 @@ export const getPool = (): Pool => {
       ssl: sslOptions(options),
     });
 
+    const role = options.role;
+
+    if (role) {
+      if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error(`invalid role name: ${role}`);
+
+      pool.on('connect', (client) => {
+        client.query(`SET ROLE ${role}`).catch((error: Error) => console.error('[core] SET ROLE failed', error.message));
+      });
+    }
+
     pool.on('error', (error) => {
       console.error('[core] idle postgres client error', error.message);
     });
@@ -70,13 +87,22 @@ export const getPool = (): Pool => {
   return pool;
 };
 
-export const db = (): Database => {
+/** The pool itself, outside any tenant scope (scopes and migrations use it). */
+export const rootDb = (): Database => {
   if (!database) {
     database = drizzle(getPool(), { schema, casing: 'snake_case' });
   }
 
   return database;
 };
+
+/**
+ * The database for the current tenant scope: inside `withOrg` / `withSystem`
+ * (see `./tenant`), that scope's transaction; outside, the pool — where row
+ * level security lets nothing through, so a query that forgot its scope
+ * fails closed.
+ */
+export const db = (): Database => (currentScope()?.tx as unknown as Database | undefined) ?? rootDb();
 
 export const withTransaction = <T>(fn: (tx: Transaction) => Promise<T>) =>
   db().transaction(fn);

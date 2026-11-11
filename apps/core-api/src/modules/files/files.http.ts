@@ -1,4 +1,4 @@
-import { db } from '@erxes/core-db';
+import { withOrg } from '@erxes/core-db';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { rename, rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
@@ -102,21 +102,24 @@ export const downloadRouter = Router();
 downloadRouter.get('/files/:id/download', (req: Request, res: Response, next) => {
   const caller = callerOf(req);
 
-  readyFile(db(), caller.orgId, req.params.id ?? '')
-    .then(async (row) => {
-      const saving = req.query.download === '1';
-      const url = await downloadUrlOf(row, saving);
+  withOrg(caller.orgId, async (tx) => {
+    const row = await readyFile(tx, caller.orgId, req.params.id ?? '');
+    const saving = req.query.download === '1';
+    const url = await downloadUrlOf(row, saving);
 
-      // Saving a copy is audited; showing a picture inline (avatars, previews) is not.
-      if (saving) {
-        await recordAudit(db(), caller, {
-          action: 'file.downloaded',
-          targetType: 'file',
-          targetId: row.id,
-          targetLabel: row.name,
-        });
-      }
+    // Saving a copy is audited; showing a picture inline (avatars, previews) is not.
+    if (saving) {
+      await recordAudit(tx, caller, {
+        action: 'file.downloaded',
+        targetType: 'file',
+        targetId: row.id,
+        targetLabel: row.name,
+      });
+    }
 
+    return url;
+  })
+    .then((url) => {
       res.setHeader('Cache-Control', 'private, no-store');
       res.redirect(302, url);
     })

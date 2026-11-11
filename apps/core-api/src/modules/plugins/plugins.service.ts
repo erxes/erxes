@@ -1,6 +1,6 @@
 import { PLUGIN_SCOPES, type Plugin, type PluginManifest } from '@erxes/core-contract';
-import { type Db, db, organizations, pluginInstallations, plugins, type StoredPluginManifest } from '@erxes/core-db';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { type Db, db, organizations, pluginInstallations, plugins, type StoredPluginManifest, withOrg, withSystem } from '@erxes/core-db';
+import { and, eq, sql } from 'drizzle-orm';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
 import { type Actor, PLUGIN_ACCESS_TYP, type PluginCaller, type PluginService, userCaller } from '~/http/auth';
@@ -62,11 +62,12 @@ const installAll = async (tx: Db, orgIds: string[], row: Pick<PluginRow, 'name' 
  * every organisation once); a changed secret becomes the current one and the
  * old one keeps working for 24 hours.
  */
-export const syncPluginSecrets = async (client: Db = db()) => {
+export const syncPluginSecrets = async () => {
   for (const [secret, name] of config.pluginKeys) {
     const hash = hashSecret(secret);
 
-    await client.transaction(async (tx) => {
+    // New plugins are installed across organisations: a system scope.
+    await withSystem('plugin registry', async (tx) => {
       const [existing] = await tx.select().from(plugins).where(eq(plugins.name, name)).for('update').limit(1);
 
       if (!existing) {
@@ -98,11 +99,11 @@ export const syncPluginSecrets = async (client: Db = db()) => {
 };
 
 /** A new random client secret for a plugin; the previous one works 24 more hours. Prints nowhere: the caller shows it once. */
-export const rotatePluginSecret = async (name: string, client: Db = db()) => {
+export const rotatePluginSecret = async (name: string) => {
   const secret = `erxp_${randomBytes(32).toString('base64url')}`;
   const hash = hashSecret(secret);
 
-  await client.transaction(async (tx) => {
+  await withSystem('plugin registry', async (tx) => {
     const [existing] = await tx.select().from(plugins).where(eq(plugins.name, name)).for('update').limit(1);
 
     if (!existing) {
@@ -169,11 +170,16 @@ export const issuePluginToken = async (input: { client_id: string; client_secret
   let scopes: string[] = [];
 
   if (input.org) {
-    const [installation] = await db()
-      .select()
-      .from(pluginInstallations)
-      .where(and(eq(pluginInstallations.orgId, input.org), eq(pluginInstallations.plugin, row.name)))
-      .limit(1);
+    const org = input.org;
+    const installation = await withOrg(org, async (tx) => {
+      const [found] = await tx
+        .update(pluginInstallations)
+        .set({ lastTokenAt: sql`now()` })
+        .where(and(eq(pluginInstallations.orgId, org), eq(pluginInstallations.plugin, row.name)))
+        .returning();
+
+      return found;
+    });
 
     if (installation?.status !== 'active') {
       throw new HttpError(403, 'NOT_INSTALLED', `${row.name} is not installed in this organisation`);
@@ -182,19 +188,9 @@ export const issuePluginToken = async (input: { client_id: string; client_secret
     const requested = new Set(requestedScopes(row));
 
     scopes = installation.grantedScopes.filter((scope) => requested.has(scope));
-
-    void db()
-      .update(pluginInstallations)
-      .set({ lastTokenAt: sql`now()` })
-      .where(and(eq(pluginInstallations.orgId, input.org), eq(pluginInstallations.plugin, row.name)))
-      .catch(() => undefined);
   }
 
-  void db()
-    .update(plugins)
-    .set({ lastSeenAt: sql`now()` })
-    .where(eq(plugins.name, row.name))
-    .catch(() => undefined);
+  await db().update(plugins).set({ lastSeenAt: sql`now()` }).where(eq(plugins.name, row.name));
 
   const scope = scopes.join(' ');
   const access_token = await signJwt(input.org ? { org: input.org, scope } : { scope: 'manifest' }, {
@@ -355,7 +351,3 @@ export const pluginSignal = async (caller: PluginCaller, input: { topics: string
 
   return { ok: true as const };
 };
-
-export const isUninstalled = (installation: InstallationRow | undefined) => !installation || installation.status !== 'active';
-// Kept for scripts: plugins without a secret yet.
-export const pluginsWithoutSecret = () => db().select({ name: plugins.name }).from(plugins).where(isNull(plugins.secretHash));

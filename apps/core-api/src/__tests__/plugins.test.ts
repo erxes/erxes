@@ -5,7 +5,7 @@ import { afterAll, beforeAll, expect, it } from 'vitest';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
 import { HR_SECRET, pluginToken, requestPluginToken } from './plugin';
 
 describeWithDb('plugin connection (registry, installations, tokens)', () => {
@@ -25,7 +25,7 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
 
     orgId = acme.organization.id;
     ownerId = acme.owner.id;
-    await db().insert(users).values({ id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' });
+    await adminDb().insert(users).values({ id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' });
     ownerToken = signAccessToken(ownerId, orgId);
     memberToken = signAccessToken(memberId, orgId);
     server = createApp().listen(0);
@@ -187,7 +187,7 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
     const { db, plugins } = await import('@erxes/core-db');
     const { eq, sql } = await import('drizzle-orm');
 
-    await db().update(plugins).set({ previousSecretExpiresAt: sql`now() - interval '1 second'` }).where(eq(plugins.name, 'hr'));
+    await adminDb().update(plugins).set({ previousSecretExpiresAt: sql`now() - interval '1 second'` }).where(eq(plugins.name, 'hr'));
     expect((await requestPluginToken(base, orgId, HR_SECRET)).body.code).toBe('INVALID_CLIENT');
   });
 

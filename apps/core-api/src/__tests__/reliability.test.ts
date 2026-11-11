@@ -1,6 +1,6 @@
 import { beforeAll, expect, it } from 'vitest';
 import type { Actor } from '~/http/auth';
-import { describeWithDb, useTestDatabase } from './db';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
 
 /**
  * Event delivery that survives failures (retries, dead events, manual retry),
@@ -18,7 +18,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const acme = await createOrganization({ subdomain: 'acme', name: 'Acme', owner: { email: 'owner@acme.mn' } });
     const memberId = newId();
 
-    await db().insert(users).values({ id: memberId, orgId: acme.organization.id, email: 'm@acme.mn', role: 'member', status: 'active' });
+    await adminDb().insert(users).values({ id: memberId, orgId: acme.organization.id, email: 'm@acme.mn', role: 'member', status: 'active' });
     owner = { userId: acme.owner.id, orgId: acme.organization.id, role: 'owner' };
     member = { userId: memberId, orgId: acme.organization.id, role: 'member' };
   });
@@ -27,7 +27,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const { db } = await import('@erxes/core-db');
     const { publishPluginEvents } = await import('~/modules/events/events.service');
 
-    await publishPluginEvents(db(), { plugin: 'hr', orgId: owner.orgId, scopes: ['events:write'] }, [{ type, version: 1, payload: {} }]);
+    await publishPluginEvents(adminDb(), { plugin: 'hr', orgId: owner.orgId, scopes: ['events:write'] }, [{ type, version: 1, payload: {} }]);
   };
 
   /**
@@ -43,7 +43,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     for (let tries = 0; tries < 100; tries += 1) {
       await runConsumer(consumer as never);
 
-      const behind = await db().execute(sql`
+      const behind = await adminDb().execute(sql`
         select 1 from ${events} e
         where not exists (
           select 1 from ${eventConsumers} c where c.name = ${consumer.name} and (e.tx_id, e.seq) <= (c.last_tx_id, c.last_seq)
@@ -63,7 +63,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const { db } = await import('@erxes/core-db');
     const { sql } = await import('drizzle-orm');
 
-    await db().execute(sql`update core_event_failures set next_attempt_at = now() where status = 'retrying'`);
+    await adminDb().execute(sql`update core_event_failures set next_attempt_at = now() where status = 'retrying'`);
   };
 
   it('retries a failed event with backoff, then marks it dead; a manual retry gets it through', async () => {
@@ -88,7 +88,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     // The bad event doesn't block the next one.
     expect(handled).toEqual(['hr.other.happened']);
 
-    let failures = await listEventFailures(db(), owner, {});
+    let failures = await listEventFailures(adminDb(), owner, {});
 
     expect(failures.counts).toEqual({ retrying: 1, dead: 0 });
     expect(failures.data[0]).toMatchObject({ consumer: 'test.flaky', attempts: 1, status: 'retrying' });
@@ -103,18 +103,18 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
       await retryFailures(flaky as never);
     }
 
-    failures = await listEventFailures(db(), owner, {});
+    failures = await listEventFailures(adminDb(), owner, {});
     expect(failures.counts).toEqual({ retrying: 0, dead: 1 });
     expect(failures.data[0]).toMatchObject({ attempts: MAX_ATTEMPTS, status: 'dead', nextAttemptAt: null });
 
-    await expect(retryEventFailures(db(), member, { allDead: true })).rejects.toMatchObject({ status: 403 });
+    await expect(retryEventFailures(adminDb(), member, { allDead: true })).rejects.toMatchObject({ status: 403 });
 
     broken = false;
-    expect(await retryEventFailures(db(), owner, { allDead: true })).toEqual({ retried: 1 });
+    expect(await retryEventFailures(adminDb(), owner, { allDead: true })).toEqual({ retried: 1 });
     await retryFailures(flaky as never);
 
     expect(handled).toEqual(['hr.other.happened', 'hr.flaky.happened']);
-    expect((await listEventFailures(db(), owner, {})).counts).toEqual({ retrying: 0, dead: 0 });
+    expect((await listEventFailures(adminDb(), owner, {})).counts).toEqual({ retrying: 0, dead: 0 });
   });
 
   it('dismisses failures, and keeps events until every consumer has passed them', async () => {
@@ -125,40 +125,40 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const passing = { name: 'test.passing', handle: async () => undefined };
 
     await publish('hr.old.happened');
-    await db().execute(sql`update core_events set created_at = now() - interval '40 days'`);
+    await adminDb().execute(sql`update core_events set created_at = now() - interval '40 days'`);
 
     // A consumer that never ran holds everything back.
-    expect(await pruneEvents(db(), 30, ['test.failing', 'test.never'])).toBe(0);
+    expect(await pruneEvents(adminDb(), 30, ['test.failing', 'test.never'])).toBe(0);
 
     await drain(failing);
     await drain(passing);
 
     // test.failing still has to retry its failures: those events stay.
-    const kept = await db().select({ id: events.id }).from(events);
-    const failures = await listEventFailures(db(), owner, {});
+    const kept = await adminDb().select({ id: events.id }).from(events);
+    const failures = await listEventFailures(adminDb(), owner, {});
     const open = failures.data.filter((failure) => failure.consumer === 'test.failing');
 
     expect(open.length).toBe(kept.length);
-    expect(await pruneEvents(db(), 30, ['test.failing', 'test.passing'])).toBe(0);
+    expect(await pruneEvents(adminDb(), 30, ['test.failing', 'test.passing'])).toBe(0);
 
     expect(
-      await dismissEventFailures(db(), owner, {
+      await dismissEventFailures(adminDb(), owner, {
         failures: open.map((failure) => ({ consumer: failure.consumer, eventId: failure.event.id })),
       }),
     ).toEqual({ dismissed: open.length });
 
     // test.flaky's history (from the first test) is gone too, so all old events go.
-    expect(await pruneEvents(db(), 30, ['test.failing', 'test.passing'])).toBe(kept.length);
+    expect(await pruneEvents(adminDb(), 30, ['test.failing', 'test.passing'])).toBe(kept.length);
 
     await publish('hr.new.happened');
     await drain(failing);
     await drain(passing);
-    await dismissEventFailures(db(), owner, {
-      failures: (await listEventFailures(db(), owner, {})).data.map((f) => ({ consumer: f.consumer, eventId: f.event.id })),
+    await dismissEventFailures(adminDb(), owner, {
+      failures: (await listEventFailures(adminDb(), owner, {})).data.map((f) => ({ consumer: f.consumer, eventId: f.event.id })),
     });
     // Recent events stay, handled or not.
-    expect(await pruneEvents(db(), 30, ['test.failing', 'test.passing'])).toBe(0);
-    expect((await db().select().from(events).where(eq(events.type, 'hr.new.happened'))).length).toBe(1);
+    expect(await pruneEvents(adminDb(), 30, ['test.failing', 'test.passing'])).toBe(0);
+    expect((await adminDb().select().from(events).where(eq(events.type, 'hr.new.happened'))).length).toBe(1);
   });
 
   it('signs audit checkpoints and catches entries cut off the end of the chain', async () => {
@@ -171,14 +171,14 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const caller = { orgId: owner.orgId, actorType: 'user' as const, actorId: owner.userId, source: 'core' };
 
     for (let index = 0; index < 3; index += 1) {
-      await recordAudit(db(), caller, { action: 'customer.created', targetType: 'customer', targetId: `c${index}` });
+      await recordAudit(adminDb(), caller, { action: 'customer.created', targetType: 'customer', targetId: `c${index}` });
     }
 
-    expect(await signAuditCheckpoints(db())).toBeGreaterThanOrEqual(1);
+    expect(await signAuditCheckpoints(adminDb())).toBeGreaterThanOrEqual(1);
     // Nothing new since: nothing to sign.
-    expect(await signAuditCheckpoints(db(), owner.orgId)).toBe(0);
+    expect(await signAuditCheckpoints(adminDb(), owner.orgId)).toBe(0);
 
-    const { data } = await listCheckpoints(db(), owner.orgId, { limit: 10 });
+    const { data } = await listCheckpoints(adminDb(), owner.orgId, { limit: 10 });
     const latest = data[data.length - 1]!;
 
     // Anyone can check a checkpoint with the published keys alone.
@@ -186,7 +186,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
 
     expect(payload).toMatchObject({ org: owner.orgId, seq: latest.chainSeq, hash: latest.hash });
 
-    let result = await verifyAudit(db(), owner);
+    let result = await verifyAudit(adminDb(), owner);
 
     expect(result.ok).toBe(true);
     expect(result.checkpoints.mismatchAt).toBeNull();
@@ -196,21 +196,21 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     // the chain itself still looks whole, the checkpoint doesn't.
     const head = result.checkpoints.latestSeq!;
 
-    await db().transaction(async (tx) => {
+    await adminDb().transaction(async (tx) => {
       await tx.execute(sql`set local core.audit_prune = 'on'`);
       await tx.execute(sql`delete from core_audit_logs where org_id = ${owner.orgId} and chain_seq >= ${head - 1}`);
     });
 
-    result = await verifyAudit(db(), owner);
+    result = await verifyAudit(adminDb(), owner);
     expect(result.brokenAt).toBeNull();
     expect(result.ok).toBe(false);
     expect(result.checkpoints.mismatchAt).not.toBeNull();
 
     // Checkpoints themselves are append-only.
-    await expect(db().delete(auditCheckpoints)).rejects.toBeTruthy();
+    await expect(adminDb().delete(auditCheckpoints)).rejects.toBeTruthy();
     // And a tampered chain is never signed over.
-    await recordAudit(db(), caller, { action: 'customer.created', targetType: 'customer', targetId: 'c9' });
-    expect(await signAuditCheckpoints(db(), owner.orgId)).toBe(0);
+    await recordAudit(adminDb(), caller, { action: 'customer.created', targetType: 'customer', targetId: 'c9' });
+    expect(await signAuditCheckpoints(adminDb(), owner.orgId)).toBe(0);
   });
 
   it('publishes core’s public keys', async () => {

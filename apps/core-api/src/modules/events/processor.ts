@@ -1,4 +1,4 @@
-import { activities, companies, customers, db, type Db, eventConsumers, eventFailures, events } from '@erxes/core-db';
+import { activities, companies, customers, type Db, eventConsumers, eventFailures, events, withSystem } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { liveHub } from '~/modules/live/hub';
@@ -148,7 +148,7 @@ const afterAttempt = (attempts: number) =>
  * goes to `core_event_failures` (retried with backoff) so it can't block the stream.
  */
 export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Promise<number> =>
-  db().transaction(async (tx) => {
+  withSystem(`events: ${consumer.name}`, async (tx) => {
     await tx.insert(eventConsumers).values({ name: consumer.name }).onConflictDoNothing();
 
     const cursor = await tx.execute<{ last_tx_id: string; last_seq: number }>(
@@ -207,7 +207,7 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
  * another error schedules the next attempt or marks the event dead.
  */
 export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Promise<number> =>
-  db().transaction(async (tx) => {
+  withSystem(`events retry: ${consumer.name}`, async (tx) => {
     const due = await tx.execute<{ event_id: string; attempts: number }>(sql`
       select event_id, attempts from ${eventFailures}
       where consumer = ${consumer.name} and status = 'retrying' and next_attempt_at <= now()

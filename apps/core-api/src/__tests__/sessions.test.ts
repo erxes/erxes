@@ -4,7 +4,7 @@ import { afterAll, beforeAll, expect, it } from 'vitest';
 import { createApp } from '~/app';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
 
 /** Sessions end when they should: password change or reset, disable, sign out everywhere. */
 describeWithDb('session security', () => {
@@ -23,7 +23,7 @@ describeWithDb('session security', () => {
     });
 
     memberId = newId();
-    await db()
+    await adminDb()
       .insert(users)
       .values({ id: memberId, orgId: acme.organization.id, email: 'member@acme.mn', role: 'member', status: 'active', passwordHash: await hashPassword('Member-pass-1') });
     server = createApp().listen(0);

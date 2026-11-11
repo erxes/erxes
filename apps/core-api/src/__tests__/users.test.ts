@@ -4,7 +4,7 @@ import { afterAll, beforeAll, expect, it } from 'vitest';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
 
 describeWithDb('team members (/core/v1/users)', () => {
   useTestDatabase();
@@ -159,10 +159,11 @@ describeWithDb('team members (/core/v1/users)', () => {
     await call(ownerToken, `/users/${created.body.id}/disable`, { method: 'POST', body: '{}' });
     const { db, users } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
-    await db().update(users).set({ status: 'active', passwordHash: 'set' }).where(eq(users.id, created.body.id));
+    await adminDb().update(users).set({ status: 'active', passwordHash: 'set' }).where(eq(users.id, created.body.id));
 
     const orgId = (await call(ownerToken, '/organization')).body.id;
-    const memberToken = signAccessToken(created.body.id, orgId);
+    // Disabling ended the member's sessions: a new one.
+    const memberToken = await currentToken(created.body.id, orgId);
 
     const self = await call(memberToken, `/users/${created.body.id}`, {
       method: 'PATCH',
@@ -200,7 +201,7 @@ describeWithDb('team members (/core/v1/users)', () => {
     const adminId = admin.body.data[0]!.id;
     const { db, users } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
-    await db().update(users).set({ status: 'active' }).where(eq(users.id, adminId));
+    await adminDb().update(users).set({ status: 'active' }).where(eq(users.id, adminId));
 
     const orgId = (await call(ownerToken, '/organization')).body.id;
     const adminToken = signAccessToken(adminId, orgId);
@@ -221,7 +222,7 @@ describeWithDb('team members (/core/v1/users)', () => {
     const created = await invite(ownerToken, { email: 'temp@acme.mn' });
     const { db, users } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
-    await db().update(users).set({ status: 'active', passwordHash: 'set' }).where(eq(users.id, created.body.id));
+    await adminDb().update(users).set({ status: 'active', passwordHash: 'set' }).where(eq(users.id, created.body.id));
 
     const orgId = (await call(ownerToken, '/organization')).body.id;
     const tempToken = signAccessToken(created.body.id, orgId);
@@ -234,7 +235,9 @@ describeWithDb('team members (/core/v1/users)', () => {
 
     const enabled = await call(ownerToken, `/users/${created.body.id}/enable`, { method: 'POST', body: '{}' });
     expect(enabled.body.status).toBe('active');
-    expect((await call(tempToken, '/users')).status).toBe(200);
+    // Enabling doesn't bring old sessions back; a new sign-in works.
+    expect((await call(tempToken, '/users')).status).toBe(401);
+    expect((await call(await currentToken(created.body.id, orgId), '/users')).status).toBe(200);
   });
 
   it('keeps an invited member invited when re-enabled', async () => {
@@ -255,7 +258,7 @@ describeWithDb('team members (/core/v1/users)', () => {
     const found = await call(ownerToken, `/users?search=${encodeURIComponent(email)}`);
     const orgId = (await call(ownerToken, '/organization')).body.id;
 
-    return signAccessToken(found.body.data[0]!.id, orgId);
+    return currentToken(found.body.data[0]!.id, orgId);
   };
 
   it('keeps profile details, and the full name in step with the name parts', async () => {

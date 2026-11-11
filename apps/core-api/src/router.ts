@@ -1,5 +1,5 @@
 import { coreContract } from '@erxes/core-contract';
-import { db, type Transaction, withTransaction } from '@erxes/core-db';
+import { db, type Transaction, withOrg, withSystem, withTransaction } from '@erxes/core-db';
 import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { config } from '~/config';
@@ -137,7 +137,11 @@ const pub = implement(coreContract)
   .use(({ context, path, next }) => {
     enforceAccess(path.join('.'), context.req);
 
-    return next();
+    // The whole call runs in one transaction scoped to the caller's
+    // organisation (row level security); public procedures scope themselves.
+    const orgId = context.req.actor?.orgId ?? context.req.plugin?.orgId;
+
+    return orgId ? withOrg(orgId, async () => next()) : next();
   });
 
 /**
@@ -186,7 +190,7 @@ const recordOf = (targetType: string, action: string, id: string, result?: unkno
 
 /** Signs the member in on this browser (HttpOnly session cookie). */
 const startSession = async (context: CoreContext, userId: string, orgId: string) => {
-  const version = await sessionVersionOf(orgId, userId);
+  const version = await withOrg(orgId, () => sessionVersionOf(orgId, userId));
   const token = signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version);
 
   context.res.cookie(SESSION_COOKIE, token, sessionCookieOptions(context.req));
@@ -262,7 +266,9 @@ export const coreRouter = pub.router({
     ),
   },
   auth: {
-    setupStatus: pub.auth.setupStatus.handler(async () => ({ required: await setupRequired(db()) })),
+    setupStatus: pub.auth.setupStatus.handler(async () => ({
+      required: await withSystem('setup status', (tx) => setupRequired(tx)),
+    })),
     setup: pub.auth.setup.handler(async ({ input, context }) => {
       const { organization, owner } = await runSetup(input);
 
@@ -281,11 +287,11 @@ export const coreRouter = pub.router({
       const session = sessionClaims(context.req);
 
       if (session) {
-        await recordAudit(
-          db(),
+        await withOrg(session.orgId, (tx) => recordAudit(
+          tx,
           { orgId: session.orgId, actorType: 'user', actorId: session.userId, source: 'core' },
           { action: 'auth.signed_out', targetType: 'user', targetId: session.userId },
-        );
+        ));
       }
 
       endSession(context);

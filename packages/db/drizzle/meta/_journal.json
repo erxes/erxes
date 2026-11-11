@@ -85,6 +85,20 @@
       "when": 1794421909234,
       "tag": "0011_session_version",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794422339647,
+      "tag": "0012_tenant_isolation",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794422744409,
+      "tag": "0013_tenant_foreign_keys",
+      "breakpoints": true
     }
   ]
 }
