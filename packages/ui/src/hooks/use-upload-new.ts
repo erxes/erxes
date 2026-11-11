@@ -1,4 +1,4 @@
-import { REACT_APP_API_URL } from 'erxes-ui/utils';
+import { getFileStorage, REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   type FileError,
@@ -39,6 +39,16 @@ type FileUploadResponse = {
 };
 
 const uploadFile = async (file: File): Promise<FileUploadResponse> => {
+  const storage = getFileStorage();
+
+  if (storage) {
+    try {
+      return { name: file.name, message: undefined, url: await storage.upload(file) };
+    } catch (error) {
+      return { name: file.name, message: error instanceof Error ? error.message : 'Upload failed' };
+    }
+  }
+
   const formData = new FormData();
   formData.append('file', file);
   const response = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
@@ -213,6 +223,23 @@ export const useRemoveFile = () => {
   const removeFile = useCallback(
     async (fileName: string, afterRemove: (status: string) => void) => {
       setIsLoading(true);
+
+      const storage = getFileStorage();
+
+      if (storage?.remove) {
+        try {
+          await storage.remove(fileName);
+          setIsLoading(false);
+          return afterRemove('ok');
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Delete failed';
+
+          setError(message);
+          setIsLoading(false);
+          return afterRemove(message);
+        }
+      }
+
       const response = await fetch(
         `${REACT_APP_API_URL}/delete-file?fileName=${fileName}`,
         {

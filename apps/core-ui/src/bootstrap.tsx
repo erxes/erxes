@@ -3,8 +3,13 @@ import 'erxes-ui/fonts.css';
 import '@blocknote/shadcn/style.css';
 import './styles.css';
 import { StrictMode } from 'react';
+import { setFileStorage } from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { coreFileStorage } from './lib/files';
+
+// erxes-ui's upload hooks (and plugin UIs) store files through core.
+setFileStorage(coreFileStorage);
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>

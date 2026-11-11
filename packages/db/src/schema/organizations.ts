@@ -1,6 +1,16 @@
 import { sql } from 'drizzle-orm';
-import { text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import { jsonb, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
+
+/** Settings an organisation's owners and admins change (Settings → File upload, …). */
+export interface OrganizationSettings {
+  files?: {
+    /** Largest upload in MB; at most the deployment's FILES_MAX_SIZE_MB. */
+    maxSizeMb?: number;
+    /** Allowed types: MIME types (`image/png`), wildcards (`image/*`) or extensions (`.pdf`). Empty: any. */
+    allowedTypes?: string[];
+  };
+}
 
 /** A tenant. `id` is permanent; `subdomain` may change (never reused). */
 export const organizations = pgTable(
@@ -9,6 +19,7 @@ export const organizations = pgTable(
     id: text().primaryKey(),
     subdomain: text().notNull(),
     name: text().notNull(),
+    settings: jsonb().$type<OrganizationSettings>().default({}).notNull(),
     createdAt: timestamp({ withTimezone: true, mode: 'date' })
       .defaultNow()
       .notNull(),

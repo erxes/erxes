@@ -1,4 +1,4 @@
-import { REACT_APP_API_URL } from 'erxes-ui/utils';
+import { getFileStorage, REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useCallback, useRef, useState } from 'react';
 
 /**
@@ -82,6 +82,17 @@ export const useUploadChunked = () => {
       cancelledRef.current = false;
 
       try {
+        const storage = getFileStorage();
+
+        // The host's file service takes the whole file in one request.
+        if (storage) {
+          const url = await storage.upload(file, { onProgress: setProgress });
+
+          setProgress(100);
+
+          return { name: file.name, url, type: file.type, size: file.size };
+        }
+
         const totalChunks = Math.max(1, Math.ceil(file.size / CHUNK_SIZE));
 
         const initResponse = await fetch(

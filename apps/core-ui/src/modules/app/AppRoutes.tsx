@@ -5,6 +5,7 @@ import { SettingsRoutes } from '~/modules/settings/SettingsRoutes';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { ContactsRoutes } from '~/modules/contacts/ContactsRoutes';
 import { HomePage } from '~/modules/home/HomePage';
+import { NotificationsPage } from '~/modules/notifications/NotificationsPage';
 import { MainOnboardingPage } from '~/modules/onboarding/MainOnboardingPage';
 import { OnboardingGuard } from '~/modules/onboarding/OnboardingGuard';
 import { MainLayout } from './MainLayout';
@@ -53,6 +54,7 @@ export const AppRoutes = () => (
       <Route index element={<HomePage />} />
       <Route path="contacts/*" element={<ContactsRoutes notFound={<NotFoundPage />} />} />
       <Route path="settings/*" element={<SettingsRoutes />} />
+      <Route path="notifications" element={<NotificationsPage />} />
       <Route path="*" element={<PluginRoutes />} />
     </Route>
   </Routes>

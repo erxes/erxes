@@ -215,7 +215,8 @@
     "my-activity": "Миний идэвх",
     "security": "Аюулгүй байдал",
     "active-directory": "Active Directory (LDAP)",
-    "support-access": "Дэмжлэгийн хандалт"
+    "support-access": "Дэмжлэгийн хандалт",
+    "audit-log": "Аудитын бүртгэл"
   },
   "plugin": {
     "_": "Плагин",
@@ -1048,5 +1049,74 @@
     "turn-on-and-sign-in": "Асаагаад нэвтрэх",
     "verify": "Баталгаажуулах",
     "back-to-sign-in": "Нэвтрэх рүү буцах"
+  },
+  "notifications": {
+    "title": "Мэдэгдэл",
+    "title-unread": "Мэдэгдэл, {{count}} уншаагүй",
+    "mark-all-read": "Бүгдийг уншсан болгох",
+    "open-inbox": "Бүх мэдэгдлийг нээх",
+    "all": "Бүгд",
+    "unread": "Уншаагүй",
+    "inbox": "Мэдэгдэл",
+    "mark-read": "Уншсан болгох",
+    "remove": "Устгах",
+    "important": "Чухал",
+    "all-read": "Шинэ мэдэгдэл алга",
+    "empty": "Мэдэгдэл алга",
+    "empty-description": "erxes болон залгаасуудын мэдэгдэл энд харагдана.",
+    "load-more": "Цааш үзэх",
+    "kinds": {
+      "core": {
+        "customer": {
+          "assigned": "Танд харилцагч оноолоо"
+        },
+        "company": {
+          "assigned": "Танд байгууллага оноолоо"
+        }
+      }
+    }
+  },
+  "activity": {
+    "created": "үүсгэсэн",
+    "updated": "өөрчилсөн",
+    "added-tags": "шошго нэмсэн:",
+    "removed-tags": "шошго хассан:",
+    "and": "ба",
+    "merged": "нэгтгэсэн:",
+    "into": "→",
+    "linked": "холбосон:",
+    "unlinked": "салгасан:",
+    "this-customer": "энэ харилцагчийг",
+    "this-company": "энэ байгууллагыг",
+    "open": "Нээх",
+    "empty": "Үйл ажиллагаа алга",
+    "empty-description": "Өөрчлөлт, шошго, холбоос болон залгаасуудын үйл явдал энд харагдана.",
+    "load-more": "Цааш үзэх",
+    "deleted-property": "Устгасан талбар",
+    "fields": {
+      "state": "Төлөв",
+      "firstName": "Нэр",
+      "middleName": "Дунд нэр",
+      "lastName": "Овог",
+      "avatarUrl": "Зураг",
+      "primaryEmail": "Үндсэн имэйл",
+      "emails": "Имэйлүүд",
+      "primaryPhone": "Үндсэн утас",
+      "phones": "Утаснууд",
+      "sex": "Хүйс",
+      "birthDate": "Төрсөн огноо",
+      "position": "Албан тушаал",
+      "department": "Хэлтэс",
+      "code": "Код",
+      "description": "Тайлбар",
+      "ownerId": "Хариуцагч",
+      "tagIds": "Шошго",
+      "primaryName": "Нэр",
+      "names": "Нэрс",
+      "website": "Вэбсайт",
+      "industry": "Салбар",
+      "size": "Хэмжээ",
+      "businessType": "Бизнесийн төрөл"
+    }
   }
 }

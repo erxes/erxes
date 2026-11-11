@@ -2,6 +2,7 @@ import { IconSettings } from '@tabler/icons-react';
 import { Button, cn, Tooltip } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
+import { NotificationsBell } from '~/modules/notifications/NotificationsBell';
 import { useSession } from '~/modules/auth/session';
 import { SETTINGS_APP, useNavApps } from './apps';
 import { CoreTabAppSwitcher } from './CoreTabAppSwitcher';
@@ -43,6 +44,7 @@ export const CoreTab = () => {
           onMove={move}
         />
         <div className="flex shrink-0 items-center gap-0.5">
+          <NotificationsBell />
           <CoreTabTooltip label={SETTINGS_APP.label}>
             <Button
               type="button"

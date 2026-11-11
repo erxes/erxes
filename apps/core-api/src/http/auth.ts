@@ -1,4 +1,5 @@
-import { db, users } from '@erxes/core-db';
+import { db, organizations, users } from '@erxes/core-db';
+import { createHash } from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -15,14 +16,53 @@ export interface Actor {
   role: Role;
 }
 
+/** A plugin calling core with its key, for one organisation. */
+export interface PluginCaller {
+  plugin: string;
+  orgId: string;
+}
+
+/**
+ * Whoever is calling, as recorded in audit, activity and notifications:
+ * a team member or a plugin. `source` is `core` for members, else the plugin.
+ */
+export interface Caller {
+  orgId: string;
+  actorType: 'user' | 'plugin';
+  actorId: string;
+  source: string;
+}
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       actor?: Actor;
+      plugin?: PluginCaller;
     }
   }
 }
+
+export const userCaller = (actor: Actor): Caller => ({
+  orgId: actor.orgId,
+  actorType: 'user',
+  actorId: actor.userId,
+  source: 'core',
+});
+
+export const pluginCaller = (plugin: PluginCaller): Caller => ({
+  orgId: plugin.orgId,
+  actorType: 'plugin',
+  actorId: plugin.plugin,
+  source: plugin.plugin,
+});
+
+const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
+
+/** Plugin keys by their SHA-256, so a lookup does not compare secrets directly. */
+const pluginKeys = new Map([...config.pluginKeys].map(([secret, name]) => [sha256(secret), name]));
+
+const ORG_HEADER = 'x-erxes-org';
 
 export const isManager = (actor: Actor) => actor.role === 'owner' || actor.role === 'admin';
 
@@ -76,6 +116,9 @@ const unauthorized = () =>
 /** Paths under /core/v1 that work without being signed in. */
 const PUBLIC_PATHS = new Set(['/auth/sign-in', '/auth/sign-out', '/setup', '/openapi.json']);
 
+/** Signed file links: the link itself is the permission. */
+const isSignedFilePath = (path: string) => path.startsWith('/files/signed/');
+
 /**
  * A cookie-signed change must come from erxes' own pages: browsers send the
  * cookie on cross-site requests too. Bearer-token calls are not affected.
@@ -103,12 +146,17 @@ const isCrossSiteWrite = (req: Request) => {
  * applies on the next request.
  */
 export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
-  if (PUBLIC_PATHS.has(req.path)) {
+  if (PUBLIC_PATHS.has(req.path) || isSignedFilePath(req.path)) {
     return next();
   }
 
   const header = req.headers.authorization ?? '';
   const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+  const plugin = bearer ? pluginKeys.get(sha256(bearer)) : undefined;
+
+  if (plugin) {
+    return authenticatePlugin(req, plugin, next);
+  }
   const cookie = bearer ? '' : readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '';
   const token = bearer || cookie;
 
@@ -144,7 +192,57 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
     .catch(next);
 };
 
-export const actorOf = (req: { actor?: Actor }): Actor => {
+/** A plugin key names the plugin; `X-Erxes-Org` the organisation it acts for. */
+const authenticatePlugin = (req: Request, plugin: string, next: NextFunction) => {
+  const orgId = req.get(ORG_HEADER)?.trim();
+
+  if (!orgId) {
+    return next(new HttpError(400, 'ORG_REQUIRED', 'Plugin calls must name the organisation (X-Erxes-Org)'));
+  }
+
+  db()
+    .select({ id: organizations.id })
+    .from(organizations)
+    .where(eq(organizations.id, orgId))
+    .limit(1)
+    .then(([organization]) => {
+      if (!organization) {
+        return next(unauthorized());
+      }
+
+      req.plugin = { plugin, orgId: organization.id };
+      return next();
+    })
+    .catch(next);
+};
+
+/** The calling plugin; 403 for team members. */
+export const pluginOf = (req: { plugin?: PluginCaller; actor?: Actor }): PluginCaller => {
+  if (req.plugin) {
+    return req.plugin;
+  }
+
+  if (req.actor) {
+    throw new HttpError(403, 'PLUGIN_ONLY', 'Only plugins can do this');
+  }
+
+  throw unauthorized();
+};
+
+/** A team member or a plugin. */
+export const callerOf = (req: { plugin?: PluginCaller; actor?: Actor }): Caller => {
+  if (req.plugin) {
+    return pluginCaller(req.plugin);
+  }
+
+  return userCaller(actorOf(req));
+};
+
+export const actorOf = (req: { actor?: Actor; plugin?: PluginCaller }): Actor => {
+  if (req.plugin) {
+    throw new HttpError(403, 'MEMBERS_ONLY', 'Plugins cannot do this');
+  }
+
   if (!req.actor) {
     throw unauthorized();
   }

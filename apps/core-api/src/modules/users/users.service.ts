@@ -1,3 +1,6 @@
+import { userCaller } from '~/http/auth';
+import { diffRows } from '~/lib/changes';
+import { recordAudit } from '~/modules/audit/audit.service';
 import { Db, newId, users, withTransaction } from '@erxes/core-db';
 import type { CursorQuery, UserLinkName } from '@erxes/core-contract';
 import { and, count, eq, ilike, inArray, ne, or, SQL, sql } from 'drizzle-orm';
@@ -248,13 +251,33 @@ const inviteValues = async (actor: Actor, input: InviteInput) => ({
   invitedBy: actor.userId,
 });
 
+const auditInvites = (tx: Db, actor: Actor, rows: UserRow[]) =>
+  recordAudit(
+    tx,
+    userCaller(actor),
+    rows.map((row) => ({
+      action: 'user.invited',
+      targetType: 'user',
+      targetId: row.id,
+      targetLabel: row.email,
+      metadata: { role: row.role, status: row.status },
+    })),
+  );
+
 export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) => {
   requireTeamManager(actor);
 
   try {
-    const [row] = await client.insert(users).values(await inviteValues(actor, input)).returning();
+    const values = await inviteValues(actor, input);
+    const row = await client.transaction(async (tx) => {
+      const [inserted] = await tx.insert(users).values(values).returning();
 
-    return toUserDto(row!);
+      await auditInvites(tx, actor, [inserted!]);
+
+      return inserted!;
+    });
+
+    return toUserDto(row);
   } catch (error) {
     return conflictFrom(error);
   }
@@ -289,6 +312,8 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
 
     try {
       const rows = await tx.insert(users).values(values).returning();
+
+      await auditInvites(tx, actor, rows);
 
       return { data: rows.map(toUserDto) };
     } catch (error) {
@@ -345,6 +370,17 @@ export const updateUser = async (actor: Actor, id: string, input: UserChanges) =
         })
         .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
         .returning();
+      const changes = diffRows(target, row!, ['lastSeenAt']);
+
+      if (changes) {
+        await recordAudit(tx, userCaller(actor), {
+          action: changes.role ? 'user.role_changed' : 'user.updated',
+          targetType: 'user',
+          targetId: id,
+          targetLabel: row!.email,
+          changes,
+        });
+      }
 
       return toUserDto(row!);
     } catch (error) {
@@ -379,6 +415,13 @@ export const setUserPassword = async (actor: Actor, id: string, password: string
       })
       .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
       .returning();
+
+    await recordAudit(tx, userCaller(actor), {
+      action: 'user.password_set',
+      targetType: 'user',
+      targetId: id,
+      targetLabel: row!.email,
+    });
 
     return toUserDto(row!);
   });
@@ -419,6 +462,14 @@ export const setUserDisabled = async (actor: Actor, id: string, disabled: boolea
       .set({ status, updatedAt: sql`now()` })
       .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
       .returning();
+
+    await recordAudit(tx, userCaller(actor), {
+      action: disabled ? 'user.disabled' : 'user.enabled',
+      targetType: 'user',
+      targetId: id,
+      targetLabel: row!.email,
+      changes: { status: [target.status, status] },
+    });
 
     return toUserDto(row!);
   });

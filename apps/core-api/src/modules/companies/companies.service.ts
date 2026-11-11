@@ -7,6 +7,13 @@ import { normalizeEmail, normalizeName, normalizePhone, resolveContacts, unique 
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
+import {
+  contactCreated,
+  contactsMerged,
+  contactsRemoved,
+  contactsTagged,
+  contactUpdated,
+} from '~/modules/activities/contactHistory';
 import { applyCustomFields } from '~/modules/fields/fields.service';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
@@ -206,6 +213,7 @@ export const createCompany = async (
         .returning({ id: companies.id });
 
       await setRecordTags(tx, actor.orgId, 'company', row!.id, tagIds);
+      await contactCreated(tx, actor, 'company', await findCompany(tx, actor.orgId, row!.id));
 
       return row!.id;
     });
@@ -287,6 +295,8 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
       if (tagIds) {
         await setRecordTags(tx, actor.orgId, 'company', id, tagIds);
       }
+
+      await contactUpdated(tx, actor, 'company', current, await findCompany(tx, actor.orgId, id));
     });
 
     return toCompanyDto(await findCompany(client, actor.orgId, id));
@@ -298,10 +308,16 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
 export const removeCompanies = async (client: Db, actor: Actor, ids: string[]) => {
   requireManager(actor, 'Only owners and admins can delete companies');
 
-  const removed = await client
-    .delete(companies)
-    .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
-    .returning({ id: companies.id });
+  const removed = await client.transaction(async (tx) => {
+    const rows = await tx
+      .delete(companies)
+      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
+      .returning();
+
+    await contactsRemoved(tx, actor, 'company', rows);
+
+    return rows;
+  });
 
   return { removed: removed.length };
 };
@@ -312,11 +328,25 @@ export const tagCompanies = async (
   input: { ids: string[]; add: string[]; remove: string[] },
 ) => {
   const add = await checkTagIds(client, actor.orgId, 'company', input.add);
-  const updated = await client.transaction((tx) =>
-    changeTags(tx, actor.orgId, 'company', input.ids, { add, remove: unique(input.remove) }),
-  );
+  const updated = await client.transaction(async (tx) => {
+    const before = await tagsByCompany(tx, actor.orgId, input.ids);
+    const count = await changeTags(tx, actor.orgId, 'company', input.ids, { add, remove: unique(input.remove) });
+
+    await contactsTagged(tx, actor, 'company', before, await tagsByCompany(tx, actor.orgId, input.ids));
+
+    return count;
+  });
 
   return { updated };
+};
+
+const tagsByCompany = async (client: Db, orgId: string, ids: string[]) => {
+  const rows = await client
+    .select({ id: companies.id, tagIds: tagIdsColumn('company', companies.id) })
+    .from(companies)
+    .where(and(eq(companies.orgId, orgId), inArray(companies.id, ids)));
+
+  return new Map(rows.map((row) => [row.id, row.tagIds]));
 };
 
 const MERGE_FILLED = [
@@ -389,6 +419,10 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
       })
       .where(inOrg(actor.orgId, keep.id));
 
-    return toCompanyDto(await findCompany(tx, actor.orgId, keep.id));
+    const merged = await findCompany(tx, actor.orgId, keep.id);
+
+    await contactsMerged(tx, actor, 'company', merged, others);
+
+    return toCompanyDto(merged);
   });
 };

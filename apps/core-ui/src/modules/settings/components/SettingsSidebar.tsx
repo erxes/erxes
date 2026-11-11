@@ -1,6 +1,8 @@
 import {
   IconChevronLeft,
+  IconCloudUpload,
   IconHierarchy2,
+  IconShieldCheck,
   IconTag,
   IconUsersGroup,
   type Icon,
@@ -9,6 +11,7 @@ import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { Children, type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useSession } from '~/modules/auth/session';
 
 interface SettingsPath {
   name: string;
@@ -19,11 +22,15 @@ interface SettingsPath {
 /** Old core-ui settings "Workspace" group, limited to what core has. */
 export const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const { user } = useSession();
 
   return [
     { name: t('team-member'), path: 'team-members', icon: IconUsersGroup },
     { name: t('tags'), path: 'tags', icon: IconTag },
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
+    { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
+    // Who changed what: owners and admins only.
+    ...(user.role !== 'member' ? [{ name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck }] : []),
   ];
 };
 

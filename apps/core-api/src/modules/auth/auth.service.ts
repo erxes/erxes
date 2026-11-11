@@ -1,3 +1,4 @@
+import { recordAudit } from "~/modules/audit/audit.service";
 import { db, organizations, users } from "@erxes/core-db";
 import { and, eq, sql } from "drizzle-orm";
 import { config } from "~/config";
@@ -64,9 +65,29 @@ export const signIn = async (
     match?.user.passwordHash ?? null
   );
 
+  if (match && (!valid || match.user.status !== "active")) {
+    await recordAudit(
+      db(),
+      { orgId: match.user.orgId, actorType: "user", actorId: match.user.id, source: "core" },
+      {
+        action: "auth.sign_in_failed",
+        targetType: "user",
+        targetId: match.user.id,
+        targetLabel: match.user.email,
+        metadata: { reason: valid ? `account ${match.user.status}` : "wrong password" },
+      }
+    );
+  }
+
   if (!match || !valid || match.user.status !== "active") {
     throw invalidCredentials();
   }
+
+  await recordAudit(
+    db(),
+    { orgId: match.user.orgId, actorType: "user", actorId: match.user.id, source: "core" },
+    { action: "auth.signed_in", targetType: "user", targetId: match.user.id, targetLabel: match.user.email }
+  );
 
   return {
     user: toUserDto(match.user),

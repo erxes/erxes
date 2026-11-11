@@ -6,3 +6,7 @@ coverage/
 !.env.example
 *.log
 .DS_Store
+
+# Local file storage (FILES_STORAGE=local) and test uploads
+data/
+.test-files/

@@ -31,6 +31,43 @@ const required = (name: string, value: string | undefined, devDefault: string) =
   return devDefault;
 };
 
+/**
+ * Plugin keys: `hr:<secret>,ecom:<secret>`. A plugin calls core with
+ * `Authorization: Bearer <secret>` and `X-Erxes-Org: <organisation id>`.
+ * Replaced by the plugin registry's OAuth clients later.
+ */
+const readPluginKeys = (): Map<string, string> => {
+  const keys = new Map<string, string>();
+
+  for (const entry of (readSecret('CORE_PLUGIN_KEYS') ?? '').split(',')) {
+    const separator = entry.indexOf(':');
+    const name = entry.slice(0, separator).trim().toLowerCase();
+    const secret = entry.slice(separator + 1).trim();
+
+    if (separator < 1 || !secret) {
+      continue;
+    }
+
+    if (!/^[a-z][a-z0-9_]{0,39}$/.test(name) || name === 'core') {
+      throw new Error(`CORE_PLUGIN_KEYS: "${name}" is not a valid plugin name`);
+    }
+
+    if (secret.length < 32) {
+      throw new Error(`CORE_PLUGIN_KEYS: the key for "${name}" must be at least 32 characters`);
+    }
+
+    keys.set(secret, name);
+  }
+
+  return keys;
+};
+
+const storageDriver = (process.env.FILES_STORAGE?.trim().toLowerCase() || 'local') as 'local' | 's3';
+
+if (storageDriver !== 'local' && storageDriver !== 's3') {
+  throw new Error('FILES_STORAGE must be "local" or "s3"');
+}
+
 export const config = {
   isProduction,
   port: readNumber('PORT', 3400),
@@ -66,4 +103,36 @@ export const config = {
      */
     defaultSubdomain: process.env.DEFAULT_SUBDOMAIN?.trim().toLowerCase() || undefined,
   },
+  /** Secret → plugin name. */
+  pluginKeys: readPluginKeys(),
+  files: {
+    /** `local` (a folder on this server) or `s3` (AWS S3, Cloudflare R2, MinIO, …). */
+    driver: storageDriver,
+    localDir: process.env.FILES_LOCAL_DIR?.trim() || './data/files',
+    s3: {
+      bucket: process.env.S3_BUCKET?.trim() ?? '',
+      region: process.env.S3_REGION?.trim() || 'auto',
+      /** R2 / MinIO address; empty for AWS. */
+      endpoint: process.env.S3_ENDPOINT?.trim() || undefined,
+      accessKeyId: readSecret('S3_ACCESS_KEY_ID'),
+      secretAccessKey: readSecret('S3_SECRET_ACCESS_KEY'),
+      forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
+    },
+    /** The deployment's limit; organisations can only lower it. */
+    maxSizeMb: readNumber('FILES_MAX_SIZE_MB', 50),
+    /** How long upload and download links work. */
+    linkTtlSeconds: readNumber('FILES_LINK_TTL_SECONDS', 300),
+    /** Uploads granted but never finished are removed after this long. */
+    pendingTtlHours: readNumber('FILES_PENDING_TTL_HOURS', 24),
+  },
+  retention: {
+    /** Audit log entries older than this are deleted. */
+    auditDays: readNumber('AUDIT_RETENTION_DAYS', 365),
+    /** Read notifications older than this are deleted. */
+    readNotificationDays: readNumber('NOTIFICATIONS_RETENTION_DAYS', 90),
+  },
 };
+
+if (config.files.driver === 's3' && !config.files.s3.bucket) {
+  throw new Error('FILES_STORAGE=s3 needs S3_BUCKET');
+}

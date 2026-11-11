@@ -12,6 +12,8 @@
     "bootstrap": "tsx --env-file-if-exists=../../.env scripts/bootstrap.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1166.0",
+    "@aws-sdk/s3-request-presigner": "^3.1166.0",
     "@erxes/core-contract": "workspace:*",
     "@erxes/core-db": "workspace:*",
     "@orpc/contract": "1.16.2",

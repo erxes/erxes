@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { REACT_APP_API_URL } from 'erxes-ui/utils';
+import { getFileStorage, REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useToast } from 'erxes-ui/hooks';
 
 type FileInfo = {
@@ -84,6 +84,38 @@ export const useUpload = () => {
         type,
         duration: 0,
       } as any;
+
+      const storage = getFileStorage();
+
+      // The host's file service checks size and type itself.
+      if (storage) {
+        beforeUpload?.();
+        storage
+          .upload(file)
+          .then((address) => {
+            setIsLoading(false);
+            setStatus(true);
+            afterUpload?.({ status: 'ok', response: address, fileInfo });
+          })
+          .catch((error: Error) => {
+            setIsLoading(false);
+            setStatus(false);
+            toast({
+              title: 'Error uploading file',
+              description: error.message,
+              variant: 'destructive',
+            });
+          });
+
+        if (afterRead) {
+          const preview = new FileReader();
+
+          preview.onloadend = () => afterRead({ result: preview.result, fileInfo });
+          preview.readAsDataURL(file);
+        }
+
+        continue;
+      }
 
       // const fileUploadMaxSize = REACT_APP_FILE_UPLOAD_MAX_SIZE || 20 * 1024 * 1024;
       const fileUploadMaxSize: number =
@@ -183,6 +215,23 @@ export const useUpload = () => {
     afterRemove,
   }: RemoveProps) => {
     setIsLoading(true);
+
+    const storage = getFileStorage();
+
+    if (storage?.remove) {
+      storage
+        .remove(fileName)
+        .then(() => {
+          setIsLoading(false);
+          afterRemove({ status: 'ok' });
+        })
+        .catch((error: Error) => {
+          setIsLoading(false);
+          afterRemove({ status: error.message });
+        });
+
+      return;
+    }
 
     fetch(url, {
       method: 'post',

@@ -214,7 +214,8 @@
     "my-activity": "My activity",
     "security": "Security",
     "active-directory": "Active Directory (LDAP)",
-    "support-access": "Support access"
+    "support-access": "Support access",
+    "audit-log": "Audit log"
   },
   "plugin": {
     "_": "Plugin",
@@ -1047,5 +1048,17 @@
     "turn-on-and-sign-in": "Turn on and sign in",
     "verify": "Verify",
     "back-to-sign-in": "Back to sign in"
+  },
+  "notifications": {
+    "kinds": {
+      "core": {
+        "customer": {
+          "assigned": "A customer was assigned to you"
+        },
+        "company": {
+          "assigned": "A company was assigned to you"
+        }
+      }
+    }
   }
 }

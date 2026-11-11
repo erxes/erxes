@@ -6,6 +6,13 @@ export default defineConfig({
   test: {
     // Each test file gets its own throwaway database (src/__tests__/db.ts).
     fileParallelism: false,
+    env: {
+      // A plugin key for the plugin-only endpoints (notifications, activities).
+      CORE_PLUGIN_KEYS: 'hr:test-hr-plugin-key-0123456789abcdefghijklmnop',
+      FILES_STORAGE: 'local',
+      FILES_LOCAL_DIR: resolve(__dirname, '.test-files'),
+      FILES_MAX_SIZE_MB: '5',
+    },
     testTimeout: 20_000,
     hookTimeout: 60_000,
   },

@@ -1,10 +1,11 @@
 import type { Company, Customer } from '@erxes/core-contract';
-import { IconAlignLeft, IconHierarchy2, IconId, IconLayoutSidebarRight } from '@tabler/icons-react';
+import { IconAlignLeft, IconHierarchy2, IconHistory, IconId, IconLayoutSidebarRight } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { type ReactNode, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { ActivityTimeline } from '~/modules/activity/ActivityTimeline';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
@@ -27,6 +28,7 @@ import { sidePanelWidthState, useSidePanel } from './useSidePanel';
 const DETAIL_TAB = 'detail';
 const PROPERTIES_TAB = 'properties';
 const DESCRIPTION_TAB = 'description';
+const ACTIVITY_TAB = 'activity';
 
 /** Displays the contact avatar or its initials when no image is available. */
 const RecordAvatar = ({ src, name }: { src?: string | null; name?: string }) => (
@@ -167,6 +169,14 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
         <CustomerPanelProperties customerId={record.contentId} />
       ) : (
         <CompanyPanelProperties companyId={record.contentId} />
+      ),
+    },
+    {
+      value: ACTIVITY_TAB,
+      label: t('activity', 'Activity'),
+      icon: IconHistory,
+      content: (
+        <ActivityTimeline targetType={isCustomer ? 'customer' : 'company'} targetId={record.contentId} />
       ),
     },
     // A full page edits the description in its own tab.

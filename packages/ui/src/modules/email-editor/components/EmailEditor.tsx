@@ -9,7 +9,7 @@ import {
 } from '@maily-to/core/extensions';
 import type { AnyExtension, Editor as TiptapEditor } from '@tiptap/core';
 import { cn } from 'erxes-ui/lib';
-import { readImage, REACT_APP_API_URL } from 'erxes-ui/utils';
+import { getFileStorage, readImage, REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useState } from 'react';
 import { DEFAULT_EMAIL_BLOCKS } from '../constant';
 import { EmailTableToolbar } from './EmailTableToolbar';
@@ -62,6 +62,12 @@ const nodePlaceholder =
 export const uploadEmailEditorImage = async (file: File) => {
   if (!file.type.startsWith('image/')) {
     throw new Error('Only image files can be uploaded');
+  }
+
+  const storage = getFileStorage();
+
+  if (storage) {
+    return readImage(await storage.upload(file));
   }
 
   const formData = new FormData();

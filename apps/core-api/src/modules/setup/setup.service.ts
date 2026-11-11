@@ -1,3 +1,4 @@
+import { recordAudit } from '~/modules/audit/audit.service';
 import { type Db, organizations, withTransaction } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
@@ -48,7 +49,7 @@ export const runSetup = async (input: {
       throw new HttpError(409, 'SETUP_DONE', 'This installation is already set up. Sign in instead.');
     }
 
-    return insertOrganization(tx, {
+    const created = await insertOrganization(tx, {
       name: input.organizationName,
       subdomain: input.subdomain || subdomainFromName(input.organizationName),
       owner: {
@@ -57,5 +58,18 @@ export const runSetup = async (input: {
         passwordHash,
       },
     });
+
+    await recordAudit(
+      tx,
+      { orgId: created.organization.id, actorType: 'user', actorId: created.owner.id, source: 'core' },
+      {
+        action: 'organization.created',
+        targetType: 'organization',
+        targetId: created.organization.id,
+        targetLabel: created.organization.name,
+      },
+    );
+
+    return created;
   });
 };

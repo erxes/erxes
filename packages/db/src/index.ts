@@ -3,6 +3,14 @@ export * from './ids';
 export * from './migrate';
 export * as schema from './schema';
 export {
+  ACTIVITY_TARGETS,
+  ACTOR_TYPES,
+  activities,
+  auditLogs,
+  FILE_STATUSES,
+  files,
+  NOTIFICATION_PRIORITIES,
+  notifications,
   CONTENT_TYPES,
   companies,
   companyTags,
@@ -20,4 +28,4 @@ export {
   USER_ROLES,
   USER_STATUSES,
 } from './schema';
-export type { ContentType, CustomValue } from './schema';
+export type { ActorType, ContentType, CustomValue, OrganizationSettings } from './schema';

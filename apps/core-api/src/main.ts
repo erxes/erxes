@@ -1,6 +1,7 @@
 import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
 import { createApp } from '~/app';
 import { config } from '~/config';
+import { startMaintenance } from '~/lib/maintenance';
 
 const start = async () => {
   configureDb({ ...config.data, applicationName: 'erxes-core' });
@@ -15,11 +16,14 @@ const start = async () => {
     console.log(`[core] api ready at http://localhost:${config.port}`);
   });
 
+  const stopMaintenance = startMaintenance();
+
   server.keepAliveTimeout = 120_000;
   server.headersTimeout = 121_000;
 
   for (const signal of ['SIGINT', 'SIGTERM'] as const) {
     process.once(signal, () => {
+      stopMaintenance();
       server.close();
       closeDb().finally(() => process.exit(0));
     });
