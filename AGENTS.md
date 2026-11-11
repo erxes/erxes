@@ -92,6 +92,8 @@ Judge a change by the codebase it leaves behind: fewest concepts, files and movi
 - Lean on inference. Explicit return types only on exported contract and SDK functions. No one-line cast wrappers.
 - Add packages with `pnpm add`, never by editing package.json (CI installs with `--frozen-lockfile`).
 - Run `pnpm check` before you say you're done (CI `static` job). `pnpm fix` formats and autofixes.
+- No `console` outside `packages/ui`. The API logs through pino (`apps/core-api/AGENTS.md`),
+  CLI scripts write to `process.stdout`, and `apps/core-ui` may use `console.warn` and `console.error`.
 
 ### Tests
 

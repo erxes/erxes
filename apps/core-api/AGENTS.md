@@ -5,8 +5,12 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
 ## Layout
 
 - `src/main.ts` loads the signing keys, applies migrations, registers `CORE_PLUGIN_KEYS`, starts the
-  server, the cleanup and audit checkpoints (`src/lib/maintenance.ts`), the live updates listener (`src/modules/live/hub.ts`) and the event processor
-  (`src/modules/events/processor.ts`).
+  server, the cleanup and audit checkpoints (`src/lib/maintenance.ts`), the live updates listener
+  (`src/modules/live/hub.ts`) and the event processor (`src/modules/events/processor.ts`). Its
+  first import is `src/instrumentation.ts`.
+- `src/instrumentation.ts` starts OpenTelemetry (http, express, pg, oRPC) before anything else
+  loads. Spans leave the process only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
+- `src/logger.ts` has the pino `logger`, its redaction list and `traced(name, run)`.
 - `src/app.ts` builds the Express app: `authenticate`, the live stream, the signed file links, then
   `coreApi`.
 - `src/rpc.ts` serves the contract (`coreApi`), maps invalid input to `INVALID_INPUT` and holds
@@ -52,6 +56,21 @@ DTO. Copy the `tags` procedures: `tags.service.ts` and the `tags:` block in `rou
 - Settings have unprefixed names (`DATA_URL`, `PORT`, `CORE_JWT_SECRET`). Secrets also read
   `<NAME>_FILE`. Production throws on a missing secret.
 - Values from outside (JWT claims, jsonb written by plugins, signed grants) are parsed with zod.
+
+## Logs
+
+- `console` is a lint error. Log through pino: one JSON line per call, the facts as fields and a
+  short message, `log.info({ fileId }, 'file removed')`. Errors go under `err`:
+  `log.error({ err: error }, 'could not delete a stored file')`.
+- Procedures use `context.log`, Express routes `req.log`. Both carry `requestId`, then `orgId` and
+  `actorId` once `authenticate` resolved the caller. A service that logs takes the logger as a
+  parameter (`removeFile(..., context.log)`).
+- Background work takes `logger.child({ component: 'events' })` and adds its ids per line
+  (`consumer`, `eventId`). Wrap a job in `traced('name', run)` so its queries and lines share a trace.
+- A caught error is rethrown or logged with context, never dropped. Thrown 4xx `HttpError`s
+  are answers: oRPC's logging plugin writes them at info.
+- Lines in a span carry `trace_id` and `span_id`. A new secret field name goes in `redact` in
+  `src/logger.ts`.
 
 ## Tests
 
