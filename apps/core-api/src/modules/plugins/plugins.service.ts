@@ -22,13 +22,16 @@ import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 
 type PluginRow = typeof plugins.$inferSelect;
+
 type InstallationRow = typeof pluginInstallations.$inferSelect;
 
 /** Plugin server tokens (client credentials). */
 export const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
+
 /** Plugin UI tokens: a member's session for one plugin's API. */
 export const PLUGIN_SESSION_TTL_SECONDS = 5 * 60;
 export const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
+
 /** After rotation, the previous secret keeps working this long. */
 export const SECRET_OVERLAP_HOURS = 24;
 
@@ -203,6 +206,7 @@ export const issuePluginToken = async (input: {
   if (!row || row.status !== 'active') throw invalidClient();
 
   const current = sameHash(row.secretHash, hash);
+
   const previous =
     !current &&
     sameHash(row.previousSecretHash, hash) &&
@@ -250,6 +254,7 @@ export const issuePluginToken = async (input: {
     .catch(() => undefined);
 
   const scope = scopes.join(' ');
+
   const access_token = await signJwt(
     input.org ? { org: input.org, scope } : { scope: 'manifest' },
     {
@@ -337,11 +342,13 @@ export const installPlugin = (actor: Actor, name: string) =>
   db().transaction(async (tx) => {
     const row = await pluginOrThrow(tx, name);
     const scopes = requestedScopes(row);
+
     const [before] = await tx
       .select()
       .from(pluginInstallations)
       .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
       .limit(1);
+
     const [installation] = await tx
       .insert(pluginInstallations)
       .values({
@@ -377,6 +384,7 @@ export const installPlugin = (actor: Actor, name: string) =>
 export const uninstallPlugin = (actor: Actor, name: string) =>
   db().transaction(async (tx) => {
     const row = await pluginOrThrow(tx, name);
+
     const [installation] = await tx
       .update(pluginInstallations)
       .set({ status: 'disabled', updatedAt: sql`now()` })
@@ -453,6 +461,7 @@ export const pluginSignal = async (
 
 export const isUninstalled = (installation: InstallationRow | undefined) =>
   !installation || installation.status !== 'active';
+
 // Kept for scripts: plugins without a secret yet.
 export const pluginsWithoutSecret = () =>
   db().select({ name: plugins.name }).from(plugins).where(isNull(plugins.secretHash));

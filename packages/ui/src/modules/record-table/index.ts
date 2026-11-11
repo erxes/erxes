@@ -39,11 +39,17 @@ export const RecordTable = Object.assign(RecordTableRoot, {
 });
 
 export * from './types/RecordTableCursorTypes';
+
 export * from './hooks/useRecordTableCursor';
+
 export * from './utils/cursorUtils';
+
 export * from './components/RecordTableCellInline';
+
 export * from './components/RecordTableTree';
+
 export * from './contexts/RecordTableHotkeyContext';
+
 export * from './components/RecordTableHotkeyCell';
 
 export * from './states/RecordTableCursorState';

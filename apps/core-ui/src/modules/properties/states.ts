@@ -6,7 +6,7 @@ import type { TArchiveTarget } from './usePropertyMutations';
 export const archiveTargetState = atom<TArchiveTarget | null>(null);
 
 /** Fields ticked in the group tables (by id). */
-export const selectedFieldIdsState = atom<Record<string, boolean>>({});
+export const selectedFieldIdsState = atom<Partial<Record<string, true>>>({});
 
 /** The group open in the edit sheet. */
 export const activePropertyGroupState = atom<FieldGroup | null>(null);

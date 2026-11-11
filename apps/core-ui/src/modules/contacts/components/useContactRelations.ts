@@ -8,9 +8,11 @@ export const useContactRelations = (contentType: TContactContentType, contentId:
   const client = useQueryClient();
   const { toast } = useToast();
   const isCustomer = contentType === 'core:customer';
+
   const queryKey = isCustomer
     ? ['customers', 'companies', contentId]
     : ['customers', 'ofCompany', contentId];
+
   const query = useQuery({
     queryKey,
     queryFn: async () =>
@@ -21,18 +23,19 @@ export const useContactRelations = (contentType: TContactContentType, contentId:
           ),
     enabled: !!contentId,
   });
+
   const relatedIds = query.data ?? [];
+
+  const link = (otherId: string, linked: boolean) => {
+    const pair = isCustomer
+      ? { id: contentId, companyId: otherId }
+      : { id: otherId, companyId: contentId };
+
+    return linked ? api.customers.linkCompany(pair) : api.customers.unlinkCompany(pair);
+  };
 
   const save = useMutation({
     mutationFn: async (nextIds: string[]) => {
-      const link = (otherId: string, linked: boolean) => {
-        const pair = isCustomer
-          ? { id: contentId, companyId: otherId }
-          : { id: otherId, companyId: contentId };
-
-        return linked ? api.customers.linkCompany(pair) : api.customers.unlinkCompany(pair);
-      };
-
       await Promise.all([
         ...nextIds.filter((id) => !relatedIds.includes(id)).map((id) => link(id, true)),
         ...relatedIds.filter((id) => !nextIds.includes(id)).map((id) => link(id, false)),

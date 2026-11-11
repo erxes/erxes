@@ -11,6 +11,7 @@ import {
   useRef,
 } from 'react';
 import { useLocation } from 'react-router-dom';
+import { z } from 'zod';
 import {
   type IOpenRecordOptions,
   SidePanelNavigatorContext,
@@ -50,23 +51,26 @@ export const sidePanelDraftState = atom<ISidePanelDraft | null>(null);
 export const SidePanelDraftContext = createContext<ISidePanelDraft | null | undefined>(undefined);
 
 /** The defaults of the draft of `contentType` open in the panel, if any. */
-export const useSidePanelDraft = <T extends Record<string, unknown>>(
-  contentType: string,
-): Partial<T> => {
+export const useSidePanelDraft = (contentType: string) => {
   const currentDraft = useAtomValue(sidePanelDraftState);
   const scopedDraft = useContext(SidePanelDraftContext);
   const draft = scopedDraft === undefined ? currentDraft : scopedDraft;
 
-  return draft?.contentType === contentType ? (draft.defaults as Partial<T>) : {};
+  return draft?.contentType === contentType ? draft.defaults : {};
 };
 
-interface ISidePanelNavigationState {
-  path: string | null;
-  tab: string;
-  history: { path: string; tab: string }[];
-}
-
-type TRouterState = { sidePanel?: ISidePanelNavigationState } | null;
+// History state is whatever the browser kept; only a well-formed panel entry is used.
+const RouterState = z
+  .object({
+    sidePanel: z
+      .object({
+        path: z.string().nullable(),
+        tab: z.string(),
+        history: z.array(z.object({ path: z.string(), tab: z.string() })),
+      })
+      .optional(),
+  })
+  .nullable();
 
 /** A fresh id so two drafts of one type never share a stack entry. */
 const draftId = () => Math.random().toString(36).slice(2, 12);
@@ -79,23 +83,28 @@ const draftId = () => Math.random().toString(36).slice(2, 12);
 export const useSidePanel = () => {
   const navigator = useContext(SidePanelNavigatorContext);
   const sourcePath = useContext(SidePanelRecordPathContext);
+
   const [queries, setRoute] = useMultiQueryState<{
     panel: string;
     panelHistory: string[];
     panelExpanded: boolean;
   }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY, 'panelExpanded']);
+
   const path = typeof queries.panel === 'string' ? queries.panel : null;
   const location = useLocation();
-  const routerState = location.state as TRouterState;
+  const routerState = RouterState.safeParse(location.state).data;
   const saved = routerState?.sidePanel;
   const navigationState = saved?.path === path ? saved : undefined;
+
   /** Restores the active or retained record tab from panel navigation state. */
   const getTab = (targetPath: string | null): string =>
     targetPath === path
       ? navigationState?.tab || ''
       : navigationState?.history.find((entry) => entry.path === targetPath)?.tab || '';
+
   const tab = getTab(sourcePath ?? path);
   const historyKey = JSON.stringify(queries.panelHistory ?? null);
+
   const history = useMemo(() => {
     const entries: unknown = JSON.parse(historyKey);
 
@@ -107,6 +116,7 @@ export const useSidePanel = () => {
           .slice(-MAX_PANEL_HISTORY)
       : [];
   }, [historyKey]);
+
   const setHistory = useSetAtom(sidePanelHistoryState);
 
   useEffect(() => {
@@ -146,6 +156,7 @@ export const useSidePanel = () => {
       },
     );
   };
+
   const latest = useRef({ path, history, navigate, navigator, sourcePath });
 
   useLayoutEffect(() => {
@@ -173,6 +184,7 @@ export const useSidePanel = () => {
     }
 
     const scopedRecord = parseSidePanelRecord(current.sourcePath);
+
     const previousPath =
       previous.contentId === NEW_RECORD_ID &&
       scopedRecord?.contentType === previous.contentType &&
@@ -180,6 +192,7 @@ export const useSidePanel = () => {
       current.sourcePath
         ? current.sourcePath
         : getSidePanelRecordPath(previous);
+
     const nextPath = getSidePanelRecordPath(next);
     const nextHistory = current.history.map((entry) => (entry === previousPath ? nextPath : entry));
 

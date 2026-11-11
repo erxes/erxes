@@ -27,4 +27,5 @@ export const Kbd = React.forwardRef<
     </kbd>
   );
 });
+
 Kbd.displayName = 'Kbd';

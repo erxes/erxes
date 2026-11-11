@@ -11,6 +11,7 @@ export const USERS_KEY = ['users'];
 export const TEAM_MEMBERS_SESSION_KEY = TEAM_MEMBER_CURSOR_SESSION_KEY;
 
 export type UserUpdate = Parameters<typeof api.users.update>[0];
+
 export type InviteEntry = Parameters<typeof api.users.inviteMany>[0]['entries'][number];
 
 export const ROLE_LABEL: Record<UserRole, string> = {
@@ -18,6 +19,7 @@ export const ROLE_LABEL: Record<UserRole, string> = {
   admin: 'Admin',
   member: 'Member',
 };
+
 export const STATUS_LABEL: Record<UserStatus, string> = {
   active: 'Active',
   invited: 'Invited',
@@ -130,6 +132,7 @@ export const useTeamMembersDeactivate = () => {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       const results = await Promise.allSettled(ids.map((id) => api.users.disable({ id })));
+
       const failed = results.find(
         (result): result is PromiseRejectedResult => result.status === 'rejected',
       );
@@ -168,6 +171,9 @@ export const useTeamMemberSetPassword = () => {
   });
 };
 
+const OWNER_ROLES: UserRole[] = ['owner', 'admin', 'member'];
+const ADMIN_ROLES: UserRole[] = ['admin', 'member'];
+
 /** What the signed-in member may do to `user` (the API enforces the same rules). */
 export const permissionsFor = (me: Pick<User, 'id' | 'role'>, user: Pick<User, 'id' | 'role'>) => {
   const self = user.id === me.id;
@@ -180,7 +186,7 @@ export const permissionsFor = (me: Pick<User, 'id' | 'role'>, user: Pick<User, '
     canChangeRole: manager && !self && ownerRights,
     canToggle: manager && !self && ownerRights,
     canSetPassword: manager && !self && ownerRights,
-    roles: (me.role === 'owner' ? ['owner', 'admin', 'member'] : ['admin', 'member']) as UserRole[],
+    roles: me.role === 'owner' ? OWNER_ROLES : ADMIN_ROLES,
   };
 };
 

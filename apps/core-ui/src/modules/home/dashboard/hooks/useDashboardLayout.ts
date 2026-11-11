@@ -11,19 +11,21 @@ const storageKey = (userId: string) => `erxes-home-dashboard:${userId}`;
 
 const isInt = (value: unknown): value is number => Number.isInteger(value);
 
-const isItem = (value: unknown): value is TDashboardItem => {
-  const item = value as Partial<TDashboardItem> | null;
-
-  return (
-    !!item &&
-    typeof item.id === 'string' &&
-    typeof item.type === 'string' &&
-    isInt(item.x) &&
-    isInt(item.y) &&
-    isInt(item.w) &&
-    isInt(item.h)
-  );
-};
+const isItem = (value: unknown): value is TDashboardItem =>
+  typeof value === 'object' &&
+  value !== null &&
+  'id' in value &&
+  typeof value.id === 'string' &&
+  'type' in value &&
+  typeof value.type === 'string' &&
+  'x' in value &&
+  isInt(value.x) &&
+  'y' in value &&
+  isInt(value.y) &&
+  'w' in value &&
+  isInt(value.w) &&
+  'h' in value &&
+  isInt(value.h);
 
 const read = (userId: string): TDashboardItem[] | null => {
   try {

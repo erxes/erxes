@@ -37,10 +37,12 @@ export const useAllFields = (
 /** Fields under their groups, groups in order; fields without a group come last (`group: null`). */
 export const groupFields = (groups: FieldGroup[], fields: Field[]) => {
   const known = new Set(groups.map((group) => group.id));
+
   const sections: { group: FieldGroup | null; fields: Field[] }[] = groups.map((group) => ({
     group,
     fields: fields.filter((field) => field.groupId === group.id),
   }));
+
   const ungrouped = fields.filter((field) => !field.groupId || !known.has(field.groupId));
 
   return ungrouped.length ? [...sections, { group: null, fields: ungrouped }] : sections;
@@ -62,6 +64,7 @@ export const useFields = (contentType: ContentType) => {
       ).filter((section) => section.fields.length > 0),
     [groups, all],
   );
+
   const fields = useMemo(() => sections.flatMap((section) => section.fields), [sections]);
 
   return { fields, sections, groups, loading: fieldsLoading || groupsLoading };

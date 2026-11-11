@@ -14,37 +14,38 @@ const HOUR = 60 * 60 * 1000;
  * notifications and handled events; audit checkpoints every 10 minutes. Each step is a plain idempotent DELETE, so running it on
  * every replica at once is harmless.
  */
-export const startMaintenance = () => {
-  const run = async () => {
-    try {
-      const uploads = await pruneUploads(db(), config.files.pendingTtlHours);
-      const audit = await pruneAudit(db(), config.retention.auditDays);
-      const read = await pruneNotifications(db(), config.retention.readNotificationDays);
-      const handled = await pruneEvents(
-        db(),
-        config.retention.eventDays,
-        CONSUMERS.map((consumer) => consumer.name),
-      );
+const cleanup = async () => {
+  try {
+    const uploads = await pruneUploads(db(), config.files.pendingTtlHours);
+    const audit = await pruneAudit(db(), config.retention.auditDays);
+    const read = await pruneNotifications(db(), config.retention.readNotificationDays);
 
-      if (uploads || audit || read || handled) {
-        console.log(
-          `[core] cleanup: ${uploads} unfinished uploads, ${audit} audit entries, ${read} notifications, ${handled} events`,
-        );
-      }
-    } catch (error) {
-      console.error('[core] cleanup failed', error);
-    }
-  };
-
-  // Signed audit checkpoints every 10 minutes: tampering is caught back to the last one.
-  const checkpoint = () =>
-    signAuditCheckpoints(db()).catch((error: unknown) =>
-      console.error('[core] audit checkpoints failed', error),
+    const handled = await pruneEvents(
+      db(),
+      config.retention.eventDays,
+      CONSUMERS.map((consumer) => consumer.name),
     );
 
-  const first = setTimeout(run, 60_000);
-  const timer = setInterval(run, HOUR);
-  const checkpoints = setInterval(checkpoint, 10 * 60 * 1000);
+    if (uploads || audit || read || handled) {
+      console.info(
+        `[core] cleanup: ${uploads} unfinished uploads, ${audit} audit entries, ${read} notifications, ${handled} events`,
+      );
+    }
+  } catch (error) {
+    console.error('[core] cleanup failed', error);
+  }
+};
+
+// Signed audit checkpoints every 10 minutes: tampering is caught back to the last one.
+const checkpoint = () =>
+  signAuditCheckpoints(db()).catch((error: unknown) =>
+    console.error('[core] audit checkpoints failed', error),
+  );
+
+export const startMaintenance = () => {
+  const first = setTimeout(() => void cleanup(), 60_000);
+  const timer = setInterval(() => void cleanup(), HOUR);
+  const checkpoints = setInterval(() => void checkpoint(), 10 * 60 * 1000);
 
   first.unref();
   timer.unref();

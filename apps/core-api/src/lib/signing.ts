@@ -8,6 +8,7 @@ import {
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { type JWK, type JWTPayload, jwtVerify, SignJWT } from 'jose';
+import type { z } from 'zod';
 import { config } from '~/config';
 
 /**
@@ -29,7 +30,7 @@ interface PublicKey {
 const base64url = (value: Buffer) => value.toString('base64url');
 
 const toPublic = (key: KeyObject): PublicKey => {
-  const jwk = key.export({ format: 'jwk' }) as JWK;
+  const jwk = key.export({ format: 'jwk' });
 
   if (jwk.kty !== 'EC' || jwk.crv !== 'P-256') {
     throw new Error('core signing keys must be EC P-256 (ES256)');
@@ -63,7 +64,7 @@ const devKey = (): string => {
 
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, pem, { mode: 0o600 });
-  console.log(`[core] generated a development signing key in ${file}`);
+  console.info(`[core] generated a development signing key in ${file}`);
 
   return pem;
 };
@@ -112,26 +113,35 @@ export const ISSUER = 'erxes-core';
 
 export const signJwt = (payload: JWTPayload, options: SignOptions): Promise<string> => {
   const { privateKey, current } = keys();
+
   let jwt = new SignJWT(payload)
     .setProtectedHeader({ alg: SIGNING_ALG, kid: current.kid, typ: options.typ })
     .setIssuer(ISSUER)
     .setIssuedAt();
 
   if (options.audience) jwt = jwt.setAudience(options.audience);
+
   if (options.subject) jwt = jwt.setSubject(options.subject);
+
   if (options.expiresInSeconds) jwt = jwt.setExpirationTime(`${options.expiresInSeconds}s`);
+
   if (options.jti) jwt = jwt.setJti(options.jti);
 
   return jwt.sign(privateKey);
 };
 
-/** Verifies a token core signed (any published key), checking `typ`, issuer and audience. */
-export const verifyJwt = async <T extends JWTPayload>(
+/**
+ * Verifies a token core signed (any published key), checking `typ`, issuer and
+ * audience, and returns its claims parsed with `claims`.
+ */
+export const verifyJwt = async <Claims>(
   token: string,
+  claims: z.ZodType<Claims>,
   options: { typ: string; audience?: string; maxTokenAge?: string },
-): Promise<{ payload: T; kid: string }> => {
+) => {
   const { byKid } = keys();
-  const result = await jwtVerify<T>(
+
+  const result = await jwtVerify(
     token,
     (header) => {
       const key = header.kid ? byKid.get(header.kid) : undefined;
@@ -149,5 +159,5 @@ export const verifyJwt = async <T extends JWTPayload>(
     },
   );
 
-  return { payload: result.payload, kid: result.protectedHeader.kid! };
+  return claims.parse(result.payload);
 };

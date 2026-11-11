@@ -9,9 +9,12 @@ export const useFontSize = (): FontSizeState => {
     IBlockEditor['schema']['inlineContentSchema'],
     IBlockEditor['schema']['styleSchema']
   >();
+
   const [currentSize, setCurrentSize] = useState(() => editor.getActiveStyles().fontSize || '');
+
   const [isFileBlock, setIsFileBlock] = useState(() => {
     const { block } = editor.getTextCursorPosition();
+
     return !!editor.schema.blockSpecs[block.type].config.isFileBlock;
   });
 
@@ -27,6 +30,7 @@ export const useFontSize = (): FontSizeState => {
     } else {
       editor.removeStyles({ fontSize: '' });
     }
+
     editor.focus();
   };
 

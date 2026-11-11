@@ -95,6 +95,7 @@ type UploadPreviewPropsExtended = React.ComponentPropsWithoutRef<'div'> & {
   onUploadProgress?: () => void;
   onAllUploadsComplete?: () => void;
 };
+
 const UploadPreview = React.forwardRef<HTMLDivElement, UploadPreviewPropsExtended>(
   ({ className, onUploadStart, onUploadProgress, onAllUploadsComplete, ...props }, ref) => {
     const { isLoading, upload } = useUpload();

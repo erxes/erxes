@@ -34,48 +34,29 @@ interface CachedToken {
   expiresAt: number;
 }
 
-export class CoreTokenError extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-
 export const createCoreClient = (options: CoreClientOptions) => {
   const fetcher = options.fetch ?? globalThis.fetch;
   const base = options.coreUrl.replace(/\/+$/, '');
   const tokens = new Map<string, Promise<CachedToken>>();
 
+  // Only for `POST /plugins/token`, which takes no token.
+  const anonymous: CoreClient = createORPCClient(
+    new OpenAPILink(coreContract, {
+      url: `${base}${CORE_API_PREFIX}`,
+      fetch: (request, init) => fetcher(request, init),
+    }),
+  );
+
+  /** A token, or an `ORPCError` with the reason (`INVALID_CLIENT`, `NOT_INSTALLED`). */
   const requestToken = async (org?: string): Promise<CachedToken> => {
-    const response = await fetcher(`${base}${CORE_API_PREFIX}/plugins/token`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        grant_type: 'client_credentials',
-        client_id: options.plugin,
-        client_secret: options.clientSecret,
-        org,
-      }),
+    const issued = await anonymous.plugins.token({
+      grant_type: 'client_credentials',
+      client_id: options.plugin,
+      client_secret: options.clientSecret,
+      org,
     });
-    const body = (await response.json().catch(() => ({}))) as {
-      access_token?: string;
-      expires_in?: number;
-      code?: string;
-      message?: string;
-    };
 
-    if (!response.ok || !body.access_token) {
-      throw new CoreTokenError(
-        response.status,
-        body.code ?? 'TOKEN_FAILED',
-        body.message ?? 'Could not get a core token',
-      );
-    }
-
-    return { token: body.access_token, expiresAt: Date.now() + (body.expires_in ?? 900) * 1000 };
+    return { token: issued.access_token, expiresAt: Date.now() + issued.expires_in * 1000 };
   };
 
   /** A token for the organisation (or the deployment), renewed a minute before it ends. */
@@ -109,6 +90,7 @@ export const createCoreClient = (options: CoreClientOptions) => {
 
             return fetcher(new Request(request, { headers }), init);
           };
+
           const response = await send(await tokenFor(org));
 
           // Uninstalled and reinstalled, or scopes changed: try once with a new token.
@@ -171,6 +153,7 @@ export const verifyPluginSession = async (
     typ: 'erxes-plugin-session+jwt',
     algorithms: ['ES256'],
   });
+
   const role = payload.role;
 
   if (

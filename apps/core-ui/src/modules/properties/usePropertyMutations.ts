@@ -7,8 +7,11 @@ import { useSession } from '~/modules/auth/session';
 import { FIELD_GROUPS_KEY, FIELDS_KEY } from './useFields';
 
 type FieldCreate = Parameters<typeof api.fields.create>[0];
+
 type FieldUpdate = Parameters<typeof api.fields.update>[0];
+
 type GroupCreate = Parameters<typeof api.fieldGroups.create>[0];
+
 type GroupUpdate = Parameters<typeof api.fieldGroups.update>[0];
 
 /** Owners and admins manage properties (old `fieldsManage` / `fieldGroupsManage`). */
@@ -64,12 +67,13 @@ export const useEditProperty = () => {
 };
 
 export const useAddPropertyGroup = () => {
-  const refresh = usePropertiesRefresh();
+  const client = useQueryClient();
   const { onError } = useFeedback();
 
   return useMutation({
     mutationFn: (body: GroupCreate) => api.fieldGroups.create(body),
-    onSuccess: () => refresh(),
+    // Waits for the refetched list, so the caller can select the new group straight away.
+    onSuccess: () => client.invalidateQueries({ queryKey: FIELD_GROUPS_KEY }),
     onError,
   });
 };
@@ -110,11 +114,13 @@ export const useFieldUsage = (target: TArchiveTarget | null) => {
 export const usePropertyArchive = () => {
   const refresh = usePropertiesRefresh();
   const { onError, success, t } = useFeedback();
+
   const done = (title: string, onDone: () => void) => () => {
     refresh(true);
     success(title);
     onDone();
   };
+
   const archive = useMutation({
     mutationFn: async (target: TArchiveTarget) => {
       if (target.kind === 'group') await api.fieldGroups.archive({ id: target.id });
@@ -122,6 +128,7 @@ export const usePropertyArchive = () => {
     },
     onError,
   });
+
   // The server checks again; the dialog's answer may be stale by now.
   const remove = useMutation({
     mutationFn: (target: TArchiveTarget) =>
@@ -143,6 +150,7 @@ export const usePropertyArchive = () => {
 export const usePropertyRestore = () => {
   const refresh = usePropertiesRefresh();
   const { onError, success, t } = useFeedback();
+
   const restore = useMutation({
     mutationFn: async ({ kind, id }: { kind: 'field' | 'group'; id: string }) => {
       if (kind === 'group') await api.fieldGroups.restore({ id });
@@ -183,7 +191,7 @@ export const useReorder = (kind: 'fields' | 'groups', contentType: ContentType) 
           data && {
             data: data.data
               .map((group) => ({ ...group, order: byId.get(group.id) ?? group.order }))
-              .sort((a, b) => a.order - b.order),
+              .toSorted((a, b) => a.order - b.order),
           },
       );
     },

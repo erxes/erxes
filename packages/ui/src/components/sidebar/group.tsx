@@ -18,6 +18,7 @@ export const SidebarGroup = React.forwardRef<HTMLDivElement, React.ComponentProp
     );
   },
 );
+
 SidebarGroup.displayName = 'SidebarGroup';
 
 export const SidebarGroupLabel = React.forwardRef<
@@ -39,6 +40,7 @@ export const SidebarGroupLabel = React.forwardRef<
     />
   );
 });
+
 SidebarGroupLabel.displayName = 'SidebarGroupLabel';
 
 export const SidebarGroupAction = React.forwardRef<
@@ -62,6 +64,7 @@ export const SidebarGroupAction = React.forwardRef<
     />
   );
 });
+
 SidebarGroupAction.displayName = 'SidebarGroupAction';
 
 export const SidebarGroupContent = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
@@ -74,4 +77,5 @@ export const SidebarGroupContent = React.forwardRef<HTMLDivElement, React.Compon
     />
   ),
 );
+
 SidebarGroupContent.displayName = 'SidebarGroupContent';

@@ -9,6 +9,7 @@ const TooltipRoot = ({
 );
 
 TooltipRoot.displayName = TooltipPrimitive.Root.displayName;
+
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
@@ -27,6 +28,7 @@ const TooltipContent = React.forwardRef<
     </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
 ));
+
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
 export const Tooltip = Object.assign(TooltipPrimitive.Root, {

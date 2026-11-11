@@ -36,6 +36,7 @@ export const RecordTableHead = ({
   header: Header<any, unknown>;
 }) => {
   const { column } = header;
+
   const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
     id: column.id,
     disabled: !!column.getIsPinned(),
@@ -91,7 +92,7 @@ const RecordTableOverLine = ({
   column,
   isDragging,
 }: {
-  column: Column<any, unknown>;
+  column: Column<any>;
   isDragging: boolean;
 }) => {
   const { over, active } = useDndContext();
@@ -99,10 +100,11 @@ const RecordTableOverLine = ({
   const columnsOrder = table.getState().columnOrder;
 
   if (over?.id === column.id && !isDragging && active?.id) {
-    if (!table.getState().columnPinning?.left?.includes(over.id as string)) {
+    if (!table.getState().columnPinning?.left?.includes(over.id)) {
       const activeIndex = columnsOrder.indexOf(active.id as string);
-      const overIndex = columnsOrder.indexOf(over.id as string);
+      const overIndex = columnsOrder.indexOf(over.id);
       const isOnRight = activeIndex < overIndex;
+
       return (
         <div
           className={cn(

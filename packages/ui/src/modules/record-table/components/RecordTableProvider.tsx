@@ -34,9 +34,11 @@ const RecordTableContext = createContext<IRecordTableContext | null>(null);
 
 export function useRecordTable() {
   const context = useContext(RecordTableContext);
+
   if (!context) {
     throw new Error('useRecordTable must be used within a RecordTableProvider.');
   }
+
   return context;
 }
 
@@ -58,18 +60,23 @@ export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProvide
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
     const {
       prefs: { columnOrder, columnPinning, columnSizing, columnVisibility },
       savePrefs,
     } = useTablePreferences(tableId);
+
     const [colOrder, setColumnOrder] = useState<ColumnOrderState>(
       () => columnOrder || columns.map((c) => c.id || ''),
     );
+
     const [colVisibility, setColVisibility] = useState<VisibilityState>(columnVisibility || {});
     const [colSizing, setColSizing] = useState<ColumnSizingState>(columnSizing || {});
+
     const [colPinning, setColPinning] = useState<ColumnPinningState>(
       () => columnPinning || { left: stickyColumns ?? [] },
     );
+
     const stickyKey = (stickyColumns ?? []).join(',');
     const isPinningTouched = useRef(false);
     useEffect(() => {
@@ -98,8 +105,10 @@ export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProvide
       .map((column) => column.id)
       .filter((id): id is string => typeof id === 'string' && isStructuralColumn(id))
       .join(',');
+
     const pinning = useMemo<ColumnPinningState>(() => {
       const left = colPinning.left ?? [];
+
       const structural = (structuralKey ? structuralKey.split(',') : []).filter(
         (id) => !left.includes(id),
       );
@@ -108,6 +117,7 @@ export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProvide
 
       return { ...colPinning, left: [...structural, ...left] };
     }, [colPinning, structuralKey]);
+
     const table = useReactTable({
       data,
       columns,

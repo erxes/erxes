@@ -87,6 +87,7 @@ export const SelectTreeArrow = React.forwardRef<
 
 export const SelectTreeIndentation = ({ order }: { order: string }) => {
   const level = order?.match(/[/]/gi)?.length || 0;
+
   if (level <= 0) {
     return null;
   }

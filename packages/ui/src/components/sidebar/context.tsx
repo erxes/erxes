@@ -37,6 +37,7 @@ export function useOptionalSidebar() {
 
 export function useSidebar() {
   const context = useOptionalSidebar();
+
   if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.');
   }
@@ -89,7 +90,9 @@ export const SidebarProvider = React.forwardRef<
     const [_collapseState, _setCollapseState] = React.useState<CollapseState>(
       defaultCollapseState ?? (defaultOpen ? 'expanded' : 'collapsed'),
     );
+
     let collapseState: CollapseState;
+
     if (threeStep) {
       collapseState = collapseStateProp ?? _collapseState;
     } else {
@@ -101,11 +104,13 @@ export const SidebarProvider = React.forwardRef<
     const setCollapseState = React.useCallback(
       (value: CollapseState | ((value: CollapseState) => CollapseState)) => {
         const next = typeof value === 'function' ? value(collapseState) : value;
+
         if (onCollapseStateChange) {
           onCollapseStateChange(next);
         } else {
           _setCollapseState(next);
         }
+
         document.cookie = `${SIDEBAR_COLLAPSE_COOKIE_NAME}=${next}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       },
       [onCollapseStateChange, collapseState],
@@ -114,10 +119,13 @@ export const SidebarProvider = React.forwardRef<
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
         const openState = typeof value === 'function' ? value(open) : value;
+
         if (threeStep) {
           setCollapseState(openState ? 'expanded' : 'collapsed');
+
           return;
         }
+
         if (setOpenProp) {
           setOpenProp(openState);
         } else {
@@ -132,12 +140,16 @@ export const SidebarProvider = React.forwardRef<
     const toggleSidebar = React.useCallback(() => {
       if (isMobile) {
         setOpenMobile((open) => !open);
+
         return;
       }
+
       if (threeStep) {
         setCollapseState((prev) => nextCollapseState(prev));
+
         return;
       }
+
       setOpen((open) => !open);
     }, [isMobile, threeStep, setCollapseState, setOpen, setOpenMobile]);
 
@@ -193,4 +205,5 @@ export const SidebarProvider = React.forwardRef<
     );
   },
 );
+
 SidebarProvider.displayName = 'SidebarProvider';

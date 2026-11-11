@@ -45,6 +45,7 @@ export const getFileIcon = (fileType: string, fileName: string) => {
   } else if (fileType.startsWith('image/')) {
     return <IconPhoto className="size-4 opacity-60" />;
   }
+
   return <IconFile className="size-4 opacity-60" />;
 };
 
@@ -59,6 +60,7 @@ export const formatBytes = (
 
   if (bytes === 0 || bytes === undefined) return size !== undefined ? `0 ${size}` : '0 bytes';
   const i = size !== undefined ? sizes.indexOf(size) : Math.floor(Math.log(bytes) / Math.log(k));
+
   return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
@@ -79,6 +81,7 @@ const Dropzone = ({
 }: React.PropsWithChildren<DropzoneProps>) => {
   const isSuccess = restProps.isSuccess;
   const isActive = restProps.isDragActive;
+
   const isInvalid =
     (restProps.isDragActive && restProps.isDragReject) ||
     (restProps.errors.length > 0 && !restProps.isSuccess) ||
@@ -103,6 +106,7 @@ const Dropzone = ({
     </DropzoneContext.Provider>
   );
 };
+
 const DropzoneContent = ({ className }: { className?: string }) => {
   const {
     files,

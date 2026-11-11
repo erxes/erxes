@@ -54,9 +54,11 @@ export interface ChoiceboxItemProps extends Omit<ComponentPropsWithoutRef<'div'>
   disabled?: boolean;
   children: ReactNode;
 }
+
 const ChoiceboxItem = forwardRef<HTMLLabelElement, ChoiceboxItemProps>(
   ({ className, value, title, disabled, children }, ref) => {
     const id = useId();
+
     return (
       <label
         key={`${id}-${value}`}

@@ -1,32 +1,32 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
+import type { ContentType } from '@erxes/core-contract';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { describeWithDb, useTestDatabase, useTestServer } from './support';
 
 describeWithDb('tags, custom fields, companies and merge', () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-  let ownerToken = '';
-  let memberToken = '';
-  let otherOrgToken = '';
+  const server = useTestServer();
+  let owner = server.client();
+  let member = server.client();
+  let otherOrg = server.client();
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const globex = await createOrganization({
       subdomain: 'globex',
       name: 'Globex',
       owner: { email: 'owner@globex.mn' },
     });
+
     const memberId = newId();
 
     await db().insert(users).values({
@@ -36,52 +36,13 @@ describeWithDb('tags, custom fields, companies and merge', () => {
       status: 'active',
     });
 
-    ownerToken = signAccessToken(acme.owner.id, acme.organization.id);
-    memberToken = signAccessToken(memberId, acme.organization.id);
-    otherOrgToken = signAccessToken(globex.owner.id, globex.organization.id);
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    owner = server.client(signAccessToken(acme.owner.id, acme.organization.id));
+    member = server.client(signAccessToken(memberId, acme.organization.id));
+    otherOrg = server.client(signAccessToken(globex.owner.id, globex.organization.id));
   });
 
-  afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));
-
-  /** Every field a test reads from a response (success or error). */
-  interface Body {
-    id: string;
-    name: string;
-    primaryName: string;
-    names: string[];
-    firstName: string | null;
-    lastName: string | null;
-    position: string | null;
-    primaryEmail: string | null;
-    emails: string[];
-    phones: string[];
-    tagIds: string[];
-    customFields: Record<string, unknown>;
-    state: string;
-    data: { id: string; primaryName?: string; name?: string; firstName?: string | null }[];
-    totalCount: number;
-    updated: number;
-    code: string;
-  }
-
-  /** `data` of an error body (oRPC: `{ code, status, message, data }`). */
-  const errorData = (body: unknown) =>
-    (body as { data?: { id?: string | null; fieldId?: string } }).data;
-
-  const call = async (token: string, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    return { status: response.status, body: (await response.json()) as Body };
-  };
-
-  const tag = async (type: string, name: string) =>
-    (await call(ownerToken, 'POST', '/tags', { type, name, colorCode: '#22aa66' })).body.id;
+  const tag = async (type: ContentType, name: string) =>
+    (await owner.tags.create({ type, name, colorCode: '#22aa66' })).id;
 
   describe('tags', () => {
     it('creates tags per type with unique names and lists them by name', async () => {
@@ -89,172 +50,162 @@ describeWithDb('tags, custom fields, companies and merge', () => {
       await tag('customer', 'cold');
       await tag('company', 'VIP');
 
-      const duplicate = await call(memberToken, 'POST', '/tags', { type: 'customer', name: 'vip' });
-      const list = await call(memberToken, 'GET', '/tags?type=customer');
+      await expect(member.tags.create({ type: 'customer', name: 'vip' })).rejects.toMatchObject({
+        status: 409,
+        code: 'TAG_EXISTS',
+      });
 
-      expect(duplicate.status).toBe(409);
-      expect(duplicate.body.code).toBe('TAG_EXISTS');
-      expect(list.body.data.map((item) => item.name)).toEqual(['cold', 'VIP']);
-      expect((await call(otherOrgToken, 'GET', '/tags?type=customer')).body.data).toEqual([]);
+      const list = await member.tags.list({ type: 'customer' });
+
+      expect(list.data.map((item) => item.name)).toEqual(['cold', 'VIP']);
+      expect((await otherOrg.tags.list({ type: 'customer' })).data).toEqual([]);
     });
 
     it('tags customers with their own type only and takes deleted tags off', async () => {
       const vip = await tag('customer', 'Gold');
       const companyTag = await tag('company', 'Partner');
-      const created = await call(ownerToken, 'POST', '/customers', {
-        firstName: 'Tagged',
-        tagIds: [vip],
-      });
-      const wrongType = await call(ownerToken, 'PATCH', `/customers/${created.body.id}`, {
-        tagIds: [companyTag],
-      });
-      const filtered = await call(ownerToken, 'GET', `/customers?tagIds=${vip}`);
+      const created = await owner.customers.create({ firstName: 'Tagged', tagIds: [vip] });
+      const filtered = await owner.customers.list({ tagIds: vip });
 
-      expect(created.body.tagIds).toEqual([vip]);
-      expect(wrongType.body.code).toBe('INVALID_TAG');
-      expect(filtered.body.data.map((item) => item.id)).toEqual([created.body.id]);
+      expect(created.tagIds).toEqual([vip]);
+      await expect(
+        owner.customers.update({ id: created.id, tagIds: [companyTag] }),
+      ).rejects.toMatchObject({ code: 'INVALID_TAG' });
+      expect(filtered.data.map((item) => item.id)).toEqual([created.id]);
 
-      expect((await call(memberToken, 'DELETE', `/tags/${vip}`, {})).status).toBe(403);
-      expect((await call(ownerToken, 'DELETE', `/tags/${vip}`, {})).status).toBe(200);
-      expect((await call(ownerToken, 'GET', `/customers/${created.body.id}`)).body.tagIds).toEqual(
-        [],
-      );
+      await expect(member.tags.remove({ id: vip })).rejects.toMatchObject({ status: 403 });
+      expect(await owner.tags.remove({ id: vip })).toEqual({ ok: true });
+      expect(server.status()).toBe(200);
+      expect((await owner.customers.get({ id: created.id })).tagIds).toEqual([]);
     });
 
     it('adds and removes tags on many customers at once', async () => {
       const a = await tag('customer', 'A');
       const b = await tag('customer', 'B');
-      const one = await call(ownerToken, 'POST', '/customers', { firstName: 'One', tagIds: [a] });
-      const two = await call(ownerToken, 'POST', '/customers', { firstName: 'Two' });
-      const result = await call(ownerToken, 'POST', '/customers/tag', {
-        ids: [one.body.id, two.body.id],
+      const one = await owner.customers.create({ firstName: 'One', tagIds: [a] });
+      const two = await owner.customers.create({ firstName: 'Two' });
+
+      const result = await owner.customers.tag({
+        ids: [one.id, two.id],
         add: [b],
         remove: [a],
       });
 
-      expect(result.body.updated).toBe(2);
-      expect((await call(ownerToken, 'GET', `/customers/${one.body.id}`)).body.tagIds).toEqual([b]);
-      expect((await call(ownerToken, 'GET', `/customers/${two.body.id}`)).body.tagIds).toEqual([b]);
+      expect(result.updated).toBe(2);
+      expect((await owner.customers.get({ id: one.id })).tagIds).toEqual([b]);
+      expect((await owner.customers.get({ id: two.id })).tagIds).toEqual([b]);
     });
   });
 
   describe('custom fields', () => {
     it('only owners and admins define fields; values are checked against them', async () => {
-      expect(
-        (
-          await call(memberToken, 'POST', '/fields', {
-            contentType: 'customer',
-            label: 'Tier',
-            type: 'text',
-          })
-        ).status,
-      ).toBe(403);
+      await expect(
+        member.fields.create({ contentType: 'customer', label: 'Tier', type: 'text' }),
+      ).rejects.toMatchObject({ status: 403 });
 
-      const tier = await call(ownerToken, 'POST', '/fields', {
+      const tier = await owner.fields.create({
         contentType: 'customer',
         label: 'Tier',
         type: 'select',
         options: ['Bronze', 'Silver'],
       });
-      const visits = await call(ownerToken, 'POST', '/fields', {
+
+      const visits = await owner.fields.create({
         contentType: 'customer',
         label: 'Visits',
         type: 'number',
       });
-      const created = await call(memberToken, 'POST', '/customers', {
+
+      const created = await member.customers.create({
         firstName: 'Custom',
-        customFields: { [tier.body.id]: 'Silver', [visits.body.id]: 3 },
-      });
-      const wrong = await call(memberToken, 'PATCH', `/customers/${created.body.id}`, {
-        customFields: { [tier.body.id]: 'Platinum' },
-      });
-      const cleared = await call(memberToken, 'PATCH', `/customers/${created.body.id}`, {
-        customFields: { [visits.body.id]: null },
+        customFields: { [tier.id]: 'Silver', [visits.id]: 3 },
       });
 
-      expect(created.body.customFields).toEqual({ [tier.body.id]: 'Silver', [visits.body.id]: 3 });
-      expect(wrong.status).toBe(400);
-      expect(wrong.body).toMatchObject({
+      await expect(
+        member.customers.update({ id: created.id, customFields: { [tier.id]: 'Platinum' } }),
+      ).rejects.toMatchObject({
+        status: 400,
         code: 'INVALID_FIELD_VALUE',
-        data: { fieldId: tier.body.id },
+        data: { fieldId: tier.id },
       });
-      expect(cleared.body.customFields).toEqual({ [tier.body.id]: 'Silver' });
 
-      const fields = await call(memberToken, 'GET', '/fields?contentType=customer');
-      expect(fields.body.data.map((field) => field.id)).toEqual([tier.body.id, visits.body.id]);
+      const cleared = await member.customers.update({
+        id: created.id,
+        customFields: { [visits.id]: null },
+      });
 
-      await call(ownerToken, 'DELETE', `/fields/${tier.body.id}`, {});
-      expect(
-        (await call(ownerToken, 'GET', `/customers/${created.body.id}`)).body.customFields,
-      ).toEqual({});
+      expect(created.customFields).toEqual({ [tier.id]: 'Silver', [visits.id]: 3 });
+      expect(cleared.customFields).toEqual({ [tier.id]: 'Silver' });
+
+      const fields = await member.fields.list({ contentType: 'customer' });
+      expect(fields.data.map((field) => field.id)).toEqual([tier.id, visits.id]);
+
+      await owner.fields.remove({ id: tier.id });
+      expect((await owner.customers.get({ id: created.id })).customFields).toEqual({});
     });
 
     it('rejects fields of another record type', async () => {
-      const companyField = await call(ownerToken, 'POST', '/fields', {
+      const companyField = await owner.fields.create({
         contentType: 'company',
         label: 'Region',
         type: 'text',
       });
-      const result = await call(ownerToken, 'POST', '/customers', {
-        firstName: 'X',
-        customFields: { [companyField.body.id]: 'North' },
-      });
 
-      expect(result.body.code).toBe('INVALID_FIELD');
+      await expect(
+        owner.customers.create({ firstName: 'X', customFields: { [companyField.id]: 'North' } }),
+      ).rejects.toMatchObject({ code: 'INVALID_FIELD' });
     });
   });
 
   describe('companies', () => {
     it('creates companies with unique names and searches them', async () => {
-      const created = await call(memberToken, 'POST', '/companies', {
+      const created = await member.companies.create({
         primaryName: 'Nomad Tech',
         names: ['Nomad LLC'],
         website: 'nomad.mn',
         size: 40,
       });
-      const duplicate = await call(memberToken, 'POST', '/companies', {
-        primaryName: 'nomad tech',
-      });
-      const search = await call(memberToken, 'GET', '/companies?search=llc');
 
-      expect(created.body).toMatchObject({
+      await expect(member.companies.create({ primaryName: 'nomad tech' })).rejects.toMatchObject({
+        status: 409,
+        code: 'COMPANY_EXISTS',
+        data: { id: created.id },
+      });
+
+      const search = await member.companies.list({ search: 'llc' });
+
+      expect(created).toMatchObject({
         primaryName: 'Nomad Tech',
         names: ['Nomad Tech', 'Nomad LLC'],
       });
-      expect(duplicate.status).toBe(409);
-      expect(duplicate.body).toMatchObject({
-        code: 'COMPANY_EXISTS',
-        data: { id: created.body.id },
+      expect(search.data.map((item) => item.id)).toEqual([created.id]);
+      await expect(otherOrg.companies.get({ id: created.id })).rejects.toMatchObject({
+        status: 404,
       });
-      expect(search.body.data.map((item) => item.id)).toEqual([created.body.id]);
-      expect((await call(otherOrgToken, 'GET', `/companies/${created.body.id}`)).status).toBe(404);
     });
 
     it('links customers and companies both ways', async () => {
-      const company = await call(ownerToken, 'POST', '/companies', { primaryName: 'Steppe Foods' });
-      const customer = await call(ownerToken, 'POST', '/customers', { firstName: 'Linked' });
-      const link = `/customers/${customer.body.id}/companies/${company.body.id}`;
+      const company = await owner.companies.create({ primaryName: 'Steppe Foods' });
+      const customer = await owner.customers.create({ firstName: 'Linked' });
+      const link = { id: customer.id, companyId: company.id };
 
-      expect((await call(ownerToken, 'PUT', link, {})).status).toBe(200);
-      expect((await call(ownerToken, 'PUT', link, {})).status).toBe(200);
+      expect(await owner.customers.linkCompany(link)).toEqual({ ok: true });
+      expect(server.status()).toBe(200);
+      // Linking again is not an error.
+      expect(await owner.customers.linkCompany(link)).toEqual({ ok: true });
+      expect(server.status()).toBe(200);
 
-      const ofCustomer = await call(ownerToken, 'GET', `/customers/${customer.body.id}/companies`);
-      const ofCompany = await call(ownerToken, 'GET', `/customers?companyId=${company.body.id}`);
-      const companiesOf = await call(
-        ownerToken,
-        'GET',
-        `/companies?customerId=${customer.body.id}`,
-      );
+      const ofCustomer = await owner.customers.companies({ id: customer.id });
+      const ofCompany = await owner.customers.list({ companyId: company.id });
+      const companiesOf = await owner.companies.list({ customerId: customer.id });
 
-      expect(ofCustomer.body.data.map((item) => item.primaryName)).toEqual(['Steppe Foods']);
-      expect(ofCompany.body.data.map((item) => item.id)).toEqual([customer.body.id]);
-      expect(companiesOf.body.data.map((item) => item.id)).toEqual([company.body.id]);
+      expect(ofCustomer.data.map((item) => item.primaryName)).toEqual(['Steppe Foods']);
+      expect(ofCompany.data.map((item) => item.id)).toEqual([customer.id]);
+      expect(companiesOf.data.map((item) => item.id)).toEqual([company.id]);
 
-      await call(ownerToken, 'DELETE', link, {});
-      expect(
-        (await call(ownerToken, 'GET', `/customers/${customer.body.id}/companies`)).body.data,
-      ).toEqual([]);
-      expect((await call(otherOrgToken, 'PUT', link, {})).status).toBe(404);
+      await owner.customers.unlinkCompany(link);
+      expect((await owner.customers.companies({ id: customer.id })).data).toEqual([]);
+      await expect(otherOrg.customers.linkCompany(link)).rejects.toMatchObject({ status: 404 });
     });
   });
 
@@ -262,14 +213,16 @@ describeWithDb('tags, custom fields, companies and merge', () => {
     it('merges customers: fills empty fields, combines contacts, tags and companies', async () => {
       const t1 = await tag('customer', 'M1');
       const t2 = await tag('customer', 'M2');
-      const company = await call(ownerToken, 'POST', '/companies', { primaryName: 'Merge Co' });
-      const keep = await call(ownerToken, 'POST', '/customers', {
+      const company = await owner.companies.create({ primaryName: 'Merge Co' });
+
+      const keep = await owner.customers.create({
         state: 'lead',
         firstName: 'Bat',
         primaryEmail: 'bat@a.mn',
         tagIds: [t1],
       });
-      const other = await call(ownerToken, 'POST', '/customers', {
+
+      const other = await owner.customers.create({
         firstName: 'Batbold',
         lastName: 'Dorj',
         position: 'CEO',
@@ -278,25 +231,17 @@ describeWithDb('tags, custom fields, companies and merge', () => {
         tagIds: [t2],
       });
 
-      await call(ownerToken, 'PUT', `/customers/${other.body.id}/companies/${company.body.id}`, {});
+      await owner.customers.linkCompany({ id: other.id, companyId: company.id });
 
-      expect(
-        (
-          await call(memberToken, 'POST', '/customers/merge', {
-            ids: [keep.body.id, other.body.id],
-            keepId: keep.body.id,
-          })
-        ).status,
-      ).toBe(403);
+      const merge = { ids: [keep.id, other.id], keepId: keep.id };
 
-      const merged = await call(ownerToken, 'POST', '/customers/merge', {
-        ids: [keep.body.id, other.body.id],
-        keepId: keep.body.id,
-      });
+      await expect(member.customers.merge(merge)).rejects.toMatchObject({ status: 403 });
 
-      expect(merged.status).toBe(200);
-      expect(merged.body).toMatchObject({
-        id: keep.body.id,
+      const merged = await owner.customers.merge(merge);
+
+      expect(server.status()).toBe(200);
+      expect(merged).toMatchObject({
+        id: keep.id,
         state: 'customer',
         firstName: 'Bat',
         lastName: 'Dorj',
@@ -308,45 +253,36 @@ describeWithDb('tags, custom fields, companies and merge', () => {
       });
 
       // The merged id resolves to the kept customer; its company came along.
-      expect((await call(ownerToken, 'GET', `/customers/${other.body.id}`)).body.id).toBe(
-        keep.body.id,
-      );
-      const ofKept = await call(ownerToken, 'GET', `/customers/${keep.body.id}/companies`);
-      expect(ofKept.body.data.map((item) => item.id)).toEqual([company.body.id]);
+      expect((await owner.customers.get({ id: other.id })).id).toBe(keep.id);
+      const ofKept = await owner.customers.companies({ id: keep.id });
+      expect(ofKept.data.map((item) => item.id)).toEqual([company.id]);
       // The other's primary email is free again for the kept customer only.
-      const reuse = await call(ownerToken, 'POST', '/customers', { primaryEmail: 'bat@a.mn' });
-      expect(errorData(reuse.body)?.id).toBe(keep.body.id);
+      await expect(owner.customers.create({ primaryEmail: 'bat@a.mn' })).rejects.toMatchObject({
+        data: { id: keep.id },
+      });
     });
 
     it('merges companies and keeps the other names', async () => {
-      const keep = await call(ownerToken, 'POST', '/companies', {
-        primaryName: 'Gobi',
-        website: null,
-      });
-      const other = await call(ownerToken, 'POST', '/companies', {
+      const keep = await owner.companies.create({ primaryName: 'Gobi', website: null });
+
+      const other = await owner.companies.create({
         primaryName: 'Gobi Cashmere',
         website: 'gobi.mn',
       });
-      const merged = await call(ownerToken, 'POST', '/companies/merge', {
-        ids: [keep.body.id, other.body.id],
-        keepId: keep.body.id,
-      });
 
-      expect(merged.body).toMatchObject({ primaryName: 'Gobi', names: ['Gobi', 'Gobi Cashmere'] });
-      expect((await call(ownerToken, 'GET', `/companies/${other.body.id}`)).body.id).toBe(
-        keep.body.id,
-      );
+      const merged = await owner.companies.merge({ ids: [keep.id, other.id], keepId: keep.id });
+
+      expect(merged).toMatchObject({ primaryName: 'Gobi', names: ['Gobi', 'Gobi Cashmere'] });
+      expect((await owner.companies.get({ id: other.id })).id).toBe(keep.id);
     });
 
     it('refuses to merge records of another organisation', async () => {
-      const mine = await call(ownerToken, 'POST', '/customers', { firstName: 'Mine' });
-      const theirs = await call(otherOrgToken, 'POST', '/customers', { firstName: 'Theirs' });
-      const result = await call(ownerToken, 'POST', '/customers/merge', {
-        ids: [mine.body.id, theirs.body.id],
-        keepId: mine.body.id,
-      });
+      const mine = await owner.customers.create({ firstName: 'Mine' });
+      const theirs = await otherOrg.customers.create({ firstName: 'Theirs' });
 
-      expect(result.status).toBe(404);
+      await expect(
+        owner.customers.merge({ ids: [mine.id, theirs.id], keepId: mine.id }),
+      ).rejects.toMatchObject({ status: 404 });
     });
   });
 });

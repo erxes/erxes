@@ -1,5 +1,6 @@
-import type { ContentType, Field, Tag, User } from '@erxes/core-contract';
+import { Changes, type ContentType, type Field, type Tag, type User } from '@erxes/core-contract';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { memberName, useMembersById } from '~/lib/members';
 import { useAllFields } from '~/modules/properties/useFields';
 import { useTags } from '~/modules/tags/useTags';
@@ -30,6 +31,12 @@ const FIELD_LABELS: Record<string, string> = {
   size: 'Size',
   businessType: 'Business type',
 };
+
+/** The changes recorded in an entry's `data`, if it holds any. */
+export const changesIn = (value: unknown) => Changes.safeParse(value).data;
+
+/** A list of ids or names recorded in an entry's `data`; empty when absent. */
+export const stringsIn = (value: unknown) => z.array(z.string()).safeParse(value).data ?? [];
 
 export interface Lookups {
   members: Map<string, User>;
@@ -79,10 +86,12 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   }
 
   if (Array.isArray(value)) {
-    return listOf(value.map(String));
+    return listOf(value.map((item) => formatValue('', item, lookups)));
   }
 
-  return String(value);
+  return typeof value === 'string' || typeof value === 'number'
+    ? String(value)
+    : JSON.stringify(value);
 };
 
 const fieldLabel = (
@@ -100,13 +109,7 @@ const fieldLabel = (
   return t(`fields.${field}`, FIELD_LABELS[field] ?? field);
 };
 
-export const ChangeList = ({
-  changes,
-  lookups,
-}: {
-  changes: Record<string, [unknown, unknown]>;
-  lookups: Lookups;
-}) => {
+export const ChangeList = ({ changes, lookups }: { changes: Changes; lookups: Lookups }) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
 
   return (
@@ -131,15 +134,17 @@ export const ChangeList = ({
  */
 export const useChangeLookups = (
   contentType: ContentType,
-  changes: (Record<string, [unknown, unknown]> | undefined)[],
+  changes: (Changes | undefined)[],
   extraMemberIds: (string | null)[] = [],
 ): Lookups => {
   const { tags } = useTags(contentType);
   const { fields } = useAllFields(contentType);
   const { fields: archivedFields } = useAllFields(contentType, { archived: true });
+
   const owners = changes.flatMap((change) =>
     (change?.ownerId ?? []).map((id) => (typeof id === 'string' ? id : null)),
   );
+
   const members = useMembersById([...extraMemberIds, ...owners]);
 
   return {

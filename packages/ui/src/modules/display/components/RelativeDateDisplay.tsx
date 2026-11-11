@@ -39,6 +39,7 @@ const RelativeDateDisplayValue = ({ value, isShort }: RelativeDateDisplayProps) 
   if (isUndefinedOrNull(value)) {
     return null;
   }
+
   const relativeDate = formatDateISOStringToRelativeDate(value);
   const relativeDateShort = formatDateISOStringToRelativeDateShort(value);
 

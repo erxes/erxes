@@ -1,4 +1,4 @@
-import type { Activity, ActivityTarget, FileInfo } from '@erxes/core-contract';
+import { type Activity, type ActivityTarget, type FileInfo, NoteInput } from '@erxes/core-contract';
 import {
   IconArrowsJoin,
   IconHistory,
@@ -30,13 +30,20 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
+import type { z } from 'zod';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
-import { ChangeList, type Lookups, useChangeLookups } from '~/components/ChangeList';
+import {
+  ChangeList,
+  changesIn,
+  type Lookups,
+  stringsIn,
+  useChangeLookups,
+} from '~/components/ChangeList';
 import { actorLabel, pluginLabel } from '~/lib/members';
 import { api } from '~/lib/api';
 import { useSession } from '~/modules/auth/session';
@@ -61,6 +68,7 @@ const LinkedRecord = ({ type, id }: { type: ActivityTarget; id: string }) => {
   const customer = useCustomer(type === 'customer' ? id : null);
   const company = useCompany(type === 'company' ? id : null);
   const record = type === 'customer' ? customer.data : company.data;
+
   const name = customer.data
     ? customerTitle(customer.data)
     : company.data
@@ -97,11 +105,13 @@ const Sentence = ({
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const verb = verbOf(activity);
   const who = <span className="font-medium">{actor}</span>;
+
   const record =
     activity.targetType === 'customer'
       ? t('this-customer', 'this customer')
       : t('this-company', 'this company');
-  const data = activity.data as Record<string, unknown>;
+
+  const data = activity.data;
 
   if (activity.source !== 'core') {
     return <>{activity.summary}</>;
@@ -121,8 +131,9 @@ const Sentence = ({
         </>
       );
     case 'tagged': {
-      const added = (data.added as string[] | undefined) ?? [];
-      const removed = (data.removed as string[] | undefined) ?? [];
+      const added = stringsIn(data.added);
+      const removed = stringsIn(data.removed);
+
       const names = (ids: string[]) =>
         ids.map((id) => lookups.tags.get(id)?.name ?? 'a deleted tag').join(', ');
 
@@ -143,13 +154,12 @@ const Sentence = ({
         </>
       );
     }
+
     case 'merged':
       return (
         <>
           {who} {t('merged', 'merged')}{' '}
-          <span className="font-medium">
-            {((data.mergedNames as string[] | undefined) ?? []).join(', ')}
-          </span>{' '}
+          <span className="font-medium">{stringsIn(data.mergedNames).join(', ')}</span>{' '}
           {t('into', 'into')} {record}
         </>
       );
@@ -178,15 +188,13 @@ const Sentence = ({
   }
 };
 
-interface NoteData {
-  body: string;
-  mentions: string[];
-  fileIds: string[];
-}
+type NoteData = z.infer<typeof NoteInput>;
+
+const EMPTY_NOTE: NoteData = { body: '', mentions: [], fileIds: [] };
 
 const useNoteFiles = (fileIds: string[]) =>
   useQuery({
-    queryKey: ['files', 'by-id', [...fileIds].sort()],
+    queryKey: ['files', 'by-id', fileIds.toSorted()],
     queryFn: () => api.files.list({ ids: fileIds.join(',') }),
     enabled: fileIds.length > 0,
     select: (page) => page.data,
@@ -195,10 +203,12 @@ const useNoteFiles = (fileIds: string[]) =>
 /** A note's text with @mentions highlighted, and its attachments. */
 const NoteBody = ({ note, lookups }: { note: NoteData; lookups: Lookups }) => {
   const { data: files = [] } = useNoteFiles(note.fileIds ?? []);
+
   const names = (note.mentions ?? [])
     .map((id) => lookups.members.get(id))
     .filter(Boolean)
     .map((member) => `@${member!.fullName || member!.email}`);
+
   const pattern = names.length
     ? new RegExp(
         `(${names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
@@ -310,14 +320,16 @@ const ActivityItem = ({
   const [editing, setEditing] = useState(false);
   const plugin = activity.source !== 'core';
   const note = isNoteType(activity.type);
+
   const ItemIcon: Icon = plugin
     ? IconPlug
     : note
       ? IconNote
       : (ICONS[verbOf(activity)] ?? IconHistory);
+
   const related = activity.targetType !== pageTarget.type || activity.targetId !== pageTarget.id;
   const actor = actorLabel(activity.actor, lookups.members);
-  const changes = activity.data.changes as Record<string, [unknown, unknown]> | undefined;
+  const changes = changesIn(activity.data.changes);
   let extra: ReactNode = null;
 
   if (!plugin && changes) {
@@ -325,7 +337,7 @@ const ActivityItem = ({
   }
 
   if (note) {
-    const data = activity.data as unknown as NoteData;
+    const data = NoteInput.safeParse(activity.data).data ?? EMPTY_NOTE;
 
     extra = editing ? (
       <div className="mt-1">
@@ -411,6 +423,7 @@ const dayLabel = (iso: string, t: (key: string, fallback: string) => string, lan
   yesterday.setDate(today.getDate() - 1);
 
   if (date.toDateString() === today.toDateString()) return t('today', 'Today');
+
   if (date.toDateString() === yesterday.toDateString()) return t('yesterday', 'Yesterday');
 
   return date.toLocaleDateString(language, {
@@ -442,22 +455,26 @@ export const ActivityTimeline = ({
   const { t, i18n } = useTranslation('common', { keyPrefix: 'activity' });
   const [kind, setKind] = useState<TimelineKind>('all');
   const [includeRelated, setIncludeRelated] = useState(false);
+
   const { activities, loading, hasMore, loadingMore, loadMore } = useActivities(
     targetType,
     targetId,
     { kind, includeRelated },
   );
+
   const { data: pinned = [] } = usePinnedNotes(targetType, targetId);
   const { add } = useNoteActions();
   const all = [...pinned, ...activities];
+
   const lookups = useChangeLookups(
     targetType,
-    all.map((activity) => activity.data.changes as Record<string, [unknown, unknown]> | undefined),
+    all.map((activity) => changesIn(activity.data.changes)),
     all.flatMap((activity) => [
       activity.actor.type === 'user' ? activity.actor.id : null,
-      ...((activity.data.mentions as string[] | undefined) ?? []),
+      ...stringsIn(activity.data.mentions),
     ]),
   );
+
   const pageTarget = { type: targetType, id: targetId };
   const groups: { day: string; items: Activity[] }[] = [];
 

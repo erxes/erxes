@@ -42,6 +42,7 @@ export const TeamMemberActionItems = ({
                 const next = new URLSearchParams(previous);
 
                 next.set(RESET_PASSWORD_QUERY_KEY, user.id);
+
                 return next;
               }),
             )}

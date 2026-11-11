@@ -2,6 +2,7 @@ import { callOrReturn, getExtensionField, mergeAttributes, Node } from '@tiptap/
 import type { EditorState } from '@tiptap/pm/state';
 
 type Dispatch = ((args?: unknown) => unknown) | undefined;
+
 import {
   addColumnAfter,
   addColumnBefore,

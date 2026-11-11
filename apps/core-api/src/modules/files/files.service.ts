@@ -82,6 +82,7 @@ const settingsOf = async (client: Db, orgId: string): Promise<FileSettings> => {
     .from(organizations)
     .where(eq(organizations.id, orgId))
     .limit(1);
+
   const saved = row?.settings.files ?? {};
   const limitMb = config.files.maxSizeMb;
 
@@ -111,6 +112,7 @@ export const updateFileSettings = async (
   }
 
   const before = await settingsOf(client, actor.orgId);
+
   const next: OrganizationSettings['files'] = {
     maxSizeMb: input.maxSizeMb,
     allowedTypes: unique(input.allowedTypes),
@@ -179,6 +181,7 @@ export const createUpload = async (
   const id = newId();
   const key = storageKey(caller.orgId, id);
   const expiresIn = config.files.linkTtlSeconds;
+
   const target = await storage().uploadTarget(key, {
     contentType: input.contentType,
     size: input.size,
@@ -321,6 +324,7 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
     .where(
       and(eq(files.orgId, caller.orgId), eq(files.status, 'ready'), inArray(files.id, wanted)),
     );
+
   const byId = new Map(rows.map((row) => [row.id, row]));
 
   return { data: wanted.flatMap((id) => (byId.has(id) ? [toFileDto(byId.get(id)!)] : [])) };

@@ -1,13 +1,7 @@
 import { IconPlugConnectedX, IconRefresh } from '@tabler/icons-react';
 import { Button, Spinner } from 'erxes-ui';
-import {
-  Component,
-  type ComponentType,
-  type ErrorInfo,
-  type ReactNode,
-  useEffect,
-  useState,
-} from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { loadedPluginComponent, loadPluginComponent } from './remotes';
 import type { LoadedPlugin } from './types';
@@ -67,49 +61,31 @@ class PluginBoundary extends Component<
 }
 
 /** Renders a plugin's page module under `/<plugin path>/*`; the plugin draws its own sidebar. */
-export const PluginPage = ({ plugin }: { plugin: LoadedPlugin | undefined }) => {
-  const module = plugin?.config.modules?.[0]?.name ?? plugin?.config.name ?? '';
-  const [Page, setPage] = useState<ComponentType | null>(() =>
-    plugin ? (loadedPluginComponent(plugin.remote, module) ?? null) : null,
-  );
-  const [error, setError] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
+export const PluginPage = ({ plugin }: { plugin: LoadedPlugin | undefined }) =>
+  plugin ? <PluginModulePage plugin={plugin} /> : <NotFoundPage />;
 
-  useEffect(() => {
-    if (!plugin) {
-      return undefined;
-    }
+const PluginModulePage = ({ plugin }: { plugin: LoadedPlugin }) => {
+  const module = plugin.config.modules?.[0]?.name ?? plugin.config.name;
 
-    let active = true;
+  const page = useQuery({
+    queryKey: ['plugin-page', plugin.remote, module],
+    queryFn: () => loadPluginComponent(plugin.remote, module),
+    initialData: () => loadedPluginComponent(plugin.remote, module),
+    staleTime: Infinity,
+    retry: false,
+  });
 
-    setError(null);
-    loadPluginComponent(plugin.remote, module)
-      .then((component) => active && setPage(() => component))
-      .catch((reason: unknown) => {
-        if (active) {
-          setPage(null);
-          setError(reason instanceof Error ? reason.message : 'The plugin could not be loaded');
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [plugin, module, attempt]);
-
-  if (!plugin) {
-    return <NotFoundPage />;
-  }
-
-  if (error) {
+  if (page.isError) {
     return (
       <Failure
         title={`${plugin.config.name} is not available`}
-        message={error}
-        onRetry={() => setAttempt((value) => value + 1)}
+        message={page.error.message || 'The plugin could not be loaded'}
+        onRetry={() => void page.refetch()}
       />
     );
   }
+
+  const Page = page.data;
 
   if (!Page) {
     return (

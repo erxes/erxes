@@ -10,6 +10,7 @@ const SheetTrigger = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Trigger>
 >(({ ...props }, ref) => <SheetPrimitive.Trigger ref={ref} {...props} />);
+
 SheetTrigger.displayName = SheetPrimitive.Trigger.displayName;
 
 const SheetHeaderActionsContext = React.createContext<React.ReactNode>(null);
@@ -24,6 +25,7 @@ const SheetRoot = ({
     <SheetPrimitive.Root {...props} />
   </SheetHeaderActionsContext.Provider>
 );
+
 SheetRoot.displayName = SheetPrimitive.Root.displayName;
 
 const SheetOverlay = React.forwardRef<
@@ -39,6 +41,7 @@ const SheetOverlay = React.forwardRef<
     ref={ref}
   />
 ));
+
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
@@ -89,6 +92,7 @@ const SheetView = React.forwardRef<
     </SheetOverlay>
   </SheetPortal>
 ));
+
 SheetView.displayName = SheetPrimitive.Content.displayName;
 
 export const SheetClose = React.forwardRef<
@@ -109,11 +113,13 @@ export const SheetClose = React.forwardRef<
     </SheetPrimitive.Close>
   );
 });
+
 SheetClose.displayName = SheetPrimitive.Close.displayName;
 
 const SheetHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
   const actions = React.useContext(SheetHeaderActionsContext);
   const items = React.Children.toArray(children);
+
   const close = actions
     ? items.find((child) => React.isValidElement(child) && child.type === SheetClose)
     : undefined;
@@ -137,11 +143,13 @@ const SheetHeader = ({ className, children, ...props }: React.HTMLAttributes<HTM
     </div>
   );
 };
+
 SheetHeader.displayName = 'SheetHeader';
 
 const SheetContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('rounded-b-lg bg-background border-b flex-1', className)} {...props} />
 );
+
 SheetContent.displayName = 'SheetContent';
 
 const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -150,6 +158,7 @@ const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
     {...props}
   />
 );
+
 SheetFooter.displayName = 'SheetFooter';
 
 const SheetTitle = React.forwardRef<
@@ -162,6 +171,7 @@ const SheetTitle = React.forwardRef<
     {...props}
   />
 ));
+
 SheetTitle.displayName = SheetPrimitive.Title.displayName;
 
 const SheetDescription = React.forwardRef<
@@ -174,6 +184,7 @@ const SheetDescription = React.forwardRef<
     {...props}
   />
 ));
+
 SheetDescription.displayName = SheetPrimitive.Description.displayName;
 
 export const Sheet = Object.assign(SheetRoot, {

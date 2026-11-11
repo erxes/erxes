@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '~/modules/auth/session';
 
@@ -12,7 +13,8 @@ const getGreetingKey = (hour: number) => {
 export const HomeGreeting = () => {
   const { user } = useSession();
   const { t, i18n } = useTranslation('common', { keyPrefix: 'home' });
-  const now = new Date();
+  // The time the page opened: the greeting doesn't change under the reader.
+  const [now] = useState(() => new Date());
   // Old erxes greeted by first name; the new user has only a full name
   const name = user.fullName?.trim().split(/\s+/)[0] || user.username || user.email;
 

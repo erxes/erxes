@@ -76,6 +76,7 @@ type ImageRenderProps = ReactCustomBlockRenderProps<
 >;
 
 type FileBlockWrapperProps = Parameters<typeof ResizableFileBlockWrapper>[0];
+
 type FileBlockRenderProps = Omit<FileBlockWrapperProps, 'buttonText' | 'buttonIcon' | 'children'>;
 
 const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
@@ -92,6 +93,7 @@ const CustomImagePreview: FC<
 
   const src = downloadUrl ?? block.props.url;
   const isResolving = loadingState === 'loading';
+
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) => {
     setImgLoaded(true);
     onImageLoad(event);
@@ -217,11 +219,13 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const fileProps = toFileBlockProps(props);
   const imageStyle = getImageStyle(props.block.props.imageStyle);
   const previewWidth = props.block.props.previewWidth;
+
   const [imageDimensions, setImageDimensions] = useState<{
     url: string;
     width: number;
     height: number;
   }>();
+
   const maxWidth = getEditorMaxImageWidth(
     props.editor,
     imageStyle,
@@ -234,6 +238,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
       width: event.currentTarget.naturalWidth,
       height: event.currentTarget.naturalHeight,
     };
+
     setImageDimensions(dimensions);
 
     if (!previewWidth && props.editor.isEditable) {

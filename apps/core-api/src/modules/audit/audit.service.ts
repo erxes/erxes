@@ -1,4 +1,4 @@
-import type { AuditEntry, CursorQuery } from '@erxes/core-contract';
+import type { AuditEntry, Changes, CursorQuery } from '@erxes/core-contract';
 import { auditLogs, type Db, newId, organizations } from '@erxes/core-db';
 import { and, eq, gte, ilike, like, lte, or, sql } from 'drizzle-orm';
 import { config } from '~/config';
@@ -6,7 +6,6 @@ import { type Actor, type Caller, type PluginCaller, requireManager } from '~/ht
 import { HttpError } from '~/http/errors';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
-import type { Changes } from '~/lib/changes';
 import { keysetPage } from '~/lib/keyset';
 import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
 
@@ -230,6 +229,7 @@ export const auditSettings = async (client: Db, orgId: string) => {
     .from(organizations)
     .where(eq(organizations.id, orgId))
     .limit(1);
+
   const max = config.retention.auditDays;
 
   return {

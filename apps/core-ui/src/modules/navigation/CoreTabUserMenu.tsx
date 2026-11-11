@@ -41,6 +41,7 @@ const UserIdentity = () => {
 const ThemeSelector = () => {
   const [theme, setTheme] = useAtom(themeState);
   const { t } = useTranslation('organization');
+
   const options: { value: ThemeOption; label: string; icon: typeof IconSun }[] = [
     { value: 'light', label: t('light'), icon: IconSun },
     { value: 'dark', label: t('dark'), icon: IconMoon },

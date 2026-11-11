@@ -4,7 +4,8 @@ import { Button, Collapsible, ScrollArea, Spinner } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
-import { CustomFieldCell, FIELD_TYPE_ICONS } from '~/modules/properties/CustomFieldCell';
+import { CustomFieldCell } from '~/modules/properties/CustomFieldCell';
+import { fieldTypeOf } from '~/modules/properties/fieldTypes';
 import { useFields } from '~/modules/properties/useFields';
 import { PanelField } from '../PanelField';
 
@@ -17,7 +18,7 @@ const EmptyProperties = ({ kind }: { kind: 'customer' | 'company' }) => {
       <h3 className="font-semibold text-muted-foreground">No properties found </h3>
       <div className="my-2 flex flex-col items-center justify-center gap-2">
         <p className="text-muted-foreground">Get started by creating your first property.</p>
-        <Button size="sm" onClick={() => navigate(`/settings/properties/${kind}`)}>
+        <Button size="sm" onClick={() => void navigate(`/settings/properties/${kind}`)}>
           Create property
         </Button>
       </div>
@@ -43,6 +44,7 @@ const ContactProperties = ({
   const { sections, loading } = useFields(kind);
 
   if (loading || !values) return <Spinner containerClassName="py-6" />;
+
   if (sections.length === 0) return <EmptyProperties kind={kind} />;
 
   return (
@@ -68,7 +70,7 @@ const ContactProperties = ({
           <Collapsible.Content>
             <div className="flex flex-col gap-1 rounded-lg bg-background p-3 shadow-sm">
               {fields.map((field) => (
-                <PanelField key={field.id} icon={FIELD_TYPE_ICONS[field.type]} label={field.label}>
+                <PanelField key={field.id} icon={fieldTypeOf(field.type)?.icon} label={field.label}>
                   <CustomFieldCell
                     field={field}
                     scope={`side-panel-${kind}.${id}.${field.id}`}

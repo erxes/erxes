@@ -3,10 +3,14 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { z } from 'zod';
 import { getPool } from './client';
 
 /** Core's own tracking table: plugins in the same database keep theirs. */
 export const MIGRATIONS_TABLE = '__drizzle_migrations_core';
+
+/** drizzle-kit's `meta/_journal.json`: migration names, in order. */
+const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
 const migrationsTable = sql`${sql.identifier('public')}.${sql.identifier(MIGRATIONS_TABLE)}`;
 
@@ -46,9 +50,10 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
     migrationsFolder: folder,
     migrationsTable: MIGRATIONS_TABLE,
   });
-  const { entries } = JSON.parse(readFileSync(join(folder, 'meta', '_journal.json'), 'utf8')) as {
-    entries: { tag: string }[];
-  };
+
+  const { entries } = Journal.parse(
+    JSON.parse(readFileSync(join(folder, 'meta', '_journal.json'), 'utf8')),
+  );
 
   return drizzle(getPool()).transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('core:migrate'))`);
@@ -63,6 +68,7 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
     const { rows } = await tx.execute<{ created_at: string | null }>(
       sql`SELECT created_at FROM ${migrationsTable} ORDER BY created_at DESC LIMIT 1`,
     );
+
     const last = Number(rows[0]?.created_at ?? 0);
     const applied: string[] = [];
 

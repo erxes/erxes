@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Form, Input, Spinner, useToast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
@@ -33,19 +33,26 @@ export const ResetPasswordDialog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get(RESET_PASSWORD_QUERY_KEY);
   const setPassword = useTeamMemberSetPassword();
+
   const form = useForm<TResetPasswordForm>({
     mode: 'onBlur',
     defaultValues: { newPassword: '', repeatPassword: '' },
     resolver: zodResolver(USER_RESET_PASSWORD_SCHEMA),
   });
-  const { control, handleSubmit, reset, watch } = form;
-  const [newPassword, repeatPassword] = watch(['newPassword', 'repeatPassword']);
+
+  const { control, handleSubmit, reset } = form;
+
+  const [newPassword, repeatPassword] = useWatch({
+    control,
+    name: ['newPassword', 'repeatPassword'],
+  });
 
   const close = () =>
     setSearchParams((previous) => {
       const next = new URLSearchParams(previous);
 
       next.delete(RESET_PASSWORD_QUERY_KEY);
+
       return next;
     });
 
@@ -73,7 +80,7 @@ export const ResetPasswordDialog = () => {
           description={t('set-new-password')}
         />
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
             <fieldset className="flex flex-col gap-3 mb-3">
               <Form.Field
                 control={control}

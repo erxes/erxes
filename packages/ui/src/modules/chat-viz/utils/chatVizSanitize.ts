@@ -16,6 +16,7 @@ const MAX_TRANSFORMS = MAX_SERIES * MAX_CONTROLS;
 const MAX_TEXT_LEN = 200;
 const MAX_CONTROL_DECORATION_LEN = 20;
 const MAX_CONTROL_ABS_VALUE = 1_000_000;
+
 const VALID_TRANSFORM_OPERATIONS = new Set<ChartVizTransformOperation>([
   'add',
   'percent',
@@ -46,6 +47,7 @@ const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d
 
 function sanitizeText(input: unknown): string {
   if (typeof input !== 'string') return '';
+
   // React renders text nodes safely (no innerHTML), but we still strip to
   // printable ASCII range and cap length for defense-in-depth.
   return input.slice(0, MAX_TEXT_LEN);
@@ -54,33 +56,39 @@ function sanitizeText(input: unknown): string {
 function sanitizeColor(color: unknown): string | undefined {
   if (typeof color !== 'string') return undefined;
   const t = color.trim();
+
   return SAFE_CSS_COLOR_RE.test(t) ? t : undefined;
 }
 
 function sanitizeCssKey(key: unknown): string | undefined {
   if (typeof key !== 'string') return undefined;
+
   return SAFE_CSS_VAR_KEY_RE.test(key) ? key : undefined;
 }
 
 function sanitizeNumber(value: unknown): number {
   const n = Number(value);
+
   return Number.isFinite(n) ? n : 0;
 }
 
 /** Admits finite control values and clamps them to the wire-format budget. */
 function sanitizeControlNumber(value: unknown): number | null {
   if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+
   return Math.min(MAX_CONTROL_ABS_VALUE, Math.max(-MAX_CONTROL_ABS_VALUE, value));
 }
 
 /** Bounds display-only slider prefixes and suffixes. */
 function sanitizeDecoration(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
+
   return value.slice(0, MAX_CONTROL_DECORATION_LEN);
 }
 
 function sanitizeSentAt(value: unknown): string {
   if (typeof value === 'string' && ISO_DATE_RE.test(value)) return value;
+
   return new Date().toISOString();
 }
 
@@ -101,6 +109,7 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
   if (p['type'] !== 'chart-viz') return null;
 
   const chartType = p['chartType'];
+
   if (!VALID_CHART_TYPES.has(chartType as ChartVizType)) return null;
 
   const rawSeries = Array.isArray(p['series'])
@@ -111,7 +120,9 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
     if (!s || typeof s !== 'object') return [];
     const item = s as Record<string, unknown>;
     const key = sanitizeCssKey(item['key']);
+
     if (!key) return [];
+
     return [
       {
         key,
@@ -123,9 +134,11 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
 
   const validKeys = new Set(series.map((s) => s.key));
   const controlKeys = new Set<string>();
+
   const rawControls = Array.isArray(p['controls'])
     ? (p['controls'] as unknown[]).slice(0, MAX_CONTROLS)
     : [];
+
   const controls: ChartVizSliderControl[] = rawControls.flatMap((raw) => {
     if (!raw || typeof raw !== 'object') return [];
     const item = raw as Record<string, unknown>;
@@ -177,9 +190,11 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
   });
 
   const seenTransforms = new Set<string>();
+
   const rawTransforms = Array.isArray(p['transforms'])
     ? (p['transforms'] as unknown[]).slice(0, MAX_TRANSFORMS)
     : [];
+
   const transforms: ChartVizTransform[] = rawTransforms.flatMap((raw) => {
     if (!raw || typeof raw !== 'object') return [];
     const item = raw as Record<string, unknown>;
@@ -200,8 +215,10 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
     }
 
     seenTransforms.add(identity);
+
     return [{ controlKey, seriesKey, operation }];
   });
+
   const activeControlKeys = new Set(transforms.map(({ controlKey }) => controlKey));
   const activeControls = controls.filter(({ key }) => activeControlKeys.has(key));
 
@@ -213,9 +230,11 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
     if (!d || typeof d !== 'object') return { label: '' };
     const item = d as Record<string, unknown>;
     const point: ChartVizDataPoint = { label: sanitizeText(item['label']) };
+
     for (const key of validKeys) {
       point[key] = sanitizeNumber(item[key]);
     }
+
     return point;
   });
 
@@ -247,8 +266,11 @@ export function serializeChartVizPayload(
     type: 'chart-viz',
     sentAt: new Date().toISOString(),
   };
+
   const sanitized = sanitizeChartVizPayload(full);
+
   if (!sanitized) return null;
+
   return JSON.stringify(sanitized);
 }
 
@@ -258,10 +280,12 @@ export function serializeChartVizPayload(
  */
 export function parseChartVizMessage(raw: string): ChartVizPayload | null {
   let parsed: unknown;
+
   try {
     parsed = JSON.parse(raw);
   } catch {
     return null;
   }
+
   return sanitizeChartVizPayload(parsed);
 }

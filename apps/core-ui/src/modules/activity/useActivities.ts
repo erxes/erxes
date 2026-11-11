@@ -18,6 +18,7 @@ export const useActivities = (
   { kind = 'all', includeRelated = false }: { kind?: TimelineKind; includeRelated?: boolean } = {},
 ) => {
   const refetchInterval = useLivePolling();
+
   const query = useInfiniteQuery({
     queryKey: [...ACTIVITIES_KEY, targetType, targetId, { kind, includeRelated }],
     queryFn: ({ pageParam }) =>
@@ -59,6 +60,7 @@ export const useNoteActions = () => {
   const client = useQueryClient();
   const { toast } = useToast();
   const refresh = () => client.invalidateQueries({ queryKey: ACTIVITIES_KEY });
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',

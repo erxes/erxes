@@ -33,6 +33,7 @@ export const getBlockAttachments = (blocks: BlockLike[]): BlockAttachment[] =>
       const name =
         props.name ||
         `${block.type}.${block.type === 'audio' ? 'mp3' : block.type === 'video' ? 'mp4' : block.type === 'image' ? 'png' : 'bin'}`;
+
       return [
         {
           url: props.url as string,
@@ -46,6 +47,7 @@ export const getBlockAttachments = (blocks: BlockLike[]): BlockAttachment[] =>
     if (block.type === 'gallery' && props.images) {
       try {
         const imgs: { url: string; caption?: string }[] = JSON.parse(props.images);
+
         return imgs
           .filter((img) => img.url)
           .map((img) => ({

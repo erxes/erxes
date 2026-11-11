@@ -20,6 +20,7 @@ const PreviewProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const PreviewToolbar = ({ path }: { path?: string }) => {
   const { resizablePanelRef } = usePreviewContext();
+
   return (
     <ScrollArea>
       <ToggleGroup
@@ -68,6 +69,7 @@ export const View = React.forwardRef<
   } & Omit<React.ComponentProps<typeof Resizable.PanelGroup>, 'direction'>
 >(({ iframeSrc, ...props }, ref) => {
   const { resizablePanelRef } = usePreviewContext();
+
   return (
     <Resizable.PanelGroup
       className="relative z-10 flex-auto"

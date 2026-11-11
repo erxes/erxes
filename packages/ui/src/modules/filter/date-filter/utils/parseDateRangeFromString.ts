@@ -44,6 +44,7 @@ export const parseDateRangeFromString = (
 
   // Check for predefined ranges
   const fixedDate = normalizeFixedDate(date);
+
   if (dateRanges[fixedDate]) {
     return dateRanges[fixedDate];
   }
@@ -52,6 +53,7 @@ export const parseDateRangeFromString = (
   if (MONTHS.some((month) => date.includes(month))) {
     const [year, month] = date.split('-');
     const monthIndex = MONTHS.indexOf(month);
+
     return {
       from: startOfDay(new Date(parseInt(year), monthIndex, 1)),
       to: endOfDay(new Date(parseInt(year), monthIndex + 1, 0)),
@@ -60,6 +62,7 @@ export const parseDateRangeFromString = (
 
   // Quarter format: YYYY-quarter-N
   const quarter = parseQuarterToken(date);
+
   if (quarter) {
     return {
       from: startOfDay(new Date(quarter.year, (quarter.quarter - 1) * 3, 1)),
@@ -69,6 +72,7 @@ export const parseDateRangeFromString = (
 
   // Half year format: YYYY-half-N
   const half = parseHalfToken(date);
+
   if (half) {
     return {
       from: startOfDay(new Date(half.year, (half.half - 1) * 6, 1)),
@@ -79,6 +83,7 @@ export const parseDateRangeFromString = (
   // Year format: YYYY
   if (/^\d{4}-y$/.test(date)) {
     const year = Number.parseInt(date);
+
     return {
       from: startOfDay(new Date(year, 0, 1)),
       to: endOfDay(new Date(year, 11, 31)),

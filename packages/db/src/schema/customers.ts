@@ -41,7 +41,8 @@ export const customers = pgTable(
       .default(sql`'{}'::text[]`)
       .notNull(),
     /** ISO/IEC 5218: 0 not known, 1 male, 2 female, 9 not applicable. */
-    sex: smallint(),
+    /** ISO/IEC 5218: 0 not known, 1 male, 2 female, 9 not applicable. */
+    sex: smallint().$type<0 | 1 | 2 | 9>(),
     birthDate: date({ mode: 'string' }),
     position: text(),
     department: text(),

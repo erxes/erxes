@@ -111,7 +111,10 @@ export const NotificationsPage = () => {
         </nav>
         <div className="flex min-w-0 flex-1 flex-col">
           <PageSubHeader className="items-center gap-3">
-            <Tabs value={tab} onValueChange={(value) => setTab(value as 'all' | 'unread')}>
+            <Tabs
+              value={tab}
+              onValueChange={(value) => setTab(value === 'unread' ? 'unread' : 'all')}
+            >
               <Tabs.List>
                 <Tabs.Trigger value="all">{t('all', 'All')}</Tabs.Trigger>
                 <Tabs.Trigger value="unread">

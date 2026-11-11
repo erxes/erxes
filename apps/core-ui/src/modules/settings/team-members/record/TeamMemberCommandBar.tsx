@@ -43,7 +43,7 @@ const TeamMemberDeactivate = ({
     <Command.Item
       disabled={isPending || teamMemberIds.length === 0}
       onSelect={() =>
-        confirm({
+        void confirm({
           message: t('confirm-deactivate-team-members', { count: teamMemberIds.length }),
         }).then(async () => {
           try {

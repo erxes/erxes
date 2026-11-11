@@ -98,6 +98,7 @@ export const RecordTableInlineAnchor = React.forwardRef<
     </Badge>
   );
 });
+
 RecordTableInlineAnchor.displayName = 'RecordTableInlineAnchor';
 
 export const RecordTableInlineCell = Object.assign(RecordTableCellDisplay, {

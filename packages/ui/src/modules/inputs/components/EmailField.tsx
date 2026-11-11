@@ -86,6 +86,7 @@ export const EmailFieldsProvider = ({
         } else if (email.email) {
           acc.emails.push(email.email);
         }
+
         return acc;
       },
       {
@@ -94,6 +95,7 @@ export const EmailFieldsProvider = ({
         emailValidationStatus: ValidationStatus.Invalid,
       },
     );
+
     onValueChange?.({
       primaryEmail,
       emails: newEmails,
@@ -135,6 +137,7 @@ export const EmailListField = ({
 
   useEffect(() => {
     setEmails(formattedEmails);
+
     return () => {
       setShowEmailInput(false);
     };
@@ -209,6 +212,7 @@ const EmailOptions = ({ email, status, isPrimary }: IEmailField & { isPrimary?: 
   const emails = useAtomValue(emailsFamilyState(recordId));
   const setEditingEmail = useSetAtom(editingEmailFamilyState(recordId));
   const setShowEmailInput = useSetAtom(showEmailInputFamilyState(recordId));
+
   const handleSetPrimaryEmail = () => {
     if (isPrimary) return;
     onValueChange?.([
@@ -216,6 +220,7 @@ const EmailOptions = ({ email, status, isPrimary }: IEmailField & { isPrimary?: 
       ...(emails || []).filter((e) => e.email !== email).map((e) => ({ ...e, isPrimary: false })),
     ]);
   };
+
   const handleEditClick = () => {
     setShowEmailInput(true);
     setEditingEmail(email || null);
@@ -223,12 +228,15 @@ const EmailOptions = ({ email, status, isPrimary }: IEmailField & { isPrimary?: 
 
   const handleVerificationChange = (value: string) => {
     if (noValidation) return;
+
     if (value === status) return;
     onValidationStatusChange?.(value as ValidationStatus);
   };
+
   const handleDeleteClick = () => {
     onValueChange?.(emails.filter((e) => e.email !== email));
   };
+
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -282,12 +290,14 @@ const EmailForm = () => {
   const emails = useAtomValue(emailsFamilyState(recordId));
   const [editingEmail, setEditingEmail] = useAtom(editingEmailFamilyState(recordId));
   const { onValueChange } = useEmailFields();
+
   const form = useForm<z.infer<typeof emailSchema>>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
       email: '',
     },
   });
+
   const [showEmailInput, setShowEmailInput] = useAtom(showEmailInputFamilyState(recordId));
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -296,6 +306,7 @@ const EmailForm = () => {
     setTimeout(() => {
       inputRef.current?.focus();
     }, 180);
+
     if (editingEmail) {
       form.setValue('email', editingEmail);
     }
@@ -312,6 +323,7 @@ const EmailForm = () => {
       setShowEmailInput(false);
     }
   }, [emails, setShowEmailInput]);
+
   const onEmailEdit = (newEmail: string, prevEmail: string) => {
     onValueChange?.(
       emails.map((emailItem) =>
@@ -321,12 +333,14 @@ const EmailForm = () => {
     form.reset();
     setEditingEmail(null);
   };
+
   const onEmailAdd = (email: string) => {
     if (emails.length === 0) {
       onValueChange?.([{ email, status: ValidationStatus.Invalid, isPrimary: true }]);
     } else {
       onValueChange?.([...emails, { email, status: ValidationStatus.Invalid }]);
     }
+
     form.reset();
   };
 
@@ -371,6 +385,7 @@ const EmailForm = () => {
               if (!showEmailInput) {
                 e.preventDefault();
               }
+
               setShowEmailInput(true);
             }}
           >

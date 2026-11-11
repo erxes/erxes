@@ -6,6 +6,7 @@ type PolygonsProps = SVGProps<SVGSVGElement> & {
 
 export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
   const id = useId();
+
   if (variant === 'welcome') {
     return (
       <svg
@@ -111,6 +112,7 @@ export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
       </svg>
     );
   }
+
   if (variant === 'light') {
     return (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 756 875" fill="none" {...props}>

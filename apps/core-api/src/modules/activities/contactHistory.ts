@@ -1,8 +1,8 @@
-import type { ContentType } from '@erxes/core-db';
-import { type Db } from '@erxes/core-db';
+import type { Changes } from '@erxes/core-contract';
+import type { companies, ContentType, customers, Db } from '@erxes/core-db';
 import type { Actor } from '~/http/auth';
 import { userCaller } from '~/http/auth';
-import { type Changes, diffCustomFields, diffFields, mergeChanges } from '~/lib/changes';
+import { diffCustomFields, diffFields, mergeChanges } from '~/lib/changes';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { notify } from '~/modules/notifications/notifications.service';
@@ -55,12 +55,11 @@ const notifyOwners = async (
   });
 };
 
-interface ContactRow {
-  id: string;
-  ownerId: string | null;
-  tagIds: string[];
-  customFields: Record<string, unknown>;
-}
+/** A customer or company as stored. */
+type ContactRecord = typeof customers.$inferSelect | typeof companies.$inferSelect;
+
+/** A customer or company read with its tags. */
+type ContactRow = ContactRecord & { tagIds: string[] };
 
 const CUSTOMER_FIELDS = [
   'state',
@@ -99,16 +98,14 @@ const COMPANY_FIELDS = [
 ] as const;
 
 /** A readable name for a record, kept in the audit log as it was. */
-export const contactLabel = (type: ContentType, row: object): string => {
-  const value = row as Record<string, unknown>;
-
-  if (type === 'company') {
-    return String(value.primaryName ?? value.primaryEmail ?? value.id);
+const contactLabel = (row: ContactRecord) => {
+  if ('primaryName' in row) {
+    return row.primaryName ?? row.primaryEmail ?? row.id;
   }
 
-  const name = [value.firstName, value.middleName, value.lastName].filter(Boolean).join(' ');
+  const name = [row.firstName, row.middleName, row.lastName].filter(Boolean).join(' ');
 
-  return String(name || value.primaryEmail || value.primaryPhone || value.id);
+  return name || row.primaryEmail || row.primaryPhone || row.id;
 };
 
 const detailLink = (type: ContentType, id: string) =>
@@ -129,7 +126,7 @@ const notifyNewOwner = async (
     userIds: [row.ownerId],
     kind: `core.${type}.assigned`,
     title: type === 'customer' ? 'A customer was assigned to you' : 'A company was assigned to you',
-    body: contactLabel(type, row),
+    body: contactLabel(row),
     link: detailLink(type, row.id),
     entity: { type, id: row.id },
   });
@@ -142,13 +139,13 @@ export const contactCreated = async (tx: Db, actor: Actor, type: ContentType, ro
   await publishCoreEvents(tx, caller, {
     type: `core.${type}.created`,
     subject: { type, id: row.id },
-    payload: { label: contactLabel(type, row), ownerId: row.ownerId },
+    payload: { label: contactLabel(row), ownerId: row.ownerId },
   });
   await recordAudit(tx, caller, {
     action: `${type}.created`,
     targetType: type,
     targetId: row.id,
-    targetLabel: contactLabel(type, row),
+    targetLabel: contactLabel(row),
   });
   await notifyNewOwner(tx, actor, type, row, null);
 };
@@ -159,14 +156,10 @@ export const contactChanges = (
   before: ContactRow,
   after: ContactRow,
 ): Changes | null => {
-  const fields = (type === 'customer' ? CUSTOMER_FIELDS : COMPANY_FIELDS) as readonly string[];
+  const fields = type === 'customer' ? CUSTOMER_FIELDS : COMPANY_FIELDS;
 
   return mergeChanges(
-    diffFields(
-      before as unknown as Record<string, unknown>,
-      after as unknown as Record<string, unknown>,
-      fields,
-    ),
+    diffFields(before, after, fields),
     diffCustomFields(before.customFields, after.customFields),
     diffFields(before, after, ['tagIds']),
   );
@@ -202,7 +195,7 @@ export const contactUpdated = async (
     action: `${type}.updated`,
     targetType: type,
     targetId: after.id,
-    targetLabel: contactLabel(type, after),
+    targetLabel: contactLabel(after),
     changes,
   });
   await notifyNewOwner(tx, actor, type, after, before.ownerId);
@@ -212,7 +205,7 @@ export const contactUpdated = async (
     await notifyOwners(tx, actor, type, [after.ownerId], {
       verb: 'updated',
       title: `${NOUN[type]} updated`,
-      body: contactLabel(type, after),
+      body: contactLabel(after),
       recordId: after.id,
       link: detailLink(type, after.id),
       data: { changes },
@@ -220,8 +213,13 @@ export const contactUpdated = async (
   }
 };
 
-export const contactsRemoved = async (tx: Db, actor: Actor, type: ContentType, rows: object[]) => {
-  const ids = rows.map((row) => (row as { id: string }).id);
+export const contactsRemoved = async (
+  tx: Db,
+  actor: Actor,
+  type: ContentType,
+  rows: ContactRecord[],
+) => {
+  const ids = rows.map((row) => row.id);
 
   await removeActivities(tx, actor.orgId, type, ids);
   await publishCoreEvents(
@@ -229,16 +227,16 @@ export const contactsRemoved = async (tx: Db, actor: Actor, type: ContentType, r
     userCaller(actor),
     rows.map((row) => ({
       type: `core.${type}.deleted`,
-      subject: { type, id: (row as { id: string }).id },
-      payload: { label: contactLabel(type, row) },
+      subject: { type, id: row.id },
+      payload: { label: contactLabel(row) },
     })),
   );
 
-  for (const row of rows as (ContactRow & object)[]) {
+  for (const row of rows) {
     await notifyOwners(tx, actor, type, [row.ownerId], {
       verb: 'deleted',
       title: `${NOUN[type]} deleted`,
-      body: contactLabel(type, row),
+      body: contactLabel(row),
       recordId: row.id,
     });
   }
@@ -249,8 +247,8 @@ export const contactsRemoved = async (tx: Db, actor: Actor, type: ContentType, r
     rows.map((row) => ({
       action: `${type}.deleted`,
       targetType: type,
-      targetId: (row as { id: string }).id,
-      targetLabel: contactLabel(type, row),
+      targetId: row.id,
+      targetLabel: contactLabel(row),
     })),
   );
 };
@@ -260,10 +258,10 @@ export const contactsMerged = async (
   actor: Actor,
   type: ContentType,
   keep: ContactRow,
-  others: object[],
+  others: ContactRecord[],
 ) => {
   const caller = userCaller(actor);
-  const mergedIds = others.map((other) => (other as { id: string }).id);
+  const mergedIds = others.map((other) => other.id);
 
   await moveActivities(tx, actor.orgId, type, mergedIds, keep.id);
   await publishCoreEvents(tx, caller, {
@@ -275,28 +273,22 @@ export const contactsMerged = async (
     targetType: type,
     targetId: keep.id,
     type: `${type}.merged`,
-    data: { mergedIds, mergedNames: others.map((other) => contactLabel(type, other)) },
+    data: { mergedIds, mergedNames: others.map((other) => contactLabel(other)) },
   });
-  await notifyOwners(
-    tx,
-    actor,
-    type,
-    [keep.ownerId, ...others.map((other) => (other as ContactRow).ownerId)],
-    {
-      verb: 'merged',
-      title: `${PLURAL[type]} merged`,
-      body: `${others.map((other) => contactLabel(type, other)).join(', ')} → ${contactLabel(type, keep)}`,
-      recordId: keep.id,
-      link: detailLink(type, keep.id),
-      data: { mergedIds },
-    },
-  );
+  await notifyOwners(tx, actor, type, [keep.ownerId, ...others.map((other) => other.ownerId)], {
+    verb: 'merged',
+    title: `${PLURAL[type]} merged`,
+    body: `${others.map((other) => contactLabel(other)).join(', ')} → ${contactLabel(keep)}`,
+    recordId: keep.id,
+    link: detailLink(type, keep.id),
+    data: { mergedIds },
+  });
   await recordAudit(tx, caller, {
     action: `${type}.merged`,
     targetType: type,
     targetId: keep.id,
-    targetLabel: contactLabel(type, keep),
-    metadata: { mergedIds, mergedNames: others.map((other) => contactLabel(type, other)) },
+    targetLabel: contactLabel(keep),
+    metadata: { mergedIds, mergedNames: others.map((other) => contactLabel(other)) },
   });
 };
 

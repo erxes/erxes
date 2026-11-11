@@ -30,13 +30,16 @@ export function TextLoop({
     if (!trigger) return;
 
     const intervalMs = interval * 1000;
+
     const timer = setInterval(() => {
       setCurrentIndex((current) => {
         const next = (current + 1) % items.length;
         onIndexChange?.(next);
+
         return next;
       });
     }, intervalMs);
+
     return () => clearInterval(timer);
   }, [items.length, interval, onIndexChange, trigger]);
 

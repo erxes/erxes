@@ -36,17 +36,33 @@ export const coreContract = {
 };
 
 export * from './activities';
+
 export * from './audit';
+
 export * from './auth';
+
 export * from './common';
+
 export * from './companies';
+
 export * from './customers';
+
 export * from './events';
+
 export * from './fields';
+
 export * from './files';
+
+export * from './live';
+
 export * from './notifications';
+
 export * from './platform';
+
 export * from './organizations';
+
 export * from './plugins';
+
 export * from './tags';
+
 export * from './users';

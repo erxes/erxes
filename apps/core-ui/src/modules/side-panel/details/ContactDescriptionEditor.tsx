@@ -39,7 +39,9 @@ export const ContactDescriptionEditor = ({
       ) {
         return;
       }
+
       const target = event.target;
+
       if (
         target instanceof Element &&
         target.closest(
@@ -48,7 +50,9 @@ export const ContactDescriptionEditor = ({
       ) {
         return;
       }
+
       const editor = containerRef.current?.querySelector<HTMLElement>('[contenteditable="true"]');
+
       if (
         !editor?.getClientRects().length ||
         editor.closest('[hidden], [inert], [role="tabpanel"][data-state="inactive"]') ||
@@ -60,10 +64,13 @@ export const ContactDescriptionEditor = ({
       ) {
         return;
       }
+
       event.preventDefault();
       editor.focus();
     };
+
     document.addEventListener('keydown', focusDescription);
+
     return () => document.removeEventListener('keydown', focusDescription);
   }, [readonly]);
 

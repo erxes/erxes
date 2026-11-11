@@ -10,6 +10,7 @@ const RadioGroupRoot = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return <RadioGroupPrimitive.Root className={cn('grid gap-3', className)} {...props} ref={ref} />;
 });
+
 RadioGroupRoot.displayName = RadioGroupPrimitive.Root.displayName;
 
 const RadioGroupItem = React.forwardRef<
@@ -39,6 +40,7 @@ const RadioGroupItem = React.forwardRef<
     </RadioGroupPrimitive.Item>
   );
 });
+
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
 export const RadioGroup = Object.assign(RadioGroupRoot, {

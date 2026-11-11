@@ -8,12 +8,15 @@ import * as schema from './schema';
 types.setTypeParser(types.builtins.INT8, (value: string) => Number(value));
 
 export type Schema = typeof schema;
+
 export type Database = NodePgDatabase<Schema>;
+
 export type Transaction = PgTransaction<
   NodePgQueryResultHKT,
   Schema,
   ExtractTablesWithRelations<Schema>
 >;
+
 /** Either the pooled database or an open transaction. */
 export type Db = Database | Transaction;
 

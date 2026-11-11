@@ -26,6 +26,7 @@ export const USER_SUBMIT_SCHEMA = z.object({
 });
 
 export type TUserForm = z.infer<typeof USER_SUBMIT_SCHEMA>;
+
 export type IUserEntry = TUserForm['entries'][number];
 
 export const INVITE_ROW_DEFAULTS: IUserEntry = { email: '', password: '', role: 'member' };

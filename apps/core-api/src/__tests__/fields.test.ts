@@ -1,32 +1,33 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
+import { beforeAll, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { describeWithDb, useTestDatabase, useTestServer } from './support';
+
+const ids = (page: { data: { id: string }[] }) => page.data.map((item) => item.id);
 
 describeWithDb('field groups, archiving and field settings', () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-  let ownerToken = '';
-  let memberToken = '';
-  let otherOrgToken = '';
+  const server = useTestServer();
+  let owner = server.client();
+  let member = server.client();
+  let otherOrg = server.client();
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const globex = await createOrganization({
       subdomain: 'globex',
       name: 'Globex',
       owner: { email: 'owner@globex.mn' },
     });
+
     const memberId = newId();
 
     await db().insert(users).values({
@@ -36,122 +37,71 @@ describeWithDb('field groups, archiving and field settings', () => {
       status: 'active',
     });
 
-    ownerToken = signAccessToken(acme.owner.id, acme.organization.id);
-    memberToken = signAccessToken(memberId, acme.organization.id);
-    otherOrgToken = signAccessToken(globex.owner.id, globex.organization.id);
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    owner = server.client(signAccessToken(acme.owner.id, acme.organization.id));
+    member = server.client(signAccessToken(memberId, acme.organization.id));
+    otherOrg = server.client(signAccessToken(globex.owner.id, globex.organization.id));
   });
 
-  afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));
-
-  interface Body {
-    id: string;
-    code: string | null;
-    name: string;
-    label: string;
-    type: string;
-    groupId: string | null;
-    order: number;
-    options: string[] | Record<string, Record<string, number>>;
-    validation: string | null;
-    isVisible: boolean;
-    archivedAt: string | null;
-    customFields: Record<string, unknown>;
-    records: number;
-    removable: boolean;
-    data: { id: string; order: number; groupId?: string | null; archivedAt: string | null }[];
-  }
-
-  const call = async (token: string, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    return { status: response.status, body: (await response.json()) as Body };
-  };
-
-  const ids = (body: Body) => body.data.map((item) => item.id);
-
   it('creates groups with a code from the name, in order; only owners and admins manage them', async () => {
-    expect(
-      (
-        await call(memberToken, 'POST', '/field-groups', {
-          contentType: 'customer',
-          name: 'Loyalty',
-        })
-      ).status,
-    ).toBe(403);
+    await expect(
+      member.fieldGroups.create({ contentType: 'customer', name: 'Loyalty' }),
+    ).rejects.toMatchObject({ status: 403 });
 
-    const loyalty = await call(ownerToken, 'POST', '/field-groups', {
+    const loyalty = await owner.fieldGroups.create({
       contentType: 'customer',
       name: 'Loyalty Club',
     });
-    const billing = await call(ownerToken, 'POST', '/field-groups', {
+
+    expect(server.status()).toBe(201);
+
+    const billing = await owner.fieldGroups.create({
       contentType: 'customer',
       name: 'Billing',
       code: 'billing',
     });
 
-    expect(loyalty.status).toBe(201);
-    expect(loyalty.body).toMatchObject({ code: 'loyalty_club', order: 0, archivedAt: null });
-    expect(billing.body.order).toBe(1);
-    expect(
-      (
-        await call(ownerToken, 'POST', '/field-groups', {
-          contentType: 'customer',
-          name: 'Other',
-          code: 'BILLING',
-        })
-      ).body,
-    ).toMatchObject({ code: 'FIELD_GROUP_EXISTS' });
-    expect(
-      (
-        await call(ownerToken, 'POST', '/field-groups', {
-          contentType: 'customer',
-          name: 'Хэрэглэгч',
-        })
-      ).status,
-    ).toBe(400);
+    expect(loyalty).toMatchObject({ code: 'loyalty_club', order: 0, archivedAt: null });
+    expect(billing.order).toBe(1);
+    await expect(
+      owner.fieldGroups.create({ contentType: 'customer', name: 'Other', code: 'BILLING' }),
+    ).rejects.toMatchObject({ code: 'FIELD_GROUP_EXISTS' });
+    await expect(
+      owner.fieldGroups.create({ contentType: 'customer', name: 'Хэрэглэгч' }),
+    ).rejects.toMatchObject({ status: 400 });
 
     // Another organisation sees none of them.
-    expect(
-      (await call(otherOrgToken, 'GET', '/field-groups?contentType=customer')).body.data,
-    ).toEqual([]);
+    expect((await otherOrg.fieldGroups.list({ contentType: 'customer' })).data).toEqual([]);
 
-    await call(ownerToken, 'POST', '/field-groups/order', {
+    await owner.fieldGroups.reorder({
       orders: [
-        { id: loyalty.body.id, order: 1 },
-        { id: billing.body.id, order: 0 },
+        { id: loyalty.id, order: 1 },
+        { id: billing.id, order: 0 },
       ],
     });
-    expect(
-      ids((await call(memberToken, 'GET', '/field-groups?contentType=customer')).body),
-    ).toEqual([billing.body.id, loyalty.body.id]);
+    expect(ids(await member.fieldGroups.list({ contentType: 'customer' }))).toEqual([
+      billing.id,
+      loyalty.id,
+    ]);
   });
 
   it('puts fields in a group of their record type, with code, visibility and validation', async () => {
-    const group = (
-      await call(ownerToken, 'POST', '/field-groups', { contentType: 'customer', name: 'Contact' })
-    ).body;
-    const companyGroup = (
-      await call(ownerToken, 'POST', '/field-groups', { contentType: 'company', name: 'Contact' })
-    ).body;
+    const group = await owner.fieldGroups.create({ contentType: 'customer', name: 'Contact' });
 
-    expect(
-      (
-        await call(ownerToken, 'POST', '/fields', {
-          contentType: 'customer',
-          label: 'Wrong group',
-          type: 'text',
-          groupId: companyGroup.id,
-        })
-      ).body,
-    ).toMatchObject({ code: 'INVALID_FIELD_GROUP' });
+    const companyGroup = await owner.fieldGroups.create({
+      contentType: 'company',
+      name: 'Contact',
+    });
 
-    const email = await call(ownerToken, 'POST', '/fields', {
+    await expect(
+      owner.fields.create({
+        contentType: 'customer',
+        label: 'Wrong group',
+        type: 'text',
+        groupId: companyGroup.id,
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_FIELD_GROUP' });
+
+    const email = await owner.fields.create({
       contentType: 'customer',
       label: 'Work email',
       type: 'text',
@@ -162,309 +112,251 @@ describeWithDb('field groups, archiving and field settings', () => {
       isVisible: false,
     });
 
-    expect(email.status).toBe(201);
-    expect(email.body).toMatchObject({
+    expect(email).toMatchObject({
       groupId: group.id,
       code: 'work_email',
       validation: 'email',
       isVisible: false,
       archivedAt: null,
     });
-    expect(
-      (
-        await call(ownerToken, 'POST', '/fields', {
-          contentType: 'customer',
-          label: 'Another',
-          type: 'text',
-          code: 'WORK_EMAIL',
-        })
-      ).body,
-    ).toMatchObject({ code: 'FIELD_EXISTS', message: 'A field with this code already exists' });
+    await expect(
+      owner.fields.create({
+        contentType: 'customer',
+        label: 'Another',
+        type: 'text',
+        code: 'WORK_EMAIL',
+      }),
+    ).rejects.toMatchObject({
+      code: 'FIELD_EXISTS',
+      message: 'A field with this code already exists',
+    });
 
-    const phone = await call(ownerToken, 'POST', '/fields', {
+    const phone = await owner.fields.create({
       contentType: 'customer',
       label: 'Desk',
       type: 'phone',
     });
-    const sizes = await call(ownerToken, 'POST', '/fields', {
+
+    const sizes = await owner.fields.create({
       contentType: 'customer',
       label: 'Sizes',
       type: 'check',
       options: ['S', 'M', 'L'],
     });
-    const notes = await call(ownerToken, 'POST', '/fields', {
+
+    const notes = await owner.fields.create({
       contentType: 'customer',
       label: 'Notes',
       type: 'list',
     });
 
-    const bad = await call(ownerToken, 'POST', '/customers', {
-      firstName: 'Bat',
-      customFields: { [email.body.id]: 'not-an-email' },
-    });
-    expect(bad.body).toMatchObject({ code: 'INVALID_FIELD_VALUE' });
+    await expect(
+      owner.customers.create({
+        firstName: 'Bat',
+        customFields: { [email.id]: 'not-an-email' },
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_FIELD_VALUE' });
 
-    const customer = await call(ownerToken, 'POST', '/customers', {
+    const customer = await owner.customers.create({
       firstName: 'Bat',
       customFields: {
-        [email.body.id]: 'bat@acme.mn',
-        [phone.body.id]: '+976 9911 2233',
-        [sizes.body.id]: ['S', 'L', 'S'],
-        [notes.body.id]: [' first ', '', 'second'],
+        [email.id]: 'bat@acme.mn',
+        [phone.id]: '+976 9911 2233',
+        [sizes.id]: ['S', 'L', 'S'],
+        [notes.id]: [' first ', '', 'second'],
       },
     });
 
-    expect(customer.status).toBe(201);
-    expect(customer.body.customFields).toEqual({
-      [email.body.id]: 'bat@acme.mn',
-      [phone.body.id]: '+976 9911 2233',
-      [sizes.body.id]: ['S', 'L'],
-      [notes.body.id]: ['first', 'second'],
+    expect(customer.customFields).toEqual({
+      [email.id]: 'bat@acme.mn',
+      [phone.id]: '+976 9911 2233',
+      [sizes.id]: ['S', 'L'],
+      [notes.id]: ['first', 'second'],
     });
-    expect(
-      (
-        await call(ownerToken, 'PATCH', `/customers/${customer.body.id}`, {
-          customFields: { [phone.body.id]: 'abc' },
-        })
-      ).body,
-    ).toMatchObject({ code: 'INVALID_FIELD_VALUE' });
+    await expect(
+      owner.customers.update({ id: customer.id, customFields: { [phone.id]: 'abc' } }),
+    ).rejects.toMatchObject({ code: 'INVALID_FIELD_VALUE' });
 
     // Usage counts records and, for option fields, each option.
-    const usage = await call(
-      memberToken,
-      'GET',
-      `/fields/usage?ids=${sizes.body.id},${email.body.id}`,
-    );
-    expect(usage.body).toMatchObject({
+    const usage = await member.fields.usage({ ids: `${sizes.id},${email.id}` });
+
+    expect(usage).toMatchObject({
       records: 1,
       removable: false,
-      options: { [sizes.body.id]: { S: 1, L: 1 } },
+      options: { [sizes.id]: { S: 1, L: 1 } },
     });
-    expect(
-      (await call(memberToken, 'GET', `/fields/usage?groupId=${group.id}`)).body,
-    ).toMatchObject({ records: 1 });
+    expect(await member.fields.usage({ groupId: group.id })).toMatchObject({ records: 1 });
 
     // In use: the type changes only within types sharing a stored value.
-    expect(
-      (await call(ownerToken, 'PATCH', `/fields/${sizes.body.id}`, { type: 'multiselect' })).body
-        .type,
-    ).toBe('multiselect');
-    expect(
-      (await call(ownerToken, 'PATCH', `/fields/${sizes.body.id}`, { type: 'number' })).body,
-    ).toMatchObject({
+    expect((await owner.fields.update({ id: sizes.id, type: 'multiselect' })).type).toBe(
+      'multiselect',
+    );
+    await expect(owner.fields.update({ id: sizes.id, type: 'number' })).rejects.toMatchObject({
       code: 'FIELD_IN_USE',
     });
+
     // Unused: anything goes; options are needed for option types and dropped otherwise.
-    const free = (
-      await call(ownerToken, 'POST', '/fields', {
-        contentType: 'customer',
-        label: 'Free',
-        type: 'text',
-      })
-    ).body;
-    expect((await call(ownerToken, 'PATCH', `/fields/${free.id}`, { type: 'radio' })).status).toBe(
-      400,
-    );
+    const free = await owner.fields.create({
+      contentType: 'customer',
+      label: 'Free',
+      type: 'text',
+    });
+
+    await expect(owner.fields.update({ id: free.id, type: 'radio' })).rejects.toMatchObject({
+      status: 400,
+    });
     expect(
-      (
-        await call(ownerToken, 'PATCH', `/fields/${free.id}`, {
-          type: 'radio',
-          options: ['A', 'B'],
-        })
-      ).body,
+      await owner.fields.update({ id: free.id, type: 'radio', options: ['A', 'B'] }),
     ).toMatchObject({ type: 'radio', options: ['A', 'B'], validation: null });
 
     // Moved into a group, hidden, with a validation dropped for non-text types.
-    const moved = await call(ownerToken, 'PATCH', `/fields/${phone.body.id}`, {
+    const moved = await owner.fields.update({
+      id: phone.id,
       groupId: group.id,
       isVisible: false,
       validation: 'number',
     });
-    expect(moved.body).toMatchObject({ groupId: group.id, isVisible: false, validation: null });
-    expect(
-      (await call(ownerToken, 'PATCH', `/fields/${phone.body.id}`, { groupId: companyGroup.id }))
-        .body,
-    ).toMatchObject({ code: 'INVALID_FIELD_GROUP' });
 
-    const inGroup = await call(
-      memberToken,
-      'GET',
-      `/fields?contentType=customer&groupId=${group.id}`,
-    );
-    expect(ids(inGroup.body)).toEqual([email.body.id, phone.body.id]);
+    expect(moved).toMatchObject({ groupId: group.id, isVisible: false, validation: null });
+    await expect(
+      owner.fields.update({ id: phone.id, groupId: companyGroup.id }),
+    ).rejects.toMatchObject({ code: 'INVALID_FIELD_GROUP' });
 
-    await call(ownerToken, 'POST', '/fields/order', {
+    const inGroup = await member.fields.list({ contentType: 'customer', groupId: group.id });
+
+    expect(ids(inGroup)).toEqual([email.id, phone.id]);
+
+    await owner.fields.reorder({
       orders: [
-        { id: email.body.id, order: phone.body.order },
-        { id: phone.body.id, order: email.body.order },
+        { id: email.id, order: phone.order },
+        { id: phone.id, order: email.order },
       ],
     });
-    expect(
-      ids(
-        (await call(memberToken, 'GET', `/fields?contentType=customer&groupId=${group.id}`)).body,
-      ),
-    ).toEqual([phone.body.id, email.body.id]);
+    expect(ids(await member.fields.list({ contentType: 'customer', groupId: group.id }))).toEqual([
+      phone.id,
+      email.id,
+    ]);
   });
 
   it('archives and restores fields; archived ones keep values and can only be cleared', async () => {
-    const field = (
-      await call(ownerToken, 'POST', '/fields', {
-        contentType: 'company',
-        label: 'Region',
-        type: 'text',
-      })
-    ).body;
-    const company = (
-      await call(ownerToken, 'POST', '/companies', {
-        primaryName: 'Archive LLC',
-        customFields: { [field.id]: 'North' },
-      })
-    ).body;
+    const field = await owner.fields.create({
+      contentType: 'company',
+      label: 'Region',
+      type: 'text',
+    });
 
-    expect((await call(memberToken, 'POST', '/fields/archive', { ids: [field.id] })).status).toBe(
-      403,
-    );
-    expect((await call(ownerToken, 'POST', '/fields/archive', { ids: [field.id] })).status).toBe(
-      200,
-    );
+    const company = await owner.companies.create({
+      primaryName: 'Archive LLC',
+      customFields: { [field.id]: 'North' },
+    });
 
-    expect(ids((await call(ownerToken, 'GET', '/fields?contentType=company')).body)).not.toContain(
-      field.id,
-    );
-    const archived = (await call(ownerToken, 'GET', '/fields?contentType=company&archived=true'))
-      .body;
+    await expect(member.fields.archive({ ids: [field.id] })).rejects.toMatchObject({
+      status: 403,
+    });
+    expect(await owner.fields.archive({ ids: [field.id] })).toEqual({ ok: true });
+
+    expect(ids(await owner.fields.list({ contentType: 'company' }))).not.toContain(field.id);
+
+    const archived = await owner.fields.list({ contentType: 'company', archived: true });
+
     expect(archived.data.find((item) => item.id === field.id)?.archivedAt).toBeTruthy();
 
-    expect((await call(ownerToken, 'GET', `/companies/${company.id}`)).body.customFields).toEqual({
+    expect((await owner.companies.get({ id: company.id })).customFields).toEqual({
       [field.id]: 'North',
     });
-    expect(
-      (
-        await call(ownerToken, 'PATCH', `/companies/${company.id}`, {
-          customFields: { [field.id]: 'South' },
-        })
-      ).body,
-    ).toMatchObject({ code: 'INVALID_FIELD' });
+    await expect(
+      owner.companies.update({ id: company.id, customFields: { [field.id]: 'South' } }),
+    ).rejects.toMatchObject({ code: 'INVALID_FIELD' });
 
     // Records hold values: it cannot be deleted through the "unused" path.
-    expect(
-      (await call(ownerToken, 'POST', '/fields/remove', { ids: [field.id] })).body,
-    ).toMatchObject({
+    await expect(owner.fields.removeUnused({ ids: [field.id] })).rejects.toMatchObject({
       code: 'FIELD_IN_USE',
     });
 
-    const restored = await call(ownerToken, 'POST', `/fields/${field.id}/restore`, {});
-    expect(restored.body.archivedAt).toBeNull();
+    const restored = await owner.fields.restore({ id: field.id });
+    expect(restored.archivedAt).toBeNull();
     expect(
-      (
-        await call(ownerToken, 'PATCH', `/companies/${company.id}`, {
-          customFields: { [field.id]: 'South' },
-        })
-      ).body.customFields,
+      (await owner.companies.update({ id: company.id, customFields: { [field.id]: 'South' } }))
+        .customFields,
     ).toEqual({ [field.id]: 'South' });
 
-    await call(ownerToken, 'PATCH', `/companies/${company.id}`, {
-      customFields: { [field.id]: null },
-    });
-    expect((await call(ownerToken, 'POST', '/fields/remove', { ids: [field.id] })).status).toBe(
-      200,
-    );
-    expect((await call(ownerToken, 'GET', '/fields/usage?ids=' + field.id)).body).toMatchObject({
-      records: 0,
-    });
+    await owner.companies.update({ id: company.id, customFields: { [field.id]: null } });
+    expect(await owner.fields.removeUnused({ ids: [field.id] })).toEqual({ ok: true });
+    expect(await owner.fields.usage({ ids: field.id })).toMatchObject({ records: 0 });
   });
 
   it('archives a group with its fields, and deletes it only while no record holds their values', async () => {
-    const group = (
-      await call(ownerToken, 'POST', '/field-groups', { contentType: 'company', name: 'Finance' })
-    ).body;
-    const field = (
-      await call(ownerToken, 'POST', '/fields', {
-        contentType: 'company',
-        label: 'Budget',
-        type: 'number',
-        groupId: group.id,
-      })
-    ).body;
-    const company = (
-      await call(ownerToken, 'POST', '/companies', {
-        primaryName: 'Group LLC',
-        customFields: { [field.id]: 10 },
-      })
-    ).body;
+    const group = await owner.fieldGroups.create({ contentType: 'company', name: 'Finance' });
 
-    const archived = await call(ownerToken, 'POST', `/field-groups/${group.id}/archive`, {});
-    expect(archived.body.archivedAt).toBeTruthy();
-    expect(
-      ids((await call(ownerToken, 'GET', '/field-groups?contentType=company')).body),
-    ).not.toContain(group.id);
-    expect(
-      ids((await call(ownerToken, 'GET', '/field-groups?contentType=company&archived=true')).body),
-    ).toEqual([group.id]);
+    const field = await owner.fields.create({
+      contentType: 'company',
+      label: 'Budget',
+      type: 'number',
+      groupId: group.id,
+    });
+
+    const company = await owner.companies.create({
+      primaryName: 'Group LLC',
+      customFields: { [field.id]: 10 },
+    });
+
+    const archived = await owner.fieldGroups.archive({ id: group.id });
+    expect(archived.archivedAt).toBeTruthy();
+    expect(ids(await owner.fieldGroups.list({ contentType: 'company' }))).not.toContain(group.id);
+    expect(ids(await owner.fieldGroups.list({ contentType: 'company', archived: true }))).toEqual([
+      group.id,
+    ]);
     // Its fields count as archived while it is.
-    expect(ids((await call(ownerToken, 'GET', '/fields?contentType=company')).body)).not.toContain(
+    expect(ids(await owner.fields.list({ contentType: 'company' }))).not.toContain(field.id);
+    expect(ids(await owner.fields.list({ contentType: 'company', archived: true }))).toContain(
       field.id,
     );
-    expect(
-      ids((await call(ownerToken, 'GET', '/fields?contentType=company&archived=true')).body),
-    ).toContain(field.id);
-    expect(
-      (
-        await call(ownerToken, 'PATCH', `/companies/${company.id}`, {
-          customFields: { [field.id]: 20 },
-        })
-      ).body,
-    ).toMatchObject({ code: 'INVALID_FIELD' });
-    expect(
-      (
-        await call(ownerToken, 'POST', '/fields', {
-          contentType: 'company',
-          label: 'Late',
-          type: 'text',
-          groupId: group.id,
-        })
-      ).body,
-    ).toMatchObject({ code: 'INVALID_FIELD_GROUP' });
+    await expect(
+      owner.companies.update({ id: company.id, customFields: { [field.id]: 20 } }),
+    ).rejects.toMatchObject({ code: 'INVALID_FIELD' });
+    await expect(
+      owner.fields.create({
+        contentType: 'company',
+        label: 'Late',
+        type: 'text',
+        groupId: group.id,
+      }),
+    ).rejects.toMatchObject({ code: 'INVALID_FIELD_GROUP' });
 
-    expect((await call(ownerToken, 'DELETE', `/field-groups/${group.id}`)).body).toMatchObject({
+    await expect(owner.fieldGroups.remove({ id: group.id })).rejects.toMatchObject({
       code: 'FIELD_IN_USE',
     });
 
-    await call(ownerToken, 'POST', `/field-groups/${group.id}/restore`, {});
-    expect(ids((await call(ownerToken, 'GET', '/fields?contentType=company')).body)).toContain(
-      field.id,
-    );
+    await owner.fieldGroups.restore({ id: group.id });
+    expect(ids(await owner.fields.list({ contentType: 'company' }))).toContain(field.id);
 
-    await call(ownerToken, 'PATCH', `/companies/${company.id}`, {
-      customFields: { [field.id]: null },
+    await owner.companies.update({ id: company.id, customFields: { [field.id]: null } });
+    await expect(member.fieldGroups.remove({ id: group.id })).rejects.toMatchObject({
+      status: 403,
     });
-    expect((await call(memberToken, 'DELETE', `/field-groups/${group.id}`)).status).toBe(403);
-    expect((await call(ownerToken, 'DELETE', `/field-groups/${group.id}`)).status).toBe(200);
-    expect(ids((await call(ownerToken, 'GET', '/fields?contentType=company')).body)).not.toContain(
-      field.id,
-    );
-    expect((await call(otherOrgToken, 'DELETE', `/field-groups/${group.id}`)).status).toBe(404);
+    expect(await owner.fieldGroups.remove({ id: group.id })).toEqual({ ok: true });
+    expect(server.status()).toBe(200);
+    expect(ids(await owner.fields.list({ contentType: 'company' }))).not.toContain(field.id);
+    await expect(otherOrg.fieldGroups.remove({ id: group.id })).rejects.toMatchObject({
+      status: 404,
+    });
   });
 
   it('keeps the old field API working: no group, DELETE removes values', async () => {
-    const field = (
-      await call(ownerToken, 'POST', '/fields', {
-        contentType: 'customer',
-        label: 'Legacy',
-        type: 'text',
-      })
-    ).body;
-    const customer = (
-      await call(ownerToken, 'POST', '/customers', {
-        firstName: 'Old',
-        customFields: { [field.id]: 'kept' },
-      })
-    ).body;
+    const field = await owner.fields.create({
+      contentType: 'customer',
+      label: 'Legacy',
+      type: 'text',
+    });
+
+    const customer = await owner.customers.create({
+      firstName: 'Old',
+      customFields: { [field.id]: 'kept' },
+    });
 
     expect(field).toMatchObject({ groupId: null, code: null, isVisible: true, archivedAt: null });
-    expect((await call(ownerToken, 'DELETE', `/fields/${field.id}`)).status).toBe(200);
-    expect((await call(ownerToken, 'GET', `/customers/${customer.id}`)).body.customFields).toEqual(
-      {},
-    );
+    expect(await owner.fields.remove({ id: field.id })).toEqual({ ok: true });
+    expect(server.status()).toBe(200);
+    expect((await owner.customers.get({ id: customer.id })).customFields).toEqual({});
   });
 });

@@ -1,3 +1,4 @@
+import type { LivePlugin, LiveTimeline } from '@erxes/core-contract';
 import { db, users } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
@@ -7,8 +8,10 @@ import { type LiveSignal, liveHub } from './hub';
 
 const HEARTBEAT_MS = 25_000;
 const REVALIDATE_MS = 60_000;
+
 /** Signals arriving close together go out as one message. */
 const FLUSH_MS = 200;
+
 /** More distinct timelines than this in one flush: tell the browser to refetch everything. */
 const MAX_TIMELINES_PER_FLUSH = 50;
 
@@ -39,6 +42,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
       status: 429,
       message: 'Too many open streams',
     });
+
     return;
   }
 
@@ -55,10 +59,11 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
 
   const send = (event: string, data: unknown = {}) =>
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+
   let inbox = false;
   let resync = false;
   const pluginTopics = new Map<string, Set<string>>();
-  const timelines = new Map<string, { targetType: string; targetId: string }>();
+  const timelines = new Map<string, LiveTimeline['targets'][number]>();
   let flushTimer: NodeJS.Timeout | null = null;
 
   const flush = () => {
@@ -68,11 +73,14 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
       send('resync');
     } else {
       if (inbox) send('inbox');
-      if (timelines.size) send('timeline', { targets: [...timelines.values()] });
+
+      if (timelines.size)
+        send('timeline', { targets: [...timelines.values()] } satisfies LiveTimeline);
     }
 
     // Plugin UIs keep their own caches: their topics go out even on resync.
-    for (const [plugin, topics] of pluginTopics) send('plugin', { plugin, topics: [...topics] });
+    for (const [plugin, topics] of pluginTopics)
+      send('plugin', { plugin, topics: [...topics] } satisfies LivePlugin);
 
     inbox = false;
     resync = false;
@@ -102,6 +110,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
 
     flushTimer ??= setTimeout(flush, FLUSH_MS);
   };
+
   const onState = (connected: boolean) => send('hello', { mode: connected ? 'live' : 'polling' });
   const onResync = () => send('resync');
 
@@ -122,6 +131,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
     if (!req.headers.authorization && !sessionClaims(req)) {
       send('bye', { reason: 'session-expired' });
       res.end();
+
       return;
     }
 
@@ -146,6 +156,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
   req.on('close', () => {
     clearInterval(heartbeat);
     clearInterval(revalidate);
+
     if (flushTimer) clearTimeout(flushTimer);
     liveHub.off('signal', onSignal);
     liveHub.off('state', onState);

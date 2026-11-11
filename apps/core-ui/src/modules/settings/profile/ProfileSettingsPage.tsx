@@ -28,11 +28,12 @@ import {
   useToast,
 } from 'erxes-ui';
 import { type ReactNode, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { type FieldPath, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { api, isApiError, messageOf } from '~/lib/api';
+import { z } from 'zod';
+import { api, errorData, isApiError, messageOf } from '~/lib/api';
 import { SESSION_KEY, useSession, useSignOut } from '~/modules/auth/session';
 
 const LINK_ICONS: Record<UserLinkName, Icon> = {
@@ -57,6 +58,7 @@ const TEXT_FIELDS = [
   'workStartedDate',
   'description',
 ] as const;
+
 type TextField = (typeof TEXT_FIELDS)[number];
 
 type ProfileValues = Record<TextField, string> & {
@@ -65,14 +67,41 @@ type ProfileValues = Record<TextField, string> & {
 };
 
 const valuesOf = (user: User): ProfileValues => ({
-  ...(Object.fromEntries(TEXT_FIELDS.map((field) => [field, user[field] ?? ''])) as Record<
-    TextField,
-    string
-  >),
+  firstName: user.firstName ?? '',
+  middleName: user.middleName ?? '',
+  lastName: user.lastName ?? '',
+  shortName: user.shortName ?? '',
+  username: user.username ?? '',
+  email: user.email,
+  phone: user.phone ?? '',
+  employeeId: user.employeeId ?? '',
+  birthDate: user.birthDate ?? '',
+  workStartedDate: user.workStartedDate ?? '',
+  description: user.description ?? '',
   avatarUrl: user.avatarUrl ?? '',
-  links: Object.fromEntries(
-    USER_LINK_NAMES.map((name) => [name, user.links[name] ?? '']),
-  ) as Record<UserLinkName, string>,
+  links: {
+    facebook: user.links.facebook ?? '',
+    twitter: user.links.twitter ?? '',
+    website: user.links.website ?? '',
+    discord: user.links.discord ?? '',
+    github: user.links.github ?? '',
+    instagram: user.links.instagram ?? '',
+  },
+});
+
+/** Fields of this form, so server issues land on the input they belong to. */
+const PROFILE_PATHS = new Set<string>([
+  ...TEXT_FIELDS,
+  'avatarUrl',
+  ...USER_LINK_NAMES.map((name) => `links.${name}`),
+]);
+
+const isProfilePath = (path: string): path is FieldPath<ProfileValues> => PROFILE_PATHS.has(path);
+
+const InputIssues = z.object({
+  issues: z.array(
+    z.object({ path: z.array(z.union([z.string(), z.number()])), message: z.string() }),
+  ),
 });
 
 /** Only what changed; an emptied field clears it (`null`). */
@@ -133,6 +162,7 @@ const TextInput = ({
   disabled?: boolean;
 }) => (
   <Form.Field
+    control={useFormContext<ProfileValues>().control}
     name={name}
     render={({ field }) => (
       <Form.Item>
@@ -162,8 +192,7 @@ const ProfileForm = ({ user }: { user: User }) => {
   useEffect(() => form.reset(valuesOf(user)), [user, form]);
 
   const save = useMutation({
-    mutationFn: (patch: Record<string, unknown>) =>
-      api.users.update({ id: user.id, ...patch } as Parameters<typeof api.users.update>[0]),
+    mutationFn: (patch: Record<string, unknown>) => api.users.update({ id: user.id, ...patch }),
     onSuccess: (saved) => {
       form.reset(valuesOf(saved));
       void client.invalidateQueries({ queryKey: SESSION_KEY });
@@ -172,17 +201,20 @@ const ProfileForm = ({ user }: { user: User }) => {
     },
     onError: (error) => {
       if (isApiError(error, 'EMAIL_TAKEN')) form.setError('email', { message: error.message });
+
       if (isApiError(error, 'USERNAME_TAKEN'))
         form.setError('username', { message: error.message });
 
       const issues = isApiError(error, 'INVALID_INPUT')
-        ? ((error.data as { issues?: { path: (string | number)[]; message: string }[] })?.issues ??
-          [])
+        ? (errorData(error, InputIssues)?.issues ?? [])
         : [];
 
-      issues.forEach((issue) =>
-        form.setError(issue.path.join('.') as keyof ProfileValues, { message: issue.message }),
-      );
+      for (const issue of issues) {
+        const path = issue.path.join('.');
+
+        if (isProfilePath(path)) form.setError(path, { message: issue.message });
+      }
+
       toast({
         variant: 'destructive',
         title: t('save-failed', 'Could not save your profile'),
@@ -196,6 +228,7 @@ const ProfileForm = ({ user }: { user: User }) => {
 
     if (!Object.keys(patch).length) {
       toast({ title: t('no-changes', 'Nothing to save') });
+
       return;
     }
 
@@ -204,12 +237,13 @@ const ProfileForm = ({ user }: { user: User }) => {
 
   return (
     <Form {...form}>
-      <form className="flex flex-col gap-4" onSubmit={submit}>
+      <form className="flex flex-col gap-4" onSubmit={(event) => void submit(event)}>
         <Section
           title={t('picture', 'Profile picture')}
           description={t('picture-description', 'Shown next to your name across erxes.')}
         >
           <Form.Field
+            control={form.control}
             name="avatarUrl"
             render={({ field }) => (
               <Upload.Root
@@ -328,9 +362,11 @@ const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,200}$/;
 const PasswordForm = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { toast } = useToast();
+
   const form = useForm<PasswordValues>({
     defaultValues: { currentPassword: '', newPassword: '', confirm: '' },
   });
+
   const change = useMutation({
     mutationFn: (values: PasswordValues) =>
       api.auth.changePassword({
@@ -397,7 +433,7 @@ const PasswordForm = () => {
       <Form {...form}>
         <form
           className="grid grid-cols-1 gap-4 sm:grid-cols-3"
-          onSubmit={form.handleSubmit((values) => change.mutate(values))}
+          onSubmit={(event) => void form.handleSubmit((values) => change.mutate(values))(event)}
         >
           {field('currentPassword', t('current-password', 'Current password'), 'current-password')}
           {field('newPassword', t('new-password', 'New password'), 'new-password')}
@@ -427,6 +463,7 @@ const deviceOf = (agent: string | null) => {
         : /Safari\//.test(agent)
           ? 'Safari'
           : agent.split(' ')[0];
+
   const system = /Mac OS X/.test(agent)
     ? 'macOS'
     : /Windows/.test(agent)
@@ -445,6 +482,7 @@ const deviceOf = (agent: string | null) => {
 /** Where and when I signed in; a failed attempt I don't recognise is worth a password change. */
 const SignIns = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
+
   const { data, isPending } = useQuery({
     queryKey: ['auth', 'sign-ins'],
     queryFn: () => api.auth.signIns(),
@@ -496,6 +534,7 @@ const SignOutEverywhere = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { toast } = useToast();
   const signOut = useSignOut();
+
   const run = useMutation({
     mutationFn: () => signOut({ everywhere: true }),
     onError: (error) =>
@@ -525,6 +564,7 @@ const SignOutEverywhere = () => {
 export const ProfileSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { user } = useSession();
+
   const { data: profile } = useQuery({
     queryKey: ['users', 'detail', user.id],
     queryFn: () => api.users.get({ id: user.id }),

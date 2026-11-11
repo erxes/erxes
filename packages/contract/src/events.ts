@@ -32,6 +32,7 @@ export const EventInput = z.object({
   /** Retry-safe: one event per plugin and key. */
   dedupeKey: DedupeKey.optional(),
 });
+
 export type EventInput = z.infer<typeof EventInput>;
 
 export const CoreEvent = z.object({
@@ -48,6 +49,7 @@ export const CoreEvent = z.object({
   occurredAt: z.string().datetime(),
   createdAt: z.string().datetime(),
 });
+
 export type CoreEvent = z.infer<typeof CoreEvent>;
 
 export const EventFailureStatus = z.enum(['retrying', 'dead']);
@@ -63,6 +65,7 @@ export const EventFailure = z.object({
   updatedAt: z.string().datetime(),
   event: CoreEvent,
 });
+
 export type EventFailure = z.infer<typeof EventFailure>;
 
 const FailureRef = z.object({ consumer: z.string().trim().min(1).max(100), eventId: Id });

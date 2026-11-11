@@ -1,4 +1,4 @@
-import type { CursorQuery, CustomerInput, CustomerSex } from '@erxes/core-contract';
+import type { CursorQuery, CustomerInput } from '@erxes/core-contract';
 import {
   companies,
   customerCompanies,
@@ -45,6 +45,7 @@ import {
 import { checkTagIds } from '~/modules/tags/tags.service';
 
 type CustomerRow = typeof customers.$inferSelect & { tagIds: string[] };
+
 type State = CustomerRow['state'];
 
 export const toCustomerDto = (row: CustomerRow) => ({
@@ -58,7 +59,7 @@ export const toCustomerDto = (row: CustomerRow) => ({
   emails: row.emails,
   primaryPhone: row.primaryPhone,
   phones: row.phones,
-  sex: row.sex as CustomerSex | null,
+  sex: row.sex,
   birthDate: row.birthDate,
   position: row.position,
   department: row.department,
@@ -132,6 +133,7 @@ const conflictFrom = async (
   }
 
   const byEmail = pgConstraint(error) === 'core_customers_org_primary_email_key';
+
   const [existing] = await client
     .select({ id: customers.id })
     .from(customers)
@@ -252,6 +254,7 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'customer', input.tagIds ?? []);
+
   const customFields = await applyCustomFields(
     client,
     actor.orgId,
@@ -304,6 +307,7 @@ export const updateCustomer = async (
   await assertOwner(client, actor.orgId, input.ownerId);
 
   const changes: Partial<typeof customers.$inferInsert> = {};
+
   const tagIds =
     input.tagIds === undefined
       ? undefined
@@ -316,6 +320,7 @@ export const updateCustomer = async (
       { primary: current.primaryEmail, list: current.emails },
       normalizeEmail,
     );
+
     changes.primaryEmail = email.primary;
     changes.emails = email.list;
   }
@@ -327,6 +332,7 @@ export const updateCustomer = async (
       { primary: current.primaryPhone, list: current.phones },
       normalizePhone,
     );
+
     changes.primaryPhone = phone.primary;
     changes.phones = phone.list;
   }
@@ -393,8 +399,10 @@ export const tagCustomers = async (
   input: { ids: string[]; add: string[]; remove: string[] },
 ) => {
   const add = await checkTagIds(client, actor.orgId, 'customer', input.add);
+
   const updated = await client.transaction(async (tx) => {
     const before = await tagsByCustomer(tx, actor.orgId, input.ids);
+
     const count = await changeTags(tx, actor.orgId, 'customer', input.ids, {
       add,
       remove: unique(input.remove),
@@ -463,14 +471,18 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
     }
 
     const keep = rows.find((row) => row.id === input.keepId)!;
+
     const others = ids
       .filter((id) => id !== keep.id)
       .map((id) => rows.find((row) => row.id === id)!);
+
     const otherIds = others.map((other) => other.id);
+
     const email = combineContacts(
       { primary: keep.primaryEmail, list: keep.emails },
       others.map((other) => ({ primary: other.primaryEmail, list: other.emails })),
     );
+
     const phone = combineContacts(
       { primary: keep.primaryPhone, list: keep.phones },
       others.map((other) => ({ primary: other.primaryPhone, list: other.phones })),

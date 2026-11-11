@@ -61,6 +61,7 @@ const Field = ({
 export const SetupPage = () => {
   const client = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -73,23 +74,25 @@ export const SetupPage = () => {
     },
   });
 
-  const onSubmit = form.handleSubmit(async ({ confirmPassword, lastName, ...values }) => {
-    setError(null);
+  const onSubmit = form.handleSubmit(
+    async ({ confirmPassword: _confirmed, lastName, ...values }) => {
+      setError(null);
 
-    try {
-      const session = await api.auth.setup({ ...values, lastName: lastName || undefined });
+      try {
+        const session = await api.auth.setup({ ...values, lastName: lastName || undefined });
 
-      client.setQueryData(SETUP_KEY, { required: false });
-      client.setQueryData(SESSION_KEY, session);
-    } catch (caught) {
-      if (isApiError(caught, 'SETUP_DONE')) {
-        // Someone finished setup first: go to sign-in.
-        void client.invalidateQueries({ queryKey: SETUP_KEY });
+        client.setQueryData(SETUP_KEY, { required: false });
+        client.setQueryData(SESSION_KEY, session);
+      } catch (caught) {
+        if (isApiError(caught, 'SETUP_DONE')) {
+          // Someone finished setup first: go to sign-in.
+          void client.invalidateQueries({ queryKey: SETUP_KEY });
+        }
+
+        setError(caught instanceof Error ? caught.message : 'Could not finish the setup');
       }
-
-      setError(caught instanceof Error ? caught.message : 'Could not finish the setup');
-    }
-  });
+    },
+  );
 
   return (
     <div className="z-10 flex min-h-screen w-full">
@@ -102,7 +105,11 @@ export const SetupPage = () => {
           </div>
         </div>
         <Form {...form}>
-          <form onSubmit={onSubmit} className="mx-auto grid w-full gap-5" noValidate>
+          <form
+            onSubmit={(event) => void onSubmit(event)}
+            className="mx-auto grid w-full gap-5"
+            noValidate
+          >
             <Field
               name="organizationName"
               label="Organization name"

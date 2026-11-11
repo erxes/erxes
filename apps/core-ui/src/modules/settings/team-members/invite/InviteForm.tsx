@@ -32,6 +32,7 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
     resolver: zodResolver(USER_SUBMIT_SCHEMA),
     defaultValues: { entries: [{ ...INVITE_ROW_DEFAULTS }] },
   });
+
   const { control, handleSubmit, setError } = methods;
   const { toast } = useToast();
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
@@ -42,6 +43,7 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
   const submitHandler: SubmitHandler<TUserForm> = (data) => {
     if (data.entries.length === 0) {
       toast({ title: t('add-at-least-one-email'), variant: 'destructive' });
+
       return;
     }
 
@@ -77,7 +79,7 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(submitHandler)} className="h-full">
+      <form onSubmit={(event) => void handleSubmit(submitHandler)(event)} className="h-full">
         <ScrollArea className="max-h-[400px] flex flex-col">
           <Table className="p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar">
             <InviteMemberContext.Provider value={{ selectedUsers, setSelectedUsers, fields }}>

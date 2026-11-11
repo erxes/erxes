@@ -55,8 +55,10 @@ export const Calendar = React.forwardRef<React.JSX.Element, CalendarProps>(
           value: String(_value),
         },
       } as React.ChangeEvent<HTMLSelectElement>;
+
       _e(_event);
     };
+
     return (
       <DayPicker
         showOutsideDays={showOutsideDays}

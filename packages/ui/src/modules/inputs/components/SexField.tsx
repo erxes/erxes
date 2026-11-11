@@ -18,7 +18,7 @@ export const SexField = ({
             key={key}
             value={val.label}
             onSelect={() => {
-              onValueChange(Number(key) as SexCode);
+              onValueChange(Number(key));
             }}
           >
             {val.label}

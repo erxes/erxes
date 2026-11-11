@@ -26,8 +26,12 @@ const DROP_PREVIEW_ID = '__drop-preview__';
 export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: number) => {
   const { items, widgets, isEditing, setDraftItems, addWidget, draggingWidget, setDraggingWidget } =
     useDashboard();
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dropAt, setDropAt] = useState<Pick<TDashboardItem, 'x' | 'y'> | null>(null);
+
+  // A drag that ends outside the grid leaves no preview behind.
+  if (!draggingWidget && dropAt) setDropAt(null);
   const stopRef = useRef<(() => void) | null>(null);
 
   useEffect(() => () => stopRef.current?.(), []);
@@ -73,7 +77,7 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
 
   const tiles: TDashboardTile[] = shown
     .filter(({ id }) => id !== DROP_PREVIEW_ID)
-    .sort(byPosition)
+    .toSorted(byPosition)
     .flatMap((item) => {
       const widget = widgets.byType.get(item.type);
 
@@ -85,6 +89,7 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
   const columnStep =
     (width - DASHBOARD_GRID_GAP * (DASHBOARD_GRID_COLUMNS - 1)) / DASHBOARD_GRID_COLUMNS +
     DASHBOARD_GRID_GAP;
+
   const rowStep = DASHBOARD_ROW_HEIGHT + DASHBOARD_GRID_GAP;
 
   const begin = (
@@ -145,6 +150,7 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
       widget.maxSize?.w ?? DASHBOARD_GRID_COLUMNS,
       DASHBOARD_GRID_COLUMNS - item.x,
     );
+
     const maxH = widget.maxSize?.h ?? Infinity;
 
     begin(event, item, (columns, rows) => ({
@@ -187,7 +193,9 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
       );
     },
     onDragLeave: (event: DragEvent) => {
-      if (!containerRef.current?.contains(event.relatedTarget as Node | null)) {
+      const related = event.relatedTarget instanceof Node ? event.relatedTarget : null;
+
+      if (!containerRef.current?.contains(related)) {
         setDropAt(null);
       }
     },
@@ -202,13 +210,6 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
       setDraggingWidget(null);
     },
   };
-
-  // A drag that ends outside the grid leaves no preview behind.
-  useEffect(() => {
-    if (!draggingWidget) {
-      setDropAt(null);
-    }
-  }, [draggingWidget]);
 
   return { tiles, dropPreview, activeId, onMoveStart, onResizeStart, dropHandlers };
 };

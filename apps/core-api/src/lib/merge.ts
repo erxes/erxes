@@ -8,15 +8,18 @@ export const fillEmpty = <Row, Key extends keyof Row>(
   keep: Row,
   others: Row[],
   keys: readonly Key[],
-) =>
-  Object.fromEntries(
-    keys.map((key) => {
-      const value =
-        keep[key] ?? others.find((other) => other[key] !== null && other[key] !== undefined)?.[key];
+) => {
+  const filled: Partial<Pick<Row, Key>> = {};
 
-      return [key, value ?? null];
-    }),
-  ) as Pick<Row, Key>;
+  for (const key of keys) {
+    const value =
+      keep[key] ?? others.find((other) => other[key] !== null && other[key] !== undefined)?.[key];
+
+    if (value !== undefined) filled[key] = value;
+  }
+
+  return filled;
+};
 
 /** A primary value plus every list, kept record first. */
 export const combineContacts = (
@@ -36,4 +39,10 @@ export const combineContacts = (
 export const combineCustomFields = <Value>(
   keep: Record<string, Value>,
   others: Record<string, Value>[],
-) => Object.assign({}, ...[...others].reverse(), keep) as Record<string, Value>;
+) => {
+  const combined: Record<string, Value> = {};
+
+  for (const values of [...others.toReversed(), keep]) Object.assign(combined, values);
+
+  return combined;
+};

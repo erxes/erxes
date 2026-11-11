@@ -37,6 +37,7 @@ const CommentCard = forwardRef<HTMLDivElement, ComponentProps['Comments']['Card'
     </Card>
   ),
 );
+
 CommentCard.displayName = 'CommentCard';
 
 type CommentActionProps = ComponentProps['Generic']['Toolbar']['Button'] &
@@ -64,8 +65,10 @@ const CommentAction = forwardRef<HTMLButtonElement, CommentActionProps>(
     const isSave = children === dictionary.comments.save_button_text;
     const isIcon = variant === 'compact' && typeof children !== 'string';
     let actionClass = 'erxes-comment-secondary';
+
     if (isSave) actionClass = 'erxes-comment-save';
     else if (isIcon) actionClass = 'erxes-comment-icon';
+
     return (
       <Button
         {...props}
@@ -90,6 +93,7 @@ const CommentAction = forwardRef<HTMLButtonElement, CommentActionProps>(
     );
   },
 );
+
 CommentAction.displayName = 'CommentAction';
 
 const CommentReaction = forwardRef<HTMLButtonElement, ComponentProps['Generic']['Badge']['Root']>(
@@ -112,6 +116,7 @@ const CommentReaction = forwardRef<HTMLButtonElement, ComponentProps['Generic'][
     </Button>
   ),
 );
+
 CommentReaction.displayName = 'CommentReaction';
 
 const CommentPopoverContent = ({
@@ -141,6 +146,7 @@ const CommentDisplay = ({
   const [hovered, setHovered] = useState(false);
   const { focused, ref } = useFocusWithin();
   const actionsVisible = showActions !== false && (showActions !== 'hover' || hovered || focused);
+
   return (
     <article
       ref={ref}
@@ -251,6 +257,7 @@ export const BlockEditorComments = ({
   floatingThread: boolean;
 }) => {
   const base = useComponentsContext();
+
   const components = useMemo(
     () =>
       base && {
@@ -281,7 +288,9 @@ export const BlockEditorComments = ({
       },
     [base],
   );
+
   if (!components) return children;
+
   return (
     <ComponentsContext.Provider value={components}>
       {enabled && (

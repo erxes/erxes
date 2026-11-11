@@ -1,5 +1,6 @@
 import type { Customer } from '@erxes/core-contract';
 import { IconRepeat, IconTrash } from '@tabler/icons-react';
+import type { Row } from '@tanstack/react-table';
 import { Button, Command, CommandBar, Popover, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +27,7 @@ export const CustomersCommandBar = () => {
   const [open, setOpen] = useState(false);
   const [merging, setMerging] = useState(false);
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const customers = selectedRows.map((row) => row.original as Customer);
+  const customers = selectedRows.map((row: Row<Customer>) => row.original);
   const customerIds = customers.map((customer) => customer.id);
   const tagIds = commonTagIds(customers);
   // Owners and admins merge and delete (core's rule).

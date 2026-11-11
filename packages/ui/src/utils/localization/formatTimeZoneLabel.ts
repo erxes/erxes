@@ -11,7 +11,9 @@ export const formatTimeZoneLabel = (ianaTimeZone: string) => {
   const timeZoneWithGmtOffset = formatInTimeZone(Date.now(), ianaTimeZone, `(OOOO) zzzz`, {
     locale: enUS,
   });
+
   const ianaTimeZoneParts = ianaTimeZone.split('/');
+
   const location =
     ianaTimeZoneParts.length > 1 ? ianaTimeZoneParts.slice(-1)[0].replace(/_/g, ' ') : undefined;
 

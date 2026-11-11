@@ -22,6 +22,7 @@ export const DateFilterCommand = ({
   const fieldName = value.replace(/([A-Z])/g, ' $1').toLowerCase();
   const displayLabel = label ?? fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + ' date';
   const selectedDate = normalizeFixedDate(selected);
+
   return (
     <Command>
       <Command.Input placeholder={displayLabel} focusOnMount={focusOnMount} />

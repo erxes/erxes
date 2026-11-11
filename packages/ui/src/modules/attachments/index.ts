@@ -1,4 +1,5 @@
 export { Attachments } from './attachments';
+
 export type {
   AttachmentRootProps,
   AttachmentFilesProps,
@@ -7,5 +8,7 @@ export type {
 } from './attachments';
 
 export { useAttachmentContext } from './context';
+
 export { parseFilesAsAttachments } from './types';
+
 export type { IAttachment, AttachmentContextType } from './types';

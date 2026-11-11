@@ -6,6 +6,7 @@ import { getToolbarPositioning } from 'erxes-ui/modules/blocks/utils/toolbar/get
 export const Toolbar = () => {
   const editor = useBlockNoteEditor();
   const floatingOptions = useMemo(() => getToolbarPositioning(() => editor.domElement), [editor]);
+
   return (
     <FormattingToolbarController
       formattingToolbar={ToolbarContents}

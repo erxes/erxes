@@ -19,6 +19,7 @@ export const Notification = z.object({
   read: z.boolean(),
   createdAt: z.string().datetime(),
 });
+
 export type Notification = z.infer<typeof Notification>;
 
 export const NotificationInput = z.object({
@@ -41,6 +42,7 @@ export const NotificationInput = z.object({
   /** Retry-safe: one notification per recipient and key. */
   dedupeKey: DedupeKey.optional(),
 });
+
 export type NotificationInput = z.infer<typeof NotificationInput>;
 
 /**
@@ -62,6 +64,7 @@ export const CORE_NOTIFICATION_KINDS = [
   'core.user.password_set',
   'core.note.mentioned',
 ] as const;
+
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];
 
 /** Security notices a member can't mute. */
@@ -76,6 +79,7 @@ export const NotificationSettings = z.object({
   /** Plugins that have notified this member, to offer muting them. */
   sources: z.array(z.string()),
 });
+
 export type NotificationSettings = z.infer<typeof NotificationSettings>;
 
 const boolQuery = z

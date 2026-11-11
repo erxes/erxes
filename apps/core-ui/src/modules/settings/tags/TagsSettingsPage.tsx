@@ -154,7 +154,7 @@ const DeleteCell = ({ tag }: { tag: Tag }) => {
       className="h-full w-full rounded-none text-muted-foreground hover:text-destructive"
       aria-label={`Delete ${tag.name}`}
       onClick={() =>
-        confirm({
+        void confirm({
           message: `Delete the tag “${tag.name}”?`,
           options: {
             description: 'It is taken off every record that has it.',
@@ -212,15 +212,16 @@ const AddTag = ({ type }: { type: ContentType }) => {
   const [open, setOpen] = useState(false);
   const create = useTagCreate();
   const { tags } = useTags(type);
+
   const form = useForm<{ name: string; colorCode: string }>({
-    defaultValues: { name: '', colorCode: TAG_COLORS[0]! },
+    defaultValues: { name: '', colorCode: TAG_COLORS[0] },
   });
 
   return (
     <>
       <Button
         onClick={() => {
-          form.reset({ name: '', colorCode: TAG_COLORS[tags.length % TAG_COLORS.length]! });
+          form.reset({ name: '', colorCode: TAG_COLORS[tags.length % TAG_COLORS.length] });
           setOpen(true);
         }}
       >
@@ -233,20 +234,24 @@ const AddTag = ({ type }: { type: ContentType }) => {
         title={`Add ${type} tag`}
         submitLabel="Create"
         submitting={create.isPending}
-        onSubmit={form.handleSubmit(({ name, colorCode }) => {
-          if (!name.trim()) {
-            form.setError('name', { message: 'Enter a name' });
-            return;
-          }
+        onSubmit={(event) =>
+          void form.handleSubmit(({ name, colorCode }) => {
+            if (!name.trim()) {
+              form.setError('name', { message: 'Enter a name' });
 
-          create.mutate(
-            { type, name: name.trim(), colorCode },
-            { onSuccess: () => setOpen(false) },
-          );
-        })}
+              return;
+            }
+
+            create.mutate(
+              { type, name: name.trim(), colorCode },
+              { onSuccess: () => setOpen(false) },
+            );
+          })(event)
+        }
       >
         <Form {...form}>
           <Form.Field
+            control={form.control}
             name="name"
             render={({ field }) => (
               <Form.Item>
@@ -259,6 +264,7 @@ const AddTag = ({ type }: { type: ContentType }) => {
             )}
           />
           <Form.Field
+            control={form.control}
             name="colorCode"
             render={({ field }) => (
               <Form.Item>

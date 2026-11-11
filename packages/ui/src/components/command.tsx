@@ -21,6 +21,7 @@ const CommandRoot = React.forwardRef<
     {...props}
   />
 ));
+
 CommandRoot.displayName = CommandPrimitive.displayName;
 
 type CommandDialogProps = DialogProps & {
@@ -150,6 +151,7 @@ const CommandSeparator = React.forwardRef<
     {...props}
   />
 ));
+
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
 
 const CommandItem = React.forwardRef<
@@ -191,6 +193,7 @@ const CommandActionItem = ({
     {trailing}
   </CommandItem>
 );
+
 CommandActionItem.displayName = 'CommandActionItem';
 
 const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
@@ -201,6 +204,7 @@ const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanE
     />
   );
 };
+
 CommandShortcut.displayName = 'CommandShortcut';
 
 export const Command = Object.assign(CommandRoot, {

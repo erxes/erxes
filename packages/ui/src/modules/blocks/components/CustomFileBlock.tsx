@@ -17,6 +17,7 @@ type FileRenderProps = ReactCustomBlockRenderProps<
 >;
 
 type FileBlockWrapperProps = Parameters<typeof FileBlockWrapper>[0];
+
 type FileWrapperRenderProps = Omit<FileBlockWrapperProps, 'buttonText' | 'buttonIcon' | 'children'>;
 
 const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps => ({

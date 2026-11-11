@@ -151,6 +151,7 @@ export const listEvents = async (
     query.subjectType ? eq(events.subjectType, query.subjectType) : undefined,
     query.subjectId ? eq(events.subjectId, query.subjectId) : undefined,
   );
+
   const page = await keysetPage(
     client,
     {
@@ -195,6 +196,7 @@ export const listEventFailures = async (
     )
     .orderBy(desc(eventFailures.updatedAt))
     .limit(200);
+
   const counts = await client
     .select({ status: eventFailures.status, count: sql<number>`count(*)::int` })
     .from(eventFailures)
@@ -333,6 +335,7 @@ export const pruneEvents = async (
         limit ${batchSize}
       )
     `);
+
     const count = result.rowCount ?? 0;
 
     removed += count;

@@ -1,6 +1,7 @@
 import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
+import tailwindcss from '@tailwindcss/postcss';
 import { resolve } from 'node:path';
 
 const ui = resolve(__dirname, '../../packages/ui/src');
@@ -66,6 +67,7 @@ export default defineConfig({
     },
   },
   tools: {
+    postcss: (_options, { addPlugins }) => addPlugins(tailwindcss()),
     rspack: {
       module: {
         rules: [

@@ -4,6 +4,7 @@ import { Organization } from './organizations';
 import { User } from './users';
 
 export const Session = z.object({ user: User, organization: Organization });
+
 export type Session = z.infer<typeof Session>;
 
 /** At least 8 characters with a lower-case letter, an upper-case letter and a digit (as old erxes). */

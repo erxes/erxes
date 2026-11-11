@@ -37,6 +37,7 @@ export type TPhones = IPhoneField[];
 const PhoneListContainer = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
   return <div {...props} className={cn('p-1 space-y-1', className)} />;
 };
+
 PhoneListContainer.displayName = 'PhoneListContainer';
 
 const PhoneFieldsProvider = forwardRef<
@@ -56,6 +57,7 @@ const PhoneFieldsProvider = forwardRef<
     </PhoneFieldsContext.Provider>
   );
 });
+
 PhoneFieldsProvider.displayName = 'PhoneFieldsProvider';
 
 const PhoneList = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
@@ -103,6 +105,7 @@ const PhoneItem = forwardRef<HTMLButtonElement, IPhoneField & React.ComponentPro
     );
   },
 );
+
 PhoneItem.displayName = 'PhoneItem';
 
 const PhoneOptions = forwardRef<
@@ -193,6 +196,7 @@ const PhoneOptions = forwardRef<
     </DropdownMenu>
   );
 });
+
 PhoneOptions.displayName = 'PhoneOptions';
 
 const PhoneForm = forwardRef<
@@ -216,6 +220,7 @@ const PhoneForm = forwardRef<
     setTimeout(() => {
       inputRef.current?.focus();
     }, 180);
+
     if (editingPhone) {
       setNewPhone(editingPhone);
     }
@@ -231,6 +236,7 @@ const PhoneForm = forwardRef<
       setShowPhoneInput(false);
     }
   }, [phones, setShowPhoneInput]);
+
   const onPhoneEdit = (newPhone: string, prevPhone: string) => {
     onValueChange?.(
       phones.map((phoneItem) =>
@@ -247,8 +253,10 @@ const PhoneForm = forwardRef<
     } else {
       onValueChange?.([...phones, { phone, status: ValidationStatus.Invalid }]);
     }
+
     setNewPhone('');
   };
+
   const { t } = useTranslation('contact', {
     keyPrefix: 'customer.detail',
   });
@@ -304,6 +312,7 @@ const PhoneForm = forwardRef<
     </div>
   );
 });
+
 PhoneForm.displayName = 'PhoneForm';
 
 interface PhoneListFieldProps extends IPhoneFieldProps {
@@ -339,6 +348,7 @@ const PhoneListFieldRoot = forwardRef<
 
     useEffect(() => {
       setPhones(formattedPhones);
+
       return () => {
         setShowPhoneInput(false);
       };
@@ -383,6 +393,7 @@ const PhoneListFieldRoot = forwardRef<
     );
   },
 );
+
 PhoneListFieldRoot.displayName = 'PhoneListFieldRoot';
 
 export const PhonesBadgeDisplay = ({ phones }: { phones: TPhones | undefined }) => {

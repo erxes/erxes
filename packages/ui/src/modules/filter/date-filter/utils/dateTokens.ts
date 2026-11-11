@@ -14,7 +14,9 @@ export const normalizeFixedDate = (value: string): string =>
 
 export const parseQuarterToken = (value: string): { year: number; quarter: number } | null => {
   const match = QUARTER_TOKEN.exec(value);
+
   if (!match) return null;
+
   return {
     year: Number.parseInt(match[1], 10),
     quarter: Number.parseInt(match[2], 10),
@@ -23,7 +25,9 @@ export const parseQuarterToken = (value: string): { year: number; quarter: numbe
 
 export const parseHalfToken = (value: string): { year: number; half: number } | null => {
   const match = HALF_TOKEN.exec(value);
+
   if (!match) return null;
+
   return {
     year: Number.parseInt(match[1], 10),
     half: Number.parseInt(match[2], 10),

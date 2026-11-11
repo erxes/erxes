@@ -25,6 +25,7 @@ export const Editor = ({
     };
   }, []);
   const parsedInitialContent = parseBlocks(initialContent ?? '');
+
   const editor = useBlockEditor({
     initialContent: parsedInitialContent || undefined,
     uploadFile,
@@ -41,22 +42,27 @@ export const Editor = ({
 
       // Support legacy JSON content stored before isHTML mode was introduced
       const parsed = parseBlocks(initialContent);
+
       if (parsed) {
         const currentSerialized = JSON.stringify(editor.document);
         const nextSerialized = JSON.stringify(parsed);
+
         if (isActive && currentSerialized !== nextSerialized) {
           skipNextOnChangeRef.current = true;
           editor.replaceBlocks(editor.document, parsed);
         }
+
         return;
       }
 
       try {
         const blocks = await editor.tryParseHTMLToBlocks(initialContent);
+
         if (!isActive) return;
 
         const currentSerialized = JSON.stringify(editor.document);
         const nextSerialized = JSON.stringify(blocks);
+
         if (currentSerialized !== nextSerialized) {
           skipNextOnChangeRef.current = true;
           editor.replaceBlocks(editor.document, blocks);
@@ -78,8 +84,10 @@ export const Editor = ({
     if (isHTML) return;
 
     let isActive = true;
+
     const syncContent = async () => {
       const parsed = parseBlocks(initialContent ?? '');
+
       if (parsed) {
         const currentSerialized = JSON.stringify(editor.document);
         const nextSerialized = JSON.stringify(parsed);
@@ -90,6 +98,7 @@ export const Editor = ({
           skipNextOnChangeRef.current = true;
           editor.replaceBlocks(editor.document, parsed);
         }
+
         return;
       }
 
@@ -99,6 +108,7 @@ export const Editor = ({
 
       try {
         const blocks = await editor.tryParseHTMLToBlocks(initialContent);
+
         if (!isActive) return;
 
         const currentSerialized = JSON.stringify(editor.document);
@@ -123,6 +133,7 @@ export const Editor = ({
   const handleChange = useCallback(() => {
     if (skipNextOnChangeRef.current) {
       skipNextOnChangeRef.current = false;
+
       return;
     }
 
@@ -130,9 +141,11 @@ export const Editor = ({
 
     debounceTimerRef.current = setTimeout(async () => {
       const content = editor?.document;
+
       if (!content) return;
+
       if (isHTML) {
-        const htmlContent = await editor.blocksToHTMLLossy(content as Block[]);
+        const htmlContent = await editor.blocksToHTMLLossy(content);
         lastEditorOutputRef.current = htmlContent;
         onChange(htmlContent);
       } else {

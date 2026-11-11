@@ -24,6 +24,7 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
     cardSubtitle: 'You are here',
     icon: IconSparkles,
   };
+
   const profile: Omit<OnboardingStepDef, 'step'> = {
     title: 'Create your profile',
     subtitle: 'Set your name, username and avatar — how your team will see you',
@@ -31,6 +32,7 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
     cardSubtitle: 'Name, username & avatar',
     icon: IconUserCircle,
   };
+
   const theme: Omit<OnboardingStepDef, 'step'> = {
     title: 'Choose your theme',
     subtitle: 'Light or dark mode — pick the look that is easy on your eyes',
@@ -38,6 +40,7 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
     cardSubtitle: 'Light or dark — your call',
     icon: IconPalette,
   };
+
   const inviteTeam: Omit<OnboardingStepDef, 'step'> = {
     title: 'Invite your team',
     subtitle: 'Add teammates by email so you can collaborate from day one',
@@ -45,6 +48,7 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
     cardSubtitle: 'Bring your crew aboard',
     icon: IconUsers,
   };
+
   const allSet: Omit<OnboardingStepDef, 'step'> = {
     title: "You're all set",
     subtitle: 'Your workspace is ready — dive in and make it yours',

@@ -30,6 +30,7 @@ export const rateLimit = (options: {
 
     if (!entry || entry.resetAt <= now) {
       hits.set(key, { count: 1, resetAt: now + options.windowMs });
+
       return next();
     }
 
@@ -45,6 +46,7 @@ export const rateLimit = (options: {
         status: 429,
         message: `Too many attempts: try again in ${retryAfter} seconds`,
       });
+
       return;
     }
 

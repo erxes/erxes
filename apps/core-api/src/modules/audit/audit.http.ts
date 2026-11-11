@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { actorOf, requireManager, userCaller } from '~/http/auth';
-import { type AuditFilters, auditFilters, recordAudit } from './audit.service';
+import { auditFilters, recordAudit } from './audit.service';
 
 const MAX_ROWS = 100_000;
 const BATCH = 1_000;
@@ -41,11 +41,11 @@ const COLUMNS = [
 /** One CSV cell: quoted when needed; a leading =, +, - or @ is defused (spreadsheet formulas). */
 const cell = (value: unknown) => {
   let text =
-    value === null || value === undefined
-      ? ''
-      : typeof value === 'object'
-        ? JSON.stringify(value)
-        : String(value);
+    typeof value === 'string'
+      ? value
+      : value === null || value === undefined
+        ? ''
+        : JSON.stringify(value);
 
   if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
 
@@ -74,11 +74,12 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
       message: 'The request is not valid',
       data: { issues: parsed.error.issues },
     });
+
     return;
   }
 
   const { format, ...filters } = parsed.data;
-  const scope = and(eq(auditLogs.orgId, actor.orgId), auditFilters(filters as AuditFilters));
+  const scope = and(eq(auditLogs.orgId, actor.orgId), auditFilters(filters));
   const stamp = new Date().toISOString().slice(0, 10);
 
   res.setHeader(
@@ -143,6 +144,6 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
 
   run().catch((error: unknown) => {
     if (!res.headersSent) next(error);
-    else res.destroy(error as Error);
+    else res.destroy(error instanceof Error ? error : undefined);
   });
 });

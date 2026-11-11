@@ -28,9 +28,7 @@ export const useScopedHotkeys = (
     ? options.preventDefault === true
     : true;
 
-  const ignoreModifiers = isDefined(options?.ignoreModifiers)
-    ? options.ignoreModifiers === true
-    : false;
+  const ignoreModifiers = isDefined(options?.ignoreModifiers) ? options.ignoreModifiers : false;
 
   return useHotkeys(
     keys,
@@ -41,8 +39,10 @@ export const useScopedHotkeys = (
         callback: () => {
           if (!pendingHotkey) {
             callback(keyboardEvent, hotkeysEvent);
+
             return;
           }
+
           setPendingHotkey(null);
         },
         scope,

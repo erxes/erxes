@@ -67,6 +67,7 @@ export const useUpload = () => {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       let type = file.type;
+
       if (file.name.endsWith('.hwp')) {
         type = 'application/haansoft-hwp';
       }
@@ -159,11 +160,13 @@ export const useUpload = () => {
                 if (!response.ok) {
                   setStatus(false);
 
-                  return toast({
+                  toast({
                     title: 'Error uploading file',
                     description: 'Failed to upload file please check your file upload config',
                     variant: 'destructive',
                   });
+
+                  return;
                 }
 
                 setStatus(true);

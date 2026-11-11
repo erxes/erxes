@@ -43,7 +43,7 @@ const ConfirmDialog = ({ message, options, open, onConfirm, onDismiss }: Confirm
     confirmationValue = '',
     content,
     variants = {},
-  } = options || ({} as OptionProps);
+  } = options || {};
 
   const form = useForm<FormType>({
     mode: 'onBlur',

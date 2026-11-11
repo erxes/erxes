@@ -34,11 +34,13 @@ export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
 const CustomersFilterPopover = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation('common');
   const { t: contactT } = useTranslation('contact', { keyPrefix: 'customer' });
+
   const [queries] = useMultiQueryState<{ tags: string[]; searchValue: string; ownerId: string }>([
     'tags',
     'searchValue',
     'ownerId',
   ]);
+
   const hasFilters = Object.values(queries || {}).some((value) => value !== null);
 
   return (

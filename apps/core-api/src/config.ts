@@ -63,11 +63,10 @@ const readPluginKeys = (): Map<string, string> => {
   return keys;
 };
 
-const storageDriver = (process.env.FILES_STORAGE?.trim().toLowerCase() || 'local') as
-  | 'local'
-  | 's3';
+const storageName = process.env.FILES_STORAGE?.trim().toLowerCase() || 'local';
+const storageDriver = (['local', 's3'] as const).find((driver) => driver === storageName);
 
-if (storageDriver !== 'local' && storageDriver !== 's3') {
+if (!storageDriver) {
   throw new Error('FILES_STORAGE must be "local" or "s3"');
 }
 

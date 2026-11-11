@@ -21,6 +21,7 @@ export const FileInfo = z.object({
   url: z.string(),
   createdAt: z.string().datetime(),
 });
+
 export type FileInfo = z.infer<typeof FileInfo>;
 
 /** Where and how to send the bytes: one HTTP request, then `complete`. */
@@ -31,6 +32,7 @@ export const UploadTarget = z.object({
   headers: z.record(z.string()),
   expiresAt: z.string().datetime(),
 });
+
 export type UploadTarget = z.infer<typeof UploadTarget>;
 
 /** What an organisation accepts (Settings → File upload). */
@@ -44,6 +46,7 @@ export const FileSettings = z.object({
   /** Where files are stored. */
   storage: z.enum(['local', 's3']),
 });
+
 export type FileSettings = z.infer<typeof FileSettings>;
 
 const AllowedType = z

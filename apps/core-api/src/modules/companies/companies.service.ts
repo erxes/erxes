@@ -245,6 +245,7 @@ export const createCompany = async (
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'company', input.tagIds ?? []);
+
   const customFields = await applyCustomFields(
     client,
     actor.orgId,
@@ -290,6 +291,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
   await assertOwner(client, actor.orgId, input.ownerId);
 
   const changes: Partial<typeof companies.$inferInsert> = {};
+
   const tagIds =
     input.tagIds === undefined
       ? undefined
@@ -318,6 +320,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
       { primary: current.primaryEmail, list: current.emails },
       normalizeEmail,
     );
+
     changes.primaryEmail = email.primary;
     changes.emails = email.list;
   }
@@ -329,6 +332,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
       { primary: current.primaryPhone, list: current.phones },
       normalizePhone,
     );
+
     changes.primaryPhone = phone.primary;
     changes.phones = phone.list;
   }
@@ -391,8 +395,10 @@ export const tagCompanies = async (
   input: { ids: string[]; add: string[]; remove: string[] },
 ) => {
   const add = await checkTagIds(client, actor.orgId, 'company', input.add);
+
   const updated = await client.transaction(async (tx) => {
     const before = await tagsByCompany(tx, actor.orgId, input.ids);
+
     const count = await changeTags(tx, actor.orgId, 'company', input.ids, {
       add,
       remove: unique(input.remove),
@@ -453,12 +459,16 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
     }
 
     const keep = rows.find((row) => row.id === input.keepId)!;
+
     const others = ids
       .filter((id) => id !== keep.id)
       .map((id) => rows.find((row) => row.id === id)!);
+
     const otherIds = others.map((other) => other.id);
+
     const contacts = (pick: (row: CompanyRow) => { primary: string | null; list: string[] }) =>
       combineContacts(pick(keep), others.map(pick));
+
     const name = contacts((row) => ({ primary: row.primaryName, list: row.names }));
     const email = contacts((row) => ({ primary: row.primaryEmail, list: row.emails }));
     const phone = contacts((row) => ({ primary: row.primaryPhone, list: row.phones }));

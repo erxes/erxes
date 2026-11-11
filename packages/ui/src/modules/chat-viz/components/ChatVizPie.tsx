@@ -44,6 +44,7 @@ export function ChatVizPie({ payload, className }: Readonly<Props>) {
       ),
     [payload.data],
   );
+
   const cells = React.useMemo(() => {
     const occurrences = new Map<string, number>();
     const seriesColor = payload.series[0]?.color;

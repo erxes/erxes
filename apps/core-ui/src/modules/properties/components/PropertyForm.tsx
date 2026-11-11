@@ -14,7 +14,7 @@ import {
   Textarea,
   ToggleGroup,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useFieldArray, useForm, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { FIELD_TYPES, getEditableTypes, hasOptions } from '../fieldTypes';
@@ -34,19 +34,11 @@ const PropertyFormGroupField = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groups } = useFieldGroups(contentType);
-  const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
-
-  // A group added here is picked once the list has it (the select drops unknown values).
-  useEffect(() => {
-    if (!pendingGroupId || !groups.some((group) => group.id === pendingGroupId)) return;
-    form.setValue('groupId', pendingGroupId, { shouldDirty: true, shouldValidate: true });
-    setPendingGroupId(null);
-  }, [pendingGroupId, groups, form]);
 
   // Nothing to choose when the record type has a single group.
   useEffect(() => {
     if (form.getValues('groupId') || groups.length !== 1) return;
-    form.setValue('groupId', groups[0]!.id, { shouldValidate: true });
+    form.setValue('groupId', groups[0].id, { shouldValidate: true });
   }, [groups, form]);
 
   return (
@@ -73,7 +65,9 @@ const PropertyFormGroupField = ({
             </Select>
             <AddPropertyGroup
               contentType={contentType}
-              onAdded={(group) => setPendingGroupId(group.id)}
+              onAdded={(group) =>
+                form.setValue('groupId', group.id, { shouldDirty: true, shouldValidate: true })
+              }
               trigger={
                 <Button type="button" variant="secondary" className="flex-none">
                   <IconPlus />
@@ -152,6 +146,7 @@ const PropertyFormSelectFields = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const type = form.watch('type');
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'options' });
+
   const savedValues = new Set(
     (form.formState.defaultValues?.options ?? []).map((option) => option?.value),
   );
@@ -286,6 +281,7 @@ export const PropertyForm = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
+
   const form = useForm<IPropertyForm, unknown, IPropertyValues>({
     resolver: zodResolver(propertySchema),
     defaultValues,
@@ -296,13 +292,14 @@ export const PropertyForm = ({
     !isEdit || (!usageLoading && !usageFailed && (usage?.records ?? 0) === 0)
       ? FIELD_TYPES.map(({ value }) => value)
       : getEditableTypes(defaultValues.type);
+
   const optionCounts = (fieldId && usage?.options[fieldId]) || {};
 
   return (
     <Form {...form}>
       <form
         className="mx-auto flex w-full max-w-2xl flex-col gap-0"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}
         noValidate
       >
         <div className="flex flex-col px-5 py-4 gap-5">
@@ -376,7 +373,9 @@ export const PropertyForm = ({
                   value={field.value}
                   onValueChange={(value) => {
                     field.onChange(value);
+
                     if (!hasOptions(value)) form.setValue('options', []);
+
                     if (value !== 'text' && value !== 'textarea') form.setValue('validation', null);
                   }}
                   disabled={allowedTypes.length < 2}

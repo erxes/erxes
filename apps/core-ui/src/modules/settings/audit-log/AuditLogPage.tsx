@@ -55,6 +55,7 @@ const isWarning = (action: string) =>
 
 const formatValue = (value: unknown) => {
   if (value === null || value === undefined || value === '') return '—';
+
   if (typeof value === 'string') return value.length > 80 ? `${value.slice(0, 80)}…` : value;
 
   return JSON.stringify(value);
@@ -138,7 +139,7 @@ const downloadCheckpoints = async () => {
 
     if (page.data.length < 1000) break;
 
-    after = page.data[page.data.length - 1]!.chainSeq;
+    after = page.data[page.data.length - 1].chainSeq;
   }
 
   const blob = new Blob(
@@ -147,6 +148,7 @@ const downloadCheckpoints = async () => {
       type: 'application/json',
     },
   );
+
   const link = document.createElement('a');
 
   link.href = URL.createObjectURL(blob);
@@ -227,11 +229,14 @@ const Retention = ({ isOwner }: { isOwner: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const client = useQueryClient();
   const { toast } = useToast();
+
   const { data } = useQuery({
     queryKey: ['settings', 'audit'],
     queryFn: () => api.audit.settings(),
   });
+
   const [days, setDays] = useState('');
+
   const save = useMutation({
     mutationFn: () => api.audit.updateSettings({ retentionDays: Number(days) }),
     onSuccess: (next) => {
@@ -298,6 +303,7 @@ export const AuditLogPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const { user } = useSession();
   const { plugins } = usePlugins();
+
   const [filters, setFilters] = useState<Filters>({
     area: 'all',
     actorId: 'all',
@@ -307,6 +313,7 @@ export const AuditLogPage = () => {
     ip: '',
     q: '',
   });
+
   const [open, setOpen] = useState<string | null>(null);
   const deferred = useDeferredValue(filters);
   const canSee = user.role !== 'member';
@@ -328,17 +335,22 @@ export const AuditLogPage = () => {
       last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
     enabled: canSee,
   });
+
   const entries = list.data?.pages.flatMap((page) => page.data) ?? [];
   const first = list.data?.pages[0];
+
   const members = useMembersById(
     entries.map((entry) => (entry.actor.type === 'user' ? entry.actor.id : null)),
   );
+
   const team = useQuery({
     queryKey: ['users', 'audit-filter'],
     queryFn: () => api.users.list({ limit: 100 }),
     enabled: canSee,
   });
+
   const sources = ['core', ...new Set(plugins.map((plugin) => plugin.config.name.toLowerCase()))];
+
   const exportUrl = (format: 'csv' | 'json') => {
     const params = new URLSearchParams({ format });
 
@@ -499,10 +511,12 @@ export const AuditLogPage = () => {
                     members,
                     t('deleted-member', 'A removed member'),
                   );
+
                   const member =
                     entry.actor.type === 'user' && entry.actor.id
                       ? members.get(entry.actor.id)
                       : undefined;
+
                   const expanded = open === entry.id;
 
                   return (

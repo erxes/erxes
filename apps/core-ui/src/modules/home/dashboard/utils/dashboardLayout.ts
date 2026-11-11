@@ -43,9 +43,10 @@ export const fitToWidget = (
  * another pushes that one down, and moving it past one swaps them.
  */
 export const compactLayout = (items: TDashboardItem[], priorityId?: string): TDashboardItem[] => {
-  const sorted = [...items].sort(
+  const sorted = items.toSorted(
     (a, b) => byPosition(a, b) || Number(b.id === priorityId) - Number(a.id === priorityId),
   );
+
   const placed: TDashboardItem[] = [];
 
   for (const item of sorted) {

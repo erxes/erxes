@@ -73,6 +73,7 @@ export const useSequenceHotkeys = (
     },
     [pendingHotkey, setPendingHotkey, scope, ...deps],
   );
+
   return {
     goBackToPreviousHotkeyScope,
   };

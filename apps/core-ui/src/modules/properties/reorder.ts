@@ -21,7 +21,7 @@ export const reorderItems = <T extends { id: string; order: number }>(
 
 /** `next` (a rearranged `items`) with `items`' order values; only changed ones in `changed`. */
 export const withOrders = <T extends { id: string; order: number }>(items: T[], next: T[]) => {
-  let orders = items.map((item) => item.order).sort((a, b) => a - b);
+  let orders = items.map((item) => item.order).toSorted((a, b) => a - b);
 
   // Equal orders cannot express a new arrangement: number them from the first.
   if (new Set(orders).size !== orders.length) {

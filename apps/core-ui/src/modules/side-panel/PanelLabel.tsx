@@ -2,7 +2,8 @@ import { cn, Tooltip } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { usePanelExpanded } from './RecordSidePanel';
 
-const useIsClamped = (expanded: boolean) => {
+// The observers see the size change when the panel expands or collapses.
+const useIsClamped = () => {
   const ref = useRef<HTMLSpanElement>(null);
   const [isClamped, setIsClamped] = useState(false);
 
@@ -10,7 +11,7 @@ const useIsClamped = (expanded: boolean) => {
     const element = ref.current;
 
     if (!element) {
-      return;
+      return undefined;
     }
 
     const check = () => setIsClamped(element.scrollHeight > element.clientHeight + 1);
@@ -29,7 +30,7 @@ const useIsClamped = (expanded: boolean) => {
       resizeObserver.disconnect();
       contentObserver.disconnect();
     };
-  }, [expanded]);
+  }, []);
 
   return { ref, isClamped };
 };
@@ -44,7 +45,7 @@ export const PanelLabel = ({
   className?: string;
 }) => {
   const expanded = usePanelExpanded();
-  const { ref, isClamped } = useIsClamped(expanded);
+  const { ref, isClamped } = useIsClamped();
   const showTooltip = isClamped && !expanded;
 
   return (

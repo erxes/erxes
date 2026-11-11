@@ -97,6 +97,7 @@ export const EmailEditor = ({
   editable = true,
 }: EmailEditorProps) => {
   const [editor, setEditor] = useState<TiptapEditor | null>(null);
+
   const extensions: AnyExtension[] = [
     MailyKit,
     HTMLCodeBlockExtension,

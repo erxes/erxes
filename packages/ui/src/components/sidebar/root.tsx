@@ -29,6 +29,7 @@ export const SidebarRoot = React.forwardRef<
     const { isMobile, state, collapseState, openMobile, setOpenMobile } = useSidebar();
 
     let dataCollapsible = '';
+
     if (collapseState === 'compact') {
       dataCollapsible = 'compact';
     } else if (state === 'collapsed') {
@@ -118,6 +119,7 @@ export const SidebarRoot = React.forwardRef<
     );
   },
 );
+
 SidebarRoot.displayName = 'SidebarRoot';
 
 export const SidebarRail = React.forwardRef<HTMLButtonElement, React.ComponentProps<'button'>>(
@@ -146,6 +148,7 @@ export const SidebarRail = React.forwardRef<HTMLButtonElement, React.ComponentPr
     );
   },
 );
+
 SidebarRail.displayName = 'SidebarRail';
 
 export const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<'main'>>(
@@ -163,4 +166,5 @@ export const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProp
     );
   },
 );
+
 SidebarInset.displayName = 'SidebarInset';

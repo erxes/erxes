@@ -2,6 +2,7 @@ import { CORE_API_PREFIX, coreContract } from '@erxes/core-contract';
 import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
+import type { z } from 'zod';
 
 /**
  * Typed client for /core/v1 from the same contract the server implements.
@@ -18,6 +19,13 @@ export const api: ContractRouterClient<typeof coreContract> = createORPCClient(
 /** A core error, optionally with a given code (`CUSTOMER_EXISTS`, …). */
 export const isApiError = (error: unknown, code?: string): error is ORPCError<string, unknown> =>
   error instanceof ORPCError && (code === undefined || error.code === code);
+
+/** An error's `data` read through a schema; undefined when it doesn't match. */
+export const errorData = <T>(error: ORPCError<string, unknown>, schema: z.ZodType<T>) => {
+  const parsed = schema.safeParse(error.data);
+
+  return parsed.success ? parsed.data : undefined;
+};
 
 export const messageOf = (error: unknown) =>
   error instanceof Error ? error.message : 'Something went wrong. Try again.';

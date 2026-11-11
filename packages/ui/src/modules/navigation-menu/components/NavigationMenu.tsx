@@ -83,6 +83,7 @@ export const SettingsNavigationMenuLinkItem = forwardRef<
   React.ComponentProps<typeof NavigationMenuLinkItem>
 >(({ pathPrefix, ...props }, ref) => {
   const settingsPathPrefix = `settings/${pathPrefix}`;
+
   return <NavigationMenuLinkItem {...props} pathPrefix={settingsPathPrefix} ref={ref} />;
 });
 

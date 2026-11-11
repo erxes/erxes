@@ -160,13 +160,11 @@ const anyone = pub.use(({ context, next }) =>
 );
 
 const labelOf = (value: unknown) => {
-  const record = value as { label?: unknown; name?: unknown } | null;
+  if (typeof value !== 'object' || value === null) return null;
 
-  return typeof record?.label === 'string'
-    ? record.label
-    : typeof record?.name === 'string'
-      ? record.name
-      : null;
+  if ('label' in value && typeof value.label === 'string') return value.label;
+
+  return 'name' in value && typeof value.name === 'string' ? value.name : null;
 };
 
 /**

@@ -51,6 +51,7 @@ const companySchema = z.object({
 });
 
 type TCompanyForm = z.infer<typeof companySchema>;
+
 type TCompanyTextField = 'primaryName' | 'code' | 'primaryEmail' | 'primaryPhone' | 'website';
 
 const TEXT_FIELD_ICONS: Record<TCompanyTextField, Icon> = {
@@ -103,10 +104,12 @@ export const CompanyPanelNew = () => {
   const [linking, setLinking] = useState(false);
   const showCreated = useCreatedPanelRecord('core:company');
   const create = useCompanyCreate();
+
   const form = useForm<TCompanyForm>({
     resolver: zodResolver(companySchema),
     defaultValues: { primaryName: '', code: '', industry: [] },
   });
+
   const { errors } = form.formState;
 
   /** Returns to the previous record or closes a top-level company draft. */
@@ -172,7 +175,7 @@ export const CompanyPanelNew = () => {
     <Form {...form}>
       <form
         className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
-        onSubmit={form.handleSubmit(save)}
+        onSubmit={(event) => void form.handleSubmit(save)(event)}
       >
         <PanelFormLayout
           onCancel={cancel}

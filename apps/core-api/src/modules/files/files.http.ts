@@ -23,17 +23,23 @@ signedFilesRouter.put('/:token', (req: Request, res: Response) => {
   const grant = readGrant(req.params.token ?? '');
 
   if (config.files.driver !== 'local' || !grant || grant.op !== 'put') {
-    return fail(res, 403, 'INVALID_LINK', 'This upload link is not valid or has expired');
+    fail(res, 403, 'INVALID_LINK', 'This upload link is not valid or has expired');
+
+    return;
   }
 
   if ((req.get('content-type') ?? '').split(';')[0]!.trim().toLowerCase() !== grant.contentType) {
-    return fail(res, 400, 'CONTENT_TYPE_MISMATCH', `Send the file as ${grant.contentType}`);
+    fail(res, 400, 'CONTENT_TYPE_MISMATCH', `Send the file as ${grant.contentType}`);
+
+    return;
   }
 
   const declared = Number(req.get('content-length'));
 
   if (Number.isFinite(declared) && declared !== grant.size) {
-    return fail(res, 400, 'SIZE_MISMATCH', 'The file size differs from the one declared');
+    fail(res, 400, 'SIZE_MISMATCH', 'The file size differs from the one declared');
+
+    return;
   }
 
   const target = localPath(grant.key);
@@ -52,7 +58,9 @@ signedFilesRouter.put('/:token', (req: Request, res: Response) => {
     .then(async () => {
       if (received !== grant.size) {
         await rm(partial, { force: true });
-        return fail(res, 400, 'SIZE_MISMATCH', 'The file size differs from the one declared');
+        fail(res, 400, 'SIZE_MISMATCH', 'The file size differs from the one declared');
+
+        return;
       }
 
       await rename(partial, target);
@@ -71,7 +79,9 @@ signedFilesRouter.get('/:token', (req: Request, res: Response) => {
   const grant = readGrant(req.params.token ?? '');
 
   if (config.files.driver !== 'local' || !grant || grant.op !== 'get') {
-    return fail(res, 403, 'INVALID_LINK', 'This link is not valid or has expired');
+    fail(res, 403, 'INVALID_LINK', 'This link is not valid or has expired');
+
+    return;
   }
 
   const stream = createReadStream(localPath(grant.key));

@@ -17,11 +17,14 @@ const VIMEO_PATTERN =
 /** Parses a YouTube or Vimeo URL into an embeddable iframe URL (and thumbnail, when derivable without a network call). */
 export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
   const trimmed = url.trim();
+
   if (!trimmed) return null;
 
   const youtubeMatch = YOUTUBE_LONG_PATTERN.exec(trimmed) || YOUTUBE_SHORT_PATTERN.exec(trimmed);
+
   if (youtubeMatch) {
     const id = youtubeMatch[1];
+
     return {
       provider: 'youtube',
       embedUrl: `https://www.youtube.com/embed/${id}`,
@@ -30,8 +33,10 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
   }
 
   const vimeoMatch = VIMEO_PATTERN.exec(trimmed);
+
   if (vimeoMatch) {
     const id = vimeoMatch[1];
+
     return {
       provider: 'vimeo',
       embedUrl: `https://player.vimeo.com/video/${id}`,
@@ -48,5 +53,6 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
  */
 export const getCloudflareStreamBase = (url: string): string | null => {
   const match = url.match(/^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/);
+
   return match ? match[1] : null;
 };

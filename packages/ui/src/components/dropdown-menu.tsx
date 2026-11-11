@@ -23,6 +23,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
     {children}
   </DropdownMenuPrimitive.SubTrigger>
 ));
+
 DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayName;
 
 const DropdownMenuSubContent = React.forwardRef<
@@ -38,6 +39,7 @@ const DropdownMenuSubContent = React.forwardRef<
     {...props}
   />
 ));
+
 DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
 
 const DropdownMenuContent = React.forwardRef<
@@ -57,6 +59,7 @@ const DropdownMenuContent = React.forwardRef<
     />
   </DropdownMenuPrimitive.Portal>
 ));
+
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 const DropdownMenuItem = React.forwardRef<
@@ -75,6 +78,7 @@ const DropdownMenuItem = React.forwardRef<
     {...props}
   />
 ));
+
 DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 
 const DropdownMenuCheckboxItem = React.forwardRef<
@@ -98,6 +102,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     {children}
   </DropdownMenuPrimitive.CheckboxItem>
 ));
+
 DropdownMenuCheckboxItem.displayName = DropdownMenuPrimitive.CheckboxItem.displayName;
 
 const DropdownMenuRadioItem = React.forwardRef<
@@ -120,6 +125,7 @@ const DropdownMenuRadioItem = React.forwardRef<
     </span>
   </DropdownMenuPrimitive.RadioItem>
 ));
+
 DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName;
 
 const DropdownMenuLabel = React.forwardRef<
@@ -138,6 +144,7 @@ const DropdownMenuLabel = React.forwardRef<
     {...props}
   />
 ));
+
 DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName;
 
 const DropdownMenuSeparator = React.forwardRef<
@@ -150,6 +157,7 @@ const DropdownMenuSeparator = React.forwardRef<
     {...props}
   />
 ));
+
 DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName;
 
 const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
@@ -157,6 +165,7 @@ const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTML
     <span className={cn('ml-auto text-xs tracking-widest opacity-60', className)} {...props} />
   );
 };
+
 DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
 export const DropdownMenu = Object.assign(DropdownMenuPrimitive.Root, {

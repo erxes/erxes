@@ -14,12 +14,12 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { PROPERTIES_BASE_PATH } from '../constants';
-import { FIELD_TYPES_OBJECT } from '../fieldTypes';
+import { fieldTypeOf } from '../fieldTypes';
 import { archiveTargetState, selectedFieldIdsState } from '../states';
 import { useCanManageFields, useEditProperty } from '../usePropertyMutations';
 
 /** The edit page of a field (old `/:type/:groupId/:id`). */
-export const propertyEditPath = (field: Field) =>
+export const propertyEditPath = (field: Pick<Field, 'id' | 'contentType' | 'groupId'>) =>
   `${PROPERTIES_BASE_PATH}/${field.contentType}/${field.groupId ?? 'ungrouped'}/${field.id}`;
 
 const PropertiesCheckboxCell = ({ id }: { id: string }) => {
@@ -32,10 +32,13 @@ const PropertiesCheckboxCell = ({ id }: { id: string }) => {
         onCheckedChange={(value) =>
           setSelectedFieldIds((prev) => {
             const isChecked = !!value;
+
             if (isChecked === !!prev[id]) return prev;
             const next = { ...prev };
+
             if (isChecked) next[id] = true;
             else delete next[id];
+
             return next;
           })
         }
@@ -60,6 +63,7 @@ const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
               if (value) next[id] = true;
               else delete next[id];
             });
+
             return next;
           })
         }
@@ -85,6 +89,7 @@ const PropertiesMoreColumnCell = ({ cell }: { cell: Cell<Field, unknown> }) => {
       if (!prev[field.id]) return prev;
       const next = { ...prev };
       delete next[field.id];
+
       return next;
     });
   };
@@ -152,7 +157,7 @@ export const propertiesColumns = (
     header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       const { label, icon, type } = cell.row.original;
-      const TypeIcon = FIELD_TYPES_OBJECT[type]?.icon;
+      const TypeIcon = fieldTypeOf(type)?.icon;
 
       return (
         <RecordTableInlineCell>
@@ -174,7 +179,7 @@ export const propertiesColumns = (
     accessorKey: 'type',
     header: () => <RecordTable.InlineHead label={t('data-type', 'Data type')} />,
     cell: ({ cell }) => {
-      const fieldType = FIELD_TYPES_OBJECT[cell.row.original.type];
+      const fieldType = fieldTypeOf(cell.row.original.type);
       const Icon = fieldType?.icon;
 
       return (

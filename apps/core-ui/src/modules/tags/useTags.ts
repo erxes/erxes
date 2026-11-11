@@ -25,6 +25,7 @@ export const useTags = (type: ContentType) => {
     queryFn: () => api.tags.list({ type }),
     staleTime: 60_000,
   });
+
   const tags = useMemo(() => query.data?.data ?? [], [query.data]);
   const byId = useMemo(() => new Map(tags.map((tag) => [tag.id, tag])), [tags]);
 
@@ -40,7 +41,9 @@ export const useTagCreate = () => {
       api.tags.create(input),
     onSuccess: (tag) =>
       client.setQueryData<{ data: Tag[] }>([...TAGS_KEY, tag.type], (cache) =>
-        cache ? { data: [...cache.data, tag].sort((a, b) => a.name.localeCompare(b.name)) } : cache,
+        cache
+          ? { data: [...cache.data, tag].toSorted((a, b) => a.name.localeCompare(b.name)) }
+          : cache,
       ),
     onError: (error) =>
       toast({

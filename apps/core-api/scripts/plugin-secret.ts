@@ -20,17 +20,23 @@ const main = async () => {
 
   const secret = await rotatePluginSecret(name);
 
-  console.log(
+  console.info(
     `Client secret for ${name} (shown once; the previous one works 24 more hours):\n\n  ${secret}\n`,
   );
-  console.log(
+  console.info(
     `The plugin exchanges it for tokens: POST /core/v1/plugins/token { grant_type: "client_credentials", client_id: "${name}", client_secret, org }`,
   );
 };
 
-main()
-  .catch((error: unknown) => {
+const run = async () => {
+  try {
+    await main();
+  } catch (error) {
     console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
-  })
-  .finally(() => closeDb());
+  } finally {
+    await closeDb();
+  }
+};
+
+void run();

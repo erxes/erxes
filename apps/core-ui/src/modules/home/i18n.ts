@@ -68,4 +68,5 @@ const mn: typeof en = {
 };
 
 i18n.addResourceBundle('en', HOME_NS, en, true, false);
+
 i18n.addResourceBundle('mn', HOME_NS, mn, true, false);

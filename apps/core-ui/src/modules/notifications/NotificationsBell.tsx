@@ -98,7 +98,10 @@ export const NotificationsBell = () => {
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 border-b px-2">
-          <Tabs value={tab} onValueChange={(value) => setTab(value as 'all' | 'unread')}>
+          <Tabs
+            value={tab}
+            onValueChange={(value) => setTab(value === 'unread' ? 'unread' : 'all')}
+          >
             <Tabs.List className="rounded-none border-0">
               <Tabs.Trigger value="all">{t('all', 'All')}</Tabs.Trigger>
               <Tabs.Trigger value="unread">

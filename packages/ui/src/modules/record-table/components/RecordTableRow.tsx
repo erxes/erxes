@@ -16,6 +16,7 @@ export const RecordTableRow = React.forwardRef<
   }
 >(({ children, className, handleRowViewChange, original, ...props }, ref) => {
   const { table } = useRecordTable();
+
   const { ref: inViewRef, inView } = useInView({
     onChange: handleRowViewChange,
   });

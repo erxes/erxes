@@ -4,6 +4,7 @@ import { cursorPageOf, CursorQuery, Id } from './common';
 import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
 
 export const ActivityTarget = z.enum(['customer', 'company']);
+
 export type ActivityTarget = z.infer<typeof ActivityTarget>;
 
 /**
@@ -47,6 +48,7 @@ export const Activity = z.object({
   editedAt: z.string().datetime().nullable(),
   occurredAt: z.string().datetime(),
 });
+
 export type Activity = z.infer<typeof Activity>;
 
 /** Notes are timeline entries of type `customer.note` / `company.note`; `data` = `{ body, mentions, fileIds }`. */
@@ -78,6 +80,7 @@ export const ActivityInput = z.object({
   /** Retry-safe: one entry per plugin and key. */
   dedupeKey: DedupeKey.optional(),
 });
+
 export type ActivityInput = z.infer<typeof ActivityInput>;
 
 /** The customer and company timeline, across core and plugins. */

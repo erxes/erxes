@@ -44,6 +44,7 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
     .insert(organizations)
     .values({ id: newId(), subdomain, name: input.name.trim() })
     .returning();
+
   const [owner] = await tx
     .insert(users)
     .values({

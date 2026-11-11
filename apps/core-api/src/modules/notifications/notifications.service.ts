@@ -1,5 +1,5 @@
 import type { CursorQuery, Notification, NotificationInput } from '@erxes/core-contract';
-import { UNMUTABLE_NOTIFICATION_KINDS } from '@erxes/core-contract';
+import { Changes, UNMUTABLE_NOTIFICATION_KINDS } from '@erxes/core-contract';
 import { type Db, newId, notifications, users } from '@erxes/core-db';
 import { and, count, desc, eq, gt, inArray, isNotNull, isNull, like, lt, sql } from 'drizzle-orm';
 import type { Actor, Caller } from '~/http/auth';
@@ -40,10 +40,8 @@ export const isMuted = (muted: string[] | undefined, source: string, kind: strin
   !UNMUTABLE_NOTIFICATION_KINDS.includes(kind) &&
   (muted ?? []).some((entry) => entry === source || entry === kind || kind.startsWith(`${entry}.`));
 
-type Changes = Record<string, [unknown, unknown]>;
-
 const combineChanges = (earlier: Changes | undefined, later: Changes | undefined): Changes => {
-  const combined: Changes = { ...(earlier ?? {}) };
+  const combined: Changes = { ...earlier };
 
   for (const [field, [before, after]] of Object.entries(later ?? {})) {
     combined[field] = [field in combined ? combined[field]![0] : before, after];
@@ -68,6 +66,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
   await assertMember(client, caller.orgId, input.actorUserId);
 
   const wanted = unique(input.userIds);
+
   const members = await client
     .select({ id: users.id, status: users.status, settings: users.notificationSettings })
     .from(users)
@@ -83,6 +82,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
 
   const actorUserId =
     input.actorUserId ?? (caller.actorType === 'user' ? caller.actorId : undefined);
+
   const recipients = members
     .filter(
       (member) =>
@@ -118,14 +118,15 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
         ),
       )
       .orderBy(desc(notifications.createdAt));
+
     const latest = new Map<string, NotificationRow>();
 
     recent.forEach((row) => latest.has(row.userId) || latest.set(row.userId, row));
 
     for (const row of latest.values()) {
       const changes = combineChanges(
-        row.data.changes as Changes | undefined,
-        input.data?.changes as Changes | undefined,
+        Changes.safeParse(row.data.changes).data,
+        Changes.safeParse(input.data?.changes).data,
       );
 
       await client
@@ -239,6 +240,7 @@ export const unreadCount = async (client: Db, actor: Actor, source?: string) => 
       ),
     )
     .groupBy(notifications.source);
+
   const bySource = Object.fromEntries(rows.map((row) => [row.source, row.count]));
 
   return { count: rows.reduce((total, row) => total + row.count, 0), bySource };
@@ -251,11 +253,14 @@ export const notificationSettings = async (client: Db, actor: Actor) => {
     .from(users)
     .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
     .limit(1);
+
   const sources = await client
     .selectDistinct({ source: notifications.source })
     .from(notifications)
     .where(mine(actor));
+
   const muted = user?.settings.muted ?? [];
+
   const plugins = new Set([
     ...sources.map((row) => row.source),
     // A muted plugin stays listed, so it can be unmuted.
@@ -264,7 +269,7 @@ export const notificationSettings = async (client: Db, actor: Actor) => {
 
   plugins.delete('core');
 
-  return { muted, sources: [...plugins].sort() };
+  return { muted, sources: [...plugins].toSorted() };
 };
 
 export const updateNotificationSettings = async (

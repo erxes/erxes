@@ -1,4 +1,4 @@
-import type { Field, FieldType } from '@erxes/core-contract';
+import type { FieldType } from '@erxes/core-contract';
 import { FIELD_TYPE_FAMILIES, OPTION_FIELD_TYPES } from '@erxes/core-contract';
 import {
   IconCalendarEvent,
@@ -35,19 +35,10 @@ export const FIELD_TYPES: { value: FieldType; label: string; icon: Icon; i18nKey
   { value: 'phone', label: 'Phone', icon: IconPhone, i18nKey: 'phone' },
 ];
 
-export const FIELD_TYPES_OBJECT = Object.fromEntries(
-  FIELD_TYPES.map((type) => [type.value, type]),
-) as Record<FieldType, (typeof FIELD_TYPES)[number]>;
+/** A property type's label and icon. */
+export const fieldTypeOf = (type: FieldType) => FIELD_TYPES.find(({ value }) => value === type);
 
-export const FIELD_TYPE_ICONS = Object.fromEntries(
-  FIELD_TYPES.map((type) => [type.value, type.icon]),
-) as Record<Field['type'], Icon>;
-
-export const FIELD_TYPE_LABELS = Object.fromEntries(
-  FIELD_TYPES.map((type) => [type.value, type.label]),
-) as Record<Field['type'], string>;
-
-export const hasOptions = (type: FieldType | string) =>
+export const hasOptions = (type: string) =>
   (OPTION_FIELD_TYPES as readonly string[]).includes(type);
 
 /** Types a field holding values may change to (same stored value). */

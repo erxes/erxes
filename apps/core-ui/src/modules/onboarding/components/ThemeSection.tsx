@@ -13,16 +13,16 @@ const THEME_OPTIONS: { value: ThemeOption; labelKey: string; src: string }[] = [
   { value: 'dark', labelKey: 'theme-dark', src: uiDark },
 ];
 
+const handleKeyDown = (e: KeyboardEvent, action: () => void) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    action();
+  }
+};
+
 export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   const [theme, setTheme] = useAtom(themeState);
-
-  const handleKeyDown = (e: KeyboardEvent, action: () => void) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      action();
-    }
-  };
 
   return (
     <Appear

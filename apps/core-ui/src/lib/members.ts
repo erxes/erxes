@@ -8,9 +8,10 @@ export const memberName = (user: Pick<User, 'fullName' | 'email'>) => user.fullN
 /** Team members by id (any status), for showing who did something. */
 export const useMembersById = (ids: (string | null | undefined)[]) => {
   const wanted = useMemo(
-    () => [...new Set(ids.filter((id): id is string => Boolean(id)))].sort(),
+    () => [...new Set(ids.filter((id): id is string => Boolean(id)))].toSorted(),
     [ids],
   );
+
   const query = useQuery({
     queryKey: ['users', 'by-id', wanted],
     queryFn: () => api.users.list({ ids: wanted.join(','), limit: 100 }),

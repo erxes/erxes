@@ -65,11 +65,13 @@ export const createApp = (): Express => {
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (error instanceof HttpError) {
       res.status(error.status).json(errorBody(error.status, error.code, error.message, error.data));
+
       return;
     }
 
     if (error instanceof SyntaxError && 'body' in error) {
       res.status(400).json(errorBody(400, 'INVALID_JSON', 'The request body is not valid JSON'));
+
       return;
     }
 

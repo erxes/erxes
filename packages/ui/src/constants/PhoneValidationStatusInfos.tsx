@@ -5,6 +5,7 @@ export const PhoneIconComponents = {
   IconCircleDashed,
   IconDeviceMobile,
 } as const;
+
 export type TPhoneValidationStatusInfo = {
   label: string;
   value: string;

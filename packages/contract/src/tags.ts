@@ -10,6 +10,7 @@ export const Tag = z.object({
   colorCode: z.string().nullable(),
   createdAt: z.string().datetime(),
 });
+
 export type Tag = z.infer<typeof Tag>;
 
 const color = z

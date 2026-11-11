@@ -7,6 +7,7 @@ import { InviteRowCheckbox } from './InviteRowCheckbox';
 import type { TUserForm } from './inviteSchema';
 
 const INPUT_CLASS_NAME = 'rounded-none focus-visible:relative focus-visible:z-10 shadow-none';
+
 const MESSAGE_CLASS_NAME =
   'text-destructive-foreground absolute top-full -left-px -right-px z-20 bg-destructive m-0! px-2 py-1';
 

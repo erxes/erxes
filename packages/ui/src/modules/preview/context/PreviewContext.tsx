@@ -9,8 +9,10 @@ export const PreviewContext = createContext<IPreviewContext | null>(null);
 
 export const usePreviewContext = () => {
   const context = useContext(PreviewContext);
+
   if (!context) {
     throw new Error('usePreviewContext must be used within a PreviewProvider');
   }
+
   return context;
 };

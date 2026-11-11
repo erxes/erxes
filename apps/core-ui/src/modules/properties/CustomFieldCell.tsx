@@ -11,8 +11,6 @@ import {
 import { useState } from 'react';
 import { DateInlineCell } from '~/components/inlineCells';
 
-export { FIELD_TYPE_ICONS, FIELD_TYPE_LABELS } from './fieldTypes';
-
 const OptionsCell = ({
   field,
   value,

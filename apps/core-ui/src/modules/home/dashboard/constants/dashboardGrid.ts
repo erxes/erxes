@@ -3,6 +3,7 @@ import type { TDashboardItem } from '../types/dashboardTypes';
 export const DASHBOARD_GRID_COLUMNS = 12;
 export const DASHBOARD_ROW_HEIGHT = 40;
 export const DASHBOARD_GRID_GAP = 16;
+
 // Narrower than this the tiles stack in saved order instead of the grid.
 export const DASHBOARD_STACK_BELOW_WIDTH = 768;
 export const DASHBOARD_MAX_ITEMS = 40;

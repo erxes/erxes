@@ -1,5 +1,7 @@
+import { LiveHello, LivePlugin, LiveTimeline } from '@erxes/core-contract';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useSyncExternalStore } from 'react';
+import type { z } from 'zod';
 
 /**
  * Live updates from core's stream (`GET /core/v1/stream`, Server-Sent Events).
@@ -21,14 +23,20 @@ export type LiveMode = 'connecting' | 'live' | 'polling';
 
 export type LiveMessage =
   | { event: 'inbox' }
-  | { event: 'timeline'; data: { targets: { targetType: string; targetId: string }[] } }
-  | { event: 'plugin'; data: { plugin: string; topics: string[] } }
+  | { event: 'timeline'; data: LiveTimeline }
+  | { event: 'plugin'; data: LivePlugin }
   | { event: 'resync' };
 
 type Wire = LiveMessage | { event: 'mode'; data: LiveMode } | { event: 'mode?' };
 
 const CHANNEL = 'erxes-live';
 const LOCK = 'erxes-live-leader';
+
+/** A stream message's JSON body, if it matches the schema. */
+const readMessage = <Output>(schema: z.ZodType<Output>, event: Event) =>
+  event instanceof MessageEvent && typeof event.data === 'string'
+    ? schema.safeParse(JSON.parse(event.data)).data
+    : undefined;
 
 export class LiveClient {
   private mode: LiveMode = 'connecting';
@@ -67,8 +75,13 @@ export class LiveClient {
     return () => this.listeners.delete(listener);
   }
 
+  private broadcast(message: Wire) {
+    this.channel?.postMessage(message);
+  }
+
   private setMode(mode: LiveMode, broadcast: boolean) {
-    if (broadcast) this.channel?.postMessage({ event: 'mode', data: mode } satisfies Wire);
+    if (broadcast) this.broadcast({ event: 'mode', data: mode });
+
     if (this.mode === mode) return;
 
     this.mode = mode;
@@ -76,7 +89,7 @@ export class LiveClient {
   }
 
   private deliver(message: LiveMessage, broadcast: boolean) {
-    if (broadcast) this.channel?.postMessage(message satisfies Wire);
+    if (broadcast) this.broadcast(message);
     this.listeners.forEach((listener) => listener(message));
   }
 
@@ -90,15 +103,15 @@ export class LiveClient {
 
     if (typeof BroadcastChannel !== 'undefined') {
       this.channel = new BroadcastChannel(CHANNEL);
-      this.channel.onmessage = ({ data }: MessageEvent<Wire>) => {
+      this.channel.addEventListener('message', ({ data }: MessageEvent<Wire>) => {
         if (data.event === 'mode') this.setMode(data.data, false);
         else if (data.event === 'mode?') {
-          if (this.source)
-            this.channel?.postMessage({ event: 'mode', data: this.mode } satisfies Wire);
+          if (this.source) this.broadcast({ event: 'mode', data: this.mode });
         } else this.deliver(data, false);
-      };
+      });
+
       // A follower asks the leader how things stand.
-      this.channel.postMessage({ event: 'mode?' } satisfies Wire);
+      this.broadcast({ event: 'mode?' });
     }
 
     if (typeof navigator !== 'undefined' && 'locks' in navigator && this.channel) {
@@ -114,6 +127,7 @@ export class LiveClient {
               // Granted after this tab stopped: give it straight back.
               if (this.users === 0 || request.signal.aborted) {
                 release();
+
                 return;
               }
 
@@ -147,28 +161,26 @@ export class LiveClient {
 
     this.source = source;
     source.addEventListener('hello', (event) => {
-      const { mode } = JSON.parse((event as MessageEvent<string>).data) as {
-        mode: 'live' | 'polling';
-      };
+      const hello = readMessage(LiveHello, event);
+
+      if (!hello) return;
 
       this.retries = 0;
-      this.setMode(mode, true);
+      this.setMode(hello.mode, true);
       // Connected (again): whatever happened meanwhile is fetched now.
       this.deliver({ event: 'resync' }, true);
     });
     source.addEventListener('inbox', () => this.deliver({ event: 'inbox' }, true));
-    source.addEventListener('timeline', (event) =>
-      this.deliver(
-        { event: 'timeline', data: JSON.parse((event as MessageEvent<string>).data) },
-        true,
-      ),
-    );
-    source.addEventListener('plugin', (event) =>
-      this.deliver(
-        { event: 'plugin', data: JSON.parse((event as MessageEvent<string>).data) },
-        true,
-      ),
-    );
+    source.addEventListener('timeline', (event) => {
+      const data = readMessage(LiveTimeline, event);
+
+      if (data) this.deliver({ event: 'timeline', data }, true);
+    });
+    source.addEventListener('plugin', (event) => {
+      const data = readMessage(LivePlugin, event);
+
+      if (data) this.deliver({ event: 'plugin', data }, true);
+    });
     source.addEventListener('resync', () => this.deliver({ event: 'resync' }, true));
     source.addEventListener('bye', () => {
       // The session ended; the app's own 401 handling takes it from here.
@@ -177,7 +189,7 @@ export class LiveClient {
       this.source = null;
       this.setMode('polling', true);
     });
-    source.onerror = () => {
+    source.addEventListener('error', () => {
       // Poll until the stream is back.
       this.setMode('polling', true);
 
@@ -185,7 +197,7 @@ export class LiveClient {
         this.source = null;
         this.scheduleReopen();
       }
-    };
+    });
   }
 
   private scheduleReopen() {
@@ -207,6 +219,7 @@ export class LiveClient {
 
     window.removeEventListener('online', this.onOnline);
     this.leading = false;
+
     if (this.retryTimer) clearTimeout(this.retryTimer);
     this.retryTimer = null;
     this.source?.close();
@@ -267,9 +280,7 @@ export const useLiveUpdates = () => {
 };
 
 /** Plugin UIs hear their plugin's signals (and reconnects) through erxes-ui's runtime. */
-export const pluginLive = (
-  listener: (message: { plugin: string; topics: string[] } | { resync: true }) => void,
-) =>
+export const pluginLive = (listener: (message: LivePlugin | { resync: true }) => void) =>
   live.subscribe((message) => {
     if (message.event === 'plugin') listener(message.data);
     else if (message.event === 'resync') listener({ resync: true });

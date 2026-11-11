@@ -17,6 +17,7 @@ function useIsOverflowing<T extends HTMLElement>(ref: RefObject<T>, value?: stri
   useEffect(() => {
     const checkOverflow = () => {
       const element = ref.current;
+
       if (element) {
         setIsOverflowing(element.scrollWidth > element.clientWidth);
       }
@@ -30,6 +31,7 @@ function useIsOverflowing<T extends HTMLElement>(ref: RefObject<T>, value?: stri
     };
 
     window.addEventListener('resize', handleResize);
+
     return () => {
       clearTimeout(timeoutId);
       window.removeEventListener('resize', handleResize);

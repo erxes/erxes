@@ -20,6 +20,7 @@ export const AuditEntry = z.object({
   source: z.string(),
   createdAt: z.string().datetime(),
 });
+
 export type AuditEntry = z.infer<typeof AuditEntry>;
 
 /** Who changed what in core (owners and admins). */

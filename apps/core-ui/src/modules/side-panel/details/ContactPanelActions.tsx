@@ -111,7 +111,7 @@ export const ContactPanelActions = ({
         const { pathname, search } = window.location;
 
         if (pathname === getContactDetailPath(contentType, contentId, pathname)) {
-          navigate({ pathname: getContactListPath(contentType, pathname), search });
+          void navigate({ pathname: getContactListPath(contentType, pathname), search });
         }
       },
     });

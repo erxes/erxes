@@ -1,4 +1,5 @@
 import type { IEmailFieldProps } from 'erxes-ui/modules/inputs';
+
 export type EmailDisplayProps = IEmailFieldProps & {
   maxVisible?: number;
   onEmailClick?: (email: string) => void;

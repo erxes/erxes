@@ -44,6 +44,7 @@ export const PanelFieldTrigger = forwardRef<
     {...props}
   />
 ));
+
 PanelFieldTrigger.displayName = 'PanelFieldTrigger';
 
 // Text fields from erxes-ui draw a shadow; in the panel they stay flat.

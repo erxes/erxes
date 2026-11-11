@@ -13,6 +13,7 @@ export const useCompanies = () => {
     tags: string[];
     ownerId: string;
   }>(['searchValue', 'tags', 'ownerId']);
+
   const filters = {
     search: searchValue || undefined,
     tagIds: tags?.length ? tags.join(',') : undefined,

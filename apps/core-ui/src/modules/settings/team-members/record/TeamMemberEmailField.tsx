@@ -46,6 +46,7 @@ export const TeamMemberEmailField = ({ user }: { user: User }) => {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
+
         if (next) setDraft(email);
         else onSave();
       }}

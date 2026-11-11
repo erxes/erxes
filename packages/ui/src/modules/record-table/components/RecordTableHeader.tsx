@@ -32,6 +32,7 @@ export const RecordTableHeader = ({
   showColumnSelector?: boolean;
 }) => {
   const { table } = useRecordTable();
+
   return (
     <Table.Header>
       {table.getHeaderGroups().map((headerGroup) => {
@@ -49,6 +50,7 @@ export const RecordTableHeader = ({
                 const headerContent = header.isPlaceholder
                   ? null
                   : flexRender(header.column.columnDef.header, header.getContext());
+
                 const isAnchor = showColumnSelector && header.id === anchorId;
                 const isCovered = showColumnSelector && header.id === coveredId;
 

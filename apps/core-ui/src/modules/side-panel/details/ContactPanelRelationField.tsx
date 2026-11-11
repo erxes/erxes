@@ -15,10 +15,12 @@ export const ContactPanelRelationField = ({
   contentId: string;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+
   const { relatedIds, loading, error, refetch, saving, setRelatedIds } = useContactRelations(
     contentType,
     contentId,
   );
+
   const kind = contentType === 'core:customer' ? 'company' : 'customer';
   const label = kind === 'company' ? t('companies', 'Companies') : t('customers', 'Customers');
 

@@ -14,12 +14,16 @@ import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
 type FieldRow = typeof fields.$inferSelect;
+
 type GroupRow = typeof fieldGroups.$inferSelect;
+
 type FieldType = FieldRow['type'];
+
 type FieldValidation = NonNullable<FieldRow['validation']>;
 
 const OPTION_TYPES: readonly FieldType[] = ['select', 'multiselect', 'radio', 'check'];
 const TEXT_TYPES: readonly FieldType[] = ['text', 'textarea'];
+
 /** Types sharing a stored value (mirrors the contract's FIELD_TYPE_FAMILIES). */
 const TYPE_FAMILIES: readonly (readonly FieldType[])[] = [
   ['select', 'radio'],
@@ -28,6 +32,7 @@ const TYPE_FAMILIES: readonly (readonly FieldType[])[] = [
 ];
 
 const hasOptions = (type: FieldType) => OPTION_TYPES.includes(type);
+
 const sameFamily = (from: FieldType, to: FieldType) =>
   from === to || TYPE_FAMILIES.some((family) => family.includes(from) && family.includes(to));
 
@@ -160,18 +165,20 @@ const countRecords = async (client: Db, orgId: string, contentType: ContentType,
   }
 
   const table = recordsTable(contentType);
+
   const [row] = await client
     .select({ count: sql<number>`count(*)::int` })
     .from(table)
     .where(and(eq(table.orgId, orgId), sql`${table.customFields} ?| ${textArray(ids)}`));
 
-  return Number(row?.count ?? 0);
+  return row?.count ?? 0;
 };
 
 /** Records holding each option of an option field. */
 const countOptions = async (client: Db, orgId: string, field: FieldRow) => {
   const table = recordsTable(field.contentType);
   const value = sql`${table.customFields} -> ${field.id}::text`;
+
   const rows = await client.execute<{ value: string; count: number }>(sql`
     SELECT item AS value, count(*)::int AS count
     FROM ${table},
@@ -182,13 +189,13 @@ const countOptions = async (client: Db, orgId: string, field: FieldRow) => {
     GROUP BY item
   `);
 
-  return Object.fromEntries(rows.rows.map((row) => [row.value, Number(row.count)]));
+  return Object.fromEntries(rows.rows.map((row) => [row.value, row.count]));
 };
 
 const usageOf = async (client: Db, orgId: string, rows: FieldRow[]) => {
   let records = 0;
 
-  for (const contentType of unique(rows.map((row) => row.contentType)) as ContentType[]) {
+  for (const contentType of unique(rows.map((row) => row.contentType))) {
     records += await countRecords(
       client,
       orgId,
@@ -215,6 +222,7 @@ export const listFields = async (
 ) => {
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));
   const active = and(isNull(fields.archivedAt), isNull(fieldGroups.archivedAt));
+
   const rows = await client
     .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
     .from(fields)
@@ -247,6 +255,7 @@ export const fieldUsage = async (
         .select()
         .from(fields)
         .where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, input.ids ?? [])));
+
   const records = await usageOf(client, actor.orgId, rows);
   const options: Record<string, Record<string, number>> = {};
 
@@ -299,7 +308,7 @@ export const createField = async (
         validation: TEXT_TYPES.includes(input.type) ? (input.validation ?? null) : null,
         options: hasOptions(input.type) ? unique(input.options ?? []) : [],
         isVisible: input.isVisible ?? true,
-        order: Number(last?.order ?? -1) + 1,
+        order: (last?.order ?? -1) + 1,
       })
       .returning();
 
@@ -535,6 +544,7 @@ export const createFieldGroup = async (
   requireFieldManager(actor);
 
   const code = groupCode(input.code, input.name);
+
   const [last] = await client
     .select({ order: sql<number>`coalesce(max(${fieldGroups.order}), -1)` })
     .from(fieldGroups)
@@ -550,7 +560,7 @@ export const createFieldGroup = async (
         name: input.name,
         code,
         description: input.description || null,
-        order: Number(last?.order ?? -1) + 1,
+        order: (last?.order ?? -1) + 1,
       })
       .returning();
 
@@ -660,8 +670,10 @@ const checkText = (field: FieldRow, value: CustomValue) => {
   const text = value.trim();
 
   if (field.validation === 'email' && !EMAIL.test(text)) throw invalid(field, 'expected an email');
+
   if (field.validation === 'number' && !NUMBER.test(text))
     throw invalid(field, 'expected a number');
+
   if (field.validation === 'date' && Number.isNaN(Date.parse(text)))
     throw invalid(field, 'expected a date');
 
@@ -678,11 +690,14 @@ const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
       if (typeof value !== 'string' || !PHONE.test(value.trim()) || !/\d/.test(value)) {
         throw invalid(field, 'expected a phone number');
       }
+
       return value.trim();
     }
+
     case 'number':
       if (typeof value !== 'number' || !Number.isFinite(value))
         throw invalid(field, 'expected a number');
+
       return value;
     case 'date':
       if (
@@ -692,24 +707,30 @@ const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
       ) {
         throw invalid(field, 'expected a date (YYYY-MM-DD)');
       }
+
       return value;
     case 'boolean':
       if (typeof value !== 'boolean') throw invalid(field, 'expected yes or no');
+
       return value;
     case 'select':
     case 'radio':
       if (typeof value !== 'string' || !field.options.includes(value))
         throw invalid(field, 'not one of the options');
+
       return value;
     case 'multiselect':
     case 'check': {
       if (!Array.isArray(value) || value.some((item) => !field.options.includes(item))) {
         throw invalid(field, 'not among the options');
       }
+
       return unique(value);
     }
+
     case 'list': {
       if (!Array.isArray(value)) throw invalid(field, 'expected a list of text');
+
       return value.map((item) => item.trim()).filter(Boolean);
     }
   }
@@ -743,6 +764,7 @@ export const applyCustomFields = async (
     .where(
       and(eq(fields.orgId, orgId), eq(fields.contentType, contentType), inArray(fields.id, ids)),
     );
+
   const byId = new Map(definitions.map((row) => [row.field.id, row]));
   const next = { ...current };
 
@@ -753,7 +775,7 @@ export const applyCustomFields = async (
       throw new HttpError(400, 'INVALID_FIELD', `Unknown ${contentType} field`, { fieldId: id });
     }
 
-    if (isEmpty(value)) {
+    if (value === null || isEmpty(value)) {
       delete next[id];
       continue;
     }
@@ -764,7 +786,7 @@ export const applyCustomFields = async (
       });
     }
 
-    const checked = checkValue(definition.field, value as CustomValue);
+    const checked = checkValue(definition.field, value);
 
     if (isEmpty(checked)) {
       delete next[id];

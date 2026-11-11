@@ -11,7 +11,7 @@ import { ContactsPageHeader } from '../components/ContactsPageHeader';
 export const useCreateHotkey = (action: () => void) => {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
+      const target = event.target instanceof Element ? event.target : null;
 
       if (
         event.key.toLowerCase() === 'c' &&

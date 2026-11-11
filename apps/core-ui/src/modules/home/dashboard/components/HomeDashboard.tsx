@@ -42,6 +42,7 @@ const HomeDashboardEmptyState = () => {
 export const HomeDashboard = () => {
   const { width, containerRef, mounted } = useContainerWidth<HTMLDivElement>();
   const { isEditing } = useDashboard();
+
   const { tiles, dropPreview, activeId, onMoveStart, onResizeStart, dropHandlers } =
     useDashboardGrid(containerRef, width);
 

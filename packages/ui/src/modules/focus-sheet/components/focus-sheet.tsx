@@ -21,9 +21,11 @@ const FocusSheetContext = createContext<{
 
 export const useFocusSheet = () => {
   const context = useContext(FocusSheetContext);
+
   if (!context) {
     throw new Error('useFocusSheet must be used within a FocusSheetProvider');
   }
+
   return context;
 };
 
@@ -38,6 +40,7 @@ const FocusSheetRoot = ({ ...props }: React.ComponentProps<typeof Sheet>) => {
   useEffect(() => {
     setIsSidebarOpen(!isNarrow);
   }, [isNarrow]);
+
   return (
     <FocusSheetContext.Provider
       value={{
@@ -72,6 +75,7 @@ const FocusSheetView = ({
   notFoundState?: React.ReactNode;
 }) => {
   const { activeSideTab } = useFocusSheet();
+
   return (
     <Sheet.View
       className={cn(
@@ -116,6 +120,7 @@ const FocusSheetSideBar = ({ className, ...props }: React.ComponentProps<typeof 
   if (!isSidebarOpen) {
     return null;
   }
+
   return (
     <Sidebar
       collapsible="none"
@@ -127,11 +132,13 @@ const FocusSheetSideBar = ({ className, ...props }: React.ComponentProps<typeof 
     />
   );
 };
+
 FocusSheetSideBar.displayName = 'FocusSheetSideBar';
 
 const FocusSheetSidebarTrigger = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useFocusSheet();
   const { t } = useTranslation();
+
   return (
     <Button
       variant="ghost"
@@ -194,6 +201,7 @@ const FocusSheetSideContent = forwardRef<
     </Tabs.Content>
   );
 });
+
 FocusSheetSideContent.displayName = 'FocusSheetSideContent';
 
 const FocusSheetSideContentHeader = forwardRef<
@@ -219,6 +227,7 @@ const FocusSheetSideContentHeader = forwardRef<
     </>
   );
 });
+
 FocusSheetSideContentHeader.displayName = 'FocusSheetSideContentHeader';
 
 const FocusSheetSideTabsList = forwardRef<HTMLDivElement, React.ComponentProps<typeof Tabs.List>>(
@@ -237,6 +246,7 @@ const FocusSheetSideTabsList = forwardRef<HTMLDivElement, React.ComponentProps<t
     );
   },
 );
+
 FocusSheetSideTabsList.displayName = 'FocusSheetSideTabsList';
 
 const FocusSheetSideTabsTrigger = forwardRef<
@@ -248,6 +258,7 @@ const FocusSheetSideTabsTrigger = forwardRef<
   }
 >(({ className, Icon, label, value, onClick, ...props }, ref) => {
   const { activeSideTab, setActiveSideTab } = useFocusSheet();
+
   return (
     <Tooltip>
       <Tooltip.Trigger asChild>
@@ -282,6 +293,7 @@ const FocusSheetSideTabsTrigger = forwardRef<
     </Tooltip>
   );
 });
+
 FocusSheetSideTabsTrigger.displayName = 'FocusSheetSideTabsTrigger';
 
 const FocusSheetHeader = ({
@@ -295,6 +307,7 @@ const FocusSheetHeader = ({
   description?: string;
 }) => {
   const { hasSidebar } = useFocusSheet();
+
   return (
     <Sheet.Header className={cn('gap-2', description && 'h-auto py-2', className)} {...props}>
       {hasSidebar && <FocusSheetSidebarTrigger />}
@@ -309,6 +322,7 @@ const FocusSheetHeader = ({
     </Sheet.Header>
   );
 };
+
 FocusSheetHeader.displayName = 'FocusSheetHeader';
 
 export const FocusSheet = Object.assign(FocusSheetRoot, {

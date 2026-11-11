@@ -44,18 +44,21 @@ export const EventDeliveryPage = () => {
   const { toast } = useToast();
   const client = useQueryClient();
   const [status, setStatus] = useState<'all' | 'retrying' | 'dead'>('all');
+
   const { data, isLoading } = useQuery({
     queryKey: [...KEY, status],
     queryFn: () => api.events.failures({ status: status === 'all' ? undefined : status }),
     refetchInterval: 30_000,
     enabled: user.role !== 'member',
   });
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
       title: t('failed', 'Something went wrong'),
       description: messageOf(error),
     });
+
   const retry = useMutation({
     mutationFn: (input: { failures?: ReturnType<typeof refOf>[]; allDead?: boolean }) =>
       api.events.retryFailures(input),
@@ -67,6 +70,7 @@ export const EventDeliveryPage = () => {
     },
     onError,
   });
+
   const dismiss = useMutation({
     mutationFn: (failures: ReturnType<typeof refOf>[]) => api.events.dismissFailures({ failures }),
     onSuccess: () => void client.invalidateQueries({ queryKey: KEY }),

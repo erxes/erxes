@@ -1,3 +1,4 @@
+import { EventNotify } from '@erxes/core-contract';
 import {
   activities,
   companies,
@@ -40,6 +41,7 @@ const timeline: EventConsumer = {
     }
 
     const table = event.subjectType === 'customer' ? customers : companies;
+
     const [subject] = await tx
       .select({ ownerId: table.ownerId })
       .from(table)
@@ -96,17 +98,14 @@ const timeline: EventConsumer = {
 const notifications: EventConsumer = {
   name: 'core.notifications',
   async handle(tx, event) {
-    const request = event.notify as {
-      userIds: string[];
-      title: string;
-      body?: string;
-      link?: string;
-      priority?: 'normal' | 'high';
-    } | null;
-
-    if (!request?.userIds?.length || event.source === 'core') {
+    if (event.notify === null || event.source === 'core') {
       return;
     }
+
+    // core_publish_event() checks only the recipient count, so a plugin can
+    // store a request POST /events would refuse. The ZodError fails the event
+    // like any other error: core_event_failures, then Settings › Event delivery.
+    const request = EventNotify.parse(event.notify);
 
     await notify(tx, callerOf(event), {
       userIds: request.userIds,
@@ -137,7 +136,7 @@ const describe = (error: unknown): string => {
 
   // Drizzle wraps database errors ("Failed query: …"); the cause says why.
   for (let depth = 0; current && depth < 4; depth += 1) {
-    messages.push(current instanceof Error ? current.message : String(current));
+    messages.push(current instanceof Error ? current.message : JSON.stringify(current));
     current = current instanceof Error ? current.cause : undefined;
   }
 
@@ -178,6 +177,7 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
     const cursor = await tx.execute<{ last_tx_id: string; last_seq: number }>(
       sql`select last_tx_id::text, last_seq from ${eventConsumers} where name = ${consumer.name} for update skip locked`,
     );
+
     const position = cursor.rows[0];
 
     if (!position) {
@@ -205,6 +205,7 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
           sql`, `,
         )})`,
       );
+
     const byId = new Map(rows.map((row) => [row.id, row]));
 
     for (const { id } of batch.rows) {
@@ -264,14 +265,17 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
           sql`, `,
         )})`,
       );
+
     const byId = new Map(rows.map((row) => [row.id, row]));
 
     for (const failure of due.rows) {
       const event = byId.get(failure.event_id);
+
       const where = and(
         eq(eventFailures.consumer, consumer.name),
         eq(eventFailures.eventId, failure.event_id),
       );
+
       const error = event ? await handleOnce(tx, consumer, event) : null;
 
       if (!error) {
@@ -334,6 +338,7 @@ export const startEventProcessor = () => {
 
     if (current) {
       again = true;
+
       return;
     }
 
@@ -351,6 +356,7 @@ export const startEventProcessor = () => {
   };
 
   let last = 0;
+
   const timer = setInterval(() => {
     const interval = liveHub.connected ? 30_000 : 1000;
 
@@ -359,6 +365,7 @@ export const startEventProcessor = () => {
       run();
     }
   }, 1000);
+
   const onEvents = () => {
     last = Date.now();
     run();

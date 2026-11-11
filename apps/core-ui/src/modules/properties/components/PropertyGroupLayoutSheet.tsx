@@ -23,7 +23,7 @@ import { Button, cn, IconComponent, Sheet, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FIELD_TYPES_OBJECT } from '../fieldTypes';
+import { fieldTypeOf } from '../fieldTypes';
 import { withOrders } from '../reorder';
 import { activeLayoutGroupState } from '../states';
 import { useReorder } from '../usePropertyMutations';
@@ -32,7 +32,8 @@ const LayoutItem = ({ field }: { field: Field }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: field.id,
   });
-  const TypeIcon = FIELD_TYPES_OBJECT[field.type]?.icon;
+
+  const TypeIcon = fieldTypeOf(field.type)?.icon;
 
   return (
     <div
@@ -67,6 +68,7 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const [items, setItems] = useState(fields);
   const { mutate, isPending } = useReorder('fields', fields[0]?.contentType ?? 'customer');
+
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 6 } }),
@@ -89,6 +91,7 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
 
     if (!changed.length) {
       onClose();
+
       return;
     }
 

@@ -10,6 +10,7 @@ export const LanguageSelect = React.forwardRef<
   }
 >(({ value, onValueChange, ...props }, ref) => {
   const [open, setOpen] = useState(false);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>

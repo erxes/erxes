@@ -23,7 +23,9 @@ export const PLUGIN_SCOPES = [
   'live:write',
   'notifications:write',
 ] as const;
+
 export const PluginScope = z.enum(PLUGIN_SCOPES);
+
 export type PluginScope = z.infer<typeof PluginScope>;
 
 /** Live update topic: `leave-requests`, `leave:abc123`. */
@@ -93,6 +95,7 @@ export const PluginManifest = z.object({
     .max(500)
     .optional(),
 });
+
 export type PluginManifest = z.infer<typeof PluginManifest>;
 
 export const Plugin = z.object({
@@ -110,6 +113,7 @@ export const Plugin = z.object({
   needsApproval: z.boolean(),
   installedAt: z.string().datetime().nullable(),
 });
+
 export type Plugin = z.infer<typeof Plugin>;
 
 export const TokenResponse = z.object({

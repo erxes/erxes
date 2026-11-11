@@ -54,19 +54,25 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
 
     if (trimmed) {
       const validation = emailSchema.safeParse(trimmed);
+
       if (!validation.success) {
         setError(t('invalid-email'));
+
         return;
       }
+
       if (emails.includes(trimmed)) {
         setError(t('email-already-added'));
+
         return;
       }
+
       emails.push(trimmed);
     }
 
     if (emails.length === 0) {
       setError(t('add-at-least-one-email'));
+
       return;
     }
 
@@ -83,13 +89,16 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
     if (!trimmedValue) return;
 
     const validation = emailSchema.safeParse(trimmedValue);
+
     if (!validation.success) {
       setError(t('invalid-email'));
+
       return;
     }
 
     if (tags.includes(trimmedValue)) {
       setError(t('email-already-added'));
+
       return;
     }
 

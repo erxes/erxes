@@ -23,12 +23,11 @@ export type LanguageCode = (typeof LANGUAGES)[number]['code'];
 
 const LANGUAGE_KEY = 'lng';
 
-const savedLanguage = (): LanguageCode => {
-  const saved = localStorage.getItem(LANGUAGE_KEY);
+const savedLanguage = () =>
+  LANGUAGES.find((language) => language.code === localStorage.getItem(LANGUAGE_KEY))?.code ?? 'en';
 
-  return LANGUAGES.some((language) => language.code === saved) ? (saved as LanguageCode) : 'en';
-};
-
+// The default instance is i18next's documented API; react-i18next and plugins share it.
+// oxlint-disable-next-line import/no-named-as-default-member -- i18n.use is the instance method, not a separate export to prefer
 void i18n.use(initReactI18next).init({
   // Old erxes namespaces, so ported components keep their useTranslation('contact'|…) calls.
   resources: {

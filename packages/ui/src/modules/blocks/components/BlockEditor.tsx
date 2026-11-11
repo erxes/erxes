@@ -51,6 +51,7 @@ export const BlockEditor = ({
     if (editor.getActiveStyles().code && isCodeFormattingShortcut(e)) {
       e.preventDefault();
       e.stopPropagation();
+
       return;
     }
 
@@ -119,13 +120,16 @@ export const BlockEditor = ({
           onChange={() => {
             if (deletingText.current) {
               deletingText.current = false;
+
               if (isEmptyBlock(editor.getTextCursorPosition().block)) {
                 const view = editor._tiptapEditor.view;
+
                 if (view) {
                   view.dispatch(view.state.tr.setStoredMarks([]));
                 }
               }
             }
+
             onChange?.();
           }}
           comments={false}

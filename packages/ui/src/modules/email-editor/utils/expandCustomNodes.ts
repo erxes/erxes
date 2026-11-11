@@ -95,6 +95,7 @@ const pushTable = (parts: TPart[], table: JSONContent) => {
 
     for (const cell of row.content || []) {
       const isHeader = cell.type === 'tableHeader';
+
       const {
         colspan = 1,
         rowspan = 1,
@@ -106,7 +107,9 @@ const pushTable = (parts: TPart[], table: JSONContent) => {
         colwidth?: number[] | null;
         backgroundColor?: string | null;
       };
+
       const width = Array.isArray(colwidth) && colwidth[0] ? colwidth[0] : null;
+
       // A table written before backgrounds carries no attribute at all, and
       // its header still has to look like a header.
       const background =

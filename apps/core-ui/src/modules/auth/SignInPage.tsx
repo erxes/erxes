@@ -27,6 +27,7 @@ export const SignInPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [needsOrganization, setNeedsOrganization] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '', subdomain: '' },
@@ -70,7 +71,11 @@ export const SignInPage = () => {
           <div className="text-center text-accent-foreground">{t('sign-in-to-continue')}</div>
         </div>
         <Form {...form}>
-          <form onSubmit={onSubmit} className="mx-auto grid w-full gap-6" noValidate>
+          <form
+            onSubmit={(event) => void onSubmit(event)}
+            className="mx-auto grid w-full gap-6"
+            noValidate
+          >
             <Form.Field
               control={form.control}
               name="email"

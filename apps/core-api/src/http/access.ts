@@ -1,4 +1,5 @@
 import { type coreContract, CORE_API_PREFIX, type PluginScope } from '@erxes/core-contract';
+import type { AnyContractProcedure } from '@orpc/contract';
 import type { Request } from 'express';
 import { HttpError } from './errors';
 
@@ -146,9 +147,12 @@ const RULE_MESSAGE: Record<MemberRule, string> = {
   owner: 'Only owners can do this',
 };
 
+/** ACCESS by a path only known at runtime. */
+const policies: Partial<Record<string, Policy>> = ACCESS;
+
 /** Checks the caller against the procedure's policy (oRPC middleware, every call). */
 export const enforceAccess = (path: string, req: Request) => {
-  const policy = (ACCESS as Record<string, Policy>)[path];
+  const policy = policies[path];
 
   if (!policy) {
     // Unreachable while ACCESS satisfies the contract; fail closed regardless.
@@ -200,18 +204,18 @@ export const enforceAccess = (path: string, req: Request) => {
 };
 
 /** Paths (under /core/v1) that `authenticate` lets through without credentials. */
-export const publicPaths = (contract: Contract): Set<string> => {
+export const publicPaths = (contract: Contract) => {
   const paths = new Set<string>();
 
-  for (const [path, policy] of Object.entries(ACCESS)) {
-    if (!('public' in policy)) continue;
+  for (const [group, procedures] of Object.entries(contract)) {
+    for (const [name, procedure] of Object.entries<AnyContractProcedure>(procedures)) {
+      const route = procedure['~orpc'].route.path;
+      const policy = policies[`${group}.${name}`];
 
-    const [group, name] = path.split('.') as [keyof Contract, string];
-    const procedure = (
-      contract[group] as Record<string, { '~orpc': { route: { path?: string } } }>
-    )[name]!;
-
-    paths.add(procedure['~orpc'].route.path!.replace(CORE_API_PREFIX, ''));
+      if (route && policy && 'public' in policy) {
+        paths.add(route.replace(CORE_API_PREFIX, ''));
+      }
+    }
   }
 
   return paths;

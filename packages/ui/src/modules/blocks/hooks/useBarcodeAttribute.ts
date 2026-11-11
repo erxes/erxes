@@ -51,18 +51,23 @@ export const useBarcodeAttribute = ({
   handleResizeCancel: () => void;
 } => {
   const [settingsOpen, setSettingsOpen] = useState(false);
+
   const form = useForm<BarcodeSize>({
     resolver: zodResolver(barcodeSizeSchema as unknown as Parameters<typeof zodResolver>[0]),
     defaultValues: { width, height },
   });
+
   const dimensions = form.watch();
+
   const preset = BARCODE_SIZE_PRESETS.find(
     (size) => size.width === Number(dimensions.width) && size.height === Number(dimensions.height),
   );
+
   const applySize = form.handleSubmit((dimensions) => {
     onResize(dimensions);
     setSettingsOpen(false);
   });
+
   const [dragSize, setDragSize] = useState<BarcodeSize | null>(null);
   const size = dragSize ?? { width, height };
   const dragStart = useRef<(BarcodeSize & { clientX: number; clientY: number }) | null>(null);
@@ -115,20 +120,25 @@ export const useBarcodeAttribute = ({
     if (open) form.reset({ width: size.width, height: size.height });
     setSettingsOpen(open);
   };
+
   const handlePresetChange = (value: string): void => {
     const selected = BARCODE_SIZE_PRESETS.find((preset) => String(preset.width) === value);
+
     if (selected) form.reset(selected);
   };
+
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key !== 'Enter') return;
     event.preventDefault();
     event.stopPropagation();
     void applySize();
   };
+
   const handleResizeCancel = (): void => {
     dragStart.current = null;
     setDragSize(null);
   };
+
   return {
     form,
     size,

@@ -15,6 +15,7 @@ export const FieldType = z.enum([
   'phone',
   'list',
 ]);
+
 export type FieldType = z.infer<typeof FieldType>;
 
 /** Field types whose values are chosen from `options`. */
@@ -32,6 +33,7 @@ export const FIELD_TYPE_FAMILIES: readonly (readonly FieldType[])[] = [
 
 /** Format a text field's values must have. */
 export const FieldValidation = z.enum(['number', 'email', 'date']);
+
 export type FieldValidation = z.infer<typeof FieldValidation>;
 
 /** A custom field ("property") on customers or companies. */
@@ -58,6 +60,7 @@ export const Field = z.object({
   archivedAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
 });
+
 export type Field = z.infer<typeof Field>;
 
 /** A group of custom fields of a record type. */
@@ -71,6 +74,7 @@ export const FieldGroup = z.object({
   archivedAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
 });
+
 export type FieldGroup = z.infer<typeof FieldGroup>;
 
 /** Whether records hold values of the fields asked about. */
@@ -82,30 +86,37 @@ export const FieldUsage = z.object({
   /** Nothing holds a value, so they can be deleted. */
   removable: z.boolean(),
 });
+
 export type FieldUsage = z.infer<typeof FieldUsage>;
 
 const options = z.array(z.string().trim().min(1).max(200)).max(100);
+
 const code = z
   .string()
   .trim()
   .min(1)
   .max(100)
   .regex(/^[A-Za-z0-9_.-]+$/, 'letters, digits, _ . -');
+
 const description = z.string().trim().max(1000);
 const icon = z.string().trim().max(100);
+
 const Orders = z.object({
   orders: z
     .array(z.object({ id: Id, order: z.number().int().min(0).max(100_000) }))
     .min(1)
     .max(500),
 });
+
 const QueryBoolean = z.union([
   z.boolean(),
   z.enum(['true', 'false']).transform((value) => value === 'true'),
 ]);
+
 const Ok = z.object({ ok: z.literal(true) });
 
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
+
 const needsOptions = (value: { type?: FieldType; options?: string[] }) =>
   !value.type || !OPTION_FIELD_TYPES.includes(value.type) || (value.options?.length ?? 0) > 0;
 

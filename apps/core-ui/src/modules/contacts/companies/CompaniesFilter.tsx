@@ -36,6 +36,7 @@ const CompaniesFilterPopover = () => {
     'searchValue',
     'ownerId',
   ]);
+
   const hasFilters = Object.values(queries || {}).some((value) => value !== null);
   const { t } = useTranslation('contact', { keyPrefix: 'filter' });
   const { t: companyT } = useTranslation('contact', { keyPrefix: 'company' });

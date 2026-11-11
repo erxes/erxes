@@ -58,15 +58,18 @@ export const useCursorList = <T extends { id: string }>({
     }
 
     sessionStorage.setItem(filtersKey, filters);
+    // oxlint-disable-next-line react/set-state-in-effect -- the extra render is the point: it waits for useRecordTableCursor's restore effect
     setReady(true);
   }, [sessionKey, filters, setCursor]);
+
+  const initialPageParam: CursorParams = cursor
+    ? { limit, cursor, direction: 'forward', cursorMode: 'inclusive' }
+    : { limit, direction: 'forward', cursorMode: 'exclusive' };
 
   const query = useInfiniteQuery({
     queryKey: [...queryKey, { limit, start: cursor || null }],
     enabled: ready,
-    initialPageParam: (cursor
-      ? { limit, cursor, direction: 'forward', cursorMode: 'inclusive' }
-      : { limit, direction: 'forward', cursorMode: 'exclusive' }) as CursorParams,
+    initialPageParam,
     queryFn: ({ pageParam }) => fetchPage(pageParam),
     getNextPageParam: (last): CursorParams | undefined =>
       last.pageInfo.hasNextPage && last.pageInfo.endCursor
@@ -104,20 +107,20 @@ export const useCursorList = <T extends { id: string }>({
   };
 };
 
-type ListCache<T> = InfiniteData<CursorPage<T>, CursorParams>;
+type ListCache = InfiniteData<CursorPage<{ id: string }>, CursorParams>;
 
 /** Other queries share the key prefix (a detail, a related list); only paged lists are patched. */
-const isList = <T>(cache: unknown): cache is ListCache<T> =>
-  !!cache && Array.isArray((cache as { pages?: unknown }).pages);
+const isList = (cache: unknown): cache is ListCache =>
+  typeof cache === 'object' && cache !== null && 'pages' in cache && Array.isArray(cache.pages);
 
 /** Replaces a record wherever cached lists under `queryKey` hold it. */
-export const patchCachedRecord = <T extends { id: string }>(
+export const patchCachedRecord = (
   client: QueryClient,
   queryKey: QueryKey,
-  record: T,
+  record: { id: string },
 ) =>
   client.setQueriesData<unknown>({ queryKey }, (cache: unknown) =>
-    isList<T>(cache)
+    isList(cache)
       ? {
           ...cache,
           pages: cache.pages.map((page) => ({
@@ -129,13 +132,9 @@ export const patchCachedRecord = <T extends { id: string }>(
   );
 
 /** Drops records from cached lists under `queryKey`. */
-export const removeCachedRecords = <T extends { id: string }>(
-  client: QueryClient,
-  queryKey: QueryKey,
-  ids: string[],
-) =>
+export const removeCachedRecords = (client: QueryClient, queryKey: QueryKey, ids: string[]) =>
   client.setQueriesData<unknown>({ queryKey }, (cache: unknown) =>
-    isList<T>(cache)
+    isList(cache)
       ? {
           ...cache,
           pages: cache.pages.map((page) => ({

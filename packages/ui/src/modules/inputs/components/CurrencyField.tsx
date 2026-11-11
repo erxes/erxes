@@ -56,8 +56,10 @@ const CurrencyValueInput = React.forwardRef<
     const skipAcceptValueRef = useRef<string | null>(null);
 
     const fullValue = typeof value === 'number' && Number.isFinite(value) ? value.toString() : '';
+
     const roundedValue =
       typeof value === 'number' && Number.isFinite(value) ? value.toFixed(displayScale) : '';
+
     const displayValue = isFocused ? fullValue : roundedValue;
 
     return (
@@ -74,6 +76,7 @@ const CurrencyValueInput = React.forwardRef<
 
           if (skipAcceptValueRef.current === acceptedValue) {
             skipAcceptValueRef.current = null;
+
             return;
           }
 
@@ -142,7 +145,7 @@ const SelectCurrency = React.forwardRef<
             currencies={currencies}
             value={value}
             onSelect={(code) => {
-              onChange?.(code as CurrencyCode);
+              onChange?.(code);
               setOpen?.(false);
               _setOpen(false);
             }}
@@ -168,6 +171,7 @@ const SelectCurrencyCommand = ({
     if (a[0] === value) {
       return -1;
     }
+
     return 1;
   });
 

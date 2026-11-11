@@ -16,24 +16,31 @@ const RecordTableContainer = forwardRef<
 >(({ table, className, children, ...restProps }, ref) => {
   const { columnSizeVars, flexWidth } = useMemo(() => {
     const headers = table.getFlatHeaders();
+
     const flexWidth = headers.reduce(
       (total, header) => (isFixedWidthColumn(header.column) ? total : total + header.getSize()),
       0,
     );
+
     const colSizes: { [key: string]: number | string } = {};
+
     for (let i = 0; i < headers.length; i++) {
       const header = headers[i];
+
       if (header) {
         colSizes[`--header-${header.id}-size`] = header.getSize();
         colSizes[`--col-${header.column.id}-size`] = header.column.getSize();
+
         const width =
           isFixedWidthColumn(header.column) || !flexWidth
             ? `${header.getSize()}px`
             : `${(header.getSize() / flexWidth) * 100}%`;
+
         colSizes[`--header-${header.id}-width`] = width;
         colSizes[`--col-${header.column.id}-width`] = width;
       }
     }
+
     return { columnSizeVars: colSizes, flexWidth };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

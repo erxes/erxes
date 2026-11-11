@@ -1,16 +1,31 @@
 import { EventEmitter } from 'node:events';
 import { sslOptions } from '@erxes/core-db';
 import { Client } from 'pg';
+import { z } from 'zod';
 import { config } from '~/config';
 
-/** What a committed change announces (see migration 0008). */
-export type LiveSignal =
-  | { o: string; k: 'inbox'; u: string }
-  | { o: string; k: 'timeline'; t: 'customer' | 'company'; i: string }
+/** What a committed change announces on `core_live` (migrations 0008, 0009 and 0010). */
+const LiveSignal = z.discriminatedUnion('k', [
+  z.object({ o: z.string(), k: z.literal('inbox'), u: z.string() }),
+  z.object({
+    o: z.string(),
+    k: z.literal('timeline'),
+    t: z.enum(['customer', 'company']),
+    i: z.string(),
+  }),
   /** Many records changed at once (merge, import): refetch everything. */
-  | { o: string; k: 'resync' }
+  z.object({ o: z.string(), k: z.literal('resync') }),
   /** A plugin's topic changed (`core_live_signal`): to everyone, or members `u`. */
-  | { o: string; k: 'plugin'; p: string; t: string; u?: string[] };
+  z.object({
+    o: z.string(),
+    k: z.literal('plugin'),
+    p: z.string(),
+    t: z.string(),
+    u: z.array(z.string()).optional(),
+  }),
+]);
+
+export type LiveSignal = z.infer<typeof LiveSignal>;
 
 /**
  * One LISTEN connection per API server, shared by every open stream:
@@ -26,7 +41,8 @@ class LiveHub extends EventEmitter {
 
   start(url: string | undefined = config.live.listenUrl) {
     if (!url) {
-      console.log('[core] live updates: off (no listen connection; browsers poll)');
+      console.info('[core] live updates: off (no listen connection; browsers poll)');
+
       return;
     }
 
@@ -45,13 +61,16 @@ class LiveHub extends EventEmitter {
     client.on('notification', (message) => {
       if (message.channel === 'core_events') {
         this.emit('events');
+
         return;
       }
 
       try {
-        this.emit('signal', JSON.parse(message.payload ?? '') as LiveSignal);
+        const signal = LiveSignal.safeParse(JSON.parse(message.payload ?? ''));
+
+        if (signal.success) this.emit('signal', signal.data);
       } catch {
-        // Not ours.
+        // Not JSON, so not ours.
       }
     });
     client.on('error', (error) => {
@@ -71,13 +90,16 @@ class LiveHub extends EventEmitter {
 
       this.attempt = 0;
       this.setConnected(true);
-      console.log('[core] live updates: listening');
+      console.info('[core] live updates: listening');
 
       if (reconnected) this.emit('resync');
       // Events published while nobody listened.
       this.emit('events');
     } catch (error) {
-      console.error('[core] live updates: could not listen', (error as Error).message);
+      console.error(
+        '[core] live updates: could not listen',
+        error instanceof Error ? error.message : error,
+      );
       await client.end().catch(() => undefined);
       this.lost(url);
     }

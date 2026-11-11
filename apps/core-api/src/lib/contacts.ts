@@ -35,6 +35,6 @@ export const resolveContacts = (
 };
 
 /** Distinct non-empty values, first occurrence wins. */
-export const unique = (values: (string | null | undefined)[]) => [
-  ...new Set(values.filter((value): value is string => !!value)),
+export const unique = <Value extends string>(values: readonly (Value | null | undefined)[]) => [
+  ...new Set(values.filter((value): value is Value => !!value)),
 ];

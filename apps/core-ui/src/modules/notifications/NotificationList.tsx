@@ -1,4 +1,4 @@
-import type { ContentType, Notification } from '@erxes/core-contract';
+import type { Changes, ContentType, Notification } from '@erxes/core-contract';
 import {
   IconBell,
   IconCheck,
@@ -10,12 +10,10 @@ import { Badge, Button, cn, Empty, RelativeDateDisplay, Spinner } from 'erxes-ui
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChangeList, useChangeLookups } from '~/components/ChangeList';
+import { ChangeList, changesIn, useChangeLookups } from '~/components/ChangeList';
 import { UserAvatar } from '~/components/UserAvatar';
 import { actorLabel, useMembersById } from '~/lib/members';
 import { type Inbox, useNotificationActions } from './useNotifications';
-
-type Changes = Record<string, [unknown, unknown]>;
 
 /** Core's own kinds have translated titles; plugins send theirs ready to read. */
 const useNotificationTitle = () => {
@@ -26,7 +24,7 @@ const useNotificationTitle = () => {
 };
 
 const changesOf = (notification: Notification) => {
-  const changes = notification.data.changes as Changes | undefined;
+  const changes = changesIn(notification.data.changes);
 
   return changes && Object.keys(changes).length ? changes : null;
 };
@@ -53,6 +51,7 @@ const dayLabel = (iso: string, t: (key: string, fallback: string) => string, lan
   yesterday.setDate(today.getDate() - 1);
 
   if (date.toDateString() === today.toDateString()) return t('today', 'Today');
+
   if (date.toDateString() === yesterday.toDateString()) return t('yesterday', 'Yesterday');
 
   return date.toLocaleDateString(language, {
@@ -89,7 +88,7 @@ const NotificationItem = ({
     if (!notification.read) markRead.mutate({ ids: [notification.id] });
 
     if (notification.link) {
-      navigate(notification.link);
+      void navigate(notification.link);
       onOpen?.();
     } else if (changes && !compact) {
       setExpanded((value) => !value);
@@ -246,9 +245,11 @@ export const NotificationList = ({
   compact?: boolean;
 }) => {
   const { t, i18n } = useTranslation('common', { keyPrefix: 'notifications' });
+
   const members = useMembersById(
     notifications.map((item) => (item.actor.type === 'user' ? item.actor.id : null)),
   );
+
   const inboxBySource = new Map(inboxes.map((inbox) => [inbox.source, inbox]));
 
   if (loading) {

@@ -1,6 +1,6 @@
 import { IconArrowMerge } from '@tabler/icons-react';
 import { Button, cn, Dialog, Spinner } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export interface MergeCandidate {
   id: string;
@@ -27,11 +27,9 @@ export const MergeDialog = ({
   merging?: boolean;
   onMerge: (keepId: string) => void;
 }) => {
-  const [keepId, setKeepId] = useState(records[0]?.id ?? '');
-
-  useEffect(() => {
-    if (open) setKeepId(records[0]?.id ?? '');
-  }, [open, records]);
+  const [choice, setChoice] = useState<string | null>(null);
+  // The first record until one is picked; a pick from an earlier merge no longer applies.
+  const keepId = records.find((record) => record.id === choice)?.id ?? records[0]?.id ?? '';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -53,7 +51,7 @@ export const MergeDialog = ({
               type="button"
               role="radio"
               aria-checked={record.id === keepId}
-              onClick={() => setKeepId(record.id)}
+              onClick={() => setChoice(record.id)}
               className={cn(
                 'flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring',
                 record.id === keepId && 'border-primary bg-primary/5 hover:bg-primary/10',

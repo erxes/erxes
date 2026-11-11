@@ -29,6 +29,7 @@ import { BoardContext } from '../contexts/BoardContext';
 import { activeCardIdState, dragOverBoardColumnIdState } from '../states/boardStates';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { AnimatePresence, motion } from 'motion/react';
+
 export type { DragEndEvent } from '@dnd-kit/core';
 
 const BoardCards = ({
@@ -67,12 +68,15 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
       id,
     },
   });
-  const { boardId } = useContext(BoardContext) as BoardContextProps;
+
+  const { boardId } = useContext(BoardContext);
   const activeCardId = useAtomValue(activeCardIdState(boardId));
+
   const style = {
     transition,
     transform: CSS.Transform.toString(transform),
   };
+
   return (
     <>
       <div style={style} {...listeners} {...attributes} ref={setNodeRef} data-type="card">
@@ -144,23 +148,27 @@ const BoardProvider = <
 
   const handleDragStart = (event: DragStartEvent) => {
     const card = data.find((item) => item.id === event.active.id);
+
     if (card) {
       setActiveCardId(event.active.id as string);
     }
+
     onDragStart?.(event);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
+
     if (!over) return;
 
     const activeItem = data.find((item) => item.id === active.id);
+
     if (!activeItem) return;
 
     const overItem = data.find((item) => item.id === over.id);
 
     if (overItem) {
-      setDragOverBoardColumnId(overItem.column as string);
+      setDragOverBoardColumnId(overItem.column);
     } else {
       setDragOverBoardColumnId(null);
     }
@@ -176,6 +184,7 @@ const BoardProvider = <
 
   if (!columns || columns.length === 0) {
     if (!fallbackComponent) return null;
+
     return fallbackComponent;
   }
 
@@ -216,8 +225,9 @@ export const BoardRoot = ({
   sortBy,
   isSorted,
 }: BoardProps & { sortBy?: string; isSorted?: boolean }) => {
-  const { boardId } = useContext(BoardContext) as BoardContextProps;
+  const { boardId } = useContext(BoardContext);
   const dragOverBoardColumnId = useAtomValue(dragOverBoardColumnIdState(boardId));
+
   const { isOver, setNodeRef } = useDroppable({
     id,
     data: {

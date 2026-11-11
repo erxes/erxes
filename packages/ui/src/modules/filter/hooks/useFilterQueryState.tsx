@@ -16,6 +16,7 @@ export function useFilterQueryState<T>(
     query,
     (value: T | null) => {
       setQuery(value);
+
       if (cursorKey) {
         setCursor('');
       }

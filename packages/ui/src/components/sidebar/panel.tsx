@@ -44,6 +44,7 @@ const useSidebarPanelSlot = (panelRef: React.RefObject<HTMLDivElement | null>, o
     if (!found || (open && !isSlotAbovePanel(found, panelRef.current))) {
       setSlot(null);
       setClaimed(false);
+
       return;
     }
 
@@ -73,6 +74,7 @@ export const SidebarPanelTrigger = React.forwardRef<
   const hidden = React.useContext(SidebarPanelInnerTriggerHiddenContext);
   const [open, setOpen] = useAtom(sidebarPanelOpenState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
   const toggleLabel = open
     ? t('collapse-sidebar', 'Collapse sidebar')
     : t('expand-sidebar', 'Expand sidebar');
@@ -100,6 +102,7 @@ export const SidebarPanelTrigger = React.forwardRef<
     </Button>
   );
 });
+
 SidebarPanelTrigger.displayName = 'SidebarPanelTrigger';
 
 export const SidebarPanel = React.forwardRef<
@@ -154,4 +157,5 @@ export const SidebarPanel = React.forwardRef<
     </div>
   );
 });
+
 SidebarPanel.displayName = 'SidebarPanel';

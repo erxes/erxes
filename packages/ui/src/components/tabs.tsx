@@ -48,6 +48,7 @@ const TabsList = React.forwardRef<
     />
   </TabsVariantContext.Provider>
 ));
+
 TabsList.displayName = TabsPrimitive.List.displayName;
 
 const TabsTrigger = React.forwardRef<
@@ -78,6 +79,7 @@ const TabsContent = React.forwardRef<
     {...props}
   />
 ));
+
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
 export const Tabs = Object.assign(TabsPrimitive.Root, {

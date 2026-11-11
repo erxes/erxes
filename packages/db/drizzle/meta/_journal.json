@@ -85,6 +85,13 @@
       "when": 1794421909234,
       "tag": "0011_session_version",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794423754363,
+      "tag": "0012_core_publish_event_notify_limit",
+      "breakpoints": true
     }
   ]
 }

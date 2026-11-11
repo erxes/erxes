@@ -24,4 +24,5 @@ const mn: typeof en = {
 };
 
 i18n.addResourceBundle('en', ONBOARDING_NS, en, true, false);
+
 i18n.addResourceBundle('mn', ONBOARDING_NS, mn, true, false);

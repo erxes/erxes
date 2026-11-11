@@ -8,18 +8,23 @@ export const getDisplayValue = (rawValue: string) => {
   if (value === 'today') {
     return 'Today';
   }
+
   if (value === 'in-the-past') {
     return 'In the past';
   }
+
   if (value === 'last-1-day') {
     return 'Last 1 day';
   }
+
   if (value === 'last-3-days') {
     return 'Last 3 days';
   }
+
   if (value === 'last-7-days') {
     return 'Last 7 days';
   }
+
   if (value === 'last-3-months') {
     return 'Last 3 months';
   }
@@ -29,11 +34,13 @@ export const getDisplayValue = (rawValue: string) => {
   }
 
   const quarter = parseQuarterToken(value);
+
   if (quarter) {
     return `${quarter.year} Q${quarter.quarter}`;
   }
 
   const half = parseHalfToken(value);
+
   if (half) {
     return `${half.year} H${half.half}`;
   }
@@ -44,6 +51,7 @@ export const getDisplayValue = (rawValue: string) => {
 
   if (value.includes(',')) {
     const [from, to] = value.split(',');
+
     return `${format(from, 'MMM d, yyyy')} - ${format(to, 'MMM d, yyyy')}`;
   }
 

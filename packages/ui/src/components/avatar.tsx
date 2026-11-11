@@ -32,6 +32,7 @@ const AvatarRoot = React.forwardRef<React.ElementRef<typeof AvatarPrimitive.Root
     />
   ),
 );
+
 AvatarRoot.displayName = AvatarPrimitive.Root.displayName;
 
 const AvatarImage = React.forwardRef<
@@ -44,6 +45,7 @@ const AvatarImage = React.forwardRef<
     {...props}
   />
 ));
+
 AvatarImage.displayName = AvatarPrimitive.Image.displayName;
 
 const AvatarFallback = React.forwardRef<
@@ -61,6 +63,7 @@ const AvatarFallback = React.forwardRef<
     />
   );
 });
+
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 
 export const Avatar = Object.assign(AvatarRoot, {

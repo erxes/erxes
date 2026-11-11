@@ -13,6 +13,7 @@ export function Toaster() {
             {...props}
             onPointerEnter={(event) => {
               props.onPointerEnter?.(event);
+
               if (dismissOnPointerEnter && event.pointerType === 'mouse') {
                 dismiss(id);
               }

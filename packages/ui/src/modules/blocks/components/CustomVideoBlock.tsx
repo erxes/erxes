@@ -91,6 +91,7 @@ export const customVideoBlock = createReactBlockSpec(videoBlockConfig, {
     const video = videoParse(element);
 
     if (video) return video;
+
     if (element.tagName === 'IFRAME' && element.closest('figure')) {
       return undefined;
     }
@@ -101,6 +102,7 @@ export const customVideoBlock = createReactBlockSpec(videoBlockConfig, {
         : element.tagName === 'FIGURE'
           ? element.querySelector('iframe')
           : null;
+
     const url = getVideoEmbedSource(iframe?.getAttribute('src') || '');
 
     if (!url) return undefined;

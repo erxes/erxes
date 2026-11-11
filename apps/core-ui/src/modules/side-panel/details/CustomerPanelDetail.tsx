@@ -1,4 +1,4 @@
-import type { Customer, CustomerState } from '@erxes/core-contract';
+import { type Customer, CustomerState } from '@erxes/core-contract';
 import {
   IconBriefcase,
   IconBuildingSkyscraper,
@@ -18,18 +18,18 @@ import {
   RecordTableInlineCell,
   ScrollArea,
   Select,
-  SexCode,
   SexCodes,
   SexDisplay,
   SexField,
   Spinner,
   TextField,
 } from 'erxes-ui';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toYmd } from '~/components/inlineCells';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
+import { sexCodeOf, sexOf } from '~/modules/contacts/customers/sexCode';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { PANEL_TEXT_FIELD_CLASS_NAME, PanelField, PanelFieldTrigger } from '../PanelField';
 import { usePanelExpanded } from '../RecordSidePanel';
@@ -46,7 +46,7 @@ const parseYmd = (value: string | null) => {
 
   const [year, month, day] = value.split('-').map(Number);
 
-  return new Date(year!, month! - 1, day!);
+  return new Date(year, month - 1, day);
 };
 
 const formatSlashDate = (date: Date) => toYmd(date).replaceAll('-', '/');
@@ -92,7 +92,7 @@ const CustomerTextField = ({
 const CustomerSexField = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
   const [open, setOpen] = useState(false);
-  const value = (customer.sex ?? SexCode.NOT_KNOWN) as SexCode;
+  const value = sexCodeOf(customer.sex);
 
   return (
     <PopoverScoped scope={`${SCOPE}.sex`} open={open} onOpenChange={setOpen}>
@@ -103,7 +103,7 @@ const CustomerSexField = ({ customer }: { customer: Customer }) => {
         <SexField
           value={value}
           onValueChange={(sex) => {
-            if (sex !== value) edit.mutate({ id: customer.id, sex: sex as Customer['sex'] });
+            if (sex !== value) edit.mutate({ id: customer.id, sex: sexOf(sex) });
             setOpen(false);
           }}
         />
@@ -116,10 +116,7 @@ const CustomerSexField = ({ customer }: { customer: Customer }) => {
 const CustomerBirthDateField = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
   const [open, setOpen] = useState(false);
-  const saved = parseYmd(customer.birthDate);
-  const [date, setDate] = useState(saved);
-
-  useEffect(() => setDate(parseYmd(customer.birthDate)), [customer.birthDate]);
+  const [date, setDate] = useState(() => parseYmd(customer.birthDate));
 
   return (
     <Popover
@@ -162,8 +159,9 @@ const CustomerStateField = ({ customer }: { customer: Customer }) => {
     <Select
       value={customer.state}
       onValueChange={(state) => {
-        if (state !== customer.state)
-          edit.mutate({ id: customer.id, state: state as CustomerState });
+        const next = CustomerState.safeParse(state).data;
+
+        if (next && next !== customer.state) edit.mutate({ id: customer.id, state: next });
       }}
     >
       <Select.Trigger className="h-7 rounded-sm px-2 shadow-none hover:bg-accent">
@@ -282,13 +280,14 @@ export const CustomerPanelDetail = ({
               icon={IconGenderBigender}
               label={t('sex', 'Sex')}
               placeholder={
-                !customer.sex || !SexCodes[customer.sex as SexCode] ? t('sex', 'Sex') : undefined
+                !customer.sex || !SexCodes[sexCodeOf(customer.sex)] ? t('sex', 'Sex') : undefined
               }
             >
               <CustomerSexField customer={customer} />
             </PanelField>
             <PanelField icon={IconCalendar} label={addT('birth-date', 'Birth date')}>
-              <CustomerBirthDateField customer={customer} />
+              {/* Keyed by the saved date: a new value from the server starts a fresh draft. */}
+              <CustomerBirthDateField key={customer.birthDate} customer={customer} />
             </PanelField>
           </ContactDetailSection>
           {/* Not in old erxes's panel; core keeps a customer's job here. */}

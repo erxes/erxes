@@ -11,6 +11,7 @@ export interface IFilter {
 }
 
 export type FilterBarComponentPropsBase = Omit<IFilter, 'dropdown' | 'bar' | 'conditions'>;
+
 export interface FilterDropdownProps extends FilterBarComponentPropsBase {
   onOpenChange: (open: boolean) => void;
 }

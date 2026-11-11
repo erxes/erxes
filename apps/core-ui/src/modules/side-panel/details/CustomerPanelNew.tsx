@@ -1,4 +1,4 @@
-import type { Customer } from '@erxes/core-contract';
+import { CustomerSex, CustomerState } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   type Icon,
@@ -19,7 +19,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { toYmd } from '~/components/inlineCells';
-import { isApiError, messageOf } from '~/lib/api';
+import { errorData, isApiError, messageOf } from '~/lib/api';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
 import { linkNewContact } from '~/modules/contacts/components/useContactRelations';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
@@ -46,7 +46,7 @@ const customerSchema = z
     ownerId: z.string(),
     code: z.string(),
     position: z.string(),
-    sex: z.number().nullable(),
+    sex: CustomerSex.nullable(),
     birthDate: z.date().nullable(),
     description: z.string(),
   })
@@ -94,13 +94,14 @@ const orNull = (value: string) => value.trim() || null;
 export const CustomerPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
-  const { state } = useSidePanelDraft<{ state: Customer['state'] }>('core:customer');
+  const state = CustomerState.safeParse(useSidePanelDraft('core:customer').state).data;
   const { back, canGoBack, close } = useSidePanel();
   const { toast } = useToast();
   const [companyIds, setCompanyIds] = useState<string[]>([]);
   const [linking, setLinking] = useState(false);
   const showCreated = useCreatedPanelRecord('core:customer');
   const create = useCustomerCreate();
+
   const form = useForm<TCustomerForm>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
@@ -117,6 +118,7 @@ export const CustomerPanelNew = () => {
       description: '',
     },
   });
+
   const { errors } = form.formState;
 
   /** Returns to the previous record or closes a top-level unsaved draft. */
@@ -134,7 +136,7 @@ export const CustomerPanelNew = () => {
         ownerId: values.ownerId || null,
         code: orNull(values.code),
         position: orNull(values.position),
-        sex: (values.sex ?? 0) as Customer['sex'],
+        sex: values.sex ?? 0,
         birthDate: values.birthDate ? toYmd(values.birthDate) : null,
         description: values.description || null,
       });
@@ -156,7 +158,10 @@ export const CustomerPanelNew = () => {
       showCreated(created.id);
     } catch (error) {
       if (isApiError(error, 'CUSTOMER_EXISTS')) {
-        const details = error.data as { field?: 'primaryEmail' | 'primaryPhone' } | undefined;
+        const details = errorData(
+          error,
+          z.object({ field: z.enum(['primaryEmail', 'primaryPhone']).optional() }),
+        );
 
         form.setError(details?.field ?? 'primaryEmail', { message: error.message });
 
@@ -187,7 +192,7 @@ export const CustomerPanelNew = () => {
     <Form {...form}>
       <form
         className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
-        onSubmit={form.handleSubmit(save)}
+        onSubmit={(event) => void form.handleSubmit(save)(event)}
       >
         <PanelFormLayout
           onCancel={cancel}

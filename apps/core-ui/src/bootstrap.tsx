@@ -12,13 +12,18 @@ import { pluginLive } from './lib/live';
 
 // erxes-ui's upload hooks (and plugin UIs) store files through core.
 setFileStorage(coreFileStorage);
+
 // Plugin UIs call their own API with a per-plugin token and hear live signals.
 setPluginRuntime({
   session: (name) => api.plugins.session({ name }),
   subscribe: pluginLive,
 });
 
-createRoot(document.getElementById('root') as HTMLElement).render(
+const root = document.getElementById('root');
+
+if (!root) throw new Error('index.html has no #root element');
+
+createRoot(root).render(
   <StrictMode>
     <App />
   </StrictMode>,

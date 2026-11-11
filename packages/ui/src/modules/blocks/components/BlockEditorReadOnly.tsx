@@ -24,6 +24,7 @@ export const BlockEditorReadOnly = React.forwardRef<
     initialContent: contentBlocks || undefined,
     resolveFileUrl: (url) => Promise.resolve(readImage(url)),
   });
+
   const theme = useAtomValue(themeState);
 
   // The editor instance keeps its initialContent; sync blocks when the
@@ -44,6 +45,7 @@ export const BlockEditorReadOnly = React.forwardRef<
         <div dangerouslySetInnerHTML={{ __html: sanitized }} className={className} ref={ref} />
       );
     }
+
     return null;
   }
 

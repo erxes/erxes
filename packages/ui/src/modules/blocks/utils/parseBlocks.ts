@@ -22,6 +22,7 @@ export const parseBlocks = (content: unknown) => {
     if (isValidBlocks(blocks)) {
       return blocks;
     }
+
     return false;
   } catch {
     return false;

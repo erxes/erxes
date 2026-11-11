@@ -11,6 +11,7 @@ import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { type ReactNode, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { isApiError } from '~/lib/api';
 import { ActivityTimeline } from '~/modules/activity/ActivityTimeline';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
@@ -126,7 +127,7 @@ const useRecordHeading = ({ contentType, contentId }: TRelationEntity) => {
     };
   }
 
-  const notFound = (query.error as { status?: number } | null)?.status === 404;
+  const notFound = isApiError(query.error) && query.error.status === 404;
 
   return {
     title: notFound ? t('not-found-title', 'Nothing here') : t('error', 'Unable to load record'),
@@ -165,6 +166,7 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
   let editableTitle: ReactNode = title;
 
   if (customer) editableTitle = <CustomerPanelName customer={customer} />;
+
   if (company) editableTitle = <CompanyPanelName company={company} />;
 
   const tabs: IRecordSidePanelTab[] = [
@@ -218,8 +220,10 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
         ]
       : []),
   ];
+
   const tab =
     selectedTab && tabs.some((entry) => entry.value === selectedTab) ? selectedTab : DETAIL_TAB;
+
   const actions = <ContactPanelActions contentType={contactType} contentId={record.contentId} />;
 
   return (
@@ -334,6 +338,7 @@ const SidePanelColumn = () => {
   const [expanded] = useQueryState<boolean>('panelExpanded');
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
   // Contacts expand into their own pages.
   const recordPage =
     record && record.contentId !== NEW_RECORD_ID && isContactContentType(record.contentType)
@@ -386,7 +391,7 @@ const SidePanelColumn = () => {
           expanded={false}
           expandable={Boolean(recordPage)}
           onExpandedChange={() => {
-            if (recordPage) navigate(recordPage);
+            if (recordPage) void navigate(recordPage);
           }}
           width={width}
           onWidthChange={setWidth}

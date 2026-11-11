@@ -137,6 +137,7 @@ const RecordSidePanelTabs = ({
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = usePanelExpanded();
   const navigationTabs = expanded ? tabs.filter((tab) => tab.value !== overviewTab) : tabs;
+
   const selectedValue =
     expanded && value === overviewTab ? (navigationTabs[0]?.value ?? value) : value;
 

@@ -55,6 +55,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
 
     const handleFocus = (focused: boolean) => {
       setIsFocused(focused);
+
       if (!focused && document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
@@ -62,6 +63,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
 
     useEffect(() => {
       const isActive = activeCell[0] === rowIndex && activeCell[1] === colIndex;
+
       if (isActive) {
         setHotkeyScope(scope);
         handleFocus(true);

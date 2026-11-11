@@ -40,10 +40,12 @@ export const RecordTableDnDProvider = ({
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
+
     if (active && over && active.id !== over.id) {
       setColumnOrder((columnOrder) => {
         const oldIndex = columnOrder.indexOf(active.id as string);
         const newIndex = columnOrder.indexOf(over.id as string);
+
         return arrayMove(columnOrder, oldIndex, newIndex);
       });
     }

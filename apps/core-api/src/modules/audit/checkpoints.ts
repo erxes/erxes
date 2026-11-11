@@ -1,14 +1,11 @@
 import { auditCheckpoints, type Db } from '@erxes/core-db';
 import { and, asc, eq, gt, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { currentKeyId, signJwt, verifyJwt } from '~/lib/signing';
 
 const CHECKPOINT_TYP = 'erxes-audit-checkpoint+jwt';
 
-interface CheckpointClaims {
-  org: string;
-  seq: number;
-  hash: string;
-}
+const CheckpointClaims = z.object({ org: z.string(), seq: z.number(), hash: z.string() });
 
 /**
  * Walks an organisation's audit chain (from `fromSeq`, or from its first
@@ -42,6 +39,7 @@ export const findChainBreak = async (client: Db, orgId: string, fromSeq?: number
            )::int as broken_at
     from chain
   `);
+
   const row = result.rows[0];
 
   return {
@@ -80,6 +78,7 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
     where (c.chain_seq is null or h.chain_seq > c.chain_seq)
       and (${orgId ?? null}::text is null or o.id = ${orgId ?? null}::text)
   `);
+
   let signed = 0;
 
   for (const head of heads.rows) {
@@ -110,12 +109,15 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
     }
 
     const signature = await signJwt(
-      { org: head.org_id, seq: head.head_seq, hash: head.head_hash } satisfies CheckpointClaims,
+      { org: head.org_id, seq: head.head_seq, hash: head.head_hash } satisfies z.infer<
+        typeof CheckpointClaims
+      >,
       {
         typ: CHECKPOINT_TYP,
         subject: head.org_id,
       },
     );
+
     const inserted = await client
       .insert(auditCheckpoints)
       .values({
@@ -153,6 +155,7 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
     where c.org_id = ${orgId}
     order by c.chain_seq
   `);
+
   let checked = 0;
   let mismatchAt: number | null = null;
   const latest = rows.rows[rows.rows.length - 1];
@@ -163,10 +166,10 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
 
     checked += 1;
 
-    const valid = await verifyJwt<Partial<CheckpointClaims>>(row.signature, { typ: CHECKPOINT_TYP })
+    const valid = await verifyJwt(row.signature, CheckpointClaims, { typ: CHECKPOINT_TYP })
       .then(
-        ({ payload }) =>
-          payload.org === orgId && payload.seq === row.chain_seq && payload.hash === row.hash,
+        (claims) =>
+          claims.org === orgId && claims.seq === row.chain_seq && claims.hash === row.hash,
       )
       .catch(() => false);
 

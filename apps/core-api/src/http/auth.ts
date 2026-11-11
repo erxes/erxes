@@ -2,7 +2,9 @@ import { coreContract } from '@erxes/core-contract';
 import { db, pluginInstallations, plugins, users } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
+import { decodeProtectedHeader } from 'jose';
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
 import { config } from '~/config';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
 import { publicPaths } from '~/http/access';
@@ -78,13 +80,15 @@ export const requireManager = (actor: Actor, message: string) => {
   }
 };
 
-interface AccessClaims {
-  typ: 'core_access';
-  sub: string;
-  org: string;
+const AccessClaims = z.object({
+  typ: z.literal('core_access'),
+  sub: z.string().min(1),
+  org: z.string().min(1),
   /** The member's session version when it was issued (see `users.sessionVersion`). */
-  sv: number;
-}
+  sv: z.number(),
+});
+
+type AccessClaims = z.infer<typeof AccessClaims>;
 
 const AUDIENCE = 'erxes-core';
 
@@ -105,17 +109,16 @@ export const signAccessToken = (
     expiresIn: ttlSeconds,
   });
 
-const verifyAccessToken = (token: string): AccessClaims => {
-  const claims = jwt.verify(token, config.auth.jwtSecret, {
-    algorithms: ['HS256'],
-    audience: AUDIENCE,
-  }) as Partial<AccessClaims>;
+const verifyAccessToken = (token: string) => {
+  const claims = AccessClaims.safeParse(
+    jwt.verify(token, config.auth.jwtSecret, { algorithms: ['HS256'], audience: AUDIENCE }),
+  );
 
-  if (claims.typ !== 'core_access' || !claims.sub || !claims.org || typeof claims.sv !== 'number') {
+  if (!claims.success) {
     throw new Error('not a core access token');
   }
 
-  return claims as AccessClaims;
+  return claims.data;
 };
 
 const unauthorized = () => new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
@@ -133,11 +136,7 @@ export const PLUGIN_ACCESS_TYP = 'erxes-plugin-access+jwt';
 /** Plugin tokens are ES256 JWTs with their own `typ`; member tokens are not. */
 const isPluginToken = (token: string) => {
   try {
-    const header = JSON.parse(Buffer.from(token.split('.')[0] ?? '', 'base64url').toString()) as {
-      typ?: string;
-    };
-
-    return header.typ === PLUGIN_ACCESS_TYP;
+    return decodeProtectedHeader(token).typ === PLUGIN_ACCESS_TYP;
   } catch {
     return false;
   }
@@ -222,16 +221,17 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
 
       req.actor = { userId: user.id, orgId: user.orgId, role: user.role };
       req.sessionVersion = claims.sv;
+
       return next();
     })
     .catch(next);
 };
 
-interface PluginClaims extends Record<string, unknown> {
-  sub: string;
-  org?: string;
-  scope?: string;
-}
+const PluginClaims = z.object({
+  sub: z.string().min(1),
+  org: z.string().optional(),
+  scope: z.string().optional(),
+});
 
 /**
  * A plugin token (`POST /plugins/token`), checked on every request against
@@ -239,8 +239,8 @@ interface PluginClaims extends Record<string, unknown> {
  * uninstalling it cuts it off at once, and scopes can only shrink.
  */
 const authenticatePlugin = (req: Request, token: string, next: NextFunction) => {
-  verifyJwt<PluginClaims>(token, { typ: PLUGIN_ACCESS_TYP, audience: AUDIENCE })
-    .then(async ({ payload }) => {
+  verifyJwt(token, PluginClaims, { typ: PLUGIN_ACCESS_TYP, audience: AUDIENCE })
+    .then(async (payload) => {
       const [plugin] = await db()
         .select({ status: plugins.status })
         .from(plugins)
@@ -251,6 +251,7 @@ const authenticatePlugin = (req: Request, token: string, next: NextFunction) => 
 
       if (!payload.org) {
         req.pluginService = { plugin: payload.sub };
+
         return next();
       }
 
@@ -277,6 +278,7 @@ const authenticatePlugin = (req: Request, token: string, next: NextFunction) => 
         orgId: payload.org,
         scopes: (payload.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
       };
+
       return next();
     })
     .catch(() => next(unauthorized()));

@@ -42,14 +42,20 @@ const main = async () => {
     },
   });
 
-  console.log(`organization ${organization.id} (${organization.subdomain})`);
-  console.log(`owner        ${owner.id} <${owner.email}>`);
-  console.log(`token        ${signAccessToken(owner.id, organization.id)}`);
+  console.info(`organization ${organization.id} (${organization.subdomain})`);
+  console.info(`owner        ${owner.id} <${owner.email}>`);
+  console.info(`token        ${signAccessToken(owner.id, organization.id)}`);
 };
 
-main()
-  .catch((error) => {
+const run = async () => {
+  try {
+    await main();
+  } catch (error) {
     console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
-  })
-  .finally(() => closeDb());
+  } finally {
+    await closeDb();
+  }
+};
+
+void run();

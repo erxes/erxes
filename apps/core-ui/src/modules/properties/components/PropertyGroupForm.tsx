@@ -26,6 +26,7 @@ export const PropertyGroupForm = ({
   contentType: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+
   const form = useForm<IPropertyGroupForm, unknown, IPropertyGroupValues>({
     resolver: zodResolver(propertyGroupSchema),
     defaultValues,
@@ -71,6 +72,7 @@ export const PropertyGroupForm = ({
             )}
           />
           <Form.Field
+            control={form.control}
             name="code"
             render={({ field }) => (
               <Form.Item>
@@ -88,6 +90,7 @@ export const PropertyGroupForm = ({
             )}
           />
           <Form.Field
+            control={form.control}
             name="description"
             render={({ field }) => (
               <Form.Item>

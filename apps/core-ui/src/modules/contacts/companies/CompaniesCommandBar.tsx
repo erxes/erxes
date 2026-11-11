@@ -1,5 +1,6 @@
 import type { Company } from '@erxes/core-contract';
 import { IconTrash } from '@tabler/icons-react';
+import type { Row } from '@tanstack/react-table';
 import { Button, CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +24,7 @@ export const CompaniesCommandBar = () => {
   const merge = useCompaniesMerge();
   const [merging, setMerging] = useState(false);
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const companies = selectedRows.map((row) => row.original as Company);
+  const companies = selectedRows.map((row: Row<Company>) => row.original);
   const companyIds = companies.map((company) => company.id);
   const tagIds = commonTagIds(companies);
   // Owners and admins merge and delete (core's rule).
@@ -59,7 +60,7 @@ export const CompaniesCommandBar = () => {
                 variant="secondary"
                 className="text-destructive"
                 onClick={() =>
-                  confirm({
+                  void confirm({
                     message: t('confirm-delete-selected', { count: companyIds.length }),
                   }).then(() =>
                     remove.mutate(companyIds, { onSuccess: () => table.setRowSelection({}) }),

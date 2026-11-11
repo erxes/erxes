@@ -21,6 +21,7 @@ const ContactRelationTriggerLabel = ({
   addLabel: string;
 }) => {
   if (saving) return <Spinner size="sm" />;
+
   if (moreCount > 0) return <span>+{moreCount}</span>;
 
   return (
@@ -78,14 +79,18 @@ export const ContactRelationInput = ({
   const hasLinks = value.length > 0;
   const moreCount = Math.max(0, value.length - 1);
   const relatedContentType = kind === 'company' ? 'core:company' : 'core:customer';
+
   const addLabel =
     kind === 'company' ? t('add-company', 'Add company') : t('add-customer', 'Add customer');
+
   const editLabel =
     kind === 'company'
       ? t('edit-companies', 'Edit companies')
       : t('edit-customers', 'Edit customers');
+
   const openContact = (id: string) =>
     openRecord({ contentType: relatedContentType, contentId: id }, { stack: true });
+
   const handleChange = (ids: string[]) => {
     if (disabled) return;
     onValueChange?.(ids);

@@ -39,6 +39,7 @@ export const PopoverScoped = ({
     const previousScope = store.get(currentHotkeyScopeState);
     const popoverScope = `${scope}.Popover`;
     setHotkeyScopeAndMemorizePreviousScope(popoverScope);
+
     return () => {
       // A different control may have taken focus before this popover closes.
       if (store.get(currentHotkeyScopeState).scope === popoverScope) {
@@ -53,7 +54,9 @@ export const PopoverScoped = ({
       if (!isOpen) {
         return;
       }
+
       onEnter?.();
+
       if (closeOnEnter) {
         _setOpen(false);
         onOpenChange?.(false, 'enter');

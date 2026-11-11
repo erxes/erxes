@@ -12,7 +12,7 @@ import {
   Spinner,
   useToast,
 } from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
@@ -62,11 +62,6 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
   const [maxSizeMb, setMaxSizeMb] = useState(String(settings.maxSizeMb));
   const [types, setTypes] = useState<MultiSelectOption[]>(settings.allowedTypes.map(optionOf));
 
-  useEffect(() => {
-    setMaxSizeMb(String(settings.maxSizeMb));
-    setTypes(settings.allowedTypes.map(optionOf));
-  }, [settings]);
-
   const save = useMutation({
     mutationFn: () =>
       api.files.updateSettings({
@@ -86,6 +81,7 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
   });
 
   const size = Number(maxSizeMb);
+
   const sizeError =
     !Number.isInteger(size) || size < 1
       ? t('size-invalid', 'Enter a whole number of MB')
@@ -95,6 +91,7 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
             defaultValue: `This server accepts up to ${settings.limitMb} MB`,
           })
         : null;
+
   const badType = types.find((option) => !VALID_TYPE.test(option.value.trim().toLowerCase()));
 
   return (
@@ -308,7 +305,12 @@ export const FileUploadSettingsPage = () => {
                   {t('read-only', 'Only owners and admins can change these settings.')}
                 </p>
               )}
-              <LimitsForm settings={settings} canEdit={canEdit} />
+              {/* Keyed by the saved values: new settings from the server start a fresh draft. */}
+              <LimitsForm
+                key={`${settings.maxSizeMb}:${settings.allowedTypes.join(',')}`}
+                settings={settings}
+                canEdit={canEdit}
+              />
               <StorageInfo settings={settings} />
               <TryUpload />
             </>

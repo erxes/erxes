@@ -1,7 +1,8 @@
 import type { FileInfo } from '@erxes/core-contract';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import type { FileStorageAdapter } from 'erxes-ui';
-import { api, isApiError } from './api';
+import { z } from 'zod';
+import { api, errorData, isApiError } from './api';
 
 /** Sends the bytes where core said, reporting progress (fetch can't). */
 const put = (
@@ -16,15 +17,19 @@ const put = (
 
     request.open('PUT', url);
     Object.entries(headers).forEach(([name, value]) => request.setRequestHeader(name, value));
-    request.upload.onprogress = (event) => {
+    request.upload.addEventListener('progress', (event) => {
       if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100));
-    };
-    request.onload = () =>
+    });
+
+    request.addEventListener('load', () =>
       request.status >= 200 && request.status < 300
         ? resolve()
-        : reject(new Error(`The upload failed (${request.status})`));
-    request.onerror = () => reject(new Error('The upload failed: check your connection'));
-    request.onabort = () => reject(new Error('Upload cancelled'));
+        : reject(new Error(`The upload failed (${request.status})`)),
+    );
+    request.addEventListener('error', () =>
+      reject(new Error('The upload failed: check your connection')),
+    );
+    request.addEventListener('abort', () => reject(new Error('Upload cancelled')));
     signal?.addEventListener('abort', () => request.abort(), { once: true });
     request.send(file);
   });
@@ -60,7 +65,7 @@ export const fileIdOf = (address: string) => FILE_URL.exec(address)?.[1] ?? null
 /** A readable message for upload errors (size and type limits name them). */
 export const uploadErrorMessage = (error: unknown) => {
   if (isApiError(error, 'FILE_TOO_LARGE')) {
-    const limit = (error.data as { maxSizeMb?: number } | undefined)?.maxSizeMb;
+    const limit = errorData(error, z.object({ maxSizeMb: z.number() }))?.maxSizeMb;
 
     return limit ? `Files can be up to ${limit} MB` : error.message;
   }
@@ -78,7 +83,7 @@ export const coreFileStorage: FileStorageAdapter = {
     try {
       return (await uploadFile(file, options)).url;
     } catch (error) {
-      throw new Error(uploadErrorMessage(error));
+      throw new Error(uploadErrorMessage(error), { cause: error });
     }
   },
   async remove(address) {

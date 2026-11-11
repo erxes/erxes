@@ -8,6 +8,7 @@ import { customersSessionKey, useCustomers } from './useCustomers';
 export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
   const { list, loading, error, hasNextPage, hasPreviousPage, handleFetchMore } =
     useCustomers(state);
+
   const columns = useCustomersColumns();
 
   if (error) {

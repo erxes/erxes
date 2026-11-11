@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite-plus';
+import type { OxlintOverride } from 'vite-plus/lint';
 
 // Procedures are built from the contract in one place, so every route goes
 // through the same context and access checks.
@@ -20,6 +21,57 @@ const noApps = {
   ],
   message: 'Packages and the UI never import an app. Move the shared code into a package.',
 };
+
+// packages/ui is erxes-ui copied from old erxes. Phase 2 rewrites it and
+// removes this override. Until then the rules it fails are warnings there, so
+// new code stays at error. packages/ui-modules passes at error.
+const inheritedUi = {
+  files: ['packages/ui/**'],
+  plugins: ['react'],
+  rules: {
+    'import/no-cycle': 'warn',
+    'import/no-default-export': 'warn',
+    'no-shadow': 'warn',
+    'no-underscore-dangle': 'warn',
+    'no-unsafe-optional-chaining': 'warn',
+    'no-unused-expressions': 'warn',
+    'no-unused-vars': 'warn',
+    'oxc/const-comparisons': 'warn',
+    'oxc/no-accumulating-spread': 'warn',
+    'oxc/no-barrel-file': 'warn',
+    'react-hooks/exhaustive-deps': 'warn',
+    'react/exhaustive-effect-dependencies': 'warn',
+    'react/iframe-missing-sandbox': 'warn',
+    'react/immutability': 'warn',
+    'react/incompatible-library': 'warn',
+    'react/memo-dependencies': 'warn',
+    'react/no-unstable-nested-components': 'warn',
+    'react/purity': 'warn',
+    'react/refs': 'warn',
+    'react/set-state-in-effect': 'warn',
+    'typescript/no-base-to-string': 'warn',
+    'typescript/no-explicit-any': 'warn',
+    'typescript/no-floating-promises': 'warn',
+    'typescript/no-misused-promises': 'warn',
+    'typescript/no-misused-spread': 'warn',
+    'typescript/no-unnecessary-type-conversion': 'warn',
+    'typescript/no-unnecessary-type-parameters': 'warn',
+    'typescript/no-unsafe-argument': 'warn',
+    'typescript/no-unsafe-assignment': 'warn',
+    'typescript/no-unsafe-call': 'warn',
+    'typescript/no-unsafe-enum-assignment': 'warn',
+    'typescript/no-unsafe-enum-comparison': 'warn',
+    'typescript/no-unsafe-member-access': 'warn',
+    'typescript/no-unsafe-return': 'warn',
+    'typescript/no-unsafe-type-assertion': 'warn',
+    'typescript/no-useless-default-assignment': 'warn',
+    'typescript/restrict-template-expressions': 'warn',
+    'typescript/unbound-method': 'warn',
+    'unicorn/consistent-function-scoping': 'warn',
+    'unicorn/no-array-sort': 'warn',
+    'unicorn/prefer-add-event-listener': 'warn',
+  },
+} satisfies OxlintOverride;
 
 // Browser code runs without Node and without the database.
 const serverOnly = {
@@ -70,7 +122,9 @@ export default defineConfig({
       'anti-slop/no-unknown-type-aliases': 'error',
       'anti-slop/no-widen-then-assert': 'error',
       'anti-slop/require-readable-spacing': 'error',
-      'no-unused-vars': 'error',
+      // `const { secret, ...rest } = row` drops a field on purpose; Express
+      // error handlers need all four parameters (`_next`).
+      'no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: '^_' }],
       'no-console': ['error', { allow: ['info', 'warn', 'error'] }],
       'no-debugger': 'error',
       'no-restricted-imports': ['error', { paths: [routerBuilder] }],
@@ -87,6 +141,8 @@ export default defineConfig({
       'typescript/no-unsafe-type-assertion': 'error',
       'typescript/no-floating-promises': 'error',
       'typescript/no-misused-promises': 'error',
+      // noImplicitReturns in tsconfig.base.json checks this with types, so exhaustive switches pass.
+      'typescript/consistent-return': 'off',
       'typescript/switch-exhaustiveness-check': [
         'error',
         { considerDefaultExhaustiveForUnions: true },
@@ -135,6 +191,28 @@ export default defineConfig({
         ],
         rules: { 'import/no-default-export': 'off' },
       },
+      {
+        // Each package's one public entry (package.json `exports`), and the
+        // schema module drizzle-kit and the client load whole. Phase 2 splits
+        // the contract into subpath exports.
+        files: [
+          'packages/contract/src/index.ts',
+          'packages/db/src/index.ts',
+          'packages/db/src/schema/index.ts',
+        ],
+        rules: { 'oxc/no-barrel-file': 'off' },
+      },
+      {
+        // Copied from the HR plugin (and ESLint Stylistic in vendor/). Kept as
+        // upstream wrote it so the copies stay easy to compare.
+        files: ['tools/lint/anti-slop/**'],
+        rules: {
+          'typescript/no-unsafe-type-assertion': 'off',
+          'no-shadow': 'off',
+          'no-underscore-dangle': 'off',
+        },
+      },
+      inheritedUi,
     ],
   },
   test: {

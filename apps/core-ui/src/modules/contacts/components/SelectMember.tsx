@@ -120,7 +120,7 @@ export const MembersInline = ({
   let value: string | JSX.Element | undefined;
 
   if (selected.length === 1) {
-    value = <MemberLabel member={selected[0]!} />;
+    value = <MemberLabel member={selected[0]} />;
   } else if (selected.length > 1) {
     value = selected.some((member) => member.id === user.id)
       ? `You and ${selected.length - 1} others`
@@ -177,16 +177,19 @@ const SelectMemberContent = () => {
   const { memberIds, onSelect } = useSelectMemberContext();
   const [search, setSearch] = useState('');
   const term = search.trim().toLowerCase();
+
   const matches = members.filter(
     (member) =>
       !term ||
       memberName(member).toLowerCase().includes(term) ||
       member.email.toLowerCase().includes(term),
   );
+
   const ordered = [
     ...matches.filter((member) => memberIds.includes(member.id)),
     ...matches.filter((member) => !memberIds.includes(member.id)),
   ];
+
   const lastSelectedIndex = ordered.reduce(
     (last, member, index) => (memberIds.includes(member.id) ? index : last),
     -1,

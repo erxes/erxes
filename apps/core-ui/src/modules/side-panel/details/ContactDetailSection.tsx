@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from 'erxes-ui';
+
 /** Separates contact fields, tags, and linked records with plain headings. */
 export const ContactDetailSection = ({
   title,

@@ -22,7 +22,6 @@ import {
   type ReactNode,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -198,12 +197,15 @@ const TagsSelectedList = ({
   );
 };
 
+const randomTagColor = () => TAG_COLORS[Math.floor(Math.random() * TAG_COLORS.length)];
+
 /** Search, the selected tags, every tag with a check, and "create". */
 const TagsSelectContent = () => {
   const { type, tags, selectedIds, loading, toggle } = useTagsSelectContext();
   const create = useTagCreate();
   const [search, setSearch] = useState('');
-  const color = useMemo(() => TAG_COLORS[Math.floor(Math.random() * TAG_COLORS.length)], []);
+  // A new tag gets a random color, picked once per open picker.
+  const [color] = useState(randomTagColor);
   const trimmed = search.trim();
   const hasExactMatch = tags.some((tag) => tag.name.toLowerCase() === trimmed.toLowerCase());
   const showCreate = !loading && trimmed.length > 0 && !hasExactMatch;

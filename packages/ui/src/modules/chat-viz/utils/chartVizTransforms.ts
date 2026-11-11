@@ -39,6 +39,7 @@ const calculateValue = ({
 /** Keeps transformed values finite and within the renderer's numeric budget. */
 const boundRenderedValue = (value: number, fallback: number): number => {
   if (!Number.isFinite(value)) return fallback;
+
   return Math.min(MAX_ABS_RENDERED_VALUE, Math.max(-MAX_ABS_RENDERED_VALUE, value));
 };
 
@@ -129,18 +130,22 @@ export function getChartVizInteractiveDomain(
   const visit = (index: number, values: ChartVizControlValues) => {
     if (index < controls.length) {
       const control = controls[index];
+
       if (!control) return;
 
       for (const value of candidates[index] ?? []) {
         visit(index + 1, { ...values, [control.key]: value });
       }
+
       return;
     }
 
     const scenario = applyChartVizTransforms(payload, values);
+
     for (const point of scenario.data) {
       for (const key of seriesKeys) {
         const value = point[key];
+
         if (typeof value !== 'number' || !Number.isFinite(value)) continue;
         dataMin = Math.min(dataMin, value);
         dataMax = Math.max(dataMax, value);

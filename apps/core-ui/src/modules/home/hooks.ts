@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '~/lib/api';
+
 /*
  * Home reads under the same key prefixes as Contacts (`customers`,
  * `companies`) and Team members (`users`) with `list` next, so their
@@ -22,16 +23,19 @@ export const useContactsOverview = () => {
     queryFn: () => api.customers.list({ limit: 1, state: 'customer' }).then(count),
     staleTime: STALE_TIME,
   });
+
   const leads = useQuery({
     queryKey: [...CUSTOMERS_KEY, 'list', 'home', 'count', 'lead'],
     queryFn: () => api.customers.list({ limit: 1, state: 'lead' }).then(count),
     staleTime: STALE_TIME,
   });
+
   const companies = useQuery({
     queryKey: [...COMPANIES_KEY, 'list', 'home', 'count'],
     queryFn: () => api.companies.list({ limit: 1 }).then(count),
     staleTime: STALE_TIME,
   });
+
   const users = useQuery({
     queryKey: [...USERS_KEY, 'list', 'home', 'count'],
     queryFn: () => api.users.list({ limit: 1, status: 'active' }).then(count),

@@ -25,6 +25,7 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
   const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
   const { toast } = useToast();
   const client = useQueryClient();
+
   const change = useMutation({
     mutationFn: (install: boolean) =>
       install
@@ -46,6 +47,7 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
         description: messageOf(error),
       }),
   });
+
   const newScopes = plugin.requestedScopes.filter((scope) => !plugin.grantedScopes.includes(scope));
 
   return (

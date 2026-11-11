@@ -14,6 +14,7 @@ export const CursorQuery = z.object({
   direction: z.enum(['forward', 'backward']).default('forward'),
   cursorMode: z.enum(['inclusive', 'exclusive']).default('exclusive'),
 });
+
 export type CursorQuery = z.infer<typeof CursorQuery>;
 
 export const PageInfo = z.object({
@@ -22,6 +23,7 @@ export const PageInfo = z.object({
   startCursor: z.string().nullable(),
   endCursor: z.string().nullable(),
 });
+
 export type PageInfo = z.infer<typeof PageInfo>;
 
 /** Comma-separated ids in a query string (`?ids=a,b`), at most 100. */
@@ -48,6 +50,7 @@ export const ErrorBody = z.object({
   message: z.string(),
   data: z.unknown().optional(),
 });
+
 export type ErrorBody = z.infer<typeof ErrorBody>;
 
 export const cursorPageOf = <T extends z.ZodTypeAny>(item: T) =>
@@ -60,6 +63,7 @@ export const cursorPageOf = <T extends z.ZodTypeAny>(item: T) =>
 
 /** Records that tags and custom fields attach to. */
 export const ContentType = z.enum(['customer', 'company']);
+
 export type ContentType = z.infer<typeof ContentType>;
 
 /** A custom field value: text, number, date (`YYYY-MM-DD`), yes/no or several options. */
@@ -69,6 +73,7 @@ export const CustomValue = z.union([
   z.boolean(),
   z.array(z.string().max(200)).max(50),
 ]);
+
 export type CustomValue = z.infer<typeof CustomValue>;
 
 /** Custom field values by field id. */
@@ -76,6 +81,11 @@ export const CustomFields = z.record(Id, CustomValue);
 
 /** Changes to custom field values; `null` clears one. */
 export const CustomFieldsPatch = z.record(Id, CustomValue.nullable());
+
+/** `{ field: [before, after] }`, as activities, notifications and audit entries record a change. */
+export const Changes = z.record(z.tuple([z.unknown(), z.unknown()]));
+
+export type Changes = z.infer<typeof Changes>;
 
 export const EmailAddress = z.string().trim().toLowerCase().email().max(254);
 

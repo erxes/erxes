@@ -9,14 +9,18 @@ export const useFontFamily = (): FontFamilyState => {
     IBlockEditor['schema']['inlineContentSchema'],
     IBlockEditor['schema']['styleSchema']
   >();
+
   const [currentFont, setCurrentFont] = useState(() => {
     const styles = editor.getActiveStyles();
+
     return styles.fontFamily || '';
   });
+
   const [isFileBlock, setIsFileBlock] = useState(false);
 
   useEditorContentOrSelectionChange(() => {
     if (!editor) return;
+
     try {
       const styles = editor.getActiveStyles();
       setCurrentFont(styles?.fontFamily || '');
@@ -37,6 +41,7 @@ export const useFontFamily = (): FontFamilyState => {
       } else {
         editor.addStyles({ fontFamily: fontValue });
       }
+
       editor.focus();
     } catch (error) {
       console.error('Error changing font:', error);

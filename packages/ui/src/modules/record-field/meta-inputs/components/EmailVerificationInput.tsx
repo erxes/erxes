@@ -13,6 +13,7 @@ interface EmailVerificationInputProps {
   onChange: (value: string) => void;
   inputValue: string;
 }
+
 export const EmailVerificationInput = ({
   value,
   onChange,
@@ -37,6 +38,7 @@ export const EmailVerificationInput = ({
     setOpen(false);
     // To do: add on success handler
   };
+
   return (
     <Select
       open={open}
@@ -53,6 +55,7 @@ export const EmailVerificationInput = ({
       <Select.Content className="text-base font-medium shadow-lg">
         {EMAIL_VALIDATION_STATUS_INFOS.map((info) => {
           const ItemIcon = EmailIconComponents[info.icon];
+
           return (
             <Select.Item
               key={info.value}

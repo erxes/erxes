@@ -12,6 +12,7 @@ import { matchEveryWord } from '~/lib/search';
 import { hashPassword } from '~/modules/auth/password';
 
 type UserRow = typeof users.$inferSelect;
+
 type Status = UserRow['status'];
 
 /** The API shape: never the password hash or internal flags. */
@@ -59,11 +60,13 @@ const profileChanges = (
   current?: Pick<UserRow, 'firstName' | 'middleName' | 'lastName' | 'links'>,
 ) => {
   const set: Partial<typeof users.$inferInsert> = {};
+
   const parts = {
     firstName: blankToNull(input.firstName),
     middleName: blankToNull(input.middleName),
     lastName: blankToNull(input.lastName),
   };
+
   const partsGiven = Object.values(parts).some((value) => value !== undefined);
 
   if (partsGiven) {
@@ -93,7 +96,7 @@ const profileChanges = (
   }
 
   if (input.links) {
-    const links: Record<string, string> = { ...(current?.links ?? {}) };
+    const links: Record<string, string> = { ...current?.links };
 
     for (const [name, value] of Object.entries(input.links)) {
       if (value?.trim()) {
@@ -161,6 +164,7 @@ const findUser = async (client: Db, orgId: string, id: string, lock = false) => 
     .from(users)
     .where(and(eq(users.orgId, orgId), eq(users.id, id)))
     .limit(1);
+
   const [row] = lock ? await query.for('update') : await query;
 
   if (!row) {
@@ -281,6 +285,7 @@ export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) =
 
   try {
     const values = await inviteValues(actor, input);
+
     const row = await client.transaction(async (tx) => {
       const [inserted] = await tx.insert(users).values(values).returning();
 
@@ -390,6 +395,7 @@ export const updateUser = async (actor: Actor, id: string, input: UserChanges) =
         })
         .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
         .returning();
+
       const changes = diffRows(target, row!, ['lastSeenAt']);
 
       if (changes?.role && !self) {
@@ -397,7 +403,7 @@ export const updateUser = async (actor: Actor, id: string, input: UserChanges) =
           userIds: [id],
           kind: 'core.user.role_changed',
           title: 'Your role was changed',
-          body: `${changes.role[0]} → ${changes.role[1]}`,
+          body: `${target.role} → ${row!.role}`,
           priority: 'high',
           entity: { type: 'user', id },
           data: { changes: { role: changes.role } },

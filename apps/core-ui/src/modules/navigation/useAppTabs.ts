@@ -43,7 +43,7 @@ export const useAppTabs = (apps: NavApp[]) => {
     }
   }, [routeApp, pathname, search, setLastLocation, setOpenIds]);
 
-  const open = (app: NavApp) => navigate(lastLocation[app.id] ?? `/${app.path}`);
+  const open = (app: NavApp) => void navigate(lastLocation[app.id] ?? `/${app.path}`);
 
   const close = (id: string) => {
     const index = openIds.indexOf(id);
@@ -57,7 +57,7 @@ export const useAppTabs = (apps: NavApp[]) => {
       if (neighbour) {
         open(neighbour);
       } else {
-        navigate('/');
+        void navigate('/');
       }
     }
   };
@@ -72,7 +72,7 @@ export const useAppTabs = (apps: NavApp[]) => {
       const next = apps.find((app) => app.id === rest[0]);
 
       if (next) open(next);
-      else navigate('/');
+      else void navigate('/');
     }
   };
 

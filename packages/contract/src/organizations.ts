@@ -8,6 +8,7 @@ export const Organization = z.object({
   name: z.string(),
   createdAt: z.string().datetime(),
 });
+
 export type Organization = z.infer<typeof Organization>;
 
 export const organizationsContract = {

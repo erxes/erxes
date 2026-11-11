@@ -104,6 +104,8 @@ const InvitationStatusCell = ({ user, t }: { user: User; t: TFunction }) => (
 
 export const teamMemberColumns = (t: TFunction): ColumnDef<User>[] => [
   teamMemberMoreColumn,
+  // erxes-ui types its checkbox column as ColumnDef<any> with an accessorKey no record has.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the column reads only row selection, never row data
   RecordTable.checkboxColumn as ColumnDef<User>,
   {
     id: 'avatar',

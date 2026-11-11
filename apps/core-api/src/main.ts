@@ -15,13 +15,13 @@ const start = async () => {
   const applied = await runMigrations();
 
   if (applied.length) {
-    console.log(`[core] applied migrations: ${applied.join(', ')}`);
+    console.info(`[core] applied migrations: ${applied.join(', ')}`);
   }
 
   await syncPluginSecrets();
 
   const server = createApp().listen(config.port, () => {
-    console.log(`[core] api ready at http://localhost:${config.port}`);
+    console.info(`[core] api ready at http://localhost:${config.port}`);
   });
 
   const stopMaintenance = startMaintenance();
@@ -36,7 +36,7 @@ const start = async () => {
     process.once(signal, () => {
       stopMaintenance();
       server.close();
-      Promise.all([stopEvents(), liveHub.stop()])
+      void Promise.all([stopEvents(), liveHub.stop()])
         .then(() => closeDb())
         .finally(() => process.exit(0));
     });

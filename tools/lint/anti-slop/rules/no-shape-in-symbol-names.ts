@@ -13,7 +13,7 @@ function isBorrowedMemberName(node: ESTree.Node): boolean {
 
   if (parent === null || parent.type !== 'MemberExpression') return false;
 
-  return parent.property === node && parent.computed === false;
+  return parent.property === node && !parent.computed;
 }
 
 /** Ban the case-insensitive substring "shape" in every JavaScript and TypeScript symbol name. */

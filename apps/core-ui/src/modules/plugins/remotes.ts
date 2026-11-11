@@ -31,11 +31,14 @@ export const parsePluginRemotes = (value = import.meta.env.PUBLIC_PLUGINS ?? '')
 
 let registered = false;
 
-const isConfig = (value: unknown): value is PluginConfig => {
-  const config = value as Partial<PluginConfig> | undefined;
-
-  return typeof config?.name === 'string' && typeof config.path === 'string' && !!config.path;
-};
+const isConfig = (value: unknown): value is PluginConfig =>
+  typeof value === 'object' &&
+  value !== null &&
+  'name' in value &&
+  typeof value.name === 'string' &&
+  'path' in value &&
+  typeof value.path === 'string' &&
+  !!value.path;
 
 const allowed = async (config: PluginConfig) => {
   if (!config.checkAccess) {
@@ -94,6 +97,10 @@ const pascalCase = (value: string) =>
 
 const components = new Map<string, ComponentType>();
 
+/** React renders functions, classes and memo / forwardRef objects. */
+const isComponent = (value: unknown): value is ComponentType =>
+  typeof value === 'function' || (typeof value === 'object' && value !== null);
+
 export const loadedPluginComponent = (remote: string, module: string) =>
   components.get(`${remote}/${module}`);
 
@@ -107,15 +114,14 @@ export const loadPluginComponent = async (remote: string, module: string) => {
   }
 
   const exports = await loadRemote<Record<string, unknown>>(key);
-  const component = (exports?.default ?? exports?.[pascalCase(module)]) as
-    | ComponentType
-    | undefined;
 
-  if (typeof component !== 'function' && typeof component !== 'object') {
+  const component = exports?.default ?? exports?.[pascalCase(module)];
+
+  if (!isComponent(component)) {
     throw new Error(`${key} has no default or ${pascalCase(module)} export`);
   }
 
-  components.set(key, component as ComponentType);
+  components.set(key, component);
 
-  return component as ComponentType;
+  return component;
 };

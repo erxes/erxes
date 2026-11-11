@@ -24,7 +24,7 @@ export const ContactDetailPage = ({ contentType }: { contentType: TContactConten
   const listPath = getContactListPath(contentType, pathname);
   const record = useMemo(() => ({ contentType, contentId: id }), [contentType, id]);
 
-  const backToList = () => navigate(listPath);
+  const backToList = () => void navigate(listPath);
 
   const navigator: ISidePanelNavigator = {
     record,

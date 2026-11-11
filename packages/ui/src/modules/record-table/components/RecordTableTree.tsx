@@ -29,6 +29,7 @@ const RecordTableTreeIndentation = ({ order, name }: { order: string; name: stri
   const { ordered } = useRecordTableTree(fixedOrder || '');
 
   const level = fixedOrder?.match(/[/]/gi)?.length || 0;
+
   if (level <= 0 || !ordered) {
     return null;
   }
@@ -41,6 +42,7 @@ const RecordTableTreeIndentation = ({ order, name }: { order: string; name: stri
     </div>
   );
 };
+
 const RecordTableTreeRow = React.forwardRef<
   HTMLTableRowElement,
   React.ComponentProps<typeof RecordTableRow>

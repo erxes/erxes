@@ -41,6 +41,7 @@ export const TextField = React.forwardRef<
     /** Saves a changed text value and closes the inline editor. */
     const handleAction = (e?: React.FormEvent) => {
       e?.preventDefault();
+
       if (editingValue !== value) onSave?.(editingValue);
       setIsOpen(false);
     };
@@ -60,6 +61,7 @@ export const TextField = React.forwardRef<
         open={isOpen}
         onOpenChange={(open: boolean) => {
           setIsOpen(open);
+
           if (open) {
             setEditingValue(value);
           } else if (editingValue !== value) {

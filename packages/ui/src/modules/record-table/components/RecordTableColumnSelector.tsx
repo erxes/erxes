@@ -21,9 +21,11 @@ import { CSS } from '@dnd-kit/utilities';
 import { IconSettings, IconGripVertical, IconPin, IconPinFilled } from '@tabler/icons-react';
 import { Column } from '@tanstack/react-table';
 
-const getColumnLabel = (column: Column<any, unknown>): string => {
+const getColumnLabel = (column: Column<any>): string => {
   const { header } = column.columnDef;
+
   if (typeof header === 'string') return header;
+
   if (typeof header === 'function') {
     try {
       const headerNode = (header as () => ReactNode)();
@@ -45,10 +47,11 @@ const SortableColumnItem = ({
   column,
   isLastVisible,
 }: {
-  column: Column<unknown, unknown>;
+  column: Column<unknown>;
   isLastVisible: boolean;
 }) => {
   const isPinned = !!column.getIsPinned();
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column.id,
     disabled: isPinned,
@@ -134,6 +137,7 @@ export const RecordTableColumnSelector = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
     if (active && over && active.id !== over.id) {
       const currentOrder = table.getState().columnOrder;
       const oldIndex = currentOrder.indexOf(active.id as string);

@@ -24,10 +24,11 @@ export const TeamMemberSidePanel = () => {
             const params = new URLSearchParams(previous);
 
             params.set('tab', next);
+
             return params;
           })
         }
-        onExpand={() => navigate(`${teamMemberPath(memberId)}${tab ? `?tab=${tab}` : ''}`)}
+        onExpand={() => void navigate(`${teamMemberPath(memberId)}${tab ? `?tab=${tab}` : ''}`)}
         onClose={close}
       />
     </RecordSidePanel>

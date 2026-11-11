@@ -41,6 +41,7 @@ export const useScopedHotKeysCallback = (dependencies?: OptionsOrDependencyArray
               'color: gray; ',
             );
           }
+
           return;
         }
 
@@ -62,6 +63,7 @@ export const useScopedHotKeysCallback = (dependencies?: OptionsOrDependencyArray
               'color: gray;',
             );
           }
+
           keyboardEvent.stopPropagation();
           keyboardEvent.preventDefault();
           keyboardEvent.stopImmediatePropagation();

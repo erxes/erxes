@@ -1,21 +1,17 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
-import { createApp } from '~/app';
+import { db, newId, users } from '@erxes/core-db';
+import { beforeAll, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { describeWithDb, sessionToken, useTestDatabase, useTestServer } from './support';
 
 /** Sessions end when they should: password change or reset, disable, sign out everywhere. */
 describeWithDb('session security', () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
+  const server = useTestServer();
   let memberId = '';
 
   beforeAll(async () => {
-    const { db, users, newId } = await import('@erxes/core-db');
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
@@ -23,6 +19,7 @@ describeWithDb('session security', () => {
     });
 
     memberId = newId();
+
     await db()
       .insert(users)
       .values({
@@ -33,121 +30,96 @@ describeWithDb('session security', () => {
         status: 'active',
         passwordHash: await hashPassword('Member-pass-1'),
       });
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
 
-  afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));
-
+  // Raw HTTP: the session token comes back only in the cookie.
   const signIn = async (email: string, password: string) => {
-    const response = await fetch(`${base}/core/v1/auth/sign-in`, {
+    const response = await fetch(server.url('/core/v1/auth/sign-in'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
-    return {
-      status: response.status,
-      body: (await response.json()) as { code?: string },
-      cookie:
-        (response.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(
-          ';',
-        )[0] ?? '',
-    };
+    expect(response.status).toBe(200);
+
+    return sessionToken(response);
   };
 
-  const as = (cookie: string, path: string, init: { method?: string; body?: unknown } = {}) =>
-    fetch(`${base}/core/v1${path}`, {
-      method: init.method ?? 'GET',
-      headers: { cookie, 'content-type': 'application/json', origin: base },
-      body: init.body === undefined ? undefined : JSON.stringify(init.body),
-    });
+  const as = server.client;
+
+  const signedOut = { status: 401 };
 
   it('ends other sessions when a member changes their password, keeping this one', async () => {
     const laptop = await signIn('member@acme.mn', 'Member-pass-1');
-    const phone = await signIn('member@acme.mn', 'Member-pass-1');
+    const phone = as(await signIn('member@acme.mn', 'Member-pass-1'));
 
-    const changed = await as(laptop.cookie, '/auth/password', {
+    // Raw HTTP with the cookie: only a browser session is renewed, in the cookie.
+    const changed = await fetch(server.url('/core/v1/auth/password'), {
       method: 'POST',
-      body: { currentPassword: 'Member-pass-1', newPassword: 'Member-pass-2' },
+      headers: {
+        cookie: `erxes_session=${laptop}`,
+        'content-type': 'application/json',
+        'sec-fetch-site': 'same-origin',
+      },
+      body: JSON.stringify({ currentPassword: 'Member-pass-1', newPassword: 'Member-pass-2' }),
     });
 
     expect(changed.status).toBe(200);
 
-    const renewed = (
-      changed.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? ''
-    ).split(';')[0]!;
-
-    expect((await as(phone.cookie, '/auth/me')).status).toBe(401);
-    expect((await as(laptop.cookie, '/auth/me')).status).toBe(401);
-    expect((await as(renewed, '/auth/me')).status).toBe(200);
+    await expect(phone.auth.me()).rejects.toMatchObject(signedOut);
+    await expect(as(laptop).auth.me()).rejects.toMatchObject(signedOut);
+    await expect(as(sessionToken(changed)).auth.me()).resolves.toMatchObject({
+      user: { email: 'member@acme.mn' },
+    });
   });
 
-  it('ends sessions when an admin resets the password, and when the member is disabled — enabling does not revive them', async () => {
-    const owner = await signIn('owner@acme.mn', 'Owner-pass-1');
-    let member = await signIn('member@acme.mn', 'Member-pass-2');
+  it('ends sessions when an admin resets the password, and when the member is disabled; enabling does not revive them', async () => {
+    const owner = as(await signIn('owner@acme.mn', 'Owner-pass-1'));
+    let member = as(await signIn('member@acme.mn', 'Member-pass-2'));
 
-    expect(
-      (
-        await as(owner.cookie, `/users/${memberId}/password`, {
-          method: 'POST',
-          body: { password: 'Member-pass-3' },
-        })
-      ).status,
-    ).toBe(200);
-    expect((await as(member.cookie, '/auth/me')).status).toBe(401);
+    await owner.users.setPassword({ id: memberId, password: 'Member-pass-3' });
+    await expect(member.auth.me()).rejects.toMatchObject(signedOut);
 
-    member = await signIn('member@acme.mn', 'Member-pass-3');
-    expect((await as(owner.cookie, `/users/${memberId}/disable`, { method: 'POST' })).status).toBe(
-      200,
-    );
-    expect((await as(owner.cookie, `/users/${memberId}/enable`, { method: 'POST' })).status).toBe(
-      200,
-    );
-    expect((await as(member.cookie, '/auth/me')).status).toBe(401);
+    member = as(await signIn('member@acme.mn', 'Member-pass-3'));
+    await owner.users.disable({ id: memberId });
+    await owner.users.enable({ id: memberId });
+    await expect(member.auth.me()).rejects.toMatchObject(signedOut);
   });
 
   it('signs out everywhere', async () => {
-    const first = await signIn('member@acme.mn', 'Member-pass-3');
-    const second = await signIn('member@acme.mn', 'Member-pass-3');
+    const first = as(await signIn('member@acme.mn', 'Member-pass-3'));
+    const second = as(await signIn('member@acme.mn', 'Member-pass-3'));
 
-    expect((await as(first.cookie, '/auth/sign-out-everywhere', { method: 'POST' })).status).toBe(
-      200,
-    );
-    expect((await as(second.cookie, '/auth/me')).status).toBe(401);
-    expect((await as(first.cookie, '/auth/me')).status).toBe(401);
+    await first.auth.signOutEverywhere();
+    await expect(second.auth.me()).rejects.toMatchObject(signedOut);
+    await expect(first.auth.me()).rejects.toMatchObject(signedOut);
   });
 
   it('refuses dates that do not exist with 400, not a database error', async () => {
-    const owner = await signIn('owner@acme.mn', 'Owner-pass-1');
+    const owner = as(await signIn('owner@acme.mn', 'Owner-pass-1'));
 
     for (const birthDate of ['2026-99-99', '2026-02-30']) {
-      const response = await as(owner.cookie, `/users/${memberId}`, {
-        method: 'PATCH',
-        body: { birthDate },
+      await expect(owner.users.update({ id: memberId, birthDate })).rejects.toMatchObject({
+        status: 400,
       });
-
-      expect(response.status).toBe(400);
     }
 
-    expect(
-      (
-        await as(owner.cookie, `/users/${memberId}`, {
-          method: 'PATCH',
-          body: { birthDate: '2024-02-29' },
-        })
-      ).status,
-    ).toBe(200);
+    await expect(
+      owner.users.update({ id: memberId, birthDate: '2024-02-29' }),
+    ).resolves.toMatchObject({ birthDate: '2024-02-29' });
   });
 
   it('locks an account after 10 failed sign-ins in 15 minutes', async () => {
+    const api = as();
+
     for (let attempt = 0; attempt < 10; attempt += 1) {
-      expect((await signIn('owner@acme.mn', `wrong-${attempt}`)).status).toBe(401);
+      await expect(
+        api.auth.signIn({ email: 'owner@acme.mn', password: `wrong-${attempt}` }),
+      ).rejects.toMatchObject(signedOut);
     }
 
-    const locked = await signIn('owner@acme.mn', 'Owner-pass-1');
-
-    expect(locked.status).toBe(429);
-    expect(locked.body.code).toBe('TOO_MANY_ATTEMPTS');
+    await expect(
+      api.auth.signIn({ email: 'owner@acme.mn', password: 'Owner-pass-1' }),
+    ).rejects.toMatchObject({ status: 429, code: 'TOO_MANY_ATTEMPTS' });
   });
 });

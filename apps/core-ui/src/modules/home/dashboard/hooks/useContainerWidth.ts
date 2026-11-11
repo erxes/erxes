@@ -9,7 +9,7 @@ export const useContainerWidth = <T extends HTMLElement>() => {
     const element = containerRef.current;
 
     if (!element) {
-      return;
+      return undefined;
     }
 
     const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));

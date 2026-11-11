@@ -2,14 +2,17 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
+  NotFound,
   PutObjectCommand,
   S3Client,
+  S3ServiceException,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { mkdir, rm, stat } from 'node:fs/promises';
 import { dirname, resolve, sep } from 'node:path';
+import { z } from 'zod';
 import { config } from '~/config';
 
 export interface UploadRequest {
@@ -59,17 +62,19 @@ export const contentDisposition = (name: string, inline: boolean) => {
 // ─── Local disk ─────────────────────────────────────────────────────────────
 
 /** What a signed local link allows: write (`put`) or read (`get`) one key, until `exp`. */
-export interface LocalGrant {
-  op: 'put' | 'get';
-  key: string;
-  exp: number;
+const LocalGrant = z.object({
+  op: z.enum(['put', 'get']),
+  key: z.string(),
+  exp: z.number(),
   /** put: exact size and type the bytes must have. */
-  size?: number;
-  contentType?: string;
+  size: z.number().optional(),
+  contentType: z.string().optional(),
   /** get: how to serve them. */
-  name?: string;
-  inline?: boolean;
-}
+  name: z.string().optional(),
+  inline: z.boolean().optional(),
+});
+
+type LocalGrant = z.infer<typeof LocalGrant>;
 
 const KEY = /^[A-Za-z0-9]+\/\d{4}\/\d{2}\/[A-Za-z0-9]+$/;
 
@@ -101,7 +106,7 @@ export const readGrant = (token: string): LocalGrant | null => {
   }
 
   try {
-    const grant = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as LocalGrant;
+    const grant = LocalGrant.parse(JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')));
 
     if (grant.exp < Math.floor(Date.now() / 1000) || !KEY.test(grant.key)) {
       return null;
@@ -177,6 +182,7 @@ const localStorage: Storage = {
 
 const s3Storage = (): Storage => {
   const { s3 } = config.files;
+
   const client = new S3Client({
     region: s3.region,
     endpoint: s3.endpoint,
@@ -203,10 +209,10 @@ const s3Storage = (): Storage => {
 
         return { size: head.ContentLength ?? 0 };
       } catch (error) {
-        const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata
-          ?.httpStatusCode;
-
-        if (status === 404 || (error as { name?: string }).name === 'NotFound') {
+        if (
+          error instanceof NotFound ||
+          (error instanceof S3ServiceException && error.$metadata.httpStatusCode === 404)
+        ) {
           return null;
         }
 

@@ -188,17 +188,21 @@ export const SelectContactContent = ({
   const [search, setSearch] = useState('');
   const debounced = useDebounced(search.trim(), 500);
   const placeholder = kind === 'customer' ? 'Unnamed customer' : 'Unnamed company';
+
   const selected = useQuery({
     queryKey: [kind === 'customer' ? 'customers' : 'companies', 'options', 'ids', value],
     queryFn: () => searchContacts(kind, '', value),
     placeholderData: (previous) => previous,
   });
+
   const matches = useQuery({
     queryKey: [kind === 'customer' ? 'customers' : 'companies', 'options', 'search', debounced],
     queryFn: () => searchContacts(kind, debounced),
   });
+
   const toggle = (id: string) =>
     onValueChange(value.includes(id) ? value.filter((item) => item !== id) : [...value, id]);
+
   const selectedOptions = (selected.data ?? []).filter((option) => value.includes(option.id));
 
   return (

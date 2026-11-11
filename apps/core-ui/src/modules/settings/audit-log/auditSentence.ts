@@ -1,12 +1,13 @@
-import type { AuditEntry } from '@erxes/core-contract';
-
-type Changes = Record<string, [unknown, unknown]>;
+import type { AuditEntry, Changes } from '@erxes/core-contract';
+import { stringsIn } from '~/components/ChangeList';
 
 const ROLE: Record<string, string> = { owner: 'Owner', admin: 'Admin', member: 'Member' };
 
 const value = (input: unknown) => {
   if (input === null || input === undefined || input === '') return 'empty';
+
   if (typeof input === 'string') return ROLE[input] ?? input;
+
   if (Array.isArray(input)) return input.length ? input.join(', ') : 'none';
 
   return JSON.stringify(input);
@@ -37,8 +38,8 @@ const humanize = (text: string) => text.replace(/[_.]/g, ' ');
  */
 export const auditSentence = (entry: AuditEntry): string => {
   const label = entry.targetLabel ?? entry.targetId ?? '';
-  const changes = entry.changes as Changes | null;
-  const metadata = (entry.metadata ?? {}) as Record<string, unknown>;
+  const changes = entry.changes;
+  const metadata = entry.metadata ?? {};
   const [record = '', verb = ''] = entry.action.split('.');
 
   switch (entry.action) {
@@ -47,7 +48,7 @@ export const auditSentence = (entry: AuditEntry): string => {
     case 'auth.signed_out':
       return 'signed out';
     case 'auth.sign_in_failed':
-      return `failed to sign in as ${label}${metadata.reason ? ` (${metadata.reason})` : ''}`;
+      return `failed to sign in as ${label}${metadata.reason ? ` (${value(metadata.reason)})` : ''}`;
     case 'auth.password_changed':
       return 'changed their password';
     case 'organization.created':
@@ -73,7 +74,7 @@ export const auditSentence = (entry: AuditEntry): string => {
         ? `changed audit retention from ${value(changes.retentionDays[0])} to ${value(changes.retentionDays[1])} days`
         : 'changed audit retention';
     case 'audit.exported':
-      return `exported the audit log (${value(metadata.rows)} entries, ${String(metadata.format ?? 'csv').toUpperCase()})`;
+      return `exported the audit log (${value(metadata.rows)} entries, ${value(metadata.format ?? 'csv').toUpperCase()})`;
     case 'file.uploaded':
       return `uploaded ${label}`;
     case 'file.downloaded':
@@ -90,8 +91,9 @@ export const auditSentence = (entry: AuditEntry): string => {
       record === 'field' ? 'property' : record === 'field_group' ? 'property group' : record;
 
     if (verb === 'updated' && changes) return `updated ${noun} ${label}: ${fields(changes)}`;
+
     if (verb === 'merged') {
-      const names = (metadata.mergedNames as string[] | undefined) ?? [];
+      const names = stringsIn(metadata.mergedNames);
 
       return `merged ${names.join(', ') || 'records'} into ${noun} ${label}`;
     }

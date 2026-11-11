@@ -49,15 +49,18 @@ export const DateRangeDialogContent = ({
   onApply: (value: string) => void;
 }) => {
   const [tabs, setTabs] = useState('day');
+
   const [currentDateRange, setCurrentDateRange] = useState<DateRange | undefined>(
     parseDateRangeFromString(value || ''),
   );
+
   const [currentValue, setCurrentValue] = useState<string | null>(value ?? null);
 
   useEffect(() => {
     if (value) {
       setTabs(getActiveTab(value));
     }
+
     setCurrentValue(value ?? null);
     setCurrentDateRange(parseDateRangeFromString(value || ''));
   }, [value]);
@@ -67,8 +70,10 @@ export const DateRangeDialogContent = ({
 
     if (!value?.from) {
       setCurrentValue(null);
+
       return;
     }
+
     const to = value.to ?? value.from;
     setCurrentValue(`${value.from.toISOString()},${to.toISOString()}`);
   };

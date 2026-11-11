@@ -11,9 +11,11 @@ export const ImageStyleButton = () => {
     IBlockEditor['schema']['inlineContentSchema'],
     IBlockEditor['schema']['styleSchema']
   >();
+
   const Components = useComponentsContext();
   const selectedBlocks = useSelectedBlocks(editor);
   const selectedBlock = selectedBlocks.find((block) => block.type === 'image');
+
   const currentStyle =
     IMAGE_STYLE_OPTIONS.find((option) => option.value === selectedBlock?.props.imageStyle)?.value ??
     'normal';

@@ -1,4 +1,5 @@
 import type { Activity, ActivityInput, ActivityTarget, CursorQuery } from '@erxes/core-contract';
+import { NoteInput } from '@erxes/core-contract';
 import {
   activities,
   companies,
@@ -131,6 +132,7 @@ export const assertTarget = async (
   targetId: string,
 ) => {
   const table = targetType === 'customer' ? customers : companies;
+
   const [row] = await client
     .select({ id: table.id })
     .from(table)
@@ -162,6 +164,7 @@ export const listActivities = async (
     eq(activities.targetType, query.targetType),
     eq(activities.targetId, query.targetId),
   );
+
   // A company's timeline can include what happened with its customers.
   const related =
     query.includeRelated && query.targetType === 'company'
@@ -181,6 +184,7 @@ export const listActivities = async (
           ),
         )
       : undefined;
+
   const kindFilter =
     query.kind === 'notes'
       ? isNote
@@ -327,6 +331,7 @@ export const updateNote = async (
   input: { body?: string; mentions?: string[]; fileIds?: string[]; pinned?: boolean },
 ) => {
   const note = await findNote(client, actor.orgId, id);
+
   const editing =
     input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
 
@@ -334,7 +339,7 @@ export const updateNote = async (
     throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
   }
 
-  const data = note.data as { body: string; mentions: string[]; fileIds: string[] };
+  const data = NoteInput.parse(note.data);
   const mentions = input.mentions === undefined ? data.mentions : unique(input.mentions);
 
   for (const userId of mentions) await assertMember(client, actor.orgId, userId);
@@ -343,6 +348,7 @@ export const updateNote = async (
     input.fileIds === undefined
       ? data.fileIds
       : await checkFiles(client, actor.orgId, input.fileIds);
+
   const body = input.body ?? data.body;
 
   return client.transaction(async (tx) => {
@@ -397,6 +403,7 @@ const notifyTargetOwner = async (
   activity: ActivityRow,
 ) => {
   const table = input.targetType === 'customer' ? customers : companies;
+
   const [target] = await client
     .select({ ownerId: table.ownerId })
     .from(table)
