@@ -140,7 +140,9 @@ subdomain) and the subdomain to create:
 The organization has the shape of a freshly provisioned next organization
 (`status: 'active'`, `isNext: true`, `onboardingDone: true`, `charge`, `saas`,
 `gp*`), keeps the held organization's name, and is stamped with
-`migration: { runId, source: 'appsumo-v1', sourceOrganizationId, … }`. The owner is `APPSUMO_OWNER_ID`, else the held
+`migration: { runId, source: 'appsumo-v1', sourceOrganizationId, appsumoCodes,
+appsumoTier, … }` (the redeemed AppSumo codes and the v1 tier `appsumo1`–`appsumo5`
+they correspond to). The owner is `APPSUMO_OWNER_ID`, else the held
 organization's owner restored from `users_held` (or the active user with the
 same `_id` or email); the new organization is added to that user's
 `organizationIds`. Stripe is not touched (`billing.status: 'none'`,
@@ -164,8 +166,8 @@ prints what would be created.
 `DEFAULT_CHANNEL_NAME`, default `Support`) when the target has none, with the
 target's users as members and its owner as admin. `migrateForms.ts`,
 `migrateTickets.ts` and `migrateResponseTemplates.ts` then assign
-`STATIC_CHANNEL_ID` when it is set, otherwise the target's only team channel;
-with several team channels and no `STATIC_CHANNEL_ID` they stop instead of
+`STATIC_CHANNEL_ID` when it is set, otherwise the target's oldest team channel
+(logged when there are several); with no channel at all they stop instead of
 writing an empty `channelId`. Response templates whose `channelId` is empty
 from an earlier run are assigned again.
 

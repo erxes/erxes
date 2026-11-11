@@ -1,7 +1,12 @@
 import { randomBytes } from 'crypto';
 import { Db } from 'mongodb';
 
-type ChannelDocument = { _id: string; name: string; scope?: string };
+type ChannelDocument = {
+  _id: string;
+  name: string;
+  scope?: string;
+  createdAt?: Date;
+};
 type MemberDocument = {
   _id: string;
   channelId: string;
@@ -24,11 +29,21 @@ export const resolveChannelId = async (db: Db): Promise<string | undefined> => {
 
   const channels = await db
     .collection<ChannelDocument>('channels')
-    .find(TEAM_CHANNELS, { projection: { _id: 1 } })
-    .limit(2)
+    .find(TEAM_CHANNELS, { projection: { _id: 1, name: 1, createdAt: 1 } })
+    .sort({ createdAt: 1, _id: 1 })
     .toArray();
 
-  return channels.length === 1 ? String(channels[0]._id) : undefined;
+  if (channels.length === 0) {
+    return undefined;
+  }
+
+  if (channels.length > 1) {
+    console.log(
+      `${channels.length} team channels; assigning to the oldest, "${channels[0].name}" (${channels[0]._id})`,
+    );
+  }
+
+  return String(channels[0]._id);
 };
 
 export const requireChannelId = async (db: Db): Promise<string> => {
@@ -36,7 +51,7 @@ export const requireChannelId = async (db: Db): Promise<string> => {
 
   if (!channelId) {
     throw new Error(
-      'No channel to assign: set STATIC_CHANNEL_ID, or leave exactly one team channel in the target (migrateChannel.ts creates one when the target has none)',
+      'No channel to assign: set STATIC_CHANNEL_ID or run migrateChannel.ts first (it creates one when the target has none)',
     );
   }
 
