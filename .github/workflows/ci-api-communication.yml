@@ -1,0 +1,81 @@
+name: CI plugin--communication_api
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/plugins/communication_api/**'
+      - 'backend/erxes-api-shared/**'
+      - '.github/workflows/ci-api-communication.yml'
+  pull_request:
+    paths:
+      - 'backend/plugins/communication_api/**'
+      - 'backend/erxes-api-shared/**'
+      - '.github/workflows/ci-api-communication.yml'
+
+env:
+  NX_DAEMON: false
+  NODE_OPTIONS: --max-old-space-size=4096
+
+jobs:
+  communication_api-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set environment variables
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Lint Communication API
+        run: pnpm nx lint communication_api
+
+      - name: Test Communication API
+        run: pnpm nx test communication_api --runInBand
+
+      - name: Build shared module
+        run: pnpm nx build erxes-api-shared
+
+      - name: Build communication_api
+        run: pnpm nx build communication_api
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image (multi-platform)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: backend/plugins/communication_api/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            erxes/erxes-next-communication_api:latest
+            erxes/erxes-next-communication_api:${{ env.DATE }}-${{ env.SHORT_SHA }}
