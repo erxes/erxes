@@ -13,6 +13,8 @@ const {
   APPSUMO_RUN_ID,
   APPSUMO_BUNDLE_ID = '68dd0283563460fd84f7c85b',
   APPSUMO_PRODUCT_ID = '68dd033b563460fd84f7c91a',
+  APPSUMO_FREE_PLUGINS,
+  GP2_STRIPE_SECRET_KEY,
   DRY_RUN,
 } = process.env;
 
@@ -133,6 +135,8 @@ function buildOrganization(
     gpOwnerEmail: owner.email,
     gpStatus: 'new',
     isNext: true,
+    bundleId: APPSUMO_BUNDLE_ID,
+    productId: APPSUMO_PRODUCT_ID,
     onboardingDone: true,
     saas: { organizationId: String(newId), provisionedAt: now },
     migration: {
@@ -146,6 +150,129 @@ function buildOrganization(
       provisionedAt: now,
     },
   };
+}
+
+async function freePlugins(coreDb: Db): Promise<string[]> {
+  if (APPSUMO_FREE_PLUGINS) {
+    return APPSUMO_FREE_PLUGINS.split(',')
+      .map((code) => code.trim())
+      .filter(Boolean);
+  }
+
+  const bundle = await coreDb
+    .collection<CoreDocument>('bundles')
+    .findOne({ _id: { $in: idVariants(APPSUMO_BUNDLE_ID) } });
+
+  if (!bundle) {
+    throw new Error(
+      `Bundle ${APPSUMO_BUNDLE_ID} not found in ${coreDb.databaseName}.bundles; set APPSUMO_FREE_PLUGINS=<plugin,plugin,…> instead`,
+    );
+  }
+
+  const limits: Record<string, number> = bundle.pluginLimits || {};
+  const plugins = new Set<string>();
+
+  for (const [key, limit] of Object.entries(limits)) {
+    const [plugin] = key.split(':');
+
+    if (key.includes(':') && plugin !== 'core' && Number(limit) > 0) {
+      plugins.add(plugin);
+    }
+  }
+
+  return [...plugins];
+}
+
+async function createStripeCustomer(
+  organizationId: string,
+  owner: Owner,
+  plugins: string[],
+): Promise<string> {
+  const body = new URLSearchParams({
+    name: targetSubdomain,
+    email: owner.email,
+    'metadata[subdomain]': targetSubdomain,
+    'metadata[organizationId]': organizationId,
+    'metadata[source]': SOURCE,
+    'metadata[free_plugins]': plugins.join(','),
+  });
+  const response = await fetch('https://api.stripe.com/v1/customers', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${GP2_STRIPE_SECRET_KEY}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Idempotency-Key': `${SOURCE}-${organizationId}`,
+    },
+    body,
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Stripe customers: ${response.status} ${await response.text()}`,
+    );
+  }
+
+  const customer = (await response.json()) as { id: string };
+
+  return customer.id;
+}
+
+async function ensureStripeCustomer(
+  coreDb: Db,
+  organization: CoreDocument,
+  owner: Owner,
+) {
+  const organizationId = idString(organization._id);
+  const plugins = await freePlugins(coreDb);
+
+  if (organization.gpStripeCustomerId) {
+    console.log(
+      `Stripe customer ${
+        organization.gpStripeCustomerId
+      } already set; plugins stay as Stripe grants them (bundle would give: ${plugins.join(
+        ', ',
+      )})`,
+    );
+    return;
+  }
+
+  if (!GP2_STRIPE_SECRET_KEY) {
+    console.warn(
+      `GP2_STRIPE_SECRET_KEY is not set: no Stripe customer, so the organization gets no plugins (bundle would give: ${plugins.join(
+        ', ',
+      )})`,
+    );
+    return;
+  }
+
+  if (isDryRun) {
+    console.log(
+      `Stripe customer would be created with free_plugins: ${plugins.join(
+        ', ',
+      )}`,
+    );
+    return;
+  }
+
+  const customerId = await createStripeCustomer(organizationId, owner, plugins);
+
+  await coreDb.collection<CoreDocument>('organizations').updateOne(
+    { _id: organization._id },
+    {
+      $set: {
+        gpStripeCustomerId: customerId,
+        'billing.customerId': customerId,
+        updatedAt: new Date(),
+      },
+    },
+  );
+
+  console.log(
+    `Stripe customer ${customerId} created with free_plugins: ${plugins.join(
+      ', ',
+    )}`,
+  );
 }
 
 async function ensurePlanHistory(coreDb: Db, organizationId: string) {
@@ -237,6 +364,19 @@ async function main() {
           )} (run ${migration.runId})`,
         );
         await ensurePlanHistory(coreDb, idString(existing._id));
+
+        const existingOwner = await coreDb
+          .collection<CoreDocument>('users')
+          .findOne({ _id: { $in: idVariants(idString(existing.ownerId)) } });
+
+        await ensureStripeCustomer(coreDb, existing, {
+          id: idString(existing.ownerId),
+          email: String(
+            (existingOwner && existingOwner.email) ||
+              existing.gpOwnerEmail ||
+              '',
+          ),
+        });
         return;
       }
 
@@ -268,6 +408,7 @@ async function main() {
     }
 
     await ensurePlanHistory(coreDb, String(newId));
+    await ensureStripeCustomer(coreDb, doc, owner);
 
     console.log(`Source: ${sourceRef} → erxes_${sourceId}`);
     console.log(

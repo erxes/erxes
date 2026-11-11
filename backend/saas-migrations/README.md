@@ -147,7 +147,12 @@ same `_id` or email); the new organization is added to that user's
 `gpStatus: 'new'`). An active `organization_plan_histories` record is added
 for `APPSUMO_BUNDLE_ID` / `APPSUMO_PRODUCT_ID` (defaults: the free bundle
 `68dd0283563460fd84f7c85b` / `68dd033b563460fd84f7c91a`, monthly, one month
-from now) unless the organization already has one. A target subdomain that already carries the same
+from now) unless the organization already has one. Plugins of a `gpStatus:
+'new'` organization come from Stripe, so when `GP2_STRIPE_SECRET_KEY` is set a
+Stripe customer is created with `free_plugins` = the plugins the bundle's
+`pluginLimits` allow (`APPSUMO_FREE_PLUGINS=<plugin,…>` overrides) and stored in
+`gpStripeCustomerId` / `billing.customerId`; without the key the organization is
+created but gets no plugins, and the run says so. A target subdomain that already carries the same
 `migration.sourceOrganizationId` is reused; one that belongs to another
 organization stops the run before any data is copied. `DRY_RUN=true` only
 prints what would be created.
