@@ -16,6 +16,7 @@ import {
   readImage,
   Select,
   Switch,
+  Tooltip,
 } from 'erxes-ui';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { TFunction } from 'i18next';
@@ -193,6 +194,24 @@ type TArticleMediaFieldsProps = TArticleFieldsProps & {
   invalidateUpdates: (field: string) => void;
 };
 
+type TArticleSection = 'detail' | 'media';
+
+const TruncatedRequiredLabel = ({ label }: { label: string }) => (
+  <Tooltip.Provider delayDuration={100}>
+    <Tooltip>
+      <Tooltip.Trigger asChild>
+        <span className="flex w-full min-w-0 items-center" title={label}>
+          <span className="min-w-0 max-w-[4.75rem] flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+            {label}
+          </span>
+          <span className="ml-0.5 shrink-0 text-destructive">*</span>
+        </span>
+      </Tooltip.Trigger>
+      <Tooltip.Content>{label}</Tooltip.Content>
+    </Tooltip>
+  </Tooltip.Provider>
+);
+
 const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
   const selectedTopicId = form.watch('topicId');
 
@@ -213,8 +232,11 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
             name="topicId"
             render={({ field }) => (
               <KbFormItem
-                required
-                label={t('knowledge-base', 'Knowledge Base')}
+                label={
+                  <TruncatedRequiredLabel
+                    label={t('knowledge-base', 'Knowledge Base')}
+                  />
+                }
               >
                 <Form.Control>
                   <SelectKbTopic
@@ -250,36 +272,43 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
           />
         </div>
 
-        <KbTextField
-          control={form.control}
-          name="summary"
-          label={t('kb-summary', 'Summary')}
-          placeholder={t('kb-enter-article-summary', 'Enter article summary')}
-          multiline
-        />
-
-        <Form.Field
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <KbFormItem wide required label={t('content-label', 'Content')}>
-              <Form.Control>
-                <Editor
-                  initialContent={field.value}
-                  onChange={field.onChange}
-                  scope="KnowledgeBaseArticleContent"
-                  isHTML
-                  className="h-auto min-h-40"
-                />
-              </Form.Control>
-              <Form.Message />
-            </KbFormItem>
-          )}
-        />
       </KbFormSection.Content>
     </KbFormSection>
   );
 };
+
+const ArticleBodyFields = ({ form, t }: TArticleFieldsProps) => (
+  <KbFormSection title={t('content-label', 'Content')}>
+    <KbFormSection.Content>
+      <KbTextField
+        control={form.control}
+        name="summary"
+        label={t('kb-summary', 'Summary')}
+        placeholder={t('kb-enter-article-summary', 'Enter article summary')}
+        multiline
+      />
+
+      <Form.Field
+        control={form.control}
+        name="content"
+        render={({ field }) => (
+          <KbFormItem wide required label={t('content-label', 'Content')}>
+            <Form.Control>
+              <Editor
+                initialContent={field.value}
+                onChange={field.onChange}
+                scope="KnowledgeBaseArticleContent"
+                isHTML
+                className="h-auto min-h-40"
+              />
+            </Form.Control>
+            <Form.Message />
+          </KbFormItem>
+        )}
+      />
+    </KbFormSection.Content>
+  </KbFormSection>
+);
 
 const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
   const status = form.watch('status');
@@ -352,7 +381,14 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
           control={form.control}
           name="reactionChoices"
           render={({ field }) => (
-            <KbFormItem label={t('kb-reaction-choices', 'Reaction Choices')}>
+            <KbFormItem
+              label={t('kb-reaction-choices', 'Reaction Choices')}
+              className={
+                field.value?.length
+                  ? '[&>div>div:nth-child(2)>svg]:!hidden'
+                  : undefined
+              }
+            >
               <Form.Control>
                 <MultipleSelector
                   options={REACTIONS}
@@ -364,6 +400,11 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
                   }))}
                   onChange={(value) =>
                     field.onChange(value.map((item) => item.value))
+                  }
+                  inputProps={
+                    field.value?.length
+                      ? { className: 'w-20 min-w-16' }
+                      : undefined
                   }
                 />
               </Form.Control>
@@ -498,27 +539,30 @@ const ArticleFormFields = ({
   captureUpdate,
   invalidateUpdates,
   disabled,
-}: TArticleMediaFieldsProps) => (
-  <div className="flex flex-col gap-3">
-    <ArticleContentFields form={form} t={t} />
-    <div className="grid gap-4">
+  section,
+}: TArticleMediaFieldsProps & { section: TArticleSection }) =>
+  section === 'media' ? (
+    <ArticleMediaFields
+      form={form}
+      t={t}
+      captureUpdate={captureUpdate}
+      invalidateUpdates={invalidateUpdates}
+      disabled={disabled}
+    />
+  ) : (
+    <div className="flex flex-col gap-3">
+      <ArticleContentFields form={form} t={t} />
       <ArticlePublishingFields form={form} t={t} />
-      <ArticleMediaFields
-        form={form}
-        t={t}
-        captureUpdate={captureUpdate}
-        invalidateUpdates={invalidateUpdates}
-        disabled={disabled}
-      />
+      <ArticleBodyFields form={form} t={t} />
     </div>
-  </div>
-);
+  );
 
 export const ArticleDrawer = ({
   articleId,
   article: loadedArticle,
   topicId,
   categoryId,
+  section = 'detail',
   onClose,
   onSaved,
 }: {
@@ -526,6 +570,7 @@ export const ArticleDrawer = ({
   article?: IArticleDetail;
   topicId: string;
   categoryId: string;
+  section?: TArticleSection;
   onClose: () => void;
   onSaved?: () => void;
 }) => {
@@ -635,6 +680,7 @@ export const ArticleDrawer = ({
           captureUpdate={captureUpdate}
           invalidateUpdates={invalidateUpdates}
           disabled={loading || saving}
+          section={section}
         />
       </Form>
     </KbFormSheet>

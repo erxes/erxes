@@ -280,6 +280,7 @@ const ArticlePanel = (props: IRecordPanelProps) => {
           article={article}
           topicId={topicId}
           categoryId={article.categoryId || ''}
+          section={props.view === 'tab' && props.tab === 'media' ? 'media' : 'detail'}
           onClose={close}
         />
       )}

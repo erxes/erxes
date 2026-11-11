@@ -102,6 +102,11 @@
   panels with explicit Save, scoped in-memory drafts, independent placement
   history and a supported Activity empty state. Save waits for media uploads;
   failed uploads release the pending operation and keep existing media intact.
+  The article record panel adds a Media tab beside Detail and Activity for
+  image, attachment, and PDF uploads. Long article form labels use
+  single-line truncation in the compact panel layout. Detail places the
+  Summary and Content editors after publishing controls. Articles can also be
+  opened in a full-screen detail route from the record panel.
 - Help Center creation/editing uses the shared record panel, retaining General,
   Appearance, Embed and Domain behavior with scoped in-memory drafts, confirmed
   create continuation and full-config conflict confirmation.

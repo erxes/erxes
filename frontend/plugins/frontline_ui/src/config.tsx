@@ -6,6 +6,7 @@ import {
   IconLifebuoy,
   IconMail,
   IconPhone,
+  IconPhoto,
   IconSettings,
   IconStackFront,
   IconTicket,
@@ -15,6 +16,7 @@ import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 import { FRONTLINE_DASHBOARD_WIDGETS } from '~/widgets/dashboard/frontlineDashboardWidgets';
 import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
+import { getArticleDetailPath } from '@/knowledgebase/articles/utils/getArticleDetailPath';
 
 const TicketStatusPropertyInput = lazy(() =>
   import('@/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
@@ -43,7 +45,12 @@ export const CONFIG: IUIConfig = {
   widgets: {
     recordPanels: [
       { contentType: 'frontline:ticket' },
-      { contentType: 'frontline:knowledgebase.article', properties: false },
+      {
+        contentType: 'frontline:knowledgebase.article',
+        properties: false,
+        detailPath: getArticleDetailPath,
+        tabs: [{ value: 'media', label: 'Media', icon: IconPhoto, after: 'detail' }],
+      },
       { contentType: 'frontline:knowledgebase.topic', properties: false },
       { contentType: 'frontline:knowledgebase.category', properties: false },
       { contentType: 'frontline:article', properties: false },
