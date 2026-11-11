@@ -29,18 +29,18 @@ export const SlashMenu = ({
   onItemClick,
 }: SuggestionMenuProps<DefaultReactSuggestionItem>) => {
   return (
-    <SuggestionMenu className="max-h-80 [&>div]:max-h-72">
+    <SuggestionMenu className="max-h-72 [&>div]:max-h-[17rem]">
       {items.map((item, index) => (
         <SuggestionMenuItem
           isSelected={selectedIndex === index}
           key={item.title}
           onClick={() => onItemClick?.(item)}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-2 [&>svg]:size-4 [&>svg]:shrink-0">
             {icons[item.title as keyof typeof icons] ?? item.icon}
             {item.title}
           </span>
-          <p className="text-xs font-normal text-muted-foreground">
+          <p className="text-[11px] font-normal text-muted-foreground">
             {item.badge?.replace(/-/g, ' ')}
           </p>
         </SuggestionMenuItem>

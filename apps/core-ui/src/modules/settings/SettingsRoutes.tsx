@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
-import { OrganizationPage } from './organization/OrganizationPage';
-import { PropertiesPage } from './properties/PropertiesPage';
+import { PropertiesSettingsRoutes } from './properties/PropertiesSettingsRoutes';
 import { SettingsLayout } from './SettingsLayout';
 import { TagsSettingsPage } from './tags/TagsSettingsPage';
 import { TeamMemberSettingsRoutes } from './team-members/TeamMemberSettingsRoutes';
@@ -13,8 +12,7 @@ export const SettingsRoutes = () => (
       <Route index element={<Navigate to="team-members" replace />} />
       <Route path="team-members/*" element={<TeamMemberSettingsRoutes />} />
       <Route path="tags" element={<TagsSettingsPage />} />
-      <Route path="properties" element={<PropertiesPage />} />
-      <Route path="organization" element={<OrganizationPage />} />
+      <Route path="properties/*" element={<PropertiesSettingsRoutes />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

@@ -3,7 +3,8 @@ import type { CursorQuery, UserLinkName } from '@erxes/core-contract';
 import { and, count, eq, ilike, inArray, ne, or, SQL, sql } from 'drizzle-orm';
 import { type Actor, type Role, requireManager } from '~/http/auth';
 import { forbidden, HttpError, notFound, pgCode } from '~/http/errors';
-import { containsPattern, keysetPage } from '~/lib/keyset';
+import { keysetPage } from '~/lib/keyset';
+import { matchEveryWord } from '~/lib/search';
 import { hashPassword } from '~/modules/auth/password';
 
 type UserRow = typeof users.$inferSelect;
@@ -206,14 +207,15 @@ export const listUsers = async (
   }
 
   if (query.search) {
-    const pattern = containsPattern(query.search);
     filters.push(
-      or(
-        ilike(users.email, pattern),
-        ilike(users.fullName, pattern),
-        ilike(users.username, pattern),
-        ilike(users.shortName, pattern),
-        ilike(users.employeeId, pattern),
+      matchEveryWord(query.search, (pattern) =>
+        or(
+          ilike(users.email, pattern),
+          ilike(users.fullName, pattern),
+          ilike(users.username, pattern),
+          ilike(users.shortName, pattern),
+          ilike(users.employeeId, pattern),
+        ),
       ),
     );
   }

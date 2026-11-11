@@ -24,7 +24,9 @@ export interface CursorParams {
 /**
  * A keyset-paged core list for `RecordTable.CursorProvider`: loads forward and
  * backward as the table scrolls, and reopens at the row the user last saw
- * (RecordTable remembers it per `sessionKey`; filters reset it).
+ * (RecordTable remembers it per `sessionKey`). The remembered row belongs to
+ * one set of filters: when the filters differ, the list starts from the top,
+ * whichever filter changed them (search, tags, owner, …).
  */
 export const useCursorList = <T extends { id: string }>({
   queryKey,
@@ -37,11 +39,27 @@ export const useCursorList = <T extends { id: string }>({
   limit?: number;
   fetchPage: (params: CursorParams) => Promise<CursorPage<T>>;
 }) => {
-  const { cursor } = useRecordTableCursor({ sessionKey });
+  const { cursor, setCursor } = useRecordTableCursor({ sessionKey });
   // The remembered cursor is restored in an effect; wait one render for it.
   const [ready, setReady] = useState(false);
+  const filters = JSON.stringify(queryKey);
 
-  useEffect(() => setReady(true), []);
+  // Runs after useRecordTableCursor restored the remembered row: forget it if
+  // it was remembered under other filters, then record the current ones.
+  useEffect(() => {
+    const filtersKey = `${sessionKey}_filters`;
+    const remembered = sessionStorage.getItem(filtersKey);
+
+    // Unknown filters (nothing recorded, e.g. remembered by an older build) count as different.
+    if (remembered !== filters) {
+      sessionStorage.removeItem(sessionKey);
+      sessionStorage.removeItem(`${sessionKey}_scroll`);
+      setCursor('');
+    }
+
+    sessionStorage.setItem(filtersKey, filters);
+    setReady(true);
+  }, [sessionKey, filters, setCursor]);
 
   const query = useInfiniteQuery({
     queryKey: [...queryKey, { limit, start: cursor || null }],

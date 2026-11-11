@@ -11,6 +11,8 @@ export {
   customers,
   customerTags,
   FIELD_TYPES,
+  FIELD_VALIDATIONS,
+  fieldGroups,
   fields,
   organizations,
   tags,

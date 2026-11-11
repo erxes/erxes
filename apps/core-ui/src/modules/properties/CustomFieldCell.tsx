@@ -1,15 +1,5 @@
 import type { CustomValue, Field } from '@erxes/core-contract';
-import {
-  IconAlignLeft,
-  IconCalendar,
-  IconCheck,
-  IconHash,
-  IconLetterCase,
-  IconList,
-  IconListCheck,
-  IconToggleLeft,
-  type Icon,
-} from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import {
   Badge,
   Checkbox,
@@ -21,25 +11,7 @@ import {
 import { useState } from 'react';
 import { DateInlineCell } from '~/components/inlineCells';
 
-export const FIELD_TYPE_ICONS: Record<Field['type'], Icon> = {
-  text: IconLetterCase,
-  textarea: IconAlignLeft,
-  number: IconHash,
-  date: IconCalendar,
-  boolean: IconToggleLeft,
-  select: IconList,
-  multiselect: IconListCheck,
-};
-
-export const FIELD_TYPE_LABELS: Record<Field['type'], string> = {
-  text: 'Text',
-  textarea: 'Long text',
-  number: 'Number',
-  date: 'Date',
-  boolean: 'Yes / no',
-  select: 'Select',
-  multiselect: 'Multi-select',
-};
+export { FIELD_TYPE_ICONS, FIELD_TYPE_LABELS } from './fieldTypes';
 
 const OptionsCell = ({
   field,
@@ -52,7 +24,7 @@ const OptionsCell = ({
   scope: string;
   onSave: (value: CustomValue | null) => void;
 }) => {
-  const multiple = field.type === 'multiselect';
+  const multiple = field.type === 'multiselect' || field.type === 'check';
   const [open, setOpen] = useState(false);
 
   return (
@@ -133,6 +105,8 @@ export const CustomFieldCell = ({
       );
     case 'select':
     case 'multiselect':
+    case 'radio':
+    case 'check':
       return (
         <OptionsCell
           field={field}
@@ -152,6 +126,22 @@ export const CustomFieldCell = ({
 
             if (!text.trim()) onSave(null);
             else if (Number.isFinite(number)) onSave(number);
+          }}
+        />
+      );
+    case 'list':
+      return (
+        <TextField
+          scope={scope}
+          value={Array.isArray(value) ? value.join(', ') : ''}
+          placeholder=""
+          onSave={(text) => {
+            const items = text
+              .split(',')
+              .map((item) => item.trim())
+              .filter(Boolean);
+
+            onSave(items.length ? items : null);
           }}
         />
       );

@@ -1,0 +1,123 @@
+import type { ContentType } from '@erxes/core-contract';
+import { IconRestore, IconTrash } from '@tabler/icons-react';
+import { Badge, Button, Collapsible } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { archiveTargetState } from '../states';
+import { useAllFields, useFieldGroups } from '../useFields';
+import { useCanManageFields, usePropertyRestore } from '../usePropertyMutations';
+
+const useArchivedProperties = (contentType: ContentType) => {
+  const { groups } = useFieldGroups(contentType, { archived: true });
+  const { fields } = useAllFields(contentType, { archived: true });
+  const archivedGroupIds = new Set(groups.map((group) => group.id));
+
+  return {
+    groups: groups.map((group) => ({
+      ...group,
+      fieldCount: fields.filter((field) => field.groupId === group.id).length,
+    })),
+    // Fields inside an archived group come back with it, so they list there.
+    fields: fields.filter((field) => !archivedGroupIds.has(field.groupId ?? '')),
+  };
+};
+
+const ArchivedRow = ({
+  name,
+  detail,
+  archivedAt,
+  disabled,
+  onRestore,
+  onDelete,
+}: {
+  name: string;
+  detail?: string;
+  archivedAt: string;
+  disabled: boolean;
+  onRestore: () => void;
+  onDelete: () => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const manager = useCanManageFields();
+
+  return (
+    <div className="flex items-center gap-3 px-3 py-2 text-sm">
+      <span className="font-medium">{name}</span>
+      {detail && <span className="text-muted-foreground">{detail}</span>}
+      <span className="ml-auto text-muted-foreground">
+        {t('archived-on', 'Archived {{date}}', { date: archivedAt })}
+      </span>
+      {manager && (
+        <>
+          <Button variant="ghost" size="sm" disabled={disabled} onClick={onRestore}>
+            <IconRestore />
+            {t('restore', 'Restore')}
+          </Button>
+          <Button variant="ghost" size="sm" className="text-destructive" disabled={disabled} onClick={onDelete}>
+            <IconTrash />
+            {t('delete', 'Delete')}
+          </Button>
+        </>
+      )}
+    </div>
+  );
+};
+
+/** Archived groups and fields, restorable (old "Archived" section). */
+export const PropertiesArchivedSection = ({ contentType }: { contentType: ContentType }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { groups, fields } = useArchivedProperties(contentType);
+  const { restoreField, restoreGroup, loading } = usePropertyRestore();
+  const setTarget = useSetAtom(archiveTargetState);
+  const total = groups.length + fields.length;
+
+  if (!total) {
+    return null;
+  }
+
+  const date = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '');
+
+  return (
+    <Collapsible className="group">
+      <div className="flex items-center gap-1">
+        <span className="size-7 shrink-0" />
+        <Collapsible.Trigger asChild>
+          <Button variant="secondary" className="w-full justify-start font-medium text-muted-foreground">
+            <Collapsible.TriggerIcon />
+            {t('archived', 'Archived')}
+            <Badge variant="secondary" className="ml-1">
+              {total}
+            </Badge>
+          </Button>
+        </Collapsible.Trigger>
+      </div>
+      <Collapsible.Content className="pt-2">
+        <div className="flex flex-col divide-y rounded-md border">
+          {groups.map((group) => (
+            <ArchivedRow
+              key={group.id}
+              name={group.name}
+              detail={t('archived-group-detail', 'Group · {{count}} fields', { count: group.fieldCount })}
+              archivedAt={date(group.archivedAt)}
+              disabled={loading}
+              onRestore={() => restoreGroup(group.id)}
+              onDelete={() => setTarget({ kind: 'group', id: group.id, label: `"${group.name}"`, archived: true })}
+            />
+          ))}
+          {fields.map((field) => (
+            <ArchivedRow
+              key={field.id}
+              name={field.label}
+              archivedAt={date(field.archivedAt)}
+              disabled={loading}
+              onRestore={() => restoreField(field.id)}
+              onDelete={() =>
+                setTarget({ kind: 'fields', ids: [field.id], label: `"${field.label}"`, archived: true })
+              }
+            />
+          ))}
+        </div>
+      </Collapsible.Content>
+    </Collapsible>
+  );
+};

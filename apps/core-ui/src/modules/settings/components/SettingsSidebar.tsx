@@ -1,5 +1,4 @@
 import {
-  IconBuilding,
   IconChevronLeft,
   IconHierarchy2,
   IconTag,
@@ -25,7 +24,6 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('team-member'), path: 'team-members', icon: IconUsersGroup },
     { name: t('tags'), path: 'tags', icon: IconTag },
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
-    { name: 'Organization', path: 'organization', icon: IconBuilding },
   ];
 };
 

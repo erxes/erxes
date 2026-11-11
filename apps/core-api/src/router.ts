@@ -27,7 +27,24 @@ import {
   unlinkCustomerCompany,
   updateCustomer,
 } from '~/modules/customers/customers.service';
-import { createField, listFields, removeField, updateField } from '~/modules/fields/fields.service';
+import {
+  archiveFieldGroup,
+  archiveFields,
+  createField,
+  createFieldGroup,
+  fieldUsage,
+  listFieldGroups,
+  listFields,
+  removeField,
+  removeFieldGroup,
+  removeUnusedFields,
+  reorderFieldGroups,
+  reorderFields,
+  restoreField,
+  restoreFieldGroup,
+  updateField,
+  updateFieldGroup,
+} from '~/modules/fields/fields.service';
 import { getOrganization, toOrganizationDto } from '~/modules/organizations/organizations.service';
 import { runSetup, setupRequired } from '~/modules/setup/setup.service';
 import { createTag, listTags, removeTag, updateTag } from '~/modules/tags/tags.service';
@@ -150,11 +167,31 @@ export const coreRouter = pub.router({
     remove: authed.tags.remove.handler(({ input, context }) => removeTag(db(), context.actor, input.id)),
   },
   fields: {
-    list: authed.fields.list.handler(({ input, context }) => listFields(db(), context.actor, input.contentType)),
+    list: authed.fields.list.handler(({ input, context }) => listFields(db(), context.actor, input)),
+    usage: authed.fields.usage.handler(({ input, context }) => fieldUsage(db(), context.actor, input)),
     create: authed.fields.create.handler(({ input, context }) => createField(db(), context.actor, input)),
     update: authed.fields.update.handler(({ input: { id, ...changes }, context }) =>
       updateField(db(), context.actor, id, changes),
     ),
+    reorder: authed.fields.reorder.handler(({ input, context }) => reorderFields(db(), context.actor, input.orders)),
+    archive: authed.fields.archive.handler(({ input, context }) => archiveFields(db(), context.actor, input.ids)),
+    restore: authed.fields.restore.handler(({ input, context }) => restoreField(db(), context.actor, input.id)),
+    removeUnused: authed.fields.removeUnused.handler(({ input, context }) =>
+      removeUnusedFields(db(), context.actor, input.ids),
+    ),
     remove: authed.fields.remove.handler(({ input, context }) => removeField(db(), context.actor, input.id)),
+  },
+  fieldGroups: {
+    list: authed.fieldGroups.list.handler(({ input, context }) => listFieldGroups(db(), context.actor, input)),
+    create: authed.fieldGroups.create.handler(({ input, context }) => createFieldGroup(db(), context.actor, input)),
+    update: authed.fieldGroups.update.handler(({ input: { id, ...changes }, context }) =>
+      updateFieldGroup(db(), context.actor, id, changes),
+    ),
+    reorder: authed.fieldGroups.reorder.handler(({ input, context }) =>
+      reorderFieldGroups(db(), context.actor, input.orders),
+    ),
+    archive: authed.fieldGroups.archive.handler(({ input, context }) => archiveFieldGroup(db(), context.actor, input.id)),
+    restore: authed.fieldGroups.restore.handler(({ input, context }) => restoreFieldGroup(db(), context.actor, input.id)),
+    remove: authed.fieldGroups.remove.handler(({ input, context }) => removeFieldGroup(db(), context.actor, input.id)),
   },
 });

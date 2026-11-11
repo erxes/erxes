@@ -4,7 +4,8 @@ import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, 
 import { type Actor, requireManager } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { normalizeEmail, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
-import { containsPattern, keysetPage } from '~/lib/keyset';
+import { keysetPage } from '~/lib/keyset';
+import { matchEveryWord } from '~/lib/search';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { applyCustomFields } from '~/modules/fields/fields.service';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
@@ -155,13 +156,14 @@ export const listCustomers = async (
   }
 
   if (query.search) {
-    const pattern = containsPattern(query.search);
     filters.push(
-      or(
-        sql`concat_ws(' ', ${customers.firstName}, ${customers.middleName}, ${customers.lastName}) ILIKE ${pattern}`,
-        ilike(customers.primaryEmail, pattern),
-        ilike(customers.primaryPhone, containsPattern(normalizePhone(query.search))),
-        ilike(customers.code, pattern),
+      matchEveryWord(query.search, (pattern, phonePattern) =>
+        or(
+          sql`concat_ws(' ', ${customers.firstName}, ${customers.middleName}, ${customers.lastName}) ILIKE ${pattern}`,
+          sql`array_to_string(${customers.emails}, ' ') ILIKE ${pattern}`,
+          sql`array_to_string(${customers.phones}, ' ') ILIKE ${phonePattern}`,
+          ilike(customers.code, pattern),
+        ),
       ),
     );
   }

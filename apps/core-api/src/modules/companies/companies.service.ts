@@ -4,7 +4,8 @@ import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, 
 import { type Actor, requireManager } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { normalizeEmail, normalizeName, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
-import { containsPattern, keysetPage } from '~/lib/keyset';
+import { keysetPage } from '~/lib/keyset';
+import { matchEveryWord } from '~/lib/search';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { applyCustomFields } from '~/modules/fields/fields.service';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
@@ -131,15 +132,17 @@ export const listCompanies = async (
   }
 
   if (query.search) {
-    const pattern = containsPattern(query.search);
     filters.push(
-      or(
-        sql`array_to_string(${companies.names}, ' ') ILIKE ${pattern}`,
-        ilike(companies.primaryName, pattern),
-        ilike(companies.primaryEmail, pattern),
-        ilike(companies.primaryPhone, containsPattern(normalizePhone(query.search))),
-        ilike(companies.website, pattern),
-        ilike(companies.code, pattern),
+      matchEveryWord(query.search, (pattern, phonePattern) =>
+        or(
+          sql`array_to_string(${companies.names}, ' ') ILIKE ${pattern}`,
+          ilike(companies.primaryName, pattern),
+          sql`array_to_string(${companies.emails}, ' ') ILIKE ${pattern}`,
+          sql`array_to_string(${companies.phones}, ' ') ILIKE ${phonePattern}`,
+          ilike(companies.website, pattern),
+          ilike(companies.industry, pattern),
+          ilike(companies.code, pattern),
+        ),
       ),
     );
   }

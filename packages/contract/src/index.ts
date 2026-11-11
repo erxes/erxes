@@ -1,7 +1,7 @@
 import { authContract } from './auth';
 import { companiesContract } from './companies';
 import { customersContract } from './customers';
-import { fieldsContract } from './fields';
+import { fieldGroupsContract, fieldsContract } from './fields';
 import { organizationsContract } from './organizations';
 import { tagsContract } from './tags';
 import { usersContract } from './users';
@@ -16,6 +16,7 @@ export const coreContract = {
   auth: authContract,
   companies: companiesContract,
   customers: customersContract,
+  fieldGroups: fieldGroupsContract,
   fields: fieldsContract,
   organizations: organizationsContract,
   tags: tagsContract,
