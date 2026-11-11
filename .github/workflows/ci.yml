@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [postgre, main]
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  # A new push to a pull request supersedes its running checks; branch runs always finish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # CI never commits, so `pnpm install` skips installing the git hooks.
+  VP_GIT_HOOKS: '0'
+
+jobs:
+  static:
+    name: Static checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Format, lint, types and knip
+        run: pnpm check
+      - name: Migrations and openapi.json match the schema and contract
+        run: pnpm check:generated
+      - name: Lint plugin tests
+        run: pnpm exec vp test run --project lint
+
+  integration:
+    name: Tests on Postgres and builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: erxes_ci
+          POSTGRES_USER: erxes
+          POSTGRES_PASSWORD: ci-only-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U erxes -d erxes_ci"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Tests (each API test file creates and drops its own database)
+        run: pnpm test
+        env:
+          DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
+      - name: Build the API and the UI
+        run: pnpm build
+
+  check:
+    # Require this job in branch protection. It fails when any job above
+    # failed, was cancelled or was skipped.
+    name: Check
+    needs: [static, integration]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every job passed
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$RESULTS" | jq -e 'all(.[]; .result == "success")' > /dev/null
