@@ -5,6 +5,20 @@ import type { Request, Response } from 'express';
 import { config } from '~/config';
 import { enforceAccess } from '~/http/access';
 import {
+  activateAutomation,
+  automationCatalog,
+  cancelAutomationRun,
+  createAutomation,
+  getAutomation,
+  getRun,
+  listAutomations,
+  listRuns,
+  pauseAutomation,
+  removeAutomation,
+  retryAutomationRun,
+  updateAutomation,
+} from '~/modules/automations/automations.service';
+import {
   createWebhook,
   eventTypeCatalog,
   listDeliveries,
@@ -327,6 +341,22 @@ export const coreRouter = pub.router({
       return result;
     }),
     signIns: authed.auth.signIns.handler(({ context }) => mySignIns(context.actor)),
+  },
+  automations: {
+    catalog: authed.automations.catalog.handler(({ context }) => automationCatalog(db(), context.actor.orgId)),
+    list: authed.automations.list.handler(({ input, context }) => listAutomations(db(), context.actor, input)),
+    get: authed.automations.get.handler(({ input, context }) => getAutomation(db(), context.actor, input.id)),
+    create: authed.automations.create.handler(({ input, context }) => createAutomation(db(), context.actor, input)),
+    update: authed.automations.update.handler(({ input: { id, ...changes }, context }) =>
+      updateAutomation(db(), context.actor, id, changes),
+    ),
+    activate: authed.automations.activate.handler(({ input, context }) => activateAutomation(db(), context.actor, input.id)),
+    pause: authed.automations.pause.handler(({ input, context }) => pauseAutomation(db(), context.actor, input.id)),
+    remove: authed.automations.remove.handler(({ input, context }) => removeAutomation(db(), context.actor, input.id)),
+    runs: authed.automations.runs.handler(({ input, context }) => listRuns(db(), context.actor, input)),
+    run: authed.automations.run.handler(({ input, context }) => getRun(db(), context.actor, input.runId)),
+    retryRun: authed.automations.retryRun.handler(({ input, context }) => retryAutomationRun(db(), context.actor, input.runId)),
+    cancelRun: authed.automations.cancelRun.handler(({ input, context }) => cancelAutomationRun(db(), context.actor, input.runId)),
   },
   webhooks: {
     eventTypes: authed.webhooks.eventTypes.handler(async ({ context }) => ({ data: await eventTypeCatalog(db(), context.actor.orgId) })),

@@ -1,6 +1,7 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { Id } from './common';
+import { ActionField } from './automations';
 import { EventType } from './platform';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
@@ -70,6 +71,23 @@ export const PluginManifest = z.object({
     .optional(),
   notificationKinds: z
     .array(z.object({ kind: EventType, label: z.string().trim().min(1).max(100), description: z.string().trim().max(300).optional() }))
+    .max(200)
+    .optional(),
+  /**
+   * Actions automations can run (`hr.leave.create`): core POSTs
+   * `{ input, context }` to `<api.url>/automations/actions/<type>` with a
+   * core token and an `Idempotency-Key`; the JSON answer is the step's output.
+   */
+  actions: z
+    .array(
+      z.object({
+        type: EventType,
+        label: z.string().trim().min(1).max(100),
+        description: z.string().trim().max(300).optional(),
+        subject: z.enum(['customer', 'company', 'any']).optional(),
+        fields: z.array(ActionField).max(50).default([]),
+      }),
+    )
     .max(200)
     .optional(),
   /** Events it publishes: triggers for automations. */

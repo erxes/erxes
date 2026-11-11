@@ -24,6 +24,13 @@ export interface StoredPluginManifest {
   permissions?: { action: string; label: string; description?: string; group?: string }[];
   notificationKinds?: { kind: string; label: string; description?: string }[];
   events?: { type: string; label: string; description?: string }[];
+  actions?: {
+    type: string;
+    label: string;
+    description?: string;
+    subject?: 'customer' | 'company' | 'any';
+    fields: { key: string; label: string; type: string; required: boolean; options?: { value: string; label: string }[]; description?: string }[];
+  }[];
 }
 
 /**

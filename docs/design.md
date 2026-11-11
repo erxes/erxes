@@ -32,6 +32,7 @@
 | 27 | Tenant isolation in the database: forced row level security on every organisation table; code runs in `withOrg` / `withSystem` scopes (transaction-local settings, safe with poolers) and fails closed outside them; a runtime role without BYPASSRLS, migrations by the owner role with their own command. | Agreed |
 | 28 | Permissions: actions (core's catalog plus plugin manifests) grouped into per-organisation roles — Owner, Admin (`*`), Member and custom ones; one role per member, no per-user grants; nobody grants beyond their own permissions; the access map names the permission of every procedure. (Not old erxes's permission groups: old groups become custom roles when organisations are imported.) | Agreed |
 | 29 | One job queue in Postgres (`core_jobs`): enqueued in the business transaction, leased with SKIP LOCKED, retried with backoff, dead-lettered; webhooks and automations run on it (no Redis, no separate worker service). Outgoing webhooks are signed like Stripe's and protected against SSRF. | Agreed |
+| 30 | Automation engine on the event stream and the job queue: versioned definitions (trigger + conditions, steps with actions/delays/branches), one atomic job per step, retries then a failed run that can be resumed, run and step logs; actions as the activating member; loop protection by causation; plugin actions over HTTP with core tokens and idempotency keys. No segments gate. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices
@@ -49,4 +50,4 @@
 7. Activity timeline (notes, filters, rollup), audit log (plugins, hash chain,
    export) and the event stream — **done**; next: webhooks from the stream,
    plugin keys → registry OAuth clients, then the automation engine on events.
-8. Plugin registry — **done** (manifests, installations, scopes, tokens, SDK); then the automation engine.
+8. Plugin registry — **done** (manifests, installations, scopes, tokens, SDK); automation engine — **done** (engine, API; UI next).

@@ -5,6 +5,7 @@ import { type Actor, type Caller, type PluginCaller, requirePermission, userCall
 import { recordAudit } from '~/modules/audit/audit.service';
 import { HttpError } from '~/http/errors';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
+import { currentRunCause } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
 import { assertTarget } from '~/modules/activities/activities.service';
 
@@ -43,6 +44,8 @@ export const publishCoreEvents = async (client: Db, caller: Caller, inputs: Core
     return;
   }
 
+  const cause = currentRunCause();
+
   await client.insert(events).values(
     list.map((input) => ({
       id: newId(),
@@ -56,6 +59,9 @@ export const publishCoreEvents = async (client: Db, caller: Caller, inputs: Core
       actorType: caller.actorType,
       actorId: caller.actorId,
       payload: input.payload ?? {},
+      // Caused by an automation's action: that run, one level deeper.
+      causedByRun: cause?.runId ?? null,
+      depth: cause ? cause.depth + 1 : 0,
     })),
   );
 };

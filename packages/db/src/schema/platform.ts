@@ -276,6 +276,9 @@ export const events = pgTable(
     notify: jsonb().$type<Record<string, unknown>>(),
     dedupeKey: text(),
     occurredAt: timestamptz().defaultNow().notNull(),
+    /** The automation run whose action caused it (loop protection), and how deep that chain is. */
+    causedByRun: text(),
+    depth: integer().default(0).notNull(),
     createdAt: createdAt(),
   },
   (table) => [

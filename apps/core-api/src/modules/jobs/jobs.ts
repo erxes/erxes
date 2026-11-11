@@ -20,6 +20,8 @@ export interface JobDefinition {
   /** Seconds to wait before attempt `attempt + 1`. */
   backoff?: (attempt: number) => number;
   handle: (job: JobRow, tx: Transaction | null) => Promise<void>;
+  /** After the last attempt failed (in the organisation's own transaction). */
+  onDead?: (job: JobRow, error: string, tx: Transaction) => Promise<void>;
 }
 
 export interface EnqueueInput {
@@ -120,6 +122,12 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
       })
       .where(and(eq(jobs.id, job.id), eq(jobs.status, 'running'))),
   );
+
+  if (dead && definition.onDead) {
+    await withOrg(job.orgId, (tx) => definition.onDead!(job, message, tx)).catch((hookError: unknown) =>
+      log.error('job onDead failed', { queue: job.queue, job: job.id, error: hookError }),
+    );
+  }
 };
 
 /** Runs one claimed job to completion, retry or death. */

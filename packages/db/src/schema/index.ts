@@ -9,3 +9,4 @@ export * from './platform';
 export * from './plugins';
 export * from './jobs';
 export * from './webhooks';
+export * from './automations';

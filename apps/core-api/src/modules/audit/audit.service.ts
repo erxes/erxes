@@ -7,6 +7,7 @@ import { HttpError } from '~/http/errors';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
 import type { Changes } from '~/lib/changes';
+import { currentRunCause } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
 import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
 
@@ -33,6 +34,8 @@ export interface AuditInput {
  * IP and user agent come from the current request.
  */
 export const recordAudit = async (client: Db, actor: AuditActor, input: AuditInput | AuditInput[]) => {
+  const cause = currentRunCause();
+
   const entries = Array.isArray(input) ? input : [input];
 
   if (!entries.length) {
@@ -52,7 +55,10 @@ export const recordAudit = async (client: Db, actor: AuditActor, input: AuditInp
       targetId: entry.targetId ?? null,
       targetLabel: entry.targetLabel ?? null,
       changes: entry.changes ?? null,
-      metadata: entry.metadata ?? null,
+      // Done by an automation's action: say which, on every entry.
+      metadata: cause
+        ? { ...(entry.metadata ?? {}), automation: { id: cause.automationId, name: cause.automationName, run: cause.runId } }
+        : (entry.metadata ?? null),
       ip: entry.ip ?? ip,
       userAgent: entry.userAgent ?? userAgent,
       source: 'source' in actor ? actor.source : 'core',

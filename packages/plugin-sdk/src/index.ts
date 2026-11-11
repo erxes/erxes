@@ -182,3 +182,48 @@ export const verifyPluginSession = async (
 /** The bearer token of a request's `Authorization` header, if any. */
 export const bearerOf = (authorization: string | undefined | null) =>
   authorization?.startsWith('Bearer ') ? authorization.slice(7).trim() || null : null;
+
+/** Who is calling a plugin's automation action: core, for an automation's run. */
+export interface CoreCall {
+  orgId: string;
+  /** The member the automation acts as. */
+  userId: string;
+  automationId: string;
+  runId: string;
+  stepId: string;
+}
+
+/**
+ * Verifies the token core sends with an automation action
+ * (`POST <api.url>/automations/actions/<type>`): issued by core, for this
+ * plugin, unexpired. Use the `Idempotency-Key` header (`<run>:<step>`) to make
+ * a retried call do nothing twice.
+ */
+export const verifyCoreCall = async (token: string, options: { coreUrl: string; plugin: string }): Promise<CoreCall> => {
+  const base = options.coreUrl.replace(/\/+$/, '');
+  let jwks = jwksByCore.get(base);
+
+  if (!jwks) {
+    jwks = createRemoteJWKSet(new URL(`${base}${CORE_API_PREFIX}/.well-known/jwks.json`));
+    jwksByCore.set(base, jwks);
+  }
+
+  const { payload } = await jwtVerify(token, jwks, {
+    issuer: 'erxes-core',
+    audience: options.plugin,
+    typ: 'erxes-core-call+jwt',
+    algorithms: ['ES256'],
+  });
+
+  for (const key of ['org', 'user', 'automation', 'run', 'step'] as const) {
+    if (typeof payload[key] !== 'string') throw new Error('not an erxes core call');
+  }
+
+  return {
+    orgId: payload.org as string,
+    userId: payload.user as string,
+    automationId: payload.automation as string,
+    runId: payload.run as string,
+    stepId: payload.step as string,
+  };
+};

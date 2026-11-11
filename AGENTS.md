@@ -148,6 +148,21 @@ it is built.
   `CORE_ENCRYPTION_KEY`). Outbound calls go through `src/lib/outbound.ts`:
   https only and no private addresses outside development (SSRF; checked on
   the resolved address). `/events/types` lists core's and plugins' events.
+- **Automations** (`src/modules/automations`, `core_automations`,
+  `core_automation_versions`, `core_automation_runs`, `core_automation_run_steps`):
+  trigger = event type + condition group (`conditions.ts`, no code is ever
+  evaluated); steps = actions, delays, branches, stop; `{{subject.x}}`
+  templates (`templates.ts`, paths only). The `core.automations` consumer
+  starts one run per event and automation (reentry: always/once/daily); the
+  `automation.advance` job runs one step at a time atomically with the run's
+  progress, retries, and fails the run at that step (`onDead`). Activating
+  checks the definition and publishes a version; runs keep theirs. Actions run
+  as the member who activated it (permissions read at run time); their events
+  carry `caused_by_run`/`depth` (an automation never triggers itself, chains
+  stop at depth 5) and their audit entries name the automation. Core actions
+  in `actions.ts`; plugin actions come from manifests and are POSTed to
+  `<api.url>/automations/actions/<type>` with a core token
+  (`verifyCoreCall`) and `Idempotency-Key`.
 - **Concurrency.** Read-modify-write takes row locks in the request's
   transaction (`src/lib/locks.ts`: `lockRows`, `lockOrganization`, `lockKey`):
   contact custom fields, field changes vs. values (`FOR SHARE`), team changes

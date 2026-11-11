@@ -134,6 +134,13 @@
       "when": 1794429650651,
       "tag": "0018_webhooks",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794430334596,
+      "tag": "0019_automations",
+      "breakpoints": true
     }
   ]
 }

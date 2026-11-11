@@ -1,4 +1,5 @@
 import { activitiesContract } from './activities';
+import { automationsContract } from './automations';
 import { auditContract } from './audit';
 import { authContract } from './auth';
 import { companiesContract } from './companies';
@@ -22,6 +23,7 @@ export const CORE_API_PREFIX = '/core/v1';
 /** The whole core API. Core implements it; plugins call it with a typed client. */
 export const coreContract = {
   activities: activitiesContract,
+  automations: automationsContract,
   audit: auditContract,
   auth: authContract,
   companies: companiesContract,
@@ -40,6 +42,7 @@ export const coreContract = {
 };
 
 export * from './activities';
+export * from './automations';
 export * from './audit';
 export * from './auth';
 export * from './common';

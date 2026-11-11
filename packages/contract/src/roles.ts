@@ -25,6 +25,8 @@ export const CORE_PERMISSIONS = [
   { action: 'audit.view', group: 'Security', label: 'See and export the audit log' },
   { action: 'events.view', group: 'Security', label: 'See the event stream and retry failed events' },
   { action: 'webhooks.manage', group: 'Integrations', label: 'Manage webhooks' },
+  { action: 'automations.view', group: 'Automations', label: 'See automations and their runs' },
+  { action: 'automations.manage', group: 'Automations', label: 'Create, change and turn automations on or off' },
   { action: 'audit.retention', group: 'Security', label: 'Change how long the audit log is kept', ownerOnly: true },
   { action: 'plugins.manage', group: 'Plugins', label: 'Install, uninstall and approve plugins', ownerOnly: true },
 ] as const satisfies readonly { action: string; group: string; label: string; ownerOnly?: boolean }[];
