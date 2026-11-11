@@ -18,6 +18,7 @@ import {
   Spinner,
   Tabs,
   Tooltip,
+  useConfirm,
   useQueryState,
 } from 'erxes-ui';
 import { useAdjustFundRateRemove } from '../hooks/useAdjustFundRateRemove';
@@ -38,7 +39,7 @@ import type {
 } from '../types/AdjustFundRate';
 import { useAccountsInline } from '@/settings/account/hooks/useAccounts';
 import type { IAccount } from '@/settings/account/types/Account';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { BranchBadge, DepartmentBadge } from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
 
 const DetailField = ({ label, value }: { label: string; value?: string }) => (
@@ -92,14 +93,14 @@ const TextCell = ({ value }: { value?: string }) => (
 
 const BranchCell = ({ branchId }: { branchId?: string }) => (
   <RecordTableInlineCell>
-    {branchId ? <SelectBranches.InlineCell branchIds={[branchId]} /> : '-'}
+    {branchId ? <BranchBadge branchId={branchId} renderAsPlainText /> : '-'}
   </RecordTableInlineCell>
 );
 
 const DepartmentCell = ({ departmentId }: { departmentId?: string }) => (
   <RecordTableInlineCell>
     {departmentId ? (
-      <SelectDepartments.InlineCell departmentIds={[departmentId]} />
+      <DepartmentBadge departmentId={departmentId} renderAsPlainText />
     ) : (
       '-'
     )}
@@ -255,6 +256,7 @@ const linkedTransactionColumns = (
 
 export const AdjustFundRateDetail = () => {
   const { t } = useTranslation('accounting');
+  const { confirm } = useConfirm();
   const [id] = useQueryState<string>('id');
   const { openDetail } = useSettingsPanel(ADJUST_FUND_RATE_CONTENT_TYPE);
 
@@ -353,9 +355,11 @@ export const AdjustFundRateDetail = () => {
   }
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this adjustment?')) {
-      removeAdjustFundRate({ variables: { adjustFundRateIds: [id] } });
-    }
+    void confirm({
+      message: t('Are you sure you want to delete this adjustment?'),
+    }).then(() =>
+      removeAdjustFundRate({ variables: { adjustFundRateIds: [id] } }),
+    );
   };
 
   const handleCalculate = () => {
@@ -512,7 +516,7 @@ const CalculationGroups = ({
                 {t('Branch:', { nsSeparator: false })}
               </span>
               {group.branchId ? (
-                <SelectBranches.InlineCell branchIds={[group.branchId]} />
+                <BranchBadge branchId={group.branchId} renderAsPlainText />
               ) : (
                 <span>-</span>
               )}
@@ -522,8 +526,9 @@ const CalculationGroups = ({
                 {t('Department:', { nsSeparator: false })}
               </span>
               {group.departmentId ? (
-                <SelectDepartments.InlineCell
-                  departmentIds={[group.departmentId]}
+                <DepartmentBadge
+                  departmentId={group.departmentId}
+                  renderAsPlainText
                 />
               ) : (
                 <span>-</span>

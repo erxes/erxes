@@ -18,15 +18,15 @@ import {
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import {
+  BranchBadge,
   CompaniesInline,
   CustomersInline,
   CustomerType,
+  DepartmentBadge,
   MembersInline,
   ProductsInline,
-  SelectBranchesInlineCell,
   SelectCompany,
   SelectCustomer,
-  SelectDepartmentsInlineCell,
   SelectMember,
 } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
@@ -364,15 +364,24 @@ const SelectedTrDetail = ({
         <div className="px-3 mb-1 text-xs text-accent-foreground">
           {t('branch-label', { nsSeparator: false })}{' '}
           <span>
-            <SelectBranchesInlineCell branchIds={[trDetail.branchId || '']} />
+            {trDetail.branchId ? (
+              <BranchBadge branchId={trDetail.branchId} renderAsPlainText />
+            ) : (
+              '-'
+            )}
           </span>
         </div>
         <div className="px-3 mb-1 text-xs text-accent-foreground">
           {t('department-label', { nsSeparator: false })}{' '}
           <span>
-            <SelectDepartmentsInlineCell
-              departmentIds={[trDetail.departmentId || '']}
-            />
+            {trDetail.departmentId ? (
+              <DepartmentBadge
+                departmentId={trDetail.departmentId}
+                renderAsPlainText
+              />
+            ) : (
+              '-'
+            )}
           </span>
         </div>
 

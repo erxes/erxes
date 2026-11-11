@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AdjustFixedAssetDetail } from '@/adjustments/fxa/components/AdjustFixedAssetDetail';
 
 let mockStatus = 'complete';
@@ -9,6 +9,7 @@ const mockCancel = jest.fn();
 const mockClear = jest.fn();
 const mockPublish = jest.fn();
 const mockRemove = jest.fn();
+const mockConfirm = jest.fn();
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
@@ -29,6 +30,7 @@ jest.mock('erxes-ui', () => {
   });
   return {
     useQueryState: () => ['adjust'],
+    useConfirm: () => ({ confirm: mockConfirm }),
     Button: (props: React.ComponentProps<'button'>) =>
       react.createElement('button', props),
     Spinner: () => null,
@@ -131,6 +133,21 @@ test('calculated periods can post or clear, with deletion restored before postin
     'disabled',
     false,
   );
+});
+test('deleting a calculated period waits for confirmation', async () => {
+  mockStatus = 'process';
+  mockParent = undefined;
+  mockConfirm.mockReturnValueOnce(new Promise(() => undefined));
+  const { unmount } = render(<AdjustFixedAssetDetail />);
+  fireEvent.click(screen.getByRole('button', { name: 'delete' }));
+  expect(mockConfirm).toHaveBeenCalledTimes(1);
+  expect(mockRemove).not.toHaveBeenCalled();
+  unmount();
+
+  mockConfirm.mockResolvedValueOnce(undefined);
+  render(<AdjustFixedAssetDetail />);
+  fireEvent.click(screen.getByRole('button', { name: 'delete' }));
+  await waitFor(() => expect(mockRemove).toHaveBeenCalledTimes(1));
 });
 test('calculation errors block posting while retaining rerun controls', () => {
   mockStatus = 'process';
