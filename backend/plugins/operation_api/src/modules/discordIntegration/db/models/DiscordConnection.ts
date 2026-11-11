@@ -16,8 +16,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { isDuplicateKeyError } from '~/utils/mongoErrors';
 
-export interface IDiscordConnectionModel
-  extends Model<IDiscordConnectionDocument> {
+export interface IDiscordConnectionModel extends Model<IDiscordConnectionDocument> {
   upsertConnection(
     connection: IDiscordConnection,
   ): Promise<IDiscordConnectionDocument | null>;
