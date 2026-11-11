@@ -15,6 +15,43 @@ import { moveActivities, recordActivity, removeActivities } from './activities.s
  * - a notification when someone else makes you the owner.
  */
 
+const NOUN = { customer: 'Customer', company: 'Company' } as const;
+const PLURAL = { customer: 'Customers', company: 'Companies' } as const;
+
+/** Tells a record's owner what someone else did to it (never the one who did it). */
+const notifyOwners = async (
+  tx: Db,
+  actor: Actor,
+  type: ContentType,
+  owners: (string | null)[],
+  input: {
+    verb: 'updated' | 'merged' | 'deleted';
+    title: string;
+    body: string;
+    recordId: string;
+    link?: string;
+    data?: Record<string, unknown>;
+  },
+) => {
+  const userIds = [...new Set(owners.filter((id): id is string => Boolean(id) && id !== actor.userId))];
+
+  if (!userIds.length) {
+    return;
+  }
+
+  await notify(tx, userCaller(actor), {
+    userIds,
+    kind: `core.${type}.${input.verb}`,
+    title: input.title,
+    body: input.body,
+    link: input.link,
+    entity: { type, id: input.recordId },
+    data: input.data,
+    // Several quick edits by one person become one notification.
+    collapseMinutes: input.verb === 'updated' ? 30 : undefined,
+  });
+};
+
 interface ContactRow {
   id: string;
   ownerId: string | null;
@@ -142,12 +179,34 @@ export const contactUpdated = async (
     changes,
   });
   await notifyNewOwner(tx, actor, type, after, before.ownerId);
+
+  // The owner kept their record: tell them what changed (a new owner was told above).
+  if (after.ownerId && after.ownerId === before.ownerId) {
+    await notifyOwners(tx, actor, type, [after.ownerId], {
+      verb: 'updated',
+      title: `${NOUN[type]} updated`,
+      body: contactLabel(type, after),
+      recordId: after.id,
+      link: detailLink(type, after.id),
+      data: { changes },
+    });
+  }
 };
 
 export const contactsRemoved = async (tx: Db, actor: Actor, type: ContentType, rows: object[]) => {
   const ids = rows.map((row) => (row as { id: string }).id);
 
   await removeActivities(tx, actor.orgId, type, ids);
+
+  for (const row of rows as (ContactRow & object)[]) {
+    await notifyOwners(tx, actor, type, [row.ownerId], {
+      verb: 'deleted',
+      title: `${NOUN[type]} deleted`,
+      body: contactLabel(type, row),
+      recordId: row.id,
+    });
+  }
+
   await recordAudit(
     tx,
     userCaller(actor),
@@ -176,6 +235,14 @@ export const contactsMerged = async (
     targetId: keep.id,
     type: `${type}.merged`,
     data: { mergedIds, mergedNames: others.map((other) => contactLabel(type, other)) },
+  });
+  await notifyOwners(tx, actor, type, [keep.ownerId, ...others.map((other) => (other as ContactRow).ownerId)], {
+    verb: 'merged',
+    title: `${PLURAL[type]} merged`,
+    body: `${others.map((other) => contactLabel(type, other)).join(', ')} → ${contactLabel(type, keep)}`,
+    recordId: keep.id,
+    link: detailLink(type, keep.id),
+    data: { mergedIds },
   });
   await recordAudit(tx, caller, {
     action: `${type}.merged`,

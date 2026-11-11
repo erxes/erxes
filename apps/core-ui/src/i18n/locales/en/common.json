@@ -215,7 +215,8 @@
     "security": "Security",
     "active-directory": "Active Directory (LDAP)",
     "support-access": "Support access",
-    "audit-log": "Audit log"
+    "audit-log": "Audit log",
+    "notifications": "Notifications"
   },
   "plugin": {
     "_": "Plugin",
@@ -1053,10 +1054,20 @@
     "kinds": {
       "core": {
         "customer": {
-          "assigned": "A customer was assigned to you"
+          "assigned": "A customer was assigned to you",
+          "updated": "A customer you own was updated",
+          "merged": "Customers you own were merged",
+          "deleted": "A customer you own was deleted"
         },
         "company": {
-          "assigned": "A company was assigned to you"
+          "assigned": "A company was assigned to you",
+          "updated": "A company you own was updated",
+          "merged": "Companies you own were merged",
+          "deleted": "A company you own was deleted"
+        },
+        "user": {
+          "role_changed": "Your role was changed",
+          "password_set": "An admin changed your password"
         }
       }
     }

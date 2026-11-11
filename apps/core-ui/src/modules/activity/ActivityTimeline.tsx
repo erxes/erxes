@@ -1,4 +1,4 @@
-import type { Activity, ActivityTarget, Field, Tag, User } from '@erxes/core-contract';
+import type { Activity, ActivityTarget } from '@erxes/core-contract';
 import {
   IconArrowsJoin,
   IconHistory,
@@ -17,9 +17,8 @@ import { Link } from 'react-router-dom';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
-import { actorLabel, memberName, pluginLabel, useMembersById } from '~/lib/members';
-import { useAllFields } from '~/modules/properties/useFields';
-import { useTags } from '~/modules/tags/useTags';
+import { ChangeList, type Lookups, useChangeLookups } from '~/components/ChangeList';
+import { actorLabel, pluginLabel } from '~/lib/members';
 import { useActivities } from './useActivities';
 
 const ICONS: Record<string, Icon> = {
@@ -34,101 +33,6 @@ const ICONS: Record<string, Icon> = {
 };
 
 const verbOf = (activity: Activity) => activity.type.slice(activity.type.indexOf('.') + 1);
-
-/** Labels for the fields core records changes of. */
-const FIELD_LABELS: Record<string, string> = {
-  state: 'State',
-  firstName: 'First name',
-  middleName: 'Middle name',
-  lastName: 'Last name',
-  avatarUrl: 'Avatar',
-  primaryEmail: 'Primary email',
-  emails: 'Emails',
-  primaryPhone: 'Primary phone',
-  phones: 'Phones',
-  sex: 'Sex',
-  birthDate: 'Birth date',
-  position: 'Position',
-  department: 'Department',
-  code: 'Code',
-  description: 'Description',
-  ownerId: 'Owner',
-  tagIds: 'Tags',
-  primaryName: 'Name',
-  names: 'Names',
-  website: 'Website',
-  industry: 'Industry',
-  size: 'Size',
-  businessType: 'Business type',
-};
-
-interface Lookups {
-  members: Map<string, User>;
-  tags: Map<string, Tag>;
-  fields: Map<string, Field>;
-}
-
-const listOf = (values: string[]) => values.join(', ');
-
-/** A recorded value as text: names for owners, tags and options; `—` for empty. */
-const formatValue = (field: string, value: unknown, lookups: Lookups): string => {
-  if (value === null || value === undefined || value === '' || (Array.isArray(value) && !value.length)) {
-    return '—';
-  }
-
-  if (field === 'ownerId' && typeof value === 'string') {
-    const member = lookups.members.get(value);
-
-    return member ? memberName(member) : 'a team member';
-  }
-
-  if (field === 'tagIds' && Array.isArray(value)) {
-    return listOf(value.map((id) => lookups.tags.get(String(id))?.name ?? 'a deleted tag'));
-  }
-
-  if (field === 'description' && typeof value === 'string') {
-    return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) || '—';
-  }
-
-  if (field === 'avatarUrl') {
-    return 'image';
-  }
-
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
-  }
-
-  if (Array.isArray(value)) {
-    return listOf(value.map(String));
-  }
-
-  return String(value);
-};
-
-const fieldLabel = (field: string, lookups: Lookups, t: (key: string, fallback: string) => string) => {
-  if (field.startsWith('customFields.')) {
-    return lookups.fields.get(field.slice('customFields.'.length))?.label ?? t('deleted-property', 'A deleted property');
-  }
-
-  return t(`fields.${field}`, FIELD_LABELS[field] ?? field);
-};
-
-const ChangeList = ({ changes, lookups }: { changes: Record<string, [unknown, unknown]>; lookups: Lookups }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'activity' });
-
-  return (
-    <ul className="mt-1 space-y-0.5 text-xs">
-      {Object.entries(changes).map(([field, [before, after]]) => (
-        <li key={field} className="flex flex-wrap gap-1 text-muted-foreground">
-          <span className="font-medium text-foreground">{fieldLabel(field, lookups, t)}:</span>
-          <span className="line-through decoration-muted-foreground/50">{formatValue(field, before, lookups)}</span>
-          <span aria-hidden="true">→</span>
-          <span className="text-foreground">{formatValue(field, after, lookups)}</span>
-        </li>
-      ))}
-    </ul>
-  );
-};
 
 /** A linked customer or company by name, opening its page; deleted ones say so. */
 const LinkedRecord = ({ type, id }: { type: ActivityTarget; id: string }) => {
@@ -280,21 +184,11 @@ const ActivityItem = ({ activity, lookups, last }: { activity: Activity; lookups
 export const ActivityTimeline = ({ targetType, targetId }: { targetType: ActivityTarget; targetId: string }) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const { activities, loading, hasMore, loadingMore, loadMore } = useActivities(targetType, targetId);
-  const { tags } = useTags(targetType);
-  const { fields } = useAllFields(targetType);
-  const { fields: archivedFields } = useAllFields(targetType, { archived: true });
-  const memberIds = activities.flatMap((activity) => {
-    const changes = activity.data.changes as Record<string, [unknown, unknown]> | undefined;
-    const owners = changes?.ownerId ?? [];
-
-    return [activity.actor.type === 'user' ? activity.actor.id : null, ...owners.map((id) => (typeof id === 'string' ? id : null))];
-  });
-  const members = useMembersById(memberIds);
-  const lookups: Lookups = {
-    members,
-    tags: new Map(tags.map((tag) => [tag.id, tag])),
-    fields: new Map([...fields, ...archivedFields].map((field) => [field.id, field])),
-  };
+  const lookups = useChangeLookups(
+    targetType,
+    activities.map((activity) => activity.data.changes as Record<string, [unknown, unknown]> | undefined),
+    activities.map((activity) => (activity.actor.type === 'user' ? activity.actor.id : null)),
+  );
 
   if (loading) {
     return <Spinner containerClassName="py-12" />;

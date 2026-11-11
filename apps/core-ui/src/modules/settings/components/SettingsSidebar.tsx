@@ -1,4 +1,5 @@
 import {
+  IconBellCog,
   IconChevronLeft,
   IconCloudUpload,
   IconHierarchy2,
@@ -91,10 +92,18 @@ export function SettingsExitButton() {
   );
 }
 
+/** Settings that belong to the signed-in member, not the organisation. */
+const useSettingsAccountPaths = (): SettingsPath[] => {
+  const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+
+  return [{ name: t('notifications', 'Notifications'), path: 'notifications', icon: IconBellCog }];
+};
+
 /** Old core-ui `SettingsSidebar`: exit, then the workspace settings core has. */
 export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
+  const account = useSettingsAccountPaths();
 
   return (
     <>
@@ -102,6 +111,17 @@ export function SettingsSidebar() {
       <Sidebar.Content className="styled-scroll gap-1">
         <SettingsNavigationGroup name={t('workspace')}>
           {workspace.map((item) => (
+            <NavigationMenuLinkItem
+              key={item.path}
+              pathPrefix="settings"
+              path={item.path}
+              name={item.name}
+              icon={item.icon}
+            />
+          ))}
+        </SettingsNavigationGroup>
+        <SettingsNavigationGroup name={t('account', 'Account')}>
+          {account.map((item) => (
             <NavigationMenuLinkItem
               key={item.path}
               pathPrefix="settings"

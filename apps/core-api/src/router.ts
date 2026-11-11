@@ -59,9 +59,11 @@ import {
 import {
   listNotifications,
   markRead,
+  notificationSettings,
   notify,
   removeNotification,
   unreadCount,
+  updateNotificationSettings,
 } from '~/modules/notifications/notifications.service';
 import { getOrganization, toOrganizationDto } from '~/modules/organizations/organizations.service';
 import { runSetup, setupRequired } from '~/modules/setup/setup.service';
@@ -159,7 +161,13 @@ export const coreRouter = pub.router({
   },
   notifications: {
     list: authed.notifications.list.handler(({ input, context }) => listNotifications(db(), context.actor, input)),
-    unreadCount: authed.notifications.unreadCount.handler(({ context }) => unreadCount(db(), context.actor)),
+    unreadCount: authed.notifications.unreadCount.handler(({ input, context }) =>
+      unreadCount(db(), context.actor, input.source),
+    ),
+    settings: authed.notifications.settings.handler(({ context }) => notificationSettings(db(), context.actor)),
+    updateSettings: authed.notifications.updateSettings.handler(({ input, context }) =>
+      updateNotificationSettings(db(), context.actor, input),
+    ),
     markRead: authed.notifications.markRead.handler(({ input, context }) => markRead(db(), context.actor, input)),
     remove: authed.notifications.remove.handler(({ input, context }) =>
       removeNotification(db(), context.actor, input.id),

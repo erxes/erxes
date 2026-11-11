@@ -55,6 +55,7 @@ export const AppRoutes = () => (
       <Route path="contacts/*" element={<ContactsRoutes notFound={<NotFoundPage />} />} />
       <Route path="settings/*" element={<SettingsRoutes />} />
       <Route path="notifications" element={<NotificationsPage />} />
+      <Route path="notifications/:source" element={<NotificationsPage />} />
       <Route path="*" element={<PluginRoutes />} />
     </Route>
   </Routes>

@@ -1,3 +1,4 @@
+import { notify } from '~/modules/notifications/notifications.service';
 import { userCaller } from '~/http/auth';
 import { diffRows } from '~/lib/changes';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -372,6 +373,18 @@ export const updateUser = async (actor: Actor, id: string, input: UserChanges) =
         .returning();
       const changes = diffRows(target, row!, ['lastSeenAt']);
 
+      if (changes?.role && !self) {
+        await notify(tx, userCaller(actor), {
+          userIds: [id],
+          kind: 'core.user.role_changed',
+          title: 'Your role was changed',
+          body: `${changes.role[0]} → ${changes.role[1]}`,
+          priority: 'high',
+          entity: { type: 'user', id },
+          data: { changes: { role: changes.role } },
+        });
+      }
+
       if (changes) {
         await recordAudit(tx, userCaller(actor), {
           action: changes.role ? 'user.role_changed' : 'user.updated',
@@ -416,6 +429,14 @@ export const setUserPassword = async (actor: Actor, id: string, password: string
       .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
       .returning();
 
+    await notify(tx, userCaller(actor), {
+      userIds: [id],
+      kind: 'core.user.password_set',
+      title: 'Your password was changed by an admin',
+      body: 'If you did not ask for this, contact an owner of your organisation.',
+      priority: 'high',
+      entity: { type: 'user', id },
+    });
     await recordAudit(tx, userCaller(actor), {
       action: 'user.password_set',
       targetType: 'user',

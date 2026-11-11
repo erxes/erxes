@@ -21,6 +21,9 @@
 | 18 | oRPC replaces ts-rest (contract-first, typed context and errors, OpenAPI built in, streaming for later events); the HTTP surface stays plain REST under `/core/v1`. | Agreed |
 | 16 | Tags link through join tables per record type (`core_customer_tags`, `core_company_tags`) with foreign keys both ways — not id arrays. Custom field values stay in a `jsonb` column keyed by field id, checked against `core_fields`. | Agreed |
 | 17 | First run: an installation without an organisation shows setup (create organisation + owner); off on SaaS (`CORE_SETUP=false`). | Agreed |
+| 19 | Files: metadata in `core_files`, bytes in a storage driver (local or S3-compatible); two-step uploads through signed links so browsers upload straight to the bucket; storage keys live in server config, never in the database. | Agreed |
+| 20 | Notifications: one inbox per source (core and each plugin), gathered in core like Atlassian's inbox; plugins create them with a plugin key and a dedupe key; members mute kinds or whole plugins; security notices can't be muted. | Agreed |
+| 21 | Audit log in core for core's own changes (`core_audit_logs`), written in the same transaction; plugins keep their own audit. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices
@@ -34,6 +37,7 @@
    merge, detail panel, first-run setup. Next: find-or-create for plugins,
    consent, activity timeline (with events).
 5. SaaS sync: create/update `core_organizations` from the SaaS side.
-6. Files, notifications, payments.
-7. Events, activity, webhooks.
+6. Files, notifications — **done**; payments next.
+7. Activity timeline and audit log — **done**; next: events (`core_events`,
+   publish in the same transaction), webhooks, plugin keys → registry OAuth clients.
 8. Plugin registry (replaces `PUBLIC_PLUGINS`), then the automation engine.

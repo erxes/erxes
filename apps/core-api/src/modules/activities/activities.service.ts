@@ -1,9 +1,11 @@
 import type { Activity, ActivityInput, ActivityTarget, CursorQuery } from '@erxes/core-contract';
-import { activities, companies, customers, type Db, newId, users } from '@erxes/core-db';
+import { activities, companies, customers, type Db, newId } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
-import type { Actor, Caller, PluginCaller } from '~/http/auth';
+import { type Actor, type Caller, type PluginCaller, pluginCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
+import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { keysetPage } from '~/lib/keyset';
+import { notify } from '~/modules/notifications/notifications.service';
 
 type ActivityRow = typeof activities.$inferSelect;
 
@@ -130,28 +132,32 @@ export const listActivities = async (
   return { ...page, data: page.data.map(toActivityDto) };
 };
 
-/** 400 INVALID_TYPE unless the type is namespaced by the calling plugin. */
-export const assertPluginNamespace = (plugin: string, type: string) => {
-  if (!type.startsWith(`${plugin}.`)) {
-    throw new HttpError(400, 'INVALID_TYPE', `The type must start with "${plugin}."`);
-  }
-};
+/**
+ * A plugin event on a record someone owns reaches the owner's inbox for that
+ * plugin (muting the plugin mutes these too).
+ */
+const notifyTargetOwner = async (client: Db, caller: PluginCaller, input: ActivityInput, activity: ActivityRow) => {
+  const table = input.targetType === 'customer' ? customers : companies;
+  const [target] = await client
+    .select({ ownerId: table.ownerId })
+    .from(table)
+    .where(and(eq(table.orgId, caller.orgId), eq(table.id, input.targetId)))
+    .limit(1);
 
-/** 400 INVALID_ACTOR unless the user is a team member of the organisation. */
-export const assertMember = async (client: Db, orgId: string, userId: string | undefined) => {
-  if (!userId) {
+  if (!target?.ownerId || target.ownerId === input.actorUserId) {
     return;
   }
 
-  const [row] = await client
-    .select({ id: users.id })
-    .from(users)
-    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
-    .limit(1);
-
-  if (!row) {
-    throw new HttpError(400, 'INVALID_ACTOR', 'The actor is not a team member of this organisation');
-  }
+  await notify(client, pluginCaller(caller), {
+    userIds: [target.ownerId],
+    kind: input.type,
+    title: input.summary,
+    link: input.link ?? `/contacts/${input.targetType === 'customer' ? 'customers' : 'companies'}/${input.targetId}`,
+    entity: input.entity ?? { type: input.targetType, id: input.targetId },
+    data: { targetType: input.targetType, targetId: input.targetId },
+    actorUserId: input.actorUserId,
+    dedupeKey: `activity:${activity.id}`,
+  });
 };
 
 /**
@@ -186,6 +192,8 @@ export const createPluginActivity = async (client: Db, caller: PluginCaller, inp
     .returning();
 
   if (inserted) {
+    await notifyTargetOwner(client, caller, input, inserted);
+
     return { activity: toActivityDto(inserted), created: true };
   }
 

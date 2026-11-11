@@ -357,6 +357,89 @@ describeWithDb('platform services', () => {
     });
   });
 
+  describe('inboxes', () => {
+    it('counts unread per inbox and filters one plugin’s inbox', async () => {
+      await call(memberToken, '/notifications/read', { method: 'POST', body: {} });
+      await call(hr(), '/notifications', {
+        method: 'POST',
+        body: { userIds: [memberId], kind: 'hr.onboarding.started', title: 'Onboarding started', priority: 'high' },
+      });
+
+      const counts = await call(memberToken, '/notifications/unread-count');
+      const hrOnly = await call(memberToken, '/notifications/unread-count?source=hr');
+
+      expect(counts.body.bySource.hr).toBe(1);
+      expect(hrOnly.body).toEqual({ count: 1, bySource: { hr: 1 } });
+
+      const important = await call(memberToken, '/notifications?source=hr&priority=high');
+
+      expect(important.body.data.map((item: { kind: string }) => item.kind)).toEqual(['hr.onboarding.started']);
+      expect((await call(memberToken, '/notifications?kind=hr.onboarding.')).body.totalCount).toBe(1);
+    });
+
+    it('lets members mute a plugin or a kind, but not security notices', async () => {
+      const saved = await call(memberToken, '/notifications/settings', {
+        method: 'PUT',
+        body: { muted: ['hr', 'core.customer.updated', 'core.user.role_changed'] },
+      });
+
+      expect(saved.body.sources).toContain('hr');
+
+      const muted = await call(hr(), '/notifications', {
+        method: 'POST',
+        body: { userIds: [memberId], kind: 'hr.x', title: 'muted' },
+      });
+
+      expect(muted.body).toEqual({ created: 0, skipped: 1 });
+
+      await call(ownerToken, `/users/${memberId}`, { method: 'PATCH', body: { role: 'admin' } });
+      await call(ownerToken, `/users/${memberId}`, { method: 'PATCH', body: { role: 'member' } });
+
+      const roles = await call(memberToken, '/notifications?kind=core.user.role_changed');
+
+      expect(roles.body.totalCount).toBe(2);
+      expect(roles.body.data[0]).toMatchObject({ priority: 'high', data: { changes: { role: ['admin', 'member'] } } });
+
+      await call(memberToken, '/notifications/settings', { method: 'PUT', body: { muted: [] } });
+    });
+
+    it('tells owners what others change, merging quick edits into one notification', async () => {
+      const customer = await call(memberToken, '/customers', {
+        method: 'POST',
+        body: { firstName: 'Watched', primaryEmail: 'watched@mail.mn', ownerId: memberId },
+      });
+      const id = customer.body.id;
+
+      await call(ownerToken, `/customers/${id}`, { method: 'PATCH', body: { position: 'Manager' } });
+      await call(ownerToken, `/customers/${id}`, { method: 'PATCH', body: { position: 'Director', code: 'C-1' } });
+
+      const updates = await call(memberToken, `/notifications?kind=core.customer.updated`);
+
+      expect(updates.body.totalCount).toBe(1);
+      expect(updates.body.data[0].data.changes).toEqual({ position: [null, 'Director'], code: [null, 'C-1'] });
+
+      // The owner's own edits don't notify them.
+      await call(memberToken, `/customers/${id}`, { method: 'PATCH', body: { department: 'Sales' } });
+      expect((await call(memberToken, `/notifications?kind=core.customer.updated`)).body.totalCount).toBe(1);
+
+      // A plugin event on the record reaches the owner's inbox for that plugin.
+      await call(hr(), '/activities', {
+        method: 'POST',
+        body: { targetType: 'customer', targetId: id, type: 'hr.candidate.hired', summary: 'Hired as Director' },
+      });
+
+      const fromHr = await call(memberToken, '/notifications?source=hr&kind=hr.candidate.hired');
+
+      expect(fromHr.body.data[0]).toMatchObject({ title: 'Hired as Director', link: `/contacts/customers/${id}` });
+
+      await call(ownerToken, '/customers/remove', { method: 'POST', body: { ids: [id] } });
+
+      const deleted = await call(memberToken, `/notifications?kind=core.customer.deleted`);
+
+      expect(deleted.body.data[0]).toMatchObject({ body: 'Watched', link: null });
+    });
+  });
+
   describe('activity timeline', () => {
     it('records customer changes, tags, links and merges', async () => {
       const a = await call(ownerToken, '/customers', { method: 'POST', body: { firstName: 'Anu', primaryEmail: 'anu@mail.mn' } });

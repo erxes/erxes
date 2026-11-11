@@ -103,6 +103,35 @@ it is built.
   yes/no, select, multi-select. Values live in each record's `custom_fields`
   JSON keyed by field id and are checked against the field on every write;
   deleting a field removes its values.
+- Files (`core_files`): metadata in core, bytes in the storage driver
+  (`FILES_STORAGE=local|s3`; S3, R2, MinIO). Upload in two steps:
+  `POST /files` checks name, type and size against the organisation's settings
+  (Settings › File upload, below the deployment's `FILES_MAX_SIZE_MB`; programs
+  are always refused) and returns a signed PUT link; the client sends the bytes
+  there (straight to the bucket for S3), then `POST /files/:id/complete` checks
+  the stored object. `/files/:id/download` is the stable address (session or
+  plugin key, then a short-lived link); risky types are only ever downloads.
+  erxes-ui's upload hooks use core's storage through `setFileStorage`.
+- Plugins call core with `CORE_PLUGIN_KEYS` (`Authorization: Bearer <key>` +
+  `X-Erxes-Org`); `context.caller` / `pluginOf` in the router. Plugin-only:
+  `POST /notifications`, `POST /activities`; both take a `dedupeKey` (retry-safe)
+  and a kind/type namespaced by the plugin (`hr.leave.requested`).
+- Notifications (`core_notifications`): one inbox per source, like Atlassian —
+  `core` and each plugin — gathered at `/notifications` (sidebar per inbox,
+  unread counts per source) and `/notifications/<plugin>` for one plugin's
+  inbox. Core notifies owners about records others assign, change (quick edits
+  collapse into one, with `data.changes`), merge or delete, and about plugin
+  events on their records; members about role and password changes (can't be
+  muted). Each member mutes kinds or whole plugins (Settings › Notifications).
+  Counts refresh every 30 s (no LISTEN/NOTIFY behind poolers).
+- Activity (`core_activities`): the customer/company timeline (Activity tab):
+  created, updated (with changes), tagged, merged, linked, plus plugin entries;
+  moved on merge, deleted with the record. Plugin history stays in the plugin.
+- Audit (`core_audit_logs`): sign-ins, team, contacts, tags, properties, files
+  and settings with before/after values, IP and user agent, written in the same
+  transaction as the change (`recordAudit`); Settings › Audit log for owners
+  and admins. Hourly cleanup prunes old entries, unfinished uploads and old
+  read notifications (`src/lib/maintenance.ts`).
 - Core UI: setup and sign-in (old core-ui look); Contacts (Customers, Leads,
   Companies) on RecordTable with inline editing, tag and custom field columns,
   filters, bulk tag / merge / delete, a detail side panel (`?customerId=`,

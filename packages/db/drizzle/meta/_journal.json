@@ -43,6 +43,13 @@
       "when": 1794400737028,
       "tag": "0005_files_notifications_activity_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794402603128,
+      "tag": "0006_notification_details_and_settings",
+      "breakpoints": true
     }
   ]
 }

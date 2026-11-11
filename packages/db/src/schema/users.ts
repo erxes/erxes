@@ -45,6 +45,11 @@ export const users = pgTable(
     passwordHash: text(),
     invitedBy: text(),
     isSupport: boolean().default(false).notNull(),
+    /**
+     * The member's notification choices: `muted` lists kinds
+     * (`core.customer.updated`) or whole sources (`hr`) they don't want.
+     */
+    notificationSettings: jsonb().$type<{ muted?: string[] }>().default({}).notNull(),
     createdAt: timestamp({ withTimezone: true, mode: 'date' })
       .defaultNow()
       .notNull(),

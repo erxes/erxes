@@ -1,0 +1,2 @@
+ALTER TABLE "core_users" ADD COLUMN "notification_settings" jsonb DEFAULT '{}'::jsonb NOT NULL;--> statement-breakpoint
+ALTER TABLE "core_notifications" ADD COLUMN "data" jsonb DEFAULT '{}'::jsonb NOT NULL;

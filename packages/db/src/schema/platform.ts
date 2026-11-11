@@ -78,6 +78,8 @@ export const notifications = pgTable(
     link: text(),
     entityType: text(),
     entityId: text(),
+    /** Details shown when the notification is opened, e.g. `{ changes: { field: [before, after] } }`. */
+    data: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
     priority: text({ enum: NOTIFICATION_PRIORITIES }).default('normal').notNull(),
     actorType: text({ enum: ACTOR_TYPES }).notNull(),
     actorId: text(),
