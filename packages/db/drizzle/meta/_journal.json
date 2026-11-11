@@ -71,6 +71,13 @@
       "when": 1794420426365,
       "tag": "0009_event_failures_audit_checkpoints",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794421165907,
+      "tag": "0010_plugin_registry",
+      "breakpoints": true
     }
   ]
 }

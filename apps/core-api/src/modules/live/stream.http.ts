@@ -16,8 +16,9 @@ const openStreams = new Map<string, number>();
 
 /**
  * `GET /core/v1/stream`: Server-Sent Events for the signed-in member. It
- * carries only "this changed" signals — `inbox` (their notifications) and
- * `timeline` (a customer's or company's) — never data: the browser refetches
+ * carries only "this changed" signals — `inbox` (their notifications),
+ * `timeline` (a customer's or company's) and `plugin { plugin, topics }`
+ * (from `core_live_signal` / `POST /plugins/live`) — never data: the browser refetches
  * through the normal API, so every permission check stays where it is.
  *
  * - `hello { mode }`: `live`, or `polling` while the server can't listen;
@@ -50,6 +51,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
   const send = (event: string, data: unknown = {}) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   let inbox = false;
   let resync = false;
+  const pluginTopics = new Map<string, Set<string>>();
   const timelines = new Map<string, { targetType: string; targetId: string }>();
   let flushTimer: NodeJS.Timeout | null = null;
 
@@ -63,8 +65,12 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
       if (timelines.size) send('timeline', { targets: [...timelines.values()] });
     }
 
+    // Plugin UIs keep their own caches: their topics go out even on resync.
+    for (const [plugin, topics] of pluginTopics) send('plugin', { plugin, topics: [...topics] });
+
     inbox = false;
     resync = false;
+    pluginTopics.clear();
     timelines.clear();
   };
 
@@ -73,6 +79,13 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
 
     if (signal.k === 'resync') {
       resync = true;
+    } else if (signal.k === 'plugin') {
+      if (signal.u && !signal.u.includes(actor.userId)) return;
+
+      const topics = pluginTopics.get(signal.p) ?? new Set<string>();
+
+      topics.add(signal.t);
+      pluginTopics.set(signal.p, topics);
     } else if (signal.k === 'inbox') {
       if (signal.u !== actor.userId) return;
 

@@ -28,6 +28,7 @@
 | 23 | One audit log per organisation for core and plugins, append-only in the database and hash-chained for tamper evidence. | Agreed |
 | 24 | Live updates: Postgres LISTEN/NOTIFY to the API servers, Server-Sent Events to browsers (one per browser, shared by tabs), signals not data, polling only as a fallback. | Agreed |
 | 25 | Reliable delivery and provable audit: failed events retry with backoff then wait as dead letters (never block the stream); audit chain heads are signed (ES256, key outside the database, public JWKS) so whole-chain rewrites and tail truncation are detected; live signals are sent once per statement. | Agreed |
+| 26 | Plugin connection: a registry with per-organisation installations and granted scopes; plugin servers trade a client secret for 15-minute ES256 tokens (re-checked against the installation on every request); plugin UIs call their own API directly with a 5-minute per-plugin session token verified through core's JWKS; one access map gives every procedure an explicit policy. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices
@@ -45,4 +46,4 @@
 7. Activity timeline (notes, filters, rollup), audit log (plugins, hash chain,
    export) and the event stream — **done**; next: webhooks from the stream,
    plugin keys → registry OAuth clients, then the automation engine on events.
-8. Plugin registry (replaces `PUBLIC_PLUGINS`), then the automation engine.
+8. Plugin registry — **done** (manifests, installations, scopes, tokens, SDK); then the automation engine.

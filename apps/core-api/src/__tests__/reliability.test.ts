@@ -27,7 +27,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const { db } = await import('@erxes/core-db');
     const { publishPluginEvents } = await import('~/modules/events/events.service');
 
-    await publishPluginEvents(db(), { plugin: 'hr', orgId: owner.orgId }, [{ type, version: 1, payload: {} }]);
+    await publishPluginEvents(db(), { plugin: 'hr', orgId: owner.orgId, scopes: ['events:write'] }, [{ type, version: 1, payload: {} }]);
   };
 
   /**

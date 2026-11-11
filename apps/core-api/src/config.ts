@@ -32,9 +32,10 @@ const required = (name: string, value: string | undefined, devDefault: string) =
 };
 
 /**
- * Plugin keys: `hr:<secret>,ecom:<secret>`. A plugin calls core with
- * `Authorization: Bearer <secret>` and `X-Erxes-Org: <organisation id>`.
- * Replaced by the plugin registry's OAuth clients later.
+ * Plugin client secrets: `hr:<secret>,ecom:<secret>`. At startup they are
+ * registered in `core_plugins` (hashed). A plugin exchanges its secret for
+ * short-lived tokens (`POST /core/v1/plugins/token`); the secret itself is
+ * never accepted on API calls. `pnpm plugin:secret <name>` rotates one.
  */
 const readPluginKeys = (): Map<string, string> => {
   const keys = new Map<string, string>();
@@ -149,6 +150,14 @@ export const config = {
   },
   /** Secret → plugin name. */
   pluginKeys: readPluginKeys(),
+  plugins: {
+    /**
+     * Install every plugin in every organisation (new plugins once, new
+     * organisations at creation). On for self-hosted and development; off
+     * where the SaaS side decides what each organisation has.
+     */
+    autoInstall: (process.env.PLUGINS_AUTO_INSTALL ?? (process.env.CORE_SETUP === 'false' ? 'false' : 'true')) === 'true',
+  },
   files: {
     /** `local` (a folder on this server) or `s3` (AWS S3, Cloudflare R2, MinIO, …). */
     driver: storageDriver,

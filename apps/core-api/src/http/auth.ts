@@ -1,11 +1,13 @@
-import { db, organizations, users } from '@erxes/core-db';
-import { createHash } from 'node:crypto';
+import { coreContract } from '@erxes/core-contract';
+import { db, pluginInstallations, plugins, users } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '~/config';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
+import { publicPaths } from '~/http/access';
 import { HttpError } from '~/http/errors';
+import { verifyJwt } from '~/lib/signing';
 
 export type Role = 'owner' | 'admin' | 'member';
 
@@ -16,10 +18,17 @@ export interface Actor {
   role: Role;
 }
 
-/** A plugin calling core with its key, for one organisation. */
+/** A plugin calling core with a token for one organisation that installed it. */
 export interface PluginCaller {
   plugin: string;
   orgId: string;
+  /** Scopes the organisation granted (and the token carries). */
+  scopes: string[];
+}
+
+/** A plugin calling with its deployment-wide token (no organisation): manifest only. */
+export interface PluginService {
+  plugin: string;
 }
 
 /**
@@ -39,6 +48,7 @@ declare global {
     interface Request {
       actor?: Actor;
       plugin?: PluginCaller;
+      pluginService?: PluginService;
     }
   }
 }
@@ -50,19 +60,12 @@ export const userCaller = (actor: Actor): Caller => ({
   source: 'core',
 });
 
-export const pluginCaller = (plugin: PluginCaller): Caller => ({
+export const pluginCaller = (plugin: Pick<PluginCaller, 'plugin' | 'orgId'>): Caller => ({
   orgId: plugin.orgId,
   actorType: 'plugin',
   actorId: plugin.plugin,
   source: plugin.plugin,
 });
-
-const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
-
-/** Plugin keys by their SHA-256, so a lookup does not compare secrets directly. */
-const pluginKeys = new Map([...config.pluginKeys].map(([secret, name]) => [sha256(secret), name]));
-
-const ORG_HEADER = 'x-erxes-org';
 
 export const isManager = (actor: Actor) => actor.role === 'owner' || actor.role === 'admin';
 
@@ -113,8 +116,22 @@ const verifyAccessToken = (token: string): AccessClaims => {
 const unauthorized = () =>
   new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
 
-/** Paths under /core/v1 that work without being signed in. */
-const PUBLIC_PATHS = new Set(['/auth/sign-in', '/auth/sign-out', '/setup', '/openapi.json']);
+/** Paths under /core/v1 that work without being signed in (public in the access map). */
+const PUBLIC_PATHS = new Set([...publicPaths(coreContract), '/openapi.json', '/.well-known/jwks.json']);
+
+/** JOSE `typ` of plugin access tokens (`POST /plugins/token`). */
+export const PLUGIN_ACCESS_TYP = 'erxes-plugin-access+jwt';
+
+/** Plugin tokens are ES256 JWTs with their own `typ`; member tokens are not. */
+const isPluginToken = (token: string) => {
+  try {
+    const header = JSON.parse(Buffer.from(token.split('.')[0] ?? '', 'base64url').toString()) as { typ?: string };
+
+    return header.typ === PLUGIN_ACCESS_TYP;
+  } catch {
+    return false;
+  }
+};
 
 /** Signed file links: the link itself is the permission. */
 const isSignedFilePath = (path: string) => path.startsWith('/files/signed/');
@@ -152,11 +169,11 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
 
   const header = req.headers.authorization ?? '';
   const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
-  const plugin = bearer ? pluginKeys.get(sha256(bearer)) : undefined;
 
-  if (plugin) {
-    return authenticatePlugin(req, plugin, next);
+  if (bearer && isPluginToken(bearer)) {
+    return authenticatePlugin(req, bearer, next);
   }
+
   const cookie = bearer ? '' : readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '';
   const token = bearer || cookie;
 
@@ -192,28 +209,47 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
     .catch(next);
 };
 
-/** A plugin key names the plugin; `X-Erxes-Org` the organisation it acts for. */
-const authenticatePlugin = (req: Request, plugin: string, next: NextFunction) => {
-  const orgId = req.get(ORG_HEADER)?.trim();
+interface PluginClaims extends Record<string, unknown> {
+  sub: string;
+  org?: string;
+  scope?: string;
+}
 
-  if (!orgId) {
-    return next(new HttpError(400, 'ORG_REQUIRED', 'Plugin calls must name the organisation (X-Erxes-Org)'));
-  }
+/**
+ * A plugin token (`POST /plugins/token`), checked on every request against
+ * the registry and the organisation's installation: disabling a plugin or
+ * uninstalling it cuts it off at once, and scopes can only shrink.
+ */
+const authenticatePlugin = (req: Request, token: string, next: NextFunction) => {
+  verifyJwt<PluginClaims>(token, { typ: PLUGIN_ACCESS_TYP, audience: AUDIENCE })
+    .then(async ({ payload }) => {
+      const [plugin] = await db().select({ status: plugins.status }).from(plugins).where(eq(plugins.name, payload.sub)).limit(1);
 
-  db()
-    .select({ id: organizations.id })
-    .from(organizations)
-    .where(eq(organizations.id, orgId))
-    .limit(1)
-    .then(([organization]) => {
-      if (!organization) {
-        return next(unauthorized());
+      if (plugin?.status !== 'active') return next(unauthorized());
+
+      if (!payload.org) {
+        req.pluginService = { plugin: payload.sub };
+        return next();
       }
 
-      req.plugin = { plugin, orgId: organization.id };
+      const [installation] = await db()
+        .select({ status: pluginInstallations.status, grantedScopes: pluginInstallations.grantedScopes })
+        .from(pluginInstallations)
+        .where(and(eq(pluginInstallations.orgId, payload.org), eq(pluginInstallations.plugin, payload.sub)))
+        .limit(1);
+
+      if (installation?.status !== 'active') return next(unauthorized());
+
+      const granted = new Set(installation.grantedScopes);
+
+      req.plugin = {
+        plugin: payload.sub,
+        orgId: payload.org,
+        scopes: (payload.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
+      };
       return next();
     })
-    .catch(next);
+    .catch(() => next(unauthorized()));
 };
 
 /** The calling plugin; 403 for team members. */

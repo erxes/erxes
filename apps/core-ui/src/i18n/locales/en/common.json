@@ -217,7 +217,8 @@
     "support-access": "Support access",
     "audit-log": "Audit log",
     "notifications": "Notifications",
-    "event-delivery": "Event delivery"
+    "event-delivery": "Event delivery",
+    "plugins": "Plugins"
   },
   "plugin": {
     "_": "Plugin",

@@ -10,7 +10,9 @@ import { useEffect, useSyncExternalStore } from 'react';
  * another tab takes over. (Browsers allow ~6 connections per site over HTTP/1.1;
  * a stream per tab would use them up.)
  *
- * Messages are signals, not data: `inbox`, `timeline { targets }`, `resync`.
+ * Messages are signals, not data: `inbox`, `timeline { targets }`,
+ * `plugin { plugin, topics }` (for plugin UIs, see erxes-ui's plugin runtime),
+ * `resync`.
  * Queries refetch through the normal API. While the stream can't push
  * (`mode: polling`, offline, reconnecting) queries fall back to polling.
  */
@@ -20,6 +22,7 @@ export type LiveMode = 'connecting' | 'live' | 'polling';
 export type LiveMessage =
   | { event: 'inbox' }
   | { event: 'timeline'; data: { targets: { targetType: string; targetId: string }[] } }
+  | { event: 'plugin'; data: { plugin: string; topics: string[] } }
   | { event: 'resync' };
 
 type Wire = LiveMessage | { event: 'mode'; data: LiveMode } | { event: 'mode?' };
@@ -151,6 +154,9 @@ export class LiveClient {
     source.addEventListener('timeline', (event) =>
       this.deliver({ event: 'timeline', data: JSON.parse((event as MessageEvent<string>).data) }, true),
     );
+    source.addEventListener('plugin', (event) =>
+      this.deliver({ event: 'plugin', data: JSON.parse((event as MessageEvent<string>).data) }, true),
+    );
     source.addEventListener('resync', () => this.deliver({ event: 'resync' }, true));
     source.addEventListener('bye', () => {
       // The session ended; the app's own 401 handling takes it from here.
@@ -243,3 +249,10 @@ export const useLiveUpdates = () => {
     };
   }, [client]);
 };
+
+/** Plugin UIs hear their plugin's signals (and reconnects) through erxes-ui's runtime. */
+export const pluginLive = (listener: (message: { plugin: string; topics: string[] } | { resync: true }) => void) =>
+  live.subscribe((message) => {
+    if (message.event === 'plugin') listener(message.data);
+    else if (message.event === 'resync') listener({ resync: true });
+  });

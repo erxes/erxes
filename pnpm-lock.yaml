@@ -60,6 +60,9 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
+      '@erxes/plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/plugin-sdk
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
@@ -209,6 +212,24 @@ importers:
       drizzle-kit:
         specifier: 0.31.11
         version: 0.31.11
+
+  packages/plugin-sdk:
+    dependencies:
+      '@erxes/core-contract':
+        specifier: workspace:*
+        version: link:../contract
+      '@orpc/client':
+        specifier: 1.16.2
+        version: 1.16.2
+      '@orpc/contract':
+        specifier: 1.16.2
+        version: 1.16.2
+      '@orpc/openapi-client':
+        specifier: 1.16.2
+        version: 1.16.2
+      jose:
+        specifier: ^5.9.6
+        version: 5.10.0
 
   packages/ui:
     dependencies:

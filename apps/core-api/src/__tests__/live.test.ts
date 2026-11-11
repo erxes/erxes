@@ -6,8 +6,8 @@ import { signAccessToken } from '~/http/auth';
 import { liveHub } from '~/modules/live/hub';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
+import { pluginToken } from './plugin';
 
-const PLUGIN_KEY = 'test-hr-plugin-key-0123456789abcdefghijklmnop';
 
 /** Reads Server-Sent Events from a stream until `until` matches or time runs out. */
 const openStream = async (url: string, token: string) => {
@@ -126,7 +126,7 @@ describeWithDb('live updates (/core/v1/stream)', () => {
 
     const sent = await fetch(`${base}/core/v1/notifications`, {
       method: 'POST',
-      headers: { authorization: `Bearer ${PLUGIN_KEY}`, 'x-erxes-org': orgId, 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${await pluginToken(base, orgId)}`, 'content-type': 'application/json' },
       body: JSON.stringify({ userIds: [memberId], kind: 'hr.leave.requested', title: 'Leave' }),
     });
 
@@ -167,7 +167,7 @@ describeWithDb('live updates (/core/v1/stream)', () => {
 
     await fetch(`${base}/core/v1/events`, {
       method: 'POST',
-      headers: { authorization: `Bearer ${PLUGIN_KEY}`, 'x-erxes-org': orgId, 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${await pluginToken(base, orgId)}`, 'content-type': 'application/json' },
       body: JSON.stringify({
         events: [{ type: 'hr.contract.signed', subject: { type: 'customer', id: customer.id }, summary: 'Signed' }],
       }),

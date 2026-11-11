@@ -8,6 +8,7 @@ import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { describeWithDb, useTestDatabase } from './db';
+import { pluginToken, requestPluginToken } from './plugin';
 
 /** The database's own message behind a Drizzle query error. */
 const dbError = (query: Promise<unknown>) =>
@@ -74,8 +75,12 @@ describeWithDb('platform services', () => {
     if (typeof auth === 'string') {
       headers.authorization = `Bearer ${auth}`;
     } else {
-      headers.authorization = `Bearer ${auth.plugin}`;
-      headers['x-erxes-org'] = auth.org;
+      // Plugins never send their secret on API calls: they exchange it for a token.
+      const token = await requestPluginToken(base, auth.org, auth.plugin);
+
+      if (token.status !== 200) return token;
+
+      headers.authorization = `Bearer ${token.body.access_token}`;
     }
 
     const response = await fetch(`${base}/core/v1${path}`, {
@@ -252,14 +257,22 @@ describeWithDb('platform services', () => {
     });
 
     it('lets plugins upload for an organisation', async () => {
-      // A plugin key must name the organisation it acts for.
+      // The client secret itself is never accepted on API calls…
       const bare = await call(PLUGIN_KEY, '/files', {
         method: 'POST',
         body: { name: 'x.txt', contentType: 'text/plain', size: 1 },
       });
 
-      expect(bare.status).toBe(400);
-      expect(bare.body.code).toBe('ORG_REQUIRED');
+      expect(bare.status).toBe(401);
+
+      // …and the deployment-wide token (no organisation) only updates the manifest.
+      const service = await call(await pluginToken(base), '/files', {
+        method: 'POST',
+        body: { name: 'x.txt', contentType: 'text/plain', size: 1 },
+      });
+
+      expect(service.status).toBe(403);
+      expect(service.body.code).toBe('ORG_REQUIRED');
 
       const viaPlugin = await call(hr(), '/files', {
         method: 'POST',
@@ -308,7 +321,8 @@ describeWithDb('platform services', () => {
         403,
       );
       expect((await call(hr(), '/notifications')).status).toBe(403);
-      expect((await call({ plugin: PLUGIN_KEY, org: 'missing' }, '/notifications/unread-count')).status).toBe(401);
+      // No token for an organisation that hasn't installed the plugin.
+      expect((await call({ plugin: PLUGIN_KEY, org: 'missing' }, '/notifications/unread-count')).body.code).toBe('NOT_INSTALLED');
     });
 
     it('gives each member their own inbox with unread counts', async () => {

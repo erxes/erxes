@@ -1,6 +1,7 @@
 import { Db, newId, organizations, users, withTransaction } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
+import { installPluginsForNewOrganization } from '~/modules/plugins/plugins.service';
 
 const SUBDOMAIN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 
@@ -55,6 +56,8 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
       status: 'active',
     })
     .returning();
+
+  await installPluginsForNewOrganization(tx, organization!.id);
 
   return { organization: organization!, owner: owner! };
 };

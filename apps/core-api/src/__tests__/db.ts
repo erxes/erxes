@@ -38,6 +38,11 @@ export const useTestDatabase = () => {
     currentUrl = url.toString();
     configureDb({ url: currentUrl, applicationName: 'erxes-core-test' });
     await runMigrations();
+
+    // The test plugin (`hr`, from CORE_PLUGIN_KEYS in vitest.config.ts).
+    const { syncPluginSecrets } = await import('~/modules/plugins/plugins.service');
+
+    await syncPluginSecrets();
   });
 
   afterAll(async () => {

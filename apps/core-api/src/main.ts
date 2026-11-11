@@ -5,6 +5,7 @@ import { startMaintenance } from '~/lib/maintenance';
 import { loadSigningKeys } from '~/lib/signing';
 import { startEventProcessor } from '~/modules/events/processor';
 import { liveHub } from '~/modules/live/hub';
+import { syncPluginSecrets } from '~/modules/plugins/plugins.service';
 
 const start = async () => {
   configureDb({ ...config.data, applicationName: 'erxes-core' });
@@ -16,6 +17,8 @@ const start = async () => {
   if (applied.length) {
     console.log(`[core] applied migrations: ${applied.join(', ')}`);
   }
+
+  await syncPluginSecrets();
 
   const server = createApp().listen(config.port, () => {
     console.log(`[core] api ready at http://localhost:${config.port}`);

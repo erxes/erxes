@@ -9,8 +9,8 @@ export interface PluginRemote {
 
 /**
  * `PUBLIC_PLUGINS`: comma-separated `<remote>@<remoteEntry url>`, e.g.
- * `hr_ui@http://localhost:3025/remoteEntry.js`. The plugin registry API
- * replaces it in a later slice.
+ * `hr_ui@http://localhost:3025/remoteEntry.js` — for development; deployed
+ * plugins come from the registry (their manifest's `ui`).
  */
 export const parsePluginRemotes = (value = import.meta.env.PUBLIC_PLUGINS ?? ''): PluginRemote[] =>
   value

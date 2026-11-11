@@ -218,7 +218,8 @@
     "support-access": "Дэмжлэгийн хандалт",
     "audit-log": "Аудитын бүртгэл",
     "notifications": "Мэдэгдэл",
-    "event-delivery": "Үйл явдлын хүргэлт"
+    "event-delivery": "Үйл явдлын хүргэлт",
+    "plugins": "Плагинууд"
   },
   "plugin": {
     "_": "Плагин",

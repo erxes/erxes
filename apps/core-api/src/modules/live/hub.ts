@@ -7,7 +7,9 @@ export type LiveSignal =
   | { o: string; k: 'inbox'; u: string }
   | { o: string; k: 'timeline'; t: 'customer' | 'company'; i: string }
   /** Many records changed at once (merge, import): refetch everything. */
-  | { o: string; k: 'resync' };
+  | { o: string; k: 'resync' }
+  /** A plugin's topic changed (`core_live_signal`): to everyone, or members `u`. */
+  | { o: string; k: 'plugin'; p: string; t: string; u?: string[] };
 
 /**
  * One LISTEN connection per API server, shared by every open stream:

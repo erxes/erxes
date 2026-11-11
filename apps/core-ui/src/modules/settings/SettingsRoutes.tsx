@@ -4,6 +4,7 @@ import { AuditLogPage } from './audit-log/AuditLogPage';
 import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
 import { NotificationSettingsPage } from './notifications/NotificationSettingsPage';
+import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
 import { PropertiesSettingsRoutes } from './properties/PropertiesSettingsRoutes';
 import { SettingsLayout } from './SettingsLayout';
@@ -21,6 +22,7 @@ export const SettingsRoutes = () => (
       <Route path="file-upload" element={<FileUploadSettingsPage />} />
       <Route path="audit-log" element={<AuditLogPage />} />
       <Route path="event-delivery" element={<EventDeliveryPage />} />
+      <Route path="plugins" element={<PluginsSettingsPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="*" element={<NotFoundPage />} />

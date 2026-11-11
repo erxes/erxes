@@ -2,6 +2,7 @@ import {
   IconBellCog,
   IconChevronLeft,
   IconCloudUpload,
+  IconApps,
   IconHierarchy2,
   IconPlugConnected,
   IconShieldCheck,
@@ -32,6 +33,7 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('tags'), path: 'tags', icon: IconTag },
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
     { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
+    { name: t('plugins', 'Plugins'), path: 'plugins', icon: IconApps },
     // Who changed what: owners and admins only.
     ...(user.role !== 'member'
       ? [

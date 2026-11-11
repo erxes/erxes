@@ -69,8 +69,9 @@ it is built.
   app switcher, open-app tabs, settings, user menu), one `AppLayout` sidebar per
   app, pages built from `PageContainer` / `PageHeader` / `PageSubHeader` /
   `Filter` / `RecordTable`. Reuse erxes-ui parts before writing new ones.
-- **Plugins** load at runtime from `PUBLIC_PLUGINS`
-  (`<remote>@<remoteEntry url>`, comma-separated): `./config` exports `CONFIG`
+- **Plugin UIs** load at runtime from the installed plugins' manifests (`ui`),
+  plus `PUBLIC_PLUGINS` for development (`<remote>@<remoteEntry url>`,
+  comma-separated; wins for the same remote): `./config` exports `CONFIG`
   (`name`, `path`, `icon`, `modules`), and the first module renders under
   `/<path>/*` (default export, or the PascalCase name: `./hr` → `Hr`).
 - **Tests** run against a real Postgres: each test file creates and drops its
@@ -112,8 +113,31 @@ it is built.
   the stored object. `/files/:id/download` is the stable address (session or
   plugin key, then a short-lived link); risky types are only ever downloads.
   erxes-ui's upload hooks use core's storage through `setFileStorage`.
-- Plugins call core with `CORE_PLUGIN_KEYS` (`Authorization: Bearer <key>` +
-  `X-Erxes-Org`); `context.caller` / `pluginOf` in the router. Plugin-only:
+- **Access map** (`src/http/access.ts`): every procedure has a policy —
+  `public`, `member: any | manager | owner`, `plugin: <scope>` (or `manifest`)
+  — checked by one oRPC middleware before the handler. `ACCESS satisfies
+  Record<ProcedurePath, Policy>`: a procedure without an entry doesn't compile.
+- **Plugin connection** (`src/modules/plugins`, `@erxes/plugin-sdk`):
+  - Registry `core_plugins` (client secret hashed; `CORE_PLUGIN_KEYS` registers
+    them at startup, `pnpm plugin:secret -- <name>` rotates with 24 h overlap)
+    and per-organisation `core_plugin_installations` with granted scopes
+    (owners install/uninstall/approve in Settings › Plugins; auto-install for
+    self-hosted and development, `PLUGINS_AUTO_INSTALL`).
+  - Plugin servers: `POST /plugins/token` (client credentials, + `org`) → a
+    15-minute ES256 token with the granted scopes; every request re-checks
+    the installation, so uninstalling cuts a plugin off at once. Without `org`
+    the token only updates the manifest (`PUT /plugins/manifest`: ui, api
+    url, scopes, permissions, notification kinds, events). The secret itself
+    is never accepted on API calls.
+  - Plugin UIs: erxes-ui's `pluginFetch('hr', path)` / `pluginJson` call the
+    plugin's API (manifest `api.url`) with a 5-minute session token (`POST
+    /plugins/{name}/session`, `aud` = the plugin, `typ`
+    `erxes-plugin-session+jwt`) that the plugin verifies with the JWKS
+    (`verifyPluginSession`). Core's session cookie never leaves core.
+  - Live: plugins call `core_live_signal(org, plugin, topic, user_ids)` in
+    their transaction (or `POST /plugins/live`, `live:write`); the stream sends
+    `plugin { plugin, topics }`; plugin UIs use erxes-ui's `useLiveSignal`.
+- `context.caller` / `pluginOf` in the router. Plugin-only:
   `POST /notifications`, `POST /activities`; both take a `dedupeKey` (retry-safe)
   and a kind/type namespaced by the plugin (`hr.leave.requested`).
 - Notifications (`core_notifications`): one inbox per source, like Atlassian —

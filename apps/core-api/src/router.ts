@@ -3,6 +3,17 @@ import { db, type Transaction, withTransaction } from '@erxes/core-db';
 import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { config } from '~/config';
+import { enforceAccess } from '~/http/access';
+import { HttpError } from '~/http/errors';
+import {
+  installPlugin,
+  issuePluginToken,
+  listPlugins,
+  pluginSession,
+  pluginSignal,
+  registerManifest,
+  uninstallPlugin,
+} from '~/modules/plugins/plugins.service';
 import {
   type Actor,
   actorOf,
@@ -117,7 +128,17 @@ export interface CoreContext {
   res: Response;
 }
 
-const pub = implement(coreContract).$context<CoreContext>();
+/**
+ * Every procedure first passes the access map (`~/http/access`): the caller
+ * must be allowed by the procedure's policy before its handler runs.
+ */
+const pub = implement(coreContract)
+  .$context<CoreContext>()
+  .use(({ context, path, next }) => {
+    enforceAccess(path.join('.'), context.req);
+
+    return next();
+  });
 
 /**
  * Procedures for a signed-in member: `context.actor` is the caller (resolved
@@ -125,7 +146,7 @@ const pub = implement(coreContract).$context<CoreContext>();
  */
 const authed = pub.use(({ context, next }) => next({ context: { actor: actorOf(context.req) } }));
 
-/** Procedures for plugins only (plugin key + `X-Erxes-Org`). */
+/** Procedures for plugins only (a plugin token for an organisation). */
 const plugin = pub.use(({ context, next }) => next({ context: { plugin: pluginOf(context.req) } }));
 
 /** Procedures for members and plugins alike; `context.caller` says which. */
@@ -270,6 +291,19 @@ export const coreRouter = pub.router({
     me: authed.auth.me.handler(({ context }) => getSession(context.actor.orgId, context.actor.userId)),
     changePassword: authed.auth.changePassword.handler(({ input, context }) => changeOwnPassword(context.actor, input)),
     signIns: authed.auth.signIns.handler(({ context }) => mySignIns(context.actor)),
+  },
+  plugins: {
+    token: pub.plugins.token.handler(({ input }) => issuePluginToken(input)),
+    registerManifest: pub.plugins.registerManifest.handler(({ input, context }) => {
+      if (!context.req.pluginService) throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+
+      return registerManifest(context.req.pluginService, input);
+    }),
+    list: authed.plugins.list.handler(({ context }) => listPlugins(context.actor)),
+    install: authed.plugins.install.handler(({ input, context }) => installPlugin(context.actor, input.name)),
+    uninstall: authed.plugins.uninstall.handler(({ input, context }) => uninstallPlugin(context.actor, input.name)),
+    session: authed.plugins.session.handler(({ input, context }) => pluginSession(context.actor, input.name)),
+    signal: plugin.plugins.signal.handler(({ input, context }) => pluginSignal(context.plugin, input)),
   },
   organizations: {
     current: authed.organizations.current.handler(async ({ context }) =>
