@@ -184,7 +184,8 @@ export const ORG_PAIRS: OrgPair[] = [
   // { source: '5f17e5226d83c6dc75dfe164', target: 'drprem' },
   // { source: '5f2aa6d008c80642331fcc1e', target: 'dtalent' },
 
-  { source: '60f94e66ab18e2aed7ac4493', target: 'duedash' },
+  // { source: '60f94e66ab18e2aed7ac4493', target: 'duedash' },
+
   { source: '5f0470e146844feda656e02e', target: 'duragrit' },
   { source: '5f2683c1dcb2f640a27cd34b', target: 'dvweb' },
   { source: '5efccfa18030117901656a28', target: 'e' },
