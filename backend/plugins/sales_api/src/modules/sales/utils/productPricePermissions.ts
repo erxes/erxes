@@ -2,6 +2,8 @@ import { IProductData } from '~/modules/sales/@types';
 
 const PRICE_TOLERANCE = 1e-6;
 
+type TCheckPermission = (action: string) => Promise<void>;
+
 type TProductRow = Partial<IProductData>;
 
 const toRows = (rows: unknown): TProductRow[] =>
@@ -19,7 +21,7 @@ const savedRowsById = (rows: unknown) =>
       .map((row) => [row._id, row]),
   );
 
-export const changesUnitPrices = (rows: unknown, savedRows: unknown) => {
+const changesUnitPrices = (rows: unknown, savedRows: unknown) => {
   const saved = savedRowsById(savedRows);
 
   return toRows(rows).some((row) => {
@@ -33,7 +35,7 @@ export const changesUnitPrices = (rows: unknown, savedRows: unknown) => {
   });
 };
 
-export const removesProducts = (rows: unknown, savedRows: unknown) => {
+const removesProducts = (rows: unknown, savedRows: unknown) => {
   const keptIds = new Set(
     toRows(rows)
       .map((row) => row._id)
@@ -41,4 +43,18 @@ export const removesProducts = (rows: unknown, savedRows: unknown) => {
   );
 
   return toRows(savedRows).some((row) => row._id && !keptIds.has(row._id));
+};
+
+export const checkProductRowPermissions = async (
+  checkPermission: TCheckPermission,
+  rows: unknown,
+  savedRows: unknown,
+) => {
+  if (changesUnitPrices(rows, savedRows)) {
+    await checkPermission('dealsProductsEdit');
+  }
+
+  if (removesProducts(rows, savedRows)) {
+    await checkPermission('dealsProductsDelete');
+  }
 };

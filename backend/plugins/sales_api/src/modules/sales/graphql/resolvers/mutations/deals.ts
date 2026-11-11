@@ -14,10 +14,7 @@ import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrenc
 import { normalizeProductUomInfo } from '~/modules/sales/utils/productUom';
 import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
 import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
-import {
-  changesUnitPrices,
-  removesProducts,
-} from '~/modules/sales/utils/productPricePermissions';
+import { checkProductRowPermissions } from '~/modules/sales/utils/productPricePermissions';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -53,14 +50,11 @@ export const dealMutations: Record<string, Resolver> = {
 
     if (doc.productsData !== undefined) {
       const deal = await models.Deals.getDeal(_id);
-
-      if (changesUnitPrices(doc.productsData, deal.productsData)) {
-        await checkPermission('dealsProductsEdit');
-      }
-
-      if (removesProducts(doc.productsData, deal.productsData)) {
-        await checkPermission('dealsProductsDelete');
-      }
+      await checkProductRowPermissions(
+        checkPermission,
+        doc.productsData,
+        deal.productsData,
+      );
     }
 
     return await editDeal({ models, subdomain, _id, processId, doc, user });
@@ -335,9 +329,11 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    if (changesUnitPrices([{ ...doc, _id: dataId }], [oldPData])) {
-      await checkPermission('dealsProductsEdit');
-    }
+    await checkProductRowPermissions(
+      checkPermission,
+      [{ ...doc, _id: dataId }],
+      [oldPData],
+    );
 
     const productsData = await normalizeProductCurrencies(
       subdomain,
