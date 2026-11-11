@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -476,9 +476,13 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   erxes-ui's `ChartTooltip` / `ChartLegend` (another copy's store; the page
   crashes with `activeIndex` of undefined). erxes-ui's `ChartContainer` and
   `Chart*Content` components are safe.
-- Deal unit price (base and entry UOM), row discounts, and footer manual discounts
-  require `dealsProductsEdit`; restricted numeric cells remain readable. Row and bulk
-  product deletion controls require `dealsProductsDelete`.
+- Changing a deal product's unit price directly (base and entry UOM) requires
+  `dealsProductsEdit`. Without it, a user with `dealsEdit` can type a lower
+  price in the base unit price cell: the unit price stays and the difference
+  times quantity becomes the row's `hand` discount; a higher or negative price
+  shows an error toast. The entry UOM price stays read-only. Row and footer
+  manual discounts require `dealsEdit`. Row and bulk product deletion controls
+  require `dealsProductsDelete`.
 
 - The Sales Pipeline breadcrumb links to `/sales/deals` with the current
   `boardId` and `pipelineId`. `SalesSubNavigation` fills a missing board or
@@ -746,6 +750,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   identical.
 - Editing a row discount sets `hand` to the difference between requested total
   discount and existing automatic discount.
+- Newly added product rows start without a discount; they never inherit the
+  deal's current total discount percent (`hooks/useDealProductActions.tsx`).
+  Duplicated rows keep the source row's discount.
 - Editing the footer total discount clears current `hand` for each matching
   currency row and adds the footer amount/percent on top of automatic
   discounts.
@@ -778,10 +785,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 - POS product filters smoke: add/edit/clear all six group filter selections, save and reopen; verify persistence, immediate list refresh, tag descendants, and OR/global-exclusion behavior after sync.
 
-- Permission smoke: without `dealsProductsEdit`, base/entry prices and row/footer
-  discounts remain read-only; without `dealsProductsDelete`, row and bulk delete actions
-  are hidden. Grant each action independently and verify only its controls become
-  available.
+- Permission smoke: as Sales User, change a 1,000,000 unit price to 900,000 and
+  verify the price stays 1,000,000 with a 10% discount; row and footer discounts
+  are editable and rows can be deleted. On a deal with discounted rows, newly
+  added products arrive with a 0 discount. As Sales Admin, the unit price changes
+  directly. Without `dealsProductsDelete`, row and bulk delete actions are hidden.
 
 - `node --test frontend/plugins/sales_ui/src/modules/pos/pos-covers/components/__tests__/coverDetail.test.cjs`
 

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-08`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -383,9 +383,13 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - `Deals.addScoreLogs` only `$addToSet`s ids and sends no db event log, so
   deal-updated automations and segments do not run on point movements. Never
   store a score, total or balance next to the ids: loyalty is the only ledger.
-- The product-row deletion mutation requires `dealsProductsDelete` in addition to
-  `dealsEdit`. Full-array `dealsEdit` saves require `dealsEdit` and
-  `dealsProductsEdit`. The Sales Admin default group includes both product actions.
+- Deal product permissions: `dealsEdit` (or `dealsAdd` for new and copied deals)
+  is enough to add product rows, change quantities and enter discounts.
+  `dealsProductsEdit` is required only when a saved row's `unitPrice` changes
+  (`utils/productPricePermissions.ts`); new rows are not checked. Removing rows
+  requires `dealsProductsDelete`, both in `dealsDeleteProductData` and in a
+  full-array `dealsEdit` save. The Sales User default group includes
+  `dealsProductsDelete`; only Sales Admin includes `dealsProductsEdit`.
 
 - `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
   supplied date, including when copying an existing deal.

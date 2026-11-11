@@ -11,8 +11,12 @@ const {
   TARGET_SUBDOMAIN,
   APPSUMO_OWNER_ID,
   APPSUMO_RUN_ID,
-  APPSUMO_BUNDLE_ID = '68dd0283563460fd84f7c85b',
-  APPSUMO_PRODUCT_ID = '68dd033b563460fd84f7c91a',
+  APPSUMO_BUNDLE_CODE = 'everything',
+  APPSUMO_PRODUCT_CODE = 'erxes-everything',
+  APPSUMO_FREE_PLUGINS = 'frontline,sales,operation,content,loyalty,payment,accounting,tourism,posclient,mongolian,erxes-agent,insurance',
+  APPSUMO_PLAN_INTERVAL = 'yearly',
+  APPSUMO_PLAN_MONTHS = '120',
+  GP2_STRIPE_SECRET_KEY,
   DRY_RUN,
 } = process.env;
 
@@ -105,12 +109,63 @@ async function resolveOwner(
   return null;
 }
 
+type Plan = { bundleId: string; productId: string; bundle: CoreDocument };
+
+let resolvedPlan: Plan | undefined;
+
+async function resolvePlan(coreDb: Db): Promise<Plan> {
+  if (resolvedPlan) {
+    return resolvedPlan;
+  }
+
+  const bundle = await coreDb
+    .collection<CoreDocument>('bundles')
+    .findOne({ code: APPSUMO_BUNDLE_CODE });
+  const product = await coreDb
+    .collection<CoreDocument>('products')
+    .findOne({ code: APPSUMO_PRODUCT_CODE });
+
+  if (!bundle) {
+    throw new Error(
+      `Bundle with code "${APPSUMO_BUNDLE_CODE}" not found in ${coreDb.databaseName}.bundles`,
+    );
+  }
+
+  if (!product) {
+    throw new Error(
+      `Product with code "${APPSUMO_PRODUCT_CODE}" not found in ${coreDb.databaseName}.products`,
+    );
+  }
+
+  for (const [kind, doc] of [
+    ['Bundle', bundle],
+    ['Product', product],
+  ] as const) {
+    if (doc.status && doc.status !== 'active') {
+      console.warn(`${kind} "${doc.code}" has status ${doc.status}`);
+    }
+  }
+
+  resolvedPlan = {
+    bundleId: idString(bundle._id),
+    productId: idString(product._id),
+    bundle,
+  };
+
+  console.log(
+    `Plan: bundle "${bundle.title}" (${resolvedPlan.bundleId}), product "${product.title}" (${resolvedPlan.productId})`,
+  );
+
+  return resolvedPlan;
+}
+
 function buildOrganization(
   held: CoreDocument | null,
   sourceId: string,
   newId: ObjectId,
   owner: Owner,
   runId: string,
+  plan: Plan,
 ): CoreDocument {
   const now = new Date();
 
@@ -133,6 +188,8 @@ function buildOrganization(
     gpOwnerEmail: owner.email,
     gpStatus: 'new',
     isNext: true,
+    bundleId: plan.bundleId,
+    productId: plan.productId,
     onboardingDone: true,
     saas: { organizationId: String(newId), provisionedAt: now },
     migration: {
@@ -148,7 +205,123 @@ function buildOrganization(
   };
 }
 
+async function freePlugins(coreDb: Db): Promise<string[]> {
+  if (APPSUMO_FREE_PLUGINS) {
+    return APPSUMO_FREE_PLUGINS.split(',')
+      .map((code) => code.trim())
+      .filter(Boolean);
+  }
+
+  const { bundle } = await resolvePlan(coreDb);
+
+  const limits: Record<string, number> = bundle.pluginLimits || {};
+  const plugins = new Set<string>();
+
+  for (const [key, limit] of Object.entries(limits)) {
+    const [plugin] = key.split(':');
+
+    if (key.includes(':') && plugin !== 'core' && Number(limit) > 0) {
+      plugins.add(plugin);
+    }
+  }
+
+  return [...plugins];
+}
+
+async function createStripeCustomer(
+  organizationId: string,
+  owner: Owner,
+  plugins: string[],
+): Promise<string> {
+  const body = new URLSearchParams({
+    name: targetSubdomain,
+    email: owner.email,
+    'metadata[subdomain]': targetSubdomain,
+    'metadata[organizationId]': organizationId,
+    'metadata[source]': SOURCE,
+    'metadata[free_plugins]': plugins.join(','),
+  });
+  const response = await fetch('https://api.stripe.com/v1/customers', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${GP2_STRIPE_SECRET_KEY}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Idempotency-Key': `${SOURCE}-${organizationId}`,
+    },
+    body,
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Stripe customers: ${response.status} ${await response.text()}`,
+    );
+  }
+
+  const customer = (await response.json()) as { id: string };
+
+  return customer.id;
+}
+
+async function ensureStripeCustomer(
+  coreDb: Db,
+  organization: CoreDocument,
+  owner: Owner,
+) {
+  const organizationId = idString(organization._id);
+  const plugins = await freePlugins(coreDb);
+
+  if (organization.gpStripeCustomerId) {
+    console.log(
+      `Stripe customer ${
+        organization.gpStripeCustomerId
+      } already set; plugins stay as Stripe grants them (bundle would give: ${plugins.join(
+        ', ',
+      )})`,
+    );
+    return;
+  }
+
+  if (!GP2_STRIPE_SECRET_KEY) {
+    console.warn(
+      `GP2_STRIPE_SECRET_KEY is not set: no Stripe customer, so the organization gets no plugins (bundle would give: ${plugins.join(
+        ', ',
+      )})`,
+    );
+    return;
+  }
+
+  if (isDryRun) {
+    console.log(
+      `Stripe customer would be created with free_plugins: ${plugins.join(
+        ', ',
+      )}`,
+    );
+    return;
+  }
+
+  const customerId = await createStripeCustomer(organizationId, owner, plugins);
+
+  await coreDb.collection<CoreDocument>('organizations').updateOne(
+    { _id: organization._id },
+    {
+      $set: {
+        gpStripeCustomerId: customerId,
+        'billing.customerId': customerId,
+        updatedAt: new Date(),
+      },
+    },
+  );
+
+  console.log(
+    `Stripe customer ${customerId} created with free_plugins: ${plugins.join(
+      ', ',
+    )}`,
+  );
+}
+
 async function ensurePlanHistory(coreDb: Db, organizationId: string) {
+  const plan = await resolvePlan(coreDb);
   const histories = coreDb.collection('organization_plan_histories');
   const active = await histories.countDocuments({
     organizationId,
@@ -162,7 +335,7 @@ async function ensurePlanHistory(coreDb: Db, organizationId: string) {
 
   const now = new Date();
   const endsAt = new Date(now);
-  endsAt.setMonth(endsAt.getMonth() + 1);
+  endsAt.setMonth(endsAt.getMonth() + Number(APPSUMO_PLAN_MONTHS));
 
   if (!isDryRun) {
     await histories.insertOne({
@@ -170,9 +343,9 @@ async function ensurePlanHistory(coreDb: Db, organizationId: string) {
       source: 'onboarding',
       status: 'active',
       isNext: true,
-      productId: APPSUMO_PRODUCT_ID,
-      bundleId: APPSUMO_BUNDLE_ID,
-      interval: 'monthly',
+      productId: plan.productId,
+      bundleId: plan.bundleId,
+      interval: APPSUMO_PLAN_INTERVAL,
       pluginsLimitsSnapshot: {},
       startsAt: now,
       endsAt,
@@ -183,7 +356,7 @@ async function ensurePlanHistory(coreDb: Db, organizationId: string) {
   }
 
   console.log(
-    `Plan history: bundle ${APPSUMO_BUNDLE_ID}, product ${APPSUMO_PRODUCT_ID}, monthly until ${endsAt.toISOString()}`,
+    `Plan history: ${APPSUMO_PLAN_INTERVAL} until ${endsAt.toISOString()}`,
   );
 }
 
@@ -237,6 +410,19 @@ async function main() {
           )} (run ${migration.runId})`,
         );
         await ensurePlanHistory(coreDb, idString(existing._id));
+
+        const existingOwner = await coreDb
+          .collection<CoreDocument>('users')
+          .findOne({ _id: { $in: idVariants(idString(existing.ownerId)) } });
+
+        await ensureStripeCustomer(coreDb, existing, {
+          id: idString(existing.ownerId),
+          email: String(
+            (existingOwner && existingOwner.email) ||
+              existing.gpOwnerEmail ||
+              '',
+          ),
+        });
         return;
       }
 
@@ -261,13 +447,21 @@ async function main() {
       );
     }
 
-    const doc = buildOrganization(held, sourceId, newId, owner, runId);
+    const doc = buildOrganization(
+      held,
+      sourceId,
+      newId,
+      owner,
+      runId,
+      await resolvePlan(coreDb),
+    );
 
     if (!isDryRun) {
       await organizations.insertOne(doc);
     }
 
     await ensurePlanHistory(coreDb, String(newId));
+    await ensureStripeCustomer(coreDb, doc, owner);
 
     console.log(`Source: ${sourceRef} → erxes_${sourceId}`);
     console.log(

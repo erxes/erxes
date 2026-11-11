@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -79,6 +79,10 @@
 
 ## Local Invariants
 
+- Resolvers call `checkPermission` with the bare action name declared in
+  `src/meta/permissions.ts` (`putResponses`, not `ebarimt:putResponses`): the
+  shared permission map is keyed by action name only, so a prefixed name denies
+  every non-owner even with the `mongolian:admin` group.
 - Deal contacts for ebarimt, erkhet and product places come from `getDealContactIds` (`modules/ebarimt/utils/dealContacts.ts`): the deal's own `customerId` / `companyId` (a list of at most one); given only the deal id, the deal is read from sales `deal.findOne`. No relations are read.
 - eBarimt bill-type mappings accept `regNoField` / `companyNameField` and legacy `regNo` / `companyName` keys; `basic` mappings read deal fields and other mappings read `propertiesData`. An explicit B2C selection takes precedence over the linked company.
 - Erkhet sales receipt sync accepts company registration numbers and 11/12/14-digit TINs as B2B codes.

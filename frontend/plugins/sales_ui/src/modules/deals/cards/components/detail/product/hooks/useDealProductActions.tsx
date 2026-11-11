@@ -5,7 +5,7 @@ import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import {
   ProductDataWithDiscountInfos,
-  applyFooterDiscountPercent,
+  recalculateProductDiscount,
 } from '../utils/discountInfos';
 import { getProductDefaultUom, normalizeProductUom } from '../utils/productUom';
 import { useDealsCreateProductsData } from './mutations/useDealsCreateProductsData';
@@ -15,7 +15,6 @@ import { AdjustmentByCurrency } from './useProductCalculations';
 interface UseDealProductActionsParams {
   tickUsed: boolean;
   tax: AdjustmentByCurrency;
-  discount: AdjustmentByCurrency;
   setLocalProductsData: Dispatch<SetStateAction<DealProductData[]>>;
   updateTotal: (productsData: DealProductData[]) => void;
   calculatePerProductAmount: (
@@ -37,7 +36,6 @@ const startProcess = () => {
 export const useDealProductActions = ({
   tickUsed,
   tax,
-  discount,
   setLocalProductsData,
   updateTotal,
   calculatePerProductAmount,
@@ -106,7 +104,7 @@ export const useDealProductActions = ({
           taxPercent: tax[currency]?.percent || 0,
           discount: 0,
           vatPercent: 0,
-          discountPercent: discount[currency]?.percent || 0,
+          discountPercent: 0,
           amount: 0,
           currency,
           tickUsed,
@@ -121,10 +119,7 @@ export const useDealProductActions = ({
           _id: crypto.randomUUID(),
         };
 
-        return applyFooterDiscountPercent(
-          normalizeProductUom(row),
-          discount[currency]?.percent || 0,
-        );
+        return recalculateProductDiscount(normalizeProductUom(row));
       });
 
       // The server schema has no `product` field: send the stripped rows as
@@ -141,7 +136,6 @@ export const useDealProductActions = ({
       calculatePerProductAmount,
       createProductsData,
       currencies,
-      discount,
       tax,
       tickUsed,
     ],
