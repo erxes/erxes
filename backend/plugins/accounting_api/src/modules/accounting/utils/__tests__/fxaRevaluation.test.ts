@@ -141,6 +141,10 @@ const valuation: TFxaCapitalValuation = {
   count: 3,
   originalCost: 30,
   preDeprecation: 24,
+  taxPreDeprecation: 24,
+  hasTaxDepreciation: false,
+  incomeTaxRate: undefined,
+  taxOriginalCost: 30,
   annualDepreciationRate: 20,
   depreciationMethod: 'straightLine',
   salvageValue: 0,
@@ -153,8 +157,20 @@ const valuation: TFxaCapitalValuation = {
   taxAnnualDepreciationRate: 20,
   taxSalvageValue: 0,
   locations: [
-    { branchId: 'a', departmentId: '', count: 2 },
-    { branchId: 'b', departmentId: '', count: 1 },
+    {
+      branchId: 'a',
+      departmentId: '',
+      count: 2,
+      deferredTaxAsset: 0,
+      deferredTaxLiability: 0,
+    },
+    {
+      branchId: 'b',
+      departmentId: '',
+      count: 1,
+      deferredTaxAsset: 0,
+      deferredTaxLiability: 0,
+    },
   ],
 };
 

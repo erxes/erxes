@@ -2,6 +2,14 @@ import type { TFunction } from 'i18next';
 import { getI18n } from 'react-i18next';
 
 const labels: Record<string, { en: string; mn: string }> = {
+  'fxa-capital-income-tax-rate-required': {
+    en: 'Enter an income tax rate for the capitalization depreciation difference.',
+    mn: 'Капиталжуулалтын элэгдлийн зөрүүнд хэрэглэх ААНОАТ-ын хувийг оруулна уу.',
+  },
+  'fxa-capital-tax-accounts-required': {
+    en: 'Configure deferred tax and income tax expense accounts for this asset account.',
+    mn: 'Хөрөнгийн дансанд хойшлогдсон татварын болон татварын зардлын дансыг тохируулна уу.',
+  },
   'tax-useful-life-in-years': {
     en: 'Tax useful life (years)',
     mn: 'Татварын ашиглах жил',
@@ -37,18 +45,6 @@ const labels: Record<string, { en: string; mn: string }> = {
   'total-revaluation-reserve-balance': {
     en: 'Total revaluation reserve balance',
     mn: 'Дахин үнэлгээний нөөцийн нийт үлдэгдэл',
-  },
-  'income-tax-rate-missing': {
-    en: 'Income tax rate is missing. Run the calculation and enter the rate to calculate tax depreciation and deferred tax.',
-    mn: 'Орлогын албан татварын хувь оруулаагүй байна. Ажиллуулах товчоор хувиа оруулж, татварын тооцоог хийнэ.',
-  },
-  'income-tax-rate-missing-posted': {
-    en: 'Income tax rate is missing. Cancel this period, then run it with an income tax rate to calculate tax depreciation and deferred tax.',
-    mn: 'Орлогын албан татварын хувь оруулаагүй байна. Энэ үеийг цуцлаад, Ажиллуулах товчоор хувиа оруулж татварын тооцоог хийнэ.',
-  },
-  'income-tax-rate-run-description': {
-    en: 'Enter the income tax rate and recalculate depreciation and deferred tax for this period.',
-    mn: 'Орлогын албан татварын хувийг оруулж, энэ үеийн элэгдэл болон хойшлогдсон татварыг дахин тооцоолно.',
   },
   'income-tax-rate': {
     en: 'Income tax rate (%)',

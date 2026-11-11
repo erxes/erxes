@@ -1,3 +1,4 @@
+import { calculateFxaTaxDepreciation } from '../fxaDepreciation';
 import type { IModels } from '~/connectionResolvers';
 import type { IFxaLedgerAsset } from '../fxaLedger';
 import type {
@@ -5,10 +6,10 @@ import type {
   IAdjustFxaDetail,
 } from '../../@types/adjustFixedAsset';
 import type { ITransaction } from '../../@types/transaction';
-import {
-  calculateFxaTaxDepreciation,
-  createAdjustFixedAssetTransaction,
-} from '../adjustFixedAssets';
+import { createAdjustFixedAssetTransaction } from '../adjustFixedAssets';
+jest.mock('../fxaIncomeTaxRates', () => ({
+  getFxaIncomeTaxRates: jest.fn(async () => new Map([['asset', 10]])),
+}));
 import { getFxaDeferredTaxTransactions } from '../fxaDeferredTax';
 import { JOURNALS, TR_SIDES } from '../../@types/constants';
 
@@ -150,10 +151,10 @@ const adjust = {
   _id: 'adjust',
   date: new Date('2026-02-28T00:00:00'),
   description: 'Depreciation',
-  taxRate: 10,
 } as IAdjustFixedAssetDocument;
-const detail: IAdjustFxaDetail = {
+const detail: IAdjustFxaDetail & { incomeTaxRate: number } = {
   adjustId: 'adjust',
+  incomeTaxRate: 10,
   fixedAssetId: 'asset',
   accountId: 'cost',
   branchId: 'a',
@@ -217,7 +218,11 @@ test.each([
   'deferred tax uses the configured asset/liability and expense accounts',
   async (dta, dtl, expectedDta, expectedDtl, expectedExpense) => {
     const docs = await getFxaDeferredTaxTransactions(fixtures(), adjust, [
-      { ...detail, deferredTaxAsset: dta, deferredTaxLiability: dtl },
+      {
+        ...detail,
+        accumulatedDepreciation: dta * 10,
+        taxAccumulatedDepreciation: dtl * 10,
+      },
     ]);
     expect(signed(docs, 'dta')).toBe(expectedDta);
     expect(signed(docs, 'dtl')).toBe(expectedDtl);
@@ -239,7 +244,7 @@ test('posts only the change, including a reversal when the sign crosses', async 
   const docs = await getFxaDeferredTaxTransactions(
     fixtures(postedLiability),
     adjust,
-    [{ ...detail, deferredTaxAsset: 5, deferredTaxLiability: 0 }],
+    [{ ...detail, accumulatedDepreciation: 50, taxAccumulatedDepreciation: 0 }],
   );
   expect(signed(docs, 'dtl')).toBe(10);
   expect(signed(docs, 'dta')).toBe(5);
@@ -259,15 +264,55 @@ test('fully disposed location clears deferred liability even with zero book depr
 test('unchanged balance produces no duplicate journal', async () => {
   expect(
     await getFxaDeferredTaxTransactions(fixtures(postedLiability), adjust, [
-      { ...detail, deferredTaxLiability: 10 },
+      { ...detail, taxAccumulatedDepreciation: 100 },
     ]),
   ).toEqual([]);
+});
+
+test('posting ignores contradictory legacy cached tax targets', async () => {
+  const legacy = {
+    ...detail,
+    accumulatedDepreciation: 1000,
+    taxAccumulatedDepreciation: 600,
+    temporaryDifference: 999,
+    deferredTaxAsset: 999,
+    deferredTaxLiability: 999,
+  };
+  const docs = await getFxaDeferredTaxTransactions(fixtures(), adjust, [
+    legacy,
+  ]);
+  expect(signed(docs, 'dta')).toBe(40);
+  expect(signed(docs, 'dtl')).toBe(0);
+  expect(signed(docs, 'expense')).toBe(-40);
+});
+
+test('assets in the same posting use their own income tax rates', async () => {
+  const totals = {
+    ...detail,
+    accumulatedDepreciation: 1000,
+    taxAccumulatedDepreciation: 600,
+  };
+  const docs = await getFxaDeferredTaxTransactions(fixtures(), adjust, [
+    { ...totals, fixedAssetId: 'first', incomeTaxRate: 10 },
+    { ...totals, fixedAssetId: 'second', incomeTaxRate: 20 },
+  ]);
+  const assets = docs
+    .flatMap((doc) => doc.details)
+    .filter((row) => row.accountId === 'dta');
+  expect(assets).toEqual([
+    expect.objectContaining({ fixedAssetId: 'first', amount: 40 }),
+    expect.objectContaining({ fixedAssetId: 'second', amount: 80 }),
+  ]);
 });
 
 test('missing configuration fails before transaction writes', async () => {
   await expect(
     getFxaDeferredTaxTransactions(fixtures([], ''), adjust, [
-      { ...detail, deferredTaxAsset: 10 },
+      {
+        ...detail,
+        accumulatedDepreciation: 100,
+        taxAccumulatedDepreciation: 0,
+      },
     ]),
   ).rejects.toThrow('Configure deferred tax');
 });
@@ -285,7 +330,6 @@ test.each([1000, 0])(
       accumulatedDepreciation: 1000,
       taxDepreciationAmount: 600,
       taxAccumulatedDepreciation: 600,
-      deferredTaxAsset: 40,
     };
     const models = {
       Configs: {
@@ -346,5 +390,32 @@ test.each([1000, 0])(
         $set: expect.objectContaining({ transactionId: 'parent' }),
       }),
     );
+  },
+);
+
+test.each([
+  [80, 120],
+  [0, 40],
+])(
+  'dated capital tax target %s resets accumulation once and keeps period tax expense separate',
+  (target, closing) => {
+    const corrections = [
+      {
+        fixedAssetId: 'asset',
+        date: new Date('2026-02-01T00:00:00'),
+        rules: { taxPreDeprecation: target },
+      },
+    ];
+    expect(calculate({ corrections }).get('a:')?.accumulated).toBeCloseTo(
+      closing,
+    );
+    expect(calculate({ corrections }).get('a:')?.amount).toBeCloseTo(40);
+    expect(
+      calculate({
+        corrections,
+        beginDate: new Date('2026-01-01T00:00:00'),
+        endDate: new Date('2026-01-31T00:00:00'),
+      }).get('a:')?.accumulated,
+    ).toBeCloseTo(40);
   },
 );

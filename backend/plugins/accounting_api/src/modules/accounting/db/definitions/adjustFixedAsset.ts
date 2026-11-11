@@ -6,7 +6,6 @@ export const adjustFixedAssetSchema = new Schema({
   _id: mongooseStringRandomId,
   date: { type: Date, label: 'Date', index: true },
   description: { type: String, label: 'Description' },
-  taxRate: { type: Number, min: 0, max: 100, optional: true },
   expenseAccountId: {
     type: String,
     optional: true,
@@ -59,9 +58,6 @@ export const adjustFxaDetailSchema = new Schema({
   },
   taxDepreciationAmount: { type: Number, optional: true },
   taxAccumulatedDepreciation: { type: Number, optional: true },
-  temporaryDifference: { type: Number, optional: true },
-  deferredTaxAsset: { type: Number, optional: true },
-  deferredTaxLiability: { type: Number, optional: true },
   revaluationLoss: { type: Number, default: 0 },
   revaluationReserve: { type: Number, default: 0 },
   transactionId: { type: String, optional: true, label: 'Transaction' },

@@ -1,3 +1,4 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { FxaDepreciationFields } from '@/transactions/transaction-form/components/forms/FxaDepreciationFields';
 import { getTotalFxaDepreciation } from '@/transactions/transaction-form/components/helpers/fxaDepreciation';
 import { useEffect, useState } from 'react';
@@ -89,6 +90,13 @@ export const FxaChangeRow = ({
       annualDepreciationRate: valuation.annualDepreciationRate,
       depreciationMethod: valuation.depreciationMethod,
       preDeprecation: valuation.preDeprecation,
+      ...(!revaluation
+        ? {
+            taxPreDeprecation:
+              valuation.taxPreDeprecation ?? valuation.preDeprecation,
+            incomeTaxRate: valuation.incomeTaxRate ?? undefined,
+          }
+        : {}),
       salvageValue: valuation.salvageValue,
       taxDepreciationMethod: valuation.taxDepreciationMethod || undefined,
       taxAnnualDepreciationRate:
@@ -96,7 +104,7 @@ export const FxaChangeRow = ({
       taxSalvageValue: valuation.taxSalvageValue ?? undefined,
     });
     setPendingAsset('');
-  }, [assetId, detailIndex, form, index, pendingAsset, valuation]);
+  }, [assetId, detailIndex, form, index, pendingAsset, revaluation, valuation]);
   const fieldProps = { form, index, detailIndex };
   const title = revaluation ? 'fxa-revaluation-details' : 'fxa-capital-details';
   let message = error?.message || '';
@@ -147,7 +155,40 @@ export const FxaChangeRow = ({
                 <SelectFixedAsset.Value />
               </SelectFixedAsset.Provider>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <FxaDepreciationFields {...fieldProps} valuation={valuation} />
+                <FxaDepreciationFields
+                  {...fieldProps}
+                  valuation={valuation}
+                  labels={
+                    valuation?.hasTaxDepreciation && !revaluation
+                      ? {
+                          unit: getFxaTaxLabel(
+                            t,
+                            'unit-accumulated-depreciation',
+                          ),
+                          total: getFxaTaxLabel(
+                            t,
+                            'total-accumulated-depreciation',
+                          ),
+                        }
+                      : undefined
+                  }
+                />
+                {!revaluation && valuation?.hasTaxDepreciation && (
+                  <>
+                    <FxaDepreciationFields
+                      {...fieldProps}
+                      valuation={valuation}
+                      tax
+                      showUnit={false}
+                    />
+                    <FxaChangeNumberField
+                      {...fieldProps}
+                      rule="incomeTaxRate"
+                      label="income-tax-rate"
+                      fallbackValue={valuation.incomeTaxRate ?? undefined}
+                    />
+                  </>
+                )}
                 <FxaChangeNumberField
                   {...fieldProps}
                   rule="salvageValue"

@@ -20,7 +20,7 @@ import {
   Table,
   Tooltip,
 } from 'erxes-ui';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectMember } from 'ui-modules';
 import {
@@ -145,13 +145,13 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   detailIndex: number;
 }) => {
   const { t } = useTranslation('accounting');
-  const [showTax, setShowTax] = useState(false);
   const taxToggleId = useId();
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
   }) as TFxaIncomeJournal;
   const detail = trDoc.details?.[detailIndex];
+  const showTax = detail?.followInfos?.hasTaxDepreciation === true;
   const managedOwners = trDoc.extraData?.fxaOwnerRecords || [];
   const detailOwners = managedOwners
     .map((owner, ownerIndex) => ({ owner, ownerIndex }))
@@ -262,10 +262,16 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
             </Tooltip>
           </div>
           <div className="flex items-center gap-2 mb-4">
-            <Switch
-              id={taxToggleId}
-              checked={showTax}
-              onCheckedChange={setShowTax}
+            <Form.Field
+              control={form.control}
+              name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.hasTaxDepreciation`}
+              render={({ field }) => (
+                <Switch
+                  id={taxToggleId}
+                  checked={field.value === true}
+                  onCheckedChange={field.onChange}
+                />
+              )}
             />
             <Label htmlFor={taxToggleId}>
               {t('tax-calculation', { defaultValue: 'Татварын тооцоо' })}
@@ -334,6 +340,13 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                   detailIndex={detailIndex}
                   count={detailCount}
                   tax
+                />
+                <FxaChangeNumberField
+                  form={form}
+                  index={journalIndex}
+                  detailIndex={detailIndex}
+                  rule="incomeTaxRate"
+                  label="income-tax-rate"
                 />
               </div>
               <FxaChangeNumberField

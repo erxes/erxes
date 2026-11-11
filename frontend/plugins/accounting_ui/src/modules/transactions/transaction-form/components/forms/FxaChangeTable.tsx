@@ -1,3 +1,5 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
+import { useFixedAssetAccountConfigs } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
 import { useCallback, useMemo, useState } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -47,11 +49,24 @@ export const FxaChangeTable = ({
       ),
     [valuationMap],
   );
-  const mixedDirections = useFxaCapitalPreview({
+  const {
+    configs,
+    loading: taxAccountsLoading,
+    error: taxAccountsError,
+  } = useFixedAssetAccountConfigs();
+  const taxAccounts = useMemo(
+    () =>
+      taxAccountsLoading || taxAccountsError
+        ? undefined
+        : Object.fromEntries(configs.map((row) => [row.accountId, row.value])),
+    [configs, taxAccountsLoading, taxAccountsError],
+  );
+  const { mixedDirections, error: taxError } = useFxaCapitalPreview({
     form,
     index,
     trDoc,
     valuation: valuations,
+    taxAccounts,
   });
   if (
     !trDoc ||
@@ -113,6 +128,16 @@ export const FxaChangeTable = ({
             : 'fxa-capital-help',
         )}
       </p>
+      {taxError && (
+        <p role="alert" className="text-sm text-destructive">
+          {getFxaTaxLabel(t, taxError)}
+        </p>
+      )}
+      {taxAccountsError && valuations.some((row) => row.hasTaxDepreciation) && (
+        <p role="alert" className="text-sm text-destructive">
+          {taxAccountsError.message}
+        </p>
+      )}
       {mixedDirections && (
         <p role="alert" className="text-sm text-destructive">
           {t('fxa-capital-mixed-direction')}

@@ -51,12 +51,6 @@ export const loadAdjustFixedAssetClass = (
     }
 
     public static async createAdjustFixedAsset(doc: IAdjustFixedAsset) {
-      if (
-        doc.taxRate !== undefined &&
-        (!Number.isFinite(doc.taxRate) || doc.taxRate < 0 || doc.taxRate > 100)
-      ) {
-        throw new Error('Income tax rate must be between 0 and 100.');
-      }
       const previous = await models.AdjustFixedAssets.findOne({
         expenseAccountId: { $exists: true, $nin: ['', null] },
       })

@@ -25,6 +25,8 @@ export interface IFxaLedgerAsset extends IFixedAsset {
   taxAnnualDepreciationRate: number;
   taxSalvageValue: number;
   taxOpeningDepreciation?: number;
+  hasTaxDepreciation?: boolean;
+  incomeTaxRate?: number;
 }
 
 export const assertFxaAcquisitionConsistency = (
@@ -44,9 +46,13 @@ export const assertFxaAcquisitionConsistency = (
       info.depreciationMethod,
       info.annualDepreciationRate,
       info.salvageValue,
-      info.taxDepreciationMethod,
-      info.taxAnnualDepreciationRate,
-      info.taxSalvageValue,
+      info.hasTaxDepreciation === true,
+      info.incomeTaxRate,
+      info.hasTaxDepreciation === true ? info.taxDepreciationMethod : undefined,
+      info.hasTaxDepreciation === true
+        ? info.taxAnnualDepreciationRate
+        : undefined,
+      info.hasTaxDepreciation === true ? info.taxSalvageValue : undefined,
     ]);
     const previous = signatures.get(key);
     if (previous && previous !== signature) {
@@ -163,6 +169,11 @@ export const buildFxaLedgerAssets = (
             : 'straightLine',
         taxAnnualDepreciationRate: Number(info.taxAnnualDepreciationRate || 0),
         taxSalvageValue: Number(info.taxSalvageValue || 0),
+        hasTaxDepreciation: info.hasTaxDepreciation === true,
+        incomeTaxRate:
+          typeof info.incomeTaxRate === 'number'
+            ? info.incomeTaxRate
+            : undefined,
         taxOpeningDepreciation: count
           ? incomes.reduce(
               (sum, row) =>

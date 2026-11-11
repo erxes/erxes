@@ -3,7 +3,6 @@ import { AdjustFixedAssetDetail } from '@/adjustments/fxa/components/AdjustFixed
 
 let mockStatus = 'complete';
 let mockError = '';
-let mockTaxRate: number | undefined = 10;
 let mockParent: string | undefined = 'generated-parent';
 const mockRun = jest.fn();
 const mockCancel = jest.fn();
@@ -71,7 +70,6 @@ jest.mock('@/adjustments/fxa/hooks/useAdjustFixedAssetDetail', () => ({
       _id: 'adjust',
       status: mockStatus,
       error: mockError,
-      taxRate: mockTaxRate,
     },
     loading: false,
   }),
@@ -113,7 +111,6 @@ jest.mock('@/adjustments/fxa/hooks/useAdjustFixedAssetActions', () => ({
 beforeEach(() => {
   mockStatus = 'complete';
   mockError = '';
-  mockTaxRate = 10;
   mockParent = 'generated-parent';
   jest.clearAllMocks();
 });
@@ -181,23 +178,13 @@ test('running periods do not expose conflicting operations', () => {
   expect(screen.queryByRole('button', { name: 'delete' })).toBeNull();
 });
 
-test('legacy periods explain missing tax rate and block posting until recalculation', () => {
+test('calculation runs directly without an adjustment income tax setting', () => {
   mockStatus = 'process';
-  mockTaxRate = undefined;
   render(<AdjustFixedAssetDetail />);
-  expect(screen.getByRole('alert').textContent).toBe('income-tax-rate-missing');
+  expect(screen.queryByRole('alert')).toBeNull();
   expect(
-    screen.queryByRole('button', { name: 'depreciation-transaction' }),
-  ).toBeNull();
-  expect(screen.getByRole('button', { name: 'run' })).toBeDefined();
-});
-
-test('published legacy periods explain how to enable tax calculation', () => {
-  mockTaxRate = undefined;
-  mockStatus = 'publish';
-  render(<AdjustFixedAssetDetail />);
-  expect(screen.getByRole('alert').textContent).toBe(
-    'income-tax-rate-missing-posted',
-  );
-  expect(screen.getByRole('button', { name: 'cancel' })).toBeDefined();
+    screen.getByRole('button', { name: 'depreciation-transaction' }),
+  ).toBeDefined();
+  fireEvent.click(screen.getByRole('button', { name: 'run' }));
+  expect(mockRun).toHaveBeenCalledWith();
 });

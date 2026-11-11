@@ -1,4 +1,8 @@
 import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
+import {
+  getFxaIncomeTaxDocuments,
+  syncFxaIncomeDeferredTax,
+} from './fxaIncomeTax';
 import { assertFxaAcquisitionConsistency } from './fxaLedger';
 import { nanoid } from 'nanoid';
 import { fixNum } from 'erxes-api-shared/utils';
@@ -77,6 +81,7 @@ const buildFixedAssetDoc = ({
     taxDepreciationMethod?: string;
     defaultTaxAnnualDepreciationRate?: number;
     defaultTaxSalvageValue?: number;
+    incomeTaxRate?: number;
   };
   date: Date;
   detail: ITrDetail;
@@ -85,6 +90,8 @@ const buildFixedAssetDoc = ({
 }): IFixedAsset => {
   detail.followInfos = {
     ...detail.followInfos,
+    hasTaxDepreciation: detail.followInfos?.hasTaxDepreciation ?? false,
+    incomeTaxRate: detail.followInfos?.incomeTaxRate ?? category?.incomeTaxRate,
     depreciationStartDate: detail.followInfos?.depreciationStartDate || date,
     depreciationMethod:
       detail.followInfos?.depreciationMethod ??
@@ -650,6 +657,7 @@ export const validateFxaIncomeAcquisition = async (
   }
   if ((transaction.details || []).some((detail) => (detail.count || 0) > 0)) {
     await prepareFxaIncomeAcquisition(models, userId, transaction);
+    await getFxaIncomeTaxDocuments(models, userId, transaction);
   }
 };
 
@@ -764,6 +772,8 @@ export const syncFxaIncomeDetails = async (
     transaction,
     userId,
   });
+
+  await syncFxaIncomeDeferredTax(models, userId, transaction);
 
   await models.Transactions.updateOne(
     { _id: transaction._id },

@@ -47,7 +47,8 @@ const setup = ({
   method = 'straightLine',
   annualDepreciationRate = 12,
   taxAnnualDepreciationRate,
-  taxRate,
+  hasTaxDepreciation,
+  incomeTaxRate,
   salvageValue = 0,
   acquisitionDate = '2026-01-01',
   snapshotHasAsset = true,
@@ -57,7 +58,8 @@ const setup = ({
   method?: string;
   annualDepreciationRate?: number;
   taxAnnualDepreciationRate?: number;
-  taxRate?: number;
+  hasTaxDepreciation?: boolean;
+  incomeTaxRate?: number;
   salvageValue?: number;
   acquisitionDate?: string;
   snapshotHasAsset?: boolean;
@@ -66,11 +68,13 @@ const setup = ({
     if (transaction.journal !== JOURNALS.FXA_INCOME) continue;
     for (const detail of transaction.details) {
       detail.accountId = 'asset-account';
+      detail.followInfos = { ...detail.followInfos, incomeTaxRate };
       detail.followInfos = {
         ...detail.followInfos,
         depreciationMethod: method,
         annualDepreciationRate,
         taxAnnualDepreciationRate,
+        hasTaxDepreciation,
         salvageValue,
         depreciationStartDate: new Date(acquisitionDate),
       };
@@ -200,7 +204,6 @@ const setup = ({
       // The fixture implements only the model surface used by this calculation.
       await runAdjustFixedAsset(models as unknown as IModels, 'user', {
         _id: 'adjust',
-        taxRate,
         date: new Date(date),
         status: ADJ_FXA_STATUSES.DRAFT,
         createdAt: new Date(),
@@ -680,7 +683,8 @@ test('1000 book depreciation and 600 tax depreciation cache separately and produ
   const fixture = setup({
     annualDepreciationRate: 100,
     taxAnnualDepreciationRate: 60,
-    taxRate: 10,
+    hasTaxDepreciation: true,
+    incomeTaxRate: 10,
     transactions: [
       entry(JOURNALS.FXA_INCOME, '2026-01-01', 12000, TR_SIDES.DEBIT),
     ],
@@ -691,7 +695,33 @@ test('1000 book depreciation and 600 tax depreciation cache separately and produ
   expect(detail.accumulatedDepreciation).toBeCloseTo(1000);
   expect(detail.taxDepreciationAmount).toBeCloseTo(600);
   expect(detail.taxAccumulatedDepreciation).toBeCloseTo(600);
-  expect(detail.temporaryDifference).toBeCloseTo(-400);
-  expect(detail.deferredTaxAsset).toBeCloseTo(40);
-  expect(detail.deferredTaxLiability).toBe(0);
+  expect(detail).not.toHaveProperty('temporaryDifference');
+  expect(detail).not.toHaveProperty('deferredTaxAsset');
+  expect(detail).not.toHaveProperty('deferredTaxLiability');
 });
+
+test.each([false, undefined])(
+  'tax toggle %s makes tax depreciation equal book even with different saved tax rules',
+  async (hasTaxDepreciation) => {
+    const fixture = setup({
+      annualDepreciationRate: 100,
+      taxAnnualDepreciationRate: 60,
+      hasTaxDepreciation,
+      incomeTaxRate: 10,
+      transactions: [
+        entry(JOURNALS.FXA_INCOME, '2026-01-01', 12000, TR_SIDES.DEBIT),
+      ],
+    });
+    const [detail] = await fixture.run('2026-01-31');
+    expect(detail.error).toBe('');
+    expect(detail.taxDepreciationAmount).toBeCloseTo(
+      detail.depreciationAmount || 0,
+    );
+    expect(detail.taxAccumulatedDepreciation).toBeCloseTo(
+      detail.accumulatedDepreciation || 0,
+    );
+    expect(detail).not.toHaveProperty('temporaryDifference');
+    expect(detail).not.toHaveProperty('deferredTaxAsset');
+    expect(detail).not.toHaveProperty('deferredTaxLiability');
+  },
+);

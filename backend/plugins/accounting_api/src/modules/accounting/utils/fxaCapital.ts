@@ -1,3 +1,4 @@
+import { getFxaDeferredTaxTransactions } from './fxaDeferredTax';
 import { IModels } from '~/connectionResolvers';
 import {
   ACCOUNT_JOURNALS,
@@ -22,7 +23,11 @@ import { createOrUpdateTr } from './utils';
 import { allocateFxaRevaluation } from './fxaRevaluationState';
 
 const MONEY_EPSILON = 0.005;
-const FOLLOW_TYPES = [TR_FOLLOW_TYPES.FXA_DEP_IN, TR_FOLLOW_TYPES.FXA_DEP_OUT];
+const FOLLOW_TYPES = [
+  TR_FOLLOW_TYPES.FXA_DEP_IN,
+  TR_FOLLOW_TYPES.FXA_DEP_OUT,
+  TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
+];
 
 const roundMoney = (amount: number): number =>
   Math.round((amount + Number.EPSILON) * 10000) / 10000;
@@ -68,6 +73,50 @@ const buildFxaCapitalAssetDocuments = (
       'Accumulated depreciation and residual value cannot exceed the new unit cost.',
     );
   }
+  const capital = doc.journal === JOURNALS.FXA_CAPITAL;
+  const taxEnabled = capital && valuation.hasTaxDepreciation;
+  const enteredTax = doc.details.filter(
+    (detail) => detail.followInfos?.taxPreDeprecation !== undefined,
+  );
+  const totalTaxDepreciation = taxEnabled
+    ? enteredTax.length
+      ? enteredTax.reduce(
+          (sum, detail) => sum + (detail.followInfos?.taxPreDeprecation ?? 0),
+          0,
+        )
+      : valuation.taxPreDeprecation
+    : totalDepreciation;
+  const incomeTaxRate = rules.incomeTaxRate ?? valuation.incomeTaxRate;
+  if (taxEnabled) {
+    const taxResidual = rules.taxSalvageValue ?? valuation.taxSalvageValue;
+    if (
+      enteredTax.some(
+        (detail) =>
+          !Number.isFinite(detail.followInfos?.taxPreDeprecation) ||
+          (detail.followInfos?.taxPreDeprecation ?? 0) < 0,
+      ) ||
+      !Number.isFinite(totalTaxDepreciation) ||
+      totalTaxDepreciation / valuation.count + taxResidual >
+        valuation.taxOriginalCost + MONEY_EPSILON
+    ) {
+      throw new Error(
+        'Tax accumulated depreciation and residual value cannot exceed the tax acquisition cost.',
+      );
+    }
+    if (
+      Math.abs(totalTaxDepreciation - totalDepreciation) > MONEY_EPSILON &&
+      incomeTaxRate === undefined
+    ) {
+      throw new Error(
+        'Enter an income tax rate for the capitalization depreciation difference.',
+      );
+    }
+  }
+  if (!capital) {
+    delete rules.taxPreDeprecation;
+    delete rules.incomeTaxRate;
+  }
+  let allocatedTaxDepreciation = 0;
   const targetCost = rules.originalCost;
   const costDelta = targetCost - valuation.originalCost;
   const depreciationDelta =
@@ -96,6 +145,12 @@ const buildFxaCapitalAssetDocuments = (
           : targetDepreciation * location.count,
       );
       allocatedDepreciation += locationDepreciation;
+      const locationTaxDepreciation = roundMoney(
+        index === valuation.locations.length - 1
+          ? totalTaxDepreciation - allocatedTaxDepreciation
+          : (totalTaxDepreciation * location.count) / valuation.count,
+      );
+      allocatedTaxDepreciation += locationTaxDepreciation;
       return {
         _id: detailId,
         fixedAssetId: valuation.fixedAssetId,
@@ -116,6 +171,9 @@ const buildFxaCapitalAssetDocuments = (
             0,
           ),
           preDeprecation: locationDepreciation,
+          ...(capital
+            ? { taxPreDeprecation: locationTaxDepreciation, incomeTaxRate }
+            : {}),
           ...(revaluation
             ? {
                 ...allocateFxaRevaluation(
@@ -292,6 +350,38 @@ const prepareCapital = async (
       'Remove later asset changes before editing or inserting this capitalization.',
     );
   const documents = buildFxaCapitalDocuments(doc, valuations);
+  if (doc.journal === JOURNALS.FXA_CAPITAL) {
+    const taxDetails = documents.main.details.flatMap((detail) => {
+      const valuation = valuations.find(
+        (row) => row.fixedAssetId === detail.fixedAssetId,
+      );
+      if (!valuation?.hasTaxDepreciation) return [];
+      const info = detail.followInfos || {};
+      return [
+        {
+          adjustId: doc._id || '',
+          fixedAssetId: detail.fixedAssetId,
+          transactionDetailId: detail._id,
+          accountId: detail.accountId,
+          branchId: detail.branchId,
+          departmentId: detail.departmentId,
+          originalCost: detail.amount,
+          accumulatedDepreciation: info.preDeprecation ?? 0,
+          taxAccumulatedDepreciation: info.taxPreDeprecation ?? 0,
+          incomeTaxRate: info.incomeTaxRate,
+        },
+      ];
+    });
+    if (taxDetails.length)
+      documents.follows.push(
+        ...(await getFxaDeferredTaxTransactions(
+          models,
+          { ...documents.main, _id: oldTr?._id || doc._id || '' },
+          taxDetails,
+          { sourceTransaction: true },
+        )),
+      );
+  }
   const accountIds = [
     ...new Set(
       valuations.flatMap((valuation) => [
@@ -393,7 +483,10 @@ export const saveFxaCapital = async (
   await documents.follows.reduce(async (previousSave, follow) => {
     await previousSave;
     const previous = existing.find(
-      (row) => row.originType === follow.originType,
+      (row) =>
+        row.originType === follow.originType &&
+        (follow.originType !== TR_FOLLOW_TYPES.FXA_DEFERRED_TAX ||
+          row.side === follow.side),
     );
     const saved = await createOrUpdateTr(
       models,
@@ -408,6 +501,8 @@ export const saveFxaCapital = async (
           _id: previous?.details.find(
             (old) =>
               old.fixedAssetId === detail.fixedAssetId &&
+              (follow.originType !== TR_FOLLOW_TYPES.FXA_DEFERRED_TAX ||
+                old.accountId === detail.accountId) &&
               (old.branchId || '') === (detail.branchId || '') &&
               (old.departmentId || '') === (detail.departmentId || ''),
           )?._id,

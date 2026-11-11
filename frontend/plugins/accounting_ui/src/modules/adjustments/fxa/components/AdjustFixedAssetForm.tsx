@@ -1,7 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { Form, Input } from 'erxes-ui';
-import { PanelFormRow, PANEL_INPUT_CLASS_NAME } from 'ui-modules';
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -33,7 +30,6 @@ export const AddAdjustFixedAsset = () => {
 };
 
 const AdjustFixedAssetPanelNew = () => {
-  const { t } = useTranslation('accounting');
   const { cancelDraft } = useSettingsPanel(ADJUST_FIXED_ASSET_CONTENT_TYPE);
   const { addAdjustFixedAsset, loading } = useAdjustFixedAssetAdd();
   const form = useForm<TAdjustFixedAssetForm>({
@@ -54,33 +50,6 @@ const AdjustFixedAssetPanelNew = () => {
     >
       <AdjustDateField control={form.control} required />
       <AdjustDescriptionField control={form.control} />
-      <Form.Field
-        control={form.control}
-        name="taxRate"
-        render={({ field }) => (
-          <PanelFormRow label={getFxaTaxLabel(t, 'income-tax-rate')} required>
-            <Form.Control>
-              <Input
-                className={PANEL_INPUT_CLASS_NAME}
-                type="number"
-                min={0}
-                max={100}
-                step="any"
-                placeholder={getFxaTaxLabel(t, 'income-tax-rate')}
-                value={field.value ?? ''}
-                onChange={(event) =>
-                  field.onChange(
-                    event.target.value === ''
-                      ? undefined
-                      : Number(event.target.value),
-                  )
-                }
-              />
-            </Form.Control>
-            <Form.Message />
-          </PanelFormRow>
-        )}
-      />
     </SettingsPanelDraftForm>
   );
 };

@@ -49,6 +49,8 @@ export const transactionDetailFollowInfoSchema = z
     ),
     preDeprecation: undefed(z.number().nonnegative()),
     taxPreDeprecation: undefed(z.number().finite().nonnegative()),
+    hasTaxDepreciation: undefed(z.boolean()),
+    incomeTaxRate: undefed(z.number().finite().min(0).max(100)),
     revaluationLoss: undefed(z.number().finite()),
     revaluationReserve: undefed(z.number().finite()),
     salvageValue: undefed(z.number().finite().nonnegative()),
@@ -444,38 +446,48 @@ export const fxaIncomeDetailSchema = z
     ...baseTrDetailSchema.shape,
   })
   .extend({
-    followInfos: transactionDetailFollowInfoSchema.extend({
-      fixedAssetCategoryId: z.string().refine(
-        (val) => val?.length,
-        () => ({
-          message: getI18n().t('Must fill fixed asset category', {
-            ns: 'accounting',
-            nsSeparator: false,
+    followInfos: transactionDetailFollowInfoSchema
+      .extend({
+        fixedAssetCategoryId: z.string().refine(
+          (val) => val?.length,
+          () => ({
+            message: getI18n().t('Must fill fixed asset category', {
+              ns: 'accounting',
+              nsSeparator: false,
+            }),
           }),
-        }),
-      ),
-      fixedAssetCode: z.string().refine(
-        (val) => val?.length,
-        () => ({
-          message: getI18n().t('Must fill fixed asset code', {
-            ns: 'accounting',
-            nsSeparator: false,
+        ),
+        fixedAssetCode: z.string().refine(
+          (val) => val?.length,
+          () => ({
+            message: getI18n().t('Must fill fixed asset code', {
+              ns: 'accounting',
+              nsSeparator: false,
+            }),
           }),
-        }),
-      ),
-      fixedAssetName: z.string().refine(
-        (val) => val?.length,
-        () => ({
-          message: getI18n().t('Must fill fixed asset name', {
-            ns: 'accounting',
-            nsSeparator: false,
+        ),
+        fixedAssetName: z.string().refine(
+          (val) => val?.length,
+          () => ({
+            message: getI18n().t('Must fill fixed asset name', {
+              ns: 'accounting',
+              nsSeparator: false,
+            }),
           }),
-        }),
-      ),
+        ),
 
-      revaluationLoss: undefed(z.number().finite().nonnegative()),
-      revaluationReserve: undefed(z.number().finite().nonnegative()),
-    }),
+        revaluationLoss: undefed(z.number().finite().nonnegative()),
+        revaluationReserve: undefed(z.number().finite().nonnegative()),
+      })
+      .superRefine((info, context) => {
+        if (info.hasTaxDepreciation && info.incomeTaxRate === undefined) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['incomeTaxRate'],
+            message: getI18n().t('Required', { ns: 'accounting' }),
+          });
+        }
+      }),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });

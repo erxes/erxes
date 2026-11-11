@@ -1,8 +1,8 @@
 import { gql } from '~/gql';
 
 export const ADJUST_FIXED_ASSET_RUN = gql(`
-mutation accountingAdjustFixedAssetRun($adjustId: String!, $taxRate: Float) {
-  adjustFixedAssetRun(adjustId: $adjustId, taxRate: $taxRate) {
+mutation accountingAdjustFixedAssetRun($adjustId: String!) {
+  adjustFixedAssetRun(adjustId: $adjustId) {
     _id
     createdAt
     createdBy
@@ -10,7 +10,6 @@ mutation accountingAdjustFixedAssetRun($adjustId: String!, $taxRate: Float) {
     modifiedBy
     date
     description
-    taxRate
     status
     error
     warning

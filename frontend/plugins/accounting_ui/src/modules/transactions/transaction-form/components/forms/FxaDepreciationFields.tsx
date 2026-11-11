@@ -18,10 +18,12 @@ export const FxaDepreciationFields = ({
   valuation,
   tax = false,
   labels,
+  showUnit = true,
 }: IFxaChangeFieldProps & {
   valuation?: TFxaCapitalValuation;
   tax?: boolean;
   labels?: { unit: string; total: string };
+  showUnit?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const fieldId = useId();
@@ -37,7 +39,7 @@ export const FxaDepreciationFields = ({
   const rule = tax ? 'taxPreDeprecation' : 'preDeprecation';
   const total =
     getTotalFxaDepreciation(group, rule) ??
-    (tax ? 0 : valuation?.preDeprecation) ??
+    (tax ? valuation?.taxPreDeprecation : valuation?.preDeprecation) ??
     0;
   const unitPreDeprecation = count ? total / count : 0;
   const unitLabel =
@@ -76,19 +78,21 @@ export const FxaDepreciationFields = ({
   };
   return (
     <>
-      <Form.Item>
-        <Label htmlFor={`${fieldId}-unit-depreciation`}>{unitLabel}</Label>
-        <Input
-          type="number"
-          step="any"
-          id={`${fieldId}-unit-depreciation`}
-          value={unitPreDeprecation}
-          disabled={count <= 0}
-          min={0}
-          aria-label={unitLabel}
-          onChange={(event) => setTotal(Number(event.target.value) * count)}
-        />
-      </Form.Item>
+      {showUnit && (
+        <Form.Item>
+          <Label htmlFor={`${fieldId}-unit-depreciation`}>{unitLabel}</Label>
+          <Input
+            type="number"
+            step="any"
+            id={`${fieldId}-unit-depreciation`}
+            value={unitPreDeprecation}
+            disabled={count <= 0}
+            min={0}
+            aria-label={unitLabel}
+            onChange={(event) => setTotal(Number(event.target.value) * count)}
+          />
+        </Form.Item>
+      )}
       <Form.Field
         control={form.control}
         name={`trDocs.${index}.details.${detailIndex}.followInfos.${rule}`}

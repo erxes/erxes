@@ -1,6 +1,4 @@
 import { z } from 'zod';
-import { AdjustFixedAssetTaxRateDialog } from '@/adjustments/fxa/components/AdjustFixedAssetTaxRateDialog';
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAdjustFixedAssetActions } from '@/adjustments/fxa/hooks/useAdjustFixedAssetActions';
 import { AdjustFixedAssetTransactions } from '@/adjustments/fxa/components/AdjustFixedAssetTransactions';
@@ -89,14 +87,11 @@ export const AdjustFixedAssetDetail = () => {
     status === ADJ_FXA_STATUSES.PROCESS ||
     status === ADJ_FXA_STATUSES.COMPLETE;
   const canTransact =
-    status === ADJ_FXA_STATUSES.PROCESS &&
-    !adjustFixedAsset.error &&
-    adjustFixedAsset.taxRate != null;
+    status === ADJ_FXA_STATUSES.PROCESS && !adjustFixedAsset.error;
   const canDelete =
     status === ADJ_FXA_STATUSES.DRAFT || status === ADJ_FXA_STATUSES.PROCESS;
   const completed =
     status === ADJ_FXA_STATUSES.COMPLETE || status === ADJ_FXA_STATUSES.PUBLISH;
-  const taxRate = adjustFixedAsset.taxRate ?? undefined;
   const parentId = adjustFxaDetails.find(
     (detail) => detail.transactionId,
   )?.transactionId;
@@ -108,24 +103,6 @@ export const AdjustFixedAssetDetail = () => {
           {t('fixed-asset-adjustment-detail')}
         </h3>
         <StatusBar adjustFixedAsset={adjustFixedAsset} />
-        {!canRun &&
-          adjustFixedAsset.taxRate !== undefined &&
-          adjustFixedAsset.taxRate !== null && (
-            <p className="text-sm text-muted-foreground">
-              {getFxaTaxLabel(t, 'income-tax-rate')}: {adjustFixedAsset.taxRate}
-              %
-            </p>
-          )}
-        {taxRate === undefined && (
-          <p role="alert" className="text-sm text-destructive">
-            {getFxaTaxLabel(
-              t,
-              completed
-                ? 'income-tax-rate-missing-posted'
-                : 'income-tax-rate-missing',
-            )}
-          </p>
-        )}
         <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-accent-foreground">{t('status')}:</span>
@@ -140,18 +117,6 @@ export const AdjustFixedAssetDetail = () => {
             </span>
           )}
           {canRun && (
-            <AdjustFixedAssetTaxRateDialog
-              taxRate={taxRate}
-              disabled={busy}
-              loading={runLoading}
-              onRun={(nextTaxRate) =>
-                runAdjustFixedAsset({
-                  variables: { adjustId: id, taxRate: nextTaxRate },
-                })
-              }
-            />
-          )}
-          {canRun && taxRate !== undefined && (
             <Button onClick={() => runAdjustFixedAsset()} disabled={busy}>
               {runLoading ? <Spinner /> : <IconCrane />}
               {t('run')}

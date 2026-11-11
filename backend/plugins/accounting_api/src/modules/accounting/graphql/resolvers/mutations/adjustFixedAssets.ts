@@ -80,7 +80,7 @@ export const AdjustFixedAssets = {
 
   async adjustFixedAssetRun(
     _root: undefined,
-    { adjustId, taxRate }: { adjustId: string; taxRate?: number },
+    { adjustId }: { adjustId: string },
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustFixedAssets');
@@ -95,22 +95,10 @@ export const AdjustFixedAssets = {
       throw new Error('This fixed asset adjustment cannot be calculated.');
     }
 
-    const effectiveTaxRate = taxRate === undefined ? adjust.taxRate : taxRate;
-    if (
-      effectiveTaxRate === undefined ||
-      !Number.isFinite(effectiveTaxRate) ||
-      effectiveTaxRate < 0 ||
-      effectiveTaxRate > 100
-    ) {
-      throw new Error(
-        'Enter an income tax rate between 0 and 100 before calculating depreciation.',
-      );
-    }
     await clearAdjustFixedAsset(models, user._id, adjust);
     const running = await models.AdjustFixedAssets.updateAdjustFixedAsset(
       adjustId,
       {
-        taxRate: effectiveTaxRate,
         status: ADJ_FXA_STATUSES.RUNNING,
         error: '',
         warning: '',

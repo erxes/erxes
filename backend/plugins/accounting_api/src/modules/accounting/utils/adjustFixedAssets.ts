@@ -1,5 +1,18 @@
+import {
+  type TFixedAssetMovement,
+  getPureDate,
+  addDays,
+  isSamePureDate,
+  getDateLabel,
+  calculateDepreciationByMethod,
+  calculateFxaTaxDepreciation,
+  splitLocationKey,
+  getAssetLocationCountsAtDate,
+  getTotalCount,
+} from './fxaDepreciation';
 import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
 import { getFxaDeferredTaxTransactions } from './fxaDeferredTax';
+import { getFxaIncomeTaxRates } from './fxaIncomeTaxRates';
 import { assertCanWriteTransactionAccounts } from './trPermissions';
 import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import { IModels } from '~/connectionResolvers';
@@ -28,20 +41,6 @@ import {
 } from './fxaRules';
 import { getFxaRevaluationStates } from './fxaRevaluationState';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-type TDepreciationInput = {
-  originalCost: number;
-  depreciationBase?: number;
-  salvageValue?: number;
-  annualDepreciationRate?: number;
-  startDate: Date;
-  endDate: Date;
-  scheduleStartDate?: Date;
-  /** Per-unit calculator input; callers normalize posted totals by active quantity. */
-  preDeprecation?: number;
-};
-
 type TDailyValidationResult = {
   successDate?: Date;
   error?: string;
@@ -56,250 +55,10 @@ type TFixedAssetLocationDepreciationRow = {
   warning: string;
 };
 
-type TFixedAssetMovement = {
-  fixedAssetId: string;
-  date: Date;
-  countDelta: number;
-  branchId?: string;
-  departmentId?: string;
-  accountId?: string;
-  transactionId?: string;
-  transactionDetailId?: string;
-};
-
 type TDepreciationMovement = {
   fixedAssetId: string;
   date: Date;
   amount: number;
-};
-
-const getPureDate = (value: Date) => {
-  const date = new Date(value);
-  date.setHours(0, 0, 0, 0);
-  return date;
-};
-
-const addDays = (date: Date, days: number) => {
-  const next = new Date(date);
-  next.setDate(next.getDate() + days);
-  return next;
-};
-
-const isSamePureDate = (left: Date, right: Date) =>
-  getPureDate(left).getTime() === getPureDate(right).getTime();
-
-const getDateLabel = (date: Date) =>
-  [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    String(date.getDate()).padStart(2, '0'),
-  ].join('-');
-
-const getDaysBetween = (startDate: Date, endDate: Date) =>
-  Math.max(
-    0,
-    Math.round(
-      (getPureDate(endDate).getTime() - getPureDate(startDate).getTime()) /
-        DAY_MS,
-    ),
-  );
-
-const getDaysInMonth = (date: Date) =>
-  new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-
-const getUsefulLifeFromAnnualRate = (annualDepreciationRate?: number) =>
-  annualDepreciationRate && annualDepreciationRate > 0
-    ? (100 / annualDepreciationRate) * 12
-    : undefined;
-
-const getDepreciationBaseError = (
-  annualDepreciationRate?: number,
-  originalCost?: number,
-) => {
-  if (!annualDepreciationRate || annualDepreciationRate <= 0) {
-    return 'Annual depreciation rate is required to calculate depreciation';
-  }
-
-  if (!originalCost || originalCost <= 0) {
-    return 'Original cost is required to calculate depreciation';
-  }
-
-  return '';
-};
-
-const calculateDailyDepreciation = ({
-  calculateDailyAmount,
-  input,
-}: {
-  calculateDailyAmount: (args: {
-    accumulated: number;
-    currentDate: Date;
-    lifetimeDays: number;
-    scheduleStartDate: Date;
-  }) => number;
-  input: TDepreciationInput;
-}) => {
-  const {
-    originalCost,
-    salvageValue = 0,
-    annualDepreciationRate,
-    startDate,
-    endDate,
-    scheduleStartDate = startDate,
-    preDeprecation = 0,
-  } = input;
-  const usefulLife = getUsefulLifeFromAnnualRate(annualDepreciationRate);
-  const baseError = getDepreciationBaseError(
-    annualDepreciationRate,
-    originalCost,
-  );
-
-  if (baseError) {
-    return {
-      amount: 0,
-      closingAccumulatedDepreciation: preDeprecation,
-      closingBookValue: originalCost - preDeprecation,
-      error: baseError,
-      warning: '',
-    };
-  }
-
-  const lifetimeDays = Math.max(Math.round((usefulLife || 0) * 30), 1);
-  let currentDate = getPureDate(startDate);
-  const lastDate = getPureDate(endDate);
-  let amount = 0;
-  let accumulated = preDeprecation;
-  let warning = '';
-
-  while (currentDate <= lastDate) {
-    const remainingAmount = Math.max(
-      originalCost - accumulated - salvageValue,
-      0,
-    );
-
-    if (remainingAmount <= 0) {
-      warning = warning || 'Depreciation already reached salvage value.';
-      break;
-    }
-
-    const dailyAmount = Math.max(
-      calculateDailyAmount({
-        accumulated,
-        currentDate,
-        lifetimeDays,
-        scheduleStartDate,
-      }),
-      0,
-    );
-    const appliedAmount = Math.min(dailyAmount, remainingAmount);
-
-    amount += appliedAmount;
-    accumulated += appliedAmount;
-
-    if (
-      appliedAmount < dailyAmount ||
-      originalCost - accumulated <= salvageValue
-    ) {
-      warning = `Depreciation reached salvage value on ${currentDate
-        .toISOString()
-        .slice(0, 10)}`;
-      break;
-    }
-
-    currentDate = addDays(currentDate, 1);
-  }
-
-  return {
-    amount,
-    closingAccumulatedDepreciation: accumulated,
-    closingBookValue: originalCost - accumulated,
-    error: '',
-    warning,
-  };
-};
-
-const calculateStraightLineDepreciation = (input: TDepreciationInput) => {
-  return calculateDailyDepreciation({
-    input,
-    calculateDailyAmount: ({ currentDate, lifetimeDays }) => {
-      const depreciableAmount =
-        input.depreciationBase ??
-        Math.max(input.originalCost - (input.salvageValue || 0), 0);
-
-      if (input.annualDepreciationRate && input.annualDepreciationRate > 0) {
-        const monthlyAmount =
-          (depreciableAmount * input.annualDepreciationRate) / 100 / 12;
-
-        return monthlyAmount / getDaysInMonth(currentDate);
-      }
-
-      return depreciableAmount / lifetimeDays;
-    },
-  });
-};
-
-const calculateSumOfYearsDigitsDepreciation = (input: TDepreciationInput) => {
-  const depreciableAmount =
-    input.depreciationBase ??
-    Math.max(input.originalCost - (input.salvageValue || 0), 0);
-
-  return calculateDailyDepreciation({
-    input,
-    calculateDailyAmount: ({
-      currentDate,
-      lifetimeDays,
-      scheduleStartDate,
-    }) => {
-      const ageDay = getDaysBetween(scheduleStartDate, currentDate) + 1;
-      const remainingWeight = Math.max(lifetimeDays - ageDay + 1, 0);
-      const sumOfDigits = (lifetimeDays * (lifetimeDays + 1)) / 2;
-
-      return sumOfDigits
-        ? (depreciableAmount * remainingWeight) / sumOfDigits
-        : 0;
-    },
-  });
-};
-
-const calculateDecliningBalanceDepreciation = (
-  input: TDepreciationInput,
-  multiplier: number,
-) => {
-  const usefulLifeMonths = getUsefulLifeFromAnnualRate(
-    input.annualDepreciationRate,
-  );
-  const usefulLifeYears = Math.max((usefulLifeMonths || 0) / 12, 1 / 365);
-  const dailyRate = multiplier / usefulLifeYears / 365;
-
-  return calculateDailyDepreciation({
-    input,
-    calculateDailyAmount: ({ accumulated }) =>
-      (input.originalCost - accumulated) * dailyRate,
-  });
-};
-
-const calculateDepreciationByMethod = (
-  method: string,
-  input: TDepreciationInput,
-) => {
-  switch (method) {
-    case FIXED_ASSET_DEPRECIATION_METHODS.STRAIGHT_LINE:
-      return calculateStraightLineDepreciation(input);
-    case FIXED_ASSET_DEPRECIATION_METHODS.SUM_OF_YEARS_DIGITS:
-      return calculateSumOfYearsDigitsDepreciation(input);
-    case FIXED_ASSET_DEPRECIATION_METHODS.DOUBLE_DECLINING_BALANCE:
-      return calculateDecliningBalanceDepreciation(input, 2);
-    case FIXED_ASSET_DEPRECIATION_METHODS.DECLINING_BALANCE:
-      return calculateDecliningBalanceDepreciation(input, 1);
-    default:
-      return {
-        amount: 0,
-        closingAccumulatedDepreciation: input.preDeprecation || 0,
-        closingBookValue: input.originalCost - (input.preDeprecation || 0),
-        error: `Unsupported fixed asset depreciation method: ${method}`,
-        warning: '',
-      };
-  }
 };
 
 const getIncompleteBeforeAdjustment = async (
@@ -458,43 +217,6 @@ const getDepreciationMovements = async (
   }
   return movements;
 };
-
-const getLocationKey = (branchId?: string, departmentId?: string) =>
-  `${branchId || ''}:${departmentId || ''}`;
-
-const splitLocationKey = (key: string) => {
-  const [branchId, departmentId] = key.split(':');
-
-  return {
-    branchId: branchId || undefined,
-    departmentId: departmentId || undefined,
-  };
-};
-
-const getAssetLocationCountsAtDate = (
-  fixedAssetId: string,
-  movements: TFixedAssetMovement[],
-  date: Date,
-) => {
-  const counts = new Map<string, number>();
-
-  for (const movement of movements) {
-    if (
-      movement.fixedAssetId !== fixedAssetId ||
-      getPureDate(movement.date).getTime() > date.getTime()
-    ) {
-      continue;
-    }
-
-    const key = getLocationKey(movement.branchId, movement.departmentId);
-    counts.set(key, (counts.get(key) || 0) + movement.countDelta);
-  }
-
-  return counts;
-};
-
-const getTotalCount = (counts: Map<string, number>) =>
-  Array.from(counts.values()).reduce((sum, count) => sum + count, 0);
 
 const validateInstanceForDepreciation = ({
   accountId,
@@ -692,100 +414,6 @@ const calculateFixedAssetDepreciationByDay = ({
       return map;
     },
     new Map(),
-  );
-};
-
-export const calculateFxaTaxDepreciation = ({
-  fixedAsset,
-  beginDate,
-  endDate,
-  corrections,
-  movements,
-}: {
-  fixedAsset: IFxaLedgerAsset;
-  beginDate: Date;
-  endDate: Date;
-  corrections: TFxaCorrection[];
-  movements: TFixedAssetMovement[];
-}): Map<string, { amount: number; accumulated: number; error: string }> => {
-  const amounts = new Map<string, number>();
-  let accumulatedPerUnit = fixedAsset.taxOpeningDepreciation || 0;
-  let date = getPureDate(fixedAsset.acquisitionDate);
-  let error = '';
-  // Replay the tax schedule from acquisition. Book postings and book revaluations
-  // never become tax depreciation inputs; disposals remove their proportional base.
-  while (date <= endDate) {
-    const rules = getFxaRulesAtDate(fixedAsset, corrections, date);
-    const method =
-      rules.taxDepreciationMethod || fixedAsset.taxDepreciationMethod;
-    const rate =
-      rules.taxAnnualDepreciationRate ?? fixedAsset.taxAnnualDepreciationRate;
-    const salvage = rules.taxSalvageValue ?? fixedAsset.taxSalvageValue;
-    if (
-      !Number.isFinite(rate) ||
-      rate <= 0 ||
-      rate > 100 ||
-      !Number.isFinite(salvage) ||
-      salvage < 0 ||
-      salvage > fixedAsset.originalCost ||
-      !FIXED_ASSET_DEPRECIATION_METHODS.ALL.includes(method) ||
-      method === 'manual'
-    ) {
-      error = 'Valid automatic tax depreciation rules are required.';
-      break;
-    }
-    if (
-      !Number.isFinite(accumulatedPerUnit) ||
-      accumulatedPerUnit < 0 ||
-      accumulatedPerUnit > fixedAsset.originalCost
-    ) {
-      error =
-        'Opening tax depreciation must be between zero and acquisition cost.';
-      break;
-    }
-    const counts = getAssetLocationCountsAtDate(
-      fixedAsset._id,
-      movements,
-      date,
-    );
-    if (
-      getTotalCount(counts) > 0 &&
-      date >= getPureDate(fixedAsset.depreciationStartDate)
-    ) {
-      const result = calculateDepreciationByMethod(method, {
-        originalCost: fixedAsset.originalCost,
-        annualDepreciationRate: rate,
-        salvageValue: salvage,
-        startDate: date,
-        endDate: date,
-        scheduleStartDate: fixedAsset.depreciationStartDate,
-        preDeprecation: accumulatedPerUnit,
-      });
-      error = result.error;
-      accumulatedPerUnit = result.closingAccumulatedDepreciation;
-      if (date >= beginDate) {
-        for (const [key, count] of counts) {
-          if (count > 0)
-            amounts.set(key, (amounts.get(key) || 0) + result.amount * count);
-        }
-      }
-    }
-    date = addDays(date, 1);
-  }
-  const closing = getAssetLocationCountsAtDate(
-    fixedAsset._id,
-    movements,
-    endDate,
-  );
-  return new Map(
-    [...new Set([...closing.keys(), ...amounts.keys()])].map((key) => [
-      key,
-      {
-        amount: amounts.get(key) || 0,
-        accumulated: accumulatedPerUnit * Math.max(closing.get(key) || 0, 0),
-        error,
-      },
-    ]),
   );
 };
 
@@ -1133,7 +761,7 @@ export const runAdjustFixedAsset = async (
       periodDate = addDays(periodDate, 1);
     }
 
-    if (periodActiveCount <= 0 && adjust.taxRate === undefined)
+    if (periodActiveCount <= 0 && !fixedAsset.hasTaxDepreciation)
       return assetDetails;
 
     const depreciationMethod = fixedAsset.depreciationMethod || 'straightLine';
@@ -1148,23 +776,38 @@ export const runAdjustFixedAsset = async (
       corrections,
     });
 
-    const taxResults =
-      adjust.taxRate === undefined
-        ? undefined
-        : periodActiveCount <= 0
-        ? new Map(
-            Array.from(resultByLocationKey.keys(), (key) => [
-              key,
-              { amount: 0, accumulated: 0, error: '' },
-            ]),
-          )
-        : calculateFxaTaxDepreciation({
-            fixedAsset,
-            beginDate: startDate,
-            endDate,
-            corrections,
-            movements,
-          });
+    let taxResults: ReturnType<typeof calculateFxaTaxDepreciation>;
+    if (!fixedAsset.hasTaxDepreciation) {
+      taxResults = new Map(
+        Array.from(resultByLocationKey, ([key, result]) => [
+          key,
+          {
+            amount: result.depreciationAmount,
+            accumulated: result.accumulatedDepreciation,
+            error: '',
+          },
+        ]),
+      );
+    } else if (periodActiveCount <= 0) {
+      taxResults = new Map(
+        Array.from(resultByLocationKey.keys(), (key) => [
+          key,
+          {
+            amount: 0,
+            accumulated: 0,
+            error: '',
+          },
+        ]),
+      );
+    } else {
+      taxResults = calculateFxaTaxDepreciation({
+        fixedAsset,
+        beginDate: startDate,
+        endDate,
+        corrections,
+        movements,
+      });
+    }
     const revaluation = revaluationStates.get(fixedAsset._id) || {
       count: 0,
       loss: 0,
@@ -1191,17 +834,11 @@ export const runAdjustFixedAsset = async (
       }
 
       const tax = taxResults?.get(locationKey);
-      const temporaryDifference =
-        (tax?.accumulated || 0) - result.accumulatedDepreciation;
-      const deferredTax = (temporaryDifference * (adjust.taxRate || 0)) / 100;
       assetDetails.push({
         ...(taxResults
           ? {
               taxDepreciationAmount: tax?.amount || 0,
               taxAccumulatedDepreciation: tax?.accumulated || 0,
-              temporaryDifference,
-              deferredTaxAsset: Math.max(-deferredTax, 0),
-              deferredTaxLiability: Math.max(deferredTax, 0),
             }
           : {}),
         adjustId: adjust._id,
@@ -1226,6 +863,13 @@ export const runAdjustFixedAsset = async (
         error:
           result.error ||
           tax?.error ||
+          (fixedAsset.hasTaxDepreciation &&
+          Math.abs((tax?.accumulated ?? 0) - result.accumulatedDepreciation) >
+            0.005 &&
+          getFxaRulesAtDate(fixedAsset, corrections, endDate).incomeTaxRate ===
+            undefined
+            ? 'Set the income tax rate on the acquisition or capitalization depreciation rules.'
+            : '') ||
           (!accountId ? 'Fixed asset account is missing.' : ''),
         warning: result.warning,
       });
@@ -1345,10 +989,15 @@ export const createAdjustFixedAssetTransaction = async ({
       ]
     : [];
 
-  const taxDocs =
-    adjust.taxRate === undefined
-      ? []
-      : await getFxaDeferredTaxTransactions(models, adjust, details);
+  const taxRates = await getFxaIncomeTaxRates(models, adjust.date, details);
+  const taxDocs = await getFxaDeferredTaxTransactions(
+    models,
+    adjust,
+    details.map((detail) => ({
+      ...detail,
+      incomeTaxRate: taxRates.get(detail.fixedAssetId || ''),
+    })),
+  );
   trDocs.push(...taxDocs);
   if (!trDocs.length) {
     return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {

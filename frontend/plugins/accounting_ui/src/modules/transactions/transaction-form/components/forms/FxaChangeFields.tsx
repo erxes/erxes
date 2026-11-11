@@ -29,6 +29,7 @@ export const FxaChangeNumberField = ({
   compact = false,
   usefulYears = false,
   labelOverride,
+  fallbackValue,
 }: IFxaChangeFieldProps & {
   rule:
     | 'revaluationLoss'
@@ -36,6 +37,7 @@ export const FxaChangeNumberField = ({
     | 'taxAnnualDepreciationRate'
     | 'taxSalvageValue'
     | 'taxPreDeprecation'
+    | 'incomeTaxRate'
     | 'originalCost'
     | 'preDeprecation'
     | 'salvageValue'
@@ -44,6 +46,7 @@ export const FxaChangeNumberField = ({
   compact?: boolean;
   usefulYears?: boolean;
   labelOverride?: string;
+  fallbackValue?: number;
 }) => {
   const { t } = useTranslation('accounting');
   const fieldLabel =
@@ -58,7 +61,7 @@ export const FxaChangeNumberField = ({
       render={({ field }) => {
         const value = usefulYears
           ? getUsefulLifeFromRate(field.value)
-          : field.value;
+          : field.value ?? fallbackValue;
         const input = (
           <Input
             type="number"
@@ -66,7 +69,8 @@ export const FxaChangeNumberField = ({
             min={usefulYears ? 1 : 0}
             max={
               (rule === 'annualDepreciationRate' ||
-                rule === 'taxAnnualDepreciationRate') &&
+                rule === 'taxAnnualDepreciationRate' ||
+                rule === 'incomeTaxRate') &&
               !usefulYears
                 ? 100
                 : undefined

@@ -40,6 +40,10 @@ const valuation: TFxaCapitalValuation = {
   count: 3,
   originalCost: 100,
   preDeprecation: 90,
+  taxPreDeprecation: 90,
+  hasTaxDepreciation: false,
+  incomeTaxRate: undefined,
+  taxOriginalCost: 100,
   annualDepreciationRate: 10,
   depreciationMethod: 'straightLine',
   salvageValue: 0,
@@ -47,8 +51,20 @@ const valuation: TFxaCapitalValuation = {
   depreciationThrough: new Date('2026-01-31'),
   ready: true,
   locations: [
-    { branchId: 'a', departmentId: '', count: 2 },
-    { branchId: 'b', departmentId: '', count: 1 },
+    {
+      branchId: 'a',
+      departmentId: '',
+      count: 2,
+      deferredTaxAsset: 0,
+      deferredTaxLiability: 0,
+    },
+    {
+      branchId: 'b',
+      departmentId: '',
+      count: 1,
+      deferredTaxAsset: 0,
+      deferredTaxLiability: 0,
+    },
   ],
 };
 const document = (): ITransaction => ({
@@ -75,6 +91,18 @@ const query = <T>(value: T) => ({ lean: async () => value });
 const fixture = () => {
   const raw = {
     AdjustFixedAssets: { findOne: jest.fn(() => query(null)) },
+    Configs: {
+      getConfigs: async () => [
+        {
+          subId: 'asset-account',
+          value: {
+            taxAssetAccountId: 'tax-asset',
+            taxLiabilityAccountId: 'tax-liability',
+            TaxExpenseAccountId: 'tax-expense',
+          },
+        },
+      ],
+    },
     Accounts: {
       find: jest.fn(() =>
         query(
@@ -87,7 +115,10 @@ const fixture = () => {
     },
     Transactions: {
       findOne: jest.fn(() => query<{ _id: string } | null>(null)),
-      find: jest.fn(() => query<ITransactionDocument[]>([])),
+      find: jest.fn<
+        ReturnType<typeof query<ITransactionDocument[]>>,
+        [Record<string, unknown>?]
+      >(() => query<ITransactionDocument[]>([])),
       deleteMany: jest.fn(),
     },
   };
@@ -482,4 +513,210 @@ test('capitalization still rejects an unrelated main depreciation account', asyn
   await expect(
     validateFxaCapitalSave('tenant', models, 'user', document()),
   ).rejects.toThrow('journal accounts');
+});
+
+const taxValuation: TFxaCapitalValuation = {
+  ...valuation,
+  hasTaxDepreciation: true,
+  taxPreDeprecation: 30,
+  incomeTaxRate: 10,
+};
+
+test('capitalization reuses total tax depreciation independently and allocates once by location quantity', () => {
+  const doc = document();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 90,
+  };
+  const { main, follows } = buildFxaCapitalDocuments(doc, taxValuation);
+  expect(main.details.map((row) => row.followInfos?.preDeprecation)).toEqual([
+    80, 40,
+  ]);
+  expect(main.details.map((row) => row.followInfos?.taxPreDeprecation)).toEqual(
+    [60, 30],
+  );
+  expect(
+    main.details.every((row) => row.followInfos?.incomeTaxRate === 10),
+  ).toBe(true);
+  expect(follows).toHaveLength(1);
+});
+
+test('passive assets mirror changed book totals despite hidden tax inputs', () => {
+  const doc = document();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 10000,
+  };
+  const { main } = buildFxaCapitalDocuments(doc, valuation);
+  expect(main.details.map((row) => row.followInfos?.taxPreDeprecation)).toEqual(
+    [80, 40],
+  );
+});
+
+test('explicit zero tax accumulated depreciation survives capitalization', () => {
+  const doc = document();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 0,
+  };
+  expect(
+    buildFxaCapitalDocuments(doc, taxValuation).main.details.every(
+      (row) => row.followInfos?.taxPreDeprecation === 0,
+    ),
+  ).toBe(true);
+});
+
+test('tax depreciation must stay within its acquisition base and a difference requires an income tax percentage', () => {
+  const doc = document();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 400,
+  };
+  expect(() => buildFxaCapitalDocuments(doc, taxValuation)).toThrow(
+    'tax acquisition cost',
+  );
+  doc.details[0].followInfos.taxPreDeprecation = 90;
+  expect(() =>
+    buildFxaCapitalDocuments(doc, {
+      ...taxValuation,
+      incomeTaxRate: undefined,
+    }),
+  ).toThrow('income tax rate');
+});
+
+test('capitalization tax posts the balance change and keeps debit/credit follows distinct on edit', async () => {
+  const { models, raw } = fixture();
+  jest.mocked(getFxaCapitalValuation).mockResolvedValue(taxValuation);
+  const doc = document();
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 90,
+  };
+  const posted = {
+    _id: 'opening',
+    journal: JOURNALS.MAIN,
+    date: new Date('2026-01-01'),
+    side: TR_SIDES.DEBIT,
+    details: [
+      {
+        fixedAssetId: 'asset',
+        accountId: 'tax-asset',
+        branchId: 'a',
+        departmentId: '',
+        amount: 4,
+      },
+      {
+        fixedAssetId: 'asset',
+        accountId: 'tax-asset',
+        branchId: 'b',
+        departmentId: '',
+        amount: 2,
+      },
+    ],
+  } as ITransactionDocument;
+  const oldTaxDebit = {
+    ...posted,
+    _id: 'own-dt',
+    originId: 'capital',
+    originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
+    details: [
+      {
+        _id: 'expense-a',
+        fixedAssetId: 'asset',
+        accountId: 'tax-expense',
+        branchId: 'a',
+        departmentId: '',
+        amount: 2,
+      },
+      {
+        _id: 'expense-b',
+        fixedAssetId: 'asset',
+        accountId: 'tax-expense',
+        branchId: 'b',
+        departmentId: '',
+        amount: 1,
+      },
+    ],
+  } as ITransactionDocument;
+  const oldTaxCredit = {
+    ...posted,
+    _id: 'own-ct',
+    side: TR_SIDES.CREDIT,
+    originId: 'capital',
+    originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
+    details: [
+      {
+        _id: 'asset-a',
+        fixedAssetId: 'asset',
+        accountId: 'tax-asset',
+        branchId: 'a',
+        departmentId: '',
+        amount: 2,
+      },
+      {
+        _id: 'asset-b',
+        fixedAssetId: 'asset',
+        accountId: 'tax-asset',
+        branchId: 'b',
+        departmentId: '',
+        amount: 1,
+      },
+    ],
+  } as ITransactionDocument;
+  raw.Transactions.find.mockImplementation((filter) =>
+    query(filter?.originId ? [oldTaxDebit, oldTaxCredit] : [posted]),
+  );
+  jest.mocked(createOrUpdateTr).mockImplementation(
+    async (_models, _user, next, old) =>
+      ({
+        ...next,
+        _id: old?._id || next._id || `${next.originType}-${next.side}`,
+        parentId: 'parent',
+        ptrId: 'pointer',
+      } as ITransactionDocument),
+  );
+  const result = await saveFxaCapital('tenant', models, 'user', doc, {
+    ...doc,
+    _id: 'capital',
+  } as ITransactionDocument);
+  const tax = result.otherTrs.filter(
+    (row) => row.originType === TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
+  );
+  expect(tax.map((row) => row._id)).toEqual(['own-dt', 'own-ct']);
+  expect(tax[0].details.map((row) => row.amount)).toEqual([2, 1]);
+  expect(tax[1].details.map((row) => row.amount)).toEqual([2, 1]);
+  expect(tax[0].details.map((row) => row._id)).toEqual([
+    'expense-a',
+    'expense-b',
+  ]);
+  expect(tax[1].details.map((row) => row._id)).toEqual(['asset-a', 'asset-b']);
+  expect(
+    tax.every((row) => row.ptrId === 'pointer' && row.parentId === 'parent'),
+  ).toBe(true);
+  expect(raw.Transactions.find).toHaveBeenCalledWith(
+    expect.objectContaining({
+      $nor: [
+        { originId: 'capital', originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX },
+      ],
+    }),
+  );
+});
+
+test('revaluation does not introduce capitalization tax resets or automatic tax entries', () => {
+  const doc = document();
+  doc.journal = JOURNALS.FXA_REVALUATION;
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 90,
+    incomeTaxRate: 10,
+  };
+  const { main, follows } = buildFxaCapitalDocuments(doc, taxValuation);
+  expect(
+    main.details.every(
+      (row) => row.followInfos?.taxPreDeprecation === undefined,
+    ),
+  ).toBe(true);
+  expect(
+    follows.every((row) => row.originType !== TR_FOLLOW_TYPES.FXA_DEFERRED_TAX),
+  ).toBe(true);
 });

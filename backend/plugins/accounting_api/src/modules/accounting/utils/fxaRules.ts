@@ -14,6 +14,8 @@ export interface IFxaDepreciationRules extends Record<string, unknown> {
   taxDepreciationMethod?: string;
   taxAnnualDepreciationRate?: number;
   taxSalvageValue?: number;
+  taxPreDeprecation?: number;
+  incomeTaxRate?: number;
 }
 
 export type TFxaCorrection = {
@@ -41,6 +43,7 @@ export const readFxaCapitalRules = (
     'salvageValue',
     'taxAnnualDepreciationRate',
     'taxSalvageValue',
+    'incomeTaxRate',
   ] as const) {
     const value = info[field];
     if (value === undefined) continue;
@@ -50,7 +53,8 @@ export const readFxaCapitalRules = (
       value < 0 ||
       (field === 'annualDepreciationRate' && value === 0) ||
       ((field === 'annualDepreciationRate' ||
-        field === 'taxAnnualDepreciationRate') &&
+        field === 'taxAnnualDepreciationRate' ||
+        field === 'incomeTaxRate') &&
         value > 100)
     ) {
       throw new TypeError(`Invalid fixed asset correction ${field}.`);
@@ -75,7 +79,11 @@ export const readFxaCapitalRules = (
       throw new TypeError('Invalid depreciation start date.');
     rules.depreciationStartDate = date;
   }
-  for (const field of ['originalCost', 'depreciationBase'] as const) {
+  for (const field of [
+    'originalCost',
+    'depreciationBase',
+    'taxPreDeprecation',
+  ] as const) {
     const value = info[field];
     if (value === undefined) continue;
     if (typeof value !== 'number' || !Number.isFinite(value) || value < 0)
@@ -98,19 +106,32 @@ export const getFxaCorrections = async (
   })
     .sort({ date: 1, createdAt: 1, _id: 1 })
     .lean();
-  return transactions.flatMap((transaction) =>
-    transaction.details.flatMap((detail) =>
-      detail.fixedAssetId
-        ? [
-            {
-              fixedAssetId: detail.fixedAssetId,
-              date: pureDate(transaction.date),
-              rules: readFxaCapitalRules(detail.followInfos),
-            },
-          ]
-        : [],
-    ),
-  );
+  return transactions.flatMap((transaction) => {
+    const byAsset = new Map<string, IFxaDepreciationRules>();
+    for (const detail of transaction.details) {
+      if (!detail.fixedAssetId) continue;
+      const rules = readFxaCapitalRules(detail.followInfos);
+      if (transaction.journal !== JOURNALS.FXA_CAPITAL) {
+        delete rules.incomeTaxRate;
+      }
+      const previous = byAsset.get(detail.fixedAssetId) || {};
+      byAsset.set(detail.fixedAssetId, {
+        ...previous,
+        ...rules,
+        ...(rules.taxPreDeprecation !== undefined
+          ? {
+              taxPreDeprecation:
+                (previous.taxPreDeprecation || 0) + rules.taxPreDeprecation,
+            }
+          : {}),
+      });
+    }
+    return Array.from(byAsset, ([fixedAssetId, rules]) => ({
+      fixedAssetId,
+      date: pureDate(transaction.date),
+      rules,
+    }));
+  });
 };
 
 export const getFxaRulesAtDate = (
@@ -122,6 +143,7 @@ export const getFxaRulesAtDate = (
     | 'annualDepreciationRate'
     | 'salvageValue'
     | 'depreciationStartDate'
+    | 'incomeTaxRate'
   >,
   corrections: TFxaCorrection[],
   date: Date,
@@ -132,6 +154,7 @@ export const getFxaRulesAtDate = (
         ? { ...rules, ...correction.rules }
         : rules,
     {
+      incomeTaxRate: asset.incomeTaxRate,
       originalCost: asset.originalCost,
       depreciationMethod: asset.depreciationMethod,
       annualDepreciationRate: asset.annualDepreciationRate,

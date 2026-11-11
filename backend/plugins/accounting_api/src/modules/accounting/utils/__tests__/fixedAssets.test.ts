@@ -1,5 +1,8 @@
 /// <reference types="jest" />
 
+import type { IModels } from '~/connectionResolvers';
+import type { ITransactionDocument } from '../../@types/transaction';
+
 import { ADJ_FXA_STATUSES } from '../../@types/adjustFixedAsset';
 import {
   JOURNALS,
@@ -110,6 +113,7 @@ const makeModels = () => {
             taxDepreciationMethod: 'straightLine',
             defaultTaxAnnualDepreciationRate: 10,
             defaultTaxSalvageValue: 0,
+            incomeTaxRate: 10,
           },
         ]),
       ),
@@ -1928,6 +1932,7 @@ test('saved income snapshots survive later category rule edits', async () => {
         taxDepreciationMethod: 'decliningBalance',
         defaultTaxAnnualDepreciationRate: 20,
         defaultTaxSalvageValue: 88,
+        incomeTaxRate: 25,
       },
     ]),
   );
@@ -1939,12 +1944,29 @@ test('saved income snapshots survive later category rule edits', async () => {
     taxDepreciationMethod: 'straightLine',
     taxAnnualDepreciationRate: 10,
     taxSalvageValue: 0,
+    incomeTaxRate: 10,
   });
   for (const [doc] of models.FixedAssets.create.mock.calls) {
     expect(doc).not.toHaveProperty('annualDepreciationRate');
     expect(doc).not.toHaveProperty('currentCount');
   }
 });
+
+test.each([0, 15])(
+  'income tax rate override %s takes precedence over category defaults',
+  async (incomeTaxRate) => {
+    const models = makeModels();
+    const transaction = makeIncomeTransaction();
+    transaction.details[0].followInfos = {
+      ...transaction.details[0].followInfos,
+      incomeTaxRate,
+    };
+    await syncFxaIncomeDetails(models as never, 'user-a', transaction as never);
+    expect(transaction.details[0].followInfos.incomeTaxRate).toBe(
+      incomeTaxRate,
+    );
+  },
+);
 
 it('transfers owner quantity from the selected source to a different destination custodian', async () => {
   const models = makeModels();
@@ -2157,4 +2179,81 @@ it('preparing the same asset at different locations preserves each detail quanti
       branchId: 'b',
     }),
   ]);
+});
+
+test('income saves the tax toggle and posts both book opening depreciation and a balanced opening deferred tax pair', async () => {
+  const raw = makeModels();
+  raw.Configs.getConfigs.mockImplementation(async () => [
+    {
+      subId: 'asset-account',
+      value: {
+        depreciationAccountId: 'acc-dep-account',
+        taxAssetAccountId: 'tax-asset',
+        taxLiabilityAccountId: 'tax-liability',
+        TaxExpenseAccountId: 'tax-expense',
+      },
+    },
+  ]);
+  const models = {
+    ...raw,
+    Configs: {
+      ...raw.Configs,
+      findOne: () => queryResult({ value: ['user-a'] }),
+    },
+  } as unknown as IModels;
+  const transaction = makeIncomeTransaction();
+  transaction.details[0].followInfos = {
+    ...transaction.details[0].followInfos,
+    preDeprecation: 1000,
+    ...{ hasTaxDepreciation: true, taxPreDeprecation: 600, incomeTaxRate: 10 },
+  };
+  await syncFxaIncomeDetails(
+    models,
+    'user-a',
+    transaction as unknown as ITransactionDocument,
+  );
+  expect(raw.Transactions.createTransaction).toHaveBeenCalledWith(
+    expect.objectContaining({
+      journal: JOURNALS.FXA_DEP_IN,
+      details: [expect.objectContaining({ amount: 1000 })],
+    }),
+    'user-a',
+  );
+  expect(raw.Transactions.createTransaction).toHaveBeenCalledWith(
+    expect.objectContaining({
+      journal: JOURNALS.MAIN,
+      originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
+      side: TR_SIDES.DEBIT,
+      details: [
+        expect.objectContaining({ accountId: 'tax-asset', amount: 40 }),
+      ],
+    }),
+    'user-a',
+  );
+  expect(raw.Transactions.createTransaction).toHaveBeenCalledWith(
+    expect.objectContaining({
+      journal: JOURNALS.MAIN,
+      originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
+      side: TR_SIDES.CREDIT,
+      details: [
+        expect.objectContaining({ accountId: 'tax-expense', amount: 40 }),
+      ],
+    }),
+    'user-a',
+  );
+  expect(raw.Transactions.updateOne).toHaveBeenCalledWith(
+    { _id: transaction._id },
+    {
+      $set: {
+        details: expect.arrayContaining([
+          expect.objectContaining({
+            followInfos: expect.objectContaining({
+              hasTaxDepreciation: true,
+              incomeTaxRate: 10,
+            }),
+          }),
+        ]),
+      },
+    },
+  );
 });

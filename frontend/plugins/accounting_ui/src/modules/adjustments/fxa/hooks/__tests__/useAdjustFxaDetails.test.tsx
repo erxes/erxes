@@ -81,7 +81,6 @@ const calculated = {
   date: '2026-06-30T00:00:00.000Z',
   description: 'Q2 depreciation',
   expenseAccountId: null,
-  taxRate: 10,
   status: 'process',
   error: null,
   warning: null,

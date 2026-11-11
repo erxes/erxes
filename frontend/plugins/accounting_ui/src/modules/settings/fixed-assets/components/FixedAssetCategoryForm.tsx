@@ -1,3 +1,4 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
@@ -21,7 +22,9 @@ import {
 type TDepreciationFields =
   (typeof FIXED_ASSET_CATEGORY_DEPRECIATION_FIELDS)[number];
 
-type TNumberFieldName = TDepreciationFields['usefulLife' | 'rate' | 'salvage'];
+type TNumberFieldName =
+  | TDepreciationFields['usefulLife' | 'rate' | 'salvage']
+  | 'incomeTaxRate';
 
 const NumberFieldRow = ({
   form,
@@ -165,6 +168,12 @@ export const FixedAssetCategoryForm = ({
           fields={fields}
         />
       ))}
+
+      <NumberFieldRow
+        form={form}
+        name="incomeTaxRate"
+        label={getFxaTaxLabel(t, 'income-tax-rate')}
+      />
 
       <Form.Field
         control={form.control}

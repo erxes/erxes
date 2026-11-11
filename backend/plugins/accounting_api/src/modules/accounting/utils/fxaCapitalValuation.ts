@@ -1,3 +1,9 @@
+import { getFxaTaxAccounts } from './fxaDeferredTax';
+import {
+  calculateFxaTaxDepreciation,
+  getAssetLocationCountsAtDate,
+  getTotalCount,
+} from './fxaDepreciation';
 import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
 import {
   getFxaLedgerAssets,
@@ -72,9 +78,16 @@ export const getFxaCapitalValuation = async (
     throw new Error(
       'Configure the accumulated depreciation account for this asset.',
     );
+  const taxAccounts = (await getFxaTaxAccounts(models)).get(asset.accountId);
   const locations = new Map<
     string,
-    { branchId: string; departmentId: string; count: number }
+    {
+      branchId: string;
+      departmentId: string;
+      count: number;
+      deferredTaxAsset: number;
+      deferredTaxLiability: number;
+    }
   >();
   let accumulated = 0;
   for (const transaction of transactions) {
@@ -88,9 +101,16 @@ export const getFxaCapitalValuation = async (
         branchId,
         departmentId,
         count: 0,
+        deferredTaxAsset: 0,
+        deferredTaxLiability: 0,
       };
       location.count +=
         fxaMovementSign(transaction.journal) * (detail.count || 0);
+      const debit = transaction.side === TR_SIDES.CREDIT ? -1 : 1;
+      if (taxAccounts?.asset && detail.accountId === taxAccounts.asset)
+        location.deferredTaxAsset += detail.amount * debit;
+      if (taxAccounts?.liability && detail.accountId === taxAccounts.liability)
+        location.deferredTaxLiability -= detail.amount * debit;
       locations.set(key, location);
       if (
         detail.accountId === depreciationAccountId &&
@@ -128,6 +148,42 @@ export const getFxaCapitalValuation = async (
       previous &&
         fxaCapitalDate(previous.date).getTime() === previousDay.getTime(),
     );
+  let taxPreDeprecation = accumulated;
+  if (asset.hasTaxDepreciation) {
+    taxPreDeprecation = (asset.taxOpeningDepreciation || 0) * count;
+    if (fxaCapitalDate(asset.acquisitionDate) < atDate) {
+      const movements = transactions.flatMap((transaction) =>
+        transaction.details
+          .filter((detail) => detail.fixedAssetId === fixedAssetId)
+          .map((detail) => ({
+            fixedAssetId,
+            date: fxaCapitalDate(transaction.date),
+            countDelta:
+              fxaMovementSign(transaction.journal) * (detail.count || 0),
+            branchId: detail.branchId || transaction.branchId,
+            departmentId: detail.departmentId || transaction.departmentId,
+          })),
+      );
+      const tax = calculateFxaTaxDepreciation({
+        fixedAsset: asset,
+        beginDate: previousDay,
+        endDate: previousDay,
+        corrections,
+        movements,
+      });
+      const taxError = [...tax.values()].find((row) => row.error)?.error;
+      if (taxError) throw new Error(taxError);
+      const priorCount = getTotalCount(
+        getAssetLocationCountsAtDate(fixedAssetId, movements, previousDay),
+      );
+      taxPreDeprecation =
+        priorCount > 0
+          ? ([...tax.values()].reduce((sum, row) => sum + row.accumulated, 0) /
+              priorCount) *
+            count
+          : 0;
+    }
+  }
   const revaluation = await getFxaRevaluationState(
     models,
     fixedAssetId,
@@ -143,6 +199,10 @@ export const getFxaCapitalValuation = async (
     count,
     originalCost: rules.originalCost ?? asset.originalCost ?? 0,
     preDeprecation: accumulated,
+    hasTaxDepreciation: asset.hasTaxDepreciation === true,
+    taxPreDeprecation,
+    taxOriginalCost: asset.originalCost,
+    incomeTaxRate: rules.incomeTaxRate,
     taxDepreciationMethod:
       rules.taxDepreciationMethod || asset.taxDepreciationMethod,
     taxAnnualDepreciationRate:
