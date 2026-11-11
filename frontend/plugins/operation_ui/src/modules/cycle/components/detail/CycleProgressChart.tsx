@@ -4,23 +4,18 @@ import { useGetCycleProgressChart } from '@/cycle/hooks/useGetCycleProgressChart
 
 import { endOfDay, format, isAfter, parseISO, subDays } from 'date-fns';
 import { ChartContainer } from 'erxes-ui';
+import { useId } from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import type { TProgressChartData } from '@/project/components/details/ProgressChart';
 
-export const CycleProgressChart = ({
-  cycleId,
-  isCompleted,
-  statistics,
+// Future days are drawn faded; gradient ids are per chart, so several charts
+// on one page (the home dashboard) don't paint each other's lines.
+export const CycleProgressChartView = ({
+  progress,
 }: {
-  cycleId: string;
-  isCompleted: boolean;
-  statistics?: ICycleStatistics;
+  progress?: TProgressChartData | null;
 }) => {
-  const { getCycleProgressChart } = useGetCycleProgressChart(
-    isCompleted ? undefined : cycleId,
-  );
-
-  const progress = getCycleProgressChart || statistics?.chartData;
-
+  const gradientId = useId().replace(/:/g, '');
   const rawData = progress?.chartData || [];
   const totalScopeValue = progress?.totalScope || 0;
   const todayEnd = endOfDay(new Date());
@@ -70,7 +65,7 @@ export const CycleProgressChart = ({
     <div>
       <ChartContainer config={CHART_CONFIG}>
         <AreaChart accessibilityLayer data={chartData} margin={{ top: 10 }}>
-          <ProgressChartGradients data={chartData} />
+          <ProgressChartGradients data={chartData} idPrefix={gradientId} />
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
             dataKey="date"
@@ -99,8 +94,8 @@ export const CycleProgressChart = ({
           <Area
             dataKey="started"
             type="monotone"
-            stroke="url(#startedGradient)"
-            fill="url(#startedFillGradient)"
+            stroke={`url(#${gradientId}startedGradient)`}
+            fill={`url(#${gradientId}startedFillGradient)`}
             strokeWidth={2}
             dot={false}
             connectNulls={true}
@@ -110,8 +105,8 @@ export const CycleProgressChart = ({
           <Area
             dataKey="completed"
             type="monotone"
-            stroke="url(#completedGradient)"
-            fill="url(#completedFillGradient)"
+            stroke={`url(#${gradientId}completedGradient)`}
+            fill={`url(#${gradientId}completedFillGradient)`}
             strokeWidth={2}
             dot={false}
             connectNulls={true}
@@ -124,17 +119,46 @@ export const CycleProgressChart = ({
   );
 };
 
+export const CycleProgressChart = ({
+  cycleId,
+  isCompleted,
+  statistics,
+}: {
+  cycleId: string;
+  isCompleted: boolean;
+  statistics?: ICycleStatistics;
+}) => {
+  const { getCycleProgressChart } = useGetCycleProgressChart(
+    isCompleted ? undefined : cycleId,
+  );
+
+  return (
+    <CycleProgressChartView
+      progress={getCycleProgressChart || statistics?.chartData}
+    />
+  );
+};
+
 export const ProgressChartGradients = ({
   data = [],
+  idPrefix = '',
 }: {
   data: { date: string; started: number; completed: number; future: boolean }[];
+  idPrefix?: string;
 }) => {
   const lines: ('started' | 'completed')[] = ['started', 'completed'];
 
   return (
     <defs>
       {lines.map((line) => (
-        <linearGradient id={`${line}Gradient`} x1="0" y1="0" x2="1" y2="0">
+        <linearGradient
+          key={line}
+          id={`${idPrefix}${line}Gradient`}
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="0"
+        >
           {data.map((item, index) => {
             const denom = Math.max(data.length - 1, 1);
             const percent = (index / denom) * 100;
@@ -152,7 +176,14 @@ export const ProgressChartGradients = ({
       ))}
 
       {lines.map((line) => (
-        <linearGradient id={`${line}FillGradient`} x1="0" y1="0" x2="1" y2="0">
+        <linearGradient
+          key={`${line}Fill`}
+          id={`${idPrefix}${line}FillGradient`}
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="0"
+        >
           {data.map((item, index) => {
             const denom = Math.max(data.length - 1, 1);
             const percent = (index / denom) * 100;

@@ -54,16 +54,13 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
       }),
     );
 
-  const handleDeleteTicket = () =>
-    runAction(async () => {
-      try {
-        await confirm({
-          message: t('confirm-delete-ticket'),
-        });
-      } catch {
-        return;
-      }
-
+  const handleDeleteTicket = async () => {
+    try {
+      await confirm({ message: t('confirm-delete-ticket') });
+    } catch {
+      return;
+    }
+    await runAction(async () => {
       try {
         await removeTicket([ticket._id]);
         toast({
@@ -79,6 +76,7 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
         });
       }
     });
+  };
 
   return (
     <DropdownMenu>
@@ -95,9 +93,7 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
         </DropdownMenu.Item>
         <DropdownMenu.Item disabled={pending} onSelect={handleSubscribeToggle}>
           {isSubscribed ? <IconBellOff /> : <IconBell />}
-          {isSubscribed
-            ? t('unsubscribe')
-            : t('subscribe')}
+          {isSubscribed ? t('unsubscribe') : t('subscribe')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item

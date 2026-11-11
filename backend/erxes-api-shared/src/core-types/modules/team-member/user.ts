@@ -30,6 +30,12 @@ export interface IDetail {
   lastName?: string;
 }
 
+// Per-user UI layout choice; theme (light/dark) stays per browser.
+export interface IUserAppearance {
+  layout?: string;
+  frameColor?: string;
+}
+
 export interface IUser {
   createdAt?: Date;
   username?: string;
@@ -41,6 +47,7 @@ export interface IUser {
   isOwner?: boolean;
   email?: string;
   getNotificationByEmail?: boolean;
+  appearance?: IUserAppearance;
   emailSignatures?: IEmailSignature[];
   starredConversationIds?: string[];
   details?: IDetail;
@@ -57,6 +64,7 @@ export interface IUser {
   score?: number;
   customFieldsData?: ICustomField[];
   propertiesData?: IPropertyField;
+  dataExtensions?: Record<string, unknown>;
   departmentIds?: string[];
   branchIds?: string[];
   positionIds?: string[];

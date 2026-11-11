@@ -30,6 +30,8 @@ export interface ILogDoc {
   contentType?: string;
   /** Exact operation name — GraphQL mutation/query field, or affected entity. */
   name?: string;
+  docId?: string;
+  recordName?: string;
 }
 export type LogsMainListQueryResponse = {
   logsMainList: {

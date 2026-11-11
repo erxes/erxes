@@ -3,7 +3,17 @@ import { CartesianGrid, XAxis, AreaChart, Area, YAxis } from 'recharts';
 import { useGetProjectProgressChart } from '@/project/hooks/useGetProjectProgressChart';
 import { format, parseISO, endOfDay, isAfter, subDays } from 'date-fns';
 
-export const ProgressChart = ({ projectId }: { projectId: string }) => {
+// A chart's scope line and its daily started / completed counts.
+export type TProgressChartData = {
+  totalScope: number;
+  chartData: { date: string; started: number; completed: number }[];
+};
+
+export const ProgressChartView = ({
+  chart,
+}: {
+  chart?: TProgressChartData | null;
+}) => {
   const statusColors = {
     started: 'var(--warning)', // in progress
     completed: 'var(--success)', // done
@@ -21,10 +31,8 @@ export const ProgressChart = ({ projectId }: { projectId: string }) => {
     },
   };
 
-  const { getProjectProgressChart } = useGetProjectProgressChart(projectId);
-
-  const rawData = getProjectProgressChart?.chartData || [];
-  const totalScopeValue = getProjectProgressChart?.totalScope || 0;
+  const rawData = chart?.chartData || [];
+  const totalScopeValue = chart?.totalScope || 0;
 
   const todayEnd = endOfDay(new Date());
   const yesterdayEnd = endOfDay(subDays(new Date(), 1));
@@ -103,4 +111,10 @@ export const ProgressChart = ({ projectId }: { projectId: string }) => {
       </ChartContainer>
     </div>
   );
+};
+
+export const ProgressChart = ({ projectId }: { projectId: string }) => {
+  const { getProjectProgressChart } = useGetProjectProgressChart(projectId);
+
+  return <ProgressChartView chart={getProjectProgressChart} />;
 };

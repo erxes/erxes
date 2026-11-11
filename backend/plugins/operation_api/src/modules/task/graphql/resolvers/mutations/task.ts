@@ -74,8 +74,6 @@ export const taskMutations = {
             githubIssueNumber: issueNumber,
             githubIssueUrl: issueUrl,
             githubRepoName: githubConfig.repoName,
-            name: task.name,
-            teamId: task.teamId,
           },
           userId: user._id,
           subdomain,

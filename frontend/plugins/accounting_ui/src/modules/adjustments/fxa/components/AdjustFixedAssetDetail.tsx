@@ -1,3 +1,7 @@
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAdjustFixedAssetActions } from '@/adjustments/fxa/hooks/useAdjustFixedAssetActions';
+import { AdjustFixedAssetTransactions } from '@/adjustments/fxa/components/AdjustFixedAssetTransactions';
 import {
   IconCashRegister,
   IconCircleCheck,
@@ -17,6 +21,7 @@ import {
   Form,
   RecordTable,
   Spinner,
+  Tabs,
   Tooltip,
   useQueryState,
 } from 'erxes-ui';
@@ -29,13 +34,16 @@ import { useAdjustFixedAssetRun } from '@/adjustments/fxa/hooks/useAdjustFixedAs
 import { useAdjustFixedAssetTransaction } from '@/adjustments/fxa/hooks/useAdjustFixedAssetTransaction';
 import { useAdjustFixedAssetDetail } from '@/adjustments/fxa/hooks/useAdjustFixedAssetDetail';
 import { useAdjustFxaDetails } from '@/adjustments/fxa/hooks/useAdjustFxaDetails';
-import { ADJ_FXA_STATUSES, IAdjustFixedAsset } from '@/adjustments/fxa/types/AdjustFixedAsset';
+import {
+  ADJ_FXA_STATUSES,
+  IAdjustFixedAsset,
+} from '@/adjustments/fxa/types/AdjustFixedAsset';
 import { adjustFxaDetailColumns } from '@/adjustments/fxa/components/AdjustFxaDetailColumns';
 
 export const AdjustFixedAssetDetail = () => {
   const { t } = useTranslation('accounting');
   const [id] = useQueryState<string>('id');
-  const { adjustFixedAsset, loading } = useAdjustFixedAssetDetail({
+  const { adjustFixedAsset, loading, error } = useAdjustFixedAssetDetail({
     variables: { _id: id ?? '' },
     skip: !id,
   });
@@ -54,24 +62,41 @@ export const AdjustFixedAssetDetail = () => {
   const { removeAdjustFixedAsset, loading: removeLoading } =
     useAdjustFixedAssetRemove(id || '');
 
+  const actions = useAdjustFixedAssetActions(id || '');
+  const transaction = useAdjustFixedAssetTransaction(id || '');
+  const busy =
+    runLoading || removeLoading || actions.loading || transaction.loading;
   if (loading || detailsLoading) {
     return <Spinner />;
   }
 
-  if (!id || !adjustFixedAsset) {
-    return null;
-  }
+  if (error)
+    return (
+      <p role="alert" className="p-3 text-destructive">
+        {error.message}
+      </p>
+    );
+  if (!id || !adjustFixedAsset)
+    return <p className="p-3 text-muted-foreground">{t('no-results-found')}</p>;
 
   const status = adjustFixedAsset.status || ADJ_FXA_STATUSES.DRAFT;
   const canRun =
-    status === ADJ_FXA_STATUSES.DRAFT || status === ADJ_FXA_STATUSES.PROCESS;
+    status === ADJ_FXA_STATUSES.DRAFT ||
+    status === ADJ_FXA_STATUSES.PROCESS ||
+    status === ADJ_FXA_STATUSES.COMPLETE;
   const canTransact =
     status === ADJ_FXA_STATUSES.PROCESS && !adjustFixedAsset.error;
-  const canDelete = canRun;
+  const canDelete =
+    status === ADJ_FXA_STATUSES.DRAFT || status === ADJ_FXA_STATUSES.PROCESS;
+  const completed =
+    status === ADJ_FXA_STATUSES.COMPLETE || status === ADJ_FXA_STATUSES.PUBLISH;
+  const parentId = adjustFxaDetails.find(
+    (detail) => detail.transactionId,
+  )?.transactionId;
 
   return (
     <>
-      <div className="m-3 flex-auto">
+      <div className="m-3 shrink-0">
         <h3 className="text-lg font-bold">
           {t('fixed-asset-adjustment-detail')}
         </h3>
@@ -90,21 +115,51 @@ export const AdjustFixedAssetDetail = () => {
             </span>
           )}
           {canRun && (
-            <Button
-              onClick={() => runAdjustFixedAsset()}
-              disabled={runLoading || removeLoading}
-            >
+            <Button onClick={() => runAdjustFixedAsset()} disabled={busy}>
               {runLoading ? <Spinner /> : <IconCrane />}
               {t('run')}
             </Button>
           )}
-          {canTransact && <AdjustFixedAssetTransactionDialog adjustId={id} />}
-          {canDelete && (
+          {canTransact && (
+            <AdjustFixedAssetTransactionDialog
+              expenseAccountId={adjustFixedAsset.expenseAccountId || undefined}
+              transaction={transaction}
+              disabled={busy}
+            />
+          )}
+          {completed && (
+            <Button
+              variant="secondary"
+              disabled={busy}
+              onClick={() => actions.cancel()}
+            >
+              {t('cancel')}
+            </Button>
+          )}
+          {status === ADJ_FXA_STATUSES.PROCESS && (
+            <Button
+              variant="secondary"
+              disabled={busy}
+              onClick={() => actions.clear()}
+            >
+              {t('clear')}
+            </Button>
+          )}
+          {status === ADJ_FXA_STATUSES.COMPLETE && (
+            <Button
+              variant="secondary"
+              disabled={busy}
+              onClick={() => actions.publish()}
+            >
+              {t('publish')}
+            </Button>
+          )}
+          {canDelete && !parentId && (
             <Button
               variant="secondary"
               className="text-destructive"
               onClick={() => removeAdjustFixedAsset()}
-              disabled={runLoading || removeLoading}
+              disabled={busy}
             >
               {removeLoading ? <Spinner /> : <IconTrashX />}
               {t('delete')}
@@ -112,45 +167,65 @@ export const AdjustFixedAssetDetail = () => {
           )}
         </div>
       </div>
-      <RecordTable.Provider
-        columns={adjustFxaDetailColumns(t)}
-        data={adjustFxaDetails}
-        stickyColumns={[]}
-        tableId="accounting_adjust_fixed_asset_detail_record_table"
-        className="m-3"
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header showColumnSelector />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-              {!detailsLoading &&
-                adjustFxaDetailsCount > adjustFxaDetails.length && (
-                  <RecordTable.RowSkeleton
-                    rows={4}
-                    handleInView={handleFetchMore}
-                  />
-                )}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
+      <Tabs defaultValue="details" className="mx-3 mb-3">
+        <Tabs.List>
+          <Tabs.Trigger value="details">{t('details')}</Tabs.Trigger>
+          <Tabs.Trigger value="transactions">{t('transactions')}</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="details">
+          <RecordTable.Provider
+            columns={adjustFxaDetailColumns(t)}
+            data={adjustFxaDetails}
+            stickyColumns={[]}
+            tableId="accounting_adjust_fixed_asset_detail_record_table"
+            className="mt-3"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header showColumnSelector />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                  {!detailsLoading &&
+                    adjustFxaDetailsCount > adjustFxaDetails.length && (
+                      <RecordTable.RowSkeleton
+                        rows={4}
+                        handleInView={handleFetchMore}
+                      />
+                    )}
+                </RecordTable.Body>
+              </RecordTable>
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </Tabs.Content>
+        <Tabs.Content value="transactions">
+          <AdjustFixedAssetTransactions
+            parentId={parentId || undefined}
+            completed={completed}
+          />
+        </Tabs.Content>
+      </Tabs>
     </>
   );
 };
 
-const AdjustFixedAssetTransactionDialog = ({
-  adjustId,
+export const AdjustFixedAssetTransactionDialog = ({
+  expenseAccountId: initialExpenseAccountId,
+  transaction,
+  disabled,
 }: {
-  adjustId: string;
+  expenseAccountId?: string;
+  transaction: ReturnType<typeof useAdjustFixedAssetTransaction>;
+  disabled: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
-  const form = useForm<{ expenseAccountId?: string }>({
-    defaultValues: { expenseAccountId: undefined },
+  const form = useForm<{ expenseAccountId: string }>({
+    defaultValues: { expenseAccountId: initialExpenseAccountId || '' },
+    resolver: zodResolver(
+      z.object({ expenseAccountId: z.string().min(1, t('Required')) }),
+    ),
   });
-  const { createTransaction, loading } =
-    useAdjustFixedAssetTransaction(adjustId);
+  const { createTransaction, loading } = transaction;
   const expenseAccountId = form.watch('expenseAccountId');
 
   const handleSubmit = () => {
@@ -167,7 +242,7 @@ const AdjustFixedAssetTransactionDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button>
+        <Button disabled={disabled}>
           <IconCashRegister />
           {t('depreciation-transaction')}
         </Button>
@@ -190,7 +265,9 @@ const AdjustFixedAssetTransactionDialog = ({
                   <SelectAccount.FormItem
                     mode="single"
                     value={field.value}
-                    onValueChange={(value) => field.onChange(value as string)}
+                    onValueChange={(value) =>
+                      field.onChange(typeof value === 'string' ? value : '')
+                    }
                     defaultFilter={{ permissionMode: 'write' }}
                     placeholder={t('select-accounts')}
                   />

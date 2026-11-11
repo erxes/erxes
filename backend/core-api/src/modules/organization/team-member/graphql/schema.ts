@@ -69,6 +69,11 @@ export const types = `
     category: String
   }
 
+  type UserAppearance {
+    layout: String
+    frameColor: String
+  }
+
   type User @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     createdAt: Date
@@ -81,8 +86,11 @@ export const types = `
     chatStatus: UserChatStatus
     # Sign-in presence (active | idle | none), unlike chatStatus which members set by hand
     sessionState: String
+    # Rolling 5-minute activity over the last N days; null without permission or when tracking is off
+    activity(days: Int): UserActivity
     emailSignatures: JSON
     getNotificationByEmail: Boolean
+    appearance: UserAppearance
 
     currentOrganization: Organization
     organizations: [CookieOrganization]
@@ -142,6 +150,41 @@ export const types = `
     current: Boolean!
   }
 
+  type UserActivity {
+    activeMinutes: Int!
+    lastActiveAt: Date
+  }
+
+  type UserActivityRankItem {
+    user: User!
+    activeMinutes: Int!
+    # May fall before the window; null when never recorded
+    lastActiveAt: Date
+  }
+
+  type UserActivityDay {
+    # Local date in the requested timezone (YYYY-MM-DD)
+    date: String!
+    activeMembers: Int!
+    minutes: Int!
+  }
+
+  type UserActivityRanking {
+    # False while the organization has tracking off; items are then empty
+    enabled: Boolean!
+    items: [UserActivityRankItem!]!
+    # Only days with activity; may include one day before the window
+    series: [UserActivityDay!]!
+  }
+
+  type UserActivitySlots {
+    # False while the organization has tracking off; slots are then empty
+    enabled: Boolean!
+    slotMinutes: Int!
+    # 5-minute buckets since epoch; group them in the viewer's timezone
+    slots: [Int!]!
+  }
+
   type UsersListResponse {
     list: [User]
     totalCount: Int
@@ -190,9 +233,18 @@ export const queries = `
   usersTotalCount(${commonSelector}): Int
   userMovements(userId: String!,contentType: String):[UserMovement]
   userSessions(_id: String!): [UserSession!]!
+  userActivitySlots(_id: String!, days: Int): UserActivitySlots!
+  userActivityRanking(days: Int, timeZone: String): UserActivityRanking!
 `;
 
 export const mutations = `
+  usersEditProfilePatch(
+    username: String,
+    email: String,
+    details: UserDetails,
+    links: JSON,
+    positionIds: [String!]
+  ): User
   usersResetMemberPassword(_id: String!, newPassword: String!): User
   usersEditProfile(
     username: String!,
@@ -210,6 +262,7 @@ export const mutations = `
   usersConfirmInvitation(token: String): String
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User
+  usersConfigAppearance(layout: String!, frameColor: String): User
   usersSetChatStatus(_id: String!, status: UserChatStatus): User
   editOrganizationInfo(icon: String, logo: String, link: String, name: String, iconColor: String, backgroundColor: String, description: String, domain: String, favicon: String, textColor: String): Organization
   editOrganizationDomain(type: String, domain: String): Organization

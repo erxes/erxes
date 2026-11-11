@@ -44,9 +44,9 @@ export const NodeEditMetaDataForm = ({ id, data, callback }: Props) => {
       return;
     }
 
+    const formPath = data.formPath as FieldPath<TAutomationBuilderForm>;
     const currentNode = getNode(id);
-    const currentEntry =
-      getValues(data.formPath as FieldPath<TAutomationBuilderForm>) || {};
+    const currentEntry = getValues(formPath) || {};
 
     // The form entry shape differs per node kind: workflows store the title
     // as `name`, triggers/actions as `label`.
@@ -61,7 +61,7 @@ export const NodeEditMetaDataForm = ({ id, data, callback }: Props) => {
       position: currentNode?.position ?? currentEntry?.position,
     };
 
-    setAutomationBuilderFormValue(data.formPath, updatedEntry, {
+    setAutomationBuilderFormValue(formPath, updatedEntry, {
       shouldValidate: true,
       shouldDirty: true,
     });

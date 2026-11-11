@@ -4,7 +4,7 @@ import { Button, Spinner } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MainContent, BranchSideBar } from '@/tms/branch-detail/components';
+import { MainContent } from '@/tms/branch-detail/components';
 
 export const BranchDetailView = ({ header }: { header?: ReactNode }) => {
   const { t } = useTranslation('tourism');
@@ -24,7 +24,7 @@ export const BranchDetailView = ({ header }: { header?: ReactNode }) => {
 
   const { selectedBranch, listLoading } = useBranchDetailPage();
 
-  if (listLoading) {
+  if (listLoading && !selectedBranch) {
     return (
       <>
         {header}
@@ -57,13 +57,10 @@ export const BranchDetailView = ({ header }: { header?: ReactNode }) => {
   }
 
   return (
-    <div className="flex h-full min-h-0">
-      <BranchSideBar activeTab={activeTab} />
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {header}
-        <div className="flex min-h-0 flex-1">
-          <MainContent activeStep={activeTab} branch={selectedBranch} />
-        </div>
+    <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden">
+      {header}
+      <div className="flex min-h-0 flex-1">
+        <MainContent activeStep={activeTab} branch={selectedBranch} />
       </div>
     </div>
   );

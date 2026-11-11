@@ -1,19 +1,32 @@
 import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { hasId } from '@/pos/utils/posJson';
+import { readPosCount } from '@/pos/utils/posOrderJson';
 import { useQuery } from '@apollo/client';
 import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PosCoversQueryVariables } from '~/gql/graphql';
-import { posCovers } from '../graphql/queries/queries';
-import { posCoverTotalCountAtom } from '../states/usePosCoversCounts';
+import { posCovers } from '@/pos/pos-covers/graphql/queries/queries';
+import {
+  posCoverTotalCountAtom,
+  posCoverTotalCountLoadingAtom,
+} from '@/pos/pos-covers/states/usePosCoversCounts';
 
 const COVERS_PER_PAGE = 30;
+
+const isSameFilter = (
+  current: Record<string, unknown>,
+  requested: Record<string, unknown> | undefined,
+) =>
+  Object.keys(current).every(
+    (key) => JSON.stringify(current[key]) === JSON.stringify(requested?.[key]),
+  );
 
 type UseCoversListOptions = PosCoversQueryVariables & { posId?: string };
 
 interface UseCoversListReturn {
   loading: boolean;
+  error?: Error;
   coversList: ICovers[];
   totalCount: number;
   handleFetchMore: () => void;
@@ -53,9 +66,14 @@ export const useCoversList = (
 ): UseCoversListReturn => {
   const variables = useCoversVariables(options);
   const setPosCoverTotalCount = useSetAtom(posCoverTotalCountAtom);
-  const { data, loading, fetchMore } = useQuery(posCovers, {
+  const setPosCoverTotalCountLoading = useSetAtom(
+    posCoverTotalCountLoadingAtom,
+  );
+  const { data, loading, error, fetchMore, refetch } = useQuery(posCovers, {
     variables,
   });
+  const variablesRef = useRef(variables);
+  variablesRef.current = variables;
 
   const transformedCoversList = useMemo(
     () =>
@@ -74,37 +92,66 @@ export const useCoversList = (
   );
 
   const totalCount = useMemo(
-    () => data?.posCovers?.length || 0,
-    [data?.posCovers],
+    () => readPosCount(data?.posCoversCount),
+    [data?.posCoversCount],
   );
 
   const handleFetchMore = useCallback(() => {
     if (!data?.posCovers) return;
 
+    let staleList = false;
     fetchMore({
       variables: {
         page: Math.ceil(transformedCoversList.length / COVERS_PER_PAGE) + 1,
         ...variables,
       },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.posCovers) {
+      updateQuery: (prev, { fetchMoreResult, variables: requested }) => {
+        if (
+          !prev?.posCovers ||
+          !fetchMoreResult?.posCovers ||
+          !isSameFilter(variablesRef.current, requested)
+        ) {
+          return prev;
+        }
+        const existingIds = new Set(prev.posCovers.map((cover) => cover?._id));
+        const overlaps = fetchMoreResult.posCovers.some((cover) =>
+          existingIds.has(cover?._id),
+        );
+        if (
+          overlaps ||
+          readPosCount(fetchMoreResult.posCoversCount) !==
+            readPosCount(prev.posCoversCount)
+        ) {
+          staleList = true;
           return prev;
         }
         return {
           ...prev,
-          posCovers: [...(prev.posCovers || []), ...fetchMoreResult.posCovers],
+          posCovers: [...prev.posCovers, ...fetchMoreResult.posCovers],
         };
       },
-    });
-  }, [transformedCoversList.length, fetchMore, data?.posCovers, variables]);
+    })
+      .then(() => (staleList ? refetch() : undefined))
+      .catch(() => undefined);
+  }, [
+    transformedCoversList.length,
+    fetchMore,
+    refetch,
+    data?.posCovers,
+    variables,
+  ]);
 
   useEffect(() => {
-    if (!totalCount) return;
-    setPosCoverTotalCount(totalCount);
-  }, [totalCount, setPosCoverTotalCount]);
+    setPosCoverTotalCount(data?.posCovers && !error ? totalCount : null);
+  }, [data?.posCovers, error, totalCount, setPosCoverTotalCount]);
+
+  useEffect(() => {
+    setPosCoverTotalCountLoading(loading);
+  }, [loading, setPosCoverTotalCountLoading]);
 
   return {
     loading,
+    error,
     coversList: transformedCoversList,
     totalCount,
     handleFetchMore,

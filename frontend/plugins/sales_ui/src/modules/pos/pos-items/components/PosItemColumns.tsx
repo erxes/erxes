@@ -16,7 +16,8 @@ import {
 import { PosItemMoreColumn } from '@/pos/pos-items/components/PosItemMoreColumns';
 import { IPosItem } from '@/pos/pos-items/types/posItem';
 import { TFunction } from 'i18next';
-import { ClickableBillNumber } from './ClickableBillNumber';
+import { ClickableBillNumber } from '@/pos/orders/components/ClickableBillNumber';
+import { toPosItemOrderId } from '@/pos/utils/posOrderJson';
 
 const fmt = (val: number | string | null | undefined) =>
   val != null ? val.toLocaleString() : '0';
@@ -30,7 +31,10 @@ export const PosItemColumns: (t: TFunction) => ColumnDef<IPosItem>[] = (t) => [
       <RecordTable.InlineHead icon={IconLabel} label={t('number')} />
     ),
     cell: ({ cell, row }) => (
-      <ClickableBillNumber value={cell.getValue() as string} row={row} />
+      <ClickableBillNumber
+        value={cell.getValue() as string}
+        orderId={toPosItemOrderId(row.original)}
+      />
     ),
   },
   {

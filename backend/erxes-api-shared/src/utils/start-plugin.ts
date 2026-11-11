@@ -121,12 +121,20 @@ type GraphqlResolver = {
 type ConfigTypes = {
   name: string;
   port: number;
-  graphql: () => Promise<{
+  /**
+   * Omit for a plugin with no GraphQL API (REST over `/pl:<name>` only).
+   * List it in ENABLED_PLUGINS_NO_GRAPHQL so the gateway leaves it out of
+   * the supergraph instead of waiting for its `/graphql`.
+   */
+  graphql?: () => Promise<{
     resolvers: GraphqlResolver;
     typeDefs: DocumentNode;
   }>;
   expressRouter?: Router;
-  apolloServerContext: (
+  // Mounted before the shared body parsers, for routes that parse their own
+  // bodies with a tighter limit.
+  routerBeforeBodyParsers?: Router;
+  apolloServerContext?: (
     subdomain: string,
     context: any,
     req: ApiRequest,
@@ -158,6 +166,7 @@ export async function startPlugin(
     // api configs
     corsOptions = {},
     expressRouter,
+    routerBeforeBodyParsers,
     middlewares,
     apiHandlers,
     // graphql
@@ -181,6 +190,10 @@ export async function startPlugin(
   applyTrustProxy(app);
   app.disable('x-powered-by');
   app.use(cors(corsOptions));
+
+  if (routerBeforeBodyParsers) {
+    app.use(routerBeforeBodyParsers);
+  }
   app.use(
     express.json({
       limit: '15mb',
@@ -348,11 +361,10 @@ export async function startPlugin(
     });
   });
 
-  const generateApolloServer = async () => {
-    // const services = await getServices();
-    // debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
-
-    const { typeDefs, resolvers } = await graphql();
+  const generateApolloServer = async (
+    loadSchema: NonNullable<ConfigTypes['graphql']>,
+  ) => {
+    const { typeDefs, resolvers } = await loadSchema();
 
     return new ApolloServer({
       schema: buildSubgraphSchema([
@@ -370,28 +382,39 @@ export async function startPlugin(
     });
   };
 
-  const apolloServer = await generateApolloServer();
-  await apolloServer.start();
+  const hasGraphql = Boolean(graphql);
 
-  app.use(
-    '/graphql',
-    expressMiddleware(apolloServer, {
-      context: generateApolloContext<IMainContext>(apolloServerContext),
-    }),
-  );
+  if (graphql) {
+    if (!apolloServerContext) {
+      throw new Error('apolloServerContext is required when graphql is set');
+    }
+
+    const apolloServer = await generateApolloServer(graphql);
+    await apolloServer.start();
+
+    app.use(
+      '/graphql',
+      expressMiddleware(apolloServer, {
+        context: generateApolloContext<IMainContext>(apolloServerContext),
+      }),
+    );
+  }
 
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: PORT }, resolve),
   );
 
   console.log(
-    `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
+    hasGraphql
+      ? `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`
+      : `🚀 ${name} api ready at http://localhost:${PORT} (no graphql)`,
   );
 
   await joinErxesGateway({
     name,
     port: PORT,
     hasSubscriptions,
+    hasGraphql,
     meta,
   });
 
@@ -451,7 +474,7 @@ export async function startPlugin(
     }
 
     if (importExport) {
-      startImportExportWorker({
+      await startImportExportWorker({
         pluginName: name,
         config: importExport,
         app,

@@ -7,7 +7,6 @@ import {
   erxesMessengerSetupHoursAtom,
   erxesMessengerSetupIntroAtom,
   erxesMessengerSetupSettingsAtom,
-  erxesMessengerSetupSheetOpenAtom,
   erxesMessengerSetupStepAtom,
   settedIntegrationDetailAtom,
 } from './erxesMessengerSetupStates';
@@ -25,7 +24,6 @@ export const resetErxesMessengerSetupAtom = atom(
     set(erxesMessengerSetupSettingsAtom, null);
     set(erxesMessengerSetupConfigAtom, null);
     set(erxesMessengerSetupStepAtom, 1);
-    set(erxesMessengerSetupSheetOpenAtom, false);
     !dontCloseSheet && set(erxesMessengerSetupEditSheetOpenAtom, false);
     set(settedIntegrationDetailAtom, false);
   },

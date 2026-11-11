@@ -1,10 +1,14 @@
-import { AppLayout } from 'erxes-ui';
+import { AppLayout, AppLayoutFooterLink } from 'erxes-ui';
+import { IconSettings } from '@tabler/icons-react';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { DocumentsContextNavigation } from '@/documents/components/DocumentsContextNavigation';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NavigationChildControlsProvider } from '@/navigation/components/app-sidebar/NavigationChildControlsProvider';
 import { NavigationCorePanelContent } from '@/navigation/components/app-sidebar/NavigationCoreModules';
 import { Outlet, useLocation } from 'react-router-dom';
 import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
+import { DataExtensionsContextNavigation } from '@/data-extensions/components/DataExtensionsSidebar';
+import { TemplatesContextNavigation } from '@/templates/components/TemplatesContextNavigation';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
 import { SETTINGS_TAB_ID } from '@/navigation/hooks/useAppTabs';
@@ -15,6 +19,12 @@ import {
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { useTranslation } from 'react-i18next';
 
+const AppPageOutlet = () => (
+  <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <Outlet />
+  </div>
+);
+
 const getCoreModuleSidebar = (
   activity: INavigationActivity,
   pathname: string,
@@ -23,12 +33,34 @@ const getCoreModuleSidebar = (
     return <SegmentsContextNavigation />;
   }
 
+  if (pathname.startsWith('/templates')) {
+    return <TemplatesContextNavigation />;
+  }
+
   if (pathname.startsWith(`/${AppPath.Documents}`)) {
     return <DocumentsContextNavigation />;
   }
 
+  if (pathname.startsWith(`/${AppPath.DataExtensions}`)) {
+    return <DataExtensionsContextNavigation />;
+  }
+
   if (activity.modules.some((module) => module.submenus?.length)) {
     return <NavigationCorePanelContent activity={activity} />;
+  }
+
+  return null;
+};
+
+const getCoreModuleSidebarFooter = (pathname: string, label: string) => {
+  if (pathname.startsWith(`/${AppPath.Automations}`)) {
+    return (
+      <AppLayoutFooterLink
+        path={AutomationSettingsPath.Index}
+        name={label}
+        icon={IconSettings}
+      />
+    );
   }
 
   return null;
@@ -51,7 +83,7 @@ export const CoreAppOutlet = () => {
         title={t('organization-settings')}
         sidebar={<SettingsSidebar />}
       >
-        <Outlet />
+        <AppPageOutlet />
       </AppLayout>
     );
   }
@@ -70,7 +102,7 @@ export const CoreAppOutlet = () => {
       <NavigationChildControlsProvider
         activity={activity?.kind === 'plugin' ? activity : undefined}
       >
-        <Outlet />
+        <AppPageOutlet />
       </NavigationChildControlsProvider>
     );
   }
@@ -79,13 +111,14 @@ export const CoreAppOutlet = () => {
     <AppLayout
       id={activity.id}
       title={activity.label}
+      footer={getCoreModuleSidebarFooter(pathname, t('app-settings'))}
       sidebar={
         <NavigationChildControlsProvider activity={activity}>
           {sidebar}
         </NavigationChildControlsProvider>
       }
     >
-      <Outlet />
+      <AppPageOutlet />
     </AppLayout>
   );
 };

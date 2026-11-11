@@ -14,6 +14,8 @@ import { usePostAutosave } from './hooks/usePostAutosave';
 import { PostEditorColumn } from './PostEditorColumn';
 import { PostSidebarPanel } from './PostSidebarPanel';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
+import { getInitialCmsLanguage } from '~/modules/cms/shared/utils';
+import { CmsSavedRowLoadError } from '~/modules/cms/shared/components/CmsSavedRowLoadError';
 import { CmsUnsavedChangesAlert } from '~/modules/cms/shared/components/CmsUnsavedChangesAlert';
 
 // A post being edited: only _id matters here, everything else is read via
@@ -29,6 +31,7 @@ interface AddPostFormProps {
     onSubmit: (data?: FieldValues) => Promise<void>;
     creating: boolean;
     saving: boolean;
+    isSaveBlocked: boolean;
     handleLanguageChange: (lang: string) => void;
   }) => void;
 }
@@ -67,9 +70,10 @@ export const AddPostForm = ({
     previousTypeRef,
     handleEditorChange,
     fullPost,
+    savedRowLoad,
     updateCustomFieldValue,
     getCustomFieldValue,
-  } = usePostForm(currentEditingPost);
+  } = usePostForm(websiteId, currentEditingPost);
 
   const selectedType = form.watch('type');
 
@@ -122,6 +126,7 @@ export const AddPostForm = ({
     defaultLanguage,
     defaultLangData,
     translations,
+    isSaveBlocked: savedRowLoad.isBlocked,
     onClose,
     onSaved: handleSaved,
   });
@@ -137,7 +142,11 @@ export const AddPostForm = ({
   });
 
   const formInitializedRef = useRef(false);
-  const lastBusyRef = useRef({ creating: false, saving: false });
+  const lastBusyRef = useRef({
+    creating: false,
+    saving: false,
+    isSaveBlocked: false,
+  });
 
   const handleLanguageChangeRef = useRef<(lang: string) => void>(
     () => undefined,
@@ -175,7 +184,8 @@ export const AddPostForm = ({
       form &&
       (!formInitializedRef.current ||
         lastBusyRef.current.creating !== creating ||
-        lastBusyRef.current.saving !== saving)
+        lastBusyRef.current.saving !== saving ||
+        lastBusyRef.current.isSaveBlocked !== savedRowLoad.isBlocked)
     ) {
       // Same safe widening as formForColumns — consumers only read known fields.
       onFormReady({
@@ -183,16 +193,22 @@ export const AddPostForm = ({
         onSubmit: onSubmit as unknown as (data?: FieldValues) => Promise<void>,
         creating,
         saving,
+        isSaveBlocked: savedRowLoad.isBlocked,
         handleLanguageChange: handleLanguageChangeStable,
       });
       formInitializedRef.current = true;
-      lastBusyRef.current = { creating, saving };
+      lastBusyRef.current = {
+        creating,
+        saving,
+        isSaveBlocked: savedRowLoad.isBlocked,
+      };
     }
   }, [
     form,
     onSubmit,
     creating,
     saving,
+    savedRowLoad.isBlocked,
     onFormReady,
     handleLanguageChangeStable,
   ]);
@@ -201,7 +217,7 @@ export const AddPostForm = ({
   const applyTranslationToForm = useCallback(
     (lang: string) => {
       setDefaultLangData((current) => {
-        if (current) return current;
+        if (current || savedRowLoad.isBlocked) return current;
 
         return {
           title: fullPost?.title || '',
@@ -216,12 +232,16 @@ export const AddPostForm = ({
       form.setValue('description', translation?.excerpt || '');
       form.setValue('customFieldsData', translation?.customFieldsData || []);
     },
-    [form, fullPost, translations, setDefaultLangData],
+    [form, fullPost, translations, savedRowLoad.isBlocked, setDefaultLangData],
   );
 
   useEffect(() => {
     if (!selectedLanguage && defaultLanguage) {
-      const initialLang = cmsLanguage || defaultLanguage;
+      const initialLang = getInitialCmsLanguage(
+        cmsLanguage,
+        availableLanguages,
+        defaultLanguage,
+      );
       // Set form values BEFORE setting selectedLanguage so the Editor
       // (which remounts on key change including selectedLanguage) reads
       // the correct values when it re-initialises.
@@ -234,6 +254,7 @@ export const AddPostForm = ({
     }
   }, [
     applyTranslationToForm,
+    availableLanguages,
     cmsLanguage,
     defaultLanguage,
     finishLanguageSwitch,
@@ -337,13 +358,13 @@ export const AddPostForm = ({
     };
     const outgoingLanguage = selectedLanguage;
 
-    if (outgoingLanguage === defaultLanguage) {
-      setDefaultLangData(outgoingData);
-    } else {
+    if (outgoingLanguage !== defaultLanguage) {
       setTranslations((prev) => ({
         ...prev,
         [outgoingLanguage]: outgoingData,
       }));
+    } else if (!savedRowLoad.isBlocked) {
+      setDefaultLangData(outgoingData);
     }
 
     if (lang === defaultLanguage) {
@@ -380,6 +401,11 @@ export const AddPostForm = ({
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
       {postizSheet}
+      {savedRowLoad.hasFailed && (
+        <div className="mb-4 px-4">
+          <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+        </div>
+      )}
       {postizAccess?.agentPostizTenantEnabled &&
         currentEditingPost?._id &&
         fullPost?.type === 'post' &&

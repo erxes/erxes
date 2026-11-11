@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -125,7 +125,15 @@
   `frontline:ticket`, so the help center can link straight back to the ticket.
 - A ticket holds a single `branchId` / `departmentId`, settable on both
   `createTicket` and `updateTicket`; changing them can move the ticket out of
-  view for users on an `isCheckBranch` / `isCheckDepartment` pipeline.
+  view for users on an `isCheckBranch` / `isCheckDepartment` pipeline, or
+  outside the caller's own branch / department when the core team member
+  restriction is on.
+- Core's general setting "With team member restrictions"
+  (`CHECK_TEAM_MEMBER_SHOWN`) applies to staff ticket lists: a user sees only
+  tickets whose `branchId` is in their branches (with child branches) and whose
+  `departmentId` is in their departments (with child departments). Users in
+  `BRANCHES_MASTER_TEAM_MEMBERS_IDS` / `DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS`
+  skip the matching half; owners and `role: 'system'` skip both.
 - `src/migrations/migrateForms.ts` copies a v2 form field into
   `frontline_form_fields` when its `contentType` is `form` or its
   `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,
@@ -191,6 +199,10 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- The Facebook/Instagram comment reply action resolves placeholders in the
+  picked text variant with the same two passes as the message action
+  (`replaceOutputPlaceholders`, then `{{ prevAction.* }}`) before queueing it;
+  unresolved tokens are kept as written.
 - A Facebook message action with an **Input** message waits for the person's
   next typed message (`meta/automation/messages/inputWait.ts`). It stores
   `conversations_facebooks.inputWait` (`executionId`, `actionId`,
@@ -367,6 +379,14 @@
   integration attaches to the caller's personal channel regardless of kind.
 - Receives Facebook and Instagram webhooks over Express and turns them into
   customers, conversations, comment conversations, and post conversations.
+- `POST /instagram` verifies `x-hub-signature-256` / `x-hub-signature` with
+  `INSTAGRAM_APP_SECRET` (`src/modules/integrations/instagram/webhookSignature.ts`).
+  Meta signs the bytes it sent (compact JSON, non-ASCII as `\uXXXX`, `/` as
+  `\/`, `object` before `entry`); a relay that parses and re-serializes the
+  body changes those bytes, so the check also tries that Meta encoding rebuilt
+  from the parsed body, in both the received and the Meta key order. Every
+  candidate is still an HMAC under the app secret; a wrong secret, a tampered
+  body, or a missing header answers `401`.
 - Instagram DMs select only `instagram-messenger` integrations; comments select
   `instagram-post`. Sender profile fields are optional, as in Facebook: keep the
   Instagram user ID and use the comment author username when profile lookup is
@@ -442,8 +462,26 @@
   customer's tickets, by `customerId`, that are not resolved or closed). `actionCreateMessage` skips an
   AI-written reply as `superseded-by-newer-message` when a newer customer
   message exists.
-- AI long-term memory scopes: Facebook and Messenger `generateAiContext` set
-  `memory.scopes` to the conversation (`frontline:facebook.conversation` /
+- Takes turns on Instagram the same way (`instagram/meta/automation/utils/turnTaking.ts`):
+  a typed DM is delayed by `INSTAGRAM_REPLY_DEBOUNCE_TEXT_MS` / `_MEDIA_MS`
+  (2 s / 5 s), bot and internal messages never trigger, a direct condition
+  without keyword rules answers any text or replyable media and drops a
+  message the same person has written since, and `actionCreateMessage` skips
+  an AI-written reply as `superseded-by-newer-message`. Instagram
+  `generateAiContext` mirrors Facebook's (input merge, history, media markers,
+  `facts.openTickets`) but names media by the inbox copy id
+  (`instagram-<providerMessageId>-<index>`), since
+  `resolveConversationMedia` reads inbox rows; memory scopes use
+  `frontline:instagram.conversation`. Instagram message and comment actions
+  resolve `{{ actions.<id>.text }}` through `replaceOutputPlaceholders` and
+  `prevAction` templates (`utils/templates.ts`), so an AI agent's text reaches
+  the reply. `getOrCreateComment` dispatches `frontline:instagram.comments`
+  (target: the comment row plus the inbox `erxesApiId` / `conversationId`)
+  once the comment's inbox copy is synced, and the comment action looks up the
+  inbox conversation by that id to find the integration.
+- AI long-term memory scopes: Facebook, Instagram and Messenger
+  `generateAiContext` set `memory.scopes` to the conversation
+  (`frontline:facebook.conversation` / `frontline:instagram.conversation` /
   `frontline:inbox.conversation`) and `core:customer`
   (`modules/inbox/meta/automation/aiMemoryScopes.ts`). The automations service
   files what an agent's tool branches did under these scopes. **Create
@@ -456,6 +494,12 @@
   link to the conversation.
   (Media added to an existing ticket goes through Find object and Manage
   properties' `attachments` field; there is no separate add-to-ticket action.)
+- Ticket automations: **Ticket status changed** (`frontline:tickets.tickets.statusChanged`,
+  custom, always re-runs) needs no segment. `checkCustomTrigger` passes only
+  an update whose `eventUpdateDescription.updated.statusId` moved, on the
+  configured `pipelineId`, and — when `toStatusIds` is not empty — to one of
+  them (`ticket/meta/automations/trigger/checkStatusChangedTrigger.ts`). A new
+  ticket never fires it: a create carries no previous status.
   Conversation media is stored on the ticket with a MIME `type` (from the URL
   extension, else `<kind>/*`), never the message's bare kind (`image`): the
   ticket detail's `erxes-ui` Attachments only shows MIME-typed files.
@@ -669,9 +713,11 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                                                                                                       | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                                        |
 | Call Pro                 | `src/modules/integrations/callpro/`                                                                                                                              | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                                           |
 | Call operator resolution | `src/modules/integrations/call/services/operatorResolution.ts`                                                                                                   | Which peer call integration (`CallIntegrations.findPeers`: same trunk or phone) owns the extension that rang or answered                                                                                               |
+| Call queue routing       | `src/modules/integrations/call/services/queueRouting.ts`                                                                                                         | Which peer call integration owns the queue a leg or event names (`QUEUE[n]` action type, CTI `queue`); re-homes the call's sessions, CDR legs and conversation to it                                                     |
 | Call reporting           | `src/modules/reports/callReportService.ts`                                                                                                                       | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                                     |
 | Call SLA report          | `src/modules/reports/callSlaService.ts`                                                                                                                          | Inbound answered ÷ offered, callbacks count as answered, missed reasons, series, queues, breaches                                                                                                                      |
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
+| IG automation            | `src/modules/integrations/instagram/meta/automation/`                                                                                                            | Message/comment triggers and actions, turn-taking, AI context, placeholder templates |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB client portal         | `src/modules/integrations/facebook/graphql/resolvers/clientPortal.ts`                                                                                            | `facebookGetPosts`: recent posts of connected pages, read from a client portal session                                                                                                                                 |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
@@ -1416,6 +1462,12 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `configs.getConfigs` (query, `{ codes }` → `{ [code]:
+  value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
+  `BRANCHES_MASTER_TEAM_MEMBERS_IDS` and `DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS`
+  for `buildTeamMemberRestriction`; and `branches.findWithChild` /
+  `departments.findWithChild` (query, `{ query, fields }`), which expand the
+  user's own structure ids to include their child units.
 - `core` over tRPC — `segment.fetchSegment`
   (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`), which backs the
   conversation list `segment` filter. `segmentFilter` pages until `nextCursor`
@@ -1444,6 +1496,32 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   tenant, integration and chat, with topic identity included where applicable.
 
 ## Local Invariants
+
+- A call leg or CTI event that names a queue belongs to the peer call
+  integration whose `queues` contains it, and only to that one: when several
+  integrations share a trunk and phone, the queue decides the channel, the
+  answering operator's integration never overrides it, and the call's sessions,
+  CDR legs and conversation are moved to the queue owner as soon as the queue
+  is known (`queueRouting.ts`). A leg without a queue keeps the trunk match.
+- A call leg is tied to its call across the whole peer group, never only
+  inside the integration it was posted under: a leg without a queue lands on
+  whichever peer the bridge posted it under, and a follow-me leg carries its
+  own `uniqueid` and no `linkedid`. `receiveCdr` therefore looks for the
+  call's conversation in CDR legs of every peer that share the PBX `session`
+  id, and both `receiveCdr` and `/call/event` accept a sibling session on
+  another peer while that session is still `ringing` or `active`
+  (`CallSessions.findSibling({ peerInboxIds })`). An ended session on another
+  peer never matches, so a redial to a different branch opens its own
+  conversation. Joining a call never rewrites the conversation's
+  `integrationId`; only the queue owner or the answering operator does.
+- `callHistories` / `callHistoriesTotalCount` leave out a call the operator
+  only rang on when another extension answered it: a call is the operator's
+  missed call only when nobody answered. The check reads the call's other CDR
+  legs by `uniqueid` (human-answered: `ANSWERED`, `billsec > 0`, `Queue` or
+  `Dial`, not `VM`, `dstchannelExt` not the operator's own) and runs after the
+  status, type and search filters, and never for the `connected` filter. A
+  follow-me leg answers under its own `uniqueid`, so it does not clear the
+  queue legs of the same call.
 
 - Removing a Facebook integration keeps its page's bot, marked `broken` with its config intact. `facebookCreateIntegration` reconnects such a bot through `FacebookBots.reconnectByPageId` (new token and account, then `repair`, which re-syncs and verifies the profile); a failed reconnect is logged on the bot and never undoes the integration.
 - `FacebookBots.connectBotPageMessenger` sends `persistent_menu` only when the bot has a menu item of its own (Get Started is then prepended), and deletes `persistent_menu` and `ice_breakers` from `/me/messenger_profile` when they are empty — a field left out of the POST keeps its old value on Facebook. `greeting` is not in the DELETE whitelist (Graph error #100), so it is never sent there. `get_started` is always sent. `buildExpectedPersistentMenus` follows the same rule, so an empty menu checks as healthy.
@@ -1517,7 +1595,7 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   looks it up in the triggering conversation only, so no id can attach a file
   from another conversation. URLs never pass through the model.
 - Automation ticket code resolves the inbox conversation through
-  `resolveInboxConversationId`: Facebook targets carry the integration's own
+  `resolveInboxConversationId`: Facebook and Instagram targets carry the integration's own
   conversation id, never the inbox one.
 
 - A `scheduled` article is published by a delayed BullMQ job on the
@@ -1612,6 +1690,19 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   by `supervisorId`, intersected with the pipeline's `departmentIds`).
   `isCheckDate` stays an extra AND condition. `generateFilter` needs the
   request `subdomain` to resolve supervised departments.
+- The core team member restriction is a separate AND condition on top of the
+  pipeline rules. `buildTeamMemberRestriction` in
+  `src/modules/ticket/utils/teamMemberRestriction.ts` returns `null` unless
+  `CHECK_TEAM_MEMBER_SHOWN` is exactly `true`; it never exempts `createdBy` /
+  `assigneeId`, so a ticket outside the user's branch or department stays
+  hidden even when it is theirs. A user with no branches (or no departments)
+  gets no branch (or department) condition, matching `accounting_api`'s
+  transaction filter, and a ticket with an empty `branchId` / `departmentId` is
+  hidden from every restricted user. A request `branchIds` / `departmentIds`
+  filter narrows within the restriction; it cannot widen it. `generateFilter`
+  applies it only with a `subdomain`, a `user`, and `skipPipelineVisibility`
+  off, so client portal `createdBy` reads and exports are unaffected.
+  `getTicket` (single read) does not apply it, like the pipeline rules.
 - Staff pipeline rules (private-pipeline hiding and `isCheck*` visibility) never
   apply to client portal reads scoped by `createdBy`: `cpGetTickets` and
   `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
@@ -1714,6 +1805,13 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   fields (a patch), `ticketCreateNote` `content` (a note may carry only
   attachments), and the `instagramGetPosts` filters (a missing one means no
   filter).
+- The inbox `startDate` / `endDate` filter (the UI's **Created at**) matches
+  `createdAt` only; `Builder.dateFilter` returns a plain `createdAt` range.
+  `Builder.mainQuery()` merges its clauses by object spread, so no clause may
+  return a top-level `$and`: `queries.extended` already owns `$and` (user
+  relevance, `integrationType`, `searchValue`) and a second one would replace
+  it, which is how a created-date filter used to drop the integration-type
+  and search filters.
 
 ## Validation
 
@@ -1724,10 +1822,22 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
 - `pnpm nx build frontline_api`
+- Team member restriction: turn on Settings → General → "With team member
+  restrictions", give a non-owner user one branch, and confirm `getTickets`
+  returns only tickets in that branch (and its child branches) across every
+  pipeline, that adding the user to "Team members who can access all branches"
+  restores the full list, and that turning the setting off removes the filter.
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
   new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
+- Call: `CALL_MONGO_TESTS=1 npx jest --config backend/plugins/frontline_api/jest.config.ts backend/plugins/frontline_api/src/modules/integrations/call/__tests__/peerLegs.mongo.spec.ts`
+  replays a call whose legs are posted under different peer integrations
+  against a throwaway local database. Smoke: with several call integrations
+  on one trunk, call a queue whose failover is an extension with follow-me and
+  confirm one conversation, on the queue's integration. The same flag runs
+  `callHistories.mongo.spec.ts`: ring two operators, let one answer, and the
+  other's history must not list the call.
 - Instagram: connect Post before Messenger for the same account and confirm each
   event reaches its own inbox. A new sender with an unavailable profile must
   still be linked to a Core customer; failed Repair must not report success.

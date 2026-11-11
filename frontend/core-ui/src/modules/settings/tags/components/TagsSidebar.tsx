@@ -1,5 +1,6 @@
 import { Sidebar, cn, useQueryState } from 'erxes-ui';
 
+import { SETTINGS_INLINE_TYPES_LIMIT } from '@/settings/constants/data';
 import { useTagTypes } from 'ui-modules/modules/tags-new/hooks/useTagTypes';
 import { useTranslation } from 'react-i18next';
 
@@ -8,13 +9,19 @@ export const TagsSidebar = ({
   pluginName,
 }: {
   className?: string;
-  /** Only this plugin's tag types (a plugin's own settings). */
   pluginName?: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'tags' });
   const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { types } = useTagTypes();
   const [type, setType] = useQueryState<string>('tagType');
+
+  if (
+    pluginName &&
+    (types[pluginName]?.length ?? 0) <= SETTINGS_INLINE_TYPES_LIMIT
+  ) {
+    return null;
+  }
 
   return (
     <Sidebar.Panel

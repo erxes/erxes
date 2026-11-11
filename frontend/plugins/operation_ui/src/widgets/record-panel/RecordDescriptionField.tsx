@@ -7,9 +7,12 @@ import { useTranslation } from 'react-i18next';
 export const RecordDescriptionField = ({
   value,
   onSave,
+  bare = false,
 }: {
   value?: string | null;
   onSave: (description: string) => void;
+  // Only the editor, for a tab already labelled Description.
+  bare?: boolean;
 }) => {
   const { t } = useTranslation('operation');
   const { editor, isReady } = useDescriptionEditor(
@@ -19,11 +22,19 @@ export const RecordDescriptionField = ({
   const beforeEditing = useRef<string>();
 
   return (
-    <div className="min-w-0 pt-2 @3xl/record-panel:border-l @3xl/record-panel:pl-6">
-      <div className="mb-3 flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
-        <IconAlignLeft className="size-3.5 shrink-0" aria-hidden="true" />
-        {t('description', 'Description')}
-      </div>
+    <div
+      className={
+        bare
+          ? 'min-w-0'
+          : 'min-w-0 pt-2 @3xl/record-panel:border-l @3xl/record-panel:pl-6'
+      }
+    >
+      {!bare && (
+        <div className="mb-3 flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
+          <IconAlignLeft className="size-3.5 shrink-0" aria-hidden="true" />
+          {t('description', 'Description')}
+        </div>
+      )}
       {isReady ? (
         <BlockEditor
           editor={editor}

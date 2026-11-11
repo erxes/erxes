@@ -70,6 +70,9 @@ export const ADD_PIPELINE = gql(`
     $branchIds: [String]
     $tagId: String
     $initialCategoryIds: [String]
+    $productIds: [String]
+    $tagIds: [String]
+    $excludeTagIds: [String]
     $excludeCategoryIds: [String]
     $excludeProductIds: [String]
     $paymentIds: [String]
@@ -99,6 +102,9 @@ export const ADD_PIPELINE = gql(`
       departmentIds: $departmentIds
       tagId: $tagId
       initialCategoryIds: $initialCategoryIds
+      productIds: $productIds
+      tagIds: $tagIds
+      excludeTagIds: $excludeTagIds
       excludeCategoryIds: $excludeCategoryIds
       excludeProductIds: $excludeProductIds
       paymentIds: $paymentIds
@@ -136,6 +142,9 @@ export const EDIT_PIPELINE = gql(`
     $branchIds: [String]
     $tagId: String
     $initialCategoryIds: [String]
+    $productIds: [String]
+    $tagIds: [String]
+    $excludeTagIds: [String]
     $excludeCategoryIds: [String]
     $excludeProductIds: [String]
     $paymentIds: [String]
@@ -166,6 +175,9 @@ export const EDIT_PIPELINE = gql(`
       departmentIds: $departmentIds
       tagId: $tagId
       initialCategoryIds: $initialCategoryIds
+      productIds: $productIds
+      tagIds: $tagIds
+      excludeTagIds: $excludeTagIds
       excludeCategoryIds: $excludeCategoryIds
       excludeProductIds: $excludeProductIds
       paymentIds: $paymentIds

@@ -1,5 +1,9 @@
 import { ComponentType, ReactNode } from 'react';
-import { FieldValues, UseFormReturn } from 'react-hook-form';
+import {
+  FieldValues,
+  SubmitErrorHandler,
+  UseFormReturn,
+} from 'react-hook-form';
 import { Form, ScrollArea, Spinner } from 'erxes-ui';
 import { ActivityLogs, PanelFormLayout } from 'ui-modules';
 
@@ -11,14 +15,18 @@ export interface ISettingsPanelViewProps {
 export interface ISettingsPanelViews {
   addLabel: string;
   editLabel: string;
-  New: ComponentType<ISettingsPanelViewProps>;
+  // Replaces `editLabel` in the top bar for records whose name is edited there.
+  Title?: ComponentType<ISettingsPanelViewProps>;
+  New?: ComponentType<ISettingsPanelViewProps>;
   Detail: ComponentType<ISettingsPanelViewProps>;
   Actions?: ComponentType<ISettingsPanelViewProps>;
+  Activity?: ComponentType<ISettingsPanelViewProps>;
 }
 
 export const SettingsPanelDraftForm = <T extends FieldValues>({
   form,
   onSubmit,
+  onInvalid,
   onCancel,
   saving,
   saveLabel,
@@ -26,6 +34,7 @@ export const SettingsPanelDraftForm = <T extends FieldValues>({
 }: {
   form: UseFormReturn<T>;
   onSubmit: (data: T) => void;
+  onInvalid?: SubmitErrorHandler<T>;
   onCancel: () => void;
   saving: boolean;
   saveLabel?: string;
@@ -33,7 +42,7 @@ export const SettingsPanelDraftForm = <T extends FieldValues>({
 }) => (
   <Form {...form}>
     <form
-      onSubmit={form.handleSubmit(onSubmit)}
+      onSubmit={form.handleSubmit(onSubmit, onInvalid)}
       className="flex flex-1 min-h-0 flex-col"
     >
       <PanelFormLayout

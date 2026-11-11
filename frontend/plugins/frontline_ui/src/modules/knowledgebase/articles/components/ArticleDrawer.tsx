@@ -1,25 +1,30 @@
+import type { IArticleDetail } from '@/knowledgebase/types';
+import { useKbPanelFormDraft } from '@/knowledgebase/shared/hooks/useKbPanelFormDraft';
+import { articlePanelDraftsState } from '@/knowledgebase/shared/states/panelFormDraftsState';
+import {
+  KbFormItem,
+  KbFormSection,
+} from '@/knowledgebase/shared/components/KbFormLayout';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPaperclip, IconUpload, IconX } from '@tabler/icons-react';
+import { IconPaperclip, IconX } from '@tabler/icons-react';
 import {
   Button,
   Editor,
   Form,
-  InfoCard,
   isDefined,
   MultipleSelector,
   readImage,
   Select,
   Switch,
-  Upload,
 } from 'erxes-ui';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useArticleDetail } from '@/knowledgebase/articles/hooks/useArticles';
 import { useSaveArticle } from '@/knowledgebase/articles/hooks/useArticleMutations';
 import { ARTICLE_STATUSES, REACTIONS } from '@/knowledgebase/constants';
+import { KbImageUpload } from '@/knowledgebase/shared/components/TopicAppearanceFields';
 import { KbFormSheet } from '@/knowledgebase/shared/components/KbFormSheet';
 import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
 import { ScheduleDateField } from '@/knowledgebase/articles/components/ScheduleDateField';
@@ -71,7 +76,7 @@ const articleSchema = z
     }
   });
 
-type TArticleForm = z.infer<typeof articleSchema>;
+export type TArticleForm = z.infer<typeof articleSchema>;
 
 const emptyArticle = (topicId: string, categoryId: string): TArticleForm => ({
   title: '',
@@ -107,7 +112,7 @@ const AttachmentList = ({
     <ul className="grid gap-1">
       {files.map((file, index) => (
         <li
-          key={`${file.url}-${index}`}
+          key={file.url}
           className="flex gap-2 items-center pr-1 pl-2 h-8 text-sm rounded-sm border"
         >
           <IconPaperclip className="size-4 shrink-0 text-muted-foreground" />
@@ -140,67 +145,397 @@ const MediaRow = ({
   actionLabel,
   value,
   onSelect,
+  captureSelect,
   removable,
+  disabled,
 }: {
   label: string;
   description: string;
   actionLabel: string;
   value: string;
   onSelect: (file?: TMediaFile) => void;
+  captureSelect?: () => (file?: TMediaFile) => void;
   removable?: boolean;
+  disabled: boolean;
 }) => (
   <div className="py-3 first:pt-0 last:pb-0">
-    <Upload.Root
-      className="gap-3 items-center"
+    <div className="mb-2 min-w-0">
+      <p className="text-sm font-medium text-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{description}</p>
+    </div>
+    <KbImageUpload
       value={value}
-      onChange={(fileInfo) => {
-        if (!('url' in fileInfo)) return;
-
-        onSelect(
-          fileInfo.url
-            ? { url: fileInfo.url, name: fileInfo.fileInfo?.name || '' }
-            : undefined,
-        );
+      buttonLabel={actionLabel}
+      disabled={disabled}
+      removable={removable}
+      onChange={(url, file) =>
+        onSelect(url ? { url, name: file?.name || '' } : undefined)
+      }
+      captureChange={() => {
+        const complete = captureSelect?.() ?? onSelect;
+        return (url, file) =>
+          complete(url ? { url, name: file?.name || '' } : undefined);
       }}
-    >
-      <Upload.Preview className="shrink-0" />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-      <div className="flex gap-1 items-center shrink-0">
-        <Upload.Button size="sm" variant="outline" type="button">
-          <IconUpload className="size-4" />
-          {actionLabel}
-        </Upload.Button>
-        {removable && (
-          <Upload.RemoveButton size="sm" variant="ghost" type="button" />
+    />
+  </div>
+);
+
+type TArticleFieldsProps = {
+  form: UseFormReturn<TArticleForm>;
+  t: TFunction;
+};
+
+type TArticleMediaFieldsProps = TArticleFieldsProps & {
+  disabled: boolean;
+  captureUpdate: (
+    field?: string,
+  ) => (update: (latest: TArticleForm) => TArticleForm) => void;
+  invalidateUpdates: (field: string) => void;
+};
+
+const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
+  const selectedTopicId = form.watch('topicId');
+
+  return (
+    <KbFormSection title={t('content-label', 'Content')}>
+      <KbFormSection.Content>
+        <KbTextField
+          control={form.control}
+          name="title"
+          label={t('title-label', 'Title')}
+          placeholder={t('kb-enter-article-title', 'Enter article title')}
+          required
+        />
+
+        <div className="grid gap-1">
+          <Form.Field
+            control={form.control}
+            name="topicId"
+            render={({ field }) => (
+              <KbFormItem
+                required
+                label={t('knowledge-base', 'Knowledge Base')}
+              >
+                <Form.Control>
+                  <SelectKbTopic
+                    value={field.value}
+                    onValueChange={(nextTopicId) => {
+                      if (nextTopicId === field.value) return;
+
+                      field.onChange(nextTopicId);
+                      form.setValue('categoryId', '', { shouldDirty: true });
+                    }}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </KbFormItem>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <KbFormItem required label={t('kb-category', 'Category')}>
+                <Form.Control>
+                  <SelectKbCategory
+                    topicId={selectedTopicId}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </KbFormItem>
+            )}
+          />
+        </div>
+
+        <KbTextField
+          control={form.control}
+          name="summary"
+          label={t('kb-summary', 'Summary')}
+          placeholder={t('kb-enter-article-summary', 'Enter article summary')}
+          multiline
+        />
+
+        <Form.Field
+          control={form.control}
+          name="content"
+          render={({ field }) => (
+            <KbFormItem wide required label={t('content-label', 'Content')}>
+              <Form.Control>
+                <Editor
+                  initialContent={field.value}
+                  onChange={field.onChange}
+                  scope="KnowledgeBaseArticleContent"
+                  isHTML
+                  className="h-auto min-h-40"
+                />
+              </Form.Control>
+              <Form.Message />
+            </KbFormItem>
+          )}
+        />
+      </KbFormSection.Content>
+    </KbFormSection>
+  );
+};
+
+const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
+  const status = form.watch('status');
+
+  return (
+    <KbFormSection title={t('kb-publishing', 'Publishing')}>
+      <KbFormSection.Content>
+        <Form.Field
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <KbFormItem label={t('status', 'Status')}>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <Form.Control>
+                  <Select.Trigger className="w-full">
+                    <Select.Value />
+                  </Select.Trigger>
+                </Form.Control>
+                <Select.Content>
+                  {ARTICLE_STATUSES.map((status) => (
+                    <Select.Item key={status.value} value={status.value}>
+                      {t(status.key, status.label)}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+              <Form.Message />
+            </KbFormItem>
+          )}
+        />
+
+        {status === 'scheduled' && (
+          <Form.Field
+            control={form.control}
+            name="scheduledDate"
+            render={({ field }) => (
+              <KbFormItem label={t('kb-publish-on', 'Publish on')}>
+                <ScheduleDateField
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+                <Form.Description>
+                  {t(
+                    'kb-schedule-help',
+                    'The article goes live on your help center at this time.',
+                  )}
+                </Form.Description>
+                <Form.Message />
+              </KbFormItem>
+            )}
+          />
         )}
-      </div>
-    </Upload.Root>
+
+        <Form.Field
+          control={form.control}
+          name="isPrivate"
+          render={({ field }) => (
+            <KbFormItem inline label={t('kb-is-private', 'Is Private')}>
+              <Form.Control>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+            </KbFormItem>
+          )}
+        />
+
+        <Form.Field
+          control={form.control}
+          name="reactionChoices"
+          render={({ field }) => (
+            <KbFormItem label={t('kb-reaction-choices', 'Reaction Choices')}>
+              <Form.Control>
+                <MultipleSelector
+                  options={REACTIONS}
+                  value={(field.value ?? []).map((choice) => ({
+                    value: choice,
+                    label:
+                      REACTIONS.find((reaction) => reaction.value === choice)
+                        ?.label || choice,
+                  }))}
+                  onChange={(value) =>
+                    field.onChange(value.map((item) => item.value))
+                  }
+                />
+              </Form.Control>
+              <Form.Message />
+            </KbFormItem>
+          )}
+        />
+      </KbFormSection.Content>
+    </KbFormSection>
+  );
+};
+
+const ArticleMediaFields = ({
+  form,
+  t,
+  captureUpdate,
+  invalidateUpdates,
+  disabled,
+}: TArticleMediaFieldsProps) => (
+  <KbFormSection title={t('kb-media', 'Media')}>
+    <KbFormSection.Content className="gap-0 divide-y">
+      <Form.Field
+        control={form.control}
+        name="image"
+        render={({ field }) => (
+          <MediaRow
+            disabled={disabled}
+            label={t('image-label', 'Image')}
+            description={t(
+              'kb-image-help',
+              'Shown with the article on the published site.',
+            )}
+            actionLabel={t('kb-upload-image', 'Upload image')}
+            value={field.value?.url || ''}
+            onSelect={(image) => {
+              invalidateUpdates('image');
+              field.onChange(image);
+            }}
+            captureSelect={() => {
+              const apply = captureUpdate('image');
+              return (image) =>
+                apply((latest) => (image ? { ...latest, image } : latest));
+            }}
+            removable
+          />
+        )}
+      />
+
+      <Form.Field
+        control={form.control}
+        name="attachments"
+        render={({ field }) => (
+          <div className="py-3 first:pt-0 last:pb-0">
+            <MediaRow
+              disabled={disabled}
+              label={t('kb-attachments', 'Attachments')}
+              description={t('kb-attachments-count', {
+                count: (field.value ?? []).length,
+                defaultValue: '{{count}} file(s) attached',
+              })}
+              actionLabel={t('kb-add-file', 'Add file')}
+              value=""
+              captureSelect={() => {
+                const apply = captureUpdate();
+                return (file) =>
+                  apply((latest) =>
+                    file
+                      ? {
+                          ...latest,
+                          attachments: [...latest.attachments, file],
+                        }
+                      : latest,
+                  );
+              }}
+              onSelect={(file) =>
+                file && field.onChange([...(field.value ?? []), file])
+              }
+            />
+            <AttachmentList
+              files={field.value ?? []}
+              onRemove={(index) =>
+                field.onChange(
+                  (field.value ?? []).filter((_, i) => i !== index),
+                )
+              }
+              t={t}
+            />
+          </div>
+        )}
+      />
+
+      <Form.Field
+        control={form.control}
+        name="pdfAttachment"
+        render={({ field }) => (
+          <MediaRow
+            disabled={disabled}
+            label={t('kb-pdf-attachment', 'PDF Attachment')}
+            description={t(
+              'kb-pdf-help',
+              'Readers can page through it inside the article.',
+            )}
+            actionLabel={t('kb-upload-pdf', 'Upload PDF')}
+            value={field.value?.pdf?.url || ''}
+            onSelect={(file) => {
+              invalidateUpdates('pdfAttachment');
+              field.onChange(file ? { pdf: file } : undefined);
+            }}
+            captureSelect={() => {
+              const apply = captureUpdate('pdfAttachment');
+              return (file) =>
+                apply((latest) =>
+                  file
+                    ? {
+                        ...latest,
+                        pdfAttachment: { pdf: file },
+                      }
+                    : latest,
+                );
+            }}
+            removable
+          />
+        )}
+      />
+    </KbFormSection.Content>
+  </KbFormSection>
+);
+
+const ArticleFormFields = ({
+  form,
+  t,
+  captureUpdate,
+  invalidateUpdates,
+  disabled,
+}: TArticleMediaFieldsProps) => (
+  <div className="flex flex-col gap-3">
+    <ArticleContentFields form={form} t={t} />
+    <div className="grid gap-4">
+      <ArticlePublishingFields form={form} t={t} />
+      <ArticleMediaFields
+        form={form}
+        t={t}
+        captureUpdate={captureUpdate}
+        invalidateUpdates={invalidateUpdates}
+        disabled={disabled}
+      />
+    </div>
   </div>
 );
 
 export const ArticleDrawer = ({
   articleId,
+  article: loadedArticle,
   topicId,
   categoryId,
-  isOpen,
   onClose,
   onSaved,
 }: {
   articleId?: string | null;
+  article?: IArticleDetail;
   topicId: string;
   categoryId: string;
-  isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
-  const isEditing = !!articleId;
-  const { article } = useArticleDetail(articleId);
+  const { article: fetchedArticle } = useArticleDetail(
+    loadedArticle ? undefined : articleId,
+  );
+  const article = loadedArticle ?? fetchedArticle;
   const { saveArticle, loading } = useSaveArticle();
 
   const form = useForm<TArticleForm>({
@@ -208,348 +543,99 @@ export const ArticleDrawer = ({
     defaultValues: emptyArticle(topicId, categoryId),
   });
 
-  const status = form.watch('status');
-  const selectedTopicId = form.watch('topicId');
+  const { dirtyFields } = form.formState;
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    save,
+    saving,
+    uploading,
+    createdId,
+    captureUpdate,
+    invalidateUpdates,
+  } = useKbPanelFormDraft({
+    form,
+    kind: 'article',
+    recordId: articleId,
+    context: [topicId, categoryId],
+    onDeleted: onClose,
+    values: article
+      ? {
+          title: article.title || '',
+          summary: article.summary || '',
+          content: article.content || '<p></p>',
+          topicId: article.topicId || topicId,
+          categoryId: article.categoryId || categoryId,
+          status: article.status || 'draft',
+          isPrivate: article.isPrivate ?? false,
+          reactionChoices: (article.reactionChoices ?? []).filter(isDefined),
+          image: article.image ? toKbAttachment(article.image) : undefined,
+          attachments: (article.attachments ?? [])
+            .filter(isDefined)
+            .map(toKbAttachment),
+          pdfAttachment: article.pdfAttachment?.pdf
+            ? { pdf: toKbAttachment(article.pdfAttachment.pdf) }
+            : undefined,
+          scheduledDate: article.scheduledDate ?? undefined,
+        }
+      : emptyArticle(topicId, categoryId),
+    draftsState: articlePanelDraftsState,
+    discardMessage: t(
+      'discard-unsaved-changes',
+      'Discard your unsaved changes?',
+    ),
+  });
 
-  useEffect(() => {
-    form.reset(
-      article
-        ? {
-            title: article.title || '',
-            summary: article.summary || '',
-            content: article.content || '<p></p>',
-            topicId,
-            categoryId: article.categoryId || categoryId,
-            status: article.status || 'draft',
-            isPrivate: article.isPrivate ?? false,
-            reactionChoices: (article.reactionChoices ?? []).filter(isDefined),
-            image: article.image ? toKbAttachment(article.image) : undefined,
-            attachments: (article.attachments ?? [])
-              .filter(isDefined)
-              .map(toKbAttachment),
-            pdfAttachment: article.pdfAttachment?.pdf
-              ? { pdf: toKbAttachment(article.pdfAttachment.pdf) }
-              : undefined,
-            scheduledDate: article.scheduledDate ?? undefined,
-          }
-        : emptyArticle(topicId, categoryId),
-    );
-  }, [article, topicId, categoryId, form]);
+  const isEditing = Boolean(articleId || createdId);
+
+  const cancel = () => {
+    clearDraft();
+    onClose();
+  };
 
   const submit = form.handleSubmit(async (values) => {
-    const saved = await saveArticle(
-      {
-        ...values,
-        scheduledDate:
-          values.status === 'scheduled' ? values.scheduledDate : undefined,
-      },
-      articleId ?? undefined,
+    const submittedValues = structuredClone(form.getValues());
+    const submittedDirtyFields = structuredClone(dirtyFields);
+    const saved = await save((recordId) =>
+      saveArticle(
+        {
+          ...values,
+          scheduledDate:
+            values.status === 'scheduled' ? values.scheduledDate : undefined,
+        },
+        recordId,
+        recordId ? submittedDirtyFields : undefined,
+      ),
     );
 
     if (!saved) return;
 
+    if (!markSaved(values, submittedValues)) return;
     onSaved?.();
-    onClose();
-    form.reset(emptyArticle(topicId, categoryId));
+    if (isActive()) onClose();
   });
 
   return (
     <KbFormSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      title={
-        isEditing
-          ? t('kb-edit-article', 'Edit Article')
-          : t('kb-new-article', 'New Article')
-      }
+      onClose={cancel}
       submitLabel={
         isEditing
           ? t('kb-save-changes', 'Save Changes')
           : t('kb-create-article', 'Create Article')
       }
-      loading={loading}
+      loading={loading || saving}
+      uploading={uploading}
       onSubmit={submit}
-      className="sm:max-w-5xl lg:max-w-6xl xl:max-w-[92rem]"
     >
       <Form {...form}>
-        <form
-          onSubmit={submit}
-          className="grid gap-4 items-start p-4 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]"
-        >
-          <InfoCard title={t('content-label', 'Content')}>
-            <InfoCard.Content>
-              <KbTextField
-                control={form.control}
-                name="title"
-                label={t('title-label', 'Title')}
-                placeholder={t('kb-enter-article-title', 'Enter article title')}
-                required
-              />
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Form.Field
-                  control={form.control}
-                  name="topicId"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        {t('knowledge-base', 'Knowledge Base')}{' '}
-                        <span className="text-destructive">*</span>
-                      </Form.Label>
-                      <Form.Control>
-                        <SelectKbTopic
-                          value={field.value}
-                          onValueChange={(nextTopicId) => {
-                            if (nextTopicId === field.value) return;
-
-                            field.onChange(nextTopicId);
-                            form.setValue('categoryId', '');
-                          }}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="categoryId"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        {t('kb-category', 'Category')}{' '}
-                        <span className="text-destructive">*</span>
-                      </Form.Label>
-                      <Form.Control>
-                        <SelectKbCategory
-                          topicId={selectedTopicId}
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </div>
-
-              <KbTextField
-                control={form.control}
-                name="summary"
-                label={t('kb-summary', 'Summary')}
-                placeholder={t(
-                  'kb-enter-article-summary',
-                  'Enter article summary',
-                )}
-                multiline
-              />
-
-              <Form.Field
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('content-label', 'Content')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <Editor
-                        initialContent={field.value}
-                        onChange={field.onChange}
-                        scope="KnowledgeBaseArticleContent"
-                        isHTML
-                        className="min-h-[26rem]"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </InfoCard.Content>
-          </InfoCard>
-
-          <div className="grid gap-4">
-            <InfoCard title={t('kb-publishing', 'Publishing')}>
-              <InfoCard.Content>
-                <Form.Field
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('status', 'Status')}</Form.Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Form.Control>
-                          <Select.Trigger className="w-full">
-                            <Select.Value />
-                          </Select.Trigger>
-                        </Form.Control>
-                        <Select.Content>
-                          {ARTICLE_STATUSES.map((status) => (
-                            <Select.Item
-                              key={status.value}
-                              value={status.value}
-                            >
-                              {t(status.key, status.label)}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                {status === 'scheduled' && (
-                  <Form.Field
-                    control={form.control}
-                    name="scheduledDate"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {t('kb-publish-on', 'Publish on')}
-                        </Form.Label>
-                        <ScheduleDateField
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                        <Form.Description>
-                          {t(
-                            'kb-schedule-help',
-                            'The article goes live on your help center at this time.',
-                          )}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                )}
-
-                <Form.Field
-                  control={form.control}
-                  name="isPrivate"
-                  render={({ field }) => (
-                    <Form.Item className="flex flex-row gap-2 justify-between items-center">
-                      <Form.Label className="mb-0">
-                        {t('kb-is-private', 'Is Private')}
-                      </Form.Label>
-                      <Form.Control>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="reactionChoices"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        {t('kb-reaction-choices', 'Reaction Choices')}
-                      </Form.Label>
-                      <Form.Control>
-                        <MultipleSelector
-                          options={REACTIONS}
-                          value={(field.value ?? []).map((choice) => ({
-                            value: choice,
-                            label:
-                              REACTIONS.find(
-                                (reaction) => reaction.value === choice,
-                              )?.label || choice,
-                          }))}
-                          onChange={(value) =>
-                            field.onChange(value.map((item) => item.value))
-                          }
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </InfoCard.Content>
-            </InfoCard>
-
-            <InfoCard title={t('kb-media', 'Media')}>
-              <InfoCard.Content className="gap-0 divide-y">
-                <Form.Field
-                  control={form.control}
-                  name="image"
-                  render={({ field }) => (
-                    <MediaRow
-                      label={t('image-label', 'Image')}
-                      description={t(
-                        'kb-image-help',
-                        'Shown with the article on the published site.',
-                      )}
-                      actionLabel={t('kb-upload-image', 'Upload image')}
-                      value={field.value?.url || ''}
-                      onSelect={field.onChange}
-                      removable
-                    />
-                  )}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="attachments"
-                  render={({ field }) => (
-                    <div className="py-3 first:pt-0 last:pb-0">
-                      <MediaRow
-                        label={t('kb-attachments', 'Attachments')}
-                        description={t('kb-attachments-count', {
-                          count: (field.value ?? []).length,
-                          defaultValue: '{{count}} file(s) attached',
-                        })}
-                        actionLabel={t('kb-add-file', 'Add file')}
-                        value=""
-                        onSelect={(file) =>
-                          file && field.onChange([...(field.value ?? []), file])
-                        }
-                      />
-                      <AttachmentList
-                        files={field.value ?? []}
-                        onRemove={(index) =>
-                          field.onChange(
-                            (field.value ?? []).filter((_, i) => i !== index),
-                          )
-                        }
-                        t={t}
-                      />
-                    </div>
-                  )}
-                />
-
-                <Form.Field
-                  control={form.control}
-                  name="pdfAttachment"
-                  render={({ field }) => (
-                    <MediaRow
-                      label={t('kb-pdf-attachment', 'PDF Attachment')}
-                      description={t(
-                        'kb-pdf-help',
-                        'Readers can page through it inside the article.',
-                      )}
-                      actionLabel={t('kb-upload-pdf', 'Upload PDF')}
-                      value={field.value?.pdf?.url || ''}
-                      onSelect={(file) =>
-                        field.onChange(file ? { pdf: file } : undefined)
-                      }
-                      removable
-                    />
-                  )}
-                />
-              </InfoCard.Content>
-            </InfoCard>
-          </div>
-        </form>
+        <ArticleFormFields
+          form={form}
+          t={t}
+          captureUpdate={captureUpdate}
+          invalidateUpdates={invalidateUpdates}
+          disabled={loading || saving}
+        />
       </Form>
     </KbFormSheet>
   );

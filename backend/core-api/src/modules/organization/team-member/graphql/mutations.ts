@@ -3,6 +3,7 @@ import {
   IEmailSignature,
   ILink,
   IUser,
+  IUserAppearance,
   Resolver,
 } from 'erxes-api-shared/core-types';
 import {
@@ -14,6 +15,7 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { readSessionCookie, startSession } from '~/modules/auth/session';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
+import type { IProfilePatch } from '../db/utils/profilePatch';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -236,6 +238,14 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   /*
    * Edit user profile
    */
+  async usersEditProfilePatch(
+    _parent: undefined,
+    patch: IProfilePatch,
+    { user, models }: IContext,
+  ) {
+    return models.Users.patchProfile(user._id, patch);
+  },
+
   async usersEditProfile(
     _parent: undefined,
     {
@@ -443,6 +453,14 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     { user, models }: IContext,
   ) {
     return models.Users.configGetNotificationByEmail(user._id, isAllowed);
+  },
+
+  async usersConfigAppearance(
+    _parent: undefined,
+    appearance: IUserAppearance,
+    { user, models }: IContext,
+  ) {
+    return models.Users.configAppearance(user._id, appearance);
   },
 
   async usersSetChatStatus(

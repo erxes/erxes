@@ -1,7 +1,16 @@
+import { TrJournalEnum } from '@/transactions/types/constants';
 import { toGraphqlView } from '@/utils/graphql';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
-import { Checkbox, InputNumber, RecordTable, Sheet, Table, cn } from 'erxes-ui';
+import {
+  Checkbox,
+  Form,
+  InputNumber,
+  RecordTable,
+  Sheet,
+  Table,
+  cn,
+} from 'erxes-ui';
 import { useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectMember } from 'ui-modules';
@@ -19,6 +28,7 @@ type TFxaOwnerRecordInput = {
   sequence?: number;
   count?: number;
   ownerId?: string;
+  sourceOwnerId?: string;
 };
 
 type TFxaOwnerRecord = {
@@ -53,6 +63,11 @@ export const FxaOwnerRecordsSheet = ({
   detailIndex: number;
 }) => {
   const { t } = useTranslation('accounting');
+  const trDoc = useWatch({
+    control: form.control,
+    name: `trDocs.${journalIndex}`,
+  });
+  const isMove = trDoc.journal === TrJournalEnum.FXA_MOVE;
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -77,6 +92,7 @@ export const FxaOwnerRecordsSheet = ({
       fixedAssetIds: detail?.fixedAssetId ? [detail.fixedAssetId] : [],
       status: 'active',
       balanceOnly: true,
+      excludeTransactionId: trDoc.parentId ? trDoc._id : undefined,
     },
     skip: !detail?.fixedAssetId,
   });
@@ -84,7 +100,10 @@ export const FxaOwnerRecordsSheet = ({
   const activeRecords = (data?.fxaOwnerRecords || []).filter(
     (record) => getRecordCurrentCount(record) > 0,
   );
-  const title = [detail?.fixedAssetCode, detail?.fixedAssetName]
+  const title = [
+    detail?.followInfos?.fixedAssetCode,
+    detail?.followInfos?.fixedAssetName,
+  ]
     .filter(Boolean)
     .join(' - ');
   const isWithinLimit = selectedCount <= detailCount;
@@ -147,6 +166,7 @@ export const FxaOwnerRecordsSheet = ({
         sequence: record.sequence,
         count,
         ownerId: getRecordOwnerId(record),
+        ...(isMove ? { sourceOwnerId: getRecordOwnerId(record) } : {}),
       },
     ]);
   };
@@ -208,6 +228,13 @@ export const FxaOwnerRecordsSheet = ({
                 <Table.Head>{t('available-quantity')}</Table.Head>
                 <Table.Head>{t('quantity-to-select')}</Table.Head>
                 <Table.Head>{t('asset-custodian')}</Table.Head>
+                {isMove && (
+                  <Table.Head>
+                    {t('new-asset-custodian', {
+                      defaultValue: 'Шинэ эд хариуцагч',
+                    })}
+                  </Table.Head>
+                )}
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -216,6 +243,9 @@ export const FxaOwnerRecordsSheet = ({
                 const selectedRecordCount = getInputCount(selectedRecord || {});
                 const availableCount = getRecordCurrentCount(record);
                 const selected = Boolean(selectedRecord);
+                const selectedIndex = selectedRecord
+                  ? ownerRecords.indexOf(selectedRecord)
+                  : -1;
 
                 return (
                   <Table.Row key={record._id}>
@@ -260,13 +290,40 @@ export const FxaOwnerRecordsSheet = ({
                         <SelectMember.Value placeholder="-" />
                       </SelectMember.Provider>
                     </Table.Cell>
+                    {isMove && (
+                      <Table.Cell>
+                        {selectedIndex >= 0 ? (
+                          <Form.Field
+                            control={form.control}
+                            name={`trDocs.${journalIndex}.extraData.fxaOwnerRecords.${selectedIndex}.ownerId`}
+                            render={({ field }) => (
+                              <SelectMember.FormItem
+                                mode="single"
+                                value={field.value || ''}
+                                onValueChange={(value) => {
+                                  form.setValue(
+                                    `trDocs.${journalIndex}.extraData.fxaOwnerRecords.${selectedIndex}.sourceOwnerId`,
+                                    selectedRecord?.sourceOwnerId ||
+                                      getRecordOwnerId(record),
+                                    { shouldDirty: true },
+                                  );
+                                  field.onChange(value || '');
+                                }}
+                              />
+                            )}
+                          />
+                        ) : (
+                          '-'
+                        )}
+                      </Table.Cell>
+                    )}
                   </Table.Row>
                 );
               })}
               {!activeRecords.length && (
                 <Table.Row>
                   <Table.Cell
-                    colSpan={5}
+                    colSpan={isMove ? 6 : 5}
                     className="text-center text-muted-foreground"
                   >
                     {loading

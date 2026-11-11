@@ -59,6 +59,12 @@ import {
 } from '~/modules/organization/settings/graphql/favorites/schemas';
 
 import {
+  mutations as DashboardLayoutMutations,
+  queries as DashboardLayoutQueries,
+  types as DashboardLayoutTypes,
+} from '~/modules/organization/settings/graphql/dashboardLayouts/schemas';
+
+import {
   mutations as AppMutations,
   queries as AppQueries,
   types as AppTypes,
@@ -233,6 +239,21 @@ import {
   queries as searchQueries,
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
+import {
+  mutations as dataExtensionMutationDefs,
+  queries as dataExtensionQueryDefs,
+  types as dataExtensionTypeDefs,
+} from '@/data-extensions/graphql/schemas';
+import { isDataExtensionsServiceEnabled } from 'erxes-api-shared/core-modules';
+
+// When the standalone Data Extensions app runs, it serves these instead;
+// both declaring them would break the gateway's supergraph.
+const servesDataExtensions = !isDataExtensionsServiceEnabled();
+const DataExtensionTypes = servesDataExtensions ? dataExtensionTypeDefs : '';
+const DataExtensionQueries = servesDataExtensions ? dataExtensionQueryDefs : '';
+const DataExtensionMutations = servesDataExtensions
+  ? dataExtensionMutationDefs
+  : '';
 
 import {
   mutations as AgentsConnectionMutations,
@@ -287,6 +308,7 @@ export const types = `
     ${ConformityTypes}
     ${RelationTypes}
     ${FavoritesTypes}
+    ${DashboardLayoutTypes}
     ${PermissionTypes}
     ${ApprovalTypes}
     ${FilesTypes}
@@ -313,6 +335,7 @@ export const types = `
     ${AgentsThreadTypes}
     ${AgentsSettingsTypes}
     ${AgentsToolTypes}
+    ${DataExtensionTypes}
   `;
 
 export const queries = `
@@ -336,6 +359,7 @@ export const queries = `
     ${SegmentQueries}
     ${RelationQueries}
     ${FavoritesQueries}
+    ${DashboardLayoutQueries}
     ${PermissionQueries}
     ${ApprovalQueries}
     ${FilesQueries}
@@ -363,6 +387,7 @@ export const queries = `
     ${AgentsThreadQueries}
     ${AgentsSettingsQueries}
     ${AgentsToolQueries}
+    ${DataExtensionQueries}
   `;
 
 export const mutations = `
@@ -384,6 +409,7 @@ export const mutations = `
     ${ConformityMutations}
     ${RelationMutations}
     ${FavoritesMutations}
+    ${DashboardLayoutMutations}
     ${PermissionMutations}
     ${ApprovalMutations}
     ${FilesMutations}
@@ -407,6 +433,7 @@ export const mutations = `
     ${AgentsConnectionMutations}
     ${AgentsThreadMutations}
     ${AgentsSettingsMutations}
+    ${DataExtensionMutations}
   `;
 
 export default { types, queries, mutations };

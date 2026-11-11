@@ -1,0 +1,77 @@
+name: Feature request
+description: Suggest a new capability or an improvement to an existing one.
+title: '[Feature]: '
+labels: ['🛠 Enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem first. A clear problem is easier to accept than a specific solution.
+        For large features or new plugins, expect a design discussion before any code.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Core (settings, team, contacts, products, agent)
+        - Accounting
+        - Content
+        - Frontline (inbox, tickets, widgets)
+        - Loyalty
+        - Mongolian
+        - Operation
+        - Payment
+        - POS / POS client
+        - Sales
+        - Tourism
+        - Automations
+        - Client portal / help center
+        - Gateway / deployment
+        - New plugin
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who is blocked, and what are they trying to do today?
+      placeholder: As a sales manager, I cannot ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should happen? Mockups or screenshots help.
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: Observable outcomes that prove the feature works.
+      placeholder: |
+        - A user can ...
+        - The list updates without a reload
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and workarounds
+      description: What you tried or considered instead.
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I searched existing issues, and any AI-written part of this request reflects what I actually need.
+          required: true
+        - label: I would like to implement this myself.

@@ -42,7 +42,7 @@ export const DayList = ({
 }: DayListProps) => {
   const { t } = useTranslation('tourism');
   return (
-    <div className="flex flex-col flex-1 min-h-0 p-3 space-y-4 overflow-y-auto">
+    <div className="styled-scroll flex flex-col flex-1 min-h-0 p-3 space-y-4 overflow-y-auto">
       {days.map((_, index) => {
         const elements = getDayElements(index);
 

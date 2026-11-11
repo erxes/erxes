@@ -1,4 +1,7 @@
-import { SegmentFieldNamespace } from 'erxes-api-shared/core-modules';
+import {
+  dataExtensionSegmentNamespace,
+  SegmentFieldNamespace,
+} from 'erxes-api-shared/core-modules';
 import { TICKET_TYPE } from './fields';
 
 export const TICKET_SEGMENT_FIELD_NAMESPACES: Record<string, SegmentFieldNamespace[]> = {
@@ -9,5 +12,6 @@ export const TICKET_SEGMENT_FIELD_NAMESPACES: Record<string, SegmentFieldNamespa
       path: 'propertiesData',
       propertyType: 'frontline:ticket',
     },
+    dataExtensionSegmentNamespace('frontline:ticket'),
   ],
 };

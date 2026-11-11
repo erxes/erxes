@@ -10,12 +10,8 @@ import {
   toast,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import {
-  PageHeader,
-  usePermissionCheck,
-  SIDE_PANEL_CHAT_PATH,
-  useSidePanel,
-} from 'ui-modules';
+import { PageHeader, usePermissionCheck } from 'ui-modules';
+import { useGlobalSidebar } from '@/global-sidebar/hooks/useGlobalSidebar';
 
 import {
   AGENTS_SETTINGS,
@@ -35,7 +31,7 @@ import { useAgentsSettings } from '@/agent/hooks/useAgentsSettings';
  * can change it — the switch is disabled for everyone else.
  */
 export const AgentSettingsCodeModePage = () => {
-  const { openPath } = useSidePanel();
+  const { openTool } = useGlobalSidebar();
   const { settings, loading, error } = useAgentsSettings();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
 
@@ -79,10 +75,7 @@ export const AgentSettingsCodeModePage = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button
-                  variant="ghost"
-                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
-                >
+                <Button variant="ghost" onClick={() => openTool('assistant')}>
                   <IconCode />
                   Agents
                 </Button>

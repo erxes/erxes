@@ -42,8 +42,14 @@ export const AGENT_GRAPHQL_DENIED_FIELD = {
       /\b(login|logout|password|passwords|otp|tokens?|credentials?|secrets?|oauth|sso|ldap|sessions?|invitations?|permissions?)\b/.test(
         words,
       ) ||
-      /\b(sign up|sign in|magic link|two factor|2fa|api key)\b/.test(words) ||
-      /^(apps?(Add|Edit|Revoke|Remove|Detail|List|TotalCount)?|users(CreateOwner|Edit|EditProfile|SetActiveStatus|SetActiveStatusBatch|Invite)|inviteUser|agentsConnections|agentsConnectionUpsert|agentsConnectionRemove|agentsConnectionSetDefault|agentsModelVerify|agentsSettingsUpdate|_service|_entities)$/i.test(
+      /\b(sign up|sign in|magic link|two factor|2fa|api key|support access)\b/.test(
+        words,
+      ) ||
+      /^apps?(Add|Edit|Revoke|Remove|Detail|List|TotalCount)?$/i.test(field) ||
+      /^users(CreateOwner|Edit|EditProfile|EditProfilePatch|SetActiveStatus|SetActiveStatusBatch|Invite)$/i.test(
+        field,
+      ) ||
+      /^(inviteUser|agentsConnections|agentsConnectionUpsert|agentsConnectionRemove|agentsConnectionSetDefault|agentsModelVerify|agentsSettingsUpdate|_service|_entities)$/i.test(
         field,
       )
     );

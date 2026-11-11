@@ -1,26 +1,22 @@
 import { IconRoute } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ItineraryCreateSheet } from './ItineraryCreateSheet';
-import { ItineraryEditSheet } from './ItineraryEditSheet';
 import { itineraryColumns } from './ItineraryColumns';
 import { useItineraries } from '../hooks/useItineraries';
 import { ITINERARIES_CURSOR_SESSION_KEY } from '../constants/itineraryCursorSessionKey';
 import { ItineraryCommandBar } from './ItineraryCommandBar';
 import { useAtomValue } from 'jotai';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import { TMS_ITINERARY_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 interface ItineraryRecordTableProps {
   branchId: string;
   branchLanguages?: string[];
   mainLanguage?: string;
-}
-
-interface EditSheetState {
-  open: boolean;
-  itineraryId?: string;
-  branchId: string;
 }
 
 export const ItineraryRecordTable = ({
@@ -36,10 +32,7 @@ export const ItineraryRecordTable = ({
     searchValue: string;
   }>(['searchValue']);
 
-  const [editSheetState, setEditSheetState] = useState<EditSheetState>({
-    open: false,
-    branchId,
-  });
+  const { openDetail } = useTourismPanel(TMS_ITINERARY_CONTENT_TYPE);
   const searchValue = queries?.searchValue?.trim() || undefined;
 
   const { itineraries, handleFetchMore, loading, pageInfo, totalCount } =
@@ -52,42 +45,18 @@ export const ItineraryRecordTable = ({
     });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const handleEditClick = useCallback(
-    (itineraryId: string, itineraryBranchId?: string) => {
-      setEditSheetState({
-        open: true,
-        itineraryId,
-        branchId: itineraryBranchId || branchId,
-      });
-    },
-    [branchId],
-  );
-  const handleEditSheetOpenChange = useCallback(
-    (open: boolean) => {
-      setEditSheetState((current) =>
-        open
-          ? current
-          : {
-              open: false,
-              itineraryId: undefined,
-              branchId,
-            },
-      );
-    },
-    [branchId],
-  );
   const columns = useMemo(
     () =>
       itineraryColumns(
         {
-          onEditClick: handleEditClick,
+          onEditClick: (itineraryId: string) => openDetail(itineraryId),
           branchId,
           branchLanguages,
           mainLanguage,
         },
         t,
       ),
-    [branchId, branchLanguages, handleEditClick, mainLanguage, t],
+    [branchId, branchLanguages, openDetail, mainLanguage, t],
   );
   const rowData = itineraries || [];
 
@@ -102,50 +71,41 @@ export const ItineraryRecordTable = ({
   }
 
   return (
-    <>
-      <RecordTable.Provider
-        columns={columns}
-        data={rowData}
-        className="h-full"
-        stickyColumns={['more', 'checkbox', 'name']}
-        tableId="tourism_itineraries_record_table"
-      >
-        <ItineraryCommandBar
-          branchId={branchId}
-          branchLanguages={branchLanguages}
-          mainLanguage={mainLanguage}
-        />
-        <RecordTable.CursorProvider
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
-          dataLength={rowData.length}
-          sessionKey={ITINERARIES_CURSOR_SESSION_KEY}
-        >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {loading && <RecordTable.RowSkeleton rows={30} />}
-              <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.CursorProvider>
-      </RecordTable.Provider>
-
-      <ItineraryEditSheet
-        itineraryId={editSheetState.itineraryId}
-        branchId={editSheetState.branchId}
+    <RecordTable.Provider
+      columns={columns}
+      data={rowData}
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
+      stickyColumns={['more', 'checkbox', 'name']}
+      tableId="tourism_itineraries_record_table"
+    >
+      <ItineraryCommandBar
+        branchId={branchId}
         branchLanguages={branchLanguages}
         mainLanguage={mainLanguage}
-        open={editSheetState.open}
-        onOpenChange={handleEditSheetOpenChange}
       />
-    </>
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={rowData.length}
+        sessionKey={ITINERARIES_CURSOR_SESSION_KEY}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && !rowData.length && (
+              <RecordTable.RowSkeleton rows={30} />
+            )}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.CursorProvider>
+    </RecordTable.Provider>
   );
 };
 

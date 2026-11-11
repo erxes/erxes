@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -64,6 +64,7 @@
 ### Consumes
 
 - Core organization config `mainCurrency` through public tRPC when `mainCurrency` is not provided.
+- Core `users.find` tRPC (with a `fields` projection) for Erkhet sync-log `createdUser`.
 - Shared backend utilities, startup, Mongoose helpers, pagination constants, and service-to-service messaging from `erxes-api-shared`.
 
 ## Data and State
@@ -79,6 +80,14 @@
 ## Local Invariants
 
 - Deal contacts for ebarimt, erkhet and product places come from `getDealContactIds` (`modules/ebarimt/utils/dealContacts.ts`): the deal's own `customerId` / `companyId` (a list of at most one); given only the deal id, the deal is read from sales `deal.findOne`. No relations are read.
+- eBarimt bill-type mappings accept `regNoField` / `companyNameField` and legacy `regNo` / `companyName` keys; `basic` mappings read deal fields and other mappings read `propertiesData`. An explicit B2C selection takes precedence over the linked company.
+- Erkhet sales receipt sync accepts company registration numbers and 11/12/14-digit TINs as B2B codes.
+- Erkhet sync-log `createdUser` resolves the core user through tRPC
+  `users.find` projected to `_id`, `email`, `username` and `details` (null when
+  `createdBy` is empty, the user is missing or core is unreachable). It must
+  never return the full core user document, which holds the password hash and
+  tokens, through the `JSON` field.
+- MS Dynamic deal sync selects the direct `companyId` first, then `customerId`; it must not read legacy core conformities for deals.
 - Subscription fields (`ebarimtResponded`, `productPlacesResponded`) are declared only in `src/apollo/subscription.ts`, which the gateway serves. Declaring one again in the subgraph SDL fails `schema:print`.
 - Exchange-rate lookup accepts Date-coercible values because service-to-service tRPC calls serialize JavaScript `Date` values over HTTP.
 - Active-rate lookup must return the latest rate on or before the requested day.
@@ -106,11 +115,15 @@
 ## Validation
 
 - `pnpm nx run mongolian_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
+- `pnpm nx lint mongolian_api`
 - `pnpm nx build mongolian_api`
-- `pnpm build`
+- `pnpm --dir backend/plugins/mongolian_api build` (plugin build without the workspace dependency graph)
+- `pnpm nx test mongolian_api --runInBand`
+- `pnpm exec eslint backend/plugins/mongolian_api/src/modules/ebarimt/utils backend/plugins/mongolian_api/src/modules/erkhet/utils/ebarimtData.ts backend/plugins/mongolian_api/src/modules/msdynamic/utils.ts`
 - `pnpm exec tsc -p backend/plugins/mongolian_api/tsconfig.json --noEmit`
 - Put response smoke scenario: open `/mongolian/put-response/put-response`
   without filters and verify the first page returns newest rows without a
   blocking collection sort.
 - Smoke scenario: create or upsert exchange-rate rows for multiple foreign currencies on the same date, then call `exchangeRates.getActiveRate` with a `Date` and verify the latest matching row is returned.
 - Product places smoke scenario: move a deal with products into a configured product-place stage and verify split/place/print runs once, while a non-stage deal edit does not trigger product-place side effects.
+- Deal contact smoke scenario: link company/customer ids directly on a deal and move it to eBarimt/Erkhet/MS Dynamic configured stages; verify B2B company code and customer B2C details, including an explicit B2C field selection with a company still linked.

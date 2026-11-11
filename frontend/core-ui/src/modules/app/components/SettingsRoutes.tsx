@@ -27,6 +27,18 @@ const SettingsProfile = lazy(() =>
   })),
 );
 
+const SettingsMyActivity = lazy(() =>
+  import('~/pages/settings/account/MyActivityPage').then((module) => ({
+    default: module.SettingsMyActivityPage,
+  })),
+);
+
+const SettingsAppearance = lazy(() =>
+  import('~/pages/settings/account/AppearancePage').then((module) => ({
+    default: module.SettingsAppearancePage,
+  })),
+);
+
 const SettingsChangePassword = lazy(() =>
   import('~/pages/settings/account/ChangePasswordPage').then((module) => ({
     default: module.ChangePasswordPage,
@@ -57,6 +69,13 @@ const LdapSettings = lazy(() =>
   import('~/pages/settings/workspace/LdapSettingsPage').then((module) => ({
     default: module.LdapSettingsPage,
   })),
+);
+const SupportAccessSettings = lazy(() =>
+  import('~/pages/settings/workspace/SupportAccessSettingsPage').then(
+    (module) => ({
+      default: module.SupportAccessSettingsPage,
+    }),
+  ),
 );
 const GeneralSettings = lazy(() =>
   import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
@@ -181,6 +200,14 @@ export function SettingsRoutes() {
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
         <Route
+          path={SettingsPath.MyActivity}
+          element={<SettingsMyActivity />}
+        />
+        <Route
+          path={SettingsPath.Appearance}
+          element={<SettingsAppearance />}
+        />
+        <Route
           path={SettingsPath.NotificationCatchAll}
           element={<SettingsNotificationRoutes />}
         />
@@ -206,6 +233,10 @@ export function SettingsRoutes() {
           />
         )}
         <Route path={SettingsWorkspacePath.Ldap} element={<LdapSettings />} />
+        <Route
+          path={SettingsWorkspacePath.SupportAccess}
+          element={<SupportAccessSettings />}
+        />
         {/* Kept so links to the old LDAP address still land */}
         <Route
           path="ldap"

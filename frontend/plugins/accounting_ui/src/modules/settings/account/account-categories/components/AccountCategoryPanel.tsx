@@ -17,8 +17,9 @@ import {
 } from '@/settings/account/account-categories/types/AccountCategory';
 import { SettingsPanelRemoveAction } from '@/settings/components/panel/SettingsPanelActions';
 import {
+  SettingsPanelCodeField,
   SettingsPanelDescriptionField,
-  SettingsPanelTextField,
+  SettingsPanelTitleField,
 } from '@/settings/components/panel/SettingsPanelFields';
 import {
   ISettingsPanelViewProps,
@@ -105,16 +106,10 @@ const AccountCategoryPanelActions = ({
   );
 };
 
-const AccountCategoryPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
-  const { t } = useTranslation('accounting');
-  const { accountCategoryDetail: category, loading } =
-    useAccountCategoryDetail(contentId);
+const useSaveAccountCategory = () => {
   const { editAccountCategory } = useAccountCategoryEdit();
 
-  const save = (
-    current: IAccountCategory,
-    fields: TAccountCategoryPanelChange,
-  ) =>
+  return (current: IAccountCategory, fields: TAccountCategoryPanelChange) =>
     editAccountCategory({
       variables: {
         _id: current._id,
@@ -129,27 +124,38 @@ const AccountCategoryPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
         'accountingAccountCategoryDetail',
       ],
     });
+};
+
+const AccountCategoryPanelTitle = ({ contentId }: ISettingsPanelViewProps) => {
+  const { accountCategoryDetail: category, loading } =
+    useAccountCategoryDetail(contentId);
+  const save = useSaveAccountCategory();
+
+  return (
+    <SettingsPanelTitleField
+      scope={SCOPE}
+      loading={loading}
+      value={category ? category.name || '' : undefined}
+      onSave={(name) => category && save(category, { name })}
+    />
+  );
+};
+
+const AccountCategoryPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
+  const { t } = useTranslation('accounting');
+  const { accountCategoryDetail: category, loading } =
+    useAccountCategoryDetail(contentId);
+  const save = useSaveAccountCategory();
 
   return (
     <SettingsPanelDetailLayout loading={loading} hasRecord={!!category}>
       {category && (
         <>
-          <PanelField label={t('name')}>
-            <SettingsPanelTextField
-              scope={`${SCOPE}.name`}
-              value={category.name || ''}
-              placeholder={t('name')}
-              onSave={(name) => name.trim() && save(category, { name })}
-            />
-          </PanelField>
-          <PanelField label={t('code')}>
-            <SettingsPanelTextField
-              scope={`${SCOPE}.code`}
-              value={category.code || ''}
-              placeholder={t('code')}
-              onSave={(code) => code.trim() && save(category, { code })}
-            />
-          </PanelField>
+          <SettingsPanelCodeField
+            scope={SCOPE}
+            code={category.code}
+            onSave={(code) => save(category, { code })}
+          />
           <PanelField label={t('parent')}>
             <SelectAccountCategory
               recordId={`${SCOPE}.parent`}
@@ -178,6 +184,7 @@ const AccountCategoryPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
 export const ACCOUNT_CATEGORY_PANEL: ISettingsPanelViews = {
   addLabel: 'add-account-category',
   editLabel: 'edit-account-category',
+  Title: AccountCategoryPanelTitle,
   New: AccountCategoryPanelNew,
   Actions: AccountCategoryPanelActions,
   Detail: AccountCategoryPanelDetail,

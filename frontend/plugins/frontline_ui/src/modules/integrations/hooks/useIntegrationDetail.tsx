@@ -1,12 +1,13 @@
 import { useQuery } from '@apollo/client';
 import { GET_INTEGRATION_DETAIL } from '@/integrations/graphql/queries/getIntegrationDetail';
 
+/** Loads the selected integration and exposes its loading and error states. */
 export const useIntegrationDetail = ({
   integrationId,
 }: {
   integrationId: string | null;
 }) => {
-  const { data, loading } = useQuery(GET_INTEGRATION_DETAIL, {
+  const { data, loading, error } = useQuery(GET_INTEGRATION_DETAIL, {
     variables: integrationId ? { id: integrationId } : undefined,
     skip: !integrationId,
   });
@@ -14,5 +15,6 @@ export const useIntegrationDetail = ({
   return {
     integrationDetail: data?.integrationDetail,
     loading,
+    error,
   };
 };

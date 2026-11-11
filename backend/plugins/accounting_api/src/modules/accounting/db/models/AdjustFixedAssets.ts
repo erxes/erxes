@@ -1,3 +1,4 @@
+import { JOURNALS, TR_SIDES } from '../../@types/constants';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import {
@@ -13,7 +14,8 @@ import {
 } from '../definitions/adjustFixedAsset';
 import { IModels } from '~/connectionResolvers';
 
-export interface IAdjustFixedAssetModel extends Model<IAdjustFixedAssetDocument> {
+export interface IAdjustFixedAssetModel
+  extends Model<IAdjustFixedAssetDocument> {
   getAdjustFixedAsset(_id: string): Promise<IAdjustFixedAssetDocument>;
   createAdjustFixedAsset(
     doc: IAdjustFixedAsset,
@@ -32,7 +34,11 @@ export interface IAdjustFxaDetailModel extends Model<IAdjustFxaDetailDocument> {
   }): Promise<void>;
 }
 
-export const loadAdjustFixedAssetClass = (models: IModels) => {
+export const loadAdjustFixedAssetClass = (
+  models: IModels,
+  subdomain: string,
+) => {
+  // skipcq: JS-0327
   class AdjustFixedAsset {
     public static async getAdjustFixedAsset(_id: string) {
       const adjusting = await models.AdjustFixedAssets.findOne({ _id }).lean();
@@ -45,8 +51,27 @@ export const loadAdjustFixedAssetClass = (models: IModels) => {
     }
 
     public static async createAdjustFixedAsset(doc: IAdjustFixedAsset) {
+      const previous = await models.AdjustFixedAssets.findOne({
+        expenseAccountId: { $exists: true, $nin: ['', null] },
+      })
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .lean();
+      const previousTransaction =
+        previous?.expenseAccountId || doc.expenseAccountId
+          ? undefined
+          : await models.Transactions.findOne({
+              contentType: 'accounting:adjustFixedAsset',
+              journal: JOURNALS.FXA_DEP,
+              side: TR_SIDES.DEBIT,
+            })
+              .sort({ date: -1, createdAt: -1 })
+              .lean();
       return models.AdjustFixedAssets.create({
         ...doc,
+        expenseAccountId:
+          doc.expenseAccountId ||
+          previous?.expenseAccountId ||
+          previousTransaction?.details[0]?.accountId,
         status: ADJ_FXA_STATUSES.DRAFT,
         createdAt: new Date(),
       });
@@ -76,9 +101,12 @@ export const loadAdjustFixedAssetClass = (models: IModels) => {
 
       const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(_id);
 
-      graphqlPubsub.publish(`accountingAdjustFixedAssetChanged:${_id}`, {
-        accountingAdjustFixedAssetChanged: adjust,
-      });
+      graphqlPubsub.publish(
+        `accountingAdjustFixedAssetChanged:${subdomain}:${_id}`,
+        {
+          accountingAdjustFixedAssetChanged: adjust,
+        },
+      );
 
       return adjust;
     }
@@ -94,6 +122,16 @@ export const loadAdjustFixedAssetClass = (models: IModels) => {
         throw new Error('This fixed asset adjustment cannot be deleted.');
       }
 
+      const linkedTransaction = await models.Transactions.findOne({
+        contentType: 'accounting:adjustFixedAsset',
+        contentId: _id,
+      }).lean();
+      if (linkedTransaction) {
+        throw new Error(
+          'Clear the linked depreciation transactions before deleting this adjustment.',
+        );
+      }
+
       await models.AdjustFxaDetails.deleteMany({ adjustId: _id });
       await models.AdjustFixedAssets.deleteOne({ _id });
 
@@ -107,6 +145,7 @@ export const loadAdjustFixedAssetClass = (models: IModels) => {
 };
 
 export const loadAdjustFxaDetailClass = (models: IModels) => {
+  // skipcq: JS-0327
   class AdjustFxaDetail {
     public static async replaceAdjustFxaDetails({
       adjustId,

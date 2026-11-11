@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { STATUS_TYPES } from '@/status/constants/types';
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 import { discordSourceSchema } from '@/task/db/definitions/discordSource';
 
 export const triageSchema = new Schema(
@@ -30,6 +31,8 @@ export const triageSchema = new Schema(
     timestamps: true,
   },
 );
+
+applyDataExtensionsNamespace(triageSchema);
 
 triageSchema.index(
   { githubRepoName: 1, githubIssueNumber: 1 },

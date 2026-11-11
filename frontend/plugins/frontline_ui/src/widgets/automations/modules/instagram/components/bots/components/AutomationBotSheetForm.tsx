@@ -1,8 +1,9 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, cn, Sheet, useQueryState } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { Button, useQueryState } from 'erxes-ui';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AutomationBotPanel } from '~/widgets/automations/components/AutomationBotsPage';
 import { AutomationBotForm } from '~/widgets/automations/modules/instagram/components/bots/components/AutomationBotForm';
 import {
   isOpenInstagramBotSecondarySheet,
@@ -14,39 +15,31 @@ export const AutomationBotSheetForm = () => {
   const [instagramBotId, setInstagramBotId] =
     useQueryState<string>('instagramBotId');
   const [isOpen, setOpen] = useAtom(isOpenInstagramBotSheet);
-  const isOpenSecondarySheet = useAtomValue(isOpenInstagramBotSecondarySheet);
-
+  const isOpenSecondary = useAtomValue(isOpenInstagramBotSecondarySheet);
+  const setOpenSecondary = useSetAtom(isOpenInstagramBotSecondarySheet);
   useEffect(() => {
-    if (instagramBotId) {
-      setOpen(true);
-    }
-  }, [instagramBotId]);
-
+    if (instagramBotId) setOpen(true);
+  }, [instagramBotId, setOpen]);
+  const close = () => {
+    setOpenSecondary(false);
+    setInstagramBotId(null);
+    setOpen(false);
+  };
   return (
-    <div>
-      <Sheet
-        open={isOpen}
-        onOpenChange={(open) => {
-          if (isOpen && !open) {
-            setInstagramBotId(null);
-          }
-          setOpen(open);
-        }}
-      >
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus />
-            {t('add-bot')}
-          </Button>
-        </Sheet.Trigger>
-        <Sheet.View
-          className={cn('transition-all duration-300 ease-in-out', {
-            'sm:max-w-lg h-[calc(100dvh-4rem)] inset-y-8': isOpenSecondarySheet,
-          })}
-        >
-          {isOpen && <AutomationBotForm instagramBotId={instagramBotId} />}
-        </Sheet.View>
-      </Sheet>
-    </div>
+    <>
+      <Button disabled={isOpen} onClick={() => setOpen(true)}>
+        <IconPlus />
+        {t('add-bot', 'Add Bot')}
+      </Button>
+      {isOpen && (
+        <AutomationBotPanel hidden={isOpenSecondary} onClose={close}>
+          <AutomationBotForm
+            key={instagramBotId || 'new'}
+            instagramBotId={instagramBotId}
+            onClose={close}
+          />
+        </AutomationBotPanel>
+      )}
+    </>
   );
 };

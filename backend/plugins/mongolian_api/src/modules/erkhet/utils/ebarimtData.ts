@@ -76,7 +76,7 @@ export const getConfigPostData = async (
       defaultValue: [],
     });
 
-    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)|(^\d{14}$)/iu;
     for (const company of companies) {
       if (re.test(company.code)) {
         billType = 3;

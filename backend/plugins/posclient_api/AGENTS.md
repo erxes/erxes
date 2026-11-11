@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -121,7 +121,9 @@
 - `poscCustomerForm: PosCustomerForm` returns `canCreate` and the resolved
   form `rows` (system fields plus live `core:customer` properties).
 - `poscCustomerLoyalty(customerId: String!, totalAmount: Float): PosCustomerLoyalty` (logged-in POS user).
-- `poscLoyaltyPreview(items, customerId, couponCode, voucherId, orderId): PosLoyaltyPreview { lines, bonuses }` runs the same `checkPricing` then `checkLoyalties` an order save runs, without saving. `lines` holds each line whose price changes, keyed by the caller's line `key` (a product can sit on several lines under different conditions), with its discount percent and resulting `unitPrice`; the percent is negative when the line costs more (a condition may give less than a `posBase` plan baked in at sync). `bonuses` are the bonus products pricing would append as new lines (`{productId, name, count}`, name from the synced product); a bonus whose product is already a cart line is discounted in place and shows in `lines`. Display only; the saved order stays authoritative.
+- A pricing discount on a line is titled with the names of the loyalty plans behind it (`'Pricing discount'` when loyalty gives none) and keeps loyalty's `reasons` (plan, window, matched moment) in `discountInfos[].reasons` (`Mixed`), so a saved order still says why it was discounted. `poscLoyaltyPreview` lines carry the same `reasons`.
+- `poscPricingSchedule(productIds, customerId, orderId): [PosPricingSchedule]` passes loyalty `pricing.scheduleStatus` for the cart's products, the POS branch and department, and the order's stored `createdAt` (looked up in the current POS/sub-token scope like the preview): which scheduled plans are open, closing (`endsAt`), next opening (`startsAt`) or closed earlier today (`endedAt`).
+- `poscLoyaltyPreview(items, customerId, couponCode, voucherId, orderId): PosLoyaltyPreview { lines, bonuses }` runs the same `checkPricing` then `checkLoyalties` an order save runs, without saving. `lines` holds each line whose price changes, keyed by the caller's line `key` (a product can sit on several lines under different conditions), with its discount percent and resulting `unitPrice`; the percent is negative when the line costs more (a condition may give less than a `posBase` plan baked in at sync). `bonuses` are the bonus products pricing would append as new lines (`{productId, name, count}`, name from the synced product); bonuses remain separate even when their product is already in the cart. Display only; the saved order stays authoritative.
 - `poscLoyaltyEarnPreview(items, totalAmount, customerId, orderType)` (`utils/loyaltyEarn.ts`) reads core tRPC `automation.findActive` for active `sales:pos.orders.event` automations with a loyalty Adjust score, keeps the triggers a paid order of this POS would start (event `paid` or unset, `posId`/`posToken` this POS or empty, order type if set; payment type and branches before the action are not evaluated), and asks loyalty `score.earnPreview` with the actions' `campaignId`/`earnRowKeys`, counting the whole total as paid. Returns `{ hasRules, earns: [{walletName, points, reasons, error}] }`; without a customer only `hasRules`. Lookups use `throwOnError` so a broken preview shows instead of a silent zero.
 - `poscProductConditions(productId)` reads the synced product's `conditionCodes` and resolves them through core tRPC `productConditions.find` (codes with no condition are left out), so a cart line can pick one. Cart lines never keep the product's codes themselves; a stored copy went stale when conditions changed after the line was added.
 - `poscCouponCheck(code: String!, customerId: String, totalAmount: Float): String` runs loyalty `coupon.checkCoupon` with `throwOnError` and returns the campaign title, so the cashier sees a refused code before it reaches the order. It refuses every code unless `config.acceptCoupons` (synced from the sales POS, off by default) is on.
@@ -201,6 +203,18 @@
 
 ## Local Invariants
 
+- POS pricing sends an order's `createdAt` as loyalty
+  `pricing.checkPricing.orderCreatedAt` and no `date`, so checkout is loyalty's
+  current time and the plan's `scheduleMoment` decides which of the two its
+  schedule reads. Order edits (`ordersEdit`) pass the stored creation time,
+  never a client replacement; saved-order loyalty previews load it in the
+  current POS/sub-token scope. New orders and unsaved previews omit it, so
+  loyalty treats the order as starting now.
+
+- Pricing bonuses append separate zero-price order lines with unique IDs and
+  `isPackage: true`, so the existing generated-item lifecycle removes and rebuilds
+  them on each save. Never average a bonus into a paid line or reduce paid quantity.
+
 - Terminal result IDs make reservation/completion retries idempotent. Completed
   responses are immutable; saving manual cover fields must retain every result.
   Reserve before calling a terminal. Covers with any reservation cannot be
@@ -271,6 +285,17 @@
 - Order payment mutations must append paid amounts and increment cash atomically; do not rebuild payment fields from a stale order snapshot.
 
 ## Validation
+
+- Order-date smoke: with a loyalty plan scheduled 18:00–21:00 and checked
+  "when the order was created", open an order at 20:50, then preview and edit
+  it after 21:00; both keep the discount. With "at checkout" both drop it. A
+  new cart uses now. A preview of an
+  order outside the current POS/sub-token scope returns Order not found.
+
+- `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/pricing.test.cjs`
+- Pricing smoke: buy two A with an A bonus; retain two paid A at the original
+  price and append a free A. Re-save and reduce quantity below the threshold;
+  generated bonus lines must be rebuilt without duplication or stale bonuses.
 
 - `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/mutations/__tests__/covers.test.cjs`
 - Cover smoke: create a draft, fetch two terminal results, reload, edit the

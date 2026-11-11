@@ -1,6 +1,9 @@
 import { companySchema } from '@/contacts/db/definitions/company';
 import { sendContactFieldsSync } from '@/relations/utils/contactFieldsSync';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  carryDataExtensionValues,
+  EventDispatcherReturn,
+} from 'erxes-api-shared/core-modules';
 import {
   ICompany,
   ICompanyDocument,
@@ -82,6 +85,19 @@ export const loadCompanyClass = (
           },
         ],
       },
+    );
+
+    // A merged company can't be its own parent; drop the link if the chosen
+    // parent was one of the companies being merged.
+    await models.Companies.updateOne(
+      { _id: newCompanyId, parentCompanyId: { $in: oldCompanyIds } },
+      { $unset: { parentCompanyId: '' } },
+    );
+
+    // Subsidiaries of the merged companies now belong to the new company.
+    await models.Companies.updateMany(
+      { _id: { $ne: newCompanyId }, parentCompanyId: { $in: oldCompanyIds } },
+      { $set: { parentCompanyId: newCompanyId } },
     );
 
     await models.Conformities.changeConformity({
@@ -322,10 +338,15 @@ export const loadCompanyClass = (
       let names: string[] = [];
       let emails: string[] = [];
       let phones: string[] = [];
+      let contactRoles: string[] = [];
+      const mergedCompanies: ICompanyDocument[] = [];
 
       // Merging company tags
       for (const companyId of companyIds) {
         const companyObj = await models.Companies.getCompany(companyId);
+
+        mergedCompanies.push(companyObj);
+        contactRoles = contactRoles.concat(companyObj.contactRoles || []);
 
         const companyTags = companyObj.tagIds || [];
         const companyNames = companyObj.names || [];
@@ -368,6 +389,7 @@ export const loadCompanyClass = (
       names = Array.from(new Set(names));
       emails = Array.from(new Set(emails));
       phones = Array.from(new Set(phones));
+      contactRoles = Array.from(new Set(contactRoles));
 
       // Creating company with properties
       const company = await models.Companies.createCompany({
@@ -379,7 +401,14 @@ export const loadCompanyClass = (
         names,
         emails,
         phones,
+        ...(contactRoles.length ? { contactRoles } : {}),
       });
+
+      await carryDataExtensionValues(
+        models.Companies,
+        company._id,
+        mergedCompanies,
+      );
 
       await updateCompanyMergeReferences(companyIds, company._id);
 

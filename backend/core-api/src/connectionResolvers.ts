@@ -15,6 +15,11 @@ import {
   ITwoFactorModel,
   loadTwoFactorClass,
 } from '@/auth/db/models/TwoFactors';
+import { ISupportGrantDocument } from '@/auth/db/definitions/supportAccess';
+import {
+  ISupportGrantModel,
+  loadSupportGrantClass,
+} from '@/auth/db/models/SupportAccess';
 import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
@@ -55,6 +60,11 @@ import {
   IFavoritesModel,
   loadFavoritesClass,
 } from '@/organization/settings/db/models/Favorites';
+import { IDashboardLayoutDocument } from '@/organization/settings/db/definitions/dashboardLayouts';
+import {
+  IDashboardLayoutModel,
+  loadDashboardLayoutClass,
+} from '@/organization/settings/db/models/DashboardLayouts';
 import {
   IBranchDocument,
   IDepartmentDocument,
@@ -111,8 +121,12 @@ import {
   AiAgentDocument,
   aiAgentSchema,
   IActivityLogDocument,
+  IUserActivityDailyDocument,
   IAutomationDocument,
+  getDataExtensionModels,
   IAutomationExecutionDocument,
+  IDataExtensionFieldModel,
+  IDataExtensionSchemaVersionModel,
   IEmailAddressDocument,
   IEmailDeliveryDocument,
   IEmailRampDocument,
@@ -390,6 +404,10 @@ import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
+import {
+  IUserActivitiesModel,
+  loadUserActivitiesClass,
+} from '@/logs/db/models/UserActivities';
 import { IAgentsConnectionsDocument } from '@/agents/@types/connection';
 import {
   IAgentsConnectionModel,
@@ -402,6 +420,8 @@ import {
 } from '@/agents/db/models/Settings';
 
 export interface IModels {
+  DataExtensionFields: IDataExtensionFieldModel;
+  DataExtensionSchemaVersions: IDataExtensionSchemaVersionModel;
   Brands: IBrandModel;
   Customers: ICustomerModel;
   Companies: ICompanyModel;
@@ -436,6 +456,7 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
+  DashboardLayouts: IDashboardLayoutModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
@@ -457,6 +478,7 @@ export interface IModels {
 
   AiAgents: IAiAgentModel;
   ActivityLogs: IActivityLogsModel;
+  UserActivities: IUserActivitiesModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
   BroadcastTraces: IBroadcastTraceModel;
@@ -491,6 +513,7 @@ export interface IModels {
   LdapConfigs: ILdapConfigModel;
   AuthIdentities: IAuthIdentityModel;
   TwoFactors: ITwoFactorModel;
+  SupportGrants: ISupportGrantModel;
 
   AgentsConnection: IAgentsConnectionModel;
   AgentsSettings: IAgentsSettingsModel;
@@ -736,6 +759,11 @@ export const loadClasses = (
     'favorites',
     loadFavoritesClass(models),
   );
+
+  models.DashboardLayouts = db.model<
+    IDashboardLayoutDocument,
+    IDashboardLayoutModel
+  >('dashboard_layouts', loadDashboardLayoutClass(models));
 
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
     'documents',
@@ -1005,6 +1033,11 @@ export const loadClasses = (
     loadTwoFactorClass(models, subdomain),
   );
 
+  models.SupportGrants = db.model<ISupportGrantDocument, ISupportGrantModel>(
+    'auth_support_grants',
+    loadSupportGrantClass(models, subdomain),
+  );
+
   // Per-user BYOK agents connection; one document per user per tenant.
   models.AgentsConnection = db.model<
     IAgentsConnectionsDocument,
@@ -1016,6 +1049,7 @@ export const loadClasses = (
     IAgentsSettingsDocument,
     IAgentsSettingsModel
   >('agents_settings', loadAgentsSettingsClass(models));
+  Object.assign(models, getDataExtensionModels(db));
 
   const db_name = db.name;
 
@@ -1028,6 +1062,11 @@ export const loadClasses = (
     'logs',
     loadLogsClass(models),
   );
+
+  models.UserActivities = logDb.model<
+    IUserActivityDailyDocument,
+    IUserActivitiesModel
+  >('user_activity_daily', loadUserActivitiesClass(models));
 
   return models;
 };

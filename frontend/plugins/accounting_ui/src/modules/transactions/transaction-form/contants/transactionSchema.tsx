@@ -2,6 +2,7 @@ import { getI18n } from 'react-i18next';
 import { CustomerType } from 'ui-modules';
 import { z } from 'zod';
 import { TR_SIDES, TR_STATUSES, TrJournalEnum } from '../../types/constants';
+import { FIXED_ASSET_DEPRECIATION_METHOD_VALUES } from '@/settings/fixed-assets/constants/depreciationMethods';
 import { undefed } from '~/modules/types/utils';
 
 // #region common:
@@ -33,11 +34,30 @@ const accountSchema = z.object({
 
 export const transactionDetailFollowInfoSchema = z
   .object({
+    fixedAssetCategoryId: undefed(z.string()),
+    fixedAssetCode: undefed(z.string()),
+    fixedAssetName: undefed(z.string()),
     currencyDiffAccountId: undefed(z.string()),
     moveInBranchId: undefed(z.string()),
     moveInDepartmentId: undefed(z.string()),
+    originalCost: undefed(z.number().finite().nonnegative()),
+    depreciationBase: undefed(z.number().finite().nonnegative()),
+    depreciationMethod: undefed(z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)),
+    annualDepreciationRate: undefed(z.number().finite().nonnegative().max(100)),
+    depreciationStartDate: undefed(
+      z.string().refine((value) => Number.isFinite(Date.parse(value))),
+    ),
     preDeprecation: undefed(z.number().nonnegative()),
-    salvageValue: undefed(z.number()),
+    revaluationLoss: undefed(z.number().finite()),
+    revaluationReserve: undefed(z.number().finite()),
+    salvageValue: undefed(z.number().finite().nonnegative()),
+    taxDepreciationMethod: undefed(
+      z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES),
+    ),
+    taxAnnualDepreciationRate: undefed(
+      z.number().finite().nonnegative().max(100),
+    ),
+    taxSalvageValue: undefed(z.number().finite().nonnegative()),
   })
   .passthrough();
 
@@ -70,9 +90,6 @@ export const baseTrDetailSchema = z.object({
 
   productId: undefed(z.string()),
   fixedAssetId: undefed(z.string()),
-  fixedAssetCategoryId: undefed(z.string()),
-  fixedAssetCode: undefed(z.string()),
-  fixedAssetName: undefed(z.string()),
   count: undefed(z.number()),
   unitPrice: undefed(z.number()),
   weight: undefed(z.number().min(0)),
@@ -426,34 +443,38 @@ export const fxaIncomeDetailSchema = z
     ...baseTrDetailSchema.shape,
   })
   .extend({
-    fixedAssetCategoryId: z.string().refine(
-      (val) => val?.length,
-      () => ({
-        message: getI18n().t('Must fill fixed asset category', {
-          ns: 'accounting',
-          nsSeparator: false,
+    followInfos: transactionDetailFollowInfoSchema.extend({
+      fixedAssetCategoryId: z.string().refine(
+        (val) => val?.length,
+        () => ({
+          message: getI18n().t('Must fill fixed asset category', {
+            ns: 'accounting',
+            nsSeparator: false,
+          }),
         }),
-      }),
-    ),
-    fixedAssetCode: z.string().refine(
-      (val) => val?.length,
-      () => ({
-        message: getI18n().t('Must fill fixed asset code', {
-          ns: 'accounting',
-          nsSeparator: false,
+      ),
+      fixedAssetCode: z.string().refine(
+        (val) => val?.length,
+        () => ({
+          message: getI18n().t('Must fill fixed asset code', {
+            ns: 'accounting',
+            nsSeparator: false,
+          }),
         }),
-      }),
-    ),
-    fixedAssetName: z.string().refine(
-      (val) => val?.length,
-      () => ({
-        message: getI18n().t('Must fill fixed asset name', {
-          ns: 'accounting',
-          nsSeparator: false,
+      ),
+      fixedAssetName: z.string().refine(
+        (val) => val?.length,
+        () => ({
+          message: getI18n().t('Must fill fixed asset name', {
+            ns: 'accounting',
+            nsSeparator: false,
+          }),
         }),
-      }),
-    ),
-    followInfos: undefed(transactionDetailFollowInfoSchema),
+      ),
+
+      revaluationLoss: undefed(z.number().finite().nonnegative()),
+      revaluationReserve: undefed(z.number().finite().nonnegative()),
+    }),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });
@@ -463,10 +484,6 @@ export const fxaFollowInfosSchema = z.object({
   depreciationExpenseAccountId: undefed(z.string()),
   saleOutAccountId: undefed(z.string()),
   saleCostAccountId: undefed(z.string()),
-  revaluationReserveAccountId: undefed(z.string()),
-  deferredTaxAssetAccountId: undefed(z.string()),
-  deferredTaxLiabilityAccountId: undefed(z.string()),
-  incomeTaxExpenseAccountId: undefed(z.string()),
   moveInBranchId: undefed(z.string()),
   moveInDepartmentId: undefed(z.string()),
   ownerId: undefed(z.string()),
@@ -523,10 +540,6 @@ export const fxaFollowExtrasSchema = z.object({
   accumulatedDepreciationAccount: undefed(z.object({ ...accountSchema.shape })),
   depreciationExpenseAccount: undefed(z.object({ ...accountSchema.shape })),
   saleCostAccount: undefed(z.object({ ...accountSchema.shape })),
-  revaluationReserveAccount: undefed(z.object({ ...accountSchema.shape })),
-  deferredTaxAssetAccount: undefed(z.object({ ...accountSchema.shape })),
-  deferredTaxLiabilityAccount: undefed(z.object({ ...accountSchema.shape })),
-  incomeTaxExpenseAccount: undefed(z.object({ ...accountSchema.shape })),
 });
 
 export const fxaOwnerRecordInputSchema = z.object({
@@ -539,6 +552,7 @@ export const fxaOwnerRecordInputSchema = z.object({
   sequence: undefed(z.number()),
   count: undefed(z.number()),
   ownerId: undefed(z.string()),
+  sourceOwnerId: undefed(z.string()),
 });
 
 export const fxaExtraDataSchema = z.object({
@@ -624,6 +638,34 @@ export const transactionFxaSaleSchema = z
       }),
     ),
   });
+export const transactionFxaCapitalSchema = z.object({
+  ...baseTransactionSchema.shape,
+  journal: z.literal(TrJournalEnum.FXA_CAPITAL),
+  details: z
+    .array(
+      baseTrDetailSchema.extend({
+        fixedAssetId: z.string().min(1),
+        count: z.literal(0),
+        followInfos: transactionDetailFollowInfoSchema.extend({
+          originalCost: undefed(z.number().finite().nonnegative()).refine(
+            (value): boolean => value !== undefined,
+            () => ({
+              message: getI18n().t('Required', { ns: 'accounting' }),
+            }),
+          ),
+          annualDepreciationRate: z.number().finite().positive().max(100),
+          preDeprecation: undefed(z.number().finite().nonnegative()),
+          salvageValue: undefed(z.number().finite().nonnegative()),
+        }),
+      }),
+    )
+    .min(1),
+});
+
+export const transactionFxaRevaluationSchema =
+  transactionFxaCapitalSchema.extend({
+    journal: z.literal(TrJournalEnum.FXA_REVALUATION),
+  });
 // #endregion Fixed assets
 
 // #region core
@@ -642,6 +684,8 @@ export const trDocSchema = z
     transactionInvSaleSchema,
     transactionInvSaleReturnSchema,
 
+    transactionFxaCapitalSchema,
+    transactionFxaRevaluationSchema,
     transactionFxaIncomeSchema,
     transactionFxaOutSchema,
     transactionFxaMoveSchema,

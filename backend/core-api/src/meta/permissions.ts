@@ -223,6 +223,39 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'data-extensions',
+      description: 'Data Extensions field definitions',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'View Data Extensions fields',
+          name: 'dataExtensionsRead',
+          description: 'View the extension fields defined for each record type',
+          always: true,
+        },
+        {
+          title: 'Manage Data Extensions fields',
+          name: 'dataExtensionsManage',
+          description: 'Add, edit, archive and restore extension fields',
+        },
+        {
+          title: 'View custom object records',
+          name: 'dataExtensionRecordsRead',
+          description: 'See records of tenant-defined objects such as Contracts',
+          always: true,
+        },
+        {
+          title: 'Manage custom object records',
+          name: 'dataExtensionRecordsManage',
+          description: 'Create, edit and delete records of tenant-defined objects',
+        },
+      ],
+    },
+    {
       name: 'properties',
       description: 'Custom fields and field groups',
       scopeField: null,
@@ -478,6 +511,11 @@ export const permissions: IPermissionConfig = {
           title: 'Reset member password',
           name: 'teamMembersResetPassword',
           description: 'Reset team member password',
+        },
+        {
+          title: 'View member activity',
+          name: 'teamMembersViewActivity',
+          description: 'See when and how long other team members are active',
         },
         {
           title: 'Import team members',
@@ -839,6 +877,17 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'data-extensions',
+          actions: [
+            'dataExtensionsRead',
+            'dataExtensionsManage',
+            'dataExtensionRecordsRead',
+            'dataExtensionRecordsManage',
+          ],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
           module: 'tags',
           actions: ['tagsCreate', 'tagsUpdate', 'tagsDelete', 'tagsTag'],
           scope: 'all',
@@ -881,6 +930,7 @@ export const permissions: IPermissionConfig = {
             'teamMembersUpdate',
             'teamMembersRemove',
             'teamMembersResetPassword',
+            'teamMembersViewActivity',
             'teamMembersImportManage',
             'teamMembersExportManage',
           ],

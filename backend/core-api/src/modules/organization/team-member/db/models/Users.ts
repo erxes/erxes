@@ -1,3 +1,4 @@
+import { AuthIdentityProvider } from '@/auth/db/definitions/ldap';
 import { LoginError } from '@/auth/loginError';
 import { revokeUserSession, revokeUserSessions } from '@/auth/session';
 import * as bcrypt from 'bcryptjs';
@@ -19,11 +20,12 @@ import {
   ILink,
   IPropertyField,
   IUser,
+  IUserAppearance,
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
 import { escapeRegExp, redis } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
+import { FilterQuery, Model, PipelineStage } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
@@ -32,8 +34,25 @@ import {
   generateUserUpdateActivityLogs,
   generateUserInvitationActivityLog,
 } from '../../meta/activity-log';
+import { buildProfilePatch, IProfilePatch } from '../utils/profilePatch';
 
 const SALT_WORK_FACTOR = 10;
+
+// Must match the core-ui appearance options.
+const USER_APPEARANCE_LAYOUTS = ['default', 'notch', 'sidebar'];
+const USER_APPEARANCE_FRAME_COLORS = [
+  'indigo',
+  'graphite',
+  'forest',
+  'plum',
+  'erxes',
+  'new-year',
+  'march-8',
+  'seasonal',
+];
+
+const exactPattern = (value: string) =>
+  new RegExp(`^${escapeRegExp(value)}$`, 'i');
 
 interface IEditProfile {
   username?: string;
@@ -65,6 +84,7 @@ interface IProvisionedUserParams {
   firstName?: string;
   lastName?: string;
   permissionGroupIds: string[];
+  isActive?: boolean;
 }
 
 interface ILoginParams {
@@ -83,6 +103,13 @@ export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
   isDirectoryUser(userId: string): Promise<boolean>;
+  getIdentityProvider(
+    userId: string,
+  ): Promise<AuthIdentityProvider | undefined>;
+  isSupportUser(userId: string): Promise<boolean>;
+  staffQuery(
+    query: FilterQuery<IUserDocument>,
+  ): Promise<FilterQuery<IUserDocument>>;
   assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;
@@ -99,7 +126,12 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     values: Record<string, unknown>,
   ): Promise<IUserDocument | null>;
-  editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
+  editProfile(
+    _id: string,
+    doc: IEditProfile,
+    pipeline?: PipelineStage[],
+  ): Promise<IUserDocument>;
+  patchProfile(_id: string, doc: IProfilePatch): Promise<IUserDocument>;
   generateUserCode(): Promise<string>;
   generateUserCodeField(): Promise<void>;
   configEmailSignatures(
@@ -110,6 +142,10 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     isAllowed: boolean,
   ): Promise<IUserDocument>;
+  configAppearance(
+    _id: string,
+    appearance: IUserAppearance,
+  ): Promise<IUserDocument | null>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
@@ -207,10 +243,53 @@ export const loadUserClass = (
       );
     }
 
-    // Directory users sign in with their directory password, so a local one would never be used
+    public static async getIdentityProvider(userId: string) {
+      const identity = await models.AuthIdentities.findOne(
+        { userId },
+        { provider: 1 },
+      ).lean();
+
+      return identity?.provider;
+    }
+
+    public static async isSupportUser(userId: string) {
+      return (await this.getIdentityProvider(userId)) === 'erxes_support';
+    }
+
+    // Support accounts act in the tenant but aren't staff: no lists, pickers or counts
+    public static async staffQuery(query: FilterQuery<IUserDocument>) {
+      const supportUserIds = await models.AuthIdentities.find({
+        provider: 'erxes_support',
+      }).distinct('userId');
+
+      return {
+        $and: [
+          query,
+          {
+            role: { $ne: USER_ROLES.SYSTEM },
+            ...(supportUserIds.length ? { _id: { $nin: supportUserIds } } : {}),
+          },
+        ],
+      };
+    }
+
+    // Linked users sign in at their provider, so a local password would be a second way in
     public static async assertLocalPassword(userId: string) {
-      if (await this.isDirectoryUser(userId)) {
+      const provider = await this.getIdentityProvider(userId);
+
+      if (provider === 'ldap') {
         throw new Error('Password is managed by the directory');
+      }
+
+      if (provider === 'erxes_support') {
+        throw new Error('Support accounts have no password');
+      }
+    }
+
+    // Name and groups come from the grant, so nobody edits a support account by hand
+    public static async assertEditable(userId: string) {
+      if (await this.isSupportUser(userId)) {
+        throw new Error('Support accounts are managed by support access');
       }
     }
 
@@ -244,8 +323,12 @@ export const loadUserClass = (
       }
 
       // Checking if user has email
+      // Login matches either field, so an email may not be another member's username
       if (email) {
-        previousEntry = await models.Users.findUsers({ ...query, email });
+        previousEntry = await models.Users.findUsers({
+          ...query,
+          $or: [{ email }, { username: exactPattern(email) }],
+        });
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
@@ -265,7 +348,10 @@ export const loadUserClass = (
 
       //Checking username
       if (username) {
-        previousEntry = await models.Users.findOne({ ...query, username });
+        previousEntry = await models.Users.findOne({
+          ...query,
+          $or: [{ username }, { email: exactPattern(username) }],
+        });
 
         // Checking if duplicated
         if (previousEntry) {
@@ -335,6 +421,8 @@ export const loadUserClass = (
       if (!user) {
         throw new Error('User not found');
       }
+
+      await this.assertEditable(_id);
 
       doc.password = (doc.password ?? '').trim();
       doc.email = (doc.email ?? '').toLowerCase().trim();
@@ -475,13 +563,16 @@ export const loadUserClass = (
       firstName,
       lastName,
       permissionGroupIds,
+      isActive = true,
     }: IProvisionedUserParams) {
       email = email.toLowerCase().trim();
 
       await models.Users.checkDuplication({ email });
 
       const usernameTaken = username
-        ? await models.Users.exists({ username })
+        ? await models.Users.exists({
+            $or: [{ username }, { email: exactPattern(username) }],
+          })
         : null;
 
       const user = await models.Users.create({
@@ -492,7 +583,7 @@ export const loadUserClass = (
           lastName,
           fullName: [firstName, lastName].filter(Boolean).join(' '),
         },
-        isActive: true,
+        isActive,
         code: await this.generateUserCode(),
         ...(permissionGroupIds.length ? { permissionGroupIds } : {}),
       });
@@ -538,6 +629,18 @@ export const loadUserClass = (
     /*
      * Update user profile
      */
+    public static async patchProfile(_id: string, doc: IProfilePatch) {
+      const pipeline = buildProfilePatch(doc);
+      return models.Users.editProfile(
+        _id,
+        {
+          username: doc.username?.trim(),
+          email: doc.email?.trim().toLowerCase(),
+        },
+        pipeline,
+      );
+    }
+
     public static async editProfile(
       _id: string,
       {
@@ -548,8 +651,15 @@ export const loadUserClass = (
         employeeId,
         positionIds,
       }: IEditProfile,
+      pipeline?: PipelineStage[],
     ) {
       const user = await models.Users.getUser(_id);
+
+      await this.assertEditable(_id);
+
+      if (pipeline && username) {
+        await this.checkDuplication({ username, idsToExclude: _id });
+      }
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
@@ -562,12 +672,20 @@ export const loadUserClass = (
         });
       }
 
-      await models.Users.updateOne(
-        { _id },
-        { $set: { username, email, details, links, employeeId, positionIds } },
-      );
-
-      const updatedUser = await models.Users.findOne({ _id });
+      let updatedUser: IUserDocument | null;
+      if (pipeline) {
+        updatedUser = await models.Users.findOneAndUpdate({ _id }, pipeline, {
+          new: true,
+        });
+      } else {
+        await models.Users.updateOne(
+          { _id },
+          {
+            $set: { username, email, details, links, employeeId, positionIds },
+          },
+        );
+        updatedUser = await models.Users.findOne({ _id });
+      }
       if (updatedUser) {
         sendDbEventLog({
           action: 'update',
@@ -612,6 +730,26 @@ export const loadUserClass = (
       await models.Users.updateOne(
         { _id },
         { $set: { getNotificationByEmail: isAllowed } },
+      );
+
+      return models.Users.findOne({ _id });
+    }
+
+    public static async configAppearance(
+      _id: string,
+      { layout, frameColor }: IUserAppearance,
+    ) {
+      if (!layout || !USER_APPEARANCE_LAYOUTS.includes(layout)) {
+        throw new Error(`Unknown appearance layout: ${layout}`);
+      }
+
+      if (frameColor && !USER_APPEARANCE_FRAME_COLORS.includes(frameColor)) {
+        throw new Error(`Unknown appearance frame color: ${frameColor}`);
+      }
+
+      await models.Users.updateOne(
+        { _id },
+        { $set: { appearance: { layout, frameColor } } },
       );
 
       return models.Users.findOne({ _id });
@@ -878,15 +1016,17 @@ export const loadUserClass = (
     }) {
       email = (email || '').toLowerCase().trim();
 
-      const loginPattern = new RegExp(`^${escapeRegExp(email)}$`, 'i');
+      const loginPattern = exactPattern(email);
 
-      const localUser = await models.Users.findOne({
-        $or: [
-          { email: { $regex: loginPattern } },
-          { username: { $regex: loginPattern } },
-        ],
-        isActive: true,
-      });
+      const findActive = (field: 'email' | 'username') =>
+        models.Users.findOne({
+          [field]: { $regex: loginPattern },
+          isActive: true,
+        });
+
+      // One identifier can be one member's email and another's username; the email wins
+      const localUser =
+        (await findActive('email')) || (await findActive('username'));
 
       const isDirectoryUser = localUser
         ? await this.isDirectoryUser(localUser._id)

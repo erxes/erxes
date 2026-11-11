@@ -9,10 +9,10 @@ import {
   IconFolders,
   IconLayoutGrid,
   IconMagnet,
-  IconSpiral,
   IconTrash,
   IconUser,
   IconUsersGroup,
+  IconVariable,
 } from '@tabler/icons-react';
 import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
@@ -48,22 +48,17 @@ export const GET_CORE_MODULES = (
           path: 'contacts/client-portal-users',
           icon: IconUser,
         },
-        {
-          name: t('vendors'),
-          path: 'contacts/vendors',
-          icon: IconSpiral,
-        },
-        {
-          name: t('clients'),
-          path: 'contacts/clients',
-          icon: IconSpiral,
-        },
       ],
     },
     {
       name: t('segments'),
       icon: IconChartPie,
       path: 'segments',
+    },
+    {
+      name: t('data-extensions'),
+      icon: IconVariable,
+      path: 'data-extensions',
     },
     {
       name: t('automations'),

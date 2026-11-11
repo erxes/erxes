@@ -8,15 +8,17 @@ import { IconForms, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FormsCreateButton } from './forms-create';
+import { FormsNoMatch } from '../FormsNoMatch';
 
 export const FormPageList = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
-  const [{ channelId, tagId, status, searchValue }] = useMultiQueryState<{
-    channelId?: string;
-    tagId?: string;
-    status?: string;
-    searchValue?: string;
-  }>(['tagId', 'status', 'searchValue', 'channelId']);
+  const [{ channelId, tagId, status, searchValue }, setQueries] =
+    useMultiQueryState<{
+      channelId?: string;
+      tagId?: string;
+      status?: string;
+      searchValue?: string;
+    }>(['tagId', 'status', 'searchValue', 'channelId']);
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
     variables: {
       channelId: channelId || undefined,
@@ -26,6 +28,21 @@ export const FormPageList = () => {
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  if (forms?.length === 0 && (channelId || tagId || status || searchValue)) {
+    return (
+      <FormsNoMatch
+        onClear={() =>
+          setQueries({
+            channelId: null,
+            tagId: null,
+            status: null,
+            searchValue: null,
+          })
+        }
+      />
+    );
+  }
 
   if (forms?.length === 0) {
     return (

@@ -1,6 +1,21 @@
+import { ContactPanelTags } from '@/side-panel/components/details/ContactPanelTags';
+import { ContactDescriptionField } from '@/side-panel/components/details/ContactPanelDescription';
+import { ContactDetailSection } from '@/side-panel/components/details/ContactDetailSection';
+import { ContactPanelRelationField } from '@/side-panel/components/details/ContactPanelRelationField';
+import {
+  IconBell,
+  IconCalendar,
+  IconCircle,
+  IconGenderBigender,
+  IconHash,
+  IconMail,
+  IconPhone,
+  IconUser,
+} from '@tabler/icons-react';
 import { useChangeCustomerState } from '@/contacts/customers/hooks/useChangeCustomerState';
 import { format } from 'date-fns';
 import {
+  cn,
   DatePicker,
   Popover,
   PopoverScoped,
@@ -8,63 +23,69 @@ import {
   ScrollArea,
   Select,
   SexCode,
+  SexCodes,
   SexDisplay,
   SexField,
   Spinner,
   Switch,
   TextField,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CustomerEmails,
-  CustomerOwner,
+  SelectMember,
   CustomerPhones,
   ICustomerDetail,
-  TagsSelect,
   useCustomerDetail,
   useCustomerEdit,
+  usePanelExpanded,
   PANEL_TEXT_FIELD_CLASS_NAME,
-  PanelDescriptionField,
   PanelField,
   PanelFieldTrigger,
-  PrintDocument,
 } from 'ui-modules';
-import { PanelAvatarField } from './PanelAvatarField';
 
 const SCOPE = 'side-panel-customer';
-
-type TTextCode = 'firstName' | 'middleName' | 'lastName' | 'code';
 
 // The phone cell, like the list, marks only valid and invalid numbers.
 const toCellPhoneStatus = (status: ICustomerDetail['phoneValidationStatus']) =>
   status === 'valid' || status === 'invalid' ? status : undefined;
 
-const CustomerTextField = ({
+/** Saves the customer code without submitting the other fields. */
+const CustomerCodeField = ({
   customer,
-  code,
   placeholder,
 }: {
   customer: ICustomerDetail;
-  code: TTextCode;
   placeholder: string;
 }) => {
   const { customerEdit } = useCustomerEdit();
-  const value = customer[code] || '';
+  const value = customer.code || '';
 
   return (
     <TextField
-      scope={`${SCOPE}.${code}`}
+      scope={`${SCOPE}.code`}
       value={value}
       placeholder={placeholder}
-      className={PANEL_TEXT_FIELD_CLASS_NAME}
-      onSave={(next) =>
-        customerEdit({ variables: { _id: customer._id, [code]: next } })
+      className={cn(
+        PANEL_TEXT_FIELD_CLASS_NAME,
+        !value && 'text-muted-foreground',
+      )}
+      onSave={(code) =>
+        customerEdit({ variables: { _id: customer._id, code } })
       }
-    />
+    >
+      {!value && (
+        <IconHash
+          className="size-3.5 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
+      )}
+    </TextField>
   );
 };
 
+/** Edits the customer pronoun and closes its picker after selection. */
 const CustomerSexField = ({ customer }: { customer: ICustomerDetail }) => {
   const { customerEdit } = useCustomerEdit();
   const [open, setOpen] = useState(false);
@@ -89,6 +110,7 @@ const CustomerSexField = ({ customer }: { customer: ICustomerDetail }) => {
   );
 };
 
+/** Saves a changed birth date when the date picker closes. */
 const CustomerBirthDateField = ({
   customer,
 }: {
@@ -113,7 +135,10 @@ const CustomerBirthDateField = ({
         {date ? (
           format(date, 'yyyy/MM/dd')
         ) : (
-          <span className="text-muted-foreground">YYYY/MM/DD</span>
+          <span className="flex items-center gap-1.5 text-muted-foreground">
+            <IconCalendar className="size-3.5" aria-hidden="true" />
+            YYYY/MM/DD
+          </span>
         )}
       </PanelFieldTrigger>
       <RecordTableInlineCell.Content className="w-auto">
@@ -127,6 +152,7 @@ const CustomerBirthDateField = ({
   );
 };
 
+/** Switches the contact between lead and customer states. */
 const CustomerStateField = ({ customer }: { customer: ICustomerDetail }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { changeCustomerState } = useChangeCustomerState();
@@ -147,6 +173,7 @@ const CustomerStateField = ({ customer }: { customer: ICustomerDetail }) => {
   );
 };
 
+/** Maps the subscription switch to the stored Yes/No values. */
 const CustomerSubscribedField = ({
   customer,
 }: {
@@ -172,29 +199,18 @@ const CustomerSubscribedField = ({
   );
 };
 
-const CustomerDescriptionField = ({
-  customer,
-}: {
-  customer: ICustomerDetail;
-}) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
-  const { customerEdit } = useCustomerEdit();
-
-  return (
-    <PanelDescriptionField
-      label={t('description', 'Description')}
-      value={customer.description || ''}
-      scope={`${SCOPE}.description`}
-      onSave={(description) =>
-        customerEdit({ variables: { _id: customer._id, description } })
-      }
-    />
-  );
-};
-
 // The customer's fields as record table cells: click a value to edit it.
-export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
+export const CustomerPanelDetail = ({
+  customerId,
+  children,
+}: {
+  customerId: string;
+  /** Sections drawn under the customer's own fields, such as custom fields. */
+  children?: ReactNode;
+}) => {
+  const expanded = usePanelExpanded();
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
+  const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
   const { customerDetail, loading } = useCustomerDetail({
     variables: { _id: customerId },
@@ -216,113 +232,126 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   // panel; a block lets each value shrink and truncate instead.
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
-      <div className="flex flex-col gap-0.5 p-3">
-        <PanelAvatarField
-          value={customer.avatar || ''}
-          onSave={(avatar) =>
-            customerEdit({ variables: { _id: customer._id, avatar } })
-          }
-        />
-        <div className="py-2">
-          <PrintDocument
-            items={[{ _id: customer._id }]}
-            contentType="core:contact.customer"
-          />
+      <div>
+        <div className="border-b px-3 pb-2">
+          <ContactDetailSection title={sectionT('general', 'General')} nested>
+            <PanelField
+              icon={IconUser}
+              label={t('owner', 'Owner')}
+              placeholder={!customer.ownerId ? t('owner', 'Owner') : undefined}
+            >
+              <SelectMember.InlineCell
+                value={customer.ownerId || ''}
+                scope={`${SCOPE}.owner`}
+                placeholder={customer.ownerId ? t('owner', 'Owner') : ''}
+                showInactive
+                className="rounded-sm"
+                onValueChange={(ownerId) =>
+                  customerEdit({
+                    variables: {
+                      _id: customer._id,
+                      ownerId: typeof ownerId === 'string' ? ownerId : '',
+                    },
+                  })
+                }
+              />
+            </PanelField>
+            <PanelField icon={IconHash} label={addT('code', 'Code')}>
+              <CustomerCodeField
+                customer={customer}
+                placeholder={addT('code', 'Code')}
+              />
+            </PanelField>
+            <PanelField icon={IconCircle} label={addT('state', 'State')}>
+              <CustomerStateField customer={customer} />
+            </PanelField>
+          </ContactDetailSection>
+          <ContactDetailSection title={sectionT('contact', 'Contact')} nested>
+            <PanelField
+              icon={IconMail}
+              label={t('emails', 'Emails')}
+              placeholder={
+                !customer.primaryEmail && !customer.emails?.some(Boolean)
+                  ? t('emails', 'Emails')
+                  : undefined
+              }
+            >
+              <CustomerEmails
+                maxVisible={1}
+                _id={customer._id}
+                primaryEmail={customer.primaryEmail || ''}
+                emails={customer.emails || []}
+                emailValidationStatus={customer.emailValidationStatus}
+                scope={`${SCOPE}.emails`}
+                Trigger={PanelFieldTrigger}
+              />
+            </PanelField>
+            <PanelField
+              icon={IconPhone}
+              label={t('phones', 'Phones')}
+              placeholder={
+                !customer.primaryPhone && !customer.phones?.some(Boolean)
+                  ? t('phones', 'Phones')
+                  : undefined
+              }
+            >
+              <CustomerPhones
+                maxVisible={1}
+                _id={customer._id}
+                primaryPhone={customer.primaryPhone || ''}
+                phones={customer.phones || []}
+                phoneValidationStatus={toCellPhoneStatus(
+                  customer.phoneValidationStatus,
+                )}
+                scope={`${SCOPE}.phones`}
+                Trigger={PanelFieldTrigger}
+              />
+            </PanelField>
+            <PanelField
+              icon={IconBell}
+              label={addT('subscribed', 'Subscribed')}
+            >
+              <CustomerSubscribedField customer={customer} />
+            </PanelField>
+          </ContactDetailSection>
+          <ContactDetailSection title={sectionT('personal', 'Personal')} nested>
+            <PanelField
+              icon={IconGenderBigender}
+              label={t('sex', 'Sex')}
+              placeholder={
+                !customer.sex || !SexCodes[customer.sex as SexCode]
+                  ? t('sex', 'Sex')
+                  : undefined
+              }
+            >
+              <CustomerSexField customer={customer} />
+            </PanelField>
+            <PanelField
+              icon={IconCalendar}
+              label={addT('birth-date', 'Birth date')}
+            >
+              <CustomerBirthDateField customer={customer} />
+            </PanelField>
+          </ContactDetailSection>
+          {!expanded && (
+            <ContactDescriptionField
+              contentType="core:customer"
+              contentId={customer._id}
+              value={customer.description || ''}
+            />
+          )}
         </div>
-        <PanelField label={addT('first-name', 'First name')}>
-          <CustomerTextField
-            customer={customer}
-            code="firstName"
-            placeholder={addT('first-name', 'First name')}
-          />
-        </PanelField>
-        <PanelField label={addT('middle-name', 'Middle name')}>
-          <CustomerTextField
-            customer={customer}
-            code="middleName"
-            placeholder={addT('middle-name', 'Middle name')}
-          />
-        </PanelField>
-        <PanelField label={addT('last-name', 'Last name')}>
-          <CustomerTextField
-            customer={customer}
-            code="lastName"
-            placeholder={addT('last-name', 'Last name')}
-          />
-        </PanelField>
-        <PanelField label={t('tags', 'Tags')}>
-          <TagsSelect.InlineCell
-            type="core:customer"
-            mode="multiple"
-            scope={`${SCOPE}.tags`}
-            value={customer.tagIds}
-            targetIds={[customer._id]}
-            className="rounded-sm"
-            options={(tagIds) => ({
-              update: (cache) => {
-                cache.modify({
-                  id: cache.identify({
-                    __typename: 'Customer',
-                    _id: customer._id,
-                  }),
-                  fields: { tagIds: () => tagIds },
-                  optimistic: true,
-                });
-              },
-            })}
-          />
-        </PanelField>
-        <PanelField label={t('emails', 'Emails')}>
-          <CustomerEmails
-            _id={customer._id}
-            primaryEmail={customer.primaryEmail || ''}
-            emails={customer.emails || []}
-            emailValidationStatus={customer.emailValidationStatus}
-            scope={`${SCOPE}.emails`}
-            Trigger={PanelFieldTrigger}
-          />
-        </PanelField>
-        <PanelField label={t('phones', 'Phones')}>
-          <CustomerPhones
-            _id={customer._id}
-            primaryPhone={customer.primaryPhone || ''}
-            phones={customer.phones || []}
-            phoneValidationStatus={toCellPhoneStatus(
-              customer.phoneValidationStatus,
-            )}
-            scope={`${SCOPE}.phones`}
-            Trigger={PanelFieldTrigger}
-          />
-        </PanelField>
-        <PanelField label={t('owner', 'Owner')}>
-          <CustomerOwner
-            _id={customer._id}
-            ownerId={customer.ownerId || ''}
-            scope={`${SCOPE}.owner`}
-            inTable
-          />
-        </PanelField>
-        <PanelField label={addT('code', 'Code')}>
-          <CustomerTextField
-            customer={customer}
-            code="code"
-            placeholder={addT('code', 'Code')}
-          />
-        </PanelField>
-        <PanelField label={t('sex', 'Sex')}>
-          <CustomerSexField customer={customer} />
-        </PanelField>
-        <PanelField label={addT('birth-date', 'Birth date')}>
-          <CustomerBirthDateField customer={customer} />
-        </PanelField>
-        <PanelField label={addT('state', 'State')}>
-          <CustomerStateField customer={customer} />
-        </PanelField>
-        <PanelField label={addT('subscribed', 'Subscribed')}>
-          <CustomerSubscribedField customer={customer} />
-        </PanelField>
-        <CustomerDescriptionField customer={customer} />
+        <ContactPanelTags
+          contentType="core:customer"
+          contentId={customer._id}
+          tagIds={customer.tagIds}
+        />
+        <ContactPanelRelationField
+          contentType="core:customer"
+          contentId={customer._id}
+        />
       </div>
+      {children}
     </ScrollArea>
   );
 };

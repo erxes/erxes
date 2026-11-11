@@ -1,3 +1,4 @@
+import { attachPreviousFxaDetails } from '@/accounting/utils/fxaAdjustmentState';
 import { defaultPaginate } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -138,10 +139,11 @@ export const AdjustFixedAssets = {
       ? { [sortField]: (sortDirection ?? 1) as SortOrder }
       : { createdAt: 1 };
 
-    return defaultPaginate(
+    const details = await defaultPaginate(
       models.AdjustFxaDetails.find({ adjustId: _id }).sort(sort).lean(),
       { page, perPage },
     );
+    return attachPreviousFxaDetails(models, _id, details);
   },
 
   async adjustFxaDetailsCount(
