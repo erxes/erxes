@@ -60,6 +60,19 @@ const Screen = () => {
     );
   }
 
+  // Signed in on the way to "Sign in with erxes": continue to the app that asked.
+  const next = new URLSearchParams(window.location.search).get('next');
+
+  if (next?.startsWith('/core/v1/oauth/authorize?')) {
+    window.location.assign(next);
+
+    return (
+      <div className="flex h-svh items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
     <SessionProvider session={session.data}>
       <AppRoutes />

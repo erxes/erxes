@@ -20,6 +20,8 @@ export interface StoredPluginManifest {
   description?: string;
   ui?: { remote: string; entry: string };
   api?: { url: string };
+  /** "Sign in with erxes" for the plugin's own app: where codes may be sent (`{subdomain}` allowed). */
+  oauth?: { redirectUris: string[] };
   scopes: string[];
   permissions?: { action: string; label: string; description?: string; group?: string }[];
   notificationKinds?: { kind: string; label: string; description?: string }[];

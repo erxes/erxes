@@ -15,6 +15,7 @@ import { streamRouter } from '~/modules/live/stream.http';
 import { HttpError } from '~/http/errors';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
+import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { log } from '~/lib/log';
 
@@ -70,6 +71,10 @@ export const createApp = (): Express => {
   app.get('/core/v1/.well-known/jwks.json', (_req, res) => {
     res.set('Cache-Control', 'public, max-age=300').json(publicJwks());
   });
+
+  // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
+  app.use('/core/v1/oauth', tokenLimit, oauthRouter);
+  app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
   app.use('/core/v1', authenticate, streamRouter, downloadRouter, auditExportRouter, coreApi);

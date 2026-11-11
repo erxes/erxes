@@ -11,3 +11,4 @@ export * from './jobs';
 export * from './webhooks';
 export * from './automations';
 export * from './authTokens';
+export * from './oauth';

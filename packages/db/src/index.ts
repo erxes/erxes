@@ -40,6 +40,8 @@ export {
   FIELD_VALIDATIONS,
   fieldGroups,
   fields,
+  oauthCodes,
+  oauthRefreshTokens,
   organizations,
   PLUGIN_STATUSES,
   pluginInstallations,

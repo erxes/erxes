@@ -163,6 +163,16 @@ it is built.
   in `actions.ts`; plugin actions come from manifests and are POSTed to
   `<api.url>/automations/actions/<type>` with a core token
   (`verifyCoreCall`) and `Idempotency-Key`.
+- **Sign in with erxes** (`src/modules/oauth/oauth.http.ts`, OAuth 2.1 + OIDC):
+  plugins are clients; their manifest's `oauth.redirectUris` (exact, with
+  `{subdomain}`) are the only places codes go. Code + PKCE S256 only; codes
+  live 60 s, once. Access tokens (`typ at+jwt`, `aud` the plugin, 1 h, with
+  the member's plugin permissions) and ID tokens are ES256 (JWKS);
+  `offline_access` gives rotating refresh tokens (30 days) — reuse revokes
+  the family; they die with sign-out-everywhere, password changes, disabling
+  and uninstalling. Not signed in → `/?next=<authorize URL>`; core UI returns
+  there after sign-in. Discovery at `/.well-known/openid-configuration`; SDK:
+  `verifyErxesAccessToken`.
 - **Two-factor sign-in** (`src/modules/auth/totp.ts`, `twoFactor.service.ts`):
   RFC 6238 TOTP (SHA-1, 30 s, 6 digits, ±1 step); the secret is sealed; each
   code works once (`totp_last_step`, row locked); 10 recovery codes stored

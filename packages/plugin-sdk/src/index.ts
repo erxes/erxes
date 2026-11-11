@@ -227,3 +227,38 @@ export const verifyCoreCall = async (token: string, options: { coreUrl: string; 
     stepId: payload.step as string,
   };
 };
+
+/** A member signed into a plugin's own app with "Sign in with erxes". */
+export interface ErxesSignIn extends PluginMember {
+  scope: string[];
+}
+
+/**
+ * Verifies an access token from "Sign in with erxes" (OAuth 2.1, PKCE) for the
+ * plugin's own app: issued by core, for this client (the plugin), unexpired.
+ * Discovery: `<coreUrl>/core/v1/.well-known/openid-configuration`.
+ */
+export const verifyErxesAccessToken = async (token: string, options: { coreUrl: string; plugin: string }): Promise<ErxesSignIn> => {
+  const base = options.coreUrl.replace(/\/+$/, '');
+  let jwks = jwksByCore.get(base);
+
+  if (!jwks) {
+    jwks = createRemoteJWKSet(new URL(`${base}${CORE_API_PREFIX}/.well-known/jwks.json`));
+    jwksByCore.set(base, jwks);
+  }
+
+  const { payload } = await jwtVerify(token, jwks, { issuer: 'erxes-core', audience: options.plugin, typ: 'at+jwt', algorithms: ['ES256'] });
+  const permissions = Array.isArray(payload.permissions) ? payload.permissions.filter((item): item is string => typeof item === 'string') : [];
+  const role = typeof payload.role === 'string' ? payload.role : 'member';
+
+  if (!payload.sub || typeof payload.org !== 'string') throw new Error('not an erxes access token');
+
+  return {
+    userId: payload.sub,
+    orgId: payload.org,
+    role,
+    permissions,
+    can: (action: string) => role === 'owner' || permissions.includes(action),
+    scope: typeof payload.scope === 'string' ? payload.scope.split(' ') : [],
+  };
+};

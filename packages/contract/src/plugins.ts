@@ -58,6 +58,19 @@ export const PluginManifest = z.object({
     .optional(),
   /** The plugin API's public address: plugin UIs call it with a session token. */
   api: z.object({ url: HttpsUrl }).optional(),
+  /**
+   * "Sign in with erxes" for the plugin's own app (OAuth 2.1 + PKCE): the
+   * exact addresses codes may be sent to; `{subdomain}` stands for the
+   * organisation's (`https://{subdomain}.hr.erxes.io/auth/callback`).
+   */
+  oauth: z
+    .object({
+      redirectUris: z
+        .array(z.string().trim().max(500).regex(/^https?:\/\/[^\s#]+$/, 'an http(s) address without a fragment'))
+        .min(1)
+        .max(20),
+    })
+    .optional(),
   scopes: z.array(PluginScope).max(PLUGIN_SCOPES.length).default([]),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z
