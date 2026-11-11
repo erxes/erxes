@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { Collection, Db, MongoClient } from 'mongodb';
-import { getTargetDbs } from '../../core/commands/_organizationDbs';
+import { getTargetDbBatches } from './_organizationDbs';
 
 dotenv.config();
 
@@ -10,14 +10,22 @@ const {
   DRY_RUN,
   ALL_ORGS,
   TARGET_SUBDOMAIN,
+  ORG_BATCH_SIZE = '50',
+  BATCH_SIZE = '1000',
+  BATCH_PAUSE_MS = '1000',
 } = process.env;
 
 const isDryRun = DRY_RUN !== '0' && DRY_RUN !== 'false';
+const orgBatchSize = Math.max(1, Number(ORG_BATCH_SIZE) || 50);
+const batchSize = Math.max(1, Number(BATCH_SIZE) || 1000);
+const batchPauseMs = Math.max(0, Number(BATCH_PAUSE_MS) || 0);
 
 const EPOCH = new Date(0);
 const DATE_FIELDS = ['startDate', 'closeDate'] as const;
 
 const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
+
+const pause = () => new Promise((resolve) => setTimeout(resolve, batchPauseMs));
 
 const migrateField = async (
   deals: Collection,
@@ -30,8 +38,33 @@ const migrateField = async (
     return `[DRY RUN] ${field}: ${count} deals hold 1970-01-01`;
   }
 
-  const result = await deals.updateMany(filter, { $unset: { [field]: '' } });
-  return `[DONE] ${field}: matched=${result.matchedCount} modified=${result.modifiedCount}`;
+  let matched = 0;
+  let modified = 0;
+
+  while (true) {
+    const batch = await deals
+      .find(filter, { projection: { _id: 1 } })
+      .limit(batchSize)
+      .toArray();
+
+    if (!batch.length) {
+      break;
+    }
+
+    const result = await deals.updateMany(
+      { ...filter, _id: { $in: batch.map((deal) => deal._id) } },
+      { $unset: { [field]: '' } },
+    );
+
+    matched += result.matchedCount;
+    modified += result.modifiedCount;
+
+    if (!result.modifiedCount) {
+      break;
+    }
+  }
+
+  return `[DONE] ${field}: matched=${matched} modified=${modified}`;
 };
 
 const migrateDb = async (db: Db) => {
@@ -73,17 +106,28 @@ const command = async () => {
   );
 
   const failed: string[] = [];
+  let batchCount = 0;
 
-  for (const { label, db } of await getTargetDbs(client)) {
-    console.log(`\n== ${label}`);
+  for await (const targets of getTargetDbBatches(client, orgBatchSize)) {
+    if (batchCount && batchPauseMs) {
+      await pause();
+    }
 
-    try {
-      await migrateDb(db);
-    } catch (error) {
-      failed.push(label);
-      console.error(
-        `[FAILED] ${label}: ${error instanceof Error ? error.message : error}`,
-      );
+    batchCount += 1;
+
+    for (const { label, db } of targets) {
+      console.log(`\n== ${label}`);
+
+      try {
+        await migrateDb(db);
+      } catch (error) {
+        failed.push(label);
+        console.error(
+          `[FAILED] ${label}: ${
+            error instanceof Error ? error.message : error
+          }`,
+        );
+      }
     }
   }
 

@@ -107,7 +107,12 @@ fields read as unset; a deal whose `closeDate` was unset this way then matches
 the "no close date" filter. Every other date is left untouched, and a date
 stored as a string or an array holding that value is not matched; it is safe
 to run again. It only counts unless `DRY_RUN=0` (or `false`) is set, so a run
-without `DRY_RUN` is a dry run too. It picks databases like the command above:
+without `DRY_RUN` is a dry run too. It picks databases like the command above
+(set `ALL_ORGS` or `TARGET_SUBDOMAIN`, not both) through its own
+`sales/commands/_organizationDbs.ts`. Organizations are read `ORG_BATCH_SIZE`
+(default 50) at a time with a `BATCH_PAUSE_MS` (default 1000) pause between
+batches, and each date field is unset `BATCH_SIZE` (default 1000) deals at a
+time:
 
 ```bash
 # SaaS, one organization (CORE_MONGO_URL || MONGO_URL = core database)
