@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
-import { defineConfig } from 'vite-plus';
+import { configDefaults, defineConfig } from 'vite-plus';
 import type { OxlintOverride } from 'vite-plus/lint';
+import type { Reporter, Vitest } from 'vite-plus/test/node';
 
 // Procedures are built from the contract in one place, so every route goes
 // through the same context and access checks.
@@ -85,6 +86,67 @@ const serverOnly = {
     'node:*',
   ],
   message: 'Browser code calls core through the contract client, never the database or Node.',
+};
+
+/**
+ * A skipped test passes in Vitest, so this reporter fails the run on any
+ * skipped, pending or todo test or suite (`.skip`, `skipIf`, `ctx.skip()`,
+ * `.todo`), and on a project whose files all ran without a test. A run
+ * filtered with `-t` skips what it doesn't match, so only the project rule
+ * applies then; a run of some files never checks the other projects.
+ */
+const noSkips = (): Reporter => {
+  let vitest: Vitest | undefined;
+
+  return {
+    onInit(ctx) {
+      vitest = ctx;
+    },
+    async onTestRunEnd(modules) {
+      if (!vitest) return;
+
+      const problems: string[] = [];
+
+      if (!vitest.config.testNamePattern) {
+        for (const module of modules) {
+          for (const suite of module.children.allSuites()) {
+            const state = suite.state();
+
+            if (state === 'skipped' || state === 'pending') {
+              problems.push(`${state} suite: ${suite.fullName} (${module.relativeModuleId})`);
+            }
+          }
+
+          for (const test of module.children.allTests()) {
+            const { state } = test.result();
+
+            if (state === 'skipped' || state === 'pending') {
+              problems.push(`${state} test: ${test.fullName} (${module.relativeModuleId})`);
+            }
+          }
+        }
+      }
+
+      for (const project of vitest.projects) {
+        const ran = modules.filter((module) => module.project.name === project.name);
+        const { testFiles } = await project.globTestFiles();
+
+        const tests = ran.flatMap((module) => [...module.children.allTests()]);
+
+        if (
+          ran.length === testFiles.length &&
+          !tests.some((test) => test.result().state !== 'skipped')
+        ) {
+          problems.push(`project ${project.name} ran no tests`);
+        }
+      }
+
+      if (problems.length) {
+        process.exitCode = 1;
+        vitest.logger.error(['Tests must run, not skip:', ...problems].join('\n  '));
+      }
+    },
+  };
 };
 
 export default defineConfig({
@@ -216,6 +278,7 @@ export default defineConfig({
     ],
   },
   test: {
+    reporters: [...configDefaults.reporters, noSkips()],
     projects: [
       {
         root: 'apps/core-api',

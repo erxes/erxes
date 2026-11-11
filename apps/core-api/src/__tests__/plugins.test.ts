@@ -2,13 +2,13 @@ import { db, newId, plugins, users } from '@erxes/core-db';
 import { createCoreClient, verifyPluginSession } from '@erxes/plugin-sdk';
 import { eq, sql } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
-import { describeWithDb, HR_SECRET, useTestDatabase, useTestServer } from './support';
+import { HR_SECRET, useTestDatabase, useTestServer } from './support';
 
-describeWithDb('plugin connection (registry, installations, tokens)', () => {
+describe('plugin connection (registry, installations, tokens)', () => {
   useTestDatabase();
 
   const server = useTestServer();

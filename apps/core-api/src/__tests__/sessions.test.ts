@@ -1,11 +1,11 @@
 import { db, newId, users } from '@erxes/core-db';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, sessionToken, useTestDatabase, useTestServer } from './support';
+import { sessionToken, useTestDatabase, useTestServer } from './support';
 
 /** Sessions end when they should: password change or reset, disable, sign out everywhere. */
-describeWithDb('session security', () => {
+describe('session security', () => {
   useTestDatabase();
 
   const server = useTestServer();

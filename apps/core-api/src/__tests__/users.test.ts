@@ -1,6 +1,6 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { accessToken, describeWithDb, useTestDatabase, useTestServer } from './support';
+import { accessToken, useTestDatabase, useTestServer } from './support';
 
 const firstId = (page: { data: { id: string }[] }) => {
   const [first] = page.data;
@@ -18,7 +18,7 @@ const activate = async (id: string, passwordHash?: string) => {
   await db().update(users).set({ status: 'active', passwordHash }).where(eq(users.id, id));
 };
 
-describeWithDb('team members (/core/v1/users)', () => {
+describe('team members (/core/v1/users)', () => {
   useTestDatabase();
 
   const server = useTestServer();

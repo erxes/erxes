@@ -1,9 +1,9 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase, useTestServer } from './support';
+import { useTestDatabase, useTestServer } from './support';
 
-describeWithDb('customers (/core/v1/customers)', () => {
+describe('customers (/core/v1/customers)', () => {
   useTestDatabase();
 
   const server = useTestServer();

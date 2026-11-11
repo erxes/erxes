@@ -1,8 +1,8 @@
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { config } from '~/config';
 import { subdomainFromName } from '~/modules/setup/setup.service';
-import { describeWithDb, useTestDatabase, useTestServer } from './support';
+import { useTestDatabase, useTestServer } from './support';
 
 const OpenApiDocument = z.object({ openapi: z.string(), paths: z.record(z.string(), z.unknown()) });
 
@@ -14,7 +14,7 @@ const owner = {
   password: 'Secret-pass1',
 };
 
-describeWithDb('first-run setup (/core/v1/setup)', () => {
+describe('first-run setup (/core/v1/setup)', () => {
   useTestDatabase();
 
   const server = useTestServer();

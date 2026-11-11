@@ -1,11 +1,11 @@
 import { LiveTimeline } from '@erxes/core-contract';
 import { db, newId, users } from '@erxes/core-db';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { startEventProcessor } from '~/modules/events/processor';
 import { liveHub } from '~/modules/live/hub';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, HR_SECRET, useTestDatabase, useTestServer } from './support';
+import { HR_SECRET, useTestDatabase, useTestServer } from './support';
 
 interface StreamEvent {
   event: string;
@@ -17,7 +17,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const timelineOf = (entry: StreamEvent) =>
   entry.event === 'timeline' ? LiveTimeline.safeParse(entry.data).data : undefined;
 
-describeWithDb('live updates (/core/v1/stream)', () => {
+describe('live updates (/core/v1/stream)', () => {
   const database = useTestDatabase();
   const server = useTestServer();
 

@@ -1,11 +1,11 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase, useTestServer } from './support';
+import { useTestDatabase, useTestServer } from './support';
 
 const ids = (page: { data: { id: string }[] }) => page.data.map((item) => item.id);
 
-describeWithDb('field groups, archiving and field settings', () => {
+describe('field groups, archiving and field settings', () => {
   useTestDatabase();
 
   const server = useTestServer();

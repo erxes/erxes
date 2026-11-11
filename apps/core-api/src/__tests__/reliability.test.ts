@@ -1,7 +1,7 @@
 import { auditCheckpoints, db, eventConsumers, events, newId, users } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { createLocalJWKSet, jwtVerify } from 'jose';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { publicJwks } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -15,7 +15,7 @@ import {
   runConsumer,
 } from '~/modules/events/processor';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase, useTestServer } from './support';
+import { useTestDatabase, useTestServer } from './support';
 
 /**
  * Runs a consumer until it has read every event: it only reads transactions
@@ -51,7 +51,7 @@ const due = () =>
  * Event delivery that survives failures (retries, dead events, manual retry),
  * event retention, and signed audit checkpoints.
  */
-describeWithDb('event failures, retention and audit checkpoints', () => {
+describe('event failures, retention and audit checkpoints', () => {
   useTestDatabase();
 
   const server = useTestServer();

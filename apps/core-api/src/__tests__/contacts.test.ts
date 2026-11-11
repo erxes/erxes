@@ -2,9 +2,9 @@ import type { ContentType } from '@erxes/core-contract';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase, useTestServer } from './support';
+import { useTestDatabase, useTestServer } from './support';
 
-describeWithDb('tags, custom fields, companies and merge', () => {
+describe('tags, custom fields, companies and merge', () => {
   useTestDatabase();
 
   const server = useTestServer();

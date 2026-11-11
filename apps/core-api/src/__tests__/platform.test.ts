@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { accessToken, describeWithDb, HR_SECRET, useTestDatabase, useTestServer } from './support';
+import { accessToken, HR_SECRET, useTestDatabase, useTestServer } from './support';
 
 /** The database's own message behind a Drizzle query error. */
 const dbError = (query: Promise<unknown>) =>
@@ -15,7 +15,7 @@ const dbError = (query: Promise<unknown>) =>
   );
 
 /** Files, notifications, the activity timeline and the audit log. */
-describeWithDb('platform services', () => {
+describe('platform services', () => {
   useTestDatabase();
 
   const server = useTestServer();

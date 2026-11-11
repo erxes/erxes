@@ -1,13 +1,13 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase, useTestServer } from './support';
+import { useTestDatabase, useTestServer } from './support';
 
 const names = (page: {
   data: { firstName?: string | null; primaryName?: string | null; email?: string }[];
 }) => page.data.map((row) => row.firstName ?? row.primaryName ?? row.email ?? '').toSorted();
 
-describeWithDb('list filters (search, tags, owner)', () => {
+describe('list filters (search, tags, owner)', () => {
   useTestDatabase();
 
   const server = useTestServer();

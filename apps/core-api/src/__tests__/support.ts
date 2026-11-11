@@ -7,17 +7,27 @@ import { randomBytes } from 'node:crypto';
 import { once } from 'node:events';
 import type { Server } from 'node:http';
 import { Client } from 'pg';
-import { afterAll, beforeAll, describe } from 'vite-plus/test';
+import { afterAll, beforeAll } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { SESSION_COOKIE } from '~/http/cookies';
 import { sessionVersionOf } from '~/modules/auth/account.service';
 import { syncPluginSecrets } from '~/modules/plugins/plugins.service';
 
-const baseUrl = process.env.DATA_TEST_URL ?? '';
+const baseUrl = process.env.DATA_TEST_URL;
 
-/** Runs the suite only when DATA_TEST_URL points at a Postgres (CI sets it). */
-export const describeWithDb = baseUrl ? describe : describe.skip;
+// The API tests run against a real Postgres and never skip.
+if (!baseUrl) {
+  throw new Error(
+    [
+      'DATA_TEST_URL is not set. The core-api tests need a Postgres where they may create and drop databases.',
+      'Local: docker compose up -d, then',
+      '  DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes pnpm test',
+    ].join('\n'),
+  );
+}
+
+const testDbName = new URL(baseUrl).pathname.slice(1) || 'erxes';
 
 const admin = async (statement: string) => {
   const client = new Client({ connectionString: baseUrl });
@@ -33,14 +43,15 @@ const admin = async (statement: string) => {
 
 /**
  * A throwaway database for this test file, migrated from packages/db/drizzle.
+ * Named after DATA_TEST_URL's database (`erxes_core_test_1a2b3c4d`), so it is clear whose it is.
  * `url()` is its address once the suite started.
  */
 export const useTestDatabase = () => {
-  const name = `core_test_${randomBytes(4).toString('hex')}`;
+  const name = `${testDbName}_${randomBytes(4).toString('hex')}`;
   let address = '';
 
   beforeAll(async () => {
-    await admin(`CREATE DATABASE ${name}`);
+    await admin(`CREATE DATABASE "${name}"`);
 
     const url = new URL(baseUrl);
     url.pathname = `/${name}`;
@@ -54,7 +65,7 @@ export const useTestDatabase = () => {
 
   afterAll(async () => {
     await closeDb();
-    await admin(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
+    await admin(`DROP DATABASE IF EXISTS "${name}" WITH (FORCE)`);
   });
 
   return { url: () => address };
