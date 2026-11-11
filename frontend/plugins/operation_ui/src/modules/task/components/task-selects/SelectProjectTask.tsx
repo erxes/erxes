@@ -24,7 +24,8 @@ import {
   Button,
 } from 'erxes-ui';
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useProjectDetailSheet } from '@/project/hooks/useProjectDetailSheet';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
 
@@ -77,8 +78,7 @@ export const SelectProjectProvider = ({
 
 const SelectProjectValue = () => {
   const { projects, value, variant } = useSelectProjectContext();
-  const { teamId } = useParams();
-  const navigate = useNavigate();
+  const [, setActiveProject] = useProjectDetailSheet();
 
   const name = projects.find((p) => p._id === value)?.name;
 
@@ -90,10 +90,7 @@ const SelectProjectValue = () => {
   const handleNavigateToProject = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (value) {
-      const basePath = teamId
-        ? `/operation/team/${teamId}/projects/${value}/overview`
-        : `/operation/projects/${value}/overview`;
-      navigate(basePath);
+      setActiveProject(value, { stack: true });
     }
   };
 
