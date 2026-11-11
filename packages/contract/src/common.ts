@@ -83,3 +83,16 @@ export const PhoneNumber = z
 
 /** Optional text input: trimmed, `null` clears it. */
 export const text = (max: number) => z.string().trim().max(max).nullable().optional();
+
+/**
+ * A picture's address: a full `http(s)` URL, or a file in core's file service
+ * (`/core/v1/files/<id>/download`, as uploads return).
+ */
+export const ImageAddress = z
+  .string()
+  .trim()
+  .max(1000)
+  .refine(
+    (value) => /^https?:\/\/\S+$/.test(value) || /^\/core\/v1\/files\/[A-Za-z0-9]+\/download$/.test(value),
+    'a URL or an uploaded file',
+  );

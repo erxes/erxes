@@ -522,6 +522,65 @@ describeWithDb('platform services', () => {
     });
   });
 
+  describe('own account', () => {
+    it('changes my password only with the current one, and lists my sign-ins', async () => {
+      const { db, users } = await import('@erxes/core-db');
+      const { eq } = await import('drizzle-orm');
+      const { hashPassword } = await import('~/modules/auth/password');
+
+      await db()
+        .update(users)
+        .set({ passwordHash: await hashPassword('Owner-pass-123') })
+        .where(eq(users.id, ownerId));
+
+      const wrong = await call(ownerToken, '/auth/password', {
+        method: 'POST',
+        body: { currentPassword: 'nope', newPassword: 'Owner-pass-456' },
+      });
+      const same = await call(ownerToken, '/auth/password', {
+        method: 'POST',
+        body: { currentPassword: 'Owner-pass-123', newPassword: 'Owner-pass-123' },
+      });
+      const changed = await call(ownerToken, '/auth/password', {
+        method: 'POST',
+        body: { currentPassword: 'Owner-pass-123', newPassword: 'Owner-pass-456' },
+      });
+
+      expect(wrong.body.code).toBe('WRONG_PASSWORD');
+      expect(same.body.code).toBe('SAME_PASSWORD');
+      expect(changed.status).toBe(200);
+
+      // A failed and a successful sign-in show up in my list, not in others'.
+      await fetch(`${base}/core/v1/auth/sign-in`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: 'owner@acme.mn', password: 'Owner-pass-123', subdomain: 'acme' }),
+      });
+      await fetch(`${base}/core/v1/auth/sign-in`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: 'owner@acme.mn', password: 'Owner-pass-456', subdomain: 'acme' }),
+      });
+
+      const mine = await call(ownerToken, '/auth/sign-ins');
+
+      expect(mine.body.data.map((entry: { success: boolean }) => entry.success).slice(0, 2)).toEqual([true, false]);
+      expect((await call(memberToken, '/auth/sign-ins')).body.data).toHaveLength(0);
+    });
+
+    it('lets a member edit their own profile, not their role', async () => {
+      const saved = await call(memberToken, `/users/${memberId}`, {
+        method: 'PATCH',
+        body: { firstName: 'Bold', lastName: 'Bat', links: { github: 'https://github.com/bold' } },
+      });
+
+      expect(saved.body).toMatchObject({ firstName: 'Bold', lastName: 'Bat', links: { github: 'https://github.com/bold' } });
+      expect((await call(memberToken, `/users/${memberId}`, { method: 'PATCH', body: { role: 'admin' } })).body.code).toBe(
+        'OWN_ROLE',
+      );
+    });
+  });
+
   describe('audit log', () => {
     it('records who changed what, for owners and admins only', async () => {
       const customer = await call(ownerToken, '/customers', { method: 'POST', body: { firstName: 'Audited', primaryEmail: 'audited@mail.mn' } });

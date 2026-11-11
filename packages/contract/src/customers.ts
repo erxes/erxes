@@ -10,6 +10,7 @@ import {
   PhoneNumber,
   cursorPageOf,
   text,
+  ImageAddress,
 } from './common';
 
 /** `lead`: not a customer yet (e.g. a form submission). */
@@ -56,7 +57,7 @@ const CustomerFields = z.object({
   firstName: text(100),
   middleName: text(100),
   lastName: text(100),
-  avatarUrl: z.string().url().max(1000).nullable().optional(),
+  avatarUrl: ImageAddress.nullable().optional(),
   primaryEmail: EmailAddress.nullable().optional(),
   emails: z.array(EmailAddress).max(20).optional(),
   primaryPhone: PhoneNumber.nullable().optional(),

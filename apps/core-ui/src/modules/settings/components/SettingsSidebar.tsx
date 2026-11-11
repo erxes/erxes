@@ -5,6 +5,7 @@ import {
   IconHierarchy2,
   IconShieldCheck,
   IconTag,
+  IconUserCircle,
   IconUsersGroup,
   type Icon,
 } from '@tabler/icons-react';
@@ -96,7 +97,10 @@ export function SettingsExitButton() {
 const useSettingsAccountPaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
-  return [{ name: t('notifications', 'Notifications'), path: 'notifications', icon: IconBellCog }];
+  return [
+    { name: t('profile', 'Profile'), path: 'profile', icon: IconUserCircle },
+    { name: t('notifications', 'Notifications'), path: 'notifications', icon: IconBellCog },
+  ];
 };
 
 /** Old core-ui `SettingsSidebar`: exit, then the workspace settings core has. */

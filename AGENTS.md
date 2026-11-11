@@ -132,6 +132,11 @@ it is built.
   transaction as the change (`recordAudit`); Settings › Audit log for owners
   and admins. Hourly cleanup prunes old entries, unfinished uploads and old
   read notifications (`src/lib/maintenance.ts`).
+- Profile (Settings › Account › Profile, `/settings/profile`): the member's own
+  picture (core file service), names, contact details, about and links through
+  `users.update` on themselves; `POST /auth/password` changes their password with
+  the current one; `GET /auth/sign-ins` lists their sign-ins from the audit log.
+  Avatars accept a URL or a core file address (`ImageAddress`).
 - Core UI: setup and sign-in (old core-ui look); Contacts (Customers, Leads,
   Companies) on RecordTable with inline editing, tag and custom field columns,
   filters, bulk tag / merge / delete, a detail side panel (`?customerId=`,

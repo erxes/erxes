@@ -10,6 +10,7 @@ import {
   PhoneNumber,
   cursorPageOf,
   text,
+  ImageAddress,
 } from './common';
 
 /** An organisation the organisation works with; shared by every plugin. */
@@ -41,7 +42,7 @@ export type Company = z.infer<typeof Company>;
 const CompanyFields = z.object({
   primaryName: z.string().trim().min(1).max(200).optional(),
   names: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
-  avatarUrl: z.string().url().max(1000).nullable().optional(),
+  avatarUrl: ImageAddress.nullable().optional(),
   primaryEmail: EmailAddress.nullable().optional(),
   emails: z.array(EmailAddress).max(20).optional(),
   primaryPhone: PhoneNumber.nullable().optional(),

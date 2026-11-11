@@ -120,8 +120,7 @@ export const CoreTabUserMenu = () => {
       </CoreTabTooltip>
       <DropdownMenu.Content align="end" className="w-56 min-w-56! space-y-1 p-1.5" side="bottom" sideOffset={8}>
         <DropdownMenu.Item asChild className="p-2">
-          {/* No separate profile page in the new core: your own team member page. */}
-          <Link to={`/settings/team-members/${user.id}`}>
+          <Link to="/settings/profile">
             <UserIdentity />
             <IconChevronRight className="text-muted-foreground" />
           </Link>

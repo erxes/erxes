@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { CursorQuery, Id, IdList, PhoneNumber, cursorPageOf, text } from './common';
+import { CursorQuery, Id, IdList, PhoneNumber, cursorPageOf, text, ImageAddress } from './common';
 
 export const UserRole = z.enum(['owner', 'admin', 'member']);
 export const UserStatus = z.enum(['invited', 'active', 'disabled']);
@@ -139,7 +139,7 @@ export const usersContract = {
           ...NameFields,
           ...DetailFields,
           email: z.string().trim().email().max(254).optional(),
-          avatarUrl: z.string().url().max(1000).nullable().optional(),
+          avatarUrl: ImageAddress.nullable().optional(),
           role: UserRole.optional(),
         })
         .refine(changes, 'nothing to update'),

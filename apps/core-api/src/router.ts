@@ -7,6 +7,7 @@ import { type Actor, actorOf, callerOf, pluginCaller, pluginOf, signAccessToken,
 import { createPluginActivity, listActivities } from '~/modules/activities/activities.service';
 import { type AuditInput, listAudit, recordAudit } from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
+import { changeOwnPassword, mySignIns } from '~/modules/auth/account.service';
 import { getSession, signIn } from '~/modules/auth/auth.service';
 import {
   createCompany,
@@ -198,6 +199,8 @@ export const coreRouter = pub.router({
       return { ok: true as const };
     }),
     me: authed.auth.me.handler(({ context }) => getSession(context.actor.orgId, context.actor.userId)),
+    changePassword: authed.auth.changePassword.handler(({ input, context }) => changeOwnPassword(context.actor, input)),
+    signIns: authed.auth.signIns.handler(({ context }) => mySignIns(context.actor)),
   },
   organizations: {
     current: authed.organizations.current.handler(async ({ context }) =>

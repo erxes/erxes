@@ -18,7 +18,8 @@ export const UserAvatar = ({
   className?: string;
 }) => (
   <Avatar className={cn('size-7 rounded-md', className)}>
-    {src && /^https?:\/\//.test(src) && <Avatar.Image src={src} alt="" />}
+    {/* Full URLs and core file addresses (`/core/v1/files/<id>/download`). */}
+    {src && /^(https?:\/\/|\/core\/)/.test(src) && <Avatar.Image src={src} alt="" />}
     <Avatar.Fallback className="rounded-md text-xs">{initials(name)}</Avatar.Fallback>
   </Avatar>
 );
