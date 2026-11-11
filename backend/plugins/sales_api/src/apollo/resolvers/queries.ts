@@ -13,6 +13,7 @@ import {
   Pos as QueriesPos,
   PosCovers as QueriesPosCovers,
   PosOrders as QueriesPosOrders,
+  PosPapa as QueriesPosPapa,
 } from '@/pos/graphql/resolvers/queries';
 
 export const queries = {
@@ -26,6 +27,7 @@ export const queries = {
   ...QueriesPos,
   ...QueriesPosOrders,
   ...QueriesPosCovers,
+  ...QueriesPosPapa,
   ...addressQueries,
   ...lastViewedItemQueries,
   ...productReviewQueries,
