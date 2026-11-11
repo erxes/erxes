@@ -145,12 +145,13 @@ organization's owner restored from `users_held` (or the active user with the
 same `_id` or email); the new organization is added to that user's
 `organizationIds`. Stripe is not touched (`billing.status: 'none'`,
 `gpStatus: 'new'`). An active `organization_plan_histories` record is added
-for `APPSUMO_BUNDLE_ID` / `APPSUMO_PRODUCT_ID` (defaults: the free bundle
-`68dd0283563460fd84f7c85b` / `68dd033b563460fd84f7c91a`, monthly, one month
-from now) unless the organization already has one. Plugins of a `gpStatus:
+for the bundle and product found by code (`APPSUMO_BUNDLE_CODE`, default
+`everything`; `APPSUMO_PRODUCT_CODE`, default `erxes-everything`); `APPSUMO_PLAN_INTERVAL`,
+default `yearly`, ending `APPSUMO_PLAN_MONTHS` months from now, default 120) unless the organization already has one. Plugins of a `gpStatus:
 'new'` organization come from Stripe, so when `GP2_STRIPE_SECRET_KEY` is set a
-Stripe customer is created with `free_plugins` = the plugins the bundle's
-`pluginLimits` allow (`APPSUMO_FREE_PLUGINS=<plugin,…>` overrides) and stored in
+Stripe customer is created with `free_plugins` = `APPSUMO_FREE_PLUGINS` (default:
+every plugin, as Everything grants; when it is set empty the bundle's
+`pluginLimits` are used instead) and stored in
 `gpStripeCustomerId` / `billing.customerId`; without the key the organization is
 created but gets no plugins, and the run says so. A target subdomain that already carries the same
 `migration.sourceOrganizationId` is reused; one that belongs to another

@@ -11,9 +11,11 @@ const {
   TARGET_SUBDOMAIN,
   APPSUMO_OWNER_ID,
   APPSUMO_RUN_ID,
-  APPSUMO_BUNDLE_ID = '68dd0283563460fd84f7c85b',
-  APPSUMO_PRODUCT_ID = '68dd033b563460fd84f7c91a',
-  APPSUMO_FREE_PLUGINS,
+  APPSUMO_BUNDLE_CODE = 'everything',
+  APPSUMO_PRODUCT_CODE = 'erxes-everything',
+  APPSUMO_FREE_PLUGINS = 'frontline,sales,operation,content,loyalty,payment,accounting,tourism,posclient,mongolian,erxes-agent,insurance',
+  APPSUMO_PLAN_INTERVAL = 'yearly',
+  APPSUMO_PLAN_MONTHS = '120',
   GP2_STRIPE_SECRET_KEY,
   DRY_RUN,
 } = process.env;
@@ -107,12 +109,63 @@ async function resolveOwner(
   return null;
 }
 
+type Plan = { bundleId: string; productId: string; bundle: CoreDocument };
+
+let resolvedPlan: Plan | undefined;
+
+async function resolvePlan(coreDb: Db): Promise<Plan> {
+  if (resolvedPlan) {
+    return resolvedPlan;
+  }
+
+  const bundle = await coreDb
+    .collection<CoreDocument>('bundles')
+    .findOne({ code: APPSUMO_BUNDLE_CODE });
+  const product = await coreDb
+    .collection<CoreDocument>('products')
+    .findOne({ code: APPSUMO_PRODUCT_CODE });
+
+  if (!bundle) {
+    throw new Error(
+      `Bundle with code "${APPSUMO_BUNDLE_CODE}" not found in ${coreDb.databaseName}.bundles`,
+    );
+  }
+
+  if (!product) {
+    throw new Error(
+      `Product with code "${APPSUMO_PRODUCT_CODE}" not found in ${coreDb.databaseName}.products`,
+    );
+  }
+
+  for (const [kind, doc] of [
+    ['Bundle', bundle],
+    ['Product', product],
+  ] as const) {
+    if (doc.status && doc.status !== 'active') {
+      console.warn(`${kind} "${doc.code}" has status ${doc.status}`);
+    }
+  }
+
+  resolvedPlan = {
+    bundleId: idString(bundle._id),
+    productId: idString(product._id),
+    bundle,
+  };
+
+  console.log(
+    `Plan: bundle "${bundle.title}" (${resolvedPlan.bundleId}), product "${product.title}" (${resolvedPlan.productId})`,
+  );
+
+  return resolvedPlan;
+}
+
 function buildOrganization(
   held: CoreDocument | null,
   sourceId: string,
   newId: ObjectId,
   owner: Owner,
   runId: string,
+  plan: Plan,
 ): CoreDocument {
   const now = new Date();
 
@@ -135,8 +188,8 @@ function buildOrganization(
     gpOwnerEmail: owner.email,
     gpStatus: 'new',
     isNext: true,
-    bundleId: APPSUMO_BUNDLE_ID,
-    productId: APPSUMO_PRODUCT_ID,
+    bundleId: plan.bundleId,
+    productId: plan.productId,
     onboardingDone: true,
     saas: { organizationId: String(newId), provisionedAt: now },
     migration: {
@@ -159,15 +212,7 @@ async function freePlugins(coreDb: Db): Promise<string[]> {
       .filter(Boolean);
   }
 
-  const bundle = await coreDb
-    .collection<CoreDocument>('bundles')
-    .findOne({ _id: { $in: idVariants(APPSUMO_BUNDLE_ID) } });
-
-  if (!bundle) {
-    throw new Error(
-      `Bundle ${APPSUMO_BUNDLE_ID} not found in ${coreDb.databaseName}.bundles; set APPSUMO_FREE_PLUGINS=<plugin,plugin,…> instead`,
-    );
-  }
+  const { bundle } = await resolvePlan(coreDb);
 
   const limits: Record<string, number> = bundle.pluginLimits || {};
   const plugins = new Set<string>();
@@ -276,6 +321,7 @@ async function ensureStripeCustomer(
 }
 
 async function ensurePlanHistory(coreDb: Db, organizationId: string) {
+  const plan = await resolvePlan(coreDb);
   const histories = coreDb.collection('organization_plan_histories');
   const active = await histories.countDocuments({
     organizationId,
@@ -289,7 +335,7 @@ async function ensurePlanHistory(coreDb: Db, organizationId: string) {
 
   const now = new Date();
   const endsAt = new Date(now);
-  endsAt.setMonth(endsAt.getMonth() + 1);
+  endsAt.setMonth(endsAt.getMonth() + Number(APPSUMO_PLAN_MONTHS));
 
   if (!isDryRun) {
     await histories.insertOne({
@@ -297,9 +343,9 @@ async function ensurePlanHistory(coreDb: Db, organizationId: string) {
       source: 'onboarding',
       status: 'active',
       isNext: true,
-      productId: APPSUMO_PRODUCT_ID,
-      bundleId: APPSUMO_BUNDLE_ID,
-      interval: 'monthly',
+      productId: plan.productId,
+      bundleId: plan.bundleId,
+      interval: APPSUMO_PLAN_INTERVAL,
       pluginsLimitsSnapshot: {},
       startsAt: now,
       endsAt,
@@ -310,7 +356,7 @@ async function ensurePlanHistory(coreDb: Db, organizationId: string) {
   }
 
   console.log(
-    `Plan history: bundle ${APPSUMO_BUNDLE_ID}, product ${APPSUMO_PRODUCT_ID}, monthly until ${endsAt.toISOString()}`,
+    `Plan history: ${APPSUMO_PLAN_INTERVAL} until ${endsAt.toISOString()}`,
   );
 }
 
@@ -401,7 +447,14 @@ async function main() {
       );
     }
 
-    const doc = buildOrganization(held, sourceId, newId, owner, runId);
+    const doc = buildOrganization(
+      held,
+      sourceId,
+      newId,
+      owner,
+      runId,
+      await resolvePlan(coreDb),
+    );
 
     if (!isDryRun) {
       await organizations.insertOne(doc);
