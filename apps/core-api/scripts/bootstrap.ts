@@ -10,9 +10,12 @@ import { signAccessToken } from '~/http/auth';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 
+const argv = process.argv.slice(2);
+
 const { values } = parseArgs({
-  // `pnpm bootstrap -- …` passes the `--` through
-  allowPositionals: true,
+  // `pnpm bootstrap -- …` passes the `--` through, and parseArgs reads
+  // everything after a `--` as positionals.
+  args: argv[0] === '--' ? argv.slice(1) : argv,
   options: {
     subdomain: { type: 'string' },
     name: { type: 'string' },
