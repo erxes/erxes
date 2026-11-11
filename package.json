@@ -14,7 +14,9 @@
     "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
     "check": "vp check && knip",
     "fix": "vp check --fix",
-    "prepare": "vp config --no-agent"
+    "prepare": "vp config --no-agent",
+    "openapi": "pnpm --filter @erxes/core-api openapi",
+    "check:generated": "tools/check-generated.sh"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

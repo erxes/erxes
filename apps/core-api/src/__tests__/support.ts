@@ -29,7 +29,8 @@ if (!baseUrl) {
 
 const testDbName = new URL(baseUrl).pathname.slice(1) || 'erxes';
 
-const admin = async (statement: string) => {
+/** Runs one statement on DATA_TEST_URL's database: CREATE or DROP DATABASE. */
+export const admin = async (statement: string) => {
   const client = new Client({ connectionString: baseUrl });
 
   await client.connect();

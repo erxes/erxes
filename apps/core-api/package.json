@@ -8,7 +8,8 @@
     "build": "tsup",
     "start": "node dist/main.js",
     "bootstrap": "tsx --env-file-if-exists=../../.env scripts/bootstrap.ts",
-    "plugin:secret": "tsx --env-file-if-exists=../../.env scripts/plugin-secret.ts"
+    "plugin:secret": "tsx --env-file-if-exists=../../.env scripts/plugin-secret.ts",
+    "openapi": "tsx scripts/openapi.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1166.0",
@@ -32,6 +33,7 @@
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/pg": "^8.11.10",
+    "drizzle-kit": "0.31.11",
     "pg": "^8.13.1",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2"
