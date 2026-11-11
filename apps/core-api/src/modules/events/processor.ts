@@ -253,27 +253,33 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
     return due.rows.length;
   });
 
-/** Runs every consumer until the stream is caught up, then due retries (tests, and each tick). */
+/**
+ * Runs every consumer until the stream is caught up (tests, and each tick).
+ * Consumers are independent (own cursor, own transactions): they run side by
+ * side, so a slow one doesn't hold up the timeline or notifications.
+ */
 export const processEvents = async () => {
-  let handled = 0;
+  const counts = await Promise.all(
+    CONSUMERS.map(async (consumer) => {
+      let handled = 0;
 
-  for (const consumer of CONSUMERS) {
-    for (let round = 0; round < 10; round += 1) {
-      if (!(await retryFailures(consumer))) break;
-    }
-  }
+      for (let round = 0; round < 10; round += 1) {
+        if (!(await retryFailures(consumer))) break;
+      }
 
-  for (const consumer of CONSUMERS) {
-    for (let round = 0; round < 50; round += 1) {
-      const count = await runConsumer(consumer);
+      for (let round = 0; round < 50; round += 1) {
+        const count = await runConsumer(consumer);
 
-      handled += count;
+        handled += count;
 
-      if (!count) break;
-    }
-  }
+        if (!count) break;
+      }
 
-  return handled;
+      return handled;
+    }),
+  );
+
+  return counts.reduce((sum, count) => sum + count, 0);
 };
 
 /**
@@ -315,9 +321,23 @@ export const startEventProcessor = () => {
       run();
     }
   }, 1000);
+  // An event is read only once every transaction older than it has finished
+  // (anywhere on the server): the run woken by its NOTIFY can be too early.
+  // Look again shortly after, instead of waiting for the safety poll.
+  const followUps = new Set<NodeJS.Timeout>();
   const onEvents = () => {
     last = Date.now();
     run();
+
+    for (const delay of [300, 1000, 3000, 8000]) {
+      const timer = setTimeout(() => {
+        followUps.delete(timer);
+        run();
+      }, delay);
+
+      timer.unref();
+      followUps.add(timer);
+    }
   };
 
   timer.unref();
@@ -327,6 +347,7 @@ export const startEventProcessor = () => {
   return async () => {
     stopped = true;
     clearInterval(timer);
+    followUps.forEach((followUp) => clearTimeout(followUp));
     liveHub.off('events', onEvents);
     await current;
   };
