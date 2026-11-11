@@ -41,7 +41,8 @@
   `mailCheckConnection` and reports whether inbound mail reaches this workspace,
   naming the tenant and the endpoint the worker delivers to.
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
-  ticket surface.
+  ticket surface. Ticket detail actions use a compact, accessible icon-only
+  trigger while retaining archive, subscription, and delete menu actions.
 - Forms UI: form builder, preview, and submissions.
 - Surveys UI: per-channel survey management inside channel settings (list, the
   step-based create/edit wizard, archive, remove), the results board and the
