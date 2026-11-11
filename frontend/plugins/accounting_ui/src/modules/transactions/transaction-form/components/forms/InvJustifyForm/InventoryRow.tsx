@@ -229,8 +229,16 @@ export const InventoryRow = ({
         </Table.Cell>
       </RecordTableHotKeyControl>
 
-      <Table.Cell>{currentRemainder.toLocaleString()}</Table.Cell>
-      <Table.Cell>{currentUnitCost.toLocaleString()}</Table.Cell>
+      <Table.Cell>
+        <RecordTableInlineCell>
+          {currentRemainder.toLocaleString()}
+        </RecordTableInlineCell>
+      </Table.Cell>
+      <Table.Cell>
+        <RecordTableInlineCell>
+          {currentUnitCost.toLocaleString()}
+        </RecordTableInlineCell>
+      </Table.Cell>
 
       <RecordTableHotKeyControl
         rowId={_id}
@@ -331,25 +339,23 @@ export const InventoryRow = ({
             enableOnFormTags
           >
             <Table.Cell>
-              <RecordTableInlineCell className="justify-center">
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Control>
-                        <SelectBranches.InlineCell
-                          mode="single"
-                          value={field.value ?? ''}
-                          onValueChange={field.onChange}
-                          scope={AccountingHotkeyScope.TransactionFormPage}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </RecordTableInlineCell>
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <SelectBranches.InlineCell
+                        mode="single"
+                        value={field.value ?? ''}
+                        onValueChange={field.onChange}
+                        scope={AccountingHotkeyScope.TransactionFormPage}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </Table.Cell>
           </RecordTableHotKeyControl>
           <RecordTableHotKeyControl
@@ -358,25 +364,23 @@ export const InventoryRow = ({
             enableOnFormTags
           >
             <Table.Cell>
-              <RecordTableInlineCell className="justify-center">
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Control>
-                        <SelectDepartments.InlineCell
-                          mode="single"
-                          value={field.value ?? ''}
-                          onValueChange={field.onChange}
-                          scope={AccountingHotkeyScope.TransactionFormPage}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </RecordTableInlineCell>
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <SelectDepartments.InlineCell
+                        mode="single"
+                        value={field.value ?? ''}
+                        onValueChange={field.onChange}
+                        scope={AccountingHotkeyScope.TransactionFormPage}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </Table.Cell>
           </RecordTableHotKeyControl>
         </>

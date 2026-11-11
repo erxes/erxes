@@ -208,36 +208,39 @@ export const FixedAssetRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetCategoryId`}
             render={({ field }) => (
-              <SelectFixedAssetCategory
-                selected={field.value || ''}
-                onSelect={(value) => {
-                  field.onChange(value || '');
-                  const category = fixedAssetCategories?.find(
-                    (item) => item._id === value,
-                  );
-                  if (!category) return;
-                  const path =
-                    `trDocs.${journalIndex}.details.${detailIndex}.followInfos` as const;
-                  form.setValue(
-                    path,
-                    {
-                      ...form.getValues(path),
-                      depreciationMethod:
-                        category.depreciationMethod || 'straightLine',
-                      annualDepreciationRate:
-                        category.defaultAnnualDepreciationRate ?? 0,
-                      salvageValue: category.defaultSalvageValue ?? 0,
-                      taxDepreciationMethod:
-                        category.taxDepreciationMethod || 'straightLine',
-                      taxAnnualDepreciationRate:
-                        category.defaultTaxAnnualDepreciationRate ?? 0,
-                      taxSalvageValue: category.defaultTaxSalvageValue ?? 0,
-                    },
-                    { shouldDirty: true },
-                  );
-                }}
-                className="h-8 min-w-56"
-              />
+              <Form.Item>
+                <SelectFixedAssetCategory
+                  selected={field.value || ''}
+                  onSelect={(value) => {
+                    field.onChange(value || '');
+                    const category = fixedAssetCategories?.find(
+                      (item) => item._id === value,
+                    );
+                    if (!category) return;
+                    const path =
+                      `trDocs.${journalIndex}.details.${detailIndex}.followInfos` as const;
+                    form.setValue(
+                      path,
+                      {
+                        ...form.getValues(path),
+                        depreciationMethod:
+                          category.depreciationMethod || 'straightLine',
+                        annualDepreciationRate:
+                          category.defaultAnnualDepreciationRate ?? 0,
+                        salvageValue: category.defaultSalvageValue ?? 0,
+                        taxDepreciationMethod:
+                          category.taxDepreciationMethod || 'straightLine',
+                        taxAnnualDepreciationRate:
+                          category.defaultTaxAnnualDepreciationRate ?? 0,
+                        taxSalvageValue: category.defaultTaxSalvageValue ?? 0,
+                      },
+                      { shouldDirty: true },
+                    );
+                  }}
+                  className="h-8 min-w-56"
+                />
+                <Form.Message />
+              </Form.Item>
             )}
           />
         </Table.Cell>
@@ -252,24 +255,27 @@ export const FixedAssetRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetCode`}
             render={({ field }) => (
-              <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetCode`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger className="min-w-36">
-                    {field.value || t('code')}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <Input
-                    value={field.value || ''}
-                    onChange={field.onChange}
-                    className="h-8 min-w-36"
-                    placeholder={t('code')}
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
+              <Form.Item>
+                <PopoverScoped
+                  scope={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetCode`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <RecordTableInlineCell.Trigger className="min-w-36">
+                      {field.value || t('code')}
+                    </RecordTableInlineCell.Trigger>
+                  </Form.Control>
+                  <RecordTableInlineCell.Content>
+                    <Input
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      className="min-w-36"
+                      placeholder={t('code')}
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
+                <Form.Message />
+              </Form.Item>
             )}
           />
         </Table.Cell>
@@ -284,24 +290,27 @@ export const FixedAssetRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetName`}
             render={({ field }) => (
-              <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetName`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger className="min-w-48">
-                    {field.value || t('name')}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <Input
-                    value={field.value || ''}
-                    onChange={field.onChange}
-                    className="h-8 min-w-48"
-                    placeholder={t('name')}
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
+              <Form.Item>
+                <PopoverScoped
+                  scope={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetName`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <RecordTableInlineCell.Trigger className="min-w-48">
+                      {field.value || t('name')}
+                    </RecordTableInlineCell.Trigger>
+                  </Form.Control>
+                  <RecordTableInlineCell.Content>
+                    <Input
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      className="min-w-48"
+                      placeholder={t('name')}
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
+                <Form.Message />
+              </Form.Item>
             )}
           />
         </Table.Cell>

@@ -105,18 +105,21 @@ export const FixedAssetRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetId`}
             render={({ field }) => (
-              <FixedAssetChooser
-                journal={trDoc.journal}
-                date={date}
-                multiple
-                value={field.value || ''}
-                branchId={branchId}
-                departmentId={departmentId}
-                excludeTransactionId={trDoc._id}
-                onChoose={(choices) => {
-                  applyFxaChoices(form, journalIndex, detailIndex, choices);
-                }}
-              />
+              <Form.Item>
+                <FixedAssetChooser
+                  journal={trDoc.journal}
+                  date={date}
+                  multiple
+                  value={field.value || ''}
+                  branchId={branchId}
+                  departmentId={departmentId}
+                  excludeTransactionId={trDoc._id}
+                  onChoose={(choices) => {
+                    applyFxaChoices(form, journalIndex, detailIndex, choices);
+                  }}
+                />
+                <Form.Message />
+              </Form.Item>
             )}
           />
         </Table.Cell>
@@ -131,18 +134,21 @@ export const FixedAssetRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.count`}
             render={({ field }) => (
-              <InputNumber
-                value={field.value ?? 0}
-                onChange={(value) => {
-                  const nextCount =
-                    maxCount === undefined
-                      ? value || 0
-                      : Math.min(value || 0, maxCount);
+              <Form.Item>
+                <InputNumber
+                  value={field.value ?? 0}
+                  onChange={(value) => {
+                    const nextCount =
+                      maxCount === undefined
+                        ? value || 0
+                        : Math.min(value || 0, maxCount);
 
-                  field.onChange(nextCount);
-                  setCostAmount(nextCount, detail.unitPrice);
-                }}
-              />
+                    field.onChange(nextCount);
+                    setCostAmount(nextCount, detail.unitPrice);
+                  }}
+                />
+                <Form.Message />
+              </Form.Item>
             )}
           />
         </Table.Cell>
@@ -157,7 +163,10 @@ export const FixedAssetRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
             render={({ field }) => (
-              <InputNumber value={field.value ?? 0} disabled />
+              <Form.Item>
+                <InputNumber value={field.value ?? 0} disabled />
+                <Form.Message />
+              </Form.Item>
             )}
           />
         </Table.Cell>

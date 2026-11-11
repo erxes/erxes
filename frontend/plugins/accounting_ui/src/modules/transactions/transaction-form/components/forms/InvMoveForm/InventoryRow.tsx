@@ -347,8 +347,16 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <Table.Cell>{(unitPrice ?? 0).toLocaleString()}</Table.Cell>
-      <Table.Cell>{(detail.amount ?? 0).toLocaleString()}</Table.Cell>
+      <Table.Cell>
+        <RecordTableInlineCell>
+          {(unitPrice ?? 0).toLocaleString()}
+        </RecordTableInlineCell>
+      </Table.Cell>
+      <Table.Cell>
+        <RecordTableInlineCell>
+          {(detail.amount ?? 0).toLocaleString()}
+        </RecordTableInlineCell>
+      </Table.Cell>
       {showAdvancedView && (
         <>
           <RecordTableHotKeyControl
@@ -357,25 +365,23 @@ export const InventoryRow = ({
             enableOnFormTags
           >
             <Table.Cell>
-              <RecordTableInlineCell className="justify-center">
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Control>
-                        <SelectBranches.InlineCell
-                          mode="single"
-                          value={field.value ?? ''}
-                          onValueChange={(branch) => field.onChange(branch)}
-                          scope={AccountingHotkeyScope.TransactionFormPage}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </RecordTableInlineCell>
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <SelectBranches.InlineCell
+                        mode="single"
+                        value={field.value ?? ''}
+                        onValueChange={(branch) => field.onChange(branch)}
+                        scope={AccountingHotkeyScope.TransactionFormPage}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </Table.Cell>
           </RecordTableHotKeyControl>
           <RecordTableHotKeyControl
@@ -384,27 +390,25 @@ export const InventoryRow = ({
             enableOnFormTags
           >
             <Table.Cell>
-              <RecordTableInlineCell className="justify-center">
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Control>
-                        <SelectDepartments.InlineCell
-                          mode="single"
-                          value={field.value ?? ''}
-                          onValueChange={(department) =>
-                            field.onChange(department)
-                          }
-                          scope={AccountingHotkeyScope.TransactionFormPage}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </RecordTableInlineCell>
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <SelectDepartments.InlineCell
+                        mode="single"
+                        value={field.value ?? ''}
+                        onValueChange={(department) =>
+                          field.onChange(department)
+                        }
+                        scope={AccountingHotkeyScope.TransactionFormPage}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </Table.Cell>
           </RecordTableHotKeyControl>
           <RecordTableHotKeyControl
@@ -413,25 +417,23 @@ export const InventoryRow = ({
             enableOnFormTags
           >
             <Table.Cell>
-              <RecordTableInlineCell className="justify-center">
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.moveInBranchId`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Control>
-                        <SelectBranches.InlineCell
-                          mode="single"
-                          value={field.value ?? moveInDetail?.branchId ?? ''}
-                          onValueChange={(branch) => field.onChange(branch)}
-                          scope={AccountingHotkeyScope.TransactionFormPage}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </RecordTableInlineCell>
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.moveInBranchId`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <SelectBranches.InlineCell
+                        mode="single"
+                        value={field.value ?? moveInDetail?.branchId ?? ''}
+                        onValueChange={(branch) => field.onChange(branch)}
+                        scope={AccountingHotkeyScope.TransactionFormPage}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </Table.Cell>
           </RecordTableHotKeyControl>
           <RecordTableHotKeyControl
@@ -440,29 +442,25 @@ export const InventoryRow = ({
             enableOnFormTags
           >
             <Table.Cell>
-              <RecordTableInlineCell className="justify-center">
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.moveInDepartmentId`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Control>
-                        <SelectDepartments.InlineCell
-                          mode="single"
-                          value={
-                            field.value ?? moveInDetail?.departmentId ?? ''
-                          }
-                          onValueChange={(department) =>
-                            field.onChange(department)
-                          }
-                          scope={AccountingHotkeyScope.TransactionFormPage}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </RecordTableInlineCell>
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.moveInDepartmentId`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Control>
+                      <SelectDepartments.InlineCell
+                        mode="single"
+                        value={field.value ?? moveInDetail?.departmentId ?? ''}
+                        onValueChange={(department) =>
+                          field.onChange(department)
+                        }
+                        scope={AccountingHotkeyScope.TransactionFormPage}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </Table.Cell>
           </RecordTableHotKeyControl>
         </>

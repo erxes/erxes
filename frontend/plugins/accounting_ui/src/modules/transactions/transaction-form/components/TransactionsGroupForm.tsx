@@ -80,7 +80,7 @@ const FormFields = memo(
                 <DatePicker
                   value={field.value}
                   onChange={field.onChange}
-                  className="h-8 flex w-full"
+                  className="flex w-full"
                 />
               </Form.Control>
             </Form.Item>
@@ -127,7 +127,7 @@ const FormFields = memo(
                     );
                   }}
                 >
-                  <Select.Trigger className="h-8">
+                  <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
