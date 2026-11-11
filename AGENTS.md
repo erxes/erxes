@@ -163,6 +163,12 @@ it is built.
   in `actions.ts`; plugin actions come from manifests and are POSTed to
   `<api.url>/automations/actions/<type>` with a core token
   (`verifyCoreCall`) and `Idempotency-Key`.
+- **Two-factor sign-in** (`src/modules/auth/totp.ts`, `twoFactor.service.ts`):
+  RFC 6238 TOTP (SHA-1, 30 s, 6 digits, ±1 step); the secret is sealed; each
+  code works once (`totp_last_step`, row locked); 10 recovery codes stored
+  hashed, each once. A correct password returns `{ twoFactorRequired,
+  challenge }` (ES256, 5 minutes) instead of a session; `/auth/sign-in/2fa`
+  completes it. Wrong codes count toward the sign-in lockout.
 - **Email** (`src/modules/email`): templates render HTML + text; `sendEmail(tx,
   …)` queues the `email.send` job (rolled back = not sent). `EMAIL_DRIVER=log`
   in development (written to the log, `loggedEmails` in tests). Single-use

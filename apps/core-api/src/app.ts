@@ -39,7 +39,7 @@ export const createApp = (): Express => {
 
   // Guessing passwords and secrets: limited per address before anything else.
   app.use(
-    ['/core/v1/auth/sign-in', '/core/v1/setup', '/core/v1/auth/password-reset', '/core/v1/auth/invitation'],
+    ['/core/v1/auth/sign-in', '/core/v1/auth/sign-in/2fa', '/core/v1/setup', '/core/v1/auth/password-reset', '/core/v1/auth/invitation'],
     signInLimit,
   );
   app.use('/core/v1/plugins/token', tokenLimit);

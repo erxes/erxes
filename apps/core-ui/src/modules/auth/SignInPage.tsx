@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { api, isApiError } from '~/lib/api';
 import { SESSION_KEY } from '~/modules/auth/session';
 import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
+import { TwoFactorStep } from './TwoFactorStep';
 
 const PASSWORD_REVEAL_MS = 10_000;
 
@@ -28,6 +29,7 @@ export const SignInPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [needsOrganization, setNeedsOrganization] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [challenge, setChallenge] = useState<string | null>(null);
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '', subdomain: '' },
@@ -46,13 +48,18 @@ export const SignInPage = () => {
     setError(null);
 
     try {
-      const session = await api.auth.signIn({
+      const result = await api.auth.signIn({
         email: values.email,
         password: values.password,
         subdomain: values.subdomain || undefined,
       });
 
-      client.setQueryData(SESSION_KEY, session);
+      if ('challenge' in result) {
+        setChallenge(result.challenge);
+        return;
+      }
+
+      client.setQueryData(SESSION_KEY, result);
     } catch (caught) {
       if (isApiError(caught, 'ORGANIZATION_REQUIRED')) {
         setNeedsOrganization(true);
@@ -70,6 +77,9 @@ export const SignInPage = () => {
           <div className="text-xl font-semibold leading-none">{t('welcome')}</div>
           <div className="text-center text-accent-foreground">{t('sign-in-to-continue')}</div>
         </div>
+        {challenge ? (
+          <TwoFactorStep challenge={challenge} onBack={() => setChallenge(null)} />
+        ) : (
         <Form {...form}>
           <form onSubmit={onSubmit} className="mx-auto grid w-full gap-6" noValidate>
             <Form.Field
@@ -157,6 +167,7 @@ export const SignInPage = () => {
             </Link>
           </form>
         </Form>
+        )}
       </AuthenticationLayout>
     </div>
   );

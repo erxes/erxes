@@ -26,6 +26,8 @@ export const User = z.object({
   avatarUrl: z.string().nullable(),
   role: UserRole,
   status: UserStatus,
+  /** Signs in with a second step (an authenticator app's code). */
+  twoFactorEnabled: z.boolean(),
   firstName: z.string().nullable(),
   middleName: z.string().nullable(),
   lastName: z.string().nullable(),

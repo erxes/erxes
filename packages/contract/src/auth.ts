@@ -67,7 +67,13 @@ export const authContract = {
         subdomain: z.string().trim().max(63).optional(),
       }),
     )
-    .output(Session),
+    .output(
+      z.union([
+        Session,
+        /** Two-factor sign-in: send a code with this challenge to `/auth/sign-in/2fa` (5 minutes). */
+        z.object({ twoFactorRequired: z.literal(true), challenge: z.string() }),
+      ]),
+    ),
   requestPasswordReset: oc
     .route({
       method: 'POST',
@@ -95,6 +101,33 @@ export const authContract = {
       }),
     )
     .output(Session),
+  signInTwoFactor: oc
+    .route({ method: 'POST', path: '/auth/sign-in/2fa', summary: "The sign-in's second step: an authenticator code, or a recovery code" })
+    .input(
+      z
+        .object({
+          challenge: z.string().min(10).max(2000),
+          code: z.string().trim().regex(/^\d{6}$/).optional(),
+          recoveryCode: z.string().trim().min(8).max(40).optional(),
+        })
+        .refine((value) => Boolean(value.code || value.recoveryCode), 'a code or a recovery code'),
+    )
+    .output(Session),
+  twoFactorSetup: oc
+    .route({ method: 'POST', path: '/auth/2fa/setup', summary: 'Start turning on two-factor sign-in: a new secret for an authenticator app' })
+    .output(z.object({ secret: z.string(), uri: z.string() })),
+  twoFactorEnable: oc
+    .route({ method: 'POST', path: '/auth/2fa/enable', summary: 'Confirm with a code from the app; returns recovery codes (shown once)' })
+    .input(z.object({ code: z.string().trim().regex(/^\d{6}$/) }))
+    .output(z.object({ recoveryCodes: z.array(z.string()) })),
+  twoFactorDisable: oc
+    .route({ method: 'POST', path: '/auth/2fa/disable', summary: 'Turn two-factor sign-in off (needs the password)' })
+    .input(z.object({ password: z.string().min(1).max(200) }))
+    .output(z.object({ ok: z.literal(true) })),
+  twoFactorRecoveryCodes: oc
+    .route({ method: 'POST', path: '/auth/2fa/recovery-codes', summary: 'New recovery codes (the old ones stop working; needs the password)' })
+    .input(z.object({ password: z.string().min(1).max(200) }))
+    .output(z.object({ recoveryCodes: z.array(z.string()) })),
   signOutEverywhere: oc
     .route({ method: 'POST', path: '/auth/sign-out-everywhere', summary: 'End every session of the signed-in member, on every device' })
     .output(z.object({ ok: z.literal(true) })),

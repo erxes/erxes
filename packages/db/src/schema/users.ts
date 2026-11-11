@@ -81,6 +81,15 @@ export const users = pgTable(
      * disable, enable, "sign out everywhere") ends every session issued before.
      */
     sessionVersion: integer().default(1).notNull(),
+    /** Two-factor sign-in (TOTP): the sealed secret, set once confirmed with a code. */
+    totpSecretSealed: text(),
+    /** A secret being set up, until the member confirms it with a code. */
+    totpPendingSealed: text(),
+    totpEnabledAt: timestamp({ withTimezone: true, mode: 'date' }),
+    /** The last 30-second step a code was accepted for: a code works once. */
+    totpLastStep: integer(),
+    /** SHA-256 hashes of unused recovery codes. */
+    recoveryCodes: text().array(),
     invitedBy: text(),
     isSupport: boolean().default(false).notNull(),
     /**

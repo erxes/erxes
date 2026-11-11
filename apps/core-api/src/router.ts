@@ -5,6 +5,13 @@ import type { Request, Response } from 'express';
 import { config } from '~/config';
 import { enforceAccess } from '~/http/access';
 import {
+  completeTwoFactor,
+  disableTwoFactor,
+  enableTwoFactor,
+  regenerateRecoveryCodes,
+  setupTwoFactor,
+} from '~/modules/auth/twoFactor.service';
+import {
   acceptInvitation,
   invitationInfo,
   requestPasswordReset,
@@ -84,7 +91,7 @@ import {
 } from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import { changeOwnPassword, mySignIns, sessionVersionOf, signOutEverywhere } from '~/modules/auth/account.service';
-import { getSession, signIn } from '~/modules/auth/auth.service';
+import { getSession, signIn, recordSignedIn } from '~/modules/auth/auth.service';
 import {
   createCompany,
   getCompany,
@@ -311,12 +318,37 @@ export const coreRouter = pub.router({
       return getSession(organization.id, owner.id);
     }),
     signIn: pub.auth.signIn.handler(async ({ input, context }) => {
-      const session = await signIn(input, context.req.get('host'));
+      const result = await signIn(input, context.req.get('host'));
 
-      await startSession(context, session.user.id, session.organization.id);
+      // Two-factor: no session until the second step.
+      if ('challenge' in result) return result;
+
+      await startSession(context, result.user.id, result.organization.id);
+
+      return result;
+    }),
+    signInTwoFactor: pub.auth.signInTwoFactor.handler(async ({ input, context }) => {
+      const { orgId, userId } = await completeTwoFactor(input);
+      const session = await getSession(orgId, userId);
+
+      await recordSignedIn(orgId, userId, session.user.email, { twoFactor: input.code ? 'app' : 'recovery code' });
+      await startSession(context, userId, orgId);
 
       return session;
     }),
+    twoFactorSetup: authed.auth.twoFactorSetup.handler(({ context }) => setupTwoFactor(db(), context.actor)),
+    twoFactorEnable: authed.auth.twoFactorEnable.handler(async ({ input, context }) => {
+      const result = await enableTwoFactor(db(), context.actor, input.code);
+
+      // Other sessions ended; this browser stays signed in.
+      if (!context.req.headers.authorization) await startSession(context, context.actor.userId, context.actor.orgId);
+
+      return result;
+    }),
+    twoFactorDisable: authed.auth.twoFactorDisable.handler(({ input, context }) => disableTwoFactor(db(), context.actor, input.password)),
+    twoFactorRecoveryCodes: authed.auth.twoFactorRecoveryCodes.handler(({ input, context }) =>
+      regenerateRecoveryCodes(db(), context.actor, input.password),
+    ),
     signOut: pub.auth.signOut.handler(async ({ context }) => {
       const session = sessionClaims(context.req);
 

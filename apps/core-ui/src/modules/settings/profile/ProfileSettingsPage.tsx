@@ -34,6 +34,7 @@ import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, isApiError, messageOf } from '~/lib/api';
 import { SESSION_KEY, useSession, useSignOut } from '~/modules/auth/session';
+import { TwoFactorSection } from './TwoFactorSection';
 
 const LINK_ICONS: Record<UserLinkName, Icon> = {
   facebook: IconBrandFacebook,
@@ -443,6 +444,9 @@ export const ProfileSettingsPage = () => {
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-6">
           {profile ? <ProfileForm user={profile} /> : <Spinner containerClassName="py-12" />}
           <PasswordForm />
+          <section className="rounded-lg border bg-background p-5">
+            <TwoFactorSection />
+          </section>
           <SignIns />
         </div>
       </ScrollArea>

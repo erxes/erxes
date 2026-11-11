@@ -1,6 +1,7 @@
 import { recordAudit } from "~/modules/audit/audit.service";
 import { auditLogs, organizations, roles, users, withOrg, withSystem } from "@erxes/core-db";
 import { effectivePermissions } from "~/modules/roles/roles.service";
+import { twoFactorChallenge } from "./twoFactor.service";
 import { and, eq, sql } from "drizzle-orm";
 import { config } from "~/config";
 import { HttpError } from "~/http/errors";
@@ -138,14 +139,22 @@ export const signIn = async (
     throw invalidCredentials();
   }
 
-  await withOrg(match.user.orgId, (tx) => recordAudit(
-    tx,
-    { orgId: match.user.orgId, actorType: "user", actorId: match.user.id, source: "core" },
-    { action: "auth.signed_in", targetType: "user", targetId: match.user.id, targetLabel: match.user.email }
-  ));
+  // The password was right; two-factor members still owe the second step.
+  if (match.user.totpEnabledAt) {
+    return { twoFactorRequired: true as const, challenge: await twoFactorChallenge(match.user.orgId, match.user.id) };
+  }
+
+  await recordSignedIn(match.user.orgId, match.user.id, match.user.email);
 
   return getSession(match.user.orgId, match.user.id);
 };
+
+export const recordSignedIn = (orgId: string, userId: string, email: string, metadata?: Record<string, unknown>) =>
+  withOrg(orgId, (tx) => recordAudit(
+    tx,
+    { orgId, actorType: "user", actorId: userId, source: "core" },
+    { action: "auth.signed_in", targetType: "user", targetId: userId, targetLabel: email, metadata }
+  ));
 
 export const getSession = async (orgId: string, userId: string) =>
   withOrg(orgId, async (tx) => {

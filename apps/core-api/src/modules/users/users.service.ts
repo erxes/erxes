@@ -25,6 +25,7 @@ export const toUserDto = (row: UserRow) => ({
   fullName: row.fullName,
   avatarUrl: row.avatarUrl,
   role: row.role,
+  twoFactorEnabled: Boolean(row.totpEnabledAt),
   status: row.status,
   firstName: row.firstName,
   middleName: row.middleName,

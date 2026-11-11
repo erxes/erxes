@@ -148,6 +148,13 @@
       "when": 1794432460201,
       "tag": "0020_auth_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794432873338,
+      "tag": "0021_two_factor",
+      "breakpoints": true
     }
   ]
 }
