@@ -13,32 +13,25 @@ import { Except } from 'type-fest';
 const DEFAULT_DISPLAY_SCALE = 2;
 const DEFAULT_EDIT_SCALE = 12;
 
-const CurrencyFieldRoot = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'flex shadow-xs h-auto items-stretch rounded gap-px bg-muted',
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-});
+const CurrencyFieldRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn('flex shadow-xs h-auto items-stretch rounded gap-px bg-muted', className)}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
 CurrencyFieldRoot.displayName = 'CurrencyFieldRoot';
 
 const CurrencyValueInput = React.forwardRef<
   React.ElementRef<typeof IMaskInput>,
-  Except<
-    React.ComponentPropsWithoutRef<typeof IMaskInput>,
-    'onChange' | 'value'
-  > & {
+  Except<React.ComponentPropsWithoutRef<typeof IMaskInput>, 'onChange' | 'value'> & {
     displayScale?: number;
     editScale?: number;
     onChange?: (value: number) => void;
@@ -62,14 +55,9 @@ const CurrencyValueInput = React.forwardRef<
     const isFocusedRef = useRef(false);
     const skipAcceptValueRef = useRef<string | null>(null);
 
-    const fullValue =
-      typeof value === 'number' && Number.isFinite(value)
-        ? value.toString()
-        : '';
+    const fullValue = typeof value === 'number' && Number.isFinite(value) ? value.toString() : '';
     const roundedValue =
-      typeof value === 'number' && Number.isFinite(value)
-        ? value.toFixed(displayScale)
-        : '';
+      typeof value === 'number' && Number.isFinite(value) ? value.toFixed(displayScale) : '';
     const displayValue = isFocused ? fullValue : roundedValue;
 
     return (
@@ -115,10 +103,7 @@ const CurrencyValueInput = React.forwardRef<
 
 const SelectCurrency = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
-  Except<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'onChange' | 'value'
-  > & {
+  Except<React.ComponentPropsWithoutRef<typeof Combobox.Trigger>, 'onChange' | 'value'> & {
     open?: boolean;
     setOpen?: (open: boolean) => void;
     value?: CurrencyCode;
@@ -188,10 +173,7 @@ const SelectCurrencyCommand = ({
 
   return (
     <Command>
-      <Command.Input
-        placeholder="Search currency"
-        focusOnMount={focusOnMount}
-      />
+      <Command.Input placeholder="Search currency" focusOnMount={focusOnMount} />
       <Command.List>
         <Command.Empty>No currency found</Command.Empty>
         {sortedCurrencies.map(([code, { label, Icon }]) => (

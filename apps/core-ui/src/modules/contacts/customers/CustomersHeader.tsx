@@ -19,7 +19,9 @@ export const useCreateHotkey = (action: () => void) => {
         !event.ctrlKey &&
         !event.altKey &&
         !event.repeat &&
-        !target?.closest('input, textarea, select, [contenteditable="true"], [role="dialog"], [role="menu"], [role="listbox"]') &&
+        !target?.closest(
+          'input, textarea, select, [contenteditable="true"], [role="dialog"], [role="menu"], [role="listbox"]',
+        ) &&
         !document.querySelector('[role="dialog"][data-state="open"]')
       ) {
         event.preventDefault();

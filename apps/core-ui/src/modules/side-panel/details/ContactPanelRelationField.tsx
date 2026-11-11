@@ -7,9 +7,18 @@ import { ContactRelationInput } from './ContactRelationInput';
 type TContactType = 'core:customer' | 'core:company';
 
 /** Edits customer ↔ company links in their own section. */
-export const ContactPanelRelationField = ({ contentType, contentId }: { contentType: TContactType; contentId: string }) => {
+export const ContactPanelRelationField = ({
+  contentType,
+  contentId,
+}: {
+  contentType: TContactType;
+  contentId: string;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { relatedIds, loading, error, refetch, saving, setRelatedIds } = useContactRelations(contentType, contentId);
+  const { relatedIds, loading, error, refetch, saving, setRelatedIds } = useContactRelations(
+    contentType,
+    contentId,
+  );
   const kind = contentType === 'core:customer' ? 'company' : 'customer';
   const label = kind === 'company' ? t('companies', 'Companies') : t('customers', 'Customers');
 

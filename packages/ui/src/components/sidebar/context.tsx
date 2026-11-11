@@ -79,8 +79,7 @@ export const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
-    const threeStep =
-      collapseStateProp !== undefined || defaultCollapseState !== undefined;
+    const threeStep = collapseStateProp !== undefined || defaultCollapseState !== undefined;
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
@@ -165,16 +164,7 @@ export const SidebarProvider = React.forwardRef<
         setOpenMobile,
         toggleSidebar,
       }),
-      [
-        state,
-        collapseState,
-        open,
-        setOpen,
-        isMobile,
-        openMobile,
-        setOpenMobile,
-        toggleSidebar,
-      ],
+      [state, collapseState, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
     );
 
     return (

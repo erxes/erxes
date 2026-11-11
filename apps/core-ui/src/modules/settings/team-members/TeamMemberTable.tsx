@@ -13,7 +13,11 @@ export const TeamMemberTable = () => {
   const columns = useMemo(() => teamMemberColumns(t), [t]);
 
   if (error) {
-    return <div className="text-destructive">{t('error-loading-members', { message: messageOf(error) })}</div>;
+    return (
+      <div className="text-destructive">
+        {t('error-loading-members', { message: messageOf(error) })}
+      </div>
+    );
   }
 
   return (

@@ -1,5 +1,14 @@
 import { sql } from 'drizzle-orm';
-import { boolean, check, foreignKey, index, integer, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  check,
+  foreignKey,
+  index,
+  integer,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { CONTENT_TYPES, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
@@ -51,7 +60,10 @@ export const fieldGroups = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_field_groups_org_id_fkey',
     }).onDelete('cascade'),
-    check('core_field_groups_content_type_check', sql`${table.contentType} IN ('customer', 'company')`),
+    check(
+      'core_field_groups_content_type_check',
+      sql`${table.contentType} IN ('customer', 'company')`,
+    ),
   ],
 );
 
@@ -77,7 +89,10 @@ export const fields = pgTable(
     /** Format text values must have. */
     validation: text({ enum: FIELD_VALIDATIONS }),
     /** Choices for select / multiselect / radio / check. */
-    options: text().array().default(sql`'{}'::text[]`).notNull(),
+    options: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     /** Shown where records show (table columns, record panel). */
     isVisible: boolean().default(true).notNull(),
     order: integer().default(0).notNull(),

@@ -18,7 +18,11 @@ const handler = new OpenAPIHandler(coreRouter, {
   clientInterceptors: [
     onError((error) => {
       // Input that fails the contract: one stable code, with zod's issues.
-      if (error instanceof ORPCError && error.code === 'BAD_REQUEST' && error.cause instanceof ValidationError) {
+      if (
+        error instanceof ORPCError &&
+        error.code === 'BAD_REQUEST' &&
+        error.cause instanceof ValidationError
+      ) {
         throw new ORPCError('INVALID_INPUT', {
           status: 400,
           message: 'The request is not valid',
@@ -44,10 +48,13 @@ let spec: Promise<unknown> | undefined;
 
 /** The OpenAPI document for plugins and tools (`GET /core/v1/openapi.json`). */
 export const openApiDocument: RequestHandler = (_req, res, next) => {
-  spec ??= new OpenAPIGenerator({ schemaConverters: [new ZodToJsonSchemaConverter()] }).generate(coreContract, {
-    info: { title: 'erxes core', version: 'v1' },
-    servers: [{ url: CORE_API_PREFIX }],
-  });
+  spec ??= new OpenAPIGenerator({ schemaConverters: [new ZodToJsonSchemaConverter()] }).generate(
+    coreContract,
+    {
+      info: { title: 'erxes core', version: 'v1' },
+      servers: [{ url: CORE_API_PREFIX }],
+    },
+  );
 
   spec.then((document) => res.json(document)).catch(next);
 };

@@ -83,11 +83,11 @@ export type CustomerInput = z.infer<typeof CustomerFields>;
 const identifies = (value: CustomerInput) =>
   Boolean(
     value.firstName ||
-      value.lastName ||
-      value.primaryEmail ||
-      value.primaryPhone ||
-      value.emails?.length ||
-      value.phones?.length,
+    value.lastName ||
+    value.primaryEmail ||
+    value.primaryPhone ||
+    value.emails?.length ||
+    value.phones?.length,
   );
 
 /** A company as listed on a customer. */
@@ -113,7 +113,11 @@ const TagChange = z.object({
 
 export const customersContract = {
   list: oc
-    .route({ method: 'GET', path: '/customers', summary: 'Customers of the organisation, newest first' })
+    .route({
+      method: 'GET',
+      path: '/customers',
+      summary: 'Customers of the organisation, newest first',
+    })
     .input(
       CursorQuery.extend({
         search: z.string().trim().max(100).optional(),
@@ -150,7 +154,11 @@ export const customersContract = {
     .input(CustomerFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(Customer),
   remove: oc
-    .route({ method: 'POST', path: '/customers/remove', summary: 'Delete customers (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/customers/remove',
+      summary: 'Delete customers (owners and admins)',
+    })
     .input(Ids)
     .output(z.object({ removed: z.number().int() })),
   merge: oc
@@ -163,11 +171,19 @@ export const customersContract = {
     .input(MergeInput)
     .output(Customer),
   tag: oc
-    .route({ method: 'POST', path: '/customers/tag', summary: 'Add and remove tags on many customers' })
+    .route({
+      method: 'POST',
+      path: '/customers/tag',
+      summary: 'Add and remove tags on many customers',
+    })
     .input(TagChange)
     .output(z.object({ updated: z.number().int() })),
   companies: oc
-    .route({ method: 'GET', path: '/customers/{id}/companies', summary: "The customer's companies" })
+    .route({
+      method: 'GET',
+      path: '/customers/{id}/companies',
+      summary: "The customer's companies",
+    })
     .input(ID)
     .output(z.object({ data: z.array(CompanyRef) })),
   linkCompany: oc

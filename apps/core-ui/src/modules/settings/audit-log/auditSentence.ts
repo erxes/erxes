@@ -23,7 +23,9 @@ const fieldName = (field: string) =>
 const fields = (changes: Changes | null) => {
   const names = Object.keys(changes ?? {}).map(fieldName);
 
-  return names.length > 3 ? `${names.slice(0, 3).join(', ')} and ${names.length - 3} more` : names.join(', ');
+  return names.length > 3
+    ? `${names.slice(0, 3).join(', ')} and ${names.length - 3} more`
+    : names.join(', ');
 };
 
 const humanize = (text: string) => text.replace(/[_.]/g, ' ');
@@ -53,7 +55,9 @@ export const auditSentence = (entry: AuditEntry): string => {
     case 'user.invited':
       return `invited ${label} as ${value(metadata.role)}`;
     case 'user.role_changed':
-      return changes?.role ? `changed ${label}'s role from ${value(changes.role[0])} to ${value(changes.role[1])}` : `changed ${label}'s role`;
+      return changes?.role
+        ? `changed ${label}'s role from ${value(changes.role[0])} to ${value(changes.role[1])}`
+        : `changed ${label}'s role`;
     case 'user.updated':
       return `updated ${label}'s ${fields(changes) || 'profile'}`;
     case 'user.password_set':
@@ -78,8 +82,12 @@ export const auditSentence = (entry: AuditEntry): string => {
       return `deleted the file ${label}`;
   }
 
-  if (entry.source === 'core' && ['customer', 'company', 'tag', 'field', 'field_group'].includes(record)) {
-    const noun = record === 'field' ? 'property' : record === 'field_group' ? 'property group' : record;
+  if (
+    entry.source === 'core' &&
+    ['customer', 'company', 'tag', 'field', 'field_group'].includes(record)
+  ) {
+    const noun =
+      record === 'field' ? 'property' : record === 'field_group' ? 'property group' : record;
 
     if (verb === 'updated' && changes) return `updated ${noun} ${label}: ${fields(changes)}`;
     if (verb === 'merged') {
@@ -91,7 +99,9 @@ export const auditSentence = (entry: AuditEntry): string => {
     return `${humanize(verb)} ${noun} ${label}`.trim();
   }
 
-  const action = entry.action.startsWith(`${entry.source}.`) ? entry.action.slice(entry.source.length + 1) : entry.action;
+  const action = entry.action.startsWith(`${entry.source}.`)
+    ? entry.action.slice(entry.source.length + 1)
+    : entry.action;
 
   return `${humanize(action)}${label ? ` · ${label}` : ''}${changes ? `: ${fields(changes)}` : ''}`;
 };

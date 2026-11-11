@@ -154,7 +154,10 @@ export default defineConfig({
             FILES_STORAGE: 'local',
             FILES_LOCAL_DIR: resolve(import.meta.dirname, 'apps/core-api/.test-files'),
             FILES_MAX_SIZE_MB: '5',
-            CORE_SIGNING_KEY_DEV_FILE: resolve(import.meta.dirname, 'apps/core-api/.test-files/keys/signing-key.pem'),
+            CORE_SIGNING_KEY_DEV_FILE: resolve(
+              import.meta.dirname,
+              'apps/core-api/.test-files/keys/signing-key.pem',
+            ),
           },
           // Generous: tests may run against a remote Postgres (each query is a round trip).
           testTimeout: 60_000,

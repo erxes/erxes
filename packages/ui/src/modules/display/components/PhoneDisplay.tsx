@@ -11,22 +11,15 @@ export const PhoneDisplay = ({
   phones,
   phoneValidationStatus,
 }: IPhoneFieldProps & { maxVisible?: number }) => {
-  const formattedPhones = formatPhones(
-    primaryPhone,
-    phones,
-    phoneValidationStatus,
-  );
+  const formattedPhones = formatPhones(primaryPhone, phones, phoneValidationStatus);
 
   const values = formattedPhones.filter((item) => item.phone);
-  const visible =
-    maxVisible === undefined ? values : values.slice(0, maxVisible);
+  const visible = maxVisible === undefined ? values : values.slice(0, maxVisible);
   const remaining = values.length - visible.length;
   return (
     <div
       className={
-        maxVisible === undefined
-          ? 'flex gap-2'
-          : 'flex min-w-0 max-w-full items-center gap-1'
+        maxVisible === undefined ? 'flex gap-2' : 'flex min-w-0 max-w-full items-center gap-1'
       }
     >
       {visible.map(
@@ -39,9 +32,7 @@ export const PhoneDisplay = ({
                 ) : (
                   <IconCircleDashed className="text-muted-foreground size-4" />
                 ))}
-              <span className="truncate">
-                {formatPhoneNumber({ value: phone.phone || '' })}
-              </span>
+              <span className="truncate">{formatPhoneNumber({ value: phone.phone || '' })}</span>
             </Badge>
           ),
       )}

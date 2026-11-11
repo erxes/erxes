@@ -1,6 +1,25 @@
 import type { CursorQuery, CustomerInput, CustomerSex } from '@erxes/core-contract';
-import { companies, customerCompanies, customers, Db, newId, users, withTransaction } from '@erxes/core-db';
-import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
+import {
+  companies,
+  customerCompanies,
+  customers,
+  Db,
+  newId,
+  users,
+  withTransaction,
+} from '@erxes/core-db';
+import {
+  and,
+  arrayContains,
+  asc,
+  eq,
+  getTableColumns,
+  ilike,
+  inArray,
+  or,
+  SQL,
+  sql,
+} from 'drizzle-orm';
 import { type Actor, requireManager } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { normalizeEmail, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
@@ -16,7 +35,13 @@ import {
   contactUpdated,
 } from '~/modules/activities/contactHistory';
 import { applyCustomFields } from '~/modules/fields/fields.service';
-import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
+import {
+  changeTags,
+  copyTags,
+  hasAnyTag,
+  setRecordTags,
+  tagIdsColumn,
+} from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 
 type CustomerRow = typeof customers.$inferSelect & { tagIds: string[] };
@@ -50,14 +75,19 @@ const inOrg = (orgId: string, id: string) => and(eq(customers.orgId, orgId), eq(
 
 /** Customers with their tag ids. */
 const selectCustomers = (client: Db) =>
-  client.select({ ...getTableColumns(customers), tagIds: tagIdsColumn('customer', customers.id) }).from(customers);
+  client
+    .select({ ...getTableColumns(customers), tagIds: tagIdsColumn('customer', customers.id) })
+    .from(customers);
 
 /** A customer by id; with `followMerges`, an id merged into another customer resolves to it. */
 const findCustomer = async (client: Db, orgId: string, id: string, followMerges = false) => {
   const [row] = await selectCustomers(client)
     .where(
       followMerges
-        ? and(eq(customers.orgId, orgId), or(eq(customers.id, id), arrayContains(customers.mergedIds, [id])))
+        ? and(
+            eq(customers.orgId, orgId),
+            or(eq(customers.id, id), arrayContains(customers.mergedIds, [id])),
+          )
         : inOrg(orgId, id),
     )
     .orderBy(sql`${customers.id} = ${id} DESC`)
@@ -82,7 +112,11 @@ const assertOwner = async (client: Db, orgId: string, ownerId: string | null | u
     .limit(1);
 
   if (!owner) {
-    throw new HttpError(400, 'INVALID_OWNER', 'The owner is not a team member of this organisation');
+    throw new HttpError(
+      400,
+      'INVALID_OWNER',
+      'The owner is not a team member of this organisation',
+    );
   }
 };
 
@@ -114,7 +148,9 @@ const conflictFrom = async (
   throw new HttpError(
     409,
     'CUSTOMER_EXISTS',
-    byEmail ? 'A customer with this email already exists' : 'A customer with this phone already exists',
+    byEmail
+      ? 'A customer with this email already exists'
+      : 'A customer with this phone already exists',
     { field: byEmail ? 'primaryEmail' : 'primaryPhone', id: existing?.id ?? null },
   );
 };
@@ -153,7 +189,10 @@ export const listCustomers = async (
           .select({ id: customerCompanies.customerId })
           .from(customerCompanies)
           .where(
-            and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, query.companyId)),
+            and(
+              eq(customerCompanies.orgId, actor.orgId),
+              eq(customerCompanies.companyId, query.companyId),
+            ),
           ),
       ),
     );
@@ -186,7 +225,11 @@ export const listCustomers = async (
     },
     and(...filters),
     query,
-    (where, orderBy, limit) => selectCustomers(client).where(where).orderBy(...orderBy).limit(limit),
+    (where, orderBy, limit) =>
+      selectCustomers(client)
+        .where(where)
+        .orderBy(...orderBy)
+        .limit(limit),
   );
 
   return { ...page, data: page.data.map(toCustomerDto) };
@@ -209,7 +252,13 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'customer', input.tagIds ?? []);
-  const customFields = await applyCustomFields(client, actor.orgId, 'customer', {}, input.customFields);
+  const customFields = await applyCustomFields(
+    client,
+    actor.orgId,
+    'customer',
+    {},
+    input.customFields,
+  );
 
   try {
     const id = await client.transaction(async (tx) => {
@@ -244,13 +293,21 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
   }
 };
 
-export const updateCustomer = async (client: Db, actor: Actor, id: string, input: CustomerInput) => {
+export const updateCustomer = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  input: CustomerInput,
+) => {
   const current = await findCustomer(client, actor.orgId, id);
 
   await assertOwner(client, actor.orgId, input.ownerId);
 
   const changes: Partial<typeof customers.$inferInsert> = {};
-  const tagIds = input.tagIds === undefined ? undefined : await checkTagIds(client, actor.orgId, 'customer', input.tagIds);
+  const tagIds =
+    input.tagIds === undefined
+      ? undefined
+      : await checkTagIds(client, actor.orgId, 'customer', input.tagIds);
 
   if (input.primaryEmail !== undefined || input.emails !== undefined) {
     const email = resolveContacts(
@@ -338,9 +395,18 @@ export const tagCustomers = async (
   const add = await checkTagIds(client, actor.orgId, 'customer', input.add);
   const updated = await client.transaction(async (tx) => {
     const before = await tagsByCustomer(tx, actor.orgId, input.ids);
-    const count = await changeTags(tx, actor.orgId, 'customer', input.ids, { add, remove: unique(input.remove) });
+    const count = await changeTags(tx, actor.orgId, 'customer', input.ids, {
+      add,
+      remove: unique(input.remove),
+    });
 
-    await contactsTagged(tx, actor, 'customer', before, await tagsByCustomer(tx, actor.orgId, input.ids));
+    await contactsTagged(
+      tx,
+      actor,
+      'customer',
+      before,
+      await tagsByCustomer(tx, actor.orgId, input.ids),
+    );
 
     return count;
   });
@@ -397,7 +463,9 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
     }
 
     const keep = rows.find((row) => row.id === input.keepId)!;
-    const others = ids.filter((id) => id !== keep.id).map((id) => rows.find((row) => row.id === id)!);
+    const others = ids
+      .filter((id) => id !== keep.id)
+      .map((id) => rows.find((row) => row.id === id)!);
     const otherIds = others.map((other) => other.id);
     const email = combineContacts(
       { primary: keep.primaryEmail, list: keep.emails },
@@ -420,7 +488,9 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
     `);
     await copyTags(tx, actor.orgId, 'customer', otherIds, keep.id);
     // Deleting first frees their primary email and phone for the kept customer.
-    await tx.delete(customers).where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, otherIds)));
+    await tx
+      .delete(customers)
+      .where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, otherIds)));
 
     await tx
       .update(customers)
@@ -482,7 +552,12 @@ export const customerCompaniesOf = async (client: Db, actor: Actor, id: string) 
   return { data: rows };
 };
 
-export const linkCustomerCompany = async (client: Db, actor: Actor, id: string, companyId: string) => {
+export const linkCustomerCompany = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  companyId: string,
+) => {
   await findCustomer(client, actor.orgId, id);
   await findCompanyId(client, actor.orgId, companyId);
   await client.transaction(async (tx) => {
@@ -500,7 +575,12 @@ export const linkCustomerCompany = async (client: Db, actor: Actor, id: string, 
   return { ok: true as const };
 };
 
-export const unlinkCustomerCompany = async (client: Db, actor: Actor, id: string, companyId: string) => {
+export const unlinkCustomerCompany = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  companyId: string,
+) => {
   await findCustomer(client, actor.orgId, id);
   await client.transaction(async (tx) => {
     const unlinked = await tx

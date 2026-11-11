@@ -67,7 +67,9 @@ export const NoteComposer = ({
     () =>
       mention
         ? members
-            .filter((member) => `${memberName(member)} ${member.email}`.toLowerCase().includes(mention.query))
+            .filter((member) =>
+              `${memberName(member)} ${member.email}`.toLowerCase().includes(mention.query),
+            )
             .slice(0, 6)
         : [],
     [members, mention],
@@ -132,7 +134,10 @@ export const NoteComposer = ({
     if (suggestions.length) {
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
-        setHighlight((index) => (index + (event.key === 'ArrowDown' ? 1 : suggestions.length - 1)) % suggestions.length);
+        setHighlight(
+          (index) =>
+            (index + (event.key === 'ArrowDown' ? 1 : suggestions.length - 1)) % suggestions.length,
+        );
         return;
       }
 
@@ -172,13 +177,19 @@ export const NoteComposer = ({
         onBlur={() => setTimeout(() => setMention(null), 150)}
       />
       {suggestions.length > 0 && (
-        <ul className="absolute top-full left-2 z-20 mt-1 w-64 rounded-md border bg-popover p-1 shadow-md" role="listbox">
+        <ul
+          className="absolute top-full left-2 z-20 mt-1 w-64 rounded-md border bg-popover p-1 shadow-md"
+          role="listbox"
+        >
           {suggestions.map((member, index) => (
             <li
               key={member.id}
               role="option"
               aria-selected={index === highlight}
-              className={cn('flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm', index === highlight && 'bg-accent')}
+              className={cn(
+                'flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm',
+                index === highlight && 'bg-accent',
+              )}
               onMouseDown={(event) => {
                 event.preventDefault();
                 pick(member);
@@ -193,7 +204,10 @@ export const NoteComposer = ({
       {(files.length > 0 || uploading > 0) && (
         <div className="flex flex-wrap gap-1.5 px-3 pb-2">
           {files.map((file) => (
-            <span key={file.id} className="flex h-6 items-center gap-1 rounded border bg-muted px-2 text-xs">
+            <span
+              key={file.id}
+              className="flex h-6 items-center gap-1 rounded border bg-muted px-2 text-xs"
+            >
               <IconPaperclip className="size-3" />
               <span className="max-w-40 truncate">{file.name}</span>
               <button
@@ -209,8 +223,23 @@ export const NoteComposer = ({
         </div>
       )}
       <div className="flex items-center justify-between border-t px-2 py-1.5">
-        <input ref={fileInput} type="file" multiple className="hidden" onChange={(event) => void attach(event.target.files).then(() => (event.target.value = ''))} />
-        <Button type="button" variant="ghost" size="icon" className="size-7" aria-label={t('attach', 'Attach files')} onClick={() => fileInput.current?.click()}>
+        <input
+          ref={fileInput}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={(event) =>
+            void attach(event.target.files).then(() => (event.target.value = ''))
+          }
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          aria-label={t('attach', 'Attach files')}
+          onClick={() => fileInput.current?.click()}
+        >
           <IconPaperclip className="size-4" />
         </Button>
         <div className="flex items-center gap-1">
@@ -220,7 +249,12 @@ export const NoteComposer = ({
               {t('cancel', 'Cancel')}
             </Button>
           )}
-          <Button type="button" size="sm" disabled={!body.trim() || saving || uploading > 0} onClick={() => void submit()}>
+          <Button
+            type="button"
+            size="sm"
+            disabled={!body.trim() || saving || uploading > 0}
+            onClick={() => void submit()}
+          >
             {saving ? <Spinner size="sm" /> : null}
             {submitLabel}
           </Button>

@@ -29,14 +29,12 @@ describeWithDb('field groups, archiving and field settings', () => {
     });
     const memberId = newId();
 
-    await db()
-      .insert(users)
-      .values({
-        id: memberId,
-        orgId: acme.organization.id,
-        email: 'member@acme.mn',
-        status: 'active',
-      });
+    await db().insert(users).values({
+      id: memberId,
+      orgId: acme.organization.id,
+      email: 'member@acme.mn',
+      status: 'active',
+    });
 
     ownerToken = signAccessToken(acme.owner.id, acme.organization.id);
     memberToken = signAccessToken(memberId, acme.organization.id);

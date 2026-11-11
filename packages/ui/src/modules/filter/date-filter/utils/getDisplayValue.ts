@@ -1,10 +1,6 @@
 import { format } from 'date-fns';
 import { MONTHS } from '../constants/dateTypes';
-import {
-  normalizeFixedDate,
-  parseHalfToken,
-  parseQuarterToken,
-} from './dateTokens';
+import { normalizeFixedDate, parseHalfToken, parseQuarterToken } from './dateTokens';
 
 export const getDisplayValue = (rawValue: string) => {
   const value = normalizeFixedDate(rawValue);

@@ -25,7 +25,11 @@ ContactsPageHeaderRoot.displayName = 'ContactsPageHeader';
 
 const ContactsPageHeaderStart = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <PageHeader.Start ref={ref} className={cn(PAGE_HEADER_FIRST_CRUMB_CLASS_NAME, className)} {...props} />
+    <PageHeader.Start
+      ref={ref}
+      className={cn(PAGE_HEADER_FIRST_CRUMB_CLASS_NAME, className)}
+      {...props}
+    />
   ),
 );
 

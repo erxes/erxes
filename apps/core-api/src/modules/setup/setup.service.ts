@@ -22,7 +22,8 @@ export const subdomainFromName = (name: string) =>
     .slice(0, 63)
     .replace(/-+$/g, '') || 'default';
 
-export const setupRequired = async (client: Db) => config.setup.enabled && !(await hasOrganization(client));
+export const setupRequired = async (client: Db) =>
+  config.setup.enabled && !(await hasOrganization(client));
 
 /**
  * First run: creates the organisation and its owner. Only while the database
@@ -37,7 +38,11 @@ export const runSetup = async (input: {
   password: string;
 }) => {
   if (!config.setup.enabled) {
-    throw new HttpError(403, 'SETUP_DISABLED', 'Organisations are created by the erxes SaaS service here');
+    throw new HttpError(
+      403,
+      'SETUP_DISABLED',
+      'Organisations are created by the erxes SaaS service here',
+    );
   }
 
   const passwordHash = await hashPassword(input.password);
@@ -46,7 +51,11 @@ export const runSetup = async (input: {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext('core:setup'))`);
 
     if (await hasOrganization(tx)) {
-      throw new HttpError(409, 'SETUP_DONE', 'This installation is already set up. Sign in instead.');
+      throw new HttpError(
+        409,
+        'SETUP_DONE',
+        'This installation is already set up. Sign in instead.',
+      );
     }
 
     const created = await insertOrganization(tx, {
@@ -61,7 +70,12 @@ export const runSetup = async (input: {
 
     await recordAudit(
       tx,
-      { orgId: created.organization.id, actorType: 'user', actorId: created.owner.id, source: 'core' },
+      {
+        orgId: created.organization.id,
+        actorType: 'user',
+        actorId: created.owner.id,
+        source: 'core',
+      },
       {
         action: 'organization.created',
         targetType: 'organization',

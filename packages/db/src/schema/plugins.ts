@@ -57,7 +57,10 @@ export const pluginInstallations = pgTable(
     orgId: text().notNull(),
     plugin: text().notNull(),
     status: text({ enum: PLUGIN_STATUSES }).default('active').notNull(),
-    grantedScopes: text().array().default(sql`'{}'::text[]`).notNull(),
+    grantedScopes: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     installedBy: text(),
     installedAt: createdAt(),
     updatedAt: updatedAt(),

@@ -36,4 +36,7 @@ export const EventType = z
   .string()
   .trim()
   .max(100)
-  .regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/, 'dotted lower-case name, e.g. hr.leave.requested');
+  .regex(
+    /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/,
+    'dotted lower-case name, e.g. hr.leave.requested',
+  );

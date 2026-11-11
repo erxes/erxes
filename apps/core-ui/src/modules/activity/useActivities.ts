@@ -32,7 +32,8 @@ export const useActivities = (
         cursorMode: 'exclusive',
       }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
+    getNextPageParam: (last) =>
+      last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
     refetchInterval,
   });
 
@@ -49,7 +50,8 @@ export const useActivities = (
 export const usePinnedNotes = (targetType: ActivityTarget, targetId: string) =>
   useQuery({
     queryKey: [...ACTIVITIES_KEY, targetType, targetId, 'pinned'],
-    queryFn: () => api.activities.list({ targetType, targetId, pinned: 'true', kind: 'notes', limit: 20 }),
+    queryFn: () =>
+      api.activities.list({ targetType, targetId, pinned: 'true', kind: 'notes', limit: 20 }),
     select: (page) => page.data,
   });
 
@@ -58,19 +60,29 @@ export const useNoteActions = () => {
   const { toast } = useToast();
   const refresh = () => client.invalidateQueries({ queryKey: ACTIVITIES_KEY });
   const onError = (error: unknown) =>
-    toast({ variant: 'destructive', title: 'Could not save the note', description: messageOf(error) });
+    toast({
+      variant: 'destructive',
+      title: 'Could not save the note',
+      description: messageOf(error),
+    });
 
   return {
     add: useMutation({
-      mutationFn: (input: Parameters<typeof api.activities.addNote>[0]) => api.activities.addNote(input),
+      mutationFn: (input: Parameters<typeof api.activities.addNote>[0]) =>
+        api.activities.addNote(input),
       onSuccess: refresh,
       onError,
     }),
     update: useMutation({
-      mutationFn: (input: Parameters<typeof api.activities.updateNote>[0]) => api.activities.updateNote(input),
+      mutationFn: (input: Parameters<typeof api.activities.updateNote>[0]) =>
+        api.activities.updateNote(input),
       onSuccess: refresh,
       onError,
     }),
-    remove: useMutation({ mutationFn: (id: string) => api.activities.removeNote({ id }), onSuccess: refresh, onError }),
+    remove: useMutation({
+      mutationFn: (id: string) => api.activities.removeNote({ id }),
+      onSuccess: refresh,
+      onError,
+    }),
   };
 };

@@ -25,17 +25,14 @@ function mimeFromBlock(blockType: string, name: string): string {
   return ext ? `${prefix}/${ext}` : `${prefix}/*`;
 }
 
-
 export const getBlockAttachments = (blocks: BlockLike[]): BlockAttachment[] =>
   blocks.flatMap((block) => {
     const props = block.props ?? {};
 
-    if (
-      ['image', 'video', 'audio', 'file'].includes(block.type) &&
-      props.url
-    ) {
+    if (['image', 'video', 'audio', 'file'].includes(block.type) && props.url) {
       const name =
-        props.name || `${block.type}.${block.type === 'audio' ? 'mp3' : block.type === 'video' ? 'mp4' : block.type === 'image' ? 'png' : 'bin'}`;
+        props.name ||
+        `${block.type}.${block.type === 'audio' ? 'mp3' : block.type === 'video' ? 'mp4' : block.type === 'image' ? 'png' : 'bin'}`;
       return [
         {
           url: props.url as string,
@@ -48,9 +45,7 @@ export const getBlockAttachments = (blocks: BlockLike[]): BlockAttachment[] =>
 
     if (block.type === 'gallery' && props.images) {
       try {
-        const imgs: { url: string; caption?: string }[] = JSON.parse(
-          props.images,
-        );
+        const imgs: { url: string; caption?: string }[] = JSON.parse(props.images);
         return imgs
           .filter((img) => img.url)
           .map((img) => ({

@@ -4,7 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { DASHBOARD_MAX_ITEMS } from '../constants/dashboardGrid';
 import { useDashboardLayout } from '../hooks/useDashboardLayout';
 import type { TDashboardItem, TDashboardWidgetDefinition } from '../types/dashboardTypes';
-import { bottomOf, compactLayout, fitToWidget, newTileId, sameLayout } from '../utils/dashboardLayout';
+import {
+  bottomOf,
+  compactLayout,
+  fitToWidget,
+  newTileId,
+  sameLayout,
+} from '../utils/dashboardLayout';
 import { DASHBOARD_WIDGETS, DASHBOARD_WIDGETS_BY_TYPE } from '../widgets/homeWidgets';
 
 type TDashboardContext = {
@@ -21,7 +27,10 @@ type TDashboardContext = {
   finishEditing: () => void;
   resetLayout: () => void;
   // Places the widget at `position`, else below everything.
-  addWidget: (widget: TDashboardWidgetDefinition, position?: Pick<TDashboardItem, 'x' | 'y'>) => void;
+  addWidget: (
+    widget: TDashboardWidgetDefinition,
+    position?: Pick<TDashboardItem, 'x' | 'y'>,
+  ) => void;
   // The catalog widget being dragged, so the grid can size its drop preview.
   draggingWidget: TDashboardWidgetDefinition | null;
   setDraggingWidget: (widget: TDashboardWidgetDefinition | null) => void;

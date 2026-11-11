@@ -1,7 +1,14 @@
 import type { Field } from '@erxes/core-contract';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import type { Cell, ColumnDef } from '@tanstack/react-table';
-import { Checkbox, DropdownMenu, IconComponent, RecordTable, RecordTableInlineCell, Switch } from 'erxes-ui';
+import {
+  Checkbox,
+  DropdownMenu,
+  IconComponent,
+  RecordTable,
+  RecordTableInlineCell,
+  Switch,
+} from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -112,7 +119,10 @@ const PropertyVisibleCell = ({ cell, label }: { cell: Cell<Field, unknown>; labe
 
   return (
     <RecordTableInlineCell>
-      <div className="flex items-center justify-center w-full" onClick={(event) => event.stopPropagation()}>
+      <div
+        className="flex items-center justify-center w-full"
+        onClick={(event) => event.stopPropagation()}
+      >
         <Switch
           size="sm"
           aria-label={label}
@@ -125,7 +135,10 @@ const PropertyVisibleCell = ({ cell, label }: { cell: Cell<Field, unknown>; labe
   );
 };
 
-export const propertiesColumns = (t: TFunction, { fieldIds }: { fieldIds: string[] }): ColumnDef<Field>[] => [
+export const propertiesColumns = (
+  t: TFunction,
+  { fieldIds }: { fieldIds: string[] },
+): ColumnDef<Field>[] => [
   {
     id: 'checkbox',
     accessorKey: 'checkbox',
@@ -168,7 +181,9 @@ export const propertiesColumns = (t: TFunction, { fieldIds }: { fieldIds: string
         <RecordTableInlineCell>
           <div className="flex items-center gap-2 text-muted-foreground overflow-hidden">
             {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
-            <span className="truncate">{fieldType && t(`field-type.${fieldType.i18nKey}`, fieldType.label)}</span>
+            <span className="truncate">
+              {fieldType && t(`field-type.${fieldType.i18nKey}`, fieldType.label)}
+            </span>
           </div>
         </RecordTableInlineCell>
       );

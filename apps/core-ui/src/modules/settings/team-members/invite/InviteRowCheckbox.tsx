@@ -8,7 +8,9 @@ export const InviteRowCheckbox = ({ userId }: { userId: string }) => {
     <Checkbox
       checked={selectedUsers.includes(userId)}
       onCheckedChange={(checked) =>
-        setSelectedUsers(checked ? [...selectedUsers, userId] : selectedUsers.filter((id) => id !== userId))
+        setSelectedUsers(
+          checked ? [...selectedUsers, userId] : selectedUsers.filter((id) => id !== userId),
+        )
       }
     />
   );
@@ -22,7 +24,9 @@ export const InviteHeaderCheckbox = () => {
       <div className="flex items-center justify-center">
         <Checkbox
           checked={fields.length > 0 && selectedUsers.length === fields.length}
-          onCheckedChange={(checked) => setSelectedUsers(checked ? fields.map((user) => user.id) : [])}
+          onCheckedChange={(checked) =>
+            setSelectedUsers(checked ? fields.map((user) => user.id) : [])
+          }
         />
       </div>
     </Table.Head>

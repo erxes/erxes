@@ -2,7 +2,10 @@ import { PageContainer, useQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
-import { type ISidePanelNavigator, SidePanelNavigatorContext } from '~/modules/side-panel/recordView';
+import {
+  type ISidePanelNavigator,
+  SidePanelNavigatorContext,
+} from '~/modules/side-panel/recordView';
 import { SidePanelRecord } from '~/modules/side-panel/SidePanelLayout';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { getContactListPath, type TContactContentType } from '../utils/contactDetailPath';

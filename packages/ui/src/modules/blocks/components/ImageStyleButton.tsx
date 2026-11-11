@@ -1,8 +1,4 @@
-import {
-  useBlockNoteEditor,
-  useComponentsContext,
-  useSelectedBlocks,
-} from '@blocknote/react';
+import { useBlockNoteEditor, useComponentsContext, useSelectedBlocks } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
 import { IMAGE_STYLE_PRESETS } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
 import type { ImageStyle } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
@@ -19,9 +15,8 @@ export const ImageStyleButton = () => {
   const selectedBlocks = useSelectedBlocks(editor);
   const selectedBlock = selectedBlocks.find((block) => block.type === 'image');
   const currentStyle =
-    IMAGE_STYLE_OPTIONS.find(
-      (option) => option.value === selectedBlock?.props.imageStyle,
-    )?.value ?? 'normal';
+    IMAGE_STYLE_OPTIONS.find((option) => option.value === selectedBlock?.props.imageStyle)?.value ??
+    'normal';
 
   if (!Components || !editor || !selectedBlock) {
     return null;
@@ -38,8 +33,7 @@ export const ImageStyleButton = () => {
   };
 
   const currentLabel =
-    IMAGE_STYLE_OPTIONS.find((option) => option.value === currentStyle)
-      ?.label || 'Image';
+    IMAGE_STYLE_OPTIONS.find((option) => option.value === currentStyle)?.label || 'Image';
 
   return (
     <Components.Generic.Menu.Root>

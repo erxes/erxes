@@ -74,10 +74,15 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
     .where(and(eq(users.orgId, caller.orgId), inArray(users.id, wanted)));
 
   if (members.length !== wanted.length) {
-    throw new HttpError(400, 'INVALID_RECIPIENT', 'Some recipients are not team members of this organisation');
+    throw new HttpError(
+      400,
+      'INVALID_RECIPIENT',
+      'Some recipients are not team members of this organisation',
+    );
   }
 
-  const actorUserId = input.actorUserId ?? (caller.actorType === 'user' ? caller.actorId : undefined);
+  const actorUserId =
+    input.actorUserId ?? (caller.actorType === 'user' ? caller.actorId : undefined);
   const recipients = members
     .filter(
       (member) =>
@@ -169,14 +174,20 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
   return { created: inserted.length, skipped: wanted.length - inserted.length - collapsed };
 };
 
-const mine = (actor: Actor) => and(eq(notifications.orgId, actor.orgId), eq(notifications.userId, actor.userId))!;
+const mine = (actor: Actor) =>
+  and(eq(notifications.orgId, actor.orgId), eq(notifications.userId, actor.userId))!;
 
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
 export const listNotifications = async (
   client: Db,
   actor: Actor,
-  query: CursorQuery & { unread?: boolean; source?: string; priority?: 'normal' | 'high'; kind?: string },
+  query: CursorQuery & {
+    unread?: boolean;
+    source?: string;
+    priority?: 'normal' | 'high';
+    kind?: string;
+  },
 ) => {
   const filters = and(
     query.unread === true ? isNull(notifications.readAt) : undefined,
@@ -192,7 +203,12 @@ export const listNotifications = async (
 
   const page = await keysetPage(
     client,
-    { table: notifications, id: notifications.id, createdAt: notifications.createdAt, scope: mine(actor) },
+    {
+      table: notifications,
+      id: notifications.id,
+      createdAt: notifications.createdAt,
+      scope: mine(actor),
+    },
     filters,
     query,
     (where, orderBy, limit) =>
@@ -215,7 +231,13 @@ export const unreadCount = async (client: Db, actor: Actor, source?: string) => 
   const rows = await client
     .select({ source: notifications.source, count: count() })
     .from(notifications)
-    .where(and(mine(actor), isNull(notifications.readAt), source ? eq(notifications.source, source) : undefined))
+    .where(
+      and(
+        mine(actor),
+        isNull(notifications.readAt),
+        source ? eq(notifications.source, source) : undefined,
+      ),
+    )
     .groupBy(notifications.source);
   const bySource = Object.fromEntries(rows.map((row) => [row.source, row.count]));
 
@@ -245,7 +267,11 @@ export const notificationSettings = async (client: Db, actor: Actor) => {
   return { muted, sources: [...plugins].sort() };
 };
 
-export const updateNotificationSettings = async (client: Db, actor: Actor, input: { muted: string[] }) => {
+export const updateNotificationSettings = async (
+  client: Db,
+  actor: Actor,
+  input: { muted: string[] },
+) => {
   await client
     .update(users)
     .set({
@@ -257,7 +283,11 @@ export const updateNotificationSettings = async (client: Db, actor: Actor, input
 };
 
 /** Marks the given (or all) of the member's notifications read or unread. */
-export const markRead = async (client: Db, actor: Actor, input: { ids?: string[]; source?: string; read: boolean }) => {
+export const markRead = async (
+  client: Db,
+  actor: Actor,
+  input: { ids?: string[]; source?: string; read: boolean },
+) => {
   if (input.ids && !input.ids.length) {
     return { updated: 0 };
   }
@@ -278,7 +308,9 @@ export const markRead = async (client: Db, actor: Actor, input: { ids?: string[]
 };
 
 export const removeNotification = async (client: Db, actor: Actor, id: string) => {
-  const result = await client.delete(notifications).where(and(mine(actor), eq(notifications.id, id)));
+  const result = await client
+    .delete(notifications)
+    .where(and(mine(actor), eq(notifications.id, id)));
 
   if (!result.rowCount) {
     throw notFound('Notification');
@@ -291,7 +323,12 @@ export const removeNotification = async (client: Db, actor: Actor, id: string) =
 export const pruneNotifications = async (client: Db, days: number) => {
   const result = await client
     .delete(notifications)
-    .where(and(isNotNull(notifications.readAt), lt(notifications.readAt, sql`now() - make_interval(days => ${days})`)));
+    .where(
+      and(
+        isNotNull(notifications.readAt),
+        lt(notifications.readAt, sql`now() - make_interval(days => ${days})`),
+      ),
+    );
 
   return result.rowCount ?? 0;
 };

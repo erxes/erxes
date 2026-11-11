@@ -4,11 +4,7 @@ const isValidBlocks = (blocks: unknown): blocks is Block[] =>
   Array.isArray(blocks) &&
   blocks.length > 0 &&
   blocks.every(
-    (block) =>
-      typeof block === 'object' &&
-      block !== null &&
-      'id' in block &&
-      'type' in block,
+    (block) => typeof block === 'object' && block !== null && 'id' in block && 'type' in block,
   );
 
 export const parseBlocks = (content: unknown) => {

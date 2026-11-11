@@ -11,8 +11,8 @@ export interface INavigationMenuItemControls {
   renderActions: (item: INavigationMenuItemInfo) => React.ReactNode;
 }
 
-export const NavigationMenuItemControlsContext =
-  createContext<INavigationMenuItemControls | null>(null);
+export const NavigationMenuItemControlsContext = createContext<INavigationMenuItemControls | null>(
+  null,
+);
 
-export const useNavigationMenuItemControls = () =>
-  useContext(NavigationMenuItemControlsContext);
+export const useNavigationMenuItemControls = () => useContext(NavigationMenuItemControlsContext);

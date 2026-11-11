@@ -75,7 +75,9 @@ export const loadPlugins = async (remotes = parsePluginRemotes()): Promise<Loade
           return null;
         }
 
-        return (await allowed(module.CONFIG)) ? { remote: remote.name, config: module.CONFIG } : null;
+        return (await allowed(module.CONFIG))
+          ? { remote: remote.name, config: module.CONFIG }
+          : null;
       } catch (error) {
         console.error(`[plugins] could not load ${remote.name}`, error);
 
@@ -105,7 +107,9 @@ export const loadPluginComponent = async (remote: string, module: string) => {
   }
 
   const exports = await loadRemote<Record<string, unknown>>(key);
-  const component = (exports?.default ?? exports?.[pascalCase(module)]) as ComponentType | undefined;
+  const component = (exports?.default ?? exports?.[pascalCase(module)]) as
+    | ComponentType
+    | undefined;
 
   if (typeof component !== 'function' && typeof component !== 'object') {
     throw new Error(`${key} has no default or ${pascalCase(module)} export`);

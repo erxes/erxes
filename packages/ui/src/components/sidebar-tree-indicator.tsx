@@ -3,9 +3,7 @@ import { cn } from 'erxes-ui/lib/utils';
 
 type TIndicatorPosition = { top: number; height: number };
 
-export type TFindActiveTreeItem = (
-  container: HTMLElement,
-) => HTMLElement | null;
+export type TFindActiveTreeItem = (container: HTMLElement) => HTMLElement | null;
 
 export const findActiveSubItem: TFindActiveTreeItem = (container) =>
   container.querySelector<HTMLElement>(
@@ -54,9 +52,7 @@ export const SidebarTreeIndicator = ({
   containerRef: React.RefObject<HTMLElement | null>;
   findActive?: TFindActiveTreeItem;
 }>) => {
-  const [position, setPosition] = React.useState<TIndicatorPosition | null>(
-    null,
-  );
+  const [position, setPosition] = React.useState<TIndicatorPosition | null>(null);
   const [animate, setAnimate] = React.useState(false);
   const visibleRef = React.useRef(false);
 
@@ -77,9 +73,7 @@ export const SidebarTreeIndicator = ({
         setAnimate(visibleRef.current && next !== null);
         visibleRef.current = next !== null;
         setPosition((previous) =>
-          previous?.top === next?.top && previous?.height === next?.height
-            ? previous
-            : next,
+          previous?.top === next?.top && previous?.height === next?.height ? previous : next,
         );
       });
     };

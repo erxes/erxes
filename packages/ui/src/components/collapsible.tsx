@@ -12,10 +12,7 @@ export const TriggerButton = React.forwardRef<
       <Button
         variant="ghost"
         size="sm"
-        className={cn(
-          'w-full justify-start text-accent-foreground group',
-          className,
-        )}
+        className={cn('w-full justify-start text-accent-foreground group', className)}
         {...props}
       />
     </CollapsiblePrimitive.CollapsibleTrigger>

@@ -32,15 +32,13 @@ export const useNavApps = (): NavApp[] => {
 
   return [
     ...CORE_APPS,
-    ...plugins.map(
-      ({ remote, config }): NavApp => ({
-        id: `plugin:${remote}`,
-        label: label(config.name),
-        icon: config.icon ?? IconApps,
-        path: config.path.replace(/^\/+|\/+$/g, ''),
-        kind: 'plugin',
-      }),
-    ),
+    ...plugins.map(({ remote, config }): NavApp => ({
+      id: `plugin:${remote}`,
+      label: label(config.name),
+      icon: config.icon ?? IconApps,
+      path: config.path.replace(/^\/+|\/+$/g, ''),
+      kind: 'plugin',
+    })),
   ];
 };
 

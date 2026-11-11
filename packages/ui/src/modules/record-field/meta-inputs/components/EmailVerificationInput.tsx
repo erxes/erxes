@@ -23,17 +23,14 @@ export const EmailVerificationInput = ({
   const [open, setOpen] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
 
-  const currentStatus = EMAIL_VALIDATION_STATUS_INFOS.find(
-    (info) => info.value === currentValue,
-  );
+  const currentStatus = EMAIL_VALIDATION_STATUS_INFOS.find((info) => info.value === currentValue);
 
   const handleValueChange = (newValue: string) => {
     setCurrentValue(newValue);
     onChange(newValue);
   };
 
-  const IconComponent =
-    EmailIconComponents[currentStatus?.icon || 'IconCircleDashed'];
+  const IconComponent = EmailIconComponents[currentStatus?.icon || 'IconCircleDashed'];
 
   const onCopy = () => {
     navigator.clipboard.writeText(inputValue);
@@ -49,15 +46,9 @@ export const EmailVerificationInput = ({
     >
       <Select.Trigger
         id={id}
-        className={cn(
-          'flex items-center gap-2 w-min [&>svg]:hidden px-2',
-          className,
-        )}
+        className={cn('flex items-center gap-2 w-min [&>svg]:hidden px-2', className)}
       >
-        <IconComponent
-          className={cn('block!', currentStatus?.className)}
-          size={16}
-        />
+        <IconComponent className={cn('block!', currentStatus?.className)} size={16} />
       </Select.Trigger>
       <Select.Content className="text-base font-medium shadow-lg">
         {EMAIL_VALIDATION_STATUS_INFOS.map((info) => {
@@ -66,10 +57,7 @@ export const EmailVerificationInput = ({
             <Select.Item
               key={info.value}
               value={info.value}
-              className={cn(
-                'h-cell w-56',
-                currentStatus?.value === info.value && 'bg-muted',
-              )}
+              className={cn('h-cell w-56', currentStatus?.value === info.value && 'bg-muted')}
             >
               <div className="flex flex-row items-center gap-2">
                 <ItemIcon className={cn('', info.className)} size={16} />

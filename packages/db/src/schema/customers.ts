@@ -30,10 +30,16 @@ export const customers = pgTable(
     avatarUrl: text(),
     /** Lower-cased; also the first entry of `emails`. */
     primaryEmail: text(),
-    emails: text().array().default(sql`'{}'::text[]`).notNull(),
+    emails: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     /** Without spaces, brackets and dashes; also the first entry of `phones`. */
     primaryPhone: text(),
-    phones: text().array().default(sql`'{}'::text[]`).notNull(),
+    phones: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     /** ISO/IEC 5218: 0 not known, 1 male, 2 female, 9 not applicable. */
     sex: smallint(),
     birthDate: date({ mode: 'string' }),
@@ -44,14 +50,13 @@ export const customers = pgTable(
     ownerId: text(),
     customFields: jsonb().$type<Record<string, CustomValue>>().default({}).notNull(),
     /** Customers merged into this one (their ids keep resolving here). */
-    mergedIds: text().array().default(sql`'{}'::text[]`).notNull(),
+    mergedIds: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     createdBy: text(),
-    createdAt: timestamp({ withTimezone: true, mode: 'date' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp({ withTimezone: true, mode: 'date' })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    updatedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   },
   (table) => [
     // One customer per primary email / phone in an organisation.
@@ -78,10 +83,7 @@ export const customers = pgTable(
       foreignColumns: [users.id],
       name: 'core_customers_owner_id_fkey',
     }).onDelete('set null'),
-    check(
-      'core_customers_state_check',
-      sql`${table.state} IN ('lead', 'customer')`,
-    ),
+    check('core_customers_state_check', sql`${table.state} IN ('lead', 'customer')`),
     check('core_customers_sex_check', sql`${table.sex} IN (0, 1, 2, 9)`),
   ],
 );

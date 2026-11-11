@@ -3,10 +3,7 @@ import { useEffect, useState } from 'react';
 import { renderEmailHtml } from '../utils/renderEmailHtml';
 
 /** The email as html, following the content while it is being written. */
-export const useEmailHtml = (
-  contentJson?: JSONContent,
-  previewText?: string,
-) => {
+export const useEmailHtml = (contentJson?: JSONContent, previewText?: string) => {
   const [html, setHtml] = useState('');
   const [error, setError] = useState<Error>();
 

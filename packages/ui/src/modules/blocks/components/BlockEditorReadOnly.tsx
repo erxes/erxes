@@ -36,19 +36,12 @@ export const BlockEditorReadOnly = React.forwardRef<
     }
   }, [editor, content]);
 
-  const sanitized = useMemo(
-    () => (content ? DOMPurify.sanitize(content) : ''),
-    [content],
-  );
+  const sanitized = useMemo(() => (content ? DOMPurify.sanitize(content) : ''), [content]);
 
   if (!contentBlocks) {
     if (content) {
       return (
-        <div
-          dangerouslySetInnerHTML={{ __html: sanitized }}
-          className={className}
-          ref={ref}
-        />
+        <div dangerouslySetInnerHTML={{ __html: sanitized }} className={className} ref={ref} />
       );
     }
     return null;

@@ -1,7 +1,4 @@
-import {
-  horizontalListSortingStrategy,
-  SortableContext,
-} from '@dnd-kit/sortable';
+import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { flexRender, Header } from '@tanstack/react-table';
 
 import { Table } from 'erxes-ui/components';
@@ -38,9 +35,7 @@ export const RecordTableHeader = ({
   return (
     <Table.Header>
       {table.getHeaderGroups().map((headerGroup) => {
-        const visibleHeaders = headerGroup.headers.filter(
-          (header) => !header.isPlaceholder,
-        );
+        const visibleHeaders = headerGroup.headers.filter((header) => !header.isPlaceholder);
         const { offset, coveredId } = resolveSelectorSlot(visibleHeaders);
         const anchorId = visibleHeaders[0]?.id;
 
@@ -53,10 +48,7 @@ export const RecordTableHeader = ({
               {headerGroup.headers.map((header) => {
                 const headerContent = header.isPlaceholder
                   ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    );
+                  : flexRender(header.column.columnDef.header, header.getContext());
                 const isAnchor = showColumnSelector && header.id === anchorId;
                 const isCovered = showColumnSelector && header.id === coveredId;
 
@@ -66,11 +58,7 @@ export const RecordTableHeader = ({
                     key={header.id}
                     className={isAnchor ? 'z-4' : undefined}
                   >
-                    {isCovered ? (
-                      <div className="pl-8">{headerContent}</div>
-                    ) : (
-                      headerContent
-                    )}
+                    {isCovered ? <div className="pl-8">{headerContent}</div> : headerContent}
                     {isAnchor && (
                       <div
                         className="absolute top-0 z-20 h-full w-8 border-r bg-sidebar"

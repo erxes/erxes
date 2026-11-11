@@ -36,12 +36,9 @@ export const NavigationMenuLinkItem = forwardRef<
     ref,
   ) => {
     const { pathname } = useLocation();
-    const normalizedPathPrefix = pathPrefix
-      ? `${pathPrefix.replace(/\/$/, '')}/`
-      : '';
+    const normalizedPathPrefix = pathPrefix ? `${pathPrefix.replace(/\/$/, '')}/` : '';
     const normalizedPath = path.replace(/^\//, '');
-    const fullPath =
-      `/${normalizedPathPrefix}${normalizedPath}`.replace(/\/$/, '') || '/';
+    const fullPath = `/${normalizedPathPrefix}${normalizedPath}`.replace(/\/$/, '') || '/';
     const isActive = pathname.startsWith(fullPath);
     const controls = useNavigationMenuItemControls();
     const order = controls?.getOrder(fullPath);
@@ -61,16 +58,9 @@ export const NavigationMenuLinkItem = forwardRef<
         >
           <Link to={fullPath}>
             {IconComponent && (
-              <IconComponent
-                className={cn(
-                  'text-accent-foreground',
-                  isActive && 'text-primary',
-                )}
-              />
+              <IconComponent className={cn('text-accent-foreground', isActive && 'text-primary')} />
             )}
-            {label || (
-              <span className="min-w-0 flex-1 truncate capitalize">{name}</span>
-            )}
+            {label || <span className="min-w-0 flex-1 truncate capitalize">{name}</span>}
             {children}
           </Link>
         </Sidebar.MenuButton>
@@ -93,13 +83,7 @@ export const SettingsNavigationMenuLinkItem = forwardRef<
   React.ComponentProps<typeof NavigationMenuLinkItem>
 >(({ pathPrefix, ...props }, ref) => {
   const settingsPathPrefix = `settings/${pathPrefix}`;
-  return (
-    <NavigationMenuLinkItem
-      {...props}
-      pathPrefix={settingsPathPrefix}
-      ref={ref}
-    />
-  );
+  return <NavigationMenuLinkItem {...props} pathPrefix={settingsPathPrefix} ref={ref} />;
 });
 
 SettingsNavigationMenuLinkItem.displayName = 'SettingsNavigationMenuLinkItem';
@@ -132,56 +116,36 @@ export const NavigationMenuGroup = forwardRef<
     defaultOpen?: boolean;
     actions?: React.ReactNode;
   }
->(
-  (
-    {
-      name,
-      children,
-      separate = true,
-      defaultOpen = true,
-      actions,
-      className,
-      ...props
-    },
-    ref,
-  ) => {
-    return (
-      <>
-        {separate && <Sidebar.Separator />}
-        <Collapsible
-          defaultOpen={defaultOpen}
-          className="group/collapsible-menu"
-        >
-          <Sidebar.Group
-            {...props}
-            className={cn('group/navigation-menu py-4', className)}
-            ref={ref}
-          >
-            <Sidebar.GroupLabel asChild>
-              <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
-                <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible-menu:rotate-90 motion-reduce:transition-none">
-                  <IconChevronRight className="size-3.5" />
-                </span>
-                <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  {name}
-                </span>
-                {actions && (
-                  <div className="invisible ml-auto group-hover/collapsible-trigger:visible hover:[&_button]:bg-transparent hover:[&_button]:text-foreground focus-visible:[&_button]:outline-hidden focus-visible:[&_button]:ring-0">
-                    {actions}
-                  </div>
-                )}
-              </Collapsible.Trigger>
-            </Sidebar.GroupLabel>
-            <Collapsible.Content>
-              <Sidebar.GroupContent className="pt-2">
-                <Sidebar.Menu>{children}</Sidebar.Menu>
-              </Sidebar.GroupContent>
-            </Collapsible.Content>
-          </Sidebar.Group>
-        </Collapsible>
-      </>
-    );
-  },
-);
+>(({ name, children, separate = true, defaultOpen = true, actions, className, ...props }, ref) => {
+  return (
+    <>
+      {separate && <Sidebar.Separator />}
+      <Collapsible defaultOpen={defaultOpen} className="group/collapsible-menu">
+        <Sidebar.Group {...props} className={cn('group/navigation-menu py-4', className)} ref={ref}>
+          <Sidebar.GroupLabel asChild>
+            <Collapsible.Trigger className="group/collapsible-trigger flex items-center gap-2">
+              <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible-menu:rotate-90 motion-reduce:transition-none">
+                <IconChevronRight className="size-3.5" />
+              </span>
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {name}
+              </span>
+              {actions && (
+                <div className="invisible ml-auto group-hover/collapsible-trigger:visible hover:[&_button]:bg-transparent hover:[&_button]:text-foreground focus-visible:[&_button]:outline-hidden focus-visible:[&_button]:ring-0">
+                  {actions}
+                </div>
+              )}
+            </Collapsible.Trigger>
+          </Sidebar.GroupLabel>
+          <Collapsible.Content>
+            <Sidebar.GroupContent className="pt-2">
+              <Sidebar.Menu>{children}</Sidebar.Menu>
+            </Sidebar.GroupContent>
+          </Collapsible.Content>
+        </Sidebar.Group>
+      </Collapsible>
+    </>
+  );
+});
 
 NavigationMenuGroup.displayName = 'NavigationMenuGroup';

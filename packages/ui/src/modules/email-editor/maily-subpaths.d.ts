@@ -84,7 +84,5 @@ declare module '@maily-to/core/extensions' {
     }) => AnyExtension;
   };
 
-  export function getVariableSuggestions(
-    char?: string,
-  ): Omit<SuggestionOptions, 'editor'>;
+  export function getVariableSuggestions(char?: string): Omit<SuggestionOptions, 'editor'>;
 }

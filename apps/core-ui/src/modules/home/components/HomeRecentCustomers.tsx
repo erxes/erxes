@@ -24,7 +24,8 @@ export const HomeRecentCustomers = () => {
       error={isError}
       rows={(data ?? []).map((customer) => ({
         id: customer.id,
-        name: customerName(customer) || customer.primaryEmail || customer.primaryPhone || t('unnamed'),
+        name:
+          customerName(customer) || customer.primaryEmail || customer.primaryPhone || t('unnamed'),
         avatarUrl: customer.avatarUrl,
         detail: customerName(customer) ? customer.primaryEmail || customer.primaryPhone : null,
         meta: shortDate(customer.createdAt, i18n.language),

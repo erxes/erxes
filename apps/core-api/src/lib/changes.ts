@@ -64,7 +64,11 @@ export const mergeChanges = (...parts: (Changes | null)[]): Changes | null => {
 };
 
 /** Every column that differs, except `ignore` (and never password hashes). */
-export const diffRows = <T extends object>(before: T, after: T, ignore: readonly string[] = []): Changes | null => {
+export const diffRows = <T extends object>(
+  before: T,
+  after: T,
+  ignore: readonly string[] = [],
+): Changes | null => {
   const skip = new Set(['passwordHash', 'createdAt', 'updatedAt', ...ignore]);
   const fields = Object.keys(after).filter((key) => !skip.has(key)) as (keyof T & string)[];
 

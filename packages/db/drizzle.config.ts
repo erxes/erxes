@@ -8,9 +8,7 @@ export default defineConfig({
   out: './drizzle',
   casing: 'snake_case',
   dbCredentials: {
-    url:
-      process.env.DATA_URL ||
-      'postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes',
+    url: process.env.DATA_URL || 'postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes',
   },
   // Core shares the database with plugins: only touch core_* tables.
   tablesFilter: ['core_*'],

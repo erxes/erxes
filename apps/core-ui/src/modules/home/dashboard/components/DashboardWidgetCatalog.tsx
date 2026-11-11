@@ -5,7 +5,11 @@ import { useDashboard } from '../context/DashboardProvider';
 import { type TDashboardCatalogEntry, useDashboardCatalog } from '../hooks/useDashboardCatalog';
 import { DashboardWidgetPreview } from './DashboardWidgetPreview';
 
-const CatalogCard = ({ entry: { widget, label, description, isPlaced } }: { entry: TDashboardCatalogEntry }) => {
+const CatalogCard = ({
+  entry: { widget, label, description, isPlaced },
+}: {
+  entry: TDashboardCatalogEntry;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'home.dashboard' });
   const { addWidget, canAddMore, setDraggingWidget } = useDashboard();
   const disabled = isPlaced || !canAddMore;
@@ -66,7 +70,9 @@ export const DashboardWidgetCatalog = () => {
       </div>
       <div className="styled-scroll flex-1 space-y-1 overflow-y-auto p-3">
         {groups.length === 0 && (
-          <p className="px-2 py-6 text-center text-sm text-muted-foreground">{t('catalog-empty')}</p>
+          <p className="px-2 py-6 text-center text-sm text-muted-foreground">
+            {t('catalog-empty')}
+          </p>
         )}
         {groups.map(({ group, label, entries }) => (
           <Collapsible key={group} defaultOpen className="group/catalog">

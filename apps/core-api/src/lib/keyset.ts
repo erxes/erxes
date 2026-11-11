@@ -81,7 +81,11 @@ export const keysetPage = async <Row extends { id: string }>(
           .then((result) => result.rows)
       : client.select({ total: count() }).from(table).where(where),
     cursor
-      ? client.select({ id }).from(table).where(and(where, position(otherSide))).limit(1)
+      ? client
+          .select({ id })
+          .from(table)
+          .where(and(where, position(otherSide)))
+          .limit(1)
       : Promise.resolve([]),
   ]);
 

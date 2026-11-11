@@ -42,12 +42,7 @@ const PREVIEWS: Record<TDashboardWidgetPreview, ReactNode> = {
   area: (
     <>
       <polygon points={`${linePoints} 114,56 6,56`} className={SOFT} />
-      <polyline
-        points={linePoints}
-        fill="none"
-        strokeWidth={2}
-        className={LINE}
-      />
+      <polyline points={linePoints} fill="none" strokeWidth={2} className={LINE} />
     </>
   ),
   pie: (
@@ -72,22 +67,8 @@ const PREVIEWS: Record<TDashboardWidgetPreview, ReactNode> = {
       <rect x={6} y={8} width={108} height={7} rx={2} className={SOFT} />
       {tableRows.map((row) => (
         <g key={row}>
-          <rect
-            x={6}
-            y={20 + row * 10}
-            width={40}
-            height={5}
-            rx={2}
-            className={MUTED}
-          />
-          <rect
-            x={52}
-            y={20 + row * 10}
-            width={22}
-            height={5}
-            rx={2}
-            className={MUTED}
-          />
+          <rect x={6} y={20 + row * 10} width={40} height={5} rx={2} className={MUTED} />
+          <rect x={52} y={20 + row * 10} width={22} height={5} rx={2} className={MUTED} />
           <rect
             x={80}
             y={20 + row * 10}
@@ -102,56 +83,16 @@ const PREVIEWS: Record<TDashboardWidgetPreview, ReactNode> = {
   ),
   list: listRows.map((row) => (
     <g key={row}>
-      <circle
-        cx={12}
-        cy={14 + row * 17}
-        r={5}
-        className={row ? SOFT : ACCENT}
-      />
-      <rect
-        x={22}
-        y={10 + row * 17}
-        width={60 - row * 10}
-        height={4}
-        rx={2}
-        className={MUTED}
-      />
-      <rect
-        x={22}
-        y={17 + row * 17}
-        width={36}
-        height={3}
-        rx={1.5}
-        className={MUTED}
-      />
-      <rect
-        x={96}
-        y={11 + row * 17}
-        width={18}
-        height={5}
-        rx={2}
-        className={SOFT}
-      />
+      <circle cx={12} cy={14 + row * 17} r={5} className={row ? SOFT : ACCENT} />
+      <rect x={22} y={10 + row * 17} width={60 - row * 10} height={4} rx={2} className={MUTED} />
+      <rect x={22} y={17 + row * 17} width={36} height={3} rx={1.5} className={MUTED} />
+      <rect x={96} y={11 + row * 17} width={18} height={5} rx={2} className={SOFT} />
     </g>
   )),
   kpi: [0, 1, 2].map((card) => (
     <g key={card}>
-      <rect
-        x={6 + card * 37}
-        y={12}
-        width={33}
-        height={40}
-        rx={4}
-        className={MUTED}
-      />
-      <rect
-        x={11 + card * 37}
-        y={19}
-        width={16}
-        height={4}
-        rx={2}
-        className={SOFT}
-      />
+      <rect x={6 + card * 37} y={12} width={33} height={40} rx={4} className={MUTED} />
+      <rect x={11 + card * 37} y={19} width={16} height={4} rx={2} className={SOFT} />
       <rect
         x={11 + card * 37}
         y={30}
@@ -175,22 +116,8 @@ const PREVIEWS: Record<TDashboardWidgetPreview, ReactNode> = {
   )),
   progress: [0, 1, 2].map((row) => (
     <g key={row}>
-      <rect
-        x={6}
-        y={13 + row * 15}
-        width={28}
-        height={5}
-        rx={2}
-        className={MUTED}
-      />
-      <rect
-        x={40}
-        y={13 + row * 15}
-        width={74}
-        height={5}
-        rx={2.5}
-        className={MUTED}
-      />
+      <rect x={6} y={13 + row * 15} width={28} height={5} rx={2} className={MUTED} />
+      <rect x={40} y={13 + row * 15} width={74} height={5} rx={2.5} className={MUTED} />
       <rect
         x={40}
         y={13 + row * 15}

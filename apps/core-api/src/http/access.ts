@@ -5,7 +5,9 @@ import { HttpError } from './errors';
 type Contract = typeof coreContract;
 
 /** Every procedure of the core API: `customers.list`, `plugins.token`, … */
-export type ProcedurePath = { [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}` }[keyof Contract];
+export type ProcedurePath = {
+  [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}`;
+}[keyof Contract];
 
 /** Which members: everyone, owners and admins, or owners only. */
 export type MemberRule = 'any' | 'manager' | 'owner';
@@ -170,16 +172,25 @@ export const enforceAccess = (path: string, req: Request) => {
 
     if (policy.plugin === 'manifest') {
       if (!req.pluginService) {
-        throw new HttpError(403, 'SERVICE_TOKEN_REQUIRED', 'Use a token without an organisation to do this');
+        throw new HttpError(
+          403,
+          'SERVICE_TOKEN_REQUIRED',
+          'Use a token without an organisation to do this',
+        );
       }
 
       return;
     }
 
-    if (!req.plugin) throw new HttpError(403, 'ORG_REQUIRED', 'Use a token for an organisation to do this');
+    if (!req.plugin)
+      throw new HttpError(403, 'ORG_REQUIRED', 'Use a token for an organisation to do this');
 
     if (!req.plugin.scopes.includes(policy.plugin)) {
-      throw new HttpError(403, 'SCOPE_REQUIRED', `This needs the ${policy.plugin} scope, which this installation hasn't granted`);
+      throw new HttpError(
+        403,
+        'SCOPE_REQUIRED',
+        `This needs the ${policy.plugin} scope, which this installation hasn't granted`,
+      );
     }
 
     return;
@@ -196,7 +207,9 @@ export const publicPaths = (contract: Contract): Set<string> => {
     if (!('public' in policy)) continue;
 
     const [group, name] = path.split('.') as [keyof Contract, string];
-    const procedure = (contract[group] as Record<string, { '~orpc': { route: { path?: string } } }>)[name]!;
+    const procedure = (
+      contract[group] as Record<string, { '~orpc': { route: { path?: string } } }>
+    )[name]!;
 
     paths.add(procedure['~orpc'].route.path!.replace(CORE_API_PREFIX, ''));
   }

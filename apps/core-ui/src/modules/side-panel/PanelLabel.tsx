@@ -13,8 +13,7 @@ const useIsClamped = (expanded: boolean) => {
       return;
     }
 
-    const check = () =>
-      setIsClamped(element.scrollHeight > element.clientHeight + 1);
+    const check = () => setIsClamped(element.scrollHeight > element.clientHeight + 1);
     const resizeObserver = new ResizeObserver(check);
     const contentObserver = new MutationObserver(check);
 
@@ -63,9 +62,7 @@ export const PanelLabel = ({
             {children}
           </span>
         </Tooltip.Trigger>
-        {showTooltip && (
-          <Tooltip.Content>{tooltip ?? children}</Tooltip.Content>
-        )}
+        {showTooltip && <Tooltip.Content>{tooltip ?? children}</Tooltip.Content>}
       </Tooltip>
     </Tooltip.Provider>
   );

@@ -1,13 +1,7 @@
 import { ImperativePanelHandle } from 'react-resizable-panels';
 import { PreviewContext, usePreviewContext } from '../context/PreviewContext';
 import React from 'react';
-import {
-  Button,
-  Resizable,
-  ScrollArea,
-  Separator,
-  ToggleGroup,
-} from 'erxes-ui/components';
+import { Button, Resizable, ScrollArea, Separator, ToggleGroup } from 'erxes-ui/components';
 import {
   IconDeviceImacFilled,
   IconDeviceMobileFilled,
@@ -20,9 +14,7 @@ const PreviewProvider = ({ children }: { children: React.ReactNode }) => {
   const resizablePanelRef = React.useRef<ImperativePanelHandle>(null);
 
   return (
-    <PreviewContext.Provider value={{ resizablePanelRef }}>
-      {children}
-    </PreviewContext.Provider>
+    <PreviewContext.Provider value={{ resizablePanelRef }}>{children}</PreviewContext.Provider>
   );
 };
 
@@ -83,18 +75,8 @@ export const View = React.forwardRef<
       {...props}
       ref={ref}
     >
-      <Resizable.Panel
-        ref={resizablePanelRef}
-        defaultSize={100}
-        minSize={30}
-        className="h-full"
-      >
-        <iframe
-          src={iframeSrc}
-          width="100%"
-          title="Button Primary Story"
-          className="h-full"
-        />
+      <Resizable.Panel ref={resizablePanelRef} defaultSize={100} minSize={30} className="h-full">
+        <iframe src={iframeSrc} width="100%" title="Button Primary Story" className="h-full" />
       </Resizable.Panel>
       <Resizable.Handle className="relative hidden w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:-translate-x-px after:rounded-full after:bg-border after:transition-all hover:after:h-10 md:block" />
       <Resizable.Panel defaultSize={0} minSize={0} />

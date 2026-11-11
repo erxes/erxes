@@ -32,8 +32,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
   ) => {
     const controlRef = useRef<HTMLTableCellElement>(null);
     const [isFocused, setIsFocused] = useState(false);
-    const { activeCell, setActiveRow, setActiveCell, scope } =
-      useRecordTableHotkey();
+    const { activeCell, setActiveRow, setActiveCell, scope } = useRecordTableHotkey();
     const enabledScopes = useAtomValue(internalHotkeysEnabledScopesState);
     const setHotkeyScope = useSetHotkeyScope();
 
@@ -85,8 +84,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
           setActiveCell([rowIndex, colIndex ?? 0]);
         }}
         className={cn(
-          isFocused &&
-            '*:outline-solid *:outline-1 *:outline-primary *:rounded *:outline-offset-0',
+          isFocused && '*:outline-solid *:outline-1 *:outline-primary *:rounded *:outline-offset-0',
           className,
         )}
       />

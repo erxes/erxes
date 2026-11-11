@@ -65,7 +65,10 @@ export const CORE_NOTIFICATION_KINDS = [
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];
 
 /** Security notices a member can't mute. */
-export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = ['core.user.role_changed', 'core.user.password_set'];
+export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = [
+  'core.user.role_changed',
+  'core.user.password_set',
+];
 
 export const NotificationSettings = z.object({
   /** Muted kinds (`core.customer.updated`) and plugins (`hr`). */
@@ -98,7 +101,8 @@ export const notificationsContract = {
     .route({
       method: 'GET',
       path: '/notifications/unread-count',
-      summary: 'My unread notifications, in total and per inbox (core and each plugin); `source` for one inbox',
+      summary:
+        'My unread notifications, in total and per inbox (core and each plugin); `source` for one inbox',
     })
     .input(z.object({ source: z.string().trim().max(40).optional() }))
     .output(z.object({ count: z.number().int(), bySource: z.record(z.number().int()) })),
@@ -106,7 +110,8 @@ export const notificationsContract = {
     .route({
       method: 'POST',
       path: '/notifications/read',
-      summary: 'Mark some (`ids`), one inbox’s (`source`) or all of my notifications read, or unread with `read: false`',
+      summary:
+        'Mark some (`ids`), one inbox’s (`source`) or all of my notifications read, or unread with `read: false`',
     })
     .input(
       z.object({
@@ -117,18 +122,33 @@ export const notificationsContract = {
     )
     .output(z.object({ updated: z.number().int() })),
   remove: oc
-    .route({ method: 'DELETE', path: '/notifications/{id}', summary: 'Remove one of my notifications' })
+    .route({
+      method: 'DELETE',
+      path: '/notifications/{id}',
+      summary: 'Remove one of my notifications',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   settings: oc
     .route({ method: 'GET', path: '/notifications/settings', summary: 'My notification settings' })
     .output(NotificationSettings),
   updateSettings: oc
-    .route({ method: 'PUT', path: '/notifications/settings', summary: 'Mute or unmute kinds of notifications' })
+    .route({
+      method: 'PUT',
+      path: '/notifications/settings',
+      summary: 'Mute or unmute kinds of notifications',
+    })
     .input(
       z.object({
         muted: z
-          .array(z.string().trim().min(1).max(100).regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/, 'a kind or plugin name'))
+          .array(
+            z
+              .string()
+              .trim()
+              .min(1)
+              .max(100)
+              .regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/, 'a kind or plugin name'),
+          )
           .max(200),
       }),
     )

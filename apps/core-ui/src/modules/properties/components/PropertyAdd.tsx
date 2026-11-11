@@ -39,7 +39,9 @@ export const PropertyAdd = ({ contentType }: { contentType: ContentType }) => {
             contentType,
             label: data.name,
             type: data.type,
-            options: hasOptions(data.type) ? (data.options ?? []).map((option) => option.value) : undefined,
+            options: hasOptions(data.type)
+              ? (data.options ?? []).map((option) => option.value)
+              : undefined,
             groupId: data.groupId,
             code: data.code,
             description: data.description || null,

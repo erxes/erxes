@@ -19,15 +19,9 @@ const Root = ({
   children,
 }: CommandBarProps) => {
   return (
-    <PopoverPrimitive.Root
-      open={open}
-      onOpenChange={onOpenChange}
-      defaultOpen={defaultOpen}
-    >
+    <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange} defaultOpen={defaultOpen}>
       <PopoverPrimitive.Trigger
-        className={cn(
-          'fixed bottom-10 left-1/2 h-px w-px -translate-x-1/2 z-50',
-        )}
+        className={cn('fixed bottom-10 left-1/2 h-px w-px -translate-x-1/2 z-50')}
       />
 
       <PopoverPrimitive.Content
@@ -59,11 +53,7 @@ const Value = React.forwardRef<
     <div className="flex items-center -space-x-px">
       <Button
         variant="outline"
-        className={cn(
-          'shadow-none border-dashed border',
-          onClose && 'rounded-r-none',
-          className,
-        )}
+        className={cn('shadow-none border-dashed border', onClose && 'rounded-r-none', className)}
         asChild
       >
         <div ref={ref} {...props}>
@@ -85,21 +75,20 @@ const Value = React.forwardRef<
 });
 Value.displayName = 'CommandBar.Value';
 
-const Bar = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentPropsWithoutRef<'div'>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'relative flex items-center overflow-hidden rounded-lg p-1 shadow-focus bg-background gap-x-1',
-        className,
-      )}
-      {...props}
-    />
-  );
-});
+const Bar = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'relative flex items-center overflow-hidden rounded-lg p-1 shadow-focus bg-background gap-x-1',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 Bar.displayName = 'CommandBar.Bar';
 
 export const CommandBar = Object.assign(Root, {

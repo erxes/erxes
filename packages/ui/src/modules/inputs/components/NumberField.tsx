@@ -8,10 +8,7 @@ export const NumberInput = ({
   value,
   className,
   ...props
-}: Except<
-  React.ComponentPropsWithoutRef<typeof IMaskInput>,
-  'onChange' | 'value'
-> & {
+}: Except<React.ComponentPropsWithoutRef<typeof IMaskInput>, 'onChange' | 'value'> & {
   onChange?: (value: number) => void;
   value?: number;
 }) => (

@@ -55,10 +55,7 @@ import {
 
 import { CurrencyCode } from 'erxes-ui/types';
 
-export const CURRENCY_CODES: Record<
-  CurrencyCode,
-  { label: string; Icon: TablerIcon }
-> = {
+export const CURRENCY_CODES: Record<CurrencyCode, { label: string; Icon: TablerIcon }> = {
   AED: { label: 'UAE dirham', Icon: IconCurrencyDirham },
   AFN: { label: 'Afghan afghani', Icon: IconCurrencyAfghani },
   ALL: { label: 'Albanian lek', Icon: IconCurrencyLeu },

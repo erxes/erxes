@@ -45,10 +45,7 @@ export function StringArrayInput({
           'rounded bg-background border-none transition-[color,box-shadow] focus-within:shadow-focus outline-none min-h-7 h-auto p-0 px-1 gap-1 flex-wrap',
           styleClasses?.inlineTagsContainer,
         ),
-        input: cn(
-          'w-full min-w-[80px] shadow-none px-2 h-7',
-          styleClasses?.input,
-        ),
+        input: cn('w-full min-w-[80px] shadow-none px-2 h-7', styleClasses?.input),
         tag: {
           body: cn(
             'h-6 relative bg-background border border-input hover:bg-background rounded-md font-medium text-xs ps-2 pe-5',
@@ -63,9 +60,7 @@ export function StringArrayInput({
       tags={value.map((tag) => ({ id: tag, text: tag }))}
       onBlur={onBlur}
       inputProps={{
-        onPaste: (event) =>
-          splitOnPaste &&
-          handleStringArrayPaste({ event, value, onValueChange }),
+        onPaste: (event) => splitOnPaste && handleStringArrayPaste({ event, value, onValueChange }),
       }}
     />
   );

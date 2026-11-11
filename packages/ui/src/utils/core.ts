@@ -24,9 +24,7 @@ export const readImage = (
     url += format ? `,format=${format}` : '';
     url += quality ? `,quality=${quality}` : '';
 
-    return `${url}/${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
-      value,
-    )}`;
+    return `${url}/${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(value)}`;
   }
 
   let url = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(value)}`;
@@ -47,16 +45,10 @@ export const readImage = (
 };
 
 export const renderFullName = (data: any) => {
-  if(!data) return null;
+  if (!data) return null;
 
   if (data.firstName || data.lastName || data.middleName) {
-    return (
-      (data.firstName || '') +
-      ' ' +
-      (data.middleName || '') +
-      ' ' +
-      (data.lastName || '') 
-    );
+    return (data.firstName || '') + ' ' + (data.middleName || '') + ' ' + (data.lastName || '');
   }
 
   if (data.primaryEmail || data.primaryPhone) {
@@ -79,4 +71,3 @@ export const renderFullName = (data: any) => {
 
   return 'Unknown';
 };
-

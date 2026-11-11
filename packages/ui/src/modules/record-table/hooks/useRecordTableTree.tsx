@@ -6,18 +6,14 @@ import { recordTableTreeHideChildrenAtomFamily } from '../states/RecordTableTree
 export const useRecordTableTreeContext = () => {
   const context = useContext(RecordTableTreeContext);
   if (!context) {
-    throw new Error(
-      'useRecordTableTreeContext must be used within a RecordTableTreeProvider',
-    );
+    throw new Error('useRecordTableTreeContext must be used within a RecordTableTreeProvider');
   }
   return context;
 };
 
 export const useRecordTableTree = (order: string) => {
   const { id, ordered } = useRecordTableTreeContext();
-  const [hideChildren, setHideChildren] = useAtom(
-    recordTableTreeHideChildrenAtomFamily(id),
-  );
+  const [hideChildren, setHideChildren] = useAtom(recordTableTreeHideChildrenAtomFamily(id));
 
   const toggleHideChildren = (order: string) => {
     setHideChildren(

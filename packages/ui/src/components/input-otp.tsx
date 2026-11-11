@@ -30,11 +30,7 @@ const InputOTPGroup = React.forwardRef<
   React.ElementRef<'div'>,
   React.ComponentPropsWithoutRef<'div'>
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn('flex items-center gap-1', className)}
-    {...props}
-  />
+  <div ref={ref} className={cn('flex items-center gap-1', className)} {...props} />
 ));
 
 InputOTPGroup.displayName = 'InputOTPGroup';
@@ -72,12 +68,7 @@ const InputOTPSeparator = React.forwardRef<
   React.ElementRef<'div'>,
   React.ComponentPropsWithoutRef<'div'>
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    role="separator"
-    className={cn('text-muted-foreground', className)}
-    {...props}
-  >
+  <div ref={ref} role="separator" className={cn('text-muted-foreground', className)} {...props}>
     <IconMinus size={14} />
   </div>
 ));

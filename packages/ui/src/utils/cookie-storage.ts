@@ -7,11 +7,7 @@ class CookieStorage {
     return Cookies.get(key);
   }
 
-  setItem(
-    key: string,
-    value: string,
-    attributes?: Cookies.CookieAttributes
-  ): void {
+  setItem(key: string, value: string, attributes?: Cookies.CookieAttributes): void {
     this.keys.add(key);
     Cookies.set(key, value, attributes);
   }

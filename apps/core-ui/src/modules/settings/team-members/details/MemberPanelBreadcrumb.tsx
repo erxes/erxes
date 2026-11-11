@@ -21,7 +21,9 @@ export const MemberPanelBreadcrumb = ({ title }: { title: ReactNode }) => {
         </Breadcrumb.Item>
         <Breadcrumb.Separator />
         <Breadcrumb.Item className="min-w-0">
-          <Breadcrumb.Page className="block max-w-64 truncate px-3 py-1 leading-5">{title}</Breadcrumb.Page>
+          <Breadcrumb.Page className="block max-w-64 truncate px-3 py-1 leading-5">
+            {title}
+          </Breadcrumb.Page>
         </Breadcrumb.Item>
       </Breadcrumb.List>
     </Breadcrumb>

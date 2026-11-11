@@ -26,7 +26,10 @@ export const DashboardResizeHandle = ({
 }) => (
   <span
     onPointerDown={onPointerDown}
-    className={cn('group/handle absolute z-20 flex touch-none items-center justify-center', HANDLE_CLASS[axis])}
+    className={cn(
+      'group/handle absolute z-20 flex touch-none items-center justify-center',
+      HANDLE_CLASS[axis],
+    )}
   >
     <span
       className={cn(

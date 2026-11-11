@@ -5,13 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import {
-  AlertDialog,
-  ButtonProps,
-  buttonVariants,
-  Form,
-  Input,
-} from 'erxes-ui/components';
+import { AlertDialog, ButtonProps, buttonVariants, Form, Input } from 'erxes-ui/components';
 
 type OptionProps = {
   okLabel?: string;
@@ -41,13 +35,7 @@ export const confirmValidationSchema = z
 
 export type FormType = z.infer<typeof confirmValidationSchema>;
 
-const ConfirmDialog = ({
-  message,
-  options,
-  open,
-  onConfirm,
-  onDismiss,
-}: ConfirmDialogProp) => {
+const ConfirmDialog = ({ message, options, open, onConfirm, onDismiss }: ConfirmDialogProp) => {
   const {
     okLabel = 'Confirm',
     cancelLabel = 'Cancel',
@@ -99,16 +87,11 @@ const ConfirmDialog = ({
         render={({ field }: { field: any }) => (
           <Form.Item>
             <Form.Label className="text-xs select-none" variant="peer">
-              Type <span className="font-semibold">{confirmationValue}</span> in
-              the field below to confirm.
+              Type <span className="font-semibold">{confirmationValue}</span> in the field below to
+              confirm.
             </Form.Label>
             <Form.Control>
-              <Input
-                type="text"
-                placeholder="Enter confirmation"
-                {...field}
-                autoFocus
-              />
+              <Input type="text" placeholder="Enter confirmation" {...field} autoFocus />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -123,9 +106,7 @@ const ConfirmDialog = ({
         <Form {...form}>
           <AlertDialog.Header>
             <AlertDialog.Title>{message}</AlertDialog.Title>
-            {description && (
-              <AlertDialog.Description> {description} </AlertDialog.Description>
-            )}
+            {description && <AlertDialog.Description> {description} </AlertDialog.Description>}
           </AlertDialog.Header>
           {content}
           <form onSubmit={form.handleSubmit(proceed)}>
@@ -136,20 +117,14 @@ const ConfirmDialog = ({
                 onClick={dismiss}
                 type="button"
                 className={
-                  variants.cancel
-                    ? buttonVariants({ variant: variants.cancel })
-                    : undefined
+                  variants.cancel ? buttonVariants({ variant: variants.cancel }) : undefined
                 }
               >
                 {cancelLabel}
               </AlertDialog.Cancel>
               <AlertDialog.Action
                 type="submit"
-                className={
-                  variants.ok
-                    ? buttonVariants({ variant: variants.ok })
-                    : undefined
-                }
+                className={variants.ok ? buttonVariants({ variant: variants.ok }) : undefined}
               >
                 {okLabel}
               </AlertDialog.Action>

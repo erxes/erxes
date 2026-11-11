@@ -12,7 +12,8 @@ const en = {
   unnamed: 'Unnamed',
   widgets: {
     'contacts-overview': 'Contacts at a glance',
-    'contacts-overview-description': 'How many customers, leads, companies and team members you have.',
+    'contacts-overview-description':
+      'How many customers, leads, companies and team members you have.',
     'recent-customers': 'Latest customers',
     'recent-customers-description': 'The customers added most recently.',
     'recent-companies': 'Latest companies',

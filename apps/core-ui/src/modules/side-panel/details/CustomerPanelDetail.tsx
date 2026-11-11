@@ -162,7 +162,8 @@ const CustomerStateField = ({ customer }: { customer: Customer }) => {
     <Select
       value={customer.state}
       onValueChange={(state) => {
-        if (state !== customer.state) edit.mutate({ id: customer.id, state: state as CustomerState });
+        if (state !== customer.state)
+          edit.mutate({ id: customer.id, state: state as CustomerState });
       }}
     >
       <Select.Trigger className="h-7 rounded-sm px-2 shadow-none hover:bg-accent">
@@ -218,12 +219,19 @@ export const CustomerPanelDetail = ({
                 placeholder={customer.ownerId ? t('owner', 'Owner') : ''}
                 className="rounded-sm"
                 onValueChange={(ownerId) =>
-                  edit.mutate({ id: customer.id, ownerId: typeof ownerId === 'string' ? ownerId : null })
+                  edit.mutate({
+                    id: customer.id,
+                    ownerId: typeof ownerId === 'string' ? ownerId : null,
+                  })
                 }
               />
             </PanelField>
             <PanelField icon={IconHash} label={addT('code', 'Code')}>
-              <CustomerTextField customer={customer} code="code" placeholder={addT('code', 'Code')} />
+              <CustomerTextField
+                customer={customer}
+                code="code"
+                placeholder={addT('code', 'Code')}
+              />
             </PanelField>
             <PanelField icon={IconCircle} label={addT('state', 'State')}>
               <CustomerStateField customer={customer} />
@@ -233,7 +241,11 @@ export const CustomerPanelDetail = ({
             <PanelField
               icon={IconMail}
               label={t('emails', 'Emails')}
-              placeholder={!customer.primaryEmail && !customer.emails.some(Boolean) ? t('emails', 'Emails') : undefined}
+              placeholder={
+                !customer.primaryEmail && !customer.emails.some(Boolean)
+                  ? t('emails', 'Emails')
+                  : undefined
+              }
             >
               <ContactEmails
                 maxVisible={1}
@@ -248,7 +260,11 @@ export const CustomerPanelDetail = ({
             <PanelField
               icon={IconPhone}
               label={t('phones', 'Phones')}
-              placeholder={!customer.primaryPhone && !customer.phones.some(Boolean) ? t('phones', 'Phones') : undefined}
+              placeholder={
+                !customer.primaryPhone && !customer.phones.some(Boolean)
+                  ? t('phones', 'Phones')
+                  : undefined
+              }
             >
               <ContactPhones
                 maxVisible={1}
@@ -265,7 +281,9 @@ export const CustomerPanelDetail = ({
             <PanelField
               icon={IconGenderBigender}
               label={t('sex', 'Sex')}
-              placeholder={!customer.sex || !SexCodes[customer.sex as SexCode] ? t('sex', 'Sex') : undefined}
+              placeholder={
+                !customer.sex || !SexCodes[customer.sex as SexCode] ? t('sex', 'Sex') : undefined
+              }
             >
               <CustomerSexField customer={customer} />
             </PanelField>
@@ -276,10 +294,18 @@ export const CustomerPanelDetail = ({
           {/* Not in old erxes's panel; core keeps a customer's job here. */}
           <ContactDetailSection title={sectionT('work', 'Work')} nested>
             <PanelField icon={IconBriefcase} label={t('position', 'Position')}>
-              <CustomerTextField customer={customer} code="position" placeholder={t('position', 'Position')} />
+              <CustomerTextField
+                customer={customer}
+                code="position"
+                placeholder={t('position', 'Position')}
+              />
             </PanelField>
             <PanelField icon={IconBuildingSkyscraper} label={t('department', 'Department')}>
-              <CustomerTextField customer={customer} code="department" placeholder={t('department', 'Department')} />
+              <CustomerTextField
+                customer={customer}
+                code="department"
+                placeholder={t('department', 'Department')}
+              />
             </PanelField>
           </ContactDetailSection>
           {!expanded && (
@@ -290,7 +316,11 @@ export const CustomerPanelDetail = ({
             />
           )}
         </div>
-        <ContactPanelTags contentType="core:customer" contentId={customer.id} tagIds={customer.tagIds} />
+        <ContactPanelTags
+          contentType="core:customer"
+          contentId={customer.id}
+          tagIds={customer.tagIds}
+        />
         <ContactPanelRelationField contentType="core:customer" contentId={customer.id} />
       </div>
       {children}

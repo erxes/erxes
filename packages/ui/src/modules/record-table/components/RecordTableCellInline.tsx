@@ -4,8 +4,9 @@ import React from 'react';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey';
 
-export interface ReactTablePopoverProps
-  extends React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Root> {
+export interface ReactTablePopoverProps extends React.ComponentPropsWithoutRef<
+  typeof PopoverPrimitive.Root
+> {
   scope?: string;
   closeOnEnter?: boolean;
   scopeOptions?: UseHotkeysOptionsWithoutBuggyOptions;

@@ -29,10 +29,7 @@ export const RecordTableCell = React.forwardRef<
       )}
       style={{
         width: `var(--col-${column.id}-width)`,
-        left:
-          column.getIsPinned() === 'left'
-            ? `${column.getStart('left')}px`
-            : undefined,
+        left: column.getIsPinned() === 'left' ? `${column.getStart('left')}px` : undefined,
         ...style,
       }}
       {...props}

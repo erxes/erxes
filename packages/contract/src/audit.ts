@@ -25,7 +25,11 @@ export type AuditEntry = z.infer<typeof AuditEntry>;
 /** Who changed what in core (owners and admins). */
 export const auditContract = {
   list: oc
-    .route({ method: 'GET', path: '/audit', summary: 'Audit log, newest first (owners and admins)' })
+    .route({
+      method: 'GET',
+      path: '/audit',
+      summary: 'Audit log, newest first (owners and admins)',
+    })
     .input(
       CursorQuery.extend({
         /** An action, or a prefix ending in `.` or `*` (`customer.`, `field*`). */
@@ -86,7 +90,8 @@ export const auditContract = {
     .route({
       method: 'GET',
       path: '/audit/verify',
-      summary: 'Check the audit log’s hash chain: has any entry been changed or removed? (owners and admins)',
+      summary:
+        'Check the audit log’s hash chain: has any entry been changed or removed? (owners and admins)',
     })
     .output(
       z.object({
@@ -114,7 +119,12 @@ export const auditContract = {
       summary:
         'Signed checkpoints of the audit chain (JWS, ES256; keys at /core/v1/.well-known/jwks.json), to keep outside erxes (owners and admins)',
     })
-    .input(z.object({ after: z.coerce.number().int().min(0).optional(), limit: z.coerce.number().int().min(1).max(1000).default(200) }))
+    .input(
+      z.object({
+        after: z.coerce.number().int().min(0).optional(),
+        limit: z.coerce.number().int().min(1).max(1000).default(200),
+      }),
+    )
     .output(
       z.object({
         data: z.array(
@@ -129,7 +139,11 @@ export const auditContract = {
       }),
     ),
   settings: oc
-    .route({ method: 'GET', path: '/settings/audit', summary: 'How long the audit log keeps entries' })
+    .route({
+      method: 'GET',
+      path: '/settings/audit',
+      summary: 'How long the audit log keeps entries',
+    })
     .output(z.object({ retentionDays: z.number().int(), maxRetentionDays: z.number().int() })),
   updateSettings: oc
     .route({ method: 'PUT', path: '/settings/audit', summary: 'Change audit retention (owners)' })

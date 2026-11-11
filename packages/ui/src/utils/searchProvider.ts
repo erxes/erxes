@@ -26,8 +26,7 @@ export const readCursorList = <TNode>(
     pageInfo?: Partial<TSearchPageInfo> | null;
   };
 
-  const endCursor =
-    typeof pageInfo?.endCursor === 'string' ? pageInfo.endCursor : null;
+  const endCursor = typeof pageInfo?.endCursor === 'string' ? pageInfo.endCursor : null;
 
   return {
     nodes: Array.isArray(list) ? list : [],
@@ -39,10 +38,7 @@ export const readCursorList = <TNode>(
   };
 };
 
-export const readArray = <TNode>(
-  payload: TSearchPayload,
-  alias: string,
-): TNode[] => {
+export const readArray = <TNode>(payload: TSearchPayload, alias: string): TNode[] => {
   const value = payload[alias];
 
   return Array.isArray(value) ? (value as TNode[]) : [];

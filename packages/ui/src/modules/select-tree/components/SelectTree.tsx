@@ -2,13 +2,7 @@ import React, { useEffect } from 'react';
 
 import { IconCaretDownFilled } from '@tabler/icons-react';
 
-import {
-  Button,
-  ButtonProps,
-  Combobox,
-  Command,
-  Popover,
-} from 'erxes-ui/components';
+import { Button, ButtonProps, Combobox, Command, Popover } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import {
   SelectTreeContext,
@@ -60,9 +54,7 @@ export const SelectTreeProvider = ({
   }, [length, setHideChildrenState]);
 
   return (
-    <SelectTreeContext.Provider value={{ id, ordered }}>
-      {children}
-    </SelectTreeContext.Provider>
+    <SelectTreeContext.Provider value={{ id, ordered }}>{children}</SelectTreeContext.Provider>
   );
 };
 
@@ -87,9 +79,7 @@ export const SelectTreeArrow = React.forwardRef<
       asChild
     >
       <div>
-        <IconCaretDownFilled
-          className={cn('transition-transform', isHidden && '-rotate-90')}
-        />
+        <IconCaretDownFilled className={cn('transition-transform', isHidden && '-rotate-90')} />
       </div>
     </Button>
   );

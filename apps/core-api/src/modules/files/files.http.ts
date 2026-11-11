@@ -83,10 +83,16 @@ signedFilesRouter.get('/:token', (req: Request, res: Response) => {
   });
   stream.on('open', () => {
     res.setHeader('Content-Type', grant.contentType ?? 'application/octet-stream');
-    res.setHeader('Content-Disposition', contentDisposition(grant.name ?? 'file', Boolean(grant.inline)));
+    res.setHeader(
+      'Content-Disposition',
+      contentDisposition(grant.name ?? 'file', Boolean(grant.inline)),
+    );
     res.setHeader('X-Content-Type-Options', 'nosniff');
     // Even a file shown inline can't run scripts or reach erxes.
-    res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox");
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox",
+    );
     res.setHeader('Cache-Control', `private, max-age=${config.files.linkTtlSeconds}`);
     stream.pipe(res);
   });

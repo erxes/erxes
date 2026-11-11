@@ -14,9 +14,7 @@ export const ContactDetailSection = ({
     <h3
       className={cn(
         'flex items-center text-xs',
-        nested
-          ? 'h-7 px-1 font-normal text-muted-foreground'
-          : 'h-10 px-3 font-medium',
+        nested ? 'h-7 px-1 font-normal text-muted-foreground' : 'h-10 px-3 font-medium',
       )}
     >
       {title}

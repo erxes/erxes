@@ -1,7 +1,4 @@
-import {
-  useBlockNoteEditor,
-  useEditorContentOrSelectionChange,
-} from '@blocknote/react';
+import { useBlockNoteEditor, useEditorContentOrSelectionChange } from '@blocknote/react';
 import { useState } from 'react';
 import type { IBlockEditor } from 'erxes-ui/modules/blocks/types';
 import type { FontFamilyState } from 'erxes-ui/modules/blocks/types/toolbar/FontFamily';

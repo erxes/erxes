@@ -115,10 +115,8 @@ const FilterPopover = ({
   const { id } = useFilterContext();
   const [open, setOpen] = useAtom(openPopoverState(id));
   const setView = useSetAtom(filterPopoverViewState(id));
-  const {
-    setHotkeyScopeAndMemorizePreviousScope,
-    goBackToPreviousHotkeyScope,
-  } = usePreviousHotkeyScope();
+  const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } =
+    usePreviousHotkeyScope();
 
   useEffect(() => {
     if (open) {
@@ -126,12 +124,7 @@ const FilterPopover = ({
     } else {
       goBackToPreviousHotkeyScope();
     }
-  }, [
-    goBackToPreviousHotkeyScope,
-    open,
-    scope,
-    setHotkeyScopeAndMemorizePreviousScope,
-  ]);
+  }, [goBackToPreviousHotkeyScope, open, scope, setHotkeyScopeAndMemorizePreviousScope]);
 
   return (
     <Popover
@@ -268,18 +261,17 @@ const FilterDialog = (props: React.ComponentPropsWithoutRef<typeof Dialog>) => {
   );
 };
 
-const FilterBar = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn('flex flex-wrap items-center gap-2 flex-1', className)}
-      {...props}
-    />
-  );
-});
+const FilterBar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn('flex flex-wrap items-center gap-2 flex-1', className)}
+        {...props}
+      />
+    );
+  },
+);
 
 const FilterBarItem = React.forwardRef<
   HTMLDivElement,
@@ -308,21 +300,20 @@ const FilterBarItem = React.forwardRef<
   );
 });
 
-const FilterBarName = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'bg-background rounded-l [&>svg]:size-4 flex items-center px-2 gap-2 w-fit',
-        className,
-      )}
-      {...props}
-    />
-  );
-});
+const FilterBarName = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'bg-background rounded-l [&>svg]:size-4 flex items-center px-2 gap-2 w-fit',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 
 const FilterBarButton = React.forwardRef<
   React.ComponentRef<typeof Button>,
@@ -365,11 +356,7 @@ const FilterBarCloseButton = React.forwardRef<
       ref={ref}
       variant="ghost"
       size="icon"
-      className={cn(
-        'rounded-l-none',
-        !props.variant && 'bg-background',
-        className,
-      )}
+      className={cn('rounded-l-none', !props.variant && 'bg-background', className)}
       onClick={() => removeQuery(filterKey ?? '')}
       {...props}
     >
@@ -378,21 +365,12 @@ const FilterBarCloseButton = React.forwardRef<
   );
 });
 
-const FilterDialogStringView = ({
-  filterKey,
-  label,
-}: {
-  filterKey: string;
-  label?: string;
-}) => {
+const FilterDialogStringView = ({ filterKey, label }: { filterKey: string; label?: string }) => {
   const { t } = useTranslation();
   const { id, setDialogView, setOpenDialog, sessionKey } = useFilterContext();
   const dialogView = useAtomValue(filterDialogViewState(id));
   const [dialogSearch, setDialogSearch] = useState('');
-  const [query, setQuery] = useFilterQueryState<string>(
-    filterKey,
-    sessionKey ?? '',
-  );
+  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey ?? '');
 
   useEffect(() => {
     if (query) {
@@ -417,9 +395,7 @@ const FilterDialogStringView = ({
       <form onSubmit={onSubmit}>
         <Dialog.Header>
           <Dialog.Title className="font-medium text-lg">
-            {isSearch
-              ? t('filter.search', 'Search')
-              : `Filter by ${label || filterKey}...`}
+            {isSearch ? t('filter.search', 'Search') : `Filter by ${label || filterKey}...`}
           </Dialog.Title>
         </Dialog.Header>
 
@@ -445,21 +421,12 @@ const FilterDialogStringView = ({
   );
 };
 
-const FilterPopoverDateView = ({
-  filterKey,
-  label,
-}: {
-  filterKey: string;
-  label?: string;
-}) => {
+const FilterPopoverDateView = ({ filterKey, label }: { filterKey: string; label?: string }) => {
   const { resetFilterState, sessionKey } = useFilterContext();
 
   // Reset the table cursor keyed by sessionKey (not filterKey) so picking a date
   // preset clears pagination — consistent with FilterBarDate / DialogDateView.
-  const [query, setQuery] = useFilterQueryState<string>(
-    filterKey,
-    sessionKey ?? '',
-  );
+  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey ?? '');
 
   return (
     <DateFilterCommand
@@ -483,10 +450,7 @@ const FilterBarDate = React.forwardRef<
   }
 >(({ filterKey, label, className, ...props }, ref) => {
   const { sessionKey } = useFilterContext();
-  const [query, setQuery] = useFilterQueryState<string>(
-    filterKey,
-    sessionKey ?? '',
-  );
+  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey ?? '');
   const [open, setOpen] = useState(false);
 
   return (
@@ -523,10 +487,7 @@ const FilterCommandInput = React.forwardRef<
   return (
     <div className="relative">
       <Command.Input ref={ref} className={cn('pr-8', className)} {...props} />
-      <Kbd
-        className="absolute right-2 top-1/2 -translate-y-1/2"
-        variant="foreground"
-      >
+      <Kbd className="absolute right-2 top-1/2 -translate-y-1/2" variant="foreground">
         F
       </Kbd>
     </div>

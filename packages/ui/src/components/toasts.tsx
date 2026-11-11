@@ -57,11 +57,7 @@ const ToastRoot = React.forwardRef<
   }
 
   return (
-    <ToastPrimitives.Root
-      ref={ref}
-      className={cn(toastVariants(), className)}
-      {...props}
-    >
+    <ToastPrimitives.Root ref={ref} className={cn(toastVariants(), className)} {...props}>
       <div className="[&>svg]:size-4.5 mt-0.5 flex-none mb-auto">{icon}</div>
       {children}
     </ToastPrimitives.Root>

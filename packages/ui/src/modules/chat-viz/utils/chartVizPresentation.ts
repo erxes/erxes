@@ -18,10 +18,7 @@ export const formatChartVizAxisValue = (value: number): string =>
  * Recharts' default zero-based domain pins a flat, large-value line against
  * the top edge and makes it look missing.
  */
-export const getChartVizTrendDomain = ([dataMin, dataMax]: [number, number]): [
-  number,
-  number,
-] => {
+export const getChartVizTrendDomain = ([dataMin, dataMax]: [number, number]): [number, number] => {
   if (!Number.isFinite(dataMin) || !Number.isFinite(dataMax)) return [0, 1];
 
   const span = dataMax - dataMin;

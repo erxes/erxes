@@ -1,5 +1,12 @@
 import type { ContentType, Tag } from '@erxes/core-contract';
-import { IconCalendarPlus, IconLabelFilled, IconPalette, IconPlus, IconTags, IconTrash } from '@tabler/icons-react';
+import {
+  IconCalendarPlus,
+  IconLabelFilled,
+  IconPalette,
+  IconPlus,
+  IconTags,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
@@ -36,7 +43,12 @@ const useTagUpdate = () => {
     mutationFn: ({ id, ...body }: { id: string; name?: string; colorCode?: string | null }) =>
       api.tags.update({ id, ...body }),
     onSuccess: () => client.invalidateQueries({ queryKey: TAGS_KEY }),
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not save the tag', description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: 'Could not save the tag',
+        description: messageOf(error),
+      }),
   });
 };
 
@@ -52,11 +64,22 @@ const useTagRemove = () => {
       void client.invalidateQueries({ queryKey: ['customers'] });
       void client.invalidateQueries({ queryKey: ['companies'] });
     },
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not delete the tag', description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: 'Could not delete the tag',
+        description: messageOf(error),
+      }),
   });
 };
 
-const ColorSwatches = ({ value, onChange }: { value: string | null; onChange: (color: string) => void }) => (
+const ColorSwatches = ({
+  value,
+  onChange,
+}: {
+  value: string | null;
+  onChange: (color: string) => void;
+}) => (
   <div className="grid grid-cols-8 gap-1.5">
     {TAG_COLORS.map((color) => (
       <button
@@ -148,7 +171,14 @@ const DeleteCell = ({ tag }: { tag: Tag }) => {
 
 const columns = (manager: boolean): ColumnDef<Tag>[] => [
   ...(manager
-    ? [{ id: 'more', header: () => null, cell: ({ row }) => <DeleteCell tag={row.original} />, size: 33 } as ColumnDef<Tag>]
+    ? [
+        {
+          id: 'more',
+          header: () => null,
+          cell: ({ row }) => <DeleteCell tag={row.original} />,
+          size: 33,
+        } as ColumnDef<Tag>,
+      ]
     : []),
   {
     id: 'color',
@@ -182,7 +212,9 @@ const AddTag = ({ type }: { type: ContentType }) => {
   const [open, setOpen] = useState(false);
   const create = useTagCreate();
   const { tags } = useTags(type);
-  const form = useForm<{ name: string; colorCode: string }>({ defaultValues: { name: '', colorCode: TAG_COLORS[0]! } });
+  const form = useForm<{ name: string; colorCode: string }>({
+    defaultValues: { name: '', colorCode: TAG_COLORS[0]! },
+  });
 
   return (
     <>
@@ -207,7 +239,10 @@ const AddTag = ({ type }: { type: ContentType }) => {
             return;
           }
 
-          create.mutate({ type, name: name.trim(), colorCode }, { onSuccess: () => setOpen(false) });
+          create.mutate(
+            { type, name: name.trim(), colorCode },
+            { onSuccess: () => setOpen(false) },
+          );
         })}
       >
         <Form {...form}>
@@ -266,7 +301,11 @@ export const TagsSettingsPage = () => {
         className="m-3"
         tableId={`core_tags_${type}`}
       >
-        <RecordTable.CursorProvider dataLength={tags.length} hasNextPage={false} hasPreviousPage={false}>
+        <RecordTable.CursorProvider
+          dataLength={tags.length}
+          hasNextPage={false}
+          hasPreviousPage={false}
+        >
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>

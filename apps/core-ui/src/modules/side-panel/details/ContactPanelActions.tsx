@@ -6,7 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSession } from '~/modules/auth/session';
 import { useCompaniesRemove } from '~/modules/contacts/companies/useCompanies';
 import { useCustomersRemove } from '~/modules/contacts/customers/useCustomers';
-import { getContactDetailPath, getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
+import {
+  getContactDetailPath,
+  getContactListPath,
+} from '~/modules/contacts/utils/contactDetailPath';
 import { getSidePanelRecordPath } from '../sidePanelPaths';
 import { useSidePanel } from '../useSidePanel';
 
@@ -31,7 +34,13 @@ export const ContactPanelWebsiteLink = ({ website }: { website?: string | null }
 
   return (
     <Button variant="ghost" size="icon" className="size-7" asChild>
-      <a href={websiteUrl.href} target="_blank" rel="noreferrer" aria-label={website ?? undefined} title={website ?? undefined}>
+      <a
+        href={websiteUrl.href}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={website ?? undefined}
+        title={website ?? undefined}
+      >
         <IconExternalLink className="size-4" aria-hidden="true" />
       </a>
     </Button>
@@ -109,7 +118,10 @@ export const ContactPanelActions = ({
   };
 
   return (
-    <section className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1" aria-label={t('contact-actions', 'Contact actions')}>
+    <section
+      className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1"
+      aria-label={t('contact-actions', 'Contact actions')}
+    >
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Button

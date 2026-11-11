@@ -1,4 +1,10 @@
-import { createHash, createPrivateKey, createPublicKey, generateKeyPairSync, type KeyObject } from 'node:crypto';
+import {
+  createHash,
+  createPrivateKey,
+  createPublicKey,
+  generateKeyPairSync,
+  type KeyObject,
+} from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { type JWK, type JWTPayload, jwtVerify, SignJWT } from 'jose';
@@ -30,9 +36,17 @@ const toPublic = (key: KeyObject): PublicKey => {
   }
 
   // RFC 7638: SHA-256 of the required members in lexicographic order.
-  const kid = base64url(createHash('sha256').update(JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y })).digest());
+  const kid = base64url(
+    createHash('sha256')
+      .update(JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }))
+      .digest(),
+  );
 
-  return { kid, key, jwk: { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y, kid, alg: SIGNING_ALG, use: 'sig' } };
+  return {
+    kid,
+    key,
+    jwk: { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y, kid, alg: SIGNING_ALG, use: 'sig' },
+  };
 };
 
 const PEM_BLOCK = /-----BEGIN [A-Z ]+-----[\s\S]+?-----END [A-Z ]+-----/g;
@@ -54,7 +68,8 @@ const devKey = (): string => {
   return pem;
 };
 
-let loaded: { privateKey: KeyObject; current: PublicKey; byKid: Map<string, PublicKey> } | null = null;
+let loaded: { privateKey: KeyObject; current: PublicKey; byKid: Map<string, PublicKey> } | null =
+  null;
 
 const keys = () => {
   if (loaded) return loaded;
@@ -63,7 +78,9 @@ const keys = () => {
   const current = toPublic(createPublicKey(privateKey));
   const byKid = new Map([[current.kid, current]]);
 
-  for (const block of (config.auth.retiredSigningKeys ?? '').replace(/\\n/g, '\n').match(PEM_BLOCK) ?? []) {
+  for (const block of (config.auth.retiredSigningKeys ?? '')
+    .replace(/\\n/g, '\n')
+    .match(PEM_BLOCK) ?? []) {
     const retired = toPublic(createPublicKey(block));
 
     byKid.set(retired.kid, retired);
@@ -123,7 +140,13 @@ export const verifyJwt = async <T extends JWTPayload>(
 
       return key.key;
     },
-    { algorithms: [SIGNING_ALG], issuer: ISSUER, typ: options.typ, audience: options.audience, maxTokenAge: options.maxTokenAge },
+    {
+      algorithms: [SIGNING_ALG],
+      issuer: ISSUER,
+      typ: options.typ,
+      audience: options.audience,
+      maxTokenAge: options.maxTokenAge,
+    },
   );
 
   return { payload: result.payload, kid: result.protectedHeader.kid! };

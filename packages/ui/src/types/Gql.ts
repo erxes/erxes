@@ -22,7 +22,6 @@ export const PAGE_INFO_FRAGMENT = gql`
   }
 `;
 
-
 export const ATTACHMENT_FRAGMENT = gql`
   fragment AttachmentFragment on Attachment {
     name
@@ -31,4 +30,4 @@ export const ATTACHMENT_FRAGMENT = gql`
     size
     duration
   }
-`
+`;

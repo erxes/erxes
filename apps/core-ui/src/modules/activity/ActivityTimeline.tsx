@@ -17,7 +17,18 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Button, cn, DropdownMenu, Empty, RelativeDateDisplay, ScrollArea, Spinner, Switch, useConfirm } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  cn,
+  DropdownMenu,
+  Empty,
+  RelativeDateDisplay,
+  ScrollArea,
+  Spinner,
+  Switch,
+  useConfirm,
+} from 'erxes-ui';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -50,24 +61,46 @@ const LinkedRecord = ({ type, id }: { type: ActivityTarget; id: string }) => {
   const customer = useCustomer(type === 'customer' ? id : null);
   const company = useCompany(type === 'company' ? id : null);
   const record = type === 'customer' ? customer.data : company.data;
-  const name = customer.data ? customerTitle(customer.data) : company.data ? companyTitle(company.data) : null;
+  const name = customer.data
+    ? customerTitle(customer.data)
+    : company.data
+      ? companyTitle(company.data)
+      : null;
 
   if (!record) {
-    return <span className="text-muted-foreground">{type === 'customer' ? 'a deleted customer' : 'a deleted company'}</span>;
+    return (
+      <span className="text-muted-foreground">
+        {type === 'customer' ? 'a deleted customer' : 'a deleted company'}
+      </span>
+    );
   }
 
   return (
-    <Link className="font-medium hover:underline" to={`/contacts/${type === 'customer' ? 'customers' : 'companies'}/${id}`}>
+    <Link
+      className="font-medium hover:underline"
+      to={`/contacts/${type === 'customer' ? 'customers' : 'companies'}/${id}`}
+    >
       {name || id}
     </Link>
   );
 };
 
-const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: string; lookups: Lookups }) => {
+const Sentence = ({
+  activity,
+  actor,
+  lookups,
+}: {
+  activity: Activity;
+  actor: string;
+  lookups: Lookups;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const verb = verbOf(activity);
   const who = <span className="font-medium">{actor}</span>;
-  const record = activity.targetType === 'customer' ? t('this-customer', 'this customer') : t('this-company', 'this company');
+  const record =
+    activity.targetType === 'customer'
+      ? t('this-customer', 'this customer')
+      : t('this-company', 'this company');
   const data = activity.data as Record<string, unknown>;
 
   if (activity.source !== 'core') {
@@ -90,7 +123,8 @@ const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: str
     case 'tagged': {
       const added = (data.added as string[] | undefined) ?? [];
       const removed = (data.removed as string[] | undefined) ?? [];
-      const names = (ids: string[]) => ids.map((id) => lookups.tags.get(id)?.name ?? 'a deleted tag').join(', ');
+      const names = (ids: string[]) =>
+        ids.map((id) => lookups.tags.get(id)?.name ?? 'a deleted tag').join(', ');
 
       return (
         <>
@@ -113,7 +147,9 @@ const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: str
       return (
         <>
           {who} {t('merged', 'merged')}{' '}
-          <span className="font-medium">{((data.mergedNames as string[] | undefined) ?? []).join(', ')}</span>{' '}
+          <span className="font-medium">
+            {((data.mergedNames as string[] | undefined) ?? []).join(', ')}
+          </span>{' '}
           {t('into', 'into')} {record}
         </>
       );
@@ -164,7 +200,10 @@ const NoteBody = ({ note, lookups }: { note: NoteData; lookups: Lookups }) => {
     .filter(Boolean)
     .map((member) => `@${member!.fullName || member!.email}`);
   const pattern = names.length
-    ? new RegExp(`(${names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g')
+    ? new RegExp(
+        `(${names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
+        'g',
+      )
     : null;
 
   return (
@@ -212,12 +251,19 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" size="icon" className="size-6 opacity-0 group-hover:opacity-100" aria-label={t('note-actions', 'Note actions')}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-6 opacity-0 group-hover:opacity-100"
+          aria-label={t('note-actions', 'Note actions')}
+        >
           <IconDots className="size-3.5" />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end">
-        <DropdownMenu.Item onSelect={() => update.mutate({ id: activity.id, pinned: !activity.pinned })}>
+        <DropdownMenu.Item
+          onSelect={() => update.mutate({ id: activity.id, pinned: !activity.pinned })}
+        >
           {activity.pinned ? <IconPinnedOff /> : <IconPin />}
           {activity.pinned ? t('unpin', 'Unpin') : t('pin', 'Pin to top')}
         </DropdownMenu.Item>
@@ -231,7 +277,9 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
           <DropdownMenu.Item
             className="text-destructive"
             onSelect={() =>
-              void confirm({ message: t('delete-note-confirm', 'Delete this note?') }).then(() => remove.mutate(activity.id))
+              void confirm({ message: t('delete-note-confirm', 'Delete this note?') }).then(() =>
+                remove.mutate(activity.id),
+              )
             }
           >
             <IconX />
@@ -262,7 +310,11 @@ const ActivityItem = ({
   const [editing, setEditing] = useState(false);
   const plugin = activity.source !== 'core';
   const note = isNoteType(activity.type);
-  const ItemIcon: Icon = plugin ? IconPlug : note ? IconNote : (ICONS[verbOf(activity)] ?? IconHistory);
+  const ItemIcon: Icon = plugin
+    ? IconPlug
+    : note
+      ? IconNote
+      : (ICONS[verbOf(activity)] ?? IconHistory);
   const related = activity.targetType !== pageTarget.type || activity.targetId !== pageTarget.id;
   const actor = actorLabel(activity.actor, lookups.members);
   const changes = activity.data.changes as Record<string, [unknown, unknown]> | undefined;
@@ -283,7 +335,9 @@ const ActivityItem = ({
           saving={update.isPending}
           autoFocus
           onCancel={() => setEditing(false)}
-          onSubmit={(draft) => update.mutateAsync({ id: activity.id, ...draft }).then(() => setEditing(false))}
+          onSubmit={(draft) =>
+            update.mutateAsync({ id: activity.id, ...draft }).then(() => setEditing(false))
+          }
         />
       </div>
     ) : (
@@ -293,7 +347,9 @@ const ActivityItem = ({
 
   return (
     <li className="group relative flex gap-3 pb-4">
-      {!last && <span className="absolute top-7 bottom-0 left-3.5 w-px bg-border" aria-hidden="true" />}
+      {!last && (
+        <span className="absolute top-7 bottom-0 left-3.5 w-px bg-border" aria-hidden="true" />
+      )}
       <span className="flex size-7 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground">
         <ItemIcon className="size-3.5" />
       </span>
@@ -314,7 +370,9 @@ const ActivityItem = ({
               </span>
             )}
           </p>
-          {activity.pinned && <IconPin className="mt-0.5 size-3.5 text-primary" aria-label={t('pinned', 'Pinned')} />}
+          {activity.pinned && (
+            <IconPin className="mt-0.5 size-3.5 text-primary" aria-label={t('pinned', 'Pinned')} />
+          )}
           {note && !editing && <NoteActions activity={activity} onEdit={() => setEditing(true)} />}
         </div>
         {extra}
@@ -374,11 +432,21 @@ const KINDS: { value: TimelineKind; label: string }[] = [
  * box, pinned notes, then the timeline by day, filterable; a company can show
  * its customers' entries too.
  */
-export const ActivityTimeline = ({ targetType, targetId }: { targetType: ActivityTarget; targetId: string }) => {
+export const ActivityTimeline = ({
+  targetType,
+  targetId,
+}: {
+  targetType: ActivityTarget;
+  targetId: string;
+}) => {
   const { t, i18n } = useTranslation('common', { keyPrefix: 'activity' });
   const [kind, setKind] = useState<TimelineKind>('all');
   const [includeRelated, setIncludeRelated] = useState(false);
-  const { activities, loading, hasMore, loadingMore, loadMore } = useActivities(targetType, targetId, { kind, includeRelated });
+  const { activities, loading, hasMore, loadingMore, loadMore } = useActivities(
+    targetType,
+    targetId,
+    { kind, includeRelated },
+  );
   const { data: pinned = [] } = usePinnedNotes(targetType, targetId);
   const { add } = useNoteActions();
   const all = [...pinned, ...activities];
@@ -436,7 +504,9 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: Activit
               onClick={() => setKind(item.value)}
               className={cn(
                 'h-6 rounded-full border px-2.5 text-xs',
-                kind === item.value ? 'border-primary bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent',
+                kind === item.value
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-accent',
               )}
             >
               {t(`kinds.${item.value}`, item.label)}
@@ -460,7 +530,10 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: Activit
             </Empty.Media>
             <Empty.Title>{t('empty', 'No activity yet')}</Empty.Title>
             <Empty.Description>
-              {t('empty-description', 'Notes, changes, tags, links and plugin events show up here.')}
+              {t(
+                'empty-description',
+                'Notes, changes, tags, links and plugin events show up here.',
+              )}
             </Empty.Description>
           </Empty.Header>
         </Empty>
@@ -477,7 +550,11 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: Activit
                     key={activity.id}
                     activity={activity}
                     lookups={lookups}
-                    last={groupIndex === groups.length - 1 && index === group.items.length - 1 && !hasMore}
+                    last={
+                      groupIndex === groups.length - 1 &&
+                      index === group.items.length - 1 &&
+                      !hasMore
+                    }
                     pageTarget={pageTarget}
                   />
                 ))}

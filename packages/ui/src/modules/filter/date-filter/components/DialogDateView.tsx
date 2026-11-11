@@ -49,12 +49,10 @@ export const DateRangeDialogContent = ({
   onApply: (value: string) => void;
 }) => {
   const [tabs, setTabs] = useState('day');
-  const [currentDateRange, setCurrentDateRange] = useState<
-    DateRange | undefined
-  >(parseDateRangeFromString(value || ''));
-  const [currentValue, setCurrentValue] = useState<string | null>(
-    value ?? null,
+  const [currentDateRange, setCurrentDateRange] = useState<DateRange | undefined>(
+    parseDateRangeFromString(value || ''),
   );
+  const [currentValue, setCurrentValue] = useState<string | null>(value ?? null);
 
   useEffect(() => {
     if (value) {
@@ -115,9 +113,7 @@ export const DateRangeDialogContent = ({
               showOutsideDays
               fixedWeeks
               autoFocus
-              defaultMonth={
-                currentDateRange?.from ? currentDateRange.from : undefined
-              }
+              defaultMonth={currentDateRange?.from ? currentDateRange.from : undefined}
               selected={currentDateRange}
               onSelect={handleCalendarChange}
             />
@@ -188,9 +184,7 @@ const DateFilterRadioGroup = ({
         {getYearsArray(7, 5).map((year) =>
           items ? (
             <div className="flex flex-col gap-3" key={year}>
-              <legend className="font-semibold text-sm leading-none">
-                {year}
-              </legend>
+              <legend className="font-semibold text-sm leading-none">{year}</legend>
               <div
                 className={cn(
                   'grid gap-1',
@@ -212,12 +206,7 @@ const DateFilterRadioGroup = ({
               </div>
             </div>
           ) : (
-            <DateFilterRadioGroupItem
-              id={id}
-              value={year + '-y'}
-              key={year}
-              currentValue={value}
-            >
+            <DateFilterRadioGroupItem id={id} value={year + '-y'} key={year} currentValue={value}>
               {year}
             </DateFilterRadioGroupItem>
           ),

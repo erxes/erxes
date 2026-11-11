@@ -7,7 +7,10 @@ export const FIELDS_KEY = ['fields'];
 export const FIELD_GROUPS_KEY = ['field-groups'];
 
 /** Field groups of a record type, in order (archived ones with `archived`). */
-export const useFieldGroups = (contentType: ContentType, { archived = false }: { archived?: boolean } = {}) => {
+export const useFieldGroups = (
+  contentType: ContentType,
+  { archived = false }: { archived?: boolean } = {},
+) => {
   const query = useQuery({
     queryKey: [...FIELD_GROUPS_KEY, contentType, { archived }],
     queryFn: () => api.fieldGroups.list({ contentType, archived }),
@@ -18,7 +21,10 @@ export const useFieldGroups = (contentType: ContentType, { archived = false }: {
 };
 
 /** Every field of a record type, hidden ones too (archived ones with `archived`). */
-export const useAllFields = (contentType: ContentType, { archived = false }: { archived?: boolean } = {}) => {
+export const useAllFields = (
+  contentType: ContentType,
+  { archived = false }: { archived?: boolean } = {},
+) => {
   const query = useQuery({
     queryKey: [...FIELDS_KEY, contentType, { archived }],
     queryFn: () => api.fields.list({ contentType, archived }),

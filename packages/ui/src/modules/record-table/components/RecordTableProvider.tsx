@@ -35,9 +35,7 @@ const RecordTableContext = createContext<IRecordTableContext | null>(null);
 export function useRecordTable() {
   const context = useContext(RecordTableContext);
   if (!context) {
-    throw new Error(
-      'useRecordTable must be used within a RecordTableProvider.',
-    );
+    throw new Error('useRecordTable must be used within a RecordTableProvider.');
   }
   return context;
 }
@@ -51,21 +49,9 @@ export interface RecordTableProviderProps extends HTMLAttributes<HTMLDivElement>
   tableId?: string;
 }
 
-export const RecordTableProvider = forwardRef<
-  HTMLDivElement,
-  RecordTableProviderProps
->(
+export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProviderProps>(
   (
-    {
-      children,
-      columns,
-      data,
-      tableOptions,
-      className,
-      stickyColumns,
-      tableId,
-      ...restProps
-    },
+    { children, columns, data, tableOptions, className, stickyColumns, tableId, ...restProps },
     ref,
   ) => {
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
@@ -79,12 +65,8 @@ export const RecordTableProvider = forwardRef<
     const [colOrder, setColumnOrder] = useState<ColumnOrderState>(
       () => columnOrder || columns.map((c) => c.id || ''),
     );
-    const [colVisibility, setColVisibility] = useState<VisibilityState>(
-      columnVisibility || {},
-    );
-    const [colSizing, setColSizing] = useState<ColumnSizingState>(
-      columnSizing || {},
-    );
+    const [colVisibility, setColVisibility] = useState<VisibilityState>(columnVisibility || {});
+    const [colSizing, setColSizing] = useState<ColumnSizingState>(columnSizing || {});
     const [colPinning, setColPinning] = useState<ColumnPinningState>(
       () => columnPinning || { left: stickyColumns ?? [] },
     );
@@ -114,9 +96,7 @@ export const RecordTableProvider = forwardRef<
 
     const structuralKey = columns
       .map((column) => column.id)
-      .filter(
-        (id): id is string => typeof id === 'string' && isStructuralColumn(id),
-      )
+      .filter((id): id is string => typeof id === 'string' && isStructuralColumn(id))
       .join(',');
     const pinning = useMemo<ColumnPinningState>(() => {
       const left = colPinning.left ?? [];
@@ -185,12 +165,7 @@ export const RecordTableProvider = forwardRef<
         }}
       >
         <RecordTableDnDProvider setColumnOrder={setColumnOrder}>
-          <RecordTableContainer
-            table={table}
-            className={className}
-            {...restProps}
-            ref={ref}
-          >
+          <RecordTableContainer table={table} className={className} {...restProps} ref={ref}>
             {children}
           </RecordTableContainer>
         </RecordTableDnDProvider>

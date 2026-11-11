@@ -42,10 +42,8 @@ const HomeDashboardEmptyState = () => {
 export const HomeDashboard = () => {
   const { width, containerRef, mounted } = useContainerWidth<HTMLDivElement>();
   const { isEditing } = useDashboard();
-  const { tiles, dropPreview, activeId, onMoveStart, onResizeStart, dropHandlers } = useDashboardGrid(
-    containerRef,
-    width,
-  );
+  const { tiles, dropPreview, activeId, onMoveStart, onResizeStart, dropHandlers } =
+    useDashboardGrid(containerRef, width);
 
   const isStacked = width < DASHBOARD_STACK_BELOW_WIDTH;
 
@@ -72,7 +70,8 @@ export const HomeDashboard = () => {
         style={GRID_STYLE}
         {...(isEditing ? dropHandlers : {})}
         className={cn(
-          isEditing && 'min-h-96 rounded-xl outline-2 outline-offset-8 outline-dashed outline-border',
+          isEditing &&
+            'min-h-96 rounded-xl outline-2 outline-offset-8 outline-dashed outline-border',
           activeId && 'select-none',
         )}
       >

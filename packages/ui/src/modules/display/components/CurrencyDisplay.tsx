@@ -10,13 +10,10 @@ import { CurrencyCode } from 'erxes-ui/types';
 
 type CurrencyFormatedDisplayProps = {
   currencyValue?: FieldCurrencyValue | null;
-  kind?: 'short' | 'finance'
+  kind?: 'short' | 'finance';
 };
 
-export const CurrencyFormatedDisplay = ({
-  currencyValue,
-  kind
-}: CurrencyFormatedDisplayProps) => {
+export const CurrencyFormatedDisplay = ({ currencyValue, kind }: CurrencyFormatedDisplayProps) => {
   const shouldDisplayCurrency = isDefined(currencyValue?.currencyCode);
 
   const CurrencyIcon = isDefined(currencyValue?.currencyCode)
@@ -25,7 +22,7 @@ export const CurrencyFormatedDisplay = ({
 
   const amountToDisplay = isUndefinedOrNull(currencyValue?.amountMicros)
     ? null
-    : currencyValue?.amountMicros * 1000000 / 1000000;
+    : (currencyValue?.amountMicros * 1000000) / 1000000;
 
   if (!shouldDisplayCurrency) {
     return <EllipsisDisplay>{0}</EllipsisDisplay>;
@@ -41,38 +38,32 @@ export const CurrencyFormatedDisplay = ({
   );
 };
 
-export interface CurrencyDisplayProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface CurrencyDisplayProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Currency code to display */
   code?: CurrencyCode;
   variant?: 'icon' | 'label' | 'code';
 }
 
-export const CurrencyDisplay = React.forwardRef<
-  HTMLDivElement,
-  CurrencyDisplayProps
->(({ code, variant = 'label', className, ...props }, ref) => {
-  const currency = code ? CURRENCY_CODES[code] : undefined;
-  const CurrencyIcon = currency?.Icon;
+export const CurrencyDisplay = React.forwardRef<HTMLDivElement, CurrencyDisplayProps>(
+  ({ code, variant = 'label', className, ...props }, ref) => {
+    const currency = code ? CURRENCY_CODES[code] : undefined;
+    const CurrencyIcon = currency?.Icon;
 
-  if (variant === 'icon' && CurrencyIcon) {
-    return <CurrencyIcon className="size-4" />;
-  }
+    if (variant === 'icon' && CurrencyIcon) {
+      return <CurrencyIcon className="size-4" />;
+    }
 
-  if (variant === 'code' || variant === 'icon') {
-    return <span className="text-muted-foreground mr-auto">{code}</span>;
-  }
+    if (variant === 'code' || variant === 'icon') {
+      return <span className="text-muted-foreground mr-auto">{code}</span>;
+    }
 
-  return (
-    <div
-      ref={ref}
-      className={cn('flex items-center gap-2', className)}
-      {...props}
-    >
-      {CurrencyIcon && <CurrencyIcon className="size-4" />}
-      <span className="mr-auto">{currency?.label}</span>
-    </div>
-  );
-});
+    return (
+      <div ref={ref} className={cn('flex items-center gap-2', className)} {...props}>
+        {CurrencyIcon && <CurrencyIcon className="size-4" />}
+        <span className="mr-auto">{currency?.label}</span>
+      </div>
+    );
+  },
+);
 
 CurrencyDisplay.displayName = 'CurrencyDisplay';

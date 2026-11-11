@@ -73,7 +73,11 @@ const TagChange = z.object({
 
 export const companiesContract = {
   list: oc
-    .route({ method: 'GET', path: '/companies', summary: 'Companies of the organisation, newest first' })
+    .route({
+      method: 'GET',
+      path: '/companies',
+      summary: 'Companies of the organisation, newest first',
+    })
     .input(
       CursorQuery.extend({
         search: z.string().trim().max(100).optional(),
@@ -107,7 +111,11 @@ export const companiesContract = {
     .input(CompanyFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(Company),
   remove: oc
-    .route({ method: 'POST', path: '/companies/remove', summary: 'Delete companies (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/companies/remove',
+      summary: 'Delete companies (owners and admins)',
+    })
     .input(Ids)
     .output(z.object({ removed: z.number().int() })),
   merge: oc
@@ -119,7 +127,11 @@ export const companiesContract = {
     .input(MergeInput)
     .output(Company),
   tag: oc
-    .route({ method: 'POST', path: '/companies/tag', summary: 'Add and remove tags on many companies' })
+    .route({
+      method: 'POST',
+      path: '/companies/tag',
+      summary: 'Add and remove tags on many companies',
+    })
     .input(TagChange)
     .output(z.object({ updated: z.number().int() })),
 };

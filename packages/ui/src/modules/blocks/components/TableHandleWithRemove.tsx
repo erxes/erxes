@@ -99,10 +99,7 @@ const TableColorPicker = (props: TableHandleMenuProps) => {
           {dictionary.drag_handle.colors_menuitem}
         </Components.Generic.Menu.Item>
       </Components.Generic.Menu.Trigger>
-      <Components.Generic.Menu.Dropdown
-        sub
-        className="bn-menu-dropdown bn-color-picker-dropdown"
-      >
+      <Components.Generic.Menu.Dropdown sub className="bn-menu-dropdown bn-color-picker-dropdown">
         <Components.Generic.Menu.Label>
           {dictionary.color_picker.text_title}
         </Components.Generic.Menu.Label>
@@ -113,8 +110,7 @@ const TableColorPicker = (props: TableHandleMenuProps) => {
             checked={
               currentCells.every(
                 ({ cell }) =>
-                  isTableCell(cell) &&
-                  cell.props.textColor === firstCell.props.textColor,
+                  isTableCell(cell) && cell.props.textColor === firstCell.props.textColor,
               ) && firstCell.props.textColor === color
             }
             onClick={() => updateColor(color, 'text')}
@@ -133,8 +129,7 @@ const TableColorPicker = (props: TableHandleMenuProps) => {
               currentCells.every(
                 ({ cell }) =>
                   isTableCell(cell) &&
-                  cell.props.backgroundColor ===
-                    firstCell.props.backgroundColor,
+                  cell.props.backgroundColor === firstCell.props.backgroundColor,
               ) && firstCell.props.backgroundColor === color
             }
             onClick={() => updateColor(color, 'background')}
@@ -209,10 +204,7 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
             const block = editor.getBlock(props.block.id);
             if (block?.type !== 'table') return;
 
-            const { insertedBlocks } = editor.replaceBlocks(
-              [block],
-              [{ type: 'paragraph' }],
-            );
+            const { insertedBlocks } = editor.replaceBlocks([block], [{ type: 'paragraph' }]);
             editor.setTextCursorPosition(insertedBlocks[0], 'start');
             editor.focus();
           });
@@ -228,9 +220,7 @@ export const TableHandleWithRemove = (props: TableHandleProps) => {
   return (
     <TableHandle
       {...props}
-      tableHandleMenu={
-        TableHandleMenuWithRemove as unknown as TableHandleProps['tableHandleMenu']
-      }
+      tableHandleMenu={TableHandleMenuWithRemove as unknown as TableHandleProps['tableHandleMenu']}
     >
       <IconGripVertical size={24} data-test="tableHandle" />
     </TableHandle>

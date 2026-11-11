@@ -20,7 +20,10 @@ export const DashboardTileCrashState = ({ onRetry }: { onRetry: () => void }) =>
 };
 
 /** What `react-error-boundary` did in old core-ui, for one tile. */
-export class DashboardTileErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+export class DashboardTileErrorBoundary extends Component<
+  { children: ReactNode },
+  { failed: boolean }
+> {
   state = { failed: false };
 
   static getDerivedStateFromError() {

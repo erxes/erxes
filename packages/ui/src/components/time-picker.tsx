@@ -14,11 +14,7 @@ import {
 
 import { cn } from 'erxes-ui/lib';
 
-function DateField<T extends DateValueRac>({
-  className,
-  children,
-  ...props
-}: DateFieldProps<T>) {
+function DateField<T extends DateValueRac>({ className, children, ...props }: DateFieldProps<T>) {
   return (
     <DateFieldRac
       className={composeRenderProps(className, (className) => cn(className))}
@@ -29,11 +25,7 @@ function DateField<T extends DateValueRac>({
   );
 }
 
-function TimeField<T extends TimeValueRac>({
-  className,
-  children,
-  ...props
-}: TimeFieldProps<T>) {
+function TimeField<T extends TimeValueRac>({ className, children, ...props }: TimeFieldProps<T>) {
   return (
     <TimeFieldRac
       className={composeRenderProps(className, (className) => cn(className))}
@@ -64,11 +56,7 @@ interface DateInputProps extends DateInputPropsRac {
   unstyled?: boolean;
 }
 
-function DateInput({
-  className,
-  unstyled = false,
-  ...props
-}: Omit<DateInputProps, 'children'>) {
+function DateInput({ className, unstyled = false, ...props }: Omit<DateInputProps, 'children'>) {
   return (
     <DateInputRac
       className={composeRenderProps(className, (className) =>

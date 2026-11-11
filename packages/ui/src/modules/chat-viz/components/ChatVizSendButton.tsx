@@ -22,12 +22,7 @@ interface Props {
   label?: string;
 }
 
-export function ChatVizSendButton({
-  payload,
-  onSend,
-  disabled,
-  label = 'Send chart',
-}: Props) {
+export function ChatVizSendButton({ payload, onSend, disabled, label = 'Send chart' }: Props) {
   const handleClick = () => {
     const serialized = serializeChartVizPayload(payload);
     if (serialized) onSend(serialized);

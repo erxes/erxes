@@ -15,11 +15,16 @@ import { customerName, useCustomer } from '../customers/useCustomers';
 export type TContactKind = 'customer' | 'company';
 
 /** What a customer reads as: its name, else its email or phone. */
-export const customerTitle = (customer: Pick<Customer, 'firstName' | 'middleName' | 'lastName' | 'primaryEmail' | 'primaryPhone'>) =>
-  customerName(customer) || customer.primaryEmail || customer.primaryPhone || '';
+export const customerTitle = (
+  customer: Pick<
+    Customer,
+    'firstName' | 'middleName' | 'lastName' | 'primaryEmail' | 'primaryPhone'
+  >,
+) => customerName(customer) || customer.primaryEmail || customer.primaryPhone || '';
 
-export const companyTitle = (company: Pick<Company, 'primaryName' | 'primaryEmail' | 'primaryPhone'>) =>
-  company.primaryName || company.primaryEmail || company.primaryPhone || '';
+export const companyTitle = (
+  company: Pick<Company, 'primaryName' | 'primaryEmail' | 'primaryPhone'>,
+) => company.primaryName || company.primaryEmail || company.primaryPhone || '';
 
 interface IContactOption {
   id: string;
@@ -28,7 +33,15 @@ interface IContactOption {
 }
 
 // One linked record: its avatar and name; clicking opens it in the panel.
-const RelationChip = ({ name, avatar, onOpen }: { name: string; avatar?: string | null; onOpen: () => void }) => (
+const RelationChip = ({
+  name,
+  avatar,
+  onOpen,
+}: {
+  name: string;
+  avatar?: string | null;
+  onOpen: () => void;
+}) => (
   <button
     type="button"
     onClick={onOpen}
@@ -68,13 +81,29 @@ const CompanyChip = ({ id, onOpen }: { id: string; onOpen: () => void }) => {
   if (isPending) return <ChipSkeleton />;
 
   return (
-    <RelationChip name={(company && companyTitle(company)) || id} avatar={company?.avatarUrl} onOpen={onOpen} />
+    <RelationChip
+      name={(company && companyTitle(company)) || id}
+      avatar={company?.avatarUrl}
+      onOpen={onOpen}
+    />
   );
 };
 
 // A linked customer or company as a chip; clicking it calls `onOpen`.
-export const ContactRecordChip = ({ kind, id, onOpen }: { kind: TContactKind; id: string; onOpen: () => void }) =>
-  kind === 'customer' ? <CustomerChip id={id} onOpen={onOpen} /> : <CompanyChip id={id} onOpen={onOpen} />;
+export const ContactRecordChip = ({
+  kind,
+  id,
+  onOpen,
+}: {
+  kind: TContactKind;
+  id: string;
+  onOpen: () => void;
+}) =>
+  kind === 'customer' ? (
+    <CustomerChip id={id} onOpen={onOpen} />
+  ) : (
+    <CompanyChip id={id} onOpen={onOpen} />
+  );
 
 const useDebounced = (value: string, delay: number) => {
   const [debounced, setDebounced] = useState(value);
@@ -88,7 +117,11 @@ const useDebounced = (value: string, delay: number) => {
   return debounced;
 };
 
-const searchContacts = async (kind: TContactKind, search: string, ids?: string[]): Promise<IContactOption[]> => {
+const searchContacts = async (
+  kind: TContactKind,
+  search: string,
+  ids?: string[],
+): Promise<IContactOption[]> => {
   if (ids && !ids.length) return [];
 
   if (kind === 'customer') {
@@ -111,7 +144,11 @@ const searchContacts = async (kind: TContactKind, search: string, ids?: string[]
     ids: ids?.join(','),
   });
 
-  return data.map((company) => ({ id: company.id, name: companyTitle(company), avatarUrl: company.avatarUrl }));
+  return data.map((company) => ({
+    id: company.id,
+    name: companyTitle(company),
+    avatarUrl: company.avatarUrl,
+  }));
 };
 
 const ContactOptionItem = ({
@@ -160,12 +197,19 @@ export const SelectContactContent = ({
     queryKey: [kind === 'customer' ? 'customers' : 'companies', 'options', 'search', debounced],
     queryFn: () => searchContacts(kind, debounced),
   });
-  const toggle = (id: string) => onValueChange(value.includes(id) ? value.filter((item) => item !== id) : [...value, id]);
+  const toggle = (id: string) =>
+    onValueChange(value.includes(id) ? value.filter((item) => item !== id) : [...value, id]);
   const selectedOptions = (selected.data ?? []).filter((option) => value.includes(option.id));
 
   return (
     <Command shouldFilter={false}>
-      <Command.Input value={search} onValueChange={setSearch} variant="secondary" wrapperClassName="flex-auto" focusOnMount />
+      <Command.Input
+        value={search}
+        onValueChange={setSearch}
+        variant="secondary"
+        wrapperClassName="flex-auto"
+        focusOnMount
+      />
       <Command.List className="max-h-[300px] overflow-y-auto">
         {selectedOptions.length > 0 && (
           <>
@@ -182,7 +226,9 @@ export const SelectContactContent = ({
           </>
         )}
         <Combobox.Empty loading={matches.isPending} />
-        {matches.error && <div className="p-2 text-xs text-destructive">{matches.error.message}</div>}
+        {matches.error && (
+          <div className="p-2 text-xs text-destructive">{matches.error.message}</div>
+        )}
         {!matches.isPending &&
           (matches.data ?? [])
             .filter((option) => !value.includes(option.id))

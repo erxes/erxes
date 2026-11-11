@@ -20,7 +20,11 @@ export const tags = pgTable(
     updatedAt: updatedAt(),
   },
   (table) => [
-    uniqueIndex('core_tags_org_type_name_key').on(table.orgId, table.type, sql`lower(${table.name})`),
+    uniqueIndex('core_tags_org_type_name_key').on(
+      table.orgId,
+      table.type,
+      sql`lower(${table.name})`,
+    ),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
@@ -35,7 +39,10 @@ export const tags = pgTable(
  * foreign keys: deleting a tag or a record removes its links.
  * `recordId` is the customer / company id.
  */
-const tagLinks = (name: 'customer_tags' | 'company_tags', recordColumn: 'customer_id' | 'company_id') => {
+const tagLinks = (
+  name: 'customer_tags' | 'company_tags',
+  recordColumn: 'customer_id' | 'company_id',
+) => {
   const records = recordColumn === 'customer_id' ? customers : companies;
 
   return pgTable(

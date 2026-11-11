@@ -1,7 +1,6 @@
 import { randomBytes } from 'node:crypto';
 
-const ALPHABET =
-  '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
+const ALPHABET = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
 
 /**
  * Text ids, 17 characters, in the style of old erxes ids so records imported

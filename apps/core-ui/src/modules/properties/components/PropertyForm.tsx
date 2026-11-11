@@ -25,7 +25,13 @@ import { AddPropertyGroup } from './PropertyGroupAdd';
 
 type PropertyFormApi = UseFormReturn<IPropertyForm, unknown, IPropertyValues>;
 
-const PropertyFormGroupField = ({ form, contentType }: { form: PropertyFormApi; contentType: ContentType }) => {
+const PropertyFormGroupField = ({
+  form,
+  contentType,
+}: {
+  form: PropertyFormApi;
+  contentType: ContentType;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groups } = useFieldGroups(contentType);
   const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
@@ -146,7 +152,9 @@ const PropertyFormSelectFields = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const type = form.watch('type');
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'options' });
-  const savedValues = new Set((form.formState.defaultValues?.options ?? []).map((option) => option?.value));
+  const savedValues = new Set(
+    (form.formState.defaultValues?.options ?? []).map((option) => option?.value),
+  );
 
   if (!hasOptions(type)) {
     return null;
@@ -170,7 +178,11 @@ const PropertyFormSelectFields = ({
                     <Form.Item className="flex-auto">
                       {index === 0 && <Form.Label>{t('label', 'Label')}</Form.Label>}
                       <Form.Control>
-                        <Input {...field} placeholder={t('enter-label', 'Enter label')} disabled={held > 0} />
+                        <Input
+                          {...field}
+                          placeholder={t('enter-label', 'Enter label')}
+                          disabled={held > 0}
+                        />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -179,7 +191,10 @@ const PropertyFormSelectFields = ({
                 {/* Kept even when empty so the columns line up across rows. */}
                 <div className="mt-auto flex h-8 w-8 shrink-0 items-center justify-center">
                   {held > 0 && (
-                    <Badge variant="secondary" title={t('option-held-by', 'Records holding this option')}>
+                    <Badge
+                      variant="secondary"
+                      title={t('option-held-by', 'Records holding this option')}
+                    >
                       {held}
                     </Badge>
                   )}
@@ -202,7 +217,9 @@ const PropertyFormSelectFields = ({
             <IconPlus /> {t('add-option', 'Add option')}
           </Button>
           {form.formState.errors.options?.message && (
-            <p className="text-sm font-medium text-destructive">{form.formState.errors.options.message}</p>
+            <p className="text-sm font-medium text-destructive">
+              {form.formState.errors.options.message}
+            </p>
           )}
         </div>
       </InfoCard.Content>
@@ -217,7 +234,10 @@ const PropertyTypeUsageHint = ({ usage, failed }: { usage?: FieldUsage; failed: 
   if (failed) {
     return (
       <p className="text-sm text-muted-foreground">
-        {t('type-limited-unknown', 'Could not check its records, so only types with the same stored value are offered.')}
+        {t(
+          'type-limited-unknown',
+          'Could not check its records, so only types with the same stored value are offered.',
+        )}
       </p>
     );
   }
@@ -228,10 +248,14 @@ const PropertyTypeUsageHint = ({ usage, failed }: { usage?: FieldUsage; failed: 
 
   return (
     <p className="text-sm text-muted-foreground">
-      {t('type-limited-values', '{{total}} records hold a value, so only types with the same stored value are offered.', {
-        count: usage.records,
-        total: usage.records,
-      })}
+      {t(
+        'type-limited-values',
+        '{{total}} records hold a value, so only types with the same stored value are offered.',
+        {
+          count: usage.records,
+          total: usage.records,
+        },
+      )}
     </p>
   );
 };
@@ -276,7 +300,11 @@ export const PropertyForm = ({
 
   return (
     <Form {...form}>
-      <form className="mx-auto flex w-full max-w-2xl flex-col gap-0" onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form
+        className="mx-auto flex w-full max-w-2xl flex-col gap-0"
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+      >
         <div className="flex flex-col px-5 py-4 gap-5">
           <div className="flex gap-5">
             <Form.Field
@@ -396,7 +424,13 @@ export const PropertyForm = ({
           </Button>
           {manager && (
             <Button type="submit" disabled={loading}>
-              {loading ? <Spinner containerClassName="flex-none" /> : isEdit ? <IconPencil /> : <IconPlus />}
+              {loading ? (
+                <Spinner containerClassName="flex-none" />
+              ) : isEdit ? (
+                <IconPencil />
+              ) : (
+                <IconPlus />
+              )}
               {isEdit ? t('update-property', 'Update Property') : t('add-property', 'Add Property')}
             </Button>
           )}

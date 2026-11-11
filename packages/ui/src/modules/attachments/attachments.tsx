@@ -14,11 +14,7 @@ import {
 } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 
-import {
-  AttachmentRoot,
-  useAttachmentContext,
-  type AttachmentRootProps,
-} from './context';
+import { AttachmentRoot, useAttachmentContext, type AttachmentRootProps } from './context';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import type { IAttachment } from './types';
 
@@ -110,20 +106,15 @@ const AttachmentFiles = ({
   fileTypes = DEFAULT_FILE_TYPES,
   heading = 'File Attachments',
 }: AttachmentFilesProps) => {
-  const { attachments, handleRemoveAttachment, removingUrl, isLoading } =
-    useAttachmentContext();
+  const { attachments, handleRemoveAttachment, removingUrl, isLoading } = useAttachmentContext();
 
-  const fileAttachments = attachments.filter(
-    (a) => a?.type != null && fileTypes.has(a.type),
-  );
+  const fileAttachments = attachments.filter((a) => a?.type != null && fileTypes.has(a.type));
 
   if (fileAttachments.length === 0) return null;
 
   return (
     <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        {heading}
-      </h4>
+      <h4 className="uppercase text-sm text-muted-foreground pb-4">{heading}</h4>
       <ScrollTrack label="File attachments">
         {fileAttachments.map((attachment) => {
           const isRemoving = removingUrl === attachment.url;
@@ -178,22 +169,17 @@ const AttachmentPreview = ({
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const { attachments, handleRemoveAttachment, removingUrl, isLoading } =
-    useAttachmentContext();
+  const { attachments, handleRemoveAttachment, removingUrl, isLoading } = useAttachmentContext();
 
   const mediaAttachments = attachments.filter(
     (a) => a?.type != null && a.type.startsWith('image/'),
   );
 
-  const current =
-    mediaAttachments[Math.min(currentIndex, mediaAttachments.length - 1)];
+  const current = mediaAttachments[Math.min(currentIndex, mediaAttachments.length - 1)];
 
   // Clamp index when list shrinks
   useEffect(() => {
-    if (
-      currentIndex >= mediaAttachments.length &&
-      mediaAttachments.length > 0
-    ) {
+    if (currentIndex >= mediaAttachments.length && mediaAttachments.length > 0) {
       setCurrentIndex(mediaAttachments.length - 1);
     }
   }, [mediaAttachments.length, currentIndex]);
@@ -202,8 +188,7 @@ const AttachmentPreview = ({
   useEffect(() => {
     if (!open || mediaAttachments.length === 0) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight')
-        setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
+      if (e.key === 'ArrowRight') setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
       if (e.key === 'ArrowLeft')
         setCurrentIndex((i) => (i === 0 ? mediaAttachments.length - 1 : i - 1));
     };
@@ -213,8 +198,7 @@ const AttachmentPreview = ({
 
   if (mediaAttachments.length === 0) return null;
 
-  const prev = () =>
-    setCurrentIndex((i) => (i === 0 ? mediaAttachments.length - 1 : i - 1));
+  const prev = () => setCurrentIndex((i) => (i === 0 ? mediaAttachments.length - 1 : i - 1));
   const next = () => setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
   const openPreview = (index: number) => {
     setCurrentIndex(index);
@@ -223,11 +207,7 @@ const AttachmentPreview = ({
 
   return (
     <div className={cn('py-4 px-8', className)}>
-      {heading && (
-        <h4 className="uppercase text-sm text-muted-foreground pb-4">
-          {heading}
-        </h4>
-      )}
+      {heading && <h4 className="uppercase text-sm text-muted-foreground pb-4">{heading}</h4>}
 
       {renderThumbnails ? (
         renderThumbnails(openPreview)
@@ -252,11 +232,7 @@ const AttachmentPreview = ({
                   {isLoading && isRemoving ? (
                     <Spinner />
                   ) : (
-                    <IconZoomIn
-                      size={28}
-                      className="text-primary-foreground"
-                      aria-hidden
-                    />
+                    <IconZoomIn size={28} className="text-primary-foreground" aria-hidden />
                   )}
                 </div>
                 <Button
@@ -283,9 +259,7 @@ const AttachmentPreview = ({
           className="relative bg-transparent max-w-fit shadow-none border-0"
           aria-describedby={undefined}
         >
-          <Dialog.Title className="sr-only">
-            {current.name || 'Image preview'}
-          </Dialog.Title>
+          <Dialog.Title className="sr-only">{current.name || 'Image preview'}</Dialog.Title>
           <Button
             variant={'secondary'}
             size={'icon'}
@@ -356,14 +330,11 @@ export type AttachmentVideoProps = {
   heading?: string;
 };
 
-const AttachmentVideo = ({
-  heading = 'Video Attachments',
-}: AttachmentVideoProps) => {
+const AttachmentVideo = ({ heading = 'Video Attachments' }: AttachmentVideoProps) => {
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const { attachments, handleRemoveAttachment, removingUrl, isLoading } =
-    useAttachmentContext();
+  const { attachments, handleRemoveAttachment, removingUrl, isLoading } = useAttachmentContext();
 
   const videoAttachments = attachments.filter(
     (a) => a?.type != null && a.type.startsWith('video/'),
@@ -373,10 +344,7 @@ const AttachmentVideo = ({
 
   // Clamp index when list shrinks
   useEffect(() => {
-    if (
-      currentIndex >= videoAttachments.length &&
-      videoAttachments.length > 0
-    ) {
+    if (currentIndex >= videoAttachments.length && videoAttachments.length > 0) {
       setCurrentIndex(videoAttachments.length - 1);
     }
   }, [videoAttachments.length, currentIndex]);
@@ -384,8 +352,7 @@ const AttachmentVideo = ({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight')
-        setCurrentIndex((i) => (i + 1) % videoAttachments.length);
+      if (e.key === 'ArrowRight') setCurrentIndex((i) => (i + 1) % videoAttachments.length);
       if (e.key === 'ArrowLeft')
         setCurrentIndex((i) => (i === 0 ? videoAttachments.length - 1 : i - 1));
     };
@@ -395,17 +362,14 @@ const AttachmentVideo = ({
 
   if (videoAttachments.length === 0) return null;
 
-  const prev = () =>
-    setCurrentIndex((i) => (i === 0 ? videoAttachments.length - 1 : i - 1));
+  const prev = () => setCurrentIndex((i) => (i === 0 ? videoAttachments.length - 1 : i - 1));
   const next = () => setCurrentIndex((i) => (i + 1) % videoAttachments.length);
 
   const currentBase = current ? getCloudflareStreamBase(current.url) : null;
 
   return (
     <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        {heading}
-      </h4>
+      <h4 className="uppercase text-sm text-muted-foreground pb-4">{heading}</h4>
 
       <ScrollTrack label="Video attachments">
         {videoAttachments.map((attachment, index) => {
@@ -440,11 +404,7 @@ const AttachmentVideo = ({
                 {isLoading && isRemoving ? (
                   <Spinner />
                 ) : (
-                  <IconPlayerPlayFilled
-                    size={28}
-                    className="text-primary-foreground"
-                    aria-hidden
-                  />
+                  <IconPlayerPlayFilled size={28} className="text-primary-foreground" aria-hidden />
                 )}
               </div>
               <Button
@@ -531,11 +491,8 @@ export type AttachmentAudioProps = {
   heading?: string;
 };
 
-const AttachmentAudio = ({
-  heading = 'Audio Attachments',
-}: AttachmentAudioProps) => {
-  const { attachments, handleRemoveAttachment, removingUrl, isLoading } =
-    useAttachmentContext();
+const AttachmentAudio = ({ heading = 'Audio Attachments' }: AttachmentAudioProps) => {
+  const { attachments, handleRemoveAttachment, removingUrl, isLoading } = useAttachmentContext();
 
   const audioAttachments = attachments.filter(
     (a) => a?.type != null && a.type.startsWith('audio/'),
@@ -545,9 +502,7 @@ const AttachmentAudio = ({
 
   return (
     <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        {heading}
-      </h4>
+      <h4 className="uppercase text-sm text-muted-foreground pb-4">{heading}</h4>
 
       <div className="flex flex-col gap-2" role="list" aria-label={heading}>
         {audioAttachments.map((attachment) => {
@@ -559,24 +514,12 @@ const AttachmentAudio = ({
               className="group relative w-72 max-w-full rounded-lg border border-border shadow-sm bg-background p-2"
             >
               <div className="flex items-center gap-1.5 pb-1.5 pr-5">
-                <IconMusic
-                  size={14}
-                  className="text-muted-foreground shrink-0"
-                  aria-hidden
-                />
-                <span
-                  className="text-xs font-medium truncate"
-                  title={attachment.name}
-                >
+                <IconMusic size={14} className="text-muted-foreground shrink-0" aria-hidden />
+                <span className="text-xs font-medium truncate" title={attachment.name}>
                   {attachment.name}
                 </span>
               </div>
-              <audio
-                className="w-full"
-                src={readImage(attachment.url)}
-                controls
-                preload="metadata"
-              >
+              <audio className="w-full" src={readImage(attachment.url)} controls preload="metadata">
                 <track kind="captions" />
               </audio>
               <Button
@@ -602,11 +545,7 @@ export type AttachmentUploaderProps = {
   label?: string;
 };
 
-const AttachmentUploader = ({
-  onSave,
-  id,
-  label = 'Add attachments',
-}: AttachmentUploaderProps) => {
+const AttachmentUploader = ({ onSave, id, label = 'Add attachments' }: AttachmentUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({
     uploaded: 0,
@@ -622,10 +561,7 @@ const AttachmentUploader = ({
 
   // Batch-complete — fires once all files in a batch finish
   useEffect(() => {
-    if (
-      uploadProgress.total > 0 &&
-      uploadProgress.uploaded === uploadProgress.total
-    ) {
+    if (uploadProgress.total > 0 && uploadProgress.uploaded === uploadProgress.total) {
       const cleaned = attachmentsRef.current.map(stripTypename);
       onSave?.(cleaned);
       setUploadProgress({ uploaded: 0, total: 0 });
@@ -698,9 +634,7 @@ const AttachmentsInline = ({
   fileTypes = DEFAULT_FILE_TYPES,
 }: AttachmentsInlineProps) => {
   const images = attachments.filter((a) => a?.type?.startsWith('image/'));
-  const files = attachments.filter(
-    (a) => a?.type != null && fileTypes.has(a.type),
-  );
+  const files = attachments.filter((a) => a?.type != null && fileTypes.has(a.type));
 
   return (
     <RecordTableInlineCell>

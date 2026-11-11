@@ -2,39 +2,21 @@ import * as React from 'react';
 
 import { cn } from 'erxes-ui/lib/utils';
 
-function ReportTableRoot({
-  className,
-  ...props
-}: React.ComponentProps<'table'>) {
+function ReportTableRoot({ className, ...props }: React.ComponentProps<'table'>) {
   return (
     <table
       data-slot="table"
-      className={cn(
-        'w-full overflow-hidden caption-bottom text-[1em]',
-        className,
-      )}
+      className={cn('w-full overflow-hidden caption-bottom text-[1em]', className)}
       {...props}
     />
   );
 }
 
-function ReportTableHeader({
-  className,
-  ...props
-}: React.ComponentProps<'thead'>) {
-  return (
-    <thead
-      data-slot="table-header"
-      className={cn('[&_tr]:border', className)}
-      {...props}
-    />
-  );
+function ReportTableHeader({ className, ...props }: React.ComponentProps<'thead'>) {
+  return <thead data-slot="table-header" className={cn('[&_tr]:border', className)} {...props} />;
 }
 
-function ReportTableBody({
-  className,
-  ...props
-}: React.ComponentProps<'tbody'>) {
+function ReportTableBody({ className, ...props }: React.ComponentProps<'tbody'>) {
   return (
     <tbody
       data-slot="table-body"
@@ -44,17 +26,11 @@ function ReportTableBody({
   );
 }
 
-function ReportTableFooter({
-  className,
-  ...props
-}: React.ComponentProps<'tfoot'>) {
+function ReportTableFooter({ className, ...props }: React.ComponentProps<'tfoot'>) {
   return (
     <tfoot
       data-slot="table-footer"
-      className={cn(
-        'border-t font-medium [&>tr]:last:border-b-0',
-        className,
-      )}
+      className={cn('border-t font-medium [&>tr]:last:border-b-0', className)}
       {...props}
     />
   );
@@ -99,10 +75,7 @@ function ReportTableCell({ className, ...props }: React.ComponentProps<'td'>) {
   );
 }
 
-function ReportTableCaption({
-  className,
-  ...props
-}: React.ComponentProps<'caption'>) {
+function ReportTableCaption({ className, ...props }: React.ComponentProps<'caption'>) {
   return (
     <caption
       data-slot="table-caption"

@@ -17,11 +17,17 @@ export const PropertyArchiveDialog = () => {
   const description = checking
     ? t('remove-checking', 'Checking whether anything uses it…')
     : target?.archived && !removable
-      ? t('remove-archived-in-use', 'Records still hold values or rules depend on it, so it stays in Archived.')
+      ? t(
+          'remove-archived-in-use',
+          'Records still hold values or rules depend on it, so it stays in Archived.',
+        )
       : removable
         ? t('remove-unused', 'Nothing uses it and no record holds a value, so it can be deleted.')
         : failed
-          ? t('remove-unknown', 'Could not confirm that no record holds a value, so it can only be archived.')
+          ? t(
+              'remove-unknown',
+              'Could not confirm that no record holds a value, so it can only be archived.',
+            )
           : t(
               'remove-has-values',
               'Records hold values, so it can only be archived — the values stay and it can be restored any time.',
@@ -58,7 +64,11 @@ export const PropertyArchiveDialog = () => {
             </Button>
           )}
           {removable && (
-            <Button variant="destructive" disabled={loading} onClick={() => target && remove(target, close)}>
+            <Button
+              variant="destructive"
+              disabled={loading}
+              onClick={() => target && remove(target, close)}
+            >
               {t('delete', 'Delete')}
             </Button>
           )}

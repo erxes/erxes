@@ -23,7 +23,6 @@ export function formatEmails(
   ];
 
   return formattedEmails.filter(
-    (email, index, self) =>
-      index === self.findIndex((t) => t.email === email.email),
+    (email, index, self) => index === self.findIndex((t) => t.email === email.email),
   );
 }

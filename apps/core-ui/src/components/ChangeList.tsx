@@ -41,7 +41,12 @@ const listOf = (values: string[]) => values.join(', ');
 
 /** A recorded value as text: names for owners, tags and options; `—` for empty. */
 const formatValue = (field: string, value: unknown, lookups: Lookups): string => {
-  if (value === null || value === undefined || value === '' || (Array.isArray(value) && !value.length)) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === '' ||
+    (Array.isArray(value) && !value.length)
+  ) {
     return '—';
   }
 
@@ -56,7 +61,13 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   }
 
   if (field === 'description' && typeof value === 'string') {
-    return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) || '—';
+    return (
+      value
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 120) || '—'
+    );
   }
 
   if (field === 'avatarUrl') {
@@ -74,15 +85,28 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   return String(value);
 };
 
-const fieldLabel = (field: string, lookups: Lookups, t: (key: string, fallback: string) => string) => {
+const fieldLabel = (
+  field: string,
+  lookups: Lookups,
+  t: (key: string, fallback: string) => string,
+) => {
   if (field.startsWith('customFields.')) {
-    return lookups.fields.get(field.slice('customFields.'.length))?.label ?? t('deleted-property', 'A deleted property');
+    return (
+      lookups.fields.get(field.slice('customFields.'.length))?.label ??
+      t('deleted-property', 'A deleted property')
+    );
   }
 
   return t(`fields.${field}`, FIELD_LABELS[field] ?? field);
 };
 
-export const ChangeList = ({ changes, lookups }: { changes: Record<string, [unknown, unknown]>; lookups: Lookups }) => {
+export const ChangeList = ({
+  changes,
+  lookups,
+}: {
+  changes: Record<string, [unknown, unknown]>;
+  lookups: Lookups;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
 
   return (
@@ -90,7 +114,9 @@ export const ChangeList = ({ changes, lookups }: { changes: Record<string, [unkn
       {Object.entries(changes).map(([field, [before, after]]) => (
         <li key={field} className="flex flex-wrap gap-1 text-muted-foreground">
           <span className="font-medium text-foreground">{fieldLabel(field, lookups, t)}:</span>
-          <span className="line-through decoration-muted-foreground/50">{formatValue(field, before, lookups)}</span>
+          <span className="line-through decoration-muted-foreground/50">
+            {formatValue(field, before, lookups)}
+          </span>
           <span aria-hidden="true">→</span>
           <span className="text-foreground">{formatValue(field, after, lookups)}</span>
         </li>
@@ -98,7 +124,6 @@ export const ChangeList = ({ changes, lookups }: { changes: Record<string, [unkn
     </ul>
   );
 };
-
 
 /**
  * Names for the values in `changes` of a customer or company: owners, tags

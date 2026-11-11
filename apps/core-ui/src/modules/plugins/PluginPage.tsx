@@ -1,11 +1,26 @@
 import { IconPlugConnectedX, IconRefresh } from '@tabler/icons-react';
 import { Button, Spinner } from 'erxes-ui';
-import { Component, type ComponentType, type ErrorInfo, type ReactNode, useEffect, useState } from 'react';
+import {
+  Component,
+  type ComponentType,
+  type ErrorInfo,
+  type ReactNode,
+  useEffect,
+  useState,
+} from 'react';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { loadedPluginComponent, loadPluginComponent } from './remotes';
 import type { LoadedPlugin } from './types';
 
-const Failure = ({ title, message, onRetry }: { title: string; message: string; onRetry?: () => void }) => (
+const Failure = ({
+  title,
+  message,
+  onRetry,
+}: {
+  title: string;
+  message: string;
+  onRetry?: () => void;
+}) => (
   <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
     <IconPlugConnectedX className="size-8 text-muted-foreground" />
     <div className="space-y-1">

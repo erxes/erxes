@@ -33,7 +33,12 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
   const open = openStreams.get(key) ?? 0;
 
   if (open >= config.live.maxStreamsPerUser) {
-    res.status(429).json({ defined: false, code: 'TOO_MANY_STREAMS', status: 429, message: 'Too many open streams' });
+    res.status(429).json({
+      defined: false,
+      code: 'TOO_MANY_STREAMS',
+      status: 429,
+      message: 'Too many open streams',
+    });
     return;
   }
 
@@ -48,7 +53,8 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
     'X-Accel-Buffering': 'no',
   });
 
-  const send = (event: string, data: unknown = {}) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  const send = (event: string, data: unknown = {}) =>
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   let inbox = false;
   let resync = false;
   const pluginTopics = new Map<string, Set<string>>();

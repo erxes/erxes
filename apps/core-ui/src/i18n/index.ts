@@ -32,8 +32,18 @@ const savedLanguage = (): LanguageCode => {
 void i18n.use(initReactI18next).init({
   // Old erxes namespaces, so ported components keep their useTranslation('contact'|…) calls.
   resources: {
-    en: { common: enCommon, contact: enContact, settings: enSettings, organization: enOrganization },
-    mn: { common: mnCommon, contact: mnContact, settings: mnSettings, organization: mnOrganization },
+    en: {
+      common: enCommon,
+      contact: enContact,
+      settings: enSettings,
+      organization: enOrganization,
+    },
+    mn: {
+      common: mnCommon,
+      contact: mnContact,
+      settings: mnSettings,
+      organization: mnOrganization,
+    },
   },
   lng: savedLanguage(),
   fallbackLng: 'en',

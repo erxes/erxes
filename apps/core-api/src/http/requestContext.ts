@@ -11,7 +11,10 @@ const storage = new AsyncLocalStorage<RequestInfo>();
 
 /** Runs the rest of the request with its info available to `requestInfo()`. */
 export const requestContext = (req: Request, _res: Response, next: NextFunction) => {
-  storage.run({ ip: req.ip ?? null, userAgent: req.get('user-agent')?.slice(0, 500) ?? null }, next);
+  storage.run(
+    { ip: req.ip ?? null, userAgent: req.get('user-agent')?.slice(0, 500) ?? null },
+    next,
+  );
 };
 
 /** The current request's info; empty outside a request (jobs, scripts, tests). */

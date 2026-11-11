@@ -83,7 +83,11 @@ export type ActivityInput = z.infer<typeof ActivityInput>;
 /** The customer and company timeline, across core and plugins. */
 export const activitiesContract = {
   list: oc
-    .route({ method: 'GET', path: '/activities', summary: 'A customer’s or company’s timeline, newest first' })
+    .route({
+      method: 'GET',
+      path: '/activities',
+      summary: 'A customer’s or company’s timeline, newest first',
+    })
     .input(
       CursorQuery.extend({
         targetType: ActivityTarget,
@@ -104,7 +108,12 @@ export const activitiesContract = {
     )
     .output(cursorPageOf(Activity)),
   addNote: oc
-    .route({ method: 'POST', path: '/activities/notes', successStatus: 201, summary: 'Add a note to a timeline' })
+    .route({
+      method: 'POST',
+      path: '/activities/notes',
+      successStatus: 201,
+      summary: 'Add a note to a timeline',
+    })
     .input(NoteInput.extend({ targetType: ActivityTarget, targetId: Id }))
     .output(Activity),
   updateNote: oc
@@ -124,7 +133,11 @@ export const activitiesContract = {
     )
     .output(Activity),
   removeNote: oc
-    .route({ method: 'DELETE', path: '/activities/notes/{id}', summary: 'Delete a note (its author, owners and admins)' })
+    .route({
+      method: 'DELETE',
+      path: '/activities/notes/{id}',
+      summary: 'Delete a note (its author, owners and admins)',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   create: oc
@@ -132,7 +145,8 @@ export const activitiesContract = {
       method: 'POST',
       path: '/activities',
       successStatus: 201,
-      summary: 'Add to a customer’s or company’s timeline (plugins only). 404 when the record does not exist',
+      summary:
+        'Add to a customer’s or company’s timeline (plugins only). 404 when the record does not exist',
     })
     .input(ActivityInput)
     .output(z.object({ activity: Activity, created: z.boolean() })),

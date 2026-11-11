@@ -24,16 +24,8 @@ export const organizations = pgTable(
     subdomain: text().notNull(),
     name: text().notNull(),
     settings: jsonb().$type<OrganizationSettings>().default({}).notNull(),
-    createdAt: timestamp({ withTimezone: true, mode: 'date' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp({ withTimezone: true, mode: 'date' })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    updatedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   },
-  (table) => [
-    uniqueIndex('core_organizations_subdomain_key').on(
-      sql`lower(${table.subdomain})`,
-    ),
-  ],
+  (table) => [uniqueIndex('core_organizations_subdomain_key').on(sql`lower(${table.subdomain})`)],
 );

@@ -92,12 +92,14 @@ const codeOf = (name: string) =>
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
 
-const recordsTable = (contentType: ContentType) => (contentType === 'customer' ? customers : companies);
+const recordsTable = (contentType: ContentType) =>
+  contentType === 'customer' ? customers : companies;
 
-const textArray = (values: string[]) => sql`array[${sql.join(
-  values.map((value) => sql`${value}`),
-  sql`, `,
-)}]::text[]`;
+const textArray = (values: string[]) =>
+  sql`array[${sql.join(
+    values.map((value) => sql`${value}`),
+    sql`, `,
+  )}]::text[]`;
 
 const findField = async (client: Db, orgId: string, id: string) => {
   const [row] = await client
@@ -128,7 +130,12 @@ const findGroup = async (client: Db, orgId: string, id: string) => {
 };
 
 /** A group a field of `contentType` may be put in: same organisation and type, not archived. */
-const checkGroup = async (client: Db, orgId: string, contentType: ContentType, groupId: string | null | undefined) => {
+const checkGroup = async (
+  client: Db,
+  orgId: string,
+  contentType: ContentType,
+  groupId: string | null | undefined,
+) => {
   if (!groupId) {
     return;
   }
@@ -140,7 +147,9 @@ const checkGroup = async (client: Db, orgId: string, contentType: ContentType, g
     .limit(1);
 
   if (!group || group.contentType !== contentType || group.archivedAt) {
-    throw new HttpError(400, 'INVALID_FIELD_GROUP', `Not an active ${contentType} field group`, { groupId });
+    throw new HttpError(400, 'INVALID_FIELD_GROUP', `Not an active ${contentType} field group`, {
+      groupId,
+    });
   }
 };
 
@@ -223,9 +232,17 @@ export const listFields = async (
   return { data: rows.map((row) => toFieldDto(row.field, row.groupArchivedAt)) };
 };
 
-export const fieldUsage = async (client: Db, actor: Actor, input: { ids?: string[]; groupId?: string }) => {
+export const fieldUsage = async (
+  client: Db,
+  actor: Actor,
+  input: { ids?: string[]; groupId?: string },
+) => {
   const rows = input.groupId
-    ? await fieldsOfGroup(client, actor.orgId, (await findGroup(client, actor.orgId, input.groupId)).id)
+    ? await fieldsOfGroup(
+        client,
+        actor.orgId,
+        (await findGroup(client, actor.orgId, input.groupId)).id,
+      )
     : await client
         .select()
         .from(fields)
@@ -361,7 +378,11 @@ export const updateField = async (
         ...(input.isVisible !== undefined ? { isVisible: input.isVisible } : {}),
         type,
         options: nextOptions,
-        validation: textType ? (input.validation !== undefined ? input.validation : field.validation) : null,
+        validation: textType
+          ? input.validation !== undefined
+            ? input.validation
+            : field.validation
+          : null,
         updatedAt: sql`now()`,
       })
       .where(and(eq(fields.orgId, actor.orgId), eq(fields.id, id)))
@@ -391,7 +412,11 @@ const setOrders = async (
   return { ok: true as const };
 };
 
-export const reorderFields = (client: Db, actor: Actor, orders: { id: string; order: number }[]) => {
+export const reorderFields = (
+  client: Db,
+  actor: Actor,
+  orders: { id: string; order: number }[],
+) => {
   requireFieldManager(actor);
 
   return setOrders(client, actor.orgId, fields, orders);
@@ -492,7 +517,11 @@ const groupCode = (code: string | undefined, name: string) => {
   const value = code?.trim() || codeOf(name);
 
   if (!value) {
-    throw new HttpError(400, 'INVALID_INPUT', 'Code is required when the name has no Latin letters or digits');
+    throw new HttpError(
+      400,
+      'INVALID_INPUT',
+      'Code is required when the name has no Latin letters or digits',
+    );
   }
 
   return value;
@@ -531,7 +560,12 @@ export const createFieldGroup = async (
   }
 };
 
-const updateGroupRow = async (client: Db, orgId: string, id: string, changes: Partial<GroupRow> | Record<string, SQL>) => {
+const updateGroupRow = async (
+  client: Db,
+  orgId: string,
+  id: string,
+  changes: Partial<GroupRow> | Record<string, SQL>,
+) => {
   const [row] = await client
     .update(fieldGroups)
     .set({ ...changes, updatedAt: sql`now()` })
@@ -562,7 +596,11 @@ export const updateFieldGroup = async (
   }
 };
 
-export const reorderFieldGroups = (client: Db, actor: Actor, orders: { id: string; order: number }[]) => {
+export const reorderFieldGroups = (
+  client: Db,
+  actor: Actor,
+  orders: { id: string; order: number }[],
+) => {
   requireFieldManager(actor);
 
   return setOrders(client, actor.orgId, fieldGroups, orders);
@@ -599,7 +637,9 @@ export const removeFieldGroup = async (client: Db, actor: Actor, id: string) => 
     }
 
     await tx.delete(fields).where(and(eq(fields.orgId, actor.orgId), eq(fields.groupId, id)));
-    await tx.delete(fieldGroups).where(and(eq(fieldGroups.orgId, actor.orgId), eq(fieldGroups.id, id)));
+    await tx
+      .delete(fieldGroups)
+      .where(and(eq(fieldGroups.orgId, actor.orgId), eq(fieldGroups.id, id)));
 
     return { ok: true as const };
   });
@@ -620,8 +660,10 @@ const checkText = (field: FieldRow, value: CustomValue) => {
   const text = value.trim();
 
   if (field.validation === 'email' && !EMAIL.test(text)) throw invalid(field, 'expected an email');
-  if (field.validation === 'number' && !NUMBER.test(text)) throw invalid(field, 'expected a number');
-  if (field.validation === 'date' && Number.isNaN(Date.parse(text))) throw invalid(field, 'expected a date');
+  if (field.validation === 'number' && !NUMBER.test(text))
+    throw invalid(field, 'expected a number');
+  if (field.validation === 'date' && Number.isNaN(Date.parse(text)))
+    throw invalid(field, 'expected a date');
 
   return text;
 };
@@ -639,10 +681,15 @@ const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
       return value.trim();
     }
     case 'number':
-      if (typeof value !== 'number' || !Number.isFinite(value)) throw invalid(field, 'expected a number');
+      if (typeof value !== 'number' || !Number.isFinite(value))
+        throw invalid(field, 'expected a number');
       return value;
     case 'date':
-      if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value))) {
+      if (
+        typeof value !== 'string' ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(value) ||
+        Number.isNaN(Date.parse(value))
+      ) {
         throw invalid(field, 'expected a date (YYYY-MM-DD)');
       }
       return value;
@@ -651,7 +698,8 @@ const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
       return value;
     case 'select':
     case 'radio':
-      if (typeof value !== 'string' || !field.options.includes(value)) throw invalid(field, 'not one of the options');
+      if (typeof value !== 'string' || !field.options.includes(value))
+        throw invalid(field, 'not one of the options');
       return value;
     case 'multiselect':
     case 'check': {
@@ -692,7 +740,9 @@ export const applyCustomFields = async (
     .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
     .from(fields)
     .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
-    .where(and(eq(fields.orgId, orgId), eq(fields.contentType, contentType), inArray(fields.id, ids)));
+    .where(
+      and(eq(fields.orgId, orgId), eq(fields.contentType, contentType), inArray(fields.id, ids)),
+    );
   const byId = new Map(definitions.map((row) => [row.field.id, row]));
   const next = { ...current };
 
@@ -709,7 +759,9 @@ export const applyCustomFields = async (
     }
 
     if (definition.field.archivedAt || definition.groupArchivedAt) {
-      throw new HttpError(400, 'INVALID_FIELD', `${definition.field.label} is archived`, { fieldId: id });
+      throw new HttpError(400, 'INVALID_FIELD', `${definition.field.label} is archived`, {
+        fieldId: id,
+      });
     }
 
     const checked = checkValue(definition.field, value as CustomValue);

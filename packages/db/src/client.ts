@@ -1,9 +1,5 @@
 import { ExtractTablesWithRelations } from 'drizzle-orm';
-import {
-  drizzle,
-  NodePgDatabase,
-  NodePgQueryResultHKT,
-} from 'drizzle-orm/node-postgres';
+import { drizzle, NodePgDatabase, NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
 import { PgTransaction } from 'drizzle-orm/pg-core';
 import { Pool, types } from 'pg';
 import * as schema from './schema';
@@ -36,7 +32,9 @@ export interface DbOptions {
 
 /** pg's TLS options: verified unless explicitly insecure. */
 export const sslOptions = (value: Pick<DbOptions, 'ssl' | 'sslCa' | 'sslInsecure'>) =>
-  value.ssl ? { rejectUnauthorized: !value.sslInsecure, ...(value.sslCa ? { ca: value.sslCa } : {}) } : undefined;
+  value.ssl
+    ? { rejectUnauthorized: !value.sslInsecure, ...(value.sslCa ? { ca: value.sslCa } : {}) }
+    : undefined;
 
 let options: DbOptions | null = null;
 let pool: Pool | null = null;
@@ -78,8 +76,7 @@ export const db = (): Database => {
   return database;
 };
 
-export const withTransaction = <T>(fn: (tx: Transaction) => Promise<T>) =>
-  db().transaction(fn);
+export const withTransaction = <T>(fn: (tx: Transaction) => Promise<T>) => db().transaction(fn);
 
 export const closeDb = async () => {
   const current = pool;

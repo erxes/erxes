@@ -53,12 +53,26 @@ export const createCoreClient = (options: CoreClientOptions) => {
     const response = await fetcher(`${base}${CORE_API_PREFIX}/plugins/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ grant_type: 'client_credentials', client_id: options.plugin, client_secret: options.clientSecret, org }),
+      body: JSON.stringify({
+        grant_type: 'client_credentials',
+        client_id: options.plugin,
+        client_secret: options.clientSecret,
+        org,
+      }),
     });
-    const body = (await response.json().catch(() => ({}))) as { access_token?: string; expires_in?: number; code?: string; message?: string };
+    const body = (await response.json().catch(() => ({}))) as {
+      access_token?: string;
+      expires_in?: number;
+      code?: string;
+      message?: string;
+    };
 
     if (!response.ok || !body.access_token) {
-      throw new CoreTokenError(response.status, body.code ?? 'TOKEN_FAILED', body.message ?? 'Could not get a core token');
+      throw new CoreTokenError(
+        response.status,
+        body.code ?? 'TOKEN_FAILED',
+        body.message ?? 'Could not get a core token',
+      );
     }
 
     return { token: body.access_token, expiresAt: Date.now() + (body.expires_in ?? 900) * 1000 };
@@ -159,7 +173,11 @@ export const verifyPluginSession = async (
   });
   const role = payload.role;
 
-  if (!payload.sub || typeof payload.org !== 'string' || (role !== 'owner' && role !== 'admin' && role !== 'member')) {
+  if (
+    !payload.sub ||
+    typeof payload.org !== 'string' ||
+    (role !== 'owner' && role !== 'admin' && role !== 'member')
+  ) {
     throw new Error('not an erxes plugin session');
   }
 

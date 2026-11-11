@@ -27,18 +27,11 @@ type CommandDialogProps = DialogProps & {
   dialogContentClassName?: string;
 };
 
-const CommandDialog = ({
-  children,
-  dialogContentClassName,
-  ...props
-}: CommandDialogProps) => {
+const CommandDialog = ({ children, dialogContentClassName, ...props }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
       <Dialog.Content
-        className={cn(
-          'overflow-hidden p-0 rounded-lg border-0',
-          dialogContentClassName,
-        )}
+        className={cn('overflow-hidden p-0 rounded-lg border-0', dialogContentClassName)}
       >
         <CommandRoot className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
@@ -67,65 +60,42 @@ const CommandInput = React.forwardRef<
     wrapperClassName?: string;
     focusOnMount?: boolean;
   }
->(
-  (
-    {
-      className,
-      variant = 'secondary',
-      wrapperClassName,
-      focusOnMount,
-      ...props
-    },
-    ref,
-  ) => {
-    const inputRef = useRef<HTMLInputElement>(null);
+>(({ className, variant = 'secondary', wrapperClassName, focusOnMount, ...props }, ref) => {
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-      if (inputRef.current && focusOnMount) {
-        inputRef.current.focus();
-      }
-    }, [focusOnMount]);
-
-    if (variant === 'primary') {
-      return (
-        <div
-          className={cn('flex items-center border-b px-3', wrapperClassName)}
-          cmdk-input-wrapper=""
-        >
-          <IconSearch className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-          <CommandPrimitive.Input
-            ref={mergeRefs([inputRef, ref])}
-            className={cn(
-              commanInputVariants({ variant: 'primary' }),
-              'pl-0',
-              className,
-            )}
-            {...props}
-          />
-        </div>
-      );
+  useEffect(() => {
+    if (inputRef.current && focusOnMount) {
+      inputRef.current.focus();
     }
+  }, [focusOnMount]);
 
+  if (variant === 'primary') {
     return (
       <div
-        className={cn(
-          'flex items-center bg-background border-b',
-          wrapperClassName,
-        )}
+        className={cn('flex items-center border-b px-3', wrapperClassName)}
+        cmdk-input-wrapper=""
       >
+        <IconSearch className="mr-2 h-4 w-4 shrink-0 opacity-50" />
         <CommandPrimitive.Input
           ref={mergeRefs([inputRef, ref])}
-          className={cn(
-            commanInputVariants({ variant: 'secondary' }),
-            className,
-          )}
+          className={cn(commanInputVariants({ variant: 'primary' }), 'pl-0', className)}
           {...props}
-          placeholder={props.placeholder || 'Search'}
         />
       </div>
     );
-  },
-);
+  }
+
+  return (
+    <div className={cn('flex items-center bg-background border-b', wrapperClassName)}>
+      <CommandPrimitive.Input
+        ref={mergeRefs([inputRef, ref])}
+        className={cn(commanInputVariants({ variant: 'secondary' }), className)}
+        {...props}
+        placeholder={props.placeholder || 'Search'}
+      />
+    </div>
+  );
+});
 
 CommandInput.displayName = CommandPrimitive.Input.displayName;
 
@@ -149,11 +119,7 @@ const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
 >((props, ref) => (
-  <CommandPrimitive.Empty
-    ref={ref}
-    className="py-8 text-center text-sm"
-    {...props}
-  />
+  <CommandPrimitive.Empty ref={ref} className="py-8 text-center text-sm" {...props} />
 ));
 
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
@@ -217,11 +183,7 @@ const CommandActionItem = ({
   trailing?: React.ReactNode;
   className?: string;
 }) => (
-  <CommandItem
-    className={cn('justify-between', className)}
-    onSelect={onSelect}
-    disabled={disabled}
-  >
+  <CommandItem className={cn('justify-between', className)} onSelect={onSelect} disabled={disabled}>
     <div className="flex gap-2 items-center">
       <Icon className="size-4" />
       <div className="flex items-center">{label}</div>
@@ -231,16 +193,10 @@ const CommandActionItem = ({
 );
 CommandActionItem.displayName = 'CommandActionItem';
 
-const CommandShortcut = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) => {
+const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
     <span
-      className={cn(
-        'ml-auto text-xs tracking-widest text-muted-foreground',
-        className,
-      )}
+      className={cn('ml-auto text-xs tracking-widest text-muted-foreground', className)}
       {...props}
     />
   );

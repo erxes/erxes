@@ -35,7 +35,12 @@ export const FormSheet = ({
           <div className="flex flex-col gap-4">{children}</div>
         </Sheet.Content>
         <Sheet.Footer className="flex items-center justify-end gap-2 bg-background">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={submitting}
+          >
             Cancel
           </Button>
           <Button type="submit" disabled={submitting}>

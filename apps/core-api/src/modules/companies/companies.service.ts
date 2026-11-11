@@ -1,9 +1,26 @@
 import type { CompanyInput, CursorQuery } from '@erxes/core-contract';
 import { companies, customerCompanies, Db, newId, users, withTransaction } from '@erxes/core-db';
-import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
+import {
+  and,
+  arrayContains,
+  asc,
+  eq,
+  getTableColumns,
+  ilike,
+  inArray,
+  or,
+  SQL,
+  sql,
+} from 'drizzle-orm';
 import { type Actor, requireManager } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
-import { normalizeEmail, normalizeName, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
+import {
+  normalizeEmail,
+  normalizeName,
+  normalizePhone,
+  resolveContacts,
+  unique,
+} from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
@@ -15,7 +32,13 @@ import {
   contactUpdated,
 } from '~/modules/activities/contactHistory';
 import { applyCustomFields } from '~/modules/fields/fields.service';
-import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
+import {
+  changeTags,
+  copyTags,
+  hasAnyTag,
+  setRecordTags,
+  tagIdsColumn,
+} from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 
 type CompanyRow = typeof companies.$inferSelect & { tagIds: string[] };
@@ -46,13 +69,18 @@ const inOrg = (orgId: string, id: string) => and(eq(companies.orgId, orgId), eq(
 
 /** Companies with their tag ids. */
 const selectCompanies = (client: Db) =>
-  client.select({ ...getTableColumns(companies), tagIds: tagIdsColumn('company', companies.id) }).from(companies);
+  client
+    .select({ ...getTableColumns(companies), tagIds: tagIdsColumn('company', companies.id) })
+    .from(companies);
 
 const findCompany = async (client: Db, orgId: string, id: string, followMerges = false) => {
   const [row] = await selectCompanies(client)
     .where(
       followMerges
-        ? and(eq(companies.orgId, orgId), or(eq(companies.id, id), arrayContains(companies.mergedIds, [id])))
+        ? and(
+            eq(companies.orgId, orgId),
+            or(eq(companies.id, id), arrayContains(companies.mergedIds, [id])),
+          )
         : inOrg(orgId, id),
     )
     .orderBy(sql`${companies.id} = ${id} DESC`)
@@ -77,12 +105,21 @@ const assertOwner = async (client: Db, orgId: string, ownerId: string | null | u
     .limit(1);
 
   if (!owner) {
-    throw new HttpError(400, 'INVALID_OWNER', 'The owner is not a team member of this organisation');
+    throw new HttpError(
+      400,
+      'INVALID_OWNER',
+      'The owner is not a team member of this organisation',
+    );
   }
 };
 
 /** A taken name → 409 naming the company that has it. */
-const conflictFrom = async (client: Db, orgId: string, error: unknown, name: string): Promise<never> => {
+const conflictFrom = async (
+  client: Db,
+  orgId: string,
+  error: unknown,
+  name: string,
+): Promise<never> => {
   if (pgCode(error) !== '23505') {
     throw error;
   }
@@ -128,7 +165,10 @@ export const listCompanies = async (
           .select({ id: customerCompanies.companyId })
           .from(customerCompanies)
           .where(
-            and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.customerId, query.customerId)),
+            and(
+              eq(customerCompanies.orgId, actor.orgId),
+              eq(customerCompanies.customerId, query.customerId),
+            ),
           ),
       ),
     );
@@ -164,7 +204,11 @@ export const listCompanies = async (
     },
     and(...filters),
     query,
-    (where, orderBy, limit) => selectCompanies(client).where(where).orderBy(...orderBy).limit(limit),
+    (where, orderBy, limit) =>
+      selectCompanies(client)
+        .where(where)
+        .orderBy(...orderBy)
+        .limit(limit),
   );
 
   return { ...page, data: page.data.map(toCompanyDto) };
@@ -174,7 +218,17 @@ export const getCompany = async (client: Db, actor: Actor, id: string) =>
   toCompanyDto(await findCompany(client, actor.orgId, id, true));
 
 const scalarFields = (input: CompanyInput) => {
-  const { primaryName, names, primaryEmail, emails, primaryPhone, phones, tagIds, customFields, ...rest } = input;
+  const {
+    primaryName,
+    names,
+    primaryEmail,
+    emails,
+    primaryPhone,
+    phones,
+    tagIds,
+    customFields,
+    ...rest
+  } = input;
 
   return rest;
 };
@@ -191,7 +245,13 @@ export const createCompany = async (
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'company', input.tagIds ?? []);
-  const customFields = await applyCustomFields(client, actor.orgId, 'company', {}, input.customFields);
+  const customFields = await applyCustomFields(
+    client,
+    actor.orgId,
+    'company',
+    {},
+    input.customFields,
+  );
 
   try {
     const id = await client.transaction(async (tx) => {
@@ -230,7 +290,10 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
   await assertOwner(client, actor.orgId, input.ownerId);
 
   const changes: Partial<typeof companies.$inferInsert> = {};
-  const tagIds = input.tagIds === undefined ? undefined : await checkTagIds(client, actor.orgId, 'company', input.tagIds);
+  const tagIds =
+    input.tagIds === undefined
+      ? undefined
+      : await checkTagIds(client, actor.orgId, 'company', input.tagIds);
 
   if (input.primaryName !== undefined || input.names !== undefined) {
     const name = resolveContacts(
@@ -330,9 +393,18 @@ export const tagCompanies = async (
   const add = await checkTagIds(client, actor.orgId, 'company', input.add);
   const updated = await client.transaction(async (tx) => {
     const before = await tagsByCompany(tx, actor.orgId, input.ids);
-    const count = await changeTags(tx, actor.orgId, 'company', input.ids, { add, remove: unique(input.remove) });
+    const count = await changeTags(tx, actor.orgId, 'company', input.ids, {
+      add,
+      remove: unique(input.remove),
+    });
 
-    await contactsTagged(tx, actor, 'company', before, await tagsByCompany(tx, actor.orgId, input.ids));
+    await contactsTagged(
+      tx,
+      actor,
+      'company',
+      before,
+      await tagsByCompany(tx, actor.orgId, input.ids),
+    );
 
     return count;
   });
@@ -381,7 +453,9 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
     }
 
     const keep = rows.find((row) => row.id === input.keepId)!;
-    const others = ids.filter((id) => id !== keep.id).map((id) => rows.find((row) => row.id === id)!);
+    const others = ids
+      .filter((id) => id !== keep.id)
+      .map((id) => rows.find((row) => row.id === id)!);
     const otherIds = others.map((other) => other.id);
     const contacts = (pick: (row: CompanyRow) => { primary: string | null; list: string[] }) =>
       combineContacts(pick(keep), others.map(pick));
@@ -399,7 +473,9 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
       ON CONFLICT DO NOTHING
     `);
     await copyTags(tx, actor.orgId, 'company', otherIds, keep.id);
-    await tx.delete(companies).where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
+    await tx
+      .delete(companies)
+      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
 
     await tx
       .update(companies)
@@ -414,7 +490,11 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
           keep.customFields,
           others.map((other) => other.customFields),
         ),
-        mergedIds: unique([...keep.mergedIds, ...otherIds, ...others.flatMap((other) => other.mergedIds)]),
+        mergedIds: unique([
+          ...keep.mergedIds,
+          ...otherIds,
+          ...others.flatMap((other) => other.mergedIds),
+        ]),
         updatedAt: sql`now()`,
       })
       .where(inOrg(actor.orgId, keep.id));

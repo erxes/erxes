@@ -59,7 +59,11 @@ export const useCustomerEdit = () => {
       }
     },
     onError: (error) =>
-      toast({ variant: 'destructive', title: 'Could not save the customer', description: messageOf(error) }),
+      toast({
+        variant: 'destructive',
+        title: 'Could not save the customer',
+        description: messageOf(error),
+      }),
   });
 };
 
@@ -81,7 +85,10 @@ export const useCustomersRemove = () => {
     onSuccess: ({ removed }, ids) => {
       removeCachedRecords(client, CUSTOMERS_KEY, ids);
       void client.invalidateQueries({ queryKey: [...CUSTOMERS_KEY, 'list'] });
-      toast({ variant: 'success', title: removed === 1 ? 'Customer deleted' : `${removed} customers deleted` });
+      toast({
+        variant: 'success',
+        title: removed === 1 ? 'Customer deleted' : `${removed} customers deleted`,
+      });
     },
     onError: (error) =>
       toast({ variant: 'destructive', title: 'Could not delete', description: messageOf(error) }),
@@ -99,7 +106,8 @@ export const useCustomersTag = () => {
     mutationFn: (input: { ids: string[]; add: string[]; remove: string[] }) =>
       api.customers.tag(input),
     onSuccess: () => client.invalidateQueries({ queryKey: CUSTOMERS_KEY }),
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not tag', description: messageOf(error) }),
+    onError: (error) =>
+      toast({ variant: 'destructive', title: 'Could not tag', description: messageOf(error) }),
   });
 };
 
@@ -119,7 +127,8 @@ export const useCustomersMerge = () => {
       void client.invalidateQueries({ queryKey: CUSTOMERS_KEY });
       toast({ variant: 'success', title: 'Customers merged' });
     },
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not merge', description: messageOf(error) }),
+    onError: (error) =>
+      toast({ variant: 'destructive', title: 'Could not merge', description: messageOf(error) }),
   });
 };
 
@@ -137,7 +146,15 @@ export const useCustomerCompanyLink = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ customerId, companyId, linked }: { customerId: string; companyId: string; linked: boolean }) =>
+    mutationFn: ({
+      customerId,
+      companyId,
+      linked,
+    }: {
+      customerId: string;
+      companyId: string;
+      linked: boolean;
+    }) =>
       linked
         ? api.customers.linkCompany({ id: customerId, companyId })
         : api.customers.unlinkCompany({ id: customerId, companyId }),
@@ -146,6 +163,7 @@ export const useCustomerCompanyLink = () => {
       void client.invalidateQueries({ queryKey: [...CUSTOMERS_KEY, 'list'] });
       void client.invalidateQueries({ queryKey: ['companies'] });
     },
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not update', description: messageOf(error) }),
+    onError: (error) =>
+      toast({ variant: 'destructive', title: 'Could not update', description: messageOf(error) }),
   });
 };

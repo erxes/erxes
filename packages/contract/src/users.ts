@@ -8,7 +8,14 @@ export type UserRole = z.infer<typeof UserRole>;
 export type UserStatus = z.infer<typeof UserStatus>;
 
 /** Social links a member can show (old erxes `users.links`). */
-export const USER_LINK_NAMES = ['facebook', 'twitter', 'website', 'discord', 'github', 'instagram'] as const;
+export const USER_LINK_NAMES = [
+  'facebook',
+  'twitter',
+  'website',
+  'discord',
+  'github',
+  'instagram',
+] as const;
 export const UserLinkName = z.enum(USER_LINK_NAMES);
 export type UserLinkName = z.infer<typeof UserLinkName>;
 export const UserLinks = z.record(z.string(), z.string());
@@ -60,7 +67,12 @@ export const DateOnly = z
     const [year, month, day] = value.split('-').map(Number) as [number, number, number];
     const date = new Date(Date.UTC(year, month - 1, day));
 
-    return year >= 1 && date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+    return (
+      year >= 1 &&
+      date.getUTCFullYear() === year &&
+      date.getUTCMonth() === month - 1 &&
+      date.getUTCDate() === day
+    );
   }, 'not a real date');
 
 /** Profile details (old erxes `users.details`); `null` clears one. */
@@ -88,7 +100,10 @@ const MemberPassword = z
   .regex(/\d/, 'Add a digit');
 
 /** `true`/`false` from a query string, or a boolean from a typed client. */
-const QueryBoolean = z.union([z.boolean(), z.enum(['true', 'false']).transform((value) => value === 'true')]);
+const QueryBoolean = z.union([
+  z.boolean(),
+  z.enum(['true', 'false']).transform((value) => value === 'true'),
+]);
 
 const InviteEntry = z.object({
   email: z.string().trim().email().max(254),
@@ -103,7 +118,11 @@ const changes = (value: Record<string, unknown>) => Object.keys(value).some((key
 
 export const usersContract = {
   list: oc
-    .route({ method: 'GET', path: '/users', summary: 'Team members of the organisation, newest first' })
+    .route({
+      method: 'GET',
+      path: '/users',
+      summary: 'Team members of the organisation, newest first',
+    })
     .input(
       CursorQuery.extend({
         search: z.string().trim().max(100).optional(),
@@ -115,7 +134,10 @@ export const usersContract = {
       }),
     )
     .output(cursorPageOf(User)),
-  get: oc.route({ method: 'GET', path: '/users/{id}' }).input(z.object({ id: Id })).output(User),
+  get: oc
+    .route({ method: 'GET', path: '/users/{id}' })
+    .input(z.object({ id: Id }))
+    .output(User),
   invite: oc
     .route({
       method: 'POST',
@@ -158,10 +180,17 @@ export const usersContract = {
     .route({
       method: 'POST',
       path: '/users/{id}/password',
-      summary: 'Set another member’s password (owners and admins; an invited member becomes active)',
+      summary:
+        'Set another member’s password (owners and admins; an invited member becomes active)',
     })
     .input(z.object({ id: Id, password: MemberPassword }))
     .output(User),
-  disable: oc.route({ method: 'POST', path: '/users/{id}/disable' }).input(z.object({ id: Id })).output(User),
-  enable: oc.route({ method: 'POST', path: '/users/{id}/enable' }).input(z.object({ id: Id })).output(User),
+  disable: oc
+    .route({ method: 'POST', path: '/users/{id}/disable' })
+    .input(z.object({ id: Id }))
+    .output(User),
+  enable: oc
+    .route({ method: 'POST', path: '/users/{id}/enable' })
+    .input(z.object({ id: Id }))
+    .output(User),
 };

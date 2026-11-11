@@ -42,8 +42,7 @@ const SAFE_CSS_COLOR_RE =
 const SAFE_CSS_VAR_KEY_RE = /^(?!label$)[a-zA-Z][a-zA-Z0-9_-]{0,49}$/;
 
 /** Strict ISO 8601 UTC timestamp */
-const ISO_DATE_RE =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
 function sanitizeText(input: unknown): string {
   if (typeof input !== 'string') return '';
@@ -71,10 +70,7 @@ function sanitizeNumber(value: unknown): number {
 /** Admits finite control values and clamps them to the wire-format budget. */
 function sanitizeControlNumber(value: unknown): number | null {
   if (typeof value !== 'number' || !Number.isFinite(value)) return null;
-  return Math.min(
-    MAX_CONTROL_ABS_VALUE,
-    Math.max(-MAX_CONTROL_ABS_VALUE, value),
-  );
+  return Math.min(MAX_CONTROL_ABS_VALUE, Math.max(-MAX_CONTROL_ABS_VALUE, value));
 }
 
 /** Bounds display-only slider prefixes and suffixes. */
@@ -206,12 +202,8 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
     seenTransforms.add(identity);
     return [{ controlKey, seriesKey, operation }];
   });
-  const activeControlKeys = new Set(
-    transforms.map(({ controlKey }) => controlKey),
-  );
-  const activeControls = controls.filter(({ key }) =>
-    activeControlKeys.has(key),
-  );
+  const activeControlKeys = new Set(transforms.map(({ controlKey }) => controlKey));
+  const activeControls = controls.filter(({ key }) => activeControlKeys.has(key));
 
   const rawData = Array.isArray(p['data'])
     ? (p['data'] as unknown[]).slice(0, MAX_DATA_POINTS)
@@ -231,8 +223,7 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
     type: 'chart-viz',
     chartType: chartType as ChartVizType,
     title: sanitizeText(p['title']),
-    description:
-      p['description'] != null ? sanitizeText(p['description']) : undefined,
+    description: p['description'] != null ? sanitizeText(p['description']) : undefined,
     data,
     series,
     ...(activeControls.length ? { controls: activeControls } : {}),

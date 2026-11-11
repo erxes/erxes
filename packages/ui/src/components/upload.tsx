@@ -95,20 +95,8 @@ type UploadPreviewPropsExtended = React.ComponentPropsWithoutRef<'div'> & {
   onUploadProgress?: () => void;
   onAllUploadsComplete?: () => void;
 };
-const UploadPreview = React.forwardRef<
-  HTMLDivElement,
-  UploadPreviewPropsExtended
->(
-  (
-    {
-      className,
-      onUploadStart,
-      onUploadProgress,
-      onAllUploadsComplete,
-      ...props
-    },
-    ref,
-  ) => {
+const UploadPreview = React.forwardRef<HTMLDivElement, UploadPreviewPropsExtended>(
+  ({ className, onUploadStart, onUploadProgress, onAllUploadsComplete, ...props }, ref) => {
     const { isLoading, upload } = useUpload();
 
     const uploadContext = useContext(UploadContext);
@@ -238,12 +226,7 @@ const UploadButton = React.forwardRef<
   });
 
   return (
-    <Button
-      ref={ref}
-      className={cn('flex', className)}
-      {...props}
-      onClick={handleThumbnailClick}
-    >
+    <Button ref={ref} className={cn('flex', className)} {...props} onClick={handleThumbnailClick}>
       {children || (
         <>
           <IconUpload /> {t('upload')}
@@ -279,8 +262,7 @@ const RemoveButton = React.forwardRef<
 
     const urlArray = url.split('/');
 
-    const fileName =
-      urlArray.length === 1 ? url : urlArray[urlArray.length - 1];
+    const fileName = urlArray.length === 1 ? url : urlArray[urlArray.length - 1];
 
     if (previewRef.current) {
       URL.revokeObjectURL(previewRef.current);
@@ -300,8 +282,7 @@ const RemoveButton = React.forwardRef<
         if (status !== 'ok') {
           toast({
             title: 'Could not delete the stored file',
-            description:
-              'It has been removed here, but the server still holds a copy.',
+            description: 'It has been removed here, but the server still holds a copy.',
             variant: 'destructive',
           });
         }
@@ -310,12 +291,7 @@ const RemoveButton = React.forwardRef<
   };
 
   return (
-    <Button
-      ref={ref}
-      className={cn('flex', className)}
-      {...props}
-      onClick={handleRemove}
-    >
+    <Button ref={ref} className={cn('flex', className)} {...props} onClick={handleRemove}>
       {children || (
         <>
           <IconTrash /> Remove

@@ -402,7 +402,10 @@ describeWithDb('platform services', () => {
       ).toBe(403);
       expect((await call(hr(), '/notifications')).status).toBe(403);
       // No token for an organisation that hasn't installed the plugin.
-      expect((await call({ plugin: PLUGIN_KEY, org: 'missing' }, '/notifications/unread-count')).body.code).toBe('NOT_INSTALLED');
+      expect(
+        (await call({ plugin: PLUGIN_KEY, org: 'missing' }, '/notifications/unread-count')).body
+          .code,
+      ).toBe('NOT_INSTALLED');
     });
 
     it('gives each member their own inbox with unread counts', async () => {

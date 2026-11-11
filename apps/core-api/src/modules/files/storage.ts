@@ -29,7 +29,10 @@ export interface DownloadRequest {
 /** Where file bytes live. Keys are made by core (`<org>/<yyyy>/<mm>/<id>`), never by users. */
 export interface Storage {
   /** A link the client PUTs the bytes to, and the headers it must send. */
-  uploadTarget(key: string, request: UploadRequest): Promise<{ url: string; headers: Record<string, string> }>;
+  uploadTarget(
+    key: string,
+    request: UploadRequest,
+  ): Promise<{ url: string; headers: Record<string, string> }>;
   /** The stored object's size, or null when nothing is stored under the key. */
   stat(key: string): Promise<{ size: number } | null>;
   /** A short-lived link to read the object. */
@@ -41,7 +44,8 @@ export interface Storage {
  * Types a browser may show inline. Anything else (HTML, SVG, scripts) is sent
  * as a download, so an uploaded file can never run as a page of erxes.
  */
-const INLINE_TYPES = /^(image\/(png|jpe?g|gif|webp|avif|bmp)|application\/pdf|video\/(mp4|webm|ogg)|audio\/[a-z0-9.+-]+|text\/plain)$/;
+const INLINE_TYPES =
+  /^(image\/(png|jpe?g|gif|webp|avif|bmp)|application\/pdf|video\/(mp4|webm|ogg)|audio\/[a-z0-9.+-]+|text\/plain)$/;
 
 export const canShowInline = (contentType: string) => INLINE_TYPES.test(contentType);
 
@@ -69,9 +73,11 @@ export interface LocalGrant {
 
 const KEY = /^[A-Za-z0-9]+\/\d{4}\/\d{2}\/[A-Za-z0-9]+$/;
 
-const signingKey = () => createHmac('sha256', config.auth.jwtSecret).update('core-files-v1').digest();
+const signingKey = () =>
+  createHmac('sha256', config.auth.jwtSecret).update('core-files-v1').digest();
 
-const sign = (payload: string) => createHmac('sha256', signingKey()).update(payload).digest('base64url');
+const sign = (payload: string) =>
+  createHmac('sha256', signingKey()).update(payload).digest('base64url');
 
 export const signGrant = (grant: LocalGrant) => {
   const payload = Buffer.from(JSON.stringify(grant)).toString('base64url');
@@ -197,7 +203,8 @@ const s3Storage = (): Storage => {
 
         return { size: head.ContentLength ?? 0 };
       } catch (error) {
-        const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
+        const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata
+          ?.httpStatusCode;
 
         if (status === 404 || (error as { name?: string }).name === 'NotFound') {
           return null;

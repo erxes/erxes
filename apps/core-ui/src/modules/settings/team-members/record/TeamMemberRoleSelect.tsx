@@ -25,7 +25,11 @@ export const TeamMemberRoleSelect = ({ user }: { user: User }) => {
   };
 
   return (
-    <PopoverScoped scope={`${TEAM_MEMBERS_HOTKEY_SCOPE}.${user.id}.role`} open={open} onOpenChange={setOpen}>
+    <PopoverScoped
+      scope={`${TEAM_MEMBERS_HOTKEY_SCOPE}.${user.id}.role`}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <RecordTableInlineCell.Trigger>{value}</RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Command>

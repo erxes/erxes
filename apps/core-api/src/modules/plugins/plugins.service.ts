@@ -1,9 +1,22 @@
 import { PLUGIN_SCOPES, type Plugin, type PluginManifest } from '@erxes/core-contract';
-import { type Db, db, organizations, pluginInstallations, plugins, type StoredPluginManifest } from '@erxes/core-db';
+import {
+  type Db,
+  db,
+  organizations,
+  pluginInstallations,
+  plugins,
+  type StoredPluginManifest,
+} from '@erxes/core-db';
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
-import { type Actor, PLUGIN_ACCESS_TYP, type PluginCaller, type PluginService, userCaller } from '~/http/auth';
+import {
+  type Actor,
+  PLUGIN_ACCESS_TYP,
+  type PluginCaller,
+  type PluginService,
+  userCaller,
+} from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -25,7 +38,8 @@ const sameHash = (a: string | null, b: string) =>
   a !== null && a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
 /** Scopes a plugin asks for: its manifest's, or (before it sent one) what plugins could always do. */
-const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] => row.manifest?.scopes ?? [...PLUGIN_SCOPES];
+const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
+  row.manifest?.scopes ?? [...PLUGIN_SCOPES];
 
 const toPluginDto = (row: PluginRow, installation?: InstallationRow | null): Plugin => {
   const requested = requestedScopes(row);
@@ -52,7 +66,9 @@ const installAll = async (tx: Db, orgIds: string[], row: Pick<PluginRow, 'name' 
 
   await tx
     .insert(pluginInstallations)
-    .values(orgIds.map((orgId) => ({ orgId, plugin: row.name, grantedScopes: requestedScopes(row) })))
+    .values(
+      orgIds.map((orgId) => ({ orgId, plugin: row.name, grantedScopes: requestedScopes(row) })),
+    )
     .onConflictDoNothing();
 };
 
@@ -67,15 +83,27 @@ export const syncPluginSecrets = async (client: Db = db()) => {
     const hash = hashSecret(secret);
 
     await client.transaction(async (tx) => {
-      const [existing] = await tx.select().from(plugins).where(eq(plugins.name, name)).for('update').limit(1);
+      const [existing] = await tx
+        .select()
+        .from(plugins)
+        .where(eq(plugins.name, name))
+        .for('update')
+        .limit(1);
 
       if (!existing) {
-        const [row] = await tx.insert(plugins).values({ name, secretHash: hash, secretRotatedAt: sql`now()` }).returning();
+        const [row] = await tx
+          .insert(plugins)
+          .values({ name, secretHash: hash, secretRotatedAt: sql`now()` })
+          .returning();
 
         if (config.plugins.autoInstall) {
           const orgs = await tx.select({ id: organizations.id }).from(organizations);
 
-          await installAll(tx, orgs.map((org) => org.id), row!);
+          await installAll(
+            tx,
+            orgs.map((org) => org.id),
+            row!,
+          );
         }
 
         return;
@@ -103,15 +131,27 @@ export const rotatePluginSecret = async (name: string, client: Db = db()) => {
   const hash = hashSecret(secret);
 
   await client.transaction(async (tx) => {
-    const [existing] = await tx.select().from(plugins).where(eq(plugins.name, name)).for('update').limit(1);
+    const [existing] = await tx
+      .select()
+      .from(plugins)
+      .where(eq(plugins.name, name))
+      .for('update')
+      .limit(1);
 
     if (!existing) {
-      const [row] = await tx.insert(plugins).values({ name, secretHash: hash, secretRotatedAt: sql`now()` }).returning();
+      const [row] = await tx
+        .insert(plugins)
+        .values({ name, secretHash: hash, secretRotatedAt: sql`now()` })
+        .returning();
 
       if (config.plugins.autoInstall) {
         const orgs = await tx.select({ id: organizations.id }).from(organizations);
 
-        await installAll(tx, orgs.map((org) => org.id), row!);
+        await installAll(
+          tx,
+          orgs.map((org) => org.id),
+          row!,
+        );
       }
 
       return;
@@ -143,7 +183,8 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
   }
 };
 
-const invalidClient = () => new HttpError(401, 'INVALID_CLIENT', 'Unknown plugin or wrong client secret');
+const invalidClient = () =>
+  new HttpError(401, 'INVALID_CLIENT', 'Unknown plugin or wrong client secret');
 
 /**
  * Client credentials → a short-lived ES256 token. With `org`, only for an
@@ -151,7 +192,11 @@ const invalidClient = () => new HttpError(401, 'INVALID_CLIENT', 'Unknown plugin
  * (and the plugin still asks for); without, a deployment-wide token for the
  * manifest.
  */
-export const issuePluginToken = async (input: { client_id: string; client_secret: string; org?: string }) => {
+export const issuePluginToken = async (input: {
+  client_id: string;
+  client_secret: string;
+  org?: string;
+}) => {
   const [row] = await db().select().from(plugins).where(eq(plugins.name, input.client_id)).limit(1);
   const hash = hashSecret(input.client_secret);
 
@@ -172,11 +217,17 @@ export const issuePluginToken = async (input: { client_id: string; client_secret
     const [installation] = await db()
       .select()
       .from(pluginInstallations)
-      .where(and(eq(pluginInstallations.orgId, input.org), eq(pluginInstallations.plugin, row.name)))
+      .where(
+        and(eq(pluginInstallations.orgId, input.org), eq(pluginInstallations.plugin, row.name)),
+      )
       .limit(1);
 
     if (installation?.status !== 'active') {
-      throw new HttpError(403, 'NOT_INSTALLED', `${row.name} is not installed in this organisation`);
+      throw new HttpError(
+        403,
+        'NOT_INSTALLED',
+        `${row.name} is not installed in this organisation`,
+      );
     }
 
     const requested = new Set(requestedScopes(row));
@@ -186,7 +237,9 @@ export const issuePluginToken = async (input: { client_id: string; client_secret
     void db()
       .update(pluginInstallations)
       .set({ lastTokenAt: sql`now()` })
-      .where(and(eq(pluginInstallations.orgId, input.org), eq(pluginInstallations.plugin, row.name)))
+      .where(
+        and(eq(pluginInstallations.orgId, input.org), eq(pluginInstallations.plugin, row.name)),
+      )
       .catch(() => undefined);
   }
 
@@ -197,29 +250,53 @@ export const issuePluginToken = async (input: { client_id: string; client_secret
     .catch(() => undefined);
 
   const scope = scopes.join(' ');
-  const access_token = await signJwt(input.org ? { org: input.org, scope } : { scope: 'manifest' }, {
-    typ: PLUGIN_ACCESS_TYP,
-    audience: 'erxes-core',
-    subject: row.name,
-    expiresInSeconds: PLUGIN_TOKEN_TTL_SECONDS,
-  });
+  const access_token = await signJwt(
+    input.org ? { org: input.org, scope } : { scope: 'manifest' },
+    {
+      typ: PLUGIN_ACCESS_TYP,
+      audience: 'erxes-core',
+      subject: row.name,
+      expiresInSeconds: PLUGIN_TOKEN_TTL_SECONDS,
+    },
+  );
 
-  return { access_token, token_type: 'Bearer' as const, expires_in: PLUGIN_TOKEN_TTL_SECONDS, scope: input.org ? scope : 'manifest' };
+  return {
+    access_token,
+    token_type: 'Bearer' as const,
+    expires_in: PLUGIN_TOKEN_TTL_SECONDS,
+    scope: input.org ? scope : 'manifest',
+  };
 };
 
 const namespaced = (plugin: string, values: string[] | undefined, what: string) => {
   const wrong = (values ?? []).find((value) => !value.startsWith(`${plugin}.`));
 
   if (wrong) {
-    throw new HttpError(400, 'NAMESPACE_REQUIRED', `${what} must start with "${plugin}.": ${wrong}`);
+    throw new HttpError(
+      400,
+      'NAMESPACE_REQUIRED',
+      `${what} must start with "${plugin}.": ${wrong}`,
+    );
   }
 };
 
 /** The plugin's own manifest (deployment-wide token). */
 export const registerManifest = async (service: PluginService, manifest: PluginManifest) => {
-  namespaced(service.plugin, manifest.permissions?.map((item) => item.action), 'Permission actions');
-  namespaced(service.plugin, manifest.notificationKinds?.map((item) => item.kind), 'Notification kinds');
-  namespaced(service.plugin, manifest.events?.map((item) => item.type), 'Event types');
+  namespaced(
+    service.plugin,
+    manifest.permissions?.map((item) => item.action),
+    'Permission actions',
+  );
+  namespaced(
+    service.plugin,
+    manifest.notificationKinds?.map((item) => item.kind),
+    'Notification kinds',
+  );
+  namespaced(
+    service.plugin,
+    manifest.events?.map((item) => item.type),
+    'Event types',
+  );
 
   await db()
     .update(plugins)
@@ -244,7 +321,11 @@ export const listPlugins = async (actor: Actor) => {
 };
 
 const pluginOrThrow = async (client: Db, name: string) => {
-  const [row] = await client.select().from(plugins).where(and(eq(plugins.name, name), eq(plugins.status, 'active'))).limit(1);
+  const [row] = await client
+    .select()
+    .from(plugins)
+    .where(and(eq(plugins.name, name), eq(plugins.status, 'active')))
+    .limit(1);
 
   if (!row) throw new HttpError(404, 'PLUGIN_NOT_FOUND', 'No such plugin');
 
@@ -263,7 +344,12 @@ export const installPlugin = (actor: Actor, name: string) =>
       .limit(1);
     const [installation] = await tx
       .insert(pluginInstallations)
-      .values({ orgId: actor.orgId, plugin: name, grantedScopes: scopes, installedBy: actor.userId })
+      .values({
+        orgId: actor.orgId,
+        plugin: name,
+        grantedScopes: scopes,
+        installedBy: actor.userId,
+      })
       .onConflictDoUpdate({
         target: [pluginInstallations.orgId, pluginInstallations.plugin],
         set: {
@@ -329,11 +415,17 @@ export const pluginSession = async (actor: Actor, name: string) => {
     )
     .limit(1);
 
-  if (!row) throw new HttpError(403, 'NOT_INSTALLED', `${name} is not installed in this organisation`);
+  if (!row)
+    throw new HttpError(403, 'NOT_INSTALLED', `${name} is not installed in this organisation`);
 
   const token = await signJwt(
     { org: actor.orgId, role: actor.role },
-    { typ: PLUGIN_SESSION_TYP, audience: name, subject: actor.userId, expiresInSeconds: PLUGIN_SESSION_TTL_SECONDS },
+    {
+      typ: PLUGIN_SESSION_TYP,
+      audience: name,
+      subject: actor.userId,
+      expiresInSeconds: PLUGIN_SESSION_TTL_SECONDS,
+    },
   );
 
   return {
@@ -344,7 +436,10 @@ export const pluginSession = async (actor: Actor, name: string) => {
 };
 
 /** Live signals to the plugin's open UIs (sent on commit, like core's). */
-export const pluginSignal = async (caller: PluginCaller, input: { topics: string[]; userIds?: string[] }) => {
+export const pluginSignal = async (
+  caller: PluginCaller,
+  input: { topics: string[]; userIds?: string[] },
+) => {
   await db().transaction(async (tx) => {
     for (const topic of input.topics) {
       await tx.execute(
@@ -356,6 +451,8 @@ export const pluginSignal = async (caller: PluginCaller, input: { topics: string
   return { ok: true as const };
 };
 
-export const isUninstalled = (installation: InstallationRow | undefined) => !installation || installation.status !== 'active';
+export const isUninstalled = (installation: InstallationRow | undefined) =>
+  !installation || installation.status !== 'active';
 // Kept for scripts: plugins without a secret yet.
-export const pluginsWithoutSecret = () => db().select({ name: plugins.name }).from(plugins).where(isNull(plugins.secretHash));
+export const pluginsWithoutSecret = () =>
+  db().select({ name: plugins.name }).from(plugins).where(isNull(plugins.secretHash));

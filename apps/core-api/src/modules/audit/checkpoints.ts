@@ -16,7 +16,12 @@ interface CheckpointClaims {
  * doesn't match its contents, or a link to the previous entry that doesn't hold.
  */
 export const findChainBreak = async (client: Db, orgId: string, fromSeq?: number) => {
-  const result = await client.execute<{ checked: number; broken_at: number | null; first_seq: number | null; head_seq: number | null }>(sql`
+  const result = await client.execute<{
+    checked: number;
+    broken_at: number | null;
+    first_seq: number | null;
+    head_seq: number | null;
+  }>(sql`
     with chain as (
       select a.chain_seq,
              a.hash,
@@ -53,7 +58,13 @@ export const findChainBreak = async (client: Db, orgId: string, fromSeq?: number
  * that was tampered with is never signed. Safe on several replicas at once.
  */
 export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
-  const heads = await client.execute<{ org_id: string; head_seq: number; head_hash: string; last_seq: number | null; last_hash: string | null }>(sql`
+  const heads = await client.execute<{
+    org_id: string;
+    head_seq: number;
+    head_hash: string;
+    last_seq: number | null;
+    last_hash: string | null;
+  }>(sql`
     select o.id as org_id, h.chain_seq::int as head_seq, h.hash as head_hash, c.chain_seq::int as last_seq, c.hash as last_hash
     from core_organizations o
     join lateral (
@@ -73,14 +84,18 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
 
   for (const head of heads.rows) {
     if (head.last_seq !== null) {
-      const [anchor] = await client.execute<{ hash: string }>(sql`
+      const [anchor] = await client
+        .execute<{ hash: string }>(sql`
         select hash from core_audit_logs where org_id = ${head.org_id} and chain_seq = ${head.last_seq}
-      `).then((result) => result.rows);
+      `)
+        .then((result) => result.rows);
 
       // The last signed entry was changed: don't sign over it. (If retention
       // removed it, the walk below starts from the oldest entry kept.)
       if (anchor && anchor.hash !== head.last_hash) {
-        console.error(`[core] audit chain of ${head.org_id} no longer matches checkpoint #${head.last_seq}; not signing`);
+        console.error(
+          `[core] audit chain of ${head.org_id} no longer matches checkpoint #${head.last_seq}; not signing`,
+        );
         continue;
       }
     }
@@ -88,17 +103,28 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
     const walk = await findChainBreak(client, head.org_id, head.last_seq ?? undefined);
 
     if (walk.brokenAt !== null) {
-      console.error(`[core] audit chain of ${head.org_id} breaks at #${walk.brokenAt}; not signing`);
+      console.error(
+        `[core] audit chain of ${head.org_id} breaks at #${walk.brokenAt}; not signing`,
+      );
       continue;
     }
 
-    const signature = await signJwt({ org: head.org_id, seq: head.head_seq, hash: head.head_hash } satisfies CheckpointClaims, {
-      typ: CHECKPOINT_TYP,
-      subject: head.org_id,
-    });
+    const signature = await signJwt(
+      { org: head.org_id, seq: head.head_seq, hash: head.head_hash } satisfies CheckpointClaims,
+      {
+        typ: CHECKPOINT_TYP,
+        subject: head.org_id,
+      },
+    );
     const inserted = await client
       .insert(auditCheckpoints)
-      .values({ orgId: head.org_id, chainSeq: head.head_seq, hash: head.head_hash, keyId: currentKeyId(), signature })
+      .values({
+        orgId: head.org_id,
+        chainSeq: head.head_seq,
+        hash: head.head_hash,
+        keyId: currentKeyId(),
+        signature,
+      })
       .onConflictDoNothing()
       .returning({ seq: auditCheckpoints.chainSeq });
 
@@ -114,7 +140,13 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
  * rewritten end to end and entries cut off its end.
  */
 export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: number | null) => {
-  const rows = await client.execute<{ chain_seq: number; hash: string; signature: string; created_at: Date; entry_hash: string | null }>(sql`
+  const rows = await client.execute<{
+    chain_seq: number;
+    hash: string;
+    signature: string;
+    created_at: Date;
+    entry_hash: string | null;
+  }>(sql`
     select c.chain_seq::int, c.hash, c.signature, c.created_at, a.hash as entry_hash
     from core_audit_checkpoints c
     left join core_audit_logs a on a.org_id = c.org_id and a.chain_seq = c.chain_seq
@@ -132,7 +164,10 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
     checked += 1;
 
     const valid = await verifyJwt<Partial<CheckpointClaims>>(row.signature, { typ: CHECKPOINT_TYP })
-      .then(({ payload }) => payload.org === orgId && payload.seq === row.chain_seq && payload.hash === row.hash)
+      .then(
+        ({ payload }) =>
+          payload.org === orgId && payload.seq === row.chain_seq && payload.hash === row.hash,
+      )
       .catch(() => false);
 
     if (!valid || row.entry_hash !== row.hash) {
@@ -154,11 +189,20 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
   };
 };
 
-export const listCheckpoints = async (client: Db, orgId: string, query: { after?: number; limit: number }) => {
+export const listCheckpoints = async (
+  client: Db,
+  orgId: string,
+  query: { after?: number; limit: number },
+) => {
   const rows = await client
     .select()
     .from(auditCheckpoints)
-    .where(and(eq(auditCheckpoints.orgId, orgId), query.after !== undefined ? gt(auditCheckpoints.chainSeq, query.after) : undefined))
+    .where(
+      and(
+        eq(auditCheckpoints.orgId, orgId),
+        query.after !== undefined ? gt(auditCheckpoints.chainSeq, query.after) : undefined,
+      ),
+    )
     .orderBy(asc(auditCheckpoints.chainSeq))
     .limit(query.limit);
 

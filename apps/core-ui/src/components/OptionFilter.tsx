@@ -26,7 +26,11 @@ export const OptionFilter = {
         <Command>
           <Command.List className="p-1">
             {options.map((option) => (
-              <Filter.CommandItem key={option.value} value={option.value} onSelect={() => setValue(option.value)}>
+              <Filter.CommandItem
+                key={option.value}
+                value={option.value}
+                onSelect={() => setValue(option.value)}
+              >
                 {option.label}
                 {value === option.value && <IconCheck className="ml-auto size-4 text-primary" />}
               </Filter.CommandItem>

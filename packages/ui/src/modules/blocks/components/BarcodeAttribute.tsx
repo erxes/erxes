@@ -11,12 +11,7 @@ import { Input } from '../../../components/input';
 import { Popover } from '../../../components/popover';
 import { Select } from '../../../components/select';
 import { useBlockEditorEditable } from '../hooks/useBlockEditorEditable';
-import {
-  IconArrowsDiagonal,
-  IconCheck,
-  IconSettings,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconArrowsDiagonal, IconCheck, IconSettings, IconTrash } from '@tabler/icons-react';
 
 type BarcodeAttributeProps = Readonly<{
   editable: boolean;
@@ -128,10 +123,7 @@ export const BarcodeAttribute = ({
                     </Select.Trigger>
                     <Select.Content>
                       {BARCODE_SIZE_PRESETS.map((size) => (
-                        <Select.Item
-                          key={size.width}
-                          value={String(size.width)}
-                        >
+                        <Select.Item key={size.width} value={String(size.width)}>
                           {size.width} × {size.height} px
                         </Select.Item>
                       ))}
@@ -145,9 +137,7 @@ export const BarcodeAttribute = ({
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>
-                            {dimension === 'width'
-                              ? 'Width (px)'
-                              : 'Height (px)'}
+                            {dimension === 'width' ? 'Width (px)' : 'Height (px)'}
                           </Form.Label>
                           <Form.Control>
                             <Input

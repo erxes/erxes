@@ -75,11 +75,17 @@ const SelectMemberProvider = ({
     }
 
     onValueChange?.(
-      memberIds.includes(member.id) ? memberIds.filter((id) => id !== member.id) : [...memberIds, member.id],
+      memberIds.includes(member.id)
+        ? memberIds.filter((id) => id !== member.id)
+        : [...memberIds, member.id],
     );
   };
 
-  return <SelectMemberContext.Provider value={{ memberIds, onSelect }}>{children}</SelectMemberContext.Provider>;
+  return (
+    <SelectMemberContext.Provider value={{ memberIds, onSelect }}>
+      {children}
+    </SelectMemberContext.Provider>
+  );
 };
 
 /** A member's name, with the old "Inactive" badge for disabled ones. */
@@ -153,7 +159,13 @@ export const MembersInline = ({
   );
 };
 
-const SelectMemberValue = ({ placeholder, size }: { placeholder?: string; size?: AvatarProps['size'] }) => {
+const SelectMemberValue = ({
+  placeholder,
+  size,
+}: {
+  placeholder?: string;
+  size?: AvatarProps['size'];
+}) => {
   const { memberIds } = useSelectMemberContext();
 
   return <MembersInline memberIds={memberIds} placeholder={placeholder} size={size} />;
@@ -197,7 +209,9 @@ const SelectMemberContent = () => {
               <MembersInline memberIds={[member.id]} placeholder="Unnamed user" />
               <Combobox.Check checked={memberIds.includes(member.id)} />
             </Command.Item>
-            {index === lastSelectedIndex && index < ordered.length - 1 && <Command.Separator className="my-1" />}
+            {index === lastSelectedIndex && index < ordered.length - 1 && (
+              <Command.Separator className="my-1" />
+            )}
           </div>
         ))}
       </Command.List>
@@ -271,7 +285,13 @@ const SelectMemberFormItem = ({
 };
 
 /** Adds the member option to a filter menu. */
-const SelectMemberFilterItem = ({ value = 'ownerId', label = 'Owner' }: { value?: string; label?: string }) => (
+const SelectMemberFilterItem = ({
+  value = 'ownerId',
+  label = 'Owner',
+}: {
+  value?: string;
+  label?: string;
+}) => (
   <Filter.Item value={value}>
     <IconUser />
     {label}
@@ -299,7 +319,13 @@ const SelectMemberFilterView = ({ queryKey = 'ownerId' }: { queryKey?: string })
 };
 
 /** The chosen member as a filter bar chip. */
-const SelectMemberFilterBar = ({ queryKey = 'ownerId', label = 'Owner' }: { queryKey?: string; label?: string }) => {
+const SelectMemberFilterBar = ({
+  queryKey = 'ownerId',
+  label = 'Owner',
+}: {
+  queryKey?: string;
+  label?: string;
+}) => {
   const [ownerId, setOwnerId] = useQueryState<string>(queryKey);
   const [open, setOpen] = useState(false);
 

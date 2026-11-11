@@ -18,7 +18,21 @@ const MB = 1024 * 1024;
  * when opened.
  */
 const BLOCKED_EXTENSIONS = new Set([
-  '.exe', '.msi', '.bat', '.cmd', '.com', '.scr', '.pif', '.cpl', '.ps1', '.vbs', '.vbe', '.wsf', '.jar', '.app', '.dll',
+  '.exe',
+  '.msi',
+  '.bat',
+  '.cmd',
+  '.com',
+  '.scr',
+  '.pif',
+  '.cpl',
+  '.ps1',
+  '.vbs',
+  '.vbe',
+  '.wsf',
+  '.jar',
+  '.app',
+  '.dll',
 ]);
 
 export const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
@@ -89,11 +103,18 @@ export const updateFileSettings = async (
   requireManager(actor, 'Only owners and admins can change upload settings');
 
   if (input.maxSizeMb > config.files.maxSizeMb) {
-    throw new HttpError(400, 'LIMIT_EXCEEDED', `This server accepts files up to ${config.files.maxSizeMb} MB`);
+    throw new HttpError(
+      400,
+      'LIMIT_EXCEEDED',
+      `This server accepts files up to ${config.files.maxSizeMb} MB`,
+    );
   }
 
   const before = await settingsOf(client, actor.orgId);
-  const next: OrganizationSettings['files'] = { maxSizeMb: input.maxSizeMb, allowedTypes: unique(input.allowedTypes) };
+  const next: OrganizationSettings['files'] = {
+    maxSizeMb: input.maxSizeMb,
+    allowedTypes: unique(input.allowedTypes),
+  };
 
   await client.transaction(async (tx) => {
     await tx
@@ -104,15 +125,19 @@ export const updateFileSettings = async (
       })
       .where(eq(organizations.id, actor.orgId));
 
-    await recordAudit(tx, { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' }, {
-      action: 'settings.files_changed',
-      targetType: 'organization',
-      targetId: actor.orgId,
-      changes: {
-        maxSizeMb: [before.maxSizeMb, next.maxSizeMb],
-        allowedTypes: [before.allowedTypes, next.allowedTypes],
+    await recordAudit(
+      tx,
+      { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
+      {
+        action: 'settings.files_changed',
+        targetType: 'organization',
+        targetId: actor.orgId,
+        changes: {
+          maxSizeMb: [before.maxSizeMb, next.maxSizeMb],
+          allowedTypes: [before.allowedTypes, next.allowedTypes],
+        },
       },
-    });
+    );
   });
 
   return settingsOf(client, actor.orgId);
@@ -154,7 +179,11 @@ export const createUpload = async (
   const id = newId();
   const key = storageKey(caller.orgId, id);
   const expiresIn = config.files.linkTtlSeconds;
-  const target = await storage().uploadTarget(key, { contentType: input.contentType, size: input.size, expiresIn });
+  const target = await storage().uploadTarget(key, {
+    contentType: input.contentType,
+    size: input.size,
+    expiresIn,
+  });
 
   const [row] = await client
     .insert(files)
@@ -197,7 +226,8 @@ const findFile = async (client: Db, orgId: string, id: string) => {
   return row;
 };
 
-const isUploader = (row: FileRow, caller: Caller) => row.actorType === caller.actorType && row.actorId === caller.actorId;
+const isUploader = (row: FileRow, caller: Caller) =>
+  row.actorType === caller.actorType && row.actorId === caller.actorId;
 
 /**
  * Step 2: once the bytes are sent, core checks the stored object and marks
@@ -222,7 +252,11 @@ export const completeUpload = async (client: Db, caller: Caller, id: string) => 
 
   if (stored.size !== row.size) {
     await storage().remove(row.key);
-    throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The uploaded file does not match the declared size; upload it again');
+    throw new HttpError(
+      409,
+      'UPLOAD_INCOMPLETE',
+      'The uploaded file does not match the declared size; upload it again',
+    );
   }
 
   return client.transaction(async (tx) => {
@@ -284,7 +318,9 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
   const rows = await client
     .select()
     .from(files)
-    .where(and(eq(files.orgId, caller.orgId), eq(files.status, 'ready'), inArray(files.id, wanted)));
+    .where(
+      and(eq(files.orgId, caller.orgId), eq(files.status, 'ready'), inArray(files.id, wanted)),
+    );
   const byId = new Map(rows.map((row) => [row.id, row]));
 
   return { data: wanted.flatMap((id) => (byId.has(id) ? [toFileDto(byId.get(id)!)] : [])) };
@@ -295,7 +331,11 @@ export const removeFile = async (client: Db, caller: Caller, actor: Actor | null
   const row = await findFile(client, caller.orgId, id);
 
   if (!isUploader(row, caller) && !(actor && isManager(actor))) {
-    throw new HttpError(403, 'NOT_ALLOWED', 'Only the uploader or an owner or admin can delete this file');
+    throw new HttpError(
+      403,
+      'NOT_ALLOWED',
+      'Only the uploader or an owner or admin can delete this file',
+    );
   }
 
   await client.transaction(async (tx) => {
@@ -314,7 +354,9 @@ export const removeFile = async (client: Db, caller: Caller, actor: Actor | null
   // After the row is gone: a failure here leaves an orphan object, never a broken record.
   await storage()
     .remove(row.key)
-    .catch((error: unknown) => console.error('[core] could not delete stored file', row.key, error));
+    .catch((error: unknown) =>
+      console.error('[core] could not delete stored file', row.key, error),
+    );
 
   return { ok: true as const };
 };
@@ -324,7 +366,12 @@ export const pruneUploads = async (client: Db, hours: number) => {
   const stale = await client
     .select({ id: files.id, key: files.key })
     .from(files)
-    .where(and(eq(files.status, 'pending'), lt(files.createdAt, sql`now() - make_interval(hours => ${hours})`)))
+    .where(
+      and(
+        eq(files.status, 'pending'),
+        lt(files.createdAt, sql`now() - make_interval(hours => ${hours})`),
+      ),
+    )
     .limit(500);
 
   for (const row of stale) {

@@ -20,8 +20,12 @@ const main = async () => {
 
   const secret = await rotatePluginSecret(name);
 
-  console.log(`Client secret for ${name} (shown once; the previous one works 24 more hours):\n\n  ${secret}\n`);
-  console.log(`The plugin exchanges it for tokens: POST /core/v1/plugins/token { grant_type: "client_credentials", client_id: "${name}", client_secret, org }`);
+  console.log(
+    `Client secret for ${name} (shown once; the previous one works 24 more hours):\n\n  ${secret}\n`,
+  );
+  console.log(
+    `The plugin exchanges it for tokens: POST /core/v1/plugins/token { grant_type: "client_credentials", client_id: "${name}", client_secret, org }`,
+  );
 };
 
 main()

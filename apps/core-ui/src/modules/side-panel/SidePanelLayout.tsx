@@ -1,5 +1,11 @@
 import type { Company, Customer } from '@erxes/core-contract';
-import { IconAlignLeft, IconHierarchy2, IconHistory, IconId, IconLayoutSidebarRight } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconHierarchy2,
+  IconHistory,
+  IconId,
+  IconLayoutSidebarRight,
+} from '@tabler/icons-react';
 import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { type ReactNode, useLayoutEffect } from 'react';
@@ -9,11 +15,18 @@ import { ActivityTimeline } from '~/modules/activity/ActivityTimeline';
 import { useCompany } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer } from '~/modules/contacts/customers/useCustomers';
-import { getContactDetailPath, isContactContentType } from '~/modules/contacts/utils/contactDetailPath';
+import {
+  getContactDetailPath,
+  isContactContentType,
+} from '~/modules/contacts/utils/contactDetailPath';
 import { CompanyPanelDetail } from './details/CompanyPanelDetail';
 import { CompanyPanelNew } from './details/CompanyPanelNew';
 import { ContactDetailHeader } from './details/ContactDetailHeader';
-import { ContactPanelActions, ContactPanelIdentity, ContactPanelWebsiteLink } from './details/ContactPanelActions';
+import {
+  ContactPanelActions,
+  ContactPanelIdentity,
+  ContactPanelWebsiteLink,
+} from './details/ContactPanelActions';
 import { ContactPanelDescription } from './details/ContactPanelDescription';
 import { CompanyPanelName, CustomerPanelName } from './details/ContactPanelNames';
 import { CompanyPanelProperties, CustomerPanelProperties } from './details/ContactPanelProperties';
@@ -133,7 +146,11 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
   if (state) {
     return (
       <SidePanelEmpty
-        title={state === 'error' ? t('error', 'Unable to load record') : t('not-found-title', 'Nothing here')}
+        title={
+          state === 'error'
+            ? t('error', 'Unable to load record')
+            : t('not-found-title', 'Nothing here')
+        }
         description={
           state === 'error'
             ? t('record-load-error', 'Please close the panel and try again.')
@@ -176,7 +193,10 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
       label: t('activity', 'Activity'),
       icon: IconHistory,
       content: (
-        <ActivityTimeline targetType={isCustomer ? 'customer' : 'company'} targetId={record.contentId} />
+        <ActivityTimeline
+          targetType={isCustomer ? 'customer' : 'company'}
+          targetId={record.contentId}
+        />
       ),
     },
     // A full page edits the description in its own tab.
@@ -198,7 +218,8 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
         ]
       : []),
   ];
-  const tab = selectedTab && tabs.some((entry) => entry.value === selectedTab) ? selectedTab : DETAIL_TAB;
+  const tab =
+    selectedTab && tabs.some((entry) => entry.value === selectedTab) ? selectedTab : DETAIL_TAB;
   const actions = <ContactPanelActions contentType={contactType} contentId={record.contentId} />;
 
   return (
@@ -225,7 +246,9 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
         onValueChange={setTab}
         visibleCount={8}
         overviewTab={DETAIL_TAB}
-        overviewHeader={<ContactPanelIdentity title={editableTitle} avatar={avatar} website={website} />}
+        overviewHeader={
+          <ContactPanelIdentity title={editableTitle} avatar={avatar} website={website} />
+        }
         expandedDefaultTab={PROPERTIES_TAB}
       />
     </>
@@ -239,7 +262,9 @@ const SidePanelDraft = ({ record, onBack, onClose }: IRecordViewProps) => {
   return (
     <>
       <RecordSidePanel.Header
-        title={t('new-record', 'New {{type}}', { type: getContentTypeLabel(record.contentType).toLowerCase() })}
+        title={t('new-record', 'New {{type}}', {
+          type: getContentTypeLabel(record.contentType).toLowerCase(),
+        })}
         onBack={onBack}
         onClose={onClose}
       />
@@ -333,7 +358,10 @@ const SidePanelColumn = () => {
       return (
         <SidePanelEmpty
           title={t('empty-title', 'Nothing open')}
-          description={t('empty-description', 'Open a record to see it and everything related to it here.')}
+          description={t(
+            'empty-description',
+            'Open a record to see it and everything related to it here.',
+          )}
           onClose={close}
         />
       );

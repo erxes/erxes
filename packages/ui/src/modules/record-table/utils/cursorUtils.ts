@@ -1,7 +1,4 @@
-import {
-  IRecordTableCursorPageInfo,
-  EnumCursorDirection,
-} from '../types/RecordTableCursorTypes';
+import { IRecordTableCursorPageInfo, EnumCursorDirection } from '../types/RecordTableCursorTypes';
 
 interface ICursorResult<T> {
   pageInfo?: IRecordTableCursorPageInfo;
@@ -19,10 +16,8 @@ export const mergeCursorData = <T>({
   prevResult: ICursorResult<T>;
 }) => {
   const isForward = direction === EnumCursorDirection.FORWARD;
-  const fetchPageInfo =
-    fetchMoreResult?.pageInfo || ({} as IRecordTableCursorPageInfo);
-  const prevPageInfo =
-    prevResult?.pageInfo || ({} as IRecordTableCursorPageInfo);
+  const fetchPageInfo = fetchMoreResult?.pageInfo || ({} as IRecordTableCursorPageInfo);
+  const prevPageInfo = prevResult?.pageInfo || ({} as IRecordTableCursorPageInfo);
 
   const fetchList = fetchMoreResult?.list || [];
   const prevList = prevResult?.list || [];
@@ -32,15 +27,9 @@ export const mergeCursorData = <T>({
     list: isForward ? [...prevList, ...fetchList] : [...fetchList, ...prevList],
     pageInfo: {
       endCursor: isForward ? fetchPageInfo.endCursor : prevPageInfo.endCursor,
-      hasNextPage: isForward
-        ? fetchPageInfo.hasNextPage
-        : prevPageInfo.hasNextPage,
-      hasPreviousPage: isForward
-        ? prevPageInfo.hasPreviousPage
-        : fetchPageInfo.hasPreviousPage,
-      startCursor: isForward
-        ? prevPageInfo.startCursor
-        : fetchPageInfo.startCursor,
+      hasNextPage: isForward ? fetchPageInfo.hasNextPage : prevPageInfo.hasNextPage,
+      hasPreviousPage: isForward ? prevPageInfo.hasPreviousPage : fetchPageInfo.hasPreviousPage,
+      startCursor: isForward ? prevPageInfo.startCursor : fetchPageInfo.startCursor,
     },
   };
 };

@@ -59,12 +59,20 @@ const TEXT_FIELDS = [
 ] as const;
 type TextField = (typeof TEXT_FIELDS)[number];
 
-type ProfileValues = Record<TextField, string> & { avatarUrl: string; links: Record<UserLinkName, string> };
+type ProfileValues = Record<TextField, string> & {
+  avatarUrl: string;
+  links: Record<UserLinkName, string>;
+};
 
 const valuesOf = (user: User): ProfileValues => ({
-  ...(Object.fromEntries(TEXT_FIELDS.map((field) => [field, user[field] ?? ''])) as Record<TextField, string>),
+  ...(Object.fromEntries(TEXT_FIELDS.map((field) => [field, user[field] ?? ''])) as Record<
+    TextField,
+    string
+  >),
   avatarUrl: user.avatarUrl ?? '',
-  links: Object.fromEntries(USER_LINK_NAMES.map((name) => [name, user.links[name] ?? ''])) as Record<UserLinkName, string>,
+  links: Object.fromEntries(
+    USER_LINK_NAMES.map((name) => [name, user.links[name] ?? '']),
+  ) as Record<UserLinkName, string>,
 });
 
 /** Only what changed; an emptied field clears it (`null`). */
@@ -93,7 +101,15 @@ const patchOf = (before: ProfileValues, after: ProfileValues) => {
   return Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
 };
 
-const Section = ({ title, description, children }: { title: string; description?: string; children: ReactNode }) => (
+const Section = ({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) => (
   <section className="space-y-4 rounded-lg border bg-background p-5">
     <div>
       <h2 className="text-base font-semibold">{title}</h2>
@@ -122,7 +138,13 @@ const TextInput = ({
       <Form.Item>
         <Form.Label className="text-xs">{label}</Form.Label>
         <Form.Control>
-          <Input {...field} value={field.value ?? ''} type={type} placeholder={placeholder} disabled={disabled} />
+          <Input
+            {...field}
+            value={field.value ?? ''}
+            type={type}
+            placeholder={placeholder}
+            disabled={disabled}
+          />
         </Form.Control>
         <Form.Message />
       </Form.Item>
@@ -150,14 +172,22 @@ const ProfileForm = ({ user }: { user: User }) => {
     },
     onError: (error) => {
       if (isApiError(error, 'EMAIL_TAKEN')) form.setError('email', { message: error.message });
-      if (isApiError(error, 'USERNAME_TAKEN')) form.setError('username', { message: error.message });
+      if (isApiError(error, 'USERNAME_TAKEN'))
+        form.setError('username', { message: error.message });
 
       const issues = isApiError(error, 'INVALID_INPUT')
-        ? ((error.data as { issues?: { path: (string | number)[]; message: string }[] })?.issues ?? [])
+        ? ((error.data as { issues?: { path: (string | number)[]; message: string }[] })?.issues ??
+          [])
         : [];
 
-      issues.forEach((issue) => form.setError(issue.path.join('.') as keyof ProfileValues, { message: issue.message }));
-      toast({ variant: 'destructive', title: t('save-failed', 'Could not save your profile'), description: messageOf(error) });
+      issues.forEach((issue) =>
+        form.setError(issue.path.join('.') as keyof ProfileValues, { message: issue.message }),
+      );
+      toast({
+        variant: 'destructive',
+        title: t('save-failed', 'Could not save your profile'),
+        description: messageOf(error),
+      });
     },
   });
 
@@ -175,13 +205,18 @@ const ProfileForm = ({ user }: { user: User }) => {
   return (
     <Form {...form}>
       <form className="flex flex-col gap-4" onSubmit={submit}>
-        <Section title={t('picture', 'Profile picture')} description={t('picture-description', 'Shown next to your name across erxes.')}>
+        <Section
+          title={t('picture', 'Profile picture')}
+          description={t('picture-description', 'Shown next to your name across erxes.')}
+        >
           <Form.Field
             name="avatarUrl"
             render={({ field }) => (
               <Upload.Root
                 value={field.value ?? ''}
-                onChange={(fileInfo) => field.onChange(fileInfo && 'url' in fileInfo ? fileInfo.url : '')}
+                onChange={(fileInfo) =>
+                  field.onChange(fileInfo && 'url' in fileInfo ? fileInfo.url : '')
+                }
               >
                 <Upload.Preview />
                 <div className="flex gap-2">
@@ -201,15 +236,28 @@ const ProfileForm = ({ user }: { user: User }) => {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <TextInput name="shortName" label={t('short-name', 'Short name')} />
             <TextInput name="username" label={t('username', 'Username')} placeholder="bold.bat" />
-            <TextInput name="email" type="email" label={t('email', 'Email (you sign in with it)')} />
-            <TextInput name="phone" type="tel" label={t('phone', 'Phone')} placeholder="+976 9911 2233" />
+            <TextInput
+              name="email"
+              type="email"
+              label={t('email', 'Email (you sign in with it)')}
+            />
+            <TextInput
+              name="phone"
+              type="tel"
+              label={t('phone', 'Phone')}
+              placeholder="+976 9911 2233"
+            />
           </div>
         </Section>
         <Section title={t('more', 'More information')}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <TextInput name="employeeId" label={t('employee-id', 'Employee ID')} />
             <TextInput name="birthDate" type="date" label={t('birth-date', 'Birth date')} />
-            <TextInput name="workStartedDate" type="date" label={t('work-started', 'Started work')} />
+            <TextInput
+              name="workStartedDate"
+              type="date"
+              label={t('work-started', 'Started work')}
+            />
           </div>
           <Form.Field
             name="description"
@@ -217,7 +265,11 @@ const ProfileForm = ({ user }: { user: User }) => {
               <Form.Item>
                 <Form.Label className="text-xs">{t('about', 'About me')}</Form.Label>
                 <Form.Control>
-                  <Textarea {...field} rows={4} placeholder={t('about-placeholder', 'A few words for your teammates')} />
+                  <Textarea
+                    {...field}
+                    rows={4}
+                    placeholder={t('about-placeholder', 'A few words for your teammates')}
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -246,7 +298,12 @@ const ProfileForm = ({ user }: { user: User }) => {
           </div>
         </Section>
         <div className="sticky bottom-0 flex justify-end gap-2 border-t bg-background/95 py-3 backdrop-blur">
-          <Button type="button" variant="ghost" disabled={!form.formState.isDirty} onClick={() => form.reset(valuesOf(user))}>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={!form.formState.isDirty}
+            onClick={() => form.reset(valuesOf(user))}
+          >
             {t('discard', 'Discard')}
           </Button>
           <Button type="submit" disabled={save.isPending || !form.formState.isDirty}>
@@ -271,18 +328,30 @@ const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,200}$/;
 const PasswordForm = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { toast } = useToast();
-  const form = useForm<PasswordValues>({ defaultValues: { currentPassword: '', newPassword: '', confirm: '' } });
+  const form = useForm<PasswordValues>({
+    defaultValues: { currentPassword: '', newPassword: '', confirm: '' },
+  });
   const change = useMutation({
     mutationFn: (values: PasswordValues) =>
-      api.auth.changePassword({ currentPassword: values.currentPassword, newPassword: values.newPassword }),
+      api.auth.changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      }),
     onSuccess: () => {
       form.reset();
       toast({ title: t('password-changed', 'Password changed') });
     },
     onError: (error) => {
-      if (isApiError(error, 'WRONG_PASSWORD')) form.setError('currentPassword', { message: error.message });
-      else if (isApiError(error, 'SAME_PASSWORD')) form.setError('newPassword', { message: error.message });
-      else toast({ variant: 'destructive', title: t('password-failed', 'Could not change the password'), description: messageOf(error) });
+      if (isApiError(error, 'WRONG_PASSWORD'))
+        form.setError('currentPassword', { message: error.message });
+      else if (isApiError(error, 'SAME_PASSWORD'))
+        form.setError('newPassword', { message: error.message });
+      else
+        toast({
+          variant: 'destructive',
+          title: t('password-failed', 'Could not change the password'),
+          description: messageOf(error),
+        });
     },
   });
 
@@ -296,10 +365,17 @@ const PasswordForm = () => {
             ? {
                 pattern: {
                   value: PASSWORD_RULE,
-                  message: t('password-rule', 'At least 8 characters with a lower-case letter, an upper-case letter and a digit'),
+                  message: t(
+                    'password-rule',
+                    'At least 8 characters with a lower-case letter, an upper-case letter and a digit',
+                  ),
                 },
               }
-            : { validate: (value: string) => value === form.getValues('newPassword') || t('password-mismatch', 'The passwords differ') }
+            : {
+                validate: (value: string) =>
+                  value === form.getValues('newPassword') ||
+                  t('password-mismatch', 'The passwords differ'),
+              }
       }
       render={({ field: input }) => (
         <Form.Item>
@@ -314,9 +390,15 @@ const PasswordForm = () => {
   );
 
   return (
-    <Section title={t('password', 'Password')} description={t('password-description', 'Use a password you don’t use elsewhere.')}>
+    <Section
+      title={t('password', 'Password')}
+      description={t('password-description', 'Use a password you don’t use elsewhere.')}
+    >
       <Form {...form}>
-        <form className="grid grid-cols-1 gap-4 sm:grid-cols-3" onSubmit={form.handleSubmit((values) => change.mutate(values))}>
+        <form
+          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+          onSubmit={form.handleSubmit((values) => change.mutate(values))}
+        >
           {field('currentPassword', t('current-password', 'Current password'), 'current-password')}
           {field('newPassword', t('new-password', 'New password'), 'new-password')}
           {field('confirm', t('confirm-password', 'Repeat new password'), 'new-password')}
@@ -363,14 +445,22 @@ const deviceOf = (agent: string | null) => {
 /** Where and when I signed in; a failed attempt I don't recognise is worth a password change. */
 const SignIns = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
-  const { data, isPending } = useQuery({ queryKey: ['auth', 'sign-ins'], queryFn: () => api.auth.signIns() });
+  const { data, isPending } = useQuery({
+    queryKey: ['auth', 'sign-ins'],
+    queryFn: () => api.auth.signIns(),
+  });
 
   return (
-    <Section title={t('sign-ins', 'Recent sign-ins')} description={t('sign-ins-description', 'If you don’t recognise one, change your password.')}>
+    <Section
+      title={t('sign-ins', 'Recent sign-ins')}
+      description={t('sign-ins-description', 'If you don’t recognise one, change your password.')}
+    >
       {isPending ? (
         <Spinner containerClassName="py-6" />
       ) : !data?.data.length ? (
-        <p className="text-sm text-muted-foreground">{t('no-sign-ins', 'No sign-ins recorded yet.')}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('no-sign-ins', 'No sign-ins recorded yet.')}
+        </p>
       ) : (
         <ul className="divide-y text-sm">
           {data.data.map((entry) => (
@@ -408,13 +498,21 @@ const SignOutEverywhere = () => {
   const signOut = useSignOut();
   const run = useMutation({
     mutationFn: () => signOut({ everywhere: true }),
-    onError: (error) => toast({ variant: 'destructive', title: t('sign-out-everywhere-failed', 'Could not sign out'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('sign-out-everywhere-failed', 'Could not sign out'),
+        description: messageOf(error),
+      }),
   });
 
   return (
     <div className="mt-4 flex items-center justify-between gap-4 rounded-md border p-3">
       <p className="text-sm text-muted-foreground">
-        {t('sign-out-everywhere-description', 'Lost a device or signed in on a shared computer? End every session, this one included.')}
+        {t(
+          'sign-out-everywhere-description',
+          'Lost a device or signed in on a shared computer? End every session, this one included.',
+        )}
       </p>
       <Button variant="outline" disabled={run.isPending} onClick={() => run.mutate()}>
         {t('sign-out-everywhere', 'Sign out of all devices')}
@@ -436,7 +534,11 @@ export const ProfileSettingsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: t('title', 'Profile'), to: '/settings/profile', icon: IconUserCircle }]} />
+          <AppBreadcrumb
+            items={[
+              { label: t('title', 'Profile'), to: '/settings/profile', icon: IconUserCircle },
+            ]}
+          />
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">

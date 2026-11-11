@@ -18,12 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import {
-  IconSettings,
-  IconGripVertical,
-  IconPin,
-  IconPinFilled,
-} from '@tabler/icons-react';
+import { IconSettings, IconGripVertical, IconPin, IconPinFilled } from '@tabler/icons-react';
 import { Column } from '@tanstack/react-table';
 
 const getColumnLabel = (column: Column<any, unknown>): string => {
@@ -54,14 +49,10 @@ const SortableColumnItem = ({
   isLastVisible: boolean;
 }) => {
   const isPinned = !!column.getIsPinned();
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: column.id, disabled: isPinned });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: column.id,
+    disabled: isPinned,
+  });
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -90,9 +81,7 @@ const SortableColumnItem = ({
         id={`col-visibility-${column.id}`}
         checked={column.getIsVisible()}
         disabled={isLastVisible}
-        title={
-          isLastVisible ? 'At least one column must stay visible' : undefined
-        }
+        title={isLastVisible ? 'At least one column must stay visible' : undefined}
         onCheckedChange={(checked) => column.toggleVisibility(!!checked)}
       />
 
@@ -131,10 +120,7 @@ export const RecordTableColumnSelector = ({
 
   const columns = table
     .getAllLeafColumns()
-    .filter(
-      (col) =>
-        col.id !== 'checkbox' && col.id !== 'select' && col.id !== 'more',
-    );
+    .filter((col) => col.id !== 'checkbox' && col.id !== 'select' && col.id !== 'more');
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -161,10 +147,7 @@ export const RecordTableColumnSelector = ({
   if (columns.length === 0) return null;
 
   return (
-    <DropdownMenu
-      open={columnSelectorOpen}
-      onOpenChange={setColumnSelectorOpen}
-    >
+    <DropdownMenu open={columnSelectorOpen} onOpenChange={setColumnSelectorOpen}>
       <DropdownMenu.Trigger asChild>
         {children ?? (
           <Button variant="ghost" className="h-full w-full rounded-none px-0">
@@ -190,10 +173,7 @@ export const RecordTableColumnSelector = ({
               <SortableColumnItem
                 key={column.id}
                 column={column}
-                isLastVisible={
-                  visibleColumns.length === 1 &&
-                  visibleColumns[0].id === column.id
-                }
+                isLastVisible={visibleColumns.length === 1 && visibleColumns[0].id === column.id}
               />
             ))}
           </SortableContext>

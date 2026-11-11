@@ -63,7 +63,12 @@ export const ContentType = z.enum(['customer', 'company']);
 export type ContentType = z.infer<typeof ContentType>;
 
 /** A custom field value: text, number, date (`YYYY-MM-DD`), yes/no or several options. */
-export const CustomValue = z.union([z.string().max(5000), z.number(), z.boolean(), z.array(z.string().max(200)).max(50)]);
+export const CustomValue = z.union([
+  z.string().max(5000),
+  z.number(),
+  z.boolean(),
+  z.array(z.string().max(200)).max(50),
+]);
 export type CustomValue = z.infer<typeof CustomValue>;
 
 /** Custom field values by field id. */
@@ -93,6 +98,7 @@ export const ImageAddress = z
   .trim()
   .max(1000)
   .refine(
-    (value) => /^https?:\/\/\S+$/.test(value) || /^\/core\/v1\/files\/[A-Za-z0-9]+\/download$/.test(value),
+    (value) =>
+      /^https?:\/\/\S+$/.test(value) || /^\/core\/v1\/files\/[A-Za-z0-9]+\/download$/.test(value),
     'a URL or an uploaded file',
   );

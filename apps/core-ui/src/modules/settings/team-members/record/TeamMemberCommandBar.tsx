@@ -19,7 +19,13 @@ import { useSession } from '~/modules/auth/session';
 import { permissionsFor, useTeamMembersDeactivate } from '../useTeamMembers';
 
 /** Old `TeamMemberDeactivate`: skips yourself, the already deactivated, and owners you cannot manage. */
-const TeamMemberDeactivate = ({ teamMembers, onCompleted }: { teamMembers: User[]; onCompleted: () => void }) => {
+const TeamMemberDeactivate = ({
+  teamMembers,
+  onCompleted,
+}: {
+  teamMembers: User[];
+  onCompleted: () => void;
+}) => {
   const { confirm } = useConfirm();
   const { mutateAsync, isPending } = useTeamMembersDeactivate();
   const { table } = RecordTable.useRecordTable();
@@ -28,7 +34,9 @@ const TeamMemberDeactivate = ({ teamMembers, onCompleted }: { teamMembers: User[
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   const teamMemberIds = teamMembers
-    .filter((teamMember) => teamMember.status !== 'disabled' && permissionsFor(me, teamMember).canToggle)
+    .filter(
+      (teamMember) => teamMember.status !== 'disabled' && permissionsFor(me, teamMember).canToggle,
+    )
     .map((teamMember) => teamMember.id);
 
   return (
@@ -87,7 +95,10 @@ export const TeamMemberCommandBar = () => {
                 <Command.Input />
                 <Command.List className="p-0">
                   <Command.Group className="p-1">
-                    <TeamMemberDeactivate teamMembers={teamMembers} onCompleted={() => setOpen(false)} />
+                    <TeamMemberDeactivate
+                      teamMembers={teamMembers}
+                      onCompleted={() => setOpen(false)}
+                    />
                   </Command.Group>
                 </Command.List>
               </Command>

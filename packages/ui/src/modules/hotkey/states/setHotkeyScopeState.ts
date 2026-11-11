@@ -34,20 +34,12 @@ export const setHotkeyScopeState = atom(
     if (currentHotkeyScope.scope === newScope.scope) {
       if (!isDefined(newScope.customScopes)) {
         if (
-          isCustomScopesEqual(
-            currentHotkeyScope.customScopes,
-            DEFAULT_HOTKEYS_SCOPE_CUSTOM_SCOPES,
-          )
+          isCustomScopesEqual(currentHotkeyScope.customScopes, DEFAULT_HOTKEYS_SCOPE_CUSTOM_SCOPES)
         ) {
           return;
         }
       } else {
-        if (
-          isCustomScopesEqual(
-            currentHotkeyScope.customScopes,
-            newScope.customScopes,
-          )
-        ) {
+        if (isCustomScopesEqual(currentHotkeyScope.customScopes, newScope.customScopes)) {
           return;
         }
       }

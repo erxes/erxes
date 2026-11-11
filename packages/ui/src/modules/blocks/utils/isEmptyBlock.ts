@@ -5,9 +5,5 @@ export const isEmptyBlock = (block?: EditorBlock) => {
     return false;
   }
 
-  return (
-    Array.isArray(block.content) &&
-    !block.content.length &&
-    !block.children?.length
-  );
+  return Array.isArray(block.content) && !block.content.length && !block.children?.length;
 };

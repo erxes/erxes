@@ -1,4 +1,10 @@
-import { IconCircleCheck, IconPalette, IconSparkles, IconUserCircle, IconUsers } from '@tabler/icons-react';
+import {
+  IconCircleCheck,
+  IconPalette,
+  IconSparkles,
+  IconUserCircle,
+  IconUsers,
+} from '@tabler/icons-react';
 import type { ComponentType } from 'react';
 
 export interface OnboardingStepDef {
@@ -56,6 +62,9 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
   ];
 }
 
-export function getOnboardingStepForScreen(steps: OnboardingStepDef[], screenStep: number): OnboardingStepDef {
+export function getOnboardingStepForScreen(
+  steps: OnboardingStepDef[],
+  screenStep: number,
+): OnboardingStepDef {
   return steps.find(({ step }) => step === screenStep) ?? steps[steps.length - 1];
 }

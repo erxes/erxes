@@ -4,7 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { UserAvatar } from '~/components/UserAvatar';
 import { HOME_NS } from '../i18n';
-import { DashboardWidgetCard, DashboardWidgetEmptyState, DashboardWidgetListSkeleton } from './DashboardWidgetCard';
+import {
+  DashboardWidgetCard,
+  DashboardWidgetEmptyState,
+  DashboardWidgetListSkeleton,
+} from './DashboardWidgetCard';
 
 export type THomeRecordRow = {
   id: string;
@@ -56,8 +60,12 @@ export const HomeRecordList = ({
             >
               <UserAvatar name={row.name} src={row.avatarUrl} className="size-6 shrink-0" />
               <span className="truncate font-medium">{row.name}</span>
-              {row.detail && <span className="truncate text-xs text-muted-foreground">{row.detail}</span>}
-              {row.meta && <span className="ml-auto shrink-0 text-xs text-muted-foreground">{row.meta}</span>}
+              {row.detail && (
+                <span className="truncate text-xs text-muted-foreground">{row.detail}</span>
+              )}
+              {row.meta && (
+                <span className="ml-auto shrink-0 text-xs text-muted-foreground">{row.meta}</span>
+              )}
             </Link>
           </li>
         ))}

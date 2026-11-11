@@ -17,7 +17,12 @@ export const CustomerPanelName = ({ customer }: { customer: Customer }) => {
       lastName={`${middleName || ''}${middleName ? ' ' : ''}${lastName || ''}`}
       scope={`side-panel-customer.${id}.name`}
       onSave={(nextFirstName, nextLastName) =>
-        edit.mutate({ id, firstName: nextFirstName || null, middleName: null, lastName: nextLastName || null })
+        edit.mutate({
+          id,
+          firstName: nextFirstName || null,
+          middleName: null,
+          lastName: nextLastName || null,
+        })
       }
     >
       {/* Keeps the cell's 32px height, which its editor's position assumes. */}

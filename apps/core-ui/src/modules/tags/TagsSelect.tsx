@@ -66,7 +66,14 @@ export interface TagsSelectProviderProps {
 const toTagIds = (value: TagsSelectProviderProps['value']) =>
   Array.isArray(value) ? value : value ? [value] : [];
 
-const TagsSelectProvider = ({ type, mode = 'multiple', value, onValueChange, scope, children }: TagsSelectProviderProps) => {
+const TagsSelectProvider = ({
+  type,
+  mode = 'multiple',
+  value,
+  onValueChange,
+  scope,
+  children,
+}: TagsSelectProviderProps) => {
   const { tags, loading } = useTags(type);
   const [open, setOpen] = useState(false);
   const valueKey = JSON.stringify(value ?? null);
@@ -93,7 +100,11 @@ const TagsSelectProvider = ({ type, mode = 'multiple', value, onValueChange, sco
       return;
     }
 
-    change(selectedIds.includes(tag.id) ? selectedIds.filter((id) => id !== tag.id) : [...selectedIds, tag.id]);
+    change(
+      selectedIds.includes(tag.id)
+        ? selectedIds.filter((id) => id !== tag.id)
+        : [...selectedIds, tag.id],
+    );
   };
 
   return (
@@ -199,7 +210,12 @@ const TagsSelectContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search tag..." value={search} onValueChange={setSearch} focusOnMount />
+      <Command.Input
+        placeholder="Search tag..."
+        value={search}
+        onValueChange={setSearch}
+        focusOnMount
+      />
       <div className="flex w-full flex-wrap gap-x-2 gap-y-1 p-1">
         <TagsSelectedList />
       </div>
@@ -236,7 +252,9 @@ const TagsSelectContent = () => {
                 >
                   <IconPlus className="size-4 shrink-0" />
                   <span className="shrink-0">Add {type} tag:</span>
-                  <span className="min-w-0 flex-1 truncate text-muted-foreground">&quot;{trimmed}&quot;</span>
+                  <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                    &quot;{trimmed}&quot;
+                  </span>
                 </Command.Item>
               </Command.Group>
             )}
@@ -244,7 +262,9 @@ const TagsSelectContent = () => {
               <Command.Empty>
                 <div className="flex flex-col gap-1 p-4 text-center">
                   <div>No results found.</div>
-                  <div className="text-xs text-muted-foreground">Type a name above to create the first tag.</div>
+                  <div className="text-xs text-muted-foreground">
+                    Type a name above to create the first tag.
+                  </div>
                 </div>
               </Command.Empty>
             ) : (
@@ -255,10 +275,18 @@ const TagsSelectContent = () => {
           </>
         )}
         {tags.map((tag) => (
-          <Command.Item key={tag.id} value={tag.name} onSelect={() => toggle(tag)} className="justify-between">
+          <Command.Item
+            key={tag.id}
+            value={tag.name}
+            onSelect={() => toggle(tag)}
+            className="justify-between"
+          >
             <TagInline tag={tag} />
             <IconCheck
-              className={cn('h-4 w-4 text-primary', selectedIds.includes(tag.id) ? 'opacity-100' : 'opacity-0')}
+              className={cn(
+                'h-4 w-4 text-primary',
+                selectedIds.includes(tag.id) ? 'opacity-100' : 'opacity-0',
+              )}
             />
           </Command.Item>
         ))}
@@ -268,7 +296,13 @@ const TagsSelectContent = () => {
 };
 
 /** "Tag" (or "Tag +N") for a trigger button. */
-const TagsSelectValue = ({ showValue, placeholder }: { showValue?: boolean; placeholder?: string }) => {
+const TagsSelectValue = ({
+  showValue,
+  placeholder,
+}: {
+  showValue?: boolean;
+  placeholder?: string;
+}) => {
   const { selectedIds } = useTagsSelectContext();
 
   if (showValue && selectedIds.length > 0) {
@@ -371,7 +405,11 @@ const TagsFilterBar = ({ type }: { type: ContentType }) => {
         <IconTags />
         Tags
       </Filter.BarName>
-      <TagsSelectProvider type={type} value={tags} onValueChange={(next) => setTags(next.length ? next : null)}>
+      <TagsSelectProvider
+        type={type}
+        value={tags}
+        onValueChange={(next) => setTags(next.length ? next : null)}
+      >
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
             <Filter.BarButton filterKey="tags" className="max-w-72 justify-start overflow-hidden">

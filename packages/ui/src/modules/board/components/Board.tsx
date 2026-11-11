@@ -1,8 +1,4 @@
-import type {
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-} from '@dnd-kit/core';
+import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import {
   rectIntersection,
   DndContext,
@@ -30,10 +26,7 @@ import {
 import { Portal } from 'radix-ui';
 import { type HTMLAttributes, useContext } from 'react';
 import { BoardContext } from '../contexts/BoardContext';
-import {
-  activeCardIdState,
-  dragOverBoardColumnIdState,
-} from '../states/boardStates';
+import { activeCardIdState, dragOverBoardColumnIdState } from '../states/boardStates';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { AnimatePresence, motion } from 'motion/react';
 export type { DragEndEvent } from '@dnd-kit/core';
@@ -53,13 +46,7 @@ const BoardCards = ({
   return (
     <ScrollArea className="overflow-hidden">
       <SortableContext items={items}>
-        <div
-          className={cn(
-            'flex grow flex-col gap-2 p-2 pt-px relative',
-            className,
-          )}
-          {...props}
-        >
+        <div className={cn('flex grow flex-col gap-2 p-2 pt-px relative', className)} {...props}>
           {children}
         </div>
       </SortableContext>
@@ -73,14 +60,7 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
   children,
   className,
 }: BoardCardProps<T>) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transition,
-    transform,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transition, transform, isDragging } = useSortable({
     id,
     data: {
       type: 'card',
@@ -95,13 +75,7 @@ const BoardCard = <T extends BoardItemProps = BoardItemProps>({
   };
   return (
     <>
-      <div
-        style={style}
-        {...listeners}
-        {...attributes}
-        ref={setNodeRef}
-        data-type="card"
-      >
+      <div style={style} {...listeners} {...attributes} ref={setNodeRef} data-type="card">
         <div
           className={cn(
             'gap-4 rounded-lg shadow-sm outline-hidden bg-background',
@@ -151,9 +125,7 @@ const BoardProvider = <
   ...props
 }: BoardProviderProps<T, C>) => {
   const setActiveCardId = useSetAtom(activeCardIdState(boardId));
-  const setDragOverBoardColumnId = useSetAtom(
-    dragOverBoardColumnIdState(boardId),
-  );
+  const setDragOverBoardColumnId = useSetAtom(dragOverBoardColumnIdState(boardId));
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -218,10 +190,7 @@ const BoardProvider = <
         {...props}
       >
         <div
-          className={cn(
-            'flex flex-auto gap-4 overflow-x-auto p-5 pb-0 styled-scroll',
-            className,
-          )}
+          className={cn('flex flex-auto gap-4 overflow-x-auto p-5 pb-0 styled-scroll', className)}
         >
           {columns.map((column) => children(column))}
         </div>
@@ -248,9 +217,7 @@ export const BoardRoot = ({
   isSorted,
 }: BoardProps & { sortBy?: string; isSorted?: boolean }) => {
   const { boardId } = useContext(BoardContext) as BoardContextProps;
-  const dragOverBoardColumnId = useAtomValue(
-    dragOverBoardColumnIdState(boardId),
-  );
+  const dragOverBoardColumnId = useAtomValue(dragOverBoardColumnIdState(boardId));
   const { isOver, setNodeRef } = useDroppable({
     id,
     data: {

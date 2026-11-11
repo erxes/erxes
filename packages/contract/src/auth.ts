@@ -64,24 +64,41 @@ export const authContract = {
     )
     .output(Session),
   signOutEverywhere: oc
-    .route({ method: 'POST', path: '/auth/sign-out-everywhere', summary: 'End every session of the signed-in member, on every device' })
+    .route({
+      method: 'POST',
+      path: '/auth/sign-out-everywhere',
+      summary: 'End every session of the signed-in member, on every device',
+    })
     .output(z.object({ ok: z.literal(true) })),
   signOut: oc
-    .route({ method: 'POST', path: '/auth/sign-out', summary: 'Sign out; clears the session cookie' })
+    .route({
+      method: 'POST',
+      path: '/auth/sign-out',
+      summary: 'Sign out; clears the session cookie',
+    })
     .output(z.object({ ok: z.literal(true) })),
   me: oc
-    .route({ method: 'GET', path: '/auth/me', summary: 'The signed-in team member and their organisation' })
+    .route({
+      method: 'GET',
+      path: '/auth/me',
+      summary: 'The signed-in team member and their organisation',
+    })
     .output(Session),
   changePassword: oc
     .route({
       method: 'POST',
       path: '/auth/password',
-      summary: 'Change my own password. 400 WRONG_PASSWORD when the current one is wrong; SAME_PASSWORD when unchanged',
+      summary:
+        'Change my own password. 400 WRONG_PASSWORD when the current one is wrong; SAME_PASSWORD when unchanged',
     })
     .input(z.object({ currentPassword: z.string().min(1).max(200), newPassword: NewPassword }))
     .output(z.object({ ok: z.literal(true) })),
   signIns: oc
-    .route({ method: 'GET', path: '/auth/sign-ins', summary: 'My recent sign-ins and failed attempts, newest first' })
+    .route({
+      method: 'GET',
+      path: '/auth/sign-ins',
+      summary: 'My recent sign-ins and failed attempts, newest first',
+    })
     .output(
       z.object({
         data: z.array(

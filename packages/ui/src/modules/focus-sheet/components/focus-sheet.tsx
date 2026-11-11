@@ -4,25 +4,11 @@ import {
   IconLayoutSidebarLeftExpand,
   IconX,
 } from '@tabler/icons-react';
-import {
-  Button,
-  Separator,
-  Sheet,
-  Sidebar,
-  Spinner,
-  Tabs,
-  Tooltip,
-} from 'erxes-ui/components';
+import { Button, Separator, Sheet, Sidebar, Spinner, Tabs, Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { useMediaQuery } from 'erxes-ui/hooks';
 import { useTranslation } from 'react-i18next';
-import React, {
-  createContext,
-  forwardRef,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { createContext, forwardRef, useContext, useEffect, useState } from 'react';
 
 const FocusSheetContext = createContext<{
   isSidebarOpen: boolean;
@@ -108,10 +94,7 @@ const FocusSheetView = ({
   );
 };
 
-const FocusSheetContent = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof Sheet.Content>) => {
+const FocusSheetContent = ({ className, ...props }: React.ComponentProps<typeof Sheet.Content>) => {
   // Radix's table wrapper otherwise imposes its contents' minimum width.
   return (
     <Sheet.Content
@@ -124,10 +107,7 @@ const FocusSheetContent = ({
   );
 };
 
-const FocusSheetSideBar = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof Sidebar>) => {
+const FocusSheetSideBar = ({ className, ...props }: React.ComponentProps<typeof Sidebar>) => {
   const { isSidebarOpen, setHasSidebar } = useFocusSheet();
   useEffect(() => {
     setHasSidebar?.(true);
@@ -164,11 +144,7 @@ const FocusSheetSidebarTrigger = () => {
       aria-expanded={isSidebarOpen}
       onClick={() => setIsSidebarOpen(!isSidebarOpen)}
     >
-      {isSidebarOpen ? (
-        <IconLayoutSidebarLeftCollapse />
-      ) : (
-        <IconLayoutSidebarLeftExpand />
-      )}
+      {isSidebarOpen ? <IconLayoutSidebarLeftCollapse /> : <IconLayoutSidebarLeftExpand />}
     </Button>
   );
 };
@@ -232,18 +208,11 @@ const FocusSheetSideContentHeader = forwardRef<
     <>
       <div
         ref={ref}
-        className={cn(
-          'h-10 px-4 flex items-center gap-2 flex-none bg-background',
-          className,
-        )}
+        className={cn('h-10 px-4 flex items-center gap-2 flex-none bg-background', className)}
         {...props}
       >
-        {!!Icon && (
-          <Icon className="size-4 flex-none text-primary" strokeWidth={3} />
-        )}
-        <div className="mr-auto font-medium text-primary capitalize">
-          {label}
-        </div>
+        {!!Icon && <Icon className="size-4 flex-none text-primary" strokeWidth={3} />}
+        <div className="mr-auto font-medium text-primary capitalize">{label}</div>
         {children}
       </div>
       {!hideSeparator && <Separator />}
@@ -252,23 +221,22 @@ const FocusSheetSideContentHeader = forwardRef<
 });
 FocusSheetSideContentHeader.displayName = 'FocusSheetSideContentHeader';
 
-const FocusSheetSideTabsList = forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof Tabs.List>
->(({ className, ...props }, ref) => {
-  return (
-    <Tabs.List
-      ref={ref}
-      className={cn(
-        'w-full lg:w-12 flex-none border-t lg:border-t-0 lg:border-l bg-sidebar h-12 lg:h-full py-1 lg:py-3 flex flex-row lg:flex-col items-center justify-start gap-3 border-b-0',
-        className,
-      )}
-      {...props}
-    >
-      <Tooltip.Provider>{props.children}</Tooltip.Provider>
-    </Tabs.List>
-  );
-});
+const FocusSheetSideTabsList = forwardRef<HTMLDivElement, React.ComponentProps<typeof Tabs.List>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <Tabs.List
+        ref={ref}
+        className={cn(
+          'w-full lg:w-12 flex-none border-t lg:border-t-0 lg:border-l bg-sidebar h-12 lg:h-full py-1 lg:py-3 flex flex-row lg:flex-col items-center justify-start gap-3 border-b-0',
+          className,
+        )}
+        {...props}
+      >
+        <Tooltip.Provider>{props.children}</Tooltip.Provider>
+      </Tabs.List>
+    );
+  },
+);
 FocusSheetSideTabsList.displayName = 'FocusSheetSideTabsList';
 
 const FocusSheetSideTabsTrigger = forwardRef<
@@ -300,8 +268,7 @@ const FocusSheetSideTabsTrigger = forwardRef<
             <Icon
               className={cn(
                 'size-5 flex-none',
-                activeSideTab === value &&
-                  'group-hover/side-tabs-trigger:hidden',
+                activeSideTab === value && 'group-hover/side-tabs-trigger:hidden',
               )}
             />
           )}
@@ -329,10 +296,7 @@ const FocusSheetHeader = ({
 }) => {
   const { hasSidebar } = useFocusSheet();
   return (
-    <Sheet.Header
-      className={cn('gap-2', description && 'h-auto py-2', className)}
-      {...props}
-    >
+    <Sheet.Header className={cn('gap-2', description && 'h-auto py-2', className)} {...props}>
       {hasSidebar && <FocusSheetSidebarTrigger />}
       <div className="flex flex-col">
         <Sheet.Title>{title}</Sheet.Title>

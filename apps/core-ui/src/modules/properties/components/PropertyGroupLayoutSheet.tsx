@@ -29,7 +29,9 @@ import { activeLayoutGroupState } from '../states';
 import { useReorder } from '../usePropertyMutations';
 
 const LayoutItem = ({ field }: { field: Field }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: field.id,
+  });
   const TypeIcon = FIELD_TYPES_OBJECT[field.type]?.icon;
 
   return (
@@ -97,7 +99,9 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
     <>
       <Sheet.Content className="flex flex-col gap-2 overflow-y-auto px-5 py-4">
         {items.length === 0 ? (
-          <p className="py-10 text-center text-sm text-muted-foreground">{t('no-fields-found', 'No fields found')}</p>
+          <p className="py-10 text-center text-sm text-muted-foreground">
+            {t('no-fields-found', 'No fields found')}
+          </p>
         ) : (
           <DndContext
             collisionDetection={closestCenter}
@@ -105,7 +109,10 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
             onDragEnd={handleDragEnd}
             sensors={sensors}
           >
-            <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext
+              items={items.map((item) => item.id)}
+              strategy={verticalListSortingStrategy}
+            >
               <div className="flex flex-col gap-1">
                 {items.map((field) => (
                   <LayoutItem key={field.id} field={field} />
@@ -129,7 +136,11 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
 };
 
 /** "Layout": the order fields of a group show in. */
-export const PropertyGroupLayoutSheet = ({ fieldsOf }: { fieldsOf: (groupId: string) => Field[] }) => {
+export const PropertyGroupLayoutSheet = ({
+  fieldsOf,
+}: {
+  fieldsOf: (groupId: string) => Field[];
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const [group, setGroup] = useAtom(activeLayoutGroupState);
   const close = () => setGroup(null);

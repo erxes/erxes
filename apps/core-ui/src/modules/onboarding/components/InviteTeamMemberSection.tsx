@@ -31,7 +31,10 @@ const useInviteEmails = () => {
 
       toast({
         title: t('invite-failed', { emails: failed.join(', ') }),
-        description: reason?.status === 'rejected' && reason.reason instanceof Error ? reason.reason.message : undefined,
+        description:
+          reason?.status === 'rejected' && reason.reason instanceof Error
+            ? reason.reason.message
+            : undefined,
         variant: 'destructive',
       });
     }
@@ -141,7 +144,9 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
                 className={cn(error && 'focus-visible:shadow-focus-destructive')}
               />
               {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
-              {!error && <p className="text-sm text-muted-foreground mt-1.5">{t('separate-emails')}</p>}
+              {!error && (
+                <p className="text-sm text-muted-foreground mt-1.5">{t('separate-emails')}</p>
+              )}
             </div>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2">

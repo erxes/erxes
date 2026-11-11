@@ -31,7 +31,13 @@ export const verifyPassword = async (password: string, stored: string | null): P
 
   const [, n, r, p, salt, hash] = parts as [string, string, string, string, string, string];
   const expected = Buffer.from(hash, 'base64url');
-  const actual = await derive(password, Buffer.from(salt, 'base64url'), Number(n), Number(r), Number(p));
+  const actual = await derive(
+    password,
+    Buffer.from(salt, 'base64url'),
+    Number(n),
+    Number(r),
+    Number(p),
+  );
 
   return actual.length === expected.length && timingSafeEqual(actual, expected);
 };

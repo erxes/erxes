@@ -12,6 +12,10 @@ export type Organization = z.infer<typeof Organization>;
 
 export const organizationsContract = {
   current: oc
-    .route({ method: 'GET', path: '/organization', summary: 'The organisation of the signed-in user or service token' })
+    .route({
+      method: 'GET',
+      path: '/organization',
+      summary: 'The organisation of the signed-in user or service token',
+    })
     .output(Organization),
 };

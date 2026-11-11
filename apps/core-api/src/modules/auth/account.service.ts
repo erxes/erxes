@@ -32,7 +32,11 @@ export const changeOwnPassword = async (
   await db().transaction(async (tx) => {
     await tx
       .update(users)
-      .set({ passwordHash, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
+      .set({
+        passwordHash,
+        sessionVersion: sql`${users.sessionVersion} + 1`,
+        updatedAt: sql`now()`,
+      })
       .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)));
     await recordAudit(tx, userCaller(actor), {
       action: 'auth.password_changed',

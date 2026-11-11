@@ -28,10 +28,7 @@ export const RecordTableRow = React.forwardRef<
       id={original?.cursor ?? original?.id}
     >
       {table.getRowModel().rows.length > 200 && !inView ? (
-        <td
-          className="h-cell bg-background"
-          colSpan={table.getAllColumns().length}
-        />
+        <td className="h-cell bg-background" colSpan={table.getAllColumns().length} />
       ) : (
         children
       )}

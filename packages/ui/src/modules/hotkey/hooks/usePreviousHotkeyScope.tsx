@@ -23,10 +23,7 @@ export const usePreviousHotkeyScope = () => {
           logDebug('DEBUG: goBackToPreviousHotkeyScope', previousHotkeyScope);
         }
 
-        setHotKeyScope(
-          previousHotkeyScope.scope,
-          previousHotkeyScope.customScopes,
-        );
+        setHotKeyScope(previousHotkeyScope.scope, previousHotkeyScope.customScopes);
       },
       [setHotKeyScope],
     ),

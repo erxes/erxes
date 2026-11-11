@@ -1,9 +1,4 @@
-import {
-  callOrReturn,
-  getExtensionField,
-  mergeAttributes,
-  Node,
-} from '@tiptap/core';
+import { callOrReturn, getExtensionField, mergeAttributes, Node } from '@tiptap/core';
 import type { EditorState } from '@tiptap/pm/state';
 
 type Dispatch = ((args?: unknown) => unknown) | undefined;
@@ -66,8 +61,7 @@ const cellAttributes = (defaultBackground: string | null) => ({
   // email is only ever a grid of cells by the time it is sent.
   backgroundColor: {
     default: defaultBackground,
-    parseHTML: (element: HTMLElement) =>
-      element.style.backgroundColor || defaultBackground,
+    parseHTML: (element: HTMLElement) => element.style.backgroundColor || defaultBackground,
     renderHTML: (attributes: Record<string, unknown>) =>
       attributes.backgroundColor
         ? { style: `background-color: ${attributes.backgroundColor}` }
@@ -110,9 +104,7 @@ export const EmailTable = Node.create({
     };
 
     return {
-      tableRole: callOrReturn(
-        getExtensionField(extension, 'tableRole', context),
-      ),
+      tableRole: callOrReturn(getExtensionField(extension, 'tableRole', context)),
     };
   },
 
@@ -153,26 +145,26 @@ export const EmailTable = Node.create({
           // positions afterwards belong to a document that has moved.
           const cellPosition = state.selection.from + 3;
 
-          return chain()
-            // A paragraph after it, so there is always somewhere to type once
-            // the table is done.
-            .insertContent([table, { type: 'paragraph' }])
-            .command(({ tr, dispatch }) => {
-              if (dispatch) {
-                dispatch(
-                  tr.setSelection(
-                    TextSelection.near(
-                      tr.doc.resolve(
-                        Math.min(cellPosition, tr.doc.content.size),
+          return (
+            chain()
+              // A paragraph after it, so there is always somewhere to type once
+              // the table is done.
+              .insertContent([table, { type: 'paragraph' }])
+              .command(({ tr, dispatch }) => {
+                if (dispatch) {
+                  dispatch(
+                    tr.setSelection(
+                      TextSelection.near(
+                        tr.doc.resolve(Math.min(cellPosition, tr.doc.content.size)),
                       ),
                     ),
-                  ),
-                );
-              }
+                  );
+                }
 
-              return true;
-            })
-            .run();
+                return true;
+              })
+              .run()
+          );
         },
       addRowBefore: run(addRowBefore),
       addRowAfter: run(addRowAfter),
@@ -234,9 +226,7 @@ export const EmailTable = Node.create({
       // editor does — otherwise the last cell is a dead end.
       Tab: () => {
         const goNext = () =>
-          this.editor.commands.command(({ state, dispatch }) =>
-            goToNextCell(1)(state, dispatch),
-          );
+          this.editor.commands.command(({ state, dispatch }) => goToNextCell(1)(state, dispatch));
 
         if (goNext()) {
           return true;
@@ -249,9 +239,7 @@ export const EmailTable = Node.create({
         return this.editor.commands.addRowAfter() && goNext();
       },
       'Shift-Tab': () =>
-        this.editor.commands.command(({ state, dispatch }) =>
-          goToNextCell(-1)(state, dispatch),
-        ),
+        this.editor.commands.command(({ state, dispatch }) => goToNextCell(-1)(state, dispatch)),
       // Down at the end of the last row leaves the table. Without it the
       // caret is stuck inside, since a cell has nowhere below it.
       ArrowDown: () => {
@@ -262,10 +250,8 @@ export const EmailTable = Node.create({
             continue;
           }
 
-          const isLastRow =
-            $from.index(depth) === $from.node(depth).childCount - 1;
-          const isLastBlockOfCell =
-            $from.index(depth + 2) === $from.node(depth + 2).childCount - 1;
+          const isLastRow = $from.index(depth) === $from.node(depth).childCount - 1;
+          const isLastBlockOfCell = $from.index(depth + 2) === $from.node(depth + 2).childCount - 1;
           const isEndOfBlock = $from.parentOffset === $from.parent.content.size;
 
           if (!isLastRow || !isLastBlockOfCell || !isEndOfBlock) {
@@ -279,10 +265,7 @@ export const EmailTable = Node.create({
               dispatch(
                 tr
                   .setSelection(
-                    TextSelection.near(
-                      tr.doc.resolve(Math.min(after, tr.doc.content.size)),
-                      1,
-                    ),
+                    TextSelection.near(tr.doc.resolve(Math.min(after, tr.doc.content.size)), 1),
                   )
                   .scrollIntoView(),
               );
@@ -337,16 +320,10 @@ export const EmailTableHeader = Node.create({
     // The background comes from the cell's own attribute, so a header a
     // colour was picked for is not painted over by a fixed style.
     mergeAttributes(HTMLAttributes, {
-      style:
-        'border: 1px solid #e5e7eb; padding: 8px 12px; font-weight: 600; text-align: left;',
+      style: 'border: 1px solid #e5e7eb; padding: 8px 12px; font-weight: 600; text-align: left;',
     }),
     0,
   ],
 });
 
-export const EMAIL_TABLE_EXTENSIONS = [
-  EmailTable,
-  EmailTableRow,
-  EmailTableCell,
-  EmailTableHeader,
-];
+export const EMAIL_TABLE_EXTENSIONS = [EmailTable, EmailTableRow, EmailTableCell, EmailTableHeader];

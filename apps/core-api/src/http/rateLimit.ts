@@ -5,7 +5,11 @@ import type { NextFunction, Request, Response } from 'express';
  * against floods from one address. (Per-account sign-in lockout is in the
  * database, so it holds across replicas.)
  */
-export const rateLimit = (options: { windowMs: number; max: number; key: (req: Request) => string | null }) => {
+export const rateLimit = (options: {
+  windowMs: number;
+  max: number;
+  key: (req: Request) => string | null;
+}) => {
   const hits = new Map<string, { count: number; resetAt: number }>();
 
   const sweep = setInterval(() => {

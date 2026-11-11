@@ -5,7 +5,10 @@ import { Button, cn, useQueryState } from 'erxes-ui';
 export const useContentTypeParam = (): [ContentType, (type: ContentType) => void] => {
   const [type, setType] = useQueryState<string>('type');
 
-  return [type === 'company' ? 'company' : 'customer', (next) => setType(next === 'customer' ? null : next)];
+  return [
+    type === 'company' ? 'company' : 'customer',
+    (next) => setType(next === 'customer' ? null : next),
+  ];
 };
 
 export const ContentTypeSwitch = () => {
@@ -24,7 +27,10 @@ export const ContentTypeSwitch = () => {
           variant="ghost"
           size="sm"
           aria-pressed={type === value}
-          className={cn('h-6 px-3', type === value && 'bg-background text-primary shadow-sm hover:bg-background')}
+          className={cn(
+            'h-6 px-3',
+            type === value && 'bg-background text-primary shadow-sm hover:bg-background',
+          )}
           onClick={() => setType(value)}
         >
           {label}

@@ -50,7 +50,8 @@ const AREAS = [
   { value: 'audit.', label: 'Audit log' },
 ] as const;
 
-const isWarning = (action: string) => /deleted|merged|failed|disabled|role_changed|exported|password/.test(action);
+const isWarning = (action: string) =>
+  /deleted|merged|failed|disabled|role_changed|exported|password/.test(action);
 
 const formatValue = (value: unknown) => {
   if (value === null || value === undefined || value === '') return '—';
@@ -98,7 +99,9 @@ const EntryDetails = ({ entry }: { entry: AuditEntry }) => (
           {Object.entries(entry.changes).map(([field, [before, after]]) => (
             <tr key={field} className="align-top">
               <td className="w-40 py-0.5 pr-3 font-medium">{field}</td>
-              <td className="py-0.5 pr-3 text-muted-foreground line-through">{formatValue(before)}</td>
+              <td className="py-0.5 pr-3 text-muted-foreground line-through">
+                {formatValue(before)}
+              </td>
               <td className="py-0.5">{formatValue(after)}</td>
             </tr>
           ))}
@@ -112,7 +115,9 @@ const EntryDetails = ({ entry }: { entry: AuditEntry }) => (
     )}
     <p className="text-muted-foreground">
       <span className="font-mono">{entry.action}</span>
-      {[entry.ip && ` · IP ${entry.ip}`, entry.userAgent && ` · ${entry.userAgent}`].filter(Boolean).join('')}
+      {[entry.ip && ` · IP ${entry.ip}`, entry.userAgent && ` · ${entry.userAgent}`]
+        .filter(Boolean)
+        .join('')}
       {entry.targetId && ` · ${entry.targetType} ${entry.targetId}`}
     </p>
   </div>
@@ -136,9 +141,12 @@ const downloadCheckpoints = async () => {
     after = page.data[page.data.length - 1]!.chainSeq;
   }
 
-  const blob = new Blob([JSON.stringify({ jwks: '/core/v1/.well-known/jwks.json', checkpoints: all }, null, 2)], {
-    type: 'application/json',
-  });
+  const blob = new Blob(
+    [JSON.stringify({ jwks: '/core/v1/.well-known/jwks.json', checkpoints: all }, null, 2)],
+    {
+      type: 'application/json',
+    },
+  );
   const link = document.createElement('a');
 
   link.href = URL.createObjectURL(blob);
@@ -198,7 +206,10 @@ const IntegrityCheck = () => {
                     count: result.checkpoints.checked,
                     defaultValue: `${result.checkpoints.checked} signed checkpoints checked. erxes signs the chain every 10 minutes with a key kept outside the database.`,
                   })
-                : t('verify-no-checkpoints', 'No signed checkpoint yet: erxes signs the chain every 10 minutes.')}
+                : t(
+                    'verify-no-checkpoints',
+                    'No signed checkpoint yet: erxes signs the chain every 10 minutes.',
+                  )}
             </p>
             <Button variant="outline" size="sm" onClick={() => void downloadCheckpoints()}>
               <IconDownload />
@@ -216,7 +227,10 @@ const Retention = ({ isOwner }: { isOwner: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const client = useQueryClient();
   const { toast } = useToast();
-  const { data } = useQuery({ queryKey: ['settings', 'audit'], queryFn: () => api.audit.settings() });
+  const { data } = useQuery({
+    queryKey: ['settings', 'audit'],
+    queryFn: () => api.audit.settings(),
+  });
   const [days, setDays] = useState('');
   const save = useMutation({
     mutationFn: () => api.audit.updateSettings({ retentionDays: Number(days) }),
@@ -224,7 +238,12 @@ const Retention = ({ isOwner }: { isOwner: boolean }) => {
       client.setQueryData(['settings', 'audit'], next);
       toast({ title: t('retention-saved', 'Retention saved') });
     },
-    onError: (error) => toast({ variant: 'destructive', title: t('retention-failed', 'Could not save'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('retention-failed', 'Could not save'),
+        description: messageOf(error),
+      }),
   });
 
   if (!data) return null;
@@ -233,7 +252,10 @@ const Retention = ({ isOwner }: { isOwner: boolean }) => {
     <Popover onOpenChange={(open) => open && setDays(String(data.retentionDays))}>
       <Popover.Trigger asChild>
         <Button variant="ghost" className="text-muted-foreground">
-          {t('kept-for', { days: data.retentionDays, defaultValue: `Kept ${data.retentionDays} days` })}
+          {t('kept-for', {
+            days: data.retentionDays,
+            defaultValue: `Kept ${data.retentionDays} days`,
+          })}
         </Button>
       </Popover.Trigger>
       <Popover.Content align="end" className="w-72 space-y-3 text-sm">
@@ -276,7 +298,15 @@ export const AuditLogPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const { user } = useSession();
   const { plugins } = usePlugins();
-  const [filters, setFilters] = useState<Filters>({ area: 'all', actorId: 'all', source: 'all', from: '', to: '', ip: '', q: '' });
+  const [filters, setFilters] = useState<Filters>({
+    area: 'all',
+    actorId: 'all',
+    source: 'all',
+    from: '',
+    to: '',
+    ip: '',
+    q: '',
+  });
   const [open, setOpen] = useState<string | null>(null);
   const deferred = useDeferredValue(filters);
   const canSee = user.role !== 'member';
@@ -286,15 +316,28 @@ export const AuditLogPage = () => {
   const list = useInfiniteQuery({
     queryKey: ['audit', query],
     queryFn: ({ pageParam }) =>
-      api.audit.list({ limit: 50, cursor: pageParam, direction: 'forward', cursorMode: 'exclusive', ...query }),
+      api.audit.list({
+        limit: 50,
+        cursor: pageParam,
+        direction: 'forward',
+        cursorMode: 'exclusive',
+        ...query,
+      }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
+    getNextPageParam: (last) =>
+      last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
     enabled: canSee,
   });
   const entries = list.data?.pages.flatMap((page) => page.data) ?? [];
   const first = list.data?.pages[0];
-  const members = useMembersById(entries.map((entry) => (entry.actor.type === 'user' ? entry.actor.id : null)));
-  const team = useQuery({ queryKey: ['users', 'audit-filter'], queryFn: () => api.users.list({ limit: 100 }), enabled: canSee });
+  const members = useMembersById(
+    entries.map((entry) => (entry.actor.type === 'user' ? entry.actor.id : null)),
+  );
+  const team = useQuery({
+    queryKey: ['users', 'audit-filter'],
+    queryFn: () => api.users.list({ limit: 100 }),
+    enabled: canSee,
+  });
   const sources = ['core', ...new Set(plugins.map((plugin) => plugin.config.name.toLowerCase()))];
   const exportUrl = (format: 'csv' | 'json') => {
     const params = new URLSearchParams({ format });
@@ -312,7 +355,11 @@ export const AuditLogPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: t('title', 'Audit log'), to: '/settings/audit-log', icon: IconShieldCheck }]} />
+          <AppBreadcrumb
+            items={[
+              { label: t('title', 'Audit log'), to: '/settings/audit-log', icon: IconShieldCheck },
+            ]}
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Retention isOwner={user.role === 'owner'} />
@@ -383,14 +430,34 @@ export const AuditLogPage = () => {
             ))}
           </Select.Content>
         </Select>
-        <Input type="date" value={filters.from} onChange={(event) => set({ from: event.target.value })} className="h-7 w-36" aria-label={t('from', 'From')} />
+        <Input
+          type="date"
+          value={filters.from}
+          onChange={(event) => set({ from: event.target.value })}
+          className="h-7 w-36"
+          aria-label={t('from', 'From')}
+        />
         <span className="text-muted-foreground">–</span>
-        <Input type="date" value={filters.to} onChange={(event) => set({ to: event.target.value })} className="h-7 w-36" aria-label={t('to', 'To')} />
-        <Input value={filters.ip} onChange={(event) => set({ ip: event.target.value })} placeholder="IP" className="h-7 w-32" />
+        <Input
+          type="date"
+          value={filters.to}
+          onChange={(event) => set({ to: event.target.value })}
+          className="h-7 w-36"
+          aria-label={t('to', 'To')}
+        />
+        <Input
+          value={filters.ip}
+          onChange={(event) => set({ ip: event.target.value })}
+          placeholder="IP"
+          className="h-7 w-32"
+        />
         <span className="ml-auto text-sm text-muted-foreground">
           {first
             ? first.totalCapped
-              ? t('count-capped', { count: first.totalCount, defaultValue: `${first.totalCount.toLocaleString()}+ entries` })
+              ? t('count-capped', {
+                  count: first.totalCount,
+                  defaultValue: `${first.totalCount.toLocaleString()}+ entries`,
+                })
               : t('count', { count: first.totalCount, defaultValue: `${first.totalCount} entries` })
             : null}
         </span>
@@ -406,7 +473,10 @@ export const AuditLogPage = () => {
               </Empty.Media>
               <Empty.Title>{t('empty', 'Nothing recorded yet')}</Empty.Title>
               <Empty.Description>
-                {t('empty-description', 'Sign-ins, team changes, deletes and settings changes appear here.')}
+                {t(
+                  'empty-description',
+                  'Sign-ins, team changes, deletes and settings changes appear here.',
+                )}
               </Empty.Description>
             </Empty.Header>
           </Empty>
@@ -424,15 +494,29 @@ export const AuditLogPage = () => {
               </thead>
               <tbody>
                 {entries.map((entry) => {
-                  const who = actorLabel(entry.actor, members, t('deleted-member', 'A removed member'));
-                  const member = entry.actor.type === 'user' && entry.actor.id ? members.get(entry.actor.id) : undefined;
+                  const who = actorLabel(
+                    entry.actor,
+                    members,
+                    t('deleted-member', 'A removed member'),
+                  );
+                  const member =
+                    entry.actor.type === 'user' && entry.actor.id
+                      ? members.get(entry.actor.id)
+                      : undefined;
                   const expanded = open === entry.id;
 
                   return (
                     <Fragment key={entry.id}>
-                      <tr className="cursor-pointer border-b last:border-0 hover:bg-accent/50" onClick={() => setOpen(expanded ? null : entry.id)}>
+                      <tr
+                        className="cursor-pointer border-b last:border-0 hover:bg-accent/50"
+                        onClick={() => setOpen(expanded ? null : entry.id)}
+                      >
                         <td className="pl-3 text-muted-foreground">
-                          {expanded ? <IconChevronDown className="size-4" /> : <IconChevronRight className="size-4" />}
+                          {expanded ? (
+                            <IconChevronDown className="size-4" />
+                          ) : (
+                            <IconChevronRight className="size-4" />
+                          )}
                         </td>
                         <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
                           <RelativeDateDisplay value={entry.createdAt} asChild>
@@ -449,7 +533,12 @@ export const AuditLogPage = () => {
                         </td>
                         <td className="px-3 py-2">
                           <span className="flex flex-wrap items-center gap-1.5">
-                            {isWarning(entry.action) && <span className="size-1.5 rounded-full bg-destructive" aria-hidden="true" />}
+                            {isWarning(entry.action) && (
+                              <span
+                                className="size-1.5 rounded-full bg-destructive"
+                                aria-hidden="true"
+                              />
+                            )}
                             <span className={cn(isWarning(entry.action) && 'font-medium')}>
                               {auditSentence(entry)}
                             </span>
@@ -460,7 +549,9 @@ export const AuditLogPage = () => {
                             )}
                           </span>
                         </td>
-                        <td className="px-3 py-2 font-mono text-xs whitespace-nowrap text-muted-foreground">{entry.ip ?? '—'}</td>
+                        <td className="px-3 py-2 font-mono text-xs whitespace-nowrap text-muted-foreground">
+                          {entry.ip ?? '—'}
+                        </td>
                       </tr>
                       {expanded && (
                         <tr className="border-b">
@@ -476,7 +567,12 @@ export const AuditLogPage = () => {
             </table>
             {list.hasNextPage && (
               <div className="flex justify-center border-t py-2">
-                <Button variant="ghost" size="sm" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={list.isFetchingNextPage}
+                  onClick={() => void list.fetchNextPage()}
+                >
                   {list.isFetchingNextPage ? <Spinner size="sm" /> : t('load-more', 'Load more')}
                 </Button>
               </div>

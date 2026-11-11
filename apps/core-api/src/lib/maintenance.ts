@@ -20,7 +20,11 @@ export const startMaintenance = () => {
       const uploads = await pruneUploads(db(), config.files.pendingTtlHours);
       const audit = await pruneAudit(db(), config.retention.auditDays);
       const read = await pruneNotifications(db(), config.retention.readNotificationDays);
-      const handled = await pruneEvents(db(), config.retention.eventDays, CONSUMERS.map((consumer) => consumer.name));
+      const handled = await pruneEvents(
+        db(),
+        config.retention.eventDays,
+        CONSUMERS.map((consumer) => consumer.name),
+      );
 
       if (uploads || audit || read || handled) {
         console.log(
@@ -34,7 +38,9 @@ export const startMaintenance = () => {
 
   // Signed audit checkpoints every 10 minutes: tampering is caught back to the last one.
   const checkpoint = () =>
-    signAuditCheckpoints(db()).catch((error: unknown) => console.error('[core] audit checkpoints failed', error));
+    signAuditCheckpoints(db()).catch((error: unknown) =>
+      console.error('[core] audit checkpoints failed', error),
+    );
 
   const first = setTimeout(run, 60_000);
   const timer = setInterval(run, HOUR);

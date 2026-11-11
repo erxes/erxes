@@ -10,15 +10,8 @@ import { recordTableTreeHideChildrenAtomFamily } from '../states/RecordTableTree
 import { IRecordTableTreeContext } from '../types/RecordTableTreeTypes';
 import { RecordTableRow } from './RecordTableRow';
 
-const RecordTableTreeProvider = ({
-  id,
-  children,
-  ordered,
-  length,
-}: IRecordTableTreeContext) => {
-  const setHideChildrenState = useSetAtom(
-    recordTableTreeHideChildrenAtomFamily(id),
-  );
+const RecordTableTreeProvider = ({ id, children, ordered, length }: IRecordTableTreeContext) => {
+  const setHideChildrenState = useSetAtom(recordTableTreeHideChildrenAtomFamily(id));
 
   useEffect(() => {
     setHideChildrenState((prev) => (prev.length > 0 ? [] : prev));
@@ -31,13 +24,7 @@ const RecordTableTreeProvider = ({
   );
 };
 
-const RecordTableTreeIndentation = ({
-  order,
-  name,
-}: {
-  order: string;
-  name: string;
-}) => {
+const RecordTableTreeIndentation = ({ order, name }: { order: string; name: string }) => {
   const fixedOrder = fixOrder({ order, name });
   const { ordered } = useRecordTableTree(fixedOrder || '');
 
@@ -93,9 +80,7 @@ const RecordTableTreeArrow = React.forwardRef<
       asChild
     >
       <div>
-        <IconCaretDownFilled
-          className={cn('transition-transform', isHidden && '-rotate-90')}
-        />
+        <IconCaretDownFilled className={cn('transition-transform', isHidden && '-rotate-90')} />
       </div>
     </Button>
   );
@@ -113,11 +98,7 @@ const RecordTableTreeTrigger = React.forwardRef<
   }
 >(({ order, name, hasChildren, className, children, ...props }, ref) => {
   return (
-    <div
-      ref={ref}
-      className={cn('flex items-center gap-1', className)}
-      {...props}
-    >
+    <div ref={ref} className={cn('flex items-center gap-1', className)} {...props}>
       <RecordTableTreeIndentation order={order} name={name} />
       <RecordTableTreeArrow order={order} hasChildren={hasChildren} />
       {children}

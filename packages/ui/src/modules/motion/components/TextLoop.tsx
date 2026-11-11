@@ -1,11 +1,5 @@
 import { cn } from 'erxes-ui/lib';
-import {
-  motion,
-  AnimatePresence,
-  Transition,
-  Variants,
-  AnimatePresenceProps,
-} from 'motion/react';
+import { motion, AnimatePresence, Transition, Variants, AnimatePresenceProps } from 'motion/react';
 import { useState, useEffect, Children } from 'react';
 
 export type TextLoopProps = {

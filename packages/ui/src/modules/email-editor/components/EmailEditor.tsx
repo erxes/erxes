@@ -39,11 +39,7 @@ const CONTAINER_NODES = [
 
 const nodePlaceholder =
   (placeholder: string) =>
-  ({
-    node,
-  }: {
-    node: { type: { name: string }; attrs: { level?: number } };
-  }) => {
+  ({ node }: { node: { type: { name: string }; attrs: { level?: number } } }) => {
     if (CONTAINER_NODES.includes(node.type.name)) {
       return '';
     }
@@ -107,9 +103,7 @@ export const EmailEditor = ({
     // The editor hands over a Blob; uploads expect a File (name + type)
     ImageUploadExtension.configure({
       onImageUpload: (file: Blob) =>
-        onImageUpload(
-          file instanceof File ? file : new File([file], 'image', { type: file.type }),
-        ),
+        onImageUpload(file instanceof File ? file : new File([file], 'image', { type: file.type })),
     }),
     VariableExtension.configure({
       suggestion: getVariableSuggestions(VARIABLE_TRIGGER),
@@ -117,8 +111,7 @@ export const EmailEditor = ({
     }),
     PlaceholderExtension.configure({
       placeholder: nodePlaceholder(
-        placeholder ||
-          `Type '/' for commands, '${VARIABLE_TRIGGER}' for fields...`,
+        placeholder || `Type '/' for commands, '${VARIABLE_TRIGGER}' for fields...`,
       ),
     }),
     ...EMAIL_TABLE_EXTENSIONS,

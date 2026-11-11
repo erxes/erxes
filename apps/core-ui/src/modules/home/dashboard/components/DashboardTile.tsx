@@ -4,7 +4,11 @@ import type { PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../context/DashboardProvider';
 import { useDashboardWidgetText } from '../hooks/useDashboardWidgetText';
-import type { TDashboardItem, TDashboardWidgetDefinition, TResizeAxis } from '../types/dashboardTypes';
+import type {
+  TDashboardItem,
+  TDashboardWidgetDefinition,
+  TResizeAxis,
+} from '../types/dashboardTypes';
 import { DASHBOARD_RESIZE_AXES, DashboardResizeHandle } from './DashboardResizeHandle';
 import { DashboardTileErrorBoundary } from './DashboardTileCrashState';
 

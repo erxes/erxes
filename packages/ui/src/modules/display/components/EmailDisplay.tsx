@@ -13,22 +13,15 @@ export const EmailDisplay = ({
   onEmailDoubleClick,
   onEmailKeyActivate,
 }: EmailDisplayProps) => {
-  const emailsWithProperties = formatEmails(
-    primaryEmail,
-    emails,
-    emailValidationStatus,
-  );
+  const emailsWithProperties = formatEmails(primaryEmail, emails, emailValidationStatus);
 
   const values = emailsWithProperties.filter((item) => item.email);
-  const visible =
-    maxVisible === undefined ? values : values.slice(0, maxVisible);
+  const visible = maxVisible === undefined ? values : values.slice(0, maxVisible);
   const remaining = values.length - visible.length;
   return (
     <div
       className={
-        maxVisible === undefined
-          ? 'flex gap-2'
-          : 'flex min-w-0 max-w-full items-center gap-1'
+        maxVisible === undefined ? 'flex gap-2' : 'flex min-w-0 max-w-full items-center gap-1'
       }
     >
       {visible.map(

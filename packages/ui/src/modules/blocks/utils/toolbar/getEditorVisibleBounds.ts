@@ -1,18 +1,12 @@
 import type { EditorVisibleBounds } from 'erxes-ui/modules/blocks/types/toolbar/EditorVisibleBounds';
 
-export const getEditorVisibleBounds = (
-  editor: HTMLElement,
-): EditorVisibleBounds => {
+export const getEditorVisibleBounds = (editor: HTMLElement): EditorVisibleBounds => {
   const bounds = editor.getBoundingClientRect();
   let top = 0;
   let bottom = window.innerHeight;
   let left = Math.max(0, bounds.left);
   let right = Math.min(window.innerWidth, bounds.right);
-  for (
-    let parent = editor.parentElement;
-    parent;
-    parent = parent.parentElement
-  ) {
+  for (let parent = editor.parentElement; parent; parent = parent.parentElement) {
     const style = getComputedStyle(parent);
     const clipsY = /(auto|scroll|hidden|clip)/.test(style.overflowY);
     const clipsX = /(auto|scroll|hidden|clip)/.test(style.overflowX);

@@ -1,6 +1,14 @@
 import type { CustomerState } from '@erxes/core-contract';
 import { IconSearch } from '@tabler/icons-react';
-import { Combobox, Command, Filter, isUndefinedOrNull, Skeleton, useFilterQueryState, useMultiQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Filter,
+  isUndefinedOrNull,
+  Skeleton,
+  useFilterQueryState,
+  useMultiQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
@@ -40,7 +48,11 @@ const CustomersFilterPopover = ({ state }: { state: CustomerState }) => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder={t('filter._')} variant="secondary" className="bg-background" />
+              <Filter.CommandInput
+                placeholder={t('filter._')}
+                variant="secondary"
+                className="bg-background"
+              />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />

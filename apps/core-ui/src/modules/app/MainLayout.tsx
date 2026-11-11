@@ -1,8 +1,8 @@
-import { Sidebar } from "erxes-ui";
-import { Outlet } from "react-router-dom";
-import { useLiveUpdates } from "~/lib/live";
-import { CoreTab } from "~/modules/navigation/CoreTab";
-import { SidePanelLayout } from "~/modules/side-panel/SidePanelLayout";
+import { Sidebar } from 'erxes-ui';
+import { Outlet } from 'react-router-dom';
+import { useLiveUpdates } from '~/lib/live';
+import { CoreTab } from '~/modules/navigation/CoreTab';
+import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 
 /**
  * The signed-in frame (old core-ui DefaultLayout): the top bar, then the open

@@ -38,10 +38,19 @@ export interface NotificationFilters {
   important?: boolean;
 }
 
-export const useNotificationList = ({ source, unread, important, enabled = true }: NotificationFilters & { enabled?: boolean }) => {
+export const useNotificationList = ({
+  source,
+  unread,
+  important,
+  enabled = true,
+}: NotificationFilters & { enabled?: boolean }) => {
   const refetchInterval = useLivePolling();
   const query = useInfiniteQuery({
-    queryKey: [...NOTIFICATIONS_KEY, 'list', { source: source ?? null, unread, important: Boolean(important) }],
+    queryKey: [
+      ...NOTIFICATIONS_KEY,
+      'list',
+      { source: source ?? null, unread, important: Boolean(important) },
+    ],
     queryFn: ({ pageParam }) =>
       api.notifications.list({
         limit: 20,
@@ -53,7 +62,8 @@ export const useNotificationList = ({ source, unread, important, enabled = true 
         priority: important ? 'high' : undefined,
       }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
+    getNextPageParam: (last) =>
+      last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
     enabled,
     refetchInterval,
   });
@@ -72,7 +82,11 @@ export const useNotificationActions = () => {
   const { toast } = useToast();
   const refresh = () => client.invalidateQueries({ queryKey: NOTIFICATIONS_KEY });
   const onError = (error: unknown) =>
-    toast({ variant: 'destructive', title: 'Could not update notifications', description: messageOf(error) });
+    toast({
+      variant: 'destructive',
+      title: 'Could not update notifications',
+      description: messageOf(error),
+    });
 
   const markRead = useMutation({
     mutationFn: (input: { ids?: string[]; source?: string; read?: boolean }) =>
@@ -94,12 +108,20 @@ const SETTINGS_KEY = [...NOTIFICATIONS_KEY, 'settings'];
 export const useNotificationSettings = () => {
   const client = useQueryClient();
   const { toast } = useToast();
-  const query = useQuery({ queryKey: SETTINGS_KEY, queryFn: () => api.notifications.settings(), staleTime: 60_000 });
+  const query = useQuery({
+    queryKey: SETTINGS_KEY,
+    queryFn: () => api.notifications.settings(),
+    staleTime: 60_000,
+  });
   const update = useMutation({
     mutationFn: (muted: string[]) => api.notifications.updateSettings({ muted }),
     onSuccess: (settings) => client.setQueryData(SETTINGS_KEY, settings),
     onError: (error) =>
-      toast({ variant: 'destructive', title: 'Could not save notification settings', description: messageOf(error) }),
+      toast({
+        variant: 'destructive',
+        title: 'Could not save notification settings',
+        description: messageOf(error),
+      }),
   });
 
   return { settings: query.data, loading: query.isPending, update };
@@ -141,7 +163,8 @@ export const useInboxes = (): Inbox[] => {
 
       return {
         source,
-        label: config?.name && config.name.toLowerCase() !== source ? config.name : pluginLabel(source),
+        label:
+          config?.name && config.name.toLowerCase() !== source ? config.name : pluginLabel(source),
         icon: config?.icon ?? IconPuzzle,
         path: config?.path,
       };

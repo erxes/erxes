@@ -129,11 +129,7 @@ export const EmailListField = ({
   onValidationStatusChange?: (status: ValidationStatus) => void;
   noValidation?: boolean;
 }) => {
-  const formattedEmails = formatEmails(
-    primaryEmail,
-    emails,
-    emailValidationStatus,
-  );
+  const formattedEmails = formatEmails(primaryEmail, emails, emailValidationStatus);
   const setEmails = useSetAtom(emailsFamilyState(recordId));
   const setShowEmailInput = useSetAtom(showEmailInputFamilyState(recordId));
 
@@ -173,17 +169,11 @@ const EmailList = () => {
   }
 
   return (
-    <div
-      ref={mounted.current ? animationParent : null}
-      className="space-y-1 p-1"
-    >
+    <div ref={mounted.current ? animationParent : null} className="space-y-1 p-1">
       {emails.map(
         (email) =>
           email.email && (
-            <div
-              className="flex items-center overflow-hidden gap-1 w-full"
-              key={email.email}
-            >
+            <div className="flex items-center overflow-hidden gap-1 w-full" key={email.email}>
               <EmailField {...email} />
               <EmailOptions {...email} />
             </div>
@@ -214,13 +204,8 @@ const EmailField = ({ email, status, isPrimary }: IEmailField) => {
   );
 };
 
-const EmailOptions = ({
-  email,
-  status,
-  isPrimary,
-}: IEmailField & { isPrimary?: boolean }) => {
-  const { recordId, onValueChange, noValidation, onValidationStatusChange } =
-    useEmailFields();
+const EmailOptions = ({ email, status, isPrimary }: IEmailField & { isPrimary?: boolean }) => {
+  const { recordId, onValueChange, noValidation, onValidationStatusChange } = useEmailFields();
   const emails = useAtomValue(emailsFamilyState(recordId));
   const setEditingEmail = useSetAtom(editingEmailFamilyState(recordId));
   const setShowEmailInput = useSetAtom(showEmailInputFamilyState(recordId));
@@ -228,9 +213,7 @@ const EmailOptions = ({
     if (isPrimary) return;
     onValueChange?.([
       { email, status, isPrimary: true },
-      ...(emails || [])
-        .filter((e) => e.email !== email)
-        .map((e) => ({ ...e, isPrimary: false })),
+      ...(emails || []).filter((e) => e.email !== email).map((e) => ({ ...e, isPrimary: false })),
     ]);
   };
   const handleEditClick = () => {
@@ -249,11 +232,7 @@ const EmailOptions = ({
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button
-          variant="secondary"
-          className="w-full font-medium size-8 shrink-0"
-          size="icon"
-        >
+        <Button variant="secondary" className="w-full font-medium size-8 shrink-0" size="icon">
           <IconDots />
         </Button>
       </DropdownMenu.Trigger>
@@ -265,11 +244,7 @@ const EmailOptions = ({
         align="start"
       >
         <DropdownMenu.Item onClick={handleSetPrimaryEmail}>
-          {isPrimary ? (
-            <IconBookmarkFilled className="text-primary" />
-          ) : (
-            <IconBookmark />
-          )}
+          {isPrimary ? <IconBookmarkFilled className="text-primary" /> : <IconBookmark />}
           {isPrimary ? 'Primary email' : 'Set as primary email'}
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={handleEditClick}>
@@ -280,10 +255,7 @@ const EmailOptions = ({
         {isPrimary && !noValidation && (
           <>
             <DropdownMenu.Separator />
-            <DropdownMenu.RadioGroup
-              value={status}
-              onValueChange={handleVerificationChange}
-            >
+            <DropdownMenu.RadioGroup value={status} onValueChange={handleVerificationChange}>
               <DropdownMenu.RadioItem value={ValidationStatus.Valid}>
                 <IconCircleDashedCheck className="text-success data-[state=active]:bg-muted " />
                 Verified
@@ -296,10 +268,7 @@ const EmailOptions = ({
           </>
         )}
         <DropdownMenu.Separator />
-        <DropdownMenu.Item
-          className="text-destructive"
-          onClick={handleDeleteClick}
-        >
+        <DropdownMenu.Item className="text-destructive" onClick={handleDeleteClick}>
           <IconTrash />
           Delete
         </DropdownMenu.Item>
@@ -311,9 +280,7 @@ const EmailOptions = ({
 const EmailForm = () => {
   const { recordId } = useEmailFields();
   const emails = useAtomValue(emailsFamilyState(recordId));
-  const [editingEmail, setEditingEmail] = useAtom(
-    editingEmailFamilyState(recordId),
-  );
+  const [editingEmail, setEditingEmail] = useAtom(editingEmailFamilyState(recordId));
   const { onValueChange } = useEmailFields();
   const form = useForm<z.infer<typeof emailSchema>>({
     resolver: zodResolver(emailSchema),
@@ -321,9 +288,7 @@ const EmailForm = () => {
       email: '',
     },
   });
-  const [showEmailInput, setShowEmailInput] = useAtom(
-    showEmailInputFamilyState(recordId),
-  );
+  const [showEmailInput, setShowEmailInput] = useAtom(showEmailInputFamilyState(recordId));
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -350,9 +315,7 @@ const EmailForm = () => {
   const onEmailEdit = (newEmail: string, prevEmail: string) => {
     onValueChange?.(
       emails.map((emailItem) =>
-        emailItem.email === prevEmail
-          ? { ...emailItem, email: newEmail }
-          : emailItem,
+        emailItem.email === prevEmail ? { ...emailItem, email: newEmail } : emailItem,
       ),
     );
     form.reset();
@@ -360,9 +323,7 @@ const EmailForm = () => {
   };
   const onEmailAdd = (email: string) => {
     if (emails.length === 0) {
-      onValueChange?.([
-        { email, status: ValidationStatus.Invalid, isPrimary: true },
-      ]);
+      onValueChange?.([{ email, status: ValidationStatus.Invalid, isPrimary: true }]);
     } else {
       onValueChange?.([...emails, { email, status: ValidationStatus.Invalid }]);
     }
@@ -389,10 +350,7 @@ const EmailForm = () => {
                 <Input
                   placeholder={editingEmail ? 'Edit email' : 'Add email'}
                   variant="secondary"
-                  className={cn(
-                    form.formState.errors.email &&
-                      'focus-visible:shadow-destructive',
-                  )}
+                  className={cn(form.formState.errors.email && 'focus-visible:shadow-destructive')}
                   {...field}
                   ref={(el) => {
                     field.ref(el);

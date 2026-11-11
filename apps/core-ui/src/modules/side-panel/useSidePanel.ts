@@ -1,7 +1,15 @@
 import { useMultiQueryState } from 'erxes-ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   type IOpenRecordOptions,
@@ -22,7 +30,10 @@ import {
 const MAX_PANEL_HISTORY = 20;
 
 // The width the user dragged the panel to, kept across reloads.
-export const sidePanelWidthState = atomWithStorage<number>('erxes:sidePanelWidth', SIDE_PANEL_WIDTH.default);
+export const sidePanelWidthState = atomWithStorage<number>(
+  'erxes:sidePanelWidth',
+  SIDE_PANEL_WIDTH.default,
+);
 
 // Panel routes left by opening a related record from inside the panel,
 // newest last; the panel's back button returns to them.
@@ -39,7 +50,9 @@ export const sidePanelDraftState = atom<ISidePanelDraft | null>(null);
 export const SidePanelDraftContext = createContext<ISidePanelDraft | null | undefined>(undefined);
 
 /** The defaults of the draft of `contentType` open in the panel, if any. */
-export const useSidePanelDraft = <T extends Record<string, unknown>>(contentType: string): Partial<T> => {
+export const useSidePanelDraft = <T extends Record<string, unknown>>(
+  contentType: string,
+): Partial<T> => {
   const currentDraft = useAtomValue(sidePanelDraftState);
   const scopedDraft = useContext(SidePanelDraftContext);
   const draft = scopedDraft === undefined ? currentDraft : scopedDraft;
@@ -88,14 +101,18 @@ export const useSidePanel = () => {
 
     return Array.isArray(entries)
       ? entries
-          .filter((entry: unknown): entry is string => typeof entry === 'string' && entry.startsWith('/'))
+          .filter(
+            (entry: unknown): entry is string => typeof entry === 'string' && entry.startsWith('/'),
+          )
           .slice(-MAX_PANEL_HISTORY)
       : [];
   }, [historyKey]);
   const setHistory = useSetAtom(sidePanelHistoryState);
 
   useEffect(() => {
-    setHistory((previous) => (JSON.stringify(previous) === JSON.stringify(history) ? previous : history));
+    setHistory((previous) =>
+      JSON.stringify(previous) === JSON.stringify(history) ? previous : history,
+    );
   }, [history, setHistory]);
 
   /** Updates panel history, active route, and per-record tabs in one navigation. */
@@ -166,7 +183,10 @@ export const useSidePanel = () => {
     const nextPath = getSidePanelRecordPath(next);
     const nextHistory = current.history.map((entry) => (entry === previousPath ? nextPath : entry));
 
-    if (current.path === previousPath || nextHistory.some((entry, index) => entry !== current.history[index])) {
+    if (
+      current.path === previousPath ||
+      nextHistory.some((entry, index) => entry !== current.history[index])
+    ) {
       current.navigate(current.path === previousPath ? nextPath : current.path, nextHistory, true);
     }
   }, []);
@@ -260,13 +280,20 @@ export const useSidePanel = () => {
     replaceRecord,
     dismissPath,
     // Opens a draft of `contentType` starting with `defaults`.
-    openNewRecord: (contentType: string, defaults: Record<string, unknown> = {}, options?: IOpenRecordOptions) => {
+    openNewRecord: (
+      contentType: string,
+      defaults: Record<string, unknown> = {},
+      options?: IOpenRecordOptions,
+    ) => {
       setDraft({ contentType, defaults });
 
       if (navigator) {
         navigator.openRecord({ contentType, contentId: NEW_RECORD_ID }, options);
       } else {
-        openPath(`${getSidePanelRecordPath({ contentType, contentId: NEW_RECORD_ID })}/${draftId()}`, options);
+        openPath(
+          `${getSidePanelRecordPath({ contentType, contentId: NEW_RECORD_ID })}/${draftId()}`,
+          options,
+        );
       }
     },
     canGoBack: history.length > 0,

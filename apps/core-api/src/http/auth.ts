@@ -118,11 +118,14 @@ const verifyAccessToken = (token: string): AccessClaims => {
   return claims as AccessClaims;
 };
 
-const unauthorized = () =>
-  new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+const unauthorized = () => new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
 
 /** Paths under /core/v1 that work without being signed in (public in the access map). */
-const PUBLIC_PATHS = new Set([...publicPaths(coreContract), '/openapi.json', '/.well-known/jwks.json']);
+const PUBLIC_PATHS = new Set([
+  ...publicPaths(coreContract),
+  '/openapi.json',
+  '/.well-known/jwks.json',
+]);
 
 /** JOSE `typ` of plugin access tokens (`POST /plugins/token`). */
 export const PLUGIN_ACCESS_TYP = 'erxes-plugin-access+jwt';
@@ -130,7 +133,9 @@ export const PLUGIN_ACCESS_TYP = 'erxes-plugin-access+jwt';
 /** Plugin tokens are ES256 JWTs with their own `typ`; member tokens are not. */
 const isPluginToken = (token: string) => {
   try {
-    const header = JSON.parse(Buffer.from(token.split('.')[0] ?? '', 'base64url').toString()) as { typ?: string };
+    const header = JSON.parse(Buffer.from(token.split('.')[0] ?? '', 'base64url').toString()) as {
+      typ?: string;
+    };
 
     return header.typ === PLUGIN_ACCESS_TYP;
   } catch {
@@ -179,7 +184,7 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
     return authenticatePlugin(req, bearer, next);
   }
 
-  const cookie = bearer ? '' : readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '';
+  const cookie = bearer ? '' : (readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '');
   const token = bearer || cookie;
 
   if (!token) {
@@ -199,7 +204,13 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
   }
 
   db()
-    .select({ id: users.id, orgId: users.orgId, role: users.role, status: users.status, sessionVersion: users.sessionVersion })
+    .select({
+      id: users.id,
+      orgId: users.orgId,
+      role: users.role,
+      status: users.status,
+      sessionVersion: users.sessionVersion,
+    })
     .from(users)
     .where(and(eq(users.id, claims.sub), eq(users.orgId, claims.org)))
     .limit(1)
@@ -230,7 +241,11 @@ interface PluginClaims extends Record<string, unknown> {
 const authenticatePlugin = (req: Request, token: string, next: NextFunction) => {
   verifyJwt<PluginClaims>(token, { typ: PLUGIN_ACCESS_TYP, audience: AUDIENCE })
     .then(async ({ payload }) => {
-      const [plugin] = await db().select({ status: plugins.status }).from(plugins).where(eq(plugins.name, payload.sub)).limit(1);
+      const [plugin] = await db()
+        .select({ status: plugins.status })
+        .from(plugins)
+        .where(eq(plugins.name, payload.sub))
+        .limit(1);
 
       if (plugin?.status !== 'active') return next(unauthorized());
 
@@ -240,9 +255,17 @@ const authenticatePlugin = (req: Request, token: string, next: NextFunction) => 
       }
 
       const [installation] = await db()
-        .select({ status: pluginInstallations.status, grantedScopes: pluginInstallations.grantedScopes })
+        .select({
+          status: pluginInstallations.status,
+          grantedScopes: pluginInstallations.grantedScopes,
+        })
         .from(pluginInstallations)
-        .where(and(eq(pluginInstallations.orgId, payload.org), eq(pluginInstallations.plugin, payload.sub)))
+        .where(
+          and(
+            eq(pluginInstallations.orgId, payload.org),
+            eq(pluginInstallations.plugin, payload.sub),
+          ),
+        )
         .limit(1);
 
       if (installation?.status !== 'active') return next(unauthorized());
@@ -282,7 +305,9 @@ export const callerOf = (req: { plugin?: PluginCaller; actor?: Actor }): Caller 
 };
 
 /** Who a session cookie belongs to, if it is still valid (for sign-out). */
-export const sessionClaims = (req: Request): { userId: string; orgId: string; sessionVersion: number } | null => {
+export const sessionClaims = (
+  req: Request,
+): { userId: string; orgId: string; sessionVersion: number } | null => {
   const token = readCookies(req.headers.cookie)[SESSION_COOKIE];
 
   if (!token) return null;

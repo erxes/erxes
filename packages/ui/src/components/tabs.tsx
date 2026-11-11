@@ -6,8 +6,7 @@ import { cn } from 'erxes-ui/lib';
 const tabsListVariants = cva('h-auto text-accent-foreground', {
   variants: {
     variant: {
-      underline:
-        'gap-2 rounded-none border-b border-border bg-transparent px-0 py-1',
+      underline: 'gap-2 rounded-none border-b border-border bg-transparent px-0 py-1',
       segment: 'w-fit gap-1 rounded-lg bg-muted p-1',
     },
   },
@@ -39,8 +38,7 @@ const TabsVariantContext = React.createContext<TTabsVariant>('underline');
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> &
-    VariantProps<typeof tabsListVariants>
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & VariantProps<typeof tabsListVariants>
 >(({ className, variant, ...props }, ref) => (
   <TabsVariantContext.Provider value={variant ?? 'underline'}>
     <TabsPrimitive.List
@@ -62,10 +60,7 @@ const TabsTrigger = React.forwardRef<
   return (
     <TabsPrimitive.Trigger
       ref={ref}
-      className={cn(
-        tabsTriggerVariants({ variant: variant ?? listVariant }),
-        className,
-      )}
+      className={cn(tabsTriggerVariants({ variant: variant ?? listVariant }), className)}
       {...props}
     />
   );

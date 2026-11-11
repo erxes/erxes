@@ -65,7 +65,9 @@ export const OnboardingLeftSideBar = ({
             <div className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
               <CurrentIcon className="h-6 w-6" />
             </div>
-            <h4 className="mt-3 max-w-[280px] text-center text-xl leading-tight text-white">{current.title}</h4>
+            <h4 className="mt-3 max-w-[280px] text-center text-xl leading-tight text-white">
+              {current.title}
+            </h4>
             <span className="mt-1 block max-w-[320px] text-center text-xs leading-5 text-white/70">
               {current.subtitle}
             </span>

@@ -6,7 +6,11 @@ import { PropertiesLayout } from '~/modules/properties/components/PropertiesLayo
 import { PropertyAdd } from '~/modules/properties/components/PropertyAdd';
 import { PropertyEdit } from '~/modules/properties/components/PropertyEdit';
 import { PropertyFieldsGroupSettings } from '~/modules/properties/components/PropertyFieldsGroupSettings';
-import { isPropertyType, PROPERTIES_BASE_PATH, PROPERTY_TYPES } from '~/modules/properties/constants';
+import {
+  isPropertyType,
+  PROPERTIES_BASE_PATH,
+  PROPERTY_TYPES,
+} from '~/modules/properties/constants';
 import { useCanManageFields } from '~/modules/properties/usePropertyMutations';
 
 /** Pages of one record type; unknown types go back to the first one. */
@@ -44,7 +48,12 @@ const PropertiesTypeRoutes = () => {
 export const PropertiesSettingsRoutes = () => (
   <IconsProvider>
     <Routes>
-      <Route index element={<Navigate to={`${PROPERTIES_BASE_PATH}/${PROPERTY_TYPES[0]!.contentType}`} replace />} />
+      <Route
+        index
+        element={
+          <Navigate to={`${PROPERTIES_BASE_PATH}/${PROPERTY_TYPES[0]!.contentType}`} replace />
+        }
+      />
       <Route path=":type/*" element={<PropertiesTypeRoutes />} />
     </Routes>
   </IconsProvider>

@@ -31,10 +31,7 @@ export function ChatVizCartesianDecorations({ domain }: Readonly<Props>) {
       <ChartTooltip content={<ChartTooltipContent />} />
       <ChartLegend
         content={(props) => (
-          <ChartLegendContent
-            payload={props.payload ?? []}
-            verticalAlign={props.verticalAlign}
-          />
+          <ChartLegendContent payload={props.payload ?? []} verticalAlign={props.verticalAlign} />
         )}
       />
     </Fragment>

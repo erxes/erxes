@@ -2,7 +2,11 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, cn, Combobox, Popover, PopoverScoped, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ContactRecordChip, SelectContactContent, type TContactKind } from '~/modules/contacts/components/ContactPicker';
+import {
+  ContactRecordChip,
+  SelectContactContent,
+  type TContactKind,
+} from '~/modules/contacts/components/ContactPicker';
 import { useSidePanel } from '../useSidePanel';
 
 const ContactRelationTriggerLabel = ({
@@ -74,9 +78,14 @@ export const ContactRelationInput = ({
   const hasLinks = value.length > 0;
   const moreCount = Math.max(0, value.length - 1);
   const relatedContentType = kind === 'company' ? 'core:company' : 'core:customer';
-  const addLabel = kind === 'company' ? t('add-company', 'Add company') : t('add-customer', 'Add customer');
-  const editLabel = kind === 'company' ? t('edit-companies', 'Edit companies') : t('edit-customers', 'Edit customers');
-  const openContact = (id: string) => openRecord({ contentType: relatedContentType, contentId: id }, { stack: true });
+  const addLabel =
+    kind === 'company' ? t('add-company', 'Add company') : t('add-customer', 'Add customer');
+  const editLabel =
+    kind === 'company'
+      ? t('edit-companies', 'Edit companies')
+      : t('edit-customers', 'Edit customers');
+  const openContact = (id: string) =>
+    openRecord({ contentType: relatedContentType, contentId: id }, { stack: true });
   const handleChange = (ids: string[]) => {
     if (disabled) return;
     onValueChange?.(ids);
@@ -85,7 +94,11 @@ export const ContactRelationInput = ({
   let control = null;
 
   if (!hasLinks) {
-    control = <span className="px-1 text-xs text-muted-foreground">{t('not-specified', 'Not specified')}</span>;
+    control = (
+      <span className="px-1 text-xs text-muted-foreground">
+        {t('not-specified', 'Not specified')}
+      </span>
+    );
   }
 
   if (canEdit || moreCount > 0) {
@@ -106,7 +119,12 @@ export const ContactRelationInput = ({
               moreCount > 0 && 'bg-muted hover:bg-accent',
             )}
           >
-            <ContactRelationTriggerLabel saving={disabled} moreCount={moreCount} hasLinks={hasLinks} addLabel={addLabel} />
+            <ContactRelationTriggerLabel
+              saving={disabled}
+              moreCount={moreCount}
+              hasLinks={hasLinks}
+              addLabel={addLabel}
+            />
           </Button>
         </Popover.Trigger>
         <Combobox.Content>

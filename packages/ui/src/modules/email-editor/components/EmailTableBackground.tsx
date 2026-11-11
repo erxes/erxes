@@ -75,9 +75,7 @@ export const EmailTableBackground = ({ editor }: { editor: Editor }) => {
         <ToggleGroup
           type="single"
           value={scope}
-          onValueChange={(next) =>
-            next && setScope(next as TEmailTableBackgroundScope)
-          }
+          onValueChange={(next) => next && setScope(next as TEmailTableBackgroundScope)}
           className="grid grid-cols-4 gap-1"
         >
           {SCOPES.map(({ value: option, label }) => (

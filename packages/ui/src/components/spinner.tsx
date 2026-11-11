@@ -1,20 +1,17 @@
 import { cn } from 'erxes-ui/lib';
 import { VariantProps, cva } from 'class-variance-authority';
 
-const spinnerVariants = cva(
-  'flex-col items-center justify-center flex-auto h-full',
-  {
-    variants: {
-      show: {
-        true: 'flex',
-        false: 'hidden',
-      },
-    },
-    defaultVariants: {
-      show: true,
+const spinnerVariants = cva('flex-col items-center justify-center flex-auto h-full', {
+  variants: {
+    show: {
+      true: 'flex',
+      false: 'hidden',
     },
   },
-);
+  defaultVariants: {
+    show: true,
+  },
+});
 
 const loaderVariants = cva('relative', {
   variants: {
@@ -31,8 +28,7 @@ const loaderVariants = cva('relative', {
 });
 
 interface SpinnerContentProps
-  extends VariantProps<typeof spinnerVariants>,
-    VariantProps<typeof loaderVariants> {
+  extends VariantProps<typeof spinnerVariants>, VariantProps<typeof loaderVariants> {
   className?: string;
   containerClassName?: string;
   withMascot?: boolean;
@@ -52,10 +48,7 @@ const FILL_BOX = '[transform-box:fill-box]';
 const WaitingBot = ({ className }: { className?: string }) => (
   <div
     role="status"
-    className={cn(
-      'flex flex-col items-center gap-1 animate-bot-appear',
-      className,
-    )}
+    className={cn('flex flex-col items-center gap-1 animate-bot-appear', className)}
   >
     <svg viewBox="20 4 136 134" className="w-20" aria-hidden="true">
       <circle cx="80" cy="76" r="58" className="fill-primary/10" />
@@ -85,14 +78,7 @@ const WaitingBot = ({ className }: { className?: string }) => (
           fill="none"
         />
         <rect x="55" y="37" width="50" height="29" rx="14.5" fill={BOT_VISOR} />
-        <rect
-          x="62"
-          y="42"
-          width="12"
-          height="4"
-          rx="2"
-          fill={BOT_VISOR_SHINE}
-        />
+        <rect x="62" y="42" width="12" height="4" rx="2" fill={BOT_VISOR_SHINE} />
         <g className="motion-safe:animate-bot-glance">
           {[66, 84].map((x) => (
             <rect
@@ -103,10 +89,7 @@ const WaitingBot = ({ className }: { className?: string }) => (
               height="13"
               rx="5"
               fill={BOT_GLOW}
-              className={cn(
-                FILL_BOX,
-                'origin-center motion-safe:animate-bot-blink',
-              )}
+              className={cn(FILL_BOX, 'origin-center motion-safe:animate-bot-blink')}
             />
           ))}
         </g>

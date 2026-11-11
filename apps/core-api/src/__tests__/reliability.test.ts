@@ -15,10 +15,20 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
     const { createOrganization } = await import('~/modules/organizations/organizations.service');
-    const acme = await createOrganization({ subdomain: 'acme', name: 'Acme', owner: { email: 'owner@acme.mn' } });
+    const acme = await createOrganization({
+      subdomain: 'acme',
+      name: 'Acme',
+      owner: { email: 'owner@acme.mn' },
+    });
     const memberId = newId();
 
-    await db().insert(users).values({ id: memberId, orgId: acme.organization.id, email: 'm@acme.mn', role: 'member', status: 'active' });
+    await db().insert(users).values({
+      id: memberId,
+      orgId: acme.organization.id,
+      email: 'm@acme.mn',
+      role: 'member',
+      status: 'active',
+    });
     owner = { userId: acme.owner.id, orgId: acme.organization.id, role: 'owner' };
     member = { userId: memberId, orgId: acme.organization.id, role: 'member' };
   });
@@ -27,7 +37,11 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const { db } = await import('@erxes/core-db');
     const { publishPluginEvents } = await import('~/modules/events/events.service');
 
-    await publishPluginEvents(db(), { plugin: 'hr', orgId: owner.orgId, scopes: ['events:write'] }, [{ type, version: 1, payload: {} }]);
+    await publishPluginEvents(
+      db(),
+      { plugin: 'hr', orgId: owner.orgId, scopes: ['events:write'] },
+      [{ type, version: 1, payload: {} }],
+    );
   };
 
   /**
@@ -63,13 +77,16 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const { db } = await import('@erxes/core-db');
     const { sql } = await import('drizzle-orm');
 
-    await db().execute(sql`update core_event_failures set next_attempt_at = now() where status = 'retrying'`);
+    await db().execute(
+      sql`update core_event_failures set next_attempt_at = now() where status = 'retrying'`,
+    );
   };
 
   it('retries a failed event with backoff, then marks it dead; a manual retry gets it through', async () => {
     const { db } = await import('@erxes/core-db');
     const { retryFailures, MAX_ATTEMPTS } = await import('~/modules/events/processor');
-    const { listEventFailures, retryEventFailures } = await import('~/modules/events/events.service');
+    const { listEventFailures, retryEventFailures } =
+      await import('~/modules/events/events.service');
     let broken = true;
     const handled: string[] = [];
     const flaky = {
@@ -91,9 +108,15 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     let failures = await listEventFailures(db(), owner, {});
 
     expect(failures.counts).toEqual({ retrying: 1, dead: 0 });
-    expect(failures.data[0]).toMatchObject({ consumer: 'test.flaky', attempts: 1, status: 'retrying' });
+    expect(failures.data[0]).toMatchObject({
+      consumer: 'test.flaky',
+      attempts: 1,
+      status: 'retrying',
+    });
     expect(failures.data[0]!.lastError).toContain('downstream is down');
-    expect(new Date(failures.data[0]!.nextAttemptAt!).getTime()).toBeGreaterThan(Date.now() + 30_000);
+    expect(new Date(failures.data[0]!.nextAttemptAt!).getTime()).toBeGreaterThan(
+      Date.now() + 30_000,
+    );
 
     // Not due yet: nothing happens.
     expect(await retryFailures(flaky as never)).toBe(0);
@@ -105,9 +128,15 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
 
     failures = await listEventFailures(db(), owner, {});
     expect(failures.counts).toEqual({ retrying: 0, dead: 1 });
-    expect(failures.data[0]).toMatchObject({ attempts: MAX_ATTEMPTS, status: 'dead', nextAttemptAt: null });
+    expect(failures.data[0]).toMatchObject({
+      attempts: MAX_ATTEMPTS,
+      status: 'dead',
+      nextAttemptAt: null,
+    });
 
-    await expect(retryEventFailures(db(), member, { allDead: true })).rejects.toMatchObject({ status: 403 });
+    await expect(retryEventFailures(db(), member, { allDead: true })).rejects.toMatchObject({
+      status: 403,
+    });
 
     broken = false;
     expect(await retryEventFailures(db(), owner, { allDead: true })).toEqual({ retried: 1 });
@@ -120,7 +149,8 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
   it('dismisses failures, and keeps events until every consumer has passed them', async () => {
     const { db, events } = await import('@erxes/core-db');
     const { sql, eq } = await import('drizzle-orm');
-    const { dismissEventFailures, listEventFailures, pruneEvents } = await import('~/modules/events/events.service');
+    const { dismissEventFailures, listEventFailures, pruneEvents } =
+      await import('~/modules/events/events.service');
     const failing = { name: 'test.failing', handle: async () => Promise.reject(new Error('nope')) };
     const passing = { name: 'test.passing', handle: async () => undefined };
 
@@ -143,7 +173,10 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
 
     expect(
       await dismissEventFailures(db(), owner, {
-        failures: open.map((failure) => ({ consumer: failure.consumer, eventId: failure.event.id })),
+        failures: open.map((failure) => ({
+          consumer: failure.consumer,
+          eventId: failure.event.id,
+        })),
       }),
     ).toEqual({ dismissed: open.length });
 
@@ -154,11 +187,16 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     await drain(failing);
     await drain(passing);
     await dismissEventFailures(db(), owner, {
-      failures: (await listEventFailures(db(), owner, {})).data.map((f) => ({ consumer: f.consumer, eventId: f.event.id })),
+      failures: (await listEventFailures(db(), owner, {})).data.map((f) => ({
+        consumer: f.consumer,
+        eventId: f.event.id,
+      })),
     });
     // Recent events stay, handled or not.
     expect(await pruneEvents(db(), 30, ['test.failing', 'test.passing'])).toBe(0);
-    expect((await db().select().from(events).where(eq(events.type, 'hr.new.happened'))).length).toBe(1);
+    expect(
+      (await db().select().from(events).where(eq(events.type, 'hr.new.happened'))).length,
+    ).toBe(1);
   });
 
   it('signs audit checkpoints and catches entries cut off the end of the chain', async () => {
@@ -168,10 +206,19 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const { listCheckpoints, signAuditCheckpoints } = await import('~/modules/audit/checkpoints');
     const { publicJwks } = await import('~/lib/signing');
     const { createLocalJWKSet, jwtVerify } = await import('jose');
-    const caller = { orgId: owner.orgId, actorType: 'user' as const, actorId: owner.userId, source: 'core' };
+    const caller = {
+      orgId: owner.orgId,
+      actorType: 'user' as const,
+      actorId: owner.userId,
+      source: 'core',
+    };
 
     for (let index = 0; index < 3; index += 1) {
-      await recordAudit(db(), caller, { action: 'customer.created', targetType: 'customer', targetId: `c${index}` });
+      await recordAudit(db(), caller, {
+        action: 'customer.created',
+        targetType: 'customer',
+        targetId: `c${index}`,
+      });
     }
 
     expect(await signAuditCheckpoints(db())).toBeGreaterThanOrEqual(1);
@@ -182,7 +229,9 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const latest = data[data.length - 1]!;
 
     // Anyone can check a checkpoint with the published keys alone.
-    const { payload } = await jwtVerify(latest.signature, createLocalJWKSet(publicJwks()), { issuer: 'erxes-core' });
+    const { payload } = await jwtVerify(latest.signature, createLocalJWKSet(publicJwks()), {
+      issuer: 'erxes-core',
+    });
 
     expect(payload).toMatchObject({ org: owner.orgId, seq: latest.chainSeq, hash: latest.hash });
 
@@ -198,7 +247,9 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
 
     await db().transaction(async (tx) => {
       await tx.execute(sql`set local core.audit_prune = 'on'`);
-      await tx.execute(sql`delete from core_audit_logs where org_id = ${owner.orgId} and chain_seq >= ${head - 1}`);
+      await tx.execute(
+        sql`delete from core_audit_logs where org_id = ${owner.orgId} and chain_seq >= ${head - 1}`,
+      );
     });
 
     result = await verifyAudit(db(), owner);
@@ -209,7 +260,11 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     // Checkpoints themselves are append-only.
     await expect(db().delete(auditCheckpoints)).rejects.toBeTruthy();
     // And a tampered chain is never signed over.
-    await recordAudit(db(), caller, { action: 'customer.created', targetType: 'customer', targetId: 'c9' });
+    await recordAudit(db(), caller, {
+      action: 'customer.created',
+      targetType: 'customer',
+      targetId: 'c9',
+    });
     expect(await signAuditCheckpoints(db(), owner.orgId)).toBe(0);
   });
 

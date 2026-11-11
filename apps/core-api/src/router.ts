@@ -50,7 +50,12 @@ import {
   verifyAudit,
 } from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
-import { changeOwnPassword, mySignIns, sessionVersionOf, signOutEverywhere } from '~/modules/auth/account.service';
+import {
+  changeOwnPassword,
+  mySignIns,
+  sessionVersionOf,
+  signOutEverywhere,
+} from '~/modules/auth/account.service';
 import { getSession, signIn } from '~/modules/auth/auth.service';
 import {
   createCompany,
@@ -157,7 +162,11 @@ const anyone = pub.use(({ context, next }) =>
 const labelOf = (value: unknown) => {
   const record = value as { label?: unknown; name?: unknown } | null;
 
-  return typeof record?.label === 'string' ? record.label : typeof record?.name === 'string' ? record.name : null;
+  return typeof record?.label === 'string'
+    ? record.label
+    : typeof record?.name === 'string'
+      ? record.name
+      : null;
 };
 
 /**
@@ -177,7 +186,12 @@ const audited = <T>(
     return result;
   });
 
-const recordOf = (targetType: string, action: string, id: string, result?: unknown): AuditInput => ({
+const recordOf = (
+  targetType: string,
+  action: string,
+  id: string,
+  result?: unknown,
+): AuditInput => ({
   action: `${targetType}.${action}`,
   targetType,
   targetId: id,
@@ -193,37 +207,58 @@ const startSession = async (context: CoreContext, userId: string, orgId: string)
 };
 
 const endSession = (context: CoreContext) =>
-  context.res.clearCookie(SESSION_COOKIE, { ...sessionCookieOptions(context.req), maxAge: undefined });
+  context.res.clearCookie(SESSION_COOKIE, {
+    ...sessionCookieOptions(context.req),
+    maxAge: undefined,
+  });
 
 /** Implements `@erxes/core-contract`; inputs are already validated by its schemas. */
 export const coreRouter = pub.router({
   activities: {
-    list: authed.activities.list.handler(({ input, context }) => listActivities(db(), context.actor, input)),
-    create: plugin.activities.create.handler(({ input, context }) => createPluginActivity(db(), context.plugin, input)),
-    addNote: authed.activities.addNote.handler(({ input, context }) => addNote(db(), context.actor, input)),
+    list: authed.activities.list.handler(({ input, context }) =>
+      listActivities(db(), context.actor, input),
+    ),
+    create: plugin.activities.create.handler(({ input, context }) =>
+      createPluginActivity(db(), context.plugin, input),
+    ),
+    addNote: authed.activities.addNote.handler(({ input, context }) =>
+      addNote(db(), context.actor, input),
+    ),
     updateNote: authed.activities.updateNote.handler(({ input: { id, ...changes }, context }) =>
       updateNote(db(), context.actor, id, changes),
     ),
-    removeNote: authed.activities.removeNote.handler(({ input, context }) => removeNote(db(), context.actor, input.id)),
+    removeNote: authed.activities.removeNote.handler(({ input, context }) =>
+      removeNote(db(), context.actor, input.id),
+    ),
   },
   audit: {
     list: authed.audit.list.handler(({ input, context }) => listAudit(db(), context.actor, input)),
-    record: plugin.audit.record.handler(({ input, context }) => recordPluginAudit(db(), context.plugin, input.entries)),
+    record: plugin.audit.record.handler(({ input, context }) =>
+      recordPluginAudit(db(), context.plugin, input.entries),
+    ),
     verify: authed.audit.verify.handler(({ context }) => verifyAudit(db(), context.actor)),
     checkpoints: authed.audit.checkpoints.handler(({ input, context }) => {
       requireManager(context.actor, 'Only owners and admins can read audit checkpoints');
 
       return listCheckpoints(db(), context.actor.orgId, input);
     }),
-    settings: authed.audit.settings.handler(({ context }) => auditSettings(db(), context.actor.orgId)),
+    settings: authed.audit.settings.handler(({ context }) =>
+      auditSettings(db(), context.actor.orgId),
+    ),
     updateSettings: authed.audit.updateSettings.handler(({ input, context }) =>
       updateAuditSettings(db(), context.actor, input),
     ),
   },
   events: {
-    publish: plugin.events.publish.handler(({ input, context }) => publishPluginEvents(db(), context.plugin, input.events)),
-    list: authed.events.list.handler(({ input, context }) => listEvents(db(), context.actor, input)),
-    failures: authed.events.failures.handler(({ input, context }) => listEventFailures(db(), context.actor, input)),
+    publish: plugin.events.publish.handler(({ input, context }) =>
+      publishPluginEvents(db(), context.plugin, input.events),
+    ),
+    list: authed.events.list.handler(({ input, context }) =>
+      listEvents(db(), context.actor, input),
+    ),
+    failures: authed.events.failures.handler(({ input, context }) =>
+      listEventFailures(db(), context.actor, input),
+    ),
     retryFailures: authed.events.retryFailures.handler(({ input, context }) =>
       retryEventFailures(db(), context.actor, input),
     ),
@@ -232,10 +267,16 @@ export const coreRouter = pub.router({
     ),
   },
   files: {
-    createUpload: anyone.files.createUpload.handler(({ input, context }) => createUpload(db(), context.caller, input)),
-    complete: anyone.files.complete.handler(({ input, context }) => completeUpload(db(), context.caller, input.id)),
+    createUpload: anyone.files.createUpload.handler(({ input, context }) =>
+      createUpload(db(), context.caller, input),
+    ),
+    complete: anyone.files.complete.handler(({ input, context }) =>
+      completeUpload(db(), context.caller, input.id),
+    ),
     get: anyone.files.get.handler(({ input, context }) => getFile(db(), context.caller, input.id)),
-    list: anyone.files.list.handler(({ input, context }) => listFiles(db(), context.caller, input.ids)),
+    list: anyone.files.list.handler(({ input, context }) =>
+      listFiles(db(), context.caller, input.ids),
+    ),
     remove: anyone.files.remove.handler(({ input, context }) =>
       removeFile(db(), context.caller, context.actor, input.id),
     ),
@@ -245,15 +286,21 @@ export const coreRouter = pub.router({
     ),
   },
   notifications: {
-    list: authed.notifications.list.handler(({ input, context }) => listNotifications(db(), context.actor, input)),
+    list: authed.notifications.list.handler(({ input, context }) =>
+      listNotifications(db(), context.actor, input),
+    ),
     unreadCount: authed.notifications.unreadCount.handler(({ input, context }) =>
       unreadCount(db(), context.actor, input.source),
     ),
-    settings: authed.notifications.settings.handler(({ context }) => notificationSettings(db(), context.actor)),
+    settings: authed.notifications.settings.handler(({ context }) =>
+      notificationSettings(db(), context.actor),
+    ),
     updateSettings: authed.notifications.updateSettings.handler(({ input, context }) =>
       updateNotificationSettings(db(), context.actor, input),
     ),
-    markRead: authed.notifications.markRead.handler(({ input, context }) => markRead(db(), context.actor, input)),
+    markRead: authed.notifications.markRead.handler(({ input, context }) =>
+      markRead(db(), context.actor, input),
+    ),
     remove: authed.notifications.remove.handler(({ input, context }) =>
       removeNotification(db(), context.actor, input.id),
     ),
@@ -262,7 +309,9 @@ export const coreRouter = pub.router({
     ),
   },
   auth: {
-    setupStatus: pub.auth.setupStatus.handler(async () => ({ required: await setupRequired(db()) })),
+    setupStatus: pub.auth.setupStatus.handler(async () => ({
+      required: await setupRequired(db()),
+    })),
     setup: pub.auth.setup.handler(async ({ input, context }) => {
       const { organization, owner } = await runSetup(input);
 
@@ -292,12 +341,15 @@ export const coreRouter = pub.router({
 
       return { ok: true as const };
     }),
-    me: authed.auth.me.handler(({ context }) => getSession(context.actor.orgId, context.actor.userId)),
+    me: authed.auth.me.handler(({ context }) =>
+      getSession(context.actor.orgId, context.actor.userId),
+    ),
     changePassword: authed.auth.changePassword.handler(async ({ input, context }) => {
       const result = await changeOwnPassword(context.actor, input);
 
       // Other sessions ended; this browser stays signed in (bearer callers get a fresh token next sign-in).
-      if (!context.req.headers.authorization) await startSession(context, context.actor.userId, context.actor.orgId);
+      if (!context.req.headers.authorization)
+        await startSession(context, context.actor.userId, context.actor.orgId);
 
       return result;
     }),
@@ -313,15 +365,24 @@ export const coreRouter = pub.router({
   plugins: {
     token: pub.plugins.token.handler(({ input }) => issuePluginToken(input)),
     registerManifest: pub.plugins.registerManifest.handler(({ input, context }) => {
-      if (!context.req.pluginService) throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+      if (!context.req.pluginService)
+        throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
 
       return registerManifest(context.req.pluginService, input);
     }),
     list: authed.plugins.list.handler(({ context }) => listPlugins(context.actor)),
-    install: authed.plugins.install.handler(({ input, context }) => installPlugin(context.actor, input.name)),
-    uninstall: authed.plugins.uninstall.handler(({ input, context }) => uninstallPlugin(context.actor, input.name)),
-    session: authed.plugins.session.handler(({ input, context }) => pluginSession(context.actor, input.name)),
-    signal: plugin.plugins.signal.handler(({ input, context }) => pluginSignal(context.plugin, input)),
+    install: authed.plugins.install.handler(({ input, context }) =>
+      installPlugin(context.actor, input.name),
+    ),
+    uninstall: authed.plugins.uninstall.handler(({ input, context }) =>
+      uninstallPlugin(context.actor, input.name),
+    ),
+    session: authed.plugins.session.handler(({ input, context }) =>
+      pluginSession(context.actor, input.name),
+    ),
+    signal: plugin.plugins.signal.handler(({ input, context }) =>
+      pluginSignal(context.plugin, input),
+    ),
   },
   organizations: {
     current: authed.organizations.current.handler(async ({ context }) =>
@@ -331,29 +392,47 @@ export const coreRouter = pub.router({
   users: {
     list: authed.users.list.handler(({ input, context }) => listUsers(db(), context.actor, input)),
     get: authed.users.get.handler(({ input, context }) => getUser(db(), context.actor, input.id)),
-    invite: authed.users.invite.handler(({ input, context }) => inviteUser(db(), context.actor, input)),
-    inviteMany: authed.users.inviteMany.handler(({ input, context }) => inviteUsers(context.actor, input.entries)),
+    invite: authed.users.invite.handler(({ input, context }) =>
+      inviteUser(db(), context.actor, input),
+    ),
+    inviteMany: authed.users.inviteMany.handler(({ input, context }) =>
+      inviteUsers(context.actor, input.entries),
+    ),
     update: authed.users.update.handler(({ input: { id, ...changes }, context }) =>
       updateUser(context.actor, id, changes),
     ),
     setPassword: authed.users.setPassword.handler(({ input, context }) =>
       setUserPassword(context.actor, input.id, input.password),
     ),
-    disable: authed.users.disable.handler(({ input, context }) => setUserDisabled(context.actor, input.id, true)),
-    enable: authed.users.enable.handler(({ input, context }) => setUserDisabled(context.actor, input.id, false)),
+    disable: authed.users.disable.handler(({ input, context }) =>
+      setUserDisabled(context.actor, input.id, true),
+    ),
+    enable: authed.users.enable.handler(({ input, context }) =>
+      setUserDisabled(context.actor, input.id, false),
+    ),
   },
   customers: {
-    list: authed.customers.list.handler(({ input, context }) => listCustomers(db(), context.actor, input)),
-    get: authed.customers.get.handler(({ input, context }) => getCustomer(db(), context.actor, input.id)),
-    create: authed.customers.create.handler(({ input, context }) => createCustomer(db(), context.actor, input)),
+    list: authed.customers.list.handler(({ input, context }) =>
+      listCustomers(db(), context.actor, input),
+    ),
+    get: authed.customers.get.handler(({ input, context }) =>
+      getCustomer(db(), context.actor, input.id),
+    ),
+    create: authed.customers.create.handler(({ input, context }) =>
+      createCustomer(db(), context.actor, input),
+    ),
     update: authed.customers.update.handler(({ input: { id, ...changes }, context }) =>
       updateCustomer(db(), context.actor, id, changes),
     ),
     remove: authed.customers.remove.handler(({ input, context }) =>
       removeCustomers(db(), context.actor, input.ids),
     ),
-    merge: authed.customers.merge.handler(({ input, context }) => mergeCustomers(context.actor, input)),
-    tag: authed.customers.tag.handler(({ input, context }) => tagCustomers(db(), context.actor, input)),
+    merge: authed.customers.merge.handler(({ input, context }) =>
+      mergeCustomers(context.actor, input),
+    ),
+    tag: authed.customers.tag.handler(({ input, context }) =>
+      tagCustomers(db(), context.actor, input),
+    ),
     companies: authed.customers.companies.handler(({ input, context }) =>
       customerCompaniesOf(db(), context.actor, input.id),
     ),
@@ -365,17 +444,27 @@ export const coreRouter = pub.router({
     ),
   },
   companies: {
-    list: authed.companies.list.handler(({ input, context }) => listCompanies(db(), context.actor, input)),
-    get: authed.companies.get.handler(({ input, context }) => getCompany(db(), context.actor, input.id)),
-    create: authed.companies.create.handler(({ input, context }) => createCompany(db(), context.actor, input)),
+    list: authed.companies.list.handler(({ input, context }) =>
+      listCompanies(db(), context.actor, input),
+    ),
+    get: authed.companies.get.handler(({ input, context }) =>
+      getCompany(db(), context.actor, input.id),
+    ),
+    create: authed.companies.create.handler(({ input, context }) =>
+      createCompany(db(), context.actor, input),
+    ),
     update: authed.companies.update.handler(({ input: { id, ...changes }, context }) =>
       updateCompany(db(), context.actor, id, changes),
     ),
     remove: authed.companies.remove.handler(({ input, context }) =>
       removeCompanies(db(), context.actor, input.ids),
     ),
-    merge: authed.companies.merge.handler(({ input, context }) => mergeCompanies(context.actor, input)),
-    tag: authed.companies.tag.handler(({ input, context }) => tagCompanies(db(), context.actor, input)),
+    merge: authed.companies.merge.handler(({ input, context }) =>
+      mergeCompanies(context.actor, input),
+    ),
+    tag: authed.companies.tag.handler(({ input, context }) =>
+      tagCompanies(db(), context.actor, input),
+    ),
   },
   tags: {
     list: authed.tags.list.handler(({ input, context }) => listTags(db(), context.actor, input)),
@@ -402,8 +491,12 @@ export const coreRouter = pub.router({
     ),
   },
   fields: {
-    list: authed.fields.list.handler(({ input, context }) => listFields(db(), context.actor, input)),
-    usage: authed.fields.usage.handler(({ input, context }) => fieldUsage(db(), context.actor, input)),
+    list: authed.fields.list.handler(({ input, context }) =>
+      listFields(db(), context.actor, input),
+    ),
+    usage: authed.fields.usage.handler(({ input, context }) =>
+      fieldUsage(db(), context.actor, input),
+    ),
     create: authed.fields.create.handler(({ input, context }) =>
       audited(
         context.actor,
@@ -418,7 +511,9 @@ export const coreRouter = pub.router({
         (field) => ({ ...recordOf('field', 'updated', id, field), metadata: changes }),
       ),
     ),
-    reorder: authed.fields.reorder.handler(({ input, context }) => reorderFields(db(), context.actor, input.orders)),
+    reorder: authed.fields.reorder.handler(({ input, context }) =>
+      reorderFields(db(), context.actor, input.orders),
+    ),
     archive: authed.fields.archive.handler(({ input, context }) =>
       audited(
         context.actor,
@@ -449,7 +544,9 @@ export const coreRouter = pub.router({
     ),
   },
   fieldGroups: {
-    list: authed.fieldGroups.list.handler(({ input, context }) => listFieldGroups(db(), context.actor, input)),
+    list: authed.fieldGroups.list.handler(({ input, context }) =>
+      listFieldGroups(db(), context.actor, input),
+    ),
     create: authed.fieldGroups.create.handler(({ input, context }) =>
       audited(
         context.actor,

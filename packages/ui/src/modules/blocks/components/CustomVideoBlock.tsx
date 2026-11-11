@@ -14,10 +14,7 @@ import {
 } from '@blocknote/react';
 import { IconVideo } from '@tabler/icons-react';
 import { FC } from 'react';
-import {
-  getCloudflareStreamBase,
-  parseVideoEmbedUrl,
-} from 'erxes-ui/utils';
+import { getCloudflareStreamBase, parseVideoEmbedUrl } from 'erxes-ui/utils';
 
 type VideoRenderProps = ReactCustomBlockRenderProps<
   typeof videoBlockConfig,
@@ -81,9 +78,7 @@ const ExternalVideoHtml: FC<VideoRenderProps> = (props) => {
   const video = <EmbeddedVideo src={src} title={props.block.props.name} />;
 
   return props.block.props.caption ? (
-    <FigureWithCaption caption={props.block.props.caption}>
-      {video}
-    </FigureWithCaption>
+    <FigureWithCaption caption={props.block.props.caption}>{video}</FigureWithCaption>
   ) : (
     video
   );

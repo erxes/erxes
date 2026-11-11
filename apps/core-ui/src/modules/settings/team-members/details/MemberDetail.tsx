@@ -39,7 +39,8 @@ export const MemberDetail = ({
 
   const fallbackTitle = isPending ? <Skeleton className="h-4 w-32" /> : t('member-detail');
   const name = user ? memberName(user) : null;
-  const title = user && permissions?.canEdit ? <MemberPanelName user={user} /> : (name ?? fallbackTitle);
+  const title =
+    user && permissions?.canEdit ? <MemberPanelName user={user} /> : (name ?? fallbackTitle);
   const avatar = user ? (
     <MemberAvatar user={user} className="size-7 flex-none" />
   ) : isPending ? (
@@ -48,7 +49,8 @@ export const MemberDetail = ({
 
   const renderBody = () => {
     if (isPending) return <Spinner containerClassName="py-12" />;
-    if (error && !isApiError(error, 'NOT_FOUND')) return <MemberDetailErrorState message={messageOf(error)} />;
+    if (error && !isApiError(error, 'NOT_FOUND'))
+      return <MemberDetailErrorState message={messageOf(error)} />;
     if (!user) return <MemberDetailEmptyState />;
 
     const tabs: IRecordSidePanelTab[] = [
@@ -58,7 +60,12 @@ export const MemberDetail = ({
         icon: IconId,
         content: <MemberPanelDetail user={user} />,
       },
-      { value: 'links', label: t('links', 'Links'), icon: IconLink, content: <MemberLinks user={user} /> },
+      {
+        value: 'links',
+        label: t('links', 'Links'),
+        icon: IconLink,
+        content: <MemberLinks user={user} />,
+      },
     ];
 
     return (

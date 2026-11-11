@@ -2,10 +2,7 @@ import * as React from 'react';
 
 import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
-import {
-  IconLayoutSidebarLeftCollapse,
-  IconLayoutSidebarLeftExpand,
-} from '@tabler/icons-react';
+import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react';
 import { useSidebar } from './context';
 
 export const SidebarTrigger = React.forwardRef<

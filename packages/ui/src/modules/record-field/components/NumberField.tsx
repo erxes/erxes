@@ -23,102 +23,84 @@ export const NumberField = React.forwardRef<
     onSave?: (value: number) => void;
     formatValue?: (value: number) => string;
   }
->(
-  (
-    {
-      placeholder,
-      value,
-      scope,
-      onSave,
-      onValueChange,
-      formatValue,
-      children,
-      ...props
-    },
-    ref,
-  ) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [editingValue, setEditingValue] = useState(String(value));
-    const [isEdited, setIsEdited] = useState(false);
+>(({ placeholder, value, scope, onSave, onValueChange, formatValue, children, ...props }, ref) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [editingValue, setEditingValue] = useState(String(value));
+  const [isEdited, setIsEdited] = useState(false);
 
-    const resetEditing = () => {
-      setEditingValue(String(value));
-      setIsEdited(false);
-    };
+  const resetEditing = () => {
+    setEditingValue(String(value));
+    setIsEdited(false);
+  };
 
-    const handleAction = (e?: React.FormEvent) => {
-      e?.preventDefault();
-      const numValue = Number(editingValue) || 0;
-      if (numValue !== value) {
-        onSave?.(numValue);
-      }
+  const handleAction = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const numValue = Number(editingValue) || 0;
+    if (numValue !== value) {
+      onSave?.(numValue);
+    }
+    setIsOpen(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      resetEditing();
       setIsOpen(false);
-    };
+    }
+  };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation();
-        resetEditing();
-        setIsOpen(false);
-      }
-    };
-
-    return (
-      <PopoverScoped
-        scope={scope}
-        open={isOpen}
-        onOpenChange={(open: boolean) => {
-          setIsOpen(open);
-          if (open) {
-            resetEditing();
-          } else if (isEdited) {
-            handleAction();
-          }
-        }}
-      >
-        <RecordTableInlineCell.Trigger {...props} ref={ref}>
-          {children}
-          <TextOverflowTooltip
-            value={
-              (isOpen
-                ? editingValue.toString()
-                : formatValue
+  return (
+    <PopoverScoped
+      scope={scope}
+      open={isOpen}
+      onOpenChange={(open: boolean) => {
+        setIsOpen(open);
+        if (open) {
+          resetEditing();
+        } else if (isEdited) {
+          handleAction();
+        }
+      }}
+    >
+      <RecordTableInlineCell.Trigger {...props} ref={ref}>
+        {children}
+        <TextOverflowTooltip
+          value={
+            (isOpen
+              ? editingValue.toString()
+              : formatValue
                 ? formatValue(value)
                 : value.toLocaleString()) ?? placeholder
-            }
-          />
-        </RecordTableInlineCell.Trigger>
-        <RecordTableInlineCell.Content asChild>
-          <form onSubmit={handleAction}>
-            <Input
-              type="text"
-              value={editingValue.toLocaleString()}
-              onChange={(e: any) => {
-                const rawValue = e.target.value.replace(/,/g, '');
+          }
+        />
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content asChild>
+        <form onSubmit={handleAction}>
+          <Input
+            type="text"
+            value={editingValue.toLocaleString()}
+            onChange={(e: any) => {
+              const rawValue = e.target.value.replace(/,/g, '');
 
-                if (
-                  rawValue === '' ||
-                  rawValue === '-' ||
-                  rawValue.match(/^-?\d*\.?\d*$/)
-                ) {
-                  setEditingValue(rawValue);
-                  setIsEdited(true);
-                  const numValue = Number(rawValue);
-                  if (!isNaN(numValue)) {
-                    onValueChange?.(numValue);
-                  }
+              if (rawValue === '' || rawValue === '-' || rawValue.match(/^-?\d*\.?\d*$/)) {
+                setEditingValue(rawValue);
+                setIsEdited(true);
+                const numValue = Number(rawValue);
+                if (!isNaN(numValue)) {
+                  onValueChange?.(numValue);
                 }
-                setIsOpen(true);
-              }}
-              onKeyDown={handleKeyDown}
-            />
+              }
+              setIsOpen(true);
+            }}
+            onKeyDown={handleKeyDown}
+          />
 
-            <button type="submit" className="sr-only">
-              Save
-            </button>
-          </form>
-        </RecordTableInlineCell.Content>
-      </PopoverScoped>
-    );
-  },
-);
+          <button type="submit" className="sr-only">
+            Save
+          </button>
+        </form>
+      </RecordTableInlineCell.Content>
+    </PopoverScoped>
+  );
+});

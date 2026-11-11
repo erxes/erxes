@@ -36,9 +36,7 @@ export const ToolbarSelect = ({
             icon={item.icon}
             checked={item.isSelected}
             disabled={item.isDisabled}
-            className={
-              item.isDisabled ? 'pointer-events-none opacity-50' : undefined
-            }
+            className={item.isDisabled ? 'pointer-events-none opacity-50' : undefined}
             onClick={item.isDisabled ? undefined : item.onClick}
           >
             {item.text}

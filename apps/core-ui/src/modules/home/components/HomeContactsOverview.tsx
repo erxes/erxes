@@ -1,5 +1,11 @@
 import type { UseQueryResult } from '@tanstack/react-query';
-import { IconAddressBook, IconBuilding, IconUserPlus, IconUsers, type TablerIcon } from '@tabler/icons-react';
+import {
+  IconAddressBook,
+  IconBuilding,
+  IconUserPlus,
+  IconUsers,
+  type TablerIcon,
+} from '@tabler/icons-react';
 import { Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -49,10 +55,25 @@ export const HomeContactsOverview = () => {
   return (
     <section className="flex h-full min-w-0 flex-col justify-center overflow-hidden rounded-xl border bg-background p-2 shadow-xs">
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <Stat label={t('kpi.customers')} icon={IconAddressBook} query={customers} to="/contacts/customers" />
+        <Stat
+          label={t('kpi.customers')}
+          icon={IconAddressBook}
+          query={customers}
+          to="/contacts/customers"
+        />
         <Stat label={t('kpi.leads')} icon={IconUserPlus} query={leads} to="/contacts/leads" />
-        <Stat label={t('kpi.companies')} icon={IconBuilding} query={companies} to="/contacts/companies" />
-        <Stat label={t('kpi.team-members')} icon={IconUsers} query={users} to="/settings/team-members" />
+        <Stat
+          label={t('kpi.companies')}
+          icon={IconBuilding}
+          query={companies}
+          to="/contacts/companies"
+        />
+        <Stat
+          label={t('kpi.team-members')}
+          icon={IconUsers}
+          query={users}
+          to="/settings/team-members"
+        />
       </div>
     </section>
   );

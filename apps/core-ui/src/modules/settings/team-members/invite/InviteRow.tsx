@@ -19,7 +19,10 @@ export const InviteRow = ({ userIndex, userId }: { userIndex: number; userId: st
   const first = userIndex === 0;
 
   return (
-    <Table.Row data-state={selectedUsers.includes(userId) ? 'selected' : 'unselected'} className="overflow-hidden h-cell">
+    <Table.Row
+      data-state={selectedUsers.includes(userId) ? 'selected' : 'unselected'}
+      className="overflow-hidden h-cell"
+    >
       <Table.Cell
         className={cn('overflow-hidden', {
           'rounded-tl-lg border-t': first,
@@ -30,7 +33,9 @@ export const InviteRow = ({ userIndex, userId }: { userIndex: number; userId: st
           <InviteRowCheckbox userId={userId} />
         </div>
       </Table.Cell>
-      <Table.Cell className={cn({ 'border-t': first, 'border-destructive border-l': errors?.email?.message })}>
+      <Table.Cell
+        className={cn({ 'border-t': first, 'border-destructive border-l': errors?.email?.message })}
+      >
         <Form.Field
           control={control}
           name={`entries.${userIndex}.email`}
@@ -50,7 +55,12 @@ export const InviteRow = ({ userIndex, userId }: { userIndex: number; userId: st
           )}
         />
       </Table.Cell>
-      <Table.Cell className={cn({ 'border-t': first, 'border-destructive border-l': errors?.password?.message })}>
+      <Table.Cell
+        className={cn({
+          'border-t': first,
+          'border-destructive border-l': errors?.password?.message,
+        })}
+      >
         <Form.Field
           control={control}
           name={`entries.${userIndex}.password`}
@@ -70,7 +80,12 @@ export const InviteRow = ({ userIndex, userId }: { userIndex: number; userId: st
           )}
         />
       </Table.Cell>
-      <Table.Cell className={cn('w-32', { 'border-t rounded-tr-lg': first, 'rounded-br-lg': userIndex === fields.length - 1 })}>
+      <Table.Cell
+        className={cn('w-32', {
+          'border-t rounded-tr-lg': first,
+          'rounded-br-lg': userIndex === fields.length - 1,
+        })}
+      >
         <Form.Field
           control={control}
           name={`entries.${userIndex}.role`}

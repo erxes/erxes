@@ -25,10 +25,19 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
   };
 
   return (
-    <Appear y={50} duration={600} easing={EASE_OUT_QUAD} className="flex w-full flex-col gap-10 px-4 sm:-translate-y-10">
+    <Appear
+      y={50}
+      duration={600}
+      easing={EASE_OUT_QUAD}
+      className="flex w-full flex-col gap-10 px-4 sm:-translate-y-10"
+    >
       <Appear y={20} duration={500} delay={200} className="flex flex-col gap-2 items-center">
-        <h2 className="text-xl md:text-2xl font-semibold text-foreground text-center">{t('choose-theme')}</h2>
-        <p className="text-xs md:text-sm text-muted-foreground text-center px-4">{t('choose-theme-description')}</p>
+        <h2 className="text-xl md:text-2xl font-semibold text-foreground text-center">
+          {t('choose-theme')}
+        </h2>
+        <p className="text-xs md:text-sm text-muted-foreground text-center px-4">
+          {t('choose-theme-description')}
+        </p>
       </Appear>
       <Appear y={20} duration={1000} delay={400} className="grid w-full grid-cols-3 gap-3 sm:gap-6">
         {THEME_OPTIONS.map(({ value, labelKey, src }) => (
@@ -36,7 +45,9 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
             <div
               className={cn(
                 'aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-lg bg-muted transition-all',
-                theme === value ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : 'hover:shadow-md',
+                theme === value
+                  ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                  : 'hover:shadow-md',
               )}
             >
               <img
@@ -63,7 +74,13 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
           </div>
         ))}
       </Appear>
-      <Appear y={20} scale={0.95} duration={600} delay={600} className="w-full px-6 sm:px-12 lg:px-20">
+      <Appear
+        y={20}
+        scale={0.95}
+        duration={600}
+        delay={600}
+        className="w-full px-6 sm:px-12 lg:px-20"
+      >
         <Button
           className="w-full cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
           size="lg"

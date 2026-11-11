@@ -117,7 +117,11 @@ export const SignInPage = () => {
                         aria-label={showPassword ? t('hide-password') : t('show-password')}
                         className="absolute inset-y-0 right-1 my-auto size-6 rounded-sm p-0 text-accent-foreground/60 hover:text-foreground"
                       >
-                        {showPassword ? <IconEyeOff size={15} stroke={1.75} /> : <IconEye size={15} stroke={1.75} />}
+                        {showPassword ? (
+                          <IconEyeOff size={15} stroke={1.75} />
+                        ) : (
+                          <IconEye size={15} stroke={1.75} />
+                        )}
                       </Button>
                     </div>
                   </Form.Control>

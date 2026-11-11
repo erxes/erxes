@@ -78,7 +78,9 @@ export const ContactEmails = ({
           recordId={id}
           {...emailProps}
           noValidation
-          onValueChange={(next) => onSave({ primaryEmail: next.primaryEmail || null, emails: next.emails ?? [] })}
+          onValueChange={(next) =>
+            onSave({ primaryEmail: next.primaryEmail || null, emails: next.emails ?? [] })
+          }
         />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
@@ -114,7 +116,9 @@ export const ContactPhones = ({
         <PhoneField
           recordId={id}
           {...phoneProps}
-          onValueChange={(next) => onSave({ primaryPhone: next.primaryPhone || null, phones: next.phones ?? [] })}
+          onValueChange={(next) =>
+            onSave({ primaryPhone: next.primaryPhone || null, phones: next.phones ?? [] })
+          }
         />
       </RecordTableInlineCell.Content>
     </PopoverScoped>

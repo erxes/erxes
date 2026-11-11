@@ -1,7 +1,4 @@
-import type {
-  ChartVizPayload,
-  ChartVizTransformOperation,
-} from '../types/chatVizTypes';
+import type { ChartVizPayload, ChartVizTransformOperation } from '../types/chatVizTypes';
 import { getChartVizTrendDomain } from './chartVizPresentation';
 
 const MAX_ABS_RENDERED_VALUE = 1_000_000_000_000_000;
@@ -9,14 +6,9 @@ const MAX_ABS_RENDERED_VALUE = 1_000_000_000_000_000;
 export type ChartVizControlValues = Record<string, number>;
 
 /** Returns the persisted baseline values for every declarative control. */
-export function getDefaultChartVizControlValues(
-  payload: ChartVizPayload,
-): ChartVizControlValues {
+export function getDefaultChartVizControlValues(payload: ChartVizPayload): ChartVizControlValues {
   return Object.fromEntries(
-    (payload.controls ?? []).map(({ key, defaultValue }) => [
-      key,
-      defaultValue,
-    ]),
+    (payload.controls ?? []).map(({ key, defaultValue }) => [key, defaultValue]),
   );
 }
 
@@ -47,10 +39,7 @@ const calculateValue = ({
 /** Keeps transformed values finite and within the renderer's numeric budget. */
 const boundRenderedValue = (value: number, fallback: number): number => {
   if (!Number.isFinite(value)) return fallback;
-  return Math.min(
-    MAX_ABS_RENDERED_VALUE,
-    Math.max(-MAX_ABS_RENDERED_VALUE, value),
-  );
+  return Math.min(MAX_ABS_RENDERED_VALUE, Math.max(-MAX_ABS_RENDERED_VALUE, value));
 };
 
 /**
@@ -170,8 +159,5 @@ export function getChartVizInteractiveDomain(
   const span = dataMax - dataMin;
   const padding = Math.max(span * 0.08, 1);
 
-  return [
-    dataMin < 0 ? dataMin - padding : 0,
-    dataMax > 0 ? dataMax + padding : 0,
-  ];
+  return [dataMin < 0 ? dataMin - padding : 0, dataMax > 0 ? dataMax + padding : 0];
 }

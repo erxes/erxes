@@ -26,12 +26,7 @@ export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
             width="1512"
             height="851"
           >
-            <rect
-              x="-12"
-              width="1512"
-              height="851"
-              fill={`url(#paint0_radial_52_81_${id})`}
-            />
+            <rect x="-12" width="1512" height="851" fill={`url(#paint0_radial_52_81_${id})`} />
           </mask>
           <g mask={`url(#mask0_52_81_${id})`}>
             <path
@@ -109,16 +104,8 @@ export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
             gradientTransform="translate(744 156.098) rotate(-180) scale(756 250.453)"
           >
             <stop stopColor="var(--accent-foreground)" />
-            <stop
-              offset="0.615762"
-              stopColor="var(--accent-foreground)"
-              stopOpacity="0.488108"
-            />
-            <stop
-              offset="1"
-              stopColor="var(--accent-foreground)"
-              stopOpacity="0"
-            />
+            <stop offset="0.615762" stopColor="var(--accent-foreground)" stopOpacity="0.488108" />
+            <stop offset="1" stopColor="var(--accent-foreground)" stopOpacity="0" />
           </radialGradient>
         </defs>
       </svg>
@@ -126,12 +113,7 @@ export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
   }
   if (variant === 'light') {
     return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 756 875"
-        fill="none"
-        {...props}
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 756 875" fill="none" {...props}>
         <mask
           id={`mask0_100_2109_${id}`}
           style={{ maskType: 'alpha' }}
@@ -141,11 +123,7 @@ export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
           width="756"
           height="875"
         >
-          <rect
-            width="756"
-            height="875"
-            fill={`url(#paint0_radial_100_2109_${id})`}
-          />
+          <rect width="756" height="875" fill={`url(#paint0_radial_100_2109_${id})`} />
         </mask>
         <g mask={`url(#mask0_100_2109_${id})`}>
           <path
@@ -195,16 +173,8 @@ export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
             gradientTransform="translate(378 160.5) rotate(-180) scale(378 257.516)"
           >
             <stop stopColor="var(--accent-foreground)" />
-            <stop
-              offset="0.615762"
-              stopColor="var(--accent-foreground)"
-              stopOpacity="0.488108"
-            />
-            <stop
-              offset="1"
-              stopColor="var(--accent-foreground)"
-              stopOpacity="0"
-            />
+            <stop offset="0.615762" stopColor="var(--accent-foreground)" stopOpacity="0.488108" />
+            <stop offset="1" stopColor="var(--accent-foreground)" stopOpacity="0" />
           </radialGradient>
         </defs>
       </svg>
@@ -229,11 +199,7 @@ export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
         width="756"
         height="875"
       >
-        <rect
-          width="756"
-          height="875"
-          fill={`url(#paint0_radial_77_383_${id})`}
-        />
+        <rect width="756" height="875" fill={`url(#paint0_radial_77_383_${id})`} />
       </mask>
       <g mask={`url(#mask0_77_383_${id})`}>
         <path
@@ -297,16 +263,8 @@ export const Polygons = ({ variant = 'dark', ...props }: PolygonsProps) => {
           gradientTransform="translate(378 160.5) rotate(-180) scale(378 257.516)"
         >
           <stop stopColor="var(--accent-foreground)" />
-          <stop
-            offset="0.615762"
-            stopColor="var(--accent-foreground)"
-            stopOpacity="0.488108"
-          />
-          <stop
-            offset="1"
-            stopColor="var(--accent-foreground)"
-            stopOpacity="0"
-          />
+          <stop offset="0.615762" stopColor="var(--accent-foreground)" stopOpacity="0.488108" />
+          <stop offset="1" stopColor="var(--accent-foreground)" stopOpacity="0" />
         </radialGradient>
       </defs>
     </svg>

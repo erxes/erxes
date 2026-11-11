@@ -26,10 +26,7 @@ export const FontSizeButton = () => {
         </Components.FormattingToolbar.Button>
       </Components.Generic.Menu.Trigger>
       <Components.Generic.Menu.Dropdown className="bn-menu-dropdown bn-drag-handle-menu">
-        <Components.Generic.Menu.Item
-          checked={!currentSize}
-          onClick={() => handleSizeChange('')}
-        >
+        <Components.Generic.Menu.Item checked={!currentSize} onClick={() => handleSizeChange('')}>
           Default
         </Components.Generic.Menu.Item>
         {FONT_SIZES.map((size) => (

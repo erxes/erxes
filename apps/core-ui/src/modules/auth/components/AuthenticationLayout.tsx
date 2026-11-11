@@ -18,7 +18,9 @@ export const AuthBanner = () => {
           <h1 className="text-2xl font-semibold leading-7 text-background dark:text-foreground">
             {t('banner-title')}
           </h1>
-          <p className="text-lg font-medium leading-6 text-muted-foreground">{t('banner-description')}</p>
+          <p className="text-lg font-medium leading-6 text-muted-foreground">
+            {t('banner-description')}
+          </p>
         </div>
       </div>
     </div>
@@ -33,7 +35,10 @@ export const AuthenticationLayout = ({ children }: { children: ReactNode }) => {
     <div className="relative flex h-dvh flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[radial-gradient(#F0F1FE,#F7F8FA)] py-8 sm:pt-28 lg:w-1/2 lg:flex-none dark:bg-[radial-gradient(#0D0D0D,#161616)]">
       <div className="relative mx-auto flex w-full max-w-md flex-col gap-8 px-1 sm:px-6">
         <div className="absolute inset-0 hidden sm:block">
-          <Polygons variant="light" className="absolute -top-[18.5%] left-1/2 w-[170%] -translate-x-1/2" />
+          <Polygons
+            variant="light"
+            className="absolute -top-[18.5%] left-1/2 w-[170%] -translate-x-1/2"
+          />
         </div>
         <Logo className="relative mx-auto hidden h-10 text-primary sm:block" />
         <div className="relative sm:min-h-144">

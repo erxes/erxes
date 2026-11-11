@@ -76,7 +76,12 @@ const CustomerNameCell = ({ customer }: { customer: Customer }) => {
       lastName={`${middleName || ''}${middleName ? ' ' : ''}${lastName || ''}`}
       scope={`customers-page.${id}.Name`}
       onSave={(nextFirstName, nextLastName) =>
-        edit.mutate({ id, firstName: nextFirstName || null, middleName: null, lastName: nextLastName || null })
+        edit.mutate({
+          id,
+          firstName: nextFirstName || null,
+          middleName: null,
+          lastName: nextLastName || null,
+        })
       }
     >
       <RecordTableInlineCell.Trigger>
@@ -115,7 +120,8 @@ const CustomerSexCell = ({ customer }: { customer: Customer }) => {
 const useCustomerFieldsSave = () => {
   const edit = useCustomerEdit();
 
-  return (id: string, customFields: Record<string, CustomValue | null>) => edit.mutate({ id, customFields });
+  return (id: string, customFields: Record<string, CustomValue | null>) =>
+    edit.mutate({ id, customFields });
 };
 
 const DateCell = ({ value }: { value: string }) => (
@@ -239,7 +245,10 @@ const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>
           value={row.original.ownerId}
           scope={`${SCOPE}.${row.original.id}.owner`}
           onValueChange={(ownerId) =>
-            edit.mutate({ id: row.original.id, ownerId: typeof ownerId === 'string' ? ownerId : null })
+            edit.mutate({
+              id: row.original.id,
+              ownerId: typeof ownerId === 'string' ? ownerId : null,
+            })
           }
         />
       );
@@ -249,7 +258,9 @@ const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label={t('customer.created-at')} icon={IconCalendarPlus} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('customer.created-at')} icon={IconCalendarPlus} />
+    ),
     cell: ({ row }) => <DateCell value={row.original.createdAt} />,
   },
 ];
@@ -260,7 +271,10 @@ export const useCustomersColumns = () => {
   const { fields } = useFields('customer');
 
   return useMemo(
-    () => [...createCustomersColumns(t), ...customFieldColumns<Customer>(fields, useCustomerFieldsSave, SCOPE)],
+    () => [
+      ...createCustomersColumns(t),
+      ...customFieldColumns<Customer>(fields, useCustomerFieldsSave, SCOPE),
+    ],
     [fields, t],
   );
 };

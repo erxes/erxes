@@ -63,7 +63,9 @@ const readPluginKeys = (): Map<string, string> => {
   return keys;
 };
 
-const storageDriver = (process.env.FILES_STORAGE?.trim().toLowerCase() || 'local') as 'local' | 's3';
+const storageDriver = (process.env.FILES_STORAGE?.trim().toLowerCase() || 'local') as
+  | 'local'
+  | 's3';
 
 if (storageDriver !== 'local' && storageDriver !== 's3') {
   throw new Error('FILES_STORAGE must be "local" or "s3"');
@@ -160,7 +162,9 @@ export const config = {
      * organisations at creation). On for self-hosted and development; off
      * where the SaaS side decides what each organisation has.
      */
-    autoInstall: (process.env.PLUGINS_AUTO_INSTALL ?? (process.env.CORE_SETUP === 'false' ? 'false' : 'true')) === 'true',
+    autoInstall:
+      (process.env.PLUGINS_AUTO_INSTALL ??
+        (process.env.CORE_SETUP === 'false' ? 'false' : 'true')) === 'true',
   },
   files: {
     /** `local` (a folder on this server) or `s3` (AWS S3, Cloudflare R2, MinIO, …). */
@@ -193,11 +197,15 @@ export const config = {
 };
 
 if (isProduction && config.data.sslInsecure) {
-  throw new Error('DATA_SSL_INSECURE is for development only: give the database CA with DATA_SSL_CA(_FILE)');
+  throw new Error(
+    'DATA_SSL_INSECURE is for development only: give the database CA with DATA_SSL_CA(_FILE)',
+  );
 }
 
 if (isProduction && !config.auth.signingKey) {
-  throw new Error('CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256');
+  throw new Error(
+    'CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256',
+  );
 }
 
 if (config.files.driver === 's3' && !config.files.s3.bucket) {

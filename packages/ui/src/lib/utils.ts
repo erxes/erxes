@@ -30,10 +30,7 @@ export function displayNum(value: any, p = 2) {
 /**
  * Send desktop notification
  */
-export const sendDesktopNotification = (doc: {
-  title: string;
-  content?: string;
-}) => {
+export const sendDesktopNotification = (doc: { title: string; content?: string }) => {
   const notify = () => {
     try {
       const notification = new Notification(doc.title, {

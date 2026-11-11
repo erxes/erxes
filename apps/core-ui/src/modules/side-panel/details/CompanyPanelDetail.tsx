@@ -34,7 +34,15 @@ const TEXT_FIELD_ICONS: Record<TTextCode, typeof IconHash> = {
 };
 
 /** Edits one company text field without touching the others. */
-const CompanyTextField = ({ company, code, placeholder }: { company: Company; code: TTextCode; placeholder: string }) => {
+const CompanyTextField = ({
+  company,
+  code,
+  placeholder,
+}: {
+  company: Company;
+  code: TTextCode;
+  placeholder: string;
+}) => {
   const edit = useCompanyEdit();
   const value = company[code] || '';
   const Icon = TEXT_FIELD_ICONS[code];
@@ -88,7 +96,10 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
               placeholder={company.ownerId ? t('owner', 'Owner') : ''}
               className="rounded-sm"
               onValueChange={(ownerId) =>
-                edit.mutate({ id: company.id, ownerId: typeof ownerId === 'string' ? ownerId : null })
+                edit.mutate({
+                  id: company.id,
+                  ownerId: typeof ownerId === 'string' ? ownerId : null,
+                })
               }
             />
           </PanelField>
@@ -96,7 +107,11 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
             <CompanyTextField company={company} code="code" placeholder={t('field.code', 'Code')} />
           </PanelField>
           <PanelField icon={IconWorld} label={t('field.website', 'Website')}>
-            <CompanyTextField company={company} code="website" placeholder={t('field.website', 'Website')} />
+            <CompanyTextField
+              company={company}
+              code="website"
+              placeholder={t('field.website', 'Website')}
+            />
           </PanelField>
         </ContactDetailSection>
         <ContactDetailSection title={sectionT('business', 'Business')} nested>
@@ -108,14 +123,23 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
             />
           </PanelField>
           <PanelField icon={IconBuildingFactory} label={t('field.industry', 'Industries')}>
-            <CompanyTextField company={company} code="industry" placeholder={t('field.industry', 'Industries')} />
+            <CompanyTextField
+              company={company}
+              code="industry"
+              placeholder={t('field.industry', 'Industries')}
+            />
           </PanelField>
           <PanelField icon={IconUsers} label={t('field.size', 'Size')}>
             <NumberField
               scope={`${SCOPE}.size`}
               value={company.size ?? 0}
-              formatValue={(value) => (company.size == null ? t('field.size', 'Size') : value.toLocaleString())}
-              className={cn(PANEL_TEXT_FIELD_CLASS_NAME, company.size == null && 'text-muted-foreground')}
+              formatValue={(value) =>
+                company.size == null ? t('field.size', 'Size') : value.toLocaleString()
+              }
+              className={cn(
+                PANEL_TEXT_FIELD_CLASS_NAME,
+                company.size == null && 'text-muted-foreground',
+              )}
               onSave={(size) => {
                 if (size !== company.size) edit.mutate({ id: company.id, size });
               }}
@@ -130,7 +154,11 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
           <PanelField
             icon={IconMail}
             label={t('emails', 'Emails')}
-            placeholder={!company.primaryEmail && !company.emails.some(Boolean) ? t('emails', 'Emails') : undefined}
+            placeholder={
+              !company.primaryEmail && !company.emails.some(Boolean)
+                ? t('emails', 'Emails')
+                : undefined
+            }
           >
             <ContactEmails
               maxVisible={1}
@@ -145,7 +173,11 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
           <PanelField
             icon={IconPhone}
             label={t('phones', 'Phones')}
-            placeholder={!company.primaryPhone && !company.phones.some(Boolean) ? t('phones', 'Phones') : undefined}
+            placeholder={
+              !company.primaryPhone && !company.phones.some(Boolean)
+                ? t('phones', 'Phones')
+                : undefined
+            }
           >
             <ContactPhones
               maxVisible={1}
@@ -159,7 +191,11 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
           </PanelField>
         </ContactDetailSection>
         {!expanded && (
-          <ContactDescriptionField contentType="core:company" contentId={company.id} value={company.description || ''} />
+          <ContactDescriptionField
+            contentType="core:company"
+            contentId={company.id}
+            value={company.description || ''}
+          />
         )}
       </div>
       <ContactPanelTags contentType="core:company" contentId={company.id} tagIds={company.tagIds} />
@@ -169,7 +205,13 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
 };
 
 // The company's fields as record table cells: click a value to edit it.
-export const CompanyPanelDetail = ({ companyId, children }: { companyId: string; children?: ReactNode }) => (
+export const CompanyPanelDetail = ({
+  companyId,
+  children,
+}: {
+  companyId: string;
+  children?: ReactNode;
+}) => (
   // Radix sizes its content as a table, which lets wide values push past the
   // panel; a block lets each value shrink and truncate instead.
   <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">

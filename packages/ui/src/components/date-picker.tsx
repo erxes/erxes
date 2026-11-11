@@ -45,11 +45,7 @@ const DEFAULT_DISPLAY_FORMAT = 'MMM D, YYYY';
 
 const toDate = (value: unknown): Date | undefined => {
   if (value === null || value === undefined || value === '') return undefined;
-  if (
-    !(value instanceof Date) &&
-    typeof value !== 'string' &&
-    typeof value !== 'number'
-  ) {
+  if (!(value instanceof Date) && typeof value !== 'string' && typeof value !== 'number') {
     return undefined;
   }
   const parsed = dayjs(value);
@@ -85,17 +81,11 @@ const getAnchorDate = (value: NormalizedValue) => {
   return value?.from;
 };
 
-const defaultFormatMultiple = (count: number) =>
-  `${count} ${count > 1 ? 'Days' : 'Day'}`;
+const defaultFormatMultiple = (count: number) => `${count} ${count > 1 ? 'Days' : 'Day'}`;
 
 const DATE_SEGMENT_LENGTHS = [4, 2, 2];
 const DATE_SEPARATOR = /[-./]/;
-const LOOSE_INPUT_FORMATS = [
-  DEFAULT_FORMAT,
-  'YYYY-M-D',
-  'YYYY-MM-D',
-  'YYYY-M-DD',
-];
+const LOOSE_INPUT_FORMATS = [DEFAULT_FORMAT, 'YYYY-M-D', 'YYYY-MM-D', 'YYYY-M-DD'];
 
 const splitDateSegments = (value: string) => {
   const segments = [''];
@@ -122,9 +112,7 @@ const formatDateMask = (value: string) => {
   const [year, month, day] = splitDateSegments(value);
 
   const normalizedMonth =
-    month?.length === 2
-      ? String(Math.min(Number(month), 12)).padStart(2, '0')
-      : month;
+    month?.length === 2 ? String(Math.min(Number(month), 12)).padStart(2, '0') : month;
 
   const maxDay = dayjs(
     `${year}-${normalizedMonth?.padStart(2, '0')}-01`,
@@ -133,9 +121,7 @@ const formatDateMask = (value: string) => {
   ).daysInMonth();
 
   const normalizedDay =
-    day?.length === 2 && maxDay
-      ? String(Math.min(Number(day), maxDay)).padStart(2, '0')
-      : day;
+    day?.length === 2 && maxDay ? String(Math.min(Number(day), maxDay)).padStart(2, '0') : day;
 
   return [year, normalizedMonth, normalizedDay]
     .filter((segment) => segment !== undefined)
@@ -150,16 +136,10 @@ const isWithinBounds = (date: dayjs.Dayjs, minBound?: Date, maxBound?: Date) =>
 const maskInputText = (rawValue: string, format: string) =>
   format === DEFAULT_FORMAT ? formatDateMask(rawValue) : rawValue;
 
-const getSingleDate = (
-  value: NormalizedValue,
-  mode: 'single' | 'multiple' | 'range',
-) => (mode === 'single' && value instanceof Date ? value : undefined);
+const getSingleDate = (value: NormalizedValue, mode: 'single' | 'multiple' | 'range') =>
+  mode === 'single' && value instanceof Date ? value : undefined;
 
-const getDateBounds = (
-  withPresent: boolean,
-  minDate?: Date,
-  maxDate?: Date,
-) => ({
+const getDateBounds = (withPresent: boolean, minDate?: Date, maxDate?: Date) => ({
   minBound: minDate ?? (withPresent ? new Date('1900-01-01') : undefined),
   maxBound: maxDate ?? (withPresent ? new Date() : undefined),
 });
@@ -184,9 +164,7 @@ const parseInputDate = (
   maxBound?: Date,
 ) => {
   const parsedDate = dayjs(text, format, true);
-  return isWithinBounds(parsedDate, minBound, maxBound)
-    ? parsedDate.toDate()
-    : undefined;
+  return isWithinBounds(parsedDate, minBound, maxBound) ? parsedDate.toDate() : undefined;
 };
 
 export const DatePicker = ({
@@ -224,9 +202,7 @@ export const DatePicker = ({
     singleDate ? dayjs(singleDate).format(outputFormat) : '';
 
   React.useEffect(() => {
-    setInputValue(
-      singleTime === undefined ? '' : dayjs(singleTime).format(format),
-    );
+    setInputValue(singleTime === undefined ? '' : dayjs(singleTime).format(format));
   }, [singleTime, format]);
 
   const hasValue = Boolean(getAnchorDate(normalizedValue));
@@ -241,12 +217,7 @@ export const DatePicker = ({
       if (clearable && singleDate) onChange(null);
       return;
     }
-    const parsedDate = parseInputDate(
-      formattedText,
-      format,
-      minBound,
-      maxBound,
-    );
+    const parsedDate = parseInputDate(formattedText, format, minBound, maxBound);
     if (parsedDate && !dateMatchModifiers(parsedDate, calendarDisabled)) {
       onChange(parsedDate);
     }
@@ -254,15 +225,8 @@ export const DatePicker = ({
 
   const parseTypedDate = () => {
     if (mode !== 'single' || !inputValue) return undefined;
-    const parsedDate = parseInputDate(
-      inputValue,
-      getInputFormats(format),
-      minBound,
-      maxBound,
-    );
-    return parsedDate && !dateMatchModifiers(parsedDate, calendarDisabled)
-      ? parsedDate
-      : undefined;
+    const parsedDate = parseInputDate(inputValue, getInputFormats(format), minBound, maxBound);
+    return parsedDate && !dateMatchModifiers(parsedDate, calendarDisabled) ? parsedDate : undefined;
   };
 
   const commitTypedDate = (date: Date) => {
@@ -280,9 +244,7 @@ export const DatePicker = ({
     }
   };
 
-  const handleDateChange = (
-    selectedDate: Date | Date[] | DateRange | undefined,
-  ) => {
+  const handleDateChange = (selectedDate: Date | Date[] | DateRange | undefined) => {
     if (!selectedDate) return;
     if (mode !== 'range' || (selectedDate as DateRange).to) {
       setIsOpen(false);
@@ -409,18 +371,9 @@ export const DatePicker = ({
             <Button
               variant={variant}
               disabled={isDisabled}
-              className={cn(
-                'w-full justify-start text-left font-normal',
-                className,
-              )}
+              className={cn('w-full justify-start text-left font-normal', className)}
             >
-              {renderButtonContent(
-                normalizedValue,
-                mode,
-                format,
-                formatMultiple,
-                placeholder,
-              )}
+              {renderButtonContent(normalizedValue, mode, format, formatMultiple, placeholder)}
             </Button>
           )}
         </Popover.Trigger>
@@ -451,9 +404,7 @@ function renderButtonContent(
       const rangeValue = value as DateRange;
       if (rangeValue?.from) {
         return rangeValue.to
-          ? `${dayjs(rangeValue.from).format(format)} - ${dayjs(
-              rangeValue.to,
-            ).format(format)}`
+          ? `${dayjs(rangeValue.from).format(format)} - ${dayjs(rangeValue.to).format(format)}`
           : dayjs(rangeValue.from).format(format);
       }
     }

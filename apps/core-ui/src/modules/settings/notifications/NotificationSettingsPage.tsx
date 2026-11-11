@@ -67,14 +67,23 @@ export const NotificationSettingsPage = () => {
       <PageHeader>
         <PageHeader.Start>
           <AppBreadcrumb
-            items={[{ label: t('title', 'Notifications'), to: '/settings/notifications', icon: IconBellCog }]}
+            items={[
+              {
+                label: t('title', 'Notifications'),
+                to: '/settings/notifications',
+                icon: IconBellCog,
+              },
+            ]}
           />
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-6">
           <p className="text-sm text-muted-foreground">
-            {t('description', 'Choose what reaches your inbox. These settings are yours; teammates choose their own.')}
+            {t(
+              'description',
+              'Choose what reaches your inbox. These settings are yours; teammates choose their own.',
+            )}
           </p>
           {loading ? (
             <Spinner containerClassName="py-12" />
@@ -90,7 +99,11 @@ export const NotificationSettingsPage = () => {
                       <Row
                         key={kind}
                         label={t(`kinds.${kind.replaceAll('.', '_')}`, KIND_LABELS[kind] ?? kind)}
-                        description={locked ? t('always-on', 'Always on, for your account’s safety') : undefined}
+                        description={
+                          locked
+                            ? t('always-on', 'Always on, for your account’s safety')
+                            : undefined
+                        }
                         checked={locked || !muted.has(kind)}
                         disabled={locked || update.isPending}
                         onChange={(on) => toggle(kind, on)}
@@ -102,7 +115,10 @@ export const NotificationSettingsPage = () => {
               <section className="rounded-lg border bg-background px-5 py-3">
                 <h2 className="text-base font-semibold">{t('plugins', 'Plugins')}</h2>
                 <p className="pb-1 text-xs text-muted-foreground">
-                  {t('plugins-description', 'Each plugin has its own inbox. Turn one off to stop all of its notifications.')}
+                  {t(
+                    'plugins-description',
+                    'Each plugin has its own inbox. Turn one off to stop all of its notifications.',
+                  )}
                 </p>
                 {inboxes.length ? (
                   <div className="divide-y">

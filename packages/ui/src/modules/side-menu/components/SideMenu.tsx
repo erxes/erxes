@@ -1,8 +1,5 @@
 import { Separator, Tabs, Tooltip } from 'erxes-ui/components';
-import {
-  SideMenuContext,
-  useSideMenuContext,
-} from '../context/SideMenuContext';
+import { SideMenuContext, useSideMenuContext } from '../context/SideMenuContext';
 import { forwardRef, useState } from 'react';
 
 import { Icon } from '@tabler/icons-react';
@@ -66,15 +63,10 @@ export const SideMenuContentHeader = forwardRef<
       <div
         ref={ref}
         data-side-menu-header=""
-        className={cn(
-          'h-10 px-4 flex items-center gap-2 flex-none bg-background',
-          className,
-        )}
+        className={cn('h-10 px-4 flex items-center gap-2 flex-none bg-background', className)}
         {...props}
       >
-        {!!Icon && (
-          <Icon className="size-4 flex-none text-primary" strokeWidth={3} />
-        )}
+        {!!Icon && <Icon className="size-4 flex-none text-primary" strokeWidth={3} />}
         <div className="mr-auto font-medium text-primary">{label}</div>
         {children}
       </div>
@@ -84,23 +76,22 @@ export const SideMenuContentHeader = forwardRef<
 });
 SideMenuContentHeader.displayName = 'SideMenuContentHeader';
 
-export const SideMenuSidebar = forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof Tabs.List>
->(({ className, ...props }, ref) => {
-  return (
-    <Tabs.List
-      ref={ref}
-      className={cn(
-        'w-12 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3',
-        className,
-      )}
-      {...props}
-    >
-      <Tooltip.Provider>{props.children}</Tooltip.Provider>
-    </Tabs.List>
-  );
-});
+export const SideMenuSidebar = forwardRef<HTMLDivElement, React.ComponentProps<typeof Tabs.List>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <Tabs.List
+        ref={ref}
+        className={cn(
+          'w-12 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3',
+          className,
+        )}
+        {...props}
+      >
+        <Tooltip.Provider>{props.children}</Tooltip.Provider>
+      </Tabs.List>
+    );
+  },
+);
 SideMenuSidebar.displayName = 'SideMenuSidebar';
 
 export const SideMenuTrigger = forwardRef<
@@ -126,9 +117,7 @@ export const SideMenuTrigger = forwardRef<
         {...props}
         asChild
       >
-        <Tooltip.Trigger>
-          {!!Icon && <Icon className="size-5 flex-none" />}
-        </Tooltip.Trigger>
+        <Tooltip.Trigger>{!!Icon && <Icon className="size-5 flex-none" />}</Tooltip.Trigger>
       </Tabs.Trigger>
 
       <Tooltip.Content side="left">{label}</Tooltip.Content>

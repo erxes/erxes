@@ -7,7 +7,16 @@ import { api, messageOf } from '~/lib/api';
 export const TAGS_KEY = ['tags'];
 
 /** Tag colours offered when creating one (old erxes palette). */
-export const TAG_COLORS = ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#64748b'];
+export const TAG_COLORS = [
+  '#4f46e5',
+  '#0ea5e9',
+  '#10b981',
+  '#f59e0b',
+  '#ef4444',
+  '#ec4899',
+  '#8b5cf6',
+  '#64748b',
+];
 
 /** All tags of a type (an organisation has few), with a by-id lookup. */
 export const useTags = (type: ContentType) => {
@@ -33,6 +42,11 @@ export const useTagCreate = () => {
       client.setQueryData<{ data: Tag[] }>([...TAGS_KEY, tag.type], (cache) =>
         cache ? { data: [...cache.data, tag].sort((a, b) => a.name.localeCompare(b.name)) } : cache,
       ),
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not create the tag', description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: 'Could not create the tag',
+        description: messageOf(error),
+      }),
   });
 };

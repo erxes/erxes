@@ -1,24 +1,24 @@
-import { recordAudit } from "~/modules/audit/audit.service";
-import { auditLogs, db, organizations, users } from "@erxes/core-db";
-import { and, eq, sql } from "drizzle-orm";
-import { config } from "~/config";
-import { HttpError } from "~/http/errors";
-import { toOrganizationDto } from "~/modules/organizations/organizations.service";
-import { toUserDto } from "~/modules/users/users.service";
-import { verifyPassword } from "./password";
+import { recordAudit } from '~/modules/audit/audit.service';
+import { auditLogs, db, organizations, users } from '@erxes/core-db';
+import { and, eq, sql } from 'drizzle-orm';
+import { config } from '~/config';
+import { HttpError } from '~/http/errors';
+import { toOrganizationDto } from '~/modules/organizations/organizations.service';
+import { toUserDto } from '~/modules/users/users.service';
+import { verifyPassword } from './password';
 
 const invalidCredentials = () =>
-  new HttpError(401, "INVALID_CREDENTIALS", "Wrong email or password");
+  new HttpError(401, 'INVALID_CREDENTIALS', 'Wrong email or password');
 
 /** `acme.erxes.io` → `acme`; plain hosts (localhost, IPs) name no organisation. */
 export const subdomainFromHost = (host?: string): string | undefined => {
-  const name = (host ?? "").split(":")[0]?.toLowerCase() ?? "";
+  const name = (host ?? '').split(':')[0]?.toLowerCase() ?? '';
 
-  if (!name.includes(".") || /^\d+(\.\d+){3}$/.test(name)) {
+  if (!name.includes('.') || /^\d+(\.\d+){3}$/.test(name)) {
     return undefined;
   }
 
-  return name.split(".")[0] || undefined;
+  return name.split('.')[0] || undefined;
 };
 
 /**
@@ -29,7 +29,7 @@ export const subdomainFromHost = (host?: string): string | undefined => {
  */
 export const signIn = async (
   input: { email: string; password: string; subdomain?: string },
-  host?: string
+  host?: string,
 ) => {
   const email = input.email.trim().toLowerCase();
   const subdomain =
@@ -44,18 +44,16 @@ export const signIn = async (
     .where(
       and(
         sql`lower(${users.email}) = ${email}`,
-        subdomain
-          ? sql`lower(${organizations.subdomain}) = ${subdomain}`
-          : undefined
-      )
+        subdomain ? sql`lower(${organizations.subdomain}) = ${subdomain}` : undefined,
+      ),
     )
     .limit(2);
 
   if (rows.length > 1) {
     throw new HttpError(
       400,
-      "ORGANIZATION_REQUIRED",
-      "This email belongs to several organisations: sign in at your organisation address"
+      'ORGANIZATION_REQUIRED',
+      'This email belongs to several organisations: sign in at your organisation address',
     );
   }
 
@@ -70,36 +68,33 @@ export const signIn = async (
         and(
           eq(auditLogs.orgId, match.user.orgId),
           eq(auditLogs.targetId, match.user.id),
-          eq(auditLogs.action, "auth.sign_in_failed"),
-          sql`${auditLogs.createdAt} > now() - interval '15 minutes'`
-        )
+          eq(auditLogs.action, 'auth.sign_in_failed'),
+          sql`${auditLogs.createdAt} > now() - interval '15 minutes'`,
+        ),
       );
 
     if ((recent?.failures ?? 0) >= 10) {
       throw new HttpError(
         429,
-        "TOO_MANY_ATTEMPTS",
-        "Too many failed sign-ins for this account: try again in 15 minutes"
+        'TOO_MANY_ATTEMPTS',
+        'Too many failed sign-ins for this account: try again in 15 minutes',
       );
     }
   }
 
-  const valid = await verifyPassword(
-    input.password,
-    match?.user.passwordHash ?? null
-  );
+  const valid = await verifyPassword(input.password, match?.user.passwordHash ?? null);
 
-  if (match && (!valid || match.user.status !== "active")) {
+  if (match && (!valid || match.user.status !== 'active')) {
     await recordAudit(
       db(),
-      { orgId: match.user.orgId, actorType: "user", actorId: match.user.id, source: "core" },
+      { orgId: match.user.orgId, actorType: 'user', actorId: match.user.id, source: 'core' },
       {
-        action: "auth.sign_in_failed",
-        targetType: "user",
+        action: 'auth.sign_in_failed',
+        targetType: 'user',
         targetId: match.user.id,
         targetLabel: match.user.email,
-        metadata: { reason: valid ? `account ${match.user.status}` : "wrong password" },
-      }
+        metadata: { reason: valid ? `account ${match.user.status}` : 'wrong password' },
+      },
     );
   }
 
@@ -114,30 +109,35 @@ export const signIn = async (
     if (organization) {
       await recordAudit(
         db(),
-        { orgId: organization.id, actorType: "system", actorId: null },
+        { orgId: organization.id, actorType: 'system', actorId: null },
         {
-          action: "auth.sign_in_failed",
-          targetType: "user",
+          action: 'auth.sign_in_failed',
+          targetType: 'user',
           targetLabel: email,
-          metadata: { reason: "unknown email" },
-        }
+          metadata: { reason: 'unknown email' },
+        },
       );
     }
   }
 
-  if (!match || !valid || match.user.status !== "active") {
+  if (!match || !valid || match.user.status !== 'active') {
     throw invalidCredentials();
   }
 
   await recordAudit(
     db(),
-    { orgId: match.user.orgId, actorType: "user", actorId: match.user.id, source: "core" },
-    { action: "auth.signed_in", targetType: "user", targetId: match.user.id, targetLabel: match.user.email }
+    { orgId: match.user.orgId, actorType: 'user', actorId: match.user.id, source: 'core' },
+    {
+      action: 'auth.signed_in',
+      targetType: 'user',
+      targetId: match.user.id,
+      targetLabel: match.user.email,
+    },
   );
 
   return {
     user: toUserDto(match.user),
-    organization: toOrganizationDto(match.organization)
+    organization: toOrganizationDto(match.organization),
   };
 };
 
@@ -150,11 +150,11 @@ export const getSession = async (orgId: string, userId: string) => {
     .limit(1);
 
   if (!row) {
-    throw new HttpError(401, "UNAUTHORIZED", "Sign in to continue");
+    throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
   }
 
   return {
     user: toUserDto(row.user),
-    organization: toOrganizationDto(row.organization)
+    organization: toOrganizationDto(row.organization),
   };
 };
