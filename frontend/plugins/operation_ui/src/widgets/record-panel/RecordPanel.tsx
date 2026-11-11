@@ -19,6 +19,8 @@ import { TaskPanelNew } from './TaskPanelNew';
 import { TriagePanelNew } from './TriagePanelNew';
 import { TaskConnectionPanel } from '../contact/TaskConnectionPanel';
 import { TASK_CONNECTION_CONTENT_TYPE } from '../contact/taskContactConnection';
+import { PROJECT_CONTENT_TYPE } from '@/project/constants/contentType';
+import { ProjectPanel } from './ProjectPanel';
 
 const TITLE_FIELD_CLASS_NAME = 'rounded-sm px-1 font-medium shadow-none';
 
@@ -169,6 +171,16 @@ export const RecordPanel = ({
 
   if (contentType === TRIAGE_CONTENT_TYPE) {
     return <TriagePanel triageId={contentId} view={view} />;
+  }
+
+  if (contentType === PROJECT_CONTENT_TYPE) {
+    return (
+      <ProjectPanel
+        contentType={contentType}
+        contentId={contentId}
+        view={view}
+      />
+    );
   }
 
   if (contentType !== TASK_CONTENT_TYPE) {
