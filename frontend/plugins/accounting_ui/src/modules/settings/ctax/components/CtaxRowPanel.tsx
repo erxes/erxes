@@ -82,6 +82,7 @@ const CtaxRowPanelActions = ({ contentId }: ISettingsPanelViewProps) => {
             toast({
               title: t('success'),
               description: t('city-tax-row-deleted-successfully'),
+              variant: 'success',
             });
             onCompleted();
           },

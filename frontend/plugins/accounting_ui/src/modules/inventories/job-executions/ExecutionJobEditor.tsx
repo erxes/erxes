@@ -3,7 +3,15 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
-import { Button, Form, Input, RecordTable, Sheet, Table } from 'erxes-ui';
+import {
+  Button,
+  Form,
+  Input,
+  RecordTable,
+  Sheet,
+  Table,
+  Tooltip,
+} from 'erxes-ui';
 import { AccountingSheet } from '@/layout/components/Sheet';
 import { JobForm } from '@/settings/jobs/components/JobForm';
 import { TJobForm } from '@/settings/jobs/types/Job';
@@ -69,6 +77,19 @@ export const ExecutionJobEditor = ({
   useEffect(() => {
     if (hasErrors) setOpen(true);
   }, [hasErrors]);
+  const removeDisabled = readOnly || !onRemove;
+  const removeButton = (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      aria-label={t('production-remove-job')}
+      disabled={removeDisabled}
+      onClick={onRemove}
+    >
+      <IconTrash />
+    </Button>
+  );
   return (
     <Table.Row className="h-cell hover:bg-background!">
       <Table.Cell className="w-8">
@@ -96,11 +117,10 @@ export const ExecutionJobEditor = ({
                 readOnly={readOnly}
               />
             </Sheet.Content>
-            <Sheet.Footer className="border-t bg-background shrink-0">
+            <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
               <Button
                 type="button"
                 variant="outline"
-                size="lg"
                 onClick={async () => {
                   if (readOnly || (await form.trigger())) setOpen(false);
                 }}
@@ -181,17 +201,18 @@ export const ExecutionJobEditor = ({
         </Form>
       </Table.Cell>
       <Table.Cell className="w-8">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          title={t('production-remove-job')}
-          aria-label={t('production-remove-job')}
-          disabled={readOnly || !onRemove}
-          onClick={onRemove}
-        >
-          <IconTrash />
-        </Button>
+        {removeDisabled ? (
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <span tabIndex={0}>{removeButton}</span>
+            </Tooltip.Trigger>
+            <Tooltip.Content side="bottom">
+              {t('production-remove-job')}
+            </Tooltip.Content>
+          </Tooltip>
+        ) : (
+          removeButton
+        )}
       </Table.Cell>
     </Table.Row>
   );
