@@ -38,7 +38,10 @@ export const createApp = (): Express => {
   app.use('/core/v1/files/signed', uploadLimit, signedFilesRouter);
 
   // Guessing passwords and secrets: limited per address before anything else.
-  app.use(['/core/v1/auth/sign-in', '/core/v1/setup'], signInLimit);
+  app.use(
+    ['/core/v1/auth/sign-in', '/core/v1/setup', '/core/v1/auth/password-reset', '/core/v1/auth/invitation'],
+    signInLimit,
+  );
   app.use('/core/v1/plugins/token', tokenLimit);
 
   app.use(express.json({ limit: '1mb' }));

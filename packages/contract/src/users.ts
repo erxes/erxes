@@ -117,6 +117,10 @@ export const usersContract = {
       }),
     )
     .output(cursorPageOf(User)),
+  resendInvitation: oc
+    .route({ method: 'POST', path: '/users/{id}/invitation', summary: 'Email an invited member a new invitation link (earlier links stop working)' })
+    .input(z.object({ id: Id }))
+    .output(z.object({ ok: z.literal(true) })),
   get: oc.route({ method: 'GET', path: '/users/{id}' }).input(z.object({ id: Id })).output(User),
   invite: oc
     .route({

@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Button, Spinner, Toaster } from 'erxes-ui';
 import { Provider as JotaiProvider } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { messageOf } from '~/lib/api';
 import { AppRoutes } from '~/modules/app/AppRoutes';
 import { ThemeEffect } from '~/modules/app/ThemeEffect';
 import { SessionProvider, useSessionQuery, useSetupStatus } from '~/modules/auth/session';
+import { AcceptInvitationPage, ForgotPasswordPage, ResetPasswordPage } from '~/modules/auth/AccountLinkPages';
 import { SetupPage } from '~/modules/auth/SetupPage';
 import { SignInPage } from '~/modules/auth/SignInPage';
 import './i18n';
@@ -15,10 +16,18 @@ const queryClient = new QueryClient({
 });
 
 /** Signed in → the app; signed out → sign-in. */
+/** Links from emails work signed in or not: they sign in when done. */
+const LINK_PAGES = new Set(['/reset-password', '/accept-invitation']);
+
 const Screen = () => {
+  const { pathname } = useLocation();
   const session = useSessionQuery();
   const signedOut = session.isSuccess && !session.data;
   const setup = useSetupStatus(signedOut);
+
+  if (LINK_PAGES.has(pathname)) {
+    return pathname === '/reset-password' ? <ResetPasswordPage /> : <AcceptInvitationPage />;
+  }
 
   if (session.isPending || (signedOut && setup.isPending)) {
     return (
@@ -41,7 +50,14 @@ const Screen = () => {
 
   if (!session.data) {
     // A new installation has no organisation yet: create it first.
-    return setup.data?.required ? <SetupPage /> : <SignInPage />;
+    if (setup.data?.required) return <SetupPage />;
+
+    return (
+      <Routes>
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="*" element={<SignInPage />} />
+      </Routes>
+    );
   }
 
   return (

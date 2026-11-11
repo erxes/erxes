@@ -163,6 +163,13 @@ it is built.
   in `actions.ts`; plugin actions come from manifests and are POSTed to
   `<api.url>/automations/actions/<type>` with a core token
   (`verifyCoreCall`) and `Idempotency-Key`.
+- **Email** (`src/modules/email`): templates render HTML + text; `sendEmail(tx,
+  …)` queues the `email.send` job (rolled back = not sent). `EMAIL_DRIVER=log`
+  in development (written to the log, `loggedEmails` in tests). Single-use
+  links (`core_auth_tokens`, `<id>.<secret>`, only the secret's hash stored):
+  invitations (7 days; resend replaces), password resets (30 minutes, at most
+  5 an hour, never says whether an email exists; ends other sessions).
+  `APP_URL` with `{subdomain}` builds links.
 - **Concurrency.** Read-modify-write takes row locks in the request's
   transaction (`src/lib/locks.ts`: `lockRows`, `lockOrganization`, `lockKey`):
   contact custom fields, field changes vs. values (`FOR SHARE`), team changes

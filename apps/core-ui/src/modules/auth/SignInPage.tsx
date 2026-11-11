@@ -5,6 +5,7 @@ import { Button, Form, Input, Spinner } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { api, isApiError } from '~/lib/api';
 import { SESSION_KEY } from '~/modules/auth/session';
@@ -151,6 +152,9 @@ export const SignInPage = () => {
               {form.formState.isSubmitting && <Spinner size="sm" />}
               {t('sign-in')}
             </Button>
+            <Link to="/forgot-password" className="text-center text-sm text-muted-foreground hover:underline">
+              {t('forgot-password', 'Forgot your password?')}
+            </Link>
           </form>
         </Form>
       </AuthenticationLayout>

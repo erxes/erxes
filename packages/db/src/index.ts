@@ -14,6 +14,8 @@ export {
   automations,
   automationVersions,
   auditCheckpoints,
+  AUTH_TOKEN_PURPOSES,
+  authTokens,
   RUN_STATUSES,
   auditLogs,
   EVENT_FAILURE_STATUSES,

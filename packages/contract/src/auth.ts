@@ -68,6 +68,33 @@ export const authContract = {
       }),
     )
     .output(Session),
+  requestPasswordReset: oc
+    .route({
+      method: 'POST',
+      path: '/auth/password-reset',
+      summary: 'Email a password reset link. Always answers ok: it never tells whether an email has an account',
+    })
+    .input(z.object({ email: z.string().trim().email().max(254), subdomain: z.string().trim().max(63).optional() }))
+    .output(z.object({ ok: z.literal(true) })),
+  resetPassword: oc
+    .route({ method: 'POST', path: '/auth/password-reset/confirm', summary: "Set a new password with the emailed link's token; signs in" })
+    .input(z.object({ token: z.string().min(10).max(300), password: NewPassword }))
+    .output(Session),
+  invitation: oc
+    .route({ method: 'GET', path: '/auth/invitation', summary: "What an invitation link is for (organisation, email), to show before accepting" })
+    .input(z.object({ token: z.string().min(10).max(300) }))
+    .output(z.object({ organization: z.string(), email: z.string(), inviter: z.string().nullable() })),
+  acceptInvitation: oc
+    .route({ method: 'POST', path: '/auth/invitation/accept', summary: 'Accept an invitation: choose a password; signs in' })
+    .input(
+      z.object({
+        token: z.string().min(10).max(300),
+        password: NewPassword,
+        firstName: z.string().trim().max(100).optional(),
+        lastName: z.string().trim().max(100).optional(),
+      }),
+    )
+    .output(Session),
   signOutEverywhere: oc
     .route({ method: 'POST', path: '/auth/sign-out-everywhere', summary: 'End every session of the signed-in member, on every device' })
     .output(z.object({ ok: z.literal(true) })),

@@ -5,6 +5,13 @@ import type { Request, Response } from 'express';
 import { config } from '~/config';
 import { enforceAccess } from '~/http/access';
 import {
+  acceptInvitation,
+  invitationInfo,
+  requestPasswordReset,
+  resendInvitation,
+  resetPassword,
+} from '~/modules/auth/tokens.service';
+import {
   activateAutomation,
   automationCatalog,
   cancelAutomationRun,
@@ -334,6 +341,22 @@ export const coreRouter = pub.router({
 
       return result;
     }),
+    requestPasswordReset: pub.auth.requestPasswordReset.handler(({ input }) => requestPasswordReset(input)),
+    resetPassword: pub.auth.resetPassword.handler(async ({ input, context }) => {
+      const { orgId, userId } = await resetPassword(input);
+
+      await startSession(context, userId, orgId);
+
+      return getSession(orgId, userId);
+    }),
+    invitation: pub.auth.invitation.handler(({ input }) => invitationInfo(input.token)),
+    acceptInvitation: pub.auth.acceptInvitation.handler(async ({ input, context }) => {
+      const { orgId, userId } = await acceptInvitation(input);
+
+      await startSession(context, userId, orgId);
+
+      return getSession(orgId, userId);
+    }),
     signOutEverywhere: authed.auth.signOutEverywhere.handler(async ({ context }) => {
       const result = await signOutEverywhere(context.actor);
 
@@ -402,6 +425,7 @@ export const coreRouter = pub.router({
     get: authed.users.get.handler(({ input, context }) => getUser(db(), context.actor, input.id)),
     invite: authed.users.invite.handler(({ input, context }) => inviteUser(db(), context.actor, input)),
     inviteMany: authed.users.inviteMany.handler(({ input, context }) => inviteUsers(context.actor, input.entries)),
+    resendInvitation: authed.users.resendInvitation.handler(({ input, context }) => resendInvitation(db(), context.actor, input.id)),
     update: authed.users.update.handler(({ input: { id, ...changes }, context }) =>
       updateUser(context.actor, id, changes),
     ),

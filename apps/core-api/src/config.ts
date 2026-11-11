@@ -163,6 +163,20 @@ export const config = {
     /** Seals secrets core reads back (webhook secrets, gateway keys); default: derived from CORE_JWT_SECRET. */
     encryptionKey: readSecret('CORE_ENCRYPTION_KEY'),
   },
+  app: {
+    /**
+     * Where people open erxes, for links in emails. `{subdomain}` is replaced
+     * by the organisation's (`https://{subdomain}.erxes.io`).
+     */
+    url: process.env.APP_URL?.trim().replace(/\/+$/, '') || 'http://localhost:3500',
+  },
+  email: {
+    /** `smtp` (EMAIL_SMTP_URL) or `log` (development: written to the log, not sent). */
+    driver: (process.env.EMAIL_DRIVER ?? (process.env.EMAIL_SMTP_URL || readSecret('EMAIL_SMTP_URL') ? 'smtp' : 'log')) as 'smtp' | 'log',
+    /** `smtps://user:pass@smtp.example.com:465` (SES, Mailgun, Postmark, …). */
+    smtpUrl: readSecret('EMAIL_SMTP_URL'),
+    from: process.env.EMAIL_FROM?.trim() || 'erxes <no-reply@erxes.io>',
+  },
   outbound: {
     /**
      * Webhooks and automation calls may reach http and private addresses

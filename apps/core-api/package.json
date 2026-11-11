@@ -27,12 +27,14 @@
     "express": "^4.21.2",
     "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.16",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@erxes/plugin-sdk": "workspace:*",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.11.10",
     "pg": "^8.13.1",
     "tsup": "^8.3.5",

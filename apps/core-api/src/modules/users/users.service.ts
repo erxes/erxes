@@ -8,6 +8,7 @@ import type { CursorQuery, UserLinkName } from '@erxes/core-contract';
 import { and, count, eq, ilike, inArray, ne, or, SQL, sql } from 'drizzle-orm';
 import { type Actor, type Role, requirePermission } from '~/http/auth';
 import { assertAssignable } from '~/modules/roles/roles.service';
+import { sendInvitation } from '~/modules/auth/tokens.service';
 import { forbidden, HttpError, notFound, pgCode } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
@@ -276,6 +277,13 @@ const inviteValues = async (actor: Actor, input: InviteInput) => ({
   invitedBy: actor.userId,
 });
 
+/** Members invited without a password get an email to join (sent once the invite commits). */
+const emailInvitations = async (tx: Db, actor: Actor, rows: UserRow[]) => {
+  for (const row of rows) {
+    if (row.status === 'invited') await sendInvitation(tx, actor, row);
+  }
+};
+
 const auditInvites = (tx: Db, actor: Actor, rows: UserRow[]) =>
   recordAudit(
     tx,
@@ -299,6 +307,7 @@ export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) =
       const [inserted] = await tx.insert(users).values(values).returning();
 
       await auditInvites(tx, actor, [inserted!]);
+      await emailInvitations(tx, actor, [inserted!]);
 
       return inserted!;
     });
@@ -344,6 +353,7 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
       const rows = await tx.insert(users).values(values).returning();
 
       await auditInvites(tx, actor, rows);
+      await emailInvitations(tx, actor, rows);
 
       return { data: rows.map(toUserDto) };
     } catch (error) {
