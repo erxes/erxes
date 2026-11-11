@@ -6,7 +6,7 @@ import { PosBreadcrumb } from '../modules/pos/pos/breadcumb/PosBreadcrumb';
 import { PosOrderFilter } from '../modules/pos/orders/components/PosOrderFilter';
 import { PosOrderSideWidget } from '../modules/pos/orders/detail/PosOrderSideWidget';
 import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
-import { useOpenPosPanelFromQuery } from '@/pos/hooks/useOpenPosPanelFromQuery';
+import { useOpenRecordPanelFromQuery } from '~/widgets/record-panel/useOpenRecordPanelFromQuery';
 import { useOrdersVariables } from '@/pos/orders/hooks/UseOrderList';
 
 export const OrdersPage = () => {
@@ -21,7 +21,7 @@ export const OrdersPage = () => {
     return filters;
   };
 
-  useOpenPosPanelFromQuery('pos_order_id', POS_ORDER_CONTENT_TYPE);
+  useOpenRecordPanelFromQuery('pos_order_id', POS_ORDER_CONTENT_TYPE);
 
   return (
     <>

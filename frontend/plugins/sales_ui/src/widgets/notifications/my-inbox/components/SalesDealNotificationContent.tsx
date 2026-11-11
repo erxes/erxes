@@ -3,6 +3,7 @@ import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { DealsProvider } from '@/deals/context/DealContext';
+import { DealIdProvider } from '@/deals/context/DealIdContext';
 import { NotificationContentUnavailable } from '~/widgets/notifications/my-inbox/components/NotificationContentUnavailable';
 import { SalesDealDetailView } from '~/widgets/notifications/my-inbox/components/SalesDealDetailView';
 
@@ -63,13 +64,15 @@ export const SalesDealNotificationContent = ({
   }
 
   return (
-    <DealsProvider>
-      <SalesDealDetailView
-        action={action}
-        createdAt={createdAt}
-        deal={deal}
-        fromUser={fromUser}
-      />
-    </DealsProvider>
+    <DealIdProvider value={deal._id}>
+      <DealsProvider>
+        <SalesDealDetailView
+          action={action}
+          createdAt={createdAt}
+          deal={deal}
+          fromUser={fromUser}
+        />
+      </DealsProvider>
+    </DealIdProvider>
   );
 };
