@@ -16,6 +16,7 @@ import type { IRecordPanelProps } from 'ui-modules';
 import { DealPanelActions } from '~/widgets/record-panel/DealPanelActions';
 import { DealPanelDetail } from '~/widgets/record-panel/DealPanelDetail';
 import { DealPanelNew } from '~/widgets/record-panel/DealPanelNew';
+import { DealPanelRelations } from '~/widgets/record-panel/DealPanelRelations';
 import {
   DealPanelError,
   DealPanelNotFound,
@@ -134,6 +135,10 @@ const DealPanelView = ({
 }) => {
   if (view === 'tab' && tab === 'products') {
     return <DealPanelProductsTab dealId={dealId} />;
+  }
+
+  if (view === 'tab' && tab === 'relations') {
+    return <DealPanelRelations dealId={dealId} />;
   }
 
   if (view === 'title') {

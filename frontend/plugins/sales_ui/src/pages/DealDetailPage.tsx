@@ -2,6 +2,7 @@ import {
   IconAlignLeft,
   IconChecklist,
   IconHistory,
+  IconLink,
   IconHierarchy2,
   IconId,
   IconPackage,
@@ -30,6 +31,7 @@ import { DealActivityTab } from '@/deals/cards/components/detail/DealActivityTab
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealIdProvider } from '@/deals/context/DealIdContext';
 import { DealPanelActions } from '~/widgets/record-panel/DealPanelActions';
+import { DealPanelRelations } from '~/widgets/record-panel/DealPanelRelations';
 import {
   DealPageChecklists,
   DealPageDescription,
@@ -50,6 +52,7 @@ const DESCRIPTION_TAB = 'description';
 const CHECKLIST_TAB = 'checklist';
 const PROPERTIES_TAB = 'properties';
 const ACTIVITY_TAB = 'activity';
+const RELATIONS_TAB = 'relations';
 const DEAL_CONTENT_TYPE = 'sales:deal';
 
 const useDealBoardPath = (dealId: string) => {
@@ -111,7 +114,7 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
       key={dealId}
       value={tab ?? PRODUCTS_TAB}
       onValueChange={setTab}
-      visibleCount={5}
+      visibleCount={6}
       overviewTab={DETAIL_TAB}
       expandedDefaultTab={PRODUCTS_TAB}
       overviewHeader={
@@ -126,6 +129,12 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
           label: t('detail'),
           icon: IconId,
           content: <DealPageFields dealId={dealId} />,
+        },
+        {
+          value: RELATIONS_TAB,
+          label: t('relations'),
+          icon: IconLink,
+          content: <DealPanelRelations dealId={dealId} />,
         },
         {
           value: PRODUCTS_TAB,
