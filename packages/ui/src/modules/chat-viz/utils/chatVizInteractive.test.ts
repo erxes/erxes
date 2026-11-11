@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vite-plus/test';
 import type { ChartVizPayload } from '../types/chatVizTypes';
 import {
   applyChartVizTransforms,
@@ -145,8 +146,6 @@ describe('interactive chart-viz payloads', () => {
     delete staticPayload.transforms;
 
     expect(getChartVizInteractiveDomain(staticPayload)).toBeUndefined();
-    expect(
-      getChartVizInteractiveDomain(staticPayload, { includeZero: true }),
-    ).toBeUndefined();
+    expect(getChartVizInteractiveDomain(staticPayload, { includeZero: true })).toBeUndefined();
   });
 });

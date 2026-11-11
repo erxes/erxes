@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -44,11 +44,16 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
     });
 
   const sessionCookie = (response: Response) =>
-    (response.headers.getSetCookie().find((cookie) => cookie.startsWith('erxes_session=')) ?? '').split(';')[0] ?? '';
+    (
+      response.headers.getSetCookie().find((cookie) => cookie.startsWith('erxes_session=')) ?? ''
+    ).split(';')[0] ?? '';
 
   it('signs in, sets an HttpOnly session cookie and answers /me with it', async () => {
     const response = await signIn({ email: 'OWNER@acme.mn', password: 'correct horse' });
-    const body = (await response.json()) as { user: { email: string; role: string }; organization: { subdomain: string } };
+    const body = (await response.json()) as {
+      user: { email: string; role: string };
+      organization: { subdomain: string };
+    };
     const setCookie = response.headers.getSetCookie().join(';');
 
     expect(response.status).toBe(200);
@@ -56,7 +61,9 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
     expect(body.organization.subdomain).toBe('acme');
     expect(setCookie).toMatch(/erxes_session=.*HttpOnly.*SameSite=Lax/i);
 
-    const me = await fetch(`${base}/core/v1/auth/me`, { headers: { cookie: sessionCookie(response) } });
+    const me = await fetch(`${base}/core/v1/auth/me`, {
+      headers: { cookie: sessionCookie(response) },
+    });
 
     expect(me.status).toBe(200);
   });
@@ -72,7 +79,11 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
 
   it('asks for the organisation when the email exists in several', async () => {
     const ambiguous = await signIn({ email: 'shared@x.mn', password: 'pw-globex' });
-    const chosen = await signIn({ email: 'shared@x.mn', password: 'pw-initech', subdomain: 'initech' });
+    const chosen = await signIn({
+      email: 'shared@x.mn',
+      password: 'pw-initech',
+      subdomain: 'initech',
+    });
 
     expect(ambiguous.status).toBe(400);
     expect(((await ambiguous.json()) as { code: string }).code).toBe('ORGANIZATION_REQUIRED');
@@ -80,7 +91,9 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
   });
 
   it('blocks cookie-signed changes from other sites, not reads', async () => {
-    const cookie = sessionCookie(await signIn({ email: 'owner@acme.mn', password: 'correct horse' }));
+    const cookie = sessionCookie(
+      await signIn({ email: 'owner@acme.mn', password: 'correct horse' }),
+    );
 
     const crossSite = await fetch(`${base}/core/v1/users`, {
       method: 'POST',
@@ -92,7 +105,9 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
       headers: { cookie, 'content-type': 'application/json', 'sec-fetch-site': 'same-origin' },
       body: JSON.stringify({ email: 'good@acme.mn' }),
     });
-    const read = await fetch(`${base}/core/v1/users`, { headers: { cookie, 'sec-fetch-site': 'cross-site' } });
+    const read = await fetch(`${base}/core/v1/users`, {
+      headers: { cookie, 'sec-fetch-site': 'cross-site' },
+    });
 
     expect(crossSite.status).toBe(403);
     expect(sameSite.status).toBe(201);
@@ -101,7 +116,11 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
 
   it('refuses invited members (no password yet) and signs out', async () => {
     const invited = await signIn({ email: 'good@acme.mn', password: 'anything' });
-    const out = await fetch(`${base}/core/v1/auth/sign-out`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+    const out = await fetch(`${base}/core/v1/auth/sign-out`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{}',
+    });
 
     expect(invited.status).toBe(401);
     expect(out.headers.getSetCookie().join(';')).toMatch(/erxes_session=;/);

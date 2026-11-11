@@ -7,8 +7,6 @@
     "dev": "tsx watch --env-file-if-exists=../../.env src/main.ts",
     "build": "tsup",
     "start": "node dist/main.js",
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run",
     "bootstrap": "tsx --env-file-if-exists=../../.env scripts/bootstrap.ts",
     "plugin:secret": "tsx --env-file-if-exists=../../.env scripts/plugin-secret.ts"
   },

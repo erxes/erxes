@@ -2,24 +2,20 @@
   "name": "ui-modules",
   "version": "0.0.0",
   "private": true,
-  "license": "AGPL-3.0-only",
   "description": "Compatibility subset of old erxes ui-modules that existing plugin UIs import from the host (shared through Module Federation).",
+  "license": "AGPL-3.0-only",
   "main": "./src/index.tsx",
   "types": "./src/index.tsx",
   "exports": {
     ".": "./src/index.tsx"
   },
-  "scripts": {
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
-  },
-  "peerDependencies": {
-    "erxes-ui": "*",
-    "react": "^18.3.1"
-  },
   "devDependencies": {
     "@types/react": "18.3.1",
     "erxes-ui": "workspace:*",
     "react": "18.3.1"
+  },
+  "peerDependencies": {
+    "erxes-ui": "*",
+    "react": "^18.3.1"
   }
 }

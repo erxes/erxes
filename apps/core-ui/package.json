@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "rsbuild dev",
     "build": "rsbuild build",
-    "preview": "rsbuild preview",
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
+    "preview": "rsbuild preview"
   },
   "dependencies": {
     "@apollo/client": "^3.11.8",

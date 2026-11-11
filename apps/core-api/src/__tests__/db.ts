@@ -1,7 +1,7 @@
 import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
 import { randomBytes } from 'node:crypto';
 import { Client } from 'pg';
-import { afterAll, beforeAll, describe } from 'vitest';
+import { afterAll, beforeAll, describe } from 'vite-plus/test';
 
 const baseUrl = process.env.DATA_TEST_URL ?? '';
 

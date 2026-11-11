@@ -1,3 +1,5 @@
+/// <reference types="@rsbuild/core/types" />
+
 interface ImportMetaEnv {
   /**
    * Plugin UIs to load, comma-separated `<remote>@<remoteEntry url>`, e.g.

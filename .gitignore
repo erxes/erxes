@@ -10,3 +10,6 @@ coverage/
 # Local file storage (FILES_STORAGE=local) and test uploads
 data/
 .test-files/
+
+# Throwaway scripts
+.scratch/

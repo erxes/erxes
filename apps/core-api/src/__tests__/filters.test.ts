@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -30,7 +30,8 @@ describeWithDb('list filters (search, tags, owner)', () => {
     return (await response.json()) as Page & { id: string };
   };
 
-  const names = (page: Page) => page.data.map((row) => row.firstName ?? row.primaryName ?? row.email).sort();
+  const names = (page: Page) =>
+    page.data.map((row) => row.firstName ?? row.primaryName ?? row.email).sort();
   const search = (path: string, query: Record<string, string>) =>
     call('GET', `${path}?${new URLSearchParams(query).toString()}`);
 
@@ -55,9 +56,17 @@ describeWithDb('list filters (search, tags, owner)', () => {
       tagIds: [vip],
       ownerId,
     });
-    await call('POST', '/customers', { firstName: 'Bold', lastName: 'Dorj', primaryEmail: 'bold@steppe.mn' });
+    await call('POST', '/customers', {
+      firstName: 'Bold',
+      lastName: 'Dorj',
+      primaryEmail: 'bold@steppe.mn',
+    });
     await call('POST', '/customers', { firstName: '50% off', code: 'A_1' });
-    await call('POST', '/companies', { primaryName: 'Nomad Tech', names: ['Nomad LLC'], industry: 'Software' });
+    await call('POST', '/companies', {
+      primaryName: 'Nomad Tech',
+      names: ['Nomad LLC'],
+      industry: 'Software',
+    });
   });
 
   afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));

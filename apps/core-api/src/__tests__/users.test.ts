@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -159,7 +159,10 @@ describeWithDb('team members (/core/v1/users)', () => {
     await call(ownerToken, `/users/${created.body.id}/disable`, { method: 'POST', body: '{}' });
     const { db, users } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
-    await db().update(users).set({ status: 'active', passwordHash: 'set' }).where(eq(users.id, created.body.id));
+    await db()
+      .update(users)
+      .set({ status: 'active', passwordHash: 'set' })
+      .where(eq(users.id, created.body.id));
 
     const orgId = (await call(ownerToken, '/organization')).body.id;
     const memberToken = signAccessToken(created.body.id, orgId);
@@ -185,7 +188,10 @@ describeWithDb('team members (/core/v1/users)', () => {
   });
 
   it('never leaves an organisation without an active owner', async () => {
-    const disableSelf = await call(ownerToken, `/users/${ownerId}/disable`, { method: 'POST', body: '{}' });
+    const disableSelf = await call(ownerToken, `/users/${ownerId}/disable`, {
+      method: 'POST',
+      body: '{}',
+    });
     const demoteSelf = await call(ownerToken, `/users/${ownerId}`, {
       method: 'PATCH',
       body: JSON.stringify({ role: 'member' }),
@@ -206,7 +212,10 @@ describeWithDb('team members (/core/v1/users)', () => {
     const adminToken = signAccessToken(adminId, orgId);
 
     const promote = await invite(adminToken, { email: 'new-admin@acme.mn', role: 'admin' });
-    const disableOwner = await call(adminToken, `/users/${ownerId}/disable`, { method: 'POST', body: '{}' });
+    const disableOwner = await call(adminToken, `/users/${ownerId}/disable`, {
+      method: 'POST',
+      body: '{}',
+    });
     const makeOwner = await call(adminToken, `/users/${promote.body.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ role: 'owner' }),
@@ -221,18 +230,27 @@ describeWithDb('team members (/core/v1/users)', () => {
     const created = await invite(ownerToken, { email: 'temp@acme.mn' });
     const { db, users } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
-    await db().update(users).set({ status: 'active', passwordHash: 'set' }).where(eq(users.id, created.body.id));
+    await db()
+      .update(users)
+      .set({ status: 'active', passwordHash: 'set' })
+      .where(eq(users.id, created.body.id));
 
     const orgId = (await call(ownerToken, '/organization')).body.id;
     const tempToken = signAccessToken(created.body.id, orgId);
 
     expect((await call(tempToken, '/users')).status).toBe(200);
 
-    const disabled = await call(ownerToken, `/users/${created.body.id}/disable`, { method: 'POST', body: '{}' });
+    const disabled = await call(ownerToken, `/users/${created.body.id}/disable`, {
+      method: 'POST',
+      body: '{}',
+    });
     expect(disabled.body.status).toBe('disabled');
     expect((await call(tempToken, '/users')).status).toBe(401);
 
-    const enabled = await call(ownerToken, `/users/${created.body.id}/enable`, { method: 'POST', body: '{}' });
+    const enabled = await call(ownerToken, `/users/${created.body.id}/enable`, {
+      method: 'POST',
+      body: '{}',
+    });
     expect(enabled.body.status).toBe('active');
     expect((await call(tempToken, '/users')).status).toBe(200);
   });
@@ -241,7 +259,10 @@ describeWithDb('team members (/core/v1/users)', () => {
     const created = await invite(ownerToken, { email: 'pending@acme.mn' });
 
     await call(ownerToken, `/users/${created.body.id}/disable`, { method: 'POST', body: '{}' });
-    const enabled = await call(ownerToken, `/users/${created.body.id}/enable`, { method: 'POST', body: '{}' });
+    const enabled = await call(ownerToken, `/users/${created.body.id}/enable`, {
+      method: 'POST',
+      body: '{}',
+    });
 
     expect(enabled.body.status).toBe('invited');
   });
@@ -249,7 +270,10 @@ describeWithDb('team members (/core/v1/users)', () => {
     call(token, `/users/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
 
   const signInAs = (email: string, password: string) =>
-    call('', '/auth/sign-in', { method: 'POST', body: JSON.stringify({ email, password, subdomain: 'acme' }) });
+    call('', '/auth/sign-in', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, subdomain: 'acme' }),
+    });
 
   const tokenOf = async (email: string) => {
     const found = await call(ownerToken, `/users?search=${encodeURIComponent(email)}`);
@@ -359,7 +383,9 @@ describeWithDb('team members (/core/v1/users)', () => {
     expect((await signInAs('reset@acme.mn', 'Reset-pass-1')).status).toBe(200);
 
     expect((await setPassword(ownerToken, ownerId, 'Reset-pass-1')).body.code).toBe('OWN_ACCOUNT');
-    expect((await setPassword(ownerToken, created.body.id, 'weak')).body.code).toBe('INVALID_INPUT');
+    expect((await setPassword(ownerToken, created.body.id, 'weak')).body.code).toBe(
+      'INVALID_INPUT',
+    );
 
     const adminToken = await tokenOf('bat@acme.mn');
     expect((await setPassword(adminToken, ownerId, 'Reset-pass-1')).body.code).toBe('OWNER_ONLY');
@@ -379,7 +405,11 @@ describeWithDb('team members (/core/v1/users)', () => {
     expect(taken).toMatchObject({ status: 409, body: { code: 'EMAIL_TAKEN' } });
 
     const adminToken = await tokenOf('bat@acme.mn');
-    expect((await patch(adminToken, ownerId, { email: 'mine@acme.mn' })).body.code).toBe('OWNER_ONLY');
-    expect((await patch(adminToken, created.body.id, { email: 'renamed2@acme.mn' })).status).toBe(200);
+    expect((await patch(adminToken, ownerId, { email: 'mine@acme.mn' })).body.code).toBe(
+      'OWNER_ONLY',
+    );
+    expect((await patch(adminToken, created.body.id, { email: 'renamed2@acme.mn' })).status).toBe(
+      200,
+    );
   });
 });

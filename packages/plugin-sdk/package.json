@@ -8,10 +8,6 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "scripts": {
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
-  },
   "dependencies": {
     "@erxes/core-contract": "workspace:*",
     "@orpc/client": "1.16.2",
