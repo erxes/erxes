@@ -144,7 +144,10 @@ The organization has the shape of a freshly provisioned next organization
 organization's owner restored from `users_held` (or the active user with the
 same `_id` or email); the new organization is added to that user's
 `organizationIds`. Stripe is not touched (`billing.status: 'none'`,
-`gpStatus: 'new'`). A target subdomain that already carries the same
+`gpStatus: 'new'`). An active `organization_plan_histories` record is added
+for `APPSUMO_BUNDLE_ID` / `APPSUMO_PRODUCT_ID` (defaults: the free bundle
+`68dd0283563460fd84f7c85b` / `68dd033b563460fd84f7c91a`, monthly, one month
+from now) unless the organization already has one. A target subdomain that already carries the same
 `migration.sourceOrganizationId` is reused; one that belongs to another
 organization stops the run before any data is copied. `DRY_RUN=true` only
 prints what would be created.

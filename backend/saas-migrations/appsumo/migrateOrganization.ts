@@ -11,6 +11,8 @@ const {
   TARGET_SUBDOMAIN,
   APPSUMO_OWNER_ID,
   APPSUMO_RUN_ID,
+  APPSUMO_BUNDLE_ID = '68dd0283563460fd84f7c85b',
+  APPSUMO_PRODUCT_ID = '68dd033b563460fd84f7c91a',
   DRY_RUN,
 } = process.env;
 
@@ -146,6 +148,45 @@ function buildOrganization(
   };
 }
 
+async function ensurePlanHistory(coreDb: Db, organizationId: string) {
+  const histories = coreDb.collection('organization_plan_histories');
+  const active = await histories.countDocuments({
+    organizationId,
+    status: 'active',
+  });
+
+  if (active > 0) {
+    console.log(`Plan history: ${active} active record(s) already present`);
+    return;
+  }
+
+  const now = new Date();
+  const endsAt = new Date(now);
+  endsAt.setMonth(endsAt.getMonth() + 1);
+
+  if (!isDryRun) {
+    await histories.insertOne({
+      organizationId,
+      source: 'onboarding',
+      status: 'active',
+      isNext: true,
+      productId: APPSUMO_PRODUCT_ID,
+      bundleId: APPSUMO_BUNDLE_ID,
+      interval: 'monthly',
+      pluginsLimitsSnapshot: {},
+      startsAt: now,
+      endsAt,
+      createdAt: now,
+      updatedAt: now,
+      __v: 0,
+    });
+  }
+
+  console.log(
+    `Plan history: bundle ${APPSUMO_BUNDLE_ID}, product ${APPSUMO_PRODUCT_ID}, monthly until ${endsAt.toISOString()}`,
+  );
+}
+
 async function main() {
   const coreUrl = CORE_MONGO_URL || MONGO_URL;
   const coreDbName = extractDbName(coreUrl);
@@ -195,6 +236,7 @@ async function main() {
             existing._id,
           )} (run ${migration.runId})`,
         );
+        await ensurePlanHistory(coreDb, idString(existing._id));
         return;
       }
 
@@ -224,6 +266,8 @@ async function main() {
     if (!isDryRun) {
       await organizations.insertOne(doc);
     }
+
+    await ensurePlanHistory(coreDb, String(newId));
 
     console.log(`Source: ${sourceRef} → erxes_${sourceId}`);
     console.log(
