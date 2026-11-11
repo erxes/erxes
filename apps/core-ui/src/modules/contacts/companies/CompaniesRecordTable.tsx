@@ -16,9 +16,9 @@ export const CompaniesRecordTable = () => {
     <RecordTable.Provider
       columns={columns}
       data={list}
-      stickyColumns={['more', 'checkbox', 'avatar', 'name']}
+      stickyColumns={['more', 'checkbox', 'avatar', 'primaryName']}
       className="m-3"
-      tableId="core_companies_record_table"
+      tableId="companies_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -34,9 +34,6 @@ export const CompaniesRecordTable = () => {
             <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && list.length === 0 && (
-          <p className="py-10 text-center text-sm text-muted-foreground">No companies yet.</p>
-        )}
       </RecordTable.CursorProvider>
       <CompaniesCommandBar />
     </RecordTable.Provider>

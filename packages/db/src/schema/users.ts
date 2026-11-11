@@ -2,8 +2,10 @@ import { sql } from 'drizzle-orm';
 import {
   boolean,
   check,
+  date,
   foreignKey,
   index,
+  jsonb,
   text,
   timestamp,
   uniqueIndex,
@@ -22,8 +24,21 @@ export const users = pgTable(
     orgId: text().notNull(),
     email: text().notNull(),
     username: text(),
+    /** Display name; kept in step with first/middle/last name. */
     fullName: text(),
     avatarUrl: text(),
+    // Profile details, as old erxes `users.details`.
+    firstName: text(),
+    middleName: text(),
+    lastName: text(),
+    shortName: text(),
+    employeeId: text(),
+    phone: text(),
+    birthDate: date({ mode: 'string' }),
+    workStartedDate: date({ mode: 'string' }),
+    description: text(),
+    /** Social links by name (facebook, website, …). */
+    links: jsonb().$type<Record<string, string>>().default({}).notNull(),
     role: text({ enum: USER_ROLES }).default('member').notNull(),
     status: text({ enum: USER_STATUSES }).default('invited').notNull(),
     /** Set by the sign-in slice; never returned by the API. */

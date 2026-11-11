@@ -7,15 +7,17 @@ import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cur
 export const COMPANIES_KEY = ['companies'];
 export const COMPANIES_SESSION_KEY = 'core_companies_cursor';
 
-/** The query parameter that opens a company (`new` for a new one). */
-export const COMPANY_SHEET_PARAM = 'companyId';
-
 export const useCompanies = () => {
-  const [{ searchValue, tagId }] = useMultiQueryState<{ searchValue: string; tagId: string }>([
-    'searchValue',
-    'tagId',
-  ]);
-  const filters = { search: searchValue || undefined, tagIds: tagId || undefined };
+  const [{ searchValue, tags, ownerId }] = useMultiQueryState<{
+    searchValue: string;
+    tags: string[];
+    ownerId: string;
+  }>(['searchValue', 'tags', 'ownerId']);
+  const filters = {
+    search: searchValue || undefined,
+    tagIds: tags?.length ? tags.join(',') : undefined,
+    ownerId: ownerId || undefined,
+  };
 
   return useCursorList<Company>({
     queryKey: [...COMPANIES_KEY, 'list', filters],

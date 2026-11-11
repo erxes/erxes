@@ -9,15 +9,24 @@ export const CUSTOMERS_KEY = ['customers'];
 /** RecordTable remembers the scroll position per list under this key. */
 export const customersSessionKey = (state: CustomerState) => `core_${state}s_cursor`;
 
-/** The query parameter that opens a customer (`new` for a new one) in the sheet. */
-export const CUSTOMER_SHEET_PARAM = 'customerId';
+/** The list filters, read from the URL (old core-ui query keys). */
+export const useCustomersFilters = (state: CustomerState) => {
+  const [{ searchValue, tags, ownerId }] = useMultiQueryState<{
+    searchValue: string;
+    tags: string[];
+    ownerId: string;
+  }>(['searchValue', 'tags', 'ownerId']);
+
+  return {
+    state,
+    search: searchValue || undefined,
+    tagIds: tags?.length ? tags.join(',') : undefined,
+    ownerId: ownerId || undefined,
+  };
+};
 
 export const useCustomers = (state: CustomerState) => {
-  const [{ searchValue, tagId }] = useMultiQueryState<{ searchValue: string; tagId: string }>([
-    'searchValue',
-    'tagId',
-  ]);
-  const filters = { state, search: searchValue || undefined, tagIds: tagId || undefined };
+  const filters = useCustomersFilters(state);
 
   return useCursorList<Customer>({
     queryKey: [...CUSTOMERS_KEY, 'list', filters],

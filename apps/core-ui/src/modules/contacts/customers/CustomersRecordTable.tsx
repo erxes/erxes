@@ -19,7 +19,7 @@ export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
       data={list}
       stickyColumns={['more', 'checkbox', 'avatar', 'name']}
       className="m-3"
-      tableId={`core_${state}s_record_table`}
+      tableId={state === 'lead' ? 'leads_record_table' : 'customers_record_table'}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -35,11 +35,6 @@ export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
             <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && list.length === 0 && (
-          <p className="py-10 text-center text-sm text-muted-foreground">
-            No {state === 'lead' ? 'leads' : 'customers'} yet.
-          </p>
-        )}
       </RecordTable.CursorProvider>
       <CustomersCommandBar />
     </RecordTable.Provider>

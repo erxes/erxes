@@ -44,10 +44,16 @@ describeWithDb('team members (/core/v1/users)', () => {
     status: string;
     role: string;
     fullName: string | null;
+    firstName: string | null;
+    middleName: string | null;
+    lastName: string | null;
+    employeeId: string | null;
+    birthDate: string | null;
+    links: Record<string, string>;
     subdomain: string;
     name: string;
     code: string;
-    data: { id: string; email: string }[];
+    data: { id: string; email: string; status: string; role: string }[] & { emails?: string[] };
     pageInfo: {
       hasNextPage: boolean;
       hasPreviousPage: boolean;
@@ -238,5 +244,142 @@ describeWithDb('team members (/core/v1/users)', () => {
     const enabled = await call(ownerToken, `/users/${created.body.id}/enable`, { method: 'POST', body: '{}' });
 
     expect(enabled.body.status).toBe('invited');
+  });
+  const patch = (token: string, id: string, body: Record<string, unknown>) =>
+    call(token, `/users/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+
+  const signInAs = (email: string, password: string) =>
+    call('', '/auth/sign-in', { method: 'POST', body: JSON.stringify({ email, password, subdomain: 'acme' }) });
+
+  const tokenOf = async (email: string) => {
+    const found = await call(ownerToken, `/users?search=${encodeURIComponent(email)}`);
+    const orgId = (await call(ownerToken, '/organization')).body.id;
+
+    return signAccessToken(found.body.data[0]!.id, orgId);
+  };
+
+  it('keeps profile details, and the full name in step with the name parts', async () => {
+    const details = await patch(ownerToken, ownerId, {
+      firstName: 'Bold',
+      lastName: 'Baatar',
+      employeeId: 'E-001',
+      birthDate: '1990-01-02',
+      workStartedDate: '2024-05-01',
+      phone: '+976 9911 2233',
+      links: { website: 'erxes.io', github: 'erxes' },
+    });
+
+    expect(details.status).toBe(200);
+    expect(details.body).toMatchObject({
+      fullName: 'Bold Baatar',
+      firstName: 'Bold',
+      lastName: 'Baatar',
+      employeeId: 'E-001',
+      birthDate: '1990-01-02',
+      links: { website: 'erxes.io', github: 'erxes' },
+    });
+
+    const links = await patch(ownerToken, ownerId, { links: { website: null }, employeeId: '' });
+    expect(links.body.links).toEqual({ github: 'erxes' });
+    expect(links.body.employeeId).toBeNull();
+
+    // A full name alone (older clients, the user menu) splits into first and last name.
+    const full = await patch(ownerToken, ownerId, { fullName: 'Owner Of Acme' });
+    expect(full.body).toMatchObject({ firstName: 'Owner', middleName: null, lastName: 'Of Acme' });
+
+    const invited = await call(ownerToken, '/users?search=dorj');
+    const dorj = await call(ownerToken, `/users/${invited.body.data[0]!.id}`);
+    expect(dorj.body).toMatchObject({ fullName: 'Dorj', firstName: 'Dorj', lastName: null });
+
+    await patch(ownerToken, dorj.body.id, { employeeId: 'E-777' });
+    const byEmployeeId = await call(ownerToken, '/users?search=E-777');
+    expect(byEmployeeId.body.data.map((user) => user.email)).toEqual(['dorj@acme.mn']);
+
+    const badDate = await patch(ownerToken, ownerId, { birthDate: '02/01/1990' });
+    expect(badDate.body.code).toBe('INVALID_INPUT');
+  });
+
+  it('invites several members at once, all or none', async () => {
+    const invitations = (entries: Record<string, unknown>[]) =>
+      call(ownerToken, '/users/invitations', { method: 'POST', body: JSON.stringify({ entries }) });
+
+    const created = await invitations([
+      { email: 'Many1@acme.mn' },
+      { email: 'many2@acme.mn', role: 'admin', password: 'Secret-pass-1' },
+    ]);
+
+    expect(created.status).toBe(201);
+    expect(created.body.data.map(({ email, status, role }) => ({ email, status, role }))).toEqual([
+      { email: 'many1@acme.mn', status: 'invited', role: 'member' },
+      { email: 'many2@acme.mn', status: 'active', role: 'admin' },
+    ]);
+    expect(created.body.data[1]).not.toHaveProperty('passwordHash');
+    // Invited with a password: they can sign in at once.
+    expect((await signInAs('many2@acme.mn', 'Secret-pass-1')).status).toBe(200);
+    expect((await signInAs('many1@acme.mn', 'Secret-pass-1')).status).toBe(401);
+
+    const taken = await invitations([{ email: 'MANY1@acme.mn' }, { email: 'many3@acme.mn' }]);
+    expect(taken.status).toBe(409);
+    expect(taken.body).toMatchObject({ code: 'EMAIL_TAKEN', data: { emails: ['many1@acme.mn'] } });
+    expect((await call(ownerToken, '/users?search=many3')).body.totalCount).toBe(0);
+
+    const twice = await invitations([{ email: 'many4@acme.mn' }, { email: 'Many4@acme.mn' }]);
+    expect(twice.body.code).toBe('EMAIL_TAKEN');
+
+    const weak = await invitations([{ email: 'many5@acme.mn', password: 'short' }]);
+    expect(weak.body.code).toBe('INVALID_INPUT');
+
+    const asMember = await call(await tokenOf('member@acme.mn'), '/users/invitations', {
+      method: 'POST',
+      body: JSON.stringify({ entries: [{ email: 'many6@acme.mn' }] }),
+    });
+    expect(asMember.status).toBe(403);
+  });
+
+  it('lists active or disabled members', async () => {
+    const created = await invite(ownerToken, { email: 'gone@acme.mn' });
+    await call(ownerToken, `/users/${created.body.id}/disable`, { method: 'POST', body: '{}' });
+
+    const active = await call(ownerToken, '/users?isActive=true&limit=100');
+    const disabled = await call(ownerToken, '/users?isActive=false&limit=100');
+
+    expect(active.body.data.every((user) => user.status !== 'disabled')).toBe(true);
+    expect(active.body.data.map((user) => user.email)).not.toContain('gone@acme.mn');
+    expect(disabled.body.data.map((user) => user.email)).toEqual(['gone@acme.mn']);
+  });
+
+  it('sets a member password (owners and admins; owners only for owners; never their own)', async () => {
+    const created = await invite(ownerToken, { email: 'reset@acme.mn' });
+    const setPassword = (token: string, id: string, password: string) =>
+      call(token, `/users/${id}/password`, { method: 'POST', body: JSON.stringify({ password }) });
+
+    const reset = await setPassword(ownerToken, created.body.id, 'Reset-pass-1');
+    expect(reset).toMatchObject({ status: 200, body: { status: 'active' } });
+    expect(reset.body).not.toHaveProperty('passwordHash');
+    expect((await signInAs('reset@acme.mn', 'Reset-pass-1')).status).toBe(200);
+
+    expect((await setPassword(ownerToken, ownerId, 'Reset-pass-1')).body.code).toBe('OWN_ACCOUNT');
+    expect((await setPassword(ownerToken, created.body.id, 'weak')).body.code).toBe('INVALID_INPUT');
+
+    const adminToken = await tokenOf('bat@acme.mn');
+    expect((await setPassword(adminToken, ownerId, 'Reset-pass-1')).body.code).toBe('OWNER_ONLY');
+    expect((await setPassword(adminToken, created.body.id, 'Reset-pass-2')).status).toBe(200);
+
+    const memberToken = await tokenOf('member@acme.mn');
+    expect((await setPassword(memberToken, created.body.id, 'Reset-pass-3')).status).toBe(403);
+  });
+
+  it('changes emails: unique in the organisation, owners only for an owner', async () => {
+    const created = await invite(ownerToken, { email: 'rename@acme.mn' });
+
+    const renamed = await patch(ownerToken, created.body.id, { email: ' Renamed@Acme.mn ' });
+    expect(renamed.body.email).toBe('renamed@acme.mn');
+
+    const taken = await patch(ownerToken, created.body.id, { email: 'bat@acme.mn' });
+    expect(taken).toMatchObject({ status: 409, body: { code: 'EMAIL_TAKEN' } });
+
+    const adminToken = await tokenOf('bat@acme.mn');
+    expect((await patch(adminToken, ownerId, { email: 'mine@acme.mn' })).body.code).toBe('OWNER_ONLY');
+    expect((await patch(adminToken, created.body.id, { email: 'renamed2@acme.mn' })).status).toBe(200);
   });
 });

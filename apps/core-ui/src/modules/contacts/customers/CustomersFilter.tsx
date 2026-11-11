@@ -1,63 +1,90 @@
 import type { CustomerState } from '@erxes/core-contract';
-import { IconTags } from '@tabler/icons-react';
-import { Combobox, Command, Filter, Skeleton, useMultiQueryState } from 'erxes-ui';
-import { OptionFilter, type OptionFilterProps } from '~/components/OptionFilter';
-import { useTags } from '~/modules/tags/useTags';
+import { IconSearch } from '@tabler/icons-react';
+import { Combobox, Command, Filter, isUndefinedOrNull, Skeleton, useFilterQueryState, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { TagsFilter } from '~/modules/tags/TagsSelect';
+import { SelectMember } from '../components/SelectMember';
 import { customersSessionKey, useCustomers } from './useCustomers';
 
-const TotalCount = ({ state }: { state: CustomerState }) => {
+export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
+  const { t } = useTranslation();
   const { totalCount } = useCustomers(state);
 
   return (
     <div className="h-7 whitespace-nowrap text-sm font-medium leading-7 text-muted-foreground">
-      {totalCount === undefined ? (
+      {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="mt-1.5 inline-block h-4 w-20" />
       ) : (
-        `${totalCount} records found`
+        `${totalCount} ${t('records-found')}`
       )}
     </div>
   );
 };
 
-/** The filter bar under the page header, as old core-ui (search for now). */
-export const CustomersFilter = ({ state }: { state: CustomerState }) => {
-  const sessionKey = customersSessionKey(state);
-  const [queries] = useMultiQueryState<{ searchValue: string; tagId: string }>(['searchValue', 'tagId']);
-  const { tags } = useTags('customer');
-  const tagFilter: OptionFilterProps = {
-    filterKey: 'tagId',
-    label: 'Tag',
-    icon: IconTags,
-    options: tags.map((tag) => ({ value: tag.id, label: tag.name })),
-  };
-  const filtered = Object.values(queries ?? {}).some((value) => value !== null);
+// Core lists filter by search, tags and owner; old erxes's date, brand,
+// segment and property filters need list filters core does not have yet.
+const CustomersFilterPopover = ({ state }: { state: CustomerState }) => {
+  const { t } = useTranslation('common');
+  const { t: contactT } = useTranslation('contact', { keyPrefix: 'customer' });
+  const [queries] = useMultiQueryState<{ tags: string[]; searchValue: string; ownerId: string }>([
+    'tags',
+    'searchValue',
+    'ownerId',
+  ]);
+  const hasFilters = Object.values(queries || {}).some((value) => value !== null);
 
   return (
-    <Filter id={`core-${state}s-filter`} sessionKey={sessionKey}>
-      <Filter.Bar>
-        <Filter.Popover scope={`core-${state}s-page`}>
-          <Filter.Trigger isFiltered={filtered} />
-          <Combobox.Content>
-            <Filter.View>
-              <Command>
-                <Filter.CommandInput placeholder="Filter" variant="secondary" className="bg-background" />
-                <Command.List className="p-1">
-                  <Filter.SearchValueTrigger />
-                  <OptionFilter.Item {...tagFilter} />
-                </Command.List>
-              </Command>
-            </Filter.View>
-            <OptionFilter.View {...tagFilter} />
-          </Combobox.Content>
-        </Filter.Popover>
-        <Filter.Dialog>
-          <Filter.View filterKey="searchValue" inDialog>
-            <Filter.DialogStringView filterKey="searchValue" />
+    <>
+      <Filter.Popover scope={`${state}s-page`}>
+        <Filter.Trigger isFiltered={hasFilters} />
+        <Combobox.Content>
+          <Filter.View>
+            <Command>
+              <Filter.CommandInput placeholder={t('filter._')} variant="secondary" className="bg-background" />
+              <Command.List className="p-1">
+                <Filter.Item value="searchValue" inDialog>
+                  <IconSearch />
+                  {t('filter.search')}
+                </Filter.Item>
+                <TagsFilter />
+                <SelectMember.FilterItem label={contactT('owner')} />
+              </Command.List>
+            </Command>
           </Filter.View>
-        </Filter.Dialog>
-        <Filter.SearchValueBarItem />
-        <OptionFilter.Bar {...tagFilter} />
-        <TotalCount state={state} />
+          <SelectMember.FilterView />
+          <TagsFilter.View type="customer" />
+        </Combobox.Content>
+      </Filter.Popover>
+      <Filter.Dialog>
+        <Filter.View filterKey="searchValue" inDialog>
+          <Filter.DialogStringView filterKey="searchValue" />
+        </Filter.View>
+      </Filter.Dialog>
+    </>
+  );
+};
+
+export const CustomersFilter = ({ state }: { state: CustomerState }) => {
+  const { t } = useTranslation('common');
+  const { t: contactT } = useTranslation('contact', { keyPrefix: 'customer' });
+  const [searchValue] = useFilterQueryState<string>('searchValue');
+
+  return (
+    <Filter id={`${state}s-filter`} sessionKey={customersSessionKey(state)}>
+      <Filter.Bar>
+        <CustomersFilterPopover state={state} />
+        <Filter.BarItem queryKey="searchValue">
+          <Filter.BarName>
+            <IconSearch />
+            {t('filter.search')}
+          </Filter.BarName>
+          <Filter.BarButton filterKey="searchValue" inDialog>
+            {searchValue}
+          </Filter.BarButton>
+        </Filter.BarItem>
+        <TagsFilter.Bar type="customer" />
+        <SelectMember.FilterBar label={contactT('owner')} />
+        <CustomerTotalCount state={state} />
       </Filter.Bar>
     </Filter>
   );

@@ -1,11 +1,17 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import enCommon from './locales/en/common.json';
+import enContact from './locales/en/contact.json';
+import enOrganization from './locales/en/organization.json';
+import enSettings from './locales/en/settings.json';
 import mnCommon from './locales/mn/common.json';
+import mnContact from './locales/mn/contact.json';
+import mnOrganization from './locales/mn/organization.json';
+import mnSettings from './locales/mn/settings.json';
 
 /*
- * erxes-ui components translate through react-i18next ("common" namespace),
- * so core bundles the shared strings from the old gateway locales. Plugins
+ * erxes-ui and the components ported from old core-ui translate through
+ * react-i18next, so core bundles the old gateway locales they use. Plugins
  * share this instance through Module Federation and add their own namespaces.
  */
 export const LANGUAGES = [
@@ -24,10 +30,14 @@ const savedLanguage = (): LanguageCode => {
 };
 
 void i18n.use(initReactI18next).init({
-  resources: { en: { common: enCommon }, mn: { common: mnCommon } },
+  // Old erxes namespaces, so ported components keep their useTranslation('contact'|…) calls.
+  resources: {
+    en: { common: enCommon, contact: enContact, settings: enSettings, organization: enOrganization },
+    mn: { common: mnCommon, contact: mnContact, settings: mnSettings, organization: mnOrganization },
+  },
   lng: savedLanguage(),
   fallbackLng: 'en',
-  ns: ['common'],
+  ns: ['common', 'contact', 'settings', 'organization'],
   defaultNS: 'common',
   fallbackNS: 'common',
   interpolation: { escapeValue: false },

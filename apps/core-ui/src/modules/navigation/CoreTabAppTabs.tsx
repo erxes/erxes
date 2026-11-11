@@ -1,56 +1,233 @@
-import { IconX } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
+import { horizontalListSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { IconArrowBarToRight, IconGripVertical, IconX } from '@tabler/icons-react';
+import { Button, cn, ContextMenu } from 'erxes-ui';
+import { type KeyboardEvent, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { NavApp } from './apps';
 
-/** Open apps as tabs; the active one is highlighted, each can be closed. */
+const CoreTabAppTab = ({
+  app,
+  active,
+  canCloseOthers,
+  canCloseToRight,
+  onSelect,
+  onClose,
+  onCloseOthers,
+  onCloseToRight,
+  onKeyDown,
+}: {
+  app: NavApp;
+  active: boolean;
+  canCloseOthers: boolean;
+  canCloseToRight: boolean;
+  onSelect: () => void;
+  onClose: () => void;
+  onCloseOthers: () => void;
+  onCloseToRight: () => void;
+  onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({ id: app.id });
+  const ref = useRef<HTMLDivElement | null>(null);
+  const Icon = app.icon;
+  const closeLabel = t('close-tab', { page: app.label, defaultValue: `Close ${app.label}` });
+
+  useEffect(() => {
+    if (active) ref.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [active]);
+
+  return (
+    <ContextMenu>
+      <ContextMenu.Trigger asChild>
+        <div
+          {...attributes}
+          {...listeners}
+          ref={(node) => {
+            ref.current = node;
+            setNodeRef(node);
+          }}
+          role="tab"
+          aria-selected={active}
+          tabIndex={active ? 0 : -1}
+          title={app.label}
+          data-active={active}
+          className={cn(
+            'group/tab flex h-7 min-w-24 max-w-48 shrink-0 cursor-default select-none items-center gap-1.5 rounded-md border border-transparent pl-2.5 pr-1 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] hover:bg-accent/70 hover:text-foreground',
+            'data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
+            isDragging && 'z-10 opacity-60',
+          )}
+          style={{ transform: CSS.Transform.toString(transform), transition }}
+          onClick={onSelect}
+          onMouseDown={(event) => {
+            // Middle click must not take focus before it closes the tab.
+            if (event.button === 1) {
+              event.preventDefault();
+              return;
+            }
+            listeners?.onMouseDown?.(event);
+          }}
+          onAuxClick={(event) => {
+            // Middle click closes, like a browser tab.
+            if (event.button === 1) {
+              event.preventDefault();
+              onClose();
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.target !== event.currentTarget) return;
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              onSelect();
+              return;
+            }
+            onKeyDown(event);
+          }}
+        >
+          {/* On hover the icon turns into a grip: tabs can be dragged. */}
+          <span className="relative size-4 shrink-0">
+            <Icon
+              className={cn(
+                'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0',
+                active && 'text-primary',
+                isDragging && 'opacity-0',
+              )}
+            />
+            <IconGripVertical
+              aria-hidden
+              className={cn(
+                'absolute inset-0 size-4 text-muted-foreground opacity-0 transition-opacity group-hover/tab:opacity-100',
+                isDragging && 'opacity-100',
+              )}
+            />
+          </span>
+          <span className="min-w-0 flex-1 truncate">{app.label}</span>
+          <Button
+            aria-label={closeLabel}
+            title={closeLabel}
+            className={cn(
+              'size-5 shrink-0 rounded text-muted-foreground opacity-0 transition-[background-color,opacity] hover:bg-accent hover:text-foreground group-focus-within/tab:opacity-100 group-hover/tab:opacity-100',
+              active && 'opacity-100',
+            )}
+            size="icon"
+            type="button"
+            tabIndex={-1}
+            variant="ghost"
+            onClick={(event) => {
+              event.stopPropagation();
+              onClose();
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <IconX className="size-3" />
+          </Button>
+        </div>
+      </ContextMenu.Trigger>
+      <ContextMenu.Content>
+        <ContextMenu.Item onSelect={onClose}>
+          <IconX />
+          {closeLabel}
+        </ContextMenu.Item>
+        <ContextMenu.Item disabled={!canCloseOthers} onSelect={onCloseOthers}>
+          <IconX />
+          {t('close-other-tabs', 'Close other tabs')}
+        </ContextMenu.Item>
+        <ContextMenu.Item disabled={!canCloseToRight} onSelect={onCloseToRight}>
+          <IconArrowBarToRight />
+          {t('close-tabs-to-right', 'Close tabs to the right')}
+        </ContextMenu.Item>
+      </ContextMenu.Content>
+    </ContextMenu>
+  );
+};
+
+/** Browser-like app tabs (old core-ui): click to switch, × or middle click to close, drag to reorder. */
 export const CoreTabAppTabs = ({
   tabs,
   activeId,
   onSelect,
   onClose,
+  onCloseOthers,
+  onCloseToRight,
+  onMove,
 }: {
   tabs: NavApp[];
   activeId?: string;
   onSelect: (app: NavApp) => void;
   onClose: (id: string) => void;
-}) => (
-  <nav aria-label="Open apps" className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto styled-scroll">
-    {tabs.map((app) => {
-      const Icon = app.icon;
-      const active = app.id === activeId;
+  onCloseOthers: (id: string) => void;
+  onCloseToRight: (id: string) => void;
+  onMove: (fromId: string, toId: string) => void;
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 6 } }),
+  );
 
-      return (
-        <div
-          key={app.id}
-          className={cn(
-            'group/tab flex h-7 shrink-0 items-center rounded-md text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground',
-            active && 'bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary',
-          )}
-        >
-          <button
-            type="button"
-            aria-current={active ? 'page' : undefined}
-            className="flex h-full max-w-48 items-center gap-1.5 pl-2 pr-1 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
-            onClick={() => onSelect(app)}
-          >
-            <Icon className="size-4 shrink-0" />
-            <span className="truncate">{app.label}</span>
-          </button>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            aria-label={`Close ${app.label}`}
-            className={cn(
-              'mr-0.5 size-5 shrink-0 opacity-0 group-hover/tab:opacity-100 focus-visible:opacity-100',
-              active && 'opacity-60',
-            )}
-            onClick={() => onClose(app.id)}
-          >
-            <IconX className="size-3" />
-          </Button>
-        </div>
-      );
-    })}
-  </nav>
-);
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (over && active.id !== over.id) onMove(String(active.id), String(over.id));
+  };
+
+  // Arrow keys move between tabs, Home/End jump to the ends.
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>, index: number) => {
+    const targets: Record<string, number> = {
+      ArrowLeft: index - 1,
+      ArrowRight: index + 1,
+      Home: 0,
+      End: tabs.length - 1,
+    };
+    const next = targets[event.key];
+
+    if (next === undefined || next < 0 || next >= tabs.length) return;
+
+    event.preventDefault();
+    listRef.current?.querySelectorAll<HTMLElement>('[role="tab"]')[next]?.focus();
+  };
+
+  return (
+    <DndContext
+      autoScroll={false}
+      collisionDetection={closestCenter}
+      modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
+      sensors={sensors}
+      onDragEnd={handleDragEnd}
+    >
+      <div
+        ref={listRef}
+        role="tablist"
+        aria-label={t('plugins', 'Apps')}
+        aria-orientation="horizontal"
+        className="hide-scroll flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
+      >
+        <SortableContext items={tabs.map((tab) => tab.id)} strategy={horizontalListSortingStrategy}>
+          {tabs.map((app, index) => (
+            <CoreTabAppTab
+              key={app.id}
+              app={app}
+              active={app.id === activeId}
+              canCloseOthers={tabs.length > 1}
+              canCloseToRight={index < tabs.length - 1}
+              onSelect={() => onSelect(app)}
+              onClose={() => onClose(app.id)}
+              onCloseOthers={() => onCloseOthers(app.id)}
+              onCloseToRight={() => onCloseToRight(app.id)}
+              onKeyDown={(event) => handleKeyDown(event, index)}
+            />
+          ))}
+        </SortableContext>
+      </div>
+    </DndContext>
+  );
+};

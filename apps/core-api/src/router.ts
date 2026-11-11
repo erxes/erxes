@@ -34,8 +34,10 @@ import { createTag, listTags, removeTag, updateTag } from '~/modules/tags/tags.s
 import {
   getUser,
   inviteUser,
+  inviteUsers,
   listUsers,
   setUserDisabled,
+  setUserPassword,
   updateUser,
 } from '~/modules/users/users.service';
 
@@ -94,8 +96,12 @@ export const coreRouter = pub.router({
     list: authed.users.list.handler(({ input, context }) => listUsers(db(), context.actor, input)),
     get: authed.users.get.handler(({ input, context }) => getUser(db(), context.actor, input.id)),
     invite: authed.users.invite.handler(({ input, context }) => inviteUser(db(), context.actor, input)),
+    inviteMany: authed.users.inviteMany.handler(({ input, context }) => inviteUsers(context.actor, input.entries)),
     update: authed.users.update.handler(({ input: { id, ...changes }, context }) =>
       updateUser(context.actor, id, changes),
+    ),
+    setPassword: authed.users.setPassword.handler(({ input, context }) =>
+      setUserPassword(context.actor, input.id, input.password),
     ),
     disable: authed.users.disable.handler(({ input, context }) => setUserDisabled(context.actor, input.id, true)),
     enable: authed.users.enable.handler(({ input, context }) => setUserDisabled(context.actor, input.id, false)),

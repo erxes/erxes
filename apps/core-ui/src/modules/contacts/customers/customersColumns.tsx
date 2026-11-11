@@ -1,6 +1,5 @@
 import type { Customer, CustomValue } from '@erxes/core-contract';
 import {
-  IconBriefcase,
   IconCalendarPlus,
   IconEdit,
   IconGenderMale,
@@ -8,83 +7,57 @@ import {
   IconMail,
   IconPhone,
   IconTags,
-  IconTrash,
   IconUser,
-  IconUserCircle,
 } from '@tabler/icons-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   Avatar,
   Combobox,
   Command,
-  EmailDisplay,
-  EmailListField,
-  FullNameField,
   FullNameValue,
-  PhoneDisplay,
-  PhoneField,
   Popover,
   PopoverScoped,
+  readImage,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
   SexCode,
   SexDisplay,
   SexField,
-  TextField,
-  useConfirm,
-  useQueryState,
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
-import { DateInlineCell, MemberInlineCell } from '~/components/inlineCells';
-import { useSession } from '~/modules/auth/session';
+import { useTranslation } from 'react-i18next';
 import { customFieldColumns } from '~/modules/properties/customFieldColumns';
 import { useFields } from '~/modules/properties/useFields';
-import { TagsInlineCell } from '~/modules/tags/TagsInlineCell';
-import { CUSTOMER_SHEET_PARAM, customerName, useCustomerEdit, useCustomersRemove } from './useCustomers';
+import { useSidePanel } from '~/modules/side-panel/useSidePanel';
+import { TagsSelect } from '~/modules/tags/TagsSelect';
+import { ContactEmails, ContactName, ContactPhones } from '../components/ContactFields';
+import { SelectMember } from '../components/SelectMember';
+import { useCustomerEdit } from './useCustomers';
 
-const SCOPE = 'core-customers-inline';
+const SCOPE = 'customers-table-inline-popover';
 
-const MoreCell = ({ customer }: { customer: Customer }) => {
-  const [, setOpenId] = useQueryState<string>(CUSTOMER_SHEET_PARAM);
-  const { user } = useSession();
-  const remove = useCustomersRemove();
-  const { confirm } = useConfirm();
-  const [open, setOpen] = useState(false);
-  const manager = user.role !== 'member';
+const useOpenCustomer = () => {
+  const { openRecord } = useSidePanel();
+
+  return (id: string) => openRecord({ contentType: 'core:customer', contentId: id });
+};
+
+const CustomerMoreColumnCell = ({ customer }: { customer: Customer }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
+  const openCustomer = useOpenCustomer();
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="h-full w-full" />
       </Popover.Trigger>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => {
-                setOpen(false);
-                setOpenId(customer.id);
-              }}
-            >
-              <IconEdit /> Edit
+            <Command.Item value="edit" onSelect={() => openCustomer(customer.id)}>
+              <IconEdit /> {t('action-edit')}
             </Command.Item>
-            {manager && (
-              <Command.Item
-                value="delete"
-                className="text-destructive"
-                onSelect={() => {
-                  setOpen(false);
-                  void confirm({
-                    message: `Delete ${customerName(customer) || customer.primaryEmail || 'this customer'}?`,
-                    options: { okLabel: 'Delete', variants: { ok: 'destructive' } },
-                  }).then(() => remove.mutate([customer.id]));
-                }}
-              >
-                <IconTrash /> Delete
-              </Command.Item>
-            )}
           </Command.List>
         </Command>
       </Combobox.Content>
@@ -92,82 +65,36 @@ const MoreCell = ({ customer }: { customer: Customer }) => {
   );
 };
 
-export const NameCell = ({ customer }: { customer: Customer }) => {
+const CustomerNameCell = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
-  const [, setOpenId] = useQueryState<string>(CUSTOMER_SHEET_PARAM);
+  const openCustomer = useOpenCustomer();
+  const { id, firstName, middleName, lastName } = customer;
 
   return (
-    <FullNameField
-      scope={`${SCOPE}.${customer.id}.name`}
-      firstName={customer.firstName ?? ''}
-      lastName={customer.lastName ?? ''}
-      onValueChange={(firstName, lastName) => {
-        if (firstName !== (customer.firstName ?? '') || lastName !== (customer.lastName ?? '')) {
-          edit.mutate({ id: customer.id, firstName: firstName || null, lastName: lastName || null });
-        }
-      }}
+    <ContactName
+      firstName={firstName}
+      lastName={`${middleName || ''}${middleName ? ' ' : ''}${lastName || ''}`}
+      scope={`customers-page.${id}.Name`}
+      onSave={(nextFirstName, nextLastName) =>
+        edit.mutate({ id, firstName: nextFirstName || null, middleName: null, lastName: nextLastName || null })
+      }
     >
       <RecordTableInlineCell.Trigger>
-        <RecordTableInlineCell.Anchor onClick={() => setOpenId(customer.id)}>
+        <RecordTableInlineCell.Anchor onClick={() => openCustomer(id)}>
           <FullNameValue />
         </RecordTableInlineCell.Anchor>
       </RecordTableInlineCell.Trigger>
-    </FullNameField>
+    </ContactName>
   );
 };
 
-export const EmailsCell = ({ customer }: { customer: Customer }) => {
-  const edit = useCustomerEdit();
-  const value = { primaryEmail: customer.primaryEmail ?? '', emails: customer.emails };
-
-  return (
-    <PopoverScoped scope={`${SCOPE}.${customer.id}.emails`}>
-      <RecordTableInlineCell.Trigger>
-        <EmailDisplay {...value} maxVisible={1} />
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="w-72">
-        <EmailListField
-          recordId={customer.id}
-          {...value}
-          noValidation
-          onValueChange={({ primaryEmail, emails }) =>
-            edit.mutate({ id: customer.id, primaryEmail: primaryEmail || null, emails })
-          }
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
-};
-
-export const PhonesCell = ({ customer }: { customer: Customer }) => {
-  const edit = useCustomerEdit();
-  const value = { primaryPhone: customer.primaryPhone ?? '', phones: customer.phones };
-
-  return (
-    <PopoverScoped scope={`${SCOPE}.${customer.id}.phones`}>
-      <RecordTableInlineCell.Trigger>
-        <PhoneDisplay {...value} maxVisible={1} />
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="w-72">
-        <PhoneField
-          recordId={customer.id}
-          {...value}
-          onValueChange={({ primaryPhone, phones }) =>
-            edit.mutate({ id: customer.id, primaryPhone: primaryPhone || null, phones })
-          }
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
-};
-
-export const SexCell = ({ customer }: { customer: Customer }) => {
+const CustomerSexCell = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
   const [open, setOpen] = useState(false);
   const value = (customer.sex ?? SexCode.NOT_KNOWN) as SexCode;
 
   return (
-    <PopoverScoped scope={`${SCOPE}.${customer.id}.sex`} open={open} onOpenChange={setOpen}>
+    <PopoverScoped scope={SCOPE} open={open} onOpenChange={setOpen}>
       <RecordTableInlineCell.Trigger>
         <SexDisplay value={value} />
       </RecordTableInlineCell.Trigger>
@@ -175,9 +102,7 @@ export const SexCell = ({ customer }: { customer: Customer }) => {
         <SexField
           value={value}
           onValueChange={(sex) => {
-            if (sex !== value) {
-              edit.mutate({ id: customer.id, sex: sex as Customer['sex'] });
-            }
+            if (sex !== value) edit.mutate({ id: customer.id, sex: sex as Customer['sex'] });
             setOpen(false);
           }}
         />
@@ -186,61 +111,8 @@ export const SexCell = ({ customer }: { customer: Customer }) => {
   );
 };
 
-type TextKey = 'position' | 'department' | 'code' | 'description' | 'middleName';
-
-/** A plain text field of a customer, edited in place. */
-export const TextCell = ({ customer, field }: { customer: Customer; field: TextKey }) => {
-  const edit = useCustomerEdit();
-
-  return (
-    <TextField
-      scope={`${SCOPE}.${customer.id}.${field}`}
-      value={customer[field] ?? ''}
-      placeholder=""
-      onSave={(value) => edit.mutate({ id: customer.id, [field]: value.trim() || null })}
-    />
-  );
-};
-
-export const TagsCell = ({ customer }: { customer: Customer }) => {
-  const edit = useCustomerEdit();
-
-  return (
-    <TagsInlineCell
-      type="customer"
-      scope={`${SCOPE}.${customer.id}.tags`}
-      value={customer.tagIds}
-      onChange={(tagIds) => edit.mutate({ id: customer.id, tagIds })}
-    />
-  );
-};
-
-export const OwnerCell = ({ customer }: { customer: Customer }) => {
-  const edit = useCustomerEdit();
-
-  return (
-    <MemberInlineCell
-      scope={`${SCOPE}.${customer.id}.owner`}
-      value={customer.ownerId}
-      onSave={(ownerId) => edit.mutate({ id: customer.id, ownerId })}
-    />
-  );
-};
-
-export const BirthDateCell = ({ customer }: { customer: Customer }) => {
-  const edit = useCustomerEdit();
-
-  return (
-    <DateInlineCell
-      scope={`${SCOPE}.${customer.id}.birthDate`}
-      value={customer.birthDate}
-      onSave={(birthDate) => edit.mutate({ id: customer.id, birthDate })}
-    />
-  );
-};
-
 /** Saves custom field values of a customer (for custom field cells). */
-export const useCustomerFieldsSave = () => {
+const useCustomerFieldsSave = () => {
   const edit = useCustomerEdit();
 
   return (id: string, customFields: Record<string, CustomValue | null>) => edit.mutate({ id, customFields });
@@ -255,11 +127,11 @@ const DateCell = ({ value }: { value: string }) => (
 );
 
 /** Customer columns, as in old core-ui. */
-const customersColumns: ColumnDef<Customer>[] = [
+const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
-    cell: ({ row }) => <MoreCell customer={row.original} />,
+    cell: ({ row }) => <CustomerMoreColumnCell customer={row.original} />,
     size: 33,
   },
   RecordTable.checkboxColumn as ColumnDef<Customer>,
@@ -268,15 +140,13 @@ const customersColumns: ColumnDef<Customer>[] = [
     accessorKey: 'avatarUrl',
     header: () => <RecordTable.InlineHead icon={IconUser} label="" />,
     cell: ({ row }) => {
-      const { avatarUrl, firstName, lastName, primaryEmail } = row.original;
+      const { avatarUrl, firstName, lastName } = row.original;
 
       return (
         <div className="flex h-8 items-center justify-center">
           <Avatar size="lg">
-            {avatarUrl && <Avatar.Image src={avatarUrl} />}
-            <Avatar.Fallback>
-              {(firstName || lastName || primaryEmail || '-').charAt(0).toUpperCase()}
-            </Avatar.Fallback>
+            <Avatar.Image src={readImage(avatarUrl ?? undefined)} />
+            <Avatar.Fallback>{firstName?.charAt(0) || lastName?.charAt(0) || '-'}</Avatar.Fallback>
           </Avatar>
         </div>
       );
@@ -285,66 +155,112 @@ const customersColumns: ColumnDef<Customer>[] = [
   },
   {
     id: 'name',
-    accessorFn: (customer) => customerName(customer),
-    header: () => <RecordTable.InlineHead icon={IconLabelFilled} label="Name" />,
-    cell: ({ row }) => <NameCell customer={row.original} />,
+    accessorKey: 'firstName',
+    header: () => <RecordTable.InlineHead label={t('customer.name')} icon={IconLabelFilled} />,
+    cell: ({ row }) => <CustomerNameCell customer={row.original} />,
     size: 240,
   },
   {
     id: 'emails',
     accessorKey: 'primaryEmail',
-    header: () => <RecordTable.InlineHead icon={IconMail} label="Emails" />,
-    cell: ({ row }) => <EmailsCell customer={row.original} />,
+    header: () => <RecordTable.InlineHead label={t('customer.emails')} icon={IconMail} />,
+    cell: function EmailsCell({ row }) {
+      const edit = useCustomerEdit();
+      const customer = row.original;
+
+      return (
+        <ContactEmails
+          id={customer.id}
+          primaryEmail={customer.primaryEmail}
+          emails={customer.emails}
+          scope={SCOPE}
+          Trigger={RecordTableInlineCell.Trigger}
+          onSave={(value) => edit.mutate({ id: customer.id, ...value })}
+        />
+      );
+    },
     size: 250,
   },
   {
     id: 'phones',
     accessorKey: 'primaryPhone',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label="Phones" />,
-    cell: ({ row }) => <PhonesCell customer={row.original} />,
-    size: 220,
+    header: () => <RecordTable.InlineHead label={t('customer.phones')} icon={IconPhone} />,
+    cell: function PhonesCell({ row }) {
+      const edit = useCustomerEdit();
+      const customer = row.original;
+
+      return (
+        <ContactPhones
+          id={customer.id}
+          primaryPhone={customer.primaryPhone}
+          phones={customer.phones}
+          scope={SCOPE}
+          Trigger={RecordTableInlineCell.Trigger}
+          onSave={(value) => edit.mutate({ id: customer.id, ...value })}
+        />
+      );
+    },
+    size: 250,
   },
   {
     id: 'tagIds',
     accessorKey: 'tagIds',
-    header: () => <RecordTable.InlineHead icon={IconTags} label="Tags" />,
-    cell: ({ row }) => <TagsCell customer={row.original} />,
-    size: 260,
+    header: () => <RecordTable.InlineHead label={t('customer.tags')} icon={IconTags} />,
+    cell: function TagsCell({ row }) {
+      const edit = useCustomerEdit();
+
+      return (
+        <TagsSelect.InlineCell
+          type="customer"
+          mode="multiple"
+          scope={SCOPE}
+          value={row.original.tagIds}
+          onValueChange={(tagIds) => edit.mutate({ id: row.original.id, tagIds })}
+        />
+      );
+    },
+    size: 360,
   },
   {
     id: 'sex',
     accessorKey: 'sex',
-    header: () => <RecordTable.InlineHead icon={IconGenderMale} label="Sex" />,
-    cell: ({ row }) => <SexCell customer={row.original} />,
-  },
-  {
-    id: 'position',
-    accessorKey: 'position',
-    header: () => <RecordTable.InlineHead icon={IconBriefcase} label="Position" />,
-    cell: ({ row }) => <TextCell customer={row.original} field="position" />,
-    size: 200,
+    header: () => <RecordTable.InlineHead label={t('customer.sex')} icon={IconGenderMale} />,
+    cell: ({ row }) => <CustomerSexCell customer={row.original} />,
   },
   {
     id: 'owner',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUserCircle} label="Owner" />,
-    cell: ({ row }) => <OwnerCell customer={row.original} />,
-    size: 200,
+    header: () => <RecordTable.InlineHead label={t('customer.owner')} icon={IconUser} />,
+    cell: function OwnerCell({ row }) {
+      const edit = useCustomerEdit();
+
+      return (
+        <SelectMember.InlineCell
+          value={row.original.ownerId}
+          scope={`${SCOPE}.${row.original.id}.owner`}
+          onValueChange={(ownerId) =>
+            edit.mutate({ id: row.original.id, ownerId: typeof ownerId === 'string' ? ownerId : null })
+          }
+        />
+      );
+    },
+    size: 250,
   },
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendarPlus} label="Created" />,
+    header: () => <RecordTable.InlineHead label={t('customer.created-at')} icon={IconCalendarPlus} />,
     cell: ({ row }) => <DateCell value={row.original.createdAt} />,
   },
 ];
 
 /** The customer columns plus one per custom field. */
 export const useCustomersColumns = () => {
+  const { t } = useTranslation('contact');
   const { fields } = useFields('customer');
 
   return useMemo(
-    () => [...customersColumns, ...customFieldColumns<Customer>(fields, useCustomerFieldsSave, SCOPE)],
-    [fields],
+    () => [...createCustomersColumns(t), ...customFieldColumns<Customer>(fields, useCustomerFieldsSave, SCOPE)],
+    [fields, t],
   );
 };

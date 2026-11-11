@@ -17,7 +17,7 @@ import { useAppTabs } from './useAppTabs';
 export const CoreTab = () => {
   const { organization } = useSession();
   const apps = useNavApps();
-  const { routeApp, tabs, open, close } = useAppTabs(apps);
+  const { routeApp, tabs, open, close, closeOthers, closeToRight, move } = useAppTabs(apps);
 
   return (
     <Tooltip.Provider delayDuration={300}>
@@ -32,7 +32,15 @@ export const CoreTab = () => {
           </Button>
         </CoreTabTooltip>
         <CoreTabAppSwitcher apps={apps} activeId={routeApp?.id} onSelect={open} />
-        <CoreTabAppTabs tabs={tabs} activeId={routeApp?.id} onSelect={open} onClose={close} />
+        <CoreTabAppTabs
+          tabs={tabs}
+          activeId={routeApp?.id}
+          onSelect={open}
+          onClose={close}
+          onCloseOthers={closeOthers}
+          onCloseToRight={closeToRight}
+          onMove={move}
+        />
         <div className="flex shrink-0 items-center gap-0.5">
           <CoreTabTooltip label={SETTINGS_APP.label}>
             <Button

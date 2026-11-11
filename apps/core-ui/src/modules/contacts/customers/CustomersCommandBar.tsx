@@ -1,75 +1,93 @@
-import type { Customer, CustomerState } from '@erxes/core-contract';
-import { IconArrowMerge, IconArrowsExchange, IconTrash } from '@tabler/icons-react';
-import { Button, CommandBar, RecordTable, Separator, useConfirm, useQueryState } from 'erxes-ui';
+import type { Customer } from '@erxes/core-contract';
+import { IconRepeat, IconTrash } from '@tabler/icons-react';
+import { Button, Command, CommandBar, Popover, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSession } from '~/modules/auth/session';
-import { BulkTagButton } from '~/modules/tags/BulkTagButton';
+import { useSidePanel } from '~/modules/side-panel/useSidePanel';
+import { TagsSelect } from '~/modules/tags/TagsSelect';
+import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton';
 import { MergeDialog } from '../components/MergeDialog';
-import {
-  CUSTOMER_SHEET_PARAM,
-  customerName,
-  useCustomerEdit,
-  useCustomersMerge,
-  useCustomersRemove,
-  useCustomersTag,
-} from './useCustomers';
+import { customerTitle } from '../components/ContactPicker';
+import { CustomersChangeState } from './CustomersChangeState';
+import { useCustomersMerge, useCustomersRemove, useCustomersTag } from './useCustomers';
 
 /** Actions on the selected rows, at the bottom of the screen (old core-ui). */
 export const CustomersCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { user } = useSession();
   const { confirm } = useConfirm();
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t: tContact } = useTranslation('contact', { keyPrefix: 'customer' });
+  const { openRecord } = useSidePanel();
   const remove = useCustomersRemove();
-  const edit = useCustomerEdit();
   const tag = useCustomersTag();
   const merge = useCustomersMerge();
-  const [, setOpenId] = useQueryState<string>(CUSTOMER_SHEET_PARAM);
+  const [open, setOpen] = useState(false);
   const [merging, setMerging] = useState(false);
-  const rows = table.getFilteredSelectedRowModel().rows;
-  const customers = rows.map((row) => row.original as Customer);
-  const ids = customers.map((customer) => customer.id);
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const customers = selectedRows.map((row) => row.original as Customer);
+  const customerIds = customers.map((customer) => customer.id);
+  const tagIds = commonTagIds(customers);
+  // Owners and admins merge and delete (core's rule).
   const manager = user.role !== 'member';
-  const target: CustomerState = customers.every((customer) => customer.state === 'lead') ? 'customer' : 'lead';
-
-  const done = () => table.resetRowSelection();
 
   return (
     <>
-      <CommandBar open={rows.length > 0 && !merging}>
+      <CommandBar open={selectedRows.length > 0 && !merging}>
         <CommandBar.Bar>
-          <CommandBar.Value onClose={done}>{rows.length} selected</CommandBar.Value>
+          <CommandBar.Value>{tContact('selected', { selectedCount: selectedRows.length })}</CommandBar.Value>
           <Separator.Inline />
-          <BulkTagButton type="customer" records={customers} onChange={(change) => tag.mutate({ ids, ...change })} />
-          <Button
+          <TagsSelect
+            type="customer"
+            mode="multiple"
             variant="secondary"
-            onClick={async () => {
-              await Promise.all(ids.map((id) => edit.mutateAsync({ id, state: target })));
-              done();
-            }}
-          >
-            <IconArrowsExchange />
-            Move to {target === 'lead' ? 'leads' : 'customers'}
-          </Button>
+            className="shadow-none"
+            value={tagIds}
+            onValueChange={(next) => tag.mutate({ ids: customerIds, ...tagChange(tagIds, next) })}
+          />
+          <Separator.Inline />
+          <CustomersChangeState customers={customers} />
           {manager && (
             <>
-              <Button variant="secondary" disabled={rows.length < 2 || rows.length > 10} onClick={() => setMerging(true)}>
-                <IconArrowMerge />
-                Merge
-              </Button>
               <Separator.Inline />
-              <Button
-                variant="secondary"
-                className="text-destructive"
-                onClick={() =>
-                  confirm({
-                    message: `Delete ${rows.length} selected?`,
-                    options: { okLabel: 'Delete', variants: { ok: 'destructive' } },
-                  }).then(() => remove.mutate(ids, { onSuccess: done }))
-                }
-              >
-                <IconTrash />
-                Delete
-              </Button>
+              <MergeButton
+                label={tContact('action-merge')}
+                tooltip={tContact('merge-tooltip')}
+                disabled={selectedRows.length !== 2}
+                onClick={() => setMerging(true)}
+              />
+              <Separator.Inline />
+              <Popover open={open} onOpenChange={setOpen}>
+                <Popover.Trigger asChild>
+                  <Button variant="secondary">
+                    <IconRepeat />
+                    {t('actions')}
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Content className="min-w-[280px] p-0" align="end" side="top" sideOffset={10}>
+                  <Command>
+                    <Command.List className="p-0">
+                      <Command.Group className="p-1">
+                        <Command.Item
+                          className="text-destructive"
+                          onSelect={() => {
+                            setOpen(false);
+                            void confirm({
+                              message: tContact('confirm-delete-selected', { count: customerIds.length }),
+                            }).then(() =>
+                              remove.mutate(customerIds, { onSuccess: () => table.setRowSelection({}) }),
+                            );
+                          }}
+                        >
+                          <IconTrash />
+                          {tContact('action-delete')}
+                        </Command.Item>
+                      </Command.Group>
+                    </Command.List>
+                  </Command>
+                </Popover.Content>
+              </Popover>
             </>
           )}
         </CommandBar.Bar>
@@ -81,17 +99,17 @@ export const CustomersCommandBar = () => {
         merging={merge.isPending}
         records={customers.map((customer) => ({
           id: customer.id,
-          title: customerName(customer) || customer.primaryEmail || customer.primaryPhone || 'Unnamed',
+          title: customerTitle(customer) || 'Unnamed',
           details: [customer.primaryEmail ?? '', customer.primaryPhone ?? '', customer.state === 'lead' ? 'Lead' : ''],
         }))}
         onMerge={(keepId) =>
           merge.mutate(
-            { ids, keepId },
+            { ids: customerIds, keepId },
             {
               onSuccess: (customer) => {
                 setMerging(false);
-                done();
-                setOpenId(customer.id);
+                table.resetRowSelection(true);
+                openRecord({ contentType: 'core:customer', contentId: customer.id });
               },
             },
           )

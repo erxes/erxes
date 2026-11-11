@@ -1,0 +1,37 @@
+import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
+import { Component, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+
+// One broken widget shows this in its own tile; the rest keep working.
+export const DashboardTileCrashState = ({ onRetry }: { onRetry: () => void }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'home.dashboard' });
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-background p-4 text-center text-sm text-muted-foreground">
+      <IconAlertTriangle className="size-5 text-warning" />
+      <span>{t('widget-crashed')}</span>
+      <Button variant="secondary" size="sm" onClick={onRetry}>
+        <IconRefresh />
+        {t('try-again')}
+      </Button>
+    </div>
+  );
+};
+
+/** What `react-error-boundary` did in old core-ui, for one tile. */
+export class DashboardTileErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    return this.state.failed ? (
+      <DashboardTileCrashState onRetry={() => this.setState({ failed: false })} />
+    ) : (
+      this.props.children
+    );
+  }
+}

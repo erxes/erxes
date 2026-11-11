@@ -1,15 +1,12 @@
 import { Spinner } from 'erxes-ui';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { CompaniesPage } from '~/modules/contacts/companies/CompaniesPage';
-import { ContactsLayout } from '~/modules/contacts/ContactsLayout';
-import { CustomersPage } from '~/modules/contacts/customers/CustomersPage';
+import { Route, Routes } from 'react-router-dom';
 import { PluginPage } from '~/modules/plugins/PluginPage';
+import { SettingsRoutes } from '~/modules/settings/SettingsRoutes';
 import { usePlugins } from '~/modules/plugins/usePlugins';
-import { OrganizationPage } from '~/modules/settings/organization/OrganizationPage';
-import { PropertiesPage } from '~/modules/settings/properties/PropertiesPage';
-import { SettingsLayout } from '~/modules/settings/SettingsLayout';
-import { TagsSettingsPage } from '~/modules/settings/tags/TagsSettingsPage';
-import { TeamMembersPage } from '~/modules/settings/team-members/TeamMembersPage';
+import { ContactsRoutes } from '~/modules/contacts/ContactsRoutes';
+import { HomePage } from '~/modules/home/HomePage';
+import { MainOnboardingPage } from '~/modules/onboarding/MainOnboardingPage';
+import { OnboardingGuard } from '~/modules/onboarding/OnboardingGuard';
 import { MainLayout } from './MainLayout';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -44,23 +41,18 @@ const PluginRoutes = () => {
 
 export const AppRoutes = () => (
   <Routes>
-    <Route element={<MainLayout />}>
-      <Route index element={<Navigate to="/contacts/customers" replace />} />
-      <Route path="contacts" element={<ContactsLayout />}>
-        <Route index element={<Navigate to="customers" replace />} />
-        <Route path="customers" element={<CustomersPage key="customer" state="customer" />} />
-        <Route path="leads" element={<CustomersPage key="lead" state="lead" />} />
-        <Route path="companies" element={<CompaniesPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-      <Route path="settings" element={<SettingsLayout />}>
-        <Route index element={<Navigate to="team-members" replace />} />
-        <Route path="team-members" element={<TeamMembersPage />} />
-        <Route path="tags" element={<TagsSettingsPage />} />
-        <Route path="properties" element={<PropertiesPage />} />
-        <Route path="organization" element={<OrganizationPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
+    {/* First sign-in steps, full screen (old AppPath.MainOnboarding). */}
+    <Route path="welcome" element={<MainOnboardingPage />} />
+    <Route
+      element={
+        <OnboardingGuard>
+          <MainLayout />
+        </OnboardingGuard>
+      }
+    >
+      <Route index element={<HomePage />} />
+      <Route path="contacts/*" element={<ContactsRoutes notFound={<NotFoundPage />} />} />
+      <Route path="settings/*" element={<SettingsRoutes />} />
       <Route path="*" element={<PluginRoutes />} />
     </Route>
   </Routes>

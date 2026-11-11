@@ -58,11 +58,50 @@ export const useAppTabs = (apps: NavApp[]) => {
     }
   };
 
+  /** Closes tabs and, if the active one went, moves to the first that is left. */
+  const keepOnly = (keep: (id: string, index: number) => boolean) => {
+    const rest = openIds.filter(keep);
+
+    setOpenIds(rest);
+
+    if (routeApp && !rest.includes(routeApp.id) && routeApp.id !== SETTINGS_APP.id) {
+      const next = apps.find((app) => app.id === rest[0]);
+
+      if (next) open(next);
+      else navigate('/');
+    }
+  };
+
+  const closeOthers = (id: string) => keepOnly((openId) => openId === id);
+
+  const closeToRight = (id: string) => {
+    const index = openIds.indexOf(id);
+
+    keepOnly((_openId, i) => i <= index);
+  };
+
+  /** Drag and drop: puts `fromId` where `toId` is. */
+  const move = (fromId: string, toId: string) =>
+    setOpenIds((previous) => {
+      const from = previous.indexOf(fromId);
+      const to = previous.indexOf(toId);
+
+      if (from < 0 || to < 0) return previous;
+
+      const next = [...previous];
+      next.splice(to, 0, ...next.splice(from, 1));
+
+      return next;
+    });
+
   return {
     routeApp,
     // Tabs of plugins that are still loading (or gone) are kept but not drawn.
     tabs: openIds.flatMap((id) => apps.filter((app) => app.id === id)),
     open,
     close,
+    closeOthers,
+    closeToRight,
+    move,
   };
 };
