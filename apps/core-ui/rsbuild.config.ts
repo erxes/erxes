@@ -35,6 +35,9 @@ export default defineConfig({
     pluginReact(),
     pluginModuleFederation({
       name: 'core',
+      // The host exposes nothing and loads remotes at runtime, so there are no
+      // federated types to build (the dts plugin also needs TypeScript 5's API).
+      dts: false,
       shared: Object.fromEntries(
         SHARED.map((name) => [name, { singleton: true, requiredVersion: false }]),
       ),
