@@ -40,7 +40,12 @@ export const AccountingHeader = ({
                 </Link>
               </Button>
             </Breadcrumb.Item>
-            <Breadcrumb.Item>{leftChildren}</Breadcrumb.Item>
+            {leftChildren && (
+              <>
+                <Breadcrumb.Separator />
+                <Breadcrumb.Item>{leftChildren}</Breadcrumb.Item>
+              </>
+            )}
           </Breadcrumb.List>
         </Breadcrumb>
         <Separator.Inline />

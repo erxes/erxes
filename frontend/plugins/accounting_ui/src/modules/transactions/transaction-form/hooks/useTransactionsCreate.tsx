@@ -43,6 +43,7 @@ export const useTransactionsCreate = (
         toast({
           title: t('success'),
           description: t('transactions-created-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

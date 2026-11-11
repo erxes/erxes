@@ -8,7 +8,6 @@ import {
   Checkbox,
   DateInput,
   DatePicker,
-  Dialog,
   Form,
   IconComponent,
   Input,
@@ -508,11 +507,11 @@ const ReportFilterForm = ({
             reportConfig={reportConfig}
           />
         ))}
-        <Dialog.Footer className="mt-4">
-          <Button type="submit" size="lg" disabled={!canSubmit}>
+        <div className="mt-4 flex justify-end">
+          <Button type="submit" disabled={!canSubmit}>
             {t('view-report')}
           </Button>
-        </Dialog.Footer>
+        </div>
       </form>
     </Form>
   );
