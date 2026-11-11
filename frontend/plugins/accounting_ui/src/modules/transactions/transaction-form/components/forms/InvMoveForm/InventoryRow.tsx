@@ -2,6 +2,8 @@ import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
+import { DetailAmountCell } from '@/transactions/transaction-form/components/forms/DetailAmountCell';
+import { FxaDetailLocationCells } from '@/transactions/transaction-form/components/forms/FxaDetailLocationCells';
 import {
   Checkbox,
   cn,
@@ -347,70 +349,16 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <Table.Cell>
-        <RecordTableInlineCell>
-          {(unitPrice ?? 0).toLocaleString()}
-        </RecordTableInlineCell>
-      </Table.Cell>
-      <Table.Cell>
-        <RecordTableInlineCell>
-          {(detail.amount ?? 0).toLocaleString()}
-        </RecordTableInlineCell>
-      </Table.Cell>
+      <DetailAmountCell value={unitPrice} />
+      <DetailAmountCell value={detail.amount} />
       {showAdvancedView && (
         <>
-          <RecordTableHotKeyControl
-            rowId={_id}
-            rowIndex={detailIndex}
-            enableOnFormTags
-          >
-            <Table.Cell>
-              <Form.Field
-                control={form.control}
-                name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Control>
-                      <SelectBranches.InlineCell
-                        mode="single"
-                        value={field.value ?? ''}
-                        onValueChange={(branch) => field.onChange(branch)}
-                        scope={AccountingHotkeyScope.TransactionFormPage}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </Table.Cell>
-          </RecordTableHotKeyControl>
-          <RecordTableHotKeyControl
-            rowId={_id}
-            rowIndex={detailIndex}
-            enableOnFormTags
-          >
-            <Table.Cell>
-              <Form.Field
-                control={form.control}
-                name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Control>
-                      <SelectDepartments.InlineCell
-                        mode="single"
-                        value={field.value ?? ''}
-                        onValueChange={(department) =>
-                          field.onChange(department)
-                        }
-                        scope={AccountingHotkeyScope.TransactionFormPage}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </Table.Cell>
-          </RecordTableHotKeyControl>
+          <FxaDetailLocationCells
+            detailId={_id}
+            detailIndex={detailIndex}
+            form={form}
+            journalIndex={journalIndex}
+          />
           <RecordTableHotKeyControl
             rowId={_id}
             rowIndex={detailIndex}
