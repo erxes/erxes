@@ -201,7 +201,7 @@ export const putResponseQueries = {
     params,
     { models, subdomain, checkPermission }: IContext,
   ) => {
-    await checkPermission('ebarimt:putResponses');
+    await checkPermission('putResponses');
     const { orderBy } = params;
     if (!orderBy || !Object.keys(orderBy).length) {
       params.orderBy = { createdAt: -1 };
@@ -220,7 +220,7 @@ export const putResponseQueries = {
     params,
     { models, subdomain, checkPermission }: IContext,
   ) => {
-    await checkPermission('ebarimt:putResponsesCount');
+    await checkPermission('putResponsesCount');
     const filter = await generateFilter(subdomain, params);
 
     return models.PutResponses.find(filter).countDocuments();
@@ -241,7 +241,7 @@ export const putResponseQueries = {
     },
     { subdomain, models, checkPermission }: IContext,
   ) => {
-    await checkPermission('ebarimt:putResponseDetail');
+    await checkPermission('putResponseDetail');
 
     return getPutResponseDetail({
       contentType,
@@ -258,7 +258,7 @@ export const putResponseQueries = {
     params,
     { models, subdomain, checkPermission }: IContext,
   ) => {
-    await checkPermission('ebarimt:putResponsesAmount');
+    await checkPermission('putResponsesAmount');
     const filter = await generateFilter(subdomain, params);
     const res = await models.PutResponses.aggregate([
       { $match: filter },
@@ -278,7 +278,7 @@ export const putResponseQueries = {
     params,
     { models, subdomain, checkPermission }: IContext,
   ) => {
-    await checkPermission('ebarimt:putResponsesByDate');
+    await checkPermission('putResponsesByDate');
     const { createdStartDate, createdEndDate, paidDate } = params;
 
     if (!((createdStartDate && createdEndDate) || paidDate === 'today')) {
@@ -355,7 +355,7 @@ export const putResponseQueries = {
     params,
     { models, checkPermission }: IContext,
   ) => {
-    await checkPermission('ebarimt:putResponsesDuplicated');
+    await checkPermission('putResponsesDuplicated');
     const filter = await genDuplicatedFilter(params);
 
     const { perPage = 20, page = 1 } = params;
@@ -438,7 +438,7 @@ export const putResponseQueries = {
     params,
     { models, checkPermission }: IContext,
   ) => {
-    await checkPermission('ebarimt:putResponsesDuplicatedCount');
+    await checkPermission('putResponsesDuplicatedCount');
     const filter = await genDuplicatedFilter(params);
 
     const res = await models.PutResponses.aggregate([
@@ -470,7 +470,7 @@ export const putResponseQueries = {
     { contentId, taxType }: { contentId: string; taxType: string },
     { models, checkPermission }: IContext,
   ) => {
-    await checkPermission('ebarimt:putResponsesDuplicatedDetail');
+    await checkPermission('putResponsesDuplicatedDetail');
     return models.PutResponses.find({ contentId, taxType }).lean();
   },
 };
