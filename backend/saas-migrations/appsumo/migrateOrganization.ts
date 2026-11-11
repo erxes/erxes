@@ -166,6 +166,7 @@ function buildOrganization(
   owner: Owner,
   runId: string,
   plan: Plan,
+  appsumoCodes: number,
 ): CoreDocument {
   const now = new Date();
 
@@ -198,6 +199,9 @@ function buildOrganization(
       sourceOrganizationId: sourceId,
       sourceSubdomain: held ? held.subdomain : sourceRef,
       sourcePlan: held ? held.plan : undefined,
+      appsumoCodes,
+      appsumoTier:
+        appsumoCodes > 0 ? `appsumo${Math.min(appsumoCodes, 5)}` : undefined,
       paymentType: 'free',
       invoiceAfterGift: false,
       provisionedAt: now,
@@ -447,6 +451,13 @@ async function main() {
       );
     }
 
+    const appsumoCodes = held
+      ? await coreDb.collection('promo_codes').countDocuments({
+          type: 'appsumo',
+          status: 'redeemed',
+          usedBy: held.subdomain,
+        })
+      : 0;
     const doc = buildOrganization(
       held,
       sourceId,
@@ -454,6 +465,7 @@ async function main() {
       owner,
       runId,
       await resolvePlan(coreDb),
+      appsumoCodes,
     );
 
     if (!isDryRun) {
