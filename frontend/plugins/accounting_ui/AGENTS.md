@@ -232,6 +232,8 @@
 
 ## Local Invariants
 
+- Transaction tax forms, Zod schemas, defaults, and mutation payloads use the API field names `isHandleVat` and `isHandleCtax` for manual tax amounts. Never introduce `handleVat`/`handleCtax` form fields: GraphQL rejects those keys and persisted manual-tax flags must survive edit initialization.
+
 - Out, move and sale journals retain separate form/table/row components so journal-specific behavior can evolve independently. `components/helpers/fxaHelpers.ts` supplies detail defaults and owner-record display codes; owner sequences come from persisted `sequence`, never by parsing display codes.
 
 - FXA out/sale/move forms omit source header branch/department selectors. Their choosers and remainder limits use detail locations, and bulk selection does not inherit a hidden header filter. Movement destination selectors remain available. Disposal previews copy each source detail location into all generated follow rows.

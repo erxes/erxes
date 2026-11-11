@@ -8,7 +8,7 @@ import { undefed } from '~/modules/types/utils';
 // #region common:
 export const vatSchema = z.object({
   hasVat: undefed(z.boolean()),
-  handleVat: undefed(z.boolean()),
+  isHandleVat: undefed(z.boolean()),
   afterVat: undefed(z.boolean()),
   vatRowId: undefed(z.string()),
   vatAmount: undefed(z.number()),
@@ -16,7 +16,7 @@ export const vatSchema = z.object({
 
 export const ctaxSchema = z.object({
   hasCtax: undefed(z.boolean()),
-  handleCtax: undefed(z.boolean()),
+  isHandleCtax: undefed(z.boolean()),
   ctaxRowId: undefed(z.string()),
   ctaxAmount: undefed(z.number()),
 });
@@ -713,8 +713,8 @@ export const trDocSchema = z
   )
   .refine(
     (data) => {
-      if ('handleVat' in data) {
-        if (data.handleVat && !data.vatAmount) {
+      if ('isHandleVat' in data) {
+        if (data.isHandleVat && !data.vatAmount) {
           return false;
         }
       }
