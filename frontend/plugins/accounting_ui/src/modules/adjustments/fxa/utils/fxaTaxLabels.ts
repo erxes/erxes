@@ -2,6 +2,31 @@ import type { TFunction } from 'i18next';
 import { getI18n } from 'react-i18next';
 
 const labels: Record<string, { en: string; mn: string }> = {
+  'fixed-asset-deferred-tax': {
+    en: 'Fixed asset deferred tax',
+    mn: 'Үндсэн хөрөнгийн хойшлогдсон татвар',
+  },
+  'fixed-asset-revaluation-result': {
+    en: 'Fixed asset revaluation result',
+    mn: 'Дахин үнэлгээний нөөц / алдагдал',
+  },
+  'revaluation-reserve-account': {
+    en: 'Revaluation reserve account',
+    mn: 'Дахин үнэлгээний нөөцийн данс',
+  },
+  'revaluation-loss-account': {
+    en: 'Revaluation loss account',
+    mn: 'Дахин үнэлгээний алдагдлын данс',
+  },
+  'fxa-revaluation-accounts-required': {
+    en: 'Configure the revaluation reserve/loss accounts for the fixed asset account.',
+    mn: 'Үндсэн хөрөнгийн дансанд дахин үнэлгээний нөөц/алдагдлын дансны харгалзааг тохируулна уу.',
+  },
+  'business-depreciation-rules': {
+    en: 'Business depreciation',
+    mn: 'Бизнесийн элэгдэл',
+  },
+  'tax-depreciation-rules': { en: 'Tax depreciation', mn: 'Татварын элэгдэл' },
   'fxa-income-tax-rate-required': {
     en: 'Enter an income tax rate between 0 and 100 on the acquisition rules.',
     mn: 'Орлогын дүрэмд ААНОАТ-ын хувийг 0–100 хооронд оруулна уу.',
@@ -15,8 +40,8 @@ const labels: Record<string, { en: string; mn: string }> = {
     mn: 'Капиталжуулалтын элэгдлийн зөрүүнд хэрэглэх ААНОАТ-ын хувийг оруулна уу.',
   },
   'fxa-capital-tax-accounts-required': {
-    en: 'Configure deferred tax and income tax expense accounts for this asset account.',
-    mn: 'Хөрөнгийн дансанд хойшлогдсон татварын болон татварын зардлын дансыг тохируулна уу.',
+    en: 'Configure the required deferred tax and revaluation accounts for this asset account.',
+    mn: 'Хөрөнгийн дансны хойшлогдсон татвар болон дахин үнэлгээний шаардлагатай харгалзаануудыг тохируулна уу.',
   },
   'tax-useful-life-in-years': {
     en: 'Tax useful life (years)',

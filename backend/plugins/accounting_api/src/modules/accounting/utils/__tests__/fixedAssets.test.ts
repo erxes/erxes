@@ -2271,7 +2271,7 @@ test('income saves the tax toggle and posts both book opening depreciation and a
   );
   expect(raw.Transactions.createTransaction).toHaveBeenCalledWith(
     expect.objectContaining({
-      journal: JOURNALS.MAIN,
+      journal: JOURNALS.FXA_DEFERRED_TAX,
       originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
       side: TR_SIDES.DEBIT,
       details: [
@@ -2282,7 +2282,7 @@ test('income saves the tax toggle and posts both book opening depreciation and a
   );
   expect(raw.Transactions.createTransaction).not.toHaveBeenCalledWith(
     expect.objectContaining({
-      journal: JOURNALS.MAIN,
+      journal: JOURNALS.FXA_DEFERRED_TAX,
       originType: TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
       side: TR_SIDES.CREDIT,
       details: [

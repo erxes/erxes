@@ -74,7 +74,11 @@ const getDepreciationBaseError = (
     return 'Annual depreciation rate is required to calculate depreciation';
   }
 
-  if (!originalCost || originalCost <= 0) {
+  if (
+    originalCost === undefined ||
+    !Number.isFinite(originalCost) ||
+    originalCost < 0
+  ) {
     return 'Original cost is required to calculate depreciation';
   }
 
@@ -308,12 +312,15 @@ export const calculateFxaTaxDepreciation = ({
 }): Map<string, { amount: number; accumulated: number; error: string }> => {
   const amounts = new Map<string, number>();
   let accumulatedPerUnit = fixedAsset.taxOpeningDepreciation || 0;
+  let depreciationBase: number | undefined;
+  let taxScheduleStartDate = getPureDate(fixedAsset.depreciationStartDate);
   let date = getPureDate(fixedAsset.acquisitionDate);
   let error = '';
-  // Replay the tax schedule from acquisition. Book postings and book revaluations
-  // never become tax depreciation inputs; disposals remove their proportional base.
+  // Shared dated cost, independent tax method/rate/accumulation.
+  // Book depreciation postings never become tax depreciation expense.
   while (date <= endDate) {
     const rules = getFxaRulesAtDate(fixedAsset, corrections, date);
+    const originalCost = rules.originalCost ?? fixedAsset.originalCost;
     const method =
       rules.taxDepreciationMethod || fixedAsset.taxDepreciationMethod;
     const rate =
@@ -325,7 +332,7 @@ export const calculateFxaTaxDepreciation = ({
       rate > 100 ||
       !Number.isFinite(salvage) ||
       salvage < 0 ||
-      salvage > fixedAsset.originalCost ||
+      salvage > originalCost ||
       !FIXED_ASSET_DEPRECIATION_METHODS.ALL.includes(method) ||
       method === 'manual'
     ) {
@@ -343,31 +350,37 @@ export const calculateFxaTaxDepreciation = ({
         (correction) =>
           correction.fixedAssetId === fixedAsset._id &&
           isSamePureDate(correction.date, date) &&
-          correction.rules.taxPreDeprecation !== undefined,
+          (correction.rules.taxPreDeprecation !== undefined ||
+            correction.rules.originalCost !== undefined),
       )
-      .at(-1)?.rules.taxPreDeprecation;
-    if (reset !== undefined && totalCount > 0)
-      accumulatedPerUnit = reset / totalCount;
+      .at(-1);
+    if (reset && totalCount > 0) {
+      if (reset.rules.taxPreDeprecation !== undefined)
+        accumulatedPerUnit = reset.rules.taxPreDeprecation / totalCount;
+      depreciationBase = Math.max(
+        originalCost - accumulatedPerUnit - salvage,
+        0,
+      );
+      taxScheduleStartDate = getPureDate(rules.depreciationStartDate || date);
+    }
     if (
       !Number.isFinite(accumulatedPerUnit) ||
       accumulatedPerUnit < 0 ||
-      accumulatedPerUnit > fixedAsset.originalCost
+      accumulatedPerUnit > originalCost
     ) {
       error =
-        'Tax accumulated depreciation must be between zero and acquisition cost.';
+        'Tax accumulated depreciation must be between zero and shared asset cost.';
       break;
     }
-    if (
-      getTotalCount(counts) > 0 &&
-      date >= getPureDate(fixedAsset.depreciationStartDate)
-    ) {
+    if (getTotalCount(counts) > 0 && date >= taxScheduleStartDate) {
       const result = calculateDepreciationByMethod(method, {
-        originalCost: fixedAsset.originalCost,
+        originalCost,
         annualDepreciationRate: rate,
         salvageValue: salvage,
         startDate: date,
         endDate: date,
-        scheduleStartDate: fixedAsset.depreciationStartDate,
+        scheduleStartDate: taxScheduleStartDate,
+        depreciationBase,
         preDeprecation: accumulatedPerUnit,
       });
       error = result.error;

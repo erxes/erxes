@@ -1,3 +1,4 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import type { TFunction } from 'i18next';
 import {
   IconCalendar,
@@ -169,7 +170,7 @@ const JournalCell = ({ row }: { row: Row<ITrRecord> }) => {
 
   return (
     <RecordTableInlineCell>
-      {label ? t(label) : t('main')}
+      {label ? getFxaTaxLabel(t, label) : t('main')}
     </RecordTableInlineCell>
   );
 };

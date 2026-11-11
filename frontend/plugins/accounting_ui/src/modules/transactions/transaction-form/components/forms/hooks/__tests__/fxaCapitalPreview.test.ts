@@ -382,6 +382,8 @@ const taxAccounts = {
     taxAssetAccountId: 'tax-asset',
     taxLiabilityAccountId: 'tax-liability',
     TaxExpenseAccountId: 'tax-expense',
+    revaluationReserveAccountId: 'reserve',
+    revaluationLossAccountId: 'loss',
   },
 };
 const activeTaxValuation: TFxaCapitalValuation = {
@@ -425,9 +427,11 @@ test('capital preview allocates separate tax targets and posts only the change f
   ).toEqual([60, 30]);
   const tax =
     result?.follows.filter((row) => row.originType === 'fxaDeferredTax') || [];
-  expect(tax).toHaveLength(2);
+  expect(tax).toHaveLength(1);
+  expect(tax[0].journal).toBe(TrJournalEnum.FXA_DEFERRED_TAX);
   expect(signedTax(tax, 'tax-asset')).toBe(-3);
-  expect(signedTax(tax, 'tax-expense')).toBe(3);
+  expect(signedTax(tax, 'tax-liability')).toBe(0);
+  expect(signedTax(tax, 'tax-expense')).toBe(0);
 });
 
 test('blank tax target retains dated tax depreciation while an explicit zero remains zero', () => {
@@ -492,13 +496,59 @@ test('tax preview merging preserves both saved sides and distinct account detail
     })),
   }));
   const merged = mergeFxaDepreciationFollows(saved, follows, doc._id, true);
-  expect(merged.map((row) => row._id)).toEqual(['saved-dt', 'saved-ct']);
+  expect(merged.map((row) => row._id)).toEqual(['saved-ct']);
   expect(
     new Set(merged.flatMap((row) => row.details.map((detail) => detail._id)))
       .size,
-  ).toBe(6);
+  ).toBe(4);
   expect(signedTax(merged, 'tax-asset')).toBe(-6);
   expect(signedTax(merged, 'tax-liability')).toBe(-3);
-  expect(signedTax(merged, 'tax-expense')).toBe(9);
+  expect(signedTax(merged, 'tax-expense')).toBe(0);
   expect(mergeFxaDepreciationFollows(merged, [], doc._id, true)).toEqual([]);
+});
+
+test('revaluation preview uses shared cost, matches reserve/loss, and balances its tax change', () => {
+  const doc = journal();
+  doc.journal = TrJournalEnum.FXA_REVALUATION;
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 90,
+  };
+  const result = buildFxaCapitalPreview(doc, activeTaxValuation, taxAccounts);
+  expect(result?.error).toBeUndefined();
+  expect(
+    result?.follows.some(
+      (tr) => tr.journal === TrJournalEnum.FXA_REVALUATION_RESULT,
+    ),
+  ).toBe(true);
+  expect(
+    result?.follows.some((tr) => tr.journal === TrJournalEnum.FXA_DEFERRED_TAX),
+  ).toBe(true);
+  expect(
+    result?.details.map((row) => row.followInfos?.taxPreDeprecation),
+  ).toEqual([60, 30]);
+  const all = [
+    { ...doc, side: result?.side, details: result?.details || [] },
+    ...(result?.follows || []),
+  ];
+  expect(
+    all.reduce(
+      (sum, tr) =>
+        sum +
+        (tr.side === 'dt' ? 1 : -1) *
+          tr.details.reduce((total, row) => total + (row.amount ?? 0), 0),
+      0,
+    ),
+  ).toBeCloseTo(0);
+  expect(signedTax(result?.follows || [], 'reserve')).toBeCloseTo(-117);
+  expect(signedTax(result?.follows || [], 'tax-asset')).toBeCloseTo(-3);
+  expect(signedTax(result?.follows || [], 'tax-expense')).toBeCloseTo(0);
+});
+
+test('revaluation missing reserve/loss matching reports a configuration error', () => {
+  const doc = journal();
+  doc.journal = TrJournalEnum.FXA_REVALUATION;
+  expect(buildFxaCapitalPreview(doc, valuation, {})?.error).toBe(
+    'fxa-revaluation-accounts-required',
+  );
 });

@@ -11,6 +11,7 @@ export type TFxaTaxDetail = TFxaTaxTotals &
   > & {
     transactionDetailId?: string;
     incomeTaxRate?: number;
+    reserveShare?: number;
   };
 
 export const getFxaSourceTaxDetail = (

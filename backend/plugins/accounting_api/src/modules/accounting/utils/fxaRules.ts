@@ -121,9 +121,6 @@ export const getFxaCorrections = async (
       )
         continue;
       const rules = readFxaCapitalRules(detail.followInfos);
-      if (transaction.journal !== JOURNALS.FXA_CAPITAL) {
-        delete rules.incomeTaxRate;
-      }
       const previous = byAsset.get(detail.fixedAssetId) || {};
       byAsset.set(detail.fixedAssetId, {
         ...previous,

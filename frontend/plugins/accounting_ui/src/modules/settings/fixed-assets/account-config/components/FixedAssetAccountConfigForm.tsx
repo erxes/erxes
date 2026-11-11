@@ -1,3 +1,4 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
 import { Form } from 'erxes-ui';
@@ -61,7 +62,7 @@ export const FixedAssetAccountConfigForm = ({
           control={form.control}
           name={`value.${name}`}
           render={({ field, fieldState }) => (
-            <PanelFormRow label={t(label)} error={fieldState.error?.message}>
+            <PanelFormRow label={getFxaTaxLabel(t, label)} error={fieldState.error?.message}>
               <SelectAccount.FormItem
                 mode="single"
                 value={field.value}

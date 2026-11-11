@@ -1,3 +1,4 @@
+import { buildFxaRevaluationPreview } from '@/transactions/transaction-form/components/forms/hooks/fxaRevaluationPreview';
 import {
   allocateFxaDepreciation,
   getTotalFxaDepreciation,
@@ -109,13 +110,8 @@ const buildFxaCapitalAssetPreview = (
     followInfos: {
       ...info,
       preDeprecation: locationDepreciation[index],
-      ...(!revaluation
-        ? {
-            taxPreDeprecation: locationTax[index],
-            incomeTaxRate:
-              info.incomeTaxRate ?? valuation.incomeTaxRate ?? undefined,
-          }
-        : {}),
+      taxPreDeprecation: locationTax[index],
+      incomeTaxRate: info.incomeTaxRate ?? valuation.incomeTaxRate ?? undefined,
       revaluationLoss: undefined,
       revaluationReserve: undefined,
       ...(revaluation
@@ -174,9 +170,14 @@ const buildFxaCapitalAssetPreview = (
       ]
     : [];
   const tax = buildFxaCapitalTaxPreview(trDoc, valuation, details, taxAccounts);
-  follows.push(...tax.follows);
+  const revaluationResult = buildFxaRevaluationPreview(
+    trDoc,
+    details,
+    taxAccounts,
+  );
+  follows.push(...revaluationResult.follows, ...tax.follows);
   return {
-    error: tax.error,
+    error: revaluationResult.error || tax.error,
     details,
     side: costDelta < 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
     follows,
@@ -258,16 +259,23 @@ export const mergeFxaDepreciationFollows = (
       row.originId !== originId ||
       (row.originType !== TrJournalEnum.FXA_DEP_IN &&
         row.originType !== TrJournalEnum.FXA_DEP_OUT &&
-        !(replaceTax && row.originType === TAX_ORIGIN)),
+        !(
+          replaceTax &&
+          (row.originType === TAX_ORIGIN ||
+            row.originType === TrJournalEnum.FXA_REVALUATION_RESULT)
+        )),
   );
   const next = [
     ...remaining,
     ...follows.map((row) => {
+      const isTaxOrRevaluation =
+        row.originType === TAX_ORIGIN ||
+        row.originType === TrJournalEnum.FXA_REVALUATION_RESULT;
       const saved = previous.find(
         (old) =>
           old.originId === originId &&
           old.originType === row.originType &&
-          (row.originType !== TAX_ORIGIN || old.side === row.side),
+          (!isTaxOrRevaluation || old.side === row.side),
       );
       return {
         ...saved,
@@ -277,8 +285,7 @@ export const mergeFxaDepreciationFollows = (
           const savedDetail = saved?.details.find(
             (old) =>
               old.fixedAssetId === detail.fixedAssetId &&
-              (row.originType !== TAX_ORIGIN ||
-                old.accountId === detail.accountId) &&
+              (!isTaxOrRevaluation || old.accountId === detail.accountId) &&
               (old.branchId || '') === (detail.branchId || '') &&
               (old.departmentId || '') === (detail.departmentId || ''),
           );

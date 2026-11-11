@@ -47,6 +47,8 @@ export type TFxaTaxAccounts = {
   asset?: string;
   liability?: string;
   expense?: string;
+  reserve?: string;
+  loss?: string;
 };
 
 export const getFxaTaxAccounts = async (
@@ -67,6 +69,16 @@ export const getFxaTaxAccounts = async (
         'taxLiabilityAccountId' in value &&
         typeof value.taxLiabilityAccountId === 'string'
           ? value.taxLiabilityAccountId
+          : undefined,
+      reserve:
+        'revaluationReserveAccountId' in value &&
+        typeof value.revaluationReserveAccountId === 'string'
+          ? value.revaluationReserveAccountId
+          : undefined,
+      loss:
+        'revaluationLossAccountId' in value &&
+        typeof value.revaluationLossAccountId === 'string'
+          ? value.revaluationLossAccountId
           : undefined,
       expense:
         'TaxExpenseAccountId' in value &&
@@ -92,10 +104,16 @@ export const getFxaDeferredTaxTransactions = async (
     | 'contentId'
   > & { _id: string },
   details: TFxaTaxDetail[],
-  options: { openingIncome?: boolean; sourceTransaction?: boolean } = {},
+  options: {
+    openingIncome?: boolean;
+    sourceTransaction?: boolean;
+    manualCounterpart?: boolean;
+  } = {},
 ): Promise<ITransaction[]> => {
   const { openingIncome = false } = options;
   const sourceTransaction = options.sourceTransaction || openingIncome;
+  const manualCounterpart =
+    options.manualCounterpart ?? Boolean(sourceTransaction);
   const mappings = await getFxaTaxAccounts(models);
   const accountIds = [
     ...new Set(
@@ -132,6 +150,7 @@ export const getFxaDeferredTaxTransactions = async (
   const credit: ITrDetail[] = [];
   for (const detail of details) {
     const target = getFxaTaxValues(detail, detail.incomeTaxRate);
+    if (target.temporaryDifference === undefined) continue;
     if (
       Math.abs(target.temporaryDifference ?? 0) > 0.005 &&
       (detail.incomeTaxRate === undefined ||
@@ -151,15 +170,26 @@ export const getFxaDeferredTaxTransactions = async (
     const liabilityDelta = roundAmount(
       (target.deferredTaxLiability || 0) + balance(mapping?.liability),
     );
-    if (Math.abs(assetDelta) < 0.0001 && Math.abs(liabilityDelta) < 0.0001)
+    const reserveChange = manualCounterpart
+      ? 0
+      : roundAmount((liabilityDelta - assetDelta) * (detail.reserveShare ?? 0));
+    const expenseChange = manualCounterpart
+      ? 0
+      : roundAmount(liabilityDelta - assetDelta - reserveChange);
+    if (
+      Math.abs(assetDelta) < 0.0001 &&
+      Math.abs(liabilityDelta) < 0.0001 &&
+      Math.abs(reserveChange) < 0.0001
+    )
       continue;
     if (
-      (!openingIncome && !mapping?.expense) ||
+      (expenseChange && !mapping?.expense) ||
+      (reserveChange && !mapping?.reserve) ||
       (assetDelta && !mapping?.asset) ||
       (liabilityDelta && !mapping?.liability)
     ) {
       throw new Error(
-        openingIncome
+        manualCounterpart
           ? 'Configure deferred tax asset/liability accounts for the fixed asset account.'
           : 'Configure deferred tax asset/liability and income tax expense accounts for the fixed asset account.',
       );
@@ -167,7 +197,8 @@ export const getFxaDeferredTaxTransactions = async (
     for (const [accountId, signedDebit] of [
       [mapping?.asset, assetDelta],
       [mapping?.liability, -liabilityDelta],
-      [mapping?.expense, openingIncome ? 0 : liabilityDelta - assetDelta],
+      [mapping?.reserve, reserveChange],
+      [mapping?.expense, expenseChange],
     ] as const) {
       if (!signedDebit || !accountId) continue;
       (signedDebit > 0 ? debit : credit).push({
@@ -197,7 +228,7 @@ export const getFxaDeferredTaxTransactions = async (
       ...row,
       date: adjust.date,
       description: adjust.description,
-      journal: JOURNALS.MAIN,
+      journal: JOURNALS.FXA_DEFERRED_TAX,
       status: sourceTransaction ? adjust.status : TR_STATUSES.COMPLETE,
       ...(sourceTransaction
         ? {

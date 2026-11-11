@@ -1,3 +1,4 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -138,7 +139,7 @@ const FixedAssetAccountConfigPanelDetail = ({
             />
           </PanelField>
           {FIXED_ASSET_RELATED_ACCOUNT_FIELDS.map(([name, label]) => (
-            <PanelField key={name} label={t(label)}>
+            <PanelField key={name} label={getFxaTaxLabel(t, label)}>
               <SelectAccount
                 mode="single"
                 scope={`${SCOPE}.${name}`}

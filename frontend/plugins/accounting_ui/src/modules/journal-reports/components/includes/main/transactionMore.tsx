@@ -1,3 +1,4 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { formatDate as format } from '@/utils/graphqlDate';
 import { useTranslation } from 'react-i18next';
 import { cn, displayNum, ReportTable } from 'erxes-ui';
@@ -128,7 +129,8 @@ export const HandleTransactionMore = ({
                     {transaction.ptrNumber || transaction.number || ''}
                   </ReportTable.Cell>
                   <ReportTable.Cell className="text-left">
-                    {t(
+                    {getFxaTaxLabel(
+                      t,
                       TR_JOURNAL_LABELS[transaction.journal as TrJournalEnum] ||
                         '',
                     ) || transaction.journal}

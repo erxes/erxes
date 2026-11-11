@@ -57,7 +57,7 @@ test.each([
       side,
       originId: 'income',
       originType: 'fxaDeferredTax',
-      journal: TrJournalEnum.MAIN,
+      journal: TrJournalEnum.FXA_DEFERRED_TAX,
       details: [
         expect.objectContaining({
           accountId,

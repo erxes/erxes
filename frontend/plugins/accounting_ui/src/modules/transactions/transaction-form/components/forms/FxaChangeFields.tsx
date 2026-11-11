@@ -59,9 +59,10 @@ export const FxaChangeNumberField = ({
       control={form.control}
       name={`trDocs.${index}.details.${detailIndex}.followInfos.${rule}`}
       render={({ field }) => {
+        const numericValue = field.value ?? fallbackValue;
         const value = usefulYears
-          ? getUsefulLifeFromRate(field.value)
-          : field.value ?? fallbackValue;
+          ? getUsefulLifeFromRate(numericValue)
+          : numericValue;
         const input = (
           <Input
             type="number"
@@ -134,19 +135,26 @@ export const FxaChangeNumberField = ({
 export const FxaChangeLifeFields = ({
   tax = false,
   className = 'grid grid-cols-2 gap-3',
+  fallbackRate,
   ...props
-}: IFxaChangeFieldProps & { tax?: boolean; className?: string }) => (
+}: IFxaChangeFieldProps & {
+  tax?: boolean;
+  className?: string;
+  fallbackRate?: number;
+}) => (
   <div className={className}>
     <FxaChangeNumberField
       {...props}
       rule={tax ? 'taxAnnualDepreciationRate' : 'annualDepreciationRate'}
       label={tax ? 'tax-useful-life-in-years' : 'useful-life-in-years'}
       usefulYears
+      fallbackValue={fallbackRate}
     />
     <FxaChangeNumberField
       {...props}
       rule={tax ? 'taxAnnualDepreciationRate' : 'annualDepreciationRate'}
       label={tax ? 'annual-tax-depreciation-rate' : 'annual-depreciation-rate'}
+      fallbackValue={fallbackRate}
     />
   </div>
 );
@@ -158,10 +166,12 @@ export const FxaChangeMethodField = ({
   capital,
   tax = false,
   income = false,
+  fallbackValue,
 }: IFxaChangeFieldProps & {
   capital: boolean;
   tax?: boolean;
   income?: boolean;
+  fallbackValue?: string;
 }) => {
   const { t } = useTranslation('accounting');
   return (
@@ -176,7 +186,11 @@ export const FxaChangeMethodField = ({
             {t(tax ? 'tax-depreciation-method' : 'depreciation-method')}
           </Form.Label>
           <Select
-            value={field.value || (capital ? 'straightLine' : 'unchanged')}
+            value={
+              field.value ||
+              fallbackValue ||
+              (capital ? 'straightLine' : 'unchanged')
+            }
             onValueChange={(value) =>
               field.onChange(value === 'unchanged' ? undefined : value)
             }

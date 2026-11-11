@@ -76,7 +76,7 @@ test.each([
   expect(row?.accumulated).toBeCloseTo(2200);
 });
 
-test('book cost/rate corrections never reset the tax cost or schedule', () => {
+test('cost changes are shared while business annual rates do not replace the tax rate', () => {
   const result = calculate({
     corrections: [
       {
@@ -91,7 +91,30 @@ test('book cost/rate corrections never reset the tax cost or schedule', () => {
       },
     ],
   });
-  expect(result.get('a:')?.accumulated).toBeCloseTo(80);
+  expect(result.get('a:')?.accumulated).toBeCloseTo(
+    40 + (((5000 - 20) * 0.2) / 12) * 2,
+  );
+});
+
+test('zero shared cost and zero accumulated targets stop tax depreciation without an error', () => {
+  const row = calculate({
+    corrections: [
+      {
+        fixedAssetId: 'asset',
+        date: new Date('2026-02-01T00:00:00'),
+        rules: { originalCost: 0, taxPreDeprecation: 0 },
+      },
+    ],
+  }).get('a:');
+  expect(row).toMatchObject({ amount: 0, accumulated: 0, error: '' });
+});
+
+test('unknown legacy tax totals do not clear existing deferred tax as if the target were zero', async () => {
+  expect(
+    await getFxaDeferredTaxTransactions(fixtures(postedLiability), adjust, [
+      detail,
+    ]),
+  ).toEqual([]);
 });
 
 test('tax rate correction is effective only from its business date', () => {
@@ -255,7 +278,7 @@ test('fully disposed location clears deferred liability even with zero book depr
   const docs = await getFxaDeferredTaxTransactions(
     fixtures(postedLiability),
     adjust,
-    [detail],
+    [{ ...detail, taxAccumulatedDepreciation: 0, accumulatedDepreciation: 0 }],
   );
   expect(signed(docs, 'dtl')).toBe(10);
   expect(signed(docs, 'expense')).toBe(-10);
@@ -448,7 +471,7 @@ test.each([1000, 0])(
 );
 
 test.each([
-  [80, 120],
+  [80, 80 + (((1200 - 80 / 2) * 0.2) / 12) * 2],
   [0, 40],
 ])(
   'dated capital tax target %s resets accumulation once and keeps period tax expense separate',
@@ -463,7 +486,9 @@ test.each([
     expect(calculate({ corrections }).get('a:')?.accumulated).toBeCloseTo(
       closing,
     );
-    expect(calculate({ corrections }).get('a:')?.amount).toBeCloseTo(40);
+    expect(calculate({ corrections }).get('a:')?.amount).toBeCloseTo(
+      closing - target,
+    );
     expect(
       calculate({
         corrections,

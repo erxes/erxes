@@ -1,3 +1,4 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { cn, NavigationMenuGroup, Sidebar, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -23,7 +24,7 @@ export const JournalNavigation = () => {
           >
             {journals.map((trJournal) => {
               const isActive = journal === trJournal;
-              const label = t(TR_JOURNAL_LABELS[trJournal]);
+              const label = getFxaTaxLabel(t, TR_JOURNAL_LABELS[trJournal]);
 
               return (
                 <Sidebar.MenuItem key={trJournal}>

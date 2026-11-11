@@ -1,5 +1,4 @@
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
-import { FxaDepreciationFields } from '@/transactions/transaction-form/components/forms/FxaDepreciationFields';
+import { FxaChangeDepreciationFields } from '@/transactions/transaction-form/components/forms/FxaChangeDepreciationFields';
 import { getTotalFxaDepreciation } from '@/transactions/transaction-form/components/helpers/fxaDepreciation';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
@@ -23,11 +22,7 @@ import { ITransactionGroupForm } from '@/transactions/transaction-form/types/Jou
 import { FXA_CAPITAL_VALUATION } from '@/transactions/transaction-form/graphql/queries/fxaCapitalValuation';
 import { FixedAssetChooser } from '@/settings/fixed-assets/components/chooser/FixedAssetChooser';
 import { TFxaCapitalValuation } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
-import {
-  FxaChangeLifeFields,
-  FxaChangeMethodField,
-  FxaChangeNumberField,
-} from '@/transactions/transaction-form/components/forms/FxaChangeFields';
+import { FxaChangeNumberField } from '@/transactions/transaction-form/components/forms/FxaChangeFields';
 
 export const FxaChangeRow = ({
   form,
@@ -90,13 +85,9 @@ export const FxaChangeRow = ({
       annualDepreciationRate: valuation.annualDepreciationRate,
       depreciationMethod: valuation.depreciationMethod,
       preDeprecation: valuation.preDeprecation,
-      ...(!revaluation
-        ? {
-            taxPreDeprecation:
-              valuation.taxPreDeprecation ?? valuation.preDeprecation,
-            incomeTaxRate: valuation.incomeTaxRate ?? undefined,
-          }
-        : {}),
+      taxPreDeprecation:
+        valuation.taxPreDeprecation ?? valuation.preDeprecation,
+      incomeTaxRate: valuation.incomeTaxRate ?? undefined,
       salvageValue: valuation.salvageValue,
       taxDepreciationMethod: valuation.taxDepreciationMethod || undefined,
       taxAnnualDepreciationRate:
@@ -155,31 +146,16 @@ export const FxaChangeRow = ({
                 <SelectFixedAsset.Value />
               </SelectFixedAsset.Provider>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <FxaDepreciationFields
+                <FxaChangeDepreciationFields
                   {...fieldProps}
                   valuation={valuation}
-                  labels={
-                    valuation?.hasTaxDepreciation && !revaluation
-                      ? {
-                          unit: getFxaTaxLabel(
-                            t,
-                            'unit-accumulated-depreciation',
-                          ),
-                          total: getFxaTaxLabel(
-                            t,
-                            'total-accumulated-depreciation',
-                          ),
-                        }
-                      : undefined
-                  }
                 />
-                {!revaluation && valuation?.hasTaxDepreciation && (
+                {valuation?.hasTaxDepreciation && (
                   <>
-                    <FxaDepreciationFields
+                    <FxaChangeDepreciationFields
                       {...fieldProps}
                       valuation={valuation}
                       tax
-                      showUnit={false}
                     />
                     <FxaChangeNumberField
                       {...fieldProps}
@@ -189,13 +165,6 @@ export const FxaChangeRow = ({
                     />
                   </>
                 )}
-                <FxaChangeNumberField
-                  {...fieldProps}
-                  rule="salvageValue"
-                  label="fxa-unit-salvage-value"
-                />
-                <FxaChangeMethodField {...fieldProps} capital />
-                <FxaChangeLifeFields {...fieldProps} />
                 <Form.Field
                   control={form.control}
                   name={`trDocs.${index}.details.${detailIndex}.followInfos.depreciationStartDate`}

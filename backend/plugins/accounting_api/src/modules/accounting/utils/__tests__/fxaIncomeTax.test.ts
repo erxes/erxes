@@ -184,6 +184,7 @@ test('resaving removes a legacy automatic expense counterpart and preserves manu
   expect(raw.Transactions.updateTransaction).toHaveBeenCalledWith(
     'old-dt',
     expect.objectContaining({
+      journal: JOURNALS.FXA_DEFERRED_TAX,
       details: [
         expect.objectContaining({
           _id: 'asset-detail',
@@ -251,6 +252,7 @@ test('income edit updates existing sides and detail ids without creating duplica
   );
   const existing = docs.map((doc) => ({
     ...doc,
+    journal: JOURNALS.MAIN,
     _id: `old-${doc.side}`,
     details: doc.details.map((row) => ({ ...row, _id: `detail-${doc.side}` })),
   })) as ITransactionDocument[];

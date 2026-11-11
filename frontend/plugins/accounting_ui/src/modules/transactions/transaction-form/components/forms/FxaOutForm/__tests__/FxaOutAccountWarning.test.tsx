@@ -10,6 +10,7 @@ import { FxaOutAccountWarning } from '@/transactions/transaction-form/components
 import { TAddTransactionGroup } from '@/transactions/transaction-form/types/JournalForms';
 import { TrJournalEnum } from '@/transactions/types/constants';
 import { useAccountsInline } from '@/settings/account/hooks/useAccounts';
+import { FxaAccountMatchingWarning } from '@/transactions/transaction-form/components/forms/FxaAccountMatchingWarning';
 
 let mockConfigs: {
   accountId: string;
@@ -89,6 +90,19 @@ beforeEach(() => {
     { _id: 'dep-a', status: 'active' },
   ];
   jest.clearAllMocks();
+});
+
+test('shared capitalization/revaluation matching warnings include the account settings link', () => {
+  render(
+    <FxaAccountMatchingWarning message="Revaluation matching is missing" />,
+  );
+  expect(screen.getByRole('alert').textContent).toContain(
+    'Revaluation matching is missing',
+  );
+  expect(screen.getByRole('link').getAttribute('href')).toBe(
+    '/accounting/settings/fixed-assets/accounts-config',
+  );
+  expect(screen.getByRole('link').getAttribute('target')).toBe('_blank');
 });
 
 test('uses the configured assigned depreciation account instead of a manual override', () => {

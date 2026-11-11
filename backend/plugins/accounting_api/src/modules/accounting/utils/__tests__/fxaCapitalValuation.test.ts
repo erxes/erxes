@@ -111,7 +111,7 @@ const fixture = () => {
   return { models: raw as unknown as IModels, entries, capital, selectors };
 };
 
-test('income tax rates stay asset-specific and change only on dated capitalization', async () => {
+test('income tax rates stay asset-specific and follow dated capitalization and revaluation', async () => {
   const { models, entries, capital } = fixture();
   entries[0].details[0].followInfos = {
     ...entries[0].details[0].followInfos,
@@ -145,7 +145,7 @@ test('income tax rates stay asset-specific and change only on dated capitalizati
     (await getFxaIncomeTaxRates(models, new Date('2026-03-01'), details)).get(
       'asset',
     ),
-  ).toBe(20);
+  ).toBe(50);
   capital.details[0].followInfos.incomeTaxRate = 0;
   expect(
     (await getFxaIncomeTaxRates(models, new Date('2026-02-01'), details)).get(
@@ -312,5 +312,7 @@ test('tax valuation sums split capital targets once before replaying later tax d
     'asset',
     new Date('2026-02-02'),
   );
-  expect(result.taxPreDeprecation).toBeCloseTo(30 + 2 / 28);
+  expect(result.taxPreDeprecation).toBeCloseTo(
+    30 + ((300 - 30) * 0.12) / 12 / 28,
+  );
 });

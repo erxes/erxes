@@ -51,7 +51,7 @@ export const buildFxaIncomeTaxPreview = (
         _id: `${transaction._id}-${FXA_DEFERRED_TAX_ORIGIN}-${row.side}`,
         originId: transaction._id,
         originType: FXA_DEFERRED_TAX_ORIGIN,
-        journal: TrJournalEnum.MAIN,
+        journal: TrJournalEnum.FXA_DEFERRED_TAX,
         parentId: transaction.parentId,
         ptrId: transaction.ptrId,
         description: transaction.description,

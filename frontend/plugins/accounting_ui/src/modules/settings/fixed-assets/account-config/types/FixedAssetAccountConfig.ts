@@ -10,6 +10,8 @@ export interface IFixedAssetAccountConfig {
     taxAssetAccountId?: string;
     taxLiabilityAccountId?: string;
     TaxExpenseAccountId?: string;
+    revaluationReserveAccountId?: string;
+    revaluationLossAccountId?: string;
   };
 }
 
