@@ -129,7 +129,12 @@ export const createCoreClient = (options: CoreClientOptions) => {
 export interface PluginMember {
   userId: string;
   orgId: string;
-  role: 'owner' | 'admin' | 'member';
+  /** `owner`, `admin`, `member` or a custom role key. */
+  role: string;
+  /** The member's actions in this plugin (from its manifest's `permissions`). */
+  permissions: string[];
+  /** `member.can('hr.leave.approve')` */
+  can(action: string): boolean;
 }
 
 const jwksByCore = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
@@ -157,13 +162,21 @@ export const verifyPluginSession = async (
     typ: 'erxes-plugin-session+jwt',
     algorithms: ['ES256'],
   });
-  const role = payload.role;
+  const { role, permissions } = payload;
 
-  if (!payload.sub || typeof payload.org !== 'string' || (role !== 'owner' && role !== 'admin' && role !== 'member')) {
+  if (!payload.sub || typeof payload.org !== 'string' || typeof role !== 'string' || !Array.isArray(permissions)) {
     throw new Error('not an erxes plugin session');
   }
 
-  return { userId: payload.sub, orgId: payload.org, role };
+  const granted = new Set(permissions.filter((action): action is string => typeof action === 'string'));
+
+  return {
+    userId: payload.sub,
+    orgId: payload.org,
+    role,
+    permissions: [...granted],
+    can: (action: string) => role === 'owner' || granted.has(action),
+  };
 };
 
 /** The bearer token of a request's `Authorization` header, if any. */

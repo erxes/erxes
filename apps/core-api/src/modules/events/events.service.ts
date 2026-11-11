@@ -1,7 +1,7 @@
 import type { CoreEvent, CursorQuery, EventFailure, EventInput } from '@erxes/core-contract';
 import { type Db, eventConsumers, eventFailures, events, newId } from '@erxes/core-db';
 import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
-import { type Actor, type Caller, type PluginCaller, requireManager, userCaller } from '~/http/auth';
+import { type Actor, type Caller, type PluginCaller, requirePermission, userCaller } from '~/http/auth';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { HttpError } from '~/http/errors';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
@@ -116,7 +116,7 @@ export const listEvents = async (
   actor: Actor,
   query: CursorQuery & { source?: string; type?: string; subjectType?: 'customer' | 'company'; subjectId?: string },
 ) => {
-  requireManager(actor, 'Only owners and admins can see the event stream');
+  requirePermission(actor, 'events.view');
 
   const filters = and(
     query.source ? eq(events.source, query.source) : undefined,
@@ -149,7 +149,7 @@ export const listEvents = async (
 // ─── Failed deliveries ──────────────────────────────────────────────────────
 
 export const listEventFailures = async (client: Db, actor: Actor, query: { status?: 'retrying' | 'dead' }) => {
-  requireManager(actor, 'Only owners and admins can see failed events');
+  requirePermission(actor, 'events.view');
 
   const rows = await client
     .select({ failure: eventFailures, event: events })
@@ -194,7 +194,7 @@ const refsWhere = (orgId: string, refs: FailureRef[]) =>
 
 /** Tries failed events again now (one more attempt each); wakes the processor. */
 export const retryEventFailures = async (client: Db, actor: Actor, input: { failures?: FailureRef[]; allDead?: boolean }) => {
-  requireManager(actor, 'Only owners and admins can retry failed events');
+  requirePermission(actor, 'events.view');
 
   if (!input.failures?.length && !input.allDead) {
     throw new HttpError(400, 'NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
@@ -226,7 +226,7 @@ export const retryEventFailures = async (client: Db, actor: Actor, input: { fail
 
 /** Gives up on failed events: they won't be retried or shown again. */
 export const dismissEventFailures = async (client: Db, actor: Actor, input: { failures: FailureRef[] }) => {
-  requireManager(actor, 'Only owners and admins can dismiss failed events');
+  requirePermission(actor, 'events.view');
 
   return client.transaction(async (tx) => {
     const dismissed = await tx

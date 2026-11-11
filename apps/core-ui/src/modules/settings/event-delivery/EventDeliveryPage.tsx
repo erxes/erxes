@@ -9,7 +9,7 @@ import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, messageOf } from '~/lib/api';
 import { pluginLabel } from '~/lib/members';
-import { useSession } from '~/modules/auth/session';
+import { useCan } from '~/modules/auth/session';
 
 const KEY = ['events', 'failures'];
 
@@ -28,7 +28,7 @@ const refOf = (failure: EventFailure) => ({ consumer: failure.consumer, eventId:
  */
 export const EventDeliveryPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'event-delivery' });
-  const { user } = useSession();
+  const canSee = useCan()('events.view');
   const { toast } = useToast();
   const client = useQueryClient();
   const [status, setStatus] = useState<'all' | 'retrying' | 'dead'>('all');
@@ -36,7 +36,7 @@ export const EventDeliveryPage = () => {
     queryKey: [...KEY, status],
     queryFn: () => api.events.failures({ status: status === 'all' ? undefined : status }),
     refetchInterval: 30_000,
-    enabled: user.role !== 'member',
+    enabled: canSee,
   });
   const onError = (error: unknown) => toast({ variant: 'destructive', title: t('failed', 'Something went wrong'), description: messageOf(error) });
   const retry = useMutation({
@@ -53,7 +53,7 @@ export const EventDeliveryPage = () => {
     onError,
   });
 
-  if (user.role === 'member') return <Navigate to="/settings" replace />;
+  if (!canSee) return <Navigate to="/settings" replace />;
 
   const counts = data?.counts ?? { retrying: 0, dead: 0 };
 

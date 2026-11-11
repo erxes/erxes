@@ -1,6 +1,6 @@
 import { type ContentType, Db, newId, tags } from '@erxes/core-db';
 import { and, asc, eq, ilike, inArray, sql } from 'drizzle-orm';
-import { type Actor, requireManager } from '~/http/auth';
+import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { containsPattern } from '~/lib/keyset';
@@ -105,7 +105,7 @@ export const updateTag = async (
 
 /** Deletes the tag; its links to customers or companies go with it (foreign keys). */
 export const removeTag = async (client: Db, actor: Actor, id: string) => {
-  requireManager(actor, 'Only owners and admins can delete tags');
+  requirePermission(actor, 'tags.delete');
 
   await findTag(client, actor.orgId, id);
   await client.delete(tags).where(and(eq(tags.orgId, actor.orgId), eq(tags.id, id)));

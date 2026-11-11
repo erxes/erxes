@@ -9,6 +9,7 @@ import { filesContract } from './files';
 import { notificationsContract } from './notifications';
 import { organizationsContract } from './organizations';
 import { pluginsContract } from './plugins';
+import { rolesContract } from './roles';
 import { tagsContract } from './tags';
 import { usersContract } from './users';
 
@@ -31,6 +32,7 @@ export const coreContract = {
   notifications: notificationsContract,
   organizations: organizationsContract,
   plugins: pluginsContract,
+  roles: rolesContract,
   tags: tagsContract,
   users: usersContract,
 };
@@ -48,5 +50,6 @@ export * from './notifications';
 export * from './platform';
 export * from './organizations';
 export * from './plugins';
+export * from './roles';
 export * from './tags';
 export * from './users';

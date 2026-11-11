@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { api, messageOf } from '~/lib/api';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { FIELD_GROUPS_KEY, FIELDS_KEY } from './useFields';
 
 type FieldCreate = Parameters<typeof api.fields.create>[0];
@@ -12,7 +12,7 @@ type GroupCreate = Parameters<typeof api.fieldGroups.create>[0];
 type GroupUpdate = Parameters<typeof api.fieldGroups.update>[0];
 
 /** Owners and admins manage properties (old `fieldsManage` / `fieldGroupsManage`). */
-export const useCanManageFields = () => useSession().user.role !== 'member';
+export const useCanManageFields = () => useCan()('properties.manage');
 
 /** Refreshes every list a property change shows in (and records whose values went away). */
 export const usePropertiesRefresh = () => {

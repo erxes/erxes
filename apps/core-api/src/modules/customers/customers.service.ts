@@ -1,7 +1,7 @@
 import type { CursorQuery, CustomerInput, CustomerSex } from '@erxes/core-contract';
 import { companies, customerCompanies, customers, Db, newId, users, withTransaction } from '@erxes/core-db';
 import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
-import { type Actor, requireManager } from '~/http/auth';
+import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { normalizeEmail, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
@@ -313,7 +313,7 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
 };
 
 export const removeCustomers = async (client: Db, actor: Actor, ids: string[]) => {
-  requireManager(actor, 'Only owners and admins can delete customers');
+  requirePermission(actor, 'contacts.delete');
 
   const removed = await client.transaction(async (tx) => {
     const rows = await tx
@@ -378,7 +378,7 @@ const MERGE_FILLED = [
  * Their ids keep resolving to the kept customer (`mergedIds`).
  */
 export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepId: string }) => {
-  requireManager(actor, 'Only owners and admins can merge customers');
+  requirePermission(actor, 'contacts.merge');
 
   const ids = unique(input.ids);
 

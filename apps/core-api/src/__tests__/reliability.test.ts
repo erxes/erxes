@@ -19,8 +19,8 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const memberId = newId();
 
     await adminDb().insert(users).values({ id: memberId, orgId: acme.organization.id, email: 'm@acme.mn', role: 'member', status: 'active' });
-    owner = { userId: acme.owner.id, orgId: acme.organization.id, role: 'owner' };
-    member = { userId: memberId, orgId: acme.organization.id, role: 'member' };
+    owner = { userId: acme.owner.id, orgId: acme.organization.id, role: 'owner', permissions: ['*'] };
+    member = { userId: memberId, orgId: acme.organization.id, role: 'member', permissions: ['contacts.view'] };
   });
 
   const publish = async (type: string) => {

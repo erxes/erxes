@@ -2,10 +2,11 @@ import { notify } from '~/modules/notifications/notifications.service';
 import { userCaller } from '~/http/auth';
 import { diffRows } from '~/lib/changes';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { Db, newId, users, withTransaction } from '@erxes/core-db';
+import { db, Db, newId, users, withTransaction } from '@erxes/core-db';
 import type { CursorQuery, UserLinkName } from '@erxes/core-contract';
 import { and, count, eq, ilike, inArray, ne, or, SQL, sql } from 'drizzle-orm';
-import { type Actor, type Role, requireManager } from '~/http/auth';
+import { type Actor, type Role, requirePermission } from '~/http/auth';
+import { assertAssignable } from '~/modules/roles/roles.service';
 import { forbidden, HttpError, notFound, pgCode } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
@@ -143,8 +144,8 @@ interface InviteInput {
   username?: string;
 }
 
-const requireTeamManager = (actor: Actor) =>
-  requireManager(actor, 'Only owners and admins can manage team members');
+const requireTeamManager = (actor: Actor, action: 'team.manage' | 'team.invite' = 'team.manage') =>
+  requirePermission(actor, action);
 
 /** Unique email or username in the organisation → 409 with the field. */
 const conflictFrom = (error: unknown): never => {
@@ -266,7 +267,8 @@ const auditInvites = (tx: Db, actor: Actor, rows: UserRow[]) =>
   );
 
 export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) => {
-  requireTeamManager(actor);
+  requireTeamManager(actor, 'team.invite');
+  await assertAssignable(client, actor, input.role ?? 'member');
 
   try {
     const values = await inviteValues(actor, input);
@@ -286,7 +288,11 @@ export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) =
 
 /** Several invitations in one go: all are created, or none (409 names the taken emails). */
 export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
-  requireTeamManager(actor);
+  requireTeamManager(actor, 'team.invite');
+
+  for (const role of new Set(entries.map((entry) => entry.role ?? 'member'))) {
+    await assertAssignable(db(), actor, role);
+  }
 
   const emails = entries.map((entry) => entry.email.trim().toLowerCase());
   const repeated = emails.filter((email, index) => emails.indexOf(email) !== index);
@@ -350,6 +356,9 @@ export const updateUser = async (actor: Actor, id: string, input: UserChanges) =
       if ((input.role === 'owner' || target.role === 'owner') && actor.role !== 'owner') {
         throw forbidden('OWNER_ONLY', 'Only an owner can change owner rights');
       }
+
+      // The role exists, and gives nothing beyond what the assigner can do.
+      await assertAssignable(tx, actor, input.role);
 
       if (
         target.role === 'owner' &&

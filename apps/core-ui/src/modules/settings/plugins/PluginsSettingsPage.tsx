@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, messageOf } from '~/lib/api';
-import { useSession } from '~/modules/auth/session';
+import { useCan } from '~/modules/auth/session';
 
 const KEY = ['settings', 'plugins'];
 
@@ -105,7 +105,7 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
  */
 export const PluginsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
-  const { user } = useSession();
+  const can = useCan();
   const { data, isLoading } = useQuery({ queryKey: KEY, queryFn: () => api.plugins.list() });
 
   return (
@@ -134,7 +134,7 @@ export const PluginsSettingsPage = () => {
           ) : (
             <ul className="space-y-3">
               {data.data.map((plugin) => (
-                <PluginCard key={plugin.name} plugin={plugin} isOwner={user.role === 'owner'} />
+                <PluginCard key={plugin.name} plugin={plugin} isOwner={can('plugins.manage')} />
               ))}
             </ul>
           )}

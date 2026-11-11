@@ -57,6 +57,16 @@ export const useSession = (): Session => {
  * session cookie: otherwise the cookie would still work while the page says
  * "signed out". A failure throws, for the caller to show (and retry).
  */
+/**
+ * `can('contacts.delete')`: whether the signed-in member's role allows an
+ * action (the API checks the same; this only shapes the UI).
+ */
+export const useCan = () => {
+  const { permissions } = useSession();
+
+  return (action: string) => permissions.includes(action);
+};
+
 export const useSignOut = () => {
   const client = useQueryClient();
 

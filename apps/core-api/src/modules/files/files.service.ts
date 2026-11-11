@@ -3,7 +3,7 @@ import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { type Db, files, newId, organizations, type OrganizationSettings } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { type Actor, type Caller, isManager, requireManager } from '~/http/auth';
+import { type Actor, type Caller, can, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -86,7 +86,7 @@ export const updateFileSettings = async (
   actor: Actor,
   input: { maxSizeMb: number; allowedTypes: string[] },
 ) => {
-  requireManager(actor, 'Only owners and admins can change upload settings');
+  requirePermission(actor, 'settings.manage');
 
   if (input.maxSizeMb > config.files.maxSizeMb) {
     throw new HttpError(400, 'LIMIT_EXCEEDED', `This server accepts files up to ${config.files.maxSizeMb} MB`);
@@ -294,7 +294,7 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
 export const removeFile = async (client: Db, caller: Caller, actor: Actor | null, id: string) => {
   const row = await findFile(client, caller.orgId, id);
 
-  if (!isUploader(row, caller) && !(actor && isManager(actor))) {
+  if (!isUploader(row, caller) && !(actor && can(actor, 'files.moderate'))) {
     throw new HttpError(403, 'NOT_ALLOWED', 'Only the uploader or an owner or admin can delete this file');
   }
 

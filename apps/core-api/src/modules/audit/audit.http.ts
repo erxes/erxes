@@ -2,7 +2,7 @@ import { auditLogs, withOrg } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { actorOf, requireManager, userCaller } from '~/http/auth';
+import { actorOf, requirePermission, userCaller } from '~/http/auth';
 import { type AuditFilters, auditFilters, recordAudit } from './audit.service';
 
 const MAX_ROWS = 100_000;
@@ -57,7 +57,7 @@ export const auditExportRouter = Router();
 auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
   const actor = actorOf(req);
 
-  requireManager(actor, 'Only owners and admins can export the audit log');
+  requirePermission(actor, 'audit.view');
 
   const parsed = ExportQuery.safeParse(req.query);
 

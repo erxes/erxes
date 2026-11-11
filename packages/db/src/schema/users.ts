@@ -7,6 +7,7 @@ import {
   index,
   integer,
   jsonb,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -15,7 +16,37 @@ import { pgTable } from '../table';
 import { organizations } from './organizations';
 
 export const USER_STATUSES = ['invited', 'active', 'disabled'] as const;
+/** The built-in roles every organisation has. */
 export const USER_ROLES = ['owner', 'admin', 'member'] as const;
+
+/**
+ * Roles of an organisation: named sets of permissions (`contacts.delete`,
+ * `hr.leave.approve`). Built in: `owner` (everything, including owner-only
+ * actions), `admin` (`*`: everything but owner-only) and `member` (editable).
+ * Custom roles have keys `r_<id>`.
+ */
+export const roles = pgTable(
+  'roles',
+  {
+    orgId: text().notNull(),
+    key: text().notNull(),
+    name: text().notNull(),
+    description: text(),
+    /** Permission actions; `*` means every grantable one. */
+    permissions: text().array().default(sql`'{}'::text[]`).notNull(),
+    builtin: boolean().default(false).notNull(),
+    createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    updatedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.key], name: 'core_roles_pkey' }),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_roles_org_id_fkey',
+    }).onDelete('cascade'),
+  ],
+);
 
 /** Team members of an organisation. */
 export const users = pgTable(
@@ -40,7 +71,8 @@ export const users = pgTable(
     description: text(),
     /** Social links by name (facebook, website, …). */
     links: jsonb().$type<Record<string, string>>().default({}).notNull(),
-    role: text({ enum: USER_ROLES }).default('member').notNull(),
+    /** The member's role (`core_roles.key` in the organisation): owner, admin, member or a custom one. */
+    role: text().default('member').notNull(),
     status: text({ enum: USER_STATUSES }).default('invited').notNull(),
     /** Set by the sign-in slice; never returned by the API. */
     passwordHash: text(),
@@ -80,10 +112,11 @@ export const users = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_users_org_id_fkey',
     }).onDelete('cascade'),
-    check(
-      'core_users_role_check',
-      sql`${table.role} IN ('owner', 'admin', 'member')`,
-    ),
+    foreignKey({
+      columns: [table.orgId, table.role],
+      foreignColumns: [roles.orgId, roles.key],
+      name: 'core_users_role_fkey',
+    }),
     check(
       'core_users_status_check',
       sql`${table.status} IN ('invited', 'active', 'disabled')`,

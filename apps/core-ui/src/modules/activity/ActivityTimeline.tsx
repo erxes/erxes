@@ -28,7 +28,7 @@ import { useCustomer } from '~/modules/contacts/customers/useCustomers';
 import { ChangeList, type Lookups, useChangeLookups } from '~/components/ChangeList';
 import { actorLabel, pluginLabel } from '~/lib/members';
 import { api } from '~/lib/api';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { NoteComposer } from './NoteComposer';
 import { type TimelineKind, useActivities, useNoteActions, usePinnedNotes } from './useActivities';
 
@@ -207,7 +207,7 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
   const { update, remove } = useNoteActions();
   const { confirm } = useConfirm();
   const mine = activity.actor.type === 'user' && activity.actor.id === user.id;
-  const manager = user.role !== 'member';
+  const manager = useCan()('notes.moderate');
 
   return (
     <DropdownMenu>

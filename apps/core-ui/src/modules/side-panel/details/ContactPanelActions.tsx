@@ -3,7 +3,7 @@ import { Button, Command, Popover, useConfirm } from 'erxes-ui';
 import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { useCompaniesRemove } from '~/modules/contacts/companies/useCompanies';
 import { useCustomersRemove } from '~/modules/contacts/customers/useCustomers';
 import { getContactDetailPath, getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
@@ -81,7 +81,7 @@ export const ContactPanelActions = ({
   const removeCustomers = useCustomersRemove();
   const removeCompanies = useCompaniesRemove();
   const remove = contentType === 'core:customer' ? removeCustomers : removeCompanies;
-  const canDelete = user.role !== 'member';
+  const canDelete = useCan()('contacts.delete');
 
   if (!canDelete) return null;
 

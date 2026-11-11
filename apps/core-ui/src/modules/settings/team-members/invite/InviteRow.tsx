@@ -1,7 +1,7 @@
 import { cn, Form, Input, Select, Table } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { ROLE_LABEL } from '../useTeamMembers';
+import { useRoles } from '../../roles/useRoles';
 import { useUserInviteContext } from './InviteMemberContext';
 import { InviteRowCheckbox } from './InviteRowCheckbox';
 import type { TUserForm } from './inviteSchema';
@@ -14,6 +14,7 @@ const MESSAGE_CLASS_NAME =
 export const InviteRow = ({ userIndex, userId }: { userIndex: number; userId: string }) => {
   const { selectedUsers, fields } = useUserInviteContext();
   const { control, formState } = useFormContext<TUserForm>();
+  const { roles } = useRoles();
   const errors = formState.errors.entries?.[userIndex];
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const first = userIndex === 0;
@@ -83,8 +84,13 @@ export const InviteRow = ({ userIndex, userId }: { userIndex: number; userId: st
                   </Select.Trigger>
                 </Form.Control>
                 <Select.Content>
-                  <Select.Item value="member">{ROLE_LABEL.member}</Select.Item>
-                  <Select.Item value="admin">{ROLE_LABEL.admin}</Select.Item>
+                  {roles
+                    .filter((role) => role.key !== 'owner')
+                    .map((role) => (
+                      <Select.Item key={role.key} value={role.key}>
+                        {role.name}
+                      </Select.Item>
+                    ))}
                 </Select.Content>
               </Select>
             </Form.Item>

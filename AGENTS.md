@@ -134,9 +134,20 @@ it is built.
   failures in 15 minutes → 429, counted from the audit log, so it holds
   across replicas). Postgres TLS is verified (`DATA_SSL_CA`).
 - **Access map** (`src/http/access.ts`): every procedure has a policy —
-  `public`, `member: any | manager | owner`, `plugin: <scope>` (or `manifest`)
+  `public`, `member: 'any' | <permission>`, `plugin: <scope>` (or `manifest`)
   — checked by one oRPC middleware before the handler. `ACCESS satisfies
   Record<ProcedurePath, Policy>`: a procedure without an entry doesn't compile.
+- **Permissions and roles** (`@erxes/core-contract` `CORE_PERMISSIONS`,
+  `src/modules/roles`): actions like `contacts.delete`; plugins add theirs in
+  their manifest (`hr.leave.approve`). A role (`core_roles`, per organisation)
+  is a set of actions; `users.role` names one (composite FK). Built in:
+  `owner` (everything, incl. owner-only `plugins.manage`, `audit.retention`),
+  `admin` (`*`: every grantable action, also future plugin ones), `member`
+  (editable); custom roles `r_<id>`. `can(actor, action)` /
+  `requirePermission` in services; nobody creates or assigns a role wider than
+  their own (`BEYOND_OWN_PERMISSIONS`). `/auth/me` returns `permissions`
+  (UI: `useCan()`); plugin session tokens carry the member's actions for that
+  plugin (`verifyPluginSession(...).can('hr.leave.approve')`).
 - **Plugin connection** (`src/modules/plugins`, `@erxes/plugin-sdk`):
   - Registry `core_plugins` (client secret hashed; `CORE_PLUGIN_KEYS` registers
     them at startup, `pnpm plugin:secret -- <name>` rotates with 24 h overlap)

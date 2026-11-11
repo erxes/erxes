@@ -218,7 +218,8 @@
     "audit-log": "Audit log",
     "notifications": "Notifications",
     "event-delivery": "Event delivery",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "roles": "Roles"
   },
   "plugin": {
     "_": "Plugin",

@@ -4,9 +4,11 @@ import { useSession } from '~/modules/auth/session';
 import { useHomeTeamMembers } from '../hooks';
 import { HOME_NS } from '../i18n';
 import { HomeRecordList } from './HomeRecordList';
+import { useRoles } from '~/modules/settings/roles/useRoles';
 
 /** Team members with their role; invited and disabled ones are marked. */
 export const HomeTeamMembers = () => {
+  const { roleName } = useRoles();
   const { t } = useTranslation(HOME_NS);
   const { user: me } = useSession();
   const { data, isPending, isError } = useHomeTeamMembers();
@@ -27,7 +29,7 @@ export const HomeTeamMembers = () => {
         detail: member.fullName ? member.email : null,
         meta:
           member.status === 'active' ? (
-            t(`role.${member.role}`)
+            roleName(member.role)
           ) : (
             <Badge variant={member.status === 'disabled' ? 'destructive' : 'secondary'}>
               {t(`status.${member.status}`)}

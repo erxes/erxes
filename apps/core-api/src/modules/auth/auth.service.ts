@@ -1,5 +1,6 @@
 import { recordAudit } from "~/modules/audit/audit.service";
-import { auditLogs, organizations, users, withOrg, withSystem } from "@erxes/core-db";
+import { auditLogs, organizations, roles, users, withOrg, withSystem } from "@erxes/core-db";
+import { effectivePermissions } from "~/modules/roles/roles.service";
 import { and, eq, sql } from "drizzle-orm";
 import { config } from "~/config";
 import { HttpError } from "~/http/errors";
@@ -143,28 +144,27 @@ export const signIn = async (
     { action: "auth.signed_in", targetType: "user", targetId: match.user.id, targetLabel: match.user.email }
   ));
 
-  return {
-    user: toUserDto(match.user),
-    organization: toOrganizationDto(match.organization)
-  };
+  return getSession(match.user.orgId, match.user.id);
 };
 
-export const getSession = async (orgId: string, userId: string) => {
-  const [row] = await withOrg(orgId, (tx) =>
-    tx
-      .select({ user: users, organization: organizations })
+export const getSession = async (orgId: string, userId: string) =>
+  withOrg(orgId, async (tx) => {
+    const [row] = await tx
+      .select({ user: users, organization: organizations, permissions: roles.permissions })
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
+      .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
       .where(and(eq(users.id, userId), eq(users.orgId, orgId)))
-      .limit(1)
-  );
+      .limit(1);
 
-  if (!row) {
-    throw new HttpError(401, "UNAUTHORIZED", "Sign in to continue");
-  }
+    if (!row) {
+      throw new HttpError(401, "UNAUTHORIZED", "Sign in to continue");
+    }
 
-  return {
-    user: toUserDto(row.user),
-    organization: toOrganizationDto(row.organization)
-  };
-};
+    return {
+      user: toUserDto(row.user),
+      organization: toOrganizationDto(row.organization),
+      // Spelled out for the UI: what this member may do.
+      permissions: await effectivePermissions(tx, { orgId, role: row.user.role, permissions: row.permissions }),
+    };
+  });

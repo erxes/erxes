@@ -15,7 +15,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '~/lib/api';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { permissionsFor, useTeamMembersDeactivate } from '../useTeamMembers';
 
 /** Old `TeamMemberDeactivate`: skips yourself, the already deactivated, and owners you cannot manage. */
@@ -25,10 +25,11 @@ const TeamMemberDeactivate = ({ teamMembers, onCompleted }: { teamMembers: User[
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
   const { user: me } = useSession();
+  const can = useCan();
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
   const teamMemberIds = teamMembers
-    .filter((teamMember) => teamMember.status !== 'disabled' && permissionsFor(me, teamMember).canToggle)
+    .filter((teamMember) => teamMember.status !== 'disabled' && permissionsFor(me, teamMember, can).canToggle)
     .map((teamMember) => teamMember.id);
 
   return (
@@ -65,6 +66,7 @@ export const TeamMemberCommandBar = () => {
   const [open, setOpen] = useState(false);
   const { table } = RecordTable.useRecordTable();
   const { user: me } = useSession();
+  const can = useCan();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const teamMembers = selectedRows.map((row: Row<User>) => row.original);
@@ -73,8 +75,8 @@ export const TeamMemberCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{t('selected', { selectedCount: selectedRows.length })}</CommandBar.Value>
-        {me.role !== 'member' && <Separator.Inline />}
-        {me.role !== 'member' && (
+        {can('team.manage') && <Separator.Inline />}
+        {can('team.manage') && (
           <Popover open={open} onOpenChange={setOpen}>
             <Popover.Trigger asChild>
               <Button variant="secondary">

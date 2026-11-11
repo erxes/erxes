@@ -2,7 +2,7 @@ import type { AuditEntry, CursorQuery } from '@erxes/core-contract';
 import { auditLogs, type Db, newId, organizations } from '@erxes/core-db';
 import { and, eq, gte, ilike, like, lte, or, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { type Actor, type Caller, type PluginCaller, requireManager } from '~/http/auth';
+import { type Actor, type Caller, can, type PluginCaller, requirePermission } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
@@ -122,7 +122,7 @@ export const listAudit = async (
   actor: Actor,
   query: CursorQuery & AuditFilters,
 ) => {
-  requireManager(actor, 'Only owners and admins can see the audit log');
+  requirePermission(actor, 'audit.view');
 
   const filters = auditFilters(query);
 
@@ -206,7 +206,7 @@ export const recordPluginAudit = async (
  * oldest kept entry is the anchor (older ones may have been pruned).
  */
 export const verifyAudit = async (client: Db, actor: Actor) => {
-  requireManager(actor, 'Only owners and admins can check the audit log');
+  requirePermission(actor, 'audit.view');
 
   const chain = await findChainBreak(client, actor.orgId);
   const checkpoints = await verifyCheckpoints(client, actor.orgId, chain.firstSeq);
@@ -236,7 +236,7 @@ export const auditSettings = async (client: Db, orgId: string) => {
 };
 
 export const updateAuditSettings = async (client: Db, actor: Actor, input: { retentionDays: number }) => {
-  if (actor.role !== 'owner') {
+  if (!can(actor, 'audit.retention')) {
     throw new HttpError(403, 'OWNER_ONLY', 'Only owners can change how long the audit log is kept');
   }
 

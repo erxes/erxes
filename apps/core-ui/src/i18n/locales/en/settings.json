@@ -1323,5 +1323,17 @@
       "live-write": "Refresh its screens live",
       "notifications-write": "Send notifications to team members"
     }
+  },
+  "roles": {
+    "title": "Roles",
+    "create": "New role",
+    "new-role": "New role",
+    "failed": "Could not save the role",
+    "saved": "Role saved",
+    "save": "Save",
+    "description-placeholder": "What is this role for?",
+    "owner-only": "Owner only",
+    "owner-everything": "Owners can do everything, including owner-only actions (plugins, audit retention).",
+    "admin-everything": "Admins can do everything except owner-only actions — including whatever plugins add later."
   }
 }

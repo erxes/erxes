@@ -3,7 +3,7 @@ import { type Db, db, organizations, pluginInstallations, plugins, type StoredPl
 import { and, eq, sql } from 'drizzle-orm';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
-import { type Actor, PLUGIN_ACCESS_TYP, type PluginCaller, type PluginService, userCaller } from '~/http/auth';
+import { type Actor, can, PLUGIN_ACCESS_TYP, type PluginCaller, type PluginService, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -327,8 +327,12 @@ export const pluginSession = async (actor: Actor, name: string) => {
 
   if (!row) throw new HttpError(403, 'NOT_INSTALLED', `${name} is not installed in this organisation`);
 
+  // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
+  const permissions = (row.plugin.manifest?.permissions ?? [])
+    .map((permission) => permission.action)
+    .filter((action) => can(actor, action));
   const token = await signJwt(
-    { org: actor.orgId, role: actor.role },
+    { org: actor.orgId, role: actor.role, permissions },
     { typ: PLUGIN_SESSION_TYP, audience: name, subject: actor.userId, expiresInSeconds: PLUGIN_SESSION_TTL_SECONDS },
   );
 

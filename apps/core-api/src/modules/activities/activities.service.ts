@@ -1,7 +1,7 @@
 import type { Activity, ActivityInput, ActivityTarget, CursorQuery } from '@erxes/core-contract';
 import { activities, companies, customerCompanies, customers, type Db, files, newId } from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, like, ne, notLike, or, sql } from 'drizzle-orm';
-import { type Actor, type Caller, isManager, type PluginCaller, pluginCaller, userCaller } from '~/http/auth';
+import { type Actor, type Caller, can, type PluginCaller, pluginCaller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
@@ -307,7 +307,7 @@ export const updateNote = async (
 export const removeNote = async (client: Db, actor: Actor, id: string) => {
   const note = await findNote(client, actor.orgId, id);
 
-  if (note.actorId !== actor.userId && !isManager(actor)) {
+  if (note.actorId !== actor.userId && !can(actor, 'notes.moderate')) {
     throw new HttpError(403, 'NOT_ALLOWED', 'Only the author or an owner or admin can delete a note');
   }
 

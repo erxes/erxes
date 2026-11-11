@@ -99,6 +99,13 @@
       "when": 1794422744409,
       "tag": "0013_tenant_foreign_keys",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794425135719,
+      "tag": "0014_roles",
+      "breakpoints": true
     }
   ]
 }

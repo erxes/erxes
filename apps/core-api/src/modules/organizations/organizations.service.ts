@@ -2,6 +2,7 @@ import { Db, newId, organizations, users, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { installPluginsForNewOrganization } from '~/modules/plugins/plugins.service';
+import { seedRoles } from '~/modules/roles/roles.service';
 
 const SUBDOMAIN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 
@@ -44,6 +45,8 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
     .insert(organizations)
     .values({ id: newId(), subdomain, name: input.name.trim() })
     .returning();
+  await seedRoles(tx, organization!.id);
+
   const [owner] = await tx
     .insert(users)
     .values({

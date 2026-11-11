@@ -1,8 +1,10 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { CursorQuery, Id, IdList, PhoneNumber, cursorPageOf, text, ImageAddress } from './common';
+import { RoleKey } from './roles';
 
-export const UserRole = z.enum(['owner', 'admin', 'member']);
+/** A role key: `owner`, `admin`, `member` or a custom role (`r_…`). See `./roles`. */
+export const UserRole = RoleKey;
 export const UserStatus = z.enum(['invited', 'active', 'disabled']);
 export type UserRole = z.infer<typeof UserRole>;
 export type UserStatus = z.infer<typeof UserStatus>;
@@ -92,7 +94,7 @@ const QueryBoolean = z.union([z.boolean(), z.enum(['true', 'false']).transform((
 
 const InviteEntry = z.object({
   email: z.string().trim().email().max(254),
-  role: UserRole.exclude(['owner']).default('member'),
+  role: UserRole.refine((role) => role !== 'owner', 'invite as admin or member, then make them owner').default('member'),
   /** Given: the member can sign in at once (active). Otherwise they stay invited. */
   password: MemberPassword.optional(),
   ...NameFields,

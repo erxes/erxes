@@ -33,6 +33,7 @@ export {
   organizations,
   PLUGIN_STATUSES,
   pluginInstallations,
+  roles,
   plugins,
   tags,
   users,

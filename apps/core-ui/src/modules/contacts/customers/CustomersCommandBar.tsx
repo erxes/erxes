@@ -3,7 +3,7 @@ import { IconRepeat, IconTrash } from '@tabler/icons-react';
 import { Button, Command, CommandBar, Popover, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton';
@@ -30,7 +30,7 @@ export const CustomersCommandBar = () => {
   const customerIds = customers.map((customer) => customer.id);
   const tagIds = commonTagIds(customers);
   // Owners and admins merge and delete (core's rule).
-  const manager = user.role !== 'member';
+  const manager = useCan()('contacts.merge');
 
   return (
     <>

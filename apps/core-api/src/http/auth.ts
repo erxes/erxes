@@ -1,5 +1,5 @@
-import { coreContract } from '@erxes/core-contract';
-import { db, pluginInstallations, plugins, users, withOrg } from '@erxes/core-db';
+import { coreContract, OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
+import { db, pluginInstallations, plugins, roles, users, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -9,14 +9,36 @@ import { publicPaths } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { verifyJwt } from '~/lib/signing';
 
-export type Role = 'owner' | 'admin' | 'member';
+/** A role key: `owner`, `admin`, `member` or a custom `r_…`. */
+export type Role = string;
 
 /** Who is calling, resolved from the access token on every request. */
 export interface Actor {
   userId: string;
   orgId: string;
   role: Role;
+  /** The role's permission actions (`*`: every grantable one), loaded with the member. */
+  permissions: readonly string[];
 }
+
+const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
+
+/**
+ * May the member do `action`? Owners may do everything; `*` grants every
+ * action except owner-only ones; otherwise the role must list it.
+ */
+export const can = (actor: Pick<Actor, 'role' | 'permissions'>, action: string) => {
+  if (actor.role === 'owner') return true;
+  if (OWNER_ONLY.has(action)) return false;
+
+  return actor.permissions.includes('*') || actor.permissions.includes(action);
+};
+
+export const requirePermission = (actor: Actor, action: string, message = "Your role doesn't allow this") => {
+  if (!can(actor, action)) {
+    throw new HttpError(403, 'NOT_ALLOWED', message, { permission: action });
+  }
+};
 
 /** A plugin calling core with a token for one organisation that installed it. */
 export interface PluginCaller {
@@ -68,15 +90,6 @@ export const pluginCaller = (plugin: Pick<PluginCaller, 'plugin' | 'orgId'>): Ca
   actorId: plugin.plugin,
   source: plugin.plugin,
 });
-
-export const isManager = (actor: Actor) => actor.role === 'owner' || actor.role === 'admin';
-
-/** Owners and admins only. */
-export const requireManager = (actor: Actor, message: string) => {
-  if (!isManager(actor)) {
-    throw new HttpError(403, 'NOT_ALLOWED', message);
-  }
-};
 
 interface AccessClaims {
   typ: 'core_access';
@@ -200,8 +213,16 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
 
   withOrg(claims.org, (tx) =>
     tx
-      .select({ id: users.id, orgId: users.orgId, role: users.role, status: users.status, sessionVersion: users.sessionVersion })
+      .select({
+        id: users.id,
+        orgId: users.orgId,
+        role: users.role,
+        status: users.status,
+        sessionVersion: users.sessionVersion,
+        permissions: roles.permissions,
+      })
       .from(users)
+      .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
       .where(and(eq(users.id, claims.sub), eq(users.orgId, claims.org)))
       .limit(1),
   )
@@ -211,7 +232,7 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
         return next(unauthorized());
       }
 
-      req.actor = { userId: user.id, orgId: user.orgId, role: user.role };
+      req.actor = { userId: user.id, orgId: user.orgId, role: user.role, permissions: user.permissions };
       req.sessionVersion = claims.sv;
       return next();
     })

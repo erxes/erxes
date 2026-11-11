@@ -23,7 +23,7 @@ import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { FormSheet } from '~/components/FormSheet';
 import { api, messageOf } from '~/lib/api';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { TagDot } from '~/modules/tags/TagBadges';
 import { TAG_COLORS, TAGS_KEY, useTagCreate, useTags } from '~/modules/tags/useTags';
 import { ContentTypeSwitch, useContentTypeParam } from '../ContentTypeSwitch';
@@ -243,7 +243,7 @@ export const TagsSettingsPage = () => {
   const [type] = useContentTypeParam();
   const { tags, loading } = useTags(type);
   const { user } = useSession();
-  const manager = user.role !== 'member';
+  const manager = useCan()('tags.delete');
 
   return (
     <PageContainer>

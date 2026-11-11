@@ -4,6 +4,7 @@ import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { config } from '~/config';
 import { enforceAccess } from '~/http/access';
+import { createRole, listRoles, permissionCatalog, removeRole, updateRole } from '~/modules/roles/roles.service';
 import { HttpError } from '~/http/errors';
 import {
   installPlugin,
@@ -17,7 +18,7 @@ import {
 import {
   type Actor,
   actorOf,
-  requireManager,
+  requirePermission,
   callerOf,
   pluginCaller,
   pluginOf,
@@ -215,7 +216,7 @@ export const coreRouter = pub.router({
     record: plugin.audit.record.handler(({ input, context }) => recordPluginAudit(db(), context.plugin, input.entries)),
     verify: authed.audit.verify.handler(({ context }) => verifyAudit(db(), context.actor)),
     checkpoints: authed.audit.checkpoints.handler(({ input, context }) => {
-      requireManager(context.actor, 'Only owners and admins can read audit checkpoints');
+      requirePermission(context.actor, 'audit.view');
 
       return listCheckpoints(db(), context.actor.orgId, input);
     }),
@@ -315,6 +316,15 @@ export const coreRouter = pub.router({
       return result;
     }),
     signIns: authed.auth.signIns.handler(({ context }) => mySignIns(context.actor)),
+  },
+  roles: {
+    list: authed.roles.list.handler(({ context }) => listRoles(db(), context.actor)),
+    permissions: authed.roles.permissions.handler(async ({ context }) => ({
+      data: await permissionCatalog(db(), context.actor.orgId),
+    })),
+    create: authed.roles.create.handler(({ input, context }) => createRole(context.actor, input)),
+    update: authed.roles.update.handler(({ input: { key, ...changes }, context }) => updateRole(context.actor, key, changes)),
+    remove: authed.roles.remove.handler(({ input, context }) => removeRole(context.actor, input.key)),
   },
   plugins: {
     token: pub.plugins.token.handler(({ input }) => issuePluginToken(input)),

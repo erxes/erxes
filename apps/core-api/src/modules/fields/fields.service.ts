@@ -9,7 +9,7 @@ import {
   newId,
 } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, type SQL, sql } from 'drizzle-orm';
-import { type Actor, requireManager } from '~/http/auth';
+import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
@@ -61,8 +61,7 @@ export const toFieldGroupDto = (row: GroupRow) => ({
   createdAt: row.createdAt.toISOString(),
 });
 
-const requireFieldManager = (actor: Actor) =>
-  requireManager(actor, 'Only owners and admins can manage custom fields');
+const requireFieldManager = (actor: Actor) => requirePermission(actor, 'properties.manage');
 
 const taken = (error: unknown): never => {
   if (pgCode(error) === '23505') {

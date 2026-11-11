@@ -6,6 +6,7 @@ import {
   IconHierarchy2,
   IconPlugConnected,
   IconShieldCheck,
+  IconShieldHalf,
   IconTag,
   IconUserCircle,
   IconUsersGroup,
@@ -15,7 +16,7 @@ import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { Children, type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useSession } from '~/modules/auth/session';
+import { useCan } from '~/modules/auth/session';
 
 interface SettingsPath {
   name: string;
@@ -26,21 +27,17 @@ interface SettingsPath {
 /** Old core-ui settings "Workspace" group, limited to what core has. */
 export const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
-  const { user } = useSession();
+  const can = useCan();
 
   return [
     { name: t('team-member'), path: 'team-members', icon: IconUsersGroup },
+    { name: t('roles', 'Roles'), path: 'roles', icon: IconShieldHalf },
     { name: t('tags'), path: 'tags', icon: IconTag },
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
     { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
     { name: t('plugins', 'Plugins'), path: 'plugins', icon: IconApps },
-    // Who changed what: owners and admins only.
-    ...(user.role !== 'member'
-      ? [
-          { name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck },
-          { name: t('event-delivery', 'Event delivery'), path: 'event-delivery', icon: IconPlugConnected },
-        ]
-      : []),
+    ...(can('audit.view') ? [{ name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck }] : []),
+    ...(can('events.view') ? [{ name: t('event-delivery', 'Event delivery'), path: 'event-delivery', icon: IconPlugConnected }] : []),
   ];
 };
 

@@ -18,7 +18,7 @@ import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, messageOf } from '~/lib/api';
 import { uploadErrorMessage, uploadFile } from '~/lib/files';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 
 const SETTINGS_KEY = ['settings', 'files'];
 
@@ -236,7 +236,7 @@ export const FileUploadSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'file-upload' });
   const { user } = useSession();
   const { data: settings, isPending } = useFileSettings();
-  const canEdit = user.role !== 'member';
+  const canEdit = useCan()('settings.manage');
 
   return (
     <PageContainer>

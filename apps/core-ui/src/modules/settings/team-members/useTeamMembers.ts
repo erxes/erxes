@@ -4,7 +4,7 @@ import { useMultiQueryState, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { api, messageOf } from '~/lib/api';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
-import { SESSION_KEY, useSession } from '~/modules/auth/session';
+import { SESSION_KEY, useCan, useSession } from '~/modules/auth/session';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from './constants';
 
 export const USERS_KEY = ['users'];
@@ -13,7 +13,6 @@ export const TEAM_MEMBERS_SESSION_KEY = TEAM_MEMBER_CURSOR_SESSION_KEY;
 export type UserUpdate = Parameters<typeof api.users.update>[0];
 export type InviteEntry = Parameters<typeof api.users.inviteMany>[0]['entries'][number];
 
-export const ROLE_LABEL: Record<UserRole, string> = { owner: 'Owner', admin: 'Admin', member: 'Member' };
 export const STATUS_LABEL: Record<UserStatus, string> = {
   active: 'Active',
   invited: 'Invited',
@@ -155,9 +154,13 @@ export const useTeamMemberSetPassword = () => {
 };
 
 /** What the signed-in member may do to `user` (the API enforces the same rules). */
-export const permissionsFor = (me: Pick<User, 'id' | 'role'>, user: Pick<User, 'id' | 'role'>) => {
+export const permissionsFor = (
+  me: Pick<User, 'id' | 'role'>,
+  user: Pick<User, 'id' | 'role'>,
+  can: (action: string) => boolean,
+) => {
   const self = user.id === me.id;
-  const manager = me.role !== 'member';
+  const manager = can('team.manage');
   const ownerRights = user.role !== 'owner' || me.role === 'owner';
 
   return {
@@ -166,13 +169,15 @@ export const permissionsFor = (me: Pick<User, 'id' | 'role'>, user: Pick<User, '
     canChangeRole: manager && !self && ownerRights,
     canToggle: manager && !self && ownerRights,
     canSetPassword: manager && !self && ownerRights,
-    roles: (me.role === 'owner' ? ['owner', 'admin', 'member'] : ['admin', 'member']) as UserRole[],
+    /** Only owners grant owner rights (the API also refuses roles wider than yours). */
+    canGrantOwner: me.role === 'owner',
   };
 };
 
 /** `permissionsFor` the signed-in member. */
 export const useMemberPermissions = (user: Pick<User, 'id' | 'role'> | undefined) => {
   const { user: me } = useSession();
+  const can = useCan();
 
-  return user ? permissionsFor(me, user) : undefined;
+  return user ? permissionsFor(me, user, can) : undefined;
 };

@@ -2,7 +2,7 @@ import { usePreviousHotkeyScope } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { useNeedsOnboarding } from './OnboardingGuard';
 import { FinalSection } from './components/FinalSection';
 import { InviteTeamMemberSection } from './components/InviteTeamMemberSection';
@@ -22,7 +22,7 @@ export const MainOnboarding = () => {
   const setOnboarded = useSetAtom(onboardedState(user.id));
   const [currentStep, setCurrentStep] = useAtom(onboardingStepState);
   // Old erxes offered invites to owners; in the new core admins may invite too
-  const canInvite = user.role === 'owner' || user.role === 'admin';
+  const canInvite = useCan()('team.invite');
   const steps = useMemo(() => getOnboardingSteps(canInvite), [canInvite]);
   const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } = usePreviousHotkeyScope();
 

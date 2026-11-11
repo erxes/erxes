@@ -1,5 +1,6 @@
-import { type coreContract, CORE_API_PREFIX, type PluginScope } from '@erxes/core-contract';
+import { type CorePermission, type coreContract, CORE_API_PREFIX, type PluginScope } from '@erxes/core-contract';
 import type { Request } from 'express';
+import { can } from './auth';
 import { HttpError } from './errors';
 
 type Contract = typeof coreContract;
@@ -7,21 +8,21 @@ type Contract = typeof coreContract;
 /** Every procedure of the core API: `customers.list`, `plugins.token`, … */
 export type ProcedurePath = { [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}` }[keyof Contract];
 
-/** Which members: everyone, owners and admins, or owners only. */
-export type MemberRule = 'any' | 'manager' | 'owner';
+/** Which members: any signed-in member, or those whose role has this permission. */
+export type MemberRule = 'any' | CorePermission;
 
 /**
  * Who may call a procedure. Nothing is allowed unless written here:
- * `member` for signed-in team members, `plugin` for plugin tokens with that
- * scope (`manifest`: the plugin's own deployment-wide token, no organisation).
- * Services may check more (a member's own note, an owner's account).
+ * `member` for signed-in team members (a permission their role must hold),
+ * `plugin` for plugin tokens with that scope (`manifest`: the plugin's own
+ * deployment-wide token, no organisation). Services may check more (a
+ * member's own note, an owner's account).
  */
 export type Policy = { public: true } | { member?: MemberRule; plugin?: PluginScope | 'manifest' };
 
 const MEMBER = { member: 'any' } as const;
-const MANAGER = { member: 'manager' } as const;
-const OWNER = { member: 'owner' } as const;
 const PUBLIC = { public: true } as const;
+const needs = <P extends CorePermission>(permission: P) => ({ member: permission }) as const;
 
 /**
  * The access map: one entry per procedure, checked before the procedure runs.
@@ -29,18 +30,18 @@ const PUBLIC = { public: true } as const;
  * (or an entry without a procedure) a compile error.
  */
 export const ACCESS = {
-  'activities.list': MEMBER,
-  'activities.addNote': MEMBER,
-  'activities.updateNote': MEMBER,
-  'activities.removeNote': MEMBER,
+  'activities.list': needs('contacts.view'),
+  'activities.addNote': needs('contacts.view'),
+  'activities.updateNote': needs('contacts.view'),
+  'activities.removeNote': needs('contacts.view'),
   'activities.create': { plugin: 'activities:write' },
 
-  'audit.list': MANAGER,
+  'audit.list': needs('audit.view'),
   'audit.record': { plugin: 'audit:write' },
-  'audit.verify': MANAGER,
-  'audit.checkpoints': MANAGER,
-  'audit.settings': MANAGER,
-  'audit.updateSettings': OWNER,
+  'audit.verify': needs('audit.view'),
+  'audit.checkpoints': needs('audit.view'),
+  'audit.settings': needs('audit.view'),
+  'audit.updateSettings': needs('audit.retention'),
 
   'auth.setupStatus': PUBLIC,
   'auth.setup': PUBLIC,
@@ -51,56 +52,56 @@ export const ACCESS = {
   'auth.changePassword': MEMBER,
   'auth.signIns': MEMBER,
 
-  'companies.list': MEMBER,
-  'companies.get': MEMBER,
-  'companies.create': MEMBER,
-  'companies.update': MEMBER,
-  'companies.remove': MANAGER,
-  'companies.merge': MANAGER,
-  'companies.tag': MEMBER,
+  'companies.list': needs('contacts.view'),
+  'companies.get': needs('contacts.view'),
+  'companies.create': needs('contacts.create'),
+  'companies.update': needs('contacts.edit'),
+  'companies.remove': needs('contacts.delete'),
+  'companies.merge': needs('contacts.merge'),
+  'companies.tag': needs('contacts.edit'),
 
-  'customers.list': MEMBER,
-  'customers.get': MEMBER,
-  'customers.create': MEMBER,
-  'customers.update': MEMBER,
-  'customers.remove': MANAGER,
-  'customers.merge': MANAGER,
-  'customers.tag': MEMBER,
-  'customers.companies': MEMBER,
-  'customers.linkCompany': MEMBER,
-  'customers.unlinkCompany': MEMBER,
+  'customers.list': needs('contacts.view'),
+  'customers.get': needs('contacts.view'),
+  'customers.create': needs('contacts.create'),
+  'customers.update': needs('contacts.edit'),
+  'customers.remove': needs('contacts.delete'),
+  'customers.merge': needs('contacts.merge'),
+  'customers.tag': needs('contacts.edit'),
+  'customers.companies': needs('contacts.view'),
+  'customers.linkCompany': needs('contacts.edit'),
+  'customers.unlinkCompany': needs('contacts.edit'),
 
   'events.publish': { plugin: 'events:write' },
-  'events.list': MANAGER,
-  'events.failures': MANAGER,
-  'events.retryFailures': MANAGER,
-  'events.dismissFailures': MANAGER,
+  'events.list': needs('events.view'),
+  'events.failures': needs('events.view'),
+  'events.retryFailures': needs('events.view'),
+  'events.dismissFailures': needs('events.view'),
 
   'fieldGroups.list': MEMBER,
-  'fieldGroups.create': MANAGER,
-  'fieldGroups.update': MANAGER,
-  'fieldGroups.reorder': MANAGER,
-  'fieldGroups.archive': MANAGER,
-  'fieldGroups.restore': MANAGER,
-  'fieldGroups.remove': MANAGER,
+  'fieldGroups.create': needs('properties.manage'),
+  'fieldGroups.update': needs('properties.manage'),
+  'fieldGroups.reorder': needs('properties.manage'),
+  'fieldGroups.archive': needs('properties.manage'),
+  'fieldGroups.restore': needs('properties.manage'),
+  'fieldGroups.remove': needs('properties.manage'),
 
   'fields.list': MEMBER,
   'fields.usage': MEMBER,
-  'fields.create': MANAGER,
-  'fields.update': MANAGER,
-  'fields.reorder': MANAGER,
-  'fields.archive': MANAGER,
-  'fields.restore': MANAGER,
-  'fields.removeUnused': MANAGER,
-  'fields.remove': MANAGER,
+  'fields.create': needs('properties.manage'),
+  'fields.update': needs('properties.manage'),
+  'fields.reorder': needs('properties.manage'),
+  'fields.archive': needs('properties.manage'),
+  'fields.restore': needs('properties.manage'),
+  'fields.removeUnused': needs('properties.manage'),
+  'fields.remove': needs('properties.manage'),
 
   'files.createUpload': { member: 'any', plugin: 'files:write' },
   'files.complete': { member: 'any', plugin: 'files:write' },
   'files.get': { member: 'any', plugin: 'files:read' },
   'files.list': { member: 'any', plugin: 'files:read' },
   'files.remove': { member: 'any', plugin: 'files:write' },
-  'files.settings': MANAGER,
-  'files.updateSettings': MANAGER,
+  'files.settings': needs('settings.manage'),
+  'files.updateSettings': needs('settings.manage'),
 
   'notifications.list': MEMBER,
   'notifications.unreadCount': MEMBER,
@@ -115,34 +116,32 @@ export const ACCESS = {
   'plugins.token': PUBLIC,
   'plugins.registerManifest': { plugin: 'manifest' },
   'plugins.list': MEMBER,
-  'plugins.install': OWNER,
-  'plugins.uninstall': OWNER,
+  'plugins.install': needs('plugins.manage'),
+  'plugins.uninstall': needs('plugins.manage'),
   'plugins.session': MEMBER,
   'plugins.signal': { plugin: 'live:write' },
 
   'tags.list': MEMBER,
-  'tags.create': MEMBER,
-  'tags.update': MEMBER,
-  'tags.remove': MANAGER,
+  'tags.create': needs('tags.manage'),
+  'tags.update': needs('tags.manage'),
+  'tags.remove': needs('tags.delete'),
 
-  'users.list': MEMBER,
-  'users.get': MEMBER,
-  'users.invite': MANAGER,
-  'users.inviteMany': MANAGER,
+  'users.list': needs('team.view'),
+  'users.get': needs('team.view'),
+  'users.invite': needs('team.invite'),
+  'users.inviteMany': needs('team.invite'),
   'users.update': MEMBER,
-  'users.setPassword': MANAGER,
-  'users.disable': MANAGER,
-  'users.enable': MANAGER,
+  'users.setPassword': needs('team.manage'),
+  'users.disable': needs('team.manage'),
+  'users.enable': needs('team.manage'),
+
+  'roles.list': MEMBER,
+  'roles.permissions': MEMBER,
+  'roles.create': needs('roles.manage'),
+  'roles.update': needs('roles.manage'),
+  'roles.remove': needs('roles.manage'),
 } as const satisfies Record<ProcedurePath, Policy>;
 
-const ROLE_RANK = { member: 0, admin: 1, owner: 2 } as const;
-const RULE_RANK = { any: 0, manager: 1, owner: 2 } as const;
-
-const RULE_MESSAGE: Record<MemberRule, string> = {
-  any: '',
-  manager: 'Only owners and admins can do this',
-  owner: 'Only owners can do this',
-};
 
 /** Checks the caller against the procedure's policy (oRPC middleware, every call). */
 export const enforceAccess = (path: string, req: Request) => {
@@ -158,8 +157,8 @@ export const enforceAccess = (path: string, req: Request) => {
   if (req.actor) {
     if (!policy.member) throw new HttpError(403, 'PLUGIN_ONLY', 'Only plugins can do this');
 
-    if (ROLE_RANK[req.actor.role] < RULE_RANK[policy.member]) {
-      throw new HttpError(403, 'NOT_ALLOWED', RULE_MESSAGE[policy.member]);
+    if (policy.member !== 'any' && !can(req.actor, policy.member)) {
+      throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", { permission: policy.member });
     }
 
     return;

@@ -32,7 +32,7 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { UserAvatar } from '~/components/UserAvatar';
 import { api, messageOf } from '~/lib/api';
 import { actorLabel, pluginLabel, useMembersById } from '~/lib/members';
-import { useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { auditSentence } from './auditSentence';
 
@@ -279,7 +279,8 @@ export const AuditLogPage = () => {
   const [filters, setFilters] = useState<Filters>({ area: 'all', actorId: 'all', source: 'all', from: '', to: '', ip: '', q: '' });
   const [open, setOpen] = useState<string | null>(null);
   const deferred = useDeferredValue(filters);
-  const canSee = user.role !== 'member';
+  const can = useCan();
+  const canSee = can('audit.view');
   const query = queryOf(deferred);
   const set = (patch: Partial<Filters>) => setFilters((current) => ({ ...current, ...patch }));
 
@@ -315,7 +316,7 @@ export const AuditLogPage = () => {
           <AppBreadcrumb items={[{ label: t('title', 'Audit log'), to: '/settings/audit-log', icon: IconShieldCheck }]} />
         </PageHeader.Start>
         <PageHeader.End>
-          <Retention isOwner={user.role === 'owner'} />
+          <Retention isOwner={can('audit.retention')} />
           <IntegrityCheck />
           <DropdownMenu>
             <DropdownMenu.Trigger asChild>
