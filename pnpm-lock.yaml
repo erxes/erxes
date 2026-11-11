@@ -194,12 +194,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      postcss:
-        specifier: ^8.4.49
-        version: 8.5.32
-      tailwindcss:
-        specifier: ^4.0.0
-        version: 4.3.5
 
   packages/contract:
     dependencies:
@@ -288,24 +282,6 @@ importers:
       '@module-federation/enhanced':
         specifier: 0.6.16
         version: 0.6.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@7.0.2)
-      '@radix-ui/react-dialog':
-        specifier: 1.1.15
-        version: 1.1.15(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-popover':
-        specifier: 1.1.15
-        version: 1.1.15(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-scroll-area':
-        specifier: 1.2.10
-        version: 1.2.10(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-separator':
-        specifier: 1.1.7
-        version: 1.1.7(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-tabs':
-        specifier: 1.1.13
-        version: 1.1.13(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-tooltip':
-        specifier: 1.2.8
-        version: 1.2.8(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@sniptt/guards':
         specifier: 0.2.0
         version: 0.2.0
@@ -363,9 +339,6 @@ importers:
       graphql:
         specifier: ^16.10.0
         version: 16.15.0
-      imask:
-        specifier: 7.6.1
-        version: 7.6.1
       input-otp:
         specifier: 1.5.0
         version: 1.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -429,9 +402,12 @@ importers:
       tailwind-merge:
         specifier: 2.6.0
         version: 2.6.0
+      tailwindcss:
+        specifier: ^4.0.0
+        version: 4.3.5
       tailwindcss-animate:
         specifier: 1.0.7
-        version: 1.0.7(tailwindcss@3.4.19(tsx@4.23.15)(yaml@2.9.1))
+        version: 1.0.7(tailwindcss@4.3.5)
       type-fest:
         specifier: 4.39.1
         version: 4.39.1
@@ -439,9 +415,6 @@ importers:
         specifier: 3.25.76
         version: 3.25.76
     devDependencies:
-      '@types/dompurify':
-        specifier: ^3.2.0
-        version: 3.2.0
       '@types/node':
         specifier: ^22.10.0
         version: 22.20.5
@@ -4423,10 +4396,6 @@ packages:
 
   '@types/deep-equal@1.0.4':
     resolution: {integrity: sha512-tqdiS4otQP4KmY0PR3u6KbZ5EWvhNdUoS/jc93UuK23C220lOZ/9TvjfxdPcKvqwwDVtmtSCrnr0p/2dirAxkA==}
-
-  '@types/dompurify@3.2.0':
-    resolution: {integrity: sha512-Fgg31wv9QbLDA0SpTOXO3MaxySc4DKGLi8sna4/Utjo4r3ZRPdCt4UQee8BWr+Q5z21yifghREPJGYaEOEIACg==}
-    deprecated: This is a stub types definition. dompurify provides its own type definitions, so you do not need this installed.
 
   '@types/estree@1.0.10':
     resolution: {integrity: sha512-lTyOMnOcmRBzdCv6/4zUZCrEhV0xrqQiUZBZtVcbmLHBXKLnN8q89v/wKRF/Q0HbwVsqbIG3o5HDoFl9sduM+g==}
@@ -11884,10 +11853,6 @@ snapshots:
 
   '@types/deep-equal@1.0.4': {}
 
-  '@types/dompurify@3.2.0':
-    dependencies:
-      dompurify: 3.2.5
-
   '@types/estree@1.0.10': {}
 
   '@types/express-serve-static-core@4.19.9':
@@ -15320,6 +15285,10 @@ snapshots:
   tailwindcss-animate@1.0.7(tailwindcss@3.4.19(tsx@4.23.15)(yaml@2.9.1)):
     dependencies:
       tailwindcss: 3.4.19(tsx@4.23.15)(yaml@2.9.1)
+
+  tailwindcss-animate@1.0.7(tailwindcss@4.3.5):
+    dependencies:
+      tailwindcss: 4.3.5
 
   tailwindcss@3.4.19(tsx@4.23.15)(yaml@2.9.1):
     dependencies:

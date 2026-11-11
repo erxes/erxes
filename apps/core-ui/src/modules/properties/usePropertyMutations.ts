@@ -18,7 +18,7 @@ type GroupUpdate = Parameters<typeof api.fieldGroups.update>[0];
 export const useCanManageFields = () => useSession().user.role !== 'member';
 
 /** Refreshes every list a property change shows in (and records whose values went away). */
-export const usePropertiesRefresh = () => {
+const usePropertiesRefresh = () => {
   const client = useQueryClient();
 
   return (records = false) => {

@@ -10,7 +10,7 @@ export const CUSTOMERS_KEY = ['customers'];
 export const customersSessionKey = (state: CustomerState) => `core_${state}s_cursor`;
 
 /** The list filters, read from the URL (old core-ui query keys). */
-export const useCustomersFilters = (state: CustomerState) => {
+const useCustomersFilters = (state: CustomerState) => {
   const [{ searchValue, tags, ownerId }] = useMultiQueryState<{
     searchValue: string;
     tags: string[];
@@ -129,41 +129,5 @@ export const useCustomersMerge = () => {
     },
     onError: (error) =>
       toast({ variant: 'destructive', title: 'Could not merge', description: messageOf(error) }),
-  });
-};
-
-/** The companies a customer belongs to. */
-export const useCustomerCompanies = (customerId: string | null) =>
-  useQuery({
-    queryKey: [...CUSTOMERS_KEY, 'companies', customerId],
-    queryFn: () => api.customers.companies({ id: customerId! }),
-    enabled: !!customerId,
-  });
-
-/** Links or unlinks a customer and a company (refreshes both sides). */
-export const useCustomerCompanyLink = () => {
-  const client = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: ({
-      customerId,
-      companyId,
-      linked,
-    }: {
-      customerId: string;
-      companyId: string;
-      linked: boolean;
-    }) =>
-      linked
-        ? api.customers.linkCompany({ id: customerId, companyId })
-        : api.customers.unlinkCompany({ id: customerId, companyId }),
-    onSuccess: () => {
-      void client.invalidateQueries({ queryKey: [...CUSTOMERS_KEY, 'companies'] });
-      void client.invalidateQueries({ queryKey: [...CUSTOMERS_KEY, 'list'] });
-      void client.invalidateQueries({ queryKey: ['companies'] });
-    },
-    onError: (error) =>
-      toast({ variant: 'destructive', title: 'Could not update', description: messageOf(error) }),
   });
 };

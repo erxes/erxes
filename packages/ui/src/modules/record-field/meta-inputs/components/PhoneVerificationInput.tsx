@@ -63,5 +63,3 @@ export const PhoneVerificationInput = ({
     </Select>
   );
 };
-
-export default PhoneVerificationInput;

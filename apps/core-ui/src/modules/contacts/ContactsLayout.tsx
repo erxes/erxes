@@ -5,7 +5,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 import { ContactsPath } from './utils/contactDetailPath';
 
-export const CONTACTS_SECTIONS = [
+const CONTACTS_SECTIONS = [
   { labelKey: 'customers', path: ContactsPath.Customers, icon: IconUser },
   { labelKey: 'leads', path: ContactsPath.Leads, icon: IconMagnet },
   { labelKey: 'companies', path: ContactsPath.Companies, icon: IconBuilding },

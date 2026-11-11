@@ -24,7 +24,7 @@ interface SettingsPath {
 }
 
 /** Old core-ui settings "Workspace" group, limited to what core has. */
-export const useSettingsWorkspacePaths = (): SettingsPath[] => {
+const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { user } = useSession();
 
@@ -48,7 +48,7 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
   ];
 };
 
-export function SettingsNavigationGroup({
+function SettingsNavigationGroup({
   name,
   children,
 }: Readonly<{ name: string; children: ReactNode }>) {
@@ -87,7 +87,7 @@ export const useSettingsEntry = () => {
  * Back to where settings were opened from (old core-ui used its page history);
  * opened directly, it goes home.
  */
-export function SettingsExitButton() {
+function SettingsExitButton() {
   const navigate = useNavigate();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 

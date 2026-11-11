@@ -7,7 +7,7 @@ import { ContactsPageHeader } from '../components/ContactsPageHeader';
 import { useCreateHotkey } from '../customers/CustomersHeader';
 
 /** Opens a new company in the side panel as a draft; it is created on Save. */
-export const CompanyCreateButton = () => {
+const CompanyCreateButton = () => {
   const { t } = useTranslation('contact');
   const { openNewRecord } = useSidePanel();
 

@@ -48,7 +48,7 @@ type CustomerRow = typeof customers.$inferSelect & { tagIds: string[] };
 
 type State = CustomerRow['state'];
 
-export const toCustomerDto = (row: CustomerRow) => ({
+const toCustomerDto = (row: CustomerRow) => ({
   id: row.id,
   state: row.state,
   firstName: row.firstName,

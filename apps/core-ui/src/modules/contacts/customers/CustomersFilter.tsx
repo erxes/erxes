@@ -14,7 +14,7 @@ import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
 import { customersSessionKey, useCustomers } from './useCustomers';
 
-export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
+const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation();
   const { totalCount } = useCustomers(state);
 

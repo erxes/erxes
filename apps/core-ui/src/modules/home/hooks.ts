@@ -13,7 +13,7 @@ const USERS_KEY = ['users'];
 
 const STALE_TIME = 30_000;
 
-export const RECENT_LIMIT = 8;
+const RECENT_LIMIT = 8;
 
 const count = (page: { totalCount: number }) => page.totalCount;
 

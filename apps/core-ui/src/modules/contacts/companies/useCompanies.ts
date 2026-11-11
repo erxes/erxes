@@ -4,7 +4,7 @@ import { useMultiQueryState, useToast } from 'erxes-ui';
 import { api, messageOf } from '~/lib/api';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
 
-export const COMPANIES_KEY = ['companies'];
+const COMPANIES_KEY = ['companies'];
 export const COMPANIES_SESSION_KEY = 'core_companies_cursor';
 
 export const useCompanies = () => {

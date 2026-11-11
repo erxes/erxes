@@ -60,7 +60,7 @@ export const uploadFile = async (
 const FILE_URL = new RegExp(`^${CORE_API_PREFIX}/files/([^/?#]+)/download`);
 
 /** The file id in a stored address (`/core/v1/files/<id>/download`). */
-export const fileIdOf = (address: string) => FILE_URL.exec(address)?.[1] ?? null;
+const fileIdOf = (address: string) => FILE_URL.exec(address)?.[1] ?? null;
 
 /** A readable message for upload errors (size and type limits name them). */
 export const uploadErrorMessage = (error: unknown) => {

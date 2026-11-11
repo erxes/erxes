@@ -26,7 +26,7 @@ import { notify } from '~/modules/notifications/notifications.service';
 
 type ActivityRow = typeof activities.$inferSelect;
 
-export const toActivityDto = (row: ActivityRow): Activity => ({
+const toActivityDto = (row: ActivityRow): Activity => ({
   id: row.id,
   targetType: row.targetType,
   targetId: row.targetId,

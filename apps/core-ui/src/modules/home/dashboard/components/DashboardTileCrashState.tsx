@@ -4,7 +4,7 @@ import { Component, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // One broken widget shows this in its own tile; the rest keep working.
-export const DashboardTileCrashState = ({ onRetry }: { onRetry: () => void }) => {
+const DashboardTileCrashState = ({ onRetry }: { onRetry: () => void }) => {
   const { t } = useTranslation('common', { keyPrefix: 'home.dashboard' });
 
   return (

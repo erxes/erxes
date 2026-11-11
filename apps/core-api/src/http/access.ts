@@ -6,12 +6,12 @@ import { HttpError } from './errors';
 type Contract = typeof coreContract;
 
 /** Every procedure of the core API: `customers.list`, `plugins.token`, … */
-export type ProcedurePath = {
+type ProcedurePath = {
   [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}`;
 }[keyof Contract];
 
 /** Which members: everyone, owners and admins, or owners only. */
-export type MemberRule = 'any' | 'manager' | 'owner';
+type MemberRule = 'any' | 'manager' | 'owner';
 
 /**
  * Who may call a procedure. Nothing is allowed unless written here:
@@ -19,7 +19,7 @@ export type MemberRule = 'any' | 'manager' | 'owner';
  * scope (`manifest`: the plugin's own deployment-wide token, no organisation).
  * Services may check more (a member's own note, an owner's account).
  */
-export type Policy = { public: true } | { member?: MemberRule; plugin?: PluginScope | 'manifest' };
+type Policy = { public: true } | { member?: MemberRule; plugin?: PluginScope | 'manifest' };
 
 const MEMBER = { member: 'any' } as const;
 const MANAGER = { member: 'manager' } as const;
@@ -31,7 +31,7 @@ const PUBLIC = { public: true } as const;
  * `satisfies Record<ProcedurePath, Policy>` makes a procedure without an entry
  * (or an entry without a procedure) a compile error.
  */
-export const ACCESS = {
+const ACCESS = {
   'activities.list': MEMBER,
   'activities.addNote': MEMBER,
   'activities.updateNote': MEMBER,

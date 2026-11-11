@@ -12,7 +12,7 @@
     "db:check": "pnpm --filter @erxes/core-db db:check",
     "bootstrap": "pnpm --filter @erxes/core-api bootstrap",
     "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
-    "check": "vp check",
+    "check": "vp check && knip",
     "fix": "vp check --fix",
     "prepare": "vp config --no-agent"
   },

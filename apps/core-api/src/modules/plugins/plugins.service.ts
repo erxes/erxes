@@ -7,7 +7,7 @@ import {
   plugins,
   type StoredPluginManifest,
 } from '@erxes/core-db';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
 import {
@@ -26,14 +26,14 @@ type PluginRow = typeof plugins.$inferSelect;
 type InstallationRow = typeof pluginInstallations.$inferSelect;
 
 /** Plugin server tokens (client credentials). */
-export const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
+const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
 
 /** Plugin UI tokens: a member's session for one plugin's API. */
-export const PLUGIN_SESSION_TTL_SECONDS = 5 * 60;
-export const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
+const PLUGIN_SESSION_TTL_SECONDS = 5 * 60;
+const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
 
 /** After rotation, the previous secret keeps working this long. */
-export const SECRET_OVERLAP_HOURS = 24;
+const SECRET_OVERLAP_HOURS = 24;
 
 const hashSecret = (secret: string) => createHash('sha256').update(secret).digest('hex');
 
@@ -458,10 +458,3 @@ export const pluginSignal = async (
 
   return { ok: true as const };
 };
-
-export const isUninstalled = (installation: InstallationRow | undefined) =>
-  !installation || installation.status !== 'active';
-
-// Kept for scripts: plugins without a secret yet.
-export const pluginsWithoutSecret = () =>
-  db().select({ name: plugins.name }).from(plugins).where(isNull(plugins.secretHash));

@@ -35,9 +35,9 @@ const BLOCKED_EXTENSIONS = new Set([
   '.dll',
 ]);
 
-export const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
+const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
 
-export const toFileDto = (row: FileRow): FileInfo => ({
+const toFileDto = (row: FileRow): FileInfo => ({
   id: row.id,
   name: row.name,
   contentType: row.contentType,
@@ -56,7 +56,7 @@ const extensionOf = (name: string) => {
 };
 
 /** Does `type/subtype` or the name's extension match one of the allowed entries? */
-export const typeAllowed = (allowed: string[], name: string, contentType: string) => {
+const typeAllowed = (allowed: string[], name: string, contentType: string) => {
   if (!allowed.length) {
     return true;
   }

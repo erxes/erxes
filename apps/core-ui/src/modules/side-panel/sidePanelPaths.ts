@@ -16,7 +16,7 @@ export const SIDE_PANEL_QUERY_KEY = 'panel';
 export const SIDE_PANEL_HISTORY_QUERY_KEY = 'panelHistory';
 export const SIDE_PANEL_ROOT_PATH = '/';
 
-export const SIDE_PANEL_DETAIL_PATH = '/detail/:typeName/:recordId/:draftId?';
+const SIDE_PANEL_DETAIL_PATH = '/detail/:typeName/:recordId/:draftId?';
 
 /**
  * The id of a record not created yet: `/detail/<type>/new` shows a draft of

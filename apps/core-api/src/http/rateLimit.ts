@@ -5,7 +5,7 @@ import type { NextFunction, Request, Response } from 'express';
  * against floods from one address. (Per-account sign-in lockout is in the
  * database, so it holds across replicas.)
  */
-export const rateLimit = (options: {
+const rateLimit = (options: {
   windowMs: number;
   max: number;
   key: (req: Request) => string | null;

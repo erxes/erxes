@@ -9,10 +9,10 @@ import { pluginLabel } from '~/lib/members';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
-export const NOTIFICATIONS_KEY = ['notifications'];
+const NOTIFICATIONS_KEY = ['notifications'];
 
 /** `core` is erxes' own inbox; every plugin has one under its name. */
-export const CORE_INBOX = 'core';
+const CORE_INBOX = 'core';
 
 /**
  * Unread notifications, in total and per inbox. Core's database may sit behind

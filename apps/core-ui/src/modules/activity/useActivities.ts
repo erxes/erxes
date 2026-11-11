@@ -4,7 +4,7 @@ import { useToast } from 'erxes-ui';
 import { api, messageOf } from '~/lib/api';
 import { useLivePolling } from '~/lib/live';
 
-export const ACTIVITIES_KEY = ['activities'];
+const ACTIVITIES_KEY = ['activities'];
 
 export type TimelineKind = 'all' | 'notes' | 'changes' | 'plugins';
 

@@ -19,7 +19,7 @@ import type { z } from 'zod';
  * (`mode: polling`, offline, reconnecting) queries fall back to polling.
  */
 
-export type LiveMode = 'connecting' | 'live' | 'polling';
+type LiveMode = 'connecting' | 'live' | 'polling';
 
 export type LiveMessage =
   | { event: 'inbox' }
@@ -234,7 +234,7 @@ export class LiveClient {
   }
 }
 
-export const live = new LiveClient();
+const live = new LiveClient();
 
 /** `live` when changes are pushed; otherwise queries should poll. */
 export const useLiveMode = () =>

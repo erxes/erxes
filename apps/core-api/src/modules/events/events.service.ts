@@ -16,7 +16,7 @@ import { assertTarget } from '~/modules/activities/activities.service';
 
 type EventRow = typeof events.$inferSelect;
 
-export const toEventDto = (row: EventRow): CoreEvent => ({
+const toEventDto = (row: EventRow): CoreEvent => ({
   id: row.id,
   source: row.source,
   type: row.type,

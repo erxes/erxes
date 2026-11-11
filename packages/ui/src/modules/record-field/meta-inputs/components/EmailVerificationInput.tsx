@@ -82,5 +82,3 @@ export const EmailVerificationInput = ({
     </Select>
   );
 };
-
-export default EmailVerificationInput;

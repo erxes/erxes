@@ -1,4 +1,4 @@
-import type { User, UserRole, UserStatus } from '@erxes/core-contract';
+import type { User, UserRole } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -7,8 +7,8 @@ import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { SESSION_KEY, useSession } from '~/modules/auth/session';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from './constants';
 
-export const USERS_KEY = ['users'];
-export const TEAM_MEMBERS_SESSION_KEY = TEAM_MEMBER_CURSOR_SESSION_KEY;
+const USERS_KEY = ['users'];
+const TEAM_MEMBERS_SESSION_KEY = TEAM_MEMBER_CURSOR_SESSION_KEY;
 
 export type UserUpdate = Parameters<typeof api.users.update>[0];
 
@@ -20,12 +20,6 @@ export const ROLE_LABEL: Record<UserRole, string> = {
   member: 'Member',
 };
 
-export const STATUS_LABEL: Record<UserStatus, string> = {
-  active: 'Active',
-  invited: 'Invited',
-  disabled: 'Disabled',
-};
-
 /** First and last name as old core-ui shows them, else the stored full name, else the email. */
 export const memberName = (user: Pick<User, 'firstName' | 'lastName' | 'fullName' | 'email'>) =>
   [user.firstName, user.lastName].filter(Boolean).join(' ') || user.fullName || user.email;
@@ -33,7 +27,7 @@ export const memberName = (user: Pick<User, 'firstName' | 'lastName' | 'fullName
 const detailKey = (id: string) => [...USERS_KEY, 'detail', id];
 
 /** The list's filters (old `useTeamMemberVariables`): search, role and "Is active" (on unless switched off). */
-export const useTeamMemberVariables = () => {
+const useTeamMemberVariables = () => {
   const [{ searchValue, isActive, role }] = useMultiQueryState<{
     searchValue: string;
     isActive: boolean;

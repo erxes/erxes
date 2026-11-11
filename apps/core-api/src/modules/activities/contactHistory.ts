@@ -151,7 +151,7 @@ export const contactCreated = async (tx: Db, actor: Actor, type: ContentType, ro
 };
 
 /** Field, custom field and tag changes between two versions of a record. */
-export const contactChanges = (
+const contactChanges = (
   type: ContentType,
   before: ContactRow,
   after: ContactRow,

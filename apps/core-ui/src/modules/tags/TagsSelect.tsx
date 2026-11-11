@@ -126,7 +126,7 @@ const TagsSelectProvider = ({
 };
 
 /** A tag's colour dot and name. */
-export const TagInline = ({ tag }: { tag: Pick<Tag, 'name' | 'colorCode'> }) => (
+const TagInline = ({ tag }: { tag: Pick<Tag, 'name' | 'colorCode'> }) => (
   <div className="flex max-w-full items-center gap-3">
     <span>
       <IconCircleFilled className="size-3!" style={{ color: tag.colorCode ?? undefined }} />
@@ -137,7 +137,7 @@ export const TagInline = ({ tag }: { tag: Pick<Tag, 'name' | 'colorCode'> }) => 
 
 const UNKNOWN_TAG_LABEL = 'Unknown tag';
 
-export const TagBadge = forwardRef<
+const TagBadge = forwardRef<
   React.ElementRef<typeof Badge>,
   ComponentProps<typeof Badge> & { tag?: Tag }
 >(({ tag, ...props }, ref) =>

@@ -13,7 +13,7 @@ import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
 import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
 
-export const CompaniesTotalCount = () => {
+const CompaniesTotalCount = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { totalCount } = useCompanies();
 

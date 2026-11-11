@@ -19,7 +19,7 @@ import { config } from '~/config';
  * `CORE_SIGNING_KEYS_RETIRED` and setting a new `CORE_SIGNING_KEY`.
  */
 
-export const SIGNING_ALG = 'ES256';
+const SIGNING_ALG = 'ES256';
 
 interface PublicKey {
   kid: string;
@@ -109,7 +109,7 @@ export interface SignOptions {
   jti?: string;
 }
 
-export const ISSUER = 'erxes-core';
+const ISSUER = 'erxes-core';
 
 export const signJwt = (payload: JWTPayload, options: SignOptions): Promise<string> => {
   const { privateKey, current } = keys();

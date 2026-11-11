@@ -102,7 +102,7 @@ const MemberLabel = ({ member }: { member: User }) =>
   );
 
 /** Selected members: avatars, then the name (old MembersInline). */
-export const MembersInline = ({
+const MembersInline = ({
   memberIds,
   placeholder,
   size = 'lg',

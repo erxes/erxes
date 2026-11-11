@@ -127,7 +127,7 @@ const notifications: EventConsumer = {
 export const CONSUMERS: EventConsumer[] = [timeline, notifications];
 
 /** Waits before each retry; after the last one the event is dead. */
-export const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
+const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
 export const MAX_ATTEMPTS = RETRY_DELAYS_SECONDS.length + 1;
 
 const describe = (error: unknown): string => {

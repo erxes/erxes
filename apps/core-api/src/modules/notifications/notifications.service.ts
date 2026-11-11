@@ -10,7 +10,7 @@ import { assertMember, assertPluginNamespace } from '~/lib/guards';
 
 type NotificationRow = typeof notifications.$inferSelect;
 
-export const toNotificationDto = (row: NotificationRow): Notification => ({
+const toNotificationDto = (row: NotificationRow): Notification => ({
   id: row.id,
   source: row.source,
   kind: row.kind,
@@ -36,7 +36,7 @@ type NotifyInput = Omit<NotificationInput, 'priority'> & {
 };
 
 /** Has the member muted this kind, its source, or a prefix of it? */
-export const isMuted = (muted: string[] | undefined, source: string, kind: string) =>
+const isMuted = (muted: string[] | undefined, source: string, kind: string) =>
   !UNMUTABLE_NOTIFICATION_KINDS.includes(kind) &&
   (muted ?? []).some((entry) => entry === source || entry === kind || kind.startsWith(`${entry}.`));
 

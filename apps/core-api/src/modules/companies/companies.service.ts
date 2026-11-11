@@ -43,7 +43,7 @@ import { checkTagIds } from '~/modules/tags/tags.service';
 
 type CompanyRow = typeof companies.$inferSelect & { tagIds: string[] };
 
-export const toCompanyDto = (row: CompanyRow) => ({
+const toCompanyDto = (row: CompanyRow) => ({
   id: row.id,
   primaryName: row.primaryName,
   names: row.names,

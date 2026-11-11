@@ -5,7 +5,7 @@ import { useSession } from '~/modules/auth/session';
 import { onboardedState } from './state/onboardingState';
 
 /** Where first sign-in onboarding lives (old core-ui `AppPath.MainOnboarding`). */
-export const ONBOARDING_PATH = '/welcome';
+const ONBOARDING_PATH = '/welcome';
 
 /** Whether the signed-in user still has to go through the welcome steps. */
 export const useNeedsOnboarding = () => {

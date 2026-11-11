@@ -38,7 +38,7 @@ const sameFamily = (from: FieldType, to: FieldType) =>
 
 const iso = (date: Date | null | undefined) => (date ? date.toISOString() : null);
 
-export const toFieldDto = (row: FieldRow, groupArchivedAt?: Date | null) => ({
+const toFieldDto = (row: FieldRow, groupArchivedAt?: Date | null) => ({
   id: row.id,
   contentType: row.contentType,
   groupId: row.groupId,
@@ -55,7 +55,7 @@ export const toFieldDto = (row: FieldRow, groupArchivedAt?: Date | null) => ({
   createdAt: row.createdAt.toISOString(),
 });
 
-export const toFieldGroupDto = (row: GroupRow) => ({
+const toFieldGroupDto = (row: GroupRow) => ({
   id: row.id,
   contentType: row.contentType,
   name: row.name,

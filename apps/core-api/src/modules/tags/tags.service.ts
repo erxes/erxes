@@ -7,7 +7,7 @@ import { containsPattern } from '~/lib/keyset';
 
 type TagRow = typeof tags.$inferSelect;
 
-export const toTagDto = (row: TagRow) => ({
+const toTagDto = (row: TagRow) => ({
   id: row.id,
   type: row.type,
   name: row.name,

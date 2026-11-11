@@ -11,7 +11,7 @@ const invalidCredentials = () =>
   new HttpError(401, 'INVALID_CREDENTIALS', 'Wrong email or password');
 
 /** `acme.erxes.io` → `acme`; plain hosts (localhost, IPs) name no organisation. */
-export const subdomainFromHost = (host?: string): string | undefined => {
+const subdomainFromHost = (host?: string): string | undefined => {
   const name = (host ?? '').split(':')[0]?.toLowerCase() ?? '';
 
   if (!name.includes('.') || /^\d+(\.\d+){3}$/.test(name)) {
