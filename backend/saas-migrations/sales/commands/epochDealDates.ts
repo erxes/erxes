@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { Collection, Db, MongoClient } from 'mongodb';
-import { getTargetDbBatches } from './_organizationDbs';
+import { getTargetDbBatches, TTargetDb } from './_organizationDbs';
 
 dotenv.config();
 
@@ -26,6 +26,9 @@ const DATE_FIELDS = ['startDate', 'closeDate'] as const;
 const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 
 const pause = () => new Promise((resolve) => setTimeout(resolve, batchPauseMs));
+
+const errorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
 
 const migrateField = async (
   deals: Collection,
@@ -79,17 +82,31 @@ const migrateDb = async (db: Db) => {
       console.log(result.value);
       return;
     }
-    const { reason } = result;
     console.error(
-      `[FAILED] ${DATE_FIELDS[index]}: ${
-        reason instanceof Error ? reason.message : reason
-      }`,
+      `[FAILED] ${DATE_FIELDS[index]}: ${errorMessage(result.reason)}`,
     );
   });
 
   if (results.some((result) => result.status === 'rejected')) {
     throw new Error('deal date update failed');
   }
+};
+
+const migrateTargets = async (targets: TTargetDb[]) => {
+  const failed: string[] = [];
+
+  for (const { label, db } of targets) {
+    console.log(`\n== ${label}`);
+
+    try {
+      await migrateDb(db);
+    } catch (error) {
+      failed.push(label);
+      console.error(`[FAILED] ${label}: ${errorMessage(error)}`);
+    }
+  }
+
+  return failed;
 };
 
 const command = async () => {
@@ -114,21 +131,7 @@ const command = async () => {
     }
 
     batchCount += 1;
-
-    for (const { label, db } of targets) {
-      console.log(`\n== ${label}`);
-
-      try {
-        await migrateDb(db);
-      } catch (error) {
-        failed.push(label);
-        console.error(
-          `[FAILED] ${label}: ${
-            error instanceof Error ? error.message : error
-          }`,
-        );
-      }
-    }
+    failed.push(...(await migrateTargets(targets)));
   }
 
   if (failed.length) {
