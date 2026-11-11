@@ -8,81 +8,26 @@ import { Badge, Button, Separator, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { RelationWidgetEmptyState, RelationWidgetList } from 'ui-modules';
 import { MONGOLIAN_DEAL_PUT_RESPONSES } from '~/modules/ebarimt/deal-ebarimt/graphql/dealPutResponsesQuery';
-import { getDisplayDate } from '~/modules/ebarimt/put-response/components/PutResponseColumn';
 import { MONGOLIAN_PUT_RESPONSE_TIMEZONE } from '~/modules/ebarimt/put-response/graphql/queries/PutResponseQueries';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
-import { EbarimtResponse } from '~/modules/ebarimt/responded/components/PerResponse';
+import {
+  getDisplayDate,
+  getPutResponseStatus,
+  isPrintablePutResponse,
+  toPrintResponse,
+  TPrintablePutResponse,
+} from '~/modules/ebarimt/put-response/utils/putResponsePrint';
 import { printEbarimtResponses } from '~/modules/ebarimt/responded/utils/printEbarimtResponses';
 
 const DEAL_PUT_RESPONSES_LIMIT = 20;
 
-type TDealPutResponse = Pick<
-  IPutResponse,
-  | '_id'
-  | 'id'
-  | 'number'
-  | 'date'
-  | 'createdAt'
-  | 'type'
-  | 'state'
-  | 'status'
-  | 'message'
-  | 'merchantTin'
-  | 'customerTin'
-  | 'customerName'
-  | 'consumerNo'
-  | 'lottery'
-  | 'qrData'
-  | 'receipts'
-  | 'totalAmount'
-  | 'totalVAT'
-  | 'totalCityTax'
->;
+type TDealPutResponse = TPrintablePutResponse & Pick<IPutResponse, 'type'>;
 
 const formatAmount = (value?: number) =>
   (value || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-
-const isActive = (putResponse: TDealPutResponse) =>
-  putResponse.state !== 'inactive';
-
-const getStatus = (
-  putResponse: TDealPutResponse,
-): { variant: 'success' | 'secondary' | 'destructive'; label: string } => {
-  if (putResponse.status !== 'SUCCESS') {
-    return { variant: 'destructive', label: 'error' };
-  }
-
-  if (!isActive(putResponse)) {
-    return { variant: 'secondary', label: 'inactive' };
-  }
-
-  return { variant: 'success', label: 'success' };
-};
-
-const toPrintResponse = (
-  putResponse: TDealPutResponse,
-  timeZone: string,
-): EbarimtResponse => ({
-  _id: putResponse._id,
-  id: putResponse.id,
-  number: putResponse.number,
-  date: getDisplayDate(putResponse, timeZone),
-  status: putResponse.status,
-  message: putResponse.message,
-  merchantTin: putResponse.merchantTin,
-  customerTin: putResponse.customerTin || undefined,
-  customerName: putResponse.customerName || undefined,
-  consumerNo: putResponse.consumerNo || undefined,
-  lottery: putResponse.lottery || undefined,
-  qrData: putResponse.qrData || undefined,
-  receipts: putResponse.receipts,
-  totalAmount: putResponse.totalAmount,
-  totalVAT: putResponse.totalVAT,
-  totalCityTax: putResponse.totalCityTax,
-});
 
 export const DealEbarimt = ({ contentId }: { contentId: string }) => {
   const { t } = useTranslation('mongolian');
@@ -105,9 +50,7 @@ export const DealEbarimt = ({ contentId }: { contentId: string }) => {
       : 'UTC';
   const putResponses = data?.putResponses?.list || [];
   const totalCount = data?.putResponses?.totalCount || 0;
-  const printableResponses = putResponses.filter(
-    (putResponse) => putResponse.id && isActive(putResponse),
-  );
+  const printableResponses = putResponses.filter(isPrintablePutResponse);
 
   const handlePrint = (responses: TDealPutResponse[]) => {
     const printed = printEbarimtResponses(
@@ -160,7 +103,7 @@ export const DealEbarimt = ({ contentId }: { contentId: string }) => {
       }
     >
       {putResponses.map((putResponse) => {
-        const status = getStatus(putResponse);
+        const status = getPutResponseStatus(putResponse);
 
         return (
           <div
@@ -184,7 +127,7 @@ export const DealEbarimt = ({ contentId }: { contentId: string }) => {
                   variant="ghost"
                   size="icon"
                   aria-label={t('print-receipt')}
-                  disabled={!putResponse.id || !isActive(putResponse)}
+                  disabled={!isPrintablePutResponse(putResponse)}
                   onClick={() => handlePrint([putResponse])}
                 >
                   <IconPrinter />

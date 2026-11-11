@@ -724,6 +724,7 @@
   "only-has-return-bill-id": "Only has return bill id",
   "both": "Both",
   "both-not": "Both not",
+  "print": "Print",
   "print-receipt": "Print receipt",
   "ebarimt-responses-count": "eBarimt ({{count}})",
   "no-deal-ebarimt": "No eBarimt has been issued for this deal yet",
