@@ -298,7 +298,8 @@ const sha256 = async (text: string) => {
  * Verifies an event delivery and returns the event: the `Authorization`
  * token is core's, for this plugin, unexpired, and signs this exact body
  * (pass the raw body text, not parsed JSON). Throws if anything is off.
- * Deliveries can repeat: handle each `event.id` once.
+ * Deliveries can repeat and arrive out of order: handle each `event.id`
+ * once, and act on the totals in the payload, not on arrival order.
  */
 export const verifyCoreEvent = async (
   authorization: string | undefined | null,

@@ -236,6 +236,8 @@ it is built.
     to `<api.url>/events` with a 5-minute token (`typ`
     `erxes-core-event+jwt`, `aud` the plugin, `sha` = the body's SHA-256)
     and `Idempotency-Key: <event id>`; non-2xx retries for about two days.
+    Not ordered (one failing event never holds up the rest): payloads carry
+    totals (`paidAmount`, `refundedAmount`), so handlers use the latest state.
     Plugins check with `verifyCoreEvent(authorization, rawBody, …)`. They
     never get their own events; payment events only for their own invoices
     (`payments:read`), customer/company events with `customers:read`, the

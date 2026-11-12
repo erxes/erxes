@@ -251,7 +251,8 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
       await flush();
 
       expect(rejected).toEqual([]);
-      expect(received.filter((event) => event.payload.invoiceId === invoice.body.id).map((event) => event.type)).toEqual([
+      // Deliveries aren't ordered (one slow event never holds up the rest): payloads carry totals.
+      expect(received.filter((event) => event.payload.invoiceId === invoice.body.id).map((event) => event.type).sort()).toEqual([
         'core.payment.paid',
         'core.payment.refunded',
         'core.payment.refunded',
