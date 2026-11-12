@@ -65,7 +65,10 @@ const pluginKeys = optional(z.string()).transform((value, ctx) => {
     if (!PLUGIN_NAME.test(name) || name === 'core') {
       ctx.addIssue({ code: 'custom', message: `"${name}" is not a valid plugin name` });
     } else if (secret.length < 32) {
-      ctx.addIssue({ code: 'custom', message: `the key for "${name}" needs 32 characters or more` });
+      ctx.addIssue({
+        code: 'custom',
+        message: `the key for "${name}" needs 32 characters or more`,
+      });
     } else {
       keys.set(secret, name);
     }
@@ -120,7 +123,12 @@ const Env = z
     SAAS_GRACE_DAYS: positive(7),
     SAAS_BILLING_URL: text,
 
-    FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(['local', 's3']))),
+    FILES_STORAGE: optional(
+      z
+        .string()
+        .toLowerCase()
+        .pipe(z.enum(['local', 's3'])),
+    ),
     FILES_LOCAL_DIR: text,
     FILES_MAX_SIZE_MB: positive(50),
     FILES_LINK_TTL_SECONDS: positive(300),

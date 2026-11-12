@@ -57,27 +57,23 @@ export const guardDeletions = async (
   const report = async (db: Db) => {
     const recipients = await ownerIds(db, caller.orgId);
 
-    await notify(
-      db,
-      systemCaller(caller.orgId),
-      {
-        userIds: recipients,
-        kind: 'core.security.mass_deletion',
-        title: stop
-          ? `${who} was stopped after deleting ${total} ${what}`
-          : `${who} deleted ${total} ${what} in a few minutes`,
-        body: stop
-          ? caller.actorType === 'plugin'
-            ? 'The plugin is suspended in your organisation. Deleted records are in the recycle bin; install the plugin again to resume it.'
-            : 'Further deletions are refused for now. Deleted records are in the recycle bin.'
-          : 'Deleted records stay in the recycle bin for 30 days.',
-        link: '/settings/recycle-bin',
-        priority: 'high',
-        entity: { type: caller.actorType, id: actorId },
-        data: { actor, total },
-        dedupeKey: `mass-deletion:${actor}:${stop ? 'stop' : 'alert'}:${new Date().toISOString().slice(0, 15)}`,
-      },
-    ).catch((error: unknown) => log.warn('could not tell owners about mass deletion', { error }));
+    await notify(db, systemCaller(caller.orgId), {
+      userIds: recipients,
+      kind: 'core.security.mass_deletion',
+      title: stop
+        ? `${who} was stopped after deleting ${total} ${what}`
+        : `${who} deleted ${total} ${what} in a few minutes`,
+      body: stop
+        ? caller.actorType === 'plugin'
+          ? 'The plugin is suspended in your organisation. Deleted records are in the recycle bin; install the plugin again to resume it.'
+          : 'Further deletions are refused for now. Deleted records are in the recycle bin.'
+        : 'Deleted records stay in the recycle bin for 30 days.',
+      link: '/settings/recycle-bin',
+      priority: 'high',
+      entity: { type: caller.actorType, id: actorId },
+      data: { actor, total },
+      dedupeKey: `mass-deletion:${actor}:${stop ? 'stop' : 'alert'}:${new Date().toISOString().slice(0, 15)}`,
+    }).catch((error: unknown) => log.warn('could not tell owners about mass deletion', { error }));
   };
 
   if (!stop) {
@@ -89,16 +85,12 @@ export const guardDeletions = async (
   // The request is refused (rolled back), but the stop itself is saved.
   await withOrgDetached(caller.orgId, async (own) => {
     await report(own);
-    await recordAudit(
-      own,
-      systemCaller(caller.orgId),
-      {
-        action: 'security.mass_deletion_stopped',
-        targetType: caller.actorType,
-        targetId: actorId,
-        metadata: { total, what },
-      },
-    );
+    await recordAudit(own, systemCaller(caller.orgId), {
+      action: 'security.mass_deletion_stopped',
+      targetType: caller.actorType,
+      targetId: actorId,
+      metadata: { total, what },
+    });
 
     if (caller.actorType === 'plugin') {
       await own
@@ -109,10 +101,7 @@ export const guardDeletions = async (
           updatedAt: sql`now()`,
         })
         .where(
-          and(
-            eq(pluginInstallations.orgId, caller.orgId),
-            eq(pluginInstallations.plugin, actorId),
-          ),
+          and(eq(pluginInstallations.orgId, caller.orgId), eq(pluginInstallations.plugin, actorId)),
         );
       log.warn('plugin suspended after mass deletion', {
         org: caller.orgId,
