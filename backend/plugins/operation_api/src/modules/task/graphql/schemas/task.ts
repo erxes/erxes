@@ -25,6 +25,7 @@ export const types = `
     githubIssueNumber: Int
     githubIssueUrl: String
     githubRepoName: String
+    discordSource: OperationDiscordSource
     propertiesData: JSON
     customerId: String
     companyId: String

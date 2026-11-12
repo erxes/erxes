@@ -67,10 +67,14 @@ export const appRouter = t.mergeRouters(
       sync: t.procedure
         .input(z.custom<TContactFieldsSync>())
         .mutation(async ({ ctx, input }) => {
-          const { models } = ctx;
+          const { models, subdomain } = ctx;
 
           await applyContactFieldsSync(
             [models.Task, models.Project, models.Triage],
+            input,
+          );
+          await models.DiscordCustomerChannel.syncCompanyContacts(
+            subdomain,
             input,
           );
         }),

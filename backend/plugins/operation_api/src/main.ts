@@ -27,12 +27,22 @@ import {
   handleGithubWebhook,
   handleGithubSetup,
 } from './utils/githubWebhookHandler';
+import {
+  DISCORD_INTERACTIONS_PATH,
+  DISCORD_OAUTH_CALLBACK_PATH,
+} from '@/discordIntegration/constants';
+import { handleDiscordOAuthCallback } from '@/discordIntegration/utils/discordAccountLink';
+import { handleDiscordInteraction } from '@/discordIntegration/utils/discordInteractions';
 
 export const router: Router = Router();
 
 router.post('/integrations/github/webhook', handleGithubWebhook);
 
 router.get('/integrations/github/setup', handleGithubSetup);
+
+router.get(DISCORD_OAUTH_CALLBACK_PATH, handleDiscordOAuthCallback);
+
+router.post(DISCORD_INTERACTIONS_PATH, handleDiscordInteraction);
 
 startPlugin({
   name: 'operation',

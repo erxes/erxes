@@ -1,0 +1,169 @@
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { OperationDiscordConnectMutation } from '~/gql/graphql';
+import {
+  CHECK_DISCORD_TOKEN,
+  GET_DISCORD_CHANNELS,
+  GET_DISCORD_CONFIGS_BY_TEAM,
+  GET_DISCORD_CONNECTIONS,
+} from '../graphql/queries/discordQueries';
+import {
+  CONNECT_DISCORD,
+  DISCONNECT_DISCORD,
+  REMOVE_DISCORD_TEAM_CONFIG,
+  SAVE_DISCORD_TEAM_CONFIG,
+  SEND_DISCORD_TEST_MESSAGE,
+} from '../graphql/mutations/discordMutations';
+
+type TMutationCallbacks = {
+  onCompleted: () => void;
+  onError: (error: Error) => void;
+};
+
+export function useDiscordConnections() {
+  const { data, loading, error, refetch } = useQuery(GET_DISCORD_CONNECTIONS, {
+    fetchPolicy: 'network-only',
+  });
+
+  return {
+    connections: data?.operationDiscordConnections ?? [],
+    configs: data?.operationDiscordConfigs ?? [],
+    loading,
+    error,
+    refetch,
+  };
+}
+
+export function useDiscordTokenCheck() {
+  const [checkToken, { data, loading, error, called }] = useLazyQuery(
+    CHECK_DISCORD_TOKEN,
+    { fetchPolicy: 'no-cache' },
+  );
+
+  return {
+    checkToken,
+    result: called ? data?.operationDiscordCheckToken : undefined,
+    checking: loading,
+    error,
+  };
+}
+
+export function useDiscordChannels(connectionId: string, skip?: boolean) {
+  const { data, loading, error } = useQuery(GET_DISCORD_CHANNELS, {
+    variables: { connectionId },
+    fetchPolicy: 'network-only',
+    skip: skip || !connectionId,
+  });
+
+  return {
+    channels: data?.operationDiscordChannels ?? [],
+    loading,
+    error,
+  };
+}
+
+export function useDiscordConfigsByTeam(teamId: string) {
+  const { data, loading, error, refetch } = useQuery(
+    GET_DISCORD_CONFIGS_BY_TEAM,
+    {
+      variables: { teamId },
+      fetchPolicy: 'network-only',
+      skip: !teamId,
+    },
+  );
+
+  return {
+    configs: data?.operationDiscordConfigsByTeam ?? [],
+    loading,
+    error,
+    refetch,
+  };
+}
+
+export function useConnectDiscord({
+  onCompleted,
+  onError,
+}: {
+  onCompleted: (data: OperationDiscordConnectMutation) => void;
+  onError: (error: Error) => void;
+}) {
+  const [connectDiscord, { loading: connecting }] = useMutation(
+    CONNECT_DISCORD,
+    {
+      onCompleted,
+      onError,
+      refetchQueries: [{ query: GET_DISCORD_CONNECTIONS }],
+      awaitRefetchQueries: true,
+    },
+  );
+
+  return { connectDiscord, connecting };
+}
+
+export function useDisconnectDiscord({
+  onCompleted,
+  onError,
+}: TMutationCallbacks) {
+  const [disconnectDiscord, { loading: disconnecting }] = useMutation(
+    DISCONNECT_DISCORD,
+    {
+      onCompleted,
+      onError,
+      refetchQueries: [{ query: GET_DISCORD_CONNECTIONS }],
+      awaitRefetchQueries: true,
+    },
+  );
+
+  return { disconnectDiscord, disconnecting };
+}
+
+export function useSaveDiscordTeamConfig(
+  teamId: string,
+  { onCompleted, onError }: TMutationCallbacks,
+) {
+  const [saveTeamConfig, { loading: saving }] = useMutation(
+    SAVE_DISCORD_TEAM_CONFIG,
+    {
+      onCompleted,
+      onError,
+      refetchQueries: [
+        { query: GET_DISCORD_CONFIGS_BY_TEAM, variables: { teamId } },
+        { query: GET_DISCORD_CONNECTIONS },
+      ],
+      awaitRefetchQueries: true,
+    },
+  );
+
+  return { saveTeamConfig, saving };
+}
+
+export function useRemoveDiscordTeamConfig(
+  teamId: string,
+  { onCompleted, onError }: TMutationCallbacks,
+) {
+  const [removeTeamConfig, { loading: removing }] = useMutation(
+    REMOVE_DISCORD_TEAM_CONFIG,
+    {
+      onCompleted,
+      onError,
+      refetchQueries: [
+        { query: GET_DISCORD_CONFIGS_BY_TEAM, variables: { teamId } },
+        { query: GET_DISCORD_CONNECTIONS },
+      ],
+      awaitRefetchQueries: true,
+    },
+  );
+
+  return { removeTeamConfig, removing };
+}
+
+export function useSendDiscordTestMessage({
+  onCompleted,
+  onError,
+}: TMutationCallbacks) {
+  const [sendTestMessage, { loading: sending }] = useMutation(
+    SEND_DISCORD_TEST_MESSAGE,
+    { onCompleted, onError },
+  );
+
+  return { sendTestMessage, sending };
+}

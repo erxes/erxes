@@ -973,11 +973,17 @@ async function saveTaskDoc({
       doc: updateDoc,
       userId,
       subdomain,
+      skipDiscord: true,
     });
     return { task, type: 'update' };
   }
 
-  const task = await models.Task.createTask({ doc, userId, subdomain });
+  const task = await models.Task.createTask({
+    doc,
+    userId,
+    subdomain,
+    skipDiscord: true,
+  });
   return { task, type: 'create' };
 }
 

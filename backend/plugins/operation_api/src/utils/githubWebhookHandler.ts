@@ -4,6 +4,7 @@ import { generateModels } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { getSubdomain, graphqlPubsub } from 'erxes-api-shared/utils';
 import { updateGithubIssueBody } from './githubClient';
+import { handleGithubPullRequest } from './githubPullRequest';
 import { isDuplicateKeyError } from './mongoErrors';
 
 interface GithubInstallationPayload {
@@ -406,6 +407,12 @@ export const handleGithubWebhook = async (
     if (eventType === 'issues') {
       await handleIssues(payload as GithubIssuesPayload, subdomain);
       res.status(200).send('ok');
+      return;
+    }
+
+    if (eventType === 'pull_request') {
+      const handled = await handleGithubPullRequest(payload, subdomain);
+      res.status(200).send(handled ? 'ok' : 'ignored');
       return;
     }
 

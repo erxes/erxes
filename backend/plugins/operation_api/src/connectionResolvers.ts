@@ -55,6 +55,31 @@ import {
   IGithubMilestoneMappingModel,
   loadGithubMilestoneMappingClass,
 } from './modules/githubIntegration/db/models/GithubMilestoneMapping';
+import { IDiscordConnectionDocument } from '@/discordIntegration/@types/discordConnection';
+import {
+  IDiscordConnectionModel,
+  loadDiscordConnectionClass,
+} from '@/discordIntegration/db/models/DiscordConnection';
+import { IDiscordConfigDocument } from '@/discordIntegration/@types/discordConfig';
+import {
+  IDiscordConfigModel,
+  loadDiscordConfigClass,
+} from '@/discordIntegration/db/models/DiscordConfig';
+import { IDiscordMessageDocument } from '@/discordIntegration/@types/discordMessage';
+import {
+  IDiscordMessageModel,
+  loadDiscordMessageClass,
+} from '@/discordIntegration/db/models/DiscordMessage';
+import { IDiscordUserLinkDocument } from '@/discordIntegration/@types/discordUserLink';
+import { IDiscordCustomerChannelDocument } from '@/discordIntegration/@types/discordCustomerChannel';
+import {
+  IDiscordCustomerChannelModel,
+  loadDiscordCustomerChannelClass,
+} from '@/discordIntegration/db/models/DiscordCustomerChannel';
+import {
+  IDiscordUserLinkModel,
+  loadDiscordUserLinkClass,
+} from '@/discordIntegration/db/models/DiscordUserLink';
 
 export interface IModels {
   Task: ITaskModel;
@@ -71,6 +96,11 @@ export interface IModels {
   GithubConfig: IGithubConfigModel;
   GithubConnection: IGithubConnectionModel;
   GithubMilestoneMapping: IGithubMilestoneMappingModel;
+  DiscordConnection: IDiscordConnectionModel;
+  DiscordConfig: IDiscordConfigModel;
+  DiscordMessage: IDiscordMessageModel;
+  DiscordUserLink: IDiscordUserLinkModel;
+  DiscordCustomerChannel: IDiscordCustomerChannelModel;
 }
 
 export interface IContext extends IMainContext {
@@ -162,6 +192,34 @@ export const loadClasses = (
   >(
     'operation_github_milestone_mappings',
     loadGithubMilestoneMappingClass(models),
+  );
+
+  models.DiscordConnection = db.model<
+    IDiscordConnectionDocument,
+    IDiscordConnectionModel
+  >('operation_discord_connections', loadDiscordConnectionClass(models));
+
+  models.DiscordConfig = db.model<IDiscordConfigDocument, IDiscordConfigModel>(
+    'operation_discord_configs',
+    loadDiscordConfigClass(models),
+  );
+
+  models.DiscordMessage = db.model<
+    IDiscordMessageDocument,
+    IDiscordMessageModel
+  >('operation_discord_messages', loadDiscordMessageClass(models));
+
+  models.DiscordUserLink = db.model<
+    IDiscordUserLinkDocument,
+    IDiscordUserLinkModel
+  >('operation_discord_user_links', loadDiscordUserLinkClass(models));
+
+  models.DiscordCustomerChannel = db.model<
+    IDiscordCustomerChannelDocument,
+    IDiscordCustomerChannelModel
+  >(
+    'operation_discord_customer_channels',
+    loadDiscordCustomerChannelClass(models),
   );
 
   return models;

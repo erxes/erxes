@@ -12,6 +12,7 @@ import { EmptyState } from '../modules/integrations/github/components/EmptyState
 import { ConnectedOrgCard } from '../modules/integrations/github/components/ConnectedOrgCard';
 import { useGithubConnection } from '../modules/integrations/github/hooks/useGithubConnection';
 import { useGithubInstall } from '../modules/integrations/github/hooks/useGithubInstall';
+import { IntegrationsBackLink } from '../modules/integrations/components/IntegrationsBackLink';
 
 export const GithubIntegrationPage = () => {
   const { toast } = useToast();
@@ -51,6 +52,7 @@ export const GithubIntegrationPage = () => {
       <ScrollArea>
         <div className="mx-auto max-w-2xl space-y-6 p-6">
           <div>
+            <IntegrationsBackLink />
             <h1 className="text-xl font-semibold ">GitHub Integration</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Sync GitHub issues and pull requests with erxes tasks.

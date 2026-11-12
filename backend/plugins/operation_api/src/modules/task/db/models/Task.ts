@@ -13,6 +13,12 @@ import { DeleteResult, Document } from 'mongodb';
 import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
+import { TDiscordCardEvent } from '@/discordIntegration/@types/discordNotification';
+import {
+  notifyDiscord,
+  notifyDiscordRemoval,
+  notifyDiscordTeamChange,
+} from '@/discordIntegration/utils/notifyDiscord';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   getTask(_id: string): Promise<ITaskDocument>;
@@ -23,26 +29,80 @@ export interface ITaskModel extends Model<ITaskDocument> {
     doc,
     userId,
     subdomain,
+    skipDiscord,
   }: {
     doc: ITask & { triageId?: string };
     userId: string;
     subdomain: string;
+    skipDiscord?: boolean;
   }): Promise<ITaskDocument>;
   updateTask({
     doc,
     userId,
     subdomain,
+    skipDiscord,
   }: {
     doc: ITaskUpdate;
     userId: string;
     subdomain: string;
+    skipDiscord?: boolean;
   }): Promise<ITaskDocument>;
-  removeTask(taskIds: string[]): Promise<DeleteResult>;
+  removeTask(taskIds: string[], subdomain: string): Promise<DeleteResult>;
   moveCycle(
     cycleId: string,
     newCycleId: string,
   ): Promise<mongoose.Types.ObjectId[]>;
 }
+
+const CLOSED_STATUS_TYPES = [STATUS_TYPES.COMPLETED, STATUS_TYPES.CANCELLED];
+
+const getDiscordStatusEvent = (
+  previous?: number,
+  next?: number,
+): TDiscordCardEvent | undefined => {
+  if (next === undefined || next === previous) {
+    return undefined;
+  }
+
+  if (next === STATUS_TYPES.COMPLETED) {
+    return 'taskCompleted';
+  }
+
+  if (next === STATUS_TYPES.CANCELLED) {
+    return 'taskCancelled';
+  }
+
+  return previous !== undefined && CLOSED_STATUS_TYPES.includes(previous)
+    ? 'taskReopened'
+    : undefined;
+};
+
+const notifyDiscordTaskAssigned = async ({
+  models,
+  task,
+  userId,
+  subdomain,
+  skipDiscord,
+}: {
+  models: IModels;
+  task: ITaskDocument;
+  userId: string;
+  subdomain: string;
+  skipDiscord: boolean;
+}) => {
+  if (!task.assigneeId || skipDiscord) {
+    return;
+  }
+
+  await notifyDiscord(models, {
+    subdomain,
+    event: 'taskAssigned',
+    entityId: String(task._id),
+    teamId: String(task.teamId),
+    actorId: userId,
+    assigneeId: task.assigneeId,
+  });
+};
 
 export const loadTaskClass = (
   models: IModels,
@@ -111,10 +171,12 @@ export const loadTaskClass = (
       doc,
       userId,
       subdomain,
+      skipDiscord = false,
     }: {
       doc: ITask & { triageId?: string; _id?: mongoose.Types.ObjectId };
       userId: string;
       subdomain: string;
+      skipDiscord?: boolean;
     }): Promise<ITaskDocument> {
       const [result] = await models.Task.aggregate([
         { $match: { teamId: doc.teamId } },
@@ -188,6 +250,15 @@ export const loadTaskClass = (
         docId: task._id,
         currentDocument: task.toObject(),
       });
+
+      await notifyDiscordTaskAssigned({
+        models,
+        task,
+        userId,
+        subdomain,
+        skipDiscord,
+      });
+
       return task;
     }
 
@@ -195,10 +266,12 @@ export const loadTaskClass = (
       doc,
       userId,
       subdomain,
+      skipDiscord = false,
     }: {
       doc: ITaskUpdate;
       userId: string;
       subdomain: string;
+      skipDiscord?: boolean;
     }) {
       const { _id, ...rest } = doc;
 
@@ -312,11 +385,49 @@ export const loadTaskClass = (
           currentDocument: updatedTask.toObject(),
           prevDocument: task.toObject(),
         });
+
+        if (doc.teamId && String(doc.teamId) !== String(task.teamId)) {
+          await notifyDiscordTeamChange(
+            models,
+            subdomain,
+            updatedTask,
+            String(task.teamId),
+            { actorId: userId, notify: !skipDiscord },
+          );
+        }
+
+        const discordJob = {
+          subdomain,
+          entityId: String(updatedTask._id),
+          teamId: String(updatedTask.teamId),
+          actorId: userId,
+        };
+
+        if (
+          !skipDiscord &&
+          doc.assigneeId &&
+          doc.assigneeId !== task.assigneeId
+        ) {
+          await notifyDiscord(models, {
+            ...discordJob,
+            event: 'taskAssigned',
+            assigneeId: doc.assigneeId,
+          });
+        }
+
+        const statusEvent = getDiscordStatusEvent(
+          task.statusType,
+          rest.statusType,
+        );
+
+        if (!skipDiscord && statusEvent) {
+          await notifyDiscord(models, { ...discordJob, event: statusEvent });
+        }
       }
       return updatedTask;
     }
 
-    public static async removeTask(taskIds: string[]) {
+    public static async removeTask(taskIds: string[], subdomain: string) {
       const tasks = await models.Task.find({ _id: { $in: taskIds } });
 
       for (const task of tasks) {
@@ -326,7 +437,11 @@ export const loadTaskClass = (
         });
       }
 
-      return models.Task.deleteMany({ _id: { $in: taskIds } });
+      const result = await models.Task.deleteMany({ _id: { $in: taskIds } });
+
+      await notifyDiscordRemoval(models, subdomain, tasks);
+
+      return result;
     }
 
     public static async moveCycle(cycleId: string, newCycleId: string) {

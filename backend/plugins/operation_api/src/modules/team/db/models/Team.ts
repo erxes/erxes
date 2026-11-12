@@ -29,7 +29,7 @@ export interface ITeamModel extends Model<ITeamDocument> {
     adminId: string;
   }): Promise<ITeamDocument>;
   updateTeam(_id: string, doc: Partial<ITeam>): Promise<ITeamDocument>;
-  removeTeam(teamId: string): Promise<DeleteResult>;
+  removeTeam(teamId: string, subdomain: string): Promise<DeleteResult>;
 }
 
 export const loadTeamClass = (models: IModels, subdomain: string) => {
@@ -154,8 +154,12 @@ export const loadTeamClass = (models: IModels, subdomain: string) => {
       return updatedTeam;
     }
 
-    public static async removeTeam(teamId: string) {
-      return models.Team.deleteOne({ _id: teamId });
+    public static async removeTeam(teamId: string, subdomain: string) {
+      const result = await models.Team.deleteOne({ _id: teamId });
+
+      await models.DiscordConfig.removeTeamLinks(teamId, subdomain);
+
+      return result;
     }
   }
 
