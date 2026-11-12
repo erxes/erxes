@@ -63,11 +63,12 @@ export const CORE_NOTIFICATION_KINDS = [
   'core.note.mentioned',
   'core.automation.message',
   'core.automation.failed',
+  'core.security.mass_deletion',
 ] as const;
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];
 
 /** Security notices a member can't mute. */
-export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = ['core.user.role_changed', 'core.user.password_set'];
+export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = ['core.user.role_changed', 'core.user.password_set', 'core.security.mass_deletion'];
 
 export const NotificationSettings = z.object({
   /** Muted kinds (`core.customer.updated`) and plugins (`hr`). */

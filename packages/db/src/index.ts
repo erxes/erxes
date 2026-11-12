@@ -52,6 +52,8 @@ export {
   roles,
   plugins,
   tags,
+  trash,
+  deletionCounters,
   users,
   WEBHOOK_DELIVERY_STATUSES,
   WEBHOOK_STATUSES,

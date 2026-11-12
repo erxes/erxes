@@ -54,6 +54,14 @@ export const withSystem = async <T>(reason: string, fn: (tx: Transaction) => Pro
   });
 };
 
+/**
+ * A transaction of its own for the organisation, even inside another scope:
+ * for what must be saved although the surrounding work is rolled back (a
+ * guard that refuses the request but records why).
+ */
+export const withOrgDetached = <T>(orgId: string, fn: (tx: Transaction) => Promise<T>): Promise<T> =>
+  scopeStorage.exit(() => withOrg(orgId, fn));
+
 /** The organisation of the current scope (null for system scopes and outside any). */
 export const scopedOrgId = () => currentScope()?.orgId ?? null;
 

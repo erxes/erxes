@@ -10,6 +10,8 @@ import { pruneDeliveries } from '~/modules/webhooks/webhooks.service';
 import { tickAutomations } from '~/modules/automations/triggers';
 import { pruneNotifications } from '~/modules/notifications/notifications.service';
 import { log } from '~/lib/log';
+import { purgeExpiredTrash } from '~/modules/trash/trash.service';
+import { sql } from 'drizzle-orm';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -30,6 +32,9 @@ export const startMaintenance = () => {
         pruneNotifications(tx, config.retention.readNotificationDays),
       );
       await withSystem('cleanup: webhook deliveries', (tx) => pruneDeliveries(tx, config.retention.eventDays));
+      // The recycle bin keeps things 30 days.
+      await withSystem('cleanup: recycle bin', (tx) => purgeExpiredTrash(tx));
+      await withSystem('cleanup: deletion counters', (tx) => tx.execute(sql`delete from core_deletion_counters where bucket < now() - interval '1 day'`));
       const handled = await withSystem('cleanup: events', (tx) =>
         pruneEvents(tx, config.retention.eventDays, CONSUMERS.map((consumer) => consumer.name)),
       );

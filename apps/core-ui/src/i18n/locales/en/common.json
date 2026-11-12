@@ -221,7 +221,8 @@
     "plugins": "Plugins",
     "roles": "Roles",
     "webhooks": "Webhooks",
-    "payments": "Payments"
+    "payments": "Payments",
+    "recycle-bin": "Recycle bin"
   },
   "plugin": {
     "_": "Plugin",

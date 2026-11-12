@@ -57,6 +57,7 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
             {plugin.needsApproval && <Badge variant="warning">{t('needs-approval', 'Asks for more access')}</Badge>}
           </div>
           {plugin.description && <p className="text-sm text-muted-foreground">{plugin.description}</p>}
+          {plugin.statusReason && <p className="text-sm text-destructive">{plugin.statusReason}</p>}
         </div>
         {isOwner && (
           <div className="flex shrink-0 gap-2">

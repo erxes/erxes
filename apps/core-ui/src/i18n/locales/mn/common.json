@@ -222,7 +222,8 @@
     "plugins": "Плагинууд",
     "roles": "Үүргүүд",
     "webhooks": "Вэбхүүк",
-    "payments": "Төлбөр"
+    "payments": "Төлбөр",
+    "recycle-bin": "Хогийн сав"
   },
   "plugin": {
     "_": "Плагин",

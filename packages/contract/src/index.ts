@@ -13,6 +13,7 @@ import { paymentsContract } from './payments';
 import { pluginsContract } from './plugins';
 import { rolesContract } from './roles';
 import { tagsContract } from './tags';
+import { trashContract } from './trash';
 import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
 
@@ -39,6 +40,7 @@ export const coreContract = {
   plugins: pluginsContract,
   roles: rolesContract,
   tags: tagsContract,
+  trash: trashContract,
   users: usersContract,
   webhooks: webhooksContract,
 };
@@ -60,5 +62,6 @@ export * from './payments';
 export * from './plugins';
 export * from './roles';
 export * from './tags';
+export * from './trash';
 export * from './users';
 export * from './webhooks';

@@ -4,6 +4,7 @@ import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { config } from '~/config';
 import { enforceAccess } from '~/http/access';
+import { listTrash, purgeFromTrash, restoreFromTrash } from '~/modules/trash/trash.service';
 import { AUTOMATION_TEMPLATES } from '~/modules/automations/library';
 import {
   addGateway,
@@ -474,6 +475,11 @@ export const coreRouter = pub.router({
     test: authed.webhooks.test.handler(({ input, context }) => testWebhook(db(), context.actor, input.id)),
     deliveries: authed.webhooks.deliveries.handler(({ input, context }) => listDeliveries(db(), context.actor, input)),
     redeliver: authed.webhooks.redeliver.handler(({ input, context }) => redeliver(db(), context.actor, input.deliveryId)),
+  },
+  trash: {
+    list: authed.trash.list.handler(({ input, context }) => listTrash(db(), context.actor, input)),
+    restore: authed.trash.restore.handler(({ input, context }) => restoreFromTrash(db(), context.actor, input.ids)),
+    purge: authed.trash.purge.handler(({ input, context }) => purgeFromTrash(db(), context.actor, input.ids)),
   },
   roles: {
     list: authed.roles.list.handler(({ context }) => listRoles(db(), context.actor)),

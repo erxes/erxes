@@ -154,6 +154,8 @@ export const Plugin = z.object({
   api: z.object({ url: z.string() }).nullable(),
   /** In this organisation: installed and active. */
   installed: z.boolean(),
+  /** Why it is off here (`Suspended: 600 deletions in a few minutes`). */
+  statusReason: z.string().nullable(),
   requestedScopes: z.array(z.string()),
   grantedScopes: z.array(z.string()),
   /** Asks for scopes the owner hasn't granted yet (a newer version). */

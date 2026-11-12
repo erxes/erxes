@@ -183,6 +183,20 @@
       "when": 1794443066154,
       "tag": "0025_plugin_timelines",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794444775911,
+      "tag": "0026_plugin_roles_trash",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794444948979,
+      "tag": "0027_deletion_counters",
+      "breakpoints": true
     }
   ]
 }

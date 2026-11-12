@@ -13,3 +13,4 @@ export * from './automations';
 export * from './authTokens';
 export * from './oauth';
 export * from './payments';
+export * from './trash';

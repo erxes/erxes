@@ -40,6 +40,7 @@ const toPluginDto = (row: PluginRow, installation?: InstallationRow | null): Plu
     ui: row.manifest?.ui ?? null,
     api: row.manifest?.api ?? null,
     installed,
+    statusReason: installation?.statusReason ?? null,
     requestedScopes: requested,
     grantedScopes: granted,
     needsApproval: installed && requested.some((scope) => !granted.includes(scope)),
@@ -264,6 +265,7 @@ export const installPlugin = (actor: Actor, name: string) =>
         target: [pluginInstallations.orgId, pluginInstallations.plugin],
         set: {
           status: 'active',
+          statusReason: null,
           grantedScopes: scopes,
           installedBy: actor.userId,
           updatedAt: sql`now()`,

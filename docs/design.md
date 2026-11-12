@@ -35,6 +35,7 @@
 | 30 | Automation engine on the event stream and the job queue: versioned definitions (trigger + conditions, steps with actions/delays/branches), one atomic job per step, retries then a failed run that can be resumed, run and step logs; actions as the activating member; loop protection by causation; plugin actions over HTTP with core tokens and idempotency keys. No segments gate. | Agreed |
 | 31 | Email through the job queue (SMTP or log); single-use links (hashed) for invitations and password resets; TOTP two-factor sign-in with recovery codes; "Sign in with erxes" as an OAuth 2.1 / OIDC provider for plugins' own apps (PKCE, rotating refresh tokens with reuse detection). | Agreed |
 | 32 | Payments: gateway connections and gateway invoices in core (QPay first), confirmed only by asking the gateway; plugins keep their business payment records and learn of payments from `core.payment.paid`. | Agreed |
+| 33 | Plugin data defences: one database role per plugin with no access to core tables (core reached through three checked SECURITY DEFINER functions), tenant RLS on plugin tables, a 30-day recycle bin for customers and companies, and a mass-deletion guard that alerts owners and then stops members and suspends plugins. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices

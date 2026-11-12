@@ -19,7 +19,8 @@
     "bootstrap": "pnpm --filter @erxes/core-api bootstrap",
     "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
     "db:migrate": "pnpm --filter @erxes/core-api db:migrate",
-    "db:grant": "pnpm --filter @erxes/core-api db:grant"
+    "db:grant": "pnpm --filter @erxes/core-api db:grant",
+    "db:plugin-role": "pnpm --filter @erxes/core-api db:plugin-role"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

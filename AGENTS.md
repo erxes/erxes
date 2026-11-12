@@ -307,6 +307,24 @@ it is built.
   `?companyId=`) and add forms (`=new`); Settings (Team members, Tags,
   Properties, Organization); theme and language in the user menu; plugin UIs
   through Module Federation.
+- Plugin data defences:
+  - each plugin connects as its own database role (`pnpm db:plugin-role -- <plugin>`
+    creates `erxes_plugin_<plugin>`, NOBYPASSRLS, no access to `core_*` tables);
+    it reaches core only through `core_publish_event`, `core_record_audit` and
+    `core_live_signal` (SECURITY DEFINER; they check the caller is that plugin);
+  - plugins call `core_enable_tenant_rls('<table>')` in their migrations to put
+    their own tables under the same tenant policy;
+  - after every migration run `LOCK_DOWN` revokes PUBLIC, `anon` and
+    `authenticated` (Supabase API roles) from `core_*` tables;
+  - recycle bin (`core_trash`, Settings › Recycle bin): deleted customers and
+    companies keep a snapshot with tags, links and timeline for 30 days;
+    restore needs `contacts.delete`, delete for good needs `trash.purge`
+    (owners);
+  - mass-deletion guard (`src/lib/deletionGuard.ts`, `core_deletion_counters`
+    in 5-minute buckets, last 10 minutes counted): owners are told at
+    `MASS_DELETE_ALERT` (100); at `MASS_DELETE_LIMIT` (500) a member's deletes
+    stop with 429 `MASS_DELETE_STOPPED` and a plugin is suspended (installation
+    disabled with `statusReason`; reinstalling resumes it). Owners are exempt.
 
 ## Validation
 

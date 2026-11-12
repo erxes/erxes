@@ -1,7 +1,7 @@
 import type { CompanyInput, CursorQuery } from '@erxes/core-contract';
 import { companies, customerCompanies, Db, newId, users, withTransaction } from '@erxes/core-db';
 import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
-import { type Actor, requirePermission } from '~/http/auth';
+import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { normalizeEmail, normalizeName, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
@@ -18,6 +18,8 @@ import { applyCustomFields } from '~/modules/fields/fields.service';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 import { lockRows } from '~/lib/locks';
+import { guardDeletions } from '~/lib/deletionGuard';
+import { moveToTrash } from '~/modules/trash/trash.service';
 
 type CompanyRow = typeof companies.$inferSelect & { tagIds: string[] };
 
@@ -312,6 +314,10 @@ export const removeCompanies = async (client: Db, actor: Actor, ids: string[]) =
   requirePermission(actor, 'contacts.delete');
 
   const removed = await client.transaction(async (tx) => {
+    // A runaway deletion is stopped; what is deleted goes to the recycle bin first.
+    await guardDeletions(tx, userCaller(actor), ids.length, 'companies', actor.role);
+    await moveToTrash(tx, userCaller(actor), 'company', ids);
+
     const rows = await tx
       .delete(companies)
       .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))

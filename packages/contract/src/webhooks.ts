@@ -19,6 +19,8 @@ export const CORE_EVENT_TYPES = [
   { type: 'core.company.deleted', label: 'Company deleted', subject: 'company' },
   { type: 'core.company.merged', label: 'Companies merged', subject: 'company' },
   { type: 'core.company.tagged', label: 'Company tagged', subject: 'company' },
+  { type: 'core.customer.restored', label: 'Customer restored', subject: 'customer' },
+  { type: 'core.company.restored', label: 'Company restored', subject: 'company' },
   { type: 'core.payment.paid', label: 'Invoice paid', subject: null },
   { type: 'core.payment.cancelled', label: 'Invoice cancelled', subject: null },
 ] as const;

@@ -7,6 +7,7 @@ import { unique } from '~/lib/contacts';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { keysetPage } from '~/lib/keyset';
 import { notify } from '~/modules/notifications/notifications.service';
+import { guardDeletions } from '~/lib/deletionGuard';
 
 type ActivityRow = typeof activities.$inferSelect;
 
@@ -612,6 +613,8 @@ export const updatePluginActivity = async (
 
 export const removePluginActivity = async (client: Db, caller: PluginCaller, ref: string) => {
   const row = await pluginEntry(client, caller, ref);
+
+  await guardDeletions(client, pluginCaller(caller), 1, 'timeline entries');
 
   await client.delete(activities).where(eq(activities.id, row.id));
 

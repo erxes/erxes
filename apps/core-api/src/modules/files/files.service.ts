@@ -11,6 +11,7 @@ import { lockRows } from '~/lib/locks';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { canShowInline, storage } from './storage';
 import { log } from '~/lib/log';
+import { guardDeletions } from '~/lib/deletionGuard';
 
 type FileRow = typeof files.$inferSelect;
 
@@ -324,6 +325,8 @@ export const removeFile = async (client: Db, caller: Caller, actor: Actor | null
   if (!isUploader(row, caller) && !(actor && can(actor, 'files.moderate'))) {
     throw new HttpError(403, 'NOT_ALLOWED', 'Only the uploader or someone who moderates files can delete this file');
   }
+
+  await guardDeletions(client, caller, 1, 'files', actor?.role);
 
   const [claimed] = await client
     .update(files)

@@ -1,0 +1,56 @@
+import { sql } from 'drizzle-orm';
+import { check, foreignKey, index, integer, jsonb, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import { ACTOR_TYPES } from './platform';
+import { pgTable } from '../table';
+import { organizations } from './organizations';
+
+const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
+
+/**
+ * The recycle bin: deleted customers and companies, with everything that went
+ * with them (tags, links, timeline), restorable for 30 days, then purged for
+ * good. A mistaken or malicious bulk delete can be undone.
+ */
+export const trash = pgTable(
+  'trash',
+  {
+    id: text().primaryKey(),
+    orgId: text().notNull(),
+    recordType: text({ enum: ['customer', 'company'] }).notNull(),
+    recordId: text().notNull(),
+    /** Its name at deletion, for the bin's list. */
+    label: text(),
+    /** The row, its tags and links, and its timeline entries. */
+    snapshot: jsonb().$type<Record<string, unknown>>().notNull(),
+    deletedByType: text({ enum: ACTOR_TYPES }).notNull(),
+    deletedBy: text(),
+    deletedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    purgeAt: timestamptz().notNull(),
+  },
+  (table) => [
+    uniqueIndex('core_trash_record_key').on(table.orgId, table.recordType, table.recordId),
+    index('core_trash_org_idx').on(table.orgId, table.deletedAt.desc()),
+    index('core_trash_purge_idx').on(table.purgeAt),
+    check('core_trash_record_type_check', sql`${table.recordType} IN ('customer', 'company')`),
+    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_trash_org_id_fkey' }).onDelete('cascade'),
+  ],
+);
+
+/**
+ * Deletions per organisation and actor in 5-minute buckets: a member or a
+ * plugin deleting far more than usual is stopped and the owners are told.
+ */
+export const deletionCounters = pgTable(
+  'deletion_counters',
+  {
+    orgId: text().notNull(),
+    /** `user:<id>` or `plugin:<name>`. */
+    actor: text().notNull(),
+    bucket: timestamp({ withTimezone: true, mode: 'date' }).notNull(),
+    count: integer().default(0).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.actor, table.bucket], name: 'core_deletion_counters_pkey' }),
+    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_deletion_counters_org_id_fkey' }).onDelete('cascade'),
+  ],
+);

@@ -30,6 +30,7 @@ export const CORE_PERMISSIONS = [
   { action: 'automations.manage', group: 'Automations', label: 'Create, change and turn automations on or off' },
   { action: 'audit.retention', group: 'Security', label: 'Change how long the audit log is kept', ownerOnly: true },
   { action: 'plugins.manage', group: 'Plugins', label: 'Install, uninstall and approve plugins', ownerOnly: true },
+  { action: 'trash.purge', group: 'Contacts', label: 'Delete from the recycle bin for good', ownerOnly: true },
 ] as const satisfies readonly { action: string; group: string; label: string; ownerOnly?: boolean }[];
 
 export type CorePermission = (typeof CORE_PERMISSIONS)[number]['action'];

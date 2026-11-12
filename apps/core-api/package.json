@@ -12,7 +12,8 @@
     "bootstrap": "tsx --env-file-if-exists=../../.env scripts/bootstrap.ts",
     "plugin:secret": "tsx --env-file-if-exists=../../.env scripts/plugin-secret.ts",
     "db:migrate": "tsx --env-file-if-exists=../../.env scripts/migrate.ts",
-    "db:grant": "tsx --env-file-if-exists=../../.env scripts/grant.ts"
+    "db:grant": "tsx --env-file-if-exists=../../.env scripts/grant.ts",
+    "db:plugin-role": "tsx --env-file-if-exists=../../.env scripts/plugin-role.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1166.0",

@@ -35,6 +35,35 @@ export const migrationsFolder = (): string => {
 };
 
 /**
+ * After migrating: nobody gets rights on core's tables by default. Core's
+ * runtime role is granted explicitly (`core_grant_runtime`); PUBLIC and
+ * Supabase's web API roles (`anon`, `authenticated`), which Supabase grants
+ * every new table to, get nothing — plugin roles reach core only through the
+ * functions meant for them.
+ */
+const LOCK_DOWN = `
+DO $lock$
+DECLARE
+  t text;
+  r text;
+BEGIN
+  FOR t IN SELECT format('%I.%I', schemaname, tablename) FROM pg_tables WHERE schemaname = 'public' AND tablename LIKE 'core\\_%' LOOP
+    EXECUTE format('REVOKE ALL ON %s FROM PUBLIC', t);
+    FOREACH r IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+      IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = r) THEN
+        EXECUTE format('REVOKE ALL ON %s FROM %I', t, r);
+      END IF;
+    END LOOP;
+  END LOOP;
+  FOREACH r IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = r) THEN
+      EXECUTE format('REVOKE EXECUTE ON FUNCTION core_publish_event, core_record_audit, core_live_signal FROM %I', r);
+    END IF;
+  END LOOP;
+END $lock$;
+`;
+
+/**
  * Applies pending migrations and returns their tags.
  *
  * One transaction under a transaction-scoped advisory lock: safe with several
@@ -88,6 +117,8 @@ export const runMigrations = async (
       );
       applied.push(entries[index]?.tag ?? String(migration.folderMillis));
     }
+
+    if (applied.length) await tx.execute(sql.raw(LOCK_DOWN));
 
     return applied;
   });

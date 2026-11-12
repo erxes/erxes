@@ -68,6 +68,8 @@ export const pluginInstallations = pgTable(
     orgId: text().notNull(),
     plugin: text().notNull(),
     status: text({ enum: PLUGIN_STATUSES }).default('active').notNull(),
+    /** Why it is off (`Suspended: 600 deletions in 5 minutes`), for the owner. */
+    statusReason: text(),
     grantedScopes: text().array().default(sql`'{}'::text[]`).notNull(),
     installedBy: text(),
     installedAt: createdAt(),

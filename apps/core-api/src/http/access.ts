@@ -142,6 +142,10 @@ export const ACCESS = {
   'tags.update': needs('tags.manage'),
   'tags.remove': needs('tags.delete'),
 
+  'trash.list': needs('contacts.delete'),
+  'trash.restore': needs('contacts.delete'),
+  'trash.purge': needs('trash.purge'),
+
   'users.list': needs('team.view'),
   'users.get': needs('team.view'),
   'users.invite': needs('team.invite'),
