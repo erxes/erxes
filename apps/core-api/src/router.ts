@@ -418,7 +418,7 @@ export const coreRouter = pub.router({
       return { ok: true as const };
     }),
     me: authed.auth.me.handler(({ context }) => getSession(context.actor.orgId, context.actor.userId)),
-    onboarded: authed.auth.onboarded.handler(({ context }) => markOnboarded(context.actor.orgId, context.actor.userId)),
+    onboarded: authed.auth.onboarded.handler(({ input, context }) => markOnboarded(context.actor, input ?? {})),
     changePassword: authed.auth.changePassword.handler(async ({ input, context }) => {
       const result = await changeOwnPassword(context.actor, input);
 

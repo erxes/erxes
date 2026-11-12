@@ -128,7 +128,7 @@ it is built.
   editor), views in the Contacts sidebar, Save / Update view; the filter and
   view live in the address (`advanced`, `view`).
 - Import and export (`src/modules/transfer`; permissions `contacts.import`,
-  `contacts.export`; Settings › Import & export):
+  `contacts.export`; Contacts › Settings › Import & export history):
   - Import (customers, leads, companies) from CSV (UTF-8, BOM, `,` `;` tab)
     or Excel (first sheet), ≤ 100,000 rows: uploaded through `/files`, parsed
     by job `import.parse` into `core_import_rows`, columns suggested from
@@ -167,7 +167,7 @@ it is built.
   every kind of filter on 1,000,000 customers.
 - Leads (`src/modules/leads`): people and companies with `state = lead`,
   moving through the organisation's own stages (`core_lead_stages`: open /
-  qualified / disqualified, at least one open; Settings › Lead stages), with a
+  qualified / disqualified, at least one open; Contacts › Settings › Lead stages), with a
   source and details, a disqualify reason, and conversion (`convertedAt`;
   converting lands in the first qualified stage). Every step is in
   `core_lead_events` (funnel, time in stage, conversion by source and owner,
@@ -243,6 +243,11 @@ it is built.
   - Core actions (`actions.ts`): update/tag customer and company, set a custom
     field, round-robin owner (`state.turns`), note, notify, email, POST with
     headers. Plugin actions from manifests (`verifyCoreCall`, Idempotency-Key).
+    Action inputs (`ActionField`) are typed so the builder shows the right
+    control: text (with an "Insert data" picker for `{{…}}`), choices,
+    members, tags, `custom_field`, `lead_stage` (by id; older steps by name),
+    `recipients` (`subject` or addresses), and `sameTypeAs` for a value
+    shaped like a chosen custom field.
   - Tools: dry run (`/test`), per-step stats (30 days), versions + restore,
     templates (`library.ts`), field catalog for pickers (`/automations/fields`).
   - UI (`apps/core-ui/src/modules/automations`): a flow canvas
@@ -388,7 +393,13 @@ it is built.
   refetches what changed, and polls only while the stream is down.
 - Welcome steps: `core_users.onboarded_at` (`POST /auth/onboarded`, first time
   kept); core-ui's `OnboardingGuard` reads it from the session, so another
-  browser doesn't show them again.
+  browser doesn't show them again. The owner may ask for example data
+  (`exampleData`, in the UI's language): job `organization.example_data`
+  (`modules/organizations/exampleData.ts`, atomic, once while the
+  organisation has no contacts) seeds companies, customers, leads across the
+  stages, links, tags, two custom fields, notes, a view and a welcome
+  automation (off), all tagged "Example"; the UI shows "Setting up …" until
+  the first example contact exists.
 - Profile (Settings › Account › Profile, `/settings/profile`): the member's own
   picture (core file service), names, contact details, about and links through
   `users.update` on themselves; `POST /auth/password` changes their password with
@@ -397,9 +408,11 @@ it is built.
 - Core UI: setup and sign-in (old core-ui look); Contacts (Customers, Leads,
   Companies) on RecordTable with inline editing, tag and custom field columns,
   filters, bulk tag / merge / delete, a detail side panel (`?customerId=`,
-  `?companyId=`) and add forms (`=new`); Settings (Team members, Tags,
-  Properties, Organization); theme and language in the user menu; plugin UIs
-  through Module Federation.
+  `?companyId=`) and add forms (`=new`); Contacts › Settings
+  (`/contacts/settings`: Properties, Tags, Lead stages, Import & export
+  history; the old `/settings/...` addresses redirect there); Settings (Team
+  members, Roles, Organization; Profile and Password & security per member);
+  theme and language in the user menu; plugin UIs through Module Federation.
 - Audit streaming (`src/modules/audit/streams.ts`, `core_audit_streams`,
   owner-only `audit.stream`; Audit log › Streaming): the log goes, as it is
   written and in chain order, to a log service — `erxes` (signed JSON with

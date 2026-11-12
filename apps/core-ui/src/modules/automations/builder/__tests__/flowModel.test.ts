@@ -1,6 +1,7 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
 import { describe, expect, it } from 'vitest';
 import {
+  actionDefaults,
   cloneStep,
   countSteps,
   describeConditions,
@@ -85,5 +86,52 @@ describe('flow model', () => {
     expect(problems.get('a')).toEqual(['Fill in members to rotate through']);
     expect(problems.get('n')).toBeUndefined();
     expect(problems.get('e')).toEqual(['Add a condition']);
+  });
+});
+
+describe('action inputs', () => {
+  const email: ActionInfo = {
+    type: 'core.email.send',
+    label: 'Send an email',
+    description: null,
+    source: 'core',
+    subject: null,
+    fields: [
+      { key: 'to', label: 'To', type: 'recipients', required: true },
+      { key: 'subject', label: 'Subject', type: 'text', required: true },
+    ],
+  };
+  const move: ActionInfo = {
+    type: 'core.lead.move',
+    label: 'Move the lead to a stage',
+    description: null,
+    source: 'core',
+    subject: 'customer',
+    fields: [{ key: 'stage', label: 'Stage', type: 'lead_stage', required: true }],
+  };
+  const setField: ActionInfo = {
+    type: 'core.customer.set_field',
+    label: 'Set a custom field',
+    description: null,
+    source: 'core',
+    subject: 'customer',
+    fields: [{ key: 'fieldId', label: 'Field', type: 'custom_field', required: true }],
+  };
+
+  it('starts an email addressed to the record', () => {
+    expect(actionDefaults(email)).toEqual({ to: 'subject' });
+    expect(actionDefaults(move)).toEqual({});
+  });
+
+  it('names stages and custom fields on the card, not their ids', () => {
+    const context = {
+      actions: [move, setField],
+      events: [],
+      fields: [{ path: 'subject.customFields.f1', label: 'Plan (custom)', type: 'select' }],
+      stages: [{ id: 's1', name: 'Qualified' }],
+    };
+
+    expect(describeStep({ id: 'm', type: 'action', action: 'core.lead.move', input: { stage: 's1' } }, context).detail).toBe('Stage: Qualified');
+    expect(describeStep({ id: 'f', type: 'action', action: 'core.customer.set_field', input: { fieldId: 'f1' } }, context).detail).toBe('Field: Plan');
   });
 });

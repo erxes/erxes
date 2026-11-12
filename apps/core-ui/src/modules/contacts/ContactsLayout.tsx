@@ -1,5 +1,14 @@
-import { IconBuilding, IconChartFunnel, IconChevronDown, IconLayoutList, IconMagnet, IconUser, IconUsers } from '@tabler/icons-react';
-import { AppLayout, cn, Sidebar } from 'erxes-ui';
+import {
+  IconBuilding,
+  IconChartFunnel,
+  IconChevronDown,
+  IconLayoutList,
+  IconMagnet,
+  IconSettings,
+  IconUser,
+  IconUsers,
+} from '@tabler/icons-react';
+import { AppLayout, AppLayoutFooterLink, cn, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
@@ -9,6 +18,7 @@ import type { ViewRecordType } from '@erxes/core-contract';
 import { useViews } from './views/useViews';
 import { useLeadsT } from '~/modules/leads/i18n';
 import { VIEW_LIST_PATHS, viewHref } from './views/viewLinks';
+import { CONTACT_SETTINGS_PATH } from './settings/paths';
 
 export const CONTACTS_SECTIONS = [
   // People and companies are peers; leads (of either kind) come after.
@@ -132,10 +142,16 @@ const ContactsNavigation = () => {
  */
 export const ContactsLayout = () => {
   const { t } = useTranslation('contact');
+  const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-      <AppLayout id="contacts" title={t('core-modules.contacts')} sidebar={
+      <AppLayout
+        id="contacts"
+        title={t('core-modules.contacts')}
+        // Pinned at the foot, as erxes plugins do: opens Contacts › Settings.
+        footer={<AppLayoutFooterLink path={CONTACT_SETTINGS_PATH} name={sidebarT('settings', 'Settings')} icon={IconSettings} />}
+        sidebar={
           <>
             <ContactsNavigation />
           </>

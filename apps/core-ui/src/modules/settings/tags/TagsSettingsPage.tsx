@@ -27,6 +27,7 @@ import { useCan, useSession } from '~/modules/auth/session';
 import { TagDot } from '~/modules/tags/TagBadges';
 import { TAG_COLORS, TAGS_KEY, useTagCreate, useTags } from '~/modules/tags/useTags';
 import { ContentTypeSwitch, useContentTypeParam } from '../ContentTypeSwitch';
+import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const useTagUpdate = () => {
   const client = useQueryClient();
@@ -249,7 +250,7 @@ export const TagsSettingsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: 'Tags', to: '/settings/tags', icon: IconTags }]} />
+          <AppBreadcrumb items={[{ label: 'Tags', to: CONTACT_SETTINGS.tags, icon: IconTags }]} />
         </PageHeader.Start>
         <PageHeader.End>
           <AddTag type={type} />

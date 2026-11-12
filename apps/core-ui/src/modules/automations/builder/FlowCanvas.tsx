@@ -20,6 +20,8 @@ import {
 import { Button, cn, DropdownMenu } from 'erxes-ui';
 import { type ComponentType, Fragment, type ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLeadStages } from '~/modules/leads/useLeads';
+import { catalogIcon } from './CatalogPicker';
 import { armsOf, describeStep, type ListAddress, STEP_TITLES, type StepType } from './flowModel';
 import { BuilderContext } from './StepSettings';
 import type { FieldInfo } from './useAutomationFields';
@@ -182,11 +184,12 @@ const StepList = ({ steps, address, flow, root }: { steps: AutomationStep[]; add
   const { t } = useTranslation('automations');
   const { events, stats, outputsBefore } = useContext(BuilderContext);
   const add = (index: number) => (flow.disabled ? undefined : (type: StepType) => flow.onAdd(address, index, type));
+  const { stages } = useLeadStages();
 
   return (
     <div className="flex flex-col items-center">
       {steps.map((step, index) => {
-        const { title, detail } = describeStep(step, { actions: flow.actions, events, fields: [...flow.fields, ...outputsBefore(step.id)] });
+        const { title, detail } = describeStep(step, { actions: flow.actions, events, fields: [...flow.fields, ...outputsBefore(step.id)], stages });
         const arms = armsOf(step);
         const look = LOOK[step.type];
         const action = step.type === 'action' ? flow.actions.find((item) => item.type === step.action) : undefined;
@@ -196,7 +199,7 @@ const StepList = ({ steps, address, flow, root }: { steps: AutomationStep[]; add
             <Connector onAdd={add(index)} />
             <Node
               kind={step.type === 'action' ? (action && action.source !== 'core' ? action.source : t('step-type.action', 'Action')) : t(`step-type.${step.type}`, STEP_TITLES[step.type])}
-              icon={look.icon}
+              icon={action ? catalogIcon(action) : look.icon}
               tone={look.tone}
               title={title}
               detail={detail}

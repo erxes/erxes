@@ -206,13 +206,13 @@
     "oauth-clients": "OAuth clients",
     "system-logs": "System Logs",
     "email-delivery": "Email delivery",
-    "import-export": "Import & export",
+    "import-export": "Import & export history",
     "message-pro": "Message Pro",
     "agents": "Agents",
     "ldap": "LDAP",
     "two-factor": "Two-factor authentication",
     "my-activity": "My activity",
-    "security": "Security",
+    "security": "Password & security",
     "active-directory": "Active Directory (LDAP)",
     "support-access": "Support access",
     "audit-log": "Audit log",
@@ -224,7 +224,9 @@
     "payments": "Payments",
     "recycle-bin": "Recycle bin",
     "plan": "Plan",
-    "lead-stages": "Lead stages"
+    "lead-stages": "Lead stages",
+    "settings": "Settings",
+    "contacts-settings": "Contacts settings"
   },
   "plugin": {
     "_": "Plugin",

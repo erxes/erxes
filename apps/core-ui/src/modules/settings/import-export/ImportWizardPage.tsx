@@ -8,6 +8,7 @@ import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, messageOf } from '~/lib/api';
 import { IMPORTS_KEY, RECORD_PATHS, useImport, useTransferColumns } from '~/modules/transfer/useTransfer';
+import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const IGNORE = '__ignore__';
 const NOUNS = { customer: 'customers', lead: 'leads', company: 'companies' } as const;
@@ -135,8 +136,8 @@ export const ImportWizardPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb
             items={[
-              { label: t('title', 'Import & export'), to: '/settings/import-export', icon: IconFileImport },
-              { label: imp.fileName, to: `/settings/import-export/${id}` },
+              { label: t('title', 'Import & export history'), to: CONTACT_SETTINGS.importExport, icon: IconFileImport },
+              { label: imp.fileName, to: `${CONTACT_SETTINGS.importExport}/${id}` },
             ]}
           />
         </PageHeader.Start>

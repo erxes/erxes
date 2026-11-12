@@ -4,14 +4,11 @@ import {
   IconChevronLeft,
   IconCloudUpload,
   IconApps,
-  IconHierarchy2,
-  IconProgress,
+  IconLock,
   IconPlugConnected,
   IconShieldCheck,
   IconShieldHalf,
-  IconTag,
   IconTrash,
-  IconFileImport,
   IconCreditCard,
   IconUserCircle,
   IconUsersGroup,
@@ -40,13 +37,9 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
   return [
     { name: t('team-member'), path: 'team-members', icon: IconUsersGroup },
     { name: t('roles', 'Roles'), path: 'roles', icon: IconShieldHalf },
-    { name: t('tags'), path: 'tags', icon: IconTag },
-    { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
-    ...(can('properties.manage') ? [{ name: t('lead-stages', 'Lead stages'), path: 'lead-stages', icon: IconProgress }] : []),
     { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
     { name: t('plugins', 'Plugins'), path: 'plugins', icon: IconApps },
     ...(plan?.saas ? [{ name: t('plan', 'Plan'), path: 'plan', icon: IconCreditCard }] : []),
-    ...(can('contacts.import') || can('contacts.export') ? [{ name: t('import-export', 'Import & export'), path: 'import-export', icon: IconFileImport }] : []),
     ...(can('contacts.delete') ? [{ name: t('recycle-bin', 'Recycle bin'), path: 'recycle-bin', icon: IconTrash }] : []),
     ...(can('payments.manage') ? [{ name: t('payments', 'Payments'), path: 'payments', icon: IconCash }] : []),
     ...(can('webhooks.manage') ? [{ name: t('webhooks', 'Webhooks'), path: 'webhooks', icon: IconWebhook }] : []),
@@ -118,6 +111,7 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
 
   return [
     { name: t('profile', 'Profile'), path: 'profile', icon: IconUserCircle },
+    { name: t('security', 'Password & security'), path: 'security', icon: IconLock },
     { name: t('notifications', 'Notifications'), path: 'notifications', icon: IconBellCog },
   ];
 };

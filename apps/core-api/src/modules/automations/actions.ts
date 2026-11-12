@@ -1,6 +1,6 @@
 import type { ActionInfo } from '@erxes/core-contract';
 import { automations, type Db, leadStages, plugins, type StoredPluginManifest } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, or, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { postOutbound } from '~/lib/outbound';
@@ -160,10 +160,10 @@ export const CORE_ACTIONS: CoreAction[] = [
     subject: null,
     fields: [
       { key: 'userIds', label: 'Members', type: 'members', required: false },
-      { key: 'owner', label: "The record's owner", type: 'boolean', required: false },
+      { key: 'owner', label: "Also the record's owner", type: 'boolean', required: false },
       { key: 'title', label: 'Title', type: 'text', required: true },
       { key: 'body', label: 'Message', type: 'longtext', required: false },
-      { key: 'link', label: 'Link (an erxes path)', type: 'text', required: false },
+      { key: 'link', label: 'Link', type: 'text', required: false, placeholder: '/contacts/customers', description: 'A page in erxes the notification opens' },
     ],
     run: async (ctx) => {
       const ownerId = ctx.input.owner === true ? (ctx.context.subject as { ownerId?: string } | null)?.ownerId : undefined;
@@ -195,9 +195,9 @@ export const CORE_ACTIONS: CoreAction[] = [
     description: 'POST JSON to an https address (retried if it fails)',
     subject: null,
     fields: [
-      { key: 'url', label: 'Address', type: 'text', required: true },
-      { key: 'headers', label: 'Headers (JSON, e.g. {"Authorization": "Bearer …"})', type: 'json', required: false },
-      { key: 'body', label: 'JSON body (empty: the event and subject)', type: 'json', required: false },
+      { key: 'url', label: 'Address', type: 'text', required: true, placeholder: 'https://example.com/hooks/erxes' },
+      { key: 'headers', label: 'Headers', type: 'json', required: false, placeholder: '{ "Authorization": "Bearer …" }' },
+      { key: 'body', label: 'Body', type: 'json', required: false, description: 'JSON; leave empty to send the event and the record' },
     ],
     run: async (ctx) => {
       const body = JSON.stringify(
@@ -239,8 +239,8 @@ CORE_ACTIONS.push(
     description: 'To the customer (their email) or to addresses you give',
     subject: null,
     fields: [
-      { key: 'to', label: 'To (subject = the customer; or addresses, comma separated)', type: 'text', required: true },
-      { key: 'subject', label: 'Subject', type: 'text', required: true },
+      { key: 'to', label: 'To', type: 'recipients', required: true },
+      { key: 'subject', label: 'Subject', type: 'text', required: true, placeholder: 'Welcome, {{subject.firstName}}' },
       { key: 'body', label: 'Message', type: 'longtext', required: true },
     ],
     run: async (ctx) => {
@@ -267,8 +267,8 @@ CORE_ACTIONS.push(
     description: 'Write a value into one of the customer’s custom fields',
     subject: 'customer',
     fields: [
-      { key: 'fieldId', label: 'Field id', type: 'text', required: true },
-      { key: 'value', label: 'Value (empty clears it)', type: 'text', required: false },
+      { key: 'fieldId', label: 'Field', type: 'custom_field', required: true },
+      { key: 'value', label: 'Value', type: 'text', required: false, sameTypeAs: 'fieldId', description: 'Leave empty to clear the field' },
     ],
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
@@ -282,19 +282,26 @@ CORE_ACTIONS.push(
   {
     type: 'core.lead.move',
     label: 'Move the lead to a stage',
-    description: 'Move the lead to the stage with this name (see Settings › Lead stages)',
+    description: 'Move the lead to one of your lead stages',
     subject: 'customer',
     fields: [
-      { key: 'stage', label: 'Stage name', type: 'text', required: true },
-      { key: 'reason', label: 'Reason (for a disqualified stage)', type: 'text', required: false },
+      { key: 'stage', label: 'Stage', type: 'lead_stage', required: true },
+      { key: 'reason', label: 'Reason', type: 'text', required: false, description: 'Kept when the stage is a disqualified one' },
     ],
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
-      const name = String(ctx.input.stage ?? '').trim().toLowerCase();
+      // A stage id (the picker); older steps saved its name.
+      const wanted = String(ctx.input.stage ?? '').trim();
       const [stage] = await ctx.tx
         .select({ id: leadStages.id })
         .from(leadStages)
-        .where(and(eq(leadStages.orgId, ctx.actor.orgId), sql`lower(${leadStages.name}) = ${name}`))
+        .where(
+          and(
+            eq(leadStages.orgId, ctx.actor.orgId),
+            or(eq(leadStages.id, wanted), sql`lower(${leadStages.name}) = ${wanted.toLowerCase()}`),
+          ),
+        )
+        .orderBy(sql`${leadStages.id} = ${wanted} desc`)
         .limit(1);
 
       if (!stage) throw new HttpError(400, 'INVALID_LEAD_STAGE', `No lead stage is called “${String(ctx.input.stage)}”`);

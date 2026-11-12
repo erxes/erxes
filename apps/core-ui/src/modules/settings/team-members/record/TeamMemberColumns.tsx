@@ -22,7 +22,7 @@ import { TEAM_MEMBERS_HOTKEY_SCOPE } from '../constants';
 import { useOpenMemberPanel } from '../details/useMemberPanel';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 import { TeamMemberEmailField } from './TeamMemberEmailField';
-import { TeamMemberEmployeeIdField, TeamMemberWorkStartedField } from './TeamMemberInlineFields';
+import { TeamMemberWorkStartedField } from './TeamMemberInlineFields';
 import { teamMemberMoreColumn } from './TeamMemberMoreColumn';
 import { TeamMemberRoleSelect } from './TeamMemberRoleSelect';
 
@@ -129,12 +129,6 @@ export const teamMemberColumns = (t: TFunction): ColumnDef<User>[] => [
     header: () => <RecordTable.InlineHead icon={IconMail} label={t('email')} />,
     cell: ({ cell }) => <TeamMemberEmailField user={cell.row.original} />,
     size: 250,
-  },
-  {
-    id: 'employeeId',
-    accessorKey: 'employeeId',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label={t('employeeId')} />,
-    cell: ({ cell }) => <TeamMemberEmployeeIdField user={cell.row.original} />,
   },
   {
     id: 'role',

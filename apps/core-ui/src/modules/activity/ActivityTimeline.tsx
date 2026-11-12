@@ -120,6 +120,11 @@ const shortTime = (iso: string, now: number, language: string, withDate: boolean
   const minutes = Math.floor((now - date.getTime()) / 60_000);
 
   if (date.toDateString() === new Date(now).toDateString() && minutes >= 0) {
+    // Browsers often ship no Mongolian relative times, so say them here.
+    if (language.startsWith('mn')) {
+      return minutes < 1 ? 'дөнгөж сая' : minutes < 60 ? `${minutes} мин өмнө` : `${Math.floor(minutes / 60)} цаг өмнө`;
+    }
+
     const relative = new Intl.RelativeTimeFormat(language, { numeric: 'auto', style: 'narrow' });
 
     if (minutes < 1) return relative.format(0, 'second');

@@ -1,4 +1,5 @@
 import type { ActionInfo, AutomationStep, AutomationTrigger, ConditionGroup, ConditionRule } from '@erxes/core-contract';
+import { zoneLabel } from './timezones';
 import type { FieldInfo } from './useAutomationFields';
 
 /** Where a list of steps lives: the top, or one arm (`then`, `case:1`, `path:0`, …) of a step. */
@@ -142,13 +143,17 @@ export const cloneStep = (step: AutomationStep): AutomationStep => {
 export const STEP_TYPES = ['action', 'delay', 'wait_for', 'branch', 'switch', 'split', 'stop'] as const;
 export type StepType = (typeof STEP_TYPES)[number];
 
+/** A new action's starting inputs: an email goes to the record itself until told otherwise. */
+export const actionDefaults = (action: ActionInfo | undefined): Record<string, unknown> =>
+  Object.fromEntries((action?.fields ?? []).filter((field) => field.type === 'recipients').map((field) => [field.key, 'subject']));
+
 export const newStep = (type: StepType, actions: ActionInfo[], subject: 'customer' | 'company'): AutomationStep => {
   const id = newStepId();
   const firstAction = actions.find((item) => item.subject === null || item.subject === 'any' || item.subject === subject) ?? actions[0];
 
   switch (type) {
     case 'action':
-      return { id, type, action: firstAction?.type ?? 'core.note.add', input: {} };
+      return { id, type, action: firstAction?.type ?? 'core.note.add', input: actionDefaults(firstAction) };
     case 'delay':
       return { id, type, amount: 1, unit: 'hours' };
     case 'wait_for':
@@ -246,13 +251,13 @@ export const describeTrigger = (
               ? `Every ${(trigger.weekdays?.length ? trigger.weekdays : [1]).map((day) => WEEKDAYS[day - 1]).join(', ')} at ${trigger.at}`
               : `Monthly on day ${trigger.dayOfMonth ?? 1} at ${trigger.at}`;
 
-      return { title: when, detail: trigger.audience ? `For each ${trigger.audience.type}${describeConditions(trigger.audience.conditions, fields) ? ` where ${describeConditions(trigger.audience.conditions, fields)}` : ''}` : trigger.timezone };
+      return { title: when, detail: trigger.audience ? `For each ${trigger.audience.type}${describeConditions(trigger.audience.conditions, fields) ? ` where ${describeConditions(trigger.audience.conditions, fields)}` : ''}` : zoneLabel(trigger.timezone) };
     }
     case 'date': {
       const field = fields.find((item) => item.path === `subject.${trigger.field}`)?.label ?? trigger.field;
       const offset = trigger.offsetDays === 0 ? 'On' : trigger.offsetDays > 0 ? `${unitWord(trigger.offsetDays, 'days')} after` : `${unitWord(-trigger.offsetDays, 'days')} before`;
 
-      return { title: `${offset} ${field.toLowerCase()}${trigger.yearly ? ', every year' : ''}`, detail: `At ${trigger.at} (${trigger.timezone})` };
+      return { title: `${offset} ${field.toLowerCase()}${trigger.yearly ? ', every year' : ''}`, detail: `At ${trigger.at} (${zoneLabel(trigger.timezone)})` };
     }
     default:
       return {
@@ -286,7 +291,13 @@ const truncate = (text: string, length = 60) => (text.length > length ? `${text.
 /** The card's title and one line about what it does. */
 export const describeStep = (
   step: AutomationStep,
-  context: { actions: ActionInfo[]; events: { type: string; label: string }[]; fields: FieldInfo[] },
+  context: {
+    actions: ActionInfo[];
+    events: { type: string; label: string }[];
+    fields: FieldInfo[];
+    /** Lead stages, to name the one a step moves to. */
+    stages?: { id: string; name: string }[];
+  },
 ): { title: string; detail: string | null } => {
   switch (step.type) {
     case 'action': {
@@ -297,7 +308,13 @@ export const describeStep = (
 
           if (field.type === 'members' || field.type === 'tags') return Array.isArray(value) && value.length ? plural(value.length, field.type === 'members' ? 'member' : 'tag') : null;
 
-          const text = valueText(value);
+          const named =
+            field.type === 'custom_field'
+              ? context.fields.find((item) => item.path === `subject.customFields.${String(value)}`)?.label.replace(/ \(custom\)$/, '')
+              : field.type === 'lead_stage'
+                ? context.stages?.find((stage) => stage.id === value)?.name
+                : undefined;
+          const text = named ?? valueText(value);
 
           return text ? `${field.label.split(' (')[0]}: ${text}` : null;
         })

@@ -10,6 +10,7 @@ import { uploadErrorMessage, uploadFile } from '~/lib/files';
 import { useCan } from '~/modules/auth/session';
 import { useListQuery } from '~/modules/contacts/views/useViews';
 import { EXPORTS_KEY, IMPORTS_KEY, useTransferColumns } from './useTransfer';
+import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 /** "Import": pick a CSV or Excel file; it is uploaded and opens in the import wizard. */
 export const ImportButton = ({ recordType }: { recordType: TransferRecordType }) => {
@@ -31,7 +32,7 @@ export const ImportButton = ({ recordType }: { recordType: TransferRecordType })
       const created = await api.transfer.createImport({ recordType, fileId: uploaded.id });
 
       void client.invalidateQueries({ queryKey: IMPORTS_KEY });
-      navigate(`/settings/import-export/${created.id}`);
+      navigate(`${CONTACT_SETTINGS.importExport}/${created.id}`);
     } catch (error) {
       toast({ variant: 'destructive', title: t('upload-failed', 'Could not start the import'), description: uploadErrorMessage(error) });
     } finally {
@@ -137,7 +138,7 @@ export const ExportButton = ({ recordType, query }: { recordType: TransferRecord
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/settings/import-export" className="text-xs text-muted-foreground hover:underline">
+            <Link to={CONTACT_SETTINGS.importExport} className="text-xs text-muted-foreground hover:underline">
               {t('history', 'Past exports')}
             </Link>
             <Button className="ml-auto" disabled={!selected.length || start.isPending} onClick={() => start.mutate()}>

@@ -423,6 +423,8 @@ const RecordSidePanelHeader = ({
 const TAB_GAP = 4;
 const MORE_BUTTON_WIDTH = 96;
 const TAB_FALLBACK_WIDTH = 104;
+/** A tab's icon and the gap after it: dropped when that lets every tab fit. */
+const TAB_ICON_SPACE = 22;
 
 /** Keeps visited contact editors mounted and moves overflowing tabs into the More menu. */
 const RecordSidePanelTabs = ({
@@ -464,6 +466,11 @@ const RecordSidePanelTabs = ({
   // How many tabs fit the bar beside the More button; never more than
   // `visibleCount`. A narrow panel moves the rest into More.
   const [fitCount, setFitCount] = useState(visibleCount);
+  // Tabs without icons, when that is what lets them all fit (long labels,
+  // e.g. in Mongolian, in a narrow panel) instead of moving one into More.
+  const [compact, setCompact] = useState(false);
+  const compactRef = useRef(compact);
+  compactRef.current = compact;
 
   const measure = useCallback(() => {
     const bar = barRef.current;
@@ -478,9 +485,11 @@ const RecordSidePanelTabs = ({
       .querySelectorAll<HTMLElement>('[data-panel-tab]')
       .forEach((trigger) => {
         if (trigger.offsetWidth > 0) {
+          // Widths are kept with the icon, so a compact bar doesn't look
+          // roomier than it is.
           tabWidths.current.set(
             trigger.dataset.panelTab || '',
-            trigger.offsetWidth,
+            trigger.offsetWidth + (compactRef.current ? TAB_ICON_SPACE : 0),
           );
         }
       });
@@ -499,10 +508,22 @@ const RecordSidePanelTabs = ({
     const total =
       widths.reduce((sum, width) => sum + width, 0) +
       TAB_GAP * (widths.length - 1);
-    const needsMore =
+    const moreTabs =
       tabsRef.current.filter(
         (tab) => !splitOverview || tab.value !== overviewTab,
-      ).length > visibleCount || total > available;
+      ).length > visibleCount;
+    const fitsCompact =
+      !moreTabs && total > available && total - TAB_ICON_SPACE * widths.length <= available;
+
+    setCompact(fitsCompact);
+
+    if (fitsCompact) {
+      setFitCount(widths.length);
+
+      return;
+    }
+
+    const needsMore = moreTabs || total > available;
     const budget = needsMore ? available - MORE_BUTTON_WIDTH : available;
 
     let used = 0;
@@ -622,7 +643,10 @@ const RecordSidePanelTabs = ({
                   : 'h-full gap-1.5 rounded-none after:-mb-px',
               )}
             >
-              <tab.icon className="size-4 shrink-0" aria-hidden="true" />
+              <tab.icon
+                className={cn('size-4 shrink-0', compact && !(expanded && !splitOverview) && 'hidden')}
+                aria-hidden="true"
+              />
               <span
                 className={
                   expanded && !splitOverview

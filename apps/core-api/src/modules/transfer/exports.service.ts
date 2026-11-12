@@ -248,7 +248,7 @@ export const exportRunJob: JobDefinition = {
         kind: 'core.export.ready',
         title: `Your export is ready: ${rows.length.toLocaleString('en')} ${row.recordType === 'company' ? 'companies' : 'records'}`,
         body: body.length > MAX_EXPORT_ROWS ? `Only the first ${MAX_EXPORT_ROWS.toLocaleString('en')}: narrow the filter for the rest.` : name,
-        link: `/settings/import-export?export=${row.id}`,
+        link: `/contacts/settings/import-export?export=${row.id}`,
         entity: { type: 'export', id: row.id },
       }).catch((error: unknown) => log.warn('could not tell the exporter', { error }));
     });

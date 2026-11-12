@@ -1,14 +1,21 @@
 import type { ActionField, ActionInfo, AutomationStep } from '@erxes/core-contract';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconAt, IconBuilding, IconPlus, IconTrash, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Input, MultipleSelector, Select, Switch, Textarea } from 'erxes-ui';
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { api } from '~/lib/api';
+import { useStageName } from '~/modules/leads/i18n';
+import { useLeadStages } from '~/modules/leads/useLeads';
 import { ConditionsEditor } from './ConditionsEditor';
 import { FieldLabel } from './FieldLabel';
 import { CatalogPicker } from './CatalogPicker';
-import type { FieldInfo } from './useAutomationFields';
+import { Segmented } from './Segmented';
+import { TemplateInput } from './TemplateInput';
+import { type FieldInfo, useAutomationFields } from './useAutomationFields';
+import { actionDefaults } from './flowModel';
+import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const useMemberOptions = () =>
   useQuery({
@@ -27,35 +34,166 @@ const useTagOptions = (type: 'customer' | 'company') =>
 
 const asList = (value: unknown) => (Array.isArray(value) ? value.map(String) : value ? [String(value)] : []);
 
-/** One input of an action, by its declared type. Text accepts {{placeholders}}. */
+const fieldIdOf = (path: string) => path.replace('subject.customFields.', '');
+
+/** One input of an action, by its declared type. Text takes data from the run through "Insert data". */
 const FieldInput = ({
   field,
   value,
+  input,
   onChange,
   disabled,
   subject,
+  dataFields,
 }: {
   field: ActionField;
   value: unknown;
+  /** The step's other inputs (a value follows the custom field chosen in another). */
+  input: Record<string, unknown>;
   onChange: (value: unknown) => void;
   disabled?: boolean;
   subject: 'customer' | 'company';
+  dataFields: FieldInfo[];
 }) => {
+  const { t } = useTranslation('automations');
   const members = useMemberOptions();
   const tags = useTagOptions(subject);
+  const { stages } = useLeadStages();
+  const stageName = useStageName();
+  const customFields = dataFields.filter((item) => item.path.startsWith('subject.customFields.'));
+  const text = (multiline?: boolean) => (
+    <TemplateInput
+      value={String(value ?? '')}
+      onChange={onChange}
+      fields={dataFields}
+      subject={subject}
+      multiline={multiline}
+      placeholder={field.placeholder}
+      disabled={disabled}
+    />
+  );
+
+  // A value for the custom field chosen in another input: shaped like that field.
+  if (field.sameTypeAs) {
+    const chosen = customFields.find((item) => fieldIdOf(item.path) === input[field.sameTypeAs!]);
+
+    if (chosen?.type === 'date') {
+      return <Input type="date" value={String(value ?? '')} disabled={disabled} onChange={(event) => onChange(event.target.value)} />;
+    }
+
+    if (chosen?.type === 'boolean' || (chosen?.type === 'select' && chosen.options?.length)) {
+      const options = chosen.type === 'boolean' ? [{ value: 'true', label: t('yes', 'Yes') }, { value: 'false', label: t('no', 'No') }] : chosen.options!.map((option) => ({ value: option, label: option }));
+
+      return (
+        <Select value={value === undefined || value === '' ? '__clear' : String(value)} disabled={disabled} onValueChange={(next) => onChange(next === '__clear' ? '' : chosen.type === 'boolean' ? next === 'true' : next)}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="__clear">
+              <span className="text-muted-foreground">{t('clear-value', 'Clear the field')}</span>
+            </Select.Item>
+            {options.map((option) => (
+              <Select.Item key={option.value} value={option.value}>
+                {option.label}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      );
+    }
+
+    return text();
+  }
 
   switch (field.type) {
     case 'longtext':
-      return <Textarea rows={3} value={String(value ?? '')} disabled={disabled} onChange={(event) => onChange(event.target.value)} />;
+      return text(true);
+    case 'text':
     case 'number':
-      return <Input type="text" value={String(value ?? '')} disabled={disabled} onChange={(event) => onChange(event.target.value)} />;
+      return text();
+    case 'date':
+      return <Input type="date" value={String(value ?? '')} disabled={disabled} onChange={(event) => onChange(event.target.value)} />;
     case 'boolean':
       return <Switch checked={value === true} disabled={disabled} onCheckedChange={(checked) => onChange(checked)} />;
+    case 'recipients': {
+      // `subject`: the record's own email; anything else (even empty, while typing): addresses.
+      const toRecord = value === undefined || value === 'subject';
+      const addresses = toRecord ? '' : String(value);
+
+      return (
+        <div className="space-y-2">
+          <Segmented
+            value={toRecord ? 'record' : 'addresses'}
+            disabled={disabled}
+            onChange={(next) => onChange(next === 'record' ? 'subject' : '')}
+            options={[
+              { value: 'record', label: subject === 'company' ? t('to-company-email', "The company's email") : t('to-customer-email', "The customer's email"), icon: subject === 'company' ? IconBuilding : IconUser },
+              { value: 'addresses', label: t('to-addresses', 'Other addresses'), icon: IconAt },
+            ]}
+          />
+          {!toRecord ? (
+            <TemplateInput
+              value={addresses}
+              onChange={onChange}
+              fields={dataFields}
+              subject={subject}
+              placeholder="name@example.com, other@example.com"
+              disabled={disabled}
+            />
+          ) : null}
+        </div>
+      );
+    }
+    case 'custom_field':
+      return customFields.length ? (
+        <Select value={String(value ?? '')} disabled={disabled} onValueChange={onChange}>
+          <Select.Trigger>
+            <Select.Value placeholder={t('choose-field', 'Choose a field')} />
+          </Select.Trigger>
+          <Select.Content>
+            {customFields.map((item) => (
+              <Select.Item key={item.path} value={fieldIdOf(item.path)}>
+                {item.label.replace(/ \(custom\)$/, '')}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      ) : (
+        <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
+          {t('no-custom-fields', 'No custom fields yet.')}{' '}
+          <Link to={CONTACT_SETTINGS.properties} className="text-primary hover:underline">
+            {t('add-in-properties', 'Add one in Properties')}
+          </Link>
+        </p>
+      );
+    case 'lead_stage': {
+      // Saved by id; older steps saved the stage's name.
+      const current = stages.find((stage) => stage.id === value || stage.name.toLowerCase() === String(value ?? '').toLowerCase());
+
+      return (
+        <Select value={current?.id ?? ''} disabled={disabled} onValueChange={onChange}>
+          <Select.Trigger>
+            <Select.Value placeholder={t('choose-stage', 'Choose a stage')} />
+          </Select.Trigger>
+          <Select.Content>
+            {stages.map((stage) => (
+              <Select.Item key={stage.id} value={stage.id}>
+                <span className="flex items-center gap-2">
+                  <span className="size-2 shrink-0 rounded-full" style={{ background: stage.color }} />
+                  {stageName(stage.name)}
+                </span>
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      );
+    }
     case 'select':
       return (
         <Select value={String(value ?? '')} onValueChange={onChange} disabled={disabled}>
           <Select.Trigger>
-            <Select.Value />
+            <Select.Value placeholder={t('choose', 'Choose…')} />
           </Select.Trigger>
           <Select.Content>
             {(field.options ?? []).map((option) => (
@@ -77,6 +215,7 @@ const FieldInput = ({
           defaultOptions={options}
           options={options}
           disabled={disabled}
+          placeholder={field.type === 'members' ? t('choose-members', 'Choose members…') : t('choose-tags', 'Choose tags…')}
           hidePlaceholderWhenSelected
         />
       );
@@ -87,6 +226,7 @@ const FieldInput = ({
           rows={4}
           className="font-mono text-xs"
           disabled={disabled}
+          placeholder={field.placeholder}
           defaultValue={value === undefined ? '' : JSON.stringify(value, null, 2)}
           onBlur={(event) => {
             try {
@@ -98,7 +238,7 @@ const FieldInput = ({
         />
       );
     default:
-      return <Input value={String(value ?? '')} disabled={disabled} onChange={(event) => onChange(event.target.value)} />;
+      return text();
   }
 };
 
@@ -149,19 +289,25 @@ export const StepSettings = ({
   const { events, outputsBefore } = useContext(BuilderContext);
   const outputs = outputsBefore(step.id);
   const action = step.type === 'action' ? actions.find((item) => item.type === step.action) : undefined;
+  const recordFields = useAutomationFields(subject);
+  const dataFields = [...recordFields, ...outputs];
+
+  const nameField = (
+    <div className="space-y-1.5">
+      <FieldLabel>{t('step-label', 'Name on the canvas')}</FieldLabel>
+      <Input
+        value={step.label ?? ''}
+        disabled={disabled}
+        placeholder={t('step-label-placeholder', 'Optional')}
+        maxLength={80}
+        onChange={(event) => onChange({ ...step, label: event.target.value || undefined })}
+      />
+    </div>
+  );
 
   return (
     <div className="space-y-4">
-      <div className="space-y-1.5">
-        <FieldLabel>{t('step-label', 'Name on the canvas')}</FieldLabel>
-        <Input
-          value={step.label ?? ''}
-          disabled={disabled}
-          placeholder={t('step-label-placeholder', 'Optional')}
-          maxLength={80}
-          onChange={(event) => onChange({ ...step, label: event.target.value || undefined })}
-        />
-      </div>
+      {step.type !== 'action' && nameField}
       {step.type === 'action' && (
         <>
           <div className="space-y-1.5">
@@ -171,31 +317,50 @@ export const StepSettings = ({
               items={actions}
               value={step.action}
               disabled={disabled}
-              onChange={(type) => type !== step.action && onChange({ ...step, action: type, input: {} })}
+              onChange={(type) =>
+                type !== step.action &&
+                onChange({ ...step, action: type, input: actionDefaults(actions.find((item) => item.type === type)) })
+              }
             />
+            {action?.description && <p className="text-xs text-muted-foreground">{action.description}</p>}
           </div>
-          {action?.fields.map((field) => (
-            <div key={field.key} className="space-y-1.5">
-              <FieldLabel>
-                {field.label}
-                {field.required && <span className="text-destructive"> *</span>}
-              </FieldLabel>
-              <FieldInput
-                field={field}
-                subject={subject}
-                value={step.input[field.key]}
-                disabled={disabled}
-                onChange={(value) => onChange({ ...step, input: { ...step.input, [field.key]: value } })}
-              />
-              {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+          {action && action.fields.length > 0 && (
+            <div className="space-y-4 border-t pt-4">
+              {action.fields.map((field) =>
+                field.type === 'boolean' ? (
+                  <label key={field.key} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5">
+                    <span className="min-w-0">
+                      <span className="block text-sm">{field.label}</span>
+                      {field.description && <span className="block text-xs text-muted-foreground">{field.description}</span>}
+                    </span>
+                    <Switch
+                      checked={step.input[field.key] === true}
+                      disabled={disabled}
+                      onCheckedChange={(checked) => onChange({ ...step, input: { ...step.input, [field.key]: checked } })}
+                    />
+                  </label>
+                ) : (
+                  <div key={field.key} className="space-y-1.5">
+                    <FieldLabel>
+                      {field.label}
+                      {field.required && <span className="text-destructive"> *</span>}
+                    </FieldLabel>
+                    <FieldInput
+                      field={field}
+                      subject={subject}
+                      value={step.input[field.key]}
+                      input={step.input}
+                      dataFields={dataFields}
+                      disabled={disabled}
+                      onChange={(value) => onChange({ ...step, input: { ...step.input, [field.key]: value } })}
+                    />
+                    {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+                  </div>
+                ),
+              )}
             </div>
-          ))}
-          {action?.fields.some((field) => ['text', 'longtext', 'number', 'json'].includes(field.type)) && (
-          <p className="rounded-md bg-muted/60 p-2 text-xs text-muted-foreground">
-            {t('template-hint', 'Text can use placeholders like')} <code>{'{{subject.firstName}}'}</code>, <code>{'{{event.payload.x}}'}</code>,{' '}
-            <code>{'{{steps.<id>.output.x}}'}</code> — {t('template-step-id', 'this step is')} <code>{`steps.${step.id}`}</code>
-          </p>
           )}
+          <div className="border-t pt-4">{nameField}</div>
         </>
       )}
       {step.type === 'delay' && (

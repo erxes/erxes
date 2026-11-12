@@ -259,13 +259,34 @@ export type Automation = z.infer<typeof Automation>;
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
 
+/**
+ * One input of an action. Besides plain values: `custom_field` (one of the
+ * subject's custom fields, by id), `lead_stage` (a lead stage, by id),
+ * `recipients` (`subject` = the record's own email, or addresses).
+ */
 export const ActionField = z.object({
   key: z.string(),
   label: z.string(),
-  type: z.enum(['text', 'longtext', 'number', 'boolean', 'date', 'select', 'members', 'tags', 'json']),
+  type: z.enum([
+    'text',
+    'longtext',
+    'number',
+    'boolean',
+    'date',
+    'select',
+    'members',
+    'tags',
+    'json',
+    'custom_field',
+    'lead_stage',
+    'recipients',
+  ]),
   required: z.boolean().default(false),
   options: z.array(z.object({ value: z.string(), label: z.string() })).optional(),
   description: z.string().optional(),
+  placeholder: z.string().optional(),
+  /** The key of a `custom_field` input: this value takes that field's type (a date, a choice …). */
+  sameTypeAs: z.string().optional(),
 });
 export type ActionField = z.infer<typeof ActionField>;
 

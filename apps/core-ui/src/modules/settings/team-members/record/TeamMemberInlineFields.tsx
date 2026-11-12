@@ -1,5 +1,5 @@
 import type { User } from '@erxes/core-contract';
-import { Badge, DatePicker, Input, Popover, RecordTableInlineCell } from 'erxes-ui';
+import { DatePicker, Popover, RecordTableInlineCell } from 'erxes-ui';
 import { useState } from 'react';
 import { toYmd } from '~/components/inlineCells';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
@@ -12,49 +12,6 @@ export const ymdToDate = (value: string) => {
   const [year, month, day] = value.split('-').map(Number);
 
   return new Date(year ?? 1970, (month ?? 1) - 1, day ?? 1);
-};
-
-/** Old employee id cell: a badge, edited in a popover and saved when it closes. */
-export const TeamMemberEmployeeIdField = ({ user }: { user: User }) => {
-  const { id, employeeId } = user;
-  const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(employeeId ?? '');
-  const edit = useTeamMemberEdit();
-  const permissions = useMemberPermissions(user);
-  const value = (employeeId && <Badge variant="secondary">{employeeId}</Badge>) || '-';
-
-  if (!permissions?.canEdit) {
-    return <RecordTableInlineCell>{value}</RecordTableInlineCell>;
-  }
-
-  const onSave = () => {
-    if (draft.trim() !== (employeeId ?? '')) edit.mutate({ id, employeeId: draft.trim() || null });
-  };
-
-  return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (next) setDraft(employeeId ?? '');
-        else onSave();
-      }}
-    >
-      <RecordTableInlineCell.Trigger>{value}</RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={draft}
-          onChange={(event) => setDraft(event.currentTarget.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              setOpen(false);
-              onSave();
-            }
-          }}
-        />
-      </RecordTableInlineCell.Content>
-    </Popover>
-  );
 };
 
 /** Old work started date cell: a calendar in a popover, saved when it closes. */

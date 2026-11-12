@@ -139,6 +139,16 @@ export const authContract = {
     .output(Session),
   onboarded: oc
     .route({ method: 'POST', path: '/auth/onboarded', summary: 'The signed-in member finished the welcome steps (on every browser)' })
+    .input(
+      z
+        .object({
+          /** Fill a fresh organisation with example contacts, notes and an automation (owners; once, while it has no contacts). */
+          exampleData: z.boolean().optional(),
+          /** The language of the example data: the member's UI language. */
+          language: z.enum(['en', 'mn']).optional(),
+        })
+        .optional(),
+    )
     .output(Session),
   changePassword: oc
     .route({

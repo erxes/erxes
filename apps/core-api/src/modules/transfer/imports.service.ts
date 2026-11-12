@@ -650,7 +650,7 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean): JobDefini
         kind: 'core.import.done',
         title: `Import of ${imp.fileName} finished`,
         body: `${counts.create} created, ${counts.update} updated, ${counts.skip} skipped, ${counts.error} with errors`,
-        link: `/settings/import-export?import=${imp.id}`,
+        link: `/contacts/settings/import-export?import=${imp.id}`,
         entity: { type: 'import', id: imp.id },
       }).catch((error: unknown) => log.warn('could not tell the importer', { error }));
     }

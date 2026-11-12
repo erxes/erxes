@@ -1,5 +1,5 @@
 import type { FileInfo, User } from '@erxes/core-contract';
-import { IconPaperclip, IconX } from '@tabler/icons-react';
+import { IconCommand, IconCornerDownLeft, IconPaperclip, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, cn, Spinner, Textarea, useToast } from 'erxes-ui';
 import { type KeyboardEvent, useMemo, useRef, useState } from 'react';
@@ -8,6 +8,9 @@ import { UserAvatar } from '~/components/UserAvatar';
 import { api } from '~/lib/api';
 import { uploadErrorMessage, uploadFile } from '~/lib/files';
 import { memberName } from '~/lib/members';
+
+/** ⌘ on Apple keyboards, Ctrl elsewhere (the shortcut accepts both). */
+const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent);
 
 export interface NoteDraft {
   body: string;
@@ -170,7 +173,11 @@ export const NoteComposer = ({
         autoFocus={autoFocus}
         rows={open ? 3 : 1}
         placeholder={t('note-placeholder', 'Write a note… type @ to mention a teammate')}
-        className="min-h-0 resize-none rounded-lg border-0 bg-transparent px-3 py-2 shadow-none focus-visible:shadow-none focus-visible:ring-0"
+        className={cn(
+          'min-h-0 resize-none rounded-lg border-0 bg-transparent px-3 py-2 shadow-none focus-visible:shadow-none focus-visible:ring-0',
+          // Collapsed: one line, even when the hint is longer than the box (Mongolian).
+          !open && !body && 'overflow-hidden text-ellipsis whitespace-nowrap',
+        )}
         onChange={(event) => {
           setBody(event.target.value);
           setMention(mentionAt(event.target.value, event.target.selectionStart));
@@ -222,15 +229,24 @@ export const NoteComposer = ({
           <IconPaperclip className="size-4" />
         </Button>
         <div className="flex items-center gap-1">
-          <span className="hidden text-xs text-muted-foreground sm:inline">⌘ ↵</span>
           {onCancel && (
             <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
               {t('cancel', 'Cancel')}
             </Button>
           )}
-          <Button type="button" size="sm" disabled={!body.trim() || saving || uploading > 0} onClick={() => void submit()}>
+          <Button
+            type="button"
+            size="sm"
+            disabled={!body.trim() || saving || uploading > 0}
+            onClick={() => void submit()}
+            title={`${submitLabel} (${IS_MAC ? '⌘' : 'Ctrl'} + Enter)`}
+          >
             {saving ? <Spinner size="sm" /> : null}
             {submitLabel}
+            <kbd className="ml-0.5 hidden h-4 items-center gap-0.5 rounded bg-primary-foreground/20 px-1 font-sans text-[10px] font-normal sm:inline-flex">
+              {IS_MAC ? <IconCommand className="size-2.5" /> : 'Ctrl'}
+              <IconCornerDownLeft className="size-2.5" />
+            </kbd>
           </Button>
         </div>
       </div>

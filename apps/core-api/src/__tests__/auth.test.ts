@@ -4,6 +4,8 @@ import { afterAll, beforeAll, expect, it } from 'vitest';
 import { createApp } from '~/app';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
+import { processJobs } from '~/modules/jobs/jobs';
+import { JOBS } from '~/modules/jobs/registry';
 import { describeWithDb, useTestDatabase } from './db';
 
 describeWithDb('sign-in (/core/v1/auth)', () => {
@@ -77,6 +79,35 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
 
     expect(again.user.onboardedAt).toBe(done.user.onboardedAt);
   });
+
+  it('fills a fresh organisation with example data once, for its owner', async () => {
+    await createOrganization({
+      subdomain: 'umbrella',
+      name: 'Umbrella',
+      owner: { email: 'owner@umbrella.mn', passwordHash: await hashPassword('pw-umbrella') },
+    });
+
+    const cookie = sessionCookie(await signIn({ email: 'owner@umbrella.mn', password: 'pw-umbrella' }));
+    const headers = { cookie, 'sec-fetch-site': 'same-origin', 'content-type': 'application/json' };
+    const get = async (path: string) => (await (await fetch(`${base}/core/v1${path}`, { headers })).json()) as { totalCount: number; data: { name?: string; primaryName?: string; firstName?: string }[] };
+    const onboard = () =>
+      fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers, body: JSON.stringify({ exampleData: true, language: 'mn' }) });
+
+    expect((await onboard()).status).toBe(200);
+    // Seeded by a job, right after.
+    await processJobs(JOBS);
+    expect((await get('/customers?state=customer')).totalCount).toBe(5);
+    expect((await get('/customers?state=lead')).totalCount).toBe(5);
+    expect((await get('/companies')).data.map((company) => company.primaryName)).toContain('Хангай Трейд ХХК');
+    expect((await get('/views?recordType=customer')).data.map((view) => view.name)).toEqual(['VIP харилцагчид']);
+    expect((await get('/automations')).data).toHaveLength(1);
+
+    // Again (another browser, a second click): nothing more.
+    await onboard();
+    await processJobs(JOBS);
+    expect((await get('/customers?state=customer')).totalCount).toBe(5);
+    expect((await get('/companies')).totalCount).toBe(4);
+  }, 600_000);
 
   it('answers wrong password and unknown email the same way', async () => {
     const wrong = await signIn({ email: 'owner@acme.mn', password: 'nope' });

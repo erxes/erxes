@@ -7,6 +7,7 @@ import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { useCan } from '~/modules/auth/session';
 import { downloadHref, useExports, useImports } from '~/modules/transfer/useTransfer';
+import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const IMPORT_TONE: Record<Import['status'], 'success' | 'warning' | 'destructive' | 'secondary' | 'info'> = {
   parsing: 'info',
@@ -28,7 +29,7 @@ const When = ({ value }: { value: string }) => (
   </RelativeDateDisplay>
 );
 
-/** Settings › Import & export: past imports (continue, see results, undo) and exports (download). */
+/** Contacts › Settings › Import & export history: past imports (continue, see results, undo) and exports (download). */
 export const ImportExportPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
   const can = useCan();
@@ -41,7 +42,7 @@ export const ImportExportPage = () => {
 
   const highlighted = params.get('import');
 
-  if (highlighted) return <Navigate to={`/settings/import-export/${highlighted}`} replace />;
+  if (highlighted) return <Navigate to={`${CONTACT_SETTINGS.importExport}/${highlighted}`} replace />;
 
   const tab = params.get('tab') ?? (params.get('export') || !canImport ? 'exports' : 'imports');
 
@@ -49,7 +50,7 @@ export const ImportExportPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: t('title', 'Import & export'), to: '/settings/import-export', icon: IconFileImport }]} />
+          <AppBreadcrumb items={[{ label: t('title', 'Import & export history'), to: CONTACT_SETTINGS.importExport, icon: IconFileImport }]} />
         </PageHeader.Start>
       </PageHeader>
       <Tabs value={tab} onValueChange={(next) => setParams({ tab: next })} className="flex min-h-0 flex-1 flex-col">
@@ -80,7 +81,7 @@ export const ImportExportPage = () => {
                 <ul className="divide-y rounded-lg border text-sm">
                   {imports.data.data.map((item) => (
                     <li key={item.id}>
-                      <Link to={`/settings/import-export/${item.id}`} className="flex items-center gap-3 p-3 hover:bg-muted/50">
+                      <Link to={`${CONTACT_SETTINGS.importExport}/${item.id}`} className="flex items-center gap-3 p-3 hover:bg-muted/50">
                         <Badge variant={IMPORT_TONE[item.status]}>{t(`status.${item.status}`, item.status)}</Badge>
                         <span className="min-w-0 flex-1 truncate font-medium">{item.fileName}</span>
                         <span className="text-xs text-muted-foreground">

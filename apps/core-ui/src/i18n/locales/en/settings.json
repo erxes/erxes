@@ -46,7 +46,8 @@
     "enter-email": "Enter email",
     "sign-out-everywhere": "Sign out of all devices",
     "sign-out-everywhere-description": "Lost a device or signed in on a shared computer? End every session, this one included.",
-    "sign-out-everywhere-failed": "Could not sign out"
+    "sign-out-everywhere-failed": "Could not sign out",
+    "security-title": "Password & security"
   },
   "change-password": {
     "_": "Change Password",
@@ -1483,7 +1484,7 @@
     "row": "Row {{n}}",
     "errors-more": "The first 50 are shown; download them all to fix.",
     "failed": "Something went wrong",
-    "title": "Import & export",
+    "title": "Import & export history",
     "check": "Check",
     "start": "Import {{count}} rows",
     "undo-confirm": "Remove the {{count}} {{noun}} this import created? They go to the recycle bin; updates stay.",

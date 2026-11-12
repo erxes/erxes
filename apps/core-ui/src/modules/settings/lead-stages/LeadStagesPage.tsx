@@ -36,6 +36,7 @@ import { AppBreadcrumb } from "~/components/AppBreadcrumb";
 import { useCan } from "~/modules/auth/session";
 import { useLeadStageMutations, useLeadStages } from "~/modules/leads/useLeads";
 import { useLeadsT, useStageName } from "~/modules/leads/i18n";
+import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const KINDS: LeadStageKind[] = ["open", "qualified", "disqualified"];
 
@@ -280,7 +281,7 @@ export const LeadStagesPage = () => {
             items={[
               {
                 label: t("settings.title"),
-                to: "/settings/lead-stages",
+                to: CONTACT_SETTINGS.leadStages,
                 icon: IconProgress,
               },
             ]}

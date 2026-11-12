@@ -207,13 +207,13 @@
     "oauth-clients": "OAuth клиентүүд",
     "system-logs": "Системийн лог",
     "email-delivery": "Имэйл хүргэлт",
-    "import-export": "Импорт ба экспорт",
+    "import-export": "Импорт, экспорт",
     "message-pro": "Message Pro",
     "agents": "AI туслах",
     "ldap": "LDAP",
     "two-factor": "Хоёр шатлалт баталгаажуулалт",
     "my-activity": "Миний идэвх",
-    "security": "Аюулгүй байдал",
+    "security": "Нууц үг ба аюулгүй байдал",
     "active-directory": "Active Directory (LDAP)",
     "support-access": "Дэмжлэгийн хандалт",
     "audit-log": "Аудитын бүртгэл",
@@ -226,7 +226,9 @@
     "recycle-bin": "Хогийн сав",
     "plan": "Багц",
     "lead-stages": "Үе шатууд",
-    "reports": "Тайлан"
+    "reports": "Тайлан",
+    "settings": "Тохиргоо",
+    "contacts-settings": "Харилцагчийн тохиргоо"
   },
   "plugin": {
     "_": "Плагин",

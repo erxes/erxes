@@ -1,10 +1,19 @@
 import { IconCircleCheck } from '@tabler/icons-react';
-import { Button, useScopedHotkeys } from 'erxes-ui';
+import { Button, Switch, useScopedHotkeys } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD, EASE_SPRING } from './Appear';
 
-export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
+export const FinalSection = ({
+  onContinue,
+  exampleData,
+}: {
+  onContinue: () => void;
+  /** Offered to the owner of a fresh organisation: fill it with example data. */
+  exampleData?: { value: boolean; onChange: (value: boolean) => void };
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
+  const { t: ot } = useTranslation(ONBOARDING_NS);
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
   useScopedHotkeys(`space`, () => onContinue(), 'welcome');
 
@@ -13,7 +22,7 @@ export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
       y={50}
       duration={600}
       easing={EASE_OUT_QUAD}
-      className="flex flex-col gap-10 sm:-translate-y-10 md:-translate-y-10 px-4"
+      className="flex w-full max-w-md flex-col gap-10 px-4 sm:-translate-y-10 md:-translate-y-10"
     >
       <Appear scale={0.5} duration={800} delay={200} easing={EASE_SPRING} className="flex items-center justify-center">
         <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-muted">
@@ -27,6 +36,20 @@ export const FinalSection = ({ onContinue }: { onContinue: () => void }) => {
           {t('all-set-description')}
         </p>
       </Appear>
+
+      {exampleData && (
+        <Appear y={20} duration={500} delay={500} className="-my-4 w-full">
+          <label className="flex cursor-pointer items-start justify-between gap-4 rounded-lg border bg-background p-3.5 text-left transition-colors hover:bg-muted/40">
+            <span className="min-w-0">
+              <span className="block text-sm font-medium">{ot('example-data', 'Add example data')}</span>
+              <span className="block text-xs text-muted-foreground">
+                {ot('example-data-description', 'A few companies, customers and leads with notes, to explore with. Tagged “Example”, so you can delete them any time.')}
+              </span>
+            </span>
+            <Switch checked={exampleData.value} onCheckedChange={exampleData.onChange} className="mt-0.5 shrink-0" />
+          </label>
+        </Appear>
+      )}
 
       <Appear y={20} scale={0.95} duration={600} delay={600} className="w-full px-6 sm:px-12 lg:px-20">
         <Button

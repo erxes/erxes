@@ -7,6 +7,7 @@ import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCu
 import { CustomFieldCell, FIELD_TYPE_ICONS } from '~/modules/properties/CustomFieldCell';
 import { useFields } from '~/modules/properties/useFields';
 import { PanelField } from '../PanelField';
+import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const EmptyProperties = ({ kind }: { kind: 'customer' | 'company' }) => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const EmptyProperties = ({ kind }: { kind: 'customer' | 'company' }) => {
       <h3 className="font-semibold text-muted-foreground">No properties found </h3>
       <div className="my-2 flex flex-col items-center justify-center gap-2">
         <p className="text-muted-foreground">Get started by creating your first property.</p>
-        <Button size="sm" onClick={() => navigate(`/settings/properties/${kind}`)}>
+        <Button size="sm" onClick={() => navigate(`${CONTACT_SETTINGS.properties}/${kind}`)}>
           Create property
         </Button>
       </div>

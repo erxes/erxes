@@ -1,10 +1,9 @@
 import { usePreviousHotkeyScope } from 'erxes-ui';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '~/lib/api';
-import { SESSION_KEY, useCan } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
+import { SetupScreen } from './components/SetupScreen';
 import { useNeedsOnboarding } from './OnboardingGuard';
 import { FinalSection } from './components/FinalSection';
 import { InviteTeamMemberSection } from './components/InviteTeamMemberSection';
@@ -19,13 +18,14 @@ import { onboardingStepState } from './state/onboardingState';
 
 export const MainOnboarding = () => {
   const navigate = useNavigate();
-  const client = useQueryClient();
   const needsOnboarding = useNeedsOnboarding();
-  // Remembered on the member, so other browsers skip the steps too.
-  const finish = useMutation({
-    mutationFn: () => api.auth.onboarded(),
-    onSuccess: (session) => client.setQueryData(SESSION_KEY, session),
-  });
+  const { user } = useSession();
+  // The owner (who opens a fresh organisation) is offered example data.
+  const isOwner = user.role === 'owner';
+  const [exampleData, setExampleData] = useState(isOwner);
+  // After the last step: "Setting up …" while it is saved (on the member, so
+  // other browsers skip the steps too) and the example data is seeded.
+  const [settingUp, setSettingUp] = useState(false);
   const [currentStep, setCurrentStep] = useAtom(onboardingStepState);
   // Old erxes offered invites to owners; in the new core admins may invite too
   const canInvite = useCan()('team.invite');
@@ -49,6 +49,18 @@ export const MainOnboarding = () => {
       setCurrentStep(1);
     }
   }, [currentStep, steps.length, setCurrentStep]);
+
+  if (settingUp) {
+    return (
+      <SetupScreen
+        exampleData={isOwner && exampleData}
+        onDone={() => {
+          setCurrentStep(1);
+          navigate('/', { replace: true });
+        }}
+      />
+    );
+  }
 
   return (
     <div className="flex h-screen w-full flex-col lg:flex-row">
@@ -78,10 +90,8 @@ export const MainOnboarding = () => {
 
           {currentStep === (canInvite ? 5 : 4) && (
             <FinalSection
-              onContinue={() => {
-                finish.mutate();
-                setCurrentStep(1);
-              }}
+              exampleData={isOwner ? { value: exampleData, onChange: setExampleData } : undefined}
+              onContinue={() => setSettingUp(true)}
             />
           )}
         </div>

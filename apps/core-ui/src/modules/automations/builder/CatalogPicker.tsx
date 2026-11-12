@@ -80,6 +80,9 @@ const groupOf = (item: CatalogItem): Group => {
       };
 };
 
+/** The icon of an event's or action's area (a mail for email, a person for customers, a puzzle for plugins). */
+export const catalogIcon = (item: CatalogItem) => groupOf(item).icon;
+
 /** Every word typed appears in the name, description, area or app (not cmdk's loose fuzzy match). */
 const matchWords = (value: string, search: string, keywords?: string[]) => {
   const haystack = [value, ...(keywords ?? [])].join(" ").toLowerCase();

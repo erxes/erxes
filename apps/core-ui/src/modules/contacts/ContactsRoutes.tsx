@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { ContactsSettingsRoutes } from './settings/ContactsSettingsRoutes';
 import { CompaniesPage } from './companies/CompaniesPage';
 import { ContactDetailPage } from './components/ContactDetailPage';
 import { ContactsLayout } from './ContactsLayout';
@@ -24,5 +25,7 @@ export const ContactsRoutes = ({ notFound }: { notFound?: React.ReactNode }) => 
       <Route path="companies/:id" element={<ContactDetailPage contentType="core:company" />} />
       {notFound && <Route path="*" element={notFound} />}
     </Route>
+    {/* Its own layout, like a plugin's settings: the contacts sidebar gives way to the settings list. */}
+    <Route path="settings/*" element={<ContactsSettingsRoutes />} />
   </Routes>
 );

@@ -8,6 +8,9 @@ import { HttpError } from "~/http/errors";
 import { toOrganizationDto } from "~/modules/organizations/organizations.service";
 import { toUserDto } from "~/modules/users/users.service";
 import { verifyPassword } from "./password";
+import type { Actor } from "~/http/auth";
+import { enqueueJob } from "~/modules/jobs/jobs";
+import { type ExampleLanguage, exampleDataJob } from "~/modules/organizations/exampleData";
 
 const invalidCredentials = () =>
   new HttpError(401, "INVALID_CREDENTIALS", "Wrong email or password");
@@ -178,14 +181,31 @@ export const getSession = async (orgId: string, userId: string) =>
     };
   });
 
-/** The member finished the welcome steps: remembered for every browser (first time only). */
-export const markOnboarded = async (orgId: string, userId: string) => {
-  await withOrg(orgId, (tx) =>
-    tx
+/**
+ * The member finished the welcome steps: remembered for every browser (first
+ * time only). An owner may ask for example data: a job seeds it right
+ * after, while the organisation has no contacts.
+ */
+export const markOnboarded = async (actor: Actor, input: { exampleData?: boolean; language?: ExampleLanguage } = {}) => {
+  const { orgId, userId } = actor;
+
+  await withOrg(orgId, async (tx) => {
+    await tx
       .update(users)
       .set({ onboardedAt: sql`coalesce(${users.onboardedAt}, now())` })
-      .where(and(eq(users.orgId, orgId), eq(users.id, userId))),
-  );
+      .where(and(eq(users.orgId, orgId), eq(users.id, userId)));
+
+    // Queued with the change: seeded right after (see `exampleDataJob`).
+    if (input.exampleData && actor.role === 'owner') {
+      await enqueueJob(tx, {
+        orgId,
+        queue: exampleDataJob.queue,
+        payload: { userId, language: input.language ?? 'en' },
+        dedupeKey: `example-data:${orgId}`,
+        maxAttempts: 3,
+      });
+    }
+  });
 
   return getSession(orgId, userId);
 };
