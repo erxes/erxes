@@ -16,25 +16,113 @@ import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NavApp } from './apps';
 
+/** The app's icon; on hover it turns into a grip, as tabs can be dragged. */
+const TabIcon = ({
+  icon: Icon,
+  active,
+  dragging,
+}: {
+  icon: NavApp['icon'];
+  active: boolean;
+  dragging: boolean;
+}) => (
+  <span className="relative size-4 shrink-0">
+    <Icon
+      className={cn(
+        'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0',
+        active && 'text-primary',
+        dragging && 'opacity-0',
+      )}
+    />
+    <IconGripVertical
+      aria-hidden
+      className={cn(
+        'absolute inset-0 size-4 text-muted-foreground opacity-0 transition-opacity group-hover/tab:opacity-100',
+        dragging && 'opacity-100',
+      )}
+    />
+  </span>
+);
+
+/** ×, shown on the active tab and on hover; it never starts a drag. */
+const TabCloseButton = ({
+  label,
+  active,
+  onClose,
+}: {
+  label: string;
+  active: boolean;
+  onClose: () => void;
+}) => (
+  <Button
+    aria-label={label}
+    title={label}
+    className={cn(
+      'size-5 shrink-0 rounded text-muted-foreground opacity-0 transition-[background-color,opacity] hover:bg-accent hover:text-foreground group-focus-within/tab:opacity-100 group-hover/tab:opacity-100',
+      active && 'opacity-100',
+    )}
+    size="icon"
+    type="button"
+    tabIndex={-1}
+    variant="ghost"
+    onClick={(event) => {
+      event.stopPropagation();
+      onClose();
+    }}
+    onPointerDown={(event) => event.stopPropagation()}
+  >
+    <IconX className="size-3" />
+  </Button>
+);
+
+interface TabMenuActions {
+  canCloseOthers: boolean;
+  canCloseToRight: boolean;
+  onCloseOthers: () => void;
+  onCloseToRight: () => void;
+}
+
+/** Right click: close this tab, the others, or those to its right. */
+const TabMenu = ({
+  closeLabel,
+  onClose,
+  canCloseOthers,
+  canCloseToRight,
+  onCloseOthers,
+  onCloseToRight,
+}: TabMenuActions & { closeLabel: string; onClose: () => void }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
+  return (
+    <ContextMenu.Content>
+      <ContextMenu.Item onSelect={onClose}>
+        <IconX />
+        {closeLabel}
+      </ContextMenu.Item>
+      <ContextMenu.Item disabled={!canCloseOthers} onSelect={onCloseOthers}>
+        <IconX />
+        {t('close-other-tabs', 'Close other tabs')}
+      </ContextMenu.Item>
+      <ContextMenu.Item disabled={!canCloseToRight} onSelect={onCloseToRight}>
+        <IconArrowBarToRight />
+        {t('close-tabs-to-right', 'Close tabs to the right')}
+      </ContextMenu.Item>
+    </ContextMenu.Content>
+  );
+};
+
 const CoreTabAppTab = ({
   app,
   active,
-  canCloseOthers,
-  canCloseToRight,
   onSelect,
   onClose,
-  onCloseOthers,
-  onCloseToRight,
   onKeyDown,
-}: {
+  ...menu
+}: TabMenuActions & {
   app: NavApp;
   active: boolean;
-  canCloseOthers: boolean;
-  canCloseToRight: boolean;
   onSelect: () => void;
   onClose: () => void;
-  onCloseOthers: () => void;
-  onCloseToRight: () => void;
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
@@ -44,7 +132,6 @@ const CoreTabAppTab = ({
   });
 
   const ref = useRef<HTMLDivElement | null>(null);
-  const Icon = app.icon;
   const closeLabel = t('close-tab', { page: app.label, defaultValue: `Close ${app.label}` });
 
   useEffect(() => {
@@ -96,71 +183,20 @@ const CoreTabAppTab = ({
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();
               onSelect();
-
-              return;
-            }
-
-            onKeyDown(event);
+            } else onKeyDown(event);
           }}
         >
-          {/* On hover the icon turns into a grip: tabs can be dragged. */}
-          <span className="relative size-4 shrink-0">
-            <Icon
-              className={cn(
-                'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0',
-                active && 'text-primary',
-                isDragging && 'opacity-0',
-              )}
-            />
-            <IconGripVertical
-              aria-hidden
-              className={cn(
-                'absolute inset-0 size-4 text-muted-foreground opacity-0 transition-opacity group-hover/tab:opacity-100',
-                isDragging && 'opacity-100',
-              )}
-            />
-          </span>
+          <TabIcon icon={app.icon} active={active} dragging={isDragging} />
           <span className="min-w-0 flex-1 truncate">{app.label}</span>
-          <Button
-            aria-label={closeLabel}
-            title={closeLabel}
-            className={cn(
-              'size-5 shrink-0 rounded text-muted-foreground opacity-0 transition-[background-color,opacity] hover:bg-accent hover:text-foreground group-focus-within/tab:opacity-100 group-hover/tab:opacity-100',
-              active && 'opacity-100',
-            )}
-            size="icon"
-            type="button"
-            tabIndex={-1}
-            variant="ghost"
-            onClick={(event) => {
-              event.stopPropagation();
-              onClose();
-            }}
-            onPointerDown={(event) => event.stopPropagation()}
-          >
-            <IconX className="size-3" />
-          </Button>
+          <TabCloseButton label={closeLabel} active={active} onClose={onClose} />
         </div>
       </ContextMenu.Trigger>
-      <ContextMenu.Content>
-        <ContextMenu.Item onSelect={onClose}>
-          <IconX />
-          {closeLabel}
-        </ContextMenu.Item>
-        <ContextMenu.Item disabled={!canCloseOthers} onSelect={onCloseOthers}>
-          <IconX />
-          {t('close-other-tabs', 'Close other tabs')}
-        </ContextMenu.Item>
-        <ContextMenu.Item disabled={!canCloseToRight} onSelect={onCloseToRight}>
-          <IconArrowBarToRight />
-          {t('close-tabs-to-right', 'Close tabs to the right')}
-        </ContextMenu.Item>
-      </ContextMenu.Content>
+      <TabMenu closeLabel={closeLabel} onClose={onClose} {...menu} />
     </ContextMenu>
   );
 };
 
-/** Browser-like app tabs (old core-ui): click to switch, × or middle click to close, drag to reorder. */
+/** Browser-like app tabs: click to switch, × or middle click to close, drag to reorder. */
 export const CoreTabAppTabs = ({
   tabs,
   activeId,
