@@ -1,15 +1,13 @@
-import type { Notification, NotificationDelivery } from '@erxes/core-contract';
 import { IconPuzzle, type Icon } from '@tabler/icons-react';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import type { ComponentType } from 'react';
-import { api, messageOf } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
+import { forwardPaging } from '~/lib/cursorList';
 import { useLivePolling } from '~/lib/live';
 import { pluginLabel } from '~/lib/members';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { usePlugins } from '~/modules/plugins/usePlugins';
-
-export const NOTIFICATIONS_KEY = ['notifications'];
 
 /** `core` is erxes' own inbox; every plugin has one under its name. */
 export const CORE_INBOX = 'core';
@@ -22,12 +20,13 @@ export const CORE_INBOX = 'core';
 export const useUnreadCounts = () => {
   const refetchInterval = useLivePolling();
 
-  const query = useQuery({
-    queryKey: [...NOTIFICATIONS_KEY, 'unread-count'],
-    queryFn: () => api.notifications.unreadCount({}),
-    refetchInterval,
-    refetchOnWindowFocus: true,
-  });
+  const query = useQuery(
+    orpc.notifications.unreadCount.queryOptions({
+      input: {},
+      refetchInterval,
+      refetchOnWindowFocus: true,
+    }),
+  );
 
   return { count: query.data?.count ?? 0, bySource: query.data?.bySource ?? {} };
 };
@@ -47,32 +46,24 @@ export const useNotificationList = ({
 }: NotificationFilters & { enabled?: boolean }) => {
   const refetchInterval = useLivePolling();
 
-  const query = useInfiniteQuery({
-    queryKey: [
-      ...NOTIFICATIONS_KEY,
-      'list',
-      { source: source ?? null, unread, important: Boolean(important) },
-    ],
-    queryFn: ({ pageParam }) =>
-      api.notifications.list({
-        limit: 20,
-        cursor: pageParam,
-        direction: 'forward',
-        cursorMode: 'exclusive',
+  const query = useInfiniteQuery(
+    orpc.notifications.list.infiniteOptions({
+      input: (page) => ({
+        ...page,
         unread: unread ? 'true' : undefined,
         source,
         priority: important ? 'high' : undefined,
       }),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (last) =>
-      last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
-    enabled,
-    refetchInterval,
-  });
+      ...forwardPaging(20),
+      enabled,
+      refetchInterval,
+    }),
+  );
 
   return {
     notifications: query.data?.pages.flatMap((page) => page.data) ?? [],
     loading: query.isPending,
+    error: query.error,
     hasMore: query.hasNextPage,
     loadingMore: query.isFetchingNextPage,
     loadMore: () => void query.fetchNextPage(),
@@ -82,59 +73,43 @@ export const useNotificationList = ({
 export const useNotificationActions = () => {
   const client = useQueryClient();
   const { toast } = useToast();
-  const refresh = () => client.invalidateQueries({ queryKey: NOTIFICATIONS_KEY });
+  const handlers = {
+    onSuccess: () => client.invalidateQueries({ queryKey: orpc.notifications.key() }),
+    onError: (error: Error) =>
+      toast({
+        variant: 'destructive',
+        title: 'Could not update notifications',
+        description: messageOf(error),
+      }),
+  };
 
-  const onError = (error: unknown) =>
-    toast({
-      variant: 'destructive',
-      title: 'Could not update notifications',
-      description: messageOf(error),
-    });
-
-  const markRead = useMutation({
-    mutationFn: (input: { ids?: string[]; source?: string; read?: boolean }) =>
-      api.notifications.markRead({ read: true, ...input }),
-    onSuccess: refresh,
-    onError,
-  });
-
-  const remove = useMutation({
-    mutationFn: (notification: Notification) => api.notifications.remove({ id: notification.id }),
-    onSuccess: refresh,
-    onError,
-  });
-
-  return { markRead, remove };
+  return {
+    markRead: useMutation(orpc.notifications.markRead.mutationOptions(handlers)),
+    remove: useMutation(orpc.notifications.remove.mutationOptions(handlers)),
+  };
 };
 
-const SETTINGS_KEY = [...NOTIFICATIONS_KEY, 'settings'];
+const notificationSettingsQuery = () =>
+  orpc.notifications.settings.queryOptions({ staleTime: 60_000 });
 
 export const useNotificationSettings = () => {
   const client = useQueryClient();
   const { toast } = useToast();
+  const query = useQuery(notificationSettingsQuery());
 
-  const query = useQuery({
-    queryKey: SETTINGS_KEY,
-    queryFn: () => api.notifications.settings(),
-    staleTime: 60_000,
-  });
+  const update = useMutation(
+    orpc.notifications.updateSettings.mutationOptions({
+      onSuccess: (settings) => client.setQueryData(notificationSettingsQuery().queryKey, settings),
+      onError: (error) =>
+        toast({
+          variant: 'destructive',
+          title: 'Could not save notification settings',
+          description: messageOf(error),
+        }),
+    }),
+  );
 
-  const update = useMutation({
-    mutationFn: (input: {
-      groups?: Record<string, NotificationDelivery>;
-      email?: boolean;
-      browser?: boolean;
-    }) => api.notifications.updateSettings(input),
-    onSuccess: (settings) => client.setQueryData(SETTINGS_KEY, settings),
-    onError: (error) =>
-      toast({
-        variant: 'destructive',
-        title: 'Could not save notification settings',
-        description: messageOf(error),
-      }),
-  });
-
-  return { settings: query.data, loading: query.isPending, update };
+  return { settings: query.data, loading: query.isPending, error: query.error, update };
 };
 
 export interface Inbox {

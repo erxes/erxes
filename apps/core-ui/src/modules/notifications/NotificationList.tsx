@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChangeList, useChangeLookups } from '~/components/ChangeList';
 import { UserAvatar } from '~/components/UserAvatar';
+import { messageOf } from '~/lib/api';
 import { actorLabel, useMembersById } from '~/lib/members';
 import { type Inbox, useNotificationActions } from './useNotifications';
 
@@ -214,7 +215,7 @@ const NotificationItem = ({
           aria-label={t('remove', 'Remove')}
           onClick={(event) => {
             event.stopPropagation();
-            remove.mutate(notification);
+            remove.mutate({ id: notification.id });
           }}
         >
           <IconTrash className="size-3.5" />
@@ -228,6 +229,7 @@ const NotificationItem = ({
 export const NotificationList = ({
   notifications,
   loading,
+  error,
   hasMore,
   loadingMore,
   loadMore,
@@ -238,6 +240,7 @@ export const NotificationList = ({
 }: {
   notifications: Notification[];
   loading: boolean;
+  error: Error | null;
   hasMore: boolean;
   loadingMore: boolean;
   loadMore: () => void;
@@ -256,6 +259,10 @@ export const NotificationList = ({
 
   if (loading) {
     return <Spinner containerClassName="py-10" />;
+  }
+
+  if (error) {
+    return <p className="px-4 py-10 text-center text-sm text-destructive">{messageOf(error)}</p>;
   }
 
   if (!notifications.length) {

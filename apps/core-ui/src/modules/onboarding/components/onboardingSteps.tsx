@@ -66,9 +66,6 @@ export function getOnboardingSteps(canInvite?: boolean): OnboardingStepDef[] {
   ];
 }
 
-export function getOnboardingStepForScreen(
-  steps: OnboardingStepDef[],
-  screenStep: number,
-): OnboardingStepDef {
-  return steps.find(({ step }) => step === screenStep) ?? steps[steps.length - 1];
+export function getOnboardingStepForScreen(steps: OnboardingStepDef[], screenStep: number) {
+  return steps.find(({ step }) => step === screenStep) ?? steps.at(-1);
 }

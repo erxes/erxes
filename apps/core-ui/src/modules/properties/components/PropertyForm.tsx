@@ -1,6 +1,7 @@
-import type { ContentType, FieldType, FieldUsage } from '@erxes/core-contract';
+import type { ContentType, FieldGroup, FieldType, FieldUsage } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
   Button,
@@ -14,12 +15,13 @@ import {
   Textarea,
   ToggleGroup,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useFieldArray, useForm, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { messageOf } from '~/lib/api';
 import { FIELD_TYPES, getEditableTypes, hasOptions } from '../fieldTypes';
 import { type IPropertyForm, type IPropertyValues, propertySchema } from '../propertySchema';
-import { useFieldGroups } from '../useFields';
+import { fieldGroupsQuery, useFieldGroups } from '../useFields';
 import { useCanManageFields } from '../usePropertyMutations';
 import { AddPropertyGroup } from './PropertyGroupAdd';
 
@@ -33,21 +35,25 @@ const PropertyFormGroupField = ({
   contentType: ContentType;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { groups } = useFieldGroups(contentType);
-  const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
-
-  // A group added here is picked once the list has it (the select drops unknown values).
-  useEffect(() => {
-    if (!pendingGroupId || !groups.some((group) => group.id === pendingGroupId)) return;
-    form.setValue('groupId', pendingGroupId, { shouldDirty: true, shouldValidate: true });
-    setPendingGroupId(null);
-  }, [pendingGroupId, groups, form]);
+  const client = useQueryClient();
+  const { groups, error } = useFieldGroups(contentType);
 
   // Nothing to choose when the record type has a single group.
   useEffect(() => {
-    if (form.getValues('groupId') || groups.length !== 1) return;
-    form.setValue('groupId', groups[0].id, { shouldValidate: true });
+    const [only] = groups;
+
+    if (form.getValues('groupId') || groups.length !== 1 || !only) return;
+    form.setValue('groupId', only.id, { shouldValidate: true });
   }, [groups, form]);
+
+  // The select drops values it doesn't list, so a group added here joins the list first.
+  const pick = (group: FieldGroup) => {
+    client.setQueryData(
+      fieldGroupsQuery(contentType).queryKey,
+      (data) => data && { data: [...data.data, group] },
+    );
+    form.setValue('groupId', group.id, { shouldDirty: true, shouldValidate: true });
+  };
 
   return (
     <Form.Field
@@ -73,7 +79,7 @@ const PropertyFormGroupField = ({
             </Select>
             <AddPropertyGroup
               contentType={contentType}
-              onAdded={(group) => setPendingGroupId(group.id)}
+              onAdded={pick}
               trigger={
                 <Button type="button" variant="secondary" className="flex-none">
                   <IconPlus />
@@ -82,6 +88,7 @@ const PropertyFormGroupField = ({
               }
             />
           </div>
+          {error && <p className="text-sm text-destructive">{messageOf(error)}</p>}
           <Form.Message />
         </Form.Item>
       )}

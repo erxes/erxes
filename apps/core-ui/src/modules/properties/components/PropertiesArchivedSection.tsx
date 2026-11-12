@@ -3,16 +3,18 @@ import { IconRestore, IconTrash } from '@tabler/icons-react';
 import { Badge, Button, Collapsible } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { messageOf } from '~/lib/api';
 import { archiveTargetState } from '../states';
 import { useAllFields, useFieldGroups } from '../useFields';
 import { useCanManageFields, usePropertyRestore } from '../usePropertyMutations';
 
 const useArchivedProperties = (contentType: ContentType) => {
-  const { groups } = useFieldGroups(contentType, { archived: true });
-  const { fields } = useAllFields(contentType, { archived: true });
+  const { groups, error: groupsError } = useFieldGroups(contentType, { archived: true });
+  const { fields, error: fieldsError } = useAllFields(contentType, { archived: true });
   const archivedGroupIds = new Set(groups.map((group) => group.id));
 
   return {
+    error: groupsError ?? fieldsError,
     groups: groups.map((group) => ({
       ...group,
       fieldCount: fields.filter((field) => field.groupId === group.id).length,
@@ -72,10 +74,14 @@ const ArchivedRow = ({
 /** Archived groups and fields, restorable (old "Archived" section). */
 export const PropertiesArchivedSection = ({ contentType }: { contentType: ContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { groups, fields } = useArchivedProperties(contentType);
+  const { groups, fields, error } = useArchivedProperties(contentType);
   const { restoreField, restoreGroup, loading } = usePropertyRestore();
   const setTarget = useSetAtom(archiveTargetState);
   const total = groups.length + fields.length;
+
+  if (error) {
+    return <p className="px-2 text-sm text-destructive">{messageOf(error)}</p>;
+  }
 
   if (!total) {
     return null;

@@ -23,19 +23,20 @@ export const PlanBanner = () => {
   if (!data?.saas) return null;
 
   const readOnly = data.plugins.filter((plugin) => plugin.access === 'read_only');
+  const [firstReadOnly] = readOnly;
   const retrying = data.plugins.filter((plugin) => plugin.status === 'past_due');
   let severe = true;
   let message: string;
 
   if (data.organizationStatus !== 'active') {
     message = t('banner-disabled', 'This workspace is disabled on erxes.io.');
-  } else if (readOnly.length) {
+  } else if (firstReadOnly) {
     message = t(
       'banner-read-only',
       '{{plugins}} left your plan: read-only until {{date}}, then turned off. Buy it again to keep using it.',
       {
         plugins: readOnly.map((plugin) => plugin.title).join(', '),
-        date: day(readOnly[0].readOnlyUntil ?? new Date().toISOString()),
+        date: day(firstReadOnly.readOnlyUntil ?? new Date().toISOString()),
       },
     );
   } else if (retrying.length) {

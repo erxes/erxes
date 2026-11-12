@@ -1,33 +1,25 @@
-import type { ContentType, FieldGroup } from '@erxes/core-contract';
+import type { ContentType } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { api, messageOf } from '~/lib/api';
-import { useCan, useSession } from '~/modules/auth/session';
-import { FIELD_GROUPS_KEY, FIELDS_KEY } from './useFields';
-
-type FieldCreate = Parameters<typeof api.fields.create>[0];
-
-type FieldUpdate = Parameters<typeof api.fields.update>[0];
-
-type GroupCreate = Parameters<typeof api.fieldGroups.create>[0];
-
-type GroupUpdate = Parameters<typeof api.fieldGroups.update>[0];
+import { messageOf, orpc } from '~/lib/api';
+import { useCan } from '~/modules/auth/session';
+import { fieldGroupsQuery } from './useFields';
 
 /** Owners and admins manage properties (old `fieldsManage` / `fieldGroupsManage`). */
 export const useCanManageFields = () => useCan()('properties.manage');
 
 /** Refreshes every list a property change shows in (and records whose values went away). */
-export const usePropertiesRefresh = () => {
+const usePropertiesRefresh = () => {
   const client = useQueryClient();
 
   return (records = false) => {
-    void client.invalidateQueries({ queryKey: FIELDS_KEY });
-    void client.invalidateQueries({ queryKey: FIELD_GROUPS_KEY });
+    void client.invalidateQueries({ queryKey: orpc.fields.key() });
+    void client.invalidateQueries({ queryKey: orpc.fieldGroups.key() });
 
     if (records) {
-      void client.invalidateQueries({ queryKey: ['customers'] });
-      void client.invalidateQueries({ queryKey: ['companies'] });
+      void client.invalidateQueries({ queryKey: orpc.customers.key() });
+      void client.invalidateQueries({ queryKey: orpc.companies.key() });
     }
   };
 };
@@ -44,49 +36,25 @@ const useFeedback = () => {
   };
 };
 
-export const useAddProperty = () => {
+/** Refresh on success, a toast on failure: what every property save does. */
+const useSaveHandlers = () => {
   const refresh = usePropertiesRefresh();
   const { onError } = useFeedback();
 
-  return useMutation({
-    mutationFn: (body: FieldCreate) => api.fields.create(body),
-    onSuccess: () => refresh(),
-    onError,
-  });
+  return { onSuccess: () => refresh(), onError };
 };
 
-export const useEditProperty = () => {
-  const refresh = usePropertiesRefresh();
-  const { onError } = useFeedback();
+export const useAddProperty = () =>
+  useMutation(orpc.fields.create.mutationOptions(useSaveHandlers()));
 
-  return useMutation({
-    mutationFn: (body: FieldUpdate) => api.fields.update(body),
-    onSuccess: () => refresh(),
-    onError,
-  });
-};
+export const useEditProperty = () =>
+  useMutation(orpc.fields.update.mutationOptions(useSaveHandlers()));
 
-export const useAddPropertyGroup = () => {
-  const refresh = usePropertiesRefresh();
-  const { onError } = useFeedback();
+export const useAddPropertyGroup = () =>
+  useMutation(orpc.fieldGroups.create.mutationOptions(useSaveHandlers()));
 
-  return useMutation({
-    mutationFn: (body: GroupCreate) => api.fieldGroups.create(body),
-    onSuccess: () => refresh(),
-    onError,
-  });
-};
-
-export const useEditPropertyGroup = () => {
-  const refresh = usePropertiesRefresh();
-  const { onError } = useFeedback();
-
-  return useMutation({
-    mutationFn: (body: GroupUpdate) => api.fieldGroups.update(body),
-    onSuccess: () => refresh(),
-    onError,
-  });
-};
+export const useEditPropertyGroup = () =>
+  useMutation(orpc.fieldGroups.update.mutationOptions(useSaveHandlers()));
 
 /** What the remove dialog is about; from Archived it can only be deleted. */
 export type TArchiveTarget = ({ kind: 'fields'; ids: string[] } | { kind: 'group'; id: string }) & {
@@ -96,16 +64,15 @@ export type TArchiveTarget = ({ kind: 'fields'; ids: string[] } | { kind: 'group
 
 /** Whether records hold values of the target's fields (`removable` when none do). */
 export const useFieldUsage = (target: TArchiveTarget | null) => {
-  const { data, isFetching, error } = useQuery({
-    queryKey: [...FIELDS_KEY, 'usage', target],
-    queryFn: () =>
-      target?.kind === 'group'
-        ? api.fields.usage({ groupId: target.id })
-        : api.fields.usage({ ids: (target?.ids ?? []).join(',') }),
-    enabled: !!target,
-    staleTime: 0,
-    gcTime: 0,
-  });
+  const { data, isFetching, error } = useQuery(
+    orpc.fields.usage.queryOptions({
+      input:
+        target?.kind === 'group' ? { groupId: target.id } : { ids: (target?.ids ?? []).join(',') },
+      enabled: !!target,
+      staleTime: 0,
+      gcTime: 0,
+    }),
+  );
 
   return { usage: error ? undefined : data, loading: isFetching, failed: !!error };
 };
@@ -122,8 +89,8 @@ export const usePropertyArchive = () => {
 
   const archive = useMutation({
     mutationFn: async (target: TArchiveTarget) => {
-      if (target.kind === 'group') await api.fieldGroups.archive({ id: target.id });
-      else await api.fields.archive({ ids: target.ids });
+      if (target.kind === 'group') await orpc.fieldGroups.archive.call({ id: target.id });
+      else await orpc.fields.archive.call({ ids: target.ids });
     },
     onError,
   });
@@ -132,8 +99,8 @@ export const usePropertyArchive = () => {
   const remove = useMutation({
     mutationFn: (target: TArchiveTarget) =>
       target.kind === 'group'
-        ? api.fieldGroups.remove({ id: target.id })
-        : api.fields.removeUnused({ ids: target.ids }),
+        ? orpc.fieldGroups.remove.call({ id: target.id })
+        : orpc.fields.removeUnused.call({ ids: target.ids }),
     onError,
   });
 
@@ -152,8 +119,8 @@ export const usePropertyRestore = () => {
 
   const restore = useMutation({
     mutationFn: async ({ kind, id }: { kind: 'field' | 'group'; id: string }) => {
-      if (kind === 'group') await api.fieldGroups.restore({ id });
-      else await api.fields.restore({ id });
+      if (kind === 'group') await orpc.fieldGroups.restore.call({ id });
+      else await orpc.fields.restore.call({ id });
     },
     onSuccess: () => {
       refresh(true);
@@ -177,20 +144,21 @@ export const useReorder = (kind: 'fields' | 'groups', contentType: ContentType) 
 
   return useMutation({
     mutationFn: (orders: { id: string; order: number }[]) =>
-      kind === 'groups' ? api.fieldGroups.reorder({ orders }) : api.fields.reorder({ orders }),
+      kind === 'groups'
+        ? orpc.fieldGroups.reorder.call({ orders })
+        : orpc.fields.reorder.call({ orders }),
     onMutate: (orders) => {
       if (kind !== 'groups') return;
 
-      const key = [...FIELD_GROUPS_KEY, contentType, { archived: false }];
       const byId = new Map(orders.map((item) => [item.id, item.order]));
 
-      client.setQueryData<{ data: FieldGroup[] }>(
-        key,
+      client.setQueryData(
+        fieldGroupsQuery(contentType).queryKey,
         (data) =>
           data && {
             data: data.data
               .map((group) => ({ ...group, order: byId.get(group.id) ?? group.order }))
-              .sort((a, b) => a.order - b.order),
+              .toSorted((a, b) => a.order - b.order),
           },
       );
     },

@@ -1,10 +1,10 @@
 import { IconX } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, cn, Input, TextOverflowTooltip, toast } from 'erxes-ui';
 import { type ChangeEvent, type KeyboardEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { api } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
 import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD } from './Appear';
 
@@ -15,30 +15,36 @@ const useInviteEmails = () => {
   const client = useQueryClient();
   const { t } = useTranslation(ONBOARDING_NS);
 
-  return async (emails: string[]) => {
-    const results = await Promise.allSettled(emails.map((email) => api.users.invite({ email })));
-    const failed = emails.filter((_, index) => results[index].status === 'rejected');
-    const sent = emails.length - failed.length;
+  return useMutation({
+    mutationFn: (emails: string[]) =>
+      Promise.all(
+        emails.map((email) =>
+          orpc.users.invite.call({ email }).then(
+            () => ({ email, error: null }),
+            (error: unknown) => ({ email, error }),
+          ),
+        ),
+      ),
+    onSuccess: (outcomes) => {
+      const failed = outcomes.filter((outcome) => outcome.error !== null);
+      const sent = outcomes.length - failed.length;
+      const [firstFailure] = failed;
 
-    void client.invalidateQueries({ queryKey: ['users'] });
+      if (sent) {
+        toast({ title: t('invite-sent', { count: sent }), variant: 'success' });
+      }
 
-    if (sent) {
-      toast({ title: t('invite-sent', { count: sent }), variant: 'success' });
-    }
+      if (firstFailure) {
+        toast({
+          title: t('invite-failed', { emails: failed.map((outcome) => outcome.email).join(', ') }),
+          description: messageOf(firstFailure.error),
+          variant: 'destructive',
+        });
+      }
 
-    if (failed.length) {
-      const reason = results.find((result) => result.status === 'rejected');
-
-      toast({
-        title: t('invite-failed', { emails: failed.join(', ') }),
-        description:
-          reason?.status === 'rejected' && reason.reason instanceof Error
-            ? reason.reason.message
-            : undefined,
-        variant: 'destructive',
-      });
-    }
-  };
+      return client.invalidateQueries({ queryKey: orpc.users.key() });
+    },
+  });
 };
 
 export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void }) => {
@@ -77,7 +83,7 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
     }
 
     // As in old erxes the step moves on while the invitations go out
-    void inviteEmails(emails);
+    inviteEmails.mutate(emails);
     setInputValue('');
     setError('');
     onContinue();

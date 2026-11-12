@@ -1,4 +1,3 @@
-import type { Session } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Input, Spinner, useToast } from 'erxes-ui';
@@ -6,16 +5,11 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { UserAvatar } from '~/components/UserAvatar';
-import { api, messageOf } from '~/lib/api';
-import { SESSION_KEY, useSession } from '~/modules/auth/session';
+import { messageOf, orpc } from '~/lib/api';
+import { useSession } from '~/modules/auth/session';
 import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD } from './Appear';
 
-/*
- * Old erxes also set a password here for users invited without one. The new
- * core signs in with a password from the start and has no password change
- * API yet, so this step sets only the name, username and avatar.
- */
 const getProfileFormSchema = (t: (key: string) => string) =>
   z.object({
     firstName: z.string().trim().min(1, 'First name is required').max(100),
@@ -59,29 +53,31 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
   const name =
     [form.watch('firstName'), form.watch('lastName')].filter(Boolean).join(' ') || user.email;
 
-  const update = useMutation({
-    mutationFn: (data: ProfileFormType) =>
-      api.users.update({
-        id: user.id,
-        username: data.username,
-        fullName: `${data.firstName} ${data.lastName}`,
-        avatarUrl: data.avatar || null,
-      }),
-    onSuccess: (updated) => {
-      // The top bar and greeting read the session, so they show the new name
-      client.setQueryData<Session | null>(SESSION_KEY, (current) =>
-        current ? { ...current, user: updated } : current,
-      );
-      onContinue();
-    },
-    onError: (error) => {
-      toast({
-        title: t('error-updating-user'),
-        description: messageOf(error),
-        variant: 'destructive',
-      });
-    },
-  });
+  const update = useMutation(
+    orpc.users.update.mutationOptions({
+      onSuccess: (updated) => {
+        // The top bar and greeting read the session, so they show the new name
+        client.setQueryData(orpc.auth.me.queryKey(), (current) =>
+          current ? { ...current, user: updated } : current,
+        );
+        onContinue();
+      },
+      onError: (error) =>
+        toast({
+          title: t('error-updating-user'),
+          description: messageOf(error),
+          variant: 'destructive',
+        }),
+    }),
+  );
+
+  const save = (data: ProfileFormType) =>
+    update.mutate({
+      id: user.id,
+      username: data.username,
+      fullName: `${data.firstName} ${data.lastName}`,
+      avatarUrl: data.avatar || null,
+    });
 
   return (
     <Appear
@@ -96,7 +92,7 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
       </Appear>
       <Appear y={20} duration={400} delay={300}>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => update.mutate(data))} className="grid gap-3">
+          <form onSubmit={form.handleSubmit(save)} className="grid gap-3">
             <Form.Field
               control={form.control}
               name="avatar"

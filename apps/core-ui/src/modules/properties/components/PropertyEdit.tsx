@@ -3,10 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Button, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
 import { PROPERTIES_BASE_PATH } from '../constants';
 import { hasOptions } from '../fieldTypes';
-import { FIELDS_KEY, useAllFields } from '../useFields';
+import { useAllFields } from '../useFields';
 import { useEditProperty } from '../usePropertyMutations';
 import { PropertyForm } from './PropertyForm';
 
@@ -14,20 +14,21 @@ import { PropertyForm } from './PropertyForm';
 export const PropertyEdit = ({ contentType }: { contentType: ContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { id = '' } = useParams<{ id: string }>();
-  const { fields, loading } = useAllFields(contentType);
+  const { fields, loading, error } = useAllFields(contentType);
   const field = fields.find((item) => item.id === id);
 
-  const usage = useQuery({
-    queryKey: [...FIELDS_KEY, 'usage', 'field', id],
-    queryFn: () => api.fields.usage({ ids: id }),
-    enabled: !!field,
-    staleTime: 0,
-  });
+  const usage = useQuery(
+    orpc.fields.usage.queryOptions({ input: { ids: id }, enabled: !!field, staleTime: 0 }),
+  );
 
   const { toast } = useToast();
   const { mutate, isPending } = useEditProperty();
   const navigate = useNavigate();
   const handleClose = () => navigate(`${PROPERTIES_BASE_PATH}/${contentType}`);
+
+  if (error) {
+    return <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>;
+  }
 
   if (loading || (field && usage.isPending && usage.fetchStatus !== 'idle')) {
     return <Spinner containerClassName="py-12" />;

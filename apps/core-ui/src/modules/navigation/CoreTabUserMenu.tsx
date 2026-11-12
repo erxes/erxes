@@ -157,15 +157,8 @@ export const CoreTabUserMenu = () => {
         <DropdownMenu.Separator />
         <DropdownMenu.Item
           className="h-7 py-0 text-sm"
-          onClick={() =>
-            void signOut().catch((error: unknown) =>
-              toast({
-                variant: 'destructive',
-                title: t('logout-failed', 'Could not sign out'),
-                description: `${messageOf(error)} ${t('logout-retry', 'You are still signed in: try again.')}`,
-              }),
-            )
-          }
+          disabled={signOut.isPending}
+          onClick={() => signOut.mutate()}
         >
           {t('logout')}
         </DropdownMenu.Item>

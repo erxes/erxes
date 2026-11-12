@@ -24,13 +24,13 @@ export class DashboardTileErrorBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }
 > {
-  state = { failed: false };
+  override state = { failed: false };
 
   static getDerivedStateFromError() {
     return { failed: true };
   }
 
-  render() {
+  override render() {
     return this.state.failed ? (
       <DashboardTileCrashState onRetry={() => this.setState({ failed: false })} />
     ) : (
