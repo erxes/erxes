@@ -25,7 +25,7 @@ import { type Actor, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { withImportCause } from '~/lib/causation';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import {
   createCompany,
@@ -52,6 +52,8 @@ import {
   transferColumns,
 } from './columns';
 import { ParseError, parseSheet } from './parse';
+
+const log = logger.child({ component: 'imports' });
 
 type ImportRow = typeof imports.$inferSelect;
 
@@ -887,7 +889,7 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean): JobDefini
           link: `/contacts/settings/import-export?import=${imp.id}`,
           entity: { type: 'import', id: imp.id },
         },
-      ).catch((error: unknown) => log.warn('could not tell the importer', { error }));
+      ).catch((error: unknown) => log.warn({ err: error }, 'could not tell the importer'));
     }
   },
   async onDead(job, error, tx) {

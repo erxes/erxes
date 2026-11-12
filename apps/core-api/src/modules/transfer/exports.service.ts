@@ -17,7 +17,7 @@ import { stringify } from 'csv-stringify/sync';
 import writeXlsxFile from 'write-excel-file/node';
 import { type Actor, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { companyListWhere } from '~/modules/companies/companies.service';
 import { customerListWhere } from '~/modules/customers/customers.service';
@@ -26,6 +26,8 @@ import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
 import { customCell, transferColumns } from './columns';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
+
+const log = logger.child({ component: 'exports' });
 
 type ExportRow = typeof exports.$inferSelect;
 
@@ -388,7 +390,7 @@ export const exportRunJob: JobDefinition = {
           link: `/contacts/settings/import-export?export=${row.id}`,
           entity: { type: 'export', id: row.id },
         },
-      ).catch((error: unknown) => log.warn('could not tell the exporter', { error }));
+      ).catch((error: unknown) => log.warn({ err: error }, 'could not tell the exporter'));
     });
   },
   async onDead(job, error, tx) {

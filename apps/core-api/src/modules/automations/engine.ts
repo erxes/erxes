@@ -16,7 +16,7 @@ import { and, desc, eq, gt, inArray, sql } from 'drizzle-orm';
 import { createHash } from 'node:crypto';
 import type { Actor } from '~/http/auth';
 import { withRunCause } from '~/lib/causation';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { toEventDto } from '~/modules/events/events.service';
 import type { EventConsumer } from '~/modules/events/processor';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
@@ -24,6 +24,8 @@ import { notify } from '~/modules/notifications/notifications.service';
 import { CORE_ACTIONS, pluginOfAction, runPluginAction } from './actions';
 import { evaluateGroup } from './conditions';
 import { render } from './templates';
+
+const log = logger.child({ component: 'automations' });
 
 type RunRow = typeof automationRuns.$inferSelect;
 
@@ -583,7 +585,7 @@ const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
       data: { runId: run.id },
     },
   ).catch((notifyError: unknown) =>
-    log.warn('could not notify about a failed run', { error: notifyError }),
+    log.warn({ err: notifyError }, 'could not notify about a failed run'),
   );
 };
 
@@ -688,10 +690,13 @@ export const automationsConsumer: EventConsumer = {
     if (event.subjectId) await resumeWaiting(tx, event, dto);
 
     if (event.depth >= MAX_CHAIN_DEPTH) {
-      log.warn('automation chain too deep; not starting more', {
-        event: event.id,
-        depth: event.depth,
-      });
+      log.warn(
+        {
+          event: event.id,
+          depth: event.depth,
+        },
+        'automation chain too deep; not starting more',
+      );
 
       return;
     }

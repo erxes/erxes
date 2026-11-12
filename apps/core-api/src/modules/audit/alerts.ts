@@ -1,9 +1,11 @@
 import { auditLogs, type Db, organizations, roles, users } from '@erxes/core-db';
 import { and, eq, gte, inArray, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { appLink, sendEmail } from '~/modules/email/email';
 import { notify } from '~/modules/notifications/notifications.service';
+
+const log = logger.child({ component: 'audit' });
 
 /** Failed sign-ins to one account within 15 minutes before owners hear about it. */
 const FAILED_SIGN_IN_ALERT = Number(process.env.FAILED_SIGN_IN_ALERT ?? 10);
@@ -372,7 +374,10 @@ export const raiseAlerts = async (
   try {
     await client.transaction((savepoint) => alertsFor(savepoint as Db, actor, entries));
   } catch (error) {
-    log.warn('security alert failed', { actions: entries.map((entry) => entry.action), error });
+    log.warn(
+      { actions: entries.map((entry) => entry.action), err: error },
+      'security alert failed',
+    );
   }
 };
 

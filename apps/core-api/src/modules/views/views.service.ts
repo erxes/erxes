@@ -1,8 +1,10 @@
 import type { ConditionGroup, View, ViewRecordType } from '@erxes/core-contract';
 import { type Db, newId, views } from '@erxes/core-db';
 import { and, asc, eq, or, sql } from 'drizzle-orm';
-import { type Actor, can } from '~/http/auth';
+import { type Actor } from '~/http/auth';
+import { can } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
+import { oneRow } from '~/lib/rows';
 import { compileRecordFilter, filterFields } from './recordFilter';
 
 type Row = typeof views.$inferSelect;
@@ -15,7 +17,7 @@ const toDto = (actor: Actor, row: Row): View => ({
   id: row.id,
   recordType: row.recordType,
   name: row.name,
-  filter: (row.filter as ConditionGroup | null) ?? null,
+  filter: row.filter,
   search: row.search,
   columns: row.columns,
   sort: row.sort,
@@ -69,23 +71,25 @@ export const createView = async (
   assertShareable(actor, input.shared);
   await compileRecordFilter(client, actor, input.recordType, input.filter ?? null);
 
-  const [row] = await client
-    .insert(views)
-    .values({
-      id: newId(),
-      orgId: actor.orgId,
-      recordType: input.recordType,
-      name: input.name,
-      filter: (input.filter ?? null) as Record<string, unknown> | null,
-      search: input.search || null,
-      columns: input.columns ?? null,
-      sort: input.sort ?? null,
-      shared: input.shared ?? false,
-      createdBy: actor.userId,
-    })
-    .returning();
+  const row = oneRow(
+    await client
+      .insert(views)
+      .values({
+        id: newId(),
+        orgId: actor.orgId,
+        recordType: input.recordType,
+        name: input.name,
+        filter: input.filter ?? null,
+        search: input.search || null,
+        columns: input.columns ?? null,
+        sort: input.sort ?? null,
+        shared: input.shared ?? false,
+        createdBy: actor.userId,
+      })
+      .returning(),
+  );
 
-  return toDto(actor, row!);
+  return toDto(actor, row);
 };
 
 const viewOrThrow = async (client: Db, actor: Actor, id: string) => {
@@ -116,23 +120,23 @@ export const updateView = async (client: Db, actor: Actor, id: string, input: Vi
   if (input.filter !== undefined)
     await compileRecordFilter(client, actor, row.recordType, input.filter);
 
-  const [next] = await client
-    .update(views)
-    .set({
-      ...(input.name !== undefined ? { name: input.name } : {}),
-      ...(input.filter !== undefined
-        ? { filter: input.filter as Record<string, unknown> | null }
-        : {}),
-      ...(input.search !== undefined ? { search: input.search || null } : {}),
-      ...(input.columns !== undefined ? { columns: input.columns } : {}),
-      ...(input.sort !== undefined ? { sort: input.sort } : {}),
-      ...(input.shared !== undefined ? { shared: input.shared } : {}),
-      updatedAt: sql`now()`,
-    })
-    .where(eq(views.id, id))
-    .returning();
+  const next = oneRow(
+    await client
+      .update(views)
+      .set({
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.filter !== undefined ? { filter: input.filter } : {}),
+        ...(input.search !== undefined ? { search: input.search || null } : {}),
+        ...(input.columns !== undefined ? { columns: input.columns } : {}),
+        ...(input.sort !== undefined ? { sort: input.sort } : {}),
+        ...(input.shared !== undefined ? { shared: input.shared } : {}),
+        updatedAt: sql`now()`,
+      })
+      .where(eq(views.id, id))
+      .returning(),
+  );
 
-  return toDto(actor, next!);
+  return toDto(actor, next);
 };
 
 export const removeView = async (client: Db, actor: Actor, id: string) => {

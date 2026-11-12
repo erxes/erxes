@@ -1,11 +1,12 @@
-import { coreContract, OWNER_ONLY_PERMISSIONS } from '@erxes/core-contract';
 import { db, pluginInstallations, plugins, roles, users, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
+import { decodeProtectedHeader } from 'jose';
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
 import { config } from '~/config';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
-import { publicPaths } from '~/http/access';
+import { can, publicPaths } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { verifyJwt } from '~/lib/signing';
 
@@ -20,20 +21,6 @@ export interface Actor {
   /** The role's permission actions (`*`: every grantable one), loaded with the member. */
   permissions: readonly string[];
 }
-
-const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
-
-/**
- * May the member do `action`? Owners may do everything; `*` grants every
- * action except owner-only ones; otherwise the role must list it.
- */
-export const can = (actor: Pick<Actor, 'role' | 'permissions'>, action: string) => {
-  if (actor.role === 'owner') return true;
-
-  if (OWNER_ONLY.has(action)) return false;
-
-  return actor.permissions.includes('*') || actor.permissions.includes(action);
-};
 
 export const requirePermission = (
   actor: Actor,
@@ -103,20 +90,17 @@ export const systemCaller = (orgId: string): Caller => ({
   source: 'core',
 });
 
-interface AccessClaims {
-  typ: 'core_access';
-  sub: string;
-  org: string;
+const AccessClaims = z.object({
+  typ: z.literal('core_access'),
+  sub: z.string().min(1),
+  org: z.string().min(1),
   /** The member's session version when it was issued (see `users.sessionVersion`). */
-  sv: number;
-}
+  sv: z.number(),
+});
 
 const AUDIENCE = 'erxes-core';
 
-/**
- * Core access token. HS256 for now; the sign-in slice moves core to RS256
- * keys published as JWKS (ported from the old core's OAuth server).
- */
+/** Core access token (HS256, core's own secret). */
 export const signAccessToken = (
   userId: string,
   orgId: string,
@@ -130,27 +114,28 @@ export const signAccessToken = (
     expiresIn: ttlSeconds,
   });
 
-const verifyAccessToken = (token: string): AccessClaims => {
-  const claims = jwt.verify(token, config.auth.jwtSecret, {
-    algorithms: ['HS256'],
-    audience: AUDIENCE,
-  }) as Partial<AccessClaims>;
+/** The claims of a valid member token; null for an expired, forged or foreign one. */
+const accessClaimsOf = (token: string) => {
+  let verified: unknown;
 
-  if (claims.typ !== 'core_access' || !claims.sub || !claims.org || typeof claims.sv !== 'number') {
-    throw new Error('not a core access token');
+  try {
+    verified = jwt.verify(token, config.auth.jwtSecret, {
+      algorithms: ['HS256'],
+      audience: AUDIENCE,
+    });
+  } catch {
+    return null;
   }
 
-  return claims as AccessClaims;
+  const parsed = AccessClaims.safeParse(verified);
+
+  return parsed.success ? parsed.data : null;
 };
 
 const unauthorized = () => new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
 
 /** Paths under /core/v1 that work without being signed in (public in the access map). */
-const PUBLIC_PATHS = new Set([
-  ...publicPaths(coreContract),
-  '/openapi.json',
-  '/.well-known/jwks.json',
-]);
+const PUBLIC_PATHS = new Set([...publicPaths(), '/openapi.json', '/.well-known/jwks.json']);
 
 /** JOSE `typ` of plugin access tokens (`POST /plugins/token`). */
 export const PLUGIN_ACCESS_TYP = 'erxes-plugin-access+jwt';
@@ -158,12 +143,9 @@ export const PLUGIN_ACCESS_TYP = 'erxes-plugin-access+jwt';
 /** Plugin tokens are ES256 JWTs with their own `typ`; member tokens are not. */
 const isPluginToken = (token: string) => {
   try {
-    const header = JSON.parse(Buffer.from(token.split('.')[0] ?? '', 'base64url').toString()) as {
-      typ?: string;
-    };
-
-    return header.typ === PLUGIN_ACCESS_TYP;
+    return decodeProtectedHeader(token).typ === PLUGIN_ACCESS_TYP;
   } catch {
+    // Not a JWT at all: the member token check rejects it.
     return false;
   }
 };
@@ -191,44 +173,9 @@ const isCrossSiteWrite = (req: Request) => {
   return Boolean(origin) && origin !== `${req.protocol}://${req.get('host')}`;
 };
 
-/**
- * Requires a valid access token (Bearer header, or the session cookie set at
- * sign-in) whose user is still active in the token's organisation. Role and
- * status are read from the database, so a disabled member or a role change
- * applies on the next request.
- */
-export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
-  if (PUBLIC_PATHS.has(req.path) || isSignedFilePath(req.path)) {
-    return next();
-  }
-
-  const header = req.headers.authorization ?? '';
-  const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
-
-  if (bearer && isPluginToken(bearer)) {
-    return authenticatePlugin(req, bearer, next);
-  }
-
-  const cookie = bearer ? '' : (readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '');
-  const token = bearer || cookie;
-
-  if (!token) {
-    return next(unauthorized());
-  }
-
-  if (cookie && isCrossSiteWrite(req)) {
-    return next(new HttpError(403, 'CROSS_SITE', 'Cross-site request blocked'));
-  }
-
-  let claims: AccessClaims;
-
-  try {
-    claims = verifyAccessToken(token);
-  } catch {
-    return next(unauthorized());
-  }
-
-  withOrg(claims.org, (tx) =>
+/** The member a token names, if still active at the token's session version. */
+const activeMember = async (claims: z.output<typeof AccessClaims>) => {
+  const [user] = await withOrg(claims.org, (tx) =>
     tx
       .select({
         id: users.id,
@@ -242,82 +189,112 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
       .where(and(eq(users.id, claims.sub), eq(users.orgId, claims.org)))
       .limit(1),
-  )
-    .then(([user]) => {
-      // Disabled, or the session predates a password change, reset or sign-out everywhere.
-      if (!user || user.status !== 'active' || user.sessionVersion !== claims.sv) {
-        return next(unauthorized());
-      }
+  );
 
-      req.actor = {
-        userId: user.id,
-        orgId: user.orgId,
-        role: user.role,
-        permissions: user.permissions,
-      };
-      req.sessionVersion = claims.sv;
+  // Disabled, or the session predates a password change, reset or sign-out everywhere.
+  if (!user || user.status !== 'active' || user.sessionVersion !== claims.sv) return null;
 
-      return next();
-    })
-    .catch(next);
+  return { userId: user.id, orgId: user.orgId, role: user.role, permissions: user.permissions };
 };
 
-interface PluginClaims extends Record<string, unknown> {
-  sub: string;
-  org?: string;
-  scope?: string;
-}
+/**
+ * Requires a valid access token (Bearer header, or the session cookie set at
+ * sign-in) whose user is still active in the token's organisation. Role and
+ * status are read from the database, so a disabled member or a role change
+ * applies on the next request.
+ */
+export const authenticate = async (req: Request, _res: Response, next: NextFunction) => {
+  if (PUBLIC_PATHS.has(req.path) || isSignedFilePath(req.path)) {
+    return next();
+  }
+
+  const header = req.headers.authorization ?? '';
+  const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+
+  if (bearer && isPluginToken(bearer)) {
+    await authenticatePlugin(req, bearer);
+
+    return next();
+  }
+
+  const cookie = bearer ? '' : (readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '');
+  const token = bearer || cookie;
+
+  if (!token) throw unauthorized();
+
+  if (cookie && isCrossSiteWrite(req)) {
+    throw new HttpError(403, 'CROSS_SITE', 'Cross-site request blocked');
+  }
+
+  const claims = accessClaimsOf(token);
+  const actor = claims && (await activeMember(claims));
+
+  if (!claims || !actor) throw unauthorized();
+
+  req.actor = actor;
+  req.sessionVersion = claims.sv;
+  req.log.setBindings({ orgId: actor.orgId, actorId: actor.userId });
+
+  return next();
+};
+
+const PluginClaims = z.object({
+  sub: z.string(),
+  org: z.string().optional(),
+  scope: z.string().optional(),
+});
 
 /**
  * A plugin token (`POST /plugins/token`), checked on every request against
  * the registry and the organisation's installation: disabling a plugin or
  * uninstalling it cuts it off at once, and scopes can only shrink.
  */
-const authenticatePlugin = (req: Request, token: string, next: NextFunction) => {
-  verifyJwt<PluginClaims>(token, { typ: PLUGIN_ACCESS_TYP, audience: AUDIENCE })
-    .then(async ({ payload }) => {
-      const [plugin] = await db()
-        .select({ status: plugins.status })
-        .from(plugins)
-        .where(eq(plugins.name, payload.sub))
-        .limit(1);
+const authenticatePlugin = async (req: Request, token: string) => {
+  const claims = await verifyJwt(token, PluginClaims, {
+    typ: PLUGIN_ACCESS_TYP,
+    audience: AUDIENCE,
+  }).catch(() => null);
 
-      if (plugin?.status !== 'active') return next(unauthorized());
+  if (!claims) throw unauthorized();
 
-      if (!payload.org) {
-        req.pluginService = { plugin: payload.sub };
+  const [plugin] = await db()
+    .select({ status: plugins.status })
+    .from(plugins)
+    .where(eq(plugins.name, claims.sub))
+    .limit(1);
 
-        return next();
-      }
+  if (plugin?.status !== 'active') throw unauthorized();
 
-      const org = payload.org;
+  const { org } = claims;
 
-      const [installation] = await withOrg(org, (tx) =>
-        tx
-          .select({
-            status: pluginInstallations.status,
-            grantedScopes: pluginInstallations.grantedScopes,
-          })
-          .from(pluginInstallations)
-          .where(
-            and(eq(pluginInstallations.orgId, org), eq(pluginInstallations.plugin, payload.sub)),
-          )
-          .limit(1),
-      );
+  if (!org) {
+    req.pluginService = { plugin: claims.sub };
+    req.log.setBindings({ actorId: claims.sub });
 
-      if (installation?.status !== 'active') return next(unauthorized());
+    return;
+  }
 
-      const granted = new Set(installation.grantedScopes);
+  const [installation] = await withOrg(org, (tx) =>
+    tx
+      .select({
+        status: pluginInstallations.status,
+        grantedScopes: pluginInstallations.grantedScopes,
+      })
+      .from(pluginInstallations)
+      .where(and(eq(pluginInstallations.orgId, org), eq(pluginInstallations.plugin, claims.sub)))
+      .limit(1),
+  );
 
-      req.plugin = {
-        plugin: payload.sub,
-        orgId: payload.org,
-        scopes: (payload.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
-      };
+  if (installation?.status !== 'active') throw unauthorized();
 
-      return next();
-    })
-    .catch(() => next(unauthorized()));
+  const granted = new Set(installation.grantedScopes);
+
+  req.plugin = {
+    plugin: claims.sub,
+    orgId: org,
+    scopes: (claims.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
+  };
+  req.log.setBindings({ orgId: org, actorId: claims.sub });
 };
 
 /** The calling plugin; 403 for team members. */
@@ -350,13 +327,9 @@ export const sessionClaims = (
 
   if (!token) return null;
 
-  try {
-    const claims = verifyAccessToken(token);
+  const claims = accessClaimsOf(token);
 
-    return { userId: claims.sub, orgId: claims.org, sessionVersion: claims.sv };
-  } catch {
-    return null;
-  }
+  return claims && { userId: claims.sub, orgId: claims.org, sessionVersion: claims.sv };
 };
 
 export const actorOf = (req: { actor?: Actor; plugin?: PluginCaller }): Actor => {

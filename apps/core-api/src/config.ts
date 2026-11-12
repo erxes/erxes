@@ -82,6 +82,10 @@ const Env = z
     NODE_ENV: text,
     PORT: positive(3400),
 
+    LOG_LEVEL: optional(z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])),
+    LOG_FORMAT: optional(z.enum(['json', 'pretty'])),
+    OTEL_EXPORTER_OTLP_ENDPOINT: optional(z.string().url()),
+
     DATA_URL: text,
     DATA_MIGRATION_URL: text,
     DATA_RUNTIME_ROLE: text,
@@ -228,6 +232,15 @@ const listenUrl = (): string | undefined => {
 export const config = {
   isProduction,
   port: env.PORT,
+  log: {
+    level: env.LOG_LEVEL ?? 'info',
+    /** Readable lines (pino-pretty, a development dependency) instead of JSON lines. */
+    pretty: (env.LOG_FORMAT ?? (env.NODE_ENV === 'development' ? 'pretty' : 'json')) === 'pretty',
+  },
+  otel: {
+    /** Where traces go (OTLP over HTTP); the exporter reads the other OTEL_EXPORTER_OTLP_* settings. Unset: no spans leave the process. */
+    endpoint: env.OTEL_EXPORTER_OTLP_ENDPOINT,
+  },
   data: {
     url: dataUrl,
     ssl: env.DATA_SSL ?? false,

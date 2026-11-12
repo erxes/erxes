@@ -2,7 +2,9 @@ import { EventEmitter } from 'node:events';
 import { sslOptions } from '@erxes/core-db';
 import { Client } from 'pg';
 import { config } from '~/config';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
+
+const log = logger.child({ component: 'live' });
 
 /** What a committed change announces (see migration 0008). */
 export type LiveSignal =
@@ -64,7 +66,7 @@ class LiveHub extends EventEmitter {
       }
     });
     client.on('error', (error) => {
-      log.error('live updates: listen connection error', { error: error.message });
+      log.error({ err: error }, 'live updates: listen connection error');
     });
     client.on('end', () => {
       if (this.client === client) this.lost(url);
@@ -87,7 +89,7 @@ class LiveHub extends EventEmitter {
       // Events published while nobody listened.
       this.emit('events');
     } catch (error) {
-      log.error('live updates: could not listen', { error: (error as Error).message });
+      log.error({ err: error }, 'live updates: could not listen');
       await client.end().catch(() => undefined);
       this.lost(url);
     }

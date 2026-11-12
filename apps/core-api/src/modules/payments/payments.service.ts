@@ -27,12 +27,14 @@ import { config } from '~/config';
 import { type Actor, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { seal, unseal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
+
+const log = logger.child({ component: 'payments' });
 
 type GatewayRow = typeof paymentGateways.$inferSelect;
 
@@ -501,7 +503,7 @@ export const cancelInvoice = async (client: Db, caller: Caller, id: string) => {
   await driverOf(gateway!)
     .cancel(invoice.gatewayInvoiceId ?? '')
     .catch((error: unknown) =>
-      log.warn('gateway could not cancel the invoice', { invoice: id, error }),
+      log.warn({ invoice: id, err: error }, 'gateway could not cancel the invoice'),
     );
 
   const [cancelled] = await client
@@ -628,7 +630,7 @@ export const refundInvoice = async (
         gatewayRefundId: null,
         error: (error as Error).message.slice(0, 500),
       };
-      log.warn('gateway refused a refund', { invoice: invoice.id, error });
+      log.warn({ invoice: invoice.id, err: error }, 'gateway refused a refund');
     }
   }
 
@@ -906,9 +908,9 @@ export const paymentCheckJob: JobDefinition = {
  */
 export const paymentCallbackRouter = Router();
 
-paymentCallbackRouter.all('/payments/callback/:id', (req: Request, res: Response) => {
-  const id = req.params.id ?? '';
-  const given = Buffer.from(String(req.query.sig ?? ''));
+paymentCallbackRouter.all('/payments/callback/:id', async (req, res) => {
+  const { id } = req.params;
+  const given = Buffer.from(typeof req.query.sig === 'string' ? req.query.sig : '');
   const expected = Buffer.from(callbackSignature(id));
 
   if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
@@ -917,20 +919,15 @@ paymentCallbackRouter.all('/payments/callback/:id', (req: Request, res: Response
     return;
   }
 
-  (async () => {
-    const [owner] = await withSystem('payment callback lookup', (tx) =>
-      tx
-        .select({ orgId: paymentInvoices.orgId })
-        .from(paymentInvoices)
-        .where(eq(paymentInvoices.id, id))
-        .limit(1),
-    );
+  const [owner] = await withSystem('payment callback lookup', (tx) =>
+    tx
+      .select({ orgId: paymentInvoices.orgId })
+      .from(paymentInvoices)
+      .where(eq(paymentInvoices.id, id))
+      .limit(1),
+  );
 
-    if (owner) await withOrg(owner.orgId, (tx) => refresh(tx, owner.orgId, id));
+  if (owner) await withOrg(owner.orgId, (tx) => refresh(tx, owner.orgId, id));
 
-    res.status(200).json({ ok: true });
-  })().catch((error: unknown) => {
-    log.error('payment callback failed', { invoice: id, error });
-    res.status(500).json({ error: 'try again' });
-  });
+  res.status(200).json({ ok: true });
 });

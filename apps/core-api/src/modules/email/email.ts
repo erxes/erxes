@@ -2,8 +2,10 @@ import { type Db, organizations } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import nodemailer, { type Transporter } from 'nodemailer';
 import { config } from '~/config';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
+
+const log = logger.child({ component: 'email' });
 
 /** Emails core sends, each a function of its data. */
 export const TEMPLATES = {
@@ -106,11 +108,14 @@ const deliver = async (message: { to: string; subject: string; html: string; tex
     loggedEmails.push({ to: message.to, subject: message.subject, text: message.text });
 
     if (loggedEmails.length > 100) loggedEmails.shift();
-    log.info('email (not sent: EMAIL_DRIVER=log)', {
-      to: message.to,
-      subject: message.subject,
-      text: message.text,
-    });
+    log.info(
+      {
+        to: message.to,
+        subject: message.subject,
+        text: message.text,
+      },
+      'email (not sent: EMAIL_DRIVER=log)',
+    );
 
     return;
   }
@@ -161,6 +166,9 @@ export const emailJob: JobDefinition = {
     await deliver({ to, ...renderEmail(template, data) });
   },
   async onDead(job, error) {
-    log.error('email could not be sent', { job: job.id, template: job.payload.template, error });
+    log.error(
+      { job: job.id, template: job.payload.template, err: error },
+      'email could not be sent',
+    );
   },
 };

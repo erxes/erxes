@@ -84,7 +84,7 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
           .writeHead(404, { 'content-type': 'application/json' })
           .end('{"error":"Not found"}');
 
-      res.writeHead(200, { 'content-type': 'application/json' }).end(
+      return res.writeHead(200, { 'content-type': 'application/json' }).end(
         JSON.stringify({
           subdomain: 'cloud',
           status: answer.status,

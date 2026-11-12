@@ -4,14 +4,17 @@ import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { type Db, files, newId, organizations, type OrganizationSettings } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { type Actor, type Caller, can, requirePermission } from '~/http/auth';
+import { type Actor, type Caller, requirePermission } from '~/http/auth';
+import { can } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { canShowInline, storage } from './storage';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { guardDeletions } from '~/lib/deletionGuard';
+
+const log = logger.child({ component: 'files' });
 
 type FileRow = typeof files.$inferSelect;
 
@@ -419,10 +422,13 @@ export const purgeDeletedFiles = async (client: Db, olderThanSeconds = 0) => {
     try {
       await storage().remove(row.key);
     } catch (error) {
-      log.error('could not delete stored file; will retry', {
-        key: row.key,
-        error: (error as Error).message,
-      });
+      log.error(
+        {
+          key: row.key,
+          err: error,
+        },
+        'could not delete stored file; will retry',
+      );
       continue;
     }
 

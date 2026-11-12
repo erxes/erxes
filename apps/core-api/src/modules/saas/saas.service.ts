@@ -21,10 +21,12 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
 import type { Actor, PluginCaller } from '~/http/auth';
 import { HttpError, pgCode } from '~/http/errors';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { subdomainFromHost } from '~/modules/auth/auth.service';
 import { insertOrganization } from '~/modules/organizations/organizations.service';
+
+const log = logger.child({ component: 'saas' });
 
 type Row = typeof entitlements.$inferSelect;
 
@@ -218,10 +220,13 @@ export const refreshEntitlements = (orgId: string): Promise<Row | null> => {
     try {
       answer = await askPlatform(org.subdomain);
     } catch (error) {
-      log.warn('could not read entitlements from erxes.io; keeping the last answer', {
-        org: orgId,
-        error: (error as Error).message,
-      });
+      log.warn(
+        {
+          org: orgId,
+          err: error,
+        },
+        'could not read entitlements from erxes.io; keeping the last answer',
+      );
 
       return withOrg(orgId, async (tx) => {
         const [row] = await tx
@@ -235,10 +240,13 @@ export const refreshEntitlements = (orgId: string): Promise<Row | null> => {
     }
 
     if (!answer) {
-      log.warn('erxes.io does not know this organisation; keeping the last answer', {
-        org: orgId,
-        subdomain: org.subdomain,
-      });
+      log.warn(
+        {
+          org: orgId,
+          subdomain: org.subdomain,
+        },
+        'erxes.io does not know this organisation; keeping the last answer',
+      );
 
       return withOrg(
         orgId,
@@ -370,7 +378,9 @@ export const refreshAllEntitlements = async () => {
   for (const org of orgs) {
     await refreshEntitlements(org.id)
       .then(() => (refreshed += 1))
-      .catch((error: unknown) => log.warn('entitlement refresh failed', { org: org.id, error }));
+      .catch((error: unknown) =>
+        log.warn({ org: org.id, err: error }, 'entitlement refresh failed'),
+      );
   }
 
   await withSystem('saas: used tokens', (tx) =>

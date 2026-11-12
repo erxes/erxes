@@ -14,10 +14,14 @@ import {
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import express, { type Request, type Response, Router } from 'express';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
-import { can, sessionClaims } from '~/http/auth';
-import { log } from '~/lib/log';
+import { sessionClaims } from '~/http/auth';
+import { can } from '~/http/access';
+import { logger } from '~/logger';
+import { z } from 'zod';
 import { ISSUER, signJwt, verifyJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
+
+const log = logger.child({ component: 'oauth' });
 
 /**
  * "Sign in with erxes": OAuth 2.1 with OpenID Connect for plugins' own apps
@@ -395,10 +399,13 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
                 isNull(oauthRefreshTokens.revokedAt),
               ),
             );
-          log.warn('oauth refresh token reused: family revoked', {
-            client: client.name,
-            family: current.familyId,
-          });
+          log.warn(
+            {
+              client: client.name,
+              family: current.familyId,
+            },
+            'oauth refresh token reused: family revoked',
+          );
 
           return 'reused' as const;
         }
@@ -467,48 +474,56 @@ tokenRouter.post('/revoke', (req: Request, res: Response, next) => {
 
 oauthRouter.use(tokenRouter);
 
+const AccessTokenClaims = z.object({
+  sub: z.string(),
+  org: z.string(),
+  scope: z.string().optional(),
+  role: z.string().optional(),
+  permissions: z.array(z.string()).optional(),
+});
+
 /** OpenID Connect userinfo for an access token. */
-oauthRouter.get('/userinfo', (req: Request, res: Response) => {
+oauthRouter.get('/userinfo', async (req, res) => {
   const token = req.headers.authorization?.startsWith('Bearer ')
     ? req.headers.authorization.slice(7)
     : '';
 
-  verifyJwt<{
-    sub?: string;
-    org?: string;
-    client_id?: string;
-    scope?: string;
-    role?: string;
-    permissions?: string[];
-  }>(token, { typ: 'at+jwt' })
-    .then(async ({ payload }) => {
-      const [row] = await withOrg(String(payload.org), (tx) =>
-        tx
-          .select({ user: users, subdomain: organizations.subdomain })
-          .from(users)
-          .innerJoin(organizations, eq(organizations.id, users.orgId))
-          .where(and(eq(users.orgId, String(payload.org)), eq(users.id, String(payload.sub))))
-          .limit(1),
-      );
+  const claims = await verifyJwt(token, AccessTokenClaims, { typ: 'at+jwt' }).catch(() => null);
 
-      if (!row || row.user.status !== 'active')
-        return oauthError(res, 401, 'invalid_token', 'The member is not active');
+  if (!claims) {
+    oauthError(res, 401, 'invalid_token', 'The access token is not valid');
 
-      const scopes = (payload.scope ?? '').split(' ');
+    return;
+  }
 
-      return res.json({
-        sub: payload.sub,
-        org: payload.org,
-        organization: row.subdomain,
-        role: payload.role,
-        permissions: payload.permissions ?? [],
-        ...(scopes.includes('email') ? { email: row.user.email, email_verified: true } : {}),
-        ...(scopes.includes('profile')
-          ? { name: row.user.fullName ?? row.user.email, picture: row.user.avatarUrl }
-          : {}),
-      });
-    })
-    .catch(() => oauthError(res, 401, 'invalid_token', 'The access token is not valid'));
+  const [row] = await withOrg(claims.org, (tx) =>
+    tx
+      .select({ user: users, subdomain: organizations.subdomain })
+      .from(users)
+      .innerJoin(organizations, eq(organizations.id, users.orgId))
+      .where(and(eq(users.orgId, claims.org), eq(users.id, claims.sub)))
+      .limit(1),
+  );
+
+  if (!row || row.user.status !== 'active') {
+    oauthError(res, 401, 'invalid_token', 'The member is not active');
+
+    return;
+  }
+
+  const scopes = (claims.scope ?? '').split(' ');
+
+  res.json({
+    sub: claims.sub,
+    org: claims.org,
+    organization: row.subdomain,
+    role: claims.role,
+    permissions: claims.permissions ?? [],
+    ...(scopes.includes('email') ? { email: row.user.email, email_verified: true } : {}),
+    ...(scopes.includes('profile')
+      ? { name: row.user.fullName ?? row.user.email, picture: row.user.avatarUrl }
+      : {}),
+  });
 });
 
 /** OpenID Connect discovery (addresses relative to where core is reached). */

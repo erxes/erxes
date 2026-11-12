@@ -1,15 +1,14 @@
 import { auditCheckpoints, type Db } from '@erxes/core-db';
 import { and, asc, eq, gt, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { currentKeyId, signJwt, verifyJwt } from '~/lib/signing';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
+
+const log = logger.child({ component: 'audit' });
 
 const CHECKPOINT_TYP = 'erxes-audit-checkpoint+jwt';
 
-interface CheckpointClaims {
-  org: string;
-  seq: number;
-  hash: string;
-}
+const CheckpointClaims = z.object({ org: z.string(), seq: z.number(), hash: z.string() });
 
 /**
  * Walks an organisation's audit chain (from `fromSeq`, or from its first
@@ -97,7 +96,8 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
       // removed it, the walk below starts from the oldest entry kept.)
       if (anchor && anchor.hash !== head.last_hash) {
         log.error(
-          `audit chain of ${head.org_id} no longer matches checkpoint #${head.last_seq}; not signing`,
+          { orgId: head.org_id, checkpoint: head.last_seq },
+          'the audit chain no longer matches its last checkpoint; not signing',
         );
         continue;
       }
@@ -106,12 +106,17 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
     const walk = await findChainBreak(client, head.org_id, head.last_seq ?? undefined);
 
     if (walk.brokenAt !== null) {
-      log.error(`audit chain of ${head.org_id} breaks at #${walk.brokenAt}; not signing`);
+      log.error(
+        { orgId: head.org_id, brokenAt: walk.brokenAt },
+        'the audit chain breaks; not signing',
+      );
       continue;
     }
 
     const signature = await signJwt(
-      { org: head.org_id, seq: head.head_seq, hash: head.head_hash } satisfies CheckpointClaims,
+      { org: head.org_id, seq: head.head_seq, hash: head.head_hash } satisfies z.input<
+        typeof CheckpointClaims
+      >,
       {
         typ: CHECKPOINT_TYP,
         subject: head.org_id,
@@ -166,10 +171,11 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
 
     checked += 1;
 
-    const valid = await verifyJwt<Partial<CheckpointClaims>>(row.signature, { typ: CHECKPOINT_TYP })
+    // A signature that doesn't verify (or doesn't parse) is a break in the chain.
+    const valid = await verifyJwt(row.signature, CheckpointClaims, { typ: CHECKPOINT_TYP })
       .then(
-        ({ payload }) =>
-          payload.org === orgId && payload.seq === row.chain_seq && payload.hash === row.hash,
+        (claims) =>
+          claims.org === orgId && claims.seq === row.chain_seq && claims.hash === row.hash,
       )
       .catch(() => false);
 

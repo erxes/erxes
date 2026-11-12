@@ -1,13 +1,15 @@
 import { events, plugins, pluginInstallations, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { createHash } from 'node:crypto';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
 import type { EventConsumer } from '~/modules/events/processor';
 import { toEventDto } from '~/modules/events/events.service';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 import { matchesPattern } from '~/modules/webhooks/webhooks.service';
+
+const log = logger.child({ component: 'plugins' });
 
 type EventRow = typeof events.$inferSelect;
 
@@ -159,10 +161,13 @@ export const pluginEventJob: JobDefinition = {
     }
   },
   async onDead(job, error) {
-    log.error('a plugin never accepted an event', {
-      plugin: job.payload.plugin,
-      event: job.payload.eventId,
-      error,
-    });
+    log.error(
+      {
+        plugin: job.payload.plugin,
+        event: job.payload.eventId,
+        err: error,
+      },
+      'a plugin never accepted an event',
+    );
   },
 };

@@ -1,19 +1,21 @@
 import { coreContract, CORE_API_PREFIX } from '@erxes/core-contract';
 import { OpenAPIGenerator } from '@orpc/openapi';
+import { CONTEXT_LOGGER_SYMBOL, LoggingHandlerPlugin } from '@orpc/experimental-pino';
 import { OpenAPIHandler } from '@orpc/openapi/node';
 import { onError, ORPCError, ValidationError } from '@orpc/server';
 import { ZodToJsonSchemaConverter } from '@orpc/zod';
 import type { RequestHandler } from 'express';
 import { coreRouter } from '~/router';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 
 const handler = new OpenAPIHandler(coreRouter, {
-  interceptors: [
-    onError((error) => {
-      // Expected errors (4xx) are answers, not failures.
-      if (!(error instanceof ORPCError) || error.status >= 500) {
-        log.error('unhandled error', { error });
-      }
+  plugins: [
+    // Procedures log through a child of `req.log` (see CoreContext), with the
+    // request's id as `rpc.id`. The plugin logs what procedures throw; 4xx at
+    // info (the hook in src/logger.ts).
+    new LoggingHandlerPlugin({
+      logger,
+      generateId: ({ context }) => (typeof context.req.id === 'string' ? context.req.id : ''),
     }),
   ],
   clientInterceptors: [
@@ -36,19 +38,19 @@ const handler = new OpenAPIHandler(coreRouter, {
 });
 
 /** Serves `/core/v1/*` from the contract (oRPC's OpenAPI handler, plain REST + JSON). */
-export const coreApi: RequestHandler = (req, res, next) => {
-  handler
-    .handle(req, res, { prefix: CORE_API_PREFIX, context: { req, res } })
-    .then(({ matched }) => {
-      if (!matched) next();
-    })
-    .catch(next);
+export const coreApi: RequestHandler = async (req, res, next) => {
+  const { matched } = await handler.handle(req, res, {
+    prefix: CORE_API_PREFIX,
+    context: { req, res, [CONTEXT_LOGGER_SYMBOL]: req.log },
+  });
+
+  if (!matched) next();
 };
 
 let spec: Promise<unknown> | undefined;
 
 /** The OpenAPI document for plugins and tools (`GET /core/v1/openapi.json`). */
-export const openApiDocument: RequestHandler = (_req, res, next) => {
+export const openApiDocument: RequestHandler = async (_req, res) => {
   spec ??= new OpenAPIGenerator({ schemaConverters: [new ZodToJsonSchemaConverter()] }).generate(
     coreContract,
     {
@@ -57,5 +59,5 @@ export const openApiDocument: RequestHandler = (_req, res, next) => {
     },
   );
 
-  spec.then((document) => res.json(document)).catch(next);
+  res.json(await spec);
 };

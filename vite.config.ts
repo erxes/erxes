@@ -208,6 +208,9 @@ export default defineConfig({
         'error',
         { max: 80, skipBlankLines: true, skipComments: true, IIFEs: true },
       ],
+      // Express 5 passes a rejected handler promise to the error handler, so async
+      // route handlers are safe; the rule guards Express 4.
+      'oxc/no-async-endpoint-handlers': 'off',
       // Settings are read once, validated, in apps/core-api/src/config.ts.
       'node/no-process-env': 'error',
       // noImplicitReturns in tsconfig.base.json checks this with types, so exhaustive switches pass.

@@ -8,8 +8,11 @@ import {
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { type JWK, type JWTPayload, jwtVerify, SignJWT } from 'jose';
+import { z } from 'zod';
 import { config } from '~/config';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
+
+const log = logger.child({ component: 'signing' });
 
 /**
  * Core's signing keys (ES256). The private key signs plugin tokens and audit
@@ -29,12 +32,19 @@ interface PublicKey {
 
 const base64url = (value: Buffer) => value.toString('base64url');
 
-const toPublic = (key: KeyObject): PublicKey => {
-  const jwk = key.export({ format: 'jwk' }) as JWK;
+const EcPublicJwk = z.object({
+  kty: z.literal('EC'),
+  crv: z.literal('P-256'),
+  x: z.string(),
+  y: z.string(),
+});
 
-  if (jwk.kty !== 'EC' || jwk.crv !== 'P-256') {
-    throw new Error('core signing keys must be EC P-256 (ES256)');
-  }
+const toPublic = (key: KeyObject): PublicKey => {
+  const parsed = EcPublicJwk.safeParse(key.export({ format: 'jwk' }));
+
+  if (!parsed.success) throw new Error('core signing keys must be EC P-256 (ES256)');
+
+  const jwk = parsed.data;
 
   // RFC 7638: SHA-256 of the required members in lexicographic order.
   const kid = base64url(
@@ -64,7 +74,7 @@ const devKey = (): string => {
 
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, pem, { mode: 0o600 });
-  log.info(`generated a development signing key in ${file}`);
+  log.info({ file }, 'generated a development signing key');
 
   return pem;
 };
@@ -130,14 +140,18 @@ export const signJwt = (payload: JWTPayload, options: SignOptions): Promise<stri
   return jwt.sign(privateKey);
 };
 
-/** Verifies a token core signed (any published key), checking `typ`, issuer and audience. */
-export const verifyJwt = async <T extends JWTPayload>(
+/**
+ * Verifies a token core signed (any published key), checking `typ`, issuer
+ * and audience, and parses its claims with `claims`.
+ */
+export const verifyJwt = async <T>(
   token: string,
+  claims: z.ZodType<T, z.ZodTypeDef, unknown>,
   options: { typ: string; audience?: string; maxTokenAge?: string },
-): Promise<{ payload: T; kid: string }> => {
+) => {
   const { byKid } = keys();
 
-  const result = await jwtVerify<T>(
+  const { payload } = await jwtVerify(
     token,
     (header) => {
       const key = header.kid ? byKid.get(header.kid) : undefined;
@@ -155,5 +169,5 @@ export const verifyJwt = async <T extends JWTPayload>(
     },
   );
 
-  return { payload: result.payload, kid: result.protectedHeader.kid! };
+  return claims.parse(payload);
 };

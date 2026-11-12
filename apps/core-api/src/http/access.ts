@@ -1,14 +1,29 @@
 import {
   type CorePermission,
-  type coreContract,
+  coreContract,
   CORE_API_PREFIX,
+  OWNER_ONLY_PERMISSIONS,
   type PluginScope,
 } from '@erxes/core-contract';
+import { getContractRouter, isContractProcedure } from '@orpc/contract';
 import type { Request } from 'express';
-import { can } from './auth';
 import { HttpError } from './errors';
 
 type Contract = typeof coreContract;
+
+const OWNER_ONLY = new Set<string>(OWNER_ONLY_PERMISSIONS);
+
+/**
+ * May the member do `action`? Owners may do everything; `*` grants every
+ * action except owner-only ones; otherwise the role must list it.
+ */
+export const can = (member: { role: string; permissions: readonly string[] }, action: string) => {
+  if (member.role === 'owner') return true;
+
+  if (OWNER_ONLY.has(action)) return false;
+
+  return member.permissions.includes('*') || member.permissions.includes(action);
+};
 
 /** Every procedure of the core API: `customers.list`, `plugins.token`, … */
 export type ProcedurePath = {
@@ -311,19 +326,14 @@ export const enforceAccess = (path: string, req: Request) => {
 };
 
 /** Paths (under /core/v1) that `authenticate` lets through without credentials. */
-export const publicPaths = (contract: Contract): Set<string> => {
+export const publicPaths = () => {
   const paths = new Set<string>();
 
-  for (const [path, policy] of Object.entries(ACCESS)) {
-    if (!('public' in policy)) continue;
+  for (const [name, policy] of Object.entries(ACCESS)) {
+    const procedure = getContractRouter(coreContract, name.split('.'));
+    const path = isContractProcedure(procedure) ? procedure['~orpc'].route.path : undefined;
 
-    const [group, name] = path.split('.') as [keyof Contract, string];
-
-    const procedure = (
-      contract[group] as Record<string, { '~orpc': { route: { path?: string } } }>
-    )[name]!;
-
-    paths.add(procedure['~orpc'].route.path!.replace(CORE_API_PREFIX, ''));
+    if ('public' in policy && path) paths.add(path.replace(CORE_API_PREFIX, ''));
   }
 
   return paths;

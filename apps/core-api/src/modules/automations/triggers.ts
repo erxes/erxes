@@ -2,11 +2,13 @@ import type { Audience, AutomationDefinition } from '@erxes/core-contract';
 import { automations, type Db, newId, type Transaction, withSystem } from '@erxes/core-db';
 import { customFieldsColumn, valuesTable } from '~/modules/fields/fieldValues';
 import { and, eq, lte, sql } from 'drizzle-orm';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
 import { definitionOf, startRun } from './engine';
 import { nextOccurrence, zonedDate } from './schedule';
+
+const log = logger.child({ component: 'automations' });
 
 type AutomationRow = typeof automations.$inferSelect;
 
@@ -229,7 +231,7 @@ export const tickAutomations = () =>
           dedupeKey: `${automation.id}:${scheduledFor.toISOString()}`,
         });
       } catch (error) {
-        log.error('could not schedule an automation', { automation: automation.id, error });
+        log.error({ automation: automation.id, err: error }, 'could not schedule an automation');
       }
     }
 

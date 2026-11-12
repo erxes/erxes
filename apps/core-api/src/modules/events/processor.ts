@@ -15,7 +15,9 @@ import { notify } from '~/modules/notifications/notifications.service';
 import { webhooksConsumer } from '~/modules/webhooks/webhooks.service';
 import { automationsConsumer } from '~/modules/automations/engine';
 import { pluginEventsConsumer } from '~/modules/plugins/pluginEvents';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
+
+const log = logger.child({ component: 'events' });
 
 type EventRow = typeof events.$inferSelect;
 
@@ -362,7 +364,7 @@ export const startEventProcessor = () => {
 
     current = processEvents()
       .then(() => undefined)
-      .catch((error: unknown) => log.error('event processing failed', { error }))
+      .catch((error: unknown) => log.error({ err: error }, 'event processing failed'))
       .finally(() => {
         current = null;
 

@@ -1,20 +1,26 @@
 import { coreContract } from '@erxes/core-contract';
 import { type Transaction, withOrg, withTransaction } from '@erxes/core-db';
+import { getLogger, type LoggerContext } from '@orpc/experimental-pino';
 import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { enforceAccess } from '~/http/access';
 import { type Actor, actorOf, callerOf, pluginOf, userCaller } from '~/http/auth';
 import { type AuditInput, recordAudit } from '~/modules/audit/audit.service';
 
-/** What every procedure gets: the Express request (actor, host) and response (cookies). */
-export interface CoreContext {
+/**
+ * What the handler passes in: the Express request (actor, host), the response
+ * (cookies) and the request's logger for oRPC's logging plugin.
+ */
+export interface CoreContext extends LoggerContext {
   req: Request;
   res: Response;
 }
 
 /**
  * Every procedure first passes the access map (`~/http/access`): the caller
- * must be allowed by the procedure's policy before its handler runs.
+ * must be allowed by the procedure's policy before its handler runs. It gets
+ * `context.log`: the request's logger with its `requestId`, `orgId`,
+ * `actorId` and the procedure (`rpc.method`).
  */
 export const pub = implement(coreContract)
   .$context<CoreContext>()
@@ -24,8 +30,11 @@ export const pub = implement(coreContract)
     // The whole call runs in one transaction scoped to the caller's
     // organisation (row level security); public procedures scope themselves.
     const orgId = context.req.actor?.orgId ?? context.req.plugin?.orgId;
+    const log = getLogger(context) ?? context.req.log;
 
-    return orgId ? withOrg(orgId, async () => next()) : next();
+    return orgId
+      ? withOrg(orgId, async () => next({ context: { log } }))
+      : next({ context: { log } });
   });
 
 /**

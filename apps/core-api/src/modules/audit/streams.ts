@@ -12,13 +12,15 @@ import { and, asc, eq, gt, sql } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { assertOutboundUrl, postOutbound } from '~/lib/outbound';
 import { seal, unseal } from '~/lib/secrets';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 import { signPayload } from '~/modules/webhooks/webhooks.service';
 import { recordAudit } from './audit.service';
 import { securityAlert } from './alerts';
+
+const log = logger.child({ component: 'audit-streams' });
 
 type StreamRow = typeof auditStreams.$inferSelect;
 
@@ -489,7 +491,7 @@ export const auditStreamJob: JobDefinition = {
           link: '/settings/audit-log',
           email: true,
         }).catch((error: unknown) =>
-          log.warn('could not tell owners about a failing audit stream', { error }),
+          log.warn({ err: error }, 'could not tell owners about a failing audit stream'),
         );
       }
 
