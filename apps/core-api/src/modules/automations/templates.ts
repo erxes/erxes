@@ -90,10 +90,8 @@ const FILTERS: Record<string, (value: unknown, arg: string | number | undefined)
   json: (value) => JSON.stringify(value),
 };
 
-export const TEMPLATE_FILTERS = Object.keys(FILTERS);
-
 /** `subject.firstName | default: "there" | upper` → its value. Unknown filters are a mistake, reported. */
-export const evaluateExpression = (expression: string, context: Record<string, unknown>) => {
+const evaluateExpression = (expression: string, context: Record<string, unknown>) => {
   const [path = '', ...filters] = expression.split('|');
   const name = path.trim();
   // `now` is the moment the step runs.

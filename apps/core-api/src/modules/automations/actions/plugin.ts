@@ -4,7 +4,7 @@ import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
 import { type CallContext, idempotencyKey, parseBody } from './context';
 
-export const CORE_CALL_TYP = 'erxes-core-call+jwt';
+const CORE_CALL_TYP = 'erxes-core-call+jwt';
 
 export interface ActionPlugin {
   name: string;

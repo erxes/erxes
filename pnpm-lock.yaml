@@ -35,6 +35,9 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.1166.0
         version: 3.1166.0
+      '@date-fns/tz':
+        specifier: ^1.5.0
+        version: 1.5.0
       '@erxes/core-contract':
         specifier: workspace:*
         version: link:../../packages/contract

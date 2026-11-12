@@ -5,7 +5,7 @@ import { MESSAGE_ACTIONS } from './messages';
 import type { ActionPlugin } from './plugin';
 import { RECORD_ACTIONS } from './records';
 
-export const CORE_ACTIONS: CoreAction[] = [...RECORD_ACTIONS, ...MESSAGE_ACTIONS, ...LEAD_ACTIONS];
+const CORE_ACTIONS: CoreAction[] = [...RECORD_ACTIONS, ...MESSAGE_ACTIONS, ...LEAD_ACTIONS];
 
 export const coreAction = (type: string) => CORE_ACTIONS.find((action) => action.type === type);
 
