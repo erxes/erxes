@@ -24,9 +24,9 @@ export const permissions: IPermissionConfig = {
         { title: 'Add deals', name: 'dealsAdd', description: 'Create deals' },
         { title: 'Edit deals', name: 'dealsEdit', description: 'Edit deals' },
         {
-          title: 'Edit deal products',
+          title: 'Edit deal product prices',
           name: 'dealsProductsEdit',
-          description: 'Add and edit products on deals',
+          description: 'Change the unit price of products on deals',
         },
         {
           title: 'Delete deal products',
@@ -392,6 +392,7 @@ export const permissions: IPermissionConfig = {
             'showDeals',
             'dealsAdd',
             'dealsEdit',
+            'dealsProductsDelete',
             'dealsWatch',
             'dealsArchive',
           ],

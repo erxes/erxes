@@ -28,8 +28,8 @@ export const PutResponseRecordTable = () => {
       columns={columns}
       data={putResponses || []}
       className="m-3"
-      stickyColumns={['more', 'name']}
-      tableId="mongolian_ebarimt_put_response_record_table"
+      stickyColumns={['more', 'id']}
+      tableId="mongolian_ebarimt_put_response_record_table_v2"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

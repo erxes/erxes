@@ -1,9 +1,30 @@
+import { attachPreviousFxaDetails } from '@/accounting/utils/fxaAdjustmentState';
 import { IContext } from '~/connectionResolvers';
-import { IAdjustFxaDetail } from '~/modules/accounting/@types/adjustFixedAsset';
+import {
+  IAdjustFxaDetail,
+  IAdjustFxaDetailDocument,
+} from '~/modules/accounting/@types/adjustFixedAsset';
 
 export const AdjustFxaDetail = {
-  __resolveReference({ _id }: { _id: string }, { models }: IContext) {
-    return models.AdjustFxaDetails.findOne({ _id });
+  async __resolveReference({ _id }: { _id: string }, { models }: IContext) {
+    const detail = await models.AdjustFxaDetails.findOne({ _id }).lean();
+    if (!detail) return null;
+    const [result] = await attachPreviousFxaDetails(models, detail.adjustId, [
+      detail,
+    ]);
+    return result;
+  },
+
+  async previous(
+    detail: IAdjustFxaDetail & { previous?: IAdjustFxaDetailDocument | null },
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (detail.previous !== undefined) return detail.previous;
+    const [result] = await attachPreviousFxaDetails(models, detail.adjustId, [
+      detail,
+    ]);
+    return result.previous;
   },
 
   async account(

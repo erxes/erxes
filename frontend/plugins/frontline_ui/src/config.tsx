@@ -12,6 +12,7 @@ import {
 } from '@tabler/icons-react';
 import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
+import { getTicketDetailPath } from '@/ticket/constants';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 import { FRONTLINE_DASHBOARD_WIDGETS } from '~/widgets/dashboard/frontlineDashboardWidgets';
 import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
@@ -42,7 +43,7 @@ export const CONFIG: IUIConfig = {
   },
   widgets: {
     recordPanels: [
-      { contentType: 'frontline:ticket' },
+      { contentType: 'frontline:ticket', detailPath: getTicketDetailPath },
       { contentType: 'frontline:knowledgebase.article', properties: false },
       { contentType: 'frontline:knowledgebase.topic', properties: false },
       { contentType: 'frontline:knowledgebase.category', properties: false },

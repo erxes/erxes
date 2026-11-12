@@ -1,4 +1,8 @@
-import { IconArrowLeft } from '@tabler/icons-react';
+import {
+  IconArrowLeft,
+  IconArrowsRightLeft,
+  IconListCheck,
+} from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -22,6 +26,7 @@ export const TransactionPage = () => {
       <AccountingHeader
         returnLink={returnPath}
         returnText={isRecordsReturn ? t('journal-entries') : t('transactions')}
+        icon={isRecordsReturn ? IconListCheck : IconArrowsRightLeft}
       >
         <Button variant="outline" asChild>
           <Link to={returnPath}>

@@ -1,5 +1,32 @@
 
 
+## [3.4.18](https://github.com/erxes/erxes/compare/3.4.17...3.4.18) (2026-11-10)
+
+
+### Features
+
+* **accounting:** fixedasset upgrade with capital and revaluations  ([#10396](https://github.com/erxes/erxes/issues/10396)) ([2cc055d](https://github.com/erxes/erxes/commit/2cc055d900e9b7021244e2cac8a9dc0f466aa1cc))
+* **auth:** add trusted staff functionality for access control ([4b19005](https://github.com/erxes/erxes/commit/4b19005272b78c80758c2810830c98999cf79c99))
+
+## [3.4.17](https://github.com/erxes/erxes/compare/3.4.16...3.4.17) (2026-11-09)
+
+
+### Bug Fixes
+
+* **frontline:** do not show a call another operator answered as missed  ([b7c3ef5](https://github.com/erxes/erxes/commit/b7c3ef5f58413bf1d6f3590c812a1964f0bf0baa))
+* **mongolian:** show the syncing user in Erkhet sync history ([#10415](https://github.com/erxes/erxes/issues/10415)) ([85e9b0e](https://github.com/erxes/erxes/commit/85e9b0e4e2878bd48d8a0d27b797a72acc52557f))
+* **saas-migrations:** migrate from a source org deleted from organizations ([0bce99e](https://github.com/erxes/erxes/commit/0bce99e1ec474bbbb639055d003e7826953ef4b1))
+* **saas-migrations:** read tags from a source org deleted from organizations ([f83fdc6](https://github.com/erxes/erxes/commit/f83fdc606978c151d27e69db093be71ecbf22f48))
+* **sales:** stop the deals list from moving deals on its own ([#10414](https://github.com/erxes/erxes/issues/10414)) ([05c9d25](https://github.com/erxes/erxes/commit/05c9d257c8a474dd043cbf9e9d42b45fd011753f))
+
+
+### Features
+
+* **core:** "Sign in with erxes" for products, platform OAuth clients and organisation identity ([7c5a5be](https://github.com/erxes/erxes/commit/7c5a5bed7ecb118a6d58f068a593895613bc765b))
+* **erxes-ui:** share the default theme and page styles ([#10427](https://github.com/erxes/erxes/issues/10427)) ([45a502d](https://github.com/erxes/erxes/commit/45a502da9c9a86b1c2da79cd86f3948b83d00e2e))
+* implement scheduling features for pricing module ([#10409](https://github.com/erxes/erxes/issues/10409)) ([00a3d14](https://github.com/erxes/erxes/commit/00a3d14ca6846ec6e10b8e8439b67b5121636427))
+* **saas-migrations:** accept organization _id in place of subdomain ([317802e](https://github.com/erxes/erxes/commit/317802efc6e973c9f269ba4bfdc45683ed6b3951))
+
 ## [3.4.16](https://github.com/erxes/erxes/compare/3.4.15...3.4.16) (2026-11-09)
 
 

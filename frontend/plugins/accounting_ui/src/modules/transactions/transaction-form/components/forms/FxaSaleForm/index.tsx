@@ -2,8 +2,6 @@ import { ITransactionGroupForm } from '../../../types/JournalForms';
 import {
   AccountField,
   AssignToField,
-  BranchField,
-  DepartmentField,
   DescriptionField,
 } from '../../GeneralFormFields';
 import { CustomerFields } from '../../helpers/CustomerFields';
@@ -45,8 +43,6 @@ export const FxaSaleForm = ({
           }}
         />
         <CustomerFields form={form} index={index} />
-        <BranchField form={form} index={index} />
-        <DepartmentField form={form} index={index} />
         <AssignToField form={form} index={index} />
         <DescriptionField form={form} index={index} />
         <FxaSaleAccountFields

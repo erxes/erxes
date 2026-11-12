@@ -1,7 +1,18 @@
+import { TrJournalEnum } from '@/transactions/types/constants';
 import { toGraphqlView } from '@/utils/graphql';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
-import { Checkbox, InputNumber, RecordTable, Sheet, Table, cn } from 'erxes-ui';
+import {
+  Checkbox,
+  Form,
+  InputNumber,
+  RecordTable,
+  RecordTableInlineCell,
+  Sheet,
+  Skeleton,
+  Table,
+  cn,
+} from 'erxes-ui';
 import { useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectMember } from 'ui-modules';
@@ -19,6 +30,7 @@ type TFxaOwnerRecordInput = {
   sequence?: number;
   count?: number;
   ownerId?: string;
+  sourceOwnerId?: string;
 };
 
 type TFxaOwnerRecord = {
@@ -31,6 +43,8 @@ type TFxaOwnerRecord = {
   status?: string;
   ownerId?: string;
 };
+
+const SKELETON_ROW_KEYS = ['skeleton-1', 'skeleton-2', 'skeleton-3'];
 
 const getRecordCurrentCount = (record: TFxaOwnerRecord) =>
   Math.max(0, Math.trunc(record.count ?? 0));
@@ -53,6 +67,12 @@ export const FxaOwnerRecordsSheet = ({
   detailIndex: number;
 }) => {
   const { t } = useTranslation('accounting');
+  const trDoc = useWatch({
+    control: form.control,
+    name: `trDocs.${journalIndex}`,
+  });
+  const isMove = trDoc.journal === TrJournalEnum.FXA_MOVE;
+  const columnCount = isMove ? 6 : 5;
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -77,6 +97,7 @@ export const FxaOwnerRecordsSheet = ({
       fixedAssetIds: detail?.fixedAssetId ? [detail.fixedAssetId] : [],
       status: 'active',
       balanceOnly: true,
+      excludeTransactionId: trDoc.parentId ? trDoc._id : undefined,
     },
     skip: !detail?.fixedAssetId,
   });
@@ -84,7 +105,10 @@ export const FxaOwnerRecordsSheet = ({
   const activeRecords = (data?.fxaOwnerRecords || []).filter(
     (record) => getRecordCurrentCount(record) > 0,
   );
-  const title = [detail?.fixedAssetCode, detail?.fixedAssetName]
+  const title = [
+    detail?.followInfos?.fixedAssetCode,
+    detail?.followInfos?.fixedAssetName,
+  ]
     .filter(Boolean)
     .join(' - ');
   const isWithinLimit = selectedCount <= detailCount;
@@ -147,6 +171,7 @@ export const FxaOwnerRecordsSheet = ({
         sequence: record.sequence,
         count,
         ownerId: getRecordOwnerId(record),
+        ...(isMove ? { sourceOwnerId: getRecordOwnerId(record) } : {}),
       },
     ]);
   };
@@ -186,20 +211,18 @@ export const FxaOwnerRecordsSheet = ({
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-5xl">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b h-auto py-2">
-          <div className="min-w-0">
-            <Sheet.Title>{title || t('select-asset-custodian')}</Sheet.Title>
-            <Sheet.Description
-              className={cn(!isWithinLimit && 'text-destructive')}
-            >
-              {t('maximum-quantity', { nsSeparator: false })} {detailCount}{' '}
-              {t('selected-label', { nsSeparator: false })} {selectedCount}{' '}
-              {t('available', { nsSeparator: false })} {remainingCount}
-            </Sheet.Description>
-          </div>
+        <Sheet.Header>
+          <Sheet.Title>{title || t('select-asset-custodian')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto">
+          <Sheet.Description
+            className={cn('mb-4', !isWithinLimit && 'text-destructive')}
+          >
+            {t('maximum-quantity', { nsSeparator: false })} {detailCount}{' '}
+            {t('selected-label', { nsSeparator: false })} {selectedCount}{' '}
+            {t('available', { nsSeparator: false })} {remainingCount}
+          </Sheet.Description>
           <Table>
             <Table.Header>
               <Table.Row>
@@ -208,6 +231,13 @@ export const FxaOwnerRecordsSheet = ({
                 <Table.Head>{t('available-quantity')}</Table.Head>
                 <Table.Head>{t('quantity-to-select')}</Table.Head>
                 <Table.Head>{t('asset-custodian')}</Table.Head>
+                {isMove && (
+                  <Table.Head>
+                    {t('new-asset-custodian', {
+                      defaultValue: 'Шинэ эд хариуцагч',
+                    })}
+                  </Table.Head>
+                )}
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -216,6 +246,9 @@ export const FxaOwnerRecordsSheet = ({
                 const selectedRecordCount = getInputCount(selectedRecord || {});
                 const availableCount = getRecordCurrentCount(record);
                 const selected = Boolean(selectedRecord);
+                const selectedIndex = selectedRecord
+                  ? ownerRecords.indexOf(selectedRecord)
+                  : -1;
 
                 return (
                   <Table.Row key={record._id}>
@@ -230,8 +263,16 @@ export const FxaOwnerRecordsSheet = ({
                         />
                       </div>
                     </Table.Cell>
-                    <Table.Cell>{record.code || '-'}</Table.Cell>
-                    <Table.Cell>{availableCount}</Table.Cell>
+                    <Table.Cell>
+                      <RecordTableInlineCell>
+                        {record.code || '-'}
+                      </RecordTableInlineCell>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <RecordTableInlineCell>
+                        {availableCount}
+                      </RecordTableInlineCell>
+                    </Table.Cell>
                     <Table.Cell>
                       <InputNumber
                         value={selectedRecordCount}
@@ -260,18 +301,57 @@ export const FxaOwnerRecordsSheet = ({
                         <SelectMember.Value placeholder="-" />
                       </SelectMember.Provider>
                     </Table.Cell>
+                    {isMove && (
+                      <Table.Cell>
+                        {selectedIndex >= 0 ? (
+                          <Form.Field
+                            control={form.control}
+                            name={`trDocs.${journalIndex}.extraData.fxaOwnerRecords.${selectedIndex}.ownerId`}
+                            render={({ field }) => (
+                              <SelectMember.FormItem
+                                mode="single"
+                                value={field.value || ''}
+                                onValueChange={(value) => {
+                                  form.setValue(
+                                    `trDocs.${journalIndex}.extraData.fxaOwnerRecords.${selectedIndex}.sourceOwnerId`,
+                                    selectedRecord?.sourceOwnerId ||
+                                      getRecordOwnerId(record),
+                                    { shouldDirty: true },
+                                  );
+                                  field.onChange(value || '');
+                                }}
+                              />
+                            )}
+                          />
+                        ) : (
+                          '-'
+                        )}
+                      </Table.Cell>
+                    )}
                   </Table.Row>
                 );
               })}
-              {!activeRecords.length && (
+              {!activeRecords.length &&
+                loading &&
+                SKELETON_ROW_KEYS.map((rowKey) => (
+                  <Table.Row key={rowKey} className="h-cell">
+                    {Array.from(
+                      { length: columnCount },
+                      (_, colIndex) => `${rowKey}-${colIndex}`,
+                    ).map((cellKey) => (
+                      <Table.Cell key={cellKey} className="border-r-0 px-2">
+                        <Skeleton className="h-4 w-full min-w-4" />
+                      </Table.Cell>
+                    ))}
+                  </Table.Row>
+                ))}
+              {!activeRecords.length && !loading && (
                 <Table.Row>
                   <Table.Cell
-                    colSpan={5}
+                    colSpan={columnCount}
                     className="text-center text-muted-foreground"
                   >
-                    {loading
-                      ? t('loading')
-                      : t('no-active-asset-custodian-records-found')}
+                    {t('no-active-asset-custodian-records-found')}
                   </Table.Cell>
                 </Table.Row>
               )}

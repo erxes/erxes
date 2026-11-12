@@ -173,7 +173,7 @@ const ReCalcRemaindersForm = ({
           </div>
         </div>
 
-        <Sheet.Footer className="px-5 py-4 border-t bg-background shrink-0">
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button
             variant="outline"
             type="button"

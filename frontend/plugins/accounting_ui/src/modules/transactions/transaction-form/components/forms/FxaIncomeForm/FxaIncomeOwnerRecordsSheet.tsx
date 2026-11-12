@@ -1,3 +1,9 @@
+import { FxaDepreciationFields } from '@/transactions/transaction-form/components/forms/FxaDepreciationFields';
+import {
+  FxaChangeLifeFields,
+  FxaChangeMethodField,
+  FxaChangeNumberField,
+} from '@/transactions/transaction-form/components/forms/FxaChangeFields';
 import { useTranslation } from 'react-i18next';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
@@ -6,12 +12,14 @@ import {
   Form,
   Input,
   InputNumber,
+  Label,
   RecordTable,
   Sheet,
+  Switch,
   Table,
   Tooltip,
 } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectMember } from 'ui-modules';
 import {
@@ -86,6 +94,8 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   detailIndex: number;
 }) => {
   const { t } = useTranslation('accounting');
+  const [showTax, setShowTax] = useState(false);
+  const taxToggleId = useId();
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -100,7 +110,10 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   );
   const detailCount = Math.max(0, Math.trunc(detail?.count || 0));
   const remainingCount = Math.max(0, detailCount - ownerCount);
-  const title = [detail?.fixedAssetCode, detail?.fixedAssetName]
+  const title = [
+    detail?.followInfos?.fixedAssetCode,
+    detail?.followInfos?.fixedAssetName,
+  ]
     .filter(Boolean)
     .join(' - ');
   const addButtonTip =
@@ -133,8 +146,11 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
         tempId: `${detail._id}-${getTempId()}`,
         transactionDetailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
-        code: detail.fixedAssetCode
-          ? `${detail.fixedAssetCode}_${String(sequence).padStart(3, '0')}`
+        code: detail.followInfos?.fixedAssetCode
+          ? `${detail.followInfos?.fixedAssetCode}_${String(sequence).padStart(
+              3,
+              '0',
+            )}`
           : '',
         sequence,
         count: remainingCount,
@@ -159,41 +175,65 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-5xl">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b h-auto py-2">
-          <div className="min-w-0">
-            <Sheet.Title>{title || t('asset-custodian-records')}</Sheet.Title>
-            <Sheet.Description>
-              {t('quantity-label-2', { nsSeparator: false })} {detailCount}{' '}
-              {t('allocated', { nsSeparator: false })} {ownerCount}{' '}
-              {t('remaining', { nsSeparator: false })} {remainingCount}
-            </Sheet.Description>
-          </div>
-          <Tooltip>
-            <Tooltip.Trigger asChild>
-              <span>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className={cn(
-                    remainingCount > 0 &&
-                      'border-destructive text-destructive hover:text-destructive',
-                  )}
-                  disabled={remainingCount <= 0}
-                  onClick={addOwner}
-                >
-                  <IconPlus />
-                  {t('add-allocation')}
-                  {remainingCount})
-                </Button>
-              </span>
-            </Tooltip.Trigger>
-            <Tooltip.Content>{addButtonTip}</Tooltip.Content>
-          </Tooltip>
+        <Sheet.Header>
+          <Sheet.Title>{title || t('asset-custodian-records')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <Sheet.Description>
+              <strong className="font-semibold text-foreground">
+                {t('quantity-label-2', { nsSeparator: false })} {detailCount}
+              </strong>{' '}
+              {t('allocated', { nsSeparator: false })} {ownerCount}{' '}
+              {t('remaining', { nsSeparator: false })} {remainingCount}
+            </Sheet.Description>
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <span>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className={cn(
+                      remainingCount > 0 &&
+                        'border-destructive text-destructive hover:text-destructive',
+                    )}
+                    disabled={remainingCount <= 0}
+                    onClick={addOwner}
+                  >
+                    <IconPlus />
+                    {t('add-allocation')}
+                    {remainingCount})
+                  </Button>
+                </span>
+              </Tooltip.Trigger>
+              <Tooltip.Content>{addButtonTip}</Tooltip.Content>
+            </Tooltip>
+          </div>
+          <div className="flex items-center gap-2 mb-4">
+            <Switch
+              id={taxToggleId}
+              checked={showTax}
+              onCheckedChange={setShowTax}
+            />
+            <Label htmlFor={taxToggleId}>
+              {t('tax-calculation', { defaultValue: 'Татварын тооцоо' })}
+            </Label>
+          </div>
           {detail && (
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <FxaChangeMethodField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                capital
+                income
+              />
+              <FxaChangeLifeFields
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+              />
               <Form.Field
                 control={form.control}
                 name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.salvageValue`}
@@ -209,22 +249,71 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                   </Form.Item>
                 )}
               />
+              <div
+                className={cn(
+                  'col-span-3 grid-cols-3 gap-4',
+                  showTax ? 'grid' : 'hidden',
+                )}
+              >
+                <FxaChangeMethodField
+                  form={form}
+                  index={journalIndex}
+                  detailIndex={detailIndex}
+                  capital
+                  income
+                  tax
+                />
+                <FxaChangeLifeFields
+                  form={form}
+                  index={journalIndex}
+                  detailIndex={detailIndex}
+                  tax
+                />
+                <FxaChangeNumberField
+                  form={form}
+                  index={journalIndex}
+                  detailIndex={detailIndex}
+                  rule="taxSalvageValue"
+                  label="tax-residual-value"
+                />
+              </div>
+              <FxaDepreciationFields
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+              />
               <Form.Field
                 control={form.control}
-                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.depreciationStartDate`}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
-                      {t('prior-accumulated-depreciation')}
-                    </Form.Label>
+                    <Form.Label>{t('depreciation-start-date')}</Form.Label>
                     <Form.Control>
-                      <InputNumber
-                        value={field.value ?? 0}
-                        onChange={(value) => field.onChange(value || 0)}
+                      <Input
+                        type="date"
+                        value={field.value?.slice(0, 10) || ''}
+                        onChange={(event) =>
+                          field.onChange(event.target.value || undefined)
+                        }
                       />
                     </Form.Control>
+                    <Form.Message />
                   </Form.Item>
                 )}
+              />
+              <FxaChangeNumberField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                rule="revaluationLoss"
+                label="fxa-revaluation-loss-balance"
+              />
+              <FxaChangeNumberField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                rule="revaluationReserve"
+                label="fxa-revaluation-reserve-balance"
               />
             </div>
           )}
