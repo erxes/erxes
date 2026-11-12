@@ -2209,6 +2209,26 @@
       }
     }
   },
+  "payment": {
+    "invoice": {
+      "name": "Нэхэмжлэлүүд",
+      "description": "Нэхэмжлэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "paymentInvoiceView": {
+          "title": "Нэхэмжлэл харах",
+          "description": "Нэхэмжлэлийн бичлэг харах"
+        },
+        "paymentInvoiceEdit": {
+          "title": "Нэхэмжлэл засах",
+          "description": "Нэхэмжлэлийн тайлбар, дүн, валют, төлөвийг засах"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Санхүүгийн плагинд бүрэн хандах эрх"
@@ -2275,6 +2295,12 @@
     },
     "content:viewer": {
       "description": "CMS нийтлэлийг зөвхөн харах эрх"
+    },
+    "payment:admin": {
+      "description": "Төлбөрийн нэхэмжлэл харах, засах"
+    },
+    "payment:viewer": {
+      "description": "Төлбөрийн нэхэмжлэлийг зөвхөн харах эрх"
     }
   }
 }

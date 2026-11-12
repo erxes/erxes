@@ -2209,6 +2209,26 @@
       }
     }
   },
+  "payment": {
+    "invoice": {
+      "name": "Invoices",
+      "description": "Invoice management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "paymentInvoiceView": {
+          "title": "View invoices",
+          "description": "View invoice records"
+        },
+        "paymentInvoiceEdit": {
+          "title": "Edit invoices",
+          "description": "Edit invoice description, amount, currency and status"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Full access to Accounting plugin"
@@ -2275,6 +2295,12 @@
     },
     "content:viewer": {
       "description": "Read-only access to CMS posts"
+    },
+    "payment:admin": {
+      "description": "View and edit payment invoices"
+    },
+    "payment:viewer": {
+      "description": "Read-only access to payment invoices"
     }
   }
 }
