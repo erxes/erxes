@@ -4,6 +4,7 @@ import type { ContractRouterClient } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { once } from 'node:events';
 import type { Server } from 'node:http';
+import type { Logger } from 'pino';
 import { afterAll, beforeAll } from 'vite-plus/test';
 import { newId, users } from '@erxes/core-db';
 import { createApp } from '~/app';
@@ -28,14 +29,15 @@ const SESSION = 'erxes_session=';
  * Serves the app on a free port for this test file. `client(caller)` is the
  * typed contract client plugins and the UI use: a call returns the output or
  * throws an `ORPCError` with `status`, `code` and `data`. `url(path)` and
- * `headers(token)` are for raw HTTP (cookies, CSRF, downloads).
+ * `headers(token)` are for raw HTTP (cookies, CSRF, downloads). `log` replaces
+ * the app's logger, to read what it writes.
  */
-export const useTestServer = () => {
+export const useTestServer = (log?: Logger) => {
   let server: Server | undefined;
   let base = '';
 
   beforeAll(async () => {
-    const listening = createApp().listen(0);
+    const listening = createApp(log).listen(0);
 
     await once(listening, 'listening');
 
