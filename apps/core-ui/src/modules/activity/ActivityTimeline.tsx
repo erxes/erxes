@@ -1,5 +1,5 @@
 import type { Activity, ActivityTarget, FileInfo } from '@erxes/core-contract';
-import { IconProgress,
+import { IconProgress, IconSearch,
   IconArrowsJoin,
   IconHistory,
   IconLink,
@@ -51,6 +51,7 @@ import { actorLabel, pluginLabel } from '~/lib/members';
 import { api } from '~/lib/api';
 import { useCan, useSession } from '~/modules/auth/session';
 import { NoteComposer } from './NoteComposer';
+import { UserAvatar } from '~/components/UserAvatar';
 import { LogInteraction, NoteHistory, Reactions } from './TimelineExtras';
 import { type TimelineKind, useActivities, useActivityTypes, useNoteActions, usePinnedNotes } from './useActivities';
 
@@ -279,8 +280,8 @@ const NoteBody = ({ note, lookups }: { note: NoteData; lookups: Lookups }) => {
     : null;
 
   return (
-    <div className="mt-1 rounded-md border bg-muted/30 px-3 py-2">
-      <p className="text-sm whitespace-pre-wrap">
+    <div>
+      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
         {pattern
           ? note.body.split(pattern).map((part, index) =>
               names.includes(part) ? (
@@ -323,7 +324,12 @@ const NoteActions = ({ activity, onEdit }: { activity: Activity; onEdit: () => v
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" size="icon" className="size-6 opacity-0 group-hover:opacity-100" aria-label={t('note-actions', 'Note actions')}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-6 text-muted-foreground opacity-0 group-hover/note:opacity-100 data-[state=open]:opacity-100"
+          aria-label={t('note-actions', 'Note actions')}
+        >
           <IconDots className="size-3.5" />
         </Button>
       </DropdownMenu.Trigger>
@@ -415,63 +421,100 @@ const ActivityItem = ({
     );
   }
 
+  const when = (
+    <RelativeDateDisplay value={activity.occurredAt} asChild>
+      <span className="shrink-0 text-xs text-muted-foreground">
+        <RelativeDateDisplay.Value value={activity.occurredAt} />
+      </span>
+    </RelativeDateDisplay>
+  );
+  const onRelated = related && (
+    <span className="text-muted-foreground">
+      {' '}
+      · {t('on', 'on')} <LinkedRecord type={activity.targetType} id={activity.targetId} />
+    </span>
+  );
+  const edited =
+    activity.editedAt &&
+    (Array.isArray(activity.data.history) && activity.data.history.length ? (
+      <NoteHistory history={activity.data.history as { body: string; editedAt: string }[]} />
+    ) : (
+      <span className="text-xs text-muted-foreground">· {t('edited', 'edited')}</span>
+    ));
+  const rail = !last && <span className="absolute top-8 bottom-0 left-[13px] w-px bg-border" aria-hidden="true" />;
+
+  // A note is a card: who wrote it and when, the text, its files and reactions; actions on hover.
+  if (note) {
+    const member = activity.actor.type === 'user' && activity.actor.id ? lookups.members.get(activity.actor.id) : undefined;
+
+    return (
+      <li className="group/note relative flex gap-3 pb-4">
+        {rail}
+        <UserAvatar name={actor} src={member?.avatarUrl} className="relative z-[1] size-7 shrink-0 ring-4 ring-background" />
+        <div
+          className={cn(
+            'min-w-0 flex-1 rounded-lg border bg-background px-3.5 py-2.5 shadow-xs transition-shadow hover:shadow-sm',
+            activity.pinned && 'border-primary/30 bg-primary/[0.03]',
+          )}
+        >
+          <div className="mb-1 flex min-w-0 items-center gap-1.5 text-sm">
+            <span className="truncate font-medium">{actor}</span>
+            {onRelated}
+            <span className="text-muted-foreground" aria-hidden="true">
+              ·
+            </span>
+            {when}
+            {edited}
+            <span className="ml-auto flex shrink-0 items-center gap-0.5">
+              <Reactions activity={activity} />
+              {activity.pinned && <IconPin className="size-3.5 text-primary" aria-label={t('pinned', 'Pinned')} />}
+              {!editing && <NoteActions activity={activity} onEdit={() => setEditing(true)} />}
+            </span>
+          </div>
+          {extra}
+        </div>
+      </li>
+    );
+  }
+
+  // Everything else: one line (icon, sentence, time), details below when there are any.
   return (
-    <li className="group relative flex gap-3 pb-4">
-      {!last && <span className="absolute top-7 bottom-0 left-3.5 w-px bg-border" aria-hidden="true" />}
+    <li className="group relative flex gap-3 pb-3">
+      {rail}
       <span
-        className="flex size-7 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground"
+        className="relative z-[1] flex size-7 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground"
         style={look?.color ? { color: look.color, borderColor: look.color } : undefined}
       >
         <ItemIcon className="size-3.5" />
       </span>
       <div className="min-w-0 flex-1 pt-1">
-        <div className="flex items-start gap-1">
-          <p className="flex-1 text-sm leading-5">
-            {note ? (
-              <>
-                <span className="font-medium">{actor}</span> {t('wrote-note', 'wrote a note')}
-              </>
-            ) : (
-              <Sentence activity={activity} actor={actor} lookups={lookups} />
-            )}
-            {related && (
-              <span className="text-muted-foreground">
-                {' '}
-                · {t('on', 'on')} <LinkedRecord type={activity.targetType} id={activity.targetId} />
-              </span>
-            )}
+        <div className="flex min-w-0 items-start gap-2">
+          <p className="min-w-0 flex-1 text-sm leading-5">
+            <Sentence activity={activity} actor={actor} lookups={lookups} />
+            {onRelated}
           </p>
-          {activity.pinned && <IconPin className="mt-0.5 size-3.5 text-primary" aria-label={t('pinned', 'Pinned')} />}
-          {note && !editing && <NoteActions activity={activity} onEdit={() => setEditing(true)} />}
+          {when}
         </div>
-        {extra}
-        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-          <RelativeDateDisplay value={activity.occurredAt} asChild>
-            <span>
-              <RelativeDateDisplay.Value value={activity.occurredAt} />
-            </span>
-          </RelativeDateDisplay>
-          {plugin && (
-            <>
-              <span aria-hidden="true">·</span>
-              {activity.actor.type === 'user' && <span>{actor}</span>}
-              <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
-                {pluginLabel(activity.source)}
-                {look ? ` · ${look.label}` : ''}
-              </Badge>
-            </>
-          )}
-          {activity.editedAt &&
-            (Array.isArray(activity.data.history) && activity.data.history.length ? (
-              <NoteHistory history={activity.data.history as { body: string; editedAt: string }[]} />
-            ) : (
-              <span>· {t('edited', 'edited')}</span>
-            ))}
-          {activity.link && (
-            <Link to={activity.link} className="text-primary hover:underline">
-              {t('open', 'Open')}
-            </Link>
-          )}
+        {extra && <div className="mt-1">{extra}</div>}
+        {(plugin || activity.link) && (
+          <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+            {plugin && (
+              <>
+                {activity.actor.type === 'user' && <span>{actor}</span>}
+                <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+                  {pluginLabel(activity.source)}
+                  {look ? ` · ${look.label}` : ''}
+                </Badge>
+              </>
+            )}
+            {activity.link && (
+              <Link to={activity.link} className="text-primary hover:underline">
+                {t('open', 'Open')}
+              </Link>
+            )}
+          </div>
+        )}
+        <div className="mt-0.5 hidden group-hover:flex">
           <Reactions activity={activity} />
         </div>
       </div>
@@ -556,45 +599,71 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
           onSubmit={(draft) => add.mutateAsync({ targetType, targetId, ...draft })}
         />
         <div className="flex flex-wrap items-center gap-2">
-          <LogInteraction targetType={targetType} targetId={targetId} />
-          <Input
-            className="h-8 w-44"
-            placeholder={t('search', 'Search the timeline…')}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-          <Select value={actorId} onValueChange={setActorId}>
-            <Select.Trigger className="h-8 w-40">
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="all">{t('anyone', 'Anyone')}</Select.Item>
-              {[...lookups.members.values()].map((member) => (
-                <Select.Item key={member.id} value={member.id}>
-                  {member.fullName || member.email}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
-          {sources.length > 0 && (
-            <Select value={source} onValueChange={setSource}>
-              <Select.Trigger className="h-8 w-32">
+          <div className="flex rounded-md bg-muted p-0.5">
+            {KINDS.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setKind(item.value)}
+                className={cn(
+                  'h-6 rounded px-2.5 text-xs text-muted-foreground transition-colors hover:text-foreground',
+                  kind === item.value && 'bg-background font-medium text-foreground shadow-xs',
+                )}
+              >
+                {t(`kinds.${item.value}`, item.label)}
+              </button>
+            ))}
+          </div>
+          <div className="ml-auto flex flex-wrap items-center gap-1.5">
+            <div className="relative">
+              <IconSearch className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="h-7 w-40 pl-7 text-xs"
+                placeholder={t('search', 'Search the timeline…')}
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </div>
+            <Select value={actorId} onValueChange={setActorId}>
+              <Select.Trigger className="h-7 w-32 text-xs">
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="all">{t('all-sources', 'All sources')}</Select.Item>
-                <Select.Item value="core">{t('core', 'Core')}</Select.Item>
-                {sources.map((name) => (
-                  <Select.Item key={name} value={name}>
-                    {pluginLabel(name)}
+                <Select.Item value="all">{t('anyone', 'Anyone')}</Select.Item>
+                {[...lookups.members.values()].map((member) => (
+                  <Select.Item key={member.id} value={member.id}>
+                    {member.fullName || member.email}
                   </Select.Item>
                 ))}
               </Select.Content>
             </Select>
-          )}
+            {sources.length > 0 && (
+              <Select value={source} onValueChange={setSource}>
+                <Select.Trigger className="h-7 w-28 text-xs">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="all">{t('all-sources', 'All sources')}</Select.Item>
+                  <Select.Item value="core">{t('core', 'Core')}</Select.Item>
+                  {sources.map((name) => (
+                    <Select.Item key={name} value={name}>
+                      {pluginLabel(name)}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            )}
+            <LogInteraction targetType={targetType} targetId={targetId} />
+          </div>
         </div>
+        {targetType === 'company' && (
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Switch checked={includeRelated} onCheckedChange={setIncludeRelated} />
+            {t('include-customers', 'Include its customers')}
+          </label>
+        )}
         {pinned.length > 0 && (
-          <section className="rounded-lg border border-primary/30 bg-primary/5 px-3 pt-3">
+          <section>
             <h3 className="flex items-center gap-1 pb-2 text-xs font-semibold text-primary uppercase">
               <IconPin className="size-3.5" />
               {t('pinned', 'Pinned')}
@@ -612,27 +681,6 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
             </ol>
           </section>
         )}
-        <div className="flex flex-wrap items-center gap-1">
-          {KINDS.map((item) => (
-            <button
-              key={item.value}
-              type="button"
-              onClick={() => setKind(item.value)}
-              className={cn(
-                'h-6 rounded-full border px-2.5 text-xs',
-                kind === item.value ? 'border-primary bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent',
-              )}
-            >
-              {t(`kinds.${item.value}`, item.label)}
-            </button>
-          ))}
-          {targetType === 'company' && (
-            <label className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Switch checked={includeRelated} onCheckedChange={setIncludeRelated} />
-              {t('include-customers', 'Include its customers')}
-            </label>
-          )}
-        </div>
       </div>
       {loading ? (
         <Spinner containerClassName="py-12" />

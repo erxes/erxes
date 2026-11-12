@@ -1,6 +1,6 @@
 import type { AutomationTrigger, ConditionGroup } from '@erxes/core-contract';
 import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
-import { Button, cn, Input, Label, Select, Switch } from 'erxes-ui';
+import { Button, cn, Input, Select, Switch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { ConditionsEditor } from './ConditionsEditor';
 import { useAutomationFields } from './useAutomationFields';
@@ -9,11 +9,20 @@ const ZONES = ['Asia/Ulaanbaatar', 'Asia/Hovd', 'Asia/Tokyo', 'Asia/Seoul', 'Asi
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const KINDS = [
-  { kind: 'event', icon: IconBolt, label: 'When something happens' },
-  { kind: 'schedule', icon: IconClock, label: 'On a schedule' },
-  { kind: 'date', icon: IconCalendarEvent, label: 'Around a date' },
-  { kind: 'manual', icon: IconHandFinger, label: 'When started by hand' },
+  { kind: 'event', icon: IconBolt, label: 'Event', hint: 'When something happens' },
+  { kind: 'schedule', icon: IconClock, label: 'Schedule', hint: 'Every hour, day, week or month' },
+  { kind: 'date', icon: IconCalendarEvent, label: 'Date', hint: 'Before or after a record’s date' },
+  { kind: 'manual', icon: IconHandFinger, label: 'Manual', hint: 'You start it on chosen records' },
 ] as const;
+
+/** One labelled setting of the trigger. */
+const Field = ({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) => (
+  <div className="space-y-1.5">
+    <div className="text-xs font-medium text-muted-foreground">{label}</div>
+    {children}
+    {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+  </div>
+);
 
 const defaults = (kind: AutomationTrigger['kind']): AutomationTrigger =>
   kind === 'event'
@@ -28,11 +37,10 @@ const TimeAndZone = ({ at, timezone, onChange, disabled }: { at: string; timezon
   const { t } = useTranslation('automations');
 
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm">
-      <span>{t('at', 'at')}</span>
-      <Input type="time" className="w-28" value={at} disabled={disabled} onChange={(event) => onChange({ at: event.target.value })} />
+    <div className="flex items-center gap-2">
+      <Input type="time" className="h-8 w-28 shrink-0" value={at} disabled={disabled} onChange={(event) => onChange({ at: event.target.value })} aria-label={t('at', 'at')} />
       <Select value={timezone} disabled={disabled} onValueChange={(value) => onChange({ timezone: value })}>
-        <Select.Trigger className="w-48">
+        <Select.Trigger className="h-8 min-w-0 flex-1">
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
@@ -59,15 +67,15 @@ const AudienceEditor = ({
   const { t } = useTranslation('automations');
 
   return (
-    <div className="space-y-2 rounded-md bg-muted/40 p-3">
-      <label className="flex items-center gap-2 text-sm">
+    <div className="space-y-3 rounded-lg border p-3">
+      <label className="flex items-center gap-2 text-sm font-medium">
         <Switch checked={Boolean(value)} disabled={disabled} onCheckedChange={(on) => onChange(on ? { type: 'customer' } : undefined)} />
         {t('for-each-record', 'Run for each matching record')}
       </label>
       {value && (
         <>
           <Select value={value.type} disabled={disabled} onValueChange={(type) => onChange({ type: type as 'customer' })}>
-            <Select.Trigger className="w-40">
+            <Select.Trigger className="h-8 w-full">
               <Select.Value />
             </Select.Trigger>
             <Select.Content>
@@ -102,163 +110,190 @@ export const TriggerEditor = ({
   const dateFields = useAutomationFields(trigger.kind === 'date' ? trigger.subject : null).filter((field) => field.type === 'date' && field.path !== 'subject.createdAt');
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        {KINDS.map(({ kind, icon: Icon, label }) => (
-          <button
-            key={kind}
-            type="button"
-            disabled={disabled}
-            onClick={() => trigger.kind !== kind && onChange(defaults(kind))}
-            className={cn(
-              'flex items-center gap-2 rounded-md border p-2 text-left text-sm hover:bg-muted',
-              trigger.kind === kind && 'border-primary bg-primary/5 font-medium',
-            )}
-          >
-            <Icon className="size-4 shrink-0" />
-            {t(`trigger-${kind}`, label)}
-          </button>
-        ))}
-      </div>
+    <div className="space-y-5">
+      <Field label={t('trigger-type', 'Starts')}>
+        <div className="grid grid-cols-2 gap-2">
+          {KINDS.map(({ kind, icon: Icon, label, hint }) => (
+            <button
+              key={kind}
+              type="button"
+              disabled={disabled}
+              onClick={() => trigger.kind !== kind && onChange(defaults(kind))}
+              className={cn(
+                'flex min-w-0 items-start gap-2.5 rounded-lg border p-2.5 text-left transition-colors hover:bg-muted/60 disabled:opacity-60',
+                trigger.kind === kind && 'border-primary bg-primary/5 ring-1 ring-primary/20 hover:bg-primary/5',
+              )}
+            >
+              <span
+                className={cn(
+                  'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
+                  trigger.kind === kind && 'bg-primary text-primary-foreground',
+                )}
+              >
+                <Icon className="size-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">{t(`trigger-${kind}-title`, label)}</span>
+                <span className="block text-xs leading-snug text-muted-foreground">{t(`trigger-${kind}-hint`, hint)}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </Field>
 
       {trigger.kind === 'event' && (
         <>
-          <Select value={trigger.event} disabled={disabled} onValueChange={(event) => onChange({ ...trigger, event })}>
-            <Select.Trigger>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              {events.map((item) => (
-                <Select.Item key={item.type} value={item.type}>
-                  {item.label}
-                  {item.source !== 'core' ? ` (${item.source})` : ''}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
-          <Label className="text-xs text-muted-foreground">{t('only-if', 'Only if')}</Label>
-          <ConditionsEditor subject={subject} value={trigger.conditions} disabled={disabled} onChange={(conditions) => onChange({ ...trigger, conditions })} />
+          <Field label={t('event', 'Event')}>
+            <Select value={trigger.event} disabled={disabled} onValueChange={(event) => onChange({ ...trigger, event })}>
+              <Select.Trigger className="h-8 w-full">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Content>
+                {events.map((item) => (
+                  <Select.Item key={item.type} value={item.type}>
+                    {item.label}
+                    {item.source !== 'core' ? ` (${item.source})` : ''}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          </Field>
+          <Field label={t('only-if', 'Only if')} hint={trigger.conditions?.rules.length ? undefined : t('only-if-empty', 'No conditions: every such event starts a run.')}>
+            <ConditionsEditor subject={subject} value={trigger.conditions} disabled={disabled} onChange={(conditions) => onChange({ ...trigger, conditions })} />
+          </Field>
         </>
       )}
 
       {trigger.kind === 'schedule' && (
         <>
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span>{t('every', 'Every')}</span>
-            <Select value={trigger.every} disabled={disabled} onValueChange={(every) => onChange({ ...trigger, every: every as 'day' })}>
-              <Select.Trigger className="w-32">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="hour">{t('every-hour', 'hour')}</Select.Item>
-                <Select.Item value="day">{t('every-day', 'day')}</Select.Item>
-                <Select.Item value="week">{t('every-week', 'week')}</Select.Item>
-                <Select.Item value="month">{t('every-month', 'month')}</Select.Item>
-              </Select.Content>
-            </Select>
-            {trigger.every === 'month' && (
-              <>
-                <span>{t('on-day', 'on day')}</span>
-                <Input
-                  type="number"
-                  min={1}
-                  max={31}
-                  className="w-20"
-                  value={trigger.dayOfMonth ?? 1}
-                  disabled={disabled}
-                  onChange={(event) => onChange({ ...trigger, dayOfMonth: Math.min(31, Math.max(1, Number(event.target.value) || 1)) })}
-                />
-              </>
-            )}
-          </div>
-          {trigger.every === 'week' && (
-            <div className="flex gap-1">
-              {WEEKDAYS.map((day, index) => {
-                const on = (trigger.weekdays ?? [1]).includes(index + 1);
-
-                return (
-                  <Button
-                    key={day}
-                    size="sm"
-                    variant={on ? 'default' : 'outline'}
+          <Field label={t('repeats', 'Repeats')}>
+            <div className="flex items-center gap-2">
+              <Select value={trigger.every} disabled={disabled} onValueChange={(every) => onChange({ ...trigger, every: every as 'day' })}>
+                <Select.Trigger className="h-8 min-w-0 flex-1">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="hour">{t('every-hour-option', 'Every hour')}</Select.Item>
+                  <Select.Item value="day">{t('every-day-option', 'Every day')}</Select.Item>
+                  <Select.Item value="week">{t('every-week-option', 'Every week')}</Select.Item>
+                  <Select.Item value="month">{t('every-month-option', 'Every month')}</Select.Item>
+                </Select.Content>
+              </Select>
+              {trigger.every === 'month' && (
+                <>
+                  <span className="shrink-0 text-sm text-muted-foreground">{t('on-day', 'on day')}</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={31}
+                    className="h-8 w-16 shrink-0"
+                    value={trigger.dayOfMonth ?? 1}
                     disabled={disabled}
-                    onClick={() => {
-                      const current = trigger.weekdays ?? [1];
-                      const next = on ? current.filter((item) => item !== index + 1) : [...current, index + 1].sort();
-
-                      onChange({ ...trigger, weekdays: next.length ? next : [index + 1] });
-                    }}
-                  >
-                    {t(`weekday.${day}`, day)}
-                  </Button>
-                );
-              })}
+                    onChange={(event) => onChange({ ...trigger, dayOfMonth: Math.min(31, Math.max(1, Number(event.target.value) || 1)) })}
+                  />
+                </>
+              )}
             </div>
-          )}
-          {trigger.every !== 'hour' ? (
+            {trigger.every === 'week' && (
+              <div className="flex gap-1">
+                {WEEKDAYS.map((day, index) => {
+                  const on = (trigger.weekdays ?? [1]).includes(index + 1);
+
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      disabled={disabled}
+                      className={cn(
+                        'h-7 min-w-0 flex-1 rounded-md border text-xs transition-colors',
+                        on ? 'border-primary bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted',
+                      )}
+                      onClick={() => {
+                        const current = trigger.weekdays ?? [1];
+                        const next = on ? current.filter((item) => item !== index + 1) : [...current, index + 1].sort();
+
+                        onChange({ ...trigger, weekdays: next.length ? next : [index + 1] });
+                      }}
+                    >
+                      {t(`weekday.${day}`, day)}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </Field>
+          <Field label={trigger.every === 'hour' ? t('minute', 'At minute') : t('time', 'Time')} hint={trigger.every === 'hour' ? t('every-hour-hint', 'At the minute of the time below, every hour.') : undefined}>
             <TimeAndZone at={trigger.at} timezone={trigger.timezone} disabled={disabled} onChange={(next) => onChange({ ...trigger, ...next })} />
-          ) : (
-            <p className="text-sm text-muted-foreground">{t('every-hour-hint', 'At the minute of the time below, every hour.')}</p>
-          )}
+          </Field>
           <AudienceEditor value={trigger.audience} disabled={disabled} onChange={(audience) => onChange({ ...trigger, audience })} />
         </>
       )}
 
       {trigger.kind === 'date' && (
         <>
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <Input
-              type="number"
-              className="w-20"
-              value={Math.abs(trigger.offsetDays)}
-              disabled={disabled}
-              onChange={(event) => onChange({ ...trigger, offsetDays: Math.sign(trigger.offsetDays || -1) * Math.min(365, Math.abs(Number(event.target.value) || 0)) })}
-            />
-            <span>{t('days', 'days')}</span>
-            <Select
-              value={trigger.offsetDays > 0 ? 'after' : trigger.offsetDays < 0 ? 'before' : 'on'}
-              disabled={disabled}
-              onValueChange={(when) => onChange({ ...trigger, offsetDays: when === 'on' ? 0 : (when === 'before' ? -1 : 1) * Math.max(1, Math.abs(trigger.offsetDays)) })}
-            >
-              <Select.Trigger className="w-28">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="before">{t('before', 'before')}</Select.Item>
-                <Select.Item value="on">{t('on', 'on')}</Select.Item>
-                <Select.Item value="after">{t('after', 'after')}</Select.Item>
-              </Select.Content>
-            </Select>
-            <span>{t('the', 'the')}</span>
-            <Select value={trigger.subject} disabled={disabled} onValueChange={(type) => onChange({ ...trigger, subject: type as 'customer', field: 'birthDate' })}>
-              <Select.Trigger className="w-32">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="customer">{t('customer-s', "customer's")}</Select.Item>
-                <Select.Item value="company">{t('company-s', "company's")}</Select.Item>
-              </Select.Content>
-            </Select>
-            <Select value={trigger.field} disabled={disabled} onValueChange={(field) => onChange({ ...trigger, field })}>
-              <Select.Trigger className="w-48">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                {dateFields.map((field) => (
-                  <Select.Item key={field.path} value={field.path === 'subject.birthDate' ? 'birthDate' : field.path.replace('subject.customFields.', '')}>
-                    {field.label}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <Switch checked={trigger.yearly} disabled={disabled} onCheckedChange={(yearly) => onChange({ ...trigger, yearly })} />
-            {t('yearly', 'Every year (birthdays, anniversaries)')}
-          </label>
-          <TimeAndZone at={trigger.at} timezone={trigger.timezone} disabled={disabled} onChange={(next) => onChange({ ...trigger, ...next })} />
-          <Label className="text-xs text-muted-foreground">{t('only-if', 'Only if')}</Label>
-          <ConditionsEditor subject={trigger.subject} value={trigger.conditions} disabled={disabled} onChange={(conditions) => onChange({ ...trigger, conditions })} />
+          <Field label={t('date-field', 'Date')}>
+            <div className="grid grid-cols-2 gap-2">
+              <Select value={trigger.subject} disabled={disabled} onValueChange={(type) => onChange({ ...trigger, subject: type as 'customer', field: 'birthDate' })}>
+                <Select.Trigger className="h-8 w-full">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="customer">{t('customer-s', "customer's")}</Select.Item>
+                  <Select.Item value="company">{t('company-s', "company's")}</Select.Item>
+                </Select.Content>
+              </Select>
+              <Select value={trigger.field} disabled={disabled} onValueChange={(field) => onChange({ ...trigger, field })}>
+                <Select.Trigger className="h-8 w-full">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  {dateFields.map((field) => (
+                    <Select.Item key={field.path} value={field.path === 'subject.birthDate' ? 'birthDate' : field.path.replace('subject.customFields.', '')}>
+                      {field.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            </div>
+          </Field>
+          <Field label={t('when', 'When')}>
+            <div className="flex items-center gap-2">
+              <Select
+                value={trigger.offsetDays > 0 ? 'after' : trigger.offsetDays < 0 ? 'before' : 'on'}
+                disabled={disabled}
+                onValueChange={(when) => onChange({ ...trigger, offsetDays: when === 'on' ? 0 : (when === 'before' ? -1 : 1) * Math.max(1, Math.abs(trigger.offsetDays)) })}
+              >
+                <Select.Trigger className="h-8 min-w-0 flex-1">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="before">{t('days-before', 'Days before')}</Select.Item>
+                  <Select.Item value="on">{t('on-the-day', 'On the day')}</Select.Item>
+                  <Select.Item value="after">{t('days-after', 'Days after')}</Select.Item>
+                </Select.Content>
+              </Select>
+              {trigger.offsetDays !== 0 && (
+                <Input
+                  type="number"
+                  className="h-8 w-20 shrink-0"
+                  value={Math.abs(trigger.offsetDays)}
+                  disabled={disabled}
+                  onChange={(event) => onChange({ ...trigger, offsetDays: Math.sign(trigger.offsetDays || -1) * Math.min(365, Math.max(1, Math.abs(Number(event.target.value) || 1))) })}
+                  aria-label={t('days', 'days')}
+                />
+              )}
+            </div>
+            <label className="flex items-center gap-2 pt-1 text-sm">
+              <Switch checked={trigger.yearly} disabled={disabled} onCheckedChange={(yearly) => onChange({ ...trigger, yearly })} />
+              {t('yearly', 'Every year (birthdays, anniversaries)')}
+            </label>
+          </Field>
+          <Field label={t('time', 'Time')}>
+            <TimeAndZone at={trigger.at} timezone={trigger.timezone} disabled={disabled} onChange={(next) => onChange({ ...trigger, ...next })} />
+          </Field>
+          <Field label={t('only-if', 'Only if')}>
+            <ConditionsEditor subject={trigger.subject} value={trigger.conditions} disabled={disabled} onChange={(conditions) => onChange({ ...trigger, conditions })} />
+          </Field>
         </>
       )}
 
@@ -266,7 +301,7 @@ export const TriggerEditor = ({
         <>
           <AudienceEditor value={trigger.audience} disabled={disabled} onChange={(audience) => onChange({ ...trigger, audience })} />
           {onStartNow && (
-            <Button variant="outline" onClick={onStartNow}>
+            <Button variant="outline" className="w-full" onClick={onStartNow}>
               <IconHandFinger />
               {t('start-now', 'Start now')}
             </Button>

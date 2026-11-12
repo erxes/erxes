@@ -1,5 +1,5 @@
 import type { User } from '@erxes/core-contract';
-import { IconDotsVertical } from '@tabler/icons-react';
+import { IconDots } from '@tabler/icons-react';
 import { Button, Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,7 @@ export const MemberPanelActions = ({ user }: { user: User }) => {
     <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <Popover.Trigger asChild>
         <Button variant="ghost" size="icon" className="size-7" aria-label={t('actions')} title={t('actions')}>
-          <IconDotsVertical className="size-4" />
+          <IconDots className="size-4" />
         </Button>
       </Popover.Trigger>
       <Combobox.Content align="end" className="min-w-[280px] p-0">

@@ -1,4 +1,4 @@
-import { IconArrowBackUp, IconDotsVertical, IconExternalLink, IconTrash } from '@tabler/icons-react';
+import { IconArrowBackUp, IconDots, IconExternalLink, IconTrash } from '@tabler/icons-react';
 import { Button, Command, Popover, useConfirm } from 'erxes-ui';
 import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -128,7 +128,7 @@ export const ContactPanelActions = ({
             aria-label={t('actions', 'Actions')}
             title={t('actions', 'Actions')}
           >
-            <IconDotsVertical className="size-4" />
+            <IconDots className="size-4" />
           </Button>
         </Popover.Trigger>
         <Popover.Content className="min-w-[280px] p-0" align="end" side="bottom" sideOffset={8}>

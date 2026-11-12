@@ -34,7 +34,7 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
         <Popover.Trigger asChild>
           <button
             type="button"
-            className="inline-flex h-5 items-center rounded-full px-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-accent"
+            className="inline-flex h-5 items-center rounded-full px-1 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover/note:opacity-100 hover:bg-accent data-[state=open]:opacity-100"
             aria-label={t('react', 'React')}
           >
             <IconMoodPlus className="size-3.5" />
@@ -116,12 +116,12 @@ export const LogInteraction = ({ targetType, targetId }: { targetType: string; t
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
-        <Button variant="outline" size="sm">
-          <IconPhoneCall />
+        <Button variant="outline" size="sm" className="h-7 gap-1.5 px-2 text-xs">
+          <IconPhoneCall className="size-3.5" />
           {t('log-activity', 'Log activity')}
         </Button>
       </Popover.Trigger>
-      <Popover.Content className="w-96 space-y-3" align="start">
+      <Popover.Content className="w-96 space-y-3" align="end">
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <Label>{t('kind', 'What')}</Label>

@@ -12,7 +12,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, cn, Input, Label, PageContainer, Select, Spinner, Tabs, Textarea, useConfirm, useToast } from 'erxes-ui';
+import { Badge, Button, cn, Input, PageContainer, Select, Spinner, Tabs, Textarea, useConfirm, useToast } from 'erxes-ui';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -43,6 +43,7 @@ import { TriggerEditor } from './builder/TriggerEditor';
 import { useAutomationFields } from './builder/useAutomationFields';
 import { RunsPanel } from './RunsPanel';
 import { TestPanel } from './TestPanel';
+import { FieldLabel } from './builder/FieldLabel';
 import { VersionsPanel } from './VersionsPanel';
 
 type Selection = 'settings' | 'trigger' | string;
@@ -445,11 +446,11 @@ export const AutomationEditorPage = () => {
                         </div>
                       )}
                       <div className="space-y-1.5">
-                        <Label>{t('name', 'Name')}</Label>
+                        <FieldLabel>{t('name', 'Name')}</FieldLabel>
                         <Input value={name} disabled={!editable} onChange={(event) => setName(event.target.value)} />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>{t('description', 'Description')}</Label>
+                        <FieldLabel>{t('description', 'Description')}</FieldLabel>
                         <Textarea
                           rows={3}
                           value={description}
@@ -459,7 +460,7 @@ export const AutomationEditorPage = () => {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>{t('reentry', 'The same record may run through')}</Label>
+                        <FieldLabel>{t('reentry', 'The same record may run through')}</FieldLabel>
                         <Select
                           value={definition.reentry}
                           disabled={!editable}
@@ -476,7 +477,7 @@ export const AutomationEditorPage = () => {
                         </Select>
                       </div>
                       <div className="space-y-1.5">
-                        <Label>{t('limit', 'Start at most (runs an hour)')}</Label>
+                        <FieldLabel>{t('limit', 'Start at most (runs an hour)')}</FieldLabel>
                         <Input
                           type="number"
                           min={1}
@@ -493,7 +494,7 @@ export const AutomationEditorPage = () => {
                       </div>
                       {hasSubject && (
                         <div className="space-y-1.5">
-                          <Label>{t('goal', 'Goal: once this holds, the record leaves the automation')}</Label>
+                          <FieldLabel>{t('goal', 'Goal: once this holds, the record leaves the automation')}</FieldLabel>
                           <ConditionsEditor subject={subject} value={definition.goal} disabled={!editable} onChange={(goal) => setDefinition({ ...definition, goal })} />
                         </div>
                       )}

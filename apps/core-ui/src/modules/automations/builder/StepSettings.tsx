@@ -1,11 +1,12 @@
 import type { ActionField, ActionInfo, AutomationStep } from '@erxes/core-contract';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Input, Label, MultipleSelector, Select, Switch, Textarea } from 'erxes-ui';
+import { Button, Input, MultipleSelector, Select, Switch, Textarea } from 'erxes-ui';
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '~/lib/api';
 import { ConditionsEditor } from './ConditionsEditor';
+import { FieldLabel } from './FieldLabel';
 import type { FieldInfo } from './useAutomationFields';
 
 const useMemberOptions = () =>
@@ -151,7 +152,7 @@ export const StepSettings = ({
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <Label>{t('step-label', 'Name on the canvas')}</Label>
+        <FieldLabel>{t('step-label', 'Name on the canvas')}</FieldLabel>
         <Input
           value={step.label ?? ''}
           disabled={disabled}
@@ -163,7 +164,7 @@ export const StepSettings = ({
       {step.type === 'action' && (
         <>
           <div className="space-y-1.5">
-            <Label>{t('action', 'Action')}</Label>
+            <FieldLabel>{t('action', 'Action')}</FieldLabel>
             <Select value={step.action} disabled={disabled} onValueChange={(type) => onChange({ ...step, action: type, input: {} })}>
               <Select.Trigger>
                 <Select.Value placeholder={step.action} />
@@ -181,10 +182,10 @@ export const StepSettings = ({
           </div>
           {action?.fields.map((field) => (
             <div key={field.key} className="space-y-1.5">
-              <Label>
+              <FieldLabel>
                 {field.label}
                 {field.required && <span className="text-destructive"> *</span>}
-              </Label>
+              </FieldLabel>
               <FieldInput
                 field={field}
                 subject={subject}
@@ -205,7 +206,7 @@ export const StepSettings = ({
       )}
       {step.type === 'delay' && (
         <div className="space-y-1.5">
-          <Label>{t('wait-for-how-long', 'Wait for')}</Label>
+          <FieldLabel>{t('wait-for-how-long', 'Wait for')}</FieldLabel>
           <div className="flex items-center gap-2">
             <Input
               className="w-24"
@@ -222,7 +223,7 @@ export const StepSettings = ({
       {step.type === 'wait_for' && (
         <>
           <div className="space-y-1.5">
-            <Label>{t('wait-for-event', 'Until this happens to the record')}</Label>
+            <FieldLabel>{t('wait-for-event', 'Until this happens to the record')}</FieldLabel>
             <Select value={step.event} disabled={disabled} onValueChange={(event) => onChange({ ...step, event })}>
               <Select.Trigger>
                 <Select.Value />
@@ -237,7 +238,7 @@ export const StepSettings = ({
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>{t('at-most', 'For at most')}</Label>
+            <FieldLabel>{t('at-most', 'For at most')}</FieldLabel>
             <div className="flex items-center gap-2">
               <Input
                 className="w-24"
@@ -251,7 +252,7 @@ export const StepSettings = ({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>{t('only-if', 'Only if')}</Label>
+            <FieldLabel>{t('only-if', 'Only if')}</FieldLabel>
             <ConditionsEditor subject={subject} value={step.conditions} disabled={disabled} onChange={(conditions) => onChange({ ...step, conditions })} />
           </div>
           <p className="rounded-md bg-muted/60 p-2 text-xs text-muted-foreground">
@@ -261,7 +262,7 @@ export const StepSettings = ({
       )}
       {step.type === 'branch' && (
         <div className="space-y-1.5">
-          <Label>{t('branch-if', 'Take the Yes path when')}</Label>
+          <FieldLabel>{t('branch-if', 'Take the Yes path when')}</FieldLabel>
           <ConditionsEditor
             subject={subject}
             extraFields={outputs}

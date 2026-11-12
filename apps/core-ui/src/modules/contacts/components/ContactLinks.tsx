@@ -82,7 +82,7 @@ const LinkItem = ({ side, row, onChange, onUnlink }: { side: Side; row: LinkRow;
 
   return (
     <div className={cn('group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/60', former && 'opacity-60')}>
-      <Avatar size="sm">
+      <Avatar size="lg">
         <Avatar.Image src={readImage(row.avatarUrl ?? undefined)} />
         <Avatar.Fallback>{row.name.charAt(0)}</Avatar.Fallback>
       </Avatar>
