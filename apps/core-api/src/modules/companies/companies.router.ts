@@ -1,14 +1,13 @@
 import { db } from '@erxes/core-db';
 import {
-  companyPeople,
   createCompany,
   getCompany,
-  listCompanies,
-  mergeCompanies,
   removeCompanies,
   tagCompanies,
   updateCompany,
 } from '~/modules/companies/companies.service';
+import { companyPeople, listCompanies } from '~/modules/companies/companyList';
+import { mergeCompanies } from '~/modules/companies/companyMerge';
 import { linkCustomerCompany, unlinkCustomerCompany } from '~/modules/customers/customers.service';
 import { authed, anyone } from '~/orpc';
 

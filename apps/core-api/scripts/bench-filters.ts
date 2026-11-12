@@ -14,8 +14,8 @@ import { appendFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { Client } from 'pg';
 import type { Actor } from '~/http/auth';
-import { listCompanies } from '~/modules/companies/companies.service';
-import { listCustomers } from '~/modules/customers/customers.service';
+import { listCompanies } from '~/modules/companies/companyList';
+import { listCustomers } from '~/modules/customers/customerList';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 
 const baseUrl = process.env.BENCH_URL ?? process.env.DATA_TEST_URL ?? '';

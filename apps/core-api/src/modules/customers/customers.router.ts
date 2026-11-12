@@ -1,17 +1,17 @@
 import { db } from '@erxes/core-db';
+import { customerCompaniesOf } from '~/modules/customers/customerLinks';
+import { listCustomers } from '~/modules/customers/customerList';
+import { mergeCustomers } from '~/modules/customers/customerMerge';
 import {
   createCustomer,
-  findOrCreateCustomer,
-  customerCompaniesOf,
   getCustomer,
   linkCustomerCompany,
-  listCustomers,
-  mergeCustomers,
   removeCustomers,
   tagCustomers,
   unlinkCustomerCompany,
   updateCustomer,
 } from '~/modules/customers/customers.service';
+import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
 import { authed, anyone } from '~/orpc';
 
 export const customersRouter = {
