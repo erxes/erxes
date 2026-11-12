@@ -8,7 +8,7 @@ import {
 type TPermissionScope = IPermissionModule['scopes'][number];
 
 export const usePermissionLabels = () => {
-  const { t } = useTranslation('permissions', { useSuspense: false });
+  const { t, ready } = useTranslation('permissions', { useSuspense: false });
 
   const getModuleName = (plugin: string, module: IPermissionModule): string =>
     t(`${plugin}.${module.name}.name`, { defaultValue: module.name });
@@ -61,6 +61,7 @@ export const usePermissionLabels = () => {
       : '';
 
   return {
+    ready,
     getGroupDescription,
     getModuleName,
     getModuleDescription,

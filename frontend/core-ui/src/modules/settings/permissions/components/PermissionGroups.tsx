@@ -37,9 +37,9 @@ export const PermissionGroups = () => {
   const { defaultGroups, loading: defaultLoading } =
     useGetPermissionDefaultGroups();
   const { permissionGroups, loading: customLoading } = useGetPermissionGroups();
-  const { getGroupDescription } = usePermissionLabels();
+  const { getGroupDescription, ready } = usePermissionLabels();
 
-  if (defaultLoading || customLoading) {
+  if (defaultLoading || customLoading || !ready) {
     return (
       <div className="m-3">
         <div className="max-w-lg mx-auto flex flex-col gap-2">

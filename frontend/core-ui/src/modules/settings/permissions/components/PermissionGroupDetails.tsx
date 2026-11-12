@@ -94,6 +94,7 @@ export const PermissionGroupDetails = ({
   }
 
   const {
+    ready: labelsReady,
     getGroupDescription,
     getModuleName,
     getModuleDescription,
@@ -134,7 +135,7 @@ export const PermissionGroupDetails = ({
                   </span>
                 )}
               </div>
-              {groupDescription && (
+              {labelsReady && groupDescription && (
                 <p className="text-sm text-muted-foreground mt-1">
                   {groupDescription}
                 </p>
@@ -213,7 +214,7 @@ export const PermissionGroupDetails = ({
                 })}
               </div>
             )
-          ) : modulesLoading ? (
+          ) : modulesLoading || !labelsReady ? (
             <div className="flex justify-center py-16">
               <Spinner />
             </div>

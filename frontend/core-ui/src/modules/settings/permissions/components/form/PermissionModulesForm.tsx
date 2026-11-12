@@ -5,7 +5,7 @@ import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPerm
 import { usePermissionLabels } from '@/settings/permissions/hooks/usePermissionLabels';
 import { UseFormReturn } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
-import { Label, Select, Separator, Sidebar, Switch } from 'erxes-ui';
+import { Label, Select, Separator, Sidebar, Spinner, Switch } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import {
   IPermissionModule,
@@ -45,6 +45,7 @@ export const PermissionModulesForm = ({
   const { permissionModulesByPlugin } = useGetPermissionModules();
   const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
   const {
+    ready: labelsReady,
     getModuleName,
     getModuleDescription,
     getScopeDescription,
@@ -237,7 +238,11 @@ export const PermissionModulesForm = ({
       </Sidebar.Content>
       <div className="w-[80%] overflow-auto styled-scroll">
         <div className="mx-auto max-w-3xl px-6">
-          {selectedPluginData ? (
+          {selectedPluginData && !labelsReady ? (
+            <div className="flex justify-center py-16">
+              <Spinner />
+            </div>
+          ) : selectedPluginData ? (
             <div className="py-8 space-y-8">
               <div className="space-y-4">
                 {selectedPluginData.modules.map((module) => {
