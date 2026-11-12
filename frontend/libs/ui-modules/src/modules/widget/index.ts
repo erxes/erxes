@@ -21,3 +21,8 @@ export * from './hooks';
 export * from './graphql';
 export * from './contact-widget';
 export * from './dashboard-widget';
+export * from './record-side-panel/overview/recordOverviewState';
+export * from './record-side-panel/overview/recordOverviewEntries';
+export * from './record-side-panel/overview/useRecordOverview';
+export * from './record-side-panel/overview/RecordOverviewCustomize';
+export * from './record-side-panel/overview/RecordOverview';
