@@ -82,6 +82,48 @@ const ReentrySelect = ({
   );
 };
 
+/** At most so many runs an hour, and how many the limit skipped. */
+const RunLimit = ({
+  draft,
+  editable,
+  skippedByLimit,
+}: {
+  draft: ReturnType<typeof useAutomationDraft>;
+  editable: boolean;
+  skippedByLimit: number;
+}) => {
+  const { t } = useTranslation('automations');
+  const id = useId();
+  const { definition, setDefinition } = draft;
+
+  return (
+    <div className="space-y-1.5">
+      <FieldLabel htmlFor={id}>{t('limit', 'Start at most (runs an hour)')}</FieldLabel>
+      <Input
+        id={id}
+        type="number"
+        min={1}
+        placeholder={t('no-limit', 'no limit')}
+        value={definition.maxRunsPerHour ?? ''}
+        disabled={!editable}
+        onChange={(event) =>
+          setDefinition({
+            ...definition,
+            maxRunsPerHour: event.target.value
+              ? Math.max(1, Number(event.target.value))
+              : undefined,
+          })
+        }
+      />
+      {skippedByLimit > 0 && (
+        <p className="text-xs text-warning">
+          {t('skipped-by-limit', '{{count}} skipped by the limit', { count: skippedByLimit })}
+        </p>
+      )}
+    </div>
+  );
+};
+
 /** Name, description, re-entry, hourly limit and goal. */
 export const AutomationSettings = ({
   draft,
@@ -126,32 +168,7 @@ export const AutomationSettings = ({
         <FieldLabel>{t('reentry', 'The same record may run through')}</FieldLabel>
         <ReentrySelect definition={definition} disabled={!editable} onChange={setDefinition} />
       </div>
-      <div className="space-y-1.5">
-        <FieldLabel htmlFor={`${id}-limit`}>
-          {t('limit', 'Start at most (runs an hour)')}
-        </FieldLabel>
-        <Input
-          id={`${id}-limit`}
-          type="number"
-          min={1}
-          placeholder={t('no-limit', 'no limit')}
-          value={definition.maxRunsPerHour ?? ''}
-          disabled={!editable}
-          onChange={(event) =>
-            setDefinition({
-              ...definition,
-              maxRunsPerHour: event.target.value
-                ? Math.max(1, Number(event.target.value))
-                : undefined,
-            })
-          }
-        />
-        {skippedByLimit > 0 && (
-          <p className="text-xs text-warning">
-            {t('skipped-by-limit', '{{count}} skipped by the limit', { count: skippedByLimit })}
-          </p>
-        )}
-      </div>
+      <RunLimit draft={draft} editable={editable} skippedByLimit={skippedByLimit} />
       {fieldsError && (
         <p role="alert" className="text-sm text-destructive">
           {t('fields-failed', 'Could not load the record fields: {{message}}', {
