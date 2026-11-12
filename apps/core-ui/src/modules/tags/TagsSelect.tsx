@@ -198,12 +198,15 @@ const TagsSelectedList = ({
   );
 };
 
+/** A new tag's color, picked once when the list opens. */
+const randomColor = () => TAG_COLORS[Math.floor(Math.random() * TAG_COLORS.length)];
+
 /** Search, the selected tags, every tag with a check, and "create". */
 const TagsSelectContent = () => {
   const { type, tags, selectedIds, loading, toggle } = useTagsSelectContext();
   const create = useTagCreate();
   const [search, setSearch] = useState('');
-  const color = useMemo(() => TAG_COLORS[Math.floor(Math.random() * TAG_COLORS.length)], []);
+  const [color] = useState(randomColor);
   const trimmed = search.trim();
   const hasExactMatch = tags.some((tag) => tag.name.toLowerCase() === trimmed.toLowerCase());
   const showCreate = !loading && trimmed.length > 0 && !hasExactMatch;

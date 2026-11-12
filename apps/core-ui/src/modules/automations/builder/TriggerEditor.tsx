@@ -18,6 +18,7 @@ import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { useAutomationFields } from './useAutomationFields';
 import { oneOf } from '~/lib/text';
+import { useMinuteClock } from '~/lib/useMinuteClock';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -185,6 +186,7 @@ const DateTriggerSettings = ({
   disabled?: boolean;
 }) => {
   const { t, i18n } = useTranslation('automations');
+  const now = useMinuteClock();
 
   const dateFields = useAutomationFields(trigger.subject).fields.filter(
     (field) => field.type === 'date' && field.path !== 'subject.createdAt',
@@ -213,7 +215,7 @@ const DateTriggerSettings = ({
     });
 
   // An example: a date five weeks from now, and the run it gives.
-  const sample = new Date();
+  const sample = new Date(now);
 
   sample.setDate(sample.getDate() + 35);
 

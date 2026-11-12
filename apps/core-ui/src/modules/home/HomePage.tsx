@@ -1,4 +1,3 @@
-import './i18n';
 import { DashboardToolbar } from './dashboard/components/DashboardToolbar';
 import { DashboardWidgetCatalog } from './dashboard/components/DashboardWidgetCatalog';
 import { HomeDashboard } from './dashboard/components/HomeDashboard';

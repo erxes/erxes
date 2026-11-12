@@ -1,4 +1,3 @@
-import './i18n';
 import { MainOnboarding } from './MainOnboarding';
 
 /** `/welcome`: first sign-in onboarding, full screen outside the main layout. */

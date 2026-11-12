@@ -2,6 +2,7 @@ import { IconAlertTriangle, IconLock } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { useMinuteClock } from '~/lib/useMinuteClock';
 import { usePlan } from './usePlan';
 
 const day = (value: string) =>
@@ -19,6 +20,7 @@ const day = (value: string) =>
 export const PlanBanner = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plan' });
   const { data } = usePlan();
+  const now = useMinuteClock();
 
   if (!data?.saas) return null;
 
@@ -36,7 +38,7 @@ export const PlanBanner = () => {
       '{{plugins}} left your plan: read-only until {{date}}, then turned off. Buy it again to keep using it.',
       {
         plugins: readOnly.map((plugin) => plugin.title).join(', '),
-        date: day(firstReadOnly.readOnlyUntil ?? new Date().toISOString()),
+        date: day(firstReadOnly.readOnlyUntil ?? new Date(now).toISOString()),
       },
     );
   } else if (retrying.length) {
