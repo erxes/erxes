@@ -58,7 +58,7 @@ const withParams = (url: string, params: Record<string, string | undefined>) => 
 
 /** The signed-in member behind the session cookie, if still valid. */
 const memberOfSession = async (req: Request) => {
-  const claims = sessionClaims(req);
+  const claims = await sessionClaims(req);
 
   if (!claims) return null;
 

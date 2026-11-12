@@ -91,7 +91,7 @@ const signalBatcher = (actor: Actor, send: Send) => {
 /** Why a stream must end now (a stream outlives requests), or null while it may stay open. */
 const endReason = async (req: Request, actor: Actor) => {
   // A cookie session can expire while the stream is open.
-  if (!req.headers.authorization && !sessionClaims(req)) return 'session-expired';
+  if (!req.headers.authorization && !(await sessionClaims(req))) return 'session-expired';
 
   const [user] = await withOrg(actor.orgId, (tx) =>
     tx
