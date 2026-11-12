@@ -54,7 +54,7 @@ export const useCreateHotkey = (action: () => void) => {
  * Opens a new customer (or lead) in the side panel as a draft; it is created
  * on Save.
  */
-export const CustomerCreateButton = ({ state }: { state: CustomerState }) => {
+const CustomerCreateButton = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation('contact');
   const { openNewRecord } = useSidePanel();
   const isLead = state === 'lead';

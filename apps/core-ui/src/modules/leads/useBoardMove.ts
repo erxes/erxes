@@ -17,7 +17,7 @@ export type BoardLead = Customer | Company;
 type BoardCache = InfiniteData<CursorPage<BoardLead>>;
 
 /** Lists of the board's records: one column (`stageId`), or all of them. */
-export const leadListKey = (recordType: LeadRecordType, stageId?: string) => {
+const leadListKey = (recordType: LeadRecordType, stageId?: string) => {
   const filter = { type: 'infinite' as const, input: stageId ? { leadStageId: stageId } : {} };
 
   return recordType === 'company'

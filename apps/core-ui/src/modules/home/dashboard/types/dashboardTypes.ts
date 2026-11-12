@@ -1,7 +1,7 @@
 import type { TDashboardWidgetPreview } from 'erxes-ui';
 import type { ComponentType, ElementType } from 'react';
 
-export type TDashboardGridSize = { w: number; h: number };
+type TDashboardGridSize = { w: number; h: number };
 
 // One tile as stored; x/y/w/h are grid units, not pixels.
 export type TDashboardItem = {

@@ -27,7 +27,7 @@ export const SETTINGS_APP: NavApp = {
   kind: 'core',
 };
 
-export const CORE_APPS: NavApp[] = [
+const CORE_APPS: NavApp[] = [
   { id: 'contacts', label: 'Contacts', icon: IconAddressBook, path: 'contacts', kind: 'core' },
   { id: 'automations', label: 'Automations', icon: IconBolt, path: 'automations', kind: 'core' },
   { id: 'reports', label: 'Reports', icon: IconChartPie, path: 'reports', kind: 'core' },

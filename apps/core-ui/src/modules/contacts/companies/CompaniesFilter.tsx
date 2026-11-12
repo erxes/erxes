@@ -17,7 +17,7 @@ import { AdvancedFilterButton } from '../views/ViewControls';
 import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
 import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
 
-export const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
+const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { totalCount, totalCapped } = useCompanies(state);
 

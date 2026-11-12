@@ -24,7 +24,7 @@ const CompaniesExportButton = () => {
 };
 
 /** Opens a new company in the side panel as a draft; it is created on Save. */
-export const CompanyCreateButton = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
+const CompanyCreateButton = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { t } = useTranslation('contact');
   const { openNewRecord } = useSidePanel();
 

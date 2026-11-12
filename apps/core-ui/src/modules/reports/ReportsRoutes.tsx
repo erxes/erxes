@@ -59,7 +59,7 @@ const ReportsNavigation = () => {
   );
 };
 
-export const ReportSection = ({
+const ReportSection = ({
   title,
   description,
   children,

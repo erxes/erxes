@@ -118,9 +118,7 @@ const inStageColumns = <T extends LeadRecord>(): ColumnDef<T>[] => [
 ];
 
 /** Every person and company: where they came from, and their newest timeline entry. */
-export const originColumns = <
-  T extends LeadRecord & { lastActivityAt: string },
->(): ColumnDef<T>[] => [
+const originColumns = <T extends LeadRecord & { lastActivityAt: string }>(): ColumnDef<T>[] => [
   {
     id: 'source',
     accessorKey: 'source',

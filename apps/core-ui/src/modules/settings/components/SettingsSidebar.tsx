@@ -29,7 +29,7 @@ interface SettingsPath {
 }
 
 /** The settings "Workspace" group. */
-export const useSettingsWorkspacePaths = (): SettingsPath[] => {
+const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
   const plan = usePlan().data;
@@ -64,7 +64,7 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
   ];
 };
 
-export function SettingsNavigationGroup({
+function SettingsNavigationGroup({
   name,
   children,
 }: Readonly<{ name: string; children: ReactNode }>) {
@@ -102,7 +102,7 @@ export const useSettingsEntry = () => {
 /**
  * Back to where settings were opened from; opened directly, it goes home.
  */
-export function SettingsExitButton() {
+function SettingsExitButton() {
   const navigate = useNavigate();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 

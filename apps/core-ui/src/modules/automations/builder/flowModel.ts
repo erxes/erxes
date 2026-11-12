@@ -12,7 +12,7 @@ export interface Arm {
   steps: AutomationStep[];
 }
 
-export const newStepId = () => Math.random().toString(36).slice(2, 10);
+const newStepId = () => Math.random().toString(36).slice(2, 10);
 
 /** The lists of steps a branching step holds, in display order. */
 export const armsOf = (step: AutomationStep): Arm[] => {
@@ -70,7 +70,7 @@ const withArm = (step: AutomationStep, arm: string, steps: AutomationStep[]): Au
 };
 
 /** Applies `fn` to the list at `address` (deep), leaving everything else as is. */
-export const updateList = (
+const updateList = (
   steps: AutomationStep[],
   address: ListAddress,
   fn: (list: AutomationStep[]) => AutomationStep[],
@@ -173,15 +173,7 @@ export const cloneStep = (step: AutomationStep): AutomationStep => {
   );
 };
 
-export const STEP_TYPES = [
-  'action',
-  'delay',
-  'wait_for',
-  'branch',
-  'switch',
-  'split',
-  'stop',
-] as const;
+const STEP_TYPES = ['action', 'delay', 'wait_for', 'branch', 'switch', 'split', 'stop'] as const;
 
 export type StepType = (typeof STEP_TYPES)[number];
 

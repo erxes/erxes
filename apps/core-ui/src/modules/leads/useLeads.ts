@@ -35,7 +35,7 @@ export const useLeadStages = () => {
 };
 
 /** After leads move, every list, count and report is stale. */
-export const useRefreshLeads = () => {
+const useRefreshLeads = () => {
   const client = useQueryClient();
 
   return () =>

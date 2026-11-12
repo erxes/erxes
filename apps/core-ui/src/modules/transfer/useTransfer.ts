@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { orpc } from '~/lib/api';
 
 /** Still working in the background: poll until it settles. */
-export const BUSY: Import['status'][] = ['parsing', 'checking', 'running'];
+const BUSY: Import['status'][] = ['parsing', 'checking', 'running'];
 
 /** The columns a record type imports and exports. */
 export const useTransferColumns = (recordType: TransferRecordType) =>

@@ -15,7 +15,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { messageOf, orpc } from '~/lib/api';
-import { TagDot } from '~/modules/tags/TagBadges';
+import { TagDot } from '~/modules/tags/TagDot';
 import { TAG_COLORS } from '~/modules/tags/useTags';
 
 const useTagUpdate = () => {

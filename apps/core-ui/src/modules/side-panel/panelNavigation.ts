@@ -13,7 +13,7 @@ import {
   type TRelationEntity,
 } from './sidePanelPaths';
 
-export const MAX_PANEL_HISTORY = 20;
+const MAX_PANEL_HISTORY = 20;
 
 // Panel routes left by opening a related record from inside the panel,
 // newest last; the panel's back button returns to them.
@@ -37,7 +37,7 @@ const RouterState = z
 const PanelHistory = z.array(z.unknown()).catch([]);
 
 /** Updates panel history, active route, and per-record tabs in one navigation. */
-export type PanelNavigate = (
+type PanelNavigate = (
   nextPath: string | null,
   nextHistory: string[],
   replace?: boolean,

@@ -21,8 +21,6 @@ const ids = z.array(z.string()).catch([]);
 /** `field → [before, after]`; the values are whatever the field holds. */
 const changes = z.record(z.tuple([z.unknown(), z.unknown()]));
 
-export type Changes = z.infer<typeof changes>;
-
 const note = z.object({
   body: z.string(),
   mentions: ids,
