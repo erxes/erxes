@@ -1,29 +1,14 @@
-import { useAtom } from 'jotai';
-import { hideChildrenAtomFamily } from 'erxes-ui/modules/select-tree/states/selectTreeStates';
+import { collapsedOrders, isUnderCollapsed, toggleCollapse } from 'erxes-ui/lib/tree-collapse';
 import { useSelectTreeContext } from 'erxes-ui/modules/select-tree/context/SelectTreeContext';
 
+/** Collapse state for the tree option at `order`. */
 export function useSelectTreeHide(order?: string) {
-  const { id } = useSelectTreeContext();
-  const [hideChildren, setHideChildren] = useAtom(hideChildrenAtomFamily(id));
-
-  const toggleHideChildren = (order: string) => {
-    setHideChildren(
-      hideChildren.includes(order)
-        ? hideChildren.filter((child) => child !== order)
-        : [...hideChildren, order],
-    );
-  };
-
-  const isHiddenByParent = hideChildren.some(
-    (e) => order?.startsWith(e) && order?.length > e.length,
-  );
-
-  const isHidden = hideChildren.includes(order ?? '');
+  const { length, collapse, setCollapse } = useSelectTreeContext();
+  const hidden = collapsedOrders(collapse, length);
 
   return {
-    hideChildren,
-    toggleHideChildren,
-    isHidden,
-    isHiddenByParent,
-  } as const;
+    toggleHideChildren: (parent: string) => setCollapse(toggleCollapse(hidden, parent, length)),
+    isHidden: order !== undefined && hidden.includes(order),
+    isHiddenByParent: isUnderCollapsed(hidden, order),
+  };
 }

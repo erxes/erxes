@@ -1,10 +1,5 @@
 import { createContext } from 'react';
-
-/** Collapsed tree orders, for the row count they were collapsed at. */
-export interface TreeCollapse {
-  rowCount?: number;
-  orders: string[];
-}
+import type { TreeCollapse } from 'erxes-ui/lib/tree-collapse';
 
 export interface IRecordTableTreeContext {
   ordered?: boolean;

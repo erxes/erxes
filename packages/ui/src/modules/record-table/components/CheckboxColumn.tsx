@@ -1,12 +1,14 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import type { ColumnDef, Row, Table } from '@tanstack/react-table';
 
+/** Any table, whatever its row type; drag selection compares tables by identity. */
+type SelectionTable = Pick<Table<unknown>, 'resetRowSelection'>;
+
 /** A shift-drag across checkboxes selects (or clears) every row it passes, in one table. */
 const dragSelection: {
-  /** The table being drag-selected, compared by identity. */
-  table: object | null;
+  table: SelectionTable | null;
   selecting: boolean;
-  suppressClickOn: { table: object; rowId: string } | null;
+  suppressClickOn: { table: SelectionTable; rowId: string } | null;
 } = { table: null, selecting: false, suppressClickOn: null };
 
 const DRAG_END_EVENTS = ['pointerup', 'pointercancel', 'blur'] as const;
@@ -17,7 +19,7 @@ const endDragSelection = () => {
   DRAG_END_EVENTS.forEach((event) => window.removeEventListener(event, endDragSelection));
 };
 
-const startDragSelection = (selecting: boolean, rowId: string, table: object) => {
+const startDragSelection = (selecting: boolean, rowId: string, table: SelectionTable) => {
   dragSelection.table = table;
   dragSelection.selecting = selecting;
   dragSelection.suppressClickOn = { table, rowId };

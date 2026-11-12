@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+import { z } from 'zod';
 
 /**
  * How plugin UIs reach their own API and hear about changes. The host app
@@ -93,6 +94,8 @@ export const pluginFetch = async (
   return response.status === 401 ? send(await sessionOf(plugin, true)) : response;
 };
 
+const errorBody = z.object({ message: z.string() });
+
 /** JSON in, JSON out; non-2xx responses throw with the body's `message`. */
 export const pluginJson = async <T>(
   plugin: string,
@@ -114,12 +117,16 @@ export const pluginJson = async <T>(
   const body = text ? (JSON.parse(text) as unknown) : null;
 
   if (!response.ok) {
-    const message =
-      (body as { message?: string } | null)?.message ?? `${response.status} ${response.statusText}`;
+    const parsed = errorBody.safeParse(body);
+
+    const message = parsed.success
+      ? parsed.data.message
+      : `${response.status} ${response.statusText}`;
 
     throw Object.assign(new Error(message), { status: response.status, body });
   }
 
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the caller names the response type (pluginJson<T>), the plugin contract; the plugin's own API defines the body
   return body as T;
 };
 
@@ -137,7 +144,9 @@ export const useLiveSignal = (
   const list = Array.isArray(topics) ? topics : [topics];
   const key = list.join('\n');
 
-  handler.current = onSignal;
+  useLayoutEffect(() => {
+    handler.current = onSignal;
+  });
 
   useEffect(() => {
     if (!runtime) return undefined;

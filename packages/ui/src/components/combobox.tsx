@@ -19,7 +19,6 @@ export const ComboboxTriggerBase = React.forwardRef<
     <Popover.Trigger asChild>
       <Button
         ref={ref}
-        role="combobox"
         variant="outline"
         {...props}
         type="button"
@@ -75,7 +74,7 @@ export const ComboboxValue = React.forwardRef<
   React.HTMLAttributes<HTMLSpanElement> & {
     placeholder?: string;
     loading?: boolean;
-    value?: string | JSX.Element;
+    value?: string | React.JSX.Element;
   }
 >(({ value, className, placeholder, loading, ...props }, ref) => {
   if (loading) {

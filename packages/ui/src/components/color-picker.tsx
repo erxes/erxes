@@ -101,9 +101,12 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
     <Popover.Content className="p-1 w-64" align="start" sideOffset={8}>
       <div className="grid grid-cols-5 gap-1">
         {Object.entries(colors).map(([key, color]) => (
-          <div
+          <button
             key={key}
-            className="aspect-3/2 rounded flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+            type="button"
+            aria-label={key}
+            aria-pressed={value === color}
+            className="aspect-3/2 rounded flex items-center justify-center cursor-pointer hover:scale-105 transition-transform focus-visible:shadow-focus outline-hidden"
             style={{ backgroundColor: color }}
             onClick={() => {
               onValueChange?.(color);
@@ -111,7 +114,7 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
             }}
           >
             {value === color && <IconCheck className="h-4 w-4 text-primary-foreground" />}
-          </div>
+          </button>
         ))}
         <div className="relative col-span-5">
           <div
@@ -164,9 +167,7 @@ const ColorPickerRoot = React.forwardRef<
       }}
       colors={colors}
       open={open}
-      onOpenChange={(open) => {
-        setOpen(open);
-      }}
+      onOpenChange={setOpen}
     >
       <ColorPickerTrigger ref={ref} className={className} {...props}>
         <div

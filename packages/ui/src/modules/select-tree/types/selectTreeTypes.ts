@@ -1,8 +1,11 @@
+import type { TreeCollapse } from 'erxes-ui/lib/tree-collapse';
+
 export interface ISelectTreeContext {
-  id: string;
-  // hideChildren: string[];
-  // setHideChildren: (hideChildren: string[]) => void;
   ordered?: boolean;
+  /** The option count; collapsed options open again when it changes. */
+  length?: number;
+  collapse: TreeCollapse;
+  setCollapse: (collapse: TreeCollapse) => void;
 }
 
 export interface ISelectTreeItem {

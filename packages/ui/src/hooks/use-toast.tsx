@@ -93,8 +93,8 @@ const reducer = (state: State, action: Action): State => {
       if (toastId) {
         addToRemoveQueue(toastId);
       } else {
-        state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id);
+        state.toasts.forEach((item) => {
+          addToRemoveQueue(item.id);
         });
       }
 
@@ -126,26 +126,34 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const listeners: Array<(state: State) => void> = [];
+const listeners = new Set<() => void>();
 
 let memoryState: State = { toasts: [] };
 
+const subscribe = (listener: () => void) => {
+  listeners.add(listener);
+
+  return () => {
+    listeners.delete(listener);
+  };
+};
+
+const getSnapshot = () => memoryState;
+
 function dispatch(action: Action) {
   memoryState = reducer(memoryState, action);
-  listeners.forEach((listener) => {
-    listener(memoryState);
-  });
+  listeners.forEach((listener) => listener());
 }
 
 type Toast = Omit<ToasterToast, 'id'>;
 
-export function toast({ ...props }: Toast) {
+export function toast(props: Toast) {
   const id = genId();
 
-  const update = (props: ToasterToast) =>
+  const update = (next: ToasterToast) =>
     dispatch({
       type: 'UPDATE_TOAST',
-      toast: { ...props, id },
+      toast: { ...next, id },
     });
 
   const dismiss = () => dispatch({ type: 'DISMISS_TOAST', toastId: id });
@@ -170,19 +178,7 @@ export function toast({ ...props }: Toast) {
 }
 
 export function useToast() {
-  const [state, setState] = React.useState<State>(memoryState);
-
-  React.useEffect(() => {
-    listeners.push(setState);
-
-    return () => {
-      const index = listeners.indexOf(setState);
-
-      if (index > -1) {
-        listeners.splice(index, 1);
-      }
-    };
-  }, [state]);
+  const state = React.useSyncExternalStore(subscribe, getSnapshot);
 
   return {
     ...state,

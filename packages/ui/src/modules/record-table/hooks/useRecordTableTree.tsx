@@ -1,7 +1,8 @@
 import { useContext } from 'react';
+import { collapsedOrders, isUnderCollapsed, toggleCollapse } from 'erxes-ui/lib/tree-collapse';
 import { RecordTableTreeContext } from '../contexts/RecordTableTreeContext';
 
-/** Collapse state for the tree row at `order` ("a/b/c"; a child's order starts with its parent's). */
+/** Collapse state for the tree row at `order`. */
 export const useRecordTableTree = (order: string | undefined) => {
   const context = useContext(RecordTableTreeContext);
 
@@ -10,25 +11,12 @@ export const useRecordTableTree = (order: string | undefined) => {
   }
 
   const { ordered, length, collapse, setCollapse } = context;
-  const hidden = collapse.rowCount === length ? collapse.orders : [];
-
-  const toggleHideChildren = (parent: string) => {
-    setCollapse({
-      rowCount: length,
-      orders: hidden.includes(parent)
-        ? hidden.filter((other) => other !== parent)
-        : [...hidden, parent],
-    });
-  };
-
-  const isHiddenByParent =
-    order !== undefined &&
-    hidden.some((parent) => order.startsWith(parent) && order.length > parent.length);
+  const hidden = collapsedOrders(collapse, length);
 
   return {
-    toggleHideChildren,
+    toggleHideChildren: (parent: string) => setCollapse(toggleCollapse(hidden, parent, length)),
     ordered,
-    isHiddenByParent,
+    isHiddenByParent: isUnderCollapsed(hidden, order),
     isHidden: order !== undefined && hidden.includes(order),
   };
 };
