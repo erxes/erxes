@@ -92,18 +92,16 @@ describeWithDb('timelines: plugin records, search, logged calls, reactions, plug
     expect(types.body.timelines).toContainEqual({ type: 'hr.employee', label: 'Employee', source: 'hr', permission: 'hr.employee.view' });
   });
 
-  it('searches and filters, logs calls, keeps note history, and counts reactions', async () => {
+  it('searches and filters, keeps note history, and counts reactions', async () => {
     const customer = await call(owner, 'POST', '/customers', { firstName: 'Timeline' });
     const target = { targetType: 'customer', targetId: customer.body.id };
     const note = await call(owner, 'POST', '/activities/notes', { ...target, body: 'Wants the blue plan' });
 
-    await call(owner, 'POST', '/activities/interactions', { ...target, kind: 'call', direction: 'outbound', outcome: 'Interested', durationMinutes: 12, body: 'Called about pricing' });
     await call(member, 'POST', '/activities/notes', { ...target, body: 'Sent the brochure' });
 
     const list = (query: string) => call(owner, 'GET', `/activities?targetType=customer&targetId=${customer.body.id}&${query}`);
 
     expect((await list('q=blue')).body.data.map((item: { id: string }) => item.id)).toEqual([note.body.id]);
-    expect((await list('q=pricing')).body.data[0]).toMatchObject({ type: 'customer.interaction', data: { kind: 'call', outcome: 'Interested', durationMinutes: 12 } });
     expect((await list(`actorId=${ownerId}&kind=notes`)).body.data).toHaveLength(1);
     expect((await list(`from=${encodeURIComponent(new Date(Date.now() + 60_000).toISOString())}`)).body.data).toEqual([]);
 

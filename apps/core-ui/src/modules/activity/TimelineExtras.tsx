@@ -1,7 +1,6 @@
 import type { Activity } from '@erxes/core-contract';
-import { IconMoodPlus, IconPhoneCall } from '@tabler/icons-react';
-import { Button, cn, Input, Label, Popover, Select, Textarea } from 'erxes-ui';
-import { useState } from 'react';
+import { IconMoodPlus } from '@tabler/icons-react';
+import { cn, Popover } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '~/modules/auth/session';
 import { useNoteActions } from './useActivities';
@@ -73,100 +72,6 @@ export const NoteHistory = ({ history }: { history: { body: string; editedAt: st
             <p className="whitespace-pre-wrap">{entry.body}</p>
           </div>
         ))}
-      </Popover.Content>
-    </Popover>
-  );
-};
-
-const KINDS = ['call', 'meeting', 'email', 'message'] as const;
-
-/** Log a call, meeting, email or message by hand. */
-export const LogInteraction = ({ targetType, targetId }: { targetType: string; targetId: string }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'activity' });
-  const { log } = useNoteActions();
-  const [open, setOpen] = useState(false);
-  const [kind, setKind] = useState<(typeof KINDS)[number]>('call');
-  const [direction, setDirection] = useState<'outbound' | 'inbound'>('outbound');
-  const [outcome, setOutcome] = useState('');
-  const [minutes, setMinutes] = useState('');
-  const [when, setWhen] = useState('');
-  const [body, setBody] = useState('');
-
-  const save = () =>
-    log
-      .mutateAsync({
-        targetType,
-        targetId,
-        kind,
-        direction,
-        outcome: outcome || undefined,
-        durationMinutes: minutes ? Number(minutes) : undefined,
-        occurredAt: when ? new Date(when).toISOString() : undefined,
-        body: body || undefined,
-        mentions: [],
-      })
-      .then(() => {
-        setOpen(false);
-        setOutcome('');
-        setMinutes('');
-        setWhen('');
-        setBody('');
-      });
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Button variant="outline" size="sm" className="h-7 gap-1.5 px-2 text-xs">
-          <IconPhoneCall className="size-3.5" />
-          {t('log-activity', 'Log activity')}
-        </Button>
-      </Popover.Trigger>
-      <Popover.Content className="w-96 space-y-3" align="end">
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Label>{t('kind', 'What')}</Label>
-            <Select value={kind} onValueChange={(value) => setKind(value as typeof kind)}>
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                {KINDS.map((item) => (
-                  <Select.Item key={item} value={item}>
-                    {t(`interaction.${item}`, item)}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-          </div>
-          <div className="space-y-1">
-            <Label>{t('direction', 'Direction')}</Label>
-            <Select value={direction} onValueChange={(value) => setDirection(value as typeof direction)}>
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="outbound">{t('outbound', 'We reached out')}</Select.Item>
-                <Select.Item value="inbound">{t('inbound', 'They reached out')}</Select.Item>
-              </Select.Content>
-            </Select>
-          </div>
-          <div className="space-y-1">
-            <Label>{t('outcome', 'Outcome')}</Label>
-            <Input value={outcome} placeholder={t('outcome-placeholder', 'Interested, no answer…')} onChange={(event) => setOutcome(event.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <Label>{t('duration', 'Minutes')}</Label>
-            <Input type="number" min={0} value={minutes} onChange={(event) => setMinutes(event.target.value)} />
-          </div>
-        </div>
-        <div className="space-y-1">
-          <Label>{t('when', 'When (empty: now)')}</Label>
-          <Input type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} />
-        </div>
-        <Textarea rows={3} value={body} placeholder={t('interaction-notes', 'What was said…')} onChange={(event) => setBody(event.target.value)} />
-        <Button className="w-full" disabled={log.isPending} onClick={() => void save()}>
-          {t('save', 'Save')}
-        </Button>
       </Popover.Content>
     </Popover>
   );

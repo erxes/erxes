@@ -36,7 +36,6 @@ export const ACCESS = {
   'activities.addNote': MEMBER,
   'activities.updateNote': MEMBER,
   'activities.removeNote': MEMBER,
-  'activities.logInteraction': MEMBER,
   'activities.react': MEMBER,
   'activities.types': MEMBER,
   'activities.update': { plugin: 'activities:write' },

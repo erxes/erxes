@@ -480,59 +480,7 @@ export const createPluginActivity = async (client: Db, caller: PluginCaller, inp
   return { activity: toActivityDto(existing!), created: false };
 };
 
-// ─── Logged interactions, reactions, plugin edits, types ───────────────────
-
-/** A call, meeting, email or message a member logs by hand. */
-export const logInteraction = async (
-  client: Db,
-  actor: Actor,
-  input: {
-    targetType: string;
-    targetId: string;
-    kind: 'call' | 'meeting' | 'email' | 'message';
-    direction?: 'inbound' | 'outbound';
-    outcome?: string;
-    durationMinutes?: number;
-    body?: string;
-    mentions: string[];
-    occurredAt?: string;
-  },
-) => {
-  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, input.targetType, input.targetId);
-
-  const mentions = unique(input.mentions);
-
-  for (const userId of mentions) await assertMember(client, actor.orgId, userId);
-
-  return client.transaction(async (tx) => {
-    const [row] = await tx
-      .insert(activities)
-      .values({
-        id: newId(),
-        orgId: actor.orgId,
-        targetType: input.targetType,
-        targetId: input.targetId,
-        source: 'core',
-        type: `${input.targetType}.interaction`,
-        data: {
-          kind: input.kind,
-          direction: input.direction ?? null,
-          outcome: input.outcome ?? null,
-          durationMinutes: input.durationMinutes ?? null,
-          body: input.body ?? '',
-          mentions,
-        },
-        actorType: 'user',
-        actorId: actor.userId,
-        occurredAt: input.occurredAt ? new Date(input.occurredAt) : sql`now()`,
-      })
-      .returning();
-
-    if (input.body) await notifyMentions(tx, actor, { id: row!.id, targetType: input.targetType, targetId: input.targetId, body: input.body }, mentions);
-
-    return toActivityDto(row!);
-  });
-};
+// ─── Reactions, plugin edits, types ─────────────────────────────────────────
 
 /** Adds or takes back the member's reaction (row locked: two at once both count). */
 export const reactToActivity = async (client: Db, actor: Actor, id: string, emoji: string) =>
@@ -623,7 +571,6 @@ export const removePluginActivity = async (client: Db, caller: PluginCaller, ref
 
 const CORE_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
   note: { label: 'Note', icon: 'IconNote' },
-  interaction: { label: 'Logged activity', icon: 'IconPhoneCall' },
   created: { label: 'Created', icon: 'IconCirclePlus' },
   updated: { label: 'Changed', icon: 'IconPencil' },
   tagged: { label: 'Tagged', icon: 'IconTag' },

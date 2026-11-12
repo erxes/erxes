@@ -52,7 +52,7 @@ import { api } from '~/lib/api';
 import { useCan, useSession } from '~/modules/auth/session';
 import { NoteComposer } from './NoteComposer';
 import { UserAvatar } from '~/components/UserAvatar';
-import { LogInteraction, NoteHistory, Reactions } from './TimelineExtras';
+import { NoteHistory, Reactions } from './TimelineExtras';
 import { type TimelineKind, useActivities, useActivityTypes, useNoteActions, usePinnedNotes } from './useActivities';
 
 const ICONS: Record<string, Icon> = {
@@ -137,20 +137,6 @@ const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: str
   }
 
   switch (verb) {
-    case 'interaction': {
-      const kind = String(data.kind ?? 'call');
-
-      return (
-        <>
-          {who} {t('logged', 'logged')} {t(`interaction.a-${kind}`, `a ${kind}`)}
-          <span className="text-muted-foreground">
-            {data.direction ? ` · ${data.direction === 'inbound' ? t('inbound', 'They reached out') : t('outbound', 'We reached out')}` : ''}
-            {data.durationMinutes ? ` · ${String(data.durationMinutes)} min` : ''}
-            {data.outcome ? ` · ${String(data.outcome)}` : ''}
-          </span>
-        </>
-      );
-    }
     case 'created':
       return (
         <>
@@ -386,9 +372,7 @@ const ActivityItem = ({
     ? pluginIcon
     : note
       ? IconNote
-      : verbOf(activity) === 'interaction'
-        ? IconPhoneCall
-        : (ICONS[verbOf(activity)] ?? IconHistory);
+      : (ICONS[verbOf(activity)] ?? IconHistory);
   const related = activity.targetType !== pageTarget.type || activity.targetId !== pageTarget.id;
   const actor = actorLabel(activity.actor, lookups.members);
   const changes = activity.data.changes as Record<string, [unknown, unknown]> | undefined;
@@ -396,10 +380,6 @@ const ActivityItem = ({
 
   if (!plugin && changes) {
     extra = <ChangeList changes={changes} lookups={lookups} />;
-  }
-
-  if (!plugin && verbOf(activity) === 'interaction' && activity.data.body) {
-    extra = <p className="mt-1 whitespace-pre-wrap text-sm">{String(activity.data.body)}</p>;
   }
 
   if (note) {
@@ -653,7 +633,6 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
                 </Select.Content>
               </Select>
             )}
-            <LogInteraction targetType={targetType} targetId={targetId} />
           </div>
         </div>
         {targetType === 'company' && (

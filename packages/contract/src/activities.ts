@@ -16,8 +16,6 @@ export const TimelineTarget = z.union([
 ]);
 export type TimelineTarget = z.infer<typeof TimelineTarget>;
 
-/** Calls, meetings, emails and messages members log by hand. */
-export const InteractionKind = z.enum(['call', 'meeting', 'email', 'message']);
 
 /**
  * Activity types core records itself; `data` has a known shape for each.
@@ -104,7 +102,7 @@ export const activitiesContract = {
         targetType: TimelineTarget,
         targetId: Id,
         source: z.string().trim().max(40).optional(),
-        /** Text in notes, logged interactions and plugin lines. */
+        /** Text in notes and plugin lines. */
         q: z.string().trim().max(100).optional(),
         /** Done by this member. */
         actorId: Id.optional(),
@@ -127,22 +125,6 @@ export const activitiesContract = {
   addNote: oc
     .route({ method: 'POST', path: '/activities/notes', successStatus: 201, summary: 'Add a note to a timeline' })
     .input(NoteInput.extend({ targetType: TimelineTarget, targetId: Id }))
-    .output(Activity),
-  logInteraction: oc
-    .route({ method: 'POST', path: '/activities/interactions', successStatus: 201, summary: 'Log a call, meeting, email or message on a timeline' })
-    .input(
-      z.object({
-        targetType: TimelineTarget,
-        targetId: Id,
-        kind: InteractionKind,
-        direction: z.enum(['inbound', 'outbound']).optional(),
-        outcome: z.string().trim().max(100).optional(),
-        durationMinutes: z.number().int().min(0).max(24 * 60).optional(),
-        body: z.string().trim().max(10_000).optional(),
-        mentions: z.array(Id).max(50).default([]),
-        occurredAt: z.string().datetime().optional(),
-      }),
-    )
     .output(Activity),
   react: oc
     .route({ method: 'POST', path: '/activities/{id}/reactions', summary: 'Add or take back a reaction (an emoji) on an entry' })

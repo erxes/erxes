@@ -79,11 +79,6 @@ export const useNoteActions = () => {
       onError,
     }),
     remove: useMutation({ mutationFn: (id: string) => api.activities.removeNote({ id }), onSuccess: refresh, onError }),
-    log: useMutation({
-      mutationFn: (input: Parameters<typeof api.activities.logInteraction>[0]) => api.activities.logInteraction(input),
-      onSuccess: refresh,
-      onError,
-    }),
     react: useMutation({ mutationFn: (input: { id: string; emoji: string }) => api.activities.react(input), onSuccess: refresh, onError }),
   };
 };
