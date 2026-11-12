@@ -24,8 +24,18 @@ export const CONDITION_OPERATORS = [
   'not_in',
   'exists',
   'not_exists',
+  /** Dates relative to now; the value is `{ amount, unit }` (days, weeks, months). */
+  'within_last',
+  'more_than_ago',
+  'within_next',
+  /** The day and month fall within the next `amount` days (birthdays, anniversaries), whatever the year. */
+  'anniversary_within',
 ] as const;
 export const ConditionOperator = z.enum(CONDITION_OPERATORS);
+
+/** The value of a relative-date rule: "within the last 30 days". */
+export const RelativeAmount = z.object({ amount: z.number().int().min(0).max(3650), unit: z.enum(['days', 'weeks', 'months']).default('days') });
+export type RelativeAmount = z.infer<typeof RelativeAmount>;
 
 export const ConditionRule = z.object({
   path: ContextPath,

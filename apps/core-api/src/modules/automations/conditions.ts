@@ -23,6 +23,36 @@ const asNumber = (value: unknown) => {
 const same = (a: unknown, b: unknown) =>
   typeof a === 'string' && typeof b === 'string' ? a.toLowerCase() === b.toLowerCase() : JSON.stringify(a) === JSON.stringify(b);
 
+const DAY = 86_400_000;
+
+/** `{ amount, unit }` → milliseconds (months as 30 days, like the SQL side's calendar months near enough for "in the last 3 months"). */
+const span = (value: unknown) => {
+  const { amount, unit } = (value ?? {}) as { amount?: unknown; unit?: unknown };
+  const n = typeof amount === 'number' && amount >= 0 ? amount : Number.NaN;
+
+  return n * (unit === 'months' ? 30 * DAY : unit === 'weeks' ? 7 * DAY : DAY);
+};
+
+const asTime = (value: unknown) => (typeof value === 'string' || value instanceof Date ? new Date(value).getTime() : Number.NaN);
+
+/** Days until the next time this date's day and month come round (0 = today). */
+export const daysToAnniversary = (value: unknown, now = new Date()): number => {
+  const date = new Date(asTime(value));
+
+  if (Number.isNaN(date.getTime())) return Number.NaN;
+
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const next = (year: number) => {
+    // 29 February falls on 28 February in other years.
+    const day = Math.min(date.getUTCDate(), new Date(Date.UTC(year, date.getUTCMonth() + 1, 0)).getUTCDate());
+
+    return Date.UTC(year, date.getUTCMonth(), day);
+  };
+  const thisYear = next(now.getUTCFullYear());
+
+  return Math.round(((thisYear >= today ? thisYear : next(now.getUTCFullYear() + 1)) - today) / DAY);
+};
+
 /** One rule. Text comparisons ignore case; numbers and dates compare by value. Never runs code. */
 export const evaluateRule = (rule: ConditionRule, context: Record<string, unknown>): boolean => {
   const actual = valueAt(context, rule.path);
@@ -57,6 +87,20 @@ export const evaluateRule = (rule: ConditionRule, context: Record<string, unknow
       return Array.isArray(expected) && expected.some((item) => same(actual, item));
     case 'not_in':
       return !(Array.isArray(expected) && expected.some((item) => same(actual, item)));
+    case 'within_last': {
+      const at = asTime(actual);
+
+      return at <= Date.now() && at >= Date.now() - span(expected);
+    }
+    case 'more_than_ago':
+      return asTime(actual) < Date.now() - span(expected);
+    case 'within_next': {
+      const at = asTime(actual);
+
+      return at >= Date.now() && at <= Date.now() + span(expected);
+    }
+    case 'anniversary_within':
+      return daysToAnniversary(actual) <= span(expected) / DAY;
     default:
       return false;
   }

@@ -48,6 +48,8 @@ export {
   paymentGateways,
   paymentInvoices,
   entitlements,
+  views,
+  VIEW_RECORD_TYPES,
   PLUGIN_TIERS,
   usedTokens,
   ORGANIZATION_STATUSES,

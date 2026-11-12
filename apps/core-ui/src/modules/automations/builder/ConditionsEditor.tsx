@@ -1,7 +1,9 @@
 import { CONDITION_OPERATORS, type ConditionGroup, type ConditionRule } from '@erxes/core-contract';
 import { IconBraces, IconPlus, IconX } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { Button, cn, Input, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { api } from '~/lib/api';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 const OPERATOR_LABELS: Record<(typeof CONDITION_OPERATORS)[number], string> = {
@@ -18,11 +20,18 @@ const OPERATOR_LABELS: Record<(typeof CONDITION_OPERATORS)[number], string> = {
   not_in: 'is none of',
   exists: 'is set',
   not_exists: 'is empty',
+  within_last: 'in the last',
+  more_than_ago: 'more than … ago',
+  within_next: 'in the next',
+  anniversary_within: 'anniversary in the next',
 };
 
 /** Operators that make sense for a field's type. */
 const operatorsFor = (type: string | undefined) => {
-  if (type === 'number' || type === 'date') return ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'not_exists'] as const;
+  if (type === 'date') {
+    return ['within_last', 'more_than_ago', 'within_next', 'anniversary_within', 'eq', 'gt', 'lt', 'exists', 'not_exists'] as const;
+  }
+  if (type === 'number') return ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'not_exists'] as const;
   if (type === 'tags' || type === 'list') return ['contains', 'not_contains', 'exists', 'not_exists'] as const;
   if (type === 'boolean') return ['eq', 'neq'] as const;
   if (type === 'select' || type === 'member') return ['eq', 'neq', 'in', 'not_in', 'exists', 'not_exists'] as const;
@@ -31,6 +40,8 @@ const operatorsFor = (type: string | undefined) => {
 };
 
 const NO_VALUE = new Set(['exists', 'not_exists']);
+const RELATIVE = new Set(['within_last', 'more_than_ago', 'within_next', 'anniversary_within']);
+const GROUP_LABELS: Record<string, string> = { fields: 'Fields', custom: 'Properties', company: 'Company', activity: 'Activity' };
 const LIST_VALUE = new Set(['in', 'not_in']);
 
 const isRule = (rule: ConditionRule | ConditionGroup): rule is ConditionRule => !('match' in rule);
@@ -49,12 +60,25 @@ const PathPicker = ({ value, fields, onChange, disabled }: { value: string; fiel
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
-          {fields.map((field) => (
-            <Select.Item key={field.path} value={field.path}>
-              {field.label}
-            </Select.Item>
-          ))}
-          <Select.Item value={CUSTOM_PATH}>{t('custom-path', 'Another value…')}</Select.Item>
+          {fields.some((field) => field.group)
+            ? [...new Set(fields.map((field) => field.group ?? 'fields'))].map((group) => (
+                <Select.Group key={group}>
+                  <Select.Label className="text-xs text-muted-foreground">{t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}</Select.Label>
+                  {fields
+                    .filter((field) => (field.group ?? 'fields') === group)
+                    .map((field) => (
+                      <Select.Item key={field.path} value={field.path}>
+                        {field.label}
+                      </Select.Item>
+                    ))}
+                </Select.Group>
+              ))
+            : fields.map((field) => (
+                <Select.Item key={field.path} value={field.path}>
+                  {field.label}
+                </Select.Item>
+              ))}
+          {!fields.some((field) => field.group) && <Select.Item value={CUSTOM_PATH}>{t('custom-path', 'Another value…')}</Select.Item>}
         </Select.Content>
       </Select>
       {!known && (
@@ -70,8 +94,88 @@ const PathPicker = ({ value, fields, onChange, disabled }: { value: string; fiel
   );
 };
 
-const ValueInput = ({ rule, field, onChange, disabled }: { rule: ConditionRule; field?: FieldInfo; onChange: (value: unknown) => void; disabled?: boolean }) => {
+const useMembers = (enabled: boolean) =>
+  useQuery({
+    queryKey: ['conditions', 'members'],
+    queryFn: async () => (await api.users.list({ limit: 100 })).data.map((user) => ({ value: user.id, label: user.fullName || user.email })),
+    staleTime: 60_000,
+    enabled,
+  }).data ?? [];
+
+const useTags = (type: 'customer' | 'company', enabled: boolean) =>
+  useQuery({
+    queryKey: ['conditions', 'tags', type],
+    queryFn: async () => (await api.tags.list({ type })).data.map((tag) => ({ value: tag.id, label: tag.name })),
+    staleTime: 60_000,
+    enabled,
+  }).data ?? [];
+
+const ValueInput = ({
+  rule,
+  field,
+  onChange,
+  disabled,
+  subject,
+}: {
+  rule: ConditionRule;
+  field?: FieldInfo;
+  onChange: (value: unknown) => void;
+  disabled?: boolean;
+  subject: 'customer' | 'company' | null;
+}) => {
   const { t } = useTranslation('automations');
+  const members = useMembers(field?.type === 'member');
+  const tags = useTags(subject ?? 'customer', field?.type === 'tags');
+
+  if (RELATIVE.has(rule.op)) {
+    const current = (rule.value ?? {}) as { amount?: number; unit?: string };
+
+    return (
+      <div className="flex items-center gap-1">
+        <Input
+          className="h-8 w-20"
+          type="number"
+          min={0}
+          disabled={disabled}
+          value={current.amount ?? ''}
+          onChange={(event) => onChange({ unit: 'days', ...current, amount: Math.max(0, Number(event.target.value) || 0) })}
+        />
+        {rule.op === 'anniversary_within' ? (
+          <span className="text-sm text-muted-foreground">{t('days', 'days')}</span>
+        ) : (
+          <Select value={current.unit ?? 'days'} disabled={disabled} onValueChange={(unit) => onChange({ amount: 0, ...current, unit })}>
+            <Select.Trigger className="h-8 w-28">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="days">{t('days', 'days')}</Select.Item>
+              <Select.Item value="weeks">{t('weeks', 'weeks')}</Select.Item>
+              <Select.Item value="months">{t('months', 'months')}</Select.Item>
+            </Select.Content>
+          </Select>
+        )}
+      </div>
+    );
+  }
+
+  if ((field?.type === 'member' || field?.type === 'tags') && !LIST_VALUE.has(rule.op)) {
+    const options = field.type === 'member' ? [{ value: 'me', label: t('me', 'Me') }, ...members] : tags;
+
+    return (
+      <Select value={String(rule.value ?? '')} onValueChange={onChange} disabled={disabled}>
+        <Select.Trigger className="h-8 w-48">
+          <Select.Value placeholder={t('choose', 'Choose…')} />
+        </Select.Trigger>
+        <Select.Content>
+          {options.map((option) => (
+            <Select.Item key={option.value} value={option.value}>
+              {option.label}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    );
+  }
 
   if (LIST_VALUE.has(rule.op)) {
     return (
@@ -136,6 +240,7 @@ const GroupEditor = ({
   fields,
   disabled,
   depth,
+  subject,
 }: {
   group: ConditionGroup;
   onChange: (next: ConditionGroup) => void;
@@ -143,6 +248,7 @@ const GroupEditor = ({
   fields: FieldInfo[];
   disabled?: boolean;
   depth: number;
+  subject: 'customer' | 'company' | null;
 }) => {
   const { t } = useTranslation('automations');
   const update = (index: number, rule: ConditionRule | ConditionGroup) => onChange({ ...group, rules: group.rules.map((item, at) => (at === index ? rule : item)) });
@@ -172,7 +278,18 @@ const GroupEditor = ({
         isRule(rule) ? (
           <div key={index} className="flex flex-wrap items-center gap-2">
             <PathPicker value={rule.path} fields={fields} disabled={disabled} onChange={(path) => update(index, { ...rule, path })} />
-            <Select value={rule.op} onValueChange={(op) => update(index, { ...rule, op: op as ConditionRule['op'] })} disabled={disabled}>
+            <Select
+              value={rule.op}
+              onValueChange={(op) =>
+                update(index, {
+                  ...rule,
+                  op: op as ConditionRule['op'],
+                  // A relative date takes { amount, unit }; leaving one drops it.
+                  value: RELATIVE.has(op) ? (RELATIVE.has(rule.op) ? rule.value : { amount: 30, unit: 'days' }) : RELATIVE.has(rule.op) ? undefined : rule.value,
+                })
+              }
+              disabled={disabled}
+            >
               <Select.Trigger className="h-8 w-40">
                 <Select.Value />
               </Select.Trigger>
@@ -189,6 +306,7 @@ const GroupEditor = ({
                 rule={rule}
                 field={fields.find((field) => field.path === rule.path)}
                 disabled={disabled}
+                subject={subject}
                 onChange={(value) => update(index, { ...rule, value })}
               />
             )}
@@ -202,6 +320,7 @@ const GroupEditor = ({
             group={rule}
             fields={fields}
             disabled={disabled}
+            subject={subject}
             depth={depth + 1}
             onChange={(next) => update(index, next)}
             onRemove={() => remove(index)}
@@ -241,6 +360,7 @@ export const ConditionsEditor = ({
   disabled,
   subject = null,
   extraFields = [],
+  fields: given,
 }: {
   value: ConditionGroup | undefined;
   onChange: (next: ConditionGroup | undefined) => void;
@@ -248,9 +368,12 @@ export const ConditionsEditor = ({
   subject?: 'customer' | 'company' | null;
   /** Outputs of earlier steps, offered next to the record's fields. */
   extraFields?: FieldInfo[];
+  /** Instead of the automation catalog (a list's advanced filter gives its own, grouped). */
+  fields?: FieldInfo[];
 }) => {
-  const loaded = useAutomationFields(subject);
-  const fields = extraFields.length ? [...loaded, ...extraFields] : loaded;
+  const loaded = useAutomationFields(given ? null : subject);
+  const base = given ?? loaded;
+  const fields = extraFields.length ? [...base, ...extraFields] : base;
   const group: ConditionGroup = value ?? { match: 'all', rules: [] };
 
   return (
@@ -258,6 +381,7 @@ export const ConditionsEditor = ({
       group={group}
       fields={fields}
       disabled={disabled}
+      subject={subject}
       depth={0}
       onChange={(next) => onChange(next.rules.length ? next : undefined)}
     />

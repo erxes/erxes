@@ -21,6 +21,7 @@ import { checkTagIds } from '~/modules/tags/tags.service';
 import { lockKey, lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
+import { compileRecordFilter } from '~/modules/views/recordFilter';
 
 type CustomerRow = typeof customers.$inferSelect & { tagIds: string[] };
 type State = CustomerRow['state'];
@@ -132,9 +133,13 @@ export const listCustomers = async (
     tagIds?: string[];
     companyId?: string;
     ids?: string[];
+    filter?: string;
   },
 ) => {
   const filters: (SQL | undefined)[] = [];
+
+  // Advanced filter (views): leads list is customers with the lead state.
+  filters.push(await compileRecordFilter(client, actor, query.state === 'lead' ? 'lead' : 'customer', query.filter));
 
   if (query.state) {
     filters.push(eq(customers.state, query.state));

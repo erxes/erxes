@@ -246,6 +246,13 @@
       "when": 1794451824245,
       "tag": "0034_entitlements",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794452872224,
+      "tag": "0035_views",
+      "breakpoints": true
     }
   ]
 }

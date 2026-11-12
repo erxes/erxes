@@ -20,6 +20,7 @@ import { checkTagIds } from '~/modules/tags/tags.service';
 import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
+import { compileRecordFilter } from '~/modules/views/recordFilter';
 
 type CompanyRow = typeof companies.$inferSelect & { tagIds: string[] };
 
@@ -111,9 +112,10 @@ export const listCompanies = async (
     tagIds?: string[];
     customerId?: string;
     ids?: string[];
+    filter?: string;
   },
 ) => {
-  const filters: (SQL | undefined)[] = [];
+  const filters: (SQL | undefined)[] = [await compileRecordFilter(client, actor, 'company', query.filter)];
 
   if (query.ownerId) {
     filters.push(eq(companies.ownerId, query.ownerId));

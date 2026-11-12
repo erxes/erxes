@@ -4,6 +4,7 @@ import { Combobox, Command, Filter, isUndefinedOrNull, Skeleton, useFilterQueryS
 import { useTranslation } from 'react-i18next';
 import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
+import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
 import { customersSessionKey, useCustomers } from './useCustomers';
 
 export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
@@ -21,8 +22,7 @@ export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
   );
 };
 
-// Core lists filter by search, tags and owner; old erxes's date, brand,
-// segment and property filters need list filters core does not have yet.
+// Quick filters (search, tags, owner) here; everything else in Advanced (views).
 const CustomersFilterPopover = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation('common');
   const { t: contactT } = useTranslation('contact', { keyPrefix: 'customer' });
@@ -84,7 +84,9 @@ export const CustomersFilter = ({ state }: { state: CustomerState }) => {
         </Filter.BarItem>
         <TagsFilter.Bar type="customer" />
         <SelectMember.FilterBar label={contactT('owner')} />
+        <AdvancedFilterButton recordType={state} />
         <CustomerTotalCount state={state} />
+        <SaveViewButton recordType={state} />
       </Filter.Bar>
     </Filter>
   );

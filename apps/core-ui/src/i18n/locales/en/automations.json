@@ -189,5 +189,21 @@
     "switch": "One of several paths",
     "split": "Test two versions (A/B)",
     "stop": "End the run"
-  }
+  },
+  "op": {
+    "within_last": "in the last",
+    "more_than_ago": "more than … ago",
+    "within_next": "in the next",
+    "anniversary_within": "anniversary in the next"
+  },
+  "field-group": {
+    "fields": "Fields",
+    "custom": "Properties",
+    "company": "Company",
+    "activity": "Activity"
+  },
+  "me": "Me",
+  "choose": "Choose…",
+  "weeks": "weeks",
+  "months": "months"
 }

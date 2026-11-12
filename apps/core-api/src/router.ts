@@ -192,6 +192,7 @@ import {
 } from '~/modules/users/users.service';
 import { createStream, listStreams, removeStream, testStream, updateStream } from '~/modules/audit/streams';
 import { pluginPlan, subscriptionInfo } from '~/modules/saas/saas.service';
+import { createView, listFilterFields, listViews, removeView, updateView } from '~/modules/views/views.service';
 
 /** What every procedure gets: the Express request (actor, host) and response (cookies). */
 export interface CoreContext {
@@ -542,6 +543,13 @@ export const coreRouter = pub.router({
     ),
     disable: authed.users.disable.handler(({ input, context }) => setUserDisabled(context.actor, input.id, true)),
     enable: authed.users.enable.handler(({ input, context }) => setUserDisabled(context.actor, input.id, false)),
+  },
+  views: {
+    list: authed.views.list.handler(({ input, context }) => listViews(db(), context.actor, input.recordType)),
+    create: authed.views.create.handler(({ input, context }) => createView(db(), context.actor, input)),
+    update: authed.views.update.handler(({ input: { id, ...changes }, context }) => updateView(db(), context.actor, id, changes)),
+    remove: authed.views.remove.handler(({ input, context }) => removeView(db(), context.actor, input.id)),
+    fields: authed.views.fields.handler(({ input, context }) => listFilterFields(db(), context.actor, input.recordType)),
   },
   customers: {
     list: authed.customers.list.handler(({ input, context }) => listCustomers(db(), context.actor, input)),

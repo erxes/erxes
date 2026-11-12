@@ -111,6 +111,22 @@ it is built.
   One customer per primary email / phone and one company per name in an
   organisation (409 `CUSTOMER_EXISTS` / `COMPANY_EXISTS` names the existing
   one). Customers and companies link many-to-many (`core_customer_companies`).
+- Advanced filters and views (`src/modules/views`): lists of customers,
+  leads and companies take `filter` — JSON of the same condition group
+  automations use (`subject.<field>` paths) — compiled to one SQL condition
+  (`recordFilter.ts`): built-in fields, custom fields (`customFields.<id>`,
+  typed casts, multi-select arrays), tags, owner (`me`), the linked
+  company's fields (customers; "no company where …" for negative operators),
+  customer count (companies), last activity, and relative dates
+  (`within_last`, `more_than_ago`, `within_next`, `anniversary_within`,
+  also in automation conditions); nested and/or groups, three levels; 400
+  `INVALID_FILTER` otherwise. `GET /views/fields` lists what fits.
+  Saved views (`core_views`): name, filter, search (columns and sort kept
+  for later), private or shared (sharing and changing shared ones need
+  `contacts.edit`); run live, so never stale. No separate segments: a view
+  is the segment. UI: Advanced in the filter bar (the automation condition
+  editor), views in the Contacts sidebar, Save / Update view; the filter and
+  view live in the address (`advanced`, `view`).
 - Tags (`core_tags`, per type) link through `core_customer_tags` /
   `core_company_tags` with foreign keys both ways, so deleting a tag or a record
   removes its links. Records still return `tagIds`.

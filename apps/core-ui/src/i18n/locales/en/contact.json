@@ -272,5 +272,25 @@
       "repeatPasswordPlaceholder": "Re-type password",
       "save": "Save"
     }
+  },
+  "views": {
+    "advanced": "Advanced",
+    "advanced-title": "Show records where",
+    "loading": "Loading fields…",
+    "clear": "Clear",
+    "apply": "Apply",
+    "save-description": "Saves the filter and search; it always shows the latest records.",
+    "name": "Name",
+    "name-placeholder": "VIP customers in Ulaanbaatar",
+    "share": "Share with the team",
+    "save": "Save view",
+    "update": "Update “{{name}}”",
+    "save-new": "Save as new view",
+    "actions": "View actions",
+    "rename": "Rename",
+    "unshare": "Make private",
+    "delete-confirm": "Delete the view “{{name}}”? The records stay.",
+    "delete": "Delete",
+    "title": "Views"
   }
 }

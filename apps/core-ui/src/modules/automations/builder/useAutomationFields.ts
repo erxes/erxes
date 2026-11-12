@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '~/lib/api';
 
-export type FieldInfo = { path: string; label: string; type: string; options?: string[] };
+/** `group`: where it comes from, for grouping in the picker (lists' advanced filter). */
+export type FieldInfo = { path: string; label: string; type: string; options?: string[]; group?: string };
 
 /** Fields conditions and placeholders can use (built-in and custom), for a record type. */
 export const useAutomationFields = (subject: 'customer' | 'company' | null) =>

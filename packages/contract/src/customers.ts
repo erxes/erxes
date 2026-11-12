@@ -124,6 +124,8 @@ export const customersContract = {
         /** Customers of this company. */
         companyId: Id.optional(),
         ids: IdList.optional(),
+        /** An advanced filter: JSON of a condition group (`RecordFilter`), as views save it. */
+        filter: z.string().max(20_000).optional(),
       }),
     )
     .output(cursorPageOf(Customer)),

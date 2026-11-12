@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { api, messageOf } from '~/lib/api';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
+import { useAdvancedFilterParam } from '../views/useViews';
 
 export const COMPANIES_KEY = ['companies'];
 export const COMPANIES_SESSION_KEY = 'core_companies_cursor';
@@ -13,7 +14,9 @@ export const useCompanies = () => {
     tags: string[];
     ownerId: string;
   }>(['searchValue', 'tags', 'ownerId']);
+  const filter = useAdvancedFilterParam();
   const filters = {
+    filter,
     search: searchValue || undefined,
     tagIds: tags?.length ? tags.join(',') : undefined,
     ownerId: ownerId || undefined,

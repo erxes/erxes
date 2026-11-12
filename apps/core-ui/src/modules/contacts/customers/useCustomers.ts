@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { api, messageOf } from '~/lib/api';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
+import { useAdvancedFilterParam } from '../views/useViews';
 
 export const CUSTOMERS_KEY = ['customers'];
 
@@ -16,9 +17,11 @@ export const useCustomersFilters = (state: CustomerState) => {
     tags: string[];
     ownerId: string;
   }>(['searchValue', 'tags', 'ownerId']);
+  const filter = useAdvancedFilterParam();
 
   return {
     state,
+    filter,
     search: searchValue || undefined,
     tagIds: tags?.length ? tags.join(',') : undefined,
     ownerId: ownerId || undefined,

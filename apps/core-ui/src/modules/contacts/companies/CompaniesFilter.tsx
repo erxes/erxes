@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
 import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
+import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
 
 export const CompaniesTotalCount = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
@@ -83,7 +84,9 @@ export const CompaniesFilter = () => {
         </Filter.BarItem>
         <TagsFilter.Bar type="company" />
         <SelectMember.FilterBar label={companyT('owner')} />
+        <AdvancedFilterButton recordType="company" />
         <CompaniesTotalCount />
+        <SaveViewButton recordType="company" />
       </Filter.Bar>
     </Filter>
   );
