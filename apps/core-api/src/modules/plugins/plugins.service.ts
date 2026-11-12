@@ -1,4 +1,4 @@
-import { PLUGIN_SCOPES, type Plugin, type PluginManifest } from '@erxes/core-contract';
+import { PLUGIN_SCOPES, type PluginManifest } from '@erxes/core-contract';
 import {
   type Db,
   db,
@@ -12,33 +12,18 @@ import {
 import { and, eq, sql } from 'drizzle-orm';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
-import {
-  type Actor,
-  PLUGIN_ACCESS_TYP,
-  type PluginCaller,
-  type PluginService,
-  userCaller,
-} from '~/http/auth';
-import { can } from '~/http/access';
+import { PLUGIN_ACCESS_TYP, type PluginService } from '~/http/auth';
 import { HttpError } from '~/http/errors';
+import { oneRow } from '~/lib/rows';
 import { signJwt } from '~/lib/signing';
-import { recordAudit } from '~/modules/audit/audit.service';
-import { accessOf, tierOf } from '~/modules/saas/access';
-import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 
 type PluginRow = typeof plugins.$inferSelect;
 
-type InstallationRow = typeof pluginInstallations.$inferSelect;
-
 /** Plugin server tokens (client credentials). */
-export const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
-
-/** Plugin UI tokens: a member's session for one plugin's API. */
-export const PLUGIN_SESSION_TTL_SECONDS = 5 * 60;
-export const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
+const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
 
 /** After rotation, the previous secret keeps working this long. */
-export const SECRET_OVERLAP_HOURS = 24;
+const SECRET_OVERLAP_HOURS = 24;
 
 const hashSecret = (secret: string) => createHash('sha256').update(secret).digest('hex');
 
@@ -46,29 +31,8 @@ const sameHash = (a: string | null, b: string) =>
   a !== null && a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
 /** Scopes a plugin asks for: its manifest's, or (before it sent one) what plugins could always do. */
-const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
+export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
   row.manifest?.scopes ?? [...PLUGIN_SCOPES];
-
-const toPluginDto = (row: PluginRow, installation?: InstallationRow | null): Plugin => {
-  const requested = requestedScopes(row);
-  const installed = installation?.status === 'active';
-  const granted = installed ? installation.grantedScopes : [];
-
-  return {
-    name: row.name,
-    title: row.manifest?.title ?? row.name,
-    version: row.manifest?.version ?? null,
-    description: row.manifest?.description ?? null,
-    ui: row.manifest?.ui ?? null,
-    api: row.manifest?.api ?? null,
-    installed,
-    statusReason: installation?.statusReason ?? null,
-    requestedScopes: requested,
-    grantedScopes: granted,
-    needsApproval: installed && requested.some((scope) => !granted.includes(scope)),
-    installedAt: installed ? installation.installedAt.toISOString() : null,
-  };
-};
 
 const installAll = async (tx: Db, orgIds: string[], row: Pick<PluginRow, 'name' | 'manifest'>) => {
   if (!orgIds.length) return;
@@ -82,65 +46,12 @@ const installAll = async (tx: Db, orgIds: string[], row: Pick<PluginRow, 'name' 
 };
 
 /**
- * Brings the registry in line with `CORE_PLUGIN_KEYS` (`name:secret`) at
- * startup: new plugins are registered (and, with auto-install, installed in
- * every organisation once); a changed secret becomes the current one and the
- * old one keeps working for 24 hours.
+ * Makes `hash` the plugin's secret. A new plugin is registered (and, with
+ * auto-install, installed in every organisation once: a system scope); a
+ * changed secret keeps the old one working for 24 hours.
  */
-export const syncPluginSecrets = async () => {
-  for (const [secret, name] of config.pluginKeys) {
-    const hash = hashSecret(secret);
-
-    // New plugins are installed across organisations: a system scope.
-    await withSystem('plugin registry', async (tx) => {
-      const [existing] = await tx
-        .select()
-        .from(plugins)
-        .where(eq(plugins.name, name))
-        .for('update')
-        .limit(1);
-
-      if (!existing) {
-        const [row] = await tx
-          .insert(plugins)
-          .values({ name, secretHash: hash, secretRotatedAt: sql`now()` })
-          .returning();
-
-        if (config.plugins.autoInstall) {
-          const orgs = await tx.select({ id: organizations.id }).from(organizations);
-
-          await installAll(
-            tx,
-            orgs.map((org) => org.id),
-            row!,
-          );
-        }
-
-        return;
-      }
-
-      if (existing.secretHash !== hash) {
-        await tx
-          .update(plugins)
-          .set({
-            secretHash: hash,
-            previousSecretHash: existing.secretHash,
-            previousSecretExpiresAt: sql`now() + make_interval(hours => ${SECRET_OVERLAP_HOURS})`,
-            secretRotatedAt: sql`now()`,
-            updatedAt: sql`now()`,
-          })
-          .where(eq(plugins.name, name));
-      }
-    });
-  }
-};
-
-/** A new random client secret for a plugin; the previous one works 24 more hours. Prints nowhere: the caller shows it once. */
-export const rotatePluginSecret = async (name: string) => {
-  const secret = `erxp_${randomBytes(32).toString('base64url')}`;
-  const hash = hashSecret(secret);
-
-  await withSystem('plugin registry', async (tx) => {
+const storeSecret = (name: string, hash: string) =>
+  withSystem('plugin registry', async (tx) => {
     const [existing] = await tx
       .select()
       .from(plugins)
@@ -149,10 +60,12 @@ export const rotatePluginSecret = async (name: string) => {
       .limit(1);
 
     if (!existing) {
-      const [row] = await tx
-        .insert(plugins)
-        .values({ name, secretHash: hash, secretRotatedAt: sql`now()` })
-        .returning();
+      const row = oneRow(
+        await tx
+          .insert(plugins)
+          .values({ name, secretHash: hash, secretRotatedAt: sql`now()` })
+          .returning(),
+      );
 
       if (config.plugins.autoInstall) {
         const orgs = await tx.select({ id: organizations.id }).from(organizations);
@@ -160,12 +73,14 @@ export const rotatePluginSecret = async (name: string) => {
         await installAll(
           tx,
           orgs.map((org) => org.id),
-          row!,
+          row,
         );
       }
 
       return;
     }
+
+    if (existing.secretHash === hash) return;
 
     await tx
       .update(plugins)
@@ -178,6 +93,19 @@ export const rotatePluginSecret = async (name: string) => {
       })
       .where(eq(plugins.name, name));
   });
+
+/** Brings the registry in line with `CORE_PLUGIN_KEYS` (`name:secret`) at startup. */
+export const syncPluginSecrets = async () => {
+  for (const [secret, name] of config.pluginKeys) {
+    await storeSecret(name, hashSecret(secret));
+  }
+};
+
+/** A new random client secret for a plugin; the previous one works 24 more hours. Prints nowhere: the caller shows it once. */
+export const rotatePluginSecret = async (name: string) => {
+  const secret = `erxp_${randomBytes(32).toString('base64url')}`;
+
+  await storeSecret(name, hashSecret(secret));
 
   return secret;
 };
@@ -196,6 +124,27 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
 
 const invalidClient = () =>
   new HttpError(401, 'INVALID_CLIENT', 'Unknown plugin or wrong client secret');
+
+/** The scopes the organisation granted that the plugin still asks for (it must be installed there). */
+const grantedScopes = async (row: PluginRow, org: string) => {
+  const installation = await withOrg(org, async (tx) => {
+    const [found] = await tx
+      .update(pluginInstallations)
+      .set({ lastTokenAt: sql`now()` })
+      .where(and(eq(pluginInstallations.orgId, org), eq(pluginInstallations.plugin, row.name)))
+      .returning();
+
+    return found;
+  });
+
+  if (installation?.status !== 'active') {
+    throw new HttpError(403, 'NOT_INSTALLED', `${row.name} is not installed in this organisation`);
+  }
+
+  const requested = new Set(requestedScopes(row));
+
+  return installation.grantedScopes.filter((scope) => requested.has(scope));
+};
 
 /**
  * Client credentials → a short-lived ES256 token. With `org`, only for an
@@ -223,40 +172,12 @@ export const issuePluginToken = async (input: {
 
   if (!current && !previous) throw invalidClient();
 
-  let scopes: string[] = [];
-
-  if (input.org) {
-    const org = input.org;
-
-    const installation = await withOrg(org, async (tx) => {
-      const [found] = await tx
-        .update(pluginInstallations)
-        .set({ lastTokenAt: sql`now()` })
-        .where(and(eq(pluginInstallations.orgId, org), eq(pluginInstallations.plugin, row.name)))
-        .returning();
-
-      return found;
-    });
-
-    if (installation?.status !== 'active') {
-      throw new HttpError(
-        403,
-        'NOT_INSTALLED',
-        `${row.name} is not installed in this organisation`,
-      );
-    }
-
-    const requested = new Set(requestedScopes(row));
-
-    scopes = installation.grantedScopes.filter((scope) => requested.has(scope));
-  }
+  const scope = input.org ? (await grantedScopes(row, input.org)).join(' ') : '';
 
   await db()
     .update(plugins)
     .set({ lastSeenAt: sql`now()` })
     .where(eq(plugins.name, row.name));
-
-  const scope = scopes.join(' ');
 
   const access_token = await signJwt(
     input.org ? { org: input.org, scope } : { scope: 'manifest' },
@@ -310,172 +231,6 @@ export const registerManifest = async (service: PluginService, manifest: PluginM
     .update(plugins)
     .set({ manifest: manifest satisfies StoredPluginManifest, updatedAt: sql`now()` })
     .where(eq(plugins.name, service.plugin));
-
-  return { ok: true as const };
-};
-
-export const listPlugins = async (actor: Actor) => {
-  const rows = await db()
-    .select({ plugin: plugins, installation: pluginInstallations })
-    .from(plugins)
-    .leftJoin(
-      pluginInstallations,
-      and(eq(pluginInstallations.plugin, plugins.name), eq(pluginInstallations.orgId, actor.orgId)),
-    )
-    .where(eq(plugins.status, 'active'))
-    .orderBy(plugins.name);
-
-  return { data: rows.map((row) => toPluginDto(row.plugin, row.installation)) };
-};
-
-const pluginOrThrow = async (client: Db, name: string) => {
-  const [row] = await client
-    .select()
-    .from(plugins)
-    .where(and(eq(plugins.name, name), eq(plugins.status, 'active')))
-    .limit(1);
-
-  if (!row) throw new HttpError(404, 'PLUGIN_NOT_FOUND', 'No such plugin');
-
-  return row;
-};
-
-/** Installs a plugin, or grants the scopes a newer version asks for. */
-export const installPlugin = async (actor: Actor, name: string) => {
-  await assertPluginInPlan(actor.orgId, name);
-
-  return installPluginTx(actor, name);
-};
-
-const installPluginTx = (actor: Actor, name: string) =>
-  db().transaction(async (tx) => {
-    const row = await pluginOrThrow(tx, name);
-    const scopes = requestedScopes(row);
-
-    const [before] = await tx
-      .select()
-      .from(pluginInstallations)
-      .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
-      .limit(1);
-
-    const [installation] = await tx
-      .insert(pluginInstallations)
-      .values({
-        orgId: actor.orgId,
-        plugin: name,
-        grantedScopes: scopes,
-        installedBy: actor.userId,
-      })
-      .onConflictDoUpdate({
-        target: [pluginInstallations.orgId, pluginInstallations.plugin],
-        set: {
-          status: 'active',
-          statusReason: null,
-          grantedScopes: scopes,
-          installedBy: actor.userId,
-          updatedAt: sql`now()`,
-          installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
-        },
-      })
-      .returning();
-
-    await recordAudit(tx, userCaller(actor), {
-      action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',
-      targetType: 'plugin',
-      targetId: name,
-      targetLabel: row.manifest?.title ?? name,
-      changes: { scopes: [before?.status === 'active' ? before.grantedScopes : [], scopes] },
-    });
-
-    return toPluginDto(row, installation);
-  });
-
-/** Uninstalls: tokens stop working on the next request. Data stays in the plugin. */
-export const uninstallPlugin = (actor: Actor, name: string) =>
-  db().transaction(async (tx) => {
-    const row = await pluginOrThrow(tx, name);
-
-    const [installation] = await tx
-      .update(pluginInstallations)
-      .set({ status: 'disabled', updatedAt: sql`now()` })
-      .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
-      .returning();
-
-    if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
-
-    await recordAudit(tx, userCaller(actor), {
-      action: 'plugin.uninstalled',
-      targetType: 'plugin',
-      targetId: name,
-      targetLabel: row.manifest?.title ?? name,
-    });
-
-    return toPluginDto(row, installation);
-  });
-
-/**
- * A member's 5-minute token for one plugin's API: the plugin verifies it with
- * core's public keys (JWKS), never sees core's session cookie, and can't use
- * it anywhere else (`aud` is the plugin).
- */
-export const pluginSession = async (actor: Actor, name: string) => {
-  const [row] = await db()
-    .select({ plugin: plugins, installation: pluginInstallations })
-    .from(plugins)
-    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(
-      and(
-        eq(plugins.name, name),
-        eq(plugins.status, 'active'),
-        eq(pluginInstallations.orgId, actor.orgId),
-        eq(pluginInstallations.status, 'active'),
-      ),
-    )
-    .limit(1);
-
-  if (!row)
-    throw new HttpError(403, 'NOT_INSTALLED', `${name} is not installed in this organisation`);
-
-  // SaaS: the plugin's tier here (gate Plus/Pro features) and whether it may change anything.
-  const plan = await entitlementsOf(actor.orgId);
-  const access = accessOf(plan, name);
-
-  if (access === 'off') throw new HttpError(402, 'NOT_IN_PLAN', `${name} is not in your plan`);
-
-  // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
-  const permissions = (row.plugin.manifest?.permissions ?? [])
-    .map((permission) => permission.action)
-    .filter((action) => can(actor, action));
-
-  const token = await signJwt(
-    { org: actor.orgId, role: actor.role, permissions, tier: tierOf(plan, name), access },
-    {
-      typ: PLUGIN_SESSION_TYP,
-      audience: name,
-      subject: actor.userId,
-      expiresInSeconds: PLUGIN_SESSION_TTL_SECONDS,
-    },
-  );
-
-  return {
-    token,
-    expiresAt: new Date(Date.now() + PLUGIN_SESSION_TTL_SECONDS * 1000).toISOString(),
-    apiUrl: row.plugin.manifest?.api?.url ?? null,
-  };
-};
-
-/** Live signals to the plugin's open UIs (sent on commit, like core's). */
-export const pluginSignal = async (
-  caller: PluginCaller,
-  input: { topics: string[]; userIds?: string[] },
-) => {
-  await db().transaction(async (tx) => {
-    for (const topic of input.topics) {
-      await tx.execute(
-        sql`select core_live_signal(${caller.orgId}, ${caller.plugin}, ${topic}, ${input.userIds?.length ? input.userIds : null}::text[])`,
-      );
-    }
-  });
 
   return { ok: true as const };
 };

@@ -9,6 +9,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
+import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 
 type RoleRow = typeof roles.$inferSelect;
@@ -82,7 +83,7 @@ export const permissionCatalog = async (client: Db, orgId: string): Promise<Perm
       label: permission.label,
       description: null,
       source: 'core',
-      ownerOnly: 'ownerOnly' in permission && Boolean(permission.ownerOnly),
+      ownerOnly: 'ownerOnly' in permission && permission.ownerOnly,
     })),
     ...installed.flatMap((plugin) =>
       (plugin.manifest?.permissions ?? []).map((permission) => ({
@@ -166,7 +167,7 @@ const checkPermissions = async (client: Db, actor: Actor, permissions: string[])
     );
   }
 
-  return [...new Set(permissions)].sort();
+  return [...new Set(permissions)].toSorted();
 };
 
 const roleOrThrow = async (client: Db, orgId: string, key: string) => {
@@ -214,26 +215,28 @@ export const createRole = (
 
     const permissions = await checkPermissions(tx, actor, input.permissions);
 
-    const [row] = await tx
-      .insert(roles)
-      .values({
-        orgId: actor.orgId,
-        key: `r_${newId()}`,
-        name: input.name,
-        description: input.description ?? null,
-        permissions,
-      })
-      .returning();
+    const row = oneRow(
+      await tx
+        .insert(roles)
+        .values({
+          orgId: actor.orgId,
+          key: `r_${newId()}`,
+          name: input.name,
+          description: input.description ?? null,
+          permissions,
+        })
+        .returning(),
+    );
 
     await recordAudit(tx, userCaller(actor), {
       action: 'role.created',
       targetType: 'role',
-      targetId: row!.key,
-      targetLabel: row!.name,
+      targetId: row.key,
+      targetLabel: row.name,
       metadata: { permissions },
     });
 
-    return toRoleDto(row!, 0);
+    return toRoleDto(row, 0);
   });
 
 export const updateRole = (
@@ -254,22 +257,24 @@ export const updateRole = (
       ? await checkPermissions(tx, actor, input.permissions)
       : undefined;
 
-    const [row] = await tx
-      .update(roles)
-      .set({
-        ...(input.name !== undefined ? { name: input.name } : {}),
-        ...(input.description !== undefined ? { description: input.description } : {}),
-        ...(permissions ? { permissions } : {}),
-        updatedAt: sql`now()`,
-      })
-      .where(and(eq(roles.orgId, actor.orgId), eq(roles.key, key)))
-      .returning();
+    const row = oneRow(
+      await tx
+        .update(roles)
+        .set({
+          ...(input.name !== undefined ? { name: input.name } : {}),
+          ...(input.description !== undefined ? { description: input.description } : {}),
+          ...(permissions ? { permissions } : {}),
+          updatedAt: sql`now()`,
+        })
+        .where(and(eq(roles.orgId, actor.orgId), eq(roles.key, key)))
+        .returning(),
+    );
 
     await recordAudit(tx, userCaller(actor), {
       action: 'role.updated',
       targetType: 'role',
       targetId: key,
-      targetLabel: row!.name,
+      targetLabel: row.name,
       changes: {
         ...(input.name !== undefined && input.name !== before.name
           ? { name: [before.name, input.name] }
@@ -283,7 +288,7 @@ export const updateRole = (
       .from(users)
       .where(and(eq(users.orgId, actor.orgId), eq(users.role, key)));
 
-    return toRoleDto(row!, count?.members ?? 0);
+    return toRoleDto(row, count?.members ?? 0);
   });
 
 export const removeRole = (actor: Actor, key: string) =>
