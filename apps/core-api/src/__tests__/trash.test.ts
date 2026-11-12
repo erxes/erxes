@@ -12,15 +12,13 @@ describeWithDb('recycle bin and mass-deletion guard', { timeout: 300_000 }, () =
   const admin = () => t.client({ user: adminId, org: t.ids.org });
 
   beforeAll(async () => {
-    await adminDb()
-      .insert(users)
-      .values({
-        id: adminId,
-        orgId: t.ids.org,
-        email: 'a@acme.mn',
-        role: 'admin',
-        status: 'active',
-      });
+    await adminDb().insert(users).values({
+      id: adminId,
+      orgId: t.ids.org,
+      email: 'a@acme.mn',
+      role: 'admin',
+      status: 'active',
+    });
   });
 
   it('keeps deleted customers with their tags, links and timeline, and restores them whole', async () => {

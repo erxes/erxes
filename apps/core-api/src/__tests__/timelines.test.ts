@@ -49,14 +49,12 @@ describeWithDb(
       });
       // Not another plugin's record type.
       await expect(
-        t
-          .hr()
-          .activities.create({
-            targetType: 'ecom.order',
-            targetId: 'o1',
-            type: 'hr.x.y',
-            summary: 'x',
-          }),
+        t.hr().activities.create({
+          targetType: 'ecom.order',
+          targetId: 'o1',
+          type: 'hr.x.y',
+          summary: 'x',
+        }),
       ).rejects.toMatchObject({ status: 403 });
 
       // The plugin changes its own entry (by dedupe key), then removes it.

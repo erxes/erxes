@@ -13,7 +13,7 @@ export const describeWithDb = baseUrl ? describe : describe.skip;
  * The API under test acts as this role: no BYPASSRLS, data rights only, like
  * production's runtime role — so row level security is really exercised.
  */
-const TEST_RUNTIME_ROLE ='erxes_core_test_runtime';
+const TEST_RUNTIME_ROLE = 'erxes_core_test_runtime';
 
 const admin = async (statement: string, url = baseUrl) => {
   const client = new Client({ connectionString: url });
