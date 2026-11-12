@@ -95,9 +95,10 @@ export const useTestServer = () => {
    * The UI's view of core: a client that keeps the session cookie core sets
    * and sends it back, from core's own origin, the way a browser does.
    * `cookie()` is that cookie (`erxes_session=…`), or '' before a sign-in.
+   * `browser(cookie)` starts from a cookie another browser had.
    */
-  const browser = () => {
-    let cookie = '';
+  const browser = (initial = '') => {
+    let cookie = initial;
 
     const api: CoreClient = createORPCClient(
       new OpenAPILink(coreContract, {

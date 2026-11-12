@@ -1,24 +1,35 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
+import type { ORPCError } from '@orpc/client';
+import { beforeAll, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
-import { createOrganization } from '~/modules/organizations/organizations.service';
 import { processJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
+import { createOrganization } from '~/modules/organizations/organizations.service';
 import { describeWithDb, useTestDatabase } from './db';
+import { useTestServer } from './support';
+
+/** How a call failed, or null when it didn't. */
+const failure = (call: Promise<unknown>) =>
+  call.then(
+    () => null,
+    (error: ORPCError<string, unknown>) => ({
+      status: error.status,
+      code: error.code,
+      message: error.message,
+    }),
+  );
+
+const OWNER = { email: 'owner@acme.mn', password: 'correct horse' };
 
 describeWithDb('sign-in (/core/v1/auth)', () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
+  const server = useTestServer();
 
   beforeAll(async () => {
     await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
-      owner: { email: 'owner@acme.mn', passwordHash: await hashPassword('correct horse') },
+      owner: { email: OWNER.email, passwordHash: await hashPassword(OWNER.password) },
     });
     // The same email in a second organisation
     await createOrganization({
@@ -31,179 +42,134 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
       name: 'Initech',
       owner: { email: 'shared@x.mn', passwordHash: await hashPassword('pw-initech') },
     });
-
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
 
-  afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));
+  /** A browser signed in as `credentials`. */
+  const signedIn = async (credentials = OWNER) => {
+    const browser = server.browser();
 
-  const signIn = (body: Record<string, unknown>) =>
-    fetch(`${base}/core/v1/auth/sign-in`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    await browser.api.auth.signIn(credentials);
 
-  const sessionCookie = (response: Response) =>
-    (
-      response.headers.getSetCookie().find((cookie) => cookie.startsWith('erxes_session=')) ?? ''
-    ).split(';')[0] ?? '';
+    return browser;
+  };
 
   it('signs in, sets an HttpOnly session cookie and answers /me with it', async () => {
-    const response = await signIn({ email: 'OWNER@acme.mn', password: 'correct horse' });
-
-    const body = (await response.json()) as {
-      user: { email: string; role: string };
-      organization: { subdomain: string };
-    };
-
-    const setCookie = response.headers.getSetCookie().join(';');
-
-    expect(response.status).toBe(200);
-    expect(body.user).toMatchObject({ email: 'owner@acme.mn', role: 'owner' });
-    expect(body.organization.subdomain).toBe('acme');
-    expect(setCookie).toMatch(/erxes_session=.*HttpOnly.*SameSite=Lax/i);
-
-    const me = await fetch(`${base}/core/v1/auth/me`, {
-      headers: { cookie: sessionCookie(response) },
+    const response = await fetch(server.url('/core/v1/auth/sign-in'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'OWNER@acme.mn', password: OWNER.password }),
     });
 
-    expect(me.status).toBe(200);
+    expect(response.status).toBe(200);
+    expect(response.headers.getSetCookie().join(';')).toMatch(
+      /erxes_session=.*HttpOnly.*SameSite=Lax/i,
+    );
+
+    const browser = server.browser();
+
+    expect(
+      await browser.api.auth.signIn({ email: 'OWNER@acme.mn', password: OWNER.password }),
+    ).toMatchObject({
+      user: { email: 'owner@acme.mn', role: 'owner' },
+      organization: { subdomain: 'acme' },
+    });
+    expect((await browser.api.auth.me({})).user.email).toBe('owner@acme.mn');
   });
 
   it('remembers the welcome steps on the member, not the browser', async () => {
-    const cookie = sessionCookie(
-      await signIn({ email: 'owner@acme.mn', password: 'correct horse' }),
-    );
+    const { api } = await signedIn();
 
-    const headers = { cookie, 'sec-fetch-site': 'same-origin' };
+    expect((await api.auth.me({})).user.onboardedAt).toBeNull();
 
-    const before = (await (await fetch(`${base}/core/v1/auth/me`, { headers })).json()) as {
-      user: { onboardedAt: string | null };
-    };
-
-    expect(before.user.onboardedAt).toBeNull();
-
-    const done = (await (
-      await fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers })
-    ).json()) as { user: { onboardedAt: string } };
+    const done = await api.auth.onboarded({});
 
     expect(done.user.onboardedAt).toEqual(expect.any(String));
-
     // Again: the first time is kept.
-    const again = (await (
-      await fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers })
-    ).json()) as { user: { onboardedAt: string } };
-
-    expect(again.user.onboardedAt).toBe(done.user.onboardedAt);
+    expect((await api.auth.onboarded({})).user.onboardedAt).toBe(done.user.onboardedAt);
   });
 
   it('fills a fresh organisation with example data once, for its owner', async () => {
+    const umbrella = { email: 'owner@umbrella.mn', password: 'pw-umbrella' };
+
     await createOrganization({
       subdomain: 'umbrella',
       name: 'Umbrella',
-      owner: { email: 'owner@umbrella.mn', passwordHash: await hashPassword('pw-umbrella') },
+      owner: { email: umbrella.email, passwordHash: await hashPassword(umbrella.password) },
     });
 
-    const cookie = sessionCookie(
-      await signIn({ email: 'owner@umbrella.mn', password: 'pw-umbrella' }),
-    );
+    const { api } = await signedIn(umbrella);
 
-    const headers = { cookie, 'sec-fetch-site': 'same-origin', 'content-type': 'application/json' };
+    const customersIn = async (state: 'customer' | 'lead') =>
+      (await api.customers.list({ state })).totalCount;
 
-    const get = async (path: string) =>
-      (await (await fetch(`${base}/core/v1${path}`, { headers })).json()) as {
-        totalCount: number;
-        data: { name?: string; primaryName?: string; firstName?: string }[];
-      };
-
-    const onboard = () =>
-      fetch(`${base}/core/v1/auth/onboarded`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ exampleData: true, language: 'mn' }),
-      });
-
-    expect((await onboard()).status).toBe(200);
+    await api.auth.onboarded({ exampleData: true, language: 'mn' });
     // Seeded by a job, right after.
     await processJobs(JOBS);
-    expect((await get('/customers?state=customer')).totalCount).toBe(5);
-    expect((await get('/customers?state=lead')).totalCount).toBe(5);
-    expect((await get('/companies')).data.map((company) => company.primaryName)).toContain(
+    expect(await customersIn('customer')).toBe(5);
+    expect(await customersIn('lead')).toBe(5);
+    expect((await api.companies.list({})).data.map((company) => company.primaryName)).toContain(
       'Хангай Трейд ХХК',
     );
-    expect((await get('/views?recordType=customer')).data.map((view) => view.name)).toEqual([
-      'VIP харилцагчид',
-    ]);
-    expect((await get('/automations')).data).toHaveLength(1);
+    expect(
+      (await api.views.list({ recordType: 'customer' })).data.map((view) => view.name),
+    ).toEqual(['VIP харилцагчид']);
+    expect((await api.automations.list({})).data).toHaveLength(1);
 
     // Again (another browser, a second click): nothing more.
-    await onboard();
+    await (await signedIn(umbrella)).api.auth.onboarded({ exampleData: true, language: 'mn' });
     await processJobs(JOBS);
-    expect((await get('/customers?state=customer')).totalCount).toBe(5);
-    expect((await get('/companies')).totalCount).toBe(4);
+    expect(await customersIn('customer')).toBe(5);
+    expect((await api.companies.list({})).totalCount).toBe(4);
   }, 600_000);
 
-  it('answers wrong password and unknown email the same way', async () => {
-    const wrong = await signIn({ email: 'owner@acme.mn', password: 'nope' });
-    const unknown = await signIn({ email: 'nobody@acme.mn', password: 'nope' });
+  const wrongPassword = (email: string) =>
+    server.browser().api.auth.signIn({ email, password: 'nope' });
 
-    expect(wrong.status).toBe(401);
-    expect(unknown.status).toBe(401);
-    expect(await wrong.json()).toEqual(await unknown.json());
+  it('answers wrong password and unknown email the same way', async () => {
+    const wrong = await failure(wrongPassword(OWNER.email));
+
+    expect(wrong).toMatchObject({ status: 401 });
+    expect(await failure(wrongPassword('nobody@acme.mn'))).toEqual(wrong);
   });
 
   it('asks for the organisation when the email exists in several', async () => {
-    const ambiguous = await signIn({ email: 'shared@x.mn', password: 'pw-globex' });
+    await expect(
+      server.browser().api.auth.signIn({ email: 'shared@x.mn', password: 'pw-globex' }),
+    ).rejects.toMatchObject({ status: 400, code: 'ORGANIZATION_REQUIRED' });
 
-    const chosen = await signIn({
-      email: 'shared@x.mn',
-      password: 'pw-initech',
-      subdomain: 'initech',
-    });
+    const chosen = await server
+      .browser()
+      .api.auth.signIn({ email: 'shared@x.mn', password: 'pw-initech', subdomain: 'initech' });
 
-    expect(ambiguous.status).toBe(400);
-    expect(((await ambiguous.json()) as { code: string }).code).toBe('ORGANIZATION_REQUIRED');
-    expect(chosen.status).toBe(200);
+    expect(chosen).toMatchObject({ organization: { subdomain: 'initech' } });
   });
 
   it('blocks cookie-signed changes from other sites, not reads', async () => {
-    const cookie = sessionCookie(
-      await signIn({ email: 'owner@acme.mn', password: 'correct horse' }),
-    );
+    const cookie = (await signedIn()).cookie();
+    const users = server.url('/core/v1/users');
 
-    const crossSite = await fetch(`${base}/core/v1/users`, {
-      method: 'POST',
-      headers: { cookie, 'content-type': 'application/json', 'sec-fetch-site': 'cross-site' },
-      body: JSON.stringify({ email: 'evil@acme.mn' }),
-    });
+    const invite = (site: string, email: string) =>
+      fetch(users, {
+        method: 'POST',
+        headers: { cookie, 'content-type': 'application/json', 'sec-fetch-site': site },
+        body: JSON.stringify({ email }),
+      });
 
-    const sameSite = await fetch(`${base}/core/v1/users`, {
-      method: 'POST',
-      headers: { cookie, 'content-type': 'application/json', 'sec-fetch-site': 'same-origin' },
-      body: JSON.stringify({ email: 'good@acme.mn' }),
-    });
-
-    const read = await fetch(`${base}/core/v1/users`, {
-      headers: { cookie, 'sec-fetch-site': 'cross-site' },
-    });
-
-    expect(crossSite.status).toBe(403);
-    expect(sameSite.status).toBe(201);
-    expect(read.status).toBe(200);
+    expect((await invite('cross-site', 'evil@acme.mn')).status).toBe(403);
+    expect((await invite('same-origin', 'good@acme.mn')).status).toBe(201);
+    expect(
+      (await fetch(users, { headers: { cookie, 'sec-fetch-site': 'cross-site' } })).status,
+    ).toBe(200);
   });
 
   it('refuses invited members (no password yet) and signs out', async () => {
-    const invited = await signIn({ email: 'good@acme.mn', password: 'anything' });
+    await expect(
+      server.browser().api.auth.signIn({ email: 'good@acme.mn', password: 'anything' }),
+    ).rejects.toMatchObject({ status: 401 });
 
-    const out = await fetch(`${base}/core/v1/auth/sign-out`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: '{}',
-    });
+    const browser = await signedIn();
 
-    expect(invited.status).toBe(401);
-    expect(out.headers.getSetCookie().join(';')).toMatch(/erxes_session=;/);
+    await browser.api.auth.signOut({});
+    expect(browser.cookie()).toBe('erxes_session=');
   });
 });
