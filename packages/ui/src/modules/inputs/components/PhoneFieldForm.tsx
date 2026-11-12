@@ -3,52 +3,42 @@ import { Button } from 'erxes-ui/components/button';
 import { Separator } from 'erxes-ui/components/separator';
 import { PhoneInput } from 'erxes-ui/modules/record-field/meta-inputs/components/PhoneInput';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePhoneFields } from '../contexts/PhoneFieldsContext';
-
-/** Focuses the input once it shows, after the popover has opened. */
-const useFocusWhenShown = (showInput: boolean) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!showInput) return;
-
-    const timer = setTimeout(() => inputRef.current?.focus(), 180);
-
-    return () => clearTimeout(timer);
-  }, [showInput]);
-
-  return inputRef;
-};
+import { useFocusWhenShown, type ContactFieldInput } from '../hooks/useContactFieldInput';
+import type { TPhones } from '../types/phoneField';
 
 /**
  * Adds a phone, or replaces the one being edited. PhoneField renders it keyed by the
  * phone being edited, so the draft starts from that phone.
  */
-export const PhoneFieldForm = () => {
-  const { phones, onValueChange, showInput, openInput, editingPhone, closeInput } =
-    usePhoneFields();
-
+export const PhoneFieldForm = ({
+  phones,
+  onValueChange,
+  input,
+}: {
+  phones: TPhones;
+  onValueChange: (phones: TPhones) => void;
+  input: ContactFieldInput;
+}) => {
+  const { showInput, openInput, editing, closeInput } = input;
   const { t } = useTranslation('contact', { keyPrefix: 'customer.detail' });
-  const [draft, setDraft] = useState(editingPhone ?? '');
+  const [draft, setDraft] = useState(editing ?? '');
   const [isValid, setIsValid] = useState(true);
   const inputRef = useFocusWhenShown(showInput);
-  const label = editingPhone ? t('edit-phone') : t('add-phone');
+  const label = editing ? t('edit-phone') : t('add-phone');
 
   const save = () => {
     if (!isValid || !draft) return;
 
-    if (editingPhone) {
+    if (editing) {
       onValueChange(
-        phones.map((item) => (item.phone === editingPhone ? { ...item, phone: draft } : item)),
+        phones.map((item) => (item.phone === editing ? { ...item, phone: draft } : item)),
       );
     } else {
-      const isFirst = phones.length === 0;
-
       onValueChange([
         ...phones,
-        { phone: draft, status: ValidationStatus.Invalid, isPrimary: isFirst || undefined },
+        { phone: draft, status: ValidationStatus.Invalid, isPrimary: phones.length === 0 },
       ]);
     }
 

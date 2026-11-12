@@ -1,4 +1,4 @@
-import type { IEmailField, TEmails } from 'erxes-ui/modules/inputs/components/EmailField';
+import type { IEmailField, TEmails } from 'erxes-ui/modules/inputs/types/emailField';
 import type { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 
 export function formatEmails(

@@ -232,7 +232,7 @@ export { IconsProvider } from './modules/icons/providers/IconsProvider';
 
 export { CurrencyField } from './modules/inputs/components/CurrencyField';
 
-export { EmailListField, type TEmailsOnValueChange } from './modules/inputs/components/EmailField';
+export { EmailListField } from './modules/inputs/components/EmailField';
 
 export { FullNameField, FullNameValue } from './modules/inputs/components/FullNameField';
 
@@ -240,11 +240,15 @@ export { LanguageSelect } from './modules/inputs/components/LanguageSelect';
 
 export { NumberInput } from './modules/inputs/components/NumberField';
 
-export { type IPhoneFieldProps, PhoneField } from './modules/inputs/components/PhoneField';
+export { PhoneField } from './modules/inputs/components/PhoneField';
 
 export { SexField } from './modules/inputs/components/SexField';
 
 export { TimezoneSelect } from './modules/inputs/components/TimezoneSelect';
+
+export { type TEmailsOnValueChange } from './modules/inputs/types/emailField';
+
+export { type IPhoneFieldProps } from './modules/inputs/types/phoneField';
 
 export { AppLayout, AppLayoutFooterLink } from './modules/layout/components/AppLayout';
 

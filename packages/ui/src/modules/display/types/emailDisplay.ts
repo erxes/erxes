@@ -1,4 +1,4 @@
-import type { IEmailFieldProps } from 'erxes-ui/modules/inputs/components/EmailField';
+import type { IEmailFieldProps } from 'erxes-ui/modules/inputs/types/emailField';
 
 export type EmailDisplayProps = IEmailFieldProps & {
   maxVisible?: number;

@@ -1,53 +1,63 @@
-import { IconBookmarkFilled, IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { Button } from 'erxes-ui/components/button';
-import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
-import { cn } from 'erxes-ui/lib/utils';
 import { formatPhones } from 'erxes-ui/modules/display/utils/formatPhones';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
-import { forwardRef, useState } from 'react';
-import { PhoneFieldsContext, usePhoneFields } from '../contexts/PhoneFieldsContext';
+import { forwardRef } from 'react';
+import { useContactFieldInput, type ContactFieldInput } from '../hooks/useContactFieldInput';
 import type { IPhoneField, IPhoneFieldProps, TPhones } from '../types/phoneField';
+import { ContactFieldOptions, ContactFieldValue } from './ContactFieldParts';
 import { PhoneFieldForm } from './PhoneFieldForm';
-import { PhoneFieldOptions } from './PhoneFieldOptions';
 
-export type { IPhoneFieldProps } from '../types/phoneField';
+type PhoneListProps = {
+  phones: TPhones;
+  onValueChange: (phones: TPhones) => void;
+  onValidationStatusChange?: (status: ValidationStatus) => void;
+  input: ContactFieldInput;
+};
 
-const PhoneItem = ({ phone, status, isPrimary }: IPhoneField) => (
-  <Button
-    variant="secondary"
-    className={cn(
-      'w-full font-medium text-left justify-start px-2 flex-auto overflow-hidden',
-      isPrimary && 'text-primary bg-primary/10 hover:bg-primary/20',
-    )}
-    size="lg"
-  >
-    {status === ValidationStatus.Valid ? (
-      <IconCircleDashedCheck className="text-success" />
-    ) : (
-      <IconCircleDashed className="text-muted-foreground" />
-    )}
-    <TextOverflowTooltip value={formatPhoneNumber({ value: phone ?? '' })} />
-    {isPrimary && <IconBookmarkFilled className="text-primary" />}
-  </Button>
-);
+const PhoneRow = ({
+  item,
+  phones,
+  onValueChange,
+  onValidationStatusChange,
+  input,
+}: PhoneListProps & { item: IPhoneField }) => {
+  const others = phones.filter((other) => other.phone !== item.phone);
 
-const PhoneList = () => {
-  const { phones } = usePhoneFields();
+  return (
+    <div className="flex items-center overflow-hidden gap-1 w-full">
+      <ContactFieldValue
+        text={formatPhoneNumber({ value: item.phone ?? '' })}
+        status={item.status}
+        isPrimary={item.isPrimary}
+      />
+      <ContactFieldOptions
+        kind="phone"
+        isPrimary={item.isPrimary}
+        status={item.status}
+        showVerification
+        onSetPrimary={() =>
+          onValueChange([
+            { ...item, isPrimary: true },
+            ...others.map((other) => ({ ...other, isPrimary: false })),
+          ])
+        }
+        onEdit={() => input.startEditing(item.phone ?? '')}
+        onDelete={() => onValueChange(others)}
+        onStatusChange={(status) => onValidationStatusChange?.(status)}
+      />
+    </div>
+  );
+};
+
+const PhoneList = (props: PhoneListProps) => {
   const [animationParent] = useAutoAnimate();
 
   return (
     <div className="p-1 space-y-1">
       <div ref={animationParent} className="space-y-1">
-        {phones.map(
-          (item) =>
-            item.phone && (
-              <div className="flex items-center overflow-hidden gap-1 w-full" key={item.phone}>
-                <PhoneItem {...item} />
-                <PhoneFieldOptions item={item} />
-              </div>
-            ),
+        {props.phones.map(
+          (item) => item.phone && <PhoneRow key={item.phone} item={item} {...props} />,
         )}
       </div>
     </div>
@@ -65,43 +75,19 @@ const toPhoneFieldProps = (values: TPhones): IPhoneFieldProps => {
   };
 };
 
-type PhoneFieldBodyProps = {
-  phones: TPhones;
-  onValueChange: (phones: TPhones) => void;
-  onValidationStatusChange?: (status: ValidationStatus) => void;
-};
-
-/** Holds which phone is being edited and whether the input is open. */
-const PhoneFieldBody = ({
-  phones,
-  onValueChange,
-  onValidationStatusChange,
-}: PhoneFieldBodyProps) => {
-  const [inputOpen, setInputOpen] = useState(false);
-  const [editingPhone, setEditingPhone] = useState<string | null>(null);
-
-  const context = {
-    phones,
-    onValueChange,
-    onValidationStatusChange,
-    showInput: inputOpen || !phones.some((item) => item.phone),
-    openInput: () => setInputOpen(true),
-    editingPhone,
-    startEditing: (phone: string) => {
-      setEditingPhone(phone);
-      setInputOpen(true);
-    },
-    closeInput: () => {
-      setEditingPhone(null);
-      setInputOpen(false);
-    },
-  };
+const PhoneFieldBody = ({ phones, ...props }: Omit<PhoneListProps, 'input'>) => {
+  const input = useContactFieldInput(phones.some((item) => item.phone));
 
   return (
-    <PhoneFieldsContext.Provider value={context}>
-      <PhoneList />
-      <PhoneFieldForm key={editingPhone ?? ''} />
-    </PhoneFieldsContext.Provider>
+    <>
+      <PhoneList phones={phones} input={input} {...props} />
+      <PhoneFieldForm
+        key={input.editing ?? ''}
+        phones={phones}
+        onValueChange={props.onValueChange}
+        input={input}
+      />
+    </>
   );
 };
 
