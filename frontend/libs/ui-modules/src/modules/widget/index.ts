@@ -26,3 +26,4 @@ export * from './record-side-panel/overview/recordOverviewEntries';
 export * from './record-side-panel/overview/useRecordOverview';
 export * from './record-side-panel/overview/RecordOverviewCustomize';
 export * from './record-side-panel/overview/RecordOverview';
+export * from './record-side-panel/RecordPageMinimize';

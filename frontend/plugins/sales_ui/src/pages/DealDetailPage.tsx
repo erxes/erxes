@@ -23,6 +23,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   type ISidePanelNavigator,
   PageHeader,
+  RecordPageMinimize,
   RecordSidePanel,
   SidePanelNavigatorContext,
   useSidePanel,
@@ -221,8 +222,9 @@ const DealPageNavigator = ({
       back: backToBoard,
       canGoBack: false,
       close: backToBoard,
+      listPath: boardPath,
     }),
-    [record, tab, setTab, openRecord, backToBoard],
+    [record, tab, setTab, openRecord, backToBoard, boardPath],
   );
 
   return (
@@ -250,6 +252,7 @@ export const DealDetailPage = () => {
               </PageHeader.Start>
               <PageHeader.End>
                 <DealPanelActions dealId={dealId} expanded />
+                <RecordPageMinimize />
               </PageHeader.End>
             </PageHeader>
             <DealPageBody dealId={dealId} />

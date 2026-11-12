@@ -32,6 +32,7 @@ import {
   currentUserState,
   FieldsInDetail,
   IRecordSidePanelTab,
+  RecordPageMinimize,
   RecordSidePanel,
   usePermissionCheck,
   useSidePanel,
@@ -236,7 +237,14 @@ export const MemberDetail = ({
         title={
           expanded ? <MemberPanelBreadcrumb title={breadcrumbTitle} /> : title
         }
-        actions={userDetail && <MemberPanelActions user={userDetail} />}
+        actions={
+          userDetail && (
+            <>
+              <MemberPanelActions user={userDetail} />
+              {expanded && <RecordPageMinimize />}
+            </>
+          )
+        }
         onBack={onBack}
         onClose={onClose}
       />

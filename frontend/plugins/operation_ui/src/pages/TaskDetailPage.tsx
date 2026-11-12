@@ -21,7 +21,8 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader, RecordSidePanel } from 'ui-modules';
+import { PageHeader, RecordPageMinimize, RecordSidePanel } from 'ui-modules';
+import { TASK_CONTENT_TYPE } from '@/task/constants';
 import { TaskPanelActions } from '~/widgets/record-panel/TaskPanelActions';
 import {
   TaskPanelActivity,
@@ -88,8 +89,16 @@ const TaskPageBreadcrumb = () => {
 /** A task on its own page, laid out like a contact's: fields beside tabs. */
 export const TaskDetailPage = () => {
   const { t } = useTranslation('operation');
-  const { taskId } = useParams<{ taskId: string }>();
+  const { taskId, teamId, projectId } = useParams<{
+    taskId: string;
+    teamId?: string;
+    projectId?: string;
+  }>();
   const { task, loading } = useGetTask(taskId);
+  const teamPath = teamId ? `/team/${teamId}` : '';
+  const listPath = projectId
+    ? `/operation${teamPath}/projects/${projectId}/tasks`
+    : `/operation${teamPath}/tasks`;
   const [tab, setTab] = useQueryState<string>('tab');
 
   if (!taskId) {
@@ -162,6 +171,10 @@ export const TaskDetailPage = () => {
           </PageHeader.Start>
           <PageHeader.End>
             <TaskPanelActions taskId={taskId} />
+            <RecordPageMinimize
+              record={{ contentType: TASK_CONTENT_TYPE, contentId: taskId }}
+              listPath={listPath}
+            />
           </PageHeader.End>
         </PageHeader>
         {renderBody()}
