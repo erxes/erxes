@@ -1,4 +1,19 @@
+import { nanoid } from 'nanoid';
+import {
+  type TFixedAssetMovement,
+  getPureDate,
+  addDays,
+  isSamePureDate,
+  getDateLabel,
+  calculateDepreciationByMethod,
+  calculateFxaTaxDepreciation,
+  splitLocationKey,
+  getAssetLocationCountsAtDate,
+  getTotalCount,
+} from './fxaDepreciation';
 import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
+import { getFxaDeferredTaxTransactions } from './fxaDeferredTax';
+import { getFxaIncomeTaxRates } from './fxaIncomeTaxRates';
 import { assertCanWriteTransactionAccounts } from './trPermissions';
 import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import { IModels } from '~/connectionResolvers';
@@ -27,20 +42,6 @@ import {
 } from './fxaRules';
 import { getFxaRevaluationStates } from './fxaRevaluationState';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-type TDepreciationInput = {
-  originalCost: number;
-  depreciationBase?: number;
-  salvageValue?: number;
-  annualDepreciationRate?: number;
-  startDate: Date;
-  endDate: Date;
-  scheduleStartDate?: Date;
-  /** Per-unit calculator input; callers normalize posted totals by active quantity. */
-  preDeprecation?: number;
-};
-
 type TDailyValidationResult = {
   successDate?: Date;
   error?: string;
@@ -55,250 +56,10 @@ type TFixedAssetLocationDepreciationRow = {
   warning: string;
 };
 
-type TFixedAssetMovement = {
-  fixedAssetId: string;
-  date: Date;
-  countDelta: number;
-  branchId?: string;
-  departmentId?: string;
-  accountId?: string;
-  transactionId?: string;
-  transactionDetailId?: string;
-};
-
 type TDepreciationMovement = {
   fixedAssetId: string;
   date: Date;
   amount: number;
-};
-
-const getPureDate = (value: Date) => {
-  const date = new Date(value);
-  date.setHours(0, 0, 0, 0);
-  return date;
-};
-
-const addDays = (date: Date, days: number) => {
-  const next = new Date(date);
-  next.setDate(next.getDate() + days);
-  return next;
-};
-
-const isSamePureDate = (left: Date, right: Date) =>
-  getPureDate(left).getTime() === getPureDate(right).getTime();
-
-const getDateLabel = (date: Date) =>
-  [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    String(date.getDate()).padStart(2, '0'),
-  ].join('-');
-
-const getDaysBetween = (startDate: Date, endDate: Date) =>
-  Math.max(
-    0,
-    Math.round(
-      (getPureDate(endDate).getTime() - getPureDate(startDate).getTime()) /
-        DAY_MS,
-    ),
-  );
-
-const getDaysInMonth = (date: Date) =>
-  new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-
-const getUsefulLifeFromAnnualRate = (annualDepreciationRate?: number) =>
-  annualDepreciationRate && annualDepreciationRate > 0
-    ? (100 / annualDepreciationRate) * 12
-    : undefined;
-
-const getDepreciationBaseError = (
-  annualDepreciationRate?: number,
-  originalCost?: number,
-) => {
-  if (!annualDepreciationRate || annualDepreciationRate <= 0) {
-    return 'Annual depreciation rate is required to calculate depreciation';
-  }
-
-  if (!originalCost || originalCost <= 0) {
-    return 'Original cost is required to calculate depreciation';
-  }
-
-  return '';
-};
-
-const calculateDailyDepreciation = ({
-  calculateDailyAmount,
-  input,
-}: {
-  calculateDailyAmount: (args: {
-    accumulated: number;
-    currentDate: Date;
-    lifetimeDays: number;
-    scheduleStartDate: Date;
-  }) => number;
-  input: TDepreciationInput;
-}) => {
-  const {
-    originalCost,
-    salvageValue = 0,
-    annualDepreciationRate,
-    startDate,
-    endDate,
-    scheduleStartDate = startDate,
-    preDeprecation = 0,
-  } = input;
-  const usefulLife = getUsefulLifeFromAnnualRate(annualDepreciationRate);
-  const baseError = getDepreciationBaseError(
-    annualDepreciationRate,
-    originalCost,
-  );
-
-  if (baseError) {
-    return {
-      amount: 0,
-      closingAccumulatedDepreciation: preDeprecation,
-      closingBookValue: originalCost - preDeprecation,
-      error: baseError,
-      warning: '',
-    };
-  }
-
-  const lifetimeDays = Math.max(Math.round((usefulLife || 0) * 30), 1);
-  let currentDate = getPureDate(startDate);
-  const lastDate = getPureDate(endDate);
-  let amount = 0;
-  let accumulated = preDeprecation;
-  let warning = '';
-
-  while (currentDate <= lastDate) {
-    const remainingAmount = Math.max(
-      originalCost - accumulated - salvageValue,
-      0,
-    );
-
-    if (remainingAmount <= 0) {
-      warning = warning || 'Depreciation already reached salvage value.';
-      break;
-    }
-
-    const dailyAmount = Math.max(
-      calculateDailyAmount({
-        accumulated,
-        currentDate,
-        lifetimeDays,
-        scheduleStartDate,
-      }),
-      0,
-    );
-    const appliedAmount = Math.min(dailyAmount, remainingAmount);
-
-    amount += appliedAmount;
-    accumulated += appliedAmount;
-
-    if (
-      appliedAmount < dailyAmount ||
-      originalCost - accumulated <= salvageValue
-    ) {
-      warning = `Depreciation reached salvage value on ${currentDate
-        .toISOString()
-        .slice(0, 10)}`;
-      break;
-    }
-
-    currentDate = addDays(currentDate, 1);
-  }
-
-  return {
-    amount,
-    closingAccumulatedDepreciation: accumulated,
-    closingBookValue: originalCost - accumulated,
-    error: '',
-    warning,
-  };
-};
-
-const calculateStraightLineDepreciation = (input: TDepreciationInput) => {
-  return calculateDailyDepreciation({
-    input,
-    calculateDailyAmount: ({ currentDate, lifetimeDays }) => {
-      const depreciableAmount =
-        input.depreciationBase ??
-        Math.max(input.originalCost - (input.salvageValue || 0), 0);
-
-      if (input.annualDepreciationRate && input.annualDepreciationRate > 0) {
-        const monthlyAmount =
-          (depreciableAmount * input.annualDepreciationRate) / 100 / 12;
-
-        return monthlyAmount / getDaysInMonth(currentDate);
-      }
-
-      return depreciableAmount / lifetimeDays;
-    },
-  });
-};
-
-const calculateSumOfYearsDigitsDepreciation = (input: TDepreciationInput) => {
-  const depreciableAmount =
-    input.depreciationBase ??
-    Math.max(input.originalCost - (input.salvageValue || 0), 0);
-
-  return calculateDailyDepreciation({
-    input,
-    calculateDailyAmount: ({
-      currentDate,
-      lifetimeDays,
-      scheduleStartDate,
-    }) => {
-      const ageDay = getDaysBetween(scheduleStartDate, currentDate) + 1;
-      const remainingWeight = Math.max(lifetimeDays - ageDay + 1, 0);
-      const sumOfDigits = (lifetimeDays * (lifetimeDays + 1)) / 2;
-
-      return sumOfDigits
-        ? (depreciableAmount * remainingWeight) / sumOfDigits
-        : 0;
-    },
-  });
-};
-
-const calculateDecliningBalanceDepreciation = (
-  input: TDepreciationInput,
-  multiplier: number,
-) => {
-  const usefulLifeMonths = getUsefulLifeFromAnnualRate(
-    input.annualDepreciationRate,
-  );
-  const usefulLifeYears = Math.max((usefulLifeMonths || 0) / 12, 1 / 365);
-  const dailyRate = multiplier / usefulLifeYears / 365;
-
-  return calculateDailyDepreciation({
-    input,
-    calculateDailyAmount: ({ accumulated }) =>
-      (input.originalCost - accumulated) * dailyRate,
-  });
-};
-
-const calculateDepreciationByMethod = (
-  method: string,
-  input: TDepreciationInput,
-) => {
-  switch (method) {
-    case FIXED_ASSET_DEPRECIATION_METHODS.STRAIGHT_LINE:
-      return calculateStraightLineDepreciation(input);
-    case FIXED_ASSET_DEPRECIATION_METHODS.SUM_OF_YEARS_DIGITS:
-      return calculateSumOfYearsDigitsDepreciation(input);
-    case FIXED_ASSET_DEPRECIATION_METHODS.DOUBLE_DECLINING_BALANCE:
-      return calculateDecliningBalanceDepreciation(input, 2);
-    case FIXED_ASSET_DEPRECIATION_METHODS.DECLINING_BALANCE:
-      return calculateDecliningBalanceDepreciation(input, 1);
-    default:
-      return {
-        amount: 0,
-        closingAccumulatedDepreciation: input.preDeprecation || 0,
-        closingBookValue: input.originalCost - (input.preDeprecation || 0),
-        error: `Unsupported fixed asset depreciation method: ${method}`,
-        warning: '',
-      };
-  }
 };
 
 const getIncompleteBeforeAdjustment = async (
@@ -457,43 +218,6 @@ const getDepreciationMovements = async (
   }
   return movements;
 };
-
-const getLocationKey = (branchId?: string, departmentId?: string) =>
-  `${branchId || ''}:${departmentId || ''}`;
-
-const splitLocationKey = (key: string) => {
-  const [branchId, departmentId] = key.split(':');
-
-  return {
-    branchId: branchId || undefined,
-    departmentId: departmentId || undefined,
-  };
-};
-
-const getAssetLocationCountsAtDate = (
-  fixedAssetId: string,
-  movements: TFixedAssetMovement[],
-  date: Date,
-) => {
-  const counts = new Map<string, number>();
-
-  for (const movement of movements) {
-    if (
-      movement.fixedAssetId !== fixedAssetId ||
-      getPureDate(movement.date).getTime() > date.getTime()
-    ) {
-      continue;
-    }
-
-    const key = getLocationKey(movement.branchId, movement.departmentId);
-    counts.set(key, (counts.get(key) || 0) + movement.countDelta);
-  }
-
-  return counts;
-};
-
-const getTotalCount = (counts: Map<string, number>) =>
-  Array.from(counts.values()).reduce((sum, count) => sum + count, 0);
 
 const validateInstanceForDepreciation = ({
   accountId,
@@ -819,12 +543,27 @@ export const checkValidFixedAssetDate = async (
   };
 };
 
+const removeAdjustFixedAssetParent = async (
+  models: IModels,
+  adjustId: string,
+  parentId: string,
+) => {
+  const remaining = await models.Transactions.find({
+    contentType: 'accounting:adjustFixedAsset',
+    contentId: adjustId,
+    parentId,
+  }).lean();
+  if (remaining.some((row) => (row.parentId || row._id) === parentId)) {
+    await models.Transactions.removePTransaction({ parentId });
+  }
+};
+
 export const clearAdjustFixedAsset = async (
   models: IModels,
   userId: string,
   adjust: Pick<
     IAdjustFixedAssetDocument,
-    '_id' | 'date' | 'status' | 'expenseAccountId'
+    '_id' | 'date' | 'status' | 'expenseAccountId' | 'taxExpenseAccountId'
   >,
 ) => {
   if (
@@ -844,31 +583,6 @@ export const clearAdjustFixedAsset = async (
     contentId: adjust._id,
   }).lean();
   if (transactions.length) {
-    const fixedAssetIds = [
-      ...new Set(
-        transactions
-          .flatMap((tr) => tr.details.map((detail) => detail.fixedAssetId))
-          .filter(Boolean),
-      ),
-    ];
-    const laterChange = await models.Transactions.findOne({
-      date: { $gt: adjust.date },
-      status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
-      journal: {
-        $in: [
-          JOURNALS.FXA_CAPITAL,
-          JOURNALS.FXA_REVALUATION,
-          JOURNALS.FXA_OUT,
-          JOURNALS.FXA_MOVE,
-          JOURNALS.FXA_SALE,
-        ],
-      },
-      'details.fixedAssetId': { $in: fixedAssetIds },
-    }).lean();
-    if (laterChange)
-      throw new Error(
-        'Undo later fixed asset changes before clearing depreciation.',
-      );
     await assertCanWriteTransactionAccounts({
       models,
       userId,
@@ -880,7 +594,7 @@ export const clearAdjustFixedAsset = async (
     ];
     await parentIds.reduce(async (previous, parentId) => {
       await previous;
-      await models.Transactions.removePTransaction({ parentId });
+      await removeAdjustFixedAssetParent(models, adjust._id, parentId);
     }, Promise.resolve());
   }
 
@@ -1063,7 +777,8 @@ export const runAdjustFixedAsset = async (
       periodDate = addDays(periodDate, 1);
     }
 
-    if (periodActiveCount <= 0) return assetDetails;
+    if (periodActiveCount <= 0 && !fixedAsset.hasTaxDepreciation)
+      return assetDetails;
 
     const depreciationMethod = fixedAsset.depreciationMethod || 'straightLine';
     const resultByLocationKey = calculateFixedAssetDepreciationByDay({
@@ -1077,6 +792,38 @@ export const runAdjustFixedAsset = async (
       corrections,
     });
 
+    let taxResults: ReturnType<typeof calculateFxaTaxDepreciation>;
+    if (!fixedAsset.hasTaxDepreciation) {
+      taxResults = new Map(
+        Array.from(resultByLocationKey, ([key, result]) => [
+          key,
+          {
+            amount: result.depreciationAmount,
+            accumulated: result.accumulatedDepreciation,
+            error: '',
+          },
+        ]),
+      );
+    } else if (periodActiveCount <= 0) {
+      taxResults = new Map(
+        Array.from(resultByLocationKey.keys(), (key) => [
+          key,
+          {
+            amount: 0,
+            accumulated: 0,
+            error: '',
+          },
+        ]),
+      );
+    } else {
+      taxResults = calculateFxaTaxDepreciation({
+        fixedAsset,
+        beginDate: startDate,
+        endDate,
+        corrections,
+        movements,
+      });
+    }
     const revaluation = revaluationStates.get(fixedAsset._id) || {
       count: 0,
       loss: 0,
@@ -1096,12 +843,20 @@ export const runAdjustFixedAsset = async (
         !result ||
         (result.originalCost <= 0 &&
           result.depreciationAmount <= 0 &&
-          !result.error)
+          !result.error &&
+          !taxResults)
       ) {
         continue;
       }
 
+      const tax = taxResults?.get(locationKey);
       assetDetails.push({
+        ...(taxResults
+          ? {
+              taxDepreciationAmount: tax?.amount || 0,
+              taxAccumulatedDepreciation: tax?.accumulated || 0,
+            }
+          : {}),
         adjustId: adjust._id,
         fixedAssetId: fixedAsset._id,
         categoryId: fixedAsset.categoryId,
@@ -1122,7 +877,16 @@ export const runAdjustFixedAsset = async (
         depreciationAmount: result.depreciationAmount,
         accumulatedDepreciation: result.accumulatedDepreciation,
         error:
-          result.error || (!accountId ? 'Fixed asset account is missing.' : ''),
+          result.error ||
+          tax?.error ||
+          (fixedAsset.hasTaxDepreciation &&
+          Math.abs((tax?.accumulated ?? 0) - result.accumulatedDepreciation) >
+            0.005 &&
+          getFxaRulesAtDate(fixedAsset, corrections, endDate).incomeTaxRate ===
+            undefined
+            ? 'Set the income tax rate on the acquisition or capitalization depreciation rules.'
+            : '') ||
+          (!accountId ? 'Fixed asset account is missing.' : ''),
         warning: result.warning,
       });
     }
@@ -1155,116 +919,232 @@ export const createAdjustFixedAssetTransaction = async ({
   userId,
   adjust,
   expenseAccountId,
+  taxExpenseAccountId,
 }: {
   models: IModels;
   userId: string;
   adjust: IAdjustFixedAssetDocument;
   expenseAccountId: string;
+  taxExpenseAccountId?: string;
 }) => {
   const details = await models.AdjustFxaDetails.find({
     adjustId: adjust._id,
     error: { $in: [null, ''] },
-    depreciationAmount: { $gt: 0 },
   }).lean();
+  if (
+    !details.length &&
+    (adjust.status !== ADJ_FXA_STATUSES.PROCESS || adjust.error)
+  )
+    throw new Error(
+      'Calculate depreciation and resolve errors before closing.',
+    );
 
-  if (!details.length) {
-    if (adjust.status !== ADJ_FXA_STATUSES.PROCESS || adjust.error)
-      throw new Error(
-        'Calculate depreciation and resolve errors before closing.',
-      );
-    return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
-      status: ADJ_FXA_STATUSES.COMPLETE,
-      expenseAccountId,
-      modifiedBy: userId,
-    });
-  }
-
-  const accountConfigs = await getFxaDepreciationAccounts(models);
-  const creditDetails: ITransaction['details'] = [];
-  const debitDetails: ITransaction['details'] = [];
-
-  for (const detail of details) {
-    if (!detail.accountId) {
-      throw new Error('Fixed asset account is missing on depreciation detail.');
-    }
-
-    const depreciationAccountId = accountConfigs.get(detail.accountId);
-
-    if (!depreciationAccountId) {
-      throw new Error('Accumulated depreciation account config is missing.');
-    }
-
-    const amount = detail.depreciationAmount || 0;
-
-    debitDetails.push({
-      accountId: expenseAccountId,
-      count: 0,
-      unitPrice: 0,
-      amount,
-      branchId: detail.branchId,
-      departmentId: detail.departmentId,
-      fixedAssetId: detail.fixedAssetId,
-    });
-    creditDetails.push({
-      accountId: depreciationAccountId,
-      count: 0,
-      unitPrice: 0,
-      amount,
-      branchId: detail.branchId,
-      departmentId: detail.departmentId,
-      fixedAssetId: detail.fixedAssetId,
-    });
-  }
-
-  const trDocs: ITransaction[] = [
-    {
-      _id: details[0].transactionId,
-      date: adjust.date,
-      description: adjust.description,
-      journal: JOURNALS.FXA_DEP,
-      status: TR_STATUSES.COMPLETE,
-      side: TR_SIDES.DEBIT,
-      contentType: 'accounting:adjustFixedAsset',
-      contentId: adjust._id,
-      details: debitDetails,
-    },
-    {
-      date: adjust.date,
-      description: adjust.description,
-      journal: JOURNALS.FXA_DEP,
-      status: TR_STATUSES.COMPLETE,
-      side: TR_SIDES.CREDIT,
-      contentType: 'accounting:adjustFixedAsset',
-      contentId: adjust._id,
-      details: creditDetails,
-    },
+  const content = {
+    contentType: 'accounting:adjustFixedAsset',
+    contentId: adjust._id,
+  };
+  const existing = await models.Transactions.find(content).lean();
+  const parentIds = [
+    ...new Set(existing.map((row) => row.parentId || row._id)),
   ];
+  const firstParentId = parentIds[0];
+  const retainedRows = existing.filter(
+    (row) => (row.parentId || row._id) === firstParentId,
+  );
+  const discardedPointers = new Set(
+    existing
+      .filter((row) => (row.parentId || row._id) !== firstParentId)
+      .map((row) => row.ptrId),
+  );
+  const previousBookPtrId = retainedRows.find(
+    (row) => row.journal === JOURNALS.FXA_DEP,
+  )?.ptrId;
+  const depreciationPtrId =
+    previousBookPtrId && !discardedPointers.has(previousBookPtrId)
+      ? previousBookPtrId
+      : nanoid();
+  const previousTaxPtrId = retainedRows.find(
+    (row) => row.journal === JOURNALS.FXA_DEFERRED_TAX,
+  )?.ptrId;
+  const taxPtrId =
+    previousTaxPtrId &&
+    previousTaxPtrId !== depreciationPtrId &&
+    !discardedPointers.has(previousTaxPtrId)
+      ? previousTaxPtrId
+      : nanoid();
+  const base = {
+    ...content,
+    date: adjust.date,
+    description: adjust.description,
+    status: TR_STATUSES.COMPLETE,
+  };
+  const expenseBalances = new Map<
+    string,
+    {
+      ptrId: string;
+      accountId: string;
+      branchId?: string;
+      departmentId?: string;
+      amount: number;
+    }
+  >();
+  const addExpense = (
+    ptrId: string,
+    accountId: string,
+    detail: Pick<ITransaction['details'][number], 'branchId' | 'departmentId'>,
+    amount: number,
+  ) => {
+    const branchId = detail.branchId || '';
+    const departmentId = detail.departmentId || '';
+    const key = JSON.stringify([ptrId, accountId, branchId, departmentId]);
+    const previous = expenseBalances.get(key);
+    expenseBalances.set(key, {
+      ptrId,
+      accountId,
+      branchId,
+      departmentId,
+      amount: (previous?.amount || 0) + amount,
+    });
+  };
+  const trDocs: ITransaction[] = [];
+  if (details.length) {
+    const accounts = await getFxaDepreciationAccounts(models);
+    const depreciationDetails: ITransaction['details'] = [];
+    for (const detail of details) {
+      if (!detail.accountId)
+        throw new Error(
+          'Fixed asset account is missing on depreciation detail.',
+        );
+      const amount =
+        Math.round((detail.depreciationAmount || 0) * 10000) / 10000;
+      if (amount <= 0) continue;
+      const accountId = accounts.get(detail.accountId);
+      if (!accountId)
+        throw new Error('Accumulated depreciation account config is missing.');
+      depreciationDetails.push({
+        accountId,
+        amount,
+        count: 0,
+        unitPrice: 0,
+        fixedAssetId: detail.fixedAssetId,
+        branchId: detail.branchId,
+        departmentId: detail.departmentId,
+      });
+      addExpense(depreciationPtrId, expenseAccountId, detail, amount);
+    }
+    if (depreciationDetails.length)
+      trDocs.push({
+        ...base,
+        ptrId: depreciationPtrId,
+        journal: JOURNALS.FXA_DEP,
+        side: TR_SIDES.CREDIT,
+        details: depreciationDetails,
+      });
+    const taxRates = await getFxaIncomeTaxRates(models, adjust.date, details);
+    const taxDocs = await getFxaDeferredTaxTransactions(
+      models,
+      adjust,
+      details.map((detail) => ({
+        ...detail,
+        incomeTaxRate: taxRates.get(detail.fixedAssetId || ''),
+      })),
+    );
+    for (const transaction of taxDocs) {
+      for (const detail of transaction.details) {
+        addExpense(
+          taxPtrId,
+          taxExpenseAccountId || '',
+          detail,
+          (transaction.side === TR_SIDES.DEBIT ? -1 : 1) * detail.amount,
+        );
+      }
+    }
+    trDocs.push(
+      ...taxDocs.map((transaction) => ({ ...transaction, ptrId: taxPtrId })),
+    );
+  }
+  for (const ptrId of [depreciationPtrId, taxPtrId]) {
+    const debit: ITransaction['details'] = [];
+    const credit: ITransaction['details'] = [];
+    for (const detail of expenseBalances.values()) {
+      if (detail.ptrId !== ptrId) continue;
+      const amount = Math.round(detail.amount * 10000) / 10000;
+      if (!amount) continue;
+      if (!detail.accountId)
+        throw new Error(
+          'Select an income tax expense account before posting deferred tax.',
+        );
+      (amount > 0 ? debit : credit).push({
+        accountId: detail.accountId,
+        branchId: detail.branchId,
+        departmentId: detail.departmentId,
+        amount: Math.abs(amount),
+        count: 0,
+        unitPrice: 0,
+      });
+    }
+    for (const [side, rows] of [
+      [TR_SIDES.DEBIT, debit],
+      [TR_SIDES.CREDIT, credit],
+    ] as const) {
+      if (rows.length)
+        trDocs.push({
+          ...base,
+          ptrId,
+          journal: JOURNALS.MAIN,
+          side,
+          details: rows,
+        });
+    }
+  }
 
-  const existingTransactionId = details.find(
-    (detail) => detail.transactionId,
-  )?.transactionId;
-  const transactions = existingTransactionId
-    ? await models.Transactions.updatePTransaction(
-        existingTransactionId,
+  await assertCanWriteTransactionAccounts({
+    models,
+    userId,
+    docs: trDocs,
+    oldTrs: existing,
+  });
+  const retainedParentId = trDocs.length ? parentIds[0] : undefined;
+  let transactions: ITransaction[] = [];
+  if (trDocs.length) {
+    if (retainedParentId) {
+      transactions = await models.Transactions.updatePTransaction(
+        retainedParentId,
         trDocs,
         userId,
-      )
-    : await models.Transactions.createPTransaction(trDocs, userId);
+        { preservePtrIds: true },
+      );
+    } else {
+      transactions = await models.Transactions.createPTransaction(
+        trDocs,
+        userId,
+        {
+          preservePtrIds: true,
+        },
+      );
+    }
+  }
+  await parentIds
+    .filter((parentId) => parentId !== retainedParentId)
+    .reduce(async (previous, parentId) => {
+      await previous;
+      await removeAdjustFixedAssetParent(models, adjust._id, parentId);
+    }, Promise.resolve());
   const parentId = transactions[0]?.parentId;
-
-  await models.AdjustFxaDetails.updateMany(
-    { adjustId: adjust._id },
-    {
-      $set: {
-        transactionId: parentId,
-        updatedAt: new Date(),
-      },
-    },
-  );
-
+  if (details.length)
+    await models.AdjustFxaDetails.updateMany(
+      { adjustId: adjust._id },
+      parentId
+        ? { $set: { transactionId: parentId, updatedAt: new Date() } }
+        : {
+            $unset: { transactionId: '', transactionDetailId: '' },
+            $set: { updatedAt: new Date() },
+          },
+    );
   return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
     status: ADJ_FXA_STATUSES.COMPLETE,
     expenseAccountId,
+    taxExpenseAccountId,
     modifiedBy: userId,
   });
 };

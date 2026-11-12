@@ -1,4 +1,8 @@
 import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
+import {
+  getFxaIncomeTaxDocuments,
+  syncFxaIncomeDeferredTax,
+} from './fxaIncomeTax';
 import { assertFxaAcquisitionConsistency } from './fxaLedger';
 import { nanoid } from 'nanoid';
 import { fixNum } from 'erxes-api-shared/utils';
@@ -77,6 +81,7 @@ const buildFixedAssetDoc = ({
     taxDepreciationMethod?: string;
     defaultTaxAnnualDepreciationRate?: number;
     defaultTaxSalvageValue?: number;
+    incomeTaxRate?: number;
   };
   date: Date;
   detail: ITrDetail;
@@ -85,6 +90,8 @@ const buildFixedAssetDoc = ({
 }): IFixedAsset => {
   detail.followInfos = {
     ...detail.followInfos,
+    hasTaxDepreciation: detail.followInfos?.hasTaxDepreciation ?? false,
+    incomeTaxRate: detail.followInfos?.incomeTaxRate ?? category?.incomeTaxRate,
     depreciationStartDate: detail.followInfos?.depreciationStartDate || date,
     depreciationMethod:
       detail.followInfos?.depreciationMethod ??
@@ -395,7 +402,7 @@ const syncOpeningAccumulatedDepreciation = async ({
     parentId: transaction.parentId,
     number: transaction.number,
     date,
-    description: `Opening accumulated depreciation for fixed asset income ${transaction._id}`,
+    description: transaction.description,
     status: transaction.status,
     mentionOwnerId: transaction.mentionOwnerId,
     mentionUserIds: transaction.mentionUserIds,
@@ -624,6 +631,7 @@ export const validateFxaIncomeAcquisition = async (
   for (const detail of transaction.details || []) {
     for (const field of [
       'preDeprecation',
+      'taxPreDeprecation',
       'revaluationLoss',
       'revaluationReserve',
     ] as const) {
@@ -638,6 +646,10 @@ export const validateFxaIncomeAcquisition = async (
       throw new Error('Enter either total revaluation loss or reserve.');
     const count = Math.max(0, detail.count || 0);
     const unitCost = detail.unitPrice ?? (count ? detail.amount / count : 0);
+    if ((info.taxPreDeprecation || 0) > unitCost * count + 0.005)
+      throw new Error(
+        'Total opening tax depreciation cannot exceed acquisition cost.',
+      );
     if ((info.preDeprecation || 0) > unitCost * count + 0.005)
       throw new Error(
         'Total accumulated depreciation cannot exceed acquisition cost.',
@@ -645,6 +657,7 @@ export const validateFxaIncomeAcquisition = async (
   }
   if ((transaction.details || []).some((detail) => (detail.count || 0) > 0)) {
     await prepareFxaIncomeAcquisition(models, userId, transaction);
+    await getFxaIncomeTaxDocuments(models, userId, transaction);
   }
 };
 
@@ -759,6 +772,8 @@ export const syncFxaIncomeDetails = async (
     transaction,
     userId,
   });
+
+  await syncFxaIncomeDeferredTax(models, userId, transaction);
 
   await models.Transactions.updateOne(
     { _id: transaction._id },

@@ -1,9 +1,7 @@
+import { FxaAccountMatchingWarning } from '@/transactions/transaction-form/components/forms/FxaAccountMatchingWarning';
 import { useEffect } from 'react';
-import { Link } from 'react-router';
 import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { IconAlertTriangle } from '@tabler/icons-react';
-import { Alert } from 'erxes-ui';
 import { useAccountsInline } from '@/settings/account/hooks/useAccounts';
 import { AccountStatus } from '@/settings/account/types/Account';
 import { useFixedAssetAccountConfigs } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
@@ -12,14 +10,18 @@ import { ITransactionGroupForm } from '@/transactions/transaction-form/types/Jou
 export const FxaOutAccountWarning = ({
   form,
   index,
+  sale = false,
 }: {
   form: ITransactionGroupForm;
   index: number;
+  sale?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const accountId = useWatch({
     control: form.control,
-    name: `trDocs.${index}.details.0.accountId`,
+    name: sale
+      ? `trDocs.${index}.followInfos.saleOutAccountId`
+      : `trDocs.${index}.details.0.accountId`,
   });
   const currentDepreciationAccountId = useWatch({
     control: form.control,
@@ -81,27 +83,15 @@ export const FxaOutAccountWarning = ({
   if (!error && !accountsError && depreciationAccountId && hasConfiguredAccount)
     return null;
   return (
-    <Alert variant="warning" className="mt-4">
-      <IconAlertTriangle />
-      <Alert.Title>{t('warning')}</Alert.Title>
-      <Alert.Description>
-        {error?.message ||
-          accountsError?.message ||
-          t('fxa-missing-depreciation-account', {
-            defaultValue:
-              'Сонгосон үндсэн хөрөнгийн дансанд хуримтлагдсан элэгдлийн дансны холбоос тохируулаагүй эсвэл ашиглах боломжгүй байна.',
-          })}
-        <Link
-          className="underline underline-offset-2"
-          to="/accounting/settings/fixed-assets/accounts-config"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {t('fxa-configure-account-links', {
-            defaultValue: 'Дансны холбоос тохируулах',
-          })}
-        </Link>
-      </Alert.Description>
-    </Alert>
+    <FxaAccountMatchingWarning
+      message={
+        error?.message ||
+        accountsError?.message ||
+        t('fxa-missing-depreciation-account', {
+          defaultValue:
+            'Сонгосон үндсэн хөрөнгийн дансанд хуримтлагдсан элэгдлийн дансны холбоос тохируулаагүй эсвэл ашиглах боломжгүй байна.',
+        })
+      }
+    />
   );
 };

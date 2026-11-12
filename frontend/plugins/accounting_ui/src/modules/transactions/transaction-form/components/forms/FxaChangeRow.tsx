@@ -1,4 +1,4 @@
-import { FxaDepreciationFields } from '@/transactions/transaction-form/components/forms/FxaDepreciationFields';
+import { FxaChangeDepreciationFields } from '@/transactions/transaction-form/components/forms/FxaChangeDepreciationFields';
 import { getTotalFxaDepreciation } from '@/transactions/transaction-form/components/helpers/fxaDepreciation';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
@@ -22,11 +22,7 @@ import { ITransactionGroupForm } from '@/transactions/transaction-form/types/Jou
 import { FXA_CAPITAL_VALUATION } from '@/transactions/transaction-form/graphql/queries/fxaCapitalValuation';
 import { FixedAssetChooser } from '@/settings/fixed-assets/components/chooser/FixedAssetChooser';
 import { TFxaCapitalValuation } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
-import {
-  FxaChangeLifeFields,
-  FxaChangeMethodField,
-  FxaChangeNumberField,
-} from '@/transactions/transaction-form/components/forms/FxaChangeFields';
+import { FxaChangeNumberField } from '@/transactions/transaction-form/components/forms/FxaChangeFields';
 
 export const FxaChangeRow = ({
   form,
@@ -89,6 +85,9 @@ export const FxaChangeRow = ({
       annualDepreciationRate: valuation.annualDepreciationRate,
       depreciationMethod: valuation.depreciationMethod,
       preDeprecation: valuation.preDeprecation,
+      taxPreDeprecation:
+        valuation.taxPreDeprecation ?? valuation.preDeprecation,
+      incomeTaxRate: valuation.incomeTaxRate ?? undefined,
       salvageValue: valuation.salvageValue,
       taxDepreciationMethod: valuation.taxDepreciationMethod || undefined,
       taxAnnualDepreciationRate:
@@ -96,7 +95,7 @@ export const FxaChangeRow = ({
       taxSalvageValue: valuation.taxSalvageValue ?? undefined,
     });
     setPendingAsset('');
-  }, [assetId, detailIndex, form, index, pendingAsset, valuation]);
+  }, [assetId, detailIndex, form, index, pendingAsset, revaluation, valuation]);
   const fieldProps = { form, index, detailIndex };
   const title = revaluation ? 'fxa-revaluation-details' : 'fxa-capital-details';
   let message = error?.message || '';
@@ -147,33 +146,50 @@ export const FxaChangeRow = ({
                 <SelectFixedAsset.Value />
               </SelectFixedAsset.Provider>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <FxaDepreciationFields {...fieldProps} valuation={valuation} />
-                <FxaChangeNumberField
+                <FxaChangeDepreciationFields
                   {...fieldProps}
-                  rule="salvageValue"
-                  label="fxa-unit-salvage-value"
+                  valuation={valuation}
+                  revaluation={revaluation}
                 />
-                <FxaChangeMethodField {...fieldProps} capital />
-                <FxaChangeLifeFields {...fieldProps} />
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${index}.details.${detailIndex}.followInfos.depreciationStartDate`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('depreciation-start-date')}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          type="date"
-                          value={field.value?.slice(0, 10) || ''}
-                          onChange={(event) =>
-                            field.onChange(event.target.value || undefined)
-                          }
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                {valuation?.hasTaxDepreciation && (
+                  <>
+                    <FxaChangeDepreciationFields
+                      {...fieldProps}
+                      valuation={valuation}
+                      tax
+                      revaluation={revaluation}
+                    />
+                    {!revaluation && (
+                      <FxaChangeNumberField
+                        {...fieldProps}
+                        rule="incomeTaxRate"
+                        label="income-tax-rate"
+                        fallbackValue={valuation.incomeTaxRate ?? undefined}
+                      />
+                    )}
+                  </>
+                )}
+                {!revaluation && (
+                  <Form.Field
+                    control={form.control}
+                    name={`trDocs.${index}.details.${detailIndex}.followInfos.depreciationStartDate`}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('depreciation-start-date')}</Form.Label>
+                        <Form.Control>
+                          <Input
+                            type="date"
+                            value={field.value?.slice(0, 10) || ''}
+                            onChange={(event) =>
+                              field.onChange(event.target.value || undefined)
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
               </div>
               {valuation && (
                 <dl className="grid grid-cols-2 gap-3 text-sm">
@@ -286,13 +302,21 @@ export const FxaChangeRow = ({
         />
       </Table.Cell>
       <Table.Cell>
-        <FxaChangeNumberField
-          {...fieldProps}
-          rule="annualDepreciationRate"
-          label="fxa-new-useful-years"
-          compact
-          usefulYears
-        />
+        {revaluation ? (
+          <RecordTableInlineCell>
+            {valuation?.annualDepreciationRate
+              ? 100 / valuation.annualDepreciationRate
+              : '-'}
+          </RecordTableInlineCell>
+        ) : (
+          <FxaChangeNumberField
+            {...fieldProps}
+            rule="annualDepreciationRate"
+            label="fxa-new-useful-years"
+            compact
+            usefulYears
+          />
+        )}
       </Table.Cell>
       <Table.Cell className="tabular-nums">
         <RecordTableInlineCell>

@@ -25,6 +25,8 @@ export const types = `
     branchId: String!
     departmentId: String!
     count: Float!
+    deferredTaxAsset: Float
+    deferredTaxLiability: Float
   }
 
   type FixedAssetCapitalValuation {
@@ -34,6 +36,9 @@ export const types = `
     count: Float!
     originalCost: Float!
     preDeprecation: Float!
+    taxPreDeprecation: Float
+    hasTaxDepreciation: Boolean
+    incomeTaxRate: Float
     revaluationLoss: Float!
     revaluationReserve: Float!
     taxDepreciationMethod: String

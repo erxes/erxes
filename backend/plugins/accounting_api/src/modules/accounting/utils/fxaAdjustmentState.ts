@@ -1,4 +1,6 @@
 import { IModels } from '~/connectionResolvers';
+import { getFxaTaxValues } from './fxaTaxValues';
+import { getFxaIncomeTaxRates } from './fxaIncomeTaxRates';
 import {
   ADJ_FXA_STATUSES,
   IAdjustFxaDetail,
@@ -31,7 +33,14 @@ export const attachPreviousFxaDetails = async <T extends IAdjustFxaDetail>(
   models: IModels,
   adjustId: string,
   details: T[],
-): Promise<(T & { previous: IAdjustFxaDetailDocument | null })[]> => {
+): Promise<
+  (T &
+    ReturnType<typeof getFxaTaxValues> & {
+      previous:
+        | (IAdjustFxaDetailDocument & ReturnType<typeof getFxaTaxValues>)
+        | null;
+    })[]
+> => {
   if (!details.length) return [];
   const current = await models.AdjustFixedAssets.findOne({
     _id: adjustId,
@@ -51,14 +60,29 @@ export const attachPreviousFxaDetails = async <T extends IAdjustFxaDetail>(
         },
       }).lean()
     : [];
+  const [currentRates, previousRates] = await Promise.all([
+    current
+      ? getFxaIncomeTaxRates(models, current.date, details)
+      : new Map<string, number | undefined>(),
+    previous
+      ? getFxaIncomeTaxRates(models, previous.date, previousDetails)
+      : new Map<string, number | undefined>(),
+  ]);
   const byLocation = new Map(
     previousDetails.map((detail) => [
       getFxaAdjustmentDetailKey(detail),
-      detail,
+      {
+        ...detail,
+        ...getFxaTaxValues(
+          detail,
+          previousRates.get(detail.fixedAssetId || ''),
+        ),
+      },
     ]),
   );
   return details.map((detail) => ({
     ...detail,
+    ...getFxaTaxValues(detail, currentRates.get(detail.fixedAssetId || '')),
     previous: byLocation.get(getFxaAdjustmentDetailKey(detail)) || null,
   }));
 };
