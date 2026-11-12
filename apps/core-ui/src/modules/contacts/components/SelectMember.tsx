@@ -138,7 +138,7 @@ export const MembersInline = ({
                   className={cn('bg-background', selected.length > 1 && 'ring-2 ring-background')}
                   size={size}
                 >
-                  <Avatar.Image src={readImage(member.avatarUrl ?? undefined, 200)} />
+                  <Avatar.Image src={readImage(member.avatarUrl)} />
                   <Avatar.Fallback>{memberName(member).charAt(0)}</Avatar.Fallback>
                 </Avatar>
               </Tooltip.Trigger>

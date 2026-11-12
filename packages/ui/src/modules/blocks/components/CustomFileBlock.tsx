@@ -23,7 +23,7 @@ const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps => (
 });
 
 const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
-  const url = readImage(block.props.url, undefined, true);
+  const url = readImage(block.props.url);
 
   return (
     <div className="bn-file-name-with-icon" contentEditable={false} draggable={false}>

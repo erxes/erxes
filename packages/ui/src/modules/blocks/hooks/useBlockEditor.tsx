@@ -1,10 +1,9 @@
 import type { ThreadStore, User } from '@blocknote/core/comments';
 import type { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
-import { useCallback, useEffect } from 'react';
-import { useErxesUpload } from 'erxes-ui/hooks/use-upload-new';
-import { useUploadChunked } from 'erxes-ui/hooks/use-upload-chunked';
+import { useEffect } from 'react';
 import { useToast } from 'erxes-ui/hooks/use-toast';
+import { errorMessage, storeFile } from 'erxes-ui/utils/file-storage';
 import { readImage } from 'erxes-ui/utils/core';
 import { BLOCK_SCHEMA, TABLE_SCHEMA } from 'erxes-ui/modules/blocks/constant/blockEditorSchema';
 import type { IBlockEditor } from 'erxes-ui/modules/blocks/types/TextEditor';
@@ -17,44 +16,22 @@ export const useBlockEditor = (args?: {
   comments?: { threadStore: ThreadStore };
   resolveUsers?: (userIds: string[]) => Promise<User[]>;
 }): IBlockEditor => {
-  const { placeholder, uploadFile, ...restArgs } = args || {};
+  const { placeholder, uploadFile, ...restArgs } = args ?? {};
 
-  const { uploadFile: uploadEditorFile } = useErxesUpload({ maxFiles: 1 });
-  const { upload: uploadVideo, error: videoUploadError } = useUploadChunked();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (videoUploadError) {
+  const defaultUploadFile = async (file: File) => {
+    try {
+      return await storeFile(file);
+    } catch (error) {
       toast({
-        title: 'Video upload failed',
-        description: videoUploadError,
+        title: 'Upload failed',
+        description: errorMessage(error, 'Upload failed'),
         variant: 'destructive',
       });
+      throw error;
     }
-  }, [videoUploadError, toast]);
-
-  const defaultUploadFile = useCallback(
-    async (file: File): Promise<string> => {
-      if (file.type.startsWith('video/')) {
-        const video = await uploadVideo(file);
-
-        if (!video?.url) {
-          throw new Error('Video upload failed');
-        }
-
-        return video.url;
-      }
-
-      const result = await uploadEditorFile(file);
-
-      if (!result.url) {
-        throw new Error(result.message || 'Upload failed');
-      }
-
-      return result.url;
-    },
-    [uploadEditorFile, uploadVideo],
-  );
+  };
 
   const editor = useCreateBlockNote(
     {
@@ -71,9 +48,11 @@ export const useBlockEditor = (args?: {
   );
 
   useEffect(() => {
-    const exportHTML = editor.blocksToHTMLLossy;
+    const exportHTML = editor.blocksToHTMLLossy.bind(editor);
+
+    // oxlint-disable-next-line react/immutability -- useCreateBlockNote builds the editor; plugins call its blocksToHTMLLossy, so the clean export can only wrap that method
     editor.blocksToHTMLLossy = async (blocks) =>
-      removeCodeFormattingFromHTML(await exportHTML.call(editor, blocks));
+      removeCodeFormattingFromHTML(await exportHTML(blocks));
 
     return () => {
       editor.blocksToHTMLLossy = exportHTML;
