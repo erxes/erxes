@@ -1,19 +1,22 @@
 import { db } from '@erxes/core-db';
 import {
-  listPluginSettings,
-  listRefunds,
-  refundInvoice,
-  updatePluginSettings,
   addGateway,
+  listGateways,
+  removeGateway,
+  updateGateway,
+} from '~/modules/payments/gateways.service';
+import {
   cancelInvoice,
   createInvoice,
   getInvoice,
-  listGateways,
   listInvoices,
   payTestInvoice,
-  removeGateway,
-  updateGateway,
-} from '~/modules/payments/payments.service';
+} from '~/modules/payments/invoices.service';
+import {
+  listPluginSettings,
+  updatePluginSettings,
+} from '~/modules/payments/pluginSettings.service';
+import { listRefunds, refundInvoice } from '~/modules/payments/refunds.service';
 import { authed, anyone } from '~/orpc';
 
 export const paymentsRouter = {

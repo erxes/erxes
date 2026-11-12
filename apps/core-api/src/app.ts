@@ -16,7 +16,7 @@ import { HttpError } from '~/http/errors';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
-import { paymentCallbackRouter } from '~/modules/payments/payments.service';
+import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
 import { standingGuard } from '~/modules/saas/saas.service';

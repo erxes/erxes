@@ -313,6 +313,15 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
         ).status,
       ).toBe(200);
 
+      // The audit log shows the change as [before, after].
+      const changed = await call(owner, 'GET', '/audit?action=payment.plugin_settings_updated');
+
+      expect(changed.status).toBe(200);
+      expect(changed.body.data[0].changes).toEqual({
+        defaultGatewayId: [null, second.body.id],
+        allowedGatewayIds: [[], [second.body.id, third.body.id]],
+      });
+
       const metadata = { orderId: 'o9', lines: [{ sku: 'A', qty: 2 }] };
 
       const invoice = await call(hr, 'POST', '/payments/invoices', {
@@ -491,7 +500,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
     );
 
     try {
-      const { addGateway } = await import('~/modules/payments/payments.service');
+      const { addGateway } = await import('~/modules/payments/gateways.service');
       const { withOrg } = await import('@erxes/core-db');
 
       await expect(

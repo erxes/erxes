@@ -1,7 +1,7 @@
 import { advanceJob } from '~/modules/automations/engine';
 import { fireJob } from '~/modules/automations/triggers';
 import { emailJob } from '~/modules/email/email';
-import { paymentCheckJob } from '~/modules/payments/payments.service';
+import { paymentCheckJob } from '~/modules/payments/invoiceState';
 import { pluginEventJob } from '~/modules/plugins/pluginEvents';
 import { auditStreamJob } from '~/modules/audit/streamDelivery';
 import { exportRunJob } from '~/modules/transfer/exports.service';
