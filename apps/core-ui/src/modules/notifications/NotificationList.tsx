@@ -109,7 +109,6 @@ const NotificationItem = ({
         (notification.link || changes) && 'cursor-pointer',
         !notification.read && 'bg-primary/5',
       )}
-      onClick={open}
     >
       <span className="relative mt-0.5 shrink-0">
         <UserAvatar name={sender} src={senderAvatar} className="size-7" />
@@ -121,9 +120,17 @@ const NotificationItem = ({
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-start gap-2">
-          <p className={cn('flex-1 text-sm leading-5', !notification.read && 'font-medium')}>
+          {/* The whole row opens it: the button's ::after covers the row. */}
+          <button
+            type="button"
+            onClick={open}
+            className={cn(
+              'flex-1 text-left text-sm leading-5 after:absolute after:inset-0',
+              !notification.read && 'font-medium',
+            )}
+          >
             {title(notification)}
-          </p>
+          </button>
           {!notification.read && (
             <span
               className="mt-1.5 size-2 shrink-0 rounded-full bg-primary"
@@ -169,11 +176,8 @@ const NotificationItem = ({
           {changes && !compact && (
             <button
               type="button"
-              className="inline-flex items-center gap-0.5 text-primary hover:underline"
-              onClick={(event) => {
-                event.stopPropagation();
-                setExpanded((value) => !value);
-              }}
+              className="relative inline-flex items-center gap-0.5 text-primary hover:underline"
+              onClick={() => setExpanded((value) => !value)}
             >
               {t('changes', {
                 count: Object.keys(changes).length,
@@ -205,10 +209,7 @@ const NotificationItem = ({
           aria-label={
             notification.read ? t('mark-unread', 'Mark as unread') : t('mark-read', 'Mark as read')
           }
-          onClick={(event) => {
-            event.stopPropagation();
-            markRead.mutate({ ids: [notification.id], read: !notification.read });
-          }}
+          onClick={() => markRead.mutate({ ids: [notification.id], read: !notification.read })}
         >
           <IconCheck className={cn('size-3.5', notification.read && 'text-primary')} />
         </Button>
@@ -217,10 +218,7 @@ const NotificationItem = ({
           variant="ghost"
           className="size-6"
           aria-label={t('remove', 'Remove')}
-          onClick={(event) => {
-            event.stopPropagation();
-            remove.mutate({ id: notification.id });
-          }}
+          onClick={() => remove.mutate({ id: notification.id })}
         >
           <IconTrash className="size-3.5" />
         </Button>

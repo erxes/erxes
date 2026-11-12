@@ -32,27 +32,29 @@ export const OnboardingStepItem = ({
           <IconCheck className="h-6 w-6" />
         </div>
       </div>
-      <div
+      <button
+        type="button"
+        aria-disabled={!isChecked}
         className={cn(
-          'flex flex-1 flex-row gap-4 rounded-xl p-2 pr-12 transition-[transform,background-color] duration-300',
+          'flex flex-1 flex-row gap-4 rounded-xl p-2 pr-12 text-left transition-[transform,background-color] duration-300',
           isSelected ? 'scale-100 bg-gray-500/20' : 'scale-90 bg-transparent',
-          isChecked && 'cursor-pointer',
+          isChecked ? 'cursor-pointer' : 'cursor-default',
         )}
         style={{ transitionTimingFunction: EASE_SPRING }}
         onClick={() => isChecked && onSelect(step.step)}
       >
-        <div className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
+        <span className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
           <Icon className="h-6 w-6" />
-        </div>
-        <div className="flex flex-col gap-0.5">
-          <p
+        </span>
+        <span className="flex flex-col gap-0.5">
+          <span
             className={cn(
-              'text-base font-semibold transition-colors',
+              'block text-base font-semibold transition-colors',
               isSelected ? 'text-white' : 'text-white/90',
             )}
           >
             {step.title}
-          </p>
+          </span>
           <span
             className={cn(
               'text-xs leading-relaxed font-normal transition-colors',
@@ -61,8 +63,8 @@ export const OnboardingStepItem = ({
           >
             {step.subtitle}
           </span>
-        </div>
-      </div>
+        </span>
+      </button>
     </div>
   );
 };

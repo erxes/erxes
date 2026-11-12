@@ -345,6 +345,8 @@ export const FlowCanvas = ({
     <div className="relative min-h-0 flex-1">
       <div
         className="absolute inset-0 overflow-auto"
+        // A pointer shortcut for Escape (the editor's key for leaving a step).
+        role="presentation"
         // Only clicks on the empty canvas (menus are portals: their clicks bubble here through React).
         onClick={(event) => {
           if (event.target instanceof HTMLElement && event.target.closest('[data-canvas-empty]'))

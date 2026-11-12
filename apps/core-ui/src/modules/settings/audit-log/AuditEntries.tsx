@@ -87,7 +87,10 @@ const EntryRow = ({
           )}
         </button>
       </td>
-      <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
+      <td
+        className="px-3 py-2 whitespace-nowrap text-muted-foreground"
+        aria-label={new Date(entry.createdAt).toLocaleString()}
+      >
         <RelativeDateDisplay value={entry.createdAt} asChild>
           <span>
             <RelativeDateDisplay.Value value={entry.createdAt} />
@@ -144,7 +147,9 @@ export const AuditTable = ({ entries, paging }: { entries: AuditEntry[]; paging:
       <table className="w-full text-sm">
         <thead className="border-b bg-muted/50 text-left text-xs text-muted-foreground">
           <tr>
-            <th className="w-8" />
+            <th className="w-8">
+              <span className="sr-only">{t('details', 'Details')}</span>
+            </th>
             <th className="px-3 py-2 font-medium">{t('when', 'When')}</th>
             <th className="px-3 py-2 font-medium">{t('who', 'Who')}</th>
             <th className="px-3 py-2 font-medium">{t('what', 'What')}</th>

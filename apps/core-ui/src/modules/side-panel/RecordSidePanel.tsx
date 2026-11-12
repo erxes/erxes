@@ -168,6 +168,7 @@ const RecordSidePanelResizeHandle = ({
   return (
     <>
       <div
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- a focusable window splitter with a grip inside; <hr> holds no children
         role="separator"
         aria-orientation="vertical"
         aria-label={t('resize', 'Resize side panel')}

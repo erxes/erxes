@@ -185,12 +185,13 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
           </Button>
         </Appear>
       </Appear>
-      <span
+      <button
+        type="button"
         className="absolute bottom-1/4 text-accent-foreground hover:text-foreground cursor-pointer"
         onClick={() => onContinue()}
       >
         {t('do-this-later')}
-      </span>
+      </button>
     </>
   );
 };

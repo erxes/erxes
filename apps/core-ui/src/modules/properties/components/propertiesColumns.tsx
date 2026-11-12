@@ -26,8 +26,9 @@ const PropertiesCheckboxCell = ({ id }: { id: string }) => {
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(selectedFieldIdsState);
 
   return (
-    <div className="flex items-center justify-center" onClick={(event) => event.stopPropagation()}>
+    <div className="flex items-center justify-center">
       <Checkbox
+        onClick={(event) => event.stopPropagation()}
         checked={!!selectedFieldIds[id]}
         onCheckedChange={(value) =>
           setSelectedFieldIds((prev) => {
@@ -95,25 +96,23 @@ const PropertiesMoreColumnCell = ({ cell }: { cell: Cell<Field, unknown> }) => {
   };
 
   return (
-    <div onClick={(event) => event.stopPropagation()}>
-      <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <RecordTable.MoreButton />
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content className="min-w-48">
-          <DropdownMenu.Item asChild>
-            <Link to={propertyEditPath(field)}>
-              <IconEdit />
-              {t('edit', 'Edit')}
-            </Link>
-          </DropdownMenu.Item>
-          <DropdownMenu.Item onClick={handleRemove}>
-            <IconTrash />
-            {t('remove', 'Remove')}
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu>
-    </div>
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <RecordTable.MoreButton onClick={(event) => event.stopPropagation()} />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content className="min-w-48" onClick={(event) => event.stopPropagation()}>
+        <DropdownMenu.Item asChild>
+          <Link to={propertyEditPath(field)}>
+            <IconEdit />
+            {t('edit', 'Edit')}
+          </Link>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onClick={handleRemove}>
+          <IconTrash />
+          {t('remove', 'Remove')}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
   );
 };
 
@@ -124,11 +123,9 @@ const PropertyVisibleCell = ({ cell, label }: { cell: Cell<Field, unknown>; labe
 
   return (
     <RecordTableInlineCell>
-      <div
-        className="flex items-center justify-center w-full"
-        onClick={(event) => event.stopPropagation()}
-      >
+      <div className="flex items-center justify-center w-full">
         <Switch
+          onClick={(event) => event.stopPropagation()}
           size="sm"
           aria-label={label}
           disabled={!manager}

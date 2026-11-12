@@ -50,19 +50,24 @@ export const MergeDialog = ({
             links open the kept one.
           </Dialog.Description>
         </Dialog.Header>
-        <div role="radiogroup" className="flex flex-col gap-2">
+        <fieldset className="flex min-w-0 flex-col gap-2">
+          <legend className="sr-only">The {noun.replace(/s$/, '')} to keep</legend>
           {records.map((record) => (
-            <button
+            <label
               key={record.id}
-              type="button"
-              role="radio"
-              aria-checked={record.id === keepId}
-              onClick={() => setKeepId(record.id)}
               className={cn(
-                'flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring',
+                'flex cursor-pointer flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring',
                 record.id === keepId && 'border-primary bg-primary/5 hover:bg-primary/10',
               )}
             >
+              <input
+                type="radio"
+                name="merge-keep"
+                value={record.id}
+                checked={record.id === keepId}
+                onChange={() => setKeepId(record.id)}
+                className="sr-only"
+              />
               <span className="flex w-full items-center justify-between gap-2 text-sm font-medium">
                 <span className="truncate">{record.title}</span>
                 {record.id === keepId && <span className="text-xs text-primary">Keep</span>}
@@ -72,9 +77,9 @@ export const MergeDialog = ({
                   {detail}
                 </span>
               ))}
-            </button>
+            </label>
           ))}
-        </div>
+        </fieldset>
         <Dialog.Footer>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={merging}>
             Cancel

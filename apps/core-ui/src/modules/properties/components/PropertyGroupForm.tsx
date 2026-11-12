@@ -65,7 +65,6 @@ export const PropertyGroupForm = ({
                     {...field}
                     type="text"
                     placeholder={t('enter-group-name', 'Enter group name')}
-                    autoFocus
                   />
                 </Form.Control>
                 <Form.Message />

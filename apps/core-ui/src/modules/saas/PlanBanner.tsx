@@ -55,8 +55,7 @@ export const PlanBanner = () => {
   }
 
   return (
-    <div
-      role="status"
+    <output
       className={cn(
         'flex shrink-0 items-center gap-2 px-4 py-1.5 text-sm',
         severe
@@ -83,6 +82,6 @@ export const PlanBanner = () => {
           {t('manage', 'Manage on erxes.io')}
         </a>
       )}
-    </div>
+    </output>
   );
 };

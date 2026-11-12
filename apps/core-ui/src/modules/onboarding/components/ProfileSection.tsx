@@ -128,7 +128,7 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
                   <Form.Item>
                     <Form.Label>{t('first-name')}</Form.Label>
                     <Form.Control>
-                      <Input type="text" placeholder={t('first-name')} autoFocus {...field} />
+                      <Input type="text" placeholder={t('first-name')} {...field} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

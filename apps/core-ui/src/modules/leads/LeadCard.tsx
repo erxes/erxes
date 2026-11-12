@@ -106,7 +106,8 @@ export const LeadCard = memo(function LeadCard({
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id });
 
   return (
-    <div
+    <button
+      type="button"
       ref={setNodeRef}
       {...attributes}
       {...listeners}
@@ -118,12 +119,12 @@ export const LeadCard = memo(function LeadCard({
       }
       className={cn(
         CARD,
-        'cursor-grab outline-none transition-[box-shadow,border-color,opacity] hover:border-foreground/15 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing',
+        'block w-full cursor-grab text-left outline-none transition-[box-shadow,border-color,opacity] hover:border-foreground/15 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing',
         // A placeholder stays where the card was while its copy is dragged.
         isDragging && 'border-dashed opacity-40 shadow-none',
       )}
     >
       <CardBody lead={lead} />
-    </div>
+    </button>
   );
 });

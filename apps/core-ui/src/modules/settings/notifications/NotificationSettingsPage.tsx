@@ -5,7 +5,7 @@ import {
 } from '@erxes/core-contract';
 import { IconBellCog, IconBrowser, IconLock, IconMail } from '@tabler/icons-react';
 import { PageContainer, PageHeader, ScrollArea, Select, Spinner, Switch, useToast } from 'erxes-ui';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '~/lib/api';
@@ -39,18 +39,22 @@ const Channel = ({
   checked: boolean;
   disabled?: boolean;
   onChange: (checked: boolean) => void;
-}) => (
-  <label className="flex items-center gap-4 py-3">
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-      <Icon className="size-4" />
-    </span>
-    <span className="min-w-0 flex-1">
-      <span className="block text-sm font-medium">{label}</span>
-      <span className="block text-xs text-muted-foreground">{description}</span>
-    </span>
-    <Switch checked={checked} disabled={disabled} onCheckedChange={onChange} />
-  </label>
-);
+}) => {
+  const id = useId();
+
+  return (
+    <label htmlFor={id} className="flex items-center gap-4 py-3">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+        <Icon className="size-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium">{label}</span>
+        <span className="block text-xs text-muted-foreground">{description}</span>
+      </span>
+      <Switch id={id} checked={checked} disabled={disabled} onCheckedChange={onChange} />
+    </label>
+  );
+};
 
 const GroupRow = ({
   group,

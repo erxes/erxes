@@ -52,7 +52,7 @@ export const WelcomeSection = ({
 
       <Appear y={12} duration={500} delay={600} className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground">{t('takes-few-minutes')}</p>
-        <Button size="lg" className="w-full" onClick={onContinue} autoFocus>
+        <Button size="lg" className="w-full" onClick={onContinue}>
           {t('get-started')}
         </Button>
         <p className="text-xs text-muted-foreground">

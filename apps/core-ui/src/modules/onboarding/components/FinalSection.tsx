@@ -1,5 +1,6 @@
 import { IconCircleCheck } from '@tabler/icons-react';
 import { Button, Switch, useScopedHotkeys } from 'erxes-ui';
+import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD, EASE_SPRING } from './Appear';
@@ -14,6 +15,8 @@ export const FinalSection = ({
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   const { t: ot } = useTranslation(ONBOARDING_NS);
+  const exampleDataId = useId();
+
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
   useScopedHotkeys(`space`, () => onContinue(), 'welcome');
 
@@ -47,7 +50,10 @@ export const FinalSection = ({
 
       {exampleData && (
         <Appear y={20} duration={500} delay={500} className="-my-4 w-full">
-          <label className="flex cursor-pointer items-start justify-between gap-4 rounded-lg border bg-background p-3.5 text-left transition-colors hover:bg-muted/40">
+          <label
+            htmlFor={exampleDataId}
+            className="flex cursor-pointer items-start justify-between gap-4 rounded-lg border bg-background p-3.5 text-left transition-colors hover:bg-muted/40"
+          >
             <span className="min-w-0">
               <span className="block text-sm font-medium">
                 {ot('example-data', 'Add example data')}
@@ -60,6 +66,7 @@ export const FinalSection = ({
               </span>
             </span>
             <Switch
+              id={exampleDataId}
               checked={exampleData.value}
               onCheckedChange={exampleData.onChange}
               className="mt-0.5 shrink-0"

@@ -342,7 +342,7 @@ export const PropertyForm = ({
                 <Form.Item className="flex-auto">
                   <Form.Label>{t('name', 'Name')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} autoFocus={!isEdit} />
+                    <Input {...field} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
