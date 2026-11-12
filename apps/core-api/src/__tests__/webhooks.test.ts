@@ -1,133 +1,94 @@
+import { sql } from 'drizzle-orm';
 import { createHmac } from 'node:crypto';
+import { once } from 'node:events';
 import { createServer, type Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
-import { createOrganization } from '~/modules/organizations/organizations.service';
-import { currentToken, describeWithDb, useTestDatabase } from './db';
+import { z } from 'zod';
+import { config } from '~/config';
+import { isPrivateAddress } from '~/lib/outbound';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
 import { settle } from './settle';
+import { useTwoOrgs } from './support';
+
+/** What a webhook endpoint receives. */
+const Delivered = z.object({ type: z.string(), data: z.record(z.string(), z.unknown()) });
+
+const Signature = z.tuple([z.string(), z.string(), z.string()]);
 
 describeWithDb('webhooks', () => {
   useTestDatabase();
 
-  let api: Server;
+  const t = useTwoOrgs();
   let receiver: Server;
-  let base = '';
   let hookUrl = '';
-  let owner = '';
-  let memberToken = '';
   let answer = 200;
-  const received: { headers: Record<string, string | string[] | undefined>; body: string }[] = [];
-
-  const call = async (token: string, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
+  const received: { signature: string; body: string; type: string }[] = [];
 
   beforeAll(async () => {
-    const { users, newId } = await import('@erxes/core-db');
-    const { adminDb } = await import('./db');
-
-    const acme = await createOrganization({
-      subdomain: 'acme',
-      name: 'Acme',
-      owner: { email: 'o@acme.mn' },
-    });
-
-    const memberId = newId();
-
-    await adminDb().insert(users).values({
-      id: memberId,
-      orgId: acme.organization.id,
-      email: 'm@acme.mn',
-      role: 'member',
-      status: 'active',
-    });
-    owner = await currentToken(acme.owner.id, acme.organization.id);
-    memberToken = await currentToken(memberId, acme.organization.id);
-    api = createApp().listen(0);
-    base = `http://127.0.0.1:${(api.address() as AddressInfo).port}`;
     receiver = createServer((req, res) => {
       let body = '';
 
-      req.on('data', (chunk) => (body += chunk));
+      req.on('data', (chunk: Buffer) => {
+        body += chunk.toString();
+      });
       req.on('end', () => {
-        received.push({ headers: req.headers, body });
+        received.push({
+          signature: String(req.headers['erxes-signature']),
+          body,
+          type: Delivered.parse(JSON.parse(body)).type,
+        });
         res.statusCode = answer;
         res.end(answer === 200 ? 'ok' : 'boom');
       });
     }).listen(0);
-    hookUrl = `http://127.0.0.1:${(receiver.address() as AddressInfo).port}/hook`;
+    await once(receiver, 'listening');
+
+    const address = receiver.address();
+
+    if (!address || typeof address === 'string') throw new Error('not listening on a port');
+
+    hookUrl = `http://127.0.0.1:${address.port}/hook`;
   });
 
-  afterAll(async () => {
-    api.closeAllConnections();
-    await new Promise<void>((resolve) => api.close(() => resolve()));
-    await new Promise<void>((resolve) => receiver.close(() => resolve()));
-  });
+  afterAll(() => new Promise<void>((resolve) => receiver.close(() => resolve())));
 
   it(
     'delivers subscribed events, signed with the endpoint secret',
     { timeout: 180_000 },
     async () => {
-      expect(
-        (
-          await call(memberToken, 'POST', '/webhooks', {
-            url: hookUrl,
-            eventTypes: ['core.customer.*'],
-          })
-        ).status,
-      ).toBe(403);
+      const subscription = { url: hookUrl, eventTypes: ['core.customer.*'] };
 
-      const created = await call(owner, 'POST', '/webhooks', {
-        url: hookUrl,
-        eventTypes: ['core.customer.*'],
-      });
+      await expect(t.member().webhooks.create(subscription)).rejects.toMatchObject({ status: 403 });
 
-      expect(created.status).toBe(201);
-      expect(created.body.secret).toMatch(/^whsec_/);
+      const created = await t.owner().webhooks.create(subscription);
 
-      const secret = created.body.secret as string;
+      expect(created.secret).toMatch(/^whsec_/);
 
-      await call(owner, 'POST', '/customers', {
-        firstName: 'Hooked',
-        primaryEmail: 'hooked@mail.mn',
-      });
-      await call(owner, 'POST', '/companies', { primaryName: 'Not subscribed' });
+      await t.owner().customers.create({ firstName: 'Hooked', primaryEmail: 'hooked@mail.mn' });
+      await t.owner().companies.create({ primaryName: 'Not subscribed' });
       await settle();
 
-      const deliveries = received.filter((entry) =>
-        JSON.parse(entry.body).type.startsWith('core.'),
-      );
+      const deliveries = received.filter((entry) => entry.type.startsWith('core.'));
 
-      expect(deliveries.map((entry) => JSON.parse(entry.body).type)).toEqual([
-        'core.customer.created',
-      ]);
+      expect(deliveries.map((entry) => entry.type)).toEqual(['core.customer.created']);
 
       const [first] = deliveries;
-      const signature = String(first!.headers['erxes-signature']);
-      const [, t, v1] = /^t=(\d+),v1=([a-f0-9]{64})$/.exec(signature)!;
 
-      expect(createHmac('sha256', secret).update(`${t}.${first!.body}`).digest('hex')).toBe(v1);
-      expect(JSON.parse(first!.body).data).toMatchObject({
+      const [, time, v1] = Signature.parse(
+        /^t=(\d+),v1=([a-f0-9]{64})$/.exec(first?.signature ?? '')?.slice(0, 3),
+      );
+
+      expect(
+        createHmac('sha256', created.secret).update(`${time}.${first?.body}`).digest('hex'),
+      ).toBe(v1);
+      expect(Delivered.parse(JSON.parse(first?.body ?? '{}')).data).toMatchObject({
         type: 'core.customer.created',
         subject: { type: 'customer' },
       });
 
-      const log = await call(owner, 'GET', `/webhooks/${created.body.webhook.id}/deliveries`);
+      const log = await t.owner().webhooks.deliveries({ id: created.webhook.id });
 
-      expect(log.body.data[0]).toMatchObject({
-        status: 'succeeded',
-        responseStatus: 200,
-        attempts: 1,
-      });
+      expect(log.data[0]).toMatchObject({ status: 'succeeded', responseStatus: 200, attempts: 1 });
     },
   );
 
@@ -135,58 +96,47 @@ describeWithDb('webhooks', () => {
     'retries a failing endpoint with backoff and keeps every attempt in the log',
     { timeout: 240_000 },
     async () => {
-      const created = await call(owner, 'POST', '/webhooks', {
-        url: hookUrl,
-        eventTypes: ['core.company.created'],
-      });
+      const created = await t
+        .owner()
+        .webhooks.create({ url: hookUrl, eventTypes: ['core.company.created'] });
+
+      const log = async () =>
+        (await t.owner().webhooks.deliveries({ id: created.webhook.id })).data;
 
       answer = 500;
-      await call(owner, 'POST', '/companies', { primaryName: 'Failing' });
+      await t.owner().companies.create({ primaryName: 'Failing' });
       await settle();
 
-      let log = await call(owner, 'GET', `/webhooks/${created.body.webhook.id}/deliveries`);
+      const [failed] = await log();
 
-      expect(log.body.data[0]).toMatchObject({
+      expect(failed).toMatchObject({
         status: 'pending',
         responseStatus: 500,
         attempts: 1,
         error: 'HTTP 500',
       });
-      expect(new Date(log.body.data[0].nextAttemptAt).getTime()).toBeGreaterThan(
-        Date.now() + 30_000,
-      );
+      expect(new Date(failed?.nextAttemptAt ?? 0).getTime()).toBeGreaterThan(Date.now() + 30_000);
 
       // The endpoint is back; the retry comes due.
       answer = 200;
-
-      const { adminDb } = await import('./db');
-      const { sql } = await import('drizzle-orm');
-
       await adminDb().execute(
         sql`update core_jobs set run_at = now() where queue = 'webhook.deliver'`,
       );
       await settle();
 
-      log = await call(owner, 'GET', `/webhooks/${created.body.webhook.id}/deliveries`);
-      expect(log.body.data[0]).toMatchObject({ status: 'succeeded', attempts: 2 });
+      const [retried] = await log();
+
+      expect(retried).toMatchObject({ status: 'succeeded', attempts: 2 });
 
       // Sent again by hand, and a test event.
-      expect(
-        (await call(owner, 'POST', `/webhooks/deliveries/${log.body.data[0].id}/redeliver`)).status,
-      ).toBe(200);
-      expect((await call(owner, 'POST', `/webhooks/${created.body.webhook.id}/test`)).status).toBe(
-        200,
-      );
+      await t.owner().webhooks.redeliver({ deliveryId: retried?.id ?? '' });
+      await t.owner().webhooks.test({ id: created.webhook.id });
       await settle();
-      expect(received.some((entry) => JSON.parse(entry.body).type === 'core.webhook.test')).toBe(
-        true,
-      );
+      expect(received.map((entry) => entry.type)).toContain('core.webhook.test');
     },
   );
 
   it('refuses private addresses outside development, and lists event types to subscribe to', async () => {
-    const { isPrivateAddress } = await import('~/lib/outbound');
-
     for (const address of [
       '127.0.0.1',
       '10.1.2.3',
@@ -195,33 +145,24 @@ describeWithDb('webhooks', () => {
       '::1',
       'fd00::1',
       '::ffff:10.0.0.1',
-    ]) {
+    ])
       expect({ address, private: isPrivateAddress(address) }).toEqual({ address, private: true });
-    }
 
     expect(isPrivateAddress('93.184.216.34')).toBe(false);
-
-    const { config } = await import('~/config');
 
     config.outbound.allowPrivate = false;
 
     try {
-      expect(
-        (await call(owner, 'POST', '/webhooks', { url: 'http://example.com/x', eventTypes: ['*'] }))
-          .body.code,
-      ).toBe('INVALID_URL');
-      expect(
-        (await call(owner, 'POST', '/webhooks', { url: 'https://10.0.0.5/x', eventTypes: ['*'] }))
-          .body.code,
-      ).toBe('INVALID_URL');
+      for (const url of ['http://example.com/x', 'https://10.0.0.5/x'])
+        await expect(t.owner().webhooks.create({ url, eventTypes: ['*'] })).rejects.toMatchObject({
+          code: 'INVALID_URL',
+        });
     } finally {
       config.outbound.allowPrivate = true;
     }
 
-    const types = await call(memberToken, 'GET', '/events/types');
+    const types = await t.member().webhooks.eventTypes({});
 
-    expect(types.body.data.map((item: { type: string }) => item.type)).toContain(
-      'core.customer.created',
-    );
+    expect(types.data.map((item) => item.type)).toContain('core.customer.created');
   });
 });
