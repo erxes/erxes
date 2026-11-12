@@ -20,17 +20,9 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from './sidebar/menu';
-import {
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-} from './sidebar/menu-sub';
+import { SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from './sidebar/menu-sub';
 import { SidebarPanel, SidebarPanelTrigger } from './sidebar/panel';
-import {
-  SidebarProvider,
-  useOptionalSidebar,
-  useSidebar,
-} from './sidebar/context';
+import { SidebarProvider, useOptionalSidebar, useSidebar } from './sidebar/context';
 
 import { SidebarTreeIndicator } from './sidebar-tree-indicator';
 import { SidebarTrigger } from './sidebar/trigger';

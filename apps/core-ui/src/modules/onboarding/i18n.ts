@@ -12,7 +12,8 @@ const en = {
   'invite-sent_other': 'Invited {{count}} team members',
   'invite-failed': 'Could not invite {{emails}}',
   'example-data': 'Add example data',
-  'example-data-description': 'A few companies, customers and leads with notes to explore. Tagged “Example”, so you can delete them any time.',
+  'example-data-description':
+    'A few companies, customers and leads with notes to explore. Tagged “Example”, so you can delete them any time.',
   'setup-title': 'Setting up {{name}}…',
   'setup-ready': 'All set!',
   'setup-description': 'This takes a few seconds.',
@@ -33,7 +34,8 @@ const mn: typeof en = {
   'invite-sent_other': '{{count}} гишүүнийг урилаа',
   'invite-failed': '{{emails}}-г урьж чадсангүй',
   'example-data': 'Жишээ өгөгдөл нэмэх',
-  'example-data-description': 'Туршиж үзэх хэдэн байгууллага, харилцагч, тэмдэглэл. «Жишээ» шошготой тул хүссэн үедээ устгаж болно.',
+  'example-data-description':
+    'Туршиж үзэх хэдэн байгууллага, харилцагч, тэмдэглэл. «Жишээ» шошготой тул хүссэн үедээ устгаж болно.',
   'setup-title': '{{name}}-г бэлдэж байна…',
   'setup-ready': 'Бэлэн боллоо!',
   'setup-description': 'Хэдхэн секунд болно.',

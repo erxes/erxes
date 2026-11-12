@@ -8,30 +8,22 @@ export const PageContainer = React.forwardRef<
   }
 >(({ children, className, ...props }, ref) => {
   return (
-    <div
-      ref={ref}
-      className={cn('flex flex-col h-full overflow-hidden', className)}
-      {...props}
-    >
+    <div ref={ref} className={cn('flex flex-col h-full overflow-hidden', className)} {...props}>
       {children || 'Page'}
     </div>
   );
 });
 
-export const PageSubHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'flex-none bg-background px-3 py-1 border-b flex gap-3 h-auto',
-        className,
-      )}
-      {...props}
-    />
-  );
-});
+export const PageSubHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn('flex-none bg-background px-3 py-1 border-b flex gap-3 h-auto', className)}
+        {...props}
+      />
+    );
+  },
+);
 
 PageContainer.displayName = 'PageContainer';

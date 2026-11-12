@@ -22,8 +22,11 @@ const browserZone = () => {
 };
 
 /** The zones to offer, with `current` (a saved one) always among them. */
-export const zoneChoices = (current: string) =>
-  [...new Set([browserZone(), current, ...COMMON_ZONES].filter((zone): zone is string => Boolean(zone)))];
+export const zoneChoices = (current: string) => [
+  ...new Set(
+    [browserZone(), current, ...COMMON_ZONES].filter((zone): zone is string => Boolean(zone)),
+  ),
+];
 
 /** "Ulaanbaatar, UTC+8": the city and today's offset. */
 export const zoneLabel = (zone: string) => {

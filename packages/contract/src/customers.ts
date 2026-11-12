@@ -84,11 +84,11 @@ export type CustomerInput = z.infer<typeof CustomerFields>;
 const identifies = (value: CustomerInput) =>
   Boolean(
     value.firstName ||
-      value.lastName ||
-      value.primaryEmail ||
-      value.primaryPhone ||
-      value.emails?.length ||
-      value.phones?.length,
+    value.lastName ||
+    value.primaryEmail ||
+    value.primaryPhone ||
+    value.emails?.length ||
+    value.phones?.length,
   );
 
 /** What links a person and a company: their role there, main contact, left. */
@@ -134,7 +134,11 @@ const TagChange = z.object({
 
 export const customersContract = {
   list: oc
-    .route({ method: 'GET', path: '/customers', summary: 'Customers of the organisation, newest first' })
+    .route({
+      method: 'GET',
+      path: '/customers',
+      summary: 'Customers of the organisation, newest first',
+    })
     .input(
       CursorQuery.extend({
         search: z.string().trim().max(100).optional(),
@@ -171,7 +175,10 @@ export const customersContract = {
           source: LifecycleInput.source,
           sourceDetails: LifecycleInput.sourceDetails,
         })
-        .refine((value) => Boolean(value.primaryEmail || value.primaryPhone), 'an email or a phone is required'),
+        .refine(
+          (value) => Boolean(value.primaryEmail || value.primaryPhone),
+          'an email or a phone is required',
+        ),
     )
     .output(z.object({ customer: Customer, created: z.boolean() })),
   get: oc
@@ -197,7 +204,11 @@ export const customersContract = {
     .input(CustomerFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(Customer),
   remove: oc
-    .route({ method: 'POST', path: '/customers/remove', summary: 'Delete customers (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/customers/remove',
+      summary: 'Delete customers (owners and admins)',
+    })
     .input(Ids)
     .output(z.object({ removed: z.number().int() })),
   merge: oc
@@ -210,15 +221,27 @@ export const customersContract = {
     .input(MergeInput)
     .output(Customer),
   tag: oc
-    .route({ method: 'POST', path: '/customers/tag', summary: 'Add and remove tags on many customers' })
+    .route({
+      method: 'POST',
+      path: '/customers/tag',
+      summary: 'Add and remove tags on many customers',
+    })
     .input(TagChange)
     .output(z.object({ updated: z.number().int() })),
   companies: oc
-    .route({ method: 'GET', path: '/customers/{id}/companies', summary: "The customer's companies" })
+    .route({
+      method: 'GET',
+      path: '/customers/{id}/companies',
+      summary: "The customer's companies",
+    })
     .input(ID)
     .output(z.object({ data: z.array(CompanyRef) })),
   linkCompany: oc
-    .route({ method: 'PUT', path: '/customers/{id}/companies/{companyId}', summary: 'Link (or change the link: role, main contact, left)' })
+    .route({
+      method: 'PUT',
+      path: '/customers/{id}/companies/{companyId}',
+      summary: 'Link (or change the link: role, main contact, left)',
+    })
     .input(ContactLinkInput.extend({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),
   unlinkCompany: oc

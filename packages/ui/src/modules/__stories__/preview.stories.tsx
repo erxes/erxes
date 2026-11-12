@@ -16,18 +16,10 @@ const PreviewStory = ({
 }: PreviewProps) => {
   return (
     <MemoryRouter>
-      <div
-        className={cn(
-          'h-[calc(100vh-32px)] w-[calc(100vw-32px)] flex flex-col',
-          className,
-        )}
-      >
+      <div className={cn('h-[calc(100vh-32px)] w-[calc(100vw-32px)] flex flex-col', className)}>
         <Preview>
           <Preview.Toolbar path={url} />
-          <Preview.View
-            iframeSrc="/iframe.html?id=components-dialog--default"
-            height={400}
-          />
+          <Preview.View iframeSrc="/iframe.html?id=components-dialog--default" height={400} />
         </Preview>
       </div>
     </MemoryRouter>

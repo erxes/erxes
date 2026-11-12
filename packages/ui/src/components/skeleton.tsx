@@ -1,15 +1,7 @@
 import { cn } from '../lib/utils';
 
-export const Skeleton = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => {
-  return (
-    <div
-      className={cn('animate-pulse rounded-md bg-accent', className)}
-      {...props}
-    />
-  );
+export const Skeleton = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+  return <div className={cn('animate-pulse rounded-md bg-accent', className)} {...props} />;
 };
 
 export const SkeletonArray = ({
@@ -20,10 +12,6 @@ export const SkeletonArray = ({
   count: number;
 }) => {
   return Array.from({ length: count }).map((_, index) => (
-    <div
-      key={index}
-      className={cn('animate-pulse rounded-md bg-accent', className)}
-      {...props}
-    />
+    <div key={index} className={cn('animate-pulse rounded-md bg-accent', className)} {...props} />
   ));
 };

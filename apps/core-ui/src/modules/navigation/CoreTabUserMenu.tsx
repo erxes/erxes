@@ -1,5 +1,15 @@
 import { IconChevronRight, IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
-import { Avatar, Button, cn, DropdownMenu, type ThemeOption, themeState, ToggleGroup, Tooltip, useToast } from 'erxes-ui';
+import {
+  Avatar,
+  Button,
+  cn,
+  DropdownMenu,
+  type ThemeOption,
+  themeState,
+  ToggleGroup,
+  Tooltip,
+  useToast,
+} from 'erxes-ui';
 import { INTL_LANGUAGES } from 'erxes-ui/constants/IntlLanguages';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -86,7 +96,10 @@ const SelectLanguages = () => {
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
-          <DropdownMenu.RadioGroup value={i18n.language} onValueChange={(value) => void i18n.changeLanguage(value)}>
+          <DropdownMenu.RadioGroup
+            value={i18n.language}
+            onValueChange={(value) => void i18n.changeLanguage(value)}
+          >
             {LANGUAGES.map((language) => (
               <DropdownMenu.RadioItem key={language.code} value={language.code}>
                 {languageName(language.code)}
@@ -112,7 +125,12 @@ export const CoreTabUserMenu = () => {
     <DropdownMenu>
       <CoreTabTooltip label={userName}>
         <DropdownMenu.Trigger asChild>
-          <Button aria-label={sidebarT('profile')} className={cn(coreTabIconClassName(), 'p-0')} size="icon" variant="ghost">
+          <Button
+            aria-label={sidebarT('profile')}
+            className={cn(coreTabIconClassName(), 'p-0')}
+            size="icon"
+            variant="ghost"
+          >
             <Avatar className="size-6 rounded-md">
               {user.avatarUrl && <Avatar.Image src={user.avatarUrl} alt={userName} />}
               <Avatar.Fallback className="rounded-md text-xs">{userName.charAt(0)}</Avatar.Fallback>
@@ -120,7 +138,12 @@ export const CoreTabUserMenu = () => {
           </Button>
         </DropdownMenu.Trigger>
       </CoreTabTooltip>
-      <DropdownMenu.Content align="end" className="w-56 min-w-56! space-y-1 p-1.5" side="bottom" sideOffset={8}>
+      <DropdownMenu.Content
+        align="end"
+        className="w-56 min-w-56! space-y-1 p-1.5"
+        side="bottom"
+        sideOffset={8}
+      >
         <DropdownMenu.Item asChild className="p-2">
           <Link to="/settings/profile">
             <UserIdentity />

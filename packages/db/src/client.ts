@@ -1,9 +1,5 @@
 import { ExtractTablesWithRelations } from 'drizzle-orm';
-import {
-  drizzle,
-  NodePgDatabase,
-  NodePgQueryResultHKT,
-} from 'drizzle-orm/node-postgres';
+import { drizzle, NodePgDatabase, NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
 import { PgTransaction } from 'drizzle-orm/pg-core';
 import { Pool, types } from 'pg';
 import * as schema from './schema';
@@ -43,7 +39,9 @@ export interface DbOptions {
 
 /** pg's TLS options: verified unless explicitly insecure. */
 export const sslOptions = (value: Pick<DbOptions, 'ssl' | 'sslCa' | 'sslInsecure'>) =>
-  value.ssl ? { rejectUnauthorized: !value.sslInsecure, ...(value.sslCa ? { ca: value.sslCa } : {}) } : undefined;
+  value.ssl
+    ? { rejectUnauthorized: !value.sslInsecure, ...(value.sslCa ? { ca: value.sslCa } : {}) }
+    : undefined;
 
 let options: DbOptions | null = null;
 let pool: Pool | null = null;
@@ -75,7 +73,9 @@ export const getPool = (): Pool => {
       if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error(`invalid role name: ${role}`);
 
       pool.on('connect', (client) => {
-        client.query(`SET ROLE ${role}`).catch((error: Error) => console.error('[core] SET ROLE failed', error.message));
+        client
+          .query(`SET ROLE ${role}`)
+          .catch((error: Error) => console.error('[core] SET ROLE failed', error.message));
       });
     }
 
@@ -102,10 +102,10 @@ export const rootDb = (): Database => {
  * level security lets nothing through, so a query that forgot its scope
  * fails closed.
  */
-export const db = (): Database => (currentScope()?.tx as unknown as Database | undefined) ?? rootDb();
+export const db = (): Database =>
+  (currentScope()?.tx as unknown as Database | undefined) ?? rootDb();
 
-export const withTransaction = <T>(fn: (tx: Transaction) => Promise<T>) =>
-  db().transaction(fn);
+export const withTransaction = <T>(fn: (tx: Transaction) => Promise<T>) => db().transaction(fn);
 
 export const closeDb = async () => {
   const current = pool;

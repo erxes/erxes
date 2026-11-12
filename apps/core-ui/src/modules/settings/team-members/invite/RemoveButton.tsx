@@ -3,7 +3,11 @@ import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useUserInviteContext } from './InviteMemberContext';
 
-export const InviteRowRemoveButton = ({ remove }: { remove: (index: number | number[]) => void }) => {
+export const InviteRowRemoveButton = ({
+  remove,
+}: {
+  remove: (index: number | number[]) => void;
+}) => {
   const { selectedUsers, setSelectedUsers, fields } = useUserInviteContext();
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
@@ -15,7 +19,11 @@ export const InviteRowRemoveButton = ({ remove }: { remove: (index: number | num
   };
 
   return (
-    <Button variant="secondary" className="bg-destructive/10 text-destructive" onClick={handleRemove}>
+    <Button
+      variant="secondary"
+      className="bg-destructive/10 text-destructive"
+      onClick={handleRemove}
+    >
       <IconX />
       {t('remove-selected')}
     </Button>

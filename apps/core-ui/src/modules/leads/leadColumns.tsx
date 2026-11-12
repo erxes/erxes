@@ -1,29 +1,24 @@
-import type { LeadRecordType, LeadStage } from "@erxes/core-contract";
+import type { LeadRecordType, LeadStage } from '@erxes/core-contract';
 import {
   IconActivity,
   IconCheck,
   IconHourglass,
   IconProgress,
   IconWorld,
-} from "@tabler/icons-react";
-import type { ColumnDef } from "@tanstack/react-table";
+} from '@tabler/icons-react';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
   Command,
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-} from "erxes-ui";
-import { useState } from "react";
-import { DisqualifyDialog } from "./LeadActions";
-import { LeadStageBadge, LeadStagePill } from "./LeadStageBadge";
-import {
-  daysSince,
-  type LeadRecord,
-  useLeadStages,
-  useMoveLeads,
-} from "./useLeads";
-import { useLeadsT } from "./i18n";
+} from 'erxes-ui';
+import { useState } from 'react';
+import { DisqualifyDialog } from './LeadActions';
+import { LeadStageBadge, LeadStagePill } from './LeadStageBadge';
+import { daysSince, type LeadRecord, useLeadStages, useMoveLeads } from './useLeads';
+import { useLeadsT } from './i18n';
 
 /** The stage pill in a table row: the table's own inline popover (a plain dropdown mispositions inside the grid). */
 const LeadStageCell = ({
@@ -43,17 +38,13 @@ const LeadStageCell = ({
     setOpen(false);
 
     if (next.id === record.leadStageId) return;
-    if (next.kind === "disqualified") setDisqualifying(next.id);
+    if (next.kind === 'disqualified') setDisqualifying(next.id);
     else move.mutate({ recordType, ids: [record.id], stageId: next.id });
   };
 
   return (
     <>
-      <PopoverScoped
-        scope={`lead-stage.${record.id}`}
-        open={open}
-        onOpenChange={setOpen}
-      >
+      <PopoverScoped scope={`lead-stage.${record.id}`} open={open} onOpenChange={setOpen}>
         <RecordTableInlineCell.Trigger className="px-1">
           <LeadStagePill stage={stage} />
         </RecordTableInlineCell.Trigger>
@@ -61,15 +52,9 @@ const LeadStageCell = ({
           <Command>
             <Command.List className="p-1">
               {stages.map((item) => (
-                <Command.Item
-                  key={item.id}
-                  value={item.id}
-                  onSelect={() => pick(item)}
-                >
+                <Command.Item key={item.id} value={item.id} onSelect={() => pick(item)}>
                   <LeadStageBadge stage={item} className="flex-1" />
-                  {item.id === record.leadStageId && (
-                    <IconCheck className="size-4 text-primary" />
-                  )}
+                  {item.id === record.leadStageId && <IconCheck className="size-4 text-primary" />}
                 </Command.Item>
               ))}
             </Command.List>
@@ -93,37 +78,23 @@ const Muted = ({ children }: { children: React.ReactNode }) => (
 );
 
 /** The stage as a status pill, right after the name; click to move the lead. */
-const stageColumn = <T extends LeadRecord>(
-  recordType: LeadRecordType,
-): ColumnDef<T> => ({
-  id: "leadStage",
-  accessorKey: "leadStageId",
+const stageColumn = <T extends LeadRecord>(recordType: LeadRecordType): ColumnDef<T> => ({
+  id: 'leadStage',
+  accessorKey: 'leadStageId',
   header: function StageHead() {
-    return (
-      <RecordTable.InlineHead
-        label={useLeadsT()("stage")}
-        icon={IconProgress}
-      />
-    );
+    return <RecordTable.InlineHead label={useLeadsT()('stage')} icon={IconProgress} />;
   },
-  cell: ({ row }) => (
-    <LeadStageCell recordType={recordType} record={row.original} />
-  ),
+  cell: ({ row }) => <LeadStageCell recordType={recordType} record={row.original} />,
   size: 150,
 });
 
 /** Days in the stage, after the name. */
 const inStageColumns = <T extends LeadRecord>(): ColumnDef<T>[] => [
   {
-    id: "inStage",
-    accessorKey: "leadStageChangedAt",
+    id: 'inStage',
+    accessorKey: 'leadStageChangedAt',
     header: function InStageHead() {
-      return (
-        <RecordTable.InlineHead
-          label={useLeadsT()("in-stage")}
-          icon={IconHourglass}
-        />
-      );
+      return <RecordTable.InlineHead label={useLeadsT()('in-stage')} icon={IconHourglass} />;
     },
     cell: function InStageCell({ row }) {
       const t = useLeadsT();
@@ -131,11 +102,7 @@ const inStageColumns = <T extends LeadRecord>(): ColumnDef<T>[] => [
 
       return (
         <Muted>
-          {days === null
-            ? ""
-            : days === 0
-              ? t("today")
-              : t("days-count", { count: days })}
+          {days === null ? '' : days === 0 ? t('today') : t('days-count', { count: days })}
         </Muted>
       );
     },
@@ -148,38 +115,26 @@ export const originColumns = <
   T extends LeadRecord & { lastActivityAt: string },
 >(): ColumnDef<T>[] => [
   {
-    id: "source",
-    accessorKey: "source",
+    id: 'source',
+    accessorKey: 'source',
     header: function SourceHead() {
-      return (
-        <RecordTable.InlineHead
-          label={useLeadsT()("source")}
-          icon={IconWorld}
-        />
-      );
+      return <RecordTable.InlineHead label={useLeadsT()('source')} icon={IconWorld} />;
     },
     cell: ({ row }) => (
       <Muted>
-        <span className="capitalize">{row.original.source ?? ""}</span>
+        <span className="capitalize">{row.original.source ?? ''}</span>
         {row.original.sourceDetails.campaign && (
-          <span className="ml-1 truncate">
-            · {row.original.sourceDetails.campaign}
-          </span>
+          <span className="ml-1 truncate">· {row.original.sourceDetails.campaign}</span>
         )}
       </Muted>
     ),
     size: 160,
   },
   {
-    id: "lastActivityAt",
-    accessorKey: "lastActivityAt",
+    id: 'lastActivityAt',
+    accessorKey: 'lastActivityAt',
     header: function LastActivityHead() {
-      return (
-        <RecordTable.InlineHead
-          label={useLeadsT()("last-activity")}
-          icon={IconActivity}
-        />
-      );
+      return <RecordTable.InlineHead label={useLeadsT()('last-activity')} icon={IconActivity} />;
     },
     cell: ({ row }) => (
       <RelativeDateDisplay value={row.original.lastActivityAt} asChild>
@@ -195,9 +150,7 @@ export const originColumns = <
  * `columns` with, for leads, the stage pill and days in it right after
  * `afterId` (the name); then origin columns, then `rest`.
  */
-export const withLifecycleColumns = <
-  T extends LeadRecord & { lastActivityAt: string },
->(
+export const withLifecycleColumns = <T extends LeadRecord & { lastActivityAt: string }>(
   columns: ColumnDef<T>[],
   afterId: string,
   recordType: LeadRecordType,
@@ -220,4 +173,4 @@ export const withLifecycleColumns = <
 
 /** Sticky columns of a list: leads keep their stage (right after the name) in view too. */
 export const stickyWithStage = (sticky: string[], isLead: boolean) =>
-  isLead ? [...sticky, "leadStage"] : sticky;
+  isLead ? [...sticky, 'leadStage'] : sticky;

@@ -1,16 +1,9 @@
-import { IconCheck, IconProgress } from "@tabler/icons-react";
-import {
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  useFilterContext,
-  useQueryState,
-} from "erxes-ui";
-import { useState } from "react";
-import { LeadStageBadge } from "./LeadStageBadge";
-import { useLeadStages } from "./useLeads";
-import { useLeadsT, useStageName } from "./i18n";
+import { IconCheck, IconProgress } from '@tabler/icons-react';
+import { Combobox, Command, Filter, Popover, useFilterContext, useQueryState } from 'erxes-ui';
+import { useState } from 'react';
+import { LeadStageBadge } from './LeadStageBadge';
+import { useLeadStages } from './useLeads';
+import { useLeadsT, useStageName } from './i18n';
 
 /** The stage list: picking one sets `?stage=`. */
 const StageOptions = ({
@@ -26,7 +19,7 @@ const StageOptions = ({
 
   return (
     <Command>
-      <Command.Input placeholder={t("stage")} variant="secondary" />
+      <Command.Input placeholder={t('stage')} variant="secondary" />
       <Command.List className="p-1">
         {stages.map((stage) => (
           <Command.Item
@@ -35,9 +28,7 @@ const StageOptions = ({
             onSelect={() => onSelect(stage.id)}
           >
             <LeadStageBadge stage={stage} className="flex-1" />
-            {stage.id === value && (
-              <IconCheck className="size-4 text-primary" />
-            )}
+            {stage.id === value && <IconCheck className="size-4 text-primary" />}
           </Command.Item>
         ))}
       </Command.List>
@@ -49,13 +40,13 @@ const StageOptions = ({
 const LeadStageFilterItem = () => (
   <Filter.Item value="stage">
     <IconProgress />
-    {useLeadsT()("stage")}
+    {useLeadsT()('stage')}
   </Filter.Item>
 );
 
 /** The stage list inside the filter popover. */
 const LeadStageFilterView = () => {
-  const [stage, setStage] = useQueryState<string>("stage");
+  const [stage, setStage] = useQueryState<string>('stage');
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -73,7 +64,7 @@ const LeadStageFilterView = () => {
 
 /** The chosen stage as a filter bar chip. */
 const LeadStageFilterBar = () => {
-  const [stage, setStage] = useQueryState<string>("stage");
+  const [stage, setStage] = useQueryState<string>('stage');
   const { byId } = useLeadStages();
   const t = useLeadsT();
   const [open, setOpen] = useState(false);
@@ -84,7 +75,7 @@ const LeadStageFilterBar = () => {
     <Filter.BarItem queryKey="stage">
       <Filter.BarName>
         <IconProgress />
-        {t("stage")}
+        {t('stage')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>

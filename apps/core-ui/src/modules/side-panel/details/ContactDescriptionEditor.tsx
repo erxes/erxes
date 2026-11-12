@@ -48,14 +48,10 @@ export const ContactDescriptionEditor = ({
       ) {
         return;
       }
-      const editor = containerRef.current?.querySelector<HTMLElement>(
-        '[contenteditable="true"]',
-      );
+      const editor = containerRef.current?.querySelector<HTMLElement>('[contenteditable="true"]');
       if (
         !editor?.getClientRects().length ||
-        editor.closest(
-          '[hidden], [inert], [role="tabpanel"][data-state="inactive"]',
-        ) ||
+        editor.closest('[hidden], [inert], [role="tabpanel"][data-state="inactive"]') ||
         Array.from(
           document.querySelectorAll<HTMLElement>(
             '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]',

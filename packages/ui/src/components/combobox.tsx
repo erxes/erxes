@@ -106,10 +106,7 @@ export const ComboboxContent = React.forwardRef<
       align="start"
       sideOffset={8}
       {...props}
-      className={cn(
-        'p-0 min-w-72 w-(--radix-popper-anchor-width) max-w-96',
-        className,
-      )}
+      className={cn('p-0 min-w-72 w-(--radix-popper-anchor-width) max-w-96', className)}
     />
   );
 });
@@ -222,11 +219,7 @@ export const ComboboxFetchMore = React.forwardRef<
   }
 
   return (
-    <Command.Item
-      ref={mergeRefs([ref, bottomRef])}
-      {...props}
-      className={cn(className)}
-    >
+    <Command.Item ref={mergeRefs([ref, bottomRef])} {...props} className={cn(className)}>
       <Spinner
         className="size-4 text-muted-foreground"
         containerClassName="w-auto flex-none mr-2"
@@ -259,9 +252,7 @@ const ComboboxEmpty = React.forwardRef<
       ) : error ? (
         <p className="text-muted-foreground p-8 text-center">{error.message}</p>
       ) : (
-        <p className="text-muted-foreground p-8 text-center">
-          No results found.
-        </p>
+        <p className="text-muted-foreground p-8 text-center">No results found.</p>
       )}
     </Command.Empty>
   );

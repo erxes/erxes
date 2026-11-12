@@ -19,7 +19,10 @@ export const CompaniesPage = ({ state = 'customer' }: { state?: 'lead' | 'custom
   return (
     <PageContainer>
       <CompaniesHeader state={state} />
-      <ViewTabs recordType={state === 'lead' ? 'company_lead' : 'company'} allLabel={state === 'lead' ? t('views.all-company-leads') : t('views.all-companies')} />
+      <ViewTabs
+        recordType={state === 'lead' ? 'company_lead' : 'company'}
+        allLabel={state === 'lead' ? t('views.all-company-leads') : t('views.all-companies')}
+      />
       <PageSubHeader>
         <CompaniesFilter state={state} />
       </PageSubHeader>

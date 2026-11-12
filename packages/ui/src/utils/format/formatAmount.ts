@@ -13,5 +13,4 @@ export const formatAmount = (amount: number, kind?: 'short' | 'finance') => {
   }
 
   return Number(amount.toFixed(2)).toLocaleString();
-
 };

@@ -1,4 +1,10 @@
-import { CORE_EVENT_TYPES, type CursorQuery, type EventTypeInfo, type Webhook, type WebhookDelivery } from '@erxes/core-contract';
+import {
+  CORE_EVENT_TYPES,
+  type CursorQuery,
+  type EventTypeInfo,
+  type Webhook,
+  type WebhookDelivery,
+} from '@erxes/core-contract';
 import {
   type Db,
   events,
@@ -65,10 +71,22 @@ export const eventTypeCatalog = async (client: Db, orgId: string): Promise<Event
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(and(eq(pluginInstallations.orgId, orgId), eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
+    .where(
+      and(
+        eq(pluginInstallations.orgId, orgId),
+        eq(pluginInstallations.status, 'active'),
+        eq(plugins.status, 'active'),
+      ),
+    );
 
   return [
-    ...CORE_EVENT_TYPES.map((item) => ({ type: item.type, label: item.label, description: item.description, source: 'core', subject: item.subject })),
+    ...CORE_EVENT_TYPES.map((item) => ({
+      type: item.type,
+      label: item.label,
+      description: item.description,
+      source: 'core',
+      subject: item.subject,
+    })),
     ...installed.flatMap((plugin) =>
       (plugin.manifest?.events ?? []).map((item) => ({
         type: item.type,
@@ -83,7 +101,9 @@ export const eventTypeCatalog = async (client: Db, orgId: string): Promise<Event
 
 /** Does `type` match a subscription pattern (`x.y.z`, `x.*`, `*`)? */
 export const matchesPattern = (pattern: string, type: string) =>
-  pattern === '*' || pattern === type || (pattern.endsWith('.*') && type.startsWith(pattern.slice(0, -1)));
+  pattern === '*' ||
+  pattern === type ||
+  (pattern.endsWith('.*') && type.startsWith(pattern.slice(0, -1)));
 
 const newSecret = () => `whsec_${randomBytes(24).toString('base64url')}`;
 
@@ -91,12 +111,20 @@ const checkUrl = (url: string) => {
   try {
     assertOutboundUrl(url);
   } catch (error) {
-    throw new HttpError(400, 'INVALID_URL', error instanceof OutboundError ? error.message : 'Not a valid address');
+    throw new HttpError(
+      400,
+      'INVALID_URL',
+      error instanceof OutboundError ? error.message : 'Not a valid address',
+    );
   }
 };
 
 const findWebhook = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client.select().from(webhooks).where(and(eq(webhooks.orgId, orgId), eq(webhooks.id, id))).limit(1);
+  const [row] = await client
+    .select()
+    .from(webhooks)
+    .where(and(eq(webhooks.orgId, orgId), eq(webhooks.id, id)))
+    .limit(1);
 
   if (!row) throw notFound('Webhook');
 
@@ -104,7 +132,13 @@ const findWebhook = async (client: Db, orgId: string, id: string) => {
 };
 
 export const listWebhooks = async (client: Db, actor: Actor) => ({
-  data: (await client.select().from(webhooks).where(eq(webhooks.orgId, actor.orgId)).orderBy(desc(webhooks.createdAt))).map(toWebhookDto),
+  data: (
+    await client
+      .select()
+      .from(webhooks)
+      .where(eq(webhooks.orgId, actor.orgId))
+      .orderBy(desc(webhooks.createdAt))
+  ).map(toWebhookDto),
 });
 
 export const createWebhook = async (
@@ -143,7 +177,12 @@ export const updateWebhook = async (
   client: Db,
   actor: Actor,
   id: string,
-  input: { url?: string; description?: string | null; eventTypes?: string[]; status?: 'active' | 'disabled' },
+  input: {
+    url?: string;
+    description?: string | null;
+    eventTypes?: string[];
+    status?: 'active' | 'disabled';
+  },
 ) => {
   const before = await findWebhook(client, actor.orgId, id);
 
@@ -173,9 +212,13 @@ export const updateWebhook = async (
     targetId: id,
     targetLabel: row!.url,
     changes: {
-      ...(input.url !== undefined && input.url !== before.url ? { url: [before.url, input.url] } : {}),
+      ...(input.url !== undefined && input.url !== before.url
+        ? { url: [before.url, input.url] }
+        : {}),
       ...(input.eventTypes ? { eventTypes: [before.eventTypes, row!.eventTypes] } : {}),
-      ...(input.status && input.status !== before.status ? { status: [before.status, input.status] } : {}),
+      ...(input.status && input.status !== before.status
+        ? { status: [before.status, input.status] }
+        : {}),
     },
   });
 
@@ -186,7 +229,12 @@ export const removeWebhook = async (client: Db, actor: Actor, id: string) => {
   const row = await findWebhook(client, actor.orgId, id);
 
   await client.delete(webhooks).where(and(eq(webhooks.orgId, actor.orgId), eq(webhooks.id, id)));
-  await recordAudit(client, userCaller(actor), { action: 'webhook.deleted', targetType: 'webhook', targetId: id, targetLabel: row.url });
+  await recordAudit(client, userCaller(actor), {
+    action: 'webhook.deleted',
+    targetType: 'webhook',
+    targetId: id,
+    targetLabel: row.url,
+  });
 
   return { ok: true as const };
 };
@@ -195,14 +243,27 @@ export const rotateWebhookSecret = async (client: Db, actor: Actor, id: string) 
   const row = await findWebhook(client, actor.orgId, id);
   const secret = newSecret();
 
-  await client.update(webhooks).set({ secretSealed: seal(secret), updatedAt: sql`now()` }).where(eq(webhooks.id, id));
-  await recordAudit(client, userCaller(actor), { action: 'webhook.secret_rotated', targetType: 'webhook', targetId: id, targetLabel: row.url });
+  await client
+    .update(webhooks)
+    .set({ secretSealed: seal(secret), updatedAt: sql`now()` })
+    .where(eq(webhooks.id, id));
+  await recordAudit(client, userCaller(actor), {
+    action: 'webhook.secret_rotated',
+    targetType: 'webhook',
+    targetId: id,
+    targetLabel: row.url,
+  });
 
   return { secret };
 };
 
 /** Records a delivery and queues its first attempt (in the caller's transaction). */
-const queueDelivery = async (client: Db, orgId: string, webhookId: string, event: { id: string; type: string }) => {
+const queueDelivery = async (
+  client: Db,
+  orgId: string,
+  webhookId: string,
+  event: { id: string; type: string },
+) => {
   const [delivery] = await client
     .insert(webhookDeliveries)
     .values({ id: newId(), orgId, webhookId, eventId: event.id, eventType: event.type })
@@ -238,7 +299,11 @@ export const testWebhook = async (client: Db, actor: Actor, id: string) => {
   return toDeliveryDto(await queueDelivery(client, actor.orgId, webhook.id, event!));
 };
 
-export const listDeliveries = async (client: Db, actor: Actor, query: CursorQuery & { id: string; status?: 'pending' | 'succeeded' | 'failed' }) => {
+export const listDeliveries = async (
+  client: Db,
+  actor: Actor,
+  query: CursorQuery & { id: string; status?: 'pending' | 'succeeded' | 'failed' },
+) => {
   await findWebhook(client, actor.orgId, query.id);
 
   const page = await keysetPage(
@@ -247,7 +312,10 @@ export const listDeliveries = async (client: Db, actor: Actor, query: CursorQuer
       table: webhookDeliveries,
       id: webhookDeliveries.id,
       createdAt: webhookDeliveries.createdAt,
-      scope: and(eq(webhookDeliveries.orgId, actor.orgId), eq(webhookDeliveries.webhookId, query.id))!,
+      scope: and(
+        eq(webhookDeliveries.orgId, actor.orgId),
+        eq(webhookDeliveries.webhookId, query.id),
+      )!,
       countCap: 10_000,
     },
     query.status ? eq(webhookDeliveries.status, query.status) : undefined,
@@ -273,7 +341,12 @@ export const redeliver = async (client: Db, actor: Actor, deliveryId: string) =>
 
   if (!delivery) throw notFound('Delivery');
 
-  return toDeliveryDto(await queueDelivery(client, actor.orgId, delivery.webhookId, { id: delivery.eventId, type: delivery.eventType }));
+  return toDeliveryDto(
+    await queueDelivery(client, actor.orgId, delivery.webhookId, {
+      id: delivery.eventId,
+      type: delivery.eventType,
+    }),
+  );
 };
 
 /**
@@ -297,7 +370,11 @@ export const webhooksConsumer: EventConsumer = {
 };
 
 /** `Erxes-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256(secret, "<t>.<body>")>` (Stripe-style). */
-export const signPayload = (secret: string, body: string, timestamp = Math.floor(Date.now() / 1000)) =>
+export const signPayload = (
+  secret: string,
+  body: string,
+  timestamp = Math.floor(Date.now() / 1000),
+) =>
   `t=${timestamp},v1=${createHmac('sha256', secret).update(`${timestamp}.${body}`).digest('hex')}`;
 
 /** One attempt of one delivery: POST, record the outcome, throw to retry. */
@@ -326,7 +403,11 @@ export const deliverJob: JobDefinition = {
         await withOrg(job.orgId, (tx) =>
           tx
             .update(webhookDeliveries)
-            .set({ status: 'failed', error: loaded.event ? 'The webhook is turned off' : 'The event is no longer kept', updatedAt: sql`now()` })
+            .set({
+              status: 'failed',
+              error: loaded.event ? 'The webhook is turned off' : 'The event is no longer kept',
+              updatedAt: sql`now()`,
+            })
             .where(eq(webhookDeliveries.id, deliveryId)),
         );
       }
@@ -349,7 +430,12 @@ export const deliverJob: JobDefinition = {
       'Erxes-Delivery-Id': deliveryId,
       'Erxes-Signature': signPayload(unseal(loaded.webhook.secretSealed), body),
     };
-    let outcome: { status: number | null; body: string | null; error: string | null; ms: number | null };
+    let outcome: {
+      status: number | null;
+      body: string | null;
+      error: string | null;
+      ms: number | null;
+    };
 
     try {
       const response = await postOutbound(loaded.webhook.url, body, headers);
@@ -361,7 +447,12 @@ export const deliverJob: JobDefinition = {
         ms: response.ms,
       };
     } catch (error) {
-      outcome = { status: null, body: null, error: (error as Error).message.slice(0, 500), ms: null };
+      outcome = {
+        status: null,
+        body: null,
+        error: (error as Error).message.slice(0, 500),
+        ms: null,
+      };
     }
 
     const succeeded = outcome.error === null;
@@ -378,22 +469,35 @@ export const deliverJob: JobDefinition = {
           error: outcome.error,
           durationMs: outcome.ms,
           deliveredAt: succeeded ? sql`now()` : null,
-          nextAttemptAt: succeeded || last ? null : sql`now() + make_interval(secs => ${deliverJob.backoff!(job.attempts)})`,
+          nextAttemptAt:
+            succeeded || last
+              ? null
+              : sql`now() + make_interval(secs => ${deliverJob.backoff!(job.attempts)})`,
           updatedAt: sql`now()`,
         })
         .where(eq(webhookDeliveries.id, deliveryId));
 
       const [webhook] = await tx
         .update(webhooks)
-        .set({ consecutiveFailures: succeeded ? 0 : sql`${webhooks.consecutiveFailures} + 1`, updatedAt: sql`now()` })
+        .set({
+          consecutiveFailures: succeeded ? 0 : sql`${webhooks.consecutiveFailures} + 1`,
+          updatedAt: sql`now()`,
+        })
         .where(eq(webhooks.id, loaded.webhook.id))
         .returning();
 
       // An endpoint that keeps failing is turned off (its owner sees why).
-      if (webhook && webhook.consecutiveFailures >= DISABLE_AFTER_FAILURES && webhook.status === 'active') {
+      if (
+        webhook &&
+        webhook.consecutiveFailures >= DISABLE_AFTER_FAILURES &&
+        webhook.status === 'active'
+      ) {
         await tx
           .update(webhooks)
-          .set({ status: 'disabled', disabledReason: `Turned off after ${DISABLE_AFTER_FAILURES} failed deliveries in a row` })
+          .set({
+            status: 'disabled',
+            disabledReason: `Turned off after ${DISABLE_AFTER_FAILURES} failed deliveries in a row`,
+          })
           .where(eq(webhooks.id, webhook.id));
         log.warn('webhook turned off after repeated failures', { webhook: webhook.id });
       }

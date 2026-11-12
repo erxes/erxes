@@ -34,10 +34,28 @@ export const leadEvents = pgTable(
     index('core_lead_events_org_created_idx').on(table.orgId, table.createdAt),
     index('core_lead_events_customer_idx').on(table.customerId, table.createdAt),
     index('core_lead_events_company_idx').on(table.companyId, table.createdAt),
-    foreignKey({ columns: [table.companyId], foreignColumns: [companies.id], name: 'core_lead_events_company_id_fkey' }).onDelete('cascade'),
-    check('core_lead_events_record_check', sql`num_nonnulls(${table.customerId}, ${table.companyId}) = 1`),
-    foreignKey({ columns: [table.customerId], foreignColumns: [customers.id], name: 'core_lead_events_customer_id_fkey' }).onDelete('cascade'),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_lead_events_org_id_fkey' }).onDelete('cascade'),
-    check('core_lead_events_event_check', sql`${table.event} IN ('created', 'stage', 'converted', 'reopened')`),
+    foreignKey({
+      columns: [table.companyId],
+      foreignColumns: [companies.id],
+      name: 'core_lead_events_company_id_fkey',
+    }).onDelete('cascade'),
+    check(
+      'core_lead_events_record_check',
+      sql`num_nonnulls(${table.customerId}, ${table.companyId}) = 1`,
+    ),
+    foreignKey({
+      columns: [table.customerId],
+      foreignColumns: [customers.id],
+      name: 'core_lead_events_customer_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_lead_events_org_id_fkey',
+    }).onDelete('cascade'),
+    check(
+      'core_lead_events_event_check',
+      sql`${table.event} IN ('created', 'stage', 'converted', 'reopened')`,
+    ),
   ],
 );

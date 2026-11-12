@@ -1,4 +1,9 @@
-import { type CorePermission, type coreContract, CORE_API_PREFIX, type PluginScope } from '@erxes/core-contract';
+import {
+  type CorePermission,
+  type coreContract,
+  CORE_API_PREFIX,
+  type PluginScope,
+} from '@erxes/core-contract';
 import type { Request } from 'express';
 import { can } from './auth';
 import { HttpError } from './errors';
@@ -6,7 +11,9 @@ import { HttpError } from './errors';
 type Contract = typeof coreContract;
 
 /** Every procedure of the core API: `customers.list`, `plugins.token`, … */
-export type ProcedurePath = { [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}` }[keyof Contract];
+export type ProcedurePath = {
+  [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}`;
+}[keyof Contract];
 
 /** Which members: any signed-in member, or those whose role has this permission. */
 export type MemberRule = 'any' | CorePermission;
@@ -19,7 +26,9 @@ export type MemberRule = 'any' | CorePermission;
  * organisation that has it, no scope needed). Services may check more (a
  * member's own note, an owner's account).
  */
-export type Policy = { public: true } | { member?: MemberRule; plugin?: PluginScope | 'manifest' | 'installed' };
+export type Policy =
+  | { public: true }
+  | { member?: MemberRule; plugin?: PluginScope | 'manifest' | 'installed' };
 
 const MEMBER = { member: 'any' } as const;
 const PUBLIC = { public: true } as const;
@@ -244,7 +253,6 @@ export const ACCESS = {
   'roles.remove': needs('roles.manage'),
 } as const satisfies Record<ProcedurePath, Policy>;
 
-
 /** Checks the caller against the procedure's policy (oRPC middleware, every call). */
 export const enforceAccess = (path: string, req: Request) => {
   const policy = (ACCESS as Record<string, Policy>)[path];
@@ -260,7 +268,9 @@ export const enforceAccess = (path: string, req: Request) => {
     if (!policy.member) throw new HttpError(403, 'PLUGIN_ONLY', 'Only plugins can do this');
 
     if (policy.member !== 'any' && !can(req.actor, policy.member)) {
-      throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", { permission: policy.member });
+      throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+        permission: policy.member,
+      });
     }
 
     return;
@@ -271,18 +281,27 @@ export const enforceAccess = (path: string, req: Request) => {
 
     if (policy.plugin === 'manifest') {
       if (!req.pluginService) {
-        throw new HttpError(403, 'SERVICE_TOKEN_REQUIRED', 'Use a token without an organisation to do this');
+        throw new HttpError(
+          403,
+          'SERVICE_TOKEN_REQUIRED',
+          'Use a token without an organisation to do this',
+        );
       }
 
       return;
     }
 
-    if (!req.plugin) throw new HttpError(403, 'ORG_REQUIRED', 'Use a token for an organisation to do this');
+    if (!req.plugin)
+      throw new HttpError(403, 'ORG_REQUIRED', 'Use a token for an organisation to do this');
 
     if (policy.plugin === 'installed') return;
 
     if (!req.plugin.scopes.includes(policy.plugin)) {
-      throw new HttpError(403, 'SCOPE_REQUIRED', `This needs the ${policy.plugin} scope, which this installation hasn't granted`);
+      throw new HttpError(
+        403,
+        'SCOPE_REQUIRED',
+        `This needs the ${policy.plugin} scope, which this installation hasn't granted`,
+      );
     }
 
     return;
@@ -299,7 +318,9 @@ export const publicPaths = (contract: Contract): Set<string> => {
     if (!('public' in policy)) continue;
 
     const [group, name] = path.split('.') as [keyof Contract, string];
-    const procedure = (contract[group] as Record<string, { '~orpc': { route: { path?: string } } }>)[name]!;
+    const procedure = (
+      contract[group] as Record<string, { '~orpc': { route: { path?: string } } }>
+    )[name]!;
 
     paths.add(procedure['~orpc'].route.path!.replace(CORE_API_PREFIX, ''));
   }

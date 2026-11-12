@@ -1,5 +1,17 @@
-import { type DragEvent, type PointerEvent, type RefObject, useEffect, useMemo, useRef, useState } from 'react';
-import { DASHBOARD_GRID_COLUMNS, DASHBOARD_GRID_GAP, DASHBOARD_ROW_HEIGHT } from '../constants/dashboardGrid';
+import {
+  type DragEvent,
+  type PointerEvent,
+  type RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  DASHBOARD_GRID_COLUMNS,
+  DASHBOARD_GRID_GAP,
+  DASHBOARD_ROW_HEIGHT,
+} from '../constants/dashboardGrid';
 import { useDashboard } from '../context/DashboardProvider';
 import type { TDashboardItem, TDashboardTile, TResizeAxis } from '../types/dashboardTypes';
 import { byPosition, clamp, compactLayout, fitToWidget, placeItem } from '../utils/dashboardLayout';
@@ -12,7 +24,8 @@ const DROP_PREVIEW_ID = '__drop-preview__';
  * Positions snap to grid cells as the pointer moves.
  */
 export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: number) => {
-  const { items, widgets, isEditing, setDraftItems, addWidget, draggingWidget, setDraggingWidget } = useDashboard();
+  const { items, widgets, isEditing, setDraftItems, addWidget, draggingWidget, setDraggingWidget } =
+    useDashboard();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dropAt, setDropAt] = useState<Pick<TDashboardItem, 'x' | 'y'> | null>(null);
   const stopRef = useRef<(() => void) | null>(null);
@@ -35,7 +48,16 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
   const dropSize = useMemo(
     () =>
       draggingWidget
-        ? fitToWidget({ id: DROP_PREVIEW_ID, type: draggingWidget.type, x: 0, y: 0, ...draggingWidget.defaultSize }, draggingWidget)
+        ? fitToWidget(
+            {
+              id: DROP_PREVIEW_ID,
+              type: draggingWidget.type,
+              x: 0,
+              y: 0,
+              ...draggingWidget.defaultSize,
+            },
+            draggingWidget,
+          )
         : null,
     [draggingWidget],
   );
@@ -43,7 +65,9 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
   // While a catalog widget hovers, the other tiles make room as they will on drop.
   const shown = useMemo(
     () =>
-      dropAt && dropSize ? compactLayout([...layout, { ...dropSize, ...dropAt }], DROP_PREVIEW_ID) : layout,
+      dropAt && dropSize
+        ? compactLayout([...layout, { ...dropSize, ...dropAt }], DROP_PREVIEW_ID)
+        : layout,
     [layout, dropAt, dropSize],
   );
 
@@ -58,7 +82,9 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
 
   const dropPreview = shown.find(({ id }) => id === DROP_PREVIEW_ID) ?? null;
 
-  const columnStep = (width - DASHBOARD_GRID_GAP * (DASHBOARD_GRID_COLUMNS - 1)) / DASHBOARD_GRID_COLUMNS + DASHBOARD_GRID_GAP;
+  const columnStep =
+    (width - DASHBOARD_GRID_GAP * (DASHBOARD_GRID_COLUMNS - 1)) / DASHBOARD_GRID_COLUMNS +
+    DASHBOARD_GRID_GAP;
   const rowStep = DASHBOARD_ROW_HEIGHT + DASHBOARD_GRID_GAP;
 
   const begin = (
@@ -115,7 +141,10 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
       return;
     }
 
-    const maxW = Math.min(widget.maxSize?.w ?? DASHBOARD_GRID_COLUMNS, DASHBOARD_GRID_COLUMNS - item.x);
+    const maxW = Math.min(
+      widget.maxSize?.w ?? DASHBOARD_GRID_COLUMNS,
+      DASHBOARD_GRID_COLUMNS - item.x,
+    );
     const maxH = widget.maxSize?.h ?? Infinity;
 
     begin(event, item, (columns, rows) => ({
@@ -133,7 +162,11 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
     }
 
     return {
-      x: clamp(Math.floor((event.clientX - rect.left) / columnStep), 0, DASHBOARD_GRID_COLUMNS - dropSize.w),
+      x: clamp(
+        Math.floor((event.clientX - rect.left) / columnStep),
+        0,
+        DASHBOARD_GRID_COLUMNS - dropSize.w,
+      ),
       y: Math.max(0, Math.floor((event.clientY - rect.top) / rowStep)),
     };
   };
@@ -149,7 +182,9 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
 
       const cell = cellAt(event);
 
-      setDropAt((current) => (cell && current?.x === cell.x && current.y === cell.y ? current : cell));
+      setDropAt((current) =>
+        cell && current?.x === cell.x && current.y === cell.y ? current : cell,
+      );
     },
     onDragLeave: (event: DragEvent) => {
       if (!containerRef.current?.contains(event.relatedTarget as Node | null)) {

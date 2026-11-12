@@ -36,7 +36,9 @@ const notifyOwners = async (
     data?: Record<string, unknown>;
   },
 ) => {
-  const userIds = [...new Set(owners.filter((id): id is string => Boolean(id) && id !== actor.userId))];
+  const userIds = [
+    ...new Set(owners.filter((id): id is string => Boolean(id) && id !== actor.userId)),
+  ];
 
   if (!userIds.length) {
     return;
@@ -114,7 +116,13 @@ export const contactLabel = (type: ContentType, row: object): string => {
 const detailLink = (type: ContentType, id: string) =>
   `/contacts/${type === 'customer' ? 'customers' : 'companies'}/${encodeURIComponent(id)}`;
 
-const notifyNewOwner = async (tx: Db, actor: Actor, type: ContentType, row: ContactRow, before: string | null) => {
+const notifyNewOwner = async (
+  tx: Db,
+  actor: Actor,
+  type: ContentType,
+  row: ContactRow,
+  before: string | null,
+) => {
   // A quiet import tells nobody about each row (the importer sees the summary).
   if (currentImport()?.quiet) return;
   if (!row.ownerId || row.ownerId === before || row.ownerId === actor.userId) {
@@ -131,7 +139,12 @@ const notifyNewOwner = async (tx: Db, actor: Actor, type: ContentType, row: Cont
   });
 };
 
-export const contactCreated = async (tx: Db, actor: Actor | Caller, type: ContentType, row: ContactRow) => {
+export const contactCreated = async (
+  tx: Db,
+  actor: Actor | Caller,
+  type: ContentType,
+  row: ContactRow,
+) => {
   const caller = 'actorType' in actor ? actor : userCaller(actor);
 
   await recordActivity(tx, caller, { targetType: type, targetId: row.id, type: `${type}.created` });
@@ -151,11 +164,19 @@ export const contactCreated = async (tx: Db, actor: Actor | Caller, type: Conten
 };
 
 /** Field, custom field and tag changes between two versions of a record. */
-export const contactChanges = (type: ContentType, before: ContactRow, after: ContactRow): Changes | null => {
+export const contactChanges = (
+  type: ContentType,
+  before: ContactRow,
+  after: ContactRow,
+): Changes | null => {
   const fields = (type === 'customer' ? CUSTOMER_FIELDS : COMPANY_FIELDS) as readonly string[];
 
   return mergeChanges(
-    diffFields(before as unknown as Record<string, unknown>, after as unknown as Record<string, unknown>, fields),
+    diffFields(
+      before as unknown as Record<string, unknown>,
+      after as unknown as Record<string, unknown>,
+      fields,
+    ),
     diffCustomFields(before.customFields, after.customFields),
     diffFields(before, after, ['tagIds']),
   );
@@ -182,7 +203,11 @@ export const contactUpdated = async (
     type: `${type}.updated`,
     data: { changes },
   });
-  await publishCoreEvents(tx, caller, { type: `core.${type}.updated`, subject: { type, id: after.id }, payload: { changes } });
+  await publishCoreEvents(tx, caller, {
+    type: `core.${type}.updated`,
+    subject: { type, id: after.id },
+    payload: { changes },
+  });
   await recordAudit(tx, caller, {
     action: `${type}.updated`,
     targetType: type,
@@ -251,21 +276,31 @@ export const contactsMerged = async (
   const mergedIds = others.map((other) => (other as { id: string }).id);
 
   await moveActivities(tx, actor.orgId, type, mergedIds, keep.id);
-  await publishCoreEvents(tx, caller, { type: `core.${type}.merged`, subject: { type, id: keep.id }, payload: { mergedIds } });
+  await publishCoreEvents(tx, caller, {
+    type: `core.${type}.merged`,
+    subject: { type, id: keep.id },
+    payload: { mergedIds },
+  });
   await recordActivity(tx, caller, {
     targetType: type,
     targetId: keep.id,
     type: `${type}.merged`,
     data: { mergedIds, mergedNames: others.map((other) => contactLabel(type, other)) },
   });
-  await notifyOwners(tx, actor, type, [keep.ownerId, ...others.map((other) => (other as ContactRow).ownerId)], {
-    verb: 'merged',
-    title: `${PLURAL[type]} merged`,
-    body: `${others.map((other) => contactLabel(type, other)).join(', ')} → ${contactLabel(type, keep)}`,
-    recordId: keep.id,
-    link: detailLink(type, keep.id),
-    data: { mergedIds },
-  });
+  await notifyOwners(
+    tx,
+    actor,
+    type,
+    [keep.ownerId, ...others.map((other) => (other as ContactRow).ownerId)],
+    {
+      verb: 'merged',
+      title: `${PLURAL[type]} merged`,
+      body: `${others.map((other) => contactLabel(type, other)).join(', ')} → ${contactLabel(type, keep)}`,
+      recordId: keep.id,
+      link: detailLink(type, keep.id),
+      data: { mergedIds },
+    },
+  );
   await recordAudit(tx, caller, {
     action: `${type}.merged`,
     targetType: type,
@@ -298,7 +333,11 @@ export const contactsTagged = async (
   await publishCoreEvents(
     tx,
     userCaller(actor),
-    entries.map((entry) => ({ type: `core.${type}.tagged`, subject: { type, id: entry.targetId }, payload: entry.data })),
+    entries.map((entry) => ({
+      type: `core.${type}.tagged`,
+      subject: { type, id: entry.targetId },
+      payload: entry.data,
+    })),
   );
 };
 
@@ -315,8 +354,12 @@ export const contactsLinked = async (
   // still says who it was after a deletion).
   const [names] = await tx
     .select({
-      customerName: sql<string | null>`(select coalesce(nullif(trim(concat_ws(' ', ${customers.firstName}, ${customers.lastName})), ''), ${customers.primaryEmail}, ${customers.primaryPhone}) from ${customers} where ${and(eq(customers.orgId, actor.orgId), eq(customers.id, customerId))})`,
-      companyName: sql<string | null>`(select ${companies.primaryName} from ${companies} where ${and(eq(companies.orgId, actor.orgId), eq(companies.id, companyId))})`,
+      customerName: sql<
+        string | null
+      >`(select coalesce(nullif(trim(concat_ws(' ', ${customers.firstName}, ${customers.lastName})), ''), ${customers.primaryEmail}, ${customers.primaryPhone}) from ${customers} where ${and(eq(customers.orgId, actor.orgId), eq(customers.id, customerId))})`,
+      companyName: sql<
+        string | null
+      >`(select ${companies.primaryName} from ${companies} where ${and(eq(companies.orgId, actor.orgId), eq(companies.id, companyId))})`,
     })
     .from(sql`(select 1) as one`);
 
@@ -327,7 +370,17 @@ export const contactsLinked = async (
   });
 
   await recordActivity(tx, userCaller(actor), [
-    { targetType: 'customer', targetId: customerId, type: `customer.company_${verb}`, data: { companyId, companyName: names?.companyName ?? null } },
-    { targetType: 'company', targetId: companyId, type: `company.customer_${verb}`, data: { customerId, customerName: names?.customerName ?? null } },
+    {
+      targetType: 'customer',
+      targetId: customerId,
+      type: `customer.company_${verb}`,
+      data: { companyId, companyName: names?.companyName ?? null },
+    },
+    {
+      targetType: 'company',
+      targetId: companyId,
+      type: `company.customer_${verb}`,
+      data: { customerId, customerName: names?.customerName ?? null },
+    },
   ]);
 };

@@ -21,7 +21,10 @@ import { AvatarUploadField } from '~/components/AvatarEditor';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { isApiError, messageOf } from '~/lib/api';
-import { COMPANY_BUSINESS_TYPES, DEFAULT_COMPANY_INDUSTRY_TYPES } from '~/modules/contacts/companies/companyConstants';
+import {
+  COMPANY_BUSINESS_TYPES,
+  DEFAULT_COMPANY_INDUSTRY_TYPES,
+} from '~/modules/contacts/companies/companyConstants';
 import { useCompanyCreate } from '~/modules/contacts/companies/useCompanies';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
 import { linkNewContact } from '~/modules/contacts/components/useContactRelations';
@@ -80,7 +83,11 @@ const CompanyDescriptionInput = () => {
         control={control}
         name="description"
         render={({ field }) => (
-          <Editor initialContent={field.value} onChange={field.onChange} scope="side-panel-company-new.description" />
+          <Editor
+            initialContent={field.value}
+            onChange={field.onChange}
+            scope="side-panel-company-new.description"
+          />
         )}
       />
     </div>
@@ -99,7 +106,10 @@ export const CompanyPanelNew = () => {
   const [linking, setLinking] = useState(false);
   const showCreated = useCreatedPanelRecord('core:company');
   const create = useCompanyCreate();
-  const { state, leadStageId } = useSidePanelDraft<{ state?: 'lead' | 'customer'; leadStageId?: string }>('core:company');
+  const { state, leadStageId } = useSidePanelDraft<{
+    state?: 'lead' | 'customer';
+    leadStageId?: string;
+  }>('core:company');
   const form = useForm<TCompanyForm>({
     resolver: zodResolver(companySchema),
     defaultValues: { primaryName: '', code: '', industry: [] },
@@ -131,7 +141,11 @@ export const CompanyPanelNew = () => {
       if (customerIds.length) {
         setLinking(true);
         await linkNewContact('core:company', created.id, customerIds).catch((error: unknown) =>
-          toast({ variant: 'destructive', title: 'Could not link customers', description: messageOf(error) }),
+          toast({
+            variant: 'destructive',
+            title: 'Could not link customers',
+            description: messageOf(error),
+          }),
         );
         setLinking(false);
       }
@@ -144,26 +158,44 @@ export const CompanyPanelNew = () => {
         return;
       }
 
-      toast({ variant: 'destructive', title: t('error-title', 'Error'), description: messageOf(error) });
+      toast({
+        variant: 'destructive',
+        title: t('error-title', 'Error'),
+        description: messageOf(error),
+      });
     }
   };
 
   /** A registered text input with its field label and validation error. */
   const textRow = (name: TCompanyTextField, label: string, required?: boolean) => (
-    <PanelFormRow icon={TEXT_FIELD_ICONS[name]} label={label} required={required} error={errors[name]?.message}>
+    <PanelFormRow
+      icon={TEXT_FIELD_ICONS[name]}
+      label={label}
+      required={required}
+      error={errors[name]?.message}
+    >
       <Input {...form.register(name)} placeholder={label} className={INPUT_CLASS_NAME} />
     </PanelFormRow>
   );
 
   return (
     <Form {...form}>
-      <form className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col" onSubmit={form.handleSubmit(save)}>
-        <PanelFormLayout onCancel={cancel} saving={create.isPending || linking} saveLabel={t('add._', 'Add company')}>
+      <form
+        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
+        onSubmit={form.handleSubmit(save)}
+      >
+        <PanelFormLayout
+          onCancel={cancel}
+          saving={create.isPending || linking}
+          saveLabel={t('add._', 'Add company')}
+        >
           <PanelFormRow icon={IconPhoto} label={t('field.picture', 'Picture')}>
             <Form.Field
               control={form.control}
               name="avatarUrl"
-              render={({ field }) => <AvatarUploadField value={field.value ?? null} onChange={field.onChange} />}
+              render={({ field }) => (
+                <AvatarUploadField value={field.value ?? null} onChange={field.onChange} />
+              )}
             />
           </PanelFormRow>
           {textRow('primaryName', t('field.primaryName', 'Name'), true)}
@@ -184,7 +216,11 @@ export const CompanyPanelNew = () => {
               control={form.control}
               name="ownerId"
               render={({ field }) => (
-                <SelectMember.FormItem placeholder={t('owner', 'Owner')} value={field.value} onValueChange={field.onChange} />
+                <SelectMember.FormItem
+                  placeholder={t('owner', 'Owner')}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
               )}
             />
           </PanelFormRow>

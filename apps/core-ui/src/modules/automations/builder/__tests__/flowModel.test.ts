@@ -22,15 +22,28 @@ const flow: AutomationStep[] = [
   {
     id: 'b',
     type: 'branch',
-    conditions: { match: 'all', rules: [{ path: 'steps.w.output.matched', op: 'eq', value: false }] },
+    conditions: {
+      match: 'all',
+      rules: [{ path: 'steps.w.output.matched', op: 'eq', value: false }],
+    },
     then: [{ id: 'n', type: 'action', action: 'core.notification.send', input: { title: 'Ping' } }],
     else: [],
   },
 ];
 
 const actions = [
-  { type: 'core.customer.assign', label: 'Assign an owner', fields: [{ key: 'userIds', label: 'Members to rotate through', type: 'members', required: true }] },
-  { type: 'core.notification.send', label: 'Notify team members', fields: [{ key: 'title', label: 'Title', type: 'text', required: true }] },
+  {
+    type: 'core.customer.assign',
+    label: 'Assign an owner',
+    fields: [
+      { key: 'userIds', label: 'Members to rotate through', type: 'members', required: true },
+    ],
+  },
+  {
+    type: 'core.notification.send',
+    label: 'Notify team members',
+    fields: [{ key: 'title', label: 'Title', type: 'text', required: true }],
+  },
 ] as unknown as ActionInfo[];
 
 const events = [{ type: 'core.customer.updated', label: 'Customer updated' }];
@@ -38,7 +51,11 @@ const events = [{ type: 'core.customer.updated', label: 'Customer updated' }];
 describe('flow model', () => {
   it('finds, locates and counts steps inside arms', () => {
     expect(findStep(flow, 'n')?.type).toBe('action');
-    expect(locate(flow, 'n')).toEqual({ address: { parentId: 'b', arm: 'then' }, index: 0, length: 1 });
+    expect(locate(flow, 'n')).toEqual({
+      address: { parentId: 'b', arm: 'then' },
+      index: 0,
+      length: 1,
+    });
     expect(countSteps(flow)).toBe(4);
   });
 
@@ -54,9 +71,16 @@ describe('flow model', () => {
     // Already first: nothing moves.
     expect(moveStep(moved, 'w', -1)).toBe(moved);
 
-    const renamed = replaceStep(flow, { id: 'n', type: 'action', action: 'core.notification.send', input: { title: 'Pong' } });
+    const renamed = replaceStep(flow, {
+      id: 'n',
+      type: 'action',
+      action: 'core.notification.send',
+      input: { title: 'Pong' },
+    });
 
-    expect((findStep(renamed, 'n') as unknown as { input: { title: string } }).input.title).toBe('Pong');
+    expect((findStep(renamed, 'n') as unknown as { input: { title: string } }).input.title).toBe(
+      'Pong',
+    );
     expect(findStep(removeStep(flow, 'n'), 'n')).toBeNull();
     expect(countSteps(removeStep(flow, 'b'))).toBe(2);
   });
@@ -71,17 +95,48 @@ describe('flow model', () => {
   it('names what each step does, with outputs of earlier steps as fields', () => {
     const outputs = stepOutputFields(flow, 'b', { events });
 
-    expect(outputs).toEqual([{ path: 'steps.w.output.matched', label: 'Customer updated within the wait', type: 'boolean' }]);
-    expect(describeStep(flow[2]!, { actions, events, fields: outputs }).title).toBe('If Customer updated within the wait: no');
-    expect(describeStep(flow[1]!, { actions, events, fields: [] })).toEqual({ title: 'Customer updated', detail: 'At most 3 days' });
-    expect(describeStep({ id: 'd', type: 'delay', amount: 1, unit: 'hours' }, { actions, events, fields: [] }).title).toBe('1 hour');
-    expect(describeConditions({ match: 'any', rules: [{ path: 'subject.primaryEmail', op: 'exists' }, { path: 'subject.state', op: 'eq', value: 'lead' }] }, [])).toBe(
-      'primary email is set or 1 more',
+    expect(outputs).toEqual([
+      {
+        path: 'steps.w.output.matched',
+        label: 'Customer updated within the wait',
+        type: 'boolean',
+      },
+    ]);
+    expect(describeStep(flow[2]!, { actions, events, fields: outputs }).title).toBe(
+      'If Customer updated within the wait: no',
     );
+    expect(describeStep(flow[1]!, { actions, events, fields: [] })).toEqual({
+      title: 'Customer updated',
+      detail: 'At most 3 days',
+    });
+    expect(
+      describeStep(
+        { id: 'd', type: 'delay', amount: 1, unit: 'hours' },
+        { actions, events, fields: [] },
+      ).title,
+    ).toBe('1 hour');
+    expect(
+      describeConditions(
+        {
+          match: 'any',
+          rules: [
+            { path: 'subject.primaryEmail', op: 'exists' },
+            { path: 'subject.state', op: 'eq', value: 'lead' },
+          ],
+        },
+        [],
+      ),
+    ).toBe('primary email is set or 1 more');
   });
 
   it('flags required inputs left empty and branches without conditions', () => {
-    const problems = flowProblems([...flow, { id: 'e', type: 'branch', conditions: { match: 'all', rules: [] }, then: [], else: [] }], actions);
+    const problems = flowProblems(
+      [
+        ...flow,
+        { id: 'e', type: 'branch', conditions: { match: 'all', rules: [] }, then: [], else: [] },
+      ],
+      actions,
+    );
 
     expect(problems.get('a')).toEqual(['Fill in members to rotate through']);
     expect(problems.get('n')).toBeUndefined();
@@ -131,7 +186,17 @@ describe('action inputs', () => {
       stages: [{ id: 's1', name: 'Qualified' }],
     };
 
-    expect(describeStep({ id: 'm', type: 'action', action: 'core.lead.move', input: { stage: 's1' } }, context).detail).toBe('Stage: Qualified');
-    expect(describeStep({ id: 'f', type: 'action', action: 'core.customer.set_field', input: { fieldId: 'f1' } }, context).detail).toBe('Field: Plan');
+    expect(
+      describeStep(
+        { id: 'm', type: 'action', action: 'core.lead.move', input: { stage: 's1' } },
+        context,
+      ).detail,
+    ).toBe('Stage: Qualified');
+    expect(
+      describeStep(
+        { id: 'f', type: 'action', action: 'core.customer.set_field', input: { fieldId: 'f1' } },
+        context,
+      ).detail,
+    ).toBe('Field: Plan');
   });
 });

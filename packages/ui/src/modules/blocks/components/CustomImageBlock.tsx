@@ -1,8 +1,4 @@
-import {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  imageBlockConfig,
-} from '@blocknote/core';
+import { DefaultInlineContentSchema, DefaultStyleSchema, imageBlockConfig } from '@blocknote/core';
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
@@ -34,9 +30,7 @@ export const IMAGE_STYLE_PRESETS: Record<
 };
 
 const getImageStyle = (value?: string): ImageStyle =>
-  (IMAGE_STYLES as readonly string[]).includes(value ?? '')
-    ? (value as ImageStyle)
-    : 'normal';
+  (IMAGE_STYLES as readonly string[]).includes(value ?? '') ? (value as ImageStyle) : 'normal';
 
 const getEditorMaxImageWidth = (
   editor: Pick<ImageRenderProps['editor'], 'domElement'>,
@@ -44,16 +38,13 @@ const getEditorMaxImageWidth = (
   dimensions?: { width: number; height: number },
 ) => {
   const editorWidth =
-    editor.domElement?.firstElementChild?.clientWidth ||
-    IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
+    editor.domElement?.firstElementChild?.clientWidth || IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
 
   return Math.min(
     editorWidth,
     IMAGE_STYLE_PRESETS[imageStyle].maxWidth,
     dimensions?.width || Infinity,
-    dimensions?.height
-      ? (dimensions.width / dimensions.height) * MAX_IMAGE_HEIGHT
-      : Infinity,
+    dimensions?.height ? (dimensions.width / dimensions.height) * MAX_IMAGE_HEIGHT : Infinity,
   );
 };
 
@@ -85,10 +76,7 @@ type ImageRenderProps = ReactCustomBlockRenderProps<
 >;
 
 type FileBlockWrapperProps = Parameters<typeof ResizableFileBlockWrapper>[0];
-type FileBlockRenderProps = Omit<
-  FileBlockWrapperProps,
-  'buttonText' | 'buttonIcon' | 'children'
->;
+type FileBlockRenderProps = Omit<FileBlockWrapperProps, 'buttonText' | 'buttonIcon' | 'children'>;
 
 const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
   props as unknown as FileBlockRenderProps;
@@ -165,10 +153,7 @@ const CustomImagePreview: FC<
   );
 };
 
-const getFloatContainerStyle = (
-  imageStyle: ImageStyle,
-  maxWidth: number,
-): CSSProperties => {
+const getFloatContainerStyle = (imageStyle: ImageStyle, maxWidth: number): CSSProperties => {
   const base: CSSProperties = {
     width: '100%',
     maxWidth: `${maxWidth}px`,
@@ -197,9 +182,7 @@ const getFloatContainerStyle = (
 
 const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   const { url, caption, name, previewWidth } = block.props;
-  const imageStyle = getImageStyle(
-    (block.props as { imageStyle?: string }).imageStyle,
-  );
+  const imageStyle = getImageStyle((block.props as { imageStyle?: string }).imageStyle);
 
   if (!url) return <p>Add image</p>;
 
@@ -242,9 +225,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const maxWidth = getEditorMaxImageWidth(
     props.editor,
     imageStyle,
-    imageDimensions?.url === props.block.props.url
-      ? imageDimensions
-      : undefined,
+    imageDimensions?.url === props.block.props.url ? imageDimensions : undefined,
   );
 
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) => {
@@ -258,11 +239,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
     if (!previewWidth && props.editor.isEditable) {
       props.editor.updateBlock(props.block, {
         props: {
-          previewWidth: getEditorMaxImageWidth(
-            props.editor,
-            imageStyle,
-            dimensions,
-          ),
+          previewWidth: getEditorMaxImageWidth(props.editor, imageStyle, dimensions),
         },
       });
     }
@@ -278,10 +255,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
 
     const floatWidth = Math.min(previewWidth || maxWidth, maxWidth);
     const dir = imageStyle === 'float-left' ? 'left' : 'right';
-    const margin =
-      imageStyle === 'float-left'
-        ? 'margin-right:1.25em'
-        : 'margin-left:1.25em';
+    const margin = imageStyle === 'float-left' ? 'margin-right:1.25em' : 'margin-left:1.25em';
 
     const styleEl = document.createElement('style');
     styleEl.id = styleId;
@@ -333,10 +307,7 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
 
       return {
         url: img.src || undefined,
-        previewWidth:
-          img.width ||
-          IMAGE_STYLE_PRESETS[imageStyle].previewWidth ||
-          undefined,
+        previewWidth: img.width || IMAGE_STYLE_PRESETS[imageStyle].previewWidth || undefined,
         imageStyle,
       };
     }
@@ -346,17 +317,13 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
 
       if (!img) return undefined;
 
-      const caption =
-        element.querySelector('figcaption')?.textContent || undefined;
+      const caption = element.querySelector('figcaption')?.textContent || undefined;
       const imageStyle = getImageStyleFromElement(element);
 
       return {
         url: img.src || undefined,
         caption,
-        previewWidth:
-          img.width ||
-          IMAGE_STYLE_PRESETS[imageStyle].previewWidth ||
-          undefined,
+        previewWidth: img.width || IMAGE_STYLE_PRESETS[imageStyle].previewWidth || undefined,
         imageStyle,
       };
     }

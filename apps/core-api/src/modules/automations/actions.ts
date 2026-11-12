@@ -1,5 +1,11 @@
 import type { ActionInfo } from '@erxes/core-contract';
-import { automations, type Db, leadStages, plugins, type StoredPluginManifest } from '@erxes/core-db';
+import {
+  automations,
+  type Db,
+  leadStages,
+  plugins,
+  type StoredPluginManifest,
+} from '@erxes/core-db';
 import { and, eq, or, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
@@ -32,18 +38,28 @@ export interface CoreAction extends Omit<ActionInfo, 'source'> {
 
 const needSubject = (ctx: ActionContext, type: 'customer' | 'company') => {
   if (ctx.subject?.type !== type) {
-    throw new HttpError(400, 'NO_SUBJECT', `This step needs a ${type}: the trigger event isn't about one`);
+    throw new HttpError(
+      400,
+      'NO_SUBJECT',
+      `This step needs a ${type}: the trigger event isn't about one`,
+    );
   }
 
   return ctx.subject.id;
 };
 
-const text = (value: unknown) => (value === null || value === undefined ? undefined : String(value));
-const list = (value: unknown) => (Array.isArray(value) ? value.map(String) : value ? [String(value)] : []);
+const text = (value: unknown) =>
+  value === null || value === undefined ? undefined : String(value);
+const list = (value: unknown) =>
+  Array.isArray(value) ? value.map(String) : value ? [String(value)] : [];
 
 /** Only fields an action declares, without empty ones. */
 const pick = (input: Record<string, unknown>, keys: string[]) =>
-  Object.fromEntries(keys.filter((key) => input[key] !== undefined && input[key] !== null && input[key] !== '').map((key) => [key, input[key]]));
+  Object.fromEntries(
+    keys
+      .filter((key) => input[key] !== undefined && input[key] !== null && input[key] !== '')
+      .map((key) => [key, input[key]]),
+  );
 
 export const CORE_ACTIONS: CoreAction[] = [
   {
@@ -111,7 +127,11 @@ export const CORE_ACTIONS: CoreAction[] = [
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
 
-      await tagCustomers(ctx.tx, ctx.actor, { ids: [id], add: list(ctx.input.add), remove: list(ctx.input.remove) });
+      await tagCustomers(ctx.tx, ctx.actor, {
+        ids: [id],
+        add: list(ctx.input.add),
+        remove: list(ctx.input.remove),
+      });
 
       return { added: list(ctx.input.add), removed: list(ctx.input.remove) };
     },
@@ -128,7 +148,11 @@ export const CORE_ACTIONS: CoreAction[] = [
     run: async (ctx) => {
       const id = needSubject(ctx, 'company');
 
-      await tagCompanies(ctx.tx, ctx.actor, { ids: [id], add: list(ctx.input.add), remove: list(ctx.input.remove) });
+      await tagCompanies(ctx.tx, ctx.actor, {
+        ids: [id],
+        add: list(ctx.input.add),
+        remove: list(ctx.input.remove),
+      });
 
       return { added: list(ctx.input.add), removed: list(ctx.input.remove) };
     },
@@ -140,7 +164,12 @@ export const CORE_ACTIONS: CoreAction[] = [
     subject: 'any',
     fields: [{ key: 'body', label: 'Note', type: 'longtext', required: true }],
     run: async (ctx) => {
-      if (!ctx.subject) throw new HttpError(400, 'NO_SUBJECT', "This step needs a customer or company: the trigger event isn't about one");
+      if (!ctx.subject)
+        throw new HttpError(
+          400,
+          'NO_SUBJECT',
+          "This step needs a customer or company: the trigger event isn't about one",
+        );
 
       const note = await addNote(ctx.tx, ctx.actor, {
         targetType: ctx.subject.type,
@@ -163,10 +192,20 @@ export const CORE_ACTIONS: CoreAction[] = [
       { key: 'owner', label: "Also the record's owner", type: 'boolean', required: false },
       { key: 'title', label: 'Title', type: 'text', required: true },
       { key: 'body', label: 'Message', type: 'longtext', required: false },
-      { key: 'link', label: 'Link', type: 'text', required: false, placeholder: '/contacts/customers', description: 'A page in erxes the notification opens' },
+      {
+        key: 'link',
+        label: 'Link',
+        type: 'text',
+        required: false,
+        placeholder: '/contacts/customers',
+        description: 'A page in erxes the notification opens',
+      },
     ],
     run: async (ctx) => {
-      const ownerId = ctx.input.owner === true ? (ctx.context.subject as { ownerId?: string } | null)?.ownerId : undefined;
+      const ownerId =
+        ctx.input.owner === true
+          ? (ctx.context.subject as { ownerId?: string } | null)?.ownerId
+          : undefined;
       const userIds = [...new Set([...list(ctx.input.userIds), ...(ownerId ? [ownerId] : [])])];
 
       if (!userIds.length) return { sent: 0 };
@@ -195,17 +234,44 @@ export const CORE_ACTIONS: CoreAction[] = [
     description: 'POST JSON to an https address (retried if it fails)',
     subject: null,
     fields: [
-      { key: 'url', label: 'Address', type: 'text', required: true, placeholder: 'https://example.com/hooks/erxes' },
-      { key: 'headers', label: 'Headers', type: 'json', required: false, placeholder: '{ "Authorization": "Bearer …" }' },
-      { key: 'body', label: 'Body', type: 'json', required: false, description: 'JSON; leave empty to send the event and the record' },
+      {
+        key: 'url',
+        label: 'Address',
+        type: 'text',
+        required: true,
+        placeholder: 'https://example.com/hooks/erxes',
+      },
+      {
+        key: 'headers',
+        label: 'Headers',
+        type: 'json',
+        required: false,
+        placeholder: '{ "Authorization": "Bearer …" }',
+      },
+      {
+        key: 'body',
+        label: 'Body',
+        type: 'json',
+        required: false,
+        description: 'JSON; leave empty to send the event and the record',
+      },
     ],
     run: async (ctx) => {
       const body = JSON.stringify(
-        ctx.input.body ?? { event: ctx.context.event, subject: ctx.context.subject, automation: ctx.automation, run: ctx.run.id },
+        ctx.input.body ?? {
+          event: ctx.context.event,
+          subject: ctx.context.subject,
+          automation: ctx.automation,
+          run: ctx.run.id,
+        },
       );
       const extra = Object.fromEntries(
         Object.entries((ctx.input.headers ?? {}) as Record<string, unknown>)
-          .filter(([key]) => /^[A-Za-z0-9-]{1,60}$/.test(key) && !/^(host|content-length|connection|transfer-encoding)$/i.test(key))
+          .filter(
+            ([key]) =>
+              /^[A-Za-z0-9-]{1,60}$/.test(key) &&
+              !/^(host|content-length|connection|transfer-encoding)$/i.test(key),
+          )
           .map(([key, value]) => [key, String(value).slice(0, 2000)]),
       );
       const response = await postOutbound(String(ctx.input.url ?? ''), body, {
@@ -215,7 +281,8 @@ export const CORE_ACTIONS: CoreAction[] = [
         'Idempotency-Key': `${ctx.run.id}:${ctx.step.id}`,
       });
 
-      if (response.status < 200 || response.status >= 300) throw new Error(`HTTP ${response.status}: ${response.body.slice(0, 200)}`);
+      if (response.status < 200 || response.status >= 300)
+        throw new Error(`HTTP ${response.status}: ${response.body.slice(0, 200)}`);
 
       let output: unknown = response.body;
 
@@ -230,7 +297,6 @@ export const CORE_ACTIONS: CoreAction[] = [
   },
 ];
 
-
 /** More core actions: email, custom fields, round-robin assignment. */
 CORE_ACTIONS.push(
   {
@@ -240,13 +306,27 @@ CORE_ACTIONS.push(
     subject: null,
     fields: [
       { key: 'to', label: 'To', type: 'recipients', required: true },
-      { key: 'subject', label: 'Subject', type: 'text', required: true, placeholder: 'Welcome, {{subject.firstName}}' },
+      {
+        key: 'subject',
+        label: 'Subject',
+        type: 'text',
+        required: true,
+        placeholder: 'Welcome, {{subject.firstName}}',
+      },
       { key: 'body', label: 'Message', type: 'longtext', required: true },
     ],
     run: async (ctx) => {
       const subjectEmail = (ctx.context.subject as { primaryEmail?: string } | null)?.primaryEmail;
-      const to = String(ctx.input.to ?? '').trim() === 'subject' ? (subjectEmail ? [subjectEmail] : []) : list(String(ctx.input.to ?? '').split(','));
-      const recipients = to.map((address) => address.trim()).filter((address) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)).slice(0, 50);
+      const to =
+        String(ctx.input.to ?? '').trim() === 'subject'
+          ? subjectEmail
+            ? [subjectEmail]
+            : []
+          : list(String(ctx.input.to ?? '').split(','));
+      const recipients = to
+        .map((address) => address.trim())
+        .filter((address) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
+        .slice(0, 50);
 
       if (!recipients.length) return { sent: 0, reason: 'no email address' };
 
@@ -254,7 +334,10 @@ CORE_ACTIONS.push(
         await sendEmail(ctx.tx, ctx.orgId, {
           to: address,
           template: 'message',
-          data: { subject: String(ctx.input.subject ?? '').slice(0, 200), body: String(ctx.input.body ?? '').slice(0, 20_000) },
+          data: {
+            subject: String(ctx.input.subject ?? '').slice(0, 200),
+            body: String(ctx.input.body ?? '').slice(0, 20_000),
+          },
         });
       }
 
@@ -268,13 +351,23 @@ CORE_ACTIONS.push(
     subject: 'customer',
     fields: [
       { key: 'fieldId', label: 'Field', type: 'custom_field', required: true },
-      { key: 'value', label: 'Value', type: 'text', required: false, sameTypeAs: 'fieldId', description: 'Leave empty to clear the field' },
+      {
+        key: 'value',
+        label: 'Value',
+        type: 'text',
+        required: false,
+        sameTypeAs: 'fieldId',
+        description: 'Leave empty to clear the field',
+      },
     ],
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
-      const value = ctx.input.value === '' || ctx.input.value === undefined ? null : ctx.input.value;
+      const value =
+        ctx.input.value === '' || ctx.input.value === undefined ? null : ctx.input.value;
 
-      await updateCustomer(ctx.tx, ctx.actor, id, { customFields: { [String(ctx.input.fieldId)]: value } } as never);
+      await updateCustomer(ctx.tx, ctx.actor, id, {
+        customFields: { [String(ctx.input.fieldId)]: value },
+      } as never);
 
       return { fieldId: ctx.input.fieldId, value };
     },
@@ -286,7 +379,13 @@ CORE_ACTIONS.push(
     subject: 'customer',
     fields: [
       { key: 'stage', label: 'Stage', type: 'lead_stage', required: true },
-      { key: 'reason', label: 'Reason', type: 'text', required: false, description: 'Kept when the stage is a disqualified one' },
+      {
+        key: 'reason',
+        label: 'Reason',
+        type: 'text',
+        required: false,
+        description: 'Kept when the stage is a disqualified one',
+      },
     ],
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
@@ -304,9 +403,17 @@ CORE_ACTIONS.push(
         .orderBy(sql`${leadStages.id} = ${wanted} desc`)
         .limit(1);
 
-      if (!stage) throw new HttpError(400, 'INVALID_LEAD_STAGE', `No lead stage is called “${String(ctx.input.stage)}”`);
+      if (!stage)
+        throw new HttpError(
+          400,
+          'INVALID_LEAD_STAGE',
+          `No lead stage is called “${String(ctx.input.stage)}”`,
+        );
 
-      await updateCustomer(ctx.tx, ctx.actor, id, { leadStageId: stage.id, ...(ctx.input.reason ? { disqualifyReason: String(ctx.input.reason) } : {}) });
+      await updateCustomer(ctx.tx, ctx.actor, id, {
+        leadStageId: stage.id,
+        ...(ctx.input.reason ? { disqualifyReason: String(ctx.input.reason) } : {}),
+      });
 
       return { stageId: stage.id };
     },
@@ -330,12 +437,15 @@ CORE_ACTIONS.push(
     label: 'Assign an owner (round-robin)',
     description: 'Give the customer to the next member in turn',
     subject: 'customer',
-    fields: [{ key: 'userIds', label: 'Members to rotate through', type: 'members', required: true }],
+    fields: [
+      { key: 'userIds', label: 'Members to rotate through', type: 'members', required: true },
+    ],
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
       const members = list(ctx.input.userIds);
 
-      if (!members.length) throw new HttpError(400, 'NO_MEMBERS', 'Choose the members to rotate through');
+      if (!members.length)
+        throw new HttpError(400, 'NO_MEMBERS', 'Choose the members to rotate through');
 
       // The rotation position lives on the automation (row locked: no two runs pick the same turn).
       const [row] = await ctx.tx
@@ -350,7 +460,9 @@ CORE_ACTIONS.push(
 
       await ctx.tx
         .update(automations)
-        .set({ state: sql`jsonb_set(${automations.state}, '{turns}', ${JSON.stringify({ ...turns, [ctx.step.id]: position })}::jsonb)` })
+        .set({
+          state: sql`jsonb_set(${automations.state}, '{turns}', ${JSON.stringify({ ...turns, [ctx.step.id]: position })}::jsonb)`,
+        })
         .where(eq(automations.id, ctx.automation.id));
       await updateCustomer(ctx.tx, ctx.actor, id, { ownerId } as never);
 
@@ -366,18 +478,36 @@ export const CORE_CALL_TYP = 'erxes-core-call+jwt';
  * `<api.url>/automations/actions/<type>` with a 5-minute core token (`aud` the
  * plugin) and an `Idempotency-Key` (`<run>:<step>`), so a retry is safe.
  */
-export const runPluginAction = async (ctx: ActionContext, plugin: { name: string; manifest: StoredPluginManifest | null }, type: string) => {
+export const runPluginAction = async (
+  ctx: ActionContext,
+  plugin: { name: string; manifest: StoredPluginManifest | null },
+  type: string,
+) => {
   const url = plugin.manifest?.api?.url;
 
   if (!url) throw new Error(`${plugin.name} has no API address in its manifest`);
 
   const token = await signJwt(
-    { org: ctx.orgId, user: ctx.actor.userId, automation: ctx.automation.id, run: ctx.run.id, step: ctx.step.id },
-    { typ: CORE_CALL_TYP, audience: plugin.name, subject: `automation:${ctx.automation.id}`, expiresInSeconds: 300 },
+    {
+      org: ctx.orgId,
+      user: ctx.actor.userId,
+      automation: ctx.automation.id,
+      run: ctx.run.id,
+      step: ctx.step.id,
+    },
+    {
+      typ: CORE_CALL_TYP,
+      audience: plugin.name,
+      subject: `automation:${ctx.automation.id}`,
+      expiresInSeconds: 300,
+    },
   );
   const response = await postOutbound(
     `${url.replace(/\/+$/, '')}/automations/actions/${type}`,
-    JSON.stringify({ input: ctx.input, context: { event: ctx.context.event, subject: ctx.context.subject, steps: ctx.context.steps } }),
+    JSON.stringify({
+      input: ctx.input,
+      context: { event: ctx.context.event, subject: ctx.context.subject, steps: ctx.context.steps },
+    }),
     {
       'Content-Type': 'application/json',
       'User-Agent': 'erxes-automations/1',
@@ -399,7 +529,9 @@ export const runPluginAction = async (ctx: ActionContext, plugin: { name: string
 };
 
 /** Core's actions and those of the installed plugins (from their manifests). */
-export const actionCatalog = (installed: { name: string; manifest: StoredPluginManifest | null }[]): ActionInfo[] => [
+export const actionCatalog = (
+  installed: { name: string; manifest: StoredPluginManifest | null }[],
+): ActionInfo[] => [
   ...CORE_ACTIONS.map(({ run: _run, ...info }) => ({ ...info, source: 'core' })),
   ...installed.flatMap((plugin) =>
     (plugin.manifest?.actions ?? []).map((action) => ({
@@ -408,14 +540,21 @@ export const actionCatalog = (installed: { name: string; manifest: StoredPluginM
       description: action.description ?? null,
       source: plugin.name,
       subject: action.subject ?? null,
-      fields: action.fields.map((field) => ({ ...field, type: field.type as ActionInfo['fields'][number]['type'] })),
+      fields: action.fields.map((field) => ({
+        ...field,
+        type: field.type as ActionInfo['fields'][number]['type'],
+      })),
     })),
   ),
 ];
 
 export const pluginOfAction = async (client: Db, type: string) => {
   const name = type.split('.')[0]!;
-  const [row] = await client.select({ name: plugins.name, manifest: plugins.manifest }).from(plugins).where(eq(plugins.name, name)).limit(1);
+  const [row] = await client
+    .select({ name: plugins.name, manifest: plugins.manifest })
+    .from(plugins)
+    .where(eq(plugins.name, name))
+    .limit(1);
 
   return row ?? null;
 };

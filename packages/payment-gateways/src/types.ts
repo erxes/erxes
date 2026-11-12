@@ -64,9 +64,15 @@ export interface GatewayDriver {
   readonly refunds: 'partial' | 'full' | 'none';
   /** Checks the credentials (on connecting). */
   verify(): Promise<void>;
-  createInvoice(input: CreateInvoiceInput): Promise<{ gatewayInvoiceId: string; payment: PayerInstructions }>;
+  createInvoice(
+    input: CreateInvoiceInput,
+  ): Promise<{ gatewayInvoiceId: string; payment: PayerInstructions }>;
   /** Asked of the gateway itself: callbacks are never trusted alone. `state` is the invoice's stored `payment`. */
-  check(gatewayInvoiceId: string, amount: number, state: Record<string, unknown>): Promise<PaymentCheck>;
+  check(
+    gatewayInvoiceId: string,
+    amount: number,
+    state: Record<string, unknown>,
+  ): Promise<PaymentCheck>;
   cancel(gatewayInvoiceId: string): Promise<void>;
   refund(input: RefundInput, state: Record<string, unknown>): Promise<{ refundId: string | null }>;
 }

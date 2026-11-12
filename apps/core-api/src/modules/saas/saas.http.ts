@@ -7,7 +7,13 @@ import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import { HttpError } from '~/http/errors';
 import { log } from '~/lib/log';
 import { sessionVersionOf } from '~/modules/auth/account.service';
-import { applyWorkspace, platformAuthorized, redeemHandoff, refreshEntitlements, workspaceUsage } from './saas.service';
+import {
+  applyWorkspace,
+  platformAuthorized,
+  redeemHandoff,
+  refreshEntitlements,
+  workspaceUsage,
+} from './saas.service';
 
 /**
  * erxes.io's door into core (`/core/v1/saas/*`), only with SAAS=true. Calls
@@ -47,26 +53,40 @@ saasRouter.use((_req, res, next) => {
   next();
 });
 
-saasRouter.put('/organizations/:id', express.json({ limit: '64kb' }), (req: Request, res: Response) => {
-  if (!fromPlatform(req, res)) return;
+saasRouter.put(
+  '/organizations/:id',
+  express.json({ limit: '64kb' }),
+  (req: Request, res: Response) => {
+    if (!fromPlatform(req, res)) return;
 
-  const parsed = SaasWorkspace.safeParse(req.body);
+    const parsed = SaasWorkspace.safeParse(req.body);
 
-  if (!parsed.success) {
-    res.status(400).json({ code: 'INVALID_INPUT', message: 'Not a valid workspace', data: { issues: parsed.error.issues } });
-    return;
-  }
+    if (!parsed.success) {
+      res
+        .status(400)
+        .json({
+          code: 'INVALID_INPUT',
+          message: 'Not a valid workspace',
+          data: { issues: parsed.error.issues },
+        });
+      return;
+    }
 
-  applyWorkspace(req.params.id ?? '', parsed.data)
-    .then((result) => res.status(result.created ? 201 : 200).json(result))
-    .catch((error: unknown) => send(res, error));
-});
+    applyWorkspace(req.params.id ?? '', parsed.data)
+      .then((result) => res.status(result.created ? 201 : 200).json(result))
+      .catch((error: unknown) => send(res, error));
+  },
+);
 
 saasRouter.post('/organizations/:id/refresh', (req: Request, res: Response) => {
   if (!fromPlatform(req, res)) return;
 
   refreshEntitlements(req.params.id ?? '')
-    .then((row) => (row ? res.json({ organizationStatus: row.orgStatus, plugins: row.plugins, lapsed: row.lapsed }) : send(res, new HttpError(404, 'NOT_FOUND', 'No such workspace'))))
+    .then((row) =>
+      row
+        ? res.json({ organizationStatus: row.orgStatus, plugins: row.plugins, lapsed: row.lapsed })
+        : send(res, new HttpError(404, 'NOT_FOUND', 'No such workspace')),
+    )
     .catch((error: unknown) => send(res, error));
 });
 
@@ -89,7 +109,11 @@ export const saasLogin = (req: Request, res: Response) => {
     .then(async ({ orgId, userId }) => {
       const version = await withOrg(orgId, () => sessionVersionOf(orgId, userId));
 
-      res.cookie(SESSION_COOKIE, signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version), sessionCookieOptions(req));
+      res.cookie(
+        SESSION_COOKIE,
+        signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version),
+        sessionCookieOptions(req),
+      );
       res.redirect(302, '/');
     })
     .catch((error: unknown) => {

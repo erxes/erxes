@@ -40,8 +40,15 @@ export const auditStreams = pgTable(
   },
   (table) => [
     index('core_audit_streams_org_idx').on(table.orgId),
-    check('core_audit_streams_format_check', sql`${table.format} IN ('erxes', 'datadog', 'splunk')`),
+    check(
+      'core_audit_streams_format_check',
+      sql`${table.format} IN ('erxes', 'datadog', 'splunk')`,
+    ),
     check('core_audit_streams_status_check', sql`${table.status} IN ('active', 'paused')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_audit_streams_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_audit_streams_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

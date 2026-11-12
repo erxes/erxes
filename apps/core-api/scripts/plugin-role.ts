@@ -16,7 +16,8 @@ import { config } from '~/config';
 const name = process.argv.slice(2).find((arg) => arg !== '--');
 
 export const pluginRoleSql = (plugin: string, password?: string) => {
-  if (!/^[a-z][a-z0-9_]{0,39}$/.test(plugin) || plugin === 'core') throw new Error('Usage: pnpm db:plugin-role -- <plugin name>');
+  if (!/^[a-z][a-z0-9_]{0,39}$/.test(plugin) || plugin === 'core')
+    throw new Error('Usage: pnpm db:plugin-role -- <plugin name>');
 
   const role = `erxes_plugin_${plugin}`;
 
@@ -35,10 +36,16 @@ export const pluginRoleSql = (plugin: string, password?: string) => {
 const main = async () => {
   const password = randomBytes(24).toString('base64url');
 
-  configureDb({ ...config.data, url: config.data.migrationUrl ?? config.data.url, role: undefined });
+  configureDb({
+    ...config.data,
+    url: config.data.migrationUrl ?? config.data.url,
+    role: undefined,
+  });
   await rootDb().execute(sql.raw(pluginRoleSql(name ?? '', password)));
   console.log(`Role erxes_plugin_${name} is ready. Its password (shown once):\n\n  ${password}\n`);
-  console.log(`The plugin connects with it (DATA_URL), owns its ${name}_* tables, and reaches core only through core's plugin functions.`);
+  console.log(
+    `The plugin connects with it (DATA_URL), owns its ${name}_* tables, and reaches core only through core's plugin functions.`,
+  );
 };
 
 if (process.argv[1]?.endsWith('plugin-role.ts')) {

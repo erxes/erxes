@@ -8,7 +8,8 @@ import { compileRecordFilter, filterFields } from './recordFilter';
 type Row = typeof views.$inferSelect;
 
 /** Who may change a view: its creator; a shared one also members who edit contacts. */
-const mayEdit = (actor: Actor, row: Row) => row.createdBy === actor.userId || (row.shared && can(actor, 'contacts.edit'));
+const mayEdit = (actor: Actor, row: Row) =>
+  row.createdBy === actor.userId || (row.shared && can(actor, 'contacts.edit'));
 
 const toDto = (actor: Actor, row: Row): View => ({
   id: row.id,
@@ -31,7 +32,13 @@ export const listViews = async (client: Db, actor: Actor, recordType: ViewRecord
     await client
       .select()
       .from(views)
-      .where(and(eq(views.orgId, actor.orgId), eq(views.recordType, recordType), or(eq(views.shared, true), eq(views.createdBy, actor.userId))))
+      .where(
+        and(
+          eq(views.orgId, actor.orgId),
+          eq(views.recordType, recordType),
+          or(eq(views.shared, true), eq(views.createdBy, actor.userId)),
+        ),
+      )
       .orderBy(sql`${views.shared} desc`, asc(sql`lower(${views.name})`))
   ).map((row) => toDto(actor, row)),
 });
@@ -47,12 +54,18 @@ interface ViewInput {
 
 const assertShareable = (actor: Actor, shared: boolean | undefined) => {
   if (shared && !can(actor, 'contacts.edit')) {
-    throw new HttpError(403, 'NOT_ALLOWED', 'Sharing a view with the team needs contacts.edit', { permission: 'contacts.edit' });
+    throw new HttpError(403, 'NOT_ALLOWED', 'Sharing a view with the team needs contacts.edit', {
+      permission: 'contacts.edit',
+    });
   }
 };
 
 /** Saves a view after checking its filter compiles (fields exist, operators fit). */
-export const createView = async (client: Db, actor: Actor, input: ViewInput & { recordType: ViewRecordType; name: string }) => {
+export const createView = async (
+  client: Db,
+  actor: Actor,
+  input: ViewInput & { recordType: ViewRecordType; name: string },
+) => {
   assertShareable(actor, input.shared);
   await compileRecordFilter(client, actor, input.recordType, input.filter ?? null);
 
@@ -76,7 +89,11 @@ export const createView = async (client: Db, actor: Actor, input: ViewInput & { 
 };
 
 const viewOrThrow = async (client: Db, actor: Actor, id: string) => {
-  const [row] = await client.select().from(views).where(and(eq(views.orgId, actor.orgId), eq(views.id, id))).limit(1);
+  const [row] = await client
+    .select()
+    .from(views)
+    .where(and(eq(views.orgId, actor.orgId), eq(views.id, id)))
+    .limit(1);
 
   // Someone else's private view doesn't exist for this member.
   if (!row || (!row.shared && row.createdBy !== actor.userId)) throw notFound('View');
@@ -87,16 +104,24 @@ const viewOrThrow = async (client: Db, actor: Actor, id: string) => {
 export const updateView = async (client: Db, actor: Actor, id: string, input: ViewInput) => {
   const row = await viewOrThrow(client, actor, id);
 
-  if (!mayEdit(actor, row)) throw new HttpError(403, 'NOT_ALLOWED', 'Only its creator (or, when shared, members who edit contacts) can change this view');
+  if (!mayEdit(actor, row))
+    throw new HttpError(
+      403,
+      'NOT_ALLOWED',
+      'Only its creator (or, when shared, members who edit contacts) can change this view',
+    );
 
   assertShareable(actor, input.shared);
-  if (input.filter !== undefined) await compileRecordFilter(client, actor, row.recordType, input.filter);
+  if (input.filter !== undefined)
+    await compileRecordFilter(client, actor, row.recordType, input.filter);
 
   const [next] = await client
     .update(views)
     .set({
       ...(input.name !== undefined ? { name: input.name } : {}),
-      ...(input.filter !== undefined ? { filter: input.filter as Record<string, unknown> | null } : {}),
+      ...(input.filter !== undefined
+        ? { filter: input.filter as Record<string, unknown> | null }
+        : {}),
       ...(input.search !== undefined ? { search: input.search || null } : {}),
       ...(input.columns !== undefined ? { columns: input.columns } : {}),
       ...(input.sort !== undefined ? { sort: input.sort } : {}),
@@ -112,7 +137,12 @@ export const updateView = async (client: Db, actor: Actor, id: string, input: Vi
 export const removeView = async (client: Db, actor: Actor, id: string) => {
   const row = await viewOrThrow(client, actor, id);
 
-  if (!mayEdit(actor, row)) throw new HttpError(403, 'NOT_ALLOWED', 'Only its creator (or, when shared, members who edit contacts) can delete this view');
+  if (!mayEdit(actor, row))
+    throw new HttpError(
+      403,
+      'NOT_ALLOWED',
+      'Only its creator (or, when shared, members who edit contacts) can delete this view',
+    );
 
   await client.delete(views).where(eq(views.id, id));
 
@@ -121,5 +151,7 @@ export const removeView = async (client: Db, actor: Actor, id: string) => {
 
 /** What the list's filter can use, for the builder (without the SQL). */
 export const listFilterFields = async (client: Db, actor: Actor, recordType: ViewRecordType) => ({
-  data: (await filterFields(client, actor.orgId, recordType)).map(({ path, label, type, options, group }) => ({ path, label, type, options, group })),
+  data: (await filterFields(client, actor.orgId, recordType)).map(
+    ({ path, label, type, options, group }) => ({ path, label, type, options, group }),
+  ),
 });

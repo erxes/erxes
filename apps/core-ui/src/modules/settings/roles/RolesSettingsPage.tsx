@@ -1,7 +1,18 @@
 import type { PermissionInfo, Role } from '@erxes/core-contract';
 import { IconLock, IconPlus, IconShieldHalf, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Checkbox, cn, Input, PageContainer, ScrollArea, Spinner, Textarea, useToast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  Checkbox,
+  cn,
+  Input,
+  PageContainer,
+  ScrollArea,
+  Spinner,
+  Textarea,
+  useToast,
+} from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
@@ -14,7 +25,10 @@ const groupsOf = (catalog: PermissionInfo[]) => {
   const groups = new Map<string, PermissionInfo[]>();
 
   for (const permission of catalog) {
-    const key = permission.source === 'core' ? permission.group : `${permission.group} · ${permission.source}`;
+    const key =
+      permission.source === 'core'
+        ? permission.group
+        : `${permission.group} · ${permission.source}`;
 
     groups.set(key, [...(groups.get(key) ?? []), permission]);
   }
@@ -23,7 +37,15 @@ const groupsOf = (catalog: PermissionInfo[]) => {
 };
 
 /** One role: name, description and its permissions, as a checklist by area. */
-const RoleEditor = ({ role, catalog, canManage }: { role: Role; catalog: PermissionInfo[]; canManage: boolean }) => {
+const RoleEditor = ({
+  role,
+  catalog,
+  canManage,
+}: {
+  role: Role;
+  catalog: PermissionInfo[];
+  canManage: boolean;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'roles' });
   const { toast } = useToast();
   const client = useQueryClient();
@@ -44,16 +66,31 @@ const RoleEditor = ({ role, catalog, canManage }: { role: Role; catalog: Permiss
     // My own permissions may have changed.
     void client.invalidateQueries({ queryKey: SESSION_KEY });
   };
-  const onError = (error: unknown) => toast({ variant: 'destructive', title: t('failed', 'Could not save the role'), description: messageOf(error) });
+  const onError = (error: unknown) =>
+    toast({
+      variant: 'destructive',
+      title: t('failed', 'Could not save the role'),
+      description: messageOf(error),
+    });
   const save = useMutation({
-    mutationFn: () => api.roles.update({ key: role.key, name, description: description || null, permissions: [...granted] }),
+    mutationFn: () =>
+      api.roles.update({
+        key: role.key,
+        name,
+        description: description || null,
+        permissions: [...granted],
+      }),
     onSuccess: () => {
       refresh();
       toast({ title: t('saved', 'Role saved') });
     },
     onError,
   });
-  const remove = useMutation({ mutationFn: () => api.roles.remove({ key: role.key }), onSuccess: refresh, onError });
+  const remove = useMutation({
+    mutationFn: () => api.roles.remove({ key: role.key }),
+    onSuccess: refresh,
+    onError,
+  });
   const dirty =
     name !== role.name ||
     (description || null) !== role.description ||
@@ -76,7 +113,12 @@ const RoleEditor = ({ role, catalog, canManage }: { role: Role; catalog: Permiss
         <div className="flex-1 space-y-2">
           {editable ? (
             <>
-              <Input value={name} onChange={(event) => setName(event.target.value)} className="text-base font-medium" maxLength={60} />
+              <Input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className="text-base font-medium"
+                maxLength={60}
+              />
               <Textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
@@ -91,7 +133,9 @@ const RoleEditor = ({ role, catalog, canManage }: { role: Role; catalog: Permiss
                 {role.name}
                 {!role.editable && <IconLock className="size-4 text-muted-foreground" />}
               </h2>
-              {role.description && <p className="text-sm text-muted-foreground">{role.description}</p>}
+              {role.description && (
+                <p className="text-sm text-muted-foreground">{role.description}</p>
+              )}
             </>
           )}
         </div>
@@ -102,7 +146,10 @@ const RoleEditor = ({ role, catalog, canManage }: { role: Role; catalog: Permiss
                 <IconTrash />
               </Button>
             )}
-            <Button disabled={!dirty || save.isPending || !name.trim()} onClick={() => save.mutate()}>
+            <Button
+              disabled={!dirty || save.isPending || !name.trim()}
+              onClick={() => save.mutate()}
+            >
               {t('save', 'Save')}
             </Button>
           </div>
@@ -112,18 +159,31 @@ const RoleEditor = ({ role, catalog, canManage }: { role: Role; catalog: Permiss
       {everything ? (
         <p className="rounded-md border bg-muted/40 p-3 text-sm">
           {role.key === 'owner'
-            ? t('owner-everything', 'Owners can do everything, including owner-only actions (plugins, audit retention).')
-            : t('admin-everything', 'Admins can do everything except owner-only actions — including whatever plugins add later.')}
+            ? t(
+                'owner-everything',
+                'Owners can do everything, including owner-only actions (plugins, audit retention).',
+              )
+            : t(
+                'admin-everything',
+                'Admins can do everything except owner-only actions — including whatever plugins add later.',
+              )}
         </p>
       ) : (
         <div className="space-y-5">
           {groupsOf(catalog).map(([group, permissions]) => (
             <section key={group}>
-              <h3 className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">{group}</h3>
+              <h3 className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                {group}
+              </h3>
               <ul className="space-y-1.5">
                 {permissions.map((permission) => (
                   <li key={permission.action}>
-                    <label className={cn('flex items-start gap-3 text-sm', editable && !permission.ownerOnly && 'cursor-pointer')}>
+                    <label
+                      className={cn(
+                        'flex items-start gap-3 text-sm',
+                        editable && !permission.ownerOnly && 'cursor-pointer',
+                      )}
+                    >
                       <Checkbox
                         className="mt-0.5"
                         checked={granted.has(permission.action)}
@@ -137,7 +197,9 @@ const RoleEditor = ({ role, catalog, canManage }: { role: Role; catalog: Permiss
                             {t('owner-only', 'Owner only')}
                           </Badge>
                         )}
-                        <span className="ml-2 font-mono text-xs text-muted-foreground">{permission.action}</span>
+                        <span className="ml-2 font-mono text-xs text-muted-foreground">
+                          {permission.action}
+                        </span>
                       </span>
                     </label>
                   </li>
@@ -165,20 +227,31 @@ export const RolesSettingsPage = () => {
   const catalog = useQuery({ queryKey: ['permissions'], queryFn: () => api.roles.permissions() });
   const [selected, setSelected] = useState<string>('member');
   const create = useMutation({
-    mutationFn: () => api.roles.create({ name: t('new-role', 'New role'), permissions: ['contacts.view'] }),
+    mutationFn: () =>
+      api.roles.create({ name: t('new-role', 'New role'), permissions: ['contacts.view'] }),
     onSuccess: (role) => {
       void client.invalidateQueries({ queryKey: ROLES_KEY });
       setSelected(role.key);
     },
-    onError: (error) => toast({ variant: 'destructive', title: t('failed', 'Could not save the role'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('failed', 'Could not save the role'),
+        description: messageOf(error),
+      }),
   });
-  const role = useMemo(() => roles.data?.data.find((item) => item.key === selected) ?? roles.data?.data[0], [roles.data, selected]);
+  const role = useMemo(
+    () => roles.data?.data.find((item) => item.key === selected) ?? roles.data?.data[0],
+    [roles.data, selected],
+  );
 
   return (
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: t('title', 'Roles'), to: '/settings/roles', icon: IconShieldHalf }]} />
+          <AppBreadcrumb
+            items={[{ label: t('title', 'Roles'), to: '/settings/roles', icon: IconShieldHalf }]}
+          />
         </PageHeader.Start>
         <PageHeader.End>
           {can('roles.manage') && (
@@ -212,7 +285,14 @@ export const RolesSettingsPage = () => {
           </ul>
           <ScrollArea className="flex-1">
             <div className="max-w-3xl p-6">
-              {role && catalog.data && <RoleEditor key={role.key} role={role} catalog={catalog.data.data} canManage={can('roles.manage')} />}
+              {role && catalog.data && (
+                <RoleEditor
+                  key={role.key}
+                  role={role}
+                  catalog={catalog.data.data}
+                  canManage={can('roles.manage')}
+                />
+              )}
             </div>
           </ScrollArea>
         </div>

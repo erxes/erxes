@@ -30,10 +30,7 @@ export const useTablePreferences = (tableId: string | undefined) => {
       try {
         setPrefs((currentPrefs) => {
           const merged = { ...currentPrefs, ...updates };
-          localStorage.setItem(
-            `erxes_table_prefs_${tableId}`,
-            JSON.stringify(merged),
-          );
+          localStorage.setItem(`erxes_table_prefs_${tableId}`, JSON.stringify(merged));
           return merged;
         });
       } catch (e) {

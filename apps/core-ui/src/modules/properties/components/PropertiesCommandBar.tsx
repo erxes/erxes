@@ -13,14 +13,20 @@ export const PropertiesCommandBar = () => {
   const ids = Object.keys(selectedFieldIds);
 
   const handleBulkRemove = () => {
-    setArchiveTarget({ kind: 'fields', ids, label: t('n-fields', '{{count}} fields', { count: ids.length }) });
+    setArchiveTarget({
+      kind: 'fields',
+      ids,
+      label: t('n-fields', '{{count}} fields', { count: ids.length }),
+    });
     setSelectedFieldIds({});
   };
 
   return (
     <CommandBar open={ids.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('n-selected', '{{count}} selected', { count: ids.length })}</CommandBar.Value>
+        <CommandBar.Value>
+          {t('n-selected', '{{count}} selected', { count: ids.length })}
+        </CommandBar.Value>
         {manager && (
           <Button variant="secondary" onClick={handleBulkRemove}>
             <IconTrash />

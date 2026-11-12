@@ -64,7 +64,11 @@ export const TemplateInput = ({
 
   return (
     <div className="relative">
-      {multiline ? <Textarea {...shared} rows={4} className="pr-10" /> : <Input {...shared} className="pr-10" />}
+      {multiline ? (
+        <Textarea {...shared} rows={4} className="pr-10" />
+      ) : (
+        <Input {...shared} className="pr-10" />
+      )}
       {!disabled && (
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
@@ -86,13 +90,29 @@ export const TemplateInput = ({
               <Command.List className="max-h-72">
                 <Command.Empty>{t('catalog-empty', 'Nothing matches')}</Command.Empty>
                 {record.length > 0 && (
-                  <Command.Group heading={subject === 'company' ? t('the-company', 'The company') : t('the-customer', 'The customer')}>
+                  <Command.Group
+                    heading={
+                      subject === 'company'
+                        ? t('the-company', 'The company')
+                        : t('the-customer', 'The customer')
+                    }
+                  >
                     {record.map((field) => (
-                      <Command.Item key={field.path} value={`${field.label} ${field.path}`} onSelect={() => insert(field.path)}>
-                        {subject === 'company' ? <IconBuilding className="text-muted-foreground" /> : <IconUser className="text-muted-foreground" />}
+                      <Command.Item
+                        key={field.path}
+                        value={`${field.label} ${field.path}`}
+                        onSelect={() => insert(field.path)}
+                      >
+                        {subject === 'company' ? (
+                          <IconBuilding className="text-muted-foreground" />
+                        ) : (
+                          <IconUser className="text-muted-foreground" />
+                        )}
                         <span className="truncate">{field.label.replace(/ \(custom\)$/, '')}</span>
                         {field.path.startsWith('subject.customFields.') && (
-                          <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">{t('custom', 'Custom')}</span>
+                          <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">
+                            {t('custom', 'Custom')}
+                          </span>
                         )}
                       </Command.Item>
                     ))}
@@ -101,7 +121,11 @@ export const TemplateInput = ({
                 {steps.length > 0 && (
                   <Command.Group heading={t('earlier-steps', 'Earlier steps')}>
                     {steps.map((field) => (
-                      <Command.Item key={field.path} value={`${field.label} ${field.path}`} onSelect={() => insert(field.path)}>
+                      <Command.Item
+                        key={field.path}
+                        value={`${field.label} ${field.path}`}
+                        onSelect={() => insert(field.path)}
+                      >
                         <IconRoute className="text-muted-foreground" />
                         <span className="truncate">{field.label}</span>
                       </Command.Item>

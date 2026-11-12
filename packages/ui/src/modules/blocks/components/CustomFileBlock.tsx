@@ -1,8 +1,4 @@
-import {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  fileBlockConfig,
-} from '@blocknote/core';
+import { DefaultInlineContentSchema, DefaultStyleSchema, fileBlockConfig } from '@blocknote/core';
 import {
   FileBlockWrapper,
   ReactCustomBlockRenderProps,
@@ -21,26 +17,18 @@ type FileRenderProps = ReactCustomBlockRenderProps<
 >;
 
 type FileBlockWrapperProps = Parameters<typeof FileBlockWrapper>[0];
-type FileWrapperRenderProps = Omit<
-  FileBlockWrapperProps,
-  'buttonText' | 'buttonIcon' | 'children'
->;
+type FileWrapperRenderProps = Omit<FileBlockWrapperProps, 'buttonText' | 'buttonIcon' | 'children'>;
 
-const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps =>
-  ({
-    ...props,
-    editor: props.editor as unknown as FileWrapperRenderProps['editor'],
-  });
+const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps => ({
+  ...props,
+  editor: props.editor as unknown as FileWrapperRenderProps['editor'],
+});
 
 const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
   const url = readImage(block.props.url, undefined, true);
 
   return (
-    <div
-      className="bn-file-name-with-icon"
-      contentEditable={false}
-      draggable={false}
-    >
+    <div className="bn-file-name-with-icon" contentEditable={false} draggable={false}>
       <a
         href={url}
         target="_blank"

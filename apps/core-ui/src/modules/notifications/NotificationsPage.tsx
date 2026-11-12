@@ -6,7 +6,12 @@ import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { NotificationList } from './NotificationList';
-import { useInboxes, useNotificationActions, useNotificationList, useUnreadCounts } from './useNotifications';
+import {
+  useInboxes,
+  useNotificationActions,
+  useNotificationList,
+  useUnreadCounts,
+} from './useNotifications';
 
 const Count = ({ value, active }: { value: number; active?: boolean }) =>
   value > 0 ? (
@@ -67,7 +72,10 @@ export const NotificationsPage = () => {
         </PageHeader.End>
       </PageHeader>
       <div className="flex min-h-0 flex-1">
-        <nav className="flex w-56 shrink-0 flex-col gap-0.5 border-r bg-sidebar p-2" aria-label={t('inboxes', 'Inboxes')}>
+        <nav
+          className="flex w-56 shrink-0 flex-col gap-0.5 border-r bg-sidebar p-2"
+          aria-label={t('inboxes', 'Inboxes')}
+        >
           <Link
             to="/notifications"
             className={cn(
@@ -79,7 +87,9 @@ export const NotificationsPage = () => {
             {t('all-inboxes', 'All inboxes')}
             <Count value={count} active={!source} />
           </Link>
-          <p className="px-2 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase">{t('inboxes', 'Inboxes')}</p>
+          <p className="px-2 pt-3 pb-1 text-xs font-semibold text-muted-foreground uppercase">
+            {t('inboxes', 'Inboxes')}
+          </p>
           {inboxes.map((item) => {
             const Icon = item.icon;
 
@@ -102,12 +112,20 @@ export const NotificationsPage = () => {
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Tabs flush with the header's line: the active underline sits on it. */}
           <PageSubHeader className="items-center gap-3 py-0">
-            <Tabs value={tab} onValueChange={(value) => setTab(value as 'all' | 'unread')} className="flex self-stretch">
+            <Tabs
+              value={tab}
+              onValueChange={(value) => setTab(value as 'all' | 'unread')}
+              className="flex self-stretch"
+            >
               <Tabs.List className="flex min-h-9 items-stretch self-stretch border-b-0 py-0">
-                <Tabs.Trigger value="all" className="after:-mb-px">{t('all', 'All')}</Tabs.Trigger>
+                <Tabs.Trigger value="all" className="after:-mb-px">
+                  {t('all', 'All')}
+                </Tabs.Trigger>
                 <Tabs.Trigger value="unread" className="after:-mb-px">
                   {t('unread', 'Unread')}
-                  {unreadHere > 0 && <span className="ml-1 text-xs text-muted-foreground">{unreadHere}</span>}
+                  {unreadHere > 0 && (
+                    <span className="ml-1 text-xs text-muted-foreground">{unreadHere}</span>
+                  )}
                 </Tabs.Trigger>
               </Tabs.List>
             </Tabs>

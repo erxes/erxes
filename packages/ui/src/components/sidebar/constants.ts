@@ -9,11 +9,7 @@ export const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
 export type CollapseState = 'expanded' | 'compact' | 'collapsed';
 
-export const COLLAPSE_ORDER: CollapseState[] = [
-  'expanded',
-  'compact',
-  'collapsed',
-];
+export const COLLAPSE_ORDER: CollapseState[] = ['expanded', 'compact', 'collapsed'];
 
 export const nextCollapseState = (prev: CollapseState): CollapseState =>
   COLLAPSE_ORDER[(COLLAPSE_ORDER.indexOf(prev) + 1) % COLLAPSE_ORDER.length];

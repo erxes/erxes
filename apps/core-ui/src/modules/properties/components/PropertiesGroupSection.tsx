@@ -1,10 +1,25 @@
 import type { ContentType, Field, FieldGroup } from '@erxes/core-contract';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconDots, IconEdit, IconGripVertical, IconLayoutRows, IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  IconDots,
+  IconEdit,
+  IconGripVertical,
+  IconLayoutRows,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Badge, Button, cn, Collapsible, DropdownMenu, RecordTable } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { type CSSProperties, forwardRef, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  forwardRef,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { PROPERTIES_BASE_PATH } from '../constants';
@@ -13,7 +28,13 @@ import { useCanManageFields } from '../usePropertyMutations';
 import { propertiesColumns, propertyEditPath } from './propertiesColumns';
 import { PropertiesRow } from './PropertiesRow';
 
-const PropertiesGroupActions = ({ group, contentType }: { group: FieldGroup; contentType: ContentType }) => {
+const PropertiesGroupActions = ({
+  group,
+  contentType,
+}: {
+  group: FieldGroup;
+  contentType: ContentType;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const setActivePropertyGroup = useSetAtom(activePropertyGroupState);
   const setLayoutGroup = useSetAtom(activeLayoutGroupState);
@@ -22,7 +43,12 @@ const PropertiesGroupActions = ({ group, contentType }: { group: FieldGroup; con
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" size="icon" className="size-7 shrink-0" onClick={(event) => event.stopPropagation()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7 shrink-0"
+          onClick={(event) => event.stopPropagation()}
+        >
           <IconDots />
         </Button>
       </DropdownMenu.Trigger>
@@ -41,7 +67,11 @@ const PropertiesGroupActions = ({ group, contentType }: { group: FieldGroup; con
           <IconLayoutRows />
           {t('layout', 'Layout')}
         </DropdownMenu.Item>
-        <DropdownMenu.Item onClick={() => setArchiveTarget({ kind: 'group', id: group.id, label: `"${group.name}"` })}>
+        <DropdownMenu.Item
+          onClick={() =>
+            setArchiveTarget({ kind: 'group', id: group.id, label: `"${group.name}"` })
+          }
+        >
           <IconTrash />
           {t('remove', 'Remove')}
         </DropdownMenu.Item>
@@ -73,7 +103,10 @@ const GroupShell = forwardRef<
   useEffect(() => {
     if (!toggled.current) setOpen(fields.length > 0);
   }, [fields.length]);
-  const columns = useMemo(() => propertiesColumns(t, { fieldIds: fields.map((field) => field.id) }), [t, fields]);
+  const columns = useMemo(
+    () => propertiesColumns(t, { fieldIds: fields.map((field) => field.id) }),
+    [t, fields],
+  );
 
   return (
     <Collapsible
@@ -117,7 +150,10 @@ const GroupShell = forwardRef<
                 <RecordTable.Body>
                   <RecordTable.RowList
                     Row={(props) => (
-                      <PropertiesRow {...props} onRowClick={(field) => navigate(propertyEditPath(field))} />
+                      <PropertiesRow
+                        {...props}
+                        onRowClick={(field) => navigate(propertyEditPath(field))}
+                      />
                     )}
                   />
                 </RecordTable.Body>
@@ -154,7 +190,9 @@ export const PropertiesGroupSection = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
-  const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({ id: group.id });
+  const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
+    id: group.id,
+  });
 
   return (
     <GroupShell
@@ -178,13 +216,21 @@ export const PropertiesGroupSection = ({
           </Button>
         ) : undefined
       }
-      actions={manager ? <PropertiesGroupActions group={group} contentType={contentType} /> : undefined}
+      actions={
+        manager ? <PropertiesGroupActions group={group} contentType={contentType} /> : undefined
+      }
     />
   );
 };
 
 /** Fields made before groups existed (no group): listed together until moved into one. */
-export const PropertiesUngroupedSection = ({ fields, contentType }: { fields: Field[]; contentType: ContentType }) => {
+export const PropertiesUngroupedSection = ({
+  fields,
+  contentType,
+}: {
+  fields: Field[];
+  contentType: ContentType;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
 
   return (

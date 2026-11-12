@@ -1,4 +1,4 @@
-import type { View, ViewRecordType } from "@erxes/core-contract";
+import type { View, ViewRecordType } from '@erxes/core-contract';
 import {
   IconChevronDown,
   IconCopy,
@@ -10,22 +10,22 @@ import {
   IconRotate,
   IconTrash,
   IconUsers,
-} from "@tabler/icons-react";
-import { Button, cn, DropdownMenu, useConfirm, useToast } from "erxes-ui";
-import { useState } from "react";
-import { useCan } from "~/modules/auth/session";
-import { SaveViewButton, ViewDialog } from "./ViewControls";
-import { viewHref } from "./viewLinks";
-import { useViewMutations, useViewState } from "./useViews";
-import { useLeadsT } from "~/modules/leads/i18n";
+} from '@tabler/icons-react';
+import { Button, cn, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
+import { useState } from 'react';
+import { useCan } from '~/modules/auth/session';
+import { SaveViewButton, ViewDialog } from './ViewControls';
+import { viewHref } from './viewLinks';
+import { useViewMutations, useViewState } from './useViews';
+import { useLeadsT } from '~/modules/leads/i18n';
 
 /** Tabs before the rest go under "More". */
 const VISIBLE = 5;
 
 const TAB =
-  "relative flex h-9 shrink-0 items-center gap-1.5 px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground";
+  'relative flex h-9 shrink-0 items-center gap-1.5 px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground';
 const ACTIVE =
-  "font-medium text-foreground after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary";
+  'font-medium text-foreground after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary';
 
 /** A saved view's menu: rename, duplicate, share or make private, copy its link, delete. */
 const ViewMenu = ({
@@ -52,7 +52,7 @@ const ViewMenu = ({
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
-            aria-label={t("views.actions", { name: view.name })}
+            aria-label={t('views.actions', { name: view.name })}
             className="flex size-5 items-center justify-center rounded text-muted-foreground opacity-0 hover:bg-muted group-hover/tab:opacity-100 data-[state=open]:opacity-100"
           >
             <IconDots className="size-3.5" />
@@ -62,14 +62,14 @@ const ViewMenu = ({
           {view.editable && (
             <DropdownMenu.Item onSelect={() => setRenaming(true)}>
               <IconPencil />
-              {t("views.rename")}
+              {t('views.rename')}
             </DropdownMenu.Item>
           )}
           <DropdownMenu.Item
             onSelect={() =>
               create.mutate(
                 {
-                  name: t("views.copy", { name: view.name }),
+                  name: t('views.copy', { name: view.name }),
                   filter: view.filter,
                   search: view.search,
                   shared: false,
@@ -79,16 +79,14 @@ const ViewMenu = ({
             }
           >
             <IconCopy />
-            {t("views.duplicate")}
+            {t('views.duplicate')}
           </DropdownMenu.Item>
-          {view.editable && can("contacts.edit") && (
+          {view.editable && can('contacts.edit') && (
             <DropdownMenu.Item
-              onSelect={() =>
-                update.mutate({ id: view.id, shared: !view.shared })
-              }
+              onSelect={() => update.mutate({ id: view.id, shared: !view.shared })}
             >
               {view.shared ? <IconLock /> : <IconUsers />}
-              {view.shared ? t("views.private") : t("views.share")}
+              {view.shared ? t('views.private') : t('views.share')}
             </DropdownMenu.Item>
           )}
           <DropdownMenu.Item
@@ -97,13 +95,13 @@ const ViewMenu = ({
                 `${window.location.origin}${viewHref(recordType, view)}`,
               );
               toast({
-                title: t("views.link-copied"),
-                description: t("views.link-copied-description"),
+                title: t('views.link-copied'),
+                description: t('views.link-copied-description'),
               });
             }}
           >
             <IconLink />
-            {t("views.copy-link")}
+            {t('views.copy-link')}
           </DropdownMenu.Item>
           {view.editable && (
             <>
@@ -112,12 +110,12 @@ const ViewMenu = ({
                 className="text-destructive"
                 onSelect={() =>
                   void confirm({
-                    message: t("views.delete-confirm", { name: view.name }),
+                    message: t('views.delete-confirm', { name: view.name }),
                   }).then(() => remove.mutate(view.id, { onSuccess: onClosed }))
                 }
               >
                 <IconTrash />
-                {t("views.delete")}
+                {t('views.delete')}
               </DropdownMenu.Item>
             </>
           )}
@@ -126,14 +124,11 @@ const ViewMenu = ({
       <ViewDialog
         open={renaming}
         onOpenChange={setRenaming}
-        title={t("views.rename-title")}
+        title={t('views.rename-title')}
         initial={{ name: view.name, shared: view.shared }}
         pending={update.isPending}
         onSave={({ name, shared }) =>
-          update.mutate(
-            { id: view.id, name, shared },
-            { onSuccess: () => setRenaming(false) },
-          )
+          update.mutate({ id: view.id, name, shared }, { onSuccess: () => setRenaming(false) })
         }
       />
     </>
@@ -180,18 +175,13 @@ export const ViewTabs = ({
         return (
           <div
             key={view.id}
-            className={cn(
-              "group/tab flex shrink-0 items-center",
-              TAB,
-              "pr-1",
-              active && ACTIVE,
-            )}
+            className={cn('group/tab flex shrink-0 items-center', TAB, 'pr-1', active && ACTIVE)}
           >
             <button
               type="button"
               className="flex items-center gap-1.5"
               onClick={() => query.openView(view)}
-              title={view.shared ? t("views.shared") : t("views.mine")}
+              title={view.shared ? t('views.shared') : t('views.mine')}
             >
               {view.shared && <IconUsers className="size-3.5 opacity-60" />}
               <span className="max-w-40 truncate">{view.name}</span>
@@ -209,19 +199,13 @@ export const ViewTabs = ({
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>
             <button type="button" className={TAB}>
-              {t("views.more", { count: more.length })}
+              {t('views.more', { count: more.length })}
               <IconChevronDown className="size-3.5" />
             </button>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            align="start"
-            className="max-h-80 min-w-52 overflow-y-auto"
-          >
+          <DropdownMenu.Content align="start" className="max-h-80 min-w-52 overflow-y-auto">
             {more.map((view) => (
-              <DropdownMenu.Item
-                key={view.id}
-                onSelect={() => query.openView(view)}
-              >
+              <DropdownMenu.Item key={view.id} onSelect={() => query.openView(view)}>
                 {view.shared ? <IconUsers /> : <IconLock />}
                 <span className="truncate">{view.name}</span>
               </DropdownMenu.Item>
@@ -236,12 +220,12 @@ export const ViewTabs = ({
         onClick={() => setAdding(true)}
       >
         <IconPlus className="size-4" />
-        {t("views.new-view")}
+        {t('views.new-view')}
       </Button>
       {changed && (
         <div className="ml-auto flex shrink-0 items-center gap-1 pl-2">
           <span className="mr-1 hidden text-xs text-muted-foreground md:inline">
-            {current ? t("views.edited") : t("views.filtered")}
+            {current ? t('views.edited') : t('views.filtered')}
           </span>
           <Button
             variant="ghost"
@@ -250,7 +234,7 @@ export const ViewTabs = ({
             onClick={() => query.openView(current)}
           >
             <IconRotate className="size-3.5" />
-            {t("views.reset")}
+            {t('views.reset')}
           </Button>
           <SaveViewButton recordType={recordType} />
         </div>
@@ -258,8 +242,8 @@ export const ViewTabs = ({
       <ViewDialog
         open={adding}
         onOpenChange={setAdding}
-        title={t("views.new-view")}
-        initial={{ name: "", shared: false }}
+        title={t('views.new-view')}
+        initial={{ name: '', shared: false }}
         pending={create.isPending}
         onSave={({ name, shared }) =>
           create.mutate(

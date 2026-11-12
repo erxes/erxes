@@ -8,17 +8,12 @@ import { enUS } from 'date-fns/locale';
  * @example 'Europe/Paris' => '(GMT+01:00) Central European Time - Paris'
  */
 export const formatTimeZoneLabel = (ianaTimeZone: string) => {
-  const timeZoneWithGmtOffset = formatInTimeZone(
-    Date.now(),
-    ianaTimeZone,
-    `(OOOO) zzzz`,
-    { locale: enUS },
-  );
+  const timeZoneWithGmtOffset = formatInTimeZone(Date.now(), ianaTimeZone, `(OOOO) zzzz`, {
+    locale: enUS,
+  });
   const ianaTimeZoneParts = ianaTimeZone.split('/');
   const location =
-    ianaTimeZoneParts.length > 1
-      ? ianaTimeZoneParts.slice(-1)[0].replace(/_/g, ' ')
-      : undefined;
+    ianaTimeZoneParts.length > 1 ? ianaTimeZoneParts.slice(-1)[0].replace(/_/g, ' ') : undefined;
 
   const timeZoneLabel =
     !location || timeZoneWithGmtOffset.includes(location)

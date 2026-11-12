@@ -1,4 +1,11 @@
-import { companies, companyTags, type ContentType, customers, customerTags, type Db } from '@erxes/core-db';
+import {
+  companies,
+  companyTags,
+  type ContentType,
+  customers,
+  customerTags,
+  type Db,
+} from '@erxes/core-db';
 import { and, eq, inArray, notInArray, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 
@@ -78,7 +85,13 @@ export const changeTags = async (
   if (change.remove.length) {
     await client
       .delete(links)
-      .where(and(eq(links.orgId, orgId), inArray(links.recordId, ids), inArray(links.tagId, change.remove)));
+      .where(
+        and(
+          eq(links.orgId, orgId),
+          inArray(links.recordId, ids),
+          inArray(links.tagId, change.remove),
+        ),
+      );
   }
 
   if (change.add.length) {
@@ -92,7 +105,13 @@ export const changeTags = async (
 };
 
 /** Gives `toId` every tag of `fromIds` (merge, before the others are deleted). */
-export const copyTags = async (client: Db, orgId: string, type: ContentType, fromIds: string[], toId: string) => {
+export const copyTags = async (
+  client: Db,
+  orgId: string,
+  type: ContentType,
+  fromIds: string[],
+  toId: string,
+) => {
   const { links } = LINKS[type];
 
   await client.execute(sql`

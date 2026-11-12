@@ -4,10 +4,7 @@ import { Area, AreaChart } from 'recharts';
 import { ChartContainer, type ChartConfig } from 'erxes-ui/components/charts';
 import { useIsClient } from '../hooks/useIsClient';
 import type { ChartVizPayload } from '../types/chatVizTypes';
-import {
-  getChartVizTrendDomain,
-  getDefaultChartVizColor,
-} from '../utils/chartVizPresentation';
+import { getChartVizTrendDomain, getDefaultChartVizColor } from '../utils/chartVizPresentation';
 import { ChatVizCartesianDecorations } from './ChatVizCartesianDecorations';
 
 interface Props {
@@ -35,13 +32,8 @@ export function ChatVizArea({ payload, className, domain }: Readonly<Props>) {
 
   return (
     <ChartContainer config={config} className={className}>
-      <AreaChart
-        data={payload.data}
-        margin={{ top: 8, right: 12, left: 4, bottom: 0 }}
-      >
-        <ChatVizCartesianDecorations
-          domain={domain ?? getChartVizTrendDomain}
-        />
+      <AreaChart data={payload.data} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
+        <ChatVizCartesianDecorations domain={domain ?? getChartVizTrendDomain} />
         {payload.series.map((s) => (
           <Area
             key={s.key}

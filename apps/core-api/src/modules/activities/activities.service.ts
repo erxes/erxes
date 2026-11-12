@@ -1,7 +1,25 @@
 import type { Activity, ActivityInput, ActivityTarget, CursorQuery } from '@erxes/core-contract';
-import { activities, companies, customerCompanies, customers, type Db, files, newId, pluginInstallations, plugins, users } from '@erxes/core-db';
+import {
+  activities,
+  companies,
+  customerCompanies,
+  customers,
+  type Db,
+  files,
+  newId,
+  pluginInstallations,
+  plugins,
+  users,
+} from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, like, ne, notLike, or, sql } from 'drizzle-orm';
-import { type Actor, type Caller, can, type PluginCaller, pluginCaller, userCaller } from '~/http/auth';
+import {
+  type Actor,
+  type Caller,
+  can,
+  type PluginCaller,
+  pluginCaller,
+  userCaller,
+} from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
@@ -24,7 +42,7 @@ export const toActivityDto = (row: ActivityRow): Activity => ({
   actor: { type: row.actorType, id: row.actorId },
   pinned: row.pinnedAt !== null,
   editedAt: row.editedAt?.toISOString() ?? null,
-  reactions: ((row.data as { reactions?: Record<string, string[]> }).reactions ?? {}),
+  reactions: (row.data as { reactions?: Record<string, string[]> }).reactions ?? {},
   occurredAt: row.occurredAt.toISOString(),
 });
 
@@ -39,7 +57,11 @@ export interface CoreActivity {
  * Adds core's own entries to the timeline. Call it in the same transaction as
  * the change it describes.
  */
-export const recordActivity = async (client: Db, caller: Caller, entries: CoreActivity | CoreActivity[]) => {
+export const recordActivity = async (
+  client: Db,
+  caller: Caller,
+  entries: CoreActivity | CoreActivity[],
+) => {
   const list = Array.isArray(entries) ? entries : [entries];
 
   if (!list.length) {
@@ -76,21 +98,43 @@ export const moveActivities = async (
   await client
     .update(activities)
     .set({ targetId: toId })
-    .where(and(eq(activities.orgId, orgId), eq(activities.targetType, targetType), inArray(activities.targetId, fromIds)));
+    .where(
+      and(
+        eq(activities.orgId, orgId),
+        eq(activities.targetType, targetType),
+        inArray(activities.targetId, fromIds),
+      ),
+    );
 };
 
 /** Deleted records: their timeline goes too (privacy: nothing is left behind). */
-export const removeActivities = async (client: Db, orgId: string, targetType: ActivityTarget, ids: string[]) => {
+export const removeActivities = async (
+  client: Db,
+  orgId: string,
+  targetType: ActivityTarget,
+  ids: string[],
+) => {
   if (!ids.length) {
     return;
   }
 
   await client
     .delete(activities)
-    .where(and(eq(activities.orgId, orgId), eq(activities.targetType, targetType), inArray(activities.targetId, ids)));
+    .where(
+      and(
+        eq(activities.orgId, orgId),
+        eq(activities.targetType, targetType),
+        inArray(activities.targetId, ids),
+      ),
+    );
 };
 
-export const assertTarget = async (client: Db, orgId: string, targetType: ActivityTarget, targetId: string) => {
+export const assertTarget = async (
+  client: Db,
+  orgId: string,
+  targetType: ActivityTarget,
+  targetId: string,
+) => {
   const table = targetType === 'customer' ? customers : companies;
   const [row] = await client
     .select({ id: table.id })
@@ -141,22 +185,35 @@ export const assertTimelineAccess = async (
 ) => {
   if (CORE_TARGETS.has(targetType)) {
     if (who.actor && !can(who.actor, 'contacts.view')) {
-      throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", { permission: 'contacts.view' });
+      throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+        permission: 'contacts.view',
+      });
     }
 
     return assertTarget(client, who.orgId, targetType as ActivityTarget, targetId);
   }
 
   if (who.plugin && !targetType.startsWith(`${who.plugin.plugin}.`)) {
-    throw new HttpError(403, 'NOT_ALLOWED', "A plugin writes to customers, companies and its own record types only");
+    throw new HttpError(
+      403,
+      'NOT_ALLOWED',
+      'A plugin writes to customers, companies and its own record types only',
+    );
   }
 
   const timeline = await pluginTimeline(client, who.orgId, targetType);
 
-  if (!timeline) throw new HttpError(404, 'NO_TIMELINE', `No installed plugin keeps a timeline for ${targetType}`);
+  if (!timeline)
+    throw new HttpError(
+      404,
+      'NO_TIMELINE',
+      `No installed plugin keeps a timeline for ${targetType}`,
+    );
 
   if (who.actor && timeline.permission && !can(who.actor, timeline.permission)) {
-    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", { permission: timeline.permission });
+    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", {
+      permission: timeline.permission,
+    });
   }
 };
 
@@ -176,11 +233,19 @@ export const listActivities = async (
     to?: string;
   },
 ) => {
-  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, query.targetType, query.targetId);
+  await assertTimelineAccess(
+    client,
+    { actor, orgId: actor.orgId },
+    query.targetType,
+    query.targetId,
+  );
 
   const text = query.q ? `%${query.q.replace(/[\\%_]/g, (char) => `\\${char}`)}%` : null;
 
-  const own = and(eq(activities.targetType, query.targetType), eq(activities.targetId, query.targetId));
+  const own = and(
+    eq(activities.targetType, query.targetType),
+    eq(activities.targetId, query.targetId),
+  );
   // A company's timeline can include what happened with its customers.
   const related =
     query.includeRelated && query.targetType === 'company'
@@ -191,7 +256,12 @@ export const listActivities = async (
             client
               .select({ id: customerCompanies.customerId })
               .from(customerCompanies)
-              .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, query.targetId))),
+              .where(
+                and(
+                  eq(customerCompanies.orgId, actor.orgId),
+                  eq(customerCompanies.companyId, query.targetId),
+                ),
+              ),
           ),
         )
       : undefined;
@@ -240,10 +310,16 @@ export const listActivities = async (
 
   // Who did each entry, in the same answer: the timeline reads at once
   // instead of waiting for the team list.
-  const memberIds = unique(page.data.flatMap((row) => (row.actorType === 'user' && row.actorId ? [row.actorId] : [])));
+  const memberIds = unique(
+    page.data.flatMap((row) => (row.actorType === 'user' && row.actorId ? [row.actorId] : [])),
+  );
   const members = memberIds.length
     ? await client
-        .select({ id: users.id, name: sql<string>`coalesce(nullif(${users.fullName}, ''), ${users.email})`, avatarUrl: users.avatarUrl })
+        .select({
+          id: users.id,
+          name: sql<string>`coalesce(nullif(${users.fullName}, ''), ${users.email})`,
+          avatarUrl: users.avatarUrl,
+        })
         .from(users)
         .where(and(eq(users.orgId, actor.orgId), inArray(users.id, memberIds)))
     : [];
@@ -329,9 +405,20 @@ const findNote = async (client: Db, orgId: string, id: string) => {
 export const addNote = async (
   client: Db,
   actor: Actor,
-  input: { targetType: string; targetId: string; body: string; mentions: string[]; fileIds: string[] },
+  input: {
+    targetType: string;
+    targetId: string;
+    body: string;
+    mentions: string[];
+    fileIds: string[];
+  },
 ) => {
-  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, input.targetType, input.targetId);
+  await assertTimelineAccess(
+    client,
+    { actor, orgId: actor.orgId },
+    input.targetType,
+    input.targetId,
+  );
 
   const mentions = unique(input.mentions);
 
@@ -369,7 +456,8 @@ export const updateNote = async (
   input: { body?: string; mentions?: string[]; fileIds?: string[]; pinned?: boolean },
 ) => {
   const note = await findNote(client, actor.orgId, id);
-  const editing = input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
+  const editing =
+    input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
 
   if (editing && note.actorId !== actor.userId) {
     throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
@@ -380,12 +468,20 @@ export const updateNote = async (
 
   for (const userId of mentions) await assertMember(client, actor.orgId, userId);
 
-  const fileIds = input.fileIds === undefined ? data.fileIds : await checkFiles(client, actor.orgId, input.fileIds);
+  const fileIds =
+    input.fileIds === undefined
+      ? data.fileIds
+      : await checkFiles(client, actor.orgId, input.fileIds);
   const body = input.body ?? data.body;
   // Earlier wordings stay readable (the last 20).
   const history = [
-    ...(((note.data as { history?: unknown[] }).history ?? []) as { body: string; editedAt: string }[]),
-    ...(input.body !== undefined && input.body !== data.body ? [{ body: data.body, editedAt: (note.editedAt ?? note.occurredAt).toISOString() }] : []),
+    ...(((note.data as { history?: unknown[] }).history ?? []) as {
+      body: string;
+      editedAt: string;
+    }[]),
+    ...(input.body !== undefined && input.body !== data.body
+      ? [{ body: data.body, editedAt: (note.editedAt ?? note.occurredAt).toISOString() }]
+      : []),
   ].slice(-20);
   const reactions = (note.data as { reactions?: Record<string, string[]> }).reactions;
 
@@ -393,7 +489,12 @@ export const updateNote = async (
     const [row] = await tx
       .update(activities)
       .set({
-        ...(editing ? { data: { body, mentions, fileIds, history, ...(reactions ? { reactions } : {}) }, editedAt: sql`now()` } : {}),
+        ...(editing
+          ? {
+              data: { body, mentions, fileIds, history, ...(reactions ? { reactions } : {}) },
+              editedAt: sql`now()`,
+            }
+          : {}),
         ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
       })
       .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
@@ -401,7 +502,12 @@ export const updateNote = async (
 
     const added = mentions.filter((userId) => !data.mentions.includes(userId));
 
-    await notifyMentions(tx, actor, { id, targetType: note.targetType, targetId: note.targetId, body }, added);
+    await notifyMentions(
+      tx,
+      actor,
+      { id, targetType: note.targetType, targetId: note.targetId, body },
+      added,
+    );
 
     return toActivityDto(row!);
   });
@@ -411,10 +517,16 @@ export const removeNote = async (client: Db, actor: Actor, id: string) => {
   const note = await findNote(client, actor.orgId, id);
 
   if (note.actorId !== actor.userId && !can(actor, 'notes.moderate')) {
-    throw new HttpError(403, 'NOT_ALLOWED', 'Only the author or an owner or admin can delete a note');
+    throw new HttpError(
+      403,
+      'NOT_ALLOWED',
+      'Only the author or an owner or admin can delete a note',
+    );
   }
 
-  await client.delete(activities).where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)));
+  await client
+    .delete(activities)
+    .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)));
 
   return { ok: true as const };
 };
@@ -423,7 +535,12 @@ export const removeNote = async (client: Db, actor: Actor, id: string) => {
  * A plugin event on a record someone owns reaches the owner's inbox for that
  * plugin (muting the plugin mutes these too).
  */
-const notifyTargetOwner = async (client: Db, caller: PluginCaller, input: ActivityInput, activity: ActivityRow) => {
+const notifyTargetOwner = async (
+  client: Db,
+  caller: PluginCaller,
+  input: ActivityInput,
+  activity: ActivityRow,
+) => {
   if (!CORE_TARGETS.has(input.targetType)) return;
 
   const table = input.targetType === 'customer' ? customers : companies;
@@ -441,7 +558,9 @@ const notifyTargetOwner = async (client: Db, caller: PluginCaller, input: Activi
     userIds: [target.ownerId],
     kind: input.type,
     title: input.summary,
-    link: input.link ?? `/contacts/${input.targetType === 'customer' ? 'customers' : 'companies'}/${input.targetId}`,
+    link:
+      input.link ??
+      `/contacts/${input.targetType === 'customer' ? 'customers' : 'companies'}/${input.targetId}`,
     entity: input.entity ?? { type: input.targetType, id: input.targetId },
     data: { targetType: input.targetType, targetId: input.targetId },
     actorUserId: input.actorUserId,
@@ -453,9 +572,18 @@ const notifyTargetOwner = async (client: Db, caller: PluginCaller, input: Activi
  * A plugin adds an entry to a customer's or company's timeline. With a
  * `dedupeKey`, a retry returns the entry made the first time (`created: false`).
  */
-export const createPluginActivity = async (client: Db, caller: PluginCaller, input: ActivityInput) => {
+export const createPluginActivity = async (
+  client: Db,
+  caller: PluginCaller,
+  input: ActivityInput,
+) => {
   assertPluginNamespace(caller.plugin, input.type);
-  await assertTimelineAccess(client, { plugin: caller, orgId: caller.orgId }, input.targetType, input.targetId);
+  await assertTimelineAccess(
+    client,
+    { plugin: caller, orgId: caller.orgId },
+    input.targetType,
+    input.targetId,
+  );
   await assertMember(client, caller.orgId, input.actorUserId);
 
   const [inserted] = await client
@@ -517,12 +645,15 @@ export const reactToActivity = async (client: Db, actor: Actor, id: string, emoj
 
     await assertTimelineAccess(tx, { actor, orgId: actor.orgId }, row.targetType, row.targetId);
 
-    const reactions = { ...(((row.data as { reactions?: Record<string, string[]> }).reactions) ?? {}) };
+    const reactions = {
+      ...((row.data as { reactions?: Record<string, string[]> }).reactions ?? {}),
+    };
     const people = new Set(reactions[emoji] ?? []);
 
     if (people.has(actor.userId)) people.delete(actor.userId);
     else {
-      if (!reactions[emoji] && Object.keys(reactions).length >= 20) throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
+      if (!reactions[emoji] && Object.keys(reactions).length >= 20)
+        throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
       people.add(actor.userId);
     }
 
@@ -570,7 +701,9 @@ export const updatePluginActivity = async (
     .update(activities)
     .set({
       ...(input.summary !== undefined ? { summary: input.summary } : {}),
-      ...(input.data !== undefined ? { data: { ...input.data, ...(reactions ? { reactions } : {}) } } : {}),
+      ...(input.data !== undefined
+        ? { data: { ...input.data, ...(reactions ? { reactions } : {}) } }
+        : {}),
       ...(input.link !== undefined ? { link: input.link } : {}),
       editedAt: sql`now()`,
     })
@@ -604,11 +737,23 @@ export const activityTypes = async (client: Db, orgId: string) => {
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(and(eq(pluginInstallations.orgId, orgId), eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
+    .where(
+      and(
+        eq(pluginInstallations.orgId, orgId),
+        eq(pluginInstallations.status, 'active'),
+        eq(plugins.status, 'active'),
+      ),
+    );
 
   return {
     types: [
-      ...Object.entries(CORE_TYPE_LABELS).map(([type, info]) => ({ type: `*.${type}`, label: info.label, source: 'core', icon: info.icon, color: null })),
+      ...Object.entries(CORE_TYPE_LABELS).map(([type, info]) => ({
+        type: `*.${type}`,
+        label: info.label,
+        source: 'core',
+        icon: info.icon,
+        color: null,
+      })),
       ...installed.flatMap((plugin) =>
         (plugin.manifest?.activityTypes ?? []).map((item) => ({
           type: item.type,
@@ -620,7 +765,12 @@ export const activityTypes = async (client: Db, orgId: string) => {
       ),
     ],
     timelines: installed.flatMap((plugin) =>
-      (plugin.manifest?.timelines ?? []).map((item) => ({ type: item.type, label: item.label, source: plugin.name, permission: item.permission ?? null })),
+      (plugin.manifest?.timelines ?? []).map((item) => ({
+        type: item.type,
+        label: item.label,
+        source: plugin.name,
+        permission: item.permission ?? null,
+      })),
     ),
   };
 };

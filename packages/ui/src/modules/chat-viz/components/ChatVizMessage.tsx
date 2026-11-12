@@ -14,10 +14,7 @@ import { ChatVizArea } from './ChatVizArea';
 import { ChatVizBar } from './ChatVizBar';
 import { ChatVizLine } from './ChatVizLine';
 import { ChatVizPie } from './ChatVizPie';
-import type {
-  ChartVizPayload,
-  ChartVizSliderControl,
-} from '../types/chatVizTypes';
+import type { ChartVizPayload, ChartVizSliderControl } from '../types/chatVizTypes';
 
 interface Props {
   /**
@@ -35,10 +32,7 @@ interface Props {
 }
 
 export function ChatVizMessage({ rawPayload, className }: Readonly<Props>) {
-  const payload = React.useMemo(
-    () => sanitizeChartVizPayload(rawPayload),
-    [rawPayload],
-  );
+  const payload = React.useMemo(() => sanitizeChartVizPayload(rawPayload), [rawPayload]);
 
   if (!payload) return null;
 
@@ -53,12 +47,8 @@ function SanitizedChatVizMessage({
   payload: ChartVizPayload;
   className?: string;
 }>) {
-  const defaultValues = React.useMemo(
-    () => getDefaultChartVizControlValues(payload),
-    [payload],
-  );
-  const [controlValues, setControlValues] =
-    React.useState<ChartVizControlValues>(defaultValues);
+  const defaultValues = React.useMemo(() => getDefaultChartVizControlValues(payload), [payload]);
+  const [controlValues, setControlValues] = React.useState<ChartVizControlValues>(defaultValues);
 
   React.useEffect(() => {
     setControlValues(defaultValues);
@@ -72,10 +62,7 @@ function SanitizedChatVizMessage({
   // One axis domain covering every control extreme, computed from the
   // BASELINE payload. Freezing this while sliders move makes the chart
   // geometry visibly move; scaling per render would only relabel the ticks.
-  const interactiveDomain = React.useMemo(
-    () => getChartVizInteractiveDomain(payload),
-    [payload],
-  );
+  const interactiveDomain = React.useMemo(() => getChartVizInteractiveDomain(payload), [payload]);
   const interactiveBarDomain = React.useMemo(
     () => getChartVizInteractiveDomain(payload, { includeZero: true }),
     [payload],
@@ -84,10 +71,7 @@ function SanitizedChatVizMessage({
 
   return (
     <figure
-      className={cn(
-        'rounded-xl border bg-card p-4 shadow-sm space-y-3 max-w-lg w-full',
-        className,
-      )}
+      className={cn('rounded-xl border bg-card p-4 shadow-sm space-y-3 max-w-lg w-full', className)}
       aria-label={payload.title}
     >
       <figcaption className="space-y-0.5">
@@ -100,9 +84,7 @@ function SanitizedChatVizMessage({
         <ChartVizControls
           controls={controls}
           values={controlValues}
-          onChange={(key, value) =>
-            setControlValues((current) => ({ ...current, [key]: value }))
-          }
+          onChange={(key, value) => setControlValues((current) => ({ ...current, [key]: value }))}
         />
       )}
       <ChartRouter
@@ -129,10 +111,7 @@ function ChartVizControls({
   onChange: (key: string, value: number) => void;
 }>) {
   return (
-    <div
-      className="space-y-3 rounded-lg border bg-muted/30 p-3"
-      aria-label="What-if controls"
-    >
+    <div className="space-y-3 rounded-lg border bg-muted/30 p-3" aria-label="What-if controls">
       {controls.map((control) => {
         const value = values[control.key] ?? control.defaultValue;
 
@@ -142,9 +121,7 @@ function ChartVizControls({
               <div>
                 <p className="font-medium text-foreground">{control.label}</p>
                 {control.description && (
-                  <p className="mt-0.5 text-muted-foreground">
-                    {control.description}
-                  </p>
+                  <p className="mt-0.5 text-muted-foreground">{control.description}</p>
                 )}
               </div>
               <output

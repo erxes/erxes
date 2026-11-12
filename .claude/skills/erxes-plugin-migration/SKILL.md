@@ -31,22 +31,22 @@ below.
 
 ## 2. Old → new map
 
-| erxes 3.x | New core |
-| --- | --- |
-| `joinErxesGateway` + Redis discovery; `ENABLED_PLUGINS*` on core | `CORE_PLUGIN_KEYS=<name>:<secret>` on core; plugin calls `core.registerManifest(manifest)` at startup; manifest `api.url` is its address |
-| Gateway route `/pl:<name>/…`, gateway CORS | Plugin UI calls `pluginFetch('<name>', path)`; the API is reached at `manifest.api.url` and allows the core-ui origin |
-| `extractUserFromHeader` (gateway `user` header) | `verifyPluginSession(bearerOf(authorization), { coreUrl, plugin })` → `{ orgId, userId, role, permissions, can(), tier, access, canChange() }` |
-| erxes owner check (`isOwner`) | `member.role === 'owner'` (`can()` already lets owners do everything) |
-| Plugin permission catalog in its own `meta/` | manifest `permissions` (granted in core roles, carried in the session token). Plugin-specific reach (own / team / all) stays in the plugin, keyed by `member.userId` |
-| `sendTRPCMessage({ pluginName: 'core', module: 'organization', action: 'identity' })`, subdomain → org cache, `<name>_tenants` | Not needed for member, core and event calls: the organisation id arrives in every token (`orgId`). Public routes: see section 5 |
-| `sendTRPCMessage(… 'users.find' …)` | No plugin scope reads team members yet. In the UI, call core with the member's own session; on the server, keep the ids you need (for example `erxes_user_id` on employees) and read names in the UI |
-| `sendTRPCMessage(… 'notifications.sendEmail' …)` | Team members: `core.forOrg(org).notifications.create({ userIds, kind, title, body, link })` (email follows each member's settings). Outside addresses (a new hire's personal email): keep the plugin's own mail sending for now and say so in AGENTS.md |
-| Activity logs in the plugin | Customer/company-related: events with `subject` + `summary` (timeline entry) or `activities.create`; own records: manifest `timelines` + `<RecordTimeline type id />` |
-| Legacy GraphQL endpoints | REST only; remove once no client uses them |
-| `createErxesOAuthClient` (standalone) | OAuth at `<core>/core/v1/oauth/*`; manifest `oauth.redirectUris`; `verifyErxesAccessToken()` |
-| `IUIConfig` in `config.tsx` | `CONFIG: { name, path, icon, modules, checkAccess? }` exported from `./config` |
-| `@erxes/ui`, `@erxes/ui-modules`, `@erxes/api-shared` npm aliases | `erxes-ui` from the host (singleton), `@erxes/core-contract` and `@erxes/plugin-sdk`; drop `@apollo/client` when nothing uses it |
-| `UI_ENTRY_URL` served by old core | manifest `ui.entry`; development: core-ui `PUBLIC_PLUGINS=<name>_ui@http://localhost:<port>/remoteEntry.js` |
+| erxes 3.x                                                                                                                      | New core                                                                                                                                                                                                                                                |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `joinErxesGateway` + Redis discovery; `ENABLED_PLUGINS*` on core                                                               | `CORE_PLUGIN_KEYS=<name>:<secret>` on core; plugin calls `core.registerManifest(manifest)` at startup; manifest `api.url` is its address                                                                                                                |
+| Gateway route `/pl:<name>/…`, gateway CORS                                                                                     | Plugin UI calls `pluginFetch('<name>', path)`; the API is reached at `manifest.api.url` and allows the core-ui origin                                                                                                                                   |
+| `extractUserFromHeader` (gateway `user` header)                                                                                | `verifyPluginSession(bearerOf(authorization), { coreUrl, plugin })` → `{ orgId, userId, role, permissions, can(), tier, access, canChange() }`                                                                                                          |
+| erxes owner check (`isOwner`)                                                                                                  | `member.role === 'owner'` (`can()` already lets owners do everything)                                                                                                                                                                                   |
+| Plugin permission catalog in its own `meta/`                                                                                   | manifest `permissions` (granted in core roles, carried in the session token). Plugin-specific reach (own / team / all) stays in the plugin, keyed by `member.userId`                                                                                    |
+| `sendTRPCMessage({ pluginName: 'core', module: 'organization', action: 'identity' })`, subdomain → org cache, `<name>_tenants` | Not needed for member, core and event calls: the organisation id arrives in every token (`orgId`). Public routes: see section 5                                                                                                                         |
+| `sendTRPCMessage(… 'users.find' …)`                                                                                            | No plugin scope reads team members yet. In the UI, call core with the member's own session; on the server, keep the ids you need (for example `erxes_user_id` on employees) and read names in the UI                                                    |
+| `sendTRPCMessage(… 'notifications.sendEmail' …)`                                                                               | Team members: `core.forOrg(org).notifications.create({ userIds, kind, title, body, link })` (email follows each member's settings). Outside addresses (a new hire's personal email): keep the plugin's own mail sending for now and say so in AGENTS.md |
+| Activity logs in the plugin                                                                                                    | Customer/company-related: events with `subject` + `summary` (timeline entry) or `activities.create`; own records: manifest `timelines` + `<RecordTimeline type id />`                                                                                   |
+| Legacy GraphQL endpoints                                                                                                       | REST only; remove once no client uses them                                                                                                                                                                                                              |
+| `createErxesOAuthClient` (standalone)                                                                                          | OAuth at `<core>/core/v1/oauth/*`; manifest `oauth.redirectUris`; `verifyErxesAccessToken()`                                                                                                                                                            |
+| `IUIConfig` in `config.tsx`                                                                                                    | `CONFIG: { name, path, icon, modules, checkAccess? }` exported from `./config`                                                                                                                                                                          |
+| `@erxes/ui`, `@erxes/ui-modules`, `@erxes/api-shared` npm aliases                                                              | `erxes-ui` from the host (singleton), `@erxes/core-contract` and `@erxes/plugin-sdk`; drop `@apollo/client` when nothing uses it                                                                                                                        |
+| `UI_ENTRY_URL` served by old core                                                                                              | manifest `ui.entry`; development: core-ui `PUBLIC_PLUGINS=<name>_ui@http://localhost:<port>/remoteEntry.js`                                                                                                                                             |
 
 The organisation id is the same value in both worlds (core ids are the SaaS
 organisation `_id`), so existing `tenant_id` values stay valid.
@@ -75,8 +75,8 @@ organisation `_id`), so existing `tenant_id` values stay valid.
      transaction helper or tenant repository is the one place to change.
    - **Keep the own database.** Nothing moves; keep filtering by tenant in
      every query; publish events through `events.publish` after commit.
-   Tables still without the plugin prefix get a rename migration first (HR
-   already uses `hr_*`).
+     Tables still without the plugin prefix get a rename migration first (HR
+     already uses `hr_*`).
 5. **Core calls.** Replace each `sendTRPCMessage` with the matching
    `core.forOrg(org).*` call or with the UI-side read (map above). Calls stay
    outside request transactions; a failing core call must not lose the

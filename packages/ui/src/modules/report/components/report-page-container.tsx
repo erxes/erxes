@@ -22,14 +22,9 @@ import { useQueryState } from 'erxes-ui/hooks/use-query-state';
 import { PageContainer } from 'erxes-ui/modules/layout';
 import { printSettingsAtom } from '../states/reportSettingsState';
 
-export const ReportPageContainer = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const ReportPageContainer = ({ children }: { children: React.ReactNode }) => {
   const [inPreview, setInPreview] = useQueryState<boolean>('inPreview');
-  const [{ printsize, showTableLayoutOnEveryPage }, setPrintSettings] =
-    useAtom(printSettingsAtom);
+  const [{ printsize, showTableLayoutOnEveryPage }, setPrintSettings] = useAtom(printSettingsAtom);
   useEffect(() => {
     if (!inPreview) {
       setInPreview(true);
@@ -99,11 +94,7 @@ export const ReportPageContainer = ({
             Export to excel
           </Button>
           <div className="inline-flex rounded shadow-sm">
-            <Button
-              onClick={() => window.print()}
-              variant="ghost"
-              className="rounded-r-none"
-            >
+            <Button onClick={() => window.print()} variant="ghost" className="rounded-r-none">
               <IconPrinter />
               Print
             </Button>
@@ -131,10 +122,7 @@ export const ReportPageContainer = ({
                         }))
                       }
                     />
-                    <Label
-                      variant="peer"
-                      htmlFor="show-table-header-on-every-page"
-                    >
+                    <Label variant="peer" htmlFor="show-table-header-on-every-page">
                       Show table layout on every page
                     </Label>
                   </div>

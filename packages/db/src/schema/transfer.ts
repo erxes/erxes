@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, foreignKey, index, integer, jsonb, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  check,
+  foreignKey,
+  index,
+  integer,
+  jsonb,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
@@ -7,7 +17,16 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export const TRANSFER_RECORD_TYPES = ['customer', 'lead', 'company'] as const;
-export const IMPORT_STATUSES = ['parsing', 'mapping', 'checking', 'checked', 'running', 'done', 'failed', 'undone'] as const;
+export const IMPORT_STATUSES = [
+  'parsing',
+  'mapping',
+  'checking',
+  'checked',
+  'running',
+  'done',
+  'failed',
+  'undone',
+] as const;
 export const EXPORT_STATUSES = ['running', 'done', 'failed'] as const;
 
 export interface ImportOptions {
@@ -49,7 +68,10 @@ export const imports = pgTable(
     /** Column index (as text) → field key (`firstName`, `customFields.<id>`, `tags`, …); missing: ignored. */
     mapping: jsonb().$type<Record<string, string>>().default({}).notNull(),
     options: jsonb().$type<ImportOptions>().notNull(),
-    counts: jsonb().$type<ImportCounts>().default({ rows: 0, create: 0, update: 0, skip: 0, error: 0 }).notNull(),
+    counts: jsonb()
+      .$type<ImportCounts>()
+      .default({ rows: 0, create: 0, update: 0, skip: 0, error: 0 })
+      .notNull(),
     /** Rows done while running (for progress and resuming). */
     processed: integer().default(0).notNull(),
     error: text(),
@@ -61,12 +83,19 @@ export const imports = pgTable(
   (table) => [
     index('core_imports_org_created_idx').on(table.orgId, table.createdAt.desc()),
     uniqueIndex('core_imports_org_id_id_key').on(table.orgId, table.id),
-    check('core_imports_record_type_check', sql`${table.recordType} IN ('customer', 'lead', 'company')`),
+    check(
+      'core_imports_record_type_check',
+      sql`${table.recordType} IN ('customer', 'lead', 'company')`,
+    ),
     check(
       'core_imports_status_check',
       sql`${table.status} IN ('parsing', 'mapping', 'checking', 'checked', 'running', 'done', 'failed', 'undone')`,
     ),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_imports_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_imports_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 
@@ -116,9 +145,16 @@ export const exports = pgTable(
   },
   (table) => [
     index('core_exports_org_created_idx').on(table.orgId, table.createdAt.desc()),
-    check('core_exports_record_type_check', sql`${table.recordType} IN ('customer', 'lead', 'company')`),
+    check(
+      'core_exports_record_type_check',
+      sql`${table.recordType} IN ('customer', 'lead', 'company')`,
+    ),
     check('core_exports_format_check', sql`${table.format} IN ('csv', 'xlsx')`),
     check('core_exports_status_check', sql`${table.status} IN ('running', 'done', 'failed')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_exports_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_exports_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

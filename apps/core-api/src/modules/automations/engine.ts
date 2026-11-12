@@ -46,7 +46,8 @@ export const armSteps = (step: AutomationStep, arm: string): AutomationStep[] | 
     if (arm === 'otherwise') return step.otherwise;
     if (arm.startsWith('case:')) return step.cases[Number(arm.slice(5))]?.steps ?? null;
   }
-  if (step.type === 'split' && arm.startsWith('path:')) return step.paths[Number(arm.slice(5))]?.steps ?? null;
+  if (step.type === 'split' && arm.startsWith('path:'))
+    return step.paths[Number(arm.slice(5))]?.steps ?? null;
 
   return null;
 };
@@ -112,7 +113,8 @@ export const splitPath = (runId: string, step: Extract<AutomationStep, { type: '
 const subjectOf = async (tx: Db, orgId: string, type: string | null, id: string | null) => {
   if (!type || !id) return null;
 
-  const table = type === 'customer' ? 'core_customers' : type === 'company' ? 'core_companies' : null;
+  const table =
+    type === 'customer' ? 'core_customers' : type === 'company' ? 'core_companies' : null;
 
   if (!table) return null;
 
@@ -127,7 +129,10 @@ const subjectOf = async (tx: Db, orgId: string, type: string | null, id: string 
   const camel = Object.fromEntries(
     Object.entries(row)
       .filter(([key]) => key !== 'org_id' && key !== 'search_text')
-      .map(([key, value]) => [key.replace(/_([a-z])/g, (_m, c: string) => c.toUpperCase()), value instanceof Date ? value.toISOString() : value]),
+      .map(([key, value]) => [
+        key.replace(/_([a-z])/g, (_m, c: string) => c.toUpperCase()),
+        value instanceof Date ? value.toISOString() : value,
+      ]),
   );
   const tags = await tx.execute<{ tag_id: string }>(
     sql`select tag_id from ${sql.identifier(type === 'customer' ? 'core_customer_tags' : 'core_company_tags')} where org_id = ${orgId} and ${sql.identifier(`${type}_id`)} = ${id}`,
@@ -140,7 +145,12 @@ const definitionOf = async (tx: Db, automationId: string, version: number) => {
   const [row] = await tx
     .select({ definition: automationVersions.definition })
     .from(automationVersions)
-    .where(and(eq(automationVersions.automationId, automationId), eq(automationVersions.version, version)))
+    .where(
+      and(
+        eq(automationVersions.automationId, automationId),
+        eq(automationVersions.version, version),
+      ),
+    )
     .limit(1);
 
   return row ? AutomationDefinition.parse(row.definition) : null;
@@ -154,13 +164,19 @@ const actorOf = async (tx: Db, orgId: string, userId: string | null): Promise<Ac
   if (!userId) throw new Error('Nobody turned this automation on');
 
   const [row] = await tx
-    .select({ id: users.id, role: users.role, status: users.status, permissions: roles.permissions })
+    .select({
+      id: users.id,
+      role: users.role,
+      status: users.status,
+      permissions: roles.permissions,
+    })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
     .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
     .limit(1);
 
-  if (!row || row.status !== 'active') throw new Error('The member who turned this automation on is no longer active');
+  if (!row || row.status !== 'active')
+    throw new Error('The member who turned this automation on is no longer active');
 
   return { userId: row.id, orgId, role: row.role, permissions: row.permissions };
 };
@@ -176,7 +192,19 @@ const queueAdvance = (tx: Db, run: Pick<RunRow, 'id' | 'orgId'>, cursor: Cursor,
     maxAttempts: 5,
   });
 
-const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: { status: 'succeeded' | 'failed' | 'skipped'; input?: unknown; output?: unknown; error?: string; attempt: number; startedAt: Date }) =>
+const logStep = (
+  tx: Db,
+  run: RunRow,
+  step: AutomationStep,
+  entry: {
+    status: 'succeeded' | 'failed' | 'skipped';
+    input?: unknown;
+    output?: unknown;
+    error?: string;
+    attempt: number;
+    startedAt: Date;
+  },
+) =>
   tx.insert(automationRunSteps).values({
     id: newId(),
     orgId: run.orgId,
@@ -191,7 +219,13 @@ const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: { status: 'su
     startedAt: entry.startedAt,
   });
 
-const finish = (tx: Db, runId: string, status: 'succeeded' | 'failed' | 'cancelled', error?: string, goal = false) =>
+const finish = (
+  tx: Db,
+  runId: string,
+  status: 'succeeded' | 'failed' | 'cancelled',
+  error?: string,
+  goal = false,
+) =>
   tx
     .update(automationRuns)
     .set({
@@ -207,7 +241,10 @@ const finish = (tx: Db, runId: string, status: 'succeeded' | 'failed' | 'cancell
 
 const SECONDS = { minutes: 60, hours: 3600, days: 86_400 } as const;
 
-const delayUntil = (step: Extract<AutomationStep, { type: 'delay' }>, context: Record<string, unknown>) => {
+const delayUntil = (
+  step: Extract<AutomationStep, { type: 'delay' }>,
+  context: Record<string, unknown>,
+) => {
   if (step.until) {
     const rendered = render(step.until, context);
     const time = Date.parse(String(rendered));
@@ -217,7 +254,8 @@ const delayUntil = (step: Extract<AutomationStep, { type: 'delay' }>, context: R
     return new Date(time);
   }
 
-  const seconds = { minutes: 60, hours: 3600, days: 86_400 }[step.unit ?? 'minutes'] * (step.amount ?? 1);
+  const seconds =
+    { minutes: 60, hours: 3600, days: 86_400 }[step.unit ?? 'minutes'] * (step.amount ?? 1);
 
   return new Date(Date.now() + seconds * 1000);
 };
@@ -239,14 +277,23 @@ export const advanceJob: JobDefinition = {
     const [run] = await db
       .select()
       .from(automationRuns)
-      .where(and(eq(automationRuns.orgId, job.orgId), eq(automationRuns.id, job.payload.runId as string)))
+      .where(
+        and(
+          eq(automationRuns.orgId, job.orgId),
+          eq(automationRuns.id, job.payload.runId as string),
+        ),
+      )
       .for('update')
       .limit(1);
 
     // Cancelled or finished meanwhile.
     if (!run || (run.status !== 'running' && run.status !== 'waiting')) return;
 
-    const [automation] = await db.select().from(automations).where(eq(automations.id, run.automationId)).limit(1);
+    const [automation] = await db
+      .select()
+      .from(automations)
+      .where(eq(automations.id, run.automationId))
+      .limit(1);
     const definition = automation ? await definitionOf(db, run.automationId, run.version) : null;
 
     if (!automation || !definition) {
@@ -297,7 +344,10 @@ export const advanceJob: JobDefinition = {
     } else if (step.type === 'switch') {
       const chosen = step.cases.findIndex((item) => evaluateGroup(item.conditions, context));
 
-      output = { case: chosen >= 0 ? chosen : 'otherwise', label: chosen >= 0 ? (step.cases[chosen]!.label ?? null) : null };
+      output = {
+        case: chosen >= 0 ? chosen : 'otherwise',
+        label: chosen >= 0 ? (step.cases[chosen]!.label ?? null) : null,
+      };
       next = enterArm(definition.steps, cursor, chosen >= 0 ? `case:${chosen}` : 'otherwise');
     } else if (step.type === 'split') {
       const path = splitPath(run.id, step);
@@ -327,7 +377,13 @@ export const advanceJob: JobDefinition = {
 
         await db
           .update(automationRuns)
-          .set({ status: 'waiting', waitingUntil: until, waitEvent: step.event, context, updatedAt: sql`now()` })
+          .set({
+            status: 'waiting',
+            waitingUntil: until,
+            waitEvent: step.event,
+            context,
+            updatedAt: sql`now()`,
+          })
           .where(eq(automationRuns.id, run.id));
         await queueAdvance(db, run, cursor, until);
         return;
@@ -339,7 +395,10 @@ export const advanceJob: JobDefinition = {
       input = render(step.input, context);
 
       const actor = await actorOf(db, run.orgId, automation.activatedBy);
-      const subject = run.subjectType && run.subjectId ? { type: run.subjectType as 'customer' | 'company', id: run.subjectId } : null;
+      const subject =
+        run.subjectType && run.subjectId
+          ? { type: run.subjectType as 'customer' | 'company', id: run.subjectId }
+          : null;
       const ctx = {
         tx: db,
         orgId: run.orgId,
@@ -354,7 +413,12 @@ export const advanceJob: JobDefinition = {
       const core = CORE_ACTIONS.find((action) => action.type === step.action);
 
       output = await withRunCause(
-        { runId: run.id, automationId: automation.id, automationName: automation.name, depth: run.depth },
+        {
+          runId: run.id,
+          automationId: automation.id,
+          automationName: automation.name,
+          depth: run.depth,
+        },
         async () => {
           if (core) return core.run(ctx);
 
@@ -363,11 +427,20 @@ export const advanceJob: JobDefinition = {
             ? await db
                 .select({ status: pluginInstallations.status })
                 .from(pluginInstallations)
-                .where(and(eq(pluginInstallations.orgId, run.orgId), eq(pluginInstallations.plugin, plugin.name)))
+                .where(
+                  and(
+                    eq(pluginInstallations.orgId, run.orgId),
+                    eq(pluginInstallations.plugin, plugin.name),
+                  ),
+                )
                 .limit(1)
             : [];
 
-          if (!plugin || installed?.status !== 'active' || !plugin.manifest?.actions?.some((action) => action.type === step.action)) {
+          if (
+            !plugin ||
+            installed?.status !== 'active' ||
+            !plugin.manifest?.actions?.some((action) => action.type === step.action)
+          ) {
             throw new Error(`No action ${step.action} (is its plugin installed?)`);
           }
 
@@ -379,13 +452,24 @@ export const advanceJob: JobDefinition = {
       context.subject = await subjectOf(db, run.orgId, run.subjectType, run.subjectId);
     }
 
-    await continueAfter(db, run, step, context, { input, output, next, attempt: job.attempts, startedAt });
+    await continueAfter(db, run, step, context, {
+      input,
+      output,
+      next,
+      attempt: job.attempts,
+      startedAt,
+    });
   },
   async onDead(job, error, tx) {
     const [run] = await tx
       .select()
       .from(automationRuns)
-      .where(and(eq(automationRuns.orgId, job.orgId), eq(automationRuns.id, job.payload.runId as string)))
+      .where(
+        and(
+          eq(automationRuns.orgId, job.orgId),
+          eq(automationRuns.id, job.payload.runId as string),
+        ),
+      )
       .limit(1);
 
     if (!run || (run.status !== 'running' && run.status !== 'waiting')) return;
@@ -393,7 +477,13 @@ export const advanceJob: JobDefinition = {
     const definition = await definitionOf(tx, run.automationId, run.version);
     const step = definition ? stepAt(definition.steps, run.cursor as Cursor) : null;
 
-    if (step) await logStep(tx, run, step, { status: 'failed', error, attempt: job.attempts, startedAt: new Date() });
+    if (step)
+      await logStep(tx, run, step, {
+        status: 'failed',
+        error,
+        attempt: job.attempts,
+        startedAt: new Date(),
+      });
 
     await finish(tx, run.id, 'failed', error);
     await notifyFailure(tx, run, error);
@@ -408,8 +498,17 @@ const continueAfter = async (
   context: Record<string, unknown>,
   entry: { input: unknown; output: unknown; next: Cursor | null; attempt: number; startedAt: Date },
 ) => {
-  context.steps = { ...((context.steps as Record<string, unknown>) ?? {}), [step.id]: { output: entry.output } };
-  await logStep(db, run, step, { status: 'succeeded', input: entry.input, output: entry.output, attempt: entry.attempt, startedAt: entry.startedAt });
+  context.steps = {
+    ...((context.steps as Record<string, unknown>) ?? {}),
+    [step.id]: { output: entry.output },
+  };
+  await logStep(db, run, step, {
+    status: 'succeeded',
+    input: entry.input,
+    output: entry.output,
+    attempt: entry.attempt,
+    startedAt: entry.startedAt,
+  });
 
   if (!entry.next) {
     await db.update(automationRuns).set({ context }).where(eq(automationRuns.id, run.id));
@@ -419,7 +518,14 @@ const continueAfter = async (
 
   await db
     .update(automationRuns)
-    .set({ context, cursor: entry.next, status: 'running', waitingUntil: null, waitEvent: null, updatedAt: sql`now()` })
+    .set({
+      context,
+      cursor: entry.next,
+      status: 'running',
+      waitingUntil: null,
+      waitEvent: null,
+      updatedAt: sql`now()`,
+    })
     .where(eq(automationRuns.id, run.id));
   await queueAdvance(db, run, entry.next);
 };
@@ -429,23 +535,33 @@ const continueAfter = async (
  * one notification an hour per automation, so a broken one doesn't flood them.
  */
 const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
-  const [automation] = await tx.select().from(automations).where(eq(automations.id, run.automationId)).limit(1);
+  const [automation] = await tx
+    .select()
+    .from(automations)
+    .where(eq(automations.id, run.automationId))
+    .limit(1);
 
   if (!automation?.activatedBy) return;
 
   const hour = new Date().toISOString().slice(0, 13);
 
-  await notify(tx, { orgId: run.orgId, actorType: 'system', actorId: null, source: 'core' } as never, {
-    userIds: [automation.activatedBy],
-    kind: 'core.automation.failed',
-    title: `“${automation.name}” failed`,
-    body: error.slice(0, 500),
-    link: `/automations/${automation.id}`,
-    priority: 'high',
-    entity: { type: 'automation', id: automation.id },
-    dedupeKey: `automation-failed:${automation.id}:${hour}`,
-    data: { runId: run.id },
-  }).catch((notifyError: unknown) => log.warn('could not notify about a failed run', { error: notifyError }));
+  await notify(
+    tx,
+    { orgId: run.orgId, actorType: 'system', actorId: null, source: 'core' } as never,
+    {
+      userIds: [automation.activatedBy],
+      kind: 'core.automation.failed',
+      title: `“${automation.name}” failed`,
+      body: error.slice(0, 500),
+      link: `/automations/${automation.id}`,
+      priority: 'high',
+      entity: { type: 'automation', id: automation.id },
+      dedupeKey: `automation-failed:${automation.id}:${hour}`,
+      data: { runId: run.id },
+    },
+  ).catch((notifyError: unknown) =>
+    log.warn('could not notify about a failed run', { error: notifyError }),
+  );
 };
 
 export interface RunStart {
@@ -460,7 +576,12 @@ export interface RunStart {
  * Starts a run unless the record already went through (re-entry), the
  * hourly limit is reached, or this start already happened (same `eventId`).
  */
-export const startRun = async (tx: Db, automation: AutomationRow, definition: AutomationDefinition, start: RunStart) => {
+export const startRun = async (
+  tx: Db,
+  automation: AutomationRow,
+  definition: AutomationDefinition,
+  start: RunStart,
+) => {
   if (definition.reentry !== 'always' && start.subject) {
     const [earlier] = await tx
       .select({ id: automationRuns.id })
@@ -469,7 +590,9 @@ export const startRun = async (tx: Db, automation: AutomationRow, definition: Au
         and(
           eq(automationRuns.automationId, automation.id),
           eq(automationRuns.subjectId, start.subject.id),
-          definition.reentry === 'daily' ? gt(automationRuns.startedAt, sql`now() - interval '1 day'`) : undefined,
+          definition.reentry === 'daily'
+            ? gt(automationRuns.startedAt, sql`now() - interval '1 day'`)
+            : undefined,
         ),
       )
       .orderBy(desc(automationRuns.startedAt))
@@ -482,18 +605,27 @@ export const startRun = async (tx: Db, automation: AutomationRow, definition: Au
     const [recent] = await tx
       .select({ count: sql<number>`count(*)::int` })
       .from(automationRuns)
-      .where(and(eq(automationRuns.automationId, automation.id), gt(automationRuns.startedAt, sql`now() - interval '1 hour'`)));
+      .where(
+        and(
+          eq(automationRuns.automationId, automation.id),
+          gt(automationRuns.startedAt, sql`now() - interval '1 hour'`),
+        ),
+      );
 
     if ((recent?.count ?? 0) >= definition.maxRunsPerHour) {
       await tx
         .update(automations)
-        .set({ state: sql`jsonb_set(${automations.state}, '{skippedByLimit}', to_jsonb(coalesce((${automations.state}->>'skippedByLimit')::int, 0) + 1))` })
+        .set({
+          state: sql`jsonb_set(${automations.state}, '{skippedByLimit}', to_jsonb(coalesce((${automations.state}->>'skippedByLimit')::int, 0) + 1))`,
+        })
         .where(eq(automations.id, automation.id));
       return null;
     }
   }
 
-  const subject = start.subject ? await subjectOf(tx, automation.orgId, start.subject.type, start.subject.id) : null;
+  const subject = start.subject
+    ? await subjectOf(tx, automation.orgId, start.subject.type, start.subject.id)
+    : null;
   const [run] = await tx
     .insert(automationRuns)
     .values({
@@ -531,7 +663,10 @@ export const automationsConsumer: EventConsumer = {
     if (event.subjectId) await resumeWaiting(tx, event, dto);
 
     if (event.depth >= MAX_CHAIN_DEPTH) {
-      log.warn('automation chain too deep; not starting more', { event: event.id, depth: event.depth });
+      log.warn('automation chain too deep; not starting more', {
+        event: event.id,
+        depth: event.depth,
+      });
       return;
     }
 
@@ -541,12 +676,24 @@ export const automationsConsumer: EventConsumer = {
     const candidates = await tx
       .select()
       .from(automations)
-      .where(and(eq(automations.orgId, event.orgId), eq(automations.status, 'active'), eq(automations.triggerEvent, event.type)));
+      .where(
+        and(
+          eq(automations.orgId, event.orgId),
+          eq(automations.status, 'active'),
+          eq(automations.triggerEvent, event.type),
+        ),
+      );
 
     if (!candidates.length) return;
 
     const cause = event.causedByRun
-      ? (await tx.select({ automationId: automationRuns.automationId }).from(automationRuns).where(eq(automationRuns.id, event.causedByRun)).limit(1))[0]
+      ? (
+          await tx
+            .select({ automationId: automationRuns.automationId })
+            .from(automationRuns)
+            .where(eq(automationRuns.id, event.causedByRun))
+            .limit(1)
+        )[0]
       : undefined;
     const subject = await subjectOf(tx, event.orgId, event.subjectType, event.subjectId);
     const context = { event: dto, subject, steps: {} };
@@ -556,12 +703,20 @@ export const automationsConsumer: EventConsumer = {
 
       const definition = await definitionOf(tx, automation.id, automation.activeVersion);
 
-      if (!definition || definition.trigger.kind !== 'event' || !evaluateGroup(definition.trigger.conditions, context)) continue;
+      if (
+        !definition ||
+        definition.trigger.kind !== 'event' ||
+        !evaluateGroup(definition.trigger.conditions, context)
+      )
+        continue;
 
       await startRun(tx, automation, definition, {
         eventId: event.id,
         eventType: event.type,
-        subject: event.subjectType && event.subjectId ? { type: event.subjectType, id: event.subjectId } : null,
+        subject:
+          event.subjectType && event.subjectId
+            ? { type: event.subjectType, id: event.subjectId }
+            : null,
         event: dto as unknown as Record<string, unknown>,
         depth: event.depth,
       });
@@ -573,7 +728,13 @@ const resumeWaiting = async (tx: Db, event: EventRow, dto: ReturnType<typeof toE
   const waiting = await tx
     .select()
     .from(automationRuns)
-    .where(and(eq(automationRuns.orgId, event.orgId), eq(automationRuns.subjectId, event.subjectId!), eq(automationRuns.status, 'waiting')))
+    .where(
+      and(
+        eq(automationRuns.orgId, event.orgId),
+        eq(automationRuns.subjectId, event.subjectId!),
+        eq(automationRuns.status, 'waiting'),
+      ),
+    )
     .for('update', { skipLocked: true });
 
   for (const run of waiting) {
@@ -581,7 +742,10 @@ const resumeWaiting = async (tx: Db, event: EventRow, dto: ReturnType<typeof toE
 
     if (!definition) continue;
 
-    const context = { ...run.context, subject: await subjectOf(tx, run.orgId, run.subjectType, run.subjectId) } as Record<string, unknown>;
+    const context = {
+      ...run.context,
+      subject: await subjectOf(tx, run.orgId, run.subjectType, run.subjectId),
+    } as Record<string, unknown>;
 
     // The change met the goal: the record leaves now, not when the wait ends.
     if (definition.goal && evaluateGroup(definition.goal, context)) {
@@ -595,7 +759,8 @@ const resumeWaiting = async (tx: Db, event: EventRow, dto: ReturnType<typeof toE
     const cursor = run.cursor as Cursor;
     const step = stepAt(definition.steps, cursor);
 
-    if (step?.type !== 'wait_for' || !evaluateGroup(step.conditions, { ...context, event: dto })) continue;
+    if (step?.type !== 'wait_for' || !evaluateGroup(step.conditions, { ...context, event: dto }))
+      continue;
 
     await continueAfter(tx, run, step, context, {
       input: null,
@@ -612,7 +777,13 @@ export const retryRun = async (tx: Db, orgId: string, runId: string) => {
   const [run] = await tx
     .update(automationRuns)
     .set({ status: 'running', error: null, finishedAt: null, updatedAt: sql`now()` })
-    .where(and(eq(automationRuns.orgId, orgId), eq(automationRuns.id, runId), eq(automationRuns.status, 'failed')))
+    .where(
+      and(
+        eq(automationRuns.orgId, orgId),
+        eq(automationRuns.id, runId),
+        eq(automationRuns.status, 'failed'),
+      ),
+    )
     .returning();
 
   if (run) await queueAdvance(tx, run, run.cursor as Cursor, new Date(Date.now() + 1));
@@ -623,8 +794,20 @@ export const retryRun = async (tx: Db, orgId: string, runId: string) => {
 export const cancelRun = async (tx: Db, orgId: string, runId: string) => {
   const [run] = await tx
     .update(automationRuns)
-    .set({ status: 'cancelled', finishedAt: sql`now()`, waitingUntil: null, waitEvent: null, updatedAt: sql`now()` })
-    .where(and(eq(automationRuns.orgId, orgId), eq(automationRuns.id, runId), inArray(automationRuns.status, ['running', 'waiting'])))
+    .set({
+      status: 'cancelled',
+      finishedAt: sql`now()`,
+      waitingUntil: null,
+      waitEvent: null,
+      updatedAt: sql`now()`,
+    })
+    .where(
+      and(
+        eq(automationRuns.orgId, orgId),
+        eq(automationRuns.id, runId),
+        inArray(automationRuns.status, ['running', 'waiting']),
+      ),
+    )
     .returning();
 
   return run ?? null;

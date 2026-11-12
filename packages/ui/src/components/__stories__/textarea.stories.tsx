@@ -47,21 +47,13 @@ export const WithLabel: Story = {
 
 export const Disabled: Story = {
   render: () => (
-    <Textarea
-      disabled
-      placeholder="This textarea is disabled."
-      className="w-[300px]"
-    />
+    <Textarea disabled placeholder="This textarea is disabled." className="w-[300px]" />
   ),
 };
 
 export const WithRows: Story = {
   render: () => (
-    <Textarea
-      rows={10}
-      placeholder="This textarea has 10 rows."
-      className="w-[300px]"
-    />
+    <Textarea rows={10} placeholder="This textarea has 10 rows." className="w-[300px]" />
   ),
 };
 

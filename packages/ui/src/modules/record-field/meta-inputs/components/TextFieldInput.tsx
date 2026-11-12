@@ -5,11 +5,7 @@ import { cn } from 'erxes-ui/lib';
 export const TextFieldInput = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => {
     return (
-      <Input
-        ref={ref}
-        className={cn('h-cell w-full rounded-none px-2', className)}
-        {...props}
-      />
+      <Input ref={ref} className={cn('h-cell w-full rounded-none px-2', className)} {...props} />
     );
   },
 );

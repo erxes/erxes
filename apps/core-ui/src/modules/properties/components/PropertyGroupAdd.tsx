@@ -29,7 +29,12 @@ export const AddPropertyGroup = ({
           <PropertyGroupForm
             onSubmit={(data) =>
               mutate(
-                { contentType, name: data.name, code: data.code, description: data.description || null },
+                {
+                  contentType,
+                  name: data.name,
+                  code: data.code,
+                  description: data.description || null,
+                },
                 {
                   onSuccess: (group) => {
                     setOpen(false);

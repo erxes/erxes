@@ -1,11 +1,6 @@
 import { db } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
-import express, {
-  type Express,
-  type NextFunction,
-  type Request,
-  type Response,
-} from 'express';
+import express, { type Express, type NextFunction, type Request, type Response } from 'express';
 import { authenticate } from '~/http/auth';
 import { signInLimit, tokenLimit, uploadLimit } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
@@ -43,7 +38,13 @@ export const createApp = (): Express => {
 
   // Guessing passwords and secrets: limited per address before anything else.
   app.use(
-    ['/core/v1/auth/sign-in', '/core/v1/auth/sign-in/2fa', '/core/v1/setup', '/core/v1/auth/password-reset', '/core/v1/auth/invitation'],
+    [
+      '/core/v1/auth/sign-in',
+      '/core/v1/auth/sign-in/2fa',
+      '/core/v1/setup',
+      '/core/v1/auth/password-reset',
+      '/core/v1/auth/invitation',
+    ],
     signInLimit,
   );
   app.use('/core/v1/plugins/token', tokenLimit);
@@ -88,7 +89,15 @@ export const createApp = (): Express => {
   app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
-  app.use('/core/v1', authenticate, standingGuard, streamRouter, downloadRouter, auditExportRouter, coreApi);
+  app.use(
+    '/core/v1',
+    authenticate,
+    standingGuard,
+    streamRouter,
+    downloadRouter,
+    auditExportRouter,
+    coreApi,
+  );
 
   app.use((_req, res) => {
     res.status(404).json(errorBody(404, 'NOT_FOUND', 'No such route'));

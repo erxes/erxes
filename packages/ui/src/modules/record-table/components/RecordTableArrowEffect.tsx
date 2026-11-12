@@ -13,10 +13,7 @@ export const RecordTableArrowEffect = ({
   useScopedHotkeys(
     Key.ArrowRight,
     () => {
-      if (
-        activeCell[0] === rowLength - 1 &&
-        activeCell[1] === columnLength - 1
-      ) {
+      if (activeCell[0] === rowLength - 1 && activeCell[1] === columnLength - 1) {
         return;
       }
       if (activeCell[1] === columnLength - 1 && activeCell[0] < rowLength) {

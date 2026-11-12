@@ -19,11 +19,20 @@ export interface TimelineFilters {
   source?: string;
 }
 
-export const useActivities = (targetType: string, targetId: string, filters: TimelineFilters = {}) => {
+export const useActivities = (
+  targetType: string,
+  targetId: string,
+  filters: TimelineFilters = {},
+) => {
   const { kind = 'all', includeRelated = false, q, actorId, source } = filters;
   const refetchInterval = useLivePolling();
   const query = useInfiniteQuery({
-    queryKey: [...ACTIVITIES_KEY, targetType, targetId, { kind, includeRelated, q, actorId, source }],
+    queryKey: [
+      ...ACTIVITIES_KEY,
+      targetType,
+      targetId,
+      { kind, includeRelated, q, actorId, source },
+    ],
     queryFn: ({ pageParam }) =>
       api.activities.list({
         targetType,
@@ -39,7 +48,8 @@ export const useActivities = (targetType: string, targetId: string, filters: Tim
         cursorMode: 'exclusive',
       }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
+    getNextPageParam: (last) =>
+      last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined,
     refetchInterval,
     // Live updates refetch what changed; reopening the tab shows what is there at once.
     staleTime: 30_000,
@@ -62,7 +72,8 @@ export const useActivities = (targetType: string, targetId: string, filters: Tim
 export const usePinnedNotes = (targetType: string, targetId: string) =>
   useQuery({
     queryKey: [...ACTIVITIES_KEY, targetType, targetId, 'pinned'],
-    queryFn: () => api.activities.list({ targetType, targetId, pinned: 'true', kind: 'notes', limit: 20 }),
+    queryFn: () =>
+      api.activities.list({ targetType, targetId, pinned: 'true', kind: 'notes', limit: 20 }),
     select: (page) => page.data,
     staleTime: 30_000,
   });
@@ -72,24 +83,42 @@ export const useNoteActions = () => {
   const { toast } = useToast();
   const refresh = () => client.invalidateQueries({ queryKey: ACTIVITIES_KEY });
   const onError = (error: unknown) =>
-    toast({ variant: 'destructive', title: 'Could not save the note', description: messageOf(error) });
+    toast({
+      variant: 'destructive',
+      title: 'Could not save the note',
+      description: messageOf(error),
+    });
 
   return {
     add: useMutation({
-      mutationFn: (input: Parameters<typeof api.activities.addNote>[0]) => api.activities.addNote(input),
+      mutationFn: (input: Parameters<typeof api.activities.addNote>[0]) =>
+        api.activities.addNote(input),
       onSuccess: refresh,
       onError,
     }),
     update: useMutation({
-      mutationFn: (input: Parameters<typeof api.activities.updateNote>[0]) => api.activities.updateNote(input),
+      mutationFn: (input: Parameters<typeof api.activities.updateNote>[0]) =>
+        api.activities.updateNote(input),
       onSuccess: refresh,
       onError,
     }),
-    remove: useMutation({ mutationFn: (id: string) => api.activities.removeNote({ id }), onSuccess: refresh, onError }),
-    react: useMutation({ mutationFn: (input: { id: string; emoji: string }) => api.activities.react(input), onSuccess: refresh, onError }),
+    remove: useMutation({
+      mutationFn: (id: string) => api.activities.removeNote({ id }),
+      onSuccess: refresh,
+      onError,
+    }),
+    react: useMutation({
+      mutationFn: (input: { id: string; emoji: string }) => api.activities.react(input),
+      onSuccess: refresh,
+      onError,
+    }),
   };
 };
 
 /** Entry types (plugins' labels, icons, colours) and plugin record timelines. */
 export const useActivityTypes = () =>
-  useQuery({ queryKey: [...ACTIVITIES_KEY, 'types'], queryFn: () => api.activities.types(), staleTime: 5 * 60_000 }).data;
+  useQuery({
+    queryKey: [...ACTIVITIES_KEY, 'types'],
+    queryFn: () => api.activities.types(),
+    staleTime: 5 * 60_000,
+  }).data;

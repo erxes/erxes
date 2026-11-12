@@ -7,7 +7,8 @@ import { EmptyList } from '../components/EmptyList';
 import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
 
 export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
-  const { list, loading, error, hasNextPage, hasPreviousPage, handleFetchMore } = useCompanies(state);
+  const { list, loading, error, hasNextPage, hasPreviousPage, handleFetchMore } =
+    useCompanies(state);
   const columns = useCompaniesColumns(state);
 
   if (error) {
@@ -18,7 +19,10 @@ export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 
     <RecordTable.Provider
       columns={columns}
       data={list}
-      stickyColumns={stickyWithStage(['more', 'checkbox', 'avatar', 'primaryName'], state === 'lead')}
+      stickyColumns={stickyWithStage(
+        ['more', 'checkbox', 'avatar', 'primaryName'],
+        state === 'lead',
+      )}
       className="m-3"
       tableId={state === 'lead' ? 'company_leads_record_table' : 'companies_record_table'}
     >

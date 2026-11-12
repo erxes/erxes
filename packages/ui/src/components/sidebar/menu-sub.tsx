@@ -5,34 +5,32 @@ import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 import { useComposedRef } from './hooks';
 
-export const SidebarMenuSub = React.forwardRef<
-  HTMLUListElement,
-  React.ComponentProps<'ul'>
->(({ className, children, ...props }, ref) => {
-  const [subRef, setRefs] = useComposedRef(ref);
+export const SidebarMenuSub = React.forwardRef<HTMLUListElement, React.ComponentProps<'ul'>>(
+  ({ className, children, ...props }, ref) => {
+    const [subRef, setRefs] = useComposedRef(ref);
 
-  return (
-    <ul
-      ref={setRefs}
-      data-sidebar="menu-sub"
-      className={cn(
-        'relative ml-3.5 flex min-w-0 translate-x-px flex-col gap-1 pl-2.5 py-0.5',
-        'group-data-[collapsible=icon]:hidden',
-        className,
-      )}
-      {...props}
-    >
-      <SidebarTreeIndicator as="li" containerRef={subRef} />
-      {children}
-    </ul>
-  );
-});
+    return (
+      <ul
+        ref={setRefs}
+        data-sidebar="menu-sub"
+        className={cn(
+          'relative ml-3.5 flex min-w-0 translate-x-px flex-col gap-1 pl-2.5 py-0.5',
+          'group-data-[collapsible=icon]:hidden',
+          className,
+        )}
+        {...props}
+      >
+        <SidebarTreeIndicator as="li" containerRef={subRef} />
+        {children}
+      </ul>
+    );
+  },
+);
 SidebarMenuSub.displayName = 'SidebarMenuSub';
 
-export const SidebarMenuSubItem = React.forwardRef<
-  HTMLLIElement,
-  React.ComponentProps<'li'>
->(({ ...props }, ref) => <li ref={ref} {...props} />);
+export const SidebarMenuSubItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(
+  ({ ...props }, ref) => <li ref={ref} {...props} />,
+);
 SidebarMenuSubItem.displayName = 'SidebarMenuSubItem';
 
 export const SidebarMenuSubButton = React.forwardRef<

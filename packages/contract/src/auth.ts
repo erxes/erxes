@@ -78,20 +78,40 @@ export const authContract = {
     .route({
       method: 'POST',
       path: '/auth/password-reset',
-      summary: 'Email a password reset link. Always answers ok: it never tells whether an email has an account',
+      summary:
+        'Email a password reset link. Always answers ok: it never tells whether an email has an account',
     })
-    .input(z.object({ email: z.string().trim().email().max(254), subdomain: z.string().trim().max(63).optional() }))
+    .input(
+      z.object({
+        email: z.string().trim().email().max(254),
+        subdomain: z.string().trim().max(63).optional(),
+      }),
+    )
     .output(z.object({ ok: z.literal(true) })),
   resetPassword: oc
-    .route({ method: 'POST', path: '/auth/password-reset/confirm', summary: "Set a new password with the emailed link's token; signs in" })
+    .route({
+      method: 'POST',
+      path: '/auth/password-reset/confirm',
+      summary: "Set a new password with the emailed link's token; signs in",
+    })
     .input(z.object({ token: z.string().min(10).max(300), password: NewPassword }))
     .output(Session),
   invitation: oc
-    .route({ method: 'GET', path: '/auth/invitation', summary: "What an invitation link is for (organisation, email), to show before accepting" })
+    .route({
+      method: 'GET',
+      path: '/auth/invitation',
+      summary: 'What an invitation link is for (organisation, email), to show before accepting',
+    })
     .input(z.object({ token: z.string().min(10).max(300) }))
-    .output(z.object({ organization: z.string(), email: z.string(), inviter: z.string().nullable() })),
+    .output(
+      z.object({ organization: z.string(), email: z.string(), inviter: z.string().nullable() }),
+    ),
   acceptInvitation: oc
-    .route({ method: 'POST', path: '/auth/invitation/accept', summary: 'Accept an invitation: choose a password; signs in' })
+    .route({
+      method: 'POST',
+      path: '/auth/invitation/accept',
+      summary: 'Accept an invitation: choose a password; signs in',
+    })
     .input(
       z.object({
         token: z.string().min(10).max(300),
@@ -102,43 +122,90 @@ export const authContract = {
     )
     .output(Session),
   signInTwoFactor: oc
-    .route({ method: 'POST', path: '/auth/sign-in/2fa', summary: "The sign-in's second step: an authenticator code, or a recovery code" })
+    .route({
+      method: 'POST',
+      path: '/auth/sign-in/2fa',
+      summary: "The sign-in's second step: an authenticator code, or a recovery code",
+    })
     .input(
       z
         .object({
           challenge: z.string().min(10).max(2000),
-          code: z.string().trim().regex(/^\d{6}$/).optional(),
+          code: z
+            .string()
+            .trim()
+            .regex(/^\d{6}$/)
+            .optional(),
           recoveryCode: z.string().trim().min(8).max(40).optional(),
         })
         .refine((value) => Boolean(value.code || value.recoveryCode), 'a code or a recovery code'),
     )
     .output(Session),
   twoFactorSetup: oc
-    .route({ method: 'POST', path: '/auth/2fa/setup', summary: 'Start turning on two-factor sign-in: a new secret for an authenticator app' })
+    .route({
+      method: 'POST',
+      path: '/auth/2fa/setup',
+      summary: 'Start turning on two-factor sign-in: a new secret for an authenticator app',
+    })
     .output(z.object({ secret: z.string(), uri: z.string() })),
   twoFactorEnable: oc
-    .route({ method: 'POST', path: '/auth/2fa/enable', summary: 'Confirm with a code from the app; returns recovery codes (shown once)' })
-    .input(z.object({ code: z.string().trim().regex(/^\d{6}$/) }))
+    .route({
+      method: 'POST',
+      path: '/auth/2fa/enable',
+      summary: 'Confirm with a code from the app; returns recovery codes (shown once)',
+    })
+    .input(
+      z.object({
+        code: z
+          .string()
+          .trim()
+          .regex(/^\d{6}$/),
+      }),
+    )
     .output(z.object({ recoveryCodes: z.array(z.string()) })),
   twoFactorDisable: oc
-    .route({ method: 'POST', path: '/auth/2fa/disable', summary: 'Turn two-factor sign-in off (needs the password)' })
+    .route({
+      method: 'POST',
+      path: '/auth/2fa/disable',
+      summary: 'Turn two-factor sign-in off (needs the password)',
+    })
     .input(z.object({ password: z.string().min(1).max(200) }))
     .output(z.object({ ok: z.literal(true) })),
   twoFactorRecoveryCodes: oc
-    .route({ method: 'POST', path: '/auth/2fa/recovery-codes', summary: 'New recovery codes (the old ones stop working; needs the password)' })
+    .route({
+      method: 'POST',
+      path: '/auth/2fa/recovery-codes',
+      summary: 'New recovery codes (the old ones stop working; needs the password)',
+    })
     .input(z.object({ password: z.string().min(1).max(200) }))
     .output(z.object({ recoveryCodes: z.array(z.string()) })),
   signOutEverywhere: oc
-    .route({ method: 'POST', path: '/auth/sign-out-everywhere', summary: 'End every session of the signed-in member, on every device' })
+    .route({
+      method: 'POST',
+      path: '/auth/sign-out-everywhere',
+      summary: 'End every session of the signed-in member, on every device',
+    })
     .output(z.object({ ok: z.literal(true) })),
   signOut: oc
-    .route({ method: 'POST', path: '/auth/sign-out', summary: 'Sign out; clears the session cookie' })
+    .route({
+      method: 'POST',
+      path: '/auth/sign-out',
+      summary: 'Sign out; clears the session cookie',
+    })
     .output(z.object({ ok: z.literal(true) })),
   me: oc
-    .route({ method: 'GET', path: '/auth/me', summary: 'The signed-in team member and their organisation' })
+    .route({
+      method: 'GET',
+      path: '/auth/me',
+      summary: 'The signed-in team member and their organisation',
+    })
     .output(Session),
   onboarded: oc
-    .route({ method: 'POST', path: '/auth/onboarded', summary: 'The signed-in member finished the welcome steps (on every browser)' })
+    .route({
+      method: 'POST',
+      path: '/auth/onboarded',
+      summary: 'The signed-in member finished the welcome steps (on every browser)',
+    })
     .input(
       z
         .object({
@@ -154,12 +221,17 @@ export const authContract = {
     .route({
       method: 'POST',
       path: '/auth/password',
-      summary: 'Change my own password. 400 WRONG_PASSWORD when the current one is wrong; SAME_PASSWORD when unchanged',
+      summary:
+        'Change my own password. 400 WRONG_PASSWORD when the current one is wrong; SAME_PASSWORD when unchanged',
     })
     .input(z.object({ currentPassword: z.string().min(1).max(200), newPassword: NewPassword }))
     .output(z.object({ ok: z.literal(true) })),
   signIns: oc
-    .route({ method: 'GET', path: '/auth/sign-ins', summary: 'My recent sign-ins and failed attempts, newest first' })
+    .route({
+      method: 'GET',
+      path: '/auth/sign-ins',
+      summary: 'My recent sign-ins and failed attempts, newest first',
+    })
     .output(
       z.object({
         data: z.array(

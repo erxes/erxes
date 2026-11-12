@@ -6,7 +6,9 @@ import { isMovedSettingsPath } from '~/modules/contacts/settings/paths';
 import { appOfPath, type NavApp, SETTINGS_APP } from './apps';
 
 /** App ids open as tabs, in order. */
-const openTabsState = atomWithStorage<string[]>('core-tab:open', [], undefined, { getOnInit: true });
+const openTabsState = atomWithStorage<string[]>('core-tab:open', [], undefined, {
+  getOnInit: true,
+});
 
 /** Where each app was last, so switching back returns there. */
 const lastLocationState = atomWithStorage<Record<string, string>>('core-tab:last', {}, undefined, {
@@ -37,7 +39,9 @@ export const useAppTabs = (apps: NavApp[]) => {
     );
 
     if (routeApp.id !== SETTINGS_APP.id) {
-      setOpenIds((previous) => (previous.includes(routeApp.id) ? previous : [...previous, routeApp.id]));
+      setOpenIds((previous) =>
+        previous.includes(routeApp.id) ? previous : [...previous, routeApp.id],
+      );
     }
   }, [routeApp, pathname, search, setLastLocation, setOpenIds]);
 

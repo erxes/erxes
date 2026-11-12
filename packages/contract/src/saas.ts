@@ -30,7 +30,12 @@ export const SaasWorkspace = z.object({
     name: z.string().trim().min(1).max(100),
   }),
   /** The owner, when the workspace is new here (signs in through erxes.io's hand-off). */
-  owner: z.object({ email: z.string().trim().email().max(254), fullName: z.string().trim().max(200).optional() }).optional(),
+  owner: z
+    .object({
+      email: z.string().trim().email().max(254),
+      fullName: z.string().trim().max(200).optional(),
+    })
+    .optional(),
   status: OrganizationStatus.optional(),
 });
 export type SaasWorkspace = z.infer<typeof SaasWorkspace>;
@@ -70,9 +75,17 @@ export type PluginPlan = z.infer<typeof PluginPlan>;
 
 export const saasContract = {
   plan: oc
-    .route({ method: 'GET', path: '/plan', summary: "The organisation's subscription: each plugin's tier, status and access" })
+    .route({
+      method: 'GET',
+      path: '/plan',
+      summary: "The organisation's subscription: each plugin's tier, status and access",
+    })
     .output(SubscriptionInfo),
   pluginPlan: oc
-    .route({ method: 'GET', path: '/plan/plugin', summary: 'For the calling plugin: its tier and what it may do (read-only, off)' })
+    .route({
+      method: 'GET',
+      path: '/plan/plugin',
+      summary: 'For the calling plugin: its tier and what it may do (read-only, off)',
+    })
     .output(PluginPlan),
 };

@@ -1,4 +1,11 @@
-import { type Automation, AutomationDefinition, type AutomationRun, type AutomationStep, type CursorQuery, type RunStep } from '@erxes/core-contract';
+import {
+  type Automation,
+  AutomationDefinition,
+  type AutomationRun,
+  type AutomationStep,
+  type CursorQuery,
+  type RunStep,
+} from '@erxes/core-contract';
 import {
   automationRuns,
   automationRunSteps,
@@ -18,7 +25,16 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
 import { actionCatalog } from './actions';
 import { evaluateGroup } from './conditions';
-import { cancelRun, type Cursor, definitionOf, nextCursor, retryRun, splitPath, stepAt, subjectOf } from './engine';
+import {
+  cancelRun,
+  type Cursor,
+  definitionOf,
+  nextCursor,
+  retryRun,
+  splitPath,
+  stepAt,
+  subjectOf,
+} from './engine';
 import { render } from './templates';
 import { firstRunAt, startNow, triggerKey } from './triggers';
 
@@ -29,9 +45,21 @@ const statsOf = async (client: Db, orgId: string, ids: string[]) => {
   if (!ids.length) return new Map<string, Automation['stats']>();
 
   const rows = await client
-    .select({ automationId: automationRuns.automationId, status: automationRuns.status, count: sql<number>`count(*)::int` })
+    .select({
+      automationId: automationRuns.automationId,
+      status: automationRuns.status,
+      count: sql<number>`count(*)::int`,
+    })
     .from(automationRuns)
-    .where(and(eq(automationRuns.orgId, orgId), sql`${automationRuns.automationId} in (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})`))
+    .where(
+      and(
+        eq(automationRuns.orgId, orgId),
+        sql`${automationRuns.automationId} in (${sql.join(
+          ids.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      ),
+    )
     .groupBy(automationRuns.automationId, automationRuns.status);
   const stats = new Map<string, Automation['stats']>();
 
@@ -66,7 +94,10 @@ const toRunDto = (row: RunRow): AutomationRun => ({
   version: row.version,
   eventId: row.eventId,
   eventType: row.eventType,
-  subject: row.subjectType && row.subjectId ? { type: row.subjectType as 'customer' | 'company', id: row.subjectId } : null,
+  subject:
+    row.subjectType && row.subjectId
+      ? { type: row.subjectType as 'customer' | 'company', id: row.subjectId }
+      : null,
   status: row.status,
   goalReached: Boolean(row.goalReachedAt),
   error: row.error,
@@ -80,13 +111,25 @@ const installedPlugins = (client: Db, orgId: string) =>
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(and(eq(pluginInstallations.orgId, orgId), eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
+    .where(
+      and(
+        eq(pluginInstallations.orgId, orgId),
+        eq(pluginInstallations.status, 'active'),
+        eq(plugins.status, 'active'),
+      ),
+    );
 
 export const automationCatalog = async (client: Db, orgId: string) => {
   const triggers = await eventTypeCatalog(client, orgId);
 
   return {
-    triggers: triggers.map((item) => ({ type: item.type, label: item.label, description: item.description ?? null, source: item.source, subject: item.subject })),
+    triggers: triggers.map((item) => ({
+      type: item.type,
+      label: item.label,
+      description: item.description ?? null,
+      source: item.source,
+      subject: item.subject,
+    })),
     actions: actionCatalog(await installedPlugins(client, orgId)),
   };
 };
@@ -107,10 +150,14 @@ const walk = (steps: AutomationStep[], visit: (step: AutomationStep) => void) =>
 };
 
 /** Which record runs are about, given the trigger (null: none). */
-const subjectOfTrigger = (definition: AutomationDefinition, triggers: { type: string; subject: 'customer' | 'company' | null }[]) => {
+const subjectOfTrigger = (
+  definition: AutomationDefinition,
+  triggers: { type: string; subject: 'customer' | 'company' | null }[],
+) => {
   const trigger = definition.trigger;
 
-  if (trigger.kind === 'event') return triggers.find((item) => item.type === trigger.event)?.subject ?? null;
+  if (trigger.kind === 'event')
+    return triggers.find((item) => item.type === trigger.event)?.subject ?? null;
   if (trigger.kind === 'date') return trigger.subject;
 
   return trigger.audience?.type ?? null;
@@ -122,7 +169,11 @@ const subjectOfTrigger = (definition: AutomationDefinition, triggers: { type: st
  * customer when the event isn't about one, delays without a length, repeated
  * step ids.
  */
-export const checkDefinition = async (client: Db, orgId: string, definition: AutomationDefinition) => {
+export const checkDefinition = async (
+  client: Db,
+  orgId: string,
+  definition: AutomationDefinition,
+) => {
   const catalog = await automationCatalog(client, orgId);
   const trigger = definition.trigger;
   const subject = subjectOfTrigger(definition, catalog.triggers);
@@ -134,7 +185,11 @@ export const checkDefinition = async (client: Db, orgId: string, definition: Aut
   }
 
   if (trigger.kind === 'date' && trigger.field !== 'birthDate') {
-    const [field] = await client.select({ type: fields.type }).from(fields).where(and(eq(fields.orgId, orgId), eq(fields.id, trigger.field))).limit(1);
+    const [field] = await client
+      .select({ type: fields.type })
+      .from(fields)
+      .where(and(eq(fields.orgId, orgId), eq(fields.id, trigger.field)))
+      .limit(1);
 
     if (field?.type !== 'date') problems.push('The date trigger needs a date field');
   }
@@ -143,11 +198,16 @@ export const checkDefinition = async (client: Db, orgId: string, definition: Aut
     if (ids.has(step.id)) problems.push(`Two steps share the id ${step.id}`);
     ids.add(step.id);
 
-    if (step.type === 'delay' && !step.until && !step.amount) problems.push(`Step ${step.id}: how long to wait?`);
+    if (step.type === 'delay' && !step.until && !step.amount)
+      problems.push(`Step ${step.id}: how long to wait?`);
 
     if (step.type === 'wait_for') {
-      if (!subject) problems.push(`Step ${step.id} waits for an event about the record, but runs aren't about one`);
-      if (!catalog.triggers.some((item) => item.type === step.event)) problems.push(`Step ${step.id}: unknown event ${step.event}`);
+      if (!subject)
+        problems.push(
+          `Step ${step.id} waits for an event about the record, but runs aren't about one`,
+        );
+      if (!catalog.triggers.some((item) => item.type === step.event))
+        problems.push(`Step ${step.id}: unknown event ${step.event}`);
     }
 
     if (step.type !== 'action') return;
@@ -162,17 +222,27 @@ export const checkDefinition = async (client: Db, orgId: string, definition: Aut
     for (const field of action.fields) {
       const value = step.input[field.key];
 
-      if (field.required && (value === undefined || value === null || value === '' || (Array.isArray(value) && !value.length))) {
+      if (
+        field.required &&
+        (value === undefined ||
+          value === null ||
+          value === '' ||
+          (Array.isArray(value) && !value.length))
+      ) {
         problems.push(`Step ${step.id} (${action.label}): ${field.label} is required`);
       }
     }
 
     if (action.subject && action.subject !== 'any' && subject && action.subject !== subject) {
-      problems.push(`Step ${step.id} (${action.label}) needs a ${action.subject}, but runs are about a ${subject}`);
+      problems.push(
+        `Step ${step.id} (${action.label}) needs a ${action.subject}, but runs are about a ${subject}`,
+      );
     }
 
     if (action.subject && !subject) {
-      problems.push(`Step ${step.id} (${action.label}) needs a customer or company, but runs aren't about one`);
+      problems.push(
+        `Step ${step.id} (${action.label}) needs a customer or company, but runs aren't about one`,
+      );
     }
   });
 
@@ -189,14 +259,23 @@ export const checkDefinition = async (client: Db, orgId: string, definition: Aut
 };
 
 const findAutomation = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client.select().from(automations).where(and(eq(automations.orgId, orgId), eq(automations.id, id))).limit(1);
+  const [row] = await client
+    .select()
+    .from(automations)
+    .where(and(eq(automations.orgId, orgId), eq(automations.id, id)))
+    .limit(1);
 
   if (!row) throw notFound('Automation');
 
   return row;
 };
 
-const publish = async (client: Db, actor: Actor, row: AutomationRow, definition: AutomationDefinition) => {
+const publish = async (
+  client: Db,
+  actor: Actor,
+  row: AutomationRow,
+  definition: AutomationDefinition,
+) => {
   const version = (row.activeVersion ?? 0) + 1;
 
   await client.insert(automationVersions).values({
@@ -210,13 +289,26 @@ const publish = async (client: Db, actor: Actor, row: AutomationRow, definition:
   return version;
 };
 
-export const listAutomations = async (client: Db, actor: Actor, query: { status?: 'draft' | 'active' | 'paused' }) => {
+export const listAutomations = async (
+  client: Db,
+  actor: Actor,
+  query: { status?: 'draft' | 'active' | 'paused' },
+) => {
   const rows = await client
     .select()
     .from(automations)
-    .where(and(eq(automations.orgId, actor.orgId), query.status ? eq(automations.status, query.status) : undefined))
+    .where(
+      and(
+        eq(automations.orgId, actor.orgId),
+        query.status ? eq(automations.status, query.status) : undefined,
+      ),
+    )
     .orderBy(desc(automations.updatedAt));
-  const stats = await statsOf(client, actor.orgId, rows.map((row) => row.id));
+  const stats = await statsOf(
+    client,
+    actor.orgId,
+    rows.map((row) => row.id),
+  );
 
   return { data: rows.map((row) => toAutomationDto(row, stats.get(row.id))) };
 };
@@ -245,7 +337,12 @@ export const createAutomation = async (
     })
     .returning();
 
-  await recordAudit(client, userCaller(actor), { action: 'automation.created', targetType: 'automation', targetId: row!.id, targetLabel: row!.name });
+  await recordAudit(client, userCaller(actor), {
+    action: 'automation.created',
+    targetType: 'automation',
+    targetId: row!.id,
+    targetLabel: row!.name,
+  });
 
   return toAutomationDto(row!);
 };
@@ -271,10 +368,15 @@ export const updateAutomation = async (
       ...(input.name !== undefined ? { name: input.name } : {}),
       ...(input.description !== undefined ? { description: input.description } : {}),
       ...(input.definition
-        ? { definition: input.definition as unknown as Record<string, unknown>, triggerEvent: triggerKey(input.definition) }
+        ? {
+            definition: input.definition as unknown as Record<string, unknown>,
+            triggerEvent: triggerKey(input.definition),
+          }
         : {}),
       activeVersion,
-      ...(input.definition && before.status === 'active' ? { activatedBy: actor.userId, nextRunAt: firstRunAt(input.definition) } : {}),
+      ...(input.definition && before.status === 'active'
+        ? { activatedBy: actor.userId, nextRunAt: firstRunAt(input.definition) }
+        : {}),
       updatedAt: sql`now()`,
     })
     .where(eq(automations.id, id))
@@ -285,7 +387,10 @@ export const updateAutomation = async (
     targetType: 'automation',
     targetId: id,
     targetLabel: row!.name,
-    metadata: input.definition && before.status === 'active' ? { publishedVersion: activeVersion } : undefined,
+    metadata:
+      input.definition && before.status === 'active'
+        ? { publishedVersion: activeVersion }
+        : undefined,
   });
 
   return getAutomation(client, actor, id);
@@ -302,7 +407,13 @@ export const activateAutomation = async (client: Db, actor: Actor, id: string) =
 
   await client
     .update(automations)
-    .set({ status: 'active', activeVersion: version, activatedBy: actor.userId, nextRunAt: firstRunAt(definition), updatedAt: sql`now()` })
+    .set({
+      status: 'active',
+      activeVersion: version,
+      activatedBy: actor.userId,
+      nextRunAt: firstRunAt(definition),
+      updatedAt: sql`now()`,
+    })
     .where(eq(automations.id, id));
   await recordAudit(client, userCaller(actor), {
     action: 'automation.activated',
@@ -319,8 +430,16 @@ export const activateAutomation = async (client: Db, actor: Actor, id: string) =
 export const pauseAutomation = async (client: Db, actor: Actor, id: string) => {
   const row = await findAutomation(client, actor.orgId, id);
 
-  await client.update(automations).set({ status: 'paused', nextRunAt: null, updatedAt: sql`now()` }).where(eq(automations.id, id));
-  await recordAudit(client, userCaller(actor), { action: 'automation.paused', targetType: 'automation', targetId: id, targetLabel: row.name });
+  await client
+    .update(automations)
+    .set({ status: 'paused', nextRunAt: null, updatedAt: sql`now()` })
+    .where(eq(automations.id, id));
+  await recordAudit(client, userCaller(actor), {
+    action: 'automation.paused',
+    targetType: 'automation',
+    targetId: id,
+    targetLabel: row.name,
+  });
 
   return getAutomation(client, actor, id);
 };
@@ -329,7 +448,12 @@ export const removeAutomation = async (client: Db, actor: Actor, id: string) => 
   const row = await findAutomation(client, actor.orgId, id);
 
   await client.delete(automations).where(eq(automations.id, id));
-  await recordAudit(client, userCaller(actor), { action: 'automation.deleted', targetType: 'automation', targetId: id, targetLabel: row.name });
+  await recordAudit(client, userCaller(actor), {
+    action: 'automation.deleted',
+    targetType: 'automation',
+    targetId: id,
+    targetLabel: row.name,
+  });
 
   return { ok: true as const };
 };
@@ -337,7 +461,10 @@ export const removeAutomation = async (client: Db, actor: Actor, id: string) => 
 export const listRuns = async (
   client: Db,
   actor: Actor,
-  query: CursorQuery & { id: string; status?: 'running' | 'waiting' | 'succeeded' | 'failed' | 'cancelled' },
+  query: CursorQuery & {
+    id: string;
+    status?: 'running' | 'waiting' | 'succeeded' | 'failed' | 'cancelled';
+  },
 ) => {
   await findAutomation(client, actor.orgId, query.id);
 
@@ -365,7 +492,11 @@ export const listRuns = async (
 };
 
 const findRun = async (client: Db, orgId: string, runId: string) => {
-  const [row] = await client.select().from(automationRuns).where(and(eq(automationRuns.orgId, orgId), eq(automationRuns.id, runId))).limit(1);
+  const [row] = await client
+    .select()
+    .from(automationRuns)
+    .where(and(eq(automationRuns.orgId, orgId), eq(automationRuns.id, runId)))
+    .limit(1);
 
   if (!row) throw notFound('Run');
 
@@ -382,20 +513,18 @@ export const getRun = async (client: Db, actor: Actor, runId: string) => {
 
   return {
     run: toRunDto(run),
-    steps: steps.map(
-      (step): RunStep => ({
-        id: step.id,
-        stepId: step.stepId,
-        type: step.type,
-        status: step.status,
-        input: step.input,
-        output: step.output,
-        error: step.error,
-        attempt: step.attempt,
-        startedAt: step.startedAt.toISOString(),
-        finishedAt: step.finishedAt.toISOString(),
-      }),
-    ),
+    steps: steps.map((step): RunStep => ({
+      id: step.id,
+      stepId: step.stepId,
+      type: step.type,
+      status: step.status,
+      input: step.input,
+      output: step.output,
+      error: step.error,
+      attempt: step.attempt,
+      startedAt: step.startedAt.toISOString(),
+      finishedAt: step.finishedAt.toISOString(),
+    })),
   };
 };
 
@@ -414,17 +543,24 @@ export const cancelAutomationRun = async (client: Db, actor: Actor, runId: strin
 
   const run = await cancelRun(client, actor.orgId, runId);
 
-  if (!run) throw new HttpError(409, 'NOT_RUNNING', 'Only a running or waiting run can be cancelled');
+  if (!run)
+    throw new HttpError(409, 'NOT_RUNNING', 'Only a running or waiting run can be cancelled');
 
   return toRunDto(run);
 };
 
 // ─── Starting, testing, numbers, versions ──────────────────────────────────
 
-export const startAutomation = async (client: Db, actor: Actor, id: string, subjects?: string[]) => {
+export const startAutomation = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  subjects?: string[],
+) => {
   const row = await findAutomation(client, actor.orgId, id);
 
-  if (row.status !== 'active' || !row.activeVersion) throw new HttpError(409, 'NOT_ACTIVE', 'Turn the automation on first');
+  if (row.status !== 'active' || !row.activeVersion)
+    throw new HttpError(409, 'NOT_ACTIVE', 'Turn the automation on first');
 
   const definition = await definitionOf(client, id, row.activeVersion);
 
@@ -452,24 +588,47 @@ export const testAutomation = async (
   client: Db,
   actor: Actor,
   id: string,
-  input: { subject?: { type: 'customer' | 'company'; id: string }; payload?: Record<string, unknown>; assumeEventHappens: boolean },
+  input: {
+    subject?: { type: 'customer' | 'company'; id: string };
+    payload?: Record<string, unknown>;
+    assumeEventHappens: boolean;
+  },
 ) => {
   const row = await findAutomation(client, actor.orgId, id);
   const definition = AutomationDefinition.parse(row.definition);
   const catalog = await automationCatalog(client, actor.orgId);
   const trigger = definition.trigger;
-  const subject = input.subject ? await subjectOf(client, actor.orgId, input.subject.type, input.subject.id) : null;
+  const subject = input.subject
+    ? await subjectOf(client, actor.orgId, input.subject.type, input.subject.id)
+    : null;
 
-  if (input.subject && !subject) throw notFound(input.subject.type === 'customer' ? 'Customer' : 'Company');
+  if (input.subject && !subject)
+    throw notFound(input.subject.type === 'customer' ? 'Customer' : 'Company');
 
   const eventType = trigger.kind === 'event' ? trigger.event : trigger.kind;
   const context: Record<string, unknown> = {
-    event: { type: eventType, occurredAt: new Date().toISOString(), payload: input.payload ?? {}, subject: input.subject ?? null },
+    event: {
+      type: eventType,
+      occurredAt: new Date().toISOString(),
+      payload: input.payload ?? {},
+      subject: input.subject ?? null,
+    },
     subject,
     steps: {},
   };
-  const triggerConditions = trigger.kind === 'event' || trigger.kind === 'date' ? trigger.conditions : 'audience' in trigger ? trigger.audience?.conditions : undefined;
-  const trace: { stepId: string; type: string; outcome: string; input: unknown; problem: string | null }[] = [];
+  const triggerConditions =
+    trigger.kind === 'event' || trigger.kind === 'date'
+      ? trigger.conditions
+      : 'audience' in trigger
+        ? trigger.audience?.conditions
+        : undefined;
+  const trace: {
+    stepId: string;
+    type: string;
+    outcome: string;
+    input: unknown;
+    problem: string | null;
+  }[] = [];
   const goalMetAtStart = Boolean(definition.goal && evaluateGroup(definition.goal, context));
   let cursor: Cursor | null = [0];
 
@@ -479,7 +638,13 @@ export const testAutomation = async (
     if (!step) break;
 
     if (definition.goal && evaluateGroup(definition.goal, context)) {
-      trace.push({ stepId: step.id, type: 'goal', outcome: 'The goal is met: the record leaves here', input: null, problem: null });
+      trace.push({
+        stepId: step.id,
+        type: 'goal',
+        outcome: 'The goal is met: the record leaves here',
+        input: null,
+        problem: null,
+      });
       break;
     }
 
@@ -500,9 +665,12 @@ export const testAutomation = async (
 
       outcome = `Would run “${action?.label ?? step.action}”`;
       if (!action) problem = `Unknown action ${step.action}`;
-      else if (action.subject && !subject) problem = 'Needs a customer or company: pick one to test with';
+      else if (action.subject && !subject)
+        problem = 'Needs a customer or company: pick one to test with';
     } else if (step.type === 'delay') {
-      outcome = step.until ? `Would wait until ${String(render(step.until, context))}` : `Would wait ${step.amount} ${step.unit}`;
+      outcome = step.until
+        ? `Would wait until ${String(render(step.until, context))}`
+        : `Would wait ${step.amount} ${step.unit}`;
     } else if (step.type === 'wait_for') {
       outcome = input.assumeEventHappens
         ? `Would wait for ${step.event} (up to ${step.amount} ${step.unit}); assumed it happens`
@@ -511,14 +679,19 @@ export const testAutomation = async (
     } else if (step.type === 'branch') {
       const matched = evaluateGroup(step.conditions, context);
 
-      outcome = matched ? 'Conditions hold: “if it matches” path' : 'Conditions don’t hold: “otherwise” path';
+      outcome = matched
+        ? 'Conditions hold: “if it matches” path'
+        : 'Conditions don’t hold: “otherwise” path';
       output = { matched };
       next = [...cursor, matched ? 'then' : 'else', 0];
       if (!stepAt(definition.steps, next)) next = nextCursor(definition.steps, cursor);
     } else if (step.type === 'switch') {
       const chosen = step.cases.findIndex((item) => evaluateGroup(item.conditions, context));
 
-      outcome = chosen >= 0 ? `Case ${chosen + 1}${step.cases[chosen]!.label ? ` (${step.cases[chosen]!.label})` : ''}` : 'Otherwise';
+      outcome =
+        chosen >= 0
+          ? `Case ${chosen + 1}${step.cases[chosen]!.label ? ` (${step.cases[chosen]!.label})` : ''}`
+          : 'Otherwise';
       output = { case: chosen >= 0 ? chosen : 'otherwise' };
       next = [...cursor, chosen >= 0 ? `case:${chosen}` : 'otherwise', 0];
       if (!stepAt(definition.steps, next)) next = nextCursor(definition.steps, cursor);
@@ -535,7 +708,13 @@ export const testAutomation = async (
     }
 
     context.steps = { ...(context.steps as Record<string, unknown>), [step.id]: { output } };
-    trace.push({ stepId: step.id, type: step.type === 'action' ? step.action : step.type, outcome, input: rendered, problem });
+    trace.push({
+      stepId: step.id,
+      type: step.type === 'action' ? step.action : step.type,
+      outcome,
+      input: rendered,
+      problem,
+    });
     cursor = next;
   }
 
@@ -555,7 +734,13 @@ export const automationStats = async (client: Db, actor: Actor, id: string) => {
       goalReached: sql<number>`count(*) filter (where ${automationRuns.goalReachedAt} is not null)::int`,
     })
     .from(automationRuns)
-    .where(and(eq(automationRuns.orgId, actor.orgId), eq(automationRuns.automationId, id), sql`${automationRuns.startedAt} > ${since}`));
+    .where(
+      and(
+        eq(automationRuns.orgId, actor.orgId),
+        eq(automationRuns.automationId, id),
+        sql`${automationRuns.startedAt} > ${since}`,
+      ),
+    );
   const steps = await client
     .select({
       stepId: automationRunSteps.stepId,
@@ -565,7 +750,13 @@ export const automationStats = async (client: Db, actor: Actor, id: string) => {
     })
     .from(automationRunSteps)
     .innerJoin(automationRuns, eq(automationRuns.id, automationRunSteps.runId))
-    .where(and(eq(automationRuns.orgId, actor.orgId), eq(automationRuns.automationId, id), sql`${automationRuns.startedAt} > ${since}`))
+    .where(
+      and(
+        eq(automationRuns.orgId, actor.orgId),
+        eq(automationRuns.automationId, id),
+        sql`${automationRuns.startedAt} > ${since}`,
+      ),
+    )
     .groupBy(automationRunSteps.stepId);
 
   return {
@@ -599,16 +790,28 @@ export const restoreVersion = async (client: Db, actor: Actor, id: string, versi
   const [row] = await client
     .select()
     .from(automationVersions)
-    .where(and(eq(automationVersions.orgId, actor.orgId), eq(automationVersions.automationId, id), eq(automationVersions.version, version)))
+    .where(
+      and(
+        eq(automationVersions.orgId, actor.orgId),
+        eq(automationVersions.automationId, id),
+        eq(automationVersions.version, version),
+      ),
+    )
     .limit(1);
 
   if (!row) throw notFound('Version');
 
-  return updateAutomation(client, actor, id, { definition: AutomationDefinition.parse(row.definition) });
+  return updateAutomation(client, actor, id, {
+    definition: AutomationDefinition.parse(row.definition),
+  });
 };
 
 /** Built-in fields of customers and companies, and the organisation's custom fields. */
-export const automationFields = async (client: Db, actor: Actor, subject?: 'customer' | 'company') => {
+export const automationFields = async (
+  client: Db,
+  actor: Actor,
+  subject?: 'customer' | 'company',
+) => {
   const common = [
     { path: 'event.type', label: 'Event type', type: 'text' as const },
     { path: 'event.actor.type', label: 'Who did it (user, plugin, system)', type: 'text' as const },
@@ -619,7 +822,12 @@ export const automationFields = async (client: Db, actor: Actor, subject?: 'cust
     { path: 'subject.lastName', label: 'Last name', type: 'text' as const },
     { path: 'subject.primaryEmail', label: 'Email', type: 'text' as const },
     { path: 'subject.primaryPhone', label: 'Phone', type: 'text' as const },
-    { path: 'subject.state', label: 'State', type: 'select' as const, options: ['lead', 'customer'] },
+    {
+      path: 'subject.state',
+      label: 'State',
+      type: 'select' as const,
+      options: ['lead', 'customer'],
+    },
     { path: 'subject.ownerId', label: 'Owner', type: 'member' as const },
     { path: 'subject.tagIds', label: 'Tags', type: 'tags' as const },
     { path: 'subject.birthDate', label: 'Birthday', type: 'date' as const },
@@ -632,21 +840,45 @@ export const automationFields = async (client: Db, actor: Actor, subject?: 'cust
     { path: 'subject.createdAt', label: 'Created', type: 'date' as const },
   ];
   const custom = await client
-    .select({ id: fields.id, label: fields.label, type: fields.type, options: fields.options, contentType: fields.contentType })
+    .select({
+      id: fields.id,
+      label: fields.label,
+      type: fields.type,
+      options: fields.options,
+      contentType: fields.contentType,
+    })
     .from(fields)
-    .where(and(eq(fields.orgId, actor.orgId), subject ? eq(fields.contentType, subject) : undefined));
+    .where(
+      and(eq(fields.orgId, actor.orgId), subject ? eq(fields.contentType, subject) : undefined),
+    );
   const typeOf = (type: string) =>
-    type === 'number' ? 'number' : type === 'date' ? 'date' : type === 'boolean' ? 'boolean' : type.includes('select') || type === 'radio' ? 'select' : 'text';
+    type === 'number'
+      ? 'number'
+      : type === 'date'
+        ? 'date'
+        : type === 'boolean'
+          ? 'boolean'
+          : type.includes('select') || type === 'radio'
+            ? 'select'
+            : 'text';
 
   return {
     data: [
       ...common,
-      ...(subject === 'company' ? company : subject === 'customer' ? customer : [...customer, ...company.filter((item) => item.path === 'subject.primaryName')]),
+      ...(subject === 'company'
+        ? company
+        : subject === 'customer'
+          ? customer
+          : [...customer, ...company.filter((item) => item.path === 'subject.primaryName')]),
       ...custom.map((field) => ({
         path: `subject.customFields.${field.id}`,
         label: `${field.label} (custom)`,
         type: typeOf(field.type) as 'text',
-        options: Array.isArray(field.options) ? (field.options as { label?: string; value?: string }[]).map((option) => String(option.value ?? option.label ?? option)) : undefined,
+        options: Array.isArray(field.options)
+          ? (field.options as { label?: string; value?: string }[]).map((option) =>
+              String(option.value ?? option.label ?? option),
+            )
+          : undefined,
       })),
     ],
   };

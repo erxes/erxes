@@ -23,16 +23,13 @@ export const RecordTableCursorProvider = ({
   sessionKey?: string;
   offset?: number;
 }) => {
-  const {
-    scrollRef,
-    isFetchBackward,
-    setIsFetchBackward,
-    distanceFromBottomRef,
-  } = useCursorScroll({
-    dataLength,
-    hasPreviousPage,
-    offset,
-  });
+  const { scrollRef, isFetchBackward, setIsFetchBackward, distanceFromBottomRef } = useCursorScroll(
+    {
+      dataLength,
+      hasPreviousPage,
+      offset,
+    },
+  );
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleScroll = () => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -42,10 +39,7 @@ export const RecordTableCursorProvider = ({
     }
     debounceTimer.current = setTimeout(() => {
       try {
-        sessionStorage.setItem(
-          `${sessionKey}_scroll`,
-          String(scrollRef.current?.scrollTop),
-        );
+        sessionStorage.setItem(`${sessionKey}_scroll`, String(scrollRef.current?.scrollTop));
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -89,13 +83,8 @@ export const RecordTableBackwardSkeleton = ({
 }: {
   handleFetchMore: (params: { direction: EnumCursorDirection }) => void;
 }) => {
-  const {
-    setIsFetchBackward,
-    scrollRef,
-    distanceFromBottomRef,
-    hasPreviousPage,
-    loading,
-  } = useRecordTableCursorContext();
+  const { setIsFetchBackward, scrollRef, distanceFromBottomRef, hasPreviousPage, loading } =
+    useRecordTableCursorContext();
 
   if (!hasPreviousPage || loading) {
     return null;
@@ -133,11 +122,5 @@ export const RecordTableForwardSkeleton = ({
     handleFetchMore({ direction: EnumCursorDirection.FORWARD });
   };
 
-  return (
-    <RecordTable.RowSkeleton
-      rows={1}
-      handleInView={handleInView}
-      root={scrollRef.current}
-    />
-  );
+  return <RecordTable.RowSkeleton rows={1} handleInView={handleInView} root={scrollRef.current} />;
 };

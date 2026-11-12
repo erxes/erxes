@@ -13,44 +13,39 @@ export const SidebarInput = React.forwardRef<
     <Input
       ref={ref}
       data-sidebar="input"
-      className={cn(
-        'w-full bg-background shadow-none focus-visible:ring-2',
-        className,
-      )}
+      className={cn('w-full bg-background shadow-none focus-visible:ring-2', className)}
       {...props}
     />
   );
 });
 SidebarInput.displayName = 'SidebarInput';
 
-export const SidebarHeader = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      data-sidebar="header"
-      className={cn('flex flex-col gap-2 p-2', className)}
-      {...props}
-    />
-  );
-});
+export const SidebarHeader = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        data-sidebar="header"
+        className={cn('flex flex-col gap-2 p-2', className)}
+        {...props}
+      />
+    );
+  },
+);
 SidebarHeader.displayName = 'SidebarHeader';
 
-export const SidebarFooter = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      data-sidebar="footer"
-      className={cn('flex flex-col gap-2 p-2', className)}
-      {...props}
-    />
-  );
-});
+export const SidebarFooter = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        data-sidebar="footer"
+        className={cn('flex flex-col gap-2 p-2', className)}
+        {...props}
+      />
+    );
+  },
+);
 SidebarFooter.displayName = 'SidebarFooter';
 
 export const SidebarSeparator = React.forwardRef<
@@ -80,10 +75,7 @@ export const SidebarContent = React.forwardRef<
         'flex min-h-0 flex-1 flex-col gap-2 group-data-[collapsible=icon]:overflow-hidden',
         className,
       )}
-      viewportClassName={cn(
-        'min-w-0 [&>div]:block! [&>div]:min-w-0',
-        viewportClassName,
-      )}
+      viewportClassName={cn('min-w-0 [&>div]:block! [&>div]:min-w-0', viewportClassName)}
       {...props}
     />
   );

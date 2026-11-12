@@ -17,4 +17,7 @@ export const createGateway = (config: GatewayConfig, options: DriverOptions = {}
   config.kind === 'qpay' ? qpayDriver(config, options) : testDriver();
 
 /** What refunds each gateway can make itself (without credentials at hand). */
-export const GATEWAY_REFUNDS: Record<GatewayConfig['kind'], GatewayDriver['refunds']> = { qpay: 'full', test: 'partial' };
+export const GATEWAY_REFUNDS: Record<GatewayConfig['kind'], GatewayDriver['refunds']> = {
+  qpay: 'full',
+  test: 'partial',
+};

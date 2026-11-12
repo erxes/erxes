@@ -1,10 +1,4 @@
-export const fixOrder = ({
-  order,
-  name,
-}: {
-  order?: string;
-  name?: string;
-}) => {
+export const fixOrder = ({ order, name }: { order?: string; name?: string }) => {
   let fixedOrder = order;
   if (name?.includes('/')) {
     fixedOrder = fixedOrder?.replace(name, name.replace(/\//g, ''));

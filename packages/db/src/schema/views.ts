@@ -31,7 +31,14 @@ export const views = pgTable(
   },
   (table) => [
     index('core_views_org_type_idx').on(table.orgId, table.recordType),
-    check('core_views_record_type_check', sql`${table.recordType} IN ('customer', 'lead', 'company', 'company_lead')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_views_org_id_fkey' }).onDelete('cascade'),
+    check(
+      'core_views_record_type_check',
+      sql`${table.recordType} IN ('customer', 'lead', 'company', 'company_lead')`,
+    ),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_views_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

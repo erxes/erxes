@@ -9,7 +9,13 @@ const PAGE_HEADER_FIRST_CRUMB_CLASS_NAME =
   '[&>nav:first-of-type>ol>li:first-child_a]:-ml-2 [&>nav:first-of-type>ol>li:first-child_a]:pl-2 [&>nav:first-of-type>ol>li:first-child_button]:-ml-2 [&>nav:first-of-type>ol>li:first-child_button]:pl-2';
 
 /** A settings page's top row: breadcrumbs, then the page's own actions (old ui-modules `SettingsHeader`). */
-export const SettingsHeader = ({ children, breadcrumbs }: { children?: ReactNode; breadcrumbs?: ReactNode }) => (
+export const SettingsHeader = ({
+  children,
+  breadcrumbs,
+}: {
+  children?: ReactNode;
+  breadcrumbs?: ReactNode;
+}) => (
   <div className="flex flex-col box-border shrink-0 bg-background w-full">
     <div
       className={cn(

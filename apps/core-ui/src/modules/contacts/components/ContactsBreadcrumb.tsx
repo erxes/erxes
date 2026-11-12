@@ -15,7 +15,9 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
     { path: ContactsPath.Leads, label: t('leads') },
     { path: ContactsPath.Companies, label: t('companies') },
   ];
-  const currentSection = sections.find(({ path }) => pathname.startsWith(`${ContactsPath.Index}${path}`));
+  const currentSection = sections.find(({ path }) =>
+    pathname.startsWith(`${ContactsPath.Index}${path}`),
+  );
 
   return (
     <>
@@ -35,7 +37,9 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
               <Breadcrumb.Item>
                 <Breadcrumb.Page>
                   <Button variant="ghost" asChild>
-                    <Link to={`${ContactsPath.Index}${currentSection.path}`}>{currentSection.label}</Link>
+                    <Link to={`${ContactsPath.Index}${currentSection.path}`}>
+                      {currentSection.label}
+                    </Link>
                   </Button>
                 </Breadcrumb.Page>
               </Breadcrumb.Item>

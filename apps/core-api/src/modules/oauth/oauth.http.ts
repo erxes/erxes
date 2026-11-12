@@ -47,7 +47,11 @@ const oauthError = (res: Response, status: number, error: string, description: s
 
 const clientOf = async (clientId: string) => {
   const [row] = await withSystem('oauth client', (tx) =>
-    tx.select({ name: plugins.name, status: plugins.status, manifest: plugins.manifest }).from(plugins).where(eq(plugins.name, clientId)).limit(1),
+    tx
+      .select({ name: plugins.name, status: plugins.status, manifest: plugins.manifest })
+      .from(plugins)
+      .where(eq(plugins.name, clientId))
+      .limit(1),
   );
 
   return row?.status === 'active' ? row : null;
@@ -55,12 +59,15 @@ const clientOf = async (clientId: string) => {
 
 /** The redirect address, if the client lists it (with `{subdomain}` the organisation's). */
 const allowedRedirect = (templates: string[], given: string, subdomain: string | null) =>
-  templates.some((template) => (subdomain ? template.replaceAll('{subdomain}', subdomain) : template) === given);
+  templates.some(
+    (template) => (subdomain ? template.replaceAll('{subdomain}', subdomain) : template) === given,
+  );
 
 const withParams = (url: string, params: Record<string, string | undefined>) => {
   const target = new URL(url);
 
-  for (const [key, value] of Object.entries(params)) if (value !== undefined) target.searchParams.set(key, value);
+  for (const [key, value] of Object.entries(params))
+    if (value !== undefined) target.searchParams.set(key, value);
 
   return target.toString();
 };
@@ -80,7 +87,8 @@ const memberOfSession = async (req: Request) => {
       .limit(1),
   );
 
-  if (!row || row.user.status !== 'active' || row.user.sessionVersion !== claims.sessionVersion) return null;
+  if (!row || row.user.status !== 'active' || row.user.sessionVersion !== claims.sessionVersion)
+    return null;
 
   return row;
 };
@@ -102,7 +110,8 @@ oauthRouter.get('/authorize', (req: Request, res: Response, next) => {
 
     // Until the redirect address is known to be the client's, errors are shown here, never sent there.
     if (!client || !templates.length) return oauthError(res, 400, 'invalid_client', 'Unknown app');
-    if (!query.redirect_uri) return oauthError(res, 400, 'invalid_request', 'redirect_uri is required');
+    if (!query.redirect_uri)
+      return oauthError(res, 400, 'invalid_request', 'redirect_uri is required');
 
     const member = await memberOfSession(req);
 
@@ -112,14 +121,26 @@ oauthRouter.get('/authorize', (req: Request, res: Response, next) => {
     }
 
     if (!allowedRedirect(templates, query.redirect_uri, member.subdomain)) {
-      return oauthError(res, 400, 'invalid_request', 'This redirect address is not registered for the app');
+      return oauthError(
+        res,
+        400,
+        'invalid_request',
+        'This redirect address is not registered for the app',
+      );
     }
 
     const back = (params: Record<string, string | undefined>) =>
-      res.redirect(302, withParams(query.redirect_uri!, { ...params, state: query.state, iss: ISSUER }));
+      res.redirect(
+        302,
+        withParams(query.redirect_uri!, { ...params, state: query.state, iss: ISSUER }),
+      );
 
     if (query.response_type !== 'code') return back({ error: 'unsupported_response_type' });
-    if (!query.code_challenge || query.code_challenge_method !== 'S256' || !/^[A-Za-z0-9_-]{43}$/.test(query.code_challenge)) {
+    if (
+      !query.code_challenge ||
+      query.code_challenge_method !== 'S256' ||
+      !/^[A-Za-z0-9_-]{43}$/.test(query.code_challenge)
+    ) {
       return back({ error: 'invalid_request', error_description: 'PKCE with S256 is required' });
     }
 
@@ -128,7 +149,10 @@ oauthRouter.get('/authorize', (req: Request, res: Response, next) => {
 
     return withOrg(orgId, async (tx) => {
       if (!(await installed(tx, orgId, client.name))) {
-        return back({ error: 'access_denied', error_description: `${client.manifest?.title ?? client.name} is not installed in your organisation` });
+        return back({
+          error: 'access_denied',
+          error_description: `${client.manifest?.title ?? client.name} is not installed in your organisation`,
+        });
       }
 
       const id = newId();
@@ -164,7 +188,12 @@ interface Issued {
 /** Access token, ID token (openid) and a refresh token (offline_access), in the member's organisation. */
 const issueTokens = async (tx: Db, issued: Issued) => {
   const [row] = await tx
-    .select({ user: users, organization: organizations, permissions: roles.permissions, manifest: plugins.manifest })
+    .select({
+      user: users,
+      organization: organizations,
+      permissions: roles.permissions,
+      manifest: plugins.manifest,
+    })
     .from(users)
     .innerJoin(organizations, eq(organizations.id, users.orgId))
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
@@ -175,13 +204,31 @@ const issueTokens = async (tx: Db, issued: Issued) => {
   if (!row || row.user.status !== 'active') return null;
 
   const actor = { role: row.user.role, permissions: row.permissions };
-  const permissions = (row.manifest?.permissions ?? []).map((item) => item.action).filter((action) => can(actor, action));
+  const permissions = (row.manifest?.permissions ?? [])
+    .map((item) => item.action)
+    .filter((action) => can(actor, action));
   const scopes = issued.scope.split(' ');
   const access_token = await signJwt(
-    { org: issued.orgId, scope: issued.scope, client_id: issued.clientId, role: row.user.role, permissions },
-    { typ: 'at+jwt', audience: issued.clientId, subject: issued.userId, expiresInSeconds: ACCESS_TTL },
+    {
+      org: issued.orgId,
+      scope: issued.scope,
+      client_id: issued.clientId,
+      role: row.user.role,
+      permissions,
+    },
+    {
+      typ: 'at+jwt',
+      audience: issued.clientId,
+      subject: issued.userId,
+      expiresInSeconds: ACCESS_TTL,
+    },
   );
-  const response: Record<string, unknown> = { access_token, token_type: 'Bearer', expires_in: ACCESS_TTL, scope: issued.scope };
+  const response: Record<string, unknown> = {
+    access_token,
+    token_type: 'Bearer',
+    expires_in: ACCESS_TTL,
+    scope: issued.scope,
+  };
 
   if (scopes.includes('openid')) {
     response.id_token = await signJwt(
@@ -199,7 +246,12 @@ const issueTokens = async (tx: Db, issued: Issued) => {
           : {}),
         ...(issued.nonce ? { nonce: issued.nonce } : {}),
       },
-      { typ: 'JWT', audience: issued.clientId, subject: issued.userId, expiresInSeconds: ACCESS_TTL },
+      {
+        typ: 'JWT',
+        audience: issued.clientId,
+        subject: issued.userId,
+        expiresInSeconds: ACCESS_TTL,
+      },
     );
   }
 
@@ -240,7 +292,9 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
     if (body.grant_type === 'authorization_code') {
       const [id, secret] = (body.code ?? '').split('.');
       const [code] = id
-        ? await withSystem('oauth code lookup', (tx) => tx.select().from(oauthCodes).where(eq(oauthCodes.id, id)).limit(1))
+        ? await withSystem('oauth code lookup', (tx) =>
+            tx.select().from(oauthCodes).where(eq(oauthCodes.id, id)).limit(1),
+          )
         : [];
 
       if (
@@ -254,7 +308,10 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
         return oauthError(res, 400, 'invalid_grant', 'The code is not valid');
       }
 
-      if (!body.code_verifier || base64url(createHash('sha256').update(body.code_verifier).digest()) !== code.codeChallenge) {
+      if (
+        !body.code_verifier ||
+        base64url(createHash('sha256').update(body.code_verifier).digest()) !== code.codeChallenge
+      ) {
         return oauthError(res, 400, 'invalid_grant', 'The PKCE verifier does not match');
       }
 
@@ -271,32 +328,50 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
         const tokens = await issueTokens(tx, code);
 
         if (tokens) {
-          await recordAudit(tx, { orgId: code.orgId, actorType: 'user', actorId: code.userId, source: 'core' }, {
-            action: 'auth.oauth_signed_in',
-            targetType: 'plugin',
-            targetId: client.name,
-            targetLabel: client.manifest?.title ?? client.name,
-          });
+          await recordAudit(
+            tx,
+            { orgId: code.orgId, actorType: 'user', actorId: code.userId, source: 'core' },
+            {
+              action: 'auth.oauth_signed_in',
+              targetType: 'plugin',
+              targetId: client.name,
+              targetLabel: client.manifest?.title ?? client.name,
+            },
+          );
         }
 
         return tokens;
       });
 
-      return response ? res.json(response) : oauthError(res, 400, 'invalid_grant', 'The code is not valid');
+      return response
+        ? res.json(response)
+        : oauthError(res, 400, 'invalid_grant', 'The code is not valid');
     }
 
     if (body.grant_type === 'refresh_token') {
       const [id, secret] = (body.refresh_token ?? '').split('.');
       const [token] = id
-        ? await withSystem('oauth refresh lookup', (tx) => tx.select().from(oauthRefreshTokens).where(eq(oauthRefreshTokens.id, id)).limit(1))
+        ? await withSystem('oauth refresh lookup', (tx) =>
+            tx.select().from(oauthRefreshTokens).where(eq(oauthRefreshTokens.id, id)).limit(1),
+          )
         : [];
 
-      if (!token || !secret || !sameHash(token.tokenHash, secret) || token.clientId !== client.name) {
+      if (
+        !token ||
+        !secret ||
+        !sameHash(token.tokenHash, secret) ||
+        token.clientId !== client.name
+      ) {
         return oauthError(res, 400, 'invalid_grant', 'The refresh token is not valid');
       }
 
       const response = await withOrg(token.orgId, async (tx) => {
-        const [current] = await tx.select().from(oauthRefreshTokens).where(eq(oauthRefreshTokens.id, token.id)).for('update').limit(1);
+        const [current] = await tx
+          .select()
+          .from(oauthRefreshTokens)
+          .where(eq(oauthRefreshTokens.id, token.id))
+          .for('update')
+          .limit(1);
 
         if (!current) return null;
 
@@ -305,12 +380,24 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
           await tx
             .update(oauthRefreshTokens)
             .set({ revokedAt: sql`now()` })
-            .where(and(eq(oauthRefreshTokens.familyId, current.familyId), isNull(oauthRefreshTokens.revokedAt)));
-          log.warn('oauth refresh token reused: family revoked', { client: client.name, family: current.familyId });
+            .where(
+              and(
+                eq(oauthRefreshTokens.familyId, current.familyId),
+                isNull(oauthRefreshTokens.revokedAt),
+              ),
+            );
+          log.warn('oauth refresh token reused: family revoked', {
+            client: client.name,
+            family: current.familyId,
+          });
           return 'reused' as const;
         }
 
-        const [user] = await tx.select({ version: users.sessionVersion, status: users.status }).from(users).where(eq(users.id, current.userId)).limit(1);
+        const [user] = await tx
+          .select({ version: users.sessionVersion, status: users.status })
+          .from(users)
+          .where(eq(users.id, current.userId))
+          .limit(1);
 
         if (
           current.expiresAt.getTime() < Date.now() ||
@@ -322,7 +409,10 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
           return null;
         }
 
-        await tx.update(oauthRefreshTokens).set({ usedAt: sql`now()` }).where(eq(oauthRefreshTokens.id, current.id));
+        await tx
+          .update(oauthRefreshTokens)
+          .set({ usedAt: sql`now()` })
+          .where(eq(oauthRefreshTokens.id, current.id));
 
         return issueTokens(tx, { ...current, familyId: current.familyId, nonce: null });
       });
@@ -332,7 +422,12 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
         : oauthError(res, 400, 'invalid_grant', 'The refresh token is not valid');
     }
 
-    return oauthError(res, 400, 'unsupported_grant_type', 'Use authorization_code or refresh_token');
+    return oauthError(
+      res,
+      400,
+      'unsupported_grant_type',
+      'Use authorization_code or refresh_token',
+    );
   })().catch(next);
 });
 
@@ -342,12 +437,17 @@ tokenRouter.post('/revoke', (req: Request, res: Response, next) => {
 
   (async () => {
     const [token] = id
-      ? await withSystem('oauth revoke lookup', (tx) => tx.select().from(oauthRefreshTokens).where(eq(oauthRefreshTokens.id, id)).limit(1))
+      ? await withSystem('oauth revoke lookup', (tx) =>
+          tx.select().from(oauthRefreshTokens).where(eq(oauthRefreshTokens.id, id)).limit(1),
+        )
       : [];
 
     if (token && secret && sameHash(token.tokenHash, secret)) {
       await withOrg(token.orgId, (tx) =>
-        tx.update(oauthRefreshTokens).set({ revokedAt: sql`now()` }).where(eq(oauthRefreshTokens.familyId, token.familyId)),
+        tx
+          .update(oauthRefreshTokens)
+          .set({ revokedAt: sql`now()` })
+          .where(eq(oauthRefreshTokens.familyId, token.familyId)),
       );
     }
 
@@ -359,9 +459,18 @@ oauthRouter.use(tokenRouter);
 
 /** OpenID Connect userinfo for an access token. */
 oauthRouter.get('/userinfo', (req: Request, res: Response) => {
-  const token = req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.slice(7) : '';
+  const token = req.headers.authorization?.startsWith('Bearer ')
+    ? req.headers.authorization.slice(7)
+    : '';
 
-  verifyJwt<{ sub?: string; org?: string; client_id?: string; scope?: string; role?: string; permissions?: string[] }>(token, { typ: 'at+jwt' })
+  verifyJwt<{
+    sub?: string;
+    org?: string;
+    client_id?: string;
+    scope?: string;
+    role?: string;
+    permissions?: string[];
+  }>(token, { typ: 'at+jwt' })
     .then(async ({ payload }) => {
       const [row] = await withOrg(String(payload.org), (tx) =>
         tx
@@ -372,7 +481,8 @@ oauthRouter.get('/userinfo', (req: Request, res: Response) => {
           .limit(1),
       );
 
-      if (!row || row.user.status !== 'active') return oauthError(res, 401, 'invalid_token', 'The member is not active');
+      if (!row || row.user.status !== 'active')
+        return oauthError(res, 401, 'invalid_token', 'The member is not active');
 
       const scopes = (payload.scope ?? '').split(' ');
 
@@ -383,7 +493,9 @@ oauthRouter.get('/userinfo', (req: Request, res: Response) => {
         role: payload.role,
         permissions: payload.permissions ?? [],
         ...(scopes.includes('email') ? { email: row.user.email, email_verified: true } : {}),
-        ...(scopes.includes('profile') ? { name: row.user.fullName ?? row.user.email, picture: row.user.avatarUrl } : {}),
+        ...(scopes.includes('profile')
+          ? { name: row.user.fullName ?? row.user.email, picture: row.user.avatarUrl }
+          : {}),
       });
     })
     .catch(() => oauthError(res, 401, 'invalid_token', 'The access token is not valid'));
@@ -407,7 +519,17 @@ export const openidConfiguration = (req: Request, res: Response) => {
     scopes_supported: [...SCOPES],
     subject_types_supported: ['public'],
     id_token_signing_alg_values_supported: ['ES256'],
-    claims_supported: ['sub', 'org', 'organization', 'email', 'email_verified', 'name', 'given_name', 'family_name', 'picture', 'nonce'],
+    claims_supported: [
+      'sub',
+      'org',
+      'organization',
+      'email',
+      'email_verified',
+      'name',
+      'given_name',
+      'family_name',
+      'picture',
+      'nonce',
+    ],
   });
 };
-

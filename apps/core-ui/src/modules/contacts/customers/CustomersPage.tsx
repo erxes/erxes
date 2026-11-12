@@ -21,7 +21,10 @@ export const CustomersPage = ({ state }: { state: CustomerState }) => {
   return (
     <PageContainer>
       <CustomersHeader state={state} />
-      <ViewTabs recordType={state} allLabel={state === 'lead' ? t('views.all-leads') : t('views.all-customers')} />
+      <ViewTabs
+        recordType={state}
+        allLabel={state === 'lead' ? t('views.all-leads') : t('views.all-customers')}
+      />
       <PageSubHeader>
         <CustomersFilter state={state} />
       </PageSubHeader>

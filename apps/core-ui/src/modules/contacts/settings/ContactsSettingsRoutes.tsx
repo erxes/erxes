@@ -1,4 +1,10 @@
-import { IconChevronLeft, IconFileImport, IconHierarchy2, IconProgress, IconTag } from '@tabler/icons-react';
+import {
+  IconChevronLeft,
+  IconFileImport,
+  IconHierarchy2,
+  IconProgress,
+  IconTag,
+} from '@tabler/icons-react';
 import { AppLayout, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
@@ -21,9 +27,17 @@ const ContactsSettingsSidebar = () => {
   const items = [
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
     { name: t('tags', 'Tags'), path: 'tags', icon: IconTag },
-    ...(can('properties.manage') ? [{ name: t('lead-stages', 'Lead stages'), path: 'lead-stages', icon: IconProgress }] : []),
+    ...(can('properties.manage')
+      ? [{ name: t('lead-stages', 'Lead stages'), path: 'lead-stages', icon: IconProgress }]
+      : []),
     ...(can('contacts.import') || can('contacts.export')
-      ? [{ name: t('import-export', 'Import & export history'), path: 'import-export', icon: IconFileImport }]
+      ? [
+          {
+            name: t('import-export', 'Import & export history'),
+            path: 'import-export',
+            icon: IconFileImport,
+          },
+        ]
       : []),
   ];
 
@@ -67,7 +81,11 @@ const ContactsSettingsLayout = () => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   return (
-    <AppLayout id="contacts-settings" title={t('contacts-settings', 'Contacts settings')} sidebar={<ContactsSettingsSidebar />}>
+    <AppLayout
+      id="contacts-settings"
+      title={t('contacts-settings', 'Contacts settings')}
+      sidebar={<ContactsSettingsSidebar />}
+    >
       <Outlet />
     </AppLayout>
   );

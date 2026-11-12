@@ -23,9 +23,7 @@ export const Default: Story = {
     <Card className="w-[350px]">
       <Card.Header>
         <Card.Title>Create project</Card.Title>
-        <Card.Description>
-          Deploy your new project in one-click.
-        </Card.Description>
+        <Card.Description>Deploy your new project in one-click.</Card.Description>
       </Card.Header>
       <Card.Content>
         <form>

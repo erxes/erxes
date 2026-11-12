@@ -13,7 +13,8 @@ const en = {
   unnamed: 'Unnamed',
   widgets: {
     'contacts-overview': 'Contacts at a glance',
-    'contacts-overview-description': 'How many customers, leads, companies and team members you have.',
+    'contacts-overview-description':
+      'How many customers, leads, companies and team members you have.',
     'recent-customers': 'Latest customers',
     'recent-customers-description': 'The customers added most recently.',
     'recent-companies': 'Latest companies',
@@ -21,11 +22,13 @@ const en = {
     'team-members': 'Your team',
     'team-members-description': 'Everyone in your organization and their role.',
     'lead-summary': 'Lead numbers',
-    'lead-summary-description': 'New leads, conversions, conversion rate and time to convert in the last 30 days.',
+    'lead-summary-description':
+      'New leads, conversions, conversion rate and time to convert in the last 30 days.',
     'lead-funnel': 'Lead stages',
     'lead-funnel-description': 'Leads in each stage, how many reached it, and how long they stay.',
     'lead-sources': 'Lead sources',
-    'lead-sources-description': 'Where the last 30 days’ leads came from and how many became customers.',
+    'lead-sources-description':
+      'Where the last 30 days’ leads came from and how many became customers.',
     'lead-reasons': 'Why leads were lost',
     'lead-reasons-description': 'The most common reasons leads were disqualified.',
   },

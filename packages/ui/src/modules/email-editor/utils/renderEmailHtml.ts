@@ -13,22 +13,14 @@ const addMissingLinkTargets = (html: string): string =>
  * A field becomes the `{{ … }}` token the server fills per recipient. An
  * automation's output variable is already a token, so it is left as written.
  */
-const toPlaceholder = ({
-  variable,
-  fallback,
-}: {
-  variable: string;
-  fallback?: string;
-}) => {
+const toPlaceholder = ({ variable, fallback }: { variable: string; fallback?: string }) => {
   if (/^\{\{[\s\S]+\}\}$/.test(variable.trim())) {
     return variable.trim();
   }
 
   const fallbackText = fallback?.replace(/[{}|]/g, '').trim();
 
-  return fallbackText
-    ? `{{ ${variable} | ${fallbackText} }}`
-    : `{{ ${variable} }}`;
+  return fallbackText ? `{{ ${variable} | ${fallbackText} }}` : `{{ ${variable} }}`;
 };
 
 /** The email as html, with every field left as a placeholder for the server. */

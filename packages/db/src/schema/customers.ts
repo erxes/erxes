@@ -30,10 +30,16 @@ export const customers = pgTable(
     avatarUrl: text(),
     /** Lower-cased; also the first entry of `emails`. */
     primaryEmail: text(),
-    emails: text().array().default(sql`'{}'::text[]`).notNull(),
+    emails: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     /** Without spaces, brackets and dashes; also the first entry of `phones`. */
     primaryPhone: text(),
-    phones: text().array().default(sql`'{}'::text[]`).notNull(),
+    phones: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     /** ISO/IEC 5218: 0 not known, 1 male, 2 female, 9 not applicable. */
     sex: smallint(),
     birthDate: date({ mode: 'string' }),
@@ -68,14 +74,13 @@ export const customers = pgTable(
       sql`lower(coalesce(first_name, '') || ' ' || coalesce(middle_name, '') || ' ' || coalesce(last_name, '') || ' ' || core_join_text(emails) || ' ' || core_join_text(phones) || ' ' || coalesce(code, ''))`,
     ),
     /** Customers merged into this one (their ids keep resolving here). */
-    mergedIds: text().array().default(sql`'{}'::text[]`).notNull(),
+    mergedIds: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     createdBy: text(),
-    createdAt: timestamp({ withTimezone: true, mode: 'date' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp({ withTimezone: true, mode: 'date' })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    updatedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   },
   (table) => [
     // One customer per primary email / phone in an organisation.
@@ -97,9 +102,15 @@ export const customers = pgTable(
       .on(table.orgId, table.birthMonthDay)
       .where(sql`${table.birthMonthDay} IS NOT NULL`),
     index('core_customers_org_owner_idx').on(table.orgId, table.ownerId),
-    index('core_customers_org_lead_stage_idx').on(table.orgId, table.leadStageId, table.createdAt.desc()),
+    index('core_customers_org_lead_stage_idx').on(
+      table.orgId,
+      table.leadStageId,
+      table.createdAt.desc(),
+    ),
     index('core_customers_org_source_idx').on(table.orgId, table.source),
-    index('core_customers_org_converted_idx').on(table.orgId, table.convertedAt).where(sql`${table.convertedAt} IS NOT NULL`),
+    index('core_customers_org_converted_idx')
+      .on(table.orgId, table.convertedAt)
+      .where(sql`${table.convertedAt} IS NOT NULL`),
     foreignKey({
       columns: [table.leadStageId],
       foreignColumns: [leadStages.id],
@@ -109,8 +120,14 @@ export const customers = pgTable(
     index('core_customers_search_trgm_idx').using('gin', table.searchText.op('gin_trgm_ops')),
     index('core_customers_first_name_trgm_idx').using('gin', table.firstName.op('gin_trgm_ops')),
     index('core_customers_last_name_trgm_idx').using('gin', table.lastName.op('gin_trgm_ops')),
-    index('core_customers_primary_email_trgm_idx').using('gin', table.primaryEmail.op('gin_trgm_ops')),
-    index('core_customers_primary_phone_trgm_idx').using('gin', table.primaryPhone.op('gin_trgm_ops')),
+    index('core_customers_primary_email_trgm_idx').using(
+      'gin',
+      table.primaryEmail.op('gin_trgm_ops'),
+    ),
+    index('core_customers_primary_phone_trgm_idx').using(
+      'gin',
+      table.primaryPhone.op('gin_trgm_ops'),
+    ),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
@@ -121,10 +138,7 @@ export const customers = pgTable(
       foreignColumns: [users.id],
       name: 'core_customers_owner_id_fkey',
     }).onDelete('set null'),
-    check(
-      'core_customers_state_check',
-      sql`${table.state} IN ('lead', 'customer')`,
-    ),
+    check('core_customers_state_check', sql`${table.state} IN ('lead', 'customer')`),
     check('core_customers_sex_check', sql`${table.sex} IN (0, 1, 2, 9)`),
   ],
 );

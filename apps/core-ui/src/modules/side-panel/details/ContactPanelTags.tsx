@@ -29,10 +29,16 @@ export const ContactPanelTags = ({
         scope={`side-panel-${kind}.tags`}
         value={tagIds}
         onValueChange={(nextTagIds) =>
-          (kind === 'customer' ? customerEdit : companyEdit).mutate({ id: contentId, tagIds: nextTagIds })
+          (kind === 'customer' ? customerEdit : companyEdit).mutate({
+            id: contentId,
+            tagIds: nextTagIds,
+          })
         }
       >
-        <RecordTableInlineCell.Trigger className="rounded-sm" aria-label={t('edit-tags', 'Edit tags')}>
+        <RecordTableInlineCell.Trigger
+          className="rounded-sm"
+          aria-label={t('edit-tags', 'Edit tags')}
+        >
           <TagsSelect.SelectedList maxVisible={3} className="min-w-0 overflow-hidden" />
           {!tagIds?.length && (
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">

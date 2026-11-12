@@ -1,9 +1,6 @@
 import * as React from 'react';
 
-import {
-  IconLayoutSidebarLeftCollapse,
-  IconLayoutSidebarLeftExpand,
-} from '@tabler/icons-react';
+import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { Button } from 'erxes-ui/components/button';
@@ -35,15 +32,9 @@ const findSidebarPanelSlot = (panel: HTMLElement | null) => {
 const SidebarPanelInnerTriggerHiddenContext = React.createContext(false);
 
 const isSlotAbovePanel = (slot: HTMLElement, panel: HTMLElement | null) =>
-  Boolean(
-    panel &&
-      slot.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING,
-  );
+  Boolean(panel && slot.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING);
 
-const useSidebarPanelSlot = (
-  panelRef: React.RefObject<HTMLDivElement | null>,
-  open: boolean,
-) => {
+const useSidebarPanelSlot = (panelRef: React.RefObject<HTMLDivElement | null>, open: boolean) => {
   const [slot, setSlot] = React.useState<HTMLElement | null>(null);
   const [claimed, setClaimed] = React.useState(false);
 
@@ -105,11 +96,7 @@ export const SidebarPanelTrigger = React.forwardRef<
       }}
       {...props}
     >
-      {open ? (
-        <IconLayoutSidebarLeftCollapse />
-      ) : (
-        <IconLayoutSidebarLeftExpand />
-      )}
+      {open ? <IconLayoutSidebarLeftCollapse /> : <IconLayoutSidebarLeftExpand />}
     </Button>
   );
 });
@@ -155,17 +142,12 @@ export const SidebarPanel = React.forwardRef<
       <SidebarPanelInnerTriggerHiddenContext.Provider value={triggerInSlot}>
         {open && label && (
           <div className="flex h-10 shrink-0 items-center gap-1 px-2">
-            <span className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
-              {label}
-            </span>
+            <span className="min-w-0 flex-1 truncate px-2 text-sm font-medium">{label}</span>
             {actions}
             <SidebarPanelTrigger className="size-8" />
           </div>
         )}
-        <div
-          hidden={!open}
-          className="flex min-h-0 flex-1 flex-col overflow-y-auto"
-        >
+        <div hidden={!open} className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           {children}
         </div>
       </SidebarPanelInnerTriggerHiddenContext.Provider>

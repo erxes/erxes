@@ -55,7 +55,8 @@ export const enqueueJob = async (client: Db, input: EnqueueInput): Promise<strin
 };
 
 /** 30 s, 2 min, 8 min … capped at 6 hours, with jitter. */
-export const defaultBackoff = (attempt: number) => Math.min(6 * 3600, 30 * 4 ** (attempt - 1)) * (0.8 + Math.random() * 0.4);
+export const defaultBackoff = (attempt: number) =>
+  Math.min(6 * 3600, 30 * 4 ** (attempt - 1)) * (0.8 + Math.random() * 0.4);
 
 const describe = (error: unknown) => {
   const parts: string[] = [];
@@ -85,7 +86,10 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
         updated_at = now()
       where j.id in (
         select id from ${jobs}
-        where queue in (${sql.join(names.map((name) => sql`${name}`), sql`, `)})
+        where queue in (${sql.join(
+          names.map((name) => sql`${name}`),
+          sql`, `,
+        )})
           and ((status = 'queued' and run_at <= now()) or (status = 'running' and locked_until < now()))
         order by run_at
         limit ${limit}
@@ -99,7 +103,12 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
     return tx
       .select()
       .from(jobs)
-      .where(sql`${jobs.id} in (${sql.join(result.rows.map((row) => sql`${row.id}`), sql`, `)})`);
+      .where(
+        sql`${jobs.id} in (${sql.join(
+          result.rows.map((row) => sql`${row.id}`),
+          sql`, `,
+        )})`,
+      );
   });
 
 const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
@@ -107,8 +116,20 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
   const dead = job.attempts >= job.maxAttempts;
   const delay = (definition.backoff ?? defaultBackoff)(job.attempts);
 
-  if (dead) log.error('job gave up', { queue: job.queue, job: job.id, attempts: job.attempts, error: message });
-  else log.warn('job failed; retrying', { queue: job.queue, job: job.id, attempt: job.attempts, error: message });
+  if (dead)
+    log.error('job gave up', {
+      queue: job.queue,
+      job: job.id,
+      attempts: job.attempts,
+      error: message,
+    });
+  else
+    log.warn('job failed; retrying', {
+      queue: job.queue,
+      job: job.id,
+      attempt: job.attempts,
+      error: message,
+    });
 
   await withOrg(job.orgId, (tx) =>
     tx
@@ -124,8 +145,9 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
   );
 
   if (dead && definition.onDead) {
-    await withOrg(job.orgId, (tx) => definition.onDead!(job, message, tx)).catch((hookError: unknown) =>
-      log.error('job onDead failed', { queue: job.queue, job: job.id, error: hookError }),
+    await withOrg(job.orgId, (tx) => definition.onDead!(job, message, tx)).catch(
+      (hookError: unknown) =>
+        log.error('job onDead failed', { queue: job.queue, job: job.id, error: hookError }),
     );
   }
 };
@@ -209,6 +231,20 @@ export const startJobWorker = (definitions: JobDefinition[], concurrency = 5) =>
 export const retryDeadJobs = (client: Db, orgId: string, ids: string[]) =>
   client
     .update(jobs)
-    .set({ status: 'queued', runAt: sql`now()`, maxAttempts: sql`${jobs.attempts} + 1`, updatedAt: sql`now()` })
-    .where(and(eq(jobs.orgId, orgId), eq(jobs.status, 'dead'), sql`${jobs.id} in (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})`))
+    .set({
+      status: 'queued',
+      runAt: sql`now()`,
+      maxAttempts: sql`${jobs.attempts} + 1`,
+      updatedAt: sql`now()`,
+    })
+    .where(
+      and(
+        eq(jobs.orgId, orgId),
+        eq(jobs.status, 'dead'),
+        sql`${jobs.id} in (${sql.join(
+          ids.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      ),
+    )
     .returning({ id: jobs.id });

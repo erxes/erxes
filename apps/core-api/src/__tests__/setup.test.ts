@@ -77,7 +77,10 @@ describeWithDb('first-run setup (/core/v1/setup)', () => {
     expect(again.status).toBe(409);
     expect(again.body.code).toBe('SETUP_DONE');
 
-    const signIn = await call('POST', '/auth/sign-in', { email: 'owner@acme.mn', password: owner.password });
+    const signIn = await call('POST', '/auth/sign-in', {
+      email: 'owner@acme.mn',
+      password: owner.password,
+    });
     expect(signIn.status).toBe(200);
   });
 

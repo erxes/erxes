@@ -17,8 +17,7 @@ const meta: Meta<typeof Checkbox> = {
     },
     disabled: {
       control: 'boolean',
-      description:
-        'When true, prevents the user from interacting with the checkbox',
+      description: 'When true, prevents the user from interacting with the checkbox',
     },
   },
 };

@@ -14,14 +14,21 @@ const RecoveryCodes = ({ codes }: { codes: string[] }) => {
     <div className="space-y-2 rounded-md border bg-muted/40 p-3">
       <p className="text-sm font-medium">{t('recovery-title', 'Recovery codes: save them now')}</p>
       <p className="text-xs text-muted-foreground">
-        {t('recovery-description', "Each works once if you lose your phone. They won't be shown again.")}
+        {t(
+          'recovery-description',
+          "Each works once if you lose your phone. They won't be shown again.",
+        )}
       </p>
       <ul className="grid grid-cols-2 gap-1 font-mono text-sm">
         {codes.map((code) => (
           <li key={code}>{code}</li>
         ))}
       </ul>
-      <Button size="sm" variant="outline" onClick={() => void navigator.clipboard.writeText(codes.join('\n'))}>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => void navigator.clipboard.writeText(codes.join('\n'))}
+      >
         {t('copy-codes', 'Copy')}
       </Button>
     </div>
@@ -39,13 +46,22 @@ export const TwoFactorSection = () => {
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [codes, setCodes] = useState<string[] | null>(null);
-  const onError = (error: unknown) => toast({ variant: 'destructive', title: t('two-factor-failed', 'Could not change two-factor sign-in'), description: messageOf(error) });
+  const onError = (error: unknown) =>
+    toast({
+      variant: 'destructive',
+      title: t('two-factor-failed', 'Could not change two-factor sign-in'),
+      description: messageOf(error),
+    });
 
   useEffect(() => {
     if (setup) void QRCode.toDataURL(setup.uri, { margin: 1, width: 180 }).then(setQr);
   }, [setup]);
 
-  const start = useMutation({ mutationFn: () => api.auth.twoFactorSetup(), onSuccess: setSetup, onError });
+  const start = useMutation({
+    mutationFn: () => api.auth.twoFactorSetup(),
+    onSuccess: setSetup,
+    onError,
+  });
   const enable = useMutation({
     mutationFn: () => api.auth.twoFactorEnable({ code }),
     onSuccess: ({ recoveryCodes }) => {
@@ -80,10 +96,17 @@ export const TwoFactorSection = () => {
       <div className="flex items-center gap-2">
         <IconShieldLock className="size-5" />
         <span className="text-sm font-medium">{t('two-factor', 'Two-factor sign-in')}</span>
-        {user.twoFactorEnabled ? <Badge variant="success">{t('on', 'On')}</Badge> : <Badge variant="secondary">{t('off', 'Off')}</Badge>}
+        {user.twoFactorEnabled ? (
+          <Badge variant="success">{t('on', 'On')}</Badge>
+        ) : (
+          <Badge variant="secondary">{t('off', 'Off')}</Badge>
+        )}
       </div>
       <p className="text-sm text-muted-foreground">
-        {t('two-factor-description', 'After your password, erxes also asks for a code from an authenticator app (1Password, Google Authenticator, Authy …).')}
+        {t(
+          'two-factor-description',
+          'After your password, erxes also asks for a code from an authenticator app (1Password, Google Authenticator, Authy …).',
+        )}
       </p>
       {codes && <RecoveryCodes codes={codes} />}
       {!user.twoFactorEnabled && !setup && (
@@ -95,7 +118,9 @@ export const TwoFactorSection = () => {
         <div className="flex flex-wrap items-start gap-4 rounded-md border p-3">
           {qr && <img src={qr} alt="" className="size-[180px] rounded bg-white p-1" />}
           <div className="min-w-0 flex-1 space-y-2">
-            <p className="text-sm">{t('scan', 'Scan this with your authenticator app, or type the key:')}</p>
+            <p className="text-sm">
+              {t('scan', 'Scan this with your authenticator app, or type the key:')}
+            </p>
             <code className="block break-all rounded bg-muted p-2 text-xs">{setup.secret}</code>
             <div className="flex gap-2">
               <Input
@@ -106,7 +131,10 @@ export const TwoFactorSection = () => {
                 value={code}
                 onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
               />
-              <Button disabled={code.length !== 6 || enable.isPending} onClick={() => enable.mutate()}>
+              <Button
+                disabled={code.length !== 6 || enable.isPending}
+                onClick={() => enable.mutate()}
+              >
                 {t('two-factor-confirm', 'Turn on')}
               </Button>
             </div>
@@ -123,10 +151,18 @@ export const TwoFactorSection = () => {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
-          <Button variant="outline" disabled={!password || renew.isPending} onClick={() => renew.mutate()}>
+          <Button
+            variant="outline"
+            disabled={!password || renew.isPending}
+            onClick={() => renew.mutate()}
+          >
             {t('new-recovery-codes', 'New recovery codes')}
           </Button>
-          <Button variant="outline" disabled={!password || disable.isPending} onClick={() => disable.mutate()}>
+          <Button
+            variant="outline"
+            disabled={!password || disable.isPending}
+            onClick={() => disable.mutate()}
+          >
             {t('two-factor-disable', 'Turn off')}
           </Button>
         </div>

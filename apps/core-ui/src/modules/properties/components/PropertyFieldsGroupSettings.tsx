@@ -10,7 +10,11 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { Spinner } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
@@ -47,7 +51,12 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Cont
   );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    if (!over || active.id === over.id || typeof active.id !== 'string' || typeof over.id !== 'string') {
+    if (
+      !over ||
+      active.id === over.id ||
+      typeof active.id !== 'string' ||
+      typeof over.id !== 'string'
+    ) {
       return;
     }
 
@@ -59,13 +68,17 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Cont
   return (
     <>
       <PropertyGroupEditSheet />
-      <PropertyGroupLayoutSheet fieldsOf={(groupId) => fields.filter((field) => field.groupId === groupId)} />
+      <PropertyGroupLayoutSheet
+        fieldsOf={(groupId) => fields.filter((field) => field.groupId === groupId)}
+      />
       <PropertyArchiveDialog />
       <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
         {loading ? (
           <Spinner containerClassName="py-12" />
         ) : groups.length === 0 && ungrouped.length === 0 ? (
-          <div className="py-12 text-center text-muted-foreground">{t('no-groups-found', 'No field groups found')}</div>
+          <div className="py-12 text-center text-muted-foreground">
+            {t('no-groups-found', 'No field groups found')}
+          </div>
         ) : (
           <>
             <DndContext
@@ -74,7 +87,10 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Cont
               onDragEnd={handleDragEnd}
               sensors={sensors}
             >
-              <SortableContext items={groups.map((group) => group.id)} strategy={verticalListSortingStrategy}>
+              <SortableContext
+                items={groups.map((group) => group.id)}
+                strategy={verticalListSortingStrategy}
+              >
                 {sections.map(
                   ({ group, fields: groupFieldList }) =>
                     group && (
@@ -88,7 +104,9 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Cont
                 )}
               </SortableContext>
             </DndContext>
-            {ungrouped.length > 0 && <PropertiesUngroupedSection fields={ungrouped} contentType={contentType} />}
+            {ungrouped.length > 0 && (
+              <PropertiesUngroupedSection fields={ungrouped} contentType={contentType} />
+            )}
           </>
         )}
         <PropertiesArchivedSection contentType={contentType} />

@@ -33,7 +33,10 @@ export const roles = pgTable(
     name: text().notNull(),
     description: text(),
     /** Permission actions; `*` means every grantable one. */
-    permissions: text().array().default(sql`'{}'::text[]`).notNull(),
+    permissions: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     builtin: boolean().default(false).notNull(),
     createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
     updatedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
@@ -97,32 +100,26 @@ export const users = pgTable(
      * (`core.customer.updated`) or whole sources (`hr`) they don't want.
      */
     notificationSettings: jsonb()
-      .$type<{ muted?: string[]; groups?: Record<string, 'email' | 'inbox' | 'off'>; email?: boolean; browser?: boolean }>()
+      .$type<{
+        muted?: string[];
+        groups?: Record<string, 'email' | 'inbox' | 'off'>;
+        email?: boolean;
+        browser?: boolean;
+      }>()
       .default({})
       .notNull(),
     /** Finished the welcome steps (any browser); null shows them at the next sign-in. */
     onboardedAt: timestamp({ withTimezone: true, mode: 'date' }),
-    createdAt: timestamp({ withTimezone: true, mode: 'date' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp({ withTimezone: true, mode: 'date' })
-      .defaultNow()
-      .notNull(),
+    createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    updatedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   },
   (table) => [
     // Sign-in finds a member by email before the organisation is known.
     index('core_users_email_idx').on(sql`lower(${table.email})`),
-    uniqueIndex('core_users_org_email_key').on(
-      table.orgId,
-      sql`lower(${table.email})`,
-    ),
+    uniqueIndex('core_users_org_email_key').on(table.orgId, sql`lower(${table.email})`),
     index('core_users_org_status_idx').on(table.orgId, table.status),
     // Keyset paging, newest first.
-    index('core_users_org_created_idx').on(
-      table.orgId,
-      table.createdAt.desc(),
-      table.id.desc(),
-    ),
+    index('core_users_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
@@ -133,9 +130,6 @@ export const users = pgTable(
       foreignColumns: [roles.orgId, roles.key],
       name: 'core_users_role_fkey',
     }),
-    check(
-      'core_users_status_check',
-      sql`${table.status} IN ('invited', 'active', 'disabled')`,
-    ),
+    check('core_users_status_check', sql`${table.status} IN ('invited', 'active', 'disabled')`),
   ],
 );

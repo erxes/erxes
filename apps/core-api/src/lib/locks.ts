@@ -16,7 +16,10 @@ export const lockRows = async (
 
   await client.execute(sql`
     select 1 from ${sql.identifier(table)}
-    where org_id = ${orgId} and id in (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})
+    where org_id = ${orgId} and id in (${sql.join(
+      ids.map((id) => sql`${id}`),
+      sql`, `,
+    )})
     order by id
     for update
   `);
@@ -30,4 +33,5 @@ export const lockOrganization = (client: Db, orgId: string) =>
   client.execute(sql`select 1 from core_organizations where id = ${orgId} for update`);
 
 /** A transaction-scoped lock on any key (released at commit or rollback). */
-export const lockKey = (client: Db, key: string) => client.execute(sql`select pg_advisory_xact_lock(hashtext(${key}))`);
+export const lockKey = (client: Db, key: string) =>
+  client.execute(sql`select pg_advisory_xact_lock(hashtext(${key}))`);

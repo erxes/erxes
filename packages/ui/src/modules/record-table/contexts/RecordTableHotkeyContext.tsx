@@ -9,8 +9,7 @@ interface IRecordTableHotkeyContext {
   scope: string;
 }
 
-const RecordTableHotkeyContext =
-  createContext<IRecordTableHotkeyContext | null>(null);
+const RecordTableHotkeyContext = createContext<IRecordTableHotkeyContext | null>(null);
 
 export const RecordTableHotkeyProvider = ({
   children,
@@ -37,10 +36,7 @@ export const RecordTableHotkeyProvider = ({
       }}
     >
       {children}
-      <RecordTableArrowEffect
-        columnLength={columnLength}
-        rowLength={rowLength}
-      />
+      <RecordTableArrowEffect columnLength={columnLength} rowLength={rowLength} />
     </RecordTableHotkeyContext.Provider>
   );
 };
@@ -48,9 +44,7 @@ export const RecordTableHotkeyProvider = ({
 export const useRecordTableHotkey = () => {
   const context = useContext(RecordTableHotkeyContext);
   if (!context) {
-    throw new Error(
-      'useRecordTableHotkey must be used within a RecordTableHotkeyProvider.',
-    );
+    throw new Error('useRecordTableHotkey must be used within a RecordTableHotkeyProvider.');
   }
   return context;
 };

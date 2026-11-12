@@ -1,10 +1,6 @@
 import { getFileStorage, REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  type FileError,
-  type FileRejection,
-  useDropzone,
-} from 'react-dropzone';
+import { type FileError, type FileRejection, useDropzone } from 'react-dropzone';
 export interface FileWithPreview extends File {
   preview?: string;
   errors: readonly FileError[];
@@ -25,9 +21,7 @@ type UseErxesUploadOptions = {
    * Maximum number of files allowed per upload.
    */
   maxFiles?: number;
-  onFilesAdded?: (
-    addedFiles: { name: string; url: string; type: string; size: number }[],
-  ) => void;
+  onFilesAdded?: (addedFiles: { name: string; url: string; type: string; size: number }[]) => void;
 };
 
 type UseErxesUploadReturn = ReturnType<typeof useErxesUpload>;
@@ -75,9 +69,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
 
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<
-    { name: string; message?: string; url?: string }[]
-  >([]);
+  const [errors, setErrors] = useState<{ name: string; message?: string; url?: string }[]>([]);
   const [successes, setSuccesses] = useState<string[]>([]);
 
   const isSuccess = useMemo(() => {
@@ -118,10 +110,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
     noClick: true,
     // A document-wide drop blocker would also swallow text drops elsewhere
     preventDropOnDocument: false,
-    accept: allowedMimeTypes.reduce(
-      (acc, type) => ({ ...acc, [type]: [] }),
-      {},
-    ),
+    accept: allowedMimeTypes.reduce((acc, type) => ({ ...acc, [type]: [] }), {}),
     maxSize: maxFileSize,
     maxFiles: maxFiles,
     multiple: maxFiles !== 1,
@@ -165,9 +154,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
     setLoading(false);
 
     setTimeout(() => {
-      setFiles(
-        files.filter((f) => !responseSuccesses.some((x) => x.name === f.name)),
-      );
+      setFiles(files.filter((f) => !responseSuccesses.some((x) => x.name === f.name)));
       setSuccesses([]);
     }, 1000);
   }, [files, errors, successes, onFilesAdded]);
@@ -211,11 +198,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
   };
 };
 
-export {
-  useErxesUpload,
-  type UseErxesUploadOptions,
-  type UseErxesUploadReturn,
-};
+export { useErxesUpload, type UseErxesUploadOptions, type UseErxesUploadReturn };
 
 export const useRemoveFile = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -240,17 +223,14 @@ export const useRemoveFile = () => {
         }
       }
 
-      const response = await fetch(
-        `${REACT_APP_API_URL}/delete-file?fileName=${fileName}`,
-        {
-          method: 'post',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          },
-          body: `fileName=${fileName}`,
+      const response = await fetch(`${REACT_APP_API_URL}/delete-file?fileName=${fileName}`, {
+        method: 'post',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         },
-      );
+        body: `fileName=${fileName}`,
+      });
       const data = await response.text();
       if (!response.ok) {
         setError(data);

@@ -22,9 +22,7 @@ export const Default: Story = {
       <div className="w-96 h-48">
         <CommandBar open={true}>
           <CommandBar.Bar>
-            <CommandBar.Value onClose={() => console.log('close')}>
-              24 selected
-            </CommandBar.Value>
+            <CommandBar.Value onClose={() => console.log('close')}>24 selected</CommandBar.Value>
             <Separator.Inline />
             <Button variant="secondary">
               <IconTrash />

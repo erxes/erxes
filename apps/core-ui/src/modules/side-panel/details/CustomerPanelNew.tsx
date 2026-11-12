@@ -54,13 +54,26 @@ const customerSchema = z
     avatarUrl: z.string().nullable(),
   })
   .refine(
-    (values) => Boolean(values.firstName.trim() || values.lastName.trim() || values.primaryEmail || values.primaryPhone.trim()),
+    (values) =>
+      Boolean(
+        values.firstName.trim() ||
+        values.lastName.trim() ||
+        values.primaryEmail ||
+        values.primaryPhone.trim(),
+      ),
     { message: 'Fill in a name, an e-mail or a phone', path: ['firstName'] },
   );
 
 type TCustomerForm = z.infer<typeof customerSchema>;
 
-type TTextCode = 'firstName' | 'middleName' | 'lastName' | 'primaryEmail' | 'primaryPhone' | 'code' | 'position';
+type TTextCode =
+  | 'firstName'
+  | 'middleName'
+  | 'lastName'
+  | 'primaryEmail'
+  | 'primaryPhone'
+  | 'code'
+  | 'position';
 
 const TEXT_FIELD_ICONS: Record<TTextCode, Icon> = {
   firstName: IconUser,
@@ -84,7 +97,10 @@ const orNull = (value: string) => value.trim() || null;
 export const CustomerPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
-  const { state, leadStageId } = useSidePanelDraft<{ state: Customer['state']; leadStageId?: string }>('core:customer');
+  const { state, leadStageId } = useSidePanelDraft<{
+    state: Customer['state'];
+    leadStageId?: string;
+  }>('core:customer');
   const { back, canGoBack, close } = useSidePanel();
   const { toast } = useToast();
   const [companyIds, setCompanyIds] = useState<string[]>([]);
@@ -137,7 +153,11 @@ export const CustomerPanelNew = () => {
       if (companyIds.length) {
         setLinking(true);
         await linkNewContact('core:customer', created.id, companyIds).catch((error: unknown) =>
-          toast({ variant: 'destructive', title: 'Could not link companies', description: messageOf(error) }),
+          toast({
+            variant: 'destructive',
+            title: 'Could not link companies',
+            description: messageOf(error),
+          }),
         );
         setLinking(false);
       }
@@ -152,30 +172,48 @@ export const CustomerPanelNew = () => {
         return;
       }
 
-      toast({ variant: 'destructive', title: t('error-title', 'Error'), description: messageOf(error) });
+      toast({
+        variant: 'destructive',
+        title: t('error-title', 'Error'),
+        description: messageOf(error),
+      });
     }
   };
 
   /** A registered text input with its field label and validation error. */
   const textRow = (code: TTextCode, label: string) => (
-    <PanelFormRow key={code} icon={TEXT_FIELD_ICONS[code]} label={label} error={errors[code]?.message}>
+    <PanelFormRow
+      key={code}
+      icon={TEXT_FIELD_ICONS[code]}
+      label={label}
+      error={errors[code]?.message}
+    >
       <Input {...form.register(code)} placeholder={label} className={INPUT_CLASS_NAME} />
     </PanelFormRow>
   );
 
   return (
     <Form {...form}>
-      <form className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col" onSubmit={form.handleSubmit(save)}>
+      <form
+        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
+        onSubmit={form.handleSubmit(save)}
+      >
         <PanelFormLayout
           onCancel={cancel}
           saving={create.isPending || linking}
-          saveLabel={state === 'lead' ? addT('create-lead', 'Create lead') : addT('create', 'Create customer')}
+          saveLabel={
+            state === 'lead'
+              ? addT('create-lead', 'Create lead')
+              : addT('create', 'Create customer')
+          }
         >
           <PanelFormRow icon={IconPhoto} label={addT('picture', 'Picture')}>
             <Form.Field
               control={form.control}
               name="avatarUrl"
-              render={({ field }) => <AvatarUploadField value={field.value} onChange={field.onChange} />}
+              render={({ field }) => (
+                <AvatarUploadField value={field.value} onChange={field.onChange} />
+              )}
             />
           </PanelFormRow>
           {textRow('firstName', addT('first-name', 'First name'))}
@@ -212,7 +250,10 @@ export const CustomerPanelNew = () => {
               control={form.control}
               name="sex"
               render={({ field }) => (
-                <Select value={String(field.value ?? 0)} onValueChange={(value) => field.onChange(Number(value))}>
+                <Select
+                  value={String(field.value ?? 0)}
+                  onValueChange={(value) => field.onChange(Number(value))}
+                >
                   <Select.Trigger className={INPUT_CLASS_NAME}>
                     <Select.Value placeholder={addT('pronoun', 'Pronoun')} />
                   </Select.Trigger>
@@ -227,7 +268,11 @@ export const CustomerPanelNew = () => {
               )}
             />
           </PanelFormRow>
-          <PanelFormRow icon={IconCalendar} label={addT('birth-date', 'Birth date')} error={errors.birthDate?.message}>
+          <PanelFormRow
+            icon={IconCalendar}
+            label={addT('birth-date', 'Birth date')}
+            error={errors.birthDate?.message}
+          >
             <Form.Field
               control={form.control}
               name="birthDate"

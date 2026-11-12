@@ -24,7 +24,11 @@ const subscribe = (listener: () => void) => {
 };
 
 export const RecordTimeline = (props: RecordTimelineProps) => {
-  const Component = useSyncExternalStore(subscribe, () => registered, () => registered);
+  const Component = useSyncExternalStore(
+    subscribe,
+    () => registered,
+    () => registered,
+  );
 
   return Component ? <Component {...props} /> : null;
 };

@@ -17,8 +17,7 @@ const RecordTableContainer = forwardRef<
   const { columnSizeVars, flexWidth } = useMemo(() => {
     const headers = table.getFlatHeaders();
     const flexWidth = headers.reduce(
-      (total, header) =>
-        isFixedWidthColumn(header.column) ? total : total + header.getSize(),
+      (total, header) => (isFixedWidthColumn(header.column) ? total : total + header.getSize()),
       0,
     );
     const colSizes: { [key: string]: number | string } = {};

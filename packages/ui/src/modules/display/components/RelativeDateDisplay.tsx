@@ -35,10 +35,7 @@ const RelativeDateDisplayTooltip = React.forwardRef<
 
 RelativeDateDisplayTooltip.displayName = 'RelativeDateDisplayTooltip';
 
-const RelativeDateDisplayValue = ({
-  value,
-  isShort,
-}: RelativeDateDisplayProps) => {
+const RelativeDateDisplayValue = ({ value, isShort }: RelativeDateDisplayProps) => {
   if (isUndefinedOrNull(value)) {
     return null;
   }

@@ -13,7 +13,12 @@ import { useCustomersFilters } from './useCustomers';
 const CustomersExportButton = ({ state }: { state: CustomerState }) => {
   const filters = useCustomersFilters(state);
 
-  return <ExportButton recordType={state} query={{ tagIds: filters.tagIds?.split(','), ownerId: filters.ownerId }} />;
+  return (
+    <ExportButton
+      recordType={state}
+      query={{ tagIds: filters.tagIds?.split(','), ownerId: filters.ownerId }}
+    />
+  );
 };
 
 /** `C` runs `action` unless typing somewhere or a dialog is open (old page hotkey). */
@@ -28,7 +33,9 @@ export const useCreateHotkey = (action: () => void) => {
         !event.ctrlKey &&
         !event.altKey &&
         !event.repeat &&
-        !target?.closest('input, textarea, select, [contenteditable="true"], [role="dialog"], [role="menu"], [role="listbox"]') &&
+        !target?.closest(
+          'input, textarea, select, [contenteditable="true"], [role="dialog"], [role="menu"], [role="listbox"]',
+        ) &&
         !document.querySelector('[role="dialog"][data-state="open"]')
       ) {
         event.preventDefault();

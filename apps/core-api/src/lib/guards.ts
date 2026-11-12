@@ -22,6 +22,10 @@ export const assertMember = async (client: Db, orgId: string, userId: string | u
     .limit(1);
 
   if (!row) {
-    throw new HttpError(400, 'INVALID_ACTOR', 'The actor is not a team member of this organisation');
+    throw new HttpError(
+      400,
+      'INVALID_ACTOR',
+      'The actor is not a team member of this organisation',
+    );
   }
 };

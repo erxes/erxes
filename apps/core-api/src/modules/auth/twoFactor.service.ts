@@ -10,7 +10,8 @@ import { verifyPassword } from './password';
 import { matchStep, newTotpSecret, otpauthUri } from './totp';
 
 const CHALLENGE_TYP = 'erxes-2fa-challenge+jwt';
-const hashCode = (code: string) => createHash('sha256').update(code.replace(/[\s-]/g, '').toLowerCase()).digest('hex');
+const hashCode = (code: string) =>
+  createHash('sha256').update(code.replace(/[\s-]/g, '').toLowerCase()).digest('hex');
 
 const newRecoveryCodes = () =>
   Array.from({ length: 10 }, () => {
@@ -20,7 +21,11 @@ const newRecoveryCodes = () =>
   });
 
 const findMember = async (client: Db, orgId: string, userId: string) => {
-  const [row] = await client.select().from(users).where(and(eq(users.orgId, orgId), eq(users.id, userId))).limit(1);
+  const [row] = await client
+    .select()
+    .from(users)
+    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
+    .limit(1);
 
   if (!row) throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
 
@@ -41,11 +46,15 @@ const needPassword = async (client: Db, actor: Actor, password: string) => {
 export const setupTwoFactor = async (client: Db, actor: Actor) => {
   const member = await findMember(client, actor.orgId, actor.userId);
 
-  if (member.totpEnabledAt) throw new HttpError(409, 'ALREADY_ENABLED', 'Two-factor sign-in is already on');
+  if (member.totpEnabledAt)
+    throw new HttpError(409, 'ALREADY_ENABLED', 'Two-factor sign-in is already on');
 
   const secret = newTotpSecret();
 
-  await client.update(users).set({ totpPendingSealed: seal(secret), updatedAt: sql`now()` }).where(eq(users.id, actor.userId));
+  await client
+    .update(users)
+    .set({ totpPendingSealed: seal(secret), updatedAt: sql`now()` })
+    .where(eq(users.id, actor.userId));
 
   return { secret, uri: otpauthUri(secret, member.email) };
 };
@@ -58,7 +67,12 @@ export const enableTwoFactor = async (client: Db, actor: Actor, code: string) =>
   const secret = unseal(member.totpPendingSealed);
   const step = matchStep(secret, code);
 
-  if (step === null) throw new HttpError(400, 'WRONG_CODE', "That code doesn't match: check the app and the phone's clock");
+  if (step === null)
+    throw new HttpError(
+      400,
+      'WRONG_CODE',
+      "That code doesn't match: check the app and the phone's clock",
+    );
 
   const recoveryCodes = newRecoveryCodes();
 
@@ -75,7 +89,12 @@ export const enableTwoFactor = async (client: Db, actor: Actor, code: string) =>
       updatedAt: sql`now()`,
     })
     .where(eq(users.id, actor.userId));
-  await recordAudit(client, userCaller(actor), { action: 'auth.two_factor_enabled', targetType: 'user', targetId: actor.userId, targetLabel: member.email });
+  await recordAudit(client, userCaller(actor), {
+    action: 'auth.two_factor_enabled',
+    targetType: 'user',
+    targetId: actor.userId,
+    targetLabel: member.email,
+  });
 
   return { recoveryCodes };
 };
@@ -85,9 +104,21 @@ export const disableTwoFactor = async (client: Db, actor: Actor, password: strin
 
   await client
     .update(users)
-    .set({ totpSecretSealed: null, totpPendingSealed: null, totpEnabledAt: null, totpLastStep: null, recoveryCodes: null, updatedAt: sql`now()` })
+    .set({
+      totpSecretSealed: null,
+      totpPendingSealed: null,
+      totpEnabledAt: null,
+      totpLastStep: null,
+      recoveryCodes: null,
+      updatedAt: sql`now()`,
+    })
     .where(eq(users.id, actor.userId));
-  await recordAudit(client, userCaller(actor), { action: 'auth.two_factor_disabled', targetType: 'user', targetId: actor.userId, targetLabel: member.email });
+  await recordAudit(client, userCaller(actor), {
+    action: 'auth.two_factor_disabled',
+    targetType: 'user',
+    targetId: actor.userId,
+    targetLabel: member.email,
+  });
 
   return { ok: true as const };
 };
@@ -99,25 +130,42 @@ export const regenerateRecoveryCodes = async (client: Db, actor: Actor, password
 
   const recoveryCodes = newRecoveryCodes();
 
-  await client.update(users).set({ recoveryCodes: recoveryCodes.map(hashCode), updatedAt: sql`now()` }).where(eq(users.id, actor.userId));
-  await recordAudit(client, userCaller(actor), { action: 'auth.recovery_codes_renewed', targetType: 'user', targetId: actor.userId });
+  await client
+    .update(users)
+    .set({ recoveryCodes: recoveryCodes.map(hashCode), updatedAt: sql`now()` })
+    .where(eq(users.id, actor.userId));
+  await recordAudit(client, userCaller(actor), {
+    action: 'auth.recovery_codes_renewed',
+    targetType: 'user',
+    targetId: actor.userId,
+  });
 
   return { recoveryCodes };
 };
 
 /** After a correct password: a 5-minute challenge for the second step instead of a session. */
 export const twoFactorChallenge = (orgId: string, userId: string) =>
-  signJwt({ org: orgId }, { typ: CHALLENGE_TYP, audience: 'erxes-core', subject: userId, expiresInSeconds: 300 });
+  signJwt(
+    { org: orgId },
+    { typ: CHALLENGE_TYP, audience: 'erxes-core', subject: userId, expiresInSeconds: 300 },
+  );
 
 /**
  * The second step: an authenticator code (each works once) or a recovery
  * code (each works once). Failures count toward the sign-in lockout.
  */
-export const completeTwoFactor = async (input: { challenge: string; code?: string; recoveryCode?: string }) => {
+export const completeTwoFactor = async (input: {
+  challenge: string;
+  code?: string;
+  recoveryCode?: string;
+}) => {
   let payload: { sub?: string; org?: unknown };
 
   try {
-    ({ payload } = await verifyJwt(input.challenge, { typ: CHALLENGE_TYP, audience: 'erxes-core' }));
+    ({ payload } = await verifyJwt(input.challenge, {
+      typ: CHALLENGE_TYP,
+      audience: 'erxes-core',
+    }));
   } catch {
     throw new HttpError(401, 'CHALLENGE_EXPIRED', 'Sign in again: the second step took too long');
   }
@@ -127,21 +175,31 @@ export const completeTwoFactor = async (input: { challenge: string; code?: strin
 
   return withOrg(orgId, async (tx) => {
     // One second step at a time per member: a code can't be used twice in a race.
-    const [member] = await tx.select().from(users).where(and(eq(users.orgId, orgId), eq(users.id, userId))).for('update').limit(1);
+    const [member] = await tx
+      .select()
+      .from(users)
+      .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
+      .for('update')
+      .limit(1);
 
-    if (!member || member.status !== 'active' || !member.totpSecretSealed) throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+    if (!member || member.status !== 'active' || !member.totpSecretSealed)
+      throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
 
     if (input.code) {
       const step = matchStep(unseal(member.totpSecretSealed), input.code);
 
       if (step === null || (member.totpLastStep !== null && step <= member.totpLastStep)) {
-        await recordAudit(tx, { orgId, actorType: 'user', actorId: userId, source: 'core' }, {
-          action: 'auth.sign_in_failed',
-          targetType: 'user',
-          targetId: userId,
-          targetLabel: member.email,
-          metadata: { reason: 'wrong two-factor code' },
-        });
+        await recordAudit(
+          tx,
+          { orgId, actorType: 'user', actorId: userId, source: 'core' },
+          {
+            action: 'auth.sign_in_failed',
+            targetType: 'user',
+            targetId: userId,
+            targetLabel: member.email,
+            metadata: { reason: 'wrong two-factor code' },
+          },
+        );
         throw new HttpError(401, 'WRONG_CODE', "That code doesn't match");
       }
 
@@ -149,18 +207,23 @@ export const completeTwoFactor = async (input: { challenge: string; code?: strin
     } else {
       const hashed = hashCode(input.recoveryCode ?? '');
 
-      if (!member.recoveryCodes?.includes(hashed)) throw new HttpError(401, 'WRONG_CODE', "That recovery code doesn't match");
+      if (!member.recoveryCodes?.includes(hashed))
+        throw new HttpError(401, 'WRONG_CODE', "That recovery code doesn't match");
 
       await tx
         .update(users)
         .set({ recoveryCodes: member.recoveryCodes.filter((code) => code !== hashed) })
         .where(eq(users.id, userId));
-      await recordAudit(tx, { orgId, actorType: 'user', actorId: userId, source: 'core' }, {
-        action: 'auth.recovery_code_used',
-        targetType: 'user',
-        targetId: userId,
-        metadata: { left: member.recoveryCodes.length - 1 },
-      });
+      await recordAudit(
+        tx,
+        { orgId, actorType: 'user', actorId: userId, source: 'core' },
+        {
+          action: 'auth.recovery_code_used',
+          targetType: 'user',
+          targetId: userId,
+          metadata: { left: member.recoveryCodes.length - 1 },
+        },
+      );
     }
 
     return { orgId, userId };

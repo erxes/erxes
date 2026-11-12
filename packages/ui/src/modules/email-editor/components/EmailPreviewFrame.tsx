@@ -26,9 +26,7 @@ export const EmailPreviewFrame = ({
       sandbox="allow-popups allow-popups-to-escape-sandbox"
       className={cn(
         'h-full border-0 bg-white',
-        device === 'mobile'
-          ? 'w-[390px] max-w-full rounded-xl border shadow-sm'
-          : 'w-full',
+        device === 'mobile' ? 'w-[390px] max-w-full rounded-xl border shadow-sm' : 'w-full',
       )}
     />
   </div>

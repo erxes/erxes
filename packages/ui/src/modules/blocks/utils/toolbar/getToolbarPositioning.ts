@@ -24,18 +24,11 @@ export const getToolbarPositioning = (
         elements.floating.style.visibility =
           anchor.bottom <= top || anchor.top >= bottom ? 'hidden' : '';
         return {
-          x:
-            Math.max(
-              left,
-              Math.min(x + originX, right - rects.floating.width),
-            ) - originX,
+          x: Math.max(left, Math.min(x + originX, right - rects.floating.width)) - originX,
           y:
             Math.max(
               top,
-              Math.min(
-                above >= top ? above : anchor.bottom + 10,
-                bottom - rects.floating.height,
-              ),
+              Math.min(above >= top ? above : anchor.bottom + 10, bottom - rects.floating.height),
             ) - originY,
         };
       },

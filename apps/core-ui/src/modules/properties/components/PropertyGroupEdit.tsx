@@ -19,12 +19,21 @@ export const PropertyGroupEditSheet = () => {
             isEdit
             onSubmit={(data) =>
               mutate(
-                { id: group.id, name: data.name, code: data.code, description: data.description || null },
+                {
+                  id: group.id,
+                  name: data.name,
+                  code: data.code,
+                  description: data.description || null,
+                },
                 { onSuccess: close },
               )
             }
             loading={isPending}
-            defaultValues={{ name: group.name, code: group.code, description: group.description ?? '' }}
+            defaultValues={{
+              name: group.name,
+              code: group.code,
+              description: group.description ?? '',
+            }}
             onCancel={close}
             contentType={group.contentType}
           />

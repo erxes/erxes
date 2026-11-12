@@ -18,14 +18,22 @@ export const CORE_EVENT_TYP = 'erxes-core-event+jwt';
  * (`payments:read`); customers and companies: `customers:read`; anything
  * else from core or other plugins: `events:read`.
  */
-export const pluginMaySee = (plugin: string, scopes: string[], event: Pick<EventRow, 'type' | 'source' | 'payload'>) => {
+export const pluginMaySee = (
+  plugin: string,
+  scopes: string[],
+  event: Pick<EventRow, 'type' | 'source' | 'payload'>,
+) => {
   if (event.source === plugin) return false;
 
   if (event.type.startsWith('core.payment.')) {
-    return scopes.includes('payments:read') && (event.payload as { source?: unknown } | null)?.source === plugin;
+    return (
+      scopes.includes('payments:read') &&
+      (event.payload as { source?: unknown } | null)?.source === plugin
+    );
   }
 
-  if (event.type.startsWith('core.customer.') || event.type.startsWith('core.company.')) return scopes.includes('customers:read');
+  if (event.type.startsWith('core.customer.') || event.type.startsWith('core.company.'))
+    return scopes.includes('customers:read');
 
   return scopes.includes('events:read');
 };
@@ -38,15 +46,29 @@ export const pluginEventsConsumer: EventConsumer = {
   name: 'core.plugins',
   async handle(tx, event) {
     const installed = await tx
-      .select({ plugin: pluginInstallations.plugin, scopes: pluginInstallations.grantedScopes, manifest: plugins.manifest })
+      .select({
+        plugin: pluginInstallations.plugin,
+        scopes: pluginInstallations.grantedScopes,
+        manifest: plugins.manifest,
+      })
       .from(pluginInstallations)
       .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
-      .where(and(eq(pluginInstallations.orgId, event.orgId), eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
+      .where(
+        and(
+          eq(pluginInstallations.orgId, event.orgId),
+          eq(pluginInstallations.status, 'active'),
+          eq(plugins.status, 'active'),
+        ),
+      );
 
     for (const row of installed) {
       const patterns = row.manifest?.subscriptions ?? [];
 
-      if (!row.manifest?.api?.url || !patterns.some((pattern) => matchesPattern(pattern, event.type))) continue;
+      if (
+        !row.manifest?.api?.url ||
+        !patterns.some((pattern) => matchesPattern(pattern, event.type))
+      )
+        continue;
       if (!pluginMaySee(row.plugin, row.scopes, event)) continue;
 
       await enqueueJob(tx, {
@@ -76,7 +98,11 @@ export const pluginEventJob: JobDefinition = {
   async handle(job) {
     const plugin = job.payload.plugin as string;
     const loaded = await withOrg(job.orgId, async (tx) => {
-      const [event] = await tx.select().from(events).where(and(eq(events.orgId, job.orgId), eq(events.id, job.payload.eventId as string))).limit(1);
+      const [event] = await tx
+        .select()
+        .from(events)
+        .where(and(eq(events.orgId, job.orgId), eq(events.id, job.payload.eventId as string)))
+        .limit(1);
       const [target] = await tx
         .select({ scopes: pluginInstallations.grantedScopes, manifest: plugins.manifest })
         .from(pluginInstallations)
@@ -107,7 +133,12 @@ export const pluginEventJob: JobDefinition = {
     });
     const token = await signJwt(
       { org: job.orgId, event: loaded.event.id, sha: bodyDigest(body) },
-      { typ: CORE_EVENT_TYP, audience: plugin, subject: `event:${loaded.event.id}`, expiresInSeconds: 300 },
+      {
+        typ: CORE_EVENT_TYP,
+        audience: plugin,
+        subject: `event:${loaded.event.id}`,
+        expiresInSeconds: 300,
+      },
     );
     const response = await postOutbound(`${url.replace(/\/+$/, '')}/events`, body, {
       'Content-Type': 'application/json',
@@ -122,6 +153,10 @@ export const pluginEventJob: JobDefinition = {
     }
   },
   async onDead(job, error) {
-    log.error('a plugin never accepted an event', { plugin: job.payload.plugin, event: job.payload.eventId, error });
+    log.error('a plugin never accepted an event', {
+      plugin: job.payload.plugin,
+      event: job.payload.eventId,
+      error,
+    });
   },
 };

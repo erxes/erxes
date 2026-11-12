@@ -13,11 +13,18 @@ export const CONTACT_SETTINGS = {
 } as const;
 
 /** The organisation Settings addresses that moved here (they redirect). */
-const MOVED_FROM_SETTINGS = ['/settings/tags', '/settings/properties', '/settings/lead-stages', '/settings/import-export'];
+const MOVED_FROM_SETTINGS = [
+  '/settings/tags',
+  '/settings/properties',
+  '/settings/lead-stages',
+  '/settings/import-export',
+];
 
 /**
  * Whether a remembered address is one of those: the settings gear must not
  * reopen it (it would land in Contacts › Settings, not the organisation's).
  */
 export const isMovedSettingsPath = (path: string) =>
-  MOVED_FROM_SETTINGS.some((moved) => path === moved || path.startsWith(`${moved}/`) || path.startsWith(`${moved}?`));
+  MOVED_FROM_SETTINGS.some(
+    (moved) => path === moved || path.startsWith(`${moved}/`) || path.startsWith(`${moved}?`),
+  );

@@ -38,7 +38,9 @@ const CoreTabAppTab = ({
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-  const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({ id: app.id });
+  const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
+    id: app.id,
+  });
   const ref = useRef<HTMLDivElement | null>(null);
   const Icon = app.icon;
   const closeLabel = t('close-tab', { page: app.label, defaultValue: `Close ${app.label}` });

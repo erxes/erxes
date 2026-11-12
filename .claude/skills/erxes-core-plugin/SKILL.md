@@ -23,28 +23,28 @@ Sources of truth (read before deciding anything structural):
 
 ## 0. Decide first (ask if not given)
 
-| Input | Rule | Example |
-| --- | --- | --- |
-| Plugin name | `^[a-z][a-z0-9_]{0,39}$`, not `core`; prefixes everything | `shop` |
-| Display name | menu and page titles | `Shop` |
-| Database | **shared** (tables in core's database, own role — default) or **own** database | shared |
-| Ports | unique across plugins: API, UI remote, standalone | `3345`, `3045`, `3046` |
+| Input              | Rule                                                                           | Example                        |
+| ------------------ | ------------------------------------------------------------------------------ | ------------------------------ |
+| Plugin name        | `^[a-z][a-z0-9_]{0,39}$`, not `core`; prefixes everything                      | `shop`                         |
+| Display name       | menu and page titles                                                           | `Shop`                         |
+| Database           | **shared** (tables in core's database, own role — default) or **own** database | shared                         |
+| Ports              | unique across plugins: API, UI remote, standalone                              | `3345`, `3045`, `3046`         |
 | Core features used | customers, timelines, events/automations, payments, notifications, files, live | customers, events, automations |
-| Standalone app | own address with "Sign in with erxes"? | no |
+| Standalone app     | own address with "Sign in with erxes"?                                         | no                             |
 
 Everything below uses `shop`.
 
 ## 1. The seven channels
 
-| # | Direction | What | How |
-| --- | --- | --- | --- |
-| 1 | plugin → core | declare what the plugin adds | `core.registerManifest(manifest)` at startup (`PUT /core/v1/plugins/manifest`) |
-| 2 | plugin → core | call core for an organisation | `createCoreClient(...).forOrg(orgId).<group>.<procedure>(input)` — 15-min ES256 token, scopes from the manifest |
-| 3 | core-ui → plugin UI | load the UI | Module Federation remote `shop_ui` exposing `./config` |
-| 4 | plugin UI → plugin API | a member's request | `pluginFetch('shop', path)` adds a 5-min session token; API checks `verifyPluginSession()` |
-| 5 | core → plugin API | events it subscribed to | `POST <api>/events`, check `verifyCoreEvent()`; retried ~2 days |
-| 6 | core → plugin API | automation actions | `POST <api>/automations/actions/<type>`, check `verifyCoreCall()`; `Idempotency-Key: <run>:<step>` |
-| 7 | plugin DB tx → core | events, audit, live, in the plugin's own transaction | `core_publish_event()`, `core_record_audit()`, `core_live_signal()` (shared database only) |
+| #   | Direction              | What                                                 | How                                                                                                             |
+| --- | ---------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 1   | plugin → core          | declare what the plugin adds                         | `core.registerManifest(manifest)` at startup (`PUT /core/v1/plugins/manifest`)                                  |
+| 2   | plugin → core          | call core for an organisation                        | `createCoreClient(...).forOrg(orgId).<group>.<procedure>(input)` — 15-min ES256 token, scopes from the manifest |
+| 3   | core-ui → plugin UI    | load the UI                                          | Module Federation remote `shop_ui` exposing `./config`                                                          |
+| 4   | plugin UI → plugin API | a member's request                                   | `pluginFetch('shop', path)` adds a 5-min session token; API checks `verifyPluginSession()`                      |
+| 5   | core → plugin API      | events it subscribed to                              | `POST <api>/events`, check `verifyCoreEvent()`; retried ~2 days                                                 |
+| 6   | core → plugin API      | automation actions                                   | `POST <api>/automations/actions/<type>`, check `verifyCoreCall()`; `Idempotency-Key: <run>:<step>`              |
+| 7   | plugin DB tx → core    | events, audit, live, in the plugin's own transaction | `core_publish_event()`, `core_record_audit()`, `core_live_signal()` (shared database only)                      |
 
 ## 2. Repository layout
 
@@ -87,14 +87,25 @@ import { createCoreClient } from '@erxes/plugin-sdk';
 import type { PluginManifest } from '@erxes/core-contract';
 import { config } from './config';
 
-export const core = createCoreClient({ coreUrl: config.coreUrl, plugin: 'shop', clientSecret: config.pluginSecret });
+export const core = createCoreClient({
+  coreUrl: config.coreUrl,
+  plugin: 'shop',
+  clientSecret: config.pluginSecret,
+});
 
 export const manifest: PluginManifest = {
   title: 'Shop',
   version: config.version,
   ui: { remote: 'shop_ui', entry: `${config.publicUrl}/ui/remoteEntry.js` },
   api: { url: `${config.publicUrl}/api` },
-  scopes: ['customers:read', 'customers:write', 'events:write', 'activities:write', 'notifications:write', 'live:write'],
+  scopes: [
+    'customers:read',
+    'customers:write',
+    'events:write',
+    'activities:write',
+    'notifications:write',
+    'live:write',
+  ],
   permissions: [
     { action: 'shop.order.view', label: 'View orders', group: 'Orders' },
     { action: 'shop.order.manage', label: 'Create and change orders', group: 'Orders' },
@@ -102,12 +113,18 @@ export const manifest: PluginManifest = {
   notificationKinds: [{ kind: 'shop.order.assigned', label: 'An order is assigned to me' }],
   events: [{ type: 'shop.order.placed', label: 'Order placed', subject: 'customer' }],
   subscriptions: ['core.customer.merged'],
-  actions: [{
-    type: 'shop.coupon.create', label: 'Create a coupon', subject: 'customer',
-    fields: [{ key: 'percent', label: 'Discount %', type: 'number', required: true }],
-  }],
+  actions: [
+    {
+      type: 'shop.coupon.create',
+      label: 'Create a coupon',
+      subject: 'customer',
+      fields: [{ key: 'percent', label: 'Discount %', type: 'number', required: true }],
+    },
+  ],
   timelines: [{ type: 'shop.order', label: 'Order', permission: 'shop.order.view' }],
-  activityTypes: [{ type: 'shop.order.placed', label: 'Order', icon: 'IconShoppingCart', color: '#2b8650' }],
+  activityTypes: [
+    { type: 'shop.order.placed', label: 'Order', icon: 'IconShoppingCart', color: '#2b8650' },
+  ],
 };
 
 // main.ts: await core.registerManifest(manifest);
@@ -147,6 +164,7 @@ plugin's role, under core's row-level security.
    SELECT core_enable_tenant_rls('shop_orders');            -- column org_id
    SELECT core_enable_tenant_rls('shop_legacy', 'tenant_id'); -- another column name
    ```
+
 4. Migrator: one transaction, `pg_advisory_xact_lock(hashtext('shop:migrate'))`,
    tracking table `public.__drizzle_migrations_shop`. Never `drizzle-kit push`;
    never edit an applied migration. Only transaction-scoped locks (poolers).
@@ -159,7 +177,9 @@ plugin's role, under core's row-level security.
        return fn(tx);
      });
    ```
+
    Services still filter by `org_id`; RLS is the safety net.
+
 6. Publish events in the same transaction as the change (they exist only if
    it commits; `p_dedupe_key` makes a retry harmless):
 
@@ -170,6 +190,7 @@ plugin's role, under core's row-level security.
      p_summary => 'Order #1042 placed', p_link => '/shop/orders/o_1042',
      p_dedupe_key => 'order:o_1042');
    ```
+
    With `subject` + `summary` the event becomes a timeline entry on that
    customer; `p_notify` sends notifications. `core_record_audit(...)` writes
    the shared audit log; `core_live_signal(org, 'shop', topics, user_ids)`
@@ -217,23 +238,37 @@ export const member = async (req) => {
 
 ```ts
 const shop = core.forOrg(orgId);
-const { customer, created } = await shop.customers.findOrCreate({ primaryEmail, firstName, source: 'shop' });
-await shop.activities.create({ targetType: 'customer', targetId: customer.id, type: 'shop.order.placed', summary: 'Order #1042', dedupeKey: 'order:o_1042' });
-await shop.notifications.create({ userIds: [ownerId], kind: 'shop.order.assigned', title: 'Order #1042 is yours' });
+const { customer, created } = await shop.customers.findOrCreate({
+  primaryEmail,
+  firstName,
+  source: 'shop',
+});
+await shop.activities.create({
+  targetType: 'customer',
+  targetId: customer.id,
+  type: 'shop.order.placed',
+  summary: 'Order #1042',
+  dedupeKey: 'order:o_1042',
+});
+await shop.notifications.create({
+  userIds: [ownerId],
+  kind: 'shop.order.assigned',
+  title: 'Order #1042 is yours',
+});
 ```
 
 What each scope opens (check `access.ts` for the full list):
 
-| Scope | Procedures |
-| --- | --- |
-| `customers:read` | `customers.get`, `companies.get`; customer/company events at `/events` |
-| `customers:write` | `customers.findOrCreate` (by email or phone; safe to call twice) |
-| `activities:write` | `activities.create`, `.update`, `.remove` — timeline entries, addressed by id or `key:<dedupeKey>` |
-| `events:write` / `events:read` | `events.publish`; other plugins' events at `/events` |
-| `notifications:write` | `notifications.create` (to team members; kind in `notificationKinds`) |
-| `payments:read` / `payments:write` | invoices and refunds for its own records; `core.payment.*` events for its own invoices |
-| `files:read` / `files:write` | core's file service (two-step upload) |
-| `audit:write`, `live:write` | `audit.record`, `plugins.signal` |
+| Scope                              | Procedures                                                                                         |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `customers:read`                   | `customers.get`, `companies.get`; customer/company events at `/events`                             |
+| `customers:write`                  | `customers.findOrCreate` (by email or phone; safe to call twice)                                   |
+| `activities:write`                 | `activities.create`, `.update`, `.remove` — timeline entries, addressed by id or `key:<dedupeKey>` |
+| `events:write` / `events:read`     | `events.publish`; other plugins' events at `/events`                                               |
+| `notifications:write`              | `notifications.create` (to team members; kind in `notificationKinds`)                              |
+| `payments:read` / `payments:write` | invoices and refunds for its own records; `core.payment.*` events for its own invoices             |
+| `files:read` / `files:write`       | core's file service (two-step upload)                                                              |
+| `audit:write`, `live:write`        | `audit.record`, `plugins.signal`                                                                   |
 
 Not open to plugins today: listing or searching customers and companies,
 reading team members, and emailing addresses outside the team. Use the

@@ -63,7 +63,11 @@ const main = async () => {
     configureDb({ url: url.toString(), applicationName: 'erxes-bench-migrate' });
     await runMigrations();
 
-    const org = await createOrganization({ subdomain: 'bench', name: 'Bench', owner: { email: 'owner@bench.mn' } });
+    const org = await createOrganization({
+      subdomain: 'bench',
+      name: 'Bench',
+      owner: { email: 'owner@bench.mn' },
+    });
     const orgId = org.organization.id;
     const ownerId = org.owner.id;
 
@@ -127,31 +131,188 @@ const main = async () => {
     );
     console.log(`seeded in ${((performance.now() - started) / 1000).toFixed(1)} s`);
 
-    await run(db, `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${ROLE}') THEN CREATE ROLE ${ROLE} NOLOGIN NOBYPASSRLS; END IF; END $$`);
+    await run(
+      db,
+      `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${ROLE}') THEN CREATE ROLE ${ROLE} NOLOGIN NOBYPASSRLS; END IF; END $$`,
+    );
     await run(db, `GRANT ${ROLE} TO current_user`).catch(() => undefined);
     await run(db, `SELECT core_grant_runtime('${ROLE}')`);
-    configureDb({ url: db, role: ROLE, poolMax: 2, applicationName: 'erxes-bench', statementTimeoutMs: 120_000 });
+    configureDb({
+      url: db,
+      role: ROLE,
+      poolMax: 2,
+      applicationName: 'erxes-bench',
+      statementTimeoutMs: 120_000,
+    });
 
     const actor: Actor = { userId: ownerId, orgId, role: 'owner', permissions: ['*'] };
-    const rule = (path: string, op: string, value?: unknown) => JSON.stringify({ match: 'all', rules: [{ path, op, ...(value === undefined ? {} : { value }) }] });
+    const rule = (path: string, op: string, value?: unknown) =>
+      JSON.stringify({
+        match: 'all',
+        rules: [{ path, op, ...(value === undefined ? {} : { value }) }],
+      });
     const cases: [string, () => Promise<{ totalCount: number }>][] = [
-      ['First page, no filter', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30 } as never))],
-      ['State is lead', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.state', 'eq', 'lead') } as never))],
-      ['Owner is a member', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.ownerId', 'eq', 'user7') } as never))],
-      ['Created in the last 30 days', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.createdAt', 'within_last', { amount: 30, unit: 'days' }) } as never))],
-      ['Email contains', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.primaryEmail', 'contains', 'p12345@') } as never))],
-      ['Search box', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, search: 'p12345@' } as never))],
-      ['Has a tag', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.tagIds', 'contains', 'tag5') } as never))],
-      ['Custom number > 9900', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.customFields.f_spend', 'gt', 9900) } as never))],
-      ['Custom select = gold', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.customFields.f_tier', 'eq', 'gold') } as never))],
-      ['Custom multi-select has golf', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.customFields.f_interests', 'contains', 'golf') } as never))],
-      ['Custom date in the next 30 days', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.customFields.f_renewal', 'within_next', { amount: 30, unit: 'days' }) } as never))],
-      ['No activity for 60 days', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.lastActivityAt', 'more_than_ago', { amount: 60, unit: 'days' }) } as never))],
-      ['Birthday in the next 7 days', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.birthDate', 'anniversary_within', { amount: 7 }) } as never))],
-      ['Company property: region is north', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.company.customFields.f_region', 'eq', 'north') } as never))],
-      ['First name is', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.firstName', 'eq', 'Firstc4ca42') } as never))],
-      ['Search box, two words', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, search: 'first c4ca 8000' } as never))],
-      ['Company industry is Retail', () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30, filter: rule('subject.company.industry', 'eq', 'Retail') } as never))],
+      [
+        'First page, no filter',
+        () => withOrg(orgId, (tx) => listCustomers(tx, actor, { limit: 30 } as never)),
+      ],
+      [
+        'State is lead',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.state', 'eq', 'lead'),
+            } as never),
+          ),
+      ],
+      [
+        'Owner is a member',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.ownerId', 'eq', 'user7'),
+            } as never),
+          ),
+      ],
+      [
+        'Created in the last 30 days',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.createdAt', 'within_last', { amount: 30, unit: 'days' }),
+            } as never),
+          ),
+      ],
+      [
+        'Email contains',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.primaryEmail', 'contains', 'p12345@'),
+            } as never),
+          ),
+      ],
+      [
+        'Search box',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, { limit: 30, search: 'p12345@' } as never),
+          ),
+      ],
+      [
+        'Has a tag',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.tagIds', 'contains', 'tag5'),
+            } as never),
+          ),
+      ],
+      [
+        'Custom number > 9900',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.customFields.f_spend', 'gt', 9900),
+            } as never),
+          ),
+      ],
+      [
+        'Custom select = gold',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.customFields.f_tier', 'eq', 'gold'),
+            } as never),
+          ),
+      ],
+      [
+        'Custom multi-select has golf',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.customFields.f_interests', 'contains', 'golf'),
+            } as never),
+          ),
+      ],
+      [
+        'Custom date in the next 30 days',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.customFields.f_renewal', 'within_next', {
+                amount: 30,
+                unit: 'days',
+              }),
+            } as never),
+          ),
+      ],
+      [
+        'No activity for 60 days',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.lastActivityAt', 'more_than_ago', { amount: 60, unit: 'days' }),
+            } as never),
+          ),
+      ],
+      [
+        'Birthday in the next 7 days',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.birthDate', 'anniversary_within', { amount: 7 }),
+            } as never),
+          ),
+      ],
+      [
+        'Company property: region is north',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.company.customFields.f_region', 'eq', 'north'),
+            } as never),
+          ),
+      ],
+      [
+        'First name is',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.firstName', 'eq', 'Firstc4ca42'),
+            } as never),
+          ),
+      ],
+      [
+        'Search box, two words',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, { limit: 30, search: 'first c4ca 8000' } as never),
+          ),
+      ],
+      [
+        'Company industry is Retail',
+        () =>
+          withOrg(orgId, (tx) =>
+            listCustomers(tx, actor, {
+              limit: 30,
+              filter: rule('subject.company.industry', 'eq', 'Retail'),
+            } as never),
+          ),
+      ],
       [
         'Tag and spend > 5000 and created this year',
         () =>
@@ -163,15 +324,25 @@ const main = async () => {
                 rules: [
                   { path: 'subject.tagIds', op: 'contains', value: 'tag5' },
                   { path: 'subject.customFields.f_spend', op: 'gt', value: 5000 },
-                  { path: 'subject.createdAt', op: 'within_last', value: { amount: 12, unit: 'months' } },
+                  {
+                    path: 'subject.createdAt',
+                    op: 'within_last',
+                    value: { amount: 12, unit: 'months' },
+                  },
                 ],
               }),
             } as never),
           ),
       ],
-      ['Companies, no filter', () => withOrg(orgId, (tx) => listCompanies(tx, actor, { limit: 30 } as never))],
+      [
+        'Companies, no filter',
+        () => withOrg(orgId, (tx) => listCompanies(tx, actor, { limit: 30 } as never)),
+      ],
     ];
-    const lines = [`| Filter (${rows.toLocaleString('en')} customers) | Matches | ms |`, '|---|---:|---:|'];
+    const lines = [
+      `| Filter (${rows.toLocaleString('en')} customers) | Matches | ms |`,
+      '|---|---:|---:|',
+    ];
 
     for (const [label, fn] of cases) {
       let count = 0;
@@ -182,11 +353,14 @@ const main = async () => {
         capped = Boolean(page.totalCapped);
       });
 
-      lines.push(`| ${label} | ${count.toLocaleString('en')}${capped ? '+' : ''} | ${ms.toFixed(0)} |`);
+      lines.push(
+        `| ${label} | ${count.toLocaleString('en')}${capped ? '+' : ''} | ${ms.toFixed(0)} |`,
+      );
       console.log(lines.at(-1));
     }
 
-    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
+    if (process.env.GITHUB_STEP_SUMMARY)
+      appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
   } finally {
     await closeDb();
     await run(baseUrl, `DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);

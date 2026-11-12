@@ -1,9 +1,4 @@
-import type {
-  DndContextProps,
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-} from '@dnd-kit/core';
+import type { DndContextProps, DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 
 import { HTMLAttributes } from 'react';
 

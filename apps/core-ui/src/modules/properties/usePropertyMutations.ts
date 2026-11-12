@@ -45,14 +45,22 @@ export const useAddProperty = () => {
   const refresh = usePropertiesRefresh();
   const { onError } = useFeedback();
 
-  return useMutation({ mutationFn: (body: FieldCreate) => api.fields.create(body), onSuccess: () => refresh(), onError });
+  return useMutation({
+    mutationFn: (body: FieldCreate) => api.fields.create(body),
+    onSuccess: () => refresh(),
+    onError,
+  });
 };
 
 export const useEditProperty = () => {
   const refresh = usePropertiesRefresh();
   const { onError } = useFeedback();
 
-  return useMutation({ mutationFn: (body: FieldUpdate) => api.fields.update(body), onSuccess: () => refresh(), onError });
+  return useMutation({
+    mutationFn: (body: FieldUpdate) => api.fields.update(body),
+    onSuccess: () => refresh(),
+    onError,
+  });
 };
 
 export const useAddPropertyGroup = () => {
@@ -117,7 +125,9 @@ export const usePropertyArchive = () => {
   // The server checks again; the dialog's answer may be stale by now.
   const remove = useMutation({
     mutationFn: (target: TArchiveTarget) =>
-      target.kind === 'group' ? api.fieldGroups.remove({ id: target.id }) : api.fields.removeUnused({ ids: target.ids }),
+      target.kind === 'group'
+        ? api.fieldGroups.remove({ id: target.id })
+        : api.fields.removeUnused({ ids: target.ids }),
     onError,
   });
 
@@ -167,12 +177,14 @@ export const useReorder = (kind: 'fields' | 'groups', contentType: ContentType) 
       const key = [...FIELD_GROUPS_KEY, contentType, { archived: false }];
       const byId = new Map(orders.map((item) => [item.id, item.order]));
 
-      client.setQueryData<{ data: FieldGroup[] }>(key, (data) =>
-        data && {
-          data: data.data
-            .map((group) => ({ ...group, order: byId.get(group.id) ?? group.order }))
-            .sort((a, b) => a.order - b.order),
-        },
+      client.setQueryData<{ data: FieldGroup[] }>(
+        key,
+        (data) =>
+          data && {
+            data: data.data
+              .map((group) => ({ ...group, order: byId.get(group.id) ?? group.order }))
+              .sort((a, b) => a.order - b.order),
+          },
       );
     },
     onSettled: () => refresh(),

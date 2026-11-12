@@ -51,7 +51,10 @@ const AllowedType = z
   .trim()
   .toLowerCase()
   .max(100)
-  .regex(/^(\.[a-z0-9]{1,15}|[a-z0-9][a-z0-9.+-]*\/(\*|[a-z0-9][a-z0-9.+-]*))$/, '.ext, type/subtype or type/*');
+  .regex(
+    /^(\.[a-z0-9]{1,15}|[a-z0-9][a-z0-9.+-]*\/(\*|[a-z0-9][a-z0-9.+-]*))$/,
+    '.ext, type/subtype or type/*',
+  );
 
 export const filesContract = {
   createUpload: oc
@@ -86,11 +89,19 @@ export const filesContract = {
     .input(z.object({ id: Id }))
     .output(FileInfo),
   get: oc
-    .route({ method: 'GET', path: '/files/{id}', summary: 'A file, with a short-lived `downloadUrl`' })
+    .route({
+      method: 'GET',
+      path: '/files/{id}',
+      summary: 'A file, with a short-lived `downloadUrl`',
+    })
     .input(z.object({ id: Id }))
     .output(FileInfo.extend({ downloadUrl: z.string().nullable() })),
   list: oc
-    .route({ method: 'GET', path: '/files', summary: 'Files by id (ready ones only), e.g. a record’s attachments' })
+    .route({
+      method: 'GET',
+      path: '/files',
+      summary: 'Files by id (ready ones only), e.g. a record’s attachments',
+    })
     .input(z.object({ ids: IdList }))
     .output(z.object({ data: z.array(FileInfo) })),
   remove: oc
@@ -102,10 +113,18 @@ export const filesContract = {
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   settings: oc
-    .route({ method: 'GET', path: '/settings/files', summary: 'What the organisation accepts as uploads' })
+    .route({
+      method: 'GET',
+      path: '/settings/files',
+      summary: 'What the organisation accepts as uploads',
+    })
     .output(FileSettings),
   updateSettings: oc
-    .route({ method: 'PUT', path: '/settings/files', summary: 'Change upload limits (owners and admins)' })
+    .route({
+      method: 'PUT',
+      path: '/settings/files',
+      summary: 'Change upload limits (owners and admins)',
+    })
     .input(
       z.object({
         maxSizeMb: z.number().int().min(1).max(10_000),

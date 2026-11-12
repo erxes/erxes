@@ -61,24 +61,147 @@ const COPY: Record<ExampleLanguage, Copy> = {
     plan: { label: 'Plan', options: ['Free', 'Pro', 'Enterprise'] },
     renewal: 'Renewal date',
     vipView: 'VIP customers',
-    automation: { name: 'Welcome new customers (example)', description: 'Emails every new customer, then tells their owner. Turn it on when you are ready.' },
+    automation: {
+      name: 'Welcome new customers (example)',
+      description:
+        'Emails every new customer, then tells their owner. Turn it on when you are ready.',
+    },
     companies: [
-      { name: 'Northwind Traders', industry: 'Retail', website: 'https://northwind.example.com', size: 120, partner: true },
-      { name: 'Blue Sky Travel', industry: 'Travel', website: 'https://bluesky.example.com', size: 35 },
-      { name: 'Steppe Logistics', industry: 'Logistics', website: 'https://steppe.example.com', size: 260 },
+      {
+        name: 'Northwind Traders',
+        industry: 'Retail',
+        website: 'https://northwind.example.com',
+        size: 120,
+        partner: true,
+      },
+      {
+        name: 'Blue Sky Travel',
+        industry: 'Travel',
+        website: 'https://bluesky.example.com',
+        size: 35,
+      },
+      {
+        name: 'Steppe Logistics',
+        industry: 'Logistics',
+        website: 'https://steppe.example.com',
+        size: 260,
+      },
       { name: 'Acme Studio', industry: 'Design', website: 'https://acme.example.com', size: 12 },
     ],
     people: [
-      { first: 'Olivia', last: 'Bennett', email: 'olivia.bennett@example.com', phone: '+1 555 0101', position: 'Head of purchasing', company: 0, role: 'Decision maker', mainContact: true, vip: true, plan: 2, renewalInDays: 40, birthDate: '1988-03-14', note: 'Renewal call booked for next month. Wants the yearly plan with two more seats.' },
-      { first: 'Liam', last: 'Carter', email: 'liam.carter@example.com', phone: '+1 555 0102', position: 'Store manager', company: 0, role: 'User', plan: 2 },
-      { first: 'Sofia', last: 'Diaz', email: 'sofia.diaz@example.com', phone: '+1 555 0103', position: 'Founder', company: 1, role: 'Owner', mainContact: true, vip: true, plan: 1, renewalInDays: 12, note: 'Happy with the service; asked about a referral discount.' },
-      { first: 'Noah', last: 'Evans', email: 'noah.evans@example.com', phone: '+1 555 0104', position: 'Operations lead', company: 2, role: 'Champion', mainContact: true, plan: 1, renewalInDays: 90 },
-      { first: 'Emma', last: 'Fischer', email: 'emma.fischer@example.com', phone: '+1 555 0105', position: 'Designer', company: 3, role: 'User', plan: 0 },
-      { first: 'Mason', last: 'Garcia', email: 'mason.garcia@example.com', phone: '+1 555 0106', position: 'CTO', company: 2, role: 'Evaluator', stage: 0, source: 'website', note: 'Signed up for the newsletter from the pricing page.' },
-      { first: 'Ava', last: 'Hughes', email: 'ava.hughes@example.com', phone: '+1 555 0107', position: 'Marketing manager', stage: 1, source: 'referral' },
-      { first: 'Lucas', last: 'Ito', email: 'lucas.ito@example.com', phone: '+1 555 0108', position: 'Procurement', company: 3, role: 'Decision maker', stage: 2, source: 'event', note: 'Met at the trade fair. Needs a quote for 10 seats by Friday.' },
-      { first: 'Mia', last: 'Jensen', email: 'mia.jensen@example.com', phone: '+1 555 0109', position: 'Owner', stage: 3, source: 'ads' },
-      { first: 'Ethan', last: 'Klein', email: 'ethan.klein@example.com', phone: '+1 555 0110', position: 'Student', stage: 4, source: 'website', reason: 'No budget this year' },
+      {
+        first: 'Olivia',
+        last: 'Bennett',
+        email: 'olivia.bennett@example.com',
+        phone: '+1 555 0101',
+        position: 'Head of purchasing',
+        company: 0,
+        role: 'Decision maker',
+        mainContact: true,
+        vip: true,
+        plan: 2,
+        renewalInDays: 40,
+        birthDate: '1988-03-14',
+        note: 'Renewal call booked for next month. Wants the yearly plan with two more seats.',
+      },
+      {
+        first: 'Liam',
+        last: 'Carter',
+        email: 'liam.carter@example.com',
+        phone: '+1 555 0102',
+        position: 'Store manager',
+        company: 0,
+        role: 'User',
+        plan: 2,
+      },
+      {
+        first: 'Sofia',
+        last: 'Diaz',
+        email: 'sofia.diaz@example.com',
+        phone: '+1 555 0103',
+        position: 'Founder',
+        company: 1,
+        role: 'Owner',
+        mainContact: true,
+        vip: true,
+        plan: 1,
+        renewalInDays: 12,
+        note: 'Happy with the service; asked about a referral discount.',
+      },
+      {
+        first: 'Noah',
+        last: 'Evans',
+        email: 'noah.evans@example.com',
+        phone: '+1 555 0104',
+        position: 'Operations lead',
+        company: 2,
+        role: 'Champion',
+        mainContact: true,
+        plan: 1,
+        renewalInDays: 90,
+      },
+      {
+        first: 'Emma',
+        last: 'Fischer',
+        email: 'emma.fischer@example.com',
+        phone: '+1 555 0105',
+        position: 'Designer',
+        company: 3,
+        role: 'User',
+        plan: 0,
+      },
+      {
+        first: 'Mason',
+        last: 'Garcia',
+        email: 'mason.garcia@example.com',
+        phone: '+1 555 0106',
+        position: 'CTO',
+        company: 2,
+        role: 'Evaluator',
+        stage: 0,
+        source: 'website',
+        note: 'Signed up for the newsletter from the pricing page.',
+      },
+      {
+        first: 'Ava',
+        last: 'Hughes',
+        email: 'ava.hughes@example.com',
+        phone: '+1 555 0107',
+        position: 'Marketing manager',
+        stage: 1,
+        source: 'referral',
+      },
+      {
+        first: 'Lucas',
+        last: 'Ito',
+        email: 'lucas.ito@example.com',
+        phone: '+1 555 0108',
+        position: 'Procurement',
+        company: 3,
+        role: 'Decision maker',
+        stage: 2,
+        source: 'event',
+        note: 'Met at the trade fair. Needs a quote for 10 seats by Friday.',
+      },
+      {
+        first: 'Mia',
+        last: 'Jensen',
+        email: 'mia.jensen@example.com',
+        phone: '+1 555 0109',
+        position: 'Owner',
+        stage: 3,
+        source: 'ads',
+      },
+      {
+        first: 'Ethan',
+        last: 'Klein',
+        email: 'ethan.klein@example.com',
+        phone: '+1 555 0110',
+        position: 'Student',
+        stage: 4,
+        source: 'website',
+        reason: 'No budget this year',
+      },
     ],
   },
   mn: {
@@ -86,24 +209,147 @@ const COPY: Record<ExampleLanguage, Copy> = {
     plan: { label: 'Багц', options: ['Үнэгүй', 'Про', 'Байгууллага'] },
     renewal: 'Сунгах огноо',
     vipView: 'VIP харилцагчид',
-    automation: { name: 'Шинэ харилцагчийг угтах (жишээ)', description: 'Шинэ харилцагч бүрт имэйл илгээж, хариуцагчид нь мэдэгдэнэ. Бэлэн болохоороо асаагаарай.' },
+    automation: {
+      name: 'Шинэ харилцагчийг угтах (жишээ)',
+      description:
+        'Шинэ харилцагч бүрт имэйл илгээж, хариуцагчид нь мэдэгдэнэ. Бэлэн болохоороо асаагаарай.',
+    },
     companies: [
-      { name: 'Хангай Трейд ХХК', industry: 'Жижиглэн худалдаа', website: 'https://khangai.example.com', size: 120, partner: true },
-      { name: 'Цэнхэр Тэнгэр Аялал', industry: 'Аялал жуулчлал', website: 'https://tenger.example.com', size: 35 },
-      { name: 'Тал Ложистик ХХК', industry: 'Тээвэр логистик', website: 'https://tal.example.com', size: 260 },
+      {
+        name: 'Хангай Трейд ХХК',
+        industry: 'Жижиглэн худалдаа',
+        website: 'https://khangai.example.com',
+        size: 120,
+        partner: true,
+      },
+      {
+        name: 'Цэнхэр Тэнгэр Аялал',
+        industry: 'Аялал жуулчлал',
+        website: 'https://tenger.example.com',
+        size: 35,
+      },
+      {
+        name: 'Тал Ложистик ХХК',
+        industry: 'Тээвэр логистик',
+        website: 'https://tal.example.com',
+        size: 260,
+      },
       { name: 'Акме Студио', industry: 'Дизайн', website: 'https://acme.example.com', size: 12 },
     ],
     people: [
-      { first: 'Сарангэрэл', last: 'Бат', email: 'sarangerel@example.com', phone: '88001101', position: 'Худалдан авалтын менежер', company: 0, role: 'Шийдвэр гаргагч', mainContact: true, vip: true, plan: 2, renewalInDays: 40, birthDate: '1988-03-14', note: 'Сунгалтын уулзалт ирэх сард. Жилийн багцыг 2 нэмэлт хэрэглэгчтэй авах сонирхолтой.' },
-      { first: 'Тэмүүлэн', last: 'Ганбаатар', email: 'temuulen@example.com', phone: '88001102', position: 'Дэлгүүрийн менежер', company: 0, role: 'Хэрэглэгч', plan: 2 },
-      { first: 'Оюунчимэг', last: 'Төмөр', email: 'oyunchimeg@example.com', phone: '88001103', position: 'Үүсгэн байгуулагч', company: 1, role: 'Эзэмшигч', mainContact: true, vip: true, plan: 1, renewalInDays: 12, note: 'Үйлчилгээнд сэтгэл хангалуун. Санал болголтын хөнгөлөлтийн талаар асуусан.' },
-      { first: 'Бат-Эрдэнэ', last: 'Дорж', email: 'baterdene@example.com', phone: '88001104', position: 'Үйл ажиллагаа хариуцсан', company: 2, role: 'Дэмжигч', mainContact: true, plan: 1, renewalInDays: 90 },
-      { first: 'Энхжин', last: 'Болд', email: 'enkhjin@example.com', phone: '88001105', position: 'Дизайнер', company: 3, role: 'Хэрэглэгч', plan: 0 },
-      { first: 'Мөнх-Эрдэнэ', last: 'Сүх', email: 'munkherdene@example.com', phone: '88001106', position: 'Технологийн захирал', company: 2, role: 'Үнэлэгч', stage: 0, source: 'website', note: 'Үнийн хуудаснаас мэдээллийн товхимолд бүртгүүлсэн.' },
-      { first: 'Анужин', last: 'Ганзориг', email: 'anujin@example.com', phone: '88001107', position: 'Маркетингийн менежер', stage: 1, source: 'referral' },
-      { first: 'Билгүүн', last: 'Цэрэн', email: 'bilguun@example.com', phone: '88001108', position: 'Худалдан авалт', company: 3, role: 'Шийдвэр гаргагч', stage: 2, source: 'event', note: 'Үзэсгэлэн дээр уулзсан. Баасан гараг гэхэд 10 хэрэглэгчийн үнийн санал хүсэж байна.' },
-      { first: 'Номин-Эрдэнэ', last: 'Пүрэв', email: 'nominerdene@example.com', phone: '88001109', position: 'Эзэмшигч', stage: 3, source: 'ads' },
-      { first: 'Хулан', last: 'Отгон', email: 'khulan@example.com', phone: '88001110', position: 'Оюутан', stage: 4, source: 'website', reason: 'Энэ жил төсөвгүй' },
+      {
+        first: 'Сарангэрэл',
+        last: 'Бат',
+        email: 'sarangerel@example.com',
+        phone: '88001101',
+        position: 'Худалдан авалтын менежер',
+        company: 0,
+        role: 'Шийдвэр гаргагч',
+        mainContact: true,
+        vip: true,
+        plan: 2,
+        renewalInDays: 40,
+        birthDate: '1988-03-14',
+        note: 'Сунгалтын уулзалт ирэх сард. Жилийн багцыг 2 нэмэлт хэрэглэгчтэй авах сонирхолтой.',
+      },
+      {
+        first: 'Тэмүүлэн',
+        last: 'Ганбаатар',
+        email: 'temuulen@example.com',
+        phone: '88001102',
+        position: 'Дэлгүүрийн менежер',
+        company: 0,
+        role: 'Хэрэглэгч',
+        plan: 2,
+      },
+      {
+        first: 'Оюунчимэг',
+        last: 'Төмөр',
+        email: 'oyunchimeg@example.com',
+        phone: '88001103',
+        position: 'Үүсгэн байгуулагч',
+        company: 1,
+        role: 'Эзэмшигч',
+        mainContact: true,
+        vip: true,
+        plan: 1,
+        renewalInDays: 12,
+        note: 'Үйлчилгээнд сэтгэл хангалуун. Санал болголтын хөнгөлөлтийн талаар асуусан.',
+      },
+      {
+        first: 'Бат-Эрдэнэ',
+        last: 'Дорж',
+        email: 'baterdene@example.com',
+        phone: '88001104',
+        position: 'Үйл ажиллагаа хариуцсан',
+        company: 2,
+        role: 'Дэмжигч',
+        mainContact: true,
+        plan: 1,
+        renewalInDays: 90,
+      },
+      {
+        first: 'Энхжин',
+        last: 'Болд',
+        email: 'enkhjin@example.com',
+        phone: '88001105',
+        position: 'Дизайнер',
+        company: 3,
+        role: 'Хэрэглэгч',
+        plan: 0,
+      },
+      {
+        first: 'Мөнх-Эрдэнэ',
+        last: 'Сүх',
+        email: 'munkherdene@example.com',
+        phone: '88001106',
+        position: 'Технологийн захирал',
+        company: 2,
+        role: 'Үнэлэгч',
+        stage: 0,
+        source: 'website',
+        note: 'Үнийн хуудаснаас мэдээллийн товхимолд бүртгүүлсэн.',
+      },
+      {
+        first: 'Анужин',
+        last: 'Ганзориг',
+        email: 'anujin@example.com',
+        phone: '88001107',
+        position: 'Маркетингийн менежер',
+        stage: 1,
+        source: 'referral',
+      },
+      {
+        first: 'Билгүүн',
+        last: 'Цэрэн',
+        email: 'bilguun@example.com',
+        phone: '88001108',
+        position: 'Худалдан авалт',
+        company: 3,
+        role: 'Шийдвэр гаргагч',
+        stage: 2,
+        source: 'event',
+        note: 'Үзэсгэлэн дээр уулзсан. Баасан гараг гэхэд 10 хэрэглэгчийн үнийн санал хүсэж байна.',
+      },
+      {
+        first: 'Номин-Эрдэнэ',
+        last: 'Пүрэв',
+        email: 'nominerdene@example.com',
+        phone: '88001109',
+        position: 'Эзэмшигч',
+        stage: 3,
+        source: 'ads',
+      },
+      {
+        first: 'Хулан',
+        last: 'Отгон',
+        email: 'khulan@example.com',
+        phone: '88001110',
+        position: 'Оюутан',
+        stage: 4,
+        source: 'website',
+        reason: 'Энэ жил төсөвгүй',
+      },
     ],
   },
 };
@@ -141,8 +387,17 @@ export const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLan
   const exampleCompany = await tag('company', copy.tags.example, '#94a3b8');
   const partner = await tag('company', copy.tags.partner, '#10b981');
 
-  const plan = await createField(tx, actor, { contentType: 'customer', label: copy.plan.label, type: 'select', options: copy.plan.options });
-  const renewal = await createField(tx, actor, { contentType: 'customer', label: copy.renewal, type: 'date' });
+  const plan = await createField(tx, actor, {
+    contentType: 'customer',
+    label: copy.plan.label,
+    type: 'select',
+    options: copy.plan.options,
+  });
+  const renewal = await createField(tx, actor, {
+    contentType: 'customer',
+    label: copy.renewal,
+    type: 'date',
+  });
 
   const companyIds: string[] = [];
 
@@ -178,10 +433,17 @@ export const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLan
       tagIds: person.vip ? [exampleCustomer, vip] : [exampleCustomer],
       customFields: {
         ...(person.plan !== undefined ? { [plan.id]: copy.plan.options[person.plan]! } : {}),
-        ...(person.renewalInDays !== undefined ? { [renewal.id]: isoDay(person.renewalInDays) } : {}),
+        ...(person.renewalInDays !== undefined
+          ? { [renewal.id]: isoDay(person.renewalInDays) }
+          : {}),
       },
       ...(lead
-        ? { state: 'lead' as const, leadStageId: lead.id, source: person.source ?? null, ...(person.reason ? { disqualifyReason: person.reason } : {}) }
+        ? {
+            state: 'lead' as const,
+            leadStageId: lead.id,
+            source: person.source ?? null,
+            ...(person.reason ? { disqualifyReason: person.reason } : {}),
+          }
         : { state: 'customer' as const }),
     });
 
@@ -193,7 +455,13 @@ export const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLan
     }
 
     if (person.note) {
-      await addNote(tx, actor, { targetType: 'customer', targetId: created.id, body: person.note, mentions: [], fileIds: [] });
+      await addNote(tx, actor, {
+        targetType: 'customer',
+        targetId: created.id,
+        body: person.note,
+        mentions: [],
+        fileIds: [],
+      });
     }
   }
 
@@ -228,7 +496,12 @@ export const exampleDataJob: JobDefinition = {
 
     const userId = String(job.payload.userId ?? '');
     const [member] = await tx
-      .select({ id: users.id, role: users.role, status: users.status, permissions: roles.permissions })
+      .select({
+        id: users.id,
+        role: users.role,
+        status: users.status,
+        permissions: roles.permissions,
+      })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
       .where(and(eq(users.orgId, job.orgId), eq(users.id, userId)))

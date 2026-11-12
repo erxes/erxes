@@ -63,7 +63,9 @@ const readPluginKeys = (): Map<string, string> => {
   return keys;
 };
 
-const storageDriver = (process.env.FILES_STORAGE?.trim().toLowerCase() || 'local') as 'local' | 's3';
+const storageDriver = (process.env.FILES_STORAGE?.trim().toLowerCase() || 'local') as
+  | 'local'
+  | 's3';
 
 if (storageDriver !== 'local' && storageDriver !== 's3') {
   throw new Error('FILES_STORAGE must be "local" or "s3"');
@@ -118,7 +120,8 @@ export const config = {
      */
     migrationUrl: readSecret('DATA_MIGRATION_URL'),
     /** Apply migrations when the API starts: development only by default. */
-    migrateOnStart: (process.env.DATA_MIGRATE_ON_START ?? (isProduction ? 'false' : 'true')) === 'true',
+    migrateOnStart:
+      (process.env.DATA_MIGRATE_ON_START ?? (isProduction ? 'false' : 'true')) === 'true',
     /** A role to `SET ROLE` to on each connection (session connections only). */
     role: process.env.DATA_ROLE?.trim() || undefined,
     statementTimeoutMs: readNumber('DATA_STATEMENT_TIMEOUT_MS', 15_000),
@@ -172,7 +175,10 @@ export const config = {
   },
   email: {
     /** `smtp` (EMAIL_SMTP_URL) or `log` (development: written to the log, not sent). */
-    driver: (process.env.EMAIL_DRIVER ?? (process.env.EMAIL_SMTP_URL || readSecret('EMAIL_SMTP_URL') ? 'smtp' : 'log')) as 'smtp' | 'log',
+    driver: (process.env.EMAIL_DRIVER ??
+      (process.env.EMAIL_SMTP_URL || readSecret('EMAIL_SMTP_URL') ? 'smtp' : 'log')) as
+      | 'smtp'
+      | 'log',
     /** `smtps://user:pass@smtp.example.com:465` (SES, Mailgun, Postmark, …). */
     smtpUrl: readSecret('EMAIL_SMTP_URL'),
     from: process.env.EMAIL_FROM?.trim() || 'erxes <no-reply@erxes.io>',
@@ -182,7 +188,8 @@ export const config = {
      * Webhooks and automation calls may reach http and private addresses
      * (development only: refused in production, against SSRF).
      */
-    allowPrivate: (process.env.OUTBOUND_ALLOW_PRIVATE ?? (isProduction ? 'false' : 'true')) === 'true',
+    allowPrivate:
+      (process.env.OUTBOUND_ALLOW_PRIVATE ?? (isProduction ? 'false' : 'true')) === 'true',
   },
   /**
    * SaaS (erxes.io): core reads each organisation's plugins and tiers from
@@ -210,7 +217,9 @@ export const config = {
      * organisations at creation). On for self-hosted and development; off
      * where the SaaS side decides what each organisation has.
      */
-    autoInstall: (process.env.PLUGINS_AUTO_INSTALL ?? (process.env.CORE_SETUP === 'false' ? 'false' : 'true')) === 'true',
+    autoInstall:
+      (process.env.PLUGINS_AUTO_INSTALL ??
+        (process.env.CORE_SETUP === 'false' ? 'false' : 'true')) === 'true',
   },
   files: {
     /** `local` (a folder on this server) or `s3` (AWS S3, Cloudflare R2, MinIO, …). */
@@ -243,15 +252,21 @@ export const config = {
 };
 
 if (isProduction && config.data.sslInsecure) {
-  throw new Error('DATA_SSL_INSECURE is for development only: give the database CA with DATA_SSL_CA(_FILE)');
+  throw new Error(
+    'DATA_SSL_INSECURE is for development only: give the database CA with DATA_SSL_CA(_FILE)',
+  );
 }
 
 if (isProduction && !config.auth.signingKey) {
-  throw new Error('CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256');
+  throw new Error(
+    'CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256',
+  );
 }
 
 if (config.saas.enabled && (!config.saas.platformToken || config.saas.platformToken.length < 32)) {
-  throw new Error('SAAS=true needs SAAS_PLATFORM_TOKEN (at least 32 characters; erxes.io\'s PLATFORM_API_TOKEN)');
+  throw new Error(
+    "SAAS=true needs SAAS_PLATFORM_TOKEN (at least 32 characters; erxes.io's PLATFORM_API_TOKEN)",
+  );
 }
 
 if (config.files.driver === 's3' && !config.files.s3.bucket) {

@@ -1,5 +1,13 @@
 import { IconSearch } from '@tabler/icons-react';
-import { Combobox, Command, Filter, isUndefinedOrNull, Skeleton, useFilterQueryState, useMultiQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Filter,
+  isUndefinedOrNull,
+  Skeleton,
+  useFilterQueryState,
+  useMultiQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
@@ -27,12 +35,12 @@ export const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | '
 // Core lists filter by search, tags and owner; old erxes's date filters need
 // list filters core does not have yet.
 const CompaniesFilterPopover = ({ state }: { state: 'lead' | 'customer' }) => {
-  const [queries] = useMultiQueryState<{ tags: string[]; searchValue: string; ownerId: string; stage: string }>([
-    'tags',
-    'searchValue',
-    'ownerId',
-    'stage',
-  ]);
+  const [queries] = useMultiQueryState<{
+    tags: string[];
+    searchValue: string;
+    ownerId: string;
+    stage: string;
+  }>(['tags', 'searchValue', 'ownerId', 'stage']);
   const hasFilters = Object.values(queries || {}).some((value) => value !== null);
   const { t } = useTranslation('contact', { keyPrefix: 'filter' });
   const { t: companyT } = useTranslation('contact', { keyPrefix: 'company' });
@@ -44,7 +52,11 @@ const CompaniesFilterPopover = ({ state }: { state: 'lead' | 'customer' }) => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder={t('_')} variant="secondary" className="bg-background" />
+              <Filter.CommandInput
+                placeholder={t('_')}
+                variant="secondary"
+                className="bg-background"
+              />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
@@ -76,7 +88,10 @@ export const CompaniesFilter = ({ state = 'customer' }: { state?: 'lead' | 'cust
   const [searchValue] = useFilterQueryState<string>('searchValue');
 
   return (
-    <Filter id={state === 'lead' ? 'company-leads-filter' : 'companies-filter'} sessionKey={state === 'lead' ? 'core_company_leads_cursor' : COMPANIES_SESSION_KEY}>
+    <Filter
+      id={state === 'lead' ? 'company-leads-filter' : 'companies-filter'}
+      sessionKey={state === 'lead' ? 'core_company_leads_cursor' : COMPANIES_SESSION_KEY}
+    >
       <Filter.Bar>
         <CompaniesFilterPopover state={state} />
         <Filter.BarItem queryKey="searchValue">

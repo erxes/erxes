@@ -1,4 +1,9 @@
-import { CompanyFields, CustomerFields, type Import, type TransferRecordType } from '@erxes/core-contract';
+import {
+  CompanyFields,
+  CustomerFields,
+  type Import,
+  type TransferRecordType,
+} from '@erxes/core-contract';
 import {
   companies,
   companyTags,
@@ -22,12 +27,30 @@ import { withImportCause } from '~/lib/causation';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { log } from '~/lib/log';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { createCompany, removeCompanies, updateCompany } from '~/modules/companies/companies.service';
-import { createCustomer, linkCustomerCompany, removeCustomers, updateCustomer } from '~/modules/customers/customers.service';
+import {
+  createCompany,
+  removeCompanies,
+  updateCompany,
+} from '~/modules/companies/companies.service';
+import {
+  createCustomer,
+  linkCustomerCompany,
+  removeCustomers,
+  updateCustomer,
+} from '~/modules/customers/customers.service';
 import { readFileBytes, readyFile } from '~/modules/files/files.service';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
-import { type Column, CellError, customValue, parseDate, parseNumber, splitList, suggestMapping, transferColumns } from './columns';
+import {
+  type Column,
+  CellError,
+  customValue,
+  parseDate,
+  parseNumber,
+  splitList,
+  suggestMapping,
+  transferColumns,
+} from './columns';
 import { ParseError, parseSheet } from './parse';
 
 type ImportRow = typeof imports.$inferSelect;
@@ -49,7 +72,10 @@ const defaults = (recordType: TransferRecordType): ImportOptions => ({
 });
 
 const undoable = (row: ImportRow) =>
-  row.status === 'done' && !!row.finishedAt && Date.now() - row.finishedAt.getTime() < UNDO_DAYS * 86_400_000 && row.counts.create > 0;
+  row.status === 'done' &&
+  !!row.finishedAt &&
+  Date.now() - row.finishedAt.getTime() < UNDO_DAYS * 86_400_000 &&
+  row.counts.create > 0;
 
 const toDto = (row: ImportRow, sample: string[][] = []): Import => ({
   id: row.id,
@@ -70,7 +96,11 @@ const toDto = (row: ImportRow, sample: string[][] = []): Import => ({
 });
 
 const importOrThrow = async (client: Db, orgId: string, id: string, lock = false) => {
-  const query = client.select().from(imports).where(and(eq(imports.orgId, orgId), eq(imports.id, id))).limit(1);
+  const query = client
+    .select()
+    .from(imports)
+    .where(and(eq(imports.orgId, orgId), eq(imports.id, id)))
+    .limit(1);
   const [row] = await (lock ? query.for('update') : query);
 
   if (!row) throw notFound('Import');
@@ -79,12 +109,24 @@ const importOrThrow = async (client: Db, orgId: string, id: string, lock = false
 };
 
 const sampleOf = async (client: Db, id: string) =>
-  (await client.select({ cells: importRows.cells }).from(importRows).where(eq(importRows.importId, id)).orderBy(asc(importRows.rowNumber)).limit(5)).map(
-    (row) => row.cells,
-  );
+  (
+    await client
+      .select({ cells: importRows.cells })
+      .from(importRows)
+      .where(eq(importRows.importId, id))
+      .orderBy(asc(importRows.rowNumber))
+      .limit(5)
+  ).map((row) => row.cells);
 
 export const listImports = async (client: Db, actor: Actor) => ({
-  data: (await client.select().from(imports).where(eq(imports.orgId, actor.orgId)).orderBy(sql`${imports.createdAt} desc`).limit(50)).map((row) => toDto(row)),
+  data: (
+    await client
+      .select()
+      .from(imports)
+      .where(eq(imports.orgId, actor.orgId))
+      .orderBy(sql`${imports.createdAt} desc`)
+      .limit(50)
+  ).map((row) => toDto(row)),
 });
 
 export const getImport = async (client: Db, actor: Actor, id: string) => {
@@ -94,7 +136,12 @@ export const getImport = async (client: Db, actor: Actor, id: string) => {
 };
 
 /** Queues an import's next step; a batch's key names the rows it starts after (no double batch). */
-const queueStep = (client: Db, row: Pick<ImportRow, 'orgId' | 'id'>, queue: string, payload: Record<string, unknown> = {}) =>
+const queueStep = (
+  client: Db,
+  row: Pick<ImportRow, 'orgId' | 'id'>,
+  queue: string,
+  payload: Record<string, unknown> = {},
+) =>
   enqueueJob(client, {
     orgId: row.orgId,
     queue,
@@ -104,10 +151,15 @@ const queueStep = (client: Db, row: Pick<ImportRow, 'orgId' | 'id'>, queue: stri
   });
 
 /** Starts an import from an uploaded file: it is read in the background, then columns are suggested. */
-export const createImport = async (client: Db, actor: Actor, input: { recordType: TransferRecordType; fileId: string }) => {
+export const createImport = async (
+  client: Db,
+  actor: Actor,
+  input: { recordType: TransferRecordType; fileId: string },
+) => {
   const file = await readyFile(client, actor.orgId, input.fileId);
 
-  if (!/\.(csv|txt|tsv|xlsx)$/i.test(file.name)) throw new HttpError(400, 'UNSUPPORTED_FILE', 'Import a .csv or .xlsx file');
+  if (!/\.(csv|txt|tsv|xlsx)$/i.test(file.name))
+    throw new HttpError(400, 'UNSUPPORTED_FILE', 'Import a .csv or .xlsx file');
 
   const [row] = await client
     .insert(imports)
@@ -136,7 +188,8 @@ export const updateImport = async (
 ) => {
   const row = await importOrThrow(client, actor.orgId, id, true);
 
-  if (!['mapping', 'checked'].includes(row.status)) throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
+  if (!['mapping', 'checked'].includes(row.status))
+    throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
 
   const columns = await transferColumns(client, actor.orgId, row.recordType);
   const mapping = input.mapping ?? row.mapping;
@@ -144,67 +197,125 @@ export const updateImport = async (
   const unknown = keys.find((key) => !columns.some((item) => item.key === key && item.importable));
 
   if (unknown) throw new HttpError(400, 'INVALID_MAPPING', `Unknown field: ${unknown}`);
-  if (new Set(keys).size !== keys.length) throw new HttpError(400, 'INVALID_MAPPING', 'Each field can take one column');
+  if (new Set(keys).size !== keys.length)
+    throw new HttpError(400, 'INVALID_MAPPING', 'Each field can take one column');
 
   const options = { ...row.options, ...input.options };
 
-  if (row.recordType !== 'company' && options.matchBy === 'name') throw new HttpError(400, 'INVALID_OPTIONS', 'Customers match by email, phone, code or ID');
+  if (row.recordType !== 'company' && options.matchBy === 'name')
+    throw new HttpError(400, 'INVALID_OPTIONS', 'Customers match by email, phone, code or ID');
 
   const [next] = await client
     .update(imports)
-    .set({ mapping, options, status: 'mapping', counts: { ...EMPTY, rows: row.counts.rows }, processed: 0, updatedAt: sql`now()` })
+    .set({
+      mapping,
+      options,
+      status: 'mapping',
+      counts: { ...EMPTY, rows: row.counts.rows },
+      processed: 0,
+      updatedAt: sql`now()`,
+    })
     .where(eq(imports.id, id))
     .returning();
 
-  await client.update(importRows).set({ action: null, error: null }).where(eq(importRows.importId, id));
+  await client
+    .update(importRows)
+    .set({ action: null, error: null })
+    .where(eq(importRows.importId, id));
 
   return toDto(next!, await sampleOf(client, id));
 };
 
-const begin = async (client: Db, actor: Actor, id: string, from: ImportRow['status'][], status: 'checking' | 'running') => {
+const begin = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  from: ImportRow['status'][],
+  status: 'checking' | 'running',
+) => {
   const row = await importOrThrow(client, actor.orgId, id, true);
 
-  if (!from.includes(row.status)) throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
-  if (!Object.keys(row.mapping).length) throw new HttpError(400, 'INVALID_MAPPING', 'Map at least one column');
+  if (!from.includes(row.status))
+    throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
+  if (!Object.keys(row.mapping).length)
+    throw new HttpError(400, 'INVALID_MAPPING', 'Map at least one column');
 
-  const [next] = await client.update(imports).set({ status, processed: 0, error: null, updatedAt: sql`now()` }).where(eq(imports.id, id)).returning();
+  const [next] = await client
+    .update(imports)
+    .set({ status, processed: 0, error: null, updatedAt: sql`now()` })
+    .where(eq(imports.id, id))
+    .returning();
 
   // A fresh key each start (a check can be run again after changes).
-  await queueStep(client, next!, status === 'checking' ? 'import.check' : 'import.run', { after: `0:${newId()}` });
+  await queueStep(client, next!, status === 'checking' ? 'import.check' : 'import.run', {
+    after: `0:${newId()}`,
+  });
 
   return toDto(next!);
 };
 
-export const checkImport = (client: Db, actor: Actor, id: string) => begin(client, actor, id, ['mapping', 'checked'], 'checking');
+export const checkImport = (client: Db, actor: Actor, id: string) =>
+  begin(client, actor, id, ['mapping', 'checked'], 'checking');
 
-export const startImport = (client: Db, actor: Actor, id: string) => begin(client, actor, id, ['mapping', 'checked'], 'running');
+export const startImport = (client: Db, actor: Actor, id: string) =>
+  begin(client, actor, id, ['mapping', 'checked'], 'running');
 
 /** Removes the records it created (to the recycle bin), within 30 days; what it updated stays. */
 export const undoImport = async (client: Db, actor: Actor, id: string) => {
   const row = await importOrThrow(client, actor.orgId, id, true);
 
-  if (!undoable(row)) throw new HttpError(409, 'NOT_UNDOABLE', `Only imports that created records, in the last ${UNDO_DAYS} days`);
+  if (!undoable(row))
+    throw new HttpError(
+      409,
+      'NOT_UNDOABLE',
+      `Only imports that created records, in the last ${UNDO_DAYS} days`,
+    );
 
-  const [next] = await client.update(imports).set({ status: 'running', updatedAt: sql`now()` }).where(eq(imports.id, id)).returning();
+  const [next] = await client
+    .update(imports)
+    .set({ status: 'running', updatedAt: sql`now()` })
+    .where(eq(imports.id, id))
+    .returning();
 
   await queueStep(client, next!, 'import.undo', { by: actor.userId });
-  await recordAudit(client, userCaller(actor), { action: 'import.undone', targetType: 'import', targetId: id, targetLabel: row.fileName });
+  await recordAudit(client, userCaller(actor), {
+    action: 'import.undone',
+    targetType: 'import',
+    targetId: id,
+    targetLabel: row.fileName,
+  });
 
   return toDto(next!);
 };
 
-export const listImportRows = async (client: Db, actor: Actor, id: string, input: { action?: Action; limit: number }) => {
+export const listImportRows = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  input: { action?: Action; limit: number },
+) => {
   await importOrThrow(client, actor.orgId, id);
 
   const rows = await client
     .select()
     .from(importRows)
-    .where(and(eq(importRows.importId, id), input.action ? eq(importRows.action, input.action) : undefined))
+    .where(
+      and(
+        eq(importRows.importId, id),
+        input.action ? eq(importRows.action, input.action) : undefined,
+      ),
+    )
     .orderBy(asc(importRows.rowNumber))
     .limit(input.limit);
 
   return {
-    data: rows.map((row) => ({ rowNumber: row.rowNumber, cells: row.cells, action: row.action as Action | null, error: row.error, recordId: row.recordId })),
+    data: rows.map((row) => ({
+      rowNumber: row.rowNumber,
+      cells: row.cells,
+      action: row.action as Action | null,
+      error: row.error,
+      recordId: row.recordId,
+    })),
   };
 };
 
@@ -213,13 +324,19 @@ export const listImportRows = async (client: Db, actor: Actor, id: string, input
 /** The member the import acts as (its creator, with their permissions now). */
 const memberActor = async (tx: Db, orgId: string, userId: string): Promise<Actor> => {
   const [row] = await tx
-    .select({ id: users.id, role: users.role, status: users.status, permissions: roles.permissions })
+    .select({
+      id: users.id,
+      role: users.role,
+      status: users.status,
+      permissions: roles.permissions,
+    })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
     .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
     .limit(1);
 
-  if (!row || row.status !== 'active') throw new ImportFailed('The member who started this import is no longer active');
+  if (!row || row.status !== 'active')
+    throw new ImportFailed('The member who started this import is no longer active');
 
   return { userId: row.id, orgId, role: row.role, permissions: row.permissions };
 };
@@ -228,7 +345,10 @@ const memberActor = async (tx: Db, orgId: string, userId: string): Promise<Actor
 class ImportFailed extends Error {}
 
 const fail = async (tx: Db, id: string, message: string) => {
-  await tx.update(imports).set({ status: 'failed', error: message.slice(0, 500), finishedAt: sql`now()` }).where(eq(imports.id, id));
+  await tx
+    .update(imports)
+    .set({ status: 'failed', error: message.slice(0, 500), finishedAt: sql`now()` })
+    .where(eq(imports.id, id));
 };
 
 /** Reads the file into rows and suggests the mapping. */
@@ -247,16 +367,31 @@ export const importParseJob: JobDefinition = {
       const { headers, rows } = await parseSheet(body, file.name, file.contentType);
 
       for (let start = 0; start < rows.length; start += 1000) {
-        await db.insert(importRows).values(
-          rows.slice(start, start + 1000).map((cells, index) => ({ orgId: job.orgId, importId: row.id, rowNumber: start + index + 2, cells })),
-        );
+        await db
+          .insert(importRows)
+          .values(
+            rows
+              .slice(start, start + 1000)
+              .map((cells, index) => ({
+                orgId: job.orgId,
+                importId: row.id,
+                rowNumber: start + index + 2,
+                cells,
+              })),
+          );
       }
 
       const columns = await transferColumns(db, job.orgId, row.recordType);
 
       await db
         .update(imports)
-        .set({ status: 'mapping', headers, mapping: suggestMapping(headers, columns), counts: { ...EMPTY, rows: rows.length }, updatedAt: sql`now()` })
+        .set({
+          status: 'mapping',
+          headers,
+          mapping: suggestMapping(headers, columns),
+          counts: { ...EMPTY, rows: rows.length },
+          updatedAt: sql`now()`,
+        })
         .where(eq(imports.id, row.id));
     } catch (error) {
       if (!(error instanceof ParseError)) throw error;
@@ -296,7 +431,8 @@ const readRow = (ctx: Context, cells: string[]) => {
     const column = ctx.columns.get(key);
 
     try {
-      if (key.startsWith('customFields.')) customFields[key.slice('customFields.'.length)] = customValue(column?.fieldType, raw);
+      if (key.startsWith('customFields.'))
+        customFields[key.slice('customFields.'.length)] = customValue(column?.fieldType, raw);
       else if (key === 'id') refs.id = raw;
       else if (key === 'owner') refs.owner = normalizeEmail(raw);
       else if (key === 'tags') refs.tags = splitList(raw);
@@ -306,13 +442,15 @@ const readRow = (ctx: Context, cells: string[]) => {
 
         input.firstName ??= first;
         if (rest.length) input.lastName ??= rest.join(' ');
-      } else if (key === 'emails' || key === 'phones' || key === 'names') input[key] = splitList(raw);
+      } else if (key === 'emails' || key === 'phones' || key === 'names')
+        input[key] = splitList(raw);
       else if (key === 'birthDate') input.birthDate = parseDate(raw);
       else if (key === 'size') input.size = Math.round(parseNumber(raw));
       else if (key === 'state') {
         const state = raw.toLowerCase();
 
-        if (state !== 'lead' && state !== 'customer') throw new CellError(`State is lead or customer, not “${raw}”`);
+        if (state !== 'lead' && state !== 'customer')
+          throw new CellError(`State is lead or customer, not “${raw}”`);
         input.state = state;
       } else input[key] = raw;
     } catch (error) {
@@ -326,7 +464,12 @@ const readRow = (ctx: Context, cells: string[]) => {
 };
 
 /** The record this row is about, by the import's match field. */
-const findExisting = async (tx: Db, ctx: Context, input: Record<string, unknown>, refs: { id?: string }) => {
+const findExisting = async (
+  tx: Db,
+  ctx: Context,
+  input: Record<string, unknown>,
+  refs: { id?: string },
+) => {
   const table = ctx.isCompany ? companies : customers;
   const orgId = ctx.actor.orgId;
   const value = (key: string) => (typeof input[key] === 'string' ? (input[key] as string) : null);
@@ -341,14 +484,20 @@ const findExisting = async (tx: Db, ctx: Context, input: Record<string, unknown>
       const email = value('primaryEmail');
 
       if (!email) return null;
-      where = or(eq(sql`lower(${table.primaryEmail})`, normalizeEmail(email)), sql`${normalizeEmail(email)} = any(${table.emails})`);
+      where = or(
+        eq(sql`lower(${table.primaryEmail})`, normalizeEmail(email)),
+        sql`${normalizeEmail(email)} = any(${table.emails})`,
+      );
       break;
     }
     case 'phone': {
       const phone = value('primaryPhone');
 
       if (!phone) return null;
-      where = or(eq(table.primaryPhone, normalizePhone(phone)), sql`${normalizePhone(phone)} = any(${table.phones})`);
+      where = or(
+        eq(table.primaryPhone, normalizePhone(phone)),
+        sql`${normalizePhone(phone)} = any(${table.phones})`,
+      );
       break;
     }
     case 'code': {
@@ -406,7 +555,13 @@ const tagIds = async (tx: Db, ctx: Context, names: string[], created: Map<string
       const [found] = await tx
         .select({ id: tags.id })
         .from(tags)
-        .where(and(eq(tags.orgId, ctx.actor.orgId), eq(tags.type, type), eq(sql`lower(${tags.name})`, key)))
+        .where(
+          and(
+            eq(tags.orgId, ctx.actor.orgId),
+            eq(tags.type, type),
+            eq(sql`lower(${tags.name})`, key),
+          ),
+        )
         .limit(1);
 
       if (found) {
@@ -414,7 +569,9 @@ const tagIds = async (tx: Db, ctx: Context, names: string[], created: Map<string
         ctx.tags.set(key, id);
       } else if (ctx.imp.options.createMissing) {
         id = newId();
-        await tx.insert(tags).values({ id, orgId: ctx.actor.orgId, type, name, createdBy: ctx.actor.userId });
+        await tx
+          .insert(tags)
+          .values({ id, orgId: ctx.actor.orgId, type, name, createdBy: ctx.actor.userId });
         created.set(`tag:${key}`, id);
       } else {
         throw new CellError(`Tags: no tag named “${name}”`);
@@ -438,7 +595,9 @@ const companyIds = async (tx: Db, ctx: Context, names: string[], created: Map<st
       const [found] = await tx
         .select({ id: companies.id })
         .from(companies)
-        .where(and(eq(companies.orgId, ctx.actor.orgId), eq(sql`lower(${companies.primaryName})`, key)))
+        .where(
+          and(eq(companies.orgId, ctx.actor.orgId), eq(sql`lower(${companies.primaryName})`, key)),
+        )
         .limit(1);
 
       if (found) {
@@ -461,7 +620,12 @@ const companyIds = async (tx: Db, ctx: Context, names: string[], created: Map<st
 const existingTags = async (tx: Db, ctx: Context, id: string) => {
   const links = ctx.isCompany ? companyTags : customerTags;
 
-  return (await tx.select({ tagId: links.tagId }).from(links).where(and(eq(links.orgId, ctx.actor.orgId), eq(links.recordId, id)))).map((row) => row.tagId);
+  return (
+    await tx
+      .select({ tagId: links.tagId })
+      .from(links)
+      .where(and(eq(links.orgId, ctx.actor.orgId), eq(links.recordId, id)))
+  ).map((row) => row.tagId);
 };
 
 const messageOf = (error: unknown) => {
@@ -469,7 +633,8 @@ const messageOf = (error: unknown) => {
 
   const issues = (error as { issues?: { path: (string | number)[]; message: string }[] }).issues;
 
-  if (issues?.length) return issues.map((issue) => `${issue.path.join('.') || 'row'}: ${issue.message}`).join('; ');
+  if (issues?.length)
+    return issues.map((issue) => `${issue.path.join('.') || 'row'}: ${issue.message}`).join('; ');
 
   return (error as Error).message ?? String(error);
 };
@@ -479,7 +644,12 @@ const messageOf = (error: unknown) => {
  * in a savepoint — a dry run (the check) rolls the savepoint back, so it sees
  * exactly what running would (uniqueness, property rules), changing nothing.
  */
-const processRow = async (tx: Db, ctx: Context, row: Row, dry: boolean): Promise<{ action: Action; error?: string; recordId?: string }> => {
+const processRow = async (
+  tx: Db,
+  ctx: Context,
+  row: Row,
+  dry: boolean,
+): Promise<{ action: Action; error?: string; recordId?: string }> => {
   let read: ReturnType<typeof readRow>;
 
   try {
@@ -492,8 +662,10 @@ const processRow = async (tx: Db, ctx: Context, row: Row, dry: boolean): Promise
   const existing = await findExisting(tx, ctx, input, refs);
   const { mode } = ctx.imp.options;
 
-  if (mode === 'create' && existing) return { action: 'skip', error: 'Already exists', recordId: existing };
-  if (mode === 'update' && !existing) return { action: 'skip', error: 'No existing record matches' };
+  if (mode === 'create' && existing)
+    return { action: 'skip', error: 'Already exists', recordId: existing };
+  if (mode === 'update' && !existing)
+    return { action: 'skip', error: 'No existing record matches' };
 
   const action: Action = existing ? 'update' : 'create';
   const created = new Map<string, string>();
@@ -504,14 +676,21 @@ const processRow = async (tx: Db, ctx: Context, row: Row, dry: boolean): Promise
       const sp = savepoint as Db;
 
       if (refs.owner) input.ownerId = await ownerId(sp, ctx, refs.owner);
-      else if (action === 'create' && ctx.imp.options.ownerId) input.ownerId = ctx.imp.options.ownerId;
+      else if (action === 'create' && ctx.imp.options.ownerId)
+        input.ownerId = ctx.imp.options.ownerId;
 
       const rowTags = refs.tags ? await tagIds(sp, ctx, refs.tags, created) : [];
       const optionTags = ctx.imp.options.tagIds ?? [];
 
       if (rowTags.length || optionTags.length) {
         // Tags are added, never taken away.
-        input.tagIds = [...new Set([...(existing ? await existingTags(sp, ctx, existing) : []), ...rowTags, ...optionTags])];
+        input.tagIds = [
+          ...new Set([
+            ...(existing ? await existingTags(sp, ctx, existing) : []),
+            ...rowTags,
+            ...optionTags,
+          ]),
+        ];
       }
 
       if (!ctx.isCompany) {
@@ -523,12 +702,20 @@ const processRow = async (tx: Db, ctx: Context, row: Row, dry: boolean): Promise
 
       if (action === 'create') {
         if (ctx.isCompany) {
-          if (!(parsed as { primaryName?: string }).primaryName) throw new CellError('Name: a company needs a name');
-          recordId = (await createCompany(sp, ctx.actor, parsed as Parameters<typeof createCompany>[2])).id;
+          if (!(parsed as { primaryName?: string }).primaryName)
+            throw new CellError('Name: a company needs a name');
+          recordId = (
+            await createCompany(sp, ctx.actor, parsed as Parameters<typeof createCompany>[2])
+          ).id;
         } else {
           const customer = parsed as Parameters<typeof createCustomer>[2];
 
-          if (!customer.firstName && !customer.lastName && !customer.primaryEmail && !customer.primaryPhone) {
+          if (
+            !customer.firstName &&
+            !customer.lastName &&
+            !customer.primaryEmail &&
+            !customer.primaryPhone
+          ) {
             throw new CellError('A customer needs a name, an email or a phone');
           }
           recordId = (await createCustomer(sp, ctx.actor, customer)).id;
@@ -539,7 +726,8 @@ const processRow = async (tx: Db, ctx: Context, row: Row, dry: boolean): Promise
       }
 
       if (refs.companies?.length && recordId && !ctx.isCompany) {
-        for (const companyId of await companyIds(sp, ctx, refs.companies, created)) await linkCustomerCompany(sp, ctx.actor, recordId, companyId);
+        for (const companyId of await companyIds(sp, ctx, refs.companies, created))
+          await linkCustomerCompany(sp, ctx.actor, recordId, companyId);
       }
 
       if (dry) throw new DryRun();
@@ -568,7 +756,13 @@ const countsOf = async (tx: Db, id: string, rows: number): Promise<ImportCounts>
     .groupBy(importRows.action);
   const count = (action: Action) => grouped.find((item) => item.action === action)?.count ?? 0;
 
-  return { rows, create: count('create'), update: count('update'), skip: count('skip'), error: count('error') };
+  return {
+    rows,
+    create: count('create'),
+    update: count('update'),
+    skip: count('skip'),
+    error: count('error'),
+  };
 };
 
 /** The check and the run: a batch of rows per job, the next batch queued in the same transaction. */
@@ -605,7 +799,12 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean): JobDefini
       caller: userCaller(actor),
       imp,
       isCompany,
-      columns: new Map((await transferColumns(db, job.orgId, imp.recordType)).map((column) => [column.key, column])),
+      columns: new Map(
+        (await transferColumns(db, job.orgId, imp.recordType)).map((column) => [
+          column.key,
+          column,
+        ]),
+      ),
       owners: new Map(),
       tags: new Map(),
       companies: new Map(),
@@ -617,7 +816,11 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean): JobDefini
 
         await db
           .update(importRows)
-          .set({ action: result.action, error: result.error ?? null, recordId: result.recordId ?? null })
+          .set({
+            action: result.action,
+            error: result.error ?? null,
+            recordId: result.recordId ?? null,
+          })
           .where(and(eq(importRows.importId, imp.id), eq(importRows.rowNumber, row.rowNumber)));
       }
     });
@@ -625,7 +828,10 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean): JobDefini
     const processed = imp.processed + rows.length;
 
     if (rows.length === BATCH) {
-      await db.update(imports).set({ processed, updatedAt: sql`now()` }).where(eq(imports.id, imp.id));
+      await db
+        .update(imports)
+        .set({ processed, updatedAt: sql`now()` })
+        .where(eq(imports.id, imp.id));
       await queueStep(db, imp, queue, { after: rows.at(-1)!.rowNumber });
       return;
     }
@@ -634,7 +840,13 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean): JobDefini
 
     await db
       .update(imports)
-      .set({ processed, counts, status: dry ? 'checked' : 'done', finishedAt: dry ? null : sql`now()`, updatedAt: sql`now()` })
+      .set({
+        processed,
+        counts,
+        status: dry ? 'checked' : 'done',
+        finishedAt: dry ? null : sql`now()`,
+        updatedAt: sql`now()`,
+      })
       .where(eq(imports.id, imp.id));
 
     if (!dry) {
@@ -645,14 +857,23 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean): JobDefini
         targetLabel: imp.fileName,
         metadata: { recordType: imp.recordType, ...counts, options: imp.options },
       });
-      await notify(db, { orgId: job.orgId, actorType: 'system', actorId: null, source: 'core' } as unknown as Caller, {
-        userIds: [imp.createdBy],
-        kind: 'core.import.done',
-        title: `Import of ${imp.fileName} finished`,
-        body: `${counts.create} created, ${counts.update} updated, ${counts.skip} skipped, ${counts.error} with errors`,
-        link: `/contacts/settings/import-export?import=${imp.id}`,
-        entity: { type: 'import', id: imp.id },
-      }).catch((error: unknown) => log.warn('could not tell the importer', { error }));
+      await notify(
+        db,
+        {
+          orgId: job.orgId,
+          actorType: 'system',
+          actorId: null,
+          source: 'core',
+        } as unknown as Caller,
+        {
+          userIds: [imp.createdBy],
+          kind: 'core.import.done',
+          title: `Import of ${imp.fileName} finished`,
+          body: `${counts.create} created, ${counts.update} updated, ${counts.skip} skipped, ${counts.error} with errors`,
+          link: `/contacts/settings/import-export?import=${imp.id}`,
+          entity: { type: 'import', id: imp.id },
+        },
+      ).catch((error: unknown) => log.warn('could not tell the importer', { error }));
     }
   },
   async onDead(job, error, tx) {
@@ -678,31 +899,51 @@ export const importUndoJob: JobDefinition = {
     const rows = await db
       .select({ rowNumber: importRows.rowNumber, recordId: importRows.recordId })
       .from(importRows)
-      .where(and(eq(importRows.importId, imp.id), eq(importRows.action, 'create'), isNotNull(importRows.recordId)))
+      .where(
+        and(
+          eq(importRows.importId, imp.id),
+          eq(importRows.action, 'create'),
+          isNotNull(importRows.recordId),
+        ),
+      )
       .orderBy(asc(importRows.rowNumber))
       .limit(BATCH);
 
     if (rows.length) {
       const ids = rows.map((row) => row.recordId!);
 
-      if (imp.recordType === 'company') await removeCompanies(db, actor, ids, { undoingImport: true });
+      if (imp.recordType === 'company')
+        await removeCompanies(db, actor, ids, { undoingImport: true });
       else await removeCustomers(db, actor, ids, { undoingImport: true });
 
       await db
         .update(importRows)
         .set({ action: 'skip', error: 'Undone', recordId: null })
-        .where(and(eq(importRows.importId, imp.id), inArray(importRows.rowNumber, rows.map((row) => row.rowNumber))));
+        .where(
+          and(
+            eq(importRows.importId, imp.id),
+            inArray(
+              importRows.rowNumber,
+              rows.map((row) => row.rowNumber),
+            ),
+          ),
+        );
     }
 
     if (rows.length === BATCH) {
-      await queueStep(db, imp, 'import.undo', { after: rows.at(-1)!.rowNumber, by: job.payload.by });
+      await queueStep(db, imp, 'import.undo', {
+        after: rows.at(-1)!.rowNumber,
+        by: job.payload.by,
+      });
       return;
     }
 
-    await db.update(imports).set({ status: 'undone', updatedAt: sql`now()` }).where(eq(imports.id, imp.id));
+    await db
+      .update(imports)
+      .set({ status: 'undone', updatedAt: sql`now()` })
+      .where(eq(imports.id, imp.id));
   },
   async onDead(job, error, tx) {
     await fail(tx, job.payload.importId as string, `Undo stopped: ${error}`);
   },
 };
-

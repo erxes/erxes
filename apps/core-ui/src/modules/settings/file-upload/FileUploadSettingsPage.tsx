@@ -45,7 +45,11 @@ const optionOf = (value: string): MultiSelectOption =>
 const VALID_TYPE = /^(\.[a-z0-9]{1,15}|[a-z0-9][a-z0-9.+-]*\/(\*|[a-z0-9][a-z0-9.+-]*))$/;
 
 const formatSize = (bytes: number) =>
-  bytes < 1024 ? `${bytes} B` : bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  bytes < 1024
+    ? `${bytes} B`
+    : bytes < 1024 * 1024
+      ? `${(bytes / 1024).toFixed(1)} KB`
+      : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 
 const useFileSettings = () =>
   useQuery({ queryKey: SETTINGS_KEY, queryFn: () => api.files.settings(), staleTime: 60_000 });
@@ -73,7 +77,12 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
       client.setQueryData(SETTINGS_KEY, next);
       toast({ title: t('saved', 'Upload settings saved') });
     },
-    onError: (error) => toast({ variant: 'destructive', title: t('save-failed', 'Could not save'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('save-failed', 'Could not save'),
+        description: messageOf(error),
+      }),
   });
 
   const size = Number(maxSizeMb);
@@ -81,7 +90,10 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
     !Number.isInteger(size) || size < 1
       ? t('size-invalid', 'Enter a whole number of MB')
       : size > settings.limitMb
-        ? t('size-over-limit', { limit: settings.limitMb, defaultValue: `This server accepts up to ${settings.limitMb} MB` })
+        ? t('size-over-limit', {
+            limit: settings.limitMb,
+            defaultValue: `This server accepts up to ${settings.limitMb} MB`,
+          })
         : null;
   const badType = types.find((option) => !VALID_TYPE.test(option.value.trim().toLowerCase()));
 
@@ -90,7 +102,10 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
       <div>
         <h2 className="text-base font-semibold">{t('limits', 'Upload limits')}</h2>
         <p className="text-sm text-muted-foreground">
-          {t('limits-description', 'Apply to every upload in this organisation: team members, plugins and forms.')}
+          {t(
+            'limits-description',
+            'Apply to every upload in this organisation: team members, plugins and forms.',
+          )}
         </p>
       </div>
       <div className="space-y-2">
@@ -106,7 +121,11 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
           onChange={(event) => setMaxSizeMb(event.target.value)}
         />
         <p className={sizeError ? 'text-sm text-destructive' : 'text-xs text-muted-foreground'}>
-          {sizeError ?? t('server-limit', { limit: settings.limitMb, defaultValue: `This server allows up to ${settings.limitMb} MB.` })}
+          {sizeError ??
+            t('server-limit', {
+              limit: settings.limitMb,
+              defaultValue: `This server allows up to ${settings.limitMb} MB.`,
+            })}
         </p>
       </div>
       <div className="space-y-2">
@@ -117,18 +136,34 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
           defaultOptions={TYPE_OPTIONS}
           creatable
           disabled={!canEdit}
-          placeholder={t('allowed-types-placeholder', 'Any type: choose or type image/*, application/pdf, .docx …')}
+          placeholder={t(
+            'allowed-types-placeholder',
+            'Any type: choose or type image/*, application/pdf, .docx …',
+          )}
           hidePlaceholderWhenSelected
-          emptyIndicator={<p className="py-2 text-center text-sm text-muted-foreground">{t('type-hint', 'Type a MIME type or .ext')}</p>}
+          emptyIndicator={
+            <p className="py-2 text-center text-sm text-muted-foreground">
+              {t('type-hint', 'Type a MIME type or .ext')}
+            </p>
+          }
         />
         <p className={badType ? 'text-sm text-destructive' : 'text-xs text-muted-foreground'}>
           {badType
-            ? t('type-invalid', { value: badType.value, defaultValue: `"${badType.value}" is not a MIME type, type/* or .ext` })
-            : t('types-help', 'Leave empty to accept any type. Programs (.exe, .bat, .msi …) are never accepted.')}
+            ? t('type-invalid', {
+                value: badType.value,
+                defaultValue: `"${badType.value}" is not a MIME type, type/* or .ext`,
+              })
+            : t(
+                'types-help',
+                'Leave empty to accept any type. Programs (.exe, .bat, .msi …) are never accepted.',
+              )}
         </p>
       </div>
       {canEdit && (
-        <Button disabled={Boolean(sizeError) || Boolean(badType) || save.isPending} onClick={() => save.mutate()}>
+        <Button
+          disabled={Boolean(sizeError) || Boolean(badType) || save.isPending}
+          onClick={() => save.mutate()}
+        >
           {save.isPending ? <Spinner size="sm" /> : <IconDeviceFloppy />}
           {t('save', 'Save')}
         </Button>
@@ -144,7 +179,11 @@ const StorageInfo = ({ settings }: { settings: FileSettings }) => {
   return (
     <section className="flex gap-4 rounded-lg border bg-background p-5">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-muted text-muted-foreground">
-        {settings.storage === 's3' ? <IconCloudUpload className="size-4" /> : <IconServer className="size-4" />}
+        {settings.storage === 's3' ? (
+          <IconCloudUpload className="size-4" />
+        ) : (
+          <IconServer className="size-4" />
+        )}
       </span>
       <div className="space-y-1">
         <h2 className="text-base font-semibold">
@@ -164,7 +203,10 @@ const StorageInfo = ({ settings }: { settings: FileSettings }) => {
               )}
         </p>
         <p className="text-xs text-muted-foreground">
-          {t('storage-config', 'Storage and its keys are set in the server configuration, not here, so secrets never reach the browser.')}
+          {t(
+            'storage-config',
+            'Storage and its keys are set in the server configuration, not here, so secrets never reach the browser.',
+          )}
         </p>
       </div>
     </section>
@@ -197,7 +239,9 @@ const TryUpload = () => {
     <section className="space-y-3 rounded-lg border bg-background p-5">
       <div>
         <h2 className="text-base font-semibold">{t('try', 'Try an upload')}</h2>
-        <p className="text-sm text-muted-foreground">{t('try-description', 'Check the settings with a real file.')}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('try-description', 'Check the settings with a real file.')}
+        </p>
       </div>
       <input
         ref={input}
@@ -242,7 +286,15 @@ export const FileUploadSettingsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: t('title', 'File upload'), to: '/settings/file-upload', icon: IconCloudUpload }]} />
+          <AppBreadcrumb
+            items={[
+              {
+                label: t('title', 'File upload'),
+                to: '/settings/file-upload',
+                icon: IconCloudUpload,
+              },
+            ]}
+          />
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">

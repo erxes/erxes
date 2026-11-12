@@ -18,7 +18,10 @@ import { currentScope, scopeStorage } from './scope';
  * Nested calls reuse the open transaction; asking for another organisation
  * inside a scope is a bug and throws.
  */
-export const withOrg = async <T>(orgId: string, fn: (tx: Transaction) => Promise<T>): Promise<T> => {
+export const withOrg = async <T>(
+  orgId: string,
+  fn: (tx: Transaction) => Promise<T>,
+): Promise<T> => {
   const current = currentScope();
 
   if (current) {
@@ -36,7 +39,10 @@ export const withOrg = async <T>(orgId: string, fn: (tx: Transaction) => Promise
   });
 };
 
-export const withSystem = async <T>(reason: string, fn: (tx: Transaction) => Promise<T>): Promise<T> => {
+export const withSystem = async <T>(
+  reason: string,
+  fn: (tx: Transaction) => Promise<T>,
+): Promise<T> => {
   const current = currentScope();
 
   if (current) {
@@ -59,8 +65,10 @@ export const withSystem = async <T>(reason: string, fn: (tx: Transaction) => Pro
  * for what must be saved although the surrounding work is rolled back (a
  * guard that refuses the request but records why).
  */
-export const withOrgDetached = <T>(orgId: string, fn: (tx: Transaction) => Promise<T>): Promise<T> =>
-  scopeStorage.exit(() => withOrg(orgId, fn));
+export const withOrgDetached = <T>(
+  orgId: string,
+  fn: (tx: Transaction) => Promise<T>,
+): Promise<T> => scopeStorage.exit(() => withOrg(orgId, fn));
 
 /** The organisation of the current scope (null for system scopes and outside any). */
 export const scopedOrgId = () => currentScope()?.orgId ?? null;

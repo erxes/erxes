@@ -46,7 +46,9 @@ export const PropertiesHeader = () => {
                 <Breadcrumb.Separator />
                 <Breadcrumb.Item>
                   <Breadcrumb.Page className="px-3 text-sm font-medium">
-                    {onAdd ? t('add-property', 'Add Property') : t('edit-property', 'Edit Property')}
+                    {onAdd
+                      ? t('add-property', 'Add Property')
+                      : t('edit-property', 'Edit Property')}
                   </Breadcrumb.Page>
                 </Breadcrumb.Item>
               </>

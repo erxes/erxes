@@ -10,7 +10,13 @@ import { useMemberPermissions, useTeamMemberDisable } from '../useTeamMembers';
  * A member's actions (old `TeamMemberActionItems`), the ones core has:
  * reset password and deactivate / activate.
  */
-export const TeamMemberActionItems = ({ user, onAction }: { user: User; onAction?: () => void }) => {
+export const TeamMemberActionItems = ({
+  user,
+  onAction,
+}: {
+  user: User;
+  onAction?: () => void;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [, setSearchParams] = useSearchParams();
   const toggle = useTeamMemberDisable();
@@ -24,7 +30,10 @@ export const TeamMemberActionItems = ({ user, onAction }: { user: User; onAction
 
   return (
     <Command.List>
-      <Command.Group heading={t('access-and-security', 'Access and security')} className="[&:not(:has([cmdk-item]))]:hidden">
+      <Command.Group
+        heading={t('access-and-security', 'Access and security')}
+        className="[&:not(:has([cmdk-item]))]:hidden"
+      >
         {permissions?.canSetPassword && (
           <Command.Item
             value="reset-password"

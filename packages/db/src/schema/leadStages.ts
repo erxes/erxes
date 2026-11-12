@@ -27,7 +27,14 @@ export const leadStages = pgTable(
   (table) => [
     uniqueIndex('core_lead_stages_org_name_key').on(table.orgId, sql`lower(${table.name})`),
     index('core_lead_stages_org_order_idx').on(table.orgId, table.order),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_lead_stages_org_id_fkey' }).onDelete('cascade'),
-    check('core_lead_stages_kind_check', sql`${table.kind} IN ('open', 'qualified', 'disqualified')`),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_lead_stages_org_id_fkey',
+    }).onDelete('cascade'),
+    check(
+      'core_lead_stages_kind_check',
+      sql`${table.kind} IN ('open', 'qualified', 'disqualified')`,
+    ),
   ],
 );

@@ -8,7 +8,8 @@ import { notify } from '~/modules/notifications/notifications.service';
 /** Failed sign-ins to one account within 15 minutes before owners hear about it. */
 const FAILED_SIGN_IN_ALERT = Number(process.env.FAILED_SIGN_IN_ALERT ?? 10);
 
-const systemCaller = (orgId: string) => ({ orgId, actorType: 'system', actorId: null, source: 'core' }) as unknown as Caller;
+const systemCaller = (orgId: string) =>
+  ({ orgId, actorType: 'system', actorId: null, source: 'core' }) as unknown as Caller;
 
 export const ownerIds = async (client: Db, orgId: string) =>
   (
@@ -58,7 +59,11 @@ export const securityAlert = async (client: Db, orgId: string, input: AlertInput
 
   if (!input.email) return;
 
-  const [org] = await client.select({ name: organizations.name }).from(organizations).where(eq(organizations.id, orgId)).limit(1);
+  const [org] = await client
+    .select({ name: organizations.name })
+    .from(organizations)
+    .where(eq(organizations.id, orgId))
+    .limit(1);
   const people = await client
     .select({ email: users.email })
     .from(users)
@@ -131,35 +136,68 @@ const roleAfter = (changes: Entry['changes']) => {
  * - the member, by email too: a sign-in from a device and address not seen
  *   in 90 days; a recovery code used.
  */
-export const alertsFor = async (client: Db, actor: { orgId: string; actorType: string; actorId?: string | null }, entries: Entry[]) => {
+export const alertsFor = async (
+  client: Db,
+  actor: { orgId: string; actorType: string; actorId?: string | null },
+  entries: Entry[],
+) => {
   const actorUserId = actor.actorType === 'user' ? (actor.actorId ?? null) : null;
   const who = async () => {
     if (!actorUserId) return actor.actorType === 'plugin' ? `The ${actor.actorId} plugin` : 'erxes';
 
-    const [row] = await client.select({ email: users.email }).from(users).where(eq(users.id, actorUserId)).limit(1);
+    const [row] = await client
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, actorUserId))
+      .limit(1);
 
     return row?.email ?? 'A team member';
   };
   const owners = (entry: Entry, title: string, body: string, link: string, email: boolean) =>
-    securityAlert(client, actor.orgId, { key: `${entry.action}:${entry.targetId ?? ''}`, title, body, link, email, actorUserId });
+    securityAlert(client, actor.orgId, {
+      key: `${entry.action}:${entry.targetId ?? ''}`,
+      title,
+      body,
+      link,
+      email,
+      actorUserId,
+    });
 
   for (const entry of entries) {
     const label = entry.targetLabel ?? entry.targetId ?? '';
 
     switch (entry.action) {
       case 'auth.two_factor_disabled':
-        await owners(entry, `Two-step sign-in was turned off for ${label}`, `By ${await who()}. Their account is protected by a password only now.`, '/settings/team-members', true);
+        await owners(
+          entry,
+          `Two-step sign-in was turned off for ${label}`,
+          `By ${await who()}. Their account is protected by a password only now.`,
+          '/settings/team-members',
+          true,
+        );
         break;
       case 'user.role_changed': {
         const role = roleAfter(entry.changes);
 
         if (role === 'owner' || role === 'admin') {
-          await owners(entry, `${label} is now ${role === 'owner' ? 'an owner' : 'an admin'}`, `Changed by ${await who()}.`, '/settings/team-members', true);
+          await owners(
+            entry,
+            `${label} is now ${role === 'owner' ? 'an owner' : 'an admin'}`,
+            `Changed by ${await who()}.`,
+            '/settings/team-members',
+            true,
+          );
         }
         break;
       }
       case 'settings.audit_retention_changed':
-        await owners(entry, 'Audit log retention was changed', `By ${await who()}. Older entries are deleted after the new period.`, '/settings/audit-log', true);
+        await owners(
+          entry,
+          'Audit log retention was changed',
+          `By ${await who()}. Older entries are deleted after the new period.`,
+          '/settings/audit-log',
+          true,
+        );
         break;
       case 'audit.stream_created':
       case 'audit.stream_updated':
@@ -175,21 +213,51 @@ export const alertsFor = async (client: Db, actor: { orgId: string; actorType: s
         );
         break;
       case 'payment.gateway_added':
-        await owners(entry, `A payment gateway was connected: ${label}`, `By ${await who()}. Payments from now on may go to it.`, '/settings/payments', true);
+        await owners(
+          entry,
+          `A payment gateway was connected: ${label}`,
+          `By ${await who()}. Payments from now on may go to it.`,
+          '/settings/payments',
+          true,
+        );
         break;
       case 'payment.gateway_updated':
         if ((entry.metadata as { credentialsChanged?: boolean } | null)?.credentialsChanged) {
-          await owners(entry, `${label}'s payment credentials were changed`, `By ${await who()}. Check that payments still go to your account.`, '/settings/payments', true);
+          await owners(
+            entry,
+            `${label}'s payment credentials were changed`,
+            `By ${await who()}. Check that payments still go to your account.`,
+            '/settings/payments',
+            true,
+          );
         }
         break;
       case 'audit.exported':
-        await owners(entry, 'The audit log was exported', `By ${await who()}.`, '/settings/audit-log', false);
+        await owners(
+          entry,
+          'The audit log was exported',
+          `By ${await who()}.`,
+          '/settings/audit-log',
+          false,
+        );
         break;
       case 'webhook.created':
-        await owners(entry, `A webhook now sends events to ${label}`, `Created by ${await who()}.`, '/settings/webhooks', false);
+        await owners(
+          entry,
+          `A webhook now sends events to ${label}`,
+          `Created by ${await who()}.`,
+          '/settings/webhooks',
+          false,
+        );
         break;
       case 'role.updated':
-        await owners(entry, `The ${label} role's permissions were changed`, `By ${await who()}.`, '/settings/roles', false);
+        await owners(
+          entry,
+          `The ${label} role's permissions were changed`,
+          `By ${await who()}.`,
+          '/settings/roles',
+          false,
+        );
         break;
       case 'auth.recovery_code_used':
         if (entry.targetId) {
@@ -227,7 +295,9 @@ const failedSignIns = async (client: Db, orgId: string, entry: Entry) => {
       and(
         eq(auditLogs.orgId, orgId),
         eq(auditLogs.action, 'auth.sign_in_failed'),
-        entry.targetId ? eq(auditLogs.targetId, entry.targetId) : eq(auditLogs.targetLabel, entry.targetLabel!),
+        entry.targetId
+          ? eq(auditLogs.targetId, entry.targetId)
+          : eq(auditLogs.targetLabel, entry.targetLabel!),
         gte(auditLogs.createdAt, sql`now() - interval '15 minutes'`),
       ),
     );
@@ -265,7 +335,10 @@ const newDevice = async (client: Db, orgId: string, entry: Entry) => {
   // The first sign-in isn't news; a device or address seen before isn't either.
   if (recent.length <= 1) return;
 
-  const seen = recent.filter((row) => (entry.userAgent && row.userAgent === entry.userAgent) || (entry.ip && row.ip === entry.ip)).length;
+  const seen = recent.filter(
+    (row) =>
+      (entry.userAgent && row.userAgent === entry.userAgent) || (entry.ip && row.ip === entry.ip),
+  ).length;
 
   if (seen > 1) return;
 
@@ -280,7 +353,11 @@ const newDevice = async (client: Db, orgId: string, entry: Entry) => {
 };
 
 /** Runs the rules in a savepoint: an alert that fails never undoes the change it's about. */
-export const raiseAlerts = async (client: Db, actor: { orgId: string; actorType: string; actorId?: string | null }, entries: Entry[]) => {
+export const raiseAlerts = async (
+  client: Db,
+  actor: { orgId: string; actorType: string; actorId?: string | null },
+  entries: Entry[],
+) => {
   if (!entries.some((entry) => WATCHED.has(entry.action))) return;
 
   try {

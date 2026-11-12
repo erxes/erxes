@@ -2,21 +2,13 @@ import * as React from 'react';
 import { RadioGroup as RadioGroupPrimitive } from 'radix-ui';
 import { cn } from 'erxes-ui/lib';
 
-export type RadioGroupProps = React.ComponentPropsWithoutRef<
-  typeof RadioGroupPrimitive.Root
->;
+export type RadioGroupProps = React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>;
 
 const RadioGroupRoot = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  return (
-    <RadioGroupPrimitive.Root
-      className={cn('grid gap-3', className)}
-      {...props}
-      ref={ref}
-    />
-  );
+  return <RadioGroupPrimitive.Root className={cn('grid gap-3', className)} {...props} ref={ref} />;
 });
 RadioGroupRoot.displayName = RadioGroupPrimitive.Root.displayName;
 

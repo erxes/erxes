@@ -28,6 +28,10 @@ export const authTokens = pgTable(
   (table) => [
     index('core_auth_tokens_user_idx').on(table.orgId, table.userId, table.purpose),
     check('core_auth_tokens_purpose_check', sql`${table.purpose} IN ('invite', 'password_reset')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_auth_tokens_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_auth_tokens_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

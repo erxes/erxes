@@ -31,7 +31,11 @@ describeWithDb('roles and permissions', () => {
 
   beforeAll(async () => {
     const { users, newId } = await import('@erxes/core-db');
-    const acme = await createOrganization({ subdomain: 'acme', name: 'Acme', owner: { email: 'owner@acme.mn' } });
+    const acme = await createOrganization({
+      subdomain: 'acme',
+      name: 'Acme',
+      owner: { email: 'owner@acme.mn' },
+    });
 
     orgId = acme.organization.id;
     adminId = newId();
@@ -55,14 +59,22 @@ describeWithDb('roles and permissions', () => {
   it('starts every organisation with Owner, Admin and Member, and tells each member what they may do', async () => {
     const listed = await call(await token(memberId), 'GET', '/roles');
 
-    expect(listed.body.data.map((role: { key: string; editable: boolean; members: number }) => [role.key, role.editable, role.members])).toEqual([
+    expect(
+      listed.body.data.map((role: { key: string; editable: boolean; members: number }) => [
+        role.key,
+        role.editable,
+        role.members,
+      ]),
+    ).toEqual([
       ['owner', false, 1],
       ['admin', false, 1],
       ['member', true, 1],
     ]);
 
-    const member = (await call(await token(memberId), 'GET', '/auth/me')).body.permissions as string[];
-    const admin = (await call(await token(adminId), 'GET', '/auth/me')).body.permissions as string[];
+    const member = (await call(await token(memberId), 'GET', '/auth/me')).body
+      .permissions as string[];
+    const admin = (await call(await token(adminId), 'GET', '/auth/me')).body
+      .permissions as string[];
     const ownerPermissions = (await call(owner, 'GET', '/auth/me')).body.permissions as string[];
 
     expect(member).toEqual(expect.arrayContaining(['contacts.view', 'contacts.edit']));
@@ -80,7 +92,9 @@ describeWithDb('roles and permissions', () => {
 
     expect(created.status).toBe(201);
     expect(created.body.key).toMatch(/^r_/);
-    expect((await call(owner, 'PATCH', `/users/${memberId}`, { role: created.body.key })).status).toBe(200);
+    expect(
+      (await call(owner, 'PATCH', `/users/${memberId}`, { role: created.body.key })).status,
+    ).toBe(200);
 
     const support = await token(memberId);
     const customer = await call(support, 'POST', '/customers', { firstName: 'Can not' });
@@ -92,38 +106,65 @@ describeWithDb('roles and permissions', () => {
     // …but contacts.delete, which Member didn't have.
     const made = await call(owner, 'POST', '/customers', { firstName: 'Delete me' });
 
-    expect((await call(support, 'POST', '/customers/remove', { ids: [made.body.id] })).status).toBe(200);
+    expect((await call(support, 'POST', '/customers/remove', { ids: [made.body.id] })).status).toBe(
+      200,
+    );
 
     // Changing the role applies on the next request.
-    await call(owner, 'PATCH', `/roles/${created.body.key}`, { permissions: ['contacts.view', 'team.view'] });
-    expect((await call(support, 'POST', '/customers/remove', { ids: [made.body.id] })).status).toBe(403);
+    await call(owner, 'PATCH', `/roles/${created.body.key}`, {
+      permissions: ['contacts.view', 'team.view'],
+    });
+    expect((await call(support, 'POST', '/customers/remove', { ids: [made.body.id] })).status).toBe(
+      403,
+    );
   });
 
-  it("refuses roles that would give more than the editor has, owner-only actions, or unknown ones", async () => {
+  it('refuses roles that would give more than the editor has, owner-only actions, or unknown ones', async () => {
     const admin = await token(adminId);
 
-    expect((await call(admin, 'POST', '/roles', { name: 'X', permissions: ['plugins.manage'] })).body.code).toBe('OWNER_ONLY_PERMISSION');
-    expect((await call(admin, 'POST', '/roles', { name: 'X', permissions: ['contacts.fly'] })).body.code).toBe('UNKNOWN_PERMISSION');
+    expect(
+      (await call(admin, 'POST', '/roles', { name: 'X', permissions: ['plugins.manage'] })).body
+        .code,
+    ).toBe('OWNER_ONLY_PERMISSION');
+    expect(
+      (await call(admin, 'POST', '/roles', { name: 'X', permissions: ['contacts.fly'] })).body.code,
+    ).toBe('UNKNOWN_PERMISSION');
 
     // A role manager without `*` can't create a role wider than theirs, or hand out Admin.
-    const managers = await call(owner, 'POST', '/roles', { name: 'Team lead', permissions: ['roles.manage', 'team.manage', 'team.view'] });
+    const managers = await call(owner, 'POST', '/roles', {
+      name: 'Team lead',
+      permissions: ['roles.manage', 'team.manage', 'team.view'],
+    });
 
     await call(owner, 'PATCH', `/users/${memberId}`, { role: managers.body.key });
 
     const lead = await token(memberId);
 
-    expect((await call(lead, 'POST', '/roles', { name: 'Wide', permissions: ['contacts.delete'] })).body.code).toBe('BEYOND_OWN_PERMISSIONS');
-    expect((await call(lead, 'POST', '/roles', { name: 'Wide', permissions: ['*'] })).body.code).toBe('BEYOND_OWN_PERMISSIONS');
-    expect((await call(lead, 'PATCH', `/users/${adminId}`, { role: 'member' })).body.code).toBe('BEYOND_OWN_PERMISSIONS');
+    expect(
+      (await call(lead, 'POST', '/roles', { name: 'Wide', permissions: ['contacts.delete'] })).body
+        .code,
+    ).toBe('BEYOND_OWN_PERMISSIONS');
+    expect(
+      (await call(lead, 'POST', '/roles', { name: 'Wide', permissions: ['*'] })).body.code,
+    ).toBe('BEYOND_OWN_PERMISSIONS');
+    expect((await call(lead, 'PATCH', `/users/${adminId}`, { role: 'member' })).body.code).toBe(
+      'BEYOND_OWN_PERMISSIONS',
+    );
 
     // Owner and Admin are fixed; built-in roles stay; a role in use can't go.
-    expect((await call(owner, 'PATCH', '/roles/admin', { name: 'Boss' })).body.code).toBe('FIXED_ROLE');
+    expect((await call(owner, 'PATCH', '/roles/admin', { name: 'Boss' })).body.code).toBe(
+      'FIXED_ROLE',
+    );
     expect((await call(owner, 'DELETE', '/roles/member')).body.code).toBe('BUILTIN_ROLE');
-    expect((await call(owner, 'DELETE', `/roles/${managers.body.key}`)).body.code).toBe('ROLE_IN_USE');
+    expect((await call(owner, 'DELETE', `/roles/${managers.body.key}`)).body.code).toBe(
+      'ROLE_IN_USE',
+    );
 
     await call(owner, 'PATCH', `/users/${memberId}`, { role: 'member' });
     expect((await call(owner, 'DELETE', `/roles/${managers.body.key}`)).status).toBe(200);
-    expect((await call(owner, 'PATCH', `/users/${memberId}`, { role: 'r_doesnotexist1' })).body.code).toBe('ROLE_NOT_FOUND');
+    expect(
+      (await call(owner, 'PATCH', `/users/${memberId}`, { role: 'r_doesnotexist1' })).body.code,
+    ).toBe('ROLE_NOT_FOUND');
   });
 
   it("puts plugin permissions in roles and in the member's plugin session", async () => {
@@ -141,12 +182,16 @@ describeWithDb('roles and permissions', () => {
 
     const catalog = await call(owner, 'GET', '/permissions');
 
-    expect(catalog.body.data.filter((item: { source: string }) => item.source === 'hr').map((item: { action: string }) => item.action)).toEqual([
-      'hr.leave.approve',
-      'hr.salary.view',
-    ]);
+    expect(
+      catalog.body.data
+        .filter((item: { source: string }) => item.source === 'hr')
+        .map((item: { action: string }) => item.action),
+    ).toEqual(['hr.leave.approve', 'hr.salary.view']);
 
-    const approver = await call(owner, 'POST', '/roles', { name: 'Approver', permissions: ['contacts.view', 'team.view', 'hr.leave.approve'] });
+    const approver = await call(owner, 'POST', '/roles', {
+      name: 'Approver',
+      permissions: ['contacts.view', 'team.view', 'hr.leave.approve'],
+    });
 
     await call(owner, 'PATCH', `/users/${memberId}`, { role: approver.body.key });
 

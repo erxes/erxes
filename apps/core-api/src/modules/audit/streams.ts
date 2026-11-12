@@ -1,5 +1,13 @@
 import type { AuditStream } from '@erxes/core-contract';
-import { auditLogs, auditStreams, type Db, newId, organizations, type Transaction, withOrg } from '@erxes/core-db';
+import {
+  auditLogs,
+  auditStreams,
+  type Db,
+  newId,
+  organizations,
+  type Transaction,
+  withOrg,
+} from '@erxes/core-db';
 import { and, asc, eq, gt, sql } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
 import { type Actor, userCaller } from '~/http/auth';
@@ -64,7 +72,9 @@ export const streamEntry = (row: AuditRow) => ({
   source: row.source,
   action: row.action,
   actor: { type: row.actorType, id: row.actorId },
-  target: row.targetType ? { type: row.targetType, id: row.targetId, label: row.targetLabel } : null,
+  target: row.targetType
+    ? { type: row.targetType, id: row.targetId, label: row.targetLabel }
+    : null,
   changes: row.changes,
   metadata: row.metadata,
   ip: row.ip,
@@ -88,7 +98,12 @@ export const formatBatch = (
   gap: { fromSeq: number; toSeq: number } | null,
 ) => {
   if (format === 'erxes') {
-    return JSON.stringify({ stream: context.streamId, organization: context.organization, gap, entries });
+    return JSON.stringify({
+      stream: context.streamId,
+      organization: context.organization,
+      gap,
+      entries,
+    });
   }
 
   const gapEntry: StreamEntry[] = gap
@@ -128,7 +143,13 @@ export const formatBatch = (
 
   return all
     .map((entry) =>
-      JSON.stringify({ time: Date.parse(entry.createdAt) / 1000, host: context.organization.subdomain, source: 'erxes', sourcetype: 'erxes:audit', event: entry }),
+      JSON.stringify({
+        time: Date.parse(entry.createdAt) / 1000,
+        host: context.organization.subdomain,
+        source: 'erxes',
+        sourcetype: 'erxes:audit',
+        event: entry,
+      }),
     )
     .join('\n');
 };
@@ -141,7 +162,8 @@ const send = async (row: StreamRow, body: string) => {
     'Erxes-Signature': signPayload(unseal(row.secretSealed), body),
   };
 
-  if (row.authHeaderName && row.authHeaderValueSealed) headers[row.authHeaderName] = unseal(row.authHeaderValueSealed);
+  if (row.authHeaderName && row.authHeaderValueSealed)
+    headers[row.authHeaderName] = unseal(row.authHeaderValueSealed);
 
   try {
     const response = await postOutbound(row.url, body, headers, 10_000);
@@ -154,7 +176,13 @@ const send = async (row: StreamRow, body: string) => {
       ms: response.ms,
     };
   } catch (error) {
-    return { ok: false, status: null, body: null, error: (error as Error).message.slice(0, 500), ms: null };
+    return {
+      ok: false,
+      status: null,
+      body: null,
+      error: (error as Error).message.slice(0, 500),
+      ms: null,
+    };
   }
 };
 
@@ -173,7 +201,11 @@ const startLoop = async (client: Db, row: StreamRow) => {
 };
 
 export const listStreams = async (client: Db, actor: Actor) => {
-  const rows = await client.select().from(auditStreams).where(eq(auditStreams.orgId, actor.orgId)).orderBy(auditStreams.createdAt);
+  const rows = await client
+    .select()
+    .from(auditStreams)
+    .where(eq(auditStreams.orgId, actor.orgId))
+    .orderBy(auditStreams.createdAt);
   const latest = await latestSeq(client, actor.orgId);
 
   return { data: rows.map((row) => toDto(row, latest)) };
@@ -182,7 +214,13 @@ export const listStreams = async (client: Db, actor: Actor) => {
 export const createStream = async (
   client: Db,
   actor: Actor,
-  input: { name: string; url: string; format: StreamRow['format']; authHeader?: { name: string; value: string }; from: 'now' | 'beginning' },
+  input: {
+    name: string;
+    url: string;
+    format: StreamRow['format'];
+    authHeader?: { name: string; value: string };
+    from: 'now' | 'beginning';
+  },
 ) => {
   checkUrl(input.url);
 
@@ -217,7 +255,11 @@ export const createStream = async (
 };
 
 const streamOrThrow = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client.select().from(auditStreams).where(and(eq(auditStreams.orgId, orgId), eq(auditStreams.id, id))).limit(1);
+  const [row] = await client
+    .select()
+    .from(auditStreams)
+    .where(and(eq(auditStreams.orgId, orgId), eq(auditStreams.id, id)))
+    .limit(1);
 
   if (!row) throw notFound('Stream');
 
@@ -228,7 +270,13 @@ export const updateStream = async (
   client: Db,
   actor: Actor,
   id: string,
-  input: { name?: string; url?: string; format?: StreamRow['format']; authHeader?: { name: string; value: string } | null; status?: 'active' | 'paused' },
+  input: {
+    name?: string;
+    url?: string;
+    format?: StreamRow['format'];
+    authHeader?: { name: string; value: string } | null;
+    status?: 'active' | 'paused';
+  },
 ) => {
   const before = await streamOrThrow(client, actor.orgId, id);
 
@@ -241,20 +289,31 @@ export const updateStream = async (
       ...(input.url ? { url: input.url } : {}),
       ...(input.format ? { format: input.format } : {}),
       ...(input.authHeader !== undefined
-        ? { authHeaderName: input.authHeader?.name ?? null, authHeaderValueSealed: input.authHeader ? seal(input.authHeader.value) : null }
+        ? {
+            authHeaderName: input.authHeader?.name ?? null,
+            authHeaderValueSealed: input.authHeader ? seal(input.authHeader.value) : null,
+          }
         : {}),
       ...(input.status ? { status: input.status } : {}),
       // A new address or a resume starts over the failure count.
-      ...(input.url || input.status === 'active' ? { consecutiveFailures: 0, lastError: null } : {}),
+      ...(input.url || input.status === 'active'
+        ? { consecutiveFailures: 0, lastError: null }
+        : {}),
       updatedAt: sql`now()`,
     })
     .where(eq(auditStreams.id, id))
     .returning();
 
-  if (row!.status === 'active' && (before.status !== 'active' || input.url)) await startLoop(client, row!);
+  if (row!.status === 'active' && (before.status !== 'active' || input.url))
+    await startLoop(client, row!);
 
   await recordAudit(client, userCaller(actor), {
-    action: input.status === 'paused' ? 'audit.stream_paused' : input.status === 'active' && before.status !== 'active' ? 'audit.stream_resumed' : 'audit.stream_updated',
+    action:
+      input.status === 'paused'
+        ? 'audit.stream_paused'
+        : input.status === 'active' && before.status !== 'active'
+          ? 'audit.stream_resumed'
+          : 'audit.stream_updated',
     targetType: 'audit_stream',
     targetId: id,
     targetLabel: row!.name,
@@ -285,7 +344,11 @@ export const removeStream = async (client: Db, actor: Actor, id: string) => {
 };
 
 const organizationOf = async (client: Db, orgId: string) => {
-  const [org] = await client.select({ id: organizations.id, subdomain: organizations.subdomain }).from(organizations).where(eq(organizations.id, orgId)).limit(1);
+  const [org] = await client
+    .select({ id: organizations.id, subdomain: organizations.subdomain })
+    .from(organizations)
+    .where(eq(organizations.id, orgId))
+    .limit(1);
 
   return org ?? { id: orgId, subdomain: orgId };
 };
@@ -308,9 +371,23 @@ export const testStream = async (client: Db, actor: Actor, id: string) => {
     ip: null,
     userAgent: null,
   };
-  const result = await send(row, formatBatch(row.format, { streamId: row.id, organization: await organizationOf(client, actor.orgId) }, [sample], null));
+  const result = await send(
+    row,
+    formatBatch(
+      row.format,
+      { streamId: row.id, organization: await organizationOf(client, actor.orgId) },
+      [sample],
+      null,
+    ),
+  );
 
-  return { ok: result.ok, status: result.status, body: result.body, error: result.error, ms: result.ms };
+  return {
+    ok: result.ok,
+    status: result.status,
+    body: result.body,
+    error: result.error,
+    ms: result.ms,
+  };
 };
 
 /**
@@ -359,14 +436,25 @@ export const auditStreamJob: JobDefinition = {
       }
 
       const firstSeq = entries[0]!.chainSeq ?? row.cursorSeq + 1;
-      const gap = firstSeq > row.cursorSeq + 1 ? { fromSeq: row.cursorSeq + 1, toSeq: firstSeq - 1 } : null;
-      const body = formatBatch(row.format, { streamId, organization: await organizationOf(tx, job.orgId) }, entries.map(streamEntry), gap);
+      const gap =
+        firstSeq > row.cursorSeq + 1 ? { fromSeq: row.cursorSeq + 1, toSeq: firstSeq - 1 } : null;
+      const body = formatBatch(
+        row.format,
+        { streamId, organization: await organizationOf(tx, job.orgId) },
+        entries.map(streamEntry),
+        gap,
+      );
       const result = await send(row, body);
 
       if (result.ok) {
         await tx
           .update(auditStreams)
-          .set({ cursorSeq: entries.at(-1)!.chainSeq!, lastDeliveredAt: sql`now()`, lastError: null, consecutiveFailures: 0 })
+          .set({
+            cursorSeq: entries.at(-1)!.chainSeq!,
+            lastDeliveredAt: sql`now()`,
+            lastError: null,
+            consecutiveFailures: 0,
+          })
           .where(eq(auditStreams.id, streamId));
         await next(entries.length === BATCH ? 0 : IDLE_SECONDS);
         return;
@@ -374,7 +462,10 @@ export const auditStreamJob: JobDefinition = {
 
       const failures = row.consecutiveFailures + 1;
 
-      await tx.update(auditStreams).set({ lastError: result.error, consecutiveFailures: failures }).where(eq(auditStreams.id, streamId));
+      await tx
+        .update(auditStreams)
+        .set({ lastError: result.error, consecutiveFailures: failures })
+        .where(eq(auditStreams.id, streamId));
 
       if (failures === ALERT_AFTER_FAILURES) {
         await securityAlert(tx, job.orgId, {
@@ -383,7 +474,9 @@ export const auditStreamJob: JobDefinition = {
           body: `${failures} tries in a row failed (${result.error}). Entries wait and are sent once it answers again.`,
           link: '/settings/audit-log',
           email: true,
-        }).catch((error: unknown) => log.warn('could not tell owners about a failing audit stream', { error }));
+        }).catch((error: unknown) =>
+          log.warn('could not tell owners about a failing audit stream', { error }),
+        );
       }
 
       // 20 s, 40 s, 80 s … at most 15 minutes between tries; nothing is skipped.
@@ -391,4 +484,3 @@ export const auditStreamJob: JobDefinition = {
     });
   },
 };
-

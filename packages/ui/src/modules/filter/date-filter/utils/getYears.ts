@@ -1,7 +1,4 @@
-export const getYearsArray = (
-  startYearOffset: number,
-  endYearOffset: number
-) => {
+export const getYearsArray = (startYearOffset: number, endYearOffset: number) => {
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - startYearOffset;
   const endYear = currentYear + endYearOffset;

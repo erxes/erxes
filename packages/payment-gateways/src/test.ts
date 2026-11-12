@@ -17,11 +17,16 @@ export const testDriver = (): GatewayDriver => ({
   async check(gatewayInvoiceId, amount, state) {
     const paid = state.testPaid === true;
 
-    return { paid, paidAmount: paid ? amount : 0, paymentId: paid ? `pay_${gatewayInvoiceId}` : null };
+    return {
+      paid,
+      paidAmount: paid ? amount : 0,
+      paymentId: paid ? `pay_${gatewayInvoiceId}` : null,
+    };
   },
   async cancel() {},
   async refund(input, state) {
-    if (state.testRefundFails === true) throw new GatewayError('The test gateway refused the refund');
+    if (state.testRefundFails === true)
+      throw new GatewayError('The test gateway refused the refund');
 
     return { refundId: `refund_${input.paymentId}_${input.amount}` };
   },

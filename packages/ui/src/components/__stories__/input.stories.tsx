@@ -38,13 +38,7 @@ export const Default: Story = {
 };
 
 export const InputNumber: Story = {
-  render: () => (
-    <Input.Number
-      id="number"
-      placeholder="Number input"
-      className="w-[300px]"
-    />
-  ),
+  render: () => <Input.Number id="number" placeholder="Number input" className="w-[300px]" />,
 };
 
 export const InputTypes: Story = {

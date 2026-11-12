@@ -15,11 +15,18 @@ export const desktopSupported = () => typeof window !== 'undefined' && 'Notifica
 export const useDesktopNotifications = () => {
   const navigate = useNavigate();
   const { settings } = useNotificationSettings();
-  const enabled = Boolean(settings?.browser) && desktopSupported() && Notification.permission === 'granted';
+  const enabled =
+    Boolean(settings?.browser) && desktopSupported() && Notification.permission === 'granted';
   const seen = useRef<Set<string> | null>(null);
   const latest = useQuery({
     queryKey: [...NOTIFICATIONS_KEY, 'desktop'],
-    queryFn: () => api.notifications.list({ limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' }),
+    queryFn: () =>
+      api.notifications.list({
+        limit: 5,
+        unread: 'true',
+        direction: 'forward',
+        cursorMode: 'exclusive',
+      }),
     enabled,
   });
 
@@ -38,7 +45,11 @@ export const useDesktopNotifications = () => {
 
       if (!enabled || document.visibilityState === 'visible') continue;
 
-      const popup = new Notification(item.title, { body: item.body ?? undefined, tag: item.id, icon: '/favicon.ico' });
+      const popup = new Notification(item.title, {
+        body: item.body ?? undefined,
+        tag: item.id,
+        icon: '/favicon.ico',
+      });
 
       popup.onclick = () => {
         window.focus();

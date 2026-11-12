@@ -27,7 +27,11 @@ export const oauthCodes = pgTable(
     createdAt: createdAt(),
   },
   (table) => [
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_oauth_codes_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_oauth_codes_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 

@@ -12,13 +12,11 @@ const meta: Meta<typeof RadioGroup> = {
   argTypes: {
     defaultValue: {
       control: 'text',
-      description:
-        'The value of the radio item that should be checked by default',
+      description: 'The value of the radio item that should be checked by default',
     },
     disabled: {
       control: 'boolean',
-      description:
-        'When true, prevents the user from interacting with the radio items',
+      description: 'When true, prevents the user from interacting with the radio items',
     },
   },
 };

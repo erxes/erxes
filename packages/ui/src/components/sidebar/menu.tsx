@@ -8,30 +8,28 @@ import { Tooltip } from 'erxes-ui/components/tooltip';
 import { cn } from 'erxes-ui/lib/utils';
 import { useSidebar } from './context';
 
-export const SidebarMenu = React.forwardRef<
-  HTMLUListElement,
-  React.ComponentProps<'ul'>
->(({ className, ...props }, ref) => (
-  <ul
-    ref={ref}
-    data-sidebar="menu"
-    className={cn('flex w-full min-w-0 flex-col gap-1', className)}
-    {...props}
-  />
-));
+export const SidebarMenu = React.forwardRef<HTMLUListElement, React.ComponentProps<'ul'>>(
+  ({ className, ...props }, ref) => (
+    <ul
+      ref={ref}
+      data-sidebar="menu"
+      className={cn('flex w-full min-w-0 flex-col gap-1', className)}
+      {...props}
+    />
+  ),
+);
 SidebarMenu.displayName = 'SidebarMenu';
 
-export const SidebarMenuItem = React.forwardRef<
-  HTMLLIElement,
-  React.ComponentProps<'li'>
->(({ className, ...props }, ref) => (
-  <li
-    ref={ref}
-    data-sidebar="menu-item"
-    className={cn('group/menu-item relative min-w-0', className)}
-    {...props}
-  />
-));
+export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(
+  ({ className, ...props }, ref) => (
+    <li
+      ref={ref}
+      data-sidebar="menu-item"
+      className={cn('group/menu-item relative min-w-0', className)}
+      {...props}
+    />
+  ),
+);
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
 const sidebarMenuButtonVariants = cva(
@@ -108,10 +106,7 @@ export const SidebarMenuButton = React.forwardRef<
         <Tooltip.Content
           side="right"
           align="center"
-          hidden={
-            isMobile ||
-            (tooltipVisibility === 'collapsed' && state !== 'collapsed')
-          }
+          hidden={isMobile || (tooltipVisibility === 'collapsed' && state !== 'collapsed')}
           {...tooltip}
         />
       </Tooltip>
@@ -151,24 +146,23 @@ export const SidebarMenuAction = React.forwardRef<
 });
 SidebarMenuAction.displayName = 'SidebarMenuAction';
 
-export const SidebarMenuBadge = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    data-sidebar="menu-badge"
-    className={cn(
-      'pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-foreground',
-      'peer-data-[size=sm]/menu-button:top-1',
-      'peer-data-[size=default]/menu-button:top-1.5',
-      'peer-data-[size=lg]/menu-button:top-2.5',
-      'group-data-[collapsible=icon]:hidden',
-      className,
-    )}
-    {...props}
-  />
-));
+export const SidebarMenuBadge = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      data-sidebar="menu-badge"
+      className={cn(
+        'pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-foreground',
+        'peer-data-[size=sm]/menu-button:top-1',
+        'peer-data-[size=default]/menu-button:top-1.5',
+        'peer-data-[size=lg]/menu-button:top-2.5',
+        'group-data-[collapsible=icon]:hidden',
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
 SidebarMenuBadge.displayName = 'SidebarMenuBadge';
 
 export const SidebarMenuSkeleton = React.forwardRef<
@@ -180,10 +174,7 @@ export const SidebarMenuSkeleton = React.forwardRef<
   const id = React.useId();
   // Stable width between 50 to 90%, derived from the instance id.
   const width = React.useMemo(() => {
-    const hash = Array.from(id).reduce(
-      (sum, char) => sum + (char.codePointAt(0) ?? 0),
-      0,
-    );
+    const hash = Array.from(id).reduce((sum, char) => sum + (char.codePointAt(0) ?? 0), 0);
 
     return `${(hash % 41) + 50}%`;
   }, [id]);
@@ -195,12 +186,7 @@ export const SidebarMenuSkeleton = React.forwardRef<
       className={cn('flex h-8 items-center gap-2 rounded-md px-2', className)}
       {...props}
     >
-      {showIcon && (
-        <Skeleton
-          className="size-4 rounded-md"
-          data-sidebar="menu-skeleton-icon"
-        />
-      )}
+      {showIcon && <Skeleton className="size-4 rounded-md" data-sidebar="menu-skeleton-icon" />}
       <Skeleton
         className="h-4 max-w-(--skeleton-width) flex-1"
         data-sidebar="menu-skeleton-text"

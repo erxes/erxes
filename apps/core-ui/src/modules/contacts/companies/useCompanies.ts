@@ -52,7 +52,8 @@ export const useCompanyEdit = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ id, ...body }: CompanyInput & { id: string }) => api.companies.update({ id, ...body }),
+    mutationFn: ({ id, ...body }: CompanyInput & { id: string }) =>
+      api.companies.update({ id, ...body }),
     onSuccess: (company, input) => {
       patchCachedRecord(client, COMPANIES_KEY, company);
       client.setQueryData([...COMPANIES_KEY, 'detail', company.id], company);
@@ -60,7 +61,12 @@ export const useCompanyEdit = () => {
       // Lead ↔ customer moves it to the other list.
       if (input.state) void client.invalidateQueries({ queryKey: [...COMPANIES_KEY, 'list'] });
     },
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not save the company', description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: 'Could not save the company',
+        description: messageOf(error),
+      }),
   });
 };
 
@@ -82,9 +88,13 @@ export const useCompaniesRemove = () => {
     onSuccess: ({ removed }, ids) => {
       removeCachedRecords(client, COMPANIES_KEY, ids);
       void client.invalidateQueries({ queryKey: [...COMPANIES_KEY, 'list'] });
-      toast({ variant: 'success', title: removed === 1 ? 'Company deleted' : `${removed} companies deleted` });
+      toast({
+        variant: 'success',
+        title: removed === 1 ? 'Company deleted' : `${removed} companies deleted`,
+      });
     },
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not delete', description: messageOf(error) }),
+    onError: (error) =>
+      toast({ variant: 'destructive', title: 'Could not delete', description: messageOf(error) }),
   });
 };
 
@@ -93,9 +103,11 @@ export const useCompaniesTag = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (input: { ids: string[]; add: string[]; remove: string[] }) => api.companies.tag(input),
+    mutationFn: (input: { ids: string[]; add: string[]; remove: string[] }) =>
+      api.companies.tag(input),
     onSuccess: () => client.invalidateQueries({ queryKey: COMPANIES_KEY }),
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not tag', description: messageOf(error) }),
+    onError: (error) =>
+      toast({ variant: 'destructive', title: 'Could not tag', description: messageOf(error) }),
   });
 };
 
@@ -115,6 +127,7 @@ export const useCompaniesMerge = () => {
       void client.invalidateQueries({ queryKey: COMPANIES_KEY });
       toast({ variant: 'success', title: 'Companies merged' });
     },
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not merge', description: messageOf(error) }),
+    onError: (error) =>
+      toast({ variant: 'destructive', title: 'Could not merge', description: messageOf(error) }),
   });
 };

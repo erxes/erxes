@@ -7,10 +7,8 @@ declare global {
   }
 }
 
-const browserEnvironment =
-  typeof window === 'undefined' ? undefined : window.env;
-const NODE_ENV =
-  readProcessEnvironment(() => process.env.NODE_ENV) || 'development';
+const browserEnvironment = typeof window === 'undefined' ? undefined : window.env;
+const NODE_ENV = readProcessEnvironment(() => process.env.NODE_ENV) || 'development';
 
 const getDefaultUrl = () => {
   if (NODE_ENV === 'development') {
@@ -22,16 +20,13 @@ const getDefaultUrl = () => {
 };
 
 const getSubdomain = () => {
-  return typeof window === 'undefined'
-    ? ''
-    : window.location.hostname.split('.')[0];
+  return typeof window === 'undefined' ? '' : window.location.hostname.split('.')[0];
 };
 
 const getApi = (): string => {
   const envApiUrl =
     browserEnvironment?.REACT_APP_API_URL ??
-    (readProcessEnvironment(() => process.env.REACT_APP_API_URL) ||
-      getDefaultUrl());
+    (readProcessEnvironment(() => process.env.REACT_APP_API_URL) || getDefaultUrl());
 
   return envApiUrl.includes('<subdomain>')
     ? envApiUrl.replace('<subdomain>', getSubdomain())

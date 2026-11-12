@@ -32,13 +32,10 @@ export const Default: Story = {
               <div className="space-y-1">
                 <h4 className="text-sm font-semibold">@erxes</h4>
                 <p className="text-sm">
-                  The open-source Hubspot alternative. XOS - Experience
-                  Operating System.
+                  The open-source Hubspot alternative. XOS - Experience Operating System.
                 </p>
                 <div className="flex items-center pt-2">
-                  <span className="text-xs text-muted-foreground">
-                    Joined December 2016
-                  </span>
+                  <span className="text-xs text-muted-foreground">Joined December 2016</span>
                 </div>
               </div>
             </div>

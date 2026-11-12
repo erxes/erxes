@@ -1,4 +1,9 @@
-import type { ActionInfo, Automation, AutomationDefinition, AutomationStep } from '@erxes/core-contract';
+import type {
+  ActionInfo,
+  Automation,
+  AutomationDefinition,
+  AutomationStep,
+} from '@erxes/core-contract';
 import {
   IconAdjustmentsHorizontal,
   IconAlertTriangle,
@@ -12,7 +17,19 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, cn, Input, PageContainer, Select, Spinner, Tabs, Textarea, useConfirm, useToast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  cn,
+  Input,
+  PageContainer,
+  Select,
+  Spinner,
+  Tabs,
+  Textarea,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -49,7 +66,10 @@ import { VersionsPanel } from './VersionsPanel';
 type Selection = 'settings' | 'trigger' | string;
 
 const typing = (target: EventTarget | null) =>
-  target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.closest('[role="dialog"],[role="menu"],[role="listbox"]'));
+  target instanceof HTMLElement &&
+  (target.isContentEditable ||
+    ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
+    target.closest('[role="dialog"],[role="menu"],[role="listbox"]'));
 
 /** The inspector's panel for one step: its settings, what's wrong, and moving or removing it. */
 const StepInspector = ({
@@ -78,18 +98,30 @@ const StepInspector = ({
   const fields = useAutomationFields(subject);
   const place = locate(steps, step.id);
   const counts = stats.get(step.id);
-  const { title } = describeStep(step, { actions, events, fields: [...fields, ...outputsBefore(step.id)] });
+  const { title } = describeStep(step, {
+    actions,
+    events,
+    fields: [...fields, ...outputsBefore(step.id)],
+  });
 
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t(`step-type.${step.type}`, STEP_TITLES[step.type])}</p>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            {t(`step-type.${step.type}`, STEP_TITLES[step.type])}
+          </p>
           <h2 className="text-base font-semibold break-words">{title}</h2>
         </div>
         {!disabled && (
           <div className="flex shrink-0 gap-0.5">
-            <Button size="icon" variant="ghost" aria-label={t('move-up', 'Move up')} disabled={!place || place.index === 0} onClick={() => onSteps(moveStep(steps, step.id, -1))}>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label={t('move-up', 'Move up')}
+              disabled={!place || place.index === 0}
+              onClick={() => onSteps(moveStep(steps, step.id, -1))}
+            >
               <IconArrowUp />
             </Button>
             <Button
@@ -146,7 +178,13 @@ const StepInspector = ({
           ))}
         </ul>
       )}
-      <StepSettings step={step} actions={actions} subject={subject} disabled={disabled} onChange={onChange} />
+      <StepSettings
+        step={step}
+        actions={actions}
+        subject={subject}
+        disabled={disabled}
+        onChange={onChange}
+      />
     </div>
   );
 };
@@ -165,8 +203,15 @@ export const AutomationEditorPage = () => {
   const client = useQueryClient();
   const can = useCan();
   const editable = can('automations.manage');
-  const { data: automation, isLoading } = useQuery({ queryKey: ['automations', id], queryFn: () => api.automations.get({ id }) });
-  const catalog = useQuery({ queryKey: ['automations', 'catalog'], queryFn: () => api.automations.catalog(), staleTime: 60_000 });
+  const { data: automation, isLoading } = useQuery({
+    queryKey: ['automations', id],
+    queryFn: () => api.automations.get({ id }),
+  });
+  const catalog = useQuery({
+    queryKey: ['automations', 'catalog'],
+    queryFn: () => api.automations.catalog(),
+    staleTime: 60_000,
+  });
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [definition, setDefinition] = useState<AutomationDefinition | null>(null);
@@ -185,7 +230,9 @@ export const AutomationEditorPage = () => {
   const dirty =
     !!automation &&
     !!definition &&
-    (name !== automation.name || description !== (automation.description ?? '') || JSON.stringify(definition) !== JSON.stringify(automation.definition));
+    (name !== automation.name ||
+      description !== (automation.description ?? '') ||
+      JSON.stringify(definition) !== JSON.stringify(automation.definition));
 
   // Leaving with unsaved changes asks first.
   useEffect(() => {
@@ -203,24 +250,44 @@ export const AutomationEditorPage = () => {
     void client.invalidateQueries({ queryKey: ['automations', 'list'] });
   };
   const onError = (error: unknown) => {
-    const list = isApiError(error, 'INVALID_AUTOMATION') ? ((error.data as { problems?: string[] })?.problems ?? []) : [];
+    const list = isApiError(error, 'INVALID_AUTOMATION')
+      ? ((error.data as { problems?: string[] })?.problems ?? [])
+      : [];
 
     setServerProblems(list);
     if (list.length) setSelected('settings');
-    toast({ variant: 'destructive', title: t('failed', 'Something went wrong'), description: messageOf(error) });
+    toast({
+      variant: 'destructive',
+      title: t('failed', 'Something went wrong'),
+      description: messageOf(error),
+    });
   };
   const save = useMutation({
-    mutationFn: () => api.automations.update({ id, name, description: description || null, definition: definition! }),
+    mutationFn: () =>
+      api.automations.update({
+        id,
+        name,
+        description: description || null,
+        definition: definition!,
+      }),
     onSuccess: (next) => {
       setServerProblems([]);
       refresh(next);
-      toast({ title: next.status === 'active' ? t('published', 'Saved and published') : t('saved', 'Saved') });
+      toast({
+        title:
+          next.status === 'active' ? t('published', 'Saved and published') : t('saved', 'Saved'),
+      });
     },
     onError,
   });
   const activate = useMutation({
     mutationFn: async () => {
-      await api.automations.update({ id, name, description: description || null, definition: definition! });
+      await api.automations.update({
+        id,
+        name,
+        description: description || null,
+        definition: definition!,
+      });
 
       return api.automations.activate({ id });
     },
@@ -231,12 +298,22 @@ export const AutomationEditorPage = () => {
     },
     onError,
   });
-  const pause = useMutation({ mutationFn: () => api.automations.pause({ id }), onSuccess: refresh, onError });
-  const stats = useQuery({ queryKey: ['automations', id, 'stats'], queryFn: () => api.automations.stats({ id }), refetchInterval: 15_000 });
+  const pause = useMutation({
+    mutationFn: () => api.automations.pause({ id }),
+    onSuccess: refresh,
+    onError,
+  });
+  const stats = useQuery({
+    queryKey: ['automations', id, 'stats'],
+    queryFn: () => api.automations.stats({ id }),
+    refetchInterval: 15_000,
+  });
   const start = useMutation({
     mutationFn: () => api.automations.start({ id }),
     onSuccess: (result) => {
-      toast({ title: t('started', 'Started for {{started}} records ({{skipped}} skipped)', result) });
+      toast({
+        title: t('started', 'Started for {{started}} records ({{skipped}} skipped)', result),
+      });
       void client.invalidateQueries({ queryKey: ['automations', id] });
     },
     onError,
@@ -252,31 +329,51 @@ export const AutomationEditorPage = () => {
 
   const triggerDef = definition?.trigger;
   const triggers = catalog.data?.triggers ?? [];
-  const eventInfo = triggerDef?.kind === 'event' ? triggers.find((item) => item.type === triggerDef.event) : undefined;
+  const eventInfo =
+    triggerDef?.kind === 'event'
+      ? triggers.find((item) => item.type === triggerDef.event)
+      : undefined;
   const subject: 'customer' | 'company' =
-    triggerDef?.kind === 'event' ? (eventInfo?.subject ?? 'customer') : triggerDef?.kind === 'date' ? triggerDef.subject : (triggerDef?.audience?.type ?? 'customer');
-  const hasSubject = triggerDef?.kind === 'event' ? Boolean(eventInfo?.subject) : triggerDef?.kind === 'date' || Boolean(triggerDef && 'audience' in triggerDef && triggerDef.audience);
+    triggerDef?.kind === 'event'
+      ? (eventInfo?.subject ?? 'customer')
+      : triggerDef?.kind === 'date'
+        ? triggerDef.subject
+        : (triggerDef?.audience?.type ?? 'customer');
+  const hasSubject =
+    triggerDef?.kind === 'event'
+      ? Boolean(eventInfo?.subject)
+      : triggerDef?.kind === 'date' ||
+        Boolean(triggerDef && 'audience' in triggerDef && triggerDef.audience);
   const fields = useAutomationFields(hasSubject ? subject : null);
   const actions = useMemo(
-    () => (catalog.data?.actions ?? []).filter((action) => !action.subject || (hasSubject && (action.subject === 'any' || action.subject === subject))),
+    () =>
+      (catalog.data?.actions ?? []).filter(
+        (action) =>
+          !action.subject ||
+          (hasSubject && (action.subject === 'any' || action.subject === subject)),
+      ),
     [catalog.data, hasSubject, subject],
   );
-  const problems = useMemo(() => (definition ? flowProblems(definition.steps, actions) : new Map<string, string[]>()), [definition, actions]);
-  const builder = useMemo(
-    () => {
-      const events = triggers.filter((item) => item.subject);
-
-      return {
-        events,
-        stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
-        outputsBefore: (stepId: string) => (definition ? stepOutputFields(definition.steps, stepId, { events }) : []),
-      };
-    },
-    [triggers, stats.data, definition],
+  const problems = useMemo(
+    () => (definition ? flowProblems(definition.steps, actions) : new Map<string, string[]>()),
+    [definition, actions],
   );
+  const builder = useMemo(() => {
+    const events = triggers.filter((item) => item.subject);
 
+    return {
+      events,
+      stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
+      outputsBefore: (stepId: string) =>
+        definition ? stepOutputFields(definition.steps, stepId, { events }) : [],
+    };
+  }, [triggers, stats.data, definition]);
 
-  const setSteps = useCallback((steps: AutomationStep[]) => setDefinition((current) => (current ? { ...current, steps } : current)), []);
+  const setSteps = useCallback(
+    (steps: AutomationStep[]) =>
+      setDefinition((current) => (current ? { ...current, steps } : current)),
+    [],
+  );
 
   // ⌘S saves; Delete removes the selected step; Escape goes back to the settings.
   useEffect(() => {
@@ -290,7 +387,13 @@ export const AutomationEditorPage = () => {
       if (typing(event.target)) return;
 
       if (event.key === 'Escape') setSelected('settings');
-      if ((event.key === 'Delete' || event.key === 'Backspace') && editable && definition && selected !== 'settings' && selected !== 'trigger') {
+      if (
+        (event.key === 'Delete' || event.key === 'Backspace') &&
+        editable &&
+        definition &&
+        selected !== 'settings' &&
+        selected !== 'trigger'
+      ) {
         setSteps(removeStep(definition.steps, selected));
         setSelected('settings');
       }
@@ -301,10 +404,12 @@ export const AutomationEditorPage = () => {
     return () => window.removeEventListener('keydown', onKey);
   }, [editable, dirty, save, definition, selected, setSteps]);
 
-  if (isLoading || !automation || !definition || !catalog.data) return <Spinner containerClassName="py-12" />;
+  if (isLoading || !automation || !definition || !catalog.data)
+    return <Spinner containerClassName="py-12" />;
 
   const trigger = describeTrigger(definition.trigger, triggers, fields);
-  const selectedStep = selected !== 'settings' && selected !== 'trigger' ? findStep(definition.steps, selected) : null;
+  const selectedStep =
+    selected !== 'settings' && selected !== 'trigger' ? findStep(definition.steps, selected) : null;
   const totalProblems = [...problems.values()].reduce((sum, list) => sum + list.length, 0);
 
   return (
@@ -317,7 +422,15 @@ export const AutomationEditorPage = () => {
               { label: name || automation.name, to: `/automations/${id}` },
             ]}
           />
-          <Badge variant={automation.status === 'active' ? 'success' : automation.status === 'paused' ? 'warning' : 'secondary'}>
+          <Badge
+            variant={
+              automation.status === 'active'
+                ? 'success'
+                : automation.status === 'paused'
+                  ? 'warning'
+                  : 'secondary'
+            }
+          >
             {t(`automation-status.${automation.status}`, automation.status)}
             {automation.activeVersion ? ` · v${automation.activeVersion}` : ''}
           </Badge>
@@ -337,14 +450,25 @@ export const AutomationEditorPage = () => {
               aria-label={t('delete', 'Delete')}
               disabled={remove.isPending}
               onClick={() =>
-                void confirm({ message: t('delete-confirm', 'Delete “{{name}}”? Runs in progress stop.', { name: automation.name }) }).then(() => remove.mutate())
+                void confirm({
+                  message: t('delete-confirm', 'Delete “{{name}}”? Runs in progress stop.', {
+                    name: automation.name,
+                  }),
+                }).then(() => remove.mutate())
               }
             >
               <IconTrash />
             </Button>
-            <Button variant="outline" disabled={save.isPending || !dirty} onClick={() => save.mutate()} title="⌘S">
+            <Button
+              variant="outline"
+              disabled={save.isPending || !dirty}
+              onClick={() => save.mutate()}
+              title="⌘S"
+            >
               <IconDeviceFloppy />
-              {automation.status === 'active' ? t('publish', 'Save and publish') : t('save', 'Save')}
+              {automation.status === 'active'
+                ? t('publish', 'Save and publish')
+                : t('save', 'Save')}
             </Button>
             {automation.status === 'active' ? (
               <Button variant="outline" disabled={pause.isPending} onClick={() => pause.mutate()}>
@@ -352,7 +476,11 @@ export const AutomationEditorPage = () => {
                 {t('pause', 'Pause')}
               </Button>
             ) : (
-              <Button disabled={activate.isPending || totalProblems > 0} title={totalProblems ? t('fix-first', 'Fix the marked steps first') : undefined} onClick={() => activate.mutate()}>
+              <Button
+                disabled={activate.isPending || totalProblems > 0}
+                title={totalProblems ? t('fix-first', 'Fix the marked steps first') : undefined}
+                onClick={() => activate.mutate()}
+              >
                 <IconPlayerPlay />
                 {t('activate', 'Turn on')}
               </Button>
@@ -365,12 +493,20 @@ export const AutomationEditorPage = () => {
           <Tabs.List className="h-9 border-b-0">
             <Tabs.Trigger value="build">{t('build', 'Build')}</Tabs.Trigger>
             <Tabs.Trigger value="runs">
-              {t('runs', 'Runs')} ({stats.data?.runs.total ?? automation.stats.running + automation.stats.succeeded + automation.stats.failed})
+              {t('runs', 'Runs')} (
+              {stats.data?.runs.total ??
+                automation.stats.running + automation.stats.succeeded + automation.stats.failed}
+              )
             </Tabs.Trigger>
           </Tabs.List>
           <span className="ml-auto text-xs text-muted-foreground">
             {t('step-count', '{{count}} steps', { count: countSteps(definition.steps) })}
-            {totalProblems > 0 && <span className="text-destructive"> · {t('problem-count', '{{count}} to fix', { count: totalProblems })}</span>}
+            {totalProblems > 0 && (
+              <span className="text-destructive">
+                {' '}
+                · {t('problem-count', '{{count}} to fix', { count: totalProblems })}
+              </span>
+            )}
           </span>
         </div>
         <Tabs.Content value="build" className="mt-0 flex min-h-0 flex-1">
@@ -405,7 +541,12 @@ export const AutomationEditorPage = () => {
                   <IconAdjustmentsHorizontal />
                   {t('settings', 'Settings')}
                 </Button>
-                <Button size="sm" variant={selected === 'trigger' ? 'secondary' : 'ghost'} className="h-7" onClick={() => setSelected('trigger')}>
+                <Button
+                  size="sm"
+                  variant={selected === 'trigger' ? 'secondary' : 'ghost'}
+                  className="h-7"
+                  onClick={() => setSelected('trigger')}
+                >
                   <IconBolt />
                   {t('trigger-kind', 'Trigger')}
                 </Button>
@@ -428,7 +569,9 @@ export const AutomationEditorPage = () => {
                       )}
                       {totalProblems > 0 && (
                         <div className="space-y-1 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
-                          <p className="font-medium text-destructive">{t('needs-attention', 'These steps need attention')}</p>
+                          <p className="font-medium text-destructive">
+                            {t('needs-attention', 'These steps need attention')}
+                          </p>
                           {[...problems.entries()].map(([stepId, list]) => {
                             const step = findStep(definition.steps, stepId);
 
@@ -439,7 +582,14 @@ export const AutomationEditorPage = () => {
                                 className="block w-full text-left text-destructive hover:underline"
                                 onClick={() => setSelected(stepId)}
                               >
-                                {describeStep(step, { actions, events: builder.events, fields: [...fields, ...builder.outputsBefore(stepId)] }).title}: {list[0]}
+                                {
+                                  describeStep(step, {
+                                    actions,
+                                    events: builder.events,
+                                    fields: [...fields, ...builder.outputsBefore(stepId)],
+                                  }).title
+                                }
+                                : {list[0]}
                               </button>
                             ) : null;
                           })}
@@ -447,7 +597,11 @@ export const AutomationEditorPage = () => {
                       )}
                       <div className="space-y-1.5">
                         <FieldLabel>{t('name', 'Name')}</FieldLabel>
-                        <Input value={name} disabled={!editable} onChange={(event) => setName(event.target.value)} />
+                        <Input
+                          value={name}
+                          disabled={!editable}
+                          onChange={(event) => setName(event.target.value)}
+                        />
                       </div>
                       <div className="space-y-1.5">
                         <FieldLabel>{t('description', 'Description')}</FieldLabel>
@@ -464,14 +618,23 @@ export const AutomationEditorPage = () => {
                         <Select
                           value={definition.reentry}
                           disabled={!editable}
-                          onValueChange={(reentry) => setDefinition({ ...definition, reentry: reentry as AutomationDefinition['reentry'] })}
+                          onValueChange={(reentry) =>
+                            setDefinition({
+                              ...definition,
+                              reentry: reentry as AutomationDefinition['reentry'],
+                            })
+                          }
                         >
                           <Select.Trigger>
                             <Select.Value />
                           </Select.Trigger>
                           <Select.Content>
-                            <Select.Item value="always">{t('reentry-always', 'every time')}</Select.Item>
-                            <Select.Item value="daily">{t('reentry-daily', 'once a day')}</Select.Item>
+                            <Select.Item value="always">
+                              {t('reentry-always', 'every time')}
+                            </Select.Item>
+                            <Select.Item value="daily">
+                              {t('reentry-daily', 'once a day')}
+                            </Select.Item>
                             <Select.Item value="once">{t('reentry-once', 'only once')}</Select.Item>
                           </Select.Content>
                         </Select>
@@ -485,17 +648,33 @@ export const AutomationEditorPage = () => {
                           value={definition.maxRunsPerHour ?? ''}
                           disabled={!editable}
                           onChange={(event) =>
-                            setDefinition({ ...definition, maxRunsPerHour: event.target.value ? Math.max(1, Number(event.target.value)) : undefined })
+                            setDefinition({
+                              ...definition,
+                              maxRunsPerHour: event.target.value
+                                ? Math.max(1, Number(event.target.value))
+                                : undefined,
+                            })
                           }
                         />
                         {(stats.data?.skippedByLimit ?? 0) > 0 && (
-                          <p className="text-xs text-warning">{t('skipped-by-limit', '{{count}} skipped by the limit', { count: stats.data!.skippedByLimit })}</p>
+                          <p className="text-xs text-warning">
+                            {t('skipped-by-limit', '{{count}} skipped by the limit', {
+                              count: stats.data!.skippedByLimit,
+                            })}
+                          </p>
                         )}
                       </div>
                       {hasSubject && (
                         <div className="space-y-1.5">
-                          <FieldLabel>{t('goal', 'Goal: once this holds, the record leaves the automation')}</FieldLabel>
-                          <ConditionsEditor subject={subject} value={definition.goal} disabled={!editable} onChange={(goal) => setDefinition({ ...definition, goal })} />
+                          <FieldLabel>
+                            {t('goal', 'Goal: once this holds, the record leaves the automation')}
+                          </FieldLabel>
+                          <ConditionsEditor
+                            subject={subject}
+                            value={definition.goal}
+                            disabled={!editable}
+                            onChange={(goal) => setDefinition({ ...definition, goal })}
+                          />
                         </div>
                       )}
                     </>
@@ -506,7 +685,11 @@ export const AutomationEditorPage = () => {
                       events={triggers}
                       disabled={!editable}
                       onChange={(next) => setDefinition({ ...definition, trigger: next })}
-                      onStartNow={automation.status === 'active' && editable ? () => start.mutate() : undefined}
+                      onStartNow={
+                        automation.status === 'active' && editable
+                          ? () => start.mutate()
+                          : undefined
+                      }
                     />
                   )}
                   {selectedStep && (
@@ -523,7 +706,9 @@ export const AutomationEditorPage = () => {
                     />
                   )}
                   {selected !== 'settings' && selected !== 'trigger' && !selectedStep && (
-                    <p className={cn('text-sm text-muted-foreground')}>{t('nothing-selected', 'Choose a step on the canvas.')}</p>
+                    <p className={cn('text-sm text-muted-foreground')}>
+                      {t('nothing-selected', 'Choose a step on the canvas.')}
+                    </p>
                   )}
                 </div>
               </div>

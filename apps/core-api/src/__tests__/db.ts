@@ -83,10 +83,19 @@ export const useTestDatabase = () => {
     await closeDb();
     await admin(`SELECT core_grant_runtime('${TEST_RUNTIME_ROLE}')`, currentUrl);
 
-    ownerPool = new Pool({ connectionString: currentUrl, max: 3, application_name: 'erxes-core-test-owner' });
+    ownerPool = new Pool({
+      connectionString: currentUrl,
+      max: 3,
+      application_name: 'erxes-core-test-owner',
+    });
     owner = drizzle(ownerPool, { schema, casing: 'snake_case' });
 
-    configureDb({ url: sessionUrl(currentUrl), role: TEST_RUNTIME_ROLE, poolMax: 5, applicationName: 'erxes-core-test' });
+    configureDb({
+      url: sessionUrl(currentUrl),
+      role: TEST_RUNTIME_ROLE,
+      poolMax: 5,
+      applicationName: 'erxes-core-test',
+    });
 
     // The test plugin (`hr`, from CORE_PLUGIN_KEYS in vitest.config.ts).
     const { syncPluginSecrets } = await import('~/modules/plugins/plugins.service');
@@ -108,7 +117,11 @@ export const currentToken = async (userId: string, orgId: string) => {
   const { users } = await import('@erxes/core-db');
   const { eq } = await import('drizzle-orm');
   const { signAccessToken } = await import('~/http/auth');
-  const [row] = await adminDb().select({ sessionVersion: users.sessionVersion }).from(users).where(eq(users.id, userId)).limit(1);
+  const [row] = await adminDb()
+    .select({ sessionVersion: users.sessionVersion })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
 
   return signAccessToken(userId, orgId, undefined, row?.sessionVersion ?? 1);
 };

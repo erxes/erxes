@@ -25,7 +25,12 @@ export interface StoredPluginManifest {
   scopes: string[];
   permissions?: { action: string; label: string; description?: string; group?: string }[];
   notificationKinds?: { kind: string; label: string; description?: string }[];
-  events?: { type: string; label: string; description?: string; subject?: 'customer' | 'company' }[];
+  events?: {
+    type: string;
+    label: string;
+    description?: string;
+    subject?: 'customer' | 'company';
+  }[];
   /** Events it wants at `<api.url>/events` (patterns: `core.payment.*`). */
   subscriptions?: string[];
   timelines?: { type: string; label: string; permission?: string }[];
@@ -35,7 +40,14 @@ export interface StoredPluginManifest {
     label: string;
     description?: string;
     subject?: 'customer' | 'company' | 'any';
-    fields: { key: string; label: string; type: string; required: boolean; options?: { value: string; label: string }[]; description?: string }[];
+    fields: {
+      key: string;
+      label: string;
+      type: string;
+      required: boolean;
+      options?: { value: string; label: string }[];
+      description?: string;
+    }[];
   }[];
 }
 
@@ -72,7 +84,10 @@ export const pluginInstallations = pgTable(
     status: text({ enum: PLUGIN_STATUSES }).default('active').notNull(),
     /** Why it is off (`Suspended: 600 deletions in 5 minutes`), for the owner. */
     statusReason: text(),
-    grantedScopes: text().array().default(sql`'{}'::text[]`).notNull(),
+    grantedScopes: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     installedBy: text(),
     installedAt: createdAt(),
     updatedAt: updatedAt(),

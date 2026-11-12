@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, foreignKey, index, integer, jsonb, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  check,
+  foreignKey,
+  index,
+  integer,
+  jsonb,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { ACTOR_TYPES } from './platform';
 import { pgTable } from '../table';
 import { organizations } from './organizations';
@@ -32,7 +42,11 @@ export const trash = pgTable(
     index('core_trash_org_idx').on(table.orgId, table.deletedAt.desc()),
     index('core_trash_purge_idx').on(table.purgeAt),
     check('core_trash_record_type_check', sql`${table.recordType} IN ('customer', 'company')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_trash_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_trash_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 
@@ -50,7 +64,14 @@ export const deletionCounters = pgTable(
     count: integer().default(0).notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.orgId, table.actor, table.bucket], name: 'core_deletion_counters_pkey' }),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_deletion_counters_org_id_fkey' }).onDelete('cascade'),
+    primaryKey({
+      columns: [table.orgId, table.actor, table.bucket],
+      name: 'core_deletion_counters_pkey',
+    }),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_deletion_counters_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

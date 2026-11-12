@@ -15,9 +15,7 @@ interface ISearchParamsDraft {
 let searchParamsDraft: ISearchParamsDraft | null = null;
 
 // Setters from the same render share pending query and history-state updates.
-const getSearchParamsDraft = (
-  location: Location<unknown>,
-): ISearchParamsDraft => {
+const getSearchParamsDraft = (location: Location<unknown>): ISearchParamsDraft => {
   if (!searchParamsDraft || searchParamsDraft.location !== location) {
     const draft = {
       location,
@@ -99,13 +97,10 @@ export function useQueryState<T>(
     const nextParams = new URLSearchParams(draft.params);
 
     if (value !== null) {
-      const stringValue =
-        typeof value === 'object' ? JSON.stringify(value) : String(value);
+      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
 
-      if (nextParams.get(queryKey) === stringValue && !navigationOptions)
-        return;
-      if (!nextParams.has(queryKey) && value === query && !navigationOptions)
-        return;
+      if (nextParams.get(queryKey) === stringValue && !navigationOptions) return;
+      if (!nextParams.has(queryKey) && value === query && !navigationOptions) return;
 
       nextParams.set(queryKey, stringValue);
     } else if (nextParams.has(queryKey)) {
@@ -132,19 +127,13 @@ export function useMultiQueryState<T extends QueryTypes>(
   queryKeys: (keyof T)[],
 ): [
   QueryValues<T>,
-  (
-    values: Partial<QueryValues<T>>,
-    navigationOptions?: NavigateOptions,
-  ) => void,
+  (values: Partial<QueryValues<T>>, navigationOptions?: NavigateOptions) => void,
 ] {
   const [searchParams, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
 
   /** Decodes JSON query values while keeping search text and plain strings intact. */
-  const parseQueryValue = <K extends keyof T>(
-    value: string | null,
-    key: K,
-  ): T[K] | null => {
+  const parseQueryValue = <K extends keyof T>(value: string | null, key: K): T[K] | null => {
     if (!value) return null;
 
     if (key === 'searchValue') {
@@ -168,18 +157,14 @@ export function useMultiQueryState<T extends QueryTypes>(
   }, {} as QueryValues<T>);
 
   /** Applies a batch without discarding other query changes from the same event. */
-  const setQueries = (
-    values: Partial<QueryValues<T>>,
-    navigationOptions?: NavigateOptions,
-  ) => {
+  const setQueries = (values: Partial<QueryValues<T>>, navigationOptions?: NavigateOptions) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);
     let hasChanges = false;
 
     Object.entries(values).forEach(([key, value]) => {
       if (value !== null) {
-        const stringValue =
-          typeof value === 'object' ? JSON.stringify(value) : String(value);
+        const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
 
         if (nextParams.get(key) === stringValue) return;
 

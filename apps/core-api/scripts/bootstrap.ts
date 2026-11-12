@@ -24,7 +24,9 @@ const { values } = parseArgs({
 
 const main = async () => {
   if (!values.subdomain || !values.email) {
-    throw new Error('Usage: --subdomain <sub> --email <owner email> [--name <org name>] [--full-name <owner>]');
+    throw new Error(
+      'Usage: --subdomain <sub> --email <owner email> [--name <org name>] [--full-name <owner>]',
+    );
   }
 
   configureDb(config.data);

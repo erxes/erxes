@@ -7,7 +7,13 @@ import type { OnboardingStepDef } from './onboardingSteps';
 // (white-label) installs; the new organization has no such setting yet.
 const BRAND_NAME = 'erxes';
 
-export const WelcomeSection = ({ steps, onContinue }: { steps: OnboardingStepDef[]; onContinue: () => void }) => {
+export const WelcomeSection = ({
+  steps,
+  onContinue,
+}: {
+  steps: OnboardingStepDef[];
+  onContinue: () => void;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
   useScopedHotkeys(`space`, () => onContinue(), 'welcome');
@@ -17,8 +23,12 @@ export const WelcomeSection = ({ steps, onContinue }: { steps: OnboardingStepDef
   return (
     <div className="flex w-full max-w-md flex-col gap-6">
       <Appear y={20} duration={600} delay={100} className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('lets-get-started')}</h1>
-        <p className="text-lg text-muted-foreground">{t('brand-ready', { brandName: BRAND_NAME })}</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          {t('lets-get-started')}
+        </h1>
+        <p className="text-lg text-muted-foreground">
+          {t('brand-ready', { brandName: BRAND_NAME })}
+        </p>
       </Appear>
 
       <ul className="flex flex-col rounded-xl border bg-background px-4 shadow-xs">

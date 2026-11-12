@@ -37,10 +37,13 @@ export const MergeDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-lg">
         <Dialog.Header>
-          <Dialog.Title>Merge {records.length} {noun}</Dialog.Title>
+          <Dialog.Title>
+            Merge {records.length} {noun}
+          </Dialog.Title>
           <Dialog.Description>
-            Choose the {noun.replace(/s$/, '')} to keep. Its empty fields are filled from the others; emails,
-            phones, tags and links are combined. The others are deleted, and their links open the kept one.
+            Choose the {noun.replace(/s$/, '')} to keep. Its empty fields are filled from the
+            others; emails, phones, tags and links are combined. The others are deleted, and their
+            links open the kept one.
           </Dialog.Description>
         </Dialog.Header>
         <div role="radiogroup" className="flex flex-col gap-2">

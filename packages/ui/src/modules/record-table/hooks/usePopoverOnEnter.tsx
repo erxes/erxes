@@ -1,18 +1,9 @@
-import {
-  usePreviousHotkeyScope,
-  useScopedHotkeys,
-} from 'erxes-ui/modules/hotkey';
+import { usePreviousHotkeyScope, useScopedHotkeys } from 'erxes-ui/modules/hotkey';
 import { Key } from 'erxes-ui/types';
 
-export const usePopoverOnEnter = (
-  scope: string,
-  onEnter: () => void,
-  dependencies: any[],
-) => {
-  const {
-    setHotkeyScopeAndMemorizePreviousScope,
-    goBackToPreviousHotkeyScope,
-  } = usePreviousHotkeyScope();
+export const usePopoverOnEnter = (scope: string, onEnter: () => void, dependencies: any[]) => {
+  const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } =
+    usePreviousHotkeyScope();
 
   useScopedHotkeys(
     Key.Enter,

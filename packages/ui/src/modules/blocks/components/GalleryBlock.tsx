@@ -1,19 +1,6 @@
-import {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-} from '@blocknote/core';
-import {
-  createReactBlockSpec,
-  ReactCustomBlockRenderProps,
-  useResolveUrl,
-} from '@blocknote/react';
-import {
-  IconLayoutGrid,
-  IconPhoto,
-  IconPlus,
-  IconX,
-  IconLoader2,
-} from '@tabler/icons-react';
+import { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
+import { createReactBlockSpec, ReactCustomBlockRenderProps, useResolveUrl } from '@blocknote/react';
+import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
 import { readImage } from 'erxes-ui/utils';
@@ -135,10 +122,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
       const results = await Promise.allSettled(
         Array.from(files).map(async (file) => {
           const uploadedFile = await uploadFile(file);
-          const url =
-            typeof uploadedFile === 'string'
-              ? uploadedFile
-              : uploadedFile.props?.url;
+          const url = typeof uploadedFile === 'string' ? uploadedFile : uploadedFile.props?.url;
           if (typeof url !== 'string' || !url) {
             throw new Error(`Failed to upload ${file.name}`);
           }
@@ -151,10 +135,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
       const currentBlock = editor.getBlock(block.id);
       if (uploaded.length && currentBlock) {
         updateBlock({
-          images: JSON.stringify([
-            ...parseImages(currentBlock.props.images),
-            ...uploaded,
-          ]),
+          images: JSON.stringify([...parseImages(currentBlock.props.images), ...uploaded]),
         });
       }
       const failedNames = Array.from(files)
@@ -170,8 +151,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
     } catch (error) {
       toast({
         title: 'Failed to upload gallery images',
-        description:
-          error instanceof Error ? error.message : 'Please try again.',
+        description: error instanceof Error ? error.message : 'Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -351,10 +331,7 @@ export const galleryBlock = createReactBlockSpec(galleryBlockConfig, {
   render: GalleryBlockContent,
   toExternalHTML: GalleryExternalHTML,
   parse: (element) => {
-    if (
-      element.tagName === 'DIV' &&
-      element.classList.contains('erxes-editor-gallery')
-    ) {
+    if (element.tagName === 'DIV' && element.classList.contains('erxes-editor-gallery')) {
       const columns = element.getAttribute('data-columns') ?? '3';
       const images: GalleryImage[] = [];
 

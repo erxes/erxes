@@ -72,7 +72,8 @@ describeWithDb('customers (/core/v1/customers)', () => {
   }
 
   /** `data` of an error body (oRPC: `{ code, status, message, data }`). */
-  const errorData = (body: unknown) => (body as { data?: { field: string; id: string | null } }).data;
+  const errorData = (body: unknown) =>
+    (body as { data?: { field: string; id: string | null } }).data;
 
   const call = async (
     token: string,
@@ -162,7 +163,11 @@ describeWithDb('customers (/core/v1/customers)', () => {
     });
 
     const renamed = await update(ownerToken, created.body.id, { state: 'lead' });
-    expect(renamed.body).toMatchObject({ state: 'lead', firstName: 'Tuul', primaryEmail: 'tuul@b.mn' });
+    expect(renamed.body).toMatchObject({
+      state: 'lead',
+      firstName: 'Tuul',
+      primaryEmail: 'tuul@b.mn',
+    });
   });
 
   it('accepts only team members of the organisation as owner', async () => {
@@ -179,7 +184,10 @@ describeWithDb('customers (/core/v1/customers)', () => {
     const byPhone = await call(ownerToken, '/customers?search=9900-11');
     const leads = await call(ownerToken, '/customers?state=lead');
     const first = await call(ownerToken, '/customers?limit=2');
-    const rest = await call(ownerToken, `/customers?limit=10&cursor=${first.body.pageInfo.endCursor}`);
+    const rest = await call(
+      ownerToken,
+      `/customers?limit=10&cursor=${first.body.pageInfo.endCursor}`,
+    );
     const reopen = await call(
       ownerToken,
       `/customers?limit=10&cursorMode=inclusive&cursor=${first.body.pageInfo.endCursor}`,

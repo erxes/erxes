@@ -145,7 +145,11 @@ const RecordTypeInput = { recordType: LeadRecordType.default('customer') };
 
 export const leadsContract = {
   stages: oc
-    .route({ method: 'GET', path: '/lead-stages', summary: 'The lead stages, in order, with how many leads each holds' })
+    .route({
+      method: 'GET',
+      path: '/lead-stages',
+      summary: 'The lead stages, in order, with how many leads each holds',
+    })
     .output(z.object({ data: z.array(LeadStage) })),
   createStage: oc
     .route({ method: 'POST', path: '/lead-stages', successStatus: 201 })
@@ -156,35 +160,69 @@ export const leadsContract = {
     .input(StageFields.partial().extend({ id: Id }))
     .output(LeadStage),
   reorderStages: oc
-    .route({ method: 'POST', path: '/lead-stages/reorder', summary: 'Every stage id, in the new order' })
+    .route({
+      method: 'POST',
+      path: '/lead-stages/reorder',
+      summary: 'Every stage id, in the new order',
+    })
     .input(z.object({ ids: z.array(Id).min(1).max(50) }))
     .output(z.object({ ok: z.literal(true) })),
   removeStage: oc
     .route({
       method: 'POST',
       path: '/lead-stages/{id}/remove',
-      summary: 'Delete a stage; its leads move to `moveTo` (required when it has any). The last open stage stays',
+      summary:
+        'Delete a stage; its leads move to `moveTo` (required when it has any). The last open stage stays',
     })
     .input(z.object({ id: Id, moveTo: Id.optional() }))
     .output(z.object({ moved: z.number().int() })),
   move: oc
-    .route({ method: 'POST', path: '/leads/move', summary: 'Move leads to a stage (a disqualified stage takes a reason)' })
-    .input(z.object({ ...RecordTypeInput, ids: Ids, stageId: Id, reason: z.string().trim().max(500).optional() }))
+    .route({
+      method: 'POST',
+      path: '/leads/move',
+      summary: 'Move leads to a stage (a disqualified stage takes a reason)',
+    })
+    .input(
+      z.object({
+        ...RecordTypeInput,
+        ids: Ids,
+        stageId: Id,
+        reason: z.string().trim().max(500).optional(),
+      }),
+    )
     .output(z.object({ moved: z.number().int() })),
   convert: oc
     .route({
       method: 'POST',
       path: '/leads/convert',
-      summary: 'Leads become customers: optionally given an owner, and (people) linked to a company',
+      summary:
+        'Leads become customers: optionally given an owner, and (people) linked to a company',
     })
-    .input(z.object({ ...RecordTypeInput, ids: Ids, ownerId: Id.optional(), companyId: Id.optional() }))
+    .input(
+      z.object({ ...RecordTypeInput, ids: Ids, ownerId: Id.optional(), companyId: Id.optional() }),
+    )
     .output(z.object({ converted: z.number().int() })),
   history: oc
-    .route({ method: 'GET', path: '/leads/{id}/history', summary: "A lead's journey: created, every stage, converted" })
+    .route({
+      method: 'GET',
+      path: '/leads/{id}/history',
+      summary: "A lead's journey: created, every stage, converted",
+    })
     .input(z.object({ ...RecordTypeInput, id: Id }))
     .output(z.object({ data: z.array(LeadEvent) })),
   report: oc
-    .route({ method: 'GET', path: '/leads/report', summary: 'Funnel, conversion, sources, owners and reasons for a period (default: last 30 days)' })
-    .input(z.object({ ...RecordTypeInput, from: z.string().datetime().optional(), to: z.string().datetime().optional() }))
+    .route({
+      method: 'GET',
+      path: '/leads/report',
+      summary:
+        'Funnel, conversion, sources, owners and reasons for a period (default: last 30 days)',
+    })
+    .input(
+      z.object({
+        ...RecordTypeInput,
+        from: z.string().datetime().optional(),
+        to: z.string().datetime().optional(),
+      }),
+    )
     .output(LeadReport),
 };

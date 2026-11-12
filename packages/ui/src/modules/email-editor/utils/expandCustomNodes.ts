@@ -10,11 +10,7 @@ const HTML_NODE = 'htmlCodeBlock';
 type TPart = JSONContent;
 
 const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const CELL_STYLE =
   'border: 1px solid #e5e7eb; padding: 8px 12px; vertical-align: top; font-size: 15px; line-height: 1.6; color: #374151;';
@@ -114,20 +110,14 @@ const pushTable = (parts: TPart[], table: JSONContent) => {
       // A table written before backgrounds carries no attribute at all, and
       // its header still has to look like a header.
       const background =
-        backgroundColor === undefined && isHeader
-          ? HEADER_BACKGROUND
-          : backgroundColor;
+        backgroundColor === undefined && isHeader ? HEADER_BACKGROUND : backgroundColor;
 
       parts.push({
         type: 'text',
         text: `<${isHeader ? 'th' : 'td'}${colspan > 1 ? ` colspan="${colspan}"` : ''}${
           rowspan > 1 ? ` rowspan="${rowspan}"` : ''
-        } style="${isHeader ? HEADER_STYLE : CELL_STYLE}${
-          width ? ` width: ${width}px;` : ''
-        }${
-          background
-            ? ` background-color: ${escapeHtml(String(background))};`
-            : ''
+        } style="${isHeader ? HEADER_STYLE : CELL_STYLE}${width ? ` width: ${width}px;` : ''}${
+          background ? ` background-color: ${escapeHtml(String(background))};` : ''
         }">`,
       });
 

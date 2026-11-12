@@ -6,7 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { useCan, useSession } from '~/modules/auth/session';
 import { useCompaniesRemove, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomerEdit, useCustomersRemove } from '~/modules/contacts/customers/useCustomers';
-import { getContactDetailPath, getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
+import {
+  getContactDetailPath,
+  getContactListPath,
+} from '~/modules/contacts/utils/contactDetailPath';
 import { getSidePanelRecordPath } from '../sidePanelPaths';
 import { useSidePanel } from '../useSidePanel';
 import { useLeadsT } from '~/modules/leads/i18n';
@@ -32,7 +35,13 @@ export const ContactPanelWebsiteLink = ({ website }: { website?: string | null }
 
   return (
     <Button variant="ghost" size="icon" className="size-7" asChild>
-      <a href={websiteUrl.href} target="_blank" rel="noreferrer" aria-label={website ?? undefined} title={website ?? undefined}>
+      <a
+        href={websiteUrl.href}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={website ?? undefined}
+        title={website ?? undefined}
+      >
         <IconExternalLink className="size-4" aria-hidden="true" />
       </a>
     </Button>
@@ -118,7 +127,10 @@ export const ContactPanelActions = ({
   };
 
   return (
-    <section className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1" aria-label={t('contact-actions', 'Contact actions')}>
+    <section
+      className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1"
+      aria-label={t('contact-actions', 'Contact actions')}
+    >
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Button
@@ -139,7 +151,10 @@ export const ContactPanelActions = ({
                   <Command.Item
                     onSelect={() => {
                       setOpen(false);
-                      (contentType === 'core:customer' ? editCustomer : editCompany).mutate({ id: contentId, state: 'lead' });
+                      (contentType === 'core:customer' ? editCustomer : editCompany).mutate({
+                        id: contentId,
+                        state: 'lead',
+                      });
                     }}
                   >
                     <IconArrowBackUp />
@@ -147,17 +162,17 @@ export const ContactPanelActions = ({
                   </Command.Item>
                 )}
                 {canDelete && (
-                <Command.Item
-                  className="text-destructive"
-                  disabled={remove.isPending}
-                  onSelect={() => {
-                    setOpen(false);
-                    void deleteContact();
-                  }}
-                >
-                  <IconTrash />
-                  {t('action-delete', 'Delete')}
-                </Command.Item>
+                  <Command.Item
+                    className="text-destructive"
+                    disabled={remove.isPending}
+                    onSelect={() => {
+                      setOpen(false);
+                      void deleteContact();
+                    }}
+                  >
+                    <IconTrash />
+                    {t('action-delete', 'Delete')}
+                  </Command.Item>
                 )}
               </Command.Group>
             </Command.List>

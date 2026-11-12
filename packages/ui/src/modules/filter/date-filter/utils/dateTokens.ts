@@ -12,9 +12,7 @@ export const normalizeFixedDate = (value: string): string =>
     ? RENAMED_FIXED_DATES[value]
     : value;
 
-export const parseQuarterToken = (
-  value: string,
-): { year: number; quarter: number } | null => {
+export const parseQuarterToken = (value: string): { year: number; quarter: number } | null => {
   const match = QUARTER_TOKEN.exec(value);
   if (!match) return null;
   return {
@@ -23,9 +21,7 @@ export const parseQuarterToken = (
   };
 };
 
-export const parseHalfToken = (
-  value: string,
-): { year: number; half: number } | null => {
+export const parseHalfToken = (value: string): { year: number; half: number } | null => {
   const match = HALF_TOKEN.exec(value);
   if (!match) return null;
   return {

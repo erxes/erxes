@@ -14,9 +14,7 @@ export default meta;
 
 type Story = StoryObj<typeof ScrollArea>;
 
-const tags = Array.from({ length: 50 }).map(
-  (_, i, a) => `v1.2.0-beta.${a.length - i}`,
-);
+const tags = Array.from({ length: 50 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`);
 export const Default: Story = {
   render: () => (
     <ScrollArea className="h-72 w-48 rounded-md border">

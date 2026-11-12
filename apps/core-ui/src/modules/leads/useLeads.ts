@@ -1,37 +1,32 @@
-import type {
-  Customer,
-  LeadRecordType,
-  LeadStage,
-  LeadStageKind,
-} from "@erxes/core-contract";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "erxes-ui";
-import { api, messageOf } from "~/lib/api";
-import { CUSTOMERS_KEY } from "~/modules/contacts/customers/useCustomers";
-import { COMPANIES_KEY } from "~/modules/contacts/companies/useCompanies";
-import { LEADS_NS } from "./i18n";
-import { useTranslation } from "react-i18next";
+import type { Customer, LeadRecordType, LeadStage, LeadStageKind } from '@erxes/core-contract';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToast } from 'erxes-ui';
+import { api, messageOf } from '~/lib/api';
+import { CUSTOMERS_KEY } from '~/modules/contacts/customers/useCustomers';
+import { COMPANIES_KEY } from '~/modules/contacts/companies/useCompanies';
+import { LEADS_NS } from './i18n';
+import { useTranslation } from 'react-i18next';
 
 /** What lead screens need of a person or a company (both have it). */
 export type LeadRecord = Pick<
   Customer,
-  | "id"
-  | "state"
-  | "ownerId"
-  | "leadStageId"
-  | "leadStageChangedAt"
-  | "disqualifyReason"
-  | "source"
-  | "sourceDetails"
-  | "convertedAt"
+  | 'id'
+  | 'state'
+  | 'ownerId'
+  | 'leadStageId'
+  | 'leadStageChangedAt'
+  | 'disqualifyReason'
+  | 'source'
+  | 'sourceDetails'
+  | 'convertedAt'
 >;
 
 /** A stage's lead count for people or companies. */
 export const leadCountOf = (stage: LeadStage, recordType: LeadRecordType) =>
-  recordType === "company" ? stage.companyLeadCount : stage.leadCount;
+  recordType === 'company' ? stage.companyLeadCount : stage.leadCount;
 
-export const LEAD_STAGES_KEY = ["lead-stages"];
-export const LEADS_REPORT_KEY = ["leads", "report"];
+export const LEAD_STAGES_KEY = ['lead-stages'];
+export const LEADS_REPORT_KEY = ['leads', 'report'];
 
 /** The organisation's lead stages, in order, with how many leads each holds. */
 export const useLeadStages = () => {
@@ -75,8 +70,8 @@ export const useMoveLeads = () => {
     onSettled: refresh,
     onError: (error) =>
       toast({
-        variant: "destructive",
-        title: t("actions.move-failed"),
+        variant: 'destructive',
+        title: t('actions.move-failed'),
         description: messageOf(error),
       }),
   });
@@ -96,17 +91,17 @@ export const useConvertLeads = () => {
     }) => api.leads.convert(input),
     onSuccess: ({ converted }) =>
       toast({
-        variant: "success",
+        variant: 'success',
         title:
           converted === 1
-            ? t("actions.converted-one")
-            : t("actions.converted-many", { count: converted }),
+            ? t('actions.converted-one')
+            : t('actions.converted-many', { count: converted }),
       }),
     onSettled: refresh,
     onError: (error) =>
       toast({
-        variant: "destructive",
-        title: "Could not convert",
+        variant: 'destructive',
+        title: 'Could not convert',
         description: messageOf(error),
       }),
   });
@@ -117,28 +112,21 @@ export const useLeadStageMutations = () => {
   const { toast } = useToast();
   const onError = (error: unknown) =>
     toast({
-      variant: "destructive",
-      title: "Could not save",
+      variant: 'destructive',
+      title: 'Could not save',
       description: messageOf(error),
     });
 
   return {
     create: useMutation({
-      mutationFn: (input: {
-        name: string;
-        kind?: LeadStageKind;
-        color?: string;
-      }) => api.leads.createStage(input),
+      mutationFn: (input: { name: string; kind?: LeadStageKind; color?: string }) =>
+        api.leads.createStage(input),
       onSettled: refresh,
       onError,
     }),
     update: useMutation({
-      mutationFn: (input: {
-        id: string;
-        name?: string;
-        kind?: LeadStageKind;
-        color?: string;
-      }) => api.leads.updateStage(input),
+      mutationFn: (input: { id: string; name?: string; kind?: LeadStageKind; color?: string }) =>
+        api.leads.updateStage(input),
       onSettled: refresh,
       onError,
     }),
@@ -148,19 +136,14 @@ export const useLeadStageMutations = () => {
       onError,
     }),
     remove: useMutation({
-      mutationFn: (input: { id: string; moveTo?: string }) =>
-        api.leads.removeStage(input),
+      mutationFn: (input: { id: string; moveTo?: string }) => api.leads.removeStage(input),
       onSettled: refresh,
       onError,
     }),
   };
 };
 
-export const useLeadReport = (range: {
-  recordType: LeadRecordType;
-  from: string;
-  to: string;
-}) =>
+export const useLeadReport = (range: { recordType: LeadRecordType; from: string; to: string }) =>
   useQuery({
     queryKey: [...LEADS_REPORT_KEY, range],
     queryFn: () => api.leads.report(range),
@@ -168,19 +151,14 @@ export const useLeadReport = (range: {
 
 export const useLeadHistory = (id: string | null) =>
   useQuery({
-    queryKey: ["leads", "history", id],
+    queryKey: ['leads', 'history', id],
     queryFn: () => api.leads.history({ id: id! }),
     enabled: Boolean(id),
   });
 
 /** Days since a moment, for "4 days in stage". */
 export const daysSince = (iso: string | null) =>
-  iso
-    ? Math.max(
-        0,
-        Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000),
-      )
-    : null;
+  iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : null;
 
 export const firstOfKind = (stages: LeadStage[], kind: LeadStageKind) =>
   stages.find((stage) => stage.kind === kind);

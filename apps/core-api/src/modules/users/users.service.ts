@@ -217,7 +217,13 @@ const otherActiveOwners = async (client: Db, orgId: string, exceptId: string) =>
 export const listUsers = async (
   client: Db,
   actor: Actor,
-  query: CursorQuery & { search?: string; status?: Status; isActive?: boolean; role?: Role; ids?: string[] },
+  query: CursorQuery & {
+    search?: string;
+    status?: Status;
+    isActive?: boolean;
+    role?: Role;
+    ids?: string[];
+  },
 ) => {
   const filters: (SQL | undefined)[] = [];
 
@@ -257,7 +263,12 @@ export const listUsers = async (
     and(...filters),
     query,
     (where, orderBy, limit) =>
-      client.select().from(users).where(where).orderBy(...orderBy).limit(limit),
+      client
+        .select()
+        .from(users)
+        .where(where)
+        .orderBy(...orderBy)
+        .limit(limit),
   );
 
   return { ...page, data: page.data.map(toUserDto) };
@@ -348,7 +359,9 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
     if (taken.length) {
       const list = taken.map(({ email }) => email.toLowerCase());
 
-      throw new HttpError(409, 'EMAIL_TAKEN', `Already a team member: ${list.join(', ')}`, { emails: list });
+      throw new HttpError(409, 'EMAIL_TAKEN', `Already a team member: ${list.join(', ')}`, {
+        emails: list,
+      });
     }
 
     try {
@@ -377,7 +390,13 @@ export const updateUser = async (caller: Actor, id: string, input: UserChanges) 
     const email = input.email?.trim().toLowerCase();
 
     // An owner's email is how they sign in: only owners change it.
-    if (email && email !== target.email && !self && target.role === 'owner' && actor.role !== 'owner') {
+    if (
+      email &&
+      email !== target.email &&
+      !self &&
+      target.role === 'owner' &&
+      actor.role !== 'owner'
+    ) {
       throw forbidden('OWNER_ONLY', 'Only an owner can change an owner’s email');
     }
 

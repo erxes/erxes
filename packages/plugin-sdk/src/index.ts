@@ -1,4 +1,9 @@
-import { CORE_API_PREFIX, type CoreEvent, coreContract, type PluginManifest } from '@erxes/core-contract';
+import {
+  CORE_API_PREFIX,
+  type CoreEvent,
+  coreContract,
+  type PluginManifest,
+} from '@erxes/core-contract';
 import { createORPCClient } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
@@ -73,12 +78,26 @@ export const createCoreClient = (options: CoreClientOptions) => {
     const response = await fetcher(`${base}${CORE_API_PREFIX}/plugins/token`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ grant_type: 'client_credentials', client_id: options.plugin, client_secret: options.clientSecret, org }),
+      body: JSON.stringify({
+        grant_type: 'client_credentials',
+        client_id: options.plugin,
+        client_secret: options.clientSecret,
+        org,
+      }),
     });
-    const body = (await response.json().catch(() => ({}))) as { access_token?: string; expires_in?: number; code?: string; message?: string };
+    const body = (await response.json().catch(() => ({}))) as {
+      access_token?: string;
+      expires_in?: number;
+      code?: string;
+      message?: string;
+    };
 
     if (!response.ok || !body.access_token) {
-      throw new CoreTokenError(response.status, body.code ?? 'TOKEN_FAILED', body.message ?? 'Could not get a core token');
+      throw new CoreTokenError(
+        response.status,
+        body.code ?? 'TOKEN_FAILED',
+        body.message ?? 'Could not get a core token',
+      );
     }
 
     return { token: body.access_token, expiresAt: Date.now() + (body.expires_in ?? 900) * 1000 };
@@ -197,13 +216,28 @@ export const verifyPluginSession = async (
   });
   const { role, permissions } = payload;
 
-  if (!payload.sub || typeof payload.org !== 'string' || typeof role !== 'string' || !Array.isArray(permissions)) {
+  if (
+    !payload.sub ||
+    typeof payload.org !== 'string' ||
+    typeof role !== 'string' ||
+    !Array.isArray(permissions)
+  ) {
     throw new Error('not an erxes plugin session');
   }
 
-  const granted = new Set(permissions.filter((action): action is string => typeof action === 'string'));
-  const tier = payload.tier === 'free' || payload.tier === 'plus' || payload.tier === 'pro' ? payload.tier : payload.tier === null ? null : 'pro';
-  const access = payload.access === 'warning' || payload.access === 'read_only' || payload.access === 'off' ? payload.access : 'full';
+  const granted = new Set(
+    permissions.filter((action): action is string => typeof action === 'string'),
+  );
+  const tier =
+    payload.tier === 'free' || payload.tier === 'plus' || payload.tier === 'pro'
+      ? payload.tier
+      : payload.tier === null
+        ? null
+        : 'pro';
+  const access =
+    payload.access === 'warning' || payload.access === 'read_only' || payload.access === 'off'
+      ? payload.access
+      : 'full';
 
   return {
     userId: payload.sub,
@@ -237,7 +271,10 @@ export interface CoreCall {
  * plugin, unexpired. Use the `Idempotency-Key` header (`<run>:<step>`) to make
  * a retried call do nothing twice.
  */
-export const verifyCoreCall = async (token: string, options: { coreUrl: string; plugin: string }): Promise<CoreCall> => {
+export const verifyCoreCall = async (
+  token: string,
+  options: { coreUrl: string; plugin: string },
+): Promise<CoreCall> => {
   const base = options.coreUrl.replace(/\/+$/, '');
   let jwks = jwksByCore.get(base);
 
@@ -276,7 +313,10 @@ export interface ErxesSignIn extends PluginMember {
  * plugin's own app: issued by core, for this client (the plugin), unexpired.
  * Discovery: `<coreUrl>/core/v1/.well-known/openid-configuration`.
  */
-export const verifyErxesAccessToken = async (token: string, options: { coreUrl: string; plugin: string }): Promise<ErxesSignIn> => {
+export const verifyErxesAccessToken = async (
+  token: string,
+  options: { coreUrl: string; plugin: string },
+): Promise<ErxesSignIn> => {
   const base = options.coreUrl.replace(/\/+$/, '');
   let jwks = jwksByCore.get(base);
 
@@ -285,8 +325,15 @@ export const verifyErxesAccessToken = async (token: string, options: { coreUrl: 
     jwksByCore.set(base, jwks);
   }
 
-  const { payload } = await jwtVerify(token, jwks, { issuer: 'erxes-core', audience: options.plugin, typ: 'at+jwt', algorithms: ['ES256'] });
-  const permissions = Array.isArray(payload.permissions) ? payload.permissions.filter((item): item is string => typeof item === 'string') : [];
+  const { payload } = await jwtVerify(token, jwks, {
+    issuer: 'erxes-core',
+    audience: options.plugin,
+    typ: 'at+jwt',
+    algorithms: ['ES256'],
+  });
+  const permissions = Array.isArray(payload.permissions)
+    ? payload.permissions.filter((item): item is string => typeof item === 'string')
+    : [];
   const role = typeof payload.role === 'string' ? payload.role : 'member';
 
   if (!payload.sub || typeof payload.org !== 'string') throw new Error('not an erxes access token');
@@ -298,8 +345,14 @@ export const verifyErxesAccessToken = async (token: string, options: { coreUrl: 
     permissions,
     can: (action: string) => role === 'owner' || permissions.includes(action),
     // Not in these tokens: ask core (`saas.pluginPlan`) when the tier matters.
-    tier: payload.tier === 'free' || payload.tier === 'plus' || payload.tier === 'pro' ? payload.tier : 'pro',
-    access: payload.access === 'read_only' || payload.access === 'warning' || payload.access === 'off' ? payload.access : 'full',
+    tier:
+      payload.tier === 'free' || payload.tier === 'plus' || payload.tier === 'pro'
+        ? payload.tier
+        : 'pro',
+    access:
+      payload.access === 'read_only' || payload.access === 'warning' || payload.access === 'off'
+        ? payload.access
+        : 'full',
     canChange: () => payload.access !== 'read_only' && payload.access !== 'off',
     scope: typeof payload.scope === 'string' ? payload.scope.split(' ') : [],
   };
@@ -315,7 +368,9 @@ export interface DeliveredEvent {
 }
 
 const sha256 = async (text: string) => {
-  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)));
+  const digest = new Uint8Array(
+    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)),
+  );
   let binary = '';
 
   for (const byte of digest) binary += String.fromCharCode(byte);
@@ -358,7 +413,8 @@ export const verifyCoreEvent = async (
 
   const event = JSON.parse(rawBody) as DeliveredEvent;
 
-  if (event.id !== payload.event || event.organizationId !== payload.org) throw new Error('the event does not match the token');
+  if (event.id !== payload.event || event.organizationId !== payload.org)
+    throw new Error('the event does not match the token');
 
   return event;
 };

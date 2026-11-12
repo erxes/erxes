@@ -14,11 +14,13 @@ const production = process.env.NODE_ENV === 'production';
 const format = (process.env.LOG_FORMAT ?? (production ? 'json' : 'pretty')) as 'json' | 'pretty';
 const threshold = LEVELS[(process.env.LOG_LEVEL as Level) ?? 'info'] ?? LEVELS.info;
 
-const SECRET = /pass(word)?|secret|token|authorization|cookie|api[-_]?key|private|hash|signature|credential/i;
+const SECRET =
+  /pass(word)?|secret|token|authorization|cookie|api[-_]?key|private|hash|signature|credential/i;
 const BEARER = /\b(Bearer\s+)[A-Za-z0-9._~+/=-]{8,}/g;
 const URL_PASSWORD = /(\/\/[^:/\s]+:)[^@/\s]+@/g;
 
-const scrubText = (value: string) => value.replace(BEARER, '$1[redacted]').replace(URL_PASSWORD, '$1[redacted]@');
+const scrubText = (value: string) =>
+  value.replace(BEARER, '$1[redacted]').replace(URL_PASSWORD, '$1[redacted]@');
 
 /** A copy of `value` with secret-looking fields replaced (depth-limited). */
 export const redact = (value: unknown, depth = 0): unknown => {
@@ -37,7 +39,10 @@ export const redact = (value: unknown, depth = 0): unknown => {
   if (Array.isArray(value)) return value.slice(0, 50).map((item) => redact(item, depth + 1));
 
   return Object.fromEntries(
-    Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, SECRET.test(key) ? '[redacted]' : redact(item, depth + 1)]),
+    Object.entries(value as Record<string, unknown>).map(([key, item]) => [
+      key,
+      SECRET.test(key) ? '[redacted]' : redact(item, depth + 1),
+    ]),
   );
 };
 
@@ -48,7 +53,13 @@ const write = (level: Level, message: string, fields?: Record<string, unknown>) 
   const data = fields ? (redact(fields) as Record<string, unknown>) : undefined;
 
   if (format === 'json') {
-    const line = JSON.stringify({ time: new Date().toISOString(), level, msg: scrubText(message), ...(requestId ? { requestId } : {}), ...data });
+    const line = JSON.stringify({
+      time: new Date().toISOString(),
+      level,
+      msg: scrubText(message),
+      ...(requestId ? { requestId } : {}),
+      ...data,
+    });
 
     (level === 'error' || level === 'warn' ? process.stderr : process.stdout).write(`${line}\n`);
     return;

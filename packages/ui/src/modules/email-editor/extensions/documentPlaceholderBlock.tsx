@@ -9,9 +9,7 @@ type BlockGroups = NonNullable<MailyEditorProps['blocks']>;
  * Which document to embed is answered outside the editor, so the entry hands
  * the editor back to whoever opens the picker and inserts nothing itself.
  */
-export const createDocumentPlaceholderBlock = (
-  onOpen: (editor: Editor) => void,
-) => ({
+export const createDocumentPlaceholderBlock = (onOpen: (editor: Editor) => void) => ({
   title: 'Document',
   description: 'Render a document into the email',
   searchTerms: ['document', 'doc', 'template', 'file'],

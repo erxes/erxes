@@ -7,7 +7,7 @@ export const useIsMatchingLocation = (basePath?: string) => {
   return useCallback(
     (path: string) => {
       const constructedPath = basePath
-        ? new URL(basePath + path, document.location.origin).pathname ?? ''
+        ? (new URL(basePath + path, document.location.origin).pathname ?? '')
         : path;
 
       return !!matchPath(constructedPath, location.pathname);

@@ -1,25 +1,20 @@
-import type { LeadRecordType, LeadReport } from "@erxes/core-contract";
-import {
-  IconChartBar,
-  IconChartFunnel,
-  IconCircleX,
-  IconWorld,
-} from "@tabler/icons-react";
-import { cn, Skeleton } from "erxes-ui";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { DashboardWidgetCard } from "~/modules/home/components/DashboardWidgetCard";
-import type { TDashboardWidgetDefinition } from "~/modules/home/dashboard/types/dashboardTypes";
-import { HOME_NS } from "~/modules/home/i18n";
-import { messageOf } from "~/lib/api";
+import type { LeadRecordType, LeadReport } from '@erxes/core-contract';
+import { IconChartBar, IconChartFunnel, IconCircleX, IconWorld } from '@tabler/icons-react';
+import { cn, Skeleton } from 'erxes-ui';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { DashboardWidgetCard } from '~/modules/home/components/DashboardWidgetCard';
+import type { TDashboardWidgetDefinition } from '~/modules/home/dashboard/types/dashboardTypes';
+import { HOME_NS } from '~/modules/home/i18n';
+import { messageOf } from '~/lib/api';
 import {
   LeadReasons,
   LeadSources,
   LeadStageFunnel,
   LeadSummary,
   useLeadReportFor,
-} from "./leadReportParts";
-import { useLeadsT } from "~/modules/leads/i18n";
+} from './leadReportParts';
+import { useLeadsT } from '~/modules/leads/i18n';
 
 /** People or companies, inside a tile's header. */
 const KindToggle = ({
@@ -33,18 +28,17 @@ const KindToggle = ({
 
   return (
     <div className="flex rounded-md bg-muted p-0.5 text-xs">
-      {(["customer", "company"] as const).map((kind) => (
+      {(['customer', 'company'] as const).map((kind) => (
         <button
           key={kind}
           type="button"
           onClick={() => onChange(kind)}
           className={cn(
-            "rounded px-1.5 py-0.5 text-muted-foreground",
-            value === kind &&
-              "bg-background font-medium text-foreground shadow-xs",
+            'rounded px-1.5 py-0.5 text-muted-foreground',
+            value === kind && 'bg-background font-medium text-foreground shadow-xs',
           )}
         >
-          {kind === "customer" ? t("people") : t("companies")}
+          {kind === 'customer' ? t('people') : t('companies')}
         </button>
       ))}
     </div>
@@ -52,13 +46,10 @@ const KindToggle = ({
 };
 
 /** A lead report tile: last 30 days, people or companies, a link to the full report. */
-const leadTile = (
-  title: string,
-  Body: (props: { report: LeadReport }) => React.ReactNode,
-) =>
+const leadTile = (title: string, Body: (props: { report: LeadReport }) => React.ReactNode) =>
   function LeadReportTile() {
     const t = useLeadsT();
-    const [kind, setKind] = useState<LeadRecordType>("customer");
+    const [kind, setKind] = useState<LeadRecordType>('customer');
     const { data: report, error, isPending } = useLeadReportFor(kind, 30);
 
     return (
@@ -68,10 +59,10 @@ const leadTile = (
           <div className="flex items-center gap-2">
             <KindToggle value={kind} onChange={setKind} />
             <Link
-              to={`/contacts/leads/insights${kind === "company" ? "?kind=companies" : ""}`}
+              to={`/contacts/leads/insights${kind === 'company' ? '?kind=companies' : ''}`}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              {t("report.report")}
+              {t('report.report')}
             </Link>
           </div>
         }
@@ -92,57 +83,55 @@ const leadTile = (
 /** Lead report tiles for the Home dashboard (the Reports app shows them full size). */
 export const LEAD_REPORT_WIDGETS: TDashboardWidgetDefinition[] = [
   {
-    type: "reports.leads.summary",
-    group: "reports",
-    preview: "kpi",
+    type: 'reports.leads.summary',
+    group: 'reports',
+    preview: 'kpi',
     ns: HOME_NS,
-    labelKey: "widgets.lead-summary",
-    descriptionKey: "widgets.lead-summary-description",
+    labelKey: 'widgets.lead-summary',
+    descriptionKey: 'widgets.lead-summary-description',
     icon: IconChartBar,
     singleton: true,
     defaultSize: { w: 12, h: 4 },
     minSize: { w: 6, h: 3 },
-    Component: leadTile("report.tile", ({ report }) => (
-      <LeadSummary report={report} compact />
-    )),
+    Component: leadTile('report.tile', ({ report }) => <LeadSummary report={report} compact />),
   },
   {
-    type: "reports.leads.funnel",
-    group: "reports",
-    preview: "list",
+    type: 'reports.leads.funnel',
+    group: 'reports',
+    preview: 'list',
     ns: HOME_NS,
-    labelKey: "widgets.lead-funnel",
-    descriptionKey: "widgets.lead-funnel-description",
+    labelKey: 'widgets.lead-funnel',
+    descriptionKey: 'widgets.lead-funnel-description',
     icon: IconChartFunnel,
     singleton: true,
     defaultSize: { w: 8, h: 7 },
     minSize: { w: 6, h: 5 },
-    Component: leadTile("report.stages", LeadStageFunnel),
+    Component: leadTile('report.stages', LeadStageFunnel),
   },
   {
-    type: "reports.leads.sources",
-    group: "reports",
-    preview: "list",
+    type: 'reports.leads.sources',
+    group: 'reports',
+    preview: 'list',
     ns: HOME_NS,
-    labelKey: "widgets.lead-sources",
-    descriptionKey: "widgets.lead-sources-description",
+    labelKey: 'widgets.lead-sources',
+    descriptionKey: 'widgets.lead-sources-description',
     icon: IconWorld,
     singleton: true,
     defaultSize: { w: 6, h: 6 },
     minSize: { w: 4, h: 4 },
-    Component: leadTile("report.sources", LeadSources),
+    Component: leadTile('report.sources', LeadSources),
   },
   {
-    type: "reports.leads.reasons",
-    group: "reports",
-    preview: "list",
+    type: 'reports.leads.reasons',
+    group: 'reports',
+    preview: 'list',
     ns: HOME_NS,
-    labelKey: "widgets.lead-reasons",
-    descriptionKey: "widgets.lead-reasons-description",
+    labelKey: 'widgets.lead-reasons',
+    descriptionKey: 'widgets.lead-reasons-description',
     icon: IconCircleX,
     singleton: true,
     defaultSize: { w: 6, h: 5 },
     minSize: { w: 4, h: 4 },
-    Component: leadTile("report.lost", LeadReasons),
+    Component: leadTile('report.lost', LeadReasons),
   },
 ];

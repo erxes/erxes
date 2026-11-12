@@ -45,13 +45,7 @@ export const PopoverScoped = ({
         setHotkeyScope(previousScope.scope, previousScope.customScopes);
       }
     };
-  }, [
-    isOpen,
-    scope,
-    store,
-    setHotkeyScope,
-    setHotkeyScopeAndMemorizePreviousScope,
-  ]);
+  }, [isOpen, scope, store, setHotkeyScope, setHotkeyScopeAndMemorizePreviousScope]);
 
   useScopedHotkeys(
     Key.Enter,

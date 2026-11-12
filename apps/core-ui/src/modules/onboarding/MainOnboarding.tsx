@@ -30,7 +30,8 @@ export const MainOnboarding = () => {
   // Old erxes offered invites to owners; in the new core admins may invite too
   const canInvite = useCan()('team.invite');
   const steps = useMemo(() => getOnboardingSteps(canInvite), [canInvite]);
-  const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } = usePreviousHotkeyScope();
+  const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } =
+    usePreviousHotkeyScope();
 
   useEffect(() => {
     setHotkeyScopeAndMemorizePreviousScope('welcome');
@@ -64,7 +65,11 @@ export const MainOnboarding = () => {
 
   return (
     <div className="flex h-screen w-full flex-col lg:flex-row">
-      <OnboardingLeftSideBar steps={steps} currentStep={currentStep} onSelectStep={setCurrentStep} />
+      <OnboardingLeftSideBar
+        steps={steps}
+        currentStep={currentStep}
+        onSelectStep={setCurrentStep}
+      />
 
       <div className="relative flex w-full flex-1 flex-col items-center justify-center gap-4 px-6 py-10 lg:w-1/2 lg:py-0">
         <div className="absolute left-6 right-6 top-6 flex items-center gap-3 lg:left-10 lg:right-10 lg:top-8">
@@ -78,7 +83,9 @@ export const MainOnboarding = () => {
           <span className="h-px flex-1 bg-gradient-to-r from-primary/60 to-transparent" />
         </div>
         <div className="flex w-5/6 flex-col items-center justify-center gap-4 lg:w-4/6">
-          {currentStep === 1 && <WelcomeSection steps={steps} onContinue={() => setCurrentStep(2)} />}
+          {currentStep === 1 && (
+            <WelcomeSection steps={steps} onContinue={() => setCurrentStep(2)} />
+          )}
 
           {currentStep === 2 && <ProfileSection onContinue={() => setCurrentStep(3)} />}
 

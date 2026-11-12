@@ -53,7 +53,8 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
     },
   });
   const avatar = form.watch('avatar');
-  const name = [form.watch('firstName'), form.watch('lastName')].filter(Boolean).join(' ') || user.email;
+  const name =
+    [form.watch('firstName'), form.watch('lastName')].filter(Boolean).join(' ') || user.email;
 
   const update = useMutation({
     mutationFn: (data: ProfileFormType) =>
@@ -65,7 +66,9 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
       }),
     onSuccess: (updated) => {
       // The top bar and greeting read the session, so they show the new name
-      client.setQueryData<Session | null>(SESSION_KEY, (current) => (current ? { ...current, user: updated } : current));
+      client.setQueryData<Session | null>(SESSION_KEY, (current) =>
+        current ? { ...current, user: updated } : current,
+      );
       onContinue();
     },
     onError: (error) => {
@@ -97,13 +100,19 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
               render={({ field }) => (
                 <Form.Item className="mb-2">
                   <div className="flex items-start gap-4">
-                    <UserAvatar name={name} src={avatar} className="size-16 shrink-0 rounded-lg text-base" />
+                    <UserAvatar
+                      name={name}
+                      src={avatar}
+                      className="size-16 shrink-0 rounded-lg text-base"
+                    />
                     <div className="flex flex-col gap-2 flex-1">
                       <Form.Label>{tOnboarding('avatar-url')}</Form.Label>
                       <Form.Control>
                         <Input type="url" placeholder="https://" {...field} />
                       </Form.Control>
-                      <Form.Description className="text-xs">{tOnboarding('avatar-url-description')}</Form.Description>
+                      <Form.Description className="text-xs">
+                        {tOnboarding('avatar-url-description')}
+                      </Form.Description>
                       <Form.Message />
                     </div>
                   </div>
@@ -151,7 +160,12 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
                 </Form.Item>
               )}
             />
-            <Button type="submit" className="w-full cursor-pointer" size="lg" disabled={update.isPending}>
+            <Button
+              type="submit"
+              className="w-full cursor-pointer"
+              size="lg"
+              disabled={update.isPending}
+            >
               {update.isPending && <Spinner size="sm" />}
               {t('continue')}
             </Button>

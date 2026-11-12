@@ -3,12 +3,14 @@ import type { TDashboardItem, TDashboardWidgetDefinition } from '../types/dashbo
 
 type TRect = Pick<TDashboardItem, 'x' | 'y' | 'w' | 'h'>;
 
-export const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+export const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 const overlaps = (a: TRect, b: TRect) =>
   a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
-export const bottomOf = (items: TRect[]) => items.reduce((max, { y, h }) => Math.max(max, y + h), 0);
+export const bottomOf = (items: TRect[]) =>
+  items.reduce((max, { y, h }) => Math.max(max, y + h), 0);
 
 export const byPosition = (a: TRect, b: TRect) => a.y - b.y || a.x - b.x;
 
@@ -16,7 +18,10 @@ export const byPosition = (a: TRect, b: TRect) => a.y - b.y || a.x - b.x;
  * A widget's size limits win over an older saved size, so a tile never comes
  * back squeezed after its minimum grew.
  */
-export const fitToWidget = (item: TDashboardItem, widget: TDashboardWidgetDefinition): TDashboardItem => {
+export const fitToWidget = (
+  item: TDashboardItem,
+  widget: TDashboardWidgetDefinition,
+): TDashboardItem => {
   const maxW = Math.min(widget.maxSize?.w ?? DASHBOARD_GRID_COLUMNS, DASHBOARD_GRID_COLUMNS);
   const maxH = widget.maxSize?.h ?? Infinity;
   const w = clamp(item.w, Math.min(widget.minSize.w, maxW), maxW);
@@ -89,4 +94,5 @@ export const sameLayout = (a: TDashboardItem[], b: TDashboardItem[]) => {
   });
 };
 
-export const newTileId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+export const newTileId = () =>
+  `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;

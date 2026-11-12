@@ -17,7 +17,8 @@ export interface CursorPage<T> {
 }
 
 /** A list's total as people read it: 1,234 or, when counting stopped, 10,000+. */
-export const formatTotal = (totalCount: number, capped?: boolean) => `${totalCount.toLocaleString('en')}${capped ? '+' : ''}`;
+export const formatTotal = (totalCount: number, capped?: boolean) =>
+  `${totalCount.toLocaleString('en')}${capped ? '+' : ''}`;
 
 export interface CursorParams {
   limit: number;

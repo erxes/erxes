@@ -42,10 +42,9 @@ export const useUploadChunked = () => {
         throw new Error('Upload cancelled');
       }
 
-      const response = await fetch(
-        `${REACT_APP_API_URL}/upload-chunked/status/${uploadId}`,
-        { credentials: 'include' },
-      );
+      const response = await fetch(`${REACT_APP_API_URL}/upload-chunked/status/${uploadId}`, {
+        credentials: 'include',
+      });
 
       if (!response.ok) {
         throw new Error('Failed to check upload status');
@@ -95,24 +94,19 @@ export const useUploadChunked = () => {
 
         const totalChunks = Math.max(1, Math.ceil(file.size / CHUNK_SIZE));
 
-        const initResponse = await fetch(
-          `${REACT_APP_API_URL}/upload-chunked/init`,
-          {
-            method: 'post',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              fileName: file.name,
-              fileSize: file.size,
-              totalChunks,
-            }),
-          },
-        );
+        const initResponse = await fetch(`${REACT_APP_API_URL}/upload-chunked/init`, {
+          method: 'post',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileSize: file.size,
+            totalChunks,
+          }),
+        });
 
         if (!initResponse.ok) {
-          throw new Error(
-            (await initResponse.text()) || 'Failed to start upload',
-          );
+          throw new Error((await initResponse.text()) || 'Failed to start upload');
         }
 
         const { uploadId } = (await initResponse.json()) as {
@@ -136,19 +130,14 @@ export const useUploadChunked = () => {
           formData.append('uploadId', uploadId);
           formData.append('chunkIndex', String(index));
 
-          const chunkResponse = await fetch(
-            `${REACT_APP_API_URL}/upload-chunked/chunk`,
-            {
-              method: 'post',
-              credentials: 'include',
-              body: formData,
-            },
-          );
+          const chunkResponse = await fetch(`${REACT_APP_API_URL}/upload-chunked/chunk`, {
+            method: 'post',
+            credentials: 'include',
+            body: formData,
+          });
 
           if (!chunkResponse.ok) {
-            throw new Error(
-              (await chunkResponse.text()) || `Failed to upload chunk ${index}`,
-            );
+            throw new Error((await chunkResponse.text()) || `Failed to upload chunk ${index}`);
           }
 
           // Chunk transfer accounts for up to 70%, matching the backend's

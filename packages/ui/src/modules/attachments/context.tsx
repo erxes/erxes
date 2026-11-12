@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { AttachmentContextType, IAttachment } from './types';
 
 const AttachmentContext = createContext<AttachmentContextType | null>(null);
@@ -12,9 +6,7 @@ const AttachmentContext = createContext<AttachmentContextType | null>(null);
 export const useAttachmentContext = (): AttachmentContextType => {
   const ctx = useContext(AttachmentContext);
   if (!ctx) {
-    throw new Error(
-      'useAttachmentContext must be used within <Attachments.Root>',
-    );
+    throw new Error('useAttachmentContext must be used within <Attachments.Root>');
   }
   return ctx;
 };
@@ -25,9 +17,7 @@ function stripTypename<T extends object>(obj: T): T {
 }
 
 const defaultConfirm = (attachment: IAttachment): Promise<boolean> =>
-  Promise.resolve(
-    window.confirm(`Are you sure you want to delete "${attachment.name}"?`),
-  );
+  Promise.resolve(window.confirm(`Are you sure you want to delete "${attachment.name}"?`));
 
 export type AttachmentRootProps = {
   children: React.ReactNode;
@@ -49,8 +39,7 @@ export const AttachmentRoot = ({
   confirmRemove = defaultConfirm,
   isLoading: externalLoading = false,
 }: AttachmentRootProps) => {
-  const [attachments, setAttachments] =
-    useState<IAttachment[]>(initialAttachments);
+  const [attachments, setAttachments] = useState<IAttachment[]>(initialAttachments);
   const [removingUrl, setRemovingUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -69,9 +58,7 @@ export const AttachmentRoot = ({
     async (attachment: IAttachment) => {
       setRemovingUrl(attachment.url);
 
-      const remaining = attachments
-        .filter((a) => a.url !== attachment.url)
-        .map(stripTypename);
+      const remaining = attachments.filter((a) => a.url !== attachment.url).map(stripTypename);
 
       try {
         if (onRemove) {

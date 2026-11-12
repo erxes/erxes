@@ -1,9 +1,7 @@
 import { atom } from 'jotai';
 import { atomFamily } from 'jotai/utils';
 
-export const EditModePositionComponentState = atomFamily((id: string) =>
-  atom(false),
-);
+export const EditModePositionComponentState = atomFamily((id: string) => atom(false));
 
 export const openPopoverState = atomFamily((id: string) => atom(false));
 

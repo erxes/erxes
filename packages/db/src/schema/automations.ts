@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, foreignKey, index, integer, jsonb, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  check,
+  foreignKey,
+  index,
+  integer,
+  jsonb,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
@@ -38,11 +48,19 @@ export const automations = pgTable(
     updatedAt: updatedAt(),
   },
   (table) => [
-    index('core_automations_trigger_idx').on(table.orgId, table.triggerEvent).where(sql`${table.status} = 'active'`),
-    index('core_automations_due_idx').on(table.nextRunAt).where(sql`${table.status} = 'active'`),
+    index('core_automations_trigger_idx')
+      .on(table.orgId, table.triggerEvent)
+      .where(sql`${table.status} = 'active'`),
+    index('core_automations_due_idx')
+      .on(table.nextRunAt)
+      .where(sql`${table.status} = 'active'`),
     uniqueIndex('core_automations_org_id_id_key').on(table.orgId, table.id),
     check('core_automations_status_check', sql`${table.status} IN ('draft', 'active', 'paused')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_automations_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_automations_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 
@@ -58,7 +76,10 @@ export const automationVersions = pgTable(
     createdAt: createdAt(),
   },
   (table) => [
-    primaryKey({ columns: [table.automationId, table.version], name: 'core_automation_versions_pkey' }),
+    primaryKey({
+      columns: [table.automationId, table.version],
+      name: 'core_automation_versions_pkey',
+    }),
     foreignKey({
       columns: [table.orgId, table.automationId],
       foreignColumns: [automations.orgId, automations.id],
@@ -99,11 +120,24 @@ export const automationRuns = pgTable(
   (table) => [
     // An event starts an automation once, however often it is processed.
     uniqueIndex('core_automation_runs_event_key').on(table.automationId, table.eventId),
-    index('core_automation_runs_automation_idx').on(table.orgId, table.automationId, table.startedAt.desc()),
-    index('core_automation_runs_subject_idx').on(table.automationId, table.subjectId, table.startedAt.desc()),
-    index('core_automation_runs_waiting_idx').on(table.orgId, table.subjectId).where(sql`${table.status} = 'waiting'`),
+    index('core_automation_runs_automation_idx').on(
+      table.orgId,
+      table.automationId,
+      table.startedAt.desc(),
+    ),
+    index('core_automation_runs_subject_idx').on(
+      table.automationId,
+      table.subjectId,
+      table.startedAt.desc(),
+    ),
+    index('core_automation_runs_waiting_idx')
+      .on(table.orgId, table.subjectId)
+      .where(sql`${table.status} = 'waiting'`),
     uniqueIndex('core_automation_runs_org_id_id_key').on(table.orgId, table.id),
-    check('core_automation_runs_status_check', sql`${table.status} IN ('running', 'waiting', 'succeeded', 'failed', 'cancelled')`),
+    check(
+      'core_automation_runs_status_check',
+      sql`${table.status} IN ('running', 'waiting', 'succeeded', 'failed', 'cancelled')`,
+    ),
     foreignKey({
       columns: [table.orgId, table.automationId],
       foreignColumns: [automations.orgId, automations.id],
@@ -131,7 +165,10 @@ export const automationRunSteps = pgTable(
   },
   (table) => [
     index('core_automation_run_steps_run_idx').on(table.runId, table.finishedAt),
-    check('core_automation_run_steps_status_check', sql`${table.status} IN ('succeeded', 'failed', 'skipped')`),
+    check(
+      'core_automation_run_steps_status_check',
+      sql`${table.status} IN ('succeeded', 'failed', 'skipped')`,
+    ),
     foreignKey({
       columns: [table.orgId, table.runId],
       foreignColumns: [automationRuns.orgId, automationRuns.id],

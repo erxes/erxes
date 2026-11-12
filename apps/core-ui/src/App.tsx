@@ -6,7 +6,11 @@ import { messageOf } from '~/lib/api';
 import { AppRoutes } from '~/modules/app/AppRoutes';
 import { ThemeEffect } from '~/modules/app/ThemeEffect';
 import { SessionProvider, useSessionQuery, useSetupStatus } from '~/modules/auth/session';
-import { AcceptInvitationPage, ForgotPasswordPage, ResetPasswordPage } from '~/modules/auth/AccountLinkPages';
+import {
+  AcceptInvitationPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+} from '~/modules/auth/AccountLinkPages';
 import { SetupPage } from '~/modules/auth/SetupPage';
 import { SignInPage } from '~/modules/auth/SignInPage';
 import './i18n';

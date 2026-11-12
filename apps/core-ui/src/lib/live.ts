@@ -93,7 +93,8 @@ export class LiveClient {
       this.channel.onmessage = ({ data }: MessageEvent<Wire>) => {
         if (data.event === 'mode') this.setMode(data.data, false);
         else if (data.event === 'mode?') {
-          if (this.source) this.channel?.postMessage({ event: 'mode', data: this.mode } satisfies Wire);
+          if (this.source)
+            this.channel?.postMessage({ event: 'mode', data: this.mode } satisfies Wire);
         } else this.deliver(data, false);
       };
       // A follower asks the leader how things stand.
@@ -105,17 +106,20 @@ export class LiveClient {
 
       this.lockRequest = request;
       navigator.locks
-        .request(LOCK, { signal: request.signal }, () =>
-          new Promise<void>((release) => {
-            // Granted after this tab stopped: give it straight back.
-            if (this.users === 0 || request.signal.aborted) {
-              release();
-              return;
-            }
+        .request(
+          LOCK,
+          { signal: request.signal },
+          () =>
+            new Promise<void>((release) => {
+              // Granted after this tab stopped: give it straight back.
+              if (this.users === 0 || request.signal.aborted) {
+                release();
+                return;
+              }
 
-            this.releaseLock = release;
-            this.lead();
-          }),
+              this.releaseLock = release;
+              this.lead();
+            }),
         )
         .catch(() => undefined);
     } else {
@@ -143,7 +147,9 @@ export class LiveClient {
 
     this.source = source;
     source.addEventListener('hello', (event) => {
-      const { mode } = JSON.parse((event as MessageEvent<string>).data) as { mode: 'live' | 'polling' };
+      const { mode } = JSON.parse((event as MessageEvent<string>).data) as {
+        mode: 'live' | 'polling';
+      };
 
       this.retries = 0;
       this.setMode(mode, true);
@@ -152,10 +158,16 @@ export class LiveClient {
     });
     source.addEventListener('inbox', () => this.deliver({ event: 'inbox' }, true));
     source.addEventListener('timeline', (event) =>
-      this.deliver({ event: 'timeline', data: JSON.parse((event as MessageEvent<string>).data) }, true),
+      this.deliver(
+        { event: 'timeline', data: JSON.parse((event as MessageEvent<string>).data) },
+        true,
+      ),
     );
     source.addEventListener('plugin', (event) =>
-      this.deliver({ event: 'plugin', data: JSON.parse((event as MessageEvent<string>).data) }, true),
+      this.deliver(
+        { event: 'plugin', data: JSON.parse((event as MessageEvent<string>).data) },
+        true,
+      ),
     );
     source.addEventListener('resync', () => this.deliver({ event: 'resync' }, true));
     source.addEventListener('bye', () => {
@@ -212,10 +224,12 @@ export class LiveClient {
 export const live = new LiveClient();
 
 /** `live` when changes are pushed; otherwise queries should poll. */
-export const useLiveMode = () => useSyncExternalStore(live.subscribeMode, live.getMode, live.getMode);
+export const useLiveMode = () =>
+  useSyncExternalStore(live.subscribeMode, live.getMode, live.getMode);
 
 /** For queries that live updates keep fresh: poll only while nothing is pushed. */
-export const useLivePolling = (interval = 30_000): number | false => (useLiveMode() === 'live' ? false : interval);
+export const useLivePolling = (interval = 30_000): number | false =>
+  useLiveMode() === 'live' ? false : interval;
 
 /**
  * Keeps the signed-in app current: refetches the inbox and the timelines that
@@ -234,7 +248,9 @@ export const useLiveUpdates = () => {
 
       if (message.event === 'timeline') {
         for (const target of message.data.targets) {
-          void client.invalidateQueries({ queryKey: ['activities', target.targetType, target.targetId] });
+          void client.invalidateQueries({
+            queryKey: ['activities', target.targetType, target.targetId],
+          });
         }
       }
 
@@ -251,7 +267,9 @@ export const useLiveUpdates = () => {
 };
 
 /** Plugin UIs hear their plugin's signals (and reconnects) through erxes-ui's runtime. */
-export const pluginLive = (listener: (message: { plugin: string; topics: string[] } | { resync: true }) => void) =>
+export const pluginLive = (
+  listener: (message: { plugin: string; topics: string[] } | { resync: true }) => void,
+) =>
   live.subscribe((message) => {
     if (message.event === 'plugin') listener(message.data);
     else if (message.event === 'resync') listener({ resync: true });

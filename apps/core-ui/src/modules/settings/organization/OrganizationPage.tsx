@@ -20,7 +20,9 @@ export const OrganizationPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: 'Organization', to: '/settings/organization', icon: IconBuilding }]} />
+          <AppBreadcrumb
+            items={[{ label: 'Organization', to: '/settings/organization', icon: IconBuilding }]}
+          />
         </PageHeader.Start>
       </PageHeader>
       <div className="min-h-0 flex-1 overflow-auto p-4">

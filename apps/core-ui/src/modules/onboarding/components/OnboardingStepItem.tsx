@@ -17,7 +17,10 @@ export const OnboardingStepItem = ({
   const Icon = step.icon;
 
   return (
-    <div className="flex w-full flex-row gap-4 animate-in" style={appearStyle({ y: 100, delay: 100, duration: 500, easing: 'ease-in-out' })}>
+    <div
+      className="flex w-full flex-row gap-4 animate-in"
+      style={appearStyle({ y: 100, delay: 100, duration: 500, easing: 'ease-in-out' })}
+    >
       <div
         className={cn(
           'flex items-center justify-center transition-[opacity,transform] duration-300',
@@ -42,7 +45,12 @@ export const OnboardingStepItem = ({
           <Icon className="h-6 w-6" />
         </div>
         <div className="flex flex-col gap-0.5">
-          <p className={cn('text-base font-semibold transition-colors', isSelected ? 'text-white' : 'text-white/90')}>
+          <p
+            className={cn(
+              'text-base font-semibold transition-colors',
+              isSelected ? 'text-white' : 'text-white/90',
+            )}
+          >
             {step.title}
           </p>
           <span

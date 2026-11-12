@@ -7,26 +7,126 @@ import { CursorQuery, cursorPageOf, Id } from './common';
  * subscribe to them; automations start from them.
  */
 export const CORE_EVENT_TYPES = [
-  { type: 'core.customer.created', label: 'Customer created', subject: 'customer', description: 'A person is added (by hand, an import, a form or a plugin)' },
-  { type: 'core.customer.updated', label: 'Customer updated', subject: 'customer', description: 'A person’s fields, owner or properties change' },
-  { type: 'core.customer.deleted', label: 'Customer deleted', subject: 'customer', description: 'A person is deleted (to the recycle bin)' },
-  { type: 'core.customer.merged', label: 'Customers merged', subject: 'customer', description: 'Duplicates are merged into one person' },
-  { type: 'core.customer.tagged', label: 'Customer tagged', subject: 'customer', description: 'Tags are added to or removed from a person' },
-  { type: 'core.customer.company_linked', label: 'Customer linked to a company', subject: 'customer', description: 'A person is linked to a company' },
-  { type: 'core.customer.company_unlinked', label: 'Customer unlinked from a company', subject: 'customer', description: 'A person is unlinked from a company' },
-  { type: 'core.lead.stage_changed', label: 'Lead moved to another stage', subject: 'customer', description: 'A lead (person or company) moves to another stage' },
-  { type: 'core.lead.converted', label: 'Lead became a customer', subject: 'customer', description: 'A lead becomes a customer' },
-  { type: 'core.company.created', label: 'Company created', subject: 'company', description: 'A company is added' },
-  { type: 'core.company.updated', label: 'Company updated', subject: 'company', description: 'A company’s fields, owner or properties change' },
-  { type: 'core.company.deleted', label: 'Company deleted', subject: 'company', description: 'A company is deleted (to the recycle bin)' },
-  { type: 'core.company.merged', label: 'Companies merged', subject: 'company', description: 'Duplicate companies are merged into one' },
-  { type: 'core.company.tagged', label: 'Company tagged', subject: 'company', description: 'Tags are added to or removed from a company' },
-  { type: 'core.customer.restored', label: 'Customer restored', subject: 'customer', description: 'A deleted person is restored from the recycle bin' },
-  { type: 'core.company.restored', label: 'Company restored', subject: 'company', description: 'A deleted company is restored from the recycle bin' },
-  { type: 'core.payment.paid', label: 'Invoice paid', subject: null, description: 'An invoice is paid' },
-  { type: 'core.payment.cancelled', label: 'Invoice cancelled', subject: null, description: 'An invoice is cancelled' },
-  { type: 'core.payment.expired', label: 'Invoice expired unpaid', subject: null, description: 'An invoice expires unpaid' },
-  { type: 'core.payment.refunded', label: 'Payment refunded', subject: null, description: 'A payment is refunded, in part or in full' },
+  {
+    type: 'core.customer.created',
+    label: 'Customer created',
+    subject: 'customer',
+    description: 'A person is added (by hand, an import, a form or a plugin)',
+  },
+  {
+    type: 'core.customer.updated',
+    label: 'Customer updated',
+    subject: 'customer',
+    description: 'A person’s fields, owner or properties change',
+  },
+  {
+    type: 'core.customer.deleted',
+    label: 'Customer deleted',
+    subject: 'customer',
+    description: 'A person is deleted (to the recycle bin)',
+  },
+  {
+    type: 'core.customer.merged',
+    label: 'Customers merged',
+    subject: 'customer',
+    description: 'Duplicates are merged into one person',
+  },
+  {
+    type: 'core.customer.tagged',
+    label: 'Customer tagged',
+    subject: 'customer',
+    description: 'Tags are added to or removed from a person',
+  },
+  {
+    type: 'core.customer.company_linked',
+    label: 'Customer linked to a company',
+    subject: 'customer',
+    description: 'A person is linked to a company',
+  },
+  {
+    type: 'core.customer.company_unlinked',
+    label: 'Customer unlinked from a company',
+    subject: 'customer',
+    description: 'A person is unlinked from a company',
+  },
+  {
+    type: 'core.lead.stage_changed',
+    label: 'Lead moved to another stage',
+    subject: 'customer',
+    description: 'A lead (person or company) moves to another stage',
+  },
+  {
+    type: 'core.lead.converted',
+    label: 'Lead became a customer',
+    subject: 'customer',
+    description: 'A lead becomes a customer',
+  },
+  {
+    type: 'core.company.created',
+    label: 'Company created',
+    subject: 'company',
+    description: 'A company is added',
+  },
+  {
+    type: 'core.company.updated',
+    label: 'Company updated',
+    subject: 'company',
+    description: 'A company’s fields, owner or properties change',
+  },
+  {
+    type: 'core.company.deleted',
+    label: 'Company deleted',
+    subject: 'company',
+    description: 'A company is deleted (to the recycle bin)',
+  },
+  {
+    type: 'core.company.merged',
+    label: 'Companies merged',
+    subject: 'company',
+    description: 'Duplicate companies are merged into one',
+  },
+  {
+    type: 'core.company.tagged',
+    label: 'Company tagged',
+    subject: 'company',
+    description: 'Tags are added to or removed from a company',
+  },
+  {
+    type: 'core.customer.restored',
+    label: 'Customer restored',
+    subject: 'customer',
+    description: 'A deleted person is restored from the recycle bin',
+  },
+  {
+    type: 'core.company.restored',
+    label: 'Company restored',
+    subject: 'company',
+    description: 'A deleted company is restored from the recycle bin',
+  },
+  {
+    type: 'core.payment.paid',
+    label: 'Invoice paid',
+    subject: null,
+    description: 'An invoice is paid',
+  },
+  {
+    type: 'core.payment.cancelled',
+    label: 'Invoice cancelled',
+    subject: null,
+    description: 'An invoice is cancelled',
+  },
+  {
+    type: 'core.payment.expired',
+    label: 'Invoice expired unpaid',
+    subject: null,
+    description: 'An invoice expires unpaid',
+  },
+  {
+    type: 'core.payment.refunded',
+    label: 'Payment refunded',
+    subject: null,
+    description: 'A payment is refunded, in part or in full',
+  },
 ] as const;
 
 export const EventTypeInfo = z.object({
@@ -44,7 +144,10 @@ export type EventTypeInfo = z.infer<typeof EventTypeInfo>;
 export const EventPattern = z
   .string()
   .trim()
-  .regex(/^(\*|[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*(\.\*)?)$/, 'an event type, a prefix ending in .*, or *');
+  .regex(
+    /^(\*|[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*(\.\*)?)$/,
+    'an event type, a prefix ending in .*, or *',
+  );
 
 const WebhookUrl = z
   .string()
@@ -96,11 +199,20 @@ const WebhookFields = {
  */
 export const webhooksContract = {
   eventTypes: oc
-    .route({ method: 'GET', path: '/events/types', summary: "Event types to subscribe to or automate on: core's and installed plugins'" })
+    .route({
+      method: 'GET',
+      path: '/events/types',
+      summary: "Event types to subscribe to or automate on: core's and installed plugins'",
+    })
     .output(z.object({ data: z.array(EventTypeInfo) })),
   list: oc.route({ method: 'GET', path: '/webhooks' }).output(z.object({ data: z.array(Webhook) })),
   create: oc
-    .route({ method: 'POST', path: '/webhooks', successStatus: 201, summary: 'Add an endpoint; the signing secret is returned once here' })
+    .route({
+      method: 'POST',
+      path: '/webhooks',
+      successStatus: 201,
+      summary: 'Add an endpoint; the signing secret is returned once here',
+    })
     .input(z.object(WebhookFields))
     .output(z.object({ webhook: Webhook, secret: z.string() })),
   update: oc
@@ -115,21 +227,42 @@ export const webhooksContract = {
       }),
     )
     .output(Webhook),
-  remove: oc.route({ method: 'DELETE', path: '/webhooks/{id}' }).input(z.object({ id: Id })).output(z.object({ ok: z.literal(true) })),
+  remove: oc
+    .route({ method: 'DELETE', path: '/webhooks/{id}' })
+    .input(z.object({ id: Id }))
+    .output(z.object({ ok: z.literal(true) })),
   rotateSecret: oc
-    .route({ method: 'POST', path: '/webhooks/{id}/secret', summary: 'A new signing secret (returned once); the old one stops at once' })
+    .route({
+      method: 'POST',
+      path: '/webhooks/{id}/secret',
+      summary: 'A new signing secret (returned once); the old one stops at once',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ secret: z.string() })),
   test: oc
-    .route({ method: 'POST', path: '/webhooks/{id}/test', summary: 'Send a `core.webhook.test` event to the endpoint now' })
+    .route({
+      method: 'POST',
+      path: '/webhooks/{id}/test',
+      summary: 'Send a `core.webhook.test` event to the endpoint now',
+    })
     .input(z.object({ id: Id }))
     .output(WebhookDelivery),
   deliveries: oc
-    .route({ method: 'GET', path: '/webhooks/{id}/deliveries', summary: 'Recent deliveries, newest first' })
-    .input(CursorQuery.extend({ id: Id, status: z.enum(['pending', 'succeeded', 'failed']).optional() }))
+    .route({
+      method: 'GET',
+      path: '/webhooks/{id}/deliveries',
+      summary: 'Recent deliveries, newest first',
+    })
+    .input(
+      CursorQuery.extend({ id: Id, status: z.enum(['pending', 'succeeded', 'failed']).optional() }),
+    )
     .output(cursorPageOf(WebhookDelivery)),
   redeliver: oc
-    .route({ method: 'POST', path: '/webhooks/deliveries/{deliveryId}/redeliver', summary: 'Send a delivery again' })
+    .route({
+      method: 'POST',
+      path: '/webhooks/deliveries/{deliveryId}/redeliver',
+      summary: 'Send a delivery again',
+    })
     .input(z.object({ deliveryId: Id }))
     .output(WebhookDelivery),
 };

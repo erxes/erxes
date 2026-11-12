@@ -15,10 +15,7 @@ export const SearchOrderSelect = ({
   triggerClassName?: string;
   onValueChange: (value: TSearchSortOrder) => void;
 }) => (
-  <Select
-    value={value}
-    onValueChange={(nextValue) => onValueChange(nextValue as TSearchSortOrder)}
-  >
+  <Select value={value} onValueChange={(nextValue) => onValueChange(nextValue as TSearchSortOrder)}>
     <Select.Trigger className={triggerClassName}>
       <Select.Value />
     </Select.Trigger>

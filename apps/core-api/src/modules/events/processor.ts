@@ -1,4 +1,13 @@
-import { activities, companies, customers, type Db, eventConsumers, eventFailures, events, withSystem } from '@erxes/core-db';
+import {
+  activities,
+  companies,
+  customers,
+  type Db,
+  eventConsumers,
+  eventFailures,
+  events,
+  withSystem,
+} from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { liveHub } from '~/modules/live/hub';
@@ -72,8 +81,13 @@ const timeline: EventConsumer = {
         userIds: [subject.ownerId],
         kind: event.type,
         title: event.summary,
-        link: event.link ?? `/contacts/${event.subjectType === 'customer' ? 'customers' : 'companies'}/${event.subjectId}`,
-        entity: { type: event.entityType ?? event.subjectType, id: event.entityId ?? event.subjectId },
+        link:
+          event.link ??
+          `/contacts/${event.subjectType === 'customer' ? 'customers' : 'companies'}/${event.subjectId}`,
+        entity: {
+          type: event.entityType ?? event.subjectType,
+          id: event.entityId ?? event.subjectId,
+        },
         data: { targetType: event.subjectType, targetId: event.subjectId },
         actorUserId: event.actorType === 'user' ? (event.actorId ?? undefined) : undefined,
         dedupeKey: `event:${event.id}:owner`,
@@ -86,9 +100,13 @@ const timeline: EventConsumer = {
 const notifications: EventConsumer = {
   name: 'core.notifications',
   async handle(tx, event) {
-    const request = event.notify as
-      | { userIds: string[]; title: string; body?: string; link?: string; priority?: 'normal' | 'high' }
-      | null;
+    const request = event.notify as {
+      userIds: string[];
+      title: string;
+      body?: string;
+      link?: string;
+      priority?: 'normal' | 'high';
+    } | null;
 
     if (!request?.userIds?.length || event.source === 'core') {
       return;
@@ -101,14 +119,23 @@ const notifications: EventConsumer = {
       body: request.body,
       link: request.link ?? event.link ?? undefined,
       priority: request.priority,
-      entity: event.entityType && event.entityId ? { type: event.entityType, id: event.entityId } : undefined,
+      entity:
+        event.entityType && event.entityId
+          ? { type: event.entityType, id: event.entityId }
+          : undefined,
       actorUserId: event.actorType === 'user' ? (event.actorId ?? undefined) : undefined,
       dedupeKey: `event:${event.id}`,
     });
   },
 };
 
-export const CONSUMERS: EventConsumer[] = [timeline, notifications, webhooksConsumer, automationsConsumer, pluginEventsConsumer];
+export const CONSUMERS: EventConsumer[] = [
+  timeline,
+  notifications,
+  webhooksConsumer,
+  automationsConsumer,
+  pluginEventsConsumer,
+];
 
 /** Waits before each retry; after the last one the event is dead. */
 export const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
@@ -141,7 +168,10 @@ const handleOnce = async (tx: Db, consumer: EventConsumer, event: EventRow) => {
 const afterAttempt = (attempts: number) =>
   attempts >= MAX_ATTEMPTS
     ? { status: 'dead' as const, nextAttemptAt: null }
-    : { status: 'retrying' as const, nextAttemptAt: sql`now() + make_interval(secs => ${RETRY_DELAYS_SECONDS[attempts - 1]!})` };
+    : {
+        status: 'retrying' as const,
+        nextAttemptAt: sql`now() + make_interval(secs => ${RETRY_DELAYS_SECONDS[attempts - 1]!})`,
+      };
 
 /**
  * Runs one consumer over the next batch of events, in commit order. Only
@@ -179,7 +209,12 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
     const rows = await tx
       .select()
       .from(events)
-      .where(sql`${events.id} in (${sql.join(batch.rows.map((row) => sql`${row.id}`), sql`, `)})`);
+      .where(
+        sql`${events.id} in (${sql.join(
+          batch.rows.map((row) => sql`${row.id}`),
+          sql`, `,
+        )})`,
+      );
     const byId = new Map(rows.map((row) => [row.id, row]));
 
     for (const { id } of batch.rows) {
@@ -188,10 +223,18 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
       const error = await handleOnce(tx, consumer, event);
 
       if (error) {
-        log.error(`${consumer.name} could not handle event ${event.id} (${event.type}): ${error}; retrying later`);
+        log.error(
+          `${consumer.name} could not handle event ${event.id} (${event.type}): ${error}; retrying later`,
+        );
         await tx
           .insert(eventFailures)
-          .values({ consumer: consumer.name, eventId: event.id, orgId: event.orgId, lastError: error, ...afterAttempt(1) })
+          .values({
+            consumer: consumer.name,
+            eventId: event.id,
+            orgId: event.orgId,
+            lastError: error,
+            ...afterAttempt(1),
+          })
           .onConflictDoNothing();
       }
     }
@@ -225,12 +268,20 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
     const rows = await tx
       .select()
       .from(events)
-      .where(sql`${events.id} in (${sql.join(due.rows.map((row) => sql`${row.event_id}`), sql`, `)})`);
+      .where(
+        sql`${events.id} in (${sql.join(
+          due.rows.map((row) => sql`${row.event_id}`),
+          sql`, `,
+        )})`,
+      );
     const byId = new Map(rows.map((row) => [row.id, row]));
 
     for (const failure of due.rows) {
       const event = byId.get(failure.event_id);
-      const where = and(eq(eventFailures.consumer, consumer.name), eq(eventFailures.eventId, failure.event_id));
+      const where = and(
+        eq(eventFailures.consumer, consumer.name),
+        eq(eventFailures.eventId, failure.event_id),
+      );
       const error = event ? await handleOnce(tx, consumer, event) : null;
 
       if (!error) {
@@ -242,7 +293,9 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
       const next = afterAttempt(attempts);
 
       if (next.status === 'dead') {
-        log.error(`${consumer.name} gave up on event ${failure.event_id} after ${attempts} attempts: ${error}`);
+        log.error(
+          `${consumer.name} gave up on event ${failure.event_id} after ${attempts} attempts: ${error}`,
+        );
       }
 
       await tx

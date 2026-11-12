@@ -42,7 +42,12 @@ const listOf = (values: string[]) => values.join(', ');
 
 /** A recorded value as text: names for owners, tags and options; `—` for empty. */
 const formatValue = (field: string, value: unknown, lookups: Lookups): string => {
-  if (value === null || value === undefined || value === '' || (Array.isArray(value) && !value.length)) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === '' ||
+    (Array.isArray(value) && !value.length)
+  ) {
     return '—';
   }
 
@@ -57,7 +62,13 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   }
 
   if (field === 'description' && typeof value === 'string') {
-    return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) || '—';
+    return (
+      value
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 120) || '—'
+    );
   }
 
   if (field === 'avatarUrl') {
@@ -75,9 +86,16 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   return String(value);
 };
 
-const fieldLabel = (field: string, lookups: Lookups, t: (key: string, fallback: string) => string) => {
+const fieldLabel = (
+  field: string,
+  lookups: Lookups,
+  t: (key: string, fallback: string) => string,
+) => {
   if (field.startsWith('customFields.')) {
-    return lookups.fields.get(field.slice('customFields.'.length))?.label ?? t('deleted-property', 'A deleted property');
+    return (
+      lookups.fields.get(field.slice('customFields.'.length))?.label ??
+      t('deleted-property', 'A deleted property')
+    );
   }
 
   return t(`fields.${field}`, FIELD_LABELS[field] ?? field);
@@ -115,13 +133,19 @@ export const ChangeList = ({
             <dd className="min-w-0 break-words text-foreground">
               {from !== '—' && (
                 <>
-                  <span className="text-muted-foreground line-through decoration-muted-foreground/60">{from}</span>
+                  <span className="text-muted-foreground line-through decoration-muted-foreground/60">
+                    {from}
+                  </span>
                   <span className="px-1 text-muted-foreground" aria-hidden="true">
                     →
                   </span>
                 </>
               )}
-              {to === '—' ? <span className="text-muted-foreground italic">{t('cleared', 'cleared')}</span> : to}
+              {to === '—' ? (
+                <span className="text-muted-foreground italic">{t('cleared', 'cleared')}</span>
+              ) : (
+                to
+              )}
             </dd>
           </div>
         );

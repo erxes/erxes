@@ -119,9 +119,7 @@ export const WithSearch: Story = {
           placeholder="Search and select fruits..."
           defaultOptions={options}
           onSearchSync={(value: string) =>
-            options.filter((option) =>
-              option.label.toLowerCase().includes(value.toLowerCase()),
-            )
+            options.filter((option) => option.label.toLowerCase().includes(value.toLowerCase()))
           }
           onChange={(values: MultiSelectOption[]) => console.log(values)}
         />
@@ -154,9 +152,7 @@ export const WithAsyncSearch: Story = {
 export const Controlled: Story = {
   render: () => {
     const ControlledExample = () => {
-      const [selectedOptions, setSelectedOptions] = useState<
-        MultiSelectOption[]
-      >([options[0]]);
+      const [selectedOptions, setSelectedOptions] = useState<MultiSelectOption[]>([options[0]]);
 
       return (
         <div className="w-[400px]">

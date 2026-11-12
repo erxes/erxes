@@ -11,10 +11,7 @@ import { Tooltip } from './tooltip';
 import { inputVariants } from './input';
 import { cn } from 'erxes-ui/lib';
 
-function useIsOverflowing<T extends HTMLElement>(
-  ref: RefObject<T>,
-  value?: string,
-) {
+function useIsOverflowing<T extends HTMLElement>(ref: RefObject<T>, value?: string) {
   const [isOverflowing, setIsOverflowing] = useState(false);
 
   useEffect(() => {
@@ -48,33 +45,32 @@ interface TextOverflowTooltipProps {
   delayDuration?: number;
 }
 
-const TextOverflowTooltipRoot = forwardRef<
-  HTMLSpanElement,
-  TextOverflowTooltipProps
->(({ value, className, delayDuration = 100 }, forwardedRef) => {
-  const innerRef = useRef<HTMLSpanElement>(null);
-  const isOverflowing = useIsOverflowing(innerRef, value);
+const TextOverflowTooltipRoot = forwardRef<HTMLSpanElement, TextOverflowTooltipProps>(
+  ({ value, className, delayDuration = 100 }, forwardedRef) => {
+    const innerRef = useRef<HTMLSpanElement>(null);
+    const isOverflowing = useIsOverflowing(innerRef, value);
 
-  return (
-    <Tooltip.Provider delayDuration={delayDuration}>
-      <Tooltip>
-        <Tooltip.Trigger asChild>
-          <span
-            ref={mergeRefs([innerRef, forwardedRef])}
-            className={cn('truncate w-full', className)}
-          >
-            {value}
-          </span>
-        </Tooltip.Trigger>
-        {isOverflowing && (
-          <Tooltip.Content>
-            <span>{value}</span>
-          </Tooltip.Content>
-        )}
-      </Tooltip>
-    </Tooltip.Provider>
-  );
-});
+    return (
+      <Tooltip.Provider delayDuration={delayDuration}>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <span
+              ref={mergeRefs([innerRef, forwardedRef])}
+              className={cn('truncate w-full', className)}
+            >
+              {value}
+            </span>
+          </Tooltip.Trigger>
+          {isOverflowing && (
+            <Tooltip.Content>
+              <span>{value}</span>
+            </Tooltip.Content>
+          )}
+        </Tooltip>
+      </Tooltip.Provider>
+    );
+  },
+);
 
 TextOverflowTooltipRoot.displayName = 'TextOverflowTooltip';
 
@@ -87,14 +83,8 @@ interface TextOverflowTooltipInputProps extends Omit<
   delayDuration?: number;
 }
 
-const TextOverflowTooltipInput = forwardRef<
-  HTMLInputElement,
-  TextOverflowTooltipInputProps
->(
-  (
-    { value, onChange, className, delayDuration = 100, ...props },
-    forwardedRef,
-  ) => {
+const TextOverflowTooltipInput = forwardRef<HTMLInputElement, TextOverflowTooltipInputProps>(
+  ({ value, onChange, className, delayDuration = 100, ...props }, forwardedRef) => {
     const innerRef = useRef<HTMLInputElement>(null);
     const isOverflowing = useIsOverflowing(innerRef, value);
 

@@ -4,7 +4,11 @@ import { arrayMove } from '@dnd-kit/sortable';
  * Moves `activeId` onto `overId` and gives the list its old order values in
  * the new arrangement; returns only the items whose order changed.
  */
-export const reorderItems = <T extends { id: string; order: number }>(items: T[], activeId: string, overId: string) => {
+export const reorderItems = <T extends { id: string; order: number }>(
+  items: T[],
+  activeId: string,
+  overId: string,
+) => {
   const from = items.findIndex((item) => item.id === activeId);
   const to = items.findIndex((item) => item.id === overId);
 
@@ -29,6 +33,8 @@ export const withOrders = <T extends { id: string; order: number }>(items: T[], 
 
   return {
     list,
-    changed: list.filter((item) => previous.get(item.id) !== item.order).map(({ id, order }) => ({ id, order })),
+    changed: list
+      .filter((item) => previous.get(item.id) !== item.order)
+      .map(({ id, order }) => ({ id, order })),
   };
 };

@@ -79,11 +79,7 @@ export const Default: Story = {
                   <Form.Item>
                     <Form.Label>Email</Form.Label>
                     <Form.Control>
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        {...field}
-                      />
+                      <Input type="email" placeholder="Enter your email" {...field} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -97,10 +93,7 @@ export const Default: Story = {
                   <Form.Item>
                     <Form.Label>Bio</Form.Label>
                     <Form.Control>
-                      <Textarea
-                        placeholder="Tell us about yourself"
-                        {...field}
-                      />
+                      <Textarea placeholder="Tell us about yourself" {...field} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -113,10 +106,7 @@ export const Default: Story = {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>Role</Form.Label>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <Form.Control>
                         <Select.Trigger>
                           <Select.Value placeholder="Select a role" />
@@ -140,14 +130,9 @@ export const Default: Story = {
                   <Form.Item>
                     <div className="flex items-center gap-2 py-2">
                       <Form.Control>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                       </Form.Control>
-                      <Form.Label variant="peer">
-                        Receive notifications
-                      </Form.Label>
+                      <Form.Label variant="peer">Receive notifications</Form.Label>
                     </div>
                     <Form.Message />
                   </Form.Item>

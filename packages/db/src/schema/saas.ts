@@ -38,8 +38,15 @@ export const entitlements = pgTable(
     lastError: text(),
   },
   (table) => [
-    check('core_entitlements_org_status_check', sql`${table.orgStatus} IN ('active', 'suspended', 'inactive')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_entitlements_org_id_fkey' }).onDelete('cascade'),
+    check(
+      'core_entitlements_org_status_check',
+      sql`${table.orgStatus} IN ('active', 'suspended', 'inactive')`,
+    ),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_entitlements_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 

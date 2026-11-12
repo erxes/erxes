@@ -84,4 +84,16 @@ export {
   USER_ROLES,
   USER_STATUSES,
 } from './schema';
-export type { ActorType, EntitledPlugin, ImportCounts, ImportOptions, EventFailureStatus, JobStatus, PluginStatus, StoredPluginManifest, ContentType, CustomValue, OrganizationSettings } from './schema';
+export type {
+  ActorType,
+  EntitledPlugin,
+  ImportCounts,
+  ImportOptions,
+  EventFailureStatus,
+  JobStatus,
+  PluginStatus,
+  StoredPluginManifest,
+  ContentType,
+  CustomValue,
+  OrganizationSettings,
+} from './schema';

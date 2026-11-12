@@ -1,9 +1,4 @@
-import {
-  KeyboardEvent,
-  PointerEvent as ReactPointerEvent,
-  useRef,
-  useState,
-} from 'react';
+import { KeyboardEvent, PointerEvent as ReactPointerEvent, useRef, useState } from 'react';
 import { UseFormReturn, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -57,16 +52,12 @@ export const useBarcodeAttribute = ({
 } => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const form = useForm<BarcodeSize>({
-    resolver: zodResolver(
-      barcodeSizeSchema as unknown as Parameters<typeof zodResolver>[0],
-    ),
+    resolver: zodResolver(barcodeSizeSchema as unknown as Parameters<typeof zodResolver>[0]),
     defaultValues: { width, height },
   });
   const dimensions = form.watch();
   const preset = BARCODE_SIZE_PRESETS.find(
-    (size) =>
-      size.width === Number(dimensions.width) &&
-      size.height === Number(dimensions.height),
+    (size) => size.width === Number(dimensions.width) && size.height === Number(dimensions.height),
   );
   const applySize = form.handleSubmit((dimensions) => {
     onResize(dimensions);
@@ -74,9 +65,7 @@ export const useBarcodeAttribute = ({
   });
   const [dragSize, setDragSize] = useState<BarcodeSize | null>(null);
   const size = dragSize ?? { width, height };
-  const dragStart = useRef<
-    (BarcodeSize & { clientX: number; clientY: number }) | null
-  >(null);
+  const dragStart = useRef<(BarcodeSize & { clientX: number; clientY: number }) | null>(null);
 
   const getResizedDimensions = (event: ReactPointerEvent) => {
     const start = dragStart.current;
@@ -86,10 +75,7 @@ export const useBarcodeAttribute = ({
     }
 
     return {
-      width: Math.min(
-        MAX_WIDTH,
-        Math.max(MIN_WIDTH, start.width + event.clientX - start.clientX),
-      ),
+      width: Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, start.width + event.clientX - start.clientX)),
       height: Math.min(
         MAX_HEIGHT,
         Math.max(MIN_HEIGHT, start.height + start.clientY - event.clientY),
@@ -130,9 +116,7 @@ export const useBarcodeAttribute = ({
     setSettingsOpen(open);
   };
   const handlePresetChange = (value: string): void => {
-    const selected = BARCODE_SIZE_PRESETS.find(
-      (preset) => String(preset.width) === value,
-    );
+    const selected = BARCODE_SIZE_PRESETS.find((preset) => String(preset.width) === value);
     if (selected) form.reset(selected);
   };
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {

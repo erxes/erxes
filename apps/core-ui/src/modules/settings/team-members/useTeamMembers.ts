@@ -84,7 +84,11 @@ export const useTeamMemberEdit = () => {
     mutationFn: (input: UserUpdate) => api.users.update(input),
     onSuccess: store,
     onError: (error) =>
-      toast({ variant: 'destructive', title: t('failed-to-update-user-details'), description: messageOf(error) }),
+      toast({
+        variant: 'destructive',
+        title: t('failed-to-update-user-details'),
+        description: messageOf(error),
+      }),
   });
 };
 
@@ -103,10 +107,14 @@ export const useTeamMemberDisable = () => {
       void client.invalidateQueries({ queryKey: [...USERS_KEY, 'list'] });
       toast({
         variant: 'success',
-        title: user.status === 'disabled' ? t('user-deactivated-successfully') : t('user-activated-successfully'),
+        title:
+          user.status === 'disabled'
+            ? t('user-deactivated-successfully')
+            : t('user-activated-successfully'),
       });
     },
-    onError: (error) => toast({ variant: 'destructive', title: t('error'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({ variant: 'destructive', title: t('error'), description: messageOf(error) }),
   });
 };
 
@@ -117,7 +125,9 @@ export const useTeamMembersDeactivate = () => {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       const results = await Promise.allSettled(ids.map((id) => api.users.disable({ id })));
-      const failed = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+      const failed = results.find(
+        (result): result is PromiseRejectedResult => result.status === 'rejected',
+      );
 
       if (failed && results.every((result) => result.status === 'rejected')) {
         throw failed.reason;

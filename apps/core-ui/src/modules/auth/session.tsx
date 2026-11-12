@@ -37,9 +37,13 @@ export const useSessionQuery = () =>
 
 const SessionContext = createContext<Session | null>(null);
 
-export const SessionProvider = ({ session, children }: { session: Session; children: ReactNode }) => (
-  <SessionContext.Provider value={session}>{children}</SessionContext.Provider>
-);
+export const SessionProvider = ({
+  session,
+  children,
+}: {
+  session: Session;
+  children: ReactNode;
+}) => <SessionContext.Provider value={session}>{children}</SessionContext.Provider>;
 
 /** Inside the signed-in app: the current member and organisation. */
 export const useSession = (): Session => {

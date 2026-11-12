@@ -10,7 +10,13 @@ import { api, messageOf } from '~/lib/api';
  * and what each action would get. Nothing is changed. (Save first: it tests
  * what is saved.)
  */
-export const TestPanel = ({ automationId, subject }: { automationId: string; subject: 'customer' | 'company' | null }) => {
+export const TestPanel = ({
+  automationId,
+  subject,
+}: {
+  automationId: string;
+  subject: 'customer' | 'company' | null;
+}) => {
   const { t } = useTranslation('automations');
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -21,11 +27,18 @@ export const TestPanel = ({ automationId, subject }: { automationId: string; sub
     queryKey: ['automations', 'test-records', type, search],
     queryFn: async () =>
       type === 'customer'
-        ? (await api.customers.list({ limit: 20, search: search || undefined })).data.map((row) => ({
-            id: row.id,
-            label: [row.firstName, row.lastName].filter(Boolean).join(' ') || row.primaryEmail || row.id,
-          }))
-        : (await api.companies.list({ limit: 20, search: search || undefined })).data.map((row) => ({ id: row.id, label: row.primaryName ?? row.id })),
+        ? (await api.customers.list({ limit: 20, search: search || undefined })).data.map(
+            (row) => ({
+              id: row.id,
+              label:
+                [row.firstName, row.lastName].filter(Boolean).join(' ') ||
+                row.primaryEmail ||
+                row.id,
+            }),
+          )
+        : (await api.companies.list({ limit: 20, search: search || undefined })).data.map(
+            (row) => ({ id: row.id, label: row.primaryName ?? row.id }),
+          ),
     enabled: open,
   });
   const run = useMutation({
@@ -49,13 +62,22 @@ export const TestPanel = ({ automationId, subject }: { automationId: string; sub
         <Sheet.Header>
           <Sheet.Title>{t('test-title', 'Test without changing anything')}</Sheet.Title>
           <Sheet.Description className="text-sm text-muted-foreground">
-            {t('test-description', 'Shows what the saved version would do for a record. Nothing is sent or changed.')}
+            {t(
+              'test-description',
+              'Shows what the saved version would do for a record. Nothing is sent or changed.',
+            )}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
         <div className="space-y-2">
-          <Label>{type === 'customer' ? t('test-customer', 'Customer') : t('test-company', 'Company')}</Label>
-          <Input placeholder={t('search', 'Search…')} value={search} onChange={(event) => setSearch(event.target.value)} />
+          <Label>
+            {type === 'customer' ? t('test-customer', 'Customer') : t('test-company', 'Company')}
+          </Label>
+          <Input
+            placeholder={t('search', 'Search…')}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
           <Select value={recordId} onValueChange={setRecordId}>
             <Select.Trigger>
               <Select.Value placeholder={t('pick-record', 'Pick one')} />
@@ -81,9 +103,13 @@ export const TestPanel = ({ automationId, subject }: { automationId: string; sub
           <div className="min-h-0 flex-1 space-y-2 overflow-auto">
             <div className="flex gap-2">
               <Badge variant={run.data.triggerMatches ? 'success' : 'warning'}>
-                {run.data.triggerMatches ? t('trigger-matches', 'The trigger’s conditions hold') : t('trigger-not', 'The trigger’s conditions don’t hold')}
+                {run.data.triggerMatches
+                  ? t('trigger-matches', 'The trigger’s conditions hold')
+                  : t('trigger-not', 'The trigger’s conditions don’t hold')}
               </Badge>
-              {run.data.goalMetAtStart && <Badge variant="info">{t('goal-already', 'Goal already met')}</Badge>}
+              {run.data.goalMetAtStart && (
+                <Badge variant="info">{t('goal-already', 'Goal already met')}</Badge>
+              )}
             </div>
             <ol className="space-y-2">
               {run.data.trace.map((item, index) => (
@@ -94,7 +120,9 @@ export const TestPanel = ({ automationId, subject }: { automationId: string; sub
                   </div>
                   {item.problem && <p className="mt-1 text-xs text-destructive">{item.problem}</p>}
                   {item.input !== null && item.input !== undefined && (
-                    <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-[11px]">{JSON.stringify(item.input, null, 2)}</pre>
+                    <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-[11px]">
+                      {JSON.stringify(item.input, null, 2)}
+                    </pre>
                   )}
                 </li>
               ))}

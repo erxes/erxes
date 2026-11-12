@@ -10,19 +10,28 @@ import { config } from '~/config';
 const role = process.argv.slice(2).find((arg) => arg !== '--');
 
 const main = async () => {
-  if (!role || !/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error('Usage: pnpm db:grant -- <role name>');
+  if (!role || !/^[a-z_][a-z0-9_]{0,62}$/.test(role))
+    throw new Error('Usage: pnpm db:grant -- <role name>');
 
-  configureDb({ ...config.data, url: config.data.migrationUrl ?? config.data.url, role: undefined });
+  configureDb({
+    ...config.data,
+    url: config.data.migrationUrl ?? config.data.url,
+    role: undefined,
+  });
 
-  await rootDb().execute(sql.raw(`
+  await rootDb().execute(
+    sql.raw(`
     DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${role}') THEN
         CREATE ROLE ${role} LOGIN NOBYPASSRLS NOSUPERUSER NOCREATEDB NOCREATEROLE;
       END IF;
     END $$;
-  `));
+  `),
+  );
   await rootDb().execute(sql`select core_grant_runtime(${role})`);
-  console.log(`${role}: data access granted. Set a password (ALTER ROLE ${role} PASSWORD '…') and use it in DATA_URL;`);
+  console.log(
+    `${role}: data access granted. Set a password (ALTER ROLE ${role} PASSWORD '…') and use it in DATA_URL;`,
+  );
   console.log('keep the owner in DATA_MIGRATION_URL for pnpm db:migrate.');
 };
 

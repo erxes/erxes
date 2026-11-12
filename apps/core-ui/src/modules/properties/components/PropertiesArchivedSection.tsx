@@ -53,7 +53,13 @@ const ArchivedRow = ({
             <IconRestore />
             {t('restore', 'Restore')}
           </Button>
-          <Button variant="ghost" size="sm" className="text-destructive" disabled={disabled} onClick={onDelete}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive"
+            disabled={disabled}
+            onClick={onDelete}
+          >
             <IconTrash />
             {t('delete', 'Delete')}
           </Button>
@@ -82,7 +88,10 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: Conten
       <div className="flex items-center gap-1">
         <span className="size-7 shrink-0" />
         <Collapsible.Trigger asChild>
-          <Button variant="secondary" className="w-full justify-start font-medium text-muted-foreground">
+          <Button
+            variant="secondary"
+            className="w-full justify-start font-medium text-muted-foreground"
+          >
             <Collapsible.TriggerIcon />
             {t('archived', 'Archived')}
             <Badge variant="secondary" className="ml-1">
@@ -97,11 +106,15 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: Conten
             <ArchivedRow
               key={group.id}
               name={group.name}
-              detail={t('archived-group-detail', 'Group · {{count}} fields', { count: group.fieldCount })}
+              detail={t('archived-group-detail', 'Group · {{count}} fields', {
+                count: group.fieldCount,
+              })}
               archivedAt={date(group.archivedAt)}
               disabled={loading}
               onRestore={() => restoreGroup(group.id)}
-              onDelete={() => setTarget({ kind: 'group', id: group.id, label: `"${group.name}"`, archived: true })}
+              onDelete={() =>
+                setTarget({ kind: 'group', id: group.id, label: `"${group.name}"`, archived: true })
+              }
             />
           ))}
           {fields.map((field) => (
@@ -112,7 +125,12 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: Conten
               disabled={loading}
               onRestore={() => restoreField(field.id)}
               onDelete={() =>
-                setTarget({ kind: 'fields', ids: [field.id], label: `"${field.label}"`, archived: true })
+                setTarget({
+                  kind: 'fields',
+                  ids: [field.id],
+                  label: `"${field.label}"`,
+                  archived: true,
+                })
               }
             />
           ))}

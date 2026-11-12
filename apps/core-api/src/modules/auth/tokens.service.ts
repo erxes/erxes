@@ -1,4 +1,12 @@
-import { authTokens, type Db, newId, organizations, users, withOrg, withSystem } from '@erxes/core-db';
+import {
+  authTokens,
+  type Db,
+  newId,
+  organizations,
+  users,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { type Actor, requirePermission, userCaller } from '~/http/auth';
@@ -12,14 +20,27 @@ const RESET_MINUTES = 30;
 
 const hash = (secret: string) => createHash('sha256').update(secret).digest('hex');
 
-const invalidLink = () => new HttpError(400, 'INVALID_LINK', 'This link is not valid any more: ask for a new one');
+const invalidLink = () =>
+  new HttpError(400, 'INVALID_LINK', 'This link is not valid any more: ask for a new one');
 
 /** A new single-use link for the member; earlier unused ones for the same purpose stop working. */
-const issue = async (tx: Db, orgId: string, userId: string, purpose: 'invite' | 'password_reset') => {
+const issue = async (
+  tx: Db,
+  orgId: string,
+  userId: string,
+  purpose: 'invite' | 'password_reset',
+) => {
   await tx
     .update(authTokens)
     .set({ usedAt: sql`now()` })
-    .where(and(eq(authTokens.orgId, orgId), eq(authTokens.userId, userId), eq(authTokens.purpose, purpose), isNull(authTokens.usedAt)));
+    .where(
+      and(
+        eq(authTokens.orgId, orgId),
+        eq(authTokens.userId, userId),
+        eq(authTokens.purpose, purpose),
+        isNull(authTokens.usedAt),
+      ),
+    );
 
   const id = newId();
   const secret = randomBytes(32).toString('base64url');
@@ -30,7 +51,10 @@ const issue = async (tx: Db, orgId: string, userId: string, purpose: 'invite' | 
     userId,
     purpose,
     secretHash: hash(secret),
-    expiresAt: purpose === 'invite' ? sql`now() + make_interval(days => ${INVITE_DAYS})` : sql`now() + make_interval(mins => ${RESET_MINUTES})`,
+    expiresAt:
+      purpose === 'invite'
+        ? sql`now() + make_interval(days => ${INVITE_DAYS})`
+        : sql`now() + make_interval(mins => ${RESET_MINUTES})`,
   });
 
   return `${id}.${secret}`;
@@ -49,7 +73,14 @@ const redeem = async (token: string, purpose: 'invite' | 'password_reset') => {
     tx
       .select()
       .from(authTokens)
-      .where(and(eq(authTokens.id, id), eq(authTokens.purpose, purpose), isNull(authTokens.usedAt), gt(authTokens.expiresAt, sql`now()`)))
+      .where(
+        and(
+          eq(authTokens.id, id),
+          eq(authTokens.purpose, purpose),
+          isNull(authTokens.usedAt),
+          gt(authTokens.expiresAt, sql`now()`),
+        ),
+      )
       .limit(1),
   );
   const expected = row ? Buffer.from(row.secretHash) : Buffer.alloc(64);
@@ -63,8 +94,16 @@ const redeem = async (token: string, purpose: 'invite' | 'password_reset') => {
 /** Called when a member is invited without a password: the invitation email. */
 export const sendInvitation = async (tx: Db, actor: Actor, user: { id: string; email: string }) => {
   const token = await issue(tx, actor.orgId, user.id, 'invite');
-  const [org] = await tx.select({ name: organizations.name }).from(organizations).where(eq(organizations.id, actor.orgId)).limit(1);
-  const [inviter] = await tx.select({ name: users.fullName, email: users.email }).from(users).where(eq(users.id, actor.userId)).limit(1);
+  const [org] = await tx
+    .select({ name: organizations.name })
+    .from(organizations)
+    .where(eq(organizations.id, actor.orgId))
+    .limit(1);
+  const [inviter] = await tx
+    .select({ name: users.fullName, email: users.email })
+    .from(users)
+    .where(eq(users.id, actor.userId))
+    .limit(1);
 
   await sendEmail(tx, actor.orgId, {
     to: user.email,
@@ -88,10 +127,16 @@ export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => 
     .limit(1);
 
   if (!user) throw new HttpError(404, 'NOT_FOUND', 'Team member not found');
-  if (user.status !== 'invited') throw new HttpError(409, 'NOT_INVITED', 'This member has already joined');
+  if (user.status !== 'invited')
+    throw new HttpError(409, 'NOT_INVITED', 'This member has already joined');
 
   await sendInvitation(tx, actor, user);
-  await recordAudit(tx, userCaller(actor), { action: 'user.invitation_sent', targetType: 'user', targetId: user.id, targetLabel: user.email });
+  await recordAudit(tx, userCaller(actor), {
+    action: 'user.invitation_sent',
+    targetType: 'user',
+    targetId: user.id,
+    targetLabel: user.email,
+  });
 
   return { ok: true as const };
 };
@@ -105,14 +150,21 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
   const email = input.email.trim().toLowerCase();
   const members = await withSystem('password reset lookup', (tx) =>
     tx
-      .select({ id: users.id, orgId: users.orgId, organization: organizations.name, subdomain: organizations.subdomain })
+      .select({
+        id: users.id,
+        orgId: users.orgId,
+        organization: organizations.name,
+        subdomain: organizations.subdomain,
+      })
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
       .where(
         and(
           sql`lower(${users.email}) = ${email}`,
           eq(users.status, 'active'),
-          input.subdomain ? sql`lower(${organizations.subdomain}) = ${input.subdomain.toLowerCase()}` : undefined,
+          input.subdomain
+            ? sql`lower(${organizations.subdomain}) = ${input.subdomain.toLowerCase()}`
+            : undefined,
         ),
       )
       .limit(10),
@@ -141,16 +193,24 @@ export const requestPasswordReset = async (input: { email: string; subdomain?: s
         template: 'password_reset',
         data: {
           organization: member.organization,
-          link: await appLink(tx, member.orgId, `/reset-password?token=${encodeURIComponent(token)}`),
+          link: await appLink(
+            tx,
+            member.orgId,
+            `/reset-password?token=${encodeURIComponent(token)}`,
+          ),
           minutes: RESET_MINUTES,
         },
       });
-      await recordAudit(tx, { orgId: member.orgId, actorType: 'user', actorId: member.id, source: 'core' }, {
-        action: 'auth.password_reset_requested',
-        targetType: 'user',
-        targetId: member.id,
-        targetLabel: email,
-      });
+      await recordAudit(
+        tx,
+        { orgId: member.orgId, actorType: 'user', actorId: member.id, source: 'core' },
+        {
+          action: 'auth.password_reset_requested',
+          targetType: 'user',
+          targetId: member.id,
+          targetLabel: email,
+        },
+      );
     });
   }
 
@@ -174,18 +234,26 @@ export const resetPassword = async (input: { token: string; password: string }) 
 
     const [user] = await tx
       .update(users)
-      .set({ passwordHash, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
+      .set({
+        passwordHash,
+        sessionVersion: sql`${users.sessionVersion} + 1`,
+        updatedAt: sql`now()`,
+      })
       .where(and(eq(users.orgId, row.orgId), eq(users.id, row.userId), eq(users.status, 'active')))
       .returning({ email: users.email });
 
     if (!user) throw invalidLink();
 
-    await recordAudit(tx, { orgId: row.orgId, actorType: 'user', actorId: row.userId, source: 'core' }, {
-      action: 'auth.password_reset',
-      targetType: 'user',
-      targetId: row.userId,
-      targetLabel: user.email,
-    });
+    await recordAudit(
+      tx,
+      { orgId: row.orgId, actorType: 'user', actorId: row.userId, source: 'core' },
+      {
+        action: 'auth.password_reset',
+        targetType: 'user',
+        targetId: row.userId,
+        targetLabel: user.email,
+      },
+    );
   });
 
   return { orgId: row.orgId, userId: row.userId };
@@ -195,20 +263,41 @@ export const invitationInfo = async (token: string) => {
   const row = await redeem(token, 'invite');
 
   return withOrg(row.orgId, async (tx) => {
-    const [user] = await tx.select({ email: users.email, invitedBy: users.invitedBy }).from(users).where(eq(users.id, row.userId)).limit(1);
-    const [org] = await tx.select({ name: organizations.name }).from(organizations).where(eq(organizations.id, row.orgId)).limit(1);
+    const [user] = await tx
+      .select({ email: users.email, invitedBy: users.invitedBy })
+      .from(users)
+      .where(eq(users.id, row.userId))
+      .limit(1);
+    const [org] = await tx
+      .select({ name: organizations.name })
+      .from(organizations)
+      .where(eq(organizations.id, row.orgId))
+      .limit(1);
     const [inviter] = user?.invitedBy
-      ? await tx.select({ name: users.fullName, email: users.email }).from(users).where(eq(users.id, user.invitedBy)).limit(1)
+      ? await tx
+          .select({ name: users.fullName, email: users.email })
+          .from(users)
+          .where(eq(users.id, user.invitedBy))
+          .limit(1)
       : [];
 
     if (!user || !org) throw invalidLink();
 
-    return { organization: org.name, email: user.email, inviter: inviter?.name || inviter?.email || null };
+    return {
+      organization: org.name,
+      email: user.email,
+      inviter: inviter?.name || inviter?.email || null,
+    };
   });
 };
 
 /** Joins: sets the password (and name), the member becomes active, the link is used up. */
-export const acceptInvitation = async (input: { token: string; password: string; firstName?: string; lastName?: string }) => {
+export const acceptInvitation = async (input: {
+  token: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+}) => {
   const row = await redeem(input.token, 'invite');
   const passwordHash = await hashPassword(input.password);
 
@@ -238,12 +327,16 @@ export const acceptInvitation = async (input: { token: string; password: string;
 
     if (!user) throw invalidLink();
 
-    await recordAudit(tx, { orgId: row.orgId, actorType: 'user', actorId: row.userId, source: 'core' }, {
-      action: 'user.joined',
-      targetType: 'user',
-      targetId: row.userId,
-      targetLabel: user.email,
-    });
+    await recordAudit(
+      tx,
+      { orgId: row.orgId, actorType: 'user', actorId: row.userId, source: 'core' },
+      {
+        action: 'user.joined',
+        targetType: 'user',
+        targetId: row.userId,
+        targetLabel: user.email,
+      },
+    );
   });
 
   return { orgId: row.orgId, userId: row.userId };

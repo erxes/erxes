@@ -23,7 +23,6 @@ export function formatPhones(
   ];
 
   return formattedPhones.filter(
-    (phone, index, self) =>
-      index === self.findIndex((t) => t.phone === phone.phone),
+    (phone, index, self) => index === self.findIndex((t) => t.phone === phone.phone),
   );
 }

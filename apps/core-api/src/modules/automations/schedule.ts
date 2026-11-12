@@ -1,7 +1,14 @@
 import type { AutomationTrigger } from '@erxes/core-contract';
 
 /** A wall-clock time in a time zone → that instant (handles offsets and DST by correcting twice). */
-export const zonedToUtc = (year: number, month: number, day: number, hour: number, minute: number, timeZone: string) => {
+export const zonedToUtc = (
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+  timeZone: string,
+) => {
   const guess = Date.UTC(year, month - 1, day, hour, minute);
   const offset = (instant: number) => {
     const parts = Object.fromEntries(
@@ -18,7 +25,15 @@ export const zonedToUtc = (year: number, month: number, day: number, hour: numbe
         .map((part) => [part.type, part.value]),
     );
 
-    return Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), Number(parts.hour), Number(parts.minute)) - instant;
+    return (
+      Date.UTC(
+        Number(parts.year),
+        Number(parts.month) - 1,
+        Number(parts.day),
+        Number(parts.hour),
+        Number(parts.minute),
+      ) - instant
+    );
   };
   const first = guess - offset(guess);
 
@@ -28,7 +43,13 @@ export const zonedToUtc = (year: number, month: number, day: number, hour: numbe
 /** The calendar date (and weekday, 1 = Monday) of an instant in a time zone. */
 export const zonedDate = (instant: Date, timeZone: string) => {
   const parts = Object.fromEntries(
-    new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })
+    new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      weekday: 'short',
+    })
       .formatToParts(instant)
       .map((part) => [part.type, part.value]),
   );
@@ -62,10 +83,20 @@ export const nextOccurrence = (trigger: Timed, after: Date): Date => {
   // Look at most a year and a bit ahead, day by day.
   for (let offset = 0; offset < 400; offset += 1) {
     const day = new Date(Date.UTC(start.year, start.month - 1, start.day + offset));
-    const date = { year: day.getUTCFullYear(), month: day.getUTCMonth() + 1, day: day.getUTCDate(), weekday: ((day.getUTCDay() + 6) % 7) + 1 };
+    const date = {
+      year: day.getUTCFullYear(),
+      month: day.getUTCMonth() + 1,
+      day: day.getUTCDate(),
+      weekday: ((day.getUTCDay() + 6) % 7) + 1,
+    };
 
     if (trigger.kind === 'schedule') {
-      if (trigger.every === 'week' && trigger.weekdays?.length && !trigger.weekdays.includes(date.weekday)) continue;
+      if (
+        trigger.every === 'week' &&
+        trigger.weekdays?.length &&
+        !trigger.weekdays.includes(date.weekday)
+      )
+        continue;
       if (trigger.every === 'week' && !trigger.weekdays?.length && date.weekday !== 1) continue;
 
       if (trigger.every === 'month') {

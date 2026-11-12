@@ -42,14 +42,8 @@ export const BackgroundGradientAnimation = ({
   const [tgX, setTgX] = useState(0);
   const [tgY, setTgY] = useState(0);
   useEffect(() => {
-    document.body.style.setProperty(
-      '--gradient-background-start',
-      gradientBackgroundStart,
-    );
-    document.body.style.setProperty(
-      '--gradient-background-end',
-      gradientBackgroundEnd,
-    );
+    document.body.style.setProperty('--gradient-background-start', gradientBackgroundStart);
+    document.body.style.setProperty('--gradient-background-end', gradientBackgroundEnd);
     document.body.style.setProperty('--first-color', firstColor);
     document.body.style.setProperty('--second-color', secondColor);
     document.body.style.setProperty('--third-color', thirdColor);
@@ -100,11 +94,7 @@ export const BackgroundGradientAnimation = ({
       <svg className="hidden">
         <defs>
           <filter id="blurMe">
-            <feGaussianBlur
-              in="SourceGraphic"
-              stdDeviation="10"
-              result="blur"
-            />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
             <feColorMatrix
               in="blur"
               mode="matrix"
@@ -115,12 +105,7 @@ export const BackgroundGradientAnimation = ({
           </filter>
         </defs>
       </svg>
-      <div
-        className={cn(
-          'absolute z-10 flex h-full w-full flex-col px-8 py-4',
-          className,
-        )}
-      >
+      <div className={cn('absolute z-10 flex h-full w-full flex-col px-8 py-4', className)}>
         {children}
       </div>
       <div

@@ -70,7 +70,13 @@ export const PluginManifest = z.object({
   oauth: z
     .object({
       redirectUris: z
-        .array(z.string().trim().max(500).regex(/^https?:\/\/[^\s#]+$/, 'an http(s) address without a fragment'))
+        .array(
+          z
+            .string()
+            .trim()
+            .max(500)
+            .regex(/^https?:\/\/[^\s#]+$/, 'an http(s) address without a fragment'),
+        )
         .min(1)
         .max(20),
     })
@@ -80,7 +86,10 @@ export const PluginManifest = z.object({
   permissions: z
     .array(
       z.object({
-        action: z.string().trim().regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/),
+        action: z
+          .string()
+          .trim()
+          .regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/),
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
         group: z.string().trim().max(60).optional(),
@@ -89,7 +98,13 @@ export const PluginManifest = z.object({
     .max(500)
     .optional(),
   notificationKinds: z
-    .array(z.object({ kind: EventType, label: z.string().trim().min(1).max(100), description: z.string().trim().max(300).optional() }))
+    .array(
+      z.object({
+        kind: EventType,
+        label: z.string().trim().min(1).max(100),
+        description: z.string().trim().max(300).optional(),
+      }),
+    )
     .max(200)
     .optional(),
   /**
@@ -134,7 +149,11 @@ export const PluginManifest = z.object({
         type: EventType,
         label: z.string().trim().min(1).max(100),
         icon: z.string().trim().max(60).optional(),
-        color: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+        color: z
+          .string()
+          .trim()
+          .regex(/^#[0-9a-fA-F]{6}$/)
+          .optional(),
       }),
     )
     .max(500)
@@ -216,34 +235,63 @@ export const pluginsContract = {
     )
     .output(TokenResponse),
   registerManifest: oc
-    .route({ method: 'PUT', path: '/plugins/manifest', summary: 'The calling plugin declares its UI, API, scopes, permissions and events' })
+    .route({
+      method: 'PUT',
+      path: '/plugins/manifest',
+      summary: 'The calling plugin declares its UI, API, scopes, permissions and events',
+    })
     .input(PluginManifest)
     .output(z.object({ ok: z.literal(true) })),
   list: oc
-    .route({ method: 'GET', path: '/plugins', summary: 'Plugins of this deployment, and which are installed here' })
+    .route({
+      method: 'GET',
+      path: '/plugins',
+      summary: 'Plugins of this deployment, and which are installed here',
+    })
     .output(z.object({ data: z.array(Plugin) })),
   install: oc
-    .route({ method: 'POST', path: '/plugins/{name}/install', summary: 'Install (or approve the new scopes of) a plugin (owners)' })
+    .route({
+      method: 'POST',
+      path: '/plugins/{name}/install',
+      summary: 'Install (or approve the new scopes of) a plugin (owners)',
+    })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
   uninstall: oc
-    .route({ method: 'POST', path: '/plugins/{name}/uninstall', summary: 'Uninstall a plugin: its tokens stop working at once (owners)' })
+    .route({
+      method: 'POST',
+      path: '/plugins/{name}/uninstall',
+      summary: 'Uninstall a plugin: its tokens stop working at once (owners)',
+    })
     .input(z.object({ name: PluginName }))
     .output(Plugin),
   session: oc
     .route({
       method: 'POST',
       path: '/plugins/{name}/session',
-      summary: "A 5-minute token for one plugin's API, for the signed-in member (plugin UIs send it as Bearer)",
+      summary:
+        "A 5-minute token for one plugin's API, for the signed-in member (plugin UIs send it as Bearer)",
     })
     .input(z.object({ name: PluginName }))
-    .output(z.object({ token: z.string(), expiresAt: z.string().datetime(), apiUrl: z.string().nullable() })),
+    .output(
+      z.object({
+        token: z.string(),
+        expiresAt: z.string().datetime(),
+        apiUrl: z.string().nullable(),
+      }),
+    ),
   signal: oc
     .route({
       method: 'POST',
       path: '/plugins/live',
-      summary: "Tell the plugin's open UIs something changed (plugins with live:write); no data, UIs refetch",
+      summary:
+        "Tell the plugin's open UIs something changed (plugins with live:write); no data, UIs refetch",
     })
-    .input(z.object({ topics: z.array(LiveTopic).min(1).max(50), userIds: z.array(Id).max(1000).optional() }))
+    .input(
+      z.object({
+        topics: z.array(LiveTopic).min(1).max(50),
+        userIds: z.array(Id).max(1000).optional(),
+      }),
+    )
     .output(z.object({ ok: z.literal(true) })),
 };

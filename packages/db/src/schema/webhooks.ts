@@ -37,7 +37,11 @@ export const webhooks = pgTable(
   (table) => [
     index('core_webhooks_org_idx').on(table.orgId, table.status),
     check('core_webhooks_status_check', sql`${table.status} IN ('active', 'disabled')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_webhooks_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_webhooks_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 
@@ -63,9 +67,16 @@ export const webhookDeliveries = pgTable(
     updatedAt: updatedAt(),
   },
   (table) => [
-    index('core_webhook_deliveries_webhook_idx').on(table.orgId, table.webhookId, table.createdAt.desc()),
+    index('core_webhook_deliveries_webhook_idx').on(
+      table.orgId,
+      table.webhookId,
+      table.createdAt.desc(),
+    ),
     index('core_webhook_deliveries_created_idx').on(table.createdAt),
-    check('core_webhook_deliveries_status_check', sql`${table.status} IN ('pending', 'succeeded', 'failed')`),
+    check(
+      'core_webhook_deliveries_status_check',
+      sql`${table.status} IN ('pending', 'succeeded', 'failed')`,
+    ),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

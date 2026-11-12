@@ -37,7 +37,9 @@ export const CustomersCommandBar = () => {
     <>
       <CommandBar open={selectedRows.length > 0 && !merging}>
         <CommandBar.Bar>
-          <CommandBar.Value>{tContact('selected', { selectedCount: selectedRows.length })}</CommandBar.Value>
+          <CommandBar.Value>
+            {tContact('selected', { selectedCount: selectedRows.length })}
+          </CommandBar.Value>
           <Separator.Inline />
           <TagsSelect
             type="customer"
@@ -48,7 +50,11 @@ export const CustomersCommandBar = () => {
             onValueChange={(next) => tag.mutate({ ids: customerIds, ...tagChange(tagIds, next) })}
           />
           <Separator.Inline />
-          {customers.every((customer) => customer.state === 'lead') ? <LeadsBulkActions recordType="customer" leads={customers} /> : <CustomersChangeState customers={customers} />}
+          {customers.every((customer) => customer.state === 'lead') ? (
+            <LeadsBulkActions recordType="customer" leads={customers} />
+          ) : (
+            <CustomersChangeState customers={customers} />
+          )}
           {manager && (
             <>
               <Separator.Inline />
@@ -66,7 +72,12 @@ export const CustomersCommandBar = () => {
                     {t('actions')}
                   </Button>
                 </Popover.Trigger>
-                <Popover.Content className="min-w-[280px] p-0" align="end" side="top" sideOffset={10}>
+                <Popover.Content
+                  className="min-w-[280px] p-0"
+                  align="end"
+                  side="top"
+                  sideOffset={10}
+                >
                   <Command>
                     <Command.List className="p-0">
                       <Command.Group className="p-1">
@@ -75,9 +86,13 @@ export const CustomersCommandBar = () => {
                           onSelect={() => {
                             setOpen(false);
                             void confirm({
-                              message: tContact('confirm-delete-selected', { count: customerIds.length }),
+                              message: tContact('confirm-delete-selected', {
+                                count: customerIds.length,
+                              }),
                             }).then(() =>
-                              remove.mutate(customerIds, { onSuccess: () => table.setRowSelection({}) }),
+                              remove.mutate(customerIds, {
+                                onSuccess: () => table.setRowSelection({}),
+                              }),
                             );
                           }}
                         >
@@ -101,7 +116,11 @@ export const CustomersCommandBar = () => {
         records={customers.map((customer) => ({
           id: customer.id,
           title: customerTitle(customer) || 'Unnamed',
-          details: [customer.primaryEmail ?? '', customer.primaryPhone ?? '', customer.state === 'lead' ? 'Lead' : ''],
+          details: [
+            customer.primaryEmail ?? '',
+            customer.primaryPhone ?? '',
+            customer.state === 'lead' ? 'Lead' : '',
+          ],
         }))}
         onMerge={(keepId) =>
           merge.mutate(

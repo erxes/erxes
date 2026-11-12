@@ -20,16 +20,10 @@ export const RecordTableRowList = ({
       key={row.id}
       original={row.original}
       data-state={row.getIsSelected() && 'selected'}
-      handleRowViewChange={(inView) =>
-        handleRowViewChange?.(row.id, inView)
-      }
+      handleRowViewChange={(inView) => handleRowViewChange?.(row.id, inView)}
     >
       {row.getVisibleCells().map((cell) => (
-        <RecordTableCell
-          cell={cell}
-          key={cell.id}
-          className={cn(rowIndex === 0 && 'border-t')}
-        >
+        <RecordTableCell cell={cell} key={cell.id} className={cn(rowIndex === 0 && 'border-t')}>
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </RecordTableCell>
       ))}
@@ -41,7 +35,5 @@ export const RecordTableRowList = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [table.options.data, table.getState().columnOrder],
   );
-  return table.getState().columnSizingInfo.isResizingColumn
-    ? memoizedTableContent
-    : tableContent;
+  return table.getState().columnSizingInfo.isResizingColumn ? memoizedTableContent : tableContent;
 };

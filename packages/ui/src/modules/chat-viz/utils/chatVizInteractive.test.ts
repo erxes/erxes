@@ -146,8 +146,6 @@ describe('interactive chart-viz payloads', () => {
     delete staticPayload.transforms;
 
     expect(getChartVizInteractiveDomain(staticPayload)).toBeUndefined();
-    expect(
-      getChartVizInteractiveDomain(staticPayload, { includeZero: true }),
-    ).toBeUndefined();
+    expect(getChartVizInteractiveDomain(staticPayload, { includeZero: true })).toBeUndefined();
   });
 });

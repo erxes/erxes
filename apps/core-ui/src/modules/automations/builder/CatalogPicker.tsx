@@ -13,11 +13,11 @@ import {
   IconUser,
   IconWebhook,
   type TablerIcon,
-} from "@tabler/icons-react";
-import { cn, Command, Popover } from "erxes-ui";
-import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { pluginLabel } from "~/lib/members";
+} from '@tabler/icons-react';
+import { cn, Command, Popover } from 'erxes-ui';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { pluginLabel } from '~/lib/members';
 
 /**
  * Picking an event or an action out of what core and every installed plugin
@@ -45,20 +45,20 @@ interface Group {
 }
 
 /** Core's areas, by the second part of the type (`core.<area>.…`), in this order. */
-const CORE_AREAS: Record<string, Omit<Group, "key">> = {
-  customer: { label: "Customers", icon: IconUser, order: 0 },
-  lead: { label: "Leads", icon: IconMagnet, order: 1 },
-  company: { label: "Companies", icon: IconBuilding, order: 2 },
-  payment: { label: "Payments", icon: IconCreditCard, order: 3 },
-  email: { label: "Messages", icon: IconMail, order: 4 },
-  notification: { label: "Messages", icon: IconMail, order: 4 },
-  note: { label: "Timeline", icon: IconNote, order: 5 },
-  webhook: { label: "Integrations", icon: IconWebhook, order: 6 },
-  http: { label: "Integrations", icon: IconWebhook, order: 6 },
+const CORE_AREAS: Record<string, Omit<Group, 'key'>> = {
+  customer: { label: 'Customers', icon: IconUser, order: 0 },
+  lead: { label: 'Leads', icon: IconMagnet, order: 1 },
+  company: { label: 'Companies', icon: IconBuilding, order: 2 },
+  payment: { label: 'Payments', icon: IconCreditCard, order: 3 },
+  email: { label: 'Messages', icon: IconMail, order: 4 },
+  notification: { label: 'Messages', icon: IconMail, order: 4 },
+  note: { label: 'Timeline', icon: IconNote, order: 5 },
+  webhook: { label: 'Integrations', icon: IconWebhook, order: 6 },
+  http: { label: 'Integrations', icon: IconWebhook, order: 6 },
 };
 
 const groupOf = (item: CatalogItem): Group => {
-  if (item.source !== "core")
+  if (item.source !== 'core')
     return {
       key: `plugin:${item.source}`,
       source: item.source,
@@ -67,14 +67,14 @@ const groupOf = (item: CatalogItem): Group => {
       order: 100,
     };
 
-  const area = CORE_AREAS[item.type.split(".")[1] ?? ""];
+  const area = CORE_AREAS[item.type.split('.')[1] ?? ''];
 
   return area
-    ? { key: `core:${area.label}`, source: "core", ...area }
+    ? { key: `core:${area.label}`, source: 'core', ...area }
     : {
-        key: "core:general",
-        source: "core",
-        label: "General",
+        key: 'core:general',
+        source: 'core',
+        label: 'General',
         icon: IconBolt,
         order: 50,
       };
@@ -85,7 +85,7 @@ export const catalogIcon = (item: CatalogItem) => groupOf(item).icon;
 
 /** Every word typed appears in the name, description, area or app (not cmdk's loose fuzzy match). */
 const matchWords = (value: string, search: string, keywords?: string[]) => {
-  const haystack = [value, ...(keywords ?? [])].join(" ").toLowerCase();
+  const haystack = [value, ...(keywords ?? [])].join(' ').toLowerCase();
 
   return search
     .toLowerCase()
@@ -103,7 +103,7 @@ const useRecent = (kind: string) => {
   const key = `erxes_automation_recent_${kind}`;
   const read = (): string[] => {
     try {
-      return JSON.parse(localStorage.getItem(key) ?? "[]") as string[];
+      return JSON.parse(localStorage.getItem(key) ?? '[]') as string[];
     } catch {
       return [];
     }
@@ -111,10 +111,7 @@ const useRecent = (kind: string) => {
   const [recent, setRecent] = useState(read);
 
   const remember = (type: string) => {
-    const next = [type, ...recent.filter((item) => item !== type)].slice(
-      0,
-      RECENT_LIMIT,
-    );
+    const next = [type, ...recent.filter((item) => item !== type)].slice(0, RECENT_LIMIT);
 
     setRecent(next);
     try {
@@ -131,7 +128,7 @@ const Row = ({
   item,
   selected,
   onSelect,
-  keyPrefix = "",
+  keyPrefix = '',
   showIcon = false,
 }: {
   item: CatalogItem;
@@ -146,7 +143,7 @@ const Row = ({
   return (
     <Command.Item
       value={`${keyPrefix}${item.type}`}
-      keywords={[item.label, item.description ?? "", group.label, item.source]}
+      keywords={[item.label, item.description ?? '', group.label, item.source]}
       onSelect={onSelect}
       className="h-auto items-start gap-2.5 px-2.5 py-1.5"
     >
@@ -158,9 +155,7 @@ const Row = ({
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm">{item.label}</span>
         {item.description && (
-          <span className="block truncate text-xs text-muted-foreground">
-            {item.description}
-          </span>
+          <span className="block truncate text-xs text-muted-foreground">{item.description}</span>
         )}
       </span>
       {selected && <IconCheck className="mt-1 size-4 shrink-0 text-primary" />}
@@ -184,11 +179,11 @@ export const CatalogPicker = ({
   disabled?: boolean;
   placeholder?: string;
 }) => {
-  const { t } = useTranslation("automations");
+  const { t } = useTranslation('automations');
   const [open, setOpen] = useState(false);
   // Two steps, as Zapier and HubSpot: what it is about (a category), then the event or action in it.
   const [category, setCategory] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const { recent, remember } = useRecent(kind);
   const selected = items.find((item) => item.type === value);
   const groups = useMemo(() => {
@@ -203,9 +198,7 @@ export const CatalogPicker = ({
     }
 
     return [...byKey.values()].sort(
-      (a, b) =>
-        a.group.order - b.group.order ||
-        a.group.label.localeCompare(b.group.label),
+      (a, b) => a.group.order - b.group.order || a.group.label.localeCompare(b.group.label),
     );
   }, [items]);
   const current = groups.find((entry) => entry.group.key === category) ?? null;
@@ -213,20 +206,18 @@ export const CatalogPicker = ({
     .map((type) => items.find((item) => item.type === type))
     .filter((item): item is CatalogItem => Boolean(item));
   const groupName = (group: Group) =>
-    group.source === "core"
-      ? t(`catalog-group.${group.label}`, group.label)
-      : group.label;
+    group.source === 'core' ? t(`catalog-group.${group.label}`, group.label) : group.label;
   const countLabel = (count: number) =>
-    kind === "action"
-      ? t("catalog-count-action", {
+    kind === 'action'
+      ? t('catalog-count-action', {
           count,
-          defaultValue_one: "{{count}} action",
-          defaultValue_other: "{{count}} actions",
+          defaultValue_one: '{{count}} action',
+          defaultValue_other: '{{count}} actions',
         })
-      : t("catalog-count-event", {
+      : t('catalog-count-event', {
           count,
-          defaultValue_one: "{{count}} event",
-          defaultValue_other: "{{count}} events",
+          defaultValue_one: '{{count}} event',
+          defaultValue_other: '{{count}} events',
         });
   const choose = (type: string) => {
     remember(type);
@@ -243,7 +234,7 @@ export const CatalogPicker = ({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        setSearch("");
+        setSearch('');
         // Reopening shows the chosen one's category, as you left it.
         setCategory(next && selected ? groupOf(selected).key : null);
       }}
@@ -263,17 +254,15 @@ export const CatalogPicker = ({
                 <span className="block truncate text-xs text-muted-foreground">
                   {groupName(groupOf(selected))}
                 </span>
-                <span className="block truncate text-sm font-medium">
-                  {selected.label}
-                </span>
+                <span className="block truncate text-sm font-medium">{selected.label}</span>
               </>
             ) : (
               <span className="block truncate text-sm text-muted-foreground">
                 {value ||
                   placeholder ||
-                  (kind === "action"
-                    ? t("catalog-choose-action", "Choose an action")
-                    : t("catalog-choose-event", "Choose an event"))}
+                  (kind === 'action'
+                    ? t('catalog-choose-action', 'Choose an action')
+                    : t('catalog-choose-event', 'Choose an event'))}
               </span>
             )}
           </span>
@@ -288,22 +277,17 @@ export const CatalogPicker = ({
         // the header and search being pushed off screen.
         className="flex max-h-(--radix-popover-content-available-height) w-(--radix-popper-anchor-width) min-w-80 max-w-[40rem] flex-col p-0"
       >
-        <Command
-          loop
-          filter={matchWords}
-          shouldFilter={searching}
-          className="min-h-0 flex-1"
-        >
+        <Command loop filter={matchWords} shouldFilter={searching} className="min-h-0 flex-1">
           {current && (
             <div className="flex items-center gap-2 border-b px-2 py-1.5">
               <button
                 type="button"
                 onClick={() => {
                   setCategory(null);
-                  setSearch("");
+                  setSearch('');
                 }}
                 className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label={t("catalog-back", "All categories")}
+                aria-label={t('catalog-back', 'All categories')}
               >
                 <IconArrowLeft className="size-4" />
               </button>
@@ -323,24 +307,21 @@ export const CatalogPicker = ({
             onValueChange={setSearch}
             onKeyDown={(event) => {
               // Backspace on an empty search goes back to the categories.
-              if (event.key === "Backspace" && !search && current)
-                setCategory(null);
+              if (event.key === 'Backspace' && !search && current) setCategory(null);
             }}
             placeholder={
               current
-                ? t("catalog-search-in", {
+                ? t('catalog-search-in', {
                     name: groupName(current.group),
-                    defaultValue: "Search in {{name}}…",
+                    defaultValue: 'Search in {{name}}…',
                   })
-                : kind === "action"
-                  ? t("catalog-search-actions", "Search actions…")
-                  : t("catalog-search-events", "Search events…")
+                : kind === 'action'
+                  ? t('catalog-search-actions', 'Search actions…')
+                  : t('catalog-search-events', 'Search events…')
             }
           />
           <Command.List className="max-h-80 min-h-0 flex-1">
-            <Command.Empty>
-              {t("catalog-empty", "Nothing matches")}
-            </Command.Empty>
+            <Command.Empty>{t('catalog-empty', 'Nothing matches')}</Command.Empty>
 
             {searching &&
               searchGroups.map(({ group, items: groupItems }) => (
@@ -384,7 +365,7 @@ export const CatalogPicker = ({
                     heading={
                       <span className="flex items-center gap-1">
                         <IconClockHour4 className="size-3" />
-                        {t("catalog-recent", "Recently used")}
+                        {t('catalog-recent', 'Recently used')}
                       </span>
                     }
                   >
@@ -401,7 +382,7 @@ export const CatalogPicker = ({
                   </Command.Group>
                 )}
                 <Command.Group
-                  heading={t("catalog-categories", "Categories")}
+                  heading={t('catalog-categories', 'Categories')}
                   className="[&_[cmdk-group-items]]:grid [&_[cmdk-group-items]]:grid-cols-2 [&_[cmdk-group-items]]:gap-1"
                 >
                   {groups.map(({ group, items: groupItems }) => (
@@ -410,20 +391,19 @@ export const CatalogPicker = ({
                       value={`category:${group.key}`}
                       onSelect={() => {
                         setCategory(group.key);
-                        setSearch("");
+                        setSearch('');
                       }}
                       className={cn(
-                        "h-auto gap-2.5 rounded-md border border-transparent px-2 py-2",
+                        'h-auto gap-2.5 rounded-md border border-transparent px-2 py-2',
                         selected &&
                           groupOf(selected).key === group.key &&
-                          "border-primary/30 bg-primary/5",
+                          'border-primary/30 bg-primary/5',
                       )}
                     >
                       <span
                         className={cn(
-                          "flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground",
-                          group.source !== "core" &&
-                            "bg-primary/10 text-primary",
+                          'flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground',
+                          group.source !== 'core' && 'bg-primary/10 text-primary',
                         )}
                       >
                         <group.icon className="size-4" />
@@ -433,9 +413,7 @@ export const CatalogPicker = ({
                           {groupName(group)}
                         </span>
                         <span className="block truncate text-xs text-muted-foreground">
-                          {group.source !== "core"
-                            ? `${t("catalog-plugin", "Plugin")} · `
-                            : ""}
+                          {group.source !== 'core' ? `${t('catalog-plugin', 'Plugin')} · ` : ''}
                           {countLabel(groupItems.length)}
                         </span>
                       </span>

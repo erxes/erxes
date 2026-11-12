@@ -126,10 +126,7 @@ export const Empty: Story = {
         </Table.Header>
         <Table.Body>
           <Table.Row>
-            <Table.Cell
-              colSpan={4}
-              className="h-24 text-center border-t rounded-md"
-            >
+            <Table.Cell colSpan={4} className="h-24 text-center border-t rounded-md">
               No results found.
             </Table.Cell>
           </Table.Row>

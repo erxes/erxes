@@ -8,13 +8,17 @@ export const useContactRelations = (contentType: TContactContentType, contentId:
   const client = useQueryClient();
   const { toast } = useToast();
   const isCustomer = contentType === 'core:customer';
-  const queryKey = isCustomer ? ['customers', 'companies', contentId] : ['customers', 'ofCompany', contentId];
+  const queryKey = isCustomer
+    ? ['customers', 'companies', contentId]
+    : ['customers', 'ofCompany', contentId];
   const query = useQuery({
     queryKey,
     queryFn: async () =>
       isCustomer
         ? (await api.customers.companies({ id: contentId })).data.map((company) => company.id)
-        : (await api.customers.list({ companyId: contentId, limit: 100 })).data.map((customer) => customer.id),
+        : (await api.customers.list({ companyId: contentId, limit: 100 })).data.map(
+            (customer) => customer.id,
+          ),
     enabled: !!contentId,
   });
   const relatedIds = query.data ?? [];
@@ -39,7 +43,12 @@ export const useContactRelations = (contentType: TContactContentType, contentId:
       void client.invalidateQueries({ queryKey: ['customers'] });
       void client.invalidateQueries({ queryKey: ['companies'] });
     },
-    onError: (error) => toast({ variant: 'destructive', title: 'Could not update links', description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: 'Could not update links',
+        description: messageOf(error),
+      }),
   });
 
   return {
@@ -53,7 +62,11 @@ export const useContactRelations = (contentType: TContactContentType, contentId:
 };
 
 /** Links a contact just created to the records picked in its draft. */
-export const linkNewContact = (contentType: TContactContentType, contentId: string, relatedIds: string[]) =>
+export const linkNewContact = (
+  contentType: TContactContentType,
+  contentId: string,
+  relatedIds: string[],
+) =>
   Promise.all(
     relatedIds.map((otherId) =>
       api.customers.linkCompany(

@@ -1,10 +1,6 @@
-const escapeRegExp = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
-export const highlightMatch = (
-  text: string,
-  searchValue: string,
-): React.ReactNode => {
+export const highlightMatch = (text: string, searchValue: string): React.ReactNode => {
   const term = searchValue.trim();
 
   if (!term) {

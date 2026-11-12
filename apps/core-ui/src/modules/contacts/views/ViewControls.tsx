@@ -107,7 +107,13 @@ export const ViewDialog = ({
       }}
     >
       <Dialog.Content className="sm:max-w-md">
-        <Dialog.HeaderCombined title={title} description={t('save-description', 'Saves the filter and search; it always shows the latest records.')} />
+        <Dialog.HeaderCombined
+          title={title}
+          description={t(
+            'save-description',
+            'Saves the filter and search; it always shows the latest records.',
+          )}
+        />
         <form
           className="space-y-4"
           onSubmit={(event) => {
@@ -117,7 +123,13 @@ export const ViewDialog = ({
         >
           <div className="space-y-1.5">
             <Label>{t('name', 'Name')}</Label>
-            <Input autoFocus value={name} maxLength={80} placeholder={t('name-placeholder', 'VIP customers in Ulaanbaatar')} onChange={(event) => setName(event.target.value)} />
+            <Input
+              autoFocus
+              value={name}
+              maxLength={80}
+              placeholder={t('name-placeholder', 'VIP customers in Ulaanbaatar')}
+              onChange={(event) => setName(event.target.value)}
+            />
           </div>
           {can('contacts.edit') && (
             <label className="flex items-center gap-2 text-sm">
@@ -148,7 +160,13 @@ export const SaveViewButton = ({ recordType }: { recordType: ViewRecordType }) =
   return (
     <div className="flex items-center gap-1">
       {current?.editable && (
-        <Button size="sm" variant="secondary" className="h-7" disabled={update.isPending} onClick={() => update.mutate({ id: current.id, ...values })}>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="h-7"
+          disabled={update.isPending}
+          onClick={() => update.mutate({ id: current.id, ...values })}
+        >
           <IconDeviceFloppy />
           {t('update', 'Update “{{name}}”', { name: current.name })}
         </Button>

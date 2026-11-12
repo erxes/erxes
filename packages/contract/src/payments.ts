@@ -31,7 +31,14 @@ export const PaymentGateway = z.object({
 });
 export type PaymentGateway = z.infer<typeof PaymentGateway>;
 
-export const InvoiceStatus = z.enum(['pending', 'paid', 'refunded', 'cancelled', 'expired', 'failed']);
+export const InvoiceStatus = z.enum([
+  'pending',
+  'paid',
+  'refunded',
+  'cancelled',
+  'expired',
+  'failed',
+]);
 
 /** The caller's own data on an invoice (order lines, room number): at most 8 KB of JSON, returned in events. */
 export const InvoiceMetadata = z
@@ -97,37 +104,72 @@ export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
  * `core.payment.paid` (webhooks, automations, the plugin's own consumer).
  */
 export const paymentsContract = {
-  gateways: oc.route({ method: 'GET', path: '/payments/gateways' }).output(z.object({ data: z.array(PaymentGateway) })),
+  gateways: oc
+    .route({ method: 'GET', path: '/payments/gateways' })
+    .output(z.object({ data: z.array(PaymentGateway) })),
   addGateway: oc
-    .route({ method: 'POST', path: '/payments/gateways', successStatus: 201, summary: 'Connect a gateway (checked against it first)' })
+    .route({
+      method: 'POST',
+      path: '/payments/gateways',
+      successStatus: 201,
+      summary: 'Connect a gateway (checked against it first)',
+    })
     .input(z.object({ name: z.string().trim().min(1).max(80), config: GatewayConfig }))
     .output(PaymentGateway),
   updateGateway: oc
     .route({ method: 'PATCH', path: '/payments/gateways/{id}' })
-    .input(z.object({ id: Id, name: z.string().trim().min(1).max(80).optional(), config: GatewayConfig.optional(), status: z.enum(['active', 'disabled']).optional() }))
+    .input(
+      z.object({
+        id: Id,
+        name: z.string().trim().min(1).max(80).optional(),
+        config: GatewayConfig.optional(),
+        status: z.enum(['active', 'disabled']).optional(),
+      }),
+    )
     .output(PaymentGateway),
   removeGateway: oc
-    .route({ method: 'DELETE', path: '/payments/gateways/{id}', summary: 'Remove a gateway without invoices (turn it off otherwise)' })
+    .route({
+      method: 'DELETE',
+      path: '/payments/gateways/{id}',
+      summary: 'Remove a gateway without invoices (turn it off otherwise)',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   createInvoice: oc
-    .route({ method: 'POST', path: '/payments/invoices', successStatus: 201, summary: 'An invoice at a gateway for a record (plugins: payments:write)' })
+    .route({
+      method: 'POST',
+      path: '/payments/invoices',
+      successStatus: 201,
+      summary: 'An invoice at a gateway for a record (plugins: payments:write)',
+    })
     .input(
       z.object({
         gatewayId: Id.optional(),
         amount: z.number().int().min(1).max(1_000_000_000_00),
         currency: z.literal('MNT').default('MNT'),
         description: z.string().trim().min(1).max(255),
-        reference: z.object({ type: z.string().trim().min(1).max(60), id: z.string().trim().min(1).max(100) }),
+        reference: z.object({
+          type: z.string().trim().min(1).max(60),
+          id: z.string().trim().min(1).max(100),
+        }),
         /** Minutes the invoice can be paid in (default 30). */
-        expiresInMinutes: z.number().int().min(1).max(60 * 24 * 7).default(30),
+        expiresInMinutes: z
+          .number()
+          .int()
+          .min(1)
+          .max(60 * 24 * 7)
+          .default(30),
         dedupeKey: DedupeKey.optional(),
         metadata: InvoiceMetadata.optional(),
       }),
     )
     .output(Invoice),
   getInvoice: oc
-    .route({ method: 'GET', path: '/payments/invoices/{id}', summary: 'An invoice; a pending one is checked with the gateway' })
+    .route({
+      method: 'GET',
+      path: '/payments/invoices/{id}',
+      summary: 'An invoice; a pending one is checked with the gateway',
+    })
     .input(z.object({ id: Id }))
     .output(Invoice),
   cancelInvoice: oc
@@ -157,18 +199,38 @@ export const paymentsContract = {
     .input(z.object({ id: Id }))
     .output(z.object({ data: z.array(Refund) })),
   pluginSettings: oc
-    .route({ method: 'GET', path: '/payments/plugins', summary: 'Installed plugins that take payments, with their gateway settings' })
+    .route({
+      method: 'GET',
+      path: '/payments/plugins',
+      summary: 'Installed plugins that take payments, with their gateway settings',
+    })
     .output(z.object({ data: z.array(PluginPaymentSettings) })),
   updatePluginSettings: oc
     .route({ method: 'PUT', path: '/payments/plugins/{plugin}' })
-    .input(z.object({ plugin: z.string().min(1).max(60), defaultGatewayId: Id.nullable(), allowedGatewayIds: z.array(Id).max(50) }))
+    .input(
+      z.object({
+        plugin: z.string().min(1).max(60),
+        defaultGatewayId: Id.nullable(),
+        allowedGatewayIds: z.array(Id).max(50),
+      }),
+    )
     .output(PluginPaymentSettings),
   invoices: oc
     .route({ method: 'GET', path: '/payments/invoices', summary: 'Invoices, newest first' })
-    .input(CursorQuery.extend({ status: InvoiceStatus.optional(), source: z.string().max(40).optional(), referenceId: z.string().max(100).optional() }))
+    .input(
+      CursorQuery.extend({
+        status: InvoiceStatus.optional(),
+        source: z.string().max(40).optional(),
+        referenceId: z.string().max(100).optional(),
+      }),
+    )
     .output(cursorPageOf(Invoice)),
   payTestInvoice: oc
-    .route({ method: 'POST', path: '/payments/invoices/{id}/test-pay', summary: 'Pay an invoice of the test gateway (development)' })
+    .route({
+      method: 'POST',
+      path: '/payments/invoices/{id}/test-pay',
+      summary: 'Pay an invoice of the test gateway (development)',
+    })
     .input(z.object({ id: Id }))
     .output(Invoice),
 };

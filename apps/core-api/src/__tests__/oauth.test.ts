@@ -61,14 +61,21 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
     await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
-      owner: { email: 'o@acme.mn', passwordHash: await hashPassword('Owner-pass-1'), fullName: 'Owner Bat' },
+      owner: {
+        email: 'o@acme.mn',
+        passwordHash: await hashPassword('Owner-pass-1'),
+        fullName: 'Owner Bat',
+      },
     });
     server = createApp().listen(0);
     base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 
     await fetch(`${base}/core/v1/plugins/manifest`, {
       method: 'PUT',
-      headers: { authorization: `Bearer ${await pluginToken(base)}`, 'content-type': 'application/json' },
+      headers: {
+        authorization: `Bearer ${await pluginToken(base)}`,
+        'content-type': 'application/json',
+      },
       body: JSON.stringify({
         title: 'HR',
         version: '1',
@@ -83,7 +90,9 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
       body: JSON.stringify({ email: 'o@acme.mn', password: 'Owner-pass-1' }),
     });
 
-    session = (signedIn.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(';')[0]!;
+    session = (
+      signedIn.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? ''
+    ).split(';')[0]!;
   });
 
   afterAll(async () => {
@@ -99,7 +108,15 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
     expect(anonymous.headers.get('location')).toMatch(/^\/\?next=%2Fcore%2Fv1%2Foauth%2Fauthorize/);
 
     // An address the app didn't register is never redirected to.
-    expect((await authorize({ client_id: 'hr', redirect_uri: 'https://evil.example.com/cb', response_type: 'code' })).status).toBe(400);
+    expect(
+      (
+        await authorize({
+          client_id: 'hr',
+          redirect_uri: 'https://evil.example.com/cb',
+          response_type: 'code',
+        })
+      ).status,
+    ).toBe(400);
 
     const { verifier, challenge } = pkce();
     const { location, code } = await codeFor(challenge);
@@ -107,29 +124,73 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
     expect(location.origin + location.pathname).toBe(redirect);
     expect(location.searchParams.get('state')).toBe('xyz');
 
-    expect((await token({ grant_type: 'authorization_code', client_id: 'hr', code, redirect_uri: redirect, code_verifier: 'wrong' })).body.error).toBe(
-      'invalid_grant',
-    );
+    expect(
+      (
+        await token({
+          grant_type: 'authorization_code',
+          client_id: 'hr',
+          code,
+          redirect_uri: redirect,
+          code_verifier: 'wrong',
+        })
+      ).body.error,
+    ).toBe('invalid_grant');
 
-    const issued = await token({ grant_type: 'authorization_code', client_id: 'hr', code, redirect_uri: redirect, code_verifier: verifier });
+    const issued = await token({
+      grant_type: 'authorization_code',
+      client_id: 'hr',
+      code,
+      redirect_uri: redirect,
+      code_verifier: verifier,
+    });
 
     expect(issued.status).toBe(200);
     expect(issued.body).toMatchObject({ token_type: 'Bearer', expires_in: 3600 });
 
     // A code works once.
-    expect((await token({ grant_type: 'authorization_code', client_id: 'hr', code, redirect_uri: redirect, code_verifier: verifier })).status).toBe(400);
+    expect(
+      (
+        await token({
+          grant_type: 'authorization_code',
+          client_id: 'hr',
+          code,
+          redirect_uri: redirect,
+          code_verifier: verifier,
+        })
+      ).status,
+    ).toBe(400);
 
-    const discovery = await fetch(`${base}/core/v1/.well-known/openid-configuration`).then((r) => r.json() as Promise<{ jwks_uri: string }>);
-    const jwks = createLocalJWKSet((await fetch(discovery.jwks_uri).then((r) => r.json())) as Parameters<typeof createLocalJWKSet>[0]);
-    const { payload: id } = await jwtVerify(issued.body.id_token!, jwks, { issuer: 'erxes-core', audience: 'hr' });
+    const discovery = await fetch(`${base}/core/v1/.well-known/openid-configuration`).then(
+      (r) => r.json() as Promise<{ jwks_uri: string }>,
+    );
+    const jwks = createLocalJWKSet(
+      (await fetch(discovery.jwks_uri).then((r) => r.json())) as Parameters<
+        typeof createLocalJWKSet
+      >[0],
+    );
+    const { payload: id } = await jwtVerify(issued.body.id_token!, jwks, {
+      issuer: 'erxes-core',
+      audience: 'hr',
+    });
 
-    expect(id).toMatchObject({ email: 'o@acme.mn', name: 'Owner Bat', nonce: 'n-1', organization: 'acme' });
+    expect(id).toMatchObject({
+      email: 'o@acme.mn',
+      name: 'Owner Bat',
+      nonce: 'n-1',
+      organization: 'acme',
+    });
 
-    const { payload: access } = await jwtVerify(issued.body.access_token!, jwks, { issuer: 'erxes-core', audience: 'hr', typ: 'at+jwt' });
+    const { payload: access } = await jwtVerify(issued.body.access_token!, jwks, {
+      issuer: 'erxes-core',
+      audience: 'hr',
+      typ: 'at+jwt',
+    });
 
     expect(access).toMatchObject({ role: 'owner', permissions: ['hr.leave.approve'] });
 
-    const userinfo = await fetch(`${base}/core/v1/oauth/userinfo`, { headers: { authorization: `Bearer ${issued.body.access_token}` } });
+    const userinfo = await fetch(`${base}/core/v1/oauth/userinfo`, {
+      headers: { authorization: `Bearer ${issued.body.access_token}` },
+    });
 
     expect(await userinfo.json()).toMatchObject({ email: 'o@acme.mn', organization: 'acme' });
   });
@@ -137,15 +198,41 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
   it('rotates refresh tokens, revokes the family when one is reused, and ends with sign out everywhere', async () => {
     const { verifier, challenge } = pkce();
     const { code } = await codeFor(challenge);
-    const first = await token({ grant_type: 'authorization_code', client_id: 'hr', code, redirect_uri: redirect, code_verifier: verifier });
-    const second = await token({ grant_type: 'refresh_token', client_id: 'hr', refresh_token: first.body.refresh_token! });
+    const first = await token({
+      grant_type: 'authorization_code',
+      client_id: 'hr',
+      code,
+      redirect_uri: redirect,
+      code_verifier: verifier,
+    });
+    const second = await token({
+      grant_type: 'refresh_token',
+      client_id: 'hr',
+      refresh_token: first.body.refresh_token!,
+    });
 
     expect(second.status).toBe(200);
     expect(second.body.refresh_token).not.toBe(first.body.refresh_token);
 
     // The first one again: stolen. Everything from that sign-in stops.
-    expect((await token({ grant_type: 'refresh_token', client_id: 'hr', refresh_token: first.body.refresh_token! })).status).toBe(400);
-    expect((await token({ grant_type: 'refresh_token', client_id: 'hr', refresh_token: second.body.refresh_token! })).status).toBe(400);
+    expect(
+      (
+        await token({
+          grant_type: 'refresh_token',
+          client_id: 'hr',
+          refresh_token: first.body.refresh_token!,
+        })
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await token({
+          grant_type: 'refresh_token',
+          client_id: 'hr',
+          refresh_token: second.body.refresh_token!,
+        })
+      ).status,
+    ).toBe(400);
 
     // A new sign-in, then "sign out everywhere" in erxes.
     const again = pkce();
@@ -157,7 +244,18 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
       code_verifier: again.verifier,
     });
 
-    await fetch(`${base}/core/v1/auth/sign-out-everywhere`, { method: 'POST', headers: { cookie: session, origin: base } });
-    expect((await token({ grant_type: 'refresh_token', client_id: 'hr', refresh_token: fresh.body.refresh_token! })).status).toBe(400);
+    await fetch(`${base}/core/v1/auth/sign-out-everywhere`, {
+      method: 'POST',
+      headers: { cookie: session, origin: base },
+    });
+    expect(
+      (
+        await token({
+          grant_type: 'refresh_token',
+          client_id: 'hr',
+          refresh_token: fresh.body.refresh_token!,
+        })
+      ).status,
+    ).toBe(400);
   });
 });

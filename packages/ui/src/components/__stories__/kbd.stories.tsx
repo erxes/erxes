@@ -25,8 +25,8 @@ export const Default: Story = {
     return (
       <div className="flex flex-col items-center gap-4">
         <div className="text-sm text-muted-foreground">
-          Press <Kbd {...args}>Ctrl</Kbd> + <Kbd {...args}>Shift</Kbd> +{' '}
-          <Kbd {...args}>P</Kbd> to open the command palette
+          Press <Kbd {...args}>Ctrl</Kbd> + <Kbd {...args}>Shift</Kbd> + <Kbd {...args}>P</Kbd> to
+          open the command palette
         </div>
         <div className="text-sm text-muted-foreground">
           Press <Kbd {...args}>⌘</Kbd> + <Kbd {...args}>K</Kbd> to search

@@ -34,7 +34,11 @@ export interface AuditInput {
  * so a rolled-back change leaves no entry and a committed one always has one.
  * IP and user agent come from the current request.
  */
-export const recordAudit = async (client: Db, actor: AuditActor, input: AuditInput | AuditInput[]) => {
+export const recordAudit = async (
+  client: Db,
+  actor: AuditActor,
+  input: AuditInput | AuditInput[],
+) => {
   const cause = currentRunCause();
 
   const entries = Array.isArray(input) ? input : [input];
@@ -58,7 +62,10 @@ export const recordAudit = async (client: Db, actor: AuditActor, input: AuditInp
       changes: entry.changes ?? null,
       // Done by an automation's action: say which, on every entry.
       metadata: cause
-        ? { ...(entry.metadata ?? {}), automation: { id: cause.automationId, name: cause.automationName, run: cause.runId } }
+        ? {
+            ...(entry.metadata ?? {}),
+            automation: { id: cause.automationId, name: cause.automationName, run: cause.runId },
+          }
         : (entry.metadata ?? null),
       ip: entry.ip ?? ip,
       userAgent: entry.userAgent ?? userAgent,
@@ -66,7 +73,15 @@ export const recordAudit = async (client: Db, actor: AuditActor, input: AuditInp
     })),
   );
 
-  await raiseAlerts(client, actor, entries.map((entry) => ({ ...entry, ip: entry.ip ?? ip, userAgent: entry.userAgent ?? userAgent })));
+  await raiseAlerts(
+    client,
+    actor,
+    entries.map((entry) => ({
+      ...entry,
+      ip: entry.ip ?? ip,
+      userAgent: entry.userAgent ?? userAgent,
+    })),
+  );
 };
 
 export const toAuditDto = (row: AuditRow): AuditEntry => ({
@@ -126,11 +141,7 @@ export const auditFilters = (query: AuditFilters) => {
   );
 };
 
-export const listAudit = async (
-  client: Db,
-  actor: Actor,
-  query: CursorQuery & AuditFilters,
-) => {
+export const listAudit = async (client: Db, actor: Actor, query: CursorQuery & AuditFilters) => {
   requirePermission(actor, 'audit.view');
 
   const filters = auditFilters(query);
@@ -253,16 +264,27 @@ export const auditSettings = async (client: Db, orgId: string) => {
     .limit(1);
   const max = config.retention.auditDays;
 
-  return { retentionDays: Math.min(row?.settings.audit?.retentionDays ?? max, max), maxRetentionDays: max };
+  return {
+    retentionDays: Math.min(row?.settings.audit?.retentionDays ?? max, max),
+    maxRetentionDays: max,
+  };
 };
 
-export const updateAuditSettings = async (client: Db, actor: Actor, input: { retentionDays: number }) => {
+export const updateAuditSettings = async (
+  client: Db,
+  actor: Actor,
+  input: { retentionDays: number },
+) => {
   if (!can(actor, 'audit.retention')) {
     throw new HttpError(403, 'OWNER_ONLY', 'Only owners can change how long the audit log is kept');
   }
 
   if (input.retentionDays > config.retention.auditDays) {
-    throw new HttpError(400, 'LIMIT_EXCEEDED', `This server keeps audit entries up to ${config.retention.auditDays} days`);
+    throw new HttpError(
+      400,
+      'LIMIT_EXCEEDED',
+      `This server keeps audit entries up to ${config.retention.auditDays} days`,
+    );
   }
 
   const before = await auditSettings(client, actor.orgId);
@@ -275,12 +297,16 @@ export const updateAuditSettings = async (client: Db, actor: Actor, input: { ret
         updatedAt: sql`now()`,
       })
       .where(eq(organizations.id, actor.orgId));
-    await recordAudit(tx, { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' }, {
-      action: 'settings.audit_retention_changed',
-      targetType: 'organization',
-      targetId: actor.orgId,
-      changes: { retentionDays: [before.retentionDays, input.retentionDays] },
-    });
+    await recordAudit(
+      tx,
+      { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
+      {
+        action: 'settings.audit_retention_changed',
+        targetType: 'organization',
+        targetId: actor.orgId,
+        changes: { retentionDays: [before.retentionDays, input.retentionDays] },
+      },
+    );
   });
 
   return auditSettings(client, actor.orgId);

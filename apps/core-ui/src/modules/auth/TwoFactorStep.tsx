@@ -20,7 +20,9 @@ export const TwoFactorStep = ({ challenge, onBack }: { challenge: string; onBack
     setError(null);
 
     try {
-      const session = await api.auth.signInTwoFactor(recovery ? { challenge, recoveryCode: code } : { challenge, code });
+      const session = await api.auth.signInTwoFactor(
+        recovery ? { challenge, recoveryCode: code } : { challenge, code },
+      );
 
       client.setQueryData(SESSION_KEY, session);
     } catch (caught) {
@@ -32,7 +34,11 @@ export const TwoFactorStep = ({ challenge, onBack }: { challenge: string; onBack
   return (
     <form onSubmit={submit} className="mx-auto grid w-full gap-4" noValidate>
       <div className="grid gap-2">
-        <Label>{recovery ? t('recovery-code', 'Recovery code') : t('app-code', 'Code from your authenticator app')}</Label>
+        <Label>
+          {recovery
+            ? t('recovery-code', 'Recovery code')
+            : t('app-code', 'Code from your authenticator app')}
+        </Label>
         <Input
           autoFocus
           value={code}
@@ -40,12 +46,18 @@ export const TwoFactorStep = ({ challenge, onBack }: { challenge: string; onBack
           autoComplete="one-time-code"
           maxLength={recovery ? 40 : 6}
           placeholder={recovery ? 'xxxxx-xxxxx' : '123456'}
-          onChange={(event) => setCode(recovery ? event.target.value : event.target.value.replace(/\D/g, ''))}
+          onChange={(event) =>
+            setCode(recovery ? event.target.value : event.target.value.replace(/\D/g, ''))
+          }
           className="text-center font-mono tracking-widest"
         />
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" className="h-8" disabled={busy || (recovery ? code.length < 8 : code.length !== 6)}>
+      <Button
+        type="submit"
+        className="h-8"
+        disabled={busy || (recovery ? code.length < 8 : code.length !== 6)}
+      >
         {busy ? <Spinner size="sm" /> : t('verify', 'Verify')}
       </Button>
       <div className="flex justify-between text-sm text-muted-foreground">
@@ -60,7 +72,9 @@ export const TwoFactorStep = ({ challenge, onBack }: { challenge: string; onBack
             setCode('');
           }}
         >
-          {recovery ? t('use-app', 'Use the app instead') : t('use-recovery', 'Use a recovery code')}
+          {recovery
+            ? t('use-app', 'Use the app instead')
+            : t('use-recovery', 'Use a recovery code')}
         </button>
       </div>
     </form>

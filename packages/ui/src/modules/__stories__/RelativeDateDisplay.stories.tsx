@@ -16,9 +16,7 @@ type Story = StoryObj<typeof RelativeDateDisplay>;
 
 export const Default: Story = {
   render: () => {
-    const date = new Date(
-      new Date().getTime() - 24 * 60 * 60 * 1000,
-    ).toISOString();
+    const date = new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toISOString();
     return (
       <div className="space-y-4">
         <RelativeDateDisplay value={date}>

@@ -31,6 +31,7 @@ export interface ImportCause {
 
 const importStorage = new AsyncLocalStorage<ImportCause>();
 
-export const withImportCause = <T>(cause: ImportCause, fn: () => Promise<T>) => importStorage.run(cause, fn);
+export const withImportCause = <T>(cause: ImportCause, fn: () => Promise<T>) =>
+  importStorage.run(cause, fn);
 
 export const currentImport = () => importStorage.getStore() ?? null;

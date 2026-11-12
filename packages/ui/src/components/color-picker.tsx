@@ -35,9 +35,7 @@ const ColorPickerContext = createContext<ColorPickerContextValue | null>(null);
 const useColorPickerContext = () => {
   const context = useContext(ColorPickerContext);
   if (!context) {
-    throw new Error(
-      'ColorPicker components must be used within ColorPickerProvider',
-    );
+    throw new Error('ColorPicker components must be used within ColorPickerProvider');
   }
   return context;
 };
@@ -92,11 +90,7 @@ const ColorPickerTrigger = React.forwardRef<
 
 ColorPickerTrigger.displayName = 'ColorPickerTrigger';
 
-const ColorPickerContent = ({
-  setOpen,
-}: {
-  setOpen?: (open: boolean) => void;
-}) => {
+const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) => {
   const { value, onValueChange, colors } = useColorPickerContext();
 
   return (
@@ -112,9 +106,7 @@ const ColorPickerContent = ({
               setOpen?.(false);
             }}
           >
-            {value === color && (
-              <IconCheck className="h-4 w-4 text-primary-foreground" />
-            )}
+            {value === color && <IconCheck className="h-4 w-4 text-primary-foreground" />}
           </div>
         ))}
         <div className="relative col-span-5">
@@ -173,10 +165,7 @@ const ColorPickerRoot = React.forwardRef<
     >
       <ColorPickerTrigger ref={ref} className={className} {...props}>
         <div
-          className={cn(
-            'h-full w-full rounded shadow-inner',
-            !value && 'bg-primary',
-          )}
+          className={cn('h-full w-full rounded shadow-inner', !value && 'bg-primary')}
           style={{ backgroundColor: value }}
         />
         <IconChevronDown />

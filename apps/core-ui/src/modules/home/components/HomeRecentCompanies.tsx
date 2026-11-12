@@ -20,7 +20,10 @@ export const HomeRecentCompanies = () => {
         name: company.primaryName,
         avatarUrl: company.avatarUrl,
         detail: company.industry || company.website,
-        meta: new Date(company.createdAt).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric' }),
+        meta: new Date(company.createdAt).toLocaleDateString(i18n.language, {
+          month: 'short',
+          day: 'numeric',
+        }),
         to: `/contacts/companies?panel=${encodeURIComponent(`/detail/company/${company.id}`)}`,
       }))}
     />

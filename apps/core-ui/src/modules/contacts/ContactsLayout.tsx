@@ -30,7 +30,13 @@ export const CONTACTS_SECTIONS = [
 const LEADS = `${ContactsPath.Index}${ContactsPath.Leads}`;
 
 /** A list's saved views, nested under it in the sidebar (shown whenever there are any). */
-const NestedViews = ({ recordType, indent = false }: { recordType: ViewRecordType; indent?: boolean }) => {
+const NestedViews = ({
+  recordType,
+  indent = false,
+}: {
+  recordType: ViewRecordType;
+  indent?: boolean;
+}) => {
   const views = useViews(recordType);
   const leadsT = useLeadsT();
   const { pathname } = useLocation();
@@ -45,7 +51,10 @@ const NestedViews = ({ recordType, indent = false }: { recordType: ViewRecordTyp
       {views.map((view) => (
         <Sidebar.SubItem key={view.id}>
           <Sidebar.SubButton asChild size="sm" isActive={here && params.get('view') === view.id}>
-            <Link to={viewHref(recordType, view)} title={view.shared ? leadsT('views.shared') : leadsT('views.mine')}>
+            <Link
+              to={viewHref(recordType, view)}
+              title={view.shared ? leadsT('views.shared') : leadsT('views.mine')}
+            >
               {view.shared ? <IconUsers /> : <IconLayoutList />}
               <span className="truncate">{view.name}</span>
             </Link>
@@ -65,7 +74,11 @@ const LEAD_ITEMS: { label: string; to: string; icon: typeof IconUser; views?: Vi
 
 /** Which lead item a path is in (`/leads/<id>` is a person). */
 const leadItemOf = (pathname: string) =>
-  pathname.startsWith(`${LEADS}/insights`) ? `${LEADS}/insights` : pathname.startsWith(`${LEADS}/companies`) ? `${LEADS}/companies` : LEADS;
+  pathname.startsWith(`${LEADS}/insights`)
+    ? `${LEADS}/insights`
+    : pathname.startsWith(`${LEADS}/companies`)
+      ? `${LEADS}/companies`
+      : LEADS;
 
 const LeadsGroup = () => {
   const { pathname } = useLocation();
@@ -77,10 +90,16 @@ const LeadsGroup = () => {
 
   return (
     <Sidebar.MenuItem>
-      <Sidebar.MenuButton className="px-2" isActive={inLeads && !open} onClick={() => setOpen((value) => !value)}>
+      <Sidebar.MenuButton
+        className="px-2"
+        isActive={inLeads && !open}
+        onClick={() => setOpen((value) => !value)}
+      >
         <IconMagnet />
         <span className="min-w-0 flex-1 truncate capitalize">{t('leads')}</span>
-        <IconChevronDown className={cn('size-4 text-muted-foreground transition-transform', !open && '-rotate-90')} />
+        <IconChevronDown
+          className={cn('size-4 text-muted-foreground transition-transform', !open && '-rotate-90')}
+        />
       </Sidebar.MenuButton>
       {open && (
         <Sidebar.Sub>
@@ -110,25 +129,29 @@ const ContactsNavigation = () => {
     <Sidebar.Group className="px-2 py-1">
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          {CONTACTS_SECTIONS.filter(({ path }) => path !== ContactsPath.Leads).map(({ labelKey, path, icon: Icon }) => {
-            const fullPath = `${ContactsPath.Index}${path}`;
+          {CONTACTS_SECTIONS.filter(({ path }) => path !== ContactsPath.Leads).map(
+            ({ labelKey, path, icon: Icon }) => {
+              const fullPath = `${ContactsPath.Index}${path}`;
 
-            return (
-              <Sidebar.MenuItem key={path}>
-                <Sidebar.MenuButton
-                  asChild
-                  className="px-2"
-                  isActive={pathname === fullPath || pathname.startsWith(`${fullPath}/`)}
-                >
-                  <Link to={fullPath}>
-                    <Icon />
-                    <span className="min-w-0 flex-1 truncate capitalize">{t(labelKey)}</span>
-                  </Link>
-                </Sidebar.MenuButton>
-                <NestedViews recordType={path === ContactsPath.Companies ? 'company' : 'customer'} />
-              </Sidebar.MenuItem>
-            );
-          })}
+              return (
+                <Sidebar.MenuItem key={path}>
+                  <Sidebar.MenuButton
+                    asChild
+                    className="px-2"
+                    isActive={pathname === fullPath || pathname.startsWith(`${fullPath}/`)}
+                  >
+                    <Link to={fullPath}>
+                      <Icon />
+                      <span className="min-w-0 flex-1 truncate capitalize">{t(labelKey)}</span>
+                    </Link>
+                  </Sidebar.MenuButton>
+                  <NestedViews
+                    recordType={path === ContactsPath.Companies ? 'company' : 'customer'}
+                  />
+                </Sidebar.MenuItem>
+              );
+            },
+          )}
           <LeadsGroup />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
@@ -150,12 +173,19 @@ export const ContactsLayout = () => {
         id="contacts"
         title={t('core-modules.contacts')}
         // Pinned at the foot, as erxes plugins do: opens Contacts › Settings.
-        footer={<AppLayoutFooterLink path={CONTACT_SETTINGS_PATH} name={sidebarT('settings', 'Settings')} icon={IconSettings} />}
+        footer={
+          <AppLayoutFooterLink
+            path={CONTACT_SETTINGS_PATH}
+            name={sidebarT('settings', 'Settings')}
+            icon={IconSettings}
+          />
+        }
         sidebar={
           <>
             <ContactsNavigation />
           </>
-        }>
+        }
+      >
         <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <Outlet />
         </div>

@@ -9,7 +9,13 @@ import { config } from '~/config';
  */
 const key = () =>
   Buffer.from(
-    hkdfSync('sha256', config.auth.encryptionKey ?? config.auth.jwtSecret, Buffer.alloc(0), 'erxes-core-secrets-v1', 32),
+    hkdfSync(
+      'sha256',
+      config.auth.encryptionKey ?? config.auth.jwtSecret,
+      Buffer.alloc(0),
+      'erxes-core-secrets-v1',
+      32,
+    ),
   );
 
 export const seal = (plain: string) => {
@@ -17,7 +23,12 @@ export const seal = (plain: string) => {
   const cipher = createCipheriv('aes-256-gcm', key(), iv);
   const data = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
 
-  return ['v1', iv.toString('base64url'), cipher.getAuthTag().toString('base64url'), data.toString('base64url')].join('.');
+  return [
+    'v1',
+    iv.toString('base64url'),
+    cipher.getAuthTag().toString('base64url'),
+    data.toString('base64url'),
+  ].join('.');
 };
 
 export const unseal = (sealed: string) => {
@@ -29,5 +40,8 @@ export const unseal = (sealed: string) => {
 
   decipher.setAuthTag(Buffer.from(tag, 'base64url'));
 
-  return Buffer.concat([decipher.update(Buffer.from(data, 'base64url')), decipher.final()]).toString('utf8');
+  return Buffer.concat([
+    decipher.update(Buffer.from(data, 'base64url')),
+    decipher.final(),
+  ]).toString('utf8');
 };

@@ -27,16 +27,26 @@ const column = (key: string, label: string, extra: Partial<Column> = {}): Column
  * export order. `name` (customers) splits into first and last name on import;
  * `owner` is an email; `tags` and `companies` are names, `;`-separated.
  */
-export const transferColumns = async (client: Db, orgId: string, recordType: TransferRecordType): Promise<Column[]> => {
+export const transferColumns = async (
+  client: Db,
+  orgId: string,
+  recordType: TransferRecordType,
+): Promise<Column[]> => {
   const isCompany = recordType === 'company';
   const builtIn: Column[] = isCompany
     ? [
         column('id', 'ID', { importable: true, default: false, aliases: ['_id'] }),
-        column('primaryName', 'Name', { aliases: ['name', 'company', 'company name', 'нэр', 'байгууллага', 'компани'] }),
+        column('primaryName', 'Name', {
+          aliases: ['name', 'company', 'company name', 'нэр', 'байгууллага', 'компани'],
+        }),
         column('names', 'Other names', { default: false, aliases: ['aliases', 'бусад нэр'] }),
-        column('primaryEmail', 'Email', { aliases: ['email', 'e-mail', 'mail', 'имэйл', 'и-мэйл', 'цахим шуудан'] }),
+        column('primaryEmail', 'Email', {
+          aliases: ['email', 'e-mail', 'mail', 'имэйл', 'и-мэйл', 'цахим шуудан'],
+        }),
         column('emails', 'Other emails', { default: false }),
-        column('primaryPhone', 'Phone', { aliases: ['phone', 'mobile', 'tel', 'утас', 'утасны дугаар'] }),
+        column('primaryPhone', 'Phone', {
+          aliases: ['phone', 'mobile', 'tel', 'утас', 'утасны дугаар'],
+        }),
         column('phones', 'Other phones', { default: false }),
         column('website', 'Website', { aliases: ['url', 'web', 'site', 'вэб'] }),
         column('industry', 'Industry', { aliases: ['салбар'] }),
@@ -47,39 +57,80 @@ export const transferColumns = async (client: Db, orgId: string, recordType: Tra
       ]
     : [
         column('id', 'ID', { importable: true, default: false, aliases: ['_id'] }),
-        column('name', 'Full name', { exportable: false, aliases: ['full name', 'name', 'нэр', 'бүтэн нэр'] }),
+        column('name', 'Full name', {
+          exportable: false,
+          aliases: ['full name', 'name', 'нэр', 'бүтэн нэр'],
+        }),
         column('firstName', 'First name', { aliases: ['first', 'given name', 'нэр'] }),
         column('middleName', 'Middle name', { default: false }),
         column('lastName', 'Last name', { aliases: ['last', 'surname', 'family name', 'овог'] }),
-        column('primaryEmail', 'Email', { aliases: ['email', 'e-mail', 'mail', 'имэйл', 'и-мэйл', 'цахим шуудан'] }),
+        column('primaryEmail', 'Email', {
+          aliases: ['email', 'e-mail', 'mail', 'имэйл', 'и-мэйл', 'цахим шуудан'],
+        }),
         column('emails', 'Other emails', { default: false }),
-        column('primaryPhone', 'Phone', { aliases: ['phone', 'mobile', 'tel', 'утас', 'утасны дугаар'] }),
+        column('primaryPhone', 'Phone', {
+          aliases: ['phone', 'mobile', 'tel', 'утас', 'утасны дугаар'],
+        }),
         column('phones', 'Other phones', { default: false }),
-        ...(recordType === 'customer' ? [column('state', 'State', { default: false, aliases: ['type', 'lead or customer', 'төлөв'] })] : []),
-        column('birthDate', 'Birthday', { default: false, aliases: ['birth date', 'date of birth', 'dob', 'төрсөн өдөр'] }),
-        column('position', 'Position', { default: false, aliases: ['title', 'job title', 'албан тушаал'] }),
+        ...(recordType === 'customer'
+          ? [
+              column('state', 'State', {
+                default: false,
+                aliases: ['type', 'lead or customer', 'төлөв'],
+              }),
+            ]
+          : []),
+        column('birthDate', 'Birthday', {
+          default: false,
+          aliases: ['birth date', 'date of birth', 'dob', 'төрсөн өдөр'],
+        }),
+        column('position', 'Position', {
+          default: false,
+          aliases: ['title', 'job title', 'албан тушаал'],
+        }),
         column('department', 'Department', { default: false, aliases: ['хэлтэс'] }),
         column('code', 'Code', { default: false, aliases: ['код'] }),
         column('description', 'Description', { default: false, aliases: ['notes', 'тайлбар'] }),
       ];
   const relations: Column[] = [
-    column('owner', 'Owner', { group: 'relations', aliases: ['owner email', 'assignee', 'хариуцагч'] }),
+    column('owner', 'Owner', {
+      group: 'relations',
+      aliases: ['owner email', 'assignee', 'хариуцагч'],
+    }),
     column('tags', 'Tags', { group: 'relations', aliases: ['tag', 'labels', 'шошго'] }),
     ...(isCompany
-      ? [column('customerCount', 'Customers', { group: 'relations', importable: false, default: false })]
-      : [column('companies', 'Companies', { group: 'relations', aliases: ['company', 'organization', 'байгууллага', 'компани'] })]),
+      ? [
+          column('customerCount', 'Customers', {
+            group: 'relations',
+            importable: false,
+            default: false,
+          }),
+        ]
+      : [
+          column('companies', 'Companies', {
+            group: 'relations',
+            aliases: ['company', 'organization', 'байгууллага', 'компани'],
+          }),
+        ]),
     column('createdAt', 'Created', { importable: false, default: false }),
     column('updatedAt', 'Updated', { importable: false, default: false }),
   ];
   const custom = await client
     .select({ id: fields.id, label: fields.label, type: fields.type, code: fields.code })
     .from(fields)
-    .where(and(eq(fields.orgId, orgId), eq(fields.contentType, isCompany ? 'company' : 'customer')));
+    .where(
+      and(eq(fields.orgId, orgId), eq(fields.contentType, isCompany ? 'company' : 'customer')),
+    );
 
   return [
     ...builtIn,
     ...custom.map((field) =>
-      column(`customFields.${field.id}`, field.label, { group: 'custom', default: false, fieldType: field.type, aliases: field.code ? [field.code.toLowerCase()] : [] }),
+      column(`customFields.${field.id}`, field.label, {
+        group: 'custom',
+        default: false,
+        fieldType: field.type,
+        aliases: field.code ? [field.code.toLowerCase()] : [],
+      }),
     ),
     ...relations,
   ];
@@ -102,7 +153,9 @@ export const suggestMapping = (headers: string[], columns: Column[]): Record<str
       if (mapping[String(index)] || !header.trim()) return;
 
       const wanted = normalize(header);
-      const match = importable.find((item) => !taken.has(item.key) && pass(item).some((name) => normalize(name) === wanted));
+      const match = importable.find(
+        (item) => !taken.has(item.key) && pass(item).some((name) => normalize(name) === wanted),
+      );
 
       if (match) {
         mapping[String(index)] = match.key;
@@ -138,7 +191,8 @@ export const parseDate = (value: string): string => {
 
   const date = match ? new Date(Date.UTC(Number(year), Number(month) - 1, Number(day))) : null;
 
-  if (!date || Number.isNaN(date.getTime()) || date.getUTCMonth() !== Number(month) - 1) throw new CellError(`“${text}” is not a date (use YYYY-MM-DD)`);
+  if (!date || Number.isNaN(date.getTime()) || date.getUTCMonth() !== Number(month) - 1)
+    throw new CellError(`“${text}” is not a date (use YYYY-MM-DD)`);
 
   return date.toISOString().slice(0, 10);
 };

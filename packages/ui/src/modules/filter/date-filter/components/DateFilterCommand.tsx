@@ -20,15 +20,11 @@ export const DateFilterCommand = ({
 }) => {
   const { setDialogView, setOpenDialog } = useFilterContext();
   const fieldName = value.replace(/([A-Z])/g, ' $1').toLowerCase();
-  const displayLabel =
-    label ?? fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + ' date';
+  const displayLabel = label ?? fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + ' date';
   const selectedDate = normalizeFixedDate(selected);
   return (
     <Command>
-      <Command.Input
-        placeholder={displayLabel}
-        focusOnMount={focusOnMount}
-      />
+      <Command.Input placeholder={displayLabel} focusOnMount={focusOnMount} />
       <Command.List>
         {FIXED_DATES.map((date) => (
           <Command.Item
@@ -40,10 +36,7 @@ export const DateFilterCommand = ({
             className={cn('h-8', selectedDate === date && 'text-primary')}
           >
             {getDisplayValue(date)}
-            <Combobox.Check
-              checked={selectedDate === date}
-              className="text-primary"
-            />
+            <Combobox.Check checked={selectedDate === date} className="text-primary" />
           </Command.Item>
         ))}
         <Command.Item
@@ -54,9 +47,7 @@ export const DateFilterCommand = ({
             setOpenDialog(true);
           }}
         >
-          {label
-            ? `Custom ${label} range`
-            : `Custom ${fieldName} date or timeframe`}
+          {label ? `Custom ${label} range` : `Custom ${fieldName} date or timeframe`}
         </Command.Item>
       </Command.List>
     </Command>

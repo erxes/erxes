@@ -119,28 +119,18 @@ function transToGroupOption(options: MultiSelectOption[], groupBy?: string) {
   return groupOption;
 }
 
-function removePickedOption(
-  groupOption: GroupOption,
-  picked: MultiSelectOption[],
-) {
+function removePickedOption(groupOption: GroupOption, picked: MultiSelectOption[]) {
   const cloneOption = JSON.parse(JSON.stringify(groupOption)) as GroupOption;
 
   for (const [key, value] of Object.entries(cloneOption)) {
-    cloneOption[key] = value.filter(
-      (val) => !picked?.find((p) => p.value === val.value),
-    );
+    cloneOption[key] = value.filter((val) => !picked?.find((p) => p.value === val.value));
   }
   return cloneOption;
 }
 
-function isOptionsExist(
-  groupOption: GroupOption,
-  targetOption: MultiSelectOption[],
-) {
+function isOptionsExist(groupOption: GroupOption, targetOption: MultiSelectOption[]) {
   for (const [, value] of Object.entries(groupOption)) {
-    if (
-      value.some((option) => targetOption.find((p) => p.value === option.value))
-    ) {
+    if (value.some((option) => targetOption.find((p) => p.value === option.value))) {
       return true;
     }
   }
@@ -153,31 +143,27 @@ function isOptionsExist(
  *
  * @reference: https://github.com/hsuanyi-chou/shadcn-ui-expansions/issues/34#issuecomment-1949561607
  **/
-const CommandEmpty = forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof Command.Empty>
->(({ className, ...props }, forwardedRef) => {
-  const render = useCommandState((state) => state.filtered.count === 0);
+const CommandEmpty = forwardRef<HTMLDivElement, React.ComponentProps<typeof Command.Empty>>(
+  ({ className, ...props }, forwardedRef) => {
+    const render = useCommandState((state) => state.filtered.count === 0);
 
-  if (!render) return null;
+    if (!render) return null;
 
-  return (
-    <div
-      ref={forwardedRef}
-      className={cn('px-2 py-4 text-center text-sm', className)}
-      cmdk-empty=""
-      role="presentation"
-      {...props}
-    />
-  );
-});
+    return (
+      <div
+        ref={forwardedRef}
+        className={cn('px-2 py-4 text-center text-sm', className)}
+        cmdk-empty=""
+        role="presentation"
+        {...props}
+      />
+    );
+  },
+);
 
 CommandEmpty.displayName = 'CommandEmpty';
 
-export const MultipleSelector = React.forwardRef<
-  MultipleSelectorRef,
-  MultipleSelectorProps
->(
+export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
   (
     {
       value,
@@ -212,9 +198,7 @@ export const MultipleSelector = React.forwardRef<
     const [isLoading, setIsLoading] = React.useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null); // Added this
 
-    const [selected, setSelected] = React.useState<MultiSelectOption[]>(
-      value || [],
-    );
+    const [selected, setSelected] = React.useState<MultiSelectOption[]>(value || []);
     const [options, setOptions] = React.useState<GroupOption>(
       transToGroupOption(arrayDefaultOptions, groupBy),
     );
@@ -445,14 +429,9 @@ export const MultipleSelector = React.forwardRef<
           handleKeyDown(e);
           commandProps?.onKeyDown?.(e);
         }}
-        className={cn(
-          'h-auto overflow-visible bg-transparent',
-          commandProps?.className,
-        )}
+        className={cn('h-auto overflow-visible bg-transparent', commandProps?.className)}
         shouldFilter={
-          commandProps?.shouldFilter !== undefined
-            ? commandProps.shouldFilter
-            : !onSearch
+          commandProps?.shouldFilter !== undefined ? commandProps.shouldFilter : !onSearch
         } // When onSearch is provided, we don&lsquo;t want to filter the options. You can still override it.
         filter={commandFilter()}
       >
@@ -526,11 +505,7 @@ export const MultipleSelector = React.forwardRef<
                 }
                 inputProps?.onFocus?.(event);
               }}
-              placeholder={
-                hidePlaceholderWhenSelected && selected.length !== 0
-                  ? ''
-                  : placeholder
-              }
+              placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
               className={cn(
                 'flex-1 h-7 w-full bg-transparent outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed',
                 {
@@ -590,15 +565,9 @@ export const MultipleSelector = React.forwardRef<
                   <>
                     {EmptyItem()}
                     {CreatableItem()}
-                    {!selectFirstItem && (
-                      <Command.Item value="-" className="hidden" />
-                    )}
+                    {!selectFirstItem && <Command.Item value="-" className="hidden" />}
                     {Object.entries(selectables).map(([key, dropdowns]) => (
-                      <Command.Group
-                        key={key}
-                        heading={key}
-                        className="h-full overflow-auto"
-                      >
+                      <Command.Group key={key} heading={key} className="h-full overflow-auto">
                         <>
                           {dropdowns.map((option) => {
                             return (
@@ -622,8 +591,7 @@ export const MultipleSelector = React.forwardRef<
                                 }}
                                 className={cn(
                                   'cursor-pointer',
-                                  option.disable &&
-                                    'cursor-not-allowed opacity-50',
+                                  option.disable && 'cursor-not-allowed opacity-50',
                                 )}
                               >
                                 {option.label}

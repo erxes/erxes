@@ -54,12 +54,20 @@ const TEXT_FIELDS = [
 ] as const;
 type TextField = (typeof TEXT_FIELDS)[number];
 
-type ProfileValues = Record<TextField, string> & { avatarUrl: string; links: Record<UserLinkName, string> };
+type ProfileValues = Record<TextField, string> & {
+  avatarUrl: string;
+  links: Record<UserLinkName, string>;
+};
 
 const valuesOf = (user: User): ProfileValues => ({
-  ...(Object.fromEntries(TEXT_FIELDS.map((field) => [field, user[field] ?? ''])) as Record<TextField, string>),
+  ...(Object.fromEntries(TEXT_FIELDS.map((field) => [field, user[field] ?? ''])) as Record<
+    TextField,
+    string
+  >),
   avatarUrl: user.avatarUrl ?? '',
-  links: Object.fromEntries(USER_LINK_NAMES.map((name) => [name, user.links[name] ?? ''])) as Record<UserLinkName, string>,
+  links: Object.fromEntries(
+    USER_LINK_NAMES.map((name) => [name, user.links[name] ?? '']),
+  ) as Record<UserLinkName, string>,
 });
 
 /** Only what changed; an emptied field clears it (`null`). */
@@ -107,7 +115,13 @@ const TextInput = ({
       <Form.Item>
         <Form.Label className="text-xs">{label}</Form.Label>
         <Form.Control>
-          <Input {...field} value={field.value ?? ''} type={type} placeholder={placeholder} disabled={disabled} />
+          <Input
+            {...field}
+            value={field.value ?? ''}
+            type={type}
+            placeholder={placeholder}
+            disabled={disabled}
+          />
         </Form.Control>
         <Form.Message />
       </Form.Item>
@@ -135,14 +149,22 @@ const ProfileForm = ({ user }: { user: User }) => {
     },
     onError: (error) => {
       if (isApiError(error, 'EMAIL_TAKEN')) form.setError('email', { message: error.message });
-      if (isApiError(error, 'USERNAME_TAKEN')) form.setError('username', { message: error.message });
+      if (isApiError(error, 'USERNAME_TAKEN'))
+        form.setError('username', { message: error.message });
 
       const issues = isApiError(error, 'INVALID_INPUT')
-        ? ((error.data as { issues?: { path: (string | number)[]; message: string }[] })?.issues ?? [])
+        ? ((error.data as { issues?: { path: (string | number)[]; message: string }[] })?.issues ??
+          [])
         : [];
 
-      issues.forEach((issue) => form.setError(issue.path.join('.') as keyof ProfileValues, { message: issue.message }));
-      toast({ variant: 'destructive', title: t('save-failed', 'Could not save your profile'), description: messageOf(error) });
+      issues.forEach((issue) =>
+        form.setError(issue.path.join('.') as keyof ProfileValues, { message: issue.message }),
+      );
+      toast({
+        variant: 'destructive',
+        title: t('save-failed', 'Could not save your profile'),
+        description: messageOf(error),
+      });
     },
   });
 
@@ -160,13 +182,18 @@ const ProfileForm = ({ user }: { user: User }) => {
   return (
     <Form {...form}>
       <form className="flex flex-col gap-4" onSubmit={submit}>
-        <Section title={t('picture', 'Profile picture')} description={t('picture-description', 'Shown next to your name across erxes.')}>
+        <Section
+          title={t('picture', 'Profile picture')}
+          description={t('picture-description', 'Shown next to your name across erxes.')}
+        >
           <Form.Field
             name="avatarUrl"
             render={({ field }) => (
               <Upload.Root
                 value={field.value ?? ''}
-                onChange={(fileInfo) => field.onChange(fileInfo && 'url' in fileInfo ? fileInfo.url : '')}
+                onChange={(fileInfo) =>
+                  field.onChange(fileInfo && 'url' in fileInfo ? fileInfo.url : '')
+                }
               >
                 <Upload.Preview />
                 <div className="flex gap-2">
@@ -186,14 +213,27 @@ const ProfileForm = ({ user }: { user: User }) => {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <TextInput name="shortName" label={t('short-name', 'Short name')} />
             <TextInput name="username" label={t('username', 'Username')} placeholder="bold.bat" />
-            <TextInput name="email" type="email" label={t('email', 'Email (you sign in with it)')} />
-            <TextInput name="phone" type="tel" label={t('phone', 'Phone')} placeholder="+976 9911 2233" />
+            <TextInput
+              name="email"
+              type="email"
+              label={t('email', 'Email (you sign in with it)')}
+            />
+            <TextInput
+              name="phone"
+              type="tel"
+              label={t('phone', 'Phone')}
+              placeholder="+976 9911 2233"
+            />
           </div>
         </Section>
         <Section title={t('more', 'More information')}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <TextInput name="birthDate" type="date" label={t('birth-date', 'Birth date')} />
-            <TextInput name="workStartedDate" type="date" label={t('work-started', 'Started work')} />
+            <TextInput
+              name="workStartedDate"
+              type="date"
+              label={t('work-started', 'Started work')}
+            />
           </div>
           <Form.Field
             name="description"
@@ -201,7 +241,11 @@ const ProfileForm = ({ user }: { user: User }) => {
               <Form.Item>
                 <Form.Label className="text-xs">{t('about', 'About me')}</Form.Label>
                 <Form.Control>
-                  <Textarea {...field} rows={4} placeholder={t('about-placeholder', 'A few words for your teammates')} />
+                  <Textarea
+                    {...field}
+                    rows={4}
+                    placeholder={t('about-placeholder', 'A few words for your teammates')}
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -230,7 +274,12 @@ const ProfileForm = ({ user }: { user: User }) => {
           </div>
         </Section>
         <div className="sticky bottom-0 flex justify-end gap-2 border-t bg-background/95 py-3 backdrop-blur">
-          <Button type="button" variant="ghost" disabled={!form.formState.isDirty} onClick={() => form.reset(valuesOf(user))}>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={!form.formState.isDirty}
+            onClick={() => form.reset(valuesOf(user))}
+          >
             {t('discard', 'Discard')}
           </Button>
           <Button type="submit" disabled={save.isPending || !form.formState.isDirty}>
@@ -256,7 +305,11 @@ export const ProfileSettingsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: t('title', 'Profile'), to: '/settings/profile', icon: IconUserCircle }]} />
+          <AppBreadcrumb
+            items={[
+              { label: t('title', 'Profile'), to: '/settings/profile', icon: IconUserCircle },
+            ]}
+          />
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">

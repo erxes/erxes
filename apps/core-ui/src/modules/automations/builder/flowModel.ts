@@ -1,4 +1,10 @@
-import type { ActionInfo, AutomationStep, AutomationTrigger, ConditionGroup, ConditionRule } from '@erxes/core-contract';
+import type {
+  ActionInfo,
+  AutomationStep,
+  AutomationTrigger,
+  ConditionGroup,
+  ConditionRule,
+} from '@erxes/core-contract';
 import { zoneLabel } from './timezones';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -26,7 +32,11 @@ export const armsOf = (step: AutomationStep): Arm[] => {
       ];
     case 'switch':
       return [
-        ...step.cases.map((item, index) => ({ key: `case:${index}`, label: item.label || `Case ${index + 1}`, steps: item.steps })),
+        ...step.cases.map((item, index) => ({
+          key: `case:${index}`,
+          label: item.label || `Case ${index + 1}`,
+          steps: item.steps,
+        })),
         { key: 'otherwise', label: 'Otherwise', steps: step.otherwise },
       ];
     case 'split':
@@ -41,25 +51,36 @@ export const armsOf = (step: AutomationStep): Arm[] => {
 };
 
 const withArm = (step: AutomationStep, arm: string, steps: AutomationStep[]): AutomationStep => {
-  if (step.type === 'branch' && (arm === 'then' || arm === 'else')) return { ...step, [arm]: steps };
+  if (step.type === 'branch' && (arm === 'then' || arm === 'else'))
+    return { ...step, [arm]: steps };
   if (step.type === 'switch') {
     if (arm === 'otherwise') return { ...step, otherwise: steps };
 
     const index = Number(arm.split(':')[1]);
 
-    return { ...step, cases: step.cases.map((item, at) => (at === index ? { ...item, steps } : item)) };
+    return {
+      ...step,
+      cases: step.cases.map((item, at) => (at === index ? { ...item, steps } : item)),
+    };
   }
   if (step.type === 'split') {
     const index = Number(arm.split(':')[1]);
 
-    return { ...step, paths: step.paths.map((path, at) => (at === index ? { ...path, steps } : path)) };
+    return {
+      ...step,
+      paths: step.paths.map((path, at) => (at === index ? { ...path, steps } : path)),
+    };
   }
 
   return step;
 };
 
 /** Applies `fn` to the list at `address` (deep), leaving everything else as is. */
-export const updateList = (steps: AutomationStep[], address: ListAddress, fn: (list: AutomationStep[]) => AutomationStep[]): AutomationStep[] => {
+export const updateList = (
+  steps: AutomationStep[],
+  address: ListAddress,
+  fn: (list: AutomationStep[]) => AutomationStep[],
+): AutomationStep[] => {
   if (address.parentId === null) return fn(steps);
 
   return steps.map((step) => {
@@ -69,7 +90,10 @@ export const updateList = (steps: AutomationStep[], address: ListAddress, fn: (l
       return arm ? withArm(step, address.arm, fn(arm.steps)) : step;
     }
 
-    return armsOf(step).reduce((current, arm) => withArm(current, arm.key, updateList(arm.steps, address, fn)), step);
+    return armsOf(step).reduce(
+      (current, arm) => withArm(current, arm.key, updateList(arm.steps, address, fn)),
+      step,
+    );
   });
 };
 
@@ -88,7 +112,11 @@ export const findStep = (steps: AutomationStep[], id: string): AutomationStep | 
 };
 
 /** The list a step is in, and its place there. */
-export const locate = (steps: AutomationStep[], id: string, address: ListAddress = { parentId: null, arm: null }): { address: ListAddress; index: number; length: number } | null => {
+export const locate = (
+  steps: AutomationStep[],
+  id: string,
+  address: ListAddress = { parentId: null, arm: null },
+): { address: ListAddress; index: number; length: number } | null => {
   const index = steps.findIndex((step) => step.id === id);
 
   if (index >= 0) return { address, index, length: steps.length };
@@ -107,13 +135,19 @@ export const locate = (steps: AutomationStep[], id: string, address: ListAddress
 export const replaceStep = (steps: AutomationStep[], next: AutomationStep): AutomationStep[] => {
   const at = locate(steps, next.id);
 
-  return at ? updateList(steps, at.address, (list) => list.map((step) => (step.id === next.id ? next : step))) : steps;
+  return at
+    ? updateList(steps, at.address, (list) =>
+        list.map((step) => (step.id === next.id ? next : step)),
+      )
+    : steps;
 };
 
 export const removeStep = (steps: AutomationStep[], id: string): AutomationStep[] => {
   const at = locate(steps, id);
 
-  return at ? updateList(steps, at.address, (list) => list.filter((step) => step.id !== id)) : steps;
+  return at
+    ? updateList(steps, at.address, (list) => list.filter((step) => step.id !== id))
+    : steps;
 };
 
 export const moveStep = (steps: AutomationStep[], id: string, delta: -1 | 1): AutomationStep[] => {
@@ -130,30 +164,61 @@ export const moveStep = (steps: AutomationStep[], id: string, delta: -1 | 1): Au
   });
 };
 
-export const insertStep = (steps: AutomationStep[], address: ListAddress, index: number, step: AutomationStep) =>
-  updateList(steps, address, (list) => [...list.slice(0, index), step, ...list.slice(index)]);
+export const insertStep = (
+  steps: AutomationStep[],
+  address: ListAddress,
+  index: number,
+  step: AutomationStep,
+) => updateList(steps, address, (list) => [...list.slice(0, index), step, ...list.slice(index)]);
 
 /** A copy with fresh ids (arms included), for "duplicate". */
 export const cloneStep = (step: AutomationStep): AutomationStep => {
   const copy = { ...step, id: newStepId() } as AutomationStep;
 
-  return armsOf(copy).reduce((current, arm) => withArm(current, arm.key, arm.steps.map(cloneStep)), copy);
+  return armsOf(copy).reduce(
+    (current, arm) => withArm(current, arm.key, arm.steps.map(cloneStep)),
+    copy,
+  );
 };
 
-export const STEP_TYPES = ['action', 'delay', 'wait_for', 'branch', 'switch', 'split', 'stop'] as const;
+export const STEP_TYPES = [
+  'action',
+  'delay',
+  'wait_for',
+  'branch',
+  'switch',
+  'split',
+  'stop',
+] as const;
 export type StepType = (typeof STEP_TYPES)[number];
 
 /** A new action's starting inputs: an email goes to the record itself until told otherwise. */
 export const actionDefaults = (action: ActionInfo | undefined): Record<string, unknown> =>
-  Object.fromEntries((action?.fields ?? []).filter((field) => field.type === 'recipients').map((field) => [field.key, 'subject']));
+  Object.fromEntries(
+    (action?.fields ?? [])
+      .filter((field) => field.type === 'recipients')
+      .map((field) => [field.key, 'subject']),
+  );
 
-export const newStep = (type: StepType, actions: ActionInfo[], subject: 'customer' | 'company'): AutomationStep => {
+export const newStep = (
+  type: StepType,
+  actions: ActionInfo[],
+  subject: 'customer' | 'company',
+): AutomationStep => {
   const id = newStepId();
-  const firstAction = actions.find((item) => item.subject === null || item.subject === 'any' || item.subject === subject) ?? actions[0];
+  const firstAction =
+    actions.find(
+      (item) => item.subject === null || item.subject === 'any' || item.subject === subject,
+    ) ?? actions[0];
 
   switch (type) {
     case 'action':
-      return { id, type, action: firstAction?.type ?? 'core.note.add', input: actionDefaults(firstAction) };
+      return {
+        id,
+        type,
+        action: firstAction?.type ?? 'core.note.add',
+        input: actionDefaults(firstAction),
+      };
     case 'delay':
       return { id, type, amount: 1, unit: 'hours' };
     case 'wait_for':
@@ -161,9 +226,21 @@ export const newStep = (type: StepType, actions: ActionInfo[], subject: 'custome
     case 'branch':
       return { id, type, conditions: { match: 'all', rules: [] }, then: [], else: [] };
     case 'switch':
-      return { id, type, cases: [{ conditions: { match: 'all', rules: [] }, steps: [] }], otherwise: [] };
+      return {
+        id,
+        type,
+        cases: [{ conditions: { match: 'all', rules: [] }, steps: [] }],
+        otherwise: [],
+      };
     case 'split':
-      return { id, type, paths: [{ label: 'A', weight: 50, steps: [] }, { label: 'B', weight: 50, steps: [] }] };
+      return {
+        id,
+        type,
+        paths: [
+          { label: 'A', weight: 50, steps: [] },
+          { label: 'B', weight: 50, steps: [] },
+        ],
+      };
     default:
       return { id, type: 'stop' };
   }
@@ -187,14 +264,19 @@ const OPS: Record<string, string> = {
   not_exists: 'is empty',
 };
 
-const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
+const plural = (count: number, one: string, many = `${one}s`) =>
+  `${count} ${count === 1 ? one : many}`;
 
 const isRule = (rule: ConditionRule | ConditionGroup): rule is ConditionRule => !('match' in rule);
 
-const countRules = (group: ConditionGroup): number => group.rules.reduce((sum, rule) => sum + (isRule(rule) ? 1 : countRules(rule)), 0);
+const countRules = (group: ConditionGroup): number =>
+  group.rules.reduce((sum, rule) => sum + (isRule(rule) ? 1 : countRules(rule)), 0);
 
 /** "State is lead", "+2 more". */
-export const describeConditions = (group: ConditionGroup | undefined, fields: FieldInfo[]): string | null => {
+export const describeConditions = (
+  group: ConditionGroup | undefined,
+  fields: FieldInfo[],
+): string | null => {
   if (!group || !group.rules.length) return null;
 
   const first = group.rules.find(isRule);
@@ -220,7 +302,10 @@ export const describeConditions = (group: ConditionGroup | undefined, fields: Fi
     return `${name}${yes ? '' : ': no'}${more}`;
   }
 
-  const value = first.op === 'exists' || first.op === 'not_exists' ? '' : ` ${Array.isArray(first.value) ? first.value.join(', ') : String(first.value ?? '')}`;
+  const value =
+    first.op === 'exists' || first.op === 'not_exists'
+      ? ''
+      : ` ${Array.isArray(first.value) ? first.value.join(', ') : String(first.value ?? '')}`;
 
   return `${name} ${OPS[first.op] ?? first.op}${value}${more}`;
 };
@@ -251,18 +336,34 @@ export const describeTrigger = (
               ? `Every ${(trigger.weekdays?.length ? trigger.weekdays : [1]).map((day) => WEEKDAYS[day - 1]).join(', ')} at ${trigger.at}`
               : `Monthly on day ${trigger.dayOfMonth ?? 1} at ${trigger.at}`;
 
-      return { title: when, detail: trigger.audience ? `For each ${trigger.audience.type}${describeConditions(trigger.audience.conditions, fields) ? ` where ${describeConditions(trigger.audience.conditions, fields)}` : ''}` : zoneLabel(trigger.timezone) };
+      return {
+        title: when,
+        detail: trigger.audience
+          ? `For each ${trigger.audience.type}${describeConditions(trigger.audience.conditions, fields) ? ` where ${describeConditions(trigger.audience.conditions, fields)}` : ''}`
+          : zoneLabel(trigger.timezone),
+      };
     }
     case 'date': {
-      const field = fields.find((item) => item.path === `subject.${trigger.field}`)?.label ?? trigger.field;
-      const offset = trigger.offsetDays === 0 ? 'On' : trigger.offsetDays > 0 ? `${unitWord(trigger.offsetDays, 'days')} after` : `${unitWord(-trigger.offsetDays, 'days')} before`;
+      const field =
+        fields.find((item) => item.path === `subject.${trigger.field}`)?.label ?? trigger.field;
+      const offset =
+        trigger.offsetDays === 0
+          ? 'On'
+          : trigger.offsetDays > 0
+            ? `${unitWord(trigger.offsetDays, 'days')} after`
+            : `${unitWord(-trigger.offsetDays, 'days')} before`;
 
-      return { title: `${offset} ${field.toLowerCase()}${trigger.yearly ? ', every year' : ''}`, detail: `At ${trigger.at} (${zoneLabel(trigger.timezone)})` };
+      return {
+        title: `${offset} ${field.toLowerCase()}${trigger.yearly ? ', every year' : ''}`,
+        detail: `At ${trigger.at} (${zoneLabel(trigger.timezone)})`,
+      };
     }
     default:
       return {
         title: 'Started by hand',
-        detail: trigger.audience ? `On each ${trigger.audience.type}${describeConditions(trigger.audience.conditions, fields) ? ` where ${describeConditions(trigger.audience.conditions, fields)}` : ''}` : 'On chosen records',
+        detail: trigger.audience
+          ? `On each ${trigger.audience.type}${describeConditions(trigger.audience.conditions, fields) ? ` where ${describeConditions(trigger.audience.conditions, fields)}` : ''}`
+          : 'On chosen records',
       };
   }
 };
@@ -286,7 +387,8 @@ const valueText = (value: unknown): string => {
   return String(value);
 };
 
-const truncate = (text: string, length = 60) => (text.length > length ? `${text.slice(0, length - 1)}…` : text);
+const truncate = (text: string, length = 60) =>
+  text.length > length ? `${text.slice(0, length - 1)}…` : text;
 
 /** The card's title and one line about what it does. */
 export const describeStep = (
@@ -306,11 +408,16 @@ export const describeStep = (
         .map((field) => {
           const value = step.input[field.key];
 
-          if (field.type === 'members' || field.type === 'tags') return Array.isArray(value) && value.length ? plural(value.length, field.type === 'members' ? 'member' : 'tag') : null;
+          if (field.type === 'members' || field.type === 'tags')
+            return Array.isArray(value) && value.length
+              ? plural(value.length, field.type === 'members' ? 'member' : 'tag')
+              : null;
 
           const named =
             field.type === 'custom_field'
-              ? context.fields.find((item) => item.path === `subject.customFields.${String(value)}`)?.label.replace(/ \(custom\)$/, '')
+              ? context.fields
+                  .find((item) => item.path === `subject.customFields.${String(value)}`)
+                  ?.label.replace(/ \(custom\)$/, '')
               : field.type === 'lead_stage'
                 ? context.stages?.find((stage) => stage.id === value)?.name
                 : undefined;
@@ -320,10 +427,20 @@ export const describeStep = (
         })
         .filter(Boolean);
 
-      return { title: step.label || action?.label || step.action, detail: shown.length ? truncate(shown.slice(0, 2).join(' · ')) : null };
+      return {
+        title: step.label || action?.label || step.action,
+        detail: shown.length ? truncate(shown.slice(0, 2).join(' · ')) : null,
+      };
     }
     case 'delay':
-      return { title: step.label || (step.until ? `Until ${step.until}` : unitWord(step.amount ?? 1, step.unit ?? 'minutes')), detail: step.label ? (step.until ?? unitWord(step.amount ?? 1, step.unit ?? 'minutes')) : null };
+      return {
+        title:
+          step.label ||
+          (step.until ? `Until ${step.until}` : unitWord(step.amount ?? 1, step.unit ?? 'minutes')),
+        detail: step.label
+          ? (step.until ?? unitWord(step.amount ?? 1, step.unit ?? 'minutes'))
+          : null,
+      };
     case 'wait_for': {
       const label = context.events.find((item) => item.type === step.event)?.label ?? step.event;
 
@@ -332,15 +449,29 @@ export const describeStep = (
     case 'branch': {
       const rule = describeConditions(step.conditions, context.fields);
 
-      return { title: step.label || (rule ? `If ${rule}` : 'No condition yet'), detail: step.label ? rule : null };
+      return {
+        title: step.label || (rule ? `If ${rule}` : 'No condition yet'),
+        detail: step.label ? rule : null,
+      };
     }
     case 'switch':
       return {
-        title: step.label || step.cases.map((item, index) => item.label || `Case ${index + 1}`).join(' / '),
+        title:
+          step.label ||
+          step.cases.map((item, index) => item.label || `Case ${index + 1}`).join(' / '),
         detail: `${plural(step.cases.length, 'case')}, then otherwise`,
       };
     case 'split':
-      return { title: step.label || step.paths.map((path, index) => `${path.label || String.fromCharCode(65 + index)} ${path.weight}%`).join(' · '), detail: 'Each run takes one path' };
+      return {
+        title:
+          step.label ||
+          step.paths
+            .map(
+              (path, index) => `${path.label || String.fromCharCode(65 + index)} ${path.weight}%`,
+            )
+            .join(' · '),
+        detail: 'Each run takes one path',
+      };
     default:
       return { title: step.label || 'The run ends here', detail: null };
   }
@@ -360,21 +491,32 @@ export const stepProblems = (step: AutomationStep, actions: ActionInfo[]): strin
 
           const value = step.input[field.key];
 
-          return value === undefined || value === null || value === '' || (Array.isArray(value) && !value.length);
+          return (
+            value === undefined ||
+            value === null ||
+            value === '' ||
+            (Array.isArray(value) && !value.length)
+          );
         })
         .map((field) => `Fill in ${field.label.toLowerCase()}`);
     }
     case 'branch':
       return step.conditions.rules.length ? [] : ['Add a condition'];
     case 'switch':
-      return step.cases.some((item) => !item.conditions.rules.length) ? ['Every case needs a condition'] : [];
+      return step.cases.some((item) => !item.conditions.rules.length)
+        ? ['Every case needs a condition']
+        : [];
     default:
       return [];
   }
 };
 
 /** Every problem in the flow, by step id. */
-export const flowProblems = (steps: AutomationStep[], actions: ActionInfo[], into = new Map<string, string[]>()) => {
+export const flowProblems = (
+  steps: AutomationStep[],
+  actions: ActionInfo[],
+  into = new Map<string, string[]>(),
+) => {
   for (const step of steps) {
     const problems = stepProblems(step, actions);
 
@@ -386,7 +528,11 @@ export const flowProblems = (steps: AutomationStep[], actions: ActionInfo[], int
   return into;
 };
 
-export const countSteps = (steps: AutomationStep[]): number => steps.reduce((sum, step) => sum + 1 + armsOf(step).reduce((inner, arm) => inner + countSteps(arm.steps), 0), 0);
+export const countSteps = (steps: AutomationStep[]): number =>
+  steps.reduce(
+    (sum, step) => sum + 1 + armsOf(step).reduce((inner, arm) => inner + countSteps(arm.steps), 0),
+    0,
+  );
 
 /** Outputs of the steps before `id` that conditions can use ("Customer updated happened"). */
 export const stepOutputFields = (
@@ -399,9 +545,15 @@ export const stepOutputFields = (
     for (const step of list) {
       if (step.id === id) return true;
       if (step.type === 'wait_for') {
-        const label = step.label || (context.events.find((item) => item.type === step.event)?.label ?? step.event);
+        const label =
+          step.label ||
+          (context.events.find((item) => item.type === step.event)?.label ?? step.event);
 
-        out.push({ path: `steps.${step.id}.output.matched`, label: `${label} within the wait`, type: 'boolean' });
+        out.push({
+          path: `steps.${step.id}.output.matched`,
+          label: `${label} within the wait`,
+          type: 'boolean',
+        });
       }
 
       for (const arm of armsOf(step)) if (walk(arm.steps)) return true;

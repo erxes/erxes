@@ -25,7 +25,12 @@ export const CoreTab = () => {
     <Tooltip.Provider delayDuration={300}>
       <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
         <CoreTabTooltip label={organization.name}>
-          <Button asChild size="icon" variant="ghost" className={cn(coreTabIconClassName(), 'px-0')}>
+          <Button
+            asChild
+            size="icon"
+            variant="ghost"
+            className={cn(coreTabIconClassName(), 'px-0')}
+          >
             <Link to="/" aria-label={organization.name}>
               <span className="flex size-6 items-center justify-center rounded-md border border-border/60 bg-background shadow-xs [&>svg]:size-4!">
                 <OrgLogoIcon className="text-primary" />

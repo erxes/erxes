@@ -10,8 +10,7 @@ const labelVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'font-mono uppercase font-semibold text-xs text-accent-foreground ',
+        default: 'font-mono uppercase font-semibold text-xs text-accent-foreground ',
         peer: '',
       },
     },
@@ -23,13 +22,8 @@ const labelVariants = cva(
 
 export const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
-    VariantProps<typeof labelVariants>
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & VariantProps<typeof labelVariants>
 >(({ className, variant, ...props }, ref) => (
-  <LabelPrimitive.Root
-    ref={ref}
-    className={cn(labelVariants({ variant }), className)}
-    {...props}
-  />
+  <LabelPrimitive.Root ref={ref} className={cn(labelVariants({ variant }), className)} {...props} />
 ));
 Label.displayName = LabelPrimitive.Root.displayName;

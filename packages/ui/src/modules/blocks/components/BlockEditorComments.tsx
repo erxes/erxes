@@ -21,25 +21,22 @@ import { Avatar, Button, Card, Skeleton, Textarea } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { useBlockEditorCommentComposer } from '../hooks/useBlockEditorCommentComposer';
 
-const CommentCard = forwardRef<
-  HTMLDivElement,
-  ComponentProps['Comments']['Card']
->(({ className, children, headerText, selected, ...props }, ref) => (
-  <Card
-    {...props}
-    ref={ref}
-    data-selected={selected}
-    className={cn(
-      'erxes-block-controls erxes-comment-card bg-background text-foreground w-80 max-w-[calc(100vw-2rem)] space-y-3 rounded-lg p-5 text-sm',
-      className,
-    )}
-  >
-    {headerText && (
-      <p className="text-xs text-muted-foreground">{headerText}</p>
-    )}
-    {children}
-  </Card>
-));
+const CommentCard = forwardRef<HTMLDivElement, ComponentProps['Comments']['Card']>(
+  ({ className, children, headerText, selected, ...props }, ref) => (
+    <Card
+      {...props}
+      ref={ref}
+      data-selected={selected}
+      className={cn(
+        'erxes-block-controls erxes-comment-card bg-background text-foreground w-80 max-w-[calc(100vw-2rem)] space-y-3 rounded-lg p-5 text-sm',
+        className,
+      )}
+    >
+      {headerText && <p className="text-xs text-muted-foreground">{headerText}</p>}
+      {children}
+    </Card>
+  ),
+);
 CommentCard.displayName = 'CommentCard';
 
 type CommentActionProps = ComponentProps['Generic']['Toolbar']['Button'] &
@@ -95,31 +92,16 @@ const CommentAction = forwardRef<HTMLButtonElement, CommentActionProps>(
 );
 CommentAction.displayName = 'CommentAction';
 
-const CommentReaction = forwardRef<
-  HTMLButtonElement,
-  ComponentProps['Generic']['Badge']['Root']
->(
+const CommentReaction = forwardRef<HTMLButtonElement, ComponentProps['Generic']['Badge']['Root']>(
   (
-    {
-      className,
-      text,
-      icon,
-      isSelected,
-      mainTooltip,
-      secondaryTooltip,
-      onClick,
-      onMouseEnter,
-    },
+    { className, text, icon, isSelected, mainTooltip, secondaryTooltip, onClick, onMouseEnter },
     ref,
   ) => (
     <Button
       ref={ref}
       type="button"
       variant="outline"
-      className={cn(
-        'bn-action-toolbar erxes-comment-reaction rounded-full gap-1',
-        className,
-      )}
+      className={cn('bn-action-toolbar erxes-comment-reaction rounded-full gap-1', className)}
       aria-pressed={isSelected}
       title={[mainTooltip, secondaryTooltip].filter(Boolean).join(' — ')}
       onClick={onClick}
@@ -158,8 +140,7 @@ const CommentDisplay = ({
   const dictionary = useDictionary();
   const [hovered, setHovered] = useState(false);
   const { focused, ref } = useFocusWithin();
-  const actionsVisible =
-    showActions !== false && (showActions !== 'hover' || hovered || focused);
+  const actionsVisible = showActions !== false && (showActions !== 'hover' || hovered || focused);
   return (
     <article
       ref={ref}
@@ -176,18 +157,11 @@ const CommentDisplay = ({
         ) : (
           <>
             <Avatar className="size-8 shrink-0">
-              <Avatar.Image
-                src={authorInfo.avatarUrl}
-                alt={authorInfo.username}
-              />
-              <Avatar.Fallback>
-                {authorInfo.username.slice(0, 1)}
-              </Avatar.Fallback>
+              <Avatar.Image src={authorInfo.avatarUrl} alt={authorInfo.username} />
+              <Avatar.Fallback>{authorInfo.username.slice(0, 1)}</Avatar.Fallback>
             </Avatar>
             <div className="flex min-w-0 items-baseline gap-2">
-              <p className="truncate text-sm font-medium">
-                {authorInfo.username}
-              </p>
+              <p className="truncate text-sm font-medium">{authorInfo.username}</p>
               <p className="shrink-0 text-xs text-muted-foreground">
                 {timeString}
                 {edited && ` (${dictionary.comments.edited})`}
@@ -196,12 +170,7 @@ const CommentDisplay = ({
           </>
         )}
         {actions && (
-          <div
-            className={cn(
-              'ml-auto flex shrink-0 justify-end',
-              !actionsVisible && 'invisible',
-            )}
-          >
+          <div className={cn('ml-auto flex shrink-0 justify-end', !actionsVisible && 'invisible')}>
             {actions}
           </div>
         )}
@@ -211,10 +180,7 @@ const CommentDisplay = ({
   );
 };
 
-const CommentSection = ({
-  className,
-  children,
-}: ComponentProps['Comments']['CardSection']) => (
+const CommentSection = ({ className, children }: ComponentProps['Comments']['CardSection']) => (
   <div
     className={cn(
       'space-y-3',
@@ -229,8 +195,7 @@ const CommentSection = ({
 
 const CommentComposer = () => {
   const dictionary = useDictionary();
-  const { value, setValue, saving, saveComment } =
-    useBlockEditorCommentComposer();
+  const { value, setValue, saving, saveComment } = useBlockEditorCommentComposer();
 
   return (
     <CommentCard className="bn-thread">
@@ -270,9 +235,7 @@ const CommentEditor = (props: ComponentProps['Comments']['Editor']) => (
   />
 );
 
-const CommentToolbar = ({
-  children,
-}: ComponentProps['Generic']['Toolbar']['Root']) => (
+const CommentToolbar = ({ children }: ComponentProps['Generic']['Toolbar']['Root']) => (
   <div className="erxes-block-controls bn-action-toolbar flex items-center justify-end gap-2">
     {children}
   </div>
@@ -324,9 +287,7 @@ export const BlockEditorComments = ({
       {enabled && (
         <>
           <FloatingComposerController floatingComposer={CommentComposer} />
-          {floatingThread && (
-            <FloatingThreadController floatingThread={CommentThread} />
-          )}
+          {floatingThread && <FloatingThreadController floatingThread={CommentThread} />}
         </>
       )}
       {children}

@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { boolean, check, date, doublePrecision, foreignKey, index, primaryKey, smallint, text } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  check,
+  date,
+  doublePrecision,
+  foreignKey,
+  index,
+  primaryKey,
+  smallint,
+  text,
+} from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { companies } from './companies';
 import { customers } from './customers';
@@ -49,15 +59,34 @@ const fieldValues = (name: 'customer_field_values' | 'company_field_values') => 
         .where(sql`${table.dateValue} IS NOT NULL`),
       // Anniversaries ("within the next 7 days, any year"): month * 100 + day.
       index(`${t}_month_day_idx`)
-        .on(table.orgId, table.fieldId, sql`((extract(month from ${table.dateValue}) * 100 + extract(day from ${table.dateValue}))::smallint)`)
+        .on(
+          table.orgId,
+          table.fieldId,
+          sql`((extract(month from ${table.dateValue}) * 100 + extract(day from ${table.dateValue}))::smallint)`,
+        )
         .where(sql`${table.dateValue} IS NOT NULL`),
       index(`${t}_bool_idx`)
         .on(table.orgId, table.fieldId, table.boolValue)
         .where(sql`${table.boolValue} IS NOT NULL`),
-      foreignKey({ columns: [table.recordId], foreignColumns: [records.id], name: `${t}_record_id_fkey` }).onDelete('cascade'),
-      foreignKey({ columns: [table.fieldId], foreignColumns: [fields.id], name: `${t}_field_id_fkey` }).onDelete('cascade'),
-      foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: `${t}_org_id_fkey` }).onDelete('cascade'),
-      check(`${t}_one_value_check`, sql`num_nonnulls(${table.textValue}, ${table.numberValue}, ${table.dateValue}, ${table.boolValue}) = 1`),
+      foreignKey({
+        columns: [table.recordId],
+        foreignColumns: [records.id],
+        name: `${t}_record_id_fkey`,
+      }).onDelete('cascade'),
+      foreignKey({
+        columns: [table.fieldId],
+        foreignColumns: [fields.id],
+        name: `${t}_field_id_fkey`,
+      }).onDelete('cascade'),
+      foreignKey({
+        columns: [table.orgId],
+        foreignColumns: [organizations.id],
+        name: `${t}_org_id_fkey`,
+      }).onDelete('cascade'),
+      check(
+        `${t}_one_value_check`,
+        sql`num_nonnulls(${table.textValue}, ${table.numberValue}, ${table.dateValue}, ${table.boolValue}) = 1`,
+      ),
     ],
   );
 };

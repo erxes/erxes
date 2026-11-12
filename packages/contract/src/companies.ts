@@ -90,7 +90,11 @@ const TagChange = z.object({
 
 export const companiesContract = {
   list: oc
-    .route({ method: 'GET', path: '/companies', summary: 'Companies of the organisation, newest first' })
+    .route({
+      method: 'GET',
+      path: '/companies',
+      summary: 'Companies of the organisation, newest first',
+    })
     .input(
       CursorQuery.extend({
         search: z.string().trim().max(100).optional(),
@@ -129,7 +133,11 @@ export const companiesContract = {
     .input(CompanyFields.extend({ id: Id }).refine(changes, 'nothing to update'))
     .output(Company),
   remove: oc
-    .route({ method: 'POST', path: '/companies/remove', summary: 'Delete companies (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/companies/remove',
+      summary: 'Delete companies (owners and admins)',
+    })
     .input(Ids)
     .output(z.object({ removed: z.number().int() })),
   merge: oc
@@ -141,15 +149,27 @@ export const companiesContract = {
     .input(MergeInput)
     .output(Company),
   tag: oc
-    .route({ method: 'POST', path: '/companies/tag', summary: 'Add and remove tags on many companies' })
+    .route({
+      method: 'POST',
+      path: '/companies/tag',
+      summary: 'Add and remove tags on many companies',
+    })
     .input(TagChange)
     .output(z.object({ updated: z.number().int() })),
   people: oc
-    .route({ method: 'GET', path: '/companies/{id}/people', summary: "The company's people: main contact first, then current, then former" })
+    .route({
+      method: 'GET',
+      path: '/companies/{id}/people',
+      summary: "The company's people: main contact first, then current, then former",
+    })
     .input(ID)
     .output(z.object({ data: z.array(PersonRef) })),
   linkPerson: oc
-    .route({ method: 'PUT', path: '/companies/{id}/people/{customerId}', summary: 'Link a person (or change the link), as from the person' })
+    .route({
+      method: 'PUT',
+      path: '/companies/{id}/people/{customerId}',
+      summary: 'Link a person (or change the link), as from the person',
+    })
     .input(ContactLinkInput.extend({ id: Id, customerId: Id }))
     .output(z.object({ ok: z.literal(true) })),
   unlinkPerson: oc

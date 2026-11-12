@@ -3,7 +3,11 @@ import { IconPencil, IconPlus } from '@tabler/icons-react';
 import { Button, Form, Input, Sheet, Spinner, Textarea } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { type IPropertyGroupForm, type IPropertyGroupValues, propertyGroupSchema } from '../propertySchema';
+import {
+  type IPropertyGroupForm,
+  type IPropertyGroupValues,
+  propertyGroupSchema,
+} from '../propertySchema';
 
 /** Old erxes's group form, in a sheet. */
 export const PropertyGroupForm = ({
@@ -42,7 +46,9 @@ export const PropertyGroupForm = ({
             {isEdit ? t('edit-group', 'Edit Group') : t('add-group', 'Add Group')}
           </Sheet.Title>
           <Sheet.Description className="sr-only">
-            {t('group-description', 'Add a new group for the content type {{type}}', { type: contentType })}
+            {t('group-description', 'Add a new group for the content type {{type}}', {
+              type: contentType,
+            })}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
@@ -53,7 +59,12 @@ export const PropertyGroupForm = ({
               <Form.Item>
                 <Form.Label>{t('group-name', 'Group Name')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} type="text" placeholder={t('enter-group-name', 'Enter group name')} autoFocus />
+                  <Input
+                    {...field}
+                    type="text"
+                    placeholder={t('enter-group-name', 'Enter group name')}
+                    autoFocus
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>

@@ -80,93 +80,100 @@ export const SignInPage = () => {
         {challenge ? (
           <TwoFactorStep challenge={challenge} onBack={() => setChallenge(null)} />
         ) : (
-        <Form {...form}>
-          <form onSubmit={onSubmit} className="mx-auto grid w-full gap-6" noValidate>
-            <Form.Field
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="font-sans text-sm font-medium normal-case leading-none text-foreground">
-                    {t('email')}
-                  </Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      autoFocus
-                      type="email"
-                      autoComplete="username"
-                      placeholder={t('enter-your-email')}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="font-sans text-sm font-medium normal-case leading-none text-foreground">
-                    {t('password')}
-                  </Form.Label>
-                  <Form.Control>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        placeholder={t('enter-your-password')}
-                        className="pr-9"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setShowPassword((shown) => !shown)}
-                        aria-label={showPassword ? t('hide-password') : t('show-password')}
-                        className="absolute inset-y-0 right-1 my-auto size-6 rounded-sm p-0 text-accent-foreground/60 hover:text-foreground"
-                      >
-                        {showPassword ? <IconEyeOff size={15} stroke={1.75} /> : <IconEye size={15} stroke={1.75} />}
-                      </Button>
-                    </div>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            {needsOrganization && (
+          <Form {...form}>
+            <form onSubmit={onSubmit} className="mx-auto grid w-full gap-6" noValidate>
               <Form.Field
                 control={form.control}
-                name="subdomain"
+                name="email"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className="font-sans text-sm font-medium normal-case leading-none text-foreground">
-                      Organization address
+                      {t('email')}
                     </Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder="acme" autoComplete="organization" />
+                      <Input
+                        {...field}
+                        autoFocus
+                        type="email"
+                        autoComplete="username"
+                        placeholder={t('enter-your-email')}
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
                 )}
               />
-            )}
-            {error && (
-              <p role="alert" className="text-center text-sm text-destructive">
-                {error}
-              </p>
-            )}
-            <Button type="submit" className="h-8" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting && <Spinner size="sm" />}
-              {t('sign-in')}
-            </Button>
-            <Link to="/forgot-password" className="text-center text-sm text-muted-foreground hover:underline">
-              {t('forgot-password', 'Forgot your password?')}
-            </Link>
-          </form>
-        </Form>
+              <Form.Field
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label className="font-sans text-sm font-medium normal-case leading-none text-foreground">
+                      {t('password')}
+                    </Form.Label>
+                    <Form.Control>
+                      <div className="relative">
+                        <Input
+                          {...field}
+                          type={showPassword ? 'text' : 'password'}
+                          autoComplete="current-password"
+                          placeholder={t('enter-your-password')}
+                          className="pr-9"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setShowPassword((shown) => !shown)}
+                          aria-label={showPassword ? t('hide-password') : t('show-password')}
+                          className="absolute inset-y-0 right-1 my-auto size-6 rounded-sm p-0 text-accent-foreground/60 hover:text-foreground"
+                        >
+                          {showPassword ? (
+                            <IconEyeOff size={15} stroke={1.75} />
+                          ) : (
+                            <IconEye size={15} stroke={1.75} />
+                          )}
+                        </Button>
+                      </div>
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              {needsOrganization && (
+                <Form.Field
+                  control={form.control}
+                  name="subdomain"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label className="font-sans text-sm font-medium normal-case leading-none text-foreground">
+                        Organization address
+                      </Form.Label>
+                      <Form.Control>
+                        <Input {...field} placeholder="acme" autoComplete="organization" />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              )}
+              {error && (
+                <p role="alert" className="text-center text-sm text-destructive">
+                  {error}
+                </p>
+              )}
+              <Button type="submit" className="h-8" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting && <Spinner size="sm" />}
+                {t('sign-in')}
+              </Button>
+              <Link
+                to="/forgot-password"
+                className="text-center text-sm text-muted-foreground hover:underline"
+              >
+                {t('forgot-password', 'Forgot your password?')}
+              </Link>
+            </form>
+          </Form>
         )}
       </AuthenticationLayout>
     </div>

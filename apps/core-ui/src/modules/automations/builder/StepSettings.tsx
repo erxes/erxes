@@ -21,18 +21,23 @@ const useMemberOptions = () =>
   useQuery({
     queryKey: ['automations', 'member-options'],
     queryFn: async () =>
-      (await api.users.list({ limit: 100 })).data.map((user) => ({ value: user.id, label: user.fullName || user.email })),
+      (await api.users.list({ limit: 100 })).data.map((user) => ({
+        value: user.id,
+        label: user.fullName || user.email,
+      })),
     staleTime: 60_000,
   }).data ?? [];
 
 const useTagOptions = (type: 'customer' | 'company') =>
   useQuery({
     queryKey: ['automations', 'tag-options', type],
-    queryFn: async () => (await api.tags.list({ type })).data.map((tag) => ({ value: tag.id, label: tag.name })),
+    queryFn: async () =>
+      (await api.tags.list({ type })).data.map((tag) => ({ value: tag.id, label: tag.name })),
     staleTime: 60_000,
   }).data ?? [];
 
-const asList = (value: unknown) => (Array.isArray(value) ? value.map(String) : value ? [String(value)] : []);
+const asList = (value: unknown) =>
+  Array.isArray(value) ? value.map(String) : value ? [String(value)] : [];
 
 const fieldIdOf = (path: string) => path.replace('subject.customFields.', '');
 
@@ -78,14 +83,33 @@ const FieldInput = ({
     const chosen = customFields.find((item) => fieldIdOf(item.path) === input[field.sameTypeAs!]);
 
     if (chosen?.type === 'date') {
-      return <Input type="date" value={String(value ?? '')} disabled={disabled} onChange={(event) => onChange(event.target.value)} />;
+      return (
+        <Input
+          type="date"
+          value={String(value ?? '')}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      );
     }
 
     if (chosen?.type === 'boolean' || (chosen?.type === 'select' && chosen.options?.length)) {
-      const options = chosen.type === 'boolean' ? [{ value: 'true', label: t('yes', 'Yes') }, { value: 'false', label: t('no', 'No') }] : chosen.options!.map((option) => ({ value: option, label: option }));
+      const options =
+        chosen.type === 'boolean'
+          ? [
+              { value: 'true', label: t('yes', 'Yes') },
+              { value: 'false', label: t('no', 'No') },
+            ]
+          : chosen.options!.map((option) => ({ value: option, label: option }));
 
       return (
-        <Select value={value === undefined || value === '' ? '__clear' : String(value)} disabled={disabled} onValueChange={(next) => onChange(next === '__clear' ? '' : chosen.type === 'boolean' ? next === 'true' : next)}>
+        <Select
+          value={value === undefined || value === '' ? '__clear' : String(value)}
+          disabled={disabled}
+          onValueChange={(next) =>
+            onChange(next === '__clear' ? '' : chosen.type === 'boolean' ? next === 'true' : next)
+          }
+        >
           <Select.Trigger>
             <Select.Value />
           </Select.Trigger>
@@ -113,9 +137,22 @@ const FieldInput = ({
     case 'number':
       return text();
     case 'date':
-      return <Input type="date" value={String(value ?? '')} disabled={disabled} onChange={(event) => onChange(event.target.value)} />;
+      return (
+        <Input
+          type="date"
+          value={String(value ?? '')}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      );
     case 'boolean':
-      return <Switch checked={value === true} disabled={disabled} onCheckedChange={(checked) => onChange(checked)} />;
+      return (
+        <Switch
+          checked={value === true}
+          disabled={disabled}
+          onCheckedChange={(checked) => onChange(checked)}
+        />
+      );
     case 'recipients': {
       // `subject`: the record's own email; anything else (even empty, while typing): addresses.
       const toRecord = value === undefined || value === 'subject';
@@ -128,7 +165,14 @@ const FieldInput = ({
             disabled={disabled}
             onChange={(next) => onChange(next === 'record' ? 'subject' : '')}
             options={[
-              { value: 'record', label: subject === 'company' ? t('to-company-email', "The company's email") : t('to-customer-email', "The customer's email"), icon: subject === 'company' ? IconBuilding : IconUser },
+              {
+                value: 'record',
+                label:
+                  subject === 'company'
+                    ? t('to-company-email', "The company's email")
+                    : t('to-customer-email', "The customer's email"),
+                icon: subject === 'company' ? IconBuilding : IconUser,
+              },
               { value: 'addresses', label: t('to-addresses', 'Other addresses'), icon: IconAt },
             ]}
           />
@@ -169,7 +213,10 @@ const FieldInput = ({
       );
     case 'lead_stage': {
       // Saved by id; older steps saved the stage's name.
-      const current = stages.find((stage) => stage.id === value || stage.name.toLowerCase() === String(value ?? '').toLowerCase());
+      const current = stages.find(
+        (stage) =>
+          stage.id === value || stage.name.toLowerCase() === String(value ?? '').toLowerCase(),
+      );
 
       return (
         <Select value={current?.id ?? ''} disabled={disabled} onValueChange={onChange}>
@@ -180,7 +227,10 @@ const FieldInput = ({
             {stages.map((stage) => (
               <Select.Item key={stage.id} value={stage.id}>
                 <span className="flex items-center gap-2">
-                  <span className="size-2 shrink-0 rounded-full" style={{ background: stage.color }} />
+                  <span
+                    className="size-2 shrink-0 rounded-full"
+                    style={{ background: stage.color }}
+                  />
                   {stageName(stage.name)}
                 </span>
               </Select.Item>
@@ -210,12 +260,18 @@ const FieldInput = ({
 
       return (
         <MultipleSelector
-          value={asList(value).map((id) => options.find((option) => option.value === id) ?? { value: id, label: id })}
+          value={asList(value).map(
+            (id) => options.find((option) => option.value === id) ?? { value: id, label: id },
+          )}
           onChange={(next) => onChange(next.map((option) => option.value))}
           defaultOptions={options}
           options={options}
           disabled={disabled}
-          placeholder={field.type === 'members' ? t('choose-members', 'Choose members…') : t('choose-tags', 'Choose tags…')}
+          placeholder={
+            field.type === 'members'
+              ? t('choose-members', 'Choose members…')
+              : t('choose-tags', 'Choose tags…')
+          }
           hidePlaceholderWhenSelected
         />
       );
@@ -250,7 +306,15 @@ export const BuilderContext = createContext<{
   outputsBefore: (stepId: string) => FieldInfo[];
 }>({ events: [], stats: new Map(), outputsBefore: () => [] });
 
-const Units = ({ value, onChange, disabled }: { value: string; onChange: (unit: 'minutes' | 'hours' | 'days') => void; disabled?: boolean }) => {
+const Units = ({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  onChange: (unit: 'minutes' | 'hours' | 'days') => void;
+  disabled?: boolean;
+}) => {
   const { t } = useTranslation('automations');
 
   return (
@@ -288,7 +352,8 @@ export const StepSettings = ({
   const { t } = useTranslation('automations');
   const { events, outputsBefore } = useContext(BuilderContext);
   const outputs = outputsBefore(step.id);
-  const action = step.type === 'action' ? actions.find((item) => item.type === step.action) : undefined;
+  const action =
+    step.type === 'action' ? actions.find((item) => item.type === step.action) : undefined;
   const recordFields = useAutomationFields(subject);
   const dataFields = [...recordFields, ...outputs];
 
@@ -319,24 +384,39 @@ export const StepSettings = ({
               disabled={disabled}
               onChange={(type) =>
                 type !== step.action &&
-                onChange({ ...step, action: type, input: actionDefaults(actions.find((item) => item.type === type)) })
+                onChange({
+                  ...step,
+                  action: type,
+                  input: actionDefaults(actions.find((item) => item.type === type)),
+                })
               }
             />
-            {action?.description && <p className="text-xs text-muted-foreground">{action.description}</p>}
+            {action?.description && (
+              <p className="text-xs text-muted-foreground">{action.description}</p>
+            )}
           </div>
           {action && action.fields.length > 0 && (
             <div className="space-y-4 border-t pt-4">
               {action.fields.map((field) =>
                 field.type === 'boolean' ? (
-                  <label key={field.key} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5">
+                  <label
+                    key={field.key}
+                    className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5"
+                  >
                     <span className="min-w-0">
                       <span className="block text-sm">{field.label}</span>
-                      {field.description && <span className="block text-xs text-muted-foreground">{field.description}</span>}
+                      {field.description && (
+                        <span className="block text-xs text-muted-foreground">
+                          {field.description}
+                        </span>
+                      )}
                     </span>
                     <Switch
                       checked={step.input[field.key] === true}
                       disabled={disabled}
-                      onCheckedChange={(checked) => onChange({ ...step, input: { ...step.input, [field.key]: checked } })}
+                      onCheckedChange={(checked) =>
+                        onChange({ ...step, input: { ...step.input, [field.key]: checked } })
+                      }
                     />
                   </label>
                 ) : (
@@ -352,9 +432,13 @@ export const StepSettings = ({
                       input={step.input}
                       dataFields={dataFields}
                       disabled={disabled}
-                      onChange={(value) => onChange({ ...step, input: { ...step.input, [field.key]: value } })}
+                      onChange={(value) =>
+                        onChange({ ...step, input: { ...step.input, [field.key]: value } })
+                      }
                     />
-                    {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+                    {field.description && (
+                      <p className="text-xs text-muted-foreground">{field.description}</p>
+                    )}
                   </div>
                 ),
               )}
@@ -373,9 +457,19 @@ export const StepSettings = ({
               min={1}
               disabled={disabled}
               value={step.amount ?? 1}
-              onChange={(event) => onChange({ ...step, amount: Math.max(1, Number(event.target.value) || 1), until: undefined })}
+              onChange={(event) =>
+                onChange({
+                  ...step,
+                  amount: Math.max(1, Number(event.target.value) || 1),
+                  until: undefined,
+                })
+              }
             />
-            <Units value={step.unit ?? 'minutes'} disabled={disabled} onChange={(unit) => onChange({ ...step, unit })} />
+            <Units
+              value={step.unit ?? 'minutes'}
+              disabled={disabled}
+              onChange={(unit) => onChange({ ...step, unit })}
+            />
           </div>
         </div>
       )}
@@ -383,7 +477,13 @@ export const StepSettings = ({
         <>
           <div className="space-y-1.5">
             <FieldLabel>{t('wait-for-event', 'Until this happens to the record')}</FieldLabel>
-            <CatalogPicker kind="event" items={events} value={step.event} disabled={disabled} onChange={(event) => onChange({ ...step, event })} />
+            <CatalogPicker
+              kind="event"
+              items={events}
+              value={step.event}
+              disabled={disabled}
+              onChange={(event) => onChange({ ...step, event })}
+            />
           </div>
           <div className="space-y-1.5">
             <FieldLabel>{t('at-most', 'For at most')}</FieldLabel>
@@ -394,17 +494,29 @@ export const StepSettings = ({
                 min={1}
                 disabled={disabled}
                 value={step.amount}
-                onChange={(event) => onChange({ ...step, amount: Math.max(1, Number(event.target.value) || 1) })}
+                onChange={(event) =>
+                  onChange({ ...step, amount: Math.max(1, Number(event.target.value) || 1) })
+                }
               />
-              <Units value={step.unit} disabled={disabled} onChange={(unit) => onChange({ ...step, unit })} />
+              <Units
+                value={step.unit}
+                disabled={disabled}
+                onChange={(unit) => onChange({ ...step, unit })}
+              />
             </div>
           </div>
           <div className="space-y-1.5">
             <FieldLabel>{t('only-if', 'Only if')}</FieldLabel>
-            <ConditionsEditor subject={subject} value={step.conditions} disabled={disabled} onChange={(conditions) => onChange({ ...step, conditions })} />
+            <ConditionsEditor
+              subject={subject}
+              value={step.conditions}
+              disabled={disabled}
+              onChange={(conditions) => onChange({ ...step, conditions })}
+            />
           </div>
           <p className="rounded-md bg-muted/60 p-2 text-xs text-muted-foreground">
-            {t('wait-for-hint', 'Later steps can check whether it happened:')} <code>{`steps.${step.id}.output.matched`}</code>
+            {t('wait-for-hint', 'Later steps can check whether it happened:')}{' '}
+            <code>{`steps.${step.id}.output.matched`}</code>
           </p>
         </>
       )}
@@ -416,13 +528,17 @@ export const StepSettings = ({
             extraFields={outputs}
             value={step.conditions}
             disabled={disabled}
-            onChange={(conditions) => onChange({ ...step, conditions: conditions ?? { match: 'all', rules: [] } })}
+            onChange={(conditions) =>
+              onChange({ ...step, conditions: conditions ?? { match: 'all', rules: [] } })
+            }
           />
         </div>
       )}
       {step.type === 'switch' && (
         <div className="space-y-3">
-          <p className="text-xs text-muted-foreground">{t('switch-hint', 'The first case that holds is taken; none: Otherwise.')}</p>
+          <p className="text-xs text-muted-foreground">
+            {t('switch-hint', 'The first case that holds is taken; none: Otherwise.')}
+          </p>
           {step.cases.map((item, index) => (
             <div key={index} className="space-y-2 rounded-md border p-3">
               <div className="flex items-center gap-2">
@@ -431,10 +547,24 @@ export const StepSettings = ({
                   value={item.label ?? ''}
                   placeholder={t('case-n', 'Case {{n}}', { n: index + 1 })}
                   disabled={disabled}
-                  onChange={(event) => onChange({ ...step, cases: step.cases.map((one, at) => (at === index ? { ...one, label: event.target.value || undefined } : one)) })}
+                  onChange={(event) =>
+                    onChange({
+                      ...step,
+                      cases: step.cases.map((one, at) =>
+                        at === index ? { ...one, label: event.target.value || undefined } : one,
+                      ),
+                    })
+                  }
                 />
                 {step.cases.length > 1 && (
-                  <Button size="icon" variant="ghost" disabled={disabled} onClick={() => onChange({ ...step, cases: step.cases.filter((_, at) => at !== index) })}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    disabled={disabled}
+                    onClick={() =>
+                      onChange({ ...step, cases: step.cases.filter((_, at) => at !== index) })
+                    }
+                  >
                     <IconTrash />
                   </Button>
                 )}
@@ -445,13 +575,29 @@ export const StepSettings = ({
                 value={item.conditions}
                 disabled={disabled}
                 onChange={(conditions) =>
-                  onChange({ ...step, cases: step.cases.map((one, at) => (at === index ? { ...one, conditions: conditions ?? { match: 'all', rules: [] } } : one)) })
+                  onChange({
+                    ...step,
+                    cases: step.cases.map((one, at) =>
+                      at === index
+                        ? { ...one, conditions: conditions ?? { match: 'all', rules: [] } }
+                        : one,
+                    ),
+                  })
                 }
               />
             </div>
           ))}
           {!disabled && step.cases.length < 10 && (
-            <Button size="sm" variant="outline" onClick={() => onChange({ ...step, cases: [...step.cases, { conditions: { match: 'all', rules: [] }, steps: [] }] })}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                onChange({
+                  ...step,
+                  cases: [...step.cases, { conditions: { match: 'all', rules: [] }, steps: [] }],
+                })
+              }
+            >
               <IconPlus />
               {t('add-case', 'Add case')}
             </Button>
@@ -472,7 +618,14 @@ export const StepSettings = ({
                 value={path.label ?? ''}
                 placeholder={String.fromCharCode(65 + index)}
                 disabled={disabled}
-                onChange={(event) => onChange({ ...step, paths: step.paths.map((one, at) => (at === index ? { ...one, label: event.target.value || undefined } : one)) })}
+                onChange={(event) =>
+                  onChange({
+                    ...step,
+                    paths: step.paths.map((one, at) =>
+                      at === index ? { ...one, label: event.target.value || undefined } : one,
+                    ),
+                  })
+                }
               />
               <Input
                 className="h-8 w-20"
@@ -484,27 +637,51 @@ export const StepSettings = ({
                 onChange={(event) =>
                   onChange({
                     ...step,
-                    paths: step.paths.map((one, at) => (at === index ? { ...one, weight: Math.min(100, Math.max(1, Number(event.target.value) || 1)) } : one)),
+                    paths: step.paths.map((one, at) =>
+                      at === index
+                        ? {
+                            ...one,
+                            weight: Math.min(100, Math.max(1, Number(event.target.value) || 1)),
+                          }
+                        : one,
+                    ),
                   })
                 }
               />
               <span className="text-sm text-muted-foreground">%</span>
               {step.paths.length > 2 && (
-                <Button size="icon" variant="ghost" disabled={disabled} onClick={() => onChange({ ...step, paths: step.paths.filter((_, at) => at !== index) })}>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  disabled={disabled}
+                  onClick={() =>
+                    onChange({ ...step, paths: step.paths.filter((_, at) => at !== index) })
+                  }
+                >
                   <IconTrash />
                 </Button>
               )}
             </div>
           ))}
           {!disabled && step.paths.length < 5 && (
-            <Button size="sm" variant="outline" onClick={() => onChange({ ...step, paths: [...step.paths, { weight: 50, steps: [] }] })}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                onChange({ ...step, paths: [...step.paths, { weight: 50, steps: [] }] })
+              }
+            >
               <IconPlus />
               {t('add-path', 'Add path')}
             </Button>
           )}
         </div>
       )}
-      {step.type === 'stop' && <p className="text-sm text-muted-foreground">{t('stop-hint', 'The run ends here, even if steps follow.')}</p>}
+      {step.type === 'stop' && (
+        <p className="text-sm text-muted-foreground">
+          {t('stop-hint', 'The run ends here, even if steps follow.')}
+        </p>
+      )}
     </div>
   );
 };

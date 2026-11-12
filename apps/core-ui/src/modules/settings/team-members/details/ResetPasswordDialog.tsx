@@ -68,7 +68,10 @@ export const ResetPasswordDialog = () => {
   return (
     <Dialog open={!!userId} onOpenChange={(open) => !open && close()}>
       <Dialog.Content>
-        <Dialog.HeaderCombined title={t('reset-password-title')} description={t('set-new-password')} />
+        <Dialog.HeaderCombined
+          title={t('reset-password-title')}
+          description={t('set-new-password')}
+        />
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <fieldset className="flex flex-col gap-3 mb-3">
@@ -79,7 +82,12 @@ export const ResetPasswordDialog = () => {
                   <Form.Item>
                     <Form.Label>{t('new-password')}</Form.Label>
                     <Form.Control>
-                      <Input type="password" {...field} placeholder={t('new-password')} autoComplete="new-password" />
+                      <Input
+                        type="password"
+                        {...field}
+                        placeholder={t('new-password')}
+                        autoComplete="new-password"
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -92,7 +100,12 @@ export const ResetPasswordDialog = () => {
                   <Form.Item>
                     <Form.Label>{t('retype-password')}</Form.Label>
                     <Form.Control>
-                      <Input type="password" {...field} placeholder={t('retype-password')} autoComplete="new-password" />
+                      <Input
+                        type="password"
+                        {...field}
+                        placeholder={t('retype-password')}
+                        autoComplete="new-password"
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

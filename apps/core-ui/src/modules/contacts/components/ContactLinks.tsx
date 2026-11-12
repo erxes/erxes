@@ -1,7 +1,19 @@
 import type { ContactLink } from '@erxes/core-contract';
 import { IconDots, IconPlus, IconStarFilled } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Avatar, Badge, Button, cn, Combobox, DropdownMenu, Input, Popover, readImage, Spinner, useToast } from 'erxes-ui';
+import {
+  Avatar,
+  Badge,
+  Button,
+  cn,
+  Combobox,
+  DropdownMenu,
+  Input,
+  Popover,
+  readImage,
+  Spinner,
+  useToast,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { api, messageOf } from '~/lib/api';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
@@ -27,10 +39,19 @@ export const useContactLinks = (side: Side, id: string) => {
     queryKey: linksKey(side, id),
     queryFn: async (): Promise<LinkRow[]> =>
       side === 'core:customer'
-        ? (await api.customers.companies({ id })).data.map((company) => ({ id: company.id, name: company.primaryName, avatarUrl: company.avatarUrl, link: company.link }))
+        ? (await api.customers.companies({ id })).data.map((company) => ({
+            id: company.id,
+            name: company.primaryName,
+            avatarUrl: company.avatarUrl,
+            link: company.link,
+          }))
         : (await api.companies.people({ id })).data.map((person) => ({
             id: person.id,
-            name: [person.firstName, person.lastName].filter(Boolean).join(' ') || person.primaryEmail || person.primaryPhone || 'Unnamed',
+            name:
+              [person.firstName, person.lastName].filter(Boolean).join(' ') ||
+              person.primaryEmail ||
+              person.primaryPhone ||
+              'Unnamed',
             avatarUrl: person.avatarUrl,
             link: person.link,
           })),
@@ -41,21 +62,44 @@ export const useContactLinks = (side: Side, id: string) => {
     void client.invalidateQueries({ queryKey: ['customers'] });
     void client.invalidateQueries({ queryKey: ['companies'] });
   };
-  const onError = (error: unknown) => toast({ variant: 'destructive', title: 'Could not update the link', description: messageOf(error) });
-  const pair = (otherId: string) => (side === 'core:customer' ? { id, companyId: otherId } : { id: otherId, companyId: id });
+  const onError = (error: unknown) =>
+    toast({
+      variant: 'destructive',
+      title: 'Could not update the link',
+      description: messageOf(error),
+    });
+  const pair = (otherId: string) =>
+    side === 'core:customer' ? { id, companyId: otherId } : { id: otherId, companyId: id };
 
   const set = useMutation({
-    mutationFn: ({ otherId, ...input }: { otherId: string; role?: string | null; isPrimaryContact?: boolean; ended?: boolean }) =>
-      api.customers.linkCompany({ ...pair(otherId), ...input }),
+    mutationFn: ({
+      otherId,
+      ...input
+    }: {
+      otherId: string;
+      role?: string | null;
+      isPrimaryContact?: boolean;
+      ended?: boolean;
+    }) => api.customers.linkCompany({ ...pair(otherId), ...input }),
     onSettled: refresh,
     onError,
   });
-  const remove = useMutation({ mutationFn: (otherId: string) => api.customers.unlinkCompany(pair(otherId)), onSettled: refresh, onError });
+  const remove = useMutation({
+    mutationFn: (otherId: string) => api.customers.unlinkCompany(pair(otherId)),
+    onSettled: refresh,
+    onError,
+  });
 
   return { rows: query.data ?? [], loading: query.isPending, error: query.error, set, remove };
 };
 
-const RoleEditor = ({ value, onSave }: { value: string | null; onSave: (role: string | null) => void }) => {
+const RoleEditor = ({
+  value,
+  onSave,
+}: {
+  value: string | null;
+  onSave: (role: string | null) => void;
+}) => {
   const [role, setRole] = useState(value ?? '');
 
   return (
@@ -66,7 +110,14 @@ const RoleEditor = ({ value, onSave }: { value: string | null; onSave: (role: st
         onSave(role.trim() || null);
       }}
     >
-      <Input value={role} onChange={(event) => setRole(event.target.value)} placeholder="CEO, Buyer, Accountant…" className="h-8" maxLength={100} autoFocus />
+      <Input
+        value={role}
+        onChange={(event) => setRole(event.target.value)}
+        placeholder="CEO, Buyer, Accountant…"
+        className="h-8"
+        maxLength={100}
+        autoFocus
+      />
       <Button type="submit" size="sm">
         Save
       </Button>
@@ -74,41 +125,75 @@ const RoleEditor = ({ value, onSave }: { value: string | null; onSave: (role: st
   );
 };
 
-const LinkItem = ({ side, row, onChange, onUnlink }: { side: Side; row: LinkRow; onChange: (input: { role?: string | null; isPrimaryContact?: boolean; ended?: boolean }) => void; onUnlink: () => void }) => {
+const LinkItem = ({
+  side,
+  row,
+  onChange,
+  onUnlink,
+}: {
+  side: Side;
+  row: LinkRow;
+  onChange: (input: { role?: string | null; isPrimaryContact?: boolean; ended?: boolean }) => void;
+  onUnlink: () => void;
+}) => {
   const { openRecord } = useSidePanel();
   const [editing, setEditing] = useState(false);
   const former = Boolean(row.link.endedAt);
   const other = side === 'core:customer' ? 'core:company' : 'core:customer';
 
   return (
-    <div className={cn('group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/60', former && 'opacity-60')}>
+    <div
+      className={cn(
+        'group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/60',
+        former && 'opacity-60',
+      )}
+    >
       <Avatar size="lg">
         <Avatar.Image src={readImage(row.avatarUrl ?? undefined)} />
         <Avatar.Fallback>{row.name.charAt(0)}</Avatar.Fallback>
       </Avatar>
-      <button type="button" className="min-w-0 flex-1 text-left" onClick={() => openRecord({ contentType: other, contentId: row.id })}>
+      <button
+        type="button"
+        className="min-w-0 flex-1 text-left"
+        onClick={() => openRecord({ contentType: other, contentId: row.id })}
+      >
         <span className="flex items-center gap-1.5 truncate text-sm font-medium">
           {row.name}
-          {row.link.isPrimaryContact && <IconStarFilled className="size-3 shrink-0 text-warning" aria-label="Main contact" />}
+          {row.link.isPrimaryContact && (
+            <IconStarFilled className="size-3 shrink-0 text-warning" aria-label="Main contact" />
+          )}
         </span>
-        {row.link.role && <span className="block truncate text-xs text-muted-foreground">{row.link.role}</span>}
+        {row.link.role && (
+          <span className="block truncate text-xs text-muted-foreground">{row.link.role}</span>
+        )}
       </button>
       {former && <Badge variant="secondary">Former</Badge>}
       <Popover open={editing} onOpenChange={setEditing}>
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>
             <Popover.Anchor asChild>
-              <Button variant="ghost" size="icon" className="size-7 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100" aria-label="Link options">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
+                aria-label="Link options"
+              >
                 <IconDots className="size-4" />
               </Button>
             </Popover.Anchor>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
-            <DropdownMenu.Item onSelect={() => setEditing(true)}>{row.link.role ? 'Change role' : 'Add role'}</DropdownMenu.Item>
-            <DropdownMenu.Item onSelect={() => onChange({ isPrimaryContact: !row.link.isPrimaryContact })}>
+            <DropdownMenu.Item onSelect={() => setEditing(true)}>
+              {row.link.role ? 'Change role' : 'Add role'}
+            </DropdownMenu.Item>
+            <DropdownMenu.Item
+              onSelect={() => onChange({ isPrimaryContact: !row.link.isPrimaryContact })}
+            >
               {row.link.isPrimaryContact ? 'Not the main contact' : 'Make main contact'}
             </DropdownMenu.Item>
-            <DropdownMenu.Item onSelect={() => onChange({ ended: !former })}>{former ? 'Works there again' : 'Left the company'}</DropdownMenu.Item>
+            <DropdownMenu.Item onSelect={() => onChange({ ended: !former })}>
+              {former ? 'Works there again' : 'Left the company'}
+            </DropdownMenu.Item>
             <DropdownMenu.Separator />
             <DropdownMenu.Item className="text-destructive" onSelect={onUnlink}>
               Unlink
@@ -144,7 +229,13 @@ export const ContactLinks = ({ side, id }: { side: Side; id: string }) => {
   return (
     <div className="flex flex-col">
       {rows.map((row) => (
-        <LinkItem key={row.id} side={side} row={row} onChange={(input) => set.mutate({ otherId: row.id, ...input })} onUnlink={() => remove.mutate(row.id)} />
+        <LinkItem
+          key={row.id}
+          side={side}
+          row={row}
+          onChange={(input) => set.mutate({ otherId: row.id, ...input })}
+          onUnlink={() => remove.mutate(row.id)}
+        />
       ))}
       <Popover open={adding} onOpenChange={setAdding}>
         <Popover.Trigger asChild>

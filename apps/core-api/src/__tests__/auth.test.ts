@@ -46,11 +46,16 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
     });
 
   const sessionCookie = (response: Response) =>
-    (response.headers.getSetCookie().find((cookie) => cookie.startsWith('erxes_session=')) ?? '').split(';')[0] ?? '';
+    (
+      response.headers.getSetCookie().find((cookie) => cookie.startsWith('erxes_session=')) ?? ''
+    ).split(';')[0] ?? '';
 
   it('signs in, sets an HttpOnly session cookie and answers /me with it', async () => {
     const response = await signIn({ email: 'OWNER@acme.mn', password: 'correct horse' });
-    const body = (await response.json()) as { user: { email: string; role: string }; organization: { subdomain: string } };
+    const body = (await response.json()) as {
+      user: { email: string; role: string };
+      organization: { subdomain: string };
+    };
     const setCookie = response.headers.getSetCookie().join(';');
 
     expect(response.status).toBe(200);
@@ -58,24 +63,34 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
     expect(body.organization.subdomain).toBe('acme');
     expect(setCookie).toMatch(/erxes_session=.*HttpOnly.*SameSite=Lax/i);
 
-    const me = await fetch(`${base}/core/v1/auth/me`, { headers: { cookie: sessionCookie(response) } });
+    const me = await fetch(`${base}/core/v1/auth/me`, {
+      headers: { cookie: sessionCookie(response) },
+    });
 
     expect(me.status).toBe(200);
   });
 
   it('remembers the welcome steps on the member, not the browser', async () => {
-    const cookie = sessionCookie(await signIn({ email: 'owner@acme.mn', password: 'correct horse' }));
+    const cookie = sessionCookie(
+      await signIn({ email: 'owner@acme.mn', password: 'correct horse' }),
+    );
     const headers = { cookie, 'sec-fetch-site': 'same-origin' };
-    const before = (await (await fetch(`${base}/core/v1/auth/me`, { headers })).json()) as { user: { onboardedAt: string | null } };
+    const before = (await (await fetch(`${base}/core/v1/auth/me`, { headers })).json()) as {
+      user: { onboardedAt: string | null };
+    };
 
     expect(before.user.onboardedAt).toBeNull();
 
-    const done = (await (await fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers })).json()) as { user: { onboardedAt: string } };
+    const done = (await (
+      await fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers })
+    ).json()) as { user: { onboardedAt: string } };
 
     expect(done.user.onboardedAt).toEqual(expect.any(String));
 
     // Again: the first time is kept.
-    const again = (await (await fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers })).json()) as { user: { onboardedAt: string } };
+    const again = (await (
+      await fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers })
+    ).json()) as { user: { onboardedAt: string } };
 
     expect(again.user.onboardedAt).toBe(done.user.onboardedAt);
   });
@@ -87,19 +102,33 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
       owner: { email: 'owner@umbrella.mn', passwordHash: await hashPassword('pw-umbrella') },
     });
 
-    const cookie = sessionCookie(await signIn({ email: 'owner@umbrella.mn', password: 'pw-umbrella' }));
+    const cookie = sessionCookie(
+      await signIn({ email: 'owner@umbrella.mn', password: 'pw-umbrella' }),
+    );
     const headers = { cookie, 'sec-fetch-site': 'same-origin', 'content-type': 'application/json' };
-    const get = async (path: string) => (await (await fetch(`${base}/core/v1${path}`, { headers })).json()) as { totalCount: number; data: { name?: string; primaryName?: string; firstName?: string }[] };
+    const get = async (path: string) =>
+      (await (await fetch(`${base}/core/v1${path}`, { headers })).json()) as {
+        totalCount: number;
+        data: { name?: string; primaryName?: string; firstName?: string }[];
+      };
     const onboard = () =>
-      fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers, body: JSON.stringify({ exampleData: true, language: 'mn' }) });
+      fetch(`${base}/core/v1/auth/onboarded`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ exampleData: true, language: 'mn' }),
+      });
 
     expect((await onboard()).status).toBe(200);
     // Seeded by a job, right after.
     await processJobs(JOBS);
     expect((await get('/customers?state=customer')).totalCount).toBe(5);
     expect((await get('/customers?state=lead')).totalCount).toBe(5);
-    expect((await get('/companies')).data.map((company) => company.primaryName)).toContain('Хангай Трейд ХХК');
-    expect((await get('/views?recordType=customer')).data.map((view) => view.name)).toEqual(['VIP харилцагчид']);
+    expect((await get('/companies')).data.map((company) => company.primaryName)).toContain(
+      'Хангай Трейд ХХК',
+    );
+    expect((await get('/views?recordType=customer')).data.map((view) => view.name)).toEqual([
+      'VIP харилцагчид',
+    ]);
     expect((await get('/automations')).data).toHaveLength(1);
 
     // Again (another browser, a second click): nothing more.
@@ -120,7 +149,11 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
 
   it('asks for the organisation when the email exists in several', async () => {
     const ambiguous = await signIn({ email: 'shared@x.mn', password: 'pw-globex' });
-    const chosen = await signIn({ email: 'shared@x.mn', password: 'pw-initech', subdomain: 'initech' });
+    const chosen = await signIn({
+      email: 'shared@x.mn',
+      password: 'pw-initech',
+      subdomain: 'initech',
+    });
 
     expect(ambiguous.status).toBe(400);
     expect(((await ambiguous.json()) as { code: string }).code).toBe('ORGANIZATION_REQUIRED');
@@ -128,7 +161,9 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
   });
 
   it('blocks cookie-signed changes from other sites, not reads', async () => {
-    const cookie = sessionCookie(await signIn({ email: 'owner@acme.mn', password: 'correct horse' }));
+    const cookie = sessionCookie(
+      await signIn({ email: 'owner@acme.mn', password: 'correct horse' }),
+    );
 
     const crossSite = await fetch(`${base}/core/v1/users`, {
       method: 'POST',
@@ -140,7 +175,9 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
       headers: { cookie, 'content-type': 'application/json', 'sec-fetch-site': 'same-origin' },
       body: JSON.stringify({ email: 'good@acme.mn' }),
     });
-    const read = await fetch(`${base}/core/v1/users`, { headers: { cookie, 'sec-fetch-site': 'cross-site' } });
+    const read = await fetch(`${base}/core/v1/users`, {
+      headers: { cookie, 'sec-fetch-site': 'cross-site' },
+    });
 
     expect(crossSite.status).toBe(403);
     expect(sameSite.status).toBe(201);
@@ -149,7 +186,11 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
 
   it('refuses invited members (no password yet) and signs out', async () => {
     const invited = await signIn({ email: 'good@acme.mn', password: 'anything' });
-    const out = await fetch(`${base}/core/v1/auth/sign-out`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+    const out = await fetch(`${base}/core/v1/auth/sign-out`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{}',
+    });
 
     expect(invited.status).toBe(401);
     expect(out.headers.getSetCookie().join(';')).toMatch(/erxes_session=;/);

@@ -7,7 +7,15 @@ import { api, messageOf } from '~/lib/api';
 import { SESSION_KEY } from '~/modules/auth/session';
 import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
 
-const Shell = ({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) => (
+const Shell = ({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) => (
   <div className="z-10 flex min-h-screen w-full">
     <AuthBanner />
     <AuthenticationLayout>
@@ -46,16 +54,29 @@ export const ForgotPasswordPage = () => {
   };
 
   return (
-    <Shell title={t('forgot-title', 'Reset your password')} subtitle={t('forgot-subtitle', "We'll email you a link to choose a new one.")}>
+    <Shell
+      title={t('forgot-title', 'Reset your password')}
+      subtitle={t('forgot-subtitle', "We'll email you a link to choose a new one.")}
+    >
       {sent ? (
         <p className="text-center text-sm">
-          {t('forgot-sent', 'If {{email}} has an account, a link is on its way. It works for 30 minutes.', { email })}
+          {t(
+            'forgot-sent',
+            'If {{email}} has an account, a link is on its way. It works for 30 minutes.',
+            { email },
+          )}
         </p>
       ) : (
         <form onSubmit={submit} className="grid w-full gap-4" noValidate>
           <div className="grid gap-2">
             <Label>{t('email', 'Email')}</Label>
-            <Input type="email" autoFocus autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} />
+            <Input
+              type="email"
+              autoFocus
+              autoComplete="username"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="h-8" disabled={busy || !email}>
@@ -95,7 +116,11 @@ const NewPasswordForm = ({
     setError(null);
 
     try {
-      await onSubmit({ password, firstName: firstName || undefined, lastName: lastName || undefined });
+      await onSubmit({
+        password,
+        firstName: firstName || undefined,
+        lastName: lastName || undefined,
+      });
     } catch (caught) {
       setError(messageOf(caught));
       setBusy(false);
@@ -118,18 +143,39 @@ const NewPasswordForm = ({
       )}
       <div className="grid gap-2">
         <Label>{t('new-password', 'New password')}</Label>
-        <Input type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        <Input
+          type="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
         <p className={weak ? 'text-xs text-destructive' : 'text-xs text-muted-foreground'}>
-          {t('password-rule', 'At least 8 characters, with a lower-case and an upper-case letter and a digit.')}
+          {t(
+            'password-rule',
+            'At least 8 characters, with a lower-case and an upper-case letter and a digit.',
+          )}
         </p>
       </div>
       <div className="grid gap-2">
         <Label>{t('repeat-password', 'Repeat it')}</Label>
-        <Input type="password" autoComplete="new-password" value={repeat} onChange={(event) => setRepeat(event.target.value)} />
-        {mismatch && <p className="text-xs text-destructive">{t('password-mismatch', "The passwords don't match")}</p>}
+        <Input
+          type="password"
+          autoComplete="new-password"
+          value={repeat}
+          onChange={(event) => setRepeat(event.target.value)}
+        />
+        {mismatch && (
+          <p className="text-xs text-destructive">
+            {t('password-mismatch', "The passwords don't match")}
+          </p>
+        )}
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" className="h-8" disabled={busy || weak || mismatch || !password || password !== repeat}>
+      <Button
+        type="submit"
+        className="h-8"
+        disabled={busy || weak || mismatch || !password || password !== repeat}
+      >
         {busy ? <Spinner /> : submitLabel}
       </Button>
     </form>
@@ -145,7 +191,10 @@ export const ResetPasswordPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Shell title={t('reset-title', 'Choose a new password')} subtitle={t('reset-subtitle', 'Other devices are signed out when you save it.')}>
+    <Shell
+      title={t('reset-title', 'Choose a new password')}
+      subtitle={t('reset-subtitle', 'Other devices are signed out when you save it.')}
+    >
       <NewPasswordForm
         submitLabel={t('reset-save', 'Save and sign in')}
         onSubmit={async ({ password }) => {
@@ -166,7 +215,11 @@ export const AcceptInvitationPage = () => {
   const token = params.get('token') ?? '';
   const client = useQueryClient();
   const navigate = useNavigate();
-  const info = useQuery({ queryKey: ['invitation', token], queryFn: () => api.auth.invitation({ token }), retry: false });
+  const info = useQuery({
+    queryKey: ['invitation', token],
+    queryFn: () => api.auth.invitation({ token }),
+    retry: false,
+  });
 
   if (info.isPending) {
     return (
@@ -178,7 +231,10 @@ export const AcceptInvitationPage = () => {
 
   if (info.isError) {
     return (
-      <Shell title={t('invite-invalid', 'This invitation link has expired')} subtitle={messageOf(info.error)}>
+      <Shell
+        title={t('invite-invalid', 'This invitation link has expired')}
+        subtitle={messageOf(info.error)}
+      >
         <Link to="/" className="text-center text-sm text-muted-foreground hover:underline">
           {t('back-to-sign-in', 'Back to sign in')}
         </Link>
@@ -191,7 +247,10 @@ export const AcceptInvitationPage = () => {
       title={t('invite-title', 'Join {{organization}}', { organization: info.data.organization })}
       subtitle={
         info.data.inviter
-          ? t('invite-subtitle', '{{inviter}} invited {{email}}.', { inviter: info.data.inviter, email: info.data.email })
+          ? t('invite-subtitle', '{{inviter}} invited {{email}}.', {
+              inviter: info.data.inviter,
+              email: info.data.email,
+            })
           : info.data.email
       }
     >

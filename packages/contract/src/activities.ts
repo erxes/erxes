@@ -16,7 +16,6 @@ export const TimelineTarget = z.union([
 ]);
 export type TimelineTarget = z.infer<typeof TimelineTarget>;
 
-
 /**
  * Activity types core records itself; `data` has a known shape for each.
  * Plugin types (`ecom.order.paid`) carry a `summary` instead.
@@ -96,7 +95,11 @@ export type ActivityInput = z.infer<typeof ActivityInput>;
 /** The customer and company timeline, across core and plugins. */
 export const activitiesContract = {
   list: oc
-    .route({ method: 'GET', path: '/activities', summary: 'A customer’s or company’s timeline, newest first' })
+    .route({
+      method: 'GET',
+      path: '/activities',
+      summary: 'A customer’s or company’s timeline, newest first',
+    })
     .input(
       CursorQuery.extend({
         targetType: TimelineTarget,
@@ -123,19 +126,47 @@ export const activitiesContract = {
     )
     .output(cursorPageOf(Activity)),
   addNote: oc
-    .route({ method: 'POST', path: '/activities/notes', successStatus: 201, summary: 'Add a note to a timeline' })
+    .route({
+      method: 'POST',
+      path: '/activities/notes',
+      successStatus: 201,
+      summary: 'Add a note to a timeline',
+    })
     .input(NoteInput.extend({ targetType: TimelineTarget, targetId: Id }))
     .output(Activity),
   react: oc
-    .route({ method: 'POST', path: '/activities/{id}/reactions', summary: 'Add or take back a reaction (an emoji) on an entry' })
+    .route({
+      method: 'POST',
+      path: '/activities/{id}/reactions',
+      summary: 'Add or take back a reaction (an emoji) on an entry',
+    })
     .input(z.object({ id: Id, emoji: z.string().trim().min(1).max(16) }))
     .output(Activity),
   types: oc
-    .route({ method: 'GET', path: '/activities/types', summary: "Timeline entry types and plugin record timelines: core's and installed plugins'" })
+    .route({
+      method: 'GET',
+      path: '/activities/types',
+      summary: "Timeline entry types and plugin record timelines: core's and installed plugins'",
+    })
     .output(
       z.object({
-        types: z.array(z.object({ type: z.string(), label: z.string(), source: z.string(), icon: z.string().nullable(), color: z.string().nullable() })),
-        timelines: z.array(z.object({ type: z.string(), label: z.string(), source: z.string(), permission: z.string().nullable() })),
+        types: z.array(
+          z.object({
+            type: z.string(),
+            label: z.string(),
+            source: z.string(),
+            icon: z.string().nullable(),
+            color: z.string().nullable(),
+          }),
+        ),
+        timelines: z.array(
+          z.object({
+            type: z.string(),
+            label: z.string(),
+            source: z.string(),
+            permission: z.string().nullable(),
+          }),
+        ),
       }),
     ),
   updateNote: oc
@@ -155,7 +186,11 @@ export const activitiesContract = {
     )
     .output(Activity),
   removeNote: oc
-    .route({ method: 'DELETE', path: '/activities/notes/{id}', summary: 'Delete a note (its author, owners and admins)' })
+    .route({
+      method: 'DELETE',
+      path: '/activities/notes/{id}',
+      summary: 'Delete a note (its author, owners and admins)',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   create: oc
@@ -163,7 +198,8 @@ export const activitiesContract = {
       method: 'POST',
       path: '/activities',
       successStatus: 201,
-      summary: 'Add to a customer’s or company’s timeline (plugins only). 404 when the record does not exist',
+      summary:
+        'Add to a customer’s or company’s timeline (plugins only). 404 when the record does not exist',
     })
     .input(ActivityInput)
     .output(z.object({ activity: Activity, created: z.boolean() })),
@@ -171,7 +207,8 @@ export const activitiesContract = {
     .route({
       method: 'PATCH',
       path: '/activities/{id}',
-      summary: "Change a plugin's own entry (by id, or by its dedupe key with id `key:<dedupeKey>`) — the order was refunded, the line changes",
+      summary:
+        "Change a plugin's own entry (by id, or by its dedupe key with id `key:<dedupeKey>`) — the order was refunded, the line changes",
     })
     .input(
       z.object({
@@ -183,7 +220,11 @@ export const activitiesContract = {
     )
     .output(Activity),
   remove: oc
-    .route({ method: 'DELETE', path: '/activities/{id}', summary: "Remove a plugin's own entry (by id or `key:<dedupeKey>`)" })
+    .route({
+      method: 'DELETE',
+      path: '/activities/{id}',
+      summary: "Remove a plugin's own entry (by id or `key:<dedupeKey>`)",
+    })
     .input(z.object({ id: z.string().min(1).max(260) }))
     .output(z.object({ ok: z.literal(true) })),
 };

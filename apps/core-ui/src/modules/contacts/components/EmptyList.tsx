@@ -11,7 +11,9 @@ export const EmptyList = () => {
         <IconInbox className="size-5" />
       </span>
       <p className="text-sm font-medium">{t('empty-list', 'Nothing here')}</p>
-      <p className="max-w-xs text-xs text-muted-foreground">{t('empty-list-hint', 'Add one, or change the filters and search.')}</p>
+      <p className="max-w-xs text-xs text-muted-foreground">
+        {t('empty-list-hint', 'Add one, or change the filters and search.')}
+      </p>
     </div>
   );
 };

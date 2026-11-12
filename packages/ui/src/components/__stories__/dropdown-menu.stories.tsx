@@ -90,10 +90,7 @@ export const WithCheckboxItems: Story = {
         <DropdownMenu.Content className="w-56">
           <DropdownMenu.Label>Appearance</DropdownMenu.Label>
           <DropdownMenu.Separator />
-          <DropdownMenu.CheckboxItem
-            checked={showStatusBar}
-            onCheckedChange={setShowStatusBar}
-          >
+          <DropdownMenu.CheckboxItem checked={showStatusBar} onCheckedChange={setShowStatusBar}>
             Status Bar
           </DropdownMenu.CheckboxItem>
           <DropdownMenu.CheckboxItem
@@ -103,10 +100,7 @@ export const WithCheckboxItems: Story = {
           >
             Activity Bar
           </DropdownMenu.CheckboxItem>
-          <DropdownMenu.CheckboxItem
-            checked={showPanel}
-            onCheckedChange={setShowPanel}
-          >
+          <DropdownMenu.CheckboxItem checked={showPanel} onCheckedChange={setShowPanel}>
             Panel
           </DropdownMenu.CheckboxItem>
         </DropdownMenu.Content>
@@ -128,9 +122,7 @@ export const WithRadioItems: Story = {
           <DropdownMenu.Separator />
           <DropdownMenu.RadioGroup value={position} onValueChange={setPosition}>
             <DropdownMenu.RadioItem value="top">Top</DropdownMenu.RadioItem>
-            <DropdownMenu.RadioItem value="bottom">
-              Bottom
-            </DropdownMenu.RadioItem>
+            <DropdownMenu.RadioItem value="bottom">Bottom</DropdownMenu.RadioItem>
             <DropdownMenu.RadioItem value="right">Right</DropdownMenu.RadioItem>
           </DropdownMenu.RadioGroup>
         </DropdownMenu.Content>

@@ -30,7 +30,10 @@ export const ContactDescriptionField = ({
     value,
     scope: `side-panel-${customer ? 'customer' : 'company'}.description`,
     onSave: (description: string) =>
-      (customer ? customerEdit : companyEdit).mutate({ id: contentId, description: description || null }),
+      (customer ? customerEdit : companyEdit).mutate({
+        id: contentId,
+        description: description || null,
+      }),
   };
 
   return fullSize ? (
@@ -45,4 +48,8 @@ export const ContactPanelDescription = ({
   loading = false,
   ...props
 }: IContactDescriptionProps & { loading?: boolean }) =>
-  loading ? <Spinner containerClassName="py-12" /> : <ContactDescriptionField {...props} fullSize />;
+  loading ? (
+    <Spinner containerClassName="py-12" />
+  ) : (
+    <ContactDescriptionField {...props} fullSize />
+  );

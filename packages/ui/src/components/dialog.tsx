@@ -6,9 +6,7 @@ import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-export type DialogProps = React.ComponentPropsWithoutRef<
-  typeof DialogPrimitive.Root
->;
+export type DialogProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>;
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
@@ -74,11 +72,7 @@ const DialogCombinedHeader = ({
       <Dialog.Description className="sr-only">{description}</Dialog.Description>
       {!hideClose && (
         <Dialog.Close asChild aria-label={t('close', 'Close')}>
-          <Button
-            variant="secondary"
-            size="icon"
-            className="absolute right-4 top-3"
-          >
+          <Button variant="secondary" size="icon" className="absolute right-4 top-3">
             <IconX />
           </Button>
         </Dialog.Close>
@@ -93,40 +87,21 @@ const DialogContentCombined = React.forwardRef<
     React.ComponentPropsWithoutRef<typeof DialogCombinedHeader>
 >(({ className, children, title, description, hideClose, ...props }, ref) => (
   <DialogContent ref={ref} className={cn(className)} {...props}>
-    <DialogCombinedHeader
-      title={title}
-      description={description}
-      hideClose={hideClose}
-    />
+    <DialogCombinedHeader title={title} description={description} hideClose={hideClose} />
     {children}
   </DialogContent>
 ));
 
 DialogContentCombined.displayName = DialogPrimitive.Content.displayName;
 
-const DialogHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'flex flex-col space-y-1.5 text-center sm:text-left',
-      className,
-    )}
-    {...props}
-  />
+const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props} />
 );
 DialogHeader.displayName = 'DialogHeader';
 
-const DialogFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
+const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      'flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:space-x-2',
-      className,
-    )}
+    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:space-x-2', className)}
     {...props}
   />
 );
@@ -138,10 +113,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn(
-      'text-lg font-semibold leading-none tracking-tight',
-      className,
-    )}
+    className={cn('text-lg font-semibold leading-none tracking-tight', className)}
     {...props}
   />
 ));

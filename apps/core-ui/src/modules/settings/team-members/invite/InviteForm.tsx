@@ -20,7 +20,9 @@ const takenEmails = (error: unknown): string[] => {
   const data: unknown = error.data;
   const emails = data && typeof data === 'object' && 'emails' in data ? data.emails : undefined;
 
-  return Array.isArray(emails) ? emails.filter((email): email is string => typeof email === 'string') : [];
+  return Array.isArray(emails)
+    ? emails.filter((email): email is string => typeof email === 'string')
+    : [];
 };
 
 /** Old core-ui multi-row invite form: a row per member, sent together. */
@@ -44,7 +46,11 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
     }
 
     invite.mutate(
-      data.entries.map(({ email, password, role }) => ({ email, role, password: password || undefined })),
+      data.entries.map(({ email, password, role }) => ({
+        email,
+        role,
+        password: password || undefined,
+      })),
       {
         onSuccess: () => {
           toast({ title: t('invitation-sent'), variant: 'success' });
@@ -59,7 +65,11 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
               setError(`entries.${index}.email`, { message: messageOf(error) });
             }
           });
-          toast({ title: t('failed-to-send-invitation'), description: messageOf(error), variant: 'destructive' });
+          toast({
+            title: t('failed-to-send-invitation'),
+            description: messageOf(error),
+            variant: 'destructive',
+          });
         },
       },
     );
@@ -100,7 +110,11 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
         </ScrollArea>
         <div className="mt-3 w-full flex gap-3 justify-end">
           <Button type="submit" disabled={invite.isPending} className="text-sm">
-            {invite.isPending ? <Spinner size="sm" className="stroke-white" /> : <IconSend size={16} />}
+            {invite.isPending ? (
+              <Spinner size="sm" className="stroke-white" />
+            ) : (
+              <IconSend size={16} />
+            )}
             {t('send-invites')}
           </Button>
         </div>

@@ -2,31 +2,16 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": [
-      "ES2023",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": [],
     "paths": {
-      "~/*": [
-        "./src/*"
-      ],
-      "erxes-ui": [
-        "../../packages/ui/src/index.ts"
-      ],
-      "erxes-ui/*": [
-        "../../packages/ui/src/*"
-      ],
-      "ui-modules": [
-        "../../packages/ui-modules/src/index.tsx"
-      ]
+      "~/*": ["./src/*"],
+      "erxes-ui": ["../../packages/ui/src/index.ts"],
+      "erxes-ui/*": ["../../packages/ui/src/*"],
+      "ui-modules": ["../../packages/ui-modules/src/index.tsx"]
     },
     "noUncheckedIndexedAccess": false,
     "noImplicitOverride": false
   },
-  "include": [
-    "src",
-    "rsbuild.config.ts"
-  ]
+  "include": ["src", "rsbuild.config.ts"]
 }

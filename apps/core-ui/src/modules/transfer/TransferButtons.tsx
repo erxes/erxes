@@ -34,7 +34,11 @@ export const ImportButton = ({ recordType }: { recordType: TransferRecordType })
       void client.invalidateQueries({ queryKey: IMPORTS_KEY });
       navigate(`${CONTACT_SETTINGS.importExport}/${created.id}`);
     } catch (error) {
-      toast({ variant: 'destructive', title: t('upload-failed', 'Could not start the import'), description: uploadErrorMessage(error) });
+      toast({
+        variant: 'destructive',
+        title: t('upload-failed', 'Could not start the import'),
+        description: uploadErrorMessage(error),
+      });
     } finally {
       setBusy(false);
       if (input.current) input.current.value = '';
@@ -59,7 +63,13 @@ export const ImportButton = ({ recordType }: { recordType: TransferRecordType })
 };
 
 /** "Export": what the list shows (its filters and view) to CSV or Excel, with chosen columns, in the background. */
-export const ExportButton = ({ recordType, query }: { recordType: TransferRecordType; query: { tagIds?: string[]; ownerId?: string } }) => {
+export const ExportButton = ({
+  recordType,
+  query,
+}: {
+  recordType: TransferRecordType;
+  query: { tagIds?: string[]; ownerId?: string };
+}) => {
   const { t } = useTranslation('contact', { keyPrefix: 'transfer' });
   const can = useCan();
   const client = useQueryClient();
@@ -76,18 +86,33 @@ export const ExportButton = ({ recordType, query }: { recordType: TransferRecord
       api.transfer.createExport({
         recordType,
         format,
-        columns: columns.filter((column) => selected.includes(column.key)).map((column) => column.key),
-        query: { filter: list.advanced, search: list.search || undefined, tagIds: query.tagIds, ownerId: query.ownerId },
+        columns: columns
+          .filter((column) => selected.includes(column.key))
+          .map((column) => column.key),
+        query: {
+          filter: list.advanced,
+          search: list.search || undefined,
+          tagIds: query.tagIds,
+          ownerId: query.ownerId,
+        },
       }),
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: EXPORTS_KEY });
       setOpen(false);
       toast({
         title: t('export-started', 'Export started'),
-        description: t('export-started-description', "You'll get a notification when the file is ready (Settings › Import & export)."),
+        description: t(
+          'export-started-description',
+          "You'll get a notification when the file is ready (Settings › Import & export).",
+        ),
       });
     },
-    onError: (error) => toast({ variant: 'destructive', title: t('export-failed', 'Could not export'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('export-failed', 'Could not export'),
+        description: messageOf(error),
+      }),
   });
 
   if (!can('contacts.export')) return null;
@@ -103,7 +128,11 @@ export const ExportButton = ({ recordType, query }: { recordType: TransferRecord
       <Dialog.Content className="sm:max-w-lg">
         <Dialog.HeaderCombined
           title={t('export-title', 'Export')}
-          description={filtered ? t('export-filtered', 'The records this list shows now, with its filters.') : t('export-all', 'Every record in this list.')}
+          description={
+            filtered
+              ? t('export-filtered', 'The records this list shows now, with its filters.')
+              : t('export-all', 'Every record in this list.')
+          }
         />
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -121,7 +150,11 @@ export const ExportButton = ({ recordType, query }: { recordType: TransferRecord
           <div className="space-y-1.5">
             <div className="flex items-center">
               <Label className="flex-1">{t('columns', 'Columns')}</Label>
-              <button type="button" className="text-xs text-muted-foreground hover:underline" onClick={() => setChosen(columns.map((column) => column.key))}>
+              <button
+                type="button"
+                className="text-xs text-muted-foreground hover:underline"
+                onClick={() => setChosen(columns.map((column) => column.key))}
+              >
                 {t('all-columns', 'All')}
               </button>
             </div>
@@ -130,7 +163,13 @@ export const ExportButton = ({ recordType, query }: { recordType: TransferRecord
                 <label key={column.key} className="flex items-center gap-2 text-sm">
                   <Checkbox
                     checked={selected.includes(column.key)}
-                    onCheckedChange={(on) => setChosen(on === true ? [...selected, column.key] : selected.filter((key) => key !== column.key))}
+                    onCheckedChange={(on) =>
+                      setChosen(
+                        on === true
+                          ? [...selected, column.key]
+                          : selected.filter((key) => key !== column.key),
+                      )
+                    }
                   />
                   <span className="truncate">{column.label}</span>
                 </label>
@@ -138,10 +177,17 @@ export const ExportButton = ({ recordType, query }: { recordType: TransferRecord
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link to={CONTACT_SETTINGS.importExport} className="text-xs text-muted-foreground hover:underline">
+            <Link
+              to={CONTACT_SETTINGS.importExport}
+              className="text-xs text-muted-foreground hover:underline"
+            >
               {t('history', 'Past exports')}
             </Link>
-            <Button className="ml-auto" disabled={!selected.length || start.isPending} onClick={() => start.mutate()}>
+            <Button
+              className="ml-auto"
+              disabled={!selected.length || start.isPending}
+              onClick={() => start.mutate()}
+            >
               {start.isPending ? <Spinner size="sm" /> : <IconDownload />}
               {t('export-start', 'Export')}
             </Button>

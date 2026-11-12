@@ -12,33 +12,19 @@ const DRAG_END_EVENTS = ['pointerup', 'pointercancel', 'blur'] as const;
 const endDragSelection = () => {
   dragSelection.owner = null;
   document.body.style.userSelect = '';
-  DRAG_END_EVENTS.forEach((event) =>
-    window.removeEventListener(event, endDragSelection),
-  );
+  DRAG_END_EVENTS.forEach((event) => window.removeEventListener(event, endDragSelection));
 };
 
-const startDragSelection = <TData,>(
-  selecting: boolean,
-  row: Row<TData>,
-  table: Table<TData>,
-) => {
+const startDragSelection = <TData,>(selecting: boolean, row: Row<TData>, table: Table<TData>) => {
   const owner = table as unknown as Table<unknown>;
   dragSelection.owner = owner;
   dragSelection.selecting = selecting;
   dragSelection.suppressClickOn = { table: owner, rowId: row.id };
   document.body.style.userSelect = 'none';
-  DRAG_END_EVENTS.forEach((event) =>
-    window.addEventListener(event, endDragSelection),
-  );
+  DRAG_END_EVENTS.forEach((event) => window.addEventListener(event, endDragSelection));
 };
 
-const CheckboxCell = <TData,>({
-  row,
-  table,
-}: {
-  row: Row<TData>;
-  table: Table<TData>;
-}) => (
+const CheckboxCell = <TData,>({ row, table }: { row: Row<TData>; table: Table<TData> }) => (
   <div
     className="flex items-center justify-center size-full"
     onPointerDown={(event) => {
@@ -54,10 +40,7 @@ const CheckboxCell = <TData,>({
       row.toggleSelected(selecting);
     }}
     onPointerEnter={(event) => {
-      if (
-        dragSelection.owner !== (table as unknown as Table<unknown>) ||
-        event.buttons !== 1
-      ) {
+      if (dragSelection.owner !== (table as unknown as Table<unknown>) || event.buttons !== 1) {
         return;
       }
 

@@ -29,19 +29,38 @@ const OPERATOR_LABELS: Record<(typeof CONDITION_OPERATORS)[number], string> = {
 /** Operators that make sense for a field's type. */
 const operatorsFor = (type: string | undefined) => {
   if (type === 'date') {
-    return ['within_last', 'more_than_ago', 'within_next', 'anniversary_within', 'eq', 'gt', 'lt', 'exists', 'not_exists'] as const;
+    return [
+      'within_last',
+      'more_than_ago',
+      'within_next',
+      'anniversary_within',
+      'eq',
+      'gt',
+      'lt',
+      'exists',
+      'not_exists',
+    ] as const;
   }
-  if (type === 'number') return ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'not_exists'] as const;
-  if (type === 'tags' || type === 'list') return ['contains', 'not_contains', 'exists', 'not_exists'] as const;
+  if (type === 'number')
+    return ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'not_exists'] as const;
+  if (type === 'tags' || type === 'list')
+    return ['contains', 'not_contains', 'exists', 'not_exists'] as const;
   if (type === 'boolean') return ['eq', 'neq'] as const;
-  if (type === 'select' || type === 'member') return ['eq', 'neq', 'in', 'not_in', 'exists', 'not_exists'] as const;
+  if (type === 'select' || type === 'member')
+    return ['eq', 'neq', 'in', 'not_in', 'exists', 'not_exists'] as const;
 
   return CONDITION_OPERATORS;
 };
 
 const NO_VALUE = new Set(['exists', 'not_exists']);
 const RELATIVE = new Set(['within_last', 'more_than_ago', 'within_next', 'anniversary_within']);
-const GROUP_LABELS: Record<string, string> = { fields: 'Fields', lead: 'Lead', custom: 'Properties', company: 'Company', activity: 'Activity' };
+const GROUP_LABELS: Record<string, string> = {
+  fields: 'Fields',
+  lead: 'Lead',
+  custom: 'Properties',
+  company: 'Company',
+  activity: 'Activity',
+};
 const LIST_VALUE = new Set(['in', 'not_in']);
 
 const isRule = (rule: ConditionRule | ConditionGroup): rule is ConditionRule => !('match' in rule);
@@ -49,13 +68,27 @@ const isRule = (rule: ConditionRule | ConditionGroup): rule is ConditionRule => 
 const CUSTOM_PATH = '__custom__';
 
 /** A field from the catalog, or any path typed by hand (`event.payload.amount`, `steps.x.output.y`). */
-const PathPicker = ({ value, fields, onChange, disabled }: { value: string; fields: FieldInfo[]; onChange: (path: string) => void; disabled?: boolean }) => {
+const PathPicker = ({
+  value,
+  fields,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  fields: FieldInfo[];
+  onChange: (path: string) => void;
+  disabled?: boolean;
+}) => {
   const { t } = useTranslation('automations');
   const known = fields.some((field) => field.path === value);
 
   return (
     <div className="flex min-w-0 gap-1">
-      <Select value={known ? value : CUSTOM_PATH} onValueChange={(path) => onChange(path === CUSTOM_PATH ? '' : path)} disabled={disabled}>
+      <Select
+        value={known ? value : CUSTOM_PATH}
+        onValueChange={(path) => onChange(path === CUSTOM_PATH ? '' : path)}
+        disabled={disabled}
+      >
         <Select.Trigger className="h-8 w-full min-w-0">
           <Select.Value />
         </Select.Trigger>
@@ -63,7 +96,9 @@ const PathPicker = ({ value, fields, onChange, disabled }: { value: string; fiel
           {fields.some((field) => field.group)
             ? [...new Set(fields.map((field) => field.group ?? 'fields'))].map((group) => (
                 <Select.Group key={group}>
-                  <Select.Label className="text-xs text-muted-foreground">{t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}</Select.Label>
+                  <Select.Label className="text-xs text-muted-foreground">
+                    {t(`field-group.${group}`, GROUP_LABELS[group] ?? group)}
+                  </Select.Label>
                   {fields
                     .filter((field) => (field.group ?? 'fields') === group)
                     .map((field) => (
@@ -78,7 +113,9 @@ const PathPicker = ({ value, fields, onChange, disabled }: { value: string; fiel
                   {field.label}
                 </Select.Item>
               ))}
-          {!fields.some((field) => field.group) && <Select.Item value={CUSTOM_PATH}>{t('custom-path', 'Another value…')}</Select.Item>}
+          {!fields.some((field) => field.group) && (
+            <Select.Item value={CUSTOM_PATH}>{t('custom-path', 'Another value…')}</Select.Item>
+          )}
         </Select.Content>
       </Select>
       {!known && (
@@ -97,7 +134,11 @@ const PathPicker = ({ value, fields, onChange, disabled }: { value: string; fiel
 const useMembers = (enabled: boolean) =>
   useQuery({
     queryKey: ['conditions', 'members'],
-    queryFn: async () => (await api.users.list({ limit: 100 })).data.map((user) => ({ value: user.id, label: user.fullName || user.email })),
+    queryFn: async () =>
+      (await api.users.list({ limit: 100 })).data.map((user) => ({
+        value: user.id,
+        label: user.fullName || user.email,
+      })),
     staleTime: 60_000,
     enabled,
   }).data ?? [];
@@ -105,7 +146,8 @@ const useMembers = (enabled: boolean) =>
 const useTags = (type: 'customer' | 'company', enabled: boolean) =>
   useQuery({
     queryKey: ['conditions', 'tags', type],
-    queryFn: async () => (await api.tags.list({ type })).data.map((tag) => ({ value: tag.id, label: tag.name })),
+    queryFn: async () =>
+      (await api.tags.list({ type })).data.map((tag) => ({ value: tag.id, label: tag.name })),
     staleTime: 60_000,
     enabled,
   }).data ?? [];
@@ -138,12 +180,22 @@ const ValueInput = ({
           min={0}
           disabled={disabled}
           value={current.amount ?? ''}
-          onChange={(event) => onChange({ unit: 'days', ...current, amount: Math.max(0, Number(event.target.value) || 0) })}
+          onChange={(event) =>
+            onChange({
+              unit: 'days',
+              ...current,
+              amount: Math.max(0, Number(event.target.value) || 0),
+            })
+          }
         />
         {rule.op === 'anniversary_within' ? (
           <span className="text-sm text-muted-foreground">{t('days', 'days')}</span>
         ) : (
-          <Select value={current.unit ?? 'days'} disabled={disabled} onValueChange={(unit) => onChange({ amount: 0, ...current, unit })}>
+          <Select
+            value={current.unit ?? 'days'}
+            disabled={disabled}
+            onValueChange={(unit) => onChange({ amount: 0, ...current, unit })}
+          >
             <Select.Trigger className="h-8 w-28 shrink-0">
               <Select.Value />
             </Select.Trigger>
@@ -159,7 +211,8 @@ const ValueInput = ({
   }
 
   if ((field?.type === 'member' || field?.type === 'tags') && !LIST_VALUE.has(rule.op)) {
-    const options = field.type === 'member' ? [{ value: 'me', label: t('me', 'Me') }, ...members] : tags;
+    const options =
+      field.type === 'member' ? [{ value: 'me', label: t('me', 'Me') }, ...members] : tags;
 
     return (
       <Select value={String(rule.value ?? '')} onValueChange={onChange} disabled={disabled}>
@@ -184,14 +237,25 @@ const ValueInput = ({
         disabled={disabled}
         placeholder={t('list-placeholder', 'a, b, c')}
         value={Array.isArray(rule.value) ? rule.value.join(', ') : String(rule.value ?? '')}
-        onChange={(event) => onChange(event.target.value.split(',').map((item) => item.trim()).filter(Boolean))}
+        onChange={(event) =>
+          onChange(
+            event.target.value
+              .split(',')
+              .map((item) => item.trim())
+              .filter(Boolean),
+          )
+        }
       />
     );
   }
 
   if (field?.type === 'boolean') {
     return (
-      <Select value={String(rule.value ?? 'true')} onValueChange={(value) => onChange(value === 'true')} disabled={disabled}>
+      <Select
+        value={String(rule.value ?? 'true')}
+        onValueChange={(value) => onChange(value === 'true')}
+        disabled={disabled}
+      >
         <Select.Trigger className="h-8 w-28 shrink-0">
           <Select.Value />
         </Select.Trigger>
@@ -227,7 +291,9 @@ const ValueInput = ({
       disabled={disabled}
       placeholder={t('value-placeholder', 'value')}
       value={String(rule.value ?? '')}
-      onChange={(event) => onChange(field?.type === 'number' ? Number(event.target.value) : event.target.value)}
+      onChange={(event) =>
+        onChange(field?.type === 'number' ? Number(event.target.value) : event.target.value)
+      }
     />
   );
 };
@@ -251,14 +317,20 @@ const GroupEditor = ({
   subject: 'customer' | 'company' | null;
 }) => {
   const { t } = useTranslation('automations');
-  const update = (index: number, rule: ConditionRule | ConditionGroup) => onChange({ ...group, rules: group.rules.map((item, at) => (at === index ? rule : item)) });
-  const remove = (index: number) => onChange({ ...group, rules: group.rules.filter((_, at) => at !== index) });
+  const update = (index: number, rule: ConditionRule | ConditionGroup) =>
+    onChange({ ...group, rules: group.rules.map((item, at) => (at === index ? rule : item)) });
+  const remove = (index: number) =>
+    onChange({ ...group, rules: group.rules.filter((_, at) => at !== index) });
 
   return (
     <div className={cn('space-y-2', depth > 0 && 'rounded-md border border-dashed p-2')}>
       <div className="flex items-center gap-2 text-sm">
         <span>{t('match-prefix', 'Match')}</span>
-        <Select value={group.match} onValueChange={(match) => onChange({ ...group, match: match as 'all' | 'any' })} disabled={disabled}>
+        <Select
+          value={group.match}
+          onValueChange={(match) => onChange({ ...group, match: match as 'all' | 'any' })}
+          disabled={disabled}
+        >
           <Select.Trigger className="h-8 w-24">
             <Select.Value />
           </Select.Trigger>
@@ -269,7 +341,13 @@ const GroupEditor = ({
         </Select>
         <span>{t('match-suffix', 'of these')}</span>
         {onRemove && (
-          <Button size="sm" variant="ghost" className="ml-auto" disabled={disabled} onClick={onRemove}>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="ml-auto"
+            disabled={disabled}
+            onClick={onRemove}
+          >
             <IconX />
           </Button>
         )}
@@ -277,8 +355,16 @@ const GroupEditor = ({
       {group.rules.map((rule, index) =>
         isRule(rule) ? (
           // Field and operator side by side, remove at the end; the value takes its own full line.
-          <div key={index} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2">
-            <PathPicker value={rule.path} fields={fields} disabled={disabled} onChange={(path) => update(index, { ...rule, path })} />
+          <div
+            key={index}
+            className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2"
+          >
+            <PathPicker
+              value={rule.path}
+              fields={fields}
+              disabled={disabled}
+              onChange={(path) => update(index, { ...rule, path })}
+            />
             <Select
               value={rule.op}
               onValueChange={(op) =>
@@ -286,7 +372,13 @@ const GroupEditor = ({
                   ...rule,
                   op: op as ConditionRule['op'],
                   // A relative date takes { amount, unit }; leaving one drops it.
-                  value: RELATIVE.has(op) ? (RELATIVE.has(rule.op) ? rule.value : { amount: 30, unit: 'days' }) : RELATIVE.has(rule.op) ? undefined : rule.value,
+                  value: RELATIVE.has(op)
+                    ? RELATIVE.has(rule.op)
+                      ? rule.value
+                      : { amount: 30, unit: 'days' }
+                    : RELATIVE.has(rule.op)
+                      ? undefined
+                      : rule.value,
                 })
               }
               disabled={disabled}
@@ -302,7 +394,14 @@ const GroupEditor = ({
                 ))}
               </Select.Content>
             </Select>
-            <Button size="icon" variant="ghost" className="size-8 text-muted-foreground" disabled={disabled} onClick={() => remove(index)} aria-label={t('remove', 'Remove')}>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="size-8 text-muted-foreground"
+              disabled={disabled}
+              onClick={() => remove(index)}
+              aria-label={t('remove', 'Remove')}
+            >
               <IconX className="size-4" />
             </Button>
             {!NO_VALUE.has(rule.op) && (
@@ -335,7 +434,15 @@ const GroupEditor = ({
           size="sm"
           variant="outline"
           disabled={disabled}
-          onClick={() => onChange({ ...group, rules: [...group.rules, { path: fields[3]?.path ?? 'subject.primaryEmail', op: 'exists' }] })}
+          onClick={() =>
+            onChange({
+              ...group,
+              rules: [
+                ...group.rules,
+                { path: fields[3]?.path ?? 'subject.primaryEmail', op: 'exists' },
+              ],
+            })
+          }
         >
           <IconPlus />
           {t('add-condition', 'Add condition')}
@@ -345,7 +452,15 @@ const GroupEditor = ({
             size="sm"
             variant="ghost"
             disabled={disabled}
-            onClick={() => onChange({ ...group, rules: [...group.rules, { match: group.match === 'all' ? 'any' : 'all', rules: [] }] })}
+            onClick={() =>
+              onChange({
+                ...group,
+                rules: [
+                  ...group.rules,
+                  { match: group.match === 'all' ? 'any' : 'all', rules: [] },
+                ],
+              })
+            }
           >
             <IconBraces />
             {t('add-group', 'Add group')}

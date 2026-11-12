@@ -14,8 +14,7 @@ export const buttonVariants = cva(
           'border-primary border relative transition duration-300 ease-in-out before:duration-300 before:ease-in-out before:transtion-opacity rounded shadow-button-primary before:pointer-events-none before:absolute before:inset-0 before:rounded-[0.1875rem] before:bg-linear-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 bg-primary text-primary-foreground after:pointer-events-none after:absolute after:inset-0 after:bg-white/10 after:bottom-1/2 after:rounded-[0.1875rem] after:mix-blend-overlay [text-shadow:0_0.0625rem_0.0625rem_rgb(0_0_0/25%)]',
         destructive:
           'border-destructive border relative transition duration-300 ease-in-out before:duration-300 before:ease-in-out before:transtion-opacity rounded shadow-button-primary before:pointer-events-none before:absolute before:inset-0 before:rounded before:bg-linear-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 bg-destructive text-destructive-foreground after:pointer-events-none after:absolute after:inset-0 after:bg-white/10 after:bottom-1/2 after:rounded after:mix-blend-overlay [text-shadow:0_1px_1px_rgb(0_0_0/25%)]',
-        outline:
-          'shadow-sm bg-background shadow-button-outline hover:bg-accent',
+        outline: 'shadow-sm bg-background shadow-button-outline hover:bg-accent',
         secondary: 'bg-accent text-foreground hover:bg-border',
         ghost: 'hover:bg-accent-foreground/10',
         link: 'bg-background shadow-button-outline hover:bg-accent text-primary',
@@ -35,8 +34,7 @@ export const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 

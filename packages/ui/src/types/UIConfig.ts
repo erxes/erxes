@@ -1,9 +1,5 @@
 import type { Icon } from '@tabler/icons-react';
-import type {
-  ApolloQueryResult,
-  OperationVariables,
-  QueryOptions,
-} from '@apollo/client';
+import type { ApolloQueryResult, OperationVariables, QueryOptions } from '@apollo/client';
 
 export type TSearchPayload = Readonly<Record<string, unknown>>;
 

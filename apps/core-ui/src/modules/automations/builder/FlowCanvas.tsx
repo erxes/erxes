@@ -27,7 +27,10 @@ import { BuilderContext } from './StepSettings';
 import type { FieldInfo } from './useAutomationFields';
 
 /** How each kind of node looks: icon and colour (actions, waits, logic, ends). */
-const LOOK: Record<StepType | 'trigger', { icon: ComponentType<{ className?: string }>; tone: string }> = {
+const LOOK: Record<
+  StepType | 'trigger',
+  { icon: ComponentType<{ className?: string }>; tone: string }
+> = {
   trigger: { icon: IconBolt, tone: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
   action: { icon: IconBolt, tone: 'bg-primary/10 text-primary' },
   delay: { icon: IconClock, tone: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
@@ -38,7 +41,12 @@ const LOOK: Record<StepType | 'trigger', { icon: ComponentType<{ className?: str
   stop: { icon: IconHandStop, tone: 'bg-muted text-muted-foreground' },
 };
 
-const TRIGGER_ICONS = { event: IconBolt, schedule: IconClock, date: IconCalendarEvent, manual: IconHandFinger } as const;
+const TRIGGER_ICONS = {
+  event: IconBolt,
+  schedule: IconClock,
+  date: IconCalendarEvent,
+  manual: IconHandFinger,
+} as const;
 
 const ADD_CHOICES: { type: StepType; hint: string }[] = [
   { type: 'action', hint: 'Do something: email, tag, assign, call a plugin' },
@@ -75,13 +83,26 @@ const AddButton = ({ onAdd, label }: { onAdd: (type: StepType) => void; label?: 
           const Icon = LOOK[type].icon;
 
           return (
-            <DropdownMenu.Item key={type} onClick={() => onAdd(type)} className="items-start gap-3 py-2">
-              <span className={cn('mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md', LOOK[type].tone)}>
+            <DropdownMenu.Item
+              key={type}
+              onClick={() => onAdd(type)}
+              className="items-start gap-3 py-2"
+            >
+              <span
+                className={cn(
+                  'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md',
+                  LOOK[type].tone,
+                )}
+              >
                 <Icon className="size-4" />
               </span>
               <span>
-                <span className="block text-sm font-medium">{t(`step-type.${type}`, STEP_TITLES[type])}</span>
-                <span className="block text-xs text-muted-foreground">{t(`step-hint.${type}`, hint)}</span>
+                <span className="block text-sm font-medium">
+                  {t(`step-type.${type}`, STEP_TITLES[type])}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {t(`step-hint.${type}`, hint)}
+                </span>
               </span>
             </DropdownMenu.Item>
           );
@@ -92,7 +113,13 @@ const AddButton = ({ onAdd, label }: { onAdd: (type: StepType) => void; label?: 
 };
 
 /** A vertical line, with a "+" in the middle when steps may be added here. */
-const Connector = ({ onAdd, height = 'h-10' }: { onAdd?: (type: StepType) => void; height?: string }) => (
+const Connector = ({
+  onAdd,
+  height = 'h-10',
+}: {
+  onAdd?: (type: StepType) => void;
+  height?: string;
+}) => (
   <div className={cn('relative flex w-full shrink-0 items-center justify-center', height)}>
     <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border" />
     {onAdd && <AddButton onAdd={onAdd} />}
@@ -141,7 +168,9 @@ const Node = ({
         <Icon className="size-4" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{kind}</span>
+        <span className="block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          {kind}
+        </span>
         <span className="line-clamp-2 block text-sm font-medium break-words">{title}</span>
         {detail && <span className="block truncate text-xs text-muted-foreground">{detail}</span>}
       </span>
@@ -180,25 +209,50 @@ interface FlowProps {
 }
 
 /** One list of steps, top to bottom; branching steps open into side-by-side arms. */
-const StepList = ({ steps, address, flow, root }: { steps: AutomationStep[]; address: ListAddress; flow: FlowProps; root?: boolean }) => {
+const StepList = ({
+  steps,
+  address,
+  flow,
+  root,
+}: {
+  steps: AutomationStep[];
+  address: ListAddress;
+  flow: FlowProps;
+  root?: boolean;
+}) => {
   const { t } = useTranslation('automations');
   const { events, stats, outputsBefore } = useContext(BuilderContext);
-  const add = (index: number) => (flow.disabled ? undefined : (type: StepType) => flow.onAdd(address, index, type));
+  const add = (index: number) =>
+    flow.disabled ? undefined : (type: StepType) => flow.onAdd(address, index, type);
   const { stages } = useLeadStages();
 
   return (
     <div className="flex flex-col items-center">
       {steps.map((step, index) => {
-        const { title, detail } = describeStep(step, { actions: flow.actions, events, fields: [...flow.fields, ...outputsBefore(step.id)], stages });
+        const { title, detail } = describeStep(step, {
+          actions: flow.actions,
+          events,
+          fields: [...flow.fields, ...outputsBefore(step.id)],
+          stages,
+        });
         const arms = armsOf(step);
         const look = LOOK[step.type];
-        const action = step.type === 'action' ? flow.actions.find((item) => item.type === step.action) : undefined;
+        const action =
+          step.type === 'action'
+            ? flow.actions.find((item) => item.type === step.action)
+            : undefined;
 
         return (
           <Fragment key={step.id}>
             <Connector onAdd={add(index)} />
             <Node
-              kind={step.type === 'action' ? (action && action.source !== 'core' ? action.source : t('step-type.action', 'Action')) : t(`step-type.${step.type}`, STEP_TITLES[step.type])}
+              kind={
+                step.type === 'action'
+                  ? action && action.source !== 'core'
+                    ? action.source
+                    : t('step-type.action', 'Action')
+                  : t(`step-type.${step.type}`, STEP_TITLES[step.type])
+              }
               icon={action ? catalogIcon(action) : look.icon}
               tone={look.tone}
               title={title}
@@ -214,12 +268,30 @@ const StepList = ({ steps, address, flow, root }: { steps: AutomationStep[]; add
                 <div className="flex items-stretch">
                   {arms.map((arm, at) => (
                     <div key={arm.key} className="relative flex flex-col items-center px-4">
-                      <div className="absolute top-0 h-px bg-border" style={{ left: at === 0 ? '50%' : 0, right: at === arms.length - 1 ? '50%' : 0 }} />
+                      <div
+                        className="absolute top-0 h-px bg-border"
+                        style={{
+                          left: at === 0 ? '50%' : 0,
+                          right: at === arms.length - 1 ? '50%' : 0,
+                        }}
+                      />
                       <div className="h-4 w-px shrink-0 bg-border" />
-                      <span className="relative z-10 rounded-full border bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">{arm.label}</span>
-                      <StepList steps={arm.steps} address={{ parentId: step.id, arm: arm.key }} flow={flow} />
+                      <span className="relative z-10 rounded-full border bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                        {arm.label}
+                      </span>
+                      <StepList
+                        steps={arm.steps}
+                        address={{ parentId: step.id, arm: arm.key }}
+                        flow={flow}
+                      />
                       <div className="min-h-4 w-px flex-1 bg-border" />
-                      <div className="absolute bottom-0 h-px bg-border" style={{ left: at === 0 ? '50%' : 0, right: at === arms.length - 1 ? '50%' : 0 }} />
+                      <div
+                        className="absolute bottom-0 h-px bg-border"
+                        style={{
+                          left: at === 0 ? '50%' : 0,
+                          right: at === arms.length - 1 ? '50%' : 0,
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -252,7 +324,12 @@ export const FlowCanvas = ({
   onDeselect,
   ...flow
 }: FlowProps & {
-  trigger: { kind: keyof typeof TRIGGER_ICONS; title: string; detail: string | null; problems?: string[] };
+  trigger: {
+    kind: keyof typeof TRIGGER_ICONS;
+    title: string;
+    detail: string | null;
+    problems?: string[];
+  };
   steps: AutomationStep[];
   zoom: number;
   onZoom: (zoom: number) => void;
@@ -266,12 +343,20 @@ export const FlowCanvas = ({
         className="absolute inset-0 overflow-auto"
         // Only clicks on the empty canvas (menus are portals: their clicks bubble here through React).
         onClick={(event) => {
-          if (event.target instanceof HTMLElement && event.target.closest('[data-canvas-empty]')) onDeselect();
+          if (event.target instanceof HTMLElement && event.target.closest('[data-canvas-empty]'))
+            onDeselect();
         }}
         data-canvas-empty
-        style={{ backgroundImage: 'radial-gradient(var(--color-border) 1px, transparent 1px)', backgroundSize: '18px 18px' }}
+        style={{
+          backgroundImage: 'radial-gradient(var(--color-border) 1px, transparent 1px)',
+          backgroundSize: '18px 18px',
+        }}
       >
-        <div className="flex min-w-max justify-center px-10 py-8" style={{ zoom }} data-canvas-empty>
+        <div
+          className="flex min-w-max justify-center px-10 py-8"
+          style={{ zoom }}
+          data-canvas-empty
+        >
           <div className="flex flex-col items-center">
             <Node
               kind={t('trigger-kind', 'Trigger')}
@@ -288,13 +373,29 @@ export const FlowCanvas = ({
         </div>
       </div>
       <div className="absolute bottom-4 left-4 flex items-center gap-1 rounded-lg border bg-background p-1 shadow-xs">
-        <Button size="icon" variant="ghost" className="size-7" aria-label={t('zoom-out', 'Zoom out')} onClick={() => onZoom(Math.max(0.5, Math.round((zoom - 0.1) * 10) / 10))}>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="size-7"
+          aria-label={t('zoom-out', 'Zoom out')}
+          onClick={() => onZoom(Math.max(0.5, Math.round((zoom - 0.1) * 10) / 10))}
+        >
           <IconZoomOut />
         </Button>
-        <button type="button" className="w-12 text-center text-xs text-muted-foreground" onClick={() => onZoom(1)}>
+        <button
+          type="button"
+          className="w-12 text-center text-xs text-muted-foreground"
+          onClick={() => onZoom(1)}
+        >
           {Math.round(zoom * 100)}%
         </button>
-        <Button size="icon" variant="ghost" className="size-7" aria-label={t('zoom-in', 'Zoom in')} onClick={() => onZoom(Math.min(1.5, Math.round((zoom + 0.1) * 10) / 10))}>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="size-7"
+          aria-label={t('zoom-in', 'Zoom in')}
+          onClick={() => onZoom(Math.min(1.5, Math.round((zoom + 0.1) * 10) / 10))}
+        >
           <IconZoomIn />
         </Button>
       </div>

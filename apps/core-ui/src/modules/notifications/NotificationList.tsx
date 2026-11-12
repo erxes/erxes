@@ -1,5 +1,11 @@
 import type { ContentType, Notification } from '@erxes/core-contract';
-import { IconBell, IconCheck, IconChevronDown, IconExternalLink, IconTrash } from '@tabler/icons-react';
+import {
+  IconBell,
+  IconCheck,
+  IconChevronDown,
+  IconExternalLink,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Badge, Button, cn, Empty, RelativeDateDisplay, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +32,13 @@ const changesOf = (notification: Notification) => {
 };
 
 /** What changed, with names for owners, tags and properties of the record. */
-const NotificationChanges = ({ notification, changes }: { notification: Notification; changes: Changes }) => {
+const NotificationChanges = ({
+  notification,
+  changes,
+}: {
+  notification: Notification;
+  changes: Changes;
+}) => {
   const contentType: ContentType = notification.entity?.type === 'company' ? 'company' : 'customer';
   const lookups = useChangeLookups(contentType, [changes]);
 
@@ -103,17 +115,29 @@ const NotificationItem = ({
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-start gap-2">
-          <p className={cn('flex-1 text-sm leading-5', !notification.read && 'font-medium')}>{title(notification)}</p>
+          <p className={cn('flex-1 text-sm leading-5', !notification.read && 'font-medium')}>
+            {title(notification)}
+          </p>
           {!notification.read && (
-            <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-label={t('unread', 'Unread')} />
+            <span
+              className="mt-1.5 size-2 shrink-0 rounded-full bg-primary"
+              aria-label={t('unread', 'Unread')}
+            />
           )}
         </div>
         {notification.body && (
-          <p className={cn('text-sm text-muted-foreground', compact ? 'line-clamp-2' : 'whitespace-pre-line')}>
+          <p
+            className={cn(
+              'text-sm text-muted-foreground',
+              compact ? 'line-clamp-2' : 'whitespace-pre-line',
+            )}
+          >
             {notification.body}
           </p>
         )}
-        {changes && !compact && expanded && <NotificationChanges notification={notification} changes={changes} />}
+        {changes && !compact && expanded && (
+          <NotificationChanges notification={notification} changes={changes} />
+        )}
         <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           {notification.actor.type === 'user' && (
             <>
@@ -145,15 +169,26 @@ const NotificationItem = ({
                 setExpanded((value) => !value);
               }}
             >
-              {t('changes', { count: Object.keys(changes).length, defaultValue: `${Object.keys(changes).length} changes` })}
-              <IconChevronDown className={cn('size-3 transition-transform', expanded && 'rotate-180')} />
+              {t('changes', {
+                count: Object.keys(changes).length,
+                defaultValue: `${Object.keys(changes).length} changes`,
+              })}
+              <IconChevronDown
+                className={cn('size-3 transition-transform', expanded && 'rotate-180')}
+              />
             </button>
           )}
         </div>
       </div>
       <div className="absolute top-2 right-2 hidden gap-0.5 rounded-md bg-accent group-hover:flex">
         {notification.link && !compact && (
-          <Button size="icon" variant="ghost" className="size-6" aria-label={t('open', 'Open')} onClick={open}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-6"
+            aria-label={t('open', 'Open')}
+            onClick={open}
+          >
             <IconExternalLink className="size-3.5" />
           </Button>
         )}
@@ -161,7 +196,9 @@ const NotificationItem = ({
           size="icon"
           variant="ghost"
           className="size-6"
-          aria-label={notification.read ? t('mark-unread', 'Mark as unread') : t('mark-read', 'Mark as read')}
+          aria-label={
+            notification.read ? t('mark-unread', 'Mark as unread') : t('mark-read', 'Mark as read')
+          }
           onClick={(event) => {
             event.stopPropagation();
             markRead.mutate({ ids: [notification.id], read: !notification.read });
@@ -209,7 +246,9 @@ export const NotificationList = ({
   compact?: boolean;
 }) => {
   const { t, i18n } = useTranslation('common', { keyPrefix: 'notifications' });
-  const members = useMembersById(notifications.map((item) => (item.actor.type === 'user' ? item.actor.id : null)));
+  const members = useMembersById(
+    notifications.map((item) => (item.actor.type === 'user' ? item.actor.id : null)),
+  );
   const inboxBySource = new Map(inboxes.map((inbox) => [inbox.source, inbox]));
 
   if (loading) {
@@ -223,8 +262,14 @@ export const NotificationList = ({
           <Empty.Media variant="icon">
             <IconBell />
           </Empty.Media>
-          <Empty.Title>{unreadOnly ? t('all-read', 'You’re all caught up') : t('empty', 'No notifications yet')}</Empty.Title>
-          <Empty.Description>{t('empty-description', 'Updates from erxes and your plugins show up here.')}</Empty.Description>
+          <Empty.Title>
+            {unreadOnly
+              ? t('all-read', 'You’re all caught up')
+              : t('empty', 'No notifications yet')}
+          </Empty.Title>
+          <Empty.Description>
+            {t('empty-description', 'Updates from erxes and your plugins show up here.')}
+          </Empty.Description>
         </Empty.Header>
       </Empty>
     );

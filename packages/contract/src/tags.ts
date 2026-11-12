@@ -33,7 +33,9 @@ export const tagsContract = {
       successStatus: 201,
       summary: 'Create a tag. 409 TAG_EXISTS when the name is taken for the type',
     })
-    .input(z.object({ type: ContentType, name: z.string().trim().min(1).max(100), colorCode: color }))
+    .input(
+      z.object({ type: ContentType, name: z.string().trim().min(1).max(100), colorCode: color }),
+    )
     .output(Tag),
   update: oc
     .route({ method: 'PATCH', path: '/tags/{id}' })

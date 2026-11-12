@@ -10,9 +10,17 @@ import { useMultiQueryState } from 'erxes-ui';
 
 /** Export with the list's quick filters (the advanced filter and search come from the address). */
 const CompaniesExportButton = () => {
-  const [{ tags, ownerId }] = useMultiQueryState<{ tags: string[]; ownerId: string }>(['tags', 'ownerId']);
+  const [{ tags, ownerId }] = useMultiQueryState<{ tags: string[]; ownerId: string }>([
+    'tags',
+    'ownerId',
+  ]);
 
-  return <ExportButton recordType="company" query={{ tagIds: tags?.length ? tags : undefined, ownerId: ownerId || undefined }} />;
+  return (
+    <ExportButton
+      recordType="company"
+      query={{ tagIds: tags?.length ? tags : undefined, ownerId: ownerId || undefined }}
+    />
+  );
 };
 
 /** Opens a new company in the side panel as a draft; it is created on Save. */

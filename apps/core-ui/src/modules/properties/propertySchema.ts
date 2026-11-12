@@ -48,7 +48,11 @@ export const propertySchema = z
 
         values.forEach((value, index) => {
           if (value && values.indexOf(value) !== index) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Value must be unique', path: [index, 'value'] });
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Value must be unique',
+              path: [index, 'value'],
+            });
           }
         });
       }),

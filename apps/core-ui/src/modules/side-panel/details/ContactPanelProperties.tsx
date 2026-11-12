@@ -56,7 +56,11 @@ const ContactProperties = ({
         >
           <div className="flex h-7 shrink-0 items-center justify-between pr-1">
             <Collapsible.Trigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 gap-1.5 px-1 font-mono text-xs font-medium uppercase">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 gap-1.5 px-1 font-mono text-xs font-medium uppercase"
+              >
                 <Collapsible.TriggerIcon className="size-3" />
                 {group?.name ?? 'Properties'}
               </Button>

@@ -25,7 +25,9 @@ try {
 
 const problems = [];
 
-for (const line of git('diff', '--name-status', `${base}`, 'HEAD', '--', `${DIR}/*.sql`).split('\n').filter(Boolean)) {
+for (const line of git('diff', '--name-status', `${base}`, 'HEAD', '--', `${DIR}/*.sql`)
+  .split('\n')
+  .filter(Boolean)) {
   const [status, file] = line.split('\t');
 
   if (!status.startsWith('A')) problems.push(`${status} ${file}`);
@@ -33,7 +35,9 @@ for (const line of git('diff', '--name-status', `${base}`, 'HEAD', '--', `${DIR}
 
 const journal = (ref) => {
   try {
-    return JSON.parse(git('show', `${ref}:${DIR}/meta/_journal.json`)).entries.map((entry) => entry.tag);
+    return JSON.parse(git('show', `${ref}:${DIR}/meta/_journal.json`)).entries.map(
+      (entry) => entry.tag,
+    );
   } catch {
     return [];
   }

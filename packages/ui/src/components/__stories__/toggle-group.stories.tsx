@@ -38,11 +38,7 @@ export const Default: Story = {
       <ToggleGroup.Item value="italic" aria-label="Toggle italic" {...args}>
         <IconItalic className="h-4 w-4" />
       </ToggleGroup.Item>
-      <ToggleGroup.Item
-        value="strikethrough"
-        aria-label="Toggle strikethrough"
-        {...args}
-      >
+      <ToggleGroup.Item value="strikethrough" aria-label="Toggle strikethrough" {...args}>
         <IconUnderline className="h-4 w-4" />
       </ToggleGroup.Item>
     </ToggleGroup>

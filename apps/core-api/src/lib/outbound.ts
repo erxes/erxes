@@ -45,7 +45,11 @@ export const isPrivateAddress = (address: string) => {
 
   const family = isIP(address);
 
-  return family === 4 ? blocked.check(address, 'ipv4') : family === 6 ? blocked.check(address, 'ipv6') : true;
+  return family === 4
+    ? blocked.check(address, 'ipv4')
+    : family === 6
+      ? blocked.check(address, 'ipv6')
+      : true;
 };
 
 export class OutboundError extends Error {}
@@ -66,14 +70,20 @@ export const assertOutboundUrl = (raw: string) => {
   return url;
 };
 
-const safeLookup: typeof dnsLookup = ((hostname: string, options: object, callback: (...args: unknown[]) => void) => {
+const safeLookup: typeof dnsLookup = ((
+  hostname: string,
+  options: object,
+  callback: (...args: unknown[]) => void,
+) => {
   dnsLookup(hostname, { ...options, all: true }, (error, addresses) => {
     if (error) return callback(error);
 
     const list = addresses as LookupAddress[];
-    const bad = !config.outbound.allowPrivate && list.some((entry) => isPrivateAddress(entry.address));
+    const bad =
+      !config.outbound.allowPrivate && list.some((entry) => isPrivateAddress(entry.address));
 
-    if (bad || !list.length) return callback(new OutboundError(`${hostname} resolves to a private address`));
+    if (bad || !list.length)
+      return callback(new OutboundError(`${hostname} resolves to a private address`));
 
     const all = (options as { all?: boolean }).all;
 
@@ -89,7 +99,12 @@ export interface OutboundResponse {
 }
 
 /** POSTs `body`; resolves with any HTTP answer, rejects on network errors and timeouts. */
-export const postOutbound = (raw: string, body: string, headers: Record<string, string>, timeoutMs = 10_000) =>
+export const postOutbound = (
+  raw: string,
+  body: string,
+  headers: Record<string, string>,
+  timeoutMs = 10_000,
+) =>
   new Promise<OutboundResponse>((resolve, reject) => {
     let url: URL;
 
@@ -119,13 +134,19 @@ export const postOutbound = (raw: string, body: string, headers: Record<string, 
           size += chunk.length;
         });
         res.on('end', () =>
-          resolve({ status: res.statusCode ?? 0, body: Buffer.concat(chunks).toString('utf8').slice(0, 2048), ms: Date.now() - started }),
+          resolve({
+            status: res.statusCode ?? 0,
+            body: Buffer.concat(chunks).toString('utf8').slice(0, 2048),
+            ms: Date.now() - started,
+          }),
         );
         res.on('error', reject);
       },
     );
 
-    req.on('timeout', () => req.destroy(new OutboundError(`no answer within ${timeoutMs / 1000} s`)));
+    req.on('timeout', () =>
+      req.destroy(new OutboundError(`no answer within ${timeoutMs / 1000} s`)),
+    );
     req.on('error', reject);
     req.end(body);
   });

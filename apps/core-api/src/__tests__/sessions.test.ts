@@ -25,7 +25,14 @@ describeWithDb('session security', () => {
     memberId = newId();
     await adminDb()
       .insert(users)
-      .values({ id: memberId, orgId: acme.organization.id, email: 'member@acme.mn', role: 'member', status: 'active', passwordHash: await hashPassword('Member-pass-1') });
+      .values({
+        id: memberId,
+        orgId: acme.organization.id,
+        email: 'member@acme.mn',
+        role: 'member',
+        status: 'active',
+        passwordHash: await hashPassword('Member-pass-1'),
+      });
     server = createApp().listen(0);
     base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
@@ -42,7 +49,10 @@ describeWithDb('session security', () => {
     return {
       status: response.status,
       body: (await response.json()) as { code?: string },
-      cookie: (response.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(';')[0] ?? '',
+      cookie:
+        (response.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(
+          ';',
+        )[0] ?? '',
     };
   };
 
@@ -64,7 +74,9 @@ describeWithDb('session security', () => {
 
     expect(changed.status).toBe(200);
 
-    const renewed = (changed.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(';')[0]!;
+    const renewed = (
+      changed.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? ''
+    ).split(';')[0]!;
 
     expect((await as(phone.cookie, '/auth/me')).status).toBe(401);
     expect((await as(laptop.cookie, '/auth/me')).status).toBe(401);
@@ -75,12 +87,23 @@ describeWithDb('session security', () => {
     const owner = await signIn('owner@acme.mn', 'Owner-pass-1');
     let member = await signIn('member@acme.mn', 'Member-pass-2');
 
-    expect((await as(owner.cookie, `/users/${memberId}/password`, { method: 'POST', body: { password: 'Member-pass-3' } })).status).toBe(200);
+    expect(
+      (
+        await as(owner.cookie, `/users/${memberId}/password`, {
+          method: 'POST',
+          body: { password: 'Member-pass-3' },
+        })
+      ).status,
+    ).toBe(200);
     expect((await as(member.cookie, '/auth/me')).status).toBe(401);
 
     member = await signIn('member@acme.mn', 'Member-pass-3');
-    expect((await as(owner.cookie, `/users/${memberId}/disable`, { method: 'POST' })).status).toBe(200);
-    expect((await as(owner.cookie, `/users/${memberId}/enable`, { method: 'POST' })).status).toBe(200);
+    expect((await as(owner.cookie, `/users/${memberId}/disable`, { method: 'POST' })).status).toBe(
+      200,
+    );
+    expect((await as(owner.cookie, `/users/${memberId}/enable`, { method: 'POST' })).status).toBe(
+      200,
+    );
     expect((await as(member.cookie, '/auth/me')).status).toBe(401);
   });
 
@@ -88,7 +111,9 @@ describeWithDb('session security', () => {
     const first = await signIn('member@acme.mn', 'Member-pass-3');
     const second = await signIn('member@acme.mn', 'Member-pass-3');
 
-    expect((await as(first.cookie, '/auth/sign-out-everywhere', { method: 'POST' })).status).toBe(200);
+    expect((await as(first.cookie, '/auth/sign-out-everywhere', { method: 'POST' })).status).toBe(
+      200,
+    );
     expect((await as(second.cookie, '/auth/me')).status).toBe(401);
     expect((await as(first.cookie, '/auth/me')).status).toBe(401);
   });
@@ -97,12 +122,22 @@ describeWithDb('session security', () => {
     const owner = await signIn('owner@acme.mn', 'Owner-pass-1');
 
     for (const birthDate of ['2026-99-99', '2026-02-30']) {
-      const response = await as(owner.cookie, `/users/${memberId}`, { method: 'PATCH', body: { birthDate } });
+      const response = await as(owner.cookie, `/users/${memberId}`, {
+        method: 'PATCH',
+        body: { birthDate },
+      });
 
       expect(response.status).toBe(400);
     }
 
-    expect((await as(owner.cookie, `/users/${memberId}`, { method: 'PATCH', body: { birthDate: '2024-02-29' } })).status).toBe(200);
+    expect(
+      (
+        await as(owner.cookie, `/users/${memberId}`, {
+          method: 'PATCH',
+          body: { birthDate: '2024-02-29' },
+        })
+      ).status,
+    ).toBe(200);
   });
 
   it('locks an account after 10 failed sign-ins in 15 minutes', async () => {

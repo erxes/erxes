@@ -120,17 +120,14 @@ export const useUpload = () => {
       // const fileUploadMaxSize = REACT_APP_FILE_UPLOAD_MAX_SIZE || 20 * 1024 * 1024;
       const fileUploadMaxSize: number =
         Number.parseInt(
-          localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') ||
-            '',
+          localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') || '',
           10,
         ) || 20 * 1024 * 1024;
 
       // skip file that size is more than REACT_APP_FILE_UPLOAD_MAX_SIZE
       if (fileInfo.size > fileUploadMaxSize) {
         toast({
-          description: `Your file ${
-            fileInfo.name
-          } size is too large. Upload files less than ${
+          description: `Your file ${fileInfo.name} size is too large. Upload files less than ${
             fileUploadMaxSize / 1024 / 1024
           }MB of size.`,
         });
@@ -148,15 +145,12 @@ export const useUpload = () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        fetch(
-          `${url}?kind=${kind}&maxHeight=${maxHeight}&maxWidth=${maxWidth}`,
-          {
-            method: 'post',
-            body: formData,
-            credentials: 'include',
-            ...(userId ? { headers: { userId } } : {}),
-          },
-        )
+        fetch(`${url}?kind=${kind}&maxHeight=${maxHeight}&maxWidth=${maxWidth}`, {
+          method: 'post',
+          body: formData,
+          credentials: 'include',
+          ...(userId ? { headers: { userId } } : {}),
+        })
           .then((response: any) => {
             response[responseType]()
               .then((text: unknown) => {
@@ -167,8 +161,7 @@ export const useUpload = () => {
 
                   return toast({
                     title: 'Error uploading file',
-                    description:
-                      'Failed to upload file please check your file upload config',
+                    description: 'Failed to upload file please check your file upload config',
                     variant: 'destructive',
                   });
                 }

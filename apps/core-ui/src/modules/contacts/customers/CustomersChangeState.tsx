@@ -24,7 +24,9 @@ export const CustomersChangeState = ({ customers }: { customers: Customer[] }) =
     table.setRowSelection({});
 
     try {
-      await Promise.all(customers.map((customer) => api.customers.update({ id: customer.id, state: value })));
+      await Promise.all(
+        customers.map((customer) => api.customers.update({ id: customer.id, state: value })),
+      );
 
       const state = LIFECYCLE_STATES.find((item) => item.value === value);
 

@@ -70,7 +70,9 @@ export const PropertyEdit = ({ contentType }: { contentType: ContentType }) => {
             id: field.id,
             label: data.name,
             type: data.type,
-            ...(hasOptions(data.type) ? { options: (data.options ?? []).map((option) => option.value) } : {}),
+            ...(hasOptions(data.type)
+              ? { options: (data.options ?? []).map((option) => option.value) }
+              : {}),
             groupId: data.groupId,
             code: data.code,
             description: data.description || null,

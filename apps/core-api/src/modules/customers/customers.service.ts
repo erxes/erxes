@@ -1,6 +1,14 @@
 import type { CursorQuery, CustomerInput, CustomerSex } from '@erxes/core-contract';
 import type { CustomValue } from '@erxes/core-db';
-import { companies, customerCompanies, customers, Db, newId, users, withTransaction } from '@erxes/core-db';
+import {
+  companies,
+  customerCompanies,
+  customers,
+  Db,
+  newId,
+  users,
+  withTransaction,
+} from '@erxes/core-db';
 import { and, arrayContains, asc, eq, getTableColumns, inArray, or, SQL, sql } from 'drizzle-orm';
 import { type Actor, requirePermission, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
@@ -19,7 +27,13 @@ import {
 } from '~/modules/activities/contactHistory';
 import { applyCustomFields } from '~/modules/fields/fields.service';
 import { customFieldsColumn, saveCustomFields } from '~/modules/fields/fieldValues';
-import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
+import {
+  changeTags,
+  copyTags,
+  hasAnyTag,
+  setRecordTags,
+  tagIdsColumn,
+} from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 import { lockKey, lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
@@ -27,7 +41,10 @@ import { moveToTrash } from '~/modules/trash/trash.service';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/leads.service';
 
-type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText'> & { tagIds: string[]; customFields: Record<string, CustomValue> };
+type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText'> & {
+  tagIds: string[];
+  customFields: Record<string, CustomValue>;
+};
 type State = CustomerRow['state'];
 
 export const toCustomerDto = (row: CustomerRow) => ({
@@ -68,7 +85,11 @@ const selectCustomers = (client: Db) => {
   const { searchText: _searchText, ...columns } = getTableColumns(customers);
 
   return client
-    .select({ ...columns, tagIds: tagIdsColumn('customer', customers.id), customFields: customFieldsColumn('customer', customers.id) })
+    .select({
+      ...columns,
+      tagIds: tagIdsColumn('customer', customers.id),
+      customFields: customFieldsColumn('customer', customers.id),
+    })
     .from(customers);
 };
 
@@ -77,7 +98,10 @@ const findCustomer = async (client: Db, orgId: string, id: string, followMerges 
   const [row] = await selectCustomers(client)
     .where(
       followMerges
-        ? and(eq(customers.orgId, orgId), or(eq(customers.id, id), arrayContains(customers.mergedIds, [id])))
+        ? and(
+            eq(customers.orgId, orgId),
+            or(eq(customers.id, id), arrayContains(customers.mergedIds, [id])),
+          )
         : inOrg(orgId, id),
     )
     .orderBy(sql`${customers.id} = ${id} DESC`)
@@ -102,7 +126,11 @@ const assertOwner = async (client: Db, orgId: string, ownerId: string | null | u
     .limit(1);
 
   if (!owner) {
-    throw new HttpError(400, 'INVALID_OWNER', 'The owner is not a team member of this organisation');
+    throw new HttpError(
+      400,
+      'INVALID_OWNER',
+      'The owner is not a team member of this organisation',
+    );
   }
 };
 
@@ -134,7 +162,9 @@ const conflictFrom = async (
   throw new HttpError(
     409,
     'CUSTOMER_EXISTS',
-    byEmail ? 'A customer with this email already exists' : 'A customer with this phone already exists',
+    byEmail
+      ? 'A customer with this email already exists'
+      : 'A customer with this phone already exists',
     { field: byEmail ? 'primaryEmail' : 'primaryPhone', id: existing?.id ?? null },
   );
 };
@@ -157,7 +187,14 @@ export const customerListWhere = async (
   const filters: (SQL | undefined)[] = [];
 
   // Advanced filter (views): leads list is customers with the lead state.
-  filters.push(await compileRecordFilter(client, actor, query.state === 'lead' ? 'lead' : 'customer', query.filter));
+  filters.push(
+    await compileRecordFilter(
+      client,
+      actor,
+      query.state === 'lead' ? 'lead' : 'customer',
+      query.filter,
+    ),
+  );
 
   if (query.state) {
     filters.push(eq(customers.state, query.state));
@@ -183,7 +220,10 @@ export const customerListWhere = async (
           .select({ id: customerCompanies.customerId })
           .from(customerCompanies)
           .where(
-            and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, query.companyId)),
+            and(
+              eq(customerCompanies.orgId, actor.orgId),
+              eq(customerCompanies.companyId, query.companyId),
+            ),
           ),
       ),
     );
@@ -224,7 +264,11 @@ export const listCustomers = async (
       },
       await customerListWhere(client, actor, query),
       query,
-      (where, orderBy, limit) => selectCustomers(client).where(where).orderBy(...orderBy).limit(limit),
+      (where, orderBy, limit) =>
+        selectCustomers(client)
+          .where(where)
+          .orderBy(...orderBy)
+          .limit(limit),
     ),
   );
 
@@ -236,7 +280,19 @@ export const getCustomer = async (client: Db, actor: Actor, id: string) =>
 
 /** The plain columns of an input (contacts, tags and custom fields are resolved separately). */
 const scalarFields = (input: CustomerInput) => {
-  const { primaryEmail, emails, primaryPhone, phones, tagIds, customFields, leadStageId, disqualifyReason, source, sourceDetails, ...rest } = input;
+  const {
+    primaryEmail,
+    emails,
+    primaryPhone,
+    phones,
+    tagIds,
+    customFields,
+    leadStageId,
+    disqualifyReason,
+    source,
+    sourceDetails,
+    ...rest
+  } = input;
 
   return rest;
 };
@@ -248,8 +304,17 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'customer', input.tagIds ?? []);
-  const customFields = await applyCustomFields(client, actor.orgId, 'customer', {}, input.customFields);
-  const lead = await planLeadOnCreate(client, userCaller(actor), { ...input, state: input.state ?? 'customer' });
+  const customFields = await applyCustomFields(
+    client,
+    actor.orgId,
+    'customer',
+    {},
+    input.customFields,
+  );
+  const lead = await planLeadOnCreate(client, userCaller(actor), {
+    ...input,
+    state: input.state ?? 'customer',
+  });
 
   try {
     const id = await client.transaction(async (tx) => {
@@ -269,7 +334,14 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
         })
         .returning({ id: customers.id });
 
-      await saveCustomFields(tx, actor.orgId, 'customer', row!.id, customFields, Object.keys(customFields));
+      await saveCustomFields(
+        tx,
+        actor.orgId,
+        'customer',
+        row!.id,
+        customFields,
+        Object.keys(customFields),
+      );
       await recordLeadSteps(tx, userCaller(actor), 'customer', row!.id, lead.steps);
       await setRecordTags(tx, actor.orgId, 'customer', row!.id, tagIds);
       await contactCreated(tx, actor, 'customer', await findCustomer(tx, actor.orgId, row!.id));
@@ -286,7 +358,12 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
   }
 };
 
-export const updateCustomer = async (client: Db, actor: Actor, id: string, input: CustomerInput) => {
+export const updateCustomer = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  input: CustomerInput,
+) => {
   // Custom fields are merged from what is stored: concurrent edits wait, then build on each other.
   await lockRows(client, 'core_customers', actor.orgId, [id]);
 
@@ -295,7 +372,10 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
   await assertOwner(client, actor.orgId, input.ownerId);
 
   const changes: Partial<typeof customers.$inferInsert> = {};
-  const tagIds = input.tagIds === undefined ? undefined : await checkTagIds(client, actor.orgId, 'customer', input.tagIds);
+  const tagIds =
+    input.tagIds === undefined
+      ? undefined
+      : await checkTagIds(client, actor.orgId, 'customer', input.tagIds);
 
   if (input.primaryEmail !== undefined || input.emails !== undefined) {
     const email = resolveContacts(
@@ -322,7 +402,13 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
   const customFields =
     input.customFields === undefined
       ? undefined
-      : await applyCustomFields(client, actor.orgId, 'customer', current.customFields, input.customFields);
+      : await applyCustomFields(
+          client,
+          actor.orgId,
+          'customer',
+          current.customFields,
+          input.customFields,
+        );
   const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
 
   try {
@@ -340,7 +426,14 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
       await recordLeadSteps(tx, userCaller(actor), 'customer', id, lead.steps);
 
       if (customFields) {
-        await saveCustomFields(tx, actor.orgId, 'customer', id, customFields, Object.keys(input.customFields ?? {}));
+        await saveCustomFields(
+          tx,
+          actor.orgId,
+          'customer',
+          id,
+          customFields,
+          Object.keys(input.customFields ?? {}),
+        );
       }
 
       if (tagIds) {
@@ -359,13 +452,19 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
   }
 };
 
-export const removeCustomers = async (client: Db, actor: Actor, ids: string[], options: { undoingImport?: boolean } = {}) => {
+export const removeCustomers = async (
+  client: Db,
+  actor: Actor,
+  ids: string[],
+  options: { undoingImport?: boolean } = {},
+) => {
   // Undoing an import removes only what it created (its own permission is checked there).
   if (!options.undoingImport) requirePermission(actor, 'contacts.delete');
 
   const removed = await client.transaction(async (tx) => {
     // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
-    if (!options.undoingImport) await guardDeletions(tx, userCaller(actor), ids.length, 'customers', actor.role);
+    if (!options.undoingImport)
+      await guardDeletions(tx, userCaller(actor), ids.length, 'customers', actor.role);
     await moveToTrash(tx, userCaller(actor), 'customer', ids);
 
     const rows = await tx
@@ -390,9 +489,18 @@ export const tagCustomers = async (
   const add = await checkTagIds(client, actor.orgId, 'customer', input.add);
   const updated = await client.transaction(async (tx) => {
     const before = await tagsByCustomer(tx, actor.orgId, input.ids);
-    const count = await changeTags(tx, actor.orgId, 'customer', input.ids, { add, remove: unique(input.remove) });
+    const count = await changeTags(tx, actor.orgId, 'customer', input.ids, {
+      add,
+      remove: unique(input.remove),
+    });
 
-    await contactsTagged(tx, actor, 'customer', before, await tagsByCustomer(tx, actor.orgId, input.ids));
+    await contactsTagged(
+      tx,
+      actor,
+      'customer',
+      before,
+      await tagsByCustomer(tx, actor.orgId, input.ids),
+    );
 
     return count;
   });
@@ -449,7 +557,9 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
     }
 
     const keep = rows.find((row) => row.id === input.keepId)!;
-    const others = ids.filter((id) => id !== keep.id).map((id) => rows.find((row) => row.id === id)!);
+    const others = ids
+      .filter((id) => id !== keep.id)
+      .map((id) => rows.find((row) => row.id === id)!);
     const otherIds = others.map((other) => other.id);
     const email = combineContacts(
       { primary: keep.primaryEmail, list: keep.emails },
@@ -472,7 +582,9 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
     `);
     await copyTags(tx, actor.orgId, 'customer', otherIds, keep.id);
     // Deleting first frees their primary email and phone for the kept customer.
-    await tx.delete(customers).where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, otherIds)));
+    await tx
+      .delete(customers)
+      .where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, otherIds)));
 
     await tx
       .update(customers)
@@ -492,7 +604,10 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
       })
       .where(inOrg(actor.orgId, keep.id));
 
-    const combined = combineCustomFields(keep.customFields, others.map((other) => other.customFields));
+    const combined = combineCustomFields(
+      keep.customFields,
+      others.map((other) => other.customFields),
+    );
 
     await saveCustomFields(tx, actor.orgId, 'customer', keep.id, combined, Object.keys(combined));
 
@@ -517,7 +632,12 @@ const findCompanyId = async (client: Db, orgId: string, companyId: string) => {
 };
 
 /** A link as the API shows it. */
-export const linkDto = (row: { role: string | null; isPrimaryContact: boolean; endedAt: Date | null; createdAt: Date }) => ({
+export const linkDto = (row: {
+  role: string | null;
+  isPrimaryContact: boolean;
+  endedAt: Date | null;
+  createdAt: Date;
+}) => ({
   role: row.role,
   isPrimaryContact: row.isPrimaryContact,
   endedAt: row.endedAt?.toISOString() ?? null,
@@ -555,7 +675,10 @@ export const customerCompaniesOf = async (client: Db, actor: Actor, id: string) 
     .orderBy(...linkOrder);
 
   return {
-    data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...company }) => ({ ...company, link: linkDto({ role, isPrimaryContact, endedAt, createdAt }) })),
+    data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...company }) => ({
+      ...company,
+      link: linkDto({ role, isPrimaryContact, endedAt, createdAt }),
+    })),
   };
 };
 
@@ -569,7 +692,13 @@ export interface LinkInput {
  * Links a person and a company, or changes their link: role, main contact
  * (one per company: taking it moves it), left / back. Same from either side.
  */
-export const linkCustomerCompany = async (client: Db, actor: Actor, id: string, companyId: string, input: LinkInput = {}) => {
+export const linkCustomerCompany = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  companyId: string,
+  input: LinkInput = {},
+) => {
   await findCustomer(client, actor.orgId, id);
   await findCompanyId(client, actor.orgId, companyId);
 
@@ -612,7 +741,12 @@ export const linkCustomerCompany = async (client: Db, actor: Actor, id: string, 
   return { ok: true as const };
 };
 
-export const unlinkCustomerCompany = async (client: Db, actor: Actor, id: string, companyId: string) => {
+export const unlinkCustomerCompany = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  companyId: string,
+) => {
   await findCustomer(client, actor.orgId, id);
   await client.transaction(async (tx) => {
     const unlinked = await tx
@@ -655,7 +789,9 @@ export const findOrCreateCustomer = async (
   const email = input.primaryEmail ? normalizeEmail(input.primaryEmail) : null;
   const phone = input.primaryPhone ? normalizePhone(input.primaryPhone) : null;
 
-  for (const key of [email && `email:${email}`, phone && `phone:${phone}`].filter(Boolean) as string[]) {
+  for (const key of [email && `email:${email}`, phone && `phone:${phone}`].filter(
+    Boolean,
+  ) as string[]) {
     await lockKey(client, `customer:${caller.orgId}:${key}`);
   }
 
@@ -666,17 +802,29 @@ export const findOrCreateCustomer = async (
       and(
         eq(customers.orgId, caller.orgId),
         or(
-          email ? or(eq(customers.primaryEmail, email), arrayContains(customers.emails, [email])) : undefined,
-          phone ? or(eq(customers.primaryPhone, phone), arrayContains(customers.phones, [phone])) : undefined,
+          email
+            ? or(eq(customers.primaryEmail, email), arrayContains(customers.emails, [email]))
+            : undefined,
+          phone
+            ? or(eq(customers.primaryPhone, phone), arrayContains(customers.phones, [phone]))
+            : undefined,
         ),
       ),
     )
     .orderBy(sql`${customers.primaryEmail} = ${email ?? ''} DESC`)
     .limit(1);
 
-  if (found) return { customer: toCustomerDto(await findCustomer(client, caller.orgId, found.id)), created: false };
+  if (found)
+    return {
+      customer: toCustomerDto(await findCustomer(client, caller.orgId, found.id)),
+      created: false,
+    };
 
-  const lead = await planLeadOnCreate(client, caller, { state: input.state ?? 'customer', source: input.source, sourceDetails: input.sourceDetails });
+  const lead = await planLeadOnCreate(client, caller, {
+    state: input.state ?? 'customer',
+    source: input.source,
+    sourceDetails: input.sourceDetails,
+  });
   const id = await client.transaction(async (tx) => {
     const [row] = await tx
       .insert(customers)

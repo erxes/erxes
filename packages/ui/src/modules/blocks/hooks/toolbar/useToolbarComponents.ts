@@ -6,9 +6,7 @@ import { ToolbarMenuDropdown } from 'erxes-ui/modules/blocks/components/toolbar/
 import { ToolbarFormattingButton } from 'erxes-ui/modules/blocks/components/toolbar/buttons/ToolbarFormattingButton';
 import { ToolbarRoot } from 'erxes-ui/modules/blocks/components/toolbar/ToolbarRoot';
 
-export const useToolbarComponents = (): ReturnType<
-  typeof useComponentsContext
-> => {
+export const useToolbarComponents = (): ReturnType<typeof useComponentsContext> => {
   const Components = useComponentsContext();
   return useMemo(
     () =>

@@ -1,5 +1,17 @@
 import type { Export, TransferRecordType } from '@erxes/core-contract';
-import { companies, companyTags, customerCompanies, customers, customerTags, type Db, exports, newId, tags, type Transaction, users } from '@erxes/core-db';
+import {
+  companies,
+  companyTags,
+  customerCompanies,
+  customers,
+  customerTags,
+  type Db,
+  exports,
+  newId,
+  tags,
+  type Transaction,
+  users,
+} from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, gt, inArray, sql } from 'drizzle-orm';
 import { stringify } from 'csv-stringify/sync';
 import writeXlsxFile from 'write-excel-file/node';
@@ -36,7 +48,14 @@ const toDto = (row: ExportRow): Export => ({
 });
 
 export const listExports = async (client: Db, actor: Actor) => ({
-  data: (await client.select().from(exports).where(eq(exports.orgId, actor.orgId)).orderBy(sql`${exports.createdAt} desc`).limit(50)).map(toDto),
+  data: (
+    await client
+      .select()
+      .from(exports)
+      .where(eq(exports.orgId, actor.orgId))
+      .orderBy(sql`${exports.createdAt} desc`)
+      .limit(50)
+  ).map(toDto),
 });
 
 type Query = { filter?: unknown; search?: string; tagIds?: string[]; ownerId?: string };
@@ -52,17 +71,27 @@ const whereOf = (client: Db, actor: Actor, recordType: TransferRecordType, query
 
   return recordType === 'company'
     ? companyListWhere(client, actor, common)
-    : customerListWhere(client, actor, { ...common, state: recordType === 'lead' ? 'lead' : 'customer' });
+    : customerListWhere(client, actor, {
+        ...common,
+        state: recordType === 'lead' ? 'lead' : 'customer',
+      });
 };
 
 /** Starts an export of a list in the background; the member is told when the file is ready. */
 export const createExport = async (
   client: Db,
   actor: Actor,
-  input: { recordType: TransferRecordType; format: 'csv' | 'xlsx'; columns: string[]; query: Query },
+  input: {
+    recordType: TransferRecordType;
+    format: 'csv' | 'xlsx';
+    columns: string[];
+    query: Query;
+  },
 ) => {
   const available = await transferColumns(client, actor.orgId, input.recordType);
-  const unknown = input.columns.find((key) => !available.some((item) => item.key === key && item.exportable));
+  const unknown = input.columns.find(
+    (key) => !available.some((item) => item.key === key && item.exportable),
+  );
 
   if (unknown) throw new HttpError(400, 'INVALID_COLUMNS', `Unknown column: ${unknown}`);
 
@@ -82,7 +111,12 @@ export const createExport = async (
     })
     .returning();
 
-  await enqueueJob(client, { orgId: actor.orgId, queue: 'export.run', payload: { exportId: row!.id }, maxAttempts: 3 });
+  await enqueueJob(client, {
+    orgId: actor.orgId,
+    queue: 'export.run',
+    payload: { exportId: row!.id },
+    maxAttempts: 3,
+  });
   // Contacts leaving erxes: always in the audit log.
   await recordAudit(client, userCaller(actor), {
     action: 'contacts.exported',
@@ -101,23 +135,35 @@ const defuse = (value: string) => (/^[=+\-@\t\r]/.test(value) ? `'${value}` : va
 type Cell = string | number | Date | null;
 
 /** The cells of one page of records, in the chosen columns' order. */
-const pageCells = async (tx: Db, orgId: string, recordType: TransferRecordType, rows: Record<string, unknown>[], keys: string[]): Promise<Cell[][]> => {
+const pageCells = async (
+  tx: Db,
+  orgId: string,
+  recordType: TransferRecordType,
+  rows: Record<string, unknown>[],
+  keys: string[],
+): Promise<Cell[][]> => {
   const isCompany = recordType === 'company';
   const ids = rows.map((row) => String(row.id));
   const links = isCompany ? companyTags : customerTags;
-  const tagRows = keys.includes('tags') && ids.length
-    ? await tx
-        .select({ recordId: links.recordId, name: tags.name })
-        .from(links)
-        .innerJoin(tags, eq(tags.id, links.tagId))
-        .where(and(eq(links.orgId, orgId), inArray(links.recordId, ids)))
-    : [];
-  const ownerIds = [...new Set(rows.map((row) => row.ownerId).filter((id): id is string => typeof id === 'string'))];
+  const tagRows =
+    keys.includes('tags') && ids.length
+      ? await tx
+          .select({ recordId: links.recordId, name: tags.name })
+          .from(links)
+          .innerJoin(tags, eq(tags.id, links.tagId))
+          .where(and(eq(links.orgId, orgId), inArray(links.recordId, ids)))
+      : [];
+  const ownerIds = [
+    ...new Set(rows.map((row) => row.ownerId).filter((id): id is string => typeof id === 'string')),
+  ];
   const owners = new Map(
     keys.includes('owner') && ownerIds.length
-      ? (await tx.select({ id: users.id, email: users.email }).from(users).where(and(eq(users.orgId, orgId), inArray(users.id, ownerIds)))).map(
-          (user) => [user.id, user.email] as const,
-        )
+      ? (
+          await tx
+            .select({ id: users.id, email: users.email })
+            .from(users)
+            .where(and(eq(users.orgId, orgId), inArray(users.id, ownerIds)))
+        ).map((user) => [user.id, user.email] as const)
       : [],
   );
   const companyRows =
@@ -126,7 +172,9 @@ const pageCells = async (tx: Db, orgId: string, recordType: TransferRecordType, 
           .select({ customerId: customerCompanies.customerId, name: companies.primaryName })
           .from(customerCompanies)
           .innerJoin(companies, eq(companies.id, customerCompanies.companyId))
-          .where(and(eq(customerCompanies.orgId, orgId), inArray(customerCompanies.customerId, ids)))
+          .where(
+            and(eq(customerCompanies.orgId, orgId), inArray(customerCompanies.customerId, ids)),
+          )
       : [];
   const customerCounts = new Map(
     isCompany && keys.includes('customerCount') && ids.length
@@ -134,7 +182,9 @@ const pageCells = async (tx: Db, orgId: string, recordType: TransferRecordType, 
           await tx
             .select({ companyId: customerCompanies.companyId, count: sql<number>`count(*)::int` })
             .from(customerCompanies)
-            .where(and(eq(customerCompanies.orgId, orgId), inArray(customerCompanies.companyId, ids)))
+            .where(
+              and(eq(customerCompanies.orgId, orgId), inArray(customerCompanies.companyId, ids)),
+            )
             .groupBy(customerCompanies.companyId)
         ).map((item) => [item.companyId, item.count] as const)
       : [],
@@ -149,12 +199,25 @@ const pageCells = async (tx: Db, orgId: string, recordType: TransferRecordType, 
     keys.map((key): Cell => {
       const id = String(row.id);
 
-      if (key.startsWith('customFields.')) return customCell((row.customFields as Record<string, unknown>)[key.slice('customFields.'.length)]);
-      if (key === 'tags') return listOf(tagRows.map((item) => ({ key: item.recordId, name: item.name })), id);
-      if (key === 'owner') return typeof row.ownerId === 'string' ? (owners.get(row.ownerId) ?? '') : '';
-      if (key === 'companies') return listOf(companyRows.map((item) => ({ key: item.customerId, name: item.name })), id);
+      if (key.startsWith('customFields.'))
+        return customCell(
+          (row.customFields as Record<string, unknown>)[key.slice('customFields.'.length)],
+        );
+      if (key === 'tags')
+        return listOf(
+          tagRows.map((item) => ({ key: item.recordId, name: item.name })),
+          id,
+        );
+      if (key === 'owner')
+        return typeof row.ownerId === 'string' ? (owners.get(row.ownerId) ?? '') : '';
+      if (key === 'companies')
+        return listOf(
+          companyRows.map((item) => ({ key: item.customerId, name: item.name })),
+          id,
+        );
       if (key === 'customerCount') return customerCounts.get(id) ?? 0;
-      if (key === 'emails' || key === 'phones' || key === 'names') return Array.isArray(row[key]) ? (row[key] as string[]).join('; ') : '';
+      if (key === 'emails' || key === 'phones' || key === 'names')
+        return Array.isArray(row[key]) ? (row[key] as string[]).join('; ') : '';
 
       const value = row[key];
 
@@ -174,7 +237,11 @@ export const exportRunJob: JobDefinition = {
     const { withOrg } = await import('@erxes/core-db');
 
     await withOrg(job.orgId, async (tx: Transaction) => {
-      const [row] = await tx.select().from(exports).where(and(eq(exports.orgId, job.orgId), eq(exports.id, job.payload.exportId as string))).limit(1);
+      const [row] = await tx
+        .select()
+        .from(exports)
+        .where(and(eq(exports.orgId, job.orgId), eq(exports.id, job.payload.exportId as string)))
+        .limit(1);
 
       if (!row || row.status !== 'running') return;
 
@@ -185,22 +252,42 @@ export const exportRunJob: JobDefinition = {
         .limit(1);
 
       if (!member || member.status !== 'active') {
-        await tx.update(exports).set({ status: 'failed', error: 'The member who asked is no longer active', finishedAt: sql`now()` }).where(eq(exports.id, row.id));
+        await tx
+          .update(exports)
+          .set({
+            status: 'failed',
+            error: 'The member who asked is no longer active',
+            finishedAt: sql`now()`,
+          })
+          .where(eq(exports.id, row.id));
         return;
       }
 
       // Their permissions don't matter for the conditions (`me` does): the export was allowed when asked.
-      const actor: Actor = { userId: member.id, orgId: job.orgId, role: member.role, permissions: [] };
+      const actor: Actor = {
+        userId: member.id,
+        orgId: job.orgId,
+        role: member.role,
+        permissions: [],
+      };
       const where = await whereOf(tx, actor, row.recordType, row.query as Query);
       const table = row.recordType === 'company' ? companies : customers;
       const columns = await transferColumns(tx, job.orgId, row.recordType);
-      const header = row.columns.map((key) => columns.find((item) => item.key === key)?.label ?? key);
+      const header = row.columns.map(
+        (key) => columns.find((item) => item.key === key)?.label ?? key,
+      );
       const body: Cell[][] = [];
       let last = '';
 
       while (body.length < MAX_EXPORT_ROWS) {
         const page = (await tx
-          .select({ ...getTableColumns(table), customFields: customFieldsColumn(row.recordType === 'company' ? 'company' : 'customer', table.id) })
+          .select({
+            ...getTableColumns(table),
+            customFields: customFieldsColumn(
+              row.recordType === 'company' ? 'company' : 'customer',
+              table.id,
+            ),
+          })
           .from(table)
           .where(and(eq(table.orgId, job.orgId), where, last ? gt(table.id, last) : undefined))
           .orderBy(asc(table.id))
@@ -222,14 +309,27 @@ export const exportRunJob: JobDefinition = {
           ? Buffer.concat([
               // A BOM: Excel then reads UTF-8 (Mongolian) correctly.
               Buffer.from('﻿'),
-              Buffer.from(stringify([header, ...rows.map((cells) => cells.map((cell) => (cell instanceof Date ? cell.toISOString() : defuse(String(cell ?? '')))))])),
+              Buffer.from(
+                stringify([
+                  header,
+                  ...rows.map((cells) =>
+                    cells.map((cell) =>
+                      cell instanceof Date ? cell.toISOString() : defuse(String(cell ?? '')),
+                    ),
+                  ),
+                ]),
+              ),
             ])
           : await writeXlsxFile(
               [
                 header.map((value) => ({ value, fontWeight: 'bold' as const })),
                 ...rows.map((cells) =>
                   cells.map((cell) =>
-                    cell instanceof Date ? { value: cell, type: Date, format: 'yyyy-mm-dd hh:mm' } : typeof cell === 'number' ? { value: cell, type: Number } : { value: String(cell ?? ''), type: String },
+                    cell instanceof Date
+                      ? { value: cell, type: Date, format: 'yyyy-mm-dd hh:mm' }
+                      : typeof cell === 'number'
+                        ? { value: cell, type: Number }
+                        : { value: String(cell ?? ''), type: String },
                   ),
                 ),
               ],
@@ -238,28 +338,53 @@ export const exportRunJob: JobDefinition = {
       const caller: Caller = userCaller(actor);
       const stored = await storeServerFile(tx, caller, {
         name,
-        contentType: row.format === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        contentType:
+          row.format === 'csv'
+            ? 'text/csv'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         body: file,
       });
 
-      await tx.update(exports).set({ status: 'done', rowCount: rows.length, fileId: stored.id, finishedAt: sql`now()` }).where(eq(exports.id, row.id));
-      await notify(tx, { orgId: job.orgId, actorType: 'system', actorId: null, source: 'core' } as unknown as Caller, {
-        userIds: [row.createdBy],
-        kind: 'core.export.ready',
-        title: `Your export is ready: ${rows.length.toLocaleString('en')} ${row.recordType === 'company' ? 'companies' : 'records'}`,
-        body: body.length > MAX_EXPORT_ROWS ? `Only the first ${MAX_EXPORT_ROWS.toLocaleString('en')}: narrow the filter for the rest.` : name,
-        link: `/contacts/settings/import-export?export=${row.id}`,
-        entity: { type: 'export', id: row.id },
-      }).catch((error: unknown) => log.warn('could not tell the exporter', { error }));
+      await tx
+        .update(exports)
+        .set({ status: 'done', rowCount: rows.length, fileId: stored.id, finishedAt: sql`now()` })
+        .where(eq(exports.id, row.id));
+      await notify(
+        tx,
+        {
+          orgId: job.orgId,
+          actorType: 'system',
+          actorId: null,
+          source: 'core',
+        } as unknown as Caller,
+        {
+          userIds: [row.createdBy],
+          kind: 'core.export.ready',
+          title: `Your export is ready: ${rows.length.toLocaleString('en')} ${row.recordType === 'company' ? 'companies' : 'records'}`,
+          body:
+            body.length > MAX_EXPORT_ROWS
+              ? `Only the first ${MAX_EXPORT_ROWS.toLocaleString('en')}: narrow the filter for the rest.`
+              : name,
+          link: `/contacts/settings/import-export?export=${row.id}`,
+          entity: { type: 'export', id: row.id },
+        },
+      ).catch((error: unknown) => log.warn('could not tell the exporter', { error }));
     });
   },
   async onDead(job, error, tx) {
-    await tx.update(exports).set({ status: 'failed', error: error.slice(0, 500), finishedAt: sql`now()` }).where(eq(exports.id, job.payload.exportId as string));
+    await tx
+      .update(exports)
+      .set({ status: 'failed', error: error.slice(0, 500), finishedAt: sql`now()` })
+      .where(eq(exports.id, job.payload.exportId as string));
   },
 };
 
 export const exportOrThrow = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client.select().from(exports).where(and(eq(exports.orgId, orgId), eq(exports.id, id))).limit(1);
+  const [row] = await client
+    .select()
+    .from(exports)
+    .where(and(eq(exports.orgId, orgId), eq(exports.id, id)))
+    .limit(1);
 
   if (!row) throw notFound('Export');
 

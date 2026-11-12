@@ -34,7 +34,9 @@ export const CompaniesCommandBar = () => {
     <>
       <CommandBar open={selectedRows.length > 0 && !merging}>
         <CommandBar.Bar>
-          <CommandBar.Value>{t('selected', { selectedCount: selectedRows.length })}</CommandBar.Value>
+          <CommandBar.Value>
+            {t('selected', { selectedCount: selectedRows.length })}
+          </CommandBar.Value>
           <Separator.Inline />
           <TagsSelect
             type="company"
@@ -64,7 +66,9 @@ export const CompaniesCommandBar = () => {
                 variant="secondary"
                 className="text-destructive"
                 onClick={() =>
-                  confirm({ message: t('confirm-delete-selected', { count: companyIds.length }) }).then(() =>
+                  confirm({
+                    message: t('confirm-delete-selected', { count: companyIds.length }),
+                  }).then(() =>
                     remove.mutate(companyIds, { onSuccess: () => table.setRowSelection({}) }),
                   )
                 }

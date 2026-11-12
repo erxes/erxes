@@ -12,10 +12,11 @@ const PLATFORM_TOKEN = 'erxes-io-platform-token-0123456789abcdefghij';
 const HANDOFF_SECRET = 'erxes-io-jwt-token-secret-0123456789';
 
 /** What the fake erxes.io answers for `?subdomain=cloud`, as its real API does. */
-let answer: { status: string; details: { code: string; tier: string; status: string }[] } | 'down' = {
-  status: 'active',
-  details: [{ code: 'hr', tier: 'plus', status: 'active' }],
-};
+let answer: { status: string; details: { code: string; tier: string; status: string }[] } | 'down' =
+  {
+    status: 'active',
+    details: [{ code: 'hr', tier: 'plus', status: 'active' }],
+  };
 
 describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
   useTestDatabase();
@@ -31,7 +32,9 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     const response = await fetch(`${base}/core/v1${path}`, {
       method,
       headers: {
-        ...(auth.startsWith('erxes_session=') ? { cookie: auth, 'sec-fetch-site': 'same-origin' } : { authorization: `Bearer ${auth}` }),
+        ...(auth.startsWith('erxes_session=')
+          ? { cookie: auth, 'sec-fetch-site': 'same-origin' }
+          : { authorization: `Bearer ${auth}` }),
         'content-type': 'application/json',
       },
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -42,7 +45,12 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
   };
 
   /** erxes.io → core. */
-  const fromErxesIo = async (method: string, path: string, body?: unknown, token = PLATFORM_TOKEN) => {
+  const fromErxesIo = async (
+    method: string,
+    path: string,
+    body?: unknown,
+    token = PLATFORM_TOKEN,
+  ) => {
     const response = await fetch(`${base}/core/v1/saas${path}`, {
       method,
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
@@ -68,7 +76,10 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
 
       if (req.headers.authorization !== `Bearer ${PLATFORM_TOKEN}`) return res.writeHead(401).end();
       if (answer === 'down') return res.writeHead(503).end();
-      if (!req.url?.includes('subdomain=cloud')) return res.writeHead(404, { 'content-type': 'application/json' }).end('{"error":"Not found"}');
+      if (!req.url?.includes('subdomain=cloud'))
+        return res
+          .writeHead(404, { 'content-type': 'application/json' })
+          .end('{"error":"Not found"}');
 
       res.writeHead(200, { 'content-type': 'application/json' }).end(
         JSON.stringify({
@@ -84,7 +95,11 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
   });
 
   afterAll(async () => {
-    Object.assign(config.saas, { enabled: false, platformToken: undefined, handoffSecret: undefined });
+    Object.assign(config.saas, {
+      enabled: false,
+      platformToken: undefined,
+      handoffSecret: undefined,
+    });
     for (const each of [server, platform]) {
       each.closeAllConnections();
       await new Promise<void>((resolve) => each.close(() => resolve()));
@@ -92,11 +107,21 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
   });
 
   it('self-hosted: no plan, every plugin at its top tier, no SaaS door', async () => {
-    const other = await createOrganization({ subdomain: 'selfhost', name: 'Self', owner: { email: 'o@self.mn' } });
+    const other = await createOrganization({
+      subdomain: 'selfhost',
+      name: 'Self',
+      owner: { email: 'o@self.mn' },
+    });
     const token = await currentToken(other.owner.id, other.organization.id);
 
-    expect((await call('GET', '/plan', undefined, token)).body).toMatchObject({ saas: false, plugins: [] });
-    expect((await call('GET', '/plan/plugin', undefined, await pluginToken(base, other.organization.id))).body).toMatchObject({
+    expect((await call('GET', '/plan', undefined, token)).body).toMatchObject({
+      saas: false,
+      plugins: [],
+    });
+    expect(
+      (await call('GET', '/plan/plugin', undefined, await pluginToken(base, other.organization.id)))
+        .body,
+    ).toMatchObject({
       saas: false,
       tier: 'pro',
       access: 'full',
@@ -113,16 +138,27 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
       billingUrl: 'https://erxes.io/organizations/{subdomain}/billing',
     });
 
-    const body = { organization: { subdomain: 'cloud', name: 'Cloud Co' }, owner: { email: 'owner@cloud.mn' } };
+    const body = {
+      organization: { subdomain: 'cloud', name: 'Cloud Co' },
+      owner: { email: 'owner@cloud.mn' },
+    };
 
-    expect((await fromErxesIo('PUT', `/organizations/${orgId}`, body, 'wrong-token')).status).toBe(401);
+    expect((await fromErxesIo('PUT', `/organizations/${orgId}`, body, 'wrong-token')).status).toBe(
+      401,
+    );
 
     const created = await fromErxesIo('PUT', `/organizations/${orgId}`, body);
 
     expect(created.status).toBe(201);
-    expect(created.body).toMatchObject({ created: true, organizationStatus: 'active', plugins: [{ code: 'hr', tier: 'plus', status: 'active' }] });
+    expect(created.body).toMatchObject({
+      created: true,
+      organizationStatus: 'active',
+      plugins: [{ code: 'hr', tier: 'plus', status: 'active' }],
+    });
     // Core asked erxes.io with its platform token.
-    expect(platformCalls.at(-1)).toBe(`Bearer ${PLATFORM_TOKEN} /api/platform/organizations/plugins?subdomain=cloud`);
+    expect(platformCalls.at(-1)).toBe(
+      `Bearer ${PLATFORM_TOKEN} /api/platform/organizations/plugins?subdomain=cloud`,
+    );
 
     // erxes.io's link opens the workspace once (the organisation from the address).
     const token = await handoff('OWNER@cloud.mn');
@@ -133,9 +169,14 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
 
     expect(first.status).toBe(302);
     expect(first.headers.get('location')).toBe('/');
-    cookie = (first.headers.getSetCookie().find((item) => item.startsWith('erxes_session=')) ?? '').split(';')[0]!;
+    cookie = (
+      first.headers.getSetCookie().find((item) => item.startsWith('erxes_session=')) ?? ''
+    ).split(';')[0]!;
 
-    const again = await fetch(`${base}/core/v1/saas/login?token=${token}`, { redirect: 'manual', headers: { 'x-forwarded-host': 'cloud.next.erxes.io' } });
+    const again = await fetch(`${base}/core/v1/saas/login?token=${token}`, {
+      redirect: 'manual',
+      headers: { 'x-forwarded-host': 'cloud.next.erxes.io' },
+    });
 
     expect(again.headers.get('location')).toMatch(/signin=failed/);
 
@@ -147,10 +188,14 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     });
 
     // The plugin learns its tier, from core and in its members' session tokens.
-    expect((await call('GET', '/plan/plugin', undefined, await pluginToken(base, orgId))).body).toMatchObject({ tier: 'plus', access: 'full' });
+    expect(
+      (await call('GET', '/plan/plugin', undefined, await pluginToken(base, orgId))).body,
+    ).toMatchObject({ tier: 'plus', access: 'full' });
 
     const session = await call('POST', '/plugins/hr/session');
-    const claims = JSON.parse(Buffer.from(session.body.token.split('.')[1], 'base64url').toString());
+    const claims = JSON.parse(
+      Buffer.from(session.body.token.split('.')[1], 'base64url').toString(),
+    );
 
     expect(claims).toMatchObject({ tier: 'plus', access: 'full' });
   });
@@ -162,8 +207,20 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
 
     answer = { status: 'active', details: [{ code: 'hr', tier: 'plus', status: 'past_due' }] };
     await refresh();
-    expect((await call('GET', '/plan')).body.plugins[0]).toMatchObject({ status: 'past_due', access: 'warning' });
-    expect((await call('POST', '/activities', { targetType: 'customer', targetId: 'x', type: 'hr.ping', summary: 'x' }, await pluginToken(base, orgId))).status).not.toBe(402);
+    expect((await call('GET', '/plan')).body.plugins[0]).toMatchObject({
+      status: 'past_due',
+      access: 'warning',
+    });
+    expect(
+      (
+        await call(
+          'POST',
+          '/activities',
+          { targetType: 'customer', targetId: 'x', type: 'hr.ping', summary: 'x' },
+          await pluginToken(base, orgId),
+        )
+      ).status,
+    ).not.toBe(402);
   });
 
   it('a plugin that leaves the plan is read-only for the grace days, then off; bought again, it is back', async () => {
@@ -172,21 +229,38 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
 
     const plan = (await call('GET', '/plan')).body;
 
-    expect(plan.plugins[0]).toMatchObject({ code: 'hr', tier: null, access: 'read_only', readOnlyUntil: expect.any(String) });
+    expect(plan.plugins[0]).toMatchObject({
+      code: 'hr',
+      tier: null,
+      access: 'read_only',
+      readOnlyUntil: expect.any(String),
+    });
 
     // Reads yes, changes no.
     const hr = await pluginToken(base, orgId);
 
-    expect((await call('GET', '/plan/plugin', undefined, hr)).body).toMatchObject({ access: 'read_only' });
-    expect((await call('POST', '/notifications', { userIds: [], kind: 'hr.ping', title: 'x' }, hr)).body.code).toBe('READ_ONLY');
-    expect((await call('POST', '/plugins/hr/install', { scopes: [] })).body.code).toBe('NOT_IN_PLAN');
+    expect((await call('GET', '/plan/plugin', undefined, hr)).body).toMatchObject({
+      access: 'read_only',
+    });
+    expect(
+      (await call('POST', '/notifications', { userIds: [], kind: 'hr.ping', title: 'x' }, hr)).body
+        .code,
+    ).toBe('READ_ONLY');
+    expect((await call('POST', '/plugins/hr/install', { scopes: [] })).body.code).toBe(
+      'NOT_IN_PLAN',
+    );
 
     // The grace period ends (as if 8 days passed): turned off at the next check.
     await adminDb().execute(
-      (await import('drizzle-orm')).sql`update core_entitlements set lapsed = jsonb_build_object('hr', (now() - interval '8 days')::text) where org_id = ${orgId}`,
+      (await import('drizzle-orm'))
+        .sql`update core_entitlements set lapsed = jsonb_build_object('hr', (now() - interval '8 days')::text) where org_id = ${orgId}`,
     );
     await refresh();
-    expect((await call('GET', '/plugins')).body.data.find((item: { name: string }) => item.name === 'hr')).toMatchObject({
+    expect(
+      (await call('GET', '/plugins')).body.data.find(
+        (item: { name: string }) => item.name === 'hr',
+      ),
+    ).toMatchObject({
       installed: false,
       statusReason: 'Not in your plan',
     });
@@ -195,7 +269,9 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     // Bought again (Pro this time).
     answer = { status: 'active', details: [{ code: 'hr', tier: 'pro', status: 'active' }] };
     await refresh();
-    expect((await call('GET', '/plan')).body.plugins).toEqual([expect.objectContaining({ code: 'hr', tier: 'pro', access: 'full', installed: true })]);
+    expect((await call('GET', '/plan')).body.plugins).toEqual([
+      expect.objectContaining({ code: 'hr', tier: 'pro', access: 'full', installed: true }),
+    ]);
     expect((await requestPluginToken(base, orgId)).status).toBe(200);
   });
 
@@ -205,18 +281,34 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
 
     expect((await call('GET', '/customers')).body.code).toBe('ORGANIZATION_DISABLED');
     expect((await call('GET', '/plan')).body).toMatchObject({ organizationStatus: 'inactive' });
-    expect((await call('GET', '/plan/plugin', undefined, await pluginToken(base, orgId))).body.code).toBe('ORGANIZATION_DISABLED');
+    expect(
+      (await call('GET', '/plan/plugin', undefined, await pluginToken(base, orgId))).body.code,
+    ).toBe('ORGANIZATION_DISABLED');
 
     // erxes.io turns it back on itself (enable), no need to wait for the next check.
     answer = { status: 'active', details: [{ code: 'hr', tier: 'pro', status: 'active' }] };
-    expect((await fromErxesIo('PUT', `/organizations/${orgId}`, { organization: { subdomain: 'cloud', name: 'Cloud Co' }, status: 'active' })).status).toBe(200);
+    expect(
+      (
+        await fromErxesIo('PUT', `/organizations/${orgId}`, {
+          organization: { subdomain: 'cloud', name: 'Cloud Co' },
+          status: 'active',
+        })
+      ).status,
+    ).toBe(200);
     expect((await call('GET', '/customers')).status).toBe(200);
   });
 
   it('reports the workspace and its usage to erxes.io', async () => {
     const usage = await fromErxesIo('GET', `/organizations/${orgId}`);
 
-    expect(usage.body).toMatchObject({ id: orgId, subdomain: 'cloud', organizationStatus: 'active', usage: { teamMembers: 1 } });
-    expect((await fromErxesIo('GET', `/organizations/${orgId}`, undefined, 'nope')).status).toBe(401);
+    expect(usage.body).toMatchObject({
+      id: orgId,
+      subdomain: 'cloud',
+      organizationStatus: 'active',
+      usage: { teamMembers: 1 },
+    });
+    expect((await fromErxesIo('GET', `/organizations/${orgId}`, undefined, 'nope')).status).toBe(
+      401,
+    );
   });
 });

@@ -17,7 +17,10 @@ describeWithDb('invitations and password resets by email', { timeout: 240_000 },
   const call = async (token: string | null, method: string, path: string, body?: unknown) => {
     const response = await fetch(`${base}/core/v1${path}`, {
       method,
-      headers: { ...(token ? { authorization: `Bearer ${token}` } : {}), 'content-type': 'application/json' },
+      headers: {
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        'content-type': 'application/json',
+      },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     const text = await response.text();
@@ -25,7 +28,10 @@ describeWithDb('invitations and password resets by email', { timeout: 240_000 },
     return {
       status: response.status,
       body: text ? JSON.parse(text) : null,
-      cookie: (response.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(';')[0] ?? '',
+      cookie:
+        (response.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(
+          ';',
+        )[0] ?? '',
     };
   };
 
@@ -42,13 +48,18 @@ describeWithDb('invitations and password resets by email', { timeout: 240_000 },
     return [...loggedEmails].reverse().find((email) => email.to === to);
   };
 
-  const tokenIn = (text: string, path: string) => decodeURIComponent(new RegExp(`${path}\\?token=([^\\s]+)`).exec(text)![1]!);
+  const tokenIn = (text: string, path: string) =>
+    decodeURIComponent(new RegExp(`${path}\\?token=([^\\s]+)`).exec(text)![1]!);
 
   beforeAll(async () => {
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
-      owner: { email: 'owner@acme.mn', passwordHash: await hashPassword('Owner-pass-1'), fullName: 'Owner Bat' },
+      owner: {
+        email: 'owner@acme.mn',
+        passwordHash: await hashPassword('Owner-pass-1'),
+        fullName: 'Owner Bat',
+      },
     });
 
     orgId = acme.organization.id;
@@ -74,20 +85,33 @@ describeWithDb('invitations and password resets by email', { timeout: 240_000 },
 
     const token = tokenIn(email!.text, '/accept-invitation');
 
-    expect((await call(null, 'GET', `/auth/invitation?token=${encodeURIComponent(token)}`)).body).toEqual({
+    expect(
+      (await call(null, 'GET', `/auth/invitation?token=${encodeURIComponent(token)}`)).body,
+    ).toEqual({
       organization: 'Acme',
       email: 'new@acme.mn',
       inviter: 'Owner Bat',
     });
 
-    const accepted = await call(null, 'POST', '/auth/invitation/accept', { token, password: 'New-member-1', firstName: 'Saraa' });
+    const accepted = await call(null, 'POST', '/auth/invitation/accept', {
+      token,
+      password: 'New-member-1',
+      firstName: 'Saraa',
+    });
 
     expect(accepted.status).toBe(200);
-    expect(accepted.body.user).toMatchObject({ email: 'new@acme.mn', status: 'active', firstName: 'Saraa' });
+    expect(accepted.body.user).toMatchObject({
+      email: 'new@acme.mn',
+      status: 'active',
+      firstName: 'Saraa',
+    });
     expect(accepted.cookie).toMatch(/^erxes_session=/);
 
     // Once only.
-    expect((await call(null, 'POST', '/auth/invitation/accept', { token, password: 'New-member-2' })).body.code).toBe('INVALID_LINK');
+    expect(
+      (await call(null, 'POST', '/auth/invitation/accept', { token, password: 'New-member-2' }))
+        .body.code,
+    ).toBe('INVALID_LINK');
 
     // A resent invitation replaces the earlier link.
     const second = await call(owner, 'POST', '/users', { email: 'second@acme.mn' });
@@ -98,22 +122,37 @@ describeWithDb('invitations and password resets by email', { timeout: 240_000 },
 
     expect((await call(owner, 'POST', `/users/${second.body.id}/invitation`)).status).toBe(200);
     await send();
-    expect((await call(null, 'GET', `/auth/invitation?token=${encodeURIComponent(first)}`)).body.code).toBe('INVALID_LINK');
+    expect(
+      (await call(null, 'GET', `/auth/invitation?token=${encodeURIComponent(first)}`)).body.code,
+    ).toBe('INVALID_LINK');
   });
 
   it('resets a password by email without telling whether the email exists, and ends old sessions', async () => {
-    const before = await call(null, 'POST', '/auth/sign-in', { email: 'owner@acme.mn', password: 'Owner-pass-1' });
+    const before = await call(null, 'POST', '/auth/sign-in', {
+      email: 'owner@acme.mn',
+      password: 'Owner-pass-1',
+    });
 
-    expect((await call(null, 'POST', '/auth/password-reset', { email: 'nobody@acme.mn' })).body).toEqual({ ok: true });
-    expect((await call(null, 'POST', '/auth/password-reset', { email: 'OWNER@acme.mn' })).body).toEqual({ ok: true });
+    expect(
+      (await call(null, 'POST', '/auth/password-reset', { email: 'nobody@acme.mn' })).body,
+    ).toEqual({ ok: true });
+    expect(
+      (await call(null, 'POST', '/auth/password-reset', { email: 'OWNER@acme.mn' })).body,
+    ).toEqual({ ok: true });
     await send();
     expect(await lastEmail('nobody@acme.mn')).toBeUndefined();
 
     const token = tokenIn((await lastEmail('owner@acme.mn'))!.text, '/reset-password');
 
-    expect((await call(null, 'POST', '/auth/password-reset/confirm', { token, password: 'weak' })).status).toBe(400);
+    expect(
+      (await call(null, 'POST', '/auth/password-reset/confirm', { token, password: 'weak' }))
+        .status,
+    ).toBe(400);
 
-    const reset = await call(null, 'POST', '/auth/password-reset/confirm', { token, password: 'Owner-pass-2' });
+    const reset = await call(null, 'POST', '/auth/password-reset/confirm', {
+      token,
+      password: 'Owner-pass-2',
+    });
 
     expect(reset.status).toBe(200);
     expect(reset.cookie).toMatch(/^erxes_session=/);
@@ -122,9 +161,37 @@ describeWithDb('invitations and password resets by email', { timeout: 240_000 },
     const me = await fetch(`${base}/core/v1/auth/me`, { headers: { cookie: before.cookie } });
 
     expect(me.status).toBe(401);
-    expect((await call(null, 'POST', '/auth/sign-in', { email: 'owner@acme.mn', password: 'Owner-pass-1' })).status).toBe(401);
-    expect((await call(null, 'POST', '/auth/sign-in', { email: 'owner@acme.mn', password: 'Owner-pass-2' })).status).toBe(200);
-    expect((await call(null, 'POST', '/auth/password-reset/confirm', { token, password: 'Owner-pass-3' })).body.code).toBe('INVALID_LINK');
-    expect((await call(null, 'POST', '/auth/password-reset/confirm', { token: 'madeupid12.madeupsecret', password: 'Owner-pass-3' })).body.code).toBe('INVALID_LINK');
+    expect(
+      (
+        await call(null, 'POST', '/auth/sign-in', {
+          email: 'owner@acme.mn',
+          password: 'Owner-pass-1',
+        })
+      ).status,
+    ).toBe(401);
+    expect(
+      (
+        await call(null, 'POST', '/auth/sign-in', {
+          email: 'owner@acme.mn',
+          password: 'Owner-pass-2',
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await call(null, 'POST', '/auth/password-reset/confirm', {
+          token,
+          password: 'Owner-pass-3',
+        })
+      ).body.code,
+    ).toBe('INVALID_LINK');
+    expect(
+      (
+        await call(null, 'POST', '/auth/password-reset/confirm', {
+          token: 'madeupid12.madeupsecret',
+          password: 'Owner-pass-3',
+        })
+      ).body.code,
+    ).toBe('INVALID_LINK');
   });
 });

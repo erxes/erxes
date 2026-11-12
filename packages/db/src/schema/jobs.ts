@@ -1,5 +1,14 @@
 import { sql } from 'drizzle-orm';
-import { check, foreignKey, index, integer, jsonb, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  check,
+  foreignKey,
+  index,
+  integer,
+  jsonb,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
@@ -37,13 +46,21 @@ export const jobs = pgTable(
     updatedAt: updatedAt(),
   },
   (table) => [
-    index('core_jobs_due_idx').on(table.runAt).where(sql`${table.status} = 'queued'`),
-    index('core_jobs_stuck_idx').on(table.lockedUntil).where(sql`${table.status} = 'running'`),
+    index('core_jobs_due_idx')
+      .on(table.runAt)
+      .where(sql`${table.status} = 'queued'`),
+    index('core_jobs_stuck_idx')
+      .on(table.lockedUntil)
+      .where(sql`${table.status} = 'running'`),
     index('core_jobs_org_idx').on(table.orgId, table.queue, table.status),
     uniqueIndex('core_jobs_dedupe_key')
       .on(table.orgId, table.queue, table.dedupeKey)
       .where(sql`${table.dedupeKey} IS NOT NULL`),
     check('core_jobs_status_check', sql`${table.status} IN ('queued', 'running', 'dead')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_jobs_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_jobs_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

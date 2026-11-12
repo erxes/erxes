@@ -17,9 +17,10 @@ export const getContactListPath = (contentType: TContactContentType, pathname: s
   if (contentType === 'core:company') {
     const companyLeads = `${leads}/companies`;
 
-    return pathname === companyLeads || pathname.startsWith(`${companyLeads}/`) ? companyLeads : `${ContactsPath.Index}${ContactsPath.Companies}`;
+    return pathname === companyLeads || pathname.startsWith(`${companyLeads}/`)
+      ? companyLeads
+      : `${ContactsPath.Index}${ContactsPath.Companies}`;
   }
-
 
   return pathname === leads || pathname.startsWith(`${leads}/`)
     ? leads
@@ -27,5 +28,8 @@ export const getContactListPath = (contentType: TContactContentType, pathname: s
 };
 
 /** The contact's own page, where the side panel's expand button leads. */
-export const getContactDetailPath = (contentType: TContactContentType, contentId: string, pathname: string) =>
-  `${getContactListPath(contentType, pathname)}/${encodeURIComponent(contentId)}`;
+export const getContactDetailPath = (
+  contentType: TContactContentType,
+  contentId: string,
+  pathname: string,
+) => `${getContactListPath(contentType, pathname)}/${encodeURIComponent(contentId)}`;

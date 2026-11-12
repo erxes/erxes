@@ -28,18 +28,29 @@ const tagTableOf = (type: RecordType) => (type === 'customer' ? customerTags : c
 
 /** JSON dates back to Date for timestamp columns (and nothing else); generated columns are left to the database. */
 const revive = (table: Parameters<typeof getTableColumns>[0], row: Record<string, unknown>) => {
-  const columns = getTableColumns(table) as Record<string, { columnType: string; generated?: unknown }>;
+  const columns = getTableColumns(table) as Record<
+    string,
+    { columnType: string; generated?: unknown }
+  >;
 
   return Object.fromEntries(
     Object.entries(row)
       .filter(([key]) => key in columns && !columns[key]!.generated)
-      .map(([key, value]) => [key, columns[key]!.columnType === 'PgTimestamp' && typeof value === 'string' ? new Date(value) : value]),
+      .map(([key, value]) => [
+        key,
+        columns[key]!.columnType === 'PgTimestamp' && typeof value === 'string'
+          ? new Date(value)
+          : value,
+      ]),
   );
 };
 
 const labelOf = (type: RecordType, row: Record<string, unknown>) =>
   type === 'customer'
-    ? [row.firstName, row.lastName].filter(Boolean).join(' ') || (row.primaryEmail as string | null) || (row.primaryPhone as string | null) || null
+    ? [row.firstName, row.lastName].filter(Boolean).join(' ') ||
+      (row.primaryEmail as string | null) ||
+      (row.primaryPhone as string | null) ||
+      null
     : ((row.primaryName as string | null) ?? null);
 
 /**
@@ -66,13 +77,22 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: RecordType, ids:
     .where(
       and(
         eq(customerCompanies.orgId, caller.orgId),
-        inArray(type === 'customer' ? customerCompanies.customerId : customerCompanies.companyId, ids),
+        inArray(
+          type === 'customer' ? customerCompanies.customerId : customerCompanies.companyId,
+          ids,
+        ),
       ),
     );
   const entries = await tx
     .select()
     .from(activities)
-    .where(and(eq(activities.orgId, caller.orgId), eq(activities.targetType, type), inArray(activities.targetId, ids)));
+    .where(
+      and(
+        eq(activities.orgId, caller.orgId),
+        eq(activities.targetType, type),
+        inArray(activities.targetId, ids),
+      ),
+    );
 
   for (const row of rows) {
     const record = row as Record<string, unknown> & { id: string };
@@ -88,7 +108,9 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: RecordType, ids:
         snapshot: {
           row: record,
           tagIds: tagRows.filter((tag) => tag.recordId === record.id).map((tag) => tag.tagId),
-          links: links.filter((link) => (type === 'customer' ? link.customerId : link.companyId) === record.id),
+          links: links.filter(
+            (link) => (type === 'customer' ? link.customerId : link.companyId) === record.id,
+          ),
           activities: entries.filter((entry) => entry.targetId === record.id),
         },
         deletedByType: caller.actorType,
@@ -97,7 +119,11 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: RecordType, ids:
       })
       .onConflictDoUpdate({
         target: [trash.orgId, trash.recordType, trash.recordId],
-        set: { snapshot: sql`excluded.snapshot`, deletedAt: sql`now()`, purgeAt: sql`excluded.purge_at` },
+        set: {
+          snapshot: sql`excluded.snapshot`,
+          deletedAt: sql`now()`,
+          purgeAt: sql`excluded.purge_at`,
+        },
       });
   }
 };
@@ -109,13 +135,19 @@ interface Snapshot {
   activities: Record<string, unknown>[];
 }
 
-export const listTrash = async (client: Db, actor: Actor, query: { type?: RecordType; limit: number }) => {
+export const listTrash = async (
+  client: Db,
+  actor: Actor,
+  query: { type?: RecordType; limit: number },
+) => {
   requirePermission(actor, 'contacts.delete');
 
   const rows = await client
     .select()
     .from(trash)
-    .where(and(eq(trash.orgId, actor.orgId), query.type ? eq(trash.recordType, query.type) : undefined))
+    .where(
+      and(eq(trash.orgId, actor.orgId), query.type ? eq(trash.recordType, query.type) : undefined),
+    )
     .orderBy(desc(trash.deletedAt))
     .limit(query.limit);
 
@@ -131,7 +163,11 @@ export const listTrash = async (client: Db, actor: Actor, query: { type?: Record
         deletedBy: { type: row.deletedByType, id: row.deletedBy },
         deletedAt: row.deletedAt.toISOString(),
         purgeAt: row.purgeAt.toISOString(),
-        counts: { tags: snapshot.tagIds?.length ?? 0, links: snapshot.links?.length ?? 0, activities: snapshot.activities?.length ?? 0 },
+        counts: {
+          tags: snapshot.tagIds?.length ?? 0,
+          links: snapshot.links?.length ?? 0,
+          activities: snapshot.activities?.length ?? 0,
+        },
       };
     }),
   };
@@ -145,7 +181,10 @@ export const listTrash = async (client: Db, actor: Actor, query: { type?: Record
 export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) => {
   requirePermission(actor, 'contacts.delete');
 
-  const items = await client.select().from(trash).where(and(eq(trash.orgId, actor.orgId), inArray(trash.id, ids)));
+  const items = await client
+    .select()
+    .from(trash)
+    .where(and(eq(trash.orgId, actor.orgId), inArray(trash.id, ids)));
   const failed: { id: string; reason: string }[] = [];
   let restored = 0;
 
@@ -160,10 +199,22 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
         // Values of fields deleted since are dropped.
         const customFields = (snapshot.row.customFields ?? {}) as Record<string, CustomValue>;
 
-        await saveCustomFields(tx, actor.orgId, type, item.recordId, customFields, Object.keys(customFields));
+        await saveCustomFields(
+          tx,
+          actor.orgId,
+          type,
+          item.recordId,
+          customFields,
+          Object.keys(customFields),
+        );
 
         const tagIds = snapshot.tagIds.length
-          ? (await tx.select({ id: tags.id }).from(tags).where(and(eq(tags.orgId, actor.orgId), inArray(tags.id, snapshot.tagIds)))).map((tag) => tag.id)
+          ? (
+              await tx
+                .select({ id: tags.id })
+                .from(tags)
+                .where(and(eq(tags.orgId, actor.orgId), inArray(tags.id, snapshot.tagIds)))
+            ).map((tag) => tag.id)
           : [];
 
         if (tagIds.length) {
@@ -176,12 +227,20 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
         for (const link of snapshot.links) {
           const other = type === 'customer' ? companies : customers;
           const otherId = type === 'customer' ? link.companyId : link.customerId;
-          const [exists] = await tx.select({ id: other.id }).from(other).where(and(eq(other.orgId, actor.orgId), eq(other.id, otherId))).limit(1);
+          const [exists] = await tx
+            .select({ id: other.id })
+            .from(other)
+            .where(and(eq(other.orgId, actor.orgId), eq(other.id, otherId)))
+            .limit(1);
 
           if (exists) {
             await tx
               .insert(customerCompanies)
-              .values({ orgId: actor.orgId, customerId: link.customerId, companyId: link.companyId })
+              .values({
+                orgId: actor.orgId,
+                customerId: link.customerId,
+                companyId: link.companyId,
+              })
               .onConflictDoNothing();
           }
         }
@@ -194,7 +253,10 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
         }
 
         await tx.delete(trash).where(eq(trash.id, item.id));
-        await publishCoreEvents(tx, userCaller(actor), { type: `core.${type}.restored`, subject: { type, id: item.recordId } });
+        await publishCoreEvents(tx, userCaller(actor), {
+          type: `core.${type}.restored`,
+          subject: { type, id: item.recordId },
+        });
         await recordAudit(tx, userCaller(actor), {
           action: `${type}.restored`,
           targetType: type,
@@ -206,7 +268,10 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
     } catch (error) {
       failed.push({
         id: item.id,
-        reason: pgCode(error) === '23505' ? 'Its email or phone now belongs to another record' : (error as Error).message,
+        reason:
+          pgCode(error) === '23505'
+            ? 'Its email or phone now belongs to another record'
+            : (error as Error).message,
       });
     }
   }
@@ -227,7 +292,12 @@ export const purgeFromTrash = async (client: Db, actor: Actor, ids: string[]) =>
     await recordAudit(
       client,
       userCaller(actor),
-      removed.map((row) => ({ action: `${row.recordType}.purged`, targetType: row.recordType, targetId: row.recordId, targetLabel: row.label })),
+      removed.map((row) => ({
+        action: `${row.recordType}.purged`,
+        targetType: row.recordType,
+        targetId: row.recordId,
+        targetLabel: row.label,
+      })),
     );
   }
 
@@ -240,4 +310,3 @@ export const purgeExpiredTrash = async (client: Db) => {
 
   return result.rowCount ?? 0;
 };
-

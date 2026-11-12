@@ -33,12 +33,18 @@ describeWithDb('concurrent writes', () => {
 
   beforeAll(async () => {
     const { users, newId } = await import('@erxes/core-db');
-    const acme = await createOrganization({ subdomain: 'acme', name: 'Acme', owner: { email: 'a@acme.mn' } });
+    const acme = await createOrganization({
+      subdomain: 'acme',
+      name: 'Acme',
+      owner: { email: 'a@acme.mn' },
+    });
 
     orgId = acme.organization.id;
     ownerA = acme.owner.id;
     ownerB = newId();
-    await adminDb().insert(users).values({ id: ownerB, orgId, email: 'b@acme.mn', role: 'owner', status: 'active' });
+    await adminDb()
+      .insert(users)
+      .values({ id: ownerB, orgId, email: 'b@acme.mn', role: 'owner', status: 'active' });
     server = createApp().listen(0);
     base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
@@ -59,7 +65,10 @@ describeWithDb('concurrent writes', () => {
 
     const { users } = await import('@erxes/core-db');
     const { and, eq } = await import('drizzle-orm');
-    const owners = await adminDb().select().from(users).where(and(eq(users.orgId, orgId), eq(users.role, 'owner')));
+    const owners = await adminDb()
+      .select()
+      .from(users)
+      .where(and(eq(users.orgId, orgId), eq(users.role, 'owner')));
 
     expect(owners).toHaveLength(1);
 
@@ -89,35 +98,62 @@ describeWithDb('concurrent writes', () => {
     expect(active.length).toBeGreaterThanOrEqual(1);
 
     for (const id of [ownerA, ownerB]) {
-      if (!active.some((user) => user.id === id)) await call(await token(active[0]!.id), 'POST', `/users/${id}/enable`);
+      if (!active.some((user) => user.id === id))
+        await call(await token(active[0]!.id), 'POST', `/users/${id}/enable`);
     }
   });
 
   it('two edits of different custom fields at once: both are kept', async () => {
     const owner = await token(ownerA);
-    const first = await call(owner, 'POST', '/fields', { contentType: 'customer', label: 'Shoe size', type: 'number' });
-    const second = await call(owner, 'POST', '/fields', { contentType: 'customer', label: 'Nickname', type: 'text' });
+    const first = await call(owner, 'POST', '/fields', {
+      contentType: 'customer',
+      label: 'Shoe size',
+      type: 'number',
+    });
+    const second = await call(owner, 'POST', '/fields', {
+      contentType: 'customer',
+      label: 'Nickname',
+      type: 'text',
+    });
     const customer = await call(owner, 'POST', '/customers', { firstName: 'Bat' });
 
     for (let round = 0; round < 3; round += 1) {
       await Promise.all([
-        call(owner, 'PATCH', `/customers/${customer.body.id}`, { customFields: { [first.body.id]: 40 + round } }),
-        call(owner, 'PATCH', `/customers/${customer.body.id}`, { customFields: { [second.body.id]: `bat-${round}` } }),
+        call(owner, 'PATCH', `/customers/${customer.body.id}`, {
+          customFields: { [first.body.id]: 40 + round },
+        }),
+        call(owner, 'PATCH', `/customers/${customer.body.id}`, {
+          customFields: { [second.body.id]: `bat-${round}` },
+        }),
       ]);
 
       const saved = await call(owner, 'GET', `/customers/${customer.body.id}`);
 
-      expect(saved.body.customFields).toEqual({ [first.body.id]: 40 + round, [second.body.id]: `bat-${round}` });
+      expect(saved.body.customFields).toEqual({
+        [first.body.id]: 40 + round,
+        [second.body.id]: `bat-${round}`,
+      });
     }
   });
 
   const startUpload = async (owner: string, bytes: Buffer) => {
-    const started = await call(owner, 'POST', '/files', { name: 'a.txt', contentType: 'text/plain', size: bytes.length });
-    const put = await fetch(`${base}${started.body.upload.url}`, { method: 'PUT', headers: started.body.upload.headers, body: bytes });
+    const started = await call(owner, 'POST', '/files', {
+      name: 'a.txt',
+      contentType: 'text/plain',
+      size: bytes.length,
+    });
+    const put = await fetch(`${base}${started.body.upload.url}`, {
+      method: 'PUT',
+      headers: started.body.upload.headers,
+      body: bytes,
+    });
 
     expect(put.status).toBe(204);
 
-    return started.body as { file: { id: string }; upload: { url: string; headers: Record<string, string> } };
+    return started.body as {
+      file: { id: string };
+      upload: { url: string; headers: Record<string, string> };
+    };
   };
 
   const fileRow = async (id: string) => {
@@ -132,14 +168,18 @@ describeWithDb('concurrent writes', () => {
     const owner = await token(ownerA);
     const bytes = Buffer.from('checked bytes');
     const started = await startUpload(owner, bytes);
-    const results = await Promise.all([1, 2, 3].map(() => call(owner, 'POST', `/files/${started.file.id}/complete`)));
+    const results = await Promise.all(
+      [1, 2, 3].map(() => call(owner, 'POST', `/files/${started.file.id}/complete`)),
+    );
 
     expect(results.map((result) => result.status)).toEqual([200, 200, 200]);
     expect(results.every((result) => result.body.status === 'ready')).toBe(true);
 
     const audit = await call(owner, 'GET', `/audit?action=file.uploaded`);
 
-    expect(audit.body.data.filter((entry: { targetId: string }) => entry.targetId === started.file.id)).toHaveLength(1);
+    expect(
+      audit.body.data.filter((entry: { targetId: string }) => entry.targetId === started.file.id),
+    ).toHaveLength(1);
 
     // The upload link can't put other bytes behind the ready file.
     const again = await fetch(`${base}${started.upload.url}`, {
@@ -230,15 +270,14 @@ describeWithDb('concurrent writes', () => {
 
     const { notifications } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
-    const rows = await adminDb().select().from(notifications).where(eq(notifications.entityId, 'c-collapse'));
+    const rows = await adminDb()
+      .select()
+      .from(notifications)
+      .where(eq(notifications.entityId, 'c-collapse'));
 
     expect(rows).toHaveLength(1);
-    expect(Object.keys((rows[0]!.data as { changes: Record<string, unknown> }).changes).sort()).toEqual([
-      'description',
-      'firstName',
-      'lastName',
-      'primaryEmail',
-      'primaryPhone',
-    ]);
+    expect(
+      Object.keys((rows[0]!.data as { changes: Record<string, unknown> }).changes).sort(),
+    ).toEqual(['description', 'firstName', 'lastName', 'primaryEmail', 'primaryPhone']);
   });
 });

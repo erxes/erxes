@@ -40,7 +40,12 @@ const COLUMNS = [
 
 /** One CSV cell: quoted when needed; a leading =, +, - or @ is defused (spreadsheet formulas). */
 const cell = (value: unknown) => {
-  let text = value === null || value === undefined ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value);
+  let text =
+    value === null || value === undefined
+      ? ''
+      : typeof value === 'object'
+        ? JSON.stringify(value)
+        : String(value);
 
   if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
 
@@ -62,7 +67,15 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
   const parsed = ExportQuery.safeParse(req.query);
 
   if (!parsed.success) {
-    res.status(400).json({ defined: false, code: 'INVALID_INPUT', status: 400, message: 'The request is not valid', data: { issues: parsed.error.issues } });
+    res
+      .status(400)
+      .json({
+        defined: false,
+        code: 'INVALID_INPUT',
+        status: 400,
+        message: 'The request is not valid',
+        data: { issues: parsed.error.issues },
+      });
     return;
   }
 
@@ -70,7 +83,10 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
   const scope = and(eq(auditLogs.orgId, actor.orgId), auditFilters(filters as AuditFilters));
   const stamp = new Date().toISOString().slice(0, 10);
 
-  res.setHeader('Content-Type', format === 'csv' ? 'text/csv; charset=utf-8' : 'application/json; charset=utf-8');
+  res.setHeader(
+    'Content-Type',
+    format === 'csv' ? 'text/csv; charset=utf-8' : 'application/json; charset=utf-8',
+  );
   res.setHeader('Content-Disposition', `attachment; filename="audit-log-${stamp}.${format}"`);
   res.setHeader('Cache-Control', 'no-store');
 
@@ -87,7 +103,14 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
         tx
           .select()
           .from(auditLogs)
-          .where(and(scope, cursor ? sql`(${auditLogs.createdAt}, ${auditLogs.id}) < (${cursor.createdAt}, ${cursor.id})` : undefined))
+          .where(
+            and(
+              scope,
+              cursor
+                ? sql`(${auditLogs.createdAt}, ${auditLogs.id}) < (${cursor.createdAt}, ${cursor.id})`
+                : undefined,
+            ),
+          )
           .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
           .limit(Math.min(BATCH, MAX_ROWS - written)),
       );
@@ -115,12 +138,14 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
 
     if (format === 'json') res.write('\n]\n');
 
-    await withOrg(actor.orgId, (tx) => recordAudit(tx, userCaller(actor), {
-      action: 'audit.exported',
-      targetType: 'organization',
-      targetId: actor.orgId,
-      metadata: { format, rows: written, filters },
-    }));
+    await withOrg(actor.orgId, (tx) =>
+      recordAudit(tx, userCaller(actor), {
+        action: 'audit.exported',
+        targetType: 'organization',
+        targetId: actor.orgId,
+        metadata: { format, rows: written, filters },
+      }),
+    );
     res.end();
   };
 

@@ -3,22 +3,21 @@ import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const SidebarGroup = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      data-sidebar="group"
-      className={cn(
-        'relative flex w-full min-w-0 flex-col px-4 py-3 group-data-[collapsible=icon]:px-2',
-        className,
-      )}
-      {...props}
-    />
-  );
-});
+export const SidebarGroup = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        data-sidebar="group"
+        className={cn(
+          'relative flex w-full min-w-0 flex-col px-4 py-3 group-data-[collapsible=icon]:px-2',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 SidebarGroup.displayName = 'SidebarGroup';
 
 export const SidebarGroupLabel = React.forwardRef<
@@ -65,15 +64,14 @@ export const SidebarGroupAction = React.forwardRef<
 });
 SidebarGroupAction.displayName = 'SidebarGroupAction';
 
-export const SidebarGroupContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    data-sidebar="group-content"
-    className={cn('w-full text-sm', className)}
-    {...props}
-  />
-));
+export const SidebarGroupContent = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      data-sidebar="group-content"
+      className={cn('w-full text-sm', className)}
+      {...props}
+    />
+  ),
+);
 SidebarGroupContent.displayName = 'SidebarGroupContent';

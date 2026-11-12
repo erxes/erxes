@@ -1,10 +1,7 @@
 import { BlockEditorEditableContext } from '../hooks/useBlockEditorEditable';
 import { BlockEditorComments } from './BlockEditorComments';
 import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
-import {
-  SuggestionMenuController,
-  TableHandlesController,
-} from '@blocknote/react';
+import { SuggestionMenuController, TableHandlesController } from '@blocknote/react';
 
 import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
 import { BlockNoteView } from '@blocknote/shadcn';
@@ -63,8 +60,7 @@ export const BlockEditor = ({
 
     deletingText.current = true;
 
-    const { block, prevBlock, nextBlock, parentBlock } =
-      editor.getTextCursorPosition();
+    const { block, prevBlock, nextBlock, parentBlock } = editor.getTextCursorPosition();
 
     if (parentBlock || !nextBlock || !isEmptyBlock(block)) {
       return;
@@ -140,20 +136,13 @@ export const BlockEditor = ({
         >
           <SuggestionMenuController
             triggerCharacter="/"
-            getItems={(query) =>
-              getSlashMenuItems(query, editor, additionalSlashMenuItems)
-            }
+            getItems={(query) => getSlashMenuItems(query, editor, additionalSlashMenuItems)}
             suggestionMenuComponent={SlashMenu}
-            floatingOptions={
-              slashMenuOnTop ? { placement: 'top-start' } : undefined
-            }
+            floatingOptions={slashMenuOnTop ? { placement: 'top-start' } : undefined}
           />
           {formattingToolbar && <Toolbar />}
           <TableHandlesController tableHandle={TableHandleWithRemove} />
-          <BlockEditorComments
-            enabled={!!editor.comments}
-            floatingThread={floatingThread}
-          >
+          <BlockEditorComments enabled={!!editor.comments} floatingThread={floatingThread}>
             {children}
           </BlockEditorComments>
         </BlockNoteView>

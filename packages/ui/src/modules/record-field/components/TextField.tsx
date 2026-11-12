@@ -26,16 +26,7 @@ export const TextField = React.forwardRef<
   }
 >(
   (
-    {
-      placeholder,
-      value,
-      scope,
-      onSave,
-      onValueChange,
-      defaultOpen = false,
-      children,
-      ...props
-    },
+    { placeholder, value, scope, onSave, onValueChange, defaultOpen = false, children, ...props },
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);

@@ -10,9 +10,7 @@ export interface EmailDocumentPlaceholderAttrs {
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     emailDocumentPlaceholder: {
-      insertDocumentPlaceholder: (
-        attrs: EmailDocumentPlaceholderAttrs,
-      ) => ReturnType;
+      insertDocumentPlaceholder: (attrs: EmailDocumentPlaceholderAttrs) => ReturnType;
     };
   }
 }
@@ -63,9 +61,7 @@ export const EmailDocumentPlaceholder = Node.create({
   renderHTML({ HTMLAttributes, node }) {
     const { documentName, documentCode, documentPreview } = node.attrs;
 
-    const label = documentCode
-      ? `Document · ${documentCode}`
-      : 'Rendered when the email is sent';
+    const label = documentCode ? `Document · ${documentCode}` : 'Rendered when the email is sent';
 
     return [
       'div',
@@ -78,18 +74,13 @@ export const EmailDocumentPlaceholder = Node.create({
         { style: 'font-size: 14px; font-weight: 600; color: #111827;' },
         documentName || 'Untitled document',
       ],
-      [
-        'div',
-        { style: 'margin-top: 2px; font-size: 12px; color: #6b7280;' },
-        label,
-      ],
+      ['div', { style: 'margin-top: 2px; font-size: 12px; color: #6b7280;' }, label],
       ...(documentPreview
         ? [
             [
               'div',
               {
-                style:
-                  'margin-top: 6px; font-size: 12px; line-height: 1.5; color: #6b7280;',
+                style: 'margin-top: 6px; font-size: 12px; line-height: 1.5; color: #6b7280;',
               },
               documentPreview,
             ],
@@ -104,10 +95,7 @@ export const EmailDocumentPlaceholder = Node.create({
         (attrs) =>
         ({ chain }) =>
           chain()
-            .insertContent([
-              { type: this.name, attrs },
-              { type: 'paragraph' },
-            ])
+            .insertContent([{ type: this.name, attrs }, { type: 'paragraph' }])
             .run(),
     };
   },

@@ -36,11 +36,10 @@ export const RecordTableHead = ({
   header: Header<any, unknown>;
 }) => {
   const { column } = header;
-  const { attributes, isDragging, listeners, setNodeRef, transform } =
-    useSortable({
-      id: column.id,
-      disabled: !!column.getIsPinned(),
-    });
+  const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
+    id: column.id,
+    disabled: !!column.getIsPinned(),
+  });
 
   return (
     <Table.Head
@@ -59,10 +58,7 @@ export const RecordTableHead = ({
       )}
       style={{
         width: `var(--header-${column.id}-width)`,
-        left:
-          column.getIsPinned() === 'left'
-            ? `${column.getStart('left')}px`
-            : undefined,
+        left: column.getIsPinned() === 'left' ? `${column.getStart('left')}px` : undefined,
       }}
       {...props}
     >
@@ -132,8 +128,7 @@ const RecordTableHeadSize = React.forwardRef<
       ref={ref}
       className={cn(
         'absolute bottom-0 cursor-col-resize w-4 h-full right-0 z-10 select-none touch-none after:absolute after:inset-y-2 after:w-px after:right-0 hover:after:bg-border',
-        header.column.getIsResizing() &&
-          'after:w-0.5 hover:after:bg-primary after:inset-y-1',
+        header.column.getIsResizing() && 'after:w-0.5 hover:after:bg-primary after:inset-y-1',
       )}
       {...props}
       onMouseDown={header.getResizeHandler()}

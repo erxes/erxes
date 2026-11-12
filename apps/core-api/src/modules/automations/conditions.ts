@@ -10,18 +10,24 @@ export const valueAt = (context: Record<string, unknown>, path: string): unknown
   }, context);
 
 const isEmpty = (value: unknown) =>
-  value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0);
+  value === undefined ||
+  value === null ||
+  value === '' ||
+  (Array.isArray(value) && value.length === 0);
 
 const asNumber = (value: unknown) => {
   if (typeof value === 'number') return value;
-  if (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))) return Number(value);
+  if (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value)))
+    return Number(value);
   if (typeof value === 'string' && !Number.isNaN(Date.parse(value))) return Date.parse(value);
 
   return Number.NaN;
 };
 
 const same = (a: unknown, b: unknown) =>
-  typeof a === 'string' && typeof b === 'string' ? a.toLowerCase() === b.toLowerCase() : JSON.stringify(a) === JSON.stringify(b);
+  typeof a === 'string' && typeof b === 'string'
+    ? a.toLowerCase() === b.toLowerCase()
+    : JSON.stringify(a) === JSON.stringify(b);
 
 const DAY = 86_400_000;
 
@@ -33,7 +39,8 @@ const span = (value: unknown) => {
   return n * (unit === 'months' ? 30 * DAY : unit === 'weeks' ? 7 * DAY : DAY);
 };
 
-const asTime = (value: unknown) => (typeof value === 'string' || value instanceof Date ? new Date(value).getTime() : Number.NaN);
+const asTime = (value: unknown) =>
+  typeof value === 'string' || value instanceof Date ? new Date(value).getTime() : Number.NaN;
 
 /** Days until the next time this date's day and month come round (0 = today). */
 export const daysToAnniversary = (value: unknown, now = new Date()): number => {
@@ -44,13 +51,18 @@ export const daysToAnniversary = (value: unknown, now = new Date()): number => {
   const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
   const next = (year: number) => {
     // 29 February falls on 28 February in other years.
-    const day = Math.min(date.getUTCDate(), new Date(Date.UTC(year, date.getUTCMonth() + 1, 0)).getUTCDate());
+    const day = Math.min(
+      date.getUTCDate(),
+      new Date(Date.UTC(year, date.getUTCMonth() + 1, 0)).getUTCDate(),
+    );
 
     return Date.UTC(year, date.getUTCMonth(), day);
   };
   const thisYear = next(now.getUTCFullYear());
 
-  return Math.round(((thisYear >= today ? thisYear : next(now.getUTCFullYear() + 1)) - today) / DAY);
+  return Math.round(
+    ((thisYear >= today ? thisYear : next(now.getUTCFullYear() + 1)) - today) / DAY,
+  );
 };
 
 /** One rule. Text comparisons ignore case; numbers and dates compare by value. Never runs code. */
@@ -78,11 +90,17 @@ export const evaluateRule = (rule: ConditionRule, context: Record<string, unknow
     case 'contains':
       return Array.isArray(actual)
         ? actual.some((item) => same(item, expected))
-        : typeof actual === 'string' && typeof expected === 'string' && actual.toLowerCase().includes(expected.toLowerCase());
+        : typeof actual === 'string' &&
+            typeof expected === 'string' &&
+            actual.toLowerCase().includes(expected.toLowerCase());
     case 'not_contains':
       return !evaluateRule({ ...rule, op: 'contains' }, context);
     case 'starts_with':
-      return typeof actual === 'string' && typeof expected === 'string' && actual.toLowerCase().startsWith(expected.toLowerCase());
+      return (
+        typeof actual === 'string' &&
+        typeof expected === 'string' &&
+        actual.toLowerCase().startsWith(expected.toLowerCase())
+      );
     case 'in':
       return Array.isArray(expected) && expected.some((item) => same(actual, item));
     case 'not_in':
@@ -106,10 +124,15 @@ export const evaluateRule = (rule: ConditionRule, context: Record<string, unknow
   }
 };
 
-export const evaluateGroup = (group: ConditionGroup | undefined, context: Record<string, unknown>): boolean => {
+export const evaluateGroup = (
+  group: ConditionGroup | undefined,
+  context: Record<string, unknown>,
+): boolean => {
   if (!group || !group.rules.length) return true;
 
-  const results = group.rules.map((rule) => ('match' in rule ? evaluateGroup(rule, context) : evaluateRule(rule, context)));
+  const results = group.rules.map((rule) =>
+    'match' in rule ? evaluateGroup(rule, context) : evaluateRule(rule, context),
+  );
 
   return group.match === 'all' ? results.every(Boolean) : results.some(Boolean);
 };

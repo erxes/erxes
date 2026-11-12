@@ -1,4 +1,11 @@
-import { IconAddressBook, IconApps, IconBuilding, IconChartBar, IconLayoutGrid, IconUsers } from '@tabler/icons-react';
+import {
+  IconAddressBook,
+  IconApps,
+  IconBuilding,
+  IconChartBar,
+  IconLayoutGrid,
+  IconUsers,
+} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { HomeApps } from '../../components/HomeApps';
 import { HomeContactsOverview } from '../../components/HomeContactsOverview';
@@ -105,4 +112,6 @@ export const DASHBOARD_WIDGETS: TDashboardWidgetDefinition[] = [
   ...LEAD_REPORT_WIDGETS,
 ];
 
-export const DASHBOARD_WIDGETS_BY_TYPE = new Map(DASHBOARD_WIDGETS.map((widget) => [widget.type, widget]));
+export const DASHBOARD_WIDGETS_BY_TYPE = new Map(
+  DASHBOARD_WIDGETS.map((widget) => [widget.type, widget]),
+);

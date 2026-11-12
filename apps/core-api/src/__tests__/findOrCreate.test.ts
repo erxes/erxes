@@ -26,7 +26,11 @@ describeWithDb('customers for plugins (find or create)', () => {
   };
 
   beforeAll(async () => {
-    const acme = await createOrganization({ subdomain: 'acme', name: 'Acme', owner: { email: 'o@acme.mn' } });
+    const acme = await createOrganization({
+      subdomain: 'acme',
+      name: 'Acme',
+      owner: { email: 'o@acme.mn' },
+    });
 
     orgId = acme.organization.id;
     owner = await currentToken(acme.owner.id, orgId);
@@ -42,7 +46,10 @@ describeWithDb('customers for plugins (find or create)', () => {
   it('finds by email or phone (any of theirs), or creates — once, even when asked twice at once', async () => {
     const hr = await pluginToken(base, orgId);
     const [first, second] = await Promise.all([
-      call(hr, 'POST', '/customers/find-or-create', { primaryEmail: 'Applicant@Mail.mn', firstName: 'Saraa' }),
+      call(hr, 'POST', '/customers/find-or-create', {
+        primaryEmail: 'Applicant@Mail.mn',
+        firstName: 'Saraa',
+      }),
       call(hr, 'POST', '/customers/find-or-create', { primaryEmail: 'applicant@mail.mn' }),
     ]);
 
@@ -50,27 +57,45 @@ describeWithDb('customers for plugins (find or create)', () => {
     expect(first.body.customer.id).toBe(second.body.customer.id);
 
     // Another of their numbers and emails find them too.
-    await call(owner, 'PATCH', `/customers/${first.body.customer.id}`, { phones: ['99112233'], primaryPhone: '99112233' });
-    expect((await call(hr, 'POST', '/customers/find-or-create', { primaryPhone: '9911 2233' })).body).toMatchObject({
+    await call(owner, 'PATCH', `/customers/${first.body.customer.id}`, {
+      phones: ['99112233'],
+      primaryPhone: '99112233',
+    });
+    expect(
+      (await call(hr, 'POST', '/customers/find-or-create', { primaryPhone: '9911 2233' })).body,
+    ).toMatchObject({
       created: false,
       customer: { id: first.body.customer.id },
     });
 
     // The plugin can read what it found; the timeline says the plugin created it.
-    expect((await call(hr, 'GET', `/customers/${first.body.customer.id}`)).body.primaryEmail).toBe('applicant@mail.mn');
+    expect((await call(hr, 'GET', `/customers/${first.body.customer.id}`)).body.primaryEmail).toBe(
+      'applicant@mail.mn',
+    );
 
-    const audit = await call(owner, 'GET', `/audit?targetId=${first.body.customer.id}&action=customer.created`);
+    const audit = await call(
+      owner,
+      'GET',
+      `/audit?targetId=${first.body.customer.id}&action=customer.created`,
+    );
 
     expect(audit.body.data[0]).toMatchObject({ actor: { type: 'plugin', id: 'hr' }, source: 'hr' });
     expect((await call(hr, 'POST', '/customers/find-or-create', {})).status).toBe(400);
   });
 
   it('needs the customers scopes', async () => {
-    await call(await pluginToken(base), 'PUT', '/plugins/manifest', { title: 'HR', version: '1', scopes: ['notifications:write'] });
+    await call(await pluginToken(base), 'PUT', '/plugins/manifest', {
+      title: 'HR',
+      version: '1',
+      scopes: ['notifications:write'],
+    });
 
     const narrow = await pluginToken(base, orgId);
 
-    expect((await call(narrow, 'POST', '/customers/find-or-create', { primaryEmail: 'x@mail.mn' })).body.code).toBe('SCOPE_REQUIRED');
+    expect(
+      (await call(narrow, 'POST', '/customers/find-or-create', { primaryEmail: 'x@mail.mn' })).body
+        .code,
+    ).toBe('SCOPE_REQUIRED');
     expect((await call(narrow, 'GET', '/customers')).body.code).toBe('MEMBERS_ONLY');
   });
 });

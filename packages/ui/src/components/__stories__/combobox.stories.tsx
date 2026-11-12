@@ -101,9 +101,7 @@ export const WithError: Story = {
             <Command>
               <Command.Input placeholder="Search framework..." />
               <Command.List>
-                <Combobox.Empty
-                  error={{ message: 'Failed to load frameworks' } as any}
-                />
+                <Combobox.Empty error={{ message: 'Failed to load frameworks' } as any} />
               </Command.List>
             </Command>
           </Combobox.Content>

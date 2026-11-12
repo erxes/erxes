@@ -44,8 +44,12 @@ export const requestContext = (req: Request, res: Response, next: NextFunction) 
     );
   });
 
-  storage.run({ ip: req.ip ?? null, userAgent: req.get('user-agent')?.slice(0, 500) ?? null, requestId }, next);
+  storage.run(
+    { ip: req.ip ?? null, userAgent: req.get('user-agent')?.slice(0, 500) ?? null, requestId },
+    next,
+  );
 };
 
 /** The current request's info; empty outside a request (jobs, scripts, tests). */
-export const requestInfo = (): RequestInfo => storage.getStore() ?? { ip: null, userAgent: null, requestId: null };
+export const requestInfo = (): RequestInfo =>
+  storage.getStore() ?? { ip: null, userAgent: null, requestId: null };

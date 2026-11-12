@@ -1,4 +1,4 @@
-import type { LeadStage, LeadStageKind } from "@erxes/core-contract";
+import type { LeadStage, LeadStageKind } from '@erxes/core-contract';
 import {
   closestCenter,
   DndContext,
@@ -6,58 +6,34 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-} from "@dnd-kit/core";
+} from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import {
-  IconGripVertical,
-  IconPlus,
-  IconProgress,
-  IconTrash,
-} from "@tabler/icons-react";
-import {
-  Button,
-  Dialog,
-  Input,
-  PageContainer,
-  ScrollArea,
-  Select,
-  Spinner,
-} from "erxes-ui";
-import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
-import { PageHeader } from "ui-modules";
-import { AppBreadcrumb } from "~/components/AppBreadcrumb";
-import { useCan } from "~/modules/auth/session";
-import { useLeadStageMutations, useLeadStages } from "~/modules/leads/useLeads";
-import { useLeadsT, useStageName } from "~/modules/leads/i18n";
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { IconGripVertical, IconPlus, IconProgress, IconTrash } from '@tabler/icons-react';
+import { Button, Dialog, Input, PageContainer, ScrollArea, Select, Spinner } from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { PageHeader } from 'ui-modules';
+import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { useCan } from '~/modules/auth/session';
+import { useLeadStageMutations, useLeadStages } from '~/modules/leads/useLeads';
+import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
-const KINDS: LeadStageKind[] = ["open", "qualified", "disqualified"];
+const KINDS: LeadStageKind[] = ['open', 'qualified', 'disqualified'];
 
-const StageRow = ({
-  stage,
-  onRemove,
-}: {
-  stage: LeadStage;
-  onRemove: () => void;
-}) => {
+const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () => void }) => {
   const t = useLeadsT();
   const stageName = useStageName();
   const { update } = useLeadStageMutations();
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: stage.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: stage.id,
+  });
   // Default names show translated; saving another name keeps it as written.
   const shown = stageName(stage.name);
   const [name, setName] = useState(shown);
@@ -75,12 +51,12 @@ const StageRow = ({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`flex items-center gap-2 border-b bg-background px-3 py-2 last:border-b-0 ${isDragging ? "relative z-10 shadow-md" : ""}`}
+      className={`flex items-center gap-2 border-b bg-background px-3 py-2 last:border-b-0 ${isDragging ? 'relative z-10 shadow-md' : ''}`}
     >
       <button
         type="button"
         className="cursor-grab text-muted-foreground active:cursor-grabbing"
-        aria-label={t("settings.reorder")}
+        aria-label={t('settings.reorder')}
         {...attributes}
         {...listeners}
       >
@@ -89,14 +65,12 @@ const StageRow = ({
       <label
         className="relative size-6 shrink-0 cursor-pointer overflow-hidden rounded-full border"
         style={{ background: stage.color }}
-        title={t("settings.colour")}
+        title={t('settings.colour')}
       >
         <input
           type="color"
           value={stage.color}
-          onChange={(event) =>
-            update.mutate({ id: stage.id, color: event.target.value })
-          }
+          onChange={(event) => update.mutate({ id: stage.id, color: event.target.value })}
           className="absolute inset-0 cursor-pointer opacity-0"
         />
       </label>
@@ -104,15 +78,13 @@ const StageRow = ({
         value={name}
         onChange={(event) => setName(event.target.value)}
         onBlur={saveName}
-        onKeyDown={(event) => event.key === "Enter" && saveName()}
+        onKeyDown={(event) => event.key === 'Enter' && saveName()}
         className="h-8 flex-1"
         maxLength={60}
       />
       <Select
         value={stage.kind}
-        onValueChange={(kind) =>
-          update.mutate({ id: stage.id, kind: kind as LeadStageKind })
-        }
+        onValueChange={(kind) => update.mutate({ id: stage.id, kind: kind as LeadStageKind })}
       >
         <Select.Trigger className="h-8 w-36">
           <Select.Value />
@@ -127,22 +99,17 @@ const StageRow = ({
       </Select>
       <span
         className="w-36 text-right text-xs tabular-nums text-muted-foreground"
-        title={t("settings.counts", {
+        title={t('settings.counts', {
           people: stage.leadCount,
           companies: stage.companyLeadCount,
         })}
       >
-        {t("settings.counts", {
-          people: stage.leadCount.toLocaleString("en"),
-          companies: stage.companyLeadCount.toLocaleString("en"),
+        {t('settings.counts', {
+          people: stage.leadCount.toLocaleString('en'),
+          companies: stage.companyLeadCount.toLocaleString('en'),
         })}
       </span>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onRemove}
-        aria-label={t("settings.delete")}
-      >
+      <Button variant="ghost" size="icon" onClick={onRemove} aria-label={t('settings.delete')}>
         <IconTrash className="size-4" />
       </Button>
     </div>
@@ -163,15 +130,10 @@ const RemoveDialog = ({
   const stageName = useStageName();
   const { remove } = useLeadStageMutations();
   const others = stages.filter((item) => item.id !== stage?.id);
-  const [moveTo, setMoveTo] = useState("");
+  const [moveTo, setMoveTo] = useState('');
 
   useEffect(
-    () =>
-      setMoveTo(
-        others.find((item) => item.kind === stage?.kind)?.id ??
-          others[0]?.id ??
-          "",
-      ),
+    () => setMoveTo(others.find((item) => item.kind === stage?.kind)?.id ?? others[0]?.id ?? ''),
     [stage?.id],
   ); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -180,20 +142,20 @@ const RemoveDialog = ({
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
           <Dialog.Title>
-            {t("settings.delete-title", { name: stageName(stage?.name) })}
+            {t('settings.delete-title', { name: stageName(stage?.name) })}
           </Dialog.Title>
           <Dialog.Description>
             {stage && stage.leadCount + stage.companyLeadCount
-              ? t("settings.delete-in-use", {
+              ? t('settings.delete-in-use', {
                   count: stage.leadCount + stage.companyLeadCount,
                 })
-              : t("settings.delete-empty")}
+              : t('settings.delete-empty')}
           </Dialog.Description>
         </Dialog.Header>
         {Boolean(stage && stage.leadCount + stage.companyLeadCount) && (
           <Select value={moveTo} onValueChange={setMoveTo}>
             <Select.Trigger>
-              <Select.Value placeholder={t("settings.move-to")} />
+              <Select.Value placeholder={t('settings.move-to')} />
             </Select.Trigger>
             <Select.Content>
               {others.map((item) => (
@@ -206,7 +168,7 @@ const RemoveDialog = ({
         )}
         <Dialog.Footer>
           <Button variant="outline" onClick={onClose}>
-            {t("settings.cancel")}
+            {t('settings.cancel')}
           </Button>
           <Button
             variant="destructive"
@@ -215,17 +177,14 @@ const RemoveDialog = ({
               remove.mutate(
                 {
                   id: stage!.id,
-                  moveTo:
-                    stage!.leadCount + stage!.companyLeadCount
-                      ? moveTo
-                      : undefined,
+                  moveTo: stage!.leadCount + stage!.companyLeadCount ? moveTo : undefined,
                 },
                 { onSuccess: onClose },
               )
             }
           >
             {remove.isPending && <Spinner size="sm" />}
-            {t("settings.confirm")}
+            {t('settings.confirm')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>
@@ -241,14 +200,12 @@ export const LeadStagesPage = () => {
   const { create, reorder } = useLeadStageMutations();
   const [order, setOrder] = useState<string[]>([]);
   const [removing, setRemoving] = useState<LeadStage | null>(null);
-  const [newName, setNewName] = useState("");
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-  );
+  const [newName, setNewName] = useState('');
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   useEffect(() => setOrder(stages.map((stage) => stage.id)), [stages]);
 
-  if (!can("properties.manage")) return <Navigate to="/settings" replace />;
+  if (!can('properties.manage')) return <Navigate to="/settings" replace />;
 
   const ordered = order
     .map((id) => stages.find((stage) => stage.id === id))
@@ -257,11 +214,7 @@ export const LeadStagesPage = () => {
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
 
-    const next = arrayMove(
-      order,
-      order.indexOf(String(active.id)),
-      order.indexOf(String(over.id)),
-    );
+    const next = arrayMove(order, order.indexOf(String(active.id)), order.indexOf(String(over.id)));
 
     setOrder(next);
     reorder.mutate(next);
@@ -270,7 +223,7 @@ export const LeadStagesPage = () => {
   const add = () => {
     const name = newName.trim();
 
-    if (name) create.mutate({ name }, { onSuccess: () => setNewName("") });
+    if (name) create.mutate({ name }, { onSuccess: () => setNewName('') });
   };
 
   return (
@@ -280,7 +233,7 @@ export const LeadStagesPage = () => {
           <AppBreadcrumb
             items={[
               {
-                label: t("settings.title"),
+                label: t('settings.title'),
                 to: CONTACT_SETTINGS.leadStages,
                 icon: IconProgress,
               },
@@ -290,15 +243,11 @@ export const LeadStagesPage = () => {
       </PageHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-6">
-          <p className="text-sm text-muted-foreground">
-            {t("settings.description")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t('settings.description')}</p>
           <ul className="grid gap-1 text-xs text-muted-foreground">
             {KINDS.map((kind) => (
               <li key={kind}>
-                <span className="font-medium text-foreground">
-                  {t(`kind.${kind}`)}:
-                </span>{" "}
+                <span className="font-medium text-foreground">{t(`kind.${kind}`)}:</span>{' '}
                 {t(`kind-hint.${kind}`)}
               </li>
             ))}
@@ -312,16 +261,9 @@ export const LeadStagesPage = () => {
                 collisionDetection={closestCenter}
                 onDragEnd={onDragEnd}
               >
-                <SortableContext
-                  items={order}
-                  strategy={verticalListSortingStrategy}
-                >
+                <SortableContext items={order} strategy={verticalListSortingStrategy}>
                   {ordered.map((stage) => (
-                    <StageRow
-                      key={stage.id}
-                      stage={stage}
-                      onRemove={() => setRemoving(stage)}
-                    />
+                    <StageRow key={stage.id} stage={stage} onRemove={() => setRemoving(stage)} />
                   ))}
                 </SortableContext>
               </DndContext>
@@ -329,27 +271,26 @@ export const LeadStagesPage = () => {
                 <Input
                   value={newName}
                   onChange={(event) => setNewName(event.target.value)}
-                  onKeyDown={(event) => event.key === "Enter" && add()}
-                  placeholder={t("settings.new-stage")}
+                  onKeyDown={(event) => event.key === 'Enter' && add()}
+                  placeholder={t('settings.new-stage')}
                   className="h-8 flex-1"
                   maxLength={60}
                 />
-                <Button size="sm" className="h-8" onClick={add}
+                <Button
+                  size="sm"
+                  className="h-8"
+                  onClick={add}
                   disabled={!newName.trim() || create.isPending}
                 >
                   <IconPlus />
-                  {t("settings.add")}
+                  {t('settings.add')}
                 </Button>
               </div>
             </div>
           )}
         </div>
       </ScrollArea>
-      <RemoveDialog
-        stage={removing}
-        stages={stages}
-        onClose={() => setRemoving(null)}
-      />
+      <RemoveDialog stage={removing} stages={stages} onClose={() => setRemoving(null)} />
     </PageContainer>
   );
 };

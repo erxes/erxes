@@ -1,10 +1,27 @@
 import type { CustomValue } from '@erxes/core-db';
 import type { CompanyInput, CursorQuery } from '@erxes/core-contract';
 import { companies, customerCompanies, Db, newId, users, withTransaction } from '@erxes/core-db';
-import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
+import {
+  and,
+  arrayContains,
+  asc,
+  eq,
+  getTableColumns,
+  ilike,
+  inArray,
+  or,
+  SQL,
+  sql,
+} from 'drizzle-orm';
 import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
-import { normalizeEmail, normalizeName, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
+import {
+  normalizeEmail,
+  normalizeName,
+  normalizePhone,
+  resolveContacts,
+  unique,
+} from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
@@ -18,7 +35,13 @@ import {
 import { applyCustomFields } from '~/modules/fields/fields.service';
 import { customFieldsColumn, saveCustomFields } from '~/modules/fields/fieldValues';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
-import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
+import {
+  changeTags,
+  copyTags,
+  hasAnyTag,
+  setRecordTags,
+  tagIdsColumn,
+} from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
@@ -27,7 +50,10 @@ import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/leads.service';
 import { customers } from '@erxes/core-db';
 
-type CompanyRow = Omit<typeof companies.$inferSelect, 'searchText'> & { tagIds: string[]; customFields: Record<string, CustomValue> };
+type CompanyRow = Omit<typeof companies.$inferSelect, 'searchText'> & {
+  tagIds: string[];
+  customFields: Record<string, CustomValue>;
+};
 
 export const toCompanyDto = (row: CompanyRow) => ({
   id: row.id,
@@ -66,7 +92,11 @@ const selectCompanies = (client: Db) => {
   const { searchText: _searchText, ...columns } = getTableColumns(companies);
 
   return client
-    .select({ ...columns, tagIds: tagIdsColumn('company', companies.id), customFields: customFieldsColumn('company', companies.id) })
+    .select({
+      ...columns,
+      tagIds: tagIdsColumn('company', companies.id),
+      customFields: customFieldsColumn('company', companies.id),
+    })
     .from(companies);
 };
 
@@ -74,7 +104,10 @@ const findCompany = async (client: Db, orgId: string, id: string, followMerges =
   const [row] = await selectCompanies(client)
     .where(
       followMerges
-        ? and(eq(companies.orgId, orgId), or(eq(companies.id, id), arrayContains(companies.mergedIds, [id])))
+        ? and(
+            eq(companies.orgId, orgId),
+            or(eq(companies.id, id), arrayContains(companies.mergedIds, [id])),
+          )
         : inOrg(orgId, id),
     )
     .orderBy(sql`${companies.id} = ${id} DESC`)
@@ -99,12 +132,21 @@ const assertOwner = async (client: Db, orgId: string, ownerId: string | null | u
     .limit(1);
 
   if (!owner) {
-    throw new HttpError(400, 'INVALID_OWNER', 'The owner is not a team member of this organisation');
+    throw new HttpError(
+      400,
+      'INVALID_OWNER',
+      'The owner is not a team member of this organisation',
+    );
   }
 };
 
 /** A taken name → 409 naming the company that has it. */
-const conflictFrom = async (client: Db, orgId: string, error: unknown, name: string): Promise<never> => {
+const conflictFrom = async (
+  client: Db,
+  orgId: string,
+  error: unknown,
+  name: string,
+): Promise<never> => {
   if (pgCode(error) !== '23505') {
     throw error;
   }
@@ -137,7 +179,14 @@ export const companyListWhere = async (
   },
 ) => {
   // Company leads have their own views (and lead fields).
-  const filters: (SQL | undefined)[] = [await compileRecordFilter(client, actor, query.state === 'lead' ? 'company_lead' : 'company', query.filter)];
+  const filters: (SQL | undefined)[] = [
+    await compileRecordFilter(
+      client,
+      actor,
+      query.state === 'lead' ? 'company_lead' : 'company',
+      query.filter,
+    ),
+  ];
 
   if (query.state) {
     filters.push(eq(companies.state, query.state));
@@ -163,7 +212,10 @@ export const companyListWhere = async (
           .select({ id: customerCompanies.companyId })
           .from(customerCompanies)
           .where(
-            and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.customerId, query.customerId)),
+            and(
+              eq(customerCompanies.orgId, actor.orgId),
+              eq(customerCompanies.customerId, query.customerId),
+            ),
           ),
       ),
     );
@@ -179,7 +231,9 @@ export const companyListWhere = async (
         or(
           // Names, emails, phones and code, in one trigram-indexed column.
           sql`${companies.searchText} LIKE ${pattern.toLowerCase()}`,
-          pattern === phonePattern ? undefined : sql`${companies.searchText} LIKE ${phonePattern.toLowerCase()}`,
+          pattern === phonePattern
+            ? undefined
+            : sql`${companies.searchText} LIKE ${phonePattern.toLowerCase()}`,
           ilike(companies.website, pattern),
           ilike(companies.industry, pattern),
           ilike(companies.code, pattern),
@@ -208,7 +262,11 @@ export const listCompanies = async (
       },
       await companyListWhere(client, actor, query),
       query,
-      (where, orderBy, limit) => selectCompanies(client).where(where).orderBy(...orderBy).limit(limit),
+      (where, orderBy, limit) =>
+        selectCompanies(client)
+          .where(where)
+          .orderBy(...orderBy)
+          .limit(limit),
     ),
   );
 
@@ -219,7 +277,21 @@ export const getCompany = async (client: Db, actor: Actor, id: string) =>
   toCompanyDto(await findCompany(client, actor.orgId, id, true));
 
 const scalarFields = (input: CompanyInput) => {
-  const { primaryName, names, primaryEmail, emails, primaryPhone, phones, tagIds, customFields, leadStageId, disqualifyReason, source, sourceDetails, ...rest } = input;
+  const {
+    primaryName,
+    names,
+    primaryEmail,
+    emails,
+    primaryPhone,
+    phones,
+    tagIds,
+    customFields,
+    leadStageId,
+    disqualifyReason,
+    source,
+    sourceDetails,
+    ...rest
+  } = input;
 
   return rest;
 };
@@ -236,8 +308,17 @@ export const createCompany = async (
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'company', input.tagIds ?? []);
-  const customFields = await applyCustomFields(client, actor.orgId, 'company', {}, input.customFields);
-  const lead = await planLeadOnCreate(client, userCaller(actor), { ...input, state: input.state ?? 'customer' });
+  const customFields = await applyCustomFields(
+    client,
+    actor.orgId,
+    'company',
+    {},
+    input.customFields,
+  );
+  const lead = await planLeadOnCreate(client, userCaller(actor), {
+    ...input,
+    state: input.state ?? 'customer',
+  });
 
   try {
     const id = await client.transaction(async (tx) => {
@@ -258,7 +339,14 @@ export const createCompany = async (
         })
         .returning({ id: companies.id });
 
-      await saveCustomFields(tx, actor.orgId, 'company', row!.id, customFields, Object.keys(customFields));
+      await saveCustomFields(
+        tx,
+        actor.orgId,
+        'company',
+        row!.id,
+        customFields,
+        Object.keys(customFields),
+      );
       await recordLeadSteps(tx, userCaller(actor), 'company', row!.id, lead.steps);
       await setRecordTags(tx, actor.orgId, 'company', row!.id, tagIds);
       await contactCreated(tx, actor, 'company', await findCompany(tx, actor.orgId, row!.id));
@@ -280,7 +368,10 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
   await assertOwner(client, actor.orgId, input.ownerId);
 
   const changes: Partial<typeof companies.$inferInsert> = {};
-  const tagIds = input.tagIds === undefined ? undefined : await checkTagIds(client, actor.orgId, 'company', input.tagIds);
+  const tagIds =
+    input.tagIds === undefined
+      ? undefined
+      : await checkTagIds(client, actor.orgId, 'company', input.tagIds);
 
   if (input.primaryName !== undefined || input.names !== undefined) {
     const name = resolveContacts(
@@ -323,7 +414,13 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
   const customFields =
     input.customFields === undefined
       ? undefined
-      : await applyCustomFields(client, actor.orgId, 'company', current.customFields, input.customFields);
+      : await applyCustomFields(
+          client,
+          actor.orgId,
+          'company',
+          current.customFields,
+          input.customFields,
+        );
   const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
 
   try {
@@ -341,7 +438,14 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
       await recordLeadSteps(tx, userCaller(actor), 'company', id, lead.steps);
 
       if (customFields) {
-        await saveCustomFields(tx, actor.orgId, 'company', id, customFields, Object.keys(input.customFields ?? {}));
+        await saveCustomFields(
+          tx,
+          actor.orgId,
+          'company',
+          id,
+          customFields,
+          Object.keys(input.customFields ?? {}),
+        );
       }
 
       if (tagIds) {
@@ -357,13 +461,19 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
   }
 };
 
-export const removeCompanies = async (client: Db, actor: Actor, ids: string[], options: { undoingImport?: boolean } = {}) => {
+export const removeCompanies = async (
+  client: Db,
+  actor: Actor,
+  ids: string[],
+  options: { undoingImport?: boolean } = {},
+) => {
   // Undoing an import removes only what it created (its own permission is checked there).
   if (!options.undoingImport) requirePermission(actor, 'contacts.delete');
 
   const removed = await client.transaction(async (tx) => {
     // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
-    if (!options.undoingImport) await guardDeletions(tx, userCaller(actor), ids.length, 'companies', actor.role);
+    if (!options.undoingImport)
+      await guardDeletions(tx, userCaller(actor), ids.length, 'companies', actor.role);
     await moveToTrash(tx, userCaller(actor), 'company', ids);
 
     const rows = await tx
@@ -387,9 +497,18 @@ export const tagCompanies = async (
   const add = await checkTagIds(client, actor.orgId, 'company', input.add);
   const updated = await client.transaction(async (tx) => {
     const before = await tagsByCompany(tx, actor.orgId, input.ids);
-    const count = await changeTags(tx, actor.orgId, 'company', input.ids, { add, remove: unique(input.remove) });
+    const count = await changeTags(tx, actor.orgId, 'company', input.ids, {
+      add,
+      remove: unique(input.remove),
+    });
 
-    await contactsTagged(tx, actor, 'company', before, await tagsByCompany(tx, actor.orgId, input.ids));
+    await contactsTagged(
+      tx,
+      actor,
+      'company',
+      before,
+      await tagsByCompany(tx, actor.orgId, input.ids),
+    );
 
     return count;
   });
@@ -438,7 +557,9 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
     }
 
     const keep = rows.find((row) => row.id === input.keepId)!;
-    const others = ids.filter((id) => id !== keep.id).map((id) => rows.find((row) => row.id === id)!);
+    const others = ids
+      .filter((id) => id !== keep.id)
+      .map((id) => rows.find((row) => row.id === id)!);
     const otherIds = others.map((other) => other.id);
     const contacts = (pick: (row: CompanyRow) => { primary: string | null; list: string[] }) =>
       combineContacts(pick(keep), others.map(pick));
@@ -456,7 +577,9 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
       ON CONFLICT DO NOTHING
     `);
     await copyTags(tx, actor.orgId, 'company', otherIds, keep.id);
-    await tx.delete(companies).where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
+    await tx
+      .delete(companies)
+      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
 
     await tx
       .update(companies)
@@ -467,12 +590,19 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
         emails: email.list,
         primaryPhone: phone.primary,
         phones: phone.list,
-        mergedIds: unique([...keep.mergedIds, ...otherIds, ...others.flatMap((other) => other.mergedIds)]),
+        mergedIds: unique([
+          ...keep.mergedIds,
+          ...otherIds,
+          ...others.flatMap((other) => other.mergedIds),
+        ]),
         updatedAt: sql`now()`,
       })
       .where(inOrg(actor.orgId, keep.id));
 
-    const combined = combineCustomFields(keep.customFields, others.map((other) => other.customFields));
+    const combined = combineCustomFields(
+      keep.customFields,
+      others.map((other) => other.customFields),
+    );
 
     await saveCustomFields(tx, actor.orgId, 'company', keep.id, combined, Object.keys(combined));
 
@@ -511,6 +641,9 @@ export const companyPeople = async (client: Db, actor: Actor, id: string) => {
     .limit(500);
 
   return {
-    data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...person }) => ({ ...person, link: linkDto({ role, isPrimaryContact, endedAt, createdAt }) })),
+    data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...person }) => ({
+      ...person,
+      link: linkDto({ role, isPrimaryContact, endedAt, createdAt }),
+    })),
   };
 };

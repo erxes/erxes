@@ -39,14 +39,24 @@ import { useCan } from '~/modules/auth/session';
 const KEY = ['webhooks'];
 
 const useEventOptions = () => {
-  const { data } = useQuery({ queryKey: ['events', 'types'], queryFn: () => api.webhooks.eventTypes(), staleTime: 60_000 });
+  const { data } = useQuery({
+    queryKey: ['events', 'types'],
+    queryFn: () => api.webhooks.eventTypes(),
+    staleTime: 60_000,
+  });
   const types = data?.data ?? [];
-  const prefixes = [...new Set(types.map((item) => item.type.split('.').slice(0, 2).join('.')))].map((prefix) => ({
+  const prefixes = [
+    ...new Set(types.map((item) => item.type.split('.').slice(0, 2).join('.'))),
+  ].map((prefix) => ({
     value: `${prefix}.*`,
     label: `${prefix}.* (all)`,
   }));
 
-  return [{ value: '*', label: '* (every event)' }, ...prefixes, ...types.map((item) => ({ value: item.type, label: `${item.label} · ${item.type}` }))];
+  return [
+    { value: '*', label: '* (every event)' },
+    ...prefixes,
+    ...types.map((item) => ({ value: item.type, label: `${item.label} · ${item.type}` })),
+  ];
 };
 
 /** The secret, shown once: copy it now. */
@@ -59,7 +69,10 @@ const SecretNotice = ({ secret, onClose }: { secret: string; onClose: () => void
       <Dialog.Content>
         <Dialog.HeaderCombined
           title={t('secret-title', 'Signing secret')}
-          description={t('secret-description', "Copy it now: it won't be shown again. Check every request's Erxes-Signature with it.")}
+          description={t(
+            'secret-description',
+            "Copy it now: it won't be shown again. Check every request's Erxes-Signature with it.",
+          )}
         />
         <div className="flex gap-2">
           <Input readOnly value={secret} className="font-mono text-xs" />
@@ -88,7 +101,12 @@ const NewWebhook = ({ onCreated }: { onCreated: (secret: string) => void }) => {
   const [description, setDescription] = useState('');
   const [types, setTypes] = useState<MultiSelectOption[]>([]);
   const create = useMutation({
-    mutationFn: () => api.webhooks.create({ url, description: description || null, eventTypes: types.map((type) => type.value) }),
+    mutationFn: () =>
+      api.webhooks.create({
+        url,
+        description: description || null,
+        eventTypes: types.map((type) => type.value),
+      }),
     onSuccess: ({ secret }) => {
       void client.invalidateQueries({ queryKey: KEY });
       setOpen(false);
@@ -97,7 +115,12 @@ const NewWebhook = ({ onCreated }: { onCreated: (secret: string) => void }) => {
       setTypes([]);
       onCreated(secret);
     },
-    onError: (error) => toast({ variant: 'destructive', title: t('create-failed', 'Could not add the webhook'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('create-failed', 'Could not add the webhook'),
+        description: messageOf(error),
+      }),
   });
 
   return (
@@ -109,15 +132,29 @@ const NewWebhook = ({ onCreated }: { onCreated: (secret: string) => void }) => {
         </Button>
       </Dialog.Trigger>
       <Dialog.Content>
-        <Dialog.HeaderCombined title={t('add', 'Add webhook')} description={t('add-description', 'erxes POSTs each event you choose to this address, signed with a secret.')} />
+        <Dialog.HeaderCombined
+          title={t('add', 'Add webhook')}
+          description={t(
+            'add-description',
+            'erxes POSTs each event you choose to this address, signed with a secret.',
+          )}
+        />
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label>{t('url', 'Endpoint address')}</Label>
-            <Input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/erxes/webhook" />
+            <Input
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              placeholder="https://example.com/erxes/webhook"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>{t('description', 'Description')}</Label>
-            <Input value={description} onChange={(event) => setDescription(event.target.value)} placeholder={t('description-placeholder', 'What receives these events?')} />
+            <Input
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder={t('description-placeholder', 'What receives these events?')}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>{t('events', 'Events')}</Label>
@@ -126,11 +163,18 @@ const NewWebhook = ({ onCreated }: { onCreated: (secret: string) => void }) => {
               onChange={setTypes}
               defaultOptions={options}
               options={options}
-              placeholder={t('events-placeholder', 'Choose events, a prefix like core.customer.*, or *')}
+              placeholder={t(
+                'events-placeholder',
+                'Choose events, a prefix like core.customer.*, or *',
+              )}
               hidePlaceholderWhenSelected
             />
           </div>
-          <Button className="w-full" disabled={!url || !types.length || create.isPending} onClick={() => create.mutate()}>
+          <Button
+            className="w-full"
+            disabled={!url || !types.length || create.isPending}
+            onClick={() => create.mutate()}
+          >
             {t('create', 'Add webhook')}
           </Button>
         </div>
@@ -158,11 +202,17 @@ const Deliveries = ({ webhook }: { webhook: Webhook }) => {
   });
   const redeliver = useMutation({
     mutationFn: (deliveryId: string) => api.webhooks.redeliver({ deliveryId }),
-    onSuccess: () => void client.invalidateQueries({ queryKey: [...KEY, webhook.id, 'deliveries'] }),
+    onSuccess: () =>
+      void client.invalidateQueries({ queryKey: [...KEY, webhook.id, 'deliveries'] }),
   });
 
   if (isLoading) return <Spinner containerClassName="py-4" />;
-  if (!data?.data.length) return <p className="px-4 py-3 text-sm text-muted-foreground">{t('no-deliveries', 'Nothing sent yet.')}</p>;
+  if (!data?.data.length)
+    return (
+      <p className="px-4 py-3 text-sm text-muted-foreground">
+        {t('no-deliveries', 'Nothing sent yet.')}
+      </p>
+    );
 
   return (
     <ul className="divide-y text-sm">
@@ -172,7 +222,8 @@ const Deliveries = ({ webhook }: { webhook: Webhook }) => {
           <span className="font-mono text-xs">{delivery.eventType}</span>
           <span className="truncate text-xs text-muted-foreground">
             {delivery.error ?? (delivery.durationMs !== null ? `${delivery.durationMs} ms` : '')}
-            {delivery.attempts > 1 && ` · ${t('attempts', { count: delivery.attempts, defaultValue: `${delivery.attempts} attempts` })}`}
+            {delivery.attempts > 1 &&
+              ` · ${t('attempts', { count: delivery.attempts, defaultValue: `${delivery.attempts} attempts` })}`}
           </span>
           <span className="ml-auto text-xs text-muted-foreground">
             <RelativeDateDisplay value={delivery.createdAt} asChild>
@@ -181,7 +232,12 @@ const Deliveries = ({ webhook }: { webhook: Webhook }) => {
               </span>
             </RelativeDateDisplay>
           </span>
-          <Button size="sm" variant="ghost" disabled={redeliver.isPending} onClick={() => redeliver.mutate(delivery.id)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={redeliver.isPending}
+            onClick={() => redeliver.mutate(delivery.id)}
+          >
             <IconRefresh />
           </Button>
         </li>
@@ -190,26 +246,52 @@ const Deliveries = ({ webhook }: { webhook: Webhook }) => {
   );
 };
 
-const WebhookRow = ({ webhook, onSecret }: { webhook: Webhook; onSecret: (secret: string) => void }) => {
+const WebhookRow = ({
+  webhook,
+  onSecret,
+}: {
+  webhook: Webhook;
+  onSecret: (secret: string) => void;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
   const { toast } = useToast();
   const client = useQueryClient();
   const [open, setOpen] = useState(false);
   const refresh = () => void client.invalidateQueries({ queryKey: KEY });
-  const onError = (error: unknown) => toast({ variant: 'destructive', title: t('failed', 'Something went wrong'), description: messageOf(error) });
+  const onError = (error: unknown) =>
+    toast({
+      variant: 'destructive',
+      title: t('failed', 'Something went wrong'),
+      description: messageOf(error),
+    });
   const toggle = useMutation({
-    mutationFn: () => api.webhooks.update({ id: webhook.id, status: webhook.status === 'active' ? 'disabled' : 'active' }),
+    mutationFn: () =>
+      api.webhooks.update({
+        id: webhook.id,
+        status: webhook.status === 'active' ? 'disabled' : 'active',
+      }),
     onSuccess: refresh,
     onError,
   });
-  const remove = useMutation({ mutationFn: () => api.webhooks.remove({ id: webhook.id }), onSuccess: refresh, onError });
-  const rotate = useMutation({ mutationFn: () => api.webhooks.rotateSecret({ id: webhook.id }), onSuccess: ({ secret }) => onSecret(secret), onError });
+  const remove = useMutation({
+    mutationFn: () => api.webhooks.remove({ id: webhook.id }),
+    onSuccess: refresh,
+    onError,
+  });
+  const rotate = useMutation({
+    mutationFn: () => api.webhooks.rotateSecret({ id: webhook.id }),
+    onSuccess: ({ secret }) => onSecret(secret),
+    onError,
+  });
   const test = useMutation({
     mutationFn: () => api.webhooks.test({ id: webhook.id }),
     onSuccess: () => {
       toast({ title: t('test-sent', 'Test event queued') });
       setOpen(true);
-      setTimeout(() => void client.invalidateQueries({ queryKey: [...KEY, webhook.id, 'deliveries'] }), 2000);
+      setTimeout(
+        () => void client.invalidateQueries({ queryKey: [...KEY, webhook.id, 'deliveries'] }),
+        2000,
+      );
     },
     onError,
   });
@@ -235,17 +317,39 @@ const WebhookRow = ({ webhook, onSecret }: { webhook: Webhook; onSecret: (secret
             {webhook.disabledReason && ` · ${webhook.disabledReason}`}
           </p>
         </div>
-        <Button size="sm" variant="ghost" title={t('test', 'Send a test event')} disabled={test.isPending} onClick={() => test.mutate()}>
+        <Button
+          size="sm"
+          variant="ghost"
+          title={t('test', 'Send a test event')}
+          disabled={test.isPending}
+          onClick={() => test.mutate()}
+        >
           <IconSend />
         </Button>
-        <Button size="sm" variant="ghost" title={t('rotate', 'New signing secret')} disabled={rotate.isPending} onClick={() => rotate.mutate()}>
+        <Button
+          size="sm"
+          variant="ghost"
+          title={t('rotate', 'New signing secret')}
+          disabled={rotate.isPending}
+          onClick={() => rotate.mutate()}
+        >
           <IconKey />
         </Button>
-        <Button size="sm" variant="outline" disabled={toggle.isPending} onClick={() => toggle.mutate()}>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={toggle.isPending}
+          onClick={() => toggle.mutate()}
+        >
           {webhook.status === 'active' ? <IconX /> : <IconCheck />}
           {webhook.status === 'active' ? t('turn-off', 'Turn off') : t('turn-on', 'Turn on')}
         </Button>
-        <Button size="sm" variant="ghost" disabled={remove.isPending} onClick={() => remove.mutate()}>
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={remove.isPending}
+          onClick={() => remove.mutate()}
+        >
           <IconTrash />
         </Button>
       </div>
@@ -263,7 +367,11 @@ export const WebhooksSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
   const can = useCan();
   const [secret, setSecret] = useState<string | null>(null);
-  const { data, isLoading } = useQuery({ queryKey: KEY, queryFn: () => api.webhooks.list(), enabled: can('webhooks.manage') });
+  const { data, isLoading } = useQuery({
+    queryKey: KEY,
+    queryFn: () => api.webhooks.list(),
+    enabled: can('webhooks.manage'),
+  });
 
   if (!can('webhooks.manage')) return <Navigate to="/settings" replace />;
 
@@ -271,7 +379,9 @@ export const WebhooksSettingsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: t('title', 'Webhooks'), to: '/settings/webhooks', icon: IconWebhook }]} />
+          <AppBreadcrumb
+            items={[{ label: t('title', 'Webhooks'), to: '/settings/webhooks', icon: IconWebhook }]}
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <NewWebhook onCreated={setSecret} />
@@ -294,7 +404,12 @@ export const WebhooksSettingsPage = () => {
                   <IconWebhook />
                 </Empty.Media>
                 <Empty.Title>{t('empty', 'No webhooks yet')}</Empty.Title>
-                <Empty.Description>{t('empty-description', 'Send customer, company and plugin events to your own systems.')}</Empty.Description>
+                <Empty.Description>
+                  {t(
+                    'empty-description',
+                    'Send customer, company and plugin events to your own systems.',
+                  )}
+                </Empty.Description>
               </Empty.Header>
             </Empty>
           ) : (

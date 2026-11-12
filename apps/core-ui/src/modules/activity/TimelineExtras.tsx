@@ -23,7 +23,9 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
           onClick={() => react.mutate({ id: activity.id, emoji })}
           className={cn(
             'inline-flex h-5 items-center gap-1 rounded-full border px-1.5 text-[11px]',
-            people.includes(user.id) ? 'border-primary bg-primary/10 text-primary' : 'hover:bg-accent',
+            people.includes(user.id)
+              ? 'border-primary bg-primary/10 text-primary'
+              : 'hover:bg-accent',
           )}
         >
           {emoji} {people.length}
@@ -42,7 +44,12 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
         <Popover.Content className="w-auto p-1" align="start">
           <div className="flex gap-1">
             {QUICK.map((emoji) => (
-              <button key={emoji} type="button" className="rounded p-1 text-base hover:bg-accent" onClick={() => react.mutate({ id: activity.id, emoji })}>
+              <button
+                key={emoji}
+                type="button"
+                className="rounded p-1 text-base hover:bg-accent"
+                onClick={() => react.mutate({ id: activity.id, emoji })}
+              >
                 {emoji}
               </button>
             ))}
@@ -65,10 +72,14 @@ export const NoteHistory = ({ history }: { history: { body: string; editedAt: st
         </button>
       </Popover.Trigger>
       <Popover.Content className="w-80 space-y-2 text-sm" align="start">
-        <p className="text-xs font-medium text-muted-foreground">{t('earlier-versions', 'Earlier versions')}</p>
+        <p className="text-xs font-medium text-muted-foreground">
+          {t('earlier-versions', 'Earlier versions')}
+        </p>
         {[...history].reverse().map((entry, index) => (
           <div key={index} className="rounded border p-2">
-            <p className="text-xs text-muted-foreground">{new Date(entry.editedAt).toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(entry.editedAt).toLocaleString()}
+            </p>
             <p className="whitespace-pre-wrap">{entry.body}</p>
           </div>
         ))}

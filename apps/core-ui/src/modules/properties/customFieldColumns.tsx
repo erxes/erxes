@@ -17,7 +17,9 @@ export const customFieldColumns = <Row extends WithCustomFields>(
   fields.map((field) => ({
     id: `field:${field.id}`,
     accessorFn: (row) => row.customFields[field.id],
-    header: () => <RecordTable.InlineHead icon={FIELD_TYPE_ICONS[field.type]} label={field.label} />,
+    header: () => (
+      <RecordTable.InlineHead icon={FIELD_TYPE_ICONS[field.type]} label={field.label} />
+    ),
     cell: function Cell({ row }) {
       const save = useSave();
 

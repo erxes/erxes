@@ -8,7 +8,11 @@ export const memberName = (user: Pick<User, 'fullName' | 'email'>) => user.fullN
 /** Team members by id (any status), for showing who did something. */
 export const useMembersById = (ids: (string | null | undefined)[]) => {
   // The active team is loaded once for the whole app; only others (disabled members) are fetched by id.
-  const team = useQuery({ queryKey: ['users', 'options'], queryFn: () => api.users.list({ limit: 100, status: 'active' }), staleTime: 60_000 });
+  const team = useQuery({
+    queryKey: ['users', 'options'],
+    queryFn: () => api.users.list({ limit: 100, status: 'active' }),
+    staleTime: 60_000,
+  });
   const known = useMemo(() => new Set((team.data?.data ?? []).map((user) => user.id)), [team.data]);
   const wanted = useMemo(
     () => [...new Set(ids.filter((id): id is string => Boolean(id) && !known.has(id!)))].sort(),
@@ -24,7 +28,10 @@ export const useMembersById = (ids: (string | null | undefined)[]) => {
   });
 
   return useMemo(
-    () => new Map([...(team.data?.data ?? []), ...(query.data?.data ?? [])].map((user) => [user.id, user])),
+    () =>
+      new Map(
+        [...(team.data?.data ?? []), ...(query.data?.data ?? [])].map((user) => [user.id, user]),
+      ),
     [team.data, query.data],
   );
 };
@@ -34,7 +41,11 @@ export const pluginLabel = (name: string) =>
   name.length <= 3 ? name.toUpperCase() : name.charAt(0).toUpperCase() + name.slice(1);
 
 /** Who did it, in words. */
-export const actorLabel = (actor: ActorRef, members: Map<string, User>, unknownMember = 'A team member') => {
+export const actorLabel = (
+  actor: ActorRef,
+  members: Map<string, User>,
+  unknownMember = 'A team member',
+) => {
   if (actor.type === 'user') {
     const member = actor.id ? members.get(actor.id) : undefined;
 

@@ -41,12 +41,7 @@ const InputMain = React.forwardRef<HTMLInputElement, InputProps>(
         autoComplete="off"
         className={cn(
           inputVariants({
-            type:
-              type === 'file'
-                ? 'file'
-                : type === 'search'
-                ? 'search'
-                : 'default',
+            type: type === 'file' ? 'file' : type === 'search' ? 'search' : 'default',
             variant,
           }),
           className,
@@ -62,10 +57,7 @@ InputMain.displayName = 'Input';
 
 export const InputNumber = React.forwardRef<
   React.ElementRef<typeof IMaskInput>,
-  Except<
-    React.ComponentPropsWithoutRef<typeof IMaskInput>,
-    'onChange' | 'value'
-  > & {
+  Except<React.ComponentPropsWithoutRef<typeof IMaskInput>, 'onChange' | 'value'> & {
     onChange?: (value?: number | '') => void;
     value?: number;
   }

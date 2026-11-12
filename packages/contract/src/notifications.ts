@@ -71,9 +71,14 @@ export const CORE_NOTIFICATION_KINDS = [
 ] as const;
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];
 
-
 /** Security notices a member can't mute. */
-export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = ['core.user.role_changed', 'core.user.password_set', 'core.security.mass_deletion', 'core.security.alert', 'core.security.new_sign_in'];
+export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = [
+  'core.user.role_changed',
+  'core.user.password_set',
+  'core.security.mass_deletion',
+  'core.security.alert',
+  'core.security.new_sign_in',
+];
 
 /** Where a group of notifications goes: the inbox and email, the inbox only, or nowhere. */
 export const NotificationDelivery = z.enum(['email', 'inbox', 'off']);
@@ -84,22 +89,54 @@ export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
  * is a group of its own). `security` is always on.
  */
 export const CORE_NOTIFICATION_GROUPS = [
-  { key: 'assigned', label: 'Assigned to me', kinds: ['core.customer.assigned', 'core.company.assigned'], default: 'email' },
+  {
+    key: 'assigned',
+    label: 'Assigned to me',
+    kinds: ['core.customer.assigned', 'core.company.assigned'],
+    default: 'email',
+  },
   {
     key: 'records',
     label: 'Changes to records I own',
-    kinds: ['core.customer.updated', 'core.customer.merged', 'core.customer.deleted', 'core.company.updated', 'core.company.merged', 'core.company.deleted', 'core.customer.activity', 'core.company.activity'],
+    kinds: [
+      'core.customer.updated',
+      'core.customer.merged',
+      'core.customer.deleted',
+      'core.company.updated',
+      'core.company.merged',
+      'core.company.deleted',
+      'core.customer.activity',
+      'core.company.activity',
+    ],
     default: 'inbox',
   },
   { key: 'mentions', label: 'Mentions', kinds: ['core.note.mentioned'], default: 'email' },
-  { key: 'automations', label: 'Automations', kinds: ['core.automation.message', 'core.automation.failed'], default: 'inbox' },
-  { key: 'transfer', label: 'Imports and exports', kinds: ['core.import.done', 'core.export.ready'], default: 'inbox' },
+  {
+    key: 'automations',
+    label: 'Automations',
+    kinds: ['core.automation.message', 'core.automation.failed'],
+    default: 'inbox',
+  },
+  {
+    key: 'transfer',
+    label: 'Imports and exports',
+    kinds: ['core.import.done', 'core.export.ready'],
+    default: 'inbox',
+  },
   { key: 'security', label: 'Security', kinds: UNMUTABLE_NOTIFICATION_KINDS, default: 'inbox' },
-] as const satisfies readonly { key: string; label: string; kinds: readonly string[]; default: NotificationDelivery }[];
+] as const satisfies readonly {
+  key: string;
+  label: string;
+  kinds: readonly string[];
+  default: NotificationDelivery;
+}[];
 
 /** The group a notification belongs to: a core group, or the plugin that sent it. */
 export const notificationGroupOf = (source: string, kind: string) =>
-  source === 'core' ? (CORE_NOTIFICATION_GROUPS.find((group) => (group.kinds as readonly string[]).includes(kind))?.key ?? 'records') : source;
+  source === 'core'
+    ? (CORE_NOTIFICATION_GROUPS.find((group) => (group.kinds as readonly string[]).includes(kind))
+        ?.key ?? 'records')
+    : source;
 
 export const NotificationGroupSetting = z.object({
   key: z.string(),
@@ -143,7 +180,8 @@ export const notificationsContract = {
     .route({
       method: 'GET',
       path: '/notifications/unread-count',
-      summary: 'My unread notifications, in total and per inbox (core and each plugin); `source` for one inbox',
+      summary:
+        'My unread notifications, in total and per inbox (core and each plugin); `source` for one inbox',
     })
     .input(z.object({ source: z.string().trim().max(40).optional() }))
     .output(z.object({ count: z.number().int(), bySource: z.record(z.number().int()) })),
@@ -151,7 +189,8 @@ export const notificationsContract = {
     .route({
       method: 'POST',
       path: '/notifications/read',
-      summary: 'Mark some (`ids`), one inbox’s (`source`) or all of my notifications read, or unread with `read: false`',
+      summary:
+        'Mark some (`ids`), one inbox’s (`source`) or all of my notifications read, or unread with `read: false`',
     })
     .input(
       z.object({
@@ -162,14 +201,22 @@ export const notificationsContract = {
     )
     .output(z.object({ updated: z.number().int() })),
   remove: oc
-    .route({ method: 'DELETE', path: '/notifications/{id}', summary: 'Remove one of my notifications' })
+    .route({
+      method: 'DELETE',
+      path: '/notifications/{id}',
+      summary: 'Remove one of my notifications',
+    })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   settings: oc
     .route({ method: 'GET', path: '/notifications/settings', summary: 'My notification settings' })
     .output(NotificationSettings),
   updateSettings: oc
-    .route({ method: 'PUT', path: '/notifications/settings', summary: 'Where each group of notifications goes, and the email and browser switches' })
+    .route({
+      method: 'PUT',
+      path: '/notifications/settings',
+      summary: 'Where each group of notifications goes, and the email and browser switches',
+    })
     .input(
       z.object({
         groups: z.record(z.string().regex(/^[a-z][a-z0-9_]*$/), NotificationDelivery).optional(),

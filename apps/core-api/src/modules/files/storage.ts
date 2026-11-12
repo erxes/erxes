@@ -9,7 +9,17 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { link, mkdir, readdir, readFile, rm, rmdir, stat, unlink, writeFile } from 'node:fs/promises';
+import {
+  link,
+  mkdir,
+  readdir,
+  readFile,
+  rm,
+  rmdir,
+  stat,
+  unlink,
+  writeFile,
+} from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 import { config } from '~/config';
 
@@ -35,7 +45,10 @@ export interface DownloadRequest {
  */
 export interface Storage {
   /** A link the client PUTs the bytes to, and the headers it must send. */
-  uploadTarget(key: string, request: UploadRequest): Promise<{ url: string; headers: Record<string, string> }>;
+  uploadTarget(
+    key: string,
+    request: UploadRequest,
+  ): Promise<{ url: string; headers: Record<string, string> }>;
   /** The stored object's size (and version tag), or null when nothing is stored under the key. */
   stat(key: string): Promise<{ size: number; etag?: string } | null>;
   /**
@@ -61,7 +74,8 @@ export interface Storage {
  * Types a browser may show inline. Anything else (HTML, SVG, scripts) is sent
  * as a download, so an uploaded file can never run as a page of erxes.
  */
-const INLINE_TYPES = /^(image\/(png|jpe?g|gif|webp|avif|bmp)|application\/pdf|video\/(mp4|webm|ogg)|audio\/[a-z0-9.+-]+|text\/plain)$/;
+const INLINE_TYPES =
+  /^(image\/(png|jpe?g|gif|webp|avif|bmp)|application\/pdf|video\/(mp4|webm|ogg)|audio\/[a-z0-9.+-]+|text\/plain)$/;
 
 export const canShowInline = (contentType: string) => INLINE_TYPES.test(contentType);
 
@@ -88,11 +102,14 @@ export interface LocalGrant {
 }
 
 /** A file's own key, or an upload's temporary one. */
-const KEY = /^([A-Za-z0-9]+\/\d{4}\/\d{2}\/[A-Za-z0-9]+|uploads\/[A-Za-z0-9]+\/[A-Za-z0-9]+\/[a-f0-9]+)$/;
+const KEY =
+  /^([A-Za-z0-9]+\/\d{4}\/\d{2}\/[A-Za-z0-9]+|uploads\/[A-Za-z0-9]+\/[A-Za-z0-9]+\/[a-f0-9]+)$/;
 
-const signingKey = () => createHmac('sha256', config.auth.jwtSecret).update('core-files-v1').digest();
+const signingKey = () =>
+  createHmac('sha256', config.auth.jwtSecret).update('core-files-v1').digest();
 
-const sign = (payload: string) => createHmac('sha256', signingKey()).update(payload).digest('base64url');
+const sign = (payload: string) =>
+  createHmac('sha256', signingKey()).update(payload).digest('base64url');
 
 export const signGrant = (grant: LocalGrant) => {
   const payload = Buffer.from(JSON.stringify(grant)).toString('base64url');
@@ -251,8 +268,16 @@ const s3Storage = (): Storage => {
       const url = await getSignedUrl(
         client,
         // The size is part of the signature: S3 refuses a body of any other length.
-        new PutObjectCommand({ Bucket: s3.bucket, Key: key, ContentType: request.contentType, ContentLength: request.size }),
-        { expiresIn: request.expiresIn, signableHeaders: new Set(['content-type', 'content-length']) },
+        new PutObjectCommand({
+          Bucket: s3.bucket,
+          Key: key,
+          ContentType: request.contentType,
+          ContentLength: request.size,
+        }),
+        {
+          expiresIn: request.expiresIn,
+          signableHeaders: new Set(['content-type', 'content-length']),
+        },
       );
 
       return { url, headers: { 'Content-Type': request.contentType } };
@@ -263,7 +288,8 @@ const s3Storage = (): Storage => {
 
         return { size: head.ContentLength ?? 0, etag: head.ETag };
       } catch (error) {
-        const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
+        const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata
+          ?.httpStatusCode;
 
         if (status === 404 || (error as { name?: string }).name === 'NotFound') {
           return null;
@@ -305,7 +331,15 @@ const s3Storage = (): Storage => {
       return Buffer.from(await object.Body!.transformToByteArray());
     },
     async write(key, body, contentType) {
-      await client.send(new PutObjectCommand({ Bucket: s3.bucket, Key: key, Body: body, ContentType: contentType, IfNoneMatch: '*' }));
+      await client.send(
+        new PutObjectCommand({
+          Bucket: s3.bucket,
+          Key: key,
+          Body: body,
+          ContentType: contentType,
+          IfNoneMatch: '*',
+        }),
+      );
     },
   };
 };

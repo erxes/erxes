@@ -1,4 +1,11 @@
-import { companyFieldValues, type ContentType, customerFieldValues, type CustomValue, type Db, fields } from '@erxes/core-db';
+import {
+  companyFieldValues,
+  type ContentType,
+  customerFieldValues,
+  type CustomValue,
+  type Db,
+  fields,
+} from '@erxes/core-db';
 import { and, Column, eq, getTableName, inArray, is, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 
@@ -8,7 +15,8 @@ import type { PgColumn } from 'drizzle-orm/pg-core';
  * indexed column, multi-choice fields one row per choice. Records still read
  * and write them as `{ [fieldId]: value }`; this is the translation.
  */
-export const valuesTable = (type: ContentType) => (type === 'customer' ? customerFieldValues : companyFieldValues);
+export const valuesTable = (type: ContentType) =>
+  type === 'customer' ? customerFieldValues : companyFieldValues;
 
 /** Field types holding several values (one row each, in order). */
 export const LIST_FIELD_TYPES = ['multiselect', 'check', 'list'] as const;
@@ -21,7 +29,9 @@ const LIST_TYPES_SQL = sql.raw(`(${LIST_FIELD_TYPES.map((type) => `'${type}'`).j
  */
 export const customFieldsColumn = (type: ContentType, recordId: PgColumn | SQL) => {
   // Drizzle leaves columns unqualified in select lists: every name here is spelled out.
-  const outer = is(recordId, Column) ? sql`${sql.identifier(getTableName(recordId.table))}.${sql.identifier(recordId.name)}` : recordId;
+  const outer = is(recordId, Column)
+    ? sql`${sql.identifier(getTableName(recordId.table))}.${sql.identifier(recordId.name)}`
+    : recordId;
 
   return sql<Record<string, CustomValue>>`coalesce((
     select jsonb_object_agg(x.field_id, x.value) from (
@@ -40,8 +50,13 @@ export const customFieldsColumn = (type: ContentType, recordId: PgColumn | SQL) 
 type Row = typeof customerFieldValues.$inferInsert;
 
 /** The stored rows of one value of a field. */
-const rowsOf = (base: Pick<Row, 'orgId' | 'recordId' | 'fieldId'>, fieldType: string, value: CustomValue): Row[] => {
-  if (Array.isArray(value)) return value.map((item, position) => ({ ...base, position, textValue: item }));
+const rowsOf = (
+  base: Pick<Row, 'orgId' | 'recordId' | 'fieldId'>,
+  fieldType: string,
+  value: CustomValue,
+): Row[] => {
+  if (Array.isArray(value))
+    return value.map((item, position) => ({ ...base, position, textValue: item }));
 
   switch (fieldType) {
     case 'number':
@@ -78,12 +93,17 @@ export const saveCustomFields = async (
   if (!present.length) return;
 
   const types = new Map(
-    (await tx.select({ id: fields.id, type: fields.type }).from(fields).where(and(eq(fields.orgId, orgId), inArray(fields.id, present)))).map(
-      (field) => [field.id, field.type],
-    ),
+    (
+      await tx
+        .select({ id: fields.id, type: fields.type })
+        .from(fields)
+        .where(and(eq(fields.orgId, orgId), inArray(fields.id, present)))
+    ).map((field) => [field.id, field.type]),
   );
   const rows = present.flatMap((fieldId) =>
-    types.has(fieldId) ? rowsOf({ orgId, recordId, fieldId }, types.get(fieldId)!, values[fieldId]!) : [],
+    types.has(fieldId)
+      ? rowsOf({ orgId, recordId, fieldId }, types.get(fieldId)!, values[fieldId]!)
+      : [],
   );
 
   if (rows.length) await tx.insert(table).values(rows);

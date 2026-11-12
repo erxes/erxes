@@ -8,7 +8,12 @@ import { sql } from 'drizzle-orm';
 import { config } from '~/config';
 
 const main = async () => {
-  configureDb({ ...config.data, url: config.data.migrationUrl ?? config.data.url, role: undefined, applicationName: 'erxes-core-migrate' });
+  configureDb({
+    ...config.data,
+    url: config.data.migrationUrl ?? config.data.url,
+    role: undefined,
+    applicationName: 'erxes-core-migrate',
+  });
 
   const applied = await runMigrations();
 

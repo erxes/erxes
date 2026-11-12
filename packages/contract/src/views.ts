@@ -26,7 +26,10 @@ export const FilterField = z.object({
 });
 export type FilterField = z.infer<typeof FilterField>;
 
-export const ViewSort = z.object({ field: z.string().max(100), direction: z.enum(['asc', 'desc']) });
+export const ViewSort = z.object({
+  field: z.string().max(100),
+  direction: z.enum(['asc', 'desc']),
+});
 
 export const View = z.object({
   id: Id,
@@ -58,15 +61,28 @@ const ViewFields = {
 /** Saved lists (views) and what lists can be filtered by. */
 export const viewsContract = {
   list: oc
-    .route({ method: 'GET', path: '/views', summary: "Views of a list: the member's own and the team's shared ones" })
+    .route({
+      method: 'GET',
+      path: '/views',
+      summary: "Views of a list: the member's own and the team's shared ones",
+    })
     .input(z.object({ recordType: ViewRecordType }))
     .output(z.object({ data: z.array(View) })),
   create: oc
-    .route({ method: 'POST', path: '/views', successStatus: 201, summary: 'Save a view (sharing it with the team needs contacts.edit)' })
+    .route({
+      method: 'POST',
+      path: '/views',
+      successStatus: 201,
+      summary: 'Save a view (sharing it with the team needs contacts.edit)',
+    })
     .input(z.object({ recordType: ViewRecordType, ...ViewFields }))
     .output(View),
   update: oc
-    .route({ method: 'PATCH', path: '/views/{id}', summary: "Change a view (its creator; a shared one also members with contacts.edit)" })
+    .route({
+      method: 'PATCH',
+      path: '/views/{id}',
+      summary: 'Change a view (its creator; a shared one also members with contacts.edit)',
+    })
     .input(z.object({ id: Id, ...ViewFields, name: ViewFields.name.optional() }))
     .output(View),
   remove: oc
@@ -74,7 +90,11 @@ export const viewsContract = {
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
   fields: oc
-    .route({ method: 'GET', path: '/views/fields', summary: 'What a list can be filtered by: fields, custom fields, the company, activity' })
+    .route({
+      method: 'GET',
+      path: '/views/fields',
+      summary: 'What a list can be filtered by: fields, custom fields, the company, activity',
+    })
     .input(z.object({ recordType: ViewRecordType }))
     .output(z.object({ data: z.array(FilterField) })),
 };

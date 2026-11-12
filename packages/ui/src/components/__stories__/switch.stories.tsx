@@ -16,8 +16,7 @@ const meta: Meta<typeof Switch> = {
     },
     disabled: {
       control: 'boolean',
-      description:
-        'When true, prevents the user from interacting with the switch',
+      description: 'When true, prevents the user from interacting with the switch',
     },
   },
 };

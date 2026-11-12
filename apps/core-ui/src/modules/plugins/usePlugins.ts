@@ -11,7 +11,9 @@ const pluginRemotes = async (): Promise<PluginRemote[]> => {
   const registered = await api.plugins
     .list()
     .then(({ data }) =>
-      data.flatMap((plugin) => (plugin.installed && plugin.ui ? [{ name: plugin.ui.remote, entry: plugin.ui.entry }] : [])),
+      data.flatMap((plugin) =>
+        plugin.installed && plugin.ui ? [{ name: plugin.ui.remote, entry: plugin.ui.entry }] : [],
+      ),
     )
     .catch(() => [] as PluginRemote[]);
   const local = parsePluginRemotes();

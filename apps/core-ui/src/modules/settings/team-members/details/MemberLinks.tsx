@@ -37,7 +37,9 @@ export const MemberLinks = ({ user }: { user: User }) => {
                   value={value}
                   placeholder={field.label}
                   disabled={!permissions?.canEdit}
-                  onSave={(next) => edit.mutate({ id: user.id, links: { [field.name]: next || null } })}
+                  onSave={(next) =>
+                    edit.mutate({ id: user.id, links: { [field.name]: next || null } })
+                  }
                 />
                 {value && (
                   <Button
@@ -45,7 +47,9 @@ export const MemberLinks = ({ user }: { user: User }) => {
                     size="icon"
                     className="size-7 flex-none"
                     title={t('visit-link', 'Open link')}
-                    onClick={() => window.open(toLinkUrl(field.name, value), '_blank', 'noopener,noreferrer')}
+                    onClick={() =>
+                      window.open(toLinkUrl(field.name, value), '_blank', 'noopener,noreferrer')
+                    }
                   >
                     <IconExternalLink className="size-4" />
                   </Button>

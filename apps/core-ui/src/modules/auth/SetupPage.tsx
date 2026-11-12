@@ -103,14 +103,24 @@ export const SetupPage = () => {
         </div>
         <Form {...form}>
           <form onSubmit={onSubmit} className="mx-auto grid w-full gap-5" noValidate>
-            <Field name="organizationName" label="Organization name" autoComplete="organization" autoFocus />
+            <Field
+              name="organizationName"
+              label="Organization name"
+              autoComplete="organization"
+              autoFocus
+            />
             <div className="grid grid-cols-2 gap-3">
               <Field name="firstName" label="First name" autoComplete="given-name" />
               <Field name="lastName" label="Last name" autoComplete="family-name" />
             </div>
             <Field name="email" label="Email" type="email" autoComplete="email" />
             <Field name="password" label="Password" type="password" autoComplete="new-password" />
-            <Field name="confirmPassword" label="Confirm password" type="password" autoComplete="new-password" />
+            <Field
+              name="confirmPassword"
+              label="Confirm password"
+              type="password"
+              autoComplete="new-password"
+            />
             {error && (
               <p role="alert" className="text-center text-sm text-destructive">
                 {error}

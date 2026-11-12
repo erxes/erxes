@@ -7,7 +7,12 @@ import { Link } from 'react-router-dom';
 import { coreTabIconClassName } from '~/modules/navigation/coreTabClassName';
 import { CoreTabTooltip } from '~/modules/navigation/CoreTabTooltip';
 import { NotificationList } from './NotificationList';
-import { useInboxes, useNotificationActions, useNotificationList, useUnreadCounts } from './useNotifications';
+import {
+  useInboxes,
+  useNotificationActions,
+  useNotificationList,
+  useUnreadCounts,
+} from './useNotifications';
 
 /**
  * The top bar's inbox: unread count, the latest notifications from every
@@ -41,7 +46,9 @@ export const NotificationsBell = () => {
             size="icon"
             variant="ghost"
             aria-label={
-              count ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` }) : t('title', 'Notifications')
+              count
+                ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` })
+                : t('title', 'Notifications')
             }
             className={cn(coreTabIconClassName(open), 'relative')}
           >
@@ -74,8 +81,17 @@ export const NotificationsBell = () => {
               <IconChecks className="size-4" />
               {t('mark-all-read', 'Mark all read')}
             </Button>
-            <Button variant="ghost" size="icon" className="size-7" asChild aria-label={t('open-inbox', 'Open inbox')}>
-              <Link to={source ? `/notifications/${source}` : '/notifications'} onClick={() => setOpen(false)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              asChild
+              aria-label={t('open-inbox', 'Open inbox')}
+            >
+              <Link
+                to={source ? `/notifications/${source}` : '/notifications'}
+                onClick={() => setOpen(false)}
+              >
                 <IconInbox className="size-4" />
               </Link>
             </Button>
@@ -83,12 +99,20 @@ export const NotificationsBell = () => {
         </div>
         {/* Tabs reach the line: the active underline sits on it. */}
         <div className="flex items-stretch justify-between gap-2 border-b px-2">
-          <Tabs value={tab} onValueChange={(value) => setTab(value as 'all' | 'unread')} className="flex">
+          <Tabs
+            value={tab}
+            onValueChange={(value) => setTab(value as 'all' | 'unread')}
+            className="flex"
+          >
             <Tabs.List className="flex min-h-9 items-stretch self-stretch rounded-none border-0 py-0">
-              <Tabs.Trigger value="all" className="after:-mb-px">{t('all', 'All')}</Tabs.Trigger>
+              <Tabs.Trigger value="all" className="after:-mb-px">
+                {t('all', 'All')}
+              </Tabs.Trigger>
               <Tabs.Trigger value="unread" className="after:-mb-px">
                 {t('unread', 'Unread')}
-                {unreadHere > 0 && <span className="ml-1 text-xs text-muted-foreground">{unreadHere}</span>}
+                {unreadHere > 0 && (
+                  <span className="ml-1 text-xs text-muted-foreground">{unreadHere}</span>
+                )}
               </Tabs.Trigger>
             </Tabs.List>
           </Tabs>
@@ -107,12 +131,16 @@ export const NotificationsBell = () => {
                     onClick={() => setSource(active ? undefined : inbox.source)}
                     className={cn(
                       'flex h-6 shrink-0 items-center gap-1 rounded-full border px-2 text-xs',
-                      active ? 'border-primary bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent',
+                      active
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-accent',
                     )}
                   >
                     <Icon className="size-3" />
                     {inbox.label}
-                    {(bySource[inbox.source] ?? 0) > 0 && <span className="font-semibold">{bySource[inbox.source]}</span>}
+                    {(bySource[inbox.source] ?? 0) > 0 && (
+                      <span className="font-semibold">{bySource[inbox.source]}</span>
+                    )}
                   </button>
                 );
               })}

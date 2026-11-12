@@ -59,12 +59,18 @@ export const files = pgTable(
   (table) => [
     uniqueIndex('core_files_key_key').on(table.key),
     index('core_files_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
-    index('core_files_pending_idx').on(table.createdAt).where(sql`${table.status} = 'pending'`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_files_org_id_fkey' }).onDelete(
-      'cascade',
-    ),
+    index('core_files_pending_idx')
+      .on(table.createdAt)
+      .where(sql`${table.status} = 'pending'`),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_files_org_id_fkey',
+    }).onDelete('cascade'),
     check('core_files_status_check', sql`${table.status} IN ('pending', 'ready', 'deleting')`),
-    index('core_files_deleting_idx').on(table.updatedAt).where(sql`${table.status} = 'deleting'`),
+    index('core_files_deleting_idx')
+      .on(table.updatedAt)
+      .where(sql`${table.status} = 'deleting'`),
     check('core_files_size_check', sql`${table.size} >= 0`),
   ],
 );
@@ -103,8 +109,14 @@ export const notifications = pgTable(
     createdAt: createdAt(),
   },
   (table) => [
-    index('core_notifications_user_created_idx').on(table.userId, table.createdAt.desc(), table.id.desc()),
-    index('core_notifications_unread_idx').on(table.userId).where(sql`${table.readAt} IS NULL`),
+    index('core_notifications_user_created_idx').on(
+      table.userId,
+      table.createdAt.desc(),
+      table.id.desc(),
+    ),
+    index('core_notifications_unread_idx')
+      .on(table.userId)
+      .where(sql`${table.readAt} IS NULL`),
     uniqueIndex('core_notifications_dedupe_key')
       .on(table.orgId, table.userId, table.dedupeKey)
       .where(sql`${table.dedupeKey} IS NOT NULL`),
@@ -114,10 +126,14 @@ export const notifications = pgTable(
       name: 'core_notifications_org_id_fkey',
     }).onDelete('cascade'),
     // Retention removes read notifications by age.
-    index('core_notifications_read_at_idx').on(table.readAt).where(sql`${table.readAt} IS NOT NULL`),
-    foreignKey({ columns: [table.userId], foreignColumns: [users.id], name: 'core_notifications_user_id_fkey' }).onDelete(
-      'cascade',
-    ),
+    index('core_notifications_read_at_idx')
+      .on(table.readAt)
+      .where(sql`${table.readAt} IS NOT NULL`),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: 'core_notifications_user_id_fkey',
+    }).onDelete('cascade'),
     check('core_notifications_priority_check', sql`${table.priority} IN ('normal', 'high')`),
   ],
 );
@@ -183,7 +199,12 @@ export const activities = pgTable(
       'core_activities_target_type_check',
       sql`${table.targetType} IN ('customer', 'company') OR ${table.targetType} ~ '^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$'`,
     ),
-    index('core_activities_actor_idx').on(table.orgId, table.targetType, table.targetId, table.actorId),
+    index('core_activities_actor_idx').on(
+      table.orgId,
+      table.targetType,
+      table.targetId,
+      table.actorId,
+    ),
   ],
 );
 
@@ -227,7 +248,11 @@ export const auditLogs = pgTable(
   (table) => [
     index('core_audit_logs_org_source_idx').on(table.orgId, table.source, table.createdAt.desc()),
     uniqueIndex('core_audit_logs_chain_key').on(table.orgId, table.chainSeq),
-    index('core_audit_logs_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
+    index('core_audit_logs_org_created_idx').on(
+      table.orgId,
+      table.createdAt.desc(),
+      table.id.desc(),
+    ),
     index('core_audit_logs_target_idx').on(table.orgId, table.targetType, table.targetId),
     index('core_audit_logs_actor_idx').on(table.orgId, table.actorId),
     foreignKey({
@@ -259,7 +284,9 @@ export const events = pgTable(
     id: text().primaryKey(),
     seq: bigserial({ mode: 'number' }).notNull(),
     /** Transaction that wrote it: consumers only read finished transactions. */
-    txId: xid8().default(sql`pg_current_xact_id()`).notNull(),
+    txId: xid8()
+      .default(sql`pg_current_xact_id()`)
+      .notNull(),
     orgId: text().notNull(),
     /** `core` or the plugin that published it. */
     source: text().notNull(),
@@ -294,16 +321,20 @@ export const events = pgTable(
     uniqueIndex('core_events_dedupe_key')
       .on(table.orgId, table.source, table.dedupeKey)
       .where(sql`${table.dedupeKey} IS NOT NULL`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_events_org_id_fkey' }).onDelete(
-      'cascade',
-    ),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_events_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 
 /** How far each consumer has read the stream, in commit order. */
 export const eventConsumers = pgTable('event_consumers', {
   name: text().primaryKey(),
-  lastTxId: xid8().default(sql`'0'::xid8`).notNull(),
+  lastTxId: xid8()
+    .default(sql`'0'::xid8`)
+    .notNull(),
   lastSeq: bigint({ mode: 'number' }).default(0).notNull(),
   updatedAt: updatedAt(),
 });
@@ -332,11 +363,15 @@ export const eventFailures = pgTable(
   },
   (table) => [
     primaryKey({ columns: [table.consumer, table.eventId], name: 'core_event_failures_pkey' }),
-    index('core_event_failures_due_idx').on(table.nextAttemptAt).where(sql`${table.status} = 'retrying'`),
+    index('core_event_failures_due_idx')
+      .on(table.nextAttemptAt)
+      .where(sql`${table.status} = 'retrying'`),
     index('core_event_failures_org_idx').on(table.orgId, table.updatedAt.desc()),
-    foreignKey({ columns: [table.eventId], foreignColumns: [events.id], name: 'core_event_failures_event_id_fkey' }).onDelete(
-      'cascade',
-    ),
+    foreignKey({
+      columns: [table.eventId],
+      foreignColumns: [events.id],
+      name: 'core_event_failures_event_id_fkey',
+    }).onDelete('cascade'),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

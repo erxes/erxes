@@ -30,10 +30,7 @@ export const CopyText = ({ value, children, className }: CopyTextProps) => {
           <button
             type="button"
             onClick={handleCopy}
-            className={cn(
-              'inline-flex items-center gap-1 transition-colors',
-              className,
-            )}
+            className={cn('inline-flex items-center gap-1 transition-colors', className)}
           >
             {copied ? (
               <span className="flex items-center gap-1 text-success">

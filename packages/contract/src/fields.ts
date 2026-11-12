@@ -99,7 +99,10 @@ const Orders = z.object({
     .min(1)
     .max(500),
 });
-const QueryBoolean = z.union([z.boolean(), z.enum(['true', 'false']).transform((value) => value === 'true')]);
+const QueryBoolean = z.union([
+  z.boolean(),
+  z.enum(['true', 'false']).transform((value) => value === 'true'),
+]);
 const Ok = z.object({ ok: z.literal(true) });
 
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
@@ -131,7 +134,10 @@ export const fieldsContract = {
     .input(
       z
         .object({ ids: IdList.optional(), groupId: Id.optional() })
-        .refine((value) => (value.ids?.length ?? 0) > 0 || !!value.groupId, 'ids or groupId is required'),
+        .refine(
+          (value) => (value.ids?.length ?? 0) > 0 || !!value.groupId,
+          'ids or groupId is required',
+        ),
     )
     .output(FieldUsage),
   create: oc
@@ -184,7 +190,11 @@ export const fieldsContract = {
     )
     .output(Field),
   reorder: oc
-    .route({ method: 'POST', path: '/fields/order', summary: 'Set the order of fields (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/fields/order',
+      summary: 'Set the order of fields (owners and admins)',
+    })
     .input(Orders)
     .output(Ok),
   archive: oc
@@ -196,14 +206,19 @@ export const fieldsContract = {
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
     .output(Ok),
   restore: oc
-    .route({ method: 'POST', path: '/fields/{id}/restore', summary: 'Restore an archived field (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/fields/{id}/restore',
+      summary: 'Restore an archived field (owners and admins)',
+    })
     .input(z.object({ id: Id }))
     .output(Field),
   removeUnused: oc
     .route({
       method: 'POST',
       path: '/fields/remove',
-      summary: 'Delete fields no record holds a value of (owners and admins). 409 FIELD_IN_USE otherwise',
+      summary:
+        'Delete fields no record holds a value of (owners and admins). 409 FIELD_IN_USE otherwise',
     })
     .input(z.object({ ids: z.array(Id).min(1).max(100) }))
     .output(Ok),
@@ -244,7 +259,11 @@ export const fieldGroupsContract = {
     )
     .output(FieldGroup),
   update: oc
-    .route({ method: 'PATCH', path: '/field-groups/{id}', summary: 'Rename a field group (owners and admins)' })
+    .route({
+      method: 'PATCH',
+      path: '/field-groups/{id}',
+      summary: 'Rename a field group (owners and admins)',
+    })
     .input(
       z
         .object({
@@ -258,7 +277,11 @@ export const fieldGroupsContract = {
     )
     .output(FieldGroup),
   reorder: oc
-    .route({ method: 'POST', path: '/field-groups/order', summary: 'Set the order of field groups (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/field-groups/order',
+      summary: 'Set the order of field groups (owners and admins)',
+    })
     .input(Orders)
     .output(Ok),
   archive: oc
@@ -270,14 +293,19 @@ export const fieldGroupsContract = {
     .input(z.object({ id: Id }))
     .output(FieldGroup),
   restore: oc
-    .route({ method: 'POST', path: '/field-groups/{id}/restore', summary: 'Restore an archived group (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/field-groups/{id}/restore',
+      summary: 'Restore an archived group (owners and admins)',
+    })
     .input(z.object({ id: Id }))
     .output(FieldGroup),
   remove: oc
     .route({
       method: 'DELETE',
       path: '/field-groups/{id}',
-      summary: 'Delete a group and its fields when no record holds their values (owners and admins). 409 FIELD_IN_USE otherwise',
+      summary:
+        'Delete a group and its fields when no record holds their values (owners and admins). 409 FIELD_IN_USE otherwise',
     })
     .input(z.object({ id: Id }))
     .output(Ok),

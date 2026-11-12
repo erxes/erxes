@@ -80,7 +80,10 @@ const CompanyNameCell = ({ company }: { company: Company }) => {
   const handleEnter = () => {
     if (!editingName.trim() || editingName.trim() === primaryName) return;
 
-    edit.mutate({ id, primaryName: editingName.trim() }, { onError: () => setEditingName(primaryName) });
+    edit.mutate(
+      { id, primaryName: editingName.trim() },
+      { onError: () => setEditingName(primaryName) },
+    );
   };
 
   return (
@@ -107,7 +110,8 @@ const TextCell = ({ value }: { value: string }) => (
 const useCompanyFieldsSave = () => {
   const edit = useCompanyEdit();
 
-  return (id: string, customFields: Record<string, CustomValue | null>) => edit.mutate({ id, customFields });
+  return (id: string, customFields: Record<string, CustomValue | null>) =>
+    edit.mutate({ id, customFields });
 };
 
 /** Company columns, as in old core-ui. */
@@ -192,7 +196,10 @@ const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] 
           scope={`${SCOPE}.${row.original.id}.Owner`}
           value={row.original.ownerId}
           onValueChange={(ownerId) =>
-            edit.mutate({ id: row.original.id, ownerId: typeof ownerId === 'string' ? ownerId : null })
+            edit.mutate({
+              id: row.original.id,
+              ownerId: typeof ownerId === 'string' ? ownerId : null,
+            })
           }
         />
       );
@@ -223,14 +230,21 @@ const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] 
   {
     id: 'businessType',
     accessorKey: 'businessType',
-    header: () => <RecordTable.InlineHead icon={IconBriefcase} label={t('field.businessType') || 'Business Type'} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconBriefcase}
+        label={t('field.businessType') || 'Business Type'}
+      />
+    ),
     cell: ({ row }) => <TextCell value={row.original.businessType ?? ''} />,
     size: 150,
   },
   {
     id: 'website',
     accessorKey: 'website',
-    header: () => <RecordTable.InlineHead icon={IconWorld} label={t('field.website') || 'Website'} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconWorld} label={t('field.website') || 'Website'} />
+    ),
     cell: ({ row }) => <TextCell value={row.original.website ?? ''} />,
     size: 200,
   },
@@ -261,7 +275,14 @@ export const useCompaniesColumns = (state: 'lead' | 'customer' = 'customer') => 
   const { fields } = useFields('company');
 
   return useMemo(
-    () => withLifecycleColumns<Company>(createCompanyColumns(t), 'primaryName', 'company', state === 'lead', customFieldColumns<Company>(fields, useCompanyFieldsSave, SCOPE)),
+    () =>
+      withLifecycleColumns<Company>(
+        createCompanyColumns(t),
+        'primaryName',
+        'company',
+        state === 'lead',
+        customFieldColumns<Company>(fields, useCompanyFieldsSave, SCOPE),
+      ),
     [fields, t, state],
   );
 };

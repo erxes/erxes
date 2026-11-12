@@ -25,21 +25,33 @@ export const startMaintenance = () => {
   const run = async () => {
     try {
       // Each step spans organisations: a system scope of its own.
-      const uploads = await withSystem('cleanup: uploads', (tx) => pruneUploads(tx, config.files.pendingTtlHours));
+      const uploads = await withSystem('cleanup: uploads', (tx) =>
+        pruneUploads(tx, config.files.pendingTtlHours),
+      );
 
       await storage().sweepUploads?.(config.files.pendingTtlHours * HOUR);
-      const audit = await withSystem('cleanup: audit', (tx) => pruneAudit(tx, config.retention.auditDays));
+      const audit = await withSystem('cleanup: audit', (tx) =>
+        pruneAudit(tx, config.retention.auditDays),
+      );
       const read = await withSystem('cleanup: notifications', (tx) =>
         pruneNotifications(tx, config.retention.readNotificationDays),
       );
-      await withSystem('cleanup: webhook deliveries', (tx) => pruneDeliveries(tx, config.retention.eventDays));
+      await withSystem('cleanup: webhook deliveries', (tx) =>
+        pruneDeliveries(tx, config.retention.eventDays),
+      );
       // The recycle bin keeps things 30 days.
       await withSystem('cleanup: recycle bin', (tx) => purgeExpiredTrash(tx));
       // SaaS: every workspace's plugins from erxes.io; read-only ones past their grace turn off.
       await refreshAllEntitlements();
-      await withSystem('cleanup: deletion counters', (tx) => tx.execute(sql`delete from core_deletion_counters where bucket < now() - interval '1 day'`));
+      await withSystem('cleanup: deletion counters', (tx) =>
+        tx.execute(sql`delete from core_deletion_counters where bucket < now() - interval '1 day'`),
+      );
       const handled = await withSystem('cleanup: events', (tx) =>
-        pruneEvents(tx, config.retention.eventDays, CONSUMERS.map((consumer) => consumer.name)),
+        pruneEvents(
+          tx,
+          config.retention.eventDays,
+          CONSUMERS.map((consumer) => consumer.name),
+        ),
       );
 
       if (uploads || audit || read || handled) {
@@ -63,7 +75,10 @@ export const startMaintenance = () => {
 
   // Scheduled and date automations: checked every minute.
   const scheduler = setInterval(
-    () => void tickAutomations().catch((error: unknown) => log.error('automation scheduling failed', { error })),
+    () =>
+      void tickAutomations().catch((error: unknown) =>
+        log.error('automation scheduling failed', { error }),
+      ),
     60_000,
   );
 
@@ -71,7 +86,9 @@ export const startMaintenance = () => {
 
   // Signed audit checkpoints every 10 minutes: tampering is caught back to the last one.
   const checkpoint = () =>
-    withSystem('audit checkpoints', (tx) => signAuditCheckpoints(tx)).catch((error: unknown) => log.error('audit checkpoints failed', { error }));
+    withSystem('audit checkpoints', (tx) => signAuditCheckpoints(tx)).catch((error: unknown) =>
+      log.error('audit checkpoints failed', { error }),
+    );
 
   const first = setTimeout(run, 60_000);
   const timer = setInterval(run, HOUR);

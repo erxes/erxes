@@ -1,11 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import {
-  IconCalendar,
-  IconHome,
-  IconInbox,
-  IconSearch,
-  IconSettings,
-} from '@tabler/icons-react';
+import { IconCalendar, IconHome, IconInbox, IconSearch, IconSettings } from '@tabler/icons-react';
 import { Sidebar, Button, Label, Input } from 'erxes-ui/components';
 
 const meta: Meta<typeof Sidebar> = {
@@ -67,10 +61,7 @@ export const Default: Story = {
                 <Sidebar.Menu>
                   {items.map((item) => (
                     <Sidebar.MenuItem key={item.title}>
-                      <Sidebar.MenuButton
-                        tooltip={item.title}
-                        isActive={item.title === 'Home'}
-                      >
+                      <Sidebar.MenuButton tooltip={item.title} isActive={item.title === 'Home'}>
                         <item.icon />
                         <span>{item.title}</span>
                       </Sidebar.MenuButton>
@@ -86,9 +77,7 @@ export const Default: Story = {
                 <div className="h-8 w-8 rounded-full bg-primary"></div>
                 <div>
                   <p className="text-sm font-medium">User Name</p>
-                  <p className="text-xs text-muted-foreground">
-                    user@example.com
-                  </p>
+                  <p className="text-xs text-muted-foreground">user@example.com</p>
                 </div>
               </div>
               <Button variant="ghost" size="icon">

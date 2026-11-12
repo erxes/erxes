@@ -1,6 +1,16 @@
 import { IconCircleCheck, IconCircleX, IconKey, IconLock } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Badge, Button, Form, Input, PageContainer, RelativeDateDisplay, ScrollArea, Spinner, useToast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  Form,
+  Input,
+  PageContainer,
+  RelativeDateDisplay,
+  ScrollArea,
+  Spinner,
+  useToast,
+} from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
@@ -22,18 +32,30 @@ const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,200}$/;
 const PasswordForm = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { toast } = useToast();
-  const form = useForm<PasswordValues>({ defaultValues: { currentPassword: '', newPassword: '', confirm: '' } });
+  const form = useForm<PasswordValues>({
+    defaultValues: { currentPassword: '', newPassword: '', confirm: '' },
+  });
   const change = useMutation({
     mutationFn: (values: PasswordValues) =>
-      api.auth.changePassword({ currentPassword: values.currentPassword, newPassword: values.newPassword }),
+      api.auth.changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      }),
     onSuccess: () => {
       form.reset();
       toast({ title: t('password-changed', 'Password changed') });
     },
     onError: (error) => {
-      if (isApiError(error, 'WRONG_PASSWORD')) form.setError('currentPassword', { message: error.message });
-      else if (isApiError(error, 'SAME_PASSWORD')) form.setError('newPassword', { message: error.message });
-      else toast({ variant: 'destructive', title: t('password-failed', 'Could not change the password'), description: messageOf(error) });
+      if (isApiError(error, 'WRONG_PASSWORD'))
+        form.setError('currentPassword', { message: error.message });
+      else if (isApiError(error, 'SAME_PASSWORD'))
+        form.setError('newPassword', { message: error.message });
+      else
+        toast({
+          variant: 'destructive',
+          title: t('password-failed', 'Could not change the password'),
+          description: messageOf(error),
+        });
     },
   });
 
@@ -47,10 +69,17 @@ const PasswordForm = () => {
             ? {
                 pattern: {
                   value: PASSWORD_RULE,
-                  message: t('password-rule', 'At least 8 characters with a lower-case letter, an upper-case letter and a digit'),
+                  message: t(
+                    'password-rule',
+                    'At least 8 characters with a lower-case letter, an upper-case letter and a digit',
+                  ),
                 },
               }
-            : { validate: (value: string) => value === form.getValues('newPassword') || t('password-mismatch', 'The passwords differ') }
+            : {
+                validate: (value: string) =>
+                  value === form.getValues('newPassword') ||
+                  t('password-mismatch', 'The passwords differ'),
+              }
       }
       render={({ field: input }) => (
         <Form.Item>
@@ -65,9 +94,15 @@ const PasswordForm = () => {
   );
 
   return (
-    <Section title={t('password', 'Password')} description={t('password-description', 'Use a password you don’t use elsewhere.')}>
+    <Section
+      title={t('password', 'Password')}
+      description={t('password-description', 'Use a password you don’t use elsewhere.')}
+    >
       <Form {...form}>
-        <form className="grid grid-cols-1 gap-4 sm:grid-cols-3" onSubmit={form.handleSubmit((values) => change.mutate(values))}>
+        <form
+          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+          onSubmit={form.handleSubmit((values) => change.mutate(values))}
+        >
           {field('currentPassword', t('current-password', 'Current password'), 'current-password')}
           {field('newPassword', t('new-password', 'New password'), 'new-password')}
           {field('confirm', t('confirm-password', 'Repeat new password'), 'new-password')}
@@ -114,14 +149,22 @@ const deviceOf = (agent: string | null) => {
 /** Where and when I signed in; a failed attempt I don't recognise is worth a password change. */
 const SignIns = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
-  const { data, isPending } = useQuery({ queryKey: ['auth', 'sign-ins'], queryFn: () => api.auth.signIns() });
+  const { data, isPending } = useQuery({
+    queryKey: ['auth', 'sign-ins'],
+    queryFn: () => api.auth.signIns(),
+  });
 
   return (
-    <Section title={t('sign-ins', 'Recent sign-ins')} description={t('sign-ins-description', 'If you don’t recognise one, change your password.')}>
+    <Section
+      title={t('sign-ins', 'Recent sign-ins')}
+      description={t('sign-ins-description', 'If you don’t recognise one, change your password.')}
+    >
       {isPending ? (
         <Spinner containerClassName="py-6" />
       ) : !data?.data.length ? (
-        <p className="text-sm text-muted-foreground">{t('no-sign-ins', 'No sign-ins recorded yet.')}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('no-sign-ins', 'No sign-ins recorded yet.')}
+        </p>
       ) : (
         <ul className="divide-y text-sm">
           {data.data.map((entry) => (
@@ -159,13 +202,21 @@ const SignOutEverywhere = () => {
   const signOut = useSignOut();
   const run = useMutation({
     mutationFn: () => signOut({ everywhere: true }),
-    onError: (error) => toast({ variant: 'destructive', title: t('sign-out-everywhere-failed', 'Could not sign out'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('sign-out-everywhere-failed', 'Could not sign out'),
+        description: messageOf(error),
+      }),
   });
 
   return (
     <div className="mt-4 flex items-center justify-between gap-4 rounded-md border p-3">
       <p className="text-sm text-muted-foreground">
-        {t('sign-out-everywhere-description', 'Lost a device or signed in on a shared computer? End every session, this one included.')}
+        {t(
+          'sign-out-everywhere-description',
+          'Lost a device or signed in on a shared computer? End every session, this one included.',
+        )}
       </p>
       <Button variant="outline" disabled={run.isPending} onClick={() => run.mutate()}>
         {t('sign-out-everywhere', 'Sign out of all devices')}
@@ -182,7 +233,15 @@ export const SecuritySettingsPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: t('security-title', 'Password & security'), to: '/settings/security', icon: IconLock }]} />
+          <AppBreadcrumb
+            items={[
+              {
+                label: t('security-title', 'Password & security'),
+                to: '/settings/security',
+                icon: IconLock,
+              },
+            ]}
+          />
         </PageHeader.Start>
       </PageHeader>
       <ScrollArea className="flex-1">

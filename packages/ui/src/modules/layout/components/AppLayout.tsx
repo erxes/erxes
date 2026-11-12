@@ -69,9 +69,7 @@ const getAppLayoutAtoms = (id: string) => {
 
 /** Keeps a resized pane within its configured width limits. */
 const clampWidth = (value: number) =>
-  Math.round(
-    Math.min(APP_LAYOUT_MAX_WIDTH, Math.max(APP_LAYOUT_MIN_WIDTH, value)),
-  );
+  Math.round(Math.min(APP_LAYOUT_MAX_WIDTH, Math.max(APP_LAYOUT_MIN_WIDTH, value)));
 
 /** Resizes the application sidebar with pointer capture or keyboard steps. */
 const AppLayoutResizeHandle = ({
@@ -112,10 +110,7 @@ const AppLayoutResizeHandle = ({
       onKeyDown={(event) => {
         const panel = panelRef.current;
 
-        if (
-          !panel ||
-          (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')
-        ) {
+        if (!panel || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
           return;
         }
 
@@ -123,9 +118,7 @@ const AppLayoutResizeHandle = ({
         onResize(
           clampWidth(
             panel.offsetWidth +
-              (event.key === 'ArrowRight'
-                ? APP_LAYOUT_KEYBOARD_STEP
-                : -APP_LAYOUT_KEYBOARD_STEP),
+              (event.key === 'ArrowRight' ? APP_LAYOUT_KEYBOARD_STEP : -APP_LAYOUT_KEYBOARD_STEP),
           ),
         );
       }}
@@ -225,8 +218,7 @@ export const AppLayoutFooterLink = ({
 const APP_LAYOUT_PAGE_ENTER: Keyframe[] = [{ opacity: 0.4 }, { opacity: 1 }];
 
 /** Groups nested routes by application and page for page-entry animations. */
-const getPageKey = (pathname: string) =>
-  pathname.split('/').filter(Boolean).slice(0, 2).join('/');
+const getPageKey = (pathname: string) => pathname.split('/').filter(Boolean).slice(0, 2).join('/');
 
 /** The page pane: replays a short enter on route change, never the sidebar. */
 const AppLayoutPage = ({ children }: { children: ReactNode }) => {
@@ -244,10 +236,7 @@ const AppLayoutPage = ({ children }: { children: ReactNode }) => {
 
     previousKey.current = pageKey;
 
-    if (
-      !page?.animate ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
+    if (!page?.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return undefined;
     }
 
@@ -260,10 +249,7 @@ const AppLayoutPage = ({ children }: { children: ReactNode }) => {
   }, [pageKey]);
 
   return (
-    <div
-      ref={pageRef}
-      className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
-    >
+    <div ref={pageRef} className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
       <AppLayoutPageSlot>{children}</AppLayoutPageSlot>
     </div>
   );
@@ -278,9 +264,7 @@ const AppLayoutSidebarHeader = ({
   onCollapse: () => void;
 }) => (
   <div className="flex h-10 shrink-0 items-center px-2">
-    <div className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
-      {title}
-    </div>
+    <div className="min-w-0 flex-1 truncate px-2 text-sm font-medium">{title}</div>
     <Button
       aria-expanded
       aria-label="Collapse sidebar"
@@ -335,14 +319,8 @@ const AppLayoutDesktop = ({
         )}
         style={{ width: open ? currentWidth : 0 }}
       >
-        <div
-          className="flex h-full flex-col"
-          style={{ minWidth: currentWidth }}
-        >
-          <AppLayoutSidebarHeader
-            title={title}
-            onCollapse={() => setOpen(false)}
-          />
+        <div className="flex h-full flex-col" style={{ minWidth: currentWidth }}>
+          <AppLayoutSidebarHeader title={title} onCollapse={() => setOpen(false)} />
           <div
             data-navigation-context
             className="styled-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-1"
@@ -391,15 +369,8 @@ const AppLayoutMobile = ({
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden [--navigation-panel-toggle-space:2.5rem]">
       <Sidebar collapsible="offcanvas">
-        {title && (
-          <Sidebar.Header className="px-4 text-sm font-medium">
-            {title}
-          </Sidebar.Header>
-        )}
-        <div
-          data-navigation-context
-          className="styled-scroll min-h-0 flex-1 overflow-y-auto pb-1"
-        >
+        {title && <Sidebar.Header className="px-4 text-sm font-medium">{title}</Sidebar.Header>}
+        <div data-navigation-context className="styled-scroll min-h-0 flex-1 overflow-y-auto pb-1">
           {sidebar}
         </div>
         <AppLayoutFooter>{footer}</AppLayoutFooter>
@@ -424,11 +395,7 @@ const AppLayoutBody = (props: {
 }) => {
   const { isMobile } = Sidebar.useSidebar();
 
-  return isMobile ? (
-    <AppLayoutMobile {...props} />
-  ) : (
-    <AppLayoutDesktop {...props} />
-  );
+  return isMobile ? <AppLayoutMobile {...props} /> : <AppLayoutDesktop {...props} />;
 };
 
 /**
@@ -450,12 +417,7 @@ export const AppLayout = ({
   children: ReactNode;
 }) => (
   <Sidebar.Provider className="min-h-0 flex-1" sidebarKeyboardShortcut={false}>
-    <AppLayoutBody
-      atoms={getAppLayoutAtoms(id)}
-      sidebar={sidebar}
-      footer={footer}
-      title={title}
-    >
+    <AppLayoutBody atoms={getAppLayoutAtoms(id)} sidebar={sidebar} footer={footer} title={title}>
       {children}
     </AppLayoutBody>
   </Sidebar.Provider>

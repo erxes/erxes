@@ -18,7 +18,11 @@ export const Segmented = <T extends string>({
   /** For screen readers, when no visible label names the group. */
   label?: string;
 }) => (
-  <div role="radiogroup" aria-label={label} className={cn('flex rounded-md bg-muted p-0.5', className)}>
+  <div
+    role="radiogroup"
+    aria-label={label}
+    className={cn('flex rounded-md bg-muted p-0.5', className)}
+  >
     {options.map((option) => {
       const on = option.value === value;
 

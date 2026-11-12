@@ -72,7 +72,12 @@ const RecordSidePanelHeader = ({
 
   return (
     // Lines up with a page's breadcrumb row: h-10 plus its 1px rule.
-    <div className={cn('box-content flex items-center gap-1 h-10 px-2 border-b bg-sidebar flex-none', className)}>
+    <div
+      className={cn(
+        'box-content flex items-center gap-1 h-10 px-2 border-b bg-sidebar flex-none',
+        className,
+      )}
+    >
       {onBack && (
         <Button
           variant="ghost"
@@ -101,7 +106,13 @@ const RecordSidePanelHeader = ({
         </Button>
       )}
       {onClose && (
-        <Button variant="ghost" size="icon" className="size-7" onClick={onClose} title={t('close', 'Close')}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={onClose}
+          title={t('close', 'Close')}
+        >
           <IconX className="size-4" />
         </Button>
       )}
@@ -126,7 +137,8 @@ const RecordSidePanelTabs = ({
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = usePanelExpanded();
   const navigationTabs = expanded ? tabs.filter((tab) => tab.value !== overviewTab) : tabs;
-  const selectedValue = expanded && value === overviewTab ? (navigationTabs[0]?.value ?? value) : value;
+  const selectedValue =
+    expanded && value === overviewTab ? (navigationTabs[0]?.value ?? value) : value;
 
   return (
     <Tabs

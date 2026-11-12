@@ -24,11 +24,7 @@ export const Default: Story = {
       <div className=" ">
         <div className="space-y-2">
           <h3 className="text-lg font-medium">Block Editor</h3>
-          <Editor
-            onChange={setContent}
-            scope="block-editor"
-            className="min-h-[200px] w-[600px]"
-          />
+          <Editor onChange={setContent} scope="block-editor" className="min-h-[200px] w-[600px]" />
         </div>
 
         {content && (

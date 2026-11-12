@@ -1,10 +1,7 @@
 import { RecordTableMoreButton } from './components/MoreColumn';
 import { RecordTableHead } from './components/RecordTableHead';
 import { RecordTableHeader } from './components/RecordTableHeader';
-import {
-  RecordTableProvider,
-  useRecordTable,
-} from './components/RecordTableProvider';
+import { RecordTableProvider, useRecordTable } from './components/RecordTableProvider';
 import { RecordTableRoot } from './components/RecordTableRoot';
 import { RecordTableRowSkeleton } from './components/RecordTableRowSkeleton';
 import { RecordTableCell } from './components/RecordTableCell';

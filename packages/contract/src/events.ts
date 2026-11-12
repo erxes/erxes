@@ -79,12 +79,17 @@ export const eventsContract = {
       method: 'POST',
       path: '/events',
       successStatus: 201,
-      summary: 'Publish events (plugins only, up to 100). Types start with the plugin name; a dedupe key makes retries safe',
+      summary:
+        'Publish events (plugins only, up to 100). Types start with the plugin name; a dedupe key makes retries safe',
     })
     .input(z.object({ events: z.array(EventInput).min(1).max(100) }))
     .output(z.object({ published: z.number().int(), duplicates: z.number().int() })),
   list: oc
-    .route({ method: 'GET', path: '/events', summary: 'Recent events of the organisation (owners and admins)' })
+    .route({
+      method: 'GET',
+      path: '/events',
+      summary: 'Recent events of the organisation (owners and admins)',
+    })
     .input(
       CursorQuery.extend({
         source: z.string().trim().max(40).optional(),
@@ -99,7 +104,8 @@ export const eventsContract = {
     .route({
       method: 'GET',
       path: '/events/failures',
-      summary: 'Events that could not be handled: retrying with backoff, or dead after the last attempt (owners and admins)',
+      summary:
+        'Events that could not be handled: retrying with backoff, or dead after the last attempt (owners and admins)',
     })
     .input(z.object({ status: EventFailureStatus.optional() }))
     .output(
@@ -109,11 +115,24 @@ export const eventsContract = {
       }),
     ),
   retryFailures: oc
-    .route({ method: 'POST', path: '/events/failures/retry', summary: 'Try failed events again now (owners and admins)' })
-    .input(z.object({ failures: z.array(FailureRef).min(1).max(200).optional(), allDead: z.boolean().optional() }))
+    .route({
+      method: 'POST',
+      path: '/events/failures/retry',
+      summary: 'Try failed events again now (owners and admins)',
+    })
+    .input(
+      z.object({
+        failures: z.array(FailureRef).min(1).max(200).optional(),
+        allDead: z.boolean().optional(),
+      }),
+    )
     .output(z.object({ retried: z.number().int() })),
   dismissFailures: oc
-    .route({ method: 'POST', path: '/events/failures/dismiss', summary: 'Give up on failed events (owners and admins)' })
+    .route({
+      method: 'POST',
+      path: '/events/failures/dismiss',
+      summary: 'Give up on failed events (owners and admins)',
+    })
     .input(z.object({ failures: z.array(FailureRef).min(1).max(200) }))
     .output(z.object({ dismissed: z.number().int() })),
 };

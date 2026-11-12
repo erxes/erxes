@@ -8,11 +8,10 @@ import { TCountryCode } from 'erxes-ui/types';
 import { formatPhoneNumber } from 'erxes-ui/utils/format';
 import { phoneSchema } from 'erxes-ui/modules/inputs/validations/phoneValidation';
 
-interface PhoneInputProps
-  extends Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    'value' | 'onChange'
-  > {
+interface PhoneInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'value' | 'onChange'
+> {
   value?: string;
   onChange?: (value: string, defaultCountryCode: CountryCode) => void;
   className?: string;
@@ -36,9 +35,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     },
     ref,
   ) => {
-
-    const displayValue =
-      value && !value.startsWith('+') ? `+${value}` : value || '';
+    const displayValue = value && !value.startsWith('+') ? `+${value}` : value || '';
 
     let parsedNumber;
     try {
@@ -49,7 +46,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
 
     const initialCountry = parsedNumber?.country;
     const [selectedCountry, setSelectedCountry] = useState<TCountryCode | undefined>(
-      CountryPhoneCodes.find((c) => c.code === initialCountry)
+      CountryPhoneCodes.find((c) => c.code === initialCountry),
     );
 
     const initialValue = displayValue
@@ -73,8 +70,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
         onValidationChange?.(true);
         return true;
       } catch (error: any) {
-        const errorMessage =
-          error.errors?.[0]?.message || 'Invalid phone number';
+        const errorMessage = error.errors?.[0]?.message || 'Invalid phone number';
         setValidationError(errorMessage);
         onValidationChange?.(false, errorMessage);
         return false;
@@ -109,9 +105,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
       let countryToUse = selectedCountry;
       const countryCode = parsedNumber?.country;
       if (countryCode) {
-        const newCountry = CountryPhoneCodes.find(
-          (c) => c.code === countryCode,
-        );
+        const newCountry = CountryPhoneCodes.find((c) => c.code === countryCode);
         if (newCountry) {
           setSelectedCountry(newCountry);
           countryToUse = newCountry;
@@ -147,10 +141,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
           <Combobox.TriggerBase
             variant="secondary"
             aria-expanded={open}
-            className={cn(
-              'text-xl w-8 px-0 justify-center shadow-xs',
-              className,
-            )}
+            className={cn('text-xl w-8 px-0 justify-center shadow-xs', className)}
           >
             {selectedCountry?.flag}
           </Combobox.TriggerBase>
@@ -173,9 +164,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
                           {country.dial_code}
                         </span>
                       </div>
-                      {selectedCountry?.code === country.code && (
-                        <IconCheck className="size-4" />
-                      )}
+                      {selectedCountry?.code === country.code && <IconCheck className="size-4" />}
                     </Command.Item>
                   ))}
                 </Command.Group>
@@ -192,8 +181,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
             ref={ref}
             className={cn(
               'bg-accent',
-              validationError &&
-              'border-destructive focus-visible:ring-destructive',
+              validationError && 'border-destructive focus-visible:ring-destructive',
               className,
             )}
             type="tel"

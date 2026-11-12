@@ -51,7 +51,9 @@ const OptionsCell = ({
                   value={option}
                   onSelect={() => {
                     if (multiple) {
-                      onSave(selected ? value.filter((item) => item !== option) : [...value, option]);
+                      onSave(
+                        selected ? value.filter((item) => item !== option) : [...value, option],
+                      );
                     } else {
                       setOpen(false);
                       onSave(selected ? null : option);

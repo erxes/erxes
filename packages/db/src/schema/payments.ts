@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { bigint, check, foreignKey, index, jsonb, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  bigint,
+  check,
+  foreignKey,
+  index,
+  jsonb,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
@@ -7,7 +17,14 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export const PAYMENT_GATEWAY_KINDS = ['qpay', 'test'] as const;
-export const INVOICE_STATUSES = ['pending', 'paid', 'refunded', 'cancelled', 'expired', 'failed'] as const;
+export const INVOICE_STATUSES = [
+  'pending',
+  'paid',
+  'refunded',
+  'cancelled',
+  'expired',
+  'failed',
+] as const;
 export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
 export const REFUND_METHODS = ['gateway', 'manual'] as const;
 
@@ -24,7 +41,9 @@ export const paymentGateways = pgTable(
     name: text().notNull(),
     /** Sealed JSON of the gateway's settings (client id, secret, invoice code, …). */
     configSealed: text().notNull(),
-    status: text({ enum: ['active', 'disabled'] }).default('active').notNull(),
+    status: text({ enum: ['active', 'disabled'] })
+      .default('active')
+      .notNull(),
     createdBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -32,7 +51,11 @@ export const paymentGateways = pgTable(
   (table) => [
     uniqueIndex('core_payment_gateways_org_id_id_key').on(table.orgId, table.id),
     check('core_payment_gateways_kind_check', sql`${table.kind} IN ('qpay', 'test')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_payment_gateways_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_payment_gateways_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );
 
@@ -77,12 +100,27 @@ export const paymentInvoices = pgTable(
   },
   (table) => [
     uniqueIndex('core_payment_invoices_org_id_id_key').on(table.orgId, table.id),
-    index('core_payment_invoices_reference_idx').on(table.orgId, table.source, table.referenceType, table.referenceId),
-    index('core_payment_invoices_pending_idx').on(table.expiresAt).where(sql`${table.status} = 'pending'`),
-    uniqueIndex('core_payment_invoices_dedupe_key').on(table.orgId, table.source, table.dedupeKey).where(sql`${table.dedupeKey} IS NOT NULL`),
-    check('core_payment_invoices_status_check', sql`${table.status} IN ('pending', 'paid', 'refunded', 'cancelled', 'expired', 'failed')`),
+    index('core_payment_invoices_reference_idx').on(
+      table.orgId,
+      table.source,
+      table.referenceType,
+      table.referenceId,
+    ),
+    index('core_payment_invoices_pending_idx')
+      .on(table.expiresAt)
+      .where(sql`${table.status} = 'pending'`),
+    uniqueIndex('core_payment_invoices_dedupe_key')
+      .on(table.orgId, table.source, table.dedupeKey)
+      .where(sql`${table.dedupeKey} IS NOT NULL`),
+    check(
+      'core_payment_invoices_status_check',
+      sql`${table.status} IN ('pending', 'paid', 'refunded', 'cancelled', 'expired', 'failed')`,
+    ),
     check('core_payment_invoices_amount_check', sql`${table.amount} > 0`),
-    check('core_payment_invoices_refunded_check', sql`${table.refundedAmount} >= 0 AND ${table.refundedAmount} <= coalesce(${table.paidAmount}, ${table.amount})`),
+    check(
+      'core_payment_invoices_refunded_check',
+      sql`${table.refundedAmount} >= 0 AND ${table.refundedAmount} <= coalesce(${table.paidAmount}, ${table.amount})`,
+    ),
     foreignKey({
       columns: [table.orgId, table.gatewayId],
       foreignColumns: [paymentGateways.orgId, paymentGateways.id],
@@ -117,7 +155,9 @@ export const paymentRefunds = pgTable(
   },
   (table) => [
     index('core_payment_refunds_invoice_idx').on(table.orgId, table.invoiceId, table.createdAt),
-    uniqueIndex('core_payment_refunds_dedupe_key').on(table.orgId, table.invoiceId, table.dedupeKey).where(sql`${table.dedupeKey} IS NOT NULL`),
+    uniqueIndex('core_payment_refunds_dedupe_key')
+      .on(table.orgId, table.invoiceId, table.dedupeKey)
+      .where(sql`${table.dedupeKey} IS NOT NULL`),
     check('core_payment_refunds_amount_check', sql`${table.amount} > 0`),
     check('core_payment_refunds_method_check', sql`${table.method} IN ('gateway', 'manual')`),
     check('core_payment_refunds_status_check', sql`${table.status} IN ('succeeded', 'failed')`),
@@ -140,12 +180,19 @@ export const paymentPluginSettings = pgTable(
     orgId: text().notNull(),
     plugin: text().notNull(),
     defaultGatewayId: text(),
-    allowedGatewayIds: text().array().default(sql`'{}'::text[]`).notNull(),
+    allowedGatewayIds: text()
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     updatedBy: text(),
     updatedAt: updatedAt(),
   },
   (table) => [
     primaryKey({ columns: [table.orgId, table.plugin], name: 'core_payment_plugin_settings_pkey' }),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_payment_plugin_settings_org_id_fkey' }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_payment_plugin_settings_org_id_fkey',
+    }).onDelete('cascade'),
   ],
 );

@@ -8,11 +8,13 @@ import { createOrganization } from '~/modules/organizations/organizations.servic
 import { adminDb, describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
 import { pluginToken } from './plugin';
 
-
 /** Reads Server-Sent Events from a stream until `until` matches or time runs out. */
 const openStream = async (url: string, token: string) => {
   const controller = new AbortController();
-  const response = await fetch(url, { headers: { authorization: `Bearer ${token}` }, signal: controller.signal });
+  const response = await fetch(url, {
+    headers: { authorization: `Bearer ${token}` },
+    signal: controller.signal,
+  });
   const reader = response.body!.getReader();
   const decoder = new TextDecoder();
   const events: { event: string; data: unknown }[] = [];
@@ -45,7 +47,10 @@ const openStream = async (url: string, token: string) => {
     }
   })();
 
-  const waitFor = async (match: (entry: { event: string; data: unknown }) => boolean, ms = 8000) => {
+  const waitFor = async (
+    match: (entry: { event: string; data: unknown }) => boolean,
+    ms = 8000,
+  ) => {
     const started = Date.now();
 
     while (Date.now() - started < ms) {
@@ -83,12 +88,22 @@ describeWithDb('live updates (/core/v1/stream)', () => {
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
-    const acme = await createOrganization({ subdomain: 'acme', name: 'Acme', owner: { email: 'owner@acme.mn' } });
-    const globex = await createOrganization({ subdomain: 'globex', name: 'Globex', owner: { email: 'owner@globex.mn' } });
+    const acme = await createOrganization({
+      subdomain: 'acme',
+      name: 'Acme',
+      owner: { email: 'owner@acme.mn' },
+    });
+    const globex = await createOrganization({
+      subdomain: 'globex',
+      name: 'Globex',
+      owner: { email: 'owner@globex.mn' },
+    });
 
     orgId = acme.organization.id;
     memberId = newId();
-    await adminDb().insert(users).values({ id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' });
+    await adminDb()
+      .insert(users)
+      .values({ id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' });
     ownerToken = signAccessToken(acme.owner.id, orgId);
     memberToken = signAccessToken(memberId, orgId);
     otherToken = signAccessToken(globex.owner.id, globex.organization.id);
@@ -122,11 +137,16 @@ describeWithDb('live updates (/core/v1/stream)', () => {
     const other = await openStream(`${base}/core/v1/stream`, otherToken);
 
     expect(member.status).toBe(200);
-    expect(await member.waitFor((entry) => entry.event === 'hello')).toMatchObject({ data: { mode: 'live' } });
+    expect(await member.waitFor((entry) => entry.event === 'hello')).toMatchObject({
+      data: { mode: 'live' },
+    });
 
     const sent = await fetch(`${base}/core/v1/notifications`, {
       method: 'POST',
-      headers: { authorization: `Bearer ${await pluginToken(base, orgId)}`, 'content-type': 'application/json' },
+      headers: {
+        authorization: `Bearer ${await pluginToken(base, orgId)}`,
+        'content-type': 'application/json',
+      },
       body: JSON.stringify({ userIds: [memberId], kind: 'hr.leave.requested', title: 'Leave' }),
     });
 
@@ -141,7 +161,9 @@ describeWithDb('live updates (/core/v1/stream)', () => {
 
     const timeline = await owner.waitFor((entry) => entry.event === 'timeline');
 
-    expect(timeline?.data).toEqual({ targets: [{ targetType: 'customer', targetId: customer.id }] });
+    expect(timeline?.data).toEqual({
+      targets: [{ targetType: 'customer', targetId: customer.id }],
+    });
     expect(await member.waitFor((entry) => entry.event === 'timeline')).not.toBeNull();
 
     // Nothing crosses organisations, and nobody sees another member's inbox.
@@ -167,9 +189,18 @@ describeWithDb('live updates (/core/v1/stream)', () => {
 
     await fetch(`${base}/core/v1/events`, {
       method: 'POST',
-      headers: { authorization: `Bearer ${await pluginToken(base, orgId)}`, 'content-type': 'application/json' },
+      headers: {
+        authorization: `Bearer ${await pluginToken(base, orgId)}`,
+        'content-type': 'application/json',
+      },
       body: JSON.stringify({
-        events: [{ type: 'hr.contract.signed', subject: { type: 'customer', id: customer.id }, summary: 'Signed' }],
+        events: [
+          {
+            type: 'hr.contract.signed',
+            subject: { type: 'customer', id: customer.id },
+            summary: 'Signed',
+          },
+        ],
       }),
     });
 
@@ -177,7 +208,9 @@ describeWithDb('live updates (/core/v1/stream)', () => {
     const signal = await owner.waitFor(
       (entry) =>
         entry.event === 'timeline' &&
-        (entry.data as { targets: { targetId: string }[] }).targets.some((target) => target.targetId === customer.id),
+        (entry.data as { targets: { targetId: string }[] }).targets.some(
+          (target) => target.targetId === customer.id,
+        ),
     );
 
     expect(signal).not.toBeNull();
@@ -189,7 +222,9 @@ describeWithDb('live updates (/core/v1/stream)', () => {
   });
 
   it('limits open streams per member', async () => {
-    const streams = await Promise.all(Array.from({ length: 10 }, () => openStream(`${base}/core/v1/stream`, memberToken)));
+    const streams = await Promise.all(
+      Array.from({ length: 10 }, () => openStream(`${base}/core/v1/stream`, memberToken)),
+    );
     const extra = await openStream(`${base}/core/v1/stream`, memberToken);
 
     expect(streams.every((stream) => stream.status === 200)).toBe(true);

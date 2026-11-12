@@ -21,7 +21,12 @@ export const TeamMemberMoreColumnCell = ({ cell }: { cell: Cell<User, unknown> }
   const resend = useMutation({
     mutationFn: () => api.users.resendInvitation({ id: user.id }),
     onSuccess: () => toast({ title: t('invitation-resent', 'Invitation sent again') }),
-    onError: (error) => toast({ variant: 'destructive', title: t('invitation-failed', 'Could not send the invitation'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('invitation-failed', 'Could not send the invitation'),
+        description: messageOf(error),
+      }),
   });
 
   const handleEdit = () => {

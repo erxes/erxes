@@ -1,8 +1,4 @@
-import {
-  IconCircleDashedCheck,
-  IconCircleDashed,
-  IconDeviceMobile,
-} from '@tabler/icons-react';
+import { IconCircleDashedCheck, IconCircleDashed, IconDeviceMobile } from '@tabler/icons-react';
 
 export const PhoneIconComponents = {
   IconCircleDashedCheck,

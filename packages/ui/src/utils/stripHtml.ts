@@ -11,5 +11,4 @@ export const stripHtml = (value?: string | null) => {
 export const getPersonName = (
   person: { firstName?: string | null; lastName?: string | null } | null,
   fallback: string,
-) =>
-  [person?.firstName, person?.lastName].filter(Boolean).join(' ') || fallback;
+) => [person?.firstName, person?.lastName].filter(Boolean).join(' ') || fallback;

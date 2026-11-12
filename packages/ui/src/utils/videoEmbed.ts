@@ -9,8 +9,7 @@ export type VideoEmbedInfo = {
 const YOUTUBE_LONG_PATTERN =
   /^(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)([a-z0-9_-]{11})(?=$|[?&#/])/i;
 
-const YOUTUBE_SHORT_PATTERN =
-  /^(?:https?:\/\/)?youtu\.be\/([a-z0-9_-]{11})(?=$|[?&#/])/i;
+const YOUTUBE_SHORT_PATTERN = /^(?:https?:\/\/)?youtu\.be\/([a-z0-9_-]{11})(?=$|[?&#/])/i;
 
 const VIMEO_PATTERN =
   /^(?:https?:\/\/)?(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d+)(?=$|[?&#/])/i;
@@ -20,8 +19,7 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
   const trimmed = url.trim();
   if (!trimmed) return null;
 
-  const youtubeMatch =
-    YOUTUBE_LONG_PATTERN.exec(trimmed) || YOUTUBE_SHORT_PATTERN.exec(trimmed);
+  const youtubeMatch = YOUTUBE_LONG_PATTERN.exec(trimmed) || YOUTUBE_SHORT_PATTERN.exec(trimmed);
   if (youtubeMatch) {
     const id = youtubeMatch[1];
     return {
@@ -49,8 +47,6 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
  * Extract the base so we can build a thumbnail (`/thumbnails/thumbnail.jpg`).
  */
 export const getCloudflareStreamBase = (url: string): string | null => {
-  const match = url.match(
-    /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/,
-  );
+  const match = url.match(/^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/);
   return match ? match[1] : null;
 };

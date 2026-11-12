@@ -33,18 +33,10 @@ export function ChatVizBar({ payload, className, domain }: Readonly<Props>) {
 
   return (
     <ChartContainer config={config} className={className}>
-      <BarChart
-        data={payload.data}
-        margin={{ top: 8, right: 12, left: 4, bottom: 0 }}
-      >
+      <BarChart data={payload.data} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
         <ChatVizCartesianDecorations domain={domain} />
         {payload.series.map((s) => (
-          <Bar
-            key={s.key}
-            dataKey={s.key}
-            fill={`var(--color-${s.key})`}
-            radius={4}
-          />
+          <Bar key={s.key} dataKey={s.key} fill={`var(--color-${s.key})`} radius={4} />
         ))}
       </BarChart>
     </ChartContainer>

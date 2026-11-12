@@ -13,11 +13,26 @@ const routerBuilder = {
 
 // Decisions recorded as bans: each message says what to use instead.
 const decided = [
-  { name: 'graphile-worker', message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).' },
-  { name: 'bullmq', message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).' },
-  { name: 'ioredis', message: 'Realtime is the Postgres LISTEN/NOTIFY hub (modules/live); core has no Redis.' },
-  { name: 'redis', message: 'Realtime is the Postgres LISTEN/NOTIFY hub (modules/live); core has no Redis.' },
-  { name: '@apollo/client', message: 'Core has no GraphQL. Call core through the typed oRPC client.' },
+  {
+    name: 'graphile-worker',
+    message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
+  },
+  {
+    name: 'bullmq',
+    message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
+  },
+  {
+    name: 'ioredis',
+    message: 'Realtime is the Postgres LISTEN/NOTIFY hub (modules/live); core has no Redis.',
+  },
+  {
+    name: 'redis',
+    message: 'Realtime is the Postgres LISTEN/NOTIFY hub (modules/live); core has no Redis.',
+  },
+  {
+    name: '@apollo/client',
+    message: 'Core has no GraphQL. Call core through the typed oRPC client.',
+  },
   { name: 'graphql', message: 'Core has no GraphQL. Call core through the typed oRPC client.' },
   { name: 'dayjs', message: 'One date library: date-fns.' },
   { name: 'moment', message: 'One date library: date-fns.' },

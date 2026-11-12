@@ -40,7 +40,8 @@ export const setPluginRuntime = (next: PluginRuntime | null) => {
 export const getPluginRuntime = () => runtime;
 
 const need = () => {
-  if (!runtime) throw new Error('erxes plugin runtime is not available (open the plugin inside erxes)');
+  if (!runtime)
+    throw new Error('erxes plugin runtime is not available (open the plugin inside erxes)');
 
   return runtime;
 };
@@ -51,7 +52,9 @@ const sessionOf = (plugin: string, fresh = false): Promise<PluginSession> => {
 
   if (cached && !fresh) {
     return cached.then((session) =>
-      new Date(session.expiresAt).getTime() - Date.now() > 30_000 ? session : sessionOf(plugin, true),
+      new Date(session.expiresAt).getTime() - Date.now() > 30_000
+        ? session
+        : sessionOf(plugin, true),
     );
   }
 
@@ -63,13 +66,18 @@ const sessionOf = (plugin: string, fresh = false): Promise<PluginSession> => {
   return request;
 };
 
-const join = (base: string, path: string) => `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+const join = (base: string, path: string) =>
+  `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 
 /**
  * `fetch` against a plugin's API as the signed-in member. Relative paths are
  * resolved against the plugin's API address; a 401 renews the token once.
  */
-export const pluginFetch = async (plugin: string, path: string, init: RequestInit = {}): Promise<Response> => {
+export const pluginFetch = async (
+  plugin: string,
+  path: string,
+  init: RequestInit = {},
+): Promise<Response> => {
   const send = async (session: PluginSession) => {
     const headers = new Headers(init.headers);
 
@@ -86,7 +94,11 @@ export const pluginFetch = async (plugin: string, path: string, init: RequestIni
 };
 
 /** JSON in, JSON out; non-2xx responses throw with the body's `message`. */
-export const pluginJson = async <T>(plugin: string, path: string, init: RequestInit & { json?: unknown } = {}): Promise<T> => {
+export const pluginJson = async <T>(
+  plugin: string,
+  path: string,
+  init: RequestInit & { json?: unknown } = {},
+): Promise<T> => {
   const { json, ...rest } = init;
   const headers = new Headers(rest.headers);
 
@@ -101,7 +113,8 @@ export const pluginJson = async <T>(plugin: string, path: string, init: RequestI
   const body = text ? (JSON.parse(text) as unknown) : null;
 
   if (!response.ok) {
-    const message = (body as { message?: string } | null)?.message ?? `${response.status} ${response.statusText}`;
+    const message =
+      (body as { message?: string } | null)?.message ?? `${response.status} ${response.statusText}`;
 
     throw Object.assign(new Error(message), { status: response.status, body });
   }
@@ -114,7 +127,11 @@ export const pluginJson = async <T>(plugin: string, path: string, init: RequestI
  * `topics` — and after a reconnect (with every topic), since signals sent
  * meanwhile were missed.
  */
-export const useLiveSignal = (plugin: string, topics: string | string[], onSignal: (topics: string[]) => void) => {
+export const useLiveSignal = (
+  plugin: string,
+  topics: string | string[],
+  onSignal: (topics: string[]) => void,
+) => {
   const handler = useRef(onSignal);
   const list = Array.isArray(topics) ? topics : [topics];
   const key = list.join('\n');

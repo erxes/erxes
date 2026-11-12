@@ -8,9 +8,7 @@ import { getPool } from './client';
 /** Core's own tracking table: plugins in the same database keep theirs. */
 export const MIGRATIONS_TABLE = '__drizzle_migrations_core';
 
-const migrationsTable = sql`${sql.identifier('public')}.${sql.identifier(
-  MIGRATIONS_TABLE,
-)}`;
+const migrationsTable = sql`${sql.identifier('public')}.${sql.identifier(MIGRATIONS_TABLE)}`;
 
 /**
  * Where the SQL migrations are: MIGRATIONS_DIR, next to a built bundle
@@ -72,16 +70,14 @@ END $lock$;
  * `migrate()` is not used: it opens its own transaction. Bookkeeping matches
  * Drizzle's (hash + timestamp), so drizzle-kit keeps working.
  */
-export const runMigrations = async (
-  folder = migrationsFolder(),
-): Promise<string[]> => {
+export const runMigrations = async (folder = migrationsFolder()): Promise<string[]> => {
   const migrations = readMigrationFiles({
     migrationsFolder: folder,
     migrationsTable: MIGRATIONS_TABLE,
   });
-  const { entries } = JSON.parse(
-    readFileSync(join(folder, 'meta', '_journal.json'), 'utf8'),
-  ) as { entries: { tag: string }[] };
+  const { entries } = JSON.parse(readFileSync(join(folder, 'meta', '_journal.json'), 'utf8')) as {
+    entries: { tag: string }[];
+  };
 
   return drizzle(getPool()).transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('core:migrate'))`);

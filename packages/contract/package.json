@@ -1,8 +1,8 @@
 {
   "name": "@erxes/core-contract",
   "version": "0.0.0",
-  "license": "AGPL-3.0-only",
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
+  "license": "AGPL-3.0-only",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {

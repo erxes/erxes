@@ -37,7 +37,11 @@ const findTag = async (client: Db, orgId: string, id: string) => {
   return row;
 };
 
-export const listTags = async (client: Db, actor: Actor, query: { type: ContentType; search?: string }) => {
+export const listTags = async (
+  client: Db,
+  actor: Actor,
+  query: { type: ContentType; search?: string },
+) => {
   const rows = await client
     .select()
     .from(tags)

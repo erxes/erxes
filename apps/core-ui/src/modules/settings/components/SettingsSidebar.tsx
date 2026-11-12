@@ -40,15 +40,34 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
     { name: t('plugins', 'Plugins'), path: 'plugins', icon: IconApps },
     ...(plan?.saas ? [{ name: t('plan', 'Plan'), path: 'plan', icon: IconCreditCard }] : []),
-    ...(can('contacts.delete') ? [{ name: t('recycle-bin', 'Recycle bin'), path: 'recycle-bin', icon: IconTrash }] : []),
-    ...(can('payments.manage') ? [{ name: t('payments', 'Payments'), path: 'payments', icon: IconCash }] : []),
-    ...(can('webhooks.manage') ? [{ name: t('webhooks', 'Webhooks'), path: 'webhooks', icon: IconWebhook }] : []),
-    ...(can('audit.view') ? [{ name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck }] : []),
-    ...(can('events.view') ? [{ name: t('event-delivery', 'Event delivery'), path: 'event-delivery', icon: IconPlugConnected }] : []),
+    ...(can('contacts.delete')
+      ? [{ name: t('recycle-bin', 'Recycle bin'), path: 'recycle-bin', icon: IconTrash }]
+      : []),
+    ...(can('payments.manage')
+      ? [{ name: t('payments', 'Payments'), path: 'payments', icon: IconCash }]
+      : []),
+    ...(can('webhooks.manage')
+      ? [{ name: t('webhooks', 'Webhooks'), path: 'webhooks', icon: IconWebhook }]
+      : []),
+    ...(can('audit.view')
+      ? [{ name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck }]
+      : []),
+    ...(can('events.view')
+      ? [
+          {
+            name: t('event-delivery', 'Event delivery'),
+            path: 'event-delivery',
+            icon: IconPlugConnected,
+          },
+        ]
+      : []),
   ];
 };
 
-export function SettingsNavigationGroup({ name, children }: Readonly<{ name: string; children: ReactNode }>) {
+export function SettingsNavigationGroup({
+  name,
+  children,
+}: Readonly<{ name: string; children: ReactNode }>) {
   if (Children.count(children) === 0) return null;
 
   return (
@@ -65,7 +84,9 @@ export function SettingsNavigationGroup({ name, children }: Readonly<{ name: str
 const historyIndex = () => {
   const state: unknown = window.history.state;
 
-  return state && typeof state === 'object' && 'idx' in state && typeof state.idx === 'number' ? state.idx : 0;
+  return state && typeof state === 'object' && 'idx' in state && typeof state.idx === 'number'
+    ? state.idx
+    : 0;
 };
 
 /** History index of the first settings page of this visit. */

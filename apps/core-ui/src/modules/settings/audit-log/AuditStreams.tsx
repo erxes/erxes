@@ -1,7 +1,25 @@
 import type { AuditStream } from '@erxes/core-contract';
-import { IconBroadcast, IconPlayerPause, IconPlayerPlay, IconPlugConnected, IconTrash } from '@tabler/icons-react';
+import {
+  IconBroadcast,
+  IconPlayerPause,
+  IconPlayerPlay,
+  IconPlugConnected,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, CopyText, Input, Label, RelativeDateDisplay, Select, Sheet, Spinner, useConfirm, useToast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  CopyText,
+  Input,
+  Label,
+  RelativeDateDisplay,
+  Select,
+  Sheet,
+  Spinner,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api, messageOf } from '~/lib/api';
@@ -11,8 +29,16 @@ type Format = AuditStream['format'];
 /** What each log service needs, so the form can suggest the address and header. */
 const PRESETS: Record<Format, { label: string; url: string; header: string }> = {
   erxes: { label: 'HTTPS (JSON, signed)', url: 'https://', header: 'Authorization' },
-  datadog: { label: 'Datadog', url: 'https://http-intake.logs.datadoghq.com/api/v2/logs', header: 'DD-API-KEY' },
-  splunk: { label: 'Splunk HEC', url: 'https://splunk.example.com:8088/services/collector/event', header: 'Authorization' },
+  datadog: {
+    label: 'Datadog',
+    url: 'https://http-intake.logs.datadoghq.com/api/v2/logs',
+    header: 'DD-API-KEY',
+  },
+  splunk: {
+    label: 'Splunk HEC',
+    url: 'https://splunk.example.com:8088/services/collector/event',
+    header: 'Authorization',
+  },
 };
 
 const KEY = ['audit', 'streams'];
@@ -28,14 +54,25 @@ const AddStream = ({ onAdded }: { onAdded: (secret: string) => void }) => {
   const [from, setFrom] = useState<'now' | 'beginning'>('now');
   const create = useMutation({
     mutationFn: () =>
-      api.audit.createStream({ name: name || PRESETS[format].label, url, format, from, ...(header.value ? { authHeader: header } : {}) }),
+      api.audit.createStream({
+        name: name || PRESETS[format].label,
+        url,
+        format,
+        from,
+        ...(header.value ? { authHeader: header } : {}),
+      }),
     onSuccess: (result) => {
       void client.invalidateQueries({ queryKey: KEY });
       onAdded(result.secret);
       setName('');
       setHeader({ ...header, value: '' });
     },
-    onError: (error) => toast({ variant: 'destructive', title: t('add-failed', 'Could not add the stream'), description: messageOf(error) }),
+    onError: (error) =>
+      toast({
+        variant: 'destructive',
+        title: t('add-failed', 'Could not add the stream'),
+        description: messageOf(error),
+      }),
   });
 
   return (
@@ -67,7 +104,11 @@ const AddStream = ({ onAdded }: { onAdded: (secret: string) => void }) => {
         </div>
         <div className="space-y-1.5">
           <Label>{t('name', 'Name')}</Label>
-          <Input value={name} placeholder={PRESETS[format].label} onChange={(event) => setName(event.target.value)} />
+          <Input
+            value={name}
+            placeholder={PRESETS[format].label}
+            onChange={(event) => setName(event.target.value)}
+          />
         </div>
       </div>
       <div className="space-y-1.5">
@@ -77,14 +118,23 @@ const AddStream = ({ onAdded }: { onAdded: (secret: string) => void }) => {
       <div className="grid grid-cols-[10rem_1fr] gap-3">
         <div className="space-y-1.5">
           <Label>{t('header', 'Auth header')}</Label>
-          <Input value={header.name} onChange={(event) => setHeader({ ...header, name: event.target.value })} />
+          <Input
+            value={header.name}
+            onChange={(event) => setHeader({ ...header, name: event.target.value })}
+          />
         </div>
         <div className="space-y-1.5">
           <Label>{t('header-value', 'Value (stored encrypted)')}</Label>
           <Input
             type="password"
             value={header.value}
-            placeholder={format === 'splunk' ? 'Splunk <token>' : format === 'datadog' ? 'API key' : t('optional', 'optional')}
+            placeholder={
+              format === 'splunk'
+                ? 'Splunk <token>'
+                : format === 'datadog'
+                  ? 'API key'
+                  : t('optional', 'optional')
+            }
             onChange={(event) => setHeader({ ...header, value: event.target.value })}
           />
         </div>
@@ -97,11 +147,17 @@ const AddStream = ({ onAdded }: { onAdded: (secret: string) => void }) => {
           </Select.Trigger>
           <Select.Content>
             <Select.Item value="now">{t('from-now', 'New entries from now on')}</Select.Item>
-            <Select.Item value="beginning">{t('from-beginning', 'Everything still kept, then new entries')}</Select.Item>
+            <Select.Item value="beginning">
+              {t('from-beginning', 'Everything still kept, then new entries')}
+            </Select.Item>
           </Select.Content>
         </Select>
       </div>
-      <Button className="w-full" disabled={create.isPending || !/^https?:\/\/.+/.test(url)} onClick={() => create.mutate()}>
+      <Button
+        className="w-full"
+        disabled={create.isPending || !/^https?:\/\/.+/.test(url)}
+        onClick={() => create.mutate()}
+      >
         {create.isPending ? <Spinner size="sm" /> : t('add', 'Start streaming')}
       </Button>
     </div>
@@ -114,19 +170,34 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
   const { confirm } = useConfirm();
   const client = useQueryClient();
   const refresh = () => void client.invalidateQueries({ queryKey: KEY });
-  const onError = (error: unknown) => toast({ variant: 'destructive', title: t('failed', 'Something went wrong'), description: messageOf(error) });
+  const onError = (error: unknown) =>
+    toast({
+      variant: 'destructive',
+      title: t('failed', 'Something went wrong'),
+      description: messageOf(error),
+    });
   const toggle = useMutation({
-    mutationFn: () => api.audit.updateStream({ id: stream.id, status: stream.status === 'active' ? 'paused' : 'active' }),
+    mutationFn: () =>
+      api.audit.updateStream({
+        id: stream.id,
+        status: stream.status === 'active' ? 'paused' : 'active',
+      }),
     onSuccess: refresh,
     onError,
   });
-  const remove = useMutation({ mutationFn: () => api.audit.removeStream({ id: stream.id }), onSuccess: refresh, onError });
+  const remove = useMutation({
+    mutationFn: () => api.audit.removeStream({ id: stream.id }),
+    onSuccess: refresh,
+    onError,
+  });
   const test = useMutation({
     mutationFn: () => api.audit.testStream({ id: stream.id }),
     onSuccess: (result) =>
       toast({
         variant: result.ok ? 'default' : 'destructive',
-        title: result.ok ? t('test-ok', 'It answered {{status}}', { status: result.status }) : t('test-failed', 'The test entry was refused'),
+        title: result.ok
+          ? t('test-ok', 'It answered {{status}}', { status: result.status })
+          : t('test-failed', 'The test entry was refused'),
         description: result.ok ? undefined : (result.error ?? undefined),
       }),
     onError,
@@ -138,11 +209,23 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
       <div className="flex items-center gap-2">
         <span className="font-medium">{stream.name}</span>
         <Badge variant="secondary">{PRESETS[stream.format].label}</Badge>
-        <Badge variant={stream.status === 'paused' ? 'secondary' : failing ? 'destructive' : 'success'}>
-          {stream.status === 'paused' ? t('paused', 'Paused') : failing ? t('failing', 'Failing') : t('streaming', 'Streaming')}
+        <Badge
+          variant={stream.status === 'paused' ? 'secondary' : failing ? 'destructive' : 'success'}
+        >
+          {stream.status === 'paused'
+            ? t('paused', 'Paused')
+            : failing
+              ? t('failing', 'Failing')
+              : t('streaming', 'Streaming')}
         </Badge>
         <div className="ml-auto flex gap-1">
-          <Button size="icon" variant="ghost" title={t('test', 'Send a test entry')} disabled={test.isPending} onClick={() => test.mutate()}>
+          <Button
+            size="icon"
+            variant="ghost"
+            title={t('test', 'Send a test entry')}
+            disabled={test.isPending}
+            onClick={() => test.mutate()}
+          >
             <IconPlugConnected />
           </Button>
           <Button
@@ -159,7 +242,13 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
             variant="ghost"
             className="text-destructive"
             title={t('remove', 'Remove')}
-            onClick={() => void confirm({ message: t('remove-confirm', 'Stop streaming to {{name}} and remove it?', { name: stream.name }) }).then(() => remove.mutate())}
+            onClick={() =>
+              void confirm({
+                message: t('remove-confirm', 'Stop streaming to {{name}} and remove it?', {
+                  name: stream.name,
+                }),
+              }).then(() => remove.mutate())
+            }
           >
             <IconTrash />
           </Button>
@@ -184,10 +273,14 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
       </p>
       {stream.lastError && (
         <p className="text-xs text-destructive">
-          {t('last-error', 'Failing {{count}} times in a row: {{error}}. Entries wait and are sent once it answers.', {
-            count: stream.consecutiveFailures,
-            error: stream.lastError,
-          })}
+          {t(
+            'last-error',
+            'Failing {{count}} times in a row: {{error}}. Entries wait and are sent once it answers.',
+            {
+              count: stream.consecutiveFailures,
+              error: stream.lastError,
+            },
+          )}
         </p>
       )}
     </li>
@@ -202,7 +295,12 @@ export const AuditStreams = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log.streams' });
   const [open, setOpen] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
-  const streams = useQuery({ queryKey: KEY, queryFn: () => api.audit.streams(), enabled: open, refetchInterval: open ? 10_000 : false });
+  const streams = useQuery({
+    queryKey: KEY,
+    queryFn: () => api.audit.streams(),
+    enabled: open,
+    refetchInterval: open ? 10_000 : false,
+  });
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -214,7 +312,10 @@ export const AuditStreams = () => {
         <Sheet.Header>
           <Sheet.Title>{t('title', 'Stream the audit log')}</Sheet.Title>
           <Sheet.Description className="text-sm text-muted-foreground">
-            {t('description', 'Every entry, as it is written, to your SIEM or log service: in order, signed, and resent after outages.')}
+            {t(
+              'description',
+              'Every entry, as it is written, to your SIEM or log service: in order, signed, and resent after outages.',
+            )}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
@@ -223,7 +324,10 @@ export const AuditStreams = () => {
             <div className="space-y-1 rounded-lg border border-warning bg-warning/10 p-3 text-sm">
               <p className="font-medium">{t('secret-title', 'Signing secret (shown once)')}</p>
               <p className="text-xs text-muted-foreground">
-                {t('secret-description', 'Check the Erxes-Signature header with it, like webhooks: HMAC-SHA256 of "<t>.<body>".')}
+                {t(
+                  'secret-description',
+                  'Check the Erxes-Signature header with it, like webhooks: HMAC-SHA256 of "<t>.<body>".',
+                )}
               </p>
               <CopyText value={secret}>
                 <code className="break-all text-xs">{secret}</code>

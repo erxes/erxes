@@ -27,9 +27,9 @@ const getPopoverTrigger = (content: HTMLElement) => {
     return;
   }
 
-  return Array.from(
-    content.ownerDocument.querySelectorAll<HTMLElement>('[aria-controls]'),
-  ).find((element) => element.getAttribute('aria-controls') === content.id);
+  return Array.from(content.ownerDocument.querySelectorAll<HTMLElement>('[aria-controls]')).find(
+    (element) => element.getAttribute('aria-controls') === content.id,
+  );
 };
 
 const handleFormContentTab = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -81,9 +81,7 @@ export const SelectTriggerOperation = ({
 }) => {
   if (variant === SelectTriggerVariant.TABLE) {
     return (
-      <RecordTableInlineCell.Trigger className="gap-1">
-        {children}
-      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Trigger className="gap-1">{children}</RecordTableInlineCell.Trigger>
     );
   }
   if (variant === SelectTriggerVariant.CARD) {
@@ -149,17 +147,13 @@ export const SelectOperationContent = ({
   children: React.ReactNode;
 }) => {
   if (variant === SelectTriggerVariant.TABLE) {
-    return (
-      <RecordTableInlineCell.Content>{children}</RecordTableInlineCell.Content>
-    );
+    return <RecordTableInlineCell.Content>{children}</RecordTableInlineCell.Content>;
   }
   return (
     <Combobox.Content
       sideOffset={variant === SelectTriggerVariant.CARD ? 4 : 8}
       onClick={(e) => e.stopPropagation()}
-      onKeyDown={
-        variant === SelectTriggerVariant.FORM ? handleFormContentTab : undefined
-      }
+      onKeyDown={variant === SelectTriggerVariant.FORM ? handleFormContentTab : undefined}
     >
       {children}
     </Combobox.Content>

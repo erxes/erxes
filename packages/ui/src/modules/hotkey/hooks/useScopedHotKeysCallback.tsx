@@ -1,7 +1,4 @@
-import {
-  Hotkey,
-  OptionsOrDependencyArray,
-} from 'react-hotkeys-hook/dist/types';
+import { Hotkey, OptionsOrDependencyArray } from 'react-hotkeys-hook/dist/types';
 import { useAtomCallback } from 'jotai/utils';
 import { useCallback } from 'react';
 import { internalHotkeysEnabledScopesState } from '../states/internal/internalHotkeysEnabledScopeState';
@@ -9,9 +6,7 @@ import { logDebug } from 'erxes-ui/utils/logDebug';
 
 export const DEBUG_HOTKEY_SCOPE = true;
 
-export const useScopedHotKeysCallback = (
-  dependencies?: OptionsOrDependencyArray,
-) => {
+export const useScopedHotKeysCallback = (dependencies?: OptionsOrDependencyArray) => {
   const dependencyArray = Array.isArray(dependencies) ? dependencies : [];
 
   return useAtomCallback(
@@ -28,10 +23,7 @@ export const useScopedHotKeysCallback = (
         }: {
           keyboardEvent: KeyboardEvent;
           hotkeysEvent: Hotkey;
-          callback: (
-            keyboardEvent: KeyboardEvent,
-            hotkeysEvent: Hotkey,
-          ) => void;
+          callback: (keyboardEvent: KeyboardEvent, hotkeysEvent: Hotkey) => void;
           scope: string;
           preventDefault?: boolean;
         },

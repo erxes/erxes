@@ -22,10 +22,7 @@ export const Default: Story = {
     return (
       <div className="w-96">
         <Command>
-          <Command.Input
-            placeholder="Type a command or search..."
-            variant="secondary"
-          />
+          <Command.Input placeholder="Type a command or search..." variant="secondary" />
           <Command.List className="p-0">
             <Command.Empty>No results found.</Command.Empty>
             <Command.Group heading="Suggestions">
