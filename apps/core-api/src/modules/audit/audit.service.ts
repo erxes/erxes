@@ -85,7 +85,7 @@ export const recordAudit = async (
   );
 };
 
-export const toAuditDto = (row: AuditRow): AuditEntry => ({
+const toAuditDto = (row: AuditRow): AuditEntry => ({
   id: row.id,
   actor: { type: row.actorType, id: row.actorId },
   action: row.action,

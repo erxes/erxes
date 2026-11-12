@@ -176,7 +176,12 @@ const emailNotified = async (
     await sendEmail(client, caller.orgId, {
       to,
       template: 'notification',
-      data: { organization: org?.name ?? 'erxes', title: input.title, body: input.body ?? null, link },
+      data: {
+        organization: org?.name ?? 'erxes',
+        title: input.title,
+        body: input.body ?? null,
+        link,
+      },
     });
   }
 };
@@ -206,7 +211,13 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
 
   const collapsed =
     collapseMinutes && entity
-      ? await collapseRecent(client, caller, { ...input, entity, collapseMinutes }, recipients, actorId)
+      ? await collapseRecent(
+          client,
+          caller,
+          { ...input, entity, collapseMinutes },
+          recipients,
+          actorId,
+        )
       : new Set<string>();
 
   const pending = recipients.filter((userId) => !collapsed.has(userId));

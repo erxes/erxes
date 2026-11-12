@@ -26,13 +26,13 @@ import { dirname, join, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { config } from '~/config';
 
-export interface UploadRequest {
+interface UploadRequest {
   contentType: string;
   size: number;
   expiresIn: number;
 }
 
-export interface DownloadRequest {
+interface DownloadRequest {
   name: string;
   contentType: string;
   /** Show in the browser (images, PDFs) instead of saving. */
@@ -116,7 +116,7 @@ const signingKey = () =>
 const sign = (payload: string) =>
   createHmac('sha256', signingKey()).update(payload).digest('base64url');
 
-export const signGrant = (grant: LocalGrant) => {
+const signGrant = (grant: LocalGrant) => {
   const payload = Buffer.from(JSON.stringify(grant)).toString('base64url');
 
   return `${payload}.${sign(payload)}`;
@@ -172,7 +172,7 @@ export const localPath = (key: string) => {
   return path;
 };
 
-export const signedPath = (token: string) => `${CORE_API_PREFIX}/files/signed/${token}`;
+const signedPath = (token: string) => `${CORE_API_PREFIX}/files/signed/${token}`;
 
 const expiry = (seconds: number) => Math.floor(Date.now() / 1000) + seconds;
 

@@ -20,7 +20,7 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { customFieldsColumn, saveCustomFields } from '~/modules/fields/fieldValues';
 import { publishCoreEvents } from '~/modules/events/events.service';
 
-export const TRASH_DAYS = 30;
+const TRASH_DAYS = 30;
 
 type RecordType = 'customer' | 'company';
 
@@ -139,22 +139,20 @@ export const listTrash = async (
     .limit(query.limit);
 
   return {
-    data: rows.map(
-      (row): TrashItem => ({
-        id: row.id,
-        recordType: row.recordType,
-        recordId: row.recordId,
-        label: row.label,
-        deletedBy: { type: row.deletedByType, id: row.deletedBy },
-        deletedAt: row.deletedAt.toISOString(),
-        purgeAt: row.purgeAt.toISOString(),
-        counts: {
-          tags: row.snapshot.tagIds.length,
-          links: row.snapshot.links.length,
-          activities: row.snapshot.activities.length,
-        },
-      }),
-    ),
+    data: rows.map((row): TrashItem => ({
+      id: row.id,
+      recordType: row.recordType,
+      recordId: row.recordId,
+      label: row.label,
+      deletedBy: { type: row.deletedByType, id: row.deletedBy },
+      deletedAt: row.deletedAt.toISOString(),
+      purgeAt: row.purgeAt.toISOString(),
+      counts: {
+        tags: row.snapshot.tagIds.length,
+        links: row.snapshot.links.length,
+        activities: row.snapshot.activities.length,
+      },
+    })),
   };
 };
 
@@ -242,7 +240,14 @@ const restoreItem = async (tx: Db, actor: Actor, item: TrashRow) => {
 
   const customFields = row.customFields ?? {};
 
-  await saveCustomFields(tx, actor.orgId, type, item.recordId, customFields, Object.keys(customFields));
+  await saveCustomFields(
+    tx,
+    actor.orgId,
+    type,
+    item.recordId,
+    customFields,
+    Object.keys(customFields),
+  );
   await restoreRelations(tx, actor.orgId, item);
 
   if (entries.length) await reinsert(tx, activities, entries, { skipExisting: true });

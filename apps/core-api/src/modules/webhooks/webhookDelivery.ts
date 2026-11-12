@@ -21,10 +21,10 @@ const log = logger.child({ component: 'webhooks' });
 type DeliveryRow = typeof webhookDeliveries.$inferSelect;
 
 /** Deliveries retry for about a day (8 attempts), then the delivery is failed. */
-export const DELIVERY_ATTEMPTS = 8;
+const DELIVERY_ATTEMPTS = 8;
 
 /** An endpoint failing this many deliveries in a row is turned off. */
-export const DISABLE_AFTER_FAILURES = 50;
+const DISABLE_AFTER_FAILURES = 50;
 
 /** 1 min, 5 min, 30 min, 2 h, 5 h, 8 h, 8 h: about a day in all. */
 const backoff = (attempt: number) =>

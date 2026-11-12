@@ -27,7 +27,7 @@ export const CONSUMERS: EventConsumer[] = [
 ];
 
 /** Waits before each retry; after the last one the event is dead. */
-export const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
+const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
 export const MAX_ATTEMPTS = RETRY_DELAYS_SECONDS.length + 1;
 
 const handleOnce = async (tx: Db, consumer: EventConsumer, event: EventRow) => {

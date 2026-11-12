@@ -1,4 +1,12 @@
-import { type Db, newId, oauthRefreshTokens, organizations, plugins, roles, users } from '@erxes/core-db';
+import {
+  type Db,
+  newId,
+  oauthRefreshTokens,
+  organizations,
+  plugins,
+  roles,
+  users,
+} from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { can } from '~/http/access';
 import { signJwt } from '~/lib/signing';
@@ -52,7 +60,12 @@ const accessToken = (issued: Issued, member: Member) => {
       role: member.user.role,
       permissions,
     },
-    { typ: 'at+jwt', audience: issued.clientId, subject: issued.userId, expiresInSeconds: ACCESS_TTL },
+    {
+      typ: 'at+jwt',
+      audience: issued.clientId,
+      subject: issued.userId,
+      expiresInSeconds: ACCESS_TTL,
+    },
   );
 };
 

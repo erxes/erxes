@@ -7,7 +7,8 @@ export const EXAMPLE_COPY_EN: ExampleCopy = {
   vipView: 'VIP customers',
   automation: {
     name: 'Welcome new customers (example)',
-    description: 'Emails every new customer, then tells their owner. Turn it on when you are ready.',
+    description:
+      'Emails every new customer, then tells their owner. Turn it on when you are ready.',
   },
   companies: [
     {

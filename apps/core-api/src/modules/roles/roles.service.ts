@@ -15,7 +15,7 @@ import { recordAudit } from '~/modules/audit/audit.service';
 type RoleRow = typeof roles.$inferSelect;
 
 /** The roles every organisation starts with. */
-export const BUILTIN_ROLES = [
+const BUILTIN_ROLES = [
   {
     key: 'owner',
     name: 'Owner',

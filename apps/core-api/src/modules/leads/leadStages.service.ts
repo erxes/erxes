@@ -10,7 +10,7 @@ import { findStage, leadCounts, type StageRow, stagesOf } from './stages';
  * Lead stages: where people who are not customers yet stand (New → Contacted →
  * Engaged → Qualified, or Disqualified) until they are converted.
  */
-export const DEFAULT_LEAD_STAGES: { name: string; kind: LeadStageKind; color: string }[] = [
+const DEFAULT_LEAD_STAGES: { name: string; kind: LeadStageKind; color: string }[] = [
   { name: 'New', kind: 'open', color: '#3b82f6' },
   { name: 'Contacted', kind: 'open', color: '#8b5cf6' },
   { name: 'Engaged', kind: 'open', color: '#f59e0b' },

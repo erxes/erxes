@@ -7,7 +7,7 @@ import { allOf } from '~/lib/conditions';
 import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 
-export const toNotificationDto = (row: typeof notifications.$inferSelect): Notification => ({
+const toNotificationDto = (row: typeof notifications.$inferSelect): Notification => ({
   id: row.id,
   source: row.source,
   kind: row.kind,

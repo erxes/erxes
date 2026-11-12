@@ -90,10 +90,7 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
       .delete(companies)
       .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
 
-    await tx
-      .update(companies)
-      .set(mergedColumns(keep, others))
-      .where(inOrg(actor.orgId, keep.id));
+    await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(actor.orgId, keep.id));
 
     const combined = combineCustomFields(
       keep.customFields,

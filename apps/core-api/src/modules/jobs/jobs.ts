@@ -98,7 +98,7 @@ export const defineJob = <S extends z.ZodType<Record<string, unknown>>>(
 };
 
 /** 30 s, 2 min, 8 min … capped at 6 hours, with jitter. */
-export const defaultBackoff = (attempt: number) =>
+const defaultBackoff = (attempt: number) =>
   Math.min(6 * 3600, 30 * 4 ** (attempt - 1)) * (0.8 + Math.random() * 0.4);
 
 /** An error's message and up to three of its causes, for `lastError` columns. */
@@ -212,7 +212,7 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
 };
 
 /** Runs one claimed job to completion, retry or death, in a trace of its own. */
-export const runJob = (definition: JobDefinition, job: JobRow) =>
+const runJob = (definition: JobDefinition, job: JobRow) =>
   traced(`job ${job.queue}`, async () => {
     try {
       if (definition.atomic) {

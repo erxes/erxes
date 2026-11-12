@@ -139,9 +139,15 @@ const lifecycleFields = (recordType: ViewRecordType, stageNames: string[]): Fiel
             sql`${table.leadStageChangedAt}`,
             { group: 'lead' },
           ),
-          field('disqualifyReason', 'Disqualified because', 'text', sql`${table.disqualifyReason}`, {
-            group: 'lead',
-          }),
+          field(
+            'disqualifyReason',
+            'Disqualified because',
+            'text',
+            sql`${table.disqualifyReason}`,
+            {
+              group: 'lead',
+            },
+          ),
         ]),
   ];
 };

@@ -7,7 +7,13 @@ import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
-import { type CustomerRow, findCustomer, inOrg, selectCustomers, toCustomerDto } from './customerRows';
+import {
+  type CustomerRow,
+  findCustomer,
+  inOrg,
+  selectCustomers,
+  toCustomerDto,
+} from './customerRows';
 
 const MERGE_FILLED = [
   'firstName',
@@ -105,10 +111,7 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
       .delete(customers)
       .where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, otherIds)));
 
-    await tx
-      .update(customers)
-      .set(mergedColumns(keep, others))
-      .where(inOrg(actor.orgId, keep.id));
+    await tx.update(customers).set(mergedColumns(keep, others)).where(inOrg(actor.orgId, keep.id));
 
     const combined = combineCustomFields(
       keep.customFields,

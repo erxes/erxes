@@ -36,13 +36,15 @@ const cannotUse = (spec: FieldSpec, op: ConditionRule['op']) =>
 const compileStage = (x: SQL, rule: ConditionRule, actor: Actor) => {
   const { op } = rule;
 
-  const names =(op === 'in' || op === 'not_in' ? list(rule.value) : [text(rule.value)]).map(
+  const names = (op === 'in' || op === 'not_in' ? list(rule.value) : [text(rule.value)]).map(
     (name) => name.toLowerCase(),
   );
 
   const ids = sql`(select ${leadStages.id} from ${leadStages} where ${leadStages.orgId} = ${actor.orgId} and lower(${leadStages.name}) = any(${textArray(names)}))`;
 
-  return op === 'eq' || op === 'in' ? sql`${x} in ${ids}` : sql`(${x} is null or ${x} not in ${ids})`;
+  return op === 'eq' || op === 'in'
+    ? sql`${x} in ${ids}`
+    : sql`(${x} is null or ${x} not in ${ids})`;
 };
 
 const compileMember = (x: SQL, rule: ConditionRule, actor: Actor) => {

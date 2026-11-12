@@ -22,7 +22,7 @@ const log = logger.child({ component: 'signing' });
  * `CORE_SIGNING_KEYS_RETIRED` and setting a new `CORE_SIGNING_KEY`.
  */
 
-export const SIGNING_ALG = 'ES256';
+const SIGNING_ALG = 'ES256';
 
 interface PublicKey {
   kid: string;

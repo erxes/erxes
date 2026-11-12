@@ -23,7 +23,7 @@ const PaymentPayload = z.object({ source: z.string() });
  * (`payments:read`); customers and companies: `customers:read`; anything
  * else from core or other plugins: `events:read`.
  */
-export const pluginMaySee = (
+const pluginMaySee = (
   plugin: string,
   scopes: string[],
   event: Pick<EventRow, 'type' | 'source' | 'payload'>,

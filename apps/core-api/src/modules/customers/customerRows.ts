@@ -58,12 +58,7 @@ export const selectCustomers = (client: Db) => {
 };
 
 /** A customer by id; with `followMerges`, an id merged into another customer resolves to it. */
-export const findCustomer = async (
-  client: Db,
-  orgId: string,
-  id: string,
-  followMerges = false,
-) => {
+export const findCustomer = async (client: Db, orgId: string, id: string, followMerges = false) => {
   const [row] = await selectCustomers(client)
     .where(
       followMerges

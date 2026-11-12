@@ -149,7 +149,7 @@ const hasContacts = async (tx: Db, orgId: string) => {
  * and no companies (the organisation row is locked, so two members finishing
  * the welcome steps at once can't both seed). Returns whether it did.
  */
-export const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) => {
+const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) => {
   await lockOrganization(tx, actor.orgId);
 
   if (await hasContacts(tx, actor.orgId)) return { seeded: false };

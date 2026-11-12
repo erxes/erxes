@@ -3,8 +3,7 @@ import { normalizePhone } from './contacts';
 import { containsPattern } from './keyset';
 
 /** The words of a search, at most 8 (`  Bold   Saraa ` → ['Bold', 'Saraa']). */
-export const searchWords = (search: string) =>
-  search.trim().split(/\s+/).filter(Boolean).slice(0, 8);
+const searchWords = (search: string) => search.trim().split(/\s+/).filter(Boolean).slice(0, 8);
 
 /**
  * Every word must match somewhere, in any order ("bold saraa" finds Saraa

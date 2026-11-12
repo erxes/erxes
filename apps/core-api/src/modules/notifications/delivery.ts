@@ -9,7 +9,7 @@ import type { users } from '@erxes/core-db';
 export type MemberSettings = (typeof users.$inferSelect)['notificationSettings'];
 
 /** Has the member muted this kind, its source, or a prefix of it? */
-export const isMuted = (muted: string[] | undefined, source: string, kind: string) =>
+const isMuted = (muted: string[] | undefined, source: string, kind: string) =>
   !UNMUTABLE_NOTIFICATION_KINDS.includes(kind) &&
   (muted ?? []).some((entry) => entry === source || entry === kind || kind.startsWith(`${entry}.`));
 

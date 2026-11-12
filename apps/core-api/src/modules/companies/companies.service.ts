@@ -27,13 +27,7 @@ import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
-import {
-  type CompanyRow,
-  conflictFrom,
-  findCompany,
-  inOrg,
-  toCompanyDto,
-} from './companyRows';
+import { type CompanyRow, conflictFrom, findCompany, inOrg, toCompanyDto } from './companyRows';
 
 export const getCompany = async (client: Db, orgId: string, id: string) =>
   toCompanyDto(await findCompany(client, orgId, id, true));

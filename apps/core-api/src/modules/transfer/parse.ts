@@ -2,7 +2,7 @@ import { parse } from 'csv-parse/sync';
 import readXlsxFile, { type CellValue } from 'read-excel-file/node';
 
 /** More than this many rows is refused (split the file). */
-export const MAX_IMPORT_ROWS = 100_000;
+const MAX_IMPORT_ROWS = 100_000;
 
 export class ParseError extends Error {}
 

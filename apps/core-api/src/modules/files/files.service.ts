@@ -22,7 +22,7 @@ type FileRow = typeof files.$inferSelect;
 
 const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
 
-export const toFileDto = (row: FileRow): FileInfo => ({
+const toFileDto = (row: FileRow): FileInfo => ({
   id: row.id,
   name: row.name,
   contentType: row.contentType,

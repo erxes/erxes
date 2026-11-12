@@ -57,12 +57,7 @@ export const selectCompanies = (client: Db) => {
 };
 
 /** A company by id; with `followMerges`, an id merged into another company resolves to it. */
-export const findCompany = async (
-  client: Db,
-  orgId: string,
-  id: string,
-  followMerges = false,
-) => {
+export const findCompany = async (client: Db, orgId: string, id: string, followMerges = false) => {
   const [row] = await selectCompanies(client)
     .where(
       followMerges
