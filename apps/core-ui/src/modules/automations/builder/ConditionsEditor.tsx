@@ -2,6 +2,7 @@ import { CONDITION_OPERATORS, type ConditionGroup, type ConditionRule } from '@e
 import { IconBraces, IconPlus, IconX } from '@tabler/icons-react';
 import { Button, cn, Input, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { textOf } from '~/lib/text';
 import { LookupError, useMemberOptions, useTagOptions } from './lookupOptions';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
@@ -201,7 +202,7 @@ const ValueInput = ({
       field.type === 'member' ? [{ value: 'me', label: t('me', 'Me') }, ...loaded] : loaded;
 
     return (
-      <Select value={String(rule.value ?? '')} onValueChange={onChange} disabled={disabled}>
+      <Select value={textOf(rule.value)} onValueChange={onChange} disabled={disabled}>
         <Select.Trigger className="h-8 w-full min-w-0">
           <Select.Value placeholder={t('choose', 'Choose…')} />
         </Select.Trigger>
@@ -223,7 +224,7 @@ const ValueInput = ({
         className="h-8 w-full min-w-0"
         disabled={disabled}
         placeholder={t('list-placeholder', 'a, b, c')}
-        value={Array.isArray(rule.value) ? rule.value.join(', ') : String(rule.value ?? '')}
+        value={Array.isArray(rule.value) ? rule.value.join(', ') : textOf(rule.value)}
         onChange={(event) =>
           onChange(
             event.target.value
@@ -239,7 +240,7 @@ const ValueInput = ({
   if (field?.type === 'boolean') {
     return (
       <Select
-        value={String(rule.value ?? 'true')}
+        value={textOf(rule.value ?? 'true')}
         onValueChange={(value) => onChange(value === 'true')}
         disabled={disabled}
       >
@@ -256,7 +257,7 @@ const ValueInput = ({
 
   if (field?.options?.length) {
     return (
-      <Select value={String(rule.value ?? '')} onValueChange={onChange} disabled={disabled}>
+      <Select value={textOf(rule.value)} onValueChange={onChange} disabled={disabled}>
         <Select.Trigger className="h-8 w-full min-w-0">
           <Select.Value />
         </Select.Trigger>
@@ -277,7 +278,7 @@ const ValueInput = ({
       type={field?.type === 'date' ? 'date' : field?.type === 'number' ? 'number' : 'text'}
       disabled={disabled}
       placeholder={t('value-placeholder', 'value')}
-      value={String(rule.value ?? '')}
+      value={textOf(rule.value)}
       onChange={(event) =>
         onChange(field?.type === 'number' ? Number(event.target.value) : event.target.value)
       }

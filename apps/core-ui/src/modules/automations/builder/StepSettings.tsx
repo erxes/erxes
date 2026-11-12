@@ -4,6 +4,7 @@ import { Button, Input, MultipleSelector, Select, Switch, Textarea } from 'erxes
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { textOf } from '~/lib/text';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
 import { ConditionsEditor } from './ConditionsEditor';
@@ -17,7 +18,7 @@ import { actionDefaults } from './flowModel';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const asList = (value: unknown) =>
-  Array.isArray(value) ? value.map(String) : value ? [String(value)] : [];
+  Array.isArray(value) ? value.map(textOf) : value ? [textOf(value)] : [];
 
 const fieldIdOf = (path: string) => path.replace('subject.customFields.', '');
 
@@ -49,7 +50,7 @@ const FieldInput = ({
 
   const text = (multiline?: boolean) => (
     <TemplateInput
-      value={String(value ?? '')}
+      value={textOf(value)}
       onChange={onChange}
       fields={dataFields}
       subject={subject}
@@ -67,7 +68,7 @@ const FieldInput = ({
       return (
         <Input
           type="date"
-          value={String(value ?? '')}
+          value={textOf(value)}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
         />
@@ -85,7 +86,7 @@ const FieldInput = ({
 
       return (
         <Select
-          value={value === undefined || value === '' ? '__clear' : String(value)}
+          value={value === undefined || value === '' ? '__clear' : textOf(value)}
           disabled={disabled}
           onValueChange={(next) =>
             onChange(next === '__clear' ? '' : chosen.type === 'boolean' ? next === 'true' : next)
@@ -121,7 +122,7 @@ const FieldInput = ({
       return (
         <Input
           type="date"
-          value={String(value ?? '')}
+          value={textOf(value)}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
         />
@@ -137,7 +138,7 @@ const FieldInput = ({
     case 'recipients': {
       // `subject`: the record's own email; anything else (even empty, while typing): addresses.
       const toRecord = value === undefined || value === 'subject';
-      const addresses = toRecord ? '' : String(value);
+      const addresses = toRecord ? '' : textOf(value);
 
       return (
         <div className="space-y-2">
@@ -173,7 +174,7 @@ const FieldInput = ({
 
     case 'custom_field':
       return customFields.length ? (
-        <Select value={String(value ?? '')} disabled={disabled} onValueChange={onChange}>
+        <Select value={textOf(value)} disabled={disabled} onValueChange={onChange}>
           <Select.Trigger>
             <Select.Value placeholder={t('choose-field', 'Choose a field')} />
           </Select.Trigger>
@@ -196,8 +197,7 @@ const FieldInput = ({
     case 'lead_stage': {
       // Saved by id; older steps saved the stage's name.
       const current = stages.find(
-        (stage) =>
-          stage.id === value || stage.name.toLowerCase() === String(value ?? '').toLowerCase(),
+        (stage) => stage.id === value || stage.name.toLowerCase() === textOf(value).toLowerCase(),
       );
 
       return (
@@ -224,7 +224,7 @@ const FieldInput = ({
 
     case 'select':
       return (
-        <Select value={String(value ?? '')} onValueChange={onChange} disabled={disabled}>
+        <Select value={textOf(value)} onValueChange={onChange} disabled={disabled}>
           <Select.Trigger>
             <Select.Value placeholder={t('choose', 'Choose…')} />
           </Select.Trigger>

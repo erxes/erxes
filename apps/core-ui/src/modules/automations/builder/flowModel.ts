@@ -5,6 +5,7 @@ import type {
   ConditionGroup,
   ConditionRule,
 } from '@erxes/core-contract';
+import { textOf } from '~/lib/text';
 import { zoneLabel } from './timezones';
 import type { FieldInfo } from './useAutomationFields';
 
@@ -309,7 +310,7 @@ export const describeConditions = (
   const value =
     first.op === 'exists' || first.op === 'not_exists'
       ? ''
-      : ` ${Array.isArray(first.value) ? first.value.join(', ') : String(first.value ?? '')}`;
+      : ` ${Array.isArray(first.value) ? first.value.join(', ') : textOf(first.value)}`;
 
   return `${name} ${OPS[first.op] ?? first.op}${value}${more}`;
 };
@@ -395,7 +396,7 @@ const valueText = (value: unknown): string => {
 
   if (value === 'subject') return 'the record';
 
-  return String(value);
+  return textOf(value);
 };
 
 const truncate = (text: string, length = 60) =>
