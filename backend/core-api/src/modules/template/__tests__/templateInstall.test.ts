@@ -5,7 +5,7 @@ import {
   createTemplatePartsApi,
   installTemplate,
   splitTemplatePartType,
-} from '@/template/db/models/Installations';
+} from '@/template/db/utils';
 import { findFlowReferenceIssues } from '@/automations/utils/automationGraph';
 
 // What automations declares for these node types
