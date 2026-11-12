@@ -4,8 +4,6 @@ export * from './CurrencyCode';
 
 export * from './Displays';
 
-export * from './Gql';
-
 export * from './Key';
 
 export * from './Relations';

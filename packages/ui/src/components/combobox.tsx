@@ -7,7 +7,6 @@ import { Command } from './command';
 import { useInView } from 'react-intersection-observer';
 import { mergeRefs } from 'react-merge-refs';
 import { Skeleton } from './skeleton';
-import type { ApolloError } from '@apollo/client';
 import { Spinner } from './spinner';
 
 export const ComboboxTriggerBase = React.forwardRef<
@@ -235,7 +234,7 @@ const ComboboxEmpty = React.forwardRef<
   React.ElementRef<typeof Command.Empty>,
   React.ComponentPropsWithoutRef<typeof Command.Empty> & {
     loading?: boolean;
-    error?: ApolloError;
+    error?: Pick<Error, 'message'> | null;
   }
 >(({ className, loading, error, ...props }, ref) => {
   return (
