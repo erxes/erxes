@@ -19,7 +19,7 @@ export const valuesTable = (type: ContentType) =>
   type === 'customer' ? customerFieldValues : companyFieldValues;
 
 /** Field types holding several values (one row each, in order). */
-export const LIST_FIELD_TYPES = ['multiselect', 'check', 'list'] as const;
+const LIST_FIELD_TYPES = ['multiselect', 'check', 'list'] as const;
 
 const LIST_TYPES_SQL = sql.raw(`(${LIST_FIELD_TYPES.map((type) => `'${type}'`).join(', ')})`);
 

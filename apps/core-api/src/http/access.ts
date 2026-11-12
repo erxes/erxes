@@ -26,12 +26,12 @@ export const can = (member: { role: string; permissions: readonly string[] }, ac
 };
 
 /** Every procedure of the core API: `customers.list`, `plugins.token`, … */
-export type ProcedurePath = {
+type ProcedurePath = {
   [G in keyof Contract]: `${G & string}.${keyof Contract[G] & string}`;
 }[keyof Contract];
 
 /** Which members: any signed-in member, or those whose role has this permission. */
-export type MemberRule = 'any' | CorePermission;
+type MemberRule = 'any' | CorePermission;
 
 /**
  * Who may call a procedure. Nothing is allowed unless written here:
@@ -41,7 +41,7 @@ export type MemberRule = 'any' | CorePermission;
  * organisation that has it, no scope needed). Services may check more (a
  * member's own note, an owner's account).
  */
-export type Policy =
+type Policy =
   | { public: true }
   | { member?: MemberRule; plugin?: PluginScope | 'manifest' | 'installed' };
 
@@ -54,7 +54,7 @@ const needs = <P extends CorePermission>(permission: P) => ({ member: permission
  * `satisfies Record<ProcedurePath, Policy>` makes a procedure without an entry
  * (or an entry without a procedure) a compile error.
  */
-export const ACCESS = {
+const ACCESS = {
   // Timelines check per target: contacts.view, or the plugin timeline's permission.
   'activities.list': MEMBER,
   'activities.addNote': MEMBER,

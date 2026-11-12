@@ -207,7 +207,7 @@ export const parseDate = (value: string): string => {
 const YES = new Set(['yes', 'y', 'true', '1', 'тийм', 'үнэн', 'x', '✓']);
 const NO = new Set(['no', 'n', 'false', '0', 'үгүй', 'худал']);
 
-export const parseBoolean = (value: string) => {
+const parseBoolean = (value: string) => {
   const text = value.trim().toLowerCase();
 
   if (YES.has(text)) return true;

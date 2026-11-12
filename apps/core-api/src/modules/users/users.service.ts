@@ -1,221 +1,28 @@
-import { notify } from '~/modules/notifications/notifications.service';
-import { userCaller, type Actor, type Role, requirePermission } from '~/http/auth';
+import type { CursorQuery } from '@erxes/core-contract';
+import { type Db, users, withTransaction } from '@erxes/core-db';
+import { and, eq, ilike, inArray, ne, or, type SQL, sql } from 'drizzle-orm';
+import { type Actor, type Role, userCaller } from '~/http/auth';
+import { forbidden, HttpError } from '~/http/errors';
 import { diffRows } from '~/lib/changes';
-import { recordAudit } from '~/modules/audit/audit.service';
-import { db, Db, newId, roles, users, withTransaction } from '@erxes/core-db';
-import { lockOrganization } from '~/lib/locks';
-import type { CursorQuery, UserLinkName } from '@erxes/core-contract';
-import { and, count, eq, ilike, inArray, ne, or, SQL, sql } from 'drizzle-orm';
-import { assertAssignable } from '~/modules/roles/roles.service';
-import { sendInvitation } from '~/modules/auth/tokens.service';
-import { forbidden, HttpError, notFound, pgCode } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
+import { oneRow } from '~/lib/rows';
 import { matchEveryWord } from '~/lib/search';
+import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword } from '~/modules/auth/password';
-
-type UserRow = typeof users.$inferSelect;
+import { notify } from '~/modules/notifications/notifications.service';
+import { assertAssignable } from '~/modules/roles/roles.service';
+import { profileChanges, type UserChanges } from './userProfile';
+import {
+  conflictFrom,
+  findUser,
+  lockTeam,
+  otherActiveOwners,
+  requireTeamManager,
+  toUserDto,
+  type UserRow,
+} from './userRows';
 
 type Status = UserRow['status'];
-
-/** The API shape: never the password hash or internal flags. */
-export const toUserDto = (row: UserRow) => ({
-  id: row.id,
-  email: row.email,
-  username: row.username,
-  fullName: row.fullName,
-  avatarUrl: row.avatarUrl,
-  role: row.role,
-  twoFactorEnabled: Boolean(row.totpEnabledAt),
-  status: row.status,
-  firstName: row.firstName,
-  middleName: row.middleName,
-  lastName: row.lastName,
-  shortName: row.shortName,
-  employeeId: row.employeeId,
-  phone: row.phone,
-  birthDate: row.birthDate,
-  workStartedDate: row.workStartedDate,
-  description: row.description,
-  links: row.links,
-  onboardedAt: row.onboardedAt?.toISOString() ?? null,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-});
-
-type NameParts = Pick<UserRow, 'firstName' | 'middleName' | 'lastName'>;
-
-/** First word → first name, the rest → last name (as the 0003 migration did). */
-const splitFullName = (fullName: string): NameParts => {
-  const [first = '', ...rest] = fullName.trim().split(/\s+/);
-
-  return { firstName: first || null, middleName: null, lastName: rest.join(' ') || null };
-};
-
-const joinName = ({ firstName, middleName, lastName }: NameParts) =>
-  [firstName, middleName, lastName].filter(Boolean).join(' ') || null;
-
-/** Empty text clears a field. */
-const blankToNull = (value: string | null | undefined) =>
-  value === undefined ? undefined : value?.trim() ? value.trim() : null;
-
-/** Name, profile and link changes, with `fullName` kept in step with the name parts. */
-const profileChanges = (
-  input: UserChanges,
-  current?: Pick<UserRow, 'firstName' | 'middleName' | 'lastName' | 'links'>,
-) => {
-  const set: Partial<typeof users.$inferInsert> = {};
-
-  const parts = {
-    firstName: blankToNull(input.firstName),
-    middleName: blankToNull(input.middleName),
-    lastName: blankToNull(input.lastName),
-  };
-
-  const partsGiven = Object.values(parts).some((value) => value !== undefined);
-
-  if (partsGiven) {
-    const next: NameParts = {
-      firstName: parts.firstName === undefined ? (current?.firstName ?? null) : parts.firstName,
-      middleName: parts.middleName === undefined ? (current?.middleName ?? null) : parts.middleName,
-      lastName: parts.lastName === undefined ? (current?.lastName ?? null) : parts.lastName,
-    };
-
-    Object.assign(set, next, { fullName: input.fullName ?? joinName(next) });
-  } else if (input.fullName !== undefined) {
-    Object.assign(set, splitFullName(input.fullName), { fullName: input.fullName });
-  }
-
-  for (const key of ['shortName', 'employeeId', 'phone', 'description'] as const) {
-    const value = blankToNull(input[key]);
-
-    if (value !== undefined) {
-      set[key] = value;
-    }
-  }
-
-  for (const key of ['birthDate', 'workStartedDate'] as const) {
-    if (input[key] !== undefined) {
-      set[key] = input[key];
-    }
-  }
-
-  if (input.links) {
-    const links: Record<string, string> = { ...current?.links };
-
-    for (const [name, value] of Object.entries(input.links)) {
-      if (value?.trim()) {
-        links[name] = value.trim();
-      } else {
-        delete links[name];
-      }
-    }
-
-    set.links = links;
-  }
-
-  if (input.username !== undefined) {
-    set.username = input.username;
-  }
-
-  if (input.avatarUrl !== undefined) {
-    set.avatarUrl = input.avatarUrl;
-  }
-
-  return set;
-};
-
-interface UserChanges {
-  email?: string;
-  fullName?: string;
-  username?: string;
-  avatarUrl?: string | null;
-  role?: Role;
-  firstName?: string | null;
-  middleName?: string | null;
-  lastName?: string | null;
-  shortName?: string | null;
-  employeeId?: string | null;
-  phone?: string | null;
-  birthDate?: string | null;
-  workStartedDate?: string | null;
-  description?: string | null;
-  links?: Partial<Record<UserLinkName, string | null>>;
-}
-
-interface InviteInput {
-  email: string;
-  role: Exclude<Role, 'owner'>;
-  password?: string;
-  fullName?: string;
-  username?: string;
-}
-
-const requireTeamManager = (actor: Actor, action: 'team.manage' | 'team.invite' = 'team.manage') =>
-  requirePermission(actor, action);
-
-/**
- * Team changes run one at a time per organisation (a lock on its row), with
- * the caller's role read again inside: two owners demoting each other at the
- * same moment can't both win and leave nobody in charge.
- */
-const lockTeam = async (tx: Db, actor: Actor): Promise<Actor> => {
-  await lockOrganization(tx, actor.orgId);
-
-  const [me] = await tx
-    .select({ role: users.role, status: users.status, permissions: roles.permissions })
-    .from(users)
-    .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
-    .limit(1);
-
-  if (!me || me.status !== 'active') {
-    throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
-  }
-
-  return { ...actor, role: me.role, permissions: me.permissions };
-};
-
-/** Unique email or username in the organisation → 409 with the field. */
-const conflictFrom = (error: unknown): never => {
-  if (pgCode(error) === '23505') {
-    throw new HttpError(409, 'EMAIL_TAKEN', 'A team member with this email already exists');
-  }
-
-  throw error;
-};
-
-const findUser = async (client: Db, orgId: string, id: string, lock = false) => {
-  const query = client
-    .select()
-    .from(users)
-    .where(and(eq(users.orgId, orgId), eq(users.id, id)))
-    .limit(1);
-
-  const [row] = lock ? await query.for('update') : await query;
-
-  if (!row) {
-    throw notFound('Team member');
-  }
-
-  return row;
-};
-
-/** Other active owners besides `exceptId` (an organisation always keeps one). */
-const otherActiveOwners = async (client: Db, orgId: string, exceptId: string) => {
-  const [result] = await client
-    .select({ total: count() })
-    .from(users)
-    .where(
-      and(
-        eq(users.orgId, orgId),
-        eq(users.role, 'owner'),
-        eq(users.status, 'active'),
-        ne(users.id, exceptId),
-      ),
-    );
-
-  return result?.total ?? 0;
-};
 
 export const listUsers = async (
   client: Db,
@@ -280,104 +87,77 @@ export const listUsers = async (
 export const getUser = async (client: Db, actor: Actor, id: string) =>
   toUserDto(await findUser(client, actor.orgId, id));
 
-/** A new member row: with a password they can sign in at once, otherwise they stay invited. */
-const inviteValues = async (actor: Actor, input: InviteInput) => ({
-  id: newId(),
-  orgId: actor.orgId,
-  email: input.email.trim().toLowerCase(),
-  ...(input.fullName ? { ...splitFullName(input.fullName), fullName: input.fullName } : {}),
-  username: input.username ?? null,
-  role: input.role,
-  status: input.password ? ('active' as const) : ('invited' as const),
-  passwordHash: input.password ? await hashPassword(input.password) : null,
-  invitedBy: actor.userId,
-});
+/** Who may change `target`'s email and role: owners guard owners, nobody changes their own role. */
+const checkUserChange = async (
+  tx: Db,
+  actor: Actor,
+  target: UserRow,
+  change: { email?: string; role?: Role },
+) => {
+  const self = target.id === actor.userId;
 
-/** Members invited without a password get an email to join (sent once the invite commits). */
-const emailInvitations = async (tx: Db, actor: Actor, rows: UserRow[]) => {
-  for (const row of rows) {
-    if (row.status === 'invited') await sendInvitation(tx, actor, row);
+  if (!self) {
+    requireTeamManager(actor);
+  }
+
+  // An owner's email is how they sign in: only owners change it.
+  const ownerEmail = change.email && change.email !== target.email && target.role === 'owner';
+
+  if (ownerEmail && !self && actor.role !== 'owner') {
+    throw forbidden('OWNER_ONLY', 'Only an owner can change an owner’s email');
+  }
+
+  if (!change.role || change.role === target.role) {
+    return;
+  }
+
+  if (self) {
+    throw forbidden('OWN_ROLE', 'You cannot change your own role');
+  }
+
+  // Only owners grant or remove owner rights.
+  if ((change.role === 'owner' || target.role === 'owner') && actor.role !== 'owner') {
+    throw forbidden('OWNER_ONLY', 'Only an owner can change owner rights');
+  }
+
+  // The role exists, and gives nothing beyond what the assigner can do.
+  await assertAssignable(tx, actor, change.role);
+
+  if (
+    target.role === 'owner' &&
+    target.status === 'active' &&
+    (await otherActiveOwners(tx, actor.orgId, target.id)) === 0
+  ) {
+    throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
   }
 };
 
-const auditInvites = (tx: Db, actor: Actor, rows: UserRow[]) =>
-  recordAudit(
-    tx,
-    userCaller(actor),
-    rows.map((row) => ({
-      action: 'user.invited',
-      targetType: 'user',
-      targetId: row.id,
-      targetLabel: row.email,
-      metadata: { role: row.role, status: row.status },
-    })),
-  );
+/** Audits a member's change, and tells them when someone else changed their role. */
+const announceUserChange = async (tx: Db, actor: Actor, before: UserRow, after: UserRow) => {
+  const changes = diffRows(before, after, ['lastSeenAt']);
 
-export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) => {
-  requireTeamManager(actor, 'team.invite');
-  await assertAssignable(client, actor, input.role ?? 'member');
-
-  try {
-    const values = await inviteValues(actor, input);
-
-    const row = await client.transaction(async (tx) => {
-      const [inserted] = await tx.insert(users).values(values).returning();
-
-      await auditInvites(tx, actor, [inserted!]);
-      await emailInvitations(tx, actor, [inserted!]);
-
-      return inserted!;
-    });
-
-    return toUserDto(row);
-  } catch (error) {
-    return conflictFrom(error);
-  }
-};
-
-/** Several invitations in one go: all are created, or none (409 names the taken emails). */
-export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
-  requireTeamManager(actor, 'team.invite');
-
-  for (const role of new Set(entries.map((entry) => entry.role ?? 'member'))) {
-    await assertAssignable(db(), actor, role);
+  if (!changes) {
+    return;
   }
 
-  const emails = entries.map((entry) => entry.email.trim().toLowerCase());
-  const repeated = emails.filter((email, index) => emails.indexOf(email) !== index);
-
-  if (repeated.length) {
-    throw new HttpError(409, 'EMAIL_TAKEN', `Invited twice: ${[...new Set(repeated)].join(', ')}`, {
-      emails: [...new Set(repeated)],
+  if (changes.role && before.id !== actor.userId) {
+    await notify(tx, userCaller(actor), {
+      userIds: [after.id],
+      kind: 'core.user.role_changed',
+      title: 'Your role was changed',
+      body: `${before.role} → ${after.role}`,
+      priority: 'high',
+      entity: { type: 'user', id: after.id },
+      data: { changes: { role: changes.role } },
     });
   }
 
-  const values = await Promise.all(entries.map((entry) => inviteValues(actor, entry)));
-
-  return withTransaction(async (tx) => {
-    const taken = await tx
-      .select({ email: users.email })
-      .from(users)
-      .where(and(eq(users.orgId, actor.orgId), inArray(sql`lower(${users.email})`, emails)));
-
-    if (taken.length) {
-      const list = taken.map(({ email }) => email.toLowerCase());
-
-      throw new HttpError(409, 'EMAIL_TAKEN', `Already a team member: ${list.join(', ')}`, {
-        emails: list,
-      });
-    }
-
-    try {
-      const rows = await tx.insert(users).values(values).returning();
-
-      await auditInvites(tx, actor, rows);
-      await emailInvitations(tx, actor, rows);
-
-      return { data: rows.map(toUserDto) };
-    } catch (error) {
-      return conflictFrom(error);
-    }
+  await recordAudit(tx, userCaller(actor), {
+    action: changes.role ? 'user.role_changed' : 'user.updated',
+    targetType: 'user',
+    targetId: after.id,
+    targetLabel: after.email,
+    changes,
   });
 };
 
@@ -385,86 +165,27 @@ export const updateUser = async (caller: Actor, id: string, input: UserChanges) 
   withTransaction(async (tx) => {
     const actor = await lockTeam(tx, caller);
     const target = await findUser(tx, actor.orgId, id, true);
-    const self = target.id === actor.userId;
-
-    if (!self) {
-      requireTeamManager(actor);
-    }
-
     const email = input.email?.trim().toLowerCase();
 
-    // An owner's email is how they sign in: only owners change it.
-    if (
-      email &&
-      email !== target.email &&
-      !self &&
-      target.role === 'owner' &&
-      actor.role !== 'owner'
-    ) {
-      throw forbidden('OWNER_ONLY', 'Only an owner can change an owner’s email');
-    }
-
-    if (input.role && input.role !== target.role) {
-      if (self) {
-        throw forbidden('OWN_ROLE', 'You cannot change your own role');
-      }
-
-      requireTeamManager(actor);
-
-      // Only owners grant or remove owner rights.
-      if ((input.role === 'owner' || target.role === 'owner') && actor.role !== 'owner') {
-        throw forbidden('OWNER_ONLY', 'Only an owner can change owner rights');
-      }
-
-      // The role exists, and gives nothing beyond what the assigner can do.
-      await assertAssignable(tx, actor, input.role);
-
-      if (
-        target.role === 'owner' &&
-        target.status === 'active' &&
-        (await otherActiveOwners(tx, actor.orgId, target.id)) === 0
-      ) {
-        throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
-      }
-    }
+    await checkUserChange(tx, actor, target, { email, role: input.role });
 
     try {
-      const [row] = await tx
-        .update(users)
-        .set({
-          ...profileChanges(input, target),
-          ...(email !== undefined ? { email } : {}),
-          ...(input.role !== undefined ? { role: input.role } : {}),
-          updatedAt: sql`now()`,
-        })
-        .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
-        .returning();
+      const row = oneRow(
+        await tx
+          .update(users)
+          .set({
+            ...profileChanges(input, target),
+            ...(email !== undefined ? { email } : {}),
+            ...(input.role !== undefined ? { role: input.role } : {}),
+            updatedAt: sql`now()`,
+          })
+          .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
+          .returning(),
+      );
 
-      const changes = diffRows(target, row!, ['lastSeenAt']);
+      await announceUserChange(tx, actor, target, row);
 
-      if (changes?.role && !self) {
-        await notify(tx, userCaller(actor), {
-          userIds: [id],
-          kind: 'core.user.role_changed',
-          title: 'Your role was changed',
-          body: `${changes.role[0]} → ${changes.role[1]}`,
-          priority: 'high',
-          entity: { type: 'user', id },
-          data: { changes: { role: changes.role } },
-        });
-      }
-
-      if (changes) {
-        await recordAudit(tx, userCaller(actor), {
-          action: changes.role ? 'user.role_changed' : 'user.updated',
-          targetType: 'user',
-          targetId: id,
-          targetLabel: row!.email,
-          changes,
-        });
-      }
-
-      return toUserDto(row!);
+      return toUserDto(row);
     } catch (error) {
       return conflictFrom(error);
     }
@@ -491,18 +212,20 @@ export const setUserPassword = async (caller: Actor, id: string, password: strin
       throw forbidden('OWNER_ONLY', 'Only an owner can set an owner’s password');
     }
 
-    const [row] = await tx
-      .update(users)
-      .set({
-        passwordHash,
-        // Their sessions end: whoever had the old password is out.
-        sessionVersion: sql`${users.sessionVersion} + 1`,
-        // Someone invited can sign in now; a disabled member stays disabled.
-        ...(target.status === 'invited' ? { status: 'active' as const } : {}),
-        updatedAt: sql`now()`,
-      })
-      .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
-      .returning();
+    const row = oneRow(
+      await tx
+        .update(users)
+        .set({
+          passwordHash,
+          // Their sessions end: whoever had the old password is out.
+          sessionVersion: sql`${users.sessionVersion} + 1`,
+          // Someone invited can sign in now; a disabled member stays disabled.
+          ...(target.status === 'invited' ? { status: 'active' as const } : {}),
+          updatedAt: sql`now()`,
+        })
+        .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
+        .returning(),
+    );
 
     await notify(tx, userCaller(actor), {
       userIds: [id],
@@ -516,10 +239,10 @@ export const setUserPassword = async (caller: Actor, id: string, password: strin
       action: 'user.password_set',
       targetType: 'user',
       targetId: id,
-      targetLabel: row!.email,
+      targetLabel: row.email,
     });
 
-    return toUserDto(row!);
+    return toUserDto(row);
   });
 };
 
@@ -555,20 +278,22 @@ export const setUserDisabled = async (caller: Actor, id: string, disabled: boole
         ? 'invited'
         : 'active';
 
-    const [row] = await tx
-      .update(users)
-      // Either way old sessions end: enabling doesn't bring back tokens issued before.
-      .set({ status, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
-      .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
-      .returning();
+    const row = oneRow(
+      await tx
+        .update(users)
+        // Either way old sessions end: enabling doesn't bring back tokens issued before.
+        .set({ status, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
+        .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
+        .returning(),
+    );
 
     await recordAudit(tx, userCaller(actor), {
       action: disabled ? 'user.disabled' : 'user.enabled',
       targetType: 'user',
       targetId: id,
-      targetLabel: row!.email,
+      targetLabel: row.email,
       changes: { status: [target.status, status] },
     });
 
-    return toUserDto(row!);
+    return toUserDto(row);
   });

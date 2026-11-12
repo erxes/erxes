@@ -1,3 +1,4 @@
+import type { CustomerSex } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -41,7 +42,7 @@ export const customers = pgTable(
       .default(sql`'{}'::text[]`)
       .notNull(),
     /** ISO/IEC 5218: 0 not known, 1 male, 2 female, 9 not applicable. */
-    sex: smallint(),
+    sex: smallint().$type<CustomerSex>(),
     birthDate: date({ mode: 'string' }),
     position: text(),
     department: text(),

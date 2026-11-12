@@ -1,21 +1,12 @@
-import {
-  activities,
-  companies,
-  customers,
-  type Db,
-  eventConsumers,
-  eventFailures,
-  events,
-  withSystem,
-} from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
-import type { Caller } from '~/http/auth';
+import { type Db, eventConsumers, eventFailures, events, withSystem } from '@erxes/core-db';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { liveHub } from '~/modules/live/hub';
-import { notify } from '~/modules/notifications/notifications.service';
-import { webhooksConsumer } from '~/modules/webhooks/webhooks.service';
+import { describeError } from '~/modules/jobs/jobs';
+import { webhooksConsumer } from '~/modules/webhooks/webhookDelivery';
 import { automationsConsumer } from '~/modules/automations/consumer';
 import { pluginEventsConsumer } from '~/modules/plugins/pluginEvents';
 import { logger, traced } from '~/logger';
+import { notificationsConsumer, timelineConsumer } from './coreConsumers';
 
 const log = logger.child({ component: 'events' });
 
@@ -27,135 +18,17 @@ export interface EventConsumer {
   handle: (tx: Db, event: EventRow) => Promise<void>;
 }
 
-const callerOf = (event: EventRow): Caller => ({
-  orgId: event.orgId,
-  actorType: event.actorType === 'user' ? 'user' : 'plugin',
-  actorId: event.actorId ?? event.source,
-  source: event.source,
-});
-
-/**
- * Plugin events about a customer or company with a `summary` go on its
- * timeline; the record's owner hears about it in that plugin's inbox.
- */
-const timeline: EventConsumer = {
-  name: 'core.timeline',
-  async handle(tx, event) {
-    if (event.source === 'core' || !event.subjectType || !event.subjectId || !event.summary) {
-      return;
-    }
-
-    const table = event.subjectType === 'customer' ? customers : companies;
-
-    const [subject] = await tx
-      .select({ ownerId: table.ownerId })
-      .from(table)
-      .where(and(eq(table.orgId, event.orgId), eq(table.id, event.subjectId)))
-      .limit(1);
-
-    if (!subject) {
-      return;
-    }
-
-    const [entry] = await tx
-      .insert(activities)
-      .values({
-        id: event.id,
-        orgId: event.orgId,
-        targetType: event.subjectType,
-        targetId: event.subjectId,
-        source: event.source,
-        type: event.type,
-        summary: event.summary,
-        data: event.payload,
-        entityType: event.entityType,
-        entityId: event.entityId,
-        link: event.link,
-        actorType: event.actorType,
-        actorId: event.actorId,
-        dedupeKey: `event:${event.id}`,
-        occurredAt: event.occurredAt,
-      })
-      .onConflictDoNothing()
-      .returning({ id: activities.id });
-
-    if (entry && subject.ownerId && subject.ownerId !== event.actorId) {
-      await notify(tx, callerOf(event), {
-        userIds: [subject.ownerId],
-        kind: event.type,
-        title: event.summary,
-        link:
-          event.link ??
-          `/contacts/${event.subjectType === 'customer' ? 'customers' : 'companies'}/${event.subjectId}`,
-        entity: {
-          type: event.entityType ?? event.subjectType,
-          id: event.entityId ?? event.subjectId,
-        },
-        data: { targetType: event.subjectType, targetId: event.subjectId },
-        actorUserId: event.actorType === 'user' ? (event.actorId ?? undefined) : undefined,
-        dedupeKey: `event:${event.id}:owner`,
-      });
-    }
-  },
-};
-
-/** Events with `notify` reach those members' inboxes. */
-const notifications: EventConsumer = {
-  name: 'core.notifications',
-  async handle(tx, event) {
-    const request = event.notify as {
-      userIds: string[];
-      title: string;
-      body?: string;
-      link?: string;
-      priority?: 'normal' | 'high';
-    } | null;
-
-    if (!request?.userIds?.length || event.source === 'core') {
-      return;
-    }
-
-    await notify(tx, callerOf(event), {
-      userIds: request.userIds,
-      kind: event.type,
-      title: request.title,
-      body: request.body,
-      link: request.link ?? event.link ?? undefined,
-      priority: request.priority,
-      entity:
-        event.entityType && event.entityId
-          ? { type: event.entityType, id: event.entityId }
-          : undefined,
-      actorUserId: event.actorType === 'user' ? (event.actorId ?? undefined) : undefined,
-      dedupeKey: `event:${event.id}`,
-    });
-  },
-};
-
 export const CONSUMERS: EventConsumer[] = [
-  timeline,
-  notifications,
+  timelineConsumer,
+  notificationsConsumer,
   webhooksConsumer,
   automationsConsumer,
   pluginEventsConsumer,
 ];
 
 /** Waits before each retry; after the last one the event is dead. */
-export const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
+const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
 export const MAX_ATTEMPTS = RETRY_DELAYS_SECONDS.length + 1;
-
-const describe = (error: unknown): string => {
-  const messages: string[] = [];
-  let current: unknown = error;
-
-  // Drizzle wraps database errors ("Failed query: …"); the cause says why.
-  for (let depth = 0; current && depth < 4; depth += 1) {
-    messages.push(current instanceof Error ? current.message : String(current));
-    current = current instanceof Error ? current.cause : undefined;
-  }
-
-  return messages.join(' — ').slice(0, 2000);
-};
 
 const handleOnce = async (tx: Db, consumer: EventConsumer, event: EventRow) => {
   try {
@@ -163,18 +36,53 @@ const handleOnce = async (tx: Db, consumer: EventConsumer, event: EventRow) => {
 
     return null;
   } catch (error) {
-    return describe(error);
+    // Drizzle wraps database errors ("Failed query: …"); the causes say why.
+    return describeError(error);
   }
 };
 
 /** A failure's next state after `attempts` tries. */
-const afterAttempt = (attempts: number) =>
-  attempts >= MAX_ATTEMPTS
+const afterAttempt = (attempts: number) => {
+  const delay = RETRY_DELAYS_SECONDS[attempts - 1];
+
+  return delay === undefined
     ? { status: 'dead' as const, nextAttemptAt: null }
     : {
         status: 'retrying' as const,
-        nextAttemptAt: sql`now() + make_interval(secs => ${RETRY_DELAYS_SECONDS[attempts - 1]!})`,
+        nextAttemptAt: sql`now() + make_interval(secs => ${delay})`,
       };
+};
+
+const eventsById = async (tx: Db, ids: string[]) => {
+  const rows = await tx.select().from(events).where(inArray(events.id, ids));
+
+  return new Map(rows.map((row) => [row.id, row]));
+};
+
+/** The next events after the consumer's cursor, in commit order (locks the cursor). */
+const nextBatch = async (tx: Db, consumer: EventConsumer, batchSize: number) => {
+  await tx.insert(eventConsumers).values({ name: consumer.name }).onConflictDoNothing();
+
+  const cursor = await tx.execute<{ last_tx_id: string; last_seq: number }>(
+    sql`select last_tx_id::text, last_seq from ${eventConsumers} where name = ${consumer.name} for update skip locked`,
+  );
+
+  const position = cursor.rows[0];
+
+  if (!position) {
+    return [];
+  }
+
+  const batch = await tx.execute<{ id: string; tx_id: string; seq: number }>(sql`
+    select id, tx_id::text, seq from ${events}
+    where (tx_id, seq) > (${position.last_tx_id}::xid8, ${position.last_seq})
+      and tx_id < pg_snapshot_xmin(pg_current_snapshot())
+    order by tx_id, seq
+    limit ${batchSize}
+  `);
+
+  return batch.rows;
+};
 
 /**
  * Runs one consumer over the next batch of events, in commit order. Only
@@ -186,50 +94,26 @@ const afterAttempt = (attempts: number) =>
  */
 export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Promise<number> =>
   withSystem(`events: ${consumer.name}`, async (tx) => {
-    await tx.insert(eventConsumers).values({ name: consumer.name }).onConflictDoNothing();
+    const batch = await nextBatch(tx, consumer, batchSize);
+    const last = batch.at(-1);
 
-    const cursor = await tx.execute<{ last_tx_id: string; last_seq: number }>(
-      sql`select last_tx_id::text, last_seq from ${eventConsumers} where name = ${consumer.name} for update skip locked`,
+    if (!last) {
+      return 0;
+    }
+
+    const byId = await eventsById(
+      tx,
+      batch.map((row) => row.id),
     );
 
-    const position = cursor.rows[0];
-
-    if (!position) {
-      return 0;
-    }
-
-    const batch = await tx.execute<{ id: string; tx_id: string; seq: number }>(sql`
-      select id, tx_id::text, seq from ${events}
-      where (tx_id, seq) > (${position.last_tx_id}::xid8, ${position.last_seq})
-        and tx_id < pg_snapshot_xmin(pg_current_snapshot())
-      order by tx_id, seq
-      limit ${batchSize}
-    `);
-
-    if (!batch.rows.length) {
-      return 0;
-    }
-
-    const rows = await tx
-      .select()
-      .from(events)
-      .where(
-        sql`${events.id} in (${sql.join(
-          batch.rows.map((row) => sql`${row.id}`),
-          sql`, `,
-        )})`,
-      );
-
-    const byId = new Map(rows.map((row) => [row.id, row]));
-
-    for (const { id } of batch.rows) {
-      const event = byId.get(id)!;
-
+    // In commit order: the batch's, not the lookup's.
+    for (const event of batch.flatMap((row) => byId.get(row.id) ?? [])) {
       const error = await handleOnce(tx, consumer, event);
 
       if (error) {
         log.error(
-          `${consumer.name} could not handle event ${event.id} (${event.type}): ${error}; retrying later`,
+          { consumer: consumer.name, eventId: event.id, type: event.type, error },
+          'could not handle an event; retrying later',
         );
         await tx
           .insert(eventFailures)
@@ -244,13 +128,11 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
       }
     }
 
-    const last = batch.rows[batch.rows.length - 1]!;
-
     await tx.execute(
       sql`update ${eventConsumers} set last_tx_id = ${last.tx_id}::xid8, last_seq = ${last.seq}, updated_at = now() where name = ${consumer.name}`,
     );
 
-    return batch.rows.length;
+    return batch.length;
   });
 
 /**
@@ -270,17 +152,10 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
 
     if (!due.rows.length) return 0;
 
-    const rows = await tx
-      .select()
-      .from(events)
-      .where(
-        sql`${events.id} in (${sql.join(
-          due.rows.map((row) => sql`${row.event_id}`),
-          sql`, `,
-        )})`,
-      );
-
-    const byId = new Map(rows.map((row) => [row.id, row]));
+    const byId = await eventsById(
+      tx,
+      due.rows.map((row) => row.event_id),
+    );
 
     for (const failure of due.rows) {
       const event = byId.get(failure.event_id);
@@ -302,7 +177,8 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
 
       if (next.status === 'dead') {
         log.error(
-          `${consumer.name} gave up on event ${failure.event_id} after ${attempts} attempts: ${error}`,
+          { consumer: consumer.name, eventId: failure.event_id, attempts, error },
+          'gave up on an event',
         );
       }
 
@@ -315,33 +191,34 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
     return due.rows.length;
   });
 
+/** Retries due failures, then reads the stream until caught up; returns how many events it read. */
+const drain = async (consumer: EventConsumer) => {
+  let handled = 0;
+
+  for (let round = 0; round < 10; round += 1) {
+    if (!(await retryFailures(consumer))) break;
+  }
+
+  for (let round = 0; round < 50; round += 1) {
+    const read = await runConsumer(consumer);
+
+    handled += read;
+
+    if (!read) break;
+  }
+
+  return handled;
+};
+
 /**
  * Runs every consumer until the stream is caught up (tests, and each tick).
  * Consumers are independent (own cursor, own transactions): they run side by
  * side, so a slow one doesn't hold up the timeline or notifications.
  */
 export const processEvents = async () => {
-  const counts = await Promise.all(
-    CONSUMERS.map(async (consumer) => {
-      let handled = 0;
+  const counts = await Promise.all(CONSUMERS.map(drain));
 
-      for (let round = 0; round < 10; round += 1) {
-        if (!(await retryFailures(consumer))) break;
-      }
-
-      for (let round = 0; round < 50; round += 1) {
-        const count = await runConsumer(consumer);
-
-        handled += count;
-
-        if (!count) break;
-      }
-
-      return handled;
-    }),
-  );
-
-  return counts.reduce((sum, count) => sum + count, 0);
+  return counts.reduce((sum, handled) => sum + handled, 0);
 };
 
 /**
@@ -377,7 +254,7 @@ export const startEventProcessor = () => {
 
   let last = 0;
 
-  const timer = setInterval(() => {
+  const poll = setInterval(() => {
     const interval = liveHub.connected ? 30_000 : 1000;
 
     if (Date.now() - last >= interval) {
@@ -406,13 +283,13 @@ export const startEventProcessor = () => {
     }
   };
 
-  timer.unref();
+  poll.unref();
   liveHub.on('events', onEvents);
 
   /** Stops, after the run in progress (if any) finishes. */
   return async () => {
     stopped = true;
-    clearInterval(timer);
+    clearInterval(poll);
     followUps.forEach((followUp) => clearTimeout(followUp));
     liveHub.off('events', onEvents);
     await current;

@@ -5,7 +5,8 @@ import { type Actor } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
-import { compileRecordFilter, filterFields } from './recordFilter';
+import { filterFields } from './filterFields';
+import { compileRecordFilter } from './recordFilter';
 
 type Row = typeof views.$inferSelect;
 

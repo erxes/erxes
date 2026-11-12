@@ -13,7 +13,7 @@ import { HttpError } from '~/http/errors';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { currentRunCause, currentImport } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
-import { assertTarget } from '~/modules/activities/activities.service';
+import { assertTarget } from '~/modules/activities/timelineAccess';
 
 type EventRow = typeof events.$inferSelect;
 

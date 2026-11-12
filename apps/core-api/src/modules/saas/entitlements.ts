@@ -31,12 +31,7 @@ const FRESH_MS = 30_000;
  * stay installed (their tokens can still read). Ones the owner uninstalled
  * stay uninstalled.
  */
-export const reconcilePlugins = async (
-  tx: Db,
-  orgId: string,
-  row: EntitlementRow,
-  now = new Date(),
-) => {
+const reconcilePlugins = async (tx: Db, orgId: string, row: EntitlementRow, now = new Date()) => {
   const registered = await tx
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)

@@ -1,13 +1,12 @@
 import { HttpError } from '~/http/errors';
 import {
   installPlugin,
-  issuePluginToken,
   listPlugins,
   pluginSession,
   pluginSignal,
-  registerManifest,
   uninstallPlugin,
-} from '~/modules/plugins/plugins.service';
+} from '~/modules/plugins/installations.service';
+import { issuePluginToken, registerManifest } from '~/modules/plugins/plugins.service';
 import { pub, authed, plugin } from '~/orpc';
 
 export const pluginsRouter = {

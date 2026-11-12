@@ -16,7 +16,11 @@ import { logger } from '~/logger';
 const log = logger.child({ component: 'main' });
 
 const start = async () => {
-  configureDb({ ...config.data, applicationName: 'erxes-core' });
+  configureDb({
+    ...config.data,
+    applicationName: 'erxes-core',
+    onIdleError: (error) => log.warn({ err: error }, 'idle database connection failed'),
+  });
 
   loadSigningKeys();
 

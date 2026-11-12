@@ -1,9 +1,11 @@
 import { auditLogs, withOrg } from '@erxes/core-db';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { stringify } from 'csv-stringify/sync';
+import { and, desc, eq, type SQL, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { actorOf, requirePermission, userCaller } from '~/http/auth';
-import { type AuditFilters, auditFilters, recordAudit } from './audit.service';
+import { type Actor, actorOf, requirePermission, userCaller } from '~/http/auth';
+import { defuse } from '~/lib/csv';
+import { auditFilters, recordAudit } from './audit.service';
 
 const MAX_ROWS = 100_000;
 const BATCH = 1_000;
@@ -38,18 +40,69 @@ const COLUMNS = [
   'hash',
 ] as const;
 
-/** One CSV cell: quoted when needed; a leading =, +, - or @ is defused (spreadsheet formulas). */
-const cell = (value: unknown) => {
-  let text =
-    value === null || value === undefined
+type AuditRow = typeof auditLogs.$inferSelect;
+
+/** One CSV cell: objects as JSON; a leading =, +, - or @ is defused (spreadsheet formulas). */
+const cell = (value: AuditRow[(typeof COLUMNS)[number]]) =>
+  defuse(
+    value === null
       ? ''
-      : typeof value === 'object'
-        ? JSON.stringify(value)
-        : String(value);
+      : value instanceof Date
+        ? value.toISOString()
+        : typeof value === 'object'
+          ? JSON.stringify(value)
+          : String(value),
+  );
 
-  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+const line = (format: 'csv' | 'json', row: AuditRow, first: boolean) => {
+  if (format === 'csv') return stringify([COLUMNS.map((column) => cell(row[column]))]);
 
-  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  const { orgId: _org, prevHash: _prev, ...visible } = row;
+
+  return `${first ? '' : ','}\n${JSON.stringify({ ...visible, createdAt: row.createdAt.toISOString() })}`;
+};
+
+/** Writes the matching entries, newest first, in batches; returns how many. */
+const writeEntries = async (
+  res: Response,
+  actor: Actor,
+  format: 'csv' | 'json',
+  scope: SQL | undefined,
+) => {
+  let after: Pick<AuditRow, 'createdAt' | 'id'> | undefined;
+  let written = 0;
+
+  while (written < MAX_ROWS) {
+    const cursor = after;
+
+    // A short scoped transaction per batch: the export may stream for a while.
+    const rows = await withOrg(actor.orgId, (tx) =>
+      tx
+        .select()
+        .from(auditLogs)
+        .where(
+          and(
+            scope,
+            cursor
+              ? sql`(${auditLogs.createdAt}, ${auditLogs.id}) < (${cursor.createdAt}, ${cursor.id})`
+              : undefined,
+          ),
+        )
+        .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
+        .limit(Math.min(BATCH, MAX_ROWS - written)),
+    );
+
+    after = rows.at(-1);
+
+    if (!after) break;
+
+    for (const row of rows) {
+      res.write(line(format, row, written === 0));
+      written += 1;
+    }
+  }
+
+  return written;
 };
 
 /**
@@ -59,7 +112,7 @@ const cell = (value: unknown) => {
  */
 export const auditExportRouter = Router();
 
-auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
+auditExportRouter.get('/audit/export', async (req: Request, res: Response) => {
   const actor = actorOf(req);
 
   requirePermission(actor, 'audit.view');
@@ -89,52 +142,10 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
   res.setHeader('Content-Disposition', `attachment; filename="audit-log-${stamp}.${format}"`);
   res.setHeader('Cache-Control', 'no-store');
 
-  const run = async () => {
-    let after: { createdAt: Date; id: string } | null = null;
-    let written = 0;
-
+  try {
     res.write(format === 'csv' ? `${COLUMNS.join(',')}\n` : '[');
 
-    while (written < MAX_ROWS) {
-      const cursor = after;
-
-      // A short scoped transaction per batch: the export may stream for a while.
-      const rows: (typeof auditLogs.$inferSelect)[] = await withOrg(actor.orgId, (tx) =>
-        tx
-          .select()
-          .from(auditLogs)
-          .where(
-            and(
-              scope,
-              cursor
-                ? sql`(${auditLogs.createdAt}, ${auditLogs.id}) < (${cursor.createdAt}, ${cursor.id})`
-                : undefined,
-            ),
-          )
-          .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
-          .limit(Math.min(BATCH, MAX_ROWS - written)),
-      );
-
-      if (!rows.length) break;
-
-      for (const row of rows) {
-        const record = { ...row, createdAt: row.createdAt.toISOString() };
-
-        if (format === 'csv') {
-          res.write(`${COLUMNS.map((column) => cell(record[column])).join(',')}\n`);
-        } else {
-          const { orgId: _org, prevHash: _prev, ...visible } = record;
-
-          res.write(`${written ? ',' : ''}\n${JSON.stringify(visible)}`);
-        }
-
-        written += 1;
-      }
-
-      const last = rows[rows.length - 1]!;
-
-      after = { createdAt: last.createdAt, id: last.id };
-    }
+    const written = await writeEntries(res, actor, format, scope);
 
     if (format === 'json') res.write('\n]\n');
 
@@ -147,10 +158,11 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
       }),
     );
     res.end();
-  };
+  } catch (error) {
+    // Once the file has started, the client can only see it cut short.
+    if (!res.headersSent) throw error;
 
-  run().catch((error: unknown) => {
-    if (!res.headersSent) next(error);
-    else res.destroy(error as Error);
-  });
+    req.log.error({ err: error }, 'audit export failed');
+    res.destroy();
+  }
 });

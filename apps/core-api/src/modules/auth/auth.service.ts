@@ -6,10 +6,9 @@ import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { HttpError } from '~/http/errors';
 import { toOrganizationDto } from '~/modules/organizations/organizations.service';
-import { toUserDto } from '~/modules/users/users.service';
+import { toUserDto } from '~/modules/users/userRows';
 import { verifyPassword } from './password';
 import type { Actor } from '~/http/auth';
-import { enqueueJob } from '~/modules/jobs/jobs';
 import { type ExampleLanguage, exampleDataJob } from '~/modules/organizations/exampleData';
 
 const invalidCredentials = () =>
@@ -27,24 +26,11 @@ export const subdomainFromHost = (host?: string): string | undefined => {
 };
 
 /**
- * Checks email + password in one organisation. The organisation comes from
- * the request, then the address, then DEFAULT_SUBDOMAIN; with none of them it
- * is the only organisation that has this email. Every failure answers the
- * same, so the response never tells whether an email exists.
+ * The member with this email, in the named organisation or, with none named,
+ * the only one that has it. Before the organisation is known: the one narrow
+ * lookup across organisations (by email, at most two rows).
  */
-export const signIn = async (
-  input: { email: string; password: string; subdomain?: string },
-  host?: string,
-) => {
-  const email = input.email.trim().toLowerCase();
-
-  const subdomain =
-    input.subdomain?.trim().toLowerCase() ||
-    subdomainFromHost(host) ||
-    config.auth.defaultSubdomain;
-
-  // Before the organisation is known: the one narrow lookup across
-  // organisations (by email, at most two rows). Everything after is scoped.
+const findAccount = async (email: string, subdomain: string | undefined) => {
   const rows = await withSystem('sign-in discovery', (tx) =>
     tx
       .select({ user: users, organization: organizations })
@@ -67,36 +53,44 @@ export const signIn = async (
     );
   }
 
-  const match = rows[0];
+  return rows[0];
+};
 
-  // Lockout per account, across replicas: 10 failures in 15 minutes.
-  if (match) {
-    const [recent] = await withOrg(match.user.orgId, (tx) =>
-      tx
-        .select({ failures: sql<number>`count(*)::int` })
-        .from(auditLogs)
-        .where(
-          and(
-            eq(auditLogs.orgId, match.user.orgId),
-            eq(auditLogs.targetId, match.user.id),
-            eq(auditLogs.action, 'auth.sign_in_failed'),
-            sql`${auditLogs.createdAt} > now() - interval '15 minutes'`,
-          ),
+type Account = NonNullable<Awaited<ReturnType<typeof findAccount>>>;
+
+/** Lockout per account, across replicas: 10 failures in 15 minutes. */
+const assertNotLockedOut = async ({ user }: Account) => {
+  const [recent] = await withOrg(user.orgId, (tx) =>
+    tx
+      .select({ failures: sql<number>`count(*)::int` })
+      .from(auditLogs)
+      .where(
+        and(
+          eq(auditLogs.orgId, user.orgId),
+          eq(auditLogs.targetId, user.id),
+          eq(auditLogs.action, 'auth.sign_in_failed'),
+          sql`${auditLogs.createdAt} > now() - interval '15 minutes'`,
         ),
+      ),
+  );
+
+  if ((recent?.failures ?? 0) >= 10) {
+    throw new HttpError(
+      429,
+      'TOO_MANY_ATTEMPTS',
+      'Too many failed sign-ins for this account: try again in 15 minutes',
     );
-
-    if ((recent?.failures ?? 0) >= 10) {
-      throw new HttpError(
-        429,
-        'TOO_MANY_ATTEMPTS',
-        'Too many failed sign-ins for this account: try again in 15 minutes',
-      );
-    }
   }
+};
 
-  const valid = await verifyPassword(input.password, match?.user.passwordHash ?? null);
-
-  if (match && (!valid || match.user.status !== 'active')) {
+/** A failed sign-in goes in the audit log: the account's, or the organisation's for an unknown email. */
+const recordFailure = async (
+  match: Account | undefined,
+  valid: boolean,
+  email: string,
+  subdomain: string | undefined,
+) => {
+  if (match) {
     await withOrg(match.user.orgId, (tx) =>
       recordAudit(
         tx,
@@ -110,10 +104,12 @@ export const signIn = async (
         },
       ),
     );
+
+    return;
   }
 
   // An unknown email at a known organisation: worth seeing (guessing, typos).
-  if (!match && subdomain) {
+  if (subdomain) {
     const [organization] = await withSystem('sign-in discovery', (tx) =>
       tx
         .select({ id: organizations.id })
@@ -137,8 +133,34 @@ export const signIn = async (
       );
     }
   }
+};
+
+/**
+ * Checks email + password in one organisation. The organisation comes from
+ * the request, then the address, then DEFAULT_SUBDOMAIN; with none of them it
+ * is the only organisation that has this email. Every failure answers the
+ * same, so the response never tells whether an email exists.
+ */
+export const signIn = async (
+  input: { email: string; password: string; subdomain?: string },
+  host?: string,
+) => {
+  const email = input.email.trim().toLowerCase();
+
+  const subdomain =
+    input.subdomain?.trim().toLowerCase() ||
+    subdomainFromHost(host) ||
+    config.auth.defaultSubdomain;
+
+  const match = await findAccount(email, subdomain);
+
+  if (match) await assertNotLockedOut(match);
+
+  const valid = await verifyPassword(input.password, match?.user.passwordHash ?? null);
 
   if (!match || !valid || match.user.status !== 'active') {
+    await recordFailure(match, valid, email, subdomain);
+
     throw invalidCredentials();
   }
 
@@ -220,9 +242,8 @@ export const markOnboarded = async (
 
     // Queued with the change: seeded right after (see `exampleDataJob`).
     if (input.exampleData && actor.role === 'owner') {
-      await enqueueJob(tx, {
+      await exampleDataJob.enqueue(tx, {
         orgId,
-        queue: exampleDataJob.queue,
         payload: { userId, language: input.language ?? 'en' },
         dedupeKey: `example-data:${orgId}`,
         maxAttempts: 3,

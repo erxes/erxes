@@ -3,6 +3,7 @@ import type { Db } from '@erxes/core-db';
 import { newId, organizations, users, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
+import { oneRow } from '~/lib/rows';
 import { installPluginsForNewOrganization } from '~/modules/plugins/plugins.service';
 import { seedRoles } from '~/modules/roles/roles.service';
 
@@ -45,30 +46,34 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
     throw new HttpError(400, 'INVALID_SUBDOMAIN', 'Use letters, digits and dashes (1–63)');
   }
 
-  const [organization] = await tx
-    .insert(organizations)
-    .values({ id: input.id ?? newId(), subdomain, name: input.name.trim() })
-    .returning();
+  const organization = oneRow(
+    await tx
+      .insert(organizations)
+      .values({ id: input.id ?? newId(), subdomain, name: input.name.trim() })
+      .returning(),
+  );
 
-  await seedRoles(tx, organization!.id);
-  await seedLeadStages(tx, organization!.id);
+  await seedRoles(tx, organization.id);
+  await seedLeadStages(tx, organization.id);
 
-  const [owner] = await tx
-    .insert(users)
-    .values({
-      id: newId(),
-      orgId: organization!.id,
-      email: input.owner.email.trim().toLowerCase(),
-      fullName: input.owner.fullName?.trim() || null,
-      passwordHash: input.owner.passwordHash ?? null,
-      role: 'owner',
-      status: 'active',
-    })
-    .returning();
+  const owner = oneRow(
+    await tx
+      .insert(users)
+      .values({
+        id: newId(),
+        orgId: organization.id,
+        email: input.owner.email.trim().toLowerCase(),
+        fullName: input.owner.fullName?.trim() || null,
+        passwordHash: input.owner.passwordHash ?? null,
+        role: 'owner',
+        status: 'active',
+      })
+      .returning(),
+  );
 
-  await installPluginsForNewOrganization(tx, organization!.id);
+  await installPluginsForNewOrganization(tx, organization.id);
 
-  return { organization: organization!, owner: owner! };
+  return { organization, owner };
 };
 
 /** Creates an organisation with its first owner (bootstrap script, setup, tests). */
