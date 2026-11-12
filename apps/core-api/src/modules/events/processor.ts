@@ -13,7 +13,7 @@ import type { Caller } from '~/http/auth';
 import { liveHub } from '~/modules/live/hub';
 import { notify } from '~/modules/notifications/notifications.service';
 import { webhooksConsumer } from '~/modules/webhooks/webhookDelivery';
-import { automationsConsumer } from '~/modules/automations/engine';
+import { automationsConsumer } from '~/modules/automations/consumer';
 import { pluginEventsConsumer } from '~/modules/plugins/pluginEvents';
 import { logger, traced } from '~/logger';
 

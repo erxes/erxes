@@ -7,6 +7,7 @@ import { formatBatch } from '~/modules/audit/streamFormat';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { settle } from './settle';
 
 describe('audit stream formats', () => {
   const entry = {
@@ -100,14 +101,6 @@ describeWithDb('audit streaming and security alerts', { timeout: 300_000 }, () =
     return { status: response.status, body: text ? JSON.parse(text) : null };
   };
 
-  const flush = async () => {
-    const { processEvents } = await import('~/modules/events/processor');
-    const { processJobs } = await import('~/modules/jobs/jobs');
-    const { JOBS } = await import('~/modules/jobs/registry');
-
-    for (let round = 0; round < 6; round += 1) await processEvents().then(() => processJobs(JOBS));
-  };
-
   const securityNotices = async (userId: string) => {
     const { notifications } = await import('@erxes/core-db');
     const { and, eq, like } = await import('drizzle-orm');
@@ -164,7 +157,7 @@ describeWithDb('audit streaming and security alerts', { timeout: 300_000 }, () =
     expect(created.body.secret).toMatch(/^whsec_/);
     expect(created.body.stream).toMatchObject({ authHeaderName: 'DD-API-KEY', status: 'active' });
 
-    await flush();
+    await settle();
 
     const first = received.map((item) => JSON.parse(item.body));
 
@@ -198,7 +191,7 @@ describeWithDb('audit streaming and security alerts', { timeout: 300_000 }, () =
     // Wake the loop now instead of waiting for its next round.
     await call(owner, 'PATCH', `/audit/streams/${created.body.stream.id}`, { status: 'paused' });
     await call(owner, 'PATCH', `/audit/streams/${created.body.stream.id}`, { status: 'active' });
-    await flush();
+    await settle();
 
     const down = (await call(owner, 'GET', '/audit/streams')).body.data[0];
 
@@ -211,7 +204,7 @@ describeWithDb('audit streaming and security alerts', { timeout: 300_000 }, () =
     receiverStatus = 200;
     await call(owner, 'PATCH', `/audit/streams/${created.body.stream.id}`, { status: 'paused' });
     await call(owner, 'PATCH', `/audit/streams/${created.body.stream.id}`, { status: 'active' });
-    await flush();
+    await settle();
 
     const all = received.flatMap(
       (item) => JSON.parse(item.body).entries as { seq: number; action: string }[],
@@ -297,7 +290,7 @@ describeWithDb('audit streaming and security alerts', { timeout: 300_000 }, () =
     expect(await signIn(windows, '203.0.113.77')).toBe(200);
     expect(await securityNotices(member)).toHaveLength(1);
 
-    await flush();
+    await settle();
     expect(
       loggedEmails.some(
         (email) => email.to === 'o2@acme.mn' && email.subject.includes('m@acme.mn is now an admin'),

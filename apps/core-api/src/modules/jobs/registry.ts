@@ -1,4 +1,4 @@
-import { advanceJob } from '~/modules/automations/engine';
+import { advanceJob, callJob } from '~/modules/automations/engine';
 import { fireJob } from '~/modules/automations/triggers';
 import { emailJob } from '~/modules/email/email';
 import { paymentCheckJob } from '~/modules/payments/invoiceState';
@@ -19,6 +19,7 @@ import type { JobDefinition } from './jobs';
 export const JOBS: JobDefinition[] = [
   deliverJob,
   advanceJob,
+  callJob,
   fireJob,
   emailJob,
   paymentCheckJob,

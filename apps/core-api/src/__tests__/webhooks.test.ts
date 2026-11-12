@@ -5,6 +5,7 @@ import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { currentToken, describeWithDb, useTestDatabase } from './db';
+import { settle } from './settle';
 
 describeWithDb('webhooks', () => {
   useTestDatabase();
@@ -28,21 +29,6 @@ describeWithDb('webhooks', () => {
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
-
-  const flush = async () => {
-    const { processEvents } = await import('~/modules/events/processor');
-    const { processJobs } = await import('~/modules/jobs/jobs');
-    const { JOBS } = await import('~/modules/jobs/registry');
-
-    // Until a round finds nothing (an event committed a moment ago may need one more look).
-    let idle = 0;
-
-    for (let round = 0; round < 12 && idle < 2; round += 1) {
-      const handled = (await processEvents()) + (await processJobs(JOBS));
-
-      idle = handled ? 0 : idle + 1;
-    }
   };
 
   beforeAll(async () => {
@@ -115,7 +101,7 @@ describeWithDb('webhooks', () => {
         primaryEmail: 'hooked@mail.mn',
       });
       await call(owner, 'POST', '/companies', { primaryName: 'Not subscribed' });
-      await flush();
+      await settle();
 
       const deliveries = received.filter((entry) =>
         JSON.parse(entry.body).type.startsWith('core.'),
@@ -156,7 +142,7 @@ describeWithDb('webhooks', () => {
 
       answer = 500;
       await call(owner, 'POST', '/companies', { primaryName: 'Failing' });
-      await flush();
+      await settle();
 
       let log = await call(owner, 'GET', `/webhooks/${created.body.webhook.id}/deliveries`);
 
@@ -179,7 +165,7 @@ describeWithDb('webhooks', () => {
       await adminDb().execute(
         sql`update core_jobs set run_at = now() where queue = 'webhook.deliver'`,
       );
-      await flush();
+      await settle();
 
       log = await call(owner, 'GET', `/webhooks/${created.body.webhook.id}/deliveries`);
       expect(log.body.data[0]).toMatchObject({ status: 'succeeded', attempts: 2 });
@@ -191,7 +177,7 @@ describeWithDb('webhooks', () => {
       expect((await call(owner, 'POST', `/webhooks/${created.body.webhook.id}/test`)).status).toBe(
         200,
       );
-      await flush();
+      await settle();
       expect(received.some((entry) => JSON.parse(entry.body).type === 'core.webhook.test')).toBe(
         true,
       );

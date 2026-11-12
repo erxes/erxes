@@ -1,15 +1,13 @@
 import { db } from '@erxes/core-db';
+import { convertLeads, leadHistory, moveLeads } from '~/modules/leads/leads.service';
 import {
-  convertLeads,
   createLeadStage,
-  leadHistory,
-  leadReport,
   listLeadStages,
-  moveLeads,
   removeLeadStage,
   reorderLeadStages,
   updateLeadStage,
-} from '~/modules/leads/leads.service';
+} from '~/modules/leads/leadStages.service';
+import { leadReport } from '~/modules/leads/report';
 import { authed } from '~/orpc';
 
 export const leadsRouter = {

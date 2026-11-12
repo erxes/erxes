@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { readMigrationFiles } from 'drizzle-orm/migrator';
 import { existsSync, readFileSync } from 'node:fs';
@@ -11,15 +12,11 @@ export const MIGRATIONS_TABLE = '__drizzle_migrations_core';
 const migrationsTable = sql`${sql.identifier('public')}.${sql.identifier(MIGRATIONS_TABLE)}`;
 
 /**
- * Where the SQL migrations are: MIGRATIONS_DIR, next to a built bundle
- * (`dist/drizzle`, copied by the API build), or this package's `drizzle/`.
+ * Where the SQL migrations are: next to a built bundle (`dist/drizzle`,
+ * copied by the API build), or this package's `drizzle/`.
  */
 export const migrationsFolder = (): string => {
-  const candidates = [
-    process.env.MIGRATIONS_DIR,
-    resolve(__dirname, 'drizzle'),
-    resolve(__dirname, '..', 'drizzle'),
-  ].filter((candidate): candidate is string => Boolean(candidate));
+  const candidates = [resolve(__dirname, 'drizzle'), resolve(__dirname, '..', 'drizzle')];
 
   const found = candidates.find((candidate) =>
     existsSync(join(candidate, 'meta', '_journal.json')),
@@ -61,6 +58,10 @@ BEGIN
 END $lock$;
 `;
 
+/** drizzle-kit's `meta/_journal.json`: the migrations in order. */
+/** drizzle-kit's `meta/_journal.json`: the migrations in the order they apply. */
+export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
+
 /**
  * Applies pending migrations and returns their tags.
  *
@@ -76,9 +77,9 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
     migrationsTable: MIGRATIONS_TABLE,
   });
 
-  const { entries } = JSON.parse(readFileSync(join(folder, 'meta', '_journal.json'), 'utf8')) as {
-    entries: { tag: string }[];
-  };
+  const { entries } = Journal.parse(
+    JSON.parse(readFileSync(join(folder, 'meta', '_journal.json'), 'utf8')),
+  );
 
   return drizzle(getPool()).transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('core:migrate'))`);

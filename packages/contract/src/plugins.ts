@@ -2,7 +2,7 @@ import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { Id } from './common';
-import { ActionField } from './automations';
+import { ActionField } from './automationRuns';
 import { EventType } from './platform';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */

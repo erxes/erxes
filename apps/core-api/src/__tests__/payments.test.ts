@@ -7,6 +7,7 @@ import { verifyCoreEvent } from '@erxes/plugin-sdk';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { currentToken, describeWithDb, useTestDatabase } from './db';
 import { pluginToken } from './plugin';
+import { settle } from './settle';
 
 describe('QPay driver', () => {
   it('gets a token, makes an invoice in tögrög with QR and bank links, and checks payment by invoice', async () => {
@@ -227,17 +228,6 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
     const { adminDb } = await import('./db');
     const { paymentInvoices } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
-    const { processEvents } = await import('~/modules/events/processor');
-    const { processJobs } = await import('~/modules/jobs/jobs');
-    const { JOBS } = await import('~/modules/jobs/registry');
-
-    const flush = async () => {
-      let idle = 0;
-
-      for (let round = 0; round < 15 && idle < 2; round += 1) {
-        idle = (await processEvents()) + (await processJobs(JOBS)) ? 0 : idle + 1;
-      }
-    };
 
     // The plugin's API: records what core delivers, after verifying it like a plugin would.
     const received: { type: string; payload: Record<string, unknown> }[] = [];
@@ -430,7 +420,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
       ).toEqual(['succeeded', 'failed', 'succeeded']);
 
       // The plugin heard about its own invoice: paid, then two refunds (not the failed one).
-      await flush();
+      await settle();
 
       expect(rejected).toEqual([]);
       // Deliveries aren't ordered (one slow event never holds up the rest): payloads carry totals.
@@ -461,12 +451,27 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
     const { signJwt } = await import('~/lib/signing');
     const { bodyDigest, CORE_EVENT_TYP } = await import('~/modules/plugins/pluginEvents');
 
+    const createdAt = new Date().toISOString();
+
     const body = JSON.stringify({
       id: 'e1',
       type: 'core.payment.paid',
       organizationId: orgId,
-      createdAt: new Date().toISOString(),
-      data: {},
+      createdAt,
+      data: {
+        id: 'e1',
+        source: 'core',
+        type: 'core.payment.paid',
+        version: 1,
+        subject: null,
+        entity: { type: 'payment_invoice', id: 'i1' },
+        actor: { type: 'system', id: null },
+        payload: { amount: 150_000 },
+        summary: null,
+        link: null,
+        occurredAt: createdAt,
+        createdAt,
+      },
     });
 
     const token = (aud: string, sha = bodyDigest(body)) =>

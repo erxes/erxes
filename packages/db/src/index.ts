@@ -8,6 +8,8 @@ export * from './scope';
 
 export * from './tenant';
 
+export * from './types';
+
 export * as schema from './schema';
 
 export {
@@ -28,7 +30,6 @@ export {
   eventFailures,
   eventConsumers,
   events,
-  SUBJECT_TYPES,
   FILE_STATUSES,
   files,
   JOB_STATUSES,

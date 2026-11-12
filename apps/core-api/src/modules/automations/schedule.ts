@@ -56,7 +56,8 @@ export const zonedDate = (instant: Date, timeZone: string) => {
       .map((part) => [part.type, part.value]),
   );
 
-  const weekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(parts.weekday!) + 1;
+  const weekday =
+    ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(parts.weekday ?? '') + 1;
 
   return { year: Number(parts.year), month: Number(parts.month), day: Number(parts.day), weekday };
 };
@@ -68,7 +69,7 @@ type Timed = Extract<AutomationTrigger, { kind: 'schedule' | 'date' }>;
  * triggers tick daily at their time (each tick finds the records due that day).
  */
 export const nextOccurrence = (trigger: Timed, after: Date): Date => {
-  const [hour, minute] = (trigger.at ?? '09:00').split(':').map(Number) as [number, number];
+  const [hour = 9, minute = 0] = (trigger.at ?? '09:00').split(':').map(Number);
   const zone = trigger.timezone ?? 'Asia/Ulaanbaatar';
 
   if (trigger.kind === 'schedule' && trigger.every === 'hour') {

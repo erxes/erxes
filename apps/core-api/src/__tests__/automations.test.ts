@@ -4,6 +4,7 @@ import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { settle } from './settle';
 
 describeWithDb('automations', { timeout: 300_000 }, () => {
   useTestDatabase();
@@ -29,20 +30,6 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
-
-  /** Events → runs → steps, until nothing is left to do. */
-  const flush = async () => {
-    const { processEvents } = await import('~/modules/events/processor');
-    const { processJobs } = await import('~/modules/jobs/jobs');
-    const { JOBS } = await import('~/modules/jobs/registry');
-    let idle = 0;
-
-    for (let round = 0; round < 40 && idle < 2; round += 1) {
-      const handled = (await processEvents()) + (await processJobs(JOBS));
-
-      idle = handled ? 0 : idle + 1;
-    }
   };
 
   const makeDue = async () => {
@@ -158,7 +145,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       primaryEmail: 'plain@mail.mn',
     });
 
-    await flush();
+    await settle();
 
     const runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
 
@@ -237,7 +224,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
     const customer = await call(owner, 'POST', '/customers', { firstName: 'Loop' });
 
     await call(owner, 'PATCH', `/customers/${customer.body.id}`, { lastName: 'Er' });
-    await flush();
+    await settle();
 
     const runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
 
@@ -248,6 +235,27 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       ),
     ).toHaveLength(1);
     await call(owner, 'POST', `/automations/${created.body.id}/pause`);
+
+    const once = await call(owner, 'POST', '/automations', {
+      name: 'Once',
+      definition: {
+        trigger: { event: 'core.customer.updated' },
+        reentry: 'once',
+        steps: [{ id: 'note', type: 'action', action: 'core.note.add', input: { body: 'once' } }],
+      },
+    });
+
+    await call(owner, 'POST', `/automations/${once.body.id}/activate`);
+    await call(owner, 'PATCH', `/customers/${customer.body.id}`, { lastName: 'First' });
+    await settle();
+    await call(owner, 'PATCH', `/customers/${customer.body.id}`, { lastName: 'Second' });
+    await settle();
+
+    const onceRuns = await call(owner, 'GET', `/automations/${once.body.id}/runs`);
+
+    // Two changes to the same customer, one run: they went through once.
+    expect(onceRuns.body.data).toHaveLength(1);
+    await call(owner, 'POST', `/automations/${once.body.id}/pause`);
   });
 
   it('waits on delays, and runs in progress keep their version when the automation changes', async () => {
@@ -266,7 +274,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
 
     const company = await call(owner, 'POST', '/companies', { primaryName: 'Waiting LLC' });
 
-    await flush();
+    await settle();
 
     let runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
 
@@ -289,7 +297,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
     expect(changed.body.activeVersion).toBe(2);
 
     await makeDue();
-    await flush();
+    await settle();
 
     runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
     expect(runs.body.data[0]).toMatchObject({ status: 'succeeded', version: 1 });
@@ -323,11 +331,11 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
     await call(owner, 'POST', `/automations/${created.body.id}/activate`);
     answer = 500;
     await call(owner, 'POST', '/customers', { firstName: 'Caller' });
-    await flush();
+    await settle();
 
     for (let attempt = 0; attempt < 6; attempt += 1) {
       await makeDue();
-      await flush();
+      await settle();
     }
 
     let runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
@@ -344,7 +352,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       (await call(owner, 'POST', `/automations/runs/${runs.body.data[0].id}/retry`)).status,
     ).toBe(200);
     await makeDue();
-    await flush();
+    await settle();
 
     runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
     expect(runs.body.data[0]).toMatchObject({ status: 'succeeded' });

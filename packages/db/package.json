@@ -10,16 +10,19 @@
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
-    "db:check": "drizzle-kit check"
+    "db:check": "drizzle-kit check",
+    "db:check-applied": "tsx scripts/check-applied.ts"
   },
   "dependencies": {
     "@erxes/core-contract": "workspace:^",
     "@opentelemetry/api": "1.10.0",
     "drizzle-orm": "0.45.4",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/pg": "^8.11.10",
-    "drizzle-kit": "0.31.11"
+    "drizzle-kit": "0.31.11",
+    "tsx": "^4.19.2"
   }
 }

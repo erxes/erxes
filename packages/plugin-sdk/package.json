@@ -13,6 +13,7 @@
     "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
     "@orpc/openapi-client": "1.16.2",
-    "jose": "^5.9.6"
+    "jose": "^5.9.6",
+    "zod": "^3.25.76"
   }
 }

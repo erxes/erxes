@@ -2,23 +2,25 @@ import type { ESTree, Scope, SourceCode, Variable } from 'vite-plus/lint/plugins
 
 /** Unwrap syntax-only wrappers when inspecting array methods and accumulator references. */
 export function unwrapArrayExpression(node: ESTree.Node): ESTree.Node {
+  let current = node;
+
   while (
-    node.type === 'ParenthesizedExpression' ||
-    node.type === 'ChainExpression' ||
-    node.type === 'TSAsExpression' ||
-    node.type === 'TSTypeAssertion' ||
-    node.type === 'TSNonNullExpression' ||
-    node.type === 'TSSatisfiesExpression'
+    current.type === 'ParenthesizedExpression' ||
+    current.type === 'ChainExpression' ||
+    current.type === 'TSAsExpression' ||
+    current.type === 'TSTypeAssertion' ||
+    current.type === 'TSNonNullExpression' ||
+    current.type === 'TSSatisfiesExpression'
   ) {
-    node = node.expression;
+    current = current.expression;
   }
 
-  return node;
+  return current;
 }
 
 /** Resolve a local binding by scope, not by identifier spelling. */
-export function resolveArrayBinding(sourceCode: SourceCode, node: ESTree.Node): Variable | null {
-  node = unwrapArrayExpression(node);
+export function resolveArrayBinding(sourceCode: SourceCode, input: ESTree.Node): Variable | null {
+  const node = unwrapArrayExpression(input);
 
   if (node.type !== 'Identifier') return null;
   let scope: Scope | null = sourceCode.getScope(node);
@@ -35,9 +37,9 @@ export function resolveArrayBinding(sourceCode: SourceCode, node: ESTree.Node): 
 
 /** Read static method names, including computed string literals, without evaluating expressions. */
 export function arrayMethodTarget(
-  node: ESTree.Node,
+  input: ESTree.Node,
 ): { readonly name: string; readonly object: ESTree.Node } | null {
-  node = unwrapArrayExpression(node);
+  const node = unwrapArrayExpression(input);
 
   if (node.type !== 'MemberExpression') return null;
   const property = node.property;
@@ -72,10 +74,10 @@ function isArrayAnnotation(type: ESTree.TSType): boolean {
 /** Recognize local array evidence; unknown receivers and iterator pipelines are deliberately excluded. */
 export function isKnownArrayExpression(
   sourceCode: SourceCode,
-  node: ESTree.Node,
+  input: ESTree.Node,
   visited = new Set<Variable>(),
 ): boolean {
-  node = unwrapArrayExpression(node);
+  const node = unwrapArrayExpression(input);
 
   if (node.type === 'ArrayExpression') return true;
 

@@ -9,6 +9,7 @@ import { createOrganization } from '~/modules/organizations/organizations.servic
 import { parseDate, suggestMapping } from '~/modules/transfer/columns';
 import { parseSheet } from '~/modules/transfer/parse';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { settle } from './settle';
 
 const columns = [
   { key: 'name', label: 'Full name', aliases: ['full name', 'name', 'нэр'] },
@@ -104,18 +105,6 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
     return { status: response.status, body: text ? JSON.parse(text) : null };
   };
 
-  const flush = async () => {
-    const { processEvents } = await import('~/modules/events/processor');
-    const { processJobs } = await import('~/modules/jobs/jobs');
-    const { JOBS } = await import('~/modules/jobs/registry');
-
-    for (let round = 0; round < 12; round += 1) {
-      const handled = (await processEvents()) + (await processJobs(JOBS));
-
-      if (!handled && round > 1) break;
-    }
-  };
-
   /** A file as if uploaded through /files. */
   const upload = async (name: string, body: Buffer) => {
     const { withOrg } = await import('@erxes/core-db');
@@ -200,7 +189,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
     expect(created.status).toBe(201);
     expect(created.body.status).toBe('parsing');
-    await flush();
+    await settle();
 
     const mapped = (await call(owner, 'GET', `/imports/${created.body.id}`)).body;
 
@@ -240,7 +229,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
     // The check: what would happen, nothing changed.
     await call(owner, 'POST', `/imports/${created.body.id}/check`);
-    await flush();
+    await settle();
 
     const checked = (await call(owner, 'GET', `/imports/${created.body.id}`)).body;
 
@@ -262,7 +251,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
     // The run.
     await call(owner, 'POST', `/imports/${created.body.id}/start`);
-    await flush();
+    await settle();
 
     const done = (await call(owner, 'GET', `/imports/${created.body.id}`)).body;
 
@@ -315,7 +304,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
     // Undo: what it created goes; what it updated stays.
     await call(owner, 'POST', `/imports/${created.body.id}/undo`);
-    await flush();
+    await settle();
     expect((await call(owner, 'GET', `/imports/${created.body.id}`)).body.status).toBe('undone');
     expect(await names()).toEqual(['Saraa']);
     expect(
@@ -362,7 +351,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
       columns: ['firstName', 'primaryEmail', 'createdAt'],
     });
 
-    await flush();
+    await settle();
 
     const list = (await call(owner, 'GET', '/exports')).body.data;
     const csvDone = list.find((item: { id: string }) => item.id === csv.body.id);
@@ -398,7 +387,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
       columns: ['firstName'],
     });
 
-    await flush();
+    await settle();
 
     const unsafeDone = (await call(owner, 'GET', '/exports')).body.data.find(
       (item: { id: string }) => item.id === unsafe.body.id,

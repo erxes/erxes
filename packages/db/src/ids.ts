@@ -7,12 +7,9 @@ const ALPHABET = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
  * from Mongo keep their `_id` unchanged and references stay valid.
  */
 export const newId = (length = 17): string => {
-  const bytes = randomBytes(length);
   let id = '';
 
-  for (let index = 0; index < length; index += 1) {
-    id += ALPHABET[(bytes[index] as number) % ALPHABET.length];
-  }
+  for (const byte of randomBytes(length)) id += ALPHABET.charAt(byte % ALPHABET.length);
 
   return id;
 };

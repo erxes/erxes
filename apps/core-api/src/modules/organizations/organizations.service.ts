@@ -1,4 +1,4 @@
-import { seedLeadStages } from '~/modules/leads/leads.service';
+import { seedLeadStages } from '~/modules/leads/leadStages.service';
 import type { Db } from '@erxes/core-db';
 import { newId, organizations, users, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';

@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { configDefaults, defineConfig } from 'vite-plus';
-import type { Reporter, Vitest } from 'vite-plus/test/node';
+import { noSkips } from './tools/test/no-skips';
 
 // Procedures are built from the contract in one place, so every route goes
 // through the same context and access checks.
@@ -64,67 +64,6 @@ const serverOnly = {
     'node:*',
   ],
   message: 'Browser code calls core through the contract client, never the database or Node.',
-};
-
-/**
- * A skipped test passes in Vitest, so this reporter fails the run on any
- * skipped, pending or todo test or suite (`.skip`, `skipIf`, `ctx.skip()`,
- * `.todo`), and on a project whose files all ran without a test. A run
- * filtered with `-t` skips what it doesn't match, so only the project rule
- * applies then; a run of some files never checks the other projects.
- */
-const noSkips = (): Reporter => {
-  let vitest: Vitest | undefined;
-
-  return {
-    onInit(ctx) {
-      vitest = ctx;
-    },
-    async onTestRunEnd(modules) {
-      if (!vitest) return;
-
-      const problems: string[] = [];
-
-      if (!vitest.config.testNamePattern) {
-        for (const module of modules) {
-          for (const suite of module.children.allSuites()) {
-            const state = suite.state();
-
-            if (state === 'skipped' || state === 'pending') {
-              problems.push(`${state} suite: ${suite.fullName} (${module.relativeModuleId})`);
-            }
-          }
-
-          for (const test of module.children.allTests()) {
-            const { state } = test.result();
-
-            if (state === 'skipped' || state === 'pending') {
-              problems.push(`${state} test: ${test.fullName} (${module.relativeModuleId})`);
-            }
-          }
-        }
-      }
-
-      for (const project of vitest.projects) {
-        const ran = modules.filter((module) => module.project.name === project.name);
-        const { testFiles } = await project.globTestFiles();
-
-        const tests = ran.flatMap((module) => [...module.children.allTests()]);
-
-        if (
-          ran.length === testFiles.length &&
-          !tests.some((test) => test.result().state !== 'skipped')
-        ) {
-          problems.push(`project ${project.name} ran no tests`);
-        }
-      }
-
-      if (problems.length) {
-        process.exitCode = 1;
-        vitest.logger.error(['Tests must run, not skip:', ...problems].join('\n  '));
-      }
-    },
-  };
 };
 
 export default defineConfig({
@@ -195,6 +134,9 @@ export default defineConfig({
       'typescript/consistent-type-imports': 'error',
       'unicorn/prefer-node-protocol': 'error',
       'unicorn/throw-new-error': 'error',
+      // An automation branch step's `then` arm is a stored list of steps (the definition
+      // format in the contract and the database), never a function.
+      'unicorn/no-thenable': 'off',
       eqeqeq: ['error', 'smart'],
       'no-param-reassign': 'error',
       'prefer-const': 'error',
@@ -312,6 +254,7 @@ export default defineConfig({
           'packages/contract/src/index.ts',
           'packages/db/src/index.ts',
           'packages/db/src/schema/index.ts',
+          'packages/plugin-sdk/src/index.ts',
         ],
         rules: { 'oxc/no-barrel-file': 'off' },
       },
@@ -323,6 +266,16 @@ export default defineConfig({
           'typescript/no-unsafe-type-assertion': 'off',
           'no-shadow': 'off',
           'no-underscore-dangle': 'off',
+        },
+      },
+      {
+        // ESLint Stylistic's rule, vendored unchanged (see its UPSTREAM.md): splitting or
+        // rewriting it would make upstream fixes hard to carry over.
+        files: ['tools/lint/anti-slop/vendor/**'],
+        rules: {
+          'max-lines': 'off',
+          'max-lines-per-function': 'off',
+          'typescript/no-non-null-assertion': 'off',
         },
       },
     ],

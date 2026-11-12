@@ -68,27 +68,28 @@ export const keysetPage = async <Row extends { id: string }>(
   const pageSide = forward ? (inclusive ? '<=' : '<') : inclusive ? '>=' : '>';
   const otherSide = forward ? (inclusive ? '>' : '>=') : inclusive ? '<' : '<=';
 
-  const [rows, totals, before] = await Promise.all([
-    fetch(
-      cursor ? and(where, position(pageSide)) : where,
-      forward ? [desc(createdAt), desc(id)] : [asc(createdAt), asc(id)],
-      query.limit + 1,
-    ),
-    source.countCap
-      ? client
-          .execute<{ total: number }>(
-            sql`select count(*)::int as total from (select 1 from ${table} where ${where ?? sql`true`} limit ${source.countCap + 1}) capped`,
-          )
-          .then((result) => result.rows)
-      : client.select({ total: count() }).from(table).where(where),
-    cursor
-      ? client
-          .select({ id })
-          .from(table)
-          .where(and(where, position(otherSide)))
-          .limit(1)
-      : Promise.resolve([]),
-  ]);
+  // One after another: inside a request `client` is its transaction, a single connection.
+  const rows = await fetch(
+    cursor ? and(where, position(pageSide)) : where,
+    forward ? [desc(createdAt), desc(id)] : [asc(createdAt), asc(id)],
+    query.limit + 1,
+  );
+
+  const totals = source.countCap
+    ? (
+        await client.execute<{ total: number }>(
+          sql`select count(*)::int as total from (select 1 from ${table} where ${where ?? sql`true`} limit ${source.countCap + 1}) capped`,
+        )
+      ).rows
+    : await client.select({ total: count() }).from(table).where(where);
+
+  const before = cursor
+    ? await client
+        .select({ id })
+        .from(table)
+        .where(and(where, position(otherSide)))
+        .limit(1)
+    : [];
 
   const more = rows.length > query.limit;
   const page = rows.slice(0, query.limit);

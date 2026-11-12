@@ -7,7 +7,10 @@ export const valueAt = (context: Record<string, unknown>, path: string): unknown
 
     if (Array.isArray(current) && /^\d+$/.test(key)) return current[Number(key)];
 
-    return typeof current === 'object' ? (current as Record<string, unknown>)[key] : undefined;
+    // Own properties only: a path never reaches a prototype (`__proto__`, `constructor`).
+    return typeof current === 'object'
+      ? Object.getOwnPropertyDescriptor(current, key)?.value
+      : undefined;
   }, context);
 
 const isEmpty = (value: unknown) =>

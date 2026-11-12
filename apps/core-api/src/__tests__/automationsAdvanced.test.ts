@@ -4,6 +4,7 @@ import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { settle } from './settle';
 
 describeWithDb(
   'automations: triggers, waits, goals, paths, testing, operations',
@@ -28,19 +29,6 @@ describeWithDb(
       const text = await response.text();
 
       return { status: response.status, body: text ? JSON.parse(text) : null };
-    };
-
-    const flush = async () => {
-      const { processEvents } = await import('~/modules/events/processor');
-      const { processJobs } = await import('~/modules/jobs/jobs');
-      const { JOBS } = await import('~/modules/jobs/registry');
-      let idle = 0;
-
-      for (let round = 0; round < 40 && idle < 2; round += 1) {
-        const handled = (await processEvents()) + (await processJobs(JOBS));
-
-        idle = handled ? 0 : idle + 1;
-      }
     };
 
     const makeDue = async () => {
@@ -174,7 +162,7 @@ describeWithDb(
         sql`update core_automations set next_run_at = now() - interval '1 minute' where id in (${scheduled}, ${born})`,
       );
       expect(await tickAutomations()).toBeGreaterThanOrEqual(2);
-      await flush();
+      await settle();
 
       expect((await runs(scheduled)).map((run) => run.subject?.id)).toEqual([lead.body.id]);
       expect((await runs(born)).map((run) => run.subject?.id)).toEqual([birthday.body.id]);
@@ -225,11 +213,11 @@ describeWithDb(
       const answered = await call('POST', '/customers', { firstName: 'Wait one' });
       const silent = await call('POST', '/customers', { firstName: 'Wait two' });
 
-      await flush();
+      await settle();
       expect((await runs(waiter)).every((run) => run.status === 'waiting')).toBe(true);
 
       await call('PATCH', `/customers/${answered.body.id}`, { lastName: 'Replied' });
-      await flush();
+      await settle();
 
       let list = await runs(waiter);
       const first = list.find((run) => run.subject?.id === answered.body.id)!;
@@ -239,7 +227,7 @@ describeWithDb(
 
       // The other one times out.
       await makeDue();
-      await flush();
+      await settle();
       list = await runs(waiter);
 
       const second = list.find((run) => run.subject?.id === silent.body.id)!;
@@ -271,9 +259,9 @@ describeWithDb(
 
       const prospect = await call('POST', '/customers', { firstName: 'Prospect', state: 'lead' });
 
-      await flush();
+      await settle();
       await call('PATCH', `/customers/${prospect.body.id}`, { state: 'customer' });
-      await flush();
+      await settle();
 
       const [ended] = await runs(goal);
 
@@ -342,7 +330,7 @@ describeWithDb(
       const one = await call('POST', '/customers', { firstName: 'Route one' });
       const two = await call('POST', '/customers', { firstName: 'Route two' });
 
-      await flush();
+      await settle();
 
       expect(
         loggedEmails.some(
@@ -402,8 +390,13 @@ describeWithDb(
       expect(test.body.triggerMatches).toBe(true);
       expect(test.body.trace.map((item: { stepId: string }) => item.stepId)).toEqual(['b', 'n']);
       expect(test.body.trace[1].input).toEqual({ body: 'Hello SAMPLE' });
-      // Nothing happened for real.
+      // Nothing happened for real: no run, and the note step wrote no note.
       expect((await call('GET', `/automations/${draft.body.id}/runs`)).body.data).toEqual([]);
+      await settle();
+      expect(
+        (await call('GET', `/activities?targetType=customer&targetId=${sample.body.id}&kind=notes`))
+          .body.data,
+      ).toEqual([]);
 
       // One run an hour.
       const limited = await create('Limited', {
@@ -414,7 +407,7 @@ describeWithDb(
 
       await call('POST', '/companies', { primaryName: 'One' });
       await call('POST', '/companies', { primaryName: 'Two' });
-      await flush();
+      await settle();
       expect((await runs(limited)).length).toBe(1);
       expect((await call('GET', `/automations/${limited}/stats`)).body.skippedByLimit).toBe(1);
 
@@ -457,7 +450,7 @@ describeWithDb(
 
       for (let attempt = 0; attempt < 6; attempt += 1) {
         await makeDue();
-        await flush();
+        await settle();
       }
 
       expect((await runs(failing))[0]?.status).toBe('failed');
@@ -491,8 +484,8 @@ describeWithDb(
         subjects: [picked.body.id],
       });
 
-      expect(started.body).toEqual({ started: 1, skipped: 0 });
-      await flush();
+      expect(started.body).toEqual({ started: 1, skipped: 0, continuing: false });
+      await settle();
       expect((await runs(id))[0]).toMatchObject({
         status: 'succeeded',
         subject: { id: picked.body.id },

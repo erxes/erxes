@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { rootDb, type Transaction } from './client';
+import { rootDb } from './client';
+import type { Transaction } from './types';
 import { currentScope, scopeStorage } from './scope';
 
 /**
@@ -29,7 +30,7 @@ export const withOrg = async <T>(
       throw new Error(`tenant scope mismatch: in ${current.orgId}, asked for ${orgId}`);
     }
 
-    return fn(current.tx as Transaction);
+    return fn(current.tx);
   }
 
   return rootDb().transaction(async (tx) => {
@@ -50,7 +51,7 @@ export const withSystem = async <T>(
       throw new Error(`system scope (${reason}) asked for inside the scope of ${current.orgId}`);
     }
 
-    return fn(current.tx as Transaction);
+    return fn(current.tx);
   }
 
   return rootDb().transaction(async (tx) => {
@@ -85,5 +86,8 @@ export const runtimeRole = async () => {
 
   const row = result.rows[0];
 
-  return { name: row?.name ?? 'unknown', bypassesRls: Boolean(row?.bypass || row?.superuser) };
+  return {
+    name: row?.name ?? 'unknown',
+    bypassesRls: Boolean(row?.bypass) || Boolean(row?.superuser),
+  };
 };

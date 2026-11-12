@@ -11,10 +11,12 @@ const lookup = (context: Record<string, unknown>, path: string) =>
 const parseFilter = (raw: string) => {
   const match = /^([a-z_]+)\s*(?::\s*(?:"([^"]*)"|'([^']*)'|(-?\d+(?:\.\d+)?)))?$/.exec(raw.trim());
 
-  if (!match) return null;
+  const name = match?.[1];
+
+  if (!match || !name) return null;
 
   return {
-    name: match[1]!,
+    name,
     arg: match[2] ?? match[3] ?? (match[4] !== undefined ? Number(match[4]) : undefined),
   };
 };
@@ -78,7 +80,13 @@ const FILTERS: Record<string, (value: unknown, arg: string | number | undefined)
     Array.isArray(value) ? value.join(typeof arg === 'string' ? arg : ', ') : value,
   count: (value) =>
     Array.isArray(value) ? value.length : value === undefined || value === null ? 0 : 1,
-  first: (value) => (Array.isArray(value) ? value[0] : value),
+  first: (value) => {
+    if (!Array.isArray(value)) return value;
+
+    const items: unknown[] = value;
+
+    return items[0];
+  },
   json: (value) => JSON.stringify(value),
 };
 
@@ -93,11 +101,11 @@ export const evaluateExpression = (expression: string, context: Record<string, u
 
   for (const raw of filters) {
     const filter = parseFilter(raw);
+    const apply = filter ? FILTERS[filter.name] : undefined;
 
-    if (!filter || !FILTERS[filter.name])
-      throw new Error(`Unknown filter "${raw.trim()}" in {{${expression}}}`);
+    if (!filter || !apply) throw new Error(`Unknown filter "${raw.trim()}" in {{${expression}}}`);
 
-    value = FILTERS[filter.name]!(value, filter.arg);
+    value = apply(value, filter.arg);
   }
 
   return value;
@@ -111,16 +119,20 @@ export const evaluateExpression = (expression: string, context: Record<string, u
  */
 export const render = (value: unknown, context: Record<string, unknown>): unknown => {
   if (typeof value === 'string') {
-    const whole = WHOLE.exec(value);
+    const whole = WHOLE.exec(value)?.[1];
 
-    if (whole) return evaluateExpression(whole[1]!, context) ?? null;
+    if (whole) return evaluateExpression(whole, context) ?? null;
 
     return value.replace(PART, (_match, expression: string) => {
       const found = evaluateExpression(expression, context);
 
       if (found === undefined || found === null) return '';
 
-      return typeof found === 'object' ? JSON.stringify(found) : String(found);
+      if (typeof found === 'string') return found;
+
+      return typeof found === 'number' || typeof found === 'boolean'
+        ? String(found)
+        : JSON.stringify(found);
     });
   }
 
@@ -128,10 +140,7 @@ export const render = (value: unknown, context: Record<string, unknown>): unknow
 
   if (value && typeof value === 'object') {
     return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([key, item]) => [
-        key,
-        render(item, context),
-      ]),
+      Object.entries(value).map(([key, item]) => [key, render(item, context)]),
     );
   }
 

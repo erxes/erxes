@@ -39,7 +39,7 @@ import { lockKey, lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
-import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/leads.service';
+import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
 
 type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText'> & {
   tagIds: string[];
