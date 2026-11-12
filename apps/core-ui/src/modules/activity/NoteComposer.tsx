@@ -1,11 +1,11 @@
-import type { FileInfo, User } from '@erxes/core-contract';
-import { IconCommand, IconCornerDownLeft, IconPaperclip, IconX } from '@tabler/icons-react';
-import { Button, cn, Spinner, Textarea, useToast } from 'erxes-ui';
+import type { User } from '@erxes/core-contract';
+import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
+import { Button, cn, Spinner, Textarea } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserAvatar } from '~/components/UserAvatar';
-import { uploadErrorMessage, uploadFile } from '~/lib/files';
 import { memberName } from '~/lib/members';
+import { AttachButton, AttachedFiles, useAttachments } from './NoteAttachments';
 import { useMentions } from './useMentions';
 
 /** ⌘ on Apple keyboards, Ctrl elsewhere (the shortcut accepts both). */
@@ -16,37 +16,6 @@ export interface NoteDraft {
   mentions: string[];
   fileIds: string[];
 }
-
-/** Files attached to the draft, uploaded as they are picked. */
-const useAttachments = () => {
-  const { toast } = useToast();
-  const [files, setFiles] = useState<FileInfo[]>([]);
-  const [uploading, setUploading] = useState(0);
-
-  const attach = async (list: File[]) => {
-    for (const file of list) {
-      setUploading((count) => count + 1);
-
-      try {
-        const uploaded = await uploadFile(file);
-
-        setFiles((current) => [...current, uploaded]);
-      } catch (error) {
-        toast({ variant: 'destructive', title: file.name, description: uploadErrorMessage(error) });
-      } finally {
-        setUploading((count) => count - 1);
-      }
-    }
-  };
-
-  return {
-    files,
-    uploading,
-    attach,
-    remove: (id: string) => setFiles((current) => current.filter((item) => item.id !== id)),
-    reset: () => setFiles([]),
-  };
-};
 
 const MentionSuggestions = ({
   suggestions,
@@ -87,40 +56,6 @@ const MentionSuggestions = ({
   </div>
 );
 
-const AttachedFiles = ({
-  files,
-  uploading,
-  onRemove,
-}: {
-  files: FileInfo[];
-  uploading: number;
-  onRemove: (id: string) => void;
-}) => {
-  const { t } = useTranslation('common', { keyPrefix: 'activity' });
-
-  return (
-    <div className="flex flex-wrap gap-1.5 px-3 pb-2">
-      {files.map((file) => (
-        <span
-          key={file.id}
-          className="flex h-6 items-center gap-1 rounded-md bg-muted px-2 text-xs text-muted-foreground"
-        >
-          <IconPaperclip className="size-3" />
-          <span className="max-w-40 truncate">{file.name}</span>
-          <button
-            type="button"
-            aria-label={t('remove-file', 'Remove')}
-            onClick={() => onRemove(file.id)}
-          >
-            <IconX className="size-3" />
-          </button>
-        </span>
-      ))}
-      {uploading > 0 && <Spinner size="sm" />}
-    </div>
-  );
-};
-
 const SubmitButton = ({
   label,
   saving,
@@ -149,6 +84,56 @@ const SubmitButton = ({
 );
 
 /**
+ * The note being written: its text, mentions and files, and `submit`, which
+ * clears a new note once saved. A failed save keeps the draft.
+ */
+const useNoteDraft = (
+  initial: NoteDraft | undefined,
+  saving: boolean,
+  onSubmit: (draft: NoteDraft) => Promise<unknown>,
+) => {
+  const [body, setBody] = useState(initial?.body ?? '');
+  const textarea = useRef<HTMLTextAreaElement>(null);
+  const mentions = useMentions({ body, setBody, initial: initial?.mentions ?? [], textarea });
+  const attachments = useAttachments();
+
+  const submit = async () => {
+    const text = body.trim();
+
+    if (!text || saving || attachments.uploading) return;
+
+    try {
+      await onSubmit({
+        body: text,
+        mentions: mentions.mentionsIn(text),
+        fileIds: attachments.files.map((file) => file.id),
+      });
+    } catch {
+      // The mutation's toast says why; the draft stays to try again.
+      return;
+    }
+
+    if (!initial) {
+      setBody('');
+      mentions.reset();
+      attachments.reset();
+    }
+  };
+
+  /** Mention keys first; ⌘/Ctrl + Enter saves. */
+  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (mentions.onKeyDown(event)) return;
+
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      void submit();
+    }
+  };
+
+  return { body, setBody, textarea, mentions, attachments, submit, onKeyDown };
+};
+
+/**
  * Writes or edits a note: `@` suggests teammates (they are notified), the
  * paperclip attaches files. ⌘/Ctrl + Enter saves. A failed save keeps the
  * draft; the caller's mutation says why.
@@ -170,11 +155,8 @@ export const NoteComposer = ({
   focusOnMount?: boolean;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
-  const [body, setBody] = useState(initial?.body ?? '');
-  const textarea = useRef<HTMLTextAreaElement>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
-  const mentions = useMentions({ body, setBody, initial: initial?.mentions ?? [], textarea });
-  const attachments = useAttachments();
+  const draft = useNoteDraft(initial, saving, onSubmit);
+  const { body, setBody, textarea, mentions, attachments, submit } = draft;
   // One line until someone writes: the box opens on focus and stays open while it holds something.
   const [active, setActive] = useState(focusOnMount);
   const { files, uploading } = attachments;
@@ -182,39 +164,7 @@ export const NoteComposer = ({
 
   useEffect(() => {
     if (focusOnMount) textarea.current?.focus();
-  }, [focusOnMount]);
-
-  const submit = async () => {
-    const text = body.trim();
-
-    if (!text || saving || uploading) return;
-
-    try {
-      await onSubmit({
-        body: text,
-        mentions: mentions.mentionsIn(text),
-        fileIds: files.map((file) => file.id),
-      });
-    } catch {
-      // The mutation's toast says why; the draft stays to try again.
-      return;
-    }
-
-    if (!initial) {
-      setBody('');
-      mentions.reset();
-      attachments.reset();
-    }
-  };
-
-  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (mentions.onKeyDown(event)) return;
-
-    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-      event.preventDefault();
-      void submit();
-    }
-  };
+  }, [focusOnMount, textarea]);
 
   return (
     <div
@@ -239,7 +189,7 @@ export const NoteComposer = ({
           setBody(event.target.value);
           mentions.onType(event.target.value, event.target.selectionStart);
         }}
-        onKeyDown={onKeyDown}
+        onKeyDown={draft.onKeyDown}
         onBlur={() => setTimeout(mentions.close, 150)}
       />
       {mentions.suggestions.length > 0 && (
@@ -253,30 +203,7 @@ export const NoteComposer = ({
         <AttachedFiles files={files} uploading={uploading} onRemove={attachments.remove} />
       )}
       <div className={cn('flex items-center justify-between px-1.5 pb-1.5', !open && 'hidden')}>
-        <input
-          ref={fileInput}
-          type="file"
-          multiple
-          className="hidden"
-          aria-label={t('attach', 'Attach files')}
-          onChange={(event) => {
-            const input = event.target;
-
-            void attachments.attach(Array.from(input.files ?? [])).finally(() => {
-              input.value = '';
-            });
-          }}
-        />
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-7"
-          aria-label={t('attach', 'Attach files')}
-          onClick={() => fileInput.current?.click()}
-        >
-          <IconPaperclip className="size-4" />
-        </Button>
+        <AttachButton onAttach={attachments.attach} />
         <div className="flex items-center gap-1">
           {onCancel && (
             <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
