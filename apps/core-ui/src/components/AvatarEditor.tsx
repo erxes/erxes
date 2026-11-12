@@ -36,7 +36,9 @@ const AvatarUpload = ({
     >
       <Upload.Preview
         className={cn(
-          "[&_button]:rounded-full [&_img]:rounded-full",
+          // A plain circle: erxes-ui draws the preview as an outline button
+          // (padding, a drop shadow), which reads lopsided at avatar size.
+          "[&_button]:rounded-full [&_button]:border [&_button]:border-border [&_button]:p-0! [&_button]:shadow-none! [&_img]:rounded-full",
           compact && "[&_button]:size-8!",
         )}
       />
