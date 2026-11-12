@@ -26,6 +26,8 @@ const fields = (changes: Changes | null) => {
   return names.length > 3 ? `${names.slice(0, 3).join(', ')} and ${names.length - 3} more` : names.join(', ');
 };
 
+const money = (amount: unknown) => (typeof amount === 'number' ? `₮${(amount / 100).toLocaleString()}` : '');
+
 const humanize = (text: string) => text.replace(/[_.]/g, ' ');
 
 /**
@@ -44,6 +46,20 @@ export const auditSentence = (entry: AuditEntry): string => {
       return 'signed in';
     case 'auth.signed_out':
       return 'signed out';
+    case 'audit.stream_created':
+      return `started streaming the audit log to ${label} (${String(metadata.url ?? '')})`;
+    case 'audit.stream_updated':
+      return `changed audit log streaming to ${label}`;
+    case 'audit.stream_paused':
+      return `paused audit log streaming to ${label}`;
+    case 'audit.stream_resumed':
+      return `resumed audit log streaming to ${label}`;
+    case 'audit.stream_removed':
+      return `stopped streaming the audit log to ${label}`;
+    case 'payment.refunded':
+      return `refunded ${money(metadata.amount)} of ${label}${metadata.method === 'manual' ? ' (paid back outside erxes)' : ''}: ${String(metadata.reason ?? '')}`;
+    case 'payment.plugin_settings_updated':
+      return `changed which payment gateways ${label} uses`;
     case 'auth.sign_in_failed':
       return `failed to sign in as ${label}${metadata.reason ? ` (${metadata.reason})` : ''}`;
     case 'auth.password_changed':

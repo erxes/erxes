@@ -47,6 +47,8 @@ export {
   PAYMENT_GATEWAY_KINDS,
   paymentGateways,
   paymentInvoices,
+  auditStreams,
+  AUDIT_STREAM_FORMATS,
   paymentPluginSettings,
   paymentRefunds,
   REFUND_METHODS,

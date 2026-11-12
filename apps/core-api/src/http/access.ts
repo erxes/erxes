@@ -48,6 +48,11 @@ export const ACCESS = {
   'audit.checkpoints': needs('audit.view'),
   'audit.settings': needs('audit.view'),
   'audit.updateSettings': needs('audit.retention'),
+  'audit.streams': needs('audit.stream'),
+  'audit.createStream': needs('audit.stream'),
+  'audit.updateStream': needs('audit.stream'),
+  'audit.removeStream': needs('audit.stream'),
+  'audit.testStream': needs('audit.stream'),
 
   'auth.setupStatus': PUBLIC,
   'auth.setup': PUBLIC,

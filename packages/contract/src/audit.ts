@@ -23,6 +23,41 @@ export const AuditEntry = z.object({
 export type AuditEntry = z.infer<typeof AuditEntry>;
 
 /** Who changed what in core (owners and admins). */
+export const AuditStreamFormat = z.enum(['erxes', 'datadog', 'splunk']);
+
+const StreamUrl = z
+  .string()
+  .trim()
+  .url()
+  .max(2000)
+  .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
+
+/** A header the log service needs (`DD-API-KEY`, `Authorization: Splunk …`); its value is write-only. */
+const AuthHeader = z.object({
+  name: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z0-9-]{1,60}$/, 'letters, digits and dashes'),
+  value: z.string().trim().min(1).max(1000),
+});
+
+export const AuditStream = z.object({
+  id: Id,
+  name: z.string(),
+  url: z.string(),
+  format: AuditStreamFormat,
+  status: z.enum(['active', 'paused']),
+  authHeaderName: z.string().nullable(),
+  /** The last chain position delivered, and how many entries wait. */
+  cursorSeq: z.number().int(),
+  pending: z.number().int(),
+  lastDeliveredAt: z.string().datetime().nullable(),
+  lastError: z.string().nullable(),
+  consecutiveFailures: z.number().int(),
+  createdAt: z.string().datetime(),
+});
+export type AuditStream = z.infer<typeof AuditStream>;
+
 export const auditContract = {
   list: oc
     .route({ method: 'GET', path: '/audit', summary: 'Audit log, newest first (owners and admins)' })
@@ -135,4 +170,46 @@ export const auditContract = {
     .route({ method: 'PUT', path: '/settings/audit', summary: 'Change audit retention (owners)' })
     .input(z.object({ retentionDays: z.number().int().min(30).max(3650) }))
     .output(z.object({ retentionDays: z.number().int(), maxRetentionDays: z.number().int() })),
+  streams: oc
+    .route({ method: 'GET', path: '/audit/streams', summary: 'Where the audit log is streamed (owners)' })
+    .output(z.object({ data: z.array(AuditStream) })),
+  createStream: oc
+    .route({
+      method: 'POST',
+      path: '/audit/streams',
+      successStatus: 201,
+      summary: 'Stream the audit log to a log service; the signing secret is shown once',
+    })
+    .input(
+      z.object({
+        name: z.string().trim().min(1).max(80),
+        url: StreamUrl,
+        format: AuditStreamFormat.default('erxes'),
+        authHeader: AuthHeader.optional(),
+        /** `now`: entries from here on; `beginning`: everything still kept, then new ones. */
+        from: z.enum(['now', 'beginning']).default('now'),
+      }),
+    )
+    .output(z.object({ stream: AuditStream, secret: z.string() })),
+  updateStream: oc
+    .route({ method: 'PATCH', path: '/audit/streams/{id}' })
+    .input(
+      z.object({
+        id: Id,
+        name: z.string().trim().min(1).max(80).optional(),
+        url: StreamUrl.optional(),
+        format: AuditStreamFormat.optional(),
+        authHeader: AuthHeader.nullable().optional(),
+        status: z.enum(['active', 'paused']).optional(),
+      }),
+    )
+    .output(AuditStream),
+  removeStream: oc
+    .route({ method: 'DELETE', path: '/audit/streams/{id}' })
+    .input(z.object({ id: Id }))
+    .output(z.object({ ok: z.literal(true) })),
+  testStream: oc
+    .route({ method: 'POST', path: '/audit/streams/{id}/test', summary: 'Send one test entry now and report the answer' })
+    .input(z.object({ id: Id }))
+    .output(z.object({ ok: z.boolean(), status: z.number().int().nullable(), body: z.string().nullable(), error: z.string().nullable(), ms: z.number().nullable() })),
 };

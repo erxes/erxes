@@ -10,6 +10,7 @@ import type { Changes } from '~/lib/changes';
 import { currentRunCause } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
 import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
+import { raiseAlerts } from './alerts';
 
 type AuditRow = typeof auditLogs.$inferSelect;
 
@@ -64,6 +65,8 @@ export const recordAudit = async (client: Db, actor: AuditActor, input: AuditInp
       source: 'source' in actor ? actor.source : 'core',
     })),
   );
+
+  await raiseAlerts(client, actor, entries.map((entry) => ({ ...entry, ip: entry.ip ?? ip, userAgent: entry.userAgent ?? userAgent })));
 };
 
 export const toAuditDto = (row: AuditRow): AuditEntry => ({

@@ -34,6 +34,7 @@ import { api, messageOf } from '~/lib/api';
 import { actorLabel, pluginLabel, useMembersById } from '~/lib/members';
 import { useCan, useSession } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
+import { AuditStreams } from './AuditStreams';
 import { auditSentence } from './auditSentence';
 
 /** Filter by area: an action prefix. */
@@ -317,6 +318,7 @@ export const AuditLogPage = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Retention isOwner={can('audit.retention')} />
+          {can('audit.stream') && <AuditStreams />}
           <IntegrityCheck />
           <DropdownMenu>
             <DropdownMenu.Trigger asChild>

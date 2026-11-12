@@ -319,6 +319,24 @@ it is built.
   `?companyId=`) and add forms (`=new`); Settings (Team members, Tags,
   Properties, Organization); theme and language in the user menu; plugin UIs
   through Module Federation.
+- Audit streaming (`src/modules/audit/streams.ts`, `core_audit_streams`,
+  owner-only `audit.stream`; Audit log › Streaming): the log goes, as it is
+  written and in chain order, to a log service — `erxes` (signed JSON with
+  the chain hashes), `datadog` (logs intake) or `splunk` (HEC) — with an
+  optional sealed auth header. `cursor_seq` moves only on 2xx, so outages
+  lose nothing (retries back off to 15 min; owners are told after 10
+  failures); entries pruned before delivery are sent as a named gap. One
+  delivery loop per stream (`chain_id`; the row lock serialises rounds).
+- Security alerts (`src/modules/audit/alerts.ts`, run by `recordAudit` in a
+  savepoint): owners, in erxes and by email, when two-step sign-in is turned
+  off, someone is made owner/admin, audit retention or streaming changes, a
+  payment gateway is connected or its credentials change, or one account
+  has `FAILED_SIGN_IN_ALERT` (10) failed sign-ins in 15 minutes; in erxes
+  only for audit exports, new webhooks and role permission changes. Members
+  hear (and get an email) about sign-ins from a device and address not seen
+  in 90 days and about recovery codes used. Kinds `core.security.alert` and
+  `core.security.new_sign_in` can't be muted; the member who acted isn't
+  notified in erxes but is still emailed.
 - Payments (`src/modules/payments`, drivers in `@erxes/payment-gateways`):
   gateway connections per organisation (QPay, test; credentials sealed and
   checked with the gateway); invoices for a plugin's or core's record with

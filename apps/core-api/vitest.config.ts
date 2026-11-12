@@ -15,6 +15,7 @@ export default defineConfig({
       // Low lines, so tests reach them quickly.
       MASS_DELETE_ALERT: '20',
       MASS_DELETE_LIMIT: '40',
+      FAILED_SIGN_IN_ALERT: '3',
       CORE_SIGNING_KEY_DEV_FILE: resolve(__dirname, '.test-files/keys/signing-key.pem'),
     },
     // Generous: tests may run against a remote Postgres (each query is a round trip).

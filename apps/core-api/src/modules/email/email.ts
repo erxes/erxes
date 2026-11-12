@@ -22,6 +22,12 @@ export const TEMPLATES = {
     ],
     button: { label: 'Choose a new password', link: data.link },
   }),
+  security_alert: (data: { organization: string; title: string; body: string; link: string }) => ({
+    subject: `Security alert · ${data.organization}: ${data.title}`,
+    heading: data.title,
+    lines: [data.body, `This is a security notice from ${data.organization} on erxes; it can't be turned off.`],
+    button: { label: 'Review in erxes', link: data.link },
+  }),
   /** A plain message (automations): a subject and text. */
   message: (data: { subject: string; body: string; button?: { label: string; link: string } }) => ({
     subject: data.subject,

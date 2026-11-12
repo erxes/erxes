@@ -190,6 +190,7 @@ import {
   setUserPassword,
   updateUser,
 } from '~/modules/users/users.service';
+import { createStream, listStreams, removeStream, testStream, updateStream } from '~/modules/audit/streams';
 
 /** What every procedure gets: the Express request (actor, host) and response (cookies). */
 export interface CoreContext {
@@ -297,6 +298,11 @@ export const coreRouter = pub.router({
     updateSettings: authed.audit.updateSettings.handler(({ input, context }) =>
       updateAuditSettings(db(), context.actor, input),
     ),
+    streams: authed.audit.streams.handler(({ context }) => listStreams(db(), context.actor)),
+    createStream: authed.audit.createStream.handler(({ input, context }) => createStream(db(), context.actor, input)),
+    updateStream: authed.audit.updateStream.handler(({ input: { id, ...changes }, context }) => updateStream(db(), context.actor, id, changes)),
+    removeStream: authed.audit.removeStream.handler(({ input, context }) => removeStream(db(), context.actor, input.id)),
+    testStream: authed.audit.testStream.handler(({ input, context }) => testStream(db(), context.actor, input.id)),
   },
   events: {
     publish: plugin.events.publish.handler(({ input, context }) => publishPluginEvents(db(), context.plugin, input.events)),
