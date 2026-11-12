@@ -12,6 +12,7 @@ import {
 import { stringify } from 'csv-stringify/sync';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import writeXlsxFile from 'write-excel-file/node';
+import { defuse } from '~/lib/csv';
 import { customCell } from './columns';
 
 export type Cell = string | number | Date | null;
@@ -130,9 +131,6 @@ export const pageCells = async (
     }),
   );
 };
-
-/** Spreadsheets run cells starting with = + - @ as formulas: such text is kept as text. */
-const defuse = (value: string) => (/^[=+\-@\t\r]/.test(value) ? `'${value}` : value);
 
 /** The export file: CSV (UTF-8 with a BOM) or Excel with a bold, sticky header. */
 export const exportFile = async (format: 'csv' | 'xlsx', header: string[], rows: Cell[][]) => {

@@ -105,6 +105,7 @@ const Env = z
     CORE_ACCESS_TOKEN_TTL_SECONDS: positive(3600),
     CORE_SESSION_HOURS: positive(12),
     DEFAULT_SUBDOMAIN: optional(z.string().toLowerCase()),
+    FAILED_SIGN_IN_ALERT: positive(10),
     CORE_SIGNING_KEY: text,
     CORE_SIGNING_KEY_DEV_FILE: text,
     CORE_SIGNING_KEYS_RETIRED: text,
@@ -286,6 +287,8 @@ export const config = {
      * names one (self-hosted single organisation, local development).
      */
     defaultSubdomain: env.DEFAULT_SUBDOMAIN,
+    /** Failed sign-ins to one account within 15 minutes before owners hear about it. */
+    failedSignInAlert: env.FAILED_SIGN_IN_ALERT,
     /**
      * Core's signing key (EC P-256, PKCS#8 PEM): plugin tokens and audit
      * checkpoints, verified by anyone with the public keys at
