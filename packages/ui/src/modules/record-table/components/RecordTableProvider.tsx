@@ -73,7 +73,7 @@ export const RecordTableProvider = forwardRef<
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
     const {
-      prefs: { columnOrder, columnPinning, columnSizing, columnVisibility },
+      prefs: { columnOrder, columnPinning, columnSizing, columnVisibility, stickyColumns: savedSticky },
       savePrefs,
     } = useTablePreferences(tableId);
     const [colOrder, setColumnOrder] = useState<ColumnOrderState>(
@@ -101,6 +101,9 @@ export const RecordTableProvider = forwardRef<
     const columnIdsKey = columns.map((column) => column.id || '').join(',');
     // Columns the saved preferences already knew: a column added later is new.
     const seenIds = useRef(new Set<string>(columnOrder ?? columns.map((c) => c.id || '')));
+    // What was meant to stick when the pinning was saved; older preferences
+    // didn't say, so their missing sticky columns are pinned once.
+    const savedStickyRef = useRef(savedSticky);
     useEffect(() => {
       const ids = columnIdsKey.split(',').filter(Boolean);
 
@@ -137,7 +140,10 @@ export const RecordTableProvider = forwardRef<
 
       // A new column that should stick is pinned too (after the pinned column before it).
       const sticky = stickyKey ? stickyKey.split(',') : [];
-      const fresh = sticky.filter((id) => ids.includes(id) && !seenIds.current.has(id));
+      const known = savedStickyRef.current;
+      const fresh = sticky.filter(
+        (id) => ids.includes(id) && (!seenIds.current.has(id) || !known || !known.includes(id)),
+      );
 
       if (fresh.length) {
         setColPinning((prev) => {
@@ -156,7 +162,10 @@ export const RecordTableProvider = forwardRef<
       }
 
       ids.forEach((id) => seenIds.current.add(id));
-    }, [columnIdsKey, stickyKey]);
+      // From now on a column the member unpins stays unpinned.
+      savedStickyRef.current = sticky;
+      savePrefs({ stickyColumns: sticky });
+    }, [columnIdsKey, stickyKey, savePrefs]);
 
     const structuralKey = columns
       .map((column) => column.id)

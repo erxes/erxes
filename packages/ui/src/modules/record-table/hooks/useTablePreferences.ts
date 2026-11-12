@@ -6,6 +6,8 @@ export interface TablePrefs {
   columnPinning?: ColumnPinningState;
   columnSizing?: Record<string, number>;
   columnVisibility?: Record<string, boolean>;
+  /** The columns meant to stick when the pinning was saved (a newly sticky column is pinned once). */
+  stickyColumns?: string[];
 }
 
 export const useTablePreferences = (tableId: string | undefined) => {
