@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Form, Input, Spinner, useToast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
@@ -40,8 +40,12 @@ export const ResetPasswordDialog = () => {
     resolver: zodResolver(USER_RESET_PASSWORD_SCHEMA),
   });
 
-  const { control, handleSubmit, reset, watch } = form;
-  const [newPassword, repeatPassword] = watch(['newPassword', 'repeatPassword']);
+  const { control, handleSubmit, reset } = form;
+
+  const [newPassword, repeatPassword] = useWatch({
+    control,
+    name: ['newPassword', 'repeatPassword'],
+  });
 
   const close = () =>
     setSearchParams((previous) => {

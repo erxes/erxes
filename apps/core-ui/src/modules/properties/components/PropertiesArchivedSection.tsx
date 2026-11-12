@@ -71,6 +71,8 @@ const ArchivedRow = ({
   );
 };
 
+const date = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '');
+
 /** Archived groups and fields, restorable (old "Archived" section). */
 export const PropertiesArchivedSection = ({ contentType }: { contentType: ContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
@@ -86,8 +88,6 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: Conten
   if (!total) {
     return null;
   }
-
-  const date = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '');
 
   return (
     <Collapsible className="group">

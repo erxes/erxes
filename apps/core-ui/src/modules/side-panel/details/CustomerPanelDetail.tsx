@@ -21,7 +21,7 @@ import {
   Spinner,
   TextField,
 } from 'erxes-ui';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toYmd } from '~/components/inlineCells';
 import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
@@ -109,10 +109,14 @@ const CustomerSexField = ({ customer }: { customer: Customer }) => {
 const CustomerBirthDateField = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
   const [open, setOpen] = useState(false);
-  const saved = parseYmd(customer.birthDate);
-  const [date, setDate] = useState(saved);
+  const [date, setDate] = useState(() => parseYmd(customer.birthDate));
+  const [savedDate, setSavedDate] = useState(customer.birthDate);
 
-  useEffect(() => setDate(parseYmd(customer.birthDate)), [customer.birthDate]);
+  // A date saved elsewhere replaces the one being picked.
+  if (savedDate !== customer.birthDate) {
+    setSavedDate(customer.birthDate);
+    setDate(parseYmd(customer.birthDate));
+  }
 
   return (
     <Popover

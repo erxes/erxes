@@ -1,6 +1,6 @@
 import { IconArrowMerge } from '@tabler/icons-react';
 import { Button, cn, Dialog, Spinner } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export interface MergeCandidate {
   id: string;
@@ -28,10 +28,14 @@ export const MergeDialog = ({
   onMerge: (keepId: string) => void;
 }) => {
   const [keepId, setKeepId] = useState(records[0]?.id ?? '');
+  const [wasOpen, setWasOpen] = useState(open);
 
-  useEffect(() => {
+  // Each opening starts with the first record kept.
+  if (open !== wasOpen) {
+    setWasOpen(open);
+
     if (open) setKeepId(records[0]?.id ?? '');
-  }, [open, records]);
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

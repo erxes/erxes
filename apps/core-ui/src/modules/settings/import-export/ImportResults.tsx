@@ -8,10 +8,10 @@ import { Link } from 'react-router-dom';
 import { messageOf, orpc } from '~/lib/api';
 import { RECORD_PATHS } from '~/modules/transfer/useTransfer';
 
+const quote = (value: string) => `"${value.replace(/"/g, '""')}"`;
+
 /** The rows with errors as a CSV the member can fix and import again. */
 const saveErrorsCsv = (headers: string[], rows: z.infer<typeof ImportRow>[]) => {
-  const quote = (value: string) => `"${value.replace(/"/g, '""')}"`;
-
   const text = [
     '﻿' + ['Row', 'Error', ...headers].map(quote).join(','),
     ...rows.map((row) =>

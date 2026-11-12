@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Input, Spinner, useToast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { UserAvatar } from '~/components/UserAvatar';
@@ -48,10 +48,12 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
     },
   });
 
-  const avatar = form.watch('avatar');
+  const [avatar, firstName, lastName] = useWatch({
+    control: form.control,
+    name: ['avatar', 'firstName', 'lastName'],
+  });
 
-  const name =
-    [form.watch('firstName'), form.watch('lastName')].filter(Boolean).join(' ') || user.email;
+  const name = [firstName, lastName].filter(Boolean).join(' ') || user.email;
 
   const update = useMutation(
     orpc.users.update.mutationOptions({

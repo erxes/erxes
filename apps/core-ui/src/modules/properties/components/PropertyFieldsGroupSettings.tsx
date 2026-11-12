@@ -43,8 +43,8 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Cont
   const ungrouped = sections.find((section) => !section.group)?.fields ?? [];
   const loading = groupsLoading || fieldsLoading;
 
-  // Selections belong to the record type on screen.
-  useEffect(() => () => setSelectedFieldIds({}), [contentType, setSelectedFieldIds]);
+  // Selections belong to the record type on screen (the page is keyed by it).
+  useEffect(() => () => setSelectedFieldIds({}), [setSelectedFieldIds]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),

@@ -29,6 +29,15 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dropAt, setDropAt] = useState<Pick<TDashboardItem, 'x' | 'y'> | null>(null);
+  const [dragged, setDragged] = useState(draggingWidget);
+
+  // A drag that ends outside the grid leaves no preview behind.
+  if (dragged !== draggingWidget) {
+    setDragged(draggingWidget);
+
+    if (!draggingWidget) setDropAt(null);
+  }
+
   const stopRef = useRef<(() => void) | null>(null);
 
   useEffect(() => () => stopRef.current?.(), []);
@@ -207,13 +216,6 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
       setDraggingWidget(null);
     },
   };
-
-  // A drag that ends outside the grid leaves no preview behind.
-  useEffect(() => {
-    if (!draggingWidget) {
-      setDropAt(null);
-    }
-  }, [draggingWidget]);
 
   return { tiles, dropPreview, activeId, onMoveStart, onResizeStart, dropHandlers };
 };

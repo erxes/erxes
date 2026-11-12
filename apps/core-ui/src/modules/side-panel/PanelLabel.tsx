@@ -2,7 +2,8 @@ import { cn, Tooltip } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { usePanelExpanded } from './RecordSidePanel';
 
-const useIsClamped = (expanded: boolean) => {
+/** Whether the label is cut off; the observers see the clamp come and go with the panel width. */
+const useIsClamped = () => {
   const ref = useRef<HTMLSpanElement>(null);
   const [isClamped, setIsClamped] = useState(false);
 
@@ -29,7 +30,7 @@ const useIsClamped = (expanded: boolean) => {
       resizeObserver.disconnect();
       contentObserver.disconnect();
     };
-  }, [expanded]);
+  }, []);
 
   return { ref, isClamped };
 };
@@ -44,7 +45,7 @@ export const PanelLabel = ({
   className?: string;
 }) => {
   const expanded = usePanelExpanded();
-  const { ref, isClamped } = useIsClamped(expanded);
+  const { ref, isClamped } = useIsClamped();
   const showTooltip = isClamped && !expanded;
 
   return (

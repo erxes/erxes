@@ -1,4 +1,4 @@
-import type { Customer, CustomerState, CustomValue } from '@erxes/core-contract';
+import type { Customer, CustomerState } from '@erxes/core-contract';
 import {
   IconCalendarPlus,
   IconEdit,
@@ -29,9 +29,14 @@ import { useTranslation } from 'react-i18next';
 import { customFieldColumns } from '~/modules/properties/customFieldColumns';
 import { useFields } from '~/modules/properties/useFields';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
-import { TagsSelect } from '~/modules/tags/TagsSelect';
-import { ContactEmails, ContactName, ContactPhones } from '../components/ContactFields';
-import { SelectMember } from '../components/SelectMember';
+import {
+  ContactEmailsCell,
+  ContactFieldCell,
+  ContactOwnerCell,
+  ContactPhonesCell,
+  ContactTagsCell,
+} from '../components/contactCells';
+import { ContactName } from '../components/ContactFields';
 import { sexCodeOf } from './sexCode';
 import { useCustomerEdit } from './useCustomers';
 import { withLifecycleColumns } from '~/modules/leads/leadColumns';
@@ -117,14 +122,6 @@ const CustomerSexCell = ({ customer }: { customer: Customer }) => {
   );
 };
 
-/** Saves custom field values of a customer (for custom field cells). */
-const useCustomerFieldsSave = () => {
-  const edit = useCustomerEdit();
-
-  return (id: string, customFields: Record<string, CustomValue | null>) =>
-    edit.mutate({ id, customFields });
-};
-
 const DateCell = ({ value }: { value: string }) => (
   <RelativeDateDisplay value={value} asChild>
     <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -133,8 +130,8 @@ const DateCell = ({ value }: { value: string }) => (
   </RelativeDateDisplay>
 );
 
-/** Customer columns, as in old core-ui. */
-const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
+/** Selection, the picture and the name. */
+const identityColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
@@ -167,65 +164,30 @@ const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>
     cell: ({ row }) => <CustomerNameCell customer={row.original} />,
     size: 240,
   },
+];
+
+/** Customer columns, as in old core-ui. */
+const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
+  ...identityColumns(t),
   {
     id: 'emails',
     accessorKey: 'primaryEmail',
     header: () => <RecordTable.InlineHead label={t('customer.emails')} icon={IconMail} />,
-    cell: function EmailsCell({ row }) {
-      const edit = useCustomerEdit();
-      const customer = row.original;
-
-      return (
-        <ContactEmails
-          id={customer.id}
-          primaryEmail={customer.primaryEmail}
-          emails={customer.emails}
-          scope={SCOPE}
-          Trigger={RecordTableInlineCell.Trigger}
-          onSave={(value) => edit.mutate({ id: customer.id, ...value })}
-        />
-      );
-    },
+    cell: ({ row }) => <ContactEmailsCell record={row.original} scope={SCOPE} />,
     size: 250,
   },
   {
     id: 'phones',
     accessorKey: 'primaryPhone',
     header: () => <RecordTable.InlineHead label={t('customer.phones')} icon={IconPhone} />,
-    cell: function PhonesCell({ row }) {
-      const edit = useCustomerEdit();
-      const customer = row.original;
-
-      return (
-        <ContactPhones
-          id={customer.id}
-          primaryPhone={customer.primaryPhone}
-          phones={customer.phones}
-          scope={SCOPE}
-          Trigger={RecordTableInlineCell.Trigger}
-          onSave={(value) => edit.mutate({ id: customer.id, ...value })}
-        />
-      );
-    },
+    cell: ({ row }) => <ContactPhonesCell record={row.original} scope={SCOPE} />,
     size: 250,
   },
   {
     id: 'tagIds',
     accessorKey: 'tagIds',
     header: () => <RecordTable.InlineHead label={t('customer.tags')} icon={IconTags} />,
-    cell: function TagsCell({ row }) {
-      const edit = useCustomerEdit();
-
-      return (
-        <TagsSelect.InlineCell
-          type="customer"
-          mode="multiple"
-          scope={SCOPE}
-          value={row.original.tagIds}
-          onValueChange={(tagIds) => edit.mutate({ id: row.original.id, tagIds })}
-        />
-      );
-    },
+    cell: ({ row }) => <ContactTagsCell record={row.original} scope={SCOPE} />,
     size: 360,
   },
   {
@@ -238,22 +200,9 @@ const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>
     id: 'owner',
     accessorKey: 'ownerId',
     header: () => <RecordTable.InlineHead label={t('customer.owner')} icon={IconUser} />,
-    cell: function OwnerCell({ row }) {
-      const edit = useCustomerEdit();
-
-      return (
-        <SelectMember.InlineCell
-          value={row.original.ownerId}
-          scope={`${SCOPE}.${row.original.id}.owner`}
-          onValueChange={(ownerId) =>
-            edit.mutate({
-              id: row.original.id,
-              ownerId: typeof ownerId === 'string' ? ownerId : null,
-            })
-          }
-        />
-      );
-    },
+    cell: ({ row }) => (
+      <ContactOwnerCell record={row.original} scope={`${SCOPE}.${row.original.id}.owner`} />
+    ),
     size: 250,
   },
   {
@@ -278,7 +227,9 @@ export const useCustomersColumns = (state: CustomerState = 'customer') => {
         'name',
         'customer',
         state === 'lead',
-        customFieldColumns<Customer>(fields, useCustomerFieldsSave, SCOPE),
+        customFieldColumns<Customer>(fields, (customer, field) => (
+          <ContactFieldCell record={customer} field={field} scope={SCOPE} />
+        )),
       ),
     [fields, t, state],
   );

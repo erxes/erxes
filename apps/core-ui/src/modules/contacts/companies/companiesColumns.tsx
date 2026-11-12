@@ -1,5 +1,6 @@
-import type { Company, CustomValue } from '@erxes/core-contract';
+import type { Company } from '@erxes/core-contract';
 import {
+  type Icon,
   IconBriefcase,
   IconBuilding,
   IconBuildingFactory,
@@ -26,16 +27,20 @@ import {
   RecordTableInlineCell,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { withLifecycleColumns } from '~/modules/leads/leadColumns';
 import { customFieldColumns } from '~/modules/properties/customFieldColumns';
 import { useFields } from '~/modules/properties/useFields';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
-import { TagsSelect } from '~/modules/tags/TagsSelect';
-import { ContactEmails, ContactPhones } from '../components/ContactFields';
+import {
+  ContactEmailsCell,
+  ContactFieldCell,
+  ContactOwnerCell,
+  ContactPhonesCell,
+  ContactTagsCell,
+} from '../components/contactCells';
 import { companyTitle } from '../components/ContactPicker';
-import { SelectMember } from '../components/SelectMember';
 import { useCompanyEdit } from './useCompanies';
 
 const SCOPE = 'companies-page';
@@ -74,8 +79,13 @@ const CompanyNameCell = ({ company }: { company: Company }) => {
   const openCompany = useOpenCompany();
   const { id, primaryName } = company;
   const [editingName, setEditingName] = useState(primaryName);
+  const [savedName, setSavedName] = useState(primaryName);
 
-  useEffect(() => setEditingName(primaryName), [primaryName]);
+  // A name saved elsewhere replaces the one being typed.
+  if (savedName !== primaryName) {
+    setSavedName(primaryName);
+    setEditingName(primaryName);
+  }
 
   const handleEnter = () => {
     if (!editingName.trim() || editingName.trim() === primaryName) return;
@@ -100,22 +110,27 @@ const CompanyNameCell = ({ company }: { company: Company }) => {
   );
 };
 
-const TextCell = ({ value }: { value: string }) => (
-  <RecordTableInlineCell>
-    <TextOverflowTooltip value={value} />
-  </RecordTableInlineCell>
-);
+/** A read-only text column. */
+const textColumn = (
+  id: keyof Company,
+  icon: Icon,
+  label: string,
+  size: number,
+  valueOf: (company: Company) => string,
+): ColumnDef<Company> => ({
+  id,
+  accessorKey: id,
+  header: () => <RecordTable.InlineHead icon={icon} label={label} />,
+  cell: ({ row }) => (
+    <RecordTableInlineCell>
+      <TextOverflowTooltip value={valueOf(row.original)} />
+    </RecordTableInlineCell>
+  ),
+  size,
+});
 
-/** Saves custom field values of a company (for custom field cells). */
-const useCompanyFieldsSave = () => {
-  const edit = useCompanyEdit();
-
-  return (id: string, customFields: Record<string, CustomValue | null>) =>
-    edit.mutate({ id, customFields });
-};
-
-/** Company columns, as in old core-ui. */
-const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
+/** Selection, the picture and the name. */
+const identityColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
@@ -144,127 +159,68 @@ const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] 
     cell: ({ row }) => <CompanyNameCell company={row.original} />,
     size: 250,
   },
+];
+
+/** Company columns, as in old core-ui. */
+const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
+  ...identityColumns(t),
   {
     id: 'emails',
     accessorKey: 'primaryEmail',
     header: () => <RecordTable.InlineHead icon={IconMail} label={t('emails')} />,
-    cell: function EmailsCell({ row }) {
-      const edit = useCompanyEdit();
-      const company = row.original;
-
-      return (
-        <ContactEmails
-          id={company.id}
-          primaryEmail={company.primaryEmail}
-          emails={company.emails}
-          scope={`${SCOPE}.${company.id}.Emails`}
-          Trigger={RecordTableInlineCell.Trigger}
-          onSave={(value) => edit.mutate({ id: company.id, ...value })}
-        />
-      );
-    },
+    cell: ({ row }) => (
+      <ContactEmailsCell record={row.original} scope={`${SCOPE}.${row.original.id}.Emails`} />
+    ),
   },
   {
     id: 'phones',
     accessorKey: 'primaryPhone',
     header: () => <RecordTable.InlineHead icon={IconPhone} label={t('phones')} />,
-    cell: function PhonesCell({ row }) {
-      const edit = useCompanyEdit();
-      const company = row.original;
-
-      return (
-        <ContactPhones
-          id={company.id}
-          primaryPhone={company.primaryPhone}
-          phones={company.phones}
-          scope={`${SCOPE}.${company.id}.Phones`}
-          Trigger={RecordTableInlineCell.Trigger}
-          onSave={(value) => edit.mutate({ id: company.id, ...value })}
-        />
-      );
-    },
+    cell: ({ row }) => (
+      <ContactPhonesCell record={row.original} scope={`${SCOPE}.${row.original.id}.Phones`} />
+    ),
   },
   {
     id: 'owner',
     accessorKey: 'ownerId',
     header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
-    cell: function OwnerCell({ row }) {
-      const edit = useCompanyEdit();
-
-      return (
-        <SelectMember.InlineCell
-          scope={`${SCOPE}.${row.original.id}.Owner`}
-          value={row.original.ownerId}
-          onValueChange={(ownerId) =>
-            edit.mutate({
-              id: row.original.id,
-              ownerId: typeof ownerId === 'string' ? ownerId : null,
-            })
-          }
-        />
-      );
-    },
+    cell: ({ row }) => (
+      <ContactOwnerCell record={row.original} scope={`${SCOPE}.${row.original.id}.Owner`} />
+    ),
     size: 200,
   },
-  {
-    id: 'code',
-    accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconNumber} label={t('field.code') || 'Code'} />,
-    cell: ({ row }) => <TextCell value={row.original.code ?? ''} />,
-    size: 150,
-  },
-  {
-    id: 'industry',
-    accessorKey: 'industry',
-    header: () => <RecordTable.InlineHead icon={IconBuildingFactory} label={t('field.industry')} />,
-    cell: ({ row }) => <TextCell value={row.original.industry ?? ''} />,
-    size: 250,
-  },
-  {
-    id: 'size',
-    accessorKey: 'size',
-    header: () => <RecordTable.InlineHead icon={IconUsers} label={t('field.size') || 'Size'} />,
-    cell: ({ row }) => <TextCell value={row.original.size ? row.original.size.toString() : ''} />,
-    size: 100,
-  },
-  {
-    id: 'businessType',
-    accessorKey: 'businessType',
-    header: () => (
-      <RecordTable.InlineHead
-        icon={IconBriefcase}
-        label={t('field.businessType') || 'Business Type'}
-      />
-    ),
-    cell: ({ row }) => <TextCell value={row.original.businessType ?? ''} />,
-    size: 150,
-  },
-  {
-    id: 'website',
-    accessorKey: 'website',
-    header: () => (
-      <RecordTable.InlineHead icon={IconWorld} label={t('field.website') || 'Website'} />
-    ),
-    cell: ({ row }) => <TextCell value={row.original.website ?? ''} />,
-    size: 200,
-  },
+  textColumn('code', IconNumber, t('field.code') || 'Code', 150, (company) => company.code ?? ''),
+  textColumn(
+    'industry',
+    IconBuildingFactory,
+    t('field.industry'),
+    250,
+    (company) => company.industry ?? '',
+  ),
+  textColumn('size', IconUsers, t('field.size') || 'Size', 100, (company) =>
+    company.size ? company.size.toString() : '',
+  ),
+  textColumn(
+    'businessType',
+    IconBriefcase,
+    t('field.businessType') || 'Business Type',
+    150,
+    (company) => company.businessType ?? '',
+  ),
+  textColumn(
+    'website',
+    IconWorld,
+    t('field.website') || 'Website',
+    200,
+    (company) => company.website ?? '',
+  ),
   {
     id: 'tagIds',
     accessorKey: 'tagIds',
     header: () => <RecordTable.InlineHead icon={IconTags} label={t('tags')} />,
-    cell: function TagsCell({ row }) {
-      const edit = useCompanyEdit();
-
-      return (
-        <TagsSelect.InlineCell
-          type="company"
-          mode="multiple"
-          scope={`${SCOPE}.${row.original.id}.Tags`}
-          value={row.original.tagIds}
-          onValueChange={(tagIds) => edit.mutate({ id: row.original.id, tagIds })}
-        />
-      );
-    },
+    cell: ({ row }) => (
+      <ContactTagsCell record={row.original} scope={`${SCOPE}.${row.original.id}.Tags`} />
+    ),
     size: 300,
   },
 ];
@@ -281,7 +237,9 @@ export const useCompaniesColumns = (state: 'lead' | 'customer' = 'customer') => 
         'primaryName',
         'company',
         state === 'lead',
-        customFieldColumns<Company>(fields, useCompanyFieldsSave, SCOPE),
+        customFieldColumns<Company>(fields, (company, field) => (
+          <ContactFieldCell record={company} field={field} scope={SCOPE} />
+        )),
       ),
     [fields, t, state],
   );

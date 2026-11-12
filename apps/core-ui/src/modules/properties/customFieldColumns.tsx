@@ -1,19 +1,15 @@
 import type { CustomValue, Field } from '@erxes/core-contract';
 import type { ColumnDef } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
-import { CustomFieldCell } from './CustomFieldCell';
+import type { ReactNode } from 'react';
 import { FIELD_TYPES_OBJECT } from './fieldTypes';
 
 type WithCustomFields = { id: string; customFields: Record<string, CustomValue> };
 
-/**
- * Table columns for custom fields; `useSave` returns the record's save
- * function (a hook, so cells can use their mutation).
- */
+/** Table columns for custom fields; `renderCell` draws a record's value of one. */
 export const customFieldColumns = <Row extends WithCustomFields>(
   fields: Field[],
-  useSave: () => (id: string, patch: Record<string, CustomValue | null>) => void,
-  scope: string,
+  renderCell: (row: Row, field: Field) => ReactNode,
 ): ColumnDef<Row>[] =>
   fields.map((field) => ({
     id: `field:${field.id}`,
@@ -21,17 +17,6 @@ export const customFieldColumns = <Row extends WithCustomFields>(
     header: () => (
       <RecordTable.InlineHead icon={FIELD_TYPES_OBJECT[field.type].icon} label={field.label} />
     ),
-    cell: function Cell({ row }) {
-      const save = useSave();
-
-      return (
-        <CustomFieldCell
-          field={field}
-          scope={`${scope}.${row.original.id}.${field.id}`}
-          value={row.original.customFields[field.id]}
-          onSave={(value) => save(row.original.id, { [field.id]: value })}
-        />
-      );
-    },
+    cell: ({ row }) => renderCell(row.original, field),
     size: field.type === 'textarea' ? 280 : 180,
   }));

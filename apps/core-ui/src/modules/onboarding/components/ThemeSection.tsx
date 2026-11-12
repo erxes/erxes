@@ -1,6 +1,5 @@
 import { Button, cn, type ThemeOption, themeState } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import type { KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import uiDark from '../assets/ui-dark.webp';
 import uiLight from '../assets/ui-light.webp';
@@ -16,13 +15,6 @@ const THEME_OPTIONS: { value: ThemeOption; labelKey: string; src: string }[] = [
 export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   const [theme, setTheme] = useAtom(themeState);
-
-  const handleKeyDown = (e: KeyboardEvent, action: () => void) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      action();
-    }
-  };
 
   return (
     <Appear
@@ -50,17 +42,19 @@ export const ThemeSection = ({ onContinue }: { onContinue: () => void }) => {
                   : 'hover:shadow-md',
               )}
             >
-              <img
-                role="button"
-                tabIndex={0}
-                src={src}
-                alt={t('theme-alt', { label: t(labelKey) })}
+              <button
+                type="button"
                 onClick={() => setTheme(value)}
-                onKeyDown={(e) => handleKeyDown(e, () => setTheme(value))}
-                draggable={false}
                 aria-pressed={theme === value}
-                className="h-full w-full cursor-pointer select-none rounded-lg object-cover"
-              />
+                className="h-full w-full cursor-pointer select-none rounded-lg"
+              >
+                <img
+                  src={src}
+                  alt={t('theme-alt', { label: t(labelKey) })}
+                  draggable={false}
+                  className="h-full w-full rounded-lg object-cover"
+                />
+              </button>
             </div>
             <span
               className={cn(
