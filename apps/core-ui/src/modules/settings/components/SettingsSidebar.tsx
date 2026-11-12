@@ -118,7 +118,7 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
   ];
 };
 
-/** Old core-ui `SettingsSidebar`: exit, then the workspace settings core has. */
+/** Old core-ui `SettingsSidebar`: exit, the member's own account first, then the workspace settings core has. */
 export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();
@@ -128,8 +128,8 @@ export function SettingsSidebar() {
     <>
       <SettingsExitButton />
       <Sidebar.Content className="styled-scroll gap-1">
-        <SettingsNavigationGroup name={t('workspace')}>
-          {workspace.map((item) => (
+        <SettingsNavigationGroup name={t('account', 'Account')}>
+          {account.map((item) => (
             <NavigationMenuLinkItem
               key={item.path}
               pathPrefix="settings"
@@ -139,8 +139,8 @@ export function SettingsSidebar() {
             />
           ))}
         </SettingsNavigationGroup>
-        <SettingsNavigationGroup name={t('account', 'Account')}>
-          {account.map((item) => (
+        <SettingsNavigationGroup name={t('workspace')}>
+          {workspace.map((item) => (
             <NavigationMenuLinkItem
               key={item.path}
               pathPrefix="settings"
