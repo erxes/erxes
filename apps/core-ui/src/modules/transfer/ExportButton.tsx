@@ -179,24 +179,41 @@ export const ExportButton = ({
           ) : (
             <ColumnPicker columns={exportable} selected={selected} onChange={setChosen} />
           )}
-          <div className="flex items-center gap-2">
-            <Link
-              to={CONTACT_SETTINGS.importExport}
-              className="text-xs text-muted-foreground hover:underline"
-            >
-              {t('history', 'Past exports')}
-            </Link>
-            <Button
-              className="ml-auto"
-              disabled={!selected.length || start.isPending}
-              onClick={submit}
-            >
-              {start.isPending ? <Spinner size="sm" /> : <IconDownload />}
-              {t('export-start', 'Export')}
-            </Button>
-          </div>
+          <ExportFooter
+            disabled={!selected.length || start.isPending}
+            pending={start.isPending}
+            onExport={submit}
+          />
         </div>
       </Dialog.Content>
     </Dialog>
+  );
+};
+
+/** Past exports, then the button that starts this one. */
+const ExportFooter = ({
+  disabled,
+  pending,
+  onExport,
+}: {
+  disabled: boolean;
+  pending: boolean;
+  onExport: () => void;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'transfer' });
+
+  return (
+    <div className="flex items-center gap-2">
+      <Link
+        to={CONTACT_SETTINGS.importExport}
+        className="text-xs text-muted-foreground hover:underline"
+      >
+        {t('history', 'Past exports')}
+      </Link>
+      <Button className="ml-auto" disabled={disabled} onClick={onExport}>
+        {pending ? <Spinner size="sm" /> : <IconDownload />}
+        {t('export-start', 'Export')}
+      </Button>
+    </div>
   );
 };
