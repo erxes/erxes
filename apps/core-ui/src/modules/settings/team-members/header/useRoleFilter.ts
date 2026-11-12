@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { OptionFilterProps } from '~/components/OptionFilter';
 import { useRoles } from '../../roles/useRoles';
 
-/** Role (owner, admin, member) stands in for old erxes' permission groups. */
+/** Filters the list by role (owner, admin, member). */
 export const useRoleFilter = (): OptionFilterProps => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { roles } = useRoles();

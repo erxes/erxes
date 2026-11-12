@@ -16,7 +16,8 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
 - `src/rpc.ts` serves the contract (`coreApi`), maps invalid input to `INVALID_INPUT` and holds
   `generateOpenApi()`, which serves `/core/v1/openapi.json` and writes `packages/contract/openapi.json`.
 - `src/orpc.ts` is the only file that may import `implement`/`os`. It holds the procedure builders
-  (`pub`, `authed`, `plugin`, `anyone`), the access check and organisation scope every procedure
+  (`pub`, `authed`, `plugin`, `anyone`, and `authedUnscoped`, `pluginUnscoped`, `anyoneUnscoped`
+  for procedures that call out over the network), the access check and organisation scope every procedure
   passes, and `audited`.
 - `src/modules/<feature>/<feature>.router.ts` implements that feature's procedures with those
   builders. `src/router.ts` only assembles the feature routers into `coreRouter`.

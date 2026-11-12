@@ -4,7 +4,7 @@ import { Button, ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { USER_LINK_FIELDS } from '../constants';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
-import { MemberPanelTextField } from './MemberPanelDetail';
+import { MemberPanelTextField } from './MemberFieldInputs';
 import { PanelField } from './PanelField';
 
 const toLinkUrl = (linkField: string, value: string) => {

@@ -1,21 +1,17 @@
 import type { ContentType, Field, FieldGroup } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { api } from '~/lib/api';
-
-export const FIELDS_KEY = ['fields'];
-export const FIELD_GROUPS_KEY = ['field-groups'];
+import { orpc } from '~/lib/api';
 
 /** Field groups of a record type, in order (archived ones with `archived`). */
+export const fieldGroupsQuery = (contentType: ContentType, archived = false) =>
+  orpc.fieldGroups.list.queryOptions({ input: { contentType, archived }, staleTime: 60_000 });
+
 export const useFieldGroups = (
   contentType: ContentType,
   { archived = false }: { archived?: boolean } = {},
 ) => {
-  const query = useQuery({
-    queryKey: [...FIELD_GROUPS_KEY, contentType, { archived }],
-    queryFn: () => api.fieldGroups.list({ contentType, archived }),
-    staleTime: 60_000,
-  });
+  const query = useQuery(fieldGroupsQuery(contentType, archived));
 
   return { groups: query.data?.data ?? [], loading: query.isPending, error: query.error };
 };
@@ -25,11 +21,9 @@ export const useAllFields = (
   contentType: ContentType,
   { archived = false }: { archived?: boolean } = {},
 ) => {
-  const query = useQuery({
-    queryKey: [...FIELDS_KEY, contentType, { archived }],
-    queryFn: () => api.fields.list({ contentType, archived }),
-    staleTime: 60_000,
-  });
+  const query = useQuery(
+    orpc.fields.list.queryOptions({ input: { contentType, archived }, staleTime: 60_000 }),
+  );
 
   return { fields: query.data?.data ?? [], loading: query.isPending, error: query.error };
 };
@@ -53,19 +47,25 @@ export const groupFields = (groups: FieldGroup[], fields: Field[]) => {
  * then by field, with their groups (`sections`).
  */
 export const useFields = (contentType: ContentType) => {
-  const { fields: all, loading: fieldsLoading } = useAllFields(contentType);
-  const { groups, loading: groupsLoading } = useFieldGroups(contentType);
+  const all = useAllFields(contentType);
+  const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
 
   const sections = useMemo(
     () =>
       groupFields(
         groups,
-        all.filter((field) => field.isVisible),
+        all.fields.filter((field) => field.isVisible),
       ).filter((section) => section.fields.length > 0),
-    [groups, all],
+    [groups, all.fields],
   );
 
   const fields = useMemo(() => sections.flatMap((section) => section.fields), [sections]);
 
-  return { fields, sections, groups, loading: fieldsLoading || groupsLoading };
+  return {
+    fields,
+    sections,
+    groups,
+    loading: all.loading || groupsLoading,
+    error: all.error ?? groupsError,
+  };
 };

@@ -1,8 +1,7 @@
 import { db, pluginInstallations, plugins, roles, users, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
-import { decodeProtectedHeader } from 'jose';
-import jwt from 'jsonwebtoken';
+import { decodeProtectedHeader, jwtVerify, SignJWT } from 'jose';
 import { z } from 'zod';
 import { config } from '~/config';
 import { readCookies, SESSION_COOKIE } from '~/http/cookies';
@@ -100,36 +99,31 @@ const AccessClaims = z.object({
 
 const AUDIENCE = 'erxes-core';
 
+const accessSecret = () => new TextEncoder().encode(config.auth.jwtSecret);
+
 /** Core access token (HS256, core's own secret). */
 export const signAccessToken = (
   userId: string,
   orgId: string,
   ttlSeconds = config.auth.accessTokenTtlSeconds,
   sessionVersion = 1,
-): string =>
-  jwt.sign({ typ: 'core_access', org: orgId, sv: sessionVersion }, config.auth.jwtSecret, {
-    algorithm: 'HS256',
-    subject: userId,
-    audience: AUDIENCE,
-    expiresIn: ttlSeconds,
-  });
+): Promise<string> =>
+  new SignJWT({ typ: 'core_access', org: orgId, sv: sessionVersion })
+    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+    .setSubject(userId)
+    .setAudience(AUDIENCE)
+    .setIssuedAt()
+    .setExpirationTime(`${ttlSeconds}s`)
+    .sign(accessSecret());
 
 /** The claims of a valid member token; null for an expired, forged or foreign one. */
-const accessClaimsOf = (token: string) => {
-  let verified: unknown;
+const accessClaimsOf = async (token: string) => {
+  const verified = await jwtVerify(token, accessSecret(), {
+    algorithms: ['HS256'],
+    audience: AUDIENCE,
+  }).catch(() => null);
 
-  try {
-    verified = jwt.verify(token, config.auth.jwtSecret, {
-      algorithms: ['HS256'],
-      audience: AUDIENCE,
-    });
-  } catch {
-    return null;
-  }
-
-  const parsed = AccessClaims.safeParse(verified);
-
-  return parsed.success ? parsed.data : null;
+  return AccessClaims.safeParse(verified?.payload).data ?? null;
 };
 
 const unauthorized = () => new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
@@ -226,7 +220,7 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
     throw new HttpError(403, 'CROSS_SITE', 'Cross-site request blocked');
   }
 
-  const claims = accessClaimsOf(token);
+  const claims = await accessClaimsOf(token);
   const actor = claims && (await activeMember(claims));
 
   if (!claims || !actor) throw unauthorized();
@@ -320,14 +314,14 @@ export const callerOf = (req: { plugin?: PluginCaller; actor?: Actor }): Caller 
 };
 
 /** Who a session cookie belongs to, if it is still valid (for sign-out). */
-export const sessionClaims = (
+export const sessionClaims = async (
   req: Request,
-): { userId: string; orgId: string; sessionVersion: number } | null => {
+): Promise<{ userId: string; orgId: string; sessionVersion: number } | null> => {
   const token = readCookies(req.headers.cookie)[SESSION_COOKIE];
 
   if (!token) return null;
 
-  const claims = accessClaimsOf(token);
+  const claims = await accessClaimsOf(token);
 
   return claims && { userId: claims.sub, orgId: claims.org, sessionVersion: claims.sv };
 };

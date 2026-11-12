@@ -45,7 +45,7 @@ const main = async () => {
 
   say(`organization ${organization.id} (${organization.subdomain})`);
   say(`owner        ${owner.id} <${owner.email}>`);
-  say(`token        ${signAccessToken(owner.id, organization.id)}`);
+  say(`token        ${await signAccessToken(owner.id, organization.id)}`);
 };
 
 runCli(main);

@@ -1,5 +1,5 @@
 import type { PluginPlan, SubscriptionInfo } from '@erxes/core-contract';
-import { type Db, organizations, pluginInstallations, plugins } from '@erxes/core-db';
+import { type Db, organizations, pluginInstallations, plugins, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { config } from '~/config';
 import type { Actor, PluginCaller } from '~/http/auth';
@@ -96,9 +96,18 @@ const pluginRows = async (client: Db, orgId: string) => {
   };
 };
 
-export const subscriptionInfo = async (client: Db, actor: Actor): Promise<SubscriptionInfo> => {
+/** The member's plan: asks erxes.io first if needed, then reads in a short scope. */
+export const subscriptionInfo = async (actor: Actor): Promise<SubscriptionInfo> => {
   const row = await entitlementsOf(actor.orgId);
 
+  return withOrg(actor.orgId, (tx) => planOf(tx, actor, row));
+};
+
+const planOf = async (
+  client: Db,
+  actor: Actor,
+  row: EntitlementRow | null,
+): Promise<SubscriptionInfo> => {
   if (!config.saas.enabled) {
     return {
       saas: false,

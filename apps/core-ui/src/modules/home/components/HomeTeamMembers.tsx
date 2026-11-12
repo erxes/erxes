@@ -22,7 +22,7 @@ export const HomeTeamMembers = () => {
       loading={isPending}
       error={isError}
       // Alone in the organization, the list would only show the user
-      rows={(members.length === 1 && members[0].id === me.id ? [] : members).map((member) => ({
+      rows={(members.length === 1 && members[0]?.id === me.id ? [] : members).map((member) => ({
         id: member.id,
         name: member.fullName || member.username || member.email,
         avatarUrl: member.avatarUrl,

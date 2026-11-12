@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '~/lib/api';
-import { NOTIFICATIONS_KEY, useNotificationSettings } from './useNotifications';
+import { orpc } from '~/lib/api';
+import { useNotificationSettings } from './useNotifications';
 
 export const desktopSupported = () => typeof window !== 'undefined' && 'Notification' in window;
 
@@ -21,17 +21,13 @@ export const useDesktopNotifications = () => {
 
   const seen = useRef<Set<string> | null>(null);
 
-  const latest = useQuery({
-    queryKey: [...NOTIFICATIONS_KEY, 'desktop'],
-    queryFn: () =>
-      api.notifications.list({
-        limit: 5,
-        unread: 'true',
-        direction: 'forward',
-        cursorMode: 'exclusive',
-      }),
-    enabled,
-  });
+  // A failed check stays quiet: the next live signal or poll tries again.
+  const latest = useQuery(
+    orpc.notifications.list.queryOptions({
+      input: { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' },
+      enabled,
+    }),
+  );
 
   useEffect(() => {
     const items = latest.data?.data ?? [];
@@ -55,11 +51,11 @@ export const useDesktopNotifications = () => {
         icon: '/favicon.ico',
       });
 
-      popup.onclick = () => {
+      popup.addEventListener('click', () => {
         window.focus();
-        navigate(item.link ?? '/notifications');
+        void navigate(item.link ?? '/notifications');
         popup.close();
-      };
+      });
     }
   }, [latest.data, enabled, navigate]);
 };

@@ -1,36 +1,38 @@
 import { useState } from 'react';
+import { z } from 'zod';
 import { useSession } from '~/modules/auth/session';
 import { DASHBOARD_DEFAULT_LAYOUT, DASHBOARD_MAX_ITEMS } from '../constants/dashboardGrid';
 import type { TDashboardItem } from '../types/dashboardTypes';
 
 /*
- * Old erxes saved the layout on the server (`dashboardLayoutSave`); the new
- * core has no such API yet, so it lives in this browser, per user.
+ * The layout is kept in this browser, per user: core has no API to save it.
  */
 const storageKey = (userId: string) => `erxes-home-dashboard:${userId}`;
 
-const isInt = (value: unknown): value is number => Number.isInteger(value);
+const StoredItem = z.object({
+  id: z.string(),
+  type: z.string(),
+  x: z.number().int(),
+  y: z.number().int(),
+  w: z.number().int(),
+  h: z.number().int(),
+});
 
-const isItem = (value: unknown): value is TDashboardItem => {
-  const item = value as Partial<TDashboardItem> | null;
-
-  return (
-    !!item &&
-    typeof item.id === 'string' &&
-    typeof item.type === 'string' &&
-    isInt(item.x) &&
-    isInt(item.y) &&
-    isInt(item.w) &&
-    isInt(item.h)
-  );
-};
-
+/** The saved tiles; ones that no longer parse are dropped. */
 const read = (userId: string): TDashboardItem[] | null => {
   try {
     const raw = localStorage.getItem(storageKey(userId));
     const parsed: unknown = raw ? JSON.parse(raw) : null;
 
-    return Array.isArray(parsed) ? parsed.filter(isItem).slice(0, DASHBOARD_MAX_ITEMS) : null;
+    if (!Array.isArray(parsed)) return null;
+
+    return parsed
+      .flatMap((item) => {
+        const tile = StoredItem.safeParse(item);
+
+        return tile.success ? [tile.data] : [];
+      })
+      .slice(0, DASHBOARD_MAX_ITEMS);
   } catch {
     return null;
   }

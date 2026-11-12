@@ -1,4 +1,5 @@
 import { ORPCError } from '@orpc/server';
+import { DatabaseError } from 'pg';
 
 /**
  * An error the API answers with (oRPC's error body: `{ code, status, message, data }`).
@@ -20,35 +21,14 @@ export const notFound = (what: string) => new HttpError(404, 'NOT_FOUND', `${wha
 export const forbidden = (code: string, message: string) => new HttpError(403, code, message);
 
 /** The pg error behind a Drizzle error (DrizzleQueryError wraps it in `cause`). */
-export const pgCode = (error: unknown): string | undefined => {
-  let current: unknown = error;
+const databaseError = (error: unknown, depth = 0): DatabaseError | undefined => {
+  if (error instanceof DatabaseError) return error;
 
-  for (let depth = 0; depth < 4 && current; depth += 1) {
-    const code = (current as { code?: unknown }).code;
-
-    if (typeof code === 'string' && /^[0-9A-Z]{5}$/.test(code)) {
-      return code;
-    }
-
-    current = (current as { cause?: unknown }).cause;
-  }
-
-  return undefined;
+  return error instanceof Error && depth < 4 ? databaseError(error.cause, depth + 1) : undefined;
 };
+
+/** The SQLSTATE of the pg error behind `error`, e.g. 23505 for a unique violation. */
+export const pgCode = (error: unknown) => databaseError(error)?.code;
 
 /** The constraint a pg error names, e.g. which unique index a 23505 hit. */
-export const pgConstraint = (error: unknown): string | undefined => {
-  let current: unknown = error;
-
-  for (let depth = 0; depth < 4 && current; depth += 1) {
-    const constraint = (current as { constraint?: unknown }).constraint;
-
-    if (typeof constraint === 'string') {
-      return constraint;
-    }
-
-    current = (current as { cause?: unknown }).cause;
-  }
-
-  return undefined;
-};
+export const pgConstraint = (error: unknown) => databaseError(error)?.constraint;

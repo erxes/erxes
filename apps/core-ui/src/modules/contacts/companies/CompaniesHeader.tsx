@@ -5,7 +5,8 @@ import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { ContactsBreadcrumb } from '../components/ContactsBreadcrumb';
 import { ContactsPageHeader } from '../components/ContactsPageHeader';
 import { useCreateHotkey } from '../customers/CustomersHeader';
-import { ExportButton, ImportButton } from '~/modules/transfer/TransferButtons';
+import { ExportButton } from '~/modules/transfer/ExportButton';
+import { ImportButton } from '~/modules/transfer/ImportButton';
 
 /** Export with the list's quick filters (the advanced filter and search come from the address). */
 const CompaniesExportButton = () => {
@@ -23,7 +24,7 @@ const CompaniesExportButton = () => {
 };
 
 /** Opens a new company in the side panel as a draft; it is created on Save. */
-export const CompanyCreateButton = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
+const CompanyCreateButton = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { t } = useTranslation('contact');
   const { openNewRecord } = useSidePanel();
 

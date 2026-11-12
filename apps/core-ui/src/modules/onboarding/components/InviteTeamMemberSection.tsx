@@ -1,10 +1,10 @@
 import { IconX } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, cn, Input, TextOverflowTooltip, toast } from 'erxes-ui';
 import { type ChangeEvent, type KeyboardEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { api } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
 import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD } from './Appear';
 
@@ -15,118 +15,121 @@ const useInviteEmails = () => {
   const client = useQueryClient();
   const { t } = useTranslation(ONBOARDING_NS);
 
-  return async (emails: string[]) => {
-    const results = await Promise.allSettled(emails.map((email) => api.users.invite({ email })));
-    const failed = emails.filter((_, index) => results[index].status === 'rejected');
-    const sent = emails.length - failed.length;
+  return useMutation({
+    mutationFn: (emails: string[]) =>
+      Promise.all(
+        emails.map((email) =>
+          orpc.users.invite.call({ email }).then(
+            () => ({ email, error: null }),
+            (error: unknown) => ({ email, error }),
+          ),
+        ),
+      ),
+    onSuccess: (outcomes) => {
+      const failed = outcomes.filter((outcome) => outcome.error !== null);
+      const sent = outcomes.length - failed.length;
+      const [firstFailure] = failed;
 
-    void client.invalidateQueries({ queryKey: ['users'] });
+      if (sent) {
+        toast({ title: t('invite-sent', { count: sent }), variant: 'success' });
+      }
 
-    if (sent) {
-      toast({ title: t('invite-sent', { count: sent }), variant: 'success' });
+      if (firstFailure) {
+        toast({
+          title: t('invite-failed', { emails: failed.map((outcome) => outcome.email).join(', ') }),
+          description: messageOf(firstFailure.error),
+          variant: 'destructive',
+        });
+      }
+
+      return client.invalidateQueries({ queryKey: orpc.users.key() });
+    },
+  });
+};
+
+/** Emails typed one by one: each is checked, then kept as a tag. */
+const useEmailTags = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
+  const [tags, setTags] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [error, setError] = useState('');
+
+  /** Why `email` cannot be added, if it cannot. */
+  const problemWith = (email: string) => {
+    if (!emailSchema.safeParse(email).success) return t('invalid-email');
+
+    return tags.includes(email) ? t('email-already-added') : null;
+  };
+
+  const addTag = (value: string) => {
+    const email = value.trim();
+
+    if (!email) return;
+
+    const problem = problemWith(email);
+
+    setError(problem ?? '');
+
+    if (problem) return;
+
+    setTags([...tags, email]);
+    setInputValue('');
+  };
+
+  /** The tags and what is still typed, or null with the reason shown. */
+  const collect = () => {
+    const typed = inputValue.trim();
+    const problem = typed ? problemWith(typed) : null;
+    const emails = typed ? [...tags, typed] : tags;
+
+    if (problem || !emails.length) {
+      setError(problem ?? t('add-at-least-one-email'));
+
+      return null;
     }
 
-    if (failed.length) {
-      const reason = results.find((result) => result.status === 'rejected');
+    setInputValue('');
+    setError('');
 
-      toast({
-        title: t('invite-failed', { emails: failed.join(', ') }),
-        description:
-          reason?.status === 'rejected' && reason.reason instanceof Error
-            ? reason.reason.message
-            : undefined,
-        variant: 'destructive',
-      });
-    }
+    return emails;
+  };
+
+  return {
+    tags,
+    inputValue,
+    error,
+    collect,
+    removeTag: (email: string) => setTags(tags.filter((tag) => tag !== email)),
+    onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === ',' || event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        addTag(inputValue);
+      }
+    },
+    onChange: (event: ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+
+      setError('');
+
+      if (value.endsWith(',') || value.endsWith(' ')) addTag(value.slice(0, -1));
+      else setInputValue(value);
+    },
   };
 };
 
 export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void }) => {
   const inviteEmails = useInviteEmails();
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
-  const [tags, setTags] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const [error, setError] = useState('');
+  const { tags, inputValue, error, collect, removeTag, onKeyDown, onChange } = useEmailTags();
 
   const onClick = () => {
-    const trimmed = inputValue.trim();
-    const emails = [...tags];
+    const emails = collect();
 
-    if (trimmed) {
-      const validation = emailSchema.safeParse(trimmed);
+    if (!emails) return;
 
-      if (!validation.success) {
-        setError(t('invalid-email'));
-
-        return;
-      }
-
-      if (emails.includes(trimmed)) {
-        setError(t('email-already-added'));
-
-        return;
-      }
-
-      emails.push(trimmed);
-    }
-
-    if (emails.length === 0) {
-      setError(t('add-at-least-one-email'));
-
-      return;
-    }
-
-    // As in old erxes the step moves on while the invitations go out
-    void inviteEmails(emails);
-    setInputValue('');
-    setError('');
+    // The step moves on while the invitations go out.
+    inviteEmails.mutate(emails);
     onContinue();
-  };
-
-  const addTag = (value: string) => {
-    const trimmedValue = value.trim();
-
-    if (!trimmedValue) return;
-
-    const validation = emailSchema.safeParse(trimmedValue);
-
-    if (!validation.success) {
-      setError(t('invalid-email'));
-
-      return;
-    }
-
-    if (tags.includes(trimmedValue)) {
-      setError(t('email-already-added'));
-
-      return;
-    }
-
-    setTags([...tags, trimmedValue]);
-    setInputValue('');
-    setError('');
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === ',' || e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      addTag(inputValue);
-    }
-  };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setError('');
-
-    if (value.endsWith(',') || value.endsWith(' ')) {
-      addTag(value.slice(0, -1));
-    } else {
-      setInputValue(value);
-    }
   };
 
   return (
@@ -148,8 +151,8 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
                 name="email"
                 placeholder={t('enter-email-addresses')}
                 value={inputValue}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
                 className={cn(error && 'focus-visible:shadow-focus-destructive')}
               />
               {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
@@ -165,6 +168,7 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
+                      aria-label={t('remove-email', { email: tag })}
                       className="hover:bg-secondary-foreground/20 rounded-sm p-0.5 shrink-0"
                     >
                       <IconX className="size-3" />
@@ -179,12 +183,13 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
           </Button>
         </Appear>
       </Appear>
-      <span
+      <button
+        type="button"
         className="absolute bottom-1/4 text-accent-foreground hover:text-foreground cursor-pointer"
         onClick={() => onContinue()}
       >
         {t('do-this-later')}
-      </span>
+      </button>
     </>
   );
 };

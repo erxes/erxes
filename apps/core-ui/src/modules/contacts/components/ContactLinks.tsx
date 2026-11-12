@@ -1,6 +1,4 @@
-import type { ContactLink } from '@erxes/core-contract';
 import { IconDots, IconPlus, IconStarFilled } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Avatar,
   Badge,
@@ -12,91 +10,14 @@ import {
   Popover,
   readImage,
   Spinner,
-  useToast,
 } from 'erxes-ui';
-import { useState } from 'react';
-import { api, messageOf } from '~/lib/api';
+import { useEffect, useRef, useState } from 'react';
+import { QueryState } from '~/components/QueryState';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { SelectContactContent } from './ContactPicker';
+import { type ContactSide, type LinkRow, useContactLinks } from './useContactLinks';
 
-type Side = 'core:customer' | 'core:company';
-
-interface LinkRow {
-  /** The other side's id. */
-  id: string;
-  name: string;
-  avatarUrl: string | null;
-  link: ContactLink;
-}
-
-const linksKey = (side: Side, id: string) => ['contact-links', side, id];
-
-/** A contact's links to the other kind: a person's companies or a company's people, current first. */
-export const useContactLinks = (side: Side, id: string) => {
-  const client = useQueryClient();
-  const { toast } = useToast();
-
-  const query = useQuery({
-    queryKey: linksKey(side, id),
-    queryFn: async (): Promise<LinkRow[]> =>
-      side === 'core:customer'
-        ? (await api.customers.companies({ id })).data.map((company) => ({
-            id: company.id,
-            name: company.primaryName,
-            avatarUrl: company.avatarUrl,
-            link: company.link,
-          }))
-        : (await api.companies.people({ id })).data.map((person) => ({
-            id: person.id,
-            name:
-              [person.firstName, person.lastName].filter(Boolean).join(' ') ||
-              person.primaryEmail ||
-              person.primaryPhone ||
-              'Unnamed',
-            avatarUrl: person.avatarUrl,
-            link: person.link,
-          })),
-    enabled: Boolean(id),
-  });
-
-  const refresh = () => {
-    void client.invalidateQueries({ queryKey: ['contact-links'] });
-    void client.invalidateQueries({ queryKey: ['customers'] });
-    void client.invalidateQueries({ queryKey: ['companies'] });
-  };
-
-  const onError = (error: unknown) =>
-    toast({
-      variant: 'destructive',
-      title: 'Could not update the link',
-      description: messageOf(error),
-    });
-
-  const pair = (otherId: string) =>
-    side === 'core:customer' ? { id, companyId: otherId } : { id: otherId, companyId: id };
-
-  const set = useMutation({
-    mutationFn: ({
-      otherId,
-      ...input
-    }: {
-      otherId: string;
-      role?: string | null;
-      isPrimaryContact?: boolean;
-      ended?: boolean;
-    }) => api.customers.linkCompany({ ...pair(otherId), ...input }),
-    onSettled: refresh,
-    onError,
-  });
-
-  const remove = useMutation({
-    mutationFn: (otherId: string) => api.customers.unlinkCompany(pair(otherId)),
-    onSettled: refresh,
-    onError,
-  });
-
-  return { rows: query.data ?? [], loading: query.isPending, error: query.error, set, remove };
-};
+type LinkChange = { role?: string | null; isPrimaryContact?: boolean; ended?: boolean };
 
 const RoleEditor = ({
   value,
@@ -106,6 +27,10 @@ const RoleEditor = ({
   onSave: (role: string | null) => void;
 }) => {
   const [role, setRole] = useState(value ?? '');
+  const input = useRef<HTMLInputElement>(null);
+
+  // Opened from the link's menu: typing starts at once.
+  useEffect(() => input.current?.focus(), []);
 
   return (
     <form
@@ -116,17 +41,77 @@ const RoleEditor = ({
       }}
     >
       <Input
+        ref={input}
         value={role}
         onChange={(event) => setRole(event.target.value)}
         placeholder="CEO, Buyer, Accountant…"
+        aria-label="Role"
         className="h-8"
         maxLength={100}
-        autoFocus
       />
       <Button type="submit" size="sm">
         Save
       </Button>
     </form>
+  );
+};
+
+/** Role, main contact, left the company, unlink. */
+const LinkMenu = ({
+  row,
+  onChange,
+  onUnlink,
+}: {
+  row: LinkRow;
+  onChange: (input: LinkChange) => void;
+  onUnlink: () => void;
+}) => {
+  const [editing, setEditing] = useState(false);
+  const former = Boolean(row.link.endedAt);
+
+  return (
+    <Popover open={editing} onOpenChange={setEditing}>
+      <DropdownMenu>
+        <DropdownMenu.Trigger asChild>
+          <Popover.Anchor asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
+              aria-label="Link options"
+            >
+              <IconDots className="size-4" />
+            </Button>
+          </Popover.Anchor>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="end">
+          <DropdownMenu.Item onSelect={() => setEditing(true)}>
+            {row.link.role ? 'Change role' : 'Add role'}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
+            onSelect={() => onChange({ isPrimaryContact: !row.link.isPrimaryContact })}
+          >
+            {row.link.isPrimaryContact ? 'Not the main contact' : 'Make main contact'}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onSelect={() => onChange({ ended: !former })}>
+            {former ? 'Works there again' : 'Left the company'}
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item className="text-destructive" onSelect={onUnlink}>
+            Unlink
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu>
+      <Popover.Content align="end" className="w-72 p-1">
+        <RoleEditor
+          value={row.link.role}
+          onSave={(role) => {
+            onChange({ role });
+            setEditing(false);
+          }}
+        />
+      </Popover.Content>
+    </Popover>
   );
 };
 
@@ -136,13 +121,12 @@ const LinkItem = ({
   onChange,
   onUnlink,
 }: {
-  side: Side;
+  side: ContactSide;
   row: LinkRow;
-  onChange: (input: { role?: string | null; isPrimaryContact?: boolean; ended?: boolean }) => void;
+  onChange: (input: LinkChange) => void;
   onUnlink: () => void;
 }) => {
   const { openRecord } = useSidePanel();
-  const [editing, setEditing] = useState(false);
   const former = Boolean(row.link.endedAt);
   const other = side === 'core:customer' ? 'core:company' : 'core:customer';
 
@@ -173,49 +157,44 @@ const LinkItem = ({
         )}
       </button>
       {former && <Badge variant="secondary">Former</Badge>}
-      <Popover open={editing} onOpenChange={setEditing}>
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Popover.Anchor asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-7 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
-                aria-label="Link options"
-              >
-                <IconDots className="size-4" />
-              </Button>
-            </Popover.Anchor>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end">
-            <DropdownMenu.Item onSelect={() => setEditing(true)}>
-              {row.link.role ? 'Change role' : 'Add role'}
-            </DropdownMenu.Item>
-            <DropdownMenu.Item
-              onSelect={() => onChange({ isPrimaryContact: !row.link.isPrimaryContact })}
-            >
-              {row.link.isPrimaryContact ? 'Not the main contact' : 'Make main contact'}
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onSelect={() => onChange({ ended: !former })}>
-              {former ? 'Works there again' : 'Left the company'}
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item className="text-destructive" onSelect={onUnlink}>
-              Unlink
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
-        <Popover.Content align="end" className="w-72 p-1">
-          <RoleEditor
-            value={row.link.role}
-            onSave={(role) => {
-              onChange({ role });
-              setEditing(false);
-            }}
-          />
-        </Popover.Content>
-      </Popover>
+      <LinkMenu row={row} onChange={onChange} onUnlink={onUnlink} />
     </div>
+  );
+};
+
+/** Picks another record to link. */
+const AddLink = ({
+  side,
+  linked,
+  onAdd,
+}: {
+  side: ContactSide;
+  linked: string[];
+  onAdd: (otherId: string) => void;
+}) => {
+  const [adding, setAdding] = useState(false);
+
+  return (
+    <Popover open={adding} onOpenChange={setAdding}>
+      <Popover.Trigger asChild>
+        <Button variant="ghost" size="sm" className="w-fit text-muted-foreground">
+          <IconPlus />
+          {side === 'core:customer' ? 'Link a company' : 'Add a person'}
+        </Button>
+      </Popover.Trigger>
+      <Combobox.Content>
+        <SelectContactContent
+          kind={side === 'core:customer' ? 'company' : 'customer'}
+          value={linked}
+          onValueChange={(ids) => {
+            const added = ids.find((otherId) => !linked.includes(otherId));
+
+            if (added) onAdd(added);
+            setAdding(false);
+          }}
+        />
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -223,46 +202,33 @@ const LinkItem = ({
  * A person's companies, or a company's people: role, main contact, people
  * who left (kept as history, greyed). Same from either side.
  */
-export const ContactLinks = ({ side, id }: { side: Side; id: string }) => {
-  const { rows, loading, error, set, remove } = useContactLinks(side, id);
-  const [adding, setAdding] = useState(false);
-  const linked = rows.map((row) => row.id);
-
-  if (loading) return <Spinner containerClassName="h-8 justify-start px-2" size="sm" />;
-
-  if (error) return <p className="px-2 text-xs text-destructive">{messageOf(error)}</p>;
+export const ContactLinks = ({ side, id }: { side: ContactSide; id: string }) => {
+  const { query, set, remove } = useContactLinks(side, id);
 
   return (
-    <div className="flex flex-col">
-      {rows.map((row) => (
-        <LinkItem
-          key={row.id}
-          side={side}
-          row={row}
-          onChange={(input) => set.mutate({ otherId: row.id, ...input })}
-          onUnlink={() => remove.mutate(row.id)}
-        />
-      ))}
-      <Popover open={adding} onOpenChange={setAdding}>
-        <Popover.Trigger asChild>
-          <Button variant="ghost" size="sm" className="w-fit text-muted-foreground">
-            <IconPlus />
-            {side === 'core:customer' ? 'Link a company' : 'Add a person'}
-          </Button>
-        </Popover.Trigger>
-        <Combobox.Content>
-          <SelectContactContent
-            kind={side === 'core:customer' ? 'company' : 'customer'}
-            value={linked}
-            onValueChange={(ids) => {
-              const added = ids.find((otherId) => !linked.includes(otherId));
-
-              if (added) set.mutate({ otherId: added });
-              setAdding(false);
-            }}
+    <QueryState
+      query={query}
+      className="justify-start p-2"
+      loading={<Spinner containerClassName="h-8 justify-start px-2" size="sm" />}
+    >
+      {(rows) => (
+        <div className="flex flex-col">
+          {rows.map((row) => (
+            <LinkItem
+              key={row.id}
+              side={side}
+              row={row}
+              onChange={(input) => set(row.id, input)}
+              onUnlink={() => remove(row.id)}
+            />
+          ))}
+          <AddLink
+            side={side}
+            linked={rows.map((row) => row.id)}
+            onAdd={(otherId) => set(otherId)}
           />
-        </Combobox.Content>
-      </Popover>
-    </div>
+        </div>
+      )}
+    </QueryState>
   );
 };

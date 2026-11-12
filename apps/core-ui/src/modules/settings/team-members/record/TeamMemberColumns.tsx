@@ -48,7 +48,7 @@ export const MemberAvatar = ({ user, className }: { user: User; className?: stri
   );
 };
 
-/** Name as a badge that opens the member; editable in place like old core-ui. */
+/** Name as a badge that opens the member; editable in place. */
 const NameCell = ({ user }: { user: User }) => {
   const openPanel = useOpenMemberPanel();
   const edit = useTeamMemberEdit();
@@ -89,7 +89,7 @@ const NameCell = ({ user }: { user: User }) => {
   );
 };
 
-/** Old invitation status: verified once the member can sign in; deactivated members say so. */
+/** Invitation status: verified once the member can sign in; deactivated members say so. */
 const InvitationStatusCell = ({ user, t }: { user: User; t: TFunction }) => (
   <RecordTableInlineCell>
     {user.status === 'disabled' ? (
@@ -104,7 +104,7 @@ const InvitationStatusCell = ({ user, t }: { user: User; t: TFunction }) => (
 
 export const teamMemberColumns = (t: TFunction): ColumnDef<User>[] => [
   teamMemberMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<User>,
+  RecordTable.checkboxColumnOf<User>(),
   {
     id: 'avatar',
     accessorKey: 'avatarUrl',

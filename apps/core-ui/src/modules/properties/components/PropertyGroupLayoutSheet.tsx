@@ -33,7 +33,7 @@ const LayoutItem = ({ field }: { field: Field }) => {
     id: field.id,
   });
 
-  const TypeIcon = FIELD_TYPES_OBJECT[field.type]?.icon;
+  const TypeIcon = FIELD_TYPES_OBJECT[field.type].icon;
 
   return (
     <div
@@ -57,7 +57,7 @@ const LayoutItem = ({ field }: { field: Field }) => {
       {field.icon ? (
         <IconComponent name={field.icon} className="size-4 shrink-0 text-muted-foreground" />
       ) : (
-        TypeIcon && <TypeIcon className="size-4 shrink-0 text-muted-foreground" />
+        <TypeIcon className="size-4 shrink-0 text-muted-foreground" />
       )}
       <span className="truncate">{field.label}</span>
     </div>

@@ -1,17 +1,42 @@
-import { Spinner } from 'erxes-ui';
 import { Route, Routes } from 'react-router-dom';
-import { PluginPage } from '~/modules/plugins/PluginPage';
-import { SettingsRoutes } from '~/modules/settings/SettingsRoutes';
+import { PageSpinner } from '~/components/PageSpinner';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { usePlugins } from '~/modules/plugins/usePlugins';
-import { AutomationsRoutes } from '~/modules/automations/AutomationsRoutes';
-import { ContactsRoutes } from '~/modules/contacts/ContactsRoutes';
-import { ReportsRoutes } from '~/modules/reports/ReportsRoutes';
-import { HomePage } from '~/modules/home/HomePage';
-import { NotificationsPage } from '~/modules/notifications/NotificationsPage';
-import { MainOnboardingPage } from '~/modules/onboarding/MainOnboardingPage';
 import { OnboardingGuard } from '~/modules/onboarding/OnboardingGuard';
 import { MainLayout } from './MainLayout';
 import { NotFoundPage } from './NotFoundPage';
+
+// Every page is its own chunk, fetched the first time it opens.
+const HomePage = lazyNamed(() => import('~/modules/home/HomePage'), 'HomePage');
+
+const ContactsRoutes = lazyNamed(
+  () => import('~/modules/contacts/ContactsRoutes'),
+  'ContactsRoutes',
+);
+
+const AutomationsRoutes = lazyNamed(
+  () => import('~/modules/automations/AutomationsRoutes'),
+  'AutomationsRoutes',
+);
+
+const ReportsRoutes = lazyNamed(() => import('~/modules/reports/ReportsRoutes'), 'ReportsRoutes');
+
+const SettingsRoutes = lazyNamed(
+  () => import('~/modules/settings/SettingsRoutes'),
+  'SettingsRoutes',
+);
+
+const NotificationsPage = lazyNamed(
+  () => import('~/modules/notifications/NotificationsPage'),
+  'NotificationsPage',
+);
+
+const MainOnboardingPage = lazyNamed(
+  () => import('~/modules/onboarding/MainOnboardingPage'),
+  'MainOnboardingPage',
+);
+
+const PluginPage = lazyNamed(() => import('~/modules/plugins/PluginPage'), 'PluginPage');
 
 /** Plugin pages mount at `/<CONFIG.path>/*` once their config has loaded. */
 const PluginRoutes = () => {
@@ -26,25 +51,14 @@ const PluginRoutes = () => {
           element={<PluginPage key={plugin.remote} plugin={plugin} />}
         />
       ))}
-      <Route
-        path="*"
-        element={
-          loading ? (
-            <div className="flex h-full items-center justify-center">
-              <Spinner />
-            </div>
-          ) : (
-            <NotFoundPage />
-          )
-        }
-      />
+      <Route path="*" element={loading ? <PageSpinner /> : <NotFoundPage />} />
     </Routes>
   );
 };
 
 export const AppRoutes = () => (
   <Routes>
-    {/* First sign-in steps, full screen (old AppPath.MainOnboarding). */}
+    {/* First sign-in steps, full screen. */}
     <Route path="welcome" element={<MainOnboardingPage />} />
     <Route
       element={

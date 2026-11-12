@@ -1,5 +1,5 @@
 import { Table } from 'erxes-ui/components/table';
-import { checkboxColumn } from './CheckboxColumn';
+import { checkboxColumn, checkboxColumnOf } from './CheckboxColumn';
 import { RecordTableMoreButton } from './MoreColumn';
 import { RecordTableCell } from './RecordTableCell';
 import { RecordTableColumnSelector } from './RecordTableColumnSelector';
@@ -30,6 +30,7 @@ export const RecordTable = Object.assign(RecordTableRoot, {
   RowSkeleton: RecordTableRowSkeleton,
   MoreButton: RecordTableMoreButton,
   checkboxColumn,
+  checkboxColumnOf,
   Scroll: RecordTableScroll,
   CursorProvider: RecordTableCursorProvider,
   CursorBackwardSkeleton: RecordTableBackwardSkeleton,

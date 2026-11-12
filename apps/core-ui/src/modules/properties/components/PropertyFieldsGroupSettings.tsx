@@ -19,6 +19,7 @@ import { Spinner } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { messageOf } from '~/lib/api';
 import { reorderItems } from '../reorder';
 import { selectedFieldIdsState } from '../states';
 import { groupFields, useAllFields, useFieldGroups } from '../useFields';
@@ -33,16 +34,17 @@ import { PropertyGroupLayoutSheet } from './PropertyGroupLayoutSheet';
 /** A record type's properties: its groups (drag to reorder) with their fields, then Archived. */
 export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: ContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { groups, loading: groupsLoading } = useFieldGroups(contentType);
-  const { fields, loading: fieldsLoading } = useAllFields(contentType);
+  const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
+  const { fields, loading: fieldsLoading, error: fieldsError } = useAllFields(contentType);
+  const error = groupsError ?? fieldsError;
   const reorder = useReorder('groups', contentType);
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
   const sections = useMemo(() => groupFields(groups, fields), [groups, fields]);
   const ungrouped = sections.find((section) => !section.group)?.fields ?? [];
   const loading = groupsLoading || fieldsLoading;
 
-  // Selections belong to the record type on screen.
-  useEffect(() => () => setSelectedFieldIds({}), [contentType, setSelectedFieldIds]);
+  // Selections belong to the record type on screen (the page is keyed by it).
+  useEffect(() => () => setSelectedFieldIds({}), [setSelectedFieldIds]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
@@ -73,7 +75,9 @@ export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: Cont
       />
       <PropertyArchiveDialog />
       <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
-        {loading ? (
+        {error ? (
+          <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
+        ) : loading ? (
           <Spinner containerClassName="py-12" />
         ) : groups.length === 0 && ungrouped.length === 0 ? (
           <div className="py-12 text-center text-muted-foreground">

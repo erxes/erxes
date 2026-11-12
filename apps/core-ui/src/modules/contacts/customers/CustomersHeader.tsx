@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { ContactsBreadcrumb } from '../components/ContactsBreadcrumb';
 import { ContactsPageHeader } from '../components/ContactsPageHeader';
-import { ExportButton, ImportButton } from '~/modules/transfer/TransferButtons';
+import { ExportButton } from '~/modules/transfer/ExportButton';
+import { ImportButton } from '~/modules/transfer/ImportButton';
 import { useCustomersFilters } from './useCustomers';
 
 /** Export with the list's quick filters (the advanced filter and search come from the address). */
@@ -21,11 +22,11 @@ const CustomersExportButton = ({ state }: { state: CustomerState }) => {
   );
 };
 
-/** `C` runs `action` unless typing somewhere or a dialog is open (old page hotkey). */
+/** `C` runs `action` unless typing somewhere or a dialog is open. */
 export const useCreateHotkey = (action: () => void) => {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
+      const target = event.target instanceof Element ? event.target : null;
 
       if (
         event.key.toLowerCase() === 'c' &&
@@ -53,7 +54,7 @@ export const useCreateHotkey = (action: () => void) => {
  * Opens a new customer (or lead) in the side panel as a draft; it is created
  * on Save.
  */
-export const CustomerCreateButton = ({ state }: { state: CustomerState }) => {
+const CustomerCreateButton = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation('contact');
   const { openNewRecord } = useSidePanel();
   const isLead = state === 'lead';

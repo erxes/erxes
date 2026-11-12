@@ -13,11 +13,12 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelectedRows } from '~/components/useSelectedRows';
 import { messageOf } from '~/lib/api';
 import { useCan, useSession } from '~/modules/auth/session';
 import { permissionsFor, useTeamMembersDeactivate } from '../useTeamMembers';
 
-/** Old `TeamMemberDeactivate`: skips yourself, the already deactivated, and owners you cannot manage. */
+/** Deactivates the selected members; skips yourself, the already deactivated, and owners you cannot manage. */
 const TeamMemberDeactivate = ({
   teamMembers,
   onCompleted,
@@ -26,7 +27,7 @@ const TeamMemberDeactivate = ({
   onCompleted: () => void;
 }) => {
   const { confirm } = useConfirm();
-  const { mutateAsync, isPending } = useTeamMembersDeactivate();
+  const { mutate, isPending } = useTeamMembersDeactivate();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
   const { user: me } = useSession();
@@ -44,23 +45,23 @@ const TeamMemberDeactivate = ({
     <Command.Item
       disabled={isPending || teamMemberIds.length === 0}
       onSelect={() =>
-        confirm({
+        void confirm({
           message: t('confirm-deactivate-team-members', { count: teamMemberIds.length }),
-        }).then(async () => {
-          try {
-            const count = await mutateAsync(teamMemberIds);
-
-            table.setRowSelection({});
-            onCompleted();
-            toast({
-              title: t('success'),
-              variant: 'success',
-              description: t('team-members-deactivated', { count }),
-            });
-          } catch (error) {
-            toast({ title: t('error'), description: messageOf(error), variant: 'destructive' });
-          }
-        })
+        }).then(() =>
+          mutate(teamMemberIds, {
+            onSuccess: (count) => {
+              table.setRowSelection({});
+              onCompleted();
+              toast({
+                title: t('success'),
+                variant: 'success',
+                description: t('team-members-deactivated', { count }),
+              });
+            },
+            onError: (error) =>
+              toast({ title: t('error'), description: messageOf(error), variant: 'destructive' }),
+          }),
+        )
       }
     >
       {isPending ? <Spinner size="sm" /> : <IconToggleLeft />}
@@ -69,20 +70,16 @@ const TeamMemberDeactivate = ({
   );
 };
 
-export const TeamMemberCommandBar = () => {
+export const TeamMemberCommandBar = ({ rows }: { rows: User[] }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [open, setOpen] = useState(false);
-  const { table } = RecordTable.useRecordTable();
-  const { user: me } = useSession();
   const can = useCan();
-
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const teamMembers = selectedRows.map((row) => row.original as User);
+  const teamMembers = useSelectedRows(rows);
 
   return (
-    <CommandBar open={selectedRows.length > 0}>
+    <CommandBar open={teamMembers.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('selected', { selectedCount: selectedRows.length })}</CommandBar.Value>
+        <CommandBar.Value>{t('selected', { selectedCount: teamMembers.length })}</CommandBar.Value>
         {can('team.manage') && <Separator.Inline />}
         {can('team.manage') && (
           <Popover open={open} onOpenChange={setOpen}>

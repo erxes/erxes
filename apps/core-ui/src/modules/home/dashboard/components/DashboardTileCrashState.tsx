@@ -4,7 +4,7 @@ import { Component, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // One broken widget shows this in its own tile; the rest keep working.
-export const DashboardTileCrashState = ({ onRetry }: { onRetry: () => void }) => {
+const DashboardTileCrashState = ({ onRetry }: { onRetry: () => void }) => {
   const { t } = useTranslation('common', { keyPrefix: 'home.dashboard' });
 
   return (
@@ -19,18 +19,18 @@ export const DashboardTileCrashState = ({ onRetry }: { onRetry: () => void }) =>
   );
 };
 
-/** What `react-error-boundary` did in old core-ui, for one tile. */
+/** Catches one tile's render error and shows its crash state. */
 export class DashboardTileErrorBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }
 > {
-  state = { failed: false };
+  override state = { failed: false };
 
   static getDerivedStateFromError() {
     return { failed: true };
   }
 
-  render() {
+  override render() {
     return this.state.failed ? (
       <DashboardTileCrashState onRetry={() => this.setState({ failed: false })} />
     ) : (

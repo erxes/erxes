@@ -17,7 +17,7 @@ import {
   updatePluginSettings,
 } from '~/modules/payments/pluginSettings.service';
 import { listRefunds, refundInvoice } from '~/modules/payments/refunds.service';
-import { authed, anyone } from '~/orpc';
+import { anyone, anyoneUnscoped, authed, authedUnscoped } from '~/orpc';
 
 export const paymentsRouter = {
   gateways: authed.payments.gateways.handler(({ context }) => listGateways(db(), context.actor)),
@@ -30,14 +30,14 @@ export const paymentsRouter = {
   removeGateway: authed.payments.removeGateway.handler(({ input, context }) =>
     removeGateway(db(), context.actor, input.id),
   ),
-  createInvoice: anyone.payments.createInvoice.handler(({ input, context }) =>
-    createInvoice(db(), context.caller, input),
+  createInvoice: anyoneUnscoped.payments.createInvoice.handler(({ input, context }) =>
+    createInvoice(context.caller, input),
   ),
-  getInvoice: anyone.payments.getInvoice.handler(({ input, context }) =>
-    getInvoice(db(), context.caller, input.id),
+  getInvoice: anyoneUnscoped.payments.getInvoice.handler(({ input, context }) =>
+    getInvoice(context.caller, input.id),
   ),
-  cancelInvoice: anyone.payments.cancelInvoice.handler(({ input, context }) =>
-    cancelInvoice(db(), context.caller, input.id),
+  cancelInvoice: anyoneUnscoped.payments.cancelInvoice.handler(({ input, context }) =>
+    cancelInvoice(context.caller, input.id),
   ),
   invoices: authed.payments.invoices.handler(({ input, context }) =>
     listInvoices(db(), context.actor, input),
@@ -54,7 +54,7 @@ export const paymentsRouter = {
   updatePluginSettings: authed.payments.updatePluginSettings.handler(({ input, context }) =>
     updatePluginSettings(db(), context.actor, input),
   ),
-  payTestInvoice: authed.payments.payTestInvoice.handler(({ input, context }) =>
-    payTestInvoice(db(), context.actor, input.id),
+  payTestInvoice: authedUnscoped.payments.payTestInvoice.handler(({ input, context }) =>
+    payTestInvoice(context.actor, input.id),
   ),
 };

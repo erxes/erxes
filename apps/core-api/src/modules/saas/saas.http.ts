@@ -115,7 +115,7 @@ export const saasLogin = async (req: Request, res: Response) => {
 
   res.cookie(
     SESSION_COOKIE,
-    signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version),
+    await signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version),
     sessionCookieOptions(req),
   );
   res.redirect(302, '/');

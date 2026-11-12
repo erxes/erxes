@@ -3,12 +3,12 @@ import type { ReactNode } from 'react';
 
 /**
  * Pulls a page's first breadcrumb out by its button's padding, so its icon
- * lines up with the page's content (old ui-modules `pageHeaderClassNames`).
+ * lines up with the page's content.
  */
 const PAGE_HEADER_FIRST_CRUMB_CLASS_NAME =
   '[&>nav:first-of-type>ol>li:first-child_a]:-ml-2 [&>nav:first-of-type>ol>li:first-child_a]:pl-2 [&>nav:first-of-type>ol>li:first-child_button]:-ml-2 [&>nav:first-of-type>ol>li:first-child_button]:pl-2';
 
-/** A settings page's top row: breadcrumbs, then the page's own actions (old ui-modules `SettingsHeader`). */
+/** A settings page's top row: breadcrumbs, then the page's own actions. */
 export const SettingsHeader = ({
   children,
   breadcrumbs,

@@ -1,5 +1,6 @@
 import type { LeadRecordType, LeadStage } from '@erxes/core-contract';
 import {
+  type Icon,
   IconActivity,
   IconCheck,
   IconHourglass,
@@ -15,7 +16,8 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { DisqualifyDialog } from './LeadActions';
+import { useMinuteClock } from '~/lib/useMinuteClock';
+import { DisqualifyDialog } from './DisqualifyDialog';
 import { LeadStageBadge, LeadStagePill } from './LeadStageBadge';
 import { daysSince, type LeadRecord, useLeadStages, useMoveLeads } from './useLeads';
 import { useLeadsT } from './i18n';
@@ -78,13 +80,28 @@ const Muted = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+/** A column head labelled from the leads strings. */
+const LeadsHead = ({ label, icon }: { label: string; icon: Icon }) => {
+  const t = useLeadsT();
+
+  return <RecordTable.InlineHead label={t(label)} icon={icon} />;
+};
+
+/** Days since the record entered its stage. */
+const InStageCell = ({ changedAt }: { changedAt: string | null }) => {
+  const t = useLeadsT();
+  const days = daysSince(changedAt, useMinuteClock());
+
+  return (
+    <Muted>{days === null ? '' : days === 0 ? t('today') : t('days-count', { count: days })}</Muted>
+  );
+};
+
 /** The stage as a status pill, right after the name; click to move the lead. */
 const stageColumn = <T extends LeadRecord>(recordType: LeadRecordType): ColumnDef<T> => ({
   id: 'leadStage',
   accessorKey: 'leadStageId',
-  header: function StageHead() {
-    return <RecordTable.InlineHead label={useLeadsT()('stage')} icon={IconProgress} />;
-  },
+  header: () => <LeadsHead label="stage" icon={IconProgress} />,
   cell: ({ row }) => <LeadStageCell recordType={recordType} record={row.original} />,
   size: 150,
 });
@@ -94,33 +111,18 @@ const inStageColumns = <T extends LeadRecord>(): ColumnDef<T>[] => [
   {
     id: 'inStage',
     accessorKey: 'leadStageChangedAt',
-    header: function InStageHead() {
-      return <RecordTable.InlineHead label={useLeadsT()('in-stage')} icon={IconHourglass} />;
-    },
-    cell: function InStageCell({ row }) {
-      const t = useLeadsT();
-      const days = daysSince(row.original.leadStageChangedAt);
-
-      return (
-        <Muted>
-          {days === null ? '' : days === 0 ? t('today') : t('days-count', { count: days })}
-        </Muted>
-      );
-    },
+    header: () => <LeadsHead label="in-stage" icon={IconHourglass} />,
+    cell: ({ row }) => <InStageCell changedAt={row.original.leadStageChangedAt} />,
     size: 100,
   },
 ];
 
 /** Every person and company: where they came from, and their newest timeline entry. */
-export const originColumns = <
-  T extends LeadRecord & { lastActivityAt: string },
->(): ColumnDef<T>[] => [
+const originColumns = <T extends LeadRecord & { lastActivityAt: string }>(): ColumnDef<T>[] => [
   {
     id: 'source',
     accessorKey: 'source',
-    header: function SourceHead() {
-      return <RecordTable.InlineHead label={useLeadsT()('source')} icon={IconWorld} />;
-    },
+    header: () => <LeadsHead label="source" icon={IconWorld} />,
     cell: ({ row }) => (
       <Muted>
         <span className="capitalize">{row.original.source ?? ''}</span>
@@ -134,9 +136,7 @@ export const originColumns = <
   {
     id: 'lastActivityAt',
     accessorKey: 'lastActivityAt',
-    header: function LastActivityHead() {
-      return <RecordTable.InlineHead label={useLeadsT()('last-activity')} icon={IconActivity} />;
-    },
+    header: () => <LeadsHead label="last-activity" icon={IconActivity} />,
     cell: ({ row }) => (
       <RelativeDateDisplay value={row.original.lastActivityAt} asChild>
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">

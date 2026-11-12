@@ -41,7 +41,7 @@ const PropertiesTypeRoutes = () => {
 };
 
 /**
- * Contacts › Settings › Properties (old core-ui `PropertiesSettingsRoutes`): `/contacts/settings/properties/:type`
+ * Contacts › Settings › Properties: `/contacts/settings/properties/:type`
  * lists a record type's groups and fields; `:type/add`, `:type/:groupId/add` and
  * `:type/:groupId/:id` are the add and edit pages.
  */

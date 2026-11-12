@@ -18,7 +18,7 @@ import { FIELD_TYPES_OBJECT } from '../fieldTypes';
 import { archiveTargetState, selectedFieldIdsState } from '../states';
 import { useCanManageFields, useEditProperty } from '../usePropertyMutations';
 
-/** The edit page of a field (old `/:type/:groupId/:id`). */
+/** The edit page of a field. */
 export const propertyEditPath = (field: Field) =>
   `${PROPERTIES_BASE_PATH}/${field.contentType}/${field.groupId ?? 'ungrouped'}/${field.id}`;
 
@@ -26,8 +26,9 @@ const PropertiesCheckboxCell = ({ id }: { id: string }) => {
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(selectedFieldIdsState);
 
   return (
-    <div className="flex items-center justify-center" onClick={(event) => event.stopPropagation()}>
+    <div className="flex items-center justify-center">
       <Checkbox
+        onClick={(event) => event.stopPropagation()}
         checked={!!selectedFieldIds[id]}
         onCheckedChange={(value) =>
           setSelectedFieldIds((prev) => {
@@ -95,25 +96,23 @@ const PropertiesMoreColumnCell = ({ cell }: { cell: Cell<Field, unknown> }) => {
   };
 
   return (
-    <div onClick={(event) => event.stopPropagation()}>
-      <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <RecordTable.MoreButton />
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content className="min-w-48">
-          <DropdownMenu.Item asChild>
-            <Link to={propertyEditPath(field)}>
-              <IconEdit />
-              {t('edit', 'Edit')}
-            </Link>
-          </DropdownMenu.Item>
-          <DropdownMenu.Item onClick={handleRemove}>
-            <IconTrash />
-            {t('remove', 'Remove')}
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu>
-    </div>
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <RecordTable.MoreButton onClick={(event) => event.stopPropagation()} />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content className="min-w-48" onClick={(event) => event.stopPropagation()}>
+        <DropdownMenu.Item asChild>
+          <Link to={propertyEditPath(field)}>
+            <IconEdit />
+            {t('edit', 'Edit')}
+          </Link>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onClick={handleRemove}>
+          <IconTrash />
+          {t('remove', 'Remove')}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
   );
 };
 
@@ -124,11 +123,9 @@ const PropertyVisibleCell = ({ cell, label }: { cell: Cell<Field, unknown>; labe
 
   return (
     <RecordTableInlineCell>
-      <div
-        className="flex items-center justify-center w-full"
-        onClick={(event) => event.stopPropagation()}
-      >
+      <div className="flex items-center justify-center w-full">
         <Switch
+          onClick={(event) => event.stopPropagation()}
           size="sm"
           aria-label={label}
           disabled={!manager}
@@ -157,7 +154,7 @@ export const propertiesColumns = (
     header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       const { label, icon, type } = cell.row.original;
-      const TypeIcon = FIELD_TYPES_OBJECT[type]?.icon;
+      const TypeIcon = FIELD_TYPES_OBJECT[type].icon;
 
       return (
         <RecordTableInlineCell>
@@ -165,7 +162,7 @@ export const propertiesColumns = (
             {icon ? (
               <IconComponent className="h-4 w-4 shrink-0 text-muted-foreground" name={icon} />
             ) : (
-              TypeIcon && <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
             )}
             <span className="truncate">{label}</span>
           </div>
@@ -180,14 +177,14 @@ export const propertiesColumns = (
     header: () => <RecordTable.InlineHead label={t('data-type', 'Data type')} />,
     cell: ({ cell }) => {
       const fieldType = FIELD_TYPES_OBJECT[cell.row.original.type];
-      const Icon = fieldType?.icon;
+      const Icon = fieldType.icon;
 
       return (
         <RecordTableInlineCell>
           <div className="flex items-center gap-2 text-muted-foreground overflow-hidden">
-            {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+            <Icon className="h-4 w-4 text-muted-foreground" />
             <span className="truncate">
-              {fieldType && t(`field-type.${fieldType.i18nKey}`, fieldType.label)}
+              {t(`field-type.${fieldType.i18nKey}`, fieldType.label)}
             </span>
           </div>
         </RecordTableInlineCell>

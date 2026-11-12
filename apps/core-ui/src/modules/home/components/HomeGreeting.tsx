@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useMinuteClock } from '~/lib/useMinuteClock';
 import { useSession } from '~/modules/auth/session';
 
 const getGreetingKey = (hour: number) => {
@@ -12,8 +13,8 @@ const getGreetingKey = (hour: number) => {
 export const HomeGreeting = () => {
   const { user } = useSession();
   const { t, i18n } = useTranslation('common', { keyPrefix: 'home' });
-  const now = new Date();
-  // Old erxes greeted by first name; the new user has only a full name
+  const now = new Date(useMinuteClock());
+  // Greets by first name, the first word of the full name.
   const name = user.fullName?.trim().split(/\s+/)[0] || user.username || user.email;
 
   return (

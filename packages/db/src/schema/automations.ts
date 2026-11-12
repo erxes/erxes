@@ -133,6 +133,12 @@ export const automationRuns = pgTable(
     index('core_automation_runs_waiting_idx')
       .on(table.orgId, table.subjectId)
       .where(sql`${table.status} = 'waiting'`),
+    // Finished runs whose details are still kept: pruning empties `context`, which drops them out.
+    index('core_automation_runs_prunable_idx')
+      .on(table.finishedAt)
+      .where(
+        sql`${table.status} IN ('succeeded', 'failed', 'cancelled') AND ${table.context} <> '{}'::jsonb`,
+      ),
     uniqueIndex('core_automation_runs_org_id_id_key').on(table.orgId, table.id),
     check(
       'core_automation_runs_status_check',

@@ -1,65 +1,19 @@
+import { TZDate } from '@date-fns/tz';
 import type { AutomationTrigger } from '@erxes/core-contract';
 
-/** A wall-clock time in a time zone → that instant (handles offsets and DST by correcting twice). */
-export const zonedToUtc = (
-  year: number,
-  month: number,
-  day: number,
-  hour: number,
-  minute: number,
-  timeZone: string,
-) => {
-  const guess = Date.UTC(year, month - 1, day, hour, minute);
-
-  const offset = (instant: number) => {
-    const parts = Object.fromEntries(
-      new Intl.DateTimeFormat('en-US', {
-        timeZone,
-        hourCycle: 'h23',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-        .formatToParts(new Date(instant))
-        .map((part) => [part.type, part.value]),
-    );
-
-    return (
-      Date.UTC(
-        Number(parts.year),
-        Number(parts.month) - 1,
-        Number(parts.day),
-        Number(parts.hour),
-        Number(parts.minute),
-      ) - instant
-    );
-  };
-
-  const first = guess - offset(guess);
-
-  return new Date(guess - offset(first));
-};
+/** The ISO weekday of a JavaScript day (0 = Sunday): 1 = Monday … 7 = Sunday. */
+const isoWeekday = (day: number) => ((day + 6) % 7) + 1;
 
 /** The calendar date (and weekday, 1 = Monday) of an instant in a time zone. */
 export const zonedDate = (instant: Date, timeZone: string) => {
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      weekday: 'short',
-    })
-      .formatToParts(instant)
-      .map((part) => [part.type, part.value]),
-  );
+  const local = new TZDate(instant, timeZone);
 
-  const weekday =
-    ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(parts.weekday ?? '') + 1;
-
-  return { year: Number(parts.year), month: Number(parts.month), day: Number(parts.day), weekday };
+  return {
+    year: local.getFullYear(),
+    month: local.getMonth() + 1,
+    day: local.getDate(),
+    weekday: isoWeekday(local.getDay()),
+  };
 };
 
 type Timed = Extract<AutomationTrigger, { kind: 'schedule' | 'date' }>;
@@ -93,7 +47,7 @@ export const nextOccurrence = (trigger: Timed, after: Date): Date => {
       year: day.getUTCFullYear(),
       month: day.getUTCMonth() + 1,
       day: day.getUTCDate(),
-      weekday: ((day.getUTCDay() + 6) % 7) + 1,
+      weekday: isoWeekday(day.getUTCDay()),
     };
 
     if (trigger.kind === 'schedule') {
@@ -113,9 +67,9 @@ export const nextOccurrence = (trigger: Timed, after: Date): Date => {
       }
     }
 
-    const instant = zonedToUtc(date.year, date.month, date.day, hour, minute, zone);
+    const instant = new TZDate(date.year, date.month - 1, date.day, hour, minute, zone).getTime();
 
-    if (instant.getTime() > after.getTime()) return instant;
+    if (instant > after.getTime()) return new Date(instant);
   }
 
   throw new Error('no next occurrence within a year');

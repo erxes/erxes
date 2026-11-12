@@ -5,50 +5,40 @@ import {
   IconCalendar,
   IconGenderBigender,
   IconHash,
-  IconMail,
-  IconPhone,
-  IconUser,
 } from '@tabler/icons-react';
 import {
-  cn,
   DatePicker,
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
-  ScrollArea,
-  Select,
-  SexCode,
-  SexCodes,
   SexDisplay,
   SexField,
   Spinner,
-  TextField,
 } from 'erxes-ui';
-import { type ReactNode, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toYmd } from '~/components/inlineCells';
-import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
-import { SelectMember } from '~/modules/contacts/components/SelectMember';
+import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
-import { PANEL_TEXT_FIELD_CLASS_NAME, PanelField, PanelFieldTrigger } from '../PanelField';
+import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
+import { LeadStageField } from '~/modules/leads/LeadStageField';
+import { PanelField, PanelFieldTrigger } from '../PanelField';
 import { usePanelExpanded } from '../RecordSidePanel';
+import {
+  ContactChannelsSection,
+  ContactDetailScroll,
+  ContactOwnerField,
+  ContactTextField,
+} from './ContactDetailFields';
 import { ContactDetailSection } from './ContactDetailSection';
 import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
-import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
-import { LeadStageField } from '~/modules/leads/LeadStageField';
 
 const SCOPE = 'side-panel-customer';
 
 /** `YYYY-MM-DD` → a local date, `YYYY/MM/DD` for display. */
-const parseYmd = (value: string | null) => {
-  if (!value) return undefined;
-
-  const [year, month, day] = value.split('-').map(Number);
-
-  return new Date(year, month - 1, day);
-};
+const parseYmd = (value: string | null) => (value ? new Date(`${value}T00:00:00`) : undefined);
 
 const formatSlashDate = (date: Date) => toYmd(date).replaceAll('-', '/');
 
@@ -60,32 +50,28 @@ const TEXT_FIELD_ICONS: Record<TTextCode, typeof IconHash> = {
   department: IconBuildingSkyscraper,
 };
 
-/** Saves one text field of the customer without touching the others. */
-const CustomerTextField = ({
+/** One text field of the customer, with its label, saved without touching the others. */
+const CustomerTextRow = ({
   customer,
   code,
-  placeholder,
+  label,
 }: {
   customer: Customer;
   code: TTextCode;
-  placeholder: string;
+  label: string;
 }) => {
   const edit = useCustomerEdit();
-  const value = customer[code] || '';
-  const Icon = TEXT_FIELD_ICONS[code];
 
   return (
-    <TextField
-      scope={`${SCOPE}.${code}`}
-      value={value}
-      placeholder={placeholder}
-      className={cn(PANEL_TEXT_FIELD_CLASS_NAME, !value && 'text-muted-foreground')}
-      onSave={(next) => {
-        if (next.trim() !== value) edit.mutate({ id: customer.id, [code]: next.trim() || null });
-      }}
-    >
-      {!value && <Icon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />}
-    </TextField>
+    <PanelField icon={TEXT_FIELD_ICONS[code]} label={label}>
+      <ContactTextField
+        scope={`${SCOPE}.${code}`}
+        value={customer[code] || ''}
+        placeholder={label}
+        icon={TEXT_FIELD_ICONS[code]}
+        onSave={(next) => edit.mutate({ id: customer.id, [code]: next })}
+      />
+    </PanelField>
   );
 };
 
@@ -93,7 +79,7 @@ const CustomerTextField = ({
 const CustomerSexField = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
   const [open, setOpen] = useState(false);
-  const value = (customer.sex ?? SexCode.NOT_KNOWN) as SexCode;
+  const value = sexCodeOf(customer);
 
   return (
     <PopoverScoped scope={`${SCOPE}.sex`} open={open} onOpenChange={setOpen}>
@@ -104,7 +90,7 @@ const CustomerSexField = ({ customer }: { customer: Customer }) => {
         <SexField
           value={value}
           onValueChange={(sex) => {
-            if (sex !== value) edit.mutate({ id: customer.id, sex: sex });
+            if (sex !== value) edit.mutate({ id: customer.id, sex });
             setOpen(false);
           }}
         />
@@ -117,10 +103,14 @@ const CustomerSexField = ({ customer }: { customer: Customer }) => {
 const CustomerBirthDateField = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
   const [open, setOpen] = useState(false);
-  const saved = parseYmd(customer.birthDate);
-  const [date, setDate] = useState(saved);
+  const [date, setDate] = useState(() => parseYmd(customer.birthDate));
+  const [savedDate, setSavedDate] = useState(customer.birthDate);
 
-  useEffect(() => setDate(parseYmd(customer.birthDate)), [customer.birthDate]);
+  // A date saved elsewhere replaces the one being picked.
+  if (savedDate !== customer.birthDate) {
+    setSavedDate(customer.birthDate);
+    setDate(parseYmd(customer.birthDate));
+  }
 
   return (
     <Popover
@@ -154,15 +144,40 @@ const CustomerBirthDateField = ({ customer }: { customer: Customer }) => {
   );
 };
 
+/** Sex, birth date, position and department. */
+const CustomerPersonalSections = ({ customer }: { customer: Customer }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
+  const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
+
+  return (
+    <>
+      <ContactDetailSection title={sectionT('personal', 'Personal')} nested>
+        <PanelField
+          icon={IconGenderBigender}
+          label={t('sex', 'Sex')}
+          placeholder={customer.sex ? undefined : t('sex', 'Sex')}
+        >
+          <CustomerSexField customer={customer} />
+        </PanelField>
+        <PanelField icon={IconCalendar} label={addT('birth-date', 'Birth date')}>
+          <CustomerBirthDateField customer={customer} />
+        </PanelField>
+      </ContactDetailSection>
+      <ContactDetailSection title={sectionT('work', 'Work')} nested>
+        <CustomerTextRow customer={customer} code="position" label={t('position', 'Position')} />
+        <CustomerTextRow
+          customer={customer}
+          code="department"
+          label={t('department', 'Department')}
+        />
+      </ContactDetailSection>
+    </>
+  );
+};
+
 // The customer's fields as record table cells: click a value to edit it.
-export const CustomerPanelDetail = ({
-  customerId,
-  children,
-}: {
-  customerId: string;
-  /** Sections drawn under the customer's own fields. */
-  children?: ReactNode;
-}) => {
+export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   const expanded = usePanelExpanded();
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -170,136 +185,46 @@ export const CustomerPanelDetail = ({
   const { data: customer, isPending } = useCustomer(customerId);
   const edit = useCustomerEdit();
 
-  if (isPending) {
-    return <Spinner containerClassName="py-12" />;
-  }
+  if (isPending) return <Spinner containerClassName="py-12" />;
 
-  if (!customer) {
-    return null;
-  }
+  if (!customer) return null;
 
-  // Radix sizes its content as a table, which lets wide values push past the
-  // panel; a block lets each value shrink and truncate instead.
   return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
-      <div>
-        <div className="border-b px-3 pb-2">
-          <ContactDetailSection title={sectionT('general', 'General')} nested>
-            <PanelField
-              icon={IconUser}
-              label={t('owner', 'Owner')}
-              placeholder={!customer.ownerId ? t('owner', 'Owner') : undefined}
-            >
-              <SelectMember.InlineCell
-                value={customer.ownerId}
-                scope={`${SCOPE}.owner`}
-                placeholder={customer.ownerId ? t('owner', 'Owner') : ''}
-                className="rounded-sm"
-                onValueChange={(ownerId) =>
-                  edit.mutate({
-                    id: customer.id,
-                    ownerId: typeof ownerId === 'string' ? ownerId : null,
-                  })
-                }
-              />
-            </PanelField>
-            <PanelField icon={IconHash} label={addT('code', 'Code')}>
-              <CustomerTextField
-                customer={customer}
-                code="code"
-                placeholder={addT('code', 'Code')}
-              />
-            </PanelField>
-            <LeadStageField recordType="customer" record={customer} />
-          </ContactDetailSection>
-          <LeadPanelSection recordType="customer" record={customer} />
-          <ContactDetailSection title={sectionT('contact', 'Contact')} nested>
-            <PanelField
-              icon={IconMail}
-              label={t('emails', 'Emails')}
-              placeholder={
-                !customer.primaryEmail && !customer.emails.some(Boolean)
-                  ? t('emails', 'Emails')
-                  : undefined
-              }
-            >
-              <ContactEmails
-                maxVisible={1}
-                id={customer.id}
-                primaryEmail={customer.primaryEmail}
-                emails={customer.emails}
-                scope={`${SCOPE}.emails`}
-                Trigger={PanelFieldTrigger}
-                onSave={(value) => edit.mutate({ id: customer.id, ...value })}
-              />
-            </PanelField>
-            <PanelField
-              icon={IconPhone}
-              label={t('phones', 'Phones')}
-              placeholder={
-                !customer.primaryPhone && !customer.phones.some(Boolean)
-                  ? t('phones', 'Phones')
-                  : undefined
-              }
-            >
-              <ContactPhones
-                maxVisible={1}
-                id={customer.id}
-                primaryPhone={customer.primaryPhone}
-                phones={customer.phones}
-                scope={`${SCOPE}.phones`}
-                Trigger={PanelFieldTrigger}
-                onSave={(value) => edit.mutate({ id: customer.id, ...value })}
-              />
-            </PanelField>
-          </ContactDetailSection>
-          <ContactDetailSection title={sectionT('personal', 'Personal')} nested>
-            <PanelField
-              icon={IconGenderBigender}
-              label={t('sex', 'Sex')}
-              placeholder={
-                !customer.sex || !SexCodes[customer.sex as SexCode] ? t('sex', 'Sex') : undefined
-              }
-            >
-              <CustomerSexField customer={customer} />
-            </PanelField>
-            <PanelField icon={IconCalendar} label={addT('birth-date', 'Birth date')}>
-              <CustomerBirthDateField customer={customer} />
-            </PanelField>
-          </ContactDetailSection>
-          {/* Not in old erxes's panel; core keeps a customer's job here. */}
-          <ContactDetailSection title={sectionT('work', 'Work')} nested>
-            <PanelField icon={IconBriefcase} label={t('position', 'Position')}>
-              <CustomerTextField
-                customer={customer}
-                code="position"
-                placeholder={t('position', 'Position')}
-              />
-            </PanelField>
-            <PanelField icon={IconBuildingSkyscraper} label={t('department', 'Department')}>
-              <CustomerTextField
-                customer={customer}
-                code="department"
-                placeholder={t('department', 'Department')}
-              />
-            </PanelField>
-          </ContactDetailSection>
-          {!expanded && (
-            <ContactDescriptionField
-              contentType="core:customer"
-              contentId={customer.id}
-              value={customer.description || ''}
-            />
-          )}
-        </div>
-        <ContactPanelTags
-          contentType="core:customer"
-          contentId={customer.id}
-          tagIds={customer.tagIds}
+    <ContactDetailScroll>
+      <div className="border-b px-3 pb-2">
+        <ContactDetailSection title={sectionT('general', 'General')} nested>
+          <ContactOwnerField
+            label={t('owner', 'Owner')}
+            scope={`${SCOPE}.owner`}
+            ownerId={customer.ownerId}
+            onChange={(ownerId) => edit.mutate({ id: customer.id, ownerId })}
+          />
+          <CustomerTextRow customer={customer} code="code" label={addT('code', 'Code')} />
+          <LeadStageField recordType="customer" record={customer} />
+        </ContactDetailSection>
+        <LeadPanelSection recordType="customer" record={customer} />
+        <ContactChannelsSection
+          title={sectionT('contact', 'Contact')}
+          labels={{ emails: t('emails', 'Emails'), phones: t('phones', 'Phones') }}
+          scope={SCOPE}
+          contact={customer}
+          onSave={(value) => edit.mutate({ id: customer.id, ...value })}
         />
-        <ContactPanelRelationField contentType="core:customer" contentId={customer.id} />
+        <CustomerPersonalSections customer={customer} />
+        {!expanded && (
+          <ContactDescriptionField
+            contentType="core:customer"
+            contentId={customer.id}
+            value={customer.description || ''}
+          />
+        )}
       </div>
-      {children}
-    </ScrollArea>
+      <ContactPanelTags
+        contentType="core:customer"
+        contentId={customer.id}
+        tagIds={customer.tagIds}
+      />
+      <ContactPanelRelationField contentType="core:customer" contentId={customer.id} />
+    </ContactDetailScroll>
   );
 };

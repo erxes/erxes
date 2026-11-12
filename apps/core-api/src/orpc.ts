@@ -58,15 +58,27 @@ export const authed = orgScoped.use(asMember);
  */
 export const authedUnscoped = pub.use(asMember);
 
+const asPlugin = os
+  .$context<CoreContext>()
+  .middleware(({ context, next }) => next({ context: { plugin: pluginOf(context.req) } }));
+
 /** Procedures for plugins only (a plugin token for an organisation). */
-export const plugin = orgScoped.use(({ context, next }) =>
-  next({ context: { plugin: pluginOf(context.req) } }),
-);
+export const plugin = orgScoped.use(asPlugin);
+
+/** A plugin's procedure that may call out over the network: see `authedUnscoped`. */
+export const pluginUnscoped = pub.use(asPlugin);
+
+const asCaller = os
+  .$context<CoreContext>()
+  .middleware(({ context, next }) =>
+    next({ context: { caller: callerOf(context.req), actor: context.req.actor ?? null } }),
+  );
 
 /** Procedures for members and plugins alike; `context.caller` says which. */
-export const anyone = orgScoped.use(({ context, next }) =>
-  next({ context: { caller: callerOf(context.req), actor: context.req.actor ?? null } }),
-);
+export const anyone = orgScoped.use(asCaller);
+
+/** A member's or plugin's procedure that calls out over the network: see `authedUnscoped`. */
+export const anyoneUnscoped = pub.use(asCaller);
 
 /**
  * Runs a settings change and its audit entry in one transaction: both are

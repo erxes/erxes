@@ -10,8 +10,7 @@ import {
 import { type ComponentType, type ReactNode, useState } from 'react';
 
 /*
- * Old ui-modules CustomerName / CustomerEmails / CustomerPhones (and the
- * company ones), with the save handed in: the same cells serve customers and
+ * Name, emails and phones cells, with the save handed in: the same cells serve customers and
  * companies, in the list and in the side panel.
  */
 

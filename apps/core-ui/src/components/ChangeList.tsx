@@ -2,6 +2,7 @@ import type { ContentType, Field, Tag, User } from '@erxes/core-contract';
 import { cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { memberName, useMembersById } from '~/lib/members';
+import { textOf } from '~/lib/text';
 import { useAllFields } from '~/modules/properties/useFields';
 import { useTags } from '~/modules/tags/useTags';
 
@@ -58,7 +59,7 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   }
 
   if (field === 'tagIds' && Array.isArray(value)) {
-    return listOf(value.map((id) => lookups.tags.get(String(id))?.name ?? 'a deleted tag'));
+    return listOf(value.map((id) => lookups.tags.get(textOf(id))?.name ?? 'a deleted tag'));
   }
 
   if (field === 'description' && typeof value === 'string') {
@@ -80,10 +81,10 @@ const formatValue = (field: string, value: unknown, lookups: Lookups): string =>
   }
 
   if (Array.isArray(value)) {
-    return listOf(value.map(String));
+    return listOf(value.map(textOf));
   }
 
-  return String(value);
+  return textOf(value);
 };
 
 const fieldLabel = (

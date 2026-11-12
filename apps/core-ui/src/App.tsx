@@ -1,67 +1,97 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Button, Spinner, Toaster } from 'erxes-ui';
 import { Provider as JotaiProvider } from 'jotai';
+import { Suspense } from 'react';
+import { I18nextProvider } from 'react-i18next';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { messageOf } from '~/lib/api';
-import { AppRoutes } from '~/modules/app/AppRoutes';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { ThemeEffect } from '~/modules/app/ThemeEffect';
-import { SessionProvider, useSessionQuery, useSetupStatus } from '~/modules/auth/session';
 import {
-  AcceptInvitationPage,
-  ForgotPasswordPage,
-  ResetPasswordPage,
-} from '~/modules/auth/AccountLinkPages';
-import { SetupPage } from '~/modules/auth/SetupPage';
+  isSignedOut,
+  SessionProvider,
+  useSessionQuery,
+  useSetupStatus,
+} from '~/modules/auth/session';
 import { SignInPage } from '~/modules/auth/SignInPage';
-import './i18n';
+import { i18n } from './i18n';
+
+// Sign-in is the first page signed out; the app and the rarer pages load when needed.
+const AppRoutes = lazyNamed(() => import('~/modules/app/AppRoutes'), 'AppRoutes');
+const SetupPage = lazyNamed(() => import('~/modules/auth/SetupPage'), 'SetupPage');
+
+const ForgotPasswordPage = lazyNamed(
+  () => import('~/modules/auth/AccountLinkPages'),
+  'ForgotPasswordPage',
+);
+
+const ResetPasswordPage = lazyNamed(
+  () => import('~/modules/auth/AccountLinkPages'),
+  'ResetPasswordPage',
+);
+
+const AcceptInvitationPage = lazyNamed(
+  () => import('~/modules/auth/AccountLinkPages'),
+  'AcceptInvitationPage',
+);
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
 });
 
-/** Signed in → the app; signed out → sign-in. */
 /** Links from emails work signed in or not: they sign in when done. */
 const LINK_PAGES = new Set(['/reset-password', '/accept-invitation']);
 
+const FullScreenSpinner = () => (
+  <div className="flex h-svh items-center justify-center">
+    <Spinner />
+  </div>
+);
+
+const FullScreenError = ({ error, onRetry }: { error: Error; onRetry: () => void }) => (
+  <div role="alert" className="flex h-svh flex-col items-center justify-center gap-3 text-sm">
+    <p className="text-destructive">{messageOf(error)}</p>
+    <Button variant="outline" onClick={onRetry}>
+      Try again
+    </Button>
+  </div>
+);
+
+/** Signed out: create the first organisation on a new installation, else sign in. */
+const SignedOut = () => {
+  const setup = useSetupStatus(true);
+
+  if (setup.isPending) return <FullScreenSpinner />;
+
+  if (setup.isError) {
+    return <FullScreenError error={setup.error} onRetry={() => void setup.refetch()} />;
+  }
+
+  if (setup.data.required) return <SetupPage />;
+
+  return (
+    <Routes>
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="*" element={<SignInPage />} />
+    </Routes>
+  );
+};
+
+/** Signed in → the app; signed out → sign-in. */
 const Screen = () => {
   const { pathname } = useLocation();
   const session = useSessionQuery();
-  const signedOut = session.isSuccess && !session.data;
-  const setup = useSetupStatus(signedOut);
 
   if (LINK_PAGES.has(pathname)) {
     return pathname === '/reset-password' ? <ResetPasswordPage /> : <AcceptInvitationPage />;
   }
 
-  if (session.isPending || (signedOut && setup.isPending)) {
-    return (
-      <div className="flex h-svh items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
+  if (session.isPending) return <FullScreenSpinner />;
+
+  if (isSignedOut(session.error)) return <SignedOut />;
 
   if (session.isError) {
-    return (
-      <div className="flex h-svh flex-col items-center justify-center gap-3 text-sm">
-        <p className="text-destructive">{messageOf(session.error)}</p>
-        <Button variant="outline" onClick={() => session.refetch()}>
-          Try again
-        </Button>
-      </div>
-    );
-  }
-
-  if (!session.data) {
-    // A new installation has no organisation yet: create it first.
-    if (setup.data?.required) return <SetupPage />;
-
-    return (
-      <Routes>
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="*" element={<SignInPage />} />
-      </Routes>
-    );
+    return <FullScreenError error={session.error} onRetry={() => void session.refetch()} />;
   }
 
   // Signed in on the way to "Sign in with erxes": continue to the app that asked.
@@ -70,11 +100,7 @@ const Screen = () => {
   if (next?.startsWith('/core/v1/oauth/authorize?')) {
     window.location.assign(next);
 
-    return (
-      <div className="flex h-svh items-center justify-center">
-        <Spinner />
-      </div>
-    );
+    return <FullScreenSpinner />;
   }
 
   return (
@@ -86,12 +112,16 @@ const Screen = () => {
 
 export const App = () => (
   <QueryClientProvider client={queryClient}>
-    <JotaiProvider>
-      <BrowserRouter>
-        <Toaster />
-        <ThemeEffect />
-        <Screen />
-      </BrowserRouter>
-    </JotaiProvider>
+    <I18nextProvider i18n={i18n}>
+      <JotaiProvider>
+        <BrowserRouter>
+          <Toaster />
+          <ThemeEffect />
+          <Suspense fallback={<FullScreenSpinner />}>
+            <Screen />
+          </Suspense>
+        </BrowserRouter>
+      </JotaiProvider>
+    </I18nextProvider>
   </QueryClientProvider>
 );

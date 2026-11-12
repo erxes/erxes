@@ -13,7 +13,7 @@ import { CoreTabUserMenu } from './CoreTabUserMenu';
 import { useAppTabs } from './useAppTabs';
 
 /**
- * The only navigation core draws (as old core-ui): brand, app switcher, open
+ * The only navigation core draws: brand, app switcher, open
  * app tabs, settings and the user menu. Each app draws its own sidebar.
  */
 export const CoreTab = () => {

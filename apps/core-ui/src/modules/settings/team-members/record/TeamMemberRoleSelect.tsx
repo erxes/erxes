@@ -7,7 +7,7 @@ import { TEAM_MEMBERS_HOTKEY_SCOPE } from '../constants';
 import { useRoles } from '../../roles/useRoles';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 
-/** Old `TeamMemberRoleSelect`: owners pick any role, admins admin or member. */
+/** Owners pick any role, admins admin or member. */
 export const TeamMemberRoleSelect = ({ user }: { user: User }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [open, setOpen] = useState(false);

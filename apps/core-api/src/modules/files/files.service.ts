@@ -1,7 +1,7 @@
 import type { FileInfo } from '@erxes/core-contract';
 import { randomBytes } from 'node:crypto';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
-import { type Db, files, newId } from '@erxes/core-db';
+import { type Db, files, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import type { Actor, Caller } from '~/http/auth';
@@ -273,46 +273,50 @@ export const removeFile = async (client: Db, caller: Caller, actor: Actor | null
 
 /**
  * Finishes deletions: removes the bytes of `deleting` files, then their rows.
- * A storage failure leaves the tombstone for the next run (all organisations).
+ * Storage is called between two short system scopes, never inside one. A
+ * storage failure leaves the tombstone for the next run (all organisations).
  */
-export const purgeDeletedFiles = async (client: Db, olderThanSeconds = 0) => {
-  const rows = await client
-    .select({ id: files.id, key: files.key })
-    .from(files)
-    .where(
-      and(
-        eq(files.status, 'deleting'),
-        lt(files.updatedAt, sql`now() - make_interval(secs => ${olderThanSeconds})`),
-      ),
-    )
-    .limit(500);
+export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
+  const rows = await withSystem('files: deletions to purge', (tx) =>
+    tx
+      .select({ id: files.id, key: files.key })
+      .from(files)
+      .where(
+        and(
+          eq(files.status, 'deleting'),
+          lt(files.updatedAt, sql`now() - make_interval(secs => ${olderThanSeconds})`),
+        ),
+      )
+      .limit(500),
+  );
 
-  let purged = 0;
+  const removed: string[] = [];
 
   for (const row of rows) {
     try {
       await storage().remove(row.key);
+      removed.push(row.id);
     } catch (error) {
-      log.error(
-        {
-          key: row.key,
-          err: error,
-        },
-        'could not delete stored file; will retry',
-      );
-      continue;
+      log.error({ key: row.key, err: error }, 'could not delete stored file; will retry');
     }
-
-    await client.delete(files).where(and(eq(files.id, row.id), eq(files.status, 'deleting')));
-    purged += 1;
   }
 
-  return purged;
+  if (!removed.length) return 0;
+
+  const deleted = await withSystem('files: purge rows', (tx) =>
+    tx
+      .delete(files)
+      .where(and(inArray(files.id, removed), eq(files.status, 'deleting')))
+      .returning({ id: files.id }),
+  );
+
+  return deleted.length;
 };
 
 /**
  * Unfinished uploads past their time are claimed (`pending` → `deleting`, a
- * conditional update a completion in progress blocks), then purged.
+ * conditional update a completion in progress blocks); `purgeDeletedFiles`
+ * removes them after.
  */
 export const pruneUploads = async (client: Db, hours: number) => {
   const claimed = await client.execute(sql`
@@ -325,18 +329,16 @@ export const pruneUploads = async (client: Db, hours: number) => {
     )
   `);
 
-  await purgeDeletedFiles(client);
-
   return claimed.rowCount ?? 0;
 };
 
 /**
  * A file core made itself (an export): stored under core's own key and ready
  * at once — no upload link ever existed for it. Downloads go through
- * `/files/:id/download` like any other file.
+ * `/files/:id/download` like any other file. The bytes are written before
+ * the row's own short scope: call it outside any scope.
  */
 export const storeServerFile = async (
-  client: Db,
   caller: Caller,
   input: { name: string; contentType: string; body: Buffer },
 ) => {
@@ -345,28 +347,33 @@ export const storeServerFile = async (
 
   await storage().write(key, input.body, input.contentType);
 
-  return oneRow(
-    await client
-      .insert(files)
-      .values({
-        id,
-        orgId: caller.orgId,
-        key,
-        name: input.name,
-        contentType: input.contentType,
-        size: input.body.length,
-        status: 'ready',
-        source: caller.source,
-        actorType: caller.actorType,
-        actorId: caller.actorId,
-      })
-      .returning(),
+  return withOrg(caller.orgId, async (tx) =>
+    oneRow(
+      await tx
+        .insert(files)
+        .values({
+          id,
+          orgId: caller.orgId,
+          key,
+          name: input.name,
+          contentType: input.contentType,
+          size: input.body.length,
+          status: 'ready',
+          source: caller.source,
+          actorType: caller.actorType,
+          actorId: caller.actorId,
+        })
+        .returning(),
+    ),
   );
 };
 
-/** A ready file's bytes (imports read the uploaded file with it). */
-export const readFileBytes = async (client: Db, orgId: string, id: string) => {
-  const row = await readyFile(client, orgId, id);
+/**
+ * A ready file's bytes (imports read the uploaded file with it). The row is
+ * read in a short scope and the bytes after it: call it outside any scope.
+ */
+export const readFileBytes = async (orgId: string, id: string) => {
+  const row = await withOrg(orgId, (tx) => readyFile(tx, orgId, id));
 
   return { row, body: await storage().read(row.key) };
 };

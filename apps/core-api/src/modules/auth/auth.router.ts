@@ -29,7 +29,7 @@ import { pub, authed, type CoreContext } from '~/orpc';
 /** Signs the member in on this browser (HttpOnly session cookie). */
 const startSession = async (context: CoreContext, userId: string, orgId: string) => {
   const version = await withOrg(orgId, () => sessionVersionOf(orgId, userId));
-  const token = signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version);
+  const token = await signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version);
 
   context.res.cookie(SESSION_COOKIE, token, sessionCookieOptions(context.req));
 };
@@ -91,7 +91,7 @@ export const authRouter = {
     regenerateRecoveryCodes(db(), context.actor, input.password),
   ),
   signOut: pub.auth.signOut.handler(async ({ context }) => {
-    const session = sessionClaims(context.req);
+    const session = await sessionClaims(context.req);
 
     if (session) {
       await withOrg(session.orgId, (tx) =>

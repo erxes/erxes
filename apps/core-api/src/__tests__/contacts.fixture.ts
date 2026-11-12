@@ -12,7 +12,7 @@ export const rule = (path: string, op: ConditionRule['op'], value?: unknown): Co
 });
 
 /** `MM-DD` some days from now, for birthdays and renewals. */
-export const monthDayIn = (days: number) =>
+const monthDayIn = (days: number) =>
   new Date(Date.now() + days * 86_400_000).toISOString().slice(5, 10);
 
 const sorted = (names: (string | null)[]) =>

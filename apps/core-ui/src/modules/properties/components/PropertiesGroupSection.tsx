@@ -21,11 +21,11 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { PROPERTIES_BASE_PATH } from '../constants';
 import { activeLayoutGroupState, activePropertyGroupState, archiveTargetState } from '../states';
 import { useCanManageFields } from '../usePropertyMutations';
-import { propertiesColumns, propertyEditPath } from './propertiesColumns';
+import { propertiesColumns } from './propertiesColumns';
 import { PropertiesRow } from './PropertiesRow';
 
 const PropertiesGroupActions = ({
@@ -94,7 +94,6 @@ const GroupShell = forwardRef<
   }
 >(({ name, fields, addPath, handle, actions, className, style }, ref) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const navigate = useNavigate();
   const manager = useCanManageFields();
   const [open, setOpen] = useState(fields.length > 0);
   const toggled = useRef(false);
@@ -149,14 +148,7 @@ const GroupShell = forwardRef<
               <RecordTable>
                 <RecordTable.Header />
                 <RecordTable.Body>
-                  <RecordTable.RowList
-                    Row={(props) => (
-                      <PropertiesRow
-                        {...props}
-                        onRowClick={(field) => navigate(propertyEditPath(field))}
-                      />
-                    )}
-                  />
+                  <RecordTable.RowList Row={PropertiesRow} />
                 </RecordTable.Body>
               </RecordTable>
             </RecordTable.Scroll>

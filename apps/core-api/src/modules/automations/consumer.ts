@@ -14,7 +14,7 @@ type AutomationRow = typeof automations.$inferSelect;
 type EventRow = typeof events.$inferSelect;
 
 /** Automations started by events that automations caused stop this deep. */
-export const MAX_CHAIN_DEPTH = 5;
+const MAX_CHAIN_DEPTH = 5;
 
 export interface RunStart {
   eventId: string;

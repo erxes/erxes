@@ -1,4 +1,4 @@
-/** The erxes wordmark (old core-ui `Logo`). */
+/** The erxes wordmark. */
 export const Logo = (props: React.SVGProps<SVGSVGElement>) => {
   return (
     <svg
@@ -38,9 +38,8 @@ export const Logo = (props: React.SVGProps<SVGSVGElement>) => {
 };
 
 /**
- * The erxes "X" mark (old core-ui `OrgLogoIcon`), shown in the top bar.
- * Old erxes used the organisation's own logo when one was set; the new core
- * has no logo setting yet.
+ * The erxes "X" mark, shown in the top bar. Organisations have no logo
+ * setting, so every organisation shows this one.
  */
 export const OrgLogoIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 23 33" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>

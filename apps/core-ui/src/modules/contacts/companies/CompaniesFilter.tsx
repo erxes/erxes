@@ -17,7 +17,7 @@ import { AdvancedFilterButton } from '../views/ViewControls';
 import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
 import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
 
-export const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
+const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { totalCount, totalCapped } = useCompanies(state);
 
@@ -32,8 +32,7 @@ export const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | '
   );
 };
 
-// Core lists filter by search, tags and owner; old erxes's date filters need
-// list filters core does not have yet.
+/** Company lists filter by search, tags and owner. */
 const CompaniesFilterPopover = ({ state }: { state: 'lead' | 'customer' }) => {
   const [queries] = useMultiQueryState<{
     tags: string[];

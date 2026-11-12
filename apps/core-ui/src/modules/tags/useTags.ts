@@ -1,12 +1,10 @@
-import type { ContentType, Tag } from '@erxes/core-contract';
+import type { ContentType } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useMemo } from 'react';
-import { api, messageOf } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
 
-export const TAGS_KEY = ['tags'];
-
-/** Tag colours offered when creating one (old erxes palette). */
+/** Tag colours offered when creating one. */
 export const TAG_COLORS = [
   '#4f46e5',
   '#0ea5e9',
@@ -18,36 +16,40 @@ export const TAG_COLORS = [
   '#64748b',
 ];
 
-/** All tags of a type (an organisation has few), with a by-id lookup. */
-export const useTags = (type: ContentType) => {
-  const query = useQuery({
-    queryKey: [...TAGS_KEY, type],
-    queryFn: () => api.tags.list({ type }),
-    staleTime: 60_000,
-  });
+/** All tags of a type (an organisation has few): one request and cache entry per type. */
+export const tagsQuery = (type: ContentType) =>
+  orpc.tags.list.queryOptions({ input: { type }, staleTime: 60_000 });
 
+/** All tags of a type, with a by-id lookup. */
+export const useTags = (type: ContentType) => {
+  const query = useQuery(tagsQuery(type));
   const tags = useMemo(() => query.data?.data ?? [], [query.data]);
   const byId = useMemo(() => new Map(tags.map((tag) => [tag.id, tag])), [tags]);
 
-  return { tags, byId, loading: query.isPending };
+  return { tags, byId, loading: query.isPending, error: query.error };
 };
 
 export const useTagCreate = () => {
   const client = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: (input: { type: ContentType; name: string; colorCode?: string | null }) =>
-      api.tags.create(input),
-    onSuccess: (tag) =>
-      client.setQueryData<{ data: Tag[] }>([...TAGS_KEY, tag.type], (cache) =>
-        cache ? { data: [...cache.data, tag].sort((a, b) => a.name.localeCompare(b.name)) } : cache,
-      ),
-    onError: (error) =>
-      toast({
-        variant: 'destructive',
-        title: 'Could not create the tag',
-        description: messageOf(error),
-      }),
-  });
+  return useMutation(
+    orpc.tags.create.mutationOptions({
+      onSuccess: (tag) =>
+        client.setQueryData(tagsQuery(tag.type).queryKey, (cache) =>
+          cache
+            ? {
+                ...cache,
+                data: [...cache.data, tag].toSorted((a, b) => a.name.localeCompare(b.name)),
+              }
+            : cache,
+        ),
+      onError: (error) =>
+        toast({
+          variant: 'destructive',
+          title: 'Could not create the tag',
+          description: messageOf(error),
+        }),
+    }),
+  );
 };

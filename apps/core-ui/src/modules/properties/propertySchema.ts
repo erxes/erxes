@@ -10,7 +10,7 @@ const CODE_REQUIRED = {
   message: 'Code is required when the name has no Latin letters or digits',
 };
 
-export const codeOf = (name: string) =>
+const codeOf = (name: string) =>
   name
     .trim()
     .toLowerCase()

@@ -8,7 +8,7 @@ const VIEWS = [
   { value: 'board', label: 'board-view', icon: IconLayoutKanban },
 ] as const;
 
-/** "Display" in the leads filter bar (as old erxes): table or board, remembered in this browser. */
+/** "Display" in the leads filter bar: table or board, remembered in this browser. */
 export const LeadDisplayMenu = () => {
   const [current, setView] = useLeadView();
   const t = useLeadsT();

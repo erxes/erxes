@@ -2,7 +2,7 @@ import { IconForms, type Icon } from '@tabler/icons-react';
 import { cn, Label, RecordTableInlineCell } from 'erxes-ui';
 import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, type ReactNode } from 'react';
 
-// One field in the side panel (old ui-modules `PanelField`): its label, then
+// One field in the side panel: its label, then
 // the value as a record table cell. Click to edit; Enter saves, Escape cancels.
 export const PanelField = ({
   label,

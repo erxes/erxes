@@ -1,4 +1,5 @@
-import type { ConditionGroup, View, ViewRecordType } from '@erxes/core-contract';
+import type { ConditionGroup, ViewRecordType } from '@erxes/core-contract';
+import { QueryState } from '~/components/QueryState';
 import { IconAdjustmentsHorizontal, IconDeviceFloppy } from '@tabler/icons-react';
 import { Badge, Button, Dialog, Input, Label, Popover, Switch } from 'erxes-ui';
 import { useState } from 'react';
@@ -40,16 +41,21 @@ export const AdvancedFilterButton = ({ recordType }: { recordType: ViewRecordTyp
       </Popover.Trigger>
       <Popover.Content align="start" className="w-[min(720px,90vw)] space-y-3 p-4">
         <p className="text-sm font-medium">{t('advanced-title', 'Show records where')}</p>
-        {fields ? (
-          <ConditionsEditor
-            fields={fields}
-            subject={recordType === 'company' ? 'company' : 'customer'}
-            value={draft ?? undefined}
-            onChange={(next) => setDraft(next ?? null)}
-          />
-        ) : (
-          <p className="text-sm text-muted-foreground">{t('loading', 'Loading fields…')}</p>
-        )}
+        <QueryState
+          query={fields}
+          loading={
+            <p className="text-sm text-muted-foreground">{t('loading', 'Loading fields…')}</p>
+          }
+        >
+          {({ data }) => (
+            <ConditionsEditor
+              fields={data}
+              subject={recordType === 'company' ? 'company' : 'customer'}
+              value={draft ?? undefined}
+              onChange={(next) => setDraft(next ?? null)}
+            />
+          )}
+        </QueryState>
         <div className="flex justify-end gap-2 border-t pt-3">
           <Button
             variant="ghost"
@@ -76,6 +82,58 @@ export const AdvancedFilterButton = ({ recordType }: { recordType: ViewRecordTyp
   );
 };
 
+interface ViewValues {
+  name: string;
+  shared: boolean;
+}
+
+/** Mounted each time the dialog opens, so it starts from `initial`. */
+const ViewForm = ({
+  initial,
+  onSave,
+  pending,
+}: {
+  initial: ViewValues;
+  onSave: (value: ViewValues) => void;
+  pending: boolean;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'views' });
+  const can = useCan();
+  const [name, setName] = useState(initial.name);
+  const [shared, setShared] = useState(initial.shared);
+
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={(event) => {
+        event.preventDefault();
+
+        if (name.trim()) onSave({ name: name.trim(), shared });
+      }}
+    >
+      <div className="space-y-1.5">
+        <Label htmlFor="view-name">{t('name', 'Name')}</Label>
+        <Input
+          id="view-name"
+          value={name}
+          maxLength={80}
+          placeholder={t('name-placeholder', 'VIP customers in Ulaanbaatar')}
+          onChange={(event) => setName(event.target.value)}
+        />
+      </div>
+      {can('contacts.edit') && (
+        <div className="flex items-center gap-2 text-sm">
+          <Switch id="view-shared" checked={shared} onCheckedChange={setShared} />
+          <Label htmlFor="view-shared">{t('share', 'Share with the team')}</Label>
+        </div>
+      )}
+      <Button type="submit" className="w-full" disabled={!name.trim() || pending}>
+        {t('save', 'Save view')}
+      </Button>
+    </form>
+  );
+};
+
 export const ViewDialog = ({
   open,
   onOpenChange,
@@ -87,27 +145,14 @@ export const ViewDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  initial: { name: string; shared: boolean };
-  onSave: (value: { name: string; shared: boolean }) => void;
+  initial: ViewValues;
+  onSave: (value: ViewValues) => void;
   pending: boolean;
 }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'views' });
-  const can = useCan();
-  const [name, setName] = useState(initial.name);
-  const [shared, setShared] = useState(initial.shared);
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (next) {
-          setName(initial.name);
-          setShared(initial.shared);
-        }
-
-        onOpenChange(next);
-      }}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="sm:max-w-md">
         <Dialog.HeaderCombined
           title={title}
@@ -116,34 +161,7 @@ export const ViewDialog = ({
             'Saves the filter and search; it always shows the latest records.',
           )}
         />
-        <form
-          className="space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-
-            if (name.trim()) onSave({ name: name.trim(), shared });
-          }}
-        >
-          <div className="space-y-1.5">
-            <Label>{t('name', 'Name')}</Label>
-            <Input
-              autoFocus
-              value={name}
-              maxLength={80}
-              placeholder={t('name-placeholder', 'VIP customers in Ulaanbaatar')}
-              onChange={(event) => setName(event.target.value)}
-            />
-          </div>
-          {can('contacts.edit') && (
-            <label className="flex items-center gap-2 text-sm">
-              <Switch checked={shared} onCheckedChange={setShared} />
-              {t('share', 'Share with the team')}
-            </label>
-          )}
-          <Button type="submit" className="w-full" disabled={!name.trim() || pending}>
-            {t('save', 'Save view')}
-          </Button>
-        </form>
+        <ViewForm initial={initial} onSave={onSave} pending={pending} />
       </Dialog.Content>
     </Dialog>
   );
@@ -186,7 +204,7 @@ export const SaveViewButton = ({ recordType }: { recordType: ViewRecordType }) =
         pending={create.isPending}
         onSave={({ name, shared }) =>
           create.mutate(
-            { name, shared, ...values },
+            { recordType, name, shared, ...values },
             {
               onSuccess: (view) => {
                 setOpen(false);

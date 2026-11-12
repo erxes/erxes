@@ -1,7 +1,10 @@
+import type { User } from '@erxes/core-contract';
 import { IconId, IconLink } from '@tabler/icons-react';
-import { isApiError, messageOf } from '~/lib/api';
 import { Skeleton, Spinner } from 'erxes-ui';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AvatarEditor } from '~/components/AvatarEditor';
+import { isApiError, messageOf } from '~/lib/api';
 import { MemberAvatar } from '../record/TeamMemberColumns';
 import {
   memberName,
@@ -9,7 +12,6 @@ import {
   useTeamMember,
   useTeamMemberEdit,
 } from '../useTeamMembers';
-import { AvatarEditor } from '~/components/AvatarEditor';
 import { MemberDetailEmptyState, MemberDetailErrorState } from './MemberDetailStates';
 import { MemberLinks } from './MemberLinks';
 import { MemberPanelActions } from './MemberPanelActions';
@@ -19,11 +21,86 @@ import { type IRecordSidePanelTab, RecordSidePanel, usePanelExpanded } from './R
 
 const DETAIL_TAB = 'overview';
 
-/**
- * A member in a record panel (old `MemberDetail`): beside the list or as its
- * own page. Permissions, properties, sessions, active time and activity tabs
- * are left out (core has none of them yet).
- */
+/** The member's name and picture; editable by whoever may edit the member. */
+const useMemberHeading = (user: User | undefined, loading: boolean) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const permissions = useMemberPermissions(user);
+  const edit = useTeamMemberEdit();
+  const fallbackTitle = loading ? <Skeleton className="h-4 w-32" /> : t('member-detail');
+  const name = user ? memberName(user) : null;
+  const plainTitle = name ?? fallbackTitle;
+
+  if (!user) {
+    return {
+      plainTitle,
+      title: plainTitle,
+      avatar: loading ? <Skeleton className="size-7 flex-none rounded-full" /> : undefined,
+    };
+  }
+
+  if (!permissions?.canEdit) {
+    return {
+      plainTitle,
+      title: plainTitle,
+      avatar: <MemberAvatar user={user} className="size-7 flex-none" />,
+    };
+  }
+
+  return {
+    plainTitle,
+    title: <MemberPanelName user={user} />,
+    avatar: (
+      <AvatarEditor
+        src={user.avatarUrl}
+        name={name ?? undefined}
+        onSave={(avatarUrl) => edit.mutate({ id: user.id, avatarUrl })}
+      />
+    ),
+  };
+};
+
+/** Detail and Links; on the member's page, Detail is the left column. */
+const MemberTabs = ({
+  user,
+  tab,
+  onTabChange,
+  overviewHeader,
+}: {
+  user: User;
+  tab: string | null;
+  onTabChange: (tab: string) => void;
+  overviewHeader: ReactNode;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
+
+  const tabs: IRecordSidePanelTab[] = [
+    {
+      value: DETAIL_TAB,
+      label: panelT('detail', 'Detail'),
+      icon: IconId,
+      content: <MemberPanelDetail user={user} />,
+    },
+    {
+      value: 'links',
+      label: t('links', 'Links'),
+      icon: IconLink,
+      content: <MemberLinks user={user} />,
+    },
+  ];
+
+  return (
+    <RecordSidePanel.Tabs
+      tabs={tabs}
+      value={tab && tabs.some(({ value }) => value === tab) ? tab : DETAIL_TAB}
+      onValueChange={onTabChange}
+      overviewTab={DETAIL_TAB}
+      overviewHeader={overviewHeader}
+    />
+  );
+};
+
+/** A member in a record panel: beside the list or as its own page. */
 export const MemberDetail = ({
   memberId,
   tab,
@@ -37,63 +114,21 @@ export const MemberDetail = ({
   onExpand?: () => void;
   onClose?: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
-  const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = usePanelExpanded();
   const { data: user, error, isPending } = useTeamMember(memberId);
-  const permissions = useMemberPermissions(user);
-  const edit = useTeamMemberEdit();
+  const { title, plainTitle, avatar } = useMemberHeading(user, isPending);
 
-  const fallbackTitle = isPending ? <Skeleton className="h-4 w-32" /> : t('member-detail');
-  const name = user ? memberName(user) : null;
+  let body: ReactNode = <MemberDetailEmptyState />;
 
-  const title =
-    user && permissions?.canEdit ? <MemberPanelName user={user} /> : (name ?? fallbackTitle);
-
-  // Who may edit the member changes their picture from the header (as erxes does).
-  const avatar = user ? (
-    permissions?.canEdit ? (
-      <AvatarEditor
-        src={user.avatarUrl}
-        name={name ?? undefined}
-        onSave={(avatarUrl) => edit.mutate({ id: user.id, avatarUrl })}
-      />
-    ) : (
-      <MemberAvatar user={user} className="size-7 flex-none" />
-    )
-  ) : isPending ? (
-    <Skeleton className="size-7 flex-none rounded-full" />
-  ) : undefined;
-
-  const renderBody = () => {
-    if (isPending) return <Spinner containerClassName="py-12" />;
-
-    if (error && !isApiError(error, 'NOT_FOUND'))
-      return <MemberDetailErrorState message={messageOf(error)} />;
-
-    if (!user) return <MemberDetailEmptyState />;
-
-    const tabs: IRecordSidePanelTab[] = [
-      {
-        value: DETAIL_TAB,
-        label: panelT('detail', 'Detail'),
-        icon: IconId,
-        content: <MemberPanelDetail user={user} />,
-      },
-      {
-        value: 'links',
-        label: t('links', 'Links'),
-        icon: IconLink,
-        content: <MemberLinks user={user} />,
-      },
-    ];
-
-    return (
-      <RecordSidePanel.Tabs
-        tabs={tabs}
-        value={tabs.some(({ value }) => value === tab) ? (tab ?? DETAIL_TAB) : DETAIL_TAB}
-        onValueChange={onTabChange}
-        overviewTab={DETAIL_TAB}
+  if (isPending) body = <Spinner containerClassName="py-12" />;
+  else if (error && !isApiError(error, 'NOT_FOUND')) {
+    body = <MemberDetailErrorState message={messageOf(error)} />;
+  } else if (user) {
+    body = (
+      <MemberTabs
+        user={user}
+        tab={tab}
+        onTabChange={onTabChange}
         overviewHeader={
           <>
             {avatar && <div className="shrink-0">{avatar}</div>}
@@ -102,19 +137,19 @@ export const MemberDetail = ({
         }
       />
     );
-  };
+  }
 
   return (
     <>
       <RecordSidePanel.Header
         className={expanded ? 'h-10 bg-background px-3' : undefined}
         avatar={expanded ? undefined : avatar}
-        title={expanded ? <MemberPanelBreadcrumb title={name ?? fallbackTitle} /> : title}
+        title={expanded ? <MemberPanelBreadcrumb title={plainTitle} /> : title}
         actions={user && <MemberPanelActions user={user} />}
         onExpand={onExpand}
         onClose={onClose}
       />
-      {renderBody()}
+      {body}
     </>
   );
 };

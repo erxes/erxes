@@ -1,44 +1,42 @@
 import type { Import, TransferRecordType } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '~/lib/api';
-
-export const IMPORTS_KEY = ['imports'];
-export const EXPORTS_KEY = ['exports'];
+import { orpc } from '~/lib/api';
 
 /** Still working in the background: poll until it settles. */
-export const BUSY: Import['status'][] = ['parsing', 'checking', 'running'];
+const BUSY: Import['status'][] = ['parsing', 'checking', 'running'];
 
+/** The columns a record type imports and exports. */
 export const useTransferColumns = (recordType: TransferRecordType) =>
-  useQuery({
-    queryKey: ['transfer', 'columns', recordType],
-    queryFn: () => api.transfer.columns({ recordType }),
-    staleTime: 60_000,
-  }).data?.data ?? [];
+  useQuery(
+    orpc.transfer.columns.queryOptions({
+      input: { recordType },
+      staleTime: 60_000,
+      select: ({ data }) => data,
+    }),
+  );
 
-export const useImport = (id: string) =>
-  useQuery({
-    queryKey: [...IMPORTS_KEY, id],
-    queryFn: () => api.transfer.import({ id }),
+export const importQuery = (id: string) =>
+  orpc.transfer.import.queryOptions({
+    input: { id },
     refetchInterval: (query) =>
       query.state.data && BUSY.includes(query.state.data.status) ? 1500 : false,
   });
 
 export const useImports = () =>
-  useQuery({
-    queryKey: IMPORTS_KEY,
-    queryFn: () => api.transfer.imports(),
-    refetchInterval: (query) =>
-      query.state.data?.data.some((item) => BUSY.includes(item.status)) ? 3000 : false,
-  });
+  useQuery(
+    orpc.transfer.imports.queryOptions({
+      refetchInterval: (query) =>
+        query.state.data?.data.some((item) => BUSY.includes(item.status)) ? 3000 : false,
+    }),
+  );
 
-export const useExports = (enabled = true) =>
-  useQuery({
-    queryKey: EXPORTS_KEY,
-    queryFn: () => api.transfer.exports(),
-    enabled,
-    refetchInterval: (query) =>
-      query.state.data?.data.some((item) => item.status === 'running') ? 2000 : false,
-  });
+export const useExports = () =>
+  useQuery(
+    orpc.transfer.exports.queryOptions({
+      refetchInterval: (query) =>
+        query.state.data?.data.some((item) => item.status === 'running') ? 2000 : false,
+    }),
+  );
 
 export const downloadHref = (fileId: string) => `/core/v1/files/${fileId}/download`;
 

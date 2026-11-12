@@ -40,7 +40,7 @@ export const useDashboardCatalog = () => {
         continue;
       }
 
-      const entries = byGroup.get(widget.group) || [];
+      const entries = byGroup.get(widget.group) ?? [];
       entries.push({
         widget,
         label,

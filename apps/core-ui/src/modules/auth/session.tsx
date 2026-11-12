@@ -1,40 +1,27 @@
 import type { Session } from '@erxes/core-contract';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToast } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
-import { api, isApiError } from '~/lib/api';
-
-export const SESSION_KEY = ['session'];
-export const SETUP_KEY = ['setup'];
+import { useTranslation } from 'react-i18next';
+import { isApiError, messageOf, orpc } from '~/lib/api';
 
 /** Whether the installation still needs its first organisation (asked only when signed out). */
 export const useSetupStatus = (enabled: boolean) =>
-  useQuery({
-    queryKey: SETUP_KEY,
-    queryFn: () => api.auth.setupStatus(),
-    enabled,
-    staleTime: 60_000,
-    retry: false,
-  });
+  useQuery(orpc.auth.setupStatus.queryOptions({ enabled, staleTime: 60_000, retry: false }));
 
-/** The signed-in member and organisation, or null when signed out. */
+/** The signed-in member and organisation; a 401 means signed out (`isSignedOut`). */
 export const useSessionQuery = () =>
-  useQuery({
-    queryKey: SESSION_KEY,
-    queryFn: async () => {
-      try {
-        return await api.auth.me();
-      } catch (error) {
-        if (isApiError(error) && error.status === 401) {
-          return null;
-        }
+  useQuery(orpc.auth.me.queryOptions({ staleTime: 60_000, retry: false }));
 
-        throw error;
-      }
-    },
-    staleTime: 60_000,
-    retry: false,
-  });
+export const isSignedOut = (error: unknown) => isApiError(error) && error.status === 401;
+
+/** Starts the app with the session a sign-in (or setup, or invitation) returned. */
+export const useSignedIn = () => {
+  const client = useQueryClient();
+
+  return (session: Session) => client.setQueryData(orpc.auth.me.queryKey(), session);
+};
 
 const SessionContext = createContext<Session | null>(null);
 
@@ -58,11 +45,6 @@ export const useSession = (): Session => {
 };
 
 /**
- * Signs out. The UI clears only after the server has cleared the HttpOnly
- * session cookie: otherwise the cookie would still work while the page says
- * "signed out". A failure throws, for the caller to show (and retry).
- */
-/**
  * `can('contacts.delete')`: whether the signed-in member's role allows an
  * action (the API checks the same; this only shapes the UI).
  */
@@ -72,14 +54,30 @@ export const useCan = () => {
   return (action: string) => permissions.includes(action);
 };
 
-export const useSignOut = () => {
+/**
+ * The UI clears only after the server has cleared the HttpOnly session
+ * cookie: otherwise the cookie would still work while the page says
+ * "signed out". A failure says the member is still signed in.
+ */
+const useSignOutHandlers = () => {
   const client = useQueryClient();
+  const { toast } = useToast();
+  const { t } = useTranslation('organization');
 
-  return async (options: { everywhere?: boolean } = {}) => {
-    if (options.everywhere) await api.auth.signOutEverywhere();
-    else await api.auth.signOut();
-
-    client.clear();
-    client.setQueryData(SESSION_KEY, null);
+  return {
+    onSuccess: () => client.clear(),
+    onError: (error: Error) =>
+      toast({
+        variant: 'destructive',
+        title: t('logout-failed'),
+        description: `${messageOf(error)} ${t('logout-retry')}`,
+      }),
   };
 };
+
+export const useSignOut = () =>
+  useMutation(orpc.auth.signOut.mutationOptions(useSignOutHandlers()));
+
+/** Ends every session on every device, this one too. */
+export const useSignOutEverywhere = () =>
+  useMutation(orpc.auth.signOutEverywhere.mutationOptions(useSignOutHandlers()));

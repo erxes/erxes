@@ -1,4 +1,5 @@
 import type { AuditEntry } from '@erxes/core-contract';
+import { textOf } from '~/lib/text';
 
 type Changes = Record<string, [unknown, unknown]>;
 
@@ -52,7 +53,7 @@ export const auditSentence = (entry: AuditEntry): string => {
     case 'auth.signed_out':
       return 'signed out';
     case 'audit.stream_created':
-      return `started streaming the audit log to ${label} (${String(metadata.url ?? '')})`;
+      return `started streaming the audit log to ${label} (${textOf(metadata.url)})`;
     case 'audit.stream_updated':
       return `changed audit log streaming to ${label}`;
     case 'audit.stream_paused':
@@ -62,11 +63,11 @@ export const auditSentence = (entry: AuditEntry): string => {
     case 'audit.stream_removed':
       return `stopped streaming the audit log to ${label}`;
     case 'payment.refunded':
-      return `refunded ${money(metadata.amount)} of ${label}${metadata.method === 'manual' ? ' (paid back outside erxes)' : ''}: ${String(metadata.reason ?? '')}`;
+      return `refunded ${money(metadata.amount)} of ${label}${metadata.method === 'manual' ? ' (paid back outside erxes)' : ''}: ${textOf(metadata.reason)}`;
     case 'payment.plugin_settings_updated':
       return `changed which payment gateways ${label} uses`;
     case 'auth.sign_in_failed':
-      return `failed to sign in as ${label}${metadata.reason ? ` (${metadata.reason})` : ''}`;
+      return `failed to sign in as ${label}${metadata.reason ? ` (${textOf(metadata.reason)})` : ''}`;
     case 'auth.password_changed':
       return 'changed their password';
     case 'organization.created':
@@ -92,7 +93,7 @@ export const auditSentence = (entry: AuditEntry): string => {
         ? `changed audit retention from ${value(changes.retentionDays[0])} to ${value(changes.retentionDays[1])} days`
         : 'changed audit retention';
     case 'audit.exported':
-      return `exported the audit log (${value(metadata.rows)} entries, ${String(metadata.format ?? 'csv').toUpperCase()})`;
+      return `exported the audit log (${value(metadata.rows)} entries, ${textOf(metadata.format ?? 'csv').toUpperCase()})`;
     case 'file.uploaded':
       return `uploaded ${label}`;
     case 'file.downloaded':
@@ -111,7 +112,7 @@ export const auditSentence = (entry: AuditEntry): string => {
     if (verb === 'updated' && changes) return `updated ${noun} ${label}: ${fields(changes)}`;
 
     if (verb === 'merged') {
-      const names = (metadata.mergedNames as string[] | undefined) ?? [];
+      const names = Array.isArray(metadata.mergedNames) ? metadata.mergedNames.map(textOf) : [];
 
       return `merged ${names.join(', ') || 'records'} into ${noun} ${label}`;
     }

@@ -55,7 +55,7 @@ describeWithDb('request logs', () => {
       owner: { email: 'owner@acme.mn', fullName: 'Owner' },
     });
 
-    token = signAccessToken(owner.id, organization.id);
+    token = await signAccessToken(owner.id, organization.id);
     orgId = organization.id;
     ownerId = owner.id;
   });

@@ -1,28 +1,28 @@
 import type { Company } from '@erxes/core-contract';
 import {
-  IconBuildingFactory,
   IconBriefcase,
+  IconBuildingFactory,
   IconHash,
-  IconMail,
-  IconPhone,
-  IconUser,
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import { cn, NumberField, ScrollArea, Spinner, TextField } from 'erxes-ui';
-import { type ReactNode, useId } from 'react';
+import { cn, NumberField, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
-import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
-import { SelectMember } from '~/modules/contacts/components/SelectMember';
-import { PANEL_TEXT_FIELD_CLASS_NAME, PanelField, PanelFieldTrigger } from '../PanelField';
+import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
+import { LeadStageField } from '~/modules/leads/LeadStageField';
+import { PANEL_TEXT_FIELD_CLASS_NAME, PanelField } from '../PanelField';
 import { usePanelExpanded } from '../RecordSidePanel';
+import {
+  ContactChannelsSection,
+  ContactDetailScroll,
+  ContactOwnerField,
+  ContactTextField,
+} from './ContactDetailFields';
 import { ContactDetailSection } from './ContactDetailSection';
 import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
-import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
-import { LeadStageField } from '~/modules/leads/LeadStageField';
 
 const SCOPE = 'side-panel-company';
 
@@ -35,191 +35,118 @@ const TEXT_FIELD_ICONS: Record<TTextCode, typeof IconHash> = {
   industry: IconBuildingFactory,
 };
 
-/** Edits one company text field without touching the others. */
-const CompanyTextField = ({
+/** One text field of the company, with its label, saved without touching the others. */
+const CompanyTextRow = ({
   company,
   code,
-  placeholder,
+  label,
 }: {
   company: Company;
   code: TTextCode;
-  placeholder: string;
+  label: string;
 }) => {
   const edit = useCompanyEdit();
-  const value = company[code] || '';
-  const Icon = TEXT_FIELD_ICONS[code];
 
   return (
-    <TextField
-      scope={`${SCOPE}.${code}`}
-      value={value}
-      placeholder={placeholder}
-      className={cn(PANEL_TEXT_FIELD_CLASS_NAME, !value && 'text-muted-foreground')}
-      onSave={(next) => {
-        if (next.trim() !== value) edit.mutate({ id: company.id, [code]: next.trim() || null });
-      }}
-    >
-      {!value && <Icon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />}
-    </TextField>
+    <PanelField icon={TEXT_FIELD_ICONS[code]} label={label}>
+      <ContactTextField
+        scope={`${SCOPE}.${code}`}
+        value={company[code] || ''}
+        placeholder={label}
+        icon={TEXT_FIELD_ICONS[code]}
+        onSave={(next) => edit.mutate({ id: company.id, [code]: next })}
+      />
+    </PanelField>
+  );
+};
+
+/** Business type, industries and size. */
+const CompanyBusinessSection = ({ company }: { company: Company }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
+  const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const edit = useCompanyEdit();
+  const noSize = company.size == null;
+
+  return (
+    <ContactDetailSection title={sectionT('business', 'Business')} nested>
+      <CompanyTextRow
+        company={company}
+        code="businessType"
+        label={t('field.businessType', 'Business type')}
+      />
+      <CompanyTextRow company={company} code="industry" label={t('field.industry', 'Industries')} />
+      <PanelField icon={IconUsers} label={t('field.size', 'Size')}>
+        <NumberField
+          scope={`${SCOPE}.size`}
+          value={company.size ?? 0}
+          formatValue={(value) => (noSize ? t('field.size', 'Size') : value.toLocaleString())}
+          className={cn(PANEL_TEXT_FIELD_CLASS_NAME, noSize && 'text-muted-foreground')}
+          onSave={(size) => {
+            if (size !== company.size) edit.mutate({ id: company.id, size });
+          }}
+        >
+          {noSize && (
+            <IconUsers className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          )}
+        </NumberField>
+      </PanelField>
+    </ContactDetailSection>
   );
 };
 
 /** The company's fields as record table cells. */
-const CompanyFields = ({ companyId }: { companyId: string }) => {
+const CompanyFields = ({ company }: { company: Company }) => {
   const expanded = usePanelExpanded();
-  const ownerControlId = useId();
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { data: company, isPending } = useCompany(companyId);
   const edit = useCompanyEdit();
 
-  if (isPending) {
-    return <Spinner containerClassName="py-12" />;
-  }
-
-  if (!company) {
-    return null;
-  }
-
   return (
-    <div>
-      <div className="border-b px-3 pb-2">
-        <ContactDetailSection title={sectionT('general', 'General')} nested>
-          <PanelField
-            icon={IconUser}
-            label={t('owner', 'Owner')}
-            htmlFor={ownerControlId}
-            placeholder={!company.ownerId ? t('owner', 'Owner') : undefined}
-          >
-            <SelectMember.InlineCell
-              id={ownerControlId}
-              scope={`${SCOPE}.owner`}
-              value={company.ownerId}
-              placeholder={company.ownerId ? t('owner', 'Owner') : ''}
-              className="rounded-sm"
-              onValueChange={(ownerId) =>
-                edit.mutate({
-                  id: company.id,
-                  ownerId: typeof ownerId === 'string' ? ownerId : null,
-                })
-              }
-            />
-          </PanelField>
-          <PanelField icon={IconHash} label={t('field.code', 'Code')}>
-            <CompanyTextField company={company} code="code" placeholder={t('field.code', 'Code')} />
-          </PanelField>
-          <LeadStageField recordType="company" record={company} />
-          <PanelField icon={IconWorld} label={t('field.website', 'Website')}>
-            <CompanyTextField
-              company={company}
-              code="website"
-              placeholder={t('field.website', 'Website')}
-            />
-          </PanelField>
-        </ContactDetailSection>
-        <ContactDetailSection title={sectionT('business', 'Business')} nested>
-          <PanelField icon={IconBriefcase} label={t('field.businessType', 'Business type')}>
-            <CompanyTextField
-              company={company}
-              code="businessType"
-              placeholder={t('field.businessType', 'Business type')}
-            />
-          </PanelField>
-          <PanelField icon={IconBuildingFactory} label={t('field.industry', 'Industries')}>
-            <CompanyTextField
-              company={company}
-              code="industry"
-              placeholder={t('field.industry', 'Industries')}
-            />
-          </PanelField>
-          <PanelField icon={IconUsers} label={t('field.size', 'Size')}>
-            <NumberField
-              scope={`${SCOPE}.size`}
-              value={company.size ?? 0}
-              formatValue={(value) =>
-                company.size == null ? t('field.size', 'Size') : value.toLocaleString()
-              }
-              className={cn(
-                PANEL_TEXT_FIELD_CLASS_NAME,
-                company.size == null && 'text-muted-foreground',
-              )}
-              onSave={(size) => {
-                if (size !== company.size) edit.mutate({ id: company.id, size });
-              }}
-            >
-              {company.size == null && (
-                <IconUsers className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-              )}
-            </NumberField>
-          </PanelField>
-        </ContactDetailSection>
-        <ContactDetailSection title={sectionT('contact', 'Contact')} nested>
-          <PanelField
-            icon={IconMail}
-            label={t('emails', 'Emails')}
-            placeholder={
-              !company.primaryEmail && !company.emails.some(Boolean)
-                ? t('emails', 'Emails')
-                : undefined
-            }
-          >
-            <ContactEmails
-              maxVisible={1}
-              id={company.id}
-              primaryEmail={company.primaryEmail}
-              emails={company.emails}
-              scope={`${SCOPE}.emails`}
-              Trigger={PanelFieldTrigger}
-              onSave={(value) => edit.mutate({ id: company.id, ...value })}
-            />
-          </PanelField>
-          <PanelField
-            icon={IconPhone}
-            label={t('phones', 'Phones')}
-            placeholder={
-              !company.primaryPhone && !company.phones.some(Boolean)
-                ? t('phones', 'Phones')
-                : undefined
-            }
-          >
-            <ContactPhones
-              maxVisible={1}
-              id={company.id}
-              primaryPhone={company.primaryPhone}
-              phones={company.phones}
-              scope={`${SCOPE}.phones`}
-              Trigger={PanelFieldTrigger}
-              onSave={(value) => edit.mutate({ id: company.id, ...value })}
-            />
-          </PanelField>
-        </ContactDetailSection>
-        {!expanded && (
-          <ContactDescriptionField
-            contentType="core:company"
-            contentId={company.id}
-            value={company.description || ''}
-          />
-        )}
-      </div>
-      <LeadPanelSection recordType="company" record={company} />
-      <ContactPanelTags contentType="core:company" contentId={company.id} tagIds={company.tagIds} />
-      <ContactPanelRelationField contentType="core:company" contentId={company.id} />
+    <div className="border-b px-3 pb-2">
+      <ContactDetailSection title={sectionT('general', 'General')} nested>
+        <ContactOwnerField
+          label={t('owner', 'Owner')}
+          scope={`${SCOPE}.owner`}
+          ownerId={company.ownerId}
+          onChange={(ownerId) => edit.mutate({ id: company.id, ownerId })}
+        />
+        <CompanyTextRow company={company} code="code" label={t('field.code', 'Code')} />
+        <LeadStageField recordType="company" record={company} />
+        <CompanyTextRow company={company} code="website" label={t('field.website', 'Website')} />
+      </ContactDetailSection>
+      <CompanyBusinessSection company={company} />
+      <ContactChannelsSection
+        title={sectionT('contact', 'Contact')}
+        labels={{ emails: t('emails', 'Emails'), phones: t('phones', 'Phones') }}
+        scope={SCOPE}
+        contact={company}
+        onSave={(value) => edit.mutate({ id: company.id, ...value })}
+      />
+      {!expanded && (
+        <ContactDescriptionField
+          contentType="core:company"
+          contentId={company.id}
+          value={company.description || ''}
+        />
+      )}
     </div>
   );
 };
 
 // The company's fields as record table cells: click a value to edit it.
-export const CompanyPanelDetail = ({
-  companyId,
-  children,
-}: {
-  companyId: string;
-  children?: ReactNode;
-}) => (
-  // Radix sizes its content as a table, which lets wide values push past the
-  // panel; a block lets each value shrink and truncate instead.
-  <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
-    <CompanyFields companyId={companyId} />
-    {children}
-  </ScrollArea>
-);
+export const CompanyPanelDetail = ({ companyId }: { companyId: string }) => {
+  const { data: company, isPending } = useCompany(companyId);
+
+  if (isPending) return <Spinner containerClassName="py-12" />;
+
+  if (!company) return null;
+
+  return (
+    <ContactDetailScroll>
+      <CompanyFields company={company} />
+      <LeadPanelSection recordType="company" record={company} />
+      <ContactPanelTags contentType="core:company" contentId={company.id} tagIds={company.tagIds} />
+      <ContactPanelRelationField contentType="core:company" contentId={company.id} />
+    </ContactDetailScroll>
+  );
+};

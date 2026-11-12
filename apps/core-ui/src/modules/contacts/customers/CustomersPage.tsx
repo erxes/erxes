@@ -9,7 +9,7 @@ import { useLeadsT } from '~/modules/leads/i18n';
 import { CustomersRecordTable } from './CustomersRecordTable';
 
 /**
- * Contacts › Customers (or Leads): old core-ui CustomersIndexPage. A customer
+ * Contacts › Customers (or Leads). A customer
  * opens in the side panel beside the list. Leads also have a
  * board (chosen under Display) with a column per stage; the table filters by stage in the filter bar.
  */

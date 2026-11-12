@@ -36,14 +36,13 @@ export const fitToWidget = (
 };
 
 /**
- * Vertical compaction (as react-grid-layout's `verticalCompactor` in old
- * core-ui): in reading order every tile floats up as far as it can, and moves
+ * Vertical compaction (as react-grid-layout's `verticalCompactor`): in reading order every tile floats up as far as it can, and moves
  * down while it overlaps a tile already placed. `priorityId` (the tile being
  * dragged, resized or dropped) wins a tie for its spot, so moving a tile onto
  * another pushes that one down, and moving it past one swaps them.
  */
 export const compactLayout = (items: TDashboardItem[], priorityId?: string): TDashboardItem[] => {
-  const sorted = [...items].sort(
+  const sorted = items.toSorted(
     (a, b) => byPosition(a, b) || Number(b.id === priorityId) - Number(a.id === priorityId),
   );
 

@@ -7,8 +7,7 @@ import { RESET_PASSWORD_QUERY_KEY } from '../constants';
 import { useMemberPermissions, useTeamMemberDisable } from '../useTeamMembers';
 
 /**
- * A member's actions (old `TeamMemberActionItems`), the ones core has:
- * reset password and deactivate / activate.
+ * A member's actions: reset password and deactivate / activate.
  */
 export const TeamMemberActionItems = ({
   user,

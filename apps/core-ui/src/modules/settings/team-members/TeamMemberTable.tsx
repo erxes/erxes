@@ -43,7 +43,7 @@ export const TeamMemberTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      <TeamMemberCommandBar />
+      <TeamMemberCommandBar rows={list} />
     </RecordTable.Provider>
   );
 };

@@ -1,18 +1,20 @@
 import { IconArrowBackUp, IconDots, IconExternalLink, IconTrash } from '@tabler/icons-react';
 import { Button, Command, Popover, useConfirm } from 'erxes-ui';
-import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useCan, useSession } from '~/modules/auth/session';
+import { useCan } from '~/modules/auth/session';
 import { useCompaniesRemove, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomerEdit, useCustomersRemove } from '~/modules/contacts/customers/useCustomers';
 import {
   getContactDetailPath,
   getContactListPath,
 } from '~/modules/contacts/utils/contactDetailPath';
+import { useLeadsT } from '~/modules/leads/i18n';
 import { getSidePanelRecordPath } from '../sidePanelPaths';
 import { useSidePanel } from '../useSidePanel';
-import { useLeadsT } from '~/modules/leads/i18n';
+
+type ContactType = 'core:customer' | 'core:company';
 
 /** Reads a stored website as a link, ignoring values that are not http(s). */
 const getWebsiteUrl = (website?: string | null) => {
@@ -66,65 +68,62 @@ export const ContactPanelIdentity = ({
 );
 
 /**
- * The record's "more" menu (old ContactPanelRecordActions). Core has no
- * print, broadcast or export yet, so it holds Delete (owners and admins).
+ * Deletes the contact once confirmed, takes it out of the panel and leaves its
+ * own page for the list.
+ */
+const useDeleteContact = (contentType: ContactType, contentId: string) => {
+  const { t } = useTranslation('contact');
+  const { dismissPath } = useSidePanel();
+  const { confirm } = useConfirm();
+  const navigate = useNavigate();
+  const removeCustomers = useCustomersRemove();
+  const removeCompanies = useCompaniesRemove();
+  const remove = contentType === 'core:customer' ? removeCustomers : removeCompanies;
+
+  const onDeleted = () => {
+    dismissPath(getSidePanelRecordPath({ contentType, contentId }));
+
+    const { pathname, search } = window.location;
+
+    if (pathname === getContactDetailPath(contentType, contentId, pathname)) {
+      void navigate({ pathname: getContactListPath(contentType, pathname), search });
+    }
+  };
+
+  const deleteContact = () =>
+    void confirm({
+      message: t('confirm-delete-contact', 'Delete this contact?'),
+      options: { okLabel: t('action-delete', 'Delete'), variants: { ok: 'destructive' } },
+    }).then(() => remove.mutate({ ids: [contentId] }, { onSuccess: onDeleted }));
+
+  return { deleteContact, deleting: remove.isPending };
+};
+
+/**
+ * The record's "more" menu: make a customer a lead again (editors), and
+ * Delete (owners and admins).
  */
 export const ContactPanelActions = ({
   contentType,
   contentId,
   state,
 }: {
-  contentType: 'core:customer' | 'core:company';
+  contentType: ContactType;
   contentId: string;
   /** A customer can be made a lead again from here. */
   state?: 'lead' | 'customer';
 }) => {
   const { t } = useTranslation('contact');
-  const { user } = useSession();
-  const panel = useSidePanel();
-  const currentPanel = useRef(panel);
-
-  useLayoutEffect(() => {
-    currentPanel.current = panel;
-  }, [panel]);
-
-  const { confirm } = useConfirm();
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const removeCustomers = useCustomersRemove();
-  const removeCompanies = useCompaniesRemove();
-  const remove = contentType === 'core:customer' ? removeCustomers : removeCompanies;
-  const can = useCan();
   const leadsT = useLeadsT();
+  const [open, setOpen] = useState(false);
+  const can = useCan();
   const canDelete = can('contacts.delete');
   const canReopen = state === 'customer' && can('contacts.edit');
   const editCustomer = useCustomerEdit();
   const editCompany = useCompanyEdit();
+  const { deleteContact, deleting } = useDeleteContact(contentType, contentId);
 
   if (!canDelete && !canReopen) return null;
-
-  const deleteContact = async () => {
-    try {
-      await confirm({
-        message: t('confirm-delete-contact', 'Delete this contact?'),
-        options: { okLabel: t('action-delete', 'Delete'), variants: { ok: 'destructive' } },
-      });
-    } catch {
-      return;
-    }
-
-    remove.mutate([contentId], {
-      onSuccess: () => {
-        currentPanel.current.dismissPath(getSidePanelRecordPath({ contentType, contentId }));
-
-        const { pathname, search } = window.location;
-
-        if (pathname === getContactDetailPath(contentType, contentId, pathname)) {
-          navigate({ pathname: getContactListPath(contentType, pathname), search });
-        }
-      },
-    });
-  };
 
   return (
     <section
@@ -164,10 +163,10 @@ export const ContactPanelActions = ({
                 {canDelete && (
                   <Command.Item
                     className="text-destructive"
-                    disabled={remove.isPending}
+                    disabled={deleting}
                     onSelect={() => {
                       setOpen(false);
-                      void deleteContact();
+                      deleteContact();
                     }}
                   >
                     <IconTrash />
