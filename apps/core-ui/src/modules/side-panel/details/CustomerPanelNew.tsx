@@ -21,9 +21,9 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { AvatarUploadField } from '~/components/AvatarEditor';
 import { toYmd } from '~/components/inlineCells';
-import { isApiError, messageOf } from '~/lib/api';
+import { errorData, isApiError, messageOf } from '~/lib/api';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
-import { linkNewContact } from '~/modules/contacts/components/useContactRelations';
+import { linkNewContact } from '~/modules/contacts/components/useContactLinks';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
 import { PANEL_INPUT_CLASS_NAME, PanelFormLayout, PanelFormRow } from '../PanelForm';
 import { useCreatedPanelRecord } from '../useCreatedPanelRecord';
@@ -31,6 +31,9 @@ import { useSidePanel, useSidePanelDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
 
 // Core stores the ISO/IEC 5218 codes; old erxes's pronoun codes are not kept.
+/** `CUSTOMER_EXISTS` names the field whose value another customer has. */
+const takenField = z.object({ field: z.enum(['primaryEmail', 'primaryPhone']) });
+
 const CUSTOMER_SEX_OPTIONS = [
   { label: 'Not known', value: '0' },
   { label: 'Male', value: '1' },
@@ -169,9 +172,9 @@ export const CustomerPanelNew = () => {
       showCreated(created.id);
     } catch (error) {
       if (isApiError(error, 'CUSTOMER_EXISTS')) {
-        const details = error.data as { field?: 'primaryEmail' | 'primaryPhone' } | undefined;
+        const field = errorData(error, takenField)?.field ?? 'primaryEmail';
 
-        form.setError(details?.field ?? 'primaryEmail', { message: error.message });
+        form.setError(field, { message: error.message });
 
         return;
       }

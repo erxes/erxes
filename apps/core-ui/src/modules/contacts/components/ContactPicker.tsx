@@ -3,7 +3,7 @@ import { IconArrowUpRight } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Avatar, Combobox, Command, readImage, Skeleton } from 'erxes-ui';
 import { useEffect, useState } from 'react';
-import { api } from '~/lib/api';
+import { orpc } from '~/lib/api';
 import { useCompany } from '../companies/useCompanies';
 import { customerName, useCustomer } from '../customers/useCustomers';
 
@@ -117,38 +117,41 @@ const useDebounced = (value: string, delay: number) => {
   return debounced;
 };
 
-const searchContacts = async (
+/** Up to 20 customers or companies: those matching `search`, or the ones with `ids`. */
+const useContactOptions = (
   kind: TContactKind,
-  search: string,
-  ids?: string[],
-): Promise<IContactOption[]> => {
-  if (ids && !ids.length) return [];
+  { search, ids }: { search?: string; ids?: string[] },
+) => {
+  const input = { limit: 20, search: search || undefined, ids: ids?.join(',') };
+  const enabled = !ids || ids.length > 0;
+  const customers = useQuery(
+    orpc.customers.list.queryOptions({
+      input,
+      enabled: enabled && kind === 'customer',
+      placeholderData: (previous) => previous,
+      select: (page): IContactOption[] =>
+        page.data.map((customer) => ({
+          id: customer.id,
+          name: customerTitle(customer),
+          avatarUrl: customer.avatarUrl,
+        })),
+    }),
+  );
+  const companies = useQuery(
+    orpc.companies.list.queryOptions({
+      input,
+      enabled: enabled && kind === 'company',
+      placeholderData: (previous) => previous,
+      select: (page): IContactOption[] =>
+        page.data.map((company) => ({
+          id: company.id,
+          name: companyTitle(company),
+          avatarUrl: company.avatarUrl,
+        })),
+    }),
+  );
 
-  if (kind === 'customer') {
-    const { data } = await api.customers.list({
-      limit: 20,
-      search: search || undefined,
-      ids: ids?.join(','),
-    });
-
-    return data.map((customer) => ({
-      id: customer.id,
-      name: customerTitle(customer),
-      avatarUrl: customer.avatarUrl,
-    }));
-  }
-
-  const { data } = await api.companies.list({
-    limit: 20,
-    search: search || undefined,
-    ids: ids?.join(','),
-  });
-
-  return data.map((company) => ({
-    id: company.id,
-    name: companyTitle(company),
-    avatarUrl: company.avatarUrl,
-  }));
+  return kind === 'customer' ? customers : companies;
 };
 
 const ContactOptionItem = ({
@@ -189,21 +192,15 @@ export const SelectContactContent = ({
   const debounced = useDebounced(search.trim(), 500);
   const placeholder = kind === 'customer' ? 'Unnamed customer' : 'Unnamed company';
 
-  const selected = useQuery({
-    queryKey: [kind === 'customer' ? 'customers' : 'companies', 'options', 'ids', value],
-    queryFn: () => searchContacts(kind, '', value),
-    placeholderData: (previous) => previous,
-  });
-
-  const matches = useQuery({
-    queryKey: [kind === 'customer' ? 'customers' : 'companies', 'options', 'search', debounced],
-    queryFn: () => searchContacts(kind, debounced),
-  });
+  const selected = useContactOptions(kind, { ids: value });
+  const matches = useContactOptions(kind, { search: debounced });
 
   const toggle = (id: string) =>
     onValueChange(value.includes(id) ? value.filter((item) => item !== id) : [...value, id]);
 
-  const selectedOptions = (selected.data ?? []).filter((option) => value.includes(option.id));
+  const selectedOptions = value.length
+    ? (selected.data ?? []).filter((option) => value.includes(option.id))
+    : [];
 
   return (
     <Command shouldFilter={false}>
@@ -230,8 +227,10 @@ export const SelectContactContent = ({
           </>
         )}
         <Combobox.Empty loading={matches.isPending} />
-        {matches.error && (
-          <div className="p-2 text-xs text-destructive">{matches.error.message}</div>
+        {(matches.error ?? selected.error) && (
+          <div role="alert" className="p-2 text-xs text-destructive">
+            {(matches.error ?? selected.error)?.message}
+          </div>
         )}
         {!matches.isPending &&
           (matches.data ?? [])

@@ -19,8 +19,9 @@ import { useViews } from './views/useViews';
 import { useLeadsT } from '~/modules/leads/i18n';
 import { VIEW_LIST_PATHS, viewHref } from './views/viewLinks';
 import { CONTACT_SETTINGS_PATH } from './settings/paths';
+import { messageOf } from '~/lib/api';
 
-export const CONTACTS_SECTIONS = [
+const CONTACTS_SECTIONS = [
   // People and companies are peers; leads (of either kind) come after.
   { labelKey: 'customers', path: ContactsPath.Customers, icon: IconUser },
   { labelKey: 'companies', path: ContactsPath.Companies, icon: IconBuilding },
@@ -37,10 +38,19 @@ const NestedViews = ({
   recordType: ViewRecordType;
   indent?: boolean;
 }) => {
-  const views = useViews(recordType);
+  const { data, error } = useViews(recordType);
   const leadsT = useLeadsT();
   const { pathname } = useLocation();
   const [params] = useSearchParams();
+  const views = data?.data ?? [];
+
+  if (error) {
+    return (
+      <p role="alert" className={cn('px-2 text-xs text-destructive', indent && 'ml-5')}>
+        {messageOf(error)}
+      </p>
+    );
+  }
 
   if (!views.length) return null;
 

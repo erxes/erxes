@@ -113,17 +113,20 @@ export const ContactPanelActions = ({
       return;
     }
 
-    remove.mutate([contentId], {
-      onSuccess: () => {
-        currentPanel.current.dismissPath(getSidePanelRecordPath({ contentType, contentId }));
+    remove.mutate(
+      { ids: [contentId] },
+      {
+        onSuccess: () => {
+          currentPanel.current.dismissPath(getSidePanelRecordPath({ contentType, contentId }));
 
-        const { pathname, search } = window.location;
+          const { pathname, search } = window.location;
 
-        if (pathname === getContactDetailPath(contentType, contentId, pathname)) {
-          navigate({ pathname: getContactListPath(contentType, pathname), search });
-        }
+          if (pathname === getContactDetailPath(contentType, contentId, pathname)) {
+            navigate({ pathname: getContactListPath(contentType, pathname), search });
+          }
+        },
       },
-    });
+    );
   };
 
   return (

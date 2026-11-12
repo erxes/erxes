@@ -69,7 +69,10 @@ export const CompaniesCommandBar = () => {
                   confirm({
                     message: t('confirm-delete-selected', { count: companyIds.length }),
                   }).then(() =>
-                    remove.mutate(companyIds, { onSuccess: () => table.setRowSelection({}) }),
+                    remove.mutate(
+                      { ids: companyIds },
+                      { onSuccess: () => table.setRowSelection({}) },
+                    ),
                   )
                 }
               >

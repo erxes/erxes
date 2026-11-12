@@ -35,13 +35,8 @@ export const MergeButton = ({
 };
 
 /** Tags on every one of the records (the command bar's tag picker value). */
-export const commonTagIds = (records: { tagIds: string[] }[]) =>
-  records.length === 0
-    ? []
-    : records.reduce<string[]>(
-        (common, record) => common.filter((id) => record.tagIds.includes(id)),
-        records[0].tagIds,
-      );
+export const commonTagIds = ([first, ...rest]: { tagIds: string[] }[]) =>
+  (first?.tagIds ?? []).filter((id) => rest.every((record) => record.tagIds.includes(id)));
 
 /** What changed between two tag selections, for the bulk tag endpoint. */
 export const tagChange = (previous: string[], next: string[]) => ({

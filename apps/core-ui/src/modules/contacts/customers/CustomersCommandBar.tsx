@@ -90,9 +90,12 @@ export const CustomersCommandBar = () => {
                                 count: customerIds.length,
                               }),
                             }).then(() =>
-                              remove.mutate(customerIds, {
-                                onSuccess: () => table.setRowSelection({}),
-                              }),
+                              remove.mutate(
+                                { ids: customerIds },
+                                {
+                                  onSuccess: () => table.setRowSelection({}),
+                                },
+                              ),
                             );
                           }}
                         >

@@ -13,11 +13,12 @@ import {
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
+import { messageOf } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
+import { useLeadsT } from '~/modules/leads/i18n';
 import { SaveViewButton, ViewDialog } from './ViewControls';
 import { viewHref } from './viewLinks';
 import { useViewMutations, useViewState } from './useViews';
-import { useLeadsT } from '~/modules/leads/i18n';
 
 /** Tabs before the rest go under "More". */
 const VISIBLE = 5;
@@ -27,6 +28,24 @@ const TAB =
 
 const ACTIVE =
   'font-medium text-foreground after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary';
+
+/** Copies a view's address, saying whether it worked. */
+const useCopyViewLink = (recordType: ViewRecordType) => {
+  const t = useLeadsT();
+  const { toast } = useToast();
+
+  return (view: View) =>
+    navigator.clipboard.writeText(`${window.location.origin}${viewHref(recordType, view)}`).then(
+      () =>
+        toast({ title: t('views.link-copied'), description: t('views.link-copied-description') }),
+      (error: unknown) =>
+        toast({
+          variant: 'destructive',
+          title: t('views.copy-link'),
+          description: messageOf(error),
+        }),
+    );
+};
 
 /** A saved view's menu: rename, duplicate, share or make private, copy its link, delete. */
 const ViewMenu = ({
@@ -42,10 +61,27 @@ const ViewMenu = ({
 }) => {
   const t = useLeadsT();
   const { confirm } = useConfirm();
-  const { toast } = useToast();
   const can = useCan();
+  const copyLink = useCopyViewLink(recordType);
   const { create, update, remove } = useViewMutations(recordType);
   const [renaming, setRenaming] = useState(false);
+
+  const duplicate = () =>
+    create.mutate(
+      {
+        recordType,
+        name: t('views.copy', { name: view.name }),
+        filter: view.filter,
+        search: view.search,
+        shared: false,
+      },
+      { onSuccess: (copy) => onOpen(copy) },
+    );
+
+  const onDelete = async () => {
+    await confirm({ message: t('views.delete-confirm', { name: view.name }) });
+    remove.mutate({ id: view.id }, { onSuccess: onClosed });
+  };
 
   return (
     <>
@@ -66,19 +102,7 @@ const ViewMenu = ({
               {t('views.rename')}
             </DropdownMenu.Item>
           )}
-          <DropdownMenu.Item
-            onSelect={() =>
-              create.mutate(
-                {
-                  name: t('views.copy', { name: view.name }),
-                  filter: view.filter,
-                  search: view.search,
-                  shared: false,
-                },
-                { onSuccess: (copy) => onOpen(copy) },
-              )
-            }
-          >
+          <DropdownMenu.Item onSelect={duplicate}>
             <IconCopy />
             {t('views.duplicate')}
           </DropdownMenu.Item>
@@ -90,31 +114,14 @@ const ViewMenu = ({
               {view.shared ? t('views.private') : t('views.share')}
             </DropdownMenu.Item>
           )}
-          <DropdownMenu.Item
-            onSelect={() => {
-              void navigator.clipboard?.writeText(
-                `${window.location.origin}${viewHref(recordType, view)}`,
-              );
-              toast({
-                title: t('views.link-copied'),
-                description: t('views.link-copied-description'),
-              });
-            }}
-          >
+          <DropdownMenu.Item onSelect={() => void copyLink(view)}>
             <IconLink />
             {t('views.copy-link')}
           </DropdownMenu.Item>
           {view.editable && (
             <>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item
-                className="text-destructive"
-                onSelect={() =>
-                  void confirm({
-                    message: t('views.delete-confirm', { name: view.name }),
-                  }).then(() => remove.mutate(view.id, { onSuccess: onClosed }))
-                }
-              >
+              <DropdownMenu.Item className="text-destructive" onSelect={() => void onDelete()}>
                 <IconTrash />
                 {t('views.delete')}
               </DropdownMenu.Item>
@@ -136,6 +143,70 @@ const ViewMenu = ({
   );
 };
 
+/** Views past the first few. */
+const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => void }) => {
+  const t = useLeadsT();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <button type="button" className={TAB}>
+          {t('views.more', { count: views.length })}
+          <IconChevronDown className="size-3.5" />
+        </button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="start" className="max-h-80 min-w-52 overflow-y-auto">
+        {views.map((view) => (
+          <DropdownMenu.Item key={view.id} onSelect={() => onOpen(view)}>
+            {view.shared ? <IconUsers /> : <IconLock />}
+            <span className="truncate">{view.name}</span>
+          </DropdownMenu.Item>
+        ))}
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
+/** Saves the list as it is now as a new view, and opens it. */
+const NewViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
+  const t = useLeadsT();
+  const { query } = useViewState(recordType);
+  const { create } = useViewMutations(recordType);
+  const [adding, setAdding] = useState(false);
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 shrink-0 gap-1 px-2 text-muted-foreground"
+        onClick={() => setAdding(true)}
+      >
+        <IconPlus className="size-4" />
+        {t('views.new-view')}
+      </Button>
+      <ViewDialog
+        open={adding}
+        onOpenChange={setAdding}
+        title={t('views.new-view')}
+        initial={{ name: '', shared: false }}
+        pending={create.isPending}
+        onSave={({ name, shared }) =>
+          create.mutate(
+            { recordType, name, shared, filter: query.advanced, search: query.search || null },
+            {
+              onSuccess: (view) => {
+                setAdding(false);
+                query.openView(view);
+              },
+            },
+          )
+        }
+      />
+    </>
+  );
+};
+
 /**
  * Saved views as tabs above a list (as HubSpot and Attio): "All", then each
  * view (shared ones marked), the rest under "More"; a new view saves the list
@@ -150,17 +221,13 @@ export const ViewTabs = ({
   allLabel: string;
 }) => {
   const t = useLeadsT();
-  const { views, current, changed, query } = useViewState(recordType);
-  const { create } = useViewMutations(recordType);
-  const [adding, setAdding] = useState(false);
+  const { views, error, current, changed, query } = useViewState(recordType);
   // The open view stays visible even when it is past the first few.
   const visible = views.slice(0, VISIBLE);
-
   const shown =
     current && !visible.some((view) => view.id === current.id)
       ? [...visible.slice(0, VISIBLE - 1), current]
       : visible;
-
   const more = views.filter((view) => !shown.includes(view));
 
   return (
@@ -172,59 +239,42 @@ export const ViewTabs = ({
       >
         {allLabel}
       </button>
-      {shown.map((view) => {
-        const active = current?.id === view.id;
-
-        return (
-          <div
-            key={view.id}
-            className={cn('group/tab flex shrink-0 items-center', TAB, 'pr-1', active && ACTIVE)}
-          >
-            <button
-              type="button"
-              className="flex items-center gap-1.5"
-              onClick={() => query.openView(view)}
-              title={view.shared ? t('views.shared') : t('views.mine')}
-            >
-              {view.shared && <IconUsers className="size-3.5 opacity-60" />}
-              <span className="max-w-40 truncate">{view.name}</span>
-            </button>
-            <ViewMenu
-              view={view}
-              recordType={recordType}
-              onOpen={query.openView}
-              onClosed={() => active && query.openView(null)}
-            />
-          </div>
-        );
-      })}
-      {more.length > 0 && (
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <button type="button" className={TAB}>
-              {t('views.more', { count: more.length })}
-              <IconChevronDown className="size-3.5" />
-            </button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="start" className="max-h-80 min-w-52 overflow-y-auto">
-            {more.map((view) => (
-              <DropdownMenu.Item key={view.id} onSelect={() => query.openView(view)}>
-                {view.shared ? <IconUsers /> : <IconLock />}
-                <span className="truncate">{view.name}</span>
-              </DropdownMenu.Item>
-            ))}
-          </DropdownMenu.Content>
-        </DropdownMenu>
+      {error && (
+        <span role="alert" className="text-xs text-destructive">
+          {messageOf(error)}
+        </span>
       )}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 shrink-0 gap-1 px-2 text-muted-foreground"
-        onClick={() => setAdding(true)}
-      >
-        <IconPlus className="size-4" />
-        {t('views.new-view')}
-      </Button>
+      {shown.map((view) => (
+        <div
+          key={view.id}
+          className={cn(
+            'group/tab flex shrink-0 items-center',
+            TAB,
+            'pr-1',
+            current?.id === view.id && ACTIVE,
+          )}
+        >
+          <button
+            type="button"
+            className="flex items-center gap-1.5"
+            onClick={() => query.openView(view)}
+            title={view.shared ? t('views.shared') : t('views.mine')}
+          >
+            {view.shared && <IconUsers className="size-3.5 opacity-60" />}
+            <span className="max-w-40 truncate">{view.name}</span>
+          </button>
+          <ViewMenu
+            view={view}
+            recordType={recordType}
+            onOpen={query.openView}
+            onClosed={() => {
+              if (current?.id === view.id) query.openView(null);
+            }}
+          />
+        </div>
+      ))}
+      {more.length > 0 && <MoreViews views={more} onOpen={query.openView} />}
+      <NewViewButton recordType={recordType} />
       {changed && (
         <div className="ml-auto flex shrink-0 items-center gap-1 pl-2">
           <span className="mr-1 hidden text-xs text-muted-foreground md:inline">
@@ -242,29 +292,6 @@ export const ViewTabs = ({
           <SaveViewButton recordType={recordType} />
         </div>
       )}
-      <ViewDialog
-        open={adding}
-        onOpenChange={setAdding}
-        title={t('views.new-view')}
-        initial={{ name: '', shared: false }}
-        pending={create.isPending}
-        onSave={({ name, shared }) =>
-          create.mutate(
-            {
-              name,
-              shared,
-              filter: query.advanced,
-              search: query.search || null,
-            },
-            {
-              onSuccess: (view) => {
-                setAdding(false);
-                query.openView(view);
-              },
-            },
-          )
-        }
-      />
     </div>
   );
 };

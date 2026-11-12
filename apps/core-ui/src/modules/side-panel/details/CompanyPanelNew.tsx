@@ -27,7 +27,7 @@ import {
 } from '~/modules/contacts/companies/companyConstants';
 import { useCompanyCreate } from '~/modules/contacts/companies/useCompanies';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
-import { linkNewContact } from '~/modules/contacts/components/useContactRelations';
+import { linkNewContact } from '~/modules/contacts/components/useContactLinks';
 import { PANEL_INPUT_CLASS_NAME, PanelFormLayout, PanelFormRow } from '../PanelForm';
 import { useCreatedPanelRecord } from '../useCreatedPanelRecord';
 import { useSidePanel, useSidePanelDraft } from '../useSidePanel';

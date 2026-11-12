@@ -2,6 +2,7 @@ import type { CustomValue } from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
 import { Button, Collapsible, ScrollArea, Spinner } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { messageOf } from '~/lib/api';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { CustomFieldCell, FIELD_TYPE_ICONS } from '~/modules/properties/CustomFieldCell';
@@ -41,7 +42,9 @@ const ContactProperties = ({
   values: Record<string, CustomValue> | undefined;
   onSave: (patch: Record<string, CustomValue | null>) => void;
 }) => {
-  const { sections, loading } = useFields(kind);
+  const { sections, loading, error } = useFields(kind);
+
+  if (error) return <p className="px-2 py-6 text-sm text-destructive">{messageOf(error)}</p>;
 
   if (loading || !values) return <Spinner containerClassName="py-6" />;
 

@@ -42,13 +42,7 @@ import { LeadStageField } from '~/modules/leads/LeadStageField';
 const SCOPE = 'side-panel-customer';
 
 /** `YYYY-MM-DD` → a local date, `YYYY/MM/DD` for display. */
-const parseYmd = (value: string | null) => {
-  if (!value) return undefined;
-
-  const [year, month, day] = value.split('-').map(Number);
-
-  return new Date(year, month - 1, day);
-};
+const parseYmd = (value: string | null) => (value ? new Date(`${value}T00:00:00`) : undefined);
 
 const formatSlashDate = (date: Date) => toYmd(date).replaceAll('-', '/');
 
