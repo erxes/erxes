@@ -7,15 +7,26 @@ export const memberName = (user: Pick<User, 'fullName' | 'email'>) => user.fullN
 
 /** Team members by id (any status), for showing who did something. */
 export const useMembersById = (ids: (string | null | undefined)[]) => {
-  const wanted = useMemo(() => [...new Set(ids.filter((id): id is string => Boolean(id)))].sort(), [ids]);
+  // The active team is loaded once for the whole app; only others (disabled members) are fetched by id.
+  const team = useQuery({ queryKey: ['users', 'options'], queryFn: () => api.users.list({ limit: 100, status: 'active' }), staleTime: 60_000 });
+  const known = useMemo(() => new Set((team.data?.data ?? []).map((user) => user.id)), [team.data]);
+  const wanted = useMemo(
+    () => [...new Set(ids.filter((id): id is string => Boolean(id) && !known.has(id!)))].sort(),
+    [ids, known],
+  );
   const query = useQuery({
     queryKey: ['users', 'by-id', wanted],
     queryFn: () => api.users.list({ ids: wanted.join(','), limit: 100 }),
-    enabled: wanted.length > 0,
+    enabled: team.isFetched && wanted.length > 0,
     staleTime: 5 * 60_000,
+    // Names already shown stay while more are looked up.
+    placeholderData: (previous) => previous,
   });
 
-  return useMemo(() => new Map((query.data?.data ?? []).map((user) => [user.id, user])), [query.data]);
+  return useMemo(
+    () => new Map([...(team.data?.data ?? []), ...(query.data?.data ?? [])].map((user) => [user.id, user])),
+    [team.data, query.data],
+  );
 };
 
 /** A plugin name as people read it: `hr` → `HR`, `ecom` → `Ecom`. */

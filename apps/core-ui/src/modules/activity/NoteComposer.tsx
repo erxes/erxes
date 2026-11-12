@@ -128,6 +128,10 @@ export const NoteComposer = ({
     }
   };
 
+  // One line until someone writes: the box opens on focus and stays open while it holds something.
+  const [active, setActive] = useState(Boolean(autoFocus));
+  const open = Boolean(initial) || active || Boolean(body) || files.length > 0 || uploading > 0;
+
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (suggestions.length) {
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -155,14 +159,18 @@ export const NoteComposer = ({
   };
 
   return (
-    <div className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring">
+    <div
+      className="relative rounded-lg border bg-background transition-shadow focus-within:border-ring/60 focus-within:shadow-sm"
+      onFocus={() => setActive(true)}
+      onBlur={(event) => !event.currentTarget.contains(event.relatedTarget as Node | null) && setActive(false)}
+    >
       <Textarea
         ref={textarea}
         value={body}
         autoFocus={autoFocus}
-        rows={initial ? 3 : 2}
+        rows={open ? 3 : 1}
         placeholder={t('note-placeholder', 'Write a note… type @ to mention a teammate')}
-        className="min-h-0 resize-none border-0 shadow-none focus-visible:ring-0"
+        className="min-h-0 resize-none border-0 py-2 shadow-none focus-visible:ring-0"
         onChange={(event) => {
           setBody(event.target.value);
           setMention(mentionAt(event.target.value, event.target.selectionStart));
@@ -208,7 +216,7 @@ export const NoteComposer = ({
           {uploading > 0 && <Spinner size="sm" />}
         </div>
       )}
-      <div className="flex items-center justify-between border-t px-2 py-1.5">
+      <div className={cn('flex items-center justify-between border-t px-2 py-1', !open && 'hidden')}>
         <input ref={fileInput} type="file" multiple className="hidden" onChange={(event) => void attach(event.target.files).then(() => (event.target.value = ''))} />
         <Button type="button" variant="ghost" size="icon" className="size-7" aria-label={t('attach', 'Attach files')} onClick={() => fileInput.current?.click()}>
           <IconPaperclip className="size-4" />

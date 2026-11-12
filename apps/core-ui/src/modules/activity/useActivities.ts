@@ -41,11 +41,17 @@ export const useActivities = (targetType: string, targetId: string, filters: Tim
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
     refetchInterval,
+    // Live updates refetch what changed; reopening the tab shows what is there at once.
+    staleTime: 30_000,
+    // Changing a filter keeps the current entries (dimmed) until the new ones arrive.
+    placeholderData: (previous) => previous,
   });
 
   return {
     activities: query.data?.pages.flatMap((page) => page.data) ?? [],
     loading: query.isPending,
+    /** Showing older results while a filter's arrive. */
+    updating: query.isPlaceholderData,
     hasMore: query.hasNextPage,
     loadingMore: query.isFetchingNextPage,
     loadMore: () => void query.fetchNextPage(),
@@ -58,6 +64,7 @@ export const usePinnedNotes = (targetType: string, targetId: string) =>
     queryKey: [...ACTIVITIES_KEY, targetType, targetId, 'pinned'],
     queryFn: () => api.activities.list({ targetType, targetId, pinned: 'true', kind: 'notes', limit: 20 }),
     select: (page) => page.data,
+    staleTime: 30_000,
   });
 
 export const useNoteActions = () => {

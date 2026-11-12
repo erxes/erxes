@@ -37,7 +37,7 @@ import { IconProgress, IconSearch,
   type Icon,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Button, cn, DropdownMenu, Empty, Input, RelativeDateDisplay, ScrollArea, Select, Spinner, Switch, useConfirm } from 'erxes-ui';
+import { Badge, Button, cn, DropdownMenu, Empty, Input, RelativeDateDisplay, ScrollArea, Select, Skeleton, Spinner, Switch, useConfirm } from 'erxes-ui';
 import { useDeferredValue } from 'react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
@@ -106,8 +106,11 @@ const LinkedRecord = ({ type, id }: { type: string; id: string }) => {
 const CoreRecord = ({ type, id }: { type: ActivityTarget; id: string }) => {
   const customer = useCustomer(type === 'customer' ? id : null);
   const company = useCompany(type === 'company' ? id : null);
-  const record = type === 'customer' ? customer.data : company.data;
+  const query = type === 'customer' ? customer : company;
+  const record = query.data;
   const name = customer.data ? customerTitle(customer.data) : company.data ? companyTitle(company.data) : null;
+
+  if (!record && query.isPending) return <Skeleton className="inline-block h-3.5 w-20 align-middle" />;
 
   if (!record) {
     return <span className="text-muted-foreground">{type === 'customer' ? 'a deleted customer' : 'a deleted company'}</span>;
@@ -375,6 +378,8 @@ const ActivityItem = ({
       : (ICONS[verbOf(activity)] ?? IconHistory);
   const related = activity.targetType !== pageTarget.type || activity.targetId !== pageTarget.id;
   const actor = actorLabel(activity.actor, lookups.members);
+  // Until the team is known, a placeholder rather than "A team member".
+  const named = activity.actor.type !== 'user' || !activity.actor.id || lookups.members.size > 0;
   const changes = activity.data.changes as Record<string, [unknown, unknown]> | undefined;
   let extra: ReactNode = null;
 
@@ -430,15 +435,10 @@ const ActivityItem = ({
     return (
       <li className="group/note relative flex gap-3 pb-4">
         {rail}
-        <UserAvatar name={actor} src={member?.avatarUrl} className="relative z-[1] size-7 shrink-0 ring-4 ring-background" />
-        <div
-          className={cn(
-            'min-w-0 flex-1 rounded-lg border bg-background px-3.5 py-2.5 shadow-xs transition-shadow hover:shadow-sm',
-            activity.pinned && 'border-primary/30 bg-primary/[0.03]',
-          )}
-        >
-          <div className="mb-1 flex min-w-0 items-center gap-1.5 text-sm">
-            <span className="truncate font-medium">{actor}</span>
+        <UserAvatar name={actor} src={member?.avatarUrl} className="relative z-[1] size-7 shrink-0 rounded-full ring-4 ring-background [&>*]:rounded-full" />
+        <div className="min-w-0 flex-1 pt-0.5">
+          <div className="flex h-6 min-w-0 items-center gap-1.5 text-sm">
+            {named ? <span className="truncate font-medium">{actor}</span> : <Skeleton className="h-3.5 w-24" />}
             {onRelated}
             <span className="text-muted-foreground" aria-hidden="true">
               ·
@@ -451,7 +451,7 @@ const ActivityItem = ({
               {!editing && <NoteActions activity={activity} onEdit={() => setEditing(true)} />}
             </span>
           </div>
-          {extra}
+          <div className={cn('mt-0.5 text-foreground/90', activity.pinned && 'rounded-md bg-primary/[0.04] px-2 py-1.5 -mx-2')}>{extra}</div>
         </div>
       </li>
     );
@@ -462,15 +462,15 @@ const ActivityItem = ({
     <li className="group relative flex gap-3 pb-3">
       {rail}
       <span
-        className="relative z-[1] flex size-7 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground"
-        style={look?.color ? { color: look.color, borderColor: look.color } : undefined}
+        className="relative z-[1] flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground ring-4 ring-background"
+        style={look?.color ? { color: look.color } : undefined}
       >
         <ItemIcon className="size-3.5" />
       </span>
       <div className="min-w-0 flex-1 pt-1">
         <div className="flex min-w-0 items-start gap-2">
-          <p className="min-w-0 flex-1 text-sm leading-5">
-            <Sentence activity={activity} actor={actor} lookups={lookups} />
+          <p className="min-w-0 flex-1 text-sm leading-5 text-muted-foreground [&_.font-medium]:text-foreground">
+            {named ? <Sentence activity={activity} actor={actor} lookups={lookups} /> : <Skeleton className="mt-1 h-3.5 w-48" />}
             {onRelated}
           </p>
           {when}
@@ -541,7 +541,7 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
   const [source, setSource] = useState('all');
   const catalog = useActivityTypes();
   const sources = [...new Set((catalog?.types ?? []).map((item) => item.source).filter((name) => name !== 'core'))];
-  const { activities, loading, hasMore, loadingMore, loadMore } = useActivities(targetType, targetId, {
+  const { activities, loading, updating, hasMore, loadingMore, loadMore } = useActivities(targetType, targetId, {
     kind,
     includeRelated,
     q,
@@ -662,7 +662,17 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
         )}
       </div>
       {loading ? (
-        <Spinner containerClassName="py-12" />
+        <div className="space-y-5 px-4 pt-4">
+          {Array.from({ length: 5 }, (_, index) => (
+            <div key={index} className="flex gap-3">
+              <Skeleton className="size-7 shrink-0 rounded-full" />
+              <div className="flex-1 space-y-2 pt-1">
+                <Skeleton className="h-3.5 w-1/2" />
+                {index % 2 === 0 && <Skeleton className="h-3.5 w-4/5" />}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : !activities.length ? (
         <Empty className="py-12">
           <Empty.Header>
@@ -676,7 +686,7 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
           </Empty.Header>
         </Empty>
       ) : (
-        <div className="px-4 pt-2">
+        <div className={cn('px-4 pt-2 transition-opacity', updating && 'opacity-60')}>
           {groups.map((group, groupIndex) => (
             <section key={group.day}>
               <h3 className="sticky top-0 z-10 bg-background/95 py-2 text-xs font-semibold text-muted-foreground uppercase backdrop-blur">
