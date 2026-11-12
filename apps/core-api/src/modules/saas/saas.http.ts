@@ -6,13 +6,9 @@ import { signAccessToken } from '~/http/auth';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import { HttpError } from '~/http/errors';
 import { sessionVersionOf } from '~/modules/auth/account.service';
-import {
-  applyWorkspace,
-  platformAuthorized,
-  redeemHandoff,
-  refreshEntitlements,
-  workspaceUsage,
-} from './saas.service';
+import { refreshEntitlements } from './entitlements';
+import { redeemHandoff } from './handoff';
+import { applyWorkspace, platformAuthorized, workspaceUsage } from './workspace';
 
 /**
  * erxes.io's door into core (`/core/v1/saas/*`), only with SAAS=true. Calls

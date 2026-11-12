@@ -23,7 +23,8 @@ import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { accessOf, assertPluginInPlan, entitlementsOf, tierOf } from '~/modules/saas/saas.service';
+import { accessOf, tierOf } from '~/modules/saas/access';
+import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
 
 type PluginRow = typeof plugins.$inferSelect;
 

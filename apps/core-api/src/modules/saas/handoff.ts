@@ -1,0 +1,122 @@
+import { organizations, usedTokens, users, withOrg, withSystem } from '@erxes/core-db';
+import { and, eq, ne, sql } from 'drizzle-orm';
+import { jwtVerify } from 'jose';
+import { createHash } from 'node:crypto';
+import { z } from 'zod';
+import { config } from '~/config';
+import { HttpError } from '~/http/errors';
+import { recordAudit } from '~/modules/audit/audit.service';
+import { subdomainFromHost } from '~/modules/auth/auth.service';
+
+/** erxes.io's claims; a claim of the wrong type counts as missing. */
+const HandoffClaims = z.object({
+  user: z
+    .object({ email: z.string().optional().catch(undefined) })
+    .optional()
+    .catch(undefined),
+  email: z.string().optional().catch(undefined),
+  org: z.string().optional().catch(undefined),
+  exp: z.number().optional().catch(undefined),
+});
+
+/** The organisation: the token's `org`, else the address's subdomain. */
+const handoffOrganization = async (org: string | undefined, host: string | undefined) => {
+  const subdomain = subdomainFromHost(host) ?? config.auth.defaultSubdomain;
+
+  const [found] = await withSystem('saas: hand-off organisation', (tx) =>
+    tx
+      .select({ id: organizations.id })
+      .from(organizations)
+      .where(
+        org
+          ? eq(organizations.id, org)
+          : eq(sql`lower(${organizations.subdomain})`, (subdomain ?? '').toLowerCase()),
+      )
+      .limit(1),
+  );
+
+  if (!found) throw new HttpError(404, 'NOT_FOUND', 'No such workspace');
+
+  return found.id;
+};
+
+/** erxes.io's tokens carry no id: the token itself (hashed) is what can't be used twice. */
+const useOnce = async (token: string, exp: number) => {
+  const used = await withSystem('saas: hand-off', (tx) =>
+    tx
+      .insert(usedTokens)
+      .values({
+        jti: `saas:${createHash('sha256').update(token).digest('base64url')}`,
+        expiresAt: new Date(exp * 1000),
+      })
+      .onConflictDoNothing()
+      .returning({ jti: usedTokens.jti }),
+  );
+
+  if (!used.length) throw new HttpError(400, 'TOKEN_USED', 'This sign-in link was already used');
+};
+
+/**
+ * erxes.io's "open workspace" link: `…/core-login?token=` with an HS256
+ * token signed with SAAS_JWT_TOKEN_SECRET (erxes.io's `workspaceUrl`):
+ * `{ user: { email } }` (or `email`), at most 5 minutes old. The
+ * organisation is the token's `org`, else the address's subdomain. Each
+ * token works once.
+ */
+export const redeemHandoff = async (token: string, host: string | undefined) => {
+  if (!config.saas.handoffSecret)
+    throw new HttpError(404, 'NOT_FOUND', 'Sign-in hand-off is not set up');
+
+  const { payload } = await jwtVerify(token, new TextEncoder().encode(config.saas.handoffSecret), {
+    algorithms: ['HS256'],
+    maxTokenAge: '5m',
+  });
+
+  const claims = HandoffClaims.parse(payload);
+  const email = claims.user?.email ?? claims.email;
+
+  if (!email || !claims.exp) throw new HttpError(400, 'INVALID_TOKEN', 'Not a sign-in link');
+
+  const orgId = await handoffOrganization(claims.org, host);
+
+  await useOnce(token, claims.exp);
+
+  const [user] = await withOrg(orgId, (tx) =>
+    tx
+      .select({ id: users.id, status: users.status })
+      .from(users)
+      .where(
+        and(
+          eq(users.orgId, orgId),
+          eq(sql`lower(${users.email})`, email.toLowerCase()),
+          ne(users.status, 'disabled'),
+        ),
+      )
+      .limit(1),
+  );
+
+  if (!user) throw new HttpError(403, 'NOT_A_MEMBER', 'You are not a member of this workspace');
+
+  await withOrg(orgId, async (tx) => {
+    // erxes.io vouches for the email: an invited member becomes active.
+    if (user.status === 'invited')
+      await tx
+        .update(users)
+        .set({ status: 'active', updatedAt: sql`now()` })
+        .where(eq(users.id, user.id));
+
+    await recordAudit(
+      tx,
+      { orgId, actorType: 'user', actorId: user.id, source: 'core' },
+      {
+        action: 'auth.signed_in',
+        targetType: 'user',
+        targetId: user.id,
+        targetLabel: email,
+        metadata: { method: 'erxes_io' },
+      },
+    );
+  });
+
+  return { orgId, userId: user.id };
+};
