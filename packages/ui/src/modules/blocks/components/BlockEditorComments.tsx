@@ -10,7 +10,7 @@ import {
 } from '@blocknote/react';
 import { components as blockNoteComponents } from '@blocknote/shadcn';
 import type { ComponentProps as ReactComponentProps, ReactNode } from 'react';
-import { forwardRef, memo, useMemo, useState } from 'react';
+import { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
 import { Avatar } from 'erxes-ui/components/avatar';
 import { Button } from 'erxes-ui/components/button';
 import { Card } from 'erxes-ui/components/card';
@@ -80,7 +80,7 @@ const CommentAction = forwardRef<HTMLButtonElement, CommentActionProps>(
           onMouseDown?.(event);
         }}
         onClick={onClick}
-        disabled={isDisabled || props.disabled}
+        disabled={isDisabled === true || props.disabled === true}
         aria-pressed={isSelected}
         title={[mainTooltip, secondaryTooltip].filter(Boolean).join(' — ')}
         aria-label={label || mainTooltip}
@@ -141,17 +141,11 @@ const CommentDisplay = ({
   className,
 }: ComponentProps['Comments']['Comment']) => {
   const dictionary = useDictionary();
-  const [hovered, setHovered] = useState(false);
   const { focused, ref } = useFocusWithin();
-  const actionsVisible = showActions !== false && (showActions !== 'hover' || hovered || focused);
+  const onHoverOnly = showActions === 'hover' && !focused;
 
   return (
-    <article
-      ref={ref}
-      className={cn('space-y-2', className)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <article ref={ref} className={cn('group/comment space-y-2', className)}>
       <div className="flex min-w-0 items-center gap-2">
         {authorInfo === 'loading' ? (
           <>
@@ -174,7 +168,13 @@ const CommentDisplay = ({
           </>
         )}
         {actions && (
-          <div className={cn('ml-auto flex shrink-0 justify-end', !actionsVisible && 'invisible')}>
+          <div
+            className={cn(
+              'ml-auto flex shrink-0 justify-end',
+              showActions === false && 'invisible',
+              onHoverOnly && 'invisible group-hover/comment:visible',
+            )}
+          >
             {actions}
           </div>
         )}
@@ -200,11 +200,17 @@ const CommentSection = ({ className, children }: ComponentProps['Comments']['Car
 const CommentComposer = () => {
   const dictionary = useDictionary();
   const { value, setValue, saving, saveComment } = useBlockEditorCommentComposer();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // The composer opens when the member picks "Comment", so typing starts here.
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
 
   return (
     <CommentCard className="bn-thread">
       <Textarea
-        autoFocus
+        ref={textareaRef}
         className="min-h-24 resize-y border border-input p-3 text-sm"
         placeholder={dictionary.placeholders.new_comment}
         aria-label={dictionary.placeholders.new_comment}
