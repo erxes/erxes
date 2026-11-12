@@ -7,6 +7,12 @@ features (catalog products, orders, rooms, employees, tickets) belong to
 plugins, which live in their own repos. Read `docs/design.md` before changing
 anything structural.
 
+## Skills
+
+`.claude/skills/erxes-core-plugin` (build a plugin for this core) and
+`.claude/skills/erxes-plugin-migration` (move an erxes 3.x plugin such as HR
+onto it). Keep them in step with the plugin contract and `@erxes/plugin-sdk`.
+
 ## Layout
 
 - `apps/core-api` — the core API (`/core/v1`), Express + oRPC (OpenAPI handler: plain REST + JSON), bundled with tsup.
