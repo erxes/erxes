@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 // PermissionModulesForm.tsx
 
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
+import { usePermissionLabels } from '@/settings/permissions/hooks/usePermissionLabels';
 import { UseFormReturn } from 'react-hook-form';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { Label, Select, Separator, Sidebar, Switch } from 'erxes-ui';
@@ -43,6 +44,13 @@ export const PermissionModulesForm = ({
   const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
   const { permissionModulesByPlugin } = useGetPermissionModules();
   const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
+  const {
+    getModuleName,
+    getModuleDescription,
+    getScopeDescription,
+    getActionTitle,
+    getActionDescription,
+  } = usePermissionLabels();
 
   const permissions = form.watch('permissions');
 
@@ -256,12 +264,12 @@ export const PermissionModulesForm = ({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-semibold text-foreground capitalize">
-                              {module.name}
+                              {getModuleName(plugin, module)}
                             </span>
                           </div>
                           {module.description && (
                             <p className="text-sm text-muted-foreground">
-                              {module.description}
+                              {getModuleDescription(plugin, module)}
                             </p>
                           )}
                         </div>
@@ -305,7 +313,11 @@ export const PermissionModulesForm = ({
                                       value={s.name}
                                       className="[&_svg]:text-primary"
                                     >
-                                      {s.description}
+                                      {getScopeDescription(
+                                        plugin,
+                                        module.name,
+                                        s,
+                                      )}
                                     </Select.Item>
                                   ))}
                                 </Select.Content>
@@ -324,12 +336,20 @@ export const PermissionModulesForm = ({
                                     <div className="min-w-0 flex-1">
                                       <div className="flex items-center gap-2 mb-0.5">
                                         <span className="text-sm font-medium text-foreground">
-                                          {action.title || action.name}
+                                          {getActionTitle(
+                                            plugin,
+                                            module.name,
+                                            action,
+                                          )}
                                         </span>
                                       </div>
                                       {action.description && (
                                         <span className="text-xs text-muted-foreground font-normal">
-                                          {action.description}
+                                          {getActionDescription(
+                                            plugin,
+                                            module.name,
+                                            action,
+                                          )}
                                         </span>
                                       )}
                                     </div>

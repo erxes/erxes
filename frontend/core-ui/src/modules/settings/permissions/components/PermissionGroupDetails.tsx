@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useGetPermissionModules } from '@/settings/permissions/hooks/useGetPermissionModules';
+import { usePermissionLabels } from '@/settings/permissions/hooks/usePermissionLabels';
 import {
   IDefaultPermissionGroup,
   IPermissionGroup,
@@ -89,6 +90,19 @@ export const PermissionGroupDetails = ({
     groupedByPlugin[plugin].push({ module, permission: perm });
   }
 
+  const {
+    getGroupDescription,
+    getModuleName,
+    getModuleDescription,
+    getScopeDescription,
+    getActionTitle,
+    getActionDescription,
+  } = usePermissionLabels();
+  const defaultGroup = isDefault && 'id' in group ? group : null;
+  const groupDescription = defaultGroup
+    ? getGroupDescription(defaultGroup)
+    : group.description;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
@@ -117,9 +131,9 @@ export const PermissionGroupDetails = ({
                   </span>
                 )}
               </div>
-              {group.description && (
+              {groupDescription && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {group.description}
+                  {groupDescription}
                 </p>
               )}
             </div>
@@ -228,9 +242,12 @@ export const PermissionGroupDetails = ({
 
                 <Collapsible.Content className="pt-3 space-y-3">
                   {items.map(({ module, permission }) => {
-                    const scopeDescription = module.scopes?.find(
+                    const scope = module.scopes?.find(
                       (s) => s.name === permission.scope,
-                    )?.description;
+                    );
+                    const scopeDescription = scope?.description
+                      ? getScopeDescription(plugin, module.name, scope)
+                      : '';
 
                     return (
                       <div
@@ -239,11 +256,11 @@ export const PermissionGroupDetails = ({
                       >
                         <div className="px-4 py-3 bg-muted/20">
                           <p className="font-medium capitalize text-foreground">
-                            {module.name}
+                            {getModuleName(plugin, module)}
                           </p>
                           {module.description && (
                             <p className="text-sm text-muted-foreground mt-0.5">
-                              {module.description}
+                              {getModuleDescription(plugin, module)}
                             </p>
                           )}
                         </div>
@@ -286,11 +303,19 @@ export const PermissionGroupDetails = ({
                                               : 'text-muted-foreground'
                                           }`}
                                         >
-                                          {action.title || action.name}
+                                          {getActionTitle(
+                                            plugin,
+                                            module.name,
+                                            action,
+                                          )}
                                         </p>
                                         {action.description && (
                                           <p className="text-xs text-muted-foreground">
-                                            {action.description}
+                                            {getActionDescription(
+                                              plugin,
+                                              module.name,
+                                              action,
+                                            )}
                                           </p>
                                         )}
                                       </div>
