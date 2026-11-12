@@ -14,7 +14,9 @@ export const PropertyAdd = ({ contentType }: { contentType: ContentType }) => {
   const { toast } = useToast();
   const { mutate, isPending } = useAddProperty();
   const navigate = useNavigate();
-  const handleClose = () => navigate(`${PROPERTIES_BASE_PATH}/${contentType}`);
+  const handleClose = () => {
+    void navigate(`${PROPERTIES_BASE_PATH}/${contentType}`);
+  };
 
   return (
     <PropertyForm

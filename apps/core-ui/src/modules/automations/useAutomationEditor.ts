@@ -137,7 +137,7 @@ export const useAutomationMutations = (id: string, onProblems: (problems: string
     orpc.automations.remove.mutationOptions({
       onSuccess: () => {
         void client.invalidateQueries({ queryKey: orpc.automations.list.key() });
-        navigate('/automations');
+        void navigate('/automations');
       },
       onError,
     }),

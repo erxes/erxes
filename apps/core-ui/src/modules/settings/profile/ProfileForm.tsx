@@ -228,7 +228,7 @@ export const ProfileForm = ({ user }: { user: User }) => {
 
   return (
     <Form {...form}>
-      <form className="flex flex-col gap-4" onSubmit={submit}>
+      <form className="flex flex-col gap-4" onSubmit={(event) => void submit(event)}>
         <PictureSection />
         <BasicSection />
         <MoreSection />

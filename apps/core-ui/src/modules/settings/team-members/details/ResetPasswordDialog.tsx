@@ -76,7 +76,7 @@ export const ResetPasswordDialog = () => {
           description={t('set-new-password')}
         />
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
             <fieldset className="flex flex-col gap-3 mb-3">
               <Form.Field
                 control={control}

@@ -1,18 +1,22 @@
-import type { Field } from '@erxes/core-contract';
+import { Field } from '@erxes/core-contract';
 import { cn, RecordTable } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import type { ComponentProps } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { selectedFieldIdsState } from '../states';
+import { propertyEditPath } from './propertiesColumns';
 
+/** A property's row; clicking it opens the property. */
 export const PropertiesRow = ({
-  onRowClick,
   className,
   original,
   ...props
-}: ComponentProps<typeof RecordTable.Row> & { onRowClick: (field: Field) => void }) => {
+}: ComponentProps<typeof RecordTable.Row>) => {
+  const navigate = useNavigate();
   const selectedFieldIds = useAtomValue(selectedFieldIdsState);
-  const field = original as Field | undefined;
-  const isSelected = !!(field && selectedFieldIds[field.id]);
+  const parsed = Field.safeParse(original);
+  const field = parsed.success ? parsed.data : undefined;
+  const isSelected = Boolean(field && selectedFieldIds[field.id]);
 
   return (
     <RecordTable.Row
@@ -20,7 +24,9 @@ export const PropertiesRow = ({
       original={original}
       data-state={isSelected ? 'selected' : undefined}
       className={cn('cursor-pointer', className)}
-      onClick={() => field && onRowClick(field)}
+      onClick={() => {
+        if (field) void navigate(propertyEditPath(field));
+      }}
     />
   );
 };

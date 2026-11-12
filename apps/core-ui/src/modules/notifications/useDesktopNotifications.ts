@@ -51,11 +51,11 @@ export const useDesktopNotifications = () => {
         icon: '/favicon.ico',
       });
 
-      popup.onclick = () => {
+      popup.addEventListener('click', () => {
         window.focus();
-        navigate(item.link ?? '/notifications');
+        void navigate(item.link ?? '/notifications');
         popup.close();
-      };
+      });
     }
   }, [latest.data, enabled, navigate]);
 };

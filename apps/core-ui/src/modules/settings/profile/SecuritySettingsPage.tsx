@@ -101,9 +101,11 @@ const PasswordForm = () => {
       <Form {...form}>
         <form
           className="grid grid-cols-1 gap-4 sm:grid-cols-3"
-          onSubmit={form.handleSubmit(({ currentPassword, newPassword }) =>
-            change.mutate({ currentPassword, newPassword }),
-          )}
+          onSubmit={(event) =>
+            void form.handleSubmit(({ currentPassword, newPassword }) =>
+              change.mutate({ currentPassword, newPassword }),
+            )(event)
+          }
         >
           {field('currentPassword', t('current-password', 'Current password'), 'current-password')}
           {field('newPassword', t('new-password', 'New password'), 'new-password')}

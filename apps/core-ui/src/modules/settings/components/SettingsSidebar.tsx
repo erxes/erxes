@@ -108,8 +108,8 @@ export function SettingsExitButton() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   const handleExitSettings = () => {
-    if (settingsEntryIndex > 0) navigate(-(historyIndex() - settingsEntryIndex + 1));
-    else navigate('/');
+    if (settingsEntryIndex > 0) void navigate(-(historyIndex() - settingsEntryIndex + 1));
+    else void navigate('/');
   };
 
   return (

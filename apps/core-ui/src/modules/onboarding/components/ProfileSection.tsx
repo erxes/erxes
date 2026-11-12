@@ -92,7 +92,7 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
       </Appear>
       <Appear y={20} duration={400} delay={300}>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(save)} className="grid gap-3">
+          <form onSubmit={(event) => void form.handleSubmit(save)(event)} className="grid gap-3">
             <Form.Field
               control={form.control}
               name="avatar"

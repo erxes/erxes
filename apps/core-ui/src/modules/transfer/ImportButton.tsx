@@ -26,7 +26,7 @@ export const ImportButton = ({ recordType }: { recordType: TransferRecordType })
       return orpc.transfer.createImport.call({ recordType, fileId: uploaded.id });
     },
     onSuccess: (created) => {
-      navigate(`${CONTACT_SETTINGS.importExport}/${created.id}`);
+      void navigate(`${CONTACT_SETTINGS.importExport}/${created.id}`);
 
       return client.invalidateQueries({ queryKey: orpc.transfer.imports.key() });
     },

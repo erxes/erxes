@@ -24,7 +24,9 @@ export const PropertyEdit = ({ contentType }: { contentType: ContentType }) => {
   const { toast } = useToast();
   const { mutate, isPending } = useEditProperty();
   const navigate = useNavigate();
-  const handleClose = () => navigate(`${PROPERTIES_BASE_PATH}/${contentType}`);
+  const handleClose = () => {
+    void navigate(`${PROPERTIES_BASE_PATH}/${contentType}`);
+  };
 
   if (error) {
     return <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>;

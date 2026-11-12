@@ -1,7 +1,7 @@
 import type { CustomValue } from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
 import { Button, Collapsible, ScrollArea, Spinner } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { messageOf } from '~/lib/api';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
@@ -11,16 +11,14 @@ import { PanelField } from '../PanelField';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const EmptyProperties = ({ kind }: { kind: 'customer' | 'company' }) => {
-  const navigate = useNavigate();
-
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-center gap-2">
       <IconListDetails className="text-muted-foreground" size={64} stroke={1.5} />
       <h3 className="font-semibold text-muted-foreground">No properties found </h3>
       <div className="my-2 flex flex-col items-center justify-center gap-2">
         <p className="text-muted-foreground">Get started by creating your first property.</p>
-        <Button size="sm" onClick={() => navigate(`${CONTACT_SETTINGS.properties}/${kind}`)}>
-          Create property
+        <Button size="sm" asChild>
+          <Link to={`${CONTACT_SETTINGS.properties}/${kind}`}>Create property</Link>
         </Button>
       </div>
     </div>

@@ -419,7 +419,7 @@ const SidePanelColumn = () => {
           expanded={false}
           expandable={Boolean(recordPage)}
           onExpandedChange={() => {
-            if (recordPage) navigate(recordPage);
+            if (recordPage) void navigate(recordPage);
           }}
           width={width}
           onWidthChange={setWidth}

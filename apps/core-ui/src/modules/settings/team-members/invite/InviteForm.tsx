@@ -81,7 +81,7 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(submitHandler)} className="h-full">
+      <form onSubmit={(event) => void handleSubmit(submitHandler)(event)} className="h-full">
         <ScrollArea className="max-h-[400px] flex flex-col">
           <Table className="p-1 overflow-hidden rounded-lg bg-sidebar border-sidebar">
             <InviteMemberContext.Provider value={{ selectedUsers, setSelectedUsers, fields }}>

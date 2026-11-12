@@ -312,7 +312,7 @@ export const PropertyForm = ({
     <Form {...form}>
       <form
         className="mx-auto flex w-full max-w-2xl flex-col gap-0"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}
         noValidate
       >
         <div className="flex flex-col px-5 py-4 gap-5">

@@ -92,7 +92,11 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
 
   return (
     <Form {...form}>
-      <form onSubmit={onSubmit} className="mx-auto grid w-full gap-6" noValidate>
+      <form
+        onSubmit={(event) => void onSubmit(event)}
+        className="mx-auto grid w-full gap-6"
+        noValidate
+      >
         <Form.Field
           control={form.control}
           name="email"

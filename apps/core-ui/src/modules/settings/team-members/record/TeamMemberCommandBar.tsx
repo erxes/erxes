@@ -27,7 +27,7 @@ const TeamMemberDeactivate = ({
   onCompleted: () => void;
 }) => {
   const { confirm } = useConfirm();
-  const { mutateAsync, isPending } = useTeamMembersDeactivate();
+  const { mutate, isPending } = useTeamMembersDeactivate();
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
   const { user: me } = useSession();
@@ -45,23 +45,23 @@ const TeamMemberDeactivate = ({
     <Command.Item
       disabled={isPending || teamMemberIds.length === 0}
       onSelect={() =>
-        confirm({
+        void confirm({
           message: t('confirm-deactivate-team-members', { count: teamMemberIds.length }),
-        }).then(async () => {
-          try {
-            const count = await mutateAsync(teamMemberIds);
-
-            table.setRowSelection({});
-            onCompleted();
-            toast({
-              title: t('success'),
-              variant: 'success',
-              description: t('team-members-deactivated', { count }),
-            });
-          } catch (error) {
-            toast({ title: t('error'), description: messageOf(error), variant: 'destructive' });
-          }
-        })
+        }).then(() =>
+          mutate(teamMemberIds, {
+            onSuccess: (count) => {
+              table.setRowSelection({});
+              onCompleted();
+              toast({
+                title: t('success'),
+                variant: 'success',
+                description: t('team-members-deactivated', { count }),
+              });
+            },
+            onError: (error) =>
+              toast({ title: t('error'), description: messageOf(error), variant: 'destructive' }),
+          }),
+        )
       }
     >
       {isPending ? <Spinner size="sm" /> : <IconToggleLeft />}

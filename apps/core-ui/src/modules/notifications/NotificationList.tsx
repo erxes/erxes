@@ -91,7 +91,7 @@ const NotificationItem = ({
     if (!notification.read) markRead.mutate({ ids: [notification.id] });
 
     if (notification.link) {
-      navigate(notification.link);
+      void navigate(notification.link);
       onOpen?.();
     } else if (changes && !compact) {
       setExpanded((value) => !value);

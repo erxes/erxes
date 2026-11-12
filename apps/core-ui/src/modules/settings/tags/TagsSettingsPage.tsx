@@ -55,7 +55,7 @@ const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
         title={`Add ${type} tag`}
         submitLabel="Create"
         submitting={create.isPending}
-        onSubmit={submit}
+        onSubmit={() => void submit()}
       >
         <Form {...form}>
           <Form.Field

@@ -66,7 +66,7 @@ export const CompaniesCommandBar = () => {
                 variant="secondary"
                 className="text-destructive"
                 onClick={() =>
-                  confirm({
+                  void confirm({
                     message: t('confirm-delete-selected', { count: companyIds.length }),
                   }).then(() =>
                     remove.mutate(

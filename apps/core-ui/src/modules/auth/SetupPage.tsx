@@ -106,7 +106,11 @@ export const SetupPage = () => {
           </div>
         </div>
         <Form {...form}>
-          <form onSubmit={onSubmit} className="mx-auto grid w-full gap-5" noValidate>
+          <form
+            onSubmit={(event) => void onSubmit(event)}
+            className="mx-auto grid w-full gap-5"
+            noValidate
+          >
             <Field name="organizationName" label="Organization name" autoComplete="organization" />
             <div className="grid grid-cols-2 gap-3">
               <Field name="firstName" label="First name" autoComplete="given-name" />

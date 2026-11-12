@@ -42,7 +42,7 @@ export const MainOnboarding = () => {
 
   useEffect(() => {
     if (!needsOnboarding) {
-      navigate('/', { replace: true });
+      void navigate('/', { replace: true });
     }
   }, [needsOnboarding, navigate]);
 
@@ -58,7 +58,7 @@ export const MainOnboarding = () => {
         exampleData={isOwner && exampleData}
         onDone={() => {
           setCurrentStep(1);
-          navigate('/', { replace: true });
+          void navigate('/', { replace: true });
         }}
       />
     );
