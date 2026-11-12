@@ -1,180 +1,124 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
-import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
-import { pluginToken } from './plugin';
+import { newId, users } from '@erxes/core-db';
+import { verifyPluginSession } from '@erxes/plugin-sdk';
+import { beforeAll, expect, it } from 'vite-plus/test';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { useTwoOrgs } from './support';
 
 describeWithDb('roles and permissions', () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-  let orgId = '';
-  let owner = '';
-  let adminId = '';
-  let memberId = '';
-
-  const call = async (token: string, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
-
-  const token = (userId: string) => currentToken(userId, orgId);
+  const t = useTwoOrgs();
+  const adminId = newId();
+  const admin = () => t.client({ user: adminId, org: t.ids.org });
+  const setRole = (id: string, role: string) => t.owner().users.update({ id, role });
 
   beforeAll(async () => {
-    const { users, newId } = await import('@erxes/core-db');
-
-    const acme = await createOrganization({
-      subdomain: 'acme',
-      name: 'Acme',
-      owner: { email: 'owner@acme.mn' },
+    await adminDb().insert(users).values({
+      id: adminId,
+      orgId: t.ids.org,
+      email: 'admin@acme.mn',
+      role: 'admin',
+      status: 'active',
     });
-
-    orgId = acme.organization.id;
-    adminId = newId();
-    memberId = newId();
-    await adminDb()
-      .insert(users)
-      .values([
-        { id: adminId, orgId, email: 'admin@acme.mn', role: 'admin', status: 'active' },
-        { id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' },
-      ]);
-    owner = await token(acme.owner.id);
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-  });
-
-  afterAll(async () => {
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
   });
 
   it('starts every organisation with Owner, Admin and Member, and tells each member what they may do', async () => {
-    const listed = await call(await token(memberId), 'GET', '/roles');
+    const listed = await t.member().roles.list({});
 
-    expect(
-      listed.body.data.map((role: { key: string; editable: boolean; members: number }) => [
-        role.key,
-        role.editable,
-        role.members,
-      ]),
-    ).toEqual([
+    expect(listed.data.map((role) => [role.key, role.editable, role.members])).toEqual([
       ['owner', false, 1],
       ['admin', false, 1],
+      // The disabled member isn't counted.
       ['member', true, 1],
     ]);
 
-    const member = (await call(await token(memberId), 'GET', '/auth/me')).body
-      .permissions as string[];
+    const member = (await t.member().auth.me({})).permissions;
+    const managing = (await admin().auth.me({})).permissions;
+    const owning = (await t.owner().auth.me({})).permissions;
 
-    const admin = (await call(await token(adminId), 'GET', '/auth/me')).body
-      .permissions as string[];
-
-    const ownerPermissions = (await call(owner, 'GET', '/auth/me')).body.permissions as string[];
-
-    expect(member).toEqual(expect.arrayContaining(['contacts.view', 'contacts.edit']));
+    expect(member).toContain('contacts.view');
+    expect(member).toContain('contacts.edit');
     expect(member).not.toContain('contacts.delete');
-    expect(admin).toContain('contacts.delete');
-    expect(admin).not.toContain('plugins.manage');
-    expect(ownerPermissions).toContain('plugins.manage');
+    expect(managing).toContain('contacts.delete');
+    expect(managing).not.toContain('plugins.manage');
+    expect(owning).toContain('plugins.manage');
   });
 
   it('gives a custom role exactly its permissions', async () => {
-    const created = await call(owner, 'POST', '/roles', {
+    const created = await t.owner().roles.create({
       name: 'Support',
       permissions: ['contacts.view', 'contacts.edit', 'contacts.delete', 'team.view'],
     });
 
-    expect(created.status).toBe(201);
-    expect(created.body.key).toMatch(/^r_/);
-    expect(
-      (await call(owner, 'PATCH', `/users/${memberId}`, { role: created.body.key })).status,
-    ).toBe(200);
-
-    const support = await token(memberId);
-    const customer = await call(support, 'POST', '/customers', { firstName: 'Can not' });
+    expect(created.key).toMatch(/^r_/);
+    await setRole(t.ids.member, created.key);
 
     // No contacts.create…
-    expect(customer.status).toBe(403);
-    expect(customer.body.data).toEqual({ permission: 'contacts.create' });
+    await expect(t.member().customers.create({ firstName: 'Can not' })).rejects.toMatchObject({
+      status: 403,
+      data: { permission: 'contacts.create' },
+    });
 
     // …but contacts.delete, which Member didn't have.
-    const made = await call(owner, 'POST', '/customers', { firstName: 'Delete me' });
+    const made = await t.owner().customers.create({ firstName: 'Delete me' });
 
-    expect((await call(support, 'POST', '/customers/remove', { ids: [made.body.id] })).status).toBe(
-      200,
-    );
+    expect(await t.member().customers.remove({ ids: [made.id] })).toEqual({ removed: 1 });
 
     // Changing the role applies on the next request.
-    await call(owner, 'PATCH', `/roles/${created.body.key}`, {
-      permissions: ['contacts.view', 'team.view'],
+    await t.owner().roles.update({ key: created.key, permissions: ['contacts.view', 'team.view'] });
+    await expect(t.member().customers.remove({ ids: [made.id] })).rejects.toMatchObject({
+      status: 403,
     });
-    expect((await call(support, 'POST', '/customers/remove', { ids: [made.body.id] })).status).toBe(
-      403,
-    );
   });
 
   it('refuses roles that would give more than the editor has, owner-only actions, or unknown ones', async () => {
-    const admin = await token(adminId);
-
-    expect(
-      (await call(admin, 'POST', '/roles', { name: 'X', permissions: ['plugins.manage'] })).body
-        .code,
-    ).toBe('OWNER_ONLY_PERMISSION');
-    expect(
-      (await call(admin, 'POST', '/roles', { name: 'X', permissions: ['contacts.fly'] })).body.code,
-    ).toBe('UNKNOWN_PERMISSION');
+    await expect(
+      admin().roles.create({ name: 'X', permissions: ['plugins.manage'] }),
+    ).rejects.toMatchObject({ code: 'OWNER_ONLY_PERMISSION' });
+    await expect(
+      admin().roles.create({ name: 'X', permissions: ['contacts.fly'] }),
+    ).rejects.toMatchObject({ code: 'UNKNOWN_PERMISSION' });
 
     // A role manager without `*` can't create a role wider than theirs, or hand out Admin.
-    const managers = await call(owner, 'POST', '/roles', {
+    const managers = await t.owner().roles.create({
       name: 'Team lead',
       permissions: ['roles.manage', 'team.manage', 'team.view'],
     });
 
-    await call(owner, 'PATCH', `/users/${memberId}`, { role: managers.body.key });
+    await setRole(t.ids.member, managers.key);
 
-    const lead = await token(memberId);
+    const beyond = { code: 'BEYOND_OWN_PERMISSIONS' };
 
-    expect(
-      (await call(lead, 'POST', '/roles', { name: 'Wide', permissions: ['contacts.delete'] })).body
-        .code,
-    ).toBe('BEYOND_OWN_PERMISSIONS');
-    expect(
-      (await call(lead, 'POST', '/roles', { name: 'Wide', permissions: ['*'] })).body.code,
-    ).toBe('BEYOND_OWN_PERMISSIONS');
-    expect((await call(lead, 'PATCH', `/users/${adminId}`, { role: 'member' })).body.code).toBe(
-      'BEYOND_OWN_PERMISSIONS',
+    await expect(
+      t.member().roles.create({ name: 'Wide', permissions: ['contacts.delete'] }),
+    ).rejects.toMatchObject(beyond);
+    await expect(
+      t.member().roles.create({ name: 'Wide', permissions: ['*'] }),
+    ).rejects.toMatchObject(beyond);
+    await expect(t.member().users.update({ id: adminId, role: 'member' })).rejects.toMatchObject(
+      beyond,
     );
 
     // Owner and Admin are fixed; built-in roles stay; a role in use can't go.
-    expect((await call(owner, 'PATCH', '/roles/admin', { name: 'Boss' })).body.code).toBe(
-      'FIXED_ROLE',
-    );
-    expect((await call(owner, 'DELETE', '/roles/member')).body.code).toBe('BUILTIN_ROLE');
-    expect((await call(owner, 'DELETE', `/roles/${managers.body.key}`)).body.code).toBe(
-      'ROLE_IN_USE',
-    );
+    await expect(t.owner().roles.update({ key: 'admin', name: 'Boss' })).rejects.toMatchObject({
+      code: 'FIXED_ROLE',
+    });
+    await expect(t.owner().roles.remove({ key: 'member' })).rejects.toMatchObject({
+      code: 'BUILTIN_ROLE',
+    });
+    await expect(t.owner().roles.remove({ key: managers.key })).rejects.toMatchObject({
+      code: 'ROLE_IN_USE',
+    });
 
-    await call(owner, 'PATCH', `/users/${memberId}`, { role: 'member' });
-    expect((await call(owner, 'DELETE', `/roles/${managers.body.key}`)).status).toBe(200);
-    expect(
-      (await call(owner, 'PATCH', `/users/${memberId}`, { role: 'r_doesnotexist1' })).body.code,
-    ).toBe('ROLE_NOT_FOUND');
+    await setRole(t.ids.member, 'member');
+    await t.owner().roles.remove({ key: managers.key });
+    await expect(setRole(t.ids.member, 'r_doesnotexist1')).rejects.toMatchObject({
+      code: 'ROLE_NOT_FOUND',
+    });
   });
 
   it("puts plugin permissions in roles and in the member's plugin session", async () => {
-    const service = await pluginToken(base);
-
-    await call(service, 'PUT', '/plugins/manifest', {
+    await t.client(await t.pluginToken()).plugins.registerManifest({
       title: 'HR',
       version: '1.0.0',
       scopes: ['notifications:write'],
@@ -184,24 +128,22 @@ describeWithDb('roles and permissions', () => {
       ],
     });
 
-    const catalog = await call(owner, 'GET', '/permissions');
+    const catalog = await t.owner().roles.permissions({});
 
-    expect(
-      catalog.body.data
-        .filter((item: { source: string }) => item.source === 'hr')
-        .map((item: { action: string }) => item.action),
-    ).toEqual(['hr.leave.approve', 'hr.salary.view']);
+    expect(catalog.data.filter((item) => item.source === 'hr').map((item) => item.action)).toEqual([
+      'hr.leave.approve',
+      'hr.salary.view',
+    ]);
 
-    const approver = await call(owner, 'POST', '/roles', {
+    const approver = await t.owner().roles.create({
       name: 'Approver',
       permissions: ['contacts.view', 'team.view', 'hr.leave.approve'],
     });
 
-    await call(owner, 'PATCH', `/users/${memberId}`, { role: approver.body.key });
+    await setRole(t.ids.member, approver.key);
 
-    const session = await call(await token(memberId), 'POST', '/plugins/hr/session');
-    const { verifyPluginSession } = await import('@erxes/plugin-sdk');
-    const member = await verifyPluginSession(session.body.token, { coreUrl: base, plugin: 'hr' });
+    const session = await t.member().plugins.session({ name: 'hr' });
+    const member = await verifyPluginSession(session.token, { coreUrl: t.url(''), plugin: 'hr' });
 
     expect(member.permissions).toEqual(['hr.leave.approve']);
     expect(member.can('hr.leave.approve')).toBe(true);
@@ -209,10 +151,12 @@ describeWithDb('roles and permissions', () => {
   });
 
   it('audits role changes', async () => {
-    const audit = await call(owner, 'GET', '/audit?action=role.');
-
-    expect(audit.body.data.map((entry: { action: string }) => entry.action)).toEqual(
-      expect.arrayContaining(['role.created', 'role.updated', 'role.deleted']),
+    const actions = (await t.owner().audit.list({ action: 'role.' })).data.map(
+      (entry) => entry.action,
     );
+
+    expect(actions).toContain('role.created');
+    expect(actions).toContain('role.updated');
+    expect(actions).toContain('role.deleted');
   });
 });
