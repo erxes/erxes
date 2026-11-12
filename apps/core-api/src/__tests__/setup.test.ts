@@ -1,52 +1,25 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
+import { expect, it } from 'vite-plus/test';
+import { z } from 'zod';
 import { config } from '~/config';
 import { subdomainFromName } from '~/modules/setup/setup.service';
 import { describeWithDb, useTestDatabase } from './db';
+import { useTestServer } from './support';
+
+const OpenApiDocument = z.object({ openapi: z.string(), paths: z.record(z.string(), z.unknown()) });
+
+const owner = {
+  organizationName: 'Acme LLC',
+  firstName: 'Bat',
+  lastName: 'Dorj',
+  email: 'Owner@Acme.mn',
+  password: 'Secret-pass1',
+};
 
 describeWithDb('first-run setup (/core/v1/setup)', () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-
-  beforeAll(() => {
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-  });
-
-  afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));
-
-  interface Body {
-    required: boolean;
-    user: { email: string; fullName: string | null; role: string };
-    organization: { name: string; subdomain: string };
-    code: string;
-  }
-
-  const call = async (method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    return {
-      status: response.status,
-      cookie: response.headers.get('set-cookie'),
-      body: (await response.json()) as Body,
-    };
-  };
-
-  const owner = {
-    organizationName: 'Acme LLC',
-    firstName: 'Bat',
-    lastName: 'Dorj',
-    email: 'Owner@Acme.mn',
-    password: 'Secret-pass1',
-  };
+  const server = useTestServer();
+  const required = async () => (await server.client().auth.setupStatus({})).required;
 
   it('makes subdomains from organisation names', () => {
     expect(subdomainFromName('Acme LLC')).toBe('acme-llc');
@@ -55,39 +28,32 @@ describeWithDb('first-run setup (/core/v1/setup)', () => {
   });
 
   it('is required on an empty database and asks for a strong password', async () => {
-    expect((await call('GET', '/setup')).body.required).toBe(true);
-
-    const weak = await call('POST', '/setup', { ...owner, password: 'password' });
-    expect(weak.status).toBe(400);
-    expect(weak.body.code).toBe('INVALID_INPUT');
+    expect(await required()).toBe(true);
+    await expect(
+      server.client().auth.setup({ ...owner, password: 'password' }),
+    ).rejects.toMatchObject({ status: 400, code: 'INVALID_INPUT' });
   });
 
   it('creates the organisation and owner, signs in, and only once', async () => {
-    const done = await call('POST', '/setup', owner);
+    const browser = server.browser();
 
-    expect(done.status).toBe(201);
-    expect(done.cookie).toContain('erxes_session=');
-    expect(done.body).toMatchObject({
+    expect(await browser.api.auth.setup(owner)).toMatchObject({
       user: { email: 'owner@acme.mn', fullName: 'Bat Dorj', role: 'owner' },
       organization: { name: 'Acme LLC', subdomain: 'acme-llc' },
     });
-    expect((await call('GET', '/setup')).body.required).toBe(false);
-
-    const again = await call('POST', '/setup', { ...owner, email: 'other@acme.mn' });
-    expect(again.status).toBe(409);
-    expect(again.body.code).toBe('SETUP_DONE');
-
-    const signIn = await call('POST', '/auth/sign-in', {
-      email: 'owner@acme.mn',
-      password: owner.password,
-    });
-
-    expect(signIn.status).toBe(200);
+    expect(browser.cookie()).toMatch(/^erxes_session=./);
+    expect(await required()).toBe(false);
+    await expect(
+      server.client().auth.setup({ ...owner, email: 'other@acme.mn' }),
+    ).rejects.toMatchObject({ status: 409, code: 'SETUP_DONE' });
+    expect(
+      await server.browser().api.auth.signIn({ email: 'owner@acme.mn', password: owner.password }),
+    ).toMatchObject({ user: { email: 'owner@acme.mn' } });
   });
 
   it('publishes the OpenAPI document without signing in', async () => {
-    const response = await fetch(`${base}/core/v1/openapi.json`);
-    const document = (await response.json()) as { openapi: string; paths: Record<string, unknown> };
+    const response = await fetch(server.url('/core/v1/openapi.json'));
+    const document = OpenApiDocument.parse(await response.json());
 
     expect(response.status).toBe(200);
     expect(document.openapi).toMatch(/^3\./);
@@ -100,8 +66,10 @@ describeWithDb('first-run setup (/core/v1/setup)', () => {
     config.setup.enabled = false;
 
     try {
-      expect((await call('GET', '/setup')).body.required).toBe(false);
-      expect((await call('POST', '/setup', owner)).body.code).toBe('SETUP_DISABLED');
+      expect(await required()).toBe(false);
+      await expect(server.client().auth.setup(owner)).rejects.toMatchObject({
+        code: 'SETUP_DISABLED',
+      });
     } finally {
       config.setup.enabled = true;
     }
