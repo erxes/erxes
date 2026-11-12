@@ -497,7 +497,7 @@ export const ConditionsEditor = ({
   /** Instead of the automation catalog (a list's advanced filter gives its own, grouped). */
   fields?: FieldInfo[];
 }) => {
-  const loaded = useAutomationFields(given ? null : subject);
+  const { fields: loaded } = useAutomationFields(given ? null : subject);
   const base = given ?? loaded;
   const fields = extraFields.length ? [...base, ...extraFields] : base;
   const group: ConditionGroup = value ?? { match: 'all', rules: [] };

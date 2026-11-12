@@ -181,7 +181,7 @@ const DateTriggerSettings = ({
 }) => {
   const { t, i18n } = useTranslation('automations');
 
-  const dateFields = useAutomationFields(trigger.subject).filter(
+  const dateFields = useAutomationFields(trigger.subject).fields.filter(
     (field) => field.type === 'date' && field.path !== 'subject.createdAt',
   );
 

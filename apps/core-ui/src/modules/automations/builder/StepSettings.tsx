@@ -360,7 +360,7 @@ export const StepSettings = ({
   const action =
     step.type === 'action' ? actions.find((item) => item.type === step.action) : undefined;
 
-  const recordFields = useAutomationFields(subject);
+  const { fields: recordFields } = useAutomationFields(subject);
   const dataFields = [...recordFields, ...outputs];
 
   const nameField = (
