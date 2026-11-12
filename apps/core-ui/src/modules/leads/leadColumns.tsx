@@ -51,7 +51,7 @@ const Muted = ({ children }: { children: React.ReactNode }) => (
   <div className="flex h-8 items-center px-2 text-xs font-medium text-muted-foreground">{children}</div>
 );
 
-/** The stage as a status pill: first in a lead table, click to move the lead. */
+/** The stage as a status pill, right after the name; click to move the lead. */
 const stageColumn = <T extends LeadRecord>(recordType: LeadRecordType): ColumnDef<T> => ({
   id: 'leadStage',
   accessorKey: 'leadStageId',
@@ -104,8 +104,8 @@ export const originColumns = <T extends LeadRecord & { lastActivityAt: string }>
 ];
 
 /**
- * `columns` with, for leads, the stage pill first (after the checkbox) and
- * days in it after `afterId`; then origin columns, then `rest`.
+ * `columns` with, for leads, the stage pill and days in it right after
+ * `afterId` (the name); then origin columns, then `rest`.
  */
 export const withLifecycleColumns = <T extends LeadRecord & { lastActivityAt: string }>(
   columns: ColumnDef<T>[],
@@ -116,12 +116,10 @@ export const withLifecycleColumns = <T extends LeadRecord & { lastActivityAt: st
 ) => {
   if (!isLead) return [...columns, ...originColumns<T>(), ...rest];
 
-  const first = columns.findIndex((column) => column.id === 'checkbox') + 1;
-  const withStage = [...columns.slice(0, first), stageColumn<T>(recordType), ...columns.slice(first)];
-  const at = withStage.findIndex((column) => column.id === afterId) + 1;
+  const at = columns.findIndex((column) => column.id === afterId) + 1;
 
-  return [...withStage.slice(0, at), ...inStageColumns<T>(), ...withStage.slice(at), ...originColumns<T>(), ...rest];
+  return [...columns.slice(0, at), stageColumn<T>(recordType), ...inStageColumns<T>(), ...columns.slice(at), ...originColumns<T>(), ...rest];
 };
 
-/** Sticky columns of a list: leads keep their stage in view too. */
-export const stickyWithStage = (sticky: string[], isLead: boolean) => (isLead ? [...sticky.slice(0, 2), 'leadStage', ...sticky.slice(2)] : sticky);
+/** Sticky columns of a list: leads keep their stage (right after the name) in view too. */
+export const stickyWithStage = (sticky: string[], isLead: boolean) => (isLead ? [...sticky, 'leadStage'] : sticky);
