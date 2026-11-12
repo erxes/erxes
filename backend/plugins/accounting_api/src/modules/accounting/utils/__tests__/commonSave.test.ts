@@ -25,6 +25,33 @@ describe('commonSave inventory costs', () => {
     jest.clearAllMocks();
   });
 
+  it.each(['dt', 'ct'])('persists a calculated depreciation %s leg', async (side) => {
+    const doc: ITransaction = {
+      date: new Date(),
+      journal: 'fxaDep',
+      side,
+      details: [{ accountId: 'account', fixedAssetId: 'asset', amount: 20 }],
+    };
+    const saved = { ...doc, _id: 'depreciation' };
+    const models = {
+      Configs: { getConfigValue: jest.fn().mockResolvedValue(false) },
+      Transactions: {
+        getTransaction: jest.fn().mockResolvedValue(saved),
+        find: jest.fn(() => ({ lean: jest.fn().mockResolvedValue([]) })),
+      },
+    } as unknown as IModels;
+    jest.mocked(createOrUpdateTr).mockResolvedValue(saved as never);
+    expect((await commonSave('tenant', models, 'user', doc)).mainTr).toEqual(
+      saved,
+    );
+    expect(createOrUpdateTr).toHaveBeenCalledWith(
+      models,
+      'user',
+      doc,
+      undefined,
+    );
+  });
+
   it('supports a tax-account single credit without generating additional tax rows', async () => {
     const doc: ITransaction = {
       date: new Date(),

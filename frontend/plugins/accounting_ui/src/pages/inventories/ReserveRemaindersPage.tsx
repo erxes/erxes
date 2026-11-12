@@ -1,3 +1,4 @@
+import { IconBucketOff } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { PageSubHeader } from 'erxes-ui';
 import { ReserveRemFilter } from '~/modules/inventories/reserveRemainders/components/ReserveRemFilters';
@@ -14,6 +15,7 @@ export const ReserveRemaindersPage = () => {
       <AccountingHeader
         returnLink="/accounting/inventories/reserve-remainders"
         returnText={t('Reserve Remainders')}
+        icon={IconBucketOff}
         skipSettings={true}
       >
         <AddReserveRem />

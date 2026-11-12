@@ -1,6 +1,7 @@
 export const types = `
   type AdjustFixedAsset @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
+    expenseAccountId: String
     date: Date
     description: String
     status: String
@@ -25,28 +26,14 @@ export const types = `
     branchId: String
     departmentId: String
 
+    count: Float
     originalCost: Float
     salvageValue: Float
-    openingBookValue: Float
-    preDeprecation: Float
+    accumulatedDepreciation: Float
     depreciationAmount: Float
-    bookDepreciationAmount: Float
-    closingAccumulatedDepreciation: Float
-    closingBookValue: Float
-
-    openingTaxBase: Float
-    openingTaxAccumulatedDepreciation: Float
-    taxDepreciationAmount: Float
-    closingTaxAccumulatedDepreciation: Float
-    closingTaxBase: Float
-
-    openingTemporaryDifference: Float
-    temporaryDifferenceAmount: Float
-    closingTemporaryDifference: Float
-    deferredTaxAmount: Float
-    deferredTaxType: String
-    deferredTaxTransactionId: String
-    deferredTaxTrDetailId: String
+    revaluationLoss: Float
+    revaluationReserve: Float
+    previous: AdjustFxaDetail
 
     transactionId: String
     transactionDetailId: String

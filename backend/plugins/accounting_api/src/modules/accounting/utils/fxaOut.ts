@@ -15,10 +15,9 @@ import {
 import { createOrUpdateTr } from './utils';
 import {
   cleanFxaFollowTr,
+  deleteEmptyFxaFollowTr,
   getFxaDisposalFollowInfos,
   getFxaDisposalSummaries,
-  getUniqueFxaOwnerRecordIds,
-  rebuildFixedAssetCurrentCounts,
   removeFxaOwnerRecordsByTransaction,
   syncFxaOwnerRecordMovements,
   TFxaDisposalSummary,
@@ -57,11 +56,14 @@ const buildFxaDisposalFollowDetails = ({
         originId: summary.detailId,
         originType,
         fixedAssetId: summary.fixedAssetId,
+        branchId: summary.branchId,
+        departmentId: summary.departmentId,
         accountId: accountId || '',
-        count: summary.count,
-        unitPrice: summary.count
-          ? fixNum(summary[amountKey] / summary.count)
-          : 0,
+        count: amountKey === 'accumulatedDepreciation' ? 0 : summary.count,
+        unitPrice:
+          amountKey !== 'accumulatedDepreciation' && summary.count
+            ? fixNum(summary[amountKey] / summary.count)
+            : 0,
         amount: summary[amountKey],
       } as ITrDetail;
     });
@@ -94,25 +96,14 @@ const buildFxaDisposalFollowTrDoc = ({
   status: transaction.status,
   mentionOwnerId: transaction.mentionOwnerId,
   mentionUserIds: transaction.mentionUserIds,
-  branchId: transaction.branchId,
-  departmentId: transaction.departmentId,
+  branchId: '',
+  departmentId: '',
   customerType: transaction.customerType,
   customerId: transaction.customerId,
   journal,
   side,
   details,
 });
-
-const deleteEmptyFxaFollowTr = async (
-  models: IModels,
-  oldTr?: ITransactionDocument | null,
-) => {
-  if (!oldTr?._id) {
-    return;
-  }
-
-  await models.Transactions.deleteMany({ _id: oldTr._id });
-};
 
 export const createFxaDisposalFollowTrs = async (
   models: IModels,
@@ -237,15 +228,4 @@ export const syncFxaDisposalInstances = async (
     transaction,
     userId,
   });
-
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 };

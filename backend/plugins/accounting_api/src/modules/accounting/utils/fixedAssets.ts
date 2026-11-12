@@ -1,13 +1,18 @@
+import { applyFxaDisposalRevaluation } from './fxaRevaluationState';
 import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
 import {
   FXA_OWNER_RECORD_ACTIONS,
   FXA_OWNER_RECORD_STATUSES,
   FXA_LOG_EVENT_TYPES,
 } from '@/fixedAssets/@types/constants';
-import { JOURNALS, TR_INVENTORY_STATUS_TYPES } from '../@types/constants';
-import { ITransaction, ITransactionDocument } from '../@types/transaction';
+import { JOURNALS } from '../@types/constants';
+import {
+  ITransaction,
+  ITransactionDocument,
+  ITrFollowInfos,
+} from '../@types/transaction';
+import { getFxaCapitalValuation } from './fxaCapitalValuation';
 
 export type TFxaOwnerRecordInput = {
   _id?: string;
@@ -26,21 +31,23 @@ export type TFxaTransactionExtraData = {
   fxaOwnerRecords?: TFxaOwnerRecordInput[];
 };
 
-export type TFxaMoveFollowInfos = {
-  moveInBranchId?: string;
-  moveInDepartmentId?: string;
-  accumulatedDepreciationAccountId?: string;
-};
+export type TFxaMoveFollowInfos = Pick<
+  ITrFollowInfos,
+  'moveInBranchId' | 'moveInDepartmentId' | 'accumulatedDepreciationAccountId'
+>;
 
-export type TFxaDisposalFollowInfos = TFxaMoveFollowInfos & {
-  saleOutAccountId?: string;
-  accumulatedDepreciationAccountId?: string;
-  saleCostAccountId?: string;
-  fixedAssetAccountId?: string;
-  lossAccountId?: string;
-};
+export type TFxaDisposalFollowInfos = TFxaMoveFollowInfos &
+  Pick<
+    ITrFollowInfos,
+    | 'saleOutAccountId'
+    | 'saleCostAccountId'
+    | 'fixedAssetAccountId'
+    | 'lossAccountId'
+  >;
 
 export type TFxaDisposalSummary = {
+  branchId?: string;
+  departmentId?: string;
   detailId?: string;
   fixedAssetId?: string;
   count: number;
@@ -356,149 +363,74 @@ export const syncFxaOwnerRecordMovements = async ({
     (transaction.details || []).map((detail) => [getDetailId(detail), detail]),
   );
   const sourceRecords = await getSourceOwnerRecords(models, inputs);
-  const records: ReturnType<typeof buildOwnerRecordDoc>[] = [];
+  const recordsByInput = await Promise.all(
+    inputs.map(async (input) => {
+      const records: ReturnType<typeof buildOwnerRecordDoc>[] = [];
+      const resolvedInput = getSourceInput(input, sourceRecords);
+      const detail = input.transactionDetailId
+        ? detailById.get(input.transactionDetailId)
+        : undefined;
+      const count = normalizeCount(input.count);
+      const fixedAssetId = resolvedInput.fixedAssetId || detail?.fixedAssetId;
+      const sourceOwnerId =
+        resolvedInput.sourceOwnerId || resolvedInput.ownerId || '';
+      const ownerId = resolvedInput.ownerId || sourceOwnerId;
 
-  for (const input of inputs) {
-    const resolvedInput = getSourceInput(input, sourceRecords);
-    const detail = input.transactionDetailId
-      ? detailById.get(input.transactionDetailId)
-      : undefined;
-    const count = normalizeCount(input.count);
-    const fixedAssetId = resolvedInput.fixedAssetId || detail?.fixedAssetId;
-    const sourceOwnerId =
-      resolvedInput.sourceOwnerId || resolvedInput.ownerId || '';
-    const ownerId = resolvedInput.ownerId || sourceOwnerId;
+      if (!detail || !fixedAssetId || !sourceOwnerId || count <= 0) {
+        return records;
+      }
 
-    if (!detail || !fixedAssetId || !sourceOwnerId || count <= 0) {
-      continue;
-    }
-
-    const balance = await getOwnerRecordBalance({
-      fixedAssetId,
-      models,
-      ownerId: sourceOwnerId,
-    });
-
-    if (balance < count) {
-      throw new Error('Selected owner record does not have enough count');
-    }
-
-    records.push(
-      buildOwnerRecordDoc({
-        action: FXA_OWNER_RECORD_ACTIONS.HANDED_OVER,
-        count,
-        detailId: getDetailId(detail),
+      const balance = await getOwnerRecordBalance({
         fixedAssetId,
-        input: {
-          ...resolvedInput,
-          ownerId: sourceOwnerId,
-        },
-        transaction,
-        userId,
-      }),
-    );
+        models,
+        ownerId: sourceOwnerId,
+      });
 
-    if (eventType === FXA_LOG_EVENT_TYPES.MOVE) {
+      if (balance < count) {
+        throw new Error('Selected owner record does not have enough count');
+      }
+
       records.push(
         buildOwnerRecordDoc({
-          action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+          action: FXA_OWNER_RECORD_ACTIONS.HANDED_OVER,
           count,
           detailId: getDetailId(detail),
           fixedAssetId,
           input: {
             ...resolvedInput,
-            ownerId,
+            ownerId: sourceOwnerId,
           },
           transaction,
           userId,
         }),
       );
-    }
-  }
+
+      if (eventType === FXA_LOG_EVENT_TYPES.MOVE) {
+        records.push(
+          buildOwnerRecordDoc({
+            action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+            count,
+            detailId: getDetailId(detail),
+            fixedAssetId,
+            input: {
+              ...resolvedInput,
+              ownerId,
+            },
+            transaction,
+            userId,
+          }),
+        );
+      }
+      return records;
+    }),
+  );
+  const records = recordsByInput.flat();
 
   if (records.length) {
     await models.FxaOwnerRecords.insertMany(
       await assignMissingFxaOwnerRecordSequences(models, records),
     );
   }
-};
-
-const getLatestAdjustmentDetailsByFixedAssetId = async (
-  models: IModels,
-  fixedAssetIds: string[],
-  date?: Date,
-) => {
-  const adjustFilter: Record<string, unknown> = {
-    status: { $in: [ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH] },
-  };
-
-  if (date) {
-    adjustFilter.date = { $lte: date };
-  }
-
-  const adjustments = await models.AdjustFixedAssets.find(adjustFilter)
-    .sort({ date: -1 })
-    .lean();
-  const latestAdjustIds = adjustments.map((adjustment) => adjustment._id);
-  const adjustRankById = new Map(
-    latestAdjustIds.map((adjustId, index) => [adjustId, index]),
-  );
-  const getAdjustRank = (adjustId?: string) =>
-    adjustId
-      ? adjustRankById.get(adjustId) ?? Number.POSITIVE_INFINITY
-      : Number.POSITIVE_INFINITY;
-
-  if (!latestAdjustIds.length) {
-    return new Map();
-  }
-
-  const details = await models.AdjustFxaDetails.find({
-    adjustId: { $in: latestAdjustIds },
-    fixedAssetId: { $in: fixedAssetIds },
-  }).lean();
-  const latestAdjustIdByAssetId = new Map<string, string>();
-  const totalsByAssetId = new Map<
-    string,
-    { closingAccumulatedDepreciation: number; closingBookValue: number }
-  >();
-
-  for (const detail of details) {
-    if (!detail.fixedAssetId || !detail.adjustId) {
-      continue;
-    }
-
-    if (!adjustRankById.has(detail.adjustId)) {
-      continue;
-    }
-
-    const currentAdjustId = latestAdjustIdByAssetId.get(detail.fixedAssetId);
-    const currentRank = getAdjustRank(currentAdjustId);
-    const detailRank = getAdjustRank(detail.adjustId);
-
-    if (currentAdjustId && currentRank < detailRank) {
-      continue;
-    }
-
-    if (currentAdjustId !== detail.adjustId) {
-      latestAdjustIdByAssetId.set(detail.fixedAssetId, detail.adjustId);
-      totalsByAssetId.delete(detail.fixedAssetId);
-    }
-
-    const current = totalsByAssetId.get(detail.fixedAssetId) || {
-      closingAccumulatedDepreciation: 0,
-      closingBookValue: 0,
-    };
-
-    totalsByAssetId.set(detail.fixedAssetId, {
-      closingAccumulatedDepreciation:
-        current.closingAccumulatedDepreciation +
-        (detail.closingAccumulatedDepreciation || 0),
-      closingBookValue:
-        current.closingBookValue + (detail.closingBookValue || 0),
-    });
-  }
-
-  return totalsByAssetId;
 };
 
 export const getFxaDisposalSummaries = async (
@@ -510,52 +442,47 @@ export const getFxaDisposalSummaries = async (
       .map((detail) => detail.fixedAssetId)
       .filter((fixedAssetId): fixedAssetId is string => Boolean(fixedAssetId)),
   );
-  const fixedAssets = await models.FixedAssets.find({
-    _id: { $in: fixedAssetIds },
-  }).lean();
-  const fixedAssetsById = new Map(
-    fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
-  );
-  const adjustmentDetails = await getLatestAdjustmentDetailsByFixedAssetId(
-    models,
-    fixedAssetIds,
-    transaction.date,
+  const valuations = new Map(
+    await Promise.all(
+      fixedAssetIds.map(
+        async (id) =>
+          [
+            id,
+            await getFxaCapitalValuation(
+              models,
+              id,
+              transaction.date,
+              transaction._id,
+            ),
+          ] as const,
+      ),
+    ),
   );
 
   return (transaction.details || [])
     .map((detail) => {
-      const fixedAsset = detail.fixedAssetId
-        ? fixedAssetsById.get(detail.fixedAssetId)
+      const valuation = detail.fixedAssetId
+        ? valuations.get(detail.fixedAssetId)
         : undefined;
       const count = Math.max(0, Math.trunc(detail.count || 0));
-      const originalCost = fixNum((fixedAsset?.originalCost || 0) * count);
-      const latestAdjustment = detail.fixedAssetId
-        ? adjustmentDetails.get(detail.fixedAssetId)
-        : undefined;
-      const currentCount = fixedAsset?.currentCount ?? fixedAsset?.count ?? 0;
-      const countBeforeThisDisposal = currentCount + count;
-      const suppliedUnitDepreciation = detail.followInfos?.preDeprecation;
+      const originalCost = fixNum((valuation?.originalCost ?? 0) * count);
+      const suppliedDepreciation = detail.followInfos?.preDeprecation;
       if (
-        suppliedUnitDepreciation !== undefined &&
-        (!Number.isFinite(suppliedUnitDepreciation) || suppliedUnitDepreciation < 0)
+        suppliedDepreciation !== undefined &&
+        (!Number.isFinite(suppliedDepreciation) || suppliedDepreciation < 0)
       ) {
-        throw new Error(
-          'Fixed asset unit depreciation must be nonnegative',
-        );
+        throw new Error('Fixed asset total depreciation must be nonnegative');
       }
-      const adjustmentDepreciation = countBeforeThisDisposal
-        ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
-            countBeforeThisDisposal) * count
-        : 0;
       const accumulatedDepreciation = fixNum(
-        suppliedUnitDepreciation === undefined
-          ? adjustmentDepreciation
-          : suppliedUnitDepreciation * count,
+        suppliedDepreciation ??
+          ((valuation?.preDeprecation || 0) * count) / (valuation?.count || 1),
       );
 
       return {
         detailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
+        branchId: detail.branchId ?? transaction.branchId ?? '',
+        departmentId: detail.departmentId ?? transaction.departmentId ?? '',
         count,
         originalCost,
         accumulatedDepreciation,
@@ -600,80 +527,6 @@ export const validateFxaDisposalAccounts = (
   }
 };
 
-const getFinancialFxaMovementSign = (journal?: string) => {
-  switch (journal) {
-    case JOURNALS.FXA_INCOME:
-    case JOURNALS.FXA_MOVE_IN:
-      return 1;
-    case JOURNALS.FXA_OUT:
-    case JOURNALS.FXA_SALE:
-    case JOURNALS.FXA_MOVE:
-      return -1;
-    default:
-      return 0;
-  }
-};
-
-export const rebuildFixedAssetCurrentCounts = async (
-  models: IModels,
-  fixedAssetIds: string[],
-) => {
-  const uniqueIds = getUniqueFxaOwnerRecordIds(fixedAssetIds).filter(Boolean);
-
-  if (!uniqueIds.length) {
-    return;
-  }
-
-  const transactions = await models.Transactions.find({
-    journal: {
-      $in: [
-        JOURNALS.FXA_INCOME,
-        JOURNALS.FXA_OUT,
-        JOURNALS.FXA_SALE,
-        JOURNALS.FXA_MOVE,
-        JOURNALS.FXA_MOVE_IN,
-      ],
-    },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
-    'details.fixedAssetId': { $in: uniqueIds },
-  }).lean();
-  const countByAssetId = new Map<string, number>();
-
-  for (const transaction of transactions) {
-    const sign = getFinancialFxaMovementSign(transaction.journal);
-
-    if (!sign) {
-      continue;
-    }
-
-    for (const detail of transaction.details || []) {
-      if (!detail.fixedAssetId || !uniqueIds.includes(detail.fixedAssetId)) {
-        continue;
-      }
-
-      countByAssetId.set(
-        detail.fixedAssetId,
-        (countByAssetId.get(detail.fixedAssetId) || 0) +
-          sign * Math.max(0, Math.trunc(detail.count || 0)),
-      );
-    }
-  }
-
-  await Promise.all(
-    uniqueIds.map((fixedAssetId) =>
-      models.FixedAssets.updateOne(
-        { _id: fixedAssetId },
-        {
-          $set: {
-            currentCount: fixNum(countByAssetId.get(fixedAssetId) || 0),
-            updatedAt: new Date(),
-          },
-        },
-      ),
-    ),
-  );
-};
-
 export const prepareFxaOwnerRecordTransaction = async (
   models: IModels,
   doc: ITransaction,
@@ -682,24 +535,34 @@ export const prepareFxaOwnerRecordTransaction = async (
     validateDisposalAccounts?: boolean;
   } = {},
 ) => {
-  const summaries = await getFxaDisposalSummaries(models, doc);
+  const source = {
+    ...doc,
+    branchId: '',
+    departmentId: '',
+    details: doc.details.map((detail) => ({
+      ...detail,
+      branchId: detail.branchId ?? '',
+      departmentId: detail.departmentId ?? '',
+    })),
+  };
+  const summaries = await getFxaDisposalSummaries(models, source);
 
   if (options.validateDisposalAccounts) {
-    validateFxaDisposalAccounts(doc, summaries);
+    validateFxaDisposalAccounts(source, summaries);
   }
 
   if (options.updateDetails === false) {
-    return doc;
+    return source;
   }
 
   return {
-    ...doc,
-    details: (doc.details || []).map((detail) => {
-      const summary = summaries.find(
-        (item) =>
-          item.detailId === detail._id ||
-          item.fixedAssetId === detail.fixedAssetId,
-      );
+    ...source,
+    details: source.details.map((detail) => {
+      const summary =
+        summaries.find((item) => item.detailId === detail._id) ||
+        summaries.find(
+          (item) => !item.detailId && item.fixedAssetId === detail.fixedAssetId,
+        );
 
       if (!summary) {
         return detail;
@@ -721,11 +584,13 @@ export const prepareFxaDisposalTransaction = async (
   models: IModels,
   doc: ITransaction,
   options: { updateDetails?: boolean } = {},
-) =>
-  prepareFxaOwnerRecordTransaction(models, doc, {
+) => {
+  const prepared = await prepareFxaOwnerRecordTransaction(models, doc, {
     updateDetails: options.updateDetails,
     validateDisposalAccounts: true,
   });
+  return applyFxaDisposalRevaluation(models, prepared);
+};
 
 export const cleanFxaFollowTr = async (
   models: IModels,
@@ -749,4 +614,15 @@ export const cleanFxaFollowTr = async (
   });
 
   return current;
+};
+
+export const deleteEmptyFxaFollowTr = async (
+  models: IModels,
+  oldTr?: ITransactionDocument | null,
+) => {
+  if (!oldTr?._id) {
+    return;
+  }
+
+  await models.Transactions.deleteMany({ _id: oldTr._id });
 };

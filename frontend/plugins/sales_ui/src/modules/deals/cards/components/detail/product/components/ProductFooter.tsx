@@ -106,13 +106,21 @@ export const ProductFooter = ({
   hasUnsavedChanges,
 }: ProductFooterProps) => {
   const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const canEditProducts = isLoaded && hasActionPermission('dealsProductsEdit');
+  const canEditDiscounts = isLoaded && hasActionPermission('dealsEdit');
   const [discountPercentDraft, setDiscountPercentDraft] = useState<
     Record<string, string>
   >({});
   const [discountAmountDraft, setDiscountAmountDraft] = useState<
     Record<string, string>
   >({});
+  const rowIdsKey = productsData.map((product) => product._id).join(',');
+  const [draftRowIdsKey, setDraftRowIdsKey] = useState(rowIdsKey);
+
+  if (draftRowIdsKey !== rowIdsKey) {
+    setDraftRowIdsKey(rowIdsKey);
+    setDiscountPercentDraft({});
+    setDiscountAmountDraft({});
+  }
 
   const parseDraftNumber = (value: string) => {
     const parsed = Number(value.replace(/,/g, ''));
@@ -260,7 +268,7 @@ export const ProductFooter = ({
                     <div className="flex items-center gap-2">
                       <Input
                         id={`discount-percent-${currency}`}
-                        readOnly={!canEditProducts}
+                        readOnly={!canEditDiscounts}
                         className="h-8 w-16 text-right tabular-nums @2xl:w-20 @2xl:text-left"
                         inputMode="numeric"
                         placeholder="0"
@@ -275,7 +283,7 @@ export const ProductFooter = ({
                       <span className="text-xs text-muted-foreground">%</span>
                       <Input
                         id={`discount-amount-${currency}`}
-                        readOnly={!canEditProducts}
+                        readOnly={!canEditDiscounts}
                         className="h-8 w-28 text-right tabular-nums @2xl:w-32 @2xl:text-left"
                         inputMode="numeric"
                         placeholder={t('set-amount')}

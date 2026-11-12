@@ -203,7 +203,6 @@ export const ProductsList = ({
   } = useDealProductActions({
     tickUsed,
     tax,
-    discount,
     setLocalProductsData,
     updateTotal,
     calculatePerProductAmount,

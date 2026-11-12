@@ -1,5 +1,13 @@
 
 
+## [3.4.18](https://github.com/erxes/erxes/compare/3.4.17...3.4.18) (2026-11-10)
+
+
+### Features
+
+* **accounting:** fixedasset upgrade with capital and revaluations  ([#10396](https://github.com/erxes/erxes/issues/10396)) ([2cc055d](https://github.com/erxes/erxes/commit/2cc055d900e9b7021244e2cac8a9dc0f466aa1cc))
+* **auth:** add trusted staff functionality for access control ([4b19005](https://github.com/erxes/erxes/commit/4b19005272b78c80758c2810830c98999cf79c99))
+
 ## [3.4.17](https://github.com/erxes/erxes/compare/3.4.16...3.4.17) (2026-11-09)
 
 

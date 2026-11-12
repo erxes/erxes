@@ -13,6 +13,7 @@ mutation accountingAdjustFixedAssetTransaction($adjustId: String!, $expenseAccou
     modifiedBy
     date
     description
+    expenseAccountId
     status
     error
     warning

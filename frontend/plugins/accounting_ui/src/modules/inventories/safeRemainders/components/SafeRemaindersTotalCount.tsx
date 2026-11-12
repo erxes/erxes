@@ -1,4 +1,5 @@
 import { Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const SafeRemaindersTotalCount = ({
   loading,
@@ -7,13 +8,15 @@ export const SafeRemaindersTotalCount = ({
   loading: boolean;
   totalCount?: number;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
-    <span className="text-sm text-muted-foreground">
+    <div className="h-7 text-sm font-medium leading-7 whitespace-nowrap text-muted-foreground">
       {loading ? (
-        <Skeleton className="size-4" />
+        <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        `${totalCount ?? 0} records found`
+        `${totalCount ?? 0} ${t('records-found')}`
       )}
-    </span>
+    </div>
   );
 };
