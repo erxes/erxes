@@ -96,7 +96,7 @@ export const CompanyPanelNew = () => {
   const [linking, setLinking] = useState(false);
   const showCreated = useCreatedPanelRecord('core:company');
   const create = useCompanyCreate();
-  const { state } = useSidePanelDraft<{ state?: 'lead' | 'customer' }>('core:company');
+  const { state, leadStageId } = useSidePanelDraft<{ state?: 'lead' | 'customer'; leadStageId?: string }>('core:company');
   const form = useForm<TCompanyForm>({
     resolver: zodResolver(companySchema),
     defaultValues: { primaryName: '', code: '', industry: [] },
@@ -111,6 +111,7 @@ export const CompanyPanelNew = () => {
       const created = await create.mutateAsync({
         primaryName: primaryName.trim(),
         state: state || 'customer',
+        ...(state === 'lead' && leadStageId ? { leadStageId } : {}),
         code: orNull(values.code),
         ownerId: values.ownerId || null,
         primaryEmail: orNull(values.primaryEmail),

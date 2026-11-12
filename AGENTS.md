@@ -154,9 +154,30 @@ it is built.
   `core_company_tags` with foreign keys both ways, so deleting a tag or a record
   removes its links. Records still return `tagIds`.
 - Custom fields (`core_fields`, "properties"): text, long text, number, date,
-  yes/no, select, multi-select. Values live in each record's `custom_fields`
-  JSON keyed by field id and are checked against the field on every write;
-  deleting a field removes its values.
+  yes/no, select, multi-select. Values are typed rows
+  (`core_customer_field_values`, `core_company_field_values`: one row per
+  value in a text / number / date / yes-no column, one per choice of a
+  multi-choice field, each indexed; `src/modules/fields/fieldValues.ts`),
+  checked against the field on every write; records still read and write
+  `customFields: { [fieldId]: value }`. Deleting a field or a record removes
+  its values (foreign keys). Big lists: counts stop at 10,000
+  (`totalCapped`), search reads a trigram-indexed `search_text` column,
+  `last_activity_at` is kept by a trigger on `core_activities`, a filter that
+  hits the statement timeout is 400 `FILTER_TOO_SLOW`; `bench.yml` times
+  every kind of filter on 1,000,000 customers.
+- Leads (`src/modules/leads`): people and companies with `state = lead`,
+  moving through the organisation's own stages (`core_lead_stages`: open /
+  qualified / disqualified, at least one open; Settings › Lead stages), with a
+  source and details, a disqualify reason, and conversion (`convertedAt`;
+  converting lands in the first qualified stage). Every step is in
+  `core_lead_events` (funnel, time in stage, conversion by source and owner,
+  loss reasons: `GET /leads/report`). `/leads/move`, `/leads/convert`
+  (`recordType` customer or company), events `core.lead.stage_changed` /
+  `core.lead.converted`, automation actions to move and convert. UI:
+  Contacts › Leads (Insights, People, Companies), table (stage pill after the
+  name, stage filter) or board (Display; remembered in the browser), and the
+  report also in the Reports app and as Home tiles. People and companies are
+  peers: links carry a role, one main contact per company and an end date.
 - Files (`core_files`): metadata in core, bytes in the storage driver
   (`FILES_STORAGE=local|s3`; S3, R2, MinIO). Upload in two steps:
   `POST /files` checks name, type and size against the organisation's settings

@@ -81,7 +81,7 @@ const orNull = (value: string) => value.trim() || null;
 export const CustomerPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
-  const { state } = useSidePanelDraft<{ state: Customer['state'] }>('core:customer');
+  const { state, leadStageId } = useSidePanelDraft<{ state: Customer['state']; leadStageId?: string }>('core:customer');
   const { back, canGoBack, close } = useSidePanel();
   const { toast } = useToast();
   const [companyIds, setCompanyIds] = useState<string[]>([]);
@@ -113,6 +113,7 @@ export const CustomerPanelNew = () => {
     try {
       const created = await create.mutateAsync({
         state: state || 'customer',
+        ...(state === 'lead' && leadStageId ? { leadStageId } : {}),
         firstName: orNull(values.firstName),
         middleName: orNull(values.middleName),
         lastName: orNull(values.lastName),
