@@ -217,17 +217,15 @@ import {
   removeView,
   updateView,
 } from '~/modules/views/views.service';
+import { convertLeads, leadHistory, moveLeads } from '~/modules/leads/leads.service';
 import {
-  convertLeads,
   createLeadStage,
-  leadHistory,
-  leadReport,
   listLeadStages,
-  moveLeads,
   removeLeadStage,
   reorderLeadStages,
   updateLeadStage,
-} from '~/modules/leads/leads.service';
+} from '~/modules/leads/leadStages.service';
+import { leadReport } from '~/modules/leads/report';
 import { transferColumns } from '~/modules/transfer/columns';
 import { createExport, listExports } from '~/modules/transfer/exports.service';
 import {

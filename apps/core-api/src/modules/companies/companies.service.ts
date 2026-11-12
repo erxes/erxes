@@ -54,7 +54,7 @@ import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
-import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/leads.service';
+import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
 
 type CompanyRow = Omit<typeof companies.$inferSelect, 'searchText'> & {
   tagIds: string[];
