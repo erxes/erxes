@@ -1,6 +1,5 @@
-import { atom } from 'jotai';
-import { atomFamily } from 'jotai/utils';
+import { keyedAtom } from 'erxes-ui/lib/keyed-atom';
 
-export const activeCardIdState = atomFamily(() => atom<string | null>(null));
+export const activeCardIdState = keyedAtom<string | null>(null);
 
-export const dragOverBoardColumnIdState = atomFamily(() => atom<string | null>(null));
+export const dragOverBoardColumnIdState = keyedAtom<string | null>(null);

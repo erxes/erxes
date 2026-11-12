@@ -2,7 +2,6 @@ import { Popover, type PopoverProps } from 'erxes-ui/components/popover';
 import { usePreviousHotkeyScope } from '../hooks/usePreviousHotkeyScope';
 import type { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
-import { Key } from 'erxes-ui/types/Key';
 import { useLayoutEffect, useState } from 'react';
 import { currentHotkeyScopeState } from 'erxes-ui/modules/hotkey/states/internal/currentHotkeyScopeState';
 import { useAtomValue, useStore } from 'jotai';
@@ -47,7 +46,7 @@ export const PopoverScoped = ({
   }, [isOpen, scope, store, setHotkeyScope, setHotkeyScopeAndMemorizePreviousScope]);
 
   useScopedHotkeys(
-    Key.Enter,
+    'Enter',
     () => {
       if (!isOpen) {
         return;
@@ -61,7 +60,7 @@ export const PopoverScoped = ({
       }
     },
     scope ? scope + '.Popover' : currentHotkeyScope.scope,
-    [isOpen, ...(dependencies || [])],
+    [isOpen, ...(dependencies ?? [])],
     {
       enableOnFormTags: closeOnEnter,
       preventDefault: isOpen && closeOnEnter,

@@ -416,6 +416,9 @@ importers:
       jotai:
         specifier: ^2.12.0
         version: 2.20.3(@babel/core@7.9.0)(@babel/template@7.29.7)(@types/react@18.3.1)(react@18.3.1)
+      jotai-family:
+        specifier: 1.1.0
+        version: 1.1.0(jotai@2.20.3(@babel/core@7.9.0)(@babel/template@7.29.7)(@types/react@18.3.1)(react@18.3.1))
       libphonenumber-js:
         specifier: 1.12.6
         version: 1.12.6
@@ -6230,6 +6233,12 @@ packages:
 
   jose@5.10.0:
     resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
+
+  jotai-family@1.1.0:
+    resolution: {integrity: sha512-T1ACRsLnN5Mu0B8/DIWUW1hW7x1RmpBprm/+CWmUTf4ZZUmIFEQpBJ9PNQtXPjdUD2uu8RvwBxr7nJPdCw5BXg==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      jotai: '>=2.9.0'
 
   jotai@2.20.3:
     resolution: {integrity: sha512-N8L9FUbeGDP+0qNJw1FebOxt+5hk+jTOwUA2LlRE4C081jUcY6F1T/FSETp4DT2/INMtiSRZyNm2D+yZdzrSgA==}
@@ -14060,6 +14069,10 @@ snapshots:
   jiti@2.7.0: {}
 
   jose@5.10.0: {}
+
+  jotai-family@1.1.0(jotai@2.20.3(@babel/core@7.9.0)(@babel/template@7.29.7)(@types/react@18.3.1)(react@18.3.1)):
+    dependencies:
+      jotai: 2.20.3(@babel/core@7.9.0)(@babel/template@7.29.7)(@types/react@18.3.1)(react@18.3.1)
 
   jotai@2.20.3(@babel/core@7.9.0)(@babel/template@7.29.7)(@types/react@18.3.1)(react@18.3.1):
     optionalDependencies:

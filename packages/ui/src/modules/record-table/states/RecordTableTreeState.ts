@@ -1,6 +1,3 @@
-import { atom } from 'jotai';
-import { atomFamily } from 'jotai/utils';
+import { keyedAtom } from 'erxes-ui/lib/keyed-atom';
 
-export const recordTableTreeHideChildrenAtomFamily = atomFamily((key: string) =>
-  atom<string[]>([]),
-);
+export const recordTableTreeHideChildrenAtomFamily = keyedAtom<string[]>([]);

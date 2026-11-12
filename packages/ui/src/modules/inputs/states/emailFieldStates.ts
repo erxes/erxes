@@ -1,9 +1,8 @@
-import { atom } from 'jotai';
-import { atomFamily } from 'jotai/utils';
+import { keyedAtom } from 'erxes-ui/lib/keyed-atom';
 import type { TEmails } from '../components/EmailField';
 
-export const showEmailInputFamilyState = atomFamily((recordId: string) => atom(false));
+export const showEmailInputFamilyState = keyedAtom(false);
 
-export const emailsFamilyState = atomFamily((recordId: string) => atom<TEmails>([]));
+export const emailsFamilyState = keyedAtom<TEmails>([]);
 
-export const editingEmailFamilyState = atomFamily((recordId: string) => atom<string | null>(null));
+export const editingEmailFamilyState = keyedAtom<string | null>(null);

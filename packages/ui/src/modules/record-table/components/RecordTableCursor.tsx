@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { ScrollArea } from 'erxes-ui/components/scroll-area';
-import { RecordTable } from 'erxes-ui/modules/record-table/components/RecordTable';
+import { RecordTableRowSkeleton } from './RecordTableRowSkeleton';
 import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
 import { RecordTableCursorContext } from '../contexts/RecordTableCursorContext';
 import { useRecordTableCursorContext } from '../hooks/useRecordTableCursorContext';
@@ -98,7 +98,7 @@ export const RecordTableBackwardSkeleton = ({
   }
 
   return (
-    <RecordTable.RowSkeleton
+    <RecordTableRowSkeleton
       rows={3}
       backward
       root={scrollRef.current}
@@ -130,5 +130,5 @@ export const RecordTableForwardSkeleton = ({
     handleFetchMore({ direction: EnumCursorDirection.FORWARD });
   };
 
-  return <RecordTable.RowSkeleton rows={1} handleInView={handleInView} root={scrollRef.current} />;
+  return <RecordTableRowSkeleton rows={1} handleInView={handleInView} root={scrollRef.current} />;
 };

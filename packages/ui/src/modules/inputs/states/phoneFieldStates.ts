@@ -1,9 +1,8 @@
-import { atom } from 'jotai';
-import { atomFamily } from 'jotai/utils';
+import { keyedAtom } from 'erxes-ui/lib/keyed-atom';
 import type { TPhones } from '../components/PhoneField';
 
-export const showPhoneInputFamilyState = atomFamily((recordId: string) => atom(false));
+export const showPhoneInputFamilyState = keyedAtom(false);
 
-export const phonesFamilyState = atomFamily((recordId: string) => atom<TPhones>([]));
+export const phonesFamilyState = keyedAtom<TPhones>([]);
 
-export const editingPhoneFamilyState = atomFamily((recordId: string) => atom<string | null>(null));
+export const editingPhoneFamilyState = keyedAtom<string | null>(null);

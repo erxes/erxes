@@ -350,8 +350,6 @@ export { isDeeplyEqual } from './utils/isDeeplyEqual';
 
 export { isDefined } from './utils/isDefined';
 
-export { isEnabled } from './utils/isEnabled';
-
 export { detectTimeZone } from './utils/localization/detectTimeZone';
 
 export { formatDateISOStringToRelativeDate } from './utils/localization/formatDateISOStringToRelativeDate';

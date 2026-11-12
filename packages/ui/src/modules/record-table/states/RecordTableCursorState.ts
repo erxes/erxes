@@ -1,4 +1,3 @@
-import { atom } from 'jotai';
-import { atomFamily } from 'jotai/utils';
+import { keyedAtom } from 'erxes-ui/lib/keyed-atom';
 
-export const recordTableCursorAtomFamily = atomFamily((key: string) => atom<string>(''));
+export const recordTableCursorAtomFamily = keyedAtom('');

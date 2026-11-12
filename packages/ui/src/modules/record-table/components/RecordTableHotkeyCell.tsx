@@ -3,7 +3,6 @@ import { useRecordTableHotkey } from '../contexts/RecordTableHotkeyContext';
 import { Slot } from 'radix-ui';
 import { mergeRefs } from 'react-merge-refs';
 import { cn } from 'erxes-ui/lib/utils';
-import { Key } from 'erxes-ui/types/Key';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useAtomValue } from 'jotai';
 import { internalHotkeysEnabledScopesState } from 'erxes-ui/modules/hotkey/states/internal/internalHotkeysEnabledScopeState';
@@ -39,7 +38,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
     const colIndex = colIndexProp ?? controlRef.current?.cellIndex;
 
     useHotkeys(
-      Key.Enter,
+      'Enter',
       (e) => {
         e.preventDefault();
         e.stopPropagation();

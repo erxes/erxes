@@ -9,7 +9,10 @@ export const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
 export type CollapseState = 'expanded' | 'compact' | 'collapsed';
 
-export const COLLAPSE_ORDER: CollapseState[] = ['expanded', 'compact', 'collapsed'];
+const NEXT_COLLAPSE_STATE: Record<CollapseState, CollapseState> = {
+  expanded: 'compact',
+  compact: 'collapsed',
+  collapsed: 'expanded',
+};
 
-export const nextCollapseState = (prev: CollapseState): CollapseState =>
-  COLLAPSE_ORDER[(COLLAPSE_ORDER.indexOf(prev) + 1) % COLLAPSE_ORDER.length];
+export const nextCollapseState = (prev: CollapseState) => NEXT_COLLAPSE_STATE[prev];

@@ -41,6 +41,7 @@
     "deep-equal": "2.2.3",
     "dompurify": "3.4.17",
     "emblor": "1.4.8",
+    "jotai-family": "1.1.0",
     "libphonenumber-js": "1.12.6",
     "motion": "11.18.2",
     "radix-ui": "1.4.3",
