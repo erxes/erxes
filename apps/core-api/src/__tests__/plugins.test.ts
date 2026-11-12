@@ -111,10 +111,19 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
       api: { url: 'https://hr.example.com/api' },
       scopes: ['notifications:write'],
       permissions: [{ action: 'hr.leave.approve', label: 'Approve leave' }],
-      events: [{ type: 'hr.leave.approved', label: 'Leave approved' }],
+      events: [
+        { type: 'hr.leave.approved', label: 'Leave approved' },
+        { type: 'hr.employee.hired', label: 'Employee hired', subject: 'customer' },
+      ],
     };
 
     expect((await call(service, '/plugins/manifest', { method: 'PUT', body: manifest })).status).toBe(200);
+
+    // A plugin event that says what it is about starts automations about that record.
+    const triggers = (await call(ownerToken, '/automations/catalog')).body.triggers as { type: string; subject: string | null }[];
+
+    expect(triggers.find((item) => item.type === 'hr.employee.hired')?.subject).toBe('customer');
+    expect(triggers.find((item) => item.type === 'hr.leave.approved')?.subject).toBeNull();
 
     // Granted before (everything), now asked for less: tokens carry only notifications:write.
     const narrow = await requestPluginToken(base, orgId);

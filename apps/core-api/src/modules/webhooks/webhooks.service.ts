@@ -75,7 +75,7 @@ export const eventTypeCatalog = async (client: Db, orgId: string): Promise<Event
         label: item.label,
         description: item.description ?? null,
         source: plugin.name,
-        subject: null,
+        subject: item.subject ?? null,
       })),
     ),
   ];

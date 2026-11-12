@@ -243,6 +243,9 @@ it is built.
   - Core actions (`actions.ts`): update/tag customer and company, set a custom
     field, round-robin owner (`state.turns`), note, notify, email, POST with
     headers. Plugin actions from manifests (`verifyCoreCall`, Idempotency-Key).
+    A plugin's manifest `events` may name their `subject` (customer or
+    company): automations they start can then use that record's fields and
+    customer or company actions (runs take the record from the event).
     Action inputs (`ActionField`) are typed so the builder shows the right
     control: text (with an "Insert data" picker for `{{…}}`), choices,
     members, tags, `custom_field`, `lead_stage` (by id; older steps by name),

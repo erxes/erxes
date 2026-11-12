@@ -25,7 +25,7 @@ export interface StoredPluginManifest {
   scopes: string[];
   permissions?: { action: string; label: string; description?: string; group?: string }[];
   notificationKinds?: { kind: string; label: string; description?: string }[];
-  events?: { type: string; label: string; description?: string }[];
+  events?: { type: string; label: string; description?: string; subject?: 'customer' | 'company' }[];
   /** Events it wants at `<api.url>/events` (patterns: `core.payment.*`). */
   subscriptions?: string[];
   timelines?: { type: string; label: string; permission?: string }[];

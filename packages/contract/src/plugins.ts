@@ -147,9 +147,20 @@ export const PluginManifest = z.object({
    * other plugins' events need `events:read`. Its own events are not sent back.
    */
   subscriptions: z.array(EventPattern).max(100).optional(),
-  /** Events it publishes: triggers for automations. */
+  /**
+   * Events it publishes: triggers for automations. `subject`: what its events
+   * are about (published with `subject`), so automations started by it can
+   * use that record's fields and run customer or company actions.
+   */
   events: z
-    .array(z.object({ type: EventType, label: z.string().trim().min(1).max(100), description: z.string().trim().max(300).optional() }))
+    .array(
+      z.object({
+        type: EventType,
+        label: z.string().trim().min(1).max(100),
+        description: z.string().trim().max(300).optional(),
+        subject: z.enum(['customer', 'company']).optional(),
+      }),
+    )
     .max(500)
     .optional(),
 });
