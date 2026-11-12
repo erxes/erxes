@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # Regenerates the committed artifacts and fails if any differ: migrations
 # (drizzle-kit, from packages/db/src/schema) and the OpenAPI document.
-# drizzle-kit compares the schema with the migration snapshots, not the SQL:
-# apps/core-api/src/__tests__/migrations.test.ts checks what the SQL builds.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."

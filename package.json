@@ -18,7 +18,9 @@
     "db:plugin-role": "pnpm --filter @erxes/core-api db:plugin-role",
     "bootstrap": "pnpm --filter @erxes/core-api bootstrap",
     "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
-    "bench:filters": "pnpm --filter @erxes/core-api bench:filters"
+    "bench:filters": "pnpm --filter @erxes/core-api bench:filters",
+    "openapi": "pnpm --filter @erxes/core-api openapi",
+    "check:generated": "tools/check-generated.sh"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
