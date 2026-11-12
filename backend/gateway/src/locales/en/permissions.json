@@ -1,0 +1,619 @@
+{
+  "accounting": {
+    "transaction": {
+      "name": "Transaction",
+      "description": "Transaction management",
+      "scopes": {
+        "own": "Transactions created by the user",
+        "all": "All transactions"
+      },
+      "actions": {
+        "readTransactions": {
+          "title": "View transactions",
+          "description": "View transactions"
+        },
+        "manageTransactions": {
+          "title": "Manage transactions",
+          "description": "Create and update transactions"
+        },
+        "removeTransactions": {
+          "title": "Remove transactions",
+          "description": "Delete transactions"
+        },
+        "linkTransactions": {
+          "title": "Link transactions",
+          "description": "Link transactions"
+        },
+        "transactionsImportManage": {
+          "title": "Import transactions",
+          "description": "Import transactions"
+        },
+        "transactionsExportManage": {
+          "title": "Export transactions",
+          "description": "Export transactions"
+        },
+        "readMainTransactions": {
+          "title": "View main journal transactions",
+          "description": "View main journal transactions"
+        },
+        "manageMainTransactions": {
+          "title": "Manage main journal transactions",
+          "description": "Create and update main journal transactions"
+        },
+        "removeMainTransactions": {
+          "title": "Remove main journal transactions",
+          "description": "Delete main journal transactions"
+        },
+        "readCashTransactions": {
+          "title": "View cash journal transactions",
+          "description": "View cash journal transactions"
+        },
+        "manageCashTransactions": {
+          "title": "Manage cash journal transactions",
+          "description": "Create and update cash journal transactions"
+        },
+        "removeCashTransactions": {
+          "title": "Remove cash journal transactions",
+          "description": "Delete cash journal transactions"
+        },
+        "readBankTransactions": {
+          "title": "View bank journal transactions",
+          "description": "View bank journal transactions"
+        },
+        "manageBankTransactions": {
+          "title": "Manage bank journal transactions",
+          "description": "Create and update bank journal transactions"
+        },
+        "removeBankTransactions": {
+          "title": "Remove bank journal transactions",
+          "description": "Delete bank journal transactions"
+        },
+        "readReceivableTransactions": {
+          "title": "View receivable journal transactions",
+          "description": "View receivable journal transactions"
+        },
+        "manageReceivableTransactions": {
+          "title": "Manage receivable journal transactions",
+          "description": "Create and update receivable journal transactions"
+        },
+        "removeReceivableTransactions": {
+          "title": "Remove receivable journal transactions",
+          "description": "Delete receivable journal transactions"
+        },
+        "readPayableTransactions": {
+          "title": "View payable journal transactions",
+          "description": "View payable journal transactions"
+        },
+        "managePayableTransactions": {
+          "title": "Manage payable journal transactions",
+          "description": "Create and update payable journal transactions"
+        },
+        "removePayableTransactions": {
+          "title": "Remove payable journal transactions",
+          "description": "Delete payable journal transactions"
+        },
+        "readTaxTransactions": {
+          "title": "View tax journal transactions",
+          "description": "View tax journal transactions"
+        },
+        "manageTaxTransactions": {
+          "title": "Manage tax journal transactions",
+          "description": "Create and update tax journal transactions"
+        },
+        "removeTaxTransactions": {
+          "title": "Remove tax journal transactions",
+          "description": "Delete tax journal transactions"
+        },
+        "readInventoryOpeningTransactions": {
+          "title": "View inventory opening journal transactions",
+          "description": "View inventory opening journal transactions"
+        },
+        "manageInventoryOpeningTransactions": {
+          "title": "Manage inventory opening journal transactions",
+          "description": "Create and update inventory opening journal transactions"
+        },
+        "removeInventoryOpeningTransactions": {
+          "title": "Remove inventory opening journal transactions",
+          "description": "Delete inventory opening journal transactions"
+        },
+        "readInvIncomeTransactions": {
+          "title": "View inventory income journal transactions",
+          "description": "View inventory income journal transactions"
+        },
+        "manageInvIncomeTransactions": {
+          "title": "Manage inventory income journal transactions",
+          "description": "Create and update inventory income journal transactions"
+        },
+        "removeInvIncomeTransactions": {
+          "title": "Remove inventory income journal transactions",
+          "description": "Delete inventory income journal transactions"
+        },
+        "readInvOutTransactions": {
+          "title": "View inventory out journal transactions",
+          "description": "View inventory out journal transactions"
+        },
+        "manageInvOutTransactions": {
+          "title": "Manage inventory out journal transactions",
+          "description": "Create and update inventory out journal transactions"
+        },
+        "removeInvOutTransactions": {
+          "title": "Remove inventory out journal transactions",
+          "description": "Delete inventory out journal transactions"
+        },
+        "readInvJustifyTransactions": {
+          "title": "View inventory cost adjustment journal transactions",
+          "description": "View inventory cost adjustment journal transactions"
+        },
+        "manageInvJustifyTransactions": {
+          "title": "Manage inventory cost adjustment journal transactions",
+          "description": "Create and update inventory cost adjustment journal transactions"
+        },
+        "removeInvJustifyTransactions": {
+          "title": "Remove inventory cost adjustment journal transactions",
+          "description": "Delete inventory cost adjustment journal transactions"
+        },
+        "readInvMoveTransactions": {
+          "title": "View inventory movement journal transactions",
+          "description": "View inventory movement journal transactions"
+        },
+        "manageInvMoveTransactions": {
+          "title": "Manage inventory movement journal transactions",
+          "description": "Create and update inventory movement journal transactions"
+        },
+        "removeInvMoveTransactions": {
+          "title": "Remove inventory movement journal transactions",
+          "description": "Delete inventory movement journal transactions"
+        },
+        "readInvSaleTransactions": {
+          "title": "View inventory sale journal transactions",
+          "description": "View inventory sale journal transactions"
+        },
+        "manageInvSaleTransactions": {
+          "title": "Manage inventory sale journal transactions",
+          "description": "Create and update inventory sale journal transactions"
+        },
+        "removeInvSaleTransactions": {
+          "title": "Remove inventory sale journal transactions",
+          "description": "Delete inventory sale journal transactions"
+        },
+        "readInvSaleReturnTransactions": {
+          "title": "View inventory sale return journal transactions",
+          "description": "View inventory sale return journal transactions"
+        },
+        "manageInvSaleReturnTransactions": {
+          "title": "Manage inventory sale return journal transactions",
+          "description": "Create and update inventory sale return journal transactions"
+        },
+        "removeInvSaleReturnTransactions": {
+          "title": "Remove inventory sale return journal transactions",
+          "description": "Delete inventory sale return journal transactions"
+        },
+        "readAdjustFixedAssets": {
+          "title": "View fixed asset depreciation journal transactions",
+          "description": "View fixed asset depreciation journal transactions"
+        },
+        "manageAdjustFixedAssets": {
+          "title": "Manage fixed asset depreciation journal transactions",
+          "description": "Create and update fixed asset depreciation journal transactions"
+        },
+        "removeAdjustFixedAssets": {
+          "title": "Remove fixed asset depreciation journal transactions",
+          "description": "Delete fixed asset depreciation journal transactions"
+        },
+        "readFxaCapitalTransactions": {
+          "title": "View fixed asset capitalization and correction journal transactions",
+          "description": "View fixed asset capitalization and correction journal transactions"
+        },
+        "manageFxaCapitalTransactions": {
+          "title": "Manage fixed asset capitalization and correction journal transactions",
+          "description": "Create and update fixed asset capitalization and correction journal transactions"
+        },
+        "removeFxaCapitalTransactions": {
+          "title": "Remove fixed asset capitalization and correction journal transactions",
+          "description": "Delete fixed asset capitalization and correction journal transactions"
+        },
+        "readFxaRevaluationTransactions": {
+          "title": "View fixed asset revaluation journal transactions",
+          "description": "View fixed asset revaluation journal transactions"
+        },
+        "manageFxaRevaluationTransactions": {
+          "title": "Manage fixed asset revaluation journal transactions",
+          "description": "Create and update fixed asset revaluation journal transactions"
+        },
+        "removeFxaRevaluationTransactions": {
+          "title": "Remove fixed asset revaluation journal transactions",
+          "description": "Delete fixed asset revaluation journal transactions"
+        },
+        "readFxaIncomeTransactions": {
+          "title": "View fixed asset income journal transactions",
+          "description": "View fixed asset income journal transactions"
+        },
+        "manageFxaIncomeTransactions": {
+          "title": "Manage fixed asset income journal transactions",
+          "description": "Create and update fixed asset income journal transactions"
+        },
+        "removeFxaIncomeTransactions": {
+          "title": "Remove fixed asset income journal transactions",
+          "description": "Delete fixed asset income journal transactions"
+        },
+        "readFxaOutTransactions": {
+          "title": "View fixed asset out journal transactions",
+          "description": "View fixed asset out journal transactions"
+        },
+        "manageFxaOutTransactions": {
+          "title": "Manage fixed asset out journal transactions",
+          "description": "Create and update fixed asset out journal transactions"
+        },
+        "removeFxaOutTransactions": {
+          "title": "Remove fixed asset out journal transactions",
+          "description": "Delete fixed asset out journal transactions"
+        },
+        "readFxaMoveTransactions": {
+          "title": "View fixed asset movement journal transactions",
+          "description": "View fixed asset movement journal transactions"
+        },
+        "manageFxaMoveTransactions": {
+          "title": "Manage fixed asset movement journal transactions",
+          "description": "Create and update fixed asset movement journal transactions"
+        },
+        "removeFxaMoveTransactions": {
+          "title": "Remove fixed asset movement journal transactions",
+          "description": "Delete fixed asset movement journal transactions"
+        },
+        "readFxaSaleTransactions": {
+          "title": "View fixed asset sale journal transactions",
+          "description": "View fixed asset sale journal transactions"
+        },
+        "manageFxaSaleTransactions": {
+          "title": "Manage fixed asset sale journal transactions",
+          "description": "Create and update fixed asset sale journal transactions"
+        },
+        "removeFxaSaleTransactions": {
+          "title": "Remove fixed asset sale journal transactions",
+          "description": "Delete fixed asset sale journal transactions"
+        }
+      }
+    },
+    "account": {
+      "name": "Account",
+      "description": "Accounting management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "accountsRead": {
+          "title": "View accounts",
+          "description": "View accounts"
+        },
+        "manageAccounts": {
+          "title": "Manage accounts",
+          "description": "Create and edit accounts"
+        },
+        "removeAccounts": {
+          "title": "Remove accounts",
+          "description": "Remove accounts"
+        },
+        "accountsMerge": {
+          "title": "Merge accounts",
+          "description": "Merge accounts"
+        },
+        "accountsImportManage": {
+          "title": "Import accounts",
+          "description": "Import accounts"
+        }
+      }
+    },
+    "accountCategory": {
+      "name": "Account category",
+      "description": "Account category management",
+      "scopes": {
+        "own": "Categories created by the user",
+        "all": "All categories"
+      },
+      "actions": {
+        "readAccountCategories": {
+          "title": "View categories",
+          "description": "View account categories"
+        },
+        "manageAccountCategories": {
+          "title": "Manage categories",
+          "description": "Create, edit account categories"
+        },
+        "removeAccountCategories": {
+          "title": "Remove categories",
+          "description": "Remove account categories"
+        },
+        "accountCategoriesImportManage": {
+          "title": "Import account categories",
+          "description": "Import account categories"
+        }
+      }
+    },
+    "adjustClosing": {
+      "name": "Closing adjustment",
+      "description": "Closing adjustment management",
+      "scopes": {
+        "own": "Adjustments created by the user",
+        "all": "All adjustments"
+      },
+      "actions": {
+        "readAdjustClosings": {
+          "title": "View closing adjustments",
+          "description": "View closing adjustments"
+        },
+        "manageAdjustClosings": {
+          "title": "Manage closing adjustments",
+          "description": "Create and run closing adjustments"
+        },
+        "publishAdjustClosings": {
+          "title": "Publish closing adjustments",
+          "description": "Publish a closing adjustment"
+        },
+        "cancelAdjustClosings": {
+          "title": "Cancel closing adjustments",
+          "description": "Cancel a published closing adjustment"
+        },
+        "removeAdjustClosings": {
+          "title": "Remove closing adjustments",
+          "description": "Delete closing adjustments"
+        }
+      }
+    },
+    "adjustDebtRate": {
+      "name": "Debt rate adjustment",
+      "description": "Debt exchange rate adjustment management",
+      "scopes": {
+        "own": "Adjustments created by the user",
+        "all": "All adjustments"
+      },
+      "actions": {
+        "readAdjustDebtRates": {
+          "title": "View debt rate adjustments",
+          "description": "View debt exchange rate adjustments"
+        },
+        "manageAdjustDebtRates": {
+          "title": "Manage debt rate adjustments",
+          "description": "Create and run debt exchange rate adjustments"
+        },
+        "removeAdjustDebtRates": {
+          "title": "Remove debt rate adjustments",
+          "description": "Delete debt exchange rate adjustments"
+        }
+      }
+    },
+    "adjustFixedAsset": {
+      "name": "Fixed asset adjustment",
+      "description": "Fixed asset adjustment management",
+      "scopes": {
+        "own": "Adjustments created by the user",
+        "all": "All adjustments"
+      },
+      "actions": {
+        "readAdjustFixedAssets": {
+          "title": "View fixed asset adjustments",
+          "description": "View fixed asset adjustments"
+        },
+        "manageAdjustFixedAssets": {
+          "title": "Manage fixed asset adjustments",
+          "description": "Create and run fixed asset adjustments"
+        },
+        "publishAdjustFixedAssets": {
+          "title": "Publish fixed asset adjustments",
+          "description": "Publish a fixed asset adjustment"
+        },
+        "cancelAdjustFixedAssets": {
+          "title": "Cancel fixed asset adjustments",
+          "description": "Cancel a published fixed asset adjustment"
+        },
+        "removeAdjustFixedAssets": {
+          "title": "Remove fixed asset adjustments",
+          "description": "Delete a fixed asset adjustment"
+        },
+        "clearAdjustFixedAssets": {
+          "title": "Clear fixed asset adjustments",
+          "description": "Clear a fixed asset adjustment"
+        }
+      }
+    },
+    "adjustFundRate": {
+      "name": "Fund rate adjustment",
+      "description": "Fund exchange rate adjustment management",
+      "scopes": {
+        "own": "Adjustments created by the user",
+        "all": "All adjustments"
+      },
+      "actions": {
+        "readAdjustFundRates": {
+          "title": "View fund rate adjustments",
+          "description": "View fund exchange rate adjustments"
+        },
+        "manageAdjustFundRates": {
+          "title": "Manage fund rate adjustments",
+          "description": "Create and run fund exchange rate adjustments"
+        },
+        "removeAdjustFundRates": {
+          "title": "Remove fund rate adjustments",
+          "description": "Delete fund exchange rate adjustments"
+        }
+      }
+    },
+    "adjustInventory": {
+      "name": "Inventory adjustment",
+      "description": "Inventory adjustment management",
+      "scopes": {
+        "own": "Adjustments created by the user",
+        "all": "All adjustments"
+      },
+      "actions": {
+        "readAdjustInventories": {
+          "title": "View adjustments",
+          "description": "View inventory adjustments"
+        },
+        "manageAdjustInventories": {
+          "title": "Manage adjustments",
+          "description": "Create and run inventory adjustments"
+        },
+        "publishAdjustInventories": {
+          "title": "Publish adjustments",
+          "description": "Publish an adjustment"
+        },
+        "cancelAdjustInventories": {
+          "title": "Cancel adjustments",
+          "description": "Cancel a published adjustment"
+        },
+        "removeAdjustInventories": {
+          "title": "Remove adjustments",
+          "description": "Delete an adjustment"
+        },
+        "clearAdjustInventories": {
+          "title": "Clear adjustments",
+          "description": "Clear an adjustment"
+        }
+      }
+    },
+    "checkSync": {
+      "name": "Check sync",
+      "description": "Accounting check sync management",
+      "scopes": {
+        "own": "Check sync records created by the user",
+        "all": "All check sync records"
+      },
+      "actions": {
+        "readAccountingCheckSync": {
+          "title": "View check sync",
+          "description": "Check accounting transaction sync status"
+        },
+        "manageAccountingCheckSync": {
+          "title": "Manage check sync",
+          "description": "Sync deals and orders to accounting transactions"
+        }
+      }
+    },
+    "config": {
+      "name": "Configuration",
+      "description": "Accounting configuration management",
+      "scopes": {
+        "own": "Configs created by the user",
+        "all": "All configs"
+      },
+      "actions": {
+        "readAccountingConfigs": {
+          "title": "View configs",
+          "description": "View accounting configs"
+        },
+        "manageAccountingConfigs": {
+          "title": "Manage configs",
+          "description": "Create and update accounting configs"
+        },
+        "removeAccountingConfigs": {
+          "title": "Remove configs",
+          "description": "Delete accounting configs"
+        }
+      }
+    },
+    "job": {
+      "name": "Job",
+      "description": "Inventory job management",
+      "scopes": {
+        "own": "Jobs created by the user",
+        "all": "All jobs"
+      },
+      "actions": {
+        "readJobs": {
+          "title": "View jobs",
+          "description": "View inventory jobs"
+        },
+        "manageJobs": {
+          "title": "Manage jobs",
+          "description": "Create and update inventory jobs"
+        },
+        "removeJobs": {
+          "title": "Remove jobs",
+          "description": "Delete inventory jobs"
+        }
+      }
+    },
+    "jobExecution": {
+      "name": "Job execution",
+      "description": "Inventory job executions",
+      "scopes": {
+        "all": "All job executions"
+      },
+      "actions": {
+        "readJobExecutions": {
+          "title": "View job executions",
+          "description": "View job executions"
+        },
+        "manageJobExecutions": {
+          "title": "Manage job executions",
+          "description": "Create, edit, post and undo job executions"
+        },
+        "removeJobExecutions": {
+          "title": "Remove job executions",
+          "description": "Delete draft job executions"
+        }
+      }
+    },
+    "safeRemainder": {
+      "name": "Safe remainder",
+      "description": "Safe remainder management",
+      "scopes": {
+        "own": "Safe remainders created by the user",
+        "all": "All safe remainders"
+      },
+      "actions": {
+        "readSafeRemainders": {
+          "title": "View safe remainders",
+          "description": "View safe remainders and their item rows"
+        },
+        "manageSafeRemainders": {
+          "title": "Manage safe remainders",
+          "description": "Create, update, submit, recalculate, and run safe remainders"
+        },
+        "removeSafeRemainders": {
+          "title": "Remove safe remainders",
+          "description": "Delete safe remainders and safe remainder items"
+        },
+        "viewSafeRemainderItemCounts": {
+          "title": "View safe remainder item counts",
+          "description": "View system item counts and use difference filters on safe remainder items"
+        }
+      }
+    },
+    "taxRow": {
+      "name": "Tax row",
+      "description": "Tax row management",
+      "scopes": {
+        "own": "Tax rows created by the user",
+        "all": "All tax rows"
+      },
+      "actions": {
+        "readTaxRows": {
+          "title": "View tax rows",
+          "description": "View tax rows"
+        },
+        "manageTaxRows": {
+          "title": "Manage tax rows",
+          "description": "Create and edit tax rows"
+        },
+        "removeTaxRows": {
+          "title": "Remove tax rows",
+          "description": "Delete tax rows"
+        },
+        "taxRowsImportManage": {
+          "title": "Import tax rows",
+          "description": "Import tax rows"
+        }
+      }
+    }
+  },
+  "groups": {
+    "accounting:admin": {
+      "description": "Full access to Accounting plugin"
+    },
+    "accounting:viewer": {
+      "description": "Read-only access to Accounting plugin"
+    }
+  }
+}

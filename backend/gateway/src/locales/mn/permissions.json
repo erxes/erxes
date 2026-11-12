@@ -1,0 +1,619 @@
+{
+  "accounting": {
+    "transaction": {
+      "name": "Гүйлгээ",
+      "description": "Гүйлгээний удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн гүйлгээ",
+        "all": "Бүх гүйлгээ"
+      },
+      "actions": {
+        "readTransactions": {
+          "title": "Гүйлгээ харах",
+          "description": "Гүйлгээ харах"
+        },
+        "manageTransactions": {
+          "title": "Гүйлгээ удирдах",
+          "description": "Гүйлгээ үүсгэх, засах"
+        },
+        "removeTransactions": {
+          "title": "Гүйлгээ устгах",
+          "description": "Гүйлгээ устгах"
+        },
+        "linkTransactions": {
+          "title": "Гүйлгээ холбох",
+          "description": "Гүйлгээ холбох"
+        },
+        "transactionsImportManage": {
+          "title": "Гүйлгээ импортлох",
+          "description": "Гүйлгээ импортлох"
+        },
+        "transactionsExportManage": {
+          "title": "Гүйлгээ экспортлох",
+          "description": "Гүйлгээ экспортлох"
+        },
+        "readMainTransactions": {
+          "title": "Ерөнхий журналын гүйлгээ харах",
+          "description": "Ерөнхий журналын гүйлгээ харах"
+        },
+        "manageMainTransactions": {
+          "title": "Ерөнхий журналын гүйлгээ удирдах",
+          "description": "Ерөнхий журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeMainTransactions": {
+          "title": "Ерөнхий журналын гүйлгээ устгах",
+          "description": "Ерөнхий журналын гүйлгээ устгах"
+        },
+        "readCashTransactions": {
+          "title": "Бэлэн мөнгөний журналын гүйлгээ харах",
+          "description": "Бэлэн мөнгөний журналын гүйлгээ харах"
+        },
+        "manageCashTransactions": {
+          "title": "Бэлэн мөнгөний журналын гүйлгээ удирдах",
+          "description": "Бэлэн мөнгөний журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeCashTransactions": {
+          "title": "Бэлэн мөнгөний журналын гүйлгээ устгах",
+          "description": "Бэлэн мөнгөний журналын гүйлгээ устгах"
+        },
+        "readBankTransactions": {
+          "title": "Харилцахын журналын гүйлгээ харах",
+          "description": "Харилцахын журналын гүйлгээ харах"
+        },
+        "manageBankTransactions": {
+          "title": "Харилцахын журналын гүйлгээ удирдах",
+          "description": "Харилцахын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeBankTransactions": {
+          "title": "Харилцахын журналын гүйлгээ устгах",
+          "description": "Харилцахын журналын гүйлгээ устгах"
+        },
+        "readReceivableTransactions": {
+          "title": "Авлагын журналын гүйлгээ харах",
+          "description": "Авлагын журналын гүйлгээ харах"
+        },
+        "manageReceivableTransactions": {
+          "title": "Авлагын журналын гүйлгээ удирдах",
+          "description": "Авлагын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeReceivableTransactions": {
+          "title": "Авлагын журналын гүйлгээ устгах",
+          "description": "Авлагын журналын гүйлгээ устгах"
+        },
+        "readPayableTransactions": {
+          "title": "Өглөгийн журналын гүйлгээ харах",
+          "description": "Өглөгийн журналын гүйлгээ харах"
+        },
+        "managePayableTransactions": {
+          "title": "Өглөгийн журналын гүйлгээ удирдах",
+          "description": "Өглөгийн журналын гүйлгээ үүсгэх, засах"
+        },
+        "removePayableTransactions": {
+          "title": "Өглөгийн журналын гүйлгээ устгах",
+          "description": "Өглөгийн журналын гүйлгээ устгах"
+        },
+        "readTaxTransactions": {
+          "title": "Татварын журналын гүйлгээ харах",
+          "description": "Татварын журналын гүйлгээ харах"
+        },
+        "manageTaxTransactions": {
+          "title": "Татварын журналын гүйлгээ удирдах",
+          "description": "Татварын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeTaxTransactions": {
+          "title": "Татварын журналын гүйлгээ устгах",
+          "description": "Татварын журналын гүйлгээ устгах"
+        },
+        "readInventoryOpeningTransactions": {
+          "title": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ харах",
+          "description": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ харах"
+        },
+        "manageInventoryOpeningTransactions": {
+          "title": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ удирдах",
+          "description": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInventoryOpeningTransactions": {
+          "title": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ устгах",
+          "description": "Бараа материалын эхний үлдэгдлийн журналын гүйлгээ устгах"
+        },
+        "readInvIncomeTransactions": {
+          "title": "Барааны орлогын журналын гүйлгээ харах",
+          "description": "Барааны орлогын журналын гүйлгээ харах"
+        },
+        "manageInvIncomeTransactions": {
+          "title": "Барааны орлогын журналын гүйлгээ удирдах",
+          "description": "Барааны орлогын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvIncomeTransactions": {
+          "title": "Барааны орлогын журналын гүйлгээ устгах",
+          "description": "Барааны орлогын журналын гүйлгээ устгах"
+        },
+        "readInvOutTransactions": {
+          "title": "Барааны зарлагын журналын гүйлгээ харах",
+          "description": "Барааны зарлагын журналын гүйлгээ харах"
+        },
+        "manageInvOutTransactions": {
+          "title": "Барааны зарлагын журналын гүйлгээ удирдах",
+          "description": "Барааны зарлагын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvOutTransactions": {
+          "title": "Барааны зарлагын журналын гүйлгээ устгах",
+          "description": "Барааны зарлагын журналын гүйлгээ устгах"
+        },
+        "readInvJustifyTransactions": {
+          "title": "Барааны өртөг залруулгын журналын гүйлгээ харах",
+          "description": "Барааны өртөг залруулгын журналын гүйлгээ харах"
+        },
+        "manageInvJustifyTransactions": {
+          "title": "Барааны өртөг залруулгын журналын гүйлгээ удирдах",
+          "description": "Барааны өртөг залруулгын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvJustifyTransactions": {
+          "title": "Барааны өртөг залруулгын журналын гүйлгээ устгах",
+          "description": "Барааны өртөг залруулгын журналын гүйлгээ устгах"
+        },
+        "readInvMoveTransactions": {
+          "title": "Дотоод хөдөлгөөний журналын гүйлгээ харах",
+          "description": "Дотоод хөдөлгөөний журналын гүйлгээ харах"
+        },
+        "manageInvMoveTransactions": {
+          "title": "Дотоод хөдөлгөөний журналын гүйлгээ удирдах",
+          "description": "Дотоод хөдөлгөөний журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvMoveTransactions": {
+          "title": "Дотоод хөдөлгөөний журналын гүйлгээ устгах",
+          "description": "Дотоод хөдөлгөөний журналын гүйлгээ устгах"
+        },
+        "readInvSaleTransactions": {
+          "title": "Борлуулалтын журналын гүйлгээ харах",
+          "description": "Борлуулалтын журналын гүйлгээ харах"
+        },
+        "manageInvSaleTransactions": {
+          "title": "Борлуулалтын журналын гүйлгээ удирдах",
+          "description": "Борлуулалтын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvSaleTransactions": {
+          "title": "Борлуулалтын журналын гүйлгээ устгах",
+          "description": "Борлуулалтын журналын гүйлгээ устгах"
+        },
+        "readInvSaleReturnTransactions": {
+          "title": "Борлуулалтын буцаалтын журналын гүйлгээ харах",
+          "description": "Борлуулалтын буцаалтын журналын гүйлгээ харах"
+        },
+        "manageInvSaleReturnTransactions": {
+          "title": "Борлуулалтын буцаалтын журналын гүйлгээ удирдах",
+          "description": "Борлуулалтын буцаалтын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeInvSaleReturnTransactions": {
+          "title": "Борлуулалтын буцаалтын журналын гүйлгээ устгах",
+          "description": "Борлуулалтын буцаалтын журналын гүйлгээ устгах"
+        },
+        "readAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ харах"
+        },
+        "manageAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн элэгдлийн журналын гүйлгээ устгах"
+        },
+        "readFxaCapitalTransactions": {
+          "title": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ харах"
+        },
+        "manageFxaCapitalTransactions": {
+          "title": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaCapitalTransactions": {
+          "title": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн капиталжуулалт, залруулгын журналын гүйлгээ устгах"
+        },
+        "readFxaRevaluationTransactions": {
+          "title": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ харах"
+        },
+        "manageFxaRevaluationTransactions": {
+          "title": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaRevaluationTransactions": {
+          "title": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн дахин үнэлгээний журналын гүйлгээ устгах"
+        },
+        "readFxaIncomeTransactions": {
+          "title": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ харах"
+        },
+        "manageFxaIncomeTransactions": {
+          "title": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaIncomeTransactions": {
+          "title": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн орлогын журналын гүйлгээ устгах"
+        },
+        "readFxaOutTransactions": {
+          "title": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ харах"
+        },
+        "manageFxaOutTransactions": {
+          "title": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaOutTransactions": {
+          "title": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн зарлагын журналын гүйлгээ устгах"
+        },
+        "readFxaMoveTransactions": {
+          "title": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ харах"
+        },
+        "manageFxaMoveTransactions": {
+          "title": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaMoveTransactions": {
+          "title": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн хөдөлгөөний журналын гүйлгээ устгах"
+        },
+        "readFxaSaleTransactions": {
+          "title": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ харах",
+          "description": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ харах"
+        },
+        "manageFxaSaleTransactions": {
+          "title": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ удирдах",
+          "description": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ үүсгэх, засах"
+        },
+        "removeFxaSaleTransactions": {
+          "title": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ устгах",
+          "description": "Үндсэн хөрөнгийн борлуулалтын журналын гүйлгээ устгах"
+        }
+      }
+    },
+    "account": {
+      "name": "Данс",
+      "description": "Дансны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "accountsRead": {
+          "title": "Данс харах",
+          "description": "Данс харах"
+        },
+        "manageAccounts": {
+          "title": "Данс удирдах",
+          "description": "Данс үүсгэх, засах"
+        },
+        "removeAccounts": {
+          "title": "Данс устгах",
+          "description": "Данс устгах"
+        },
+        "accountsMerge": {
+          "title": "Данс нэгтгэх",
+          "description": "Данс нэгтгэх"
+        },
+        "accountsImportManage": {
+          "title": "Данс импортлох",
+          "description": "Данс импортлох"
+        }
+      }
+    },
+    "accountCategory": {
+      "name": "Дансны ангилал",
+      "description": "Дансны ангиллын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн ангилал",
+        "all": "Бүх ангилал"
+      },
+      "actions": {
+        "readAccountCategories": {
+          "title": "Ангилал харах",
+          "description": "Дансны ангилал харах"
+        },
+        "manageAccountCategories": {
+          "title": "Ангилал удирдах",
+          "description": "Дансны ангилал үүсгэх, засах"
+        },
+        "removeAccountCategories": {
+          "title": "Ангилал устгах",
+          "description": "Дансны ангилал устгах"
+        },
+        "accountCategoriesImportManage": {
+          "title": "Дансны ангилал импортлох",
+          "description": "Дансны ангилал импортлох"
+        }
+      }
+    },
+    "adjustClosing": {
+      "name": "Хаалтын тохируулга",
+      "description": "Хаалтын тохируулгын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тохируулга",
+        "all": "Бүх тохируулга"
+      },
+      "actions": {
+        "readAdjustClosings": {
+          "title": "Хаалтын тохируулга харах",
+          "description": "Хаалтын тохируулга харах"
+        },
+        "manageAdjustClosings": {
+          "title": "Хаалтын тохируулга удирдах",
+          "description": "Хаалтын тохируулга үүсгэх, ажиллуулах"
+        },
+        "publishAdjustClosings": {
+          "title": "Хаалтын тохируулга нийтлэх",
+          "description": "Хаалтын тохируулгыг нийтлэх"
+        },
+        "cancelAdjustClosings": {
+          "title": "Хаалтын тохируулга цуцлах",
+          "description": "Нийтэлсэн хаалтын тохируулгыг цуцлах"
+        },
+        "removeAdjustClosings": {
+          "title": "Хаалтын тохируулга устгах",
+          "description": "Хаалтын тохируулга устгах"
+        }
+      }
+    },
+    "adjustDebtRate": {
+      "name": "Авлага, өглөгийн ханшийн тэгшитгэл",
+      "description": "Авлага, өглөгийн ханшийн тэгшитгэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тэгшитгэл",
+        "all": "Бүх тэгшитгэл"
+      },
+      "actions": {
+        "readAdjustDebtRates": {
+          "title": "Авлага, өглөгийн ханшийн тэгшитгэл харах",
+          "description": "Авлага, өглөгийн ханшийн тэгшитгэл харах"
+        },
+        "manageAdjustDebtRates": {
+          "title": "Авлага, өглөгийн ханшийн тэгшитгэл удирдах",
+          "description": "Авлага, өглөгийн ханшийн тэгшитгэл үүсгэх, ажиллуулах"
+        },
+        "removeAdjustDebtRates": {
+          "title": "Авлага, өглөгийн ханшийн тэгшитгэл устгах",
+          "description": "Авлага, өглөгийн ханшийн тэгшитгэл устгах"
+        }
+      }
+    },
+    "adjustFixedAsset": {
+      "name": "Үндсэн хөрөнгийн тохируулга",
+      "description": "Үндсэн хөрөнгийн тохируулгын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тохируулга",
+        "all": "Бүх тохируулга"
+      },
+      "actions": {
+        "readAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга харах",
+          "description": "Үндсэн хөрөнгийн тохируулга харах"
+        },
+        "manageAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга удирдах",
+          "description": "Үндсэн хөрөнгийн тохируулга үүсгэх, ажиллуулах"
+        },
+        "publishAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга нийтлэх",
+          "description": "Үндсэн хөрөнгийн тохируулгыг нийтлэх"
+        },
+        "cancelAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга цуцлах",
+          "description": "Нийтэлсэн үндсэн хөрөнгийн тохируулгыг цуцлах"
+        },
+        "removeAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга устгах",
+          "description": "Үндсэн хөрөнгийн тохируулгыг устгах"
+        },
+        "clearAdjustFixedAssets": {
+          "title": "Үндсэн хөрөнгийн тохируулга цэвэрлэх",
+          "description": "Үндсэн хөрөнгийн тохируулгыг цэвэрлэх"
+        }
+      }
+    },
+    "adjustFundRate": {
+      "name": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл",
+      "description": "Мөнгөн хөрөнгийн ханшийн тэгшитгэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тэгшитгэл",
+        "all": "Бүх тэгшитгэл"
+      },
+      "actions": {
+        "readAdjustFundRates": {
+          "title": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл харах",
+          "description": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл харах"
+        },
+        "manageAdjustFundRates": {
+          "title": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл удирдах",
+          "description": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл үүсгэх, ажиллуулах"
+        },
+        "removeAdjustFundRates": {
+          "title": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл устгах",
+          "description": "Мөнгөн хөрөнгийн ханшийн тэгшитгэл устгах"
+        }
+      }
+    },
+    "adjustInventory": {
+      "name": "Бараа материалын өртөг тооцоолол",
+      "description": "Бараа материалын өртөг тооцооллын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тооцоолол",
+        "all": "Бүх тооцоолол"
+      },
+      "actions": {
+        "readAdjustInventories": {
+          "title": "Өртөг тооцоолол харах",
+          "description": "Бараа материалын өртөг тооцоолол харах"
+        },
+        "manageAdjustInventories": {
+          "title": "Өртөг тооцоолол удирдах",
+          "description": "Бараа материалын өртөг тооцоолол үүсгэх, ажиллуулах"
+        },
+        "publishAdjustInventories": {
+          "title": "Өртөг тооцоолол нийтлэх",
+          "description": "Өртөг тооцооллыг нийтлэх"
+        },
+        "cancelAdjustInventories": {
+          "title": "Өртөг тооцоолол цуцлах",
+          "description": "Нийтэлсэн өртөг тооцооллыг цуцлах"
+        },
+        "removeAdjustInventories": {
+          "title": "Өртөг тооцоолол устгах",
+          "description": "Өртөг тооцооллыг устгах"
+        },
+        "clearAdjustInventories": {
+          "title": "Өртөг тооцоолол цэвэрлэх",
+          "description": "Өртөг тооцооллыг цэвэрлэх"
+        }
+      }
+    },
+    "checkSync": {
+      "name": "Мэдээ таталт",
+      "description": "Санхүүгийн мэдээ таталтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн мэдээ таталтын бичлэг",
+        "all": "Бүх мэдээ таталтын бичлэг"
+      },
+      "actions": {
+        "readAccountingCheckSync": {
+          "title": "Мэдээ таталт харах",
+          "description": "Санхүүгийн гүйлгээний синк төлөв шалгах"
+        },
+        "manageAccountingCheckSync": {
+          "title": "Мэдээ таталт удирдах",
+          "description": "Хэлцэл, захиалгыг санхүүгийн гүйлгээ рүү синк хийх"
+        }
+      }
+    },
+    "config": {
+      "name": "Тохиргоо",
+      "description": "Санхүүгийн тохиргооны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тохиргоо",
+        "all": "Бүх тохиргоо"
+      },
+      "actions": {
+        "readAccountingConfigs": {
+          "title": "Тохиргоо харах",
+          "description": "Санхүүгийн тохиргоо харах"
+        },
+        "manageAccountingConfigs": {
+          "title": "Тохиргоо удирдах",
+          "description": "Санхүүгийн тохиргоо үүсгэх, засах"
+        },
+        "removeAccountingConfigs": {
+          "title": "Тохиргоо устгах",
+          "description": "Санхүүгийн тохиргоо устгах"
+        }
+      }
+    },
+    "job": {
+      "name": "Ажил",
+      "description": "Бараа материалын ажлын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн ажил",
+        "all": "Бүх ажил"
+      },
+      "actions": {
+        "readJobs": {
+          "title": "Ажил харах",
+          "description": "Бараа материалын ажил харах"
+        },
+        "manageJobs": {
+          "title": "Ажил удирдах",
+          "description": "Бараа материалын ажил үүсгэх, засах"
+        },
+        "removeJobs": {
+          "title": "Ажил устгах",
+          "description": "Бараа материалын ажил устгах"
+        }
+      }
+    },
+    "jobExecution": {
+      "name": "Ажлын гүйцэтгэл",
+      "description": "Бараа материалын ажлын гүйцэтгэл",
+      "scopes": {
+        "all": "Бүх ажлын гүйцэтгэл"
+      },
+      "actions": {
+        "readJobExecutions": {
+          "title": "Ажлын гүйцэтгэл харах",
+          "description": "Ажлын гүйцэтгэл харах"
+        },
+        "manageJobExecutions": {
+          "title": "Ажлын гүйцэтгэл удирдах",
+          "description": "Ажлын гүйцэтгэл үүсгэх, засах, гүйлгээ үүсгэх, буцаах"
+        },
+        "removeJobExecutions": {
+          "title": "Ажлын гүйцэтгэл устгах",
+          "description": "Ноорог ажлын гүйцэтгэл устгах"
+        }
+      }
+    },
+    "safeRemainder": {
+      "name": "Бараа материалын тооллого",
+      "description": "Бараа материалын тооллогын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тооллого",
+        "all": "Бүх тооллого"
+      },
+      "actions": {
+        "readSafeRemainders": {
+          "title": "Тооллого харах",
+          "description": "Бараа материалын тооллого, түүний мөрүүдийг харах"
+        },
+        "manageSafeRemainders": {
+          "title": "Тооллого удирдах",
+          "description": "Тооллого үүсгэх, засах, илгээх, дахин тооцоолох, ажиллуулах"
+        },
+        "removeSafeRemainders": {
+          "title": "Тооллого устгах",
+          "description": "Тооллого болон түүний мөрүүдийг устгах"
+        },
+        "viewSafeRemainderItemCounts": {
+          "title": "Тооллогын системийн тоо харах",
+          "description": "Системийн тоо ширхэгийг харах, тооллогын мөрүүдийг зөрүүгээр шүүх"
+        }
+      }
+    },
+    "taxRow": {
+      "name": "Татварын мөр",
+      "description": "Татварын мөрийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн татварын мөр",
+        "all": "Бүх татварын мөр"
+      },
+      "actions": {
+        "readTaxRows": {
+          "title": "Татварын мөр харах",
+          "description": "Татварын мөр харах"
+        },
+        "manageTaxRows": {
+          "title": "Татварын мөр удирдах",
+          "description": "Татварын мөр үүсгэх, засах"
+        },
+        "removeTaxRows": {
+          "title": "Татварын мөр устгах",
+          "description": "Татварын мөр устгах"
+        },
+        "taxRowsImportManage": {
+          "title": "Татварын мөр импортлох",
+          "description": "Татварын мөр импортлох"
+        }
+      }
+    }
+  },
+  "groups": {
+    "accounting:admin": {
+      "description": "Санхүүгийн плагинд бүрэн хандах эрх"
+    },
+    "accounting:viewer": {
+      "description": "Санхүүгийн плагиныг зөвхөн харах эрх"
+    }
+  }
+}
