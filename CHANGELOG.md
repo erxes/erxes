@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.20](https://github.com/erxes/erxes/compare/3.4.19...3.4.20) (2026-11-12)
+
+
+### Features
+
+* **automations:** AI employees — template module, sales & complaint employees, agent lookup and actions ([#10496](https://github.com/erxes/erxes/issues/10496)) ([ce6a7ee](https://github.com/erxes/erxes/commit/ce6a7eed423baf34a7cd6c067dcba3e9de0ba200))
+
 ## [3.4.19](https://github.com/erxes/erxes/compare/3.4.18...3.4.19) (2026-11-12)
 
 
