@@ -11,13 +11,13 @@ import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   cloneStep,
-  describeStep,
   insertStep,
   locate,
   moveStep,
   removeStep,
   STEP_TITLES,
 } from './builder/flowModel';
+import { describeStep } from './builder/flowText';
 import { BuilderContext } from './builder/BuilderContext';
 import { StepSettings } from './builder/StepSettings';
 import { useAutomationFields } from './builder/useAutomationFields';

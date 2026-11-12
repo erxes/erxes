@@ -14,7 +14,8 @@ import { useTranslation } from 'react-i18next';
 import { useLeadStages } from '~/modules/leads/useLeads';
 import { BuilderContext } from './BuilderContext';
 import { catalogIcon } from './catalogGroups';
-import { armsOf, describeStep, type ListAddress, STEP_TITLES, type StepType } from './flowModel';
+import { armsOf, type ListAddress, STEP_TITLES, type StepType } from './flowModel';
+import { describeStep } from './flowText';
 import { Connector, LOOK, Node } from './FlowNode';
 import type { FieldInfo } from './useAutomationFields';
 

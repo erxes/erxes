@@ -22,7 +22,8 @@ import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
 import { catalogQuery } from './automationQueries';
-import { countSteps, describeTrigger } from './builder/flowModel';
+import { countSteps } from './builder/flowChecks';
+import { describeTrigger } from './builder/flowText';
 import { TemplatePicker, TriggerIcon } from './TemplatePicker';
 
 const STARTER: AutomationDefinition = {

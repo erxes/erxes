@@ -11,15 +11,9 @@ import { AutomationHeader } from './AutomationHeader';
 import { AutomationInspector } from './AutomationInspector';
 import { automationQuery, type Catalog, catalogQuery } from './automationQueries';
 import { FlowCanvas } from './builder/FlowCanvas';
-import {
-  countSteps,
-  describeTrigger,
-  flowProblems,
-  insertStep,
-  newStep,
-  removeStep,
-  stepOutputFields,
-} from './builder/flowModel';
+import { countSteps, flowProblems, stepOutputFields } from './builder/flowChecks';
+import { insertStep, newStep, removeStep } from './builder/flowModel';
+import { describeTrigger } from './builder/flowText';
 import { BuilderContext } from './builder/BuilderContext';
 import { useAutomationFields } from './builder/useAutomationFields';
 import { RunsPanel } from './RunsPanel';

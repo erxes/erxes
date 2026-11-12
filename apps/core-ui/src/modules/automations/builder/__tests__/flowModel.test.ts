@@ -1,20 +1,17 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
 import { describe, expect, it } from 'vite-plus/test';
+import { countSteps, flowProblems, stepOutputFields } from '../flowChecks';
 import {
   actionDefaults,
   cloneStep,
-  countSteps,
-  describeConditions,
-  describeStep,
   findStep,
-  flowProblems,
   insertStep,
   locate,
   moveStep,
   removeStep,
   replaceStep,
-  stepOutputFields,
 } from '../flowModel';
+import { describeConditions, describeStep } from '../flowText';
 
 const wait: AutomationStep = {
   id: 'w',
