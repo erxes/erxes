@@ -1992,6 +1992,167 @@
       }
     }
   },
+  "mongolian": {
+    "configs": {
+      "name": "Configs",
+      "description": "Mongolian configuration",
+      "scopes": {
+        "all": "All configurations"
+      },
+      "actions": {
+        "showMnConfig": {
+          "title": "View Mongolian configs",
+          "description": "View Mongolian configurations"
+        },
+        "manageMnConfig": {
+          "title": "Manage Mongolian configs",
+          "description": "Create, update, and delete Mongolian configs"
+        }
+      }
+    },
+    "ebarimt": {
+      "name": "Ebarimt",
+      "description": "Ebarimt put responses and operations",
+      "scopes": {
+        "all": "All ebarimt operations"
+      },
+      "actions": {
+        "putResponses": {
+          "title": "View put responses",
+          "description": "View ebarimt put responses"
+        },
+        "putResponsesCount": {
+          "title": "Count put responses",
+          "description": "Count ebarimt put responses"
+        },
+        "putResponseDetail": {
+          "title": "View put response detail",
+          "description": "View a single ebarimt put response"
+        },
+        "putResponsesAmount": {
+          "title": "View put responses amount",
+          "description": "Aggregated amounts of put responses"
+        },
+        "putResponsesByDate": {
+          "title": "View put responses by date",
+          "description": "View put responses grouped by date"
+        },
+        "putResponsesDuplicated": {
+          "title": "View duplicated put responses",
+          "description": "View duplicated put responses"
+        },
+        "putResponsesDuplicatedCount": {
+          "title": "Count duplicated put responses",
+          "description": "Count duplicated put responses"
+        },
+        "putResponsesDuplicatedDetail": {
+          "title": "View duplicated put response detail",
+          "description": "Detail of a duplicated put response"
+        },
+        "putResponseReturnBill": {
+          "title": "Return bill",
+          "description": "Return an ebarimt bill"
+        },
+        "putResponseReReturn": {
+          "title": "Re-return bill",
+          "description": "Re-return an ebarimt bill"
+        }
+      }
+    },
+    "ebarimtProductRules": {
+      "name": "Ebarimt product rules",
+      "description": "Ebarimt product rules",
+      "scopes": {
+        "all": "All product rules"
+      },
+      "actions": {
+        "showEbarimtProductRules": {
+          "title": "View product rules",
+          "description": "View ebarimt product rules"
+        },
+        "manageEbarimtProductRules": {
+          "title": "Manage product rules",
+          "description": "Create, update, and delete product rules"
+        }
+      }
+    },
+    "ebarimtProductGroups": {
+      "name": "Ebarimt product groups",
+      "description": "Ebarimt product groups",
+      "scopes": {
+        "all": "All product groups"
+      },
+      "actions": {
+        "showEbarimtProductGroups": {
+          "title": "View product groups",
+          "description": "View ebarimt product groups"
+        },
+        "manageEbarimtProductGroups": {
+          "title": "Manage product groups",
+          "description": "Create, update, and delete product groups"
+        }
+      }
+    },
+    "erkhet": {
+      "name": "Erkhet",
+      "description": "Erkhet synchronization and queries",
+      "scopes": {
+        "all": "All Erkhet operations"
+      },
+      "actions": {
+        "erkhetManageSync": {
+          "title": "Manage Erkhet sync",
+          "description": "Trigger and manage Erkhet synchronization"
+        },
+        "showErkhetRemainders": {
+          "title": "View remainders",
+          "description": "View product remainders from Erkhet"
+        },
+        "showErkhetDebt": {
+          "title": "View customer debt",
+          "description": "View customer debt information from Erkhet"
+        },
+        "showErkhetSyncHistory": {
+          "title": "View sync history",
+          "description": "View Erkhet synchronization history logs"
+        }
+      }
+    },
+    "exchangeRates": {
+      "name": "Exchange rates",
+      "description": "Exchange rates management",
+      "scopes": {
+        "all": "All exchange rates"
+      },
+      "actions": {
+        "exchangeRatesManage": {
+          "title": "Manage exchange rates",
+          "description": "Create, update, and delete exchange rates"
+        }
+      }
+    },
+    "msdynamic": {
+      "name": "MS Dynamics",
+      "description": "MS Dynamics 365 Business Central synchronization",
+      "scopes": {
+        "all": "All MS Dynamic operations"
+      },
+      "actions": {
+        "showMsd": {
+          "title": "View MS Dynamic data",
+          "description": "View MS Dynamic sync history, product remainder, customer relations"
+        },
+        "msdCheck": {
+          "title": "Check MS Dynamic sync status",
+          "description": "View the sync status of products between erxes and MS Dynamic"
+        },
+        "msdSync": {
+          "title": "Trigger MS Dynamic sync",
+          "description": "Sync products, customers, and send orders to MS Dynamic"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Full access to Accounting plugin"
@@ -2034,6 +2195,15 @@
     },
     "operation:viewer": {
       "description": "Read-only access"
+    },
+    "mongolian:admin": {
+      "description": "Full access to Mongolian plugin"
+    },
+    "mongolian:user": {
+      "description": "Standard user with view and limited management"
+    },
+    "mongolian:viewer": {
+      "description": "Read-only access to Mongolian plugin"
     }
   }
 }

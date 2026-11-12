@@ -1992,6 +1992,167 @@
       }
     }
   },
+  "mongolian": {
+    "configs": {
+      "name": "Тохиргоо",
+      "description": "Mongolian плагины тохиргоо",
+      "scopes": {
+        "all": "Бүх тохиргоо"
+      },
+      "actions": {
+        "showMnConfig": {
+          "title": "Тохиргоо харах",
+          "description": "Mongolian плагины тохиргоо харах"
+        },
+        "manageMnConfig": {
+          "title": "Тохиргоо удирдах",
+          "description": "Mongolian плагины тохиргоо үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    },
+    "ebarimt": {
+      "name": "Эбаримт",
+      "description": "Эбаримтын илгээлтийн хариу ба үйлдлүүд",
+      "scopes": {
+        "all": "Эбаримтын бүх үйлдэл"
+      },
+      "actions": {
+        "putResponses": {
+          "title": "Илгээлтийн хариу харах",
+          "description": "Эбаримтын илгээлтийн хариу харах"
+        },
+        "putResponsesCount": {
+          "title": "Илгээлтийн хариу тоолох",
+          "description": "Эбаримтын илгээлтийн хариуны тоог харах"
+        },
+        "putResponseDetail": {
+          "title": "Илгээлтийн хариуны дэлгэрэнгүй харах",
+          "description": "Эбаримтын нэг илгээлтийн хариуг харах"
+        },
+        "putResponsesAmount": {
+          "title": "Илгээлтийн хариуны дүн харах",
+          "description": "Илгээлтийн хариуны нэгтгэсэн дүн"
+        },
+        "putResponsesByDate": {
+          "title": "Илгээлтийн хариуг огноогоор харах",
+          "description": "Илгээлтийн хариуг огноогоор бүлэглэж харах"
+        },
+        "putResponsesDuplicated": {
+          "title": "Давхардсан илгээлтийн хариу харах",
+          "description": "Давхардсан илгээлтийн хариу харах"
+        },
+        "putResponsesDuplicatedCount": {
+          "title": "Давхардсан илгээлтийн хариу тоолох",
+          "description": "Давхардсан илгээлтийн хариуны тоог харах"
+        },
+        "putResponsesDuplicatedDetail": {
+          "title": "Давхардсан илгээлтийн хариуны дэлгэрэнгүй харах",
+          "description": "Давхардсан илгээлтийн хариуны дэлгэрэнгүй"
+        },
+        "putResponseReturnBill": {
+          "title": "Баримт буцаах",
+          "description": "Эбаримтын баримт буцаах"
+        },
+        "putResponseReReturn": {
+          "title": "Баримт дахин буцаах",
+          "description": "Эбаримтын баримтыг дахин буцаах"
+        }
+      }
+    },
+    "ebarimtProductRules": {
+      "name": "Эбаримтын бүтээгдэхүүний дүрэм",
+      "description": "Эбаримтын бүтээгдэхүүний дүрэм",
+      "scopes": {
+        "all": "Бүх бүтээгдэхүүний дүрэм"
+      },
+      "actions": {
+        "showEbarimtProductRules": {
+          "title": "Бүтээгдэхүүний дүрэм харах",
+          "description": "Эбаримтын бүтээгдэхүүний дүрэм харах"
+        },
+        "manageEbarimtProductRules": {
+          "title": "Бүтээгдэхүүний дүрэм удирдах",
+          "description": "Бүтээгдэхүүний дүрэм үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    },
+    "ebarimtProductGroups": {
+      "name": "Эбаримтын бүтээгдэхүүний бүлэг",
+      "description": "Эбаримтын бүтээгдэхүүний бүлэг",
+      "scopes": {
+        "all": "Бүх бүтээгдэхүүний бүлэг"
+      },
+      "actions": {
+        "showEbarimtProductGroups": {
+          "title": "Бүтээгдэхүүний бүлэг харах",
+          "description": "Эбаримтын бүтээгдэхүүний бүлэг харах"
+        },
+        "manageEbarimtProductGroups": {
+          "title": "Бүтээгдэхүүний бүлэг удирдах",
+          "description": "Бүтээгдэхүүний бүлэг үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    },
+    "erkhet": {
+      "name": "Эрхэт",
+      "description": "Эрхэттэй синк хийх ба мэдээлэл авах",
+      "scopes": {
+        "all": "Эрхэтийн бүх үйлдэл"
+      },
+      "actions": {
+        "erkhetManageSync": {
+          "title": "Эрхэтийн синк удирдах",
+          "description": "Эрхэтийн синкийг эхлүүлэх, удирдах"
+        },
+        "showErkhetRemainders": {
+          "title": "Үлдэгдэл харах",
+          "description": "Эрхэтээс бүтээгдэхүүний үлдэгдэл харах"
+        },
+        "showErkhetDebt": {
+          "title": "Харилцагчийн өр харах",
+          "description": "Эрхэтээс харилцагчийн өрийн мэдээлэл харах"
+        },
+        "showErkhetSyncHistory": {
+          "title": "Синкийн түүх харах",
+          "description": "Эрхэтийн синкийн түүхийн лог харах"
+        }
+      }
+    },
+    "exchangeRates": {
+      "name": "Ханш",
+      "description": "Валютын ханшийн удирдлага",
+      "scopes": {
+        "all": "Бүх ханш"
+      },
+      "actions": {
+        "exchangeRatesManage": {
+          "title": "Ханш удирдах",
+          "description": "Ханш үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    },
+    "msdynamic": {
+      "name": "MS Dynamics",
+      "description": "MS Dynamics 365 Business Central-тай синк хийх",
+      "scopes": {
+        "all": "MS Dynamics-ийн бүх үйлдэл"
+      },
+      "actions": {
+        "showMsd": {
+          "title": "MS Dynamics-ийн өгөгдөл харах",
+          "description": "MS Dynamics-ийн синкийн түүх, бүтээгдэхүүний үлдэгдэл, харилцагчийн холбоосыг харах"
+        },
+        "msdCheck": {
+          "title": "MS Dynamics-ийн синк төлөв шалгах",
+          "description": "erxes ба MS Dynamics хоорондын бүтээгдэхүүний синк төлөвийг харах"
+        },
+        "msdSync": {
+          "title": "MS Dynamics-тай синк хийх",
+          "description": "Бүтээгдэхүүн, харилцагчийг синк хийж, захиалгыг MS Dynamics руу илгээх"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Санхүүгийн плагинд бүрэн хандах эрх"
@@ -2034,6 +2195,15 @@
     },
     "operation:viewer": {
       "description": "Зөвхөн харах эрх"
+    },
+    "mongolian:admin": {
+      "description": "Mongolian плагинд бүрэн хандах эрх"
+    },
+    "mongolian:user": {
+      "description": "Харах болон хязгаарлагдмал удирдах эрхтэй энгийн хэрэглэгч"
+    },
+    "mongolian:viewer": {
+      "description": "Mongolian плагиныг зөвхөн харах эрх"
     }
   }
 }
