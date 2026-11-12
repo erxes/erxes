@@ -1685,6 +1685,18 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   the explicit template selector remains available. Preserve other providers'
   composer behavior, Facebook partial-delivery recovery, Instagram error
   feedback and stale-send/draft guards.
+- The inbox composer scopes response templates to the conversation's channel:
+  `useResponseTemplateSuggestions` takes `channelId` and the toolbar's
+  `ResponseTemplateSelector` takes `defaultChannelId`, both fed from
+  `integration.channelId` in the conversation context. The selector keeps its
+  channel filter editable, so an agent can clear it or pick another channel,
+  and re-seeds it whenever the conversation changes. A conversation without an
+  integration channel falls back to every template.
+- `/` belongs to the BlockNote slash menu, which floats at z-index 3000 above
+  every `Popover`. Template suggestions are therefore disabled while that menu
+  is open (`isSlashMenuOpenState`) and a typed value starting with `/` is never
+  searched. Templates are reached by typing matching text or through the
+  toolbar's `ResponseTemplateSelector`.
 
 - The inbox and ticket composers pick their mode through the one
   `ComposerModeTabs`; a composer that separates a customer reply from an
