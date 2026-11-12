@@ -63,10 +63,13 @@ export const PermissionGroupDetails = ({
   const members: IPermissionGroupMember[] = group.members ?? [];
 
   const getModuleInfo = (
-    moduleName: string,
+    perm: IPermissionGroupPermission,
   ): { module: IPermissionModule; plugin: string } | null => {
-    for (const pluginData of permissionModulesByPlugin) {
-      const found = pluginData.modules.find((m) => m.name === moduleName);
+    const candidates = perm.plugin
+      ? permissionModulesByPlugin.filter((p) => p.plugin === perm.plugin)
+      : permissionModulesByPlugin;
+    for (const pluginData of candidates) {
+      const found = pluginData.modules.find((m) => m.name === perm.module);
       if (found) return { module: found, plugin: pluginData.plugin };
     }
     return null;
@@ -81,7 +84,7 @@ export const PermissionGroupDetails = ({
   const groupedByPlugin: IGroupedByPlugin = {};
 
   for (const perm of permissions) {
-    const resolved = getModuleInfo(perm.module) ?? createFallbackModule(perm);
+    const resolved = getModuleInfo(perm) ?? createFallbackModule(perm);
     const { module, plugin } = resolved;
 
     if (!groupedByPlugin[plugin]) {

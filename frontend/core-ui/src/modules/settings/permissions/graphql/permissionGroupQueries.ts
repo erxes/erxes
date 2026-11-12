@@ -8,6 +8,7 @@ export const GET_PERMISSION_DEFAULT_GROUPS = gql`
       description
       plugin
       permissions {
+        plugin
         module
         actions
         scope
@@ -32,6 +33,7 @@ export const GET_PERMISSION_GROUPS = gql`
       name
       description
       permissions {
+        plugin
         module
         actions
         scope
