@@ -1,11 +1,11 @@
 ---
-name: erxes-plugin-migration
+name: plugin-migrate
 description: Move an existing erxes 3.x plugin (HR, frontline, operation …) onto the new erxes core (Postgres, branch postgre) — replace the gateway, Redis discovery, tRPC calls, gateway user headers, tenant lookups and legacy GraphQL with the manifest, @erxes/plugin-sdk tokens, core events and row-level security — in steps that keep the plugin working. Use when someone asks to migrate, port or convert a plugin (for example hr-plugin) to the new core, or asks what changes for a plugin between old erxes and the new core.
 ---
 
 # Migrate an erxes 3.x plugin to the new core
 
-The target structure is the one in the **erxes-core-plugin** skill; read it
+The target structure is the one in the **plugin-new** skill; read it
 first. This skill is the path from the old stack to it, for a plugin that
 already runs on erxes 3.x (reference: `~/Documents/work/erxes/repos/hr-plugin`).
 
@@ -86,7 +86,7 @@ organisation `_id`), so existing `tenant_id` values stay valid.
    `activityTypes`, `notificationKinds`; publish events where the plugin's
    records change. Optional, but this is what the move is for.
 7. **UI.** `CONFIG` instead of `IUIConfig`; API base via `pluginFetch`;
-   shared singletons per erxes-core-plugin §6; settings as a pinned footer
+   shared singletons per plugin-new §6; settings as a pinned footer
    link with its own layout and "Exit settings"; remove GraphQL usage.
 8. **Standalone app.** Switch "Sign in with erxes" to the new OAuth endpoints
    and `verifyErxesAccessToken`; list redirect addresses in the manifest.
@@ -127,5 +127,5 @@ organisation `_id`), so existing `tenant_id` values stay valid.
   actions verify their tokens.
 - Every tenant-owned table has `core_enable_tenant_rls` (shared database) or a
   tested tenant filter (own database).
-- The erxes-core-plugin validation list passes, and AGENTS.md (root, backend,
+- The plugin-new validation list passes, and AGENTS.md (root, backend,
   frontend) describes the new wiring and the gaps still open.

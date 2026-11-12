@@ -1,6 +1,5 @@
 import { resolve } from 'node:path';
 import { configDefaults, defineConfig } from 'vite-plus';
-import type { OxlintOverride } from 'vite-plus/lint';
 import type { Reporter, Vitest } from 'vite-plus/test/node';
 
 // Procedures are built from the contract in one place, so every route goes
@@ -51,58 +50,6 @@ const noApps = {
   ],
   message: 'Packages and the UI never import an app. Move the shared code into a package.',
 };
-
-// packages/ui is erxes-ui copied from old erxes. Phase 2 rewrites it and
-// removes this override. Until then the rules it fails are warnings there, so
-// new code stays at error.
-const inheritedUi = {
-  files: ['packages/ui/**'],
-  plugins: ['react'],
-  rules: {
-    'import/no-cycle': 'warn',
-    'import/no-default-export': 'warn',
-    'no-console': 'warn',
-    'no-shadow': 'warn',
-    'no-underscore-dangle': 'warn',
-    'no-unsafe-optional-chaining': 'warn',
-    'no-unused-expressions': 'warn',
-    'no-unused-vars': 'warn',
-    'oxc/const-comparisons': 'warn',
-    'oxc/no-accumulating-spread': 'warn',
-    'oxc/no-barrel-file': 'warn',
-    'react-hooks/exhaustive-deps': 'warn',
-    'react/exhaustive-effect-dependencies': 'warn',
-    'react/iframe-missing-sandbox': 'warn',
-    'react/immutability': 'warn',
-    'react/incompatible-library': 'warn',
-    'react/memo-dependencies': 'warn',
-    'react/no-unstable-nested-components': 'warn',
-    'react/purity': 'warn',
-    'react/refs': 'warn',
-    'react/set-state-in-effect': 'warn',
-    'typescript/no-base-to-string': 'warn',
-    'typescript/no-explicit-any': 'warn',
-    'typescript/no-floating-promises': 'warn',
-    'typescript/no-misused-promises': 'warn',
-    'typescript/no-misused-spread': 'warn',
-    'typescript/no-unnecessary-type-conversion': 'warn',
-    'typescript/no-unnecessary-type-parameters': 'warn',
-    'typescript/no-unsafe-argument': 'warn',
-    'typescript/no-unsafe-assignment': 'warn',
-    'typescript/no-unsafe-call': 'warn',
-    'typescript/no-unsafe-enum-assignment': 'warn',
-    'typescript/no-unsafe-enum-comparison': 'warn',
-    'typescript/no-unsafe-member-access': 'warn',
-    'typescript/no-unsafe-return': 'warn',
-    'typescript/no-unsafe-type-assertion': 'warn',
-    'typescript/no-useless-default-assignment': 'warn',
-    'typescript/restrict-template-expressions': 'warn',
-    'typescript/unbound-method': 'warn',
-    'unicorn/consistent-function-scoping': 'warn',
-    'unicorn/no-array-sort': 'warn',
-    'unicorn/prefer-add-event-listener': 'warn',
-  },
-} satisfies OxlintOverride;
 
 // Browser code runs without Node and without the database.
 const serverOnly = {
@@ -363,7 +310,6 @@ export default defineConfig({
           'no-underscore-dangle': 'off',
         },
       },
-      inheritedUi,
     ],
   },
   test: {

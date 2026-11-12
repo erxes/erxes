@@ -1,6 +1,6 @@
 ---
-name: erxes-core-plugin
-description: Build a new plugin for the new erxes core (Postgres, branch postgre) — its own repo, REST API, Postgres tables, Module Federation UI and optional standalone app — connected through the manifest, @erxes/plugin-sdk tokens, events, timelines, automation triggers and actions. Use when someone asks to create, scaffold or design an erxes plugin or product (hotel, shop, tickets, HR …) for the new core, asks how a plugin talks to core (customers, events, automations, payments, notifications), or asks what a plugin's manifest should contain. For moving an existing erxes 3.x plugin, use erxes-plugin-migration.
+name: plugin-new
+description: Build a new plugin for the new erxes core (Postgres, branch postgre) — its own repo, REST API, Postgres tables, Module Federation UI and optional standalone app — connected through the manifest, @erxes/plugin-sdk tokens, events, timelines, automation triggers and actions. Use when someone asks to create, scaffold or design an erxes plugin or product (hotel, shop, tickets, HR …) for the new core, asks how a plugin talks to core (customers, events, automations, payments, notifications), or asks what a plugin's manifest should contain. For moving an existing erxes 3.x plugin, use plugin-migrate.
 ---
 
 # New plugin for the erxes core
