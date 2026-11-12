@@ -2,36 +2,41 @@
   "name": "erxes",
   "private": true,
   "license": "AGPL-3.0-only",
-  "packageManager": "pnpm@9.12.3",
-  "engines": {
-    "node": ">=22",
-    "pnpm": ">=9"
-  },
   "scripts": {
     "dev": "pnpm --parallel --filter @erxes/core-api --filter @erxes/core-ui dev",
     "dev:api": "pnpm --filter @erxes/core-api dev",
     "dev:ui": "pnpm --filter @erxes/core-ui dev",
     "build": "pnpm -r build",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "check": "vp check && knip",
+    "fix": "vp check --fix",
+    "test": "vp test run",
+    "prepare": "vp config --no-agent",
     "db:generate": "pnpm --filter @erxes/core-db db:generate",
     "db:check": "pnpm --filter @erxes/core-db db:check",
-    "bootstrap": "pnpm --filter @erxes/core-api bootstrap",
-    "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
     "db:migrate": "pnpm --filter @erxes/core-api db:migrate",
     "db:grant": "pnpm --filter @erxes/core-api db:grant",
     "db:plugin-role": "pnpm --filter @erxes/core-api db:plugin-role",
+    "bootstrap": "pnpm --filter @erxes/core-api bootstrap",
+    "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
     "bench:filters": "pnpm --filter @erxes/core-api bench:filters"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "typescript": "~5.7.3",
-    "vitest": "^3.0.0"
+    "@types/node": "^24.19.2",
+    "knip": "^6.45.1",
+    "typescript": "~7.0.2",
+    "vite-plus": "1.6.0"
   },
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.12.3",
   "pnpm": {
     "overrides": {
       "koa@2": "^2.16.4",
-      "ws@8": "^8.21.0"
+      "ws@8": "^8.21.0",
+      "vite@*": "npm:@voidzero-dev/vite-plus-core@1.6.0",
+      "vitest@*": "5.1.0"
     }
   }
 }

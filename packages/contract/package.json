@@ -8,10 +8,6 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "scripts": {
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
-  },
   "dependencies": {
     "@orpc/contract": "1.16.2",
     "zod": "^3.25.76"

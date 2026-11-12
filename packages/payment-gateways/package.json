@@ -7,9 +7,5 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
-  },
-  "scripts": {
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
   }
 }

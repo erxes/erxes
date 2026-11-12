@@ -8,10 +8,9 @@
       "DOM.Iterable"
     ],
     "types": [],
-    "baseUrl": ".",
     "paths": {
       "~/*": [
-        "src/*"
+        "./src/*"
       ],
       "erxes-ui": [
         "../../packages/ui/src/index.ts"

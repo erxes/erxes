@@ -1,8 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": { "~/*": ["src/*"] }
+    "paths": { "~/*": ["./src/*"] }
   },
   "include": ["src", "scripts", "tsup.config.ts", "vitest.config.ts"]
 }

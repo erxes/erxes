@@ -1,6 +1,7 @@
 import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
+import tailwindcss from '@tailwindcss/postcss';
 import { resolve } from 'node:path';
 
 const ui = resolve(__dirname, '../../packages/ui/src');
@@ -34,6 +35,9 @@ export default defineConfig({
     pluginReact(),
     pluginModuleFederation({
       name: 'core',
+      // The host exposes nothing and loads remotes at runtime, so there are no
+      // federated types to build (the dts plugin also needs TypeScript 5's API).
+      dts: false,
       shared: Object.fromEntries(
         SHARED.map((name) => [name, { singleton: true, requiredVersion: false }]),
       ),
@@ -66,6 +70,7 @@ export default defineConfig({
     },
   },
   tools: {
+    postcss: (_options, { addPlugins }) => addPlugins(tailwindcss()),
     rspack: {
       module: {
         rules: [

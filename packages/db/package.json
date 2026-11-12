@@ -9,8 +9,6 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests",
     "db:generate": "drizzle-kit generate",
     "db:check": "drizzle-kit check"
   },

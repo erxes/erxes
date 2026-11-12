@@ -9,10 +9,6 @@
   "exports": {
     ".": "./src/index.tsx"
   },
-  "scripts": {
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
-  },
   "peerDependencies": {
     "erxes-ui": "*",
     "react": "^18.3.1"
