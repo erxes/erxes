@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -162,7 +162,7 @@
 - Task and triage detail editors use generated `ITaskDetail` and `ITriageDetail` types; `useDescriptionEditor` accepts nullable API descriptions and loads Markdown before exposing the editor. Description change state uses the public `IBlockEditor['document']` type.
 - Opening a Markdown description must not save or rewrite it until the user edits the description.
 - Dev watch ignores must not include plugin source directories required for hot reload.
-- `TaskDetails` carries neither padding nor side widgets. Its only caller supplies both: the My Inbox `NotificationTaskDetail`. `TaskDetailPage` (`tasks/:taskId`, `team/:teamId/tasks/:taskId` and `projects/:projectId/tasks/:taskId`, with or without the team) is laid out like a contact's page through the public `RecordSidePanel`: `TaskPageFields` beside Description and Activity tabs, the name edited above the fields; custom properties stay in the side panel. Check both whenever `TaskDetails`' layout contract changes; the inbox caller is easy to miss because it only renders through the `./notificationWidget` remote.
+- `TaskDetails` carries neither padding nor side widgets. Its only caller supplies both: the My Inbox `NotificationTaskDetail`. `TaskDetailPage` (`tasks/:taskId`, `team/:teamId/tasks/:taskId` and `projects/:projectId/tasks/:taskId`, with or without the team) is laid out like a contact's page through the public `RecordSidePanel`: `TaskPageFields` beside Description and Activity tabs, the name edited above the fields; custom properties stay in the side panel. From 1024px the fields column is resizable (ui-modules `RecordSidePanel.Tabs`, at least 320px). The page has no `SidePanelNavigatorContext`, so it passes the task (`TASK_CONTENT_TYPE`) and its list path (`/operation[/team/<teamId>]/tasks` or `.../projects/<projectId>/tasks`, from the route params) to ui-modules `RecordPageMinimize`, which returns there with the task's panel open. Check both whenever `TaskDetails`' layout contract changes; the inbox caller is easy to miss because it only renders through the `./notificationWidget` remote.
 - `TRIAGE_ACCEPTANCE` activities use the activity's `createdBy` for the accepting member and the task's `createdBy` for the original creator; do not nest another timeline row inside the acceptance action.
 - My Inbox task and triage details (`NotificationTaskDetail`) keep the task page's dimensions: `p-6` content, `xl:max-w-3xl` centered, and the Open task action in a `max-w-3xl px-6 pt-6` row. Project and team inbox details keep their own `max-w-3xl px-6` layouts; the four stay visually aligned.
 - Core-ui's inbox ScrollArea is the only scroll and its viewport content is `min-h-dvh` with no fixed height, so the task side column is `sticky top-0` with its height measured from the enclosing `[data-radix-scroll-area-viewport]`'s `clientHeight`. A `dvh` height leaves sticky no room to move; a nested ScrollArea adds a second, dead outer scroll. If core stops using that ScrollArea, the side column silently does not render while the detail still works.
