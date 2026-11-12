@@ -59,7 +59,8 @@ END $lock$;
 `;
 
 /** drizzle-kit's `meta/_journal.json`: the migrations in order. */
-const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
+/** drizzle-kit's `meta/_journal.json`: the migrations in the order they apply. */
+export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
 /**
  * Applies pending migrations and returns their tags.

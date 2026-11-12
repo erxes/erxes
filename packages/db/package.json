@@ -10,7 +10,8 @@
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
-    "db:check": "drizzle-kit check"
+    "db:check": "drizzle-kit check",
+    "db:check-applied": "tsx scripts/check-applied.ts"
   },
   "dependencies": {
     "@erxes/core-contract": "workspace:^",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/pg": "^8.11.10",
-    "drizzle-kit": "0.31.11"
+    "drizzle-kit": "0.31.11",
+    "tsx": "^4.19.2"
   }
 }

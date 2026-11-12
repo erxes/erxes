@@ -39,7 +39,7 @@ jobs:
       - name: Schema matches migrations
         run: pnpm db:check
       - name: Applied migrations unchanged
-        run: node scripts/check-migrations.mjs "${{ github.event.pull_request.base.sha || github.event.before }}"
+        run: pnpm --filter @erxes/core-db db:check-applied "${{ github.event.pull_request.base.sha || github.event.before }}"
       - name: No critical advisories in production dependencies
         run: pnpm audit --prod --audit-level critical
 
