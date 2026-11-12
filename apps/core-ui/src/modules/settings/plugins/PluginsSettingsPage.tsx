@@ -1,14 +1,12 @@
 import type { Plugin } from '@erxes/core-contract';
 import { IconApps, IconPlugConnected, IconShieldCheck } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Empty, PageContainer, ScrollArea, Spinner, useToast } from 'erxes-ui';
+import { Badge, Button, Empty, PageContainer, PageHeader, ScrollArea, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { api, messageOf } from '~/lib/api';
+import { QueryState } from '~/components/QueryState';
+import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
-
-const KEY = ['settings', 'plugins'];
 
 /** What each scope lets a plugin do in core, in words. */
 const SCOPE_LABELS: Record<string, string> = {
@@ -29,16 +27,17 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
   const change = useMutation({
     mutationFn: (install: boolean) =>
       install
-        ? api.plugins.install({ name: plugin.name })
-        : api.plugins.uninstall({ name: plugin.name }),
+        ? orpc.plugins.install.call({ name: plugin.name })
+        : orpc.plugins.uninstall.call({ name: plugin.name }),
     onSuccess: (next) => {
-      client.setQueryData<{ data: Plugin[] }>(KEY, (current) =>
+      client.setQueryData(orpc.plugins.list.queryKey(), (current) =>
         current
           ? { data: current.data.map((item) => (item.name === next.name ? next : item)) }
           : current,
       );
+
       // The app switcher loads plugin UIs from the installed list.
-      void client.invalidateQueries({ queryKey: ['plugins'] });
+      return client.invalidateQueries({ queryKey: orpc.plugins.list.key() });
     },
     onError: (error) =>
       toast({
@@ -128,7 +127,23 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
 export const PluginsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
   const can = useCan();
-  const { data, isLoading } = useQuery({ queryKey: KEY, queryFn: () => api.plugins.list() });
+  const plugins = useQuery(orpc.plugins.list.queryOptions());
+  const empty = (
+    <Empty className="py-16">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconApps />
+        </Empty.Media>
+        <Empty.Title>{t('empty', 'No plugins yet')}</Empty.Title>
+        <Empty.Description>
+          {t(
+            'empty-description',
+            'Plugins appear here once your administrator connects them to this erxes.',
+          )}
+        </Empty.Description>
+      </Empty.Header>
+    </Empty>
+  );
 
   return (
     <PageContainer>
@@ -143,30 +158,20 @@ export const PluginsSettingsPage = () => {
       </PageHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto max-w-3xl p-6">
-          {isLoading ? (
-            <Spinner containerClassName="py-12" />
-          ) : !data?.data.length ? (
-            <Empty className="py-16">
-              <Empty.Header>
-                <Empty.Media variant="icon">
-                  <IconApps />
-                </Empty.Media>
-                <Empty.Title>{t('empty', 'No plugins yet')}</Empty.Title>
-                <Empty.Description>
-                  {t(
-                    'empty-description',
-                    'Plugins appear here once your administrator connects them to this erxes.',
-                  )}
-                </Empty.Description>
-              </Empty.Header>
-            </Empty>
-          ) : (
-            <ul className="space-y-3">
-              {data.data.map((plugin) => (
-                <PluginCard key={plugin.name} plugin={plugin} isOwner={can('plugins.manage')} />
-              ))}
-            </ul>
-          )}
+          <QueryState
+            query={plugins}
+            className="py-12"
+            isEmpty={({ data }) => !data.length}
+            empty={empty}
+          >
+            {({ data }) => (
+              <ul className="space-y-3">
+                {data.map((plugin) => (
+                  <PluginCard key={plugin.name} plugin={plugin} isOwner={can('plugins.manage')} />
+                ))}
+              </ul>
+            )}
+          </QueryState>
         </div>
       </ScrollArea>
     </PageContainer>

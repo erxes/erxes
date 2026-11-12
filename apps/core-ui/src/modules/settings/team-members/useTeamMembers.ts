@@ -1,33 +1,18 @@
-import type { User, UserRole, UserStatus } from '@erxes/core-contract';
+import type { User, UserRole } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { api, messageOf } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
-import { SESSION_KEY, useCan, useSession } from '~/modules/auth/session';
+import { useCan, useSession } from '~/modules/auth/session';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from './constants';
-
-export const USERS_KEY = ['users'];
-export const TEAM_MEMBERS_SESSION_KEY = TEAM_MEMBER_CURSOR_SESSION_KEY;
-
-export type UserUpdate = Parameters<typeof api.users.update>[0];
-
-export type InviteEntry = Parameters<typeof api.users.inviteMany>[0]['entries'][number];
-
-export const STATUS_LABEL: Record<UserStatus, string> = {
-  active: 'Active',
-  invited: 'Invited',
-  disabled: 'Disabled',
-};
 
 /** First and last name as old core-ui shows them, else the stored full name, else the email. */
 export const memberName = (user: Pick<User, 'firstName' | 'lastName' | 'fullName' | 'email'>) =>
   [user.firstName, user.lastName].filter(Boolean).join(' ') || user.fullName || user.email;
 
-const detailKey = (id: string) => [...USERS_KEY, 'detail', id];
-
 /** The list's filters (old `useTeamMemberVariables`): search, role and "Is active" (on unless switched off). */
-export const useTeamMemberVariables = () => {
+const useTeamMemberFilters = () => {
   const [{ searchValue, isActive, role }] = useMultiQueryState<{
     searchValue: string;
     isActive: boolean;
@@ -42,23 +27,19 @@ export const useTeamMemberVariables = () => {
 };
 
 export const useTeamMembers = () => {
-  const filters = useTeamMemberVariables();
+  const filters = useTeamMemberFilters();
 
   return useCursorList<User>({
-    queryKey: [...USERS_KEY, 'list', filters],
-    sessionKey: TEAM_MEMBERS_SESSION_KEY,
-    fetchPage: (params) => api.users.list({ ...params, ...filters }),
+    sessionKey: TEAM_MEMBER_CURSOR_SESSION_KEY,
+    filters,
+    options: (paging) =>
+      orpc.users.list.infiniteOptions({ input: (page) => ({ ...page, ...filters }), ...paging }),
   });
 };
 
 /** One member (old `useUserDetail`). */
 export const useTeamMember = (id: string | null) =>
-  useQuery({
-    queryKey: detailKey(id ?? ''),
-    queryFn: () => api.users.get({ id: id ?? '' }),
-    enabled: !!id,
-    retry: false,
-  });
+  useQuery(orpc.users.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id, retry: false }));
 
 /** Puts a changed member everywhere it is shown: lists, its detail and, for yourself, the session. */
 const useStoreMember = () => {
@@ -66,11 +47,11 @@ const useStoreMember = () => {
   const { user: me } = useSession();
 
   return (user: User) => {
-    patchCachedRecord(client, USERS_KEY, user);
-    client.setQueryData(detailKey(user.id), user);
+    patchCachedRecord(client, orpc.users.list.key(), user);
+    client.setQueryData(orpc.users.get.queryKey({ input: { id: user.id } }), user);
 
     if (user.id === me.id) {
-      void client.invalidateQueries({ queryKey: SESSION_KEY });
+      void client.invalidateQueries({ queryKey: orpc.auth.me.key() });
     }
   };
 };
@@ -81,16 +62,17 @@ export const useTeamMemberEdit = () => {
   const { toast } = useToast();
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
 
-  return useMutation({
-    mutationFn: (input: UserUpdate) => api.users.update(input),
-    onSuccess: store,
-    onError: (error) =>
-      toast({
-        variant: 'destructive',
-        title: t('failed-to-update-user-details'),
-        description: messageOf(error),
-      }),
-  });
+  return useMutation(
+    orpc.users.update.mutationOptions({
+      onSuccess: store,
+      onError: (error) =>
+        toast({
+          variant: 'destructive',
+          title: t('failed-to-update-user-details'),
+          description: messageOf(error),
+        }),
+    }),
+  );
 };
 
 export const useTeamMemberDisable = () => {
@@ -101,11 +83,11 @@ export const useTeamMemberDisable = () => {
 
   return useMutation({
     mutationFn: ({ id, disabled }: { id: string; disabled: boolean }) =>
-      disabled ? api.users.disable({ id }) : api.users.enable({ id }),
+      disabled ? orpc.users.disable.call({ id }) : orpc.users.enable.call({ id }),
     onSuccess: (user) => {
       store(user);
       // It leaves or joins the "Is active" list.
-      void client.invalidateQueries({ queryKey: [...USERS_KEY, 'list'] });
+      void client.invalidateQueries({ queryKey: orpc.users.list.key() });
       toast({
         variant: 'success',
         title:
@@ -119,14 +101,16 @@ export const useTeamMemberDisable = () => {
   });
 };
 
-/** Disables several members (command bar); resolves with how many were disabled. */
+/**
+ * Disables several members (command bar), one request each; resolves with how
+ * many were disabled and fails only when none were.
+ */
 export const useTeamMembersDeactivate = () => {
   const client = useQueryClient();
 
   return useMutation({
     mutationFn: async (ids: string[]) => {
-      const results = await Promise.allSettled(ids.map((id) => api.users.disable({ id })));
-
+      const results = await Promise.allSettled(ids.map((id) => orpc.users.disable.call({ id })));
       const failed = results.find(
         (result): result is PromiseRejectedResult => result.status === 'rejected',
       );
@@ -137,7 +121,7 @@ export const useTeamMembersDeactivate = () => {
 
       return results.filter((result) => result.status === 'fulfilled').length;
     },
-    onSettled: () => client.invalidateQueries({ queryKey: USERS_KEY }),
+    onSettled: () => client.invalidateQueries({ queryKey: orpc.users.key() }),
   });
 };
 
@@ -145,10 +129,11 @@ export const useTeamMembersDeactivate = () => {
 export const useTeamMembersInvite = () => {
   const client = useQueryClient();
 
-  return useMutation({
-    mutationFn: (entries: InviteEntry[]) => api.users.inviteMany({ entries }),
-    onSuccess: () => client.invalidateQueries({ queryKey: USERS_KEY }),
-  });
+  return useMutation(
+    orpc.users.inviteMany.mutationOptions({
+      onSuccess: () => client.invalidateQueries({ queryKey: orpc.users.key() }),
+    }),
+  );
 };
 
 /** Old `useUserResetPassword`. */
@@ -156,13 +141,14 @@ export const useTeamMemberSetPassword = () => {
   const store = useStoreMember();
   const client = useQueryClient();
 
-  return useMutation({
-    mutationFn: (input: { id: string; password: string }) => api.users.setPassword(input),
-    onSuccess: (user) => {
-      store(user);
-      void client.invalidateQueries({ queryKey: [...USERS_KEY, 'list'] });
-    },
-  });
+  return useMutation(
+    orpc.users.setPassword.mutationOptions({
+      onSuccess: (user) => {
+        store(user);
+        void client.invalidateQueries({ queryKey: orpc.users.list.key() });
+      },
+    }),
+  );
 };
 
 /** What the signed-in member may do to `user` (the API enforces the same rules). */

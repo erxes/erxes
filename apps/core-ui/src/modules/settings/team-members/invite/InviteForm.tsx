@@ -48,11 +48,13 @@ export function InviteForm({ setIsOpen }: { setIsOpen: (open: boolean) => void }
     }
 
     invite.mutate(
-      data.entries.map(({ email, password, role }) => ({
-        email,
-        role,
-        password: password || undefined,
-      })),
+      {
+        entries: data.entries.map(({ email, password, role }) => ({
+          email,
+          role,
+          password: password || undefined,
+        })),
+      },
       {
         onSuccess: () => {
           toast({ title: t('invitation-sent'), variant: 'success' });

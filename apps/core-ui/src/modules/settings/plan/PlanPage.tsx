@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { messageOf } from '~/lib/api';
 import { usePlan } from '~/modules/saas/usePlan';
 
 type Row = SubscriptionInfo['plugins'][number];
@@ -67,7 +68,7 @@ const PluginRow = ({ plugin }: { plugin: Row }) => {
 /** Settings › Plan (SaaS): what this workspace has on erxes.io — each plugin's tier, payment status and access. */
 export const PlanPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plan' });
-  const { data, isLoading } = usePlan();
+  const { data, isLoading, error } = usePlan();
 
   return (
     <PageContainer>
@@ -90,7 +91,9 @@ export const PlanPage = () => {
       </PageHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto max-w-3xl space-y-6 p-6">
-          {isLoading ? (
+          {error ? (
+            <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
+          ) : isLoading ? (
             <Spinner containerClassName="py-12" />
           ) : !data?.saas ? (
             <Empty className="py-16">

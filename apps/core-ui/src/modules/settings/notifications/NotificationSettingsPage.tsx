@@ -4,11 +4,11 @@ import {
   type NotificationSettings,
 } from '@erxes/core-contract';
 import { IconBellCog, IconBrowser, IconLock, IconMail } from '@tabler/icons-react';
-import { PageContainer, ScrollArea, Select, Spinner, Switch } from 'erxes-ui';
+import { PageContainer, PageHeader, ScrollArea, Select, Spinner, Switch, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
+import { messageOf } from '~/lib/api';
 import { desktopSupported } from '~/modules/notifications/useDesktopNotifications';
 import { useNotificationSettings } from '~/modules/notifications/useNotifications';
 
@@ -113,7 +113,8 @@ const GroupRow = ({
  */
 export const NotificationSettingsPage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notifications.settings' });
-  const { settings, loading, update } = useNotificationSettings();
+  const { settings, loading, error, update } = useNotificationSettings();
+  const { toast } = useToast();
 
   const [permission, setPermission] = useState(() =>
     desktopSupported() ? Notification.permission : 'denied',
@@ -125,16 +126,26 @@ export const NotificationSettingsPage = () => {
   const setGroup = (key: string, delivery: NotificationDelivery) =>
     update.mutate({ groups: { [key]: delivery } });
 
-  const toggleBrowser = async (on: boolean) => {
-    if (on && desktopSupported() && Notification.permission !== 'granted') {
-      const answer = await Notification.requestPermission();
+  const toggleBrowser = (on: boolean) => {
+    if (!on || !desktopSupported() || Notification.permission === 'granted') {
+      update.mutate({ browser: on });
 
-      setPermission(answer);
-
-      if (answer !== 'granted') return;
+      return;
     }
 
-    update.mutate({ browser: on });
+    Notification.requestPermission()
+      .then((answer) => {
+        setPermission(answer);
+
+        if (answer === 'granted') update.mutate({ browser: true });
+      })
+      .catch((error: unknown) =>
+        toast({
+          variant: 'destructive',
+          title: t('browser', 'Browser'),
+          description: messageOf(error),
+        }),
+      );
   };
 
   const browserNote = !desktopSupported()
@@ -172,7 +183,9 @@ export const NotificationSettingsPage = () => {
               'Choose how and about what you hear. These settings are yours; teammates choose their own.',
             )}
           </p>
-          {loading || !settings ? (
+          {error ? (
+            <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
+          ) : loading || !settings ? (
             <Spinner containerClassName="py-12" />
           ) : (
             <>
@@ -198,7 +211,7 @@ export const NotificationSettingsPage = () => {
                     description={browserNote}
                     checked={settings.browser && permission === 'granted'}
                     disabled={update.isPending || !desktopSupported() || permission === 'denied'}
-                    onChange={(on) => void toggleBrowser(on)}
+                    onChange={toggleBrowser}
                   />
                 </div>
               </section>
