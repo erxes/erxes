@@ -1,8 +1,40 @@
+import { pluginInstallations, plugins } from '@erxes/core-db';
+import { sql } from 'drizzle-orm';
 import { Client } from 'pg';
 import { beforeAll, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { pluginRoleSql } from '~/modules/plugins/pluginRole';
 import { adminDb, describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
+
+/** Runs `fn` on a connection acting as the testhr plugin's database role. */
+const asPlugin = async <T>(fn: (client: Client) => Promise<T>) => {
+  const url = new URL(testDatabaseUrl());
+
+  if (url.port === '6543') url.port = '5432';
+
+  const client = new Client({ connectionString: url.toString() });
+
+  await client.connect();
+
+  try {
+    await client.query('SET ROLE erxes_plugin_testhr');
+
+    return await fn(client);
+  } finally {
+    await client.end();
+  }
+};
+
+/** The error message a statement fails with, or null. */
+const fails = (client: Client, statement: string, params: string[] = []) =>
+  client.query(statement, params).then(
+    () => null,
+    (error: Error) => error.message,
+  );
+
+/** The id a core function returned. */
+const idFrom = async (client: Client, statement: string, params: string[]) =>
+  (await client.query<{ id: string | null }>(statement, params)).rows[0]?.id;
 
 /** A plugin's database role can't read, change or drop core data, and can't act as another plugin. */
 describeWithDb('plugin database roles', { timeout: 240_000 }, () => {
@@ -11,44 +43,21 @@ describeWithDb('plugin database roles', { timeout: 240_000 }, () => {
   let orgA = '';
   let orgB = '';
 
-  const asPlugin = async <T>(fn: (client: Client) => Promise<T>) => {
-    const url = new URL(testDatabaseUrl());
-
-    if (url.port === '6543') url.port = '5432';
-
-    const client = new Client({ connectionString: url.toString() });
-
-    await client.connect();
-
-    try {
-      await client.query('SET ROLE erxes_plugin_testhr');
-
-      return await fn(client);
-    } finally {
-      await client.end();
-    }
-  };
-
-  const fails = (client: Client, statement: string, params: unknown[] = []) =>
-    client.query(statement, params).then(
-      () => null,
-      (error: Error) => error.message,
-    );
-
   beforeAll(async () => {
-    const { sql } = await import('drizzle-orm');
-    const { plugins, pluginInstallations } = await import('@erxes/core-db');
+    const alpha = await createOrganization({
+      subdomain: 'alpha',
+      name: 'Alpha',
+      owner: { email: 'a@alpha.mn' },
+    });
 
-    orgA = (
-      await createOrganization({
-        subdomain: 'alpha',
-        name: 'Alpha',
-        owner: { email: 'a@alpha.mn' },
-      })
-    ).organization.id;
-    orgB = (
-      await createOrganization({ subdomain: 'beta', name: 'Beta', owner: { email: 'b@beta.mn' } })
-    ).organization.id;
+    const beta = await createOrganization({
+      subdomain: 'beta',
+      name: 'Beta',
+      owner: { email: 'b@beta.mn' },
+    });
+
+    orgA = alpha.organization.id;
+    orgB = beta.organization.id;
     await adminDb().insert(plugins).values({ name: 'testhr' }).onConflictDoNothing();
     await adminDb()
       .insert(pluginInstallations)
@@ -79,7 +88,7 @@ describeWithDb('plugin database roles', { timeout: 240_000 }, () => {
 
     const [kept] = (
       await adminDb().execute<{ first_name: string }>(
-        (await import('drizzle-orm')).sql`select first_name from core_customers where id = 'c-1'`,
+        sql`select first_name from core_customers where id = 'c-1'`,
       )
     ).rows;
 
@@ -88,13 +97,13 @@ describeWithDb('plugin database roles', { timeout: 240_000 }, () => {
 
   it('reaches core only through its functions, as itself', async () => {
     await asPlugin(async (client) => {
-      const published = await client.query('select core_publish_event($1, $2, $3) as id', [
-        orgA,
-        'testhr',
-        'testhr.leave.approved',
-      ]);
-
-      expect(published.rows[0].id).toBeTruthy();
+      expect(
+        await idFrom(client, 'select core_publish_event($1, $2, $3) as id', [
+          orgA,
+          'testhr',
+          'testhr.leave.approved',
+        ]),
+      ).toEqual(expect.any(String));
       expect(
         await fails(client, 'select core_publish_event($1, $2, $3)', [
           orgA,
@@ -111,14 +120,12 @@ describeWithDb('plugin database roles', { timeout: 240_000 }, () => {
         ]),
       ).toMatch(/not installed/);
       expect(
-        (
-          await client.query('select core_record_audit($1, $2, $3) as id', [
-            orgA,
-            'testhr',
-            'testhr.employee.deleted',
-          ])
-        ).rows[0].id,
-      ).toBeTruthy();
+        await idFrom(client, 'select core_record_audit($1, $2, $3) as id', [
+          orgA,
+          'testhr',
+          'testhr.employee.deleted',
+        ]),
+      ).toEqual(expect.any(String));
     });
   });
 
