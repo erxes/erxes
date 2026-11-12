@@ -1,0 +1,49 @@
+# How fast lists and advanced filters are on a big organisation (1,000,000
+# customers by default): seeds a throwaway Postgres and times each filter as
+# a role under row level security. Results go to the job summary. Run by hand
+# (any size) and weekly, so a slow query is noticed before customers do.
+name: Filter benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      rows:
+        description: Customers to seed
+        default: '1000000'
+  schedule:
+    - cron: '41 4 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: erxes
+          POSTGRES_PASSWORD: erxes_bench
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U erxes"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Benchmark
+        env:
+          BENCH_URL: postgres://erxes:erxes_bench@localhost:5432/postgres
+          BENCH_ROWS: ${{ inputs.rows || '1000000' }}
+        run: pnpm bench:filters

@@ -20,7 +20,8 @@
     "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
     "db:migrate": "pnpm --filter @erxes/core-api db:migrate",
     "db:grant": "pnpm --filter @erxes/core-api db:grant",
-    "db:plugin-role": "pnpm --filter @erxes/core-api db:plugin-role"
+    "db:plugin-role": "pnpm --filter @erxes/core-api db:plugin-role",
+    "bench:filters": "pnpm --filter @erxes/core-api bench:filters"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
