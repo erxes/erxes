@@ -1003,6 +1003,7 @@
     "title": "Side panel",
     "close": "Close",
     "expand": "Open full view",
+    "resize-overview": "Resize details",
     "more": "+{{count}} More",
     "empty-title": "Nothing open",
     "empty-description": "Open a record to see it and everything related to it here.",

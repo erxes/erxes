@@ -15,6 +15,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, Tabs } from 'erxes-ui';
 import {
+  type CSSProperties,
   createContext,
   useContext,
   useCallback,
@@ -24,6 +25,8 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useAtom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -37,6 +40,124 @@ const clampWidth = (width: number, maxWidth: number) =>
   Math.min(maxWidth, Math.max(SIDE_PANEL_WIDTH.min, width));
 
 const PanelExpansionContext = createContext<PanelExpansionContextValue>(null);
+
+const OVERVIEW_WIDTH = { min: 320, maxPercent: 60, defaultPercent: 30 };
+
+const recordOverviewWidthState = atomWithStorage<number>(
+  'erxes:recordPageOverviewWidth',
+  OVERVIEW_WIDTH.defaultPercent,
+);
+
+const getOverviewColumn = (percent: number) =>
+  `clamp(${OVERVIEW_WIDTH.min}px, ${percent}%, ${OVERVIEW_WIDTH.maxPercent}%)`;
+
+const clampOverviewPercent = (percent: number, layoutWidth: number) =>
+  Math.min(
+    OVERVIEW_WIDTH.maxPercent,
+    Math.max((OVERVIEW_WIDTH.min / layoutWidth) * 100, percent),
+  );
+
+const RecordOverviewResizeHandle = ({
+  percent,
+  onChange,
+}: {
+  percent: number;
+  onChange: (percent: number) => void;
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const stopResize = useRef<((commit?: boolean) => void) | null>(null);
+  useEffect(() => () => stopResize.current?.(false), []);
+
+  const getLayout = (handle: HTMLElement) =>
+    handle.closest<HTMLElement>('[data-record-overview-layout]');
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0 || event.isPrimary === false) return;
+    const handle = event.currentTarget;
+    const layout = getLayout(handle);
+    const layoutWidth = layout?.getBoundingClientRect().width ?? 0;
+    const columnWidth =
+      handle.parentElement?.getBoundingClientRect().width ?? 0;
+    if (!layout || !layoutWidth) return;
+    event.preventDefault();
+    stopResize.current?.();
+    const doc = handle.ownerDocument;
+    const pointerId = event.pointerId;
+    const startX = event.clientX;
+    const startPercent = (columnWidth / layoutWidth) * 100;
+    const previousCursor = doc.body.style.cursor;
+    const previousUserSelect = doc.body.style.userSelect;
+    let nextPercent = startPercent;
+    let moved = false;
+
+    const move = (moveEvent: PointerEvent) => {
+      if (moveEvent.pointerId !== pointerId) return;
+      moved = true;
+      nextPercent = clampOverviewPercent(
+        startPercent + ((moveEvent.clientX - startX) / layoutWidth) * 100,
+        layoutWidth,
+      );
+      layout.style.setProperty(
+        '--record-overview-width',
+        getOverviewColumn(nextPercent),
+      );
+    };
+    const end = () => stop();
+    function stop(commit = true) {
+      if (stopResize.current !== stop) return;
+      stopResize.current = null;
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', end);
+      handle.removeEventListener('pointercancel', end);
+      handle.removeEventListener('lostpointercapture', end);
+      if (handle.hasPointerCapture?.(pointerId))
+        handle.releasePointerCapture(pointerId);
+      doc.body.style.cursor = previousCursor;
+      doc.body.style.userSelect = previousUserSelect;
+      if (commit && moved) onChange(nextPercent);
+    }
+
+    doc.body.style.cursor = 'col-resize';
+    doc.body.style.userSelect = 'none';
+    stopResize.current = stop;
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', end);
+    handle.addEventListener('pointercancel', end);
+    handle.addEventListener('lostpointercapture', end);
+    handle.setPointerCapture?.(pointerId);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const steps: Record<string, number> = { ArrowLeft: -2, ArrowRight: 2 };
+    const step = steps[event.key];
+    const handle = event.currentTarget;
+    const layoutWidth = getLayout(handle)?.getBoundingClientRect().width ?? 0;
+    const columnWidth =
+      handle.parentElement?.getBoundingClientRect().width ?? 0;
+    if (!step || !layoutWidth) return;
+    event.preventDefault();
+    onChange(
+      clampOverviewPercent(
+        (columnWidth / layoutWidth) * 100 + step,
+        layoutWidth,
+      ),
+    );
+  };
+
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={t('resize-overview')}
+      aria-valuenow={Math.round(percent)}
+      aria-valuemax={OVERVIEW_WIDTH.maxPercent}
+      tabIndex={0}
+      onPointerDown={handlePointerDown}
+      onKeyDown={handleKeyDown}
+      className="absolute inset-y-0 -right-1 z-10 hidden w-2 cursor-col-resize touch-none lg:block after:absolute after:inset-y-0 after:left-1/2 after:w-px after:-translate-x-1/2 hover:after:bg-primary focus-visible:outline-none focus-visible:after:bg-primary"
+    />
+  );
+};
 
 /** Reads the expansion state of the nearest record panel. */
 export const usePanelExpanded = () =>
@@ -440,6 +561,9 @@ const RecordSidePanelTabs = ({
   const contextExpanded = useContext(PanelExpansionContext)?.expanded ?? false;
   const expanded = controlledExpanded ?? contextExpanded;
   const splitOverview = expanded && Boolean(overviewTab);
+  const [overviewPercent, setOverviewPercent] = useAtom(
+    recordOverviewWidthState,
+  );
   const navigationTabs = splitOverview
     ? tabs.filter((tab) => tab.value !== overviewTab)
     : tabs;
@@ -570,7 +694,7 @@ const RecordSidePanelTabs = ({
     'box-content items-center gap-1 h-9 px-2 border-b bg-background';
   if (splitOverview) {
     contentLayout =
-      'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]';
+      'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)] lg:grid-cols-[var(--record-overview-width)_minmax(0,1fr)]';
     navigationLayout =
       'col-start-1 row-start-2 box-content h-9 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1';
   } else if (expanded) {
@@ -585,6 +709,14 @@ const RecordSidePanelTabs = ({
       onValueChange={onValueChange}
       orientation={expanded && !splitOverview ? 'vertical' : 'horizontal'}
       className={cn('flex-1 min-h-0 min-w-0', contentLayout)}
+      data-record-overview-layout={splitOverview ? '' : undefined}
+      style={
+        splitOverview
+          ? ({
+              '--record-overview-width': getOverviewColumn(overviewPercent),
+            } as CSSProperties)
+          : undefined
+      }
     >
       {/* Lines up with a page's filter row: h-9 plus its 1px rule. So does the
           overview's own header beside it on a record's page. */}
@@ -675,7 +807,7 @@ const RecordSidePanelTabs = ({
             !splitOverview &&
               'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 motion-reduce:animate-none',
             splitOverview && tab.value === overviewTab
-              ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
+              ? 'relative col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
               : 'data-[state=active]:flex data-[state=inactive]:hidden',
             splitOverview &&
               tab.value !== overviewTab &&
@@ -688,6 +820,12 @@ const RecordSidePanelTabs = ({
             </div>
           )}
           {tab.content}
+          {splitOverview && tab.value === overviewTab && (
+            <RecordOverviewResizeHandle
+              percent={overviewPercent}
+              onChange={setOverviewPercent}
+            />
+          )}
         </Tabs.Content>
       ))}
     </Tabs>
