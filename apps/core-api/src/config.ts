@@ -147,6 +147,7 @@ const Env = z
     AUDIT_RETENTION_DAYS: positive(365),
     NOTIFICATIONS_RETENTION_DAYS: positive(90),
     EVENTS_RETENTION_DAYS: positive(30),
+    AUTOMATION_RUN_DETAILS_RETENTION_DAYS: positive(90),
 
     MASS_DELETE_ALERT: positive(100),
     MASS_DELETE_LIMIT: positive(500),
@@ -374,6 +375,8 @@ export const config = {
     readNotificationDays: env.NOTIFICATIONS_RETENTION_DAYS,
     /** Events are kept this long once every consumer has handled them. */
     eventDays: env.EVENTS_RETENTION_DAYS,
+    /** Finished automation runs keep their step log and context this long; the run row stays. */
+    runDetailDays: env.AUTOMATION_RUN_DETAILS_RETENTION_DAYS,
   },
   massDelete: {
     /** Deletions by one member or plugin in 10 minutes before owners are told … */

@@ -52,6 +52,8 @@
   },
   "devDependencies": {
     "@erxes/plugin-sdk": "workspace:*",
+    "@orpc/client": "1.16.2",
+    "@orpc/openapi-client": "1.16.2",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/nodemailer": "^8.0.2",

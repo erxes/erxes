@@ -1,10 +1,14 @@
 import { sql } from 'drizzle-orm';
 import { createServer, type IncomingMessage, type Server } from 'node:http';
 import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
 import { settle } from './settle';
+import { type CoreClient, useTestServer } from './support';
+
+/** The run id from the `Idempotency-Key` (`<run>:<step>`) core sends. */
+const runIdOf = (req: IncomingMessage) =>
+  String(req.headers['idempotency-key']).split(':')[0] ?? '';
 
 /**
  * Steps that call other systems (webhooks, plugin actions) run outside the
@@ -14,36 +18,12 @@ import { settle } from './settle';
 describeWithDb('automation calls', { timeout: 120_000 }, () => {
   useTestDatabase();
 
-  let api: Server;
+  const server = useTestServer();
+  let owner: CoreClient;
   let receiver: Server;
-  let base = '';
   let hookUrl = '';
-  let owner = '';
-  let onCall: (runId: string) => Promise<void> = async () => {};
-
-  const call = async (method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { authorization: `Bearer ${owner}`, 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
-
-  const portOf = (server: Server) => {
-    const address = server.address();
-
-    if (!address || typeof address === 'string') throw new Error('not listening on a port');
-
-    return address.port;
-  };
-
-  /** The run id from the `Idempotency-Key` (`<run>:<step>`) core sends. */
-  const runIdOf = (req: IncomingMessage) =>
-    String(req.headers['idempotency-key']).split(':')[0] ?? '';
+  /** What the remote does before it answers. */
+  let onCall: ((runId: string) => Promise<void>) | undefined;
 
   beforeAll(async () => {
     const acme = await createOrganization({
@@ -52,32 +32,32 @@ describeWithDb('automation calls', { timeout: 120_000 }, () => {
       owner: { email: 'o@acme.mn' },
     });
 
-    owner = await currentToken(acme.owner.id, acme.organization.id);
-    api = createApp().listen(0);
-    base = `http://127.0.0.1:${portOf(api)}`;
+    owner = server.client({ user: acme.owner.id, org: acme.organization.id });
     receiver = createServer((req, res) => {
       req.resume();
       req.on('end', () => {
-        void onCall(runIdOf(req)).finally(() => {
+        void Promise.resolve(onCall?.(runIdOf(req))).finally(() => {
           res.setHeader('content-type', 'application/json');
           res.end('{"ok":true}');
         });
       });
     }).listen(0);
-    hookUrl = `http://127.0.0.1:${portOf(receiver)}/hook`;
+
+    const address = receiver.address();
+
+    if (!address || typeof address === 'string') throw new Error('not listening on a port');
+
+    hookUrl = `http://127.0.0.1:${address.port}/hook`;
   });
 
-  afterAll(async () => {
-    api.closeAllConnections();
-    await new Promise<void>((resolve) => api.close(() => resolve()));
-    await new Promise<void>((resolve) => receiver.close(() => resolve()));
-  });
+  afterAll(() => new Promise<void>((resolve) => receiver.close(() => resolve())));
 
   const automationFor = async (firstName: string) => {
-    const created = await call('POST', '/automations', {
+    const automation = await owner.automations.create({
       name: `Call for ${firstName}`,
       definition: {
         trigger: {
+          kind: 'event',
           event: 'core.customer.created',
           conditions: {
             match: 'all',
@@ -96,9 +76,18 @@ describeWithDb('automation calls', { timeout: 120_000 }, () => {
       },
     });
 
-    await call('POST', `/automations/${created.body.id}/activate`);
+    await owner.automations.activate({ id: automation.id });
 
-    return String(created.body.id);
+    return automation.id;
+  };
+
+  /** The automation's only run, with its steps. */
+  const onlyRun = async (automationId: string) => {
+    const [run] = (await owner.automations.runs({ id: automationId })).data;
+
+    if (!run) throw new Error('no run started');
+
+    return owner.automations.run({ runId: run.id });
   };
 
   it('holds no lock on the run while the remote answers, then moves on', async () => {
@@ -114,33 +103,31 @@ describeWithDb('automation calls', { timeout: 120_000 }, () => {
         );
     };
 
-    await call('POST', '/customers', { firstName: 'Slow' });
+    await owner.customers.create({ firstName: 'Slow' });
     await settle();
 
     expect(lockError).toBeNull();
 
-    const runs = await call('GET', `/automations/${automationId}/runs`);
-    const run = await call('GET', `/automations/runs/${runs.body.data[0].id}`);
+    const { run, steps } = await onlyRun(automationId);
 
-    expect(run.body.run).toMatchObject({ status: 'succeeded' });
-    expect(run.body.steps.map((step: { stepId: string }) => step.stepId)).toEqual(['post', 'note']);
+    expect(run.status).toBe('succeeded');
+    expect(steps.map((step) => step.stepId)).toEqual(['post', 'note']);
   });
 
   it('stays cancelled when cancelled while its call is in flight', async () => {
     const automationId = await automationFor('Cancelled');
 
     onCall = async (runId) => {
-      expect((await call('POST', `/automations/runs/${runId}/cancel`)).status).toBe(200);
+      await owner.automations.cancelRun({ runId });
     };
 
-    await call('POST', '/customers', { firstName: 'Cancelled' });
+    await owner.customers.create({ firstName: 'Cancelled' });
     await settle();
 
-    const runs = await call('GET', `/automations/${automationId}/runs`);
-    const run = await call('GET', `/automations/runs/${runs.body.data[0].id}`);
+    const { run, steps } = await onlyRun(automationId);
 
-    expect(run.body.run).toMatchObject({ status: 'cancelled' });
+    expect(run.status).toBe('cancelled');
     // The answer came after the cancel: no step is recorded and the note never runs.
-    expect(run.body.steps).toEqual([]);
+    expect(steps).toEqual([]);
   });
 });
