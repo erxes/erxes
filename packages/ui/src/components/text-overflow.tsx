@@ -9,7 +9,7 @@ import {
 import { mergeRefs } from 'react-merge-refs';
 import { Tooltip } from './tooltip';
 import { inputVariants } from './input';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 function useIsOverflowing<T extends HTMLElement>(ref: RefObject<T>, value?: string) {
   const [isOverflowing, setIsOverflowing] = useState(false);

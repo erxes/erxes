@@ -4,9 +4,15 @@ import {
   IconLayoutSidebarLeftExpand,
   IconX,
 } from '@tabler/icons-react';
-import { Button, Separator, Sheet, Sidebar, Spinner, Tabs, Tooltip } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
-import { useMediaQuery } from 'erxes-ui/hooks';
+import { Button } from 'erxes-ui/components/button';
+import { Separator } from 'erxes-ui/components/separator';
+import { Sheet } from 'erxes-ui/components/sheet';
+import { Sidebar } from 'erxes-ui/components/sidebar';
+import { Spinner } from 'erxes-ui/components/spinner';
+import { Tabs } from 'erxes-ui/components/tabs';
+import { Tooltip } from 'erxes-ui/components/tooltip';
+import { cn } from 'erxes-ui/lib/utils';
+import { useMediaQuery } from 'erxes-ui/hooks/use-media-query';
 import { useTranslation } from 'react-i18next';
 import React, { createContext, forwardRef, useContext, useEffect, useState } from 'react';
 

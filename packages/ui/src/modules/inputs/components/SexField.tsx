@@ -1,6 +1,7 @@
-import { Combobox, Command } from 'erxes-ui/components';
-import { SexCodes } from 'erxes-ui/constants';
-import type { SexCode } from 'erxes-ui/types';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Command } from 'erxes-ui/components/command';
+import { SexCodes } from 'erxes-ui/constants/SexCodes';
+import type { SexCode } from 'erxes-ui/types/SexCode';
 
 export const SexField = ({
   value,

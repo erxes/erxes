@@ -6,20 +6,18 @@ import {
   IconPlus,
   IconPrinter,
 } from '@tabler/icons-react';
-import {
-  Button,
-  Checkbox,
-  Input,
-  Label,
-  Popover,
-  ScrollArea,
-  Separator,
-  Toggle,
-} from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components/button';
+import { Checkbox } from 'erxes-ui/components/checkbox';
+import { Input } from 'erxes-ui/components/input';
+import { Label } from 'erxes-ui/components/label';
+import { Popover } from 'erxes-ui/components/popover';
+import { ScrollArea } from 'erxes-ui/components/scroll-area';
+import { Separator } from 'erxes-ui/components/separator';
+import { Toggle } from 'erxes-ui/components/toggle';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useQueryState } from 'erxes-ui/hooks/use-query-state';
-import { PageContainer } from 'erxes-ui/modules/layout';
+import { PageContainer } from 'erxes-ui/modules/layout/components/Page';
 import { printSettingsAtom } from '../states/reportSettingsState';
 
 export const ReportPageContainer = ({ children }: { children: React.ReactNode }) => {

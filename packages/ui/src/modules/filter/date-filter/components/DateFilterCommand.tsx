@@ -1,4 +1,5 @@
-import { Combobox, Command } from 'erxes-ui/components';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Command } from 'erxes-ui/components/command';
 import { FIXED_DATES } from '../constants/dateTypes';
 import { cn } from 'erxes-ui/lib/utils';
 import { normalizeFixedDate } from '../utils/dateTokens';

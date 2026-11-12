@@ -8,14 +8,12 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import {
-  Button,
-  DropdownMenu,
-  Input,
-  Separator,
-  TextOverflowTooltip,
-  Form,
-} from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components/button';
+import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
+import { Input } from 'erxes-ui/components/input';
+import { Separator } from 'erxes-ui/components/separator';
+import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
+import { Form } from 'erxes-ui/components/form';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import {
@@ -25,7 +23,7 @@ import {
 } from '../states/emailFieldStates';
 import { useEffect, useRef } from 'react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { useEmailFields } from '../hooks/useEmailFields';
 import { EmailFieldsContext } from '../contexts/EmailFieldsContext';
 import { emailSchema } from '../validations/emailValidation';
@@ -33,7 +31,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
 import { formatEmails } from 'erxes-ui/modules/display/utils/formatEmails';
-import { ValidationStatus } from 'erxes-ui/types';
+import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 
 export type TEmailsOnValueChange = ({
   primaryEmail,

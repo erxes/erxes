@@ -1,7 +1,7 @@
 import type { ToolbarMenuItemProps } from 'erxes-ui/modules/blocks/types/toolbar/ToolbarMenuItemProps';
 import { components } from '@blocknote/shadcn';
-import { cn } from 'erxes-ui/lib';
-import { DropdownMenu } from 'erxes-ui/components';
+import { cn } from 'erxes-ui/lib/utils';
+import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
 
 export const ToolbarMenuItem = ({ className, disabled, ...props }: ToolbarMenuItemProps) => {
   const itemClassName = cn(

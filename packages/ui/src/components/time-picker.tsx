@@ -14,7 +14,7 @@ import {
   TimeField as TimeFieldRac,
 } from 'react-aria-components';
 
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 function DateField<T extends DateValueRac>({ className, children, ...props }: DateFieldProps<T>) {
   return (

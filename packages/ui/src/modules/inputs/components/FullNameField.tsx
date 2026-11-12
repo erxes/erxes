@@ -1,8 +1,8 @@
-import { Input } from 'erxes-ui/components';
+import { Input } from 'erxes-ui/components/input';
 import React, { useEffect, useState } from 'react';
 import { FullNameFieldContext } from 'erxes-ui/modules/inputs/contexts/FullNameFieldContext';
 import { useFullNameField } from 'erxes-ui/modules/inputs/hooks/useFullNameField';
-import { PopoverScoped } from 'erxes-ui/modules/hotkey';
+import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
 const FullNameFieldProvider = ({

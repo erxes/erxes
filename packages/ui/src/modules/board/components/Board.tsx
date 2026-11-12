@@ -12,8 +12,8 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ScrollArea } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { ScrollArea } from 'erxes-ui/components/scroll-area';
+import { cn } from 'erxes-ui/lib/utils';
 import type {
   BoardCardProps,
   BoardColumnProps,

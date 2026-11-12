@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Column, Header } from '@tanstack/react-table';
 import { cva } from 'class-variance-authority';
 
-import { Table } from 'erxes-ui/components';
+import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 

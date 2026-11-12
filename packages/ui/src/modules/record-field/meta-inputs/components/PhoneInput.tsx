@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { IconCheck } from '@tabler/icons-react';
-import { Combobox, Command, Input, Popover } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Command } from 'erxes-ui/components/command';
+import { Input } from 'erxes-ui/components/input';
+import { Popover } from 'erxes-ui/components/popover';
+import { cn } from 'erxes-ui/lib/utils';
 import type { CountryCode } from 'libphonenumber-js';
 import parsePhoneNumberFromString from 'libphonenumber-js';
 import { CountryPhoneCodes } from 'erxes-ui/constants/CountryPhoneCodes';
-import type { TCountryCode } from 'erxes-ui/types';
-import { formatPhoneNumber } from 'erxes-ui/utils/format';
+import type { TCountryCode } from 'erxes-ui/types/CountryCode';
+import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
 import { phoneSchema } from 'erxes-ui/modules/inputs/validations/phoneValidation';
 
 interface PhoneInputProps extends Omit<

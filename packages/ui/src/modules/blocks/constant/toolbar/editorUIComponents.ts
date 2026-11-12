@@ -1,6 +1,6 @@
 import type { BlockNoteView } from '@blocknote/shadcn';
 import type { ComponentProps } from 'react';
-import { Tooltip } from 'erxes-ui/components';
+import { Tooltip } from 'erxes-ui/components/tooltip';
 import { ToolbarButton } from 'erxes-ui/modules/blocks/components/toolbar/buttons/ToolbarButton';
 import { ToolbarToggle } from 'erxes-ui/modules/blocks/components/toolbar/buttons/ToolbarToggle';
 

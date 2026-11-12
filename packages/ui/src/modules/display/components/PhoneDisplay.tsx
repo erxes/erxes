@@ -1,9 +1,9 @@
-import type { IPhoneFieldProps } from 'erxes-ui/modules/inputs';
-import { Badge } from 'erxes-ui/components';
+import type { IPhoneFieldProps } from 'erxes-ui/modules/inputs/components/PhoneField';
+import { Badge } from 'erxes-ui/components/badge';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
-import { ValidationStatus } from 'erxes-ui/types';
+import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import { formatPhones } from 'erxes-ui/modules/display/utils/formatPhones';
-import { formatPhoneNumber } from 'erxes-ui/utils/format';
+import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
 
 export const PhoneDisplay = ({
   maxVisible,

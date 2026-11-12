@@ -1,4 +1,6 @@
-import { Separator, Tabs, Tooltip } from 'erxes-ui/components';
+import { Separator } from 'erxes-ui/components/separator';
+import { Tabs } from 'erxes-ui/components/tabs';
+import { Tooltip } from 'erxes-ui/components/tooltip';
 import { SideMenuContext, useSideMenuContext } from '../context/SideMenuContext';
 import { forwardRef, useState } from 'react';
 

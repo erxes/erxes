@@ -1,6 +1,6 @@
 import { useBlockNoteEditor, useEditorContentOrSelectionChange } from '@blocknote/react';
 import { useState } from 'react';
-import type { IBlockEditor } from 'erxes-ui/modules/blocks/types';
+import type { IBlockEditor } from 'erxes-ui/modules/blocks/types/TextEditor';
 import type { FontSizeState } from 'erxes-ui/modules/blocks/types/toolbar/FontSize';
 
 export const useFontSize = (): FontSizeState => {

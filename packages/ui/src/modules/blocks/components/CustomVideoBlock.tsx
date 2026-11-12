@@ -10,7 +10,7 @@ import {
 } from '@blocknote/react';
 import { IconVideo } from '@tabler/icons-react';
 import type { FC } from 'react';
-import { getCloudflareStreamBase, parseVideoEmbedUrl } from 'erxes-ui/utils';
+import { getCloudflareStreamBase, parseVideoEmbedUrl } from 'erxes-ui/utils/videoEmbed';
 
 type VideoRenderProps = ReactCustomBlockRenderProps<
   typeof videoBlockConfig,

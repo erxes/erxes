@@ -1,7 +1,11 @@
 import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { PreviewContext, usePreviewContext } from '../context/PreviewContext';
 import React from 'react';
-import { Button, Resizable, ScrollArea, Separator, ToggleGroup } from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components/button';
+import { Resizable } from 'erxes-ui/components/resizable';
+import { ScrollArea } from 'erxes-ui/components/scroll-area';
+import { Separator } from 'erxes-ui/components/separator';
+import { ToggleGroup } from 'erxes-ui/components/toggle-group';
 import {
   IconDeviceImacFilled,
   IconDeviceMobileFilled,

@@ -3,10 +3,10 @@ import { useCreateBlockNote } from '@blocknote/react';
 import { BLOCK_SCHEMA } from 'erxes-ui/modules/blocks/constant/blockEditorSchema';
 import { BlockNoteView } from '@blocknote/shadcn';
 import { useAtomValue } from 'jotai';
-import { themeState } from 'erxes-ui/state';
-import { parseBlocks } from '../utils';
+import { themeState } from 'erxes-ui/state/themeState';
+import { parseBlocks } from '../utils/parseBlocks';
 import DOMPurify from 'dompurify';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import React, { useEffect, useMemo } from 'react';
 import { readImage } from '../../../utils/core';
 

@@ -1,11 +1,11 @@
-import { Popover } from 'erxes-ui/components';
+import { Popover } from 'erxes-ui/components/popover';
 import { Combobox } from 'erxes-ui/components/combobox';
 import { Command } from 'erxes-ui/components/command';
 import { inputVariants } from 'erxes-ui/components/input';
-import { CURRENCY_CODES } from 'erxes-ui/constants';
+import { CURRENCY_CODES } from 'erxes-ui/constants/CurrencyCodes';
 import { cn } from 'erxes-ui/lib/utils';
 import { CurrencyDisplay } from 'erxes-ui/modules/display/components/CurrencyDisplay';
-import type { Currency, CurrencyCode } from 'erxes-ui/types';
+import type { Currency, CurrencyCode } from 'erxes-ui/types/CurrencyCode';
 import React, { useRef, useState } from 'react';
 import { IMaskInput } from 'react-imask';
 import type { Except } from 'type-fest';

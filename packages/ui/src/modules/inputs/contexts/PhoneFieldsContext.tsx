@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { ValidationStatus } from 'erxes-ui/types';
+import type { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import type { TPhones } from '../components/PhoneField';
 
 export const PhoneFieldsContext = createContext<{

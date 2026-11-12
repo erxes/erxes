@@ -11,7 +11,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import type { UseErxesUploadReturn } from 'erxes-ui/hooks/use-upload-new';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { createContext, useCallback, useContext } from 'react';
 import { Spinner } from './spinner';
 import { Button } from './button';

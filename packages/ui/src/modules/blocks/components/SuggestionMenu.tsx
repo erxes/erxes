@@ -1,5 +1,5 @@
-import { buttonVariants } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { buttonVariants } from 'erxes-ui/components/button';
+import { cn } from 'erxes-ui/lib/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { mergeRefs } from 'react-merge-refs';

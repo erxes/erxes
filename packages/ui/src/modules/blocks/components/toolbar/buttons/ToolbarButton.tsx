@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef, ElementRef } from 'react';
 import { forwardRef } from 'react';
-import { Button } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { Button } from 'erxes-ui/components/button';
+import { cn } from 'erxes-ui/lib/utils';
 
 export const ToolbarButton = forwardRef<
   ElementRef<typeof Button>,

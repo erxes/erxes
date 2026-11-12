@@ -1,5 +1,8 @@
 import { isValidElement, type ReactNode } from 'react';
-import { DropdownMenu, Button, Checkbox, Label } from 'erxes-ui/components';
+import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
+import { Button } from 'erxes-ui/components/button';
+import { Checkbox } from 'erxes-ui/components/checkbox';
+import { Label } from 'erxes-ui/components/label';
 import { useRecordTable } from './RecordTableProvider';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {

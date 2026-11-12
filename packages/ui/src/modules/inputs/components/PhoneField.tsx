@@ -9,20 +9,24 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { PhoneInput } from 'erxes-ui/modules/record-field/meta-inputs/components/PhoneInput';
-import { Badge, Button, DropdownMenu, Separator, TextOverflowTooltip } from 'erxes-ui/components';
+import { Badge } from 'erxes-ui/components/badge';
+import { Button } from 'erxes-ui/components/button';
+import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
+import { Separator } from 'erxes-ui/components/separator';
+import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   phonesFamilyState,
   showPhoneInputFamilyState,
   editingPhoneFamilyState,
 } from '../states/phoneFieldStates';
-import { formatPhoneNumber } from 'erxes-ui/utils/format';
+import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { usePhoneFields } from '../hooks/usePhoneFields';
 import { PhoneFieldsContext } from '../contexts/PhoneFieldsContext';
-import { ValidationStatus } from 'erxes-ui/types';
+import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import { formatPhones } from 'erxes-ui/modules/display/utils/formatPhones';
 import { useTranslation } from 'react-i18next';
 

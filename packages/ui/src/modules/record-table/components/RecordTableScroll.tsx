@@ -1,4 +1,4 @@
-import { ScrollArea } from 'erxes-ui/components';
+import { ScrollArea } from 'erxes-ui/components/scroll-area';
 
 import { forwardRef } from 'react';
 import { cn } from 'erxes-ui/lib/utils';

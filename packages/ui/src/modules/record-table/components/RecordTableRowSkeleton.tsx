@@ -1,10 +1,11 @@
 import React from 'react';
 import { useInView } from 'react-intersection-observer';
 
-import { Skeleton, Table } from 'erxes-ui/components';
+import { Skeleton } from 'erxes-ui/components/skeleton';
+import { Table } from 'erxes-ui/components/table';
 
 import { useRecordTable } from './RecordTableProvider';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 export const RecordTableRowSkeleton = ({
   rows = 1,

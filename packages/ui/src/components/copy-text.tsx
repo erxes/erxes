@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IconCheck } from '@tabler/icons-react';
-import { cn } from '../lib';
+import { cn } from '../lib/utils';
 import { Tooltip } from './tooltip';
 
 interface CopyTextProps {

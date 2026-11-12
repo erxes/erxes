@@ -2,10 +2,12 @@ import type { ThreadStore, User } from '@blocknote/core/comments';
 import type { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
 import { useCallback, useEffect } from 'react';
-import { useErxesUpload, useUploadChunked, useToast } from 'erxes-ui/hooks';
-import { readImage } from 'erxes-ui/utils';
-import { BLOCK_SCHEMA, TABLE_SCHEMA } from 'erxes-ui/modules/blocks/constant';
-import type { IBlockEditor } from 'erxes-ui/modules/blocks/types';
+import { useErxesUpload } from 'erxes-ui/hooks/use-upload-new';
+import { useUploadChunked } from 'erxes-ui/hooks/use-upload-chunked';
+import { useToast } from 'erxes-ui/hooks/use-toast';
+import { readImage } from 'erxes-ui/utils/core';
+import { BLOCK_SCHEMA, TABLE_SCHEMA } from 'erxes-ui/modules/blocks/constant/blockEditorSchema';
+import type { IBlockEditor } from 'erxes-ui/modules/blocks/types/TextEditor';
 import { removeCodeFormattingFromHTML } from 'erxes-ui/modules/blocks/utils/removeCodeFormattingFromHTML';
 
 export const useBlockEditor = (args?: {

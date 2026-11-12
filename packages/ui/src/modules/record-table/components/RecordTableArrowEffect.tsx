@@ -1,6 +1,6 @@
 import { Key } from 'erxes-ui/types/Key';
 import { useRecordTableHotkey } from '../contexts/RecordTableHotkeyContext';
-import { useScopedHotkeys } from 'erxes-ui/modules/hotkey';
+import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 
 export const RecordTableArrowEffect = ({
   columnLength,

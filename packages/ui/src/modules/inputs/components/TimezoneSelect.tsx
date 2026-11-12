@@ -1,4 +1,6 @@
-import { Combobox, Command, Popover } from 'erxes-ui/components';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Command } from 'erxes-ui/components/command';
+import { Popover } from 'erxes-ui/components/popover';
 import { IANA_TIME_ZONES } from 'erxes-ui/constants/IanaTimeZones';
 import { formatTimeZoneLabel } from 'erxes-ui/utils/localization/formatTimeZoneLabel';
 import React, { useState } from 'react';

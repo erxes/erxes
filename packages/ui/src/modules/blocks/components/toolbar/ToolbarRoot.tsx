@@ -1,6 +1,6 @@
 import type { ComponentProps } from '@blocknote/react';
 import { components } from '@blocknote/shadcn';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 export const ToolbarRoot = ({
   className,

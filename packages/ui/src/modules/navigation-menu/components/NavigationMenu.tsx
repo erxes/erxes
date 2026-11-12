@@ -1,8 +1,9 @@
-import { Collapsible, Sidebar } from 'erxes-ui/components';
+import { Collapsible } from 'erxes-ui/components/collapsible';
+import { Sidebar } from 'erxes-ui/components/sidebar';
 import { Link, useLocation } from 'react-router-dom';
 
 import { IconChevronRight } from '@tabler/icons-react';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { forwardRef } from 'react';
 import { useNavigationMenuItemControls } from './NavigationMenuItemControls';
 

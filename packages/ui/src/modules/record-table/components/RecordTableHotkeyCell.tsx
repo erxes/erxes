@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRecordTableHotkey } from '../contexts/RecordTableHotkeyContext';
 import { Slot } from 'radix-ui';
 import { mergeRefs } from 'react-merge-refs';
-import { cn } from 'erxes-ui/lib';
-import { Key } from 'erxes-ui/types';
+import { cn } from 'erxes-ui/lib/utils';
+import { Key } from 'erxes-ui/types/Key';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useAtomValue } from 'jotai';
 import { internalHotkeysEnabledScopesState } from 'erxes-ui/modules/hotkey/states/internal/internalHotkeysEnabledScopeState';
-import { useSetHotkeyScope } from 'erxes-ui/modules/hotkey';
+import { useSetHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/useSetHotkeyScope';
 
 export const RecordTableHotKeyControl = React.forwardRef<
   React.ElementRef<typeof Slot.Root>,

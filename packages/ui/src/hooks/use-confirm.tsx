@@ -7,8 +7,11 @@ import { createRoot } from 'react-dom/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import type { ButtonProps } from 'erxes-ui/components';
-import { AlertDialog, buttonVariants, Form, Input } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components/button';
+import { AlertDialog } from 'erxes-ui/components/alert-dialog';
+import { buttonVariants } from 'erxes-ui/components/button';
+import { Form } from 'erxes-ui/components/form';
+import { Input } from 'erxes-ui/components/input';
 
 type OptionProps = {
   okLabel?: string;

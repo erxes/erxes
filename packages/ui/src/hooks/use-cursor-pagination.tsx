@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { isUndefinedOrNull } from 'erxes-ui/utils';
+import { isUndefinedOrNull } from 'erxes-ui/utils/IsUndefinedOrNull';
 import { useEffect, useRef, useState } from 'react';
 
 export const useCursorScroll = ({

@@ -1,4 +1,6 @@
-import { Button, Dialog, Spinner } from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components/button';
+import { Dialog } from 'erxes-ui/components/dialog';
+import { Spinner } from 'erxes-ui/components/spinner';
 import { IconTrash, IconUpload, IconUserCircle } from '@tabler/icons-react';
 import type { MutableRefObject } from 'react';
 import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
@@ -6,7 +8,8 @@ import React, { createContext, useCallback, useContext, useRef, useState } from 
 import type { ButtonProps } from './button';
 import { cn } from '../lib/utils';
 import { readImage } from 'erxes-ui/utils/core';
-import { useToast, useUpload } from 'erxes-ui/hooks';
+import { useToast } from 'erxes-ui/hooks/use-toast';
+import { useUpload } from 'erxes-ui/hooks/use-upload';
 import { useTranslation } from 'react-i18next';
 
 type IUploadContext = {

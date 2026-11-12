@@ -1,8 +1,9 @@
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
-import { Badge, Button } from 'erxes-ui/components';
+import { Badge } from 'erxes-ui/components/badge';
+import { Button } from 'erxes-ui/components/button';
 import type { EmailDisplayProps } from 'erxes-ui/modules/display/types/emailDisplay';
 import { formatEmails } from 'erxes-ui/modules/display/utils/formatEmails';
-import { ValidationStatus } from 'erxes-ui/types';
+import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 
 export const EmailDisplay = ({
   maxVisible,

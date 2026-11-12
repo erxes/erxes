@@ -1,7 +1,7 @@
 'use client';
 
 import { type Tag, TagInput } from 'emblor';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { useState } from 'react';
 import { handleStringArrayPaste } from '../utils/string-array';
 

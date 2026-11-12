@@ -1,5 +1,10 @@
-import { Button, Dialog, Spinner, Upload, cn, readImage } from 'erxes-ui/index';
-import { getCloudflareStreamBase } from 'erxes-ui/utils';
+import { Button } from 'erxes-ui/components/button';
+import { Dialog } from 'erxes-ui/components/dialog';
+import { Spinner } from 'erxes-ui/components/spinner';
+import { Upload } from 'erxes-ui/components/upload';
+import { cn } from 'erxes-ui/lib/utils';
+import { readImage } from 'erxes-ui/utils/core';
+import { getCloudflareStreamBase } from 'erxes-ui/utils/videoEmbed';
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -15,7 +20,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import { AttachmentRoot, useAttachmentContext, type AttachmentRootProps } from './context';
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 import type { IAttachment } from './types';
 
 // ---------------------------------------------------------------------------

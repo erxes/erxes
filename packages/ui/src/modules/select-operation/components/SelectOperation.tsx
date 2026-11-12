@@ -1,7 +1,11 @@
-import { Badge, Button, Combobox, Form, Popover } from 'erxes-ui/components';
+import { Badge } from 'erxes-ui/components/badge';
+import { Button } from 'erxes-ui/components/button';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Form } from 'erxes-ui/components/form';
+import { Popover } from 'erxes-ui/components/popover';
 
-import { Filter } from 'erxes-ui/modules/filter';
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
+import { Filter } from 'erxes-ui/modules/filter/components/Filter';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
 const FORM_CONTROL_SELECTOR = [
   'a[href]',

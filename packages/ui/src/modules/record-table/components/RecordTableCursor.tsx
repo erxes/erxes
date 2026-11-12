@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
-import { ScrollArea } from 'erxes-ui/components';
-import { RecordTable } from 'erxes-ui/modules';
+import { ScrollArea } from 'erxes-ui/components/scroll-area';
+import { RecordTable } from 'erxes-ui/modules/record-table/components/RecordTable';
 import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
 import { RecordTableCursorContext } from '../contexts/RecordTableCursorContext';
 import { useRecordTableCursorContext } from '../hooks/useRecordTableCursorContext';

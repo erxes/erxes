@@ -1,7 +1,7 @@
 import { IconCaretDownFilled } from '@tabler/icons-react';
-import type { ButtonProps } from 'erxes-ui/components';
-import { Button } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import type { ButtonProps } from 'erxes-ui/components/button';
+import { Button } from 'erxes-ui/components/button';
+import { cn } from 'erxes-ui/lib/utils';
 import { fixOrder } from 'erxes-ui/utils/fixOrder';
 import { useSetAtom } from 'jotai';
 import React, { useEffect } from 'react';

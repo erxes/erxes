@@ -1,7 +1,9 @@
 import { IconCheck, IconChevronDown } from '@tabler/icons-react';
-import { Combobox, Popover, inputVariants } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
-import { PopoverScoped } from 'erxes-ui/modules';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Popover } from 'erxes-ui/components/popover';
+import { inputVariants } from 'erxes-ui/components/input';
+import { cn } from 'erxes-ui/lib/utils';
+import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import React, { createContext, useContext, useState } from 'react';
 import { IMaskInput } from 'react-imask';
 

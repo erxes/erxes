@@ -1,6 +1,6 @@
 import { endOfDay, startOfDay, subDays, subMonths } from 'date-fns';
 import { MONTHS } from 'erxes-ui/modules/filter/date-filter/constants/dateTypes';
-import { isUndefinedOrNull } from 'erxes-ui/utils';
+import { isUndefinedOrNull } from 'erxes-ui/utils/IsUndefinedOrNull';
 import {
   normalizeFixedDate,
   parseHalfToken,

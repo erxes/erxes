@@ -1,4 +1,4 @@
-import { REACT_APP_API_URL, REACT_APP_IMAGE_CDN_URL } from 'erxes-ui/utils';
+import { REACT_APP_API_URL, REACT_APP_IMAGE_CDN_URL } from 'erxes-ui/utils/config/index';
 
 import { isValidURL } from 'erxes-ui/utils/urlParser';
 

@@ -10,7 +10,9 @@ import {
 import { IconPhoto } from '@tabler/icons-react';
 import type { CSSProperties, FC, SyntheticEvent } from 'react';
 import { useEffect, useState } from 'react';
-import { Button, Dialog, Spinner } from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components/button';
+import { Dialog } from 'erxes-ui/components/dialog';
+import { Spinner } from 'erxes-ui/components/spinner';
 
 const MAX_IMAGE_HEIGHT = 320;
 

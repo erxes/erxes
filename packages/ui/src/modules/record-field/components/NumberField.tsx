@@ -1,9 +1,10 @@
-import type { ButtonProps } from 'erxes-ui/components';
-import { Input, TextOverflowTooltip } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components/button';
+import { Input } from 'erxes-ui/components/input';
+import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import React, { useState } from 'react';
 
-import { PopoverScoped } from 'erxes-ui/modules/hotkey';
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
+import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
 export interface INumberFieldContainerProps {
   placeholder?: string;

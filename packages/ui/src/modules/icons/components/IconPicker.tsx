@@ -1,5 +1,7 @@
-import { Combobox, Command, Popover } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Command } from 'erxes-ui/components/command';
+import { Popover } from 'erxes-ui/components/popover';
+import { cn } from 'erxes-ui/lib/utils';
 import { useIcons } from 'erxes-ui/modules/icons/hooks/useIcons';
 import { forwardRef, useState } from 'react';
 import { IconComponent } from './IconComponent';

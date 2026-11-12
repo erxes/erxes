@@ -4,8 +4,8 @@ import { forwardRef, useEffect } from 'react';
 import { useCommandState } from 'cmdk';
 import { IconX } from '@tabler/icons-react';
 
-import { Command } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { Command } from 'erxes-ui/components/command';
+import { cn } from 'erxes-ui/lib/utils';
 
 export interface MultiSelectOption {
   value: string;

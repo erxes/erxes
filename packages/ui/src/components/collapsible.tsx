@@ -1,7 +1,7 @@
 import { Collapsible as CollapsiblePrimitive } from 'radix-ui';
 import React from 'react';
-import { Button } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { Button } from 'erxes-ui/components/button';
+import { cn } from 'erxes-ui/lib/utils';
 import { IconCaretDownFilled } from '@tabler/icons-react';
 
 export const TriggerButton = React.forwardRef<

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Tabs as TabsPrimitive } from 'radix-ui';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 const tabsListVariants = cva('h-auto text-accent-foreground', {
   variants: {

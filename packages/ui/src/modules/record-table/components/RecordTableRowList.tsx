@@ -1,4 +1,4 @@
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { RecordTableCell } from './RecordTableCell';
 import { useRecordTable } from './RecordTableProvider';
 import { RecordTableRow } from './RecordTableRow';

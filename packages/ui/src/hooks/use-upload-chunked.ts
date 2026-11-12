@@ -1,4 +1,5 @@
-import { getFileStorage, REACT_APP_API_URL } from 'erxes-ui/utils';
+import { getFileStorage } from 'erxes-ui/utils/file-storage';
+import { REACT_APP_API_URL } from 'erxes-ui/utils/config/index';
 import { useCallback, useRef, useState } from 'react';
 
 /**

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 export const BackgroundGradientAnimation = ({
   gradientBackgroundStart = 'rgb(108, 0, 162)',

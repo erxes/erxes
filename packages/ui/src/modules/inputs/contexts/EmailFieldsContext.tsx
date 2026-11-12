@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import type { TEmails } from '../components/EmailField';
-import type { ValidationStatus } from 'erxes-ui/types';
+import type { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 
 export const EmailFieldsContext = createContext<{
   recordId: string;
