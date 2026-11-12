@@ -26,7 +26,8 @@ import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
 import { actionCatalog } from './actions/catalog';
 import { evaluateGroup } from './conditions';
 import { type Cursor, nextCursor, splitPath, stepAt } from './cursor';
-import { cancelRun, definitionOf, retryRun, subjectOf } from './runs';
+import { cancelRun, definitionOf, retryRun } from './runs';
+import { subjectOf } from './subjects';
 import { render } from './templates';
 import { firstRunAt, startNow, triggerKey } from './triggers';
 

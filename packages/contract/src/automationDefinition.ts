@@ -212,7 +212,7 @@ const TimeZone = z
 /** Which records a scheduled or manual run goes through: none (one run), or each matching customer/company. */
 export const Audience = z.object({
   type: z.enum(['customer', 'company']),
-  /** Conditions on `subject.*`; empty: every record (at most 10,000 a run). */
+  /** Conditions on `subject.*`; empty: every record. */
   conditions: ConditionGroup.optional(),
 });
 

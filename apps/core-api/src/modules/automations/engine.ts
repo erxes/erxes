@@ -18,9 +18,9 @@ import {
   queueAdvance,
   RunPayload,
   type RunRow,
-  subjectOf,
   subjectRefOf,
 } from './runs';
+import { subjectOf } from './subjects';
 import { renderInput, runStep } from './steps';
 
 /** A run that loops through steps (branches can't, but be safe) stops after this many. */
@@ -122,6 +122,7 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
   if (loaded?.step.type !== 'action') return null;
 
   const { automation, step } = loaded;
+
   const context = {
     ...run.context,
     subject: await subjectOf(tx, orgId, run.subjectType, run.subjectId),

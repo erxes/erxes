@@ -496,7 +496,7 @@ describeWithDb(
         subjects: [picked.body.id],
       });
 
-      expect(started.body).toEqual({ started: 1, skipped: 0 });
+      expect(started.body).toEqual({ started: 1, skipped: 0, continuing: false });
       await flush();
       expect((await runs(id))[0]).toMatchObject({
         status: 'succeeded',

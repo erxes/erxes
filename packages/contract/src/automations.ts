@@ -106,7 +106,14 @@ export const automationsContract = {
       summary: 'Run a manual (or any) automation now: on the given records, or on its audience',
     })
     .input(z.object({ id: Id, subjects: z.array(Id).max(1000).optional() }))
-    .output(z.object({ started: z.number().int(), skipped: z.number().int() })),
+    .output(
+      z.object({
+        started: z.number().int(),
+        skipped: z.number().int(),
+        /** The audience is larger than one page: the rest starts in the background. */
+        continuing: z.boolean(),
+      }),
+    ),
   test: oc
     .route({
       method: 'POST',

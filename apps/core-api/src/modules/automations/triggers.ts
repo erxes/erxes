@@ -1,18 +1,19 @@
-import type { Audience, AutomationDefinition } from '@erxes/core-contract';
-import { automations, type Db, newId, type Transaction, withSystem } from '@erxes/core-db';
-import { customFieldsColumn, valuesTable } from '~/modules/fields/fieldValues';
-import { and, eq, lte, sql } from 'drizzle-orm';
+import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core-contract';
+import { automations, type Db, newId, withSystem } from '@erxes/core-db';
+import { and, eq, lte, type SQL, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { log } from '~/lib/log';
-import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
+import { valuesTable } from '~/modules/fields/fieldValues';
+import { defineJob } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
 import { startRun } from './consumer';
 import { definitionOf } from './runs';
 import { nextOccurrence, zonedDate } from './schedule';
+import { loadSubjects, SUBJECT_PAGE, type Subject, type SubjectType } from './subjects';
 
 type AutomationRow = typeof automations.$inferSelect;
 
-/** At most this many records go through one scheduled or manual start. */
-export const MAX_AUDIENCE = 10_000;
+type DateTrigger = Extract<AutomationDefinition['trigger'], { kind: 'date' }>;
 
 /** What `core_automations.trigger_event` holds: the event type, or the trigger's kind. */
 export const triggerKey = (definition: AutomationDefinition) =>
@@ -24,181 +25,209 @@ export const firstRunAt = (definition: AutomationDefinition, now = new Date()) =
     ? nextOccurrence(definition.trigger, now)
     : null;
 
-const camel = (row: Record<string, unknown>) =>
-  Object.fromEntries(
-    Object.entries(row)
-      .filter(([key]) => key !== 'org_id' && key !== 'search_text')
-      .map(([key, value]) => [
-        key.replace(/_([a-z])/g, (_m, c: string) => c.toUpperCase()),
-        value instanceof Date ? value.toISOString() : value,
-      ]),
-  );
+/** Which records one firing starts, and how each one's run starts. */
+interface Enrollment {
+  type: SubjectType;
+  where: SQL;
+  conditions: ConditionGroup | undefined;
+  eventType: string;
+  startOf: (subject: Subject) => { eventId: string; event: Record<string, unknown> };
+}
 
-/** Records of a type as conditions see them (`subject.*`), loaded in one go. */
-export const loadSubjects = async (
-  tx: Db,
-  orgId: string,
-  type: 'customer' | 'company',
-  where = sql`true`,
-) => {
-  const table = type === 'customer' ? 'core_customers' : 'core_companies';
-  const tags = type === 'customer' ? 'core_customer_tags' : 'core_company_tags';
-
-  const result = await tx.execute(sql`
-    select r.*, coalesce((select array_agg(t.tag_id) from ${sql.identifier(tags)} t where t.org_id = r.org_id and ${sql.raw(`t.${type}_id`)} = r.id), '{}') as tag_ids,
-      ${customFieldsColumn(type, sql`r.id`)} as custom_fields
-    from ${sql.identifier(table)} r
-    where r.org_id = ${orgId} and ${where}
-    order by r.created_at
-    limit ${MAX_AUDIENCE}
-  `);
-
-  return result.rows.map(
-    (row) => ({ ...camel(row), type }) as unknown as Record<string, unknown> & { id: string },
-  );
-};
-
-const enrollAudience = async (
-  tx: Db,
-  automation: AutomationRow,
-  definition: AutomationDefinition,
+const audienceEnrollment = (
   audience: Audience,
   startKey: string,
-  event: Record<string, unknown>,
-  ids?: string[],
-) => {
-  const subjects = await loadSubjects(
-    tx,
-    automation.orgId,
-    audience.type,
-    ids?.length
-      ? sql`r.id in (${sql.join(
-          ids.map((id) => sql`${id}`),
-          sql`, `,
-        )})`
-      : sql`true`,
-  );
+  event: { type: string; occurredAt: string; payload: Record<string, unknown> },
+): Enrollment => ({
+  type: audience.type,
+  where: sql`true`,
+  conditions: audience.conditions,
+  eventType: event.type,
+  startOf: (subject) => ({ eventId: `${startKey}:${subject.id}`, event }),
+});
 
-  let started = 0;
-  let skipped = 0;
-
-  for (const subject of subjects) {
-    if (!evaluateGroup(audience.conditions, { event, subject, steps: {} })) {
-      skipped += 1;
-      continue;
-    }
-
-    const run = await startRun(tx, automation, definition, {
-      eventId: `${startKey}:${subject.id}`,
-      eventType: event.type as string,
-      subject: { type: audience.type, id: subject.id },
-      event,
-    });
-
-    if (run) started += 1;
-    else skipped += 1;
-  }
-
-  return { started, skipped };
-};
+const CustomFields = z.record(z.string(), z.unknown()).catch({});
 
 /** The records whose date (moved by the offset) is today in the trigger's time zone. */
-const dueByDate = async (
-  tx: Db,
-  automation: AutomationRow,
-  trigger: Extract<AutomationDefinition['trigger'], { kind: 'date' }>,
-  now: Date,
-) => {
-  const today = zonedDate(now, trigger.timezone);
+const dateEnrollment = (trigger: DateTrigger, at: string): Enrollment => {
+  const today = zonedDate(new Date(at), trigger.timezone);
   // The record's date + offset = today → the record's date = today − offset.
   const target = new Date(Date.UTC(today.year, today.month - 1, today.day - trigger.offsetDays));
   const iso = target.toISOString().slice(0, 10);
-  const monthDay = iso.slice(5);
+  const day = new Date(Date.UTC(today.year, today.month - 1, today.day)).toISOString().slice(0, 10);
 
   const column =
     trigger.field === 'birthDate' && trigger.subject === 'customer'
       ? sql`r.birth_date::text`
       : sql`(select to_char(v.date_value, 'YYYY-MM-DD') from ${valuesTable(trigger.subject)} v where v.record_id = r.id and v.field_id = ${trigger.field} and v.date_value is not null limit 1)`;
 
-  const match = trigger.yearly
-    ? sql`substr(${column}, 6, 5) = ${monthDay}`
-    : sql`substr(${column}, 1, 10) = ${iso}`;
+  const payload = { field: trigger.field, offsetDays: trigger.offsetDays, day };
 
   return {
-    subjects: await loadSubjects(tx, automation.orgId, trigger.subject, match),
-    day: `${today.year}-${String(today.month).padStart(2, '0')}-${String(today.day).padStart(2, '0')}`,
+    type: trigger.subject,
+    where: trigger.yearly
+      ? sql`substr(${column}, 6, 5) = ${iso.slice(5)}`
+      : sql`substr(${column}, 1, 10) = ${iso}`,
+    conditions: trigger.conditions,
+    eventType: 'date',
+    startOf: (subject) => ({
+      eventId: `date:${day}:${subject.id}`,
+      event: {
+        type: 'date',
+        occurredAt: at,
+        payload: {
+          ...payload,
+          date:
+            trigger.field === 'birthDate'
+              ? subject.birthDate
+              : CustomFields.parse(subject.customFields)[trigger.field],
+        },
+      },
+    }),
   };
 };
 
-/** One firing of a scheduled or date trigger (`automation.fire`, atomic). */
-export const fireJob: JobDefinition = {
-  queue: 'automation.fire',
-  atomic: true,
-  leaseSeconds: 600,
-  async handle(job, tx) {
-    const db = tx as Transaction;
+/** Starts runs for one page of an enrollment's records (after `after`, in id order). */
+const enrollPage = async (
+  tx: Db,
+  automation: AutomationRow,
+  definition: AutomationDefinition,
+  enrollment: Enrollment,
+  page: { after?: string; limit?: number } = {},
+) => {
+  const subjects = await loadSubjects(
+    tx,
+    automation.orgId,
+    enrollment.type,
+    enrollment.where,
+    page,
+  );
 
-    const [automation] = await db
-      .select()
-      .from(automations)
-      .where(eq(automations.id, job.payload.automationId as string))
-      .limit(1);
+  let started = 0;
 
-    if (!automation || automation.status !== 'active' || !automation.activeVersion) return;
+  for (const subject of subjects) {
+    const { eventId, event } = enrollment.startOf(subject);
 
-    const definition = await definitionOf(db, automation.id, automation.activeVersion);
-    const at = String(job.payload.scheduledFor);
-    const trigger = definition?.trigger;
+    if (!evaluateGroup(enrollment.conditions, { event, subject, steps: {} })) continue;
 
-    if (!definition || !trigger) return;
+    const run = await startRun(tx, automation, definition, {
+      eventId,
+      eventType: enrollment.eventType,
+      subject: { type: enrollment.type, id: subject.id },
+      event,
+      loaded: subject,
+    });
 
-    if (trigger.kind === 'schedule') {
-      const event = { type: 'schedule', occurredAt: at, payload: { every: trigger.every } };
+    if (run) started += 1;
+  }
 
-      if (trigger.audience)
-        await enrollAudience(db, automation, definition, trigger.audience, `schedule:${at}`, event);
-      else
-        await startRun(db, automation, definition, {
-          eventId: `schedule:${at}`,
-          eventType: 'schedule',
-          subject: null,
-          event,
-        });
-    } else if (trigger.kind === 'date') {
-      const { subjects, day } = await dueByDate(db, automation, trigger, new Date(at));
+  const last = subjects.at(-1)?.id;
 
-      const event = {
-        type: 'date',
+  return {
+    started,
+    skipped: subjects.length - started,
+    next: last && subjects.length === (page.limit ?? SUBJECT_PAGE) ? last : null,
+  };
+};
+
+const FirePayload = z.object({
+  automationId: z.string(),
+  /** When it was due (or started by a member). */
+  scheduledFor: z.string(),
+  /** A member's start: its key. Scheduled and date firings are keyed by `scheduledFor`. */
+  manualKey: z.string().optional(),
+  /** The next page starts after this record id. */
+  after: z.string().optional(),
+});
+
+type FirePayload = z.infer<typeof FirePayload>;
+
+const enrollmentFor = (definition: AutomationDefinition, payload: FirePayload) => {
+  const { trigger } = definition;
+  const at = payload.scheduledFor;
+
+  if (trigger.kind === 'date') return dateEnrollment(trigger, at);
+
+  if (trigger.kind !== 'schedule' && trigger.kind !== 'manual') return null;
+
+  if (!trigger.audience) return null;
+
+  if (payload.manualKey)
+    return audienceEnrollment(trigger.audience, payload.manualKey, {
+      type: 'manual',
+      occurredAt: at,
+      payload: {},
+    });
+
+  return trigger.kind === 'schedule'
+    ? audienceEnrollment(trigger.audience, `schedule:${at}`, {
+        type: 'schedule',
         occurredAt: at,
-        payload: { field: trigger.field, offsetDays: trigger.offsetDays, day },
-      };
-
-      for (const subject of subjects) {
-        if (!evaluateGroup(trigger.conditions, { event, subject, steps: {} })) continue;
-
-        await startRun(db, automation, definition, {
-          eventId: `date:${day}:${subject.id}`,
-          eventType: 'date',
-          subject: { type: trigger.subject, id: subject.id },
-          event: {
-            ...event,
-            payload: {
-              ...event.payload,
-              date:
-                trigger.field === 'birthDate'
-                  ? subject.birthDate
-                  : (subject.customFields as Record<string, unknown> | undefined)?.[trigger.field],
-            },
-          },
-        });
-      }
-    }
-  },
+        payload: { every: trigger.every },
+      })
+    : null;
 };
 
 /**
+ * One firing of a scheduled, date or member-started automation, a page of its
+ * records per job: each page queues the next, so any audience size is enrolled.
+ */
+export const fireJob = defineJob({
+  queue: 'automation.fire',
+  payload: FirePayload,
+  atomic: true,
+  leaseSeconds: 600,
+  async handle(job, tx) {
+    const [automation] = await tx
+      .select()
+      .from(automations)
+      .where(eq(automations.id, job.payload.automationId))
+      .limit(1);
+
+    if (automation?.status !== 'active' || !automation.activeVersion) return;
+
+    const definition = await definitionOf(tx, automation.id, automation.activeVersion);
+
+    if (!definition) return;
+
+    const { trigger } = definition;
+
+    if (trigger.kind === 'schedule' && !trigger.audience) {
+      const at = job.payload.scheduledFor;
+
+      await startRun(tx, automation, definition, {
+        eventId: `schedule:${at}`,
+        eventType: 'schedule',
+        subject: null,
+        event: { type: 'schedule', occurredAt: at, payload: { every: trigger.every } },
+      });
+
+      return;
+    }
+
+    const enrollment = enrollmentFor(definition, job.payload);
+
+    if (!enrollment) return;
+
+    const page = await enrollPage(tx, automation, definition, enrollment, job.payload);
+
+    if (page.next) await queueFire(tx, automation, { ...job.payload, after: page.next });
+  },
+});
+
+const queueFire = (tx: Db, automation: AutomationRow, payload: FirePayload) =>
+  fireJob.enqueue(tx, {
+    orgId: automation.orgId,
+    payload,
+    dedupeKey: [automation.id, payload.manualKey ?? payload.scheduledFor, payload.after]
+      .filter(Boolean)
+      .join(':'),
+  });
+
+/**
  * Every minute: scheduled and date automations that are due get their next
- * time set (claimed, so one server fires them) and a firing queued.
+ * time set (claimed, so one server fires them) and a firing queued. Each in
+ * its own savepoint, so one that fails doesn't stop the others.
  */
 export const tickAutomations = () =>
   withSystem('automations: schedule', async (tx) => {
@@ -210,68 +239,92 @@ export const tickAutomations = () =>
       .limit(200);
 
     for (const automation of due) {
-      const definition = automation.activeVersion
-        ? await definitionOf(tx, automation.id, automation.activeVersion)
-        : null;
+      const scheduledFor = automation.nextRunAt;
 
-      const scheduledFor = automation.nextRunAt!;
+      await tx
+        .transaction(async (savepoint) => {
+          const definition = automation.activeVersion
+            ? await definitionOf(savepoint, automation.id, automation.activeVersion)
+            : null;
 
-      if (!definition) continue;
+          if (!definition || !scheduledFor) return;
 
-      try {
-        await tx
-          .update(automations)
-          .set({ nextRunAt: firstRunAt(definition, new Date()) })
-          .where(eq(automations.id, automation.id));
-        await enqueueJob(tx, {
-          orgId: automation.orgId,
-          queue: 'automation.fire',
-          payload: { automationId: automation.id, scheduledFor: scheduledFor.toISOString() },
-          dedupeKey: `${automation.id}:${scheduledFor.toISOString()}`,
-        });
-      } catch (error) {
-        log.error('could not schedule an automation', { automation: automation.id, error });
-      }
+          await savepoint
+            .update(automations)
+            .set({ nextRunAt: firstRunAt(definition, new Date()) })
+            .where(eq(automations.id, automation.id));
+          await queueFire(savepoint, automation, {
+            automationId: automation.id,
+            scheduledFor: scheduledFor.toISOString(),
+          });
+        })
+        .catch((error: unknown) =>
+          log.error('could not schedule an automation', { automation: automation.id, error }),
+        );
     }
 
     return due.length;
   });
 
-/** A member starts an automation now: on the given records, or on its audience. */
+/**
+ * A member starts an automation now: on the given records, or on its
+ * audience (the first page now, the rest in the background: `continuing`).
+ */
 export const startNow = async (
   tx: Db,
   automation: AutomationRow,
   definition: AutomationDefinition,
   subjects?: string[],
 ) => {
-  const startKey = `manual:${newId()}`;
-  const event = { type: 'manual', occurredAt: new Date().toISOString(), payload: {} };
+  const manualKey = `manual:${newId()}`;
+  const scheduledFor = new Date().toISOString();
+  const event = { type: 'manual', occurredAt: scheduledFor, payload: {} };
+  const { trigger } = definition;
 
   const audience =
-    definition.trigger.kind === 'manual' || definition.trigger.kind === 'schedule'
-      ? definition.trigger.audience
-      : undefined;
+    trigger.kind === 'manual' || trigger.kind === 'schedule' ? trigger.audience : undefined;
 
   if (subjects?.length) {
-    return enrollAudience(
+    const chosen = audienceEnrollment(audience ?? { type: 'customer' }, manualKey, event);
+
+    const page = await enrollPage(
       tx,
       automation,
       definition,
-      audience ?? { type: 'customer' },
-      startKey,
-      event,
-      subjects,
+      {
+        ...chosen,
+        where: sql`r.id in (${sql.join(
+          subjects.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      },
+      { limit: subjects.length },
     );
+
+    return { started: page.started, skipped: page.skipped, continuing: false };
   }
 
-  if (audience) return enrollAudience(tx, automation, definition, audience, startKey, event);
+  if (audience) {
+    const enrollment = audienceEnrollment(audience, manualKey, event);
+    const page = await enrollPage(tx, automation, definition, enrollment);
+
+    if (page.next)
+      await queueFire(tx, automation, {
+        automationId: automation.id,
+        scheduledFor,
+        manualKey,
+        after: page.next,
+      });
+
+    return { started: page.started, skipped: page.skipped, continuing: page.next !== null };
+  }
 
   const run = await startRun(tx, automation, definition, {
-    eventId: startKey,
+    eventId: manualKey,
     eventType: 'manual',
     subject: null,
     event,
   });
 
-  return { started: run ? 1 : 0, skipped: run ? 0 : 1 };
+  return { started: run ? 1 : 0, skipped: run ? 0 : 1, continuing: false };
 };

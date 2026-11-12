@@ -7,14 +7,8 @@ import { toEventDto } from '~/modules/events/events.service';
 import type { EventConsumer } from '~/modules/events/processor';
 import { evaluateGroup } from './conditions';
 import { nextCursor, stepAt } from './cursor';
-import {
-  continueAfter,
-  definitionOf,
-  finishRun,
-  queueAdvance,
-  type SubjectRef,
-  subjectOf,
-} from './runs';
+import { continueAfter, definitionOf, finishRun, queueAdvance, type SubjectRef } from './runs';
+import { type Subject, subjectOf } from './subjects';
 
 type AutomationRow = typeof automations.$inferSelect;
 
@@ -29,6 +23,8 @@ export interface RunStart {
   subject: SubjectRef | null;
   event: Record<string, unknown>;
   depth?: number;
+  /** The subject as already loaded (an audience page), so it isn't read again. */
+  loaded?: Subject;
 }
 
 /** Has this record already been through the automation, as its re-entry rule counts? */
@@ -101,9 +97,11 @@ export const startRun = async (
   )
     return null;
 
-  const subject = start.subject
-    ? await subjectOf(tx, automation.orgId, start.subject.type, start.subject.id)
-    : null;
+  const subject =
+    start.loaded ??
+    (start.subject
+      ? await subjectOf(tx, automation.orgId, start.subject.type, start.subject.id)
+      : null);
 
   const [run] = await tx
     .insert(automationRuns)

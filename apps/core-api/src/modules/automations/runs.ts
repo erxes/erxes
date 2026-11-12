@@ -23,50 +23,10 @@ export type RunContext = Record<string, unknown>;
 
 export type SubjectRef = { type: 'customer' | 'company'; id: string };
 
-const SUBJECT_TABLES = {
-  customer: { table: 'core_customers', tags: 'core_customer_tags', key: 'customer_id' },
-  company: { table: 'core_companies', tags: 'core_company_tags', key: 'company_id' },
-} as const;
-
 export const subjectRefOf = (run: Pick<RunRow, 'subjectType' | 'subjectId'>): SubjectRef | null =>
   (run.subjectType === 'customer' || run.subjectType === 'company') && run.subjectId
     ? { type: run.subjectType, id: run.subjectId }
     : null;
-
-const camelCase = (key: string) => key.replace(/_([a-z])/g, (_match, c: string) => c.toUpperCase());
-
-/**
- * The record a run is about, as templates and conditions read it: camelCase
- * columns without internal ones, dates as ISO strings, and its tag ids.
- */
-export const subjectOf = async (tx: Db, orgId: string, type: string | null, id: string | null) => {
-  if ((type !== 'customer' && type !== 'company') || !id) return null;
-
-  const { table, tags, key } = SUBJECT_TABLES[type];
-
-  const result = await tx.execute(
-    sql`select * from ${sql.identifier(table)} where org_id = ${orgId} and id = ${id} limit 1`,
-  );
-
-  const row = result.rows[0];
-
-  if (!row) return null;
-
-  const fields = Object.fromEntries(
-    Object.entries(row)
-      .filter(([column]) => column !== 'org_id' && column !== 'search_text')
-      .map(([column, value]) => [
-        camelCase(column),
-        value instanceof Date ? value.toISOString() : value,
-      ]),
-  );
-
-  const tagRows = await tx.execute<{ tag_id: string }>(
-    sql`select tag_id from ${sql.identifier(tags)} where org_id = ${orgId} and ${sql.identifier(key)} = ${id}`,
-  );
-
-  return { ...fields, type, tagIds: tagRows.rows.map((tag) => tag.tag_id) };
-};
 
 export const definitionOf = async (tx: Db, automationId: string, version: number) => {
   const [row] = await tx
