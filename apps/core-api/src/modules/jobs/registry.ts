@@ -5,12 +5,8 @@ import { paymentCheckJob } from '~/modules/payments/invoiceState';
 import { pluginEventJob } from '~/modules/plugins/pluginEvents';
 import { auditStreamJob } from '~/modules/audit/streamDelivery';
 import { exportRunJob } from '~/modules/transfer/exports.service';
-import {
-  importCheckJob,
-  importParseJob,
-  importRunJob,
-  importUndoJob,
-} from '~/modules/transfer/importJobs';
+import { importCheckJob, importRunJob, importUndoJob } from '~/modules/transfer/importJobs';
+import { importParseJob } from '~/modules/transfer/importParse';
 import { deliverJob } from '~/modules/webhooks/webhookDelivery';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
 import type { JobDefinition } from './jobs';

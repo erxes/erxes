@@ -7,16 +7,14 @@ import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { removeCompanies } from '~/modules/companies/companies.service';
 import { removeCustomers } from '~/modules/customers/customers.service';
-import { readFileBytes } from '~/modules/files/files.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
-import { suggestMapping, transferColumns } from './columns';
+import { transferColumns } from './columns';
 import type { Context } from './importLookups';
 import { processRow } from './importRow';
 import {
   type Action,
   BATCH,
-  EMPTY,
   fail,
   ImportFailed,
   type ImportRow,
@@ -24,61 +22,12 @@ import {
   memberActor,
   type Row,
 } from './importState';
-import { ParseError, parseSheet } from './parse';
 
 const log = logger.child({ component: 'imports' });
 
 /** A step's dedupe key: the rows a batch starts after (no double batch), or a fresh one. */
 export const stepKey = (importId: string, queue: string, after?: string | number) =>
   `${importId}:${queue}:${after ?? newId()}`;
-
-/** Reads the file into rows and suggests the mapping. */
-export const importParseJob = defineJob({
-  queue: 'import.parse',
-  atomic: true,
-  leaseSeconds: 300,
-  payload: z.object({ importId: z.string() }),
-  async handle(job, tx) {
-    const row = await importOrThrow(tx, job.orgId, job.payload.importId, true);
-
-    if (row.status !== 'parsing') return;
-
-    try {
-      const { row: file, body } = await readFileBytes(tx, job.orgId, row.fileId);
-      const { headers, rows } = await parseSheet(body, file.name, file.contentType);
-
-      for (let start = 0; start < rows.length; start += 1000) {
-        await tx.insert(importRows).values(
-          rows.slice(start, start + 1000).map((cells, index) => ({
-            orgId: job.orgId,
-            importId: row.id,
-            rowNumber: start + index + 2,
-            cells,
-          })),
-        );
-      }
-
-      const columns = await transferColumns(tx, job.orgId, row.recordType);
-
-      await tx
-        .update(imports)
-        .set({
-          status: 'mapping',
-          headers,
-          mapping: suggestMapping(headers, columns),
-          counts: { ...EMPTY, rows: rows.length },
-          updatedAt: sql`now()`,
-        })
-        .where(eq(imports.id, row.id));
-    } catch (error) {
-      if (!(error instanceof ParseError)) throw error;
-      await fail(tx, row.id, error.message);
-    }
-  },
-  async onDead(job, error, tx) {
-    await fail(tx, job.payload.importId, `The file could not be read: ${error}`);
-  },
-});
 
 const countsOf = async (tx: Db, id: string, rows: number): Promise<ImportCounts> => {
   const grouped = await tx
