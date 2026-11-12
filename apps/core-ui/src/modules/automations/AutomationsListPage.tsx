@@ -1,7 +1,7 @@
-import type { AutomationDefinition } from '@erxes/core-contract';
-import { IconBolt, IconPlus, IconTemplate } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Badge, Button, Dialog, Empty, PageContainer, ScrollArea, Spinner, useToast } from 'erxes-ui';
+import type { Automation, AutomationDefinition } from '@erxes/core-contract';
+import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger, IconPlus, IconSearch, IconTemplate } from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Badge, Button, cn, Dialog, Empty, Input, PageContainer, ScrollArea, Select, Spinner, Switch, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
@@ -9,6 +9,9 @@ import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, messageOf } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
+import { countSteps, describeTrigger } from './builder/flowModel';
+
+const TRIGGER_ICONS = { event: IconBolt, schedule: IconClock, date: IconCalendarEvent, manual: IconHandFinger } as const;
 
 const STARTER: AutomationDefinition = {
   trigger: { kind: 'event', event: 'core.customer.created' },
@@ -32,14 +35,21 @@ export const AutomationsListPage = () => {
     onSuccess: (automation) => navigate(`/automations/${automation.id}`),
     onError: (error) => toast({ variant: 'destructive', title: t('failed', 'Something went wrong'), description: messageOf(error) }),
   });
-  const triggerLabel = (trigger: AutomationDefinition['trigger']) =>
-    trigger.kind === 'event'
-      ? (catalog.data?.triggers.find((item) => item.type === trigger.event)?.label ?? trigger.event)
-      : trigger.kind === 'schedule'
-        ? t('summary-schedule', 'Every {{every}} at {{at}}', { every: t(`every-${trigger.every}`, trigger.every), at: trigger.at })
-        : trigger.kind === 'date'
-          ? t('summary-date', 'Around {{field}} ({{days}} days)', { field: trigger.field, days: trigger.offsetDays })
-          : t('summary-manual', 'Started by hand');
+  const client = useQueryClient();
+  const [q, setQ] = useState('');
+  const [status, setStatus] = useState<'all' | Automation['status']>('all');
+  const toggle = useMutation({
+    mutationFn: (automation: Automation) =>
+      automation.status === 'active' ? api.automations.pause({ id: automation.id }) : api.automations.activate({ id: automation.id }),
+    onSuccess: () => void client.invalidateQueries({ queryKey: ['automations'] }),
+    onError: (error) => toast({ variant: 'destructive', title: t('toggle-failed', 'Could not turn it on'), description: messageOf(error) }),
+  });
+  const triggerLabel = (trigger: AutomationDefinition['trigger']) => describeTrigger(trigger, catalog.data?.triggers ?? [], []).title;
+  const shown = (data?.data ?? []).filter(
+    (automation) =>
+      (status === 'all' || automation.status === status) &&
+      (!q.trim() || `${automation.name} ${automation.description ?? ''}`.toLowerCase().includes(q.trim().toLowerCase())),
+  );
 
   return (
     <PageContainer>
@@ -77,7 +87,14 @@ export const AutomationsListPage = () => {
                           create.mutate({ name: template.name, definition: template.definition });
                         }}
                       >
-                        <p className="font-medium">{template.name}</p>
+                        <p className="flex items-center gap-2 font-medium">
+                          {(() => {
+                            const Icon = TRIGGER_ICONS[template.definition.trigger.kind];
+
+                            return <Icon className="size-4 text-primary" />;
+                          })()}
+                          {template.name}
+                        </p>
                         <p className="text-sm text-muted-foreground">{template.description}</p>
                       </button>
                     </li>
@@ -105,28 +122,73 @@ export const AutomationsListPage = () => {
               </Empty.Header>
             </Empty>
           ) : (
-            <ul className="divide-y rounded-lg border">
-              {data.data.map((automation) => (
-                <li key={automation.id}>
-                  <Link to={`/automations/${automation.id}`} className="flex items-center gap-4 p-4 hover:bg-muted/50">
-                    <IconBolt className={automation.status === 'active' ? 'size-5 text-primary' : 'size-5 text-muted-foreground'} />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{automation.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {t('when', 'When')}: {triggerLabel(automation.definition.trigger)} ·{' '}
-                        {t('steps-count', '{{count}} steps', { count: automation.definition.steps.length })}
-                      </p>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {t('stats', '{{running}} running · {{succeeded}} done · {{failed}} failed', automation.stats)}
-                    </span>
-                    <Badge variant={automation.status === 'active' ? 'success' : automation.status === 'paused' ? 'warning' : 'secondary'}>
-                      {t(`automation-status.${automation.status}`, automation.status)}
-                    </Badge>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <IconSearch className="absolute top-2 left-2.5 size-4 text-muted-foreground" />
+                  <Input className="pl-8" value={q} placeholder={t('search', 'Search automations')} onChange={(event) => setQ(event.target.value)} />
+                </div>
+                <Select value={status} onValueChange={(value) => setStatus(value as typeof status)}>
+                  <Select.Trigger className="w-40">
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="all">{t('status-all', 'All')}</Select.Item>
+                    {(['active', 'paused', 'draft'] as const).map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {t(`automation-status.${item}`, item)}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </div>
+              {!shown.length ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">{t('no-match', 'Nothing matches.')}</p>
+              ) : (
+                <ul className="divide-y rounded-lg border">
+                  {shown.map((automation) => {
+                    const Icon = TRIGGER_ICONS[automation.definition.trigger.kind];
+
+                    return (
+                      <li key={automation.id} className="flex items-center gap-4 p-4 hover:bg-muted/50">
+                        <span
+                          className={cn(
+                            'flex size-9 shrink-0 items-center justify-center rounded-lg',
+                            automation.status === 'active' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
+                          )}
+                        >
+                          <Icon className="size-4" />
+                        </span>
+                        <Link to={`/automations/${automation.id}`} className="min-w-0 flex-1">
+                          <p className="truncate font-medium">{automation.name}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {triggerLabel(automation.definition.trigger)} · {t('steps-count', { count: countSteps(automation.definition.steps), defaultValue: '{{count}} steps' })}
+                          </p>
+                        </Link>
+                        <span className="hidden text-xs text-muted-foreground sm:inline">
+                          {t('stat-running', '{{count}} running', { count: automation.stats.running })} ·{' '}
+                          {t('stat-done', '{{count}} done', { count: automation.stats.succeeded })}
+                          {automation.stats.failed > 0 && (
+                            <span className="text-destructive"> · {t('stat-failed', '{{count}} failed', { count: automation.stats.failed })}</span>
+                          )}
+                        </span>
+                        <Badge variant={automation.status === 'active' ? 'success' : automation.status === 'paused' ? 'warning' : 'secondary'}>
+                          {t(`automation-status.${automation.status}`, automation.status)}
+                        </Badge>
+                        {can('automations.manage') && (
+                          <Switch
+                            checked={automation.status === 'active'}
+                            disabled={toggle.isPending}
+                            aria-label={automation.status === 'active' ? t('pause', 'Pause') : t('activate', 'Turn on')}
+                            onCheckedChange={() => toggle.mutate(automation)}
+                          />
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           )}
         </div>
       </ScrollArea>

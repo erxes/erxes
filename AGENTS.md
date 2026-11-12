@@ -185,6 +185,16 @@ it is built.
     headers. Plugin actions from manifests (`verifyCoreCall`, Idempotency-Key).
   - Tools: dry run (`/test`), per-step stats (30 days), versions + restore,
     templates (`library.ts`), field catalog for pickers (`/automations/fields`).
+  - UI (`apps/core-ui/src/modules/automations`): a flow canvas
+    (`builder/FlowCanvas.tsx`) — trigger, then steps as cards top to bottom,
+    branches/cases/A-B paths side by side, "+" on every line, per-step stats
+    and problem badges, zoom — with an inspector for the selection (Settings,
+    Trigger, or a step: `builder/StepSettings.tsx`). `builder/flowModel.ts`
+    holds the pure tree operations, one-line summaries, client checks and
+    earlier steps' outputs as condition fields (unit-tested). Unsaved-change
+    marker and leave warning, ⌘S saves, Delete removes the selected step;
+    turning on is blocked while steps are flagged. The list has search, a
+    status filter and an on/off switch per automation.
 - **Concurrency.** Read-modify-write takes row locks in the request's
   transaction (`src/lib/locks.ts`: `lockRows`, `lockOrganization`, `lockKey`):
   contact custom fields, field changes vs. values (`FOR SHARE`), team changes

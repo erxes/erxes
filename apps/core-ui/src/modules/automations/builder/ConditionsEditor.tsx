@@ -240,13 +240,17 @@ export const ConditionsEditor = ({
   onChange,
   disabled,
   subject = null,
+  extraFields = [],
 }: {
   value: ConditionGroup | undefined;
   onChange: (next: ConditionGroup | undefined) => void;
   disabled?: boolean;
   subject?: 'customer' | 'company' | null;
+  /** Outputs of earlier steps, offered next to the record's fields. */
+  extraFields?: FieldInfo[];
 }) => {
-  const fields = useAutomationFields(subject);
+  const loaded = useAutomationFields(subject);
+  const fields = extraFields.length ? [...loaded, ...extraFields] : loaded;
   const group: ConditionGroup = value ?? { match: 'all', rules: [] };
 
   return (
