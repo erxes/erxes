@@ -47,6 +47,36 @@ const useCopyViewLink = (recordType: ViewRecordType) => {
     );
 };
 
+/** Duplicates a view (and opens the copy), or deletes it once confirmed. */
+const useViewCopyAndDelete = (
+  view: View,
+  recordType: ViewRecordType,
+  onOpen: (view: View | null) => void,
+  onClosed: () => void,
+) => {
+  const t = useLeadsT();
+  const { confirm } = useConfirm();
+  const { create, remove } = useViewMutations(recordType);
+
+  return {
+    duplicate: () =>
+      create.mutate(
+        {
+          recordType,
+          name: t('views.copy', { name: view.name }),
+          filter: view.filter,
+          search: view.search,
+          shared: false,
+        },
+        { onSuccess: (copy) => onOpen(copy) },
+      ),
+    deleteView: () =>
+      void confirm({ message: t('views.delete-confirm', { name: view.name }) }).then(() =>
+        remove.mutate({ id: view.id }, { onSuccess: onClosed }),
+      ),
+  };
+};
+
 /** A saved view's menu: rename, duplicate, share or make private, copy its link, delete. */
 const ViewMenu = ({
   view,
@@ -60,28 +90,11 @@ const ViewMenu = ({
   onClosed: () => void;
 }) => {
   const t = useLeadsT();
-  const { confirm } = useConfirm();
   const can = useCan();
   const copyLink = useCopyViewLink(recordType);
-  const { create, update, remove } = useViewMutations(recordType);
+  const { update } = useViewMutations(recordType);
+  const { duplicate, deleteView } = useViewCopyAndDelete(view, recordType, onOpen, onClosed);
   const [renaming, setRenaming] = useState(false);
-
-  const duplicate = () =>
-    create.mutate(
-      {
-        recordType,
-        name: t('views.copy', { name: view.name }),
-        filter: view.filter,
-        search: view.search,
-        shared: false,
-      },
-      { onSuccess: (copy) => onOpen(copy) },
-    );
-
-  const onDelete = async () => {
-    await confirm({ message: t('views.delete-confirm', { name: view.name }) });
-    remove.mutate({ id: view.id }, { onSuccess: onClosed });
-  };
 
   return (
     <>
@@ -121,7 +134,7 @@ const ViewMenu = ({
           {view.editable && (
             <>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item className="text-destructive" onSelect={() => void onDelete()}>
+              <DropdownMenu.Item className="text-destructive" onSelect={deleteView}>
                 <IconTrash />
                 {t('views.delete')}
               </DropdownMenu.Item>
