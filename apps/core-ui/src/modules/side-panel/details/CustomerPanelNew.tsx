@@ -1,4 +1,4 @@
-import type { Customer } from '@erxes/core-contract';
+import { CustomerSex } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   type Icon,
@@ -51,7 +51,7 @@ const customerSchema = z
     ownerId: z.string(),
     code: z.string(),
     position: z.string(),
-    sex: z.number().nullable(),
+    sex: CustomerSex.nullable(),
     birthDate: z.date().nullable(),
     description: z.string(),
     avatarUrl: z.string().nullable(),
@@ -101,10 +101,7 @@ export const CustomerPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
 
-  const { state, leadStageId } = useSidePanelDraft<{
-    state: Customer['state'];
-    leadStageId?: string;
-  }>('core:customer');
+  const { state, leadStageId } = useSidePanelDraft('core:customer');
 
   const { back, canGoBack, close } = useSidePanel();
   const { toast } = useToast();
@@ -139,7 +136,7 @@ export const CustomerPanelNew = () => {
   const save = async (values: TCustomerForm) => {
     try {
       const created = await create.mutateAsync({
-        state: state || 'customer',
+        state: state ?? 'customer',
         ...(state === 'lead' && leadStageId ? { leadStageId } : {}),
         firstName: orNull(values.firstName),
         middleName: orNull(values.middleName),
@@ -149,7 +146,7 @@ export const CustomerPanelNew = () => {
         ownerId: values.ownerId || null,
         code: orNull(values.code),
         position: orNull(values.position),
-        sex: (values.sex ?? 0) as Customer['sex'],
+        sex: values.sex ?? 0,
         birthDate: values.birthDate ? toYmd(values.birthDate) : null,
         description: values.description || null,
         avatarUrl: values.avatarUrl || null,

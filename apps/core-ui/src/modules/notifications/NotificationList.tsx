@@ -10,13 +10,17 @@ import { Badge, Button, cn, Empty, RelativeDateDisplay, Spinner } from 'erxes-ui
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 import { ChangeList, useChangeLookups } from '~/components/ChangeList';
 import { UserAvatar } from '~/components/UserAvatar';
 import { messageOf } from '~/lib/api';
 import { actorLabel, useMembersById } from '~/lib/members';
 import { type Inbox, useNotificationActions } from './useNotifications';
 
-type Changes = Record<string, [unknown, unknown]>;
+/** Core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
+const Changes = z.record(z.tuple([z.unknown(), z.unknown()]));
+
+type Changes = z.infer<typeof Changes>;
 
 /** Core's own kinds have translated titles; plugins send theirs ready to read. */
 const useNotificationTitle = () => {
@@ -27,9 +31,9 @@ const useNotificationTitle = () => {
 };
 
 const changesOf = (notification: Notification) => {
-  const changes = notification.data.changes as Changes | undefined;
+  const changes = Changes.safeParse(notification.data.changes);
 
-  return changes && Object.keys(changes).length ? changes : null;
+  return changes.success && Object.keys(changes.data).length ? changes.data : null;
 };
 
 /** What changed, with names for owners, tags and properties of the record. */

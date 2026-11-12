@@ -28,9 +28,10 @@ const LANGUAGE_KEY = 'lng';
 const savedLanguage = (): LanguageCode => {
   const saved = localStorage.getItem(LANGUAGE_KEY);
 
-  return LANGUAGES.some((language) => language.code === saved) ? (saved as LanguageCode) : 'en';
+  return LANGUAGES.find((language) => language.code === saved)?.code ?? 'en';
 };
 
+// oxlint-disable-next-line import/no-named-as-default-member -- i18next's documented setup; the named `use` reads as React's hook
 void i18n.use(initReactI18next).init({
   // Old erxes namespaces, so ported components keep their useTranslation('contact'|…) calls.
   resources: {

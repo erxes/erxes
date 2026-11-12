@@ -17,6 +17,7 @@ import {
 import { cn, Command, Popover } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { pluginLabel } from '~/lib/members';
 
 /**
@@ -104,7 +105,10 @@ const useRecent = (kind: string) => {
 
   const read = (): string[] => {
     try {
-      return JSON.parse(localStorage.getItem(key) ?? '[]') as string[];
+      return z
+        .array(z.string())
+        .catch([])
+        .parse(JSON.parse(localStorage.getItem(key) ?? '[]'));
     } catch {
       return [];
     }
@@ -201,7 +205,7 @@ export const CatalogPicker = ({
       byKey.set(group.key, entry);
     }
 
-    return [...byKey.values()].sort(
+    return [...byKey.values()].toSorted(
       (a, b) => a.group.order - b.group.order || a.group.label.localeCompare(b.group.label),
     );
   }, [items]);

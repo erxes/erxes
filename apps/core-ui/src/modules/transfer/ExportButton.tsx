@@ -130,7 +130,12 @@ export const ExportButton = ({
   const selected =
     chosen ?? exportable.filter((column) => column.default).map((column) => column.key);
 
-  const filtered = Boolean(list.advanced || list.search || query.tagIds?.length || query.ownerId);
+  const filtered =
+    list.advanced !== null ||
+    Boolean(list.search) ||
+    Boolean(query.tagIds?.length) ||
+    Boolean(query.ownerId);
+
   const start = useStartExport(() => setOpen(false));
 
   if (!can('contacts.export')) return null;

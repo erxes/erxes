@@ -104,7 +104,7 @@ const InvitationStatusCell = ({ user, t }: { user: User; t: TFunction }) => (
 
 export const teamMemberColumns = (t: TFunction): ColumnDef<User>[] => [
   teamMemberMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<User>,
+  RecordTable.checkboxColumnOf<User>(),
   {
     id: 'avatar',
     accessorKey: 'avatarUrl',

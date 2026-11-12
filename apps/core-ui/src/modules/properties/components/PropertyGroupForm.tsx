@@ -55,6 +55,7 @@ export const PropertyGroupForm = ({
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4 gap-5">
           <Form.Field
+            control={form.control}
             name="name"
             render={({ field }) => (
               <Form.Item>
@@ -72,6 +73,7 @@ export const PropertyGroupForm = ({
             )}
           />
           <Form.Field
+            control={form.control}
             name="code"
             render={({ field }) => (
               <Form.Item>
@@ -89,6 +91,7 @@ export const PropertyGroupForm = ({
             )}
           />
           <Form.Field
+            control={form.control}
             name="description"
             render={({ field }) => (
               <Form.Item>

@@ -157,7 +157,7 @@ export const propertiesColumns = (
     header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
       const { label, icon, type } = cell.row.original;
-      const TypeIcon = FIELD_TYPES_OBJECT[type]?.icon;
+      const TypeIcon = FIELD_TYPES_OBJECT[type].icon;
 
       return (
         <RecordTableInlineCell>
@@ -165,7 +165,7 @@ export const propertiesColumns = (
             {icon ? (
               <IconComponent className="h-4 w-4 shrink-0 text-muted-foreground" name={icon} />
             ) : (
-              TypeIcon && <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <TypeIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
             )}
             <span className="truncate">{label}</span>
           </div>
@@ -180,14 +180,14 @@ export const propertiesColumns = (
     header: () => <RecordTable.InlineHead label={t('data-type', 'Data type')} />,
     cell: ({ cell }) => {
       const fieldType = FIELD_TYPES_OBJECT[cell.row.original.type];
-      const Icon = fieldType?.icon;
+      const Icon = fieldType.icon;
 
       return (
         <RecordTableInlineCell>
           <div className="flex items-center gap-2 text-muted-foreground overflow-hidden">
-            {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+            <Icon className="h-4 w-4 text-muted-foreground" />
             <span className="truncate">
-              {fieldType && t(`field-type.${fieldType.i18nKey}`, fieldType.label)}
+              {t(`field-type.${fieldType.i18nKey}`, fieldType.label)}
             </span>
           </div>
         </RecordTableInlineCell>

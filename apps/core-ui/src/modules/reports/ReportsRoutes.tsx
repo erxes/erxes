@@ -88,7 +88,7 @@ export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }
   const [kind, setKind] = useQueryState<string>('kind');
   const [daysParam, setDays] = useQueryState<string>('days');
   const recordType = kind === 'companies' ? 'company' : 'customer';
-  const days = (REPORT_RANGES as readonly string[]).includes(daysParam ?? '') ? daysParam! : '30';
+  const days = REPORT_RANGES.find((range) => range === daysParam) ?? '30';
   const { data: report, error, isPending } = useLeadReportFor(recordType, Number(days));
 
   return (

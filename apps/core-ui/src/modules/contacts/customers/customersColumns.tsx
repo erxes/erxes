@@ -21,7 +21,6 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  SexCode,
   SexDisplay,
   SexField,
 } from 'erxes-ui';
@@ -33,6 +32,7 @@ import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { ContactEmails, ContactName, ContactPhones } from '../components/ContactFields';
 import { SelectMember } from '../components/SelectMember';
+import { sexCodeOf } from './sexCode';
 import { useCustomerEdit } from './useCustomers';
 import { withLifecycleColumns } from '~/modules/leads/leadColumns';
 
@@ -97,7 +97,7 @@ const CustomerNameCell = ({ customer }: { customer: Customer }) => {
 const CustomerSexCell = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
   const [open, setOpen] = useState(false);
-  const value = (customer.sex ?? SexCode.NOT_KNOWN) as SexCode;
+  const value = sexCodeOf(customer);
 
   return (
     <PopoverScoped scope={SCOPE} open={open} onOpenChange={setOpen}>
@@ -141,7 +141,7 @@ const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>
     cell: ({ row }) => <CustomerMoreColumnCell customer={row.original} />,
     size: 33,
   },
-  RecordTable.checkboxColumn as ColumnDef<Customer>,
+  RecordTable.checkboxColumnOf<Customer>(),
   {
     id: 'avatar',
     accessorKey: 'avatarUrl',

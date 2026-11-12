@@ -74,7 +74,7 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
 
   const tiles: TDashboardTile[] = shown
     .filter(({ id }) => id !== DROP_PREVIEW_ID)
-    .sort(byPosition)
+    .toSorted(byPosition)
     .flatMap((item) => {
       const widget = widgets.byType.get(item.type);
 
@@ -190,7 +190,9 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
       );
     },
     onDragLeave: (event: DragEvent) => {
-      if (!containerRef.current?.contains(event.relatedTarget as Node | null)) {
+      const to = event.relatedTarget;
+
+      if (!(to instanceof Node && containerRef.current?.contains(to))) {
         setDropAt(null);
       }
     },

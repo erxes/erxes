@@ -59,6 +59,7 @@ const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
       >
         <Form {...form}>
           <Form.Field
+            control={form.control}
             name="name"
             render={({ field }) => (
               <Form.Item>
@@ -71,6 +72,7 @@ const AddTag = ({ type, count }: { type: ContentType; count: number }) => {
             )}
           />
           <Form.Field
+            control={form.control}
             name="colorCode"
             render={({ field }) => (
               <Form.Item>

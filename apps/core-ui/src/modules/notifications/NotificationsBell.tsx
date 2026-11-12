@@ -101,7 +101,7 @@ export const NotificationsBell = () => {
         <div className="flex items-stretch justify-between gap-2 border-b px-2">
           <Tabs
             value={tab}
-            onValueChange={(value) => setTab(value as 'all' | 'unread')}
+            onValueChange={(value) => setTab(value === 'unread' ? 'unread' : 'all')}
             className="flex"
           >
             <Tabs.List className="flex min-h-9 items-stretch self-stretch rounded-none border-0 py-0">

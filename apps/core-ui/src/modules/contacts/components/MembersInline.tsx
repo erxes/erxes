@@ -1,6 +1,7 @@
 import type { User } from '@erxes/core-contract';
 import { Avatar, type AvatarProps, Badge, Combobox, Tooltip, cn, readImage } from 'erxes-ui';
 import { useMembersById } from '~/lib/members';
+import type { JSX } from 'react';
 import { useSession } from '~/modules/auth/session';
 
 export const memberLabelText = (member: User) => member.fullName || member.username || member.email;

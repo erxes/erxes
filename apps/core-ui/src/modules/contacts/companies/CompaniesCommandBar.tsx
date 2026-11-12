@@ -4,7 +4,8 @@ import { IconTrash } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCan, useSession } from '~/modules/auth/session';
+import { useSelectedRows } from '~/components/useSelectedRows';
+import { useCan } from '~/modules/auth/session';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { companyTitle } from '../components/ContactPicker';
@@ -13,9 +14,8 @@ import { MergeDialog } from '../components/MergeDialog';
 import { useCompaniesMerge, useCompaniesRemove, useCompaniesTag } from './useCompanies';
 
 /** Actions on the selected rows, at the bottom of the screen (old core-ui). */
-export const CompaniesCommandBar = () => {
+export const CompaniesCommandBar = ({ rows }: { rows: Company[] }) => {
   const { table } = RecordTable.useRecordTable();
-  const { user } = useSession();
   const { confirm } = useConfirm();
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { openRecord } = useSidePanel();
@@ -23,8 +23,7 @@ export const CompaniesCommandBar = () => {
   const tag = useCompaniesTag();
   const merge = useCompaniesMerge();
   const [merging, setMerging] = useState(false);
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const companies = selectedRows.map((row) => row.original as Company);
+  const companies = useSelectedRows(rows);
   const companyIds = companies.map((company) => company.id);
   const tagIds = commonTagIds(companies);
   // Owners and admins merge and delete (core's rule).
@@ -32,11 +31,9 @@ export const CompaniesCommandBar = () => {
 
   return (
     <>
-      <CommandBar open={selectedRows.length > 0 && !merging}>
+      <CommandBar open={companies.length > 0 && !merging}>
         <CommandBar.Bar>
-          <CommandBar.Value>
-            {t('selected', { selectedCount: selectedRows.length })}
-          </CommandBar.Value>
+          <CommandBar.Value>{t('selected', { selectedCount: companies.length })}</CommandBar.Value>
           <Separator.Inline />
           <TagsSelect
             type="company"
@@ -58,7 +55,7 @@ export const CompaniesCommandBar = () => {
               <MergeButton
                 label={t('action-merge')}
                 tooltip={t('merge-tooltip')}
-                disabled={selectedRows.length !== 2}
+                disabled={companies.length !== 2}
                 onClick={() => setMerging(true)}
               />
               <Separator.Inline />

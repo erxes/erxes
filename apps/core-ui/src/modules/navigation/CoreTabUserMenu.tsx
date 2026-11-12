@@ -8,14 +8,12 @@ import {
   themeState,
   ToggleGroup,
   Tooltip,
-  useToast,
 } from 'erxes-ui';
 import { INTL_LANGUAGES } from 'erxes-ui/constants/IntlLanguages';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { LANGUAGES, type LanguageCode } from '~/i18n';
-import { messageOf } from '~/lib/api';
 import { useSession, useSignOut } from '~/modules/auth/session';
 import { coreTabIconClassName } from './coreTabClassName';
 import { CoreTabTooltip } from './CoreTabTooltip';
@@ -117,7 +115,6 @@ const SelectLanguages = () => {
 export const CoreTabUserMenu = () => {
   const { user } = useSession();
   const signOut = useSignOut();
-  const { toast } = useToast();
   const { t } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
   const userName = user.fullName || sidebarT('profile');

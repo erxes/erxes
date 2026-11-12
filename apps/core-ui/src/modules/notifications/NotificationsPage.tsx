@@ -122,7 +122,7 @@ export const NotificationsPage = () => {
           <PageSubHeader className="items-center gap-3 py-0">
             <Tabs
               value={tab}
-              onValueChange={(value) => setTab(value as 'all' | 'unread')}
+              onValueChange={(value) => setTab(value === 'unread' ? 'unread' : 'all')}
               className="flex self-stretch"
             >
               <Tabs.List className="flex min-h-9 items-stretch self-stretch border-b-0 py-0">

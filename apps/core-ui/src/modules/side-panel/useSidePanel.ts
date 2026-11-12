@@ -11,6 +11,7 @@ import {
   useRef,
 } from 'react';
 import { useLocation } from 'react-router-dom';
+import { z } from 'zod';
 import {
   type IOpenRecordOptions,
   SidePanelNavigatorContext,
@@ -40,33 +41,43 @@ export const sidePanelWidthState = atomWithStorage<number>(
 export const sidePanelHistoryState = atom<string[]>([]);
 export const sidePanelSessionState = atom(0);
 
+/** What a new contact starts with: a lead in a stage, or a customer. */
+interface DraftDefaults {
+  state?: 'lead' | 'customer';
+  leadStageId?: string;
+}
+
 export interface ISidePanelDraft {
   contentType: string;
-  // What the new record starts with (e.g. `state: 'lead'`).
-  defaults: Record<string, unknown>;
+  defaults: DraftDefaults;
 }
 
 export const sidePanelDraftState = atom<ISidePanelDraft | null>(null);
 export const SidePanelDraftContext = createContext<ISidePanelDraft | null | undefined>(undefined);
 
 /** The defaults of the draft of `contentType` open in the panel, if any. */
-export const useSidePanelDraft = <T extends Record<string, unknown>>(
-  contentType: string,
-): Partial<T> => {
+export const useSidePanelDraft = (contentType: string): DraftDefaults => {
   const currentDraft = useAtomValue(sidePanelDraftState);
   const scopedDraft = useContext(SidePanelDraftContext);
   const draft = scopedDraft === undefined ? currentDraft : scopedDraft;
 
-  return draft?.contentType === contentType ? (draft.defaults as Partial<T>) : {};
+  return draft?.contentType === contentType ? draft.defaults : {};
 };
 
-interface ISidePanelNavigationState {
-  path: string | null;
-  tab: string;
-  history: { path: string; tab: string }[];
-}
-
-type TRouterState = { sidePanel?: ISidePanelNavigationState } | null;
+/** The history entry's state: the panel's tab and the tabs of the records behind it (kept with other state). */
+const RouterState = z
+  .object({
+    sidePanel: z
+      .object({
+        path: z.string().nullable(),
+        tab: z.string(),
+        history: z.array(z.object({ path: z.string(), tab: z.string() })),
+      })
+      .optional(),
+  })
+  .passthrough()
+  .nullable()
+  .catch(null);
 
 /** A fresh id so two drafts of one type never share a stack entry. */
 const draftId = () => Math.random().toString(36).slice(2, 12);
@@ -88,7 +99,7 @@ export const useSidePanel = () => {
 
   const path = typeof queries.panel === 'string' ? queries.panel : null;
   const location = useLocation();
-  const routerState = location.state as TRouterState;
+  const routerState = RouterState.parse(location.state);
   const saved = routerState?.sidePanel;
   const navigationState = saved?.path === path ? saved : undefined;
 
@@ -291,7 +302,7 @@ export const useSidePanel = () => {
     // Opens a draft of `contentType` starting with `defaults`.
     openNewRecord: (
       contentType: string,
-      defaults: Record<string, unknown> = {},
+      defaults: DraftDefaults = {},
       options?: IOpenRecordOptions,
     ) => {
       setDraft({ contentType, defaults });

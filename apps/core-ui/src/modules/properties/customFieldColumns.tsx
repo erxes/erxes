@@ -1,7 +1,8 @@
 import type { CustomValue, Field } from '@erxes/core-contract';
 import type { ColumnDef } from '@tanstack/react-table';
 import { RecordTable } from 'erxes-ui';
-import { CustomFieldCell, FIELD_TYPE_ICONS } from './CustomFieldCell';
+import { CustomFieldCell } from './CustomFieldCell';
+import { FIELD_TYPES_OBJECT } from './fieldTypes';
 
 type WithCustomFields = { id: string; customFields: Record<string, CustomValue> };
 
@@ -18,7 +19,7 @@ export const customFieldColumns = <Row extends WithCustomFields>(
     id: `field:${field.id}`,
     accessorFn: (row) => row.customFields[field.id],
     header: () => (
-      <RecordTable.InlineHead icon={FIELD_TYPE_ICONS[field.type]} label={field.label} />
+      <RecordTable.InlineHead icon={FIELD_TYPES_OBJECT[field.type].icon} label={field.label} />
     ),
     cell: function Cell({ row }) {
       const save = useSave();

@@ -41,7 +41,7 @@ export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
         </RecordTable>
       </RecordTable.CursorProvider>
       {!loading && !list.length && <EmptyList />}
-      <CustomersCommandBar />
+      <CustomersCommandBar rows={list} />
     </RecordTable.Provider>
   );
 };

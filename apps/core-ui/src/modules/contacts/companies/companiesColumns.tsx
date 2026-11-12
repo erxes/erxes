@@ -122,7 +122,7 @@ const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] 
     cell: ({ row }) => <CompanyMoreColumnCell company={row.original} />,
     size: 33,
   },
-  RecordTable.checkboxColumn as ColumnDef<Company>,
+  RecordTable.checkboxColumnOf<Company>(),
   {
     id: 'avatar',
     accessorKey: 'avatarUrl',
@@ -224,7 +224,7 @@ const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] 
     id: 'size',
     accessorKey: 'size',
     header: () => <RecordTable.InlineHead icon={IconUsers} label={t('field.size') || 'Size'} />,
-    cell: ({ row }) => <TextCell value={String(row.original.size || '')} />,
+    cell: ({ row }) => <TextCell value={row.original.size ? row.original.size.toString() : ''} />,
     size: 100,
   },
   {

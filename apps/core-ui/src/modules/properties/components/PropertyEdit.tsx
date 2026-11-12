@@ -24,6 +24,7 @@ export const PropertyEdit = ({ contentType }: { contentType: ContentType }) => {
   const { toast } = useToast();
   const { mutate, isPending } = useEditProperty();
   const navigate = useNavigate();
+
   const handleClose = () => {
     void navigate(`${PROPERTIES_BASE_PATH}/${contentType}`);
   };

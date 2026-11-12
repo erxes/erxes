@@ -12,7 +12,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Input, Spinner, Textarea, Upload, useToast } from 'erxes-ui';
 import type { ReactNode } from 'react';
-import { type UseFormReturn, useForm } from 'react-hook-form';
+import { type UseFormReturn, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { errorData, isApiError, messageOf, orpc } from '~/lib/api';
@@ -44,20 +44,25 @@ const TextInput = ({
   label: ReactNode;
   placeholder?: string;
   type?: string;
-}) => (
-  <Form.Field
-    name={name}
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label className="text-xs">{label}</Form.Label>
-        <Form.Control>
-          <Input {...field} value={field.value ?? ''} type={type} placeholder={placeholder} />
-        </Form.Control>
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
-);
+}) => {
+  const { control } = useFormContext<ProfileValues>();
+
+  return (
+    <Form.Field
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label className="text-xs">{label}</Form.Label>
+          <Form.Control>
+            <Input {...field} value={field.value ?? ''} type={type} placeholder={placeholder} />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
 
 const useSaveProfile = (user: User, form: UseFormReturn<ProfileValues>) => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
@@ -98,6 +103,7 @@ const useSaveProfile = (user: User, form: UseFormReturn<ProfileValues>) => {
 
 const PictureSection = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
+  const { control } = useFormContext<ProfileValues>();
 
   return (
     <Section
@@ -105,6 +111,7 @@ const PictureSection = () => {
       description={t('picture-description', 'Shown next to your name across erxes.')}
     >
       <Form.Field
+        control={control}
         name="avatarUrl"
         render={({ field }) => (
           <Upload.Root

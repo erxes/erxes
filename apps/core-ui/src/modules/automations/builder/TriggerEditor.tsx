@@ -17,9 +17,12 @@ import { zoneChoices, zoneLabel } from './timezones';
 import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { useAutomationFields } from './useAutomationFields';
+import { oneOf } from '~/lib/text';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+const EVERY = ['hour', 'day', 'week', 'month'] as const;
 
 const KINDS = [
   { kind: 'event', icon: IconBolt, label: 'Event', hint: 'When something happens' },
@@ -133,7 +136,9 @@ const AudienceEditor = ({
           <Select
             value={value.type}
             disabled={disabled}
-            onValueChange={(type) => onChange({ type: type as 'customer' })}
+            onValueChange={(type) =>
+              onChange({ type: type === 'company' ? 'company' : 'customer' })
+            }
           >
             <Select.Trigger className="h-8 w-full">
               <Select.Value />
@@ -486,16 +491,21 @@ export const TriggerEditor = ({
               <Select
                 value={trigger.every}
                 disabled={disabled}
-                onValueChange={(every) => onChange({ ...trigger, every: every as 'day' })}
+                onValueChange={(next) => {
+                  const every = oneOf(EVERY, next);
+
+                  if (every) onChange({ ...trigger, every });
+                }}
               >
                 <Select.Trigger className="h-8 min-w-0 flex-1">
                   <Select.Value />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="hour">{t('every-hour-option', 'Every hour')}</Select.Item>
-                  <Select.Item value="day">{t('every-day-option', 'Every day')}</Select.Item>
-                  <Select.Item value="week">{t('every-week-option', 'Every week')}</Select.Item>
-                  <Select.Item value="month">{t('every-month-option', 'Every month')}</Select.Item>
+                  {EVERY.map((every) => (
+                    <Select.Item key={every} value={every}>
+                      {t(`every-${every}-option`, `Every ${every}`)}
+                    </Select.Item>
+                  ))}
                 </Select.Content>
               </Select>
               {trigger.every === 'month' && (
@@ -541,7 +551,7 @@ export const TriggerEditor = ({
 
                         const next = on
                           ? current.filter((item) => item !== index + 1)
-                          : [...current, index + 1].sort();
+                          : [...current, index + 1].toSorted((a, b) => a - b);
 
                         onChange({ ...trigger, weekdays: next.length ? next : [index + 1] });
                       }}

@@ -4,7 +4,7 @@ import { Button, Input, MultipleSelector, Select, Switch, Textarea } from 'erxes
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { textOf } from '~/lib/text';
+import { oneOf, textOf } from '~/lib/text';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
 import { ConditionsEditor } from './ConditionsEditor';
@@ -61,8 +61,10 @@ const FieldInput = ({
   );
 
   // A value for the custom field chosen in another input: shaped like that field.
-  if (field.sameTypeAs) {
-    const chosen = customFields.find((item) => fieldIdOf(item.path) === input[field.sameTypeAs!]);
+  const sameTypeAs = field.sameTypeAs;
+
+  if (sameTypeAs) {
+    const chosen = customFields.find((item) => fieldIdOf(item.path) === input[sameTypeAs]);
 
     if (chosen?.type === 'date') {
       return (
@@ -82,7 +84,7 @@ const FieldInput = ({
               { value: 'true', label: t('yes', 'Yes') },
               { value: 'false', label: t('no', 'No') },
             ]
-          : chosen.options!.map((option) => ({ value: option, label: option }));
+          : (chosen.options ?? []).map((option) => ({ value: option, label: option }));
 
       return (
         <Select
@@ -293,6 +295,8 @@ export const BuilderContext = createContext<{
   outputsBefore: (stepId: string) => FieldInfo[];
 }>({ events: [], stats: new Map(), outputsBefore: () => [] });
 
+const UNITS = ['minutes', 'hours', 'days'] as const;
+
 const Units = ({
   value,
   onChange,
@@ -305,14 +309,24 @@ const Units = ({
   const { t } = useTranslation('automations');
 
   return (
-    <Select value={value} disabled={disabled} onValueChange={(unit) => onChange(unit as 'minutes')}>
+    <Select
+      value={value}
+      disabled={disabled}
+      onValueChange={(next) => {
+        const unit = oneOf(UNITS, next);
+
+        if (unit) onChange(unit);
+      }}
+    >
       <Select.Trigger className="w-32">
         <Select.Value />
       </Select.Trigger>
       <Select.Content>
-        <Select.Item value="minutes">{t('minutes', 'minutes')}</Select.Item>
-        <Select.Item value="hours">{t('hours', 'hours')}</Select.Item>
-        <Select.Item value="days">{t('days', 'days')}</Select.Item>
+        {UNITS.map((unit) => (
+          <Select.Item key={unit} value={unit}>
+            {t(unit, unit)}
+          </Select.Item>
+        ))}
       </Select.Content>
     </Select>
   );

@@ -2,7 +2,7 @@ import { CONDITION_OPERATORS, type ConditionGroup, type ConditionRule } from '@e
 import { IconBraces, IconPlus, IconX } from '@tabler/icons-react';
 import { Button, cn, Input, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { textOf } from '~/lib/text';
+import { oneOf, textOf } from '~/lib/text';
 import { LookupError, useMemberOptions, useTagOptions } from './lookupOptions';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
@@ -318,7 +318,7 @@ const GroupEditor = ({
         <span>{t('match-prefix', 'Match')}</span>
         <Select
           value={group.match}
-          onValueChange={(match) => onChange({ ...group, match: match as 'all' | 'any' })}
+          onValueChange={(match) => onChange({ ...group, match: match === 'any' ? 'any' : 'all' })}
           disabled={disabled}
         >
           <Select.Trigger className="h-8 w-24">
@@ -357,10 +357,14 @@ const GroupEditor = ({
             />
             <Select
               value={rule.op}
-              onValueChange={(op) =>
+              onValueChange={(next) => {
+                const op = oneOf(CONDITION_OPERATORS, next);
+
+                if (!op) return;
+
                 update(index, {
                   ...rule,
-                  op: op as ConditionRule['op'],
+                  op,
                   // A relative date takes { amount, unit }; leaving one drops it.
                   value: RELATIVE.has(op)
                     ? RELATIVE.has(rule.op)
@@ -369,8 +373,8 @@ const GroupEditor = ({
                     : RELATIVE.has(rule.op)
                       ? undefined
                       : rule.value,
-                })
-              }
+                });
+              }}
               disabled={disabled}
             >
               <Select.Trigger className="h-8 w-full min-w-0">

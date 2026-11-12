@@ -176,7 +176,7 @@ const Node = ({
       </span>
       {!!problems?.length && <IconAlertTriangle className="size-4 shrink-0 text-destructive" />}
     </div>
-    {(stats || footer) && (
+    {(stats !== undefined || Boolean(footer)) && (
       <span className="flex items-center gap-3 border-t px-3 py-1.5 text-[11px] text-muted-foreground">
         {stats && (
           <>

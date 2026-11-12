@@ -146,7 +146,7 @@ export const useInboxes = (): Inbox[] => {
     ]),
   ]
     .filter((source) => source !== CORE_INBOX)
-    .sort();
+    .toSorted((a, b) => a.localeCompare(b));
 
   return [
     { source: CORE_INBOX, label: 'erxes', icon: OrgLogoIcon },

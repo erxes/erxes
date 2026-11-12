@@ -16,6 +16,7 @@ import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useComp
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { AvatarEditor } from '~/components/AvatarEditor';
+import { isApiError } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
 import {
   getContactDetailPath,
@@ -143,7 +144,7 @@ const useRecordHeading = ({ contentType, contentId }: TRelationEntity) => {
     };
   }
 
-  const notFound = (query.error as { status?: number } | null)?.status === 404;
+  const notFound = isApiError(query.error) && query.error.status === 404;
 
   return {
     title: notFound ? t('not-found-title', 'Nothing here') : t('error', 'Unable to load record'),

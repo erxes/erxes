@@ -13,3 +13,7 @@ export const textOf = (value: unknown): string => {
 
   return JSON.stringify(value) ?? '';
 };
+
+/** `value` when it is one of `options` (a select's string as its union type), else undefined. */
+export const oneOf = <T extends string>(options: readonly T[], value: string | null) =>
+  options.find((option) => option === value);

@@ -16,9 +16,6 @@ import {
   PopoverScoped,
   RecordTableInlineCell,
   ScrollArea,
-  Select,
-  SexCode,
-  SexCodes,
   SexDisplay,
   SexField,
   Spinner,
@@ -27,6 +24,7 @@ import {
 import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toYmd } from '~/components/inlineCells';
+import { sexCodeOf } from '~/modules/contacts/customers/sexCode';
 import { ContactEmails, ContactPhones } from '~/modules/contacts/components/ContactFields';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
@@ -87,7 +85,7 @@ const CustomerTextField = ({
 const CustomerSexField = ({ customer }: { customer: Customer }) => {
   const edit = useCustomerEdit();
   const [open, setOpen] = useState(false);
-  const value = (customer.sex ?? SexCode.NOT_KNOWN) as SexCode;
+  const value = sexCodeOf(customer);
 
   return (
     <PopoverScoped scope={`${SCOPE}.sex`} open={open} onOpenChange={setOpen}>
@@ -251,9 +249,7 @@ export const CustomerPanelDetail = ({
             <PanelField
               icon={IconGenderBigender}
               label={t('sex', 'Sex')}
-              placeholder={
-                !customer.sex || !SexCodes[customer.sex as SexCode] ? t('sex', 'Sex') : undefined
-              }
+              placeholder={customer.sex ? undefined : t('sex', 'Sex')}
             >
               <CustomerSexField customer={customer} />
             </PanelField>

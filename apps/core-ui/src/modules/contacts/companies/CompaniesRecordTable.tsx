@@ -43,7 +43,7 @@ export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 
         </RecordTable>
       </RecordTable.CursorProvider>
       {!loading && !list.length && <EmptyList />}
-      <CompaniesCommandBar />
+      <CompaniesCommandBar rows={list} />
     </RecordTable.Provider>
   );
 };

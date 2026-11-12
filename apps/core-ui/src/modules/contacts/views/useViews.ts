@@ -51,7 +51,7 @@ export const useViewState = (recordType: ViewRecordType) => {
   const views = viewsList.data?.data ?? [];
   const query = useListQuery();
   const current = views.find((view) => view.id === query.viewId) ?? null;
-  const filtered = Boolean(query.advanced || query.search);
+  const filtered = query.advanced !== null || Boolean(query.search);
 
   const changed = current
     ? !same(current.filter?.rules.length ? current.filter : null, query.advanced) ||

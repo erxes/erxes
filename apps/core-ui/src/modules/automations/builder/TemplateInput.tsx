@@ -59,7 +59,7 @@ export const TemplateInput = ({
     value,
     placeholder,
     disabled,
-    'aria-invalid': invalid || undefined,
+    'aria-invalid': invalid ? true : undefined,
     onChange: (event: { target: { value: string } }) => onChange(event.target.value),
   };
 

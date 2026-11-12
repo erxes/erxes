@@ -108,10 +108,7 @@ export const CompanyPanelNew = () => {
   const showCreated = useCreatedPanelRecord('core:company');
   const create = useCompanyCreate();
 
-  const { state, leadStageId } = useSidePanelDraft<{
-    state?: 'lead' | 'customer';
-    leadStageId?: string;
-  }>('core:company');
+  const { state, leadStageId } = useSidePanelDraft('core:company');
 
   const form = useForm<TCompanyForm>({
     resolver: zodResolver(companySchema),

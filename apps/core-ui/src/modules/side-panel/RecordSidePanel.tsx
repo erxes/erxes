@@ -124,7 +124,7 @@ const RecordSidePanelResizeHandle = ({
 
       nextWidth = clampWidth(startWidth + startX - moveEvent.clientX, maxWidth);
 
-      if (frame === null) frame = view.requestAnimationFrame(paint);
+      frame ??= view.requestAnimationFrame(paint);
     }
 
     /** Ends the resize only for the pointer that started it. */

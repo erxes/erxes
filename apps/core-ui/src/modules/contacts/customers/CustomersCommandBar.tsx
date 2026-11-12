@@ -3,7 +3,8 @@ import { IconRepeat, IconTrash } from '@tabler/icons-react';
 import { Button, Command, CommandBar, Popover, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCan, useSession } from '~/modules/auth/session';
+import { useSelectedRows } from '~/components/useSelectedRows';
+import { useCan } from '~/modules/auth/session';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton';
@@ -14,9 +15,8 @@ import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { useCustomersMerge, useCustomersRemove, useCustomersTag } from './useCustomers';
 
 /** Actions on the selected rows, at the bottom of the screen (old core-ui). */
-export const CustomersCommandBar = () => {
+export const CustomersCommandBar = ({ rows }: { rows: Customer[] }) => {
   const { table } = RecordTable.useRecordTable();
-  const { user } = useSession();
   const { confirm } = useConfirm();
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { t: tContact } = useTranslation('contact', { keyPrefix: 'customer' });
@@ -26,8 +26,7 @@ export const CustomersCommandBar = () => {
   const merge = useCustomersMerge();
   const [open, setOpen] = useState(false);
   const [merging, setMerging] = useState(false);
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const customers = selectedRows.map((row) => row.original as Customer);
+  const customers = useSelectedRows(rows);
   const customerIds = customers.map((customer) => customer.id);
   const tagIds = commonTagIds(customers);
   // Owners and admins merge and delete (core's rule).
@@ -35,10 +34,10 @@ export const CustomersCommandBar = () => {
 
   return (
     <>
-      <CommandBar open={selectedRows.length > 0 && !merging}>
+      <CommandBar open={customers.length > 0 && !merging}>
         <CommandBar.Bar>
           <CommandBar.Value>
-            {tContact('selected', { selectedCount: selectedRows.length })}
+            {tContact('selected', { selectedCount: customers.length })}
           </CommandBar.Value>
           <Separator.Inline />
           <TagsSelect
@@ -61,7 +60,7 @@ export const CustomersCommandBar = () => {
               <MergeButton
                 label={tContact('action-merge')}
                 tooltip={tContact('merge-tooltip')}
-                disabled={selectedRows.length !== 2}
+                disabled={customers.length !== 2}
                 onClick={() => setMerging(true)}
               />
               <Separator.Inline />

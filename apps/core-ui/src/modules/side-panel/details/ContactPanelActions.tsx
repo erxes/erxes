@@ -3,7 +3,7 @@ import { Button, Command, Popover, useConfirm } from 'erxes-ui';
 import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useCan, useSession } from '~/modules/auth/session';
+import { useCan } from '~/modules/auth/session';
 import { useCompaniesRemove, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomerEdit, useCustomersRemove } from '~/modules/contacts/customers/useCustomers';
 import {
@@ -80,7 +80,6 @@ export const ContactPanelActions = ({
   state?: 'lead' | 'customer';
 }) => {
   const { t } = useTranslation('contact');
-  const { user } = useSession();
   const panel = useSidePanel();
   const currentPanel = useRef(panel);
 

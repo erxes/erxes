@@ -1,6 +1,5 @@
 import type { User } from '@erxes/core-contract';
 import { IconRepeat, IconToggleLeft } from '@tabler/icons-react';
-import type { Row } from '@tanstack/react-table';
 import {
   Button,
   Command,
@@ -14,6 +13,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelectedRows } from '~/components/useSelectedRows';
 import { messageOf } from '~/lib/api';
 import { useCan, useSession } from '~/modules/auth/session';
 import { permissionsFor, useTeamMembersDeactivate } from '../useTeamMembers';
@@ -70,20 +70,16 @@ const TeamMemberDeactivate = ({
   );
 };
 
-export const TeamMemberCommandBar = () => {
+export const TeamMemberCommandBar = ({ rows }: { rows: User[] }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [open, setOpen] = useState(false);
-  const { table } = RecordTable.useRecordTable();
-  const { user: me } = useSession();
   const can = useCan();
-
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const teamMembers = selectedRows.map((row: Row<User>) => row.original);
+  const teamMembers = useSelectedRows(rows);
 
   return (
-    <CommandBar open={selectedRows.length > 0}>
+    <CommandBar open={teamMembers.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('selected', { selectedCount: selectedRows.length })}</CommandBar.Value>
+        <CommandBar.Value>{t('selected', { selectedCount: teamMembers.length })}</CommandBar.Value>
         {can('team.manage') && <Separator.Inline />}
         {can('team.manage') && (
           <Popover open={open} onOpenChange={setOpen}>

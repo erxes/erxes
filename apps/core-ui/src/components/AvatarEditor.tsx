@@ -28,7 +28,7 @@ const AvatarUpload = ({
       key={value || 'none'}
       value={value}
       onChange={(next) => {
-        const url = storedUrl(next as { url?: string });
+        const url = storedUrl('url' in next ? next : null);
 
         if (url !== undefined) onChange(url || null);
       }}

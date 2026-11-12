@@ -1,6 +1,6 @@
 import {
   CORE_NOTIFICATION_GROUPS,
-  type NotificationDelivery,
+  NotificationDelivery,
   type NotificationSettings,
 } from '@erxes/core-contract';
 import { IconBellCog, IconBrowser, IconLock, IconMail } from '@tabler/icons-react';
@@ -86,7 +86,11 @@ const GroupRow = ({
         <Select
           value={group.delivery}
           disabled={disabled}
-          onValueChange={(value) => onChange(value as NotificationDelivery)}
+          onValueChange={(value) => {
+            const delivery = NotificationDelivery.options.find((option) => option === value);
+
+            if (delivery) onChange(delivery);
+          }}
         >
           <Select.Trigger className="h-8 w-52">
             <Select.Value />
@@ -126,6 +130,22 @@ export const NotificationSettingsPage = () => {
   const setGroup = (key: string, delivery: NotificationDelivery) =>
     update.mutate({ groups: { [key]: delivery } });
 
+  const askPermission = async () => {
+    try {
+      const answer = await Notification.requestPermission();
+
+      setPermission(answer);
+
+      if (answer === 'granted') update.mutate({ browser: true });
+    } catch (failure) {
+      toast({
+        variant: 'destructive',
+        title: t('browser', 'Browser'),
+        description: messageOf(failure),
+      });
+    }
+  };
+
   const toggleBrowser = (on: boolean) => {
     if (!on || !desktopSupported() || Notification.permission === 'granted') {
       update.mutate({ browser: on });
@@ -133,19 +153,7 @@ export const NotificationSettingsPage = () => {
       return;
     }
 
-    Notification.requestPermission()
-      .then((answer) => {
-        setPermission(answer);
-
-        if (answer === 'granted') update.mutate({ browser: true });
-      })
-      .catch((error: unknown) =>
-        toast({
-          variant: 'destructive',
-          title: t('browser', 'Browser'),
-          description: messageOf(error),
-        }),
-      );
+    void askPermission();
   };
 
   const browserNote = !desktopSupported()
