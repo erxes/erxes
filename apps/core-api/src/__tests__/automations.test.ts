@@ -1,24 +1,15 @@
-import type { AutomationDefinition as Definition } from '@erxes/core-contract';
-import { sql } from 'drizzle-orm';
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { type DefinitionInput, makeDue, useAutomations } from './automations.fixture';
+import { describeWithDb, useTestDatabase } from './db';
 import { settle } from './settle';
-import { useTwoOrgs } from './support';
-
-/** What a member sends: `reentry` and other defaults may be left out. */
-type AutomationDefinition = z.input<typeof Definition>;
 
 /** The automation an audit entry was made by. */
 const ByAutomation = z.object({ automation: z.object({ id: z.string() }) });
 
-/** Delayed and retried steps become due now. */
-const makeDue = () =>
-  adminDb().execute(sql`update core_jobs set run_at = now() where status = 'queued'`);
-
 /** Waits two hours, then adds a note. */
-const later = (body: string): AutomationDefinition => ({
+const later = (body: string): DefinitionInput => ({
   trigger: { kind: 'event', event: 'core.company.created' },
   steps: [
     { id: 'wait', type: 'delay', amount: 2, unit: 'hours' },
@@ -29,7 +20,8 @@ const later = (body: string): AutomationDefinition => ({
 describeWithDb('automations', { timeout: 300_000 }, () => {
   useTestDatabase();
 
-  const t = useTwoOrgs();
+  const t = useAutomations();
+  const { active, runsOf } = t;
   let receiver: Server;
   let hookUrl = '';
   let answer = 200;
@@ -55,17 +47,6 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
   });
 
   afterAll(() => new Promise<void>((resolve) => receiver.close(() => resolve())));
-
-  /** Creates and activates an automation. */
-  const active = async (name: string, definition: AutomationDefinition) => {
-    const created = await t.owner().automations.create({ name, definition });
-
-    await t.owner().automations.activate({ id: created.id });
-
-    return created.id;
-  };
-
-  const runsOf = async (id: string) => (await t.owner().automations.runs({ id })).data;
 
   it('runs steps for matching events: tags, branches, updates, notes with templates, notifications', async () => {
     const created = await t.owner().automations.create({
@@ -281,7 +262,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
   });
 
   it('refuses definitions that would fail: unknown actions, missing fields, wrong subject', async () => {
-    const steps: AutomationDefinition['steps'][] = [
+    const steps: DefinitionInput['steps'][] = [
       [{ id: 'x', type: 'action', action: 'core.rocket.launch', input: {} }],
       [{ id: 'x', type: 'action', action: 'core.note.add', input: {} }],
       [{ id: 'x', type: 'action', action: 'core.company.tag', input: { add: [] } }],
