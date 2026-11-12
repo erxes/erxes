@@ -3,7 +3,7 @@ import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Form, Input, Spinner } from 'erxes-ui';
 import { forwardRef, useEffect, useState } from 'react';
-import { type ControllerRenderProps, useForm } from 'react-hook-form';
+import { type ControllerRenderProps, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
@@ -24,7 +24,7 @@ const schema = z.object({
 
 type Values = z.infer<typeof schema>;
 
-/** The password with a reveal button; a revealed password hides itself again, as in old core-ui. */
+/** The password with a reveal button; a revealed password hides itself again after 10 s. */
 const PasswordInput = forwardRef<
   HTMLDivElement,
   { field: ControllerRenderProps<Values, 'password'> }
@@ -65,6 +65,38 @@ const PasswordInput = forwardRef<
 
 PasswordInput.displayName = 'PasswordInput';
 
+const SignInTextField = ({
+  name,
+  label,
+  type,
+  autoComplete,
+  placeholder,
+}: {
+  name: 'email' | 'subdomain';
+  label: string;
+  type?: 'email';
+  autoComplete: string;
+  placeholder: string;
+}) => {
+  const { control } = useFormContext<Values>();
+
+  return (
+    <Form.Field
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label className={LABEL}>{label}</Form.Label>
+          <Form.Control>
+            <Input {...field} type={type} autoComplete={autoComplete} placeholder={placeholder} />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 /** Email and password; asks for the organisation when the email belongs to several. */
 const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void }) => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
@@ -97,23 +129,12 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
         className="mx-auto grid w-full gap-6"
         noValidate
       >
-        <Form.Field
-          control={form.control}
+        <SignInTextField
           name="email"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label className={LABEL}>{t('email')}</Form.Label>
-              <Form.Control>
-                <Input
-                  {...field}
-                  type="email"
-                  autoComplete="username"
-                  placeholder={t('enter-your-email')}
-                />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
+          label={t('email')}
+          type="email"
+          autoComplete="username"
+          placeholder={t('enter-your-email')}
         />
         <Form.Field
           control={form.control}
@@ -129,18 +150,11 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
           )}
         />
         {needsOrganization && (
-          <Form.Field
-            control={form.control}
+          <SignInTextField
             name="subdomain"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label className={LABEL}>Organization address</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="acme" autoComplete="organization" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
+            label="Organization address"
+            autoComplete="organization"
+            placeholder="acme"
           />
         )}
         {signIn.isError && (
@@ -163,7 +177,7 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
   );
 };
 
-/** Sign-in, laid out as old core-ui's login page; a second step when two-step sign-in is on. */
+/** Sign-in beside the banner; a second step when two-step sign-in is on. */
 export const SignInPage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const [challenge, setChallenge] = useState<string | null>(null);

@@ -73,7 +73,7 @@ const useSetup = () => {
 };
 
 /**
- * First run (old core-ui "Initial Configuration Steps"): the database has no
+ * First run: the database has no
  * organisation yet, so the first visitor creates it and becomes its owner.
  */
 export const SetupPage = () => {
