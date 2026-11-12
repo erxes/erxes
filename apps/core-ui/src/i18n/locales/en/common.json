@@ -223,7 +223,8 @@
     "webhooks": "Webhooks",
     "payments": "Payments",
     "recycle-bin": "Recycle bin",
-    "plan": "Plan"
+    "plan": "Plan",
+    "lead-stages": "Lead stages"
   },
   "plugin": {
     "_": "Plugin",

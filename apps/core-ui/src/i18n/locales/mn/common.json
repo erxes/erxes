@@ -224,7 +224,9 @@
     "webhooks": "Вэбхүүк",
     "payments": "Төлбөр",
     "recycle-bin": "Хогийн сав",
-    "plan": "Багц"
+    "plan": "Багц",
+    "lead-stages": "Үе шатууд",
+    "reports": "Тайлан"
   },
   "plugin": {
     "_": "Плагин",

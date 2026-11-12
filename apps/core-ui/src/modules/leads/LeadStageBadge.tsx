@@ -1,14 +1,36 @@
-import type { LeadStage } from '@erxes/core-contract';
-import { IconCheck, IconChevronDown } from '@tabler/icons-react';
-import { cn, DropdownMenu } from 'erxes-ui';
+import type { LeadStage } from "@erxes/core-contract";
+import { IconCheck, IconChevronDown } from "@tabler/icons-react";
+import { cn, DropdownMenu } from "erxes-ui";
+import { useLeadsT, useStageName } from "./i18n";
 
 /** A stage as a coloured dot and its name. */
-export const LeadStageBadge = ({ stage, className }: { stage?: Pick<LeadStage, 'name' | 'color'> | null; className?: string }) => (
-  <span className={cn('inline-flex min-w-0 items-center gap-1.5 text-sm', className)}>
-    <span className="size-2 shrink-0 rounded-full" style={{ background: stage?.color ?? 'var(--muted-foreground)' }} />
-    <span className="truncate">{stage?.name ?? 'No stage'}</span>
-  </span>
-);
+export const LeadStageBadge = ({
+  stage,
+  className,
+}: {
+  stage?: Pick<LeadStage, "name" | "color"> | null;
+  className?: string;
+}) => {
+  const t = useLeadsT();
+  const stageName = useStageName();
+
+  return (
+    <span
+      className={cn(
+        "inline-flex min-w-0 items-center gap-1.5 text-sm",
+        className,
+      )}
+    >
+      <span
+        className="size-2 shrink-0 rounded-full"
+        style={{ background: stage?.color ?? "var(--muted-foreground)" }}
+      />
+      <span className="truncate">
+        {stage ? stageName(stage.name) : t("no-stage")}
+      </span>
+    </span>
+  );
+};
 
 /** Picks a stage (grouped open, then qualified, then disqualified, in the organisation's order). */
 export const LeadStageMenu = ({
@@ -16,23 +38,29 @@ export const LeadStageMenu = ({
   value,
   onSelect,
   children,
-  align = 'start',
+  align = "start",
 }: {
   stages: LeadStage[];
   value?: string | null;
   onSelect: (stage: LeadStage) => void;
   children: React.ReactNode;
-  align?: 'start' | 'end';
+  align?: "start" | "end";
 }) => (
   <DropdownMenu>
     <DropdownMenu.Trigger asChild>{children}</DropdownMenu.Trigger>
     <DropdownMenu.Content align={align} className="min-w-48">
       {stages.map((stage, index) => (
         <div key={stage.id}>
-          {index > 0 && stages[index - 1]!.kind !== stage.kind && <DropdownMenu.Separator />}
-          <DropdownMenu.Item onSelect={() => stage.id !== value && onSelect(stage)}>
+          {index > 0 && stages[index - 1]!.kind !== stage.kind && (
+            <DropdownMenu.Separator />
+          )}
+          <DropdownMenu.Item
+            onSelect={() => stage.id !== value && onSelect(stage)}
+          >
             <LeadStageBadge stage={stage} className="flex-1" />
-            {stage.id === value && <IconCheck className="size-4 text-primary" />}
+            {stage.id === value && (
+              <IconCheck className="size-4 text-primary" />
+            )}
           </DropdownMenu.Item>
         </div>
       ))}
@@ -43,10 +71,14 @@ export const LeadStageMenu = ({
 /** The stage as a status pill, tinted with its colour (inside a trigger of its own). */
 export const LeadStagePill = ({ stage }: { stage?: LeadStage | null }) => (
   <span
-    style={{ background: stage ? `color-mix(in srgb, ${stage.color} 16%, transparent)` : undefined }}
+    style={{
+      background: stage
+        ? `color-mix(in srgb, ${stage.color} 16%, transparent)`
+        : undefined,
+    }}
     className={cn(
-      'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium',
-      !stage && 'border-dashed border-border text-muted-foreground',
+      "inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium",
+      !stage && "border-dashed border-border text-muted-foreground",
     )}
   >
     <LeadStageBadge stage={stage} className="text-xs" />
@@ -55,14 +87,24 @@ export const LeadStagePill = ({ stage }: { stage?: LeadStage | null }) => (
 );
 
 /** The stage as a status pill button; click to change it. */
-export const LeadStageTrigger = ({ stage, ...props }: { stage?: LeadStage | null } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+export const LeadStageTrigger = ({
+  stage,
+  ...props
+}: {
+  stage?: LeadStage | null;
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     type="button"
     {...props}
-    style={{ background: stage ? `color-mix(in srgb, ${stage.color} 16%, transparent)` : undefined, ...props.style }}
+    style={{
+      background: stage
+        ? `color-mix(in srgb, ${stage.color} 16%, transparent)`
+        : undefined,
+      ...props.style,
+    }}
     className={cn(
-      'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium transition-[filter] hover:brightness-95 data-[state=open]:border-border',
-      !stage && 'border-dashed border-border text-muted-foreground',
+      "inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium transition-[filter] hover:brightness-95 data-[state=open]:border-border",
+      !stage && "border-dashed border-border text-muted-foreground",
       props.className,
     )}
   >

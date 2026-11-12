@@ -7,6 +7,7 @@ import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 import { ContactsPath } from './utils/contactDetailPath';
 import type { ViewRecordType } from '@erxes/core-contract';
 import { useViews } from './views/useViews';
+import { useLeadsT } from '~/modules/leads/i18n';
 import { VIEW_LIST_PATHS, viewHref } from './views/viewLinks';
 
 export const CONTACTS_SECTIONS = [
@@ -21,6 +22,7 @@ const LEADS = `${ContactsPath.Index}${ContactsPath.Leads}`;
 /** A list's saved views, nested under it in the sidebar (shown whenever there are any). */
 const NestedViews = ({ recordType, indent = false }: { recordType: ViewRecordType; indent?: boolean }) => {
   const views = useViews(recordType);
+  const leadsT = useLeadsT();
   const { pathname } = useLocation();
   const [params] = useSearchParams();
 
@@ -33,7 +35,7 @@ const NestedViews = ({ recordType, indent = false }: { recordType: ViewRecordTyp
       {views.map((view) => (
         <Sidebar.SubItem key={view.id}>
           <Sidebar.SubButton asChild size="sm" isActive={here && params.get('view') === view.id}>
-            <Link to={viewHref(recordType, view)} title={view.shared ? 'Shared with the team' : 'Only you'}>
+            <Link to={viewHref(recordType, view)} title={view.shared ? leadsT('views.shared') : leadsT('views.mine')}>
               {view.shared ? <IconUsers /> : <IconLayoutList />}
               <span className="truncate">{view.name}</span>
             </Link>
@@ -46,9 +48,9 @@ const NestedViews = ({ recordType, indent = false }: { recordType: ViewRecordTyp
 
 /** The Leads group: its report first, then people and companies. */
 const LEAD_ITEMS: { label: string; to: string; icon: typeof IconUser; views?: ViewRecordType }[] = [
-  { label: 'Insights', to: `${LEADS}/insights`, icon: IconChartFunnel },
-  { label: 'People', to: LEADS, icon: IconUser, views: 'lead' },
-  { label: 'Companies', to: `${LEADS}/companies`, icon: IconBuilding, views: 'company_lead' },
+  { label: 'insights', to: `${LEADS}/insights`, icon: IconChartFunnel },
+  { label: 'people', to: LEADS, icon: IconUser, views: 'lead' },
+  { label: 'companies', to: `${LEADS}/companies`, icon: IconBuilding, views: 'company_lead' },
 ];
 
 /** Which lead item a path is in (`/leads/<id>` is a person). */
@@ -58,6 +60,7 @@ const leadItemOf = (pathname: string) =>
 const LeadsGroup = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('contact');
+  const leadsT = useLeadsT();
   const inLeads = pathname === LEADS || pathname.startsWith(`${LEADS}/`);
   const [open, setOpen] = useState(true);
   const active = inLeads ? leadItemOf(pathname) : null;
@@ -76,7 +79,7 @@ const LeadsGroup = () => {
               <Sidebar.SubButton asChild isActive={active === to}>
                 <Link to={to}>
                   <Icon />
-                  <span>{label}</span>
+                  <span>{leadsT(label)}</span>
                 </Link>
               </Sidebar.SubButton>
               {views && <NestedViews recordType={views} indent />}

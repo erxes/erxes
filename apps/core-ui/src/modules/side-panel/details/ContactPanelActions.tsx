@@ -9,6 +9,7 @@ import { useCustomerEdit, useCustomersRemove } from '~/modules/contacts/customer
 import { getContactDetailPath, getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
 import { getSidePanelRecordPath } from '../sidePanelPaths';
 import { useSidePanel } from '../useSidePanel';
+import { useLeadsT } from '~/modules/leads/i18n';
 
 /** Reads a stored website as a link, ignoring values that are not http(s). */
 const getWebsiteUrl = (website?: string | null) => {
@@ -85,6 +86,7 @@ export const ContactPanelActions = ({
   const removeCompanies = useCompaniesRemove();
   const remove = contentType === 'core:customer' ? removeCustomers : removeCompanies;
   const can = useCan();
+  const leadsT = useLeadsT();
   const canDelete = can('contacts.delete');
   const canReopen = state === 'customer' && can('contacts.edit');
   const editCustomer = useCustomerEdit();
@@ -141,7 +143,7 @@ export const ContactPanelActions = ({
                     }}
                   >
                     <IconArrowBackUp />
-                    Make it a lead again
+                    {leadsT('actions.make-lead')}
                   </Command.Item>
                 )}
                 {canDelete && (

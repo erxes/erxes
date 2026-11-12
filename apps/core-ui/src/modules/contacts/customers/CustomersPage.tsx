@@ -5,6 +5,7 @@ import { useLeadView } from '~/modules/leads/leadView';
 import { CustomersFilter } from './CustomersFilter';
 import { CustomersHeader } from './CustomersHeader';
 import { ViewTabs } from '../views/ViewTabs';
+import { useLeadsT } from '~/modules/leads/i18n';
 import { CustomersRecordTable } from './CustomersRecordTable';
 
 /**
@@ -14,12 +15,13 @@ import { CustomersRecordTable } from './CustomersRecordTable';
  */
 export const CustomersPage = ({ state }: { state: CustomerState }) => {
   const [view] = useLeadView();
+  const t = useLeadsT();
   const board = state === 'lead' && view === 'board';
 
   return (
     <PageContainer>
       <CustomersHeader state={state} />
-      <ViewTabs recordType={state} allLabel={state === 'lead' ? 'All leads' : 'All customers'} />
+      <ViewTabs recordType={state} allLabel={state === 'lead' ? t('views.all-leads') : t('views.all-customers')} />
       <PageSubHeader>
         <CustomersFilter state={state} />
       </PageSubHeader>
