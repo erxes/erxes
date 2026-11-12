@@ -23,6 +23,7 @@ import { type IRecordSidePanelTab, RecordSidePanel, usePanelExpanded } from './R
 import type { IRecordViewProps } from './recordView';
 import { SidePanelRecordStack } from './SidePanelRecordStack';
 import { NEW_RECORD_ID, SIDE_PANEL_ROOT_PATH, type TRelationEntity } from './sidePanelPaths';
+import { LeadHeaderActions } from '~/modules/leads/LeadHeaderActions';
 import { sidePanelWidthState, useSidePanel } from './useSidePanel';
 
 const DETAIL_TAB = 'detail';
@@ -199,7 +200,12 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
       : []),
   ];
   const tab = selectedTab && tabs.some((entry) => entry.value === selectedTab) ? selectedTab : DETAIL_TAB;
-  const actions = <ContactPanelActions contentType={contactType} contentId={record.contentId} />;
+  const actions = (
+    <>
+      <LeadHeaderActions recordType={contactType === 'core:company' ? 'company' : 'customer'} record={contactType === 'core:company' ? company : customer} />
+      <ContactPanelActions contentType={contactType} contentId={record.contentId} />
+    </>
+  );
 
   return (
     <>

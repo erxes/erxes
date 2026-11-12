@@ -1,5 +1,5 @@
 import type { LeadRecordType } from '@erxes/core-contract';
-import { IconBuilding, IconChartFunnel, IconLayoutKanban, IconTable, IconUser } from '@tabler/icons-react';
+import { IconBuilding, IconChartFunnel, IconTable, IconUser } from '@tabler/icons-react';
 import { Button, cn, useQueryState } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 
@@ -26,13 +26,11 @@ const Segmented = ({ options }: { options: { active: boolean; onClick: () => voi
   </div>
 );
 
-/** Leads header: people or companies, table or board, and the funnel report. */
+/** Leads header: people or companies, and the funnel report (table or board is under Display in the filter bar). */
 export const LeadViewSwitch = () => {
-  const [view, setView] = useQueryState<string>('view');
   const [, setKind] = useQueryState<string>('kind');
   const [, setStage] = useQueryState<string>('stage');
   const kind = useLeadKind();
-  const board = view === 'board';
 
   return (
     <>
@@ -46,12 +44,6 @@ export const LeadViewSwitch = () => {
         options={[
           { active: kind === 'customer', onClick: () => (setStage(null), setKind(null)), icon: IconUser, label: 'People' },
           { active: kind === 'company', onClick: () => (setStage(null), setKind('companies')), icon: IconBuilding, label: 'Companies' },
-        ]}
-      />
-      <Segmented
-        options={[
-          { active: !board, onClick: () => setView(null), icon: IconTable, label: 'Table' },
-          { active: board, onClick: () => setView('board'), icon: IconLayoutKanban, label: 'Board' },
         ]}
       />
     </>

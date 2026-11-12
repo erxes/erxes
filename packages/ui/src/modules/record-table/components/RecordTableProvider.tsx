@@ -99,18 +99,64 @@ export const RecordTableProvider = forwardRef<
     }, [columnPinning, stickyKey]);
 
     const columnIdsKey = columns.map((column) => column.id || '').join(',');
+    // Columns the saved preferences already knew: a column added later is new.
+    const seenIds = useRef(new Set<string>(columnOrder ?? columns.map((c) => c.id || '')));
     useEffect(() => {
+      const ids = columnIdsKey.split(',').filter(Boolean);
+
       setColumnOrder((prev) => {
-        const ids = columnIdsKey.split(',').filter(Boolean);
         const known = prev.filter((id) => ids.includes(id));
 
         if (known.length === prev.length && known.length === ids.length) {
           return prev;
         }
 
-        return [...known, ...ids.filter((id) => !known.includes(id))];
+        // A new column goes where it is defined (after the nearest column
+        // before it), not at the end of a saved order.
+        const result = [...known];
+
+        ids.forEach((id, index) => {
+          if (result.includes(id)) return;
+
+          let at = 0;
+
+          for (let i = index - 1; i >= 0; i -= 1) {
+            const position = result.indexOf(ids[i]);
+
+            if (position >= 0) {
+              at = position + 1;
+              break;
+            }
+          }
+
+          result.splice(at, 0, id);
+        });
+
+        return result;
       });
-    }, [columnIdsKey]);
+
+      // A new column that should stick is pinned too (after the pinned column before it).
+      const sticky = stickyKey ? stickyKey.split(',') : [];
+      const fresh = sticky.filter((id) => ids.includes(id) && !seenIds.current.has(id));
+
+      if (fresh.length) {
+        setColPinning((prev) => {
+          const left = [...(prev.left ?? [])];
+
+          for (const id of fresh) {
+            if (left.includes(id)) continue;
+
+            const before = sticky.slice(0, sticky.indexOf(id)).reverse().find((other) => left.includes(other));
+
+            left.splice(before ? left.indexOf(before) + 1 : left.length, 0, id);
+          }
+
+          return { ...prev, left };
+        });
+      }
+
+      ids.forEach((id) => seenIds.current.add(id));
+    }, [columnIdsKey, stickyKey]);
 
     const structuralKey = columns
       .map((column) => column.id)

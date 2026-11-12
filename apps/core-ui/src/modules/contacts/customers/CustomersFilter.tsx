@@ -7,6 +7,7 @@ import { SelectMember } from '../components/SelectMember';
 import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
 import { customersSessionKey, useCustomers } from './useCustomers';
 import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
+import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
 import { formatTotal } from '~/lib/cursorList';
 
 export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
@@ -93,6 +94,7 @@ export const CustomersFilter = ({ state }: { state: CustomerState }) => {
         <AdvancedFilterButton recordType={state} />
         <CustomerTotalCount state={state} />
         <SaveViewButton recordType={state} />
+        {state === 'lead' && <LeadDisplayMenu />}
       </Filter.Bar>
     </Filter>
   );

@@ -7,6 +7,7 @@ import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
 import { formatTotal } from '~/lib/cursorList';
 import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
 import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
+import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
 
 export const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
@@ -93,6 +94,7 @@ export const CompaniesFilter = ({ state = 'customer' }: { state?: 'lead' | 'cust
         <AdvancedFilterButton recordType="company" />
         <CompaniesTotalCount state={state} />
         <SaveViewButton recordType="company" />
+        {state === 'lead' && <LeadDisplayMenu />}
       </Filter.Bar>
     </Filter>
   );
