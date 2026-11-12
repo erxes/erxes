@@ -20,7 +20,7 @@ import {
   removeStep,
   stepOutputFields,
 } from './builder/flowModel';
-import { BuilderContext } from './builder/StepSettings';
+import { BuilderContext } from './builder/BuilderContext';
 import { useAutomationFields } from './builder/useAutomationFields';
 import { RunsPanel } from './RunsPanel';
 import type { Selection } from './StepInspector';

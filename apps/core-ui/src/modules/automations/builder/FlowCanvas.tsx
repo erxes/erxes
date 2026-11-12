@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useLeadStages } from '~/modules/leads/useLeads';
 import { catalogIcon } from './CatalogPicker';
 import { armsOf, describeStep, type ListAddress, STEP_TITLES, type StepType } from './flowModel';
-import { BuilderContext } from './StepSettings';
+import { BuilderContext } from './BuilderContext';
 import type { FieldInfo } from './useAutomationFields';
 
 /** How each kind of node looks: icon and colour (actions, waits, logic, ends). */

@@ -264,6 +264,7 @@
   "other-data": "Бусад",
   "today-date": "Өнөөдрийн огноо",
   "clear-value": "Талбарыг хоослох",
+  "invalid-json": "JSON буруу байна, хадгалагдаагүй.",
   "to-company-email": "Байгууллагын имэйл",
   "to-customer-email": "Харилцагчийн имэйл",
   "to-addresses": "Өөр хаягууд",

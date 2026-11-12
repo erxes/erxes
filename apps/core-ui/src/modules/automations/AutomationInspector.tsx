@@ -7,7 +7,7 @@ import type { Catalog } from './automationQueries';
 import { AutomationSettings, ProblemList } from './AutomationSettings';
 import type { FieldInfo } from './builder/useAutomationFields';
 import { describeStep, findStep, replaceStep, STEP_TITLES } from './builder/flowModel';
-import { BuilderContext } from './builder/StepSettings';
+import { BuilderContext } from './builder/BuilderContext';
 import { TriggerEditor } from './builder/TriggerEditor';
 import { type Selection, StepInspector } from './StepInspector';
 import type { useAutomationDraft } from './useAutomationEditor';

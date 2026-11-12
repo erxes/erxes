@@ -264,6 +264,7 @@
   "other-data": "Other",
   "today-date": "Today's date",
   "clear-value": "Clear the field",
+  "invalid-json": "Not valid JSON, not saved.",
   "to-company-email": "The company's email",
   "to-customer-email": "The customer's email",
   "to-addresses": "Other addresses",

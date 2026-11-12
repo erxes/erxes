@@ -18,7 +18,8 @@ import {
   removeStep,
   STEP_TITLES,
 } from './builder/flowModel';
-import { BuilderContext, StepSettings } from './builder/StepSettings';
+import { BuilderContext } from './builder/BuilderContext';
+import { StepSettings } from './builder/StepSettings';
 import { useAutomationFields } from './builder/useAutomationFields';
 
 /** What the inspector shows: the automation's settings, its trigger, or a step (by id). */
