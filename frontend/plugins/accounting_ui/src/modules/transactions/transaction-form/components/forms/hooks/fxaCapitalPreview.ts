@@ -63,15 +63,19 @@ const buildFxaCapitalAssetPreview = (
     getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation,
     valuation.locations.map((location) => location.count),
   );
-  const totalTax = revaluation
-    ? (valuation.taxPreDeprecation ?? valuation.preDeprecation) +
-      (getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation) -
-      valuation.preDeprecation
-    : valuation.hasTaxDepreciation
-    ? getTotalFxaDepreciation(trDoc.details, 'taxPreDeprecation') ??
+  let totalTax =
+    getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation;
+  if (revaluation) {
+    totalTax =
+      (valuation.taxPreDeprecation ?? valuation.preDeprecation) +
+      totalTax -
+      valuation.preDeprecation;
+  } else if (valuation.hasTaxDepreciation) {
+    totalTax =
+      getTotalFxaDepreciation(trDoc.details, 'taxPreDeprecation') ??
       valuation.taxPreDeprecation ??
-      valuation.preDeprecation
-    : getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation;
+      valuation.preDeprecation;
+  }
   const locationTax = allocateFxaDepreciation(
     totalTax,
     valuation.locations.map((row) => row.count),

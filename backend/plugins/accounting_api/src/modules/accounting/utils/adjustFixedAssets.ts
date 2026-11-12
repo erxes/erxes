@@ -1105,18 +1105,25 @@ export const createAdjustFixedAssetTransaction = async ({
     oldTrs: existing,
   });
   const retainedParentId = trDocs.length ? parentIds[0] : undefined;
-  const transactions = trDocs.length
-    ? retainedParentId
-      ? await models.Transactions.updatePTransaction(
-          retainedParentId,
-          trDocs,
-          userId,
-          { preservePtrIds: true },
-        )
-      : await models.Transactions.createPTransaction(trDocs, userId, {
+  let transactions: ITransaction[] = [];
+  if (trDocs.length) {
+    if (retainedParentId) {
+      transactions = await models.Transactions.updatePTransaction(
+        retainedParentId,
+        trDocs,
+        userId,
+        { preservePtrIds: true },
+      );
+    } else {
+      transactions = await models.Transactions.createPTransaction(
+        trDocs,
+        userId,
+        {
           preservePtrIds: true,
-        })
-    : [];
+        },
+      );
+    }
+  }
   await parentIds
     .filter((parentId) => parentId !== retainedParentId)
     .reduce(async (previous, parentId) => {
