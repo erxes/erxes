@@ -1,3 +1,4 @@
+import type { LeadReport } from '@erxes/core-contract';
 import { IconChartFunnel, type TablerIcon } from '@tabler/icons-react';
 import {
   AppLayout,
@@ -8,10 +9,10 @@ import {
   Sidebar,
   Skeleton,
   useQueryState,
+  PageHeader,
 } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '~/lib/api';
 import {
@@ -58,7 +59,7 @@ const ReportsNavigation = () => {
   );
 };
 
-export const ReportSection = ({
+const ReportSection = ({
   title,
   description,
   children,
@@ -78,6 +79,31 @@ export const ReportSection = ({
   </section>
 );
 
+/** The summary, then stages, sources, owners and reasons for losing. */
+const LeadReportSections = ({ report }: { report: LeadReport }) => {
+  const t = useLeadsT();
+
+  return (
+    <>
+      <LeadSummary report={report} />
+      <ReportSection title={t('report.stages')} description={t('report.stages-description')}>
+        <LeadStageFunnel report={report} />
+      </ReportSection>
+      <div className="grid gap-4 md:grid-cols-2">
+        <ReportSection title={t('report.sources')} description={t('report.sources-description')}>
+          <LeadSources report={report} />
+        </ReportSection>
+        <ReportSection title={t('report.owners')} description={t('report.owners-description')}>
+          <LeadOwners report={report} />
+        </ReportSection>
+      </div>
+      <ReportSection title={t('report.lost')} description={t('report.lost-description')}>
+        <LeadReasons report={report} />
+      </ReportSection>
+    </>
+  );
+};
+
 /**
  * Reports › Leads: how many leads came, how many became customers, how long
  * it took, where good ones come from, who converts them, why others were lost.
@@ -88,7 +114,7 @@ export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }
   const [kind, setKind] = useQueryState<string>('kind');
   const [daysParam, setDays] = useQueryState<string>('days');
   const recordType = kind === 'companies' ? 'company' : 'customer';
-  const days = (REPORT_RANGES as readonly string[]).includes(daysParam ?? '') ? daysParam! : '30';
+  const days = REPORT_RANGES.find((range) => range === daysParam) ?? '30';
   const { data: report, error, isPending } = useLeadReportFor(recordType, Number(days));
 
   return (
@@ -150,32 +176,7 @@ export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }
           {isPending || !report ? (
             <Skeleton className="h-96" />
           ) : (
-            <>
-              <LeadSummary report={report} />
-              <ReportSection
-                title={t('report.stages')}
-                description={t('report.stages-description')}
-              >
-                <LeadStageFunnel report={report} />
-              </ReportSection>
-              <div className="grid gap-4 md:grid-cols-2">
-                <ReportSection
-                  title={t('report.sources')}
-                  description={t('report.sources-description')}
-                >
-                  <LeadSources report={report} />
-                </ReportSection>
-                <ReportSection
-                  title={t('report.owners')}
-                  description={t('report.owners-description')}
-                >
-                  <LeadOwners report={report} />
-                </ReportSection>
-              </div>
-              <ReportSection title={t('report.lost')} description={t('report.lost-description')}>
-                <LeadReasons report={report} />
-              </ReportSection>
-            </>
+            <LeadReportSections report={report} />
           )}
         </div>
       </ScrollArea>

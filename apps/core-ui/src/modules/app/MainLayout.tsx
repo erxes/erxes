@@ -1,5 +1,7 @@
 import { Sidebar } from 'erxes-ui';
+import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
+import { PageSpinner } from '~/components/PageSpinner';
 import { useLiveUpdates } from '~/lib/live';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
 import { CoreTab } from '~/modules/navigation/CoreTab';
@@ -7,7 +9,7 @@ import { PlanBanner } from '~/modules/saas/PlanBanner';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 
 /**
- * The signed-in frame (old core-ui DefaultLayout): the top bar, then the open
+ * The signed-in frame: the top bar, then the open
  * app, which draws its own sidebar (AppLayout) or, for plugins, everything.
  */
 export const MainLayout = () => {
@@ -24,14 +26,15 @@ export const MainLayout = () => {
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <CoreTab />
         <PlanBanner />
-        {/* The record side panel sits beside the page, as in old core-ui. */}
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
           <main
             id="main-content"
             tabIndex={-1}
             className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background outline-none"
           >
-            <Outlet />
+            <Suspense fallback={<PageSpinner />}>
+              <Outlet />
+            </Suspense>
           </main>
           <SidePanelLayout />
         </div>

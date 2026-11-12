@@ -625,6 +625,7 @@
     "do-this-later": "Дараа хийнэ",
     "invalid-email": "Зөв имэйл хаяг оруулна уу",
     "email-already-added": "Энэ имэйл аль хэдийн нэмэгдсэн байна",
+    "remove-email": "{{email}}-г хасах",
     "add-at-least-one-email": "Дор хаяж нэг имэйл хаяг нэмнэ уу",
     "create-profile": "Профайлаа үүсгэнэ үү",
     "profile-description-username": "Мэдээллээ оруулж, хэрэглэгчийн нэрээ сонгоно уу",

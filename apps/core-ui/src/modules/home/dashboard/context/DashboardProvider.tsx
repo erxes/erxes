@@ -58,6 +58,12 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     [draft, layout.items],
   );
 
+  const reset = () => {
+    layout.reset();
+    setDraft(null);
+    toast({ title: t('reset-done'), variant: 'success' });
+  };
+
   const value: TDashboardContext = {
     items,
     widgets: WIDGETS,
@@ -83,13 +89,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         });
       }
     },
-    resetLayout: () => {
-      void confirm({ message: t('reset-confirm') }).then(() => {
-        layout.reset();
-        setDraft(null);
-        toast({ title: t('reset-done'), variant: 'success' });
-      });
-    },
+    resetLayout: () => void confirm({ message: t('reset-confirm') }).then(reset),
     addWidget: (widget, position) => {
       const id = newTileId();
 

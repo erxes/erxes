@@ -68,6 +68,24 @@ const CheckboxCell = <TData,>({ row, table }: { row: Row<TData>; table: Table<TD
   </div>
 );
 
+/** The row selection column, typed for a table of `TData`. */
+export const checkboxColumnOf = <TData,>(): ColumnDef<TData> => ({
+  id: 'checkbox',
+  header: ({ table }) => (
+    <div className="flex items-center justify-center h-8">
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all rows"
+      />
+    </div>
+  ),
+  size: 33,
+  cell: ({ row, table }) => <CheckboxCell row={row} table={table} />,
+});
+
 export const checkboxColumn: ColumnDef<any> = {
   accessorKey: 'checkbox',
   id: 'checkbox',

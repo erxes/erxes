@@ -1,13 +1,9 @@
 import { useAtomValue } from 'jotai';
 import { type ComponentType, useState } from 'react';
+import { sidePanelHistoryState } from './panelNavigation';
 import { type IRecordViewProps, SidePanelRecordPathContext } from './recordView';
 import { parseSidePanelRecord } from './sidePanelPaths';
-import {
-  SidePanelDraftContext,
-  sidePanelDraftState,
-  sidePanelHistoryState,
-  sidePanelSessionState,
-} from './useSidePanel';
+import { SidePanelDraftContext, sidePanelDraftState, sidePanelSessionState } from './useSidePanel';
 
 /** Retains one view with the draft defaults it was opened with. */
 const RecordEntry = ({

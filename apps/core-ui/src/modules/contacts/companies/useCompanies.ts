@@ -1,11 +1,10 @@
-import type { Company, CompanyInput } from '@erxes/core-contract';
+import type { Company } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
-import { api, messageOf } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
 import { useAdvancedFilterParam } from '../views/useViews';
 
-export const COMPANIES_KEY = ['companies'];
 export const COMPANIES_SESSION_KEY = 'core_companies_cursor';
 
 type CompanyState = 'lead' | 'customer';
@@ -35,100 +34,104 @@ export const useCompanies = (state: CompanyState = 'customer') => {
   const filters = useCompaniesFilters(state);
 
   return useCursorList<Company>({
-    queryKey: [...COMPANIES_KEY, 'list', filters],
     sessionKey: state === 'lead' ? 'core_company_leads_cursor' : COMPANIES_SESSION_KEY,
-    fetchPage: (params) => api.companies.list({ ...params, ...filters }),
+    filters,
+    options: (paging) =>
+      orpc.companies.list.infiniteOptions({
+        input: (page) => ({ ...page, ...filters }),
+        ...paging,
+      }),
   });
 };
 
 export const useCompany = (id: string | null) =>
-  useQuery({
-    queryKey: [...COMPANIES_KEY, 'detail', id],
-    queryFn: () => api.companies.get({ id: id! }),
-    enabled: !!id,
-  });
+  useQuery(orpc.companies.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id }));
 
 export const useCompanyEdit = () => {
   const client = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: ({ id, ...body }: CompanyInput & { id: string }) =>
-      api.companies.update({ id, ...body }),
-    onSuccess: (company, input) => {
-      patchCachedRecord(client, COMPANIES_KEY, company);
-      client.setQueryData([...COMPANIES_KEY, 'detail', company.id], company);
+  return useMutation(
+    orpc.companies.update.mutationOptions({
+      onSuccess: (company, input) => {
+        patchCachedRecord(client, orpc.companies.list.key(), company);
+        client.setQueryData(orpc.companies.get.queryKey({ input: { id: company.id } }), company);
 
-      // Lead ↔ customer moves it to the other list.
-      if (input.state) void client.invalidateQueries({ queryKey: [...COMPANIES_KEY, 'list'] });
-    },
-    onError: (error) =>
-      toast({
-        variant: 'destructive',
-        title: 'Could not save the company',
-        description: messageOf(error),
-      }),
-  });
+        // Lead ↔ customer moves it to the other list.
+        if (input.state) void client.invalidateQueries({ queryKey: orpc.companies.list.key() });
+      },
+      onError: (error) =>
+        toast({
+          variant: 'destructive',
+          title: 'Could not save the company',
+          description: messageOf(error),
+        }),
+    }),
+  );
 };
 
+/** Callers show the failure next to the field it is about (`COMPANY_EXISTS`). */
 export const useCompanyCreate = () => {
   const client = useQueryClient();
 
-  return useMutation({
-    mutationFn: (body: CompanyInput & { primaryName: string }) => api.companies.create(body),
-    onSuccess: () => client.invalidateQueries({ queryKey: [...COMPANIES_KEY, 'list'] }),
-  });
+  return useMutation(
+    orpc.companies.create.mutationOptions({
+      onSuccess: () => client.invalidateQueries({ queryKey: orpc.companies.list.key() }),
+    }),
+  );
 };
 
 export const useCompaniesRemove = () => {
   const client = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: (ids: string[]) => api.companies.remove({ ids }),
-    onSuccess: ({ removed }, ids) => {
-      removeCachedRecords(client, COMPANIES_KEY, ids);
-      void client.invalidateQueries({ queryKey: [...COMPANIES_KEY, 'list'] });
-      toast({
-        variant: 'success',
-        title: removed === 1 ? 'Company deleted' : `${removed} companies deleted`,
-      });
-    },
-    onError: (error) =>
-      toast({ variant: 'destructive', title: 'Could not delete', description: messageOf(error) }),
-  });
+  return useMutation(
+    orpc.companies.remove.mutationOptions({
+      onSuccess: ({ removed }, { ids }) => {
+        removeCachedRecords(client, orpc.companies.list.key(), ids);
+        void client.invalidateQueries({ queryKey: orpc.companies.list.key() });
+        toast({
+          variant: 'success',
+          title: removed === 1 ? 'Company deleted' : `${removed} companies deleted`,
+        });
+      },
+      onError: (error) =>
+        toast({ variant: 'destructive', title: 'Could not delete', description: messageOf(error) }),
+    }),
+  );
 };
 
 export const useCompaniesTag = () => {
   const client = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: (input: { ids: string[]; add: string[]; remove: string[] }) =>
-      api.companies.tag(input),
-    onSuccess: () => client.invalidateQueries({ queryKey: COMPANIES_KEY }),
-    onError: (error) =>
-      toast({ variant: 'destructive', title: 'Could not tag', description: messageOf(error) }),
-  });
+  return useMutation(
+    orpc.companies.tag.mutationOptions({
+      onSuccess: () => client.invalidateQueries({ queryKey: orpc.companies.key() }),
+      onError: (error) =>
+        toast({ variant: 'destructive', title: 'Could not tag', description: messageOf(error) }),
+    }),
+  );
 };
 
 export const useCompaniesMerge = () => {
   const client = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: (input: { ids: string[]; keepId: string }) => api.companies.merge(input),
-    onSuccess: (company, input) => {
-      removeCachedRecords(
-        client,
-        COMPANIES_KEY,
-        input.ids.filter((id) => id !== company.id),
-      );
-      patchCachedRecord(client, COMPANIES_KEY, company);
-      void client.invalidateQueries({ queryKey: COMPANIES_KEY });
-      toast({ variant: 'success', title: 'Companies merged' });
-    },
-    onError: (error) =>
-      toast({ variant: 'destructive', title: 'Could not merge', description: messageOf(error) }),
-  });
+  return useMutation(
+    orpc.companies.merge.mutationOptions({
+      onSuccess: (company, input) => {
+        removeCachedRecords(
+          client,
+          orpc.companies.list.key(),
+          input.ids.filter((id) => id !== company.id),
+        );
+        patchCachedRecord(client, orpc.companies.list.key(), company);
+        void client.invalidateQueries({ queryKey: orpc.companies.key() });
+        toast({ variant: 'success', title: 'Companies merged' });
+      },
+      onError: (error) =>
+        toast({ variant: 'destructive', title: 'Could not merge', description: messageOf(error) }),
+    }),
+  );
 };

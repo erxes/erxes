@@ -75,8 +75,8 @@ export const NoteHistory = ({ history }: { history: { body: string; editedAt: st
         <p className="text-xs font-medium text-muted-foreground">
           {t('earlier-versions', 'Earlier versions')}
         </p>
-        {[...history].reverse().map((entry, index) => (
-          <div key={index} className="rounded border p-2">
+        {history.toReversed().map((entry) => (
+          <div key={entry.editedAt} className="rounded border p-2">
             <p className="text-xs text-muted-foreground">
               {new Date(entry.editedAt).toLocaleString()}
             </p>

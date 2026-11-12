@@ -28,8 +28,8 @@ interface SettingsPath {
   icon: Icon;
 }
 
-/** Old core-ui settings "Workspace" group, limited to what core has. */
-export const useSettingsWorkspacePaths = (): SettingsPath[] => {
+/** The settings "Workspace" group. */
+const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
   const plan = usePlan().data;
@@ -64,7 +64,7 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
   ];
 };
 
-export function SettingsNavigationGroup({
+function SettingsNavigationGroup({
   name,
   children,
 }: Readonly<{ name: string; children: ReactNode }>) {
@@ -100,16 +100,15 @@ export const useSettingsEntry = () => {
 };
 
 /**
- * Back to where settings were opened from (old core-ui used its page history);
- * opened directly, it goes home.
+ * Back to where settings were opened from; opened directly, it goes home.
  */
-export function SettingsExitButton() {
+function SettingsExitButton() {
   const navigate = useNavigate();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   const handleExitSettings = () => {
-    if (settingsEntryIndex > 0) navigate(-(historyIndex() - settingsEntryIndex + 1));
-    else navigate('/');
+    if (settingsEntryIndex > 0) void navigate(-(historyIndex() - settingsEntryIndex + 1));
+    else void navigate('/');
   };
 
   return (
@@ -137,7 +136,7 @@ const useSettingsAccountPaths = (): SettingsPath[] => {
   ];
 };
 
-/** Old core-ui `SettingsSidebar`: exit, the member's own account first, then the workspace settings core has. */
+/** Exit, the member's own account first, then the workspace settings. */
 export function SettingsSidebar() {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const workspace = useSettingsWorkspacePaths();

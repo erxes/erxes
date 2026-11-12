@@ -4,6 +4,61 @@ import { useEffect, useRef } from 'react';
 // Editor emits changes after a 300ms debounce.
 const EDITOR_SETTLE_MS = 350;
 
+const TYPING_TARGET =
+  'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]';
+
+const OVERLAY = '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]';
+
+/** A bare `/` typed outside any input, while nothing covers the page. */
+const isFocusKey = (event: KeyboardEvent) =>
+  event.key === '/' &&
+  !event.defaultPrevented &&
+  !event.ctrlKey &&
+  !event.metaKey &&
+  !event.altKey &&
+  !event.shiftKey &&
+  !event.repeat &&
+  !event.isComposing &&
+  !(event.target instanceof Element && event.target.closest(TYPING_TARGET)) &&
+  !Array.from(document.querySelectorAll<HTMLElement>(OVERLAY)).some(
+    (overlay) => overlay.getClientRects().length > 0,
+  );
+
+/** The editor inside `container`, when it is shown. */
+const visibleEditor = (container: HTMLElement | null) => {
+  const editor = container?.querySelector<HTMLElement>('[contenteditable="true"]');
+
+  if (!editor?.getClientRects().length) return null;
+
+  return editor.closest('[hidden], [inert], [role="tabpanel"][data-state="inactive"]')
+    ? null
+    : editor;
+};
+
+/** `/` focuses the description editor, unless it is read-only. */
+const useSlashFocus = (readonly: boolean | undefined) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (readonly) return undefined;
+
+    const focusDescription = (event: KeyboardEvent) => {
+      const editor = isFocusKey(event) ? visibleEditor(containerRef.current) : null;
+
+      if (!editor) return;
+
+      event.preventDefault();
+      editor.focus();
+    };
+
+    document.addEventListener('keydown', focusDescription);
+
+    return () => document.removeEventListener('keydown', focusDescription);
+  }, [readonly]);
+
+  return containerRef;
+};
+
 export const ContactDescriptionEditor = ({
   value,
   scope,
@@ -15,7 +70,7 @@ export const ContactDescriptionEditor = ({
   readonly?: boolean;
   onSave: (description: string) => void;
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useSlashFocus(readonly);
   const latest = useRef(value);
   const saved = useRef(value);
 
@@ -23,56 +78,6 @@ export const ContactDescriptionEditor = ({
     latest.current = value;
     saved.current = value;
   }, [value]);
-
-  useEffect(() => {
-    const focusDescription = (event: KeyboardEvent) => {
-      if (
-        event.key !== '/' ||
-        event.defaultPrevented ||
-        event.ctrlKey ||
-        event.metaKey ||
-        event.altKey ||
-        event.shiftKey ||
-        event.repeat ||
-        event.isComposing ||
-        readonly
-      ) {
-        return;
-      }
-
-      const target = event.target;
-
-      if (
-        target instanceof Element &&
-        target.closest(
-          'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]',
-        )
-      ) {
-        return;
-      }
-
-      const editor = containerRef.current?.querySelector<HTMLElement>('[contenteditable="true"]');
-
-      if (
-        !editor?.getClientRects().length ||
-        editor.closest('[hidden], [inert], [role="tabpanel"][data-state="inactive"]') ||
-        Array.from(
-          document.querySelectorAll<HTMLElement>(
-            '[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]',
-          ),
-        ).some((overlay) => overlay.getClientRects().length > 0)
-      ) {
-        return;
-      }
-
-      event.preventDefault();
-      editor.focus();
-    };
-
-    document.addEventListener('keydown', focusDescription);
-
-    return () => document.removeEventListener('keydown', focusDescription);
-  }, [readonly]);
 
   return (
     <div

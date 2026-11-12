@@ -31,11 +31,14 @@ export const parsePluginRemotes = (value = import.meta.env.PUBLIC_PLUGINS ?? '')
 
 let registered = false;
 
-const isConfig = (value: unknown): value is PluginConfig => {
-  const config = value as Partial<PluginConfig> | undefined;
-
-  return typeof config?.name === 'string' && typeof config.path === 'string' && !!config.path;
-};
+const isConfig = (value: unknown): value is PluginConfig =>
+  typeof value === 'object' &&
+  value !== null &&
+  'name' in value &&
+  typeof value.name === 'string' &&
+  'path' in value &&
+  typeof value.path === 'string' &&
+  value.path !== '';
 
 const allowed = async (config: PluginConfig) => {
   if (!config.checkAccess) {
@@ -106,11 +109,8 @@ export const loadPluginComponent = async (remote: string, module: string) => {
     return cached;
   }
 
-  const exports = await loadRemote<Record<string, unknown>>(key);
-
-  const component = (exports?.default ?? exports?.[pascalCase(module)]) as
-    | ComponentType
-    | undefined;
+  const exports = await loadRemote<Record<string, ComponentType | undefined>>(key);
+  const component = exports?.default ?? exports?.[pascalCase(module)];
 
   if (typeof component !== 'function' && typeof component !== 'object') {
     throw new Error(`${key} has no default or ${pascalCase(module)} export`);

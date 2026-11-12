@@ -6,27 +6,72 @@ import {
   Form,
   Input,
   PageContainer,
+  PageHeader,
   RelativeDateDisplay,
   ScrollArea,
   Spinner,
   useToast,
 } from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'erxes-ui';
+import { z } from 'zod';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
-import { api, isApiError, messageOf } from '~/lib/api';
-import { useSignOut } from '~/modules/auth/session';
+import { QueryState } from '~/components/QueryState';
+import { isApiError, messageOf, orpc } from '~/lib/api';
+import { useSignOutEverywhere } from '~/modules/auth/session';
 import { Section } from './Section';
 import { TwoFactorSection } from './TwoFactorSection';
 
-interface PasswordValues {
-  currentPassword: string;
-  newPassword: string;
-  confirm: string;
-}
-
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,200}$/;
+
+const usePasswordSchema = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'profile' });
+
+  return z
+    .object({
+      currentPassword: z.string().min(1, t('required', 'Required')),
+      newPassword: z
+        .string()
+        .regex(
+          PASSWORD_RULE,
+          t(
+            'password-rule',
+            'At least 8 characters with a lower-case letter, an upper-case letter and a digit',
+          ),
+        ),
+      confirm: z.string(),
+    })
+    .refine((values) => values.confirm === values.newPassword, {
+      message: t('password-mismatch', 'The passwords differ'),
+      path: ['confirm'],
+    });
+};
+
+type PasswordValues = z.infer<ReturnType<typeof usePasswordSchema>>;
+
+const PasswordField = ({
+  name,
+  label,
+  autoComplete,
+}: {
+  name: keyof PasswordValues;
+  label: string;
+  autoComplete: string;
+}) => (
+  <Form.Field
+    name={name}
+    render={({ field }) => (
+      <Form.Item>
+        <Form.Label className="text-xs">{label}</Form.Label>
+        <Form.Control>
+          <Input {...field} type="password" autoComplete={autoComplete} />
+        </Form.Control>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);
 
 /** Changing my own password needs the current one. */
 const PasswordForm = () => {
@@ -34,65 +79,29 @@ const PasswordForm = () => {
   const { toast } = useToast();
 
   const form = useForm<PasswordValues>({
+    resolver: zodResolver(usePasswordSchema()),
     defaultValues: { currentPassword: '', newPassword: '', confirm: '' },
   });
 
-  const change = useMutation({
-    mutationFn: (values: PasswordValues) =>
-      api.auth.changePassword({
-        currentPassword: values.currentPassword,
-        newPassword: values.newPassword,
-      }),
-    onSuccess: () => {
-      form.reset();
-      toast({ title: t('password-changed', 'Password changed') });
-    },
-    onError: (error) => {
-      if (isApiError(error, 'WRONG_PASSWORD'))
-        form.setError('currentPassword', { message: error.message });
-      else if (isApiError(error, 'SAME_PASSWORD'))
-        form.setError('newPassword', { message: error.message });
-      else
-        toast({
-          variant: 'destructive',
-          title: t('password-failed', 'Could not change the password'),
-          description: messageOf(error),
-        });
-    },
-  });
-
-  const field = (name: keyof PasswordValues, label: string, autoComplete: string) => (
-    <Form.Field
-      name={name}
-      rules={
-        name === 'currentPassword'
-          ? { required: t('required', 'Required') }
-          : name === 'newPassword'
-            ? {
-                pattern: {
-                  value: PASSWORD_RULE,
-                  message: t(
-                    'password-rule',
-                    'At least 8 characters with a lower-case letter, an upper-case letter and a digit',
-                  ),
-                },
-              }
-            : {
-                validate: (value: string) =>
-                  value === form.getValues('newPassword') ||
-                  t('password-mismatch', 'The passwords differ'),
-              }
-      }
-      render={({ field: input }) => (
-        <Form.Item>
-          <Form.Label className="text-xs">{label}</Form.Label>
-          <Form.Control>
-            <Input {...input} type="password" autoComplete={autoComplete} />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
+  const change = useMutation(
+    orpc.auth.changePassword.mutationOptions({
+      onSuccess: () => {
+        form.reset();
+        toast({ title: t('password-changed', 'Password changed') });
+      },
+      onError: (error) => {
+        if (isApiError(error, 'WRONG_PASSWORD'))
+          form.setError('currentPassword', { message: error.message });
+        else if (isApiError(error, 'SAME_PASSWORD'))
+          form.setError('newPassword', { message: error.message });
+        else
+          toast({
+            variant: 'destructive',
+            title: t('password-failed', 'Could not change the password'),
+            description: messageOf(error),
+          });
+      },
+    }),
   );
 
   return (
@@ -103,11 +112,27 @@ const PasswordForm = () => {
       <Form {...form}>
         <form
           className="grid grid-cols-1 gap-4 sm:grid-cols-3"
-          onSubmit={form.handleSubmit((values) => change.mutate(values))}
+          onSubmit={(event) =>
+            void form.handleSubmit(({ currentPassword, newPassword }) =>
+              change.mutate({ currentPassword, newPassword }),
+            )(event)
+          }
         >
-          {field('currentPassword', t('current-password', 'Current password'), 'current-password')}
-          {field('newPassword', t('new-password', 'New password'), 'new-password')}
-          {field('confirm', t('confirm-password', 'Repeat new password'), 'new-password')}
+          <PasswordField
+            name="currentPassword"
+            label={t('current-password', 'Current password')}
+            autoComplete="current-password"
+          />
+          <PasswordField
+            name="newPassword"
+            label={t('new-password', 'New password')}
+            autoComplete="new-password"
+          />
+          <PasswordField
+            name="confirm"
+            label={t('confirm-password', 'Repeat new password')}
+            autoComplete="new-password"
+          />
           <div className="sm:col-span-3">
             <Button type="submit" variant="outline" disabled={change.isPending}>
               {change.isPending ? <Spinner size="sm" /> : <IconKey />}
@@ -132,7 +157,7 @@ const deviceOf = (agent: string | null) => {
         ? 'Firefox'
         : /Safari\//.test(agent)
           ? 'Safari'
-          : agent.split(' ')[0];
+          : (agent.split(' ')[0] ?? agent);
 
   const system = /Mac OS X/.test(agent)
     ? 'macOS'
@@ -153,47 +178,49 @@ const deviceOf = (agent: string | null) => {
 const SignIns = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
-  const { data, isPending } = useQuery({
-    queryKey: ['auth', 'sign-ins'],
-    queryFn: () => api.auth.signIns(),
-  });
+  const signIns = useQuery(orpc.auth.signIns.queryOptions());
 
   return (
     <Section
       title={t('sign-ins', 'Recent sign-ins')}
       description={t('sign-ins-description', 'If you don’t recognise one, change your password.')}
     >
-      {isPending ? (
-        <Spinner containerClassName="py-6" />
-      ) : !data?.data.length ? (
-        <p className="text-sm text-muted-foreground">
-          {t('no-sign-ins', 'No sign-ins recorded yet.')}
-        </p>
-      ) : (
-        <ul className="divide-y text-sm">
-          {data.data.map((entry) => (
-            <li key={entry.id} className="flex items-center gap-3 py-2">
-              {entry.success ? (
-                <IconCircleCheck className="size-4 text-green-600" />
-              ) : (
-                <IconCircleX className="size-4 text-destructive" />
-              )}
-              <span className="flex-1">{deviceOf(entry.userAgent)}</span>
-              <span className="text-muted-foreground">{entry.ip ?? '—'}</span>
-              {!entry.success && (
-                <Badge variant="destructive" className="font-normal">
-                  {t('failed', 'Failed')}
-                </Badge>
-              )}
-              <RelativeDateDisplay value={entry.createdAt} asChild>
-                <span className="w-28 text-right text-muted-foreground">
-                  <RelativeDateDisplay.Value value={entry.createdAt} />
-                </span>
-              </RelativeDateDisplay>
-            </li>
-          ))}
-        </ul>
-      )}
+      <QueryState
+        query={signIns}
+        className="py-6"
+        isEmpty={({ data }) => !data.length}
+        empty={
+          <p className="text-sm text-muted-foreground">
+            {t('no-sign-ins', 'No sign-ins recorded yet.')}
+          </p>
+        }
+      >
+        {({ data }) => (
+          <ul className="divide-y text-sm">
+            {data.map((entry) => (
+              <li key={entry.id} className="flex items-center gap-3 py-2">
+                {entry.success ? (
+                  <IconCircleCheck className="size-4 text-green-600" />
+                ) : (
+                  <IconCircleX className="size-4 text-destructive" />
+                )}
+                <span className="flex-1">{deviceOf(entry.userAgent)}</span>
+                <span className="text-muted-foreground">{entry.ip ?? '—'}</span>
+                {!entry.success && (
+                  <Badge variant="destructive" className="font-normal">
+                    {t('failed', 'Failed')}
+                  </Badge>
+                )}
+                <RelativeDateDisplay value={entry.createdAt} asChild>
+                  <span className="w-28 text-right text-muted-foreground">
+                    <RelativeDateDisplay.Value value={entry.createdAt} />
+                  </span>
+                </RelativeDateDisplay>
+              </li>
+            ))}
+          </ul>
+        )}
+      </QueryState>
       <SignOutEverywhere />
     </Section>
   );
@@ -202,18 +229,7 @@ const SignIns = () => {
 /** Ends every session on every device, this one too (a lost laptop, a shared computer). */
 const SignOutEverywhere = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
-  const { toast } = useToast();
-  const signOut = useSignOut();
-
-  const run = useMutation({
-    mutationFn: () => signOut({ everywhere: true }),
-    onError: (error) =>
-      toast({
-        variant: 'destructive',
-        title: t('sign-out-everywhere-failed', 'Could not sign out'),
-        description: messageOf(error),
-      }),
-  });
+  const run = useSignOutEverywhere();
 
   return (
     <div className="mt-4 flex items-center justify-between gap-4 rounded-md border p-3">

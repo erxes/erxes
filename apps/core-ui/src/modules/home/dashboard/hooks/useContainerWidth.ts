@@ -12,10 +12,12 @@ export const useContainerWidth = <T extends HTMLElement>() => {
       return;
     }
 
-    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
+    // The observer reports the first size as soon as it observes.
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setWidth(entry.contentRect.width);
+    });
 
     observer.observe(element);
-    setWidth(element.getBoundingClientRect().width);
 
     return () => observer.disconnect();
   }, []);

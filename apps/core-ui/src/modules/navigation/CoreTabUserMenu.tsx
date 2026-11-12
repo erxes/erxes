@@ -8,14 +8,12 @@ import {
   themeState,
   ToggleGroup,
   Tooltip,
-  useToast,
 } from 'erxes-ui';
 import { INTL_LANGUAGES } from 'erxes-ui/constants/IntlLanguages';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { LANGUAGES, type LanguageCode } from '~/i18n';
-import { messageOf } from '~/lib/api';
 import { useSession, useSignOut } from '~/modules/auth/session';
 import { coreTabIconClassName } from './coreTabClassName';
 import { CoreTabTooltip } from './CoreTabTooltip';
@@ -23,7 +21,7 @@ import { CoreTabTooltip } from './CoreTabTooltip';
 const isThemeOption = (value: string): value is ThemeOption =>
   value === 'light' || value === 'dark' || value === 'system';
 
-/** Name and email at the top of the menu (old core-ui `User`). */
+/** Name and email at the top of the menu. */
 const UserIdentity = () => {
   const { user } = useSession();
 
@@ -37,7 +35,7 @@ const UserIdentity = () => {
   );
 };
 
-/** Light / dark / system as a three-icon toggle (old core-ui `ThemeSelector`). */
+/** Light / dark / system as a three-icon toggle. */
 const ThemeSelector = () => {
   const [theme, setTheme] = useAtom(themeState);
   const { t } = useTranslation('organization');
@@ -85,7 +83,7 @@ const ThemeSelector = () => {
 const languageName = (code: LanguageCode) =>
   Object.entries(INTL_LANGUAGES).find(([, locale]) => locale.startsWith(`${code}-`))?.[0] ?? code;
 
-/** Language submenu (old core-ui `SelectLanguages`). */
+/** Language submenu. */
 const SelectLanguages = () => {
   const { t, i18n } = useTranslation('organization');
 
@@ -113,11 +111,10 @@ const SelectLanguages = () => {
   );
 };
 
-/** The avatar at the end of the top bar (old core-ui `CoreTabUserMenu`). */
+/** The avatar at the end of the top bar. */
 export const CoreTabUserMenu = () => {
   const { user } = useSession();
   const signOut = useSignOut();
-  const { toast } = useToast();
   const { t } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
   const userName = user.fullName || sidebarT('profile');
@@ -157,15 +154,8 @@ export const CoreTabUserMenu = () => {
         <DropdownMenu.Separator />
         <DropdownMenu.Item
           className="h-7 py-0 text-sm"
-          onClick={() =>
-            void signOut().catch((error: unknown) =>
-              toast({
-                variant: 'destructive',
-                title: t('logout-failed', 'Could not sign out'),
-                description: `${messageOf(error)} ${t('logout-retry', 'You are still signed in: try again.')}`,
-              }),
-            )
-          }
+          disabled={signOut.isPending}
+          onClick={() => signOut.mutate()}
         >
           {t('logout')}
         </DropdownMenu.Item>

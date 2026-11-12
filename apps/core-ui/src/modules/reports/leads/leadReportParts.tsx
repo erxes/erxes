@@ -1,7 +1,7 @@
 import type { LeadRecordType, LeadReport } from '@erxes/core-contract';
 import { cn } from 'erxes-ui';
-import { useMemo } from 'react';
-import { MembersInline } from '~/modules/contacts/components/SelectMember';
+import { useMemo, useState } from 'react';
+import { MembersInline } from '~/modules/contacts/components/MembersInline';
 import { useLeadReport } from '~/modules/leads/useLeads';
 import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 
@@ -13,18 +13,25 @@ import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 
 export const REPORT_RANGES = ['7', '30', '90', '365'] as const;
 
+const currentMinute = () => {
+  const now = new Date();
+
+  now.setSeconds(0, 0);
+
+  return now.getTime();
+};
+
 /** The report for people or companies over the last `days` days (to the minute, so tiles share it). */
 export const useLeadReportFor = (recordType: LeadRecordType, days: number) => {
-  const range = useMemo(() => {
-    const to = new Date();
+  const [to] = useState(currentMinute);
 
-    to.setSeconds(0, 0);
-
-    return {
-      from: new Date(to.getTime() - days * 86_400_000).toISOString(),
-      to: to.toISOString(),
-    };
-  }, [days]);
+  const range = useMemo(
+    () => ({
+      from: new Date(to - days * 86_400_000).toISOString(),
+      to: new Date(to).toISOString(),
+    }),
+    [to, days],
+  );
 
   return useLeadReport({ recordType, ...range });
 };
@@ -231,7 +238,7 @@ export const LeadReasons = ({ report }: { report: LeadReport }) => {
           <span className="w-40 shrink-0 truncate">{row.reason}</span>
           <Bar
             value={row.count}
-            max={report.reasons[0].count}
+            max={report.reasons[0]?.count ?? row.count}
             title={`${row.reason}: ${row.count}`}
           />
         </div>

@@ -2,6 +2,7 @@ import { IconAlertTriangle, IconLock } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { useMinuteClock } from '~/lib/useMinuteClock';
 import { usePlan } from './usePlan';
 
 const day = (value: string) =>
@@ -19,23 +20,25 @@ const day = (value: string) =>
 export const PlanBanner = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plan' });
   const { data } = usePlan();
+  const now = useMinuteClock();
 
   if (!data?.saas) return null;
 
   const readOnly = data.plugins.filter((plugin) => plugin.access === 'read_only');
+  const [firstReadOnly] = readOnly;
   const retrying = data.plugins.filter((plugin) => plugin.status === 'past_due');
   let severe = true;
   let message: string;
 
   if (data.organizationStatus !== 'active') {
     message = t('banner-disabled', 'This workspace is disabled on erxes.io.');
-  } else if (readOnly.length) {
+  } else if (firstReadOnly) {
     message = t(
       'banner-read-only',
       '{{plugins}} left your plan: read-only until {{date}}, then turned off. Buy it again to keep using it.',
       {
         plugins: readOnly.map((plugin) => plugin.title).join(', '),
-        date: day(readOnly[0].readOnlyUntil ?? new Date().toISOString()),
+        date: day(firstReadOnly.readOnlyUntil ?? new Date(now).toISOString()),
       },
     );
   } else if (retrying.length) {
@@ -52,8 +55,7 @@ export const PlanBanner = () => {
   }
 
   return (
-    <div
-      role="status"
+    <output
       className={cn(
         'flex shrink-0 items-center gap-2 px-4 py-1.5 text-sm',
         severe
@@ -80,6 +82,6 @@ export const PlanBanner = () => {
           {t('manage', 'Manage on erxes.io')}
         </a>
       )}
-    </div>
+    </output>
   );
 };

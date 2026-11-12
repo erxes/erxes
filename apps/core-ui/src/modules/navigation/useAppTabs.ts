@@ -16,7 +16,7 @@ const lastLocationState = atomWithStorage<Record<string, string>>('core-tab:last
 });
 
 /**
- * Browser-like app tabs (old core-ui): opening an app adds a tab, a tab
+ * Browser-like app tabs: opening an app adds a tab, a tab
  * remembers where it was, closing the active tab moves to its neighbour.
  */
 export const useAppTabs = (apps: NavApp[]) => {
@@ -52,7 +52,11 @@ export const useAppTabs = (apps: NavApp[]) => {
     return path && !isMovedSettingsPath(path) ? path : undefined;
   };
 
-  const open = (app: NavApp) => navigate(remembered(app) ?? `/${app.path}`);
+  const go = (path: string) => {
+    void navigate(path);
+  };
+
+  const open = (app: NavApp) => go(remembered(app) ?? `/${app.path}`);
 
   const close = (id: string) => {
     const index = openIds.indexOf(id);
@@ -66,7 +70,7 @@ export const useAppTabs = (apps: NavApp[]) => {
       if (neighbour) {
         open(neighbour);
       } else {
-        navigate('/');
+        go('/');
       }
     }
   };
@@ -81,7 +85,7 @@ export const useAppTabs = (apps: NavApp[]) => {
       const next = apps.find((app) => app.id === rest[0]);
 
       if (next) open(next);
-      else navigate('/');
+      else go('/');
     }
   };
 

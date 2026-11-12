@@ -1,8 +1,8 @@
 import { i18n } from '~/i18n';
 
 /**
- * Strings for the home widgets new core adds (old erxes had notifications and
- * favorites there). The rest of home keeps old `common:home.*` keys.
+ * Strings for the home dashboard widgets. The rest of home uses
+ * `common:home.*` keys.
  */
 export const HOME_NS = 'core-home';
 

@@ -1,6 +1,6 @@
 import { i18n } from '~/i18n';
 
-/** Strings the new core's onboarding adds; the rest keeps old `common:onboarding.*` keys. */
+/** Onboarding strings outside `common:onboarding.*`. */
 export const ONBOARDING_NS = 'core-onboarding';
 
 const en = {

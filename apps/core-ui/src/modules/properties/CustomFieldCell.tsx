@@ -11,8 +11,6 @@ import {
 import { useState } from 'react';
 import { DateInlineCell } from '~/components/inlineCells';
 
-export { FIELD_TYPE_ICONS, FIELD_TYPE_LABELS } from './fieldTypes';
-
 const OptionsCell = ({
   field,
   value,
@@ -71,6 +69,13 @@ const OptionsCell = ({
     </PopoverScoped>
   );
 };
+
+/** "a, b, c" as its items. */
+const listOf = (text: string) =>
+  text
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
 
 /**
  * One custom field value, edited in place by its type. `onSave(null)` clears it.
@@ -138,10 +143,7 @@ export const CustomFieldCell = ({
           value={Array.isArray(value) ? value.join(', ') : ''}
           placeholder=""
           onSave={(text) => {
-            const items = text
-              .split(',')
-              .map((item) => item.trim())
-              .filter(Boolean);
+            const items = listOf(text);
 
             onSave(items.length ? items : null);
           }}

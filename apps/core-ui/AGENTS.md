@@ -8,8 +8,8 @@ The core React app (React 18, Rsbuild, React Query) and the Module Federation ho
   on shared libraries before anything runs.
 - `src/modules/<feature>/` holds a feature's pages, components and hooks (`useTags.ts`). Only
   cross-feature parts live in `src/components` and `src/lib`.
-- `src/lib/api.ts` is the typed contract client `api`, plus `isApiError(error, code)`,
-  `errorData(error, schema)` and `messageOf(error)`.
+- `src/lib/api.ts` is the typed contract client as TanStack Query utils `orpc`, plus
+  `isApiError(error, code)`, `errorData(error, schema)` and `messageOf(error)`.
 - `src/lib/cursorList.ts` reads keyset lists (`useCursorList`) into `RecordTable.CursorProvider`.
 - `src/modules/plugins/usePlugins.ts` loads plugin UIs from the installed plugins' manifests (`ui`,
   `GET /plugins`), plus `PUBLIC_PLUGINS` for development (`<remote>@<remoteEntry url>`,

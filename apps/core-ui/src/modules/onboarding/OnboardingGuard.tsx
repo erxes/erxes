@@ -2,18 +2,18 @@ import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSession } from '~/modules/auth/session';
 
-/** Where first sign-in onboarding lives (old core-ui `AppPath.MainOnboarding`). */
-export const ONBOARDING_PATH = '/welcome';
+/** Where first sign-in onboarding lives. */
+const ONBOARDING_PATH = '/welcome';
 
 /** Whether the signed-in user still has to go through the welcome steps. */
 export const useNeedsOnboarding = () => {
   const { user } = useSession();
 
-  // On the member (every browser), like old erxes's `isOnboarded`.
+  // Kept on the member, so every browser knows.
   return !user.onboardedAt;
 };
 
-/** Sends a user who has not finished onboarding to it (old core-ui `OnboardingGuard`). */
+/** Sends a user who has not finished onboarding to it. */
 export const OnboardingGuard = ({ children }: { children: ReactNode }) => {
   const needsOnboarding = useNeedsOnboarding();
 

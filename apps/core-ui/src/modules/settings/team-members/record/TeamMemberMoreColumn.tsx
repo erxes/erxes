@@ -3,14 +3,14 @@ import { IconEdit, IconMailForward } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import type { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable, useToast } from 'erxes-ui';
-import { api, messageOf } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOpenMemberPanel } from '../details/useMemberPanel';
 import { useMemberPermissions } from '../useTeamMembers';
 
-export const TeamMemberMoreColumnCell = ({ cell }: { cell: Cell<User, unknown> }) => {
+const TeamMemberMoreColumnCell = ({ cell }: { cell: Cell<User, unknown> }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [menuOpen, setMenuOpen] = useState(false);
   const openPanel = useOpenMemberPanel();
@@ -19,16 +19,17 @@ export const TeamMemberMoreColumnCell = ({ cell }: { cell: Cell<User, unknown> }
   const can = useCan();
   const { toast } = useToast();
 
-  const resend = useMutation({
-    mutationFn: () => api.users.resendInvitation({ id: user.id }),
-    onSuccess: () => toast({ title: t('invitation-resent', 'Invitation sent again') }),
-    onError: (error) =>
-      toast({
-        variant: 'destructive',
-        title: t('invitation-failed', 'Could not send the invitation'),
-        description: messageOf(error),
-      }),
-  });
+  const resend = useMutation(
+    orpc.users.resendInvitation.mutationOptions({
+      onSuccess: () => toast({ title: t('invitation-resent', 'Invitation sent again') }),
+      onError: (error) =>
+        toast({
+          variant: 'destructive',
+          title: t('invitation-failed', 'Could not send the invitation'),
+          description: messageOf(error),
+        }),
+    }),
+  );
 
   const handleEdit = () => {
     openPanel(user.id);
@@ -52,7 +53,7 @@ export const TeamMemberMoreColumnCell = ({ cell }: { cell: Cell<User, unknown> }
               <Command.Item
                 value="resend"
                 onSelect={() => {
-                  resend.mutate();
+                  resend.mutate({ id: user.id });
                   setMenuOpen(false);
                 }}
               >

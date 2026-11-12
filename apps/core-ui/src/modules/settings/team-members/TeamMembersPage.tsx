@@ -7,7 +7,7 @@ import { TeamMemberSettingsBreadcrumb } from './header/TeamMemberSettingsBreadcr
 import { TeamMemberTopbar } from './header/TeamMemberTopbar';
 import { TeamMemberTable } from './TeamMemberTable';
 
-/** Settings › Team members: old core-ui TeamMemberPage under its settings header, a member opening beside it. */
+/** Settings › Team members under the settings header, a member opening beside the list. */
 export const TeamMembersPage = () => (
   <PageContainer>
     <SettingsHeader breadcrumbs={<TeamMemberSettingsBreadcrumb />}>

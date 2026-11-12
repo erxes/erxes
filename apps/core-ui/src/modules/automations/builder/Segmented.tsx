@@ -1,5 +1,6 @@
 import type { TablerIcon } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
+import { useId } from 'react';
 
 /** A few mutually exclusive choices side by side (before / on / after, customers / companies). */
 export const Segmented = <T extends string>({
@@ -17,32 +18,39 @@ export const Segmented = <T extends string>({
   className?: string;
   /** For screen readers, when no visible label names the group. */
   label?: string;
-}) => (
-  <div
-    role="radiogroup"
-    aria-label={label}
-    className={cn('flex rounded-md bg-muted p-0.5', className)}
-  >
-    {options.map((option) => {
-      const on = option.value === value;
+}) => {
+  const name = useId();
 
-      return (
-        <button
-          key={option.value}
-          type="button"
-          role="radio"
-          aria-checked={on}
-          disabled={disabled}
-          onClick={() => !on && onChange(option.value)}
-          className={cn(
-            'flex h-7 min-w-0 flex-1 items-center justify-center gap-1.5 rounded px-2 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-60',
-            on && 'bg-background font-medium text-foreground shadow-xs',
-          )}
-        >
-          {option.icon && <option.icon className="size-3.5 shrink-0" />}
-          <span className="truncate">{option.label}</span>
-        </button>
-      );
-    })}
-  </div>
-);
+  return (
+    <fieldset
+      aria-label={label}
+      disabled={disabled}
+      className={cn('flex min-w-0 rounded-md bg-muted p-0.5', className)}
+    >
+      {options.map((option) => {
+        const on = option.value === value;
+
+        return (
+          <label
+            key={option.value}
+            className={cn(
+              'flex h-7 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded px-2 text-xs text-muted-foreground transition-colors hover:text-foreground has-[:disabled]:pointer-events-none has-[:disabled]:opacity-60 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring',
+              on && 'bg-background font-medium text-foreground shadow-xs',
+            )}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={on}
+              onChange={() => onChange(option.value)}
+              className="sr-only"
+            />
+            {option.icon && <option.icon className="size-3.5 shrink-0" />}
+            <span className="truncate">{option.label}</span>
+          </label>
+        );
+      })}
+    </fieldset>
+  );
+};

@@ -18,7 +18,7 @@ export const useMemberPanel = () => {
   return { memberId: searchParams.get(MEMBER_PANEL_QUERY_KEY), close };
 };
 
-/** Opens a member in the side panel on its overview (old more-menu "Edit"). */
+/** Opens a member in the side panel on its overview. */
 export const useOpenMemberPanel = () => {
   const [, setSearchParams] = useSearchParams();
 

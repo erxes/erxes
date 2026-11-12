@@ -28,7 +28,9 @@ export const TeamMemberSidePanel = () => {
             return params;
           })
         }
-        onExpand={() => navigate(`${teamMemberPath(memberId)}${tab ? `?tab=${tab}` : ''}`)}
+        onExpand={() => {
+          void navigate(`${teamMemberPath(memberId)}${tab ? `?tab=${tab}` : ''}`);
+        }}
         onClose={close}
       />
     </RecordSidePanel>

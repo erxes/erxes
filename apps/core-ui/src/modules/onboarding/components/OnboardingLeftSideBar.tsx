@@ -1,5 +1,5 @@
 import { BackgroundGradientAnimation } from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Logo } from '~/modules/auth/components/Logo';
 import { appearStyle } from './Appear';
 import { OnboardingStepItem } from './OnboardingStepItem';
@@ -14,20 +14,15 @@ export const OnboardingLeftSideBar = ({
   currentStep: number;
   onSelectStep: (step: number) => void;
 }) => {
-  const [direction, setDirection] = useState(1);
-  const prevStepRef = useRef(currentStep);
+  // The step it came from decides the side the new one slides in from.
+  const [shown, setShown] = useState({ step: currentStep, direction: 1 });
 
-  useEffect(() => {
-    if (currentStep === prevStepRef.current) {
-      return;
-    }
+  if (shown.step !== currentStep) {
+    setShown({ step: currentStep, direction: currentStep > shown.step ? 1 : -1 });
+  }
 
-    setDirection(currentStep > prevStepRef.current ? 1 : -1);
-    prevStepRef.current = currentStep;
-  }, [currentStep]);
-
+  const { direction } = shown;
   const current = getOnboardingStepForScreen(steps, currentStep);
-  const CurrentIcon = current.icon;
 
   return (
     <>
@@ -57,21 +52,23 @@ export const OnboardingLeftSideBar = ({
       >
         <div className="flex w-full justify-center px-5 py-4 md:px-10">
           {/* Keyed by step, so each change slides in from the side it came */}
-          <div
-            key={currentStep}
-            className="flex flex-col items-center justify-center animate-in"
-            style={appearStyle({ x: direction > 0 ? 48 : -48, duration: 160 })}
-          >
-            <div className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
-              <CurrentIcon className="h-6 w-6" />
+          {current && (
+            <div
+              key={currentStep}
+              className="flex flex-col items-center justify-center animate-in"
+              style={appearStyle({ x: direction > 0 ? 48 : -48, duration: 160 })}
+            >
+              <div className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-gray-400/30 p-2 text-white">
+                <current.icon className="h-6 w-6" />
+              </div>
+              <h4 className="mt-3 max-w-[280px] text-center text-xl leading-tight text-white">
+                {current.title}
+              </h4>
+              <span className="mt-1 block max-w-[320px] text-center text-xs leading-5 text-white/70">
+                {current.subtitle}
+              </span>
             </div>
-            <h4 className="mt-3 max-w-[280px] text-center text-xl leading-tight text-white">
-              {current.title}
-            </h4>
-            <span className="mt-1 block max-w-[320px] text-center text-xs leading-5 text-white/70">
-              {current.subtitle}
-            </span>
-          </div>
+          )}
         </div>
       </BackgroundGradientAnimation>
     </>

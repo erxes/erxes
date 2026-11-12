@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Appear, appearStyle } from './Appear';
 import type { OnboardingStepDef } from './onboardingSteps';
 
-// Old erxes showed the organization's short name only for custom-branded
-// (white-label) installs; the new organization has no such setting yet.
 const BRAND_NAME = 'erxes';
 
 export const WelcomeSection = ({
@@ -36,7 +34,6 @@ export const WelcomeSection = ({
           <li
             key={step}
             className="flex items-center gap-4 border-b py-4 last:border-b-0 animate-in"
-            // Staggered like the old list variants
             style={appearStyle({ y: 12, duration: 400, delay: 300 + index * 80 })}
           >
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -52,7 +49,7 @@ export const WelcomeSection = ({
 
       <Appear y={12} duration={500} delay={600} className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground">{t('takes-few-minutes')}</p>
-        <Button size="lg" className="w-full" onClick={onContinue} autoFocus>
+        <Button size="lg" className="w-full" onClick={onContinue}>
           {t('get-started')}
         </Button>
         <p className="text-xs text-muted-foreground">

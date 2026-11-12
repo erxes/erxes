@@ -2,8 +2,8 @@ import { Skeleton } from 'erxes-ui';
 import type { ReactNode } from 'react';
 
 /**
- * The frame every home dashboard tile draws (old ui-modules
- * `DashboardWidgetCard`): a header with the title and an optional action, and
+ * The frame every home dashboard tile draws: a header with the title and an
+ * optional action, and
  * a body that scrolls inside the tile's grid size.
  */
 export const DashboardWidgetCard = ({

@@ -2,7 +2,7 @@ import type { LeadRecordType } from '@erxes/core-contract';
 import { IconUserCheck } from '@tabler/icons-react';
 import { Button, Tooltip } from 'erxes-ui';
 import { useState } from 'react';
-import { ConvertDialog } from './LeadActions';
+import { ConvertDialog } from './ConvertDialog';
 import type { LeadRecord } from './useLeads';
 import { useLeadsT } from './i18n';
 

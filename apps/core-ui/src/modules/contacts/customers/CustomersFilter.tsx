@@ -18,7 +18,7 @@ import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
 import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
 import { formatTotal } from '~/lib/cursorList';
 
-export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
+const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation();
   const { totalCount, totalCapped } = useCustomers(state);
 

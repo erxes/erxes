@@ -1,25 +1,25 @@
 import type { CustomValue } from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
 import { Button, Collapsible, ScrollArea, Spinner } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { messageOf } from '~/lib/api';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
-import { CustomFieldCell, FIELD_TYPE_ICONS } from '~/modules/properties/CustomFieldCell';
+import { CustomFieldCell } from '~/modules/properties/CustomFieldCell';
+import { FIELD_TYPES_OBJECT } from '~/modules/properties/fieldTypes';
 import { useFields } from '~/modules/properties/useFields';
 import { PanelField } from '../PanelField';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 
 const EmptyProperties = ({ kind }: { kind: 'customer' | 'company' }) => {
-  const navigate = useNavigate();
-
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-center gap-2">
       <IconListDetails className="text-muted-foreground" size={64} stroke={1.5} />
       <h3 className="font-semibold text-muted-foreground">No properties found </h3>
       <div className="my-2 flex flex-col items-center justify-center gap-2">
         <p className="text-muted-foreground">Get started by creating your first property.</p>
-        <Button size="sm" onClick={() => navigate(`${CONTACT_SETTINGS.properties}/${kind}`)}>
-          Create property
+        <Button size="sm" asChild>
+          <Link to={`${CONTACT_SETTINGS.properties}/${kind}`}>Create property</Link>
         </Button>
       </div>
     </div>
@@ -27,8 +27,8 @@ const EmptyProperties = ({ kind }: { kind: 'customer' | 'company' }) => {
 };
 
 /**
- * A contact's custom fields, as their own panel tab (old FieldsInDetail,
- * `bare`): one collapsible card per field group, in group order.
+ * A contact's custom fields, as their own panel tab: one collapsible card per
+ * field group, in group order.
  */
 const ContactProperties = ({
   kind,
@@ -41,7 +41,9 @@ const ContactProperties = ({
   values: Record<string, CustomValue> | undefined;
   onSave: (patch: Record<string, CustomValue | null>) => void;
 }) => {
-  const { sections, loading } = useFields(kind);
+  const { sections, loading, error } = useFields(kind);
+
+  if (error) return <p className="px-2 py-6 text-sm text-destructive">{messageOf(error)}</p>;
 
   if (loading || !values) return <Spinner containerClassName="py-6" />;
 
@@ -70,7 +72,11 @@ const ContactProperties = ({
           <Collapsible.Content>
             <div className="flex flex-col gap-1 rounded-lg bg-background p-3 shadow-sm">
               {fields.map((field) => (
-                <PanelField key={field.id} icon={FIELD_TYPE_ICONS[field.type]} label={field.label}>
+                <PanelField
+                  key={field.id}
+                  icon={FIELD_TYPES_OBJECT[field.type].icon}
+                  label={field.label}
+                >
                   <CustomFieldCell
                     field={field}
                     scope={`side-panel-${kind}.${id}.${field.id}`}

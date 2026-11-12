@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { ContactsPath } from '../utils/contactDetailPath';
 
-/** Contacts › the open list (› a record's name), as in old core-ui. */
+/** Contacts › the open list (› a record's name). */
 export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation('contact');

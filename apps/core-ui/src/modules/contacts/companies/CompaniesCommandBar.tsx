@@ -1,10 +1,11 @@
 import type { Company } from '@erxes/core-contract';
-import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCan, useSession } from '~/modules/auth/session';
+import { useSelectedRows } from '~/components/useSelectedRows';
+import { useCan } from '~/modules/auth/session';
+import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { companyTitle } from '../components/ContactPicker';
@@ -12,31 +13,73 @@ import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton'
 import { MergeDialog } from '../components/MergeDialog';
 import { useCompaniesMerge, useCompaniesRemove, useCompaniesTag } from './useCompanies';
 
-/** Actions on the selected rows, at the bottom of the screen (old core-ui). */
-export const CompaniesCommandBar = () => {
+/** Merges the two selected companies into the one kept, then opens it. */
+const CompaniesMergeDialog = ({
+  companies,
+  open,
+  onOpenChange,
+}: {
+  companies: Company[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
   const { table } = RecordTable.useRecordTable();
-  const { user } = useSession();
+  const { openRecord } = useSidePanel();
+  const merge = useCompaniesMerge();
+
+  return (
+    <MergeDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      noun="companies"
+      merging={merge.isPending}
+      records={companies.map((company) => ({
+        id: company.id,
+        title: companyTitle(company) || 'Unnamed',
+        details: [company.primaryEmail ?? '', company.website ?? ''],
+      }))}
+      onMerge={(keepId) =>
+        merge.mutate(
+          { ids: companies.map((company) => company.id), keepId },
+          {
+            onSuccess: (company) => {
+              onOpenChange(false);
+              table.resetRowSelection(true);
+              openRecord({ contentType: 'core:company', contentId: company.id });
+            },
+          },
+        )
+      }
+    />
+  );
+};
+
+/** Actions on the selected rows, at the bottom of the screen. */
+export const CompaniesCommandBar = ({ rows }: { rows: Company[] }) => {
+  const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { openRecord } = useSidePanel();
   const remove = useCompaniesRemove();
   const tag = useCompaniesTag();
-  const merge = useCompaniesMerge();
   const [merging, setMerging] = useState(false);
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const companies = selectedRows.map((row) => row.original as Company);
+  const companies = useSelectedRows(rows);
   const companyIds = companies.map((company) => company.id);
   const tagIds = commonTagIds(companies);
   // Owners and admins merge and delete (core's rule).
   const manager = useCan()('contacts.merge');
 
+  const deleteSelected = () =>
+    void confirm({
+      message: t('confirm-delete-selected', { count: companyIds.length }),
+    }).then(() =>
+      remove.mutate({ ids: companyIds }, { onSuccess: () => table.setRowSelection({}) }),
+    );
+
   return (
     <>
-      <CommandBar open={selectedRows.length > 0 && !merging}>
+      <CommandBar open={companies.length > 0 && !merging}>
         <CommandBar.Bar>
-          <CommandBar.Value>
-            {t('selected', { selectedCount: selectedRows.length })}
-          </CommandBar.Value>
+          <CommandBar.Value>{t('selected', { selectedCount: companies.length })}</CommandBar.Value>
           <Separator.Inline />
           <TagsSelect
             type="company"
@@ -58,21 +101,11 @@ export const CompaniesCommandBar = () => {
               <MergeButton
                 label={t('action-merge')}
                 tooltip={t('merge-tooltip')}
-                disabled={selectedRows.length !== 2}
+                disabled={companies.length !== 2}
                 onClick={() => setMerging(true)}
               />
               <Separator.Inline />
-              <Button
-                variant="secondary"
-                className="text-destructive"
-                onClick={() =>
-                  confirm({
-                    message: t('confirm-delete-selected', { count: companyIds.length }),
-                  }).then(() =>
-                    remove.mutate(companyIds, { onSuccess: () => table.setRowSelection({}) }),
-                  )
-                }
-              >
+              <Button variant="secondary" className="text-destructive" onClick={deleteSelected}>
                 <IconTrash />
                 {t('action-delete')}
               </Button>
@@ -80,29 +113,7 @@ export const CompaniesCommandBar = () => {
           )}
         </CommandBar.Bar>
       </CommandBar>
-      <MergeDialog
-        open={merging}
-        onOpenChange={setMerging}
-        noun="companies"
-        merging={merge.isPending}
-        records={companies.map((company) => ({
-          id: company.id,
-          title: companyTitle(company) || 'Unnamed',
-          details: [company.primaryEmail ?? '', company.website ?? ''],
-        }))}
-        onMerge={(keepId) =>
-          merge.mutate(
-            { ids: companyIds, keepId },
-            {
-              onSuccess: (company) => {
-                setMerging(false);
-                table.resetRowSelection(true);
-                openRecord({ contentType: 'core:company', contentId: company.id });
-              },
-            },
-          )
-        }
-      />
+      <CompaniesMergeDialog companies={companies} open={merging} onOpenChange={setMerging} />
     </>
   );
 };

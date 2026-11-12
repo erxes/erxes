@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { Polygons } from './Polygons';
 
-/** The dark half of the sign-in screen (old core-ui `DynamicBanner`). */
+/** The dark half of the sign-in screen. */
 export const AuthBanner = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
 
@@ -27,7 +27,7 @@ export const AuthBanner = () => {
   );
 };
 
-/** The form half of the sign-in screen (old core-ui `AuthenticationLayout`). */
+/** The form half of the sign-in screen. */
 export const AuthenticationLayout = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
 
