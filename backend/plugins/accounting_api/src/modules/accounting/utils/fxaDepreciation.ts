@@ -345,15 +345,13 @@ export const calculateFxaTaxDepreciation = ({
       date,
     );
     const totalCount = getTotalCount(counts);
-    const reset = corrections
-      .filter(
-        (correction) =>
-          correction.fixedAssetId === fixedAsset._id &&
-          isSamePureDate(correction.date, date) &&
-          (correction.rules.taxPreDeprecation !== undefined ||
-            correction.rules.originalCost !== undefined),
-      )
-      .at(-1);
+    const reset = corrections.findLast(
+      (correction) =>
+        correction.fixedAssetId === fixedAsset._id &&
+        isSamePureDate(correction.date, date) &&
+        (correction.rules.taxPreDeprecation !== undefined ||
+          correction.rules.originalCost !== undefined),
+    );
     if (reset && totalCount > 0) {
       if (reset.rules.taxPreDeprecation !== undefined)
         accumulatedPerUnit = reset.rules.taxPreDeprecation / totalCount;

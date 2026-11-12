@@ -37,12 +37,12 @@ export const getFxaTaxValues = (detail: TFxaTaxTotals, taxRate?: number) => {
       ? undefined
       : detail.taxAccumulatedDepreciation -
         (detail.accumulatedDepreciation ?? 0);
-  const tax =
-    temporaryDifference === 0
-      ? 0
-      : temporaryDifference === undefined || taxRate === undefined
-      ? undefined
-      : (temporaryDifference * taxRate) / 100;
+  let tax: number | undefined;
+  if (temporaryDifference === 0) {
+    tax = 0;
+  } else if (temporaryDifference !== undefined && taxRate !== undefined) {
+    tax = (temporaryDifference * taxRate) / 100;
+  }
   return {
     temporaryDifference,
     deferredTaxAsset: tax === undefined ? undefined : Math.max(-tax, 0),

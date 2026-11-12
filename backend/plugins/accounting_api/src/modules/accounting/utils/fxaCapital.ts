@@ -119,16 +119,17 @@ const buildFxaCapitalAssetDocuments = (
   );
   const revaluationTaxDepreciation =
     valuation.taxPreDeprecation + totalDepreciation - valuation.preDeprecation;
-  const totalTaxDepreciation = revaluation
-    ? revaluationTaxDepreciation
-    : taxEnabled
-    ? enteredTax.length
+  let totalTaxDepreciation = totalDepreciation;
+  if (revaluation) {
+    totalTaxDepreciation = revaluationTaxDepreciation;
+  } else if (taxEnabled) {
+    totalTaxDepreciation = enteredTax.length
       ? enteredTax.reduce(
           (sum, detail) => sum + (detail.followInfos?.taxPreDeprecation ?? 0),
           0,
         )
-      : valuation.taxPreDeprecation
-    : totalDepreciation;
+      : valuation.taxPreDeprecation;
+  }
   if (
     revaluation &&
     enteredTax.length &&

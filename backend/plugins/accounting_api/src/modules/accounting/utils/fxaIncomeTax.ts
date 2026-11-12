@@ -86,7 +86,8 @@ export const syncFxaIncomeDeferredTax = async (
     transaction,
   );
   const retained = new Set<string>();
-  for (const doc of docs) {
+  await docs.reduce(async (previousSave, doc) => {
+    await previousSave;
     const old = existing.find(
       (row) => row.side === doc.side && !retained.has(row._id),
     );
@@ -100,7 +101,7 @@ export const syncFxaIncomeDeferredTax = async (
     }));
     const saved = await createOrUpdateTr(models, userId, doc, old);
     retained.add(saved._id);
-  }
+  }, Promise.resolve());
   const staleIds = existing
     .filter((row) => !retained.has(row._id))
     .map((row) => row._id);
