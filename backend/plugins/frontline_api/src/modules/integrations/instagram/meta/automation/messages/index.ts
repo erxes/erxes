@@ -20,6 +20,8 @@ import { hasReplyableMedia } from '@/integrations/facebook/meta/automation/utils
 import { hasNewerCustomerMessage } from '@/integrations/instagram/meta/automation/utils/turnTaking';
 import { resolveInstagramActionConfigTemplates } from '@/integrations/instagram/meta/automation/utils/templates';
 import { generateModels } from '~/connectionResolvers';
+import { isAutomatedReplyPaused } from '@/inbox/services/automatedReplyPause';
+import { resolveInboxConversationId } from '@/ticket/utils/conversationTickets';
 
 export const checkMessageTrigger = async (subdomain, { target, config }) => {
   const { conditions = [], botId } = config;
@@ -28,6 +30,26 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
   }
 
   const models = await generateModels(subdomain);
+
+  // A person has taken over the conversation: the bot stays out of it.
+  const inboxConversationId = await resolveInboxConversationId(
+    models,
+    target?.conversationId,
+  );
+
+  if (
+    inboxConversationId &&
+    (await isAutomatedReplyPaused(
+      models,
+      await models.Conversations.findOne(
+        { _id: inboxConversationId },
+        { automatedReplyControl: 1 },
+      ).lean(),
+    ))
+  ) {
+    return false;
+  }
+
   const payload = target?.payload || {};
   const { persistentMenuId, isBackBtn } = payload;
   if (persistentMenuId && isBackBtn) {

@@ -3,11 +3,14 @@ import {
   AUTOMATION_EXECUTION_STATUS,
   IAutomationAction,
   IAutomationExecutionDocument,
+  readWorkflowForEach,
   replaceOutputPlaceholders,
+  WORKFLOW_FOR_EACH_MAX_ITEMS,
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { generateModels } from '../connectionResolver';
 import { AutomationActionError } from './errorCodes';
+import { forEachItemSuffix, TWorkflowForEachState } from './workflowForEach';
 
 // Nested workflows are forbidden in the builder, so real depth never exceeds
 // 1 today; the guard is the universal escape hatch for future call cycles.
@@ -15,26 +18,21 @@ export const MAX_WORKFLOW_DEPTH = 2;
 
 const WORKFLOW_QUEUE_OPTIONS = { removeOnComplete: true, removeOnFail: true };
 
-// Entering a workflow node: resolve every input binding against the parent
-// scope (fail-fast, before any member side effect), create the child
-// execution and hand it to the queue. The parent stays WAITING on the
-// workflow node until the child completes.
-export const startWorkflowExecution = async (
+const resolveWorkflowInputs = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
   workflowAction: IAutomationAction,
+  itemInput?: string,
 ) => {
-  const depth = (execution.depth || 0) + 1;
+  const bindings: Record<string, string> = {
+    ...(workflowAction.config?.inputs || {}),
+  };
 
-  if (depth > MAX_WORKFLOW_DEPTH) {
-    throw new AutomationActionError(
-      `Workflow depth limit (${MAX_WORKFLOW_DEPTH}) exceeded at "${workflowAction.label || workflowAction.id}"`,
-      AUTOMATION_ERROR_CODES.WORKFLOW_DEPTH_EXCEEDED,
-    );
+  // The item input is filled from the list, never from its binding
+  if (itemInput) {
+    delete bindings[itemInput];
   }
 
-  const bindings: Record<string, string> =
-    workflowAction.config?.inputs || {};
   const inputs = await replaceOutputPlaceholders({
     subdomain,
     execution,
@@ -71,6 +69,36 @@ export const startWorkflowExecution = async (
     );
   }
 
+  return inputs;
+};
+
+const checkWorkflowDepth = (
+  execution: IAutomationExecutionDocument,
+  workflowAction: IAutomationAction,
+) => {
+  const depth = (execution.depth || 0) + 1;
+
+  if (depth > MAX_WORKFLOW_DEPTH) {
+    throw new AutomationActionError(
+      `Workflow depth limit (${MAX_WORKFLOW_DEPTH}) exceeded at "${
+        workflowAction.label || workflowAction.id
+      }"`,
+      AUTOMATION_ERROR_CODES.WORKFLOW_DEPTH_EXCEEDED,
+    );
+  }
+
+  return depth;
+};
+
+// Creates one child execution for the workflow node and hands it to the
+// queue. The parent stays WAITING on the workflow node until it completes.
+export const createWorkflowChildExecution = async (
+  subdomain: string,
+  execution: IAutomationExecutionDocument,
+  workflowAction: Pick<IAutomationAction, 'id' | 'label'>,
+  inputs: Record<string, unknown>,
+  descriptionSuffix = '',
+) => {
   const models = await generateModels(subdomain);
 
   const childExecution = await models.Executions.create({
@@ -81,11 +109,13 @@ export const startWorkflowExecution = async (
     targetId: execution.targetId,
     target: execution.target,
     status: AUTOMATION_EXECUTION_STATUS.ACTIVE,
-    description: `Workflow: ${workflowAction.label || workflowAction.id}`,
+    description: `Workflow: ${
+      workflowAction.label || workflowAction.id
+    }${descriptionSuffix}`,
     parentExecutionId: execution._id,
     workflowId: workflowAction.id,
     inputs,
-    depth,
+    depth: (execution.depth || 0) + 1,
   });
 
   sendWorkerQueue('automations', 'action').add(
@@ -94,7 +124,103 @@ export const startWorkflowExecution = async (
     WORKFLOW_QUEUE_OPTIONS,
   );
 
-  return { childExecutionId: childExecution._id, inputs };
+  return childExecution._id;
+};
+
+const resolveForEachItems = async (
+  subdomain: string,
+  execution: IAutomationExecutionDocument,
+  expression: string,
+) => {
+  const { items } = await replaceOutputPlaceholders({
+    subdomain,
+    execution,
+    values: { items: expression },
+    keepUnresolvedPlaceholders: false,
+  });
+
+  if (!Array.isArray(items)) {
+    throw new AutomationActionError(
+      `For-each list "${expression}" did not resolve to a list`,
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+    );
+  }
+
+  if (items.length > WORKFLOW_FOR_EACH_MAX_ITEMS) {
+    throw new AutomationActionError(
+      `For-each list has ${items.length} items; the limit is ${WORKFLOW_FOR_EACH_MAX_ITEMS}`,
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+    );
+  }
+
+  return items;
+};
+
+// Entering a workflow node: resolve every input binding against the parent
+// scope (fail-fast, before any member side effect) and start the child. A
+// for-each node freezes its list and starts the first item's child; the rest
+// follow one by one as each child completes. An empty list starts nothing
+// and the parent continues at once (`shouldBreak` false).
+export const startWorkflowExecution = async (
+  subdomain: string,
+  execution: IAutomationExecutionDocument,
+  workflowAction: IAutomationAction,
+) => {
+  checkWorkflowDepth(execution, workflowAction);
+
+  const forEach = readWorkflowForEach(workflowAction.config);
+
+  if (!forEach) {
+    const inputs = await resolveWorkflowInputs(
+      subdomain,
+      execution,
+      workflowAction,
+    );
+    const childExecutionId = await createWorkflowChildExecution(
+      subdomain,
+      execution,
+      workflowAction,
+      inputs,
+    );
+
+    return { shouldBreak: true, result: { childExecutionId, inputs } };
+  }
+
+  const items = await resolveForEachItems(subdomain, execution, forEach.items);
+  const inputs = await resolveWorkflowInputs(
+    subdomain,
+    execution,
+    workflowAction,
+    forEach.itemInput,
+  );
+
+  if (!items.length) {
+    return {
+      shouldBreak: false,
+      result: { forEach: { total: 0, succeeded: 0, failed: [] } },
+    };
+  }
+
+  const childExecutionId = await createWorkflowChildExecution(
+    subdomain,
+    execution,
+    workflowAction,
+    { ...inputs, [forEach.itemInput]: items[0] },
+    forEachItemSuffix(0, items.length),
+  );
+
+  const state: TWorkflowForEachState = {
+    items,
+    itemInput: forEach.itemInput,
+    onItemError: forEach.onItemError || 'continue',
+    inputs,
+    index: 0,
+    currentChildId: childExecutionId,
+    succeeded: 0,
+    failed: [],
+  };
+
+  return { shouldBreak: true, result: { childExecutionId, forEach: state } };
 };
 
 // Called when a child execution finishes (or fails): wakes the parent via

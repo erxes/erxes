@@ -6,12 +6,18 @@ import { currentUserState } from 'ui-modules';
 import {
   AppearanceLayout,
   FrameColor,
+  NavPosition,
   isAppearanceLayout,
   isFrameColor,
+  isNavPosition,
 } from '@/app/constants/appearance';
 import { USERS_CONFIG_APPEARANCE } from '@/app/graphql/appearanceMutations';
 
-type Appearance = { layout: AppearanceLayout; frameColor: FrameColor };
+type Appearance = {
+  layout: AppearanceLayout;
+  frameColor: FrameColor;
+  navPosition: NavPosition;
+};
 
 // Saved on the user so it follows them across browsers and devices.
 export const useAppearanceValue = (): Appearance => {
@@ -20,6 +26,9 @@ export const useAppearanceValue = (): Appearance => {
   return {
     layout: isAppearanceLayout(saved?.layout) ? saved.layout : 'default',
     frameColor: isFrameColor(saved?.frameColor) ? saved.frameColor : 'indigo',
+    navPosition: isNavPosition(saved?.navPosition)
+      ? saved.navPosition
+      : 'start',
   };
 };
 

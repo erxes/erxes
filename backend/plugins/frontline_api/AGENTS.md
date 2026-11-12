@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -98,6 +98,62 @@
 
 ## Current Capabilities
 
+- Automation action `frontline:inbox.handoffs.create` ("Hand off to a person",
+  `inbox/meta/automation/handoffAction.ts`): resolves the run's inbox
+  conversation (Messenger target, Facebook/Instagram provider conversation,
+  or conversation trigger) through `resolveInboxConversationId`, sets
+  `automatedReplyControl` to `handoff_requested` with reason `automation` and
+  `pausedUntil = now + pauseMinutes` (default 30, capped at a week), and
+  assigns `assignTo` users; skips with `no-conversation` otherwise.
+  `inbox/services/automatedReplyPause.ts` (`isAutomatedReplyPaused`) is the
+  pause check for the Messenger widget trigger and Instagram message trigger:
+  a pause ends at `pausedUntil`, or 30 minutes after `updatedAt` when unset
+  (an operator reply's `human_active`), and an ended pause is reset to
+  `active`/`timeout_expired`. Facebook keeps its idle-based check on the same
+  field (`handoffPauseMinutes`).
+- Automation action `frontline:form.links.create` ("Create form link",
+  `form/meta/automation/createFormLinkAction.ts`): signs a form link token
+  (`form/formLink.ts`, audience `erxes-form-link`, secret derived from
+  `JWT_TOKEN_SECRET`, `expiresInDays` default 30, max 365) carrying `linkId`,
+  `formId`, the target's `customerId` / first `customerIds`, and
+  `aboutRecord` = the trigger type without its relation (a ticket is
+  `frontline:tickets.tickets`) + target `_id`. Output `url`
+  (`${WIDGETS_DOMAIN}/live/<channelId>/<formId>?t=<token>`), `expiresAt`,
+  `formId`; skips `form-not-found` without a form channel. Sending the link
+  is left to message/email steps.
+- `widgetsSaveLead` / `cpWidgetsSaveLead` take `linkToken`: an invalid or
+  expired token returns `status: 'error'` (`linkInvalid`); a valid one sets
+  the customer from the token (browser `cachedCustomerId` ignored) and stamps
+  `aboutRecord` on every submission row and `linkId` on the first one (sparse
+  unique index), so a link takes one answer (`status: 'alreadySubmitted'`).
+  "Form submitted" output adds `aboutRecordType` / `aboutRecordId`.
+  Answers stay on submissions only; `Ticket.formResponses`
+  (`form/formResponses.ts`) groups rows by `groupId`, newest first. The live
+  form page in `apps/frontline-widgets` reads `?t=` and sends it.
+- Ticket SLA per pipeline (`pipeline.slaPolicy`: `enabled`, one rule per
+  priority 0-4 with `firstResponseMinutes` / `resolutionMinutes`,
+  `warnBeforeMinutes`; normalized by `normalizeSlaPolicy` in
+  `ticket/utils/sla.ts`). `Ticket.syncSla` writes `ticket.sla` (due times,
+  marks, `<clock>WarnedAt` / `<clock>BreachedAt`) after create/update of
+  `SLA_INPUT_FIELDS`, widget ticket create and automation setProperty. Due
+  times count the ticket branch's working hours (`utils/slaCalendar.ts`), else
+  clock time; no pause. First response = a non-internal team note
+  (`Note.ts`) or an operator conversation reply, which marks every open ticket
+  of that customer (`utils/slaResponse.ts`); AI replies do not count.
+  Resolution is marked while the status is closing, cleared on reopen; a
+  resolved ticket also stops the first-response clock (`stoppedOf`). Checks
+  are delayed jobs on queue `ticketSla` (`utils/slaQueue.ts`, job id carries
+  the due time; worker `utils/slaWorker.ts` also resyncs a pipeline after a
+  policy change). A tripped flag fires the custom trigger "Ticket SLA"
+  (`trigger/checkSlaTrigger.ts`, relation `sla`, events
+  `firstResponse`/`resolution` × `warning`/`breached`, re-enrollment on).
+  No SLA report exists.
+- Ticket numbers follow the pipeline's `numberConfig` (`{year}`, `{month}`,
+  `{day}`) plus a zero-padded counter of `numberSize`, counted from 0 per
+  config through `lastNum` (`assignTicketNumber` in
+  `ticket/utils/nameAndNumber.ts`, called by `Ticket.addTicket` and on a
+  pipeline move); without `numberSize` the number is a timestamp. The counter
+  is read then written, not atomic. `nameConfig` is stored but not applied.
 - Telegram bot setup and webhook status; private chats, groups, channels and
   forum topics; text, files, media, polls, edits, observed reactions and visible
   fallbacks. Long replies split into complete ordered text chunks, with caption
@@ -199,6 +255,40 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- `frontline:facebook.customerMessages.create` ("Message the customer on
+  Messenger", `messages/customerMessage.ts`) sends to the customer of any run
+  record (`target.customerId`, or the customer of a customer trigger) in
+  their latest Messenger conversation, on `config.botId`'s page when set:
+  within 24 hours of their last message freely, within 7 days with the
+  `HUMAN_AGENT` tag, otherwise a visible `outside-7-days` skip. It does not
+  touch automated-reply control. The builder edits it with the Messenger
+  reply form.
+- One template for core's Templates page ships through
+  `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
+  `frontline.complaint-employee` (v8). Parts (`meta/templates/parts.ts`,
+  `meta.templateParts`): `frontline:tickets.pipeline` (a "Complaints" channel
+  of the chosen members and a pipeline with the default statuses, numbering
+  `C{year}-` with size 4, an SLA
+  policy by priority, refs for the new, open, in-progress and resolved
+  statuses; kept while it has tickets) and `frontline:forms.rating` (a 1-5
+  radio question and a comment; refs `formId`, `ratingFieldId`; kept once
+  answered). Six journeys:
+  - Messenger chat: an AI agent part replies itself; helper workflows
+    `file_complaint` (owner by `pickMember`, priority 1-4 via `inputHints`),
+    `add_to_complaint`, `escalate`; the `request_compensation` handoff
+    first has the agent tell the customer it was asked (a handoff ends the
+    agent's turn with no text), then `approval`, and an AI agent step words each decision, sent
+    with the customer message action.
+  - SLA warning and SLA missed on the desk pipeline (notify the owner;
+    reassign to an available supervisor).
+  - Work started and resolved (status changed): the customer message action
+    sends the organization's texts; resolved adds a rating form link.
+  - Low rating (form submitted, rating below 3): Find object on
+    `aboutRecordId`, Manage properties reopens it, the supervisors are told.
+  `src/meta/templates/__tests__` covers both parts and checks the installed
+  shape against the engine's config schemas.
+  Steps that change the found ticket (add to it, reopen) name it with the
+  step's `target`, which sets `targetActionId`; `refs` cannot do that.
 - The Facebook/Instagram comment reply action resolves placeholders in the
   picked text variant with the same two passes as the message action
   (`replaceOutputPlaceholders`, then `{{ prevAction.* }}`) before queueing it;
@@ -691,6 +781,22 @@ Telegram lives in `src/modules/integrations/telegram/`: `controller/` ingests,
 reconciles and sends messages; `db/` owns provider mappings; `client.ts` owns
 Bot API calls; `graphql/` owns bot setup, status, chat labels and link previews.
 The root router mounts its authenticated webhook at `/telegram`.
+
+Telegram automation lives in `meta/automation/`: trigger
+`frontline:telegram.messages` ("Telegram Message") and action
+`frontline:telegram.messages.create` ("Send Telegram Message").
+`receiveTelegramMessage` enrols only a new, unedited customer message that was
+not already linked (a retried webhook does not re-enrol); the target
+(`TTelegramTriggerTarget`) carries the inbox `conversationId`, so handoff,
+open tickets and AI memory work unchanged. `checkCustomTrigger` answers private
+chats unless `chatTypes: 'all'`, applies the comma keyword filter, stays out of
+a conversation a person took over (`isAutomatedReplyPaused`) and sends a
+typing action. The send action calls `sendTelegramReply` with `fromBot: true`
+(no `userId`; the inbox reply path forces `fromBot: false`), stores
+`fromBot` on the Telegram message and mirrors the reply into the inbox flagged
+`fromBot`. AI context: last 12 older messages (bot / agent / customer),
+memory scope `frontline:telegram.conversation`, `openTickets`. Text only: no
+buttons, files or proactive sends.
 
 | Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1497,6 +1603,24 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Local Invariants
 
+- The messenger widget reads its automation from core (`automation.find`,
+  `getMessengerAutomation` / `getMessengerGetStarted` in `modules/inbox/utils.ts`)
+  and sends triggers with `sendAutomationTrigger`; it never calls the
+  automations service directly or gates on `isEnabled('automations')`, which
+  is false wherever automations runs as a service.
+- A form link is addressed by its form's channel. The template rating form
+  part makes its own channel when none is given (`refs.ownChannelId`) and
+  removes only that one with the form.
+- A Messenger or Instagram message trigger's target is the channel's own
+  message: its `conversationId` is the page's thread, not the inbox
+  conversation. The trigger adds `erxesApiId` (the inbox conversation) to the
+  target, as comment triggers already do; anything opening the inbox uses it.
+- Automation node and template icons (`icon` in automation constants and
+  `meta/templates`) are Tabler names the erxes-ui icon registry has
+  (the keys of `ALL_ICONS` in
+  `frontend/libs/erxes-ui/src/modules/icons/components/TablerIcons.ts`; an
+  aliased import such as `IconMessageCircle` is not one); any
+  other name draws as a placeholder in the builder and the template gallery.
 - A call leg or CTI event that names a queue belongs to the peer call
   integration whose `queues` contains it, and only to that one: when several
   integrations share a trunk and phone, the queue decides the channel, the
@@ -1589,6 +1713,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
+- Ticket Manage properties re-reads each written ticket (after the SLA sync)
+  and publishes `ticketChanged:<id>` and `ticketListChanged` through
+  `ticket/utils/publishTicketChanged.ts`, so open screens update without a
+  refresh. Any new server-side ticket write must publish the same way.
 
 - A media id (`<messageId>-<index>`, `facebook/meta/automation/utils/turnTaking.ts`)
   is the only way automation media reaches a ticket; `resolveConversationMedia`

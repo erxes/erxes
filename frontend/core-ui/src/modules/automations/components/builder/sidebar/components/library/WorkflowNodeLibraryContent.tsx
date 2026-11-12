@@ -54,7 +54,7 @@ export const WorkflowNodeLibraryContent = () => {
               type: template._id,
               label: template.name,
               description: template.description,
-              icon: 'IconArrowsSplit2',
+              icon: 'IconArrowsSplit',
             }}
             onSelectNode={() => insertTemplate(template)}
             onDragStart={(event) => {

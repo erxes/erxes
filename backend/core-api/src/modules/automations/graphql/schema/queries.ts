@@ -58,6 +58,7 @@ const queries = `
   automationRecentRuns(automationIds: [String!]!): [AutomationRecentRuns]
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
+  automationBuiltInTemplateMaterialize(pluginName: String!, templateId: String!, answers: JSON, usedIds: [String]): JSON
   automationSetPropertyTargets(sourceType: String!): JSON
   automationNodeOutput(nodeType: String!, config: JSON): JSON
   automationNodeCatalog: JSON

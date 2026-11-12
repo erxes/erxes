@@ -40,6 +40,11 @@ const PipelineMailPage = lazy(() =>
     default: module.PipelineMailPage,
   })),
 );
+const PipelineSlaPage = lazy(() =>
+  import('~/pages/PipelineSlaPage').then((module) => ({
+    default: module.PipelineSlaPage,
+  })),
+);
 const PipelineConfigsPage = lazy(() =>
   import('~/pages/PipelineConfigsPage').then((module) => ({
     default: module.PipelineConfigsPage,
@@ -68,6 +73,7 @@ const PipelineSettingsSections = ({
     permissions: <PipelinePermissionsPage />,
     properties: <PipelinePropertiesPage />,
     mail: <PipelineMailPage />,
+    sla: <PipelineSlaPage />,
   };
   const value = segment || 'general';
   return (

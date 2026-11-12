@@ -16,6 +16,7 @@ import { readSessionCookie, startSession } from '~/modules/auth/session';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import type { IProfilePatch } from '../db/utils/profilePatch';
+import { saveTeamAvailabilitySettings } from '../availability';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -461,6 +462,37 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     { user, models }: IContext,
   ) {
     return models.Users.configAppearance(user._id, appearance);
+  },
+
+  async usersSetAvailability(
+    _parent: undefined,
+    {
+      _id,
+      status,
+      until,
+      reason,
+    }: { _id: string; status?: string | null; until?: Date | null; reason?: string | null },
+    { user, models, checkPermission }: IContext,
+  ) {
+    // Anyone declares their own; declaring for others is a manager's right.
+    if (user._id !== _id) {
+      await checkPermission('teamMembersSetAvailability');
+    }
+
+    return models.Users.setAvailability(_id, { status, until, reason }, user._id);
+  },
+
+  async teamAvailabilitySettingsUpdate(
+    _parent: undefined,
+    args: { segmentId?: string | null; precedence?: string | null },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersSetAvailability');
+
+    return saveTeamAvailabilitySettings(models, {
+      segmentId: args.segmentId || undefined,
+      precedence: args.precedence === 'manual' ? 'manual' : 'segment',
+    });
   },
 
   async usersSetChatStatus(

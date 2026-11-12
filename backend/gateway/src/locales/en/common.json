@@ -80,7 +80,8 @@
     "delete": "Delete",
     "save": "Save",
     "settings": "Settings",
-    "data-extensions": "Data Extensions"
+    "data-extensions": "Data Extensions",
+    "workflow-templates": "Workflow templates"
   },
   "filter": {
     "_": "Filter",

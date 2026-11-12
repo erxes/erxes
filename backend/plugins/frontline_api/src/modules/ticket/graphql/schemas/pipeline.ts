@@ -1,6 +1,30 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  type TicketSlaRule {
+    priority: Int!
+    firstResponseMinutes: Int
+    resolutionMinutes: Int
+  }
+
+  type TicketSlaPolicy {
+    enabled: Boolean
+    rules: [TicketSlaRule]
+    warnBeforeMinutes: Int
+  }
+
+  input TicketSlaRuleInput {
+    priority: Int!
+    firstResponseMinutes: Int
+    resolutionMinutes: Int
+  }
+
+  input TicketSlaPolicyInput {
+    enabled: Boolean
+    rules: [TicketSlaRuleInput]
+    warnBeforeMinutes: Int
+  }
+
   type Pipeline {
     _id: String!
     name: String!
@@ -28,6 +52,7 @@ export const types = `
     visibility: String
     memberIds: [String]
     createLayout: [[String!]!]
+    slaPolicy: TicketSlaPolicy
   }
 
   type PipelineSubscription {
@@ -95,6 +120,7 @@ const pipelineParams = `
     visibility: String,
     memberIds :[String]
     createLayout: [[String!]!]
+    slaPolicy: TicketSlaPolicyInput
 `;
 export const mutations = `
   createPipeline(

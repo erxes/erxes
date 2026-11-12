@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -41,7 +41,8 @@
   `mailCheckConnection` and reports whether inbound mail reaches this workspace,
   naming the tenant and the endpoint the worker delivers to.
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
-  ticket surface.
+  ticket surface. Ticket detail actions use a compact, accessible icon-only
+  trigger while retaining archive, subscription, and delete menu actions.
 - Forms UI: form builder, preview, and submissions.
 - Surveys UI: per-channel survey management inside channel settings (list, the
   step-based create/edit wizard, archive, remove), the results board and the
@@ -70,8 +71,12 @@
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
 - Automation remote entries under `src/widgets` for facebook, instagram, inbox,
-  discord, mail, form, knowledgebase, and ticket — trigger forms, action forms, node
+  discord, telegram, mail, form, knowledgebase, and ticket — trigger forms, action forms, node
   configuration content, bot management, and execution history renderers.
+- Telegram automation (`widgets/automations/modules/telegram`): trigger form
+  (chats: private only by default or private and groups; keyword filter) and
+  "Send Telegram Message" action form (required text with placeholders);
+  translations under `widgets.automations-telegram`.
 - Notification, relation, activity, and floating widgets exposed to the host.
 
 ### Does not own
@@ -87,6 +92,29 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Inbox automation remote entry routes `frontline:inbox.handoffs.create` to
+  `HandoffActionForm` (assignees via user placeholders, pause minutes, blank =
+  30) and `HandoffActionConfig`; other inbox actions keep the Messenger message
+  form. New copy uses `t(key, default)` because frontline strings live in the
+  gateway locales.
+
+- Form automation remote entry routes `frontline:form.links.create` to
+  `CreateFormLinkActionForm` (form picker reusing `SelectTriggerForm`, days
+  valid, blank = 30) and `CreateFormLinkActionConfig`. Ticket detail shows
+  `TicketFormResponses` from `getTicket.formResponses` (hidden when empty).
+- Ticket detail description editor reads its content once;
+  `hooks/useSyncTicketDescription.ts` pulls a description written elsewhere
+  (automation, another user, via `ticketChanged`) into the editor unless it is
+  focused or holds an unsaved edit, and marks that change so the debounced
+  save does not write it back. Our own saves are recognised by the sent value.
+- Ticket SLA: pipeline settings tab `sla` (`pages/PipelineSlaPage.tsx`,
+  `pipelines/components/sla/PipelineSlaPolicy.tsx`, form in
+  `pipelines/hooks/usePipelineSlaForm.ts`) edits `slaPolicy` through
+  `updatePipeline`; ticket detail shows `TicketSlaStatus` (due, met, warned,
+  breached per clock, `hooks/useTicketSlaStatus.ts`). The ticket automation
+  remote entry routes the "Ticket SLA" trigger to `TicketSlaTriggerForm` /
+  `TicketSlaTriggerNodeContent` (clock and phase choices).
 
 - Home dashboard tiles: every report chart (conversation open/resolved/source/
   tag/responses/list, ticket status summary/date/source/tags/custom
@@ -223,7 +251,22 @@
   status together and already clears the ones below when a choice above them
   changes. It reports `{ channelId, pipelineId, status }` upward only once a
   status is picked — there is no separate readiness call, and a half-made
-  choice leaves the install closed.
+  choice leaves the install closed. `frontline:facebook.bot` is answered by
+  `FacebookTemplateRequirement` (facebook module) with `FacebookBotSelector`;
+  the answer is the bot id a Messenger trigger's `botId` takes. With no bot it
+  offers connecting one in a new tab and reloads the list on window focus, so
+  the wizard keeps its answers. Up to six bots show as cards
+  (`TemplateRequirementOptions`) with "Connect another page" in a new tab, since
+  connecting signs in to Facebook and the bot form needs the bots page panel;
+  more use `FacebookBotSelector`. The only bot, or one that appears after the
+  list reloads, is picked (`useTemplateRequirementOptions`). It names the
+  chosen bot as `bot · page` through `onLabel`.
+- The Facebook and Instagram execution history names link "See Conversation"
+  to the inbox with `target.erxesApiId`; a run without it (from before the
+  trigger carried it) shows no conversation link rather than a wrong one.
+- The Facebook remote entry edits and summarizes
+  `frontline:facebook.customerMessages.create` with the Messenger reply form
+  and node content (`customerMessages` beside `messages`).
 
 - Polls are split across two routes, mirroring how forms are laid out.
   `frontline/settings/channels/:id/polls` manages the channel's polls: the
@@ -420,7 +463,8 @@
 
 - Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
   live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
-  ticket record panel's actions view; the fields row carries no actions. The
+  ticket record panel's actions view and in the `TicketDetailPage` header; the
+  fields row carries no actions. The
   notification ticket view's `Open ticket` button opens the same record panel.
   `TicketPanelDetail` shows linked customers and companies through
   `ContactRecordChip`, opening each contact with stacked navigation.
@@ -894,7 +938,17 @@ owns the setup form and connection actions.
 - `./frontline` retains its federation path and loads the named `Frontline`
   export from `src/modules/FrontlineMain.tsx`.
 
-- `CONFIG.widgets.recordPanels` registers `frontline:ticket`; the
+- `CONFIG.widgets.recordPanels` registers `frontline:ticket` with
+  `detailPath: getTicketDetailPath`
+  (`src/modules/ticket/constants/index.ts`), so the side panel's
+  expand button opens `/frontline/tickets/:ticketId`. `TicketDetailPage`
+  (`src/pages/TicketDetailPage.tsx`, lazy-loaded in `FrontlineMain`) is laid
+  out like operation's task page through the public
+  `RecordSidePanel expanded expandedMode="page" expandable={false}`: a
+  `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`, then `TicketPageFields`
+  beside Description, Properties and Activity tabs, the name edited above the
+  fields with `TicketPanelName`. Deleting the ticket from the page replaces it
+  with `/frontline/tickets`; a missing ticket shows the panel's empty state. The
   `./recordPanel` federation expose (`src/widgets/record-panel/RecordPanel.tsx`)
   provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through
@@ -1388,7 +1442,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   on keys present in both gateway catalogues instead of adding English defaults.
 - The ticket panel title owns its `TICKET_CHANGED` subscription; other panel
   views call `useGetTicket({ subscribe: false })` and receive Apollo cache updates.
-- `TicketPanelDetail` memoizes attachment normalization by `ticket.attachments`
+  `TicketDetailPage` has no panel title, so its own `useGetTicket` keeps the
+  default subscription.
+- `TicketPanelDetail` composes the fields and description sections that
+  `TicketPageFields` and `TicketPageDescription` render on the ticket page; the
+  description section memoizes attachment normalization by `ticket.attachments`
   so unrelated ticket updates do not reset an in-progress upload.
 - Ticket attachments use the public `useErxesUpload().uploadFile` API and settle
   every file in a batch, including rejected and oversized files. Clear uploading
@@ -1669,6 +1727,18 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   the explicit template selector remains available. Preserve other providers'
   composer behavior, Facebook partial-delivery recovery, Instagram error
   feedback and stale-send/draft guards.
+- The inbox composer scopes response templates to the conversation's channel:
+  `useResponseTemplateSuggestions` takes `channelId` and the toolbar's
+  `ResponseTemplateSelector` takes `defaultChannelId`, both fed from
+  `integration.channelId` in the conversation context. The selector keeps its
+  channel filter editable, so an agent can clear it or pick another channel,
+  and re-seeds it whenever the conversation changes. A conversation without an
+  integration channel falls back to every template.
+- `/` belongs to the BlockNote slash menu, which floats at z-index 3000 above
+  every `Popover`. Template suggestions are therefore disabled while that menu
+  is open (`isSlashMenuOpenState`) and a typed value starting with `/` is never
+  searched. Templates are reached by typing matching text or through the
+  toolbar's `ResponseTemplateSelector`.
 
 - The inbox and ticket composers pick their mode through the one
   `ComposerModeTabs`; a composer that separates a customer reply from an

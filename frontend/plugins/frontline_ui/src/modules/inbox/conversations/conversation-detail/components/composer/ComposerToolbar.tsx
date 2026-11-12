@@ -54,7 +54,11 @@ export const ComposerToolbar = ({
       className="flex min-w-0 flex-none items-center gap-1 px-3 py-2 sm:gap-2"
     >
       {!isInternalNote && (
-        <ResponseTemplateSelector onSelect={onTemplateSelect} disabled={isBusy}>
+        <ResponseTemplateSelector
+          onSelect={onTemplateSelect}
+          disabled={isBusy}
+          defaultChannelId={integrationChannelId}
+        >
           <Button
             type="button"
             variant="ghost"

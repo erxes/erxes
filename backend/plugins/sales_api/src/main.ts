@@ -1,5 +1,6 @@
 import { appRouter } from './trpc/init-trpc';
 import automations from './meta/automations';
+import { templates } from './meta/templates';
 import { generateModels } from './connectionResolvers';
 import resolvers from './apollo/resolvers';
 import { router } from './routes';
@@ -121,6 +122,7 @@ startPlugin({
     // Agent skill and the client-portal operations the agent should not plan around.
     agent,
     automations,
+    templates,
     segments,
     documents,
     references: salesReferences,

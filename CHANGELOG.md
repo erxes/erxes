@@ -1,4 +1,45 @@
+# Changelog
 
+## [3.4.20](https://github.com/erxes/erxes/compare/3.4.19...3.4.20) (2026-11-12)
+
+
+### Features
+
+* **automations:** AI employees — template module, sales & complaint employees, agent lookup and actions ([#10496](https://github.com/erxes/erxes/issues/10496)) ([ce6a7ee](https://github.com/erxes/erxes/commit/ce6a7eed423baf34a7cd6c067dcba3e9de0ba200))
+
+## [3.4.19](https://github.com/erxes/erxes/compare/3.4.18...3.4.19) (2026-11-12)
+
+
+### Bug Fixes
+
+* accounting models with allow disk ([d53fd17](https://github.com/erxes/erxes/commit/d53fd172bc74c91fc0970f8b9219d0b62e2b9c36))
+* **accounting:** align adjustment, settings and inventory screens with shared UI patterns ([#10461](https://github.com/erxes/erxes/issues/10461)) ([2408e61](https://github.com/erxes/erxes/commit/2408e6129afc461b8d769db14358d4dcb2661690))
+* **accounting:** align transaction and journal screens with shared UI patterns ([#10460](https://github.com/erxes/erxes/issues/10460)) ([6a41cab](https://github.com/erxes/erxes/commit/6a41caba85256bd13db93517b4a3a704e8ab7c71))
+* **accounting:** align UI with shared components used by other plugins ([#10429](https://github.com/erxes/erxes/issues/10429)) ([cd6e567](https://github.com/erxes/erxes/commit/cd6e567bf634378a25b184d7f48a14ccb18f93f4))
+* **accounting:** vat and ctax is handle ([7ae2b2e](https://github.com/erxes/erxes/commit/7ae2b2e20fba32eb6e8d508406c40ce8f35e2ecc))
+* adjust Inventory error message ([7429179](https://github.com/erxes/erxes/commit/74291795d7dbf7f27129fbb755ffa7831d8d12de))
+* **frontline:** compact ticket detail actions ([#10462](https://github.com/erxes/erxes/issues/10462)) ([cc825c4](https://github.com/erxes/erxes/commit/cc825c4ce0e90b97fe18d12e73db051a571d0e77))
+* **mongolian:** restore put response access, eBarimt print and list display ([#10464](https://github.com/erxes/erxes/issues/10464)) ([c6e4900](https://github.com/erxes/erxes/commit/c6e4900602a0ccc85290170373f79dbd99c1a14a))
+* **sales:** turn admin price cuts into discounts and refresh footer drafts ([#10470](https://github.com/erxes/erxes/issues/10470)) ([2bbe1b5](https://github.com/erxes/erxes/commit/2bbe1b5abe4592ec849ac71764a38ee700acd57c))
+
+
+### Features
+
+* **communication:** add messaging API and admin UI ([#10463](https://github.com/erxes/erxes/issues/10463)) ([2bb6b29](https://github.com/erxes/erxes/commit/2bb6b297f45ba4b9c7c99982bd63bab44ccc9b56))
+* **frontline:** scope inbox response templates to the conversation channel ([aae3565](https://github.com/erxes/erxes/commit/aae3565d8ac8a5f2d85d42a884d95559d3c0c877))
+* **payment:** auto-open Pocket app on phones, QR on desktop ([#10487](https://github.com/erxes/erxes/issues/10487)) ([565e742](https://github.com/erxes/erxes/commit/565e742149d81aee717922c4caeb5a2d415bfc72))
+* **saas-migrations:** give provisioned AppSumo organizations a plan history ([2ccdf0b](https://github.com/erxes/erxes/commit/2ccdf0b6fbdaf7db8cc976217fdb2158872fb7c8))
+* **saas-migrations:** grant provisioned AppSumo organizations their plugins ([1463524](https://github.com/erxes/erxes/commit/1463524694ddd8d7ac5ef148c639599e2c05f5f0))
+* **saas-migrations:** grant provisioned AppSumo organizations their plugins ([d93206f](https://github.com/erxes/erxes/commit/d93206ffcff0e1fe682f8eca3abe355cb8cd961d))
+* **saas-migrations:** grant provisioned AppSumo organizations their plugins ([446c943](https://github.com/erxes/erxes/commit/446c943b121bf67072a82a8676838f0836e5cf94))
+* **saas-migrations:** orgs ([c002588](https://github.com/erxes/erxes/commit/c002588ca68bb801675a79f3a77e077cb5908e8f))
+* **saas-migrations:** orgs ([5cfd235](https://github.com/erxes/erxes/commit/5cfd235ef31bf7983545d795d5aa2c3b029e5a59))
+* **saas-migrations:** orgs ([fedb057](https://github.com/erxes/erxes/commit/fedb057457272625414fd466b8fe77ffeeaac637))
+* **saas-migrations:** orgs ([772a76b](https://github.com/erxes/erxes/commit/772a76b4fec42bf3b02d9e203aaf4ac6df602ab8))
+* **saas-migrations:** provision the target organization for AppSumo pairs ([6f3acbc](https://github.com/erxes/erxes/commit/6f3acbc873d38087268e386265ce12f271efaf57))
+* **saas-migrations:** provision the target organization for AppSumo pairs ([9b87eac](https://github.com/erxes/erxes/commit/9b87eac17830298234c978e54b72c7c7fa1646af))
+* **saas-migrations:** restore the held owner on provisioned AppSumo organizations ([92c4a1c](https://github.com/erxes/erxes/commit/92c4a1c11b46a91302ad67d0e856f0e968e7f4cf))
+* **sales:** let Sales User manage deal products while unit price stays admin-only ([#10469](https://github.com/erxes/erxes/issues/10469)) ([1e93f6a](https://github.com/erxes/erxes/commit/1e93f6a2111744624710b86e5bcd2a8b03773f2b))
 
 ## [3.4.18](https://github.com/erxes/erxes/compare/3.4.17...3.4.18) (2026-11-10)
 
@@ -51,7 +92,7 @@
 * refine contact, property, and team member panels ([#10042](https://github.com/erxes/erxes/issues/10042)) ([3f0bfcf](https://github.com/erxes/erxes/commit/3f0bfcf38a924ea764867bae8308e0452000ce8b))
 * **sales:** open POS orders and covers in the side panel. ([#10072](https://github.com/erxes/erxes/issues/10072)) ([edacd77](https://github.com/erxes/erxes/commit/edacd77a12be3169384108a27ab7bd49b56297a6))
 
-# Changelog
+
 
 ## [3.4.15](https://github.com/erxes/erxes/compare/3.4.14...3.4.15) (2026-11-07)
 

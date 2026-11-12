@@ -23,18 +23,40 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { useAtom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
 export type { IRecordSidePanelTab } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanelTypes';
 
 // A record shown beside its list, the list staying usable: a header and tabs.
 export const SIDE_PANEL_WIDTH = { min: 320, max: 600, default: 400 };
 
+// A record's own page: the overview column beside its tabs, in px. It is
+// never wider than the page leaves after `tabsMin` for the tabs; `max` only
+// bounds it before the page is measured.
+const RECORD_OVERVIEW_WIDTH = {
+  min: 288,
+  max: 640,
+  default: 384,
+  tabsMin: 360,
+};
+
+// The width the user dragged the overview column to, kept across reloads.
+const recordOverviewWidthState = atomWithStorage<number>(
+  'erxes:recordOverviewWidth',
+  RECORD_OVERVIEW_WIDTH.default,
+);
+
 /** Keeps a resized pane within its configured width limits. */
-const clampWidth = (width: number, maxWidth: number) =>
-  Math.min(maxWidth, Math.max(SIDE_PANEL_WIDTH.min, width));
+const clampWidth = (
+  width: number,
+  maxWidth: number,
+  minWidth = SIDE_PANEL_WIDTH.min,
+) => Math.min(maxWidth, Math.max(minWidth, width));
 
 const PanelExpansionContext = createContext<PanelExpansionContextValue>(null);
 
@@ -42,17 +64,26 @@ const PanelExpansionContext = createContext<PanelExpansionContextValue>(null);
 export const usePanelExpanded = () =>
   useContext(PanelExpansionContext)?.expanded ?? false;
 
-// Dragging the panel's left edge resizes it; leftwards makes it wider.
+// Dragging a pane's edge resizes it; dragging outwards makes it wider.
 const RecordSidePanelResizeHandle = ({
   width,
+  minWidth = SIDE_PANEL_WIDTH.min,
   maxWidth,
+  edge = 'start',
+  label,
+  className,
+  onResize,
   onWidthChange,
 }: RecordSidePanelResizeHandleProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  // Leftwards widens a pane resized from its start edge.
+  const direction = edge === 'start' ? -1 : 1;
   const [dragging, setDragging] = useState(false);
   const stopResize = useRef<((commit?: boolean) => void) | null>(null);
   const onWidthChangeRef = useRef(onWidthChange);
   onWidthChangeRef.current = onWidthChange;
+  const onResizeRef = useRef(onResize);
+  onResizeRef.current = onResize;
   useEffect(() => () => stopResize.current?.(false), []);
   useEffect(() => {
     stopResize.current?.();
@@ -81,7 +112,8 @@ const RecordSidePanelResizeHandle = ({
     // Paint locally while dragging; the storage-backed owner only commits once.
     const paint = () => {
       frame = null;
-      panel.style.width = `${nextWidth}px`;
+      if (onResizeRef.current) onResizeRef.current(nextWidth);
+      else panel.style.width = `${nextWidth}px`;
       handle.setAttribute('aria-valuenow', String(nextWidth));
     };
     /** Releases drag listeners and pointer capture, optionally committing the width. */
@@ -114,7 +146,11 @@ const RecordSidePanelResizeHandle = ({
         stop();
         return;
       }
-      nextWidth = clampWidth(startWidth + startX - moveEvent.clientX, maxWidth);
+      nextWidth = clampWidth(
+        startWidth + direction * (moveEvent.clientX - startX),
+        maxWidth,
+        minWidth,
+      );
       if (frame === null) frame = view.requestAnimationFrame(paint);
     }
     /** Ends the resize only for the pointer that started it. */
@@ -157,27 +193,33 @@ const RecordSidePanelResizeHandle = ({
       <div
         role="separator"
         aria-orientation="vertical"
-        aria-label={t('resize', 'Resize side panel')}
-        aria-valuemin={SIDE_PANEL_WIDTH.min}
+        aria-label={label ?? t('resize', 'Resize side panel')}
+        aria-valuemin={minWidth}
         aria-valuemax={maxWidth}
         aria-valuenow={width}
         tabIndex={0}
         title={t('drag-to-resize', 'Drag to resize')}
         data-resizing={dragging || undefined}
-        className="group absolute inset-y-0 -left-2 z-10 flex w-4 cursor-col-resize touch-none items-center justify-center outline-none after:absolute after:inset-y-0 after:w-px after:bg-transparent hover:after:bg-primary/50 focus-visible:after:bg-primary data-[resizing=true]:after:bg-primary"
+        className={cn(
+          'group absolute inset-y-0 z-10 flex w-4 cursor-col-resize touch-none items-center justify-center outline-none after:absolute after:inset-y-0 after:w-px after:bg-transparent hover:after:bg-primary/50 focus-visible:after:bg-primary data-[resizing=true]:after:bg-primary',
+          edge === 'start' ? '-left-2' : '-right-2',
+          className,
+        )}
         onPointerDown={handlePointerDown}
         onKeyDown={(event) => {
-          const step = event.shiftKey ? 64 : 16;
+          const step = (event.shiftKey ? 64 : 16) * direction;
           const widths: Record<string, number> = {
-            ArrowLeft: width + step,
-            ArrowRight: width - step,
-            Home: SIDE_PANEL_WIDTH.min,
+            ArrowLeft: width - step,
+            ArrowRight: width + step,
+            Home: minWidth,
             End: maxWidth,
           };
           const nextWidth = widths[event.key];
           if (nextWidth === undefined) return;
           event.preventDefault();
-          onWidthChange(clampWidth(nextWidth, maxWidth));
+          const clampedWidth = clampWidth(nextWidth, maxWidth, minWidth);
+          // At a limit nothing moves; a wider stored width stays the user's.
+          if (clampedWidth !== width) onWidthChange(clampedWidth);
         }}
       >
         <span className="relative z-10 h-10 w-1 rounded-full bg-border transition-colors group-hover:bg-primary/60 group-focus-visible:bg-primary group-data-[resizing=true]:bg-primary" />
@@ -458,6 +500,47 @@ const RecordSidePanelTabs = ({
     }
   }, [overviewTab, selectedValue]);
   const barRef = useRef<HTMLDivElement>(null);
+  const tabsRootRef = useRef<HTMLDivElement>(null);
+  const [overviewWidth, setOverviewWidth] = useAtom(recordOverviewWidthState);
+  const [layoutWidth, setLayoutWidth] = useState(0);
+  useLayoutEffect(() => {
+    const root = tabsRootRef.current;
+    if (!splitOverview || !root || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    setLayoutWidth(root.clientWidth);
+    const observer = new ResizeObserver(([entry]) =>
+      setLayoutWidth(entry.contentRect.width),
+    );
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [splitOverview]);
+  // The stored width stays the user's choice; a narrower page only draws less.
+  const overviewMaxWidth = layoutWidth
+    ? Math.max(
+        RECORD_OVERVIEW_WIDTH.min,
+        layoutWidth - RECORD_OVERVIEW_WIDTH.tabsMin,
+      )
+    : RECORD_OVERVIEW_WIDTH.max;
+  const overviewColumnWidth = clampWidth(
+    overviewWidth,
+    overviewMaxWidth,
+    RECORD_OVERVIEW_WIDTH.min,
+  );
+  const overviewMaxWidthRef = useRef(overviewMaxWidth);
+  overviewMaxWidthRef.current = overviewMaxWidth;
+  // Paints the column while dragging, within the page's current limit even
+  // if it changes mid-drag; the stored width commits on release.
+  const paintOverviewWidth = useCallback((width: number) => {
+    tabsRootRef.current?.style.setProperty(
+      '--record-overview-width',
+      `${clampWidth(
+        width,
+        overviewMaxWidthRef.current,
+        RECORD_OVERVIEW_WIDTH.min,
+      )}px`,
+    );
+  }, []);
   const tabWidths = useRef(new Map<string, number>());
   const tabsRef = useRef(tabs);
   tabsRef.current = tabs;
@@ -570,7 +653,7 @@ const RecordSidePanelTabs = ({
     'box-content items-center gap-1 h-9 px-2 border-b bg-background';
   if (splitOverview) {
     contentLayout =
-      'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]';
+      'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[var(--record-overview-width)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]';
     navigationLayout =
       'col-start-1 row-start-2 box-content h-9 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1';
   } else if (expanded) {
@@ -581,10 +664,18 @@ const RecordSidePanelTabs = ({
 
   return (
     <Tabs
+      ref={tabsRootRef}
       value={selectedValue}
       onValueChange={onValueChange}
       orientation={expanded && !splitOverview ? 'vertical' : 'horizontal'}
       className={cn('flex-1 min-h-0 min-w-0', contentLayout)}
+      style={
+        splitOverview
+          ? ({
+              '--record-overview-width': `${overviewColumnWidth}px`,
+            } as CSSProperties)
+          : undefined
+      }
     >
       {/* Lines up with a page's filter row: h-9 plus its 1px rule. So does the
           overview's own header beside it on a record's page. */}
@@ -675,13 +766,26 @@ const RecordSidePanelTabs = ({
             !splitOverview &&
               'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 motion-reduce:animate-none',
             splitOverview && tab.value === overviewTab
-              ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
+              ? 'relative col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
               : 'data-[state=active]:flex data-[state=inactive]:hidden',
             splitOverview &&
               tab.value !== overviewTab &&
               'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
           )}
         >
+          {splitOverview && tab.value === overviewTab && (
+            // Stacked on narrow screens, where there is no column to resize.
+            <RecordSidePanelResizeHandle
+              edge="end"
+              width={overviewColumnWidth}
+              minWidth={RECORD_OVERVIEW_WIDTH.min}
+              maxWidth={overviewMaxWidth}
+              label={t('resize-overview', 'Resize details')}
+              className="hidden md:flex"
+              onResize={paintOverviewWidth}
+              onWidthChange={setOverviewWidth}
+            />
+          )}
           {splitOverview && tab.value === overviewTab && overviewHeader && (
             <div className="box-content flex h-9 min-w-0 flex-none items-center gap-2 border-b px-3">
               {overviewHeader}

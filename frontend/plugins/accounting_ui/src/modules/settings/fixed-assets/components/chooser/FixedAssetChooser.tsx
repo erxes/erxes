@@ -2,8 +2,23 @@ import { ReactNode, useMemo, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
-import { Button, Input, Label, Sheet, Skeleton, Table, toast } from 'erxes-ui';
-import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconFilterOff,
+  IconInfoCircle,
+} from '@tabler/icons-react';
+import {
+  Badge,
+  Button,
+  Input,
+  Label,
+  Sheet,
+  Skeleton,
+  Table,
+  toast,
+} from 'erxes-ui';
+import { SelectMember } from 'ui-modules';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
 import { SelectFixedAssetCategory } from '@/settings/fixed-assets/components/SelectFixedAssetCategory';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
@@ -13,6 +28,7 @@ import {
   FixedAssetChooserRows,
   FixedAssetChosenRows,
 } from '@/settings/fixed-assets/components/chooser/FixedAssetChooserRows';
+import { FixedAssetChooserLocationFilter } from '@/settings/fixed-assets/components/chooser/FixedAssetChooserLocationFilter';
 import {
   addFxaChoices,
   availableFxaChooserItems,
@@ -112,6 +128,9 @@ export const FixedAssetChooserBody = ({
       availableFxaChooserItems(result?.items || [], selections, assetScoped),
     [result?.items, selections, assetScoped],
   );
+  const hasFilters = Boolean(
+    search || categoryId || branchId || departmentId || ownerId,
+  );
   const updateFilter = (update: () => void) => {
     update();
     setPage(1);
@@ -148,116 +167,74 @@ export const FixedAssetChooserBody = ({
   };
   return (
     <>
-      <Sheet.Content className="flex-1 overflow-auto p-4 space-y-4">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-1">
-            <Label>{t('search-assets')}</Label>
-            <Input
-              value={search}
-              onChange={(event) =>
-                updateFilter(() => setSearch(event.target.value))
-              }
-              placeholder={t('fxa-chooser-search')}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label>{t('category')}</Label>
-            <SelectFixedAssetCategory
-              selected={categoryId || undefined}
-              nullable
-              onSelect={(value) =>
-                updateFilter(() => setCategoryId(value || ''))
-              }
-            />
-          </div>
-          <div className="space-y-1">
-            <Label>{t('asset-custodian')}</Label>
-            <SelectMember
-              mode="single"
-              value={ownerId}
-              onValueChange={(value) =>
-                updateFilter(() =>
-                  setOwnerId(
-                    Array.isArray(value) ? value[0] || '' : value || '',
-                  ),
-                )
-              }
-              placeholder={t('asset-custodian')}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label>{t('branch')}</Label>
-            <SelectBranches.Root
-              mode="single"
-              value={branchId === '_' ? '' : branchId}
-              onValueChange={(value) =>
-                updateFilter(() =>
-                  setBranchId(
-                    Array.isArray(value) ? value[0] || '' : value || '',
-                  ),
-                )
-              }
-              placeholder={t('branch')}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                updateFilter(() => setBranchId(branchId === '_' ? '' : '_'))
-              }
-            >
-              {branchId === '_' ? '✓ ' : ''}
-              {t('fxa-chooser-unassigned-branch')}
-            </Button>
-          </div>
-          <div className="space-y-1">
-            <Label>{t('department')}</Label>
-            <SelectDepartments.Root
-              mode="single"
-              value={departmentId === '_' ? '' : departmentId}
-              onValueChange={(value) =>
-                updateFilter(() =>
-                  setDepartmentId(
-                    Array.isArray(value) ? value[0] || '' : value || '',
-                  ),
-                )
-              }
-              placeholder={t('department')}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                updateFilter(() =>
-                  setDepartmentId(departmentId === '_' ? '' : '_'),
-                )
-              }
-            >
-              {departmentId === '_' ? '✓ ' : ''}
-              {t('fxa-chooser-unassigned-department')}
-            </Button>
-          </div>
-          <div className="flex items-end pb-1">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() =>
-                updateFilter(() => {
-                  setSearch('');
-                  setCategoryId('');
-                  setBranchId('');
-                  setDepartmentId('');
-                  setOwnerId('');
-                })
-              }
-            >
-              {t('clear-filters')}
-            </Button>
-          </div>
+      <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3 flex-none">
+        <Input
+          className="min-w-56 flex-1"
+          value={search}
+          onChange={(event) =>
+            updateFilter(() => setSearch(event.target.value))
+          }
+          placeholder={t('fxa-chooser-search')}
+          aria-label={t('search-assets')}
+          autoFocus
+        />
+        <div className="w-48">
+          <SelectFixedAssetCategory
+            selected={categoryId || undefined}
+            nullable
+            onSelect={(value) => updateFilter(() => setCategoryId(value || ''))}
+          />
         </div>
-        <p className="text-xs text-muted-foreground">
+        <div className="w-44">
+          <SelectMember
+            mode="single"
+            value={ownerId}
+            onValueChange={(value) =>
+              updateFilter(() =>
+                setOwnerId(Array.isArray(value) ? value[0] || '' : value || ''),
+              )
+            }
+            placeholder={t('asset-custodian')}
+          />
+        </div>
+        <div className="w-44">
+          <FixedAssetChooserLocationFilter
+            kind="branch"
+            value={branchId}
+            onValueChange={(value) => updateFilter(() => setBranchId(value))}
+          />
+        </div>
+        <div className="w-44">
+          <FixedAssetChooserLocationFilter
+            kind="department"
+            value={departmentId}
+            onValueChange={(value) =>
+              updateFilter(() => setDepartmentId(value))
+            }
+          />
+        </div>
+        {hasFilters && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() =>
+              updateFilter(() => {
+                setSearch('');
+                setCategoryId('');
+                setBranchId('');
+                setDepartmentId('');
+                setOwnerId('');
+              })
+            }
+          >
+            <IconFilterOff />
+            {t('clear-filters')}
+          </Button>
+        )}
+      </div>
+      <Sheet.Content className="flex min-h-0 flex-col overflow-hidden border-b-0">
+        <p className="flex items-center gap-1.5 px-4 pt-3 pb-2 text-xs text-muted-foreground">
+          <IconInfoCircle className="size-3.5 shrink-0" />
           {t(
             props.allLocations
               ? 'fxa-chooser-all-locations-help'
@@ -265,11 +242,11 @@ export const FixedAssetChooserBody = ({
           )}
         </p>
         {!validDate && (
-          <p role="alert" className="text-destructive">
+          <p role="alert" className="px-4 pb-2 text-sm text-destructive">
             {t('fxa-chooser-date-required')}
           </p>
         )}
-        <div className="overflow-x-auto border rounded">
+        <div className="mx-4 min-h-0 flex-1 overflow-auto rounded-lg border">
           <Table className="table-fixed min-w-[1000px]">
             <FixedAssetChooserHeader />
             <Table.Body>
@@ -289,9 +266,9 @@ export const FixedAssetChooserBody = ({
           </Table>
           {loading && (
             <div className="p-4 space-y-2">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
             </div>
           )}
           {!loading && (error || !visibleItems.length) && validDate && (
@@ -314,43 +291,47 @@ export const FixedAssetChooserBody = ({
             />
           )}
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between px-4 py-2">
           <span className="text-xs text-muted-foreground">
             {t('results-count', { count: result?.totalCount || 0 })}
           </span>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1">
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
+              size="icon"
+              aria-label={t('previous-page', { defaultValue: 'Өмнөх' })}
               disabled={loading || page <= 1}
               onClick={() => setPage((value) => value - 1)}
             >
-              {t('previous')}
+              <IconChevronLeft />
             </Button>
-            <span className="self-center text-sm">{page}</span>
+            <span className="min-w-6 text-center text-sm tabular-nums">
+              {page}
+            </span>
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
+              size="icon"
+              aria-label={t('next')}
               disabled={loading || !result?.hasMore}
               onClick={() => setPage((value) => value + 1)}
             >
-              {t('next')}
+              <IconChevronRight />
             </Button>
           </div>
         </div>
       </Sheet.Content>
       {selections.length > 0 && (
         <section
-          className="border-t bg-background shrink-0"
+          className="flex-none space-y-2 border-t bg-background px-4 py-3"
           aria-label={t('fxa-chooser-selected')}
         >
-          <div className="flex items-center gap-2 border-b px-3 py-2">
+          <div className="flex items-center gap-2">
             <Label>{t('fxa-chooser-selected')}</Label>
-            <span className="text-xs text-muted-foreground">
-              {selections.length}
-            </span>
+            <Badge variant="secondary">{selections.length}</Badge>
           </div>
-          <div className="max-h-56 overflow-auto">
+          <div className="max-h-48 overflow-auto rounded-lg border">
             <Table className="table-fixed min-w-[1000px]">
               <FixedAssetChooserHeader />
               <Table.Body>
