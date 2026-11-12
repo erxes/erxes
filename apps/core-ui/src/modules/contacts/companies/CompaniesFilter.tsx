@@ -6,10 +6,11 @@ import { SelectMember } from '../components/SelectMember';
 import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
 import { formatTotal } from '~/lib/cursorList';
 import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
+import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
 
-export const CompaniesTotalCount = () => {
+export const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { totalCount, totalCapped } = useCompanies();
+  const { totalCount, totalCapped } = useCompanies(state);
 
   return (
     <div className="h-7 whitespace-nowrap text-sm font-medium leading-7 text-muted-foreground">
@@ -24,11 +25,12 @@ export const CompaniesTotalCount = () => {
 
 // Core lists filter by search, tags and owner; old erxes's date filters need
 // list filters core does not have yet.
-const CompaniesFilterPopover = () => {
-  const [queries] = useMultiQueryState<{ tags: string[]; searchValue: string; ownerId: string }>([
+const CompaniesFilterPopover = ({ state }: { state: 'lead' | 'customer' }) => {
+  const [queries] = useMultiQueryState<{ tags: string[]; searchValue: string; ownerId: string; stage: string }>([
     'tags',
     'searchValue',
     'ownerId',
+    'stage',
   ]);
   const hasFilters = Object.values(queries || {}).some((value) => value !== null);
   const { t } = useTranslation('contact', { keyPrefix: 'filter' });
@@ -36,7 +38,7 @@ const CompaniesFilterPopover = () => {
 
   return (
     <>
-      <Filter.Popover scope="companies-page">
+      <Filter.Popover scope={state === 'lead' ? 'company-leads-page' : 'companies-page'}>
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
@@ -47,11 +49,13 @@ const CompaniesFilterPopover = () => {
                   <IconSearch />
                   {t('search')}
                 </Filter.Item>
+                {state === 'lead' && <LeadStageFilter.Item />}
                 <TagsFilter />
                 <SelectMember.FilterItem label={companyT('owner')} />
               </Command.List>
             </Command>
           </Filter.View>
+          {state === 'lead' && <LeadStageFilter.View />}
           <SelectMember.FilterView />
           <TagsFilter.View type="company" />
         </Combobox.Content>
@@ -65,15 +69,15 @@ const CompaniesFilterPopover = () => {
   );
 };
 
-export const CompaniesFilter = () => {
+export const CompaniesFilter = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'filter' });
   const { t: companyT } = useTranslation('contact', { keyPrefix: 'company' });
   const [searchValue] = useFilterQueryState<string>('searchValue');
 
   return (
-    <Filter id="companies-filter" sessionKey={COMPANIES_SESSION_KEY}>
+    <Filter id={state === 'lead' ? 'company-leads-filter' : 'companies-filter'} sessionKey={state === 'lead' ? 'core_company_leads_cursor' : COMPANIES_SESSION_KEY}>
       <Filter.Bar>
-        <CompaniesFilterPopover />
+        <CompaniesFilterPopover state={state} />
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
@@ -83,10 +87,11 @@ export const CompaniesFilter = () => {
             {searchValue}
           </Filter.BarButton>
         </Filter.BarItem>
+        {state === 'lead' && <LeadStageFilter.Bar />}
         <TagsFilter.Bar type="company" />
         <SelectMember.FilterBar label={companyT('owner')} />
         <AdvancedFilterButton recordType="company" />
-        <CompaniesTotalCount />
+        <CompaniesTotalCount state={state} />
         <SaveViewButton recordType="company" />
       </Filter.Bar>
     </Filter>

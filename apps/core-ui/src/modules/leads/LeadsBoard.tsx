@@ -1,4 +1,4 @@
-import type { Customer, LeadStage } from '@erxes/core-contract';
+import type { Company, Customer, LeadRecordType, LeadStage } from '@erxes/core-contract';
 import { DndContext, type DragEndEvent, DragOverlay, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { IconMail, IconPhone } from '@tabler/icons-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -6,39 +6,47 @@ import { Avatar, Button, cn, readImage, ScrollArea, Skeleton } from 'erxes-ui';
 import { useState } from 'react';
 import { api, messageOf } from '~/lib/api';
 import { formatTotal } from '~/lib/cursorList';
-import { customerTitle } from '~/modules/contacts/components/ContactPicker';
+import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { CUSTOMERS_KEY, useCustomersFilters } from '~/modules/contacts/customers/useCustomers';
+import { COMPANIES_KEY, useCompaniesFilters } from '~/modules/contacts/companies/useCompanies';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { DisqualifyDialog } from './LeadActions';
 import { daysSince, useLeadStages, useMoveLeads } from './useLeads';
 
 const PAGE = 30;
 
-/** One stage's leads, newest first, a page at a time (with the list's search, tags, owner and advanced filter). */
-const useStageLeads = (stageId: string) => {
-  const { leadStageId: _tab, ...filters } = useCustomersFilters('lead');
+type BoardLead = Customer | Company;
 
-  return useInfiniteQuery({
-    queryKey: [...CUSTOMERS_KEY, 'list', 'board', stageId, filters],
+/** One stage's leads, newest first, a page at a time (with the list's search, tags, owner and advanced filter). */
+const useStageLeads = (recordType: LeadRecordType, stageId: string) => {
+  const { leadStageId: _people, ...peopleFilters } = useCustomersFilters('lead');
+  const { leadStageId: _companies, ...companyFilters } = useCompaniesFilters('lead');
+  const filters = recordType === 'company' ? companyFilters : peopleFilters;
+
+  return useInfiniteQuery<{ data: BoardLead[]; pageInfo: { hasNextPage: boolean; endCursor: string | null }; totalCount: number; totalCapped?: boolean }>({
+    queryKey: [...(recordType === 'company' ? COMPANIES_KEY : CUSTOMERS_KEY), 'list', 'board', stageId, filters],
     initialPageParam: undefined as string | undefined,
-    queryFn: ({ pageParam }) =>
-      api.customers.list({ ...filters, leadStageId: stageId, limit: PAGE, cursor: pageParam, direction: 'forward', cursorMode: 'exclusive' }),
+    queryFn: ({ pageParam }) => {
+      const page = { leadStageId: stageId, limit: PAGE, cursor: pageParam as string | undefined, direction: 'forward' as const, cursorMode: 'exclusive' as const };
+
+      return recordType === 'company' ? api.companies.list({ ...companyFilters, ...page }) : api.customers.list({ ...peopleFilters, ...page });
+    },
     getNextPageParam: (page) => (page.pageInfo.hasNextPage ? (page.pageInfo.endCursor ?? undefined) : undefined),
   });
 };
 
-const LeadCard = ({ lead, overlay }: { lead: Customer; overlay?: boolean }) => {
+const LeadCard = ({ recordType, lead, overlay }: { recordType: LeadRecordType; lead: BoardLead; overlay?: boolean }) => {
   const { openRecord } = useSidePanel();
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id, data: { lead } });
   const days = daysSince(lead.leadStageChangedAt);
-  const name = customerTitle(lead) || 'Unnamed lead';
+  const name = ('primaryName' in lead ? companyTitle(lead) : customerTitle(lead)) || 'Unnamed lead';
 
   return (
     <div
       ref={overlay ? undefined : setNodeRef}
       {...(overlay ? {} : attributes)}
       {...(overlay ? {} : listeners)}
-      onClick={() => openRecord({ contentType: 'core:customer', contentId: lead.id })}
+      onClick={() => openRecord({ contentType: recordType === 'company' ? 'core:company' : 'core:customer', contentId: lead.id })}
       className={cn(
         'flex cursor-grab flex-col gap-1.5 rounded-lg border bg-background p-3 text-left shadow-xs transition-shadow hover:shadow-sm active:cursor-grabbing',
         isDragging && !overlay && 'opacity-40',
@@ -74,8 +82,8 @@ const LeadCard = ({ lead, overlay }: { lead: Customer; overlay?: boolean }) => {
   );
 };
 
-const StageColumn = ({ stage }: { stage: LeadStage }) => {
-  const query = useStageLeads(stage.id);
+const StageColumn = ({ recordType, stage }: { recordType: LeadRecordType; stage: LeadStage }) => {
+  const query = useStageLeads(recordType, stage.id);
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
   const leads = query.data?.pages.flatMap((page) => page.data) ?? [];
   const first = query.data?.pages[0];
@@ -95,7 +103,7 @@ const StageColumn = ({ stage }: { stage: LeadStage }) => {
           {query.isPending && Array.from({ length: 3 }, (_, index) => <Skeleton key={index} className="h-20 rounded-lg" />)}
           {query.error && <p className="p-2 text-xs text-destructive">{messageOf(query.error)}</p>}
           {leads.map((lead) => (
-            <LeadCard key={lead.id} lead={lead} />
+            <LeadCard key={lead.id} recordType={recordType} lead={lead} />
           ))}
           {!query.isPending && !leads.length && <p className="py-6 text-center text-xs text-muted-foreground">Drop leads here</p>}
           {query.hasNextPage && (
@@ -114,10 +122,10 @@ const StageColumn = ({ stage }: { stage: LeadStage }) => {
  * (a disqualified column asks why). Search, tags, owner and the advanced
  * filter apply to every column.
  */
-export const LeadsBoard = () => {
+export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
   const { stages, loading } = useLeadStages();
   const move = useMoveLeads();
-  const [dragging, setDragging] = useState<Customer | null>(null);
+  const [dragging, setDragging] = useState<BoardLead | null>(null);
   const [disqualify, setDisqualify] = useState<{ id: string; stageId: string } | null>(null);
   // A click opens the lead; only a real drag (6px) moves it.
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
@@ -125,25 +133,25 @@ export const LeadsBoard = () => {
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     setDragging(null);
 
-    const lead = active.data.current?.lead as Customer | undefined;
+    const lead = active.data.current?.lead as BoardLead | undefined;
     const stage = stages.find((item) => item.id === over?.id);
 
     if (!lead || !stage || stage.id === lead.leadStageId) return;
     if (stage.kind === 'disqualified') setDisqualify({ id: lead.id, stageId: stage.id });
-    else move.mutate({ ids: [lead.id], stageId: stage.id });
+    else move.mutate({ recordType, ids: [lead.id], stageId: stage.id });
   };
 
   if (loading) return <Skeleton className="m-3 h-96" />;
 
   return (
-    <DndContext sensors={sensors} onDragStart={({ active }) => setDragging((active.data.current?.lead as Customer) ?? null)} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
+    <DndContext sensors={sensors} onDragStart={({ active }) => setDragging((active.data.current?.lead as BoardLead) ?? null)} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
       <div className="flex min-h-0 flex-1 gap-3 overflow-x-auto p-3">
         {stages.map((stage) => (
-          <StageColumn key={stage.id} stage={stage} />
+          <StageColumn key={stage.id} recordType={recordType} stage={stage} />
         ))}
       </div>
-      <DragOverlay dropAnimation={null}>{dragging && <LeadCard lead={dragging} overlay />}</DragOverlay>
-      <DisqualifyDialog ids={disqualify ? [disqualify.id] : []} stageId={disqualify?.stageId ?? null} onClose={() => setDisqualify(null)} />
+      <DragOverlay dropAnimation={null}>{dragging && <LeadCard recordType={recordType} lead={dragging} overlay />}</DragOverlay>
+      <DisqualifyDialog recordType={recordType} ids={disqualify ? [disqualify.id] : []} stageId={disqualify?.stageId ?? null} onClose={() => setDisqualify(null)} />
     </DndContext>
   );
 };

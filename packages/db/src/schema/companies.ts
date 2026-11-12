@@ -1,8 +1,9 @@
 import { sql } from 'drizzle-orm';
-import { foreignKey, index, integer, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import { boolean, check, foreignKey, index, integer, jsonb, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
-import { customers } from './customers';
+import { CUSTOMER_STATES, customers } from './customers';
+import { leadStages } from './leadStages';
 import { organizations } from './organizations';
 import { users } from './users';
 
@@ -13,6 +14,8 @@ export const companies = pgTable(
     id: text().primaryKey(),
     orgId: text().notNull(),
     primaryName: text().notNull(),
+    /** `lead`: not a customer yet; companies go through the same lead stages as people. */
+    state: text({ enum: CUSTOMER_STATES }).default('customer').notNull(),
     /** Other names (former names, brands), the primary one first. */
     names: text().array().default(sql`'{}'::text[]`).notNull(),
     avatarUrl: text(),
@@ -27,6 +30,13 @@ export const companies = pgTable(
     code: text(),
     description: text(),
     ownerId: text(),
+    leadStageId: text(),
+    leadStageChangedAt: timestamp({ withTimezone: true, mode: 'date' }),
+    disqualifyReason: text(),
+    source: text(),
+    sourceDetails: jsonb().$type<Record<string, string>>().default({}).notNull(),
+    convertedAt: timestamp({ withTimezone: true, mode: 'date' }),
+    convertedBy: text(),
     /** When the newest timeline entry was made (creation counts); kept by a trigger on core_activities. */
     lastActivityAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
     /** Names, emails, phones and code in lower case: what the search box searches (trigram indexed). */
@@ -43,6 +53,16 @@ export const companies = pgTable(
     uniqueIndex('core_companies_org_primary_name_key').on(table.orgId, sql`lower(${table.primaryName})`),
     index('core_companies_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
     index('core_companies_org_last_activity_idx').on(table.orgId, table.lastActivityAt),
+    index('core_companies_org_state_idx').on(table.orgId, table.state),
+    index('core_companies_org_lead_stage_idx').on(table.orgId, table.leadStageId, table.createdAt.desc()),
+    index('core_companies_org_source_idx').on(table.orgId, table.source),
+    index('core_companies_org_converted_idx').on(table.orgId, table.convertedAt).where(sql`${table.convertedAt} IS NOT NULL`),
+    foreignKey({
+      columns: [table.leadStageId],
+      foreignColumns: [leadStages.id],
+      name: 'core_companies_lead_stage_id_fkey',
+    }).onDelete('set null'),
+    check('core_companies_state_check', sql`${table.state} IN ('lead', 'customer')`),
     index('core_companies_org_owner_idx').on(table.orgId, table.ownerId),
     index('core_companies_org_industry_idx').on(table.orgId, sql`lower(${table.industry})`),
     index('core_companies_search_trgm_idx').using('gin', table.searchText.op('gin_trgm_ops')),
@@ -60,18 +80,30 @@ export const companies = pgTable(
   ],
 );
 
-/** Which customers belong to which companies (many to many). */
+/**
+ * People and companies are peers, linked many to many; a link says what the
+ * person is there (`role`), whether they are the company's main contact,
+ * and since when they are not there any more (the link stays, as history).
+ */
 export const customerCompanies = pgTable(
   'customer_companies',
   {
     orgId: text().notNull(),
     customerId: text().notNull(),
     companyId: text().notNull(),
+    /** "CEO", "Buyer", "Accountant" … */
+    role: text(),
+    /** The company's main contact (at most one per company). */
+    isPrimaryContact: boolean().default(false).notNull(),
+    /** Left the company: a former link. */
+    endedAt: timestamp({ withTimezone: true, mode: 'date' }),
     createdAt: createdAt(),
+    updatedAt: updatedAt(),
   },
   (table) => [
     primaryKey({ columns: [table.customerId, table.companyId], name: 'core_customer_companies_pkey' }),
     index('core_customer_companies_company_idx').on(table.companyId),
+    uniqueIndex('core_customer_companies_primary_contact_key').on(table.companyId).where(sql`${table.isPrimaryContact}`),
     foreignKey({
       columns: [table.customerId],
       foreignColumns: [customers.id],

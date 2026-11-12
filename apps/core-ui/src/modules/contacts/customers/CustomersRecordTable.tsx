@@ -2,6 +2,7 @@ import type { CustomerState } from '@erxes/core-contract';
 import { RecordTable } from 'erxes-ui';
 import { messageOf } from '~/lib/api';
 import { CustomersCommandBar } from './CustomersCommandBar';
+import { stickyWithStage } from '~/modules/leads/leadColumns';
 import { useCustomersColumns } from './customersColumns';
 import { customersSessionKey, useCustomers } from './useCustomers';
 
@@ -17,7 +18,7 @@ export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
     <RecordTable.Provider
       columns={columns}
       data={list}
-      stickyColumns={['more', 'checkbox', 'avatar', 'name']}
+      stickyColumns={stickyWithStage(['more', 'checkbox', 'avatar', 'name'], state === 'lead')}
       className="m-3"
       tableId={state === 'lead' ? 'leads_record_table' : 'customers_record_table'}
     >

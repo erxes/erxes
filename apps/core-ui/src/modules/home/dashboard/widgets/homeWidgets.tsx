@@ -7,6 +7,7 @@ import { HomeRecentCustomers } from '../../components/HomeRecentCustomers';
 import { HomeTeamMembers } from '../../components/HomeTeamMembers';
 import { HOME_NS } from '../../i18n';
 import type { TDashboardWidgetDefinition } from '../types/dashboardTypes';
+import { LEAD_REPORT_WIDGETS } from '~/modules/reports/leads/leadWidgets';
 
 const HomePluginsWidget = () => {
   const { t } = useTranslation('common', { keyPrefix: 'home' });
@@ -100,6 +101,8 @@ export const DASHBOARD_WIDGETS: TDashboardWidgetDefinition[] = [
     minSize: { w: 3, h: 4 },
     Component: HomeRecentCompanies,
   },
+  // Reports tiles (the Reports app draws the same pieces full size).
+  ...LEAD_REPORT_WIDGETS,
 ];
 
 export const DASHBOARD_WIDGETS_BY_TYPE = new Map(DASHBOARD_WIDGETS.map((widget) => [widget.type, widget]));

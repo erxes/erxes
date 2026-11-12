@@ -7,6 +7,7 @@ import { ContactsPageHeader } from '../components/ContactsPageHeader';
 import { useCreateHotkey } from '../customers/CustomersHeader';
 import { ExportButton, ImportButton } from '~/modules/transfer/TransferButtons';
 import { useMultiQueryState } from 'erxes-ui';
+import { LeadViewSwitch } from '~/modules/leads/LeadViewSwitch';
 
 /** Export with the list's quick filters (the advanced filter and search come from the address). */
 const CompaniesExportButton = () => {
@@ -16,32 +17,33 @@ const CompaniesExportButton = () => {
 };
 
 /** Opens a new company in the side panel as a draft; it is created on Save. */
-export const CompanyCreateButton = () => {
+export const CompanyCreateButton = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { t } = useTranslation('contact');
   const { openNewRecord } = useSidePanel();
 
-  const create = () => openNewRecord('core:company');
+  const create = () => openNewRecord('core:company', { state });
 
   useCreateHotkey(create);
 
   return (
     <Button onClick={create}>
       <IconPlus />
-      {t('company.add._', 'Add company')}
+      {state === 'lead' ? 'Add company lead' : t('company.add._', 'Add company')}
       <Kbd>C</Kbd>
     </Button>
   );
 };
 
-export const CompaniesHeader = () => (
+export const CompaniesHeader = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => (
   <ContactsPageHeader>
     <ContactsPageHeader.Start>
       <ContactsBreadcrumb />
     </ContactsPageHeader.Start>
     <ContactsPageHeader.End>
+      {state === 'lead' && <LeadViewSwitch />}
       <ImportButton recordType="company" />
       <CompaniesExportButton />
-      <CompanyCreateButton />
+      <CompanyCreateButton state={state} />
     </ContactsPageHeader.End>
   </ContactsPageHeader>
 );

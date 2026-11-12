@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
+import { companies } from './companies';
 import { customers } from './customers';
 import { organizations } from './organizations';
 
@@ -17,7 +18,9 @@ export const leadEvents = pgTable(
   {
     id: text().primaryKey(),
     orgId: text().notNull(),
-    customerId: text().notNull(),
+    /** The person, or (`companyId`) the company: exactly one. */
+    customerId: text(),
+    companyId: text(),
     event: text({ enum: LEAD_EVENTS }).notNull(),
     fromStageId: text(),
     toStageId: text(),
@@ -30,6 +33,9 @@ export const leadEvents = pgTable(
   (table) => [
     index('core_lead_events_org_created_idx').on(table.orgId, table.createdAt),
     index('core_lead_events_customer_idx').on(table.customerId, table.createdAt),
+    index('core_lead_events_company_idx').on(table.companyId, table.createdAt),
+    foreignKey({ columns: [table.companyId], foreignColumns: [companies.id], name: 'core_lead_events_company_id_fkey' }).onDelete('cascade'),
+    check('core_lead_events_record_check', sql`num_nonnulls(${table.customerId}, ${table.companyId}) = 1`),
     foreignKey({ columns: [table.customerId], foreignColumns: [customers.id], name: 'core_lead_events_customer_id_fkey' }).onDelete('cascade'),
     foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_lead_events_org_id_fkey' }).onDelete('cascade'),
     check('core_lead_events_event_check', sql`${table.event} IN ('created', 'stage', 'converted', 'reopened')`),

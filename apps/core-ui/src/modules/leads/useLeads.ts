@@ -1,8 +1,15 @@
-import type { LeadStage, LeadStageKind } from '@erxes/core-contract';
+import type { Customer, LeadRecordType, LeadStage, LeadStageKind } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { api, messageOf } from '~/lib/api';
 import { CUSTOMERS_KEY } from '~/modules/contacts/customers/useCustomers';
+import { COMPANIES_KEY } from '~/modules/contacts/companies/useCompanies';
+
+/** What lead screens need of a person or a company (both have it). */
+export type LeadRecord = Pick<Customer, 'id' | 'state' | 'ownerId' | 'leadStageId' | 'leadStageChangedAt' | 'disqualifyReason' | 'source' | 'sourceDetails' | 'convertedAt'>;
+
+/** A stage's lead count for people or companies. */
+export const leadCountOf = (stage: LeadStage, recordType: LeadRecordType) => (recordType === 'company' ? stage.companyLeadCount : stage.leadCount);
 
 export const LEAD_STAGES_KEY = ['lead-stages'];
 export const LEADS_REPORT_KEY = ['leads', 'report'];
@@ -21,6 +28,7 @@ const useRefreshLeads = () => {
 
   return () => {
     void client.invalidateQueries({ queryKey: CUSTOMERS_KEY });
+    void client.invalidateQueries({ queryKey: COMPANIES_KEY });
     void client.invalidateQueries({ queryKey: LEAD_STAGES_KEY });
     void client.invalidateQueries({ queryKey: LEADS_REPORT_KEY });
   };
@@ -31,7 +39,7 @@ export const useMoveLeads = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (input: { ids: string[]; stageId: string; reason?: string }) => api.leads.move(input),
+    mutationFn: (input: { recordType: LeadRecordType; ids: string[]; stageId: string; reason?: string }) => api.leads.move(input),
     onSettled: refresh,
     onError: (error) => toast({ variant: 'destructive', title: 'Could not move', description: messageOf(error) }),
   });
@@ -42,7 +50,7 @@ export const useConvertLeads = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (input: { ids: string[]; ownerId?: string; companyId?: string }) => api.leads.convert(input),
+    mutationFn: (input: { recordType: LeadRecordType; ids: string[]; ownerId?: string; companyId?: string }) => api.leads.convert(input),
     onSuccess: ({ converted }) =>
       toast({ variant: 'success', title: converted === 1 ? 'The lead is a customer now' : `${converted} leads are customers now` }),
     onSettled: refresh,
@@ -75,7 +83,7 @@ export const useLeadStageMutations = () => {
   };
 };
 
-export const useLeadReport = (range: { from: string; to: string }) =>
+export const useLeadReport = (range: { recordType: LeadRecordType; from: string; to: string }) =>
   useQuery({ queryKey: [...LEADS_REPORT_KEY, range], queryFn: () => api.leads.report(range) });
 
 export const useLeadHistory = (id: string | null) =>

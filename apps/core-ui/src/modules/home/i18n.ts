@@ -8,6 +8,7 @@ export const HOME_NS = 'core-home';
 
 const en = {
   'group-contacts': 'Contacts',
+  'group-reports': 'Reports',
   'view-all': 'View all',
   unnamed: 'Unnamed',
   widgets: {
@@ -19,6 +20,14 @@ const en = {
     'recent-companies-description': 'The companies added most recently.',
     'team-members': 'Your team',
     'team-members-description': 'Everyone in your organization and their role.',
+    'lead-summary': 'Lead numbers',
+    'lead-summary-description': 'New leads, conversions, conversion rate and time to convert in the last 30 days.',
+    'lead-funnel': 'Lead stages',
+    'lead-funnel-description': 'Leads in each stage, how many reached it, and how long they stay.',
+    'lead-sources': 'Lead sources',
+    'lead-sources-description': 'Where the last 30 days’ leads came from and how many became customers.',
+    'lead-reasons': 'Why leads were lost',
+    'lead-reasons-description': 'The most common reasons leads were disqualified.',
   },
   kpi: {
     customers: 'Customers',
@@ -38,6 +47,7 @@ const en = {
 
 const mn: typeof en = {
   'group-contacts': 'Харилцагчид',
+  'group-reports': 'Тайлан',
   'view-all': 'Бүгдийг харах',
   unnamed: 'Нэргүй',
   widgets: {
@@ -49,6 +59,14 @@ const mn: typeof en = {
     'recent-companies-description': 'Хамгийн сүүлд нэмэгдсэн компаниуд.',
     'team-members': 'Таны баг',
     'team-members-description': 'Байгууллагын бүх гишүүд, тэдний үүрэг.',
+    'lead-summary': 'Lead-ийн тоо',
+    'lead-summary-description': 'Сүүлийн 30 хоногийн шинэ lead, хөрвөлт, хөрвөлтийн хувь, хугацаа.',
+    'lead-funnel': 'Lead-ийн үе шат',
+    'lead-funnel-description': 'Үе шат бүрт байгаа lead, хүрсэн тоо, хэр удаж байгаа.',
+    'lead-sources': 'Lead-ийн эх сурвалж',
+    'lead-sources-description': 'Сүүлийн 30 хоногийн lead хаанаас ирсэн, хэд нь харилцагч болсон.',
+    'lead-reasons': 'Lead алдсан шалтгаан',
+    'lead-reasons-description': 'Lead-ийг хасах хамгийн түгээмэл шалтгаанууд.',
   },
   kpi: {
     customers: 'Харилцагч',

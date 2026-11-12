@@ -9,6 +9,7 @@ import { useDashboardWidgetText } from './useDashboardWidgetText';
 const GROUP_KEYS: Record<string, [string, string]> = {
   home: ['common', 'home.dashboard.group-home'],
   contacts: [HOME_NS, 'group-contacts'],
+  reports: [HOME_NS, 'group-reports'],
 };
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);

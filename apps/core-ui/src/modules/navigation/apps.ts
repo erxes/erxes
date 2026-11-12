@@ -1,4 +1,4 @@
-import { IconAddressBook, IconApps, IconBolt, IconSettings } from '@tabler/icons-react';
+import { IconAddressBook, IconApps, IconBolt, IconChartPie, IconSettings } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
 import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
@@ -24,6 +24,7 @@ export const SETTINGS_APP: NavApp = {
 export const CORE_APPS: NavApp[] = [
   { id: 'contacts', label: 'Contacts', icon: IconAddressBook, path: 'contacts', kind: 'core' },
   { id: 'automations', label: 'Automations', icon: IconBolt, path: 'automations', kind: 'core' },
+  { id: 'reports', label: 'Reports', icon: IconChartPie, path: 'reports', kind: 'core' },
 ];
 
 const label = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
@@ -34,7 +35,7 @@ export const useNavApps = (): NavApp[] => {
   const can = useCan();
 
   return [
-    ...CORE_APPS.filter((app) => app.id !== 'automations' || can('automations.view')),
+    ...CORE_APPS.filter((app) => (app.id === 'automations' ? can('automations.view') : app.id === 'reports' ? can('contacts.view') : true)),
     ...plugins.map(
       ({ remote, config }): NavApp => ({
         id: `plugin:${remote}`,

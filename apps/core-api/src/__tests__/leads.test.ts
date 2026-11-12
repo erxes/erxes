@@ -24,7 +24,7 @@ describeWithDb('leads: stages, moves, conversion, history and the report', { tim
     return { status: response.status, body: text ? JSON.parse(text) : null };
   };
 
-  type Stage = { id: string; name: string; kind: string; leadCount: number };
+  type Stage = { id: string; name: string; kind: string; leadCount: number; companyLeadCount: number };
   const stages = async () => (await call('GET', '/lead-stages')).body.data as Stage[];
   const stage = async (name: string) => (await stages()).find((item) => item.name === name)!;
 
@@ -112,6 +112,48 @@ describeWithDb('leads: stages, moves, conversion, history and the report', { tim
     expect(report.bySource).toEqual(expect.arrayContaining([{ source: 'website', count: 1, converted: 0 }, { source: 'manual', count: 1, converted: 0 }]));
     expect(report.reasons).toEqual([{ reason: 'No budget', count: 1 }]);
     expect(report.daysToConvert.median).toEqual(expect.any(Number));
+  });
+
+  it('takes companies through the same stages, and links people to companies with a role, a main contact and an end', async () => {
+    const lead = (await call('POST', '/companies', { primaryName: 'Lead Co', state: 'lead', source: 'event' })).body;
+
+    expect(lead).toMatchObject({ state: 'lead', leadStageId: (await stage('New')).id, source: 'event' });
+    expect((await stage('New')).companyLeadCount).toBe(1);
+    expect((await call('GET', '/companies?state=lead')).body.data.map((row: { id: string }) => row.id)).toEqual([lead.id]);
+
+    expect((await call('POST', '/leads/move', { recordType: 'company', ids: [lead.id], stageId: (await stage('Engaged')).id })).body).toEqual({ moved: 1 });
+    expect((await call('POST', '/leads/convert', { recordType: 'company', ids: [lead.id], companyId: lead.id })).body.code).toBe('INVALID_INPUT');
+    expect((await call('POST', '/leads/convert', { recordType: 'company', ids: [lead.id] })).body).toEqual({ converted: 1 });
+    expect((await call('GET', `/companies/${lead.id}`)).body).toMatchObject({ state: 'customer', leadStageId: (await stage('Qualified')).id });
+    expect((await call('GET', `/leads/${lead.id}/history?recordType=company`)).body.data.map((entry: { event: string }) => entry.event)).toEqual(['created', 'stage', 'converted']);
+    expect((await call('GET', '/leads/report?recordType=company')).body).toMatchObject({ recordType: 'company', created: 1, converted: 1 });
+
+    // People at the company: a role, one main contact, people who left.
+    const anna = (await call('POST', '/customers', { firstName: 'Anna' })).body.id;
+    const tuya = (await call('POST', '/customers', { firstName: 'Tuya' })).body.id;
+
+    expect((await call('PUT', `/companies/${lead.id}/people/${anna}`, { role: 'CEO', isPrimaryContact: true })).status).toBe(200);
+    expect((await call('PUT', `/customers/${tuya}/companies/${lead.id}`, { role: 'Buyer' })).status).toBe(200);
+
+    const people = async () =>
+      ((await call('GET', `/companies/${lead.id}/people`)).body.data as { firstName: string; link: { role: string; isPrimaryContact: boolean; endedAt: string | null } }[]).map(
+        (person) => [person.firstName, person.link.role, person.link.isPrimaryContact, Boolean(person.link.endedAt)],
+      );
+
+    expect(await people()).toEqual([
+      ['Anna', 'CEO', true, false],
+      ['Tuya', 'Buyer', false, false],
+    ]);
+    // Taking the main contact moves it; leaving keeps the link as history, last.
+    await call('PUT', `/companies/${lead.id}/people/${tuya}`, { isPrimaryContact: true });
+    await call('PUT', `/companies/${lead.id}/people/${anna}`, { ended: true });
+    expect(await people()).toEqual([
+      ['Tuya', 'Buyer', true, false],
+      ['Anna', 'CEO', false, true],
+    ]);
+    expect((await call('GET', `/customers/${tuya}/companies`)).body.data[0]).toMatchObject({ id: lead.id, link: { role: 'Buyer', isPrimaryContact: true } });
+    expect((await call('DELETE', `/companies/${lead.id}/people/${anna}`)).status).toBe(200);
+    expect((await people()).map((row) => row[0])).toEqual(['Tuya']);
   });
 
   it('manages stages: add, rename, reorder, and delete only with somewhere for its leads to go', async () => {

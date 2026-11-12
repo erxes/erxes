@@ -120,7 +120,7 @@ import {
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import { changeOwnPassword, mySignIns, sessionVersionOf, signOutEverywhere } from '~/modules/auth/account.service';
 import { getSession, markOnboarded, signIn, recordSignedIn } from '~/modules/auth/auth.service';
-import {
+import { companyPeople,
   createCompany,
   getCompany,
   listCompanies,
@@ -581,7 +581,7 @@ export const coreRouter = pub.router({
     removeStage: authed.leads.removeStage.handler(({ input, context }) => removeLeadStage(db(), context.actor, input.id, input.moveTo)),
     move: authed.leads.move.handler(({ input, context }) => moveLeads(db(), context.actor, input)),
     convert: authed.leads.convert.handler(({ input, context }) => convertLeads(db(), context.actor, input)),
-    history: authed.leads.history.handler(({ input, context }) => leadHistory(db(), context.actor, input.id)),
+    history: authed.leads.history.handler(({ input, context }) => leadHistory(db(), context.actor, input)),
     report: authed.leads.report.handler(({ input, context }) => leadReport(db(), context.actor, input)),
   },
   views: {
@@ -608,7 +608,7 @@ export const coreRouter = pub.router({
       customerCompaniesOf(db(), context.actor, input.id),
     ),
     linkCompany: authed.customers.linkCompany.handler(({ input, context }) =>
-      linkCustomerCompany(db(), context.actor, input.id, input.companyId),
+      linkCustomerCompany(db(), context.actor, input.id, input.companyId, input),
     ),
     unlinkCompany: authed.customers.unlinkCompany.handler(({ input, context }) =>
       unlinkCustomerCompany(db(), context.actor, input.id, input.companyId),
@@ -626,6 +626,13 @@ export const coreRouter = pub.router({
     ),
     merge: authed.companies.merge.handler(({ input, context }) => mergeCompanies(context.actor, input)),
     tag: authed.companies.tag.handler(({ input, context }) => tagCompanies(db(), context.actor, input)),
+    people: authed.companies.people.handler(({ input, context }) => companyPeople(db(), context.actor, input.id)),
+    linkPerson: authed.companies.linkPerson.handler(({ input, context }) =>
+      linkCustomerCompany(db(), context.actor, input.customerId, input.id, input),
+    ),
+    unlinkPerson: authed.companies.unlinkPerson.handler(({ input, context }) =>
+      unlinkCustomerCompany(db(), context.actor, input.customerId, input.id),
+    ),
   },
   tags: {
     list: authed.tags.list.handler(({ input, context }) => listTags(db(), context.actor, input)),

@@ -28,6 +28,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { withLifecycleColumns } from '~/modules/leads/leadColumns';
 import { customFieldColumns } from '~/modules/properties/customFieldColumns';
 import { useFields } from '~/modules/properties/useFields';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
@@ -255,12 +256,12 @@ const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] 
 ];
 
 /** The company columns plus one per custom field. */
-export const useCompaniesColumns = () => {
+export const useCompaniesColumns = (state: 'lead' | 'customer' = 'customer') => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { fields } = useFields('company');
 
   return useMemo(
-    () => [...createCompanyColumns(t), ...customFieldColumns<Company>(fields, useCompanyFieldsSave, SCOPE)],
-    [fields, t],
+    () => withLifecycleColumns<Company>(createCompanyColumns(t), 'primaryName', 'company', state === 'lead', customFieldColumns<Company>(fields, useCompanyFieldsSave, SCOPE)),
+    [fields, t, state],
   );
 };

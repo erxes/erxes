@@ -98,6 +98,9 @@ export const ACCESS = {
   'companies.update': needs('contacts.edit'),
   'companies.remove': needs('contacts.delete'),
   'companies.merge': needs('contacts.merge'),
+  'companies.people': needs('contacts.view'),
+  'companies.linkPerson': needs('contacts.edit'),
+  'companies.unlinkPerson': needs('contacts.edit'),
   'companies.tag': needs('contacts.edit'),
 
   'leads.stages': needs('contacts.view'),

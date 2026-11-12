@@ -1,11 +1,7 @@
 import type { Customer, CustomerState, CustomValue } from '@erxes/core-contract';
 import {
-  IconActivity,
   IconCalendarPlus,
   IconEdit,
-  IconHourglass,
-  IconProgress,
-  IconWorld,
   IconGenderMale,
   IconLabelFilled,
   IconMail,
@@ -38,9 +34,7 @@ import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { ContactEmails, ContactName, ContactPhones } from '../components/ContactFields';
 import { SelectMember } from '../components/SelectMember';
 import { useCustomerEdit } from './useCustomers';
-import { LeadStageMenu, LeadStageTrigger } from '~/modules/leads/LeadStageBadge';
-import { daysSince, useLeadStages, useMoveLeads } from '~/modules/leads/useLeads';
-import { DisqualifyDialog } from '~/modules/leads/LeadActions';
+import { withLifecycleColumns } from '~/modules/leads/leadColumns';
 
 const SCOPE = 'customers-table-inline-popover';
 
@@ -132,74 +126,6 @@ const DateCell = ({ value }: { value: string }) => (
     </RecordTableInlineCell>
   </RelativeDateDisplay>
 );
-
-const LeadStageCell = ({ customer }: { customer: Customer }) => {
-  const { stages, byId } = useLeadStages();
-  const move = useMoveLeads();
-  const [disqualifying, setDisqualifying] = useState<string | null>(null);
-
-  return (
-    <div className="flex h-8 items-center px-1">
-      <LeadStageMenu
-        stages={stages}
-        value={customer.leadStageId}
-        onSelect={(stage) =>
-          stage.kind === 'disqualified' ? setDisqualifying(stage.id) : move.mutate({ ids: [customer.id], stageId: stage.id })
-        }
-      >
-        <LeadStageTrigger stage={customer.leadStageId ? byId.get(customer.leadStageId) : null} />
-      </LeadStageMenu>
-      <DisqualifyDialog ids={[customer.id]} stageId={disqualifying} onClose={() => setDisqualifying(null)} />
-    </div>
-  );
-};
-
-const Muted = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex h-8 items-center px-2 text-xs font-medium text-muted-foreground">{children}</div>
-);
-
-/** Lead columns: stage (movable), days in it, source. */
-const leadColumns = (t: (key: string, fallback?: string) => string): ColumnDef<Customer>[] => [
-  {
-    id: 'leadStage',
-    accessorKey: 'leadStageId',
-    header: () => <RecordTable.InlineHead label={t('lead.stage', 'Stage')} icon={IconProgress} />,
-    cell: ({ row }) => <LeadStageCell customer={row.original} />,
-    size: 170,
-  },
-  {
-    id: 'inStage',
-    accessorKey: 'leadStageChangedAt',
-    header: () => <RecordTable.InlineHead label={t('lead.in-stage', 'In stage')} icon={IconHourglass} />,
-    cell: ({ row }) => {
-      const days = daysSince(row.original.leadStageChangedAt);
-
-      return <Muted>{days === null ? '' : days === 0 ? 'Today' : `${days} d`}</Muted>;
-    },
-    size: 100,
-  },
-];
-
-const sourceColumns = (t: (key: string, fallback?: string) => string): ColumnDef<Customer>[] => [
-  {
-    id: 'source',
-    accessorKey: 'source',
-    header: () => <RecordTable.InlineHead label={t('lead.source', 'Source')} icon={IconWorld} />,
-    cell: ({ row }) => (
-      <Muted>
-        <span className="capitalize">{row.original.source ?? ''}</span>
-        {row.original.sourceDetails.campaign && <span className="ml-1 truncate">· {row.original.sourceDetails.campaign}</span>}
-      </Muted>
-    ),
-    size: 160,
-  },
-  {
-    id: 'lastActivityAt',
-    accessorKey: 'lastActivityAt',
-    header: () => <RecordTable.InlineHead label={t('lead.last-activity', 'Last activity')} icon={IconActivity} />,
-    cell: ({ row }) => <DateCell value={row.original.lastActivityAt} />,
-  },
-];
 
 /** Customer columns, as in old core-ui. */
 const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
@@ -334,11 +260,8 @@ export const useCustomersColumns = (state: CustomerState = 'customer') => {
   const { t } = useTranslation('contact');
   const { fields } = useFields('customer');
 
-  return useMemo(() => {
-    const base = createCustomersColumns(t);
-    const at = base.findIndex((column) => column.id === 'name') + 1;
-    const withLead = state === 'lead' ? [...base.slice(0, at), ...leadColumns(t as never), ...base.slice(at)] : base;
-
-    return [...withLead, ...sourceColumns(t as never), ...customFieldColumns<Customer>(fields, useCustomerFieldsSave, SCOPE)];
-  }, [fields, t, state]);
+  return useMemo(
+    () => withLifecycleColumns<Customer>(createCustomersColumns(t), 'name', 'customer', state === 'lead', customFieldColumns<Customer>(fields, useCustomerFieldsSave, SCOPE)),
+    [fields, t, state],
+  );
 };

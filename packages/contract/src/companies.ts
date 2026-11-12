@@ -12,6 +12,8 @@ import {
   text,
   ImageAddress,
 } from './common';
+import { ContactLink, ContactLinkInput } from './customers';
+import { LifecycleFields, LifecycleInput } from './leads';
 
 /** An organisation the organisation works with; shared by every plugin. */
 export const Company = z.object({
@@ -34,10 +36,24 @@ export const Company = z.object({
   ownerId: z.string().nullable(),
   tagIds: z.array(z.string()),
   customFields: CustomFields,
+  ...LifecycleFields,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
 export type Company = z.infer<typeof Company>;
+
+/** A person as listed on a company, with the link. */
+export const PersonRef = z.object({
+  id: Id,
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  primaryEmail: z.string().nullable(),
+  primaryPhone: z.string().nullable(),
+  avatarUrl: z.string().nullable(),
+  state: z.enum(['lead', 'customer']),
+  link: ContactLink,
+});
+export type PersonRef = z.infer<typeof PersonRef>;
 
 export const CompanyFields = z.object({
   primaryName: z.string().trim().min(1).max(200).optional(),
@@ -56,6 +72,7 @@ export const CompanyFields = z.object({
   ownerId: Id.nullable().optional(),
   tagIds: z.array(Id).max(50).optional(),
   customFields: CustomFieldsPatch.optional(),
+  ...LifecycleInput,
 });
 export type CompanyInput = z.infer<typeof CompanyFields>;
 
@@ -77,6 +94,9 @@ export const companiesContract = {
     .input(
       CursorQuery.extend({
         search: z.string().trim().max(100).optional(),
+        state: z.enum(['lead', 'customer']).optional(),
+        /** Leads in this stage. */
+        leadStageId: Id.optional(),
         ownerId: Id.optional(),
         tagIds: IdList.optional(),
         /** Companies of this customer. */
@@ -124,4 +144,16 @@ export const companiesContract = {
     .route({ method: 'POST', path: '/companies/tag', summary: 'Add and remove tags on many companies' })
     .input(TagChange)
     .output(z.object({ updated: z.number().int() })),
+  people: oc
+    .route({ method: 'GET', path: '/companies/{id}/people', summary: "The company's people: main contact first, then current, then former" })
+    .input(ID)
+    .output(z.object({ data: z.array(PersonRef) })),
+  linkPerson: oc
+    .route({ method: 'PUT', path: '/companies/{id}/people/{customerId}', summary: 'Link a person (or change the link), as from the person' })
+    .input(ContactLinkInput.extend({ id: Id, customerId: Id }))
+    .output(z.object({ ok: z.literal(true) })),
+  unlinkPerson: oc
+    .route({ method: 'DELETE', path: '/companies/{id}/people/{customerId}' })
+    .input(z.object({ id: Id, customerId: Id }))
+    .output(z.object({ ok: z.literal(true) })),
 };

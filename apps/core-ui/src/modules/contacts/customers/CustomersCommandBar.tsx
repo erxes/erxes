@@ -48,7 +48,7 @@ export const CustomersCommandBar = () => {
             onValueChange={(next) => tag.mutate({ ids: customerIds, ...tagChange(tagIds, next) })}
           />
           <Separator.Inline />
-          {customers.every((customer) => customer.state === 'lead') ? <LeadsBulkActions leads={customers} /> : <CustomersChangeState customers={customers} />}
+          {customers.every((customer) => customer.state === 'lead') ? <LeadsBulkActions recordType="customer" leads={customers} /> : <CustomersChangeState customers={customers} />}
           {manager && (
             <>
               <Separator.Inline />

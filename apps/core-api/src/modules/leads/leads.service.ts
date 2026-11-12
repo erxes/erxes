@@ -1,5 +1,5 @@
-import type { LeadReport, LeadStageKind } from '@erxes/core-contract';
-import { customers, type Db, leadEvents, leadStages, newId } from '@erxes/core-db';
+import type { LeadRecordType, LeadReport, LeadStageKind } from '@erxes/core-contract';
+import { companies, customers, type Db, leadEvents, leadStages, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, max, sql } from 'drizzle-orm';
 import { type Actor, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
@@ -17,6 +17,9 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 
 type StageRow = typeof leadStages.$inferSelect;
 type CustomerRow = typeof customers.$inferSelect;
+
+/** People and companies carry the same lifecycle columns. */
+const recordTable = (type: LeadRecordType) => (type === 'company' ? companies : customers);
 
 export const DEFAULT_LEAD_STAGES: { name: string; kind: LeadStageKind; color: string }[] = [
   { name: 'New', kind: 'open', color: '#3b82f6' },
@@ -50,29 +53,33 @@ const findStage = async (client: Db, orgId: string, id: string) => {
 const firstStage = async (client: Db, orgId: string, kind: LeadStageKind) =>
   (await stagesOf(client, orgId)).find((stage) => stage.kind === kind) ?? null;
 
-const leadCounts = async (client: Db, orgId: string) => {
+const leadCounts = async (client: Db, orgId: string, type: LeadRecordType = 'customer') => {
+  const table = recordTable(type);
   const rows = await client
-    .select({ stageId: customers.leadStageId, count: sql<number>`count(*)::int` })
-    .from(customers)
-    .where(and(eq(customers.orgId, orgId), eq(customers.state, 'lead')))
-    .groupBy(customers.leadStageId);
+    .select({ stageId: table.leadStageId, count: sql<number>`count(*)::int` })
+    .from(table)
+    .where(and(eq(table.orgId, orgId), eq(table.state, 'lead')))
+    .groupBy(table.leadStageId);
 
   return new Map(rows.map((row) => [row.stageId, Number(row.count)]));
 };
 
-const toStageDto = (stage: StageRow, leadCount: number) => ({
+const toStageDto = (stage: StageRow, people: Map<string | null, number>, companyLeads: Map<string | null, number>) => ({
   id: stage.id,
   name: stage.name,
   kind: stage.kind,
   color: stage.color,
   order: stage.order,
-  leadCount,
+  leadCount: people.get(stage.id) ?? 0,
+  companyLeadCount: companyLeads.get(stage.id) ?? 0,
 });
 
-export const listLeadStages = async (client: Db, actor: Actor) => {
-  const [stages, counts] = await Promise.all([stagesOf(client, actor.orgId), leadCounts(client, actor.orgId)]);
+const allCounts = (client: Db, orgId: string) => Promise.all([leadCounts(client, orgId, 'customer'), leadCounts(client, orgId, 'company')]);
 
-  return { data: stages.map((stage) => toStageDto(stage, counts.get(stage.id) ?? 0)) };
+export const listLeadStages = async (client: Db, actor: Actor) => {
+  const [stages, [people, companyLeads]] = await Promise.all([stagesOf(client, actor.orgId), allCounts(client, actor.orgId)]);
+
+  return { data: stages.map((stage) => toStageDto(stage, people, companyLeads)) };
 };
 
 const stageTaken = (error: unknown): never => {
@@ -95,7 +102,7 @@ export const createLeadStage = async (client: Db, actor: Actor, input: { name: s
 
       await audit(tx, actor, 'lead_stage.created', stage!);
 
-      return toStageDto(stage!, 0);
+      return toStageDto(stage!, new Map(), new Map());
     })
     .catch(stageTaken);
 
@@ -123,7 +130,7 @@ export const updateLeadStage = async (client: Db, actor: Actor, id: string, inpu
 
       await audit(tx, actor, 'lead_stage.updated', stage!);
 
-      return toStageDto(stage!, (await leadCounts(tx, actor.orgId)).get(id) ?? 0);
+      return toStageDto(stage!, ...(await allCounts(tx, actor.orgId)));
     })
     .catch(stageTaken);
 
@@ -151,11 +158,16 @@ export const removeLeadStage = async (client: Db, actor: Actor, id: string, move
     if (!stage) throw notFound('Lead stage');
     assertOpenStageLeft(stages, (item) => item.id === id);
 
-    const [used] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(customers)
-      .where(and(eq(customers.orgId, actor.orgId), eq(customers.leadStageId, id)));
-    const count = Number(used?.count ?? 0);
+    let count = 0;
+
+    for (const table of [customers, companies]) {
+      const [used] = await tx
+        .select({ count: sql<number>`count(*)::int` })
+        .from(table)
+        .where(and(eq(table.orgId, actor.orgId), eq(table.leadStageId, id)));
+
+      count += Number(used?.count ?? 0);
+    }
 
     if (count && (!moveTo || moveTo === id)) {
       throw new HttpError(409, 'LEAD_STAGE_IN_USE', `${count} leads are in this stage: choose where they move`, { count });
@@ -163,10 +175,13 @@ export const removeLeadStage = async (client: Db, actor: Actor, id: string, move
 
     if (count) {
       await findStage(tx, actor.orgId, moveTo!);
-      await tx
-        .update(customers)
-        .set({ leadStageId: moveTo!, leadStageChangedAt: sql`now()` })
-        .where(and(eq(customers.orgId, actor.orgId), eq(customers.leadStageId, id)));
+
+      for (const table of [customers, companies]) {
+        await tx
+          .update(table)
+          .set({ leadStageId: moveTo!, leadStageChangedAt: sql`now()` })
+          .where(and(eq(table.orgId, actor.orgId), eq(table.leadStageId, id)));
+      }
     }
 
     await tx.delete(leadStages).where(and(eq(leadStages.orgId, actor.orgId), eq(leadStages.id, id)));
@@ -185,8 +200,8 @@ export interface LeadStep {
 }
 
 export interface LeadPlan {
-  /** Columns to write on the customer. */
-  set: Partial<typeof customers.$inferInsert>;
+  /** Columns to write on the person or company (they share them). */
+  set: Partial<typeof customers.$inferInsert> & Partial<typeof companies.$inferInsert>;
   steps: LeadStep[];
 }
 
@@ -288,14 +303,15 @@ export const planLeadOnUpdate = async (client: Db, caller: Caller, current: Pick
 const stageRef = (stage: StageRow | null) => (stage ? { id: stage.id, name: stage.name, kind: stage.kind, color: stage.color } : null);
 
 /** Writes the steps: the lead's history, its timeline, and `core.lead.*` events for automations and webhooks. */
-export const recordLeadSteps = async (tx: Db, caller: Caller, customerId: string, steps: LeadStep[]) => {
+export const recordLeadSteps = async (tx: Db, caller: Caller, recordType: LeadRecordType, recordId: string, steps: LeadStep[]) => {
   if (!steps.length) return;
 
   await tx.insert(leadEvents).values(
     steps.map((step) => ({
       id: newId(),
       orgId: caller.orgId,
-      customerId,
+      customerId: recordType === 'customer' ? recordId : null,
+      companyId: recordType === 'company' ? recordId : null,
       event: step.event,
       fromStageId: step.from?.id ?? null,
       toStageId: step.to?.id ?? null,
@@ -312,9 +328,9 @@ export const recordLeadSteps = async (tx: Db, caller: Caller, customerId: string
     tx,
     caller,
     moves.map((step) => ({
-      targetType: 'customer' as const,
-      targetId: customerId,
-      type: 'customer.lead',
+      targetType: recordType,
+      targetId: recordId,
+      type: `${recordType}.lead`,
       data: { event: step.event, from: stageRef(step.from), to: stageRef(step.to), reason: step.reason },
     })),
   );
@@ -323,7 +339,7 @@ export const recordLeadSteps = async (tx: Db, caller: Caller, customerId: string
     caller,
     moves.map((step) => ({
       type: step.event === 'converted' ? 'core.lead.converted' : 'core.lead.stage_changed',
-      subject: { type: 'customer' as const, id: customerId },
+      subject: { type: recordType, id: recordId },
       payload: { event: step.event, from: stageRef(step.from), to: stageRef(step.to), reason: step.reason },
     })),
   );
@@ -332,11 +348,12 @@ export const recordLeadSteps = async (tx: Db, caller: Caller, customerId: string
 // ─── Bulk moves, conversion, history ─────────────────────────────────────────
 
 /** Leads among `ids` (others are refused). */
-const leadIds = async (client: Db, orgId: string, ids: string[]) => {
+const leadIds = async (client: Db, orgId: string, type: LeadRecordType, ids: string[]) => {
+  const table = recordTable(type);
   const rows = await client
-    .select({ id: customers.id, state: customers.state })
-    .from(customers)
-    .where(and(eq(customers.orgId, orgId), inArray(customers.id, ids)));
+    .select({ id: table.id, state: table.state })
+    .from(table)
+    .where(and(eq(table.orgId, orgId), inArray(table.id, ids)));
 
   if (rows.length !== new Set(ids).size) throw notFound('Lead');
   if (rows.some((row) => row.state !== 'lead')) throw new HttpError(400, 'NOT_A_LEAD', 'Some of these are customers already');
@@ -344,15 +361,26 @@ const leadIds = async (client: Db, orgId: string, ids: string[]) => {
   return rows.map((row) => row.id);
 };
 
-export const moveLeads = async (client: Db, actor: Actor, input: { ids: string[]; stageId: string; reason?: string }) => {
-  const { updateCustomer } = await import('~/modules/customers/customers.service');
+/** The update function of a record type (loaded late: those services use this one). */
+const updaterOf = async (type: LeadRecordType) =>
+  type === 'company'
+    ? (await import('~/modules/companies/companies.service')).updateCompany
+    : (await import('~/modules/customers/customers.service')).updateCustomer;
+
+export const moveLeads = async (
+  client: Db,
+  actor: Actor,
+  input: { recordType?: LeadRecordType; ids: string[]; stageId: string; reason?: string },
+) => {
+  const type = input.recordType ?? 'customer';
+  const update = await updaterOf(type);
 
   return client.transaction(async (tx) => {
     const stage = await findStage(tx, actor.orgId, input.stageId);
     let moved = 0;
 
-    for (const id of await leadIds(tx, actor.orgId, input.ids)) {
-      await updateCustomer(tx, actor, id, { leadStageId: stage.id, ...(input.reason ? { disqualifyReason: input.reason } : {}) });
+    for (const id of await leadIds(tx, actor.orgId, type, input.ids)) {
+      await update(tx, actor, id, { leadStageId: stage.id, ...(input.reason ? { disqualifyReason: input.reason } : {}) });
       moved += 1;
     }
 
@@ -360,14 +388,23 @@ export const moveLeads = async (client: Db, actor: Actor, input: { ids: string[]
   });
 };
 
-export const convertLeads = async (client: Db, actor: Actor, input: { ids: string[]; ownerId?: string; companyId?: string }) => {
-  const { linkCustomerCompany, updateCustomer } = await import('~/modules/customers/customers.service');
+export const convertLeads = async (
+  client: Db,
+  actor: Actor,
+  input: { recordType?: LeadRecordType; ids: string[]; ownerId?: string; companyId?: string },
+) => {
+  const type = input.recordType ?? 'customer';
+
+  if (type === 'company' && input.companyId) throw new HttpError(400, 'INVALID_INPUT', 'Companies are not linked to a company');
+
+  const update = await updaterOf(type);
+  const { linkCustomerCompany } = await import('~/modules/customers/customers.service');
 
   return client.transaction(async (tx) => {
     let converted = 0;
 
-    for (const id of await leadIds(tx, actor.orgId, input.ids)) {
-      await updateCustomer(tx, actor, id, { state: 'customer', ...(input.ownerId ? { ownerId: input.ownerId } : {}) });
+    for (const id of await leadIds(tx, actor.orgId, type, input.ids)) {
+      await update(tx, actor, id, { state: 'customer', ...(input.ownerId ? { ownerId: input.ownerId } : {}) });
       if (input.companyId) await linkCustomerCompany(tx, actor, id, input.companyId);
       converted += 1;
     }
@@ -376,16 +413,19 @@ export const convertLeads = async (client: Db, actor: Actor, input: { ids: strin
   });
 };
 
-export const leadHistory = async (client: Db, actor: Actor, id: string) => {
+export const leadHistory = async (client: Db, actor: Actor, input: { recordType?: LeadRecordType; id: string }) => {
+  const type = input.recordType ?? 'customer';
   const rows = await client
     .select()
     .from(leadEvents)
-    .where(and(eq(leadEvents.orgId, actor.orgId), eq(leadEvents.customerId, id)))
+    .where(and(eq(leadEvents.orgId, actor.orgId), eq(type === 'company' ? leadEvents.companyId : leadEvents.customerId, input.id)))
     .orderBy(asc(leadEvents.createdAt));
 
   return {
     data: rows.map((row) => ({
       id: row.id,
+      recordType: type,
+      recordId: input.id,
       event: row.event,
       fromStageId: row.fromStageId,
       toStageId: row.toStageId,
@@ -408,7 +448,10 @@ const days = (value: unknown) => (value === null || value === undefined ? null :
  * by source and owner (cohort: what became of them); every stage with who is
  * in it now, who reached it and the average stay; why leads were lost.
  */
-export const leadReport = async (client: Db, actor: Actor, input: { from?: string; to?: string }): Promise<LeadReport> => {
+export const leadReport = async (client: Db, actor: Actor, input: { recordType?: LeadRecordType; from?: string; to?: string }): Promise<LeadReport> => {
+  const type = input.recordType ?? 'customer';
+  const table = recordTable(type);
+  const col = sql.raw(type === 'company' ? 'company_id' : 'customer_id');
   const to = input.to ? new Date(input.to) : new Date();
   const from = input.from ? new Date(input.from) : new Date(to.getTime() - 30 * 86_400_000);
 
@@ -417,23 +460,23 @@ export const leadReport = async (client: Db, actor: Actor, input: { from?: strin
   const orgId = actor.orgId;
   const inPeriod = sql`e.created_at >= ${from.toISOString()}::timestamptz and e.created_at < ${to.toISOString()}::timestamptz`;
   const stages = await stagesOf(client, orgId);
-  const counts = await leadCounts(client, orgId);
+  const counts = await leadCounts(client, orgId, type);
 
   const [totals] = await rowsOf<{ created: number; converted: number; disqualified: number; cohort_converted: number; median: number | null; average: number | null }>(
     client,
     sql`
-      with period as (select e.* from ${leadEvents} e where e.org_id = ${orgId} and ${inPeriod}),
-      cohort as (select c.converted_at from period e join ${customers} c on c.id = e.customer_id where e.event = 'created'),
+      with period as (select e.* from ${leadEvents} e where e.org_id = ${orgId} and e.${col} is not null and ${inPeriod}),
+      cohort as (select c.converted_at from period e join ${table} c on c.id = e.${col} where e.event = 'created'),
       conversions as (
         select extract(epoch from (e.created_at - coalesce(
-          (select min(x.created_at) from ${leadEvents} x where x.customer_id = e.customer_id and x.event in ('created', 'reopened') and x.created_at <= e.created_at),
+          (select min(x.created_at) from ${leadEvents} x where x.${col} = e.${col} and x.event in ('created', 'reopened') and x.created_at <= e.created_at),
           e.created_at))) / 86400 as days
         from period e where e.event = 'converted'
       )
       select
         (select count(*) from cohort)::int as created,
         (select count(*) from period where event = 'converted')::int as converted,
-        (select count(distinct e.customer_id) from period e join ${leadStages} s on s.id = e.to_stage_id where s.kind = 'disqualified' and e.event in ('stage', 'created', 'reopened'))::int as disqualified,
+        (select count(distinct e.${col}) from period e join ${leadStages} s on s.id = e.to_stage_id where s.kind = 'disqualified' and e.event in ('stage', 'created', 'reopened'))::int as disqualified,
         (select count(*) from cohort where converted_at is not null)::int as cohort_converted,
         (select percentile_cont(0.5) within group (order by days) from conversions) as median,
         (select avg(days) from conversions) as average
@@ -445,12 +488,12 @@ export const leadReport = async (client: Db, actor: Actor, input: { from?: strin
     client,
     sql`
       with stints as (
-        select e.customer_id, e.to_stage_id, e.created_at,
-          lead(e.created_at) over (partition by e.customer_id order by e.created_at, e.id) as left_at
-        from ${leadEvents} e where e.org_id = ${orgId} and e.to_stage_id is not null
+        select e.${col} as record_id, e.to_stage_id, e.created_at,
+          lead(e.created_at) over (partition by e.${col} order by e.created_at, e.id) as left_at
+        from ${leadEvents} e where e.org_id = ${orgId} and e.${col} is not null and e.to_stage_id is not null
       )
       select to_stage_id as stage_id,
-        count(distinct customer_id) filter (where created_at >= ${from.toISOString()}::timestamptz and created_at < ${to.toISOString()}::timestamptz)::int as reached,
+        count(distinct record_id) filter (where created_at >= ${from.toISOString()}::timestamptz and created_at < ${to.toISOString()}::timestamptz)::int as reached,
         avg(extract(epoch from (left_at - created_at)) / 86400) filter (where left_at >= ${from.toISOString()}::timestamptz and left_at < ${to.toISOString()}::timestamptz) as average_days
       from stints group by to_stage_id
     `,
@@ -462,8 +505,8 @@ export const leadReport = async (client: Db, actor: Actor, input: { from?: strin
       client,
       sql`
         select c.${sql.raw(column)} as key, count(*)::int as count, count(c.converted_at)::int as converted
-        from ${leadEvents} e join ${customers} c on c.id = e.customer_id
-        where e.org_id = ${orgId} and e.event = 'created' and ${inPeriod}
+        from ${leadEvents} e join ${table} c on c.id = e.${col}
+        where e.org_id = ${orgId} and e.event = 'created' and e.${col} is not null and ${inPeriod}
         group by 1 order by 2 desc limit 20
       `,
     );
@@ -475,7 +518,7 @@ export const leadReport = async (client: Db, actor: Actor, input: { from?: strin
       sql`
         select e.reason, count(*)::int as count
         from ${leadEvents} e join ${leadStages} s on s.id = e.to_stage_id
-        where e.org_id = ${orgId} and s.kind = 'disqualified' and e.reason is not null and ${inPeriod}
+        where e.org_id = ${orgId} and e.${col} is not null and s.kind = 'disqualified' and e.reason is not null and ${inPeriod}
         group by 1 order by 2 desc limit 10
       `,
     ),
@@ -484,6 +527,7 @@ export const leadReport = async (client: Db, actor: Actor, input: { from?: strin
   const created = Number(totals?.created ?? 0);
 
   return {
+    recordType: type,
     from: from.toISOString(),
     to: to.toISOString(),
     created,

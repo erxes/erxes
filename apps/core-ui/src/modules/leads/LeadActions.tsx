@@ -1,4 +1,4 @@
-import type { Customer } from '@erxes/core-contract';
+import type { LeadRecordType } from '@erxes/core-contract';
 import { IconArrowRight, IconBuilding, IconCircleX, IconUserCheck } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Combobox, Dialog, Label, Popover, RecordTable, Spinner, Textarea } from 'erxes-ui';
@@ -7,13 +7,25 @@ import { api } from '~/lib/api';
 import { SelectContactContent } from '~/modules/contacts/components/ContactPicker';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
 import { LeadStageMenu } from './LeadStageBadge';
-import { firstOfKind, useConvertLeads, useLeadStages, useMoveLeads } from './useLeads';
+import { firstOfKind, type LeadRecord, useConvertLeads, useLeadStages, useMoveLeads } from './useLeads';
 
 /** Common reasons, one click away; anything else can be typed. */
 const REASONS = ['No budget', 'Not a fit', 'No response', 'Chose a competitor', 'Bad timing', 'Duplicate'];
 
 /** Asks why, then moves the leads to the disqualified stage `stageId` (closed while it is null). */
-export const DisqualifyDialog = ({ ids, stageId, onClose, onDone }: { ids: string[]; stageId: string | null; onClose: () => void; onDone?: () => void }) => {
+export const DisqualifyDialog = ({
+  recordType,
+  ids,
+  stageId,
+  onClose,
+  onDone,
+}: {
+  recordType: LeadRecordType;
+  ids: string[];
+  stageId: string | null;
+  onClose: () => void;
+  onDone?: () => void;
+}) => {
   const move = useMoveLeads();
   const { byId } = useLeadStages();
   const [reason, setReason] = useState('');
@@ -24,7 +36,7 @@ export const DisqualifyDialog = ({ ids, stageId, onClose, onDone }: { ids: strin
 
   const submit = () =>
     move.mutate(
-      { ids, stageId: stageId!, reason: reason.trim() || undefined },
+      { recordType, ids, stageId: stageId!, reason: reason.trim() || undefined },
       {
         onSuccess: () => {
           onClose();
@@ -71,7 +83,19 @@ const CompanyName = ({ id }: { id: string }) => {
 };
 
 /** Makes leads customers: who owns them from now on, and the company they belong to (both optional). */
-export const ConvertDialog = ({ leads, open, onOpenChange, onDone }: { leads: Customer[]; open: boolean; onOpenChange: (open: boolean) => void; onDone?: () => void }) => {
+export const ConvertDialog = ({
+  recordType,
+  leads,
+  open,
+  onOpenChange,
+  onDone,
+}: {
+  recordType: LeadRecordType;
+  leads: LeadRecord[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onDone?: () => void;
+}) => {
   const convert = useConvertLeads();
   const [ownerId, setOwnerId] = useState<string | undefined>();
   const [companyId, setCompanyId] = useState<string | undefined>();
@@ -90,7 +114,9 @@ export const ConvertDialog = ({ leads, open, onOpenChange, onDone }: { leads: Cu
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
           <Dialog.Title>{leads.length === 1 ? 'Convert to a customer' : `Convert ${leads.length} leads to customers`}</Dialog.Title>
-          <Dialog.Description>They leave Leads and join Customers. Their history, stage and source stay for reports.</Dialog.Description>
+          <Dialog.Description>
+            {`They leave Leads and join ${recordType === 'company' ? 'Companies' : 'Customers'}. Their history, stage and source stay for reports.`}
+          </Dialog.Description>
         </Dialog.Header>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
@@ -106,6 +132,7 @@ export const ConvertDialog = ({ leads, open, onOpenChange, onDone }: { leads: Cu
               </Popover>
             </SelectMember.Provider>
           </div>
+          {recordType === 'customer' && (
           <div className="flex flex-col gap-1.5">
             <Label>Company</Label>
             <Popover open={companyOpen} onOpenChange={setCompanyOpen}>
@@ -127,6 +154,7 @@ export const ConvertDialog = ({ leads, open, onOpenChange, onDone }: { leads: Cu
               </Combobox.Content>
             </Popover>
           </div>
+          )}
         </div>
         <Dialog.Footer>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={convert.isPending}>
@@ -136,7 +164,7 @@ export const ConvertDialog = ({ leads, open, onOpenChange, onDone }: { leads: Cu
             disabled={convert.isPending}
             onClick={() =>
               convert.mutate(
-                { ids: leads.map((lead) => lead.id), ownerId, companyId },
+                { recordType, ids: leads.map((lead) => lead.id), ownerId, companyId: recordType === 'customer' ? companyId : undefined },
                 {
                   onSuccess: () => {
                     onOpenChange(false);
@@ -156,7 +184,7 @@ export const ConvertDialog = ({ leads, open, onOpenChange, onDone }: { leads: Cu
 };
 
 /** The command bar's lead actions on the selected rows: move, convert, disqualify. */
-export const LeadsBulkActions = ({ leads }: { leads: Customer[] }) => {
+export const LeadsBulkActions = ({ recordType, leads }: { recordType: LeadRecordType; leads: LeadRecord[] }) => {
   const { table } = RecordTable.useRecordTable();
   const { stages } = useLeadStages();
   const move = useMoveLeads();
@@ -172,7 +200,7 @@ export const LeadsBulkActions = ({ leads }: { leads: Customer[] }) => {
         stages={stages}
         value={leads.length === 1 ? leads[0]!.leadStageId : null}
         align="end"
-        onSelect={(stage) => (stage.kind === 'disqualified' ? setDisqualifying(stage.id) : move.mutate({ ids, stageId: stage.id }, { onSuccess: clear }))}
+        onSelect={(stage) => (stage.kind === 'disqualified' ? setDisqualifying(stage.id) : move.mutate({ recordType, ids, stageId: stage.id }, { onSuccess: clear }))}
       >
         <Button variant="secondary">
           <IconArrowRight />
@@ -189,8 +217,8 @@ export const LeadsBulkActions = ({ leads }: { leads: Customer[] }) => {
           Disqualify
         </Button>
       )}
-      <ConvertDialog leads={leads} open={converting} onOpenChange={setConverting} onDone={clear} />
-      <DisqualifyDialog ids={ids} stageId={disqualifying} onClose={() => setDisqualifying(null)} onDone={clear} />
+      <ConvertDialog recordType={recordType} leads={leads} open={converting} onOpenChange={setConverting} onDone={clear} />
+      <DisqualifyDialog recordType={recordType} ids={ids} stageId={disqualifying} onClose={() => setDisqualifying(null)} onDone={clear} />
     </>
   );
 };

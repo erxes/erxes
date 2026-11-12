@@ -8,23 +8,34 @@ import { useAdvancedFilterParam } from '../views/useViews';
 export const COMPANIES_KEY = ['companies'];
 export const COMPANIES_SESSION_KEY = 'core_companies_cursor';
 
-export const useCompanies = () => {
-  const [{ searchValue, tags, ownerId }] = useMultiQueryState<{
+type CompanyState = 'lead' | 'customer';
+
+/** The list filters, read from the URL; `state` splits companies that are customers from company leads. */
+export const useCompaniesFilters = (state: CompanyState = 'customer') => {
+  const [{ searchValue, tags, ownerId, stage }] = useMultiQueryState<{
     searchValue: string;
     tags: string[];
     ownerId: string;
-  }>(['searchValue', 'tags', 'ownerId']);
+    stage: string;
+  }>(['searchValue', 'tags', 'ownerId', 'stage']);
   const filter = useAdvancedFilterParam();
-  const filters = {
+
+  return {
+    state,
     filter,
     search: searchValue || undefined,
     tagIds: tags?.length ? tags.join(',') : undefined,
     ownerId: ownerId || undefined,
+    leadStageId: state === 'lead' ? stage || undefined : undefined,
   };
+};
+
+export const useCompanies = (state: CompanyState = 'customer') => {
+  const filters = useCompaniesFilters(state);
 
   return useCursorList<Company>({
     queryKey: [...COMPANIES_KEY, 'list', filters],
-    sessionKey: COMPANIES_SESSION_KEY,
+    sessionKey: state === 'lead' ? 'core_company_leads_cursor' : COMPANIES_SESSION_KEY,
     fetchPage: (params) => api.companies.list({ ...params, ...filters }),
   });
 };

@@ -1,4 +1,4 @@
-import type { Customer } from '@erxes/core-contract';
+import type { LeadRecordType } from '@erxes/core-contract';
 import { IconCalendarCheck, IconHourglass, IconProgress, IconUserCheck, IconWorld } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useState } from 'react';
@@ -6,14 +6,14 @@ import { PanelField } from '~/modules/side-panel/PanelField';
 import { ContactDetailSection } from '~/modules/side-panel/details/ContactDetailSection';
 import { ConvertDialog, DisqualifyDialog } from './LeadActions';
 import { LeadStageMenu, LeadStageTrigger } from './LeadStageBadge';
-import { daysSince, useLeadStages, useMoveLeads } from './useLeads';
+import { daysSince, type LeadRecord, useLeadStages, useMoveLeads } from './useLeads';
 
 const Text = ({ children }: { children: React.ReactNode }) => <span className="truncate px-2 text-sm">{children}</span>;
 
 const day = (iso: string) => new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
 /** A lead's stage (movable), time in it, source, and Convert; a customer's source and when it converted. */
-export const LeadPanelSection = ({ customer }: { customer: Customer }) => {
+export const LeadPanelSection = ({ recordType, record: customer }: { recordType: LeadRecordType; record: LeadRecord }) => {
   const { stages, byId } = useLeadStages();
   const move = useMoveLeads();
   const [converting, setConverting] = useState(false);
@@ -33,7 +33,7 @@ export const LeadPanelSection = ({ customer }: { customer: Customer }) => {
             <LeadStageMenu
               stages={stages}
               value={customer.leadStageId}
-              onSelect={(next) => (next.kind === 'disqualified' ? setDisqualifying(next.id) : move.mutate({ ids: [customer.id], stageId: next.id }))}
+              onSelect={(next) => (next.kind === 'disqualified' ? setDisqualifying(next.id) : move.mutate({ recordType, ids: [customer.id], stageId: next.id }))}
             >
               <LeadStageTrigger stage={stage} />
             </LeadStageMenu>
@@ -69,8 +69,8 @@ export const LeadPanelSection = ({ customer }: { customer: Customer }) => {
           </Button>
         </div>
       )}
-      <ConvertDialog leads={[customer]} open={converting} onOpenChange={setConverting} />
-      <DisqualifyDialog ids={[customer.id]} stageId={disqualifying} onClose={() => setDisqualifying(null)} />
+      <ConvertDialog recordType={recordType} leads={[customer]} open={converting} onOpenChange={setConverting} />
+      <DisqualifyDialog recordType={recordType} ids={[customer.id]} stageId={disqualifying} onClose={() => setDisqualifying(null)} />
     </ContactDetailSection>
   );
 };

@@ -25,7 +25,7 @@ import { SelectMember } from '~/modules/contacts/components/SelectMember';
 import { linkNewContact } from '~/modules/contacts/components/useContactRelations';
 import { PANEL_INPUT_CLASS_NAME, PanelFormLayout, PanelFormRow } from '../PanelForm';
 import { useCreatedPanelRecord } from '../useCreatedPanelRecord';
-import { useSidePanel } from '../useSidePanel';
+import { useSidePanel, useSidePanelDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
 
 const INDUSTRY_OPTIONS = DEFAULT_COMPANY_INDUSTRY_TYPES.filter(Boolean).map((industry) => ({
@@ -96,6 +96,7 @@ export const CompanyPanelNew = () => {
   const [linking, setLinking] = useState(false);
   const showCreated = useCreatedPanelRecord('core:company');
   const create = useCompanyCreate();
+  const { state } = useSidePanelDraft<{ state?: 'lead' | 'customer' }>('core:company');
   const form = useForm<TCompanyForm>({
     resolver: zodResolver(companySchema),
     defaultValues: { primaryName: '', code: '', industry: [] },
@@ -109,6 +110,7 @@ export const CompanyPanelNew = () => {
     try {
       const created = await create.mutateAsync({
         primaryName: primaryName.trim(),
+        state: state || 'customer',
         code: orNull(values.code),
         ownerId: values.ownerId || null,
         primaryEmail: orNull(values.primaryEmail),

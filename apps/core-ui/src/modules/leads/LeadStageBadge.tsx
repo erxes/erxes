@@ -40,13 +40,19 @@ export const LeadStageMenu = ({
   </DropdownMenu>
 );
 
+/** The stage as a status pill (tinted with its colour); click to change it. */
 export const LeadStageTrigger = ({ stage, ...props }: { stage?: LeadStage | null } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     type="button"
     {...props}
-    className={cn('inline-flex h-7 max-w-full items-center gap-1 rounded-md px-2 hover:bg-muted', props.className)}
+    style={{ background: stage ? `color-mix(in srgb, ${stage.color} 16%, transparent)` : undefined, ...props.style }}
+    className={cn(
+      'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium transition-[filter] hover:brightness-95 data-[state=open]:border-border',
+      !stage && 'border-dashed border-border text-muted-foreground',
+      props.className,
+    )}
   >
-    <LeadStageBadge stage={stage} />
-    <IconChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
+    <LeadStageBadge stage={stage} className="text-xs" />
+    <IconChevronDown className="size-3 shrink-0 opacity-60" />
   </button>
 );

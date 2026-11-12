@@ -36,14 +36,50 @@ export const SourceDetails = z
   .record(z.string().max(50), z.string().max(500))
   .refine((value) => Object.keys(value).length <= 20, 'at most 20 details');
 
+/** Whom a lead action is about: people or companies (both go through the same stages). */
+export const LeadRecordType = z.enum(['customer', 'company']);
+export type LeadRecordType = z.infer<typeof LeadRecordType>;
+
+/** `lead`: not a customer yet. People and companies alike. */
+export const ContactState = z.enum(['lead', 'customer']);
+
+/** The lifecycle every contact (person or company) carries. */
+export const LifecycleFields = {
+  state: ContactState,
+  /** The lead stage (`/lead-stages`); stays after conversion. */
+  leadStageId: z.string().nullable(),
+  leadStageChangedAt: z.string().datetime().nullable(),
+  disqualifyReason: z.string().nullable(),
+  /** Where they came from (`manual`, `form`, `plugin`, …). */
+  source: z.string().nullable(),
+  sourceDetails: z.record(z.string(), z.string()),
+  /** When the lead became a customer. */
+  convertedAt: z.string().datetime().nullable(),
+  /** Newest timeline entry (creation counts). */
+  lastActivityAt: z.string().datetime(),
+};
+
+/** Lifecycle fields a create or update may set. */
+export const LifecycleInput = {
+  state: ContactState.optional(),
+  /** A lead stage; moving to a disqualified one takes `disqualifyReason`. */
+  leadStageId: Id.optional(),
+  disqualifyReason: z.string().trim().max(500).nullable().optional(),
+  /** Set when created (later changes are corrections). */
+  source: LeadSource.nullable().optional(),
+  sourceDetails: SourceDetails.optional(),
+};
+
 export const LeadStage = z.object({
   id: Id,
   name: z.string(),
   kind: LeadStageKind,
   color: z.string(),
   order: z.number().int(),
-  /** Leads in it now. */
+  /** People who are leads in it now. */
   leadCount: z.number().int(),
+  /** Companies that are leads in it now. */
+  companyLeadCount: z.number().int(),
 });
 export type LeadStage = z.infer<typeof LeadStage>;
 
@@ -58,6 +94,8 @@ const StageFields = z.object({
 
 export const LeadEvent = z.object({
   id: Id,
+  recordType: LeadRecordType,
+  recordId: Id,
   event: z.enum(['created', 'stage', 'converted', 'reopened']),
   fromStageId: z.string().nullable(),
   toStageId: z.string().nullable(),
@@ -71,6 +109,7 @@ export type LeadEvent = z.infer<typeof LeadEvent>;
 const Count = z.object({ count: z.number().int() });
 
 export const LeadReport = z.object({
+  recordType: LeadRecordType,
   from: z.string().datetime(),
   to: z.string().datetime(),
   /** Leads made in the period. */
@@ -102,6 +141,7 @@ export const LeadReport = z.object({
 export type LeadReport = z.infer<typeof LeadReport>;
 
 const Ids = z.array(Id).min(1).max(100);
+const RecordTypeInput = { recordType: LeadRecordType.default('customer') };
 
 export const leadsContract = {
   stages: oc
@@ -129,22 +169,22 @@ export const leadsContract = {
     .output(z.object({ moved: z.number().int() })),
   move: oc
     .route({ method: 'POST', path: '/leads/move', summary: 'Move leads to a stage (a disqualified stage takes a reason)' })
-    .input(z.object({ ids: Ids, stageId: Id, reason: z.string().trim().max(500).optional() }))
+    .input(z.object({ ...RecordTypeInput, ids: Ids, stageId: Id, reason: z.string().trim().max(500).optional() }))
     .output(z.object({ moved: z.number().int() })),
   convert: oc
     .route({
       method: 'POST',
       path: '/leads/convert',
-      summary: 'Leads become customers: optionally given an owner and linked to a company',
+      summary: 'Leads become customers: optionally given an owner, and (people) linked to a company',
     })
-    .input(z.object({ ids: Ids, ownerId: Id.optional(), companyId: Id.optional() }))
+    .input(z.object({ ...RecordTypeInput, ids: Ids, ownerId: Id.optional(), companyId: Id.optional() }))
     .output(z.object({ converted: z.number().int() })),
   history: oc
     .route({ method: 'GET', path: '/leads/{id}/history', summary: "A lead's journey: created, every stage, converted" })
-    .input(z.object({ id: Id }))
+    .input(z.object({ ...RecordTypeInput, id: Id }))
     .output(z.object({ data: z.array(LeadEvent) })),
   report: oc
     .route({ method: 'GET', path: '/leads/report', summary: 'Funnel, conversion, sources, owners and reasons for a period (default: last 30 days)' })
-    .input(z.object({ from: z.string().datetime().optional(), to: z.string().datetime().optional() }))
+    .input(z.object({ ...RecordTypeInput, from: z.string().datetime().optional(), to: z.string().datetime().optional() }))
     .output(LeadReport),
 };

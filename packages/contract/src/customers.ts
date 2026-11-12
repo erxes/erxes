@@ -12,10 +12,10 @@ import {
   text,
   ImageAddress,
 } from './common';
-import { LeadSource, SourceDetails } from './leads';
+import { ContactState, LifecycleFields, LifecycleInput } from './leads';
 
 /** `lead`: not a customer yet (e.g. a form submission). */
-export const CustomerState = z.enum(['lead', 'customer']);
+export const CustomerState = ContactState;
 export type CustomerState = z.infer<typeof CustomerState>;
 
 /** ISO/IEC 5218, as in erxes until now: 0 not known, 1 male, 2 female, 9 not applicable. */
@@ -25,7 +25,6 @@ export type CustomerSex = z.infer<typeof CustomerSex>;
 /** A person the organisation works with; shared by every plugin. */
 export const Customer = z.object({
   id: Id,
-  state: CustomerState,
   firstName: z.string().nullable(),
   middleName: z.string().nullable(),
   lastName: z.string().nullable(),
@@ -48,24 +47,13 @@ export const Customer = z.object({
   tagIds: z.array(z.string()),
   /** Custom field values by field id. */
   customFields: CustomFields,
-  /** The lead stage (`/lead-stages`); stays after conversion. */
-  leadStageId: z.string().nullable(),
-  leadStageChangedAt: z.string().datetime().nullable(),
-  disqualifyReason: z.string().nullable(),
-  /** Where they came from (`manual`, `form`, `plugin`, …). */
-  source: z.string().nullable(),
-  sourceDetails: z.record(z.string(), z.string()),
-  /** When the lead became a customer. */
-  convertedAt: z.string().datetime().nullable(),
-  /** Newest timeline entry (creation counts). */
-  lastActivityAt: z.string().datetime(),
+  ...LifecycleFields,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
 export type Customer = z.infer<typeof Customer>;
 
 export const CustomerFields = z.object({
-  state: CustomerState.optional(),
   firstName: text(100),
   middleName: text(100),
   lastName: text(100),
@@ -89,12 +77,7 @@ export const CustomerFields = z.object({
   tagIds: z.array(Id).max(50).optional(),
   /** Sets the given custom fields; `null` clears one. Others stay. */
   customFields: CustomFieldsPatch.optional(),
-  /** A lead stage; moving to a disqualified one takes `disqualifyReason`. */
-  leadStageId: Id.optional(),
-  disqualifyReason: text(500),
-  /** Set when created (later changes are corrections). */
-  source: LeadSource.nullable().optional(),
-  sourceDetails: SourceDetails.optional(),
+  ...LifecycleInput,
 });
 export type CustomerInput = z.infer<typeof CustomerFields>;
 
@@ -108,12 +91,32 @@ const identifies = (value: CustomerInput) =>
       value.phones?.length,
   );
 
-/** A company as listed on a customer. */
+/** What links a person and a company: their role there, main contact, left. */
+export const ContactLink = z.object({
+  role: z.string().nullable(),
+  /** The company's main contact (one per company). */
+  isPrimaryContact: z.boolean(),
+  /** No longer there; the link stays as history. */
+  endedAt: z.string().datetime().nullable(),
+  createdAt: z.string().datetime(),
+});
+export type ContactLink = z.infer<typeof ContactLink>;
+
+/** Setting a link: any of its attributes (others stay; a new link starts with none). */
+export const ContactLinkInput = z.object({
+  role: z.string().trim().max(100).nullable().optional(),
+  isPrimaryContact: z.boolean().optional(),
+  /** `true`: left now; `false`: back (current again). */
+  ended: z.boolean().optional(),
+});
+
+/** A company as listed on a customer, with the link. */
 export const CompanyRef = z.object({
   id: Id,
   primaryName: z.string(),
   avatarUrl: z.string().nullable(),
   website: z.string().nullable(),
+  link: ContactLink,
 });
 export type CompanyRef = z.infer<typeof CompanyRef>;
 
@@ -165,8 +168,8 @@ export const customersContract = {
           lastName: z.string().trim().max(100).optional(),
           state: z.enum(['lead', 'customer']).optional(),
           /** For a new one: where they came from (default: the plugin, or `manual`). */
-          source: LeadSource.optional(),
-          sourceDetails: SourceDetails.optional(),
+          source: LifecycleInput.source,
+          sourceDetails: LifecycleInput.sourceDetails,
         })
         .refine((value) => Boolean(value.primaryEmail || value.primaryPhone), 'an email or a phone is required'),
     )
@@ -215,8 +218,8 @@ export const customersContract = {
     .input(ID)
     .output(z.object({ data: z.array(CompanyRef) })),
   linkCompany: oc
-    .route({ method: 'PUT', path: '/customers/{id}/companies/{companyId}' })
-    .input(z.object({ id: Id, companyId: Id }))
+    .route({ method: 'PUT', path: '/customers/{id}/companies/{companyId}', summary: 'Link (or change the link: role, main contact, left)' })
+    .input(ContactLinkInput.extend({ id: Id, companyId: Id }))
     .output(z.object({ ok: z.literal(true) })),
   unlinkCompany: oc
     .route({ method: 'DELETE', path: '/customers/{id}/companies/{companyId}' })

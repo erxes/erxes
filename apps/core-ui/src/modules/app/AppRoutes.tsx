@@ -5,6 +5,7 @@ import { SettingsRoutes } from '~/modules/settings/SettingsRoutes';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 import { AutomationsRoutes } from '~/modules/automations/AutomationsRoutes';
 import { ContactsRoutes } from '~/modules/contacts/ContactsRoutes';
+import { ReportsRoutes } from '~/modules/reports/ReportsRoutes';
 import { HomePage } from '~/modules/home/HomePage';
 import { NotificationsPage } from '~/modules/notifications/NotificationsPage';
 import { MainOnboardingPage } from '~/modules/onboarding/MainOnboardingPage';
@@ -55,6 +56,7 @@ export const AppRoutes = () => (
       <Route index element={<HomePage />} />
       <Route path="contacts/*" element={<ContactsRoutes notFound={<NotFoundPage />} />} />
       <Route path="automations/*" element={<AutomationsRoutes />} />
+      <Route path="reports/*" element={<ReportsRoutes />} />
       <Route path="settings/*" element={<SettingsRoutes />} />
       <Route path="notifications" element={<NotificationsPage />} />
       <Route path="notifications/:source" element={<NotificationsPage />} />

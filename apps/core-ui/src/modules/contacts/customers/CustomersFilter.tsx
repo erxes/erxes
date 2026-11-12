@@ -6,6 +6,7 @@ import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
 import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
 import { customersSessionKey, useCustomers } from './useCustomers';
+import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
 import { formatTotal } from '~/lib/cursorList';
 
 export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
@@ -27,10 +28,11 @@ export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
 const CustomersFilterPopover = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation('common');
   const { t: contactT } = useTranslation('contact', { keyPrefix: 'customer' });
-  const [queries] = useMultiQueryState<{ tags: string[]; searchValue: string; ownerId: string }>([
+  const [queries] = useMultiQueryState<{ tags: string[]; searchValue: string; ownerId: string; stage: string }>([
     'tags',
     'searchValue',
     'ownerId',
+    'stage',
   ]);
   const hasFilters = Object.values(queries || {}).some((value) => value !== null);
 
@@ -47,11 +49,13 @@ const CustomersFilterPopover = ({ state }: { state: CustomerState }) => {
                   <IconSearch />
                   {t('filter.search')}
                 </Filter.Item>
+                {state === 'lead' && <LeadStageFilter.Item />}
                 <TagsFilter />
                 <SelectMember.FilterItem label={contactT('owner')} />
               </Command.List>
             </Command>
           </Filter.View>
+          {state === 'lead' && <LeadStageFilter.View />}
           <SelectMember.FilterView />
           <TagsFilter.View type="customer" />
         </Combobox.Content>
@@ -83,6 +87,7 @@ export const CustomersFilter = ({ state }: { state: CustomerState }) => {
             {searchValue}
           </Filter.BarButton>
         </Filter.BarItem>
+        {state === 'lead' && <LeadStageFilter.Bar />}
         <TagsFilter.Bar type="customer" />
         <SelectMember.FilterBar label={contactT('owner')} />
         <AdvancedFilterButton recordType={state} />

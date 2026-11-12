@@ -21,6 +21,7 @@ import { ContactDetailSection } from './ContactDetailSection';
 import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
+import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 
 const SCOPE = 'side-panel-company';
 
@@ -162,6 +163,7 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
           <ContactDescriptionField contentType="core:company" contentId={company.id} value={company.description || ''} />
         )}
       </div>
+      <LeadPanelSection recordType="company" record={company} />
       <ContactPanelTags contentType="core:company" contentId={company.id} tagIds={company.tagIds} />
       <ContactPanelRelationField contentType="core:company" contentId={company.id} />
     </div>

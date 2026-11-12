@@ -60,7 +60,7 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
     ...extra,
   });
   const stageNames =
-    recordType === 'lead'
+    recordType !== 'customer'
       ? (await client.select({ name: leadStages.name }).from(leadStages).where(eq(leadStages.orgId, orgId)).orderBy(asc(leadStages.order))).map((stage) => stage.name)
       : [];
   const builtIn: FieldSpec[] = isCompany
@@ -84,16 +84,20 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
         f('position', 'Position', 'text', sql`${customers.position}`),
         f('department', 'Department', 'text', sql`${customers.department}`),
         f('code', 'Code', 'text', sql`${customers.code}`),
-        f('source', 'Source', 'select', sql`${customers.source}`, { options: [...LEAD_SOURCES], group: 'lead' }),
-        f('convertedAt', 'Became a customer', 'date', sql`${customers.convertedAt}`, { group: 'lead' }),
-        ...(recordType === 'lead'
-          ? [
-              f('leadStageId', 'Lead stage', 'select', sql`${customers.leadStageId}`, { group: 'lead', stageLookup: true, options: stageNames }),
-              f('leadStageChangedAt', 'In this stage since', 'date', sql`${customers.leadStageChangedAt}`, { group: 'lead' }),
-              f('disqualifyReason', 'Disqualified because', 'text', sql`${customers.disqualifyReason}`, { group: 'lead' }),
-            ]
-          : []),
       ];
+  // People and companies share the lifecycle; the leads list has its stage fields, the companies list (leads and customers) all of them.
+  const lifecycle: FieldSpec[] = [
+    ...(isCompany ? [f('state', 'State', 'select', sql`${companies.state}`, { options: ['lead', 'customer'], group: 'lead' })] : []),
+    f('source', 'Source', 'select', sql`${table.source}`, { options: [...LEAD_SOURCES], group: 'lead' }),
+    f('convertedAt', 'Became a customer', 'date', sql`${table.convertedAt}`, { group: 'lead' }),
+    ...(recordType !== 'customer'
+      ? [
+          f('leadStageId', 'Lead stage', 'select', sql`${table.leadStageId}`, { group: 'lead', stageLookup: true, options: stageNames }),
+          f('leadStageChangedAt', 'In this stage since', 'date', sql`${table.leadStageChangedAt}`, { group: 'lead' }),
+          f('disqualifyReason', 'Disqualified because', 'text', sql`${table.disqualifyReason}`, { group: 'lead' }),
+        ]
+      : []),
+  ];
   const common: FieldSpec[] = [
     f('ownerId', 'Owner', 'member', sql`${table.ownerId}`),
     f('tagIds', 'Tags', 'tags', sql`null`),
@@ -126,6 +130,7 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
 
   return [
     ...builtIn,
+    ...lifecycle,
     ...common,
     ...related,
     ...custom.map((field): FieldSpec => {
@@ -245,7 +250,7 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
 
   if (spec.stageLookup && ['eq', 'neq', 'in', 'not_in'].includes(op)) {
     const names = (op === 'in' || op === 'not_in' ? list(rule.value) : [text(rule.value)]).map((name) => name.toLowerCase());
-    const ids = sql`(select ${leadStages.id} from ${leadStages} where ${leadStages.orgId} = ${customers.orgId} and lower(${leadStages.name}) = any(${textArray(names)}))`;
+    const ids = sql`(select ${leadStages.id} from ${leadStages} where ${leadStages.orgId} = ${actor.orgId} and lower(${leadStages.name}) = any(${textArray(names)}))`;
 
     return op === 'eq' || op === 'in' ? sql`${x} in ${ids}` : sql`(${x} is null or ${x} not in ${ids})`;
   }

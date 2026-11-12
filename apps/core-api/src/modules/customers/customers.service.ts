@@ -270,7 +270,7 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
         .returning({ id: customers.id });
 
       await saveCustomFields(tx, actor.orgId, 'customer', row!.id, customFields, Object.keys(customFields));
-      await recordLeadSteps(tx, userCaller(actor), row!.id, lead.steps);
+      await recordLeadSteps(tx, userCaller(actor), 'customer', row!.id, lead.steps);
       await setRecordTags(tx, actor.orgId, 'customer', row!.id, tagIds);
       await contactCreated(tx, actor, 'customer', await findCustomer(tx, actor.orgId, row!.id));
 
@@ -337,7 +337,7 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
         throw notFound('Customer');
       }
 
-      await recordLeadSteps(tx, userCaller(actor), id, lead.steps);
+      await recordLeadSteps(tx, userCaller(actor), 'customer', id, lead.steps);
 
       if (customFields) {
         await saveCustomFields(tx, actor.orgId, 'customer', id, customFields, Object.keys(input.customFields ?? {}));
@@ -516,6 +516,28 @@ const findCompanyId = async (client: Db, orgId: string, companyId: string) => {
   }
 };
 
+/** A link as the API shows it. */
+export const linkDto = (row: { role: string | null; isPrimaryContact: boolean; endedAt: Date | null; createdAt: Date }) => ({
+  role: row.role,
+  isPrimaryContact: row.isPrimaryContact,
+  endedAt: row.endedAt?.toISOString() ?? null,
+  createdAt: row.createdAt.toISOString(),
+});
+
+const linkColumns = {
+  role: customerCompanies.role,
+  isPrimaryContact: customerCompanies.isPrimaryContact,
+  endedAt: customerCompanies.endedAt,
+  createdAt: customerCompanies.createdAt,
+};
+
+/** Current links first (main contact first), then former ones; oldest first within each. */
+export const linkOrder = [
+  sql`${customerCompanies.endedAt} IS NOT NULL`,
+  sql`${customerCompanies.isPrimaryContact} DESC`,
+  asc(customerCompanies.createdAt),
+];
+
 export const customerCompaniesOf = async (client: Db, actor: Actor, id: string) => {
   await findCustomer(client, actor.orgId, id);
 
@@ -525,26 +547,64 @@ export const customerCompaniesOf = async (client: Db, actor: Actor, id: string) 
       primaryName: companies.primaryName,
       avatarUrl: companies.avatarUrl,
       website: companies.website,
+      ...linkColumns,
     })
     .from(customerCompanies)
     .innerJoin(companies, eq(companies.id, customerCompanies.companyId))
     .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.customerId, id)))
-    .orderBy(asc(customerCompanies.createdAt));
+    .orderBy(...linkOrder);
 
-  return { data: rows };
+  return {
+    data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...company }) => ({ ...company, link: linkDto({ role, isPrimaryContact, endedAt, createdAt }) })),
+  };
 };
 
-export const linkCustomerCompany = async (client: Db, actor: Actor, id: string, companyId: string) => {
+export interface LinkInput {
+  role?: string | null;
+  isPrimaryContact?: boolean;
+  ended?: boolean;
+}
+
+/**
+ * Links a person and a company, or changes their link: role, main contact
+ * (one per company: taking it moves it), left / back. Same from either side.
+ */
+export const linkCustomerCompany = async (client: Db, actor: Actor, id: string, companyId: string, input: LinkInput = {}) => {
   await findCustomer(client, actor.orgId, id);
   await findCompanyId(client, actor.orgId, companyId);
-  await client.transaction(async (tx) => {
-    const linked = await tx
-      .insert(customerCompanies)
-      .values({ orgId: actor.orgId, customerId: id, companyId })
-      .onConflictDoNothing()
-      .returning({ customerId: customerCompanies.customerId });
 
-    if (linked.length) {
+  const attributes = {
+    ...(input.role !== undefined ? { role: input.role?.trim() || null } : {}),
+    ...(input.isPrimaryContact !== undefined ? { isPrimaryContact: input.isPrimaryContact } : {}),
+    ...(input.ended !== undefined ? { endedAt: input.ended ? new Date() : null } : {}),
+  };
+
+  await client.transaction(async (tx) => {
+    // One main contact per company.
+    if (input.isPrimaryContact) {
+      await tx
+        .update(customerCompanies)
+        .set({ isPrimaryContact: false, updatedAt: sql`now()` })
+        .where(
+          and(
+            eq(customerCompanies.orgId, actor.orgId),
+            eq(customerCompanies.companyId, companyId),
+            eq(customerCompanies.isPrimaryContact, true),
+            sql`${customerCompanies.customerId} <> ${id}`,
+          ),
+        );
+    }
+
+    const [row] = await tx
+      .insert(customerCompanies)
+      .values({ orgId: actor.orgId, customerId: id, companyId, ...attributes })
+      .onConflictDoUpdate({
+        target: [customerCompanies.customerId, customerCompanies.companyId],
+        set: { ...attributes, updatedAt: sql`now()` },
+      })
+      .returning({ created: sql<boolean>`xmax = 0` });
+
+    if (row?.created) {
       await contactsLinked(tx, actor, id, companyId, true);
     }
   });
@@ -588,7 +648,7 @@ export const findOrCreateCustomer = async (
     firstName?: string;
     lastName?: string;
     state?: 'lead' | 'customer';
-    source?: string;
+    source?: string | null;
     sourceDetails?: Record<string, string>;
   },
 ) => {
@@ -635,7 +695,7 @@ export const findOrCreateCustomer = async (
       })
       .returning({ id: customers.id });
 
-    await recordLeadSteps(tx, caller, row!.id, lead.steps);
+    await recordLeadSteps(tx, caller, 'customer', row!.id, lead.steps);
     await contactCreated(tx, caller, 'customer', await findCustomer(tx, caller.orgId, row!.id));
 
     return row!.id;

@@ -7,9 +7,10 @@ import { ContactsPath } from './utils/contactDetailPath';
 import { ViewsNavigation } from './views/ViewControls';
 
 export const CONTACTS_SECTIONS = [
+  // People and companies are peers; leads (of either kind) come after.
   { labelKey: 'customers', path: ContactsPath.Customers, icon: IconUser },
-  { labelKey: 'leads', path: ContactsPath.Leads, icon: IconMagnet },
   { labelKey: 'companies', path: ContactsPath.Companies, icon: IconBuilding },
+  { labelKey: 'leads', path: ContactsPath.Leads, icon: IconMagnet },
 ];
 
 /** The Contacts sidebar, as old core-ui's core module panel. */

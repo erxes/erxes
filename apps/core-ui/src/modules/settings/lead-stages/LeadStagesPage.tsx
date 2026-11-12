@@ -61,7 +61,9 @@ const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () => void 
           ))}
         </Select.Content>
       </Select>
-      <span className="w-20 text-right text-xs tabular-nums text-muted-foreground">{stage.leadCount.toLocaleString('en')} leads</span>
+      <span className="w-36 text-right text-xs tabular-nums text-muted-foreground" title="People and companies in this stage">
+        {stage.leadCount.toLocaleString('en')} people · {stage.companyLeadCount.toLocaleString('en')} companies
+      </span>
       <Button variant="ghost" size="icon" onClick={onRemove} aria-label="Delete stage">
         <IconTrash className="size-4" />
       </Button>
@@ -83,12 +85,12 @@ const RemoveDialog = ({ stage, stages, onClose }: { stage: LeadStage | null; sta
         <Dialog.Header>
           <Dialog.Title>Delete “{stage?.name}”</Dialog.Title>
           <Dialog.Description>
-            {stage?.leadCount
-              ? `${stage.leadCount} leads are in it. They move to the stage you choose; their history keeps the old one.`
+            {stage && stage.leadCount + stage.companyLeadCount
+              ? `${stage.leadCount + stage.companyLeadCount} leads are in it. They move to the stage you choose; their history keeps the old one.`
               : 'No leads are in it. Its history stays in reports.'}
           </Dialog.Description>
         </Dialog.Header>
-        {Boolean(stage?.leadCount) && (
+        {Boolean(stage && stage.leadCount + stage.companyLeadCount) && (
           <Select value={moveTo} onValueChange={setMoveTo}>
             <Select.Trigger>
               <Select.Value placeholder="Move them to" />
@@ -109,7 +111,7 @@ const RemoveDialog = ({ stage, stages, onClose }: { stage: LeadStage | null; sta
           <Button
             variant="destructive"
             disabled={remove.isPending}
-            onClick={() => remove.mutate({ id: stage!.id, moveTo: stage!.leadCount ? moveTo : undefined }, { onSuccess: onClose })}
+            onClick={() => remove.mutate({ id: stage!.id, moveTo: stage!.leadCount + stage!.companyLeadCount ? moveTo : undefined }, { onSuccess: onClose })}
           >
             {remove.isPending && <Spinner size="sm" />}
             Delete

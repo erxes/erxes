@@ -1,4 +1,5 @@
 import type { Company } from '@erxes/core-contract';
+import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
@@ -43,6 +44,12 @@ export const CompaniesCommandBar = () => {
             value={tagIds}
             onValueChange={(next) => tag.mutate({ ids: companyIds, ...tagChange(tagIds, next) })}
           />
+          {companies.every((company) => company.state === 'lead') && (
+            <>
+              <Separator.Inline />
+              <LeadsBulkActions recordType="company" leads={companies} />
+            </>
+          )}
           {manager && (
             <>
               <Separator.Inline />

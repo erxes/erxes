@@ -230,7 +230,7 @@ export const CustomerPanelDetail = ({
               <CustomerStateField customer={customer} />
             </PanelField>
           </ContactDetailSection>
-          <LeadPanelSection customer={customer} />
+          <LeadPanelSection recordType="customer" record={customer} />
           <ContactDetailSection title={sectionT('contact', 'Contact')} nested>
             <PanelField
               icon={IconMail}

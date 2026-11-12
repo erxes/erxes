@@ -24,6 +24,8 @@ import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
+import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/leads.service';
+import { customers } from '@erxes/core-db';
 
 type CompanyRow = Omit<typeof companies.$inferSelect, 'searchText'> & { tagIds: string[]; customFields: Record<string, CustomValue> };
 
@@ -45,6 +47,14 @@ export const toCompanyDto = (row: CompanyRow) => ({
   ownerId: row.ownerId,
   tagIds: row.tagIds,
   customFields: row.customFields,
+  state: row.state,
+  leadStageId: row.leadStageId,
+  leadStageChangedAt: row.leadStageChangedAt?.toISOString() ?? null,
+  disqualifyReason: row.disqualifyReason,
+  source: row.source,
+  sourceDetails: row.sourceDetails,
+  convertedAt: row.convertedAt?.toISOString() ?? null,
+  lastActivityAt: row.lastActivityAt.toISOString(),
   createdAt: row.createdAt.toISOString(),
   updatedAt: row.updatedAt.toISOString(),
 });
@@ -117,6 +127,8 @@ export const companyListWhere = async (
   actor: Actor,
   query: {
     search?: string;
+    state?: 'lead' | 'customer';
+    leadStageId?: string;
     ownerId?: string;
     tagIds?: string[];
     customerId?: string;
@@ -125,6 +137,14 @@ export const companyListWhere = async (
   },
 ) => {
   const filters: (SQL | undefined)[] = [await compileRecordFilter(client, actor, 'company', query.filter)];
+
+  if (query.state) {
+    filters.push(eq(companies.state, query.state));
+  }
+
+  if (query.leadStageId) {
+    filters.push(eq(companies.leadStageId, query.leadStageId));
+  }
 
   if (query.ownerId) {
     filters.push(eq(companies.ownerId, query.ownerId));
@@ -198,7 +218,7 @@ export const getCompany = async (client: Db, actor: Actor, id: string) =>
   toCompanyDto(await findCompany(client, actor.orgId, id, true));
 
 const scalarFields = (input: CompanyInput) => {
-  const { primaryName, names, primaryEmail, emails, primaryPhone, phones, tagIds, customFields, ...rest } = input;
+  const { primaryName, names, primaryEmail, emails, primaryPhone, phones, tagIds, customFields, leadStageId, disqualifyReason, source, sourceDetails, ...rest } = input;
 
   return rest;
 };
@@ -216,6 +236,7 @@ export const createCompany = async (
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'company', input.tagIds ?? []);
   const customFields = await applyCustomFields(client, actor.orgId, 'company', {}, input.customFields);
+  const lead = await planLeadOnCreate(client, userCaller(actor), { ...input, state: input.state ?? 'customer' });
 
   try {
     const id = await client.transaction(async (tx) => {
@@ -231,11 +252,13 @@ export const createCompany = async (
           emails: email.list,
           primaryPhone: phone.primary,
           phones: phone.list,
+          ...lead.set,
           createdBy: actor.userId,
         })
         .returning({ id: companies.id });
 
       await saveCustomFields(tx, actor.orgId, 'company', row!.id, customFields, Object.keys(customFields));
+      await recordLeadSteps(tx, userCaller(actor), 'company', row!.id, lead.steps);
       await setRecordTags(tx, actor.orgId, 'company', row!.id, tagIds);
       await contactCreated(tx, actor, 'company', await findCompany(tx, actor.orgId, row!.id));
 
@@ -300,18 +323,21 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
     input.customFields === undefined
       ? undefined
       : await applyCustomFields(client, actor.orgId, 'company', current.customFields, input.customFields);
+  const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
 
   try {
     await client.transaction(async (tx) => {
       const updated = await tx
         .update(companies)
-        .set({ ...scalarFields(input), ...changes, updatedAt: sql`now()` })
+        .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
         .where(inOrg(actor.orgId, id))
         .returning({ id: companies.id });
 
       if (!updated.length) {
         throw notFound('Company');
       }
+
+      await recordLeadSteps(tx, userCaller(actor), 'company', id, lead.steps);
 
       if (customFields) {
         await saveCustomFields(tx, actor.orgId, 'company', id, customFields, Object.keys(input.customFields ?? {}));
@@ -455,4 +481,35 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
 
     return toCompanyDto(merged);
   });
+};
+
+/** The company's people with their links: main contact first, then current, then former. */
+export const companyPeople = async (client: Db, actor: Actor, id: string) => {
+  const { linkDto, linkOrder } = await import('~/modules/customers/customers.service');
+
+  await findCompany(client, actor.orgId, id);
+
+  const rows = await client
+    .select({
+      id: customers.id,
+      firstName: customers.firstName,
+      lastName: customers.lastName,
+      primaryEmail: customers.primaryEmail,
+      primaryPhone: customers.primaryPhone,
+      avatarUrl: customers.avatarUrl,
+      state: customers.state,
+      role: customerCompanies.role,
+      isPrimaryContact: customerCompanies.isPrimaryContact,
+      endedAt: customerCompanies.endedAt,
+      createdAt: customerCompanies.createdAt,
+    })
+    .from(customerCompanies)
+    .innerJoin(customers, eq(customers.id, customerCompanies.customerId))
+    .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, id)))
+    .orderBy(...linkOrder)
+    .limit(500);
+
+  return {
+    data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...person }) => ({ ...person, link: linkDto({ role, isPrimaryContact, endedAt, createdAt }) })),
+  };
 };

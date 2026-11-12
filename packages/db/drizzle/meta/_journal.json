@@ -281,6 +281,13 @@
       "when": 1794460117871,
       "tag": "0039_lead_stages",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794462497424,
+      "tag": "0040_company_leads_and_links",
+      "breakpoints": true
     }
   ]
 }
