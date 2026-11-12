@@ -1,4 +1,4 @@
-import { paymentInvoices, withOrg, withSystem } from '@erxes/core-db';
+import { paymentInvoices, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { Router } from 'express';
 import { timingSafeEqual } from 'node:crypto';
@@ -30,7 +30,7 @@ paymentCallbackRouter.all('/payments/callback/:id', async (req, res) => {
       .limit(1),
   );
 
-  if (owner) await withOrg(owner.orgId, (tx) => refresh(tx, owner.orgId, id));
+  if (owner) await refresh(owner.orgId, id);
 
   res.status(200).json({ ok: true });
 });

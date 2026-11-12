@@ -1,5 +1,5 @@
 import { Invoice } from '@erxes/core-contract';
-import { type Db, paymentGateways, paymentInvoices } from '@erxes/core-db';
+import { type Db, paymentGateways, paymentInvoices, withOrg } from '@erxes/core-db';
 import { GATEWAY_REFUNDS } from '@erxes/payment-gateways';
 import { and, eq, sql } from 'drizzle-orm';
 import { createHmac, hkdfSync } from 'node:crypto';
@@ -96,7 +96,7 @@ const markPaid = async (
     .where(and(eq(paymentInvoices.id, invoice.id), eq(paymentInvoices.status, 'pending')))
     .returning();
 
-  if (!paid) return invoice;
+  if (!paid) return current(tx, invoice.id);
 
   await publishCoreEvents(tx, systemCaller(invoice.orgId), {
     type: 'core.payment.paid',
@@ -107,14 +107,15 @@ const markPaid = async (
   return paid;
 };
 
+/** Expired: once (a conditional update, like `markPaid`), then `core.payment.expired`. */
 const markExpired = async (tx: Db, invoice: InvoiceRow) => {
-  const expired = oneRow(
-    await tx
-      .update(paymentInvoices)
-      .set({ status: 'expired', updatedAt: sql`now()` })
-      .where(eq(paymentInvoices.id, invoice.id))
-      .returning(),
-  );
+  const [expired] = await tx
+    .update(paymentInvoices)
+    .set({ status: 'expired', updatedAt: sql`now()` })
+    .where(and(eq(paymentInvoices.id, invoice.id), eq(paymentInvoices.status, 'pending')))
+    .returning();
+
+  if (!expired) return current(tx, invoice.id);
 
   await publishCoreEvents(tx, systemCaller(invoice.orgId), {
     type: 'core.payment.expired',
@@ -125,22 +126,34 @@ const markExpired = async (tx: Db, invoice: InvoiceRow) => {
   return expired;
 };
 
-/** Asks the gateway about a pending invoice (row locked: one check at a time). */
-export const refresh = async (tx: Db, orgId: string, id: string) => {
+/** The invoice as stored now (after a conditional update found it already settled). */
+const current = async (tx: Db, id: string) =>
+  oneRow(await tx.select().from(paymentInvoices).where(eq(paymentInvoices.id, id)).limit(1));
+
+/** The organisation's invoice with its gateway. */
+export const invoiceWithGateway = async (tx: Db, orgId: string, id: string) => {
   const [row] = await tx
     .select({ invoice: paymentInvoices, gateway: paymentGateways })
     .from(paymentInvoices)
     .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
     .where(and(eq(paymentInvoices.orgId, orgId), eq(paymentInvoices.id, id)))
-    .for('update', { of: paymentInvoices })
     .limit(1);
 
   if (!row) throw notFound('Invoice');
 
-  const { invoice, gateway } = row;
+  return row;
+};
 
-  if (invoice.status !== 'pending' || !invoice.gatewayInvoiceId)
-    return { invoice, kind: gateway.kind };
+/**
+ * Asks the gateway about a pending invoice and records the answer. The call
+ * sits between two short scopes, so no transaction waits on the gateway, and
+ * marking paid or expired is conditional on the invoice still being pending:
+ * checks running at once settle it once. Call it outside any scope.
+ */
+export const refresh = async (orgId: string, id: string) => {
+  const { invoice, gateway } = await withOrg(orgId, (tx) => invoiceWithGateway(tx, orgId, id));
+
+  if (invoice.status !== 'pending' || !invoice.gatewayInvoiceId) return { invoice, gateway };
 
   const check = await driverOf(gateway).check(
     invoice.gatewayInvoiceId,
@@ -148,30 +161,31 @@ export const refresh = async (tx: Db, orgId: string, id: string) => {
     invoice.payment,
   );
 
-  if (check.paid)
-    return { invoice: await markPaid(tx, invoice, gateway.kind, check), kind: gateway.kind };
+  return withOrg(orgId, async (tx) => {
+    if (check.paid) return { invoice: await markPaid(tx, invoice, gateway.kind, check), gateway };
 
-  if (invoice.expiresAt.getTime() < Date.now())
-    return { invoice: await markExpired(tx, invoice), kind: gateway.kind };
+    if (invoice.expiresAt.getTime() < Date.now())
+      return { invoice: await markExpired(tx, invoice), gateway };
 
-  return { invoice, kind: gateway.kind };
+    return { invoice, gateway };
+  });
 };
 
-/** Background check of pending invoices (callbacks can be lost). */
+/** Background check of pending invoices (callbacks can be lost). Calls out: not atomic. */
 export const paymentCheckJob = defineJob({
   queue: 'payment.check',
-  atomic: true,
   payload: z.object({ invoiceId: z.string(), round: z.number() }),
-  async handle(job, tx) {
+  async handle(job) {
     const { invoiceId, round } = job.payload;
 
-    const { invoice } = await refresh(tx, job.orgId, invoiceId).catch((error: unknown) => {
+    const { invoice } = await refresh(job.orgId, invoiceId).catch((error: unknown) => {
       log.warn({ invoice: invoiceId, err: error }, 'could not check a pending invoice');
 
       return { invoice: null };
     });
 
-    if (invoice?.status === 'pending') await queueCheck(tx, invoice, round + 1);
+    if (invoice?.status === 'pending')
+      await withOrg(job.orgId, (tx) => queueCheck(tx, invoice, round + 1));
   },
 });
 
