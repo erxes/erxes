@@ -1,42 +1,34 @@
 import { useContext } from 'react';
 import { RecordTableTreeContext } from '../contexts/RecordTableTreeContext';
-import { useAtom } from 'jotai';
-import { recordTableTreeHideChildrenAtomFamily } from '../states/RecordTableTreeState';
 
-export const useRecordTableTreeContext = () => {
+/** Collapse state for the tree row at `order` ("a/b/c"; a child's order starts with its parent's). */
+export const useRecordTableTree = (order: string | undefined) => {
   const context = useContext(RecordTableTreeContext);
 
   if (!context) {
-    throw new Error('useRecordTableTreeContext must be used within a RecordTableTreeProvider');
+    throw new Error('useRecordTableTree must be used within a RecordTableTree');
   }
 
-  return context;
-};
+  const { ordered, length, collapse, setCollapse } = context;
+  const hidden = collapse.rowCount === length ? collapse.orders : [];
 
-export const useRecordTableTree = (order: string) => {
-  const { id, ordered } = useRecordTableTreeContext();
-  const [hideChildren, setHideChildren] = useAtom(recordTableTreeHideChildrenAtomFamily(id));
-
-  const toggleHideChildren = (order: string) => {
-    setHideChildren(
-      hideChildren.includes(order)
-        ? hideChildren.filter((child) => child !== order)
-        : [...hideChildren, order],
-    );
+  const toggleHideChildren = (parent: string) => {
+    setCollapse({
+      rowCount: length,
+      orders: hidden.includes(parent)
+        ? hidden.filter((other) => other !== parent)
+        : [...hidden, parent],
+    });
   };
 
-  const isHiddenByParent = hideChildren.some(
-    (e) => order?.startsWith(e) && order.length > e.length,
-  );
-
-  const isHidden = hideChildren.includes(order);
+  const isHiddenByParent =
+    order !== undefined &&
+    hidden.some((parent) => order.startsWith(parent) && order.length > parent.length);
 
   return {
-    id,
-    hideChildren,
     toggleHideChildren,
     ordered,
     isHiddenByParent,
-    isHidden,
+    isHidden: order !== undefined && hidden.includes(order),
   };
 };

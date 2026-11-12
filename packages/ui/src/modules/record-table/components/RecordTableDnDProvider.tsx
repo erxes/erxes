@@ -43,8 +43,8 @@ export const RecordTableDnDProvider = ({
 
     if (active && over && active.id !== over.id) {
       setColumnOrder((columnOrder) => {
-        const oldIndex = columnOrder.indexOf(active.id as string);
-        const newIndex = columnOrder.indexOf(over.id as string);
+        const oldIndex = columnOrder.indexOf(String(active.id));
+        const newIndex = columnOrder.indexOf(String(over.id));
 
         return arrayMove(columnOrder, oldIndex, newIndex);
       });

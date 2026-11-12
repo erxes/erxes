@@ -7,7 +7,7 @@ import { cn } from 'erxes-ui/lib/utils';
 
 export const RecordTableCell = React.forwardRef<
   HTMLTableCellElement,
-  React.HTMLAttributes<HTMLTableCellElement> & { cell: Cell<any, unknown> }
+  React.HTMLAttributes<HTMLTableCellElement> & { cell: Cell<unknown, unknown> }
 >(({ children, className, cell, style, ...props }, ref) => {
   const { column } = cell;
 

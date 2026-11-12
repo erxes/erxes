@@ -1,8 +1,9 @@
-import { isValidElement, type ReactNode } from 'react';
+import { isValidElement } from 'react';
 import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
 import { Button } from 'erxes-ui/components/button';
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import { Label } from 'erxes-ui/components/label';
+import { cn } from 'erxes-ui/lib/utils';
 import { useRecordTable } from './RecordTableProvider';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
@@ -22,25 +23,31 @@ import {
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
 import { IconSettings, IconGripVertical, IconPin, IconPinFilled } from '@tabler/icons-react';
-import type { Column } from '@tanstack/react-table';
+import { buildHeaderGroups, type Column, type Table } from '@tanstack/react-table';
 
-const getColumnLabel = (column: Column<any>): string => {
+/** The header text, or the `label` of an inline head component, or the column id. */
+const getColumnLabel = (column: Column<unknown>, table: Table<unknown>) => {
   const { header } = column.columnDef;
 
   if (typeof header === 'string') return header;
 
-  if (typeof header === 'function') {
-    try {
-      const headerNode = (header as () => ReactNode)();
+  if (typeof header !== 'function') return column.id;
 
-      if (isValidElement<{ label?: string }>(headerNode)) {
-        const inlineHeadLabel = headerNode.props?.label;
+  // Hidden columns have no header in the table, so one is built for the column alone.
+  const columnHeader = buildHeaderGroups(table.getAllColumns(), [column], table).at(-1)?.headers[0];
 
-        if (typeof inlineHeadLabel === 'string') return inlineHeadLabel;
-      }
-    } catch {
-      return column.id;
+  if (!columnHeader) return column.id;
+
+  try {
+    const headerNode: unknown = header(columnHeader.getContext());
+
+    if (isValidElement<{ label?: unknown }>(headerNode)) {
+      const { label } = headerNode.props;
+
+      if (typeof label === 'string') return label;
     }
+  } catch {
+    // A header that needs its context renders no label here.
   }
 
   return column.id;
@@ -48,9 +55,11 @@ const getColumnLabel = (column: Column<any>): string => {
 
 const SortableColumnItem = ({
   column,
+  label,
   isLastVisible,
 }: {
   column: Column<unknown>;
+  label: string;
   isLastVisible: boolean;
 }) => {
   const isPinned = !!column.getIsPinned();
@@ -69,9 +78,10 @@ const SortableColumnItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-2 px-2 py-1.5 hover:bg-muted/50 rounded-sm ${
-        isDragging && 'opacity-50 bg-muted'
-      }`}
+      className={cn(
+        'flex items-center gap-2 px-2 py-1.5 hover:bg-muted/50 rounded-sm',
+        isDragging && 'opacity-50 bg-muted',
+      )}
     >
       <div
         {...attributes}
@@ -95,7 +105,7 @@ const SortableColumnItem = ({
         htmlFor={`col-visibility-${column.id}`}
         className="cursor-pointer select-none font-normal truncate w-full"
       >
-        {getColumnLabel(column)}
+        {label}
       </Label>
 
       <Button
@@ -143,8 +153,8 @@ export const RecordTableColumnSelector = ({
 
     if (active && over && active.id !== over.id) {
       const currentOrder = table.getState().columnOrder;
-      const oldIndex = currentOrder.indexOf(active.id as string);
-      const newIndex = currentOrder.indexOf(over.id as string);
+      const oldIndex = currentOrder.indexOf(String(active.id));
+      const newIndex = currentOrder.indexOf(String(over.id));
       table.setColumnOrder(arrayMove(currentOrder, oldIndex, newIndex));
     }
   };
@@ -180,7 +190,8 @@ export const RecordTableColumnSelector = ({
               <SortableColumnItem
                 key={column.id}
                 column={column}
-                isLastVisible={visibleColumns.length === 1 && visibleColumns[0].id === column.id}
+                label={getColumnLabel(column, table)}
+                isLastVisible={visibleColumns.length === 1 && visibleColumns[0]?.id === column.id}
               />
             ))}
           </SortableContext>

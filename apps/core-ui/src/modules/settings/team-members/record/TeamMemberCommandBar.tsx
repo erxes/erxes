@@ -1,6 +1,5 @@
 import type { User } from '@erxes/core-contract';
 import { IconRepeat, IconToggleLeft } from '@tabler/icons-react';
-import type { Row } from '@tanstack/react-table';
 import {
   Button,
   Command,
@@ -78,7 +77,7 @@ export const TeamMemberCommandBar = () => {
   const can = useCan();
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const teamMembers = selectedRows.map((row: Row<User>) => row.original);
+  const teamMembers = selectedRows.map((row) => row.original as User);
 
   return (
     <CommandBar open={selectedRows.length > 0}>

@@ -1,31 +1,33 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import type { ColumnDef, Row, Table } from '@tanstack/react-table';
 
-const dragSelection = {
-  owner: null as Table<unknown> | null,
-  selecting: false,
-  suppressClickOn: null as { table: Table<unknown>; rowId: string } | null,
-};
+/** A shift-drag across checkboxes selects (or clears) every row it passes, in one table. */
+const dragSelection: {
+  table: Table<unknown> | null;
+  selecting: boolean;
+  suppressClickOn: { table: Table<unknown>; rowId: string } | null;
+} = { table: null, selecting: false, suppressClickOn: null };
 
 const DRAG_END_EVENTS = ['pointerup', 'pointercancel', 'blur'] as const;
 
 const endDragSelection = () => {
-  dragSelection.owner = null;
+  dragSelection.table = null;
   document.body.style.userSelect = '';
   DRAG_END_EVENTS.forEach((event) => window.removeEventListener(event, endDragSelection));
 };
 
-const startDragSelection = <TData,>(selecting: boolean, row: Row<TData>, table: Table<TData>) => {
-  const owner = table as unknown as Table<unknown>;
-  dragSelection.owner = owner;
+const startDragSelection = (selecting: boolean, row: Row<unknown>, table: Table<unknown>) => {
+  dragSelection.table = table;
   dragSelection.selecting = selecting;
-  dragSelection.suppressClickOn = { table: owner, rowId: row.id };
+  dragSelection.suppressClickOn = { table, rowId: row.id };
   document.body.style.userSelect = 'none';
   DRAG_END_EVENTS.forEach((event) => window.addEventListener(event, endDragSelection));
 };
 
-const CheckboxCell = <TData,>({ row, table }: { row: Row<TData>; table: Table<TData> }) => (
+const CheckboxCell = ({ row, table }: { row: Row<unknown>; table: Table<unknown> }) => (
+  // The checkbox is the control; the cell only extends shift-drag selection across rows.
   <div
+    role="presentation"
     className="flex items-center justify-center size-full"
     onPointerDown={(event) => {
       dragSelection.suppressClickOn = null;
@@ -40,7 +42,7 @@ const CheckboxCell = <TData,>({ row, table }: { row: Row<TData>; table: Table<TD
       row.toggleSelected(selecting);
     }}
     onPointerEnter={(event) => {
-      if (dragSelection.owner !== (table as unknown as Table<unknown>) || event.buttons !== 1) {
+      if (dragSelection.table !== table || event.buttons !== 1) {
         return;
       }
 
@@ -49,10 +51,7 @@ const CheckboxCell = <TData,>({ row, table }: { row: Row<TData>; table: Table<TD
     onClickCapture={(event) => {
       const suppressed = dragSelection.suppressClickOn;
 
-      if (
-        suppressed?.table !== (table as unknown as Table<unknown>) ||
-        suppressed.rowId !== row.id
-      ) {
+      if (suppressed?.table !== table || suppressed.rowId !== row.id) {
         return;
       }
 
@@ -68,7 +67,7 @@ const CheckboxCell = <TData,>({ row, table }: { row: Row<TData>; table: Table<TD
   </div>
 );
 
-export const checkboxColumn: ColumnDef<any> = {
+export const checkboxColumn: ColumnDef<unknown> = {
   accessorKey: 'checkbox',
   id: 'checkbox',
   header: ({ table }) => {
