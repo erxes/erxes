@@ -12,6 +12,15 @@ on:
         default: '1000000'
   schedule:
     - cron: '41 4 * * 0'
+  # Manual runs only work once this file is on the default branch; until then
+  # (and whenever filter code changes) it runs on pushes to the branch.
+  push:
+    branches: [postgre]
+    paths:
+      - .github/workflows/bench.yml
+      - apps/core-api/scripts/bench-filters.ts
+      - apps/core-api/src/modules/views/recordFilter.ts
+      - packages/db/drizzle/**
 
 permissions:
   contents: read
