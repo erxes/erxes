@@ -1,0 +1,1 @@
+CREATE INDEX "core_automation_runs_prunable_idx" ON "core_automation_runs" USING btree ("finished_at") WHERE "core_automation_runs"."status" IN ('succeeded', 'failed', 'cancelled') AND "core_automation_runs"."context" <> '{}'::jsonb;

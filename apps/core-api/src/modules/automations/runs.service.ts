@@ -203,8 +203,8 @@ export const pruneRunDetails = async (client: Db, days: number) => {
     with old as (
       select r.id from ${automationRuns} r
       where r.status in ('succeeded', 'failed', 'cancelled')
+        and r.context <> '{}'::jsonb
         and r.finished_at < now() - make_interval(days => ${days})
-        and (r.context <> '{}'::jsonb or exists (select 1 from ${automationRunSteps} s where s.run_id = r.id))
       limit 1000
     ),
     steps as (delete from ${automationRunSteps} s using old where s.run_id = old.id)
