@@ -12,9 +12,23 @@ import {
 } from 'drizzle-orm/pg-core';
 import { ACTOR_TYPES } from './platform';
 import { pgTable } from '../table';
+import type { CustomValue } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
+
+/** A row as `trash.snapshot` keeps it: its Drizzle keys, dates as ISO strings once stored. */
+type SnapshotRow = { id: string } & Record<string, unknown>;
+
+/** What went to the bin with a record. */
+export interface TrashSnapshot {
+  /** The customer or company row, with its `customFields` values. */
+  row: SnapshotRow & { customFields?: Record<string, CustomValue> };
+  tagIds: string[];
+  links: { customerId: string; companyId: string }[];
+  /** Its timeline entries (`core_activities` rows). */
+  activities: SnapshotRow[];
+}
 
 /**
  * The recycle bin: deleted customers and companies, with everything that went
@@ -31,7 +45,7 @@ export const trash = pgTable(
     /** Its name at deletion, for the bin's list. */
     label: text(),
     /** The row, its tags and links, and its timeline entries. */
-    snapshot: jsonb().$type<Record<string, unknown>>().notNull(),
+    snapshot: jsonb().$type<TrashSnapshot>().notNull(),
     deletedByType: text({ enum: ACTOR_TYPES }).notNull(),
     deletedBy: text(),
     deletedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),

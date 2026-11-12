@@ -1,28 +1,35 @@
 import { type Db, jobs, newId, type Transaction, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
+import type { z } from 'zod';
 import { log } from '~/lib/log';
 import { liveHub } from '~/modules/live/hub';
 
 export type JobRow = typeof jobs.$inferSelect;
 
-/**
- * A kind of background work. `handle` throws to retry. With `atomic`, it runs
- * in the organisation's transaction together with marking the job done (its
- * database effects and the completion commit as one); without, it runs
- * outside any transaction (HTTP calls) and must be idempotent — a job is
- * delivered at least once.
- */
-export interface JobDefinition {
+interface JobOptions {
   queue: string;
-  atomic?: boolean;
   /** How long a worker may hold the job before another takes it (seconds). */
   leaseSeconds?: number;
   /** Seconds to wait before attempt `attempt + 1`. */
   backoff?: (attempt: number) => number;
-  handle: (job: JobRow, tx: Transaction | null) => Promise<void>;
-  /** After the last attempt failed (in the organisation's own transaction). */
-  onDead?: (job: JobRow, error: string, tx: Transaction) => Promise<void>;
 }
+
+/**
+ * A kind of background work. `handle` throws to retry. An `atomic` job runs in
+ * the organisation's transaction together with marking it done (its database
+ * effects and the completion commit as one). Any other job runs outside a
+ * transaction (HTTP calls) and must be idempotent: a job is delivered at least once.
+ */
+type Handler<J> =
+  | { atomic: true; handle: (job: J, tx: Transaction) => Promise<void> }
+  | { atomic?: false; handle: (job: J) => Promise<void> };
+
+interface DeadHook<J> {
+  /** After the last attempt failed (in the organisation's own transaction). */
+  onDead?: (job: J, error: string, tx: Transaction) => Promise<void>;
+}
+
+export type JobDefinition = JobOptions & Handler<JobRow> & DeadHook<JobRow>;
 
 export interface EnqueueInput {
   orgId: string;
@@ -54,17 +61,57 @@ export const enqueueJob = async (client: Db, input: EnqueueInput): Promise<strin
   return row?.id ?? null;
 };
 
+type PayloadJob<P> = Omit<JobRow, 'payload'> & { payload: P };
+
+/**
+ * A job whose payload `handle` and `onDead` get parsed by `payload` (a payload
+ * that doesn't parse fails the attempt), with `enqueue` typed to match.
+ */
+export const defineJob = <S extends z.ZodType<Record<string, unknown>>>(
+  definition: JobOptions & { payload: S } & Handler<PayloadJob<z.output<S>>> &
+    DeadHook<PayloadJob<z.output<S>>>,
+) => {
+  const { payload: schema, onDead } = definition;
+  const parsed = (row: JobRow) => ({ ...row, payload: schema.parse(row.payload) });
+
+  const options = {
+    queue: definition.queue,
+    leaseSeconds: definition.leaseSeconds,
+    backoff: definition.backoff,
+    onDead:
+      onDead && ((row: JobRow, error: string, tx: Transaction) => onDead(parsed(row), error, tx)),
+  };
+
+  const job: JobDefinition = definition.atomic
+    ? { ...options, atomic: true, handle: (row, tx) => definition.handle(parsed(row), tx) }
+    : { ...options, handle: (row) => definition.handle(parsed(row)) };
+
+  return {
+    ...job,
+    enqueue: (
+      client: Db,
+      input: Omit<EnqueueInput, 'queue' | 'payload'> & { payload: z.input<S> },
+    ) => enqueueJob(client, { ...input, queue: definition.queue }),
+  };
+};
+
 /** 30 s, 2 min, 8 min … capped at 6 hours, with jitter. */
 export const defaultBackoff = (attempt: number) =>
   Math.min(6 * 3600, 30 * 4 ** (attempt - 1)) * (0.8 + Math.random() * 0.4);
 
-const describe = (error: unknown) => {
+/** An error's message and up to three of its causes, for `lastError` columns. */
+export const describeError = (error: unknown) => {
   const parts: string[] = [];
-  let current: unknown = error;
+  let current = error;
 
   for (let depth = 0; current && depth < 4; depth += 1) {
-    parts.push(current instanceof Error ? current.message : String(current));
-    current = current instanceof Error ? current.cause : undefined;
+    if (current instanceof Error) {
+      parts.push(current.message);
+      current = current.cause;
+    } else {
+      parts.push(typeof current === 'string' ? current : JSON.stringify(current));
+      current = undefined;
+    }
   }
 
   return parts.join(' — ').slice(0, 2000);
@@ -73,7 +120,7 @@ const describe = (error: unknown) => {
 /** Claims due jobs (and ones whose worker died) for these queues. */
 const claim = (queues: Map<string, JobDefinition>, limit: number) =>
   withSystem('jobs: claim', async (tx) => {
-    const names = [...queues.keys()];
+    const definitions = [...queues.values()];
 
     const result = await tx.execute<{ id: string }>(sql`
       update ${jobs} j set
@@ -81,14 +128,16 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
         attempts = j.attempts + 1,
         locked_until = now() + make_interval(secs => case j.queue
           ${sql.join(
-            names.map((name) => sql`when ${name} then ${queues.get(name)!.leaseSeconds ?? 120}`),
+            definitions.map(
+              (definition) => sql`when ${definition.queue} then ${definition.leaseSeconds ?? 120}`,
+            ),
             sql` `,
           )} else 120 end),
         updated_at = now()
       where j.id in (
         select id from ${jobs}
         where queue in (${sql.join(
-          names.map((name) => sql`${name}`),
+          definitions.map((definition) => sql`${definition.queue}`),
           sql`, `,
         )})
           and ((status = 'queued' and run_at <= now()) or (status = 'running' and locked_until < now()))
@@ -113,7 +162,7 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
   });
 
 const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
-  const message = describe(error);
+  const message = describeError(error);
   const dead = job.attempts >= job.maxAttempts;
   const delay = (definition.backoff ?? defaultBackoff)(job.attempts);
 
@@ -145,10 +194,11 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
       .where(and(eq(jobs.id, job.id), eq(jobs.status, 'running'))),
   );
 
-  if (dead && definition.onDead) {
-    await withOrg(job.orgId, (tx) => definition.onDead!(job, message, tx)).catch(
-      (hookError: unknown) =>
-        log.error('job onDead failed', { queue: job.queue, job: job.id, error: hookError }),
+  const { onDead } = definition;
+
+  if (dead && onDead) {
+    await withOrg(job.orgId, (tx) => onDead(job, message, tx)).catch((hookError: unknown) =>
+      log.error('job onDead failed', { queue: job.queue, job: job.id, error: hookError }),
     );
   }
 };
@@ -162,7 +212,7 @@ export const runJob = async (definition: JobDefinition, job: JobRow) => {
         await tx.delete(jobs).where(eq(jobs.id, job.id));
       });
     } else {
-      await definition.handle(job, null);
+      await definition.handle(job);
       await withOrg(job.orgId, (tx) => tx.delete(jobs).where(eq(jobs.id, job.id)));
     }
   } catch (error) {
@@ -180,7 +230,13 @@ export const processJobs = async (definitions: JobDefinition[], concurrency = 5)
 
     if (!claimed.length) break;
 
-    await Promise.all(claimed.map((job) => runJob(queues.get(job.queue)!, job)));
+    await Promise.all(
+      claimed.flatMap((job) => {
+        const definition = queues.get(job.queue);
+
+        return definition ? [runJob(definition, job)] : [];
+      }),
+    );
     handled += claimed.length;
   }
 

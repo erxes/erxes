@@ -1,32 +1,12 @@
-import {
-  type Db,
-  deletionCounters,
-  pluginInstallations,
-  roles,
-  users,
-  withOrgDetached,
-} from '@erxes/core-db';
+import { type Db, deletionCounters, pluginInstallations, withOrgDetached } from '@erxes/core-db';
 import { and, eq, gte, sql } from 'drizzle-orm';
-import type { Caller } from '~/http/auth';
+import { config } from '~/config';
+import { type Caller, systemCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { log } from '~/lib/log';
+import { ownerIds } from '~/modules/audit/alerts';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { notify } from '~/modules/notifications/notifications.service';
-
-/** Deletions by one member or plugin in 5 minutes before owners are told … */
-export const ALERT_AT = Number(process.env.MASS_DELETE_ALERT ?? 100);
-
-/** … and before they are stopped: members refused, plugins suspended. Owners aren't limited. */
-export const STOP_AT = Number(process.env.MASS_DELETE_LIMIT ?? 500);
-
-const owners = async (tx: Db, orgId: string) =>
-  (
-    await tx
-      .select({ id: users.id })
-      .from(users)
-      .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(and(eq(users.orgId, orgId), eq(users.role, 'owner'), eq(users.status, 'active')))
-  ).map((row) => row.id);
 
 /**
  * Counts deletions by whoever is calling and stops a runaway: a stolen token,
@@ -45,7 +25,8 @@ export const guardDeletions = async (
 ) => {
   if (count <= 0 || actorRole === 'owner') return;
 
-  const actor = `${caller.actorType}:${caller.actorId ?? 'system'}`;
+  const actorId = caller.actorId ?? 'system';
+  const actor = `${caller.actorType}:${actorId}`;
   const bucket = sql`date_bin('5 minutes', now(), timestamptz '2000-01-01')`;
 
   await tx
@@ -68,22 +49,17 @@ export const guardDeletions = async (
       ),
     );
 
-  if (total < ALERT_AT) return;
+  if (total < config.massDelete.alertAt) return;
 
   const who = caller.actorType === 'plugin' ? `The ${caller.actorId} plugin` : 'A team member';
-  const stop = total >= STOP_AT;
+  const stop = total >= config.massDelete.stopAt;
 
   const report = async (db: Db) => {
-    const recipients = await owners(db, caller.orgId);
+    const recipients = await ownerIds(db, caller.orgId);
 
     await notify(
       db,
-      {
-        orgId: caller.orgId,
-        actorType: 'system',
-        actorId: null,
-        source: 'core',
-      } as unknown as Caller,
+      systemCaller(caller.orgId),
       {
         userIds: recipients,
         kind: 'core.security.mass_deletion',
@@ -97,7 +73,7 @@ export const guardDeletions = async (
           : 'Deleted records stay in the recycle bin for 30 days.',
         link: '/settings/recycle-bin',
         priority: 'high',
-        entity: { type: caller.actorType, id: caller.actorId ?? 'system' },
+        entity: { type: caller.actorType, id: actorId },
         data: { actor, total },
         dedupeKey: `mass-deletion:${actor}:${stop ? 'stop' : 'alert'}:${new Date().toISOString().slice(0, 15)}`,
       },
@@ -115,11 +91,11 @@ export const guardDeletions = async (
     await report(own);
     await recordAudit(
       own,
-      { orgId: caller.orgId, actorType: 'system', actorId: null },
+      systemCaller(caller.orgId),
       {
         action: 'security.mass_deletion_stopped',
         targetType: caller.actorType,
-        targetId: caller.actorId,
+        targetId: actorId,
         metadata: { total, what },
       },
     );
@@ -135,7 +111,7 @@ export const guardDeletions = async (
         .where(
           and(
             eq(pluginInstallations.orgId, caller.orgId),
-            eq(pluginInstallations.plugin, caller.actorId ?? ''),
+            eq(pluginInstallations.plugin, actorId),
           ),
         );
       log.warn('plugin suspended after mass deletion', {

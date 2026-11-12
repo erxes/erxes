@@ -1,3 +1,4 @@
+import type { ConditionGroup, View } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
 import { boolean, check, foreignKey, index, jsonb, text } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
@@ -19,11 +20,11 @@ export const views = pgTable(
     orgId: text().notNull(),
     recordType: text({ enum: VIEW_RECORD_TYPES }).notNull(),
     name: text().notNull(),
-    filter: jsonb().$type<Record<string, unknown> | null>(),
+    filter: jsonb().$type<ConditionGroup>(),
     search: text(),
     /** Column ids in order; null: the list's default columns. */
-    columns: jsonb().$type<string[] | null>(),
-    sort: jsonb().$type<{ field: string; direction: 'asc' | 'desc' } | null>(),
+    columns: jsonb().$type<string[]>(),
+    sort: jsonb().$type<NonNullable<View['sort']>>(),
     shared: boolean().default(false).notNull(),
     createdBy: text().notNull(),
     createdAt: createdAt(),

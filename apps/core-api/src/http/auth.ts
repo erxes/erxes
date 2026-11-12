@@ -60,14 +60,13 @@ export interface PluginService {
 
 /**
  * Whoever is calling, as recorded in audit, activity and notifications:
- * a team member or a plugin. `source` is `core` for members, else the plugin.
+ * a team member, a plugin, or core itself (automations, payments). `source` is
+ * `core` for members and core, else the plugin.
  */
-export interface Caller {
-  orgId: string;
-  actorType: 'user' | 'plugin';
-  actorId: string;
-  source: string;
-}
+export type Caller = { orgId: string; source: string } & (
+  | { actorType: 'user' | 'plugin'; actorId: string }
+  | { actorType: 'system'; actorId: null }
+);
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -94,6 +93,14 @@ export const pluginCaller = (plugin: Pick<PluginCaller, 'plugin' | 'orgId'>): Ca
   actorType: 'plugin',
   actorId: plugin.plugin,
   source: plugin.plugin,
+});
+
+/** Core acting on its own: no member or plugin caused it. */
+export const systemCaller = (orgId: string): Caller => ({
+  orgId,
+  actorType: 'system',
+  actorId: null,
+  source: 'core',
 });
 
 interface AccessClaims {

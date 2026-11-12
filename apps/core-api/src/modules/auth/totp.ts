@@ -1,86 +1,31 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { Secret, TOTP } from 'otpauth';
 
-/** RFC 6238 time-based codes (what Google Authenticator, 1Password, Authy show): SHA-1, 30 s, 6 digits. */
+/**
+ * RFC 6238 codes as authenticator apps show them (SHA-1, 30 s, 6 digits). Secrets are stored
+ * as unpadded base32 of 20 random bytes.
+ */
+const PERIOD = 30;
 
-const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+const totpOf = (secret: string) =>
+  new TOTP({ secret: Secret.fromBase32(secret), algorithm: 'SHA1', digits: 6, period: PERIOD });
 
-export const base32Encode = (buffer: Buffer) => {
-  let bits = 0;
-  let value = 0;
-  let output = '';
+export const newTotpSecret = () => new Secret({ size: 20 }).base32;
 
-  for (const byte of buffer) {
-    value = (value << 8) | byte;
-    bits += 8;
+export const currentStep = (now = Date.now()) => TOTP.counter({ period: PERIOD, timestamp: now });
 
-    while (bits >= 5) {
-      output += ALPHABET[(value >>> (bits - 5)) & 31];
-      bits -= 5;
-    }
-  }
-
-  if (bits > 0) output += ALPHABET[(value << (5 - bits)) & 31];
-
-  return output;
-};
-
-export const base32Decode = (text: string) => {
-  const clean = text.replace(/=+$/, '').toUpperCase();
-  let bits = 0;
-  let value = 0;
-  const bytes: number[] = [];
-
-  for (const char of clean) {
-    const index = ALPHABET.indexOf(char);
-
-    if (index < 0) throw new Error('not base32');
-
-    value = (value << 5) | index;
-    bits += 5;
-
-    if (bits >= 8) {
-      bytes.push((value >>> (bits - 8)) & 255);
-      bits -= 8;
-    }
-  }
-
-  return Buffer.from(bytes);
-};
-
-export const newTotpSecret = () => base32Encode(randomBytes(20));
-
-export const STEP_SECONDS = 30;
-
-export const currentStep = (now = Date.now()) => Math.floor(now / 1000 / STEP_SECONDS);
-
-export const codeAt = (secret: string, step: number) => {
-  const counter = Buffer.alloc(8);
-
-  counter.writeBigUInt64BE(BigInt(step));
-
-  const digest = createHmac('sha1', base32Decode(secret)).update(counter).digest();
-  const offset = digest[digest.length - 1]! & 15;
-  const binary = digest.readUInt32BE(offset) & 0x7fffffff;
-
-  return String(binary % 1_000_000).padStart(6, '0');
-};
+export const codeAt = (secret: string, step: number) =>
+  totpOf(secret).generate({ timestamp: step * PERIOD * 1000 });
 
 /**
  * The step a code belongs to (this one, or one either side for clock drift),
  * or null. Callers refuse steps at or before the last one used: a code works once.
  */
 export const matchStep = (secret: string, code: string, now = Date.now()) => {
-  const step = currentStep(now);
+  const delta = totpOf(secret).validate({ token: code, timestamp: now, window: 1 });
 
-  for (const candidate of [step, step - 1, step + 1]) {
-    const expected = Buffer.from(codeAt(secret, candidate));
-    const given = Buffer.from(code.padStart(6, '0').slice(0, 6));
-
-    if (timingSafeEqual(expected, given)) return candidate;
-  }
-
-  return null;
+  return delta === null ? null : currentStep(now) + delta;
 };
 
+/** The label and issuer authenticator apps show; the label carries the issuer prefix too. */
 export const otpauthUri = (secret: string, account: string, issuer = 'erxes') =>
-  `otpauth://totp/${encodeURIComponent(`${issuer}:${account}`)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=${STEP_SECONDS}`;
+  `otpauth://totp/${encodeURIComponent(`${issuer}:${account}`)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=${PERIOD}`;

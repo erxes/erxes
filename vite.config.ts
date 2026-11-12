@@ -7,7 +7,8 @@ import type { Reporter, Vitest } from 'vite-plus/test/node';
 const routerBuilder = {
   name: '@orpc/server',
   importNames: ['implement', 'os'],
-  message: 'Implement procedures in apps/core-api/src/router.ts, from the contract.',
+  message:
+    'Build procedures with the builders from apps/core-api/src/orpc.ts, in modules/<feature>/<feature>.router.ts.',
 };
 
 // Decisions recorded as bans: each message says what to use instead.
@@ -200,8 +201,13 @@ export default defineConfig({
       'no-var': 'error',
       // No TODO/FIXME/XXX left in code: finish it or don't write it.
       'no-warning-comments': 'error',
-      // Big files are where agents pile up unrelated code. Split by responsibility.
-      'max-lines': ['error', { max: 500, skipBlankLines: true, skipComments: true }],
+      // Big files are where agents pile up unrelated code, and every agent reads a file whole.
+      // Split by responsibility (a feature's router, service, queries), not into part1/part2.
+      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': [
+        'error',
+        { max: 80, skipBlankLines: true, skipComments: true, IIFEs: true },
+      ],
       // Settings are read once, validated, in apps/core-api/src/config.ts.
       'node/no-process-env': 'error',
       // noImplicitReturns in tsconfig.base.json checks this with types, so exhaustive switches pass.
@@ -273,8 +279,14 @@ export default defineConfig({
         rules: { 'no-console': ['error', { allow: ['warn', 'error'] }] },
       },
       {
-        files: ['apps/core-api/src/router.ts'],
+        // The one place that implements the contract; feature routers import its builders.
+        files: ['apps/core-api/src/orpc.ts'],
         rules: { 'no-restricted-imports': 'off' },
+      },
+      {
+        // A test file's describe callback holds all its cases; max-lines still bounds the file.
+        files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
+        rules: { 'max-lines-per-function': 'off' },
       },
       {
         // Tools load these through their default export.
