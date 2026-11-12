@@ -18,6 +18,7 @@ export const useContactsOverview = () => {
       staleTime: STALE_TIME,
     }),
   );
+
   const leads = useQuery(
     orpc.customers.list.queryOptions({
       input: { limit: 1, state: 'lead' },
@@ -25,9 +26,11 @@ export const useContactsOverview = () => {
       staleTime: STALE_TIME,
     }),
   );
+
   const companies = useQuery(
     orpc.companies.list.queryOptions({ input: { limit: 1 }, select: count, staleTime: STALE_TIME }),
   );
+
   const users = useQuery(
     orpc.users.list.queryOptions({
       input: { limit: 1, status: 'active' },

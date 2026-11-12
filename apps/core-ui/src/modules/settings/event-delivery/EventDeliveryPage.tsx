@@ -173,6 +173,7 @@ const StatusFilter = ({
   onChange: (status: (typeof STATUSES)[number]) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'event-delivery' });
+
   const labels = {
     all: t('all', 'All'),
     retrying: t('retrying', {

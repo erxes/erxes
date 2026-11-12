@@ -81,11 +81,13 @@ export const useCursorList = <T extends { id: string }>({
   ) => UseInfiniteQueryOptions<CursorPage<T>, Error, CursorCache<T>, QueryKey, CursorParams>;
 }) => {
   const filtersKey = JSON.stringify(filters);
+
   const [opened, setOpened] = useState(() => ({
     sessionKey,
     filtersKey,
     start: rememberedStart(sessionKey, filtersKey),
   }));
+
   let { start } = opened;
 
   // Other filters (or another list) start from the top.
@@ -106,6 +108,7 @@ export const useCursorList = <T extends { id: string }>({
   }, [sessionKey, filtersKey]);
 
   const forward = forwardPaging(limit);
+
   const query = useInfiniteQuery(
     options({
       initialPageParam: start

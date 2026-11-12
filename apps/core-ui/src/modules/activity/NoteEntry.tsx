@@ -212,10 +212,12 @@ export const NoteItem = ({
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const [editing, setEditing] = useState(false);
+
   const member =
     activity.actor.type === 'user' && activity.actor.id
       ? lookups.members.get(activity.actor.id)
       : undefined;
+
   const hasReactions = Object.keys(activity.reactions).length > 0;
 
   return (

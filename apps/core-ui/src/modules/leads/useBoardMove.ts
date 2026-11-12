@@ -52,6 +52,7 @@ const withLead = (cache: BoardCache, moved: BoardLead): BoardCache => {
     ...page,
     totalCount: index === 0 ? page.totalCount + 1 : page.totalCount,
   }));
+
   const last = pages.at(-1);
   const oldest = last?.data.at(-1);
 
@@ -132,6 +133,7 @@ export const useBoardMove = (recordType: LeadRecordType) => {
 
       return !stageId || stages.includes(stageId);
     };
+
     const detail = recordType === 'company' ? orpc.companies.get : orpc.customers.get;
 
     return Promise.all([

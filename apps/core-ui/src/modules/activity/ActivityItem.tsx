@@ -127,9 +127,11 @@ const EventItem = ({
   const catalog = useActivityTypes();
   const plugin = activity.source !== 'core';
   const look = plugin ? catalog.data?.types.find((item) => item.type === activity.type) : undefined;
+
   const ItemIcon = plugin
     ? (look?.icon && PLUGIN_ICONS[look.icon]) || IconPlug
     : (ICONS[verbOf(activity)] ?? IconHistory);
+
   const changes = plugin ? null : readChanges(activity);
 
   return (

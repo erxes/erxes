@@ -98,6 +98,7 @@ const useBuilder = (catalog: Catalog, definition: AutomationDefinition, automati
   const stats = useQuery(
     orpc.automations.stats.queryOptions({ input: { id: automationId }, refetchInterval: 15_000 }),
   );
+
   const { subject, hasSubject } = subjectOf(definition.trigger, catalog.triggers);
   const { fields, error: fieldsError } = useAutomationFields(hasSubject ? subject : null);
 
@@ -140,11 +141,13 @@ const AutomationEditor = ({
   const [selected, setSelected] = useState<Selection>('settings');
   const [zoom, setZoom] = useState(1);
   const [serverProblems, setServerProblems] = useState<string[]>([]);
+
   const mutations = useAutomationMutations(automation.id, (list) => {
     setServerProblems(list);
 
     if (list.length) setSelected('settings');
   });
+
   const built = useBuilder(catalog, definition, automation.id);
   const { stats, subject, hasSubject, fields, actions, problems } = built;
   const problemCount = [...problems.values()].reduce((sum, list) => sum + list.length, 0);

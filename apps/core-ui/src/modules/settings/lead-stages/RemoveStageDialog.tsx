@@ -19,6 +19,7 @@ const RemoveStageForm = ({
   const { remove } = useLeadStageMutations();
   const others = stages.filter((item) => item.id !== stage.id);
   const inUse = stage.leadCount + stage.companyLeadCount;
+
   const [moveTo, setMoveTo] = useState(
     () => others.find((item) => item.kind === stage.kind)?.id ?? others[0]?.id ?? '',
   );

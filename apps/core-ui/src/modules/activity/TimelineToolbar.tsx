@@ -92,6 +92,7 @@ const FilterSelects = ({ filters, onChange, members, sources }: FiltersProps) =>
 const FilterPopover = (props: FiltersProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const { filters, onChange, canIncludeRelated } = props;
+
   const count =
     (filters.actorId !== 'all' ? 1 : 0) +
     (filters.source !== 'all' ? 1 : 0) +

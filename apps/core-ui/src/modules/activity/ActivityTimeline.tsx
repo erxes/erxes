@@ -200,11 +200,13 @@ export const ActivityTimeline = ({
   const now = useMinuteClock();
   const q = useDeferredValue(search?.trim() ?? '');
   const catalog = useActivityTypes();
+
   const sources = [
     ...new Set(
       (catalog.data?.types ?? []).map((item) => item.source).filter((name) => name !== 'core'),
     ),
   ];
+
   const timeline = useActivities(targetType, targetId, {
     kind: filters.kind,
     includeRelated: filters.includeRelated,
@@ -212,6 +214,7 @@ export const ActivityTimeline = ({
     actorId: filters.actorId === 'all' ? undefined : filters.actorId,
     source: filters.source === 'all' ? undefined : filters.source,
   });
+
   const pinned = usePinnedNotes(targetType, targetId);
   const { add } = useNoteActions();
   const lookups = useTimelineLookups(targetType, [...(pinned.data ?? []), ...timeline.activities]);

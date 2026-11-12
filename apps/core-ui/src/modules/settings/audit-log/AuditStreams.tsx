@@ -38,6 +38,7 @@ const useStreamActions = () => {
   const toggle = useMutation(
     orpc.audit.updateStream.mutationOptions({ onSuccess: refresh, onError }),
   );
+
   const remove = useMutation(
     orpc.audit.removeStream.mutationOptions({ onSuccess: refresh, onError }),
   );

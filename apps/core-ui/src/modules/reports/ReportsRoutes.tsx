@@ -8,10 +8,10 @@ import {
   Sidebar,
   Skeleton,
   useQueryState,
+  PageHeader,
 } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { messageOf } from '~/lib/api';
 import {

@@ -124,6 +124,7 @@ const useContactOptions = (
 ) => {
   const input = { limit: 20, search: search || undefined, ids: ids?.join(',') };
   const enabled = !ids || ids.length > 0;
+
   const customers = useQuery(
     orpc.customers.list.queryOptions({
       input,
@@ -137,6 +138,7 @@ const useContactOptions = (
         })),
     }),
   );
+
   const companies = useQuery(
     orpc.companies.list.queryOptions({
       input,

@@ -26,6 +26,7 @@ const MappingRow = ({
 }: SetupProps & { index: number; header: string; fields: { key: string; label: string }[] }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
   const value = imp.mapping[String(index)] ?? IGNORE;
+
   const samples = imp.sample
     .map((row) => row[index])
     .filter(Boolean)
@@ -135,6 +136,7 @@ const useOptionLabels = (isCompany: boolean) => {
     upsert: t('mode-upsert', 'Update them, create the rest'),
     update: t('mode-update', 'Update them, create nothing'),
   };
+
   const matchBy: Record<ImportOptions['matchBy'], string> = {
     name: t('match-name', 'Name'),
     email: t('match-email', 'Email'),

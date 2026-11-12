@@ -196,6 +196,7 @@ const ValueInput = ({
 
   if ((field?.type === 'member' || field?.type === 'tags') && !LIST_VALUE.has(rule.op)) {
     const { options: loaded, error } = field.type === 'member' ? members : tags;
+
     const options =
       field.type === 'member' ? [{ value: 'me', label: t('me', 'Me') }, ...loaded] : loaded;
 

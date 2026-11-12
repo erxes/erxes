@@ -77,6 +77,7 @@ export const usePinnedNotes = (targetType: string, targetId: string) =>
 export const useNoteActions = () => {
   const client = useQueryClient();
   const { toast } = useToast();
+
   const handlers = {
     onSuccess: () => client.invalidateQueries({ queryKey: orpc.activities.key() }),
     onError: (error: Error) =>

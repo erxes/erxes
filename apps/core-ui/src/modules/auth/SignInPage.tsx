@@ -70,10 +70,12 @@ const SignInForm = ({ onChallenge }: { onChallenge: (challenge: string) => void 
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const signedIn = useSignedIn();
   const [needsOrganization, setNeedsOrganization] = useState(false);
+
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '', subdomain: '' },
   });
+
   const signIn = useMutation(
     orpc.auth.signIn.mutationOptions({
       onSuccess: (result) =>

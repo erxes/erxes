@@ -17,9 +17,11 @@ import { z } from 'zod';
 
 const liveMode = z.enum(['connecting', 'live', 'polling']);
 const hello = z.object({ mode: z.enum(['live', 'polling']) });
+
 const timeline = z.object({
   targets: z.array(z.object({ targetType: z.string(), targetId: z.string() })),
 });
+
 const plugin = z.object({ plugin: z.string(), topics: z.array(z.string()) });
 
 const liveMessage = z.discriminatedUnion('event', [
@@ -37,7 +39,9 @@ const wire = z.union([
 ]);
 
 export type LiveMode = z.infer<typeof liveMode>;
+
 export type LiveMessage = z.infer<typeof liveMessage>;
+
 type Wire = z.infer<typeof wire>;
 
 /** An SSE event's JSON payload, or null (logged) when it isn't the expected shape. */

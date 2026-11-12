@@ -111,6 +111,7 @@ export const useTeamMembersDeactivate = () => {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       const results = await Promise.allSettled(ids.map((id) => orpc.users.disable.call({ id })));
+
       const failed = results.find(
         (result): result is PromiseRejectedResult => result.status === 'rejected',
       );

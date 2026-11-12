@@ -224,10 +224,12 @@ export const ViewTabs = ({
   const { views, error, current, changed, query } = useViewState(recordType);
   // The open view stays visible even when it is past the first few.
   const visible = views.slice(0, VISIBLE);
+
   const shown =
     current && !visible.some((view) => view.id === current.id)
       ? [...visible.slice(0, VISIBLE - 1), current]
       : visible;
+
   const more = views.filter((view) => !shown.includes(view));
 
   return (

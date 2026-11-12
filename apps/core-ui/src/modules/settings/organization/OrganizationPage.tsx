@@ -1,7 +1,6 @@
 import { IconBuilding } from '@tabler/icons-react';
-import { CopyText, PageContainer } from 'erxes-ui';
+import { CopyText, PageContainer, PageHeader } from 'erxes-ui';
 import type { ReactNode } from 'react';
-import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { useSession } from '~/modules/auth/session';
 

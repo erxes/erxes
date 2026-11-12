@@ -85,6 +85,7 @@ const RunActions = ({ run }: { run: AutomationRun }) => {
   const retry = useMutation(
     orpc.automations.retryRun.mutationOptions({ onSuccess: refresh, onError }),
   );
+
   const cancel = useMutation(
     orpc.automations.cancelRun.mutationOptions({ onSuccess: refresh, onError }),
   );

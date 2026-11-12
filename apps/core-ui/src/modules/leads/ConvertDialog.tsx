@@ -112,9 +112,11 @@ const ConvertForm = ({ recordType, leads, onOpenChange, onDone }: ConvertProps) 
   const t = useLeadsT();
   const convert = useConvertLeads();
   const [only] = leads;
+
   const [ownerId, setOwnerId] = useState(
     leads.length === 1 ? (only?.ownerId ?? undefined) : undefined,
   );
+
   const [companyId, setCompanyId] = useState<string | undefined>();
 
   const submit = () =>

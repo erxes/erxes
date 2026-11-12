@@ -166,9 +166,11 @@ export const WebhookRow = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
   const [open, setOpen] = useState(false);
+
   const { toggle, remove, rotate, test } = useWebhookActions(webhook, onSecret, () =>
     setOpen(true),
   );
+
   const active = webhook.status === 'active';
   const id = { id: webhook.id };
 

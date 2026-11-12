@@ -35,6 +35,7 @@ const useStageLeads = (recordType: LeadRecordType, stageId: string) => {
       select: column,
     }),
   );
+
   const companies = useInfiniteQuery(
     orpc.companies.list.infiniteOptions({
       input: (page) => ({ ...page, ...companyFilters }),

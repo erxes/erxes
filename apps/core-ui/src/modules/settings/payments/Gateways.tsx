@@ -75,6 +75,7 @@ const PluginSettingsRow = ({
 
   const toggleAllowed = (id: string, on: boolean) => {
     const next = on ? [...allowed, id] : allowed.filter((item) => item !== id);
+
     const defaultGatewayId =
       settings.defaultGatewayId && next.length && !next.includes(settings.defaultGatewayId)
         ? null

@@ -115,6 +115,7 @@ export const AutomationInspector = (props: InspectorProps) => {
   const { t } = useTranslation('automations');
   const { draft, selected, onSelect, editable } = props;
   const { definition } = draft;
+
   const selectedStep =
     selected !== 'settings' && selected !== 'trigger' ? findStep(definition.steps, selected) : null;
 

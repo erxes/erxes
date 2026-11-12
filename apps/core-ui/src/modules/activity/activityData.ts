@@ -36,12 +36,15 @@ export const readChanges = reader(z.object({ changes }).transform((data) => data
 export const readNote = reader(note);
 export const readTagged = reader(z.object({ added: ids, removed: ids }));
 export const readMerged = reader(z.object({ mergedNames: z.array(z.string()).catch([]) }));
+
 export const readCompanyLink = reader(
   z.object({ companyId: z.string(), companyName: z.string().optional() }),
 );
+
 export const readCustomerLink = reader(
   z.object({ customerId: z.string(), customerName: z.string().optional() }),
 );
+
 export const readLead = reader(
   z.object({
     event: z.string().optional(),

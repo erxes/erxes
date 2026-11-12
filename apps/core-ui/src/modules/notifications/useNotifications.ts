@@ -73,6 +73,7 @@ export const useNotificationList = ({
 export const useNotificationActions = () => {
   const client = useQueryClient();
   const { toast } = useToast();
+
   const handlers = {
     onSuccess: () => client.invalidateQueries({ queryKey: orpc.notifications.key() }),
     onError: (error: Error) =>

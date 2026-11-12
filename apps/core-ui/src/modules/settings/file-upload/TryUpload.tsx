@@ -25,6 +25,7 @@ export const TryUpload = () => {
       return uploadFile(file, { onProgress: setProgress });
     },
   });
+
   const result = send.data;
 
   return (

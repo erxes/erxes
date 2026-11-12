@@ -128,6 +128,7 @@ export const PluginsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
   const can = useCan();
   const plugins = useQuery(orpc.plugins.list.queryOptions());
+
   const empty = (
     <Empty className="py-16">
       <Empty.Header>

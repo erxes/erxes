@@ -126,8 +126,10 @@ export const ExportButton = ({
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<'csv' | 'xlsx'>('xlsx');
   const [chosen, setChosen] = useState<string[] | null>(null);
+
   const selected =
     chosen ?? exportable.filter((column) => column.default).map((column) => column.key);
+
   const filtered = Boolean(list.advanced || list.search || query.tagIds?.length || query.ownerId);
   const start = useStartExport(() => setOpen(false));
 

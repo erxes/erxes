@@ -97,10 +97,12 @@ const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void 
   const gatewayCanPartial = invoice.refundable.gateway === 'partial';
   const [amount, setAmount] = useState(String(left / 100));
   const [reason, setReason] = useState('');
+
   const [manual, setManual] = useState(
     invoice.refundable.gateway === 'none' ||
       (invoice.refundable.gateway === 'full' && invoice.refundedAmount > 0),
   );
+
   const refund = useRefund(invoice, onDone);
   const cents = Math.round(Number(amount) * 100);
   const mustBeManual = !manual && !gatewayCanPartial && cents !== left;

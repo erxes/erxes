@@ -49,8 +49,8 @@ const useToggle = () => {
   return useMutation({
     mutationFn: async ({ id, status }: Pick<Automation, 'id' | 'status'>) =>
       status === 'active'
-        ? await orpc.automations.pause.call({ id })
-        : await orpc.automations.activate.call({ id }),
+        ? orpc.automations.pause.call({ id })
+        : orpc.automations.activate.call({ id }),
     onSuccess: () => client.invalidateQueries({ queryKey: orpc.automations.key() }),
     onError: (error) =>
       toast({

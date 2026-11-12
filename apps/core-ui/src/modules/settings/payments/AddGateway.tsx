@@ -45,6 +45,7 @@ const AddGatewayForm = ({ onAdded }: { onAdded: () => void }) => {
   const id = useId();
   const [kind, setKind] = useState<Kind>('qpay');
   const [name, setName] = useState('QPay');
+
   const [qpay, setQpay] = useState({
     clientId: '',
     clientSecret: '',

@@ -38,6 +38,7 @@ const useLinkRows = (side: ContactSide, id: string) => {
         })),
     }),
   );
+
   const people = useQuery(
     orpc.companies.people.queryOptions({
       input: { id },
@@ -64,6 +65,7 @@ export const useContactLinks = (side: ContactSide, id: string) => {
   const client = useQueryClient();
   const { toast } = useToast();
   const query = useLinkRows(side, id);
+
   const handlers = {
     onSettled: () =>
       Promise.all([
@@ -77,6 +79,7 @@ export const useContactLinks = (side: ContactSide, id: string) => {
         description: messageOf(error),
       }),
   };
+
   const link = useMutation(orpc.customers.linkCompany.mutationOptions(handlers));
   const unlink = useMutation(orpc.customers.unlinkCompany.mutationOptions(handlers));
 

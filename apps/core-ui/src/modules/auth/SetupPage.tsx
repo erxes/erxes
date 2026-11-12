@@ -78,6 +78,7 @@ const useSetup = () => {
  */
 export const SetupPage = () => {
   const setup = useSetup();
+
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {

@@ -28,6 +28,7 @@ export const usePlugins = () => {
   }, [registry.error]);
 
   const names = new Set(LOCAL_REMOTES.map((remote) => remote.name));
+
   const remotes = [
     ...LOCAL_REMOTES,
     ...(registry.data ?? []).filter((remote) => !names.has(remote.name)),

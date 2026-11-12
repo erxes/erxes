@@ -13,6 +13,7 @@ const VersionList = ({ automationId, active }: { automationId: string; active: n
   const { toast } = useToast();
   const client = useQueryClient();
   const canManage = useCan()('automations.manage');
+
   const versions = useQuery(
     orpc.automations.versions.queryOptions({ input: { id: automationId } }),
   );

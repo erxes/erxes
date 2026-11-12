@@ -93,6 +93,7 @@ export const useConvertLeads = () => {
 export const useLeadStageMutations = () => {
   const refresh = useRefreshLeads();
   const { toast } = useToast();
+
   const handlers = {
     onSettled: refresh,
     onError: (error: Error) =>

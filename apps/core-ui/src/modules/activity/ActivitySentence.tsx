@@ -102,6 +102,7 @@ type Translate = (key: string, fallback: string) => string;
 
 const TaggedSentence = ({ activity, lookups, t }: SentenceProps & { t: Translate }) => {
   const { added = [], removed = [] } = readTagged(activity) ?? {};
+
   const names = (ids: string[]) =>
     ids.map((id) => lookups.tags.get(id)?.name ?? 'a deleted tag').join(', ');
 
@@ -148,6 +149,7 @@ interface SentenceProps {
 const Predicate = ({ activity, lookups }: SentenceProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const verb = verbOf(activity);
+
   const record = isActivityTarget(activity.targetType)
     ? t(`this-${activity.targetType}`, `this ${activity.targetType}`)
     : t('this-record', 'this record');

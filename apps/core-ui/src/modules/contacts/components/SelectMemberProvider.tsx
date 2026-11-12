@@ -85,6 +85,7 @@ export const SelectMemberValue = ({
 /** Members matching the search, the selected ones first. */
 const orderMembers = (members: User[], memberIds: string[], search: string) => {
   const term = search.trim().toLowerCase();
+
   const matches = members.filter(
     (member) =>
       !term ||
