@@ -1,57 +1,25 @@
 import { lookup as dnsLookup } from 'node:dns';
 import { request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
-import { BlockList, isIP, type LookupFunction } from 'node:net';
+import { isIP, type LookupFunction } from 'node:net';
 import { currentScope } from '@erxes/core-db';
+import ipaddr from 'ipaddr.js';
 import { config } from '~/config';
 
 /**
  * Requests to addresses members type in (webhooks, automation calls). Outside
- * development they must be https and may not reach private, loopback,
- * link-local or metadata addresses — checked on the address actually
- * connected to, so DNS can't be used to slip past (SSRF).
+ * development they must be https and may only reach public unicast addresses,
+ * checked on the address actually connected to, so DNS can't be used to slip
+ * past (SSRF).
  */
 
-const blocked = new BlockList();
-
-for (const [network, prefix] of [
-  ['0.0.0.0', 8],
-  ['10.0.0.0', 8],
-  ['100.64.0.0', 10],
-  ['127.0.0.0', 8],
-  ['169.254.0.0', 16],
-  ['172.16.0.0', 12],
-  ['192.0.0.0', 24],
-  ['192.168.0.0', 16],
-  ['198.18.0.0', 15],
-  ['224.0.0.0', 3],
-] as const) {
-  blocked.addSubnet(network, prefix, 'ipv4');
-}
-
-for (const [network, prefix] of [
-  ['::', 128],
-  ['::1', 128],
-  ['fc00::', 7],
-  ['fe80::', 10],
-  ['ff00::', 8],
-] as const) {
-  blocked.addSubnet(network, prefix, 'ipv6');
-}
-
-export const isPrivateAddress = (address: string) => {
-  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/i.exec(address)?.[1];
-
-  if (mapped) return blocked.check(mapped, 'ipv4');
-
-  const family = isIP(address);
-
-  return family === 4
-    ? blocked.check(address, 'ipv4')
-    : family === 6
-      ? blocked.check(address, 'ipv6')
-      : true;
-};
+/**
+ * Anything but a public unicast address: private, loopback, link-local,
+ * metadata, multicast, reserved, and IPv6 forms that carry an IPv4 address
+ * (NAT64, 6to4, Teredo). IPv4-mapped IPv6 is judged as its IPv4 address.
+ */
+export const isPrivateAddress = (address: string) =>
+  !ipaddr.isValid(address) || ipaddr.process(address).range() !== 'unicast';
 
 export class OutboundError extends Error {}
 

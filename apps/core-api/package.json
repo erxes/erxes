@@ -42,6 +42,7 @@
     "csv-stringify": "^6.9.0",
     "drizzle-orm": "0.45.4",
     "express": "^5.2.1",
+    "ipaddr.js": "^2.5.0",
     "jose": "^5.9.6",
     "nodemailer": "^10.5.0",
     "otpauth": "9.5.2",

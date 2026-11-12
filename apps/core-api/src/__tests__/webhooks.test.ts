@@ -145,6 +145,9 @@ describeWithDb('webhooks', () => {
       '::1',
       'fd00::1',
       '::ffff:10.0.0.1',
+      // IPv6 forms that carry an IPv4 address: NAT64 and 6to4 of 10.0.0.1.
+      '64:ff9b::a00:1',
+      '2002:a00:1::',
     ])
       expect({ address, private: isPrivateAddress(address) }).toEqual({ address, private: true });
 
