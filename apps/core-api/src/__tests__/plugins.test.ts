@@ -1,159 +1,102 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { createLocalJWKSet, jwtVerify } from 'jose';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
-import { signAccessToken } from '~/http/auth';
-import { createOrganization } from '~/modules/organizations/organizations.service';
+import type { PluginManifest, PluginScope } from '@erxes/core-contract';
+import { plugins } from '@erxes/core-db';
+import { createCoreClient, verifyPluginSession } from '@erxes/plugin-sdk';
+import { eq, sql } from 'drizzle-orm';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { expect, it } from 'vite-plus/test';
+import type { z } from 'zod';
+import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 import { adminDb, describeWithDb, useTestDatabase } from './db';
-import { HR_SECRET, pluginToken, requestPluginToken } from './plugin';
+import { HR_SECRET } from './plugin';
+import { useTwoOrgs } from './support';
 
 describeWithDb('plugin connection (registry, installations, tokens)', () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-  let orgId = '';
-  let ownerId = '';
-  let ownerToken = '';
-  let memberToken = '';
+  const t = useTwoOrgs();
 
-  beforeAll(async () => {
-    const { db, users, newId } = await import('@erxes/core-db');
-
-    const acme = await createOrganization({
-      subdomain: 'acme',
-      name: 'Acme',
-      owner: { email: 'owner@acme.mn' },
+  /** The token endpoint, as a plugin calls it. */
+  const tokenFor = (options: { secret?: string; org?: string; clientId?: string } = {}) =>
+    t.client().plugins.token({
+      grant_type: 'client_credentials',
+      client_id: options.clientId ?? 'hr',
+      client_secret: options.secret ?? HR_SECRET,
+      org: options.org ?? t.ids.org,
     });
 
-    const memberId = newId();
+  const scopesNow = async () => (await tokenFor()).scope?.split(' ') ?? [];
 
-    orgId = acme.organization.id;
-    ownerId = acme.owner.id;
-    await adminDb()
-      .insert(users)
-      .values({ id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' });
-    ownerToken = signAccessToken(ownerId, orgId);
-    memberToken = signAccessToken(memberId, orgId);
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-  });
+  const hrListing = async () =>
+    (await t.member().plugins.list({})).data.find((plugin) => plugin.name === 'hr');
 
-  afterAll(async () => {
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
-  });
-
-  const call = async (
-    token: string,
-    path: string,
-    init: { method?: string; body?: unknown } = {},
-  ) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method: init.method ?? 'GET',
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-      body: init.body === undefined ? undefined : JSON.stringify(init.body),
-    });
-
-    const text = await response.text();
-
-    return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
+  const service = async () => t.client(await t.pluginToken());
+  const leave = () => ({ userIds: [t.ids.owner], kind: 'hr.leave.requested', title: 'Leave' });
 
   it('issues short-lived tokens for organisations that installed the plugin, and refuses everything else', async () => {
-    const token = await requestPluginToken(base, orgId);
+    const token = await tokenFor();
 
-    expect(token.status).toBe(200);
-    expect(token.body).toMatchObject({ token_type: 'Bearer', expires_in: 900 });
-    expect(token.body.scope).toContain('notifications:write');
+    expect(token).toMatchObject({ token_type: 'Bearer', expires_in: 900 });
+    expect(token.scope).toContain('notifications:write');
 
-    expect(
-      (await requestPluginToken(base, orgId, 'wrong-secret-0123456789abcdefghijklmnopqrstu')).body
-        .code,
-    ).toBe('INVALID_CLIENT');
-    expect((await requestPluginToken(base, orgId, HR_SECRET, 'ecom')).body.code).toBe(
-      'INVALID_CLIENT',
-    );
-    expect((await requestPluginToken(base, 'some-other-org')).body.code).toBe('NOT_INSTALLED');
+    const invalid = { code: 'INVALID_CLIENT' };
+
+    await expect(
+      tokenFor({ secret: 'wrong-secret-0123456789abcdefghijklmnopqrstu' }),
+    ).rejects.toMatchObject(invalid);
+    await expect(tokenFor({ clientId: 'ecom' })).rejects.toMatchObject(invalid);
+    await expect(tokenFor({ org: 'some-other-org' })).rejects.toMatchObject({
+      code: 'NOT_INSTALLED',
+    });
 
     // Members' tokens and plugin tokens never stand in for each other.
-    expect(
-      (
-        await call(ownerToken, '/notifications', {
-          method: 'POST',
-          body: { userIds: [ownerId], kind: 'hr.x.y', title: 'x' },
-        })
-      ).body.code,
-    ).toBe('PLUGIN_ONLY');
-    expect((await call(token.body.access_token!, '/customers')).body.code).toBe('MEMBERS_ONLY');
+    await expect(
+      t.owner().notifications.create({ userIds: [t.ids.owner], kind: 'hr.x.y', title: 'x' }),
+    ).rejects.toMatchObject({ code: 'PLUGIN_ONLY' });
+    await expect(t.client(token.access_token).customers.list({})).rejects.toMatchObject({
+      code: 'MEMBERS_ONLY',
+    });
   });
 
   it('cuts a plugin off the moment it is uninstalled, and only the owner decides', async () => {
-    const token = await pluginToken(base, orgId);
+    const hr = t.client((await tokenFor()).access_token);
 
-    const notify = () =>
-      call(token, '/notifications', {
-        method: 'POST',
-        body: { userIds: [ownerId], kind: 'hr.leave.requested', title: 'Leave' },
-      });
-
-    expect((await notify()).status).toBe(201);
-    expect((await call(memberToken, '/plugins/hr/uninstall', { method: 'POST' })).status).toBe(403);
-
-    const uninstalled = await call(ownerToken, '/plugins/hr/uninstall', { method: 'POST' });
-
-    expect(uninstalled.body).toMatchObject({ name: 'hr', installed: false });
-    // The token it already holds stops working at once.
-    expect((await notify()).status).toBe(401);
-    expect((await requestPluginToken(base, orgId)).body.code).toBe('NOT_INSTALLED');
-
-    expect((await call(ownerToken, '/plugins/hr/install', { method: 'POST' })).body).toMatchObject({
-      installed: true,
+    expect((await hr.notifications.create(leave())).created).toBe(1);
+    await expect(t.member().plugins.uninstall({ name: 'hr' })).rejects.toMatchObject({
+      status: 403,
     });
-    expect(
-      (
-        await call(await pluginToken(base, orgId), '/notifications', {
-          method: 'POST',
-          body: { userIds: [ownerId], kind: 'hr.leave.requested', title: 'Leave' },
-        })
-      ).status,
-    ).toBe(201);
+    expect(await t.owner().plugins.uninstall({ name: 'hr' })).toMatchObject({
+      name: 'hr',
+      installed: false,
+    });
+    // The token it already holds stops working at once.
+    await expect(hr.notifications.create(leave())).rejects.toMatchObject({ status: 401 });
+    await expect(tokenFor()).rejects.toMatchObject({ code: 'NOT_INSTALLED' });
 
-    const audit = await call(ownerToken, '/audit?action=plugin.');
+    expect(await t.owner().plugins.install({ name: 'hr' })).toMatchObject({ installed: true });
+    expect((await t.hr().notifications.create(leave())).created).toBe(1);
 
-    expect(audit.body.data.map((entry: { action: string }) => entry.action)).toEqual([
+    const audit = await t.owner().audit.list({ action: 'plugin.' });
+
+    expect(audit.data.map((entry) => entry.action)).toEqual([
       'plugin.installed',
       'plugin.uninstalled',
     ]);
   });
 
   it('takes a manifest from the plugin, limits tokens to the scopes it asks for, and asks the owner for new ones', async () => {
-    const service = await pluginToken(base);
-
     // The organisation token can't change the manifest; the service token can't act in an organisation.
-    expect(
-      (
-        await call(await pluginToken(base, orgId), '/plugins/manifest', {
-          method: 'PUT',
-          body: { title: 'HR', version: '1' },
-        })
-      ).body.code,
-    ).toBe('SERVICE_TOKEN_REQUIRED');
-    expect(
-      (
-        await call(service, '/plugins/manifest', {
-          method: 'PUT',
-          body: {
-            title: 'HR',
-            version: '1',
-            permissions: [{ action: 'ecom.order.view', label: 'x' }],
-          },
-        })
-      ).body.code,
-    ).toBe('NAMESPACE_REQUIRED');
+    await expect(
+      t.hr().plugins.registerManifest({ title: 'HR', version: '1' }),
+    ).rejects.toMatchObject({ code: 'SERVICE_TOKEN_REQUIRED' });
+    await expect(
+      (await service()).plugins.registerManifest({
+        title: 'HR',
+        version: '1',
+        permissions: [{ action: 'ecom.order.view', label: 'x' }],
+      }),
+    ).rejects.toMatchObject({ code: 'NAMESPACE_REQUIRED' });
 
-    const manifest = {
+    const manifest: z.input<typeof PluginManifest> = {
       title: 'HR',
       version: '2.0.0',
       ui: { remote: 'hr_ui', entry: 'https://hr.example.com/remoteEntry.js' },
@@ -162,147 +105,101 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
       permissions: [{ action: 'hr.leave.approve', label: 'Approve leave' }],
       events: [
         { type: 'hr.leave.approved', label: 'Leave approved' },
-        { type: 'hr.employee.hired', label: 'Employee hired', subject: 'customer' },
+        { type: 'hr.employee.hired', label: 'Employee hired', subject: 'customer' as const },
       ],
     };
 
-    expect(
-      (await call(service, '/plugins/manifest', { method: 'PUT', body: manifest })).status,
-    ).toBe(200);
+    await (await service()).plugins.registerManifest(manifest);
 
     // A plugin event that says what it is about starts automations about that record.
-    const triggers = (await call(ownerToken, '/automations/catalog')).body.triggers as {
-      type: string;
-      subject: string | null;
-    }[];
+    const { triggers } = await t.owner().automations.catalog({});
 
     expect(triggers.find((item) => item.type === 'hr.employee.hired')?.subject).toBe('customer');
     expect(triggers.find((item) => item.type === 'hr.leave.approved')?.subject).toBeNull();
 
     // Granted before (everything), now asked for less: tokens carry only notifications:write.
-    const narrow = await requestPluginToken(base, orgId);
+    const narrow = await tokenFor();
 
-    expect(narrow.body.scope).toBe('notifications:write');
-    expect(
-      (
-        await call(narrow.body.access_token!, '/events', {
-          method: 'POST',
-          body: { events: [{ type: 'hr.leave.approved' }] },
-        })
-      ).body.code,
-    ).toBe('SCOPE_REQUIRED');
+    expect(narrow.scope).toBe('notifications:write');
+    await expect(
+      t.client(narrow.access_token).events.publish({ events: [{ type: 'hr.leave.approved' }] }),
+    ).rejects.toMatchObject({ code: 'SCOPE_REQUIRED' });
 
     // A version that asks for more needs the owner's approval first.
-    await call(service, '/plugins/manifest', {
-      method: 'PUT',
-      body: {
-        ...manifest,
-        version: '2.1.0',
-        scopes: ['notifications:write', 'events:write', 'live:write'],
-      },
-    });
+    const asking = (version: string, scopes: PluginScope[]) =>
+      service().then((client) => client.plugins.registerManifest({ ...manifest, version, scopes }));
 
-    let listed = (await call(memberToken, '/plugins')).body.data.find(
-      (plugin: { name: string }) => plugin.name === 'hr',
-    );
-
-    expect(listed).toMatchObject({
+    await asking('2.1.0', ['notifications:write', 'events:write', 'live:write']);
+    expect(await hrListing()).toMatchObject({
       title: 'HR',
       version: '2.1.0',
       installed: true,
       api: { url: 'https://hr.example.com/api' },
+      // Granted at install: everything, so nothing new needs approval here.
+      needsApproval: false,
     });
-    expect((await requestPluginToken(base, orgId)).body.scope!.split(' ').sort()).toEqual([
+    expect((await scopesNow()).toSorted((a, b) => a.localeCompare(b))).toEqual([
       'events:write',
       'live:write',
       'notifications:write',
     ]);
 
-    // (Granted at install: everything, so nothing new needs approval here.)
-    expect(listed.needsApproval).toBe(false);
+    await t.owner().plugins.uninstall({ name: 'hr' });
+    await t.owner().plugins.install({ name: 'hr' });
+    await asking('2.2.0', ['notifications:write', 'events:write', 'live:write', 'audit:write']);
+    expect((await hrListing())?.needsApproval).toBe(true);
+    expect(await scopesNow()).not.toContain('audit:write');
 
-    await call(ownerToken, '/plugins/hr/uninstall', { method: 'POST' });
-    await call(ownerToken, '/plugins/hr/install', { method: 'POST' });
-    await call(service, '/plugins/manifest', {
-      method: 'PUT',
-      body: {
-        ...manifest,
-        version: '2.2.0',
-        scopes: ['notifications:write', 'events:write', 'live:write', 'audit:write'],
-      },
-    });
-
-    listed = (await call(memberToken, '/plugins')).body.data.find(
-      (plugin: { name: string }) => plugin.name === 'hr',
-    );
-    expect(listed.needsApproval).toBe(true);
-    expect((await requestPluginToken(base, orgId)).body.scope).not.toContain('audit:write');
-
-    await call(ownerToken, '/plugins/hr/install', { method: 'POST' });
-    expect((await requestPluginToken(base, orgId)).body.scope).toContain('audit:write');
+    await t.owner().plugins.install({ name: 'hr' });
+    expect(await scopesNow()).toContain('audit:write');
   });
 
   it("gives a member a short token for one plugin's API, verifiable with the public keys alone", async () => {
-    const session = await call(memberToken, '/plugins/hr/session', { method: 'POST' });
+    const session = await t.member().plugins.session({ name: 'hr' });
 
-    expect(session.status).toBe(200);
-    expect(session.body.apiUrl).toBe('https://hr.example.com/api');
+    expect(session.apiUrl).toBe('https://hr.example.com/api');
 
-    const jwks = (await fetch(`${base}/core/v1/.well-known/jwks.json`).then((response) =>
-      response.json(),
-    )) as Parameters<typeof createLocalJWKSet>[0];
+    const jwks = createRemoteJWKSet(new URL(t.url('/core/v1/.well-known/jwks.json')));
 
-    const { payload, protectedHeader } = await jwtVerify(
-      session.body.token,
-      createLocalJWKSet(jwks),
-      {
-        issuer: 'erxes-core',
-        audience: 'hr',
-        typ: 'erxes-plugin-session+jwt',
-      },
-    );
+    const { payload, protectedHeader } = await jwtVerify(session.token, jwks, {
+      issuer: 'erxes-core',
+      audience: 'hr',
+      typ: 'erxes-plugin-session+jwt',
+    });
 
-    expect(payload).toMatchObject({ org: orgId, role: 'member' });
+    expect(payload).toMatchObject({ org: t.ids.org, role: 'member' });
     expect(protectedHeader.alg).toBe('ES256');
-    expect(payload.exp! - payload.iat!).toBe(300);
+    expect((payload.exp ?? 0) - (payload.iat ?? 0)).toBe(300);
 
     // Not usable on core, nor for another plugin.
-    expect((await call(session.body.token, '/customers')).status).toBe(401);
+    await expect(t.client(session.token).customers.list({})).rejects.toMatchObject({ status: 401 });
     await expect(
-      jwtVerify(session.body.token, createLocalJWKSet(jwks), {
-        issuer: 'erxes-core',
-        audience: 'ecom',
-      }),
-    ).rejects.toThrow();
-    expect((await call(memberToken, '/plugins/ecom/session', { method: 'POST' })).body.code).toBe(
-      'NOT_INSTALLED',
-    );
+      jwtVerify(session.token, jwks, { issuer: 'erxes-core', audience: 'ecom' }),
+    ).rejects.toThrow('unexpected "aud" claim value');
+    await expect(t.member().plugins.session({ name: 'ecom' })).rejects.toMatchObject({
+      code: 'NOT_INSTALLED',
+    });
   });
 
   it('rotates the client secret with a day of overlap', async () => {
-    const { rotatePluginSecret } = await import('~/modules/plugins/plugins.service');
     const fresh = await rotatePluginSecret('hr');
 
     expect(fresh).toMatch(/^erxp_/);
-    expect((await requestPluginToken(base, orgId, fresh)).status).toBe(200);
+    expect((await tokenFor({ secret: fresh })).access_token).toEqual(expect.any(String));
     // The old one still works until the plugin is redeployed with the new one.
-    expect((await requestPluginToken(base, orgId, HR_SECRET)).status).toBe(200);
-
-    const { db, plugins } = await import('@erxes/core-db');
-    const { eq, sql } = await import('drizzle-orm');
+    expect((await tokenFor({ secret: HR_SECRET })).access_token).toEqual(expect.any(String));
 
     await adminDb()
       .update(plugins)
       .set({ previousSecretExpiresAt: sql`now() - interval '1 second'` })
       .where(eq(plugins.name, 'hr'));
-    expect((await requestPluginToken(base, orgId, HR_SECRET)).body.code).toBe('INVALID_CLIENT');
+    await expect(tokenFor({ secret: HR_SECRET })).rejects.toMatchObject({ code: 'INVALID_CLIENT' });
   });
 
   it('works end to end through @erxes/plugin-sdk', async () => {
-    const { createCoreClient, verifyPluginSession } = await import('@erxes/plugin-sdk');
-    const { rotatePluginSecret } = await import('~/modules/plugins/plugins.service');
+    const coreUrl = t.url('');
     const secret = await rotatePluginSecret('hr');
-    const core = createCoreClient({ coreUrl: base, plugin: 'hr', clientSecret: secret });
+    const core = createCoreClient({ coreUrl, plugin: 'hr', clientSecret: secret });
 
     await core.registerManifest({
       title: 'HR',
@@ -310,22 +207,23 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
       scopes: ['notifications:write', 'events:write', 'live:write', 'audit:write'],
     });
 
-    const sent = await core.forOrg(orgId).notifications.create({
-      userIds: [ownerId],
+    const sent = await core.forOrg(t.ids.org).notifications.create({
+      userIds: [t.ids.owner],
       kind: 'hr.leave.requested',
       title: 'From the SDK',
     });
 
     expect(sent.created).toBe(1);
-    expect(await core.signal(orgId, ['leaves'])).toEqual({ ok: true });
+    expect(await core.signal(t.ids.org, ['leaves'])).toEqual({ ok: true });
 
-    const session = await call(memberToken, '/plugins/hr/session', { method: 'POST' });
+    const { token } = await t.member().plugins.session({ name: 'hr' });
 
-    expect(
-      await verifyPluginSession(session.body.token, { coreUrl: base, plugin: 'hr' }),
-    ).toMatchObject({ orgId, role: 'member' });
-    await expect(
-      verifyPluginSession(session.body.token, { coreUrl: base, plugin: 'ecom' }),
-    ).rejects.toThrow();
+    expect(await verifyPluginSession(token, { coreUrl, plugin: 'hr' })).toMatchObject({
+      orgId: t.ids.org,
+      role: 'member',
+    });
+    await expect(verifyPluginSession(token, { coreUrl, plugin: 'ecom' })).rejects.toThrow(
+      'unexpected "aud" claim value',
+    );
   });
 });
