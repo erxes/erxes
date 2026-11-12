@@ -192,3 +192,24 @@ export const automationStats = async (client: Db, actor: Actor, id: string) => {
     skippedByLimit: SkippedByLimit.parse(row.state).skippedByLimit,
   };
 };
+
+/**
+ * Runs that finished more than `days` ago lose their step log and context,
+ * most of their size. The run row stays: re-entry rules and the run list
+ * read it. A thousand runs per pass, so a pass never holds locks for long.
+ */
+export const pruneRunDetails = async (client: Db, days: number) => {
+  const result = await client.execute(sql`
+    with old as (
+      select r.id from ${automationRuns} r
+      where r.status in ('succeeded', 'failed', 'cancelled')
+        and r.finished_at < now() - make_interval(days => ${days})
+        and (r.context <> '{}'::jsonb or exists (select 1 from ${automationRunSteps} s where s.run_id = r.id))
+      limit 1000
+    ),
+    steps as (delete from ${automationRunSteps} s using old where s.run_id = old.id)
+    update ${automationRuns} r set context = '{}'::jsonb from old where r.id = old.id
+  `);
+
+  return result.rowCount ?? 0;
+};

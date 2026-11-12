@@ -4,6 +4,7 @@ import { config } from '~/config';
 import { logger, traced } from '~/logger';
 import { pruneAudit } from '~/modules/audit/audit.service';
 import { signAuditCheckpoints } from '~/modules/audit/checkpoints';
+import { pruneRunDetails } from '~/modules/automations/runs.service';
 import { tickAutomations } from '~/modules/automations/triggers';
 import { pruneEvents } from '~/modules/events/events.service';
 import { CONSUMERS } from '~/modules/events/processor';
@@ -43,6 +44,11 @@ const cleanup = async () => {
   await withSystem('cleanup: webhook deliveries', (tx) =>
     pruneDeliveries(tx, config.retention.eventDays),
   );
+
+  const runs = await withSystem('cleanup: automation run details', (tx) =>
+    pruneRunDetails(tx, config.retention.runDetailDays),
+  );
+
   await withSystem('cleanup: recycle bin', (tx) => purgeExpiredTrash(tx));
   // Read-only plugins past their grace period turn off here.
   await refreshAllEntitlements();
@@ -58,9 +64,9 @@ const cleanup = async () => {
     ),
   );
 
-  if (uploads || audit || read || handled) {
+  if (uploads || audit || read || handled || runs) {
     log.info(
-      { uploads, audit, notifications: read, events: handled },
+      { uploads, audit, notifications: read, events: handled, runDetails: runs },
       'cleanup removed old records',
     );
   }
