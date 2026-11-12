@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Form, Input, Spinner, useToast } from 'erxes-ui';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
@@ -8,7 +8,7 @@ import { messageOf } from '~/lib/api';
 import { RESET_PASSWORD_QUERY_KEY } from '../constants';
 import { useTeamMemberSetPassword } from '../useTeamMembers';
 
-/** Old `USER_RESET_PASSWORD_SCHEMA` (the API checks the same rules). */
+/** The API checks the same rules. */
 const USER_RESET_PASSWORD_SCHEMA = z
   .object({
     newPassword: z
@@ -25,6 +25,26 @@ const USER_RESET_PASSWORD_SCHEMA = z
   });
 
 type TResetPasswordForm = z.infer<typeof USER_RESET_PASSWORD_SCHEMA>;
+
+const PasswordField = ({ name, label }: { name: keyof TResetPasswordForm; label: string }) => {
+  const { control } = useFormContext<TResetPasswordForm>();
+
+  return (
+    <Form.Field
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Form.Control>
+            <Input type="password" {...field} placeholder={label} autoComplete="new-password" />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
 
 /** A manager sets another member's password (`?reset_password_id=`); someone invited can then sign in. */
 export const ResetPasswordDialog = () => {
@@ -82,42 +102,8 @@ export const ResetPasswordDialog = () => {
         <Form {...form}>
           <form onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
             <fieldset className="flex flex-col gap-3 mb-3">
-              <Form.Field
-                control={control}
-                name="newPassword"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('new-password')}</Form.Label>
-                    <Form.Control>
-                      <Input
-                        type="password"
-                        {...field}
-                        placeholder={t('new-password')}
-                        autoComplete="new-password"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={control}
-                name="repeatPassword"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('retype-password')}</Form.Label>
-                    <Form.Control>
-                      <Input
-                        type="password"
-                        {...field}
-                        placeholder={t('retype-password')}
-                        autoComplete="new-password"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+              <PasswordField name="newPassword" label={t('new-password')} />
+              <PasswordField name="repeatPassword" label={t('retype-password')} />
             </fieldset>
             <div className="flex justify-end">
               <Button

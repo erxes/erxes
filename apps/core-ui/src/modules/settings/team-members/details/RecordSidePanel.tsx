@@ -5,10 +5,9 @@ import { createContext, type ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /*
- * The part of old ui-modules `RecordSidePanel` a team member needs: a panel
- * beside the list (400px), or the record's own page (`expanded`), where the
- * overview sits in a left column and the other tabs beside it. Resizing and
- * the "+N More" overflow menu are left out: a member has only a few tabs.
+ * A team member's record panel: beside the list (400px), or the member's own
+ * page (`expanded`), where the overview sits in a left column and the other
+ * tabs beside it. A member has only a few tabs, so there is no overflow menu.
  */
 
 export interface IRecordSidePanelTab {
@@ -112,10 +111,42 @@ const RecordSidePanelHeader = ({
           className="size-7"
           onClick={onClose}
           title={t('close', 'Close')}
+          aria-label={t('close', 'Close')}
         >
           <IconX className="size-4" />
         </Button>
       )}
+    </div>
+  );
+};
+
+/** The tab triggers; lines up with a page's filter row: h-9 plus its 1px rule. */
+const TabNavigation = ({ tabs }: { tabs: IRecordSidePanelTab[] }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const expanded = usePanelExpanded();
+
+  return (
+    <div
+      className={cn(
+        'flex flex-none min-w-0 overflow-hidden box-content h-9 items-center gap-1 border-b bg-background',
+        expanded ? 'col-start-1 row-start-2 px-3 md:col-start-2 md:row-start-1' : 'px-2',
+      )}
+    >
+      <Tabs.List
+        aria-label={t('navigation', 'Record navigation')}
+        className="flex min-w-0 items-stretch border-b-0 gap-1 py-0 h-full"
+      >
+        {tabs.map((tab) => (
+          <Tabs.Trigger
+            key={tab.value}
+            value={tab.value}
+            className="text-xs motion-reduce:transition-none h-full gap-1.5 rounded-none after:-mb-px"
+          >
+            <tab.icon className="size-4 shrink-0" aria-hidden="true" />
+            <span>{tab.label}</span>
+          </Tabs.Trigger>
+        ))}
+      </Tabs.List>
     </div>
   );
 };
@@ -134,7 +165,6 @@ const RecordSidePanelTabs = ({
   overviewTab: string;
   overviewHeader?: ReactNode;
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = usePanelExpanded();
   const navigationTabs = expanded ? tabs.filter((tab) => tab.value !== overviewTab) : tabs;
 
@@ -152,29 +182,7 @@ const RecordSidePanelTabs = ({
           : 'flex flex-col',
       )}
     >
-      {/* Lines up with a page's filter row: h-9 plus its 1px rule. */}
-      <div
-        className={cn(
-          'flex flex-none min-w-0 overflow-hidden box-content h-9 items-center gap-1 border-b bg-background',
-          expanded ? 'col-start-1 row-start-2 px-3 md:col-start-2 md:row-start-1' : 'px-2',
-        )}
-      >
-        <Tabs.List
-          aria-label={t('navigation', 'Record navigation')}
-          className="flex min-w-0 items-stretch border-b-0 gap-1 py-0 h-full"
-        >
-          {navigationTabs.map((tab) => (
-            <Tabs.Trigger
-              key={tab.value}
-              value={tab.value}
-              className="text-xs motion-reduce:transition-none h-full gap-1.5 rounded-none after:-mb-px"
-            >
-              <tab.icon className="size-4 shrink-0" aria-hidden="true" />
-              <span>{tab.label}</span>
-            </Tabs.Trigger>
-          ))}
-        </Tabs.List>
-      </div>
+      <TabNavigation tabs={navigationTabs} />
       {tabs.map((tab) => {
         const overview = expanded && tab.value === overviewTab;
 
