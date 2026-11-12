@@ -191,6 +191,7 @@ import {
   updateUser,
 } from '~/modules/users/users.service';
 import { createStream, listStreams, removeStream, testStream, updateStream } from '~/modules/audit/streams';
+import { planInfo, pluginPlan } from '~/modules/saas/saas.service';
 
 /** What every procedure gets: the Express request (actor, host) and response (cookies). */
 export interface CoreContext {
@@ -522,6 +523,10 @@ export const coreRouter = pub.router({
     current: authed.organizations.current.handler(async ({ context }) =>
       toOrganizationDto(await getOrganization(db(), context.actor.orgId)),
     ),
+  },
+  saas: {
+    plan: authed.saas.plan.handler(({ context }) => planInfo(db(), context.actor)),
+    pluginPlan: plugin.saas.pluginPlan.handler(({ context }) => pluginPlan(context.plugin)),
   },
   users: {
     list: authed.users.list.handler(({ input, context }) => listUsers(db(), context.actor, input)),

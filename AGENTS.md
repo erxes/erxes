@@ -350,6 +350,37 @@ it is built.
   in 90 days and about recovery codes used. Kinds `core.security.alert` and
   `core.security.new_sign_in` can't be muted; the member who acted isn't
   notified in erxes but is still emailed.
+- SaaS (`src/modules/saas`, `SAAS=true`; self-hosted has none of this):
+  - The control plane (erxes.io billing, not in this repo) pushes each
+    organisation's plan: `PUT /core/v1/saas/organizations/{id}` signed with
+    `SAAS_SECRET` (`Erxes-Signature`, as webhooks; raw body, 5-minute window),
+    validated by the contract's `SaasOrganizationUpdate`. It creates the
+    organisation the first time (with its owner), renames it, and stores
+    `core_organization_plans` (plan, status, period end, grace, suspended,
+    plugins with optional `until` and limits, `limits`, `manageUrl`) under a
+    row lock; a lower `version` is ignored. `GET` the same path (signed over
+    "") returns usage for billing.
+  - Standing (`standingOf`): suspended → only `/plan` and sign-out, plugins
+    refused (403 `ORGANIZATION_SUSPENDED`); canceled/past-due/expired past
+    `graceUntil` (or period end + `SAAS_GRACE_DAYS`) → read-only (402
+    `READ_ONLY` on changes; `/auth/*`, notifications and `/plan` still work);
+    before that a warning. Enforced by `standingGuard` after authentication
+    (plans cached 30 s per process).
+  - Plugins follow the plan (`reconcilePlugins`, on every update and hourly
+    for `until`): included → installed; dropped → disabled with
+    `Not in your plan` (data kept, tokens refused); back → resumed. Owners
+    can't install what the plan lacks (402 `NOT_IN_PLAN`). New organisations
+    get no deployment-wide auto-install on SaaS.
+  - Limits: `teamMembers` checked on invite and enable (organisation row
+    locked; 402 `LIMIT_REACHED`). Plugins read their own (`GET /plan/plugin`:
+    their plan entry's limits and `<plugin>.*` organisation limits) and
+    enforce them.
+  - Sign-in hand-off: `GET /core/v1/saas/login?token=` — HS256 with
+    `SAAS_SECRET`, `iss` erxes-saas, `aud` erxes-core, `org`, `email`, `jti`,
+    ≤ 2 minutes, single use (`core_used_tokens`); an invited member becomes
+    active. Failures go back to `SAAS_DASHBOARD_URL?signin=failed`.
+  - UI: Settings › Plan (plan, standing, limits with usage, included plugins,
+    Manage subscription) and a banner above every page unless all is well.
 - Payments (`src/modules/payments`, drivers in `@erxes/payment-gateways`):
   gateway connections per organisation (QPay, test; credentials sealed and
   checked with the gateway); invoices for a plugin's or core's record with

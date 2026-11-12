@@ -10,6 +10,7 @@ import {
   IconShieldHalf,
   IconTag,
   IconTrash,
+  IconCreditCard,
   IconUserCircle,
   IconUsersGroup,
   IconWebhook,
@@ -20,6 +21,7 @@ import { Children, type ReactNode, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCan } from '~/modules/auth/session';
+import { usePlan } from '~/modules/saas/usePlan';
 
 interface SettingsPath {
   name: string;
@@ -31,6 +33,7 @@ interface SettingsPath {
 export const useSettingsWorkspacePaths = (): SettingsPath[] => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
+  const plan = usePlan().data;
 
   return [
     { name: t('team-member'), path: 'team-members', icon: IconUsersGroup },
@@ -39,6 +42,7 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
     { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
     { name: t('plugins', 'Plugins'), path: 'plugins', icon: IconApps },
+    ...(plan?.saas ? [{ name: t('plan', 'Plan'), path: 'plan', icon: IconCreditCard }] : []),
     ...(can('contacts.delete') ? [{ name: t('recycle-bin', 'Recycle bin'), path: 'recycle-bin', icon: IconTrash }] : []),
     ...(can('payments.manage') ? [{ name: t('payments', 'Payments'), path: 'payments', icon: IconCash }] : []),
     ...(can('webhooks.manage') ? [{ name: t('webhooks', 'Webhooks'), path: 'webhooks', icon: IconWebhook }] : []),

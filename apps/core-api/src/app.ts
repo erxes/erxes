@@ -19,6 +19,8 @@ import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { paymentCallbackRouter } from '~/modules/payments/payments.service';
 import { coreApi, openApiDocument } from '~/rpc';
 import { log } from '~/lib/log';
+import { saasRouter } from '~/modules/saas/saas.http';
+import { standingGuard } from '~/modules/saas/saas.service';
 
 /** Errors outside oRPC (auth, unknown routes) in the same shape as oRPC's. */
 const errorBody = (status: number, code: string, message: string, data?: unknown) => ({
@@ -45,6 +47,9 @@ export const createApp = (): Express => {
     signInLimit,
   );
   app.use('/core/v1/plugins/token', tokenLimit);
+
+  // The SaaS control plane's own door: signed over the raw body, so before JSON parsing and member authentication.
+  app.use('/core/v1/saas', tokenLimit, saasRouter);
 
   app.use(express.json({ limit: '1mb' }));
 
@@ -81,7 +86,7 @@ export const createApp = (): Express => {
   app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
-  app.use('/core/v1', authenticate, streamRouter, downloadRouter, auditExportRouter, coreApi);
+  app.use('/core/v1', authenticate, standingGuard, streamRouter, downloadRouter, auditExportRouter, coreApi);
 
   app.use((_req, res) => {
     res.status(404).json(errorBody(404, 'NOT_FOUND', 'No such route'));

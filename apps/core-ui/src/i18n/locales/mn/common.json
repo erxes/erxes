@@ -223,7 +223,8 @@
     "roles": "Үүргүүд",
     "webhooks": "Вэбхүүк",
     "payments": "Төлбөр",
-    "recycle-bin": "Хогийн сав"
+    "recycle-bin": "Хогийн сав",
+    "plan": "Багц"
   },
   "plugin": {
     "_": "Плагин",

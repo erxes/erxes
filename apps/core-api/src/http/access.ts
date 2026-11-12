@@ -15,10 +15,11 @@ export type MemberRule = 'any' | CorePermission;
  * Who may call a procedure. Nothing is allowed unless written here:
  * `member` for signed-in team members (a permission their role must hold),
  * `plugin` for plugin tokens with that scope (`manifest`: the plugin's own
- * deployment-wide token, no organisation). Services may check more (a
+ * deployment-wide token, no organisation; `installed`: any token for an
+ * organisation that has it, no scope needed). Services may check more (a
  * member's own note, an owner's account).
  */
-export type Policy = { public: true } | { member?: MemberRule; plugin?: PluginScope | 'manifest' };
+export type Policy = { public: true } | { member?: MemberRule; plugin?: PluginScope | 'manifest' | 'installed' };
 
 const MEMBER = { member: 'any' } as const;
 const PUBLIC = { public: true } as const;
@@ -69,6 +70,8 @@ export const ACCESS = {
   'auth.invitation': PUBLIC,
   'auth.acceptInvitation': PUBLIC,
   'auth.me': MEMBER,
+  'saas.plan': MEMBER,
+  'saas.pluginPlan': { plugin: 'installed' },
   'auth.onboarded': MEMBER,
   'auth.changePassword': MEMBER,
   'auth.signIns': MEMBER,
@@ -247,6 +250,8 @@ export const enforceAccess = (path: string, req: Request) => {
     }
 
     if (!req.plugin) throw new HttpError(403, 'ORG_REQUIRED', 'Use a token for an organisation to do this');
+
+    if (policy.plugin === 'installed') return;
 
     if (!req.plugin.scopes.includes(policy.plugin)) {
       throw new HttpError(403, 'SCOPE_REQUIRED', `This needs the ${policy.plugin} scope, which this installation hasn't granted`);

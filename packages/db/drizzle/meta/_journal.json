@@ -218,6 +218,20 @@
       "when": 1794450101769,
       "tag": "0030_user_onboarded",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794450580915,
+      "tag": "0031_organization_plans",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794450642671,
+      "tag": "0032_used_tokens",
+      "breakpoints": true
     }
   ]
 }

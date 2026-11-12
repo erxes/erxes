@@ -7,6 +7,7 @@ import { type Actor, can, PLUGIN_ACCESS_TYP, type PluginCaller, type PluginServi
 import { HttpError } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { assertPluginInPlan } from '~/modules/saas/saas.service';
 
 type PluginRow = typeof plugins.$inferSelect;
 type InstallationRow = typeof pluginInstallations.$inferSelect;
@@ -136,7 +137,8 @@ export const rotatePluginSecret = async (name: string) => {
 
 /** New organisations get every active plugin when auto-install is on (self-hosted, development). */
 export const installPluginsForNewOrganization = async (tx: Db, orgId: string) => {
-  if (!config.plugins.autoInstall) return;
+  // On SaaS the plan decides (`reconcilePlugins`), not the deployment.
+  if (!config.plugins.autoInstall || config.saas.enabled) return;
 
   const rows = await tx.select().from(plugins).where(eq(plugins.status, 'active'));
 
@@ -249,7 +251,13 @@ const pluginOrThrow = async (client: Db, name: string) => {
 };
 
 /** Installs a plugin, or grants the scopes a newer version asks for. */
-export const installPlugin = (actor: Actor, name: string) =>
+export const installPlugin = async (actor: Actor, name: string) => {
+  await assertPluginInPlan(actor.orgId, name);
+
+  return installPluginTx(actor, name);
+};
+
+const installPluginTx = (actor: Actor, name: string) =>
   db().transaction(async (tx) => {
     const row = await pluginOrThrow(tx, name);
     const scopes = requestedScopes(row);

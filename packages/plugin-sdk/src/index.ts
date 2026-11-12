@@ -26,6 +26,11 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
  *   });
  *   await core.forOrg(orgId).payments.refund({ id: invoice.id, reason: 'Out of stock' });
  *
+ * Plan limits on SaaS (enforce your own features; self-hosted: included, no limits):
+ *
+ *   const { included, limits, standing } = await core.forOrg(orgId).saas.pluginPlan();
+ *   if (limits.employees != null && count >= limits.employees) throw new Error('Upgrade to add more');
+ *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
  * also call `core_publish_event()`, `core_record_audit()` and

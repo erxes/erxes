@@ -28,6 +28,8 @@ export const getOrganization = async (client: Db, orgId: string) => {
 };
 
 interface NewOrganization {
+  /** Given by the SaaS control plane; new otherwise. */
+  id?: string;
   subdomain: string;
   name: string;
   owner: { email: string; fullName?: string; passwordHash?: string };
@@ -43,7 +45,7 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
 
   const [organization] = await tx
     .insert(organizations)
-    .values({ id: newId(), subdomain, name: input.name.trim() })
+    .values({ id: input.id ?? newId(), subdomain, name: input.name.trim() })
     .returning();
   await seedRoles(tx, organization!.id);
 

@@ -184,6 +184,19 @@ export const config = {
      */
     allowPrivate: (process.env.OUTBOUND_ALLOW_PRIVATE ?? (isProduction ? 'false' : 'true')) === 'true',
   },
+  /**
+   * SaaS (erxes.io): the control plane pushes each organisation's plan
+   * (`PUT /core/v1/saas/organizations/{id}`, signed with SAAS_SECRET) and core
+   * enforces it. Off: self-hosted, no plans or limits.
+   */
+  saas: {
+    enabled: process.env.SAAS === 'true',
+    secret: readSecret('SAAS_SECRET'),
+    /** Days changes keep working after an unpaid period ends, unless the plan says. */
+    graceDays: readNumber('SAAS_GRACE_DAYS', 7),
+    /** Where the dashboard hand-off returns members after sign-in. */
+    dashboardUrl: process.env.SAAS_DASHBOARD_URL?.trim() || 'https://erxes.io',
+  },
   /** Secret → plugin name. */
   pluginKeys: readPluginKeys(),
   plugins: {
@@ -230,6 +243,10 @@ if (isProduction && config.data.sslInsecure) {
 
 if (isProduction && !config.auth.signingKey) {
   throw new Error('CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256');
+}
+
+if (config.saas.enabled && (!config.saas.secret || config.saas.secret.length < 32)) {
+  throw new Error('SAAS=true needs SAAS_SECRET (at least 32 characters), shared with the control plane');
 }
 
 if (config.files.driver === 's3' && !config.files.s3.bucket) {
