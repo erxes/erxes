@@ -46,16 +46,16 @@ export const hexToOklch = (hex: string, onlyValue = false): string => {
   const m = 0.0329845436 * x + 0.9293118715 * y + 0.0361456387 * z;
   const s = 0.0482003018 * x + 0.2643662691 * y + 0.633851707 * z;
 
-  const l_ = Math.cbrt(l);
-  const m_ = Math.cbrt(m);
-  const s_ = Math.cbrt(s);
+  const lRoot = Math.cbrt(l);
+  const mRoot = Math.cbrt(m);
+  const sRoot = Math.cbrt(s);
 
-  const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
-  const a = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
-  const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
+  const L = 0.2104542553 * lRoot + 0.793617785 * mRoot - 0.0040720468 * sRoot;
+  const a = 1.9779984951 * lRoot - 2.428592205 * mRoot + 0.4505937099 * sRoot;
+  const bAxis = 0.0259040371 * lRoot + 0.7827717662 * mRoot - 0.808675766 * sRoot;
 
-  const C = Math.sqrt(a * a + b_ * b_);
-  let h = Math.atan2(b_, a) * (180 / Math.PI);
+  const C = Math.sqrt(a * a + bAxis * bAxis);
+  let h = Math.atan2(bAxis, a) * (180 / Math.PI);
 
   if (h < 0) h += 360;
 

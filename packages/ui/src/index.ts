@@ -207,11 +207,12 @@ export { useFilterContext } from './modules/filter/hooks/useFilterContext';
 
 export { useFilterQueryState } from './modules/filter/hooks/useFilterQueryState';
 
+export { FocusSheet } from './modules/focus-sheet/components/focus-sheet';
+
 export {
-  FocusSheet,
   useFocusSheet,
   useOptionalFocusSheet,
-} from './modules/focus-sheet/components/focus-sheet';
+} from './modules/focus-sheet/components/focus-sheet-context';
 
 export { PopoverScoped } from './modules/hotkey/components/PopoverScoped';
 
