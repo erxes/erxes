@@ -47,92 +47,89 @@ const useInviteEmails = () => {
   });
 };
 
-export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void }) => {
-  const inviteEmails = useInviteEmails();
+/** Emails typed one by one: each is checked, then kept as a tag. */
+const useEmailTags = () => {
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   const [tags, setTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
 
-  const onClick = () => {
-    const trimmed = inputValue.trim();
-    const emails = [...tags];
+  /** Why `email` cannot be added, if it cannot. */
+  const problemWith = (email: string) => {
+    if (!emailSchema.safeParse(email).success) return t('invalid-email');
 
-    if (trimmed) {
-      const validation = emailSchema.safeParse(trimmed);
-
-      if (!validation.success) {
-        setError(t('invalid-email'));
-
-        return;
-      }
-
-      if (emails.includes(trimmed)) {
-        setError(t('email-already-added'));
-
-        return;
-      }
-
-      emails.push(trimmed);
-    }
-
-    if (emails.length === 0) {
-      setError(t('add-at-least-one-email'));
-
-      return;
-    }
-
-    // As in old erxes the step moves on while the invitations go out
-    inviteEmails.mutate(emails);
-    setInputValue('');
-    setError('');
-    onContinue();
+    return tags.includes(email) ? t('email-already-added') : null;
   };
 
   const addTag = (value: string) => {
-    const trimmedValue = value.trim();
+    const email = value.trim();
 
-    if (!trimmedValue) return;
+    if (!email) return;
 
-    const validation = emailSchema.safeParse(trimmedValue);
+    const problem = problemWith(email);
 
-    if (!validation.success) {
-      setError(t('invalid-email'));
+    setError(problem ?? '');
 
-      return;
+    if (problem) return;
+
+    setTags([...tags, email]);
+    setInputValue('');
+  };
+
+  /** The tags and what is still typed, or null with the reason shown. */
+  const collect = () => {
+    const typed = inputValue.trim();
+    const problem = typed ? problemWith(typed) : null;
+    const emails = typed ? [...tags, typed] : tags;
+
+    if (problem || !emails.length) {
+      setError(problem ?? t('add-at-least-one-email'));
+
+      return null;
     }
 
-    if (tags.includes(trimmedValue)) {
-      setError(t('email-already-added'));
-
-      return;
-    }
-
-    setTags([...tags, trimmedValue]);
     setInputValue('');
     setError('');
+
+    return emails;
   };
 
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
+  return {
+    tags,
+    inputValue,
+    error,
+    collect,
+    removeTag: (email: string) => setTags(tags.filter((tag) => tag !== email)),
+    onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === ',' || event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        addTag(inputValue);
+      }
+    },
+    onChange: (event: ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+
+      setError('');
+
+      if (value.endsWith(',') || value.endsWith(' ')) addTag(value.slice(0, -1));
+      else setInputValue(value);
+    },
   };
+};
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === ',' || e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      addTag(inputValue);
-    }
-  };
+export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void }) => {
+  const inviteEmails = useInviteEmails();
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
+  const { tags, inputValue, error, collect, removeTag, onKeyDown, onChange } = useEmailTags();
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setError('');
+  const onClick = () => {
+    const emails = collect();
 
-    if (value.endsWith(',') || value.endsWith(' ')) {
-      addTag(value.slice(0, -1));
-    } else {
-      setInputValue(value);
-    }
+    if (!emails) return;
+
+    // The step moves on while the invitations go out.
+    inviteEmails.mutate(emails);
+    onContinue();
   };
 
   return (
@@ -154,8 +151,8 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
                 name="email"
                 placeholder={t('enter-email-addresses')}
                 value={inputValue}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
                 className={cn(error && 'focus-visible:shadow-focus-destructive')}
               />
               {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
@@ -171,6 +168,7 @@ export const InviteTeamMemberSection = ({ onContinue }: { onContinue: () => void
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
+                      aria-label={t('remove-email', { email: tag })}
                       className="hover:bg-secondary-foreground/20 rounded-sm p-0.5 shrink-0"
                     >
                       <IconX className="size-3" />

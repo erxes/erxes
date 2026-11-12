@@ -623,6 +623,7 @@
     "do-this-later": "I'll do this later",
     "invalid-email": "Please enter a valid email address",
     "email-already-added": "This email has already been added",
+    "remove-email": "Remove {{email}}",
     "add-at-least-one-email": "Please add at least one email address",
     "create-profile": "Create your profile",
     "profile-description-username": "Add your details and pick a username",

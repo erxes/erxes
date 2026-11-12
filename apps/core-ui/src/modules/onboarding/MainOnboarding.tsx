@@ -1,20 +1,63 @@
 import { usePreviousHotkeyScope } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useCan, useSession } from '~/modules/auth/session';
-import { SetupScreen } from './components/SetupScreen';
-import { useNeedsOnboarding } from './OnboardingGuard';
+import { appearStyle } from './components/Appear';
 import { FinalSection } from './components/FinalSection';
 import { InviteTeamMemberSection } from './components/InviteTeamMemberSection';
 import { OnboardingLeftSideBar } from './components/OnboardingLeftSideBar';
 import { OnboardingStepper } from './components/OnboardingStepper';
+import { getOnboardingSteps, type OnboardingStepDef } from './components/onboardingSteps';
 import { ProfileSection } from './components/ProfileSection';
+import { SetupScreen } from './components/SetupScreen';
 import { ThemeSection } from './components/ThemeSection';
 import { WelcomeSection } from './components/WelcomeSection';
-import { appearStyle } from './components/Appear';
-import { getOnboardingSteps } from './components/onboardingSteps';
+import { useNeedsOnboarding } from './OnboardingGuard';
 import { onboardingStepState } from './state/onboardingState';
+
+/** Keyboard shortcuts of the steps live in the `welcome` scope while onboarding is open. */
+const useWelcomeHotkeyScope = () => {
+  const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } =
+    usePreviousHotkeyScope();
+
+  useEffect(() => {
+    setHotkeyScopeAndMemorizePreviousScope('welcome');
+
+    return () => goBackToPreviousHotkeyScope();
+  }, [setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope]);
+};
+
+/** The section of the current step. */
+const StepContent = ({
+  step,
+  steps,
+  canInvite,
+  exampleData,
+  onStep,
+  onFinish,
+}: {
+  step: number;
+  steps: OnboardingStepDef[];
+  canInvite: boolean;
+  exampleData?: { value: boolean; onChange: (value: boolean) => void };
+  onStep: (step: number) => void;
+  onFinish: () => void;
+}) => {
+  if (step === 1) return <WelcomeSection steps={steps} onContinue={() => onStep(2)} />;
+
+  if (step === 2) return <ProfileSection onContinue={() => onStep(3)} />;
+
+  if (step === 3) return <ThemeSection onContinue={() => onStep(4)} />;
+
+  if (canInvite && step === 4) return <InviteTeamMemberSection onContinue={() => onStep(5)} />;
+
+  if (step === (canInvite ? 5 : 4)) {
+    return <FinalSection exampleData={exampleData} onContinue={onFinish} />;
+  }
+
+  return null;
+};
 
 export const MainOnboarding = () => {
   const navigate = useNavigate();
@@ -26,31 +69,16 @@ export const MainOnboarding = () => {
   // After the last step: "Setting up …" while it is saved (on the member, so
   // other browsers skip the steps too) and the example data is seeded.
   const [settingUp, setSettingUp] = useState(false);
-  const [currentStep, setCurrentStep] = useAtom(onboardingStepState);
-  // Old erxes offered invites to owners; in the new core admins may invite too
+  const [storedStep, setCurrentStep] = useAtom(onboardingStepState);
+  // Owners and admins may invite.
   const canInvite = useCan()('team.invite');
   const steps = useMemo(() => getOnboardingSteps(canInvite), [canInvite]);
+  // A step kept from another layout (e.g. before invites were allowed) starts over.
+  const currentStep = storedStep >= 1 && storedStep <= steps.length ? storedStep : 1;
 
-  const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } =
-    usePreviousHotkeyScope();
+  useWelcomeHotkeyScope();
 
-  useEffect(() => {
-    setHotkeyScopeAndMemorizePreviousScope('welcome');
-
-    return () => goBackToPreviousHotkeyScope();
-  }, [setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope]);
-
-  useEffect(() => {
-    if (!needsOnboarding) {
-      void navigate('/', { replace: true });
-    }
-  }, [needsOnboarding, navigate]);
-
-  useEffect(() => {
-    if (currentStep < 1 || currentStep > steps.length) {
-      setCurrentStep(1);
-    }
-  }, [currentStep, steps.length, setCurrentStep]);
+  if (!needsOnboarding) return <Navigate to="/" replace />;
 
   if (settingUp) {
     return (
@@ -84,24 +112,14 @@ export const MainOnboarding = () => {
           <span className="h-px flex-1 bg-gradient-to-r from-primary/60 to-transparent" />
         </div>
         <div className="flex w-5/6 flex-col items-center justify-center gap-4 lg:w-4/6">
-          {currentStep === 1 && (
-            <WelcomeSection steps={steps} onContinue={() => setCurrentStep(2)} />
-          )}
-
-          {currentStep === 2 && <ProfileSection onContinue={() => setCurrentStep(3)} />}
-
-          {currentStep === 3 && <ThemeSection onContinue={() => setCurrentStep(currentStep + 1)} />}
-
-          {canInvite && currentStep === 4 && (
-            <InviteTeamMemberSection onContinue={() => setCurrentStep(currentStep + 1)} />
-          )}
-
-          {currentStep === (canInvite ? 5 : 4) && (
-            <FinalSection
-              exampleData={isOwner ? { value: exampleData, onChange: setExampleData } : undefined}
-              onContinue={() => setSettingUp(true)}
-            />
-          )}
+          <StepContent
+            step={currentStep}
+            steps={steps}
+            canInvite={canInvite}
+            exampleData={isOwner ? { value: exampleData, onChange: setExampleData } : undefined}
+            onStep={setCurrentStep}
+            onFinish={() => setSettingUp(true)}
+          />
         </div>
       </div>
 
@@ -113,9 +131,7 @@ export const MainOnboarding = () => {
             setCurrentStep={(index) => {
               const target = steps[index - 1];
 
-              if (target && index <= currentStep) {
-                setCurrentStep(target.step);
-              }
+              if (target && index <= currentStep) setCurrentStep(target.step);
             }}
           />
         </div>

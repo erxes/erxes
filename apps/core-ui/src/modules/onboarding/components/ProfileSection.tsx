@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Input, Spinner, useToast } from 'erxes-ui';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { UserAvatar } from '~/components/UserAvatar';
@@ -31,29 +31,78 @@ const splitName = (fullName: string | null) => {
   return { firstName, lastName: rest.join(' ') };
 };
 
-export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
-  const { t: tOnboarding } = useTranslation(ONBOARDING_NS);
-  const session = useSession();
-  const { user } = session;
-  const client = useQueryClient();
-  const { toast } = useToast();
+const TextField = ({
+  name,
+  label,
+}: {
+  name: 'firstName' | 'lastName' | 'username';
+  label: string;
+}) => {
+  const { control } = useFormContext<ProfileFormType>();
 
-  const form = useForm<ProfileFormType>({
-    resolver: zodResolver(getProfileFormSchema(tOnboarding)),
-    defaultValues: {
-      ...splitName(user.fullName),
-      avatar: user.avatarUrl ?? '',
-      username: user.username ?? '',
-    },
-  });
+  return (
+    <Form.Field
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Form.Control>
+            <Input type="text" placeholder={label} {...field} />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+/** The picture's URL beside a preview of the avatar it gives. */
+const AvatarField = () => {
+  const { t } = useTranslation(ONBOARDING_NS);
+  const { user } = useSession();
+  const { control } = useFormContext<ProfileFormType>();
 
   const [avatar, firstName, lastName] = useWatch({
-    control: form.control,
+    control,
     name: ['avatar', 'firstName', 'lastName'],
   });
 
   const name = [firstName, lastName].filter(Boolean).join(' ') || user.email;
+
+  return (
+    <Form.Field
+      control={control}
+      name="avatar"
+      render={({ field }) => (
+        <Form.Item className="mb-2">
+          <div className="flex items-start gap-4">
+            <UserAvatar
+              name={name}
+              src={avatar}
+              className="size-16 shrink-0 rounded-lg text-base"
+            />
+            <div className="flex flex-col gap-2 flex-1">
+              <Form.Label>{t('avatar-url')}</Form.Label>
+              <Form.Control>
+                <Input type="url" placeholder="https://" {...field} />
+              </Form.Control>
+              <Form.Description className="text-xs">{t('avatar-url-description')}</Form.Description>
+              <Form.Message />
+            </div>
+          </div>
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+/** Saves the profile on the member and in the session, then moves on. */
+const useProfileSave = (onContinue: () => void) => {
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
+  const { user } = useSession();
+  const client = useQueryClient();
+  const { toast } = useToast();
 
   const update = useMutation(
     orpc.users.update.mutationOptions({
@@ -81,6 +130,24 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
       avatarUrl: data.avatar || null,
     });
 
+  return { save, saving: update.isPending };
+};
+
+export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
+  const { t: tOnboarding } = useTranslation(ONBOARDING_NS);
+  const { user } = useSession();
+  const { save, saving } = useProfileSave(onContinue);
+
+  const form = useForm<ProfileFormType>({
+    resolver: zodResolver(getProfileFormSchema(tOnboarding)),
+    defaultValues: {
+      ...splitName(user.fullName),
+      avatar: user.avatarUrl ?? '',
+      username: user.username ?? '',
+    },
+  });
+
   return (
     <Appear
       y={50}
@@ -95,79 +162,14 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
       <Appear y={20} duration={400} delay={300}>
         <Form {...form}>
           <form onSubmit={(event) => void form.handleSubmit(save)(event)} className="grid gap-3">
-            <Form.Field
-              control={form.control}
-              name="avatar"
-              render={({ field }) => (
-                <Form.Item className="mb-2">
-                  <div className="flex items-start gap-4">
-                    <UserAvatar
-                      name={name}
-                      src={avatar}
-                      className="size-16 shrink-0 rounded-lg text-base"
-                    />
-                    <div className="flex flex-col gap-2 flex-1">
-                      <Form.Label>{tOnboarding('avatar-url')}</Form.Label>
-                      <Form.Control>
-                        <Input type="url" placeholder="https://" {...field} />
-                      </Form.Control>
-                      <Form.Description className="text-xs">
-                        {tOnboarding('avatar-url-description')}
-                      </Form.Description>
-                      <Form.Message />
-                    </div>
-                  </div>
-                </Form.Item>
-              )}
-            />
+            <AvatarField />
             <div className="grid grid-cols-2 gap-3">
-              <Form.Field
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('first-name')}</Form.Label>
-                    <Form.Control>
-                      <Input type="text" placeholder={t('first-name')} {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('last-name')}</Form.Label>
-                    <Form.Control>
-                      <Input type="text" placeholder={t('last-name')} {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+              <TextField name="firstName" label={t('first-name')} />
+              <TextField name="lastName" label={t('last-name')} />
             </div>
-            <Form.Field
-              name="username"
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('username')}</Form.Label>
-                  <Form.Control>
-                    <Input type="text" placeholder={t('username')} {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Button
-              type="submit"
-              className="w-full cursor-pointer"
-              size="lg"
-              disabled={update.isPending}
-            >
-              {update.isPending && <Spinner size="sm" />}
+            <TextField name="username" label={t('username')} />
+            <Button type="submit" className="w-full cursor-pointer" size="lg" disabled={saving}>
+              {saving && <Spinner size="sm" />}
               {t('continue')}
             </Button>
           </form>

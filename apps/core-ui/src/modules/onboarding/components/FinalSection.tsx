@@ -5,17 +5,50 @@ import { useTranslation } from 'react-i18next';
 import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD, EASE_SPRING } from './Appear';
 
+interface ExampleDataChoice {
+  value: boolean;
+  onChange: (value: boolean) => void;
+}
+
+const ExampleDataToggle = ({ exampleData }: { exampleData: ExampleDataChoice }) => {
+  const { t } = useTranslation(ONBOARDING_NS);
+  const id = useId();
+
+  return (
+    <Appear y={20} duration={500} delay={500} className="-my-4 w-full">
+      <label
+        htmlFor={id}
+        className="flex cursor-pointer items-start justify-between gap-4 rounded-lg border bg-background p-3.5 text-left transition-colors hover:bg-muted/40"
+      >
+        <span className="min-w-0">
+          <span className="block text-sm font-medium">{t('example-data', 'Add example data')}</span>
+          <span className="block text-xs text-muted-foreground">
+            {t(
+              'example-data-description',
+              'A few companies, customers and leads with notes, to explore with. Tagged “Example”, so you can delete them any time.',
+            )}
+          </span>
+        </span>
+        <Switch
+          id={id}
+          checked={exampleData.value}
+          onCheckedChange={exampleData.onChange}
+          className="mt-0.5 shrink-0"
+        />
+      </label>
+    </Appear>
+  );
+};
+
 export const FinalSection = ({
   onContinue,
   exampleData,
 }: {
   onContinue: () => void;
   /** Offered to the owner of a fresh organisation: fill it with example data. */
-  exampleData?: { value: boolean; onChange: (value: boolean) => void };
+  exampleData?: ExampleDataChoice;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
-  const { t: ot } = useTranslation(ONBOARDING_NS);
-  const exampleDataId = useId();
 
   useScopedHotkeys(`enter`, () => onContinue(), 'welcome');
   useScopedHotkeys(`space`, () => onContinue(), 'welcome');
@@ -48,32 +81,7 @@ export const FinalSection = ({
         </p>
       </Appear>
 
-      {exampleData && (
-        <Appear y={20} duration={500} delay={500} className="-my-4 w-full">
-          <label
-            htmlFor={exampleDataId}
-            className="flex cursor-pointer items-start justify-between gap-4 rounded-lg border bg-background p-3.5 text-left transition-colors hover:bg-muted/40"
-          >
-            <span className="min-w-0">
-              <span className="block text-sm font-medium">
-                {ot('example-data', 'Add example data')}
-              </span>
-              <span className="block text-xs text-muted-foreground">
-                {ot(
-                  'example-data-description',
-                  'A few companies, customers and leads with notes, to explore with. Tagged “Example”, so you can delete them any time.',
-                )}
-              </span>
-            </span>
-            <Switch
-              id={exampleDataId}
-              checked={exampleData.value}
-              onCheckedChange={exampleData.onChange}
-              className="mt-0.5 shrink-0"
-            />
-          </label>
-        </Appear>
-      )}
+      {exampleData && <ExampleDataToggle exampleData={exampleData} />}
 
       <Appear
         y={20}
