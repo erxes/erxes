@@ -5,7 +5,7 @@ import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
 import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
 import { formatTotal } from '~/lib/cursorList';
-import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
+import { AdvancedFilterButton } from '../views/ViewControls';
 import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
 import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
 
@@ -91,9 +91,8 @@ export const CompaniesFilter = ({ state = 'customer' }: { state?: 'lead' | 'cust
         {state === 'lead' && <LeadStageFilter.Bar />}
         <TagsFilter.Bar type="company" />
         <SelectMember.FilterBar label={companyT('owner')} />
-        <AdvancedFilterButton recordType="company" />
+        <AdvancedFilterButton recordType={state === 'lead' ? 'company_lead' : 'company'} />
         <CompaniesTotalCount state={state} />
-        <SaveViewButton recordType="company" />
         {state === 'lead' && <LeadDisplayMenu />}
       </Filter.Bar>
     </Filter>

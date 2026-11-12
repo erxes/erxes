@@ -4,6 +4,7 @@ import { LeadsBoard } from '~/modules/leads/LeadsBoard';
 import { useLeadView } from '~/modules/leads/leadView';
 import { CustomersFilter } from './CustomersFilter';
 import { CustomersHeader } from './CustomersHeader';
+import { ViewTabs } from '../views/ViewTabs';
 import { CustomersRecordTable } from './CustomersRecordTable';
 
 /**
@@ -18,6 +19,7 @@ export const CustomersPage = ({ state }: { state: CustomerState }) => {
   return (
     <PageContainer>
       <CustomersHeader state={state} />
+      <ViewTabs recordType={state} allLabel={state === 'lead' ? 'All leads' : 'All customers'} />
       <PageSubHeader>
         <CustomersFilter state={state} />
       </PageSubHeader>

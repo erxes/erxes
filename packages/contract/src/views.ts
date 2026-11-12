@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { ConditionGroup } from './automations';
 import { Id } from './common';
 
-export const ViewRecordType = z.enum(['customer', 'lead', 'company']);
+/** The list a view belongs to: customers, leads (people), companies, company leads. */
+export const ViewRecordType = z.enum(['customer', 'lead', 'company', 'company_lead']);
 export type ViewRecordType = z.infer<typeof ViewRecordType>;
 
 /**

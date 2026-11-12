@@ -136,7 +136,8 @@ export const companyListWhere = async (
     filter?: string;
   },
 ) => {
-  const filters: (SQL | undefined)[] = [await compileRecordFilter(client, actor, 'company', query.filter)];
+  // Company leads have their own views (and lead fields).
+  const filters: (SQL | undefined)[] = [await compileRecordFilter(client, actor, query.state === 'lead' ? 'company_lead' : 'company', query.filter)];
 
   if (query.state) {
     filters.push(eq(companies.state, query.state));

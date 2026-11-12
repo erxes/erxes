@@ -3,6 +3,7 @@ import { LeadsBoard } from '~/modules/leads/LeadsBoard';
 import { useLeadView } from '~/modules/leads/leadView';
 import { CompaniesFilter } from './CompaniesFilter';
 import { CompaniesHeader } from './CompaniesHeader';
+import { ViewTabs } from '../views/ViewTabs';
 import { CompaniesRecordTable } from './CompaniesRecordTable';
 
 /**
@@ -16,6 +17,7 @@ export const CompaniesPage = ({ state = 'customer' }: { state?: 'lead' | 'custom
   return (
     <PageContainer>
       <CompaniesHeader state={state} />
+      <ViewTabs recordType={state === 'lead' ? 'company_lead' : 'company'} allLabel={state === 'lead' ? 'All company leads' : 'All companies'} />
       <PageSubHeader>
         <CompaniesFilter state={state} />
       </PageSubHeader>

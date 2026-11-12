@@ -1,6 +1,6 @@
 import type { ConditionGroup, View, ViewRecordType } from '@erxes/core-contract';
-import { IconAdjustmentsHorizontal, IconDeviceFloppy, IconDots, IconLayoutList, IconPencil, IconTrash, IconUsers, IconX } from '@tabler/icons-react';
-import { Badge, Button, cn, Dialog, DropdownMenu, Input, Label, Popover, Sidebar, Switch, useConfirm } from 'erxes-ui';
+import { IconAdjustmentsHorizontal, IconDeviceFloppy } from '@tabler/icons-react';
+import { Badge, Button, Dialog, Input, Label, Popover, Switch } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCan } from '~/modules/auth/session';
@@ -75,7 +75,7 @@ export const AdvancedFilterButton = ({ recordType }: { recordType: ViewRecordTyp
   );
 };
 
-const ViewDialog = ({
+export const ViewDialog = ({
   open,
   onOpenChange,
   title,
@@ -176,93 +176,5 @@ export const SaveViewButton = ({ recordType }: { recordType: ViewRecordType }) =
         }
       />
     </div>
-  );
-};
-
-const ViewItem = ({ view, recordType, active }: { view: View; recordType: ViewRecordType; active: boolean }) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'views' });
-  const { confirm } = useConfirm();
-  const { openView } = useListQuery();
-  const { update, remove } = useViewMutations(recordType);
-  const [renaming, setRenaming] = useState(false);
-
-  return (
-    <Sidebar.MenuItem className="group/view">
-      <Sidebar.MenuButton className="px-2" isActive={active} onClick={() => openView(active ? null : view)}>
-        {view.shared ? <IconUsers /> : <IconLayoutList />}
-        <span className="min-w-0 flex-1 truncate">{view.name}</span>
-      </Sidebar.MenuButton>
-      {view.editable && (
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <button
-              type="button"
-              aria-label={t('actions', 'View actions')}
-              className="absolute top-1.5 right-1 flex size-5 items-center justify-center rounded opacity-0 group-hover/view:opacity-100 hover:bg-muted focus:opacity-100"
-            >
-              <IconDots className="size-3.5" />
-            </button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="start">
-            <DropdownMenu.Item onClick={() => setRenaming(true)}>
-              <IconPencil />
-              {t('rename', 'Rename')}
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onClick={() => update.mutate({ id: view.id, shared: !view.shared })}>
-              <IconUsers />
-              {view.shared ? t('unshare', 'Make private') : t('share', 'Share with the team')}
-            </DropdownMenu.Item>
-            <DropdownMenu.Item
-              className="text-destructive"
-              onClick={() =>
-                void confirm({ message: t('delete-confirm', 'Delete the view “{{name}}”? The records stay.', { name: view.name }) }).then(() =>
-                  remove.mutate(view.id, { onSuccess: () => active && openView(null) }),
-                )
-              }
-            >
-              <IconTrash />
-              {t('delete', 'Delete')}
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      )}
-      <ViewDialog
-        open={renaming}
-        onOpenChange={setRenaming}
-        title={t('rename', 'Rename')}
-        initial={{ name: view.name, shared: view.shared }}
-        pending={update.isPending}
-        onSave={({ name, shared }) => update.mutate({ id: view.id, name, shared }, { onSuccess: () => setRenaming(false) })}
-      />
-    </Sidebar.MenuItem>
-  );
-};
-
-/** The list's saved views in the app sidebar: shared ones first, a click opens (or closes) one. */
-export const ViewsNavigation = ({ recordType }: { recordType: ViewRecordType }) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'views' });
-  const { views, current, filtered } = useViewState(recordType);
-  const { openView } = useListQuery();
-
-  if (!views.length) return null;
-
-  return (
-    <Sidebar.Group className="px-2 py-1">
-      <Sidebar.GroupLabel className="flex items-center">
-        <span className="flex-1">{t('title', 'Views')}</span>
-        {(current || filtered) && (
-          <button type="button" className={cn('rounded p-0.5 hover:bg-muted')} aria-label={t('clear', 'Clear')} onClick={() => openView(null)}>
-            <IconX className="size-3.5" />
-          </button>
-        )}
-      </Sidebar.GroupLabel>
-      <Sidebar.GroupContent>
-        <Sidebar.Menu>
-          {views.map((view) => (
-            <ViewItem key={view.id} view={view} recordType={recordType} active={current?.id === view.id} />
-          ))}
-        </Sidebar.Menu>
-      </Sidebar.GroupContent>
-    </Sidebar.Group>
   );
 };

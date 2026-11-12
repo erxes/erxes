@@ -4,7 +4,7 @@ import { Combobox, Command, Filter, isUndefinedOrNull, Skeleton, useFilterQueryS
 import { useTranslation } from 'react-i18next';
 import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
-import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
+import { AdvancedFilterButton } from '../views/ViewControls';
 import { customersSessionKey, useCustomers } from './useCustomers';
 import { LeadStageFilter } from '~/modules/leads/LeadStageFilter';
 import { LeadDisplayMenu } from '~/modules/leads/LeadDisplayMenu';
@@ -93,7 +93,6 @@ export const CustomersFilter = ({ state }: { state: CustomerState }) => {
         <SelectMember.FilterBar label={contactT('owner')} />
         <AdvancedFilterButton recordType={state} />
         <CustomerTotalCount state={state} />
-        <SaveViewButton recordType={state} />
         {state === 'lead' && <LeadDisplayMenu />}
       </Filter.Bar>
     </Filter>

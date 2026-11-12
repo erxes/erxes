@@ -288,6 +288,13 @@
       "when": 1794462497424,
       "tag": "0040_company_leads_and_links",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794466223715,
+      "tag": "0041_company_lead_views",
+      "breakpoints": true
     }
   ]
 }

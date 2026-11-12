@@ -49,7 +49,7 @@ const FILTER_TYPE: Record<string, FieldType> = {
 
 /** Built-in fields, custom fields (`customFields.<id>`), the linked company's fields and activity. */
 export const filterFields = async (client: Db, orgId: string, recordType: ViewRecordType): Promise<FieldSpec[]> => {
-  const isCompany = recordType === 'company';
+  const isCompany = recordType === 'company' || recordType === 'company_lead';
   const table = isCompany ? companies : customers;
   const f = (path: string, label: string, type: FieldType, expr: SQL, extra: Partial<FieldSpec> = {}): FieldSpec => ({
     path: `subject.${path}`,
@@ -87,7 +87,7 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
       ];
   // People and companies share the lifecycle; the leads list has its stage fields, the companies list (leads and customers) all of them.
   const lifecycle: FieldSpec[] = [
-    ...(isCompany ? [f('state', 'State', 'select', sql`${companies.state}`, { options: ['lead', 'customer'], group: 'lead' })] : []),
+    ...(recordType === 'company' ? [f('state', 'State', 'select', sql`${companies.state}`, { options: ['lead', 'customer'], group: 'lead' })] : []),
     f('source', 'Source', 'select', sql`${table.source}`, { options: [...LEAD_SOURCES], group: 'lead' }),
     f('convertedAt', 'Became a customer', 'date', sql`${table.convertedAt}`, { group: 'lead' }),
     ...(recordType !== 'customer'
@@ -369,7 +369,7 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
 };
 
 const compileTags = (recordType: ViewRecordType, rule: ConditionRule): SQL => {
-  const isCompany = recordType === 'company';
+  const isCompany = recordType === 'company' || recordType === 'company_lead';
   const links = isCompany ? companyTags : customerTags;
   const record = isCompany ? companies.id : customers.id;
   const anyOf = (ids: string[]) => sql`exists (select 1 from ${links} where ${links.recordId} = ${record} and ${inArray(links.tagId, ids)})`;

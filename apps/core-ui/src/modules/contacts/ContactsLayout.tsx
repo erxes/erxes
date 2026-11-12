@@ -1,11 +1,13 @@
-import { IconBuilding, IconChartFunnel, IconChevronDown, IconMagnet, IconUser } from '@tabler/icons-react';
+import { IconBuilding, IconChartFunnel, IconChevronDown, IconLayoutList, IconMagnet, IconUser, IconUsers } from '@tabler/icons-react';
 import { AppLayout, cn, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
 import { ContactsPath } from './utils/contactDetailPath';
-import { ViewsNavigation } from './views/ViewControls';
+import type { ViewRecordType } from '@erxes/core-contract';
+import { useViews } from './views/useViews';
+import { VIEW_LIST_PATHS, viewHref } from './views/viewLinks';
 
 export const CONTACTS_SECTIONS = [
   // People and companies are peers; leads (of either kind) come after.
@@ -16,11 +18,37 @@ export const CONTACTS_SECTIONS = [
 
 const LEADS = `${ContactsPath.Index}${ContactsPath.Leads}`;
 
+/** A list's saved views, nested under it in the sidebar (shown whenever there are any). */
+const NestedViews = ({ recordType, indent = false }: { recordType: ViewRecordType; indent?: boolean }) => {
+  const views = useViews(recordType);
+  const { pathname } = useLocation();
+  const [params] = useSearchParams();
+
+  if (!views.length) return null;
+
+  const here = pathname === VIEW_LIST_PATHS[recordType];
+
+  return (
+    <Sidebar.Sub className={cn(indent && 'ml-5')}>
+      {views.map((view) => (
+        <Sidebar.SubItem key={view.id}>
+          <Sidebar.SubButton asChild size="sm" isActive={here && params.get('view') === view.id}>
+            <Link to={viewHref(recordType, view)} title={view.shared ? 'Shared with the team' : 'Only you'}>
+              {view.shared ? <IconUsers /> : <IconLayoutList />}
+              <span className="truncate">{view.name}</span>
+            </Link>
+          </Sidebar.SubButton>
+        </Sidebar.SubItem>
+      ))}
+    </Sidebar.Sub>
+  );
+};
+
 /** The Leads group: its report first, then people and companies. */
-const LEAD_ITEMS = [
+const LEAD_ITEMS: { label: string; to: string; icon: typeof IconUser; views?: ViewRecordType }[] = [
   { label: 'Insights', to: `${LEADS}/insights`, icon: IconChartFunnel },
-  { label: 'People', to: LEADS, icon: IconUser },
-  { label: 'Companies', to: `${LEADS}/companies`, icon: IconBuilding },
+  { label: 'People', to: LEADS, icon: IconUser, views: 'lead' },
+  { label: 'Companies', to: `${LEADS}/companies`, icon: IconBuilding, views: 'company_lead' },
 ];
 
 /** Which lead item a path is in (`/leads/<id>` is a person). */
@@ -43,7 +71,7 @@ const LeadsGroup = () => {
       </Sidebar.MenuButton>
       {open && (
         <Sidebar.Sub>
-          {LEAD_ITEMS.map(({ label, to, icon: Icon }) => (
+          {LEAD_ITEMS.map(({ label, to, icon: Icon, views }) => (
             <Sidebar.SubItem key={to}>
               <Sidebar.SubButton asChild isActive={active === to}>
                 <Link to={to}>
@@ -51,6 +79,7 @@ const LeadsGroup = () => {
                   <span>{label}</span>
                 </Link>
               </Sidebar.SubButton>
+              {views && <NestedViews recordType={views} indent />}
             </Sidebar.SubItem>
           ))}
         </Sidebar.Sub>
@@ -83,6 +112,7 @@ const ContactsNavigation = () => {
                     <span className="min-w-0 flex-1 truncate capitalize">{t(labelKey)}</span>
                   </Link>
                 </Sidebar.MenuButton>
+                <NestedViews recordType={path === ContactsPath.Companies ? 'company' : 'customer'} />
               </Sidebar.MenuItem>
             );
           })}
@@ -91,25 +121,6 @@ const ContactsNavigation = () => {
       </Sidebar.GroupContent>
     </Sidebar.Group>
   );
-};
-
-/** The open section's saved views (customers, leads or companies). */
-const SectionViews = () => {
-  const { pathname } = useLocation();
-  const section = pathname.slice(ContactsPath.Index.length);
-  // Company leads share the companies' views; lead insights have none.
-  const recordType =
-    section.startsWith(`${ContactsPath.Leads}/insights`)
-      ? null
-      : section.startsWith(ContactsPath.Companies) || section.startsWith(`${ContactsPath.Leads}/companies`)
-        ? 'company'
-        : section.startsWith(ContactsPath.Leads)
-          ? 'lead'
-          : section.startsWith(ContactsPath.Customers)
-            ? 'customer'
-            : null;
-
-  return recordType ? <ViewsNavigation recordType={recordType} /> : null;
 };
 
 /**
@@ -124,7 +135,6 @@ export const ContactsLayout = () => {
       <AppLayout id="contacts" title={t('core-modules.contacts')} sidebar={
           <>
             <ContactsNavigation />
-            <SectionViews />
           </>
         }>
         <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
