@@ -402,8 +402,13 @@ describeWithDb(
       expect(test.body.triggerMatches).toBe(true);
       expect(test.body.trace.map((item: { stepId: string }) => item.stepId)).toEqual(['b', 'n']);
       expect(test.body.trace[1].input).toEqual({ body: 'Hello SAMPLE' });
-      // Nothing happened for real.
+      // Nothing happened for real: no run, and the note step wrote no note.
       expect((await call('GET', `/automations/${draft.body.id}/runs`)).body.data).toEqual([]);
+      await flush();
+      expect(
+        (await call('GET', `/activities?targetType=customer&targetId=${sample.body.id}&kind=notes`))
+          .body.data,
+      ).toEqual([]);
 
       // One run an hour.
       const limited = await create('Limited', {

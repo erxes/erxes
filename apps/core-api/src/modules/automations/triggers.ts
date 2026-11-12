@@ -5,7 +5,8 @@ import { and, eq, lte, sql } from 'drizzle-orm';
 import { log } from '~/lib/log';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
-import { definitionOf, startRun } from './engine';
+import { startRun } from './consumer';
+import { definitionOf } from './runs';
 import { nextOccurrence, zonedDate } from './schedule';
 
 type AutomationRow = typeof automations.$inferSelect;

@@ -248,6 +248,27 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       ),
     ).toHaveLength(1);
     await call(owner, 'POST', `/automations/${created.body.id}/pause`);
+
+    const once = await call(owner, 'POST', '/automations', {
+      name: 'Once',
+      definition: {
+        trigger: { event: 'core.customer.updated' },
+        reentry: 'once',
+        steps: [{ id: 'note', type: 'action', action: 'core.note.add', input: { body: 'once' } }],
+      },
+    });
+
+    await call(owner, 'POST', `/automations/${once.body.id}/activate`);
+    await call(owner, 'PATCH', `/customers/${customer.body.id}`, { lastName: 'First' });
+    await flush();
+    await call(owner, 'PATCH', `/customers/${customer.body.id}`, { lastName: 'Second' });
+    await flush();
+
+    const onceRuns = await call(owner, 'GET', `/automations/${once.body.id}/runs`);
+
+    // Two changes to the same customer, one run: they went through once.
+    expect(onceRuns.body.data).toHaveLength(1);
+    await call(owner, 'POST', `/automations/${once.body.id}/pause`);
   });
 
   it('waits on delays, and runs in progress keep their version when the automation changes', async () => {
