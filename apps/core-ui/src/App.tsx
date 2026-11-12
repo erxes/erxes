@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Button, Spinner, Toaster } from 'erxes-ui';
 import { Provider as JotaiProvider } from 'jotai';
+import { Suspense } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { messageOf } from '~/lib/api';
-import { AppRoutes } from '~/modules/app/AppRoutes';
+import { lazyNamed } from '~/lib/lazyNamed';
 import { ThemeEffect } from '~/modules/app/ThemeEffect';
 import {
   isSignedOut,
@@ -12,14 +13,27 @@ import {
   useSessionQuery,
   useSetupStatus,
 } from '~/modules/auth/session';
-import {
-  AcceptInvitationPage,
-  ForgotPasswordPage,
-  ResetPasswordPage,
-} from '~/modules/auth/AccountLinkPages';
-import { SetupPage } from '~/modules/auth/SetupPage';
 import { SignInPage } from '~/modules/auth/SignInPage';
 import { i18n } from './i18n';
+
+// Sign-in is the first page signed out; the app and the rarer pages load when needed.
+const AppRoutes = lazyNamed(() => import('~/modules/app/AppRoutes'), 'AppRoutes');
+const SetupPage = lazyNamed(() => import('~/modules/auth/SetupPage'), 'SetupPage');
+
+const ForgotPasswordPage = lazyNamed(
+  () => import('~/modules/auth/AccountLinkPages'),
+  'ForgotPasswordPage',
+);
+
+const ResetPasswordPage = lazyNamed(
+  () => import('~/modules/auth/AccountLinkPages'),
+  'ResetPasswordPage',
+);
+
+const AcceptInvitationPage = lazyNamed(
+  () => import('~/modules/auth/AccountLinkPages'),
+  'AcceptInvitationPage',
+);
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
@@ -103,7 +117,9 @@ export const App = () => (
         <BrowserRouter>
           <Toaster />
           <ThemeEffect />
-          <Screen />
+          <Suspense fallback={<FullScreenSpinner />}>
+            <Screen />
+          </Suspense>
         </BrowserRouter>
       </JotaiProvider>
     </I18nextProvider>
