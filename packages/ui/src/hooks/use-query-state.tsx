@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import {
   useLocation,
   useSearchParams,
@@ -36,7 +36,10 @@ const getSearchParamsDraft = (location: Location<unknown>): ISearchParamsDraft =
 const useSearchParamsDraft = (): (() => ISearchParamsDraft) => {
   const location = useLocation();
   const latestLocation = useRef(location);
-  latestLocation.current = location;
+
+  useLayoutEffect(() => {
+    latestLocation.current = location;
+  });
 
   return () => getSearchParamsDraft(latestLocation.current);
 };
@@ -54,7 +57,43 @@ const updateSearchParamsDraft = (
   }
 };
 
-// Single key types and hook
+/** Decodes a JSON query value; search text and plain strings stay as written. */
+const parseQueryValue = (value: string | null, key: string): unknown => {
+  if (!value) return null;
+
+  if (key === 'searchValue') return value;
+
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    return value;
+  }
+};
+
+/** Strings as written, everything else (numbers, booleans, objects) as JSON. */
+const toQueryString = (value: unknown) =>
+  typeof value === 'string' ? value : JSON.stringify(value);
+
+type QueryTypes = Record<string, unknown>;
+
+type QueryValues<T extends QueryTypes> = {
+  [K in keyof T]: T[K] | null;
+};
+
+/**
+ * The query values for `keys`, typed as the caller names them (`useQueryState<string>`).
+ * The URL is whatever was written there; plugins rely on this contract, so the values
+ * are not checked against the type.
+ */
+const readQueries = <T extends QueryTypes>(params: URLSearchParams, keys: (keyof T)[]) => {
+  const values = Object.fromEntries(
+    keys.map((key) => [key, parseQueryValue(params.get(String(key)), String(key))]),
+  );
+
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- caller-named query types are the plugin contract of useQueryState; URL values are not validated
+  return values as QueryValues<T>;
+};
+
 export type QueryState<T> = [
   T | null,
   (value: T | null, navigationOptions?: NavigateOptions) => void,
@@ -69,47 +108,20 @@ export function useQueryState<T>(
 ): QueryState<T> {
   const [searchParams, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
-
-  /** Decodes JSON query values while keeping search text and plain strings intact. */
-  const parseQueryValue = (value: string | null): T | null => {
-    if (!value) {
-      if (options?.defaultValue !== undefined) {
-        return options.defaultValue;
-      }
-
-      return null;
-    }
-
-    if (queryKey === 'searchValue') {
-      return value as T;
-    }
-
-    try {
-      const parsed = JSON.parse(value);
-
-      return parsed as T;
-    } catch {
-      if (value === 'true') return true as T;
-
-      if (value === 'false') return false as T;
-
-      return value as T;
-    }
-  };
-
-  const query = parseQueryValue(searchParams.get(queryKey));
+  const query = readQueries<Record<string, T>>(searchParams, [queryKey])[queryKey] ?? null;
+  const value = query ?? options?.defaultValue ?? null;
 
   /** Updates the requested query key without discarding other pending query changes. */
-  const setQuery = (value: T | null, navigationOptions?: NavigateOptions) => {
+  const setQuery = (next: T | null, navigationOptions?: NavigateOptions) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);
 
-    if (value !== null) {
-      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    if (next !== null) {
+      const stringValue = toQueryString(next);
 
       if (nextParams.get(queryKey) === stringValue && !navigationOptions) return;
 
-      if (!nextParams.has(queryKey) && value === query && !navigationOptions) return;
+      if (!nextParams.has(queryKey) && next === value && !navigationOptions) return;
 
       nextParams.set(queryKey, stringValue);
     } else if (nextParams.has(queryKey)) {
@@ -122,15 +134,8 @@ export function useQueryState<T>(
     setSearchParams(nextParams, { ...navigationOptions, state: draft.state });
   };
 
-  return [query, setQuery];
+  return [value, setQuery];
 }
-
-// Multiple keys types and hook
-type QueryTypes = Record<string, unknown>;
-
-type QueryValues<T extends QueryTypes> = {
-  [K in keyof T]: T[K] | null;
-};
 
 /** Reads and updates several query values through one shared navigation draft. */
 export function useMultiQueryState<T extends QueryTypes>(
@@ -141,33 +146,7 @@ export function useMultiQueryState<T extends QueryTypes>(
 ] {
   const [searchParams, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
-
-  /** Decodes JSON query values while keeping search text and plain strings intact. */
-  const parseQueryValue = <K extends keyof T>(value: string | null, key: K): T[K] | null => {
-    if (!value) return null;
-
-    if (key === 'searchValue') {
-      return value as T[K];
-    }
-
-    try {
-      const parsed = JSON.parse(value);
-
-      return parsed as T[K];
-    } catch {
-      if (value === 'true') return true as T[K];
-
-      if (value === 'false') return false as T[K];
-
-      return value as T[K];
-    }
-  };
-
-  const queries = queryKeys.reduce((acc, key) => {
-    acc[key] = parseQueryValue(searchParams.get(String(key)), key);
-
-    return acc;
-  }, {} as QueryValues<T>);
+  const queries = readQueries<T>(searchParams, queryKeys);
 
   /** Applies a batch without discarding other query changes from the same event. */
   const setQueries = (values: Partial<QueryValues<T>>, navigationOptions?: NavigateOptions) => {
@@ -175,11 +154,11 @@ export function useMultiQueryState<T extends QueryTypes>(
     const nextParams = new URLSearchParams(draft.params);
     let hasChanges = false;
 
-    Object.entries(values).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(values)) {
       if (value !== null) {
-        const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+        const stringValue = toQueryString(value);
 
-        if (nextParams.get(key) === stringValue) return;
+        if (nextParams.get(key) === stringValue) continue;
 
         nextParams.set(key, stringValue);
         hasChanges = true;
@@ -187,7 +166,7 @@ export function useMultiQueryState<T extends QueryTypes>(
         nextParams.delete(key);
         hasChanges = true;
       }
-    });
+    }
 
     if (!hasChanges && !navigationOptions) return;
 
@@ -206,33 +185,14 @@ export function useMultiQueryState<T extends QueryTypes>(
 export const useNonNullMultiQueryState = <T extends QueryTypes>(
   queryKeys: (keyof T)[],
 ): QueryValues<T> => {
-  const [queries] = useMultiQueryState(queryKeys);
+  const [searchParams] = useSearchParams();
 
-  const nonNullQueries = Object.fromEntries(
-    Object.entries(queries).filter(([, value]) => value !== null),
-  ) as QueryValues<T>;
+  const present = queryKeys.filter(
+    (key) => parseQueryValue(searchParams.get(String(key)), String(key)) !== null,
+  );
 
-  return nonNullQueries;
+  return readQueries<T>(searchParams, present);
 };
-
-/** Creates a setter for a query key using the shared pending navigation draft. */
-export function useSetQueryStateByKey() {
-  const [, setSearchParams] = useSearchParams();
-  const getDraft = useSearchParamsDraft();
-
-  /** Updates the requested query key without discarding other pending query changes. */
-  const setQuery = (key: string, value: string) => {
-    const draft = getDraft();
-    const nextParams = new URLSearchParams(draft.params);
-
-    if (nextParams.get(key) === value) return;
-    nextParams.set(key, value);
-    updateSearchParamsDraft(draft, nextParams);
-    setSearchParams(nextParams, { state: draft.state });
-  };
-
-  return setQuery;
-}
 
 /** Creates a remover that preserves the remaining query values and router state. */
 export function useRemoveQueryStateByKey() {
@@ -245,6 +205,7 @@ export function useRemoveQueryStateByKey() {
     const nextParams = new URLSearchParams(draft.params);
 
     if (!nextParams.has(key)) return;
+
     nextParams.delete(key);
     updateSearchParamsDraft(draft, nextParams);
     setSearchParams(nextParams, { state: draft.state });

@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FilterContext } from '../context/FilterContext';
 import { useFilterContext } from '../hooks/useFilterContext';
-import {
-  Button,
-  Combobox,
-  Command,
-  Dialog,
-  Input,
-  Kbd,
-  Popover,
-  Tooltip,
-} from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components/button';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Command } from 'erxes-ui/components/command';
+import { Dialog } from 'erxes-ui/components/dialog';
+import { Input } from 'erxes-ui/components/input';
+import { Kbd } from 'erxes-ui/components/kbd';
+import { Popover } from 'erxes-ui/components/popover';
+import { Tooltip } from 'erxes-ui/components/tooltip';
 import {
   IconFilter2,
   IconChevronLeft,
@@ -18,9 +16,9 @@ import {
   IconSearch,
   IconX,
 } from '@tabler/icons-react';
-import { useRemoveQueryStateByKey } from 'erxes-ui/hooks';
+import { useRemoveQueryStateByKey } from 'erxes-ui/hooks/use-query-state';
 import type { Except } from 'type-fest';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   filterDialogViewState,

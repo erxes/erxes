@@ -1,42 +1,22 @@
 import { useContext } from 'react';
+import { collapsedOrders, isUnderCollapsed, toggleCollapse } from 'erxes-ui/lib/tree-collapse';
 import { RecordTableTreeContext } from '../contexts/RecordTableTreeContext';
-import { useAtom } from 'jotai';
-import { recordTableTreeHideChildrenAtomFamily } from '../states/RecordTableTreeState';
 
-export const useRecordTableTreeContext = () => {
+/** Collapse state for the tree row at `order`. */
+export const useRecordTableTree = (order: string | undefined) => {
   const context = useContext(RecordTableTreeContext);
 
   if (!context) {
-    throw new Error('useRecordTableTreeContext must be used within a RecordTableTreeProvider');
+    throw new Error('useRecordTableTree must be used within a RecordTableTree');
   }
 
-  return context;
-};
-
-export const useRecordTableTree = (order: string) => {
-  const { id, ordered } = useRecordTableTreeContext();
-  const [hideChildren, setHideChildren] = useAtom(recordTableTreeHideChildrenAtomFamily(id));
-
-  const toggleHideChildren = (order: string) => {
-    setHideChildren(
-      hideChildren.includes(order)
-        ? hideChildren.filter((child) => child !== order)
-        : [...hideChildren, order],
-    );
-  };
-
-  const isHiddenByParent = hideChildren.some(
-    (e) => order?.startsWith(e) && order.length > e.length,
-  );
-
-  const isHidden = hideChildren.includes(order);
+  const { ordered, length, collapse, setCollapse } = context;
+  const hidden = collapsedOrders(collapse, length);
 
   return {
-    id,
-    hideChildren,
-    toggleHideChildren,
+    toggleHideChildren: (parent: string) => setCollapse(toggleCollapse(hidden, parent, length)),
     ordered,
-    isHiddenByParent,
-    isHidden,
+    isHiddenByParent: isUnderCollapsed(hidden, order),
+    isHidden: order !== undefined && hidden.includes(order),
   };
 };

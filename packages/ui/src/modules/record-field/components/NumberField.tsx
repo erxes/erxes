@@ -1,9 +1,10 @@
-import type { ButtonProps } from 'erxes-ui/components';
-import { Input, TextOverflowTooltip } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components/button';
+import { Input } from 'erxes-ui/components/input';
+import { TextOverflowTooltip } from 'erxes-ui/components/text-overflow';
 import React, { useState } from 'react';
 
-import { PopoverScoped } from 'erxes-ui/modules/hotkey';
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
+import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
 export interface INumberFieldContainerProps {
   placeholder?: string;
@@ -71,11 +72,8 @@ export const NumberField = React.forwardRef<
         {children}
         <TextOverflowTooltip
           value={
-            (isOpen
-              ? editingValue.toString()
-              : formatValue
-                ? formatValue(value)
-                : value.toLocaleString()) ?? placeholder
+            (isOpen ? editingValue : formatValue ? formatValue(value) : value.toLocaleString()) ??
+            placeholder
           }
         />
       </RecordTableInlineCell.Trigger>
@@ -84,10 +82,10 @@ export const NumberField = React.forwardRef<
           <Input
             type="text"
             value={editingValue.toLocaleString()}
-            onChange={(e: any) => {
+            onChange={(e) => {
               const rawValue = e.target.value.replace(/,/g, '');
 
-              if (rawValue === '' || rawValue === '-' || rawValue.match(/^-?\d*\.?\d*$/)) {
+              if (/^-?\d*\.?\d*$/.test(rawValue)) {
                 setEditingValue(rawValue);
                 setIsEdited(true);
                 const numValue = Number(rawValue);

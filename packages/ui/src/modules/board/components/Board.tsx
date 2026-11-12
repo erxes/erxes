@@ -12,12 +12,11 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ScrollArea } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { ScrollArea } from 'erxes-ui/components/scroll-area';
+import { cn } from 'erxes-ui/lib/utils';
 import type {
   BoardCardProps,
   BoardColumnProps,
-  BoardContextProps,
   BoardHeaderProps,
   BoardItemProps,
   BoardProps,
@@ -150,7 +149,7 @@ const BoardProvider = <
     const card = data.find((item) => item.id === event.active.id);
 
     if (card) {
-      setActiveCardId(event.active.id as string);
+      setActiveCardId(card.id);
     }
 
     onDragStart?.(event);
@@ -165,14 +164,7 @@ const BoardProvider = <
 
     if (!activeItem) return;
 
-    const overItem = data.find((item) => item.id === over.id);
-
-    if (overItem) {
-      setDragOverBoardColumnId(overItem.column);
-    } else {
-      setDragOverBoardColumnId(null);
-    }
-
+    setDragOverBoardColumnId(data.find((item) => item.id === over.id)?.column ?? null);
     onDragOver?.(event);
   };
 

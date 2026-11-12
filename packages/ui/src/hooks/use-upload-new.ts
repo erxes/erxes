@@ -1,31 +1,21 @@
-import { getFileStorage, REACT_APP_API_URL } from 'erxes-ui/utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { type FileError, type FileRejection, useDropzone } from 'react-dropzone';
+import { errorMessage, removeStoredFile, storeFile } from '../utils/file-storage';
 
-export interface FileWithPreview extends File {
+export type FileWithPreview = File & {
   preview?: string;
   errors: readonly FileError[];
-}
+};
 
 type UseErxesUploadOptions = {
-  /**
-   * Allowed MIME types for each file upload (e.g `image/png`, `text/html`, etc). Wildcards are also supported (e.g `image/*`).
-   *
-   * Defaults to allowing uploading of all MIME types.
-   */
+  /** Allowed MIME types (`image/png`, `image/*`); every type when empty. */
   allowedMimeTypes?: string[];
-  /**
-   * Maximum upload size of each file allowed in bytes. (e.g 1000 bytes = 1 KB)
-   */
+  /** Largest file in bytes. */
   maxFileSize?: number;
-  /**
-   * Maximum number of files allowed per upload.
-   */
+  /** Most files in one upload. */
   maxFiles?: number;
   onFilesAdded?: (addedFiles: { name: string; url: string; type: string; size: number }[]) => void;
 };
-
-type UseErxesUploadReturn = ReturnType<typeof useErxesUpload>;
 
 type FileUploadResponse = {
   name: string;
@@ -34,239 +24,140 @@ type FileUploadResponse = {
 };
 
 const uploadFile = async (file: File): Promise<FileUploadResponse> => {
-  const storage = getFileStorage();
-
-  if (storage) {
-    try {
-      return { name: file.name, message: undefined, url: await storage.upload(file) };
-    } catch (error) {
-      return { name: file.name, message: error instanceof Error ? error.message : 'Upload failed' };
-    }
+  try {
+    return { name: file.name, message: undefined, url: await storeFile(file) };
+  } catch (error) {
+    return { name: file.name, message: errorMessage(error, 'Upload failed') };
   }
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
-    method: 'post',
-    body: formData,
-    credentials: 'include',
-  });
-
-  const data = await response.text();
-
-  if (!response.ok) {
-    return { name: file.name, message: data };
-  }
-
-  return { name: file.name, message: undefined, url: data };
 };
 
-const useErxesUpload = (options: UseErxesUploadOptions) => {
-  const {
-    allowedMimeTypes = [],
-    maxFileSize = Number.POSITIVE_INFINITY,
-    maxFiles = 1,
-    onFilesAdded,
-  } = options;
+const withPreview = (file: File, errors: readonly FileError[]): FileWithPreview =>
+  Object.assign(file, { preview: URL.createObjectURL(file), errors });
 
-  const [files, setFiles] = useState<FileWithPreview[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ name: string; message?: string; url?: string }[]>([]);
+const withoutTooMany = (file: FileWithPreview): FileWithPreview =>
+  file.errors.some((e) => e.code === 'too-many-files')
+    ? Object.assign(file, { errors: file.errors.filter((e) => e.code !== 'too-many-files') })
+    : file;
+
+/** Which files the next upload sends: retries of failed ones and those not uploaded yet. */
+const pendingFiles = (files: FileWithPreview[], failed: string[], uploaded: string[]) =>
+  failed.length > 0
+    ? [
+        ...files.filter((f) => failed.includes(f.name)),
+        ...files.filter((f) => !uploaded.includes(f.name)),
+      ]
+    : files;
+
+const hasUrl = (response: FileUploadResponse): response is FileUploadResponse & { url: string } =>
+  response.message === undefined && typeof response.url === 'string';
+
+/** Upload state for a dropzone: picked files, their errors, and the upload of the batch. */
+const useUploadBatch = (maxFiles: number, onFilesAdded: UseErxesUploadOptions['onFilesAdded']) => {
+  const [files, setFilesState] = useState<FileWithPreview[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<FileUploadResponse[]>([]);
   const [successes, setSuccesses] = useState<string[]>([]);
 
-  const isSuccess = useMemo(() => {
-    if (errors.length === 0 && successes.length === 0) {
-      return false;
-    }
+  // Fewer files than the limit clears the "too many files" errors; no files clears the rest.
+  const setFiles = (next: FileWithPreview[]) => {
+    setFilesState(next.length <= maxFiles ? next.map(withoutTooMany) : next);
 
-    if (errors.length === 0 && successes.length === files.length) {
-      return true;
-    }
+    if (next.length === 0) setErrors([]);
+  };
 
-    return false;
-  }, [errors.length, successes.length, files.length]);
-
-  const onDrop = useCallback(
-    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-      const validFiles = acceptedFiles
-        .filter((file) => !files.find((x) => x.name === file.name))
-        .map((file) => {
-          (file as FileWithPreview).preview = URL.createObjectURL(file);
-          (file as FileWithPreview).errors = [];
-
-          return file as FileWithPreview;
-        });
-
-      const invalidFiles = fileRejections.map(({ file, errors }) => {
-        (file as FileWithPreview).preview = URL.createObjectURL(file);
-        (file as FileWithPreview).errors = errors;
-
-        return file as FileWithPreview;
-      });
-
-      const newFiles = [...files, ...validFiles, ...invalidFiles];
-
-      setFiles(newFiles);
-    },
-    [files, setFiles],
-  );
-
-  const dropzoneProps = useDropzone({
-    onDrop,
-    noClick: true,
-    // A document-wide drop blocker would also swallow text drops elsewhere
-    preventDropOnDocument: false,
-    accept: allowedMimeTypes.reduce((acc, type) => ({ ...acc, [type]: [] }), {}),
-    maxSize: maxFileSize,
-    maxFiles: maxFiles,
-    multiple: maxFiles !== 1,
-  });
-
-  const onUpload = useCallback(async () => {
+  const onUpload = async () => {
     setLoading(true);
-    // [Joshen] This is to support handling partial successes
-    // If any files didn't upload for any reason, hitting "Upload" again will only upload the files that had errors
-    const filesWithErrors = errors.map((x) => x.name);
 
-    const filesToUpload =
-      filesWithErrors.length > 0
-        ? [
-            ...files.filter((f) => filesWithErrors.includes(f.name)),
-            ...files.filter((f) => !successes.includes(f.name)),
-          ]
-        : files;
-
-    const responses = await Promise.all(filesToUpload.map(uploadFile));
-
-    const responseErrors = responses.filter((x) => x.message !== undefined);
-    // if there were errors previously, this function tried to upload the files again so we should clear/overwrite the existing errors.
-    setErrors(responseErrors);
-
-    const responseSuccesses = responses.filter(
-      (x): x is FileUploadResponse & { url: string } =>
-        x.message === undefined && typeof x.url === 'string',
+    const toUpload = pendingFiles(
+      files,
+      errors.map((x) => x.name),
+      successes,
     );
 
-    const newSuccesses = Array.from(
-      new Set([...successes, ...responseSuccesses.map((x) => x.name)]),
-    );
+    const responses = await Promise.all(toUpload.map(uploadFile));
+    const uploaded = responses.filter(hasUrl);
+    const fileNamed = (name: string) => toUpload.find((f) => f.name === name);
 
-    setSuccesses(newSuccesses);
+    setErrors(responses.filter((x) => x.message !== undefined));
+    setSuccesses([...new Set([...successes, ...uploaded.map((x) => x.name)])]);
     onFilesAdded?.(
-      responseSuccesses.map((x) => ({
+      uploaded.map((x) => ({
         name: x.name,
         url: x.url,
-        type: filesToUpload.find((f) => f.name === x.name)?.type || '',
-        size: filesToUpload.find((f) => f.name === x.name)?.size || 0,
+        type: fileNamed(x.name)?.type ?? '',
+        size: fileNamed(x.name)?.size ?? 0,
       })),
     );
     setLoading(false);
 
     setTimeout(() => {
-      setFiles(files.filter((f) => !responseSuccesses.some((x) => x.name === f.name)));
+      setFiles(files.filter((f) => !uploaded.some((x) => x.name === f.name)));
       setSuccesses([]);
     }, 1000);
-  }, [files, errors, successes, onFilesAdded]);
+  };
 
-  useEffect(() => {
-    if (files.length === 0) {
-      setErrors([]);
-    }
+  return { files, setFiles, loading, errors, setErrors, successes, onUpload };
+};
 
-    // If the number of files doesn't exceed the maxFiles parameter, remove the error 'Too many files' from each file
-    if (files.length <= maxFiles) {
-      let changed = false;
+export const useErxesUpload = ({
+  allowedMimeTypes = [],
+  maxFileSize = Number.POSITIVE_INFINITY,
+  maxFiles = 1,
+  onFilesAdded,
+}: UseErxesUploadOptions) => {
+  const batch = useUploadBatch(maxFiles, onFilesAdded);
+  const { files, setFiles, errors, successes } = batch;
 
-      const newFiles = files.map((file) => {
-        if (file.errors.some((e) => e.code === 'too-many-files')) {
-          file.errors = file.errors.filter((e) => e.code !== 'too-many-files');
-          changed = true;
-        }
-
-        return file;
-      });
-
-      if (changed) {
-        setFiles(newFiles);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files.length, setFiles, maxFiles]);
+  const dropzoneProps = useDropzone({
+    onDrop: (acceptedFiles: File[], fileRejections: FileRejection[]) =>
+      setFiles([
+        ...files,
+        ...acceptedFiles
+          .filter((file) => !files.some((x) => x.name === file.name))
+          .map((file) => withPreview(file, [])),
+        ...fileRejections.map(({ file, errors: fileErrors }) => withPreview(file, fileErrors)),
+      ]),
+    noClick: true,
+    // A document-wide drop blocker would also swallow text drops elsewhere
+    preventDropOnDocument: false,
+    accept: Object.fromEntries(allowedMimeTypes.map((type) => [type, []])),
+    maxSize: maxFileSize,
+    maxFiles,
+    multiple: maxFiles !== 1,
+  });
 
   return {
-    files,
-    setFiles,
-    successes,
-    isSuccess,
-    loading,
-    errors,
-    setErrors,
-    onUpload,
+    ...batch,
+    isSuccess: errors.length === 0 && successes.length > 0 && successes.length === files.length,
     uploadFile,
-    maxFileSize: maxFileSize,
-    maxFiles: maxFiles,
+    maxFileSize,
+    maxFiles,
     allowedMimeTypes,
     ...dropzoneProps,
   };
 };
 
-export { useErxesUpload, type UseErxesUploadOptions, type UseErxesUploadReturn };
+export type UseErxesUploadReturn = ReturnType<typeof useErxesUpload>;
 
 export const useRemoveFile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const removeFile = useCallback(
-    async (fileName: string, afterRemove: (status: string) => void) => {
-      setIsLoading(true);
+  const removeFile = async (fileName: string, afterRemove: (status: string) => void) => {
+    setIsLoading(true);
 
-      const storage = getFileStorage();
+    try {
+      await removeStoredFile(fileName);
+      afterRemove('ok');
+    } catch (e) {
+      const message = errorMessage(e, 'Delete failed');
 
-      if (storage?.remove) {
-        try {
-          await storage.remove(fileName);
-          setIsLoading(false);
-
-          return afterRemove('ok');
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Delete failed';
-
-          setError(message);
-          setIsLoading(false);
-
-          return afterRemove(message);
-        }
-      }
-
-      const response = await fetch(`${REACT_APP_API_URL}/delete-file?fileName=${fileName}`, {
-        method: 'post',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        },
-        body: `fileName=${fileName}`,
-      });
-
-      const data = await response.text();
-
-      if (!response.ok) {
-        setError(data);
-        setIsLoading(false);
-
-        return afterRemove(data);
-      }
-
+      setError(message);
+      afterRemove(message);
+    } finally {
       setIsLoading(false);
-
-      return afterRemove('ok');
-    },
-    [],
-  );
-
-  return {
-    isLoading,
-    error,
-    removeFile,
+    }
   };
+
+  return { isLoading, error, removeFile };
 };

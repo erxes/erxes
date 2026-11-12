@@ -53,7 +53,7 @@ import {
   IconCurrencyZloty,
 } from '@tabler/icons-react';
 
-import type { CurrencyCode } from 'erxes-ui/types';
+import type { CurrencyCode } from 'erxes-ui/types/CurrencyCode';
 
 export const CURRENCY_CODES: Record<CurrencyCode, { label: string; Icon: TablerIcon }> = {
   AED: { label: 'UAE dirham', Icon: IconCurrencyDirham },

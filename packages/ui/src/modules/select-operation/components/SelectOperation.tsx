@@ -1,7 +1,11 @@
-import { Badge, Button, Combobox, Form, Popover } from 'erxes-ui/components';
+import { Badge } from 'erxes-ui/components/badge';
+import { Button } from 'erxes-ui/components/button';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Form } from 'erxes-ui/components/form';
+import { Popover } from 'erxes-ui/components/popover';
 
-import { Filter } from 'erxes-ui/modules/filter';
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
+import { Filter } from 'erxes-ui/modules/filter/components/Filter';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
 const FORM_CONTROL_SELECTOR = [
   'a[href]',
@@ -79,13 +83,13 @@ export const SelectTriggerOperation = ({
   children: React.ReactNode;
   variant: `${SelectTriggerVariant}`;
 }) => {
-  if (variant === SelectTriggerVariant.TABLE) {
+  if (variant === 'table') {
     return (
       <RecordTableInlineCell.Trigger className="gap-1">{children}</RecordTableInlineCell.Trigger>
     );
   }
 
-  if (variant === SelectTriggerVariant.CARD) {
+  if (variant === 'card') {
     return (
       <Popover.Trigger asChild>
         <Badge
@@ -100,7 +104,7 @@ export const SelectTriggerOperation = ({
     );
   }
 
-  if (variant === SelectTriggerVariant.FILTER) {
+  if (variant === 'filter') {
     return (
       <Popover.Trigger asChild>
         <Filter.BarButton>{children}</Filter.BarButton>
@@ -108,7 +112,7 @@ export const SelectTriggerOperation = ({
     );
   }
 
-  if (variant === SelectTriggerVariant.FORM) {
+  if (variant === 'form') {
     return (
       <Form.Control>
         <Combobox.TriggerBase className="w-fit h-7 font-medium max-w-64">
@@ -118,7 +122,7 @@ export const SelectTriggerOperation = ({
     );
   }
 
-  if (variant === SelectTriggerVariant.ICON) {
+  if (variant === 'icon') {
     return (
       <Popover.Trigger asChild>
         <Button
@@ -148,15 +152,15 @@ export const SelectOperationContent = ({
   variant: `${SelectTriggerVariant}`;
   children: React.ReactNode;
 }) => {
-  if (variant === SelectTriggerVariant.TABLE) {
+  if (variant === 'table') {
     return <RecordTableInlineCell.Content>{children}</RecordTableInlineCell.Content>;
   }
 
   return (
     <Combobox.Content
-      sideOffset={variant === SelectTriggerVariant.CARD ? 4 : 8}
+      sideOffset={variant === 'card' ? 4 : 8}
       onClick={(e) => e.stopPropagation()}
-      onKeyDown={variant === SelectTriggerVariant.FORM ? handleFormContentTab : undefined}
+      onKeyDown={variant === 'form' ? handleFormContentTab : undefined}
     >
       {children}
     </Combobox.Content>

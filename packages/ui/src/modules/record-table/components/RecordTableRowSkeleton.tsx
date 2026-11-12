@@ -1,11 +1,11 @@
-import React from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import { useInView } from 'react-intersection-observer';
-
-import { Skeleton, Table } from 'erxes-ui/components';
-
+import { Skeleton } from 'erxes-ui/components/skeleton';
+import { Table } from 'erxes-ui/components/table';
+import { cn } from 'erxes-ui/lib/utils';
 import { useRecordTable } from './RecordTableProvider';
-import { cn } from 'erxes-ui/lib';
 
+/** Placeholder rows; `handleInView` runs when the first one scrolls into view. */
 export const RecordTableRowSkeleton = ({
   rows = 1,
   handleInView,
@@ -17,51 +17,46 @@ export const RecordTableRowSkeleton = ({
   backward?: boolean;
   root?: Element | null;
 }) => {
-  // get column count
-  const { table } = useRecordTable();
-
-  // fall back to visible leaf columns so skeleton cells still render when there
-  // is no data yet (e.g. initial load before any rows have arrived)
-  const columnCount =
-    table.getRowModel().rows[0]?.getVisibleCells().length || table.getVisibleLeafColumns().length;
-
   const { ref } = useInView({
     root: root ?? null,
     onChange: (inView) => {
-      inView && handleInView?.();
+      if (inView) handleInView?.();
     },
   });
 
+  // Positions after the first row: the rows are identical, so a position is their identity.
+  const restRows = [...Array(Math.max(rows - 1, 0)).keys()];
+
   return (
     <>
-      <SkeletonRow ref={ref} columnCount={columnCount} />
-      {Array.from({ length: rows - 1 }).map((_, index) => (
+      <SkeletonRow ref={ref} />
+      {restRows.map((position) => (
         <SkeletonRow
-          key={index}
-          columnCount={columnCount}
-          className={cn(backward && index === rows - 2 && '[&>td]:border-b-0')}
+          key={position}
+          className={cn(backward && position === rows - 2 && '[&>td]:border-b-0')}
         />
       ))}
     </>
   );
 };
 
-const SkeletonRow = React.forwardRef<
-  HTMLTableRowElement,
-  React.HTMLAttributes<HTMLTableRowElement> & {
-    columnCount: number;
-  }
->(({ columnCount, className, ...props }, ref) => {
-  return (
-    <Table.Row ref={ref} className={cn('h-cell', className)} {...props}>
-      {Array.from({ length: columnCount }).map((_, index) => (
-        <Table.Cell
-          key={index}
-          className={cn('border-r-0 px-2 group-hover/table-row:bg-background')}
-        >
-          <Skeleton className="h-4 w-full min-w-4" />
-        </Table.Cell>
-      ))}
-    </Table.Row>
-  );
-});
+const SkeletonRow = forwardRef<HTMLTableRowElement, HTMLAttributes<HTMLTableRowElement>>(
+  ({ className, ...props }, ref) => {
+    const { table } = useRecordTable();
+
+    return (
+      <Table.Row ref={ref} className={cn('h-cell', className)} {...props}>
+        {table.getVisibleLeafColumns().map((column) => (
+          <Table.Cell
+            key={column.id}
+            className="border-r-0 px-2 group-hover/table-row:bg-background"
+          >
+            <Skeleton className="h-4 w-full min-w-4" />
+          </Table.Cell>
+        ))}
+      </Table.Row>
+    );
+  },
+);
+
+SkeletonRow.displayName = 'SkeletonRow';

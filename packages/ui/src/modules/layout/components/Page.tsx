@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 export const PageContainer = React.forwardRef<
   HTMLDivElement,

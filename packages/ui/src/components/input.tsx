@@ -5,7 +5,7 @@ import { cva } from 'class-variance-authority';
 
 import { cn } from 'erxes-ui/lib/utils';
 import type { Except } from 'type-fest';
-import { IMaskInput } from 'react-imask';
+import { IMaskInput, type ReactElementProps } from 'react-imask';
 
 export const inputVariants = cva(
   'flex h-7 w-full rounded-sm bg-background px-3 py-1 text-sm text-foreground shadow-xs transition-[color,box-shadow] placeholder:text-accent-foreground/70 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus',
@@ -56,21 +56,23 @@ const InputMain = React.forwardRef<HTMLInputElement, InputProps>(
 
 InputMain.displayName = 'Input';
 
-export const InputNumber = React.forwardRef<
-  React.ElementRef<typeof IMaskInput>,
-  Except<React.ComponentPropsWithoutRef<typeof IMaskInput>, 'onChange' | 'value'> & {
-    onChange?: (value?: number | '') => void;
-    value?: number;
-  }
->(({ value, onChange, className, ...props }, ref) => {
+/** A number with thousands separators; `onChange` gets the number, or '' when cleared. */
+export const InputNumber = ({
+  value,
+  onChange,
+  className,
+  ...props
+}: ReactElementProps<HTMLInputElement> & {
+  onChange?: (value?: number | '') => void;
+  value?: number;
+}) => {
   return (
     <IMaskInput
-      ref={ref}
-      mask={Number as any}
-      onAccept={(value) => {
-        onChange?.(value ? Number(value) : '');
+      mask={Number}
+      onAccept={(accepted) => {
+        onChange?.(accepted ? Number(accepted) : '');
       }}
-      value={value + ''}
+      value={value === undefined ? '' : String(value)}
       autoComplete="off"
       radix="."
       thousandsSeparator={','}
@@ -79,9 +81,7 @@ export const InputNumber = React.forwardRef<
       {...props}
     />
   );
-});
-
-InputNumber.displayName = 'InputNumber';
+};
 
 export const Input = Object.assign(InputMain, {
   Number: InputNumber,

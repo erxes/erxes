@@ -1,4 +1,4 @@
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
 
@@ -45,12 +45,12 @@ const BOT_DOTS = '#7F6BD6';
 
 const FILL_BOX = '[transform-box:fill-box]';
 
+/** The loader's ten spokes, by position. */
+const SPOKES = [...Array(10).keys()];
+
 // The erxes bot hugging its knees, rocking and glancing around while it waits.
 const WaitingBot = ({ className }: { className?: string }) => (
-  <div
-    role="status"
-    className={cn('flex flex-col items-center gap-1 animate-bot-appear', className)}
-  >
+  <output className={cn('flex flex-col items-center gap-1 animate-bot-appear', className)}>
     <svg viewBox="20 4 136 134" className="w-20" aria-hidden="true">
       <circle cx="80" cy="76" r="58" className="fill-primary/10" />
       <ellipse cx="80" cy="129" rx="44" ry="5" fill={BOT_GLOW} opacity="0.18" />
@@ -115,7 +115,7 @@ const WaitingBot = ({ className }: { className?: string }) => (
     <span className="bg-[linear-gradient(90deg,var(--color-muted-foreground)_40%,var(--color-foreground)_50%,var(--color-muted-foreground)_60%)] bg-size-[300%_100%] bg-clip-text text-xs text-transparent motion-safe:animate-text-shimmer motion-reduce:text-muted-foreground">
       Loading
     </span>
-  </div>
+  </output>
 );
 
 export function Spinner({
@@ -137,7 +137,7 @@ export function Spinner({
     <div className={cn(spinnerVariants({ show }), containerClassName)}>
       <div className={cn(loaderVariants({ size }), className)}>
         <div className="relative size-full left-1/2 top-1/2">
-          {[...Array(10)].map((_, i) => (
+          {SPOKES.map((i) => (
             <div
               key={i}
               style={{

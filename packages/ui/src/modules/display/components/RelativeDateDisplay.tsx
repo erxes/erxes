@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-import { Tooltip } from 'erxes-ui/components';
-import { isUndefinedOrNull } from 'erxes-ui/utils';
+import { Tooltip } from 'erxes-ui/components/tooltip';
+import { isUndefinedOrNull } from 'erxes-ui/utils/IsUndefinedOrNull';
 import {
   formatDateISOStringToRelativeDate,
   formatDateISOStringToRelativeDateShort,

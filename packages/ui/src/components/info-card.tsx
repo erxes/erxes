@@ -1,5 +1,5 @@
 import { IconInfoCircle } from '@tabler/icons-react';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { Button } from './button';
 import { Tooltip } from './tooltip';
 import React from 'react';

@@ -1,8 +1,10 @@
-import { Badge, Button, Popover } from 'erxes-ui/components';
+import { Badge } from 'erxes-ui/components/badge';
+import { Button } from 'erxes-ui/components/button';
+import { Popover } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
 import React from 'react';
 import type { Popover as PopoverPrimitive } from 'radix-ui';
-import type { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey';
+import type { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 
 export interface ReactTablePopoverProps extends React.ComponentPropsWithoutRef<
   typeof PopoverPrimitive.Root

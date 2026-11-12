@@ -1,5 +1,5 @@
-import type { TPhones } from 'erxes-ui/modules/inputs';
-import { ValidationStatus } from 'erxes-ui/types';
+import type { TPhones } from 'erxes-ui/modules/inputs/types/phoneField';
+import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 
 export function formatPhones(
   primaryPhone: string,

@@ -1,18 +1,16 @@
-import {
-  Button,
-  CalendarTwoMonths,
-  Dialog,
-  RadioGroup,
-  Tabs,
-  ToggleGroup,
-} from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components/button';
+import { CalendarTwoMonths } from 'erxes-ui/components/calendar';
+import { Dialog } from 'erxes-ui/components/dialog';
+import { RadioGroup } from 'erxes-ui/components/radio-group';
+import { Tabs } from 'erxes-ui/components/tabs';
+import { ToggleGroup } from 'erxes-ui/components/toggle-group';
 import { useEffect, useId, useRef, useState } from 'react';
 import { getActiveTab } from '../utils/getActiveTab';
 import { parseDateRangeFromString } from '../utils/parseDateRangeFromString';
 import type { DateRange } from 'react-day-picker';
-import { useFilterContext } from 'erxes-ui/modules';
+import { useFilterContext } from 'erxes-ui/modules/filter/hooks/useFilterContext';
 import { getYearsArray } from '../utils/getYears';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { MONTHS, QUARTERS } from '../constants/dateTypes';
 import { useFilterQueryState } from '../../hooks/useFilterQueryState';
 

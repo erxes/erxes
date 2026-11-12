@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RadioGroup as RadioGroupPrimitive } from 'radix-ui';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 export type RadioGroupProps = React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>;
 

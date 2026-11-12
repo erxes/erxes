@@ -16,7 +16,7 @@ const getOffsetWithin = (element: HTMLElement, container: HTMLElement) => {
 
   while (current && current !== container) {
     top += current.offsetTop;
-    current = current.offsetParent as HTMLElement | null;
+    current = current.offsetParent instanceof HTMLElement ? current.offsetParent : null;
   }
 
   return current === container ? top : null;

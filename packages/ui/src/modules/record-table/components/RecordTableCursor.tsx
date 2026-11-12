@@ -1,11 +1,60 @@
-import { useRef, useEffect } from 'react';
-import { ScrollArea } from 'erxes-ui/components';
-import { RecordTable } from 'erxes-ui/modules';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+  type UIEvent,
+} from 'react';
+import { mergeRefs } from 'react-merge-refs';
+import { useDebouncedCallback } from 'use-debounce';
+import { ScrollArea } from 'erxes-ui/components/scroll-area';
+import { useCursorScroll } from '../hooks/useCursorScroll';
 import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
-import { RecordTableCursorContext } from '../contexts/RecordTableCursorContext';
-import { useRecordTableCursorContext } from '../hooks/useRecordTableCursorContext';
-import { useCursorScroll } from 'erxes-ui/hooks/use-cursor-pagination';
+import { RecordTableRowSkeleton } from './RecordTableRowSkeleton';
 
+interface CursorContext {
+  /** The scrolling element, the root the load-more skeletons watch for. */
+  viewport: HTMLDivElement | null;
+  startBackwardFetch: () => void;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
+  loading?: boolean;
+}
+
+const RecordTableCursorContext = createContext<CursorContext | null>(null);
+
+const useRecordTableCursorContext = () => {
+  const context = useContext(RecordTableCursorContext);
+
+  if (!context) {
+    throw new Error('Cursor skeletons must be used within a RecordTableCursorProvider');
+  }
+
+  return context;
+};
+
+/** Session storage is best effort: when it is blocked the position is simply not restored. */
+const remember = (key: string, value: string) => {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {
+    // Blocked or full storage.
+  }
+};
+
+const recall = (key: string) => {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Scrolls a cursor-paged table. With a `sessionKey` it remembers the first visible row and the
+ * scroll position for the session, and restores the position when the rows come back.
+ */
 export const RecordTableCursorProvider = ({
   children,
   hasPreviousPage,
@@ -15,7 +64,7 @@ export const RecordTableCursorProvider = ({
   sessionKey,
   offset = 102,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   hasPreviousPage?: boolean;
   hasNextPage?: boolean;
   loading?: boolean;
@@ -23,58 +72,43 @@ export const RecordTableCursorProvider = ({
   sessionKey?: string;
   offset?: number;
 }) => {
-  const { scrollRef, isFetchBackward, setIsFetchBackward, distanceFromBottomRef } = useCursorScroll(
-    {
-      dataLength,
-      hasPreviousPage,
-      offset,
-    },
-  );
+  const { scrollRef, startBackwardFetch } = useCursorScroll({
+    dataLength,
+    hasPreviousPage,
+    offset,
+  });
 
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
 
-  const handleScroll = () => {
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    const firstVisibleRow = scrollRef.current?.querySelector('.in-view');
+  const rememberScrollTop = useDebouncedCallback((scrollTop: number) => {
+    if (sessionKey) remember(`${sessionKey}_scroll`, String(scrollTop));
+  }, 150);
 
-    if (firstVisibleRow && sessionKey) {
-      sessionStorage.setItem(sessionKey, firstVisibleRow.id);
-    }
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    const scroll = event.currentTarget;
+    const firstVisibleRow = scroll.querySelector('.in-view');
 
-    debounceTimer.current = setTimeout(() => {
-      try {
-        sessionStorage.setItem(`${sessionKey}_scroll`, String(scrollRef.current?.scrollTop));
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e);
-      }
-    }, 150);
+    if (sessionKey && firstVisibleRow) remember(sessionKey, firstVisibleRow.id);
+
+    rememberScrollTop(scroll.scrollTop);
   };
 
   useEffect(() => {
-    if (!dataLength || loading) return;
+    const scroll = scrollRef.current;
 
-    if (!scrollRef.current) return;
-    const saved = sessionStorage.getItem(`${sessionKey}_scroll`);
+    if (!dataLength || loading || !scroll || !sessionKey) return;
 
-    if (!saved) return;
-    scrollRef.current.scrollTop = parseInt(saved, 10);
+    const saved = recall(`${sessionKey}_scroll`);
+
+    if (saved) scroll.scrollTop = Number.parseInt(saved, 10);
   }, [loading, dataLength, scrollRef, sessionKey]);
 
   return (
     <RecordTableCursorContext.Provider
-      value={{
-        scrollRef,
-        isFetchBackward,
-        setIsFetchBackward,
-        distanceFromBottomRef,
-        hasNextPage,
-        hasPreviousPage,
-        loading,
-      }}
+      value={{ viewport, startBackwardFetch, hasNextPage, hasPreviousPage, loading }}
     >
       <ScrollArea.Root className="h-full w-full pb-2 pr-2 relative">
-        <ScrollArea.Viewport ref={scrollRef} onScroll={handleScroll}>
+        <ScrollArea.Viewport ref={mergeRefs([scrollRef, setViewport])} onScroll={handleScroll}>
           <div className="min-h-[calc(100vh-8rem)]">{children}</div>
         </ScrollArea.Viewport>
 
@@ -85,50 +119,40 @@ export const RecordTableCursorProvider = ({
   );
 };
 
+type FetchMore = (params: { direction: EnumCursorDirection }) => void;
+
 export const RecordTableBackwardSkeleton = ({
   handleFetchMore,
 }: {
-  handleFetchMore: (params: { direction: EnumCursorDirection }) => void;
+  handleFetchMore: FetchMore;
 }) => {
-  const { setIsFetchBackward, scrollRef, distanceFromBottomRef, hasPreviousPage, loading } =
-    useRecordTableCursorContext();
+  const { viewport, startBackwardFetch, hasPreviousPage, loading } = useRecordTableCursorContext();
 
-  if (!hasPreviousPage || loading) {
-    return null;
-  }
+  if (!hasPreviousPage || loading) return null;
 
   return (
-    <RecordTable.RowSkeleton
+    <RecordTableRowSkeleton
       rows={3}
       backward
-      root={scrollRef.current}
+      root={viewport}
       handleInView={() => {
-        setIsFetchBackward(true);
+        startBackwardFetch();
         handleFetchMore({ direction: EnumCursorDirection.BACKWARD });
-
-        if (scrollRef.current) {
-          distanceFromBottomRef.current =
-            scrollRef.current.scrollHeight - scrollRef.current.scrollTop;
-        }
       }}
     />
   );
 };
 
-export const RecordTableForwardSkeleton = ({
-  handleFetchMore,
-}: {
-  handleFetchMore: (params: { direction: EnumCursorDirection }) => void;
-}) => {
-  const { hasNextPage, loading, scrollRef } = useRecordTableCursorContext();
+export const RecordTableForwardSkeleton = ({ handleFetchMore }: { handleFetchMore: FetchMore }) => {
+  const { hasNextPage, loading, viewport } = useRecordTableCursorContext();
 
-  if (!hasNextPage || loading) {
-    return null;
-  }
+  if (!hasNextPage || loading) return null;
 
-  const handleInView = () => {
-    handleFetchMore({ direction: EnumCursorDirection.FORWARD });
-  };
-
-  return <RecordTable.RowSkeleton rows={1} handleInView={handleInView} root={scrollRef.current} />;
+  return (
+    <RecordTableRowSkeleton
+      rows={1}
+      root={viewport}
+      handleInView={() => handleFetchMore({ direction: EnumCursorDirection.FORWARD })}
+    />
+  );
 };

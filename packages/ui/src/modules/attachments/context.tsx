@@ -1,4 +1,6 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import { toast } from 'erxes-ui/hooks/use-toast';
+import { errorMessage } from 'erxes-ui/utils/file-storage';
 import type { AttachmentContextType, IAttachment } from './types';
 
 const AttachmentContext = createContext<AttachmentContextType | null>(null);
@@ -13,14 +15,10 @@ export const useAttachmentContext = (): AttachmentContextType => {
   return ctx;
 };
 
-function stripTypename<T extends object>(obj: T): T {
-  const { __typename, ...rest } = obj as T & { __typename?: unknown };
+const defaultConfirm = (attachment: IAttachment) =>
+  window.confirm(`Are you sure you want to delete "${attachment.name}"?`);
 
-  return rest as T;
-}
-
-const defaultConfirm = (attachment: IAttachment): Promise<boolean> =>
-  Promise.resolve(window.confirm(`Are you sure you want to delete "${attachment.name}"?`));
+const NO_ATTACHMENTS: IAttachment[] = [];
 
 export type AttachmentRootProps = {
   children: React.ReactNode;
@@ -34,75 +32,65 @@ export type AttachmentRootProps = {
   isLoading?: boolean;
 };
 
+/** The attachments: start from `initialAttachments` and follow it whenever it changes. */
+const useAttachments = (initialAttachments: IAttachment[]) => {
+  const [attachments, setAttachments] = useState(initialAttachments);
+  const [synced, setSynced] = useState(initialAttachments);
+
+  if (initialAttachments !== synced) {
+    setSynced(initialAttachments);
+    setAttachments(initialAttachments);
+  }
+
+  return [attachments, setAttachments] as const;
+};
+
 export const AttachmentRoot = ({
   children,
-  initialAttachments = [],
+  initialAttachments = NO_ATTACHMENTS,
   onSave,
   onRemove,
   confirmRemove = defaultConfirm,
-  isLoading: externalLoading = false,
+  isLoading = false,
 }: AttachmentRootProps) => {
-  const [attachments, setAttachments] = useState<IAttachment[]>(initialAttachments);
+  const [attachments, setAttachments] = useAttachments(initialAttachments);
   const [removingUrl, setRemovingUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    setAttachments(initialAttachments);
-  }, [initialAttachments]);
+  const removeAttachment = async (attachment: IAttachment) => {
+    const remaining = attachments.filter((item) => item.url !== attachment.url);
 
-  const addAttachment = useCallback((attachment: IAttachment) => {
-    setAttachments((prev) => [...prev, attachment]);
-  }, []);
+    setRemovingUrl(attachment.url);
 
-  const resetAttachments = useCallback(() => {
-    setAttachments([]);
-  }, []);
+    try {
+      if ((await onRemove?.(attachment, remaining)) === false) return;
 
-  const removeAttachment = useCallback(
-    async (attachment: IAttachment) => {
-      setRemovingUrl(attachment.url);
-
-      const remaining = attachments.filter((a) => a.url !== attachment.url).map(stripTypename);
-
-      try {
-        if (onRemove) {
-          const result = await onRemove(attachment, remaining);
-
-          if (result === false) return;
-        }
-
-        setAttachments(remaining);
-        await onSave?.(remaining);
-      } catch (err) {
-        console.error('[Attachments.Root] Failed to remove attachment:', err);
-      } finally {
-        setRemovingUrl(null);
-      }
-    },
-    [attachments, onRemove, onSave],
-  );
-
-  const handleRemoveAttachment = useCallback(
-    (e: React.MouseEvent, attachment: IAttachment) => {
-      e.stopPropagation();
-      Promise.resolve(confirmRemove(attachment)).then((confirmed) => {
-        if (confirmed) removeAttachment(attachment);
+      setAttachments(remaining);
+      await onSave?.(remaining);
+    } catch (error) {
+      toast({
+        title: 'Could not remove the attachment',
+        description: errorMessage(error, 'Remove failed'),
+        variant: 'destructive',
       });
-    },
-    [confirmRemove, removeAttachment],
-  );
+    } finally {
+      setRemovingUrl(null);
+    }
+  };
 
-  return (
-    <AttachmentContext.Provider
-      value={{
-        attachments,
-        addAttachment,
-        handleRemoveAttachment,
-        removingUrl,
-        resetAttachments,
-        isLoading: externalLoading,
-      }}
-    >
-      {children}
-    </AttachmentContext.Provider>
-  );
+  const handleRemoveAttachment = async (event: React.MouseEvent, attachment: IAttachment) => {
+    event.stopPropagation();
+
+    if (await confirmRemove(attachment)) await removeAttachment(attachment);
+  };
+
+  const context = {
+    attachments,
+    addAttachment: (attachment: IAttachment) => setAttachments((prev) => [...prev, attachment]),
+    handleRemoveAttachment,
+    removingUrl,
+    resetAttachments: () => setAttachments([]),
+    isLoading,
+  };
+
+  return <AttachmentContext.Provider value={context}>{children}</AttachmentContext.Provider>;
 };

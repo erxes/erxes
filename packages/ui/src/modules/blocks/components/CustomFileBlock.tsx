@@ -3,7 +3,7 @@ import { fileBlockConfig } from '@blocknote/core';
 import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 import { FileBlockWrapper, createReactBlockSpec, useUploadLoading } from '@blocknote/react';
 import { IconFile } from '@tabler/icons-react';
-import { Spinner } from 'erxes-ui/components';
+import { Spinner } from 'erxes-ui/components/spinner';
 import type { FC } from 'react';
 import { readImage } from 'erxes-ui/utils/core';
 
@@ -23,7 +23,7 @@ const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps => (
 });
 
 const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
-  const url = readImage(block.props.url, undefined, true);
+  const url = readImage(block.props.url);
 
   return (
     <div className="bn-file-name-with-icon" contentEditable={false} draggable={false}>

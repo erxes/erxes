@@ -2,7 +2,7 @@ import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortabl
 import type { Header } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
 
-import { Table } from 'erxes-ui/components';
+import { Table } from 'erxes-ui/components/table';
 import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 
 import { RecordTableHead } from './RecordTableHead';

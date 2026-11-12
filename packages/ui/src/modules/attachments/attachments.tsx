@@ -1,28 +1,14 @@
-import { Button, Dialog, Spinner, Upload, cn, readImage } from 'erxes-ui/index';
-import { getCloudflareStreamBase } from 'erxes-ui/utils';
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconDownload,
-  IconFile,
-  IconMusic,
-  IconPaperclip,
-  IconPhoto,
-  IconPlayerPlayFilled,
-  IconX,
-  IconZoomIn,
-} from '@tabler/icons-react';
-import { useEffect, useRef, useState } from 'react';
-
+import { IconFile, IconMusic, IconPaperclip, IconPhoto } from '@tabler/icons-react';
+import { Spinner } from 'erxes-ui/components/spinner';
+import { Upload } from 'erxes-ui/components/upload';
+import { cn } from 'erxes-ui/lib/utils';
+import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
+import { readImage } from 'erxes-ui/utils/core';
+import { useRef, useState } from 'react';
+import { AttachmentPreview, AttachmentVideo } from './attachment-media';
+import { Heading, RemoveAttachmentButton, ScrollTrack } from './attachment-parts';
 import { AttachmentRoot, useAttachmentContext, type AttachmentRootProps } from './context';
-import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import type { IAttachment } from './types';
-
-// ---------------------------------------------------------------------------
-// Shared constants
-// ---------------------------------------------------------------------------
-
-const SCROLL_STEP = 150;
 
 const DEFAULT_FILE_TYPES = new Set([
   'text/plain',
@@ -35,467 +21,44 @@ const DEFAULT_FILE_TYPES = new Set([
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ]);
 
-function stripTypename<T extends object>(obj: T): T {
-  const { __typename, ...rest } = obj as T & { __typename?: unknown };
-
-  return rest as T;
-}
-
-// ---------------------------------------------------------------------------
-// Shared scroll track — used by both Files and Preview
-// ---------------------------------------------------------------------------
-
-type ScrollTrackProps = {
-  children: React.ReactNode;
-  label: string;
-};
-
-const ScrollTrack = ({ children, label }: ScrollTrackProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const scroll = (dir: 'left' | 'right') =>
-    ref.current?.scrollBy({
-      left: dir === 'left' ? -SCROLL_STEP : SCROLL_STEP,
-      behavior: 'smooth',
-    });
-
-  return (
-    <div className="relative">
-      <div className="absolute top-1/2 -left-4 -translate-y-1/2 hidden lg:block z-10">
-        <button
-          className="bg-background p-1 rounded-full shadow"
-          onClick={() => scroll('left')}
-          aria-label={`Scroll ${label} left`}
-        >
-          <IconChevronLeft size={20} />
-        </button>
-      </div>
-
-      <div
-        ref={ref}
-        className="overflow-x-auto flex gap-4 scroll-smooth"
-        role="list"
-        aria-label={label}
-      >
-        {children}
-      </div>
-
-      <div className="absolute top-1/2 -right-4 -translate-y-1/2 hidden lg:block z-10">
-        <button
-          className="bg-background p-1 rounded-full shadow"
-          onClick={() => scroll('right')}
-          aria-label={`Scroll ${label} right`}
-        >
-          <IconChevronRight size={20} />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// Attachments.Files
-// ---------------------------------------------------------------------------
-
 export type AttachmentFilesProps = {
   /** Override the accepted MIME type set. */
   fileTypes?: Set<string>;
   heading?: string;
 };
 
+/** Document attachments as links. */
 const AttachmentFiles = ({
   fileTypes = DEFAULT_FILE_TYPES,
   heading = 'File Attachments',
 }: AttachmentFilesProps) => {
-  const { attachments, handleRemoveAttachment, removingUrl, isLoading } = useAttachmentContext();
+  const { attachments } = useAttachmentContext();
+  const files = attachments.filter((item) => fileTypes.has(item.type));
 
-  const fileAttachments = attachments.filter((a) => a?.type != null && fileTypes.has(a.type));
-
-  if (fileAttachments.length === 0) return null;
+  if (files.length === 0) return null;
 
   return (
     <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-muted-foreground pb-4">{heading}</h4>
+      <Heading>{heading}</Heading>
       <ScrollTrack label="File attachments">
-        {fileAttachments.map((attachment) => {
-          const isRemoving = removingUrl === attachment.url;
-          const url = readImage(decodeURIComponent(attachment.url));
-
-          return (
-            <div
-              key={attachment.url}
-              role="listitem"
-              className="relative group p-2 bg-background text-primary rounded-md flex items-center gap-2 shrink-0"
-            >
-              <a
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm truncate max-w-40"
-                title={attachment.name}
-              >
-                {attachment.name}
-              </a>
-              <Button
-                variant="ghost"
-                disabled={isLoading && isRemoving}
-                onClick={(e) => handleRemoveAttachment(e, attachment)}
-                className="absolute hidden group-hover:flex items-center justify-center top-1 right-1 bg-destructive/40 hover:bg-destructive/80 text-background rounded-full p-1 w-5 h-5 shadow-md z-10"
-                aria-label={`Remove ${attachment.name}`}
-              >
-                <IconX size={10} aria-hidden />
-              </Button>
-            </div>
-          );
-        })}
-      </ScrollTrack>
-    </div>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// Attachments.Preview  (image lightbox)
-// ---------------------------------------------------------------------------
-
-export type AttachmentPreviewProps = {
-  heading?: string;
-  className?: string;
-  renderThumbnails?: (openPreview: (index: number) => void) => React.ReactNode;
-};
-
-const AttachmentPreview = ({
-  heading = 'Media Attachments',
-  className,
-  renderThumbnails,
-}: AttachmentPreviewProps) => {
-  const [open, setOpen] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const { attachments, handleRemoveAttachment, removingUrl, isLoading } = useAttachmentContext();
-
-  const mediaAttachments = attachments.filter(
-    (a) => a?.type != null && a.type.startsWith('image/'),
-  );
-
-  const current = mediaAttachments[Math.min(currentIndex, mediaAttachments.length - 1)];
-
-  // Clamp index when list shrinks
-  useEffect(() => {
-    if (currentIndex >= mediaAttachments.length && mediaAttachments.length > 0) {
-      setCurrentIndex(mediaAttachments.length - 1);
-    }
-  }, [mediaAttachments.length, currentIndex]);
-
-  // Keyboard nav — only when dialog is open
-  useEffect(() => {
-    if (!open || mediaAttachments.length === 0) return;
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
-
-      if (e.key === 'ArrowLeft')
-        setCurrentIndex((i) => (i === 0 ? mediaAttachments.length - 1 : i - 1));
-    };
-
-    document.addEventListener('keydown', onKey);
-
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, mediaAttachments.length]);
-
-  if (mediaAttachments.length === 0) return null;
-
-  const prev = () => setCurrentIndex((i) => (i === 0 ? mediaAttachments.length - 1 : i - 1));
-  const next = () => setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
-
-  const openPreview = (index: number) => {
-    setCurrentIndex(index);
-    setOpen(true);
-  };
-
-  return (
-    <div className={cn('py-4 px-8', className)}>
-      {heading && <h4 className="uppercase text-sm text-muted-foreground pb-4">{heading}</h4>}
-
-      {renderThumbnails ? (
-        renderThumbnails(openPreview)
-      ) : (
-        <ScrollTrack label="Media attachments">
-          {mediaAttachments.map((attachment, index) => {
-            const isRemoving = removingUrl === attachment.url;
-
-            return (
-              <div
-                key={attachment.url}
-                role="listitem"
-                className="group relative w-36 h-36 rounded-lg border border-border shadow-md shrink-0 cursor-zoom-in"
-                onClick={() => openPreview(index)}
-              >
-                <img
-                  className="w-full h-full object-cover rounded-lg"
-                  src={readImage(attachment.url)}
-                  alt={attachment.name}
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-background/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                  {isLoading && isRemoving ? (
-                    <Spinner />
-                  ) : (
-                    <IconZoomIn size={28} className="text-primary-foreground" aria-hidden />
-                  )}
-                </div>
-                <Button
-                  variant="ghost"
-                  disabled={isLoading && isRemoving}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveAttachment(e, attachment);
-                  }}
-                  className="absolute hidden group-hover:flex items-center justify-center top-1 right-1 bg-destructive/40 hover:bg-destructive/80 text-background rounded-full p-1 w-5 h-5 shadow-md z-10"
-                  aria-label={`Remove ${attachment.name}`}
-                >
-                  <IconX size={10} aria-hidden />
-                </Button>
-              </div>
-            );
-          })}
-        </ScrollTrack>
-      )}
-
-      {/* Lightbox */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Content
-          className="relative bg-transparent max-w-fit shadow-none border-0"
-          aria-describedby={undefined}
-        >
-          <Dialog.Title className="sr-only">{current.name || 'Image preview'}</Dialog.Title>
-          <Button
-            variant={'secondary'}
-            size={'icon'}
-            className="absolute top-6 -right-4 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
-            onClick={() => setOpen(false)}
-            aria-label="Close lightbox"
-          >
-            <IconX size={20} />
-          </Button>
-          <Button
-            variant={'secondary'}
-            size={'icon'}
-            aria-label="Download file"
-            asChild
-            role="link"
+        {files.map((attachment) => (
+          <li
+            key={attachment.url}
+            className="relative group p-2 bg-background text-primary rounded-md flex items-center gap-2 shrink-0"
           >
             <a
-              target={'__blank'}
-              href={readImage(current.url)}
-              className="absolute top-20 -right-4 -translate-y-1/2 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
+              href={readImage(decodeURIComponent(attachment.url))}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm truncate max-w-40"
+              title={attachment.name}
             >
-              <IconDownload />
+              {attachment.name}
             </a>
-          </Button>
-
-          <Button
-            variant={'secondary'}
-            size={'icon'}
-            className="absolute -left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
-            onClick={prev}
-            aria-label="Previous image"
-          >
-            <IconChevronLeft size={24} />
-          </Button>
-
-          {current && (
-            <img
-              key={current.url}
-              src={readImage(current.url)}
-              alt={current.name}
-              className="max-w-[90vw] max-h-[90vh] object-contain rounded shadow-2xl select-none"
-              draggable={false}
-            />
-          )}
-
-          <Button
-            variant={'secondary'}
-            size={'icon'}
-            className="absolute -right-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
-            onClick={next}
-            aria-label="Next image"
-          >
-            <IconChevronRight size={24} />
-          </Button>
-
-          {mediaAttachments.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/70 text-foreground text-xs px-3 py-1 rounded-full">
-              {currentIndex + 1} / {mediaAttachments.length}
-            </div>
-          )}
-        </Dialog.Content>
-      </Dialog>
-    </div>
-  );
-};
-
-export type AttachmentVideoProps = {
-  heading?: string;
-};
-
-const AttachmentVideo = ({ heading = 'Video Attachments' }: AttachmentVideoProps) => {
-  const [open, setOpen] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const { attachments, handleRemoveAttachment, removingUrl, isLoading } = useAttachmentContext();
-
-  const videoAttachments = attachments.filter(
-    (a) => a?.type != null && a.type.startsWith('video/'),
-  );
-
-  const current = videoAttachments[currentIndex];
-
-  // Clamp index when list shrinks
-  useEffect(() => {
-    if (currentIndex >= videoAttachments.length && videoAttachments.length > 0) {
-      setCurrentIndex(videoAttachments.length - 1);
-    }
-  }, [videoAttachments.length, currentIndex]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') setCurrentIndex((i) => (i + 1) % videoAttachments.length);
-
-      if (e.key === 'ArrowLeft')
-        setCurrentIndex((i) => (i === 0 ? videoAttachments.length - 1 : i - 1));
-    };
-
-    document.addEventListener('keydown', onKey);
-
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, videoAttachments.length]);
-
-  if (videoAttachments.length === 0) return null;
-
-  const prev = () => setCurrentIndex((i) => (i === 0 ? videoAttachments.length - 1 : i - 1));
-  const next = () => setCurrentIndex((i) => (i + 1) % videoAttachments.length);
-
-  const currentBase = current ? getCloudflareStreamBase(current.url) : null;
-
-  return (
-    <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-muted-foreground pb-4">{heading}</h4>
-
-      <ScrollTrack label="Video attachments">
-        {videoAttachments.map((attachment, index) => {
-          const isRemoving = removingUrl === attachment.url;
-          const base = getCloudflareStreamBase(attachment.url);
-
-          return (
-            <div
-              key={attachment.url}
-              role="listitem"
-              className="group relative w-36 h-36 rounded-lg border border-border shadow-md shrink-0 cursor-pointer bg-black overflow-hidden"
-              onClick={() => {
-                setCurrentIndex(index);
-                setOpen(true);
-              }}
-            >
-              {base ? (
-                <img
-                  className="w-full h-full object-cover rounded-lg"
-                  src={`${base}/thumbnails/thumbnail.jpg`}
-                  alt={attachment.name}
-                  loading="lazy"
-                />
-              ) : (
-                <video
-                  className="w-full h-full object-cover rounded-lg"
-                  src={readImage(attachment.url)}
-                  preload="metadata"
-                  muted
-                />
-              )}
-              <div className="absolute inset-0 flex items-center justify-center bg-background/30 group-hover:bg-background/40 transition-colors rounded-lg">
-                {isLoading && isRemoving ? (
-                  <Spinner />
-                ) : (
-                  <IconPlayerPlayFilled size={28} className="text-primary-foreground" aria-hidden />
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                disabled={isLoading && isRemoving}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveAttachment(e, attachment);
-                }}
-                className="absolute hidden group-hover:flex items-center justify-center top-1 right-1 bg-destructive/40 hover:bg-destructive/80 text-background rounded-full p-1 w-5 h-5 shadow-md z-10"
-                aria-label={`Remove ${attachment.name}`}
-              >
-                <IconX size={10} aria-hidden />
-              </Button>
-            </div>
-          );
-        })}
+            <RemoveAttachmentButton attachment={attachment} />
+          </li>
+        ))}
       </ScrollTrack>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Content className="bg-transparent max-w-fit shadow-none border-0">
-          <Button
-            variant={'secondary'}
-            size={'icon'}
-            className="absolute top-6 -right-4 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
-            onClick={() => setOpen(false)}
-            aria-label="Close lightbox"
-          >
-            <IconX size={20} />
-          </Button>
-
-          <Button
-            variant={'secondary'}
-            size={'icon'}
-            className="absolute -left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
-            onClick={prev}
-            aria-label="Previous video"
-          >
-            <IconChevronLeft size={24} />
-          </Button>
-
-          {current &&
-            (currentBase ? (
-              <iframe
-                key={current.url}
-                className="w-[80vw] max-w-3xl aspect-video rounded shadow-2xl"
-                src={`${currentBase}/iframe`}
-                title={current.name}
-                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                allowFullScreen
-              />
-            ) : (
-              <video
-                key={current.url}
-                className="max-w-[90vw] max-h-[90vh] rounded shadow-2xl"
-                src={readImage(current.url)}
-                controls
-                autoPlay
-              />
-            ))}
-
-          <Button
-            variant={'secondary'}
-            size={'icon'}
-            className="absolute -right-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-1.5 rounded-full z-50 transition-colors"
-            onClick={next}
-            aria-label="Next video"
-          >
-            <IconChevronRight size={24} />
-          </Button>
-
-          {videoAttachments.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/70 text-foreground text-xs px-3 py-1 rounded-full">
-              {currentIndex + 1} / {videoAttachments.length}
-            </div>
-          )}
-        </Dialog.Content>
-      </Dialog>
     </div>
   );
 };
@@ -504,113 +67,88 @@ export type AttachmentAudioProps = {
   heading?: string;
 };
 
+/** Audio attachments with players. */
 const AttachmentAudio = ({ heading = 'Audio Attachments' }: AttachmentAudioProps) => {
-  const { attachments, handleRemoveAttachment, removingUrl, isLoading } = useAttachmentContext();
+  const { attachments } = useAttachmentContext();
+  const audio = attachments.filter((item) => item.type.startsWith('audio/'));
 
-  const audioAttachments = attachments.filter(
-    (a) => a?.type != null && a.type.startsWith('audio/'),
-  );
-
-  if (audioAttachments.length === 0) return null;
+  if (audio.length === 0) return null;
 
   return (
     <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-muted-foreground pb-4">{heading}</h4>
-
-      <div className="flex flex-col gap-2" role="list" aria-label={heading}>
-        {audioAttachments.map((attachment) => {
-          const isRemoving = removingUrl === attachment.url;
-
-          return (
-            <div
-              key={attachment.url}
-              role="listitem"
-              className="group relative w-72 max-w-full rounded-lg border border-border shadow-sm bg-background p-2"
-            >
-              <div className="flex items-center gap-1.5 pb-1.5 pr-5">
-                <IconMusic size={14} className="text-muted-foreground shrink-0" aria-hidden />
-                <span className="text-xs font-medium truncate" title={attachment.name}>
-                  {attachment.name}
-                </span>
-              </div>
-              <audio className="w-full" src={readImage(attachment.url)} controls preload="metadata">
-                <track kind="captions" />
-              </audio>
-              <Button
-                variant="ghost"
-                disabled={isLoading && isRemoving}
-                onClick={(e) => handleRemoveAttachment(e, attachment)}
-                className="absolute hidden group-hover:flex items-center justify-center top-1 right-1 bg-destructive/40 hover:bg-destructive/80 text-background rounded-full p-1 w-5 h-5 shadow-md z-10"
-                aria-label={`Remove ${attachment.name}`}
-              >
-                <IconX size={10} aria-hidden />
-              </Button>
+      <Heading>{heading}</Heading>
+      <ul className="flex flex-col gap-2" aria-label={heading}>
+        {audio.map((attachment) => (
+          <li
+            key={attachment.url}
+            className="group relative w-72 max-w-full rounded-lg border border-border shadow-sm bg-background p-2"
+          >
+            <div className="flex items-center gap-1.5 pb-1.5 pr-5">
+              <IconMusic size={14} className="text-muted-foreground shrink-0" aria-hidden />
+              <span className="text-xs font-medium truncate" title={attachment.name}>
+                {attachment.name}
+              </span>
             </div>
-          );
-        })}
-      </div>
+            <audio className="w-full" src={readImage(attachment.url)} controls preload="metadata">
+              <track kind="captions" />
+            </audio>
+            <RemoveAttachmentButton attachment={attachment} />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
 
 export type AttachmentUploaderProps = {
+  /** Called once a batch of files has uploaded, with all attachments. */
   onSave?: (attachments: IAttachment[]) => Promise<void> | void;
   id?: string;
   label?: string;
 };
 
+/** Uploads files through the host's file storage and adds them as attachments. */
 const AttachmentUploader = ({ onSave, id, label = 'Add attachments' }: AttachmentUploaderProps) => {
-  const [isUploading, setIsUploading] = useState(false);
-
-  const [uploadProgress, setUploadProgress] = useState({
-    uploaded: 0,
-    total: 0,
-  });
-
   const { addAttachment, attachments } = useAttachmentContext();
-
-  const attachmentsRef = useRef(attachments);
-  useEffect(() => {
-    attachmentsRef.current = attachments;
-  }, [attachments]);
-
-  // Batch-complete — fires once all files in a batch finish
-  useEffect(() => {
-    if (uploadProgress.total > 0 && uploadProgress.uploaded === uploadProgress.total) {
-      const cleaned = attachmentsRef.current.map(stripTypename);
-      onSave?.(cleaned);
-      setUploadProgress({ uploaded: 0, total: 0 });
-      setIsUploading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadProgress]);
+  const [progress, setProgress] = useState<{ uploaded: number; total: number } | null>(null);
+  const before = useRef<IAttachment[]>([]);
+  const batch = useRef<IAttachment[]>([]);
 
   return (
     <Upload.Root
+      id={id}
       value=""
       multiple
-      className={cn('items-center', {
-        'pointer-events-none opacity-50': isUploading,
-      })}
-      onChange={(fileInfo) => {
-        if (fileInfo && 'url' in fileInfo) {
-          addAttachment(fileInfo as unknown as IAttachment);
-        }
+      className={cn('items-center', { 'pointer-events-none opacity-50': progress })}
+      onChange={({ url, name, size, type, duration }) => {
+        if (!url) return;
+
+        const attachment = {
+          url,
+          name: name ?? url.split('/').pop() ?? url,
+          size: size ?? 0,
+          type: type ?? '',
+          duration,
+        };
+
+        batch.current.push(attachment);
+        addAttachment(attachment);
       }}
     >
       <Upload.Preview
         className="hidden"
         onUploadStart={(count) => {
-          setIsUploading(true);
-          setUploadProgress({ uploaded: 0, total: count ?? 0 });
+          before.current = attachments;
+          batch.current = [];
+          setProgress({ uploaded: 0, total: count ?? 0 });
         }}
         onUploadProgress={() =>
-          setUploadProgress((prev) => ({
-            ...prev,
-            uploaded: prev.uploaded + 1,
-          }))
+          setProgress((prev) => prev && { ...prev, uploaded: prev.uploaded + 1 })
         }
-        onAllUploadsComplete={() => setIsUploading(false)}
+        onAllUploadsComplete={() => {
+          setProgress(null);
+          void onSave?.([...before.current, ...batch.current]);
+        }}
       />
       <Upload.Button
         size="sm"
@@ -618,11 +156,11 @@ const AttachmentUploader = ({ onSave, id, label = 'Add attachments' }: Attachmen
         type="button"
         className="flex items-center gap-1 cursor-pointer text-sm"
       >
-        {isUploading ? (
+        {progress ? (
           <>
             <Spinner />
             <span aria-live="polite">
-              {uploadProgress.uploaded}/{uploadProgress.total}
+              {progress.uploaded}/{progress.total}
             </span>
           </>
         ) : (
@@ -634,50 +172,40 @@ const AttachmentUploader = ({ onSave, id, label = 'Add attachments' }: Attachmen
   );
 };
 
-// ---------------------------------------------------------------------------
-// Attachments.Inline  (read-only summary pills for table cells)
-// ---------------------------------------------------------------------------
-
 export type AttachmentsInlineProps = {
   attachments: IAttachment[];
   /** Override the file MIME type set used to identify non-image files. */
   fileTypes?: Set<string>;
 };
 
+const CountPill = ({ icon, count }: { icon: React.ReactNode; count: number }) => (
+  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-xs font-medium">
+    {icon}
+    {count}
+  </span>
+);
+
+/** Read-only counts of images and files, for table cells. */
 const AttachmentsInline = ({
   attachments,
   fileTypes = DEFAULT_FILE_TYPES,
 }: AttachmentsInlineProps) => {
-  const images = attachments.filter((a) => a?.type?.startsWith('image/'));
-  const files = attachments.filter((a) => a?.type != null && fileTypes.has(a.type));
+  const images = attachments.filter((item) => item.type.startsWith('image/')).length;
+  const files = attachments.filter((item) => fileTypes.has(item.type)).length;
 
   return (
     <RecordTableInlineCell>
-      {images.length === 0 && files.length === 0 ? (
+      {images === 0 && files === 0 ? (
         <span className="text-muted-foreground select-none">—</span>
       ) : (
         <div className="flex items-center gap-1.5">
-          {images.length > 0 && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-xs font-medium">
-              <IconPhoto size={13} aria-hidden />
-              {images.length}
-            </span>
-          )}
-          {files.length > 0 && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-xs font-medium">
-              <IconFile size={13} aria-hidden />
-              {files.length}
-            </span>
-          )}
+          {images > 0 && <CountPill icon={<IconPhoto size={13} aria-hidden />} count={images} />}
+          {files > 0 && <CountPill icon={<IconFile size={13} aria-hidden />} count={files} />}
         </div>
       )}
     </RecordTableInlineCell>
   );
 };
-
-// ---------------------------------------------------------------------------
-// Attachments namespace export
-// ---------------------------------------------------------------------------
 
 export const Attachments = {
   Root: AttachmentRoot,
@@ -690,3 +218,5 @@ export const Attachments = {
 } as const;
 
 export type { AttachmentRootProps };
+
+export type { AttachmentPreviewProps, AttachmentVideoProps } from './attachment-media';

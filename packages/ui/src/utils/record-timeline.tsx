@@ -30,5 +30,8 @@ export const RecordTimeline = (props: RecordTimelineProps) => {
     () => registered,
   );
 
-  return Component ? <Component {...props} /> : null;
+  if (!Component) return null;
+
+  // oxlint-disable-next-line react/static-components -- the host registers this component once, at module level; it is read from a store, not created during render
+  return <Component {...props} />;
 };

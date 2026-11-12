@@ -12,7 +12,7 @@ export const handleStringArrayPaste = ({
   const pastedValues = event.clipboardData
     .getData('text')
     .split(/\r\n|\r|\n/)
-    .map((value) => value.trim())
+    .map((line) => line.trim())
     .filter(Boolean);
 
   if (pastedValues.length <= 1) {

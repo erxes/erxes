@@ -2,16 +2,15 @@ import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { recordTableCursorAtomFamily } from '../states/RecordTableCursorState';
 
+/** The cursor of the first visible row that RecordTableCursorProvider saved for `sessionKey`. */
 export const useRecordTableCursor = ({ sessionKey }: { sessionKey?: string }) => {
-  const [cursor, setCursor] = useAtom(recordTableCursorAtomFamily(sessionKey ?? '') ?? '');
+  const [cursor, setCursor] = useAtom(recordTableCursorAtomFamily(sessionKey ?? ''));
 
   useEffect(() => {
     if (!sessionKey) return;
-    setCursor(sessionStorage.getItem(sessionKey) || '');
+
+    setCursor(sessionStorage.getItem(sessionKey) ?? '');
   }, [sessionKey, setCursor]);
 
-  return {
-    cursor,
-    setCursor,
-  };
+  return { cursor, setCursor };
 };

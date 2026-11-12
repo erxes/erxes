@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useBlockEditor } from '../hooks/useBlockEditor';
 import { BlockEditor } from './BlockEditor';
 import type { Block } from '@blocknote/core';
-import type { BlockEditorProps, IEditorProps } from '../types';
-import { cn } from 'erxes-ui/lib';
-import { parseBlocks } from '../utils';
+import type { BlockEditorProps, IEditorProps } from '../types/TextEditor';
+import { cn } from 'erxes-ui/lib/utils';
+import { parseBlocks } from '../utils/parseBlocks';
 
 export const Editor = ({
   onChange,

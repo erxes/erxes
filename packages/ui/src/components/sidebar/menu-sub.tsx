@@ -3,15 +3,15 @@ import * as React from 'react';
 import { SidebarTreeIndicator } from 'erxes-ui/components/sidebar-tree-indicator';
 import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
-import { useComposedRef } from './hooks';
+import { mergeRefs } from 'react-merge-refs';
 
 export const SidebarMenuSub = React.forwardRef<HTMLUListElement, React.ComponentProps<'ul'>>(
   ({ className, children, ...props }, ref) => {
-    const [subRef, setRefs] = useComposedRef(ref);
+    const subRef = React.useRef<HTMLUListElement>(null);
 
     return (
       <ul
-        ref={setRefs}
+        ref={mergeRefs([subRef, ref])}
         data-sidebar="menu-sub"
         className={cn(
           'relative ml-3.5 flex min-w-0 translate-x-px flex-col gap-1 pl-2.5 py-0.5',

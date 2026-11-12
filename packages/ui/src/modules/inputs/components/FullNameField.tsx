@@ -1,8 +1,8 @@
-import { Input } from 'erxes-ui/components';
-import React, { useEffect, useState } from 'react';
+import { Input } from 'erxes-ui/components/input';
+import React, { useState } from 'react';
 import { FullNameFieldContext } from 'erxes-ui/modules/inputs/contexts/FullNameFieldContext';
 import { useFullNameField } from 'erxes-ui/modules/inputs/hooks/useFullNameField';
-import { PopoverScoped } from 'erxes-ui/modules/hotkey';
+import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
 const FullNameFieldProvider = ({
@@ -92,15 +92,14 @@ export const FullNameField = ({
     }
   };
 
-  useEffect(() => {
-    if (firstNameState === firstName && lastNameState === lastName) {
-      return;
-    }
+  // A new name from the record replaces what is being typed.
+  const [syncedName, setSyncedName] = useState({ firstName, lastName });
 
-    setFirstName(firstName || '');
-    setLastName(lastName || '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firstName, lastName]);
+  if (syncedName.firstName !== firstName || syncedName.lastName !== lastName) {
+    setSyncedName({ firstName, lastName });
+    setFirstName(firstName ?? '');
+    setLastName(lastName ?? '');
+  }
 
   return (
     <FullNameFieldProvider

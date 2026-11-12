@@ -2,12 +2,12 @@ import React from 'react';
 
 import type { Cell } from '@tanstack/react-table';
 
-import { Table } from 'erxes-ui/components';
+import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const RecordTableCell = React.forwardRef<
   HTMLTableCellElement,
-  React.HTMLAttributes<HTMLTableCellElement> & { cell: Cell<any, unknown> }
+  React.HTMLAttributes<HTMLTableCellElement> & { cell: Cell<unknown, unknown> }
 >(({ children, className, cell, style, ...props }, ref) => {
   const { column } = cell;
 

@@ -24,7 +24,7 @@ export type BoardContextProps<
 > = {
   columns: C[];
   data: T[];
-  boardId: string | null;
+  boardId: string;
 };
 
 export type BoardProps = {

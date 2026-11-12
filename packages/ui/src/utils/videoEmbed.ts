@@ -20,7 +20,7 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
 
   if (!trimmed) return null;
 
-  const youtubeMatch = YOUTUBE_LONG_PATTERN.exec(trimmed) || YOUTUBE_SHORT_PATTERN.exec(trimmed);
+  const youtubeMatch = YOUTUBE_LONG_PATTERN.exec(trimmed) ?? YOUTUBE_SHORT_PATTERN.exec(trimmed);
 
   if (youtubeMatch) {
     const id = youtubeMatch[1];
@@ -54,5 +54,5 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
 export const getCloudflareStreamBase = (url: string): string | null => {
   const match = url.match(/^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/);
 
-  return match ? match[1] : null;
+  return match?.[1] ?? null;
 };

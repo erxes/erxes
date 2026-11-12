@@ -1,19 +1,15 @@
-import type { ReactNode } from 'react';
-import { useCallback } from 'react';
-import type { SubmitHandler } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
+import { useCallback, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-import type { ButtonProps } from 'erxes-ui/components';
-import { AlertDialog, buttonVariants, Form, Input } from 'erxes-ui/components';
+import { AlertDialog } from 'erxes-ui/components/alert-dialog';
+import { buttonVariants, type ButtonProps } from 'erxes-ui/components/button';
+import { Input } from 'erxes-ui/components/input';
+import { Label } from 'erxes-ui/components/label';
 
 type OptionProps = {
   okLabel?: string;
   cancelLabel?: string;
   description?: string;
+  /** Text the member must type before confirming. */
   confirmationValue?: string;
   content?: ReactNode;
   variants?: {
@@ -22,167 +18,161 @@ type OptionProps = {
   };
 };
 
-type ConfirmDialogProp = {
+type ConfirmDialogProps = {
   message: string;
   options?: OptionProps;
-  open: boolean;
   onConfirm: () => void;
   onDismiss: () => void;
 };
 
-export const confirmValidationSchema = z
-  .object({
-    confirm: z.string(),
-  })
-  .required();
+/** The typed confirmation, when the options ask for one. */
+const ConfirmationField = ({
+  value,
+  expected,
+  error,
+  inputRef,
+  onChange,
+}: {
+  value: string;
+  expected: string;
+  error: boolean;
+  inputRef: React.RefObject<HTMLInputElement>;
+  onChange: (value: string) => void;
+}) => {
+  const id = useId();
 
-export type FormType = z.infer<typeof confirmValidationSchema>;
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id} className="text-xs select-none" variant="peer">
+        Type <span className="font-semibold">{expected}</span> in the field below to confirm.
+      </Label>
+      <Input
+        id={id}
+        ref={inputRef}
+        type="text"
+        placeholder="Enter confirmation"
+        value={value}
+        aria-invalid={error}
+        aria-describedby={error ? `${id}-error` : undefined}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      {error && (
+        <p id={`${id}-error`} className="text-sm font-medium text-destructive">
+          Enter {expected} to confirm
+        </p>
+      )}
+    </div>
+  );
+};
 
-const ConfirmDialog = ({ message, options, open, onConfirm, onDismiss }: ConfirmDialogProp) => {
+const ConfirmDialog = ({ message, options = {}, onConfirm, onDismiss }: ConfirmDialogProps) => {
   const {
     okLabel = 'Confirm',
     cancelLabel = 'Cancel',
-    description = '',
-    confirmationValue = '',
+    description,
+    confirmationValue,
     content,
     variants = {},
-  } = options || {};
+  } = options;
 
-  const form = useForm<FormType>({
-    mode: 'onBlur',
-    defaultValues: {
-      confirm: '',
-    },
-    resolver: zodResolver(confirmValidationSchema),
-  });
+  const [typed, setTyped] = useState('');
+  const [mismatch, setMismatch] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const dismiss = () => {
-    onDismiss();
-  };
+  const proceed = (event: FormEvent) => {
+    event.preventDefault();
 
-  const proceed: SubmitHandler<FormType> = () => {
-    const { confirm } = form.getValues();
+    if (confirmationValue && typed !== confirmationValue) {
+      setMismatch(true);
+      inputRef.current?.focus();
 
-    if (confirmationValue) {
-      if (confirm === confirmationValue) {
-        return onConfirm();
-      }
-
-      return form.setError(
-        'confirm',
-        { type: 'custom', message: `Enter ${confirmationValue} to confirm` },
-        { shouldFocus: true },
-      );
+      return;
     }
 
-    return onConfirm();
-  };
-
-  const renderConfirm = (formInstance: ReturnType<typeof useForm>) => {
-    if (!confirmationValue) {
-      return null;
-    }
-
-    return (
-      <Form.Field
-        name="confirm"
-        control={formInstance.control as any}
-        render={({ field }: { field: any }) => (
-          <Form.Item>
-            <Form.Label className="text-xs select-none" variant="peer">
-              Type <span className="font-semibold">{confirmationValue}</span> in the field below to
-              confirm.
-            </Form.Label>
-            <Form.Control>
-              <Input type="text" placeholder="Enter confirmation" {...field} autoFocus />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-    );
+    onConfirm();
   };
 
   return (
-    <AlertDialog open={open}>
-      <AlertDialog.Content>
-        <Form {...form}>
-          <AlertDialog.Header>
-            <AlertDialog.Title>{message}</AlertDialog.Title>
-            {description && <AlertDialog.Description> {description} </AlertDialog.Description>}
-          </AlertDialog.Header>
-          {content}
-          <form onSubmit={form.handleSubmit(proceed)}>
-            {renderConfirm(form as any)}
-            <br />
-            <AlertDialog.Footer>
-              <AlertDialog.Cancel
-                onClick={dismiss}
-                type="button"
-                className={
-                  variants.cancel ? buttonVariants({ variant: variants.cancel }) : undefined
-                }
-              >
-                {cancelLabel}
-              </AlertDialog.Cancel>
-              <AlertDialog.Action
-                type="submit"
-                className={variants.ok ? buttonVariants({ variant: variants.ok }) : undefined}
-              >
-                {okLabel}
-              </AlertDialog.Action>
-            </AlertDialog.Footer>
-          </form>
-        </Form>
+    <AlertDialog open>
+      <AlertDialog.Content
+        onOpenAutoFocus={(event) => {
+          if (!inputRef.current) return;
+
+          event.preventDefault();
+          inputRef.current.focus();
+        }}
+      >
+        <AlertDialog.Header>
+          <AlertDialog.Title>{message}</AlertDialog.Title>
+          {description && <AlertDialog.Description> {description} </AlertDialog.Description>}
+        </AlertDialog.Header>
+        {content}
+        <form onSubmit={proceed}>
+          {confirmationValue && (
+            <ConfirmationField
+              value={typed}
+              expected={confirmationValue}
+              error={mismatch}
+              inputRef={inputRef}
+              onChange={setTyped}
+            />
+          )}
+          <br />
+          <AlertDialog.Footer>
+            <AlertDialog.Cancel
+              onClick={onDismiss}
+              type="button"
+              className={variants.cancel ? buttonVariants({ variant: variants.cancel }) : undefined}
+            >
+              {cancelLabel}
+            </AlertDialog.Cancel>
+            <AlertDialog.Action
+              type="submit"
+              className={variants.ok ? buttonVariants({ variant: variants.ok }) : undefined}
+            >
+              {okLabel}
+            </AlertDialog.Action>
+          </AlertDialog.Footer>
+        </form>
       </AlertDialog.Content>
     </AlertDialog>
   );
 };
 
+/**
+ * `confirm` shows a confirmation dialog in its own root. The promise resolves when the member
+ * confirms and stays pending when they cancel, so callers chain the action with `.then`.
+ */
 export const useConfirm = () => {
   const confirm = useCallback(
-    ({ message, options }: { message: string; options?: OptionProps }) => {
-      return new Promise<void>((resolve) => {
+    ({ message, options }: { message: string; options?: OptionProps }) =>
+      new Promise<void>((resolve) => {
         const wrapper = document.createElement('div');
-        document.body.appendChild(wrapper);
-
+        const root = createRoot(wrapper);
         let isOpen = true;
 
-        const cleanup = () => {
+        document.body.append(wrapper);
+
+        const close = () => {
           if (!isOpen) return;
 
           isOpen = false;
-
-          try {
-            root.unmount();
-          } catch (error) {
-            console.error('Error unmounting confirm dialog:', error);
-          } finally {
-            wrapper.parentNode?.removeChild(wrapper);
-          }
+          root.unmount();
+          wrapper.remove();
         };
 
-        const handleConfirm = () => {
-          resolve();
-          cleanup();
-        };
-
-        const handleDismiss = () => {
-          cleanup();
-        };
-
-        const root = createRoot(wrapper);
         root.render(
           <ConfirmDialog
             message={message}
             options={options}
-            open={true}
-            onConfirm={handleConfirm}
-            onDismiss={handleDismiss}
+            onConfirm={() => {
+              resolve();
+              close();
+            }}
+            onDismiss={close}
           />,
         );
-      });
-    },
+      }),
     [],
   );
 

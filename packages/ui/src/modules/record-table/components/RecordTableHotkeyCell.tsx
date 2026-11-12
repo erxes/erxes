@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRecordTableHotkey } from '../contexts/RecordTableHotkeyContext';
 import { Slot } from 'radix-ui';
 import { mergeRefs } from 'react-merge-refs';
-import { cn } from 'erxes-ui/lib';
-import { Key } from 'erxes-ui/types';
+import { cn } from 'erxes-ui/lib/utils';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useAtomValue } from 'jotai';
 import { internalHotkeysEnabledScopesState } from 'erxes-ui/modules/hotkey/states/internal/internalHotkeysEnabledScopeState';
-import { useSetHotkeyScope } from 'erxes-ui/modules/hotkey';
+import { useSetHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/useSetHotkeyScope';
 
 export const RecordTableHotKeyControl = React.forwardRef<
   React.ElementRef<typeof Slot.Root>,
@@ -30,59 +29,51 @@ export const RecordTableHotKeyControl = React.forwardRef<
     },
     ref,
   ) => {
-    const controlRef = useRef<HTMLTableCellElement>(null);
-    const [isFocused, setIsFocused] = useState(false);
+    const [cell, setCell] = useState<HTMLElement | null>(null);
     const { activeCell, setActiveRow, setActiveCell, scope } = useRecordTableHotkey();
     const enabledScopes = useAtomValue(internalHotkeysEnabledScopesState);
     const setHotkeyScope = useSetHotkeyScope();
 
-    const colIndex = colIndexProp ?? controlRef.current?.cellIndex;
+    const colIndex =
+      colIndexProp ?? (cell instanceof HTMLTableCellElement ? cell.cellIndex : undefined);
+
+    const isFocused = activeCell[0] === rowIndex && activeCell[1] === colIndex;
 
     useHotkeys(
-      Key.Enter,
+      'Enter',
       (e) => {
         e.preventDefault();
         e.stopPropagation();
-        controlRef.current?.querySelector('button')?.click();
+        cell?.querySelector('button')?.click();
       },
       {
         enabled: isFocused && enabledScopes.includes(scope),
         preventDefault: true,
         enableOnFormTags,
       },
-      [enableOnFormTags, enabledScopes, isFocused, scope],
+      [cell, enableOnFormTags, enabledScopes, isFocused, scope],
     );
 
-    const handleFocus = (focused: boolean) => {
-      setIsFocused(focused);
-
-      if (!focused && document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    };
-
+    // The active cell takes the hotkey scope and its row; leaving it drops focus inside it.
     useEffect(() => {
-      const isActive = activeCell[0] === rowIndex && activeCell[1] === colIndex;
+      if (!isFocused) return undefined;
 
-      if (isActive) {
-        setHotkeyScope(scope);
-        handleFocus(true);
-        setActiveRow(rowId);
-      } else if (isFocused) {
-        handleFocus(false);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeCell]);
+      setHotkeyScope(scope);
+      setActiveRow(rowId);
+
+      return () => {
+        const focused = document.activeElement;
+
+        if (focused instanceof HTMLElement && cell?.contains(focused)) focused.blur();
+      };
+    }, [isFocused, scope, rowId, cell, setHotkeyScope, setActiveRow]);
 
     return (
       <Slot.Root
-        ref={mergeRefs([ref, controlRef])}
+        ref={mergeRefs([ref, setCell])}
         {...props}
         onClickCapture={(event) => {
           onClickCapture?.(event);
-          setHotkeyScope(scope);
-          setIsFocused(true);
-          setActiveRow(rowId);
           setActiveCell([rowIndex, colIndex ?? 0]);
         }}
         className={cn(

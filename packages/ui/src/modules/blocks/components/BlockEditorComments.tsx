@@ -11,8 +11,12 @@ import {
 import { components as blockNoteComponents } from '@blocknote/shadcn';
 import type { ComponentProps as ReactComponentProps, ReactNode } from 'react';
 import { forwardRef, memo, useMemo, useState } from 'react';
-import { Avatar, Button, Card, Skeleton, Textarea } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib';
+import { Avatar } from 'erxes-ui/components/avatar';
+import { Button } from 'erxes-ui/components/button';
+import { Card } from 'erxes-ui/components/card';
+import { Skeleton } from 'erxes-ui/components/skeleton';
+import { Textarea } from 'erxes-ui/components/textarea';
+import { cn } from 'erxes-ui/lib/utils';
 import { useBlockEditorCommentComposer } from '../hooks/useBlockEditorCommentComposer';
 
 const CommentCard = forwardRef<HTMLDivElement, ComponentProps['Comments']['Card']>(

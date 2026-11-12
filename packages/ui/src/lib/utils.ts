@@ -5,68 +5,24 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function fixNum(value: any, p = 4) {
-  const cleanNumber = Number((value ?? '').toString().replace(/,/g, ''));
+/** A number, or text with thousands commas, rounded to `p` decimals; not a number reads as 0. */
+export function fixNum(value: number | string | null | undefined, p = 4) {
+  const cleanNumber = Number(String(value ?? '').replace(/,/g, ''));
 
-  if (isNaN(cleanNumber)) {
+  if (Number.isNaN(cleanNumber)) {
     return 0;
   }
 
   const multiplier = 10 ** p;
-
   const big = Math.round(Number((cleanNumber * multiplier).toFixed(2)));
 
   return Number((big / multiplier).toFixed(p));
 }
 
-export function displayNum(value: any, p = 2) {
-  const num = fixNum(value, p);
-
+/** `value` rounded and shown with exactly `p` decimals and thousands commas. */
+export function displayNum(value: number | string | null | undefined, p = 2) {
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: p,
     maximumFractionDigits: p,
-  }).format(num);
+  }).format(fixNum(value, p));
 }
-
-/**
- * Send desktop notification
- */
-export const sendDesktopNotification = (doc: { title: string; content?: string }) => {
-  const notify = () => {
-    try {
-      const notification = new Notification(doc.title, {
-        body: doc.content,
-        icon: '/favicon.png',
-        dir: 'ltr',
-      });
-
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
-      };
-    } catch (error) {
-      console.error('Notification error:', error);
-    }
-  };
-
-  // Browser doesn't support Notification api
-  if (!('Notification' in window)) {
-    return;
-  }
-
-  if (Notification.permission === 'granted') {
-    return notify();
-  }
-
-  if (Notification.permission !== 'denied') {
-    Notification.requestPermission((permission) => {
-      if (!('permission' in Notification)) {
-        (Notification as any).permission = permission;
-      }
-
-      if (permission === 'granted') {
-        return notify();
-      }
-    });
-  }
-};

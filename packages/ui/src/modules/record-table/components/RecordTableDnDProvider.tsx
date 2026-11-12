@@ -10,8 +10,7 @@ import {
 } from '@dnd-kit/core';
 import { restrictToFirstScrollableAncestor, restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { ColumnOrderState } from '@tanstack/react-table';
-import type { OnChangeFn } from '@tanstack/table-core';
+import type { ColumnOrderState, OnChangeFn } from '@tanstack/react-table';
 
 interface RecordTableDnDProviderProps {
   children: React.ReactNode;
@@ -43,8 +42,8 @@ export const RecordTableDnDProvider = ({
 
     if (active && over && active.id !== over.id) {
       setColumnOrder((columnOrder) => {
-        const oldIndex = columnOrder.indexOf(active.id as string);
-        const newIndex = columnOrder.indexOf(over.id as string);
+        const oldIndex = columnOrder.indexOf(String(active.id));
+        const newIndex = columnOrder.indexOf(String(over.id));
 
         return arrayMove(columnOrder, oldIndex, newIndex);
       });

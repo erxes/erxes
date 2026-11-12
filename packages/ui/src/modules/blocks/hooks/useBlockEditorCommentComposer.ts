@@ -1,7 +1,7 @@
 import { useBlockNoteEditor } from '@blocknote/react';
 import { UniqueID } from '@blocknote/core';
 import { useState } from 'react';
-import { useToast } from 'erxes-ui/hooks';
+import { useToast } from 'erxes-ui/hooks/use-toast';
 
 const generateId: () => string = UniqueID.options.generateID;
 

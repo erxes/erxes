@@ -1,8 +1,9 @@
-import { Collapsible, Sidebar } from 'erxes-ui/components';
+import { Collapsible } from 'erxes-ui/components/collapsible';
+import { Sidebar } from 'erxes-ui/components/sidebar';
 import { Link, useLocation } from 'react-router-dom';
 
 import { IconChevronRight } from '@tabler/icons-react';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { forwardRef } from 'react';
 import { useNavigationMenuItemControls } from './NavigationMenuItemControls';
 
@@ -51,7 +52,7 @@ export const NavigationMenuLinkItem = forwardRef<
       >
         <Sidebar.MenuButton
           asChild
-          isActive={isActiveProp ? isActiveProp : isActive}
+          isActive={isActiveProp === true || isActive}
           ref={ref}
           className={className}
           {...props}
@@ -72,41 +73,6 @@ export const NavigationMenuLinkItem = forwardRef<
 );
 
 NavigationMenuLinkItem.displayName = 'NavigationMenuLinkItem';
-
-/**
- * @deprecated Links to `/settings/<pathPrefix>/…`, which now only redirects:
- * plugin settings live in the plugin's own app. Use `NavigationMenuLinkItem`
- * with `pathPrefix="<plugin>/settings"`.
- */
-export const SettingsNavigationMenuLinkItem = forwardRef<
-  React.ElementRef<typeof Sidebar.MenuButton>,
-  React.ComponentProps<typeof NavigationMenuLinkItem>
->(({ pathPrefix, ...props }, ref) => {
-  const settingsPathPrefix = `settings/${pathPrefix}`;
-
-  return <NavigationMenuLinkItem {...props} pathPrefix={settingsPathPrefix} ref={ref} />;
-});
-
-SettingsNavigationMenuLinkItem.displayName = 'SettingsNavigationMenuLinkItem';
-
-export const NavigationMenuItem = forwardRef<
-  React.ElementRef<typeof Sidebar.MenuButton>,
-  React.ComponentProps<typeof Sidebar.MenuButton> & {
-    name: string;
-    icon?: React.ElementType;
-  }
->(({ name, icon: IconComponent, ...props }, ref) => {
-  return (
-    <Sidebar.MenuItem>
-      <Sidebar.MenuButton ref={ref} {...props}>
-        {IconComponent && <IconComponent className="text-accent-foreground" />}
-        <span className="capitalize">{name}</span>
-      </Sidebar.MenuButton>
-    </Sidebar.MenuItem>
-  );
-});
-
-NavigationMenuItem.displayName = 'NavigationMenuItem';
 
 export const NavigationMenuGroup = forwardRef<
   React.ElementRef<typeof Sidebar.Group>,

@@ -1,7 +1,7 @@
 import { IconGripVertical } from '@tabler/icons-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 const ResizablePanelGroup = ({
   className,

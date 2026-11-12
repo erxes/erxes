@@ -3,7 +3,7 @@ import { forwardRef } from 'react';
 
 import type { ButtonProps } from './button';
 import { Button } from './button';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 export type DragHandleProps = Omit<ButtonProps, 'asChild' | 'children' | 'size'>;
 

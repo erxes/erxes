@@ -4,17 +4,17 @@ import type { KeyboardEvent, MouseEvent } from 'react';
 import { useRef, useState } from 'react';
 import { SuggestionMenuController, TableHandlesController } from '@blocknote/react';
 
-import type { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
+import type { BlockEditorProps } from 'erxes-ui/modules/blocks/types/TextEditor';
 import { BlockNoteView } from '@blocknote/shadcn';
 import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
 import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
 import { Toolbar } from 'erxes-ui/modules/blocks/components/BlockToolbar';
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
 import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
 import { isCodeFormattingShortcut } from 'erxes-ui/modules/blocks/utils/toolbar/isCodeFormattingShortcut';
 import { isEmptyBlock } from 'erxes-ui/modules/blocks/utils/isEmptyBlock';
-import { themeState } from 'erxes-ui/state';
+import { themeState } from 'erxes-ui/state/themeState';
 import { useAtomValue } from 'jotai';
 
 export const BlockEditor = ({

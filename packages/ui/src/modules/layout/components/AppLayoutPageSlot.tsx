@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useLayoutEffect, useRef, type PropsWithChildren } from 'react';
+import { useLayoutEffect, useState, type PropsWithChildren } from 'react';
 import {
   appLayoutPageOverlayState,
   appLayoutPageTargetState,
@@ -7,18 +7,19 @@ import {
 
 // A page can be replaced by a record while the app's navigation stays mounted.
 export const AppLayoutPageSlot = ({ children }: PropsWithChildren) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
   const target = useAtomValue(appLayoutPageTargetState);
   const setTarget = useSetAtom(appLayoutPageTargetState);
   const overlayOpen = useAtomValue(appLayoutPageOverlayState);
-  const active = overlayOpen && target === ref.current;
+  const active = overlayOpen && element !== null && target === element;
 
   useLayoutEffect(() => {
-    const element = ref.current;
+    if (!element) return undefined;
+
     setTarget(element);
 
     return () => setTarget((current) => (current === element ? null : current));
-  }, [setTarget]);
+  }, [element, setTarget]);
 
   return (
     <>
@@ -30,7 +31,7 @@ export const AppLayoutPageSlot = ({ children }: PropsWithChildren) => {
         {children}
       </div>
       <div
-        ref={ref}
+        ref={setElement}
         hidden={!active}
         className={active ? 'flex min-h-0 min-w-0 flex-1 flex-col' : 'hidden'}
       />

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Combobox, Command, Popover } from 'erxes-ui/components';
+import { Combobox } from 'erxes-ui/components/combobox';
+import { Command } from 'erxes-ui/components/command';
+import { Popover } from 'erxes-ui/components/popover';
 import { INTL_LANGUAGES } from 'erxes-ui/constants/IntlLanguages';
 
 export const LanguageSelect = React.forwardRef<

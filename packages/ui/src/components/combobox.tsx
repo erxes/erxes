@@ -7,7 +7,6 @@ import { Command } from './command';
 import { useInView } from 'react-intersection-observer';
 import { mergeRefs } from 'react-merge-refs';
 import { Skeleton } from './skeleton';
-import type { ApolloError } from '@apollo/client';
 import { Spinner } from './spinner';
 
 export const ComboboxTriggerBase = React.forwardRef<
@@ -20,7 +19,6 @@ export const ComboboxTriggerBase = React.forwardRef<
     <Popover.Trigger asChild>
       <Button
         ref={ref}
-        role="combobox"
         variant="outline"
         {...props}
         type="button"
@@ -76,7 +74,7 @@ export const ComboboxValue = React.forwardRef<
   React.HTMLAttributes<HTMLSpanElement> & {
     placeholder?: string;
     loading?: boolean;
-    value?: string | JSX.Element;
+    value?: string | React.JSX.Element;
   }
 >(({ value, className, placeholder, loading, ...props }, ref) => {
   if (loading) {
@@ -235,7 +233,7 @@ const ComboboxEmpty = React.forwardRef<
   React.ElementRef<typeof Command.Empty>,
   React.ComponentPropsWithoutRef<typeof Command.Empty> & {
     loading?: boolean;
-    error?: Pick<ApolloError, 'message'>;
+    error?: Pick<Error, 'message'> | null;
   }
 >(({ className, loading, error, ...props }, ref) => {
   return (

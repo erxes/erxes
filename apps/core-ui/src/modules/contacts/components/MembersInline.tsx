@@ -28,7 +28,7 @@ const MemberAvatars = ({ members, size }: { members: User[]; size: AvatarProps['
             className={cn('bg-background', members.length > 1 && 'ring-2 ring-background')}
             size={size}
           >
-            <Avatar.Image src={readImage(member.avatarUrl ?? undefined, 200)} />
+            <Avatar.Image src={readImage(member.avatarUrl)} />
             <Avatar.Fallback>{memberLabelText(member).charAt(0)}</Avatar.Fallback>
           </Avatar>
         </Tooltip.Trigger>

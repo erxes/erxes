@@ -4,11 +4,12 @@ import { createReactBlockSpec, useResolveUrl } from '@blocknote/react';
 import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
 import type { FC } from 'react';
 import { useRef, useState } from 'react';
-import { cn } from 'erxes-ui/lib';
-import { readImage } from 'erxes-ui/utils';
-import { Button, Spinner } from 'erxes-ui/components';
-import { Attachments } from 'erxes-ui/modules/attachments';
-import { useToast } from 'erxes-ui/hooks';
+import { cn } from 'erxes-ui/lib/utils';
+import { readImage } from 'erxes-ui/utils/core';
+import { Button } from 'erxes-ui/components/button';
+import { Spinner } from 'erxes-ui/components/spinner';
+import { Attachments } from 'erxes-ui/modules/attachments/attachments';
+import { useToast } from 'erxes-ui/hooks/use-toast';
 
 export interface GalleryImage {
   url: string;

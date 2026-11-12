@@ -5,7 +5,7 @@ import { useIsMobile } from 'erxes-ui/hooks/use-mobile';
 import { cn } from 'erxes-ui/lib/utils';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { AppHotkeyScope } from 'erxes-ui/modules/hotkey/types/AppHotkeyScope';
-import { Key } from 'erxes-ui/types/Key';
+
 import {
   nextCollapseState,
   SIDEBAR_COLLAPSE_COOKIE_NAME,
@@ -29,6 +29,15 @@ type ISidebarContext = {
   toggleSidebar: () => void;
 };
 
+type SidebarStateOptions = {
+  defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  collapseState?: CollapseState;
+  defaultCollapseState?: CollapseState;
+  onCollapseStateChange?: (state: CollapseState) => void;
+};
+
 const SidebarContext = React.createContext<ISidebarContext | null>(null);
 
 export function useOptionalSidebar() {
@@ -45,25 +54,91 @@ export function useSidebar() {
   return context;
 }
 
-export const SidebarProvider = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'> & {
-    defaultOpen?: boolean;
-    open?: boolean;
-    onOpenChange?: (open: boolean) => void;
-    collapseState?: CollapseState;
-    defaultCollapseState?: CollapseState;
-    onCollapseStateChange?: (state: CollapseState) => void;
+const rememberInCookie = (name: string, value: string) => {
+  document.cookie = `${name}=${value}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+};
+
+/**
+ * Open and collapse state, controlled from outside through the props or kept here.
+ * Passing `collapseState` or `defaultCollapseState` turns on the three steps
+ * (expanded, compact, collapsed); otherwise the sidebar is only open or closed.
+ */
+function useSidebarState({
+  defaultOpen = true,
+  open: openProp,
+  onOpenChange,
+  collapseState: collapseStateProp,
+  defaultCollapseState,
+  onCollapseStateChange,
+}: SidebarStateOptions) {
+  const threeStep = collapseStateProp !== undefined || defaultCollapseState !== undefined;
+  const [openState, setOpenState] = React.useState(defaultOpen);
+
+  const [collapseStateState, setCollapseStateState] = React.useState<CollapseState>(
+    defaultCollapseState ?? (defaultOpen ? 'expanded' : 'collapsed'),
+  );
+
+  const openControlled = openProp ?? openState;
+  const threeStepState = collapseStateProp ?? collapseStateState;
+  const collapseState = threeStep ? threeStepState : openControlled ? 'expanded' : 'collapsed';
+  const open = threeStep ? collapseState === 'expanded' : openControlled;
+
+  const setCollapseState = React.useCallback(
+    (next: CollapseState) => {
+      if (onCollapseStateChange) {
+        onCollapseStateChange(next);
+      } else {
+        setCollapseStateState(next);
+      }
+
+      rememberInCookie(SIDEBAR_COLLAPSE_COOKIE_NAME, next);
+    },
+    [onCollapseStateChange],
+  );
+
+  const setOpen = React.useCallback(
+    (next: boolean) => {
+      if (threeStep) {
+        setCollapseState(next ? 'expanded' : 'collapsed');
+
+        return;
+      }
+
+      if (onOpenChange) {
+        onOpenChange(next);
+      } else {
+        setOpenState(next);
+      }
+
+      rememberInCookie(SIDEBAR_COOKIE_NAME, String(next));
+    },
+    [onOpenChange, threeStep, setCollapseState],
+  );
+
+  const toggleOpen = React.useCallback(() => {
+    if (threeStep) {
+      setCollapseState(nextCollapseState(collapseState));
+    } else {
+      setOpen(!open);
+    }
+  }, [threeStep, collapseState, open, setCollapseState, setOpen]);
+
+  return { collapseState, open, setOpen, toggleOpen };
+}
+
+type SidebarProviderProps = React.ComponentProps<'div'> &
+  SidebarStateOptions & {
     sidebarKeyboardShortcut?: string | false;
     sidebarWidth?: string;
     sidebarWidthIcon?: string;
-  }
->(
+  };
+
+export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderProps>(
   (
     {
-      defaultOpen = true,
+      defaultOpen,
       open: openProp,
-      onOpenChange: setOpenProp,
+      onOpenChange,
       collapseState: collapseStateProp,
       defaultCollapseState,
       onCollapseStateChange,
@@ -80,94 +155,32 @@ export const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
-    const threeStep = collapseStateProp !== undefined || defaultCollapseState !== undefined;
-
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen);
-    const openControlled = openProp ?? _open;
-
-    const [_collapseState, _setCollapseState] = React.useState<CollapseState>(
-      defaultCollapseState ?? (defaultOpen ? 'expanded' : 'collapsed'),
-    );
-
-    let collapseState: CollapseState;
-
-    if (threeStep) {
-      collapseState = collapseStateProp ?? _collapseState;
-    } else {
-      collapseState = openControlled ? 'expanded' : 'collapsed';
-    }
-
-    const open = threeStep ? collapseState === 'expanded' : openControlled;
-
-    const setCollapseState = React.useCallback(
-      (value: CollapseState | ((value: CollapseState) => CollapseState)) => {
-        const next = typeof value === 'function' ? value(collapseState) : value;
-
-        if (onCollapseStateChange) {
-          onCollapseStateChange(next);
-        } else {
-          _setCollapseState(next);
-        }
-
-        document.cookie = `${SIDEBAR_COLLAPSE_COOKIE_NAME}=${next}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
-      },
-      [onCollapseStateChange, collapseState],
-    );
-
-    const setOpen = React.useCallback(
-      (value: boolean | ((value: boolean) => boolean)) => {
-        const openState = typeof value === 'function' ? value(open) : value;
-
-        if (threeStep) {
-          setCollapseState(openState ? 'expanded' : 'collapsed');
-
-          return;
-        }
-
-        if (setOpenProp) {
-          setOpenProp(openState);
-        } else {
-          _setOpen(openState);
-        }
-
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
-      },
-      [setOpenProp, open, threeStep, setCollapseState],
-    );
+    const { collapseState, open, setOpen, toggleOpen } = useSidebarState({
+      defaultOpen,
+      open: openProp,
+      onOpenChange,
+      collapseState: collapseStateProp,
+      defaultCollapseState,
+      onCollapseStateChange,
+    });
 
     const toggleSidebar = React.useCallback(() => {
       if (isMobile) {
-        setOpenMobile((open) => !open);
-
-        return;
+        setOpenMobile((wasOpen) => !wasOpen);
+      } else {
+        toggleOpen();
       }
-
-      if (threeStep) {
-        setCollapseState((prev) => nextCollapseState(prev));
-
-        return;
-      }
-
-      setOpen((open) => !open);
-    }, [isMobile, threeStep, setCollapseState, setOpen, setOpenMobile]);
-
-    // Adds a keyboard shortcut to toggle the sidebar.
+    }, [isMobile, toggleOpen]);
 
     useScopedHotkeys(
-      sidebarKeyboardShortcut
-        ? `${Key.Meta}+${sidebarKeyboardShortcut}`
-        : '__sidebar-shortcut-disabled__',
+      sidebarKeyboardShortcut ? `Meta+${sidebarKeyboardShortcut}` : '__sidebar-shortcut-disabled__',
       toggleSidebar,
       AppHotkeyScope.Sidebar,
     );
 
-    const state = collapseState === 'collapsed' ? 'collapsed' : 'expanded';
-
     const contextValue = React.useMemo<ISidebarContext>(
       () => ({
-        state,
+        state: collapseState === 'collapsed' ? 'collapsed' : 'expanded',
         collapseState,
         open,
         setOpen,
@@ -176,21 +189,20 @@ export const SidebarProvider = React.forwardRef<
         setOpenMobile,
         toggleSidebar,
       }),
-      [state, collapseState, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
+      [collapseState, open, setOpen, isMobile, openMobile, toggleSidebar],
     );
+
+    const cssVariables: Record<`--${string}`, string> = {
+      '--sidebar-width': sidebarWidth,
+      '--sidebar-width-compact': SIDEBAR_WIDTH_COMPACT,
+      '--sidebar-width-icon': sidebarWidthIcon,
+    };
 
     return (
       <SidebarContext.Provider value={contextValue}>
         <Tooltip.Provider delayDuration={0}>
           <div
-            style={
-              {
-                '--sidebar-width': sidebarWidth,
-                '--sidebar-width-compact': SIDEBAR_WIDTH_COMPACT,
-                '--sidebar-width-icon': sidebarWidthIcon,
-                ...style,
-              } as React.CSSProperties
-            }
+            style={{ ...cssVariables, ...style }}
             className={cn(
               'group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar',
               className,

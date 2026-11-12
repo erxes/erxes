@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Column, Header } from '@tanstack/react-table';
 import { cva } from 'class-variance-authority';
 
-import { Table } from 'erxes-ui/components';
+import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 
@@ -33,7 +33,7 @@ export const RecordTableHead = ({
   className,
   ...props
 }: React.ComponentProps<'th'> & {
-  header: Header<any, unknown>;
+  header: Header<unknown, unknown>;
 }) => {
   const { column } = header;
 
@@ -92,49 +92,38 @@ const RecordTableOverLine = ({
   column,
   isDragging,
 }: {
-  column: Column<any>;
+  column: Column<unknown>;
   isDragging: boolean;
 }) => {
   const { over, active } = useDndContext();
   const { table } = useRecordTable();
-  const columnsOrder = table.getState().columnOrder;
+  const { columnOrder, columnPinning } = table.getState();
 
-  if (over?.id === column.id && !isDragging && active?.id) {
-    if (!table.getState().columnPinning?.left?.includes(over.id)) {
-      const activeIndex = columnsOrder.indexOf(active.id as string);
-      const overIndex = columnsOrder.indexOf(over.id);
-      const isOnRight = activeIndex < overIndex;
+  if (over?.id !== column.id || isDragging || !active?.id) return null;
 
-      return (
-        <div
-          className={cn(
-            'absolute top-0 w-0.5 bg-primary/40 h-screen',
-            isOnRight ? 'right-0' : 'left-0',
-          )}
-        />
-      );
-    }
-  }
+  if (columnPinning.left?.includes(column.id)) return null;
 
-  return null;
-};
+  const isOnRight = columnOrder.indexOf(String(active.id)) < columnOrder.indexOf(column.id);
 
-const RecordTableHeadSize = React.forwardRef<
-  HTMLTableCellElement,
-  React.ComponentProps<'span'> & {
-    header: Header<any, unknown>;
-  }
->(({ header, children, ...props }, ref) => {
   return (
-    <span
-      ref={ref}
+    <div
       className={cn(
-        'absolute bottom-0 cursor-col-resize w-4 h-full right-0 z-10 select-none touch-none after:absolute after:inset-y-2 after:w-px after:right-0 hover:after:bg-border',
-        header.column.getIsResizing() && 'after:w-0.5 hover:after:bg-primary after:inset-y-1',
+        'absolute top-0 w-0.5 bg-primary/40 h-screen',
+        isOnRight ? 'right-0' : 'left-0',
       )}
-      {...props}
-      onMouseDown={header.getResizeHandler()}
-      onTouchStart={header.getResizeHandler()}
     />
   );
-});
+};
+
+/** The handle that resizes a column; like the column reorder, it is pointer-only. */
+const RecordTableHeadSize = ({ header }: { header: Header<unknown, unknown> }) => (
+  <span
+    aria-hidden
+    className={cn(
+      'absolute bottom-0 cursor-col-resize w-4 h-full right-0 z-10 select-none touch-none after:absolute after:inset-y-2 after:w-px after:right-0 hover:after:bg-border',
+      header.column.getIsResizing() && 'after:w-0.5 hover:after:bg-primary after:inset-y-1',
+    )}
+    onMouseDown={header.getResizeHandler()}
+    onTouchStart={header.getResizeHandler()}
+  />
+);

@@ -42,7 +42,7 @@ export const MemberAvatar = ({ user, className }: { user: User; className?: stri
 
   return (
     <Avatar size="lg" className={className}>
-      <Avatar.Image src={readImage(user.avatarUrl ?? '', 200)} />
+      <Avatar.Image src={readImage(user.avatarUrl)} />
       <Avatar.Fallback>{firstName.charAt(0) || lastName.charAt(0) || '-'}</Avatar.Fallback>
     </Avatar>
   );

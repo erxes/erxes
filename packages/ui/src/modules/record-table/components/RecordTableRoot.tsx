@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Table } from 'erxes-ui/components';
+import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const RecordTableRoot = React.forwardRef<

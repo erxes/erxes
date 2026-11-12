@@ -1,32 +1,25 @@
-import type { HTMLAttributes } from 'react';
+import { createContext, useContext, useState, type HTMLAttributes, type ReactNode } from 'react';
 import {
-  createContext,
-  forwardRef,
-  type ReactNode,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-  useEffect,
-} from 'react';
-
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  ColumnOrderState,
-  ColumnPinningState,
-  ColumnSizingState,
-  VisibilityState,
-  RowSelectionState,
-  SortingState,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type RowSelectionState,
+  type SortingState,
+  type Table,
+  type TableOptions,
 } from '@tanstack/react-table';
-import { getCoreRowModel, type TableOptions, useReactTable } from '@tanstack/react-table';
+import { useColumnLayout } from '../hooks/useColumnLayout';
+import { readRow } from '../utils/rowFields';
+import { RecordTableContainer } from './RecordTableContainer';
+import { RecordTableDnDProvider } from './RecordTableDnDProvider';
 
-import RecordTableContainer from 'erxes-ui/modules/record-table/components/RecordTableContainer';
-import { RecordTableDnDProvider } from 'erxes-ui/modules/record-table/components/RecordTableDnDProvider';
-import type { IRecordTableContext } from 'erxes-ui/modules/record-table/types/recordTableTypes';
-import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
-import { useTablePreferences } from '../hooks/useTablePreferences';
+interface IRecordTableContext {
+  /** Rows are typed `unknown` here: every table shares this context, whatever its data. */
+  table: Table<unknown>;
+  columnSelectorOpen: boolean;
+  setColumnSelectorOpen: (open: boolean) => void;
+}
 
 const RecordTableContext = createContext<IRecordTableContext | null>(null);
 
@@ -40,211 +33,68 @@ export function useRecordTable() {
   return context;
 }
 
-export interface RecordTableProviderProps extends HTMLAttributes<HTMLDivElement> {
+/** A row's `_id` or `id`, else tanstack's default (its index under its parent). */
+const getRowId = (row: unknown, index: number, parent?: { id: string }) =>
+  readRow(row).id ?? (parent ? `${parent.id}.${index}` : String(index));
+
+export interface RecordTableProviderProps<TData> extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
-  columns: ColumnDef<any>[];
-  data: any[];
-  tableOptions?: TableOptions<any>;
+  columns: ColumnDef<TData>[];
+  data: TData[];
+  tableOptions?: Partial<TableOptions<TData>>;
   stickyColumns?: string[];
   tableId?: string;
 }
 
-export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProviderProps>(
-  (
-    { children, columns, data, tableOptions, className, stickyColumns, tableId, ...restProps },
-    ref,
-  ) => {
-    const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+export const RecordTableProvider = <TData,>({
+  children,
+  columns,
+  data,
+  tableOptions,
+  stickyColumns,
+  tableId,
+  ...containerProps
+}: RecordTableProviderProps<TData>) => {
+  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-    const {
-      prefs: {
-        columnOrder,
-        columnPinning,
-        columnSizing,
-        columnVisibility,
-        stickyColumns: savedSticky,
-      },
-      savePrefs,
-    } = useTablePreferences(tableId);
+  const { state, setColumnOrder, ...layoutHandlers } = useColumnLayout({
+    columnIds: columns.map((column) => column.id ?? ''),
+    stickyColumns,
+    tableId,
+  });
 
-    const [colOrder, setColumnOrder] = useState<ColumnOrderState>(
-      () => columnOrder || columns.map((c) => c.id || ''),
-    );
+  // oxlint-disable-next-line react/incompatible-library -- tanstack's useReactTable returns a mutable table; the app runs without the React Compiler, so nothing memoizes it
+  const table = useReactTable({
+    data,
+    columns,
+    defaultColumn: { maxSize: 800 },
+    getCoreRowModel: getCoreRowModel(),
+    state: { ...state, sorting, columnFilters, rowSelection },
+    columnResizeMode: 'onChange',
+    onColumnOrderChange: setColumnOrder,
+    ...layoutHandlers,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onRowSelectionChange: setRowSelection,
+    getRowId,
+    ...tableOptions,
+  });
 
-    const [colVisibility, setColVisibility] = useState<VisibilityState>(columnVisibility || {});
-    const [colSizing, setColSizing] = useState<ColumnSizingState>(columnSizing || {});
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- tanstack's Table is invariant in its row type; the shared context holds any table, and readers treat rows as unknown
+  const shared = table as unknown as Table<unknown>;
 
-    const [colPinning, setColPinning] = useState<ColumnPinningState>(
-      () => columnPinning || { left: stickyColumns ?? [] },
-    );
-
-    const stickyKey = (stickyColumns ?? []).join(',');
-    const isPinningTouched = useRef(false);
-    useEffect(() => {
-      if (columnPinning || isPinningTouched.current) return;
-      setColPinning((prev) => ({
-        ...prev,
-        left: stickyKey ? stickyKey.split(',') : [],
-      }));
-    }, [columnPinning, stickyKey]);
-
-    const columnIdsKey = columns.map((column) => column.id || '').join(',');
-    // Columns the saved preferences already knew: a column added later is new.
-    const seenIds = useRef(new Set<string>(columnOrder ?? columns.map((c) => c.id || '')));
-    // What was meant to stick when the pinning was saved; older preferences
-    // didn't say, so their missing sticky columns are pinned once.
-    const savedStickyRef = useRef(savedSticky);
-    useEffect(() => {
-      const ids = columnIdsKey.split(',').filter(Boolean);
-
-      setColumnOrder((prev) => {
-        const known = prev.filter((id) => ids.includes(id));
-
-        if (known.length === prev.length && known.length === ids.length) {
-          return prev;
-        }
-
-        // A new column goes where it is defined (after the nearest column
-        // before it), not at the end of a saved order.
-        const result = [...known];
-
-        ids.forEach((id, index) => {
-          if (result.includes(id)) return;
-
-          let at = 0;
-
-          for (let i = index - 1; i >= 0; i -= 1) {
-            const position = result.indexOf(ids[i]);
-
-            if (position >= 0) {
-              at = position + 1;
-              break;
-            }
-          }
-
-          result.splice(at, 0, id);
-        });
-
-        return result;
-      });
-
-      // A new column that should stick is pinned too (after the pinned column before it).
-      const sticky = stickyKey ? stickyKey.split(',') : [];
-      const known = savedStickyRef.current;
-
-      const fresh = sticky.filter(
-        (id) => ids.includes(id) && (!seenIds.current.has(id) || !known || !known.includes(id)),
-      );
-
-      if (fresh.length) {
-        setColPinning((prev) => {
-          const left = [...(prev.left ?? [])];
-
-          for (const id of fresh) {
-            if (left.includes(id)) continue;
-
-            const before = sticky
-              .slice(0, sticky.indexOf(id))
-              .reverse()
-              .find((other) => left.includes(other));
-
-            left.splice(before ? left.indexOf(before) + 1 : left.length, 0, id);
-          }
-
-          return { ...prev, left };
-        });
-      }
-
-      ids.forEach((id) => seenIds.current.add(id));
-      // From now on a column the member unpins stays unpinned.
-      savedStickyRef.current = sticky;
-      savePrefs({ stickyColumns: sticky });
-    }, [columnIdsKey, stickyKey, savePrefs]);
-
-    const structuralKey = columns
-      .map((column) => column.id)
-      .filter((id): id is string => typeof id === 'string' && isStructuralColumn(id))
-      .join(',');
-
-    const pinning = useMemo<ColumnPinningState>(() => {
-      const left = colPinning.left ?? [];
-
-      const structural = (structuralKey ? structuralKey.split(',') : []).filter(
-        (id) => !left.includes(id),
-      );
-
-      if (!left.length || !structural.length) return colPinning;
-
-      return { ...colPinning, left: [...structural, ...left] };
-    }, [colPinning, structuralKey]);
-
-    const table = useReactTable({
-      data,
-      columns,
-      defaultColumn: {
-        maxSize: 800,
-      },
-      getCoreRowModel: getCoreRowModel(),
-      state: {
-        columnOrder: colOrder,
-        columnSizing: colSizing,
-        columnVisibility: colVisibility,
-        columnPinning: pinning,
-        sorting,
-        columnFilters,
-        rowSelection,
-      },
-      columnResizeMode: 'onChange',
-      onColumnOrderChange: setColumnOrder,
-      onColumnSizingChange: setColSizing,
-      onColumnVisibilityChange: setColVisibility,
-      onColumnPinningChange: (updater) => {
-        isPinningTouched.current = true;
-        setColPinning(updater);
-      },
-      onSortingChange: setSorting,
-      onColumnFiltersChange: setColumnFilters,
-      onRowSelectionChange: setRowSelection,
-      // Old GraphQL records use `_id`; core REST records use `id`.
-      getRowId: (row) => row._id ?? row.id,
-      ...tableOptions,
-    });
-
-    useEffect(() => {
-      savePrefs({ columnOrder: colOrder });
-    }, [colOrder, savePrefs]);
-
-    useEffect(() => {
-      savePrefs({ columnPinning: colPinning });
-    }, [colPinning, savePrefs]);
-
-    useEffect(() => {
-      savePrefs({ columnVisibility: colVisibility });
-    }, [colVisibility, savePrefs]);
-
-    useEffect(() => {
-      savePrefs({ columnSizing: colSizing });
-    }, [colSizing, savePrefs]);
-
-    return (
-      <RecordTableContext.Provider
-        value={{
-          table,
-          columnSelectorOpen,
-          setColumnSelectorOpen,
-        }}
-      >
-        <RecordTableDnDProvider setColumnOrder={setColumnOrder}>
-          <RecordTableContainer table={table} className={className} {...restProps} ref={ref}>
-            {children}
-          </RecordTableContainer>
-        </RecordTableDnDProvider>
-      </RecordTableContext.Provider>
-    );
-  },
-);
-
-RecordTableProvider.displayName = 'RecordTableProvider';
+  return (
+    <RecordTableContext.Provider
+      value={{ table: shared, columnSelectorOpen, setColumnSelectorOpen }}
+    >
+      <RecordTableDnDProvider setColumnOrder={setColumnOrder}>
+        <RecordTableContainer table={shared} {...containerProps}>
+          {children}
+        </RecordTableContainer>
+      </RecordTableDnDProvider>
+    </RecordTableContext.Provider>
+  );
+};

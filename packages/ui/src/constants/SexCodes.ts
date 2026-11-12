@@ -1,4 +1,4 @@
-import { SexCode } from 'erxes-ui/types';
+import { SexCode } from 'erxes-ui/types/SexCode';
 
 export const SexCodes: Record<SexCode, { label: string }> = {
   [SexCode.NOT_KNOWN]: {

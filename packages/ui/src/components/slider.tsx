@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Slider as SliderPrimitive } from 'radix-ui';
 
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,

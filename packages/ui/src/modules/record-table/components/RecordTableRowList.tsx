@@ -1,22 +1,21 @@
-import { cn } from 'erxes-ui/lib';
+import { memo, type ComponentProps, type ComponentType } from 'react';
+import { flexRender, type Row as TableRow } from '@tanstack/react-table';
+import { cn } from 'erxes-ui/lib/utils';
 import { RecordTableCell } from './RecordTableCell';
 import { useRecordTable } from './RecordTableProvider';
 import { RecordTableRow } from './RecordTableRow';
-import { flexRender } from '@tanstack/react-table';
-import { useMemo } from 'react';
 
-export const RecordTableRowList = ({
-  handleRowViewChange,
-  Row,
-}: {
+interface RowsProps {
+  rows: TableRow<unknown>[];
+  columnOrder: string[];
+  isResizing: boolean;
   handleRowViewChange?: (id: string, inView: boolean) => void;
-  Row?: React.ComponentType<React.ComponentProps<typeof RecordTableRow>>;
-}) => {
-  const { table } = useRecordTable();
-  const RowComponent = Row || RecordTableRow;
+  Row: ComponentType<ComponentProps<typeof RecordTableRow>>;
+}
 
-  const tableContent = table.getRowModel().rows.map((row, rowIndex) => (
-    <RowComponent
+const RowsBody = ({ rows, handleRowViewChange, Row }: RowsProps) =>
+  rows.map((row, rowIndex) => (
+    <Row
       key={row.id}
       original={row.original}
       data-state={row.getIsSelected() && 'selected'}
@@ -27,14 +26,33 @@ export const RecordTableRowList = ({
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
         </RecordTableCell>
       ))}
-    </RowComponent>
+    </Row>
   ));
 
-  const memoizedTableContent = useMemo(
-    () => tableContent,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [table.options.data, table.getState().columnOrder],
-  );
+// While a column is resized only its width variables change, so the rows are not re-rendered.
+const Rows = memo(
+  RowsBody,
+  (prev, next) =>
+    next.isResizing && prev.rows === next.rows && prev.columnOrder === next.columnOrder,
+);
 
-  return table.getState().columnSizingInfo.isResizingColumn ? memoizedTableContent : tableContent;
+export const RecordTableRowList = ({
+  handleRowViewChange,
+  Row = RecordTableRow,
+}: {
+  handleRowViewChange?: (id: string, inView: boolean) => void;
+  Row?: ComponentType<ComponentProps<typeof RecordTableRow>>;
+}) => {
+  const { table } = useRecordTable();
+  const { columnOrder, columnSizingInfo } = table.getState();
+
+  return (
+    <Rows
+      rows={table.getRowModel().rows}
+      columnOrder={columnOrder}
+      isResizing={Boolean(columnSizingInfo.isResizingColumn)}
+      handleRowViewChange={handleRowViewChange}
+      Row={Row}
+    />
+  );
 };

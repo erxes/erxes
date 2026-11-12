@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cn } from 'erxes-ui/lib';
+import { cn } from 'erxes-ui/lib/utils';
 
 /**
  * This component is based on the `kbd` element and supports all of its props
