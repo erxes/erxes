@@ -565,7 +565,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   Memoize filtered query collections by the source array; form synchronization
   and board effects rely on stable references when Apollo data is unchanged.
 - Memoize overview attachment inputs by the server attachment array so unrelated
-  rerenders cannot discard pending uploads. Relation-card section visibility
+  rerenders cannot discard pending uploads. Attachment `url` is an upload key:
+  file links open `${REACT_APP_API_URL}/read-file?key=<url>&name=<name>`
+  (absolute URLs pass through), never the bare key. Relation-card section visibility
   must use the same filtered collection passed to its renderer. Label forms
   report a missing pipeline before attempting either add or edit.
 - Deal printing owns typed documents for the public Core document service;
