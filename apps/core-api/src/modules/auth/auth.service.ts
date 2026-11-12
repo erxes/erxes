@@ -6,7 +6,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { HttpError } from '~/http/errors';
 import { toOrganizationDto } from '~/modules/organizations/organizations.service';
-import { toUserDto } from '~/modules/users/users.service';
+import { toUserDto } from '~/modules/users/userRows';
 import { verifyPassword } from './password';
 import type { Actor } from '~/http/auth';
 import { type ExampleLanguage, exampleDataJob } from '~/modules/organizations/exampleData';

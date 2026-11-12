@@ -1,9 +1,8 @@
 import { db } from '@erxes/core-db';
 import { resendInvitation } from '~/modules/auth/tokens.service';
+import { inviteUser, inviteUsers } from '~/modules/users/invitations.service';
 import {
   getUser,
-  inviteUser,
-  inviteUsers,
   listUsers,
   setUserDisabled,
   setUserPassword,
