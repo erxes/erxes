@@ -1,27 +1,21 @@
-import {
-  type Db,
-  newId,
-  oauthCodes,
-  oauthRefreshTokens,
-  organizations,
-  pluginInstallations,
-  plugins,
-  roles,
-  users,
-  withOrg,
-  withSystem,
-} from '@erxes/core-db';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { newId, oauthCodes, organizations, users, withOrg } from '@erxes/core-db';
+import { and, eq, sql } from 'drizzle-orm';
 import express, { type Request, type Response, Router } from 'express';
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
-import { sessionClaims } from '~/http/auth';
-import { can } from '~/http/access';
-import { logger } from '~/logger';
 import { z } from 'zod';
-import { ISSUER, signJwt, verifyJwt } from '~/lib/signing';
-import { recordAudit } from '~/modules/audit/audit.service';
-
-const log = logger.child({ component: 'oauth' });
+import { sessionClaims } from '~/http/auth';
+import { ISSUER, verifyJwt } from '~/lib/signing';
+import {
+  clientOf,
+  clientTitle,
+  installed,
+  type OAuthClient,
+  newSecret,
+  oauthError,
+  param,
+  SCOPES,
+  sha256,
+} from './oauthClients';
+import { exchangeCode, refreshGrant, revokeFamily } from './oauthGrants';
 
 /**
  * "Sign in with erxes": OAuth 2.1 with OpenID Connect for plugins' own apps
@@ -32,35 +26,20 @@ const log = logger.child({ component: 'oauth' });
  */
 export const oauthRouter = Router();
 
-const ACCESS_TTL = 3600;
-const REFRESH_DAYS = 30;
 const CODE_SECONDS = 60;
-const SCOPES = new Set(['openid', 'profile', 'email', 'offline_access']);
 
-const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
-const base64url = (buffer: Buffer) => buffer.toString('base64url');
+const AuthorizeQuery = z.object({
+  client_id: param,
+  redirect_uri: param,
+  response_type: param,
+  code_challenge: param,
+  code_challenge_method: param,
+  scope: param,
+  state: param,
+  nonce: param,
+});
 
-const sameHash = (stored: string, value: string) => {
-  const a = Buffer.from(stored);
-  const b = Buffer.from(sha256(value));
-
-  return a.length === b.length && timingSafeEqual(a, b);
-};
-
-const oauthError = (res: Response, status: number, error: string, description: string) =>
-  res.status(status).json({ error, error_description: description });
-
-const clientOf = async (clientId: string) => {
-  const [row] = await withSystem('oauth client', (tx) =>
-    tx
-      .select({ name: plugins.name, status: plugins.status, manifest: plugins.manifest })
-      .from(plugins)
-      .where(eq(plugins.name, clientId))
-      .limit(1),
-  );
-
-  return row?.status === 'active' ? row : null;
-};
+type AuthorizeRequest = z.infer<typeof AuthorizeQuery> & { redirect_uri: string };
 
 /** The redirect address, if the client lists it (with `{subdomain}` the organisation's). */
 const allowedRedirect = (templates: string[], given: string, subdomain: string | null) =>
@@ -98,378 +77,143 @@ const memberOfSession = async (req: Request) => {
   return row;
 };
 
-const installed = (tx: Db, orgId: string, clientId: string) =>
-  tx
-    .select({ status: pluginInstallations.status })
-    .from(pluginInstallations)
-    .where(and(eq(pluginInstallations.orgId, orgId), eq(pluginInstallations.plugin, clientId)))
-    .limit(1)
-    .then(([row]) => row?.status === 'active');
+/** The redirect back to the app: a code, or the OAuth error. */
+const codeRedirect = (
+  client: OAuthClient,
+  query: AuthorizeRequest,
+  user: { orgId: string; id: string },
+) => {
+  const back = (params: Record<string, string | undefined>) =>
+    withParams(query.redirect_uri, { ...params, state: query.state, iss: ISSUER });
 
-oauthRouter.get('/authorize', (req: Request, res: Response, next) => {
-  const query = req.query as Record<string, string | undefined>;
+  if (query.response_type !== 'code') return back({ error: 'unsupported_response_type' });
 
-  (async () => {
-    const client = query.client_id ? await clientOf(query.client_id) : null;
-    const templates = client?.manifest?.oauth?.redirectUris ?? [];
+  const codeChallenge = query.code_challenge;
 
-    // Until the redirect address is known to be the client's, errors are shown here, never sent there.
-    if (!client || !templates.length) return oauthError(res, 400, 'invalid_client', 'Unknown app');
+  if (
+    !codeChallenge ||
+    query.code_challenge_method !== 'S256' ||
+    !/^[A-Za-z0-9_-]{43}$/.test(codeChallenge)
+  ) {
+    return back({ error: 'invalid_request', error_description: 'PKCE with S256 is required' });
+  }
 
-    if (!query.redirect_uri)
-      return oauthError(res, 400, 'invalid_request', 'redirect_uri is required');
+  const scope = (query.scope ?? 'openid').split(' ').filter((item) => SCOPES.has(item));
 
-    const member = await memberOfSession(req);
-
-    if (!member) {
-      // Sign in first, then come back here.
-      return res.redirect(302, `/?next=${encodeURIComponent(req.originalUrl)}`);
-    }
-
-    if (!allowedRedirect(templates, query.redirect_uri, member.subdomain)) {
-      return oauthError(
-        res,
-        400,
-        'invalid_request',
-        'This redirect address is not registered for the app',
-      );
-    }
-
-    const back = (params: Record<string, string | undefined>) =>
-      res.redirect(
-        302,
-        withParams(query.redirect_uri!, { ...params, state: query.state, iss: ISSUER }),
-      );
-
-    if (query.response_type !== 'code') return back({ error: 'unsupported_response_type' });
-
-    if (
-      !query.code_challenge ||
-      query.code_challenge_method !== 'S256' ||
-      !/^[A-Za-z0-9_-]{43}$/.test(query.code_challenge)
-    ) {
-      return back({ error: 'invalid_request', error_description: 'PKCE with S256 is required' });
-    }
-
-    const scope = (query.scope ?? 'openid').split(' ').filter((item) => SCOPES.has(item));
-    const orgId = member.user.orgId;
-
-    return withOrg(orgId, async (tx) => {
-      if (!(await installed(tx, orgId, client.name))) {
-        return back({
-          error: 'access_denied',
-          error_description: `${client.manifest?.title ?? client.name} is not installed in your organisation`,
-        });
-      }
-
-      const id = newId();
-      const secret = base64url(randomBytes(32));
-
-      await tx.insert(oauthCodes).values({
-        id,
-        orgId,
-        clientId: client.name,
-        userId: member.user.id,
-        codeHash: sha256(secret),
-        redirectUri: query.redirect_uri!,
-        codeChallenge: query.code_challenge!,
-        scope: scope.join(' ') || 'openid',
-        nonce: query.nonce?.slice(0, 200) ?? null,
-        expiresAt: sql`now() + make_interval(secs => ${CODE_SECONDS})`,
+  return withOrg(user.orgId, async (tx) => {
+    if (!(await installed(tx, user.orgId, client.name))) {
+      return back({
+        error: 'access_denied',
+        error_description: `${clientTitle(client)} is not installed in your organisation`,
       });
+    }
 
-      return back({ code: `${id}.${secret}` });
+    const id = newId();
+    const secret = newSecret();
+
+    await tx.insert(oauthCodes).values({
+      id,
+      orgId: user.orgId,
+      clientId: client.name,
+      userId: user.id,
+      codeHash: sha256(secret),
+      redirectUri: query.redirect_uri,
+      codeChallenge,
+      scope: scope.join(' ') || 'openid',
+      nonce: query.nonce?.slice(0, 200) ?? null,
+      expiresAt: sql`now() + make_interval(secs => ${CODE_SECONDS})`,
     });
-  })().catch(next);
-});
 
-interface Issued {
-  orgId: string;
-  userId: string;
-  clientId: string;
-  scope: string;
-  nonce?: string | null;
-  familyId?: string;
-}
+    return back({ code: `${id}.${secret}` });
+  });
+};
 
-/** Access token, ID token (openid) and a refresh token (offline_access), in the member's organisation. */
-const issueTokens = async (tx: Db, issued: Issued) => {
-  const [row] = await tx
-    .select({
-      user: users,
-      organization: organizations,
-      permissions: roles.permissions,
-      manifest: plugins.manifest,
-    })
-    .from(users)
-    .innerJoin(organizations, eq(organizations.id, users.orgId))
-    .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .innerJoin(plugins, eq(plugins.name, issued.clientId))
-    .where(and(eq(users.orgId, issued.orgId), eq(users.id, issued.userId)))
-    .limit(1);
+oauthRouter.get('/authorize', async (req: Request, res: Response) => {
+  const query = AuthorizeQuery.parse(req.query);
+  const client = await clientOf(query.client_id);
+  const templates = client?.manifest?.oauth?.redirectUris ?? [];
 
-  if (!row || row.user.status !== 'active') return null;
+  // Until the redirect address is known to be the client's, errors are shown here, never sent there.
+  if (!client || !templates.length) return oauthError(res, 400, 'invalid_client', 'Unknown app');
 
-  const actor = { role: row.user.role, permissions: row.permissions };
+  const redirectUri = query.redirect_uri;
 
-  const permissions = (row.manifest?.permissions ?? [])
-    .map((item) => item.action)
-    .filter((action) => can(actor, action));
+  if (!redirectUri) return oauthError(res, 400, 'invalid_request', 'redirect_uri is required');
 
-  const scopes = issued.scope.split(' ');
+  const member = await memberOfSession(req);
 
-  const access_token = await signJwt(
-    {
-      org: issued.orgId,
-      scope: issued.scope,
-      client_id: issued.clientId,
-      role: row.user.role,
-      permissions,
-    },
-    {
-      typ: 'at+jwt',
-      audience: issued.clientId,
-      subject: issued.userId,
-      expiresInSeconds: ACCESS_TTL,
-    },
-  );
+  if (!member) {
+    // Sign in first, then come back here.
+    return res.redirect(302, `/?next=${encodeURIComponent(req.originalUrl)}`);
+  }
 
-  const response: Record<string, unknown> = {
-    access_token,
-    token_type: 'Bearer',
-    expires_in: ACCESS_TTL,
-    scope: issued.scope,
-  };
-
-  if (scopes.includes('openid')) {
-    response.id_token = await signJwt(
-      {
-        org: issued.orgId,
-        organization: row.organization.subdomain,
-        ...(scopes.includes('email') ? { email: row.user.email, email_verified: true } : {}),
-        ...(scopes.includes('profile')
-          ? {
-              name: row.user.fullName ?? row.user.email,
-              given_name: row.user.firstName ?? undefined,
-              family_name: row.user.lastName ?? undefined,
-              picture: row.user.avatarUrl ?? undefined,
-            }
-          : {}),
-        ...(issued.nonce ? { nonce: issued.nonce } : {}),
-      },
-      {
-        typ: 'JWT',
-        audience: issued.clientId,
-        subject: issued.userId,
-        expiresInSeconds: ACCESS_TTL,
-      },
+  if (!allowedRedirect(templates, redirectUri, member.subdomain)) {
+    return oauthError(
+      res,
+      400,
+      'invalid_request',
+      'This redirect address is not registered for the app',
     );
   }
 
-  if (scopes.includes('offline_access')) {
-    const id = newId();
-    const secret = base64url(randomBytes(32));
+  res.redirect(
+    302,
+    await codeRedirect(client, { ...query, redirect_uri: redirectUri }, member.user),
+  );
+});
 
-    await tx.insert(oauthRefreshTokens).values({
-      id,
-      orgId: issued.orgId,
-      clientId: issued.clientId,
-      userId: issued.userId,
-      familyId: issued.familyId ?? id,
-      tokenHash: sha256(secret),
-      scope: issued.scope,
-      sessionVersion: row.user.sessionVersion,
-      expiresAt: sql`now() + make_interval(days => ${REFRESH_DAYS})`,
-    });
-    response.refresh_token = `${id}.${secret}`;
-  }
+const TokenForm = z
+  .object({
+    client_id: param,
+    grant_type: param,
+    code: param,
+    redirect_uri: param,
+    code_verifier: param,
+    refresh_token: param,
+  })
+  .catch({});
 
-  return response;
-};
+const RevokeForm = z.object({ token: param }).catch({});
 
 const tokenRouter = Router();
 
 tokenRouter.use(express.urlencoded({ extended: false, limit: '16kb' }));
 
-tokenRouter.post('/token', (req: Request, res: Response, next) => {
-  const body = (req.body ?? {}) as Record<string, string | undefined>;
+tokenRouter.post('/token', async (req: Request, res: Response) => {
+  const form = TokenForm.parse(req.body);
 
   res.set('Cache-Control', 'no-store');
-  (async () => {
-    const client = body.client_id ? await clientOf(body.client_id) : null;
 
-    if (!client) return oauthError(res, 401, 'invalid_client', 'Unknown app');
+  const client = await clientOf(form.client_id);
 
-    if (body.grant_type === 'authorization_code') {
-      const [id, secret] = (body.code ?? '').split('.');
+  if (!client) return oauthError(res, 401, 'invalid_client', 'Unknown app');
 
-      const [code] = id
-        ? await withSystem('oauth code lookup', (tx) =>
-            tx.select().from(oauthCodes).where(eq(oauthCodes.id, id)).limit(1),
-          )
-        : [];
+  const grant =
+    form.grant_type === 'authorization_code'
+      ? await exchangeCode(client, form)
+      : form.grant_type === 'refresh_token'
+        ? await refreshGrant(client, form)
+        : null;
 
-      if (
-        !code ||
-        !secret ||
-        !sameHash(code.codeHash, secret) ||
-        code.clientId !== client.name ||
-        code.redirectUri !== body.redirect_uri ||
-        code.expiresAt.getTime() < Date.now()
-      ) {
-        return oauthError(res, 400, 'invalid_grant', 'The code is not valid');
-      }
-
-      if (
-        !body.code_verifier ||
-        base64url(createHash('sha256').update(body.code_verifier).digest()) !== code.codeChallenge
-      ) {
-        return oauthError(res, 400, 'invalid_grant', 'The PKCE verifier does not match');
-      }
-
-      const response = await withOrg(code.orgId, async (tx) => {
-        const [used] = await tx
-          .update(oauthCodes)
-          .set({ usedAt: sql`now()` })
-          .where(and(eq(oauthCodes.id, code.id), isNull(oauthCodes.usedAt)))
-          .returning({ id: oauthCodes.id });
-
-        // A code works once.
-        if (!used || !(await installed(tx, code.orgId, client.name))) return null;
-
-        const tokens = await issueTokens(tx, code);
-
-        if (tokens) {
-          await recordAudit(
-            tx,
-            { orgId: code.orgId, actorType: 'user', actorId: code.userId, source: 'core' },
-            {
-              action: 'auth.oauth_signed_in',
-              targetType: 'plugin',
-              targetId: client.name,
-              targetLabel: client.manifest?.title ?? client.name,
-            },
-          );
-        }
-
-        return tokens;
-      });
-
-      return response
-        ? res.json(response)
-        : oauthError(res, 400, 'invalid_grant', 'The code is not valid');
-    }
-
-    if (body.grant_type === 'refresh_token') {
-      const [id, secret] = (body.refresh_token ?? '').split('.');
-
-      const [token] = id
-        ? await withSystem('oauth refresh lookup', (tx) =>
-            tx.select().from(oauthRefreshTokens).where(eq(oauthRefreshTokens.id, id)).limit(1),
-          )
-        : [];
-
-      if (
-        !token ||
-        !secret ||
-        !sameHash(token.tokenHash, secret) ||
-        token.clientId !== client.name
-      ) {
-        return oauthError(res, 400, 'invalid_grant', 'The refresh token is not valid');
-      }
-
-      const response = await withOrg(token.orgId, async (tx) => {
-        const [current] = await tx
-          .select()
-          .from(oauthRefreshTokens)
-          .where(eq(oauthRefreshTokens.id, token.id))
-          .for('update')
-          .limit(1);
-
-        if (!current) return null;
-
-        // Used before (or revoked): it leaked. The whole family stops working.
-        if (current.usedAt || current.revokedAt) {
-          await tx
-            .update(oauthRefreshTokens)
-            .set({ revokedAt: sql`now()` })
-            .where(
-              and(
-                eq(oauthRefreshTokens.familyId, current.familyId),
-                isNull(oauthRefreshTokens.revokedAt),
-              ),
-            );
-          log.warn(
-            {
-              client: client.name,
-              family: current.familyId,
-            },
-            'oauth refresh token reused: family revoked',
-          );
-
-          return 'reused' as const;
-        }
-
-        const [user] = await tx
-          .select({ version: users.sessionVersion, status: users.status })
-          .from(users)
-          .where(eq(users.id, current.userId))
-          .limit(1);
-
-        if (
-          current.expiresAt.getTime() < Date.now() ||
-          !user ||
-          user.status !== 'active' ||
-          user.version !== current.sessionVersion ||
-          !(await installed(tx, current.orgId, client.name))
-        ) {
-          return null;
-        }
-
-        await tx
-          .update(oauthRefreshTokens)
-          .set({ usedAt: sql`now()` })
-          .where(eq(oauthRefreshTokens.id, current.id));
-
-        return issueTokens(tx, { ...current, familyId: current.familyId, nonce: null });
-      });
-
-      return response && response !== 'reused'
-        ? res.json(response)
-        : oauthError(res, 400, 'invalid_grant', 'The refresh token is not valid');
-    }
-
+  if (!grant) {
     return oauthError(
       res,
       400,
       'unsupported_grant_type',
       'Use authorization_code or refresh_token',
     );
-  })().catch(next);
+  }
+
+  return 'tokens' in grant
+    ? res.json(grant.tokens)
+    : oauthError(res, 400, 'invalid_grant', grant.refused);
 });
 
 /** Ends a refresh token's family (logging out of the app). Always 200, as RFC 7009 asks. */
-tokenRouter.post('/revoke', (req: Request, res: Response, next) => {
-  const [id, secret] = String((req.body as Record<string, unknown>)?.token ?? '').split('.');
+tokenRouter.post('/revoke', async (req: Request, res: Response) => {
+  await revokeFamily(RevokeForm.parse(req.body).token);
 
-  (async () => {
-    const [token] = id
-      ? await withSystem('oauth revoke lookup', (tx) =>
-          tx.select().from(oauthRefreshTokens).where(eq(oauthRefreshTokens.id, id)).limit(1),
-        )
-      : [];
-
-    if (token && secret && sameHash(token.tokenHash, secret)) {
-      await withOrg(token.orgId, (tx) =>
-        tx
-          .update(oauthRefreshTokens)
-          .set({ revokedAt: sql`now()` })
-          .where(eq(oauthRefreshTokens.familyId, token.familyId)),
-      );
-    }
-
-    res.status(200).json({});
-  })().catch(next);
+  res.status(200).json({});
 });
 
 oauthRouter.use(tokenRouter);
