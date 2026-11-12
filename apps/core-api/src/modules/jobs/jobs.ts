@@ -1,7 +1,7 @@
 import { type Db, jobs, newId, type Transaction, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { z } from 'zod';
-import { logger } from '~/logger';
+import { logger, traced } from '~/logger';
 import { liveHub } from '~/modules/live/hub';
 
 const log = logger.child({ component: 'jobs' });
@@ -211,22 +211,23 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
   }
 };
 
-/** Runs one claimed job to completion, retry or death. */
-export const runJob = async (definition: JobDefinition, job: JobRow) => {
-  try {
-    if (definition.atomic) {
-      await withOrg(job.orgId, async (tx) => {
-        await definition.handle(job, tx);
-        await tx.delete(jobs).where(eq(jobs.id, job.id));
-      });
-    } else {
-      await definition.handle(job);
-      await withOrg(job.orgId, (tx) => tx.delete(jobs).where(eq(jobs.id, job.id)));
+/** Runs one claimed job to completion, retry or death, in a trace of its own. */
+export const runJob = (definition: JobDefinition, job: JobRow) =>
+  traced(`job ${job.queue}`, async () => {
+    try {
+      if (definition.atomic) {
+        await withOrg(job.orgId, async (tx) => {
+          await definition.handle(job, tx);
+          await tx.delete(jobs).where(eq(jobs.id, job.id));
+        });
+      } else {
+        await definition.handle(job);
+        await withOrg(job.orgId, (tx) => tx.delete(jobs).where(eq(jobs.id, job.id)));
+      }
+    } catch (error) {
+      await fail(definition, job, error);
     }
-  } catch (error) {
-    await fail(definition, job, error);
-  }
-};
+  });
 
 /** Claims and runs due jobs until none are left (tests, and each tick). */
 export const processJobs = async (definitions: JobDefinition[], concurrency = 5) => {

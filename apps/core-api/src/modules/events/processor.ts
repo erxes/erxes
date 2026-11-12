@@ -15,7 +15,7 @@ import { notify } from '~/modules/notifications/notifications.service';
 import { webhooksConsumer } from '~/modules/webhooks/webhooks.service';
 import { automationsConsumer } from '~/modules/automations/engine';
 import { pluginEventsConsumer } from '~/modules/plugins/pluginEvents';
-import { logger } from '~/logger';
+import { logger, traced } from '~/logger';
 
 const log = logger.child({ component: 'events' });
 
@@ -362,7 +362,7 @@ export const startEventProcessor = () => {
       return;
     }
 
-    current = processEvents()
+    current = traced('events', processEvents)
       .then(() => undefined)
       .catch((error: unknown) => log.error({ err: error }, 'event processing failed'))
       .finally(() => {
