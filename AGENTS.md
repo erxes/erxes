@@ -150,51 +150,31 @@ it is built.
   the resolved address). `/events/types` lists core's and plugins' events.
 - **Automations** (`src/modules/automations`, `core_automations`,
   `core_automation_versions`, `core_automation_runs`, `core_automation_run_steps`):
-  trigger = event type + condition group (`conditions.ts`, no code is ever
-  evaluated); steps = actions, delays, branches, stop; `{{subject.x}}`
-  templates (`templates.ts`, paths only). The `core.automations` consumer
-  starts one run per event and automation (reentry: always/once/daily); the
-  `automation.advance` job runs one step at a time atomically with the run's
-  progress, retries, and fails the run at that step (`onDead`). Activating
-  checks the definition and publishes a version; runs keep theirs. Actions run
-  as the member who activated it (permissions read at run time); their events
-  carry `caused_by_run`/`depth` (an automation never triggers itself, chains
-  stop at depth 5) and their audit entries name the automation. Core actions
-  in `actions.ts`; plugin actions come from manifests and are POSTed to
-  `<api.url>/automations/actions/<type>` with a core token
-  (`verifyCoreCall`) and `Idempotency-Key`.
-- **Payments** (`src/modules/payments`, `core_payment_gateways`,
-  `core_payment_invoices`): gateway connections per organisation (QPay v2,
-  `test` for development; credentials sealed, checked on connect); invoices
-  for a plugin's record (`payments:write`; dedupe key; amounts in hundredths).
-  Paid is only ever decided by asking the gateway: signed callbacks
-  (`/payments/callback/:id?sig=`) and the `payment.check` job (30 s, then 2
-  min, until expiry) both do; paid once (conditional update) →
-  `core.payment.paid` event (webhooks, automations). Plugins keep their own
-  payment records.
-- **Sign in with erxes** (`src/modules/oauth/oauth.http.ts`, OAuth 2.1 + OIDC):
-  plugins are clients; their manifest's `oauth.redirectUris` (exact, with
-  `{subdomain}`) are the only places codes go. Code + PKCE S256 only; codes
-  live 60 s, once. Access tokens (`typ at+jwt`, `aud` the plugin, 1 h, with
-  the member's plugin permissions) and ID tokens are ES256 (JWKS);
-  `offline_access` gives rotating refresh tokens (30 days) — reuse revokes
-  the family; they die with sign-out-everywhere, password changes, disabling
-  and uninstalling. Not signed in → `/?next=<authorize URL>`; core UI returns
-  there after sign-in. Discovery at `/.well-known/openid-configuration`; SDK:
-  `verifyErxesAccessToken`.
-- **Two-factor sign-in** (`src/modules/auth/totp.ts`, `twoFactor.service.ts`):
-  RFC 6238 TOTP (SHA-1, 30 s, 6 digits, ±1 step); the secret is sealed; each
-  code works once (`totp_last_step`, row locked); 10 recovery codes stored
-  hashed, each once. A correct password returns `{ twoFactorRequired,
-  challenge }` (ES256, 5 minutes) instead of a session; `/auth/sign-in/2fa`
-  completes it. Wrong codes count toward the sign-in lockout.
-- **Email** (`src/modules/email`): templates render HTML + text; `sendEmail(tx,
-  …)` queues the `email.send` job (rolled back = not sent). `EMAIL_DRIVER=log`
-  in development (written to the log, `loggedEmails` in tests). Single-use
-  links (`core_auth_tokens`, `<id>.<secret>`, only the secret's hash stored):
-  invitations (7 days; resend replaces), password resets (30 minutes, at most
-  5 an hour, never says whether an email exists; ends other sessions).
-  `APP_URL` with `{subdomain}` builds links.
+  - Triggers (`AutomationTrigger.kind`): `event` (type + conditions), `schedule`
+    (hour/day/week/month at a time in an IANA zone, optionally for each record
+    of an audience), `date` (N days before/after a record's date field,
+    yearly for birthdays), `manual` (`POST /automations/{id}/start`, on chosen
+    records or the audience). `triggers.ts`: `tickAutomations` every minute
+    claims due ones (`next_run_at`), the `automation.fire` job enrolls.
+  - Steps: action, delay, `wait_for` (event about the record, with a time
+    limit; output `matched`), branch, switch (cases/otherwise), split (A/B by
+    weight, stable per run), stop. Cursors address arms (`then`, `case:N`,
+    `otherwise`, `path:N`).
+  - Rules: re-entry (always/once/daily), `goal` (checked before each step and
+    on every event about a waiting record → `goalReachedAt`), `maxRunsPerHour`
+    (skips counted in `state.skippedByLimit`).
+  - Templates (`templates.ts`): `{{path | filter: arg}}`; filters only from a
+    fixed list (default, upper, lower, capitalize, trim, truncate, number,
+    round, add_days, add_hours, date, join, count, first, json); `now`.
+  - Execution: one atomic job per step; retries, then the run fails at the
+    step and the activator is notified (collapsed hourly); failed runs resume.
+    Actions run as the activating member; their events carry `caused_by_run` /
+    `depth` (no self-triggering, depth ≤ 5); audit entries name the automation.
+  - Core actions (`actions.ts`): update/tag customer and company, set a custom
+    field, round-robin owner (`state.turns`), note, notify, email, POST with
+    headers. Plugin actions from manifests (`verifyCoreCall`, Idempotency-Key).
+  - Tools: dry run (`/test`), per-step stats (30 days), versions + restore,
+    templates (`library.ts`), field catalog for pickers (`/automations/fields`).
 - **Concurrency.** Read-modify-write takes row locks in the request's
   transaction (`src/lib/locks.ts`: `lockRows`, `lockOrganization`, `lockKey`):
   contact custom fields, field changes vs. values (`FOR SHARE`), team changes

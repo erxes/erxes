@@ -10,7 +10,10 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, isApiError, messageOf } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
 import { ConditionsEditor } from './builder/ConditionsEditor';
-import { StepsEditor } from './builder/StepsEditor';
+import { BuilderContext, StepsEditor } from './builder/StepsEditor';
+import { TriggerEditor } from './builder/TriggerEditor';
+import { TestPanel } from './TestPanel';
+import { VersionsPanel } from './VersionsPanel';
 import { RunsPanel } from './RunsPanel';
 
 /**
@@ -74,6 +77,15 @@ export const AutomationEditorPage = () => {
     onError,
   });
   const pause = useMutation({ mutationFn: () => api.automations.pause({ id }), onSuccess: refresh, onError });
+  const stats = useQuery({ queryKey: ['automations', id, 'stats'], queryFn: () => api.automations.stats({ id }), refetchInterval: 15_000 });
+  const start = useMutation({
+    mutationFn: () => api.automations.start({ id }),
+    onSuccess: (result) => {
+      toast({ title: t('started', 'Started for {{started}} records ({{skipped}} skipped)', result) });
+      void client.invalidateQueries({ queryKey: ['automations', id] });
+    },
+    onError,
+  });
   const remove = useMutation({
     mutationFn: () => api.automations.remove({ id }),
     onSuccess: () => {
@@ -85,11 +97,21 @@ export const AutomationEditorPage = () => {
 
   if (isLoading || !automation || !definition || !catalog.data) return <Spinner containerClassName="py-12" />;
 
-  const trigger = catalog.data.triggers.find((item) => item.type === definition.trigger.event);
-  const subject = trigger?.subject ?? 'customer';
+  const triggerDef = definition.trigger;
+  const subject: 'customer' | 'company' =
+    triggerDef.kind === 'event'
+      ? (catalog.data.triggers.find((item) => item.type === triggerDef.event)?.subject ?? 'customer')
+      : triggerDef.kind === 'date'
+        ? triggerDef.subject
+        : (triggerDef.audience?.type ?? 'customer');
+  const hasSubject = triggerDef.kind === 'event' ? Boolean(catalog.data.triggers.find((item) => item.type === triggerDef.event)?.subject) : triggerDef.kind === 'date' || Boolean(triggerDef.audience);
   const actions = catalog.data.actions.filter(
-    (action) => !action.subject || action.subject === 'any' || !trigger?.subject || action.subject === trigger.subject,
+    (action) => !action.subject || (hasSubject && (action.subject === 'any' || action.subject === subject)),
   );
+  const builder = {
+    events: catalog.data.triggers.filter((item) => item.subject),
+    stats: new Map((stats.data?.steps ?? []).map((step) => [step.stepId, step])),
+  };
 
   return (
     <PageContainer>
@@ -108,6 +130,8 @@ export const AutomationEditorPage = () => {
         </PageHeader.Start>
         {editable && (
           <PageHeader.End>
+            <VersionsPanel automationId={id} active={automation.activeVersion} />
+            <TestPanel automationId={id} subject={hasSubject ? subject : null} />
             <Button variant="ghost" disabled={remove.isPending} onClick={() => remove.mutate()}>
               <IconTrash />
             </Button>
@@ -134,7 +158,7 @@ export const AutomationEditorPage = () => {
           <Tabs.List className="h-9 border-b-0">
             <Tabs.Trigger value="build">{t('build', 'Build')}</Tabs.Trigger>
             <Tabs.Trigger value="runs">
-              {t('runs', 'Runs')} ({automation.stats.running + automation.stats.succeeded + automation.stats.failed})
+              {t('runs', 'Runs')} ({stats.data?.runs.total ?? automation.stats.running + automation.stats.succeeded + automation.stats.failed})
             </Tabs.Trigger>
           </Tabs.List>
         </div>
@@ -160,30 +184,17 @@ export const AutomationEditorPage = () => {
               </section>
               <section className="space-y-3 rounded-lg border p-4">
                 <h2 className="text-sm font-medium">{t('trigger', 'When this happens')}</h2>
-                <Select
-                  value={definition.trigger.event}
+                <TriggerEditor
+                  trigger={definition.trigger}
+                  events={catalog.data.triggers}
                   disabled={!editable}
-                  onValueChange={(event) => setDefinition({ ...definition, trigger: { ...definition.trigger, event } })}
-                >
-                  <Select.Trigger>
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {catalog.data.triggers.map((item) => (
-                      <Select.Item key={item.type} value={item.type}>
-                        {item.label}
-                        {item.source !== 'core' ? ` (${item.source})` : ''}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-                <Label className="text-xs text-muted-foreground">{t('only-if', 'Only if')}</Label>
-                <ConditionsEditor
-                  value={definition.trigger.conditions}
-                  disabled={!editable}
-                  onChange={(conditions) => setDefinition({ ...definition, trigger: { ...definition.trigger, conditions } })}
+                  onChange={(trigger) => setDefinition({ ...definition, trigger })}
+                  onStartNow={automation.status === 'active' && editable ? () => start.mutate() : undefined}
                 />
-                <div className="flex items-center gap-2 pt-2 text-sm">
+              </section>
+              <section className="space-y-3 rounded-lg border p-4">
+                <h2 className="text-sm font-medium">{t('rules', 'Rules')}</h2>
+                <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span>{t('reentry', 'The same record may run through')}</span>
                   <Select
                     value={definition.reentry}
@@ -200,9 +211,36 @@ export const AutomationEditorPage = () => {
                     </Select.Content>
                   </Select>
                 </div>
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span>{t('limit', 'Start at most')}</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    className="h-8 w-28"
+                    placeholder={t('no-limit', 'no limit')}
+                    value={definition.maxRunsPerHour ?? ''}
+                    disabled={!editable}
+                    onChange={(event) =>
+                      setDefinition({ ...definition, maxRunsPerHour: event.target.value ? Math.max(1, Number(event.target.value)) : undefined })
+                    }
+                  />
+                  <span>{t('runs-an-hour', 'runs an hour')}</span>
+                  {(stats.data?.skippedByLimit ?? 0) > 0 && (
+                    <Badge variant="warning">{t('skipped-by-limit', '{{count}} skipped by the limit', { count: stats.data!.skippedByLimit })}</Badge>
+                  )}
+                </div>
+                {hasSubject && (
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">
+                      {t('goal', 'Goal: once this holds, the record leaves the automation')}
+                    </Label>
+                    <ConditionsEditor subject={subject} value={definition.goal} disabled={!editable} onChange={(goal) => setDefinition({ ...definition, goal })} />
+                  </div>
+                )}
               </section>
               <section className="space-y-3">
                 <h2 className="text-sm font-medium">{t('then-do', 'Then do this')}</h2>
+                <BuilderContext.Provider value={builder}>
                 <StepsEditor
                   steps={definition.steps}
                   actions={actions}
@@ -210,6 +248,7 @@ export const AutomationEditorPage = () => {
                   disabled={!editable}
                   onChange={(steps) => setDefinition({ ...definition, steps })}
                 />
+                </BuilderContext.Provider>
               </section>
             </div>
           </ScrollArea>

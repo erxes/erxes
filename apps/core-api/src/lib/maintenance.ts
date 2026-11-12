@@ -7,6 +7,7 @@ import { CONSUMERS } from '~/modules/events/processor';
 import { pruneUploads, purgeDeletedFiles } from '~/modules/files/files.service';
 import { storage } from '~/modules/files/storage';
 import { pruneDeliveries } from '~/modules/webhooks/webhooks.service';
+import { tickAutomations } from '~/modules/automations/triggers';
 import { pruneNotifications } from '~/modules/notifications/notifications.service';
 import { log } from '~/lib/log';
 
@@ -52,6 +53,14 @@ export const startMaintenance = () => {
 
   purger.unref();
 
+  // Scheduled and date automations: checked every minute.
+  const scheduler = setInterval(
+    () => void tickAutomations().catch((error: unknown) => log.error('automation scheduling failed', { error })),
+    60_000,
+  );
+
+  scheduler.unref();
+
   // Signed audit checkpoints every 10 minutes: tampering is caught back to the last one.
   const checkpoint = () =>
     withSystem('audit checkpoints', (tx) => signAuditCheckpoints(tx)).catch((error: unknown) => log.error('audit checkpoints failed', { error }));
@@ -70,5 +79,6 @@ export const startMaintenance = () => {
     clearInterval(timer);
     clearInterval(checkpoints);
     clearInterval(purger);
+    clearInterval(scheduler);
   };
 };

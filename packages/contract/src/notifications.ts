@@ -62,6 +62,7 @@ export const CORE_NOTIFICATION_KINDS = [
   'core.user.password_set',
   'core.note.mentioned',
   'core.automation.message',
+  'core.automation.failed',
 ] as const;
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];
 

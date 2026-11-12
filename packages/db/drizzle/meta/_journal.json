@@ -169,6 +169,13 @@
       "when": 1794433494590,
       "tag": "0023_payments",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794441621598,
+      "tag": "0024_automation_triggers_waits_goals",
+      "breakpoints": true
     }
   ]
 }

@@ -43,6 +43,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
     <div className="space-y-3 p-4">
       <div className="flex items-center gap-2">
         <Badge variant={STATUS_VARIANT[run.status]}>{t(`status.${run.status}`, run.status)}</Badge>
+        {run.goalReached && <Badge variant="info">{t('goal-reached', 'Goal reached')}</Badge>}
         {run.subject && (
           <Link className="text-sm underline" to={`/contacts/${run.subject.type === 'customer' ? 'customers' : 'companies'}/${run.subject.id}`}>
             {t('open-subject', 'Open the {{type}}', { type: run.subject.type })}

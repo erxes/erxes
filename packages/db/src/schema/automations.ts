@@ -24,8 +24,12 @@ export const automations = pgTable(
     description: text(),
     status: text({ enum: AUTOMATION_STATUSES }).default('draft').notNull(),
     definition: jsonb().$type<Record<string, unknown>>().notNull(),
-    /** Copied from the definition for matching events quickly. */
+    /** Copied from the definition for matching events quickly (`schedule:`, `date:`, `manual` for the others). */
     triggerEvent: text().notNull(),
+    /** Scheduled and date triggers: when the next tick is due. */
+    nextRunAt: timestamptz(),
+    /** Working state: round-robin positions, runs skipped by the hourly limit. */
+    state: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
     activeVersion: integer(),
     /** The member it acts as: its actions need their permissions, checked at run time. */
     activatedBy: text(),
@@ -35,6 +39,7 @@ export const automations = pgTable(
   },
   (table) => [
     index('core_automations_trigger_idx').on(table.orgId, table.triggerEvent).where(sql`${table.status} = 'active'`),
+    index('core_automations_due_idx').on(table.nextRunAt).where(sql`${table.status} = 'active'`),
     uniqueIndex('core_automations_org_id_id_key').on(table.orgId, table.id),
     check('core_automations_status_check', sql`${table.status} IN ('draft', 'active', 'paused')`),
     foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_automations_org_id_fkey' }).onDelete('cascade'),
@@ -83,6 +88,10 @@ export const automationRuns = pgTable(
     depth: integer().default(0).notNull(),
     error: text(),
     waitingUntil: timestamptz(),
+    /** A `wait_for` step's event: an event of this type about the subject resumes the run. */
+    waitEvent: text(),
+    /** The run left early: the goal was met. */
+    goalReachedAt: timestamptz(),
     startedAt: createdAt(),
     finishedAt: timestamptz(),
     updatedAt: updatedAt(),
@@ -92,6 +101,7 @@ export const automationRuns = pgTable(
     uniqueIndex('core_automation_runs_event_key').on(table.automationId, table.eventId),
     index('core_automation_runs_automation_idx').on(table.orgId, table.automationId, table.startedAt.desc()),
     index('core_automation_runs_subject_idx').on(table.automationId, table.subjectId, table.startedAt.desc()),
+    index('core_automation_runs_waiting_idx').on(table.orgId, table.subjectId).where(sql`${table.status} = 'waiting'`),
     uniqueIndex('core_automation_runs_org_id_id_key').on(table.orgId, table.id),
     check('core_automation_runs_status_check', sql`${table.status} IN ('running', 'waiting', 'succeeded', 'failed', 'cancelled')`),
     foreignKey({

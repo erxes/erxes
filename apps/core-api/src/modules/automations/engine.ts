@@ -13,17 +13,20 @@ import {
   users,
 } from '@erxes/core-db';
 import { and, desc, eq, gt, inArray, sql } from 'drizzle-orm';
+import { createHash } from 'node:crypto';
 import type { Actor } from '~/http/auth';
 import { withRunCause } from '~/lib/causation';
 import { log } from '~/lib/log';
 import { toEventDto } from '~/modules/events/events.service';
 import type { EventConsumer } from '~/modules/events/processor';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
+import { notify } from '~/modules/notifications/notifications.service';
 import { CORE_ACTIONS, pluginOfAction, runPluginAction } from './actions';
 import { evaluateGroup } from './conditions';
 import { render } from './templates';
 
 type RunRow = typeof automationRuns.$inferSelect;
+type AutomationRow = typeof automations.$inferSelect;
 type EventRow = typeof events.$inferSelect;
 
 /** Automations started by events that automations caused stop this deep. */
@@ -33,7 +36,22 @@ const MAX_STEPS_PER_RUN = 500;
 
 export type Cursor = (number | string)[];
 
-/** The step a cursor points at (`[2, "then", 0]`), or null past the end. */
+/**
+ * The steps inside a step's arm: `then`/`else` (branch), `case:N`/`otherwise`
+ * (switch), `path:N` (split).
+ */
+export const armSteps = (step: AutomationStep, arm: string): AutomationStep[] | null => {
+  if (step.type === 'branch') return arm === 'then' ? step.then : arm === 'else' ? step.else : null;
+  if (step.type === 'switch') {
+    if (arm === 'otherwise') return step.otherwise;
+    if (arm.startsWith('case:')) return step.cases[Number(arm.slice(5))]?.steps ?? null;
+  }
+  if (step.type === 'split' && arm.startsWith('path:')) return step.paths[Number(arm.slice(5))]?.steps ?? null;
+
+  return null;
+};
+
+/** The step a cursor points at (`[2, "then", 0]`, `[1, "case:0", 3]`), or null past the end. */
 export const stepAt = (steps: AutomationStep[], cursor: Cursor): AutomationStep | null => {
   let list = steps;
   let step: AutomationStep | undefined;
@@ -43,18 +61,20 @@ export const stepAt = (steps: AutomationStep[], cursor: Cursor): AutomationStep 
 
     if (!step) return null;
 
-    const branch = cursor[index + 1];
+    const arm = cursor[index + 1];
 
-    if (branch !== undefined) {
-      if (step.type !== 'branch') return null;
-      list = branch === 'then' ? step.then : step.else;
+    if (arm !== undefined) {
+      const inner = armSteps(step, String(arm));
+
+      if (!inner) return null;
+      list = inner;
     }
   }
 
   return step ?? null;
 };
 
-/** The step after `cursor`: the next in its list, else after the enclosing branch. */
+/** The step after `cursor`: the next in its list, else after the enclosing step. */
 export const nextCursor = (steps: AutomationStep[], cursor: Cursor): Cursor | null => {
   let current = [...cursor];
 
@@ -64,16 +84,29 @@ export const nextCursor = (steps: AutomationStep[], cursor: Cursor): Cursor | nu
     if (stepAt(steps, next)) return next;
     if (current.length === 1) return null;
 
-    // Leave the branch: continue after it.
     current = current.slice(0, -2);
   }
 };
 
-/** Into a branch's arm, or past the branch when that arm is empty. */
-const enterBranch = (steps: AutomationStep[], cursor: Cursor, arm: 'then' | 'else'): Cursor | null => {
+/** Into an arm, or past the step when that arm is empty. */
+const enterArm = (steps: AutomationStep[], cursor: Cursor, arm: string): Cursor | null => {
   const inside = [...cursor, arm, 0];
 
   return stepAt(steps, inside) ? inside : nextCursor(steps, cursor);
+};
+
+/** A split's path for a run: by weight, the same every time for the same run. */
+export const splitPath = (runId: string, step: Extract<AutomationStep, { type: 'split' }>) => {
+  const total = step.paths.reduce((sum, path) => sum + path.weight, 0);
+  const roll = createHash('sha256').update(`${runId}:${step.id}`).digest().readUInt32BE(0) % total;
+  let seen = 0;
+
+  for (const [index, path] of step.paths.entries()) {
+    seen += path.weight;
+    if (roll < seen) return index;
+  }
+
+  return step.paths.length - 1;
 };
 
 const subjectOf = async (tx: Db, orgId: string, type: string | null, id: string | null) => {
@@ -158,11 +191,21 @@ const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: { status: 'su
     startedAt: entry.startedAt,
   });
 
-const finish = (tx: Db, runId: string, status: 'succeeded' | 'failed' | 'cancelled', error?: string) =>
+const finish = (tx: Db, runId: string, status: 'succeeded' | 'failed' | 'cancelled', error?: string, goal = false) =>
   tx
     .update(automationRuns)
-    .set({ status, error: error ?? null, finishedAt: sql`now()`, waitingUntil: null, updatedAt: sql`now()` })
+    .set({
+      status,
+      error: error ?? null,
+      finishedAt: sql`now()`,
+      waitingUntil: null,
+      waitEvent: null,
+      ...(goal ? { goalReachedAt: sql`now()` } : {}),
+      updatedAt: sql`now()`,
+    })
     .where(eq(automationRuns.id, runId));
+
+const SECONDS = { minutes: 60, hours: 3600, days: 86_400 } as const;
 
 const delayUntil = (step: Extract<AutomationStep, { type: 'delay' }>, context: Record<string, unknown>) => {
   if (step.until) {
@@ -183,7 +226,8 @@ const delayUntil = (step: Extract<AutomationStep, { type: 'delay' }>, context: R
  * One step of a run, in the organisation's transaction together with the
  * run's progress (and the next step's job): a step is never half done. An
  * action that throws rolls everything back and the job retries; after the
- * last attempt the run fails at that step (`onDead`).
+ * last attempt the run fails at that step (`onDead`). Before each step the
+ * goal is checked: met, the record leaves.
  */
 export const advanceJob: JobDefinition = {
   queue: 'automation.advance',
@@ -229,6 +273,15 @@ export const advanceJob: JobDefinition = {
     }
 
     const context = { ...run.context } as Record<string, unknown>;
+
+    context.subject = await subjectOf(db, run.orgId, run.subjectType, run.subjectId);
+
+    if (definition.goal && evaluateGroup(definition.goal, context)) {
+      await db.update(automationRuns).set({ context }).where(eq(automationRuns.id, run.id));
+      await finish(db, run.id, 'succeeded', undefined, true);
+      return;
+    }
+
     const startedAt = new Date();
     let next: Cursor | null = nextCursor(definition.steps, cursor);
     let output: unknown = null;
@@ -240,7 +293,17 @@ export const advanceJob: JobDefinition = {
       const matched = evaluateGroup(step.conditions, context);
 
       output = { matched };
-      next = enterBranch(definition.steps, cursor, matched ? 'then' : 'else');
+      next = enterArm(definition.steps, cursor, matched ? 'then' : 'else');
+    } else if (step.type === 'switch') {
+      const chosen = step.cases.findIndex((item) => evaluateGroup(item.conditions, context));
+
+      output = { case: chosen >= 0 ? chosen : 'otherwise', label: chosen >= 0 ? (step.cases[chosen]!.label ?? null) : null };
+      next = enterArm(definition.steps, cursor, chosen >= 0 ? `case:${chosen}` : 'otherwise');
+    } else if (step.type === 'split') {
+      const path = splitPath(run.id, step);
+
+      output = { path, label: step.paths[path]!.label ?? null };
+      next = enterArm(definition.steps, cursor, `path:${path}`);
     } else if (step.type === 'delay') {
       // First time here: wait. Woken up: carry on.
       if (run.status !== 'waiting') {
@@ -249,7 +312,7 @@ export const advanceJob: JobDefinition = {
         if (until.getTime() > Date.now()) {
           await db
             .update(automationRuns)
-            .set({ status: 'waiting', waitingUntil: until, updatedAt: sql`now()` })
+            .set({ status: 'waiting', waitingUntil: until, context, updatedAt: sql`now()` })
             .where(eq(automationRuns.id, run.id));
           await queueAdvance(db, run, cursor, until);
           return;
@@ -257,6 +320,21 @@ export const advanceJob: JobDefinition = {
       }
 
       output = { waitedUntil: run.waitingUntil?.toISOString() ?? startedAt.toISOString() };
+    } else if (step.type === 'wait_for') {
+      if (run.status !== 'waiting') {
+        // Wait for the event (the consumer resumes the run) or the time limit (this job again).
+        const until = new Date(Date.now() + SECONDS[step.unit] * step.amount * 1000);
+
+        await db
+          .update(automationRuns)
+          .set({ status: 'waiting', waitingUntil: until, waitEvent: step.event, context, updatedAt: sql`now()` })
+          .where(eq(automationRuns.id, run.id));
+        await queueAdvance(db, run, cursor, until);
+        return;
+      }
+
+      // Woken by the time limit: the event didn't happen.
+      output = { matched: false, timedOut: true };
     } else {
       input = render(step.input, context);
 
@@ -301,20 +379,7 @@ export const advanceJob: JobDefinition = {
       context.subject = await subjectOf(db, run.orgId, run.subjectType, run.subjectId);
     }
 
-    context.steps = { ...((context.steps as Record<string, unknown>) ?? {}), [step.id]: { output } };
-    await logStep(db, run, step, { status: 'succeeded', input, output, attempt: job.attempts, startedAt });
-
-    if (!next) {
-      await db.update(automationRuns).set({ context, cursor }).where(eq(automationRuns.id, run.id));
-      await finish(db, run.id, 'succeeded');
-      return;
-    }
-
-    await db
-      .update(automationRuns)
-      .set({ context, cursor: next, status: 'running', waitingUntil: null, updatedAt: sql`now()` })
-      .where(eq(automationRuns.id, run.id));
-    await queueAdvance(db, run, next);
+    await continueAfter(db, run, step, context, { input, output, next, attempt: job.attempts, startedAt });
   },
   async onDead(job, error, tx) {
     const [run] = await tx
@@ -331,18 +396,140 @@ export const advanceJob: JobDefinition = {
     if (step) await logStep(tx, run, step, { status: 'failed', error, attempt: job.attempts, startedAt: new Date() });
 
     await finish(tx, run.id, 'failed', error);
+    await notifyFailure(tx, run, error);
   },
 };
 
+/** Logs the step, records its output and moves on (or finishes). */
+const continueAfter = async (
+  db: Db,
+  run: RunRow,
+  step: AutomationStep,
+  context: Record<string, unknown>,
+  entry: { input: unknown; output: unknown; next: Cursor | null; attempt: number; startedAt: Date },
+) => {
+  context.steps = { ...((context.steps as Record<string, unknown>) ?? {}), [step.id]: { output: entry.output } };
+  await logStep(db, run, step, { status: 'succeeded', input: entry.input, output: entry.output, attempt: entry.attempt, startedAt: entry.startedAt });
+
+  if (!entry.next) {
+    await db.update(automationRuns).set({ context }).where(eq(automationRuns.id, run.id));
+    await finish(db, run.id, 'succeeded');
+    return;
+  }
+
+  await db
+    .update(automationRuns)
+    .set({ context, cursor: entry.next, status: 'running', waitingUntil: null, waitEvent: null, updatedAt: sql`now()` })
+    .where(eq(automationRuns.id, run.id));
+  await queueAdvance(db, run, entry.next);
+};
+
 /**
- * The event stream → automations: each active automation of the event's
- * organisation whose trigger matches and whose conditions hold starts a run
- * (once per event). Events caused by an automation's own runs don't start it
- * again, and chains stop at depth 5.
+ * Tells whoever turned the automation on that a run failed — collapsed to
+ * one notification an hour per automation, so a broken one doesn't flood them.
+ */
+const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
+  const [automation] = await tx.select().from(automations).where(eq(automations.id, run.automationId)).limit(1);
+
+  if (!automation?.activatedBy) return;
+
+  const hour = new Date().toISOString().slice(0, 13);
+
+  await notify(tx, { orgId: run.orgId, actorType: 'system', actorId: null, source: 'core' } as never, {
+    userIds: [automation.activatedBy],
+    kind: 'core.automation.failed',
+    title: `“${automation.name}” failed`,
+    body: error.slice(0, 500),
+    link: `/automations/${automation.id}`,
+    priority: 'high',
+    entity: { type: 'automation', id: automation.id },
+    dedupeKey: `automation-failed:${automation.id}:${hour}`,
+    data: { runId: run.id },
+  }).catch((notifyError: unknown) => log.warn('could not notify about a failed run', { error: notifyError }));
+};
+
+export interface RunStart {
+  eventId: string;
+  eventType: string;
+  subject: { type: 'customer' | 'company'; id: string } | null;
+  event: Record<string, unknown>;
+  depth?: number;
+}
+
+/**
+ * Starts a run unless the record already went through (re-entry), the
+ * hourly limit is reached, or this start already happened (same `eventId`).
+ */
+export const startRun = async (tx: Db, automation: AutomationRow, definition: AutomationDefinition, start: RunStart) => {
+  if (definition.reentry !== 'always' && start.subject) {
+    const [earlier] = await tx
+      .select({ id: automationRuns.id })
+      .from(automationRuns)
+      .where(
+        and(
+          eq(automationRuns.automationId, automation.id),
+          eq(automationRuns.subjectId, start.subject.id),
+          definition.reentry === 'daily' ? gt(automationRuns.startedAt, sql`now() - interval '1 day'`) : undefined,
+        ),
+      )
+      .orderBy(desc(automationRuns.startedAt))
+      .limit(1);
+
+    if (earlier) return null;
+  }
+
+  if (definition.maxRunsPerHour) {
+    const [recent] = await tx
+      .select({ count: sql<number>`count(*)::int` })
+      .from(automationRuns)
+      .where(and(eq(automationRuns.automationId, automation.id), gt(automationRuns.startedAt, sql`now() - interval '1 hour'`)));
+
+    if ((recent?.count ?? 0) >= definition.maxRunsPerHour) {
+      await tx
+        .update(automations)
+        .set({ state: sql`jsonb_set(${automations.state}, '{skippedByLimit}', to_jsonb(coalesce((${automations.state}->>'skippedByLimit')::int, 0) + 1))` })
+        .where(eq(automations.id, automation.id));
+      return null;
+    }
+  }
+
+  const subject = start.subject ? await subjectOf(tx, automation.orgId, start.subject.type, start.subject.id) : null;
+  const [run] = await tx
+    .insert(automationRuns)
+    .values({
+      id: newId(),
+      orgId: automation.orgId,
+      automationId: automation.id,
+      version: automation.activeVersion!,
+      eventId: start.eventId,
+      eventType: start.eventType,
+      subjectType: start.subject?.type ?? null,
+      subjectId: start.subject?.id ?? null,
+      context: { event: start.event, subject, steps: {} },
+      depth: start.depth ?? 0,
+    })
+    .onConflictDoNothing()
+    .returning();
+
+  if (run) await queueAdvance(tx, run, [0]);
+
+  return run ?? null;
+};
+
+/**
+ * The event stream → automations:
+ * - starts runs of active automations triggered by this event (conditions
+ *   holding; never an automation's own events; chains stop at depth 5);
+ * - resumes runs waiting for this event about the same record;
+ * - ends waiting runs whose goal this event's change met.
  */
 export const automationsConsumer: EventConsumer = {
   name: 'core.automations',
   async handle(tx, event: EventRow) {
+    const dto = toEventDto(event);
+
+    if (event.subjectId) await resumeWaiting(tx, event, dto);
+
     if (event.depth >= MAX_CHAIN_DEPTH) {
       log.warn('automation chain too deep; not starting more', { event: event.id, depth: event.depth });
       return;
@@ -359,52 +546,62 @@ export const automationsConsumer: EventConsumer = {
       ? (await tx.select({ automationId: automationRuns.automationId }).from(automationRuns).where(eq(automationRuns.id, event.causedByRun)).limit(1))[0]
       : undefined;
     const subject = await subjectOf(tx, event.orgId, event.subjectType, event.subjectId);
-    const context = { event: toEventDto(event), subject, steps: {} };
+    const context = { event: dto, subject, steps: {} };
 
     for (const automation of candidates) {
       if (!automation.activeVersion || cause?.automationId === automation.id) continue;
 
       const definition = await definitionOf(tx, automation.id, automation.activeVersion);
 
-      if (!definition || !evaluateGroup(definition.trigger.conditions, context)) continue;
+      if (!definition || definition.trigger.kind !== 'event' || !evaluateGroup(definition.trigger.conditions, context)) continue;
 
-      if (definition.reentry !== 'always' && event.subjectId) {
-        const [earlier] = await tx
-          .select({ id: automationRuns.id })
-          .from(automationRuns)
-          .where(
-            and(
-              eq(automationRuns.automationId, automation.id),
-              eq(automationRuns.subjectId, event.subjectId),
-              definition.reentry === 'daily' ? gt(automationRuns.startedAt, sql`now() - interval '1 day'`) : undefined,
-            ),
-          )
-          .orderBy(desc(automationRuns.startedAt))
-          .limit(1);
-
-        if (earlier) continue;
-      }
-
-      const [run] = await tx
-        .insert(automationRuns)
-        .values({
-          id: newId(),
-          orgId: event.orgId,
-          automationId: automation.id,
-          version: automation.activeVersion,
-          eventId: event.id,
-          eventType: event.type,
-          subjectType: event.subjectType,
-          subjectId: event.subjectId,
-          context,
-          depth: event.depth,
-        })
-        .onConflictDoNothing()
-        .returning();
-
-      if (run) await queueAdvance(tx, run, [0]);
+      await startRun(tx, automation, definition, {
+        eventId: event.id,
+        eventType: event.type,
+        subject: event.subjectType && event.subjectId ? { type: event.subjectType, id: event.subjectId } : null,
+        event: dto as unknown as Record<string, unknown>,
+        depth: event.depth,
+      });
     }
   },
+};
+
+const resumeWaiting = async (tx: Db, event: EventRow, dto: ReturnType<typeof toEventDto>) => {
+  const waiting = await tx
+    .select()
+    .from(automationRuns)
+    .where(and(eq(automationRuns.orgId, event.orgId), eq(automationRuns.subjectId, event.subjectId!), eq(automationRuns.status, 'waiting')))
+    .for('update', { skipLocked: true });
+
+  for (const run of waiting) {
+    const definition = await definitionOf(tx, run.automationId, run.version);
+
+    if (!definition) continue;
+
+    const context = { ...run.context, subject: await subjectOf(tx, run.orgId, run.subjectType, run.subjectId) } as Record<string, unknown>;
+
+    // The change met the goal: the record leaves now, not when the wait ends.
+    if (definition.goal && evaluateGroup(definition.goal, context)) {
+      await tx.update(automationRuns).set({ context }).where(eq(automationRuns.id, run.id));
+      await finish(tx, run.id, 'succeeded', undefined, true);
+      continue;
+    }
+
+    if (run.waitEvent !== event.type) continue;
+
+    const cursor = run.cursor as Cursor;
+    const step = stepAt(definition.steps, cursor);
+
+    if (step?.type !== 'wait_for' || !evaluateGroup(step.conditions, { ...context, event: dto })) continue;
+
+    await continueAfter(tx, run, step, context, {
+      input: null,
+      output: { matched: true, event: dto },
+      next: nextCursor(definition.steps, cursor),
+      attempt: 1,
+      startedAt: new Date(),
+    });
+  }
 };
 
 /** Continue a failed run at the step that failed. */
@@ -423,9 +620,11 @@ export const retryRun = async (tx: Db, orgId: string, runId: string) => {
 export const cancelRun = async (tx: Db, orgId: string, runId: string) => {
   const [run] = await tx
     .update(automationRuns)
-    .set({ status: 'cancelled', finishedAt: sql`now()`, waitingUntil: null, updatedAt: sql`now()` })
+    .set({ status: 'cancelled', finishedAt: sql`now()`, waitingUntil: null, waitEvent: null, updatedAt: sql`now()` })
     .where(and(eq(automationRuns.orgId, orgId), eq(automationRuns.id, runId), inArray(automationRuns.status, ['running', 'waiting'])))
     .returning();
 
   return run ?? null;
 };
+
+export { subjectOf, definitionOf };

@@ -22,6 +22,13 @@ export const TEMPLATES = {
     ],
     button: { label: 'Choose a new password', link: data.link },
   }),
+  /** A plain message (automations): a subject and text. */
+  message: (data: { subject: string; body: string; button?: { label: string; link: string } }) => ({
+    subject: data.subject,
+    heading: data.subject,
+    lines: data.body.split(/\n{2,}/),
+    button: data.button ?? null,
+  }),
 } as const;
 
 export type EmailTemplate = keyof typeof TEMPLATES;
@@ -36,10 +43,10 @@ export const renderEmail = <T extends EmailTemplate>(template: T, data: Paramete
 <table role="presentation" width="100%" style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;padding:32px">
 <tr><td><h1 style="font-size:20px;margin:0 0 16px">${escape(content.heading)}</h1>
 ${content.lines.map((line) => `<p style="font-size:14px;line-height:1.6;margin:0 0 12px">${escape(line)}</p>`).join('\n')}
-<p style="margin:24px 0"><a href="${escape(content.button.link)}" style="display:inline-block;background:#5629b6;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px">${escape(content.button.label)}</a></p>
-<p style="font-size:12px;color:#666;word-break:break-all">${escape(content.button.link)}</p>
+${content.button ? `<p style="margin:24px 0"><a href="${escape(content.button.link)}" style="display:inline-block;background:#5629b6;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px">${escape(content.button.label)}</a></p>
+<p style="font-size:12px;color:#666;word-break:break-all">${escape(content.button.link)}</p>` : ''}
 </td></tr></table></body></html>`;
-  const text = [content.heading, '', ...content.lines, '', `${content.button.label}: ${content.button.link}`].join('\n');
+  const text = [content.heading, '', ...content.lines, ...(content.button ? ['', `${content.button.label}: ${content.button.link}`] : [])].join('\n');
 
   return { subject: content.subject, html, text };
 };

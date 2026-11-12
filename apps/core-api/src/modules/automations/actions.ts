@@ -1,6 +1,6 @@
 import type { ActionInfo } from '@erxes/core-contract';
-import { type Db, plugins, type StoredPluginManifest } from '@erxes/core-db';
-import { eq } from 'drizzle-orm';
+import { automations, type Db, plugins, type StoredPluginManifest } from '@erxes/core-db';
+import { eq, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { postOutbound } from '~/lib/outbound';
@@ -8,6 +8,7 @@ import { signJwt } from '~/lib/signing';
 import { addNote } from '~/modules/activities/activities.service';
 import { tagCompanies, updateCompany } from '~/modules/companies/companies.service';
 import { tagCustomers, updateCustomer } from '~/modules/customers/customers.service';
+import { sendEmail } from '~/modules/email/email';
 import { notify } from '~/modules/notifications/notifications.service';
 
 /** What an action gets when its step runs. */
@@ -195,13 +196,20 @@ export const CORE_ACTIONS: CoreAction[] = [
     subject: null,
     fields: [
       { key: 'url', label: 'Address', type: 'text', required: true },
+      { key: 'headers', label: 'Headers (JSON, e.g. {"Authorization": "Bearer …"})', type: 'json', required: false },
       { key: 'body', label: 'JSON body (empty: the event and subject)', type: 'json', required: false },
     ],
     run: async (ctx) => {
       const body = JSON.stringify(
         ctx.input.body ?? { event: ctx.context.event, subject: ctx.context.subject, automation: ctx.automation, run: ctx.run.id },
       );
+      const extra = Object.fromEntries(
+        Object.entries((ctx.input.headers ?? {}) as Record<string, unknown>)
+          .filter(([key]) => /^[A-Za-z0-9-]{1,60}$/.test(key) && !/^(host|content-length|connection|transfer-encoding)$/i.test(key))
+          .map(([key, value]) => [key, String(value).slice(0, 2000)]),
+      );
       const response = await postOutbound(String(ctx.input.url ?? ''), body, {
+        ...extra,
         'Content-Type': 'application/json',
         'User-Agent': 'erxes-automations/1',
         'Idempotency-Key': `${ctx.run.id}:${ctx.step.id}`,
@@ -221,6 +229,89 @@ export const CORE_ACTIONS: CoreAction[] = [
     },
   },
 ];
+
+
+/** More core actions: email, custom fields, round-robin assignment. */
+CORE_ACTIONS.push(
+  {
+    type: 'core.email.send',
+    label: 'Send an email',
+    description: 'To the customer (their email) or to addresses you give',
+    subject: null,
+    fields: [
+      { key: 'to', label: 'To (subject = the customer; or addresses, comma separated)', type: 'text', required: true },
+      { key: 'subject', label: 'Subject', type: 'text', required: true },
+      { key: 'body', label: 'Message', type: 'longtext', required: true },
+    ],
+    run: async (ctx) => {
+      const subjectEmail = (ctx.context.subject as { primaryEmail?: string } | null)?.primaryEmail;
+      const to = String(ctx.input.to ?? '').trim() === 'subject' ? (subjectEmail ? [subjectEmail] : []) : list(String(ctx.input.to ?? '').split(','));
+      const recipients = to.map((address) => address.trim()).filter((address) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)).slice(0, 50);
+
+      if (!recipients.length) return { sent: 0, reason: 'no email address' };
+
+      for (const address of recipients) {
+        await sendEmail(ctx.tx, ctx.orgId, {
+          to: address,
+          template: 'message',
+          data: { subject: String(ctx.input.subject ?? '').slice(0, 200), body: String(ctx.input.body ?? '').slice(0, 20_000) },
+        });
+      }
+
+      return { sent: recipients.length, to: recipients };
+    },
+  },
+  {
+    type: 'core.customer.set_field',
+    label: 'Set a custom field',
+    description: 'Write a value into one of the customer’s custom fields',
+    subject: 'customer',
+    fields: [
+      { key: 'fieldId', label: 'Field id', type: 'text', required: true },
+      { key: 'value', label: 'Value (empty clears it)', type: 'text', required: false },
+    ],
+    run: async (ctx) => {
+      const id = needSubject(ctx, 'customer');
+      const value = ctx.input.value === '' || ctx.input.value === undefined ? null : ctx.input.value;
+
+      await updateCustomer(ctx.tx, ctx.actor, id, { customFields: { [String(ctx.input.fieldId)]: value } } as never);
+
+      return { fieldId: ctx.input.fieldId, value };
+    },
+  },
+  {
+    type: 'core.customer.assign',
+    label: 'Assign an owner (round-robin)',
+    description: 'Give the customer to the next member in turn',
+    subject: 'customer',
+    fields: [{ key: 'userIds', label: 'Members to rotate through', type: 'members', required: true }],
+    run: async (ctx) => {
+      const id = needSubject(ctx, 'customer');
+      const members = list(ctx.input.userIds);
+
+      if (!members.length) throw new HttpError(400, 'NO_MEMBERS', 'Choose the members to rotate through');
+
+      // The rotation position lives on the automation (row locked: no two runs pick the same turn).
+      const [row] = await ctx.tx
+        .select({ state: automations.state })
+        .from(automations)
+        .where(eq(automations.id, ctx.automation.id))
+        .for('update')
+        .limit(1);
+      const turns = ((row?.state ?? {}) as { turns?: Record<string, number> }).turns ?? {};
+      const position = (turns[ctx.step.id] ?? -1) + 1;
+      const ownerId = members[position % members.length]!;
+
+      await ctx.tx
+        .update(automations)
+        .set({ state: sql`jsonb_set(${automations.state}, '{turns}', ${JSON.stringify({ ...turns, [ctx.step.id]: position })}::jsonb)` })
+        .where(eq(automations.id, ctx.automation.id));
+      await updateCustomer(ctx.tx, ctx.actor, id, { ownerId } as never);
+
+      return { ownerId };
+    },
+  },
+);
 
 export const CORE_CALL_TYP = 'erxes-core-call+jwt';
 
