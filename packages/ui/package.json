@@ -65,11 +65,11 @@
     "date-fns-tz": "3.2.0",
     "dayjs": "1.11.13",
     "deep-equal": "2.2.3",
-    "dompurify": "3.2.5",
+    "dompurify": "3.4.17",
     "emblor": "1.4.8",
     "imask": "7.6.1",
     "input-otp": "1.5.0",
-    "js-cookie": "3.0.5",
+    "js-cookie": "3.0.8",
     "libphonenumber-js": "1.12.6",
     "motion": "11.18.2",
     "radix-ui": "1.4.3",
@@ -84,14 +84,14 @@
     "react-resizable-panels": "2.1.7",
     "recharts": "3.1.2",
     "tailwind-merge": "2.6.0",
+    "tailwindcss-animate": "1.0.7",
     "type-fest": "4.39.1",
-    "zod": "3.25.76",
-    "tailwindcss-animate": "1.0.7"
+    "zod": "3.25.76"
   },
   "devDependencies": {
-    "@types/react": "18.3.1",
-    "@types/react-dom": "18.3.0",
     "@types/dompurify": "^3.2.0",
-    "@types/node": "^22.10.0"
+    "@types/node": "^22.10.0",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.0"
   }
 }

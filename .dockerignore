@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/coverage
+**/.test-files
+**/data
+.env
+.env.*
+!.env.example
+.git
+.github
+deploy/secrets
+**/*.log
+**/.DS_Store

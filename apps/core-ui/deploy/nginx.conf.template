@@ -1,0 +1,52 @@
+# erxes core UI. ${CORE_API_URL} is filled in when the container starts.
+server {
+  listen 8080;
+  server_name _;
+  root /usr/share/nginx/html;
+  server_tokens off;
+  client_max_body_size 60m;
+
+  # add_header in a location replaces the server's, so each location repeats them.
+
+  location = /healthz { access_log off; return 200 "ok\n"; }
+
+  # Live updates (Server-Sent Events): no buffering, long reads.
+  location = /core/v1/stream {
+    proxy_pass ${CORE_API_URL};
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_read_timeout 1h;
+  }
+
+  location /core/ {
+    proxy_pass ${CORE_API_URL};
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 120s;
+  }
+
+  # Hashed build files are cached for good; index.html never is.
+  location /static/ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    try_files $uri =404;
+  }
+
+  location / {
+    add_header Cache-Control "no-cache";
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    try_files $uri /index.html;
+  }
+}

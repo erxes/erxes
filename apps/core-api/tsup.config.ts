@@ -3,7 +3,14 @@ import { defineConfig } from 'tsup';
 
 // One CommonJS bundle; workspace packages are inlined, npm packages stay external.
 export default defineConfig({
-  entry: ['src/main.ts'],
+  // The server, plus the operator commands a container runs without tsx:
+  //   node dist/migrate.js · node dist/grant.js <role> · node dist/plugin-role.js <plugin>
+  entry: {
+    main: 'src/main.ts',
+    migrate: 'scripts/migrate.ts',
+    grant: 'scripts/grant.ts',
+    'plugin-role': 'scripts/plugin-role.ts',
+  },
   format: ['cjs'],
   platform: 'node',
   target: 'node22',

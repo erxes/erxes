@@ -1,0 +1,29 @@
+# Static analysis of core's TypeScript (security queries), weekly and on changes.
+name: CodeQL
+
+on:
+  push:
+    branches: [postgre]
+  pull_request:
+    branches: [postgre]
+  schedule:
+    - cron: '17 3 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+          config: |
+            paths: [apps, packages]
+            paths-ignore: ['**/__tests__/**', '**/dist/**']
+      - uses: github/codeql-action/analyze@v3

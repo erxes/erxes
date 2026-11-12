@@ -1,0 +1,157 @@
+# erxes core: checks, tests, builds, container images and a smoke test of the
+# whole stack. Images go to GHCR on pushes to postgre once everything passes.
+name: CI
+
+on:
+  push:
+    branches: [postgre]
+  pull_request:
+    branches: [postgre]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  check:
+    name: Typecheck, schema, migrations, audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Schema matches migrations
+        run: pnpm db:check
+      - name: Applied migrations unchanged
+        run: node scripts/check-migrations.mjs "${{ github.event.pull_request.base.sha || github.event.before }}"
+      - name: No critical advisories in production dependencies
+        run: pnpm audit --prod --audit-level critical
+
+  test-api:
+    name: API tests (Postgres 16)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: erxes
+          POSTGRES_PASSWORD: erxes_ci
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U erxes"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      # Each test file creates its own database and acts as a role without
+      # BYPASSRLS, so row level security is exercised (src/__tests__/db.ts).
+      DATA_TEST_URL: postgres://erxes:erxes_ci@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @erxes/core-api test
+
+  test-ui:
+    name: Package tests and builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Tests (UI and packages)
+        run: pnpm -r --filter '!@erxes/core-api' test
+      - name: Build
+        run: pnpm build
+
+  images:
+    name: Images and smoke test
+    needs: [check, test-api, test-ui]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Image names
+        id: names
+        run: |
+          owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          echo "api=ghcr.io/$owner/erxes-core-api" >> "$GITHUB_OUTPUT"
+          echo "ui=ghcr.io/$owner/erxes-core-ui" >> "$GITHUB_OUTPUT"
+          echo "sha=sha-${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+      - name: Build API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/core-api/Dockerfile
+          load: true
+          tags: ${{ steps.names.outputs.api }}:${{ steps.names.outputs.sha }}
+          cache-from: type=gha,scope=core-api
+          cache-to: type=gha,scope=core-api,mode=max
+      - name: Build UI image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/core-ui/Dockerfile
+          load: true
+          tags: ${{ steps.names.outputs.ui }}:${{ steps.names.outputs.sha }}
+          cache-from: type=gha,scope=core-ui
+          cache-to: type=gha,scope=core-ui,mode=max
+      - name: Start the stack
+        env:
+          CORE_API_IMAGE: ${{ steps.names.outputs.api }}:${{ steps.names.outputs.sha }}
+          CORE_UI_IMAGE: ${{ steps.names.outputs.ui }}:${{ steps.names.outputs.sha }}
+        run: |
+          deploy/make-secrets.sh
+          {
+            echo "DATA_OWNER_PASSWORD=$(openssl rand -hex 16)"
+            echo "DATA_APP_PASSWORD=$(openssl rand -hex 16)"
+            echo "CORE_API_IMAGE=$CORE_API_IMAGE"
+            echo "CORE_UI_IMAGE=$CORE_UI_IMAGE"
+          } > deploy/.env
+          docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d
+      - name: Smoke test
+        run: deploy/smoke.sh http://localhost:8080
+      - name: Stack logs
+        if: always()
+        run: docker compose -f deploy/docker-compose.yml --env-file deploy/.env logs --no-color --tail 300 || true
+      - name: Push to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/postgre'
+        run: |
+          echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin
+          for image in '${{ steps.names.outputs.api }}' '${{ steps.names.outputs.ui }}'; do
+            docker tag "$image:${{ steps.names.outputs.sha }}" "$image:postgre"
+            docker push "$image:${{ steps.names.outputs.sha }}"
+            docker push "$image:postgre"
+          done

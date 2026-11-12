@@ -335,3 +335,8 @@ DATA_TEST_URL=postgres://… pnpm test
 pnpm build
 pnpm db:check
 ```
+
+CI (`.github/workflows/ci.yml`) runs the same on Postgres 16, then builds the
+images, smoke-tests the stack in `deploy/` and pushes to GHCR. Never edit an
+applied migration: `scripts/check-migrations.mjs` fails the build. See
+`deploy/README.md`.

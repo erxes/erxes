@@ -1,0 +1,91 @@
+# erxes core on one host: Postgres, a one-shot migration, the API and the UI.
+# CI starts this stack as its smoke test; it is also a starting point for a
+# single-server install (see deploy/README.md).
+#
+#   cp deploy/.env.example deploy/.env      # then fill it in
+#   deploy/make-secrets.sh                  # signing key + random secrets
+#   docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d
+#
+# The API connects as `erxes_app` (no BYPASSRLS, data only); migrations run
+# as the database owner. Leave out the postgres service to use a managed
+# database (Supabase, RDS): set DATA_URL / DATA_MIGRATION_URL to it instead.
+name: erxes-core
+
+x-api-env: &api-env
+  NODE_ENV: production
+  APP_URL: ${APP_URL:-http://localhost:8080}
+  DATA_URL: postgres://erxes_app:${DATA_APP_PASSWORD:?set DATA_APP_PASSWORD}@postgres:5432/erxes
+  DATA_MIGRATION_URL: postgres://erxes:${DATA_OWNER_PASSWORD:?set DATA_OWNER_PASSWORD}@postgres:5432/erxes
+  DATA_RUNTIME_ROLE: erxes_app
+  DATA_SSL: ${DATA_SSL:-false}
+  CORE_JWT_SECRET_FILE: /run/secrets/core_jwt_secret
+  CORE_ENCRYPTION_KEY_FILE: /run/secrets/core_encryption_key
+  CORE_SIGNING_KEY_FILE: /run/secrets/core_signing_key
+  CORE_SETUP: ${CORE_SETUP:-true}
+  FILES_STORAGE: ${FILES_STORAGE:-local}
+  FILES_LOCAL_DIR: /app/data/files
+  EMAIL_DRIVER: ${EMAIL_DRIVER:-log}
+
+x-api-secrets: &api-secrets
+  - core_jwt_secret
+  - core_encryption_key
+  - core_signing_key
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: erxes
+      POSTGRES_PASSWORD: ${DATA_OWNER_PASSWORD:?set DATA_OWNER_PASSWORD}
+      POSTGRES_DB: erxes
+      DATA_APP_PASSWORD: ${DATA_APP_PASSWORD:?set DATA_APP_PASSWORD}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U erxes -d erxes']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    image: ${CORE_API_IMAGE:-ghcr.io/erxes/erxes-core-api:postgre}
+    command: ['node', 'dist/migrate.js']
+    environment: *api-env
+    secrets: *api-secrets
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: 'no'
+
+  api:
+    image: ${CORE_API_IMAGE:-ghcr.io/erxes/erxes-core-api:postgre}
+    restart: unless-stopped
+    environment: *api-env
+    secrets: *api-secrets
+    volumes:
+      - files:/app/data
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  ui:
+    image: ${CORE_UI_IMAGE:-ghcr.io/erxes/erxes-core-ui:postgre}
+    restart: unless-stopped
+    environment:
+      CORE_API_URL: http://api:3400
+    ports:
+      - '${UI_PORT:-8080}:8080'
+    depends_on:
+      api: { condition: service_healthy }
+
+secrets:
+  core_jwt_secret:
+    file: ./secrets/core_jwt_secret
+  core_encryption_key:
+    file: ./secrets/core_encryption_key
+  core_signing_key:
+    file: ./secrets/core_signing_key.pem
+
+volumes:
+  postgres:
+  files:

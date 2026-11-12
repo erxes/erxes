@@ -1,0 +1,78 @@
+# Deploys a CI-built image pair to one server running deploy/docker-compose.yml:
+# copies the deploy files, pulls the images, migrates (the one-shot `migrate`
+# service runs before the API) and checks the result.
+#
+# Off until configured. In the `production` environment set
+#   vars:    DEPLOY_ENABLED=true, DEPLOY_URL (https://erxes.example.com), DEPLOY_PATH (/opt/erxes)
+#   secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_KNOWN_HOSTS
+# The server keeps deploy/.env and deploy/secrets (deploy/make-secrets.sh) itself;
+# required reviewers on the environment make each deploy wait for approval.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [postgre]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Image tag to deploy (sha-<12 chars> or postgre)
+        required: true
+        default: postgre
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: >-
+      vars.DEPLOY_ENABLED == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ vars.DEPLOY_URL }}
+    env:
+      TAG: ${{ inputs.tag || format('sha-{0}', github.event.workflow_run.head_sha) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          sparse-checkout: deploy
+      - name: SSH
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "TAG=${TAG::16}" >> "$GITHUB_ENV"
+      - name: Copy deploy files
+        run: |
+          ssh -i ~/.ssh/deploy '${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}' "mkdir -p '${{ vars.DEPLOY_PATH }}/deploy'"
+          scp -i ~/.ssh/deploy -r deploy/docker-compose.yml deploy/postgres-init deploy/make-secrets.sh deploy/smoke.sh \
+            '${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ vars.DEPLOY_PATH }}/deploy/'
+      - name: Pull, migrate, start
+        run: |
+          owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          ssh -i ~/.ssh/deploy '${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}' \
+            "cd '${{ vars.DEPLOY_PATH }}' && \
+             export CORE_API_IMAGE=ghcr.io/$owner/erxes-core-api:$TAG CORE_UI_IMAGE=ghcr.io/$owner/erxes-core-ui:$TAG && \
+             docker compose -f deploy/docker-compose.yml --env-file deploy/.env pull && \
+             docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --remove-orphans && \
+             docker compose -f deploy/docker-compose.yml --env-file deploy/.env ps"
+      - name: Check
+        run: |
+          for i in $(seq 1 30); do
+            curl -fsS '${{ vars.DEPLOY_URL }}/core/v1/setup' >/dev/null && { echo "up: $TAG"; exit 0; }
+            sleep 5
+          done
+          echo "not answering after 150s" >&2; exit 1
