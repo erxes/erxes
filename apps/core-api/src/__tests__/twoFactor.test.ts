@@ -1,140 +1,92 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
+import { beforeAll, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
 import { codeAt, currentStep } from '~/modules/auth/totp';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { describeWithDb, useTestDatabase } from './db';
+import { useTestServer } from './support';
 
 describeWithDb('two-factor sign-in', { timeout: 240_000 }, () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-
-  const call = async (cookie: string | null, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { ...(cookie ? { cookie } : {}), 'content-type': 'application/json', origin: base },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return {
-      status: response.status,
-      body: text ? JSON.parse(text) : null,
-      cookie:
-        (response.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(
-          ';',
-        )[0] ||
-        cookie ||
-        '',
-    };
-  };
-
-  const signIn = () =>
-    call(null, 'POST', '/auth/sign-in', { email: 'o@acme.mn', password: 'Owner-pass-1' });
+  const server = useTestServer();
+  const credentials = { email: 'o@acme.mn', password: 'Owner-pass-1' };
 
   beforeAll(async () => {
     await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
-      owner: { email: 'o@acme.mn', passwordHash: await hashPassword('Owner-pass-1') },
+      owner: { email: credentials.email, passwordHash: await hashPassword(credentials.password) },
     });
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
 
-  afterAll(async () => {
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
-  });
+  /** Signs in with the password in a fresh browser; returns the 2FA challenge it is given. */
+  const challenge = async () => {
+    const answer = await server.browser().api.auth.signIn(credentials);
 
-  it('turns on with a code from the app, then asks for one at every sign-in — each code once', async () => {
-    let session = (await signIn()).cookie;
-    const setup = await call(session, 'POST', '/auth/2fa/setup');
+    if (!('challenge' in answer)) throw new Error('signed in without a second factor');
 
-    expect(setup.body.uri).toMatch(/^otpauth:\/\/totp\/erxes%3Ao%40acme\.mn\?secret=/);
-    expect((await call(session, 'POST', '/auth/2fa/enable', { code: '000000' })).body.code).toBe(
-      'WRONG_CODE',
-    );
+    return answer.challenge;
+  };
 
-    const enabled = await call(session, 'POST', '/auth/2fa/enable', {
-      code: codeAt(setup.body.secret, currentStep()),
+  it('turns on with a code from the app, then asks for one at every sign-in, each code once', async () => {
+    const owner = server.browser();
+
+    await owner.api.auth.signIn(credentials);
+
+    const setup = await owner.api.auth.twoFactorSetup({});
+
+    expect(setup.uri).toMatch(/^otpauth:\/\/totp\/erxes%3Ao%40acme\.mn\?secret=/);
+    await expect(owner.api.auth.twoFactorEnable({ code: '000000' })).rejects.toMatchObject({
+      code: 'WRONG_CODE',
     });
 
-    expect(enabled.body.recoveryCodes).toHaveLength(10);
-    session = enabled.cookie;
-    expect((await call(session, 'GET', '/auth/me')).body.user.twoFactorEnabled).toBe(true);
+    const enabled = await owner.api.auth.twoFactorEnable({
+      code: codeAt(setup.secret, currentStep()),
+    });
 
-    // The password alone no longer signs in.
-    const first = await signIn();
+    expect(enabled.recoveryCodes).toHaveLength(10);
+    expect((await owner.api.auth.me({})).user.twoFactorEnabled).toBe(true);
 
-    expect(first.body).toMatchObject({ twoFactorRequired: true });
-    expect(first.cookie).toBe('');
-    expect(
-      (
-        await call(null, 'POST', '/auth/sign-in/2fa', {
-          challenge: first.body.challenge,
-          code: '123456',
-        })
-      ).body.code,
-    ).toBe('WRONG_CODE');
+    // The password alone no longer signs in, and no session is set.
+    const first = server.browser();
+
+    expect(await first.api.auth.signIn(credentials)).toMatchObject({ twoFactorRequired: true });
+    expect(first.cookie()).toBe('');
+    await expect(
+      first.api.auth.signInTwoFactor({ challenge: await challenge(), code: '123456' }),
+    ).rejects.toMatchObject({ code: 'WRONG_CODE' });
 
     // The code from the step after the one used to enable works, once.
-    const code = codeAt(setup.body.secret, currentStep() + 1);
+    const code = codeAt(setup.secret, currentStep() + 1);
+    const done = server.browser();
 
-    const done = await call(null, 'POST', '/auth/sign-in/2fa', {
-      challenge: first.body.challenge,
-      code,
-    });
-
-    expect(done.status).toBe(200);
-    expect(done.cookie).toMatch(/^erxes_session=/);
-
-    const replay = await call(null, 'POST', '/auth/sign-in/2fa', {
-      challenge: (await signIn()).body.challenge,
-      code,
-    });
-
-    expect(replay.body.code).toBe('WRONG_CODE');
+    await done.api.auth.signInTwoFactor({ challenge: await challenge(), code });
+    expect(done.cookie()).toMatch(/^erxes_session=./);
+    await expect(
+      server.browser().api.auth.signInTwoFactor({ challenge: await challenge(), code }),
+    ).rejects.toMatchObject({ code: 'WRONG_CODE' });
 
     // A recovery code works once.
-    const [recovery] = enabled.body.recoveryCodes as string[];
+    const [recoveryCode] = enabled.recoveryCodes;
+    const recovered = server.browser();
 
-    const viaRecovery = await call(null, 'POST', '/auth/sign-in/2fa', {
-      challenge: (await signIn()).body.challenge,
-      recoveryCode: recovery,
-    });
-
-    expect(viaRecovery.status).toBe(200);
-    expect(
-      (
-        await call(null, 'POST', '/auth/sign-in/2fa', {
-          challenge: (await signIn()).body.challenge,
-          recoveryCode: recovery,
-        })
-      ).status,
-    ).toBe(401);
-    expect(
-      (
-        await call(null, 'POST', '/auth/sign-in/2fa', {
-          challenge: 'not-a-real-challenge',
-          code: '123456',
-        })
-      ).body.code,
-    ).toBe('CHALLENGE_EXPIRED');
+    await recovered.api.auth.signInTwoFactor({ challenge: await challenge(), recoveryCode });
+    await expect(
+      server.browser().api.auth.signInTwoFactor({ challenge: await challenge(), recoveryCode }),
+    ).rejects.toMatchObject({ status: 401 });
+    await expect(
+      server
+        .browser()
+        .api.auth.signInTwoFactor({ challenge: 'not-a-real-challenge', code: '123456' }),
+    ).rejects.toMatchObject({ code: 'CHALLENGE_EXPIRED' });
 
     // Turning it off needs the password.
-    expect(
-      (await call(viaRecovery.cookie, 'POST', '/auth/2fa/disable', { password: 'nope' })).body.code,
-    ).toBe('WRONG_PASSWORD');
-    expect(
-      (await call(viaRecovery.cookie, 'POST', '/auth/2fa/disable', { password: 'Owner-pass-1' }))
-        .status,
-    ).toBe(200);
-    expect((await signIn()).body.user).toMatchObject({ twoFactorEnabled: false });
+    await expect(recovered.api.auth.twoFactorDisable({ password: 'nope' })).rejects.toMatchObject({
+      code: 'WRONG_PASSWORD',
+    });
+    await recovered.api.auth.twoFactorDisable({ password: credentials.password });
+    expect(await server.browser().api.auth.signIn(credentials)).toMatchObject({
+      user: { twoFactorEnabled: false },
+    });
   });
 });

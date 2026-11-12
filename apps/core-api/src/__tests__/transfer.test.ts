@@ -1,15 +1,15 @@
+import { events, withOrg } from '@erxes/core-db';
 import { parse } from 'csv-parse/sync';
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
+import { eq } from 'drizzle-orm';
 import readXlsxFile from 'read-excel-file/node';
-import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import writeXlsxFile from 'write-excel-file/node';
-import { createApp } from '~/app';
-import { createOrganization } from '~/modules/organizations/organizations.service';
+import { readFileBytes, storeServerFile } from '~/modules/files/files.service';
 import { parseDate, suggestMapping } from '~/modules/transfer/columns';
 import { parseSheet } from '~/modules/transfer/parse';
-import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
 import { settle } from './settle';
+import { useTwoOrgs } from './support';
 
 const columns = [
   { key: 'name', label: 'Full name', aliases: ['full name', 'name', 'нэр'] },
@@ -85,96 +85,48 @@ describe('reading files and suggesting columns', () => {
 describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-  let owner = '';
-  let member = '';
-  let orgId = '';
-  let ownerId = '';
+  const t = useTwoOrgs();
   let spend = '';
 
-  const call = async (token: string, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
-
   /** A file as if uploaded through /files. */
-  const upload = async (name: string, body: Buffer) => {
-    const { withOrg } = await import('@erxes/core-db');
-    const { storeServerFile } = await import('~/modules/files/files.service');
-
-    return withOrg(orgId, (tx) =>
+  const upload = (name: string, body: Buffer) =>
+    withOrg(t.ids.org, (tx) =>
       storeServerFile(
         tx,
-        { orgId, actorType: 'user', actorId: ownerId, source: 'core' },
+        { orgId: t.ids.org, actorType: 'user', actorId: t.ids.owner, source: 'core' },
         { name, contentType: 'text/csv', body },
       ),
     );
-  };
 
-  const fileBytes = async (fileId: string) => {
-    const { withOrg } = await import('@erxes/core-db');
-    const { readFileBytes } = await import('~/modules/files/files.service');
+  /** The file a finished export wrote. */
+  const exported = async (id: string) => {
+    const { data } = await t.owner().transfer.exports({});
+    const fileId = data.find((item) => item.id === id)?.fileId;
 
-    return (await withOrg(orgId, (tx) => readFileBytes(tx, orgId, fileId))).body;
+    if (!fileId) throw new Error(`export ${id} has no file`);
+
+    return (await withOrg(t.ids.org, (tx) => readFileBytes(tx, t.ids.org, fileId))).body;
   };
 
   const names = async () =>
-    (await call(owner, 'GET', '/customers?limit=100')).body.data
-      .map((row: { firstName: string }) => row.firstName)
-      .sort();
+    (await t.owner().customers.list({ limit: 100 })).data
+      .map((row) => row.firstName ?? '')
+      .toSorted((a, b) => a.localeCompare(b));
+
+  const customerTags = async () => (await t.owner().tags.list({ type: 'customer' })).data;
 
   beforeAll(async () => {
-    const { users, newId } = await import('@erxes/core-db');
-
-    const acme = await createOrganization({
-      subdomain: 'acme',
-      name: 'Acme',
-      owner: { email: 'o@acme.mn' },
-    });
-
-    orgId = acme.organization.id;
-    ownerId = acme.owner.id;
-
-    const memberId = newId();
-
-    await adminDb()
-      .insert(users)
-      .values({ id: memberId, orgId, email: 'm@acme.mn', role: 'member', status: 'active' });
-    owner = await currentToken(ownerId, orgId);
-    member = await currentToken(memberId, orgId);
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
     spend = (
-      await call(owner, 'POST', '/fields', {
-        contentType: 'customer',
-        label: 'Spend',
-        type: 'number',
-      })
-    ).body.id;
+      await t.owner().fields.create({ contentType: 'customer', label: 'Spend', type: 'number' })
+    ).id;
     // Already there: the import updates her (upsert by email).
-    expect(
-      (await call(owner, 'POST', '/customers', { firstName: 'Saraa', primaryEmail: 'saraa@x.mn' }))
-        .status,
-    ).toBe(201);
-  });
-
-  afterAll(async () => {
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await t.owner().customers.create({ firstName: 'Saraa', primaryEmail: 'saraa@x.mn' });
   });
 
   it('imports: suggested mapping, a dry run that changes nothing, the run, and undo', async () => {
     const csv = [
       'Нэр,Овог,Имэйл,Утас,Шошго,Хариуцагч,Байгууллага,Spend,Төрсөн өдөр',
-      'Бат,Болд,bat@x.mn,99112233,VIP; Golf,m@acme.mn,Retail Co,1500,1990-05-01',
+      'Бат,Болд,bat@x.mn,99112233,VIP; Golf,member@acme.mn,Retail Co,1500,1990-05-01',
       'Saraa,,SARAA@x.mn,,VIP,,,200,',
       'Дорж,,dorj@x.mn,,,,,,31.02.1990',
       'Oyun,,oyun@x.mn,,,nobody@acme.mn,,,',
@@ -182,22 +134,20 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
     const file = await upload('people.csv', Buffer.from(csv));
 
-    const created = await call(owner, 'POST', '/imports', {
-      recordType: 'customer',
-      fileId: file.id,
-    });
+    const created = await t
+      .owner()
+      .transfer.createImport({ recordType: 'customer', fileId: file.id });
 
-    expect(created.status).toBe(201);
-    expect(created.body.status).toBe('parsing');
+    const { id } = created;
+    const current = () => t.owner().transfer.import({ id });
+
+    expect(created.status).toBe('parsing');
     await settle();
 
-    const mapped = (await call(owner, 'GET', `/imports/${created.body.id}`)).body;
+    const mapped = await current();
 
-    expect(mapped).toMatchObject({
-      status: 'mapping',
-      counts: { rows: 4 },
-      headers: expect.arrayContaining(['Имэйл']),
-    });
+    expect(mapped).toMatchObject({ status: 'mapping', counts: { rows: 4 } });
+    expect(mapped.headers).toContain('Имэйл');
     expect(mapped.mapping).toEqual({
       0: 'name',
       1: 'lastName',
@@ -209,61 +159,46 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
       7: `customFields.${spend}`,
       8: 'birthDate',
     });
-    expect(mapped.sample[0][0]).toBe('Бат');
+    expect(mapped.sample[0]?.[0]).toBe('Бат');
 
     // Members can't import unless their role allows it.
-    expect((await call(member, 'GET', `/imports/${created.body.id}`)).body.code).toBe(
-      'NOT_ALLOWED',
-    );
+    await expect(t.member().transfer.import({ id })).rejects.toMatchObject({ code: 'NOT_ALLOWED' });
 
-    expect(
-      (
-        await call(owner, 'PATCH', `/imports/${created.body.id}`, {
-          options: { mode: 'upsert', matchBy: 'email' },
-        })
-      ).body.options,
-    ).toMatchObject({
-      mode: 'upsert',
-      matchBy: 'email',
-    });
+    const updated = await t
+      .owner()
+      .transfer.updateImport({ id, options: { mode: 'upsert', matchBy: 'email' } });
+
+    expect(updated.options).toMatchObject({ mode: 'upsert', matchBy: 'email' });
 
     // The check: what would happen, nothing changed.
-    await call(owner, 'POST', `/imports/${created.body.id}/check`);
+    await t.owner().transfer.checkImport({ id });
     await settle();
-
-    const checked = (await call(owner, 'GET', `/imports/${created.body.id}`)).body;
-
-    expect(checked).toMatchObject({
+    expect(await current()).toMatchObject({
       status: 'checked',
       counts: { rows: 4, create: 1, update: 1, error: 2 },
     });
     expect(await names()).toEqual(['Saraa']);
 
-    const errors = (await call(owner, 'GET', `/imports/${created.body.id}/rows?action=error`)).body
-      .data;
+    const errors = await t.owner().transfer.importRows({ id, action: 'error' });
 
-    expect(
-      errors.map((row: { rowNumber: number; error: string }) => [row.rowNumber, row.error]),
-    ).toEqual([
+    expect(errors.data.map((row) => [row.rowNumber, row.error])).toEqual([
       [4, expect.stringContaining('not a date')],
       [5, expect.stringContaining('no team member with the email nobody@acme.mn')],
     ]);
 
     // The run.
-    await call(owner, 'POST', `/imports/${created.body.id}/start`);
+    await t.owner().transfer.startImport({ id });
     await settle();
-
-    const done = (await call(owner, 'GET', `/imports/${created.body.id}`)).body;
-
-    expect(done).toMatchObject({
+    expect(await current()).toMatchObject({
       status: 'done',
       counts: { create: 1, update: 1, error: 2 },
       undoable: true,
     });
     expect(await names()).toEqual(['Saraa', 'Бат']);
 
-    const bat = (await call(owner, 'GET', '/customers?search=bat@x.mn')).body.data[0];
-    const tags = (await call(owner, 'GET', '/tags?type=customer')).body.data;
+    const [bat] = (await t.owner().customers.list({ search: 'bat@x.mn' })).data;
+
+    if (!bat) throw new Error('Бат was not imported');
 
     expect(bat).toMatchObject({
       firstName: 'Бат',
@@ -272,80 +207,65 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
       birthDate: '1990-05-01',
       customFields: { [spend]: 1500 },
     });
-    expect(tags.map((tag: { name: string }) => tag.name).sort()).toEqual(['Golf', 'VIP']);
-    expect((await call(owner, 'GET', `/customers/${bat.id}/companies`)).body.data).toEqual([
+    expect((await customerTags()).map((tag) => tag.name).toSorted()).toEqual(['Golf', 'VIP']);
+    expect((await t.owner().customers.companies({ id: bat.id })).data).toEqual([
       expect.objectContaining({ primaryName: 'Retail Co' }),
     ]);
 
-    const saraa = (await call(owner, 'GET', '/customers?search=saraa')).body.data[0];
+    const [saraa] = (await t.owner().customers.list({ search: 'saraa' })).data;
 
-    expect(saraa.customFields[spend]).toBe(200);
-    expect(saraa.tagIds).toHaveLength(1);
+    expect(saraa?.customFields[spend]).toBe(200);
+    expect(saraa?.tagIds).toHaveLength(1);
 
     // Quiet by default: its events say so (automations skip them).
-    const { events } = await import('@erxes/core-db');
-    const { eq } = await import('drizzle-orm');
-
     const [event] = await adminDb()
       .select()
       .from(events)
       .where(eq(events.subjectId, bat.id))
       .limit(1);
 
-    expect((event!.payload as { _import?: unknown })._import).toEqual({
-      id: created.body.id,
-      quiet: true,
-    });
+    expect(event?.payload).toMatchObject({ _import: { id, quiet: true } });
 
     // The importer is told.
-    const inbox = (await call(owner, 'GET', '/notifications?limit=20')).body.data;
+    const inbox = await t.owner().notifications.list({ limit: 20 });
 
-    expect(inbox.some((item: { kind: string }) => item.kind === 'core.import.done')).toBe(true);
+    expect(inbox.data.some((item) => item.kind === 'core.import.done')).toBe(true);
 
     // Undo: what it created goes; what it updated stays.
-    await call(owner, 'POST', `/imports/${created.body.id}/undo`);
+    await t.owner().transfer.undoImport({ id });
     await settle();
-    expect((await call(owner, 'GET', `/imports/${created.body.id}`)).body.status).toBe('undone');
+    expect((await current()).status).toBe('undone');
     expect(await names()).toEqual(['Saraa']);
-    expect(
-      (await call(owner, 'GET', '/trash?limit=10')).body.data.map(
-        (item: { label: string }) => item.label,
-      ),
-    ).toEqual(['Бат Болд']);
+    expect((await t.owner().trash.list({ limit: 10 })).data.map((item) => item.label)).toEqual([
+      'Бат Болд',
+    ]);
   });
 
   it('exports the list as filtered, to CSV and Excel, safe to open', async () => {
-    await call(owner, 'POST', '/customers', {
+    await t.owner().customers.create({
       firstName: '=HYPERLINK("http://evil")',
       primaryEmail: 'evil@x.mn',
     });
 
-    const vip = (await call(owner, 'GET', '/tags?type=customer')).body.data.find(
-      (tag: { name: string }) => tag.name === 'VIP',
-    ).id;
+    const vip = (await customerTags()).find((tag) => tag.name === 'VIP')?.id;
 
-    const query = {
-      filter: { match: 'all', rules: [{ path: 'subject.tagIds', op: 'contains', value: vip }] },
-    };
-
-    const csv = await call(owner, 'POST', '/exports', {
+    const csv = await t.owner().transfer.createExport({
       recordType: 'customer',
       format: 'csv',
       columns: ['firstName', 'primaryEmail', 'tags', `customFields.${spend}`],
-      query,
+      query: {
+        filter: { match: 'all', rules: [{ path: 'subject.tagIds', op: 'contains', value: vip }] },
+      },
     });
 
-    expect(csv.status).toBe(202);
-    expect(
-      (await call(member, 'POST', '/exports', { recordType: 'customer', columns: ['firstName'] }))
-        .body.code,
-    ).toBe('NOT_ALLOWED');
-    expect(
-      (await call(owner, 'POST', '/exports', { recordType: 'customer', columns: ['nope'] })).body
-        .code,
-    ).toBe('INVALID_COLUMNS');
+    await expect(
+      t.member().transfer.createExport({ recordType: 'customer', columns: ['firstName'] }),
+    ).rejects.toMatchObject({ code: 'NOT_ALLOWED' });
+    await expect(
+      t.owner().transfer.createExport({ recordType: 'customer', columns: ['nope'] }),
+    ).rejects.toMatchObject({ code: 'INVALID_COLUMNS' });
 
-    const all = await call(owner, 'POST', '/exports', {
+    const all = await t.owner().transfer.createExport({
       recordType: 'customer',
       format: 'xlsx',
       columns: ['firstName', 'primaryEmail', 'createdAt'],
@@ -353,13 +273,12 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
     await settle();
 
-    const list = (await call(owner, 'GET', '/exports')).body.data;
-    const csvDone = list.find((item: { id: string }) => item.id === csv.body.id);
-    const xlsxDone = list.find((item: { id: string }) => item.id === all.body.id);
+    const list = (await t.owner().transfer.exports({})).data;
 
-    expect(csvDone).toMatchObject({ status: 'done', rowCount: 1 });
+    expect(list.find((item) => item.id === csv.id)).toMatchObject({ status: 'done', rowCount: 1 });
+    expect(list.find((item) => item.id === all.id)).toMatchObject({ status: 'done', rowCount: 2 });
 
-    const text = (await fileBytes(csvDone.fileId)).toString('utf8');
+    const text = (await exported(csv.id)).toString('utf8');
 
     expect(text.startsWith('﻿')).toBe(true);
     expect(parse(text.slice(1))).toEqual([
@@ -367,37 +286,29 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
       ['Saraa', 'saraa@x.mn', 'VIP', '200'],
     ]);
 
-    expect(xlsxDone).toMatchObject({ status: 'done', rowCount: 2 });
+    const [sheet] = await readXlsxFile(await exported(all.id));
+    const rows = sheet?.data ?? [];
 
-    const sheet = (await readXlsxFile(await fileBytes(xlsxDone.fileId)))[0]!.data;
-
-    expect(sheet[0]).toEqual(['First name', 'Email', 'Created']);
+    expect(rows[0]).toEqual(['First name', 'Email', 'Created']);
     expect(
-      sheet
+      rows
         .slice(1)
-        .map((row) => row[0])
-        .sort(),
+        .map((row) => String(row[0]))
+        .toSorted(),
     ).toEqual(['=HYPERLINK("http://evil")', 'Saraa']);
-    expect(sheet[1]![2]).toBeInstanceOf(Date);
+    expect(rows[1]?.[2]).toBeInstanceOf(Date);
 
     // In CSV a formula is kept as text.
-    const unsafe = await call(owner, 'POST', '/exports', {
-      recordType: 'customer',
-      format: 'csv',
-      columns: ['firstName'],
-    });
+    const unsafe = await t
+      .owner()
+      .transfer.createExport({ recordType: 'customer', format: 'csv', columns: ['firstName'] });
 
     await settle();
-
-    const unsafeDone = (await call(owner, 'GET', '/exports')).body.data.find(
-      (item: { id: string }) => item.id === unsafe.body.id,
-    );
-
-    expect((await fileBytes(unsafeDone.fileId)).toString('utf8')).toContain(
+    expect((await exported(unsafe.id)).toString('utf8')).toContain(
       `"'=HYPERLINK(""http://evil"")"`,
     );
 
     // Exports are in the audit log.
-    expect((await call(owner, 'GET', '/audit?action=contacts.exported')).body.data).toHaveLength(3);
+    expect((await t.owner().audit.list({ action: 'contacts.exported' })).data).toHaveLength(3);
   });
 });

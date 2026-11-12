@@ -1,198 +1,133 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
+import { beforeAll, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
+import { loggedEmails } from '~/modules/email/email';
+import { processJobs } from '~/modules/jobs/jobs';
+import { JOBS } from '~/modules/jobs/registry';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { currentToken, describeWithDb, useTestDatabase } from './db';
+import { describeWithDb, useTestDatabase } from './db';
+import { type CoreClient, useTestServer } from './support';
+
+/** Sends what the jobs queued. */
+const send = () => processJobs(JOBS);
+
+/** The token in the link of the last email to `to`. */
+const linkToken = (to: string, path: string) => {
+  const email = loggedEmails.findLast((each) => each.to === to);
+  const token = new RegExp(`${path}\\?token=(\\S+)`).exec(email?.text ?? '')?.[1];
+
+  if (token === undefined) throw new Error(`no ${path} link emailed to ${to}`);
+
+  return decodeURIComponent(token);
+};
+
+const OWNER = 'owner@acme.mn';
 
 describeWithDb('invitations and password resets by email', { timeout: 240_000 }, () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-  let orgId = '';
-  let owner = '';
-
-  const call = async (token: string | null, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: {
-        ...(token ? { authorization: `Bearer ${token}` } : {}),
-        'content-type': 'application/json',
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return {
-      status: response.status,
-      body: text ? JSON.parse(text) : null,
-      cookie:
-        (response.headers.getSetCookie().find((c) => c.startsWith('erxes_session=')) ?? '').split(
-          ';',
-        )[0] ?? '',
-    };
-  };
-
-  const send = async () => {
-    const { processJobs } = await import('~/modules/jobs/jobs');
-    const { JOBS } = await import('~/modules/jobs/registry');
-
-    await processJobs(JOBS);
-  };
-
-  const lastEmail = async (to: string) => {
-    const { loggedEmails } = await import('~/modules/email/email');
-
-    return [...loggedEmails].reverse().find((email) => email.to === to);
-  };
-
-  const tokenIn = (text: string, path: string) =>
-    decodeURIComponent(new RegExp(`${path}\\?token=([^\\s]+)`).exec(text)![1]!);
+  const server = useTestServer();
+  const anonymous = () => server.client();
+  let owner: CoreClient;
 
   beforeAll(async () => {
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: {
-        email: 'owner@acme.mn',
+        email: OWNER,
         passwordHash: await hashPassword('Owner-pass-1'),
         fullName: 'Owner Bat',
       },
     });
 
-    orgId = acme.organization.id;
-    owner = await currentToken(acme.owner.id, orgId);
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-  });
-
-  afterAll(async () => {
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    owner = server.client({ user: acme.owner.id, org: acme.organization.id });
   });
 
   it('emails an invitation; the link shows who invited, sets a password once and signs in', async () => {
-    const invited = await call(owner, 'POST', '/users', { email: 'new@acme.mn' });
-
-    expect(invited.body.status).toBe('invited');
+    expect((await owner.users.invite({ email: 'new@acme.mn' })).status).toBe('invited');
     await send();
+    expect(loggedEmails.findLast((email) => email.to === 'new@acme.mn')?.subject).toBe(
+      'Owner Bat invited you to Acme on erxes',
+    );
 
-    const email = await lastEmail('new@acme.mn');
+    const token = linkToken('new@acme.mn', '/accept-invitation');
 
-    expect(email?.subject).toBe('Owner Bat invited you to Acme on erxes');
-
-    const token = tokenIn(email!.text, '/accept-invitation');
-
-    expect(
-      (await call(null, 'GET', `/auth/invitation?token=${encodeURIComponent(token)}`)).body,
-    ).toEqual({
+    expect(await anonymous().auth.invitation({ token })).toEqual({
       organization: 'Acme',
       email: 'new@acme.mn',
       inviter: 'Owner Bat',
     });
 
-    const accepted = await call(null, 'POST', '/auth/invitation/accept', {
+    const browser = server.browser();
+
+    const accepted = await browser.api.auth.acceptInvitation({
       token,
       password: 'New-member-1',
       firstName: 'Saraa',
     });
 
-    expect(accepted.status).toBe(200);
-    expect(accepted.body.user).toMatchObject({
+    expect(accepted.user).toMatchObject({
       email: 'new@acme.mn',
       status: 'active',
       firstName: 'Saraa',
     });
-    expect(accepted.cookie).toMatch(/^erxes_session=/);
+    expect(browser.cookie()).toMatch(/^erxes_session=./);
 
     // Once only.
-    expect(
-      (await call(null, 'POST', '/auth/invitation/accept', { token, password: 'New-member-2' }))
-        .body.code,
-    ).toBe('INVALID_LINK');
+    await expect(
+      anonymous().auth.acceptInvitation({ token, password: 'New-member-2' }),
+    ).rejects.toMatchObject({ code: 'INVALID_LINK' });
 
     // A resent invitation replaces the earlier link.
-    const second = await call(owner, 'POST', '/users', { email: 'second@acme.mn' });
+    const second = await owner.users.invite({ email: 'second@acme.mn' });
 
     await send();
 
-    const first = tokenIn((await lastEmail('second@acme.mn'))!.text, '/accept-invitation');
+    const first = linkToken('second@acme.mn', '/accept-invitation');
 
-    expect((await call(owner, 'POST', `/users/${second.body.id}/invitation`)).status).toBe(200);
+    await owner.users.resendInvitation({ id: second.id });
     await send();
-    expect(
-      (await call(null, 'GET', `/auth/invitation?token=${encodeURIComponent(first)}`)).body.code,
-    ).toBe('INVALID_LINK');
+    await expect(anonymous().auth.invitation({ token: first })).rejects.toMatchObject({
+      code: 'INVALID_LINK',
+    });
   });
 
   it('resets a password by email without telling whether the email exists, and ends old sessions', async () => {
-    const before = await call(null, 'POST', '/auth/sign-in', {
-      email: 'owner@acme.mn',
-      password: 'Owner-pass-1',
-    });
+    const before = server.browser();
 
-    expect(
-      (await call(null, 'POST', '/auth/password-reset', { email: 'nobody@acme.mn' })).body,
-    ).toEqual({ ok: true });
-    expect(
-      (await call(null, 'POST', '/auth/password-reset', { email: 'OWNER@acme.mn' })).body,
-    ).toEqual({ ok: true });
+    await before.api.auth.signIn({ email: OWNER, password: 'Owner-pass-1' });
+    expect(await anonymous().auth.requestPasswordReset({ email: 'nobody@acme.mn' })).toEqual({
+      ok: true,
+    });
+    expect(await anonymous().auth.requestPasswordReset({ email: 'OWNER@acme.mn' })).toEqual({
+      ok: true,
+    });
     await send();
-    expect(await lastEmail('nobody@acme.mn')).toBeUndefined();
+    expect(loggedEmails.some((email) => email.to === 'nobody@acme.mn')).toBe(false);
 
-    const token = tokenIn((await lastEmail('owner@acme.mn'))!.text, '/reset-password');
+    const token = linkToken(OWNER, '/reset-password');
 
-    expect(
-      (await call(null, 'POST', '/auth/password-reset/confirm', { token, password: 'weak' }))
-        .status,
-    ).toBe(400);
+    await expect(anonymous().auth.resetPassword({ token, password: 'weak' })).rejects.toMatchObject(
+      { status: 400 },
+    );
 
-    const reset = await call(null, 'POST', '/auth/password-reset/confirm', {
-      token,
-      password: 'Owner-pass-2',
-    });
+    const reset = server.browser();
 
-    expect(reset.status).toBe(200);
-    expect(reset.cookie).toMatch(/^erxes_session=/);
+    await reset.api.auth.resetPassword({ token, password: 'Owner-pass-2' });
+    expect(reset.cookie()).toMatch(/^erxes_session=./);
 
     // The old session ended; the old password no longer works; the link is used up.
-    const me = await fetch(`${base}/core/v1/auth/me`, { headers: { cookie: before.cookie } });
+    await expect(before.api.auth.me({})).rejects.toMatchObject({ status: 401 });
 
-    expect(me.status).toBe(401);
-    expect(
-      (
-        await call(null, 'POST', '/auth/sign-in', {
-          email: 'owner@acme.mn',
-          password: 'Owner-pass-1',
-        })
-      ).status,
-    ).toBe(401);
-    expect(
-      (
-        await call(null, 'POST', '/auth/sign-in', {
-          email: 'owner@acme.mn',
-          password: 'Owner-pass-2',
-        })
-      ).status,
-    ).toBe(200);
-    expect(
-      (
-        await call(null, 'POST', '/auth/password-reset/confirm', {
-          token,
-          password: 'Owner-pass-3',
-        })
-      ).body.code,
-    ).toBe('INVALID_LINK');
-    expect(
-      (
-        await call(null, 'POST', '/auth/password-reset/confirm', {
-          token: 'madeupid12.madeupsecret',
-          password: 'Owner-pass-3',
-        })
-      ).body.code,
-    ).toBe('INVALID_LINK');
+    const signIn = (password: string) =>
+      server.browser().api.auth.signIn({ email: OWNER, password });
+
+    await expect(signIn('Owner-pass-1')).rejects.toMatchObject({ status: 401 });
+    expect(await signIn('Owner-pass-2')).toMatchObject({ user: { email: OWNER } });
+
+    for (const used of [token, 'madeupid12.madeupsecret'])
+      await expect(
+        anonymous().auth.resetPassword({ token: used, password: 'Owner-pass-3' }),
+      ).rejects.toMatchObject({ code: 'INVALID_LINK' });
   });
 });

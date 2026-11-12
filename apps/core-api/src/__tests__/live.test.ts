@@ -1,78 +1,57 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
-import { signAccessToken } from '~/http/auth';
+import { EventSourceParserStream, type EventSourceMessage } from 'eventsource-parser/stream';
+import { afterAll, beforeAll, expect, it, vi } from 'vite-plus/test';
+import { z } from 'zod';
+import { startEventProcessor } from '~/modules/events/processor';
 import { liveHub } from '~/modules/live/hub';
-import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
-import { pluginToken } from './plugin';
+import { describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
+import { useTwoOrgs } from './support';
 
-/** Reads Server-Sent Events from a stream until `until` matches or time runs out. */
-const openStream = async (url: string, token: string) => {
+const Hello = z.object({ mode: z.enum(['live', 'polling']) });
+
+const Timeline = z.object({
+  targets: z.array(z.object({ targetType: z.string(), targetId: z.string() })),
+});
+
+/** The records a `timeline` event says changed. */
+const targetsOf = (message: EventSourceMessage) => Timeline.parse(JSON.parse(message.data)).targets;
+
+const of = (events: EventSourceMessage[], type: string) =>
+  events.filter((message) => message.event === type);
+
+/** Collects the Server-Sent Events of `GET url` until closed. */
+const openStream = async (url: string, headers: Record<string, string>) => {
   const controller = new AbortController();
+  const response = await fetch(url, { headers, signal: controller.signal });
+  const events: EventSourceMessage[] = [];
 
-  const response = await fetch(url, {
-    headers: { authorization: `Bearer ${token}` },
-    signal: controller.signal,
-  });
+  if (!response.body) throw new Error('the stream has no body');
 
-  const reader = response.body!.getReader();
-  const decoder = new TextDecoder();
-  const events: { event: string; data: unknown }[] = [];
-  let buffer = '';
-
-  const pump = (async () => {
-    try {
-      for (;;) {
-        const { value, done } = await reader.read();
-
-        if (done) return;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        let end: number;
-
-        while ((end = buffer.indexOf('\n\n')) >= 0) {
-          const block = buffer.slice(0, end);
-
-          buffer = buffer.slice(end + 2);
-
-          const event = /^event: (.+)$/m.exec(block)?.[1];
-          const data = /^data: (.+)$/m.exec(block)?.[1];
-
-          if (event) events.push({ event, data: data ? JSON.parse(data) : null });
-        }
-      }
-    } catch {
-      // aborted
-    }
-  })();
-
-  const waitFor = async (
-    match: (entry: { event: string; data: unknown }) => boolean,
-    ms = 8000,
-  ) => {
-    const started = Date.now();
-
-    while (Date.now() - started < ms) {
-      const found = events.find(match);
-
-      if (found) return found;
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-
-    return null;
-  };
+  const reading = response.body
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(new EventSourceParserStream())
+    .pipeTo(new WritableStream({ write: (message) => void events.push(message) }))
+    .catch((error: unknown) => {
+      if (!controller.signal.aborted) throw error;
+    });
 
   return {
     status: response.status,
     events,
-    waitFor,
+    /** The first event of this type, waiting up to 8 s for it. */
+    next: (type: string, match: (message: EventSourceMessage) => boolean = () => true) =>
+      vi.waitFor(
+        () => {
+          const found = of(events, type).find(match);
+
+          if (!found) throw new Error(`no ${type} event yet`);
+
+          return found;
+        },
+        { timeout: 8000, interval: 50 },
+      ),
     close: async () => {
       controller.abort();
-      await pump;
+      await reading;
     },
   };
 };
@@ -80,147 +59,87 @@ const openStream = async (url: string, token: string) => {
 describeWithDb('live updates (/core/v1/stream)', () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-  let orgId = '';
-  let ownerToken = '';
-  let memberToken = '';
-  let memberId = '';
-  let otherToken = '';
+  const t = useTwoOrgs();
+
+  const stream = async (user = t.ids.owner, org = t.ids.org) =>
+    openStream(t.url('/core/v1/stream'), t.headers(await t.token(user, org)));
 
   beforeAll(async () => {
-    const { db, users, newId } = await import('@erxes/core-db');
-
-    const acme = await createOrganization({
-      subdomain: 'acme',
-      name: 'Acme',
-      owner: { email: 'owner@acme.mn' },
-    });
-
-    const globex = await createOrganization({
-      subdomain: 'globex',
-      name: 'Globex',
-      owner: { email: 'owner@globex.mn' },
-    });
-
-    orgId = acme.organization.id;
-    memberId = newId();
-    await adminDb()
-      .insert(users)
-      .values({ id: memberId, orgId, email: 'member@acme.mn', role: 'member', status: 'active' });
-    ownerToken = signAccessToken(acme.owner.id, orgId);
-    memberToken = signAccessToken(memberId, orgId);
-    otherToken = signAccessToken(globex.owner.id, globex.organization.id);
-
     // Listen on the throwaway database (Supabase: the session pooler on 5432).
     const url = new URL(testDatabaseUrl());
 
     if (url.port === '6543') url.port = '5432';
 
     liveHub.start(url.toString());
-
-    for (let wait = 0; wait < 100 && !liveHub.connected; wait += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    await vi.waitFor(
+      () => {
+        if (!liveHub.connected) throw new Error('the live hub has not connected');
+      },
+      { timeout: 10_000, interval: 100 },
+    );
   });
 
-  afterAll(async () => {
-    await liveHub.stop();
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
-  });
+  afterAll(() => liveHub.stop());
 
   it('pushes inbox signals to that member only, and timeline signals within the organisation', async () => {
-    expect(liveHub.connected).toBe(true);
-
-    const member = await openStream(`${base}/core/v1/stream`, memberToken);
-    const owner = await openStream(`${base}/core/v1/stream`, ownerToken);
-    const other = await openStream(`${base}/core/v1/stream`, otherToken);
+    const member = await stream(t.ids.member);
+    const owner = await stream();
+    const other = await stream(t.ids.otherOwner, t.ids.otherOrg);
 
     expect(member.status).toBe(200);
-    expect(await member.waitFor((entry) => entry.event === 'hello')).toMatchObject({
-      data: { mode: 'live' },
+    expect(Hello.parse(JSON.parse((await member.next('hello')).data))).toEqual({ mode: 'live' });
+
+    await t.hr().notifications.create({
+      userIds: [t.ids.member],
+      kind: 'hr.leave.requested',
+      title: 'Leave',
     });
+    await member.next('inbox');
 
-    const sent = await fetch(`${base}/core/v1/notifications`, {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${await pluginToken(base, orgId)}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({ userIds: [memberId], kind: 'hr.leave.requested', title: 'Leave' }),
-    });
+    const customer = await t
+      .owner()
+      .customers.create({ firstName: 'Live', primaryEmail: 'live@mail.mn' });
 
-    expect(sent.status).toBe(201);
-    expect(await member.waitFor((entry) => entry.event === 'inbox')).not.toBeNull();
-
-    const customer = await fetch(`${base}/core/v1/customers`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${ownerToken}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ firstName: 'Live', primaryEmail: 'live@mail.mn' }),
-    }).then((response) => response.json() as Promise<{ id: string }>);
-
-    const timeline = await owner.waitFor((entry) => entry.event === 'timeline');
-
-    expect(timeline?.data).toEqual({
-      targets: [{ targetType: 'customer', targetId: customer.id }],
-    });
-    expect(await member.waitFor((entry) => entry.event === 'timeline')).not.toBeNull();
+    expect(targetsOf(await owner.next('timeline'))).toEqual([
+      { targetType: 'customer', targetId: customer.id },
+    ]);
+    await member.next('timeline');
 
     // Nothing crosses organisations, and nobody sees another member's inbox.
-    expect(owner.events.some((entry) => entry.event === 'inbox')).toBe(false);
-    expect(other.events.filter((entry) => entry.event !== 'hello')).toEqual([]);
+    expect(of(owner.events, 'inbox')).toEqual([]);
+    expect(other.events.filter((message) => message.event !== 'hello')).toEqual([]);
 
     await Promise.all([member.close(), owner.close(), other.close()]);
   });
 
   it('wakes the event processor as soon as an event is published', async () => {
-    const { startEventProcessor } = await import('~/modules/events/processor');
     const stop = startEventProcessor();
 
-    const customer = await fetch(`${base}/core/v1/customers`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${ownerToken}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ firstName: 'Woken', primaryEmail: 'woken@mail.mn' }),
-    }).then((response) => response.json() as Promise<{ id: string }>);
+    const customer = await t
+      .owner()
+      .customers.create({ firstName: 'Woken', primaryEmail: 'woken@mail.mn' });
 
-    const owner = await openStream(`${base}/core/v1/stream`, ownerToken);
+    const owner = await stream();
 
     // Let the startup run finish, so the next one is triggered by the event.
     await new Promise((resolve) => setTimeout(resolve, 1500));
     owner.events.length = 0;
 
-    await fetch(`${base}/core/v1/events`, {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${await pluginToken(base, orgId)}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        events: [
-          {
-            type: 'hr.contract.signed',
-            subject: { type: 'customer', id: customer.id },
-            summary: 'Signed',
-          },
-        ],
-      }),
+    await t.hr().events.publish({
+      events: [
+        {
+          type: 'hr.contract.signed',
+          subject: { type: 'customer', id: customer.id },
+          summary: 'Signed',
+        },
+      ],
     });
 
     const started = Date.now();
 
-    const signal = await owner.waitFor(
-      (entry) =>
-        entry.event === 'timeline' &&
-        (entry.data as { targets: { targetId: string }[] }).targets.some(
-          (target) => target.targetId === customer.id,
-        ),
+    await owner.next('timeline', (message) =>
+      targetsOf(message).some((target) => target.targetId === customer.id),
     );
-
-    expect(signal).not.toBeNull();
     // The slow safety poll is 30 s; the event was handled right away.
     expect(Date.now() - started).toBeLessThan(15_000);
 
@@ -229,15 +148,12 @@ describeWithDb('live updates (/core/v1/stream)', () => {
   });
 
   it('limits open streams per member', async () => {
-    const streams = await Promise.all(
-      Array.from({ length: 10 }, () => openStream(`${base}/core/v1/stream`, memberToken)),
-    );
+    const streams = await Promise.all(Array.from({ length: 10 }, () => stream(t.ids.member)));
+    const extra = await stream(t.ids.member);
 
-    const extra = await openStream(`${base}/core/v1/stream`, memberToken);
-
-    expect(streams.every((stream) => stream.status === 200)).toBe(true);
+    expect(streams.map((each) => each.status)).toEqual(Array.from({ length: 10 }, () => 200));
     expect(extra.status).toBe(429);
 
-    await Promise.all([...streams, extra].map((stream) => stream.close()));
+    await Promise.all([...streams, extra].map((each) => each.close()));
   });
 });

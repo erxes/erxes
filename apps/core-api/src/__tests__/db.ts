@@ -126,3 +126,11 @@ export const currentToken = async (userId: string, orgId: string) => {
 
   return signAccessToken(userId, orgId, undefined, row?.sessionVersion ?? 1);
 };
+
+/** The database's own message behind a failed query, or '' when it succeeded. */
+export const dbError = (query: Promise<unknown>) =>
+  query.then(
+    () => '',
+    (error: { cause?: { message?: string }; message: string }) =>
+      error.cause?.message ?? error.message,
+  );

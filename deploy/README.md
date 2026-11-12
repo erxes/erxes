@@ -1,13 +1,13 @@
 # Deploying erxes core
 
-CI (`.github/workflows/ci.yml`) runs on every push and pull request to `postgre`:
+CI (`.github/workflows/ci.yml`) runs on every pull request and every push to `postgre`:
 
-| Job      | What it checks                                                                                                                                                               |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| check    | `pnpm typecheck`, `pnpm db:check` (schema = migrations), applied migrations unchanged (`packages/db/scripts/check-applied.ts`), no critical advisories (`pnpm audit --prod`) |
-| test-api | every API test on Postgres 16, acting as a role without BYPASSRLS                                                                                                            |
-| test-ui  | UI and package tests, `pnpm build`                                                                                                                                           |
-| images   | builds `erxes-core-api` and `erxes-core-ui`, starts this folder's stack and runs `smoke.sh`; on `postgre` pushes them to GHCR as `sha-<12 chars>` and `postgre`              |
+| Job         | What it checks                                                                                                                                                          |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| static      | `pnpm check`, `pnpm check:generated` (migrations and `openapi.json`), applied migrations unchanged, the lint plugin tests, no critical advisories (`pnpm audit --prod`) |
+| integration | every test on Postgres 16 (API tests act as a role without BYPASSRLS), then `pnpm build`                                                                                |
+| images      | builds `erxes-core-api` and `erxes-core-ui`, starts this folder's stack and runs `smoke.sh`; on `postgre` pushes them to GHCR as `sha-<12 chars>` and `postgre`         |
+| Check       | passes only when every job above passed; the one to require in branch protection                                                                                        |
 
 CodeQL (`codeql.yml`) scans weekly and on changes. `deploy.yml` deploys after a
 green CI run on `postgre` (or by hand with an image tag) once the `production`

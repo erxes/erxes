@@ -1,63 +1,33 @@
 import { createServer, type Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
-import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { z } from 'zod';
+import { type DefinitionInput, makeDue, useAutomations } from './automations.fixture';
+import { describeWithDb, useTestDatabase } from './db';
 import { settle } from './settle';
+
+/** The automation an audit entry was made by. */
+const ByAutomation = z.object({ automation: z.object({ id: z.string() }) });
+
+/** Waits two hours, then adds a note. */
+const later = (body: string): DefinitionInput => ({
+  trigger: { kind: 'event', event: 'core.company.created' },
+  steps: [
+    { id: 'wait', type: 'delay', amount: 2, unit: 'hours' },
+    { id: 'note', type: 'action', action: 'core.note.add', input: { body } },
+  ],
+});
 
 describeWithDb('automations', { timeout: 300_000 }, () => {
   useTestDatabase();
 
-  let api: Server;
+  const t = useAutomations();
+  const { active, runsOf } = t;
   let receiver: Server;
-  let base = '';
   let hookUrl = '';
   let answer = 200;
-  let orgId = '';
-  let ownerId = '';
-  let owner = '';
-  let memberToken = '';
   let vipTag = '';
 
-  const call = async (token: string, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
-
-  const makeDue = async () => {
-    const { sql } = await import('drizzle-orm');
-
-    await adminDb().execute(sql`update core_jobs set run_at = now() where status = 'queued'`);
-  };
-
   beforeAll(async () => {
-    const { users, newId } = await import('@erxes/core-db');
-
-    const acme = await createOrganization({
-      subdomain: 'acme',
-      name: 'Acme',
-      owner: { email: 'o@acme.mn' },
-    });
-
-    const memberId = newId();
-
-    orgId = acme.organization.id;
-    ownerId = acme.owner.id;
-    await adminDb()
-      .insert(users)
-      .values({ id: memberId, orgId, email: 'm@acme.mn', role: 'member', status: 'active' });
-    owner = await currentToken(ownerId, orgId);
-    memberToken = await currentToken(memberId, orgId);
-    api = createApp().listen(0);
-    base = `http://127.0.0.1:${(api.address() as AddressInfo).port}`;
     receiver = createServer((req, res) => {
       req.resume();
       req.on('end', () => {
@@ -66,23 +36,24 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
         res.end(JSON.stringify({ ok: answer === 200 }));
       });
     }).listen(0);
-    hookUrl = `http://127.0.0.1:${(receiver.address() as AddressInfo).port}/hook`;
-    vipTag = (
-      await call(owner, 'POST', '/tags', { type: 'customer', name: 'vip', colorCode: '#ff0000' })
-    ).body.id;
+
+    const address = receiver.address();
+
+    if (!address || typeof address === 'string') throw new Error('not listening on a port');
+
+    hookUrl = `http://127.0.0.1:${address.port}/hook`;
+    vipTag = (await t.owner().tags.create({ type: 'customer', name: 'vip', colorCode: '#ff0000' }))
+      .id;
   });
 
-  afterAll(async () => {
-    api.closeAllConnections();
-    await new Promise<void>((resolve) => api.close(() => resolve()));
-    await new Promise<void>((resolve) => receiver.close(() => resolve()));
-  });
+  afterAll(() => new Promise<void>((resolve) => receiver.close(() => resolve())));
 
   it('runs steps for matching events: tags, branches, updates, notes with templates, notifications', async () => {
-    const created = await call(owner, 'POST', '/automations', {
+    const created = await t.owner().automations.create({
       name: 'VIP welcome',
       definition: {
         trigger: {
+          kind: 'event',
           event: 'core.customer.created',
           conditions: {
             match: 'all',
@@ -103,7 +74,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
                 id: 'promote',
                 type: 'action',
                 action: 'core.customer.update',
-                input: { state: 'customer', ownerId: ownerId },
+                input: { state: 'customer', ownerId: t.ids.owner },
               },
             ],
             else: [],
@@ -126,42 +97,32 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       },
     });
 
-    expect(created.status).toBe(201);
-    expect(
-      (await call(memberToken, 'POST', `/automations/${created.body.id}/activate`)).status,
-    ).toBe(403);
-    expect(
-      (await call(owner, 'POST', `/automations/${created.body.id}/activate`)).body,
-    ).toMatchObject({ status: 'active', activeVersion: 1 });
+    const { id } = created;
 
-    const vip = await call(owner, 'POST', '/customers', {
-      firstName: 'Bold',
-      primaryEmail: 'bold@vip.mn',
-      state: 'lead',
+    await expect(t.member().automations.activate({ id })).rejects.toMatchObject({ status: 403 });
+    expect(await t.owner().automations.activate({ id })).toMatchObject({
+      status: 'active',
+      activeVersion: 1,
     });
 
-    const other = await call(owner, 'POST', '/customers', {
-      firstName: 'Plain',
-      primaryEmail: 'plain@mail.mn',
-    });
+    const vip = await t
+      .owner()
+      .customers.create({ firstName: 'Bold', primaryEmail: 'bold@vip.mn', state: 'lead' });
 
+    await t.owner().customers.create({ firstName: 'Plain', primaryEmail: 'plain@mail.mn' });
     await settle();
 
-    const runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
+    const runs = await runsOf(id);
 
-    expect(runs.body.data).toHaveLength(1);
-    expect(runs.body.data[0]).toMatchObject({
+    expect(runs).toHaveLength(1);
+    expect(runs[0]).toMatchObject({
       status: 'succeeded',
-      subject: { type: 'customer', id: vip.body.id },
+      subject: { type: 'customer', id: vip.id },
     });
 
-    const detail = await call(owner, 'GET', `/automations/runs/${runs.body.data[0].id}`);
+    const detail = await t.owner().automations.run({ runId: runs[0]?.id ?? '' });
 
-    expect(
-      detail.body.steps.map(
-        (step: { stepId: string; status: string }) => `${step.stepId}:${step.status}`,
-      ),
-    ).toEqual([
+    expect(detail.steps.map((step) => `${step.stepId}:${step.status}`)).toEqual([
       'tag:succeeded',
       'lead:succeeded',
       'promote:succeeded',
@@ -169,168 +130,111 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       'tell:succeeded',
     ]);
 
-    const customer = await call(owner, 'GET', `/customers/${vip.body.id}`);
+    const customer = await t.owner().customers.get({ id: vip.id });
 
-    expect(customer.body).toMatchObject({ state: 'customer', ownerId });
-    expect(
-      customer.body.tagIds ?? customer.body.tags?.map((tag: { id: string }) => tag.id),
-    ).toContain(vipTag);
+    expect(customer).toMatchObject({ state: 'customer', ownerId: t.ids.owner });
+    expect(customer.tagIds).toContain(vipTag);
 
-    const timeline = await call(
-      owner,
-      'GET',
-      `/activities?targetType=customer&targetId=${vip.body.id}&kind=notes`,
-    );
+    const notes = await t
+      .owner()
+      .activities.list({ targetType: 'customer', targetId: vip.id, kind: 'notes' });
 
-    expect(timeline.body.data[0].summary ?? timeline.body.data[0].data?.body).toContain(
-      `Welcome Bold, tagged by ${vipTag}`,
-    );
+    expect(notes.data[0]?.data.body).toContain(`Welcome Bold, tagged by ${vipTag}`);
 
-    const inbox = await call(owner, 'GET', '/notifications?kind=core.automation.message');
+    const inbox = await t.owner().notifications.list({ kind: 'core.automation.message' });
 
-    expect(inbox.body.data[0]).toMatchObject({ title: 'New VIP: Bold' });
+    expect(inbox.data[0]).toMatchObject({ title: 'New VIP: Bold' });
 
     // Changes it made are audited as the automation's.
-    const audit = await call(owner, 'GET', `/audit?targetId=${vip.body.id}`);
+    const audit = await t.owner().audit.list({ targetId: vip.id });
 
-    const byAutomation = audit.body.data.filter(
-      (entry: { metadata?: { automation?: { id: string } } }) =>
-        entry.metadata?.automation?.id === created.body.id,
-    );
-
-    expect(byAutomation.length).toBeGreaterThan(0);
-    expect(other.status).toBe(201);
+    expect(
+      audit.data.some((entry) => ByAutomation.safeParse(entry.metadata).data?.automation.id === id),
+    ).toBe(true);
   });
 
   it("doesn't trigger itself, and keeps a customer out once with reentry 'once'", async () => {
-    const created = await call(owner, 'POST', '/automations', {
-      name: 'Self',
-      definition: {
-        trigger: { event: 'core.customer.updated' },
-        reentry: 'always',
-        steps: [
-          {
-            id: 'touch',
-            type: 'action',
-            action: 'core.customer.update',
-            input: { description: 'touched {{event.id}}' },
-          },
-        ],
-      },
+    const self = await active('Self', {
+      trigger: { kind: 'event', event: 'core.customer.updated' },
+      reentry: 'always',
+      steps: [
+        {
+          id: 'touch',
+          type: 'action',
+          action: 'core.customer.update',
+          input: { description: 'touched {{event.id}}' },
+        },
+      ],
     });
 
-    await call(owner, 'POST', `/automations/${created.body.id}/activate`);
+    const customer = await t.owner().customers.create({ firstName: 'Loop' });
+    const rename = (lastName: string) => t.owner().customers.update({ id: customer.id, lastName });
 
-    const customer = await call(owner, 'POST', '/customers', { firstName: 'Loop' });
-
-    await call(owner, 'PATCH', `/customers/${customer.body.id}`, { lastName: 'Er' });
+    await rename('Er');
     await settle();
-
-    const runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
 
     // One run for the member's change; its own change doesn't start another.
-    expect(
-      runs.body.data.filter(
-        (run: { subject: { id: string } }) => run.subject.id === customer.body.id,
-      ),
-    ).toHaveLength(1);
-    await call(owner, 'POST', `/automations/${created.body.id}/pause`);
+    expect((await runsOf(self)).filter((run) => run.subject?.id === customer.id)).toHaveLength(1);
+    await t.owner().automations.pause({ id: self });
 
-    const once = await call(owner, 'POST', '/automations', {
-      name: 'Once',
-      definition: {
-        trigger: { event: 'core.customer.updated' },
-        reentry: 'once',
-        steps: [{ id: 'note', type: 'action', action: 'core.note.add', input: { body: 'once' } }],
-      },
+    const once = await active('Once', {
+      trigger: { kind: 'event', event: 'core.customer.updated' },
+      reentry: 'once',
+      steps: [{ id: 'note', type: 'action', action: 'core.note.add', input: { body: 'once' } }],
     });
 
-    await call(owner, 'POST', `/automations/${once.body.id}/activate`);
-    await call(owner, 'PATCH', `/customers/${customer.body.id}`, { lastName: 'First' });
+    await rename('First');
     await settle();
-    await call(owner, 'PATCH', `/customers/${customer.body.id}`, { lastName: 'Second' });
+    await rename('Second');
     await settle();
-
-    const onceRuns = await call(owner, 'GET', `/automations/${once.body.id}/runs`);
 
     // Two changes to the same customer, one run: they went through once.
-    expect(onceRuns.body.data).toHaveLength(1);
-    await call(owner, 'POST', `/automations/${once.body.id}/pause`);
+    expect(await runsOf(once)).toHaveLength(1);
+    await t.owner().automations.pause({ id: once });
   });
 
   it('waits on delays, and runs in progress keep their version when the automation changes', async () => {
-    const created = await call(owner, 'POST', '/automations', {
-      name: 'Later',
-      definition: {
-        trigger: { event: 'core.company.created' },
-        steps: [
-          { id: 'wait', type: 'delay', amount: 2, unit: 'hours' },
-          { id: 'note', type: 'action', action: 'core.note.add', input: { body: 'version one' } },
-        ],
-      },
-    });
-
-    await call(owner, 'POST', `/automations/${created.body.id}/activate`);
-
-    const company = await call(owner, 'POST', '/companies', { primaryName: 'Waiting LLC' });
+    const id = await active('Later', later('version one'));
+    const company = await t.owner().companies.create({ primaryName: 'Waiting LLC' });
 
     await settle();
 
-    let runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
+    const [waiting] = await runsOf(id);
 
-    expect(runs.body.data[0]).toMatchObject({ status: 'waiting' });
-    expect(new Date(runs.body.data[0].waitingUntil).getTime()).toBeGreaterThan(
-      Date.now() + 3_600_000,
-    );
+    expect(waiting).toMatchObject({ status: 'waiting' });
+    expect(new Date(waiting?.waitingUntil ?? 0).getTime()).toBeGreaterThan(Date.now() + 3_600_000);
 
     // Published while the run waits.
-    const changed = await call(owner, 'PATCH', `/automations/${created.body.id}`, {
-      definition: {
-        trigger: { event: 'core.company.created' },
-        steps: [
-          { id: 'wait', type: 'delay', amount: 2, unit: 'hours' },
-          { id: 'note', type: 'action', action: 'core.note.add', input: { body: 'version two' } },
-        ],
-      },
-    });
-
-    expect(changed.body.activeVersion).toBe(2);
+    expect(
+      (await t.owner().automations.update({ id, definition: later('version two') })).activeVersion,
+    ).toBe(2);
 
     await makeDue();
     await settle();
+    expect((await runsOf(id))[0]).toMatchObject({ status: 'succeeded', version: 1 });
 
-    runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
-    expect(runs.body.data[0]).toMatchObject({ status: 'succeeded', version: 1 });
+    const notes = await t
+      .owner()
+      .activities.list({ targetType: 'company', targetId: company.id, kind: 'notes' });
 
-    const timeline = await call(
-      owner,
-      'GET',
-      `/activities?targetType=company&targetId=${company.body.id}&kind=notes`,
-    );
-
-    expect(JSON.stringify(timeline.body.data)).toContain('version one');
+    expect(notes.data.map((entry) => entry.data.body)).toEqual(['version one']);
   });
 
   it('retries a failing step, fails the run with the reason, and continues it on retry', async () => {
-    const created = await call(owner, 'POST', '/automations', {
-      name: 'Call out',
-      definition: {
-        trigger: {
-          event: 'core.customer.created',
-          conditions: {
-            match: 'all',
-            rules: [{ path: 'subject.firstName', op: 'eq', value: 'Caller' }],
-          },
+    const id = await active('Call out', {
+      trigger: {
+        kind: 'event',
+        event: 'core.customer.created',
+        conditions: {
+          match: 'all',
+          rules: [{ path: 'subject.firstName', op: 'eq', value: 'Caller' }],
         },
-        steps: [
-          { id: 'post', type: 'action', action: 'core.webhook.post', input: { url: hookUrl } },
-        ],
       },
+      steps: [{ id: 'post', type: 'action', action: 'core.webhook.post', input: { url: hookUrl } }],
     });
 
-    await call(owner, 'POST', `/automations/${created.body.id}/activate`);
     answer = 500;
-    await call(owner, 'POST', '/customers', { firstName: 'Caller' });
+    await t.owner().customers.create({ firstName: 'Caller' });
     await settle();
 
     for (let attempt = 0; attempt < 6; attempt += 1) {
@@ -338,56 +242,46 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       await settle();
     }
 
-    let runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
+    const [failed] = await runsOf(id);
 
-    expect(runs.body.data[0]).toMatchObject({ status: 'failed' });
-    expect(runs.body.data[0].error).toContain('HTTP 500');
+    expect(failed).toMatchObject({ status: 'failed' });
+    expect(failed?.error).toContain('HTTP 500');
 
-    const failed = await call(owner, 'GET', `/automations/runs/${runs.body.data[0].id}`);
+    const runId = failed?.id ?? '';
 
-    expect(failed.body.steps.at(-1)).toMatchObject({ stepId: 'post', status: 'failed' });
+    expect((await t.owner().automations.run({ runId })).steps.at(-1)).toMatchObject({
+      stepId: 'post',
+      status: 'failed',
+    });
 
     answer = 200;
-    expect(
-      (await call(owner, 'POST', `/automations/runs/${runs.body.data[0].id}/retry`)).status,
-    ).toBe(200);
+    await t.owner().automations.retryRun({ runId });
     await makeDue();
     await settle();
-
-    runs = await call(owner, 'GET', `/automations/${created.body.id}/runs`);
-    expect(runs.body.data[0]).toMatchObject({ status: 'succeeded' });
+    expect((await runsOf(id))[0]).toMatchObject({ status: 'succeeded' });
   });
 
   it('refuses definitions that would fail: unknown actions, missing fields, wrong subject', async () => {
-    const make = (steps: unknown[], event = 'core.customer.created') =>
-      call(owner, 'POST', '/automations', {
+    const steps: DefinitionInput['steps'][] = [
+      [{ id: 'x', type: 'action', action: 'core.rocket.launch', input: {} }],
+      [{ id: 'x', type: 'action', action: 'core.note.add', input: {} }],
+      [{ id: 'x', type: 'action', action: 'core.company.tag', input: { add: [] } }],
+    ];
+
+    for (const bad of steps) {
+      const { id } = await t.owner().automations.create({
         name: 'Bad',
-        definition: { trigger: { event }, steps },
+        definition: { trigger: { kind: 'event', event: 'core.customer.created' }, steps: bad },
       });
 
-    const unknown = await make([
-      { id: 'x', type: 'action', action: 'core.rocket.launch', input: {} },
-    ]);
-
-    const missing = await make([{ id: 'x', type: 'action', action: 'core.note.add', input: {} }]);
-
-    const wrongSubject = await make([
-      { id: 'x', type: 'action', action: 'core.company.tag', input: { add: [] } },
-    ]);
-
-    for (const created of [unknown, missing, wrongSubject]) {
-      expect(
-        (await call(owner, 'POST', `/automations/${created.body.id}/activate`)).body.code,
-      ).toBe('INVALID_AUTOMATION');
+      await expect(t.owner().automations.activate({ id })).rejects.toMatchObject({
+        code: 'INVALID_AUTOMATION',
+      });
     }
 
-    const catalog = await call(owner, 'GET', '/automations/catalog');
+    const catalog = await t.owner().automations.catalog({});
 
-    expect(catalog.body.actions.map((action: { type: string }) => action.type)).toContain(
-      'core.customer.update',
-    );
-    expect(catalog.body.triggers.map((trigger: { type: string }) => trigger.type)).toContain(
-      'core.customer.created',
-    );
+    expect(catalog.actions.map((action) => action.type)).toContain('core.customer.update');
+    expect(catalog.triggers.map((trigger) => trigger.type)).toContain('core.customer.created');
   });
 });

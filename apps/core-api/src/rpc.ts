@@ -47,11 +47,12 @@ export const coreApi: RequestHandler = async (req, res, next) => {
   if (!matched) next();
 };
 
-let spec: Promise<unknown> | undefined;
-
-/** The OpenAPI document for plugins and tools (`GET /core/v1/openapi.json`). */
-export const openApiDocument: RequestHandler = async (_req, res) => {
-  spec ??= new OpenAPIGenerator({ schemaConverters: [new ZodToJsonSchemaConverter()] }).generate(
+/**
+ * The contract as an OpenAPI document: served at `/core/v1/openapi.json` and
+ * committed as `packages/contract/openapi.json` (`pnpm openapi`).
+ */
+export const generateOpenApi = () =>
+  new OpenAPIGenerator({ schemaConverters: [new ZodToJsonSchemaConverter()] }).generate(
     coreContract,
     {
       info: { title: 'erxes core', version: 'v1' },
@@ -59,5 +60,10 @@ export const openApiDocument: RequestHandler = async (_req, res) => {
     },
   );
 
+let spec: ReturnType<typeof generateOpenApi> | undefined;
+
+/** The OpenAPI document for plugins and tools (`GET /core/v1/openapi.json`). */
+export const openApiDocument: RequestHandler = async (_req, res) => {
+  spec ??= generateOpenApi();
   res.json(await spec);
 };
