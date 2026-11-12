@@ -74,11 +74,61 @@ const useSizeError = (maxSizeMb: string, limitMb: number) => {
     : null;
 };
 
+/** The accepted types: chosen or typed; an invalid one is named under them. */
+const TypesField = ({
+  types,
+  disabled,
+  badType,
+  onChange,
+}: {
+  types: MultiSelectOption[];
+  disabled: boolean;
+  badType?: MultiSelectOption;
+  onChange: (types: MultiSelectOption[]) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'file-upload' });
+  const id = useId();
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{t('allowed-types', 'Allowed file types')}</Label>
+      <MultipleSelector
+        inputProps={{ id }}
+        value={types}
+        onChange={onChange}
+        defaultOptions={TYPE_OPTIONS}
+        creatable
+        disabled={disabled}
+        placeholder={t(
+          'allowed-types-placeholder',
+          'Any type: choose or type image/*, application/pdf, .docx …',
+        )}
+        hidePlaceholderWhenSelected
+        emptyIndicator={
+          <p className="py-2 text-center text-sm text-muted-foreground">
+            {t('type-hint', 'Type a MIME type or .ext')}
+          </p>
+        }
+      />
+      <p className={badType ? 'text-sm text-destructive' : 'text-xs text-muted-foreground'}>
+        {badType
+          ? t('type-invalid', {
+              value: badType.value,
+              defaultValue: `"${badType.value}" is not a MIME type, type/* or .ext`,
+            })
+          : t(
+              'types-help',
+              'Leave empty to accept any type. Programs (.exe, .bat, .msi …) are never accepted.',
+            )}
+      </p>
+    </div>
+  );
+};
+
 /** Upload limits: largest file and which types are accepted. */
 export const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'file-upload' });
   const sizeId = useId();
-  const typesId = useId();
   // Unsaved edits; the rest shows the saved settings.
   const [draft, setDraft] = useState<{ maxSizeMb?: string; types?: MultiSelectOption[] }>({});
   const maxSizeMb = draft.maxSizeMb ?? String(settings.maxSizeMb);
@@ -118,38 +168,12 @@ export const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canE
             })}
         </p>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor={typesId}>{t('allowed-types', 'Allowed file types')}</Label>
-        <MultipleSelector
-          inputProps={{ id: typesId }}
-          value={types}
-          onChange={(next) => setDraft({ ...draft, types: next })}
-          defaultOptions={TYPE_OPTIONS}
-          creatable
-          disabled={!canEdit}
-          placeholder={t(
-            'allowed-types-placeholder',
-            'Any type: choose or type image/*, application/pdf, .docx …',
-          )}
-          hidePlaceholderWhenSelected
-          emptyIndicator={
-            <p className="py-2 text-center text-sm text-muted-foreground">
-              {t('type-hint', 'Type a MIME type or .ext')}
-            </p>
-          }
-        />
-        <p className={badType ? 'text-sm text-destructive' : 'text-xs text-muted-foreground'}>
-          {badType
-            ? t('type-invalid', {
-                value: badType.value,
-                defaultValue: `"${badType.value}" is not a MIME type, type/* or .ext`,
-              })
-            : t(
-                'types-help',
-                'Leave empty to accept any type. Programs (.exe, .bat, .msi …) are never accepted.',
-              )}
-        </p>
-      </div>
+      <TypesField
+        types={types}
+        disabled={!canEdit}
+        badType={badType}
+        onChange={(next) => setDraft({ ...draft, types: next })}
+      />
       {canEdit && (
         <Button
           disabled={Boolean(sizeError) || Boolean(badType) || save.isPending}

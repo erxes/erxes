@@ -65,6 +65,74 @@ const PluginRow = ({ plugin }: { plugin: Row }) => {
   );
 };
 
+const SelfHosted = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+
+  return (
+    <Empty className="py-16">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconCreditCard />
+        </Empty.Media>
+        <Empty.Title>{t('self-hosted', 'No plan: this installation is self-hosted')}</Empty.Title>
+        <Empty.Description>
+          {t('self-hosted-description', 'Every plugin and feature is available.')}
+        </Empty.Description>
+      </Empty.Header>
+    </Empty>
+  );
+};
+
+/** The workspace's status on erxes.io and each plugin's row. */
+const SaasPlan = ({ plan }: { plan: SubscriptionInfo }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+
+  return (
+    <>
+      <p className="text-sm text-muted-foreground">
+        {t(
+          'intro',
+          'Plugins are bought on erxes.io, one subscription for the workspace: each plugin at Free, Plus or Pro, alone or in a bundle.',
+        )}
+      </p>
+      {plan.organizationStatus !== 'active' && (
+        <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+          {t('disabled', 'This workspace is disabled on erxes.io ({{status}}).', {
+            status: plan.organizationStatus,
+          })}
+        </p>
+      )}
+      <section className="space-y-2">
+        <h3 className="flex items-center gap-2 text-sm font-medium">
+          <IconApps className="size-4" />
+          {t('plugins', 'Plugins')}
+        </h3>
+        {plan.plugins.length ? (
+          <ul className="divide-y rounded-lg border">
+            {plan.plugins.map((plugin) => (
+              <PluginRow key={plugin.code} plugin={plugin} />
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {t('no-plugins', 'No plugins yet: add them on erxes.io.')}
+          </p>
+        )}
+      </section>
+      {plan.checkedAt && (
+        <p className="text-xs text-muted-foreground">
+          {t('checked', 'Checked with erxes.io')}{' '}
+          <RelativeDateDisplay value={plan.checkedAt} asChild>
+            <span>
+              <RelativeDateDisplay.Value value={plan.checkedAt} />
+            </span>
+          </RelativeDateDisplay>
+        </p>
+      )}
+    </>
+  );
+};
+
 /** Settings › Plan (SaaS): what this workspace has on erxes.io — each plugin's tier, payment status and access. */
 export const PlanPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plan' });
@@ -96,62 +164,9 @@ export const PlanPage = () => {
           ) : isLoading ? (
             <Spinner containerClassName="py-12" />
           ) : !data?.saas ? (
-            <Empty className="py-16">
-              <Empty.Header>
-                <Empty.Media variant="icon">
-                  <IconCreditCard />
-                </Empty.Media>
-                <Empty.Title>
-                  {t('self-hosted', 'No plan: this installation is self-hosted')}
-                </Empty.Title>
-                <Empty.Description>
-                  {t('self-hosted-description', 'Every plugin and feature is available.')}
-                </Empty.Description>
-              </Empty.Header>
-            </Empty>
+            <SelfHosted />
           ) : (
-            <>
-              <p className="text-sm text-muted-foreground">
-                {t(
-                  'intro',
-                  'Plugins are bought on erxes.io, one subscription for the workspace: each plugin at Free, Plus or Pro, alone or in a bundle.',
-                )}
-              </p>
-              {data.organizationStatus !== 'active' && (
-                <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
-                  {t('disabled', 'This workspace is disabled on erxes.io ({{status}}).', {
-                    status: data.organizationStatus,
-                  })}
-                </p>
-              )}
-              <section className="space-y-2">
-                <h3 className="flex items-center gap-2 text-sm font-medium">
-                  <IconApps className="size-4" />
-                  {t('plugins', 'Plugins')}
-                </h3>
-                {data.plugins.length ? (
-                  <ul className="divide-y rounded-lg border">
-                    {data.plugins.map((plugin) => (
-                      <PluginRow key={plugin.code} plugin={plugin} />
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    {t('no-plugins', 'No plugins yet: add them on erxes.io.')}
-                  </p>
-                )}
-              </section>
-              {data.checkedAt && (
-                <p className="text-xs text-muted-foreground">
-                  {t('checked', 'Checked with erxes.io')}{' '}
-                  <RelativeDateDisplay value={data.checkedAt} asChild>
-                    <span>
-                      <RelativeDateDisplay.Value value={data.checkedAt} />
-                    </span>
-                  </RelativeDateDisplay>
-                </p>
-              )}
-            </>
+            <SaasPlan plan={data} />
           )}
         </div>
       </ScrollArea>

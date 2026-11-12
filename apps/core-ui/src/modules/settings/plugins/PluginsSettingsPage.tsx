@@ -19,12 +19,13 @@ const SCOPE_LABELS: Record<string, string> = {
   'notifications:write': 'Send notifications to team members',
 };
 
-const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) => {
+/** Installs (or approves) and uninstalls a plugin, updating the list in place. */
+const usePluginChange = (plugin: Plugin) => {
   const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
   const { toast } = useToast();
   const client = useQueryClient();
 
-  const change = useMutation({
+  return useMutation({
     mutationFn: (install: boolean) =>
       install
         ? orpc.plugins.install.call({ name: plugin.name })
@@ -46,8 +47,40 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
         description: messageOf(error),
       }),
   });
+};
 
-  const newScopes = plugin.requestedScopes.filter((scope) => !plugin.grantedScopes.includes(scope));
+/** What the plugin can do, or will be able to; scopes a new version asks for are marked. */
+const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
+
+  const isNew = (scope: string) => plugin.installed && !plugin.grantedScopes.includes(scope);
+
+  return (
+    <div className="pl-13 text-sm">
+      <p className="mb-1 text-xs font-medium text-muted-foreground uppercase">
+        {plugin.installed ? t('can', 'Can') : t('will-be-able', 'Will be able to')}
+      </p>
+      <ul className="space-y-0.5">
+        {plugin.requestedScopes.map((scope) => (
+          <li key={scope} className="flex items-center gap-2">
+            <span className={isNew(scope) ? 'text-amber-600' : ''}>
+              {t(`scope.${scope.replace(':', '-')}`, SCOPE_LABELS[scope] ?? scope)}
+            </span>
+            {isNew(scope) && (
+              <span className="text-xs text-amber-600">
+                {t('new-scope', '(new — needs approval)')}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
+  const change = usePluginChange(plugin);
 
   return (
     <li className="space-y-3 rounded-lg border p-4">
@@ -94,27 +127,7 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
           </div>
         )}
       </div>
-      <div className="pl-13 text-sm">
-        <p className="mb-1 text-xs font-medium text-muted-foreground uppercase">
-          {plugin.installed ? t('can', 'Can') : t('will-be-able', 'Will be able to')}
-        </p>
-        <ul className="space-y-0.5">
-          {plugin.requestedScopes.map((scope) => (
-            <li key={scope} className="flex items-center gap-2">
-              <span
-                className={newScopes.includes(scope) && plugin.installed ? 'text-amber-600' : ''}
-              >
-                {t(`scope.${scope.replace(':', '-')}`, SCOPE_LABELS[scope] ?? scope)}
-              </span>
-              {newScopes.includes(scope) && plugin.installed && (
-                <span className="text-xs text-amber-600">
-                  {t('new-scope', '(new — needs approval)')}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <PluginScopes plugin={plugin} />
     </li>
   );
 };

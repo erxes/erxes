@@ -157,6 +157,29 @@ const useWebhookActions = (
   return { toggle, remove, rotate, test };
 };
 
+/** The URL and status, then the description, events and why it is off. */
+const WebhookSummary = ({ webhook }: { webhook: Webhook }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
+
+  return (
+    <div className="min-w-0 flex-1">
+      <div className="flex items-center gap-2">
+        <span className="truncate font-mono text-sm">{webhook.url}</span>
+        {webhook.status === 'active' ? (
+          <Badge variant="success">{t('active', 'Active')}</Badge>
+        ) : (
+          <Badge variant="secondary">{t('off', 'Off')}</Badge>
+        )}
+      </div>
+      <p className="truncate text-xs text-muted-foreground">
+        {webhook.description ? `${webhook.description} · ` : ''}
+        {webhook.eventTypes.join(', ')}
+        {webhook.disabledReason && ` · ${webhook.disabledReason}`}
+      </p>
+    </div>
+  );
+};
+
 export const WebhookRow = ({
   webhook,
   onSecret,
@@ -186,21 +209,7 @@ export const WebhookRow = ({
         >
           {open ? <IconChevronDown className="size-4" /> : <IconChevronRight className="size-4" />}
         </button>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate font-mono text-sm">{webhook.url}</span>
-            {active ? (
-              <Badge variant="success">{t('active', 'Active')}</Badge>
-            ) : (
-              <Badge variant="secondary">{t('off', 'Off')}</Badge>
-            )}
-          </div>
-          <p className="truncate text-xs text-muted-foreground">
-            {webhook.description ? `${webhook.description} · ` : ''}
-            {webhook.eventTypes.join(', ')}
-            {webhook.disabledReason && ` · ${webhook.disabledReason}`}
-          </p>
-        </div>
+        <WebhookSummary webhook={webhook} />
         <Button
           size="sm"
           variant="ghost"

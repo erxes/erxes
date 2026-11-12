@@ -144,6 +144,38 @@ const EverythingNote = ({ owner }: { owner: boolean }) => {
   );
 };
 
+const RoleNameFields = ({
+  name,
+  description,
+  onChange,
+}: {
+  name: string;
+  description: string;
+  onChange: (change: { name?: string; description?: string }) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'roles' });
+
+  return (
+    <>
+      <Input
+        value={name}
+        onChange={(event) => onChange({ name: event.target.value })}
+        className="text-base font-medium"
+        aria-label={t('name', 'Name')}
+        maxLength={60}
+      />
+      <Textarea
+        value={description}
+        onChange={(event) => onChange({ description: event.target.value })}
+        placeholder={t('description-placeholder', 'What is this role for?')}
+        aria-label={t('description-placeholder', 'What is this role for?')}
+        maxLength={300}
+        rows={2}
+      />
+    </>
+  );
+};
+
 /** One role: name, description and its permissions, as a checklist by area. */
 export const RoleEditor = ({
   role,
@@ -183,23 +215,11 @@ export const RoleEditor = ({
       <div className="flex items-start gap-3">
         <div className="flex-1 space-y-2">
           {editable ? (
-            <>
-              <Input
-                value={name}
-                onChange={(event) => setDraft({ ...draft, name: event.target.value })}
-                className="text-base font-medium"
-                aria-label={t('name', 'Name')}
-                maxLength={60}
-              />
-              <Textarea
-                value={description}
-                onChange={(event) => setDraft({ ...draft, description: event.target.value })}
-                placeholder={t('description-placeholder', 'What is this role for?')}
-                aria-label={t('description-placeholder', 'What is this role for?')}
-                maxLength={300}
-                rows={2}
-              />
-            </>
+            <RoleNameFields
+              name={name}
+              description={description}
+              onChange={(change) => setDraft({ ...draft, ...change })}
+            />
           ) : (
             <RoleTitle role={role} />
           )}

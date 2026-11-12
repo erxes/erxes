@@ -12,8 +12,10 @@ import {
   Spinner,
   useToast,
 } from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { isApiError, messageOf, orpc } from '~/lib/api';
@@ -21,13 +23,55 @@ import { useSignOutEverywhere } from '~/modules/auth/session';
 import { Section } from './Section';
 import { TwoFactorSection } from './TwoFactorSection';
 
-interface PasswordValues {
-  currentPassword: string;
-  newPassword: string;
-  confirm: string;
-}
-
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,200}$/;
+
+const usePasswordSchema = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'profile' });
+
+  return z
+    .object({
+      currentPassword: z.string().min(1, t('required', 'Required')),
+      newPassword: z
+        .string()
+        .regex(
+          PASSWORD_RULE,
+          t(
+            'password-rule',
+            'At least 8 characters with a lower-case letter, an upper-case letter and a digit',
+          ),
+        ),
+      confirm: z.string(),
+    })
+    .refine((values) => values.confirm === values.newPassword, {
+      message: t('password-mismatch', 'The passwords differ'),
+      path: ['confirm'],
+    });
+};
+
+type PasswordValues = z.infer<ReturnType<typeof usePasswordSchema>>;
+
+const PasswordField = ({
+  name,
+  label,
+  autoComplete,
+}: {
+  name: keyof PasswordValues;
+  label: string;
+  autoComplete: string;
+}) => (
+  <Form.Field
+    name={name}
+    render={({ field }) => (
+      <Form.Item>
+        <Form.Label className="text-xs">{label}</Form.Label>
+        <Form.Control>
+          <Input {...field} type="password" autoComplete={autoComplete} />
+        </Form.Control>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);
 
 /** Changing my own password needs the current one. */
 const PasswordForm = () => {
@@ -35,6 +79,7 @@ const PasswordForm = () => {
   const { toast } = useToast();
 
   const form = useForm<PasswordValues>({
+    resolver: zodResolver(usePasswordSchema()),
     defaultValues: { currentPassword: '', newPassword: '', confirm: '' },
   });
 
@@ -59,40 +104,6 @@ const PasswordForm = () => {
     }),
   );
 
-  const field = (name: keyof PasswordValues, label: string, autoComplete: string) => (
-    <Form.Field
-      name={name}
-      rules={
-        name === 'currentPassword'
-          ? { required: t('required', 'Required') }
-          : name === 'newPassword'
-            ? {
-                pattern: {
-                  value: PASSWORD_RULE,
-                  message: t(
-                    'password-rule',
-                    'At least 8 characters with a lower-case letter, an upper-case letter and a digit',
-                  ),
-                },
-              }
-            : {
-                validate: (value: string) =>
-                  value === form.getValues('newPassword') ||
-                  t('password-mismatch', 'The passwords differ'),
-              }
-      }
-      render={({ field: input }) => (
-        <Form.Item>
-          <Form.Label className="text-xs">{label}</Form.Label>
-          <Form.Control>
-            <Input {...input} type="password" autoComplete={autoComplete} />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-  );
-
   return (
     <Section
       title={t('password', 'Password')}
@@ -107,9 +118,21 @@ const PasswordForm = () => {
             )(event)
           }
         >
-          {field('currentPassword', t('current-password', 'Current password'), 'current-password')}
-          {field('newPassword', t('new-password', 'New password'), 'new-password')}
-          {field('confirm', t('confirm-password', 'Repeat new password'), 'new-password')}
+          <PasswordField
+            name="currentPassword"
+            label={t('current-password', 'Current password')}
+            autoComplete="current-password"
+          />
+          <PasswordField
+            name="newPassword"
+            label={t('new-password', 'New password')}
+            autoComplete="new-password"
+          />
+          <PasswordField
+            name="confirm"
+            label={t('confirm-password', 'Repeat new password')}
+            autoComplete="new-password"
+          />
           <div className="sm:col-span-3">
             <Button type="submit" variant="outline" disabled={change.isPending}>
               {change.isPending ? <Spinner size="sm" /> : <IconKey />}

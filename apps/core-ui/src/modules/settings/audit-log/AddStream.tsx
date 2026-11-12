@@ -108,6 +108,55 @@ const StartSelect = ({
   );
 };
 
+interface AuthHeader {
+  name: string;
+  value: string;
+}
+
+/** The auth header's name and its secret value. */
+const HeaderFields = ({
+  format,
+  header,
+  onChange,
+}: {
+  format: Format;
+  header: AuthHeader;
+  onChange: (header: AuthHeader) => void;
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'audit-log.streams' });
+  const id = useId();
+
+  const valuePlaceholder =
+    format === 'splunk'
+      ? 'Splunk <token>'
+      : format === 'datadog'
+        ? 'API key'
+        : t('optional', 'optional');
+
+  return (
+    <div className="grid grid-cols-[10rem_1fr] gap-3">
+      <div className="space-y-1.5">
+        <Label htmlFor={`${id}-header`}>{t('header', 'Auth header')}</Label>
+        <Input
+          id={`${id}-header`}
+          value={header.name}
+          onChange={(event) => onChange({ ...header, name: event.target.value })}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={`${id}-value`}>{t('header-value', 'Value (stored encrypted)')}</Label>
+        <Input
+          id={`${id}-value`}
+          type="password"
+          value={header.value}
+          placeholder={valuePlaceholder}
+          onChange={(event) => onChange({ ...header, value: event.target.value })}
+        />
+      </div>
+    </div>
+  );
+};
+
 export const AddStream = ({ onAdded }: { onAdded: (secret: string) => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log.streams' });
   const id = useId();
@@ -128,13 +177,6 @@ export const AddStream = ({ onAdded }: { onAdded: (secret: string) => void }) =>
     setUrl(STREAM_PRESETS[next].url);
     setHeader({ name: STREAM_PRESETS[next].header, value: '' });
   };
-
-  const valuePlaceholder =
-    format === 'splunk'
-      ? 'Splunk <token>'
-      : format === 'datadog'
-        ? 'API key'
-        : t('optional', 'optional');
 
   return (
     <div className="space-y-3 rounded-lg border p-3">
@@ -157,26 +199,7 @@ export const AddStream = ({ onAdded }: { onAdded: (secret: string) => void }) =>
         <Label htmlFor={`${id}-url`}>{t('url', 'Address')}</Label>
         <Input id={`${id}-url`} value={url} onChange={(event) => setUrl(event.target.value)} />
       </div>
-      <div className="grid grid-cols-[10rem_1fr] gap-3">
-        <div className="space-y-1.5">
-          <Label htmlFor={`${id}-header`}>{t('header', 'Auth header')}</Label>
-          <Input
-            id={`${id}-header`}
-            value={header.name}
-            onChange={(event) => setHeader({ ...header, name: event.target.value })}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor={`${id}-value`}>{t('header-value', 'Value (stored encrypted)')}</Label>
-          <Input
-            id={`${id}-value`}
-            type="password"
-            value={header.value}
-            placeholder={valuePlaceholder}
-            onChange={(event) => setHeader({ ...header, value: event.target.value })}
-          />
-        </div>
-      </div>
+      <HeaderFields format={format} header={header} onChange={setHeader} />
       <div className="space-y-1.5">
         <Label>{t('from', 'Send')}</Label>
         <StartSelect value={from} onChange={setFrom} />
