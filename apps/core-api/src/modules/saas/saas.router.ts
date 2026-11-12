@@ -1,8 +1,8 @@
-import { db } from '@erxes/core-db';
 import { pluginPlan, subscriptionInfo } from '~/modules/saas/saas.service';
-import { authed, plugin } from '~/orpc';
+import { authedUnscoped, pluginUnscoped } from '~/orpc';
 
+// Unscoped: the first answer may wait on erxes.io, which no transaction should.
 export const saasRouter = {
-  plan: authed.saas.plan.handler(({ context }) => subscriptionInfo(db(), context.actor)),
-  pluginPlan: plugin.saas.pluginPlan.handler(({ context }) => pluginPlan(context.plugin)),
+  plan: authedUnscoped.saas.plan.handler(({ context }) => subscriptionInfo(context.actor)),
+  pluginPlan: pluginUnscoped.saas.pluginPlan.handler(({ context }) => pluginPlan(context.plugin)),
 };
