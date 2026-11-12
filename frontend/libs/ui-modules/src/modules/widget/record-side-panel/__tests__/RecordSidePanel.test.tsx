@@ -569,3 +569,112 @@ it.each(['detail', 'overview'])(
     ).toBeTruthy();
   },
 );
+
+// A record's own page: its overview column beside the tabs.
+const renderRecordPage = () => {
+  const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+    '@tabler/icons-react',
+  );
+  localStorage.clear();
+  render(
+    <RecordSidePanel.Layout
+      expanded
+      value="detail"
+      onValueChange={jest.fn()}
+      overviewTab="detail"
+      tabs={[
+        { value: 'detail', label: 'Details', icon: IconId, content: 'Fields' },
+        {
+          value: 'activity',
+          label: 'Activity',
+          icon: IconId,
+          content: 'History',
+        },
+      ]}
+    />,
+  );
+  const grip = screen.getByRole('separator', { name: 'Resize details' });
+  const layout = grip.closest('[role="tabpanel"]')?.parentElement;
+  return {
+    grip,
+    layout,
+    columnWidth: () =>
+      layout?.style.getPropertyValue('--record-overview-width'),
+  };
+};
+
+it('resizes the overview column of a record page from its right edge', () => {
+  const { grip, columnWidth } = renderRecordPage();
+  expect(columnWidth()).toBe('384px');
+  pointer(grip, 'pointerdown', 400);
+  pointer(document, 'pointermove', 500);
+  paint();
+  expect(columnWidth()).toBe('484px');
+  pointer(document, 'pointermove', -1000);
+  paint();
+  expect(columnWidth()).toBe('288px');
+  pointer(document, 'pointerup');
+  expect(grip.getAttribute('aria-valuenow')).toBe('288');
+  fireEvent.keyDown(grip, { key: 'ArrowRight' });
+  expect(grip.getAttribute('aria-valuenow')).toBe('304');
+  fireEvent.keyDown(grip, { key: 'End' });
+  expect(columnWidth()).toBe('640px');
+  expect(localStorage.getItem('erxes:recordOverviewWidth')).toBe('640');
+});
+
+it('limits the overview column by the page width, keeping room for the tabs', () => {
+  // Only observers watching the page itself hear its width.
+  const observed = new Map<ResizeObserverCallback, Element[]>();
+  Object.defineProperty(window, 'ResizeObserver', {
+    configurable: true,
+    value: class {
+      private readonly targets: Element[] = [];
+      constructor(callback: ResizeObserverCallback) {
+        observed.set(callback, this.targets);
+      }
+      observe(target: Element) {
+        this.targets.push(target);
+      }
+      unobserve = jest.fn();
+      disconnect = jest.fn();
+    },
+  });
+  try {
+    const { grip, layout, columnWidth } = renderRecordPage();
+    const pageWidth = (width: number) =>
+      act(() =>
+        observed.forEach((targets, callback) => {
+          if (layout && targets.includes(layout)) {
+            callback(
+              [{ contentRect: { width } } as ResizeObserverEntry],
+              {} as ResizeObserver,
+            );
+          }
+        }),
+      );
+    pageWidth(1000);
+    expect(grip.getAttribute('aria-valuemax')).toBe('640');
+    fireEvent.keyDown(grip, { key: 'End' });
+    expect(columnWidth()).toBe('640px');
+    pageWidth(800);
+    expect(grip.getAttribute('aria-valuemax')).toBe('440');
+    expect(columnWidth()).toBe('440px');
+    // Pressing outwards at the limit keeps the wider stored width.
+    fireEvent.keyDown(grip, { key: 'ArrowRight' });
+    expect(localStorage.getItem('erxes:recordOverviewWidth')).toBe('640');
+    pageWidth(500);
+    expect(columnWidth()).toBe('288px');
+    pageWidth(1200);
+    expect(columnWidth()).toBe('640px');
+    // A page narrowed mid-drag ends the drag within its new limit.
+    pointer(grip, 'pointerdown', 0);
+    pointer(document, 'pointermove', 200);
+    paint();
+    expect(columnWidth()).toBe('840px');
+    pageWidth(800);
+    expect(columnWidth()).toBe('440px');
+    expect(document.body.style.cursor).toBe('');
+  } finally {
+    Reflect.deleteProperty(window, 'ResizeObserver');
+  }
+});
