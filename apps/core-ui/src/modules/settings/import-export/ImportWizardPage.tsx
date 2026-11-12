@@ -25,7 +25,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, messageOf } from '~/lib/api';
 import {

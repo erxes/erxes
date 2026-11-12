@@ -1160,5 +1160,8 @@
     "change": "Change picture",
     "title": "Picture",
     "remove": "Remove"
+  },
+  "query-state": {
+    "retry": "Try again"
   }
 }

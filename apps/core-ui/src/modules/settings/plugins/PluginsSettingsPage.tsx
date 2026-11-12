@@ -3,7 +3,7 @@ import { IconApps, IconPlugConnected, IconShieldCheck } from '@tabler/icons-reac
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Empty, PageContainer, ScrollArea, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, messageOf } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';

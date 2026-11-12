@@ -2,7 +2,7 @@ import { IconHierarchy2, IconPlus } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useMatch, useParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { PROPERTIES_BASE_PATH, PROPERTY_TYPES } from '../constants';
 import { useCanManageFields } from '../usePropertyMutations';
 import { AddPropertyGroup } from './PropertyGroupAdd';

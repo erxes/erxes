@@ -25,7 +25,7 @@ import {
 import { type ReactNode, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, isApiError, messageOf } from '~/lib/api';
 import { SESSION_KEY, useSession } from '~/modules/auth/session';

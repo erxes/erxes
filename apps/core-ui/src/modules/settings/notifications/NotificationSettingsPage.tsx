@@ -7,7 +7,7 @@ import { IconBellCog, IconBrowser, IconLock, IconMail } from '@tabler/icons-reac
 import { PageContainer, ScrollArea, Select, Spinner, Switch } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { desktopSupported } from '~/modules/notifications/useDesktopNotifications';
 import { useNotificationSettings } from '~/modules/notifications/useNotifications';

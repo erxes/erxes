@@ -18,7 +18,7 @@ import { IconGripVertical, IconPlus, IconProgress, IconTrash } from '@tabler/ico
 import { Button, Dialog, Input, PageContainer, ScrollArea, Select, Spinner } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { useCan } from '~/modules/auth/session';
 import { useLeadStageMutations, useLeadStages } from '~/modules/leads/useLeads';

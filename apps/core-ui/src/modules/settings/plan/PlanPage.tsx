@@ -10,7 +10,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { usePlan } from '~/modules/saas/usePlan';
 

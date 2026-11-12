@@ -3,7 +3,7 @@ import { Button, cn, PageContainer, PageSubHeader, ScrollArea, Switch, Tabs } fr
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { NotificationList } from './NotificationList';
 import {

@@ -14,12 +14,10 @@ COPY packages/db/package.json packages/db/
 COPY packages/payment-gateways/package.json packages/payment-gateways/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
-COPY packages/ui-modules/package.json packages/ui-modules/
 RUN pnpm install --frozen-lockfile --filter @erxes/core-ui...
 COPY tsconfig.base.json ./
 COPY packages/contract packages/contract
 COPY packages/ui packages/ui
-COPY packages/ui-modules packages/ui-modules
 COPY apps/core-ui apps/core-ui
 RUN pnpm --filter @erxes/core-ui build
 

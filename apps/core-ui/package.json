@@ -21,6 +21,7 @@
     "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
     "@orpc/openapi-client": "1.16.2",
+    "@orpc/tanstack-query": "1.16.2",
     "@tabler/icons-react": "3.34.0",
     "@tanstack/react-query": "^5.62.0",
     "@tanstack/react-table": "8.21.2",
@@ -34,7 +35,6 @@
     "react-hook-form": "7.55.0",
     "react-i18next": "^15.1.1",
     "react-router-dom": "^7.1.1",
-    "ui-modules": "workspace:*",
     "zod": "3.25.76"
   },
   "devDependencies": {

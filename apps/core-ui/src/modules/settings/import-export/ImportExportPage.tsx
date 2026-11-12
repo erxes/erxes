@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { useCan } from '~/modules/auth/session';
 import { downloadHref, useExports, useImports } from '~/modules/transfer/useTransfer';

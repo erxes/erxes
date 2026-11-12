@@ -4,19 +4,11 @@
     "jsx": "react-jsx",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["node"],
-    "noUncheckedIndexedAccess": false,
-    "noImplicitOverride": false,
     "paths": {
       "erxes-ui": ["./src/index.ts"],
       "erxes-ui/*": ["./src/*"]
     }
   },
   "include": ["src"],
-  "exclude": [
-    "src/**/*.stories.tsx",
-    "src/**/*.test.ts",
-    "src/**/*.test.tsx",
-    "src/**/*.spec.ts",
-    "src/**/*.spec.tsx"
-  ]
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx"]
 }

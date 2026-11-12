@@ -150,6 +150,9 @@ importers:
       '@orpc/openapi-client':
         specifier: 1.16.2
         version: 1.16.2
+      '@orpc/tanstack-query':
+        specifier: 1.16.2
+        version: 1.16.2(@orpc/client@1.16.2)(@tanstack/query-core@5.107.1)
       '@tabler/icons-react':
         specifier: 3.34.0
         version: 3.34.0(react@18.3.1)
@@ -189,9 +192,6 @@ importers:
       react-router-dom:
         specifier: ^7.1.1
         version: 7.18.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      ui-modules:
-        specifier: workspace:*
-        version: link:../../packages/ui-modules
       zod:
         specifier: 3.25.76
         version: 3.25.76
@@ -1609,6 +1609,12 @@ packages:
 
   '@orpc/standard-server@1.16.2':
     resolution: {integrity: sha512-tfDncJE1025RNnkav67Bz9KmxX8yhOflDXTRIXs4EAy2KGK/cT1KdN3sQ1U/sEhfRKu5PYYWkAO6AvRD2NQt0g==}
+
+  '@orpc/tanstack-query@1.16.2':
+    resolution: {integrity: sha512-BKtNPbR8PS0nMSJjf0HAUR6pnP5WtJilvFKlHluXH5gKX3cWm3yktsJSxEoEAyrNZ3ia/ICPmrjJUJVrFUMWhQ==}
+    peerDependencies:
+      '@orpc/client': 1.16.2
+      '@tanstack/query-core': '>=5.80.2'
 
   '@orpc/zod@1.16.2':
     resolution: {integrity: sha512-7c0/cDfFDNSJXvcQFJqfcubh1poqKd6OlfrC93Gm8K2ReSXeds7vxn0kXoJzt1cWqqNvmPXm6xv4HnE+9r0P6w==}
@@ -9654,6 +9660,14 @@ snapshots:
   '@orpc/standard-server@1.16.2':
     dependencies:
       '@orpc/shared': 1.16.2
+    transitivePeerDependencies:
+      - '@opentelemetry/api'
+
+  '@orpc/tanstack-query@1.16.2(@orpc/client@1.16.2)(@tanstack/query-core@5.107.1)':
+    dependencies:
+      '@orpc/client': 1.16.2
+      '@orpc/shared': 1.16.2
+      '@tanstack/query-core': 5.107.1
     transitivePeerDependencies:
       - '@opentelemetry/api'
 

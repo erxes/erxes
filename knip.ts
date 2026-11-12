@@ -26,14 +26,11 @@ const config: KnipConfig = {
     'packages/plugin-sdk': {
       project: ['src/**/*.ts'],
     },
-    // erxes-ui and ui-modules are shared with plugin UIs: every file under
+    // erxes-ui is shared with plugin UIs: every file under
     // src/ is a public entry (package.json `exports`), so their exports count as used.
     'packages/ui': {
       entry: ['src/**/*.{ts,tsx,css}'],
       project: ['src/**/*.{ts,tsx,css}'],
-    },
-    'packages/ui-modules': {
-      project: ['src/**/*.{ts,tsx}'],
     },
   },
 };

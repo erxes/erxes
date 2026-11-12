@@ -7,11 +7,8 @@
     "paths": {
       "~/*": ["./src/*"],
       "erxes-ui": ["../../packages/ui/src/index.ts"],
-      "erxes-ui/*": ["../../packages/ui/src/*"],
-      "ui-modules": ["../../packages/ui-modules/src/index.tsx"]
-    },
-    "noUncheckedIndexedAccess": false,
-    "noImplicitOverride": false
+      "erxes-ui/*": ["../../packages/ui/src/*"]
+    }
   },
   "include": ["src", "rsbuild.config.ts"]
 }

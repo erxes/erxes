@@ -67,12 +67,14 @@ export const useCursorList = <T extends { id: string }>({
     setReady(true);
   }, [sessionKey, filters, setCursor]);
 
+  const firstPage: CursorParams = cursor
+    ? { limit, cursor, direction: 'forward', cursorMode: 'inclusive' }
+    : { limit, direction: 'forward', cursorMode: 'exclusive' };
+
   const query = useInfiniteQuery({
     queryKey: [...queryKey, { limit, start: cursor || null }],
     enabled: ready,
-    initialPageParam: cursor
-      ? { limit, cursor, direction: 'forward', cursorMode: 'inclusive' }
-      : { limit, direction: 'forward', cursorMode: 'exclusive' },
+    initialPageParam: firstPage,
     queryFn: ({ pageParam }) => fetchPage(pageParam),
     getNextPageParam: (last): CursorParams | undefined =>
       last.pageInfo.hasNextPage && last.pageInfo.endCursor

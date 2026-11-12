@@ -54,7 +54,7 @@ const noApps = {
 
 // packages/ui is erxes-ui copied from old erxes. Phase 2 rewrites it and
 // removes this override. Until then the rules it fails are warnings there, so
-// new code stays at error. packages/ui-modules passes at error.
+// new code stays at error.
 const inheritedUi = {
   files: ['packages/ui/**'],
   plugins: ['react'],
@@ -242,7 +242,8 @@ export default defineConfig({
       'typescript/only-throw-error': 'error',
       'typescript/prefer-promise-reject-errors': 'error',
       'typescript/return-await': ['error', 'in-try-catch'],
-      'typescript/prefer-nullish-coalescing': 'error',
+      // `name || email`: an empty string falls back on purpose; for other types `??` is meant.
+      'typescript/prefer-nullish-coalescing': ['error', { ignorePrimitives: { string: true } }],
       'typescript/consistent-type-imports': 'error',
       'unicorn/prefer-node-protocol': 'error',
       'unicorn/throw-new-error': 'error',
@@ -296,7 +297,7 @@ export default defineConfig({
         },
       },
       {
-        files: ['apps/core-ui/src/**', 'packages/ui/**', 'packages/ui-modules/**'],
+        files: ['apps/core-ui/src/**', 'packages/ui/**'],
         plugins: ['react', 'jsx-a11y'],
         env: { browser: true },
         rules: {

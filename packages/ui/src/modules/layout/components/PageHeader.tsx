@@ -1,13 +1,7 @@
-import { cn, Separator } from 'erxes-ui';
+import { Separator } from 'erxes-ui/components/separator';
+import { cn } from 'erxes-ui/lib/utils';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { forwardRef } from 'react';
-
-/*
- * Old erxes plugin UIs import a few helpers from `ui-modules`, which core-ui
- * shared with them through Module Federation. The new core shares this
- * package under the same name so those plugins keep loading. Add only what
- * existing plugins import; new plugins should use erxes-ui alone.
- */
 
 const PageHeaderRoot = forwardRef<
   HTMLDivElement,
@@ -48,7 +42,7 @@ const PageHeaderEnd = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>
 
 PageHeaderEnd.displayName = 'PageHeaderEnd';
 
-/** Page title bar used by plugin pages (same markup as old ui-modules). */
+/** A page's title bar: `PageHeader.Start` holds the title, `PageHeader.End` the actions. */
 export const PageHeader = Object.assign(PageHeaderRoot, {
   Start: PageHeaderStart,
   End: PageHeaderEnd,

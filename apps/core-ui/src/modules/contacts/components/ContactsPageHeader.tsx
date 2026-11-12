@@ -1,6 +1,6 @@
 import { cn } from 'erxes-ui';
 import { forwardRef, type HTMLAttributes } from 'react';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 
 /*
  * Old ui-modules PageHeader details the compat stub leaves out: room for the

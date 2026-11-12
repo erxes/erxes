@@ -13,7 +13,7 @@ import {
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'ui-modules';
+import { PageHeader } from 'erxes-ui';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, isApiError, messageOf } from '~/lib/api';
 import { useSignOut } from '~/modules/auth/session';

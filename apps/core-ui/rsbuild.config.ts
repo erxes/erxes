@@ -5,7 +5,6 @@ import tailwindcss from '@tailwindcss/postcss';
 import { resolve } from 'node:path';
 
 const ui = resolve(__dirname, '../../packages/ui/src');
-const uiModules = resolve(__dirname, '../../packages/ui-modules/src/index.tsx');
 
 /**
  * Libraries shared with plugin UIs as single instances. Plugins built for old
@@ -20,7 +19,6 @@ const SHARED = [
   'erxes-ui',
   '@apollo/client',
   'jotai',
-  'ui-modules',
   'react-i18next',
 ];
 
@@ -49,10 +47,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '~': './src',
-      // erxes-ui and ui-modules are compiled from source (packages/*), like core-ui does
+      // erxes-ui is compiled from source (packages/*), like core-ui does
       'erxes-ui$': `${ui}/index.ts`,
       'erxes-ui': ui,
-      'ui-modules$': uiModules,
     },
   },
   html: {
