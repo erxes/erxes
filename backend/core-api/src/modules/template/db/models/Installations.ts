@@ -1,21 +1,16 @@
-import {
-  AUTOMATION_STATUSES,
-  getUnansweredTemplateRequirements,
-  IAutomation,
-  materializeTemplate,
-  TEMPLATE_CORE_REQUIREMENT_KINDS,
-  TTemplateAnswers,
-} from 'erxes-api-shared/core-modules';
-import { Document, Model } from 'mongoose';
-import { nanoid } from 'nanoid';
-import { IModels } from '~/connectionResolvers';
 import { templateInstallationSchema } from '@/template/db/definitions/installation';
 import {
   findAvailableTemplate,
   getTemplateNodeDetails,
-  TRegisteredTemplate,
-  TTemplateNodeDetails,
 } from '@/template/registry';
+import {
+  AUTOMATION_STATUSES,
+  TTemplateAnswers,
+} from 'erxes-api-shared/core-modules';
+import { IModels } from '~/connectionResolvers';
+import { installTemplate, createTemplatePartsApi } from '../utils';
+import { CORE_TEMPLATE_PARTS } from '../constants';
+import { Model } from 'mongoose';
 
 export interface ITemplateInstallation {
   templateId: string;
@@ -24,9 +19,17 @@ export interface ITemplateInstallation {
   name: string;
   answers: TTemplateAnswers;
   partIds: Record<string, string>;
+  parts?: TInstalledPart[];
   automationIds: Record<string, string>;
   createdBy?: string;
 }
+
+export type TInstalledPart = {
+  key: string;
+  type: string;
+  _id: string;
+  refs?: Record<string, string>;
+};
 
 export interface ITemplateInstallationDocument
   extends ITemplateInstallation,
@@ -43,147 +46,15 @@ export interface ITemplateInstallationModel
     answers: TTemplateAnswers;
     userId: string;
   }): Promise<ITemplateInstallationDocument>;
-  removeInstallation(_id: string): Promise<{ success: true }>;
+  removeInstallation(
+    _id: string,
+  ): Promise<{ success: true; kept: { key: string; reason?: string }[] }>;
 }
 
-/**
- * Answers as the materializer needs them. An AI agent answer becomes that
- * agent's connection, so the key is copied server side and never travels
- * through the wizard; what is stored keeps only the agent's id.
- */
-export const resolveTemplateAnswers = async (
+export const loadTemplateInstallationClass = (
   models: IModels,
-  template: TRegisteredTemplate,
-  answers: TTemplateAnswers,
+  subdomain: string,
 ) => {
-  const resolved: TTemplateAnswers = { ...answers };
-
-  for (const { key, kind } of template.requirements) {
-    if (kind !== TEMPLATE_CORE_REQUIREMENT_KINDS.AI_AGENT) {
-      continue;
-    }
-
-    const agent = await models.AiAgents.findOne(
-      { _id: String(answers[key] ?? '') },
-      { connection: 1 },
-    ).lean();
-
-    if (!agent) {
-      throw new Error('The chosen AI agent no longer exists');
-    }
-
-    resolved[key] = { _id: agent._id, connection: agent.connection };
-  }
-
-  return resolved;
-};
-
-/**
- * Creates everything a template declares in one go: its parts, then one
- * draft automation per journey. Anything created is removed again when a
- * later step fails, so an install is whole or absent.
- */
-export const installTemplate = async ({
-  models,
-  template,
-  answers,
-  userId,
-  nodes,
-}: {
-  models: IModels;
-  template: TRegisteredTemplate;
-  answers: TTemplateAnswers;
-  userId: string;
-  nodes: Map<string, TTemplateNodeDetails>;
-}) => {
-  const { pluginName } = template;
-  const unanswered = getUnansweredTemplateRequirements(template, answers);
-
-  if (unanswered.length) {
-    throw new Error(
-      `Answer every step first: ${unanswered
-        .map(({ label }) => label)
-        .join(', ')}`,
-    );
-  }
-
-  const resolved = await resolveTemplateAnswers(models, template, answers);
-  const installationId = nanoid();
-  const partIds = Object.fromEntries(
-    template.parts.map(({ key }) => [key, nanoid()]),
-  );
-  const { parts, automations } = materializeTemplate(template, {
-    answers: resolved,
-    partIds,
-  });
-
-  const createdAgentIds: string[] = [];
-  const automationIds: Record<string, string> = {};
-
-  try {
-    for (const part of parts) {
-      await models.AiAgents.createAgent({
-        ...part.doc,
-        _id: partIds[part.key],
-      });
-      createdAgentIds.push(partIds[part.key]);
-    }
-
-    for (const automation of automations) {
-      const created = await models.Automations.createAutomation(
-        {
-          name: automation.name,
-          status: AUTOMATION_STATUSES.DRAFT,
-          triggers: automation.triggers.map((trigger) => {
-            const node = nodes.get(trigger.type) || {};
-
-            return {
-              ...trigger,
-              isCustom: !!node.isCustom,
-              label: node.label || '',
-              icon: node.icon,
-              description: node.description || '',
-            };
-          }) as unknown as IAutomation['triggers'],
-          actions: automation.actions.map((action) => ({
-            ...action,
-            label: action.label || nodes.get(action.type)?.label || '',
-            icon: action.icon || nodes.get(action.type)?.icon,
-          })),
-        } as IAutomation,
-        userId,
-      );
-
-      // Automation ids are ObjectIds; kept as text like every other id here
-      automationIds[automation.journey] = String(created._id);
-    }
-
-    return await models.TemplateInstallations.create({
-      _id: installationId,
-      templateId: template.id,
-      pluginName,
-      version: template.version,
-      name: template.name,
-      // As given: an AI agent answer is its id, never its connection
-      answers,
-      partIds,
-      automationIds,
-      createdBy: userId,
-    });
-  } catch (error) {
-    await models.Automations.removeAutomations(
-      Object.values(automationIds),
-    ).catch(() => undefined);
-
-    for (const agentId of createdAgentIds) {
-      await models.AiAgents.removeAgent(agentId).catch(() => undefined);
-    }
-
-    throw error;
-  }
-};
-
-export const loadTemplateInstallationClass = (models: IModels) => {
   class TemplateInstallation {
     public static async install({
       pluginName,
@@ -202,6 +73,7 @@ export const loadTemplateInstallationClass = (models: IModels) => {
         answers,
         userId,
         nodes: await getTemplateNodeDetails(),
+        partsApi: createTemplatePartsApi(models, subdomain),
       });
     }
 
@@ -232,15 +104,25 @@ export const loadTemplateInstallationClass = (models: IModels) => {
 
       await models.Automations.removeAutomations(automationIds);
 
-      for (const agentId of Object.values(installation.partIds || {})) {
-        if (await models.AiAgents.exists({ _id: agentId })) {
-          await models.AiAgents.removeAgent(agentId);
-        }
+      const partsApi = createTemplatePartsApi(models, subdomain);
+      // Installed before parts were recorded: their parts are AI agents
+      const parts: TInstalledPart[] =
+        installation.parts ||
+        Object.entries(installation.partIds || {}).map(([key, partId]) => ({
+          key,
+          type: CORE_TEMPLATE_PARTS.AI_AGENT_PART,
+          _id: partId,
+        }));
+      const kept: { key: string; reason?: string }[] = [];
+
+      for (const part of parts) {
+        const { removed, reason } = await partsApi.remove(part);
+        if (!removed) kept.push({ key: part.key, reason });
       }
 
       await models.TemplateInstallations.deleteOne({ _id });
 
-      return { success: true as const };
+      return { success: true as const, kept };
     }
   }
 

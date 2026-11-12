@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-11`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -252,7 +252,20 @@
   status is picked — there is no separate readiness call, and a half-made
   choice leaves the install closed. `frontline:facebook.bot` is answered by
   `FacebookTemplateRequirement` (facebook module) with `FacebookBotSelector`;
-  the answer is the bot id a Messenger trigger's `botId` takes.
+  the answer is the bot id a Messenger trigger's `botId` takes. With no bot it
+  offers connecting one in a new tab and reloads the list on window focus, so
+  the wizard keeps its answers. Up to six bots show as cards
+  (`TemplateRequirementOptions`) with "Connect another page" in a new tab, since
+  connecting signs in to Facebook and the bot form needs the bots page panel;
+  more use `FacebookBotSelector`. The only bot, or one that appears after the
+  list reloads, is picked (`useTemplateRequirementOptions`). It names the
+  chosen bot as `bot · page` through `onLabel`.
+- The Facebook and Instagram execution history names link "See Conversation"
+  to the inbox with `target.erxesApiId`; a run without it (from before the
+  trigger carried it) shows no conversation link rather than a wrong one.
+- The Facebook remote entry edits and summarizes
+  `frontline:facebook.customerMessages.create` with the Messenger reply form
+  and node content (`customerMessages` beside `messages`).
 
 - Polls are split across two routes, mirroring how forms are laid out.
   `frontline/settings/channels/:id/polls` manages the channel's polls: the

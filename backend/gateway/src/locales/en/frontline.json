@@ -3162,7 +3162,10 @@
       "needs-repair": "Needs repair",
       "broken": "Broken",
       "syncing": "Syncing",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "template-connect-page": "Connect a Facebook page first. It opens in a new tab; come back here and it shows up.",
+      "template-connect-page-action": "Connect Facebook page",
+      "template-connect-another-page": "Connect another page"
     },
     "knowledgebase": {
       "appearance": "Appearance",

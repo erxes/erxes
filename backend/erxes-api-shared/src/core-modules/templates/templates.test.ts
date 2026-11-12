@@ -281,6 +281,28 @@ describe('validateTemplate branches', () => {
       'Journey "chat": step 1 tool "escalate" has no branch',
     ]);
   });
+
+  it('refuses a record step named through refs, which engines never read', () => {
+    const misused: TTemplate = {
+      ...template,
+      requirements: [],
+      journeys: [
+        {
+          key: 'chat',
+          name: 'Chat',
+          trigger: { type: 'frontline:facebook.messages' },
+          flow: [
+            { order: 1, type: 'findObject', next: 2 },
+            { order: 2, type: 'setProperty', refs: { targetActionId: 1 } },
+          ],
+        },
+      ],
+    };
+
+    expect(validateTemplate(misused)).toContain(
+      'Journey "chat": step 2 names its record step with refs; use target',
+    );
+  });
 });
 
 describe('getUnansweredTemplateRequirements', () => {
@@ -386,5 +408,175 @@ describe('layoutTemplateFlow', () => {
 
     expect(chat.triggers[0].position).toEqual({ x: 0, y: 0 });
     expect(new Set(points).size).toBe(points.length);
+  });
+});
+
+describe('journey workflows', () => {
+  const withWorkflow: TTemplate = {
+    id: 'complaints',
+    version: 1,
+    name: 'Complaints',
+    requirements: [
+      {
+        key: 'where',
+        kind: 'frontline:tickets.status',
+        label: 'Where',
+        fills: [
+          {
+            target: 'workflow',
+            journey: 'chat',
+            workflow: 'file',
+            order: 1,
+            path: 'statusId',
+            from: 'status',
+          },
+        ],
+      },
+    ],
+    parts: [],
+    journeys: [
+      {
+        key: 'chat',
+        name: 'Chat',
+        trigger: { type: 'frontline:facebook.messages' },
+        flow: [
+          {
+            order: 1,
+            type: 'aiAgent',
+            config: { tools: [{ id: 'file', kind: 'helper' }] },
+            next: 2,
+            connects: { file: 'file' },
+          },
+          { order: 2, type: 'reply' },
+        ],
+        workflows: [
+          {
+            key: 'file',
+            name: 'File it',
+            inputs: { title: '' },
+            output: 'Filed #{{ actions.2.number }}',
+            flow: [
+              { order: 1, type: 'find', next: { isExists: 2 } },
+              { order: 2, type: 'set', target: 1 },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  it('builds the workflow, wires the tool to it and fills its steps', () => {
+    const { automations } = materializeTemplate(withWorkflow, {
+      answers: { where: { status: 's-1' } },
+      partIds: {},
+    });
+    const [chat] = automations;
+    const [workflow] = chat.workflows;
+    const [find, set] = workflow.actions;
+
+    expect(chat.actions[0].config.optionalConnects).toEqual([
+      {
+        sourceId: chat.actions[0].id,
+        optionalConnectId: 'file',
+        actionId: workflow.id,
+      },
+    ]);
+    expect(workflow.config).toEqual({
+      inputs: { title: '' },
+      entryActionId: find.id,
+      output: `Filed #{{ actions.${set.id}.number }}`,
+    });
+    expect(find.config).toMatchObject({ statusId: 's-1', isExists: set.id });
+    // Where engines read it: on the action, not in its config
+    expect(set.targetActionId).toBe(find.id);
+
+    const ids = [
+      chat.triggers[0].id,
+      workflow.id,
+      ...chat.actions.map(({ id }) => id),
+      ...workflow.actions.map(({ id }) => id),
+    ];
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('names a helper without a workflow and a missing workflow', () => {
+    const broken: TTemplate = {
+      ...withWorkflow,
+      requirements: [],
+      journeys: [
+        {
+          ...withWorkflow.journeys[0],
+          flow: [
+            {
+              order: 1,
+              type: 'aiAgent',
+              config: {
+                tools: [
+                  { id: 'file', kind: 'helper' },
+                  { id: 'add', kind: 'helper' },
+                ],
+              },
+              connects: { file: 2, add: 'ghost' },
+            },
+            { order: 2, type: 'reply' },
+          ],
+        },
+      ],
+    };
+
+    expect(validateTemplate(broken)).toEqual([
+      'Journey "chat": step 1 connects to missing workflow "ghost"',
+      'Journey "chat": step 1 helper tool "file" must run a workflow',
+    ]);
+  });
+});
+
+describe('plugin parts', () => {
+  it('reads ids that came with a part', () => {
+    const withDesk: TTemplate = {
+      id: 'desk',
+      version: 1,
+      name: 'Desk',
+      requirements: [],
+      parts: [
+        { key: 'desk', type: 'frontline:tickets.pipeline', defaults: {} },
+      ],
+      journeys: [
+        {
+          key: 'chat',
+          name: 'Chat',
+          trigger: { type: 'frontline:facebook.messages' },
+          flow: [
+            {
+              order: 1,
+              type: 'create',
+              config: {
+                pipelineId: '{{ parts.desk.pipelineId }}',
+                id: '{{ parts.desk }}',
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(validateTemplate(withDesk)).toEqual([]);
+
+    const { automations } = materializeTemplate(withDesk, {
+      answers: {},
+      partIds: { desk: 'desk-1' },
+      partRefs: { desk: { pipelineId: 'p-1' } },
+    });
+
+    expect(automations[0].actions[0].config).toEqual({
+      pipelineId: 'p-1',
+      id: 'desk-1',
+    });
+    expect(
+      validateTemplate({
+        ...withDesk,
+        parts: [{ key: 'desk', type: 'pipeline', defaults: {} }],
+      }),
+    ).toEqual(['Part "desk" type "pipeline" names no owning plugin']);
   });
 });

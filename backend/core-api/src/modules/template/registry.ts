@@ -9,8 +9,8 @@ const CORE_KIND_OWNERS = new Set(['core', 'automations']);
 
 /**
  * A template can only install what this deployment has: every trigger and
- * step type must be one automations knows, and every requirement must have
- * an enabled owner to answer it.
+ * step type must be one automations knows, and every requirement and part
+ * must have an enabled owner to answer or create it.
  */
 export const isTemplateAvailable = (
   template: TTemplate,
@@ -21,8 +21,11 @@ export const isTemplateAvailable = (
       nodeTypes.has(trigger.type) &&
       flow.every(({ type }) => nodeTypes.has(type)),
   ) &&
-  template.requirements.every(({ kind }) => {
-    const [owner] = splitType(kind);
+  [
+    ...template.requirements.map(({ kind }) => kind),
+    ...template.parts.map(({ type }) => type),
+  ].every((kindOrType) => {
+    const [owner] = splitType(kindOrType);
 
     return CORE_KIND_OWNERS.has(owner) || plugins.has(owner);
   });

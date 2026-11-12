@@ -4,7 +4,7 @@ import { emailTemplateCustomResolvers } from '@/emailTemplates/graphql/resolvers
 import { notificationTemplateVersionCustomResolvers } from '@/notificationTemplates/graphql/resolvers';
 import { approvalCustomResolvers } from '@/approval/graphql/resolvers/customResolvers';
 import { filesCustomResolvers } from '@/files/graphql/resolvers/customResolvers';
-import { TemplateInstallation } from '@/template/graphql/resolvers';
+import { TemplateInstallation } from '@/template/graphql/customResolver';
 import permissionResolvers from '@/permissions/graphql/resolvers/customResolvers';
 import broadcastResolvers from '@/broadcast/graphql/resolvers/customResolvers';
 import clientPortalResolvers from '@/clientportal/graphql/resolvers/customResolvers';

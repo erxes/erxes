@@ -313,6 +313,8 @@ export const createPosOrderAction = async ({
     method: 'mutation',
     action: 'createOrder',
     input: { order: orderDoc },
+    // The run history must say why posclient refused, not that it did
+    throwOnError: true,
   });
 
   if (!order?._id) {

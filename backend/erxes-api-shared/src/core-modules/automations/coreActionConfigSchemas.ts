@@ -451,10 +451,10 @@ export const pickMemberActionConfigSchema = z.object({
     z.enum(['roundRobin', 'random']),
     'How one member is chosen among the available: roundRobin (default) takes turns, random picks any.',
   ).optional(),
-  fallbackUserId: described(
-    z.string(),
-    'Team member _id picked when nobody is available; the step skips when absent.',
-  ).optional(),
+  // Required: work that reaches nobody is lost silently
+  fallbackUserId: requiredText(
+    'Team member _id picked when nobody among the candidates is available.',
+  ),
 });
 
 export type TPickMemberActionConfig = z.infer<typeof pickMemberActionConfigSchema>;

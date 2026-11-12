@@ -810,7 +810,7 @@ export const loadClasses = (
   models.TemplateInstallations = db.model<
     ITemplateInstallationDocument,
     ITemplateInstallationModel
-  >('template_installations', loadTemplateInstallationClass(models));
+  >('template_installations', loadTemplateInstallationClass(models, subdomain));
 
   models.Notifications = db.model<
     INotificationDocument,

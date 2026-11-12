@@ -174,7 +174,7 @@ export const ticketsAutomationContants = {
       moduleName: 'tickets',
       collectionName: 'tickets',
       relationType: TICKET_SLA_RELATION,
-      icon: 'IconAlarm',
+      icon: 'IconHourglass',
       label: 'Ticket SLA',
       description:
         'Start this workflow when a ticket is about to miss, or misses, its first response or resolution time.',

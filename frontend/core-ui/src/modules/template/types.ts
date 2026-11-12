@@ -5,6 +5,7 @@ export type TTemplateRequirement = {
   description?: string;
   dependsOn?: string;
   input?: { multiline?: boolean; placeholder?: string };
+  defaultAnswer?: unknown;
 };
 
 export type TTemplatePreviewNode = { label: string; icon?: string };
@@ -31,7 +32,13 @@ export type TTemplate = {
   description?: string;
   icon?: string;
   requirements: TTemplateRequirement[];
-  parts: { key: string; type: string }[];
+  parts: {
+    key: string;
+    type: string;
+    label?: string;
+    icon?: string;
+    name?: string;
+  }[];
   journeys: TTemplateJourney[];
 };
 

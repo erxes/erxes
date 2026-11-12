@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-11`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -34,13 +34,32 @@
 
 - One template for core's Templates page ships through
   `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
-  `sales.sales-employee`. One Messenger journey (frontline node types, so it
-  is hidden without frontline): an AI agent part (Product, Customer, POS order
-  and Loyalty account lookups, instructions with `{{ answers.offer }}`)
-  replies; its `order` tool makes a POS order from captured `[{code, count}]`
-  lines, sends `onlinePaymentUrl`, waits 2 hours, reads the order again and
-  reminds once when `paidDate` is unset; `escalate` hands over: `pickMember` takes turns among the chosen
-  available team members, then the handoff assigns that one. `src/meta/templates/__tests__` runs `validateTemplate`.
+  `sales.sales-employee` (v7), built on frontline node types (hidden without
+  frontline). One Messenger journey: an AI agent part (Product, Customer, POS
+  order and Loyalty account lookups, offer rules in its instructions, and the
+  whole product catalog as knowledge: core `product.knowledge` with
+  `scope: 'all'`, which an unscoped source needs to index anything) replies
+  itself. Helper tools, each a workflow whose result it tells the customer:
+  `place_order` (Create POS order of type delivery from `[{code, count}]`
+  lines, address and phone in the description; returns number, total and
+  `onlinePaymentUrl`; a `split` on the created order's `totalAmount` against
+  the `bigOrder` answer hands an order at or above it to an available sales
+  person, so the limit holds whatever the agent concluded) and `hand_over` (`pickMember` with a required
+  fallback, then handoff). The `request_discount` handoff tool first has the agent tell the customer
+  it was asked (a handoff ends the agent's turn with no text), then
+  `approval`; an AI agent step words each decision, sent with frontline's
+  customer message action. Two core segment parts (`core:segments.segment`,
+  owned by automations): "paid or not from the chat" (`paidDate` set, or not a
+  delivery order) and "orders from the chat" (delivery orders). Payment
+  reminder journey: POS order event `created` on the chosen POS, wait 2
+  hours, `if` not settled, message the customer with
+  `{{ trigger.onlinePaymentUrl }}`. Paid journey: event `paid`, `if` from the
+  chat, thank the customer. Delivered journey (`deliveryCompleted`, from the
+  chat): a frontline rating form part's link, sent with the delivered text.
+  Low rating (form submitted, rating below 3): Find object on the order
+  (`aboutRecordId`), notify the leads. Returned journey (from the chat):
+  notify the leads, then message the customer. `src/meta/templates/__tests__` runs `validateTemplate` and
+  checks the installed shape against the engine's config schemas.
 - The Create POS order action accepts an order line by product `code` as well
   as `productId` (`action/resolveProductCodes.ts`, core `products.find`); an
   unknown code fails the step instead of dropping the line. Prices stay with
@@ -398,6 +417,20 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 
 ## Local Invariants
 
+- POS order event triggers read a field set for the first time from
+  `eventUpdateDescription.added` as well as `updated` (a new order's first
+  `paidDate` or `returnInfo` arrives as added); an update is never taken for a
+  create. "Delivery completed" means status `done`: posclient creates an order
+  with no kitchen step as `complete`, which is not a delivery. `statusToDone`
+  writes the done status onto the sales order so the event fires, and skips
+  the delivery deal when the POS keeps no delivery stage. Create POS order
+  passes posclient's refusal through (`throwOnError`) so the run says why.
+- Automation node and template icons (`icon` in automation constants and
+  `meta/templates`) are Tabler names the erxes-ui icon registry has
+  (the keys of `ALL_ICONS` in
+  `frontend/libs/erxes-ui/src/modules/icons/components/TablerIcons.ts`; an
+  aliased import such as `IconMessageCircle` is not one); any
+  other name draws as a placeholder in the builder and the template gallery.
 - Export handlers read the inner payload through `unwrapExportPayload`: the
   module producer passes `data`, not the `{ subdomain, data }` envelope the
   shared types describe. Deal and POS order rows always carry `_id` and are

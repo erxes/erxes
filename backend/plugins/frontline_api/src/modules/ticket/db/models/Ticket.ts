@@ -26,6 +26,7 @@ import {
 } from '@/ticket/utils/sla';
 import { loadBranchCalendar } from '@/ticket/utils/slaCalendar';
 import { scheduleSlaChecks } from '@/ticket/utils/slaQueue';
+import { assignTicketNumber } from '@/ticket/utils/nameAndNumber';
 
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
@@ -146,7 +147,7 @@ export const loadTicketClass = (
       const ticket = await models.Ticket.create({
         ...doc,
         subscribedUserIds: [userId],
-        number: new Date().getTime().toString(),
+        number: await assignTicketNumber(models, doc.pipelineId),
       });
       if (doc.assigneeId && doc.assigneeId !== userId) {
         await createNotifications({
@@ -243,7 +244,7 @@ export const loadTicketClass = (
           module: 'STATUS',
         });
 
-        rest.number = new Date().getTime().toString();
+        rest.number = await assignTicketNumber(models, doc.pipelineId);
         rest.statusId = newStatus?._id;
       }
 

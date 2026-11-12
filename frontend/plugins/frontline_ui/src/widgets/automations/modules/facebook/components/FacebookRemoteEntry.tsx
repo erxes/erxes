@@ -42,7 +42,9 @@ function renderActionNodeContent(
     splitAutomationNodeType(actionType);
 
   switch (contentType) {
+    // Messaging a record's customer edits and reads like a Messenger reply
     case 'messages':
+    case 'customerMessages':
       return <ActionMessageConfigContent {...props} />;
     case 'comments':
       return <ActionCommentConfigContent {...props} />;
@@ -58,6 +60,7 @@ function renderActionForm(props: AutomationRemoteEntryTypes['actionForm']) {
 
   switch (contentType) {
     case 'messages':
+    case 'customerMessages':
       return <MessageActionForm {...props} />;
     case 'comments':
       return <CommentActionForm {...props} />;

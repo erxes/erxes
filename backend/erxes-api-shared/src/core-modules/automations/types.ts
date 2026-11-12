@@ -389,9 +389,13 @@ export type TAutomationBuiltInTemplateStep = {
   next?: number | Record<string, number>;
   /**
    * Branches kept in `optionalConnects`: an AI agent tool id or a split
-   * option id (or `fallback`) mapped to the step it leads to.
+   * option id (or `fallback`) mapped to the step it leads to, or to the key
+   * of a workflow in the same journey (a helper tool's workflow).
    */
-  connects?: Record<string, number>;
+  connects?: Record<string, number | string>;
+  // Config fields that hold another step's id, e.g. a set property's
+  // `targetActionId` naming the find step whose record it changes
+  refs?: Record<string, number>;
   // The step whose result this one reads instead of the target (a split)
   target?: number;
 };

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-11`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -140,13 +140,20 @@
   clock time; no pause. First response = a non-internal team note
   (`Note.ts`) or an operator conversation reply, which marks every open ticket
   of that customer (`utils/slaResponse.ts`); AI replies do not count.
-  Resolution is marked while the status is closing, cleared on reopen. Checks
+  Resolution is marked while the status is closing, cleared on reopen; a
+  resolved ticket also stops the first-response clock (`stoppedOf`). Checks
   are delayed jobs on queue `ticketSla` (`utils/slaQueue.ts`, job id carries
   the due time; worker `utils/slaWorker.ts` also resyncs a pipeline after a
   policy change). A tripped flag fires the custom trigger "Ticket SLA"
   (`trigger/checkSlaTrigger.ts`, relation `sla`, events
   `firstResponse`/`resolution` × `warning`/`breached`, re-enrollment on).
   No SLA report exists.
+- Ticket numbers follow the pipeline's `numberConfig` (`{year}`, `{month}`,
+  `{day}`) plus a zero-padded counter of `numberSize`, counted from 0 per
+  config through `lastNum` (`assignTicketNumber` in
+  `ticket/utils/nameAndNumber.ts`, called by `Ticket.addTicket` and on a
+  pipeline move); without `numberSize` the number is a timestamp. The counter
+  is read then written, not atomic. `nameConfig` is stored but not applied.
 - Telegram bot setup and webhook status; private chats, groups, channels and
   forum topics; text, files, media, polls, edits, observed reactions and visible
   fallbacks. Long replies split into complete ordered text chunks, with caption
@@ -248,17 +255,40 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- `frontline:facebook.customerMessages.create` ("Message the customer on
+  Messenger", `messages/customerMessage.ts`) sends to the customer of any run
+  record (`target.customerId`, or the customer of a customer trigger) in
+  their latest Messenger conversation, on `config.botId`'s page when set:
+  within 24 hours of their last message freely, within 7 days with the
+  `HUMAN_AGENT` tag, otherwise a visible `outside-7-days` skip. It does not
+  touch automated-reply control. The builder edits it with the Messenger
+  reply form.
 - One template for core's Templates page ships through
   `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
-  `frontline.complaint-employee`. One Messenger journey: an AI agent part
-  (Customer lookup, instructions with the `{{ answers.policy }}` text) replies,
-  or through its handoff tools files a ticket (`file_ticket`) or hands over (`escalate`): `pickMember` takes turns among the chosen
-  team members who are available, then the handoff assigns that one (nobody
-  available leaves it unassigned). Requirements: `frontline:facebook.bot`
-  (trigger `botId`), an existing AI agent's connection, `frontline:tickets.status`
-  and `core:team.members`. Ticket status notifications are left out: nothing
-  writes to Messenger from a ticket trigger. `src/meta/templates/__tests__`
-  runs `validateTemplate` over every template.
+  `frontline.complaint-employee` (v8). Parts (`meta/templates/parts.ts`,
+  `meta.templateParts`): `frontline:tickets.pipeline` (a "Complaints" channel
+  of the chosen members and a pipeline with the default statuses, numbering
+  `C{year}-` with size 4, an SLA
+  policy by priority, refs for the new, open, in-progress and resolved
+  statuses; kept while it has tickets) and `frontline:forms.rating` (a 1-5
+  radio question and a comment; refs `formId`, `ratingFieldId`; kept once
+  answered). Six journeys:
+  - Messenger chat: an AI agent part replies itself; helper workflows
+    `file_complaint` (owner by `pickMember`, priority 1-4 via `inputHints`),
+    `add_to_complaint`, `escalate`; the `request_compensation` handoff
+    first has the agent tell the customer it was asked (a handoff ends the
+    agent's turn with no text), then `approval`, and an AI agent step words each decision, sent
+    with the customer message action.
+  - SLA warning and SLA missed on the desk pipeline (notify the owner;
+    reassign to an available supervisor).
+  - Work started and resolved (status changed): the customer message action
+    sends the organization's texts; resolved adds a rating form link.
+  - Low rating (form submitted, rating below 3): Find object on
+    `aboutRecordId`, Manage properties reopens it, the supervisors are told.
+  `src/meta/templates/__tests__` covers both parts and checks the installed
+  shape against the engine's config schemas.
+  Steps that change the found ticket (add to it, reopen) name it with the
+  step's `target`, which sets `targetActionId`; `refs` cannot do that.
 - The Facebook/Instagram comment reply action resolves placeholders in the
   picked text variant with the same two passes as the message action
   (`replaceOutputPlaceholders`, then `{{ prevAction.* }}`) before queueing it;
@@ -1573,6 +1603,24 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Local Invariants
 
+- The messenger widget reads its automation from core (`automation.find`,
+  `getMessengerAutomation` / `getMessengerGetStarted` in `modules/inbox/utils.ts`)
+  and sends triggers with `sendAutomationTrigger`; it never calls the
+  automations service directly or gates on `isEnabled('automations')`, which
+  is false wherever automations runs as a service.
+- A form link is addressed by its form's channel. The template rating form
+  part makes its own channel when none is given (`refs.ownChannelId`) and
+  removes only that one with the form.
+- A Messenger or Instagram message trigger's target is the channel's own
+  message: its `conversationId` is the page's thread, not the inbox
+  conversation. The trigger adds `erxesApiId` (the inbox conversation) to the
+  target, as comment triggers already do; anything opening the inbox uses it.
+- Automation node and template icons (`icon` in automation constants and
+  `meta/templates`) are Tabler names the erxes-ui icon registry has
+  (the keys of `ALL_ICONS` in
+  `frontend/libs/erxes-ui/src/modules/icons/components/TablerIcons.ts`; an
+  aliased import such as `IconMessageCircle` is not one); any
+  other name draws as a placeholder in the builder and the template gallery.
 - A call leg or CTI event that names a queue belongs to the peer call
   integration whose `queues` contains it, and only to that one: when several
   integrations share a trunk and phone, the queue decides the channel, the

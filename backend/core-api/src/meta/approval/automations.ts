@@ -1,8 +1,8 @@
 import {
+  sendAutomationApprovalDecision,
   TApprovalChangeApplier,
   TApprovalChangeRejecter,
 } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 export const AUTOMATION_CHANGE_TYPES = {
@@ -27,13 +27,13 @@ const resolveApprovalStep = async (
     throw new Error('Approval step request names no waiting run');
   }
 
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'automations',
-    method: 'mutation',
-    module: 'automations',
-    action: 'resolveApproval',
-    input: { executionId, actionId, decision, userId, reason },
+  // A failure surfaces on the request instead of passing for applied
+  await sendAutomationApprovalDecision(subdomain, {
+    executionId,
+    actionId,
+    decision,
+    userId,
+    reason,
   });
 };
 

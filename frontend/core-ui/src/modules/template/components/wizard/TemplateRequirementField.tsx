@@ -3,12 +3,8 @@ import {
   CoreTemplateRequirement,
   isCoreTemplateRequirement,
 } from '@/automations/components/builder/template/CoreTemplateRequirement';
-import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
-import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { TTemplateRequirement } from '@/template/types';
-import { Button, Select, Spinner } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { AiAgentRequirement } from '@/template/components/wizard/AiAgentRequirement';
 import { splitAutomationNodeType } from 'ui-modules';
 
 type TProps = {
@@ -16,50 +12,7 @@ type TProps = {
   value: unknown;
   dependsOnValue: unknown;
   onChange: (value: unknown) => void;
-};
-
-// An existing agent lends its connection; its key stays on the server
-const AiAgentRequirement = ({
-  value,
-  onChange,
-}: Pick<TProps, 'value' | 'onChange'>) => {
-  const { t } = useTranslation('templates');
-  const { automationsAiAgents, loading } = useAiAgents();
-
-  if (loading) {
-    return <Spinner />;
-  }
-
-  if (!automationsAiAgents.length) {
-    return (
-      <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">{t('no-agents')}</p>
-        <Button variant="secondary" asChild>
-          <Link to={AutomationSettingsPath.AgentCreate}>
-            {t('create-agent')}
-          </Link>
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <Select
-      value={typeof value === 'string' ? value : undefined}
-      onValueChange={(agentId) => onChange(agentId)}
-    >
-      <Select.Trigger>
-        <Select.Value placeholder={t('choose-agent')} />
-      </Select.Trigger>
-      <Select.Content>
-        {automationsAiAgents.map((agent) => (
-          <Select.Item key={agent._id} value={agent._id}>
-            {agent.name}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
-  );
+  onLabel: (label: string | null) => void;
 };
 
 /**
@@ -72,11 +25,14 @@ export const TemplateRequirementField = ({
   value,
   dependsOnValue,
   onChange,
+  onLabel,
 }: TProps) => {
   const { kind, input } = requirement;
 
   if (kind === 'automations:aiAgent') {
-    return <AiAgentRequirement value={value} onChange={onChange} />;
+    return (
+      <AiAgentRequirement value={value} onChange={onChange} onLabel={onLabel} />
+    );
   }
 
   if (isCoreTemplateRequirement(kind)) {
@@ -102,6 +58,7 @@ export const TemplateRequirementField = ({
         value,
         dependsOnValue,
         onChange,
+        onLabel,
       }}
     />
   );

@@ -21,8 +21,11 @@ export const slaFlagOf = (clock: TTicketSlaClock, phase: TTicketSlaPhase) =>
 const dueOf = (sla: TTicketSla, clock: TTicketSlaClock) =>
   clock === 'firstResponse' ? sla.firstResponseDueAt : sla.resolutionDueAt;
 
+// A resolved ticket owes nothing more, a first response included
 const stoppedOf = (sla: TTicketSla, clock: TTicketSlaClock) =>
-  clock === 'firstResponse' ? sla.firstRespondedAt : sla.resolvedAt;
+  clock === 'firstResponse'
+    ? sla.firstRespondedAt || sla.resolvedAt
+    : sla.resolvedAt;
 
 const sameTime = (a?: Date | null, b?: Date | null) =>
   (a ? new Date(a).getTime() : 0) === (b ? new Date(b).getTime() : 0);

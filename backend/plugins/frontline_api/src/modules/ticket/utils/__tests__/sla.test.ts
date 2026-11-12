@@ -144,6 +144,10 @@ describe('SLA checks', () => {
     expect(
       isSlaCheckDue({ ...sla, firstResponseDueAt: ub('2026-11-09T12:00:00') }, check),
     ).toBe(false);
+    // Resolved without a reply first: nobody is warned about a first response
+    expect(
+      isSlaCheckDue({ ...sla, resolvedAt: ub('2026-11-09T10:30:00') }, check),
+    ).toBe(false);
   });
 });
 

@@ -16,6 +16,7 @@ export const templateInstallationSchema = schemaWrapper(
     name: { type: String, required: true, label: 'Template name' },
     answers: { type: Object, label: 'Answers, without secrets' },
     partIds: { type: Object, label: 'Created records by part key' },
+    parts: { type: [Object], label: 'Created parts: key, type, id, refs' },
     automationIds: {
       type: Object,
       label: 'Created automations by journey key',

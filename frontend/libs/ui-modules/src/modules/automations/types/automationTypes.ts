@@ -254,6 +254,11 @@ export type AutomationTemplateRequirementProps = {
    */
   dependsOnValue?: unknown;
   onChange: (value: unknown | null) => void;
+  /**
+   * What the chosen value is called, e.g. a page's name, so a finished step
+   * can say what was picked without knowing the plugin's records.
+   */
+  onLabel?: (label: string | null) => void;
 };
 
 export type AutomationRemoteEntryProps =

@@ -11,6 +11,7 @@ export type TTemplateJourneyPreview = {
 
 // A template card has room for three tiles
 const MAX_BRANCHES = 3;
+const WORKFLOW_ICON = 'IconArrowsSplit';
 
 /**
  * What a template card draws for a journey: its trigger, the step it starts
@@ -39,7 +40,8 @@ export const buildJourneyPreview = (
   };
   const trigger = nodes.get(journey.trigger.type);
 
-  const childOrders = entry
+  // A connect names a step by order, or a workflow of the journey by key
+  const children: (number | string)[] = entry
     ? [
         ...(typeof entry.next === 'number'
           ? [entry.next]
@@ -47,14 +49,22 @@ export const buildJourneyPreview = (
         ...Object.values(entry.connects || {}),
       ]
     : [];
+  const childOf = (target: number | string): TPreviewNode | null => {
+    if (typeof target === 'number') {
+      return nodeOf(target);
+    }
+
+    const workflow = journey.workflows?.find(({ key }) => key === target);
+    return workflow ? { label: workflow.name, icon: WORKFLOW_ICON } : null;
+  };
 
   const branches = journey.highlights?.length
     ? journey.highlights.map(({ order, label, icon }) => ({
         label,
         icon: icon || nodeOf(order)?.icon,
       }))
-    : childOrders.flatMap((order) => {
-        const node = nodeOf(order);
+    : children.flatMap((target) => {
+        const node = childOf(target);
         return node ? [node] : [];
       });
 

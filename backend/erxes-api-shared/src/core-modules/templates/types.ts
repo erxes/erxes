@@ -8,6 +8,8 @@ export const TEMPLATE_CORE_REQUIREMENT_KINDS = {
   EMAIL_CONTENT: 'core:emails.content',
   // `[[ user.<id> ]]` tokens joined by commas, as the builder's member picker writes them
   TEAM_MEMBERS: 'core:team.members',
+  // One member, as a `[[ user.<id> ]]` token
+  TEAM_MEMBER: 'core:team.member',
   AI_AGENT: 'automations:aiAgent',
 } as const;
 
@@ -24,6 +26,14 @@ export type TTemplateFill =
       from?: string;
     }
   | { target: 'trigger'; journey: string; path: string; from?: string }
+  | {
+      target: 'workflow';
+      journey: string;
+      workflow: string;
+      order: number;
+      path: string;
+      from?: string;
+    }
   | { target: 'part'; part: string; path: string; from?: string };
 
 /**
@@ -41,14 +51,44 @@ export type TTemplateRequirement = {
   dependsOn?: string;
   // For `core:text`
   input?: { multiline?: boolean; placeholder?: string };
+  // Answered already when the wizard opens, e.g. a written-out policy
+  defaultAnswer?: unknown;
   fills?: TTemplateFill[];
 };
 
-/** A record the template creates while installing. */
+/**
+ * A record the template creates while installing. `automations:aiAgent` is
+ * created by core; any other `plugin:type` by that plugin's `templateParts`.
+ * Steps read its id as `{{ parts.<key> }}` and what came with it as
+ * `{{ parts.<key>.<ref> }}`.
+ */
 export type TTemplatePart = {
   key: string;
-  type: 'automations:aiAgent';
+  type: string;
+  // How the install summary names what it is, e.g. "Ticket desk"
+  label?: string;
+  // A Tabler icon name for that summary
+  icon?: string;
   defaults: Record<string, unknown>;
+};
+
+/**
+ * A sub-flow inside a journey that an AI agent's helper tool runs and reads
+ * the result of. `inputs` left empty are what the agent fills as the tool's
+ * parameters (`attachmentIds` and `ticketId` from the conversation, never
+ * invented); a bound one, e.g. `{{ trigger.customerId }}`, the system fills.
+ * Steps read inputs as `{{ input.<name> }}`.
+ */
+export type TTemplateWorkflow = {
+  key: string;
+  name: string;
+  description?: string;
+  inputs: Record<string, string>;
+  // What an input the agent fills means, and its allowed values
+  inputHints?: Record<string, { description?: string; enum?: string[] }>;
+  // What the agent reads back; the last step's result when absent
+  output?: string;
+  flow: TAutomationBuiltInTemplateStep[];
 };
 
 /** One automation: its trigger and its steps addressed by `order`. */
@@ -58,6 +98,7 @@ export type TTemplateJourney = {
   description?: string;
   trigger: { type: string; config?: Record<string, unknown> };
   flow: TAutomationBuiltInTemplateStep[];
+  workflows?: TTemplateWorkflow[];
   /**
    * The branches a template card draws, with short names that fit a tile.
    * When absent, the steps right after the entry step are shown.
@@ -75,7 +116,7 @@ export type TTemplate = {
   version: number;
   name: string;
   description?: string;
-  // A Tabler icon name, e.g. `IconHeadset`
+  // A Tabler icon the erxes-ui icon registry has, e.g. `IconHeadphones`
   icon?: string;
   requirements: TTemplateRequirement[];
   parts: TTemplatePart[];

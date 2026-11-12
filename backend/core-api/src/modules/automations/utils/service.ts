@@ -1,4 +1,5 @@
-import { sendTRPCMessage, sendWorkerQueue } from 'erxes-api-shared/utils';
+import { sendAutomationResumeWaiting } from 'erxes-api-shared/core-modules';
+import { sendWorkerQueue } from 'erxes-api-shared/utils';
 
 /**
  * Arms the delays an automation was holding while it was not active.
@@ -13,14 +14,7 @@ export const resumeHeldExecutions = async (
   automationId: string,
 ) => {
   try {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'automations',
-      method: 'mutation',
-      module: 'automations',
-      action: 'resumeWaitingExecutions',
-      input: { automationId },
-    });
+    await sendAutomationResumeWaiting(subdomain, automationId);
   } catch {
     // Nothing is lost by failing here: the executions stay held, and the next
     // activation asks again.

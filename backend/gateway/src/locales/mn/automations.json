@@ -1152,5 +1152,6 @@
   "workflow-for-each-item-short": "мөр бүр",
   "template-email-subject": "Гарчиг",
   "template-email-use": "Энэ имэйлийг ашиглах",
-  "template-email-used": "Ашигласан"
+  "template-email-used": "Ашигласан",
+  "template-select-member": "Багийн гишүүн сонгох"
 }

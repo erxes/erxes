@@ -174,7 +174,7 @@ export const inboxAutomationConstants = {
       collectionName: 'handoffs',
       method: 'create',
       configSchema: handoffActionConfigSchema,
-      icon: 'IconUserShare',
+      icon: 'IconUsersGroup',
       label: 'Hand off to a person',
       description:
         'Pause automated replies on the conversation and assign team members',

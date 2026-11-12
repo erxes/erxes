@@ -65,6 +65,9 @@ export const AutomationExecutionInput = z.object({
     .optional(),
   status: z.string(),
   description: z.string(),
+  // A workflow run's own values: its steps read them as `{{ input.* }}`
+  workflowId: z.string().optional(),
+  inputs: z.record(z.any()).optional(),
   actions: z.array(AutomationExecActionInput).optional(),
   startWaitingDate: z.coerce.date().optional(),
   waitingActionId: z.string().optional(),

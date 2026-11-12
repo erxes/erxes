@@ -421,6 +421,11 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
 
 const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
   const { deliveryConfig = {} } = pos;
+
+  // A POS that keeps no delivery board still finishes its deliveries
+  if (!deliveryConfig.stageId) {
+    return;
+  }
   const deliveryInfo = doneOrder.deliveryInfo || {};
   const { marker = {}, description } = deliveryInfo;
 
@@ -578,6 +583,14 @@ export const statusToDone = async ({
 
   if (!doneOrder) {
     return {};
+  }
+
+  // The order's own record says it is done, which is what its events watch
+  if (doneOrder.status !== order.status && order.status) {
+    await models.PosOrders.updateOrder(
+      { _id: doneOrder._id },
+      { status: order.status },
+    );
   }
 
   await createDeliveryDeal({ subdomain, models, doneOrder, pos });

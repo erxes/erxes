@@ -30,15 +30,28 @@ const Tile = ({
  */
 export const TemplateFlowPreview = ({
   preview,
+  inline = false,
 }: {
   preview: NonNullable<TTemplateJourney['preview']>;
+  // Only the row of icons, for a surface that already has its own backdrop
+  inline?: boolean;
 }) => {
   const { trigger, hub, branches } = preview;
 
   return (
-    <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg bg-linear-to-br from-primary/25 via-primary/10 to-primary/5">
-      <span className="absolute -left-8 -top-10 size-28 rounded-full bg-primary/30 blur-2xl" />
-      <span className="absolute -bottom-12 -right-6 size-28 rounded-full bg-primary/20 blur-2xl" />
+    <div
+      className={cn(
+        'relative flex items-center justify-center',
+        !inline &&
+          'h-28 overflow-hidden rounded-lg bg-linear-to-br from-primary/25 via-primary/10 to-primary/5',
+      )}
+    >
+      {!inline && (
+        <>
+          <span className="absolute -left-8 -top-10 size-28 rounded-full bg-primary/30 blur-2xl" />
+          <span className="absolute -bottom-12 -right-6 size-28 rounded-full bg-primary/20 blur-2xl" />
+        </>
+      )}
 
       <div className="relative flex items-center gap-1.5">
         <Tile node={trigger} />

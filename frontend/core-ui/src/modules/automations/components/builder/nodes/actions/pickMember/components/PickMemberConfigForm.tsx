@@ -89,7 +89,7 @@ export const PickMemberConfigForm = ({
               <Form.Description className="text-xs">
                 {t(
                   'pick-member-fallback-description',
-                  'This member is picked instead. Empty skips the step, so later steps get no member.',
+                  'This member is picked instead, so the work always reaches someone.',
                 )}
               </Form.Description>
               <Form.Message />

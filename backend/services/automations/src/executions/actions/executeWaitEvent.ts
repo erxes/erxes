@@ -77,7 +77,9 @@ export const executeWaitEvent = async (
       automationId: execution.automationId,
       condition: {
         type: EXECUTE_WAIT_TYPES.IS_IN_SEGMENT,
-        targetId: targetTypeId || execution.targetId,
+        // The trigger's record; targetTypeId names the trigger node, and a
+        // wait is matched by the record that changed
+        targetId: execution.targetId,
         segmentId,
       },
     });

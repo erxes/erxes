@@ -89,6 +89,20 @@ export const CoreTemplateRequirement = ({
     );
   }
 
+  if (moduleName === 'team' && what === 'member') {
+    return (
+      <SelectMember
+        mode="single"
+        value={toMemberIds(value)[0] || ''}
+        onValueChange={(id) => {
+          const picked = Array.isArray(id) ? id[0] : id;
+          onChange(picked ? toMemberTokens([picked]) : null);
+        }}
+        placeholder={t('template-select-member')}
+      />
+    );
+  }
+
   return null;
 };
 
@@ -103,7 +117,12 @@ const toMemberIds = (value: unknown) =>
 const toMemberTokens = (ids: string[]) =>
   ids.map((id) => `[[ user.${id} ]]`).join(',');
 
-const CORE_KINDS = new Set(['emails.sender', 'emails.content', 'team.members']);
+const CORE_KINDS = new Set([
+  'emails.sender',
+  'emails.content',
+  'team.members',
+  'team.member',
+]);
 
 /** Whether core can answer this kind at all. */
 export const isCoreTemplateRequirement = (kind: string) => {

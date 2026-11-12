@@ -1,7 +1,11 @@
 import { TTemplate } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { isTemplateAvailable } from '@/template/registry';
-import { installTemplate } from '@/template/db/models/Installations';
+import {
+  createTemplatePartsApi,
+  installTemplate,
+  splitTemplatePartType,
+} from '@/template/db/models/Installations';
 import { findFlowReferenceIssues } from '@/automations/utils/automationGraph';
 
 // What automations declares for these node types
@@ -120,15 +124,34 @@ const buildModels = ({ failAutomation = false } = {}) => {
     },
   } as unknown as IModels;
 
+  const partsApi = {
+    create: jest.fn(
+      async ({
+        type,
+        doc,
+      }: {
+        type: string;
+        doc: Record<string, unknown>;
+      }) => ({
+        _id: `${type}-id`,
+        refs: { pipelineId: 'p-1' },
+        doc,
+      }),
+    ),
+    remove: jest.fn(async () => ({ removed: true })),
+  };
+
   return {
     models,
     created,
+    partsApi,
     install: (input: { answers: Record<string, unknown> }) =>
       installTemplate({
         models,
         template: { ...template, pluginName: 'frontline' },
         userId: 'u1',
         nodes,
+        partsApi,
         ...input,
       }),
   };
@@ -140,29 +163,23 @@ describe('install', () => {
 
     await expect(
       install({
-        pluginName: 'frontline',
-        templateId: 'sales',
         answers: { brain: 'source' },
-        userId: 'u1',
       }),
     ).rejects.toThrow('Answer every step first: Telegram bot');
   });
 
   it('creates the agent with the chosen connection and a draft automation', async () => {
-    const { models, created, install } = buildModels();
+    const { created, install, partsApi } = buildModels();
 
     const installation = await install({
-      pluginName: 'frontline',
-      templateId: 'sales',
       answers: { brain: 'source', bot: 'int-1' },
-      userId: 'u1',
     });
 
-    const agentDoc = (models.AiAgents.createAgent as jest.Mock).mock
-      .calls[0][0];
-    expect(agentDoc).toMatchObject({
-      name: 'Sales',
-      connection: { provider: 'openai' },
+    const agentCall = partsApi.create.mock.calls[0][0];
+    expect(agentCall).toMatchObject({
+      type: 'automations:aiAgent',
+      userId: 'u1',
+      doc: { name: 'Sales', connection: { provider: 'openai' } },
     });
     expect(created[0]).toMatchObject({
       status: 'draft',
@@ -171,7 +188,7 @@ describe('install', () => {
     expect(
       (created[0] as { actions: { config: { aiAgentId: string } }[] })
         .actions[0].config.aiAgentId,
-    ).toBe(agentDoc._id);
+    ).toBe('automations:aiAgent-id');
     expect(installation).toMatchObject({
       templateId: 'sales',
       version: 2,
@@ -185,10 +202,7 @@ describe('install', () => {
     const { created, install } = buildModels();
 
     await install({
-      pluginName: 'frontline',
-      templateId: 'sales',
       answers: { brain: 'source', bot: 'int-1' },
-      userId: 'u1',
     });
 
     const automation = created[0] as {
@@ -219,19 +233,187 @@ describe('install', () => {
     ).toBe(0);
   });
 
+  it('saves workflows with every field the builder form requires', async () => {
+    const { models, partsApi, created } = buildModels();
+    const [journey] = template.journeys;
+
+    await installTemplate({
+      models,
+      template: {
+        ...template,
+        pluginName: 'frontline',
+        journeys: [
+          {
+            ...journey,
+            flow: [
+              {
+                ...journey.flow[0],
+                config: {
+                  aiAgentId: '{{ parts.agent }}',
+                  tools: [
+                    { id: 'escalate', kind: 'handoff' },
+                    { id: 'wait', kind: 'helper' },
+                  ],
+                },
+                connects: { escalate: 2, wait: 'wait' },
+              },
+              journey.flow[1],
+            ],
+            workflows: [
+              {
+                key: 'wait',
+                name: 'Wait a bit',
+                description: 'Waits before answering.',
+                inputs: { minutes: '' },
+                flow: [
+                  {
+                    order: 1,
+                    type: 'delay',
+                    config: { value: '1', type: 'hour' },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      answers: { brain: 'source', bot: 'int-1' },
+      userId: 'u1',
+      nodes,
+      partsApi,
+    });
+
+    const [workflow] = (created[0] as { workflows: Record<string, unknown>[] })
+      .workflows;
+
+    // Without these the builder refuses to save, so it can never be switched on
+    expect(workflow).toMatchObject({
+      automationId: '',
+      name: 'Wait a bit',
+      description: 'Waits before answering.',
+    });
+  });
+
   it('removes what it created when a step fails', async () => {
-    const { models, install } = buildModels({ failAutomation: true });
+    const { models, install, partsApi } = buildModels({ failAutomation: true });
 
     await expect(
       install({
-        pluginName: 'frontline',
-        templateId: 'sales',
         answers: { brain: 'source', bot: 'int-1' },
-        userId: 'u1',
       }),
     ).rejects.toThrow('save failed');
 
-    expect(models.AiAgents.removeAgent).toHaveBeenCalledTimes(1);
+    expect(partsApi.remove).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'automations:aiAgent' }),
+    );
     expect(models.TemplateInstallations.create).not.toHaveBeenCalled();
+  });
+
+  it('creates a plugin part through its owner and reads what came with it', async () => {
+    const { models, created, partsApi } = buildModels();
+    const withDesk = {
+      ...template,
+      pluginName: 'frontline',
+      parts: [
+        ...template.parts,
+        {
+          key: 'desk',
+          type: 'frontline:tickets.pipeline',
+          defaults: { name: 'Complaints' },
+        },
+      ],
+      journeys: [
+        {
+          ...template.journeys[0],
+          flow: [
+            {
+              ...template.journeys[0].flow[0],
+              config: {
+                ...template.journeys[0].flow[0].config,
+                pipelineId: '{{ parts.desk.pipelineId }}',
+              },
+            },
+            template.journeys[0].flow[1],
+          ],
+        },
+      ],
+    };
+
+    const installation = await installTemplate({
+      models,
+      template: withDesk,
+      answers: { brain: 'source', bot: 'int-1' },
+      userId: 'u1',
+      nodes,
+      partsApi,
+    });
+
+    expect(partsApi.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'frontline:tickets.pipeline',
+        doc: { name: 'Complaints' },
+      }),
+    );
+    expect(installation.parts).toContainEqual({
+      key: 'desk',
+      type: 'frontline:tickets.pipeline',
+      _id: 'frontline:tickets.pipeline-id',
+      refs: { pipelineId: 'p-1' },
+    });
+    expect(
+      (created[0] as { actions: { config: { pipelineId: string } }[] })
+        .actions[0].config.pipelineId,
+    ).toBe('p-1');
+  });
+});
+
+describe('splitTemplatePartType', () => {
+  it('keeps the whole part type its owner registered', () => {
+    expect(splitTemplatePartType('frontline:tickets.pipeline')).toEqual({
+      pluginName: 'frontline',
+      partType: 'tickets.pipeline',
+    });
+    expect(splitTemplatePartType('frontline:forms.rating').partType).toBe(
+      'forms.rating',
+    );
+  });
+});
+
+describe('core segment part', () => {
+  it('creates the segment owned by the automations and removes it once', async () => {
+    const createSegment = jest.fn(async () => ({ _id: 'seg-1' }));
+    const removeSegments = jest.fn(async () => ({}));
+    const exists = jest
+      .fn()
+      .mockResolvedValueOnce({ _id: 'seg-1' })
+      .mockResolvedValueOnce(null);
+    const api = createTemplatePartsApi(
+      {
+        Segments: { createSegment, removeSegments, exists },
+      } as unknown as IModels,
+      'test',
+    );
+    const root = { kind: 'group', conjunction: 'or', children: [] };
+
+    await expect(
+      api.create({
+        type: 'core:segments.segment',
+        doc: { contentType: 'sales:pos.orders', root },
+        userId: 'u1',
+      }),
+    ).resolves.toEqual({ _id: 'seg-1' });
+    expect(createSegment).toHaveBeenCalledWith(
+      { contentType: 'sales:pos.orders', root, ownedBy: 'automation' },
+      'u1',
+    );
+
+    const part = {
+      key: 'settled',
+      type: 'core:segments.segment',
+      _id: 'seg-1',
+    };
+    await api.remove(part);
+    await api.remove(part);
+    expect(removeSegments).toHaveBeenCalledTimes(1);
   });
 });

@@ -15,11 +15,20 @@ templates core used to have: that module was removed; this one owns the name.
   stored answer is the agent id; parts are created first, then one draft
   automation per journey; a failure removes what was created. Activating stays
   a person's act.
+- A journey may declare `workflows` (key, inputs, output, flow): installed as
+  the automation's workflow nodes, run by an AI agent helper tool whose
+  `connects` value is the workflow key; empty inputs become tool parameters
+  (`ticketId` and `attachmentIds` are enums from the conversation;
+  `inputHints` give the others a description and allowed values; step
+  references in `output` point to the workflow's own steps). Fills may
+  target a workflow step (`target: 'workflow'`). `refs` writes another step's
+  id into config (e.g. a set property's `targetActionId`).
 - Journey steps may carry `connects` (AI agent tool or split option id → step
   order, becomes `optionalConnects`) and `target` (the step a split reads, its
   `targetActionId`). A `core:text` answer can sit inside a longer text as
   `{{ answers.<key> }}`. Core answers `core:text`, `core:emails.sender`,
-  `core:team.members` (`[[ user.<id> ]]` tokens joined by commas, the builder
+  `core:team.member` (one `[[ user.<id> ]]` token), `core:team.members`
+  (`[[ user.<id> ]]` tokens joined by commas, the builder
   member picker's own format, so the step shows names; the engine resolves them
   to ids), `core:emails.content` (an email
   step's subject and body, written in the builder's email editor) and
@@ -30,6 +39,9 @@ templates core used to have: that module was removed; this one owns the name.
   install, which adds the actions to the campaign's flow. They have no
   `mustConfigure`: wording the organization writes is a requirement
   (`core:emails.content`, `core:text`) and keeps installing closed.
+- Each installed workflow carries `automationId: ''`, as one drawn in the
+  builder does: the builder form requires it, so without it the automation
+  could never be saved or switched on.
 - Installing copies each node's declared details from automation constants
   (`getTemplateNodeDetails`): a trigger's `isCustom`, label, icon and
   description, an action's label and icon. A trigger saved without
@@ -40,6 +52,15 @@ templates core used to have: that module was removed; this one owns the name.
   500×300 step): the main path runs right from the trigger on one row and
   every other branch (tool, split option, `isExists`) takes a row of its own.
   The builder places only a plain chain by itself.
+- Parts are created first, then journeys read their ids: an AI agent here,
+  a `core:segments.segment` here too (owned by automations, so unlisted and
+  never a name clash; removing its automations may remove it first),
+  any other `plugin:type` part by that plugin's `templateParts` producer
+  (`/templates` createPart/removePart, `createTemplatePartsApi`). A part may
+  return `refs` (a desk's channel, pipeline, first status) read as
+  `{{ parts.<key>.<ref> }}`. A failed install removes every part it made.
+  Removing an installation asks each owner to remove its part; one holding
+  data people made (a pipeline with tickets) stays and is reported in `kept`.
 - An installation (`template_installations`) records template id, version,
   answers, part ids and automation ids. Installed copies never follow later
   template versions. Removing one deletes its automations and agent only while
@@ -47,7 +68,24 @@ templates core used to have: that module was removed; this one owns the name.
 - A template card is drawn from the flow, not by hand: `buildJourneyPreview`
   (`preview.ts`) gives each journey's trigger, entry step and up to three
   branches (the journey's `highlights` with short tile names, else the steps
-  after the entry step); `Template.icon` is a Tabler icon name.
+  after the entry step); `Template.icon`, part and tile icons are Tabler
+  names the erxes-ui icon registry has (the keys of `ALL_ICONS` in
+  `TablerIcons.ts`, not aliased imports), or they draw as
+  a placeholder.
+- The install wizard (core-ui `modules/template`) asks connections, then
+  people, then wording, each step opening once those before it are answered;
+  defaults are seeded once per template. A plugin's `templateRequirement`
+  component gets `value`, `dependsOnValue`, `onChange` and `onLabel`
+  (what the choice is called, shown when the step is collapsed); open steps
+  stay mounted while collapsed so they can report it. Short choice lists use
+  `ui-modules` `TemplateRequirementOptions` (cards, the last one makes a new
+  record in place or in a new tab) and `useTemplateRequirementOptions` (picks
+  the only option, or the one that appears after it was made).
+- Installing lands on `/templates/installations/:id?installed=1`: the page
+  reads the template again for journey icons and part names
+  (`useTemplateInstallationView`; without it, names come from the record),
+  says it was just installed, and lists each draft automation to review and
+  switch on with how many are on.
 - GraphQL: `templates`, `templateDetail`, `templateInstallations`,
   `templateInstall`, `templateInstallationRemove`; permissions `templatesRead`
   (always) and `templatesInstall`.

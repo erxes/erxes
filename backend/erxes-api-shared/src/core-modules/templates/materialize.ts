@@ -3,7 +3,12 @@ import type {
   TAutomationBuiltInTemplate,
   TAutomationBuiltInTemplateStep,
 } from '../automations/types';
-import type { TTemplate, TTemplateAnswers, TTemplateFill } from './types';
+import type {
+  TTemplate,
+  TTemplateAnswers,
+  TTemplateFill,
+  TTemplateWorkflow,
+} from './types';
 
 // Same shape as the builder's own element ids
 const generateId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
@@ -22,8 +27,12 @@ const newId = (taken: Set<string>) => {
 
 // `{{ actions.<order>.` — the trailing dot keeps 1 from matching 11
 const STEP_REFERENCE = /\{\{\s*actions\.(\d+)\./g;
-// `{{ parts.<key> }}` is replaced whole by the created record's id
-const PART_REFERENCE = /\{\{\s*parts\.([A-Za-z0-9_-]+)\s*\}\}/g;
+// `{{ parts.<key> }}` is the created record's id, `{{ parts.<key>.<ref> }}`
+// an id that came with it
+const PART_REFERENCE =
+  /\{\{\s*parts\.([A-Za-z0-9_-]+)(?:\.([A-Za-z0-9_-]+))?\s*\}\}/g;
+
+export type TTemplatePartRefs = Record<string, Record<string, string>>;
 // `{{ answers.<key> }}` is replaced by a text answer, inside a longer text
 const ANSWER_REFERENCE = /\{\{\s*answers\.([A-Za-z0-9_-]+)\s*\}\}/g;
 
@@ -48,7 +57,9 @@ const childOrdersOf = (step: TAutomationBuiltInTemplateStep) => [
   ...(typeof step.next === 'number'
     ? [step.next]
     : Object.values(step.next || {})),
-  ...Object.values(step.connects || {}),
+  ...Object.values(step.connects || {}).filter(
+    (target): target is number => typeof target === 'number',
+  ),
 ];
 
 /**
@@ -109,6 +120,7 @@ const rewrite = (
   value: unknown,
   orderToId: Map<number, string>,
   partIds: Record<string, string>,
+  partRefs: TTemplatePartRefs = {},
 ): any => {
   if (typeof value === 'string') {
     return value
@@ -116,18 +128,20 @@ const rewrite = (
         const id = orderToId.get(Number(order));
         return id ? `{{ actions.${id}.` : match;
       })
-      .replace(PART_REFERENCE, (match, key) => partIds[key] ?? match);
+      .replace(PART_REFERENCE, (match, key, ref) =>
+        ref ? (partRefs[key]?.[ref] ?? match) : (partIds[key] ?? match),
+      );
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => rewrite(item, orderToId, partIds));
+    return value.map((item) => rewrite(item, orderToId, partIds, partRefs));
   }
 
   if (value && typeof value === 'object') {
     return Object.fromEntries(
       Object.entries(value).map(([key, item]) => [
         key,
-        rewrite(item, orderToId, partIds),
+        rewrite(item, orderToId, partIds, partRefs),
       ]),
     );
   }
@@ -170,7 +184,15 @@ export const materializeFlow = (
   {
     usedIds = [],
     partIds = {},
-  }: { usedIds?: string[]; partIds?: Record<string, string> } = {},
+    partRefs = {},
+    workflowIds = {},
+  }: {
+    usedIds?: string[];
+    partIds?: Record<string, string>;
+    partRefs?: TTemplatePartRefs;
+    // Workflow key → id, for helper tools that connect to one
+    workflowIds?: Record<string, string>;
+  } = {},
 ) => {
   const steps = [...flow].sort((a, b) => a.order - b.order);
   const taken = new Set(usedIds);
@@ -185,6 +207,7 @@ export const materializeFlow = (
       step.config || {},
       orderToId,
       partIds,
+      partRefs,
     );
 
     if (step.next && typeof step.next === 'object') {
@@ -197,14 +220,22 @@ export const materializeFlow = (
       }
     }
 
+    for (const [key, order] of Object.entries(step.refs || {})) {
+      const id = orderToId.get(order);
+      if (id) config[key] = id;
+    }
+
     // `sourceId` is the step itself: the builder draws a branch from the
     // handle `<sourceId>-<optionalConnectId>-right`
     if (step.connects) {
       const sourceId = orderToId.get(step.order) as string;
 
       config.optionalConnects = Object.entries(step.connects).flatMap(
-        ([optionalConnectId, order]) => {
-          const actionId = orderToId.get(order);
+        ([optionalConnectId, target]) => {
+          const actionId =
+            typeof target === 'number'
+              ? orderToId.get(target)
+              : workflowIds[target];
           return actionId ? [{ sourceId, optionalConnectId, actionId }] : [];
         },
       );
@@ -267,7 +298,13 @@ export const materializeTemplate = (
   {
     answers,
     partIds,
-  }: { answers: TTemplateAnswers; partIds: Record<string, string> },
+    partRefs = {},
+  }: {
+    answers: TTemplateAnswers;
+    partIds: Record<string, string>;
+    // Ids that came with created parts, known once they exist
+    partRefs?: TTemplatePartRefs;
+  },
 ) => {
   const parts = template.parts.map((part) => ({
     key: part.key,
@@ -276,9 +313,15 @@ export const materializeTemplate = (
   }));
 
   const automations = template.journeys.map((journey) => {
+    const declared = (insertAnswers(journey.workflows || [], answers) ||
+      []) as TTemplateWorkflow[];
+    const reserved = new Set<string>();
+    const workflowIds = Object.fromEntries(
+      declared.map(({ key }) => [key, newId(reserved)]),
+    );
     const { actions, entryActionId, orderToId, taken } = materializeFlow(
       insertAnswers(journey.flow, answers),
-      { partIds },
+      { partIds, partRefs, workflowIds, usedIds: [...reserved] },
     );
     const positions = layoutTemplateFlow(journey.flow);
 
@@ -286,6 +329,60 @@ export const materializeTemplate = (
       const action = actions.find(({ id }) => id === orderToId.get(order));
       if (action) action.position = position;
     }
+
+    const lowestRow = Math.max(0, ...[...positions.values()].map(({ y }) => y));
+    const workflows = declared.map((workflow, index) => {
+      const built = materializeFlow(workflow.flow, {
+        partIds,
+        partRefs,
+        usedIds: [...taken],
+      });
+      built.taken.forEach((id) => taken.add(id));
+
+      for (const [order, position] of layoutTemplateFlow(workflow.flow)) {
+        const action = built.actions.find(
+          ({ id }) => id === built.orderToId.get(order),
+        );
+        if (action) action.position = position;
+      }
+
+      // Beside the step whose tool runs it, below the main flow
+      const caller = journey.flow.find((step) =>
+        Object.values(step.connects || {}).includes(workflow.key),
+      );
+      const callerX = caller ? (positions.get(caller.order)?.x ?? 0) : 0;
+
+      return {
+        key: workflow.key,
+        orderToId: built.orderToId,
+        node: {
+          id: workflowIds[workflow.key],
+          name: workflow.name,
+          description: workflow.description || '',
+          config: {
+            inputs: workflow.inputs,
+            ...(workflow.inputHints ? { inputHints: workflow.inputHints } : {}),
+            entryActionId: built.entryActionId,
+            // What the agent reads back names this workflow's own steps
+            ...(workflow.output
+              ? {
+                  output: rewrite(
+                    workflow.output,
+                    built.orderToId,
+                    partIds,
+                    partRefs,
+                  ),
+                }
+              : {}),
+          },
+          actions: built.actions,
+          position: {
+            x: callerX + TEMPLATE_NODE_SPACING.x,
+            y: lowestRow + (index + 1) * TEMPLATE_NODE_SPACING.y,
+          },
+        },
+      };
+    });
 
     const trigger = {
       id: newId(taken),
@@ -295,6 +392,7 @@ export const materializeTemplate = (
         insertAnswers(journey.trigger.config || {}, answers),
         orderToId,
         partIds,
+        partRefs,
       ),
       actionId: entryActionId,
     };
@@ -305,6 +403,7 @@ export const materializeTemplate = (
       description: journey.description || '',
       triggers: [trigger],
       actions,
+      workflows,
       orderToId,
     };
   });
@@ -326,6 +425,18 @@ export const materializeTemplate = (
 
     if (fill.target === 'trigger') {
       setTemplatePath(automation.triggers[0].config, fill.path, value);
+      return;
+    }
+
+    if (fill.target === 'workflow') {
+      const workflow = automation.workflows.find(
+        ({ key }) => key === fill.workflow,
+      );
+      const action = workflow?.node.actions.find(
+        ({ id }) => id === workflow.orderToId.get(fill.order),
+      );
+
+      if (action) setTemplatePath(action.config, fill.path, value);
       return;
     }
 
@@ -358,12 +469,13 @@ export const materializeTemplate = (
   return {
     parts,
     automations: automations.map(
-      ({ journey, name, description, triggers, actions }) => ({
+      ({ journey, name, description, triggers, actions, workflows }) => ({
         journey,
         name,
         description,
         triggers,
         actions,
+        workflows: workflows.map(({ node }) => node),
       }),
     ),
   };

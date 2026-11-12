@@ -1,4 +1,5 @@
 import { TemplateFlowPreview } from '@/template/components/TemplateFlowPreview';
+import { useTemplatePreview } from '@/template/hooks/useTemplatePreview';
 import { TTemplate } from '@/template/types';
 import { Button, Card } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -7,15 +8,10 @@ import { Can } from 'ui-modules';
 
 export const TemplateCard = ({ template }: { template: TTemplate }) => {
   const { t } = useTranslation('templates');
-  const journeyPreview = template.journeys[0]?.preview;
-  // The employee shows as the template's own icon
-  const preview = journeyPreview && {
-    ...journeyPreview,
-    hub: journeyPreview.hub && {
-      ...journeyPreview.hub,
-      icon: template.icon || journeyPreview.hub.icon,
-    },
-  };
+  const preview = useTemplatePreview(template);
+  const agentCount = template.parts.filter(
+    ({ type }) => type === 'automations:aiAgent',
+  ).length;
 
   return (
     <Card className="flex flex-col gap-3 rounded-xl p-1.5">
@@ -43,8 +39,7 @@ export const TemplateCard = ({ template }: { template: TTemplate }) => {
       <div className="flex items-center justify-between border-t px-2 pb-1 pt-2.5">
         <span className="text-xs text-muted-foreground">
           {t('automation-count', { count: template.journeys.length })}
-          {template.parts.length > 0 &&
-            ` · ${t('agent-count', { count: template.parts.length })}`}
+          {agentCount > 0 && ` · ${t('agent-count', { count: agentCount })}`}
         </span>
         <Can action="templatesInstall">
           <Button asChild size="sm">

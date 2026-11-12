@@ -1,7 +1,6 @@
 import {
   IconAddressBook,
   IconAffiliate,
-  IconBrandDatabricks,
   IconBroadcast,
   IconBuilding,
   IconChartPie,
@@ -19,10 +18,7 @@ import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { AutomationsAbsolutePath } from '@/types/paths/AutomationPath';
 
-export const GET_CORE_MODULES = (
-  t: TFunction,
-  version?: boolean,
-): ICoreModule[] => {
+export const GET_CORE_MODULES = (t: TFunction): ICoreModule[] => {
   const MODULES: ICoreModule[] = [
     {
       name: t('contacts'),
@@ -126,14 +122,6 @@ export const GET_CORE_MODULES = (
       ],
     },
   ];
-
-  if (version) {
-    MODULES?.push({
-      name: t('templates'),
-      icon: IconBrandDatabricks,
-      path: 'templates',
-    });
-  }
 
   return MODULES;
 };

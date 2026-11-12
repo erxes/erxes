@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-11`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -28,7 +28,11 @@
 - The automations POS module answers the template requirement kind
   `sales:pos.pos` through its `templateRequirement` entry
   (`PosTemplateRequirement`, `SelectPos`); the answer is the POS id a Create POS
-  order step takes as `posId`.
+  order step takes as `posId`, and `usePosTemplateRequirement` names it
+  (`posDetail.name`) through `onLabel` for the finished wizard step. Up to six
+  POS show as cards (`TemplateRequirementOptions`), more as `SelectPos`; a new
+  one is made in place with `PosCreate`, whose `onCreateSuccess(posId)` picks
+  it, and the only POS is picked by itself.
 
 - Deals and POS orders export to CSV through the shared `ui-modules`
   `Export` button: the deals action bar exports the current pipeline, stage

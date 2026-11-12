@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-11-11`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -203,6 +203,9 @@
 
 ## Local Invariants
 
+- Every sync to sales `pos.createOrUpdateOrders` sends a flat input
+  (`action`, `order`, `posToken`, ...). A delivery marked done sends
+  `action: 'statusToDone'` the same way; wrapped in `query` it never ran.
 - tRPC `createOrder` (orders an automation or AI agent creates) sends the new order to sales right away through `syncCreatedOrder` (`createOrUpdateOrders`, unpaid, with its items) so it can be looked up before payment; a failed sync never fails the create. Cashier-created orders still reach sales at payment or status change.
 - POS pricing sends an order's `createdAt` as loyalty
   `pricing.checkPricing.orderCreatedAt` and no `date`, so checkout is loyalty's

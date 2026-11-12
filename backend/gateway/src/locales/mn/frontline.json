@@ -3162,7 +3162,10 @@
       "needs-repair": "Засах шаардлагатай",
       "broken": "Гэмтсэн",
       "syncing": "Синхрончилж байна",
-      "unknown": "Тодорхойгүй"
+      "unknown": "Тодорхойгүй",
+      "template-connect-page": "Эхлээд Facebook page холбоно уу. Шинэ tab-д нээгдэнэ; буцаж ирэхэд энд харагдана.",
+      "template-connect-page-action": "Facebook page холбох",
+      "template-connect-another-page": "Өөр page холбох"
     },
     "knowledgebase": {
       "appearance": "Харагдах байдал",

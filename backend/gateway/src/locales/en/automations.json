@@ -1152,5 +1152,6 @@
   "workflow-for-each-item-short": "each item",
   "template-email-subject": "Subject",
   "template-email-use": "Use this email",
-  "template-email-used": "Used"
+  "template-email-used": "Used",
+  "template-select-member": "Select a team member"
 }
