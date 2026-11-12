@@ -97,11 +97,7 @@ export const SidebarMenuButton = React.forwardRef<
       return button;
     }
 
-    if (typeof tooltip === 'string') {
-      tooltip = {
-        children: tooltip,
-      };
-    }
+    const tooltipProps = typeof tooltip === 'string' ? { children: tooltip } : tooltip;
 
     return (
       <Tooltip>
@@ -110,7 +106,7 @@ export const SidebarMenuButton = React.forwardRef<
           side="right"
           align="center"
           hidden={isMobile || (tooltipVisibility === 'collapsed' && state !== 'collapsed')}
-          {...tooltip}
+          {...tooltipProps}
         />
       </Tooltip>
     );
@@ -180,11 +176,11 @@ export const SidebarMenuSkeleton = React.forwardRef<
   const id = React.useId();
 
   // Stable width between 50 to 90%, derived from the instance id.
-  const width = React.useMemo(() => {
-    const hash = Array.from(id).reduce((sum, char) => sum + (char.codePointAt(0) ?? 0), 0);
+  const hash = Array.from(id).reduce((sum, char) => sum + (char.codePointAt(0) ?? 0), 0);
 
-    return `${(hash % 41) + 50}%`;
-  }, [id]);
+  const widthVariable: Record<`--${string}`, string> = {
+    '--skeleton-width': `${(hash % 41) + 50}%`,
+  };
 
   return (
     <div
@@ -197,11 +193,7 @@ export const SidebarMenuSkeleton = React.forwardRef<
       <Skeleton
         className="h-4 max-w-(--skeleton-width) flex-1"
         data-sidebar="menu-skeleton-text"
-        style={
-          {
-            '--skeleton-width': width,
-          } as React.CSSProperties
-        }
+        style={{ ...widthVariable }}
       />
     </div>
   );

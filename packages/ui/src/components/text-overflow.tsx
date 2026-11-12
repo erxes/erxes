@@ -1,44 +1,20 @@
-import {
-  useRef,
-  useState,
-  useEffect,
-  forwardRef,
-  type RefObject,
-  type InputHTMLAttributes,
-} from 'react';
+import { useRef, useState, forwardRef, type RefObject, type InputHTMLAttributes } from 'react';
 import { mergeRefs } from 'react-merge-refs';
 import { Tooltip } from './tooltip';
 import { inputVariants } from './input';
 import { cn } from 'erxes-ui/lib/utils';
 
-function useIsOverflowing<T extends HTMLElement>(ref: RefObject<T>, value?: string) {
-  const [isOverflowing, setIsOverflowing] = useState(false);
+/** A tooltip that opens only while the element's text is cut off, measured when it would open. */
+function useOverflowTooltip<T extends HTMLElement>(ref: RefObject<T>) {
+  const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const checkOverflow = () => {
-      const element = ref.current;
+  const onOpenChange = (next: boolean) => {
+    const element = ref.current;
 
-      if (element) {
-        setIsOverflowing(element.scrollWidth > element.clientWidth);
-      }
-    };
+    setOpen(next && element !== null && element.scrollWidth > element.clientWidth);
+  };
 
-    const timeoutId = setTimeout(checkOverflow, 100);
-
-    const handleResize = () => {
-      clearTimeout(timeoutId);
-      setTimeout(checkOverflow, 100);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [value, ref]);
-
-  return isOverflowing;
+  return { open, onOpenChange };
 }
 
 interface TextOverflowTooltipProps {
@@ -50,11 +26,11 @@ interface TextOverflowTooltipProps {
 const TextOverflowTooltipRoot = forwardRef<HTMLSpanElement, TextOverflowTooltipProps>(
   ({ value, className, delayDuration = 100 }, forwardedRef) => {
     const innerRef = useRef<HTMLSpanElement>(null);
-    const isOverflowing = useIsOverflowing(innerRef, value);
+    const tooltip = useOverflowTooltip(innerRef);
 
     return (
       <Tooltip.Provider delayDuration={delayDuration}>
-        <Tooltip>
+        <Tooltip {...tooltip}>
           <Tooltip.Trigger asChild>
             <span
               ref={mergeRefs([innerRef, forwardedRef])}
@@ -63,11 +39,9 @@ const TextOverflowTooltipRoot = forwardRef<HTMLSpanElement, TextOverflowTooltipP
               {value}
             </span>
           </Tooltip.Trigger>
-          {isOverflowing && (
-            <Tooltip.Content>
-              <span>{value}</span>
-            </Tooltip.Content>
-          )}
+          <Tooltip.Content>
+            <span>{value}</span>
+          </Tooltip.Content>
         </Tooltip>
       </Tooltip.Provider>
     );
@@ -88,11 +62,11 @@ interface TextOverflowTooltipInputProps extends Omit<
 const TextOverflowTooltipInput = forwardRef<HTMLInputElement, TextOverflowTooltipInputProps>(
   ({ value, onChange, className, delayDuration = 100, ...props }, forwardedRef) => {
     const innerRef = useRef<HTMLInputElement>(null);
-    const isOverflowing = useIsOverflowing(innerRef, value);
+    const tooltip = useOverflowTooltip(innerRef);
 
     return (
       <Tooltip.Provider delayDuration={delayDuration}>
-        <Tooltip>
+        <Tooltip {...tooltip}>
           <Tooltip.Trigger asChild>
             <input
               ref={mergeRefs([innerRef, forwardedRef])}
@@ -102,7 +76,7 @@ const TextOverflowTooltipInput = forwardRef<HTMLInputElement, TextOverflowToolti
               {...props}
             />
           </Tooltip.Trigger>
-          {isOverflowing && value && (
+          {value && (
             <Tooltip.Content>
               <span>{value}</span>
             </Tooltip.Content>

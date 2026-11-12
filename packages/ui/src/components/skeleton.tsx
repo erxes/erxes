@@ -11,7 +11,12 @@ export const SkeletonArray = ({
 }: React.HTMLAttributes<HTMLDivElement> & {
   count: number;
 }) => {
-  return Array.from({ length: count }).map((_, index) => (
-    <div key={index} className={cn('animate-pulse rounded-md bg-accent', className)} {...props} />
+  // The placeholders are identical, so a position is their identity.
+  return [...Array(count).keys()].map((position) => (
+    <div
+      key={position}
+      className={cn('animate-pulse rounded-md bg-accent', className)}
+      {...props}
+    />
   ));
 };

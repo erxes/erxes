@@ -5,6 +5,35 @@ import { Sheet } from 'erxes-ui/components/sheet';
 import { cn } from 'erxes-ui/lib/utils';
 import { useSidebar } from './context';
 
+const MOBILE_WIDTH: Record<`--${string}`, string> = { '--sidebar-width': SIDEBAR_WIDTH_MOBILE };
+
+/** On small screens the sidebar opens as a sheet. */
+const SidebarMobile = ({
+  side,
+  className,
+  children,
+  ...props
+}: React.ComponentProps<'div'> & { side: 'left' | 'right' }) => {
+  const { openMobile, setOpenMobile } = useSidebar();
+
+  return (
+    <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+      <Sheet.View
+        data-sidebar="sidebar"
+        data-mobile="true"
+        className={cn(
+          'w-(--sidebar-width) border-r-0 bg-sidebar p-0 text-foreground [&>button]:hidden',
+          className,
+        )}
+        style={{ ...MOBILE_WIDTH }}
+        side={side}
+      >
+        <div className="flex h-full w-full flex-col">{children}</div>
+      </Sheet.View>
+    </Sheet>
+  );
+};
+
 export const SidebarRoot = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {
@@ -26,15 +55,10 @@ export const SidebarRoot = React.forwardRef<
     },
     ref,
   ) => {
-    const { isMobile, state, collapseState, openMobile, setOpenMobile } = useSidebar();
+    const { isMobile, state, collapseState } = useSidebar();
 
-    let dataCollapsible = '';
-
-    if (collapseState === 'compact') {
-      dataCollapsible = 'compact';
-    } else if (state === 'collapsed') {
-      dataCollapsible = collapsible;
-    }
+    const dataCollapsible =
+      collapseState === 'compact' ? 'compact' : state === 'collapsed' ? collapsible : '';
 
     if (collapsible === 'none') {
       return (
@@ -53,24 +77,9 @@ export const SidebarRoot = React.forwardRef<
 
     if (isMobile) {
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-          <Sheet.View
-            data-sidebar="sidebar"
-            data-mobile="true"
-            className={cn(
-              'w-(--sidebar-width) border-r-0 bg-sidebar p-0 text-foreground [&>button]:hidden',
-              mobileClassName,
-            )}
-            style={
-              {
-                '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
-              } as React.CSSProperties
-            }
-            side={side}
-          >
-            <div className="flex h-full w-full flex-col">{children}</div>
-          </Sheet.View>
-        </Sheet>
+        <SidebarMobile side={side} className={mobileClassName} {...props}>
+          {children}
+        </SidebarMobile>
       );
     }
 

@@ -30,7 +30,7 @@ export const CopyText = ({ value, children, className }: CopyTextProps) => {
         <Tooltip.Trigger asChild>
           <button
             type="button"
-            onClick={handleCopy}
+            onClick={(event) => void handleCopy(event)}
             className={cn('inline-flex items-center gap-1 transition-colors', className)}
           >
             {copied ? (

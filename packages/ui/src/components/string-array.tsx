@@ -30,6 +30,7 @@ export function StringArrayInput({
   splitOnPaste?: boolean;
 }) {
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
+  const tags: Tag[] = value.map((text) => ({ id: text, text }));
 
   return (
     <TagInput
@@ -37,8 +38,10 @@ export function StringArrayInput({
       placeholder={placeholder || 'Add a tag'}
       setActiveTagIndex={setActiveTagIndex}
       id={id}
-      setTags={(newTags) => {
-        onValueChange((newTags as Tag[]).map((tag) => tag.text));
+      setTags={(next) => {
+        const nextTags = typeof next === 'function' ? next(tags) : next;
+
+        onValueChange(nextTags.map((tag) => tag.text));
       }}
       styleClasses={{
         inlineTagsContainer: cn(
@@ -57,7 +60,7 @@ export function StringArrayInput({
           ),
         },
       }}
-      tags={value.map((tag) => ({ id: tag, text: tag }))}
+      tags={tags}
       onBlur={onBlur}
       inputProps={{
         onPaste: (event) => splitOnPaste && handleStringArrayPaste({ event, value, onValueChange }),
