@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseGalleryImages } from './galleryImages';
 
 // Any block from any schema: only file blocks and galleries carry attachments.
 type BlockLike = { type: string; props?: unknown };
@@ -28,8 +29,6 @@ const fileBlockProps = z.object({ url: z.string().min(1), name: z.string().optio
 
 const galleryBlockProps = z.object({ images: z.string().min(1) });
 
-const galleryImages = z.array(z.object({ url: z.string(), caption: z.string().optional() }));
-
 function mimeFromBlock(blockType: string, name: string): string {
   const ext = name.split('.').pop()?.toLowerCase() ?? '';
   const prefix = MIME_PREFIXES[blockType] ?? 'application';
@@ -40,16 +39,6 @@ function mimeFromBlock(blockType: string, name: string): string {
 
   return ext ? `${prefix}/${ext}` : `${prefix}/*`;
 }
-
-const parseGalleryImages = (images: string) => {
-  try {
-    const parsed = galleryImages.safeParse(JSON.parse(images));
-
-    return parsed.success ? parsed.data : [];
-  } catch {
-    return [];
-  }
-};
 
 export const getBlockAttachments = (blocks: BlockLike[]): BlockAttachment[] =>
   blocks.flatMap((block) => {
