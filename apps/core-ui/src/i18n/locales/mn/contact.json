@@ -22,7 +22,8 @@
       "birth-date": "Төрсөн огноо",
       "middle-name": "Дунд нэр",
       "pronoun": "Хүйс",
-      "lifecycle-state": "Амьдралын мөчлөгийн төлөв"
+      "lifecycle-state": "Амьдралын мөчлөгийн төлөв",
+      "picture": "Зураг"
     },
     "detail": {
       "add-tags": "Таг нэмэх",
@@ -103,7 +104,8 @@
       "description": "Тайлбар",
       "owner-placeholder": "Хариуцагч сонгох",
       "industry-placeholder": "Салбар сонгох",
-      "location-placeholder": "Улс сонгох"
+      "location-placeholder": "Улс сонгох",
+      "picture": "Зураг"
     },
     "add": {
       "_": "Компани нэмэх",

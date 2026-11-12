@@ -1,14 +1,16 @@
 import type { Company, Customer } from '@erxes/core-contract';
 import { IconAlignLeft, IconHierarchy2, IconHistory, IconId, IconLayoutSidebarRight } from '@tabler/icons-react';
-import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
+import { Empty, Skeleton, useQueryState } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { type ReactNode, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ActivityTimeline } from '~/modules/activity/ActivityTimeline';
-import { useCompany } from '~/modules/contacts/companies/useCompanies';
+import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
-import { useCustomer } from '~/modules/contacts/customers/useCustomers';
+import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
+import { AvatarEditor } from '~/components/AvatarEditor';
+import { useCan } from '~/modules/auth/session';
 import { getContactDetailPath, isContactContentType } from '~/modules/contacts/utils/contactDetailPath';
 import { CompanyPanelDetail } from './details/CompanyPanelDetail';
 import { CompanyPanelNew } from './details/CompanyPanelNew';
@@ -30,14 +32,6 @@ const DETAIL_TAB = 'detail';
 const PROPERTIES_TAB = 'properties';
 const DESCRIPTION_TAB = 'description';
 const ACTIVITY_TAB = 'activity';
-
-/** Displays the contact avatar or its initials when no image is available. */
-const RecordAvatar = ({ src, name }: { src?: string | null; name?: string }) => (
-  <Avatar size="lg" className="size-7 flex-none">
-    <Avatar.Image src={readImage(src ?? undefined)} />
-    <Avatar.Fallback>{name?.charAt(0)}</Avatar.Fallback>
-  </Avatar>
-);
 
 // `sales:deal` reads as "Deal".
 const getContentTypeLabel = (contentType: string) => {
@@ -88,11 +82,26 @@ const useRecordHeading = ({ contentType, contentId }: TRelationEntity) => {
   const untitled = t('untitled', 'Untitled');
   const customer: Customer | undefined = isCustomer ? customerQuery.data : undefined;
   const company: Company | undefined = isCustomer ? undefined : companyQuery.data;
+  const customerEdit = useCustomerEdit();
+  const companyEdit = useCompanyEdit();
+  // Who may edit contacts changes the picture from the header (as erxes does).
+  const canEdit = useCan()('contacts.edit');
 
   if (customer) {
     const title = customerTitle(customer) || untitled;
 
-    return { title, avatar: <RecordAvatar src={customer.avatarUrl} name={title} />, customer };
+    return {
+      title,
+      avatar: (
+        <AvatarEditor
+          src={customer.avatarUrl}
+          name={title}
+          canEdit={canEdit}
+          onSave={(avatarUrl) => customerEdit.mutate({ id: customer.id, avatarUrl })}
+        />
+      ),
+      customer,
+    };
   }
 
   if (company) {
@@ -100,7 +109,14 @@ const useRecordHeading = ({ contentType, contentId }: TRelationEntity) => {
 
     return {
       title,
-      avatar: <RecordAvatar src={company.avatarUrl} name={title} />,
+      avatar: (
+        <AvatarEditor
+          src={company.avatarUrl}
+          name={title}
+          canEdit={canEdit}
+          onSave={(avatarUrl) => companyEdit.mutate({ id: company.id, avatarUrl })}
+        />
+      ),
       website: company.website,
       company,
     };

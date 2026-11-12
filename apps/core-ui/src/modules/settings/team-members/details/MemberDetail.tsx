@@ -3,7 +3,8 @@ import { isApiError, messageOf } from '~/lib/api';
 import { Skeleton, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { MemberAvatar } from '../record/TeamMemberColumns';
-import { memberName, useMemberPermissions, useTeamMember } from '../useTeamMembers';
+import { memberName, useMemberPermissions, useTeamMember, useTeamMemberEdit } from '../useTeamMembers';
+import { AvatarEditor } from '~/components/AvatarEditor';
 import { MemberDetailEmptyState, MemberDetailErrorState } from './MemberDetailStates';
 import { MemberLinks } from './MemberLinks';
 import { MemberPanelActions } from './MemberPanelActions';
@@ -36,12 +37,22 @@ export const MemberDetail = ({
   const expanded = usePanelExpanded();
   const { data: user, error, isPending } = useTeamMember(memberId);
   const permissions = useMemberPermissions(user);
+  const edit = useTeamMemberEdit();
 
   const fallbackTitle = isPending ? <Skeleton className="h-4 w-32" /> : t('member-detail');
   const name = user ? memberName(user) : null;
   const title = user && permissions?.canEdit ? <MemberPanelName user={user} /> : (name ?? fallbackTitle);
+  // Who may edit the member changes their picture from the header (as erxes does).
   const avatar = user ? (
-    <MemberAvatar user={user} className="size-7 flex-none" />
+    permissions?.canEdit ? (
+      <AvatarEditor
+        src={user.avatarUrl}
+        name={name ?? undefined}
+        onSave={(avatarUrl) => edit.mutate({ id: user.id, avatarUrl })}
+      />
+    ) : (
+      <MemberAvatar user={user} className="size-7 flex-none" />
+    )
   ) : isPending ? (
     <Skeleton className="size-7 flex-none rounded-full" />
   ) : undefined;

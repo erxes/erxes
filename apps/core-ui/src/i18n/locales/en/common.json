@@ -1155,5 +1155,10 @@
   },
   "records-found_one": "record found",
   "empty-list": "Nothing here",
-  "empty-list-hint": "Add one, or change the filters and search."
+  "empty-list-hint": "Add one, or change the filters and search.",
+  "avatar": {
+    "change": "Change picture",
+    "title": "Picture",
+    "remove": "Remove"
+  }
 }

@@ -22,7 +22,8 @@
       "birth-date": "Birth date",
       "middle-name": "Middle name",
       "pronoun": "Pronoun",
-      "lifecycle-state": "Lifecycle state"
+      "lifecycle-state": "Lifecycle state",
+      "picture": "Picture"
     },
     "detail": {
       "add-tags": "Add tags",
@@ -103,7 +104,8 @@
       "description": "Description",
       "owner-placeholder": "Select owner",
       "industry-placeholder": "Select industries",
-      "location-placeholder": "Select country"
+      "location-placeholder": "Select country",
+      "picture": "Picture"
     },
     "add": {
       "_": "Add Company",

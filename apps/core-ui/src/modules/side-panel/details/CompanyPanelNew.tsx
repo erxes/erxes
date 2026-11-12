@@ -12,10 +12,12 @@ import {
   IconUserCircle,
   IconUsers,
   IconWorld,
+  IconPhoto,
 } from '@tabler/icons-react';
 import { Editor, Form, Input, MultipleSelector, Select, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
+import { AvatarUploadField } from '~/components/AvatarEditor';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { isApiError, messageOf } from '~/lib/api';
@@ -45,6 +47,7 @@ const companySchema = z.object({
   businessType: z.string().optional(),
   size: z.string().optional(),
   description: z.string().optional(),
+  avatarUrl: z.string().nullable().optional(),
 });
 
 type TCompanyForm = z.infer<typeof companySchema>;
@@ -122,6 +125,7 @@ export const CompanyPanelNew = () => {
         businessType: values.businessType || null,
         size: size ? Number(size) : null,
         description: values.description || null,
+        avatarUrl: values.avatarUrl || null,
       });
 
       if (customerIds.length) {
@@ -155,6 +159,13 @@ export const CompanyPanelNew = () => {
     <Form {...form}>
       <form className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col" onSubmit={form.handleSubmit(save)}>
         <PanelFormLayout onCancel={cancel} saving={create.isPending || linking} saveLabel={t('add._', 'Add company')}>
+          <PanelFormRow icon={IconPhoto} label={t('field.picture', 'Picture')}>
+            <Form.Field
+              control={form.control}
+              name="avatarUrl"
+              render={({ field }) => <AvatarUploadField value={field.value ?? null} onChange={field.onChange} />}
+            />
+          </PanelFormRow>
           {textRow('primaryName', t('field.primaryName', 'Name'), true)}
           {textRow('code', t('field.code', 'Code'))}
           <PanelFormRow icon={IconUser} label={t('customer', 'Customer')}>

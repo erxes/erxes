@@ -10,6 +10,7 @@ import {
   IconHash,
   IconMail,
   IconPhone,
+  IconPhoto,
   IconUser,
   IconUserCircle,
 } from '@tabler/icons-react';
@@ -18,6 +19,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { AvatarUploadField } from '~/components/AvatarEditor';
 import { toYmd } from '~/components/inlineCells';
 import { isApiError, messageOf } from '~/lib/api';
 import { SelectMember } from '~/modules/contacts/components/SelectMember';
@@ -49,6 +51,7 @@ const customerSchema = z
     sex: z.number().nullable(),
     birthDate: z.date().nullable(),
     description: z.string(),
+    avatarUrl: z.string().nullable(),
   })
   .refine(
     (values) => Boolean(values.firstName.trim() || values.lastName.trim() || values.primaryEmail || values.primaryPhone.trim()),
@@ -102,6 +105,7 @@ export const CustomerPanelNew = () => {
       sex: null,
       birthDate: null,
       description: '',
+      avatarUrl: null,
     },
   });
   const { errors } = form.formState;
@@ -125,6 +129,7 @@ export const CustomerPanelNew = () => {
         sex: (values.sex ?? 0) as Customer['sex'],
         birthDate: values.birthDate ? toYmd(values.birthDate) : null,
         description: values.description || null,
+        avatarUrl: values.avatarUrl || null,
       });
 
       // Creation succeeded: a link error still opens the customer, so Save
@@ -166,6 +171,13 @@ export const CustomerPanelNew = () => {
           saving={create.isPending || linking}
           saveLabel={state === 'lead' ? addT('create-lead', 'Create lead') : addT('create', 'Create customer')}
         >
+          <PanelFormRow icon={IconPhoto} label={addT('picture', 'Picture')}>
+            <Form.Field
+              control={form.control}
+              name="avatarUrl"
+              render={({ field }) => <AvatarUploadField value={field.value} onChange={field.onChange} />}
+            />
+          </PanelFormRow>
           {textRow('firstName', addT('first-name', 'First name'))}
           {textRow('middleName', addT('middle-name', 'Middle name'))}
           {textRow('lastName', addT('last-name', 'Last name'))}
