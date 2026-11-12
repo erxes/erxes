@@ -15,7 +15,6 @@ import { FixedAssetForm } from './FixedAssetForm';
 import { FxaIncomeOwnerRecordsSync } from './FxaIncomeOwnerRecordsSheet';
 import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
 import { useFxaIncomeTaxPreview } from '@/transactions/transaction-form/components/forms/hooks/useFxaIncomeTaxPreview';
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useTranslation } from 'react-i18next';
 
 export const FxaIncomeForm = ({
@@ -66,7 +65,7 @@ export const FxaIncomeForm = ({
       <FixedAssetForm form={form} journalIndex={index} />
       {taxError && (
         <p role="alert" className="text-sm text-destructive">
-          {getFxaTaxLabel(t, taxError)}
+          {t(taxError)}
         </p>
       )}
       <FxaIncomeOwnerRecordsSync form={form} journalIndex={index} />

@@ -1,4 +1,3 @@
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import {
   Form,
   Input,
@@ -53,7 +52,7 @@ export const FxaChangeNumberField = ({
     labelOverride ??
     (rule === 'revaluationLoss' || rule === 'revaluationReserve'
       ? `${t('total-amount')} ${t(label)}`
-      : getFxaTaxLabel(t, label));
+      : t(label));
   return (
     <Form.Field
       control={form.control}

@@ -1,4 +1,3 @@
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useApolloClient } from '@apollo/client';
 import dayjs from 'dayjs';
 import { useConfirm, useToast } from 'erxes-ui';
@@ -93,7 +92,7 @@ export const useTrRecordsDelete = () => {
                 >
                   <span className="font-medium">
                     {tr.number || '-'} ·{' '}
-                    {getFxaTaxLabel(t, getJournalLabel(tr.journal))}
+                    {t(getJournalLabel(tr.journal))}
                   </span>
                   <span className="text-muted-foreground tabular-nums">
                     {formatDate(tr.date)} ·{' '}

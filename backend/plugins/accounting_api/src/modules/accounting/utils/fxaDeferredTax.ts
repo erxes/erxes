@@ -1,3 +1,4 @@
+import { getFxaAccounts } from './fxaAccountConfigs';
 import type { IModels } from '~/connectionResolvers';
 import { getFxaTaxValues, type TFxaTaxDetail } from './fxaTaxValues';
 import type { ITransaction, ITrDetail } from '../@types/transaction';
@@ -43,53 +44,6 @@ const indexTaxBalances = (
   return balances;
 };
 
-export type TFxaTaxAccounts = {
-  asset?: string;
-  liability?: string;
-  expense?: string;
-  reserve?: string;
-  loss?: string;
-};
-
-export const getFxaTaxAccounts = async (
-  models: IModels,
-): Promise<Map<string, TFxaTaxAccounts>> => {
-  const configs = await models.Configs.getConfigs('FIXEDASSET_ACCOUNTS');
-  const mappings = new Map<string, TFxaTaxAccounts>();
-  for (const config of configs) {
-    const value: unknown = config.value;
-    if (!config.subId || !value || typeof value !== 'object') continue;
-    mappings.set(config.subId, {
-      asset:
-        'taxAssetAccountId' in value &&
-        typeof value.taxAssetAccountId === 'string'
-          ? value.taxAssetAccountId
-          : undefined,
-      liability:
-        'taxLiabilityAccountId' in value &&
-        typeof value.taxLiabilityAccountId === 'string'
-          ? value.taxLiabilityAccountId
-          : undefined,
-      reserve:
-        'revaluationReserveAccountId' in value &&
-        typeof value.revaluationReserveAccountId === 'string'
-          ? value.revaluationReserveAccountId
-          : undefined,
-      loss:
-        'revaluationLossAccountId' in value &&
-        typeof value.revaluationLossAccountId === 'string'
-          ? value.revaluationLossAccountId
-          : undefined,
-      expense:
-        'TaxExpenseAccountId' in value &&
-        typeof value.TaxExpenseAccountId === 'string'
-          ? value.TaxExpenseAccountId
-          : undefined,
-    });
-  }
-  return mappings;
-};
-
 export const getFxaDeferredTaxTransactions = async (
   models: IModels,
   adjust: Pick<
@@ -107,18 +61,19 @@ export const getFxaDeferredTaxTransactions = async (
   options: {
     openingIncome?: boolean;
     sourceTransaction?: boolean;
-    manualCounterpart?: boolean;
   } = {},
 ): Promise<ITransaction[]> => {
+  if (!details.length) return [];
   const { openingIncome = false } = options;
   const sourceTransaction = options.sourceTransaction || openingIncome;
-  const manualCounterpart =
-    options.manualCounterpart ?? Boolean(sourceTransaction);
-  const mappings = await getFxaTaxAccounts(models);
+  const mappings = await getFxaAccounts(models);
   const accountIds = [
     ...new Set(
-      [...mappings.values()]
-        .flatMap((value) => [value.asset, value.liability])
+      details
+        .flatMap((detail) => {
+          const mapping = mappings.get(detail.accountId || '');
+          return [mapping?.asset, mapping?.liability];
+        })
         .filter((id): id is string => Boolean(id)),
     ),
   ];
@@ -130,6 +85,15 @@ export const getFxaDeferredTaxTransactions = async (
           status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
           date: { $lte: endDate },
           'details.accountId': { $in: accountIds },
+          'details.fixedAssetId': {
+            $in: [
+              ...new Set(
+                details.flatMap((detail) =>
+                  detail.fixedAssetId ? [detail.fixedAssetId] : [],
+                ),
+              ),
+            ],
+          },
           $nor: sourceTransaction
             ? [
                 {
@@ -159,7 +123,7 @@ export const getFxaDeferredTaxTransactions = async (
         detail.incomeTaxRate > 100)
     )
       throw new Error(
-        'Set a valid income tax rate on the acquisition or capitalization depreciation rules.',
+        'Set a valid income tax rate on the asset depreciation rules.',
       );
     const mapping = mappings.get(detail.accountId || '');
     const balance = (accountId?: string): number =>
@@ -170,35 +134,19 @@ export const getFxaDeferredTaxTransactions = async (
     const liabilityDelta = roundAmount(
       (target.deferredTaxLiability || 0) + balance(mapping?.liability),
     );
-    const reserveChange = manualCounterpart
-      ? 0
-      : roundAmount((liabilityDelta - assetDelta) * (detail.reserveShare ?? 0));
-    const expenseChange = manualCounterpart
-      ? 0
-      : roundAmount(liabilityDelta - assetDelta - reserveChange);
-    if (
-      Math.abs(assetDelta) < 0.0001 &&
-      Math.abs(liabilityDelta) < 0.0001 &&
-      Math.abs(reserveChange) < 0.0001
-    )
+    if (Math.abs(assetDelta) < 0.0001 && Math.abs(liabilityDelta) < 0.0001)
       continue;
     if (
-      (expenseChange && !mapping?.expense) ||
-      (reserveChange && !mapping?.reserve) ||
       (assetDelta && !mapping?.asset) ||
       (liabilityDelta && !mapping?.liability)
     ) {
       throw new Error(
-        manualCounterpart
-          ? 'Configure deferred tax asset/liability accounts for the fixed asset account.'
-          : 'Configure deferred tax asset/liability and income tax expense accounts for the fixed asset account.',
+        'Configure deferred tax asset/liability accounts for the fixed asset account.',
       );
     }
     for (const [accountId, signedDebit] of [
       [mapping?.asset, assetDelta],
       [mapping?.liability, -liabilityDelta],
-      [mapping?.reserve, reserveChange],
-      [mapping?.expense, expenseChange],
     ] as const) {
       if (!signedDebit || !accountId) continue;
       (signedDebit > 0 ? debit : credit).push({

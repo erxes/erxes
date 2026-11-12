@@ -1,4 +1,3 @@
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { BranchesInline, DepartmentsInline } from 'ui-modules';
 import type { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/react-table';
@@ -129,7 +128,7 @@ export const adjustFxaDetailColumns = (
       header: () => (
         <RecordTable.InlineHead
           icon={IconCashBanknote}
-          label={getFxaTaxLabel(t, label)}
+          label={t(label)}
         />
       ),
       cell: ({ row }) => <NumberCell value={row.original[field]} />,

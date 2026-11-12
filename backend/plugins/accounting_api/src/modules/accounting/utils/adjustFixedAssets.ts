@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import {
   type TFixedAssetMovement,
   getPureDate,
@@ -542,12 +543,27 @@ export const checkValidFixedAssetDate = async (
   };
 };
 
+const removeAdjustFixedAssetParent = async (
+  models: IModels,
+  adjustId: string,
+  parentId: string,
+) => {
+  const remaining = await models.Transactions.find({
+    contentType: 'accounting:adjustFixedAsset',
+    contentId: adjustId,
+    parentId,
+  }).lean();
+  if (remaining.some((row) => (row.parentId || row._id) === parentId)) {
+    await models.Transactions.removePTransaction({ parentId });
+  }
+};
+
 export const clearAdjustFixedAsset = async (
   models: IModels,
   userId: string,
   adjust: Pick<
     IAdjustFixedAssetDocument,
-    '_id' | 'date' | 'status' | 'expenseAccountId'
+    '_id' | 'date' | 'status' | 'expenseAccountId' | 'taxExpenseAccountId'
   >,
 ) => {
   if (
@@ -578,7 +594,7 @@ export const clearAdjustFixedAsset = async (
     ];
     await parentIds.reduce(async (previous, parentId) => {
       await previous;
-      await models.Transactions.removePTransaction({ parentId });
+      await removeAdjustFixedAssetParent(models, adjust._id, parentId);
     }, Promise.resolve());
   }
 
@@ -903,135 +919,225 @@ export const createAdjustFixedAssetTransaction = async ({
   userId,
   adjust,
   expenseAccountId,
+  taxExpenseAccountId,
 }: {
   models: IModels;
   userId: string;
   adjust: IAdjustFixedAssetDocument;
   expenseAccountId: string;
+  taxExpenseAccountId?: string;
 }) => {
   const details = await models.AdjustFxaDetails.find({
     adjustId: adjust._id,
     error: { $in: [null, ''] },
   }).lean();
+  if (
+    !details.length &&
+    (adjust.status !== ADJ_FXA_STATUSES.PROCESS || adjust.error)
+  )
+    throw new Error(
+      'Calculate depreciation and resolve errors before closing.',
+    );
 
-  if (!details.length) {
-    if (adjust.status !== ADJ_FXA_STATUSES.PROCESS || adjust.error)
-      throw new Error(
-        'Calculate depreciation and resolve errors before closing.',
-      );
-    return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
-      status: ADJ_FXA_STATUSES.COMPLETE,
-      expenseAccountId,
-      modifiedBy: userId,
-    });
-  }
-
-  const accountConfigs = await getFxaDepreciationAccounts(models);
-  const creditDetails: ITransaction['details'] = [];
-  const debitDetails: ITransaction['details'] = [];
-
-  for (const detail of details) {
-    if (!detail.accountId) {
-      throw new Error('Fixed asset account is missing on depreciation detail.');
-    }
-
-    const amount = detail.depreciationAmount || 0;
-    if (amount <= 0) continue;
-    const depreciationAccountId = accountConfigs.get(detail.accountId);
-
-    if (!depreciationAccountId) {
-      throw new Error('Accumulated depreciation account config is missing.');
-    }
-
-    debitDetails.push({
-      accountId: expenseAccountId,
-      count: 0,
-      unitPrice: 0,
-      amount,
-      branchId: detail.branchId,
-      departmentId: detail.departmentId,
-      fixedAssetId: detail.fixedAssetId,
-    });
-    creditDetails.push({
-      accountId: depreciationAccountId,
-      count: 0,
-      unitPrice: 0,
-      amount,
-      branchId: detail.branchId,
-      departmentId: detail.departmentId,
-      fixedAssetId: detail.fixedAssetId,
-    });
-  }
-
-  const trDocs: ITransaction[] = debitDetails.length
-    ? [
-        {
-          _id: details[0].transactionId,
-          date: adjust.date,
-          description: adjust.description,
-          journal: JOURNALS.FXA_DEP,
-          status: TR_STATUSES.COMPLETE,
-          side: TR_SIDES.DEBIT,
-          contentType: 'accounting:adjustFixedAsset',
-          contentId: adjust._id,
-          details: debitDetails,
-        },
-        {
-          date: adjust.date,
-          description: adjust.description,
-          journal: JOURNALS.FXA_DEP,
-          status: TR_STATUSES.COMPLETE,
-          side: TR_SIDES.CREDIT,
-          contentType: 'accounting:adjustFixedAsset',
-          contentId: adjust._id,
-          details: creditDetails,
-        },
-      ]
-    : [];
-
-  const taxRates = await getFxaIncomeTaxRates(models, adjust.date, details);
-  const taxDocs = await getFxaDeferredTaxTransactions(
-    models,
-    adjust,
-    details.map((detail) => ({
-      ...detail,
-      incomeTaxRate: taxRates.get(detail.fixedAssetId || ''),
-    })),
+  const content = {
+    contentType: 'accounting:adjustFixedAsset',
+    contentId: adjust._id,
+  };
+  const existing = await models.Transactions.find(content).lean();
+  const parentIds = [
+    ...new Set(existing.map((row) => row.parentId || row._id)),
+  ];
+  const firstParentId = parentIds[0];
+  const retainedRows = existing.filter(
+    (row) => (row.parentId || row._id) === firstParentId,
   );
-  trDocs.push(...taxDocs);
-  if (!trDocs.length) {
-    return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
-      status: ADJ_FXA_STATUSES.COMPLETE,
-      expenseAccountId,
-      modifiedBy: userId,
-    });
-  }
-
-  const existingTransactionId = details.find(
-    (detail) => detail.transactionId,
-  )?.transactionId;
-  const transactions = existingTransactionId
-    ? await models.Transactions.updatePTransaction(
-        existingTransactionId,
-        trDocs,
-        userId,
-      )
-    : await models.Transactions.createPTransaction(trDocs, userId);
-  const parentId = transactions[0]?.parentId;
-
-  await models.AdjustFxaDetails.updateMany(
-    { adjustId: adjust._id },
+  const discardedPointers = new Set(
+    existing
+      .filter((row) => (row.parentId || row._id) !== firstParentId)
+      .map((row) => row.ptrId),
+  );
+  const previousBookPtrId = retainedRows.find(
+    (row) => row.journal === JOURNALS.FXA_DEP,
+  )?.ptrId;
+  const depreciationPtrId =
+    previousBookPtrId && !discardedPointers.has(previousBookPtrId)
+      ? previousBookPtrId
+      : nanoid();
+  const previousTaxPtrId = retainedRows.find(
+    (row) => row.journal === JOURNALS.FXA_DEFERRED_TAX,
+  )?.ptrId;
+  const taxPtrId =
+    previousTaxPtrId &&
+    previousTaxPtrId !== depreciationPtrId &&
+    !discardedPointers.has(previousTaxPtrId)
+      ? previousTaxPtrId
+      : nanoid();
+  const base = {
+    ...content,
+    date: adjust.date,
+    description: adjust.description,
+    status: TR_STATUSES.COMPLETE,
+  };
+  const expenseBalances = new Map<
+    string,
     {
-      $set: {
-        transactionId: parentId,
-        updatedAt: new Date(),
-      },
-    },
-  );
+      ptrId: string;
+      accountId: string;
+      branchId?: string;
+      departmentId?: string;
+      amount: number;
+    }
+  >();
+  const addExpense = (
+    ptrId: string,
+    accountId: string,
+    detail: Pick<ITransaction['details'][number], 'branchId' | 'departmentId'>,
+    amount: number,
+  ) => {
+    const branchId = detail.branchId || '';
+    const departmentId = detail.departmentId || '';
+    const key = JSON.stringify([ptrId, accountId, branchId, departmentId]);
+    const previous = expenseBalances.get(key);
+    expenseBalances.set(key, {
+      ptrId,
+      accountId,
+      branchId,
+      departmentId,
+      amount: (previous?.amount || 0) + amount,
+    });
+  };
+  const trDocs: ITransaction[] = [];
+  if (details.length) {
+    const accounts = await getFxaDepreciationAccounts(models);
+    const depreciationDetails: ITransaction['details'] = [];
+    for (const detail of details) {
+      if (!detail.accountId)
+        throw new Error(
+          'Fixed asset account is missing on depreciation detail.',
+        );
+      const amount =
+        Math.round((detail.depreciationAmount || 0) * 10000) / 10000;
+      if (amount <= 0) continue;
+      const accountId = accounts.get(detail.accountId);
+      if (!accountId)
+        throw new Error('Accumulated depreciation account config is missing.');
+      depreciationDetails.push({
+        accountId,
+        amount,
+        count: 0,
+        unitPrice: 0,
+        fixedAssetId: detail.fixedAssetId,
+        branchId: detail.branchId,
+        departmentId: detail.departmentId,
+      });
+      addExpense(depreciationPtrId, expenseAccountId, detail, amount);
+    }
+    if (depreciationDetails.length)
+      trDocs.push({
+        ...base,
+        ptrId: depreciationPtrId,
+        journal: JOURNALS.FXA_DEP,
+        side: TR_SIDES.CREDIT,
+        details: depreciationDetails,
+      });
+    const taxRates = await getFxaIncomeTaxRates(models, adjust.date, details);
+    const taxDocs = await getFxaDeferredTaxTransactions(
+      models,
+      adjust,
+      details.map((detail) => ({
+        ...detail,
+        incomeTaxRate: taxRates.get(detail.fixedAssetId || ''),
+      })),
+    );
+    for (const transaction of taxDocs) {
+      for (const detail of transaction.details) {
+        addExpense(
+          taxPtrId,
+          taxExpenseAccountId || '',
+          detail,
+          (transaction.side === TR_SIDES.DEBIT ? -1 : 1) * detail.amount,
+        );
+      }
+    }
+    trDocs.push(
+      ...taxDocs.map((transaction) => ({ ...transaction, ptrId: taxPtrId })),
+    );
+  }
+  for (const ptrId of [depreciationPtrId, taxPtrId]) {
+    const debit: ITransaction['details'] = [];
+    const credit: ITransaction['details'] = [];
+    for (const detail of expenseBalances.values()) {
+      if (detail.ptrId !== ptrId) continue;
+      const amount = Math.round(detail.amount * 10000) / 10000;
+      if (!amount) continue;
+      if (!detail.accountId)
+        throw new Error(
+          'Select an income tax expense account before posting deferred tax.',
+        );
+      (amount > 0 ? debit : credit).push({
+        accountId: detail.accountId,
+        branchId: detail.branchId,
+        departmentId: detail.departmentId,
+        amount: Math.abs(amount),
+        count: 0,
+        unitPrice: 0,
+      });
+    }
+    for (const [side, rows] of [
+      [TR_SIDES.DEBIT, debit],
+      [TR_SIDES.CREDIT, credit],
+    ] as const) {
+      if (rows.length)
+        trDocs.push({
+          ...base,
+          ptrId,
+          journal: JOURNALS.MAIN,
+          side,
+          details: rows,
+        });
+    }
+  }
 
+  await assertCanWriteTransactionAccounts({
+    models,
+    userId,
+    docs: trDocs,
+    oldTrs: existing,
+  });
+  const retainedParentId = trDocs.length ? parentIds[0] : undefined;
+  const transactions = trDocs.length
+    ? retainedParentId
+      ? await models.Transactions.updatePTransaction(
+          retainedParentId,
+          trDocs,
+          userId,
+          { preservePtrIds: true },
+        )
+      : await models.Transactions.createPTransaction(trDocs, userId, {
+          preservePtrIds: true,
+        })
+    : [];
+  await parentIds
+    .filter((parentId) => parentId !== retainedParentId)
+    .reduce(async (previous, parentId) => {
+      await previous;
+      await removeAdjustFixedAssetParent(models, adjust._id, parentId);
+    }, Promise.resolve());
+  const parentId = transactions[0]?.parentId;
+  if (details.length)
+    await models.AdjustFxaDetails.updateMany(
+      { adjustId: adjust._id },
+      parentId
+        ? { $set: { transactionId: parentId, updatedAt: new Date() } }
+        : {
+            $unset: { transactionId: '', transactionDetailId: '' },
+            $set: { updatedAt: new Date() },
+          },
+    );
   return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
     status: ADJ_FXA_STATUSES.COMPLETE,
     expenseAccountId,
+    taxExpenseAccountId,
     modifiedBy: userId,
   });
 };

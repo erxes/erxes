@@ -362,5 +362,5 @@ test('next adjustment subtracts the already recognized opening deferred tax inst
     ],
   );
   expect(signed(docs, 'dta')).toBe(5);
-  expect(signed(docs, 'tax-expense')).toBe(-5);
+  expect(signed(docs, 'tax-expense')).toBe(0);
 });

@@ -149,6 +149,7 @@ export const FxaChangeRow = ({
                 <FxaChangeDepreciationFields
                   {...fieldProps}
                   valuation={valuation}
+                  revaluation={revaluation}
                 />
                 {valuation?.hasTaxDepreciation && (
                   <>
@@ -156,34 +157,39 @@ export const FxaChangeRow = ({
                       {...fieldProps}
                       valuation={valuation}
                       tax
+                      revaluation={revaluation}
                     />
-                    <FxaChangeNumberField
-                      {...fieldProps}
-                      rule="incomeTaxRate"
-                      label="income-tax-rate"
-                      fallbackValue={valuation.incomeTaxRate ?? undefined}
-                    />
+                    {!revaluation && (
+                      <FxaChangeNumberField
+                        {...fieldProps}
+                        rule="incomeTaxRate"
+                        label="income-tax-rate"
+                        fallbackValue={valuation.incomeTaxRate ?? undefined}
+                      />
+                    )}
                   </>
                 )}
-                <Form.Field
-                  control={form.control}
-                  name={`trDocs.${index}.details.${detailIndex}.followInfos.depreciationStartDate`}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('depreciation-start-date')}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          type="date"
-                          value={field.value?.slice(0, 10) || ''}
-                          onChange={(event) =>
-                            field.onChange(event.target.value || undefined)
-                          }
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                {!revaluation && (
+                  <Form.Field
+                    control={form.control}
+                    name={`trDocs.${index}.details.${detailIndex}.followInfos.depreciationStartDate`}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('depreciation-start-date')}</Form.Label>
+                        <Form.Control>
+                          <Input
+                            type="date"
+                            value={field.value?.slice(0, 10) || ''}
+                            onChange={(event) =>
+                              field.onChange(event.target.value || undefined)
+                            }
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                )}
               </div>
               {valuation && (
                 <dl className="grid grid-cols-2 gap-3 text-sm">
@@ -296,13 +302,21 @@ export const FxaChangeRow = ({
         />
       </Table.Cell>
       <Table.Cell>
-        <FxaChangeNumberField
-          {...fieldProps}
-          rule="annualDepreciationRate"
-          label="fxa-new-useful-years"
-          compact
-          usefulYears
-        />
+        {revaluation ? (
+          <RecordTableInlineCell>
+            {valuation?.annualDepreciationRate
+              ? 100 / valuation.annualDepreciationRate
+              : '-'}
+          </RecordTableInlineCell>
+        ) : (
+          <FxaChangeNumberField
+            {...fieldProps}
+            rule="annualDepreciationRate"
+            label="fxa-new-useful-years"
+            compact
+            usefulYears
+          />
+        )}
       </Table.Cell>
       <Table.Cell className="tabular-nums">
         <RecordTableInlineCell>

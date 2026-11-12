@@ -1,5 +1,4 @@
 import { FxaAccountMatchingWarning } from '@/transactions/transaction-form/components/forms/FxaAccountMatchingWarning';
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useFixedAssetAccountConfigs } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
@@ -144,10 +143,10 @@ export const FxaChangeTable = ({
           'fxa-capital-tax-accounts-required',
           'fxa-revaluation-accounts-required',
         ].includes(taxError) ? (
-          <FxaAccountMatchingWarning message={getFxaTaxLabel(t, taxError)} />
+          <FxaAccountMatchingWarning message={t(taxError)} />
         ) : (
           <p role="alert" className="text-sm text-destructive">
-            {getFxaTaxLabel(t, taxError)}
+            {t(taxError)}
           </p>
         ))}
       {taxAccountsError &&

@@ -45,6 +45,7 @@ export interface IAdjustFxaDetailDocument extends IAdjustFxaDetail, Document {
 
 export interface IAdjustFixedAsset extends ICommonAdjusting {
   expenseAccountId?: string;
+  taxExpenseAccountId?: string;
   date: Date;
   description: string;
   status: string;

@@ -6,13 +6,13 @@ import {
   TR_FOLLOW_TYPES,
   TR_DETAIL_FOLLOW_TYPES,
 } from '../@types/constants';
-import { getFxaTaxAccounts } from './fxaDeferredTax';
+import { getFxaAccounts } from './fxaAccountConfigs';
 
 export const getFxaRevaluationTransactions = async (
   models: IModels,
   transaction: ITransaction,
 ): Promise<ITransaction[]> => {
-  const mappings = await getFxaTaxAccounts(models);
+  const mappings = await getFxaAccounts(models);
   const debit: ITrDetail[] = [];
   const credit: ITrDetail[] = [];
   for (const detail of transaction.details) {

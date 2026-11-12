@@ -14,8 +14,6 @@ export type TFxaCapitalTaxAccounts = Record<
   IFixedAssetAccountConfig['value']
 >;
 
-export const FXA_DEFERRED_TAX_ORIGIN = TrJournalEnum.FXA_DEFERRED_TAX;
-
 export const buildFxaCapitalTaxPreview = (
   trDoc: TTrDoc,
   valuation: TFxaCapitalValuation,
@@ -23,14 +21,12 @@ export const buildFxaCapitalTaxPreview = (
   taxAccounts?: TFxaCapitalTaxAccounts,
 ): { follows: ITransaction[]; error?: string } => {
   if (
-    (trDoc.journal !== TrJournalEnum.FXA_CAPITAL &&
-      trDoc.journal !== TrJournalEnum.FXA_REVALUATION) ||
+    trDoc.journal !== TrJournalEnum.FXA_CAPITAL ||
     !valuation.hasTaxDepreciation ||
     !taxAccounts
   )
     return { follows: [] };
   const config = taxAccounts[valuation.accountId];
-  const revaluation = trDoc.journal === TrJournalEnum.FXA_REVALUATION;
   const debit: ITrDetail[] = [];
   const credit: ITrDetail[] = [];
   const rate =
@@ -52,22 +48,8 @@ export const buildFxaCapitalTaxPreview = (
     const liabilityDelta = money(
       Math.max(target, 0) - (location.deferredTaxLiability ?? 0),
     );
-    const reserve = info?.revaluationReserve ?? 0;
-    const bookChange = reserve - (info?.revaluationLoss ?? 0);
-    const reserveShare =
-      revaluation && Math.abs(bookChange) > 0.005
-        ? Math.min(1, Math.max(0, reserve / bookChange))
-        : 0;
-    const reserveChange = revaluation
-      ? money((liabilityDelta - assetDelta) * reserveShare)
-      : 0;
-    const expenseChange = revaluation
-      ? money(liabilityDelta - assetDelta - reserveChange)
-      : 0;
-    if (!assetDelta && !liabilityDelta && !reserveChange) continue;
+    if (!assetDelta && !liabilityDelta) continue;
     if (
-      (reserveChange && !config?.revaluationReserveAccountId) ||
-      (expenseChange && !config?.TaxExpenseAccountId) ||
       (assetDelta && !config?.taxAssetAccountId) ||
       (liabilityDelta && !config?.taxLiabilityAccountId)
     ) {
@@ -76,16 +58,14 @@ export const buildFxaCapitalTaxPreview = (
     for (const [accountId, amount] of [
       [config?.taxAssetAccountId, assetDelta],
       [config?.taxLiabilityAccountId, -liabilityDelta],
-      [config?.revaluationReserveAccountId, reserveChange],
-      [config?.TaxExpenseAccountId, expenseChange],
     ] as const) {
       if (!accountId || !amount) continue;
       (amount > 0 ? debit : credit).push({
-        _id: `${trDoc._id}-${FXA_DEFERRED_TAX_ORIGIN}-${
+        _id: `${trDoc._id}-${TrJournalEnum.FXA_DEFERRED_TAX}-${
           valuation.fixedAssetId
         }-${index}-${accountId}-${amount > 0 ? 'dt' : 'ct'}`,
         originId: details[index]._id,
-        originType: FXA_DEFERRED_TAX_ORIGIN,
+        originType: TrJournalEnum.FXA_DEFERRED_TAX,
         fixedAssetId: valuation.fixedAssetId,
         accountId,
         branchId: location.branchId,
@@ -106,10 +86,10 @@ export const buildFxaCapitalTaxPreview = (
       .filter((row) => row.details.length)
       .map((row) => ({
         ...row,
-        _id: `${trDoc._id}-${FXA_DEFERRED_TAX_ORIGIN}-${row.side}-${valuation.fixedAssetId}`,
+        _id: `${trDoc._id}-${TrJournalEnum.FXA_DEFERRED_TAX}-${row.side}-${valuation.fixedAssetId}`,
         journal: TrJournalEnum.FXA_DEFERRED_TAX,
         originId: trDoc._id,
-        originType: FXA_DEFERRED_TAX_ORIGIN,
+        originType: TrJournalEnum.FXA_DEFERRED_TAX,
         ptrId: trDoc.ptrId,
         parentId: trDoc.parentId,
         description: trDoc.description,

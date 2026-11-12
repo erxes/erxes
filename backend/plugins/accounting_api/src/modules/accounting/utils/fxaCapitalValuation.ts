@@ -1,10 +1,9 @@
-import { getFxaTaxAccounts } from './fxaDeferredTax';
 import {
   calculateFxaTaxDepreciation,
   getAssetLocationCountsAtDate,
   getTotalCount,
 } from './fxaDepreciation';
-import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
+import { getFxaAccounts } from './fxaAccountConfigs';
 import {
   getFxaLedgerAssets,
   fxaMovementSign,
@@ -71,14 +70,12 @@ export const getFxaCapitalValuation = async (
   ) {
     throw new Error('Permission denied for fixed asset valuation accounts.');
   }
-  const depreciationAccounts = await getFxaDepreciationAccounts(models);
-  const depreciationAccountId =
-    depreciationAccounts.get(asset.accountId || '') || '';
+  const accounts = (await getFxaAccounts(models)).get(asset.accountId);
+  const depreciationAccountId = accounts?.depreciation || '';
   if (!depreciationAccountId)
     throw new Error(
       'Configure the accumulated depreciation account for this asset.',
     );
-  const taxAccounts = (await getFxaTaxAccounts(models)).get(asset.accountId);
   const locations = new Map<
     string,
     {
@@ -107,9 +104,9 @@ export const getFxaCapitalValuation = async (
       location.count +=
         fxaMovementSign(transaction.journal) * (detail.count || 0);
       const debit = transaction.side === TR_SIDES.CREDIT ? -1 : 1;
-      if (taxAccounts?.asset && detail.accountId === taxAccounts.asset)
+      if (accounts?.asset && detail.accountId === accounts.asset)
         location.deferredTaxAsset += detail.amount * debit;
-      if (taxAccounts?.liability && detail.accountId === taxAccounts.liability)
+      if (accounts?.liability && detail.accountId === accounts.liability)
         location.deferredTaxLiability -= detail.amount * debit;
       locations.set(key, location);
       if (

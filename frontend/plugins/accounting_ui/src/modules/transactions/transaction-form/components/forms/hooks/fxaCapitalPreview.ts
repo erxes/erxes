@@ -8,7 +8,6 @@ import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { TrJournalEnum, TR_SIDES } from '@/transactions/types/constants';
 import {
   buildFxaCapitalTaxPreview,
-  FXA_DEFERRED_TAX_ORIGIN as TAX_ORIGIN,
   type TFxaCapitalValuation,
   type TFxaCapitalTaxAccounts,
 } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalTaxPreview';
@@ -64,7 +63,11 @@ const buildFxaCapitalAssetPreview = (
     getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation,
     valuation.locations.map((location) => location.count),
   );
-  const totalTax = valuation.hasTaxDepreciation
+  const totalTax = revaluation
+    ? (valuation.taxPreDeprecation ?? valuation.preDeprecation) +
+      (getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation) -
+      valuation.preDeprecation
+    : valuation.hasTaxDepreciation
     ? getTotalFxaDepreciation(trDoc.details, 'taxPreDeprecation') ??
       valuation.taxPreDeprecation ??
       valuation.preDeprecation
@@ -261,21 +264,18 @@ export const mergeFxaDepreciationFollows = (
         row.originType !== TrJournalEnum.FXA_DEP_OUT &&
         !(
           replaceTax &&
-          (row.originType === TAX_ORIGIN ||
+          (row.originType === TrJournalEnum.FXA_DEFERRED_TAX ||
             row.originType === TrJournalEnum.FXA_REVALUATION_RESULT)
         )),
   );
   const next = [
     ...remaining,
     ...follows.map((row) => {
-      const isTaxOrRevaluation =
-        row.originType === TAX_ORIGIN ||
-        row.originType === TrJournalEnum.FXA_REVALUATION_RESULT;
       const saved = previous.find(
         (old) =>
           old.originId === originId &&
           old.originType === row.originType &&
-          (!isTaxOrRevaluation || old.side === row.side),
+          old.side === row.side,
       );
       return {
         ...saved,
@@ -285,7 +285,7 @@ export const mergeFxaDepreciationFollows = (
           const savedDetail = saved?.details.find(
             (old) =>
               old.fixedAssetId === detail.fixedAssetId &&
-              (!isTaxOrRevaluation || old.accountId === detail.accountId) &&
+              old.accountId === detail.accountId &&
               (old.branchId || '') === (detail.branchId || '') &&
               (old.departmentId || '') === (detail.departmentId || ''),
           );

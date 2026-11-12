@@ -507,12 +507,12 @@ test('tax preview merging preserves both saved sides and distinct account detail
   expect(mergeFxaDepreciationFollows(merged, [], doc._id, true)).toEqual([]);
 });
 
-test('revaluation preview uses shared cost, matches reserve/loss, and balances its tax change', () => {
+test('revaluation preview preserves the tax difference and balances through reserve/loss without tax rows', () => {
   const doc = journal();
   doc.journal = TrJournalEnum.FXA_REVALUATION;
   doc.details[0].followInfos = {
     ...doc.details[0].followInfos,
-    taxPreDeprecation: 90,
+    taxPreDeprecation: 60,
   };
   const result = buildFxaCapitalPreview(doc, activeTaxValuation, taxAccounts);
   expect(result?.error).toBeUndefined();
@@ -523,10 +523,10 @@ test('revaluation preview uses shared cost, matches reserve/loss, and balances i
   ).toBe(true);
   expect(
     result?.follows.some((tr) => tr.journal === TrJournalEnum.FXA_DEFERRED_TAX),
-  ).toBe(true);
+  ).toBe(false);
   expect(
     result?.details.map((row) => row.followInfos?.taxPreDeprecation),
-  ).toEqual([60, 30]);
+  ).toEqual([40, 20]);
   const all = [
     { ...doc, side: result?.side, details: result?.details || [] },
     ...(result?.follows || []),
@@ -540,8 +540,8 @@ test('revaluation preview uses shared cost, matches reserve/loss, and balances i
       0,
     ),
   ).toBeCloseTo(0);
-  expect(signedTax(result?.follows || [], 'reserve')).toBeCloseTo(-117);
-  expect(signedTax(result?.follows || [], 'tax-asset')).toBeCloseTo(-3);
+  expect(signedTax(result?.follows || [], 'reserve')).toBeCloseTo(-120);
+  expect(signedTax(result?.follows || [], 'tax-asset')).toBeCloseTo(0);
   expect(signedTax(result?.follows || [], 'tax-expense')).toBeCloseTo(0);
 });
 

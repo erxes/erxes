@@ -1,3 +1,6 @@
+jest.mock('../trPermissions', () => ({
+  assertCanWriteTransactionAccounts: jest.fn(),
+}));
 import type { IModels } from '~/connectionResolvers';
 import type { ITransaction } from '../../@types/transaction';
 import type { IAdjustFxaDetail } from '../../@types/adjustFixedAsset';
@@ -646,7 +649,7 @@ test('a zero-depreciation period closes its snapshots without creating a zero jo
   const models = {
     AdjustFxaDetails: { find: () => query([]) },
     AdjustFixedAssets: { updateAdjustFixedAsset: update },
-    Transactions: { createPTransaction: create },
+    Transactions: { createPTransaction: create, find: () => query([]) },
   };
   const result = await createAdjustFixedAssetTransaction({
     models: models as unknown as IModels,

@@ -125,7 +125,12 @@ export const AdjustFixedAssets = {
     {
       adjustId,
       expenseAccountId,
-    }: { adjustId: string; expenseAccountId: string },
+      taxExpenseAccountId,
+    }: {
+      adjustId: string;
+      expenseAccountId: string;
+      taxExpenseAccountId?: string;
+    },
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustFixedAssets');
@@ -148,6 +153,7 @@ export const AdjustFixedAssets = {
       userId: user._id,
       adjust,
       expenseAccountId,
+      taxExpenseAccountId,
     });
   },
 };

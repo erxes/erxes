@@ -1,4 +1,3 @@
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useTranslation } from 'react-i18next';
 import { IconLock, IconX, IconZoomExclamation } from '@tabler/icons-react';
 import { IAccount } from '@/settings/account/types/Account';
@@ -280,10 +279,8 @@ export const TransactionsTabsList = ({
           {fields.map((field, index) => {
             const isHidden = isHiddenTransaction(field);
             const label =
-              getFxaTaxLabel(
-                t,
-                TR_JOURNAL_LABELS[field.journal as TrJournalEnum] || '',
-              ) || t('restricted-transaction');
+              t(TR_JOURNAL_LABELS[field.journal as TrJournalEnum] || '') ||
+              t('restricted-transaction');
 
             return (
               <Tabs.Trigger

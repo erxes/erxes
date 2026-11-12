@@ -709,12 +709,16 @@ test('capitalization tax posts the balance change and keeps debit/credit follows
   );
 });
 
-test('revaluation preserves independent tax targets and income tax rate for dated replay', () => {
+test('revaluation preserves the existing depreciation difference and income tax rate', () => {
   const doc = document();
   doc.journal = JOURNALS.FXA_REVALUATION;
   doc.details[0].followInfos = {
     ...doc.details[0].followInfos,
-    taxPreDeprecation: 90,
+    annualDepreciationRate: valuation.annualDepreciationRate,
+  };
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 60,
     incomeTaxRate: 10,
   };
   const { main, follows } = buildFxaCapitalDocuments(doc, taxValuation);
@@ -730,15 +734,19 @@ test('revaluation preserves independent tax targets and income tax rate for date
   ).toBe(true);
 });
 
-test('revaluation automatically balances reserve/loss and OCI/profit tax against the source book change', async () => {
+test('revaluation balances reserve/loss without changing existing deferred tax', async () => {
   const { models, raw } = fixture();
   jest.mocked(getFxaCapitalValuation).mockResolvedValue(taxValuation);
   const doc = document();
   doc.journal = JOURNALS.FXA_REVALUATION;
   doc.details[0].followInfos = {
     ...doc.details[0].followInfos,
-    taxPreDeprecation: 90,
-    taxAnnualDepreciationRate: 25,
+    annualDepreciationRate: valuation.annualDepreciationRate,
+  };
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    taxPreDeprecation: 60,
+    taxAnnualDepreciationRate: 20,
     incomeTaxRate: 10,
   };
   raw.Transactions.find.mockImplementation(() =>
@@ -797,13 +805,15 @@ test('revaluation automatically balances reserve/loss and OCI/profit tax against
             .reduce((total, row) => total + row.amount, 0),
       0,
     );
-  // Shared cost leaves a tax depreciation difference: old DTA 6 becomes DTA 3.
-  expect(signed('reserve')).toBeCloseTo(-117);
-  expect(signed('tax-asset')).toBeCloseTo(-3);
+  expect(signed('reserve')).toBeCloseTo(-120);
+  expect(signed('tax-asset')).toBeCloseTo(0);
+  expect(
+    result.otherTrs.some((row) => row.journal === JOURNALS.FXA_DEFERRED_TAX),
+  ).toBe(false);
   expect(signed('tax-expense')).toBeCloseTo(0);
   expect(
     result.mainTr.details.every(
-      (row) => row.followInfos?.taxAnnualDepreciationRate === 25,
+      (row) => row.followInfos?.taxAnnualDepreciationRate === 20,
     ),
   ).toBe(true);
 });
@@ -813,8 +823,54 @@ test('missing revaluation matching fails before any source or follow writes', as
   raw.Configs.getConfigs = async () => [];
   const doc = document();
   doc.journal = JOURNALS.FXA_REVALUATION;
+  doc.details[0].followInfos = {
+    ...doc.details[0].followInfos,
+    annualDepreciationRate: valuation.annualDepreciationRate,
+  };
   await expect(saveFxaCapital('tenant', models, 'user', doc)).rejects.toThrow(
     'Configure revaluation reserve/loss accounts',
   );
   expect(createOrUpdateTr).not.toHaveBeenCalled();
+});
+
+test.each([
+  ['annualDepreciationRate', 25],
+  ['depreciationMethod', 'decliningBalance'],
+  ['salvageValue', 1],
+  ['taxAnnualDepreciationRate', 25],
+  ['taxSalvageValue', 1],
+  ['incomeTaxRate', 20],
+])(
+  'revaluation rejects changed %s instead of silently changing dated rules',
+  (field, value) => {
+    const doc = document();
+    doc.journal = JOURNALS.FXA_REVALUATION;
+    doc.details[0].followInfos = {
+      originalCost: 150,
+      preDeprecation: 120,
+      [field]: value,
+    };
+    expect(() => buildFxaCapitalDocuments(doc, taxValuation)).toThrow();
+  },
+);
+
+test('revaluation derives tax depreciation from the book delta and rejects an independent target', () => {
+  const doc = document();
+  doc.journal = JOURNALS.FXA_REVALUATION;
+  doc.details[0].followInfos = { originalCost: 150, preDeprecation: 120 };
+  const { main } = buildFxaCapitalDocuments(doc, taxValuation);
+  expect(main.details.map((row) => row.followInfos?.taxPreDeprecation)).toEqual(
+    [40, 20],
+  );
+  expect(
+    main.details.reduce(
+      (sum, row) =>
+        sum +
+        (row.followInfos?.preDeprecation ?? 0) -
+        (row.followInfos?.taxPreDeprecation ?? 0),
+      0,
+    ),
+  ).toBe(60);
+  doc.details[0].followInfos.taxPreDeprecation = 90;
+  expect(() => buildFxaCapitalDocuments(doc, taxValuation)).toThrow('preserve');
 });

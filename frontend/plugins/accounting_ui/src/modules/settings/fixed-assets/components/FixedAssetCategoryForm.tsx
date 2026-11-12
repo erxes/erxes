@@ -1,4 +1,3 @@
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
@@ -172,7 +171,7 @@ export const FixedAssetCategoryForm = ({
       <NumberFieldRow
         form={form}
         name="incomeTaxRate"
-        label={getFxaTaxLabel(t, 'income-tax-rate')}
+        label={t('income-tax-rate')}
       />
 
       <Form.Field

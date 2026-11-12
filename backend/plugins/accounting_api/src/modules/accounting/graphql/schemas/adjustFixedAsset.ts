@@ -2,6 +2,7 @@ export const types = `
   type AdjustFixedAsset @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     expenseAccountId: String
+    taxExpenseAccountId: String
     date: Date
     description: String
     status: String
@@ -102,5 +103,5 @@ export const mutations = `
   adjustFixedAssetRemove(adjustId: String!): String
   adjustFixedAssetClear(adjustId: String!): AdjustFixedAsset
   adjustFixedAssetRun(adjustId: String!): AdjustFixedAsset
-  adjustFixedAssetTransaction(adjustId: String!, expenseAccountId: String!): AdjustFixedAsset
+  adjustFixedAssetTransaction(adjustId: String!, expenseAccountId: String!, taxExpenseAccountId: String): AdjustFixedAsset
 `;

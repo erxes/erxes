@@ -1,3 +1,6 @@
+jest.mock('../trPermissions', () => ({
+  assertCanWriteTransactionAccounts: jest.fn(),
+}));
 import { calculateFxaTaxDepreciation } from '../fxaDepreciation';
 import type { IModels } from '~/connectionResolvers';
 import type { IFxaLedgerAsset } from '../fxaLedger';
@@ -185,7 +188,7 @@ const detail: IAdjustFxaDetail & { incomeTaxRate: number } = {
 };
 const fixtures = (
   posted: ITransaction[] = [],
-  expense: string | undefined = 'expense',
+  asset: string | undefined = 'dta',
 ) =>
   ({
     Configs: {
@@ -193,15 +196,36 @@ const fixtures = (
         {
           subId: 'cost',
           value: {
-            taxAssetAccountId: 'dta',
+            taxAssetAccountId: asset,
             taxLiabilityAccountId: 'dtl',
-            TaxExpenseAccountId: expense,
           },
+        },
+        {
+          subId: 'unrelated-cost',
+          value: { taxAssetAccountId: 'unrelated-tax' },
         },
       ],
     },
     Transactions: { find: jest.fn(() => ({ lean: async () => posted })) },
   } as unknown as IModels);
+
+test('deferred tax ledger reads only the selected asset and its matched tax accounts', async () => {
+  const models = fixtures();
+  await getFxaDeferredTaxTransactions(models, adjust, [
+    {
+      ...detail,
+      accumulatedDepreciation: 100,
+      taxAccumulatedDepreciation: 200,
+    },
+  ]);
+  expect(models.Transactions.find).toHaveBeenCalledWith(
+    expect.objectContaining({
+      'details.fixedAssetId': { $in: ['asset'] },
+      'details.accountId': { $in: ['dta', 'dtl'] },
+    }),
+  );
+});
+
 const signed = (docs: ITransaction[], account: string) =>
   docs.reduce(
     (sum, doc) =>
@@ -235,11 +259,11 @@ const postedLiability: ITransaction[] = [
 ];
 
 test.each([
-  [20, 0, 20, 0, -20],
-  [0, 20, 0, -20, 20],
+  [20, 0, 20, 0],
+  [0, 20, 0, -20],
 ])(
-  'deferred tax uses the configured asset/liability and expense accounts',
-  async (dta, dtl, expectedDta, expectedDtl, expectedExpense) => {
+  'deferred tax emits only configured per-asset balance legs',
+  async (dta, dtl, expectedDta, expectedDtl) => {
     const docs = await getFxaDeferredTaxTransactions(fixtures(), adjust, [
       {
         ...detail,
@@ -249,17 +273,7 @@ test.each([
     ]);
     expect(signed(docs, 'dta')).toBe(expectedDta);
     expect(signed(docs, 'dtl')).toBe(expectedDtl);
-    expect(signed(docs, 'expense')).toBe(expectedExpense);
-    expect(
-      docs.reduce(
-        (sum, doc) =>
-          sum +
-          signed([doc], 'dta') +
-          signed([doc], 'dtl') +
-          signed([doc], 'expense'),
-        0,
-      ),
-    ).toBe(0);
+    expect(signed(docs, 'expense')).toBe(0);
   },
 );
 
@@ -271,7 +285,7 @@ test('posts only the change, including a reversal when the sign crosses', async 
   );
   expect(signed(docs, 'dtl')).toBe(10);
   expect(signed(docs, 'dta')).toBe(5);
-  expect(signed(docs, 'expense')).toBe(-15);
+  expect(signed(docs, 'expense')).toBe(0);
 });
 
 test('fully disposed location clears deferred liability even with zero book depreciation', async () => {
@@ -281,7 +295,7 @@ test('fully disposed location clears deferred liability even with zero book depr
     [{ ...detail, taxAccumulatedDepreciation: 0, accumulatedDepreciation: 0 }],
   );
   expect(signed(docs, 'dtl')).toBe(10);
-  expect(signed(docs, 'expense')).toBe(-10);
+  expect(signed(docs, 'expense')).toBe(0);
 });
 
 test('unchanged balance produces no duplicate journal', async () => {
@@ -343,7 +357,7 @@ test('tax balances remain isolated by asset and detail location, including expli
     expect.objectContaining({ branchId: 'a', amount: 10 }),
     expect.objectContaining({ branchId: '', departmentId: '', amount: 12 }),
   ]);
-  expect(signed(docs, 'expense')).toBe(-22);
+  expect(signed(docs, 'expense')).toBe(0);
 });
 
 test('posting ignores contradictory legacy cached tax targets', async () => {
@@ -360,7 +374,7 @@ test('posting ignores contradictory legacy cached tax targets', async () => {
   ]);
   expect(signed(docs, 'dta')).toBe(40);
   expect(signed(docs, 'dtl')).toBe(0);
-  expect(signed(docs, 'expense')).toBe(-40);
+  expect(signed(docs, 'expense')).toBe(0);
 });
 
 test('assets in the same posting use their own income tax rates', async () => {
@@ -441,11 +455,12 @@ test.each([1000, 0])(
       userId: 'user',
       adjust,
       expenseAccountId: 'book-expense',
+      taxExpenseAccountId: 'chosen-tax-expense',
     });
     const docs = create.mock.calls[0][0];
     expect(
       signed(
-        docs.filter((doc) => doc.journal === JOURNALS.FXA_DEP),
+        docs.filter((doc) => doc.journal === JOURNALS.MAIN),
         'book-expense',
       ),
     ).toBe(bookExpense);
@@ -456,7 +471,8 @@ test.each([1000, 0])(
       ),
     ).toBeCloseTo(-bookExpense);
     expect(signed(docs, 'dta')).toBe(40);
-    expect(signed(docs, 'expense')).toBe(-40);
+    expect(signed(docs, 'chosen-tax-expense')).toBe(-40);
+    expect(signed(docs, 'expense')).toBe(0);
     expect(
       docs.flatMap((doc) => doc.details).some((row) => row.amount === 600),
     ).toBe(false);

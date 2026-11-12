@@ -1,5 +1,4 @@
 import { ITrDetail } from '@/transactions/types/Transaction';
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useId } from 'react';
 import { Form, Input, InputNumber, Label } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
@@ -17,11 +16,13 @@ export const FxaDepreciationFields = ({
   detailIndex,
   valuation,
   tax = false,
+  revaluation = false,
   labels,
   showUnit = true,
 }: IFxaChangeFieldProps & {
   valuation?: TFxaCapitalValuation;
   tax?: boolean;
+  revaluation?: boolean;
   labels?: { unit: string; total: string };
   showUnit?: boolean;
 }) => {
@@ -37,20 +38,26 @@ export const FxaDepreciationFields = ({
     : [detail];
   const count = valuation?.count ?? detail.count ?? 0;
   const rule = tax ? 'taxPreDeprecation' : 'preDeprecation';
-  const total =
+  const storedTotal =
     getTotalFxaDepreciation(group, rule) ??
     (tax ? valuation?.taxPreDeprecation : valuation?.preDeprecation) ??
     0;
+  const total =
+    revaluation && tax && valuation
+      ? (valuation.taxPreDeprecation ?? valuation.preDeprecation) +
+        (getTotalFxaDepreciation(group) ?? valuation.preDeprecation) -
+        valuation.preDeprecation
+      : storedTotal;
   const unitPreDeprecation = count ? total / count : 0;
   const unitLabel =
     labels?.unit ??
     (tax
-      ? getFxaTaxLabel(t, 'tax-unit-accumulated-depreciation')
+      ? t('tax-unit-accumulated-depreciation')
       : t('fxa-new-unit-depreciation'));
   const totalLabel =
     labels?.total ??
     (tax
-      ? getFxaTaxLabel(t, 'tax-total-accumulated-depreciation')
+      ? t('tax-total-accumulated-depreciation')
       : `${t('total-amount')} ${t('prior-accumulated-depreciation')}`);
   const setTotal = (value: number) => {
     const counts = group.map(
@@ -64,10 +71,26 @@ export const FxaDepreciationFields = ({
         0,
     );
     const amounts = allocateFxaDepreciation(value, counts);
+    const taxAmounts =
+      revaluation && !tax && valuation
+        ? allocateFxaDepreciation(
+            (valuation.taxPreDeprecation ?? valuation.preDeprecation) +
+              value -
+              valuation.preDeprecation,
+            counts,
+          )
+        : undefined;
     let groupIndex = 0;
     details.forEach((row, rowIndex) => {
       if (!group.includes(row)) return;
-      const amount = amounts[groupIndex++];
+      const amount = amounts[groupIndex];
+      if (taxAmounts)
+        form.setValue(
+          `trDocs.${index}.details.${rowIndex}.followInfos.taxPreDeprecation`,
+          taxAmounts[groupIndex],
+          { shouldDirty: true, shouldValidate: true },
+        );
+      groupIndex++;
       if (row.followInfos?.[rule] === amount) return;
       form.setValue(
         `trDocs.${index}.details.${rowIndex}.followInfos.${rule}`,
@@ -86,7 +109,7 @@ export const FxaDepreciationFields = ({
             step="any"
             id={`${fieldId}-unit-depreciation`}
             value={unitPreDeprecation}
-            disabled={count <= 0}
+            disabled={count <= 0 || (revaluation && tax)}
             min={0}
             aria-label={unitLabel}
             onChange={(event) => setTotal(Number(event.target.value) * count)}
@@ -102,6 +125,7 @@ export const FxaDepreciationFields = ({
             <Form.Control>
               <InputNumber
                 value={total}
+                disabled={revaluation && tax}
                 min={0}
                 aria-label={totalLabel}
                 onChange={(value) => setTotal(value || 0)}

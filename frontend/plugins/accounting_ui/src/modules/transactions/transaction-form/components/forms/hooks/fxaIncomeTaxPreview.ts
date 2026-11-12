@@ -2,7 +2,6 @@ import type { IFixedAssetAccountConfig } from '@/settings/fixed-assets/account-c
 import type { TFxaIncomeJournal } from '@/transactions/transaction-form/types/JournalForms';
 import type { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { TrJournalEnum, TR_SIDES } from '@/transactions/types/constants';
-import { FXA_DEFERRED_TAX_ORIGIN } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalTaxPreview';
 
 export const buildFxaIncomeTaxPreview = (
   transaction: TFxaIncomeJournal,
@@ -28,9 +27,9 @@ export const buildFxaIncomeTaxPreview = (
     if (!accountId)
       return { follows: [], error: 'fxa-income-tax-accounts-required' };
     (tax > 0 ? credit : debit).push({
-      _id: `${transaction._id}-${FXA_DEFERRED_TAX_ORIGIN}-${detail._id}-${side}`,
+      _id: `${transaction._id}-${TrJournalEnum.FXA_DEFERRED_TAX}-${detail._id}-${side}`,
       originId: detail._id,
-      originType: FXA_DEFERRED_TAX_ORIGIN,
+      originType: TrJournalEnum.FXA_DEFERRED_TAX,
       fixedAssetId: detail.fixedAssetId,
       accountId,
       branchId: detail.branchId || transaction.branchId,
@@ -48,9 +47,9 @@ export const buildFxaIncomeTaxPreview = (
       .filter((row) => row.details.length)
       .map((row) => ({
         ...row,
-        _id: `${transaction._id}-${FXA_DEFERRED_TAX_ORIGIN}-${row.side}`,
+        _id: `${transaction._id}-${TrJournalEnum.FXA_DEFERRED_TAX}-${row.side}`,
         originId: transaction._id,
-        originType: FXA_DEFERRED_TAX_ORIGIN,
+        originType: TrJournalEnum.FXA_DEFERRED_TAX,
         journal: TrJournalEnum.FXA_DEFERRED_TAX,
         parentId: transaction.parentId,
         ptrId: transaction.ptrId,
@@ -74,7 +73,8 @@ export const mergeFxaIncomeTaxFollows = (
 ): ITransaction[] => {
   const owned = previous.filter(
     (row) =>
-      row.originId === originId && row.originType === FXA_DEFERRED_TAX_ORIGIN,
+      row.originId === originId &&
+      row.originType === TrJournalEnum.FXA_DEFERRED_TAX,
   );
   const next = [
     ...previous.filter((row) => !owned.includes(row)),

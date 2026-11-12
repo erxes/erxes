@@ -213,7 +213,7 @@ test('posting a calculated amount creates both balanced depreciation legs with z
         ]),
       updateMany: updateLinks,
     },
-    Transactions: { createPTransaction: create },
+    Transactions: { createPTransaction: create, find: () => query([]) },
     AdjustFixedAssets: {
       updateAdjustFixedAsset: async (
         _id: string,
@@ -228,9 +228,9 @@ test('posting a calculated amount creates both balanced depreciation legs with z
     adjust: adjust(ADJ_FXA_STATUSES.PROCESS),
   });
   expect(create).toHaveBeenCalledWith(
-    [
+    expect.arrayContaining([
       expect.objectContaining({
-        journal: JOURNALS.FXA_DEP,
+        journal: JOURNALS.MAIN,
         side: 'dt',
         contentId: 'adjust',
         details: [
@@ -255,8 +255,9 @@ test('posting a calculated amount creates both balanced depreciation legs with z
           }),
         ],
       }),
-    ],
+    ]),
     'user',
+    { preservePtrIds: true },
   );
   expect(updateLinks).toHaveBeenCalledWith(
     { adjustId: 'adjust' },
@@ -295,7 +296,12 @@ test.each([false, true])(
       AdjustFixedAssets: {
         findOne: () =>
           query(
-            fromJournal ? null : { expenseAccountId: 'remembered-expense' },
+            fromJournal
+              ? null
+              : {
+                  expenseAccountId: 'remembered-expense',
+                  taxExpenseAccountId: 'remembered-tax-expense',
+                },
           ),
         create,
       },
@@ -310,6 +316,9 @@ test.each([false, true])(
       description: '',
     });
     expect(result.expenseAccountId).toBe('remembered-expense');
+    expect(result.taxExpenseAccountId).toBe(
+      fromJournal ? undefined : 'remembered-tax-expense',
+    );
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
         expenseAccountId: 'remembered-expense',

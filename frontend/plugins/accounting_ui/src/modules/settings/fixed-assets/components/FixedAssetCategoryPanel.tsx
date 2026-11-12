@@ -1,4 +1,3 @@
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -246,13 +245,13 @@ const FixedAssetCategoryPanelDetail = ({
               onSave={(change) => save(category, change)}
             />
           ))}
-          <PanelField label={getFxaTaxLabel(t, 'income-tax-rate')}>
+          <PanelField label={t('income-tax-rate')}>
             <SettingsPanelNumberField
               scope={`${SCOPE}.incomeTaxRate`}
               value={category.incomeTaxRate}
               min={0}
               max={100}
-              placeholder={getFxaTaxLabel(t, 'income-tax-rate')}
+              placeholder={t('income-tax-rate')}
               onSave={(incomeTaxRate) => save(category, { incomeTaxRate })}
             />
           </PanelField>

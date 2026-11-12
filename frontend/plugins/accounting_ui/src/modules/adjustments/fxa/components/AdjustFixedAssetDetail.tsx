@@ -125,6 +125,9 @@ export const AdjustFixedAssetDetail = () => {
           {canTransact && (
             <AdjustFixedAssetTransactionDialog
               expenseAccountId={adjustFixedAsset.expenseAccountId || undefined}
+              taxExpenseAccountId={
+                adjustFixedAsset.taxExpenseAccountId || undefined
+              }
               transaction={transaction}
               disabled={busy}
             />
@@ -218,23 +221,35 @@ export const AdjustFixedAssetDetail = () => {
 
 export const AdjustFixedAssetTransactionDialog = ({
   expenseAccountId: initialExpenseAccountId,
+  taxExpenseAccountId: initialTaxExpenseAccountId,
   transaction,
   disabled,
 }: {
   expenseAccountId?: string;
+  taxExpenseAccountId?: string;
   transaction: ReturnType<typeof useAdjustFixedAssetTransaction>;
   disabled: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
-  const form = useForm<{ expenseAccountId: string }>({
-    defaultValues: { expenseAccountId: initialExpenseAccountId || '' },
+  const form = useForm<{
+    expenseAccountId: string;
+    taxExpenseAccountId: string;
+  }>({
+    defaultValues: {
+      expenseAccountId: initialExpenseAccountId || '',
+      taxExpenseAccountId: initialTaxExpenseAccountId || '',
+    },
     resolver: zodResolver(
-      z.object({ expenseAccountId: z.string().min(1, t('Required')) }),
+      z.object({
+        expenseAccountId: z.string().min(1, t('Required')),
+        taxExpenseAccountId: z.string(),
+      }),
     ),
   });
   const { createTransaction, loading } = transaction;
   const expenseAccountId = form.watch('expenseAccountId');
+  const taxExpenseAccountId = form.watch('taxExpenseAccountId');
 
   const handleSubmit = () => {
     if (!expenseAccountId) {
@@ -242,7 +257,10 @@ export const AdjustFixedAssetTransactionDialog = ({
     }
 
     createTransaction({
-      variables: { expenseAccountId },
+      variables: {
+        expenseAccountId,
+        taxExpenseAccountId: taxExpenseAccountId || undefined,
+      },
       onCompleted: () => setOpen(false),
     });
   };
@@ -264,25 +282,36 @@ export const AdjustFixedAssetTransactionDialog = ({
         </Dialog.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <Form.Field
-              control={form.control}
-              name="expenseAccountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('cost-account')}</Form.Label>
-                  <SelectAccount.FormItem
-                    mode="single"
-                    value={field.value}
-                    onValueChange={(value) =>
-                      field.onChange(typeof value === 'string' ? value : '')
-                    }
-                    defaultFilter={{ permissionMode: 'write' }}
-                    placeholder={t('select-accounts')}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+            {(
+              [
+                { name: 'expenseAccountId', label: 'cost-account' },
+                {
+                  name: 'taxExpenseAccountId',
+                  label: 'income-tax-expense-account',
+                },
+              ] as const
+            ).map(({ name, label }) => (
+              <Form.Field
+                key={name}
+                control={form.control}
+                name={name}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t(label)}</Form.Label>
+                    <SelectAccount.FormItem
+                      mode="single"
+                      value={field.value}
+                      onValueChange={(value) =>
+                        field.onChange(typeof value === 'string' ? value : '')
+                      }
+                      defaultFilter={{ permissionMode: 'write' }}
+                      placeholder={t('select-accounts')}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            ))}
             <Dialog.Footer className="mt-4">
               <Dialog.Close asChild>
                 <Button variant="outline" type="button">

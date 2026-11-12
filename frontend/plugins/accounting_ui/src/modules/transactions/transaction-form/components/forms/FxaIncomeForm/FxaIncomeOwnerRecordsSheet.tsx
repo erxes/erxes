@@ -1,5 +1,4 @@
 import { FxaDepreciationFields } from '@/transactions/transaction-form/components/forms/FxaDepreciationFields';
-import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import {
   FxaChangeLifeFields,
   FxaChangeMethodField,
@@ -72,10 +71,7 @@ const FxaIncomeResidualValueField = ({
   tax?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
-  const label = getFxaTaxLabel(
-    t,
-    tax ? 'tax-total-residual-value' : 'total-residual-value',
-  );
+  const label = t(tax ? 'tax-total-residual-value' : 'total-residual-value');
 
   return (
     <Form.Field
@@ -297,8 +293,8 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                 index={journalIndex}
                 detailIndex={detailIndex}
                 labels={{
-                  unit: getFxaTaxLabel(t, 'unit-accumulated-depreciation'),
-                  total: getFxaTaxLabel(t, 'total-accumulated-depreciation'),
+                  unit: t('unit-accumulated-depreciation'),
+                  total: t('total-accumulated-depreciation'),
                 }}
               />
               <FxaIncomeResidualValueField
@@ -355,10 +351,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                 detailIndex={detailIndex}
                 rule="revaluationLoss"
                 label="fxa-revaluation-loss-balance"
-                labelOverride={getFxaTaxLabel(
-                  t,
-                  'total-unrecovered-revaluation-loss',
-                )}
+                labelOverride={t('total-unrecovered-revaluation-loss')}
               />
               <FxaChangeNumberField
                 form={form}
@@ -366,10 +359,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                 detailIndex={detailIndex}
                 rule="revaluationReserve"
                 label="fxa-revaluation-reserve-balance"
-                labelOverride={getFxaTaxLabel(
-                  t,
-                  'total-revaluation-reserve-balance',
-                )}
+                labelOverride={t('total-revaluation-reserve-balance')}
               />
               <Form.Field
                 control={form.control}
