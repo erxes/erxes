@@ -1,8 +1,6 @@
-import { useAtomValue } from 'jotai';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSession } from '~/modules/auth/session';
-import { onboardedState } from './state/onboardingState';
 
 /** Where first sign-in onboarding lives (old core-ui `AppPath.MainOnboarding`). */
 export const ONBOARDING_PATH = '/welcome';
@@ -11,7 +9,8 @@ export const ONBOARDING_PATH = '/welcome';
 export const useNeedsOnboarding = () => {
   const { user } = useSession();
 
-  return !useAtomValue(onboardedState(user.id));
+  // On the member (every browser), like old erxes's `isOnboarded`.
+  return !user.onboardedAt;
 };
 
 /** Sends a user who has not finished onboarding to it (old core-ui `OnboardingGuard`). */

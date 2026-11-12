@@ -177,3 +177,15 @@ export const getSession = async (orgId: string, userId: string) =>
       permissions: await effectivePermissions(tx, { orgId, role: row.user.role, permissions: row.permissions }),
     };
   });
+
+/** The member finished the welcome steps: remembered for every browser (first time only). */
+export const markOnboarded = async (orgId: string, userId: string) => {
+  await withOrg(orgId, (tx) =>
+    tx
+      .update(users)
+      .set({ onboardedAt: sql`coalesce(${users.onboardedAt}, now())` })
+      .where(and(eq(users.orgId, orgId), eq(users.id, userId))),
+  );
+
+  return getSession(orgId, userId);
+};

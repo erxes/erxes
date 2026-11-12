@@ -40,6 +40,8 @@ export const User = z.object({
   workStartedDate: z.string().nullable(),
   description: z.string().nullable(),
   links: UserLinks,
+  /** Finished the welcome steps; null shows them at the next sign-in. */
+  onboardedAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

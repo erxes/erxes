@@ -69,6 +69,7 @@ export const ACCESS = {
   'auth.invitation': PUBLIC,
   'auth.acceptInvitation': PUBLIC,
   'auth.me': MEMBER,
+  'auth.onboarded': MEMBER,
   'auth.changePassword': MEMBER,
   'auth.signIns': MEMBER,
 

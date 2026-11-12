@@ -318,6 +318,9 @@ it is built.
   without a listener). core-ui (`src/lib/live.ts`) keeps one stream per
   browser (Web Locks leader + BroadcastChannel), reopens it with backoff,
   refetches what changed, and polls only while the stream is down.
+- Welcome steps: `core_users.onboarded_at` (`POST /auth/onboarded`, first time
+  kept); core-ui's `OnboardingGuard` reads it from the session, so another
+  browser doesn't show them again.
 - Profile (Settings › Account › Profile, `/settings/profile`): the member's own
   picture (core file service), names, contact details, about and links through
   `users.update` on themselves; `POST /auth/password` changes their password with

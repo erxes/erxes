@@ -37,6 +37,7 @@ export const toUserDto = (row: UserRow) => ({
   workStartedDate: row.workStartedDate,
   description: row.description,
   links: row.links,
+  onboardedAt: row.onboardedAt?.toISOString() ?? null,
   createdAt: row.createdAt.toISOString(),
   updatedAt: row.updatedAt.toISOString(),
 });

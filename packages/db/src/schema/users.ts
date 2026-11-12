@@ -97,6 +97,8 @@ export const users = pgTable(
      * (`core.customer.updated`) or whole sources (`hr`) they don't want.
      */
     notificationSettings: jsonb().$type<{ muted?: string[] }>().default({}).notNull(),
+    /** Finished the welcome steps (any browser); null shows them at the next sign-in. */
+    onboardedAt: timestamp({ withTimezone: true, mode: 'date' }),
     createdAt: timestamp({ withTimezone: true, mode: 'date' })
       .defaultNow()
       .notNull(),

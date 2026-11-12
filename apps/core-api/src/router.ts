@@ -119,7 +119,7 @@ import {
 } from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import { changeOwnPassword, mySignIns, sessionVersionOf, signOutEverywhere } from '~/modules/auth/account.service';
-import { getSession, signIn, recordSignedIn } from '~/modules/auth/auth.service';
+import { getSession, markOnboarded, signIn, recordSignedIn } from '~/modules/auth/auth.service';
 import {
   createCompany,
   getCompany,
@@ -404,6 +404,7 @@ export const coreRouter = pub.router({
       return { ok: true as const };
     }),
     me: authed.auth.me.handler(({ context }) => getSession(context.actor.orgId, context.actor.userId)),
+    onboarded: authed.auth.onboarded.handler(({ context }) => markOnboarded(context.actor.orgId, context.actor.userId)),
     changePassword: authed.auth.changePassword.handler(async ({ input, context }) => {
       const result = await changeOwnPassword(context.actor, input);
 

@@ -1,8 +1,10 @@
 import { usePreviousHotkeyScope } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCan, useSession } from '~/modules/auth/session';
+import { api } from '~/lib/api';
+import { SESSION_KEY, useCan } from '~/modules/auth/session';
 import { useNeedsOnboarding } from './OnboardingGuard';
 import { FinalSection } from './components/FinalSection';
 import { InviteTeamMemberSection } from './components/InviteTeamMemberSection';
@@ -13,13 +15,17 @@ import { ThemeSection } from './components/ThemeSection';
 import { WelcomeSection } from './components/WelcomeSection';
 import { appearStyle } from './components/Appear';
 import { getOnboardingSteps } from './components/onboardingSteps';
-import { onboardedState, onboardingStepState } from './state/onboardingState';
+import { onboardingStepState } from './state/onboardingState';
 
 export const MainOnboarding = () => {
   const navigate = useNavigate();
-  const { user } = useSession();
+  const client = useQueryClient();
   const needsOnboarding = useNeedsOnboarding();
-  const setOnboarded = useSetAtom(onboardedState(user.id));
+  // Remembered on the member, so other browsers skip the steps too.
+  const finish = useMutation({
+    mutationFn: () => api.auth.onboarded(),
+    onSuccess: (session) => client.setQueryData(SESSION_KEY, session),
+  });
   const [currentStep, setCurrentStep] = useAtom(onboardingStepState);
   // Old erxes offered invites to owners; in the new core admins may invite too
   const canInvite = useCan()('team.invite');
@@ -73,7 +79,7 @@ export const MainOnboarding = () => {
           {currentStep === (canInvite ? 5 : 4) && (
             <FinalSection
               onContinue={() => {
-                setOnboarded(true);
+                finish.mutate();
                 setCurrentStep(1);
               }}
             />

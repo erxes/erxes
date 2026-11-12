@@ -61,6 +61,23 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
     expect(me.status).toBe(200);
   });
 
+  it('remembers the welcome steps on the member, not the browser', async () => {
+    const cookie = sessionCookie(await signIn({ email: 'owner@acme.mn', password: 'correct horse' }));
+    const headers = { cookie, 'sec-fetch-site': 'same-origin' };
+    const before = (await (await fetch(`${base}/core/v1/auth/me`, { headers })).json()) as { user: { onboardedAt: string | null } };
+
+    expect(before.user.onboardedAt).toBeNull();
+
+    const done = (await (await fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers })).json()) as { user: { onboardedAt: string } };
+
+    expect(done.user.onboardedAt).toEqual(expect.any(String));
+
+    // Again: the first time is kept.
+    const again = (await (await fetch(`${base}/core/v1/auth/onboarded`, { method: 'POST', headers })).json()) as { user: { onboardedAt: string } };
+
+    expect(again.user.onboardedAt).toBe(done.user.onboardedAt);
+  });
+
   it('answers wrong password and unknown email the same way', async () => {
     const wrong = await signIn({ email: 'owner@acme.mn', password: 'nope' });
     const unknown = await signIn({ email: 'nobody@acme.mn', password: 'nope' });

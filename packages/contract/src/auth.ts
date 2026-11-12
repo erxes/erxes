@@ -137,6 +137,9 @@ export const authContract = {
   me: oc
     .route({ method: 'GET', path: '/auth/me', summary: 'The signed-in team member and their organisation' })
     .output(Session),
+  onboarded: oc
+    .route({ method: 'POST', path: '/auth/onboarded', summary: 'The signed-in member finished the welcome steps (on every browser)' })
+    .output(Session),
   changePassword: oc
     .route({
       method: 'POST',
