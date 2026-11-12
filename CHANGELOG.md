@@ -1,3 +1,21 @@
+
+
+## [3.4.21](https://github.com/erxes/erxes/compare/3.4.20...3.4.21) (2026-11-12)
+
+
+### Bug Fixes
+
+* **accounting:** align fixed asset chooser UI with other choosers ([#10486](https://github.com/erxes/erxes/issues/10486)) ([13ffa02](https://github.com/erxes/erxes/commit/13ffa026fc45598e5f5ce53c97ab8976f5cd8104))
+* fixedasset deprecation with tax diff ([#10479](https://github.com/erxes/erxes/issues/10479)) ([b82637b](https://github.com/erxes/erxes/commit/b82637ba687365b7f04ab910299b7c17e9803f70))
+* recover invalid remembered app routes ([#10437](https://github.com/erxes/erxes/issues/10437)) ([fb020c3](https://github.com/erxes/erxes/commit/fb020c3f3dc4b541d9818d33394dcef12b5d8a95))
+* reset counts for zero-result searches in contacts,sales([#10438](https://github.com/erxes/erxes/issues/10438)) ([c58741f](https://github.com/erxes/erxes/commit/c58741fae340207836da783dfdf0ecdd6a8d8fb8))
+* **sales:** open deal file attachments through read-file ([#10489](https://github.com/erxes/erxes/issues/10489)) ([e70ba32](https://github.com/erxes/erxes/commit/e70ba32b7416f683064e9589427381f46c4d1842))
+
+
+### Features
+
+* resizable details column on record pages ([#10426](https://github.com/erxes/erxes/issues/10426)) ([15412c6](https://github.com/erxes/erxes/commit/15412c64b7fa854501fdf678818c48d843f302e8))
+
 # Changelog
 
 ## [3.4.20](https://github.com/erxes/erxes/compare/3.4.19...3.4.20) (2026-11-12)
