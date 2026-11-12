@@ -5,14 +5,20 @@ import {
 } from '@/template/registry';
 import { TTemplateAnswers } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
-import { convertToTemplateView } from './utils';
+import { convertToTemplateView, TTemplateView } from './utils';
+import { ITemplateInstallation } from '@/template/db/models/Installations';
+
+type TTemplateInstallationView = ITemplateInstallation & {
+  _id: string;
+  createdAt: Date;
+};
 
 export const templateQueries = {
   async templates(
     _root: undefined,
     _args: undefined,
     { checkPermission }: IContext,
-  ) {
+  ): Promise<TTemplateView[]> {
     await checkPermission('templatesRead');
 
     const nodes = await getTemplateNodeDetails();
@@ -28,7 +34,7 @@ export const templateQueries = {
     _root: undefined,
     { pluginName, id }: { pluginName: string; id: string },
     { checkPermission }: IContext,
-  ) {
+  ): Promise<TTemplateView> {
     await checkPermission('templatesRead');
 
     return convertToTemplateView(
@@ -41,7 +47,7 @@ export const templateQueries = {
     _root: undefined,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
-  ) {
+  ): Promise<TTemplateInstallationView> {
     await checkPermission('templatesRead');
 
     const installation = await models.TemplateInstallations.findOne({
@@ -59,7 +65,7 @@ export const templateQueries = {
     _root: undefined,
     _args: undefined,
     { models, checkPermission }: IContext,
-  ) {
+  ): Promise<TTemplateInstallationView[]> {
     await checkPermission('templatesRead');
 
     return models.TemplateInstallations.find({}).sort({ createdAt: -1 }).lean();
