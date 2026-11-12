@@ -160,7 +160,7 @@ export const NoteComposer = ({
 
   return (
     <div
-      className="relative rounded-lg border bg-background transition-shadow focus-within:border-ring/60 focus-within:shadow-sm"
+      className="relative rounded-lg border bg-background transition-[border-color,box-shadow] focus-within:border-primary/40 focus-within:ring-3 focus-within:ring-primary/10"
       onFocus={() => setActive(true)}
       onBlur={(event) => !event.currentTarget.contains(event.relatedTarget as Node | null) && setActive(false)}
     >
@@ -170,7 +170,7 @@ export const NoteComposer = ({
         autoFocus={autoFocus}
         rows={open ? 3 : 1}
         placeholder={t('note-placeholder', 'Write a note… type @ to mention a teammate')}
-        className="min-h-0 resize-none border-0 py-2 shadow-none focus-visible:ring-0"
+        className="min-h-0 resize-none rounded-lg border-0 bg-transparent px-3 py-2 shadow-none focus-visible:shadow-none focus-visible:ring-0"
         onChange={(event) => {
           setBody(event.target.value);
           setMention(mentionAt(event.target.value, event.target.selectionStart));
@@ -201,7 +201,7 @@ export const NoteComposer = ({
       {(files.length > 0 || uploading > 0) && (
         <div className="flex flex-wrap gap-1.5 px-3 pb-2">
           {files.map((file) => (
-            <span key={file.id} className="flex h-6 items-center gap-1 rounded border bg-muted px-2 text-xs">
+            <span key={file.id} className="flex h-6 items-center gap-1 rounded-md bg-muted px-2 text-xs text-muted-foreground">
               <IconPaperclip className="size-3" />
               <span className="max-w-40 truncate">{file.name}</span>
               <button
@@ -216,7 +216,7 @@ export const NoteComposer = ({
           {uploading > 0 && <Spinner size="sm" />}
         </div>
       )}
-      <div className={cn('flex items-center justify-between border-t px-2 py-1', !open && 'hidden')}>
+      <div className={cn('flex items-center justify-between px-1.5 pb-1.5', !open && 'hidden')}>
         <input ref={fileInput} type="file" multiple className="hidden" onChange={(event) => void attach(event.target.files).then(() => (event.target.value = ''))} />
         <Button type="button" variant="ghost" size="icon" className="size-7" aria-label={t('attach', 'Attach files')} onClick={() => fileInput.current?.click()}>
           <IconPaperclip className="size-4" />

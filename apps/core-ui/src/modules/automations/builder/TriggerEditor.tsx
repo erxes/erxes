@@ -2,6 +2,7 @@ import type { AutomationTrigger, ConditionGroup } from '@erxes/core-contract';
 import { IconBolt, IconCalendarEvent, IconClock, IconHandFinger } from '@tabler/icons-react';
 import { Button, cn, Input, Select, Switch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { CatalogPicker } from './CatalogPicker';
 import { ConditionsEditor } from './ConditionsEditor';
 import { useAutomationFields } from './useAutomationFields';
 
@@ -100,7 +101,7 @@ export const TriggerEditor = ({
   onStartNow,
 }: {
   trigger: AutomationTrigger;
-  events: { type: string; label: string; source: string; subject: 'customer' | 'company' | null }[];
+  events: { type: string; label: string; description?: string | null; source: string; subject: 'customer' | 'company' | null }[];
   onChange: (trigger: AutomationTrigger) => void;
   disabled?: boolean;
   onStartNow?: () => void;
@@ -144,19 +145,7 @@ export const TriggerEditor = ({
       {trigger.kind === 'event' && (
         <>
           <Field label={t('event', 'Event')}>
-            <Select value={trigger.event} disabled={disabled} onValueChange={(event) => onChange({ ...trigger, event })}>
-              <Select.Trigger className="h-8 w-full">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                {events.map((item) => (
-                  <Select.Item key={item.type} value={item.type}>
-                    {item.label}
-                    {item.source !== 'core' ? ` (${item.source})` : ''}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
+            <CatalogPicker kind="event" items={events} value={trigger.event} disabled={disabled} onChange={(event) => onChange({ ...trigger, event })} />
           </Field>
           <Field label={t('only-if', 'Only if')} hint={trigger.conditions?.rules.length ? undefined : t('only-if-empty', 'No conditions: every such event starts a run.')}>
             <ConditionsEditor subject={subject} value={trigger.conditions} disabled={disabled} onChange={(conditions) => onChange({ ...trigger, conditions })} />

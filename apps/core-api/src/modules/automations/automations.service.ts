@@ -86,7 +86,7 @@ export const automationCatalog = async (client: Db, orgId: string) => {
   const triggers = await eventTypeCatalog(client, orgId);
 
   return {
-    triggers: triggers.map((item) => ({ type: item.type, label: item.label, source: item.source, subject: item.subject })),
+    triggers: triggers.map((item) => ({ type: item.type, label: item.label, description: item.description ?? null, source: item.source, subject: item.subject })),
     actions: actionCatalog(await installedPlugins(client, orgId)),
   };
 };

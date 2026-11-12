@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '~/lib/api';
 import { ConditionsEditor } from './ConditionsEditor';
 import { FieldLabel } from './FieldLabel';
+import { CatalogPicker } from './CatalogPicker';
 import type { FieldInfo } from './useAutomationFields';
 
 const useMemberOptions = () =>
@@ -103,7 +104,7 @@ const FieldInput = ({
 
 /** What the builder needs everywhere: event types (for waits) and how each step did (last 30 days). */
 export const BuilderContext = createContext<{
-  events: { type: string; label: string }[];
+  events: { type: string; label: string; description?: string | null; source: string }[];
   stats: Map<string, { succeeded: number; failed: number }>;
   /** Outputs of earlier steps, by the step being edited. */
   outputsBefore: (stepId: string) => FieldInfo[];
@@ -165,20 +166,13 @@ export const StepSettings = ({
         <>
           <div className="space-y-1.5">
             <FieldLabel>{t('action', 'Action')}</FieldLabel>
-            <Select value={step.action} disabled={disabled} onValueChange={(type) => onChange({ ...step, action: type, input: {} })}>
-              <Select.Trigger>
-                <Select.Value placeholder={step.action} />
-              </Select.Trigger>
-              <Select.Content>
-                {actions.map((item) => (
-                  <Select.Item key={item.type} value={item.type}>
-                    {item.label}
-                    {item.source !== 'core' ? ` (${item.source})` : ''}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-            {action?.description && <p className="text-xs text-muted-foreground">{action.description}</p>}
+            <CatalogPicker
+              kind="action"
+              items={actions}
+              value={step.action}
+              disabled={disabled}
+              onChange={(type) => type !== step.action && onChange({ ...step, action: type, input: {} })}
+            />
           </div>
           {action?.fields.map((field) => (
             <div key={field.key} className="space-y-1.5">
@@ -224,18 +218,7 @@ export const StepSettings = ({
         <>
           <div className="space-y-1.5">
             <FieldLabel>{t('wait-for-event', 'Until this happens to the record')}</FieldLabel>
-            <Select value={step.event} disabled={disabled} onValueChange={(event) => onChange({ ...step, event })}>
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                {events.map((event) => (
-                  <Select.Item key={event.type} value={event.type}>
-                    {event.label}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
+            <CatalogPicker kind="event" items={events} value={step.event} disabled={disabled} onChange={(event) => onChange({ ...step, event })} />
           </div>
           <div className="space-y-1.5">
             <FieldLabel>{t('at-most', 'For at most')}</FieldLabel>

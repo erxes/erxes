@@ -227,5 +227,22 @@
   "date-field": "Date",
   "days-before": "Days before",
   "on-the-day": "On the day",
-  "days-after": "Days after"
+  "days-after": "Days after",
+  "catalog-core": "Core",
+  "catalog-all": "All",
+  "catalog-choose": "Choose…",
+  "catalog-search-events": "Search events…",
+  "catalog-search-actions": "Search actions…",
+  "catalog-empty": "Nothing matches",
+  "catalog-recent": "Recently used",
+  "catalog-group": {
+    "Customers": "Customers",
+    "Leads": "Leads",
+    "Companies": "Companies",
+    "Payments": "Payments",
+    "Messages": "Messages",
+    "Timeline": "Timeline",
+    "Integrations": "Integrations",
+    "General": "General"
+  }
 }

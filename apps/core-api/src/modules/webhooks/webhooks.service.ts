@@ -68,7 +68,7 @@ export const eventTypeCatalog = async (client: Db, orgId: string): Promise<Event
     .where(and(eq(pluginInstallations.orgId, orgId), eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
 
   return [
-    ...CORE_EVENT_TYPES.map((item) => ({ type: item.type, label: item.label, description: null, source: 'core', subject: item.subject })),
+    ...CORE_EVENT_TYPES.map((item) => ({ type: item.type, label: item.label, description: item.description, source: 'core', subject: item.subject })),
     ...installed.flatMap((plugin) =>
       (plugin.manifest?.events ?? []).map((item) => ({
         type: item.type,

@@ -227,5 +227,22 @@
   "date-field": "Огноо",
   "days-before": "Өдрийн өмнө",
   "on-the-day": "Тухайн өдөр",
-  "days-after": "Өдрийн дараа"
+  "days-after": "Өдрийн дараа",
+  "catalog-core": "Үндсэн",
+  "catalog-all": "Бүгд",
+  "catalog-choose": "Сонгох…",
+  "catalog-search-events": "Үйл явдал хайх…",
+  "catalog-search-actions": "Үйлдэл хайх…",
+  "catalog-empty": "Тохирох зүйл алга",
+  "catalog-recent": "Сүүлд ашигласан",
+  "catalog-group": {
+    "Customers": "Харилцагчид",
+    "Leads": "Потенциал харилцагчид",
+    "Companies": "Компаниуд",
+    "Payments": "Төлбөр",
+    "Messages": "Мессеж",
+    "Timeline": "Түүх",
+    "Integrations": "Холболтууд",
+    "General": "Ерөнхий"
+  }
 }

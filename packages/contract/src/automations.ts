@@ -331,7 +331,16 @@ export const automationsContract = {
     .route({ method: 'GET', path: '/automations/catalog', summary: "Triggers (event types) and actions: core's and installed plugins'" })
     .output(
       z.object({
-        triggers: z.array(z.object({ type: z.string(), label: z.string(), source: z.string(), subject: z.enum(['customer', 'company']).nullable() })),
+        triggers: z.array(
+          z.object({
+            type: z.string(),
+            label: z.string(),
+            /** A line on what it is, for pickers. */
+            description: z.string().nullable().optional(),
+            source: z.string(),
+            subject: z.enum(['customer', 'company']).nullable(),
+          }),
+        ),
         actions: z.array(ActionInfo),
       }),
     ),
