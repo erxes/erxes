@@ -21,12 +21,9 @@ export { Calendar, type CalendarProps, CalendarTwoMonths } from './components/ca
 
 export { Card } from './components/card';
 
-export {
-  type ChartConfig,
-  ChartContainer,
-  ChartLegendContent,
-  ChartTooltipContent,
-} from './components/charts';
+export { type ChartConfig } from './components/chart-config';
+
+export { ChartContainer, ChartLegendContent, ChartTooltipContent } from './components/charts';
 
 export { Checkbox } from './components/checkbox';
 
