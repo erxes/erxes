@@ -28,6 +28,12 @@ export const TEMPLATES = {
     lines: [data.body, `This is a security notice from ${data.organization} on erxes; it can't be turned off.`],
     button: { label: 'Review in erxes', link: data.link },
   }),
+  notification: (data: { organization: string; title: string; body: string | null; link: string }) => ({
+    subject: data.title,
+    heading: data.title,
+    lines: [...(data.body ? [data.body] : []), `${data.organization} on erxes · change what you get by email in Settings › Notifications.`],
+    button: { label: 'Open in erxes', link: data.link },
+  }),
   /** A plain message (automations): a subject and text. */
   message: (data: { subject: string; body: string; button?: { label: string; link: string } }) => ({
     subject: data.subject,

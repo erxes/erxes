@@ -1,6 +1,7 @@
 import { Sidebar } from "erxes-ui";
 import { Outlet } from "react-router-dom";
 import { useLiveUpdates } from "~/lib/live";
+import { useDesktopNotifications } from "~/modules/notifications/useDesktopNotifications";
 import { CoreTab } from "~/modules/navigation/CoreTab";
 import { PlanBanner } from "~/modules/saas/PlanBanner";
 import { SidePanelLayout } from "~/modules/side-panel/SidePanelLayout";
@@ -12,6 +13,8 @@ import { SidePanelLayout } from "~/modules/side-panel/SidePanelLayout";
 export const MainLayout = () => {
   // Inbox and timelines update as changes happen (one stream per browser).
   useLiveUpdates();
+  // New inbox items as desktop notifications, when the member turned them on.
+  useDesktopNotifications();
 
   return (
     <Sidebar.Provider

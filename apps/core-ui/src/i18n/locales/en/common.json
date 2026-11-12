@@ -1080,6 +1080,44 @@
           "mentioned": "You were mentioned in a note"
         }
       }
+    },
+    "settings": {
+      "title": "Notifications",
+      "description": "Choose how and about what you hear. These settings are yours; teammates choose their own.",
+      "channels": "How you’re notified",
+      "email": "Email",
+      "email-description": "For the groups below set to “In erxes and email”. Security alerts are always emailed.",
+      "browser": "Browser",
+      "browser-description": "Pop up new notifications while erxes is in the background (each browser asks once).",
+      "browser-denied": "Blocked in this browser: allow notifications for this site in its settings.",
+      "browser-unsupported": "This browser can't show desktop notifications.",
+      "what": "What you hear about",
+      "plugins": "Plugins",
+      "no-plugins": "No plugins yet.",
+      "plugin-hint": "Everything {{name}} notifies you about",
+      "always-on": "Always on",
+      "delivery": {
+        "email": "In erxes and email",
+        "email-off": "In erxes (email is off)",
+        "inbox": "In erxes only",
+        "off": "Off"
+      },
+      "groups": {
+        "assigned": "Assigned to me",
+        "records": "Changes to records I own",
+        "mentions": "Mentions",
+        "automations": "Automations",
+        "transfer": "Imports and exports",
+        "security": "Security"
+      },
+      "hints": {
+        "assigned": "A customer or company is given to you",
+        "records": "Someone changes, merges or deletes a customer or company you own, or a plugin adds to its timeline",
+        "mentions": "Someone mentions you in a note",
+        "automations": "Messages from automations, and automations you turned on that fail",
+        "transfer": "Your imports finish and your exports are ready",
+        "security": "Your role or password changes, new sign-ins, and security alerts for owners"
+      }
     }
   },
   "activity": {

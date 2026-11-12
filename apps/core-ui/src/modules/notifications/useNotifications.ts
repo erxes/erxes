@@ -1,4 +1,4 @@
-import type { Notification } from '@erxes/core-contract';
+import type { Notification, NotificationDelivery } from '@erxes/core-contract';
 import { IconPuzzle, type Icon } from '@tabler/icons-react';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
@@ -96,7 +96,7 @@ export const useNotificationSettings = () => {
   const { toast } = useToast();
   const query = useQuery({ queryKey: SETTINGS_KEY, queryFn: () => api.notifications.settings(), staleTime: 60_000 });
   const update = useMutation({
-    mutationFn: (muted: string[]) => api.notifications.updateSettings({ muted }),
+    mutationFn: (input: { groups?: Record<string, NotificationDelivery>; email?: boolean; browser?: boolean }) => api.notifications.updateSettings(input),
     onSuccess: (settings) => client.setQueryData(SETTINGS_KEY, settings),
     onError: (error) =>
       toast({ variant: 'destructive', title: 'Could not save notification settings', description: messageOf(error) }),
@@ -130,7 +130,7 @@ export const useInboxes = (): Inbox[] => {
   const { plugins } = usePlugins();
   const { settings } = useNotificationSettings();
   const { bySource } = useUnreadCounts();
-  const sources = [...new Set([...(settings?.sources ?? []), ...Object.keys(bySource)])]
+  const sources = [...new Set([...(settings?.groups ?? []).filter((group) => group.plugin).map((group) => group.key), ...Object.keys(bySource)])]
     .filter((source) => source !== CORE_INBOX)
     .sort();
 

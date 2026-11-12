@@ -303,7 +303,15 @@ it is built.
   inbox. Core notifies owners about records others assign, change (quick edits
   collapse into one, with `data.changes`), merge or delete, and about plugin
   events on their records; members about role and password changes (can't be
-  muted). Each member mutes kinds or whole plugins (Settings › Notifications).
+  muted). Settings › Notifications works by group, not kind by kind: core's
+  groups (`CORE_NOTIFICATION_GROUPS`: assigned, records, mentions,
+  automations, imports and exports, security) and each plugin as one group,
+  each set to in erxes and email / in erxes only / off (`deliveryFor`; old
+  per-kind mutes still silence what they named until settings are saved).
+  Two switches: email (notification emails through the job queue, template
+  `notification`) and browser (desktop notifications for new inbox items
+  while erxes is in the background, `useDesktopNotifications`). Security is
+  always on.
   Counts refresh every 30 s (no LISTEN/NOTIFY behind poolers).
 - Activity (`core_activities`): the customer/company timeline (Activity tab):
   created, updated (with changes), tagged, merged, linked, plus plugin entries;

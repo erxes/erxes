@@ -1,6 +1,6 @@
-import type { CursorQuery, Notification, NotificationInput } from '@erxes/core-contract';
-import { UNMUTABLE_NOTIFICATION_KINDS } from '@erxes/core-contract';
-import { type Db, newId, notifications, users } from '@erxes/core-db';
+import type { CursorQuery, Notification, NotificationDelivery, NotificationInput, NotificationSettings } from '@erxes/core-contract';
+import { CORE_NOTIFICATION_GROUPS, notificationGroupOf, UNMUTABLE_NOTIFICATION_KINDS } from '@erxes/core-contract';
+import { type Db, newId, notifications, organizations, pluginInstallations, plugins, users } from '@erxes/core-db';
 import { and, count, desc, eq, gt, inArray, isNotNull, isNull, like, lt, sql } from 'drizzle-orm';
 import type { Actor, Caller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
@@ -8,6 +8,7 @@ import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { lockKey } from '~/lib/locks';
+import { appLink, sendEmail } from '~/modules/email/email';
 
 type NotificationRow = typeof notifications.$inferSelect;
 
@@ -34,6 +35,26 @@ type NotifyInput = Omit<NotificationInput, 'priority'> & {
    * adding another (`data.changes` are combined, first "before" kept).
    */
   collapseMinutes?: number;
+};
+
+type MemberSettings = (typeof users.$inferSelect)['notificationSettings'];
+
+/**
+ * Where one notification goes for a member: security notices always reach
+ * the inbox (their emails come from the alerts themselves); otherwise the
+ * member's choice for its group (a core group, or the plugin), else the
+ * group's default. Mutes from before groups still silence what they named.
+ */
+export const deliveryFor = (settings: MemberSettings, source: string, kind: string): NotificationDelivery => {
+  if (UNMUTABLE_NOTIFICATION_KINDS.includes(kind)) return 'inbox';
+  if (isMuted(settings.muted, source, kind)) return 'off';
+
+  const group = notificationGroupOf(source, kind);
+  const chosen = settings.groups?.[group];
+
+  if (chosen) return chosen;
+
+  return CORE_NOTIFICATION_GROUPS.find((item) => item.key === group)?.default ?? 'inbox';
 };
 
 /** Has the member muted this kind, its source, or a prefix of it? */
@@ -70,7 +91,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
 
   const wanted = unique(input.userIds);
   const members = await client
-    .select({ id: users.id, status: users.status, settings: users.notificationSettings })
+    .select({ id: users.id, email: users.email, status: users.status, settings: users.notificationSettings })
     .from(users)
     .where(and(eq(users.orgId, caller.orgId), inArray(users.id, wanted)));
 
@@ -84,9 +105,15 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
       (member) =>
         member.status === 'active' &&
         member.id !== actorUserId &&
-        !isMuted(member.settings.muted, caller.source, input.kind),
+        deliveryFor(member.settings, caller.source, input.kind) !== 'off',
     )
     .map((member) => member.id);
+  // Also by email: members who chose it for this group and haven't turned email off.
+  const emailed = new Map(
+    members
+      .filter((member) => member.settings.email !== false && deliveryFor(member.settings, caller.source, input.kind) === 'email')
+      .map((member) => [member.id, member.email] as const),
+  );
 
   if (!recipients.length) {
     return { created: 0, skipped: wanted.length };
@@ -168,7 +195,23 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
       })),
     )
     .onConflictDoNothing()
-    .returning({ id: notifications.id });
+    .returning({ id: notifications.id, userId: notifications.userId });
+
+  // New notifications only (a collapsed change was already announced).
+  const toEmail = inserted.filter((row) => emailed.has(row.userId));
+
+  if (toEmail.length) {
+    const [org] = await client.select({ name: organizations.name }).from(organizations).where(eq(organizations.id, caller.orgId)).limit(1);
+    const link = await appLink(client, caller.orgId, input.link ?? '/notifications');
+
+    for (const row of toEmail) {
+      await sendEmail(client, caller.orgId, {
+        to: emailed.get(row.userId)!,
+        template: 'notification',
+        data: { organization: org?.name ?? 'erxes', title: input.title, body: input.body ?? null, link },
+      });
+    }
+  }
 
   return { created: inserted.length, skipped: wanted.length - inserted.length - collapsed };
 };
@@ -226,35 +269,70 @@ export const unreadCount = async (client: Db, actor: Actor, source?: string) => 
   return { count: rows.reduce((total, row) => total + row.count, 0), bySource };
 };
 
-/** Every inbox the member has (core and the plugins that notified them), with their settings. */
-export const notificationSettings = async (client: Db, actor: Actor) => {
+/**
+ * The member's settings by group: core's groups, then each plugin that is
+ * installed or has notified them. Plugins muted before groups show as off.
+ */
+export const notificationSettings = async (client: Db, actor: Actor): Promise<NotificationSettings> => {
   const [user] = await client
     .select({ settings: users.notificationSettings })
     .from(users)
     .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
     .limit(1);
-  const sources = await client
-    .selectDistinct({ source: notifications.source })
-    .from(notifications)
-    .where(mine(actor));
-  const muted = user?.settings.muted ?? [];
-  const plugins = new Set([
-    ...sources.map((row) => row.source),
-    // A muted plugin stays listed, so it can be unmuted.
-    ...muted.filter((entry) => !entry.includes('.')),
-  ]);
+  const settings: MemberSettings = user?.settings ?? {};
+  const sources = await client.selectDistinct({ source: notifications.source }).from(notifications).where(mine(actor));
+  const installed = await client
+    .select({ name: pluginInstallations.plugin, manifest: plugins.manifest })
+    .from(pluginInstallations)
+    .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
+    .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.status, 'active')));
+  const titles = new Map(installed.map((row) => [row.name, row.manifest?.title ?? row.name]));
+  const pluginNames = [...new Set([...installed.map((row) => row.name), ...sources.map((row) => row.source)])].filter((name) => name !== 'core').sort();
 
-  plugins.delete('core');
-
-  return { muted, sources: [...plugins].sort() };
+  return {
+    groups: [
+      ...CORE_NOTIFICATION_GROUPS.map((group) => ({
+        key: group.key,
+        label: group.label,
+        plugin: false,
+        locked: group.key === 'security',
+        delivery: group.key === 'security' ? ('inbox' as const) : (settings.groups?.[group.key] ?? group.default),
+      })),
+      ...pluginNames.map((name) => ({
+        key: name,
+        label: titles.get(name) ?? name,
+        plugin: true,
+        locked: false,
+        delivery: settings.groups?.[name] ?? ((settings.muted ?? []).includes(name) ? ('off' as const) : ('inbox' as const)),
+      })),
+    ],
+    email: settings.email !== false,
+    browser: settings.browser === true,
+  };
 };
 
-export const updateNotificationSettings = async (client: Db, actor: Actor, input: { muted: string[] }) => {
+/**
+ * Saves the member's choices. Security can't be turned off. Mutes from
+ * before groups become their plugin's setting, and are then dropped.
+ */
+export const updateNotificationSettings = async (
+  client: Db,
+  actor: Actor,
+  input: { groups?: Record<string, NotificationDelivery>; email?: boolean; browser?: boolean },
+) => {
+  const current = await notificationSettings(client, actor);
+  const groups = Object.fromEntries(current.groups.filter((group) => !group.locked).map((group) => [group.key, group.delivery]));
+
+  for (const [key, delivery] of Object.entries(input.groups ?? {})) {
+    if (key === 'security') throw new HttpError(400, 'ALWAYS_ON', 'Security notifications are always on');
+    groups[key] = delivery;
+  }
+
+  const next: MemberSettings = { groups, email: input.email ?? current.email, browser: input.browser ?? current.browser };
+
   await client
     .update(users)
-    .set({
-      notificationSettings: sql`jsonb_set(${users.notificationSettings}, '{muted}', ${JSON.stringify(unique(input.muted))}::jsonb)`,
-    })
+    .set({ notificationSettings: next })
     .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)));
 
   return notificationSettings(client, actor);

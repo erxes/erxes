@@ -404,13 +404,22 @@ describeWithDb('platform services', () => {
       expect((await call(memberToken, '/notifications?kind=hr.onboarding.')).body.totalCount).toBe(1);
     });
 
-    it('lets members mute a plugin or a kind, but not security notices', async () => {
+    it('lets members choose per group (inbox and email, inbox, off), never for security', async () => {
       const saved = await call(memberToken, '/notifications/settings', {
         method: 'PUT',
-        body: { muted: ['hr', 'core.customer.updated', 'core.user.role_changed'] },
+        body: { groups: { hr: 'off', records: 'off' } },
       });
 
-      expect(saved.body.sources).toContain('hr');
+      expect(saved.body.groups).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ key: 'hr', plugin: true, delivery: 'off' }),
+          expect.objectContaining({ key: 'records', delivery: 'off' }),
+          expect.objectContaining({ key: 'assigned', delivery: 'email' }),
+          expect.objectContaining({ key: 'security', locked: true, delivery: 'inbox' }),
+        ]),
+      );
+      expect(saved.body).toMatchObject({ email: true, browser: false });
+      expect((await call(memberToken, '/notifications/settings', { method: 'PUT', body: { groups: { security: 'off' } } })).body.code).toBe('ALWAYS_ON');
 
       const muted = await call(hr(), '/notifications', {
         method: 'POST',
@@ -427,7 +436,25 @@ describeWithDb('platform services', () => {
       expect(roles.body.totalCount).toBe(2);
       expect(roles.body.data[0]).toMatchObject({ priority: 'high', data: { changes: { role: ['admin', 'member'] } } });
 
-      await call(memberToken, '/notifications/settings', { method: 'PUT', body: { muted: [] } });
+      // Assigned to me: in the inbox and by email (the default) — unless email is off.
+      const { loggedEmails } = await import('~/modules/email/email');
+      const { processJobs } = await import('~/modules/jobs/jobs');
+      const { JOBS } = await import('~/modules/jobs/registry');
+      const assign = async (name: string) => {
+        await call(ownerToken, '/customers', { method: 'POST', body: { firstName: name, ownerId: memberId } });
+        await processJobs(JOBS);
+      };
+      const emailedAbout = (name: string) => loggedEmails.some((mail) => mail.subject === 'A customer was assigned to you' && mail.text.includes(name));
+
+      await assign('Mailed');
+      expect(emailedAbout('Mailed')).toBe(true);
+
+      await call(memberToken, '/notifications/settings', { method: 'PUT', body: { email: false, browser: true } });
+      await assign('NotMailed');
+      expect(emailedAbout('NotMailed')).toBe(false);
+      expect((await call(memberToken, '/notifications/settings')).body).toMatchObject({ email: false, browser: true });
+
+      await call(memberToken, '/notifications/settings', { method: 'PUT', body: { groups: { hr: 'inbox', records: 'inbox' }, email: true, browser: false } });
     });
 
     it('tells owners what others change, merging quick edits into one notification', async () => {

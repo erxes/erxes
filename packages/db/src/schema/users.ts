@@ -96,7 +96,10 @@ export const users = pgTable(
      * The member's notification choices: `muted` lists kinds
      * (`core.customer.updated`) or whole sources (`hr`) they don't want.
      */
-    notificationSettings: jsonb().$type<{ muted?: string[] }>().default({}).notNull(),
+    notificationSettings: jsonb()
+      .$type<{ muted?: string[]; groups?: Record<string, 'email' | 'inbox' | 'off'>; email?: boolean; browser?: boolean }>()
+      .default({})
+      .notNull(),
     /** Finished the welcome steps (any browser); null shows them at the next sign-in. */
     onboardedAt: timestamp({ withTimezone: true, mode: 'date' }),
     createdAt: timestamp({ withTimezone: true, mode: 'date' })
