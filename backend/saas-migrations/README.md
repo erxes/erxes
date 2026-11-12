@@ -140,17 +140,36 @@ subdomain) and the subdomain to create:
 The organization has the shape of a freshly provisioned next organization
 (`status: 'active'`, `isNext: true`, `onboardingDone: true`, `charge`, `saas`,
 `gp*`), keeps the held organization's name, and is stamped with
-`migration: { runId, source: 'appsumo-v1', sourceOrganizationId, … }`. The owner is `APPSUMO_OWNER_ID`, else the held
+`migration: { runId, source: 'appsumo-v1', sourceOrganizationId, appsumoCodes,
+appsumoTier, … }` (the redeemed AppSumo codes and the v1 tier `appsumo1`–`appsumo5`
+they correspond to). The owner is `APPSUMO_OWNER_ID`, else the held
 organization's owner restored from `users_held` (or the active user with the
 same `_id` or email); the new organization is added to that user's
 `organizationIds`. Stripe is not touched (`billing.status: 'none'`,
 `gpStatus: 'new'`). An active `organization_plan_histories` record is added
-for `APPSUMO_BUNDLE_ID` / `APPSUMO_PRODUCT_ID` (defaults: the free bundle
-`68dd0283563460fd84f7c85b` / `68dd033b563460fd84f7c91a`, monthly, one month
-from now) unless the organization already has one. A target subdomain that already carries the same
+for the bundle and product found by code (`APPSUMO_BUNDLE_CODE`, default
+`everything`; `APPSUMO_PRODUCT_CODE`, default `erxes-everything`); `APPSUMO_PLAN_INTERVAL`,
+default `yearly`, ending `APPSUMO_PLAN_MONTHS` months from now, default 120) unless the organization already has one. Plugins of a `gpStatus:
+'new'` organization come from Stripe, so when `GP2_STRIPE_SECRET_KEY` is set a
+Stripe customer is created with `free_plugins` = `APPSUMO_FREE_PLUGINS` (default:
+every plugin, as Everything grants; when it is set empty the bundle's
+`pluginLimits` are used instead) and stored in
+`gpStripeCustomerId` / `billing.customerId`; without the key the organization is
+created but gets no plugins, and the run says so. A target subdomain that already carries the same
 `migration.sourceOrganizationId` is reused; one that belongs to another
 organization stops the run before any data is copied. `DRY_RUN=true` only
 prints what would be created.
+
+`appsumo/commands/restoreOwner.ts` (run-commands) puts the held
+organization's owner back on a provisioned organization that was created with
+another owner, such as `APPSUMO_OWNER_ID`: the owner is restored from
+`users_held` when needed, the organization moves between the two users'
+`organizationIds`, `gpOwnerEmail` and the Stripe customer's email follow.
+`DRY_RUN=true` only reports.
+
+```bash
+npx tsx backend/saas-migrations/run-commands.ts restoreOwner --continue
+```
 
 ## Frontline channel
 
@@ -158,8 +177,8 @@ prints what would be created.
 `DEFAULT_CHANNEL_NAME`, default `Support`) when the target has none, with the
 target's users as members and its owner as admin. `migrateForms.ts`,
 `migrateTickets.ts` and `migrateResponseTemplates.ts` then assign
-`STATIC_CHANNEL_ID` when it is set, otherwise the target's only team channel;
-with several team channels and no `STATIC_CHANNEL_ID` they stop instead of
+`STATIC_CHANNEL_ID` when it is set, otherwise the target's oldest team channel
+(logged when there are several); with no channel at all they stop instead of
 writing an empty `channelId`. Response templates whose `channelId` is empty
 from an earlier run are assigned again.
 

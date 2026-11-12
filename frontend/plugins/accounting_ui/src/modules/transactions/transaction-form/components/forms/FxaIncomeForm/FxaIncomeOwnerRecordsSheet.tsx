@@ -175,9 +175,12 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-5xl">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b h-auto py-2">
-          <div className="min-w-0">
-            <Sheet.Title>{title || t('asset-custodian-records')}</Sheet.Title>
+        <Sheet.Header>
+          <Sheet.Title>{title || t('asset-custodian-records')}</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+        <Sheet.Content className="p-4 overflow-auto">
+          <div className="flex items-center justify-between gap-4 mb-4">
             <Sheet.Description>
               <strong className="font-semibold text-foreground">
                 {t('quantity-label-2', { nsSeparator: false })} {detailCount}
@@ -185,31 +188,28 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
               {t('allocated', { nsSeparator: false })} {ownerCount}{' '}
               {t('remaining', { nsSeparator: false })} {remainingCount}
             </Sheet.Description>
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <span>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className={cn(
+                      remainingCount > 0 &&
+                        'border-destructive text-destructive hover:text-destructive',
+                    )}
+                    disabled={remainingCount <= 0}
+                    onClick={addOwner}
+                  >
+                    <IconPlus />
+                    {t('add-allocation')}
+                    {remainingCount})
+                  </Button>
+                </span>
+              </Tooltip.Trigger>
+              <Tooltip.Content>{addButtonTip}</Tooltip.Content>
+            </Tooltip>
           </div>
-          <Tooltip>
-            <Tooltip.Trigger asChild>
-              <span>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className={cn(
-                    remainingCount > 0 &&
-                      'border-destructive text-destructive hover:text-destructive',
-                  )}
-                  disabled={remainingCount <= 0}
-                  onClick={addOwner}
-                >
-                  <IconPlus />
-                  {t('add-allocation')}
-                  {remainingCount})
-                </Button>
-              </span>
-            </Tooltip.Trigger>
-            <Tooltip.Content>{addButtonTip}</Tooltip.Content>
-          </Tooltip>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="p-4 overflow-auto">
           <div className="flex items-center gap-2 mb-4">
             <Switch
               id={taxToggleId}

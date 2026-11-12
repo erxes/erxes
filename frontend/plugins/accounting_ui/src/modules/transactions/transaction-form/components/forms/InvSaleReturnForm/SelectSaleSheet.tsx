@@ -72,9 +72,7 @@ export const SelectSaleSheet = ({
       <Sheet.Trigger asChild>{children}</Sheet.Trigger>
       <Sheet.View className="sm:max-w-5xl">
         <Sheet.Header>
-          <div>
-            <Sheet.Title>{t('select-transaction')}</Sheet.Title>
-          </div>
+          <Sheet.Title>{t('select-transaction')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grid overflow-hidden grid-cols-2">
@@ -87,15 +85,15 @@ export const SelectSaleSheet = ({
             setSelectedTr={handleSelect}
           ></SelectedTrDetail>
         </Sheet.Content>
-        <Sheet.Footer className="sm:justify-between">
-          <div className="flex gap-2 items-center">
-            <Sheet.Close asChild>
-              <Button variant="secondary" className="bg-border">
-                {t('cancel-label')}
-              </Button>
-            </Sheet.Close>
-            <Button onClick={sumbitSelect}>{t('select-transaction')}</Button>
-          </div>
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
+          <Sheet.Close asChild>
+            <Button type="button" variant="outline">
+              {t('cancel-label')}
+            </Button>
+          </Sheet.Close>
+          <Button type="button" onClick={sumbitSelect}>
+            {t('select-transaction')}
+          </Button>
         </Sheet.Footer>
       </Sheet.View>
     </Sheet>
@@ -195,7 +193,7 @@ const TransactionList = ({
               value={startDate}
               onChange={(date) => setStartDate(date as Date)}
               format="YYYY-MM-DD"
-              className="h-8 flex w-full"
+              className="flex w-full"
             />
           </div>
           <div className="flex flex-1 gap-4 items-center">
@@ -203,7 +201,7 @@ const TransactionList = ({
               value={endDate}
               onChange={(date) => setEndDate(date as Date)}
               format="YYYY-MM-DD"
-              className="h-8 flex w-full"
+              className="flex w-full"
             />
           </div>
         </div>

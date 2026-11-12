@@ -37,6 +37,7 @@ export const useTransactionsUpdate = (
         toast({
           title: t('success'),
           description: t('transactions-updated-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

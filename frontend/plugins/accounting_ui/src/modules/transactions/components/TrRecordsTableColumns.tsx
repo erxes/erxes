@@ -9,6 +9,7 @@ import {
 import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
+  Badge,
   Combobox,
   Command,
   CurrencyCode,
@@ -150,7 +151,11 @@ const StatusCell = ({ row }: { row: Row<ITrRecord> }) => {
 
   return (
     <RecordTableInlineCell>
-      {t(TR_STATUS_LABELS[status || ''] || '') || status}
+      {status && (
+        <Badge variant="secondary" className="font-medium">
+          {t(TR_STATUS_LABELS[status] || '') || status}
+        </Badge>
+      )}
     </RecordTableInlineCell>
   );
 };

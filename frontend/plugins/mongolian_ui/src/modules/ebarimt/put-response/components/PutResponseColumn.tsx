@@ -6,40 +6,38 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { format } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
 import {
+  Badge,
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { MembersInline } from 'ui-modules';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { putResponseMoreColumn } from '~/modules/ebarimt/put-response/components/PutResponseMoreColumn';
+import {
+  getDisplayDate,
+  getPutResponseStatus,
+} from '~/modules/ebarimt/put-response/utils/putResponsePrint';
 import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 
-export const getDisplayDate = (
-  putResponse: Pick<IPutResponse, 'date' | 'createdAt'>,
-  timeZone: string,
-): string => {
-  if (putResponse.date) {
-    // The receipt service returns UTC timestamps without a timezone suffix.
-    const timestamp = /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(putResponse.date)
-      ? `${putResponse.date.replace(' ', 'T')}Z`
-      : putResponse.date;
-    const date = new Date(timestamp);
+const PutResponseStatusCell = ({
+  putResponse,
+}: {
+  putResponse: IPutResponse;
+}) => {
+  const { t } = useTranslation('mongolian');
+  const { variant, label } = getPutResponseStatus(putResponse);
 
-    if (!Number.isNaN(date.getTime())) {
-      return formatInTimeZone(date, timeZone, 'yyyy-MM-dd HH:mm:ss');
-    }
-  }
-
-  const { createdAt } = putResponse;
-  return createdAt && !Number.isNaN(Date.parse(createdAt))
-    ? format(new Date(createdAt), 'yyyy-MM-dd HH:mm:ss')
-    : '-';
+  return (
+    <RecordTableInlineCell>
+      <Badge variant={variant}>{t(label)}</Badge>
+    </RecordTableInlineCell>
+  );
 };
 
 export const putResponseColumns = (timeZone: string): ColumnDef<IPutResponse>[] => [
-  putResponseMoreColumn,
+  putResponseMoreColumn(timeZone),
   {
     id: 'id',
     accessorKey: 'id',
@@ -97,13 +95,7 @@ export const putResponseColumns = (timeZone: string): ColumnDef<IPutResponse>[] 
     id: 'status',
     accessorKey: 'status',
     header: () => <HeaderCell icon={IconCategory} label="status" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ row }) => <PutResponseStatusCell putResponse={row.original} />,
   },
   {
     id: 'type',
@@ -189,14 +181,16 @@ export const putResponseColumns = (timeZone: string): ColumnDef<IPutResponse>[] 
 
   {
     id: 'user',
-    accessorKey: 'user',
-    header: () => <HeaderCell icon={IconCategory} label="user" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    accessorKey: 'userId',
+    header: () => <HeaderCell icon={IconUser} label="user" />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        {row.original.userId ? (
+          <MembersInline memberIds={[row.original.userId]} />
+        ) : (
+          <TextOverflowTooltip value="-" />
+        )}
+      </RecordTableInlineCell>
+    ),
   },
 ];

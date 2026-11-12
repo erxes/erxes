@@ -2,27 +2,6 @@ export type OrgPair = { source: string; target: string };
 
 export const ORG_PAIRS: OrgPair[] = [
   // { source: 'belty', target: 'bbelty' }, done
-  // { source: 'cmlbrotherss', target: 'cmlbrothers' }, done
-  // { source: 'hipay', target: 'newhipay' }, done
-  // { source: 'greatdate', target: 'newgreatdate' }, done
-  // { source: 'tsembiibuteel', target: 'tsembiibuteelnew' }, done
-  // { source: 'tsembiiauto', target: 'tsembiiautonew' }, done
-  // { source: 'dboil', target: 'dboilnew' }, done
-
-  // { source: 'newmilestone', target: 'nnewmilestone' },
-  // { source: 'sukgarden', target: 'sukgardennew' },
-  // { source: 'tansagamttan', target: 'tansagamttannew' },
-  // { source: 'dermaestheticllc', target: 'dermaestheticnew' },
-  // { source: 'burensukh', target: 'burensukhnew' },
-  // { source: 'burensukhburen', target: 'bburensukhburen' },
-  // { source: 'tsemtsgerkharsh', target: 'newtsemtsgerkharsh' },
-  // { source: 'trillionlounge', target: 'trillionloungenew' },
-  // { source: 'cargolink', target: 'cargolinknew' },
-  // { source: '5f8bcfc86c2488e0e6687c1d', target: '6aed7cdd5b095e5cf076d654' }, done
-  // { source: '5f8bcfc86c2488e0e6687c1d', target: '026000' },
-  { source: '5f04fb971c25ab3f726f55ed', target: '11amps' },
-  { source: '5f37141f7ada549d08dea1cf', target: '123ictsolutions' },
-  { source: '5f0576032327c85486c5cda6', target: '241digital' },
 ];
 
 export function resolveOrgPairs(args: string[]): OrgPair[] {
@@ -32,6 +11,34 @@ export function resolveOrgPairs(args: string[]): OrgPair[] {
     return [{ source: SOURCE_SUBDOMAIN, target: TARGET_SUBDOMAIN }];
   }
 
+  return slicePairs(filterPairs(args), args);
+}
+
+function slicePairs(pairs: OrgPair[], args: string[]): OrgPair[] {
+  const numberArg = (name: string): number | undefined => {
+    const arg = args.find((a) => a.startsWith(`--${name}=`));
+
+    if (!arg) {
+      return undefined;
+    }
+
+    const value = Number(arg.slice(name.length + 3));
+
+    if (!Number.isInteger(value) || value < 0) {
+      console.error(`--${name} must be a non-negative integer`);
+      process.exit(1);
+    }
+
+    return value;
+  };
+
+  const skip = numberArg('skip') ?? 0;
+  const limit = numberArg('limit');
+
+  return pairs.slice(skip, limit === undefined ? undefined : skip + limit);
+}
+
+function filterPairs(args: string[]): OrgPair[] {
   const orgArg = args.find((a) => a.startsWith('--org='));
 
   if (!orgArg) {

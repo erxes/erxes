@@ -34,6 +34,7 @@ jest.mock('erxes-ui', () => {
     Button: (props: React.ComponentProps<'button'>) =>
       react.createElement('button', props),
     Spinner: () => null,
+    Badge: wrapper,
     Tabs: Object.assign(root(), {
       List: wrapper,
       Trigger: wrapper,

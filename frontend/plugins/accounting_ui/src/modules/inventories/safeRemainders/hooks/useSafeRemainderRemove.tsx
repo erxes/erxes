@@ -34,6 +34,7 @@ export const useSafeRemainderRemove = () => {
         toast({
           title: t('success'),
           description: t('safe-remainder-deleted'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
         const pathname = '/accounting/inventories/safe-remainders';

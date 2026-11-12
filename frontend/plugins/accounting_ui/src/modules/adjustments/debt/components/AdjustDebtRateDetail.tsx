@@ -1,16 +1,12 @@
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
-  IconCalculator,
   IconBuilding,
   IconCurrencyDollar,
-  IconPlayerPlay,
-  IconTrashX,
-  IconEdit,
   IconUser,
 } from '@tabler/icons-react';
 import {
-  Button,
+  InfoCard,
   RecordTable,
   RecordTableInlineCell,
   Spinner,
@@ -24,18 +20,45 @@ import { useMemo } from 'react';
 import { ADJUST_DEBT_RATE_CONTENT_TYPE } from '@/adjustments/constants/adjustmentPanel';
 import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 import { useAdjustDebtRateRun } from '../hooks/useAdjustDebtRateRun';
-import type { IAdjustDebtRateDetail } from '../types/AdjustDebtRate';
-import { BranchBadge, DepartmentBadge } from 'ui-modules';
+import type {
+  IAdjustDebtRate,
+  IAdjustDebtRateDetail,
+} from '@/adjustments/debt/types/AdjustDebtRate';
+import {
+  BranchBadge,
+  BranchesInline,
+  CompaniesInline,
+  CustomerType,
+  CustomersInline,
+  DepartmentBadge,
+  DepartmentsInline,
+} from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
 import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
 import { getTransactionNumbers } from '@/adjustments/utils/getTransactionNumbers';
+import { AdjustDetailField } from '@/adjustments/components/AdjustDetailField';
+import { AdjustRateDetailHeader } from '@/adjustments/components/AdjustRateDetailHeader';
+import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
+import { AccountsInline } from '@/settings/account/components/AccountsInline';
 
-const DetailField = ({ label, value }: { label: string; value?: string }) => (
-  <div>
-    <p className="text-sm text-muted-foreground">{label}</p>
-    <p className="font-medium">{value || '-'}</p>
-  </div>
-);
+const DebtRateCustomer = ({
+  customerType,
+  customerId,
+}: Pick<IAdjustDebtRate, 'customerType' | 'customerId'>) => {
+  if (!customerId) {
+    return null;
+  }
+
+  if (customerType === CustomerType.CUSTOMER) {
+    return <CustomersInline customerIds={[customerId]} placeholder="-" />;
+  }
+
+  if (customerType === CustomerType.COMPANY) {
+    return <CompaniesInline companyIds={[customerId]} placeholder="-" />;
+  }
+
+  return customerId;
+};
 
 const formatAmount = (amount?: number) =>
   typeof amount === 'number' ? amount.toLocaleString() : '-';
@@ -198,11 +221,7 @@ export const AdjustDebtRateDetail = () => {
   } = useAdjustDebtRateRun(id || '');
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner />
-      </div>
-    );
+    return <Spinner />;
   }
 
   if (!id || !adjustDebtRate) {
@@ -228,120 +247,137 @@ export const AdjustDebtRateDetail = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="bg-card rounded-lg shadow-sm">
-        <div className="p-6 border-b flex justify-between items-center">
-          <h2 className="text-2xl font-bold">{t('debt-rate-adjustment')}</h2>
-          <div className="flex gap-2">
-            <Button onClick={handleCalculate} disabled={calculateLoading}>
-              {calculateLoading ? <Spinner /> : <IconCalculator size={16} />}
-              {t('Calculate')}
-            </Button>
-            <Button onClick={handleRun} disabled={runLoading}>
-              {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
-              {t('run')}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => openDetail(adjustDebtRate._id)}
-            >
-              <IconEdit size={16} />
-              {t('edit')}
-            </Button>
-            <Button
-              variant="outline"
-              className="text-destructive"
-              onClick={handleDelete}
-              disabled={removeLoading}
-            >
-              <IconTrashX size={16} />
-              {t('delete')}
-            </Button>
-          </div>
-        </div>
+    <div className="m-3 flex flex-col gap-3">
+      <AdjustRateDetailHeader
+        title={t('debt-rate-adjustment')}
+        calculateLoading={calculateLoading}
+        runLoading={runLoading}
+        removeLoading={removeLoading}
+        onCalculate={handleCalculate}
+        onRun={handleRun}
+        onEdit={() => openDetail(adjustDebtRate._id)}
+        onDelete={handleDelete}
+      />
 
-        <div className="p-6 grid grid-cols-2 gap-6">
-          <DetailField
+      <InfoCard title={t('details')}>
+        <InfoCard.Content className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4 xl:grid-cols-6">
+          <AdjustDetailField
             label={t('date')}
             value={dayjs(adjustDebtRate.date).format('YYYY-MM-DD')}
           />
-          <DetailField label={t('currency')} value={adjustDebtRate.currency} />
-          <DetailField
+          <AdjustDetailField
+            label={t('currency')}
+            value={adjustDebtRate.currency}
+          />
+          <AdjustDetailField
             label={t('Spot Rate')}
             value={adjustDebtRate.spotRate?.toFixed(4) || '-'}
           />
-          <DetailField
+          <AdjustDetailField
             label={t('Main Currency')}
             value={adjustDebtRate.mainCurrency}
           />
-          <DetailField
+          <AdjustDetailField
             label={t('status')}
-            value={t(adjustDebtRate.status || 'draft')}
+            value={
+              <AdjustStatusBadge status={adjustDebtRate.status || 'draft'} />
+            }
           />
-          {adjustDebtRate.error && (
-            <div className="col-span-2 text-sm text-destructive">
-              {adjustDebtRate.error}
-            </div>
-          )}
-          <DetailField
+          <AdjustDetailField
             label={t('customer-type')}
             value={t(adjustDebtRate.customerType || 'All')}
           />
           {adjustDebtRate.customerId && (
-            <DetailField
-              label={t('Customer ID')}
-              value={adjustDebtRate.customerId}
+            <AdjustDetailField
+              label={t('Customer')}
+              value={
+                <DebtRateCustomer
+                  customerType={adjustDebtRate.customerType}
+                  customerId={adjustDebtRate.customerId}
+                />
+              }
             />
           )}
           {adjustDebtRate.branchId && (
-            <DetailField label={t('branch')} value={adjustDebtRate.branchId} />
-          )}
-          {adjustDebtRate.departmentId && (
-            <DetailField
-              label={t('department')}
-              value={adjustDebtRate.departmentId}
+            <AdjustDetailField
+              label={t('branch')}
+              value={
+                <BranchesInline
+                  branchIds={[adjustDebtRate.branchId]}
+                  placeholder="-"
+                />
+              }
             />
           )}
-          <DetailField
+          {adjustDebtRate.departmentId && (
+            <AdjustDetailField
+              label={t('department')}
+              value={
+                <DepartmentsInline
+                  departmentIds={[adjustDebtRate.departmentId]}
+                  placeholder="-"
+                />
+              }
+            />
+          )}
+          <AdjustDetailField
             label={t('Gain Account')}
-            value={adjustDebtRate.gainAccountId}
+            value={
+              adjustDebtRate.gainAccountId && (
+                <AccountsInline
+                  accountIds={[adjustDebtRate.gainAccountId]}
+                  permissionMode="read"
+                  placeholder="-"
+                />
+              )
+            }
           />
-          <DetailField
+          <AdjustDetailField
             label={t('Loss Account')}
-            value={adjustDebtRate.lossAccountId}
+            value={
+              adjustDebtRate.lossAccountId && (
+                <AccountsInline
+                  accountIds={[adjustDebtRate.lossAccountId]}
+                  permissionMode="read"
+                  placeholder="-"
+                />
+              )
+            }
           />
           {adjustDebtRate.description && (
-            <div className="col-span-2">
-              <DetailField
+            <div className="col-span-full">
+              <AdjustDetailField
                 label={t('description')}
                 value={adjustDebtRate.description}
               />
             </div>
           )}
-        </div>
+        </InfoCard.Content>
+      </InfoCard>
 
-        {adjustDebtRate.details && adjustDebtRate.details.length > 0 && (
-          <div className="p-6 border-t">
-            <h3 className="text-lg font-semibold mb-4">
-              {t('Account Details')}
-            </h3>
-            <RecordTable.Provider
-              columns={adjustDebtRateDetailColumns(t, transactionNumbers)}
-              data={adjustDebtRate.details}
-              tableId="accounting_adjust_debt_rate_detail_record_table"
-            >
-              <RecordTable.Scroll>
-                <RecordTable>
-                  <RecordTable.Header />
-                  <RecordTable.Body>
-                    <RecordTable.RowList />
-                  </RecordTable.Body>
-                </RecordTable>
-              </RecordTable.Scroll>
-            </RecordTable.Provider>
-          </div>
-        )}
-      </div>
+      {adjustDebtRate.error && (
+        <div className="text-sm text-destructive">{adjustDebtRate.error}</div>
+      )}
+
+      {adjustDebtRate.details && adjustDebtRate.details.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h3 className="text-lg font-semibold">{t('Account Details')}</h3>
+          <RecordTable.Provider
+            columns={adjustDebtRateDetailColumns(t, transactionNumbers)}
+            data={adjustDebtRate.details}
+            tableId="accounting_adjust_debt_rate_detail_record_table"
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                </RecordTable.Body>
+              </RecordTable>
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
+        </div>
+      )}
     </div>
   );
 };
