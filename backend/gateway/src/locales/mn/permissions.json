@@ -2153,6 +2153,62 @@
       }
     }
   },
+  "content": {
+    "cmsPost": {
+      "name": "CMS нийтлэлүүд",
+      "description": "CMS мэдээ, нийтлэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн бичсэн нийтлэл",
+        "all": "Бүх CMS нийтлэл"
+      },
+      "actions": {
+        "cmsPostsSharePostiz": {
+          "title": "CMS нийтлэлийг Postiz-ээр хуваалцах",
+          "description": "Сонгосон CMS нийтлэлийг байгууллагын workspace-ээр сошиал сувгуудад нийтлэх"
+        },
+        "cmsPostsRead": {
+          "title": "CMS нийтлэл харах",
+          "description": "CMS нийтлэл болон орчуулгыг харах"
+        },
+        "cmsPostsCreatePublished": {
+          "title": "CMS нийтлэл үүсгэж нийтлэх",
+          "description": "Шууд нийтлэгдэх CMS нийтлэл үүсгэх"
+        },
+        "cmsPostsCreateReview": {
+          "title": "Хянуулах CMS нийтлэл үүсгэх",
+          "description": "Редакторын зөвшөөрөл шаардлагатай CMS нийтлэл үүсгэх"
+        },
+        "cmsPostsUpdate": {
+          "title": "CMS нийтлэл засах",
+          "description": "Сэтгүүлчдийн үүсгэсэн CMS нийтлэлийг засах"
+        },
+        "cmsPostsApprove": {
+          "title": "CMS нийтлэл батлах",
+          "description": "Зөвшөөрөлд илгээсэн CMS нийтлэлийг нийтлэх"
+        },
+        "cmsPostsRemove": {
+          "title": "CMS нийтлэл устгах",
+          "description": "CMS нийтлэл устгах"
+        },
+        "cmsPermissionsManage": {
+          "title": "CMS-ийн үүрэг удирдах",
+          "description": "CMS-ийн сэтгүүлч, редакторын эрхийг удирдах"
+        },
+        "cmsLanguageAll": {
+          "title": "CMS-ийн бүх хэл",
+          "description": "Ямар ч хэл дээр CMS агуулга үүсгэх, засах, батлах"
+        },
+        "cmsLanguageMn": {
+          "title": "CMS-ийн монгол хэл",
+          "description": "Монгол хэл дээрх CMS агуулга үүсгэх, засах, батлах"
+        },
+        "cmsLanguageEn": {
+          "title": "CMS-ийн англи хэл",
+          "description": "Англи хэл дээрх CMS агуулга үүсгэх, засах, батлах"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Санхүүгийн плагинд бүрэн хандах эрх"
@@ -2204,6 +2260,21 @@
     },
     "mongolian:viewer": {
       "description": "Mongolian плагиныг зөвхөн харах эрх"
+    },
+    "content:cms-journalist-1": {
+      "description": "CMS мэдээ бичиж шууд нийтлэх боломжтой"
+    },
+    "content:cms-journalist-2": {
+      "description": "Редакторын зөвшөөрөл шаардлагатай CMS мэдээ бичих боломжтой"
+    },
+    "content:cms-editor": {
+      "description": "Сэтгүүлчдийн CMS мэдээг засах, батлах боломжтой"
+    },
+    "content:cms-admin": {
+      "description": "CMS нийтлэл, үүрэг, баталгаажуулалтад бүрэн хандах эрх"
+    },
+    "content:viewer": {
+      "description": "CMS нийтлэлийг зөвхөн харах эрх"
     }
   }
 }

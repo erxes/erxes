@@ -2153,6 +2153,62 @@
       }
     }
   },
+  "content": {
+    "cmsPost": {
+      "name": "CMS posts",
+      "description": "CMS news and post management",
+      "scopes": {
+        "own": "Posts authored by the user",
+        "all": "All CMS posts"
+      },
+      "actions": {
+        "cmsPostsSharePostiz": {
+          "title": "Share CMS posts to Postiz",
+          "description": "Publish selected CMS posts to social channels using the organization workspace"
+        },
+        "cmsPostsRead": {
+          "title": "View CMS posts",
+          "description": "View CMS posts and translations"
+        },
+        "cmsPostsCreatePublished": {
+          "title": "Create and publish CMS posts",
+          "description": "Create CMS posts that are published immediately"
+        },
+        "cmsPostsCreateReview": {
+          "title": "Create CMS posts for review",
+          "description": "Create CMS posts that require editor approval"
+        },
+        "cmsPostsUpdate": {
+          "title": "Edit CMS posts",
+          "description": "Edit CMS posts created by journalists"
+        },
+        "cmsPostsApprove": {
+          "title": "Approve CMS posts",
+          "description": "Publish CMS posts submitted for approval"
+        },
+        "cmsPostsRemove": {
+          "title": "Delete CMS posts",
+          "description": "Delete CMS posts"
+        },
+        "cmsPermissionsManage": {
+          "title": "Manage CMS roles",
+          "description": "Manage CMS journalist and editor permissions"
+        },
+        "cmsLanguageAll": {
+          "title": "All CMS languages",
+          "description": "Create, edit and approve CMS content in any language"
+        },
+        "cmsLanguageMn": {
+          "title": "Mongolian CMS language",
+          "description": "Create, edit and approve Mongolian CMS content"
+        },
+        "cmsLanguageEn": {
+          "title": "English CMS language",
+          "description": "Create, edit and approve English CMS content"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Full access to Accounting plugin"
@@ -2204,6 +2260,21 @@
     },
     "mongolian:viewer": {
       "description": "Read-only access to Mongolian plugin"
+    },
+    "content:cms-journalist-1": {
+      "description": "Can write CMS news and publish immediately"
+    },
+    "content:cms-journalist-2": {
+      "description": "Can write CMS news that requires editor approval"
+    },
+    "content:cms-editor": {
+      "description": "Can edit and approve CMS news from journalists"
+    },
+    "content:cms-admin": {
+      "description": "Full access to CMS posts, roles and approvals"
+    },
+    "content:viewer": {
+      "description": "Read-only access to CMS posts"
     }
   }
 }
