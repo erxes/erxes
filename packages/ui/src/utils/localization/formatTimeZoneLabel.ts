@@ -1,26 +1,20 @@
-import { formatInTimeZone } from 'date-fns-tz';
-import { enUS } from 'date-fns/locale';
+const timeZoneName = (timeZone: string, style: 'long' | 'longOffset') =>
+  new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: style })
+    .formatToParts()
+    .find((part) => part.type === 'timeZoneName')?.value ?? timeZone;
 
 /**
- * Formats a IANA time zone to a select option label.
- * @param ianaTimeZone IANA time zone
- * @returns Formatted label
- * @example 'Europe/Paris' => '(GMT+01:00) Central European Time - Paris'
+ * A select option label for an IANA time zone. Throws a RangeError for an unknown zone.
+ * @example 'Europe/Paris' => '(GMT+01:00) Central European Standard Time - Paris'
  */
 export const formatTimeZoneLabel = (ianaTimeZone: string) => {
-  const timeZoneWithGmtOffset = formatInTimeZone(Date.now(), ianaTimeZone, `(OOOO) zzzz`, {
-    locale: enUS,
-  });
+  const offset = timeZoneName(ianaTimeZone, 'longOffset');
+  const name = timeZoneName(ianaTimeZone, 'long');
+  const label = name === offset ? `(${offset})` : `(${offset}) ${name}`;
 
-  const ianaTimeZoneParts = ianaTimeZone.split('/');
+  const location = ianaTimeZone.includes('/')
+    ? ianaTimeZone.split('/').at(-1)?.replaceAll('_', ' ')
+    : undefined;
 
-  const location =
-    ianaTimeZoneParts.length > 1 ? ianaTimeZoneParts.slice(-1)[0].replace(/_/g, ' ') : undefined;
-
-  const timeZoneLabel =
-    !location || timeZoneWithGmtOffset.includes(location)
-      ? timeZoneWithGmtOffset
-      : [timeZoneWithGmtOffset, location].join(' - ');
-
-  return timeZoneLabel;
+  return !location || label.includes(location) ? label : `${label} - ${location}`;
 };

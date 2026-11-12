@@ -1,9 +1,10 @@
 import { Combobox } from 'erxes-ui/components/combobox';
 import { Command } from 'erxes-ui/components/command';
 import { Popover } from 'erxes-ui/components/popover';
-import { IANA_TIME_ZONES } from 'erxes-ui/constants/IanaTimeZones';
 import { formatTimeZoneLabel } from 'erxes-ui/utils/localization/formatTimeZoneLabel';
 import React, { useState } from 'react';
+
+const TIME_ZONES = Intl.supportedValuesOf('timeZone');
 
 export const TimezoneSelect = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
@@ -30,7 +31,7 @@ export const TimezoneSelect = React.forwardRef<
           <Command.Input />
           <Command.List>
             <Command.Empty>no timezone found</Command.Empty>
-            {IANA_TIME_ZONES.map((timezone) => (
+            {TIME_ZONES.map((timezone) => (
               <Command.Item
                 key={timezone}
                 value={timezone}

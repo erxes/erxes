@@ -1,4 +1,4 @@
-import type { IPhoneFieldProps } from 'erxes-ui/modules/inputs/components/PhoneField';
+import type { IPhoneFieldProps } from 'erxes-ui/modules/inputs/types/phoneField';
 import { Badge } from 'erxes-ui/components/badge';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
