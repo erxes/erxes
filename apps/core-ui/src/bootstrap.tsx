@@ -6,7 +6,7 @@ import { StrictMode } from 'react';
 import { setFileStorage, setPluginRuntime, setRecordTimeline } from 'erxes-ui';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { api } from './lib/api';
+import { orpc } from './lib/api';
 import { coreFileStorage } from './lib/files';
 import { pluginLive } from './lib/live';
 import { SharedTimeline } from './modules/activity/SharedTimeline';
@@ -14,16 +14,20 @@ import { SharedTimeline } from './modules/activity/SharedTimeline';
 // erxes-ui's upload hooks (and plugin UIs) store files through core.
 setFileStorage(coreFileStorage);
 
-// Plugin UIs call their own API with a per-plugin token and hear live signals.
 // Plugin UIs show core's timeline for their own records.
 setRecordTimeline(SharedTimeline);
 
+// Plugin UIs call their own API with a per-plugin token and hear live signals.
 setPluginRuntime({
-  session: (name) => api.plugins.session({ name }),
+  session: (name) => orpc.plugins.session.call({ name }),
   subscribe: pluginLive,
 });
 
-createRoot(document.getElementById('root') as HTMLElement).render(
+const root = document.getElementById('root');
+
+if (!root) throw new Error('index.html has no #root element');
+
+createRoot(root).render(
   <StrictMode>
     <App />
   </StrictMode>,

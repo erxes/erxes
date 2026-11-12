@@ -235,7 +235,7 @@ const ComboboxEmpty = React.forwardRef<
   React.ElementRef<typeof Command.Empty>,
   React.ComponentPropsWithoutRef<typeof Command.Empty> & {
     loading?: boolean;
-    error?: ApolloError;
+    error?: Pick<ApolloError, 'message'>;
   }
 >(({ className, loading, error, ...props }, ref) => {
   return (

@@ -1,12 +1,11 @@
 import { NewPassword } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Input, Spinner } from 'erxes-ui';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { api, isApiError } from '~/lib/api';
-import { SESSION_KEY, SETUP_KEY } from '~/modules/auth/session';
+import { isApiError, messageOf, orpc } from '~/lib/api';
+import { useSignedIn } from '~/modules/auth/session';
 import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
 
 const schema = z
@@ -30,13 +29,11 @@ const Field = ({
   label,
   type = 'text',
   autoComplete,
-  autoFocus,
 }: {
   name: keyof Values;
   label: string;
   type?: string;
   autoComplete?: string;
-  autoFocus?: boolean;
 }) => (
   <Form.Field
     name={name}
@@ -46,7 +43,7 @@ const Field = ({
           {label}
         </Form.Label>
         <Form.Control>
-          <Input {...field} type={type} autoComplete={autoComplete} autoFocus={autoFocus} />
+          <Input {...field} type={type} autoComplete={autoComplete} />
         </Form.Control>
         <Form.Message />
       </Form.Item>
@@ -54,14 +51,33 @@ const Field = ({
   />
 );
 
+/** Creates the organisation and its owner, then signs in. */
+const useSetup = () => {
+  const client = useQueryClient();
+  const signedIn = useSignedIn();
+
+  return useMutation(
+    orpc.auth.setup.mutationOptions({
+      onSuccess: (session) => {
+        client.setQueryData(orpc.auth.setupStatus.queryKey(), { required: false });
+        signedIn(session);
+      },
+      onError: (error) => {
+        // Someone finished setup first: go to sign-in.
+        if (isApiError(error, 'SETUP_DONE')) {
+          void client.invalidateQueries({ queryKey: orpc.auth.setupStatus.key() });
+        }
+      },
+    }),
+  );
+};
+
 /**
  * First run (old core-ui "Initial Configuration Steps"): the database has no
  * organisation yet, so the first visitor creates it and becomes its owner.
  */
 export const SetupPage = () => {
-  const client = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
-
+  const setup = useSetup();
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -74,23 +90,9 @@ export const SetupPage = () => {
     },
   });
 
-  const onSubmit = form.handleSubmit(async ({ confirmPassword, lastName, ...values }) => {
-    setError(null);
-
-    try {
-      const session = await api.auth.setup({ ...values, lastName: lastName || undefined });
-
-      client.setQueryData(SETUP_KEY, { required: false });
-      client.setQueryData(SESSION_KEY, session);
-    } catch (caught) {
-      if (isApiError(caught, 'SETUP_DONE')) {
-        // Someone finished setup first: go to sign-in.
-        void client.invalidateQueries({ queryKey: SETUP_KEY });
-      }
-
-      setError(caught instanceof Error ? caught.message : 'Could not finish the setup');
-    }
-  });
+  const onSubmit = form.handleSubmit(({ confirmPassword, lastName, ...values }) =>
+    setup.mutate({ ...values, lastName: lastName || undefined }),
+  );
 
   return (
     <div className="z-10 flex min-h-screen w-full">
@@ -104,12 +106,7 @@ export const SetupPage = () => {
         </div>
         <Form {...form}>
           <form onSubmit={onSubmit} className="mx-auto grid w-full gap-5" noValidate>
-            <Field
-              name="organizationName"
-              label="Organization name"
-              autoComplete="organization"
-              autoFocus
-            />
+            <Field name="organizationName" label="Organization name" autoComplete="organization" />
             <div className="grid grid-cols-2 gap-3">
               <Field name="firstName" label="First name" autoComplete="given-name" />
               <Field name="lastName" label="Last name" autoComplete="family-name" />
@@ -122,13 +119,13 @@ export const SetupPage = () => {
               type="password"
               autoComplete="new-password"
             />
-            {error && (
+            {setup.isError && (
               <p role="alert" className="text-center text-sm text-destructive">
-                {error}
+                {messageOf(setup.error)}
               </p>
             )}
-            <Button type="submit" className="h-8" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting && <Spinner size="sm" />}
+            <Button type="submit" className="h-8" disabled={setup.isPending}>
+              {setup.isPending && <Spinner size="sm" />}
               Create owner
             </Button>
           </form>

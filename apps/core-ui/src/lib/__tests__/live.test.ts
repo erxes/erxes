@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
-import { LiveClient, type LiveMessage } from '../live';
+import { LiveClient, type LiveMessage } from '../liveClient';
 
 /** EventSource stand-in: the test drives `emit`, `fail` and `close`. */
 class FakeEventSource {
@@ -8,25 +8,26 @@ class FakeEventSource {
   static CLOSED = 2;
   static all: FakeEventSource[] = [];
   readyState = FakeEventSource.OPEN;
-  onerror: (() => void) | null = null;
-  private handlers = new Map<string, ((event: { data: string }) => void)[]>();
+  private handlers = new Map<string, ((event: { type: string; data: string }) => void)[]>();
 
   constructor(readonly url: string) {
     FakeEventSource.all.push(this);
   }
 
-  addEventListener(name: string, handler: (event: { data: string }) => void) {
+  addEventListener(name: string, handler: (event: { type: string; data: string }) => void) {
     this.handlers.set(name, [...(this.handlers.get(name) ?? []), handler]);
   }
 
   emit(name: string, data: unknown = {}) {
-    this.handlers.get(name)?.forEach((handler) => handler({ data: JSON.stringify(data) }));
+    this.handlers
+      .get(name)
+      ?.forEach((handler) => handler({ type: name, data: JSON.stringify(data) }));
   }
 
   /** A dropped connection the browser gave up on (HTTP error). */
   fail() {
     this.readyState = FakeEventSource.CLOSED;
-    this.onerror?.();
+    this.emit('error');
   }
 
   close() {
@@ -35,6 +36,16 @@ class FakeEventSource {
 
   static open() {
     return FakeEventSource.all.filter((source) => source.readyState !== FakeEventSource.CLOSED);
+  }
+
+  /** The one open stream. */
+  static current() {
+    const open = FakeEventSource.open();
+    const [source] = open;
+
+    if (!source || open.length > 1) throw new Error(`${open.length} streams are open, not 1`);
+
+    return source;
   }
 }
 
@@ -46,8 +57,10 @@ const fakeLocks = () => {
   const next = (name: string) => {
     const queue = queues.get(name) ?? [];
 
-    while (queue.length && !held.has(name)) {
-      const waiter = queue.shift()!;
+    while (!held.has(name)) {
+      const waiter = queue.shift();
+
+      if (!waiter) return;
 
       if (waiter.signal?.aborted) continue;
 
@@ -102,7 +115,7 @@ describe('LiveClient (one stream per browser)', () => {
 
     expect(FakeEventSource.open()).toHaveLength(1);
 
-    const source = FakeEventSource.open()[0];
+    const source = FakeEventSource.current();
 
     source.emit('hello', { mode: 'live' });
     source.emit('timeline', { targets: [{ targetType: 'customer', targetId: 'c1' }] });
@@ -146,7 +159,7 @@ describe('LiveClient (one stream per browser)', () => {
     await tick();
     vi.useFakeTimers();
 
-    const first = FakeEventSource.open()[0];
+    const first = FakeEventSource.current();
 
     first.emit('hello', { mode: 'live' });
     first.fail();
@@ -158,7 +171,7 @@ describe('LiveClient (one stream per browser)', () => {
     vi.advanceTimersByTime(1600);
     expect(FakeEventSource.open()).toHaveLength(1);
 
-    FakeEventSource.open()[0].emit('hello', { mode: 'live' });
+    FakeEventSource.current().emit('hello', { mode: 'live' });
     expect(client.getMode()).toBe('live');
 
     client.stop();
@@ -171,7 +184,7 @@ describe('LiveClient (one stream per browser)', () => {
     await tick();
     vi.useFakeTimers();
 
-    FakeEventSource.open()[0].emit('bye', { reason: 'session-expired' });
+    FakeEventSource.current().emit('bye', { reason: 'session-expired' });
     vi.advanceTimersByTime(60_000);
 
     expect(FakeEventSource.open()).toHaveLength(0);
