@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -421,7 +421,8 @@
 
 - Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
   live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
-  ticket record panel's actions view; the fields row carries no actions. The
+  ticket record panel's actions view and in the `TicketDetailPage` header; the
+  fields row carries no actions. The
   notification ticket view's `Open ticket` button opens the same record panel.
   `TicketPanelDetail` shows linked customers and companies through
   `ContactRecordChip`, opening each contact with stacked navigation.
@@ -895,7 +896,17 @@ owns the setup form and connection actions.
 - `./frontline` retains its federation path and loads the named `Frontline`
   export from `src/modules/FrontlineMain.tsx`.
 
-- `CONFIG.widgets.recordPanels` registers `frontline:ticket`; the
+- `CONFIG.widgets.recordPanels` registers `frontline:ticket` with
+  `detailPath: getTicketDetailPath`
+  (`src/modules/ticket/constants/index.ts`), so the side panel's
+  expand button opens `/frontline/tickets/:ticketId`. `TicketDetailPage`
+  (`src/pages/TicketDetailPage.tsx`, lazy-loaded in `FrontlineMain`) is laid
+  out like operation's task page through the public
+  `RecordSidePanel expanded expandedMode="page" expandable={false}`: a
+  `PageHeader` with a Tickets › ticket name breadcrumb and `TicketDetailActions`, then `TicketPageFields`
+  beside Description, Properties and Activity tabs, the name edited above the
+  fields with `TicketPanelName`. Deleting the ticket from the page replaces it
+  with `/frontline/tickets`; a missing ticket shows the panel's empty state. The
   `./recordPanel` federation expose (`src/widgets/record-panel/RecordPanel.tsx`)
   provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through
@@ -1389,7 +1400,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   on keys present in both gateway catalogues instead of adding English defaults.
 - The ticket panel title owns its `TICKET_CHANGED` subscription; other panel
   views call `useGetTicket({ subscribe: false })` and receive Apollo cache updates.
-- `TicketPanelDetail` memoizes attachment normalization by `ticket.attachments`
+  `TicketDetailPage` has no panel title, so its own `useGetTicket` keeps the
+  default subscription.
+- `TicketPanelDetail` composes the fields and description sections that
+  `TicketPageFields` and `TicketPageDescription` render on the ticket page; the
+  description section memoizes attachment normalization by `ticket.attachments`
   so unrelated ticket updates do not reset an in-progress upload.
 - Ticket attachments use the public `useErxesUpload().uploadFile` API and settle
   every file in a batch, including rejected and oversized files. Clear uploading
