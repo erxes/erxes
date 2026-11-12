@@ -15,7 +15,8 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { DisqualifyDialog } from './LeadActions';
+import { useMinuteClock } from '~/lib/useMinuteClock';
+import { DisqualifyDialog } from './DisqualifyDialog';
 import { LeadStageBadge, LeadStagePill } from './LeadStageBadge';
 import { daysSince, type LeadRecord, useLeadStages, useMoveLeads } from './useLeads';
 import { useLeadsT } from './i18n';
@@ -99,7 +100,7 @@ const inStageColumns = <T extends LeadRecord>(): ColumnDef<T>[] => [
     },
     cell: function InStageCell({ row }) {
       const t = useLeadsT();
-      const days = daysSince(row.original.leadStageChangedAt);
+      const days = daysSince(row.original.leadStageChangedAt, useMinuteClock());
 
       return (
         <Muted>

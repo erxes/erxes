@@ -1,5 +1,6 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import { IconCalendarCheck, IconHourglass, IconWorld } from '@tabler/icons-react';
+import { useMinuteClock } from '~/lib/useMinuteClock';
 import { PanelField } from '~/modules/side-panel/PanelField';
 import { ContactDetailSection } from '~/modules/side-panel/details/ContactDetailSection';
 import { daysSince, type LeadRecord, useLeadStages } from './useLeads';
@@ -27,7 +28,7 @@ export const LeadPanelSection = ({
   const t = useLeadsT();
   const isLead = record.state === 'lead';
   const stage = record.leadStageId ? byId.get(record.leadStageId) : null;
-  const days = daysSince(record.leadStageChangedAt);
+  const days = daysSince(record.leadStageChangedAt, useMinuteClock());
   const details = Object.entries(record.sourceDetails);
 
   if (!isLead && !record.source && !record.convertedAt) return null;

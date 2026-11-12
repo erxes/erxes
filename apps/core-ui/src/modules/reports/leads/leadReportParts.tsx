@@ -1,7 +1,7 @@
 import type { LeadRecordType, LeadReport } from '@erxes/core-contract';
 import { cn } from 'erxes-ui';
 import { useMemo } from 'react';
-import { MembersInline } from '~/modules/contacts/components/SelectMember';
+import { MembersInline } from '~/modules/contacts/components/MembersInline';
 import { useLeadReport } from '~/modules/leads/useLeads';
 import { useLeadsT, useStageName } from '~/modules/leads/i18n';
 
@@ -231,7 +231,7 @@ export const LeadReasons = ({ report }: { report: LeadReport }) => {
           <span className="w-40 shrink-0 truncate">{row.reason}</span>
           <Bar
             value={row.count}
-            max={report.reasons[0].count}
+            max={report.reasons[0]?.count ?? row.count}
             title={`${row.reason}: ${row.count}`}
           />
         </div>
