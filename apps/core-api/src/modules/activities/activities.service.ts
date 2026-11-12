@@ -1,5 +1,5 @@
 import type { Activity, ActivityInput, ActivityTarget, CursorQuery } from '@erxes/core-contract';
-import { activities, companies, customerCompanies, customers, type Db, files, newId } from '@erxes/core-db';
+import { activities, companies, customerCompanies, customers, type Db, files, newId, pluginInstallations, plugins } from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, like, ne, notLike, or, sql } from 'drizzle-orm';
 import { type Actor, type Caller, can, type PluginCaller, pluginCaller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
@@ -23,6 +23,7 @@ export const toActivityDto = (row: ActivityRow): Activity => ({
   actor: { type: row.actorType, id: row.actorId },
   pinned: row.pinnedAt !== null,
   editedAt: row.editedAt?.toISOString() ?? null,
+  reactions: ((row.data as { reactions?: Record<string, string[]> }).reactions ?? {}),
   occurredAt: row.occurredAt.toISOString(),
 });
 
@@ -103,19 +104,80 @@ export const assertTarget = async (client: Db, orgId: string, targetType: Activi
 
 const isNote = like(activities.type, '%.note');
 
+const CORE_TARGETS = new Set(['customer', 'company']);
+
+/** The plugin timeline a target type belongs to (from installed plugins' manifests), or null. */
+const pluginTimeline = async (client: Db, orgId: string, targetType: string) => {
+  const [plugin] = targetType.split('.');
+  const [row] = await client
+    .select({ manifest: plugins.manifest })
+    .from(plugins)
+    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
+    .where(
+      and(
+        eq(plugins.name, plugin ?? ''),
+        eq(plugins.status, 'active'),
+        eq(pluginInstallations.orgId, orgId),
+        eq(pluginInstallations.status, 'active'),
+      ),
+    )
+    .limit(1);
+
+  return row?.manifest?.timelines?.find((timeline) => timeline.type === targetType) ?? null;
+};
+
+/**
+ * May this caller see (and note on) this timeline? Customers and companies
+ * need `contacts.view` and must exist; a plugin's record type must be one an
+ * installed plugin declared, with its permission (if any). Plugins reach
+ * customers, companies and their own types.
+ */
+export const assertTimelineAccess = async (
+  client: Db,
+  who: { actor?: Actor | null; plugin?: PluginCaller | null; orgId: string },
+  targetType: string,
+  targetId: string,
+) => {
+  if (CORE_TARGETS.has(targetType)) {
+    if (who.actor && !can(who.actor, 'contacts.view')) {
+      throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", { permission: 'contacts.view' });
+    }
+
+    return assertTarget(client, who.orgId, targetType as ActivityTarget, targetId);
+  }
+
+  if (who.plugin && !targetType.startsWith(`${who.plugin.plugin}.`)) {
+    throw new HttpError(403, 'NOT_ALLOWED', "A plugin writes to customers, companies and its own record types only");
+  }
+
+  const timeline = await pluginTimeline(client, who.orgId, targetType);
+
+  if (!timeline) throw new HttpError(404, 'NO_TIMELINE', `No installed plugin keeps a timeline for ${targetType}`);
+
+  if (who.actor && timeline.permission && !can(who.actor, timeline.permission)) {
+    throw new HttpError(403, 'NOT_ALLOWED', "Your role doesn't allow this", { permission: timeline.permission });
+  }
+};
+
 export const listActivities = async (
   client: Db,
   actor: Actor,
   query: CursorQuery & {
-    targetType: ActivityTarget;
+    targetType: string;
     targetId: string;
     source?: string;
     kind?: 'all' | 'notes' | 'changes' | 'plugins';
     pinned?: boolean;
     includeRelated?: boolean;
+    q?: string;
+    actorId?: string;
+    from?: string;
+    to?: string;
   },
 ) => {
-  await assertTarget(client, actor.orgId, query.targetType, query.targetId);
+  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, query.targetType, query.targetId);
+
+  const text = query.q ? `%${query.q.replace(/[\\%_]/g, (char) => `\\${char}`)}%` : null;
 
   const own = and(eq(activities.targetType, query.targetType), eq(activities.targetId, query.targetId));
   // A company's timeline can include what happened with its customers.
@@ -154,6 +216,16 @@ export const listActivities = async (
       query.source ? eq(activities.source, query.source) : undefined,
       kindFilter,
       query.pinned ? isNotNull(activities.pinnedAt) : undefined,
+      query.actorId ? eq(activities.actorId, query.actorId) : undefined,
+      query.from ? sql`${activities.occurredAt} >= ${query.from}` : undefined,
+      query.to ? sql`${activities.occurredAt} < ${query.to}` : undefined,
+      text
+        ? or(
+            sql`${activities.summary} ilike ${text}`,
+            sql`${activities.data} ->> 'body' ilike ${text}`,
+            sql`${activities.data} ->> 'outcome' ilike ${text}`,
+          )
+        : undefined,
     ),
     query,
     (where, orderBy, limit) =>
@@ -170,8 +242,11 @@ export const listActivities = async (
 
 // ─── Notes ──────────────────────────────────────────────────────────────────
 
-const recordLink = (targetType: ActivityTarget, targetId: string) =>
-  `/contacts/${targetType === 'customer' ? 'customers' : 'companies'}/${encodeURIComponent(targetId)}`;
+/** Where a record lives in erxes (plugin records: their plugin opens them). */
+const recordLink = (targetType: string, targetId: string) =>
+  CORE_TARGETS.has(targetType)
+    ? `/contacts/${targetType === 'customer' ? 'customers' : 'companies'}/${encodeURIComponent(targetId)}`
+    : undefined;
 
 const snippet = (body: string) => (body.length > 140 ? `${body.slice(0, 140)}…` : body);
 
@@ -197,7 +272,7 @@ const checkFiles = async (client: Db, orgId: string, fileIds: string[]) => {
 const notifyMentions = async (
   tx: Db,
   actor: Actor,
-  note: { id: string; targetType: ActivityTarget; targetId: string; body: string },
+  note: { id: string; targetType: string; targetId: string; body: string },
   userIds: string[],
 ) => {
   const recipients = userIds.filter((id) => id !== actor.userId);
@@ -232,9 +307,9 @@ const findNote = async (client: Db, orgId: string, id: string) => {
 export const addNote = async (
   client: Db,
   actor: Actor,
-  input: { targetType: ActivityTarget; targetId: string; body: string; mentions: string[]; fileIds: string[] },
+  input: { targetType: string; targetId: string; body: string; mentions: string[]; fileIds: string[] },
 ) => {
-  await assertTarget(client, actor.orgId, input.targetType, input.targetId);
+  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, input.targetType, input.targetId);
 
   const mentions = unique(input.mentions);
 
@@ -285,12 +360,18 @@ export const updateNote = async (
 
   const fileIds = input.fileIds === undefined ? data.fileIds : await checkFiles(client, actor.orgId, input.fileIds);
   const body = input.body ?? data.body;
+  // Earlier wordings stay readable (the last 20).
+  const history = [
+    ...(((note.data as { history?: unknown[] }).history ?? []) as { body: string; editedAt: string }[]),
+    ...(input.body !== undefined && input.body !== data.body ? [{ body: data.body, editedAt: (note.editedAt ?? note.occurredAt).toISOString() }] : []),
+  ].slice(-20);
+  const reactions = (note.data as { reactions?: Record<string, string[]> }).reactions;
 
   return client.transaction(async (tx) => {
     const [row] = await tx
       .update(activities)
       .set({
-        ...(editing ? { data: { body, mentions, fileIds }, editedAt: sql`now()` } : {}),
+        ...(editing ? { data: { body, mentions, fileIds, history, ...(reactions ? { reactions } : {}) }, editedAt: sql`now()` } : {}),
         ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
       })
       .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
@@ -321,6 +402,8 @@ export const removeNote = async (client: Db, actor: Actor, id: string) => {
  * plugin (muting the plugin mutes these too).
  */
 const notifyTargetOwner = async (client: Db, caller: PluginCaller, input: ActivityInput, activity: ActivityRow) => {
+  if (!CORE_TARGETS.has(input.targetType)) return;
+
   const table = input.targetType === 'customer' ? customers : companies;
   const [target] = await client
     .select({ ownerId: table.ownerId })
@@ -350,7 +433,7 @@ const notifyTargetOwner = async (client: Db, caller: PluginCaller, input: Activi
  */
 export const createPluginActivity = async (client: Db, caller: PluginCaller, input: ActivityInput) => {
   assertPluginNamespace(caller.plugin, input.type);
-  await assertTarget(client, caller.orgId, input.targetType, input.targetId);
+  await assertTimelineAccess(client, { plugin: caller, orgId: caller.orgId }, input.targetType, input.targetId);
   await assertMember(client, caller.orgId, input.actorUserId);
 
   const [inserted] = await client
@@ -394,4 +477,179 @@ export const createPluginActivity = async (client: Db, caller: PluginCaller, inp
     .limit(1);
 
   return { activity: toActivityDto(existing!), created: false };
+};
+
+// ─── Logged interactions, reactions, plugin edits, types ───────────────────
+
+/** A call, meeting, email or message a member logs by hand. */
+export const logInteraction = async (
+  client: Db,
+  actor: Actor,
+  input: {
+    targetType: string;
+    targetId: string;
+    kind: 'call' | 'meeting' | 'email' | 'message';
+    direction?: 'inbound' | 'outbound';
+    outcome?: string;
+    durationMinutes?: number;
+    body?: string;
+    mentions: string[];
+    occurredAt?: string;
+  },
+) => {
+  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, input.targetType, input.targetId);
+
+  const mentions = unique(input.mentions);
+
+  for (const userId of mentions) await assertMember(client, actor.orgId, userId);
+
+  return client.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(activities)
+      .values({
+        id: newId(),
+        orgId: actor.orgId,
+        targetType: input.targetType,
+        targetId: input.targetId,
+        source: 'core',
+        type: `${input.targetType}.interaction`,
+        data: {
+          kind: input.kind,
+          direction: input.direction ?? null,
+          outcome: input.outcome ?? null,
+          durationMinutes: input.durationMinutes ?? null,
+          body: input.body ?? '',
+          mentions,
+        },
+        actorType: 'user',
+        actorId: actor.userId,
+        occurredAt: input.occurredAt ? new Date(input.occurredAt) : sql`now()`,
+      })
+      .returning();
+
+    if (input.body) await notifyMentions(tx, actor, { id: row!.id, targetType: input.targetType, targetId: input.targetId, body: input.body }, mentions);
+
+    return toActivityDto(row!);
+  });
+};
+
+/** Adds or takes back the member's reaction (row locked: two at once both count). */
+export const reactToActivity = async (client: Db, actor: Actor, id: string, emoji: string) =>
+  client.transaction(async (tx) => {
+    const [row] = await tx
+      .select()
+      .from(activities)
+      .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
+      .for('update')
+      .limit(1);
+
+    if (!row) throw notFound('Entry');
+
+    await assertTimelineAccess(tx, { actor, orgId: actor.orgId }, row.targetType, row.targetId);
+
+    const reactions = { ...(((row.data as { reactions?: Record<string, string[]> }).reactions) ?? {}) };
+    const people = new Set(reactions[emoji] ?? []);
+
+    if (people.has(actor.userId)) people.delete(actor.userId);
+    else {
+      if (!reactions[emoji] && Object.keys(reactions).length >= 20) throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
+      people.add(actor.userId);
+    }
+
+    if (people.size) reactions[emoji] = [...people];
+    else delete reactions[emoji];
+
+    const [saved] = await tx
+      .update(activities)
+      .set({ data: { ...row.data, reactions } })
+      .where(eq(activities.id, id))
+      .returning();
+
+    return toActivityDto(saved!);
+  });
+
+/** A plugin's own entry, by id or by `key:<dedupeKey>`. */
+const pluginEntry = async (client: Db, caller: PluginCaller, ref: string) => {
+  const [row] = await client
+    .select()
+    .from(activities)
+    .where(
+      and(
+        eq(activities.orgId, caller.orgId),
+        eq(activities.source, caller.plugin),
+        ref.startsWith('key:') ? eq(activities.dedupeKey, ref.slice(4)) : eq(activities.id, ref),
+      ),
+    )
+    .limit(1);
+
+  if (!row) throw notFound('Entry');
+
+  return row;
+};
+
+/** The order was refunded, the line changes: a plugin updates its own entry. */
+export const updatePluginActivity = async (
+  client: Db,
+  caller: PluginCaller,
+  ref: string,
+  input: { summary?: string; data?: Record<string, unknown>; link?: string | null },
+) => {
+  const row = await pluginEntry(client, caller, ref);
+  const reactions = (row.data as { reactions?: unknown }).reactions;
+  const [saved] = await client
+    .update(activities)
+    .set({
+      ...(input.summary !== undefined ? { summary: input.summary } : {}),
+      ...(input.data !== undefined ? { data: { ...input.data, ...(reactions ? { reactions } : {}) } } : {}),
+      ...(input.link !== undefined ? { link: input.link } : {}),
+      editedAt: sql`now()`,
+    })
+    .where(eq(activities.id, row.id))
+    .returning();
+
+  return toActivityDto(saved!);
+};
+
+export const removePluginActivity = async (client: Db, caller: PluginCaller, ref: string) => {
+  const row = await pluginEntry(client, caller, ref);
+
+  await client.delete(activities).where(eq(activities.id, row.id));
+
+  return { ok: true as const };
+};
+
+const CORE_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
+  note: { label: 'Note', icon: 'IconNote' },
+  interaction: { label: 'Logged activity', icon: 'IconPhoneCall' },
+  created: { label: 'Created', icon: 'IconCirclePlus' },
+  updated: { label: 'Changed', icon: 'IconPencil' },
+  tagged: { label: 'Tagged', icon: 'IconTag' },
+  merged: { label: 'Merged', icon: 'IconArrowMerge' },
+};
+
+/** Entry types (with plugins' labels and icons) and plugins' record timelines. */
+export const activityTypes = async (client: Db, orgId: string) => {
+  const installed = await client
+    .select({ name: plugins.name, manifest: plugins.manifest })
+    .from(plugins)
+    .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
+    .where(and(eq(pluginInstallations.orgId, orgId), eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
+
+  return {
+    types: [
+      ...Object.entries(CORE_TYPE_LABELS).map(([type, info]) => ({ type: `*.${type}`, label: info.label, source: 'core', icon: info.icon, color: null })),
+      ...installed.flatMap((plugin) =>
+        (plugin.manifest?.activityTypes ?? []).map((item) => ({
+          type: item.type,
+          label: item.label,
+          source: plugin.name,
+          icon: item.icon ?? null,
+          color: item.color ?? null,
+        })),
+      ),
+    ],
+    timelines: installed.flatMap((plugin) =>
+      (plugin.manifest?.timelines ?? []).map((item) => ({ type: item.type, label: item.label, source: plugin.name, permission: item.permission ?? null })),
+    ),
+  };
 };

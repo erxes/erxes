@@ -18,3 +18,4 @@ export * from './stripHtml';
 export * from './videoEmbed';
 export * from './file-storage';
 export * from './plugin-runtime';
+export * from './record-timeline';

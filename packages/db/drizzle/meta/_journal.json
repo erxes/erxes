@@ -176,6 +176,13 @@
       "when": 1794441621598,
       "tag": "0024_automation_triggers_waits_goals",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794443066154,
+      "tag": "0025_plugin_timelines",
+      "breakpoints": true
     }
   ]
 }

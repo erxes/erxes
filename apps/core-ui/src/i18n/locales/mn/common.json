@@ -1191,6 +1191,34 @@
       "notes": "Тэмдэглэл",
       "changes": "Өөрчлөлт",
       "plugins": "Залгаас"
-    }
+    },
+    "this-record": "энэ бичлэг",
+    "logged": "бүртгэсэн",
+    "interaction": {
+      "call": "Дуудлага",
+      "meeting": "Уулзалт",
+      "email": "Имэйл",
+      "message": "Мессеж",
+      "a-call": "дуудлага",
+      "a-meeting": "уулзалт",
+      "a-email": "имэйл",
+      "a-message": "мессеж"
+    },
+    "inbound": "Тэд холбогдсон",
+    "outbound": "Бид холбогдсон",
+    "react": "Хариу үйлдэл",
+    "earlier-versions": "Өмнөх хувилбарууд",
+    "log-activity": "Үйлдэл бүртгэх",
+    "kind": "Юу",
+    "direction": "Чиглэл",
+    "outcome": "Үр дүн",
+    "outcome-placeholder": "Сонирхсон, хариу өгөөгүй…",
+    "duration": "Минут",
+    "when": "Хэзээ (хоосон: одоо)",
+    "interaction-notes": "Юу ярьсан бэ…",
+    "search": "Цагийн хэлхээсээс хайх…",
+    "anyone": "Хэн ч",
+    "all-sources": "Бүх эх сурвалж",
+    "core": "Үндсэн"
   }
 }

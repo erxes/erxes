@@ -148,6 +148,16 @@ it is built.
   `CORE_ENCRYPTION_KEY`). Outbound calls go through `src/lib/outbound.ts`:
   https only and no private addresses outside development (SSRF; checked on
   the resolved address). `/events/types` lists core's and plugins' events.
+- **Timelines** (`src/modules/activities`): customers, companies, and plugin
+  record types declared in a manifest's `timelines` (`hr.employee`, with an
+  optional permission; `assertTimelineAccess`). Notes (mentions, files, pins,
+  edit history in `data.history`), logged calls/meetings/emails/messages
+  (`<target>.interaction`), reactions (`data.reactions`, row-locked toggle),
+  search (`q`) and filters (member, source, dates, kind). Plugins add entries
+  to customers, companies and their own types, and change or remove their own
+  (`PATCH|DELETE /activities/{id|key:<dedupeKey>}`); `activityTypes` in the
+  manifest give entries a label, colour and icon (fixed icon set). Plugin UIs
+  embed core's timeline with erxes-ui's `<RecordTimeline type id />`.
 - **Automations** (`src/modules/automations`, `core_automations`,
   `core_automation_versions`, `core_automation_runs`, `core_automation_run_steps`):
   - Triggers (`AutomationTrigger.kind`): `event` (type + conditions), `schedule`

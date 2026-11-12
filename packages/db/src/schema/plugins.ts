@@ -26,6 +26,8 @@ export interface StoredPluginManifest {
   permissions?: { action: string; label: string; description?: string; group?: string }[];
   notificationKinds?: { kind: string; label: string; description?: string }[];
   events?: { type: string; label: string; description?: string }[];
+  timelines?: { type: string; label: string; permission?: string }[];
+  activityTypes?: { type: string; label: string; icon?: string; color?: string }[];
   actions?: {
     type: string;
     label: string;

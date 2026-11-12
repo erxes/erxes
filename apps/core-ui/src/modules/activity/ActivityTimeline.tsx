@@ -14,10 +14,31 @@ import {
   IconPlus,
   IconTag,
   IconX,
+  IconBeach,
+  IconBriefcase,
+  IconCalendarEvent,
+  IconCash,
+  IconChecklist,
+  IconCreditCard,
+  IconFileText,
+  IconGift,
+  IconHeartHandshake,
+  IconMail,
+  IconMessage,
+  IconPackage,
+  IconPhoneCall,
+  IconReceipt,
+  IconShoppingCart,
+  IconStar,
+  IconTicket,
+  IconTruck,
+  IconUserCheck,
+  IconUsers,
   type Icon,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Button, cn, DropdownMenu, Empty, RelativeDateDisplay, ScrollArea, Spinner, Switch, useConfirm } from 'erxes-ui';
+import { Badge, Button, cn, DropdownMenu, Empty, Input, RelativeDateDisplay, ScrollArea, Select, Spinner, Switch, useConfirm } from 'erxes-ui';
+import { useDeferredValue } from 'react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,7 +51,8 @@ import { actorLabel, pluginLabel } from '~/lib/members';
 import { api } from '~/lib/api';
 import { useCan, useSession } from '~/modules/auth/session';
 import { NoteComposer } from './NoteComposer';
-import { type TimelineKind, useActivities, useNoteActions, usePinnedNotes } from './useActivities';
+import { LogInteraction, NoteHistory, Reactions } from './TimelineExtras';
+import { type TimelineKind, useActivities, useActivityTypes, useNoteActions, usePinnedNotes } from './useActivities';
 
 const ICONS: Record<string, Icon> = {
   created: IconPlus,
@@ -43,10 +65,43 @@ const ICONS: Record<string, Icon> = {
   customer_unlinked: IconLinkOff,
 };
 
+/**
+ * Icons plugins may name for their entry types (`activityTypes[].icon` in the
+ * manifest). A fixed set: importing every icon by name would bloat the app.
+ */
+const PLUGIN_ICONS: Record<string, Icon> = {
+  IconBeach,
+  IconBriefcase,
+  IconCalendarEvent,
+  IconCash,
+  IconChecklist,
+  IconCreditCard,
+  IconFileText,
+  IconGift,
+  IconHeartHandshake,
+  IconMail,
+  IconMessage,
+  IconPackage,
+  IconPhoneCall,
+  IconReceipt,
+  IconShoppingCart,
+  IconStar,
+  IconTicket,
+  IconTruck,
+  IconUserCheck,
+  IconUsers,
+};
+
 const verbOf = (activity: Activity) => activity.type.slice(activity.type.indexOf('.') + 1);
 
 /** A linked customer or company by name, opening its page; deleted ones say so. */
-const LinkedRecord = ({ type, id }: { type: ActivityTarget; id: string }) => {
+const LinkedRecord = ({ type, id }: { type: string; id: string }) => {
+  if (type !== 'customer' && type !== 'company') return <span className="font-medium">{type} {id}</span>;
+
+  return <CoreRecord type={type} id={id} />;
+};
+
+const CoreRecord = ({ type, id }: { type: ActivityTarget; id: string }) => {
   const customer = useCustomer(type === 'customer' ? id : null);
   const company = useCompany(type === 'company' ? id : null);
   const record = type === 'customer' ? customer.data : company.data;
@@ -67,7 +122,12 @@ const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: str
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const verb = verbOf(activity);
   const who = <span className="font-medium">{actor}</span>;
-  const record = activity.targetType === 'customer' ? t('this-customer', 'this customer') : t('this-company', 'this company');
+  const record =
+    activity.targetType === 'customer'
+      ? t('this-customer', 'this customer')
+      : activity.targetType === 'company'
+        ? t('this-company', 'this company')
+        : t('this-record', 'this record');
   const data = activity.data as Record<string, unknown>;
 
   if (activity.source !== 'core') {
@@ -75,6 +135,20 @@ const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: str
   }
 
   switch (verb) {
+    case 'interaction': {
+      const kind = String(data.kind ?? 'call');
+
+      return (
+        <>
+          {who} {t('logged', 'logged')} {t(`interaction.a-${kind}`, `a ${kind}`)}
+          <span className="text-muted-foreground">
+            {data.direction ? ` · ${data.direction === 'inbound' ? t('inbound', 'They reached out') : t('outbound', 'We reached out')}` : ''}
+            {data.durationMinutes ? ` · ${String(data.durationMinutes)} min` : ''}
+            {data.outcome ? ` · ${String(data.outcome)}` : ''}
+          </span>
+        </>
+      );
+    }
     case 'created':
       return (
         <>
@@ -255,14 +329,23 @@ const ActivityItem = ({
   lookups: Lookups;
   last: boolean;
   /** The record whose timeline this is; entries of related records say whose they are. */
-  pageTarget: { type: ActivityTarget; id: string };
+  pageTarget: { type: string; id: string };
 }) => {
+  const catalog = useActivityTypes();
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const { update } = useNoteActions();
   const [editing, setEditing] = useState(false);
   const plugin = activity.source !== 'core';
   const note = isNoteType(activity.type);
-  const ItemIcon: Icon = plugin ? IconPlug : note ? IconNote : (ICONS[verbOf(activity)] ?? IconHistory);
+  const look = plugin ? catalog?.types.find((item) => item.type === activity.type) : undefined;
+  const pluginIcon = (look?.icon && PLUGIN_ICONS[look.icon]) || IconPlug;
+  const ItemIcon: Icon = plugin
+    ? pluginIcon
+    : note
+      ? IconNote
+      : verbOf(activity) === 'interaction'
+        ? IconPhoneCall
+        : (ICONS[verbOf(activity)] ?? IconHistory);
   const related = activity.targetType !== pageTarget.type || activity.targetId !== pageTarget.id;
   const actor = actorLabel(activity.actor, lookups.members);
   const changes = activity.data.changes as Record<string, [unknown, unknown]> | undefined;
@@ -270,6 +353,10 @@ const ActivityItem = ({
 
   if (!plugin && changes) {
     extra = <ChangeList changes={changes} lookups={lookups} />;
+  }
+
+  if (!plugin && verbOf(activity) === 'interaction' && activity.data.body) {
+    extra = <p className="mt-1 whitespace-pre-wrap text-sm">{String(activity.data.body)}</p>;
   }
 
   if (note) {
@@ -294,7 +381,10 @@ const ActivityItem = ({
   return (
     <li className="group relative flex gap-3 pb-4">
       {!last && <span className="absolute top-7 bottom-0 left-3.5 w-px bg-border" aria-hidden="true" />}
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground">
+      <span
+        className="flex size-7 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground"
+        style={look?.color ? { color: look.color, borderColor: look.color } : undefined}
+      >
         <ItemIcon className="size-3.5" />
       </span>
       <div className="min-w-0 flex-1 pt-1">
@@ -330,15 +420,22 @@ const ActivityItem = ({
               {activity.actor.type === 'user' && <span>{actor}</span>}
               <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
                 {pluginLabel(activity.source)}
+                {look ? ` · ${look.label}` : ''}
               </Badge>
             </>
           )}
-          {activity.editedAt && <span>· {t('edited', 'edited')}</span>}
+          {activity.editedAt &&
+            (Array.isArray(activity.data.history) && activity.data.history.length ? (
+              <NoteHistory history={activity.data.history as { body: string; editedAt: string }[]} />
+            ) : (
+              <span>· {t('edited', 'edited')}</span>
+            ))}
           {activity.link && (
             <Link to={activity.link} className="text-primary hover:underline">
               {t('open', 'Open')}
             </Link>
           )}
+          <Reactions activity={activity} />
         </div>
       </div>
     </li>
@@ -374,16 +471,28 @@ const KINDS: { value: TimelineKind; label: string }[] = [
  * box, pinned notes, then the timeline by day, filterable; a company can show
  * its customers' entries too.
  */
-export const ActivityTimeline = ({ targetType, targetId }: { targetType: ActivityTarget; targetId: string }) => {
+export const ActivityTimeline = ({ targetType, targetId }: { targetType: string; targetId: string }) => {
   const { t, i18n } = useTranslation('common', { keyPrefix: 'activity' });
   const [kind, setKind] = useState<TimelineKind>('all');
   const [includeRelated, setIncludeRelated] = useState(false);
-  const { activities, loading, hasMore, loadingMore, loadMore } = useActivities(targetType, targetId, { kind, includeRelated });
+  const [search, setSearch] = useState('');
+  const q = useDeferredValue(search.trim());
+  const [actorId, setActorId] = useState('all');
+  const [source, setSource] = useState('all');
+  const catalog = useActivityTypes();
+  const sources = [...new Set((catalog?.types ?? []).map((item) => item.source).filter((name) => name !== 'core'))];
+  const { activities, loading, hasMore, loadingMore, loadMore } = useActivities(targetType, targetId, {
+    kind,
+    includeRelated,
+    q,
+    actorId: actorId === 'all' ? undefined : actorId,
+    source: source === 'all' ? undefined : source,
+  });
   const { data: pinned = [] } = usePinnedNotes(targetType, targetId);
   const { add } = useNoteActions();
   const all = [...pinned, ...activities];
   const lookups = useChangeLookups(
-    targetType,
+    (targetType === 'company' ? 'company' : 'customer') as ActivityTarget,
     all.map((activity) => activity.data.changes as Record<string, [unknown, unknown]> | undefined),
     all.flatMap((activity) => [
       activity.actor.type === 'user' ? activity.actor.id : null,
@@ -409,6 +518,44 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: Activit
           saving={add.isPending}
           onSubmit={(draft) => add.mutateAsync({ targetType, targetId, ...draft })}
         />
+        <div className="flex flex-wrap items-center gap-2">
+          <LogInteraction targetType={targetType} targetId={targetId} />
+          <Input
+            className="h-8 w-44"
+            placeholder={t('search', 'Search the timeline…')}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <Select value={actorId} onValueChange={setActorId}>
+            <Select.Trigger className="h-8 w-40">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item value="all">{t('anyone', 'Anyone')}</Select.Item>
+              {[...lookups.members.values()].map((member) => (
+                <Select.Item key={member.id} value={member.id}>
+                  {member.fullName || member.email}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+          {sources.length > 0 && (
+            <Select value={source} onValueChange={setSource}>
+              <Select.Trigger className="h-8 w-32">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="all">{t('all-sources', 'All sources')}</Select.Item>
+                <Select.Item value="core">{t('core', 'Core')}</Select.Item>
+                {sources.map((name) => (
+                  <Select.Item key={name} value={name}>
+                    {pluginLabel(name)}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          )}
+        </div>
         {pinned.length > 0 && (
           <section className="rounded-lg border border-primary/30 bg-primary/5 px-3 pt-3">
             <h3 className="flex items-center gap-1 pb-2 text-xs font-semibold text-primary uppercase">

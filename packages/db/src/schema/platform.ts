@@ -127,8 +127,8 @@ export const notifications = pgTable(
 export const ACTIVITY_TARGETS = ['customer', 'company'] as const;
 
 /**
- * The customer and company timeline: what happened with this person or
- * company across core and plugins. Small typed rows with ids, not copies of
+ * Timelines: what happened with a customer or company — or a plugin's own
+ * record (`hr.employee`) — across core and plugins. Small typed rows with ids, not copies of
  * records; a plugin entry links back to the plugin for details. A plugin's
  * internal history (an order's status changes) stays in the plugin.
  */
@@ -137,7 +137,8 @@ export const activities = pgTable(
   {
     id: text().primaryKey(),
     orgId: text().notNull(),
-    targetType: text({ enum: ACTIVITY_TARGETS }).notNull(),
+    /** `customer`, `company`, or a plugin's record type (`hr.employee`). */
+    targetType: text().notNull(),
     targetId: text().notNull(),
     /** `core` or the plugin that recorded it. */
     source: text().notNull(),
@@ -178,7 +179,11 @@ export const activities = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_activities_org_id_fkey',
     }).onDelete('cascade'),
-    check('core_activities_target_type_check', sql`${table.targetType} IN ('customer', 'company')`),
+    check(
+      'core_activities_target_type_check',
+      sql`${table.targetType} IN ('customer', 'company') OR ${table.targetType} ~ '^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$'`,
+    ),
+    index('core_activities_actor_idx').on(table.orgId, table.targetType, table.targetId, table.actorId),
   ],
 );
 

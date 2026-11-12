@@ -7,6 +7,19 @@ export const ActivityTarget = z.enum(['customer', 'company']);
 export type ActivityTarget = z.infer<typeof ActivityTarget>;
 
 /**
+ * What a timeline is about: a customer or company, or a plugin's own record
+ * type declared in its manifest (`hr.employee`, `ecom.order`).
+ */
+export const TimelineTarget = z.union([
+  ActivityTarget,
+  z.string().regex(/^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/, 'customer, company or <plugin>.<type>'),
+]);
+export type TimelineTarget = z.infer<typeof TimelineTarget>;
+
+/** Calls, meetings, emails and messages members log by hand. */
+export const InteractionKind = z.enum(['call', 'meeting', 'email', 'message']);
+
+/**
  * Activity types core records itself; `data` has a known shape for each.
  * Plugin types (`ecom.order.paid`) carry a `summary` instead.
  */
@@ -27,7 +40,7 @@ export const CORE_ACTIVITY_TYPES = [
 
 export const Activity = z.object({
   id: Id,
-  targetType: ActivityTarget,
+  targetType: z.string(),
   targetId: Id,
   /** `core` or the plugin that recorded it. */
   source: z.string(),
@@ -45,6 +58,8 @@ export const Activity = z.object({
   /** Notes only. */
   pinned: z.boolean(),
   editedAt: z.string().datetime().nullable(),
+  /** Emoji → the members who reacted. */
+  reactions: z.record(z.array(z.string())),
   occurredAt: z.string().datetime(),
 });
 export type Activity = z.infer<typeof Activity>;
@@ -62,7 +77,7 @@ export const NoteInput = z.object({
 export const TimelineKind = z.enum(['all', 'notes', 'changes', 'plugins']);
 
 export const ActivityInput = z.object({
-  targetType: ActivityTarget,
+  targetType: TimelineTarget,
   targetId: Id,
   /** Must start with the plugin's name: `ecom.order.paid`. */
   type: EventType,
@@ -86,9 +101,15 @@ export const activitiesContract = {
     .route({ method: 'GET', path: '/activities', summary: 'A customer’s or company’s timeline, newest first' })
     .input(
       CursorQuery.extend({
-        targetType: ActivityTarget,
+        targetType: TimelineTarget,
         targetId: Id,
         source: z.string().trim().max(40).optional(),
+        /** Text in notes, logged interactions and plugin lines. */
+        q: z.string().trim().max(100).optional(),
+        /** Done by this member. */
+        actorId: Id.optional(),
+        from: z.string().datetime().optional(),
+        to: z.string().datetime().optional(),
         kind: TimelineKind.default('all'),
         /** Pinned notes only. */
         pinned: z
@@ -105,8 +126,36 @@ export const activitiesContract = {
     .output(cursorPageOf(Activity)),
   addNote: oc
     .route({ method: 'POST', path: '/activities/notes', successStatus: 201, summary: 'Add a note to a timeline' })
-    .input(NoteInput.extend({ targetType: ActivityTarget, targetId: Id }))
+    .input(NoteInput.extend({ targetType: TimelineTarget, targetId: Id }))
     .output(Activity),
+  logInteraction: oc
+    .route({ method: 'POST', path: '/activities/interactions', successStatus: 201, summary: 'Log a call, meeting, email or message on a timeline' })
+    .input(
+      z.object({
+        targetType: TimelineTarget,
+        targetId: Id,
+        kind: InteractionKind,
+        direction: z.enum(['inbound', 'outbound']).optional(),
+        outcome: z.string().trim().max(100).optional(),
+        durationMinutes: z.number().int().min(0).max(24 * 60).optional(),
+        body: z.string().trim().max(10_000).optional(),
+        mentions: z.array(Id).max(50).default([]),
+        occurredAt: z.string().datetime().optional(),
+      }),
+    )
+    .output(Activity),
+  react: oc
+    .route({ method: 'POST', path: '/activities/{id}/reactions', summary: 'Add or take back a reaction (an emoji) on an entry' })
+    .input(z.object({ id: Id, emoji: z.string().trim().min(1).max(16) }))
+    .output(Activity),
+  types: oc
+    .route({ method: 'GET', path: '/activities/types', summary: "Timeline entry types and plugin record timelines: core's and installed plugins'" })
+    .output(
+      z.object({
+        types: z.array(z.object({ type: z.string(), label: z.string(), source: z.string(), icon: z.string().nullable(), color: z.string().nullable() })),
+        timelines: z.array(z.object({ type: z.string(), label: z.string(), source: z.string(), permission: z.string().nullable() })),
+      }),
+    ),
   updateNote: oc
     .route({
       method: 'PATCH',
@@ -136,4 +185,23 @@ export const activitiesContract = {
     })
     .input(ActivityInput)
     .output(z.object({ activity: Activity, created: z.boolean() })),
+  update: oc
+    .route({
+      method: 'PATCH',
+      path: '/activities/{id}',
+      summary: "Change a plugin's own entry (by id, or by its dedupe key with id `key:<dedupeKey>`) — the order was refunded, the line changes",
+    })
+    .input(
+      z.object({
+        id: z.string().min(1).max(260),
+        summary: z.string().trim().min(1).max(500).optional(),
+        data: z.record(z.unknown()).optional(),
+        link: AppLink.nullable().optional(),
+      }),
+    )
+    .output(Activity),
+  remove: oc
+    .route({ method: 'DELETE', path: '/activities/{id}', summary: "Remove a plugin's own entry (by id or `key:<dedupeKey>`)" })
+    .input(z.object({ id: z.string().min(1).max(260) }))
+    .output(z.object({ ok: z.literal(true) })),
 };

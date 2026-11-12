@@ -107,6 +107,36 @@ export const PluginManifest = z.object({
     )
     .max(200)
     .optional(),
+  /** Its own record types that get a timeline in erxes (notes, mentions, entries), and who may see it. */
+  timelines: z
+    .array(
+      z.object({
+        type: z.string().regex(/^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/),
+        label: z.string().trim().min(1).max(100),
+        /** A permission action of the plugin (`hr.employee.view`); none: every member. */
+        permission: z.string().optional(),
+      }),
+    )
+    .max(50)
+    .optional(),
+  /**
+   * How its timeline entries look: a label, a colour and an icon per type —
+   * one of IconBeach, IconBriefcase, IconCalendarEvent, IconCash,
+   * IconChecklist, IconCreditCard, IconFileText, IconGift, IconHeartHandshake,
+   * IconMail, IconMessage, IconPackage, IconPhoneCall, IconReceipt,
+   * IconShoppingCart, IconStar, IconTicket, IconTruck, IconUserCheck, IconUsers.
+   */
+  activityTypes: z
+    .array(
+      z.object({
+        type: EventType,
+        label: z.string().trim().min(1).max(100),
+        icon: z.string().trim().max(60).optional(),
+        color: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+      }),
+    )
+    .max(500)
+    .optional(),
   /** Events it publishes: triggers for automations. */
   events: z
     .array(z.object({ type: EventType, label: z.string().trim().min(1).max(100), description: z.string().trim().max(300).optional() }))

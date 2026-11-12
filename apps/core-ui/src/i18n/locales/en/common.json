@@ -1079,5 +1079,35 @@
         }
       }
     }
+  },
+  "activity": {
+    "this-record": "this record",
+    "logged": "logged",
+    "interaction": {
+      "call": "Call",
+      "meeting": "Meeting",
+      "email": "Email",
+      "message": "Message",
+      "a-call": "a call",
+      "a-meeting": "a meeting",
+      "a-email": "an email",
+      "a-message": "a message"
+    },
+    "inbound": "They reached out",
+    "outbound": "We reached out",
+    "react": "React",
+    "earlier-versions": "Earlier versions",
+    "log-activity": "Log activity",
+    "kind": "What",
+    "direction": "Direction",
+    "outcome": "Outcome",
+    "outcome-placeholder": "Interested, no answer…",
+    "duration": "Minutes",
+    "when": "When (empty: now)",
+    "interaction-notes": "What was said…",
+    "search": "Search the timeline…",
+    "anyone": "Anyone",
+    "all-sources": "All sources",
+    "core": "Core"
   }
 }

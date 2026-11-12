@@ -1,0 +1,3 @@
+ALTER TABLE "core_activities" DROP CONSTRAINT "core_activities_target_type_check";--> statement-breakpoint
+CREATE INDEX "core_activities_actor_idx" ON "core_activities" USING btree ("org_id","target_type","target_id","actor_id");--> statement-breakpoint
+ALTER TABLE "core_activities" ADD CONSTRAINT "core_activities_target_type_check" CHECK ("core_activities"."target_type" IN ('customer', 'company') OR "core_activities"."target_type" ~ '^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$');

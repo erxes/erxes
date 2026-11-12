@@ -1,4 +1,3 @@
-import type { ActivityTarget } from '@erxes/core-contract';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { api, messageOf } from '~/lib/api';
@@ -12,19 +11,27 @@ export type TimelineKind = 'all' | 'notes' | 'changes' | 'plugins';
  * A customer's or company's timeline, newest first, 20 at a time. Live
  * updates refetch it when it changes; it polls only while they're paused.
  */
-export const useActivities = (
-  targetType: ActivityTarget,
-  targetId: string,
-  { kind = 'all', includeRelated = false }: { kind?: TimelineKind; includeRelated?: boolean } = {},
-) => {
+export interface TimelineFilters {
+  kind?: TimelineKind;
+  includeRelated?: boolean;
+  q?: string;
+  actorId?: string;
+  source?: string;
+}
+
+export const useActivities = (targetType: string, targetId: string, filters: TimelineFilters = {}) => {
+  const { kind = 'all', includeRelated = false, q, actorId, source } = filters;
   const refetchInterval = useLivePolling();
   const query = useInfiniteQuery({
-    queryKey: [...ACTIVITIES_KEY, targetType, targetId, { kind, includeRelated }],
+    queryKey: [...ACTIVITIES_KEY, targetType, targetId, { kind, includeRelated, q, actorId, source }],
     queryFn: ({ pageParam }) =>
       api.activities.list({
         targetType,
         targetId,
         kind,
+        q: q || undefined,
+        actorId: actorId || undefined,
+        source: source || undefined,
         includeRelated: includeRelated ? 'true' : undefined,
         limit: 20,
         cursor: pageParam,
@@ -46,7 +53,7 @@ export const useActivities = (
 };
 
 /** Pinned notes, shown above the timeline. */
-export const usePinnedNotes = (targetType: ActivityTarget, targetId: string) =>
+export const usePinnedNotes = (targetType: string, targetId: string) =>
   useQuery({
     queryKey: [...ACTIVITIES_KEY, targetType, targetId, 'pinned'],
     queryFn: () => api.activities.list({ targetType, targetId, pinned: 'true', kind: 'notes', limit: 20 }),
@@ -72,5 +79,15 @@ export const useNoteActions = () => {
       onError,
     }),
     remove: useMutation({ mutationFn: (id: string) => api.activities.removeNote({ id }), onSuccess: refresh, onError }),
+    log: useMutation({
+      mutationFn: (input: Parameters<typeof api.activities.logInteraction>[0]) => api.activities.logInteraction(input),
+      onSuccess: refresh,
+      onError,
+    }),
+    react: useMutation({ mutationFn: (input: { id: string; emoji: string }) => api.activities.react(input), onSuccess: refresh, onError }),
   };
 };
+
+/** Entry types (plugins' labels, icons, colours) and plugin record timelines. */
+export const useActivityTypes = () =>
+  useQuery({ queryKey: [...ACTIVITIES_KEY, 'types'], queryFn: () => api.activities.types(), staleTime: 5 * 60_000 }).data;

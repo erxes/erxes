@@ -30,10 +30,16 @@ const needs = <P extends CorePermission>(permission: P) => ({ member: permission
  * (or an entry without a procedure) a compile error.
  */
 export const ACCESS = {
-  'activities.list': needs('contacts.view'),
-  'activities.addNote': needs('contacts.view'),
-  'activities.updateNote': needs('contacts.view'),
-  'activities.removeNote': needs('contacts.view'),
+  // Timelines check per target: contacts.view, or the plugin timeline's permission.
+  'activities.list': MEMBER,
+  'activities.addNote': MEMBER,
+  'activities.updateNote': MEMBER,
+  'activities.removeNote': MEMBER,
+  'activities.logInteraction': MEMBER,
+  'activities.react': MEMBER,
+  'activities.types': MEMBER,
+  'activities.update': { plugin: 'activities:write' },
+  'activities.remove': { plugin: 'activities:write' },
   'activities.create': { plugin: 'activities:write' },
 
   'audit.list': needs('audit.view'),
