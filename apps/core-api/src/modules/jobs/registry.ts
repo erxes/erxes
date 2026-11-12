@@ -11,7 +11,7 @@ import {
   importRunJob,
   importUndoJob,
 } from '~/modules/transfer/importJobs';
-import { deliverJob } from '~/modules/webhooks/webhooks.service';
+import { deliverJob } from '~/modules/webhooks/webhookDelivery';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
 import type { JobDefinition } from './jobs';
 

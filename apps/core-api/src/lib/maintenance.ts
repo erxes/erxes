@@ -12,7 +12,7 @@ import { storage } from '~/modules/files/storage';
 import { pruneNotifications } from '~/modules/notifications/notifications.service';
 import { refreshAllEntitlements } from '~/modules/saas/entitlements';
 import { purgeExpiredTrash } from '~/modules/trash/trash.service';
-import { pruneDeliveries } from '~/modules/webhooks/webhooks.service';
+import { pruneDeliveries } from '~/modules/webhooks/webhookDelivery';
 
 const log = logger.child({ component: 'maintenance' });
 

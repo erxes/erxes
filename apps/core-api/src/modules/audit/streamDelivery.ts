@@ -5,7 +5,7 @@ import { describeError, defineJob } from '~/modules/jobs/jobs';
 import { logger } from '~/logger';
 import { postOutbound } from '~/lib/outbound';
 import { unseal } from '~/lib/secrets';
-import { signPayload } from '~/modules/webhooks/webhooks.service';
+import { signPayload } from '~/modules/webhooks/webhookDelivery';
 import { securityAlert } from './alerts';
 import { formatBatch, streamEntry } from './streamFormat';
 
