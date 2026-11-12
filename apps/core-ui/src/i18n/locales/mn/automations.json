@@ -244,5 +244,15 @@
     "Timeline": "Түүх",
     "Integrations": "Холболтууд",
     "General": "Ерөнхий"
-  }
+  },
+  "catalog-categories": "Ангилал",
+  "catalog-back": "Бүх ангилал",
+  "catalog-search-in": "{{name}}-д хайх…",
+  "catalog-plugin": "Плагин",
+  "catalog-count-event_one": "{{count}} үйл явдал",
+  "catalog-count-event_other": "{{count}} үйл явдал",
+  "catalog-count-action_one": "{{count}} үйлдэл",
+  "catalog-count-action_other": "{{count}} үйлдэл",
+  "catalog-choose-event": "Үйл явдал сонгох",
+  "catalog-choose-action": "Үйлдэл сонгох"
 }

@@ -244,5 +244,15 @@
     "Timeline": "Timeline",
     "Integrations": "Integrations",
     "General": "General"
-  }
+  },
+  "catalog-categories": "Categories",
+  "catalog-back": "All categories",
+  "catalog-search-in": "Search in {{name}}…",
+  "catalog-plugin": "Plugin",
+  "catalog-count-event_one": "{{count}} event",
+  "catalog-count-event_other": "{{count}} events",
+  "catalog-count-action_one": "{{count}} action",
+  "catalog-count-action_other": "{{count}} actions",
+  "catalog-choose-event": "Choose an event",
+  "catalog-choose-action": "Choose an action"
 }
