@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
 import type { LegendPayload } from 'recharts/types/component/DefaultLegendContent';
-import type { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import type { Payload } from 'recharts/types/component/DefaultTooltipContent';
 import { cn } from '../lib/utils';
 import {
   ChartContext,
@@ -64,7 +64,7 @@ const ChartContainer = React.forwardRef<
 
 ChartContainer.displayName = 'Chart';
 
-type TooltipItem = Payload<ValueType, NameType>;
+type TooltipItem = Payload;
 
 type ChartTooltipContentProps = React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<'div'> & {
@@ -224,12 +224,13 @@ ChartTooltipContent.displayName = 'ChartTooltip';
 
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<'div'> &
-    Pick<RechartsPrimitive.LegendProps, 'verticalAlign'> & {
-      payload?: readonly LegendPayload[];
-      hideIcon?: boolean;
-      nameKey?: string;
-    }
+  React.ComponentProps<'div'> & {
+    // Recharts passes its Legend props to the content element.
+    verticalAlign?: 'top' | 'middle' | 'bottom';
+    payload?: readonly LegendPayload[];
+    hideIcon?: boolean;
+    nameKey?: string;
+  }
 >(({ className, hideIcon = false, payload, verticalAlign = 'bottom', nameKey }, ref) => {
   const { config } = useChart();
 
