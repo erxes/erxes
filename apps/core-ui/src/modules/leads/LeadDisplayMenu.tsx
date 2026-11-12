@@ -14,7 +14,7 @@ export const LeadDisplayMenu = () => {
   return (
     <Popover>
       <Popover.Trigger asChild>
-        <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-muted-foreground">
+        <Button variant="ghost" size="sm" className="ml-auto h-7 gap-1.5 text-muted-foreground">
           <IconAdjustmentsHorizontal className="size-4" />
           Display
         </Button>
