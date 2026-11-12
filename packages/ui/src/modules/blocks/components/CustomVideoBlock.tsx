@@ -5,6 +5,7 @@ import {
   createReactBlockSpec,
   FigureWithCaption,
   ResizableFileBlockWrapper,
+  useBlockNoteEditor,
   VideoBlock,
   VideoToExternalHTML,
 } from '@blocknote/react';
@@ -18,10 +19,9 @@ type VideoRenderProps = ReactCustomBlockRenderProps<
   DefaultStyleSchema
 >;
 
-type FileBlockRenderProps = Omit<
-  Parameters<typeof ResizableFileBlockWrapper>[0],
-  'buttonText' | 'buttonIcon' | 'children'
->;
+type FileBlockSchema = Parameters<
+  typeof ResizableFileBlockWrapper
+>[0]['editor']['schema']['blockSchema'];
 
 const getVideoEmbedSource = (url: string): string | undefined => {
   const embed = parseVideoEmbedUrl(url);
@@ -39,23 +39,27 @@ const EmbeddedVideo: FC<{ src: string; title: string }> = ({ src, title }) => (
     title={title || 'Video'}
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
     allowFullScreen
+    // oxlint-disable-next-line react/iframe-missing-sandbox -- src is always a YouTube, Vimeo or Cloudflare Stream player (cross-origin, so the frame can't reach this page), and those players need their own origin's storage to play
+    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
     referrerPolicy="strict-origin-when-cross-origin"
     contentEditable={false}
   />
 );
 
 export const CustomVideoBlockContent: FC<VideoRenderProps> = (props) => {
+  // The same editor, typed for the file block wrapper: its generic schema doesn't
+  // accept the video block's editor type directly.
+  const fileEditor = useBlockNoteEditor<FileBlockSchema>();
   const src = getVideoEmbedSource(props.block.props.url);
 
   if (!src) {
     return <VideoBlock {...props} />;
   }
 
-  const fileProps = props as unknown as FileBlockRenderProps;
-
   return (
     <ResizableFileBlockWrapper
-      {...fileProps}
+      block={props.block}
+      editor={fileEditor}
       buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
       buttonIcon={<IconVideo size={24} />}
     >

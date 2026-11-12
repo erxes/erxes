@@ -1,7 +1,6 @@
 import { buttonVariants } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
-import React, { useEffect, useRef, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import React, { useEffect, useRef } from 'react';
 import { mergeRefs } from 'react-merge-refs';
 
 export const SuggestionMenu = React.forwardRef<
@@ -20,28 +19,29 @@ export const SuggestionMenu = React.forwardRef<
   </div>
 ));
 
+// The editor keeps focus: items are picked with the arrow keys there, or by mouse here.
 export const SuggestionMenuItem = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { isSelected: boolean }
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { isSelected: boolean }
 >(({ isSelected, ...props }, ref) => {
-  const [isMounted, setIsMounted] = useState(false);
-  const { ref: inViewRef, inView } = useInView();
-  const itemRef = useRef<HTMLDivElement>(null);
+  const itemRef = useRef<HTMLButtonElement>(null);
+  const mounted = useRef(false);
 
+  // Keyboard selection scrolls the item into view; the first render leaves the scroll alone.
   useEffect(() => {
-    setIsMounted(true);
-
-    if (isSelected && !inView && isMounted) {
-      itemRef.current?.scrollIntoView({
-        block: 'nearest',
-      });
+    if (mounted.current && isSelected) {
+      itemRef.current?.scrollIntoView({ block: 'nearest' });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    mounted.current = true;
   }, [isSelected]);
 
   return (
-    <div
-      ref={mergeRefs([itemRef, inViewRef, ref])}
+    <button
+      ref={mergeRefs([itemRef, ref])}
+      type="button"
+      aria-pressed={isSelected}
+      tabIndex={-1}
       {...props}
       onMouseDown={(e) => {
         e.preventDefault();

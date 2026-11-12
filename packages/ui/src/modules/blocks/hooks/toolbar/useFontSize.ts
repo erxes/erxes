@@ -1,3 +1,4 @@
+import { checkBlockIsFileBlock } from '@blocknote/core';
 import { useBlockNoteEditor, useEditorContentOrSelectionChange } from '@blocknote/react';
 import { useState } from 'react';
 import type { IBlockEditor } from 'erxes-ui/modules/blocks/types/TextEditor';
@@ -12,16 +13,13 @@ export const useFontSize = (): FontSizeState => {
 
   const [currentSize, setCurrentSize] = useState(() => editor.getActiveStyles().fontSize || '');
 
-  const [isFileBlock, setIsFileBlock] = useState(() => {
-    const { block } = editor.getTextCursorPosition();
-
-    return !!editor.schema.blockSpecs[block.type].config.isFileBlock;
-  });
+  const [isFileBlock, setIsFileBlock] = useState(() =>
+    checkBlockIsFileBlock(editor.getTextCursorPosition().block, editor),
+  );
 
   useEditorContentOrSelectionChange(() => {
     setCurrentSize(editor.getActiveStyles().fontSize || '');
-    const { block } = editor.getTextCursorPosition();
-    setIsFileBlock(!!editor.schema.blockSpecs[block.type].config.isFileBlock);
+    setIsFileBlock(checkBlockIsFileBlock(editor.getTextCursorPosition().block, editor));
   }, editor);
 
   const handleSizeChange = (size: string): void => {

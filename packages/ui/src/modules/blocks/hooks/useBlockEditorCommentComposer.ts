@@ -1,9 +1,6 @@
 import { useBlockNoteEditor } from '@blocknote/react';
-import { UniqueID } from '@blocknote/core';
 import { useState } from 'react';
 import { useToast } from 'erxes-ui/hooks/use-toast';
-
-const generateId: () => string = UniqueID.options.generateID;
 
 export const useBlockEditorCommentComposer = (): {
   value: string;
@@ -26,7 +23,8 @@ export const useBlockEditorCommentComposer = (): {
       await comments.createThread({
         initialComment: {
           body: value.split('\n').map((text) => ({
-            id: generateId(),
+            // BlockNote's own block ids are v4 UUIDs too.
+            id: crypto.randomUUID(),
             type: 'paragraph',
             props: {},
             content: text ? [{ type: 'text', text, styles: {} }] : [],

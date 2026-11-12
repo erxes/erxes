@@ -17,7 +17,7 @@ export const parseBlocks = (content: unknown) => {
       return false;
     }
 
-    const blocks = JSON.parse(content) as Block[];
+    const blocks: unknown = JSON.parse(content);
 
     if (isValidBlocks(blocks)) {
       return blocks;
