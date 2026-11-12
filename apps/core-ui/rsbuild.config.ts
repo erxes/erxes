@@ -10,9 +10,9 @@ const ui = resolve(__dirname, '../../packages/ui/src');
 const { WEB_PORT, CORE_API_URL } = process.env;
 
 /**
- * Libraries shared with plugin UIs as single instances. Plugins built for old
- * core-ui declare the same names with `import: false`, so the host must
- * provide every one of them.
+ * Libraries shared with plugin UIs as single instances. Plugin UIs built for
+ * erxes 3.x declare the same names with `import: false`, so the host must
+ * provide every one of them (core-ui itself does not use `@apollo/client`).
  */
 const SHARED = [
   'react',
@@ -50,7 +50,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '~': './src',
-      // erxes-ui is compiled from source (packages/*), like core-ui does
+      // erxes-ui is compiled from its source in packages/ui
       'erxes-ui$': `${ui}/index.ts`,
       'erxes-ui': ui,
     },
