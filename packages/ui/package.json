@@ -50,7 +50,6 @@
     "cmdk": "1.1.1",
     "date-fns": "4.1.0",
     "date-fns-tz": "3.2.0",
-    "dayjs": "1.11.13",
     "deep-equal": "2.2.3",
     "dompurify": "3.4.17",
     "emblor": "1.4.8",
