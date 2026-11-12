@@ -1,15 +1,15 @@
 import { db } from '@erxes/core-db';
+import { addNote, removeNote, updateNote } from '~/modules/activities/activities.service';
 import {
-  addNote,
   createPluginActivity,
-  listActivities,
-  removeNote,
-  updateNote,
-  reactToActivity,
-  activityTypes,
-  updatePluginActivity,
   removePluginActivity,
-} from '~/modules/activities/activities.service';
+  updatePluginActivity,
+} from '~/modules/activities/pluginActivities.service';
+import {
+  activityTypes,
+  listActivities,
+  reactToActivity,
+} from '~/modules/activities/timeline.service';
 import { authed, plugin } from '~/orpc';
 
 export const activitiesRouter = {
