@@ -55,7 +55,7 @@ describe('flow model', () => {
 
     const renamed = replaceStep(flow, { id: 'n', type: 'action', action: 'core.notification.send', input: { title: 'Pong' } });
 
-    expect((findStep(renamed, 'n') as { input: { title: string } }).input.title).toBe('Pong');
+    expect((findStep(renamed, 'n') as unknown as { input: { title: string } }).input.title).toBe('Pong');
     expect(findStep(removeStep(flow, 'n'), 'n')).toBeNull();
     expect(countSteps(removeStep(flow, 'b'))).toBe(2);
   });
