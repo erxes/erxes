@@ -608,12 +608,613 @@
       }
     }
   },
+  "core": {
+    "emailTemplates": {
+      "name": "Имэйл загварууд",
+      "description": "Имэйл загварууд",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн загвар",
+        "all": "Бүх загвар"
+      },
+      "actions": {
+        "emailTemplatesRead": {
+          "title": "Имэйл загвар харах",
+          "description": "Имэйл загвар харах"
+        },
+        "emailTemplatesCreate": {
+          "title": "Имэйл загвар үүсгэх",
+          "description": "Имэйл загвар үүсгэх"
+        },
+        "emailTemplatesUpdate": {
+          "title": "Имэйл загвар засах",
+          "description": "Имэйл загвар засах"
+        },
+        "emailTemplatesDelete": {
+          "title": "Имэйл загвар устгах",
+          "description": "Имэйл загвар устгах"
+        }
+      }
+    },
+    "notificationTemplates": {
+      "name": "Мэдэгдлийн загварууд",
+      "description": "Мэдэгдлийн имэйл загварууд",
+      "scopes": {
+        "all": "Бүх загвар"
+      },
+      "actions": {
+        "notificationTemplatesManage": {
+          "title": "Мэдэгдлийн загвар удирдах",
+          "description": "Мэдэгдлийн имэйл болон имэйлийн брэндийг засах, нийтлэх, буцаах"
+        }
+      }
+    },
+    "contacts": {
+      "name": "Харилцагчид",
+      "description": "Харилцагчийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл эзэмшдэг бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "contactsRead": {
+          "title": "Харилцагч харах",
+          "description": "Харилцагч харах"
+        },
+        "contactsCreate": {
+          "title": "Харилцагч үүсгэх",
+          "description": "Харилцагч үүсгэх"
+        },
+        "contactsUpdate": {
+          "title": "Харилцагч засах",
+          "description": "Харилцагч засах"
+        },
+        "contactsDelete": {
+          "title": "Харилцагч устгах",
+          "description": "Харилцагч устгах"
+        },
+        "contactsMerge": {
+          "title": "Харилцагч нийлүүлэх",
+          "description": "Харилцагч нийлүүлэх"
+        },
+        "customersImportManage": {
+          "title": "Харилцагч импортлох",
+          "description": "Харилцагч импортлох"
+        },
+        "customersExportManage": {
+          "title": "Харилцагч экспортлох",
+          "description": "Харилцагч экспортлох"
+        },
+        "companiesImportManage": {
+          "title": "Компани импортлох",
+          "description": "Компани импортлох"
+        },
+        "companiesExportManage": {
+          "title": "Компани экспортлох",
+          "description": "Компани экспортлох"
+        }
+      }
+    },
+    "products": {
+      "name": "Бүтээгдэхүүнүүд",
+      "description": "Бүтээгдэхүүний удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "productsRead": {
+          "title": "Бүтээгдэхүүн харах",
+          "description": "Бүтээгдэхүүн харах"
+        },
+        "productsCreate": {
+          "title": "Бүтээгдэхүүн үүсгэх",
+          "description": "Бүтээгдэхүүн үүсгэх"
+        },
+        "productsUpdate": {
+          "title": "Бүтээгдэхүүн засах",
+          "description": "Бүтээгдэхүүн засах"
+        },
+        "productsDelete": {
+          "title": "Бүтээгдэхүүн устгах",
+          "description": "Бүтээгдэхүүн устгах"
+        },
+        "productsMerge": {
+          "title": "Бүтээгдэхүүн нийлүүлэх",
+          "description": "Бүтээгдэхүүн нийлүүлэх"
+        },
+        "productCategoriesManage": {
+          "title": "Бүтээгдэхүүний ангилал удирдах",
+          "description": "Бүтээгдэхүүний ангилал үүсгэх, засах, устгах"
+        },
+        "productsConfigsManage": {
+          "title": "Бүтээгдэхүүний тохиргоо удирдах",
+          "description": "Бүтээгдэхүүний тохиргоо шинэчлэх"
+        },
+        "uomsManage": {
+          "title": "Хэмжих нэгж удирдах",
+          "description": "Хэмжих нэгж үүсгэх, засах, устгах"
+        },
+        "productRulesManage": {
+          "title": "Бүтээгдэхүүний дүрэм удирдах",
+          "description": "Бүтээгдэхүүний дүрэм үүсгэх, засах, устгах"
+        },
+        "productsImportManage": {
+          "title": "Бүтээгдэхүүн импортлох",
+          "description": "Бүтээгдэхүүн импортлох"
+        },
+        "productsExportManage": {
+          "title": "Бүтээгдэхүүн экспортлох",
+          "description": "Бүтээгдэхүүн экспортлох"
+        }
+      }
+    },
+    "files": {
+      "name": "Файлууд",
+      "description": "Файлын менежер",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "filesRead": {
+          "title": "Файл ашиглах",
+          "description": "Файл ашиглах; хүн бүрийн харах, өөрчлөх эрхийг хавтасны хандалтаар тохируулна"
+        },
+        "filesAdmin": {
+          "title": "Файлын админ",
+          "description": "Бүх файл, хавтсыг харах, татах (зөвхөн унших); хэрэглээ бүр бүртгэгдэнэ"
+        }
+      }
+    },
+    "data-extensions": {
+      "name": "Өгөгдлийн өргөтгөл",
+      "description": "Өгөгдлийн өргөтгөлийн талбарын тодорхойлолт",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "dataExtensionsRead": {
+          "title": "Өгөгдлийн өргөтгөлийн талбар харах",
+          "description": "Бичлэгийн төрөл бүрт тодорхойлсон өргөтгөлийн талбаруудыг харах"
+        },
+        "dataExtensionsManage": {
+          "title": "Өгөгдлийн өргөтгөлийн талбар удирдах",
+          "description": "Өргөтгөлийн талбар нэмэх, засах, архивлах, сэргээх"
+        },
+        "dataExtensionRecordsRead": {
+          "title": "Нэмэлт объектын бичлэг харах",
+          "description": "Гэрээ гэх мэт байгууллагын тодорхойлсон объектын бичлэгийг харах"
+        },
+        "dataExtensionRecordsManage": {
+          "title": "Нэмэлт объектын бичлэг удирдах",
+          "description": "Байгууллагын тодорхойлсон объектын бичлэг үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "properties": {
+      "name": "Талбарууд",
+      "description": "Нэмэлт талбар ба талбарын бүлэг",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "propertiesRead": {
+          "title": "Талбар харах",
+          "description": "Нэмэлт талбар харах"
+        },
+        "fieldsManage": {
+          "title": "Талбар удирдах",
+          "description": "Нэмэлт талбар үүсгэх, засах, устгах"
+        },
+        "fieldGroupsManage": {
+          "title": "Талбарын бүлэг удирдах",
+          "description": "Талбарын бүлэг үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "tags": {
+      "name": "Тагууд",
+      "description": "Тагийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "tagsRead": {
+          "title": "Таг харах",
+          "description": "Таг харах"
+        },
+        "tagsCreate": {
+          "title": "Таг үүсгэх",
+          "description": "Таг үүсгэх"
+        },
+        "tagsUpdate": {
+          "title": "Таг засах",
+          "description": "Таг засах"
+        },
+        "tagsDelete": {
+          "title": "Таг устгах",
+          "description": "Таг устгах"
+        },
+        "tagsTag": {
+          "title": "Таг хавсаргах",
+          "description": "Бичлэгт таг хавсаргах"
+        }
+      }
+    },
+    "segments": {
+      "name": "Сегментүүд",
+      "description": "Сегментийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "segmentsRead": {
+          "title": "Сегмент харах",
+          "description": "Сегмент харах"
+        },
+        "segmentsManage": {
+          "title": "Сегмент удирдах",
+          "description": "Сегмент үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "documents": {
+      "name": "Баримтууд",
+      "description": "Баримтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "documentsRead": {
+          "title": "Баримт харах",
+          "description": "Баримт харах"
+        },
+        "manageDocuments": {
+          "title": "Баримт удирдах",
+          "description": "Баримт үүсгэх, засах"
+        },
+        "removeDocuments": {
+          "title": "Баримт устгах",
+          "description": "Баримт устгах"
+        }
+      }
+    },
+    "brands": {
+      "name": "Брэндүүд",
+      "description": "Брэндийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "brandsRead": {
+          "title": "Брэнд харах",
+          "description": "Брэнд харах"
+        },
+        "brandsCreate": {
+          "title": "Брэнд үүсгэх",
+          "description": "Брэнд үүсгэх"
+        },
+        "brandsUpdate": {
+          "title": "Брэнд засах",
+          "description": "Брэнд засах"
+        },
+        "brandsDelete": {
+          "title": "Брэнд устгах",
+          "description": "Брэнд устгах"
+        }
+      }
+    },
+    "organization": {
+      "name": "Багийн бүтэц",
+      "description": "Байгууллагын бүтцийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "organizationRead": {
+          "title": "Байгууллагын бүтэц харах",
+          "description": "Бүтэц, хэлтэс, салбар, нэгж, албан тушаалыг харах"
+        },
+        "structuresManage": {
+          "title": "Бүтэц удирдах",
+          "description": "Бүтэц үүсгэх, засах, устгах"
+        },
+        "departmentsManage": {
+          "title": "Хэлтэс удирдах",
+          "description": "Хэлтэс үүсгэх, засах, устгах"
+        },
+        "branchesManage": {
+          "title": "Салбар удирдах",
+          "description": "Салбар үүсгэх, засах, устгах"
+        },
+        "unitsManage": {
+          "title": "Нэгж удирдах",
+          "description": "Нэгж үүсгэх, засах, устгах"
+        },
+        "positionsManage": {
+          "title": "Албан тушаал удирдах",
+          "description": "Албан тушаал үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "teamMembers": {
+      "name": "Багийн гишүүд",
+      "description": "Багийн гишүүний удирдлага",
+      "scopes": {
+        "own": "Зөвхөн өөрийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "teamMembersRead": {
+          "title": "Багийн гишүүд харах",
+          "description": "Багийн гишүүд харах"
+        },
+        "teamMembersInvite": {
+          "title": "Багийн гишүүн урих",
+          "description": "Хэрэглэгчийг багт урих"
+        },
+        "teamMembersUpdate": {
+          "title": "Багийн гишүүн засах",
+          "description": "Багийн гишүүний мэдээлэл засах"
+        },
+        "teamMembersRemove": {
+          "title": "Багийн гишүүн хасах",
+          "description": "Багийн гишүүнийг идэвхгүй болгох"
+        },
+        "teamMembersResetPassword": {
+          "title": "Гишүүний нууц үг сэргээх",
+          "description": "Багийн гишүүний нууц үг сэргээх"
+        },
+        "teamMembersViewActivity": {
+          "title": "Гишүүний идэвх харах",
+          "description": "Бусад гишүүд хэзээ, хэр удаан идэвхтэй байсныг харах"
+        },
+        "teamMembersImportManage": {
+          "title": "Багийн гишүүд импортлох",
+          "description": "Багийн гишүүд импортлох"
+        },
+        "teamMembersExportManage": {
+          "title": "Багийн гишүүд экспортлох",
+          "description": "Багийн гишүүд экспортлох"
+        }
+      }
+    },
+    "broadcasts": {
+      "name": "Броадкаст",
+      "description": "Броадкаст болон мессежийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "broadcastRead": {
+          "title": "Броадкаст харах",
+          "description": "Мессеж харах"
+        },
+        "broadcastCreate": {
+          "title": "Броадкаст үүсгэх",
+          "description": "Мессеж үүсгэх"
+        },
+        "broadcastUpdate": {
+          "title": "Броадкаст засах",
+          "description": "Мессеж засах"
+        },
+        "broadcastDelete": {
+          "title": "Броадкаст устгах",
+          "description": "Мессеж устгах"
+        },
+        "broadcastConfigsManage": {
+          "title": "Броадкастын тохиргоо удирдах",
+          "description": "Броадкастын тохиргоо шинэчлэх"
+        }
+      }
+    },
+    "importExport": {
+      "name": "Импорт / Экспорт",
+      "description": "Импорт, экспортын удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "importsManage": {
+          "title": "Импорт удирдах",
+          "description": "Импорт эхлүүлэх, цуцлах, дахин оролдох, үргэлжлүүлэх"
+        },
+        "exportsManage": {
+          "title": "Экспорт удирдах",
+          "description": "Экспорт эхлүүлэх, цуцлах, дахин оролдох"
+        }
+      }
+    },
+    "bundle": {
+      "name": "Багц",
+      "description": "Багцын удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "bundleRead": {
+          "title": "Багц харах",
+          "description": "Багцын дүрэм, нөхцөл харах"
+        },
+        "bundleRulesManage": {
+          "title": "Багцын дүрэм удирдах",
+          "description": "Багцын дүрэм үүсгэх, засах, устгах"
+        },
+        "bundleConditionsManage": {
+          "title": "Багцын нөхцөл удирдах",
+          "description": "Багцын нөхцөл үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "permissions": {
+      "name": "Зөвшөөрлүүд",
+      "description": "Зөвшөөрлийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "permissionsRead": {
+          "title": "Зөвшөөрөл харах",
+          "description": "Зөвшөөрлийн бүлэг харах"
+        },
+        "permissionsManage": {
+          "title": "Зөвшөөрөл удирдах",
+          "description": "Зөвшөөрлийн бүлэг үүсгэх, засах, устгах, эрх олгох"
+        }
+      }
+    },
+    "apps": {
+      "name": "Аппууд",
+      "description": "Аппын удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "appsRead": {
+          "title": "Апп харах",
+          "description": "Апп харах"
+        },
+        "appsManage": {
+          "title": "Апп удирдах",
+          "description": "Апп үүсгэх, засах, цуцлах, устгах"
+        }
+      }
+    },
+    "clientPortal": {
+      "name": "Харилцагчийн портал",
+      "description": "Харилцагчийн порталын удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "clientPortalRead": {
+          "title": "Харилцагчийн портал харах",
+          "description": "Харилцагчийн порталын тохиргоо харах"
+        },
+        "clientPortalManage": {
+          "title": "Харилцагчийн портал удирдах",
+          "description": "Харилцагчийн портал үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "approval": {
+      "name": "Баталгаажуулалт",
+      "description": "Баталгаажуулалтын түгжээний удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "approvalLocksManage": {
+          "title": "Баталгаажуулалтын түгжээ удирдах",
+          "description": "Баталгаажуулалтын түгжээ үүсгэх, чөлөөлөх"
+        },
+        "approvalLocksForceRelease": {
+          "title": "Түгжээг хүчээр чөлөөлөх",
+          "description": "Түгжигдсэн нөөцийг шалтгаан бичиж хүчээр чөлөөлөх"
+        }
+      }
+    },
+    "automations": {
+      "name": "Автоматжуулалтууд",
+      "description": "Автоматжуулалтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "automationsRead": {
+          "title": "Автоматжуулалт харах",
+          "description": "Автоматжуулалт харах"
+        },
+        "automationsCreate": {
+          "title": "Автоматжуулалт үүсгэх",
+          "description": "Автоматжуулалт үүсгэх"
+        },
+        "automationsUpdate": {
+          "title": "Автоматжуулалт засах",
+          "description": "Автоматжуулалт засах"
+        },
+        "automationsDelete": {
+          "title": "Автоматжуулалт устгах",
+          "description": "Автоматжуулалт устгах"
+        },
+        "automationsAiAgentAdd": {
+          "title": "AI агент үүсгэх",
+          "description": "AI агент үүсгэх"
+        },
+        "automationsAiAgentEdit": {
+          "title": "AI агент засах",
+          "description": "AI агент засах"
+        },
+        "automationsAiAgentRemove": {
+          "title": "AI агент устгах",
+          "description": "AI агент устгах"
+        }
+      }
+    },
+    "logs": {
+      "name": "Системийн лог",
+      "description": "Системийн логт хандах",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "logsRead": {
+          "title": "Системийн лог харах",
+          "description": "Системийн лог харах"
+        }
+      }
+    },
+    "internalNotes": {
+      "name": "Дотоод тэмдэглэл",
+      "description": "Дотоод тэмдэглэлийн удирдлага",
+      "scopes": {
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "internalNotesManage": {
+          "title": "Дотоод тэмдэглэл удирдах",
+          "description": "Дотоод тэмдэглэл үүсгэх, засах, устгах"
+        }
+      }
+    },
+    "agents": {
+      "name": "AI туслах",
+      "description": "AI туслах",
+      "scopes": {
+        "all": "Бүх агентад хандах"
+      },
+      "actions": {
+        "showAgents": {
+          "title": "AI туслах харах",
+          "description": "AI туслах харах"
+        },
+        "agentsChat": {
+          "title": "AI туслахтай чатлах",
+          "description": "AI туслахын чат ашиглах"
+        },
+        "manageAgentsSettings": {
+          "title": "AI туслахын тохиргоо удирдах",
+          "description": "Байгууллагын түвшний AI туслахын тохиргоог удирдах (код горимыг асаах, унтраах)"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Санхүүгийн плагинд бүрэн хандах эрх"
     },
     "accounting:viewer": {
       "description": "Санхүүгийн плагиныг зөвхөн харах эрх"
+    },
+    "core:admin": {
+      "description": "Core модулиудад бүрэн хандах эрх"
+    },
+    "core:user": {
+      "description": "Core модулиудад энгийн хэрэглэгчийн хандах эрх"
+    },
+    "core:viewer": {
+      "description": "Бүх Core модулийг зөвхөн харах эрх, өөрийн өгөгдлийг өөрчилж болно"
     }
   }
 }

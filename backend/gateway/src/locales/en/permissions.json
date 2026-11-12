@@ -608,12 +608,613 @@
       }
     }
   },
+  "core": {
+    "emailTemplates": {
+      "name": "Email templates",
+      "description": "Email templates",
+      "scopes": {
+        "own": "Templates user created",
+        "all": "All templates"
+      },
+      "actions": {
+        "emailTemplatesRead": {
+          "title": "View email templates",
+          "description": "View email templates"
+        },
+        "emailTemplatesCreate": {
+          "title": "Create email templates",
+          "description": "Create email templates"
+        },
+        "emailTemplatesUpdate": {
+          "title": "Edit email templates",
+          "description": "Edit email templates"
+        },
+        "emailTemplatesDelete": {
+          "title": "Delete email templates",
+          "description": "Delete email templates"
+        }
+      }
+    },
+    "notificationTemplates": {
+      "name": "Notification templates",
+      "description": "Notification email templates",
+      "scopes": {
+        "all": "All templates"
+      },
+      "actions": {
+        "notificationTemplatesManage": {
+          "title": "Manage notification templates",
+          "description": "Edit, publish and revert notification emails and the email brand"
+        }
+      }
+    },
+    "contacts": {
+      "name": "Contacts",
+      "description": "Contact management",
+      "scopes": {
+        "own": "Records user created or owned",
+        "all": "All records"
+      },
+      "actions": {
+        "contactsRead": {
+          "title": "View contacts records",
+          "description": "View contacts"
+        },
+        "contactsCreate": {
+          "title": "Create contacts records",
+          "description": "Create contacts"
+        },
+        "contactsUpdate": {
+          "title": "Edit contacts records",
+          "description": "Edit contacts"
+        },
+        "contactsDelete": {
+          "title": "Delete contacts records",
+          "description": "Delete contacts"
+        },
+        "contactsMerge": {
+          "title": "Merge contacts records",
+          "description": "Merge contacts"
+        },
+        "customersImportManage": {
+          "title": "Import customers",
+          "description": "Import customers"
+        },
+        "customersExportManage": {
+          "title": "Export customers",
+          "description": "Export customers"
+        },
+        "companiesImportManage": {
+          "title": "Import companies",
+          "description": "Import companies"
+        },
+        "companiesExportManage": {
+          "title": "Export companies",
+          "description": "Export companies"
+        }
+      }
+    },
+    "products": {
+      "name": "Products",
+      "description": "Product management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "productsRead": {
+          "title": "View products",
+          "description": "View products"
+        },
+        "productsCreate": {
+          "title": "Create products",
+          "description": "Create products"
+        },
+        "productsUpdate": {
+          "title": "Edit products",
+          "description": "Edit products"
+        },
+        "productsDelete": {
+          "title": "Delete products",
+          "description": "Delete products"
+        },
+        "productsMerge": {
+          "title": "Merge products",
+          "description": "Merge products"
+        },
+        "productCategoriesManage": {
+          "title": "Manage product categories",
+          "description": "Create, edit, delete product categories"
+        },
+        "productsConfigsManage": {
+          "title": "Manage product configurations",
+          "description": "Update product configurations"
+        },
+        "uomsManage": {
+          "title": "Manage units of measure",
+          "description": "Create, edit, delete units of measure"
+        },
+        "productRulesManage": {
+          "title": "Manage product rules",
+          "description": "Create, edit, delete product rules"
+        },
+        "productsImportManage": {
+          "title": "Import products",
+          "description": "Import products"
+        },
+        "productsExportManage": {
+          "title": "Export products",
+          "description": "Export products"
+        }
+      }
+    },
+    "files": {
+      "name": "Files",
+      "description": "File manager",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "filesRead": {
+          "title": "Use files",
+          "description": "Use Files; what each person sees and changes is set by folder access"
+        },
+        "filesAdmin": {
+          "title": "Files admin",
+          "description": "See and download every file and folder (read only); each use is logged"
+        }
+      }
+    },
+    "data-extensions": {
+      "name": "Data Extensions",
+      "description": "Data Extensions field definitions",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "dataExtensionsRead": {
+          "title": "View Data Extensions fields",
+          "description": "View the extension fields defined for each record type"
+        },
+        "dataExtensionsManage": {
+          "title": "Manage Data Extensions fields",
+          "description": "Add, edit, archive and restore extension fields"
+        },
+        "dataExtensionRecordsRead": {
+          "title": "View custom object records",
+          "description": "See records of tenant-defined objects such as Contracts"
+        },
+        "dataExtensionRecordsManage": {
+          "title": "Manage custom object records",
+          "description": "Create, edit and delete records of tenant-defined objects"
+        }
+      }
+    },
+    "properties": {
+      "name": "Properties",
+      "description": "Custom fields and field groups",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "propertiesRead": {
+          "title": "View properties",
+          "description": "View custom fields"
+        },
+        "fieldsManage": {
+          "title": "Manage fields",
+          "description": "Create, edit, delete custom fields"
+        },
+        "fieldGroupsManage": {
+          "title": "Manage field groups",
+          "description": "Create, edit, delete field groups"
+        }
+      }
+    },
+    "tags": {
+      "name": "Tags",
+      "description": "Tag management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "tagsRead": {
+          "title": "View tags",
+          "description": "View tags"
+        },
+        "tagsCreate": {
+          "title": "Create tags",
+          "description": "Create tags"
+        },
+        "tagsUpdate": {
+          "title": "Edit tags",
+          "description": "Edit tags"
+        },
+        "tagsDelete": {
+          "title": "Delete tags",
+          "description": "Delete tags"
+        },
+        "tagsTag": {
+          "title": "Tag items",
+          "description": "Attach tags to items"
+        }
+      }
+    },
+    "segments": {
+      "name": "Segments",
+      "description": "Segment management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "segmentsRead": {
+          "title": "View segments",
+          "description": "View segments"
+        },
+        "segmentsManage": {
+          "title": "Manage segments",
+          "description": "Create, edit, delete segments"
+        }
+      }
+    },
+    "documents": {
+      "name": "Documents",
+      "description": "Document management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "documentsRead": {
+          "title": "View documents",
+          "description": "View documents"
+        },
+        "manageDocuments": {
+          "title": "Manage documents",
+          "description": "Create and edit documents"
+        },
+        "removeDocuments": {
+          "title": "Remove documents",
+          "description": "Delete documents"
+        }
+      }
+    },
+    "brands": {
+      "name": "Brands",
+      "description": "Brand management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "brandsRead": {
+          "title": "View brands",
+          "description": "View brands"
+        },
+        "brandsCreate": {
+          "title": "Create brands",
+          "description": "Create brands"
+        },
+        "brandsUpdate": {
+          "title": "Edit brands",
+          "description": "Edit brands"
+        },
+        "brandsDelete": {
+          "title": "Delete brands",
+          "description": "Delete brands"
+        }
+      }
+    },
+    "organization": {
+      "name": "Organization",
+      "description": "Organization structure management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "organizationRead": {
+          "title": "View organization structure",
+          "description": "View structures, departments, branches, units, positions"
+        },
+        "structuresManage": {
+          "title": "Manage structures",
+          "description": "Create, edit, delete structures"
+        },
+        "departmentsManage": {
+          "title": "Manage departments",
+          "description": "Create, edit, delete departments"
+        },
+        "branchesManage": {
+          "title": "Manage branches",
+          "description": "Create, edit, delete branches"
+        },
+        "unitsManage": {
+          "title": "Manage units",
+          "description": "Create, edit, delete units"
+        },
+        "positionsManage": {
+          "title": "Manage positions",
+          "description": "Create, edit, delete positions"
+        }
+      }
+    },
+    "teamMembers": {
+      "name": "Team members",
+      "description": "Team member management",
+      "scopes": {
+        "own": "Own record only",
+        "all": "All records"
+      },
+      "actions": {
+        "teamMembersRead": {
+          "title": "View team members",
+          "description": "View team members"
+        },
+        "teamMembersInvite": {
+          "title": "Invite team members",
+          "description": "Invite users to team"
+        },
+        "teamMembersUpdate": {
+          "title": "Edit team members",
+          "description": "Edit team member details"
+        },
+        "teamMembersRemove": {
+          "title": "Remove team members",
+          "description": "Deactivate team members"
+        },
+        "teamMembersResetPassword": {
+          "title": "Reset member password",
+          "description": "Reset team member password"
+        },
+        "teamMembersViewActivity": {
+          "title": "View member activity",
+          "description": "See when and how long other team members are active"
+        },
+        "teamMembersImportManage": {
+          "title": "Import team members",
+          "description": "Import team members"
+        },
+        "teamMembersExportManage": {
+          "title": "Export team members",
+          "description": "Export team members"
+        }
+      }
+    },
+    "broadcasts": {
+      "name": "Broadcasts",
+      "description": "Broadcast & engage message management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "broadcastRead": {
+          "title": "View broadcasts",
+          "description": "View engage messages"
+        },
+        "broadcastCreate": {
+          "title": "Create broadcasts",
+          "description": "Create engage messages"
+        },
+        "broadcastUpdate": {
+          "title": "Edit broadcasts",
+          "description": "Edit engage messages"
+        },
+        "broadcastDelete": {
+          "title": "Delete broadcasts",
+          "description": "Delete engage messages"
+        },
+        "broadcastConfigsManage": {
+          "title": "Manage broadcast configs",
+          "description": "Update broadcast configurations"
+        }
+      }
+    },
+    "importExport": {
+      "name": "Import / Export",
+      "description": "Import and export management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "importsManage": {
+          "title": "Manage imports",
+          "description": "Start, cancel, retry, and resume imports"
+        },
+        "exportsManage": {
+          "title": "Manage exports",
+          "description": "Start, cancel, and retry exports"
+        }
+      }
+    },
+    "bundle": {
+      "name": "Bundles",
+      "description": "Bundle management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "bundleRead": {
+          "title": "View bundles",
+          "description": "View bundle rules and conditions"
+        },
+        "bundleRulesManage": {
+          "title": "Manage bundle rules",
+          "description": "Create, edit, delete bundle rules"
+        },
+        "bundleConditionsManage": {
+          "title": "Manage bundle conditions",
+          "description": "Create, edit, delete bundle conditions"
+        }
+      }
+    },
+    "permissions": {
+      "name": "Permissions",
+      "description": "Permission management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "permissionsRead": {
+          "title": "View permissions",
+          "description": "View permission groups"
+        },
+        "permissionsManage": {
+          "title": "Manage permissions",
+          "description": "Create, edit, delete permission groups and assign permissions"
+        }
+      }
+    },
+    "apps": {
+      "name": "Apps",
+      "description": "App management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "appsRead": {
+          "title": "View apps",
+          "description": "View apps"
+        },
+        "appsManage": {
+          "title": "Manage apps",
+          "description": "Create, edit, revoke, delete apps"
+        }
+      }
+    },
+    "clientPortal": {
+      "name": "Client portal",
+      "description": "Client portal management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "clientPortalRead": {
+          "title": "View client portal",
+          "description": "View client portal settings"
+        },
+        "clientPortalManage": {
+          "title": "Manage client portal",
+          "description": "Create, edit, delete client portals"
+        }
+      }
+    },
+    "approval": {
+      "name": "Approval",
+      "description": "Approval lock management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "approvalLocksManage": {
+          "title": "Manage approval locks",
+          "description": "Create and release approval locks"
+        },
+        "approvalLocksForceRelease": {
+          "title": "Force release approval locks",
+          "description": "Force release locked resources with a reason"
+        }
+      }
+    },
+    "automations": {
+      "name": "Automations",
+      "description": "Automation management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "automationsRead": {
+          "title": "View automations",
+          "description": "View automations"
+        },
+        "automationsCreate": {
+          "title": "Create automations",
+          "description": "Create automations"
+        },
+        "automationsUpdate": {
+          "title": "Edit automations",
+          "description": "Edit automations"
+        },
+        "automationsDelete": {
+          "title": "Delete automations",
+          "description": "Delete automations"
+        },
+        "automationsAiAgentAdd": {
+          "title": "Create AI agents",
+          "description": "Create AI agents"
+        },
+        "automationsAiAgentEdit": {
+          "title": "Edit AI agents",
+          "description": "Edit AI agents"
+        },
+        "automationsAiAgentRemove": {
+          "title": "Delete AI agents",
+          "description": "Delete AI agents"
+        }
+      }
+    },
+    "logs": {
+      "name": "Logs",
+      "description": "System log access",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "logsRead": {
+          "title": "View system logs",
+          "description": "View system logs"
+        }
+      }
+    },
+    "internalNotes": {
+      "name": "Internal notes",
+      "description": "Internal note management",
+      "scopes": {
+        "all": "All records"
+      },
+      "actions": {
+        "internalNotesManage": {
+          "title": "Manage internal notes",
+          "description": "Create, edit, delete internal notes"
+        }
+      }
+    },
+    "agents": {
+      "name": "AI agents",
+      "description": "AI agents",
+      "scopes": {
+        "all": "All agents access"
+      },
+      "actions": {
+        "showAgents": {
+          "title": "View agents",
+          "description": "View agents"
+        },
+        "agentsChat": {
+          "title": "Use agents chat",
+          "description": "Use agents chat"
+        },
+        "manageAgentsSettings": {
+          "title": "Manage agents settings",
+          "description": "Manage tenant-wide agents settings (code mode toggle)"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Full access to Accounting plugin"
     },
     "accounting:viewer": {
       "description": "Read-only access to Accounting plugin"
+    },
+    "core:admin": {
+      "description": "Full access to Core modules"
+    },
+    "core:user": {
+      "description": "Standard user access to Core modules"
+    },
+    "core:viewer": {
+      "description": "Read-only access to all Core modules, with own-data mutations"
     }
   }
 }
