@@ -245,4 +245,119 @@ describe('PapaClient', () => {
     await expect(client.getShipping('s1')).rejects.toBeInstanceOf(PapaApiError);
     await expect(client.getShipping('s1')).rejects.toThrow('Quote expired');
   });
+
+  const quoteInput = {
+    address_id: 'addr1',
+    to_location_id: 'loc1',
+    to_latitude: '47.7728',
+    to_longitude: '106.8660',
+    to_address: 'Хан-Уул',
+    size: 'SMALL' as const,
+  };
+  const ok = (data: unknown) => ({
+    status: 200,
+    json: { success: true, data },
+  });
+  const refused = {
+    status: 200,
+    json: { success: false, message: 'Илгээсэн мэдэлэл зөрүүтэй байна' },
+  };
+
+  it('quotes through the nearest Papa point in the example shape', async () => {
+    const calls: TCall[] = [];
+    const client = new PapaClient(
+      credentials,
+      new MemoryStore(),
+      fakeFetch((call) => {
+        if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
+        if (call.url.endsWith('/point/elastic')) return ok([{ id: 'point1' }]);
+        return ok({ id: 'quote1', user_price: 9000 });
+      }, calls),
+    );
+
+    const quote = await client.quote(quoteInput);
+    const body = calls[calls.length - 1].body;
+
+    expect(quote.id).toBe('quote1');
+    expect(body).toEqual({
+      order_type: 'PARCEL_ORDER',
+      size: 'SMALL',
+      address_id: 'addr1',
+      to_point_id: 'point1',
+    });
+  });
+
+  it('retries the quote in the table shape when Papa refuses the example', async () => {
+    const calls: TCall[] = [];
+    const client = new PapaClient(
+      credentials,
+      new MemoryStore(),
+      fakeFetch((call) => {
+        if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
+        if (call.url.endsWith('/point/elastic')) return ok([{ id: 'point1' }]);
+        return call.body.to_point_id ? refused : ok({ id: 'quote2' });
+      }, calls),
+    );
+
+    const quote = await client.quote(quoteInput);
+
+    expect(quote.id).toBe('quote2');
+    expect(calls[calls.length - 1].body).toEqual(quoteInput);
+  });
+
+  it('explains a location with no Papa point near it', async () => {
+    const client = new PapaClient(
+      credentials,
+      new MemoryStore(),
+      fakeFetch((call) => {
+        if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
+        if (call.url.endsWith('/point/elastic')) return ok([]);
+        return refused;
+      }, []),
+    );
+
+    await expect(client.quote(quoteInput)).rejects.toThrow('no delivery point');
+  });
+
+  it('creates with the quote in cargo.dynamic_price_id, else top-level', async () => {
+    const calls: TCall[] = [];
+    let attempt = 0;
+    const client = new PapaClient(
+      credentials,
+      new MemoryStore(),
+      fakeFetch((call) => {
+        if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
+        attempt += 1;
+        return attempt === 1
+          ? refused
+          : ok({ id: 'p1', parcel_order_status: 'NEW' });
+      }, calls),
+    );
+
+    const created = await client.createDynamicOrder({
+      quote_id: 'quote1',
+      staff_id: 's1',
+      reference_id: 'o1',
+      car_type: ['PASSANGER_CAR'],
+      category_id: 'c1',
+      condition_id: 'd1',
+      cargo: {
+        reference_id: 'o1',
+        name: 'Order 1',
+        quantity: 1,
+        weigth_type: 'BOX',
+        other_receive_phone: '99112233',
+      },
+    });
+    const [first, second] = calls
+      .filter((call) => call.url.endsWith('/dynamic/create'))
+      .map((call) => call.body);
+
+    expect(created.id).toBe('p1');
+    expect(first.quote_id).toBeUndefined();
+    expect((first.cargo as Record<string, unknown>).dynamic_price_id).toBe(
+      'quote1',
+    );
+    expect(second.quote_id).toBe('quote1');
+  });
 });

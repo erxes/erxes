@@ -74,5 +74,17 @@ export const PAPA_MAX_EVENTS = 50;
 
 export const PAPA_LIST_PAGE_SIZE = 20;
 
+// Papa's docs send this app-version header on many organization endpoints
+// (shipping, approve image, cancel, invoices); every request carries it.
+export const PAPA_UPDATE_VERSION_HEADER = 'ios/1.1.1';
+
+/** Order statuses in which the cargo has (or had) a shipping. */
+export const PAPA_SHIPPING_STATUSES: string[] = [
+  'CREATING_SHIPPING',
+  'START',
+  'END',
+  'COMPLETED',
+];
+
 // Pickup addresses are a handful per business; stop paging well before this.
 export const PAPA_MAX_ADDRESS_PAGES = 10;

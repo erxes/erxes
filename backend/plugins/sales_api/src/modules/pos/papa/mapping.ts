@@ -66,9 +66,16 @@ export const isValidCoordinate = (value: unknown, limit: number) => {
   );
 };
 
+/** `fallback` is what erxes asked for; the example-shaped quote may omit it. */
 export const quoteToDelivery = (
   quote: IPapaQuote,
   now: Date,
+  fallback: {
+    toLocationId: string;
+    toAddress: string;
+    toLatitude: string;
+    toLongitude: string;
+  },
 ): Partial<IPapaDelivery> => ({
   quoteId: quote.id,
   quoteExpiresAt: quote.expire_timestamp
@@ -77,10 +84,10 @@ export const quoteToDelivery = (
   price: Number(quote.user_price),
   distance: quote.distance,
   duration: quote.duration,
-  toLocationId: quote.to_location_id,
-  toAddress: quote.to_address,
-  toLatitude: String(quote.to_latitude),
-  toLongitude: String(quote.to_longitude),
+  toLocationId: quote.to_location_id || fallback.toLocationId,
+  toAddress: fallback.toAddress,
+  toLatitude: fallback.toLatitude,
+  toLongitude: fallback.toLongitude,
   size: quote.size,
   updatedAt: now,
 });

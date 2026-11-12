@@ -3,6 +3,7 @@ import {
   PAPA_LIST_PAGE_SIZE,
   PAPA_REQUEST_TIMEOUT_MS,
   PAPA_TOKEN_TTL_SECONDS,
+  PAPA_UPDATE_VERSION_HEADER,
 } from './constants';
 import {
   IPapaAddress,
@@ -14,6 +15,8 @@ import {
   IPapaDynamicCreateInput,
   IPapaDynamicOrder,
   IPapaEnvelope,
+  IPapaParcelOrder,
+  IPapaPoint,
   IPapaQuote,
   IPapaQuoteInput,
   IPapaReferences,
@@ -55,6 +58,10 @@ export class PapaApiError extends Error {
 }
 
 const isUnauthorized = (status: number) => status === 401 || status === 403;
+
+/** Papa answers malformed bodies with "Илгээсэн мэдээлэл зөрүүтэй байна". */
+const isValidationError = (error: unknown) =>
+  error instanceof PapaApiError && /зөрүүтэй/i.test(error.message);
 
 /**
  * Thin typed client for the Papa Logistic organization API. Every Papa endpoint
@@ -137,7 +144,7 @@ export class PapaClient {
   /** Papa list endpoints need a `filter` object and cap `limit` at 20. */
   public listAddresses(page = 1, limit = PAPA_LIST_PAGE_SIZE) {
     return this.call<{ count: number; rows: IPapaAddress[] }>('/address', {
-      filter: {},
+      filter: { query: '' },
       offset: { page, limit },
     });
   }
@@ -152,11 +159,90 @@ export class PapaClient {
     return this.call<IPapaAddress>('/address/create', input);
   }
 
-  public quote(input: IPapaQuoteInput) {
-    return this.call<IPapaQuote>('/parcel_order/dynamic/calculate', input);
+  /** Papa catalog points within about 1 km of a coordinate, nearest first. */
+  public async findNearestPoint(latitude: string, longitude: string) {
+    const points = await this.call<IPapaPoint[] | null>('/point/elastic', {
+      latitude,
+      longitude,
+    });
+
+    return Array.isArray(points) ? points[0]?.id : undefined;
   }
 
-  public createDynamicOrder(input: IPapaDynamicCreateInput) {
+  /**
+   * Papa's docs show two request shapes for the quote: the field table
+   * (district, coordinates, address) and the example body Papa's own tests
+   * send (`order_type` + `to_point_id`). The example comes first; a
+   * validation refusal retries with the table shape.
+   */
+  public async quote(input: IPapaQuoteInput) {
+    const pointId = await this.findNearestPoint(
+      input.to_latitude,
+      input.to_longitude,
+    );
+
+    if (pointId) {
+      try {
+        return await this.call<IPapaQuote>('/parcel_order/dynamic/calculate', {
+          order_type: 'PARCEL_ORDER',
+          size: input.size,
+          address_id: input.address_id,
+          to_point_id: pointId,
+        });
+      } catch (error) {
+        if (!isValidationError(error)) {
+          throw error;
+        }
+      }
+    }
+
+    try {
+      return await this.call<IPapaQuote>(
+        '/parcel_order/dynamic/calculate',
+        input,
+      );
+    } catch (error) {
+      if (!pointId && isValidationError(error)) {
+        throw new PapaApiError(
+          'Papa has no delivery point within about 1 km of this location; check the coordinates',
+          error instanceof PapaApiError ? error.status : 0,
+          '/point/elastic',
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  /** Same two shapes as `quote`: the example puts the quote in the cargo. */
+  public async createDynamicOrder(input: IPapaDynamicCreateInput) {
+    const { quote_id: quoteId, ...rest } = input;
+
+    try {
+      return await this.call<IPapaDynamicOrder>(
+        '/parcel_order/dynamic/create',
+        {
+          ...rest,
+          is_description: rest.is_description ?? false,
+          description: rest.description ?? null,
+          is_audio: false,
+          audio_id: null,
+          cargo: {
+            ...rest.cargo,
+            dynamic_price_id: quoteId,
+            is_rural_transfer: false,
+            is_image: false,
+            image: null,
+            schedule_type: 'THREE_HOURS',
+          },
+        },
+      );
+    } catch (error) {
+      if (!isValidationError(error)) {
+        throw error;
+      }
+    }
+
     return this.call<IPapaDynamicOrder>('/parcel_order/dynamic/create', input);
   }
 
@@ -189,6 +275,10 @@ export class PapaClient {
       is_partner: false,
       partner_id: null,
     });
+  }
+
+  public getParcelOrder(id: string) {
+    return this.call<IPapaParcelOrder>('/parcel_order/get', { id });
   }
 
   public getShipping(id: string) {
@@ -235,6 +325,7 @@ export class PapaClient {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      updateversion: PAPA_UPDATE_VERSION_HEADER,
     };
 
     if (token) {

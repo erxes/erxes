@@ -49,6 +49,11 @@ export interface IPapaQuoteInput {
   size: TPapaSize;
 }
 
+/** A Papa catalog point (`/point/elastic`); dynamic deliveries end at one. */
+export interface IPapaPoint {
+  id: string;
+}
+
 export interface IPapaQuote {
   id: string;
   size: TPapaSize;
@@ -109,6 +114,12 @@ export interface IPapaCargo {
   user_price?: number;
   distance?: string | null;
   duration?: number | null;
+}
+
+/** Regular `/parcel_order/get`: the only response documenting `cargos[].shipping_id`. */
+export interface IPapaParcelOrder {
+  id: string;
+  cargos?: IPapaCargo[] | null;
 }
 
 export interface IPapaDynamicOrder {

@@ -1,6 +1,7 @@
 import {
   IconCashRegister,
   IconCreditCard,
+  IconTruckDelivery,
   IconHistory,
   IconId,
 } from '@tabler/icons-react';
@@ -35,11 +36,13 @@ import {
   PosOrderPanelDetail,
   PosOrderPanelPayments,
 } from '~/widgets/record-panel/PosOrderPanelDetail';
+import { PapaDeliveryPanel } from '@/pos/papa/components/PapaDeliveryPanel';
 import { PosPanelActivity } from '~/widgets/record-panel/PosPanelShared';
 import { PosOrderPanelTitle } from '~/widgets/record-panel/RecordPanel';
 
 const DETAIL_TAB = 'detail';
 const PAYMENTS_TAB = 'payments';
+const DELIVERY_TAB = 'delivery';
 const ACTIVITY_TAB = 'activity';
 
 const PosPageBreadcrumb = ({
@@ -211,6 +214,12 @@ export const PosOrderDetailPage = () => {
           label: tSales('payments'),
           icon: IconCreditCard,
           content: <PosOrderPanelPayments orderId={orderId} />,
+        },
+        {
+          value: DELIVERY_TAB,
+          label: tSales('delivery', 'Delivery'),
+          icon: IconTruckDelivery,
+          content: <PapaDeliveryPanel orderId={orderId} />,
         },
         {
           value: ACTIVITY_TAB,

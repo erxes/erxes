@@ -109,6 +109,8 @@ const referenceRowSchema = z
     name: text,
     title: text,
     code: text,
+    short_name: text,
+    is_active: z.boolean().nullish(),
     parent_id: z.union([z.string(), z.number()]).nullish(),
   })
   .passthrough();
@@ -121,7 +123,10 @@ const referenceListSchema = z
   .transform((rows) =>
     (rows || []).flatMap((row) => {
       const parsed = referenceRowSchema.safeParse(row);
-      return parsed.success ? [parsed.data] : [];
+      // Papa marks retired categories and conditions `is_active: false`.
+      return parsed.success && parsed.data.is_active !== false
+        ? [parsed.data]
+        : [];
     }),
   );
 
@@ -197,37 +202,113 @@ export const parsePapaAddresses = (value: unknown): TPapaAddress[] =>
       return parsed.success ? [parsed.data] : [];
     }) ?? [];
 
-/** Reads the delivery address erxes captured on the order, when present. */
-export const orderDeliveryDefaults = (deliveryInfo: unknown) => {
-  const parsed = z
-    .object({
-      address: text,
-      phone: text,
-      description: text,
-      marker: z
-        .object({
-          lat: numeric,
-          lng: numeric,
-          latitude: numeric,
-          longitude: numeric,
-        })
-        .passthrough()
-        .nullish(),
-    })
-    .passthrough()
-    .safeParse(deliveryInfo ?? {});
+// dts.mn checkout flags, written into the driver note in the site's wording.
+const DELIVERY_NOTE_FLAGS = [
+  ['haveBaby', 'Нялх хүүхэдтэй'],
+  ['callBefore', 'Хүргэхийн өмнө заавал залгах'],
+  ['onlyAfternoon', 'Зөвхөн оройн цагаар хүргэх'],
+] as const;
+
+const deliveryInfoSchema = z
+  .object({
+    address: text,
+    phone: text,
+    description: text,
+    // Ecommerce checkouts (dts.mn) send the address in parts.
+    city: text,
+    district: text,
+    street: text,
+    detail: text,
+    haveBaby: z.boolean().nullish(),
+    callBefore: z.boolean().nullish(),
+    onlyAfternoon: z.boolean().nullish(),
+    marker: z
+      .object({
+        lat: numeric,
+        lng: numeric,
+        latitude: numeric,
+        longitude: numeric,
+      })
+      .passthrough()
+      .nullish(),
+  })
+  .passthrough();
+
+export interface IOrderDeliveryDefaults {
+  address: string;
+  district: string;
+  phone: string;
+  description: string;
+  lat: string;
+  lng: string;
+}
+
+const join = (parts: (string | null | undefined)[], separator: string) =>
+  parts
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(separator);
+
+/** Reads the delivery address the POS or ecommerce checkout saved on the order. */
+export const orderDeliveryDefaults = (
+  deliveryInfo: unknown,
+): IOrderDeliveryDefaults => {
+  const parsed = deliveryInfoSchema.safeParse(deliveryInfo ?? {});
 
   if (!parsed.success) {
-    return { address: '', phone: '', description: '', lat: '', lng: '' };
+    return {
+      address: '',
+      district: '',
+      phone: '',
+      description: '',
+      lat: '',
+      lng: '',
+    };
   }
 
-  const { address, phone, description, marker } = parsed.data;
+  const info = parsed.data;
+  const notes = DELIVERY_NOTE_FLAGS.flatMap(([key, label]) =>
+    info[key] ? [label] : [],
+  );
 
   return {
-    address: address || '',
-    phone: phone || '',
-    description: description || '',
-    lat: String(marker?.latitude ?? marker?.lat ?? ''),
-    lng: String(marker?.longitude ?? marker?.lng ?? ''),
+    address:
+      info.address ||
+      join([info.city, info.district, info.street, info.detail], ', '),
+    district: info.district || '',
+    phone: info.phone || '',
+    description: join([info.description, ...notes], '. '),
+    lat: String(info.marker?.latitude ?? info.marker?.lat ?? ''),
+    lng: String(info.marker?.longitude ?? info.marker?.lng ?? ''),
   };
+};
+
+const normalizeDistrict = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/дүүрэг|district/g, '')
+    .replace(/[\s-]+/g, '');
+
+/**
+ * Finds the Papa location for a checkout district name ("Хан-Уул" →
+ * "Хан-Уул", "Баянзүрх" → "Баянзүрх дүүрэг"), by full or short name.
+ */
+export const matchPapaDistrict = (
+  district: string,
+  locations: TPapaReferenceRow[],
+): string | undefined => {
+  const wanted = normalizeDistrict(district);
+
+  if (!wanted) {
+    return undefined;
+  }
+
+  const matches = locations.filter((row) =>
+    [row.name, row.code, row.title, row.short_name].some(
+      (label) =>
+        typeof label === 'string' && normalizeDistrict(label) === wanted,
+    ),
+  );
+
+  return matches.length === 1 ? matches[0].id : undefined;
 };

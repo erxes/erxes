@@ -14,6 +14,7 @@ import {
   PAPA_ORDER_STATUS,
   PAPA_REFERENCES_TTL_SECONDS,
   PAPA_RESENDABLE_STATUSES,
+  PAPA_SHIPPING_STATUSES,
   TPapaSize,
 } from './constants';
 import {
@@ -380,19 +381,25 @@ export const quotePapaDelivery = async (
     : posConfig.size || 'SMALL';
 
   const config = await models.PapaConfigs.getConfigOrThrow();
+  const destination = {
+    toLocationId: args.toLocationId,
+    toAddress: args.toAddress.trim().slice(0, 500),
+    toLatitude: String(args.toLatitude).trim(),
+    toLongitude: String(args.toLongitude).trim(),
+  };
   const quote = await createPapaClient(config).quote({
     address_id: posConfig.addressId,
-    to_location_id: args.toLocationId,
-    to_latitude: String(args.toLatitude),
-    to_longitude: String(args.toLongitude),
-    to_address: args.toAddress.trim().slice(0, 500),
+    to_location_id: destination.toLocationId,
+    to_latitude: destination.toLatitude,
+    to_longitude: destination.toLongitude,
+    to_address: destination.toAddress,
     size,
   });
 
   const now = new Date();
 
   return setDelivery(models, orderId, {
-    ...quoteToDelivery(quote, now),
+    ...quoteToDelivery(quote, now, destination),
     status: PAPA_LOCAL_STATUS.QUOTED,
     events: current?.events,
     updatedAt: now,
@@ -531,6 +538,17 @@ export const refreshPapaDelivery = async (models: IModels, orderId: string) => {
     ...orderToDelivery(papaOrder, now),
     error: undefined,
   };
+
+  // The dynamic get does not document `cargo.shipping_id`; the regular order
+  // get does, so read it there once the driver has accepted.
+  if (!next.shippingId && PAPA_SHIPPING_STATUSES.includes(next.status)) {
+    const parcelOrder = await client.getParcelOrder(current.papaOrderId);
+    const cargo =
+      parcelOrder?.cargos?.find((row) => row.id === next.cargoId) ||
+      parcelOrder?.cargos?.[0];
+
+    next = { ...next, shippingId: cargo?.shipping_id ?? null };
+  }
 
   if (next.shippingId) {
     const shipping = await client.getShipping(next.shippingId);

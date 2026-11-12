@@ -1,11 +1,35 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { IconMapSearch } from '@tabler/icons-react';
 import { Button, Form, Input, Select } from 'erxes-ui';
+import { LatLngLiteral } from 'leaflet';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { usePapaAddressSearch } from '../hooks/usePapaAddressSearch';
 import { usePapaReferences } from '../hooks/usePapaReferences';
-import { PAPA_SIZES, TPapaDelivery } from '../utils/papaJson';
+import {
+  IOrderDeliveryDefaults,
+  matchPapaDistrict,
+  PAPA_SIZES,
+  TPapaDelivery,
+} from '../utils/papaJson';
+import { PapaLocationMap } from './PapaLocationMap';
 import { PapaReferenceSelect } from './PapaReferenceSelect';
+
+const toPosition = (lat: string, lng: string): LatLngLiteral | null => {
+  const latitude = Number(lat);
+  const longitude = Number(lng);
+
+  return lat.trim() !== '' &&
+    lng.trim() !== '' &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    Math.abs(latitude) <= 90 &&
+    Math.abs(longitude) <= 180
+    ? { lat: latitude, lng: longitude }
+    : null;
+};
 
 const coordinate = (limit: number) =>
   z
@@ -30,7 +54,7 @@ const quoteSchema = z.object({
 export type TPapaQuoteForm = z.infer<typeof quoteSchema>;
 
 interface PapaDeliveryQuoteFormProps {
-  defaults: { address: string; lat: string; lng: string };
+  defaults: IOrderDeliveryDefaults;
   previous: TPapaDelivery | null;
   busy: boolean;
   onSubmit: (values: TPapaQuoteForm) => Promise<boolean>;
@@ -57,6 +81,41 @@ export const PapaDeliveryQuoteForm = ({
       size: previousSize || 'SMALL',
     },
   });
+
+  const latitude = form.watch('toLatitude');
+  const longitude = form.watch('toLongitude');
+  const position = useMemo(
+    () => toPosition(latitude, longitude),
+    [latitude, longitude],
+  );
+
+  // Six decimals is about 10 cm, more than a delivery pin needs.
+  const setPosition = useCallback(
+    (place: LatLngLiteral) => {
+      const options = { shouldDirty: true, shouldValidate: true };
+      form.setValue('toLatitude', place.lat.toFixed(6), options);
+      form.setValue('toLongitude', place.lng.toFixed(6), options);
+    },
+    [form],
+  );
+
+  const { search, searching } = usePapaAddressSearch(setPosition);
+
+  // Pre-select the checkout's district once Papa's locations have loaded.
+  useEffect(() => {
+    if (form.getValues('toLocationId') || !references.locations.length) {
+      return;
+    }
+
+    const locationId = matchPapaDistrict(
+      defaults.district,
+      references.locations,
+    );
+
+    if (locationId) {
+      form.setValue('toLocationId', locationId);
+    }
+  }, [defaults.district, form, references.locations]);
 
   return (
     <Form {...form}>
@@ -88,9 +147,21 @@ export const PapaDeliveryQuoteForm = ({
           name="toAddress"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>
-                {t('papa-delivery-address', 'Delivery address')}
-              </Form.Label>
+              <div className="flex items-center justify-between gap-2">
+                <Form.Label>
+                  {t('papa-delivery-address', 'Delivery address')}
+                </Form.Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={searching || !field.value?.trim()}
+                  onClick={() => search(field.value)}
+                >
+                  <IconMapSearch />
+                  {t('papa-find-on-map', 'Find on map')}
+                </Button>
+              </div>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -98,6 +169,15 @@ export const PapaDeliveryQuoteForm = ({
             </Form.Item>
           )}
         />
+        <div className="space-y-1">
+          <PapaLocationMap position={position} onChange={setPosition} />
+          <p className="text-xs text-muted-foreground">
+            {t(
+              'papa-map-hint',
+              'Click the delivery spot or drag the pin; the coordinates below follow it.',
+            )}
+          </p>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <Form.Field
             control={form.control}
