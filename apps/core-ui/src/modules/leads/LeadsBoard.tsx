@@ -1,9 +1,9 @@
 import type { Company, Customer, LeadRecordType, LeadStage } from '@erxes/core-contract';
 import { DndContext, type DragEndEvent, DragOverlay, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { IconMail, IconPhone } from '@tabler/icons-react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { type InfiniteData, type QueryClient, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { Avatar, Button, cn, readImage, ScrollArea, Skeleton } from 'erxes-ui';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { api, messageOf } from '~/lib/api';
 import { formatTotal } from '~/lib/cursorList';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
@@ -11,7 +11,7 @@ import { CUSTOMERS_KEY, useCustomersFilters } from '~/modules/contacts/customers
 import { COMPANIES_KEY, useCompaniesFilters } from '~/modules/contacts/companies/useCompanies';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { DisqualifyDialog } from './LeadActions';
-import { daysSince, useLeadStages, useMoveLeads } from './useLeads';
+import { daysSince, LEAD_STAGES_KEY, useLeadStages, useMoveLeads } from './useLeads';
 
 const PAGE = 30;
 
@@ -35,7 +35,7 @@ const useStageLeads = (recordType: LeadRecordType, stageId: string) => {
   });
 };
 
-const LeadCard = ({ recordType, lead, overlay }: { recordType: LeadRecordType; lead: BoardLead; overlay?: boolean }) => {
+const LeadCard = memo(function LeadCard({ recordType, lead, overlay }: { recordType: LeadRecordType; lead: BoardLead; overlay?: boolean }) {
   const { openRecord } = useSidePanel();
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id, data: { lead } });
   const days = daysSince(lead.leadStageChangedAt);
@@ -80,9 +80,9 @@ const LeadCard = ({ recordType, lead, overlay }: { recordType: LeadRecordType; l
       {lead.source && <span className="w-fit rounded bg-muted px-1.5 py-0.5 text-[11px] capitalize text-muted-foreground">{lead.source}</span>}
     </div>
   );
-};
+});
 
-const StageColumn = ({ recordType, stage }: { recordType: LeadRecordType; stage: LeadStage }) => {
+const StageColumn = memo(function StageColumn({ recordType, stage }: { recordType: LeadRecordType; stage: LeadStage }) {
   const query = useStageLeads(recordType, stage.id);
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
   const leads = query.data?.pages.flatMap((page) => page.data) ?? [];
@@ -115,6 +115,49 @@ const StageColumn = ({ recordType, stage }: { recordType: LeadRecordType; stage:
       </ScrollArea>
     </div>
   );
+});
+
+type Page = { data: BoardLead[]; totalCount: number };
+
+/**
+ * Moves a card between columns right away (and the stage counts), before the
+ * server answers: a drop must land where it was dropped. A refused move is
+ * undone by the refetch that follows every move.
+ */
+const moveOnBoard = async (client: QueryClient, recordType: LeadRecordType, lead: BoardLead, toStageId: string) => {
+  const board = [...(recordType === 'company' ? COMPANIES_KEY : CUSTOMERS_KEY), 'list', 'board'];
+  const from = [...board, lead.leadStageId];
+  const to = [...board, toStageId];
+  const moved = { ...lead, leadStageId: toStageId, leadStageChangedAt: new Date().toISOString() } as BoardLead;
+
+  await Promise.all([client.cancelQueries({ queryKey: from }), client.cancelQueries({ queryKey: to })]);
+  client.setQueriesData<InfiniteData<Page>>({ queryKey: from }, (data) =>
+    data && {
+      ...data,
+      pages: data.pages.map((page, index) => ({
+        ...page,
+        data: page.data.filter((item) => item.id !== lead.id),
+        totalCount: index === 0 ? Math.max(0, page.totalCount - 1) : page.totalCount,
+      })),
+    },
+  );
+  client.setQueriesData<InfiniteData<Page>>({ queryKey: to }, (data) =>
+    data && {
+      ...data,
+      pages: data.pages.map((page, index) => (index === 0 ? { ...page, data: [moved, ...page.data], totalCount: page.totalCount + 1 } : page)),
+    },
+  );
+  client.setQueryData<{ data: LeadStage[] }>(LEAD_STAGES_KEY, (data) => {
+    const field = recordType === 'company' ? 'companyLeadCount' : 'leadCount';
+
+    return (
+      data && {
+        data: data.data.map((stage) =>
+          stage.id === lead.leadStageId ? { ...stage, [field]: Math.max(0, stage[field] - 1) } : stage.id === toStageId ? { ...stage, [field]: stage[field] + 1 } : stage,
+        ),
+      }
+    );
+  });
 };
 
 /**
@@ -125,6 +168,7 @@ const StageColumn = ({ recordType, stage }: { recordType: LeadRecordType; stage:
 export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
   const { stages, loading } = useLeadStages();
   const move = useMoveLeads();
+  const client = useQueryClient();
   const [dragging, setDragging] = useState<BoardLead | null>(null);
   const [disqualify, setDisqualify] = useState<{ id: string; stageId: string } | null>(null);
   // A click opens the lead; only a real drag (6px) moves it.
@@ -138,7 +182,7 @@ export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
 
     if (!lead || !stage || stage.id === lead.leadStageId) return;
     if (stage.kind === 'disqualified') setDisqualify({ id: lead.id, stageId: stage.id });
-    else move.mutate({ recordType, ids: [lead.id], stageId: stage.id });
+    else void moveOnBoard(client, recordType, lead, stage.id).then(() => move.mutate({ recordType, ids: [lead.id], stageId: stage.id }));
   };
 
   if (loading) return <Skeleton className="m-3 h-96" />;
