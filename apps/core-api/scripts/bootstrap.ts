@@ -3,9 +3,10 @@
  * until the sign-in slice exists:
  *   pnpm bootstrap -- --subdomain acme --name "Acme" --email owner@acme.mn --password '…'
  */
-import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
+import { configureDb, runMigrations } from '@erxes/core-db';
 import { parseArgs } from 'node:util';
 import { config } from '~/config';
+import { runCli, say } from './cli';
 import { signAccessToken } from '~/http/auth';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -42,14 +43,9 @@ const main = async () => {
     },
   });
 
-  console.log(`organization ${organization.id} (${organization.subdomain})`);
-  console.log(`owner        ${owner.id} <${owner.email}>`);
-  console.log(`token        ${signAccessToken(owner.id, organization.id)}`);
+  say(`organization ${organization.id} (${organization.subdomain})`);
+  say(`owner        ${owner.id} <${owner.email}>`);
+  say(`token        ${signAccessToken(owner.id, organization.id)}`);
 };
 
-main()
-  .catch((error) => {
-    console.error(error instanceof Error ? error.message : error);
-    process.exitCode = 1;
-  })
-  .finally(() => closeDb());
+runCli(main);

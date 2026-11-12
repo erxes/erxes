@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 import { beforeAll, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { pluginRoleSql } from '../../scripts/plugin-role';
+import { pluginRoleSql } from '~/modules/plugins/pluginRole';
 import { adminDb, describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
 
 /** A plugin's database role can't read, change or drop core data, and can't act as another plugin. */

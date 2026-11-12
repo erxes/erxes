@@ -18,10 +18,10 @@ const delimiterOf = (text: string) => {
     (delimiter) => [delimiter, line.split(delimiter).length - 1] as const,
   );
 
-  return counts.sort((a, b) => b[1] - a[1])[0]![0];
+  return counts.toSorted((a, b) => b[1] - a[1])[0]?.[0] ?? ',';
 };
 
-const cellText = (value: unknown): string => {
+const cellText = (value: string | number | boolean | Date | null | undefined): string => {
   if (value === null || value === undefined) return '';
 
   if (value instanceof Date)
@@ -60,7 +60,9 @@ export const parseSheet = async (
       table = table.map((row) => row.map(cellText));
     }
   } catch (error) {
-    throw new ParseError(`The file could not be read: ${(error as Error).message.slice(0, 200)}`);
+    const reason = error instanceof Error ? error.message : String(error);
+
+    throw new ParseError(`The file could not be read: ${reason.slice(0, 200)}`);
   }
 
   const [header = [], ...rest] = table;

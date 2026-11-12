@@ -3,9 +3,10 @@
  * core's tables, no DDL, no BYPASSRLS. Run as the owner:
  *   pnpm db:grant -- erxes_app            (then set its password and use it in DATA_URL)
  */
-import { closeDb, configureDb, rootDb } from '@erxes/core-db';
+import { configureDb, rootDb } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
+import { runCli, say } from './cli';
 
 const role = process.argv.slice(2).find((arg) => arg !== '--');
 
@@ -29,15 +30,10 @@ const main = async () => {
   `),
   );
   await rootDb().execute(sql`select core_grant_runtime(${role})`);
-  console.log(
+  say(
     `${role}: data access granted. Set a password (ALTER ROLE ${role} PASSWORD '…') and use it in DATA_URL;`,
   );
-  console.log('keep the owner in DATA_MIGRATION_URL for pnpm db:migrate.');
+  say('keep the owner in DATA_MIGRATION_URL for pnpm db:migrate.');
 };
 
-main()
-  .catch((error: unknown) => {
-    console.error(error instanceof Error ? error.message : error);
-    process.exitCode = 1;
-  })
-  .finally(() => closeDb());
+runCli(main);
