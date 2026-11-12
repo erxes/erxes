@@ -22,6 +22,8 @@ export type TestCaller = string | { user: string; org: string } | { plugin: stri
 
 const bearer = (token: string) => ({ authorization: `Bearer ${token}` });
 
+const SESSION = 'erxes_session=';
+
 /**
  * Serves the app on a free port for this test file. `client(caller)` is the
  * typed contract client plugins and the UI use: a call returns the output or
@@ -89,10 +91,37 @@ export const useTestServer = () => {
     return token.access_token;
   };
 
+  /**
+   * The UI's view of core: a client that keeps the session cookie core sets
+   * and sends it back, from core's own origin, the way a browser does.
+   * `cookie()` is that cookie (`erxes_session=…`), or '' before a sign-in.
+   */
+  const browser = () => {
+    let cookie = '';
+
+    const api: CoreClient = createORPCClient(
+      new OpenAPILink(coreContract, {
+        url: () => `${base}${CORE_API_PREFIX}`,
+        headers: () => ({ origin: base, ...(cookie ? { cookie } : {}) }),
+        fetch: async (request, init) => {
+          const response = await fetch(request, init);
+          const session = response.headers.getSetCookie().find((set) => set.startsWith(SESSION));
+
+          if (session !== undefined) cookie = session.split(';')[0] ?? '';
+
+          return response;
+        },
+      }),
+    );
+
+    return { api, cookie: () => cookie };
+  };
+
   return {
     url: (path: string) => `${base}${path}`,
     headers: bearer,
     client,
+    browser,
     pluginToken,
   };
 };
