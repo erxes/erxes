@@ -1,9 +1,11 @@
 import { BlockEditorEditableContext } from '../hooks/useBlockEditorEditable';
 import { BlockEditorComments } from './BlockEditorComments';
-import type { KeyboardEvent, MouseEvent } from 'react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { SuggestionMenuController, TableHandlesController } from '@blocknote/react';
-
+import {
+  keepSelectionOnToolbarClick,
+  useBlockEditorKeys,
+} from 'erxes-ui/modules/blocks/hooks/useBlockEditorKeys';
 import type { BlockEditorProps } from 'erxes-ui/modules/blocks/types/TextEditor';
 import { BlockNoteView } from '@blocknote/shadcn';
 import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
@@ -12,8 +14,6 @@ import { Toolbar } from 'erxes-ui/modules/blocks/components/BlockToolbar';
 import { cn } from 'erxes-ui/lib/utils';
 import { editorUIComponents } from 'erxes-ui/modules/blocks/constant/toolbar/editorUIComponents';
 import { getSlashMenuItems } from 'erxes-ui/modules/blocks/utils/getSlashMenuItems';
-import { isCodeFormattingShortcut } from 'erxes-ui/modules/blocks/utils/toolbar/isCodeFormattingShortcut';
-import { isEmptyBlock } from 'erxes-ui/modules/blocks/utils/isEmptyBlock';
 import { themeState } from 'erxes-ui/state/themeState';
 import { useAtomValue } from 'jotai';
 
@@ -37,64 +37,18 @@ export const BlockEditor = ({
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
-  const deletingText = useRef(false);
+  const editable = !readonly && !disabled;
 
-  const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (
-      readonly ||
-      disabled ||
-      !(e.target instanceof Node) ||
-      !editor.domElement?.contains(e.target)
-    ) {
-      return;
-    }
-
-    if (editor.getActiveStyles().code && isCodeFormattingShortcut(e)) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      return;
-    }
-
-    if (e.key !== 'Backspace' && e.key !== 'Delete') {
-      return;
-    }
-
-    deletingText.current = true;
-
-    const { block, prevBlock, nextBlock, parentBlock } = editor.getTextCursorPosition();
-
-    if (parentBlock || !nextBlock || !isEmptyBlock(block)) {
-      return;
-    }
-
-    if (e.key === 'Backspace' && prevBlock) {
-      return;
-    }
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    editor.removeBlocks([block]);
-    editor.setTextCursorPosition(nextBlock, 'start');
-  };
+  const { onKeyDownCapture, onKeyUpCapture, clearMarksAfterDelete } = useBlockEditorKeys(
+    editor,
+    editable,
+  );
 
   return (
     <div
-      onKeyDownCapture={handleKeyDownCapture}
-      onKeyUpCapture={() => {
-        deletingText.current = false;
-      }}
-      onMouseDownCapture={(event: MouseEvent<HTMLDivElement>) => {
-        if (
-          event.button === 0 &&
-          event.target instanceof Element &&
-          event.target.closest('.bn-formatting-toolbar button:not(:disabled)')
-        ) {
-          // Toolbar clicks must preserve the editor selection for formatting.
-          event.preventDefault();
-        }
-      }}
+      onKeyDownCapture={onKeyDownCapture}
+      onKeyUpCapture={onKeyUpCapture}
+      onMouseDownCapture={keepSelectionOnToolbarClick}
       className={cn(
         'erxes-blocknote',
         'transition-shadow',
@@ -102,7 +56,7 @@ export const BlockEditor = ({
         className,
       )}
     >
-      <BlockEditorEditableContext.Provider value={!readonly && !disabled}>
+      <BlockEditorEditableContext.Provider value={editable}>
         <BlockNoteView
           theme={theme === 'system' ? undefined : theme}
           editor={editor}
@@ -117,20 +71,9 @@ export const BlockEditor = ({
             setFocus(false);
             onBlur?.();
           }}
-          editable={!readonly && !disabled}
+          editable={editable}
           onChange={() => {
-            if (deletingText.current) {
-              deletingText.current = false;
-
-              if (isEmptyBlock(editor.getTextCursorPosition().block)) {
-                const view = editor._tiptapEditor.view;
-
-                if (view) {
-                  view.dispatch(view.state.tr.setStoredMarks([]));
-                }
-              }
-            }
-
+            clearMarksAfterDelete();
             onChange?.();
           }}
           comments={false}

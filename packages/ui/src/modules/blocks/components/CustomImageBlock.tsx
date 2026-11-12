@@ -4,6 +4,7 @@ import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 import {
   createReactBlockSpec,
   ResizableFileBlockWrapper,
+  useBlockNoteEditor,
   useResolveUrl,
   useUploadLoading,
 } from '@blocknote/react';
@@ -34,23 +35,22 @@ export const IMAGE_STYLE_PRESETS: Record<
 };
 
 const getImageStyle = (value?: string): ImageStyle =>
-  (IMAGE_STYLES as readonly string[]).includes(value ?? '') ? (value as ImageStyle) : 'normal';
+  IMAGE_STYLES.find((style) => style === value) ?? 'normal';
+
+// A missing or zero size sets no limit.
+const sizeLimit = (size: number | undefined) => (size !== undefined && size > 0 ? size : Infinity);
 
 const getEditorMaxImageWidth = (
   editor: Pick<ImageRenderProps['editor'], 'domElement'>,
   imageStyle: ImageStyle,
   dimensions?: { width: number; height: number },
-) => {
-  const editorWidth =
-    editor.domElement?.firstElementChild?.clientWidth || IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
-
-  return Math.min(
-    editorWidth,
+) =>
+  Math.min(
+    sizeLimit(editor.domElement?.firstElementChild?.clientWidth),
     IMAGE_STYLE_PRESETS[imageStyle].maxWidth,
-    dimensions?.width || Infinity,
+    sizeLimit(dimensions?.width),
     dimensions?.height ? (dimensions.width / dimensions.height) * MAX_IMAGE_HEIGHT : Infinity,
   );
-};
 
 const getImageStyleFromElement = (element: HTMLElement): ImageStyle => {
   const explicitStyle =
@@ -79,12 +79,9 @@ type ImageRenderProps = ReactCustomBlockRenderProps<
   DefaultStyleSchema
 >;
 
-type FileBlockWrapperProps = Parameters<typeof ResizableFileBlockWrapper>[0];
-
-type FileBlockRenderProps = Omit<FileBlockWrapperProps, 'buttonText' | 'buttonIcon' | 'children'>;
-
-const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
-  props as unknown as FileBlockRenderProps;
+type FileBlockSchema = Parameters<
+  typeof ResizableFileBlockWrapper
+>[0]['editor']['schema']['blockSchema'];
 
 const CustomImagePreview: FC<
   Pick<ImageRenderProps, 'block'> & {
@@ -188,7 +185,7 @@ const getFloatContainerStyle = (imageStyle: ImageStyle, maxWidth: number): CSSPr
 
 const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
   const { url, caption, name, previewWidth } = block.props;
-  const imageStyle = getImageStyle((block.props as { imageStyle?: string }).imageStyle);
+  const imageStyle = getImageStyle(block.props.imageStyle);
 
   if (!url) return <p>Add image</p>;
 
@@ -220,7 +217,9 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
 
 const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
-  const fileProps = toFileBlockProps(props);
+  // The same editor, typed for the file block wrapper: its generic schema doesn't
+  // accept the image block's editor type directly.
+  const fileEditor = useBlockNoteEditor<FileBlockSchema>();
   const imageStyle = getImageStyle(props.block.props.imageStyle);
   const previewWidth = props.block.props.previewWidth;
 
@@ -293,8 +292,8 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
       style={{ maxWidth: `min(100%, ${maxWidth}px)` }}
     >
       <ResizableFileBlockWrapper
-        block={fileProps.block}
-        editor={fileProps.editor}
+        block={props.block}
+        editor={fileEditor}
         buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
         buttonIcon={<IconPhoto size={24} />}
       >
@@ -308,15 +307,14 @@ export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
   render: CustomImageBlockContent,
   toExternalHTML: ExternalImageHtml,
   parse: (element) => {
-    if (element.tagName === 'IMG') {
+    if (element instanceof HTMLImageElement) {
       if (element.closest('figure')) return undefined;
 
-      const img = element as HTMLImageElement;
-      const imageStyle = getImageStyleFromElement(img);
+      const imageStyle = getImageStyleFromElement(element);
 
       return {
-        url: img.src || undefined,
-        previewWidth: img.width || IMAGE_STYLE_PRESETS[imageStyle].previewWidth || undefined,
+        url: element.src || undefined,
+        previewWidth: element.width || IMAGE_STYLE_PRESETS[imageStyle].previewWidth || undefined,
         imageStyle,
       };
     }

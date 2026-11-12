@@ -1,4 +1,5 @@
-import type { TableHandleMenuProps, TableHandleProps } from '@blocknote/react';
+import type { DefaultBlockSchema } from '@blocknote/core';
+import type { DragHandleMenuProps, TableHandleMenuProps, TableHandleProps } from '@blocknote/react';
 import {
   AddButton,
   DeleteButton,
@@ -6,170 +7,70 @@ import {
   TableHandleMenu,
   useBlockNoteEditor,
   useComponentsContext,
-  useDictionary,
 } from '@blocknote/react';
-import { isTableCell, mapTableCell } from '@blocknote/core';
 import { IconGripVertical } from '@tabler/icons-react';
-import type { CSSProperties } from 'react';
-import { useMemo } from 'react';
+import { createContext, useContext } from 'react';
+import { TableColorPicker } from './TableColorPicker';
 
-const COLORS = [
-  'default',
-  'gray',
-  'brown',
-  'red',
-  'orange',
-  'yellow',
-  'green',
-  'blue',
-  'purple',
-  'pink',
-] as const;
+type HandlePosition = Pick<TableHandleMenuProps, 'orientation' | 'index'>;
 
-const ColorIcon = ({
-  backgroundColor = 'default',
-  textColor = 'default',
-}: {
-  backgroundColor?: string;
-  textColor?: string;
-}) => (
-  <span
-    className="bn-color-icon"
-    data-background-color={backgroundColor}
-    data-text-color={textColor}
-    style={
-      {
-        pointerEvents: 'none',
-        fontSize: '13.5px',
-        height: '18px',
-        lineHeight: '18px',
-        textAlign: 'center',
-        width: '18px',
-      } satisfies CSSProperties
-    }
-  >
-    A
-  </span>
-);
+// TableHandle renders its menu with { block, orientation, index }, but types the menu as
+// taking only { block }; the handle's position reaches the menu through this context instead.
+const TableHandlePositionContext = createContext<HandlePosition>({ orientation: 'row', index: 0 });
 
-const TableColorPicker = (props: TableHandleMenuProps) => {
+const DeleteTableItem = ({ blockId }: { blockId: string }) => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
-  const dictionary = useDictionary();
-  const tableHandles = editor.tableHandles;
 
-  const currentCells = useMemo(() => {
-    if (!tableHandles) {
-      return [];
-    }
+  if (!Components) return null;
 
-    return props.orientation === 'row'
-      ? tableHandles.getCellsAtRowHandle(props.block, props.index)
-      : tableHandles.getCellsAtColumnHandle(props.block, props.index);
-  }, [props.block, props.index, props.orientation, tableHandles]);
+  const deleteTable = () => {
+    requestAnimationFrame(() => {
+      const block = editor.getBlock(blockId);
 
-  if (!Components || !tableHandles || !currentCells[0]) {
-    return null;
-  }
+      if (block?.type !== 'table') return;
 
-  const firstCell = mapTableCell(currentCells[0].cell);
+      const {
+        insertedBlocks: [paragraph],
+      } = editor.replaceBlocks([block], [{ type: 'paragraph' }]);
 
-  const updateColor = (color: string, type: 'text' | 'background') => {
-    const rows = props.block.content.rows.map((row) => ({
-      ...row,
-      cells: row.cells.map((cell) => mapTableCell(cell)),
-    }));
-
-    currentCells.forEach(({ row, col }) => {
-      if (type === 'text') {
-        rows[row].cells[col].props.textColor = color;
-      } else {
-        rows[row].cells[col].props.backgroundColor = color;
-      }
+      if (paragraph) editor.setTextCursorPosition(paragraph, 'start');
+      editor.focus();
     });
-
-    editor.updateBlock(props.block, {
-      content: { ...props.block.content, rows },
-    });
-    editor.setTextCursorPosition(props.block);
   };
 
   return (
-    <Components.Generic.Menu.Root position="right" sub>
-      <Components.Generic.Menu.Trigger sub>
-        <Components.Generic.Menu.Item className="bn-menu-item" subTrigger>
-          {dictionary.drag_handle.colors_menuitem}
-        </Components.Generic.Menu.Item>
-      </Components.Generic.Menu.Trigger>
-      <Components.Generic.Menu.Dropdown sub className="bn-menu-dropdown bn-color-picker-dropdown">
-        <Components.Generic.Menu.Label>
-          {dictionary.color_picker.text_title}
-        </Components.Generic.Menu.Label>
-        {COLORS.map((color) => (
-          <Components.Generic.Menu.Item
-            key={`text-color-${color}`}
-            icon={<ColorIcon textColor={color} />}
-            checked={
-              currentCells.every(
-                ({ cell }) =>
-                  isTableCell(cell) && cell.props.textColor === firstCell.props.textColor,
-              ) && firstCell.props.textColor === color
-            }
-            onClick={() => updateColor(color, 'text')}
-          >
-            {dictionary.color_picker.colors[color]}
-          </Components.Generic.Menu.Item>
-        ))}
-        <Components.Generic.Menu.Label>
-          {dictionary.color_picker.background_title}
-        </Components.Generic.Menu.Label>
-        {COLORS.map((color) => (
-          <Components.Generic.Menu.Item
-            key={`background-color-${color}`}
-            icon={<ColorIcon backgroundColor={color} />}
-            checked={
-              currentCells.every(
-                ({ cell }) =>
-                  isTableCell(cell) &&
-                  cell.props.backgroundColor === firstCell.props.backgroundColor,
-              ) && firstCell.props.backgroundColor === color
-            }
-            onClick={() => updateColor(color, 'background')}
-          >
-            {dictionary.color_picker.colors[color]}
-          </Components.Generic.Menu.Item>
-        ))}
-      </Components.Generic.Menu.Dropdown>
-    </Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Item className="bn-menu-item" onClick={deleteTable}>
+      Delete table
+    </Components.Generic.Menu.Item>
   );
 };
 
-const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
+const TableHandleMenuWithRemove = ({
+  block,
+}: DragHandleMenuProps<{ table: DefaultBlockSchema['table'] }>) => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
+  const { orientation, index } = useContext(TableHandlePositionContext);
+  const props = { block, orientation, index };
 
-  if (!Components || !props.block?.content) {
-    return null;
-  }
+  if (!Components) return null;
 
-  const isHeader =
-    props.orientation === 'row'
-      ? Boolean(props.block.content.headerRows)
-      : Boolean(props.block.content.headerCols);
+  const isHeader = Boolean(
+    orientation === 'row' ? block.content.headerRows : block.content.headerCols,
+  );
 
   const toggleHeader = () => {
-    const block = editor.getBlock(props.block.id);
+    const current = editor.getBlock(block.id);
 
-    if (block?.type !== 'table') {
-      return;
-    }
+    if (current?.type !== 'table') return;
 
-    editor.updateBlock(block, {
+    const header = isHeader ? undefined : 1;
+
+    editor.updateBlock(current, {
       content: {
-        ...block.content,
-        ...(props.orientation === 'row'
-          ? { headerRows: isHeader ? undefined : 1 }
-          : { headerCols: isHeader ? undefined : 1 }),
+        ...current.content,
+        ...(orientation === 'row' ? { headerRows: header } : { headerCols: header }),
       },
     });
   };
@@ -177,7 +78,7 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
   return (
     <TableHandleMenu {...props}>
       <DeleteButton {...props} />
-      {props.orientation === 'row' ? (
+      {orientation === 'row' ? (
         <>
           <AddButton {...props} orientation="row" side="above" />
           <AddButton {...props} orientation="row" side="below" />
@@ -188,44 +89,28 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
           <AddButton {...props} orientation="column" side="right" />
         </>
       )}
-      {props.index === 0 && (
+      {index === 0 && (
         <Components.Generic.Menu.Item
           className="bn-menu-item"
           checked={isHeader}
           onClick={toggleHeader}
         >
-          {props.orientation === 'row' ? 'Header row' : 'Header column'}
+          {orientation === 'row' ? 'Header row' : 'Header column'}
         </Components.Generic.Menu.Item>
       )}
       <TableColorPicker {...props} />
       <Components.Generic.Menu.Divider />
-      <Components.Generic.Menu.Item
-        className="bn-menu-item"
-        onClick={() => {
-          requestAnimationFrame(() => {
-            const block = editor.getBlock(props.block.id);
-
-            if (block?.type !== 'table') return;
-
-            const { insertedBlocks } = editor.replaceBlocks([block], [{ type: 'paragraph' }]);
-            editor.setTextCursorPosition(insertedBlocks[0], 'start');
-            editor.focus();
-          });
-        }}
-      >
-        Delete table
-      </Components.Generic.Menu.Item>
+      <DeleteTableItem blockId={block.id} />
     </TableHandleMenu>
   );
 };
 
-export const TableHandleWithRemove = (props: TableHandleProps) => {
-  return (
-    <TableHandle
-      {...props}
-      tableHandleMenu={TableHandleMenuWithRemove as unknown as TableHandleProps['tableHandleMenu']}
-    >
+export const TableHandleWithRemove = (props: TableHandleProps) => (
+  <TableHandlePositionContext.Provider
+    value={{ orientation: props.orientation, index: props.index }}
+  >
+    <TableHandle {...props} tableHandleMenu={TableHandleMenuWithRemove}>
       <IconGripVertical size={24} data-test="tableHandle" />
     </TableHandle>
-  );
-};
+  </TableHandlePositionContext.Provider>
+);

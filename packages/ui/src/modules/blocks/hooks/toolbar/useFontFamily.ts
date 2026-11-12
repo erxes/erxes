@@ -1,3 +1,4 @@
+import { checkBlockIsFileBlock } from '@blocknote/core';
 import { useBlockNoteEditor, useEditorContentOrSelectionChange } from '@blocknote/react';
 import { useState } from 'react';
 import type { IBlockEditor } from 'erxes-ui/modules/blocks/types/TextEditor';
@@ -10,42 +11,23 @@ export const useFontFamily = (): FontFamilyState => {
     IBlockEditor['schema']['styleSchema']
   >();
 
-  const [currentFont, setCurrentFont] = useState(() => {
-    const styles = editor.getActiveStyles();
-
-    return styles.fontFamily || '';
-  });
+  const [currentFont, setCurrentFont] = useState(() => editor.getActiveStyles().fontFamily || '');
 
   const [isFileBlock, setIsFileBlock] = useState(false);
 
   useEditorContentOrSelectionChange(() => {
-    if (!editor) return;
-
-    try {
-      const styles = editor.getActiveStyles();
-      setCurrentFont(styles?.fontFamily || '');
-      const block = editor.getTextCursorPosition()?.block;
-      const blockSpec = block ? editor.schema.blockSpecs[block.type] : null;
-      setIsFileBlock(!!blockSpec?.config?.isFileBlock);
-    } catch {
-      // ignore
-    }
+    setCurrentFont(editor.getActiveStyles().fontFamily || '');
+    setIsFileBlock(checkBlockIsFileBlock(editor.getTextCursorPosition().block, editor));
   }, editor);
 
   const handleFontChange = (fontValue: string) => {
-    if (!editor) return;
-
-    try {
-      if (fontValue === '') {
-        editor.removeStyles({ fontFamily: '' });
-      } else {
-        editor.addStyles({ fontFamily: fontValue });
-      }
-
-      editor.focus();
-    } catch (error) {
-      console.error('Error changing font:', error);
+    if (fontValue === '') {
+      editor.removeStyles({ fontFamily: '' });
+    } else {
+      editor.addStyles({ fontFamily: fontValue });
     }
+
+    editor.focus();
   };
 
   return { currentFont, isFileBlock, handleFontChange };

@@ -2,5 +2,11 @@ import { useContext } from 'react';
 import { FilterContext } from '../context/FilterContext';
 
 export const useFilterContext = () => {
-  return useContext(FilterContext);
+  const context = useContext(FilterContext);
+
+  if (!context) {
+    throw new Error('useFilterContext must be used inside <Filter>');
+  }
+
+  return context;
 };

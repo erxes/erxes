@@ -1,7 +1,12 @@
 import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
 import { fileBlockConfig } from '@blocknote/core';
 import type { ReactCustomBlockRenderProps } from '@blocknote/react';
-import { FileBlockWrapper, createReactBlockSpec, useUploadLoading } from '@blocknote/react';
+import {
+  FileBlockWrapper,
+  createReactBlockSpec,
+  useBlockNoteEditor,
+  useUploadLoading,
+} from '@blocknote/react';
 import { IconFile } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui/components/spinner';
 import type { FC } from 'react';
@@ -13,14 +18,7 @@ type FileRenderProps = ReactCustomBlockRenderProps<
   DefaultStyleSchema
 >;
 
-type FileBlockWrapperProps = Parameters<typeof FileBlockWrapper>[0];
-
-type FileWrapperRenderProps = Omit<FileBlockWrapperProps, 'buttonText' | 'buttonIcon' | 'children'>;
-
-const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps => ({
-  ...props,
-  editor: props.editor as unknown as FileWrapperRenderProps['editor'],
-});
+type FileBlockSchema = Parameters<typeof FileBlockWrapper>[0]['editor']['schema']['blockSchema'];
 
 const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
   const url = readImage(block.props.url);
@@ -45,7 +43,9 @@ const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
 
 const CustomFileBlockContent: FC<FileRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
-  const wrapperProps = toFileWrapperProps(props);
+  // The same editor, typed for FileBlockWrapper: its generic schema doesn't accept
+  // the file block's editor type directly.
+  const fileEditor = useBlockNoteEditor<FileBlockSchema>();
 
   if (loading) {
     return (
@@ -60,7 +60,8 @@ const CustomFileBlockContent: FC<FileRenderProps> = (props) => {
 
   return (
     <FileBlockWrapper
-      {...wrapperProps}
+      block={props.block}
+      editor={fileEditor}
       buttonText={props.editor.dictionary.file_blocks.file.add_button_text}
       buttonIcon={<IconFile size={24} />}
     >

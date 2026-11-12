@@ -1,375 +1,78 @@
-import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
-import type { ReactCustomBlockRenderProps } from '@blocknote/react';
-import { createReactBlockSpec, useResolveUrl } from '@blocknote/react';
-import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
-import type { FC } from 'react';
-import { useRef, useState } from 'react';
-import { cn } from 'erxes-ui/lib/utils';
+import { createReactBlockSpec } from '@blocknote/react';
+import type { CSSProperties } from 'react';
 import { readImage } from 'erxes-ui/utils/core';
-import { Button } from 'erxes-ui/components/button';
-import { Spinner } from 'erxes-ui/components/spinner';
-import { Attachments } from 'erxes-ui/modules/attachments/attachments';
-import { useToast } from 'erxes-ui/hooks/use-toast';
+import type { GalleryRenderProps } from 'erxes-ui/modules/blocks/constant/galleryBlockConfig';
+import { galleryBlockConfig } from 'erxes-ui/modules/blocks/constant/galleryBlockConfig';
+import type { GalleryImage } from 'erxes-ui/modules/blocks/utils/galleryImages';
+import {
+  keyGalleryImages,
+  parseGalleryColumns,
+  parseGalleryImages,
+} from 'erxes-ui/modules/blocks/utils/galleryImages';
+import { GalleryBlockContent } from './GalleryBlockContent';
 
-export interface GalleryImage {
-  url: string;
-  caption?: string;
-}
-
-const COLUMN_OPTIONS = [2, 3, 4] as const;
-
-const galleryBlockConfig = {
-  type: 'gallery' as const,
-  propSchema: {
-    images: {
-      default: '[]' as string,
-    },
-    columns: {
-      default: '3' as string,
-    },
-  },
-  content: 'none' as const,
+const EXTERNAL_IMAGE_STYLE: CSSProperties = {
+  width: '100%',
+  aspectRatio: '1 / 1',
+  objectFit: 'cover',
+  display: 'block',
 };
 
-type GalleryRenderProps = ReactCustomBlockRenderProps<
-  typeof galleryBlockConfig,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema
->;
-
-const parseImages = (raw: string): GalleryImage[] => {
-  try {
-    const parsed = JSON.parse(raw);
-
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const GalleryItem: FC<{
-  image: GalleryImage;
-  readonly: boolean;
-  onRemove: () => void;
-  onPreview: () => void;
-}> = ({ image, readonly, onRemove, onPreview }) => {
-  const { loadingState, downloadUrl } = useResolveUrl(image.url);
-  const isResolving = loadingState === 'loading';
-  const src = downloadUrl ?? image.url;
-
-  return (
-    <div className="relative group aspect-square overflow-hidden rounded-md bg-muted">
-      {isResolving ? (
-        <div className="flex h-full w-full items-center justify-center">
-          <Spinner size="sm" />
-        </div>
-      ) : (
-        <Button
-          variant="ghost"
-          aria-label="Preview image"
-          className="h-full w-full p-0 rounded-none"
-          onClick={onPreview}
-        >
-          <img
-            src={src}
-            alt={image.caption ?? ''}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: 'block',
-            }}
-            draggable={false}
-          />
-        </Button>
-      )}
-
-      {!readonly && (
-        <Button
-          variant="ghost"
-          aria-label="Remove image"
-          className="absolute top-1 right-1 h-5 w-5 p-0 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity [&>svg]:size-3"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={onRemove}
-        >
-          <IconX />
-        </Button>
-      )}
-      {image.caption && (
-        <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-1.5 py-0.5 truncate">
-          {image.caption}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
-  const [uploading, setUploading] = useState(false);
-  const { toast } = useToast();
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const images = parseImages(block.props.images);
-  const columns = Math.max(2, Math.min(4, parseInt(block.props.columns) || 3));
-  const readonly = !editor.isEditable;
-  const uploadFile = editor.uploadFile;
-  const canUpload = Boolean(uploadFile);
-
-  const updateBlock = (patch: Partial<typeof block.props>) => {
-    editor.updateBlock(block, { props: patch });
-  };
-
-  const handleFiles = async (files: FileList | null) => {
-    if (!files?.length || !uploadFile) return;
-    setUploading(true);
-
-    try {
-      const results = await Promise.allSettled(
-        Array.from(files).map(async (file) => {
-          const uploadedFile = await uploadFile(file);
-          const url = typeof uploadedFile === 'string' ? uploadedFile : uploadedFile.props?.url;
-
-          if (typeof url !== 'string' || !url) {
-            throw new Error(`Failed to upload ${file.name}`);
-          }
-
-          return { url };
-        }),
-      );
-
-      const uploaded = results.flatMap((result) =>
-        result.status === 'fulfilled' ? [result.value] : [],
-      );
-
-      const currentBlock = editor.getBlock(block.id);
-
-      if (uploaded.length && currentBlock) {
-        updateBlock({
-          images: JSON.stringify([...parseImages(currentBlock.props.images), ...uploaded]),
-        });
-      }
-
-      const failedNames = Array.from(files)
-        .filter((_, index) => results[index].status === 'rejected')
-        .map((file) => file.name);
-
-      if (failedNames.length) {
-        toast({
-          title: 'Failed to upload gallery images',
-          description: failedNames.join(', '),
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Failed to upload gallery images',
-        description: error instanceof Error ? error.message : 'Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setUploading(false);
-
-      if (inputRef.current) inputRef.current.value = '';
-    }
-  };
-
-  const removeImage = (index: number) => {
-    updateBlock({
-      images: JSON.stringify(images.filter((_, i) => i !== index)),
-    });
-  };
-
-  const setColumns = (n: number) => {
-    updateBlock({ columns: String(n) });
-  };
-
-  let uploadButtonLabel = 'Add more';
-  let uploadButtonIcon = <IconPlus size={15} />;
-
-  if (uploading) {
-    uploadButtonLabel = 'Uploading...';
-    uploadButtonIcon = <IconLoader2 size={15} className="animate-spin" />;
-  } else if (images.length === 0) {
-    uploadButtonLabel = 'Add images to gallery';
-    uploadButtonIcon = <IconPhoto size={15} />;
-  }
-
-  if (readonly && images.length === 0) return null;
-
-  return (
-    <div className="w-full my-1 select-none" contentEditable={false}>
-      {images.length > 0 && (
-        <Attachments.Root
-          initialAttachments={images.map((image) => ({
-            url: image.url,
-            name: image.caption ?? '',
-            type: 'image/*',
-            size: 0,
-          }))}
-        >
-          <Attachments.Preview
-            heading=""
-            className="p-0"
-            renderThumbnails={(openPreview) => (
-              <div
-                className="grid gap-2"
-                style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
-              >
-                {images.map((img, i) => (
-                  <GalleryItem
-                    key={`${img.url}-${i}`}
-                    image={img}
-                    readonly={readonly}
-                    onRemove={() => removeImage(i)}
-                    onPreview={() => openPreview(i)}
-                  />
-                ))}
-              </div>
-            )}
-          />
-        </Attachments.Root>
-      )}
-
-      {!readonly && (
-        <div className="flex items-center gap-2 mt-2">
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={(e) => handleFiles(e.target.files)}
-          />
-
-          {canUpload ? (
-            <Button
-              variant="ghost"
-              disabled={uploading}
-              className="flex-1 h-auto gap-1.5 py-2 text-muted-foreground border border-dashed rounded-md hover:bg-muted"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => inputRef.current?.click()}
-            >
-              {uploadButtonIcon}
-              <span>{uploadButtonLabel}</span>
-            </Button>
-          ) : (
-            images.length === 0 && (
-              <div className="flex flex-1 items-center justify-center gap-1.5 text-sm text-muted-foreground border border-dashed rounded-md px-3 py-2">
-                <IconPhoto size={15} />
-                <span>No upload handler configured</span>
-              </div>
-            )
-          )}
-
-          {images.length > 0 && (
-            <div className="flex items-center gap-1 shrink-0">
-              <IconLayoutGrid size={14} className="text-muted-foreground" />
-              {COLUMN_OPTIONS.map((n) => (
-                <Button
-                  key={n}
-                  variant="ghost"
-                  aria-label={`${n} columns`}
-                  aria-pressed={columns === n}
-                  className={cn(
-                    'h-6 w-6 p-0 text-xs',
-                    columns === n
-                      ? 'bg-primary text-primary-foreground hover:bg-primary'
-                      : 'text-muted-foreground hover:bg-muted',
-                  )}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => setColumns(n)}
-                >
-                  {n}
-                </Button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
-  const images = parseImages(block.props.images);
-  const columns = Math.max(2, Math.min(4, parseInt(block.props.columns) || 3));
+const GalleryExternalHTML = ({ block }: GalleryRenderProps) => {
+  const keyedImages = keyGalleryImages(parseGalleryImages(block.props.images));
+  const columns = parseGalleryColumns(block.props.columns);
 
   return (
     <div
       className="erxes-editor-gallery"
       data-columns={String(columns)}
       style={
-        images.length > 0
-          ? {
-              display: 'grid',
-              gridTemplateColumns: `repeat(${columns}, 1fr)`,
-              gap: '8px',
-            }
+        keyedImages.length > 0
+          ? { display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: '8px' }
           : { display: 'none' }
       }
     >
-      {images.map((img, i) =>
-        img.caption ? (
-          <figure key={`${img.url}-${i}`} style={{ margin: 0 }}>
-            <img
-              src={readImage(img.url)}
-              alt={img.caption}
-              style={{
-                width: '100%',
-                aspectRatio: '1 / 1',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-            />
-            <figcaption>{img.caption}</figcaption>
+      {keyedImages.map(({ image, key }) =>
+        image.caption ? (
+          <figure key={key} style={{ margin: 0 }}>
+            <img src={readImage(image.url)} alt={image.caption} style={EXTERNAL_IMAGE_STYLE} />
+            <figcaption>{image.caption}</figcaption>
           </figure>
         ) : (
-          <img
-            key={`${img.url}-${i}`}
-            src={readImage(img.url)}
-            alt=""
-            style={{
-              width: '100%',
-              aspectRatio: '1 / 1',
-              objectFit: 'cover',
-              display: 'block',
-            }}
-          />
+          <img key={key} src={readImage(image.url)} alt="" style={EXTERNAL_IMAGE_STYLE} />
         ),
       )}
     </div>
   );
 };
 
+// Reads back the HTML GalleryExternalHTML writes.
+const parseGalleryElement = (element: HTMLElement) => {
+  const images: GalleryImage[] = [];
+
+  element.querySelectorAll('figure, img').forEach((el) => {
+    if (el.tagName === 'FIGURE') {
+      const img = el.querySelector('img');
+
+      if (img?.src) {
+        images.push({
+          url: img.src,
+          caption: el.querySelector('figcaption')?.textContent ?? undefined,
+        });
+      }
+    } else if (el instanceof HTMLImageElement && !el.closest('figure') && el.src) {
+      images.push({ url: el.src });
+    }
+  });
+
+  return { images: JSON.stringify(images), columns: element.getAttribute('data-columns') ?? '3' };
+};
+
 export const galleryBlock = createReactBlockSpec(galleryBlockConfig, {
   render: GalleryBlockContent,
   toExternalHTML: GalleryExternalHTML,
-  parse: (element) => {
-    if (element.tagName === 'DIV' && element.classList.contains('erxes-editor-gallery')) {
-      const columns = element.getAttribute('data-columns') ?? '3';
-      const images: GalleryImage[] = [];
-
-      element.querySelectorAll('figure, img').forEach((el) => {
-        if (el.closest('figure') && el.tagName !== 'FIGURE') return;
-
-        if (el.tagName === 'FIGURE') {
-          const img = el.querySelector('img');
-
-          if (img?.src)
-            images.push({
-              url: img.src,
-              caption: el.querySelector('figcaption')?.textContent ?? undefined,
-            });
-        } else {
-          const img = el as HTMLImageElement;
-
-          if (img.src) images.push({ url: img.src });
-        }
-      });
-
-      return { images: JSON.stringify(images), columns };
-    }
-
-    return undefined;
-  },
+  parse: (element) =>
+    element.tagName === 'DIV' && element.classList.contains('erxes-editor-gallery')
+      ? parseGalleryElement(element)
+      : undefined,
 });

@@ -11,11 +11,13 @@ export const ToolbarFormattingButton = forwardRef<HTMLButtonElement, ToolbarForm
     const codeIncompatible = CODE_INCOMPATIBLE_CONTROLS.includes(props['data-test'] ?? '');
     const disabledByCode = codeActive && codeIncompatible;
 
+    const isDisabled = props.isDisabled === true || disabledByCode;
+
     const buttonProps = {
       ...props,
       ref,
-      disabled: props.disabled || props.isDisabled || disabledByCode,
-      isDisabled: props.isDisabled || disabledByCode,
+      disabled: props.disabled === true || isDisabled,
+      isDisabled,
       isSelected: disabledByCode && props.isSelected !== undefined ? false : props.isSelected,
     };
 

@@ -1,5 +1,4 @@
 import {
-  IconCode,
   IconFile,
   IconH1,
   IconH2,
@@ -34,18 +33,16 @@ export const SlashMenu = ({
           onClick={() => onItemClick?.(item)}
         >
           <span className="flex items-center gap-2 [&>svg]:size-4 [&>svg]:shrink-0">
-            {icons[item.title as keyof typeof icons] ?? item.icon}
+            {icons.get(item.title) ?? item.icon}
             {item.title}
           </span>
-          <p className="text-[11px] font-normal text-muted-foreground">
+          <span className="text-[11px] font-normal text-muted-foreground">
             {item.badge?.replace(/-/g, ' ')}
-          </p>
+          </span>
         </SuggestionMenuItem>
       ))}
       {loadingState !== 'loaded' && (
-        <p role="status" className="p-2 text-sm text-muted-foreground">
-          Loading commands…
-        </p>
+        <output className="block p-2 text-sm text-muted-foreground">Loading commands…</output>
       )}
       {loadingState === 'loaded' && items.length === 0 && (
         <p className="p-2 text-sm text-muted-foreground">No commands found.</p>
@@ -54,20 +51,21 @@ export const SlashMenu = ({
   );
 };
 
-const icons = {
-  'Heading 1': <IconH1 />,
-  'Heading 2': <IconH2 />,
-  'Heading 3': <IconH3 />,
-  'Numbered List': <IconListNumbers />,
-  'Bullet List': <IconList />,
-  'Check List': <IconListCheck />,
-  Paragraph: <IconLetterT />,
-  Table: <IconTable />,
-  Image: <IconPhoto />,
-  Gallery: <IconLayoutGrid />,
-  Video: <IconVideo />,
-  Audio: <IconMicrophone />,
-  File: <IconFile />,
-  Emoji: <IconMoodHappy />,
-  Quote: <IconQuote />,
-};
+// Our icons for BlockNote's default slash menu items, by item title.
+const icons = new Map([
+  ['Heading 1', <IconH1 key="h1" />],
+  ['Heading 2', <IconH2 key="h2" />],
+  ['Heading 3', <IconH3 key="h3" />],
+  ['Numbered List', <IconListNumbers key="numbered-list" />],
+  ['Bullet List', <IconList key="bullet-list" />],
+  ['Check List', <IconListCheck key="check-list" />],
+  ['Paragraph', <IconLetterT key="paragraph" />],
+  ['Table', <IconTable key="table" />],
+  ['Image', <IconPhoto key="image" />],
+  ['Gallery', <IconLayoutGrid key="gallery" />],
+  ['Video', <IconVideo key="video" />],
+  ['Audio', <IconMicrophone key="audio" />],
+  ['File', <IconFile key="file" />],
+  ['Emoji', <IconMoodHappy key="emoji" />],
+  ['Quote', <IconQuote key="quote" />],
+]);

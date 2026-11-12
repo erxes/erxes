@@ -7,8 +7,26 @@ import { themeState } from 'erxes-ui/state/themeState';
 import { parseBlocks } from '../utils/parseBlocks';
 import DOMPurify from 'dompurify';
 import { cn } from 'erxes-ui/lib/utils';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { mergeRefs } from 'react-merge-refs';
 import { readImage } from '../../../utils/core';
+
+// Content saved as HTML (not blocks) renders as sanitized DOM nodes.
+const SanitizedHtml = React.forwardRef<HTMLDivElement, { html: string; className?: string }>(
+  ({ html, className }, ref) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      containerRef.current?.replaceChildren(
+        DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true }),
+      );
+    }, [html]);
+
+    return <div className={className} ref={mergeRefs([containerRef, ref])} />;
+  },
+);
+
+SanitizedHtml.displayName = 'SanitizedHtml';
 
 export const BlockEditorReadOnly = React.forwardRef<
   HTMLDivElement,
@@ -37,16 +55,8 @@ export const BlockEditorReadOnly = React.forwardRef<
     }
   }, [editor, content]);
 
-  const sanitized = useMemo(() => (content ? DOMPurify.sanitize(content) : ''), [content]);
-
   if (!contentBlocks) {
-    if (content) {
-      return (
-        <div dangerouslySetInnerHTML={{ __html: sanitized }} className={className} ref={ref} />
-      );
-    }
-
-    return null;
+    return content ? <SanitizedHtml html={content} className={className} ref={ref} /> : null;
   }
 
   return (
