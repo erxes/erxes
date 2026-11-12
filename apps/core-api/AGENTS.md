@@ -15,7 +15,11 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
   `coreApi`.
 - `src/rpc.ts` serves the contract (`coreApi`), maps invalid input to `INVALID_INPUT` and holds
   `generateOpenApi()`, which serves `/core/v1/openapi.json` and writes `packages/contract/openapi.json`.
-- `src/router.ts` implements `coreContract`. It is the only file that may import `implement`/`os`.
+- `src/orpc.ts` is the only file that may import `implement`/`os`. It holds the procedure builders
+  (`pub`, `authed`, `plugin`, `anyone`), the access check and organisation scope every procedure
+  passes, and `audited`.
+- `src/modules/<feature>/<feature>.router.ts` implements that feature's procedures with those
+  builders. `src/router.ts` only assembles the feature routers into `coreRouter`.
 - `src/modules/<feature>/<feature>.service.ts` has the logic. `<feature>.http.ts` is only for
   Express routes that stream bytes, files or events (file links, audit export, `/core/v1/stream`).
 - `src/http/` has auth (`actorOf`, `pluginOf`, `callerOf`, `requireManager`), the access map
@@ -29,9 +33,9 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
 ## How a request flows
 
 contract procedure (`packages/contract/src/<domain>.ts`) → its policy in `ACCESS`
-(`src/http/access.ts`) → handler in `src/router.ts`
+(`src/http/access.ts`) → handler in `src/modules/<feature>/<feature>.router.ts`
 (`authed`, `plugin` or `anyone` builder) → service (`client: Db`, the `Actor` or `Caller`, input) →
-DTO. Copy the `tags` procedures: `tags.service.ts` and the `tags:` block in `router.ts`.
+DTO. Copy the `tags` procedures: `modules/tags/tags.service.ts` and `modules/tags/tags.router.ts`.
 
 ## Rules
 

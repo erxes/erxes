@@ -16,7 +16,7 @@ import { authed } from '~/orpc';
 export const transferRouter = {
   columns: authed.transfer.columns.handler(async ({ input, context }) => ({
     data: (await transferColumns(db(), context.actor.orgId, input.recordType)).map(
-      ({ aliases: _aliases, fieldType: _fieldType, ...column }) => column,
+      ({ aliases, fieldType, ...column }) => column,
     ),
   })),
   imports: authed.transfer.imports.handler(({ context }) => listImports(db(), context.actor)),

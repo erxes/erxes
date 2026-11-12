@@ -279,8 +279,8 @@ export const listCompanies = async (
   return { ...page, data: page.data.map(toCompanyDto) };
 };
 
-export const getCompany = async (client: Db, actor: Actor, id: string) =>
-  toCompanyDto(await findCompany(client, actor.orgId, id, true));
+export const getCompany = async (client: Db, orgId: string, id: string) =>
+  toCompanyDto(await findCompany(client, orgId, id, true));
 
 const scalarFields = (input: CompanyInput) => {
   const {

@@ -1,5 +1,4 @@
 import { db } from '@erxes/core-db';
-import { type Actor } from '~/http/auth';
 import {
   companyPeople,
   createCompany,
@@ -18,7 +17,7 @@ export const companiesRouter = {
     listCompanies(db(), context.actor, input),
   ),
   get: anyone.companies.get.handler(({ input, context }) =>
-    getCompany(db(), { orgId: context.caller.orgId } as Actor, input.id),
+    getCompany(db(), context.caller.orgId, input.id),
   ),
   create: authed.companies.create.handler(({ input, context }) =>
     createCompany(db(), context.actor, input),

@@ -1,5 +1,4 @@
 import { db } from '@erxes/core-db';
-import { type Actor } from '~/http/auth';
 import {
   createCustomer,
   findOrCreateCustomer,
@@ -20,7 +19,7 @@ export const customersRouter = {
     listCustomers(db(), context.actor, input),
   ),
   get: anyone.customers.get.handler(({ input, context }) =>
-    getCustomer(db(), { orgId: context.caller.orgId } as Actor, input.id),
+    getCustomer(db(), context.caller.orgId, input.id),
   ),
   findOrCreate: anyone.customers.findOrCreate.handler(({ input, context }) =>
     findOrCreateCustomer(db(), context.caller, input),

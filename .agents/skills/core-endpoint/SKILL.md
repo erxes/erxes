@@ -1,10 +1,10 @@
 ---
 name: core-endpoint
-description: Add or change a core API endpoint under /core/v1. Use when editing a procedure in packages/contract/src, the handlers in apps/core-api/src/router.ts, a *.service.ts in apps/core-api/src/modules, or when core-ui calls a new endpoint.
+description: Add or change a core API endpoint under /core/v1. Use when editing a procedure in packages/contract/src, the handlers in apps/core-api/src/modules/<feature>/<feature>.router.ts, a *.service.ts in apps/core-api/src/modules, or when core-ui calls a new endpoint.
 ---
 
 Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts`,
-`apps/core-api/src/modules/tags/tags.service.ts`, the `tags:` block in `apps/core-api/src/router.ts`,
+`apps/core-api/src/modules/tags/tags.service.ts`, `apps/core-api/src/modules/tags/tags.router.ts`,
 `apps/core-ui/src/modules/tags/useTags.ts`, and the `tags` tests in `apps/core-api/src/__tests__/contacts.test.ts`.
 
 1. Declare the procedure in `packages/contract/src/<domain>.ts`:
@@ -17,9 +17,11 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    `eq(table.orgId, actor.orgId)`, and returns a DTO without credentials or `org_id`. Owner or
    admin only: `requireManager(actor, message)`. Failures throw `HttpError(status, CODE, message)`.
 3. Give it a policy in `ACCESS` (`apps/core-api/src/http/access.ts`): `MEMBER`, `MANAGER`, `OWNER`,
-   `PUBLIC` or `{ plugin: '<scope>' }`; the type check fails until it has one. Add the handler in
-   `router.ts`: `authed.<group>.<name>.handler(({ input, context }) => ...)` for members, `plugin`
-   for plugin tokens, `anyone` for both. Wrap a write in `audited(context.actor, (tx) => ..., entry)`
+   `PUBLIC` or `{ plugin: '<scope>' }`; the type check fails until it has one. Add the handler to
+   `modules/<feature>/<feature>.router.ts` with the builders from `src/orpc.ts`:
+   `authed.<group>.<name>.handler(({ input, context }) => ...)` for members, `plugin` for plugin
+   tokens, `anyone` for both, `pub` for public procedures. A new group's router goes into
+   `coreRouter` in `src/router.ts`. Wrap a write in `audited(context.actor, (tx) => ..., entry)`
    so the change and its audit entry share a transaction. Core events go out in that transaction
    with `publishCoreEvents(tx, ...)`.
 4. Call it from core-ui with `api.<group>.<name>()` from `~/lib/api` inside `useQuery` or

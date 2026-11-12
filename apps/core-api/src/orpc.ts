@@ -46,16 +46,6 @@ export const anyone = pub.use(({ context, next }) =>
   next({ context: { caller: callerOf(context.req), actor: context.req.actor ?? null } }),
 );
 
-const labelOf = (value: unknown) => {
-  const record = value as { label?: unknown; name?: unknown } | null;
-
-  return typeof record?.label === 'string'
-    ? record.label
-    : typeof record?.name === 'string'
-      ? record.name
-      : null;
-};
-
 /**
  * Runs a settings change and its audit entry in one transaction: both are
  * saved, or neither.
@@ -73,14 +63,15 @@ export const audited = <T>(
     return result;
   });
 
+/** An audit entry for `<targetType>.<action>`, labelled with the record's label or name. */
 export const recordOf = (
   targetType: string,
   action: string,
   id: string,
-  result?: unknown,
+  record?: { label?: string; name?: string },
 ): AuditInput => ({
   action: `${targetType}.${action}`,
   targetType,
   targetId: id,
-  targetLabel: labelOf(result),
+  targetLabel: record?.label ?? record?.name ?? null,
 });
