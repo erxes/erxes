@@ -1200,6 +1200,254 @@
       }
     }
   },
+  "sales": {
+    "deal": {
+      "name": "Хэлцлүүд",
+      "description": "Хэлцлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл хариуцсан хэлцэл",
+        "group": "Хэрэглэгчийн хэлтсийн хэлцэл",
+        "all": "Бүх хэлцэл"
+      },
+      "actions": {
+        "showDeals": {
+          "title": "Хэлцэл харах",
+          "description": "Хэлцэл харах"
+        },
+        "dealsAdd": {
+          "title": "Хэлцэл нэмэх",
+          "description": "Хэлцэл үүсгэх"
+        },
+        "dealsEdit": {
+          "title": "Хэлцэл засах",
+          "description": "Хэлцэл засах"
+        },
+        "dealsProductsEdit": {
+          "title": "Хэлцлийн бүтээгдэхүүний үнэ засах",
+          "description": "Хэлцэл дэх бүтээгдэхүүний нэгж үнийг өөрчлөх"
+        },
+        "dealsProductsDelete": {
+          "title": "Хэлцлийн бүтээгдэхүүн устгах",
+          "description": "Хэлцлээс бүтээгдэхүүн хасах"
+        },
+        "dealsRemove": {
+          "title": "Хэлцэл устгах",
+          "description": "Хэлцэл устгах"
+        },
+        "dealsWatch": {
+          "title": "Хэлцэл хянах",
+          "description": "Хэлцэл хянах"
+        },
+        "dealsArchive": {
+          "title": "Хэлцэл архивлах",
+          "description": "Хэлцэл архивлах / архивлалтыг цуцлах"
+        },
+        "dealsExportManage": {
+          "title": "Хэлцэл экспортлох",
+          "description": "Хэлцэл экспортлох"
+        }
+      }
+    },
+    "board": {
+      "name": "Боардууд",
+      "description": "Боардын удирдлага",
+      "scopes": {
+        "all": "Бүх боард"
+      },
+      "actions": {
+        "boardsAdd": {
+          "title": "Боард нэмэх",
+          "description": "Боард үүсгэх"
+        },
+        "boardsArchive": {
+          "title": "Боард архивлах / архивлалтыг цуцлах",
+          "description": "Боард, түүний дамжлага, хэлцлүүдийг архивлах; боардын архивлалтыг цуцлах"
+        },
+        "boardsEdit": {
+          "title": "Боард засах",
+          "description": "Боард засах"
+        },
+        "boardsRemove": {
+          "title": "Боард устгах",
+          "description": "Боард устгах"
+        },
+        "updateTimeTracking": {
+          "title": "Цаг бүртгэл шинэчлэх",
+          "description": "Боардын бичлэгийн цаг бүртгэлийг шинэчлэх"
+        }
+      }
+    },
+    "pipeline": {
+      "name": "Дамжлагууд",
+      "description": "Дамжлагын удирдлага",
+      "scopes": {
+        "all": "Бүх дамжлага"
+      },
+      "actions": {
+        "pipelinesAdd": {
+          "title": "Дамжлага нэмэх",
+          "description": "Дамжлага үүсгэх"
+        },
+        "pipelinesEdit": {
+          "title": "Дамжлага засах",
+          "description": "Дамжлага засах"
+        },
+        "pipelinesWatch": {
+          "title": "Дамжлага хянах",
+          "description": "Дамжлага хянах"
+        }
+      }
+    },
+    "stage": {
+      "name": "Үе шатууд",
+      "description": "Үе шатын удирдлага",
+      "scopes": {
+        "all": "Бүх үе шат"
+      },
+      "actions": {
+        "stagesEdit": {
+          "title": "Үе шат засах",
+          "description": "Үе шат засах"
+        },
+        "stagesRemove": {
+          "title": "Үе шат устгах",
+          "description": "Үе шат устгах"
+        },
+        "itemsSort": {
+          "title": "Үе шат дахь бичлэгийг эрэмбэлэх",
+          "description": "Үе шат дахь бичлэгүүдийг эрэмбэлэх"
+        }
+      }
+    },
+    "checklist": {
+      "name": "Жагсаалтууд",
+      "description": "Жагсаалтын удирдлага",
+      "scopes": {
+        "all": "Бүх жагсаалт"
+      },
+      "actions": {
+        "checklistsAdd": {
+          "title": "Жагсаалт нэмэх",
+          "description": "Жагсаалт үүсгэх"
+        },
+        "checklistsEdit": {
+          "title": "Жагсаалт засах",
+          "description": "Жагсаалт засах (мөрийн өөрчлөлтийг оруулаад)"
+        },
+        "checklistsRemove": {
+          "title": "Жагсаалт устгах",
+          "description": "Жагсаалт устгах"
+        }
+      }
+    },
+    "pipelineLabel": {
+      "name": "Дамжлагын шошгонууд",
+      "description": "Дамжлагын шошгоны удирдлага",
+      "scopes": {
+        "all": "Бүх дамжлагын шошго"
+      },
+      "actions": {
+        "pipelineLabelsAdd": {
+          "title": "Дамжлагын шошго нэмэх",
+          "description": "Дамжлагын шошго үүсгэх"
+        },
+        "pipelineLabelsEdit": {
+          "title": "Дамжлагын шошго засах",
+          "description": "Дамжлагын шошго засах"
+        },
+        "pipelineLabelsRemove": {
+          "title": "Дамжлагын шошго устгах",
+          "description": "Дамжлагын шошго устгах"
+        }
+      }
+    },
+    "pipelineTemplate": {
+      "name": "Дамжлагын загварууд",
+      "description": "Дамжлагын загварын удирдлага",
+      "scopes": {
+        "all": "Бүх дамжлагын загвар"
+      },
+      "actions": {
+        "showTemplates": {
+          "title": "Загвар харах",
+          "description": "Дамжлагын загвар харах"
+        },
+        "templatesAdd": {
+          "title": "Загвар нэмэх",
+          "description": "Загвар үүсгэх"
+        },
+        "templatesEdit": {
+          "title": "Загвар засах",
+          "description": "Загвар засах"
+        },
+        "templatesRemove": {
+          "title": "Загвар устгах",
+          "description": "Загвар устгах"
+        }
+      }
+    },
+    "pos": {
+      "name": "ПОС",
+      "description": "ПОС-ийн удирдлага",
+      "scopes": {
+        "all": "ПОС-ийн бүх өгөгдөл"
+      },
+      "actions": {
+        "posRead": {
+          "title": "ПОС-ийн дэлгэрэнгүй харах",
+          "description": "ПОС-ийн тохиргоо харах"
+        },
+        "posOrderRead": {
+          "title": "Захиалга харах",
+          "description": "ПОС-ийн захиалга харах"
+        },
+        "posCoversRead": {
+          "title": "Хаалт харах",
+          "description": "ПОС-ийн хаалт харах"
+        },
+        "posAdd": {
+          "title": "ПОС нэмэх",
+          "description": "Шинэ ПОС үүсгэх"
+        },
+        "posEdit": {
+          "title": "ПОС засах",
+          "description": "ПОС шинэчлэх"
+        },
+        "posRemove": {
+          "title": "ПОС устгах",
+          "description": "ПОС устгах"
+        },
+        "posOrderChangePayments": {
+          "title": "Захиалгын төлбөр өөрчлөх",
+          "description": "Захиалгын төлбөрийг өөрчлөх"
+        },
+        "productGroupsBulkInsert": {
+          "title": "Бүтээгдэхүүний бүлэг удирдах",
+          "description": "Бүтээгдэхүүний бүлгүүдийг бөөнөөр шинэчлэх"
+        },
+        "posSlotBulkUpdate": {
+          "title": "Слот удирдах",
+          "description": "ПОС-ийн слотуудыг бөөнөөр шинэчлэх"
+        },
+        "posCoversEdit": {
+          "title": "Хаалт засах",
+          "description": "ПОС-ийн хаалт засах"
+        },
+        "posCoversRemove": {
+          "title": "Хаалт устгах",
+          "description": "ПОС-ийн хаалт устгах"
+        },
+        "posItemsExportManage": {
+          "title": "ПОС бичилт экспортлох",
+          "description": "ПОС бичилт экспортлох"
+        },
+        "posOrdersExportManage": {
+          "title": "ПОС захиалга экспортлох",
+          "description": "ПОС захиалга экспортлох"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Санхүүгийн плагинд бүрэн хандах эрх"
@@ -1215,6 +1463,15 @@
     },
     "core:viewer": {
       "description": "Бүх Core модулийг зөвхөн харах эрх, өөрийн өгөгдлийг өөрчилж болно"
+    },
+    "sales:admin": {
+      "description": "Борлуулалтын плагинд бүрэн хандах эрх"
+    },
+    "sales:user": {
+      "description": "Борлуулалтын багийн энгийн гишүүн"
+    },
+    "sales:viewer": {
+      "description": "Хэлцэл болон ПОС-ийг зөвхөн харах эрх"
     }
   }
 }

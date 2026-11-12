@@ -1200,6 +1200,254 @@
       }
     }
   },
+  "sales": {
+    "deal": {
+      "name": "Deals",
+      "description": "Deals management",
+      "scopes": {
+        "own": "Deals created by or assigned to user",
+        "group": "Deals in user departments",
+        "all": "All deals"
+      },
+      "actions": {
+        "showDeals": {
+          "title": "View deals",
+          "description": "View deals"
+        },
+        "dealsAdd": {
+          "title": "Add deals",
+          "description": "Create deals"
+        },
+        "dealsEdit": {
+          "title": "Edit deals",
+          "description": "Edit deals"
+        },
+        "dealsProductsEdit": {
+          "title": "Edit deal product prices",
+          "description": "Change the unit price of products on deals"
+        },
+        "dealsProductsDelete": {
+          "title": "Delete deal products",
+          "description": "Remove products from deals"
+        },
+        "dealsRemove": {
+          "title": "Remove deals",
+          "description": "Delete deals"
+        },
+        "dealsWatch": {
+          "title": "Watch deals",
+          "description": "Watch deals"
+        },
+        "dealsArchive": {
+          "title": "Archive deals",
+          "description": "Archive / unarchive deals"
+        },
+        "dealsExportManage": {
+          "title": "Export deals",
+          "description": "Export deals"
+        }
+      }
+    },
+    "board": {
+      "name": "Boards",
+      "description": "Board management",
+      "scopes": {
+        "all": "All boards"
+      },
+      "actions": {
+        "boardsAdd": {
+          "title": "Add boards",
+          "description": "Create boards"
+        },
+        "boardsArchive": {
+          "title": "Archive / unarchive boards",
+          "description": "Archive boards and their pipelines and deals; unarchive boards"
+        },
+        "boardsEdit": {
+          "title": "Edit boards",
+          "description": "Edit boards"
+        },
+        "boardsRemove": {
+          "title": "Remove boards",
+          "description": "Remove boards"
+        },
+        "updateTimeTracking": {
+          "title": "Update time tracking",
+          "description": "Update time tracking on board items"
+        }
+      }
+    },
+    "pipeline": {
+      "name": "Pipelines",
+      "description": "Pipeline management",
+      "scopes": {
+        "all": "All pipelines"
+      },
+      "actions": {
+        "pipelinesAdd": {
+          "title": "Add pipelines",
+          "description": "Create pipelines"
+        },
+        "pipelinesEdit": {
+          "title": "Edit pipelines",
+          "description": "Edit pipelines"
+        },
+        "pipelinesWatch": {
+          "title": "Watch pipelines",
+          "description": "Watch pipelines"
+        }
+      }
+    },
+    "stage": {
+      "name": "Stages",
+      "description": "Stage management",
+      "scopes": {
+        "all": "All stages"
+      },
+      "actions": {
+        "stagesEdit": {
+          "title": "Edit stages",
+          "description": "Edit stages"
+        },
+        "stagesRemove": {
+          "title": "Remove stages",
+          "description": "Remove stages"
+        },
+        "itemsSort": {
+          "title": "Sort items in stage",
+          "description": "Sort items in a stage"
+        }
+      }
+    },
+    "checklist": {
+      "name": "Checklists",
+      "description": "Checklist management",
+      "scopes": {
+        "all": "All checklists"
+      },
+      "actions": {
+        "checklistsAdd": {
+          "title": "Add checklists",
+          "description": "Create checklists"
+        },
+        "checklistsEdit": {
+          "title": "Edit checklists",
+          "description": "Edit checklists (includes item changes)"
+        },
+        "checklistsRemove": {
+          "title": "Remove checklists",
+          "description": "Remove checklists"
+        }
+      }
+    },
+    "pipelineLabel": {
+      "name": "Pipeline labels",
+      "description": "Pipeline label management",
+      "scopes": {
+        "all": "All pipeline labels"
+      },
+      "actions": {
+        "pipelineLabelsAdd": {
+          "title": "Add pipeline labels",
+          "description": "Create pipeline labels"
+        },
+        "pipelineLabelsEdit": {
+          "title": "Edit pipeline labels",
+          "description": "Edit pipeline labels"
+        },
+        "pipelineLabelsRemove": {
+          "title": "Remove pipeline labels",
+          "description": "Remove pipeline labels"
+        }
+      }
+    },
+    "pipelineTemplate": {
+      "name": "Pipeline templates",
+      "description": "Pipeline template management",
+      "scopes": {
+        "all": "All pipeline templates"
+      },
+      "actions": {
+        "showTemplates": {
+          "title": "View templates",
+          "description": "View pipeline templates"
+        },
+        "templatesAdd": {
+          "title": "Add templates",
+          "description": "Create templates"
+        },
+        "templatesEdit": {
+          "title": "Edit templates",
+          "description": "Edit templates"
+        },
+        "templatesRemove": {
+          "title": "Remove templates",
+          "description": "Remove templates"
+        }
+      }
+    },
+    "pos": {
+      "name": "POS",
+      "description": "Point of Sale management",
+      "scopes": {
+        "all": "All POS data"
+      },
+      "actions": {
+        "posRead": {
+          "title": "View POS details",
+          "description": "View POS configuration"
+        },
+        "posOrderRead": {
+          "title": "View orders",
+          "description": "View POS orders"
+        },
+        "posCoversRead": {
+          "title": "View covers",
+          "description": "View POS covers"
+        },
+        "posAdd": {
+          "title": "Add POS",
+          "description": "Create a new POS"
+        },
+        "posEdit": {
+          "title": "Edit POS",
+          "description": "Update POS"
+        },
+        "posRemove": {
+          "title": "Remove POS",
+          "description": "Delete POS"
+        },
+        "posOrderChangePayments": {
+          "title": "Change order payments",
+          "description": "Modify order payments"
+        },
+        "productGroupsBulkInsert": {
+          "title": "Manage product groups",
+          "description": "Bulk update product groups"
+        },
+        "posSlotBulkUpdate": {
+          "title": "Manage slots",
+          "description": "Bulk update POS slots"
+        },
+        "posCoversEdit": {
+          "title": "Edit covers",
+          "description": "Edit POS covers"
+        },
+        "posCoversRemove": {
+          "title": "Remove covers",
+          "description": "Remove POS covers"
+        },
+        "posItemsExportManage": {
+          "title": "Export POS items",
+          "description": "Export POS items"
+        },
+        "posOrdersExportManage": {
+          "title": "Export POS orders",
+          "description": "Export POS orders"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Full access to Accounting plugin"
@@ -1215,6 +1463,15 @@
     },
     "core:viewer": {
       "description": "Read-only access to all Core modules, with own-data mutations"
+    },
+    "sales:admin": {
+      "description": "Full access to Sales plugin"
+    },
+    "sales:user": {
+      "description": "Standard sales team member"
+    },
+    "sales:viewer": {
+      "description": "Read‑only access to deals and POS"
     }
   }
 }
