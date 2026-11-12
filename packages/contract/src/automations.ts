@@ -26,6 +26,27 @@ export const Automation = z.object({
 
 export type Automation = z.infer<typeof Automation>;
 
+/** A path conditions and placeholders can read, with how its values compare. */
+export const AutomationFieldPath = z.object({
+  path: z.string(),
+  label: z.string(),
+  type: z.enum(['text', 'number', 'date', 'boolean', 'list', 'member', 'tags', 'select']),
+  options: z.array(z.string()).optional(),
+});
+
+export type AutomationFieldPath = z.infer<typeof AutomationFieldPath>;
+
+/** One step of a dry run: what it would do, and what would stop it. */
+export const DryRunStep = z.object({
+  stepId: z.string(),
+  type: z.string(),
+  outcome: z.string(),
+  input: z.unknown().nullable(),
+  problem: z.string().nullable(),
+});
+
+export type DryRunStep = z.infer<typeof DryRunStep>;
+
 const Fields = {
   name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(500).nullable().optional(),
@@ -135,15 +156,7 @@ export const automationsContract = {
       z.object({
         triggerMatches: z.boolean(),
         goalMetAtStart: z.boolean(),
-        trace: z.array(
-          z.object({
-            stepId: z.string(),
-            type: z.string(),
-            outcome: z.string(),
-            input: z.unknown().nullable(),
-            problem: z.string().nullable(),
-          }),
-        ),
+        trace: z.array(DryRunStep),
       }),
     ),
   stats: oc
@@ -229,14 +242,7 @@ export const automationsContract = {
     .input(z.object({ subject: z.enum(['customer', 'company']).optional() }))
     .output(
       z.object({
-        data: z.array(
-          z.object({
-            path: z.string(),
-            label: z.string(),
-            type: z.enum(['text', 'number', 'date', 'boolean', 'list', 'member', 'tags', 'select']),
-            options: z.array(z.string()).optional(),
-          }),
-        ),
+        data: z.array(AutomationFieldPath),
       }),
     ),
   remove: oc

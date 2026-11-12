@@ -30,7 +30,6 @@ export {
   eventFailures,
   eventConsumers,
   events,
-  SUBJECT_TYPES,
   FILE_STATUSES,
   files,
   JOB_STATUSES,

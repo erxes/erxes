@@ -37,24 +37,25 @@ import {
 } from '~/modules/auth/tokens.service';
 import {
   activateAutomation,
-  automationCatalog,
-  automationFields,
-  automationStats,
-  listVersions,
-  restoreVersion,
-  startAutomation,
-  testAutomation,
-  cancelAutomationRun,
   createAutomation,
   getAutomation,
-  getRun,
   listAutomations,
-  listRuns,
+  listVersions,
   pauseAutomation,
   removeAutomation,
-  retryAutomationRun,
+  restoreVersion,
   updateAutomation,
 } from '~/modules/automations/automations.service';
+import { automationCatalog, automationFields } from '~/modules/automations/definitions';
+import { testAutomation } from '~/modules/automations/dryRun';
+import {
+  automationStats,
+  cancelAutomationRun,
+  getRun,
+  listRuns,
+  retryAutomationRun,
+  startAutomation,
+} from '~/modules/automations/runs.service';
 import {
   createWebhook,
   eventTypeCatalog,

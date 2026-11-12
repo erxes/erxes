@@ -11,7 +11,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { createdAt, updatedAt } from './common';
+import { CONTENT_TYPES, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
@@ -98,7 +98,7 @@ export const automationRuns = pgTable(
     version: integer().notNull(),
     eventId: text().notNull(),
     eventType: text().notNull(),
-    subjectType: text(),
+    subjectType: text({ enum: CONTENT_TYPES }),
     subjectId: text(),
     status: text({ enum: RUN_STATUSES }).default('running').notNull(),
     /** The next step: indexes into the step tree (`[2, "then", 0]`). */
