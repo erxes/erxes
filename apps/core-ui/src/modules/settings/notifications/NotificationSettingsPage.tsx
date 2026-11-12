@@ -114,25 +114,16 @@ const GroupRow = ({
   );
 };
 
-/**
- * Settings › Notifications: how you're told (email, browser) and, per group
- * of notifications (each plugin one group), whether in erxes and by email,
- * in erxes only, or not at all. Security is always on.
- */
-export const NotificationSettingsPage = () => {
+type SettingsUpdate = ReturnType<typeof useNotificationSettings>['update'];
+
+/** The browser channel: its permission, the note under it, and the switch's handler. */
+const useBrowserChannel = (update: SettingsUpdate) => {
   const { t } = useTranslation('common', { keyPrefix: 'notifications.settings' });
-  const { settings, loading, error, update } = useNotificationSettings();
   const { toast } = useToast();
 
   const [permission, setPermission] = useState(() =>
     desktopSupported() ? Notification.permission : 'denied',
   );
-
-  const core = (settings?.groups ?? []).filter((group) => !group.plugin);
-  const plugins = (settings?.groups ?? []).filter((group) => group.plugin);
-
-  const setGroup = (key: string, delivery: NotificationDelivery) =>
-    update.mutate({ groups: { [key]: delivery } });
 
   const askPermission = async () => {
     try {
@@ -172,6 +163,117 @@ export const NotificationSettingsPage = () => {
           'Pop up new notifications while erxes is in the background (each browser asks once).',
         );
 
+  return { permission, browserNote, toggleBrowser };
+};
+
+/** Email and browser, each on or off. */
+const ChannelsSection = ({
+  settings,
+  update,
+}: {
+  settings: NotificationSettings;
+  update: SettingsUpdate;
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notifications.settings' });
+  const { permission, browserNote, toggleBrowser } = useBrowserChannel(update);
+
+  return (
+    <section className="rounded-lg border bg-background px-5 py-2">
+      <h2 className="pt-2 text-base font-semibold">{t('channels', 'How you’re notified')}</h2>
+      <div className="divide-y">
+        <Channel
+          icon={IconMail}
+          label={t('email', 'Email')}
+          description={t(
+            'email-description',
+            'For the groups below set to “In erxes and email”. Security alerts are always emailed.',
+          )}
+          checked={settings.email}
+          disabled={update.isPending}
+          onChange={(email) => update.mutate({ email })}
+        />
+        <Channel
+          icon={IconBrowser}
+          label={t('browser', 'Browser')}
+          description={browserNote}
+          checked={settings.browser && permission === 'granted'}
+          disabled={update.isPending || !desktopSupported() || permission === 'denied'}
+          onChange={toggleBrowser}
+        />
+      </div>
+    </section>
+  );
+};
+
+/** Core's groups in their fixed order, then the plugins'. */
+const GroupSections = ({
+  settings,
+  update,
+}: {
+  settings: NotificationSettings;
+  update: SettingsUpdate;
+}) => {
+  const { t } = useTranslation('common', { keyPrefix: 'notifications.settings' });
+
+  const core = CORE_NOTIFICATION_GROUPS.map((definition) =>
+    settings.groups.find((group) => !group.plugin && group.key === definition.key),
+  ).filter((group): group is Group => Boolean(group));
+
+  const plugins = settings.groups.filter((group) => group.plugin);
+
+  const row = (group: Group) => (
+    <GroupRow
+      key={group.key}
+      group={group}
+      emailOn={settings.email}
+      disabled={update.isPending}
+      onChange={(delivery) => update.mutate({ groups: { [group.key]: delivery } })}
+    />
+  );
+
+  return (
+    <>
+      <section className="rounded-lg border bg-background px-5 py-2">
+        <h2 className="pt-2 text-base font-semibold">{t('what', 'What you hear about')}</h2>
+        <div className="divide-y">{core.map(row)}</div>
+      </section>
+      <section className="rounded-lg border bg-background px-5 py-2">
+        <h2 className="pt-2 text-base font-semibold">{t('plugins', 'Plugins')}</h2>
+        {plugins.length ? (
+          <div className="divide-y">{plugins.map(row)}</div>
+        ) : (
+          <p className="py-3 text-sm text-muted-foreground">{t('no-plugins', 'No plugins yet.')}</p>
+        )}
+      </section>
+    </>
+  );
+};
+
+const SettingsBody = () => {
+  const { settings, loading, error, update } = useNotificationSettings();
+
+  if (error) {
+    return <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>;
+  }
+
+  if (loading || !settings) return <Spinner containerClassName="py-12" />;
+
+  return (
+    <>
+      <ChannelsSection settings={settings} update={update} />
+      <GroupSections settings={settings} update={update} />
+    </>
+  );
+};
+
+/**
+ * Settings › Notifications: how you're told (email, browser) and, per group
+ * of notifications (each plugin one group), whether in erxes and by email,
+ * in erxes only, or not at all. Security is always on.
+ */
+export const NotificationSettingsPage = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'notifications.settings' });
+
   return (
     <PageContainer>
       <PageHeader>
@@ -195,78 +297,7 @@ export const NotificationSettingsPage = () => {
               'Choose how and about what you hear. These settings are yours; teammates choose their own.',
             )}
           </p>
-          {error ? (
-            <p className="py-12 text-center text-sm text-destructive">{messageOf(error)}</p>
-          ) : loading || !settings ? (
-            <Spinner containerClassName="py-12" />
-          ) : (
-            <>
-              <section className="rounded-lg border bg-background px-5 py-2">
-                <h2 className="pt-2 text-base font-semibold">
-                  {t('channels', 'How you’re notified')}
-                </h2>
-                <div className="divide-y">
-                  <Channel
-                    icon={IconMail}
-                    label={t('email', 'Email')}
-                    description={t(
-                      'email-description',
-                      'For the groups below set to “In erxes and email”. Security alerts are always emailed.',
-                    )}
-                    checked={settings.email}
-                    disabled={update.isPending}
-                    onChange={(email) => update.mutate({ email })}
-                  />
-                  <Channel
-                    icon={IconBrowser}
-                    label={t('browser', 'Browser')}
-                    description={browserNote}
-                    checked={settings.browser && permission === 'granted'}
-                    disabled={update.isPending || !desktopSupported() || permission === 'denied'}
-                    onChange={toggleBrowser}
-                  />
-                </div>
-              </section>
-              <section className="rounded-lg border bg-background px-5 py-2">
-                <h2 className="pt-2 text-base font-semibold">{t('what', 'What you hear about')}</h2>
-                <div className="divide-y">
-                  {CORE_NOTIFICATION_GROUPS.map((definition) =>
-                    core.find((group) => group.key === definition.key),
-                  )
-                    .filter((group): group is Group => Boolean(group))
-                    .map((group) => (
-                      <GroupRow
-                        key={group.key}
-                        group={group}
-                        emailOn={settings.email}
-                        disabled={update.isPending}
-                        onChange={(delivery) => setGroup(group.key, delivery)}
-                      />
-                    ))}
-                </div>
-              </section>
-              <section className="rounded-lg border bg-background px-5 py-2">
-                <h2 className="pt-2 text-base font-semibold">{t('plugins', 'Plugins')}</h2>
-                {plugins.length ? (
-                  <div className="divide-y">
-                    {plugins.map((group) => (
-                      <GroupRow
-                        key={group.key}
-                        group={group}
-                        emailOn={settings.email}
-                        disabled={update.isPending}
-                        onChange={(delivery) => setGroup(group.key, delivery)}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="py-3 text-sm text-muted-foreground">
-                    {t('no-plugins', 'No plugins yet.')}
-                  </p>
-                )}
-              </section>
-            </>
-          )}
+          <SettingsBody />
         </div>
       </ScrollArea>
     </PageContainer>

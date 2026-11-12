@@ -1,54 +1,11 @@
-import type { ContentType, Notification } from '@erxes/core-contract';
-import {
-  IconBell,
-  IconCheck,
-  IconChevronDown,
-  IconExternalLink,
-  IconTrash,
-} from '@tabler/icons-react';
-import { Badge, Button, cn, Empty, RelativeDateDisplay, Spinner } from 'erxes-ui';
-import { useState } from 'react';
+import type { Notification } from '@erxes/core-contract';
+import { IconBell } from '@tabler/icons-react';
+import { Button, Empty, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
-import { ChangeList, useChangeLookups } from '~/components/ChangeList';
-import { UserAvatar } from '~/components/UserAvatar';
 import { messageOf } from '~/lib/api';
 import { actorLabel, useMembersById } from '~/lib/members';
-import { type Inbox, useNotificationActions } from './useNotifications';
-
-/** Core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
-const Changes = z.record(z.tuple([z.unknown(), z.unknown()]));
-
-type Changes = z.infer<typeof Changes>;
-
-/** Core's own kinds have translated titles; plugins send theirs ready to read. */
-const useNotificationTitle = () => {
-  const { t } = useTranslation('common', { keyPrefix: 'notifications.kinds' });
-
-  return (notification: Notification) =>
-    notification.source === 'core' ? t(notification.kind, notification.title) : notification.title;
-};
-
-const changesOf = (notification: Notification) => {
-  const changes = Changes.safeParse(notification.data.changes);
-
-  return changes.success && Object.keys(changes.data).length ? changes.data : null;
-};
-
-/** What changed, with names for owners, tags and properties of the record. */
-const NotificationChanges = ({
-  notification,
-  changes,
-}: {
-  notification: Notification;
-  changes: Changes;
-}) => {
-  const contentType: ContentType = notification.entity?.type === 'company' ? 'company' : 'customer';
-  const lookups = useChangeLookups(contentType, [changes]);
-
-  return <ChangeList changes={changes} lookups={lookups} />;
-};
+import { NotificationItem } from './NotificationItem';
+import type { Inbox } from './useNotifications';
 
 const dayLabel = (iso: string, t: (key: string, fallback: string) => string, language: string) => {
   const date = new Date(iso);
@@ -68,164 +25,53 @@ const dayLabel = (iso: string, t: (key: string, fallback: string) => string, lan
   });
 };
 
-const NotificationItem = ({
-  notification,
-  sender,
-  senderAvatar,
-  inbox,
-  onOpen,
-  compact,
-}: {
-  notification: Notification;
-  sender: string;
-  senderAvatar?: string | null;
-  inbox?: Inbox;
-  onOpen?: () => void;
-  compact?: boolean;
-}) => {
-  const navigate = useNavigate();
-  const title = useNotificationTitle();
-  const { markRead, remove } = useNotificationActions();
+/** Consecutive notifications of one day, under that day's label. */
+const groupByDay = (notifications: Notification[], label: (iso: string) => string) => {
+  const groups: { day: string; items: Notification[] }[] = [];
+
+  for (const notification of notifications) {
+    const day = label(notification.createdAt);
+    const last = groups.at(-1);
+
+    if (last?.day === day) last.items.push(notification);
+    else groups.push({ day, items: [notification] });
+  }
+
+  return groups;
+};
+
+const NotificationsEmpty = ({ unreadOnly }: { unreadOnly: boolean }) => {
   const { t } = useTranslation('common', { keyPrefix: 'notifications' });
-  const [expanded, setExpanded] = useState(false);
-  const changes = changesOf(notification);
-  const InboxIcon = inbox?.icon;
-
-  const open = () => {
-    if (!notification.read) markRead.mutate({ ids: [notification.id] });
-
-    if (notification.link) {
-      void navigate(notification.link);
-      onOpen?.();
-    } else if (changes && !compact) {
-      setExpanded((value) => !value);
-    }
-  };
 
   return (
-    <li
-      className={cn(
-        'group relative flex gap-3 rounded-md px-3 py-2.5 hover:bg-accent',
-        (notification.link || changes) && 'cursor-pointer',
-        !notification.read && 'bg-primary/5',
-      )}
-    >
-      <span className="relative mt-0.5 shrink-0">
-        <UserAvatar name={sender} src={senderAvatar} className="size-7" />
-        {InboxIcon && (
-          <span className="absolute -right-1 -bottom-1 flex size-4 items-center justify-center rounded-full border bg-background text-primary [&>svg]:size-2.5">
-            <InboxIcon className="size-2.5" />
-          </span>
-        )}
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start gap-2">
-          {/* The whole row opens it: the button's ::after covers the row. */}
-          <button
-            type="button"
-            onClick={open}
-            className={cn(
-              'flex-1 text-left text-sm leading-5 after:absolute after:inset-0',
-              !notification.read && 'font-medium',
-            )}
-          >
-            {title(notification)}
-          </button>
-          {!notification.read && (
-            <span
-              className="mt-1.5 size-2 shrink-0 rounded-full bg-primary"
-              aria-label={t('unread', 'Unread')}
-            />
-          )}
-        </div>
-        {notification.body && (
-          <p
-            className={cn(
-              'text-sm text-muted-foreground',
-              compact ? 'line-clamp-2' : 'whitespace-pre-line',
-            )}
-          >
-            {notification.body}
-          </p>
-        )}
-        {changes && !compact && expanded && (
-          <NotificationChanges notification={notification} changes={changes} />
-        )}
-        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-          {notification.actor.type === 'user' && (
-            <>
-              <span className="truncate">{sender}</span>
-              <span aria-hidden="true">·</span>
-            </>
-          )}
-          <RelativeDateDisplay value={notification.createdAt} asChild>
-            <span>
-              <RelativeDateDisplay.Value value={notification.createdAt} />
-            </span>
-          </RelativeDateDisplay>
-          {inbox && notification.source !== 'core' && (
-            <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
-              {inbox.label}
-            </Badge>
-          )}
-          {notification.priority === 'high' && (
-            <Badge variant="destructive" className="h-4 px-1.5 text-[10px]">
-              {t('important', 'Important')}
-            </Badge>
-          )}
-          {changes && !compact && (
-            <button
-              type="button"
-              className="relative inline-flex items-center gap-0.5 text-primary hover:underline"
-              onClick={() => setExpanded((value) => !value)}
-            >
-              {t('changes', {
-                count: Object.keys(changes).length,
-                defaultValue: `${Object.keys(changes).length} changes`,
-              })}
-              <IconChevronDown
-                className={cn('size-3 transition-transform', expanded && 'rotate-180')}
-              />
-            </button>
-          )}
-        </div>
-      </div>
-      <div className="absolute top-2 right-2 hidden gap-0.5 rounded-md bg-accent group-hover:flex">
-        {notification.link && !compact && (
-          <Button
-            size="icon"
-            variant="ghost"
-            className="size-6"
-            aria-label={t('open', 'Open')}
-            onClick={open}
-          >
-            <IconExternalLink className="size-3.5" />
-          </Button>
-        )}
-        <Button
-          size="icon"
-          variant="ghost"
-          className="size-6"
-          aria-label={
-            notification.read ? t('mark-unread', 'Mark as unread') : t('mark-read', 'Mark as read')
-          }
-          onClick={() => markRead.mutate({ ids: [notification.id], read: !notification.read })}
-        >
-          <IconCheck className={cn('size-3.5', notification.read && 'text-primary')} />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="size-6"
-          aria-label={t('remove', 'Remove')}
-          onClick={() => remove.mutate({ id: notification.id })}
-        >
-          <IconTrash className="size-3.5" />
-        </Button>
-      </div>
-    </li>
+    <Empty className="py-10">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconBell />
+        </Empty.Media>
+        <Empty.Title>
+          {unreadOnly ? t('all-read', 'You’re all caught up') : t('empty', 'No notifications yet')}
+        </Empty.Title>
+        <Empty.Description>
+          {t('empty-description', 'Updates from erxes and your plugins show up here.')}
+        </Empty.Description>
+      </Empty.Header>
+    </Empty>
   );
 };
+
+interface NotificationListProps {
+  notifications: Notification[];
+  loading: boolean;
+  error: Error | null;
+  hasMore: boolean;
+  loadingMore: boolean;
+  loadMore: () => void;
+  unreadOnly: boolean;
+  inboxes?: Inbox[];
+  onOpen?: () => void;
+  compact?: boolean;
+}
 
 /** Notifications grouped by day, with their senders and inboxes; loads more on demand. */
 export const NotificationList = ({
@@ -239,18 +85,7 @@ export const NotificationList = ({
   inboxes = [],
   onOpen,
   compact,
-}: {
-  notifications: Notification[];
-  loading: boolean;
-  error: Error | null;
-  hasMore: boolean;
-  loadingMore: boolean;
-  loadMore: () => void;
-  unreadOnly: boolean;
-  inboxes?: Inbox[];
-  onOpen?: () => void;
-  compact?: boolean;
-}) => {
+}: NotificationListProps) => {
   const { t, i18n } = useTranslation('common', { keyPrefix: 'notifications' });
 
   const members = useMembersById(
@@ -259,43 +94,15 @@ export const NotificationList = ({
 
   const inboxBySource = new Map(inboxes.map((inbox) => [inbox.source, inbox]));
 
-  if (loading) {
-    return <Spinner containerClassName="py-10" />;
-  }
+  if (loading) return <Spinner containerClassName="py-10" />;
 
   if (error) {
     return <p className="px-4 py-10 text-center text-sm text-destructive">{messageOf(error)}</p>;
   }
 
-  if (!notifications.length) {
-    return (
-      <Empty className="py-10">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconBell />
-          </Empty.Media>
-          <Empty.Title>
-            {unreadOnly
-              ? t('all-read', 'You’re all caught up')
-              : t('empty', 'No notifications yet')}
-          </Empty.Title>
-          <Empty.Description>
-            {t('empty-description', 'Updates from erxes and your plugins show up here.')}
-          </Empty.Description>
-        </Empty.Header>
-      </Empty>
-    );
-  }
+  if (!notifications.length) return <NotificationsEmpty unreadOnly={unreadOnly} />;
 
-  const groups: { day: string; items: Notification[] }[] = [];
-
-  for (const notification of notifications) {
-    const day = dayLabel(notification.createdAt, t, i18n.language);
-    const last = groups[groups.length - 1];
-
-    if (last?.day === day) last.items.push(notification);
-    else groups.push({ day, items: [notification] });
-  }
+  const groups = groupByDay(notifications, (iso) => dayLabel(iso, t, i18n.language));
 
   return (
     <div className="p-1">
@@ -307,24 +114,21 @@ export const NotificationList = ({
             </h3>
           )}
           <ul className="flex flex-col gap-0.5">
-            {group.items.map((notification) => {
-              const member =
-                notification.actor.type === 'user' && notification.actor.id
-                  ? members.get(notification.actor.id)
-                  : undefined;
-
-              return (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  sender={actorLabel(notification.actor, members)}
-                  senderAvatar={member?.avatarUrl}
-                  inbox={inboxBySource.get(notification.source)}
-                  onOpen={onOpen}
-                  compact={compact}
-                />
-              );
-            })}
+            {group.items.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                sender={actorLabel(notification.actor, members)}
+                senderAvatar={
+                  notification.actor.type === 'user' && notification.actor.id
+                    ? members.get(notification.actor.id)?.avatarUrl
+                    : undefined
+                }
+                inbox={inboxBySource.get(notification.source)}
+                onOpen={onOpen}
+                compact={compact}
+              />
+            ))}
           </ul>
         </section>
       ))}
