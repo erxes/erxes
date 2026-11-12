@@ -81,11 +81,12 @@ export const NotificationsBell = () => {
             </Button>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-2 border-b px-2">
-          <Tabs value={tab} onValueChange={(value) => setTab(value as 'all' | 'unread')}>
-            <Tabs.List className="rounded-none border-0">
-              <Tabs.Trigger value="all">{t('all', 'All')}</Tabs.Trigger>
-              <Tabs.Trigger value="unread">
+        {/* Tabs reach the line: the active underline sits on it. */}
+        <div className="flex items-stretch justify-between gap-2 border-b px-2">
+          <Tabs value={tab} onValueChange={(value) => setTab(value as 'all' | 'unread')} className="flex">
+            <Tabs.List className="flex min-h-9 items-stretch self-stretch rounded-none border-0 py-0">
+              <Tabs.Trigger value="all" className="after:-mb-px">{t('all', 'All')}</Tabs.Trigger>
+              <Tabs.Trigger value="unread" className="after:-mb-px">
                 {t('unread', 'Unread')}
                 {unreadHere > 0 && <span className="ml-1 text-xs text-muted-foreground">{unreadHere}</span>}
               </Tabs.Trigger>
@@ -93,7 +94,7 @@ export const NotificationsBell = () => {
           </Tabs>
           {/* One chip per inbox (erxes, then each plugin), like Atlassian's product filter. */}
           {inboxes.length > 1 && (
-            <div className="flex min-w-0 gap-1 overflow-x-auto py-1.5">
+            <div className="flex min-w-0 items-center gap-1 self-center overflow-x-auto py-1.5">
               {inboxes.map((inbox) => {
                 const Icon = inbox.icon;
                 const active = source === inbox.source;

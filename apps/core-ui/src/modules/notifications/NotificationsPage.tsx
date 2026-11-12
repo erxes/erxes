@@ -100,11 +100,12 @@ export const NotificationsPage = () => {
           })}
         </nav>
         <div className="flex min-w-0 flex-1 flex-col">
-          <PageSubHeader className="items-center gap-3">
-            <Tabs value={tab} onValueChange={(value) => setTab(value as 'all' | 'unread')}>
-              <Tabs.List>
-                <Tabs.Trigger value="all">{t('all', 'All')}</Tabs.Trigger>
-                <Tabs.Trigger value="unread">
+          {/* Tabs flush with the header's line: the active underline sits on it. */}
+          <PageSubHeader className="items-center gap-3 py-0">
+            <Tabs value={tab} onValueChange={(value) => setTab(value as 'all' | 'unread')} className="flex self-stretch">
+              <Tabs.List className="flex min-h-9 items-stretch self-stretch border-b-0 py-0">
+                <Tabs.Trigger value="all" className="after:-mb-px">{t('all', 'All')}</Tabs.Trigger>
+                <Tabs.Trigger value="unread" className="after:-mb-px">
                   {t('unread', 'Unread')}
                   {unreadHere > 0 && <span className="ml-1 text-xs text-muted-foreground">{unreadHere}</span>}
                 </Tabs.Trigger>
