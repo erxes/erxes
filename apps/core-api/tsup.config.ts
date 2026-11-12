@@ -17,7 +17,7 @@ export default defineConfig({
   outDir: 'dist',
   clean: true,
   sourcemap: true,
-  noExternal: [/^@erxes\/core-/],
+  noExternal: [/^@erxes\/(core-|payment-gateways)/],
   // The bundle applies core's migrations at startup: ship them next to it.
   onSuccess: async () => {
     cpSync('../../packages/db/drizzle', 'dist/drizzle', { recursive: true });

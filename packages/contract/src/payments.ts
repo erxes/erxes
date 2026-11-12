@@ -31,7 +31,12 @@ export const PaymentGateway = z.object({
 });
 export type PaymentGateway = z.infer<typeof PaymentGateway>;
 
-export const InvoiceStatus = z.enum(['pending', 'paid', 'cancelled', 'expired', 'failed']);
+export const InvoiceStatus = z.enum(['pending', 'paid', 'refunded', 'cancelled', 'expired', 'failed']);
+
+/** The caller's own data on an invoice (order lines, room number): at most 8 KB of JSON, returned in events. */
+export const InvoiceMetadata = z
+  .record(z.unknown())
+  .refine((value) => JSON.stringify(value).length <= 8192, 'at most 8 KB of JSON');
 
 export const Invoice = z.object({
   id: Id,
@@ -44,6 +49,12 @@ export const Invoice = z.object({
   currency: z.string(),
   description: z.string(),
   status: InvoiceStatus,
+  metadata: z.record(z.unknown()),
+  /** What the gateway says was paid, and how much of it was given back (hundredths). */
+  paidAmount: z.number().int().nullable(),
+  refundedAmount: z.number().int(),
+  /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
+  refundable: z.object({ amount: z.number().int(), gateway: z.enum(['partial', 'full', 'none']) }),
   /** For the payer: QR (text and PNG data), a short link, bank app links. */
   payment: z.object({
     qrText: z.string().nullable(),
@@ -56,6 +67,29 @@ export const Invoice = z.object({
   createdAt: z.string().datetime(),
 });
 export type Invoice = z.infer<typeof Invoice>;
+
+export const Refund = z.object({
+  id: Id,
+  invoiceId: Id,
+  amount: z.number().int(),
+  reason: z.string(),
+  /** `gateway`: sent through it; `manual`: the organisation paid it back itself and recorded it. */
+  method: z.enum(['gateway', 'manual']),
+  status: z.enum(['succeeded', 'failed']),
+  error: z.string().nullable(),
+  requestedBy: z.object({ type: z.string(), id: z.string().nullable() }),
+  createdAt: z.string().datetime(),
+});
+export type Refund = z.infer<typeof Refund>;
+
+/** How a plugin takes payments here: its default gateway, and the only ones it may use (none: any). */
+export const PluginPaymentSettings = z.object({
+  plugin: z.string(),
+  title: z.string(),
+  defaultGatewayId: Id.nullable(),
+  allowedGatewayIds: z.array(Id),
+});
+export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
 
 /**
  * Payments: an organisation's gateway connections (QPay, …) and invoices
@@ -88,6 +122,7 @@ export const paymentsContract = {
         /** Minutes the invoice can be paid in (default 30). */
         expiresInMinutes: z.number().int().min(1).max(60 * 24 * 7).default(30),
         dedupeKey: DedupeKey.optional(),
+        metadata: InvoiceMetadata.optional(),
       }),
     )
     .output(Invoice),
@@ -99,6 +134,35 @@ export const paymentsContract = {
     .route({ method: 'POST', path: '/payments/invoices/{id}/cancel' })
     .input(z.object({ id: Id }))
     .output(Invoice),
+  refund: oc
+    .route({
+      method: 'POST',
+      path: '/payments/invoices/{id}/refunds',
+      successStatus: 201,
+      summary:
+        'Give money back for a paid invoice (all that is left unless `amount`). Through the gateway, or `manual` to record a refund made outside erxes. A refused refund is kept as failed. 409 NOT_REFUNDABLE / PARTIAL_NOT_SUPPORTED',
+    })
+    .input(
+      z.object({
+        id: Id,
+        amount: z.number().int().min(1).optional(),
+        reason: z.string().trim().min(1).max(255),
+        manual: z.boolean().default(false),
+        dedupeKey: DedupeKey.optional(),
+      }),
+    )
+    .output(z.object({ refund: Refund, invoice: Invoice })),
+  refunds: oc
+    .route({ method: 'GET', path: '/payments/invoices/{id}/refunds' })
+    .input(z.object({ id: Id }))
+    .output(z.object({ data: z.array(Refund) })),
+  pluginSettings: oc
+    .route({ method: 'GET', path: '/payments/plugins', summary: 'Installed plugins that take payments, with their gateway settings' })
+    .output(z.object({ data: z.array(PluginPaymentSettings) })),
+  updatePluginSettings: oc
+    .route({ method: 'PUT', path: '/payments/plugins/{plugin}' })
+    .input(z.object({ plugin: z.string().min(1).max(60), defaultGatewayId: Id.nullable(), allowedGatewayIds: z.array(Id).max(50) }))
+    .output(PluginPaymentSettings),
   invoices: oc
     .route({ method: 'GET', path: '/payments/invoices', summary: 'Invoices, newest first' })
     .input(CursorQuery.extend({ status: InvoiceStatus.optional(), source: z.string().max(40).optional(), referenceId: z.string().max(100).optional() }))

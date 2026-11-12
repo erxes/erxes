@@ -11,6 +11,7 @@ COPY apps/core-api/package.json apps/core-api/
 COPY apps/core-ui/package.json apps/core-ui/
 COPY packages/contract/package.json packages/contract/
 COPY packages/db/package.json packages/db/
+COPY packages/payment-gateways/package.json packages/payment-gateways/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/ui/package.json packages/ui/
 COPY packages/ui-modules/package.json packages/ui-modules/
@@ -18,6 +19,7 @@ RUN pnpm install --frozen-lockfile --filter @erxes/core-api...
 COPY tsconfig.base.json ./
 COPY packages/contract packages/contract
 COPY packages/db packages/db
+COPY packages/payment-gateways packages/payment-gateways
 COPY packages/plugin-sdk packages/plugin-sdk
 COPY apps/core-api apps/core-api
 RUN pnpm --filter @erxes/core-api build \

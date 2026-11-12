@@ -20,6 +20,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1166.0",
     "@erxes/core-contract": "workspace:*",
     "@erxes/core-db": "workspace:*",
+    "@erxes/payment-gateways": "workspace:*",
     "@orpc/contract": "1.16.2",
     "@orpc/openapi": "1.16.2",
     "@orpc/server": "1.16.2",

@@ -23,6 +23,8 @@ export const CORE_EVENT_TYPES = [
   { type: 'core.company.restored', label: 'Company restored', subject: 'company' },
   { type: 'core.payment.paid', label: 'Invoice paid', subject: null },
   { type: 'core.payment.cancelled', label: 'Invoice cancelled', subject: null },
+  { type: 'core.payment.expired', label: 'Invoice expired unpaid', subject: null },
+  { type: 'core.payment.refunded', label: 'Payment refunded', subject: null },
 ] as const;
 
 export const EventTypeInfo = z.object({

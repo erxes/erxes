@@ -26,6 +26,7 @@ export const CORE_PERMISSIONS = [
   { action: 'events.view', group: 'Security', label: 'See the event stream and retry failed events' },
   { action: 'webhooks.manage', group: 'Integrations', label: 'Manage webhooks' },
   { action: 'payments.manage', group: 'Payments', label: 'Connect payment gateways and see invoices' },
+  { action: 'payments.refund', group: 'Payments', label: 'Refund payments' },
   { action: 'automations.view', group: 'Automations', label: 'See automations and their runs' },
   { action: 'automations.manage', group: 'Automations', label: 'Create, change and turn automations on or off' },
   { action: 'audit.retention', group: 'Security', label: 'Change how long the audit log is kept', ownerOnly: true },

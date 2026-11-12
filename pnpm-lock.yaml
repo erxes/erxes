@@ -36,6 +36,9 @@ importers:
       '@erxes/core-db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@erxes/payment-gateways':
+        specifier: workspace:*
+        version: link:../../packages/payment-gateways
       '@orpc/contract':
         specifier: 1.16.2
         version: 1.16.2
@@ -228,6 +231,8 @@ importers:
       drizzle-kit:
         specifier: 0.31.11
         version: 0.31.11
+
+  packages/payment-gateways: {}
 
   packages/plugin-sdk:
     dependencies:

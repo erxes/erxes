@@ -230,6 +230,16 @@ it is built.
     /plugins/{name}/session`, `aud` = the plugin, `typ`
     `erxes-plugin-session+jwt`) that the plugin verifies with the JWKS
     (`verifyPluginSession`). Core's session cookie never leaves core.
+  - Events to plugins (`src/modules/plugins/pluginEvents.ts`): manifest
+    `subscriptions` (patterns, `core.payment.*`) → consumer `core.plugins` →
+    job `plugin.event` POSTs `{ id, type, organizationId, createdAt, data }`
+    to `<api.url>/events` with a 5-minute token (`typ`
+    `erxes-core-event+jwt`, `aud` the plugin, `sha` = the body's SHA-256)
+    and `Idempotency-Key: <event id>`; non-2xx retries for about two days.
+    Plugins check with `verifyCoreEvent(authorization, rawBody, …)`. They
+    never get their own events; payment events only for their own invoices
+    (`payments:read`), customer/company events with `customers:read`, the
+    rest with `events:read`.
   - Live: plugins call `core_live_signal(org, plugin, topic, user_ids)` in
     their transaction (or `POST /plugins/live`, `live:write`); the stream sends
     `plugin { plugin, topics }`; plugin UIs use erxes-ui's `useLiveSignal`.
@@ -307,6 +317,19 @@ it is built.
   `?companyId=`) and add forms (`=new`); Settings (Team members, Tags,
   Properties, Organization); theme and language in the user menu; plugin UIs
   through Module Federation.
+- Payments (`src/modules/payments`, drivers in `@erxes/payment-gateways`):
+  gateway connections per organisation (QPay, test; credentials sealed and
+  checked with the gateway); invoices for a plugin's or core's record with
+  `metadata` (≤ 8 KB, returned in events) and a `dedupeKey`; paid only after
+  asking the gateway (callbacks are signed and just trigger a check; pending
+  invoices are also checked by job). Settings › Payments: each plugin's
+  default gateway and allowed gateways (`core_payment_plugin_settings`), the
+  invoice list and refunds. Refunds (`core_payment_refunds`,
+  `payments.refund` / `payments:write`): row-locked against what is left,
+  retry-safe by `dedupeKey`; through the gateway (QPay refunds whole payments
+  only) or `manual` to record money paid back outside erxes; a gateway's
+  refusal is kept as a failed refund. Events `core.payment.paid | expired |
+  cancelled | refunded`; audit `payment.refunded`.
 - Plugin data defences:
   - each plugin connects as its own database role (`pnpm db:plugin-role -- <plugin>`
     creates `erxes_plugin_<plugin>`, NOBYPASSRLS, no access to `core_*` tables);

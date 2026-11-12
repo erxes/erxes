@@ -36,6 +36,7 @@
 | 31 | Email through the job queue (SMTP or log); single-use links (hashed) for invitations and password resets; TOTP two-factor sign-in with recovery codes; "Sign in with erxes" as an OAuth 2.1 / OIDC provider for plugins' own apps (PKCE, rotating refresh tokens with reuse detection). | Agreed |
 | 32 | Payments: gateway connections and gateway invoices in core (QPay first), confirmed only by asking the gateway; plugins keep their business payment records and learn of payments from `core.payment.paid`. | Agreed |
 | 33 | Plugin data defences: one database role per plugin with no access to core tables (core reached through three checked SECURITY DEFINER functions), tenant RLS on plugin tables, a 30-day recycle bin for customers and companies, and a mass-deletion guard that alerts owners and then stops members and suspends plugins. | Agreed |
+| 34 | Payments stay one shared service (not per plugin, not a library inside plugins): gateway drivers in their own package, plugins choose and the owner limits gateways per plugin, invoices carry the plugin's metadata, refunds through the gateway or recorded as manual; plugins learn of payments through event subscriptions delivered to their API with a signed, body-bound token. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices

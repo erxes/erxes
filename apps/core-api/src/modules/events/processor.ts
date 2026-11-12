@@ -5,6 +5,7 @@ import { liveHub } from '~/modules/live/hub';
 import { notify } from '~/modules/notifications/notifications.service';
 import { webhooksConsumer } from '~/modules/webhooks/webhooks.service';
 import { automationsConsumer } from '~/modules/automations/engine';
+import { pluginEventsConsumer } from '~/modules/plugins/pluginEvents';
 import { log } from '~/lib/log';
 
 type EventRow = typeof events.$inferSelect;
@@ -107,7 +108,7 @@ const notifications: EventConsumer = {
   },
 };
 
-export const CONSUMERS: EventConsumer[] = [timeline, notifications, webhooksConsumer, automationsConsumer];
+export const CONSUMERS: EventConsumer[] = [timeline, notifications, webhooksConsumer, automationsConsumer, pluginEventsConsumer];
 
 /** Waits before each retry; after the last one the event is dead. */
 export const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];

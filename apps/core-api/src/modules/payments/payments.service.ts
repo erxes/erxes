@@ -1,6 +1,19 @@
-import type { CursorQuery, GatewayConfig, Invoice, PaymentGateway } from '@erxes/core-contract';
-import { type Db, newId, paymentGateways, paymentInvoices, type Transaction, withOrg, withSystem } from '@erxes/core-db';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import type { CursorQuery, GatewayConfig, Invoice, PaymentGateway, PluginPaymentSettings, Refund } from '@erxes/core-contract';
+import {
+  type Db,
+  newId,
+  paymentGateways,
+  paymentInvoices,
+  paymentPluginSettings,
+  paymentRefunds,
+  pluginInstallations,
+  plugins,
+  type Transaction,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
+import { createGateway, GATEWAY_REFUNDS } from '@erxes/payment-gateways';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { createHmac, hkdfSync, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
@@ -13,12 +26,14 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
-import { driverOf } from './gateways';
 
 type GatewayRow = typeof paymentGateways.$inferSelect;
 type InvoiceRow = typeof paymentInvoices.$inferSelect;
+type RefundRow = typeof paymentRefunds.$inferSelect;
 
 const configOf = (row: GatewayRow) => JSON.parse(unseal(row.configSealed)) as GatewayConfig;
+const driverOf = (row: GatewayRow) => createGateway(configOf(row), { cacheKey: row.id });
+const systemCaller = (orgId: string) => ({ orgId, actorType: 'system', actorId: null, source: 'core' }) as never;
 
 /** What may be shown of a gateway's settings: never secrets. */
 const visibleSettings = (settings: GatewayConfig): Record<string, unknown> =>
@@ -46,6 +61,13 @@ const toInvoiceDto = (row: InvoiceRow, kind: GatewayRow['kind']): Invoice => {
     currency: row.currency,
     description: row.description,
     status: row.status,
+    metadata: row.metadata,
+    paidAmount: row.paidAmount,
+    refundedAmount: row.refundedAmount,
+    refundable: {
+      amount: row.status === 'paid' ? (row.paidAmount ?? row.amount) - row.refundedAmount : 0,
+      gateway: GATEWAY_REFUNDS[kind],
+    },
     payment: { qrText: payment.qrText ?? null, qrImage: payment.qrImage ?? null, shortUrl: payment.shortUrl ?? null, links: payment.links ?? [] },
     expiresAt: row.expiresAt.toISOString(),
     paidAt: row.paidAt?.toISOString() ?? null,
@@ -61,9 +83,21 @@ const gatewayOrThrow = async (client: Db, orgId: string, id: string) => {
   return row;
 };
 
+const toRefundDto = (row: RefundRow): Refund => ({
+  id: row.id,
+  invoiceId: row.invoiceId,
+  amount: row.amount,
+  reason: row.reason,
+  method: row.method,
+  status: row.status,
+  error: row.error,
+  requestedBy: { type: row.requestedByType, id: row.requestedBy },
+  createdAt: row.createdAt.toISOString(),
+});
+
 const verifyGateway = async (id: string, settings: GatewayConfig) => {
   try {
-    await driverOf(id, settings).verify();
+    await createGateway(settings, { cacheKey: id }).verify();
   } catch (error) {
     throw new HttpError(400, 'GATEWAY_REFUSED', `The gateway refused these credentials: ${(error as Error).message}`);
   }
@@ -136,6 +170,14 @@ export const removeGateway = async (client: Db, actor: Actor, id: string) => {
   if (used) throw new HttpError(409, 'GATEWAY_IN_USE', 'It has invoices: turn it off instead');
 
   await client.delete(paymentGateways).where(eq(paymentGateways.id, id));
+  // Plugins that used it go back to the organisation's other gateways.
+  await client
+    .update(paymentPluginSettings)
+    .set({
+      allowedGatewayIds: sql`array_remove(${paymentPluginSettings.allowedGatewayIds}, ${id})`,
+      defaultGatewayId: sql`nullif(${paymentPluginSettings.defaultGatewayId}, ${id})`,
+    })
+    .where(eq(paymentPluginSettings.orgId, actor.orgId));
   await recordAudit(client, userCaller(actor), { action: 'payment.gateway_removed', targetType: 'payment_gateway', targetId: id, targetLabel: row.name });
 
   return { ok: true as const };
@@ -155,6 +197,50 @@ const queueCheck = (client: Db, invoice: InvoiceRow, round: number) =>
     maxAttempts: 3,
   });
 
+/**
+ * The gateway an invoice goes through: the one asked for, else the plugin's
+ * default (Settings › Payments), else the first active one — within the
+ * gateways the owner allowed the plugin, if any are listed.
+ */
+const resolveGateway = async (client: Db, caller: Caller, requested?: string) => {
+  const [settings] =
+    caller.actorType === 'plugin'
+      ? await client
+          .select()
+          .from(paymentPluginSettings)
+          .where(and(eq(paymentPluginSettings.orgId, caller.orgId), eq(paymentPluginSettings.plugin, caller.source)))
+          .limit(1)
+      : [];
+  const allowed = settings?.allowedGatewayIds ?? [];
+
+  if (requested && allowed.length && !allowed.includes(requested)) {
+    throw new HttpError(403, 'GATEWAY_NOT_ALLOWED', 'This plugin may not use that gateway (Settings › Payments)');
+  }
+
+  const active = await client
+    .select()
+    .from(paymentGateways)
+    .where(
+      and(
+        eq(paymentGateways.orgId, caller.orgId),
+        eq(paymentGateways.status, 'active'),
+        requested ? eq(paymentGateways.id, requested) : allowed.length ? inArray(paymentGateways.id, allowed) : undefined,
+      ),
+    )
+    .orderBy(paymentGateways.createdAt);
+  const gateway = (!requested && active.find((row) => row.id === settings?.defaultGatewayId)) || active[0];
+
+  if (!gateway) {
+    throw new HttpError(
+      400,
+      'NO_GATEWAY',
+      requested ? 'That gateway is not connected or is turned off' : 'Connect a payment gateway first (Settings › Payments)',
+    );
+  }
+
+  return gateway;
+};
+
 export const createInvoice = async (
   client: Db,
   caller: Caller,
@@ -166,6 +252,7 @@ export const createInvoice = async (
     reference: { type: string; id: string };
     expiresInMinutes: number;
     dedupeKey?: string;
+    metadata?: Record<string, unknown>;
   },
 ) => {
   if (input.dedupeKey) {
@@ -179,19 +266,11 @@ export const createInvoice = async (
     if (existing) return toInvoiceDto(existing.invoice, existing.kind);
   }
 
-  const gateways = await client
-    .select()
-    .from(paymentGateways)
-    .where(and(eq(paymentGateways.orgId, caller.orgId), eq(paymentGateways.status, 'active'), input.gatewayId ? eq(paymentGateways.id, input.gatewayId) : undefined))
-    .orderBy(paymentGateways.createdAt)
-    .limit(1);
-  const gateway = gateways[0];
-
-  if (!gateway) throw new HttpError(400, 'NO_GATEWAY', 'Connect a payment gateway first (Settings › Payments)');
+  const gateway = await resolveGateway(client, caller, input.gatewayId);
 
   const id = newId();
   const callbackUrl = await appLink(client, caller.orgId, `/core/v1/payments/callback/${id}?sig=${callbackSignature(id)}`);
-  const created = await driverOf(gateway.id, configOf(gateway)).createInvoice({
+  const created = await driverOf(gateway).createInvoice({
     invoiceId: id,
     amount: input.amount,
     description: input.description,
@@ -213,6 +292,7 @@ export const createInvoice = async (
       payment: created.payment,
       expiresAt: sql`now() + make_interval(mins => ${input.expiresInMinutes})`,
       dedupeKey: input.dedupeKey ?? null,
+      metadata: input.metadata ?? {},
     })
     .returning();
 
@@ -222,26 +302,28 @@ export const createInvoice = async (
 };
 
 /** Paid: once (a conditional update), then `core.payment.paid` for whoever waits on it. */
-const markPaid = async (tx: Db, invoice: InvoiceRow, kind: string) => {
+const eventPayload = (invoice: InvoiceRow) => ({
+  invoiceId: invoice.id,
+  source: invoice.source,
+  reference: { type: invoice.referenceType, id: invoice.referenceId },
+  amount: invoice.amount,
+  currency: invoice.currency,
+  metadata: invoice.metadata,
+});
+
+const markPaid = async (tx: Db, invoice: InvoiceRow, kind: string, check: { paidAmount: number; paymentId: string | null }) => {
   const [paid] = await tx
     .update(paymentInvoices)
-    .set({ status: 'paid', paidAt: sql`now()`, updatedAt: sql`now()` })
+    .set({ status: 'paid', paidAt: sql`now()`, paidAmount: check.paidAmount, gatewayPaymentId: check.paymentId, updatedAt: sql`now()` })
     .where(and(eq(paymentInvoices.id, invoice.id), eq(paymentInvoices.status, 'pending')))
     .returning();
 
   if (!paid) return invoice;
 
-  await publishCoreEvents(tx, { orgId: invoice.orgId, actorType: 'system', actorId: null, source: 'core' } as never, {
+  await publishCoreEvents(tx, systemCaller(invoice.orgId), {
     type: 'core.payment.paid',
     entity: { type: 'payment_invoice', id: invoice.id },
-    payload: {
-      invoiceId: invoice.id,
-      source: invoice.source,
-      reference: { type: invoice.referenceType, id: invoice.referenceId },
-      amount: invoice.amount,
-      currency: invoice.currency,
-      gateway: kind,
-    },
+    payload: { ...eventPayload(paid), paidAmount: check.paidAmount, gateway: kind },
   });
 
   return paid;
@@ -262,15 +344,20 @@ const refresh = async (tx: Transaction | Db, orgId: string, id: string) => {
   let invoice = row.invoice;
 
   if (invoice.status === 'pending' && invoice.gatewayInvoiceId) {
-    const paid = await driverOf(row.gateway.id, configOf(row.gateway)).isPaid(invoice.gatewayInvoiceId, invoice.amount, invoice.payment);
+    const check = await driverOf(row.gateway).check(invoice.gatewayInvoiceId, invoice.amount, invoice.payment);
 
-    if (paid) invoice = await markPaid(tx, invoice, row.gateway.kind);
+    if (check.paid) invoice = await markPaid(tx, invoice, row.gateway.kind, check);
     else if (invoice.expiresAt.getTime() < Date.now()) {
-      [invoice] = await tx
+      [invoice] = (await tx
         .update(paymentInvoices)
         .set({ status: 'expired', updatedAt: sql`now()` })
         .where(eq(paymentInvoices.id, invoice.id))
-        .returning() as [InvoiceRow];
+        .returning()) as [InvoiceRow];
+      await publishCoreEvents(tx, systemCaller(invoice.orgId), {
+        type: 'core.payment.expired',
+        entity: { type: 'payment_invoice', id: invoice.id },
+        payload: eventPayload(invoice),
+      });
     }
   }
 
@@ -294,7 +381,7 @@ export const cancelInvoice = async (client: Db, caller: Caller, id: string) => {
 
   const [gateway] = await client.select().from(paymentGateways).where(eq(paymentGateways.id, invoice.gatewayId)).limit(1);
 
-  await driverOf(gateway!.id, configOf(gateway!))
+  await driverOf(gateway!)
     .cancel(invoice.gatewayInvoiceId ?? '')
     .catch((error: unknown) => log.warn('gateway could not cancel the invoice', { invoice: id, error }));
 
@@ -308,11 +395,212 @@ export const cancelInvoice = async (client: Db, caller: Caller, id: string) => {
     await publishCoreEvents(client, caller, {
       type: 'core.payment.cancelled',
       entity: { type: 'payment_invoice', id },
-      payload: { invoiceId: id, source: invoice.source, reference: { type: invoice.referenceType, id: invoice.referenceId } },
+      payload: eventPayload(invoice),
     });
   }
 
   return toInvoiceDto(cancelled ?? invoice, kind);
+};
+
+const ownInvoice = async (client: Db, caller: Caller, id: string) => {
+  const [row] = await client
+    .select({ invoice: paymentInvoices, gateway: paymentGateways })
+    .from(paymentInvoices)
+    .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
+    .where(and(eq(paymentInvoices.orgId, caller.orgId), eq(paymentInvoices.id, id)))
+    .for('update', { of: paymentInvoices })
+    .limit(1);
+
+  // Plugins only ever see their own invoices.
+  if (!row || (caller.actorType === 'plugin' && row.invoice.source !== caller.source)) throw notFound('Invoice');
+
+  return row;
+};
+
+/**
+ * Gives money back for a paid invoice (row locked: two refunds can't both
+ * take what is left). Through the gateway when it can — QPay refunds whole
+ * payments only — or `manual` to record money paid back outside erxes. A
+ * gateway's refusal is kept as a failed refund and changes nothing else.
+ */
+export const refundInvoice = async (
+  client: Db,
+  caller: Caller,
+  input: { id: string; amount?: number; reason: string; manual: boolean; dedupeKey?: string },
+) => {
+  const { invoice, gateway } = await ownInvoice(client, caller, input.id);
+
+  if (input.dedupeKey) {
+    const [existing] = await client
+      .select()
+      .from(paymentRefunds)
+      .where(and(eq(paymentRefunds.orgId, caller.orgId), eq(paymentRefunds.invoiceId, invoice.id), eq(paymentRefunds.dedupeKey, input.dedupeKey)))
+      .limit(1);
+
+    if (existing) return { refund: toRefundDto(existing), invoice: toInvoiceDto(invoice, gateway.kind) };
+  }
+
+  const left = invoice.status === 'paid' ? (invoice.paidAmount ?? invoice.amount) - invoice.refundedAmount : 0;
+
+  if (left <= 0) throw new HttpError(409, 'NOT_REFUNDABLE', `The invoice is ${invoice.status === 'refunded' ? 'already refunded' : invoice.status}`);
+
+  const amount = input.amount ?? left;
+
+  if (amount > left) throw new HttpError(409, 'NOT_REFUNDABLE', `Only ${left} can still be refunded`);
+
+  const driver = driverOf(gateway);
+
+  if (!input.manual) {
+    if (driver.refunds === 'none') throw new HttpError(409, 'PARTIAL_NOT_SUPPORTED', 'This gateway does not refund: refund outside erxes and record it as manual');
+    if (driver.refunds === 'full' && (amount !== left || invoice.refundedAmount > 0)) {
+      throw new HttpError(409, 'PARTIAL_NOT_SUPPORTED', `${gateway.name} refunds whole payments only: refund the rest outside erxes and record it as manual`);
+    }
+    if (!invoice.gatewayPaymentId) throw new HttpError(409, 'NOT_REFUNDABLE', 'The gateway gave no payment id to refund');
+  }
+
+  let outcome: { status: 'succeeded' | 'failed'; gatewayRefundId: string | null; error: string | null } = {
+    status: 'succeeded',
+    gatewayRefundId: null,
+    error: null,
+  };
+
+  if (!input.manual) {
+    try {
+      const result = await driver.refund({ paymentId: invoice.gatewayPaymentId!, amount, note: input.reason }, invoice.payment);
+
+      outcome.gatewayRefundId = result.refundId;
+    } catch (error) {
+      outcome = { status: 'failed', gatewayRefundId: null, error: (error as Error).message.slice(0, 500) };
+      log.warn('gateway refused a refund', { invoice: invoice.id, error });
+    }
+  }
+
+  const [refund] = await client
+    .insert(paymentRefunds)
+    .values({
+      id: newId(),
+      orgId: caller.orgId,
+      invoiceId: invoice.id,
+      amount,
+      reason: input.reason,
+      method: input.manual ? 'manual' : 'gateway',
+      status: outcome.status,
+      gatewayRefundId: outcome.gatewayRefundId,
+      error: outcome.error,
+      requestedByType: caller.actorType,
+      requestedBy: caller.actorId,
+      dedupeKey: input.dedupeKey ?? null,
+    })
+    .returning();
+
+  if (outcome.status === 'failed') return { refund: toRefundDto(refund!), invoice: toInvoiceDto(invoice, gateway.kind) };
+
+  const full = amount === left;
+  const [updated] = await client
+    .update(paymentInvoices)
+    .set({ refundedAmount: sql`${paymentInvoices.refundedAmount} + ${amount}`, status: full ? 'refunded' : 'paid', updatedAt: sql`now()` })
+    .where(eq(paymentInvoices.id, invoice.id))
+    .returning();
+
+  await publishCoreEvents(client, caller, {
+    type: 'core.payment.refunded',
+    entity: { type: 'payment_invoice', id: invoice.id },
+    payload: { ...eventPayload(updated!), refundId: refund!.id, refundAmount: amount, refundedAmount: updated!.refundedAmount, full, method: refund!.method },
+  });
+  await recordAudit(client, caller, {
+    action: 'payment.refunded',
+    targetType: 'payment_invoice',
+    targetId: invoice.id,
+    targetLabel: invoice.description,
+    metadata: { amount, method: refund!.method, reason: input.reason, source: invoice.source, reference: `${invoice.referenceType}:${invoice.referenceId}` },
+  });
+
+  return { refund: toRefundDto(refund!), invoice: toInvoiceDto(updated!, gateway.kind) };
+};
+
+export const listRefunds = async (client: Db, caller: Caller, id: string) => {
+  const [invoice] = await client
+    .select({ source: paymentInvoices.source })
+    .from(paymentInvoices)
+    .where(and(eq(paymentInvoices.orgId, caller.orgId), eq(paymentInvoices.id, id)))
+    .limit(1);
+
+  if (!invoice || (caller.actorType === 'plugin' && invoice.source !== caller.source)) throw notFound('Invoice');
+
+  const rows = await client
+    .select()
+    .from(paymentRefunds)
+    .where(and(eq(paymentRefunds.orgId, caller.orgId), eq(paymentRefunds.invoiceId, id)))
+    .orderBy(paymentRefunds.createdAt);
+
+  return { data: rows.map(toRefundDto) };
+};
+
+/** Installed plugins that may create invoices (`payments:write`), with their settings. */
+export const listPluginSettings = async (client: Db, actor: Actor): Promise<{ data: PluginPaymentSettings[] }> => {
+  const rows = await client
+    .select({ plugin: pluginInstallations.plugin, manifest: plugins.manifest, settings: paymentPluginSettings })
+    .from(pluginInstallations)
+    .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
+    .leftJoin(
+      paymentPluginSettings,
+      and(eq(paymentPluginSettings.orgId, pluginInstallations.orgId), eq(paymentPluginSettings.plugin, pluginInstallations.plugin)),
+    )
+    .where(and(eq(pluginInstallations.orgId, actor.orgId), sql`'payments:write' = any(${pluginInstallations.grantedScopes})`))
+    .orderBy(pluginInstallations.plugin);
+
+  return {
+    data: rows.map((row) => ({
+      plugin: row.plugin,
+      title: row.manifest?.title ?? row.plugin,
+      defaultGatewayId: row.settings?.defaultGatewayId ?? null,
+      allowedGatewayIds: row.settings?.allowedGatewayIds ?? [],
+    })),
+  };
+};
+
+export const updatePluginSettings = async (
+  client: Db,
+  actor: Actor,
+  input: { plugin: string; defaultGatewayId: string | null; allowedGatewayIds: string[] },
+) => {
+  const current = (await listPluginSettings(client, actor)).data.find((row) => row.plugin === input.plugin);
+
+  if (!current) throw notFound('Plugin taking payments');
+
+  const allowed = [...new Set(input.allowedGatewayIds)];
+  const wanted = [...new Set([...allowed, ...(input.defaultGatewayId ? [input.defaultGatewayId] : [])])];
+  const found = wanted.length
+    ? await client
+        .select({ id: paymentGateways.id })
+        .from(paymentGateways)
+        .where(and(eq(paymentGateways.orgId, actor.orgId), inArray(paymentGateways.id, wanted)))
+    : [];
+
+  if (found.length !== wanted.length) throw notFound('Gateway');
+  if (input.defaultGatewayId && allowed.length && !allowed.includes(input.defaultGatewayId)) {
+    throw new HttpError(400, 'DEFAULT_NOT_ALLOWED', 'The default gateway must be one of the allowed ones');
+  }
+
+  await client
+    .insert(paymentPluginSettings)
+    .values({ orgId: actor.orgId, plugin: input.plugin, defaultGatewayId: input.defaultGatewayId, allowedGatewayIds: allowed, updatedBy: actor.userId })
+    .onConflictDoUpdate({
+      target: [paymentPluginSettings.orgId, paymentPluginSettings.plugin],
+      set: { defaultGatewayId: input.defaultGatewayId, allowedGatewayIds: allowed, updatedBy: actor.userId, updatedAt: sql`now()` },
+    });
+  await recordAudit(client, userCaller(actor), {
+    action: 'payment.plugin_settings_updated',
+    targetType: 'plugin',
+    targetId: input.plugin,
+    targetLabel: current.title,
+    changes: {
+      defaultGatewayId: { before: current.defaultGatewayId, after: input.defaultGatewayId },
+      allowedGatewayIds: { before: current.allowedGatewayIds, after: allowed },
+    } as never,
+  });
+
+  return { ...current, defaultGatewayId: input.defaultGatewayId, allowedGatewayIds: allowed };
 };
 
 export const listInvoices = async (

@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
+import { EventPattern } from './webhooks';
 import { Id } from './common';
 import { ActionField } from './automations';
 import { EventType } from './platform';
@@ -20,6 +21,7 @@ export const PLUGIN_SCOPES = [
   'customers:read',
   'customers:write',
   'audit:write',
+  'events:read',
   'events:write',
   'files:read',
   'files:write',
@@ -137,6 +139,14 @@ export const PluginManifest = z.object({
     )
     .max(500)
     .optional(),
+  /**
+   * Events it wants at its API (`core.payment.*`, `core.customer.created`,
+   * `hr.*`): core POSTs each to `<api.url>/events` with a core token, retrying
+   * until it answers 2xx. Payment events: its own invoices only (scope
+   * `payments:read`); customer and company events need `customers:read`;
+   * other plugins' events need `events:read`. Its own events are not sent back.
+   */
+  subscriptions: z.array(EventPattern).max(100).optional(),
   /** Events it publishes: triggers for automations. */
   events: z
     .array(z.object({ type: EventType, label: z.string().trim().min(1).max(100), description: z.string().trim().max(300).optional() }))

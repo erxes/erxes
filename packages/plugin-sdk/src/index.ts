@@ -1,4 +1,4 @@
-import { CORE_API_PREFIX, coreContract, type PluginManifest } from '@erxes/core-contract';
+import { CORE_API_PREFIX, type CoreEvent, coreContract, type PluginManifest } from '@erxes/core-contract';
 import { createORPCClient } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
@@ -12,6 +12,19 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
  *   await core.forOrg(orgId).notifications.create({ userIds, kind: 'hr.leave.requested', title });
  *
  *   const member = await verifyPluginSession(token, { coreUrl, plugin: 'hr' });
+ *
+ * Payments (scopes `payments:write`, `payments:read`; subscribe to `core.payment.*`):
+ *
+ *   const invoice = await core.forOrg(orgId).payments.createInvoice({
+ *     amount: 150000, description: 'Order #12', reference: { type: 'order', id: order.id },
+ *     metadata: { orderId: order.id }, dedupeKey: `order:${order.id}`,
+ *   });                                   // show invoice.payment.qrImage / links to the payer
+ *   app.post('/events', express.text({ type: '*\/*' }), async (req, res) => {
+ *     const event = await verifyCoreEvent(req.headers.authorization, req.body, { coreUrl, plugin: 'ecom' });
+ *     if (event.type === 'core.payment.paid') await markOrderPaid(event.data.payload.metadata.orderId);
+ *     res.sendStatus(204);                // anything but 2xx is retried; handle each event id once
+ *   });
+ *   await core.forOrg(orgId).payments.refund({ id: invoice.id, reason: 'Out of stock' });
  *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
@@ -261,4 +274,61 @@ export const verifyErxesAccessToken = async (token: string, options: { coreUrl: 
     can: (action: string) => role === 'owner' || permissions.includes(action),
     scope: typeof payload.scope === 'string' ? payload.scope.split(' ') : [],
   };
+};
+
+/** An event core delivered to the plugin's `<api.url>/events` (from its manifest's `subscriptions`). */
+export interface DeliveredEvent {
+  id: string;
+  type: string;
+  organizationId: string;
+  createdAt: string;
+  data: CoreEvent;
+}
+
+const sha256 = async (text: string) => {
+  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)));
+  let binary = '';
+
+  for (const byte of digest) binary += String.fromCharCode(byte);
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
+/**
+ * Verifies an event delivery and returns the event: the `Authorization`
+ * token is core's, for this plugin, unexpired, and signs this exact body
+ * (pass the raw body text, not parsed JSON). Throws if anything is off.
+ * Deliveries can repeat: handle each `event.id` once.
+ */
+export const verifyCoreEvent = async (
+  authorization: string | undefined | null,
+  rawBody: string,
+  options: { coreUrl: string; plugin: string },
+): Promise<DeliveredEvent> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no core token');
+
+  const base = options.coreUrl.replace(/\/+$/, '');
+  let jwks = jwksByCore.get(base);
+
+  if (!jwks) {
+    jwks = createRemoteJWKSet(new URL(`${base}${CORE_API_PREFIX}/.well-known/jwks.json`));
+    jwksByCore.set(base, jwks);
+  }
+
+  const { payload } = await jwtVerify(token, jwks, {
+    issuer: 'erxes-core',
+    audience: options.plugin,
+    typ: 'erxes-core-event+jwt',
+    algorithms: ['ES256'],
+  });
+
+  if (payload.sha !== (await sha256(rawBody))) throw new Error('the body does not match the token');
+
+  const event = JSON.parse(rawBody) as DeliveredEvent;
+
+  if (event.id !== payload.event || event.organizationId !== payload.org) throw new Error('the event does not match the token');
+
+  return event;
 };

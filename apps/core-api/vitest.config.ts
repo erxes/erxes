@@ -19,6 +19,6 @@ export default defineConfig({
     },
     // Generous: tests may run against a remote Postgres (each query is a round trip).
     testTimeout: 60_000,
-    hookTimeout: 60_000,
+    hookTimeout: 300_000,
   },
 });

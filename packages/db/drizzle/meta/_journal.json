@@ -197,6 +197,13 @@
       "when": 1794444948979,
       "tag": "0027_deletion_counters",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794446664293,
+      "tag": "0028_payments_refunds",
+      "breakpoints": true
     }
   ]
 }

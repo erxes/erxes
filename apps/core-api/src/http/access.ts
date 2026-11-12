@@ -184,6 +184,10 @@ export const ACCESS = {
   'payments.getInvoice': { member: 'payments.manage', plugin: 'payments:read' },
   'payments.cancelInvoice': { member: 'payments.manage', plugin: 'payments:write' },
   'payments.invoices': needs('payments.manage'),
+  'payments.refund': { member: 'payments.refund', plugin: 'payments:write' },
+  'payments.refunds': { member: 'payments.manage', plugin: 'payments:read' },
+  'payments.pluginSettings': needs('payments.manage'),
+  'payments.updatePluginSettings': needs('payments.manage'),
   'payments.payTestInvoice': needs('payments.manage'),
 
   'webhooks.eventTypes': MEMBER,

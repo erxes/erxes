@@ -7,6 +7,10 @@ import { enforceAccess } from '~/http/access';
 import { listTrash, purgeFromTrash, restoreFromTrash } from '~/modules/trash/trash.service';
 import { AUTOMATION_TEMPLATES } from '~/modules/automations/library';
 import {
+  listPluginSettings,
+  listRefunds,
+  refundInvoice,
+  updatePluginSettings,
   addGateway,
   cancelInvoice,
   createInvoice,
@@ -463,6 +467,10 @@ export const coreRouter = pub.router({
     getInvoice: anyone.payments.getInvoice.handler(({ input, context }) => getInvoice(db(), context.caller, input.id)),
     cancelInvoice: anyone.payments.cancelInvoice.handler(({ input, context }) => cancelInvoice(db(), context.caller, input.id)),
     invoices: authed.payments.invoices.handler(({ input, context }) => listInvoices(db(), context.actor, input)),
+    refund: anyone.payments.refund.handler(({ input, context }) => refundInvoice(db(), context.caller, input)),
+    refunds: anyone.payments.refunds.handler(({ input, context }) => listRefunds(db(), context.caller, input.id)),
+    pluginSettings: authed.payments.pluginSettings.handler(({ context }) => listPluginSettings(db(), context.actor)),
+    updatePluginSettings: authed.payments.updatePluginSettings.handler(({ input, context }) => updatePluginSettings(db(), context.actor, input)),
     payTestInvoice: authed.payments.payTestInvoice.handler(({ input, context }) => payTestInvoice(db(), context.actor, input.id)),
   },
   webhooks: {
