@@ -2,7 +2,6 @@ import { CustomerSex } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   type Icon,
-  IconAlignLeft,
   IconBriefcase,
   IconBuilding,
   IconCalendar,
@@ -10,30 +9,31 @@ import {
   IconHash,
   IconMail,
   IconPhone,
-  IconPhoto,
   IconUser,
-  IconUserCircle,
 } from '@tabler/icons-react';
-import { DatePicker, Editor, Form, Input, Select, useToast } from 'erxes-ui';
+import { DatePicker, Form, Input, Select, useToast } from 'erxes-ui';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFormContext, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { AvatarUploadField } from '~/components/AvatarEditor';
 import { toYmd } from '~/components/inlineCells';
 import { errorData, isApiError, messageOf } from '~/lib/api';
-import { SelectMember } from '~/modules/contacts/components/SelectMember';
-import { linkNewContact } from '~/modules/contacts/components/useContactLinks';
 import { useCustomerCreate } from '~/modules/contacts/customers/useCustomers';
-import { PANEL_INPUT_CLASS_NAME, PanelFormLayout, PanelFormRow } from '../PanelForm';
-import { useCreatedPanelRecord } from '../useCreatedPanelRecord';
-import { useSidePanel, useSidePanelDraft } from '../useSidePanel';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from '../PanelForm';
+import { useSidePanelDraft } from '../useSidePanel';
 import { ContactRelationInput } from './ContactRelationInput';
+import {
+  ContactAvatarRow,
+  ContactDescriptionRow,
+  ContactOwnerRow,
+  NewContactForm,
+  useFinishCreate,
+} from './NewContactForm';
 
-// Core stores the ISO/IEC 5218 codes; old erxes's pronoun codes are not kept.
 /** `CUSTOMER_EXISTS` names the field whose value another customer has. */
 const takenField = z.object({ field: z.enum(['primaryEmail', 'primaryPhone']) });
 
+// The ISO/IEC 5218 codes core stores.
 const CUSTOMER_SEX_OPTIONS = [
   { label: 'Not known', value: '0' },
   { label: 'Male', value: '1' },
@@ -92,46 +92,85 @@ const INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
 
 const orNull = (value: string) => value.trim() || null;
 
-/**
- * A customer (or lead, `defaults.state`) not created yet, drawn like its
- * Detail tab: nothing saved until Save. The customer then replaces the
- * draft; Cancel leaves nothing behind.
- */
-export const CustomerPanelNew = () => {
+/** A registered text input with its field label and validation error. */
+const TextRow = ({ code, label }: { code: TTextCode; label: string }) => {
+  const { register, formState } = useFormContext<TCustomerForm>();
+
+  return (
+    <PanelFormRow
+      icon={TEXT_FIELD_ICONS[code]}
+      label={label}
+      error={formState.errors[code]?.message}
+    >
+      <Input {...register(code)} placeholder={label} className={INPUT_CLASS_NAME} />
+    </PanelFormRow>
+  );
+};
+
+const SexRow = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  const { control } = useFormContext<TCustomerForm>();
+
+  return (
+    <PanelFormRow icon={IconGenderBigender} label={t('pronoun', 'Pronoun')}>
+      <Form.Field
+        control={control}
+        name="sex"
+        render={({ field }) => (
+          <Select
+            value={String(field.value ?? 0)}
+            onValueChange={(value) => field.onChange(Number(value))}
+          >
+            <Select.Trigger className={INPUT_CLASS_NAME}>
+              <Select.Value placeholder={t('pronoun', 'Pronoun')} />
+            </Select.Trigger>
+            <Select.Content align="start">
+              {CUSTOMER_SEX_OPTIONS.map((option) => (
+                <Select.Item key={option.value} value={option.value} className="h-7 text-xs">
+                  {option.label}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        )}
+      />
+    </PanelFormRow>
+  );
+};
+
+const BirthDateRow = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  const { control, formState } = useFormContext<TCustomerForm>();
+
+  return (
+    <PanelFormRow
+      icon={IconCalendar}
+      label={t('birth-date', 'Birth date')}
+      error={formState.errors.birthDate?.message}
+    >
+      <Form.Field
+        control={control}
+        name="birthDate"
+        render={({ field }) => (
+          <DatePicker
+            placeholder="YYYY/MM/DD"
+            value={field.value ?? undefined}
+            defaultMonth={field.value ?? undefined}
+            onChange={(date) => field.onChange(date instanceof Date ? date : null)}
+          />
+        )}
+      />
+    </PanelFormRow>
+  );
+};
+
+/** Creates the customer (or lead) and links the companies picked in the draft. */
+const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[]) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
-  const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
-
   const { state, leadStageId } = useSidePanelDraft('core:customer');
-
-  const { back, canGoBack, close } = useSidePanel();
   const { toast } = useToast();
-  const [companyIds, setCompanyIds] = useState<string[]>([]);
-  const [linking, setLinking] = useState(false);
-  const showCreated = useCreatedPanelRecord('core:customer');
   const create = useCustomerCreate();
-
-  const form = useForm<TCustomerForm>({
-    resolver: zodResolver(customerSchema),
-    defaultValues: {
-      firstName: '',
-      middleName: '',
-      lastName: '',
-      primaryEmail: '',
-      primaryPhone: '',
-      ownerId: '',
-      code: '',
-      position: '',
-      sex: null,
-      birthDate: null,
-      description: '',
-      avatarUrl: null,
-    },
-  });
-
-  const { errors } = form.formState;
-
-  /** Returns to the previous record or closes a top-level unsaved draft. */
-  const cancel = () => (canGoBack ? back() : close());
+  const { linking, finish } = useFinishCreate('core:customer', 'Could not link companies');
 
   const save = async (values: TCustomerForm) => {
     try {
@@ -152,26 +191,12 @@ export const CustomerPanelNew = () => {
         avatarUrl: values.avatarUrl || null,
       });
 
-      // Creation succeeded: a link error still opens the customer, so Save
-      // cannot create a duplicate.
-      if (companyIds.length) {
-        setLinking(true);
-        await linkNewContact('core:customer', created.id, companyIds).catch((error: unknown) =>
-          toast({
-            variant: 'destructive',
-            title: 'Could not link companies',
-            description: messageOf(error),
-          }),
-        );
-        setLinking(false);
-      }
-
-      showCreated(created.id);
+      await finish(created.id, companyIds);
     } catch (error) {
       if (isApiError(error, 'CUSTOMER_EXISTS')) {
-        const field = errorData(error, takenField)?.field ?? 'primaryEmail';
-
-        form.setError(field, { message: error.message });
+        form.setError(errorData(error, takenField)?.field ?? 'primaryEmail', {
+          message: error.message,
+        });
 
         return;
       }
@@ -184,131 +209,70 @@ export const CustomerPanelNew = () => {
     }
   };
 
-  /** A registered text input with its field label and validation error. */
-  const textRow = (code: TTextCode, label: string) => (
-    <PanelFormRow
-      key={code}
-      icon={TEXT_FIELD_ICONS[code]}
-      label={label}
-      error={errors[code]?.message}
-    >
-      <Input {...form.register(code)} placeholder={label} className={INPUT_CLASS_NAME} />
-    </PanelFormRow>
-  );
+  return { save, saving: create.isPending || linking, isLead: state === 'lead' };
+};
+
+/**
+ * A customer (or lead, `defaults.state`) not created yet, drawn like its
+ * Detail tab: nothing saved until Save. The customer then replaces the
+ * draft; Cancel leaves nothing behind.
+ */
+export const CustomerPanelNew = () => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
+  const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  const [companyIds, setCompanyIds] = useState<string[]>([]);
+
+  const form = useForm<TCustomerForm>({
+    resolver: zodResolver(customerSchema),
+    defaultValues: {
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      primaryEmail: '',
+      primaryPhone: '',
+      ownerId: '',
+      code: '',
+      position: '',
+      sex: null,
+      birthDate: null,
+      description: '',
+      avatarUrl: null,
+    },
+  });
+
+  const { save, saving, isLead } = useCustomerSave(form, companyIds);
 
   return (
-    <Form {...form}>
-      <form
-        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
-        onSubmit={(event) => void form.handleSubmit(save)(event)}
-      >
-        <PanelFormLayout
-          onCancel={cancel}
-          saving={create.isPending || linking}
-          saveLabel={
-            state === 'lead'
-              ? addT('create-lead', 'Create lead')
-              : addT('create', 'Create customer')
-          }
-        >
-          <PanelFormRow icon={IconPhoto} label={addT('picture', 'Picture')}>
-            <Form.Field
-              control={form.control}
-              name="avatarUrl"
-              render={({ field }) => (
-                <AvatarUploadField value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </PanelFormRow>
-          {textRow('firstName', addT('first-name', 'First name'))}
-          {textRow('middleName', addT('middle-name', 'Middle name'))}
-          {textRow('lastName', addT('last-name', 'Last name'))}
-          <PanelFormRow icon={IconBuilding} label={t('company', 'Company')}>
-            <ContactRelationInput
-              kind="company"
-              value={companyIds}
-              onValueChange={setCompanyIds}
-              scope="side-panel-customer-new.companies"
-              disabled={create.isPending || linking}
-            />
-          </PanelFormRow>
-          {textRow('primaryEmail', addT('email', 'Email'))}
-          {textRow('primaryPhone', addT('phone', 'Phone'))}
-          <PanelFormRow icon={IconUserCircle} label={t('owner', 'Owner')}>
-            <Form.Field
-              control={form.control}
-              name="ownerId"
-              render={({ field }) => (
-                <SelectMember.FormItem
-                  placeholder={t('owner', 'Owner')}
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value ?? '')}
-                />
-              )}
-            />
-          </PanelFormRow>
-          {textRow('code', addT('code', 'Code'))}
-          {textRow('position', t('position', 'Position'))}
-          <PanelFormRow icon={IconGenderBigender} label={addT('pronoun', 'Pronoun')}>
-            <Form.Field
-              control={form.control}
-              name="sex"
-              render={({ field }) => (
-                <Select
-                  value={String(field.value ?? 0)}
-                  onValueChange={(value) => field.onChange(Number(value))}
-                >
-                  <Select.Trigger className={INPUT_CLASS_NAME}>
-                    <Select.Value placeholder={addT('pronoun', 'Pronoun')} />
-                  </Select.Trigger>
-                  <Select.Content align="start">
-                    {CUSTOMER_SEX_OPTIONS.map((option) => (
-                      <Select.Item key={option.value} value={option.value} className="h-7 text-xs">
-                        {option.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              )}
-            />
-          </PanelFormRow>
-          <PanelFormRow
-            icon={IconCalendar}
-            label={addT('birth-date', 'Birth date')}
-            error={errors.birthDate?.message}
-          >
-            <Form.Field
-              control={form.control}
-              name="birthDate"
-              render={({ field }) => (
-                <DatePicker
-                  placeholder="YYYY/MM/DD"
-                  value={field.value ?? undefined}
-                  defaultMonth={field.value ?? undefined}
-                  onChange={(date) => field.onChange(date instanceof Date ? date : null)}
-                />
-              )}
-            />
-          </PanelFormRow>
-          <div className="flex flex-col gap-1.5 pt-2">
-            <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
-              <IconAlignLeft className="size-3.5" aria-hidden="true" />
-              {addT('description', 'Description')}
-            </span>
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Editor
-                  initialContent={field.value}
-                  onChange={field.onChange}
-                  scope="side-panel-customer-new.description"
-                />
-              )}
-            />
-          </div>
-        </PanelFormLayout>
-      </form>
-    </Form>
+    <NewContactForm
+      form={form}
+      onSave={save}
+      saving={saving}
+      saveLabel={isLead ? addT('create-lead', 'Create lead') : addT('create', 'Create customer')}
+    >
+      <ContactAvatarRow label={addT('picture', 'Picture')} />
+      <TextRow code="firstName" label={addT('first-name', 'First name')} />
+      <TextRow code="middleName" label={addT('middle-name', 'Middle name')} />
+      <TextRow code="lastName" label={addT('last-name', 'Last name')} />
+      <PanelFormRow icon={IconBuilding} label={t('company', 'Company')}>
+        <ContactRelationInput
+          kind="company"
+          value={companyIds}
+          onValueChange={setCompanyIds}
+          scope="side-panel-customer-new.companies"
+          disabled={saving}
+        />
+      </PanelFormRow>
+      <TextRow code="primaryEmail" label={addT('email', 'Email')} />
+      <TextRow code="primaryPhone" label={addT('phone', 'Phone')} />
+      <ContactOwnerRow label={t('owner', 'Owner')} />
+      <TextRow code="code" label={addT('code', 'Code')} />
+      <TextRow code="position" label={t('position', 'Position')} />
+      <SexRow />
+      <BirthDateRow />
+      <ContactDescriptionRow
+        label={addT('description', 'Description')}
+        scope="side-panel-customer-new.description"
+      />
+    </NewContactForm>
   );
 };
