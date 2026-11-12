@@ -1,12 +1,11 @@
 import { db } from '@erxes/core-db';
+import { getFileSettings, updateFileSettings } from '~/modules/files/fileSettings';
 import {
   completeUpload,
   createUpload,
   getFile,
-  getFileSettings,
   listFiles,
   removeFile,
-  updateFileSettings,
 } from '~/modules/files/files.service';
 import { authed, anyone } from '~/orpc';
 

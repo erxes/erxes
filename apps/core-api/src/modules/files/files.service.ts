@@ -1,15 +1,17 @@
-import type { FileInfo, FileSettings } from '@erxes/core-contract';
+import type { FileInfo } from '@erxes/core-contract';
 import { randomBytes } from 'node:crypto';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
-import { type Db, files, newId, organizations, type OrganizationSettings } from '@erxes/core-db';
+import { type Db, files, newId } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { type Actor, type Caller, requirePermission } from '~/http/auth';
+import type { Actor, Caller } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
+import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { assertUploadAllowed, fileSettingsOf } from './fileSettings';
 import { canShowInline, storage } from './storage';
 import { logger } from '~/logger';
 import { guardDeletions } from '~/lib/deletionGuard';
@@ -18,31 +20,7 @@ const log = logger.child({ component: 'files' });
 
 type FileRow = typeof files.$inferSelect;
 
-const MB = 1024 * 1024;
-
-/**
- * Never accepted, whatever the settings say: programs and scripts that run
- * when opened.
- */
-const BLOCKED_EXTENSIONS = new Set([
-  '.exe',
-  '.msi',
-  '.bat',
-  '.cmd',
-  '.com',
-  '.scr',
-  '.pif',
-  '.cpl',
-  '.ps1',
-  '.vbs',
-  '.vbe',
-  '.wsf',
-  '.jar',
-  '.app',
-  '.dll',
-]);
-
-export const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
+const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
 
 export const toFileDto = (row: FileRow): FileInfo => ({
   id: row.id,
@@ -56,102 +34,6 @@ export const toFileDto = (row: FileRow): FileInfo => ({
   url: downloadPath(row.id),
   createdAt: row.createdAt.toISOString(),
 });
-
-const extensionOf = (name: string) => {
-  const dot = name.lastIndexOf('.');
-
-  return dot > 0 ? name.slice(dot).toLowerCase() : '';
-};
-
-/** Does `type/subtype` or the name's extension match one of the allowed entries? */
-export const typeAllowed = (allowed: string[], name: string, contentType: string) => {
-  if (!allowed.length) {
-    return true;
-  }
-
-  const extension = extensionOf(name);
-
-  return allowed.some((entry) => {
-    if (entry.startsWith('.')) {
-      return entry === extension;
-    }
-
-    if (entry.endsWith('/*')) {
-      return contentType.startsWith(entry.slice(0, -1));
-    }
-
-    return entry === contentType;
-  });
-};
-
-const settingsOf = async (client: Db, orgId: string): Promise<FileSettings> => {
-  const [row] = await client
-    .select({ settings: organizations.settings })
-    .from(organizations)
-    .where(eq(organizations.id, orgId))
-    .limit(1);
-
-  const saved = row?.settings.files ?? {};
-  const limitMb = config.files.maxSizeMb;
-
-  return {
-    maxSizeMb: Math.min(saved.maxSizeMb ?? limitMb, limitMb),
-    allowedTypes: saved.allowedTypes ?? [],
-    limitMb,
-    storage: config.files.driver,
-  };
-};
-
-export const getFileSettings = (client: Db, actor: Actor) => settingsOf(client, actor.orgId);
-
-export const updateFileSettings = async (
-  client: Db,
-  actor: Actor,
-  input: { maxSizeMb: number; allowedTypes: string[] },
-) => {
-  requirePermission(actor, 'settings.manage');
-
-  if (input.maxSizeMb > config.files.maxSizeMb) {
-    throw new HttpError(
-      400,
-      'LIMIT_EXCEEDED',
-      `This server accepts files up to ${config.files.maxSizeMb} MB`,
-    );
-  }
-
-  const before = await settingsOf(client, actor.orgId);
-
-  const next: OrganizationSettings['files'] = {
-    maxSizeMb: input.maxSizeMb,
-    allowedTypes: unique(input.allowedTypes),
-  };
-
-  await client.transaction(async (tx) => {
-    await tx
-      .update(organizations)
-      .set({
-        settings: sql`jsonb_set(${organizations.settings}, '{files}', ${JSON.stringify(next)}::jsonb)`,
-        updatedAt: sql`now()`,
-      })
-      .where(eq(organizations.id, actor.orgId));
-
-    await recordAudit(
-      tx,
-      { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
-      {
-        action: 'settings.files_changed',
-        targetType: 'organization',
-        targetId: actor.orgId,
-        changes: {
-          maxSizeMb: [before.maxSizeMb, next.maxSizeMb],
-          allowedTypes: [before.allowedTypes, next.allowedTypes],
-        },
-      },
-    );
-  });
-
-  return settingsOf(client, actor.orgId);
-};
 
 /** Where an upload's bytes wait until core has checked them: a fresh name per upload. */
 const uploadKey = (orgId: string, id: string) =>
@@ -173,22 +55,7 @@ export const createUpload = async (
   caller: Caller,
   input: { name: string; contentType: string; size: number },
 ) => {
-  const settings = await settingsOf(client, caller.orgId);
-
-  if (input.size > settings.maxSizeMb * MB) {
-    throw new HttpError(400, 'FILE_TOO_LARGE', `Files can be up to ${settings.maxSizeMb} MB`, {
-      maxSizeMb: settings.maxSizeMb,
-    });
-  }
-
-  if (
-    BLOCKED_EXTENSIONS.has(extensionOf(input.name)) ||
-    !typeAllowed(settings.allowedTypes, input.name, input.contentType)
-  ) {
-    throw new HttpError(400, 'FILE_TYPE_NOT_ALLOWED', 'This type of file is not allowed', {
-      allowedTypes: settings.allowedTypes,
-    });
-  }
+  assertUploadAllowed(await fileSettingsOf(client, caller.orgId), input);
 
   const id = newId();
   // The upload link writes here; the file's own key is only written by core, after checking.
@@ -201,24 +68,26 @@ export const createUpload = async (
     expiresIn,
   });
 
-  const [row] = await client
-    .insert(files)
-    .values({
-      id,
-      orgId: caller.orgId,
-      key,
-      name: input.name,
-      contentType: input.contentType,
-      size: input.size,
-      status: 'pending',
-      source: caller.source,
-      actorType: caller.actorType,
-      actorId: caller.actorId,
-    })
-    .returning();
+  const row = oneRow(
+    await client
+      .insert(files)
+      .values({
+        id,
+        orgId: caller.orgId,
+        key,
+        name: input.name,
+        contentType: input.contentType,
+        size: input.size,
+        status: 'pending',
+        source: caller.source,
+        actorType: caller.actorType,
+        actorId: caller.actorId,
+      })
+      .returning(),
+  );
 
   return {
-    file: toFileDto(row!),
+    file: toFileDto(row),
     upload: {
       method: 'PUT' as const,
       url: target.url,
@@ -292,11 +161,13 @@ export const completeUpload = async (client: Db, caller: Caller, id: string) =>
       );
     }
 
-    const [ready] = await tx
-      .update(files)
-      .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
-      .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), eq(files.status, 'pending')))
-      .returning();
+    const ready = oneRow(
+      await tx
+        .update(files)
+        .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
+        .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), eq(files.status, 'pending')))
+        .returning(),
+    );
 
     await recordAudit(tx, caller, {
       action: 'file.uploaded',
@@ -306,7 +177,7 @@ export const completeUpload = async (client: Db, caller: Caller, id: string) =>
       metadata: { contentType: row.contentType, size: row.size },
     });
 
-    return toFileDto(ready!);
+    return toFileDto(ready);
   });
 
 /** A ready file and a short-lived link to read it. */
@@ -355,9 +226,9 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
       and(eq(files.orgId, caller.orgId), eq(files.status, 'ready'), inArray(files.id, wanted)),
     );
 
-  const byId = new Map(rows.map((row) => [row.id, row]));
+  const byId = new Map(rows.map((row) => [row.id, toFileDto(row)]));
 
-  return { data: wanted.flatMap((id) => (byId.has(id) ? [toFileDto(byId.get(id)!)] : [])) };
+  return { data: wanted.flatMap((id) => byId.get(id) ?? []) };
 };
 
 /**
@@ -474,23 +345,23 @@ export const storeServerFile = async (
 
   await storage().write(key, input.body, input.contentType);
 
-  const [row] = await client
-    .insert(files)
-    .values({
-      id,
-      orgId: caller.orgId,
-      key,
-      name: input.name,
-      contentType: input.contentType,
-      size: input.body.length,
-      status: 'ready',
-      source: caller.source,
-      actorType: caller.actorType,
-      actorId: caller.actorId,
-    })
-    .returning();
-
-  return row!;
+  return oneRow(
+    await client
+      .insert(files)
+      .values({
+        id,
+        orgId: caller.orgId,
+        key,
+        name: input.name,
+        contentType: input.contentType,
+        size: input.body.length,
+        status: 'ready',
+        source: caller.source,
+        actorType: caller.actorType,
+        actorId: caller.actorId,
+      })
+      .returning(),
+  );
 };
 
 /** A ready file's bytes (imports read the uploaded file with it). */

@@ -3,8 +3,10 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
+  NotFound,
   PutObjectCommand,
   S3Client,
+  S3ServiceException,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
@@ -21,6 +23,7 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
+import { z } from 'zod';
 import { config } from '~/config';
 
 export interface UploadRequest {
@@ -89,17 +92,19 @@ export const contentDisposition = (name: string, inline: boolean) => {
 // ─── Local disk ─────────────────────────────────────────────────────────────
 
 /** What a signed local link allows: write (`put`) or read (`get`) one key, until `exp`. */
-export interface LocalGrant {
-  op: 'put' | 'get';
-  key: string;
-  exp: number;
+const LocalGrant = z.object({
+  op: z.enum(['put', 'get']),
+  key: z.string(),
+  exp: z.number(),
   /** put: exact size and type the bytes must have. */
-  size?: number;
-  contentType?: string;
+  size: z.number().optional(),
+  contentType: z.string().optional(),
   /** get: how to serve them. */
-  name?: string;
-  inline?: boolean;
-}
+  name: z.string().optional(),
+  inline: z.boolean().optional(),
+});
+
+type LocalGrant = z.infer<typeof LocalGrant>;
 
 /** A file's own key, or an upload's temporary one. */
 const KEY =
@@ -117,6 +122,16 @@ export const signGrant = (grant: LocalGrant) => {
   return `${payload}.${sign(payload)}`;
 };
 
+const grantOf = (payload: string) => {
+  try {
+    return LocalGrant.safeParse(JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')))
+      .data;
+  } catch {
+    // Signed by core, so it parses: a payload that doesn't is treated as forged.
+    return undefined;
+  }
+};
+
 /** The grant in a signed token, or null if it is forged or expired. */
 export const readGrant = (token: string): LocalGrant | null => {
   const [payload, signature] = token.split('.');
@@ -132,17 +147,13 @@ export const readGrant = (token: string): LocalGrant | null => {
     return null;
   }
 
-  try {
-    const grant = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as LocalGrant;
+  const grant = grantOf(payload);
 
-    if (grant.exp < Math.floor(Date.now() / 1000) || !KEY.test(grant.key)) {
-      return null;
-    }
-
-    return grant;
-  } catch {
+  if (!grant || grant.exp < Math.floor(Date.now() / 1000) || !KEY.test(grant.key)) {
     return null;
   }
+
+  return grant;
 };
 
 /** The file on disk for a key, always inside the storage folder. */
@@ -252,10 +263,8 @@ const localStorage: Storage = {
 
 // ─── S3-compatible (AWS S3, Cloudflare R2, MinIO) ───────────────────────────
 
-const s3Storage = (): Storage => {
-  const { s3 } = config.files;
-
-  const client = new S3Client({
+const s3ClientOf = (s3: typeof config.files.s3) =>
+  new S3Client({
     region: s3.region,
     endpoint: s3.endpoint,
     forcePathStyle: s3.forcePathStyle,
@@ -264,6 +273,14 @@ const s3Storage = (): Storage => {
         ? { accessKeyId: s3.accessKeyId, secretAccessKey: s3.secretAccessKey }
         : undefined,
   });
+
+const isNotFound = (error: unknown) =>
+  error instanceof NotFound ||
+  (error instanceof S3ServiceException && error.$metadata.httpStatusCode === 404);
+
+const s3Storage = (): Storage => {
+  const { s3 } = config.files;
+  const client = s3ClientOf(s3);
 
   return {
     async uploadTarget(key, request) {
@@ -290,12 +307,7 @@ const s3Storage = (): Storage => {
 
         return { size: head.ContentLength ?? 0, etag: head.ETag };
       } catch (error) {
-        const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata
-          ?.httpStatusCode;
-
-        if (status === 404 || (error as { name?: string }).name === 'NotFound') {
-          return null;
-        }
+        if (isNotFound(error)) return null;
 
         throw error;
       }
@@ -330,7 +342,9 @@ const s3Storage = (): Storage => {
     async read(key) {
       const object = await client.send(new GetObjectCommand({ Bucket: s3.bucket, Key: key }));
 
-      return Buffer.from(await object.Body!.transformToByteArray());
+      if (!object.Body) throw new Error(`storage object ${key} has no body`);
+
+      return Buffer.from(await object.Body.transformToByteArray());
     },
     async write(key, body, contentType) {
       await client.send(
