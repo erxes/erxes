@@ -7,7 +7,6 @@ import { ContactsPageHeader } from '../components/ContactsPageHeader';
 import { useCreateHotkey } from '../customers/CustomersHeader';
 import { ExportButton, ImportButton } from '~/modules/transfer/TransferButtons';
 import { useMultiQueryState } from 'erxes-ui';
-import { LeadViewSwitch } from '~/modules/leads/LeadViewSwitch';
 
 /** Export with the list's quick filters (the advanced filter and search come from the address). */
 const CompaniesExportButton = () => {
@@ -40,7 +39,6 @@ export const CompaniesHeader = ({ state = 'customer' }: { state?: 'lead' | 'cust
       <ContactsBreadcrumb />
     </ContactsPageHeader.Start>
     <ContactsPageHeader.End>
-      {state === 'lead' && <LeadViewSwitch />}
       <ImportButton recordType="company" />
       <CompaniesExportButton />
       <CompanyCreateButton state={state} />

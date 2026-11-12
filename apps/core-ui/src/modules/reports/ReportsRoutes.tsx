@@ -48,7 +48,7 @@ export const ReportSection = ({ title, description, children, className }: { tit
  * it took, where good ones come from, who converts them, why others were lost.
  * People or companies (`?kind=companies`), over a period (`?days=`).
  */
-const LeadsReportPage = () => {
+export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }) => {
   const [kind, setKind] = useQueryState<string>('kind');
   const [daysParam, setDays] = useQueryState<string>('days');
   const recordType = kind === 'companies' ? 'company' : 'customer';
@@ -59,7 +59,13 @@ const LeadsReportPage = () => {
     <PageContainer>
       <PageHeader>
         <PageHeader.Start>
-          <AppBreadcrumb items={[{ label: 'Reports', to: '/reports', icon: IconChartFunnel }, { label: 'Leads', to: '/reports/leads' }]} />
+          <AppBreadcrumb
+            items={
+              inContacts
+                ? [{ label: 'Leads', to: '/contacts/leads', icon: IconChartFunnel }, { label: 'Insights', to: '/contacts/leads/insights' }]
+                : [{ label: 'Reports', to: '/reports', icon: IconChartFunnel }, { label: 'Leads', to: '/reports/leads' }]
+            }
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Select value={recordType} onValueChange={(next) => setKind(next === 'company' ? 'companies' : null)}>

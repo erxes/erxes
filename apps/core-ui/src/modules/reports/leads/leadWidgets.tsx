@@ -37,7 +37,7 @@ const leadTile = (title: string, Body: (props: { report: LeadReport }) => React.
         action={
           <div className="flex items-center gap-2">
             <KindToggle value={kind} onChange={setKind} />
-            <Link to={`/reports/leads${kind === 'company' ? '?kind=companies' : ''}`} className="text-xs text-muted-foreground hover:text-foreground">
+            <Link to={`/contacts/leads/insights${kind === 'company' ? '?kind=companies' : ''}`} className="text-xs text-muted-foreground hover:text-foreground">
               Report
             </Link>
           </div>

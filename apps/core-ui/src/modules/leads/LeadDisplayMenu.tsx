@@ -1,15 +1,15 @@
 import { IconAdjustmentsHorizontal, IconLayoutKanban, IconTable } from '@tabler/icons-react';
-import { Button, cn, Popover, useQueryState } from 'erxes-ui';
+import { Button, cn, Popover } from 'erxes-ui';
+import { useLeadView } from './leadView';
 
 const VIEWS = [
   { value: 'table', label: 'Table', icon: IconTable },
   { value: 'board', label: 'Board', icon: IconLayoutKanban },
 ] as const;
 
-/** "Display" in the leads filter bar (as old erxes): table or board. */
+/** "Display" in the leads filter bar (as old erxes): table or board, remembered in this browser. */
 export const LeadDisplayMenu = () => {
-  const [view, setView] = useQueryState<string>('view');
-  const current = view === 'board' ? 'board' : 'table';
+  const [current, setView] = useLeadView();
 
   return (
     <Popover>
@@ -26,7 +26,7 @@ export const LeadDisplayMenu = () => {
             <button
               key={value}
               type="button"
-              onClick={() => setView(value === 'table' ? null : value)}
+              onClick={() => setView(value)}
               className={cn(
                 'flex flex-col items-center gap-1.5 rounded-lg border p-3 text-sm text-muted-foreground transition-colors hover:bg-accent',
                 current === value && 'border-primary bg-primary/5 font-medium text-foreground',

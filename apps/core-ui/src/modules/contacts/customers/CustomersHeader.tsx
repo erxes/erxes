@@ -1,7 +1,6 @@
 import type { CustomerState } from '@erxes/core-contract';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Kbd } from 'erxes-ui';
-import { LeadViewSwitch } from '~/modules/leads/LeadViewSwitch';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
@@ -71,7 +70,6 @@ export const CustomersHeader = ({ state }: { state: CustomerState }) => (
       <ContactsBreadcrumb />
     </ContactsPageHeader.Start>
     <ContactsPageHeader.End>
-      {state === 'lead' && <LeadViewSwitch />}
       <ImportButton recordType={state} />
       <CustomersExportButton state={state} />
       <CustomerCreateButton state={state} />

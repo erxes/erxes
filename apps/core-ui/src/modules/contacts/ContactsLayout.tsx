@@ -1,5 +1,6 @@
-import { IconBuilding, IconMagnet, IconUser } from '@tabler/icons-react';
-import { AppLayout, Sidebar } from 'erxes-ui';
+import { IconBuilding, IconChartFunnel, IconChevronDown, IconMagnet, IconUser } from '@tabler/icons-react';
+import { AppLayout, cn, Sidebar } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { SidePanelLayout } from '~/modules/side-panel/SidePanelLayout';
@@ -13,7 +14,52 @@ export const CONTACTS_SECTIONS = [
   { labelKey: 'leads', path: ContactsPath.Leads, icon: IconMagnet },
 ];
 
-/** The Contacts sidebar, as old core-ui's core module panel. */
+const LEADS = `${ContactsPath.Index}${ContactsPath.Leads}`;
+
+/** The Leads group: its report first, then people and companies. */
+const LEAD_ITEMS = [
+  { label: 'Insights', to: `${LEADS}/insights`, icon: IconChartFunnel },
+  { label: 'People', to: LEADS, icon: IconUser },
+  { label: 'Companies', to: `${LEADS}/companies`, icon: IconBuilding },
+];
+
+/** Which lead item a path is in (`/leads/<id>` is a person). */
+const leadItemOf = (pathname: string) =>
+  pathname.startsWith(`${LEADS}/insights`) ? `${LEADS}/insights` : pathname.startsWith(`${LEADS}/companies`) ? `${LEADS}/companies` : LEADS;
+
+const LeadsGroup = () => {
+  const { pathname } = useLocation();
+  const { t } = useTranslation('contact');
+  const inLeads = pathname === LEADS || pathname.startsWith(`${LEADS}/`);
+  const [open, setOpen] = useState(true);
+  const active = inLeads ? leadItemOf(pathname) : null;
+
+  return (
+    <Sidebar.MenuItem>
+      <Sidebar.MenuButton className="px-2" isActive={inLeads && !open} onClick={() => setOpen((value) => !value)}>
+        <IconMagnet />
+        <span className="min-w-0 flex-1 truncate capitalize">{t('leads')}</span>
+        <IconChevronDown className={cn('size-4 text-muted-foreground transition-transform', !open && '-rotate-90')} />
+      </Sidebar.MenuButton>
+      {open && (
+        <Sidebar.Sub>
+          {LEAD_ITEMS.map(({ label, to, icon: Icon }) => (
+            <Sidebar.SubItem key={to}>
+              <Sidebar.SubButton asChild isActive={active === to}>
+                <Link to={to}>
+                  <Icon />
+                  <span>{label}</span>
+                </Link>
+              </Sidebar.SubButton>
+            </Sidebar.SubItem>
+          ))}
+        </Sidebar.Sub>
+      )}
+    </Sidebar.MenuItem>
+  );
+};
+
+/** The Contacts sidebar, as old core-ui's core module panel; Leads opens to Insights, People and Companies. */
 const ContactsNavigation = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('contact');
@@ -22,7 +68,7 @@ const ContactsNavigation = () => {
     <Sidebar.Group className="px-2 py-1">
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          {CONTACTS_SECTIONS.map(({ labelKey, path, icon: Icon }) => {
+          {CONTACTS_SECTIONS.filter(({ path }) => path !== ContactsPath.Leads).map(({ labelKey, path, icon: Icon }) => {
             const fullPath = `${ContactsPath.Index}${path}`;
 
             return (
@@ -40,6 +86,7 @@ const ContactsNavigation = () => {
               </Sidebar.MenuItem>
             );
           })}
+          <LeadsGroup />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
@@ -50,7 +97,17 @@ const ContactsNavigation = () => {
 const SectionViews = () => {
   const { pathname } = useLocation();
   const section = pathname.slice(ContactsPath.Index.length);
-  const recordType = section.startsWith(ContactsPath.Companies) ? 'company' : section.startsWith(ContactsPath.Leads) ? 'lead' : section.startsWith(ContactsPath.Customers) ? 'customer' : null;
+  // Company leads share the companies' views; lead insights have none.
+  const recordType =
+    section.startsWith(`${ContactsPath.Leads}/insights`)
+      ? null
+      : section.startsWith(ContactsPath.Companies) || section.startsWith(`${ContactsPath.Leads}/companies`)
+        ? 'company'
+        : section.startsWith(ContactsPath.Leads)
+          ? 'lead'
+          : section.startsWith(ContactsPath.Customers)
+            ? 'customer'
+            : null;
 
   return recordType ? <ViewsNavigation recordType={recordType} /> : null;
 };
