@@ -40,7 +40,21 @@ export const LeadStageMenu = ({
   </DropdownMenu>
 );
 
-/** The stage as a status pill (tinted with its colour); click to change it. */
+/** The stage as a status pill, tinted with its colour (inside a trigger of its own). */
+export const LeadStagePill = ({ stage }: { stage?: LeadStage | null }) => (
+  <span
+    style={{ background: stage ? `color-mix(in srgb, ${stage.color} 16%, transparent)` : undefined }}
+    className={cn(
+      'inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-transparent px-2 text-xs font-medium',
+      !stage && 'border-dashed border-border text-muted-foreground',
+    )}
+  >
+    <LeadStageBadge stage={stage} className="text-xs" />
+    <IconChevronDown className="size-3 shrink-0 opacity-60" />
+  </span>
+);
+
+/** The stage as a status pill button; click to change it. */
 export const LeadStageTrigger = ({ stage, ...props }: { stage?: LeadStage | null } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     type="button"

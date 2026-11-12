@@ -1,30 +1,49 @@
-import type { LeadRecordType } from '@erxes/core-contract';
-import { IconActivity, IconHourglass, IconProgress, IconWorld } from '@tabler/icons-react';
+import type { LeadRecordType, LeadStage } from '@erxes/core-contract';
+import { IconActivity, IconCheck, IconHourglass, IconProgress, IconWorld } from '@tabler/icons-react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { RecordTable, RecordTableInlineCell, RelativeDateDisplay } from 'erxes-ui';
+import { Command, PopoverScoped, RecordTable, RecordTableInlineCell, RelativeDateDisplay } from 'erxes-ui';
 import { useState } from 'react';
 import { DisqualifyDialog } from './LeadActions';
-import { LeadStageMenu, LeadStageTrigger } from './LeadStageBadge';
+import { LeadStageBadge, LeadStagePill } from './LeadStageBadge';
 import { daysSince, type LeadRecord, useLeadStages, useMoveLeads } from './useLeads';
 
+/** The stage pill in a table row: the table's own inline popover (a plain dropdown mispositions inside the grid). */
 const LeadStageCell = ({ recordType, record }: { recordType: LeadRecordType; record: LeadRecord }) => {
   const { stages, byId } = useLeadStages();
   const move = useMoveLeads();
+  const [open, setOpen] = useState(false);
   const [disqualifying, setDisqualifying] = useState<string | null>(null);
+  const stage = record.leadStageId ? byId.get(record.leadStageId) : null;
+
+  const pick = (next: LeadStage) => {
+    setOpen(false);
+
+    if (next.id === record.leadStageId) return;
+    if (next.kind === 'disqualified') setDisqualifying(next.id);
+    else move.mutate({ recordType, ids: [record.id], stageId: next.id });
+  };
 
   return (
-    <div className="flex h-8 items-center px-1">
-      <LeadStageMenu
-        stages={stages}
-        value={record.leadStageId}
-        onSelect={(stage) =>
-          stage.kind === 'disqualified' ? setDisqualifying(stage.id) : move.mutate({ recordType, ids: [record.id], stageId: stage.id })
-        }
-      >
-        <LeadStageTrigger stage={record.leadStageId ? byId.get(record.leadStageId) : null} />
-      </LeadStageMenu>
+    <>
+      <PopoverScoped scope={`lead-stage.${record.id}`} open={open} onOpenChange={setOpen}>
+        <RecordTableInlineCell.Trigger className="px-1">
+          <LeadStagePill stage={stage} />
+        </RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Content className="w-52">
+          <Command>
+            <Command.List className="p-1">
+              {stages.map((item) => (
+                <Command.Item key={item.id} value={item.id} onSelect={() => pick(item)}>
+                  <LeadStageBadge stage={item} className="flex-1" />
+                  {item.id === record.leadStageId && <IconCheck className="size-4 text-primary" />}
+                </Command.Item>
+              ))}
+            </Command.List>
+          </Command>
+        </RecordTableInlineCell.Content>
+      </PopoverScoped>
       <DisqualifyDialog recordType={recordType} ids={[record.id]} stageId={disqualifying} onClose={() => setDisqualifying(null)} />
-    </div>
+    </>
   );
 };
 
