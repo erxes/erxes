@@ -2229,6 +2229,518 @@
       }
     }
   },
+  "loyalty": {
+    "agent": {
+      "name": "Agents",
+      "description": "Agent management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "agentView": {
+          "title": "View agents",
+          "description": "View agent records"
+        },
+        "agentCreate": {
+          "title": "Create agent",
+          "description": "Create agent records"
+        },
+        "agentUpdate": {
+          "title": "Edit agent",
+          "description": "Edit agent records"
+        },
+        "agentRemove": {
+          "title": "Delete agent",
+          "description": "Delete agent records"
+        }
+      }
+    },
+    "assignment": {
+      "name": "Assignments",
+      "description": "Assignment management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "assignmentView": {
+          "title": "View assignments",
+          "description": "View assignment records"
+        },
+        "assignmentCreate": {
+          "title": "Create assignment",
+          "description": "Create assignment records"
+        },
+        "assignmentRemove": {
+          "title": "Delete assignment",
+          "description": "Delete assignment records"
+        }
+      }
+    },
+    "assignmentCampaign": {
+      "name": "Assignment campaigns",
+      "description": "Assignment campaign management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "View loyalty campaigns",
+          "description": "View loyalty campaign records"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Create loyalty campaign",
+          "description": "Create loyalty campaign records"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Update loyalty campaign",
+          "description": "Update loyalty campaign records"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Delete loyalty campaign",
+          "description": "Delete loyalty campaign records"
+        }
+      }
+    },
+    "config": {
+      "name": "Configs",
+      "description": "Loyalty configuration",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyConfigView": {
+          "title": "View loyalty configs",
+          "description": "View loyalty configuration"
+        },
+        "loyaltyConfigUpdate": {
+          "title": "Update loyalty configs",
+          "description": "Update loyalty configuration"
+        }
+      }
+    },
+    "loyalty": {
+      "name": "Loyalty",
+      "description": "Loyalty operations",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyView": {
+          "title": "View loyalty data",
+          "description": "View loyalty records"
+        },
+        "loyaltyCheck": {
+          "title": "Check loyalty",
+          "description": "Check voucher eligibility"
+        },
+        "loyaltyShareScore": {
+          "title": "Share score",
+          "description": "Share loyalty points between users"
+        },
+        "loyaltyConfirmVoucher": {
+          "title": "Confirm voucher sale",
+          "description": "Confirm voucher usage in sale"
+        }
+      }
+    },
+    "coupon": {
+      "name": "Coupons",
+      "description": "Coupon management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "couponView": {
+          "title": "View coupons",
+          "description": "View coupon records"
+        },
+        "couponCreate": {
+          "title": "Create coupon",
+          "description": "Create coupon records"
+        },
+        "couponEdit": {
+          "title": "Edit coupon",
+          "description": "Edit coupon records"
+        },
+        "couponRemove": {
+          "title": "Delete coupon",
+          "description": "Delete coupon records"
+        },
+        "couponExportManage": {
+          "title": "Export coupons",
+          "description": "Export coupon records"
+        }
+      }
+    },
+    "couponCampaign": {
+      "name": "Coupon campaigns",
+      "description": "Coupon campaign management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "View loyalty campaigns",
+          "description": "View loyalty campaign records"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Create loyalty campaign",
+          "description": "Create loyalty campaign records"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Update loyalty campaign",
+          "description": "Update loyalty campaign records"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Delete loyalty campaign",
+          "description": "Delete loyalty campaign records"
+        }
+      }
+    },
+    "donate": {
+      "name": "Donations",
+      "description": "Donation management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "donateView": {
+          "title": "View donations",
+          "description": "View donation records"
+        },
+        "donateCreate": {
+          "title": "Create donation",
+          "description": "Create donation records"
+        },
+        "donateEdit": {
+          "title": "Edit donation",
+          "description": "Edit donation records"
+        },
+        "donateRemove": {
+          "title": "Delete donation",
+          "description": "Delete donation records"
+        }
+      }
+    },
+    "donateCampaign": {
+      "name": "Donation campaigns",
+      "description": "Donation campaign management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "View loyalty campaigns",
+          "description": "View loyalty campaign records"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Create loyalty campaign",
+          "description": "Create loyalty campaign records"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Update loyalty campaign",
+          "description": "Update loyalty campaign records"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Delete loyalty campaign",
+          "description": "Delete loyalty campaign records"
+        }
+      }
+    },
+    "lottery": {
+      "name": "Lotteries",
+      "description": "Lottery management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "lotteryView": {
+          "title": "View lotteries",
+          "description": "View lottery records"
+        },
+        "lotteryCreate": {
+          "title": "Create lottery",
+          "description": "Create lottery records"
+        },
+        "lotteryEdit": {
+          "title": "Edit lottery",
+          "description": "Edit lottery records"
+        },
+        "lotteryRemove": {
+          "title": "Delete lottery",
+          "description": "Delete lottery records"
+        },
+        "lotteryBuy": {
+          "title": "Buy lottery ticket",
+          "description": "Purchase lottery ticket"
+        }
+      }
+    },
+    "lotteryCampaign": {
+      "name": "Lottery campaigns",
+      "description": "Lottery campaign management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "View loyalty campaigns",
+          "description": "View loyalty campaign records"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Create loyalty campaign",
+          "description": "Create loyalty campaign records"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Update loyalty campaign",
+          "description": "Update loyalty campaign records"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Delete loyalty campaign",
+          "description": "Delete loyalty campaign records"
+        },
+        "lotteryCampaignDo": {
+          "title": "Perform lottery draw",
+          "description": "Execute lottery draw"
+        }
+      }
+    },
+    "pricing": {
+      "name": "Pricing",
+      "description": "Pricing management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "pricingView": {
+          "title": "View pricing",
+          "description": "View pricing records"
+        },
+        "pricingCreate": {
+          "title": "Create pricing",
+          "description": "Create pricing records"
+        },
+        "pricingUpdate": {
+          "title": "Edit pricing",
+          "description": "Edit pricing records"
+        },
+        "pricingRemove": {
+          "title": "Delete pricing",
+          "description": "Delete pricing records"
+        }
+      }
+    },
+    "pricingPlan": {
+      "name": "Pricing plans",
+      "description": "Pricing plan management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "pricingPlanView": {
+          "title": "View pricing plans",
+          "description": "View pricing plan records"
+        },
+        "pricingPlanCreate": {
+          "title": "Create pricing plan",
+          "description": "Create pricing plan records"
+        },
+        "pricingPlanUpdate": {
+          "title": "Edit pricing plan",
+          "description": "Edit pricing plan records"
+        },
+        "pricingPlanRemove": {
+          "title": "Delete pricing plan",
+          "description": "Delete pricing plan records"
+        }
+      }
+    },
+    "scoreCampaign": {
+      "name": "Score campaigns",
+      "description": "Score campaign management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "View loyalty campaigns",
+          "description": "View loyalty campaign records"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Create loyalty campaign",
+          "description": "Create loyalty campaign records"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Update loyalty campaign",
+          "description": "Update loyalty campaign records"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Delete loyalty campaign",
+          "description": "Delete loyalty campaign records"
+        },
+        "scoreRefund": {
+          "title": "Refund loyalty score",
+          "description": "Refund points to user"
+        }
+      }
+    },
+    "scoreLog": {
+      "name": "Score logs",
+      "description": "Score log management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "scoreLogView": {
+          "title": "View score logs",
+          "description": "View score log records"
+        },
+        "scoreLogChange": {
+          "title": "Change score",
+          "description": "Manually adjust user score"
+        },
+        "loyaltyAccountFreeze": {
+          "title": "Freeze accounts",
+          "description": "Freeze and unfreeze a loyalty account"
+        },
+        "loyaltyAccountSetTier": {
+          "title": "Set tier",
+          "description": "Set an account's tier by hand"
+        }
+      }
+    },
+    "spin": {
+      "name": "Spins",
+      "description": "Spin management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "spinView": {
+          "title": "View spins",
+          "description": "View spin records"
+        },
+        "spinCreate": {
+          "title": "Create spin",
+          "description": "Create spin records"
+        },
+        "spinEdit": {
+          "title": "Edit spin",
+          "description": "Edit spin records"
+        },
+        "spinRemove": {
+          "title": "Delete spin",
+          "description": "Delete spin records"
+        },
+        "spinBuy": {
+          "title": "Buy spin",
+          "description": "Purchase a spin"
+        },
+        "spinDo": {
+          "title": "Execute spin",
+          "description": "Perform a spin"
+        }
+      }
+    },
+    "spinCampaign": {
+      "name": "Spin campaigns",
+      "description": "Spin campaign management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "View loyalty campaigns",
+          "description": "View loyalty campaign records"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Create loyalty campaign",
+          "description": "Create loyalty campaign records"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Update loyalty campaign",
+          "description": "Update loyalty campaign records"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Delete loyalty campaign",
+          "description": "Delete loyalty campaign records"
+        }
+      }
+    },
+    "voucher": {
+      "name": "Vouchers",
+      "description": "Voucher management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "voucherView": {
+          "title": "View vouchers",
+          "description": "View voucher records"
+        },
+        "voucherCreate": {
+          "title": "Create voucher",
+          "description": "Create voucher records"
+        },
+        "voucherEdit": {
+          "title": "Edit voucher",
+          "description": "Edit voucher records"
+        },
+        "voucherRemove": {
+          "title": "Delete voucher",
+          "description": "Delete voucher records"
+        },
+        "voucherBuy": {
+          "title": "Buy voucher",
+          "description": "Purchase a voucher"
+        }
+      }
+    },
+    "voucherCampaign": {
+      "name": "Voucher campaigns",
+      "description": "Voucher campaign management",
+      "scopes": {
+        "own": "Records user created",
+        "all": "All records"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "View loyalty campaigns",
+          "description": "View loyalty campaign records"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Create loyalty campaign",
+          "description": "Create loyalty campaign records"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Update loyalty campaign",
+          "description": "Update loyalty campaign records"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Delete loyalty campaign",
+          "description": "Delete loyalty campaign records"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Full access to Accounting plugin"
@@ -2301,6 +2813,15 @@
     },
     "payment:viewer": {
       "description": "Read-only access to payment invoices"
+    },
+    "loyalty:admin": {
+      "description": "Full access to Loyalty plugin"
+    },
+    "loyalty:user": {
+      "description": "Standard loyalty user"
+    },
+    "loyalty:viewer": {
+      "description": "Read-only access"
     }
   }
 }

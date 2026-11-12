@@ -2229,6 +2229,518 @@
       }
     }
   },
+  "loyalty": {
+    "agent": {
+      "name": "Агентууд",
+      "description": "Агентын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "agentView": {
+          "title": "Агент харах",
+          "description": "Агентын бичлэг харах"
+        },
+        "agentCreate": {
+          "title": "Агент үүсгэх",
+          "description": "Агентын бичлэг үүсгэх"
+        },
+        "agentUpdate": {
+          "title": "Агент засах",
+          "description": "Агентын бичлэг засах"
+        },
+        "agentRemove": {
+          "title": "Агент устгах",
+          "description": "Агентын бичлэг устгах"
+        }
+      }
+    },
+    "assignment": {
+      "name": "Хуваарилалтууд",
+      "description": "Хуваарилалтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "assignmentView": {
+          "title": "Хуваарилалт харах",
+          "description": "Хуваарилалтын бичлэг харах"
+        },
+        "assignmentCreate": {
+          "title": "Хуваарилалт үүсгэх",
+          "description": "Хуваарилалтын бичлэг үүсгэх"
+        },
+        "assignmentRemove": {
+          "title": "Хуваарилалт устгах",
+          "description": "Хуваарилалтын бичлэг устгах"
+        }
+      }
+    },
+    "assignmentCampaign": {
+      "name": "Хуваарилалтын аян",
+      "description": "Хуваарилалтын аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    },
+    "config": {
+      "name": "Тохиргоо",
+      "description": "Лояалти тохиргоо",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyConfigView": {
+          "title": "Лояалти тохиргоо харах",
+          "description": "Лояалти тохиргоо харах"
+        },
+        "loyaltyConfigUpdate": {
+          "title": "Лояалти тохиргоо шинэчлэх",
+          "description": "Лояалти тохиргоо шинэчлэх"
+        }
+      }
+    },
+    "loyalty": {
+      "name": "Лояалти",
+      "description": "Лояалти үйлдлүүд",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyView": {
+          "title": "Лояалти өгөгдөл харах",
+          "description": "Лояалти бичлэг харах"
+        },
+        "loyaltyCheck": {
+          "title": "Лояалти шалгах",
+          "description": "Ваучер ашиглах боломжтой эсэхийг шалгах"
+        },
+        "loyaltyShareScore": {
+          "title": "Оноо хуваалцах",
+          "description": "Хэрэглэгчдийн хооронд лояалти оноо хуваалцах"
+        },
+        "loyaltyConfirmVoucher": {
+          "title": "Ваучерын борлуулалт баталгаажуулах",
+          "description": "Борлуулалтад ваучер ашигласныг баталгаажуулах"
+        }
+      }
+    },
+    "coupon": {
+      "name": "Купонууд",
+      "description": "Купоны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "couponView": {
+          "title": "Купон харах",
+          "description": "Купоны бичлэг харах"
+        },
+        "couponCreate": {
+          "title": "Купон үүсгэх",
+          "description": "Купоны бичлэг үүсгэх"
+        },
+        "couponEdit": {
+          "title": "Купон засах",
+          "description": "Купоны бичлэг засах"
+        },
+        "couponRemove": {
+          "title": "Купон устгах",
+          "description": "Купоны бичлэг устгах"
+        },
+        "couponExportManage": {
+          "title": "Купон экспортлох",
+          "description": "Купоны бичлэг экспортлох"
+        }
+      }
+    },
+    "couponCampaign": {
+      "name": "Купоны аян",
+      "description": "Купоны аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    },
+    "donate": {
+      "name": "Хандивууд",
+      "description": "Хандивын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "donateView": {
+          "title": "Хандив харах",
+          "description": "Хандивын бичлэг харах"
+        },
+        "donateCreate": {
+          "title": "Хандив үүсгэх",
+          "description": "Хандивын бичлэг үүсгэх"
+        },
+        "donateEdit": {
+          "title": "Хандив засах",
+          "description": "Хандивын бичлэг засах"
+        },
+        "donateRemove": {
+          "title": "Хандив устгах",
+          "description": "Хандивын бичлэг устгах"
+        }
+      }
+    },
+    "donateCampaign": {
+      "name": "Хандивын аян",
+      "description": "Хандивын аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    },
+    "lottery": {
+      "name": "Сугалаанууд",
+      "description": "Сугалааны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "lotteryView": {
+          "title": "Сугалаа харах",
+          "description": "Сугалааны бичлэг харах"
+        },
+        "lotteryCreate": {
+          "title": "Сугалаа үүсгэх",
+          "description": "Сугалааны бичлэг үүсгэх"
+        },
+        "lotteryEdit": {
+          "title": "Сугалаа засах",
+          "description": "Сугалааны бичлэг засах"
+        },
+        "lotteryRemove": {
+          "title": "Сугалаа устгах",
+          "description": "Сугалааны бичлэг устгах"
+        },
+        "lotteryBuy": {
+          "title": "Сугалааны тасалбар худалдан авах",
+          "description": "Сугалааны тасалбар худалдан авах"
+        }
+      }
+    },
+    "lotteryCampaign": {
+      "name": "Сугалааны аян",
+      "description": "Сугалааны аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        },
+        "lotteryCampaignDo": {
+          "title": "Сугалаа явуулах",
+          "description": "Сугалааны тохирол явуулах"
+        }
+      }
+    },
+    "pricing": {
+      "name": "Үнэ тогтоолт",
+      "description": "Үнэ тогтоолтын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "pricingView": {
+          "title": "Үнэ тогтоолт харах",
+          "description": "Үнэ тогтоолтын бичлэг харах"
+        },
+        "pricingCreate": {
+          "title": "Үнэ тогтоолт үүсгэх",
+          "description": "Үнэ тогтоолтын бичлэг үүсгэх"
+        },
+        "pricingUpdate": {
+          "title": "Үнэ тогтоолт засах",
+          "description": "Үнэ тогтоолтын бичлэг засах"
+        },
+        "pricingRemove": {
+          "title": "Үнэ тогтоолт устгах",
+          "description": "Үнэ тогтоолтын бичлэг устгах"
+        }
+      }
+    },
+    "pricingPlan": {
+      "name": "Үнийн төлөвлөгөө",
+      "description": "Үнийн төлөвлөгөөний удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "pricingPlanView": {
+          "title": "Үнийн төлөвлөгөө харах",
+          "description": "Үнийн төлөвлөгөөний бичлэг харах"
+        },
+        "pricingPlanCreate": {
+          "title": "Үнийн төлөвлөгөө үүсгэх",
+          "description": "Үнийн төлөвлөгөөний бичлэг үүсгэх"
+        },
+        "pricingPlanUpdate": {
+          "title": "Үнийн төлөвлөгөө засах",
+          "description": "Үнийн төлөвлөгөөний бичлэг засах"
+        },
+        "pricingPlanRemove": {
+          "title": "Үнийн төлөвлөгөө устгах",
+          "description": "Үнийн төлөвлөгөөний бичлэг устгах"
+        }
+      }
+    },
+    "scoreCampaign": {
+      "name": "Онооны аян",
+      "description": "Онооны аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        },
+        "scoreRefund": {
+          "title": "Лояалти оноо буцаах",
+          "description": "Хэрэглэгчид оноо буцааж олгох"
+        }
+      }
+    },
+    "scoreLog": {
+      "name": "Онооны түүх",
+      "description": "Онооны түүхийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "scoreLogView": {
+          "title": "Онооны түүх харах",
+          "description": "Онооны түүхийн бичлэг харах"
+        },
+        "scoreLogChange": {
+          "title": "Оноо өөрчлөх",
+          "description": "Хэрэглэгчийн оноог гараар өөрчлөх"
+        },
+        "loyaltyAccountFreeze": {
+          "title": "Данс царцаах",
+          "description": "Лояалти дансыг царцаах, царцаалтыг цуцлах"
+        },
+        "loyaltyAccountSetTier": {
+          "title": "Түвшин тогтоох",
+          "description": "Дансны түвшинг гараар тогтоох"
+        }
+      }
+    },
+    "spin": {
+      "name": "Эргүүлгүүд",
+      "description": "Эргүүлгийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "spinView": {
+          "title": "Эргүүлэг харах",
+          "description": "Эргүүлгийн бичлэг харах"
+        },
+        "spinCreate": {
+          "title": "Эргүүлэг үүсгэх",
+          "description": "Эргүүлгийн бичлэг үүсгэх"
+        },
+        "spinEdit": {
+          "title": "Эргүүлэг засах",
+          "description": "Эргүүлгийн бичлэг засах"
+        },
+        "spinRemove": {
+          "title": "Эргүүлэг устгах",
+          "description": "Эргүүлгийн бичлэг устгах"
+        },
+        "spinBuy": {
+          "title": "Эргүүлэг худалдан авах",
+          "description": "Эргүүлэг худалдан авах"
+        },
+        "spinDo": {
+          "title": "Эргүүлэг эргүүлэх",
+          "description": "Эргүүлэг эргүүлэх"
+        }
+      }
+    },
+    "spinCampaign": {
+      "name": "Эргүүлгийн аян",
+      "description": "Эргүүлгийн аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    },
+    "voucher": {
+      "name": "Ваучерууд",
+      "description": "Ваучерын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "voucherView": {
+          "title": "Ваучер харах",
+          "description": "Ваучерын бичлэг харах"
+        },
+        "voucherCreate": {
+          "title": "Ваучер үүсгэх",
+          "description": "Ваучерын бичлэг үүсгэх"
+        },
+        "voucherEdit": {
+          "title": "Ваучер засах",
+          "description": "Ваучерын бичлэг засах"
+        },
+        "voucherRemove": {
+          "title": "Ваучер устгах",
+          "description": "Ваучерын бичлэг устгах"
+        },
+        "voucherBuy": {
+          "title": "Ваучер худалдан авах",
+          "description": "Ваучер худалдан авах"
+        }
+      }
+    },
+    "voucherCampaign": {
+      "name": "Ваучерын аян",
+      "description": "Ваучерын аяны удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "loyaltyCampaignView": {
+          "title": "Аян харах",
+          "description": "Лояалти аяны бичлэг харах"
+        },
+        "loyaltyCampaignCreate": {
+          "title": "Аян үүсгэх",
+          "description": "Лояалти аяны бичлэг үүсгэх"
+        },
+        "loyaltyCampaignUpdate": {
+          "title": "Аян шинэчлэх",
+          "description": "Лояалти аяны бичлэг шинэчлэх"
+        },
+        "loyaltyCampaignRemove": {
+          "title": "Аян устгах",
+          "description": "Лояалти аяны бичлэг устгах"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Санхүүгийн плагинд бүрэн хандах эрх"
@@ -2301,6 +2813,15 @@
     },
     "payment:viewer": {
       "description": "Төлбөрийн нэхэмжлэлийг зөвхөн харах эрх"
+    },
+    "loyalty:admin": {
+      "description": "Лояалти плагинд бүрэн хандах эрх"
+    },
+    "loyalty:user": {
+      "description": "Лояалтийн энгийн хэрэглэгч"
+    },
+    "loyalty:viewer": {
+      "description": "Зөвхөн харах эрх"
     }
   }
 }
