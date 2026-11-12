@@ -1,7 +1,7 @@
 import { beforeAll, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { describeWithDb, useTestDatabase } from './db';
-import { type CoreClient, useTestServer } from './support';
+import { type CoreClient, type CoreInputs, useTestServer } from './support';
 
 const sorted = (values: (string | null)[]) =>
   values.map((value) => value ?? '').toSorted((a, b) => a.localeCompare(b));
@@ -14,9 +14,7 @@ describeWithDb('list filters (search, tags, owner)', () => {
   let ownerId = '';
   let vip = '';
 
-  type CustomerQuery = Parameters<CoreClient['customers']['list']>[0];
-
-  const customers = async (query: CustomerQuery) =>
+  const customers = async (query: CoreInputs['customers']['list']) =>
     sorted((await api.customers.list(query)).data.map((row) => row.firstName));
 
   const companies = async (search: string) =>

@@ -1,6 +1,6 @@
 import { CORE_API_PREFIX, coreContract } from '@erxes/core-contract';
 import { createORPCClient } from '@orpc/client';
-import type { ContractRouterClient } from '@orpc/contract';
+import type { ContractRouterClient, InferContractRouterInputs } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { once } from 'node:events';
 import type { Server } from 'node:http';
@@ -13,6 +13,9 @@ import { adminDb, currentToken } from './db';
 import { HR_SECRET } from './plugin';
 
 export type CoreClient = ContractRouterClient<typeof coreContract>;
+
+/** What each procedure takes, e.g. `CoreInputs['customers']['list']`. */
+export type CoreInputs = InferContractRouterInputs<typeof coreContract>;
 
 /**
  * Who calls: a bearer token, a member (a token at their current session
