@@ -51,7 +51,7 @@ export const parseDateRangeFromString = (
 
   // Month format: YYYY-MMM
   if (MONTHS.some((month) => date.includes(month))) {
-    const [year, month] = date.split('-');
+    const [year = '', month = ''] = date.split('-');
     const monthIndex = MONTHS.indexOf(month);
 
     return {
@@ -92,7 +92,7 @@ export const parseDateRangeFromString = (
 
   // Date range format: fromDate,toDate
   if (date.includes(',')) {
-    const [from, to] = date.split(',');
+    const [from = '', to = ''] = date.split(',');
     const fromDate = new Date(from);
     const toDate = new Date(to);
 

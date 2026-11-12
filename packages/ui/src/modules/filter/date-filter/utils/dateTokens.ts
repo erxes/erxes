@@ -8,28 +8,25 @@ const QUARTER_TOKEN = /^(\d{4})-quarter-([1-4])$/;
 const HALF_TOKEN = /^(\d{4})-half-([1-2])$/;
 
 export const normalizeFixedDate = (value: string): string =>
-  Object.prototype.hasOwnProperty.call(RENAMED_FIXED_DATES, value)
-    ? RENAMED_FIXED_DATES[value]
-    : value;
+  RENAMED_FIXED_DATES.get(value) ?? value;
+
+// The year and number of a `YYYY-<kind>-N` token, or null when it doesn't match.
+const parseYearToken = (pattern: RegExp, value: string) => {
+  const [, year, number] = pattern.exec(value) ?? [];
+
+  if (!year || !number) return null;
+
+  return { year: Number.parseInt(year, 10), number: Number.parseInt(number, 10) };
+};
 
 export const parseQuarterToken = (value: string): { year: number; quarter: number } | null => {
-  const match = QUARTER_TOKEN.exec(value);
+  const token = parseYearToken(QUARTER_TOKEN, value);
 
-  if (!match) return null;
-
-  return {
-    year: Number.parseInt(match[1], 10),
-    quarter: Number.parseInt(match[2], 10),
-  };
+  return token && { year: token.year, quarter: token.number };
 };
 
 export const parseHalfToken = (value: string): { year: number; half: number } | null => {
-  const match = HALF_TOKEN.exec(value);
+  const token = parseYearToken(HALF_TOKEN, value);
 
-  if (!match) return null;
-
-  return {
-    year: Number.parseInt(match[1], 10),
-    half: Number.parseInt(match[2], 10),
-  };
+  return token && { year: token.year, half: token.number };
 };

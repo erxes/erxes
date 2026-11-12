@@ -1,18 +1,22 @@
 import { Button } from 'erxes-ui/components/button';
 import { CalendarTwoMonths } from 'erxes-ui/components/calendar';
 import { Dialog } from 'erxes-ui/components/dialog';
-import { RadioGroup } from 'erxes-ui/components/radio-group';
 import { Tabs } from 'erxes-ui/components/tabs';
 import { ToggleGroup } from 'erxes-ui/components/toggle-group';
-import { useEffect, useId, useRef, useState } from 'react';
-import { getActiveTab } from '../utils/getActiveTab';
-import { parseDateRangeFromString } from '../utils/parseDateRangeFromString';
+import { useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 import { useFilterContext } from 'erxes-ui/modules/filter/hooks/useFilterContext';
-import { getYearsArray } from '../utils/getYears';
-import { cn } from 'erxes-ui/lib/utils';
 import { MONTHS, QUARTERS } from '../constants/dateTypes';
+import { getActiveTab } from '../utils/getActiveTab';
+import { parseDateRangeFromString } from '../utils/parseDateRangeFromString';
 import { useFilterQueryState } from '../../hooks/useFilterQueryState';
+import { DateFilterRadioGroup } from './DateFilterRadioGroup';
+
+type DateRangeDialogProps = {
+  label: string;
+  value?: string | null;
+  onApply: (value: string) => void;
+};
 
 export const FilterDialogDateView = ({
   filterKey,
@@ -21,9 +25,8 @@ export const FilterDialogDateView = ({
   filterKey: string;
   label?: string;
 }) => {
-  const { sessionKey } = useFilterContext();
+  const { sessionKey, resetFilterState } = useFilterContext();
   const [value, setValue] = useFilterQueryState<string>(filterKey, sessionKey);
-  const { resetFilterState } = useFilterContext();
 
   return (
     <DateRangeDialogContent
@@ -37,75 +40,64 @@ export const FilterDialogDateView = ({
   );
 };
 
-export const DateRangeDialogContent = ({
-  label,
-  value,
-  onApply,
+const DateRangeTypeToggle = ({
+  tab,
+  onTabChange,
 }: {
-  label: string;
-  value?: string | null;
-  onApply: (value: string) => void;
-}) => {
-  const [tabs, setTabs] = useState('day');
+  tab: string;
+  onTabChange: (tab: string) => void;
+}) => (
+  <ToggleGroup
+    type="single"
+    variant="outline"
+    size="sm"
+    value={tab}
+    onValueChange={onTabChange}
+    className="inline-flex"
+  >
+    <ToggleGroup.Item value="day">Day</ToggleGroup.Item>
+    <ToggleGroup.Item value="month">Month</ToggleGroup.Item>
+    <ToggleGroup.Item value="quarter">Quarter</ToggleGroup.Item>
+    <ToggleGroup.Item value="halfYear">Half Year</ToggleGroup.Item>
+    <ToggleGroup.Item value="year">Year</ToggleGroup.Item>
+  </ToggleGroup>
+);
 
-  const [currentDateRange, setCurrentDateRange] = useState<DateRange | undefined>(
-    parseDateRangeFromString(value || ''),
+const PERIOD_TABS = [
+  { tab: 'month', items: MONTHS, className: 'grid grid-cols-2' },
+  { tab: 'quarter', items: QUARTERS, className: 'flex flex-col' },
+  { tab: 'halfYear', items: ['half-1', 'half-2'], className: 'flex flex-col' },
+  { tab: 'year', items: undefined, className: 'flex flex-col' },
+];
+
+// The draft value starts from `value`; DateRangeDialogContent remounts this when `value` changes.
+const DateRangeDialogBody = ({ label, value, onApply }: DateRangeDialogProps) => {
+  const [tab, setTab] = useState(value ? getActiveTab(value) : 'day');
+  const [draft, setDraft] = useState(value ?? null);
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(
+    parseDateRangeFromString(value ?? ''),
   );
 
-  const [currentValue, setCurrentValue] = useState<string | null>(value ?? null);
+  const handleCalendarChange = (range: DateRange | undefined) => {
+    setDateRange(range);
 
-  useEffect(() => {
-    if (value) {
-      setTabs(getActiveTab(value));
-    }
-
-    setCurrentValue(value ?? null);
-    setCurrentDateRange(parseDateRangeFromString(value || ''));
-  }, [value]);
-
-  const handleCalendarChange = (value: DateRange | undefined) => {
-    setCurrentDateRange(value);
-
-    if (!value?.from) {
-      setCurrentValue(null);
+    if (!range?.from) {
+      setDraft(null);
 
       return;
     }
 
-    const to = value.to ?? value.from;
-    setCurrentValue(`${value.from.toISOString()},${to.toISOString()}`);
-  };
-
-  const handleRadioGroupChange = (value: string) => {
-    setCurrentValue(value);
-  };
-
-  const handleApply = () => {
-    if (currentValue) {
-      onApply(currentValue);
-    }
+    setDraft(`${range.from.toISOString()},${(range.to ?? range.from).toISOString()}`);
   };
 
   return (
     <Dialog.Content className="max-w-xl p-0">
-      <Tabs value={tabs} onValueChange={setTabs}>
+      <Tabs value={tab} onValueChange={setTab}>
         <Dialog.Header className="p-6 space-y-3">
           <Dialog.Title className="text-sm capitalize">{label}</Dialog.Title>
           <div>
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              size="sm"
-              value={tabs}
-              onValueChange={setTabs}
-              className="inline-flex"
-            >
-              <ToggleGroup.Item value="day">Day</ToggleGroup.Item>
-              <ToggleGroup.Item value="month">Month</ToggleGroup.Item>
-              <ToggleGroup.Item value="quarter">Quarter</ToggleGroup.Item>
-              <ToggleGroup.Item value="halfYear">Half Year</ToggleGroup.Item>
-              <ToggleGroup.Item value="year">Year</ToggleGroup.Item>
-            </ToggleGroup>
+            <DateRangeTypeToggle tab={tab} onTabChange={setTab} />
           </div>
         </Dialog.Header>
         <div className="border-y border-muted py-6 flex justify-center h-88 overflow-auto">
@@ -115,43 +107,21 @@ export const DateRangeDialogContent = ({
               numberOfMonths={2}
               showOutsideDays
               fixedWeeks
-              autoFocus
-              defaultMonth={currentDateRange?.from ? currentDateRange.from : undefined}
-              selected={currentDateRange}
+              defaultMonth={dateRange?.from}
+              selected={dateRange}
               onSelect={handleCalendarChange}
             />
           </Tabs.Content>
-          <Tabs.Content value="month" className="w-full outline-hidden">
-            <DateFilterRadioGroup
-              items={MONTHS}
-              onValueChange={handleRadioGroupChange}
-              value={currentValue}
-              className="grid grid-cols-2"
-            />
-          </Tabs.Content>
-          <Tabs.Content value="quarter" className="w-full outline-hidden">
-            <DateFilterRadioGroup
-              items={QUARTERS}
-              className="flex flex-col"
-              onValueChange={handleRadioGroupChange}
-              value={currentValue}
-            />
-          </Tabs.Content>
-          <Tabs.Content value="halfYear" className="w-full outline-hidden">
-            <DateFilterRadioGroup
-              items={['half-1', 'half-2']}
-              className="flex flex-col"
-              onValueChange={handleRadioGroupChange}
-              value={currentValue}
-            />
-          </Tabs.Content>
-          <Tabs.Content value="year" className="w-full outline-hidden">
-            <DateFilterRadioGroup
-              className="flex flex-col"
-              onValueChange={handleRadioGroupChange}
-              value={currentValue}
-            />
-          </Tabs.Content>
+          {PERIOD_TABS.map(({ tab: period, items, className }) => (
+            <Tabs.Content key={period} value={period} className="w-full outline-hidden">
+              <DateFilterRadioGroup
+                items={items}
+                className={className}
+                onValueChange={setDraft}
+                value={draft}
+              />
+            </Tabs.Content>
+          ))}
         </div>
         <Dialog.Footer className="p-6">
           <Dialog.Close asChild>
@@ -159,7 +129,7 @@ export const DateRangeDialogContent = ({
               Cancel
             </Button>
           </Dialog.Close>
-          <Button size="lg" disabled={!currentValue} onClick={handleApply}>
+          <Button size="lg" disabled={!draft} onClick={() => draft && onApply(draft)}>
             Apply
           </Button>
         </Dialog.Footer>
@@ -168,95 +138,6 @@ export const DateRangeDialogContent = ({
   );
 };
 
-const DateFilterRadioGroup = ({
-  items,
-  className,
-  value,
-  onValueChange,
-}: {
-  items?: string[];
-  className: string;
-  value: string | null;
-  onValueChange?: (value: string) => void;
-}) => {
-  const id = useId();
-
-  return (
-    <RadioGroup asChild value={value || ''} onValueChange={onValueChange}>
-      <fieldset className={cn('gap-6 w-full px-6 pb-6', className)}>
-        {getYearsArray(7, 5).map((year) =>
-          items ? (
-            <div className="flex flex-col gap-3" key={year}>
-              <legend className="font-semibold text-sm leading-none">{year}</legend>
-              <div
-                className={cn(
-                  'grid gap-1',
-                  items.length === 12 && 'grid-cols-3',
-                  items.length === 2 && 'grid-cols-2',
-                  items.length === 4 && 'grid-cols-4',
-                )}
-              >
-                {items.map((item) => (
-                  <DateFilterRadioGroupItem
-                    id={id}
-                    value={year + '-' + item}
-                    key={item}
-                    currentValue={value}
-                  >
-                    {item.split('-').join(' ')}
-                  </DateFilterRadioGroupItem>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <DateFilterRadioGroupItem id={id} value={year + '-y'} key={year} currentValue={value}>
-              {year}
-            </DateFilterRadioGroupItem>
-          ),
-        )}
-      </fieldset>
-    </RadioGroup>
-  );
-};
-
-const DateFilterRadioGroupItem = ({
-  id,
-  value,
-  children,
-  currentValue,
-}: {
-  id: string;
-  value: string;
-  children: React.ReactNode;
-  currentValue: string | null;
-}) => {
-  const ref = useRef<HTMLLabelElement>(null);
-
-  useEffect(() => {
-    if (currentValue === value && ref.current) {
-      setTimeout(() => {
-        ref.current?.scrollIntoView({ behavior: 'instant', block: 'center' });
-      }, 100);
-    }
-  }, [currentValue, value]);
-
-  return (
-    <Button
-      variant="secondary"
-      className="shadow-none has-data-[state=checked]:border-ring has-data-[state=checked]:bg-primary has-data-[state=checked]:text-primary-foreground has-focus-visible:outline-solid has-focus-visible:outline-2 has-focus-visible:outline-ring/70 capitalize"
-      onClick={() => {
-        ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }}
-      asChild
-    >
-      <label ref={ref} id={`${id}-${value}`}>
-        <RadioGroup.Item
-          value={value}
-          id={`${id}-${value}`}
-          className="sr-only after:absolute after:inset-0"
-        />
-        {children}
-      </label>
-    </Button>
-  );
-};
+export const DateRangeDialogContent = (props: DateRangeDialogProps) => (
+  <DateRangeDialogBody key={props.value ?? ''} {...props} />
+);

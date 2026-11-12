@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { MONTHS } from '../constants/dateTypes';
 import { normalizeFixedDate, parseHalfToken, parseQuarterToken } from './dateTokens';
+import { parseDateRangeFromString } from './parseDateRangeFromString';
 
 export const getDisplayValue = (rawValue: string) => {
   const value = normalizeFixedDate(rawValue);
@@ -49,10 +50,10 @@ export const getDisplayValue = (rawValue: string) => {
     return value.replace('-y', '');
   }
 
-  if (value.includes(',')) {
-    const [from, to] = value.split(',');
+  const range = value.includes(',') ? parseDateRangeFromString(value) : undefined;
 
-    return `${format(from, 'MMM d, yyyy')} - ${format(to, 'MMM d, yyyy')}`;
+  if (range) {
+    return `${format(range.from, 'MMM d, yyyy')} - ${format(range.to, 'MMM d, yyyy')}`;
   }
 
   return 'Unknown';
