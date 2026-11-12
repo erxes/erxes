@@ -99,6 +99,7 @@
   "skipped-by-limit": "{{count}} skipped by the limit",
   "goal": "Goal: once this holds, the record leaves the automation",
   "started": "Started for {{started}} records ({{skipped}} skipped)",
+  "started-continuing": "The rest of the audience starts in the background.",
   "wait-for": "Wait for an event",
   "switch": "Choose a path",
   "split": "A/B split",

@@ -124,6 +124,9 @@ export const useAutomationMutations = (id: string, onProblems: (problems: string
       onSuccess: (result) => {
         toast({
           title: t('started', 'Started for {{started}} records ({{skipped}} skipped)', result),
+          description: result.continuing
+            ? t('started-continuing', 'The rest of the audience starts in the background.')
+            : undefined,
         });
         void client.invalidateQueries({ queryKey: orpc.automations.get.key({ input: { id } }) });
         void client.invalidateQueries({ queryKey: orpc.automations.stats.key({ input: { id } }) });
