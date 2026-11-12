@@ -2,12 +2,11 @@ import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core
 import { automations, type Db, newId, withSystem } from '@erxes/core-db';
 import { and, eq, lte, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { log } from '~/lib/log';
 import { valuesTable } from '~/modules/fields/fieldValues';
 import { defineJob } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
 import { startRun } from './consumer';
-import { definitionOf } from './runs';
+import { definitionOf, log } from './runs';
 import { nextOccurrence, zonedDate } from './schedule';
 import { loadSubjects, SUBJECT_PAGE, type Subject, type SubjectType } from './subjects';
 
@@ -259,7 +258,7 @@ export const tickAutomations = () =>
           });
         })
         .catch((error: unknown) =>
-          log.error('could not schedule an automation', { automation: automation.id, error }),
+          log.error({ automation: automation.id, err: error }, 'could not schedule an automation'),
         );
     }
 

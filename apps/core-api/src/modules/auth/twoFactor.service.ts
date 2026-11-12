@@ -7,9 +7,12 @@ import { seal, unseal } from '~/lib/secrets';
 import { signJwt, verifyJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { verifyPassword } from './password';
+import { z } from 'zod';
 import { matchStep, newTotpSecret, otpauthUri } from './totp';
 
 const CHALLENGE_TYP = 'erxes-2fa-challenge+jwt';
+
+const ChallengeClaims = z.object({ org: z.string(), sub: z.string() });
 
 const hashCode = (code: string) =>
   createHash('sha256').update(code.replace(/[\s-]/g, '').toLowerCase()).digest('hex');
@@ -160,19 +163,16 @@ export const completeTwoFactor = async (input: {
   code?: string;
   recoveryCode?: string;
 }) => {
-  let payload: { sub?: string; org?: unknown };
+  const challenge = await verifyJwt(input.challenge, ChallengeClaims, {
+    typ: CHALLENGE_TYP,
+    audience: 'erxes-core',
+  }).catch(() => null);
 
-  try {
-    ({ payload } = await verifyJwt(input.challenge, {
-      typ: CHALLENGE_TYP,
-      audience: 'erxes-core',
-    }));
-  } catch {
+  if (!challenge) {
     throw new HttpError(401, 'CHALLENGE_EXPIRED', 'Sign in again: the second step took too long');
   }
 
-  const orgId = String(payload.org);
-  const userId = String(payload.sub);
+  const { org: orgId, sub: userId } = challenge;
 
   return withOrg(orgId, async (tx) => {
     // One second step at a time per member: a code can't be used twice in a race.

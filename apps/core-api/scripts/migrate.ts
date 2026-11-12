@@ -3,9 +3,10 @@
  * DATA_URL), then grants the runtime role what it needs when DATA_RUNTIME_ROLE
  * is set:  pnpm db:migrate
  */
-import { closeDb, configureDb, rootDb, runMigrations } from '@erxes/core-db';
+import { configureDb, rootDb, runMigrations } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
+import { runCli, say } from './cli';
 
 const main = async () => {
   configureDb({
@@ -17,19 +18,14 @@ const main = async () => {
 
   const applied = await runMigrations();
 
-  console.log(applied.length ? `applied: ${applied.join(', ')}` : 'up to date');
+  say(applied.length ? `applied: ${applied.join(', ')}` : 'up to date');
 
-  const runtime = process.env.DATA_RUNTIME_ROLE?.trim();
+  const runtime = config.data.runtimeRole;
 
   if (runtime) {
     await rootDb().execute(sql`select core_grant_runtime(${runtime})`);
-    console.log(`granted ${runtime} access to core's tables`);
+    say(`granted ${runtime} access to core's tables`);
   }
 };
 
-main()
-  .catch((error: unknown) => {
-    console.error(error instanceof Error ? error.message : error);
-    process.exitCode = 1;
-  })
-  .finally(() => closeDb());
+runCli(main);

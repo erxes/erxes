@@ -22,15 +22,15 @@ export const hashPassword = async (password: string): Promise<string> => {
 
 export const verifyPassword = async (password: string, stored: string | null): Promise<boolean> => {
   const parts = (stored ?? '').split('$');
+  const [scheme, n, r, p, salt, hash] = parts;
 
-  if (parts.length !== 6 || parts[0] !== 'scrypt') {
+  if (parts.length !== 6 || scheme !== 'scrypt' || salt === undefined || hash === undefined) {
     // Same work as a real check, so timing does not reveal unknown accounts.
     await derive(password, randomBytes(16), N, R, P);
 
     return false;
   }
 
-  const [, n, r, p, salt, hash] = parts as [string, string, string, string, string, string];
   const expected = Buffer.from(hash, 'base64url');
 
   const actual = await derive(

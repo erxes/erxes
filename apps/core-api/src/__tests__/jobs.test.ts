@@ -83,7 +83,7 @@ describeWithDb('job queue', () => {
 
     const definition = {
       queue: 'test.atomic',
-      atomic: true,
+      atomic: true as const,
       backoff: () => 0,
       handle: async (_job: unknown, tx: any) => {
         await tx.insert(tags).values({ id: tagId, orgId, type: 'customer', name: 'half-done' });

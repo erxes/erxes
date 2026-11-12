@@ -1,10 +1,10 @@
-import type { Db } from '@erxes/core-db';
-import { type ContentType, newId, tags } from '@erxes/core-db';
+import { type ContentType, type Db, newId, tags } from '@erxes/core-db';
 import { and, asc, eq, ilike, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { containsPattern } from '~/lib/keyset';
+import { oneRow } from '~/lib/rows';
 
 type TagRow = typeof tags.$inferSelect;
 
@@ -65,19 +65,21 @@ export const createTag = async (
   input: { type: ContentType; name: string; colorCode?: string | null },
 ) => {
   try {
-    const [row] = await client
-      .insert(tags)
-      .values({
-        id: newId(),
-        orgId: actor.orgId,
-        type: input.type,
-        name: input.name,
-        colorCode: input.colorCode ?? null,
-        createdBy: actor.userId,
-      })
-      .returning();
+    const row = oneRow(
+      await client
+        .insert(tags)
+        .values({
+          id: newId(),
+          orgId: actor.orgId,
+          type: input.type,
+          name: input.name,
+          colorCode: input.colorCode ?? null,
+          createdBy: actor.userId,
+        })
+        .returning(),
+    );
 
-    return toTagDto(row!);
+    return toTagDto(row);
   } catch (error) {
     return taken(error);
   }
@@ -92,17 +94,19 @@ export const updateTag = async (
   await findTag(client, actor.orgId, id);
 
   try {
-    const [row] = await client
-      .update(tags)
-      .set({
-        ...(input.name !== undefined ? { name: input.name } : {}),
-        ...(input.colorCode !== undefined ? { colorCode: input.colorCode } : {}),
-        updatedAt: sql`now()`,
-      })
-      .where(and(eq(tags.orgId, actor.orgId), eq(tags.id, id)))
-      .returning();
+    const row = oneRow(
+      await client
+        .update(tags)
+        .set({
+          ...(input.name !== undefined ? { name: input.name } : {}),
+          ...(input.colorCode !== undefined ? { colorCode: input.colorCode } : {}),
+          updatedAt: sql`now()`,
+        })
+        .where(and(eq(tags.orgId, actor.orgId), eq(tags.id, id)))
+        .returning(),
+    );
 
-    return toTagDto(row!);
+    return toTagDto(row);
   } catch (error) {
     return taken(error);
   }

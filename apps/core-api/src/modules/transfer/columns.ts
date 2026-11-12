@@ -22,6 +22,90 @@ const column = (key: string, label: string, extra: Partial<Column> = {}): Column
   ...extra,
 });
 
+const COMPANY_COLUMNS: Column[] = [
+  column('id', 'ID', { importable: true, default: false, aliases: ['_id'] }),
+  column('primaryName', 'Name', {
+    aliases: ['name', 'company', 'company name', 'нэр', 'байгууллага', 'компани'],
+  }),
+  column('names', 'Other names', { default: false, aliases: ['aliases', 'бусад нэр'] }),
+  column('primaryEmail', 'Email', {
+    aliases: ['email', 'e-mail', 'mail', 'имэйл', 'и-мэйл', 'цахим шуудан'],
+  }),
+  column('emails', 'Other emails', { default: false }),
+  column('primaryPhone', 'Phone', {
+    aliases: ['phone', 'mobile', 'tel', 'утас', 'утасны дугаар'],
+  }),
+  column('phones', 'Other phones', { default: false }),
+  column('website', 'Website', { aliases: ['url', 'web', 'site', 'вэб'] }),
+  column('industry', 'Industry', { aliases: ['салбар'] }),
+  column('size', 'Employees', { aliases: ['size', 'employee count', 'ажилчдын тоо'] }),
+  column('businessType', 'Business type', { default: false }),
+  column('code', 'Code', { default: false, aliases: ['код'] }),
+  column('description', 'Description', { default: false, aliases: ['notes', 'тайлбар'] }),
+];
+
+const customerColumns = (recordType: TransferRecordType): Column[] => [
+  column('id', 'ID', { importable: true, default: false, aliases: ['_id'] }),
+  column('name', 'Full name', {
+    exportable: false,
+    aliases: ['full name', 'name', 'нэр', 'бүтэн нэр'],
+  }),
+  column('firstName', 'First name', { aliases: ['first', 'given name', 'нэр'] }),
+  column('middleName', 'Middle name', { default: false }),
+  column('lastName', 'Last name', { aliases: ['last', 'surname', 'family name', 'овог'] }),
+  column('primaryEmail', 'Email', {
+    aliases: ['email', 'e-mail', 'mail', 'имэйл', 'и-мэйл', 'цахим шуудан'],
+  }),
+  column('emails', 'Other emails', { default: false }),
+  column('primaryPhone', 'Phone', {
+    aliases: ['phone', 'mobile', 'tel', 'утас', 'утасны дугаар'],
+  }),
+  column('phones', 'Other phones', { default: false }),
+  ...(recordType === 'customer'
+    ? [
+        column('state', 'State', {
+          default: false,
+          aliases: ['type', 'lead or customer', 'төлөв'],
+        }),
+      ]
+    : []),
+  column('birthDate', 'Birthday', {
+    default: false,
+    aliases: ['birth date', 'date of birth', 'dob', 'төрсөн өдөр'],
+  }),
+  column('position', 'Position', {
+    default: false,
+    aliases: ['title', 'job title', 'албан тушаал'],
+  }),
+  column('department', 'Department', { default: false, aliases: ['хэлтэс'] }),
+  column('code', 'Code', { default: false, aliases: ['код'] }),
+  column('description', 'Description', { default: false, aliases: ['notes', 'тайлбар'] }),
+];
+
+const relationColumns = (isCompany: boolean): Column[] => [
+  column('owner', 'Owner', {
+    group: 'relations',
+    aliases: ['owner email', 'assignee', 'хариуцагч'],
+  }),
+  column('tags', 'Tags', { group: 'relations', aliases: ['tag', 'labels', 'шошго'] }),
+  ...(isCompany
+    ? [
+        column('customerCount', 'Customers', {
+          group: 'relations',
+          importable: false,
+          default: false,
+        }),
+      ]
+    : [
+        column('companies', 'Companies', {
+          group: 'relations',
+          aliases: ['company', 'organization', 'байгууллага', 'компани'],
+        }),
+      ]),
+  column('createdAt', 'Created', { importable: false, default: false }),
+  column('updatedAt', 'Updated', { importable: false, default: false }),
+];
+
 /**
  * Everything a customer/lead or company list can import and export, in
  * export order. `name` (customers) splits into first and last name on import;
@@ -34,89 +118,7 @@ export const transferColumns = async (
 ): Promise<Column[]> => {
   const isCompany = recordType === 'company';
 
-  const builtIn: Column[] = isCompany
-    ? [
-        column('id', 'ID', { importable: true, default: false, aliases: ['_id'] }),
-        column('primaryName', 'Name', {
-          aliases: ['name', 'company', 'company name', 'нэр', 'байгууллага', 'компани'],
-        }),
-        column('names', 'Other names', { default: false, aliases: ['aliases', 'бусад нэр'] }),
-        column('primaryEmail', 'Email', {
-          aliases: ['email', 'e-mail', 'mail', 'имэйл', 'и-мэйл', 'цахим шуудан'],
-        }),
-        column('emails', 'Other emails', { default: false }),
-        column('primaryPhone', 'Phone', {
-          aliases: ['phone', 'mobile', 'tel', 'утас', 'утасны дугаар'],
-        }),
-        column('phones', 'Other phones', { default: false }),
-        column('website', 'Website', { aliases: ['url', 'web', 'site', 'вэб'] }),
-        column('industry', 'Industry', { aliases: ['салбар'] }),
-        column('size', 'Employees', { aliases: ['size', 'employee count', 'ажилчдын тоо'] }),
-        column('businessType', 'Business type', { default: false }),
-        column('code', 'Code', { default: false, aliases: ['код'] }),
-        column('description', 'Description', { default: false, aliases: ['notes', 'тайлбар'] }),
-      ]
-    : [
-        column('id', 'ID', { importable: true, default: false, aliases: ['_id'] }),
-        column('name', 'Full name', {
-          exportable: false,
-          aliases: ['full name', 'name', 'нэр', 'бүтэн нэр'],
-        }),
-        column('firstName', 'First name', { aliases: ['first', 'given name', 'нэр'] }),
-        column('middleName', 'Middle name', { default: false }),
-        column('lastName', 'Last name', { aliases: ['last', 'surname', 'family name', 'овог'] }),
-        column('primaryEmail', 'Email', {
-          aliases: ['email', 'e-mail', 'mail', 'имэйл', 'и-мэйл', 'цахим шуудан'],
-        }),
-        column('emails', 'Other emails', { default: false }),
-        column('primaryPhone', 'Phone', {
-          aliases: ['phone', 'mobile', 'tel', 'утас', 'утасны дугаар'],
-        }),
-        column('phones', 'Other phones', { default: false }),
-        ...(recordType === 'customer'
-          ? [
-              column('state', 'State', {
-                default: false,
-                aliases: ['type', 'lead or customer', 'төлөв'],
-              }),
-            ]
-          : []),
-        column('birthDate', 'Birthday', {
-          default: false,
-          aliases: ['birth date', 'date of birth', 'dob', 'төрсөн өдөр'],
-        }),
-        column('position', 'Position', {
-          default: false,
-          aliases: ['title', 'job title', 'албан тушаал'],
-        }),
-        column('department', 'Department', { default: false, aliases: ['хэлтэс'] }),
-        column('code', 'Code', { default: false, aliases: ['код'] }),
-        column('description', 'Description', { default: false, aliases: ['notes', 'тайлбар'] }),
-      ];
-
-  const relations: Column[] = [
-    column('owner', 'Owner', {
-      group: 'relations',
-      aliases: ['owner email', 'assignee', 'хариуцагч'],
-    }),
-    column('tags', 'Tags', { group: 'relations', aliases: ['tag', 'labels', 'шошго'] }),
-    ...(isCompany
-      ? [
-          column('customerCount', 'Customers', {
-            group: 'relations',
-            importable: false,
-            default: false,
-          }),
-        ]
-      : [
-          column('companies', 'Companies', {
-            group: 'relations',
-            aliases: ['company', 'organization', 'байгууллага', 'компани'],
-          }),
-        ]),
-    column('createdAt', 'Created', { importable: false, default: false }),
-    column('updatedAt', 'Updated', { importable: false, default: false }),
-  ];
+  const builtIn = isCompany ? COMPANY_COLUMNS : customerColumns(recordType);
 
   const custom = await client
     .select({ id: fields.id, label: fields.label, type: fields.type, code: fields.code })
@@ -135,7 +137,7 @@ export const transferColumns = async (
         aliases: field.code ? [field.code.toLowerCase()] : [],
       }),
     ),
-    ...relations,
+    ...relationColumns(isCompany),
   ];
 };
 
@@ -251,5 +253,7 @@ export const customCell = (value: unknown): string | number => {
 
   if (typeof value === 'number') return value;
 
-  return value === null || value === undefined ? '' : String(value);
+  if (value === null || value === undefined) return '';
+
+  return typeof value === 'string' ? value : JSON.stringify(value);
 };

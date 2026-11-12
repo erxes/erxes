@@ -1,7 +1,8 @@
-import { lookup as dnsLookup, type LookupAddress } from 'node:dns';
+import { lookup as dnsLookup } from 'node:dns';
 import { request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
-import { BlockList, isIP } from 'node:net';
+import { BlockList, isIP, type LookupFunction } from 'node:net';
+import { currentScope } from '@erxes/core-db';
 import { config } from '~/config';
 
 /**
@@ -71,27 +72,23 @@ export const assertOutboundUrl = (raw: string) => {
   return url;
 };
 
-const safeLookup: typeof dnsLookup = ((
-  hostname: string,
-  options: object,
-  callback: (...args: unknown[]) => void,
-) => {
+/** Resolves like `dns.lookup`, refusing hosts with a private address (checked where it connects). */
+const safeLookup: LookupFunction = (hostname, options, callback) => {
   dnsLookup(hostname, { ...options, all: true }, (error, addresses) => {
-    if (error) return callback(error);
+    if (error) return callback(error, '');
 
-    const list = addresses;
+    const [first] = addresses;
 
     const bad =
-      !config.outbound.allowPrivate && list.some((entry) => isPrivateAddress(entry.address));
+      !config.outbound.allowPrivate && addresses.some((entry) => isPrivateAddress(entry.address));
 
-    if (bad || !list.length)
-      return callback(new OutboundError(`${hostname} resolves to a private address`));
+    if (bad || !first) {
+      return callback(new OutboundError(`${hostname} resolves to a private address`), '');
+    }
 
-    const all = (options as { all?: boolean }).all;
-
-    return all ? callback(null, list) : callback(null, list[0]!.address, list[0]!.family);
+    return options.all ? callback(null, addresses) : callback(null, first.address, first.family);
   });
-}) as typeof dnsLookup;
+};
 
 export interface OutboundResponse {
   status: number;
@@ -100,27 +97,28 @@ export interface OutboundResponse {
   ms: number;
 }
 
-/** POSTs `body`; resolves with any HTTP answer, rejects on network errors and timeouts. */
-export const postOutbound = (
+/**
+ * POSTs `body`; resolves with any HTTP answer, rejects on network errors and
+ * timeouts. Never inside a tenant scope: a slow remote would hold its
+ * transaction and row locks open. Read in a short scope, call out after it.
+ */
+export const postOutbound = async (
   raw: string,
   body: string,
   headers: Record<string, string>,
   timeoutMs = 10_000,
-) =>
-  new Promise<OutboundResponse>((resolve, reject) => {
-    let url: URL;
+) => {
+  if (currentScope()) {
+    throw new Error(
+      'postOutbound was called inside a database transaction; call out after it ends',
+    );
+  }
 
-    try {
-      url = assertOutboundUrl(raw);
-    } catch (error) {
-      reject(error);
+  const url = assertOutboundUrl(raw);
+  const started = Date.now();
+  const send = url.protocol === 'https:' ? httpsRequest : httpRequest;
 
-      return;
-    }
-
-    const started = Date.now();
-    const send = url.protocol === 'https:' ? httpsRequest : httpRequest;
-
+  return new Promise<OutboundResponse>((resolve, reject) => {
     const req = send(
       url,
       {
@@ -154,3 +152,4 @@ export const postOutbound = (
     req.on('error', reject);
     req.end(body);
   });
+};

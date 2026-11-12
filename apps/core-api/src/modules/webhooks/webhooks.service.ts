@@ -21,13 +21,15 @@ import { createHmac, randomBytes } from 'node:crypto';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { assertOutboundUrl, OutboundError, postOutbound } from '~/lib/outbound';
 import { seal, unseal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
 import type { EventConsumer } from '~/modules/events/processor';
 import { toEventDto } from '~/modules/events/events.service';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
+
+const log = logger.child({ component: 'webhooks' });
 
 type WebhookRow = typeof webhooks.$inferSelect;
 
@@ -506,7 +508,7 @@ export const deliverJob: JobDefinition = {
             disabledReason: `Turned off after ${DISABLE_AFTER_FAILURES} failed deliveries in a row`,
           })
           .where(eq(webhooks.id, webhook.id));
-        log.warn('webhook turned off after repeated failures', { webhook: webhook.id });
+        log.warn({ webhook: webhook.id }, 'webhook turned off after repeated failures');
       }
     });
 

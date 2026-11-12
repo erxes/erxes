@@ -18,7 +18,7 @@ decisions, `docs/porting-map.md` what exists and what old erxes code it replaces
 | `packages/payment-gateways` | `@erxes/payment-gateways` | Payment gateway adapters used by core's payments module                                     |
 
 Apps import packages. Packages never import apps. `apps/core-ui` and `packages/ui` never import `@erxes/core-db`, `pg`, `drizzle-orm` or `node:*`. Only
-`apps/core-api/src/router.ts` uses `implement`/`os` from `@orpc/server`. `no-restricted-imports`
+`apps/core-api/src/orpc.ts` uses `implement`/`os` from `@orpc/server`. `no-restricted-imports`
 in `vite.config.ts` enforces all three.
 
 ## Setup from a fresh clone
@@ -59,7 +59,8 @@ pnpm dev                     # API http://localhost:3400, UI http://localhost:35
 
 - Thin core. If only one plugin needs a feature, it belongs in that plugin.
 - Contract first. Every endpoint is declared in `packages/contract` and implemented in
-  `apps/core-api/src/router.ts`. Types flow from the contract; never hand-write an API shape.
+  `apps/core-api/src/modules/<feature>/<feature>.router.ts`, built from the builders in
+  `apps/core-api/src/orpc.ts`. Types flow from the contract; never hand-write an API shape.
   `pnpm check:generated` fails when `openapi.json` is stale.
 - Tenancy. Every table with an organisation's data has `org_id`. Every query filters by the caller's organisation
   (`context.actor.orgId`, or `context.plugin.orgId` from the plugin's token). Never trust an organisation id from input.

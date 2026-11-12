@@ -1,3 +1,5 @@
+// First: tracing patches http, express and pg before they load.
+import { stopTracing } from '~/instrumentation';
 import { closeDb, configureDb, runMigrations, runtimeRole } from '@erxes/core-db';
 import { createApp } from '~/app';
 import { config } from '~/config';
@@ -9,7 +11,9 @@ import { startJobWorker } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
 import { liveHub } from '~/modules/live/hub';
 import { syncPluginSecrets } from '~/modules/plugins/plugins.service';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
+
+const log = logger.child({ component: 'main' });
 
 const start = async () => {
   configureDb({ ...config.data, applicationName: 'erxes-core' });
@@ -22,7 +26,7 @@ const start = async () => {
     const applied = await runMigrations();
 
     if (applied.length) {
-      log.info(`applied migrations: ${applied.join(', ')}`);
+      log.info({ migrations: applied }, 'applied migrations');
     }
   }
 
@@ -41,7 +45,7 @@ const start = async () => {
   await syncPluginSecrets();
 
   const server = createApp().listen(config.port, () => {
-    log.info(`api ready at http://localhost:${config.port}`);
+    log.info({ port: config.port, tracing: Boolean(config.otel.endpoint) }, 'api ready');
   });
 
   const stopMaintenance = startMaintenance();
@@ -59,7 +63,7 @@ const start = async () => {
    * finish (up to 15 s), stop jobs after their current run, then close the pool.
    */
   const shutdown = (signal: string) => {
-    log.info('shutting down', { signal });
+    log.info({ signal }, 'shutting down');
     startDraining();
     stopMaintenance();
     liveHub.emit('closing');
@@ -72,9 +76,13 @@ const start = async () => {
     forced.unref();
     server.close(() => {
       Promise.all([stopEvents(), stopJobs(), liveHub.stop()])
-        .then(() => closeDb())
-        .catch((error: unknown) => log.error('shutdown failed', { error }))
-        .finally(() => process.exit(0));
+        .then(() => Promise.all([closeDb(), stopTracing()]))
+        .then(() => log.info('stopped'))
+        .catch((error: unknown) => {
+          log.error({ err: error }, 'shutdown failed');
+          process.exitCode = 1;
+        })
+        .finally(() => process.exit());
     });
     server.closeIdleConnections();
   };
@@ -84,7 +92,7 @@ const start = async () => {
   }
 };
 
-start().catch((error) => {
-  log.error('failed to start', { error });
+start().catch((error: unknown) => {
+  log.fatal({ err: error }, 'failed to start');
   process.exit(1);
 });

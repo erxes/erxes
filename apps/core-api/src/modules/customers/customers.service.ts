@@ -277,8 +277,8 @@ export const listCustomers = async (
   return { ...page, data: page.data.map(toCustomerDto) };
 };
 
-export const getCustomer = async (client: Db, actor: Actor, id: string) =>
-  toCustomerDto(await findCustomer(client, actor.orgId, id, true));
+export const getCustomer = async (client: Db, orgId: string, id: string) =>
+  toCustomerDto(await findCustomer(client, orgId, id, true));
 
 /** The plain columns of an input (contacts, tags and custom fields are resolved separately). */
 const scalarFields = (input: CustomerInput) => {

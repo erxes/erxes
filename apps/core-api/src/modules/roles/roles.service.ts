@@ -6,7 +6,8 @@ import {
 } from '@erxes/core-contract';
 import { type Db, db, newId, pluginInstallations, plugins, roles, users } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import { type Actor, can, requirePermission, userCaller } from '~/http/auth';
+import { type Actor, requirePermission, userCaller } from '~/http/auth';
+import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 

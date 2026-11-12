@@ -1,5 +1,5 @@
 import { parse } from 'csv-parse/sync';
-import readXlsxFile from 'read-excel-file/node';
+import readXlsxFile, { type CellValue } from 'read-excel-file/node';
 
 /** More than this many rows is refused (split the file). */
 export const MAX_IMPORT_ROWS = 100_000;
@@ -18,16 +18,19 @@ const delimiterOf = (text: string) => {
     (delimiter) => [delimiter, line.split(delimiter).length - 1] as const,
   );
 
-  return counts.sort((a, b) => b[1] - a[1])[0]![0];
+  return counts.toSorted((a, b) => b[1] - a[1])[0]?.[0] ?? ',';
 };
 
-const cellText = (value: unknown): string => {
-  if (value === null || value === undefined) return '';
+/** A CSV cell, or an Excel cell (read-excel-file types its dates as `typeof Date`; they are `Date`s). */
+const cellText = (value: CellValue | null | undefined): string => {
+  if (typeof value === 'string') return value.trim();
+
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
 
   if (value instanceof Date)
     return Number.isNaN(value.getTime()) ? '' : value.toISOString().slice(0, 10);
 
-  return String(value).trim();
+  return '';
 };
 
 /**
@@ -60,7 +63,9 @@ export const parseSheet = async (
       table = table.map((row) => row.map(cellText));
     }
   } catch (error) {
-    throw new ParseError(`The file could not be read: ${(error as Error).message.slice(0, 200)}`);
+    const reason = error instanceof Error ? error.message : String(error);
+
+    throw new ParseError(`The file could not be read: ${reason.slice(0, 200)}`);
   }
 
   const [header = [], ...rest] = table;

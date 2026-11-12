@@ -1,17 +1,38 @@
 import { EventEmitter } from 'node:events';
 import { sslOptions } from '@erxes/core-db';
 import { Client } from 'pg';
+import { z } from 'zod';
 import { config } from '~/config';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
+
+const log = logger.child({ component: 'live' });
 
 /** What a committed change announces (see migration 0008). */
-export type LiveSignal =
-  | { o: string; k: 'inbox'; u: string }
-  | { o: string; k: 'timeline'; t: 'customer' | 'company'; i: string }
+const LiveSignal = z.discriminatedUnion('k', [
+  z.object({ o: z.string(), k: z.literal('inbox'), u: z.string() }),
+  /** A customer's or company's timeline. */
+  z.object({ o: z.string(), k: z.literal('timeline'), t: z.string(), i: z.string() }),
   /** Many records changed at once (merge, import): refetch everything. */
-  | { o: string; k: 'resync' }
+  z.object({ o: z.string(), k: z.literal('resync') }),
   /** A plugin's topic changed (`core_live_signal`): to everyone, or members `u`. */
-  | { o: string; k: 'plugin'; p: string; t: string; u?: string[] };
+  z.object({
+    o: z.string(),
+    k: z.literal('plugin'),
+    p: z.string(),
+    t: z.string(),
+    u: z.array(z.string()).optional(),
+  }),
+]);
+
+export type LiveSignal = z.infer<typeof LiveSignal>;
+
+const parseSignal = (payload: string) => {
+  try {
+    return LiveSignal.safeParse(JSON.parse(payload)).data ?? null;
+  } catch {
+    return null;
+  }
+};
 
 /**
  * One LISTEN connection per API server, shared by every open stream:
@@ -57,14 +78,13 @@ class LiveHub extends EventEmitter {
         return;
       }
 
-      try {
-        this.emit('signal', JSON.parse(message.payload ?? '') as LiveSignal);
-      } catch {
-        // Not ours.
-      }
+      const signal = parseSignal(message.payload ?? '');
+
+      if (signal) this.emit('signal', signal);
+      else log.warn({ payload: message.payload }, 'live updates: unreadable signal');
     });
     client.on('error', (error) => {
-      log.error('live updates: listen connection error', { error: error.message });
+      log.error({ err: error }, 'live updates: listen connection error');
     });
     client.on('end', () => {
       if (this.client === client) this.lost(url);
@@ -87,7 +107,7 @@ class LiveHub extends EventEmitter {
       // Events published while nobody listened.
       this.emit('events');
     } catch (error) {
-      log.error('live updates: could not listen', { error: (error as Error).message });
+      log.error({ err: error }, 'live updates: could not listen');
       await client.end().catch(() => undefined);
       this.lost(url);
     }

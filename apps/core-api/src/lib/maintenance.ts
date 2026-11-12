@@ -1,7 +1,7 @@
 import { withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
-import { log } from '~/lib/log';
+import { logger, traced } from '~/logger';
 import { pruneAudit } from '~/modules/audit/audit.service';
 import { signAuditCheckpoints } from '~/modules/audit/checkpoints';
 import { tickAutomations } from '~/modules/automations/triggers';
@@ -10,9 +10,11 @@ import { CONSUMERS } from '~/modules/events/processor';
 import { pruneUploads, purgeDeletedFiles } from '~/modules/files/files.service';
 import { storage } from '~/modules/files/storage';
 import { pruneNotifications } from '~/modules/notifications/notifications.service';
-import { refreshAllEntitlements } from '~/modules/saas/saas.service';
+import { refreshAllEntitlements } from '~/modules/saas/entitlements';
 import { purgeExpiredTrash } from '~/modules/trash/trash.service';
 import { pruneDeliveries } from '~/modules/webhooks/webhooks.service';
+
+const log = logger.child({ component: 'maintenance' });
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -58,14 +60,17 @@ const cleanup = async () => {
 
   if (uploads || audit || read || handled) {
     log.info(
-      `cleanup: ${uploads} unfinished uploads, ${audit} audit entries, ${read} notifications, ${handled} events`,
+      { uploads, audit, notifications: read, events: handled },
+      'cleanup removed old records',
     );
   }
 };
 
-/** Runs `job` and logs a failure; the next run tries again. */
+/** Runs `job` in its own trace and logs a failure; the next run tries again. */
 const attempt = (what: string, job: () => Promise<unknown>) => () => {
-  job().catch((error: unknown) => log.error(`${what} failed`, { error }));
+  traced(what, job).catch((error: unknown) =>
+    log.error({ err: error, job: what }, 'maintenance step failed'),
+  );
 };
 
 /** Starts the background timers; the returned function stops them. */

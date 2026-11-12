@@ -12,10 +12,12 @@ import {
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { type Actor, systemCaller } from '~/http/auth';
-import { log } from '~/lib/log';
+import { logger } from '~/logger';
 import { enqueueJob } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
 import { type Cursor, sameCursor, stepAt } from './cursor';
+
+export const log = logger.child({ component: 'automations' });
 
 export type RunRow = typeof automationRuns.$inferSelect;
 
@@ -24,9 +26,7 @@ export type RunContext = Record<string, unknown>;
 export type SubjectRef = { type: 'customer' | 'company'; id: string };
 
 export const subjectRefOf = (run: Pick<RunRow, 'subjectType' | 'subjectId'>): SubjectRef | null =>
-  (run.subjectType === 'customer' || run.subjectType === 'company') && run.subjectId
-    ? { type: run.subjectType, id: run.subjectId }
-    : null;
+  run.subjectType && run.subjectId ? { type: run.subjectType, id: run.subjectId } : null;
 
 export const definitionOf = async (tx: Db, automationId: string, version: number) => {
   const [row] = await tx
@@ -204,7 +204,7 @@ const notifyFailure = async (tx: Db, run: RunRow, error: string) => {
     dedupeKey: `automation-failed:${automation.id}:${hour}`,
     data: { runId: run.id },
   }).catch((notifyError: unknown) =>
-    log.warn('could not notify about a failed run', { error: notifyError }),
+    log.warn({ run: run.id, err: notifyError }, 'could not notify about a failed run'),
   );
 };
 

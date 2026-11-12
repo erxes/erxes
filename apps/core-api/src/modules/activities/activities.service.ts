@@ -12,14 +12,8 @@ import {
   users,
 } from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, like, ne, notLike, or, sql } from 'drizzle-orm';
-import {
-  type Actor,
-  type Caller,
-  can,
-  type PluginCaller,
-  pluginCaller,
-  userCaller,
-} from '~/http/auth';
+import { type Actor, type Caller, type PluginCaller, pluginCaller, userCaller } from '~/http/auth';
+import { can } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';

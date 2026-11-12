@@ -1,8 +1,10 @@
 import { type Db, jobs, newId, type Transaction, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { z } from 'zod';
-import { log } from '~/lib/log';
+import { logger, traced } from '~/logger';
 import { liveHub } from '~/modules/live/hub';
+
+const log = logger.child({ component: 'jobs' });
 
 export type JobRow = typeof jobs.$inferSelect;
 
@@ -167,19 +169,25 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
   const delay = (definition.backoff ?? defaultBackoff)(job.attempts);
 
   if (dead)
-    log.error('job gave up', {
-      queue: job.queue,
-      job: job.id,
-      attempts: job.attempts,
-      error: message,
-    });
+    log.error(
+      {
+        queue: job.queue,
+        job: job.id,
+        attempts: job.attempts,
+        err: message,
+      },
+      'job gave up',
+    );
   else
-    log.warn('job failed; retrying', {
-      queue: job.queue,
-      job: job.id,
-      attempt: job.attempts,
-      error: message,
-    });
+    log.warn(
+      {
+        queue: job.queue,
+        job: job.id,
+        attempt: job.attempts,
+        err: message,
+      },
+      'job failed; retrying',
+    );
 
   await withOrg(job.orgId, (tx) =>
     tx
@@ -198,27 +206,28 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
 
   if (dead && onDead) {
     await withOrg(job.orgId, (tx) => onDead(job, message, tx)).catch((hookError: unknown) =>
-      log.error('job onDead failed', { queue: job.queue, job: job.id, error: hookError }),
+      log.error({ queue: job.queue, job: job.id, err: hookError }, 'job onDead failed'),
     );
   }
 };
 
-/** Runs one claimed job to completion, retry or death. */
-export const runJob = async (definition: JobDefinition, job: JobRow) => {
-  try {
-    if (definition.atomic) {
-      await withOrg(job.orgId, async (tx) => {
-        await definition.handle(job, tx);
-        await tx.delete(jobs).where(eq(jobs.id, job.id));
-      });
-    } else {
-      await definition.handle(job);
-      await withOrg(job.orgId, (tx) => tx.delete(jobs).where(eq(jobs.id, job.id)));
+/** Runs one claimed job to completion, retry or death, in a trace of its own. */
+export const runJob = (definition: JobDefinition, job: JobRow) =>
+  traced(`job ${job.queue}`, async () => {
+    try {
+      if (definition.atomic) {
+        await withOrg(job.orgId, async (tx) => {
+          await definition.handle(job, tx);
+          await tx.delete(jobs).where(eq(jobs.id, job.id));
+        });
+      } else {
+        await definition.handle(job);
+        await withOrg(job.orgId, (tx) => tx.delete(jobs).where(eq(jobs.id, job.id)));
+      }
+    } catch (error) {
+      await fail(definition, job, error);
     }
-  } catch (error) {
-    await fail(definition, job, error);
-  }
-};
+  });
 
 /** Claims and runs due jobs until none are left (tests, and each tick). */
 export const processJobs = async (definitions: JobDefinition[], concurrency = 5) => {
@@ -260,7 +269,7 @@ export const startJobWorker = (definitions: JobDefinition[], concurrency = 5) =>
 
     current = processJobs(definitions, concurrency)
       .then(() => undefined)
-      .catch((error: unknown) => log.error('job processing failed', { error }))
+      .catch((error: unknown) => log.error({ err: error }, 'job processing failed'))
       .finally(() => {
         current = null;
 

@@ -65,7 +65,10 @@ const pluginKeys = optional(z.string()).transform((value, ctx) => {
     if (!PLUGIN_NAME.test(name) || name === 'core') {
       ctx.addIssue({ code: 'custom', message: `"${name}" is not a valid plugin name` });
     } else if (secret.length < 32) {
-      ctx.addIssue({ code: 'custom', message: `the key for "${name}" needs 32 characters or more` });
+      ctx.addIssue({
+        code: 'custom',
+        message: `the key for "${name}" needs 32 characters or more`,
+      });
     } else {
       keys.set(secret, name);
     }
@@ -78,6 +81,10 @@ const Env = z
   .object({
     NODE_ENV: text,
     PORT: positive(3400),
+
+    LOG_LEVEL: optional(z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])),
+    LOG_FORMAT: optional(z.enum(['json', 'pretty'])),
+    OTEL_EXPORTER_OTLP_ENDPOINT: optional(z.string().url()),
 
     DATA_URL: text,
     DATA_MIGRATION_URL: text,
@@ -120,7 +127,12 @@ const Env = z
     SAAS_GRACE_DAYS: positive(7),
     SAAS_BILLING_URL: text,
 
-    FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(['local', 's3']))),
+    FILES_STORAGE: optional(
+      z
+        .string()
+        .toLowerCase()
+        .pipe(z.enum(['local', 's3'])),
+    ),
     FILES_LOCAL_DIR: text,
     FILES_MAX_SIZE_MB: positive(50),
     FILES_LINK_TTL_SECONDS: positive(300),
@@ -220,6 +232,15 @@ const listenUrl = (): string | undefined => {
 export const config = {
   isProduction,
   port: env.PORT,
+  log: {
+    level: env.LOG_LEVEL ?? 'info',
+    /** Readable lines (pino-pretty, a development dependency) instead of JSON lines. */
+    pretty: (env.LOG_FORMAT ?? (env.NODE_ENV === 'development' ? 'pretty' : 'json')) === 'pretty',
+  },
+  otel: {
+    /** Where traces go (OTLP over HTTP); the exporter reads the other OTEL_EXPORTER_OTLP_* settings. Unset: no spans leave the process. */
+    endpoint: env.OTEL_EXPORTER_OTLP_ENDPOINT,
+  },
   data: {
     url: dataUrl,
     ssl: env.DATA_SSL ?? false,

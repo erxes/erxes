@@ -2,12 +2,11 @@ import type { AutomationDefinition } from '@erxes/core-contract';
 import { automationRuns, automations, type Db, type events, newId } from '@erxes/core-db';
 import { and, desc, eq, gt, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { log } from '~/lib/log';
 import { toEventDto } from '~/modules/events/events.service';
 import type { EventConsumer } from '~/modules/events/processor';
 import { evaluateGroup } from './conditions';
 import { nextCursor, stepAt } from './cursor';
-import { continueAfter, definitionOf, finishRun, queueAdvance, type SubjectRef } from './runs';
+import { continueAfter, definitionOf, finishRun, log, queueAdvance, type SubjectRef } from './runs';
 import { type Subject, subjectOf } from './subjects';
 
 type AutomationRow = typeof automations.$inferSelect;
@@ -248,10 +247,10 @@ export const automationsConsumer: EventConsumer = {
     if (event.subjectId) await resumeWaiting(tx, event, event.subjectId, dto);
 
     if (event.depth >= MAX_CHAIN_DEPTH) {
-      log.warn('automation chain too deep; not starting more', {
-        event: event.id,
-        depth: event.depth,
-      });
+      log.warn(
+        { event: event.id, depth: event.depth },
+        'automation chain too deep; not starting more',
+      );
 
       return;
     }

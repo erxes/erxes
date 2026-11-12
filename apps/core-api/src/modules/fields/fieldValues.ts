@@ -101,11 +101,14 @@ export const saveCustomFields = async (
     ).map((field) => [field.id, field.type]),
   );
 
-  const rows = present.flatMap((fieldId) =>
-    types.has(fieldId)
-      ? rowsOf({ orgId, recordId, fieldId }, types.get(fieldId)!, values[fieldId]!)
-      : [],
-  );
+  const rows = present.flatMap((fieldId) => {
+    const fieldType = types.get(fieldId);
+    const value = values[fieldId];
+
+    return fieldType && value !== undefined
+      ? rowsOf({ orgId, recordId, fieldId }, fieldType, value)
+      : [];
+  });
 
   if (rows.length) await tx.insert(table).values(rows);
 };
