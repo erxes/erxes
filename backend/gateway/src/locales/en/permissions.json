@@ -1448,6 +1448,310 @@
       }
     }
   },
+  "frontline": {
+    "inbox": {
+      "name": "Inbox",
+      "description": "Inbox & conversations",
+      "scopes": {
+        "own": "Conversations assigned to user",
+        "group": "Conversations in user departments",
+        "all": "All conversations"
+      },
+      "actions": {
+        "showConversations": {
+          "title": "View conversations",
+          "description": "View inbox conversations"
+        },
+        "conversationMessageAdd": {
+          "title": "Send message",
+          "description": "Send messages in conversations"
+        },
+        "conversationMessageEdit": {
+          "title": "Edit message",
+          "description": "Edit sent messages"
+        },
+        "conversationsAssign": {
+          "title": "Assign conversations",
+          "description": "Assign conversations to agents"
+        },
+        "conversationsUnassign": {
+          "title": "Unassign conversations",
+          "description": "Remove agent assignment"
+        },
+        "conversationsChangeStatus": {
+          "title": "Change conversation status",
+          "description": "Open or close conversations"
+        },
+        "conversationsResolve": {
+          "title": "Resolve conversations",
+          "description": "Mark conversations as resolved"
+        },
+        "conversationEditCustomFields": {
+          "title": "Edit custom fields",
+          "description": "Edit custom field values on conversations"
+        }
+      }
+    },
+    "channel": {
+      "name": "Channels",
+      "description": "Channel management",
+      "scopes": {
+        "all": "All channels"
+      },
+      "actions": {
+        "showChannels": {
+          "title": "View channels",
+          "description": "View own channels (membership-filtered)"
+        },
+        "showAllChannels": {
+          "title": "View all channels",
+          "description": "View every channel regardless of membership"
+        },
+        "channelAdd": {
+          "title": "Add channel",
+          "description": "Create a new channel"
+        },
+        "channelUpdate": {
+          "title": "Edit channel",
+          "description": "Edit channel settings"
+        },
+        "channelRemove": {
+          "title": "Remove channel",
+          "description": "Delete a channel"
+        },
+        "channelManageMembers": {
+          "title": "Manage channel members",
+          "description": "Add, remove or update channel members"
+        }
+      }
+    },
+    "integration": {
+      "name": "Integrations",
+      "description": "Integration management",
+      "scopes": {
+        "all": "All integrations"
+      },
+      "actions": {
+        "showIntegrations": {
+          "title": "View integrations",
+          "description": "View integrations list"
+        },
+        "integrationsAdd": {
+          "title": "Add integration",
+          "description": "Create integrations"
+        },
+        "integrationsEdit": {
+          "title": "Edit integration",
+          "description": "Edit integration settings"
+        },
+        "integrationsRemove": {
+          "title": "Remove integration",
+          "description": "Delete integrations"
+        }
+      }
+    },
+    "ticket": {
+      "name": "Tickets",
+      "description": "Ticket management",
+      "scopes": {
+        "own": "Tickets assigned to user",
+        "group": "Tickets in user departments",
+        "all": "All tickets"
+      },
+      "actions": {
+        "showTickets": {
+          "title": "View tickets",
+          "description": "View tickets"
+        },
+        "createTicket": {
+          "title": "Add ticket",
+          "description": "Create tickets"
+        },
+        "updateTicket": {
+          "title": "Edit ticket",
+          "description": "Edit tickets"
+        },
+        "removeTicket": {
+          "title": "Remove ticket",
+          "description": "Delete tickets"
+        },
+        "ticketStatusesManage": {
+          "title": "Manage ticket statuses",
+          "description": "Add, edit and remove statuses of a pipeline"
+        },
+        "ticketsExportManage": {
+          "title": "Export tickets",
+          "description": "Export tickets to file"
+        },
+        "ticketsImportManage": {
+          "title": "Import tickets",
+          "description": "Import tickets from file"
+        }
+      }
+    },
+    "form": {
+      "name": "Forms",
+      "description": "Form management",
+      "scopes": {
+        "all": "All forms"
+      },
+      "actions": {
+        "showForms": {
+          "title": "View forms",
+          "description": "View forms list"
+        },
+        "formsAdd": {
+          "title": "Add form",
+          "description": "Create forms"
+        },
+        "formsEdit": {
+          "title": "Edit form",
+          "description": "Edit forms"
+        },
+        "formsRemove": {
+          "title": "Remove form",
+          "description": "Delete forms"
+        },
+        "formsDuplicate": {
+          "title": "Duplicate form",
+          "description": "Duplicate an existing form"
+        },
+        "formsToggleStatus": {
+          "title": "Toggle form status",
+          "description": "Activate or deactivate forms"
+        },
+        "showFormSubmissions": {
+          "title": "View form submissions",
+          "description": "View form submission data"
+        },
+        "formSubmissionsRemove": {
+          "title": "Remove form submissions",
+          "description": "Delete form submissions"
+        },
+        "formSubmissionsExportManage": {
+          "title": "Export form submissions",
+          "description": "Export form submissions to file"
+        }
+      }
+    },
+    "survey": {
+      "name": "Surveys",
+      "description": "Survey management",
+      "scopes": {
+        "all": "All surveys"
+      },
+      "actions": {
+        "showSurveys": {
+          "title": "View surveys",
+          "description": "View surveys list"
+        },
+        "surveyAdd": {
+          "title": "Add survey",
+          "description": "Create surveys"
+        },
+        "surveyEdit": {
+          "title": "Edit survey",
+          "description": "Edit surveys"
+        },
+        "surveyRemove": {
+          "title": "Remove survey",
+          "description": "Delete surveys"
+        },
+        "surveyToggleStatus": {
+          "title": "Toggle survey status",
+          "description": "Activate or archive surveys"
+        },
+        "surveySendToConversation": {
+          "title": "Send survey",
+          "description": "Send a survey into a messenger conversation"
+        }
+      }
+    },
+    "callReport": {
+      "name": "Call reports",
+      "description": "Call centre reports",
+      "scopes": {
+        "all": "All call queues"
+      },
+      "actions": {
+        "showCallReports": {
+          "title": "View call reports",
+          "description": "Open the call reports for queues the user operates"
+        },
+        "showAllCallReports": {
+          "title": "View all call queues",
+          "description": "Read call reports for every queue, not only the ones the user operates"
+        }
+      }
+    },
+    "responseTemplate": {
+      "name": "Response templates",
+      "description": "Response template management",
+      "scopes": {
+        "all": "All response templates"
+      },
+      "actions": {
+        "showResponseTemplates": {
+          "title": "View response templates",
+          "description": "View response templates"
+        },
+        "responseTemplatesAdd": {
+          "title": "Add response template",
+          "description": "Create response templates"
+        },
+        "responseTemplatesEdit": {
+          "title": "Edit response template",
+          "description": "Edit response templates"
+        },
+        "responseTemplatesRemove": {
+          "title": "Remove response template",
+          "description": "Delete response templates"
+        }
+      }
+    },
+    "knowledgeBase": {
+      "name": "Knowledge base",
+      "description": "Knowledge base management",
+      "scopes": {
+        "all": "All knowledge base content"
+      },
+      "actions": {
+        "showKnowledgeBase": {
+          "title": "View knowledge base",
+          "description": "View knowledge base topics and articles"
+        },
+        "knowledgeBaseTopicsManage": {
+          "title": "Manage topics",
+          "description": "Add, edit and remove knowledge base topics"
+        },
+        "knowledgeBaseCategoriesManage": {
+          "title": "Manage categories",
+          "description": "Add, edit and remove knowledge base categories"
+        },
+        "knowledgeBaseArticlesManage": {
+          "title": "Manage articles",
+          "description": "Add, edit and remove knowledge base articles"
+        }
+      }
+    },
+    "helpCenter": {
+      "name": "Help center",
+      "description": "Help center configuration",
+      "scopes": {
+        "all": "All help center configs"
+      },
+      "actions": {
+        "showHelpCenter": {
+          "title": "View help centers",
+          "description": "View help center general settings and appearance"
+        },
+        "helpCenterManage": {
+          "title": "Manage help centers",
+          "description": "Create, update and remove help center general settings and appearance"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Full access to Accounting plugin"
@@ -1472,6 +1776,15 @@
     },
     "sales:viewer": {
       "description": "Read‑only access to deals and POS"
+    },
+    "frontline:admin": {
+      "description": "Full access to all Frontline modules"
+    },
+    "frontline:user": {
+      "description": "Standard support user — inbox, tickets and templates"
+    },
+    "frontline:viewer": {
+      "description": "Read-only access to conversations, tickets and knowledge base"
     }
   }
 }

@@ -1448,6 +1448,310 @@
       }
     }
   },
+  "frontline": {
+    "inbox": {
+      "name": "Инбокс",
+      "description": "Инбокс ба харилцан яриа",
+      "scopes": {
+        "own": "Хэрэглэгчид оноосон харилцан яриа",
+        "group": "Хэрэглэгчийн хэлтсийн харилцан яриа",
+        "all": "Бүх харилцан яриа"
+      },
+      "actions": {
+        "showConversations": {
+          "title": "Харилцан яриа харах",
+          "description": "Инбоксын харилцан яриа харах"
+        },
+        "conversationMessageAdd": {
+          "title": "Мессеж илгээх",
+          "description": "Харилцан ярианд мессеж илгээх"
+        },
+        "conversationMessageEdit": {
+          "title": "Мессеж засах",
+          "description": "Илгээсэн мессеж засах"
+        },
+        "conversationsAssign": {
+          "title": "Харилцан яриа оноох",
+          "description": "Харилцан яриаг ажилтанд оноох"
+        },
+        "conversationsUnassign": {
+          "title": "Оноолтыг цуцлах",
+          "description": "Ажилтны оноолтыг хасах"
+        },
+        "conversationsChangeStatus": {
+          "title": "Харилцан ярианы төлөв өөрчлөх",
+          "description": "Харилцан яриаг нээх эсвэл хаах"
+        },
+        "conversationsResolve": {
+          "title": "Харилцан яриа шийдвэрлэх",
+          "description": "Харилцан яриаг шийдвэрлэсэн гэж тэмдэглэх"
+        },
+        "conversationEditCustomFields": {
+          "title": "Нэмэлт талбар засах",
+          "description": "Харилцан ярианы нэмэлт талбарын утга засах"
+        }
+      }
+    },
+    "channel": {
+      "name": "Сувгууд",
+      "description": "Сувгийн удирдлага",
+      "scopes": {
+        "all": "Бүх суваг"
+      },
+      "actions": {
+        "showChannels": {
+          "title": "Суваг харах",
+          "description": "Өөрийн гишүүнчлэлтэй сувгуудыг харах"
+        },
+        "showAllChannels": {
+          "title": "Бүх суваг харах",
+          "description": "Гишүүнчлэлээс үл хамааран бүх сувгийг харах"
+        },
+        "channelAdd": {
+          "title": "Суваг нэмэх",
+          "description": "Шинэ суваг үүсгэх"
+        },
+        "channelUpdate": {
+          "title": "Суваг засах",
+          "description": "Сувгийн тохиргоо засах"
+        },
+        "channelRemove": {
+          "title": "Суваг устгах",
+          "description": "Суваг устгах"
+        },
+        "channelManageMembers": {
+          "title": "Сувгийн гишүүд удирдах",
+          "description": "Сувгийн гишүүдийг нэмэх, хасах, шинэчлэх"
+        }
+      }
+    },
+    "integration": {
+      "name": "Холболтууд",
+      "description": "Холболтын удирдлага",
+      "scopes": {
+        "all": "Бүх холболт"
+      },
+      "actions": {
+        "showIntegrations": {
+          "title": "Холболт харах",
+          "description": "Холболтын жагсаалт харах"
+        },
+        "integrationsAdd": {
+          "title": "Холболт нэмэх",
+          "description": "Холболт үүсгэх"
+        },
+        "integrationsEdit": {
+          "title": "Холболт засах",
+          "description": "Холболтын тохиргоо засах"
+        },
+        "integrationsRemove": {
+          "title": "Холболт устгах",
+          "description": "Холболт устгах"
+        }
+      }
+    },
+    "ticket": {
+      "name": "Тикетүүд",
+      "description": "Тикетийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчид оноосон тикет",
+        "group": "Хэрэглэгчийн хэлтсийн тикет",
+        "all": "Бүх тикет"
+      },
+      "actions": {
+        "showTickets": {
+          "title": "Тикет харах",
+          "description": "Тикет харах"
+        },
+        "createTicket": {
+          "title": "Тикет нэмэх",
+          "description": "Тикет үүсгэх"
+        },
+        "updateTicket": {
+          "title": "Тикет засах",
+          "description": "Тикет засах"
+        },
+        "removeTicket": {
+          "title": "Тикет устгах",
+          "description": "Тикет устгах"
+        },
+        "ticketStatusesManage": {
+          "title": "Тикетийн төлөв удирдах",
+          "description": "Дамжлагын төлөв нэмэх, засах, устгах"
+        },
+        "ticketsExportManage": {
+          "title": "Тикет экспортлох",
+          "description": "Тикетийг файл руу экспортлох"
+        },
+        "ticketsImportManage": {
+          "title": "Тикет импортлох",
+          "description": "Тикетийг файлаас импортлох"
+        }
+      }
+    },
+    "form": {
+      "name": "Маягтууд",
+      "description": "Маягтын удирдлага",
+      "scopes": {
+        "all": "Бүх маягт"
+      },
+      "actions": {
+        "showForms": {
+          "title": "Маягт харах",
+          "description": "Маягтын жагсаалт харах"
+        },
+        "formsAdd": {
+          "title": "Маягт нэмэх",
+          "description": "Маягт үүсгэх"
+        },
+        "formsEdit": {
+          "title": "Маягт засах",
+          "description": "Маягт засах"
+        },
+        "formsRemove": {
+          "title": "Маягт устгах",
+          "description": "Маягт устгах"
+        },
+        "formsDuplicate": {
+          "title": "Маягт хувилах",
+          "description": "Байгаа маягтыг хувилах"
+        },
+        "formsToggleStatus": {
+          "title": "Маягтын төлөв солих",
+          "description": "Маягтыг идэвхжүүлэх эсвэл идэвхгүй болгох"
+        },
+        "showFormSubmissions": {
+          "title": "Маягтын илгээлт харах",
+          "description": "Маягтын илгээлтийн өгөгдөл харах"
+        },
+        "formSubmissionsRemove": {
+          "title": "Маягтын илгээлт устгах",
+          "description": "Маягтын илгээлт устгах"
+        },
+        "formSubmissionsExportManage": {
+          "title": "Маягтын илгээлт экспортлох",
+          "description": "Маягтын илгээлтийг файл руу экспортлох"
+        }
+      }
+    },
+    "survey": {
+      "name": "Судалгаа",
+      "description": "Судалгааны удирдлага",
+      "scopes": {
+        "all": "Бүх судалгаа"
+      },
+      "actions": {
+        "showSurveys": {
+          "title": "Судалгаа харах",
+          "description": "Судалгааны жагсаалт харах"
+        },
+        "surveyAdd": {
+          "title": "Судалгаа нэмэх",
+          "description": "Судалгаа үүсгэх"
+        },
+        "surveyEdit": {
+          "title": "Судалгаа засах",
+          "description": "Судалгаа засах"
+        },
+        "surveyRemove": {
+          "title": "Судалгаа устгах",
+          "description": "Судалгаа устгах"
+        },
+        "surveyToggleStatus": {
+          "title": "Судалгааны төлөв солих",
+          "description": "Судалгааг идэвхжүүлэх эсвэл архивлах"
+        },
+        "surveySendToConversation": {
+          "title": "Судалгаа илгээх",
+          "description": "Мессенжерийн харилцан ярианд судалгаа илгээх"
+        }
+      }
+    },
+    "callReport": {
+      "name": "Дуудлагын тайлан",
+      "description": "Дуудлагын төвийн тайлан",
+      "scopes": {
+        "all": "Бүх дуудлагын дараалал"
+      },
+      "actions": {
+        "showCallReports": {
+          "title": "Дуудлагын тайлан харах",
+          "description": "Хэрэглэгчийн ажилладаг дарааллын дуудлагын тайланг нээх"
+        },
+        "showAllCallReports": {
+          "title": "Бүх дуудлагын дараалал харах",
+          "description": "Зөвхөн хэрэглэгчийн ажилладаг бус, бүх дарааллын дуудлагын тайланг харах"
+        }
+      }
+    },
+    "responseTemplate": {
+      "name": "Хариу загварууд",
+      "description": "Хариу загварын удирдлага",
+      "scopes": {
+        "all": "Бүх хариу загвар"
+      },
+      "actions": {
+        "showResponseTemplates": {
+          "title": "Хариу загвар харах",
+          "description": "Хариу загвар харах"
+        },
+        "responseTemplatesAdd": {
+          "title": "Хариу загвар нэмэх",
+          "description": "Хариу загвар үүсгэх"
+        },
+        "responseTemplatesEdit": {
+          "title": "Хариу загвар засах",
+          "description": "Хариу загвар засах"
+        },
+        "responseTemplatesRemove": {
+          "title": "Хариу загвар устгах",
+          "description": "Хариу загвар устгах"
+        }
+      }
+    },
+    "knowledgeBase": {
+      "name": "Мэдлэгийн сан",
+      "description": "Мэдлэгийн сангийн удирдлага",
+      "scopes": {
+        "all": "Мэдлэгийн сангийн бүх агуулга"
+      },
+      "actions": {
+        "showKnowledgeBase": {
+          "title": "Мэдлэгийн сан харах",
+          "description": "Мэдлэгийн сангийн сэдэв, нийтлэл харах"
+        },
+        "knowledgeBaseTopicsManage": {
+          "title": "Сэдэв удирдах",
+          "description": "Мэдлэгийн сангийн сэдэв нэмэх, засах, устгах"
+        },
+        "knowledgeBaseCategoriesManage": {
+          "title": "Ангилал удирдах",
+          "description": "Мэдлэгийн сангийн ангилал нэмэх, засах, устгах"
+        },
+        "knowledgeBaseArticlesManage": {
+          "title": "Нийтлэл удирдах",
+          "description": "Мэдлэгийн сангийн нийтлэл нэмэх, засах, устгах"
+        }
+      }
+    },
+    "helpCenter": {
+      "name": "Тусламжийн төв",
+      "description": "Тусламжийн төвийн тохиргоо",
+      "scopes": {
+        "all": "Тусламжийн төвийн бүх тохиргоо"
+      },
+      "actions": {
+        "showHelpCenter": {
+          "title": "Тусламжийн төв харах",
+          "description": "Тусламжийн төвийн ерөнхий тохиргоо, харагдах байдлыг харах"
+        },
+        "helpCenterManage": {
+          "title": "Тусламжийн төв удирдах",
+          "description": "Тусламжийн төвийн ерөнхий тохиргоо, харагдах байдлыг үүсгэх, шинэчлэх, устгах"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Санхүүгийн плагинд бүрэн хандах эрх"
@@ -1472,6 +1776,15 @@
     },
     "sales:viewer": {
       "description": "Хэлцэл болон ПОС-ийг зөвхөн харах эрх"
+    },
+    "frontline:admin": {
+      "description": "Frontline-ийн бүх модульд бүрэн хандах эрх"
+    },
+    "frontline:user": {
+      "description": "Дэмжлэгийн энгийн хэрэглэгч — инбокс, тикет, загварууд"
+    },
+    "frontline:viewer": {
+      "description": "Харилцан яриа, тикет, мэдлэгийн санг зөвхөн харах эрх"
     }
   }
 }
