@@ -203,13 +203,16 @@ const pageOf = async (
     .limit(PAGE);
 };
 
-/** Every row of the export's list, up to `MAX_EXPORT_ROWS`. */
+/**
+ * Every row of the export's list: up to `MAX_EXPORT_ROWS`, and one page past
+ * it when there are more, so the caller can tell the list was cut.
+ */
 const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
   const where = await whereOf(tx, actor, row.recordType, row.query);
   const body: Cell[][] = [];
   let last = '';
 
-  while (body.length < MAX_EXPORT_ROWS) {
+  while (body.length <= MAX_EXPORT_ROWS) {
     const page = await pageOf(tx, row, where, last);
     const end = page.at(-1);
 
