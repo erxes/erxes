@@ -36,15 +36,12 @@ const FOLLOW_TYPES = [
 const roundMoney = (amount: number): number =>
   Math.round((amount + Number.EPSILON) * 10000) / 10000;
 
-const buildFxaCapitalAssetDocuments = (
+const readFxaChangeRules = (
   doc: ITransaction,
   valuation: TFxaCapitalValuation,
-): { main: ITransaction; follows: ITransaction[] } => {
-  const input = doc.details[0];
-  const info = input.followInfos || {};
-  const revaluation = doc.journal === JOURNALS.FXA_REVALUATION;
-  const rules = readFxaCapitalRules(info);
-  if (revaluation) {
+) => {
+  const rules = readFxaCapitalRules(doc.details[0].followInfos);
+  if (doc.journal === JOURNALS.FXA_REVALUATION) {
     for (const field of [
       'depreciationMethod',
       'annualDepreciationRate',
@@ -79,6 +76,16 @@ const buildFxaCapitalAssetDocuments = (
       );
     rules.depreciationStartDate = valuation.depreciationStartDate;
   }
+  return rules;
+};
+
+const buildFxaCapitalAssetDocuments = (
+  doc: ITransaction,
+  valuation: TFxaCapitalValuation,
+): { main: ITransaction; follows: ITransaction[] } => {
+  const input = doc.details[0];
+  const revaluation = doc.journal === JOURNALS.FXA_REVALUATION;
+  const rules = readFxaChangeRules(doc, valuation);
   if (rules.originalCost === undefined || !rules.annualDepreciationRate) {
     throw new Error('Enter new unit cost and remaining useful life.');
   }
@@ -117,6 +124,10 @@ const buildFxaCapitalAssetDocuments = (
   const enteredTax = doc.details.filter(
     (detail) => detail.followInfos?.taxPreDeprecation !== undefined,
   );
+  const enteredTaxDepreciation = enteredTax.reduce(
+    (sum, detail) => sum + (detail.followInfos?.taxPreDeprecation ?? 0),
+    0,
+  );
   const revaluationTaxDepreciation =
     valuation.taxPreDeprecation + totalDepreciation - valuation.preDeprecation;
   let totalTaxDepreciation = totalDepreciation;
@@ -124,21 +135,13 @@ const buildFxaCapitalAssetDocuments = (
     totalTaxDepreciation = revaluationTaxDepreciation;
   } else if (taxEnabled) {
     totalTaxDepreciation = enteredTax.length
-      ? enteredTax.reduce(
-          (sum, detail) => sum + (detail.followInfos?.taxPreDeprecation ?? 0),
-          0,
-        )
+      ? enteredTaxDepreciation
       : valuation.taxPreDeprecation;
   }
   if (
     revaluation &&
     enteredTax.length &&
-    Math.abs(
-      enteredTax.reduce(
-        (sum, detail) => sum + (detail.followInfos?.taxPreDeprecation ?? 0),
-        0,
-      ) - revaluationTaxDepreciation,
-    ) > 0.0001
+    Math.abs(enteredTaxDepreciation - revaluationTaxDepreciation) > 0.0001
   )
     throw new Error(
       'Revaluation must preserve the book/tax accumulated depreciation difference. Use capitalization/correction.',

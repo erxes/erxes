@@ -30,3 +30,10 @@ export const allocateFxaDepreciation = (
     return Math.round(amount * 10000) / 10000;
   });
 };
+
+export const getFxaRevaluationTaxTotal = (
+  bookTotal: number,
+  previousBookTotal: number,
+  previousTaxTotal?: number | null,
+): number =>
+  (previousTaxTotal ?? previousBookTotal) + bookTotal - previousBookTotal;

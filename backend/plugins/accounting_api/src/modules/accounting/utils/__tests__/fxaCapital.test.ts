@@ -97,7 +97,6 @@ const fixture = () => {
           value: {
             taxAssetAccountId: 'tax-asset',
             taxLiabilityAccountId: 'tax-liability',
-            TaxExpenseAccountId: 'tax-expense',
             revaluationReserveAccountId: 'reserve',
             revaluationLossAccountId: 'loss',
           },
@@ -874,3 +873,69 @@ test('revaluation derives tax depreciation from the book delta and rejects an in
   doc.details[0].followInfos.taxPreDeprecation = 90;
   expect(() => buildFxaCapitalDocuments(doc, taxValuation)).toThrow('preserve');
 });
+
+test.each([
+  [0, -6],
+  [20, 6],
+])(
+  'a rate-only correction at %s percent adjusts deferred tax without cost, depreciation or reserve movements',
+  async (incomeTaxRate, expectedAssetChange) => {
+    const { models, raw } = fixture();
+    jest.mocked(getFxaCapitalValuation).mockResolvedValue(taxValuation);
+    raw.Transactions.find.mockImplementation(() =>
+      query([
+        {
+          _id: 'opening-tax',
+          journal: JOURNALS.FXA_DEFERRED_TAX,
+          date: new Date('2026-01-01'),
+          side: TR_SIDES.DEBIT,
+          details: taxValuation.locations.map((location) => ({
+            fixedAssetId: 'asset',
+            accountId: 'tax-asset',
+            branchId: location.branchId,
+            departmentId: location.departmentId,
+            count: 0,
+            amount: location.count * 2,
+          })),
+        } as ITransactionDocument,
+      ]),
+    );
+    jest.mocked(createOrUpdateTr).mockImplementation(
+      async (_models, _user, next) =>
+        ({
+          ...next,
+          _id: next._id || `follow-${next.side}`,
+          parentId: 'parent',
+          ptrId: 'pointer',
+        } as ITransactionDocument),
+    );
+    const doc = document();
+    doc.details[0].followInfos = {
+      originalCost: 100,
+      preDeprecation: 90,
+      taxPreDeprecation: 30,
+      annualDepreciationRate: 10,
+      incomeTaxRate,
+    };
+    const result = await saveFxaCapital('tenant', models, 'user', doc);
+    expect(result.mainTr.details.every((detail) => detail.amount === 0)).toBe(
+      true,
+    );
+    expect(
+      result.otherTrs.every((row) => row.journal === JOURNALS.FXA_DEFERRED_TAX),
+    ).toBe(true);
+    const signedAsset = result.otherTrs.reduce(
+      (sum, row) =>
+        sum +
+        (row.side === TR_SIDES.DEBIT ? 1 : -1) *
+          row.details.reduce((total, detail) => total + detail.amount, 0),
+      0,
+    );
+    expect(signedAsset).toBe(expectedAssetChange);
+    expect(
+      result.otherTrs
+        .flatMap((row) => row.details)
+        .every((detail) => detail.accountId === 'tax-asset'),
+    ).toBe(true);
+  },
+);

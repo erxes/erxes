@@ -2,6 +2,7 @@ import { buildFxaRevaluationPreview } from '@/transactions/transaction-form/comp
 import {
   allocateFxaDepreciation,
   getTotalFxaDepreciation,
+  getFxaRevaluationTaxTotal,
 } from '@/transactions/transaction-form/components/helpers/fxaDepreciation';
 import { TTrDoc } from '@/transactions/transaction-form/types/JournalForms';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
@@ -55,21 +56,21 @@ const buildFxaCapitalAssetPreview = (
   const revaluation = trDoc.journal === TrJournalEnum.FXA_REVALUATION;
   const sourceDetails: ITrDetail[] = trDoc.details;
   const costDelta = info.originalCost - valuation.originalCost;
+  const bookTotal =
+    getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation;
   const depreciationDelta =
-    ((getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation) -
-      valuation.preDeprecation) /
-    valuation.count;
+    (bookTotal - valuation.preDeprecation) / valuation.count;
   const locationDepreciation = allocateFxaDepreciation(
-    getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation,
+    bookTotal,
     valuation.locations.map((location) => location.count),
   );
-  let totalTax =
-    getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation;
+  let totalTax = bookTotal;
   if (revaluation) {
-    totalTax =
-      (valuation.taxPreDeprecation ?? valuation.preDeprecation) +
-      totalTax -
-      valuation.preDeprecation;
+    totalTax = getFxaRevaluationTaxTotal(
+      bookTotal,
+      valuation.preDeprecation,
+      valuation.taxPreDeprecation,
+    );
   } else if (valuation.hasTaxDepreciation) {
     totalTax =
       getTotalFxaDepreciation(trDoc.details, 'taxPreDeprecation') ??

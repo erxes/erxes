@@ -8,6 +8,7 @@ import { TFxaCapitalValuation } from '@/transactions/transaction-form/components
 import {
   allocateFxaDepreciation,
   getTotalFxaDepreciation,
+  getFxaRevaluationTaxTotal,
 } from '@/transactions/transaction-form/components/helpers/fxaDepreciation';
 
 export const FxaDepreciationFields = ({
@@ -44,9 +45,11 @@ export const FxaDepreciationFields = ({
     0;
   const total =
     revaluation && tax && valuation
-      ? (valuation.taxPreDeprecation ?? valuation.preDeprecation) +
-        (getTotalFxaDepreciation(group) ?? valuation.preDeprecation) -
-        valuation.preDeprecation
+      ? getFxaRevaluationTaxTotal(
+          getTotalFxaDepreciation(group) ?? valuation.preDeprecation,
+          valuation.preDeprecation,
+          valuation.taxPreDeprecation,
+        )
       : storedTotal;
   const unitPreDeprecation = count ? total / count : 0;
   const unitLabel =
@@ -74,9 +77,11 @@ export const FxaDepreciationFields = ({
     const taxAmounts =
       revaluation && !tax && valuation
         ? allocateFxaDepreciation(
-            (valuation.taxPreDeprecation ?? valuation.preDeprecation) +
-              value -
+            getFxaRevaluationTaxTotal(
+              value,
               valuation.preDeprecation,
+              valuation.taxPreDeprecation,
+            ),
             counts,
           )
         : undefined;
