@@ -16,6 +16,9 @@ const config: KnipConfig = {
     },
     'apps/core-ui': {
       project: ['src/**/*.{ts,tsx,css}'],
+      // Provided to 3.x plugin UIs through Module Federation (SHARED in rsbuild.config.ts), named
+      // there as a string knip can't follow; graphql is @apollo/client's peer. core-ui imports neither.
+      ignoreDependencies: ['@apollo/client', 'graphql'],
     },
     'packages/contract': {
       project: ['src/**/*.ts'],
