@@ -259,8 +259,6 @@ export {
   NavigationMenuLinkItem,
 } from './modules/navigation-menu/components/NavigationMenu';
 
-export { Preview } from './modules/preview/components/Preview';
-
 export {
   type INumberFieldContainerProps,
   NumberField,
