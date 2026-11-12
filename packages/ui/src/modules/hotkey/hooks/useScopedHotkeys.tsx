@@ -1,4 +1,3 @@
-import { isDefined } from 'erxes-ui/utils/isDefined';
 import { useAtom } from 'jotai';
 import { useHotkeys } from 'react-hotkeys-hook';
 import type { HotkeyCallback, Keys, Options } from 'react-hotkeys-hook/dist/types';
@@ -18,17 +17,10 @@ export const useScopedHotkeys = (
 
   const callScopedHotkeyCallback = useScopedHotKeysCallback();
 
-  const enableOnContentEditable = isDefined(options?.enableOnContentEditable)
-    ? options.enableOnContentEditable
-    : true;
-
-  const enableOnFormTags = isDefined(options?.enableOnFormTags) ? options.enableOnFormTags : false;
-
-  const preventDefault = isDefined(options?.preventDefault)
-    ? options.preventDefault === true
-    : true;
-
-  const ignoreModifiers = isDefined(options?.ignoreModifiers) ? options.ignoreModifiers : false;
+  const enableOnContentEditable = options?.enableOnContentEditable ?? true;
+  const enableOnFormTags = options?.enableOnFormTags ?? false;
+  const preventDefault = (options?.preventDefault ?? true) === true;
+  const ignoreModifiers = options?.ignoreModifiers ?? false;
 
   return useHotkeys(
     keys,

@@ -374,18 +374,12 @@ importers:
       '@module-federation/enhanced':
         specifier: 0.6.16
         version: 0.6.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@7.0.2)
-      '@sniptt/guards':
-        specifier: 0.2.0
-        version: 0.2.0
       '@tabler/icons-react':
         specifier: 3.34.0
         version: 3.34.0(react@18.3.1)
       '@tanstack/react-table':
         specifier: 8.21.2
         version: 8.21.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tanstack/table-core':
-        specifier: 8.21.2
-        version: 8.21.2
       '@types/deep-equal':
         specifier: 1.0.4
         version: 1.0.4
@@ -4126,10 +4120,6 @@ packages:
   '@smithy/types@4.20.0':
     resolution: {integrity: sha512-lCA6QG22dPk9ecHbv91jDQZsmtPUjdS1aE2Il6NNPqe7DrYc0dZQi6DhcESk2KYXH2sp5xbAcGdYMZDFnuzA2A==}
     engines: {node: '>=18.0.0'}
-
-  '@sniptt/guards@0.2.0':
-    resolution: {integrity: sha512-QNxknl5YcrxpLtP99iEvNEJRlfXtIfpkvcEWHJKD6bHUr93dsH6OZGUF6reVBddKs1ps44lndSMoDK2Dz0n6ZQ==}
-    engines: {node: '>=14', npm: '>=7'}
 
   '@spectrum-icons/ui@3.7.2':
     resolution: {integrity: sha512-7IuSHO+Ck8gJUIGIXqDcDIU4R8RHRUZhlfz8AwN1rSdCEvdgp6DWYN0LDTMrWh7TN/H5hrJ7oDO/gUpR3TnBjw==}
@@ -11963,8 +11953,6 @@ snapshots:
   '@smithy/types@4.20.0':
     dependencies:
       tslib: 2.9.1
-
-  '@sniptt/guards@0.2.0': {}
 
   '@spectrum-icons/ui@3.7.2(@adobe/react-spectrum@3.47.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:

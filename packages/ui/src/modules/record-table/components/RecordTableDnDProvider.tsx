@@ -10,8 +10,7 @@ import {
 } from '@dnd-kit/core';
 import { restrictToFirstScrollableAncestor, restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { ColumnOrderState } from '@tanstack/react-table';
-import type { OnChangeFn } from '@tanstack/table-core';
+import type { ColumnOrderState, OnChangeFn } from '@tanstack/react-table';
 
 interface RecordTableDnDProviderProps {
   children: React.ReactNode;
