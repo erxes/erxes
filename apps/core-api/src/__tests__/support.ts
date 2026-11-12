@@ -5,8 +5,10 @@ import { OpenAPILink } from '@orpc/openapi-client/fetch';
 import { once } from 'node:events';
 import type { Server } from 'node:http';
 import { afterAll, beforeAll } from 'vite-plus/test';
+import { newId, users } from '@erxes/core-db';
 import { createApp } from '~/app';
-import { currentToken } from './db';
+import { createOrganization } from '~/modules/organizations/organizations.service';
+import { adminDb, currentToken } from './db';
 import { HR_SECRET } from './plugin';
 
 export type CoreClient = ContractRouterClient<typeof coreContract>;
@@ -92,5 +94,68 @@ export const useTestServer = () => {
     headers: bearer,
     client,
     pluginToken,
+  };
+};
+
+/**
+ * Two organisations on a test server: Acme with its owner, an active member and
+ * a disabled one, and Globex with its owner. `owner()`, `member()` and `other()`
+ * are those members' clients, `hr(org)` the test plugin's for Acme or `org`.
+ */
+export const useTwoOrgs = () => {
+  const server = useTestServer();
+  const ids = { org: '', otherOrg: '', owner: '', member: '', disabled: '', otherOwner: '' };
+
+  beforeAll(async () => {
+    const acme = await createOrganization({
+      subdomain: 'acme',
+      name: 'Acme',
+      owner: { email: 'owner@acme.mn' },
+    });
+
+    const globex = await createOrganization({
+      subdomain: 'globex',
+      name: 'Globex',
+      owner: { email: 'owner@globex.mn' },
+    });
+
+    Object.assign(ids, {
+      org: acme.organization.id,
+      otherOrg: globex.organization.id,
+      owner: acme.owner.id,
+      member: newId(),
+      disabled: newId(),
+      otherOwner: globex.owner.id,
+    });
+
+    await adminDb()
+      .insert(users)
+      .values([
+        {
+          id: ids.member,
+          orgId: ids.org,
+          email: 'member@acme.mn',
+          role: 'member',
+          status: 'active',
+        },
+        {
+          id: ids.disabled,
+          orgId: ids.org,
+          email: 'gone@acme.mn',
+          role: 'member',
+          status: 'disabled',
+        },
+      ]);
+  });
+
+  return {
+    ...server,
+    ids,
+    owner: () => server.client({ user: ids.owner, org: ids.org }),
+    member: () => server.client({ user: ids.member, org: ids.org }),
+    other: () => server.client({ user: ids.otherOwner, org: ids.otherOrg }),
+    hr: (org = ids.org) => server.client({ plugin: HR_SECRET, org }),
+    /** A member's bearer token at their current session version, for raw requests. */
+    token: (user = ids.owner, org = ids.org) => currentToken(user, org),
   };
 };
