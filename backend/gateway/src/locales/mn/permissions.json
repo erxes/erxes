@@ -1752,6 +1752,246 @@
       }
     }
   },
+  "operation": {
+    "task": {
+      "name": "Даалгаврууд",
+      "description": "Даалгаврын удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл хэрэглэгчид оноосон бичлэг",
+        "group": "Хэрэглэгчийн багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "taskRead": {
+          "title": "Даалгавар харах",
+          "description": "Даалгавар харах"
+        },
+        "taskCreate": {
+          "title": "Даалгавар үүсгэх",
+          "description": "Даалгавар үүсгэх"
+        },
+        "taskUpdate": {
+          "title": "Даалгавар засах",
+          "description": "Даалгавар засах"
+        },
+        "taskRemove": {
+          "title": "Даалгавар устгах",
+          "description": "Даалгавар устгах"
+        },
+        "taskAssign": {
+          "title": "Даалгавар оноох",
+          "description": "Даалгавар оноох"
+        },
+        "taskExportManage": {
+          "title": "Даалгавар экспортлох",
+          "description": "Даалгавар экспортлох"
+        },
+        "taskImportManage": {
+          "title": "Даалгавар импортлох",
+          "description": "Даалгавар импортлох"
+        }
+      }
+    },
+    "triage": {
+      "name": "Триаж",
+      "description": "Триажийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "group": "Хэрэглэгчийн багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "triageRead": {
+          "title": "Триаж харах",
+          "description": "Триаж харах"
+        },
+        "triageCreate": {
+          "title": "Триаж үүсгэх",
+          "description": "Триаж үүсгэх"
+        },
+        "triageUpdate": {
+          "title": "Триаж засах",
+          "description": "Триаж засах"
+        },
+        "triageConvert": {
+          "title": "Триажийг даалгавар болгох",
+          "description": "Триажийг даалгавар болгон хөрвүүлэх"
+        }
+      }
+    },
+    "project": {
+      "name": "Төслүүд",
+      "description": "Төслийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл хэрэглэгчид оноосон бичлэг",
+        "group": "Хэрэглэгчийн багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "projectRead": {
+          "title": "Төсөл харах",
+          "description": "Төсөл харах"
+        },
+        "projectCreate": {
+          "title": "Төсөл үүсгэх",
+          "description": "Төсөл үүсгэх"
+        },
+        "projectUpdate": {
+          "title": "Төсөл засах",
+          "description": "Төсөл засах"
+        },
+        "projectRemove": {
+          "title": "Төсөл устгах",
+          "description": "Төсөл устгах"
+        },
+        "projectExportManage": {
+          "title": "Төсөл экспортлох",
+          "description": "Төсөл экспортлох"
+        }
+      }
+    },
+    "milestone": {
+      "name": "Тэмдэглэлтүүд",
+      "description": "Тэмдэглэлтийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн бичлэг",
+        "group": "Хэрэглэгчийн төслийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "milestoneRead": {
+          "title": "Тэмдэглэлт харах",
+          "description": "Тэмдэглэлт харах"
+        },
+        "milestoneCreate": {
+          "title": "Тэмдэглэлт үүсгэх",
+          "description": "Тэмдэглэлт үүсгэх"
+        },
+        "milestoneUpdate": {
+          "title": "Тэмдэглэлт засах",
+          "description": "Тэмдэглэлт засах"
+        },
+        "milestoneRemove": {
+          "title": "Тэмдэглэлт устгах",
+          "description": "Тэмдэглэлт устгах"
+        }
+      }
+    },
+    "cycle": {
+      "name": "Мөчлөгүүд",
+      "description": "Мөчлөгийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн эсвэл хэрэглэгчид оноосон бичлэг",
+        "group": "Таны багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "cycleRead": {
+          "title": "Мөчлөг харах",
+          "description": "Мөчлөг харах"
+        },
+        "cycleCreate": {
+          "title": "Мөчлөг үүсгэх",
+          "description": "Мөчлөг үүсгэх"
+        },
+        "cycleUpdate": {
+          "title": "Мөчлөг засах",
+          "description": "Мөчлөг засах"
+        },
+        "cycleRemove": {
+          "title": "Мөчлөг устгах",
+          "description": "Мөчлөг устгах"
+        },
+        "cycleEnd": {
+          "title": "Мөчлөг дуусгах",
+          "description": "Идэвхтэй мөчлөгийг дуусгах"
+        }
+      }
+    },
+    "team": {
+      "name": "Багууд",
+      "description": "Багийн удирдлага",
+      "scopes": {
+        "own": "Таны үүсгэсэн эсвэл танд оноосон бичлэг",
+        "group": "Таны багийн бичлэг",
+        "all": "Бүх бичлэг"
+      },
+      "actions": {
+        "teamRead": {
+          "title": "Баг харах",
+          "description": "Баг харах"
+        },
+        "teamCreate": {
+          "title": "Баг үүсгэх",
+          "description": "Баг үүсгэх"
+        },
+        "teamUpdate": {
+          "title": "Баг засах",
+          "description": "Баг засах"
+        },
+        "teamRemove": {
+          "title": "Баг устгах",
+          "description": "Баг устгах"
+        },
+        "teamMemberManage": {
+          "title": "Багийн гишүүд удирдах",
+          "description": "Багийн гишүүдийг нэмэх, хасах, шинэчлэх"
+        }
+      }
+    },
+    "note": {
+      "name": "Тэмдэглэлүүд",
+      "description": "Тэмдэглэлийн удирдлага",
+      "scopes": {
+        "own": "Хэрэглэгчийн үүсгэсэн тэмдэглэл",
+        "all": "Бүх тэмдэглэл"
+      },
+      "actions": {
+        "noteRead": {
+          "title": "Тэмдэглэл харах",
+          "description": "Тэмдэглэл харах"
+        },
+        "noteCreate": {
+          "title": "Тэмдэглэл үүсгэх",
+          "description": "Тэмдэглэл үүсгэх"
+        },
+        "noteUpdate": {
+          "title": "Тэмдэглэл засах",
+          "description": "Тэмдэглэл засах"
+        },
+        "noteRemove": {
+          "title": "Тэмдэглэл устгах",
+          "description": "Тэмдэглэл устгах"
+        }
+      }
+    },
+    "status": {
+      "name": "Төлөвүүд",
+      "description": "Төлөвийн удирдлага",
+      "scopes": {
+        "group": "Хэрэглэгчийн багийн төлөв",
+        "all": "Бүх төлөв"
+      },
+      "actions": {
+        "statusRead": {
+          "title": "Төлөв харах",
+          "description": "Төлөв харах"
+        },
+        "statusCreate": {
+          "title": "Төлөв үүсгэх",
+          "description": "Төлөв үүсгэх"
+        },
+        "statusUpdate": {
+          "title": "Төлөв засах",
+          "description": "Төлөв засах"
+        },
+        "statusRemove": {
+          "title": "Төлөв устгах",
+          "description": "Төлөв устгах"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Санхүүгийн плагинд бүрэн хандах эрх"
@@ -1785,6 +2025,15 @@
     },
     "frontline:viewer": {
       "description": "Харилцан яриа, тикет, мэдлэгийн санг зөвхөн харах эрх"
+    },
+    "operation:admin": {
+      "description": "Operation плагинд бүрэн хандах эрх"
+    },
+    "operation:user": {
+      "description": "Багийн энгийн гишүүн"
+    },
+    "operation:viewer": {
+      "description": "Зөвхөн харах эрх"
     }
   }
 }

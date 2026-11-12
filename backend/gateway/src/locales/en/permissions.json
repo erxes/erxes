@@ -1752,6 +1752,246 @@
       }
     }
   },
+  "operation": {
+    "task": {
+      "name": "Tasks",
+      "description": "Task management",
+      "scopes": {
+        "own": "Records user created or assigned to user",
+        "group": "Records in user teams",
+        "all": "All records"
+      },
+      "actions": {
+        "taskRead": {
+          "title": "View tasks records",
+          "description": "View tasks"
+        },
+        "taskCreate": {
+          "title": "Create tasks records",
+          "description": "Create tasks"
+        },
+        "taskUpdate": {
+          "title": "Edit tasks records",
+          "description": "Edit tasks records"
+        },
+        "taskRemove": {
+          "title": "Delete tasks",
+          "description": "Delete tasks"
+        },
+        "taskAssign": {
+          "title": "Assign tasks",
+          "description": "Assign tasks"
+        },
+        "taskExportManage": {
+          "title": "Export tasks",
+          "description": "Export task records"
+        },
+        "taskImportManage": {
+          "title": "Import tasks",
+          "description": "Import task records"
+        }
+      }
+    },
+    "triage": {
+      "name": "Triage",
+      "description": "Triage management",
+      "scopes": {
+        "own": "Records user created",
+        "group": "Records in user teams",
+        "all": "All records"
+      },
+      "actions": {
+        "triageRead": {
+          "title": "View triage records",
+          "description": "View triage records"
+        },
+        "triageCreate": {
+          "title": "Create triage records",
+          "description": "Create triage records"
+        },
+        "triageUpdate": {
+          "title": "Edit triage records",
+          "description": "Edit triage records"
+        },
+        "triageConvert": {
+          "title": "Convert triage to task",
+          "description": "Convert triage to task"
+        }
+      }
+    },
+    "project": {
+      "name": "Projects",
+      "description": "Project management",
+      "scopes": {
+        "own": "Records user created or assigned to user",
+        "group": "Records in user teams",
+        "all": "All records"
+      },
+      "actions": {
+        "projectRead": {
+          "title": "View projects records",
+          "description": "View projects"
+        },
+        "projectCreate": {
+          "title": "Create projects records",
+          "description": "Create projects"
+        },
+        "projectUpdate": {
+          "title": "Edit projects records",
+          "description": "Edit projects records"
+        },
+        "projectRemove": {
+          "title": "Delete projects records",
+          "description": "Delete projects records"
+        },
+        "projectExportManage": {
+          "title": "Export projects",
+          "description": "Export project records"
+        }
+      }
+    },
+    "milestone": {
+      "name": "Milestones",
+      "description": "Milestone management",
+      "scopes": {
+        "own": "Records user created",
+        "group": "Records in user projects",
+        "all": "All records"
+      },
+      "actions": {
+        "milestoneRead": {
+          "title": "View milestones records",
+          "description": "View milestones"
+        },
+        "milestoneCreate": {
+          "title": "Create milestones records",
+          "description": "Create milestones"
+        },
+        "milestoneUpdate": {
+          "title": "Edit milestones records",
+          "description": "Edit milestones"
+        },
+        "milestoneRemove": {
+          "title": "Delete milestones records",
+          "description": "Delete milestones"
+        }
+      }
+    },
+    "cycle": {
+      "name": "Cycles",
+      "description": "Cycle management",
+      "scopes": {
+        "own": "Records user created or assigned to user",
+        "group": "Records in your teams",
+        "all": "All records"
+      },
+      "actions": {
+        "cycleRead": {
+          "title": "View cycles records",
+          "description": "View cycles records"
+        },
+        "cycleCreate": {
+          "title": "Create cycles records",
+          "description": "Create cycles records"
+        },
+        "cycleUpdate": {
+          "title": "Edit cycles records",
+          "description": "Edit cycles records"
+        },
+        "cycleRemove": {
+          "title": "Delete cycles records",
+          "description": "Delete cycles records"
+        },
+        "cycleEnd": {
+          "title": "End cycles",
+          "description": "End active cycles"
+        }
+      }
+    },
+    "team": {
+      "name": "Teams",
+      "description": "Team management",
+      "scopes": {
+        "own": "Records you created or assigned to you",
+        "group": "Records in your teams",
+        "all": "All records"
+      },
+      "actions": {
+        "teamRead": {
+          "title": "View teams records",
+          "description": "View teams records"
+        },
+        "teamCreate": {
+          "title": "Create teams records",
+          "description": "Create teams records"
+        },
+        "teamUpdate": {
+          "title": "Edit teams records",
+          "description": "Edit teams records"
+        },
+        "teamRemove": {
+          "title": "Delete teams records",
+          "description": "Delete teams records"
+        },
+        "teamMemberManage": {
+          "title": "Manage team members",
+          "description": "Add, remove, and update team members"
+        }
+      }
+    },
+    "note": {
+      "name": "Notes",
+      "description": "Note management",
+      "scopes": {
+        "own": "Notes user created",
+        "all": "All notes"
+      },
+      "actions": {
+        "noteRead": {
+          "title": "View notes",
+          "description": "View notes"
+        },
+        "noteCreate": {
+          "title": "Create notes",
+          "description": "Create notes"
+        },
+        "noteUpdate": {
+          "title": "Edit notes",
+          "description": "Edit notes"
+        },
+        "noteRemove": {
+          "title": "Delete notes",
+          "description": "Delete notes"
+        }
+      }
+    },
+    "status": {
+      "name": "Statuses",
+      "description": "Status management",
+      "scopes": {
+        "group": "Statuses in user teams",
+        "all": "All statuses"
+      },
+      "actions": {
+        "statusRead": {
+          "title": "View statuses",
+          "description": "View statuses"
+        },
+        "statusCreate": {
+          "title": "Create statuses",
+          "description": "Create statuses"
+        },
+        "statusUpdate": {
+          "title": "Edit statuses",
+          "description": "Edit statuses"
+        },
+        "statusRemove": {
+          "title": "Delete statuses",
+          "description": "Delete statuses"
+        }
+      }
+    }
+  },
   "groups": {
     "accounting:admin": {
       "description": "Full access to Accounting plugin"
@@ -1785,6 +2025,15 @@
     },
     "frontline:viewer": {
       "description": "Read-only access to conversations, tickets and knowledge base"
+    },
+    "operation:admin": {
+      "description": "Full access to Operation plugin"
+    },
+    "operation:user": {
+      "description": "Standard team member"
+    },
+    "operation:viewer": {
+      "description": "Read-only access"
     }
   }
 }
