@@ -452,12 +452,27 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
     const { signJwt } = await import('~/lib/signing');
     const { bodyDigest, CORE_EVENT_TYP } = await import('~/modules/plugins/pluginEvents');
 
+    const createdAt = new Date().toISOString();
+
     const body = JSON.stringify({
       id: 'e1',
       type: 'core.payment.paid',
       organizationId: orgId,
-      createdAt: new Date().toISOString(),
-      data: {},
+      createdAt,
+      data: {
+        id: 'e1',
+        source: 'core',
+        type: 'core.payment.paid',
+        version: 1,
+        subject: null,
+        entity: { type: 'payment_invoice', id: 'i1' },
+        actor: { type: 'system', id: null },
+        payload: { amount: 150_000 },
+        summary: null,
+        link: null,
+        occurredAt: createdAt,
+        createdAt,
+      },
     });
 
     const token = (aud: string, sha = bodyDigest(body)) =>

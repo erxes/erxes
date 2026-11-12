@@ -181,7 +181,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
           eq(notifications.kind, input.kind),
           eq(notifications.entityType, input.entity.type),
           eq(notifications.entityId, input.entity.id),
-          eq(notifications.actorId, actorId),
+          actorId === null ? isNull(notifications.actorId) : eq(notifications.actorId, actorId),
           isNull(notifications.readAt),
           gt(notifications.createdAt, sql`now() - make_interval(mins => ${input.collapseMinutes})`),
         ),

@@ -55,6 +55,10 @@ export const coreContract = {
 
 export * from './activities';
 
+export * from './automationDefinition';
+
+export * from './automationRuns';
+
 export * from './automations';
 
 export * from './audit';

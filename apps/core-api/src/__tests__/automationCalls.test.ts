@@ -51,7 +51,8 @@ describeWithDb('automation calls', { timeout: 120_000 }, () => {
   };
 
   /** The run id from the `Idempotency-Key` (`<run>:<step>`) core sends. */
-  const runIdOf = (req: IncomingMessage) => String(req.headers['idempotency-key']).split(':')[0];
+  const runIdOf = (req: IncomingMessage) =>
+    String(req.headers['idempotency-key']).split(':')[0] ?? '';
 
   beforeAll(async () => {
     const acme = await createOrganization({

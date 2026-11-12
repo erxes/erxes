@@ -195,6 +195,9 @@ export default defineConfig({
       'typescript/consistent-type-imports': 'error',
       'unicorn/prefer-node-protocol': 'error',
       'unicorn/throw-new-error': 'error',
+      // An automation branch step's `then` arm is a stored list of steps (the definition
+      // format in the contract and the database), never a function.
+      'unicorn/no-thenable': 'off',
       eqeqeq: ['error', 'smart'],
       'no-param-reassign': 'error',
       'prefer-const': 'error',
@@ -309,6 +312,7 @@ export default defineConfig({
           'packages/contract/src/index.ts',
           'packages/db/src/index.ts',
           'packages/db/src/schema/index.ts',
+          'packages/plugin-sdk/src/index.ts',
         ],
         rules: { 'oxc/no-barrel-file': 'off' },
       },

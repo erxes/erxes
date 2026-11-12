@@ -8,6 +8,8 @@ export * from './scope';
 
 export * from './tenant';
 
+export * from './types';
+
 export * as schema from './schema';
 
 export {

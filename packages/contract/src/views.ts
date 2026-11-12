@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { ConditionGroup } from './automations';
+import { ConditionGroup } from './automationDefinition';
 import { Id } from './common';
 
 /** The list a view belongs to: customers, leads (people), companies, company leads. */

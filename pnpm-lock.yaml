@@ -241,6 +241,9 @@ importers:
       pg:
         specifier: ^8.13.1
         version: 8.23.1
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@types/pg':
         specifier: ^8.11.10
@@ -249,7 +252,11 @@ importers:
         specifier: 0.31.11
         version: 0.31.11
 
-  packages/payment-gateways: {}
+  packages/payment-gateways:
+    dependencies:
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
 
   packages/plugin-sdk:
     dependencies:
@@ -268,6 +275,9 @@ importers:
       jose:
         specifier: ^5.9.6
         version: 5.10.0
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
 
   packages/ui:
     dependencies:

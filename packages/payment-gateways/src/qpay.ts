@@ -1,38 +1,81 @@
-import { type DriverOptions, type GatewayDriver, GatewayError, type QPayConfig } from './types';
+import { z } from 'zod';
+import {
+  type CreateInvoiceInput,
+  type DriverOptions,
+  type GatewayDriver,
+  GatewayError,
+  type QPayConfig,
+} from './types';
 
 const tokens = new Map<string, { token: string; expiresAt: number }>();
 
-interface QPayPaymentRow {
-  payment_id?: string | number;
-  payment_status?: string;
-  payment_amount?: string | number;
-}
+/** QPay sends ids and amounts as strings or numbers. */
+const Text = z.union([z.string(), z.number()]).transform(String);
+const Amount = z.union([z.string(), z.number()]).transform(Number);
 
-/**
- * QPay v2: token by client credentials; invoices with QR and bank app links;
- * payment check by invoice; cancel; refund of a whole (card) payment.
- * QPay takes amounts in tögrög; we keep hundredths.
- */
-export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): GatewayDriver => {
+const TokenAnswer = z.object({
+  access_token: z.string().min(1),
+  // An absolute unix time.
+  expires_in: z.coerce.number().optional(),
+});
+
+const InvoiceAnswer = z.object({
+  invoice_id: Text.pipe(z.string().min(1)),
+  qr_text: z.string().nullish(),
+  qr_image: z.string().nullish(),
+  qPay_shortUrl: z.string().nullish(),
+  urls: z
+    .array(
+      z.object({
+        name: z.string().nullish(),
+        logo: z.string().nullish(),
+        link: z.string().nullish(),
+      }),
+    )
+    .catch([])
+    .default([]),
+});
+
+const CheckAnswer = z.object({
+  rows: z
+    .array(
+      z.object({
+        payment_id: Text.nullish(),
+        payment_status: z.string().nullish(),
+        payment_amount: Amount.nullish(),
+      }),
+    )
+    .catch([])
+    .default([]),
+  paid_amount: Amount.nullish(),
+});
+
+const parse = <T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, body: unknown, what: string) => {
+  const parsed = schema.safeParse(body);
+
+  if (!parsed.success) throw new GatewayError(`QPay gave ${what}`);
+
+  return parsed.data;
+};
+
+type Request = (path: string, init?: RequestInit) => Promise<unknown>;
+
+/** QPay's API with its access token, cached per connection and mode. */
+const qpayClient = (config: QPayConfig, options: DriverOptions) => {
   const base = config.sandbox
     ? 'https://merchant-sandbox.qpay.mn/v2'
     : 'https://merchant.qpay.mn/v2';
 
   const cacheKey = `${options.cacheKey ?? config.clientId}:${config.sandbox ? 'sandbox' : 'live'}`;
-  const fetcher = () => options.fetch ?? globalThis.fetch;
+  const basic = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64');
 
-  const request = async (path: string, init: RequestInit & { auth?: 'basic' } = {}) => {
+  const send = async (path: string, init: RequestInit, authorization: string) => {
     const headers = new Headers(init.headers);
 
     headers.set('Content-Type', 'application/json');
-    headers.set(
-      'Authorization',
-      init.auth === 'basic'
-        ? `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`
-        : `Bearer ${await token()}`,
-    );
+    headers.set('Authorization', authorization);
 
-    const response = await fetcher()(`${base}${path}`, {
+    const response = await (options.fetch ?? globalThis.fetch)(`${base}${path}`, {
       ...init,
       headers,
       signal: AbortSignal.timeout(15_000),
@@ -47,104 +90,126 @@ export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): Gat
       );
 
     try {
-      return text ? (JSON.parse(text) as Record<string, unknown>) : {};
+      const body: unknown = text ? JSON.parse(text) : {};
+
+      return body;
     } catch {
       return {};
     }
   };
 
-  const token = async (): Promise<string> => {
+  const token = async () => {
     const cached = tokens.get(cacheKey);
 
     if (cached && cached.expiresAt - Date.now() > 60_000) return cached.token;
 
-    const body = await request('/auth/token', { method: 'POST', auth: 'basic' });
-    const value = String(body.access_token ?? '');
+    const answer = parse(
+      TokenAnswer,
+      await send('/auth/token', { method: 'POST' }, `Basic ${basic}`),
+      'no access token',
+    );
 
-    if (!value) throw new GatewayError('QPay gave no access token');
-
-    // QPay's `expires_in` is an absolute unix time.
-    const expires = Number(body.expires_in ?? 0);
+    const expires = answer.expires_in ?? 0;
 
     tokens.set(cacheKey, {
-      token: value,
+      token: answer.access_token,
       expiresAt: expires > 1e9 ? expires * 1000 : Date.now() + 3600_000,
     });
 
-    return value;
+    return answer.access_token;
   };
+
+  const request: Request = async (path, init = {}) => send(path, init, `Bearer ${await token()}`);
+
+  return { request, token, forgetToken: () => tokens.delete(cacheKey) };
+};
+
+const createInvoice = async (request: Request, config: QPayConfig, input: CreateInvoiceInput) => {
+  const answer = parse(
+    InvoiceAnswer,
+    await request('/invoice', {
+      method: 'POST',
+      body: JSON.stringify({
+        invoice_code: config.invoiceCode,
+        sender_invoice_no: input.invoiceId,
+        invoice_receiver_code: 'terminal',
+        invoice_description: input.description,
+        amount: input.amount / 100,
+        callback_url: input.callbackUrl,
+      }),
+    }),
+    'no invoice id',
+  );
+
+  return {
+    gatewayInvoiceId: answer.invoice_id,
+    payment: {
+      qrText: answer.qr_text ?? null,
+      qrImage: answer.qr_image ? `data:image/png;base64,${answer.qr_image}` : null,
+      shortUrl: answer.qPay_shortUrl ?? null,
+      links: answer.urls.flatMap((url) =>
+        url.link ? [{ name: url.name ?? '', logo: url.logo ?? null, link: url.link }] : [],
+      ),
+    },
+  };
+};
+
+const checkPayment = async (request: Request, gatewayInvoiceId: string, amount: number) => {
+  const answer = parse(
+    CheckAnswer,
+    await request('/payment/check', {
+      method: 'POST',
+      body: JSON.stringify({
+        object_type: 'INVOICE',
+        object_id: gatewayInvoiceId,
+        offset: { page_number: 1, page_limit: 100 },
+      }),
+    }),
+    'an unreadable payment check',
+  );
+
+  const paidRows = answer.rows.filter(
+    (row) => !row.payment_status || row.payment_status === 'PAID',
+  );
+
+  const fromRows = paidRows.reduce(
+    (sum, row) => sum + Math.round((row.payment_amount ?? 0) * 100),
+    0,
+  );
+
+  const paidAmount = answer.rows.length ? fromRows : Math.round((answer.paid_amount ?? 0) * 100);
+
+  return {
+    paid: paidAmount >= amount,
+    paidAmount,
+    paymentId: paidRows[0]?.payment_id ?? null,
+  };
+};
+
+/**
+ * QPay v2: token by client credentials; invoices with QR and bank app links;
+ * payment check by invoice; cancel; refund of a whole (card) payment.
+ * QPay takes amounts in tögrög; we keep hundredths.
+ */
+export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): GatewayDriver => {
+  const client = qpayClient(config, options);
 
   return {
     kind: 'qpay',
     refunds: 'full',
     async verify() {
-      tokens.delete(cacheKey);
-      await token();
+      client.forgetToken();
+      await client.token();
     },
-    async createInvoice(input) {
-      const body = await request('/invoice', {
-        method: 'POST',
-        body: JSON.stringify({
-          invoice_code: config.invoiceCode,
-          sender_invoice_no: input.invoiceId,
-          invoice_receiver_code: 'terminal',
-          invoice_description: input.description,
-          amount: input.amount / 100,
-          callback_url: input.callbackUrl,
-        }),
-      });
-
-      const urls = Array.isArray(body.urls)
-        ? (body.urls as { name?: string; logo?: string; link?: string }[])
-        : [];
-
-      if (!body.invoice_id) throw new GatewayError('QPay gave no invoice id');
-
-      return {
-        gatewayInvoiceId: String(body.invoice_id),
-        payment: {
-          qrText: typeof body.qr_text === 'string' ? body.qr_text : null,
-          qrImage:
-            typeof body.qr_image === 'string' ? `data:image/png;base64,${body.qr_image}` : null,
-          shortUrl: typeof body.qPay_shortUrl === 'string' ? body.qPay_shortUrl : null,
-          links: urls
-            .filter((url) => url.link)
-            .map((url) => ({ name: url.name ?? '', logo: url.logo ?? null, link: url.link! })),
-        },
-      };
-    },
-    async check(gatewayInvoiceId, amount) {
-      const body = await request('/payment/check', {
-        method: 'POST',
-        body: JSON.stringify({
-          object_type: 'INVOICE',
-          object_id: gatewayInvoiceId,
-          offset: { page_number: 1, page_limit: 100 },
-        }),
-      });
-
-      const rows = Array.isArray(body.rows) ? (body.rows as QPayPaymentRow[]) : [];
-      const paidRows = rows.filter((row) => !row.payment_status || row.payment_status === 'PAID');
-
-      const fromRows = paidRows.reduce(
-        (sum, row) => sum + Math.round(Number(row.payment_amount ?? 0) * 100),
-        0,
-      );
-
-      const paidAmount = rows.length ? fromRows : Math.round(Number(body.paid_amount ?? 0) * 100);
-      const paymentId = paidRows[0]?.payment_id;
-
-      return {
-        paid: paidAmount >= amount,
-        paidAmount,
-        paymentId: paymentId === undefined ? null : String(paymentId),
-      };
-    },
+    createInvoice: (input) => createInvoice(client.request, config, input),
+    check: (gatewayInvoiceId, amount) => checkPayment(client.request, gatewayInvoiceId, amount),
     async cancel(gatewayInvoiceId) {
-      await request(`/invoice/${encodeURIComponent(gatewayInvoiceId)}`, { method: 'DELETE' });
+      await client.request(`/invoice/${encodeURIComponent(gatewayInvoiceId)}`, {
+        method: 'DELETE',
+      });
     },
     async refund(input) {
-      await request(`/payment/refund/${encodeURIComponent(input.paymentId)}`, {
+      await client.request(`/payment/refund/${encodeURIComponent(input.paymentId)}`, {
         method: 'DELETE',
         body: JSON.stringify({
           note: input.note.slice(0, 255),

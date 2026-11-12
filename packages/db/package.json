@@ -15,7 +15,8 @@
   "dependencies": {
     "@erxes/core-contract": "workspace:^",
     "drizzle-orm": "0.45.4",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/pg": "^8.11.10",

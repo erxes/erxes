@@ -1,26 +1,11 @@
-import type { ExtractTablesWithRelations } from 'drizzle-orm';
-import type { NodePgDatabase, NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import type { PgTransaction } from 'drizzle-orm/pg-core';
 import { Pool, types } from 'pg';
 import * as schema from './schema';
 import { currentScope } from './scope';
+import type { Database, Db, Transaction } from './types';
 
 // Counts and BIGINT columns fit JS numbers for core data.
 types.setTypeParser(types.builtins.INT8, (value: string) => Number(value));
-
-export type Schema = typeof schema;
-
-export type Database = NodePgDatabase<Schema>;
-
-export type Transaction = PgTransaction<
-  NodePgQueryResultHKT,
-  Schema,
-  ExtractTablesWithRelations<Schema>
->;
-
-/** Either the pooled database or an open transaction. */
-export type Db = Database | Transaction;
 
 export interface DbOptions {
   url: string;
@@ -39,6 +24,8 @@ export interface DbOptions {
   poolMax?: number;
   statementTimeoutMs?: number;
   applicationName?: string;
+  /** An idle pooled connection broke (the pool drops it). Default: a process warning. */
+  onIdleError?: (error: Error) => void;
 }
 
 /** pg's TLS options: verified unless explicitly insecure. */
@@ -57,45 +44,37 @@ export const configureDb = (next: DbOptions) => {
 };
 
 export const getPool = (): Pool => {
-  if (!pool) {
-    if (!options) {
-      throw new Error('configureDb() must run before the database is used');
-    }
+  if (pool) return pool;
 
-    pool = new Pool({
-      connectionString: options.url,
-      max: options.poolMax ?? 10,
-      idleTimeoutMillis: 30_000,
-      statement_timeout: options.statementTimeoutMs ?? 15_000,
-      application_name: options.applicationName ?? 'erxes-core',
-      ssl: sslOptions(options),
-    });
+  if (!options) throw new Error('configureDb() must run before the database is used');
 
-    const role = options.role;
+  const { role, onIdleError } = options;
 
-    if (role) {
-      if (!/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error(`invalid role name: ${role}`);
+  if (role && !/^[a-z_][a-z0-9_]{0,62}$/.test(role)) throw new Error(`invalid role name: ${role}`);
 
-      pool.on('connect', (client) => {
-        client
-          .query(`SET ROLE ${role}`)
-          .catch((error: Error) => console.error('[core] SET ROLE failed', error.message));
-      });
-    }
+  pool = new Pool({
+    connectionString: options.url,
+    max: options.poolMax ?? 10,
+    idleTimeoutMillis: 30_000,
+    statement_timeout: options.statementTimeoutMs ?? 15_000,
+    application_name: options.applicationName ?? 'erxes-core',
+    ssl: sslOptions(options),
+    // Set when the connection starts: a role that can't be taken refuses the
+    // connection instead of leaving it acting as the login (which may bypass RLS).
+    ...(role ? { options: `-c role=${role}` } : {}),
+  });
 
-    pool.on('error', (error) => {
-      console.error('[core] idle postgres client error', error.message);
-    });
-  }
+  pool.on('error', (error) => {
+    if (onIdleError) onIdleError(error);
+    else process.emitWarning(`idle postgres connection error: ${error.message}`);
+  });
 
   return pool;
 };
 
 /** The pool itself, outside any tenant scope (scopes and migrations use it). */
 export const rootDb = (): Database => {
-  if (!database) {
-    database = drizzle(getPool(), { schema, casing: 'snake_case' });
-  }
+  database ??= drizzle(getPool(), { schema, casing: 'snake_case' });
 
   return database;
 };
@@ -106,8 +85,7 @@ export const rootDb = (): Database => {
  * level security lets nothing through, so a query that forgot its scope
  * fails closed.
  */
-export const db = (): Database =>
-  (currentScope()?.tx as unknown as Database | undefined) ?? rootDb();
+export const db = (): Db => currentScope()?.tx ?? rootDb();
 
 export const withTransaction = <T>(fn: (tx: Transaction) => Promise<T>) => db().transaction(fn);
 
