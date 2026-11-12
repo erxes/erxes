@@ -350,37 +350,42 @@ it is built.
   in 90 days and about recovery codes used. Kinds `core.security.alert` and
   `core.security.new_sign_in` can't be muted; the member who acted isn't
   notified in erxes but is still emailed.
-- SaaS (`src/modules/saas`, `SAAS=true`; self-hosted has none of this):
-  - The control plane (erxes.io billing, not in this repo) pushes each
-    organisation's plan: `PUT /core/v1/saas/organizations/{id}` signed with
-    `SAAS_SECRET` (`Erxes-Signature`, as webhooks; raw body, 5-minute window),
-    validated by the contract's `SaasOrganizationUpdate`. It creates the
-    organisation the first time (with its owner), renames it, and stores
-    `core_organization_plans` (plan, status, period end, grace, suspended,
-    plugins with optional `until` and limits, `limits`, `manageUrl`) under a
-    row lock; a lower `version` is ignored. `GET` the same path (signed over
-    "") returns usage for billing.
-  - Standing (`standingOf`): suspended → only `/plan` and sign-out, plugins
-    refused (403 `ORGANIZATION_SUSPENDED`); canceled/past-due/expired past
-    `graceUntil` (or period end + `SAAS_GRACE_DAYS`) → read-only (402
-    `READ_ONLY` on changes; `/auth/*`, notifications and `/plan` still work);
-    before that a warning. Enforced by `standingGuard` after authentication
-    (plans cached 30 s per process).
-  - Plugins follow the plan (`reconcilePlugins`, on every update and hourly
-    for `until`): included → installed; dropped → disabled with
-    `Not in your plan` (data kept, tokens refused); back → resumed. Owners
-    can't install what the plan lacks (402 `NOT_IN_PLAN`). New organisations
-    get no deployment-wide auto-install on SaaS.
-  - Limits: `teamMembers` checked on invite and enable (organisation row
-    locked; 402 `LIMIT_REACHED`). Plugins read their own (`GET /plan/plugin`:
-    their plan entry's limits and `<plugin>.*` organisation limits) and
-    enforce them.
-  - Sign-in hand-off: `GET /core/v1/saas/login?token=` — HS256 with
-    `SAAS_SECRET`, `iss` erxes-saas, `aud` erxes-core, `org`, `email`, `jti`,
-    ≤ 2 minutes, single use (`core_used_tokens`); an invited member becomes
-    active. Failures go back to `SAAS_DASHBOARD_URL?signin=failed`.
-  - UI: Settings › Plan (plan, standing, limits with usage, included plugins,
-    Manage subscription) and a banner above every page unless all is well.
+- SaaS with erxes.io (`src/modules/saas`, `SAAS=true`; self-hosted has none
+  of this: every plugin, as Pro). erxes.io (repo `erxes/global-profile-v2`)
+  owns organisations, the marketplace and Stripe billing: one subscription
+  per organisation; each plugin is `free` / `plus` / `pro` with a status
+  (`active`, `past_due` while Stripe retries, `canceling` until period end);
+  bundles and gifts are plugin rows too; an ended paid period drops a
+  freemium plugin to `free` and removes a paid-only one.
+  - Core reads it: `GET <SAAS_PLATFORM_URL>/api/platform/organizations/plugins?subdomain=`
+    with `Authorization: Bearer <SAAS_PLATFORM_TOKEN>` (erxes.io's
+    `PLATFORM_API_TOKEN`) → `{ status, details: [{ code, tier, status }] }`,
+    stored in `core_entitlements`; per-process cache 30 s, stale answers
+    refreshed in the background, hourly for every workspace, and at once on
+    `POST /core/v1/saas/organizations/{id}/refresh` (erxes.io after a
+    purchase). erxes.io down: the last answer stays in force; never answered
+    yet: let in.
+  - Access per plugin (`accessOf`): in the plan → `full` (`warning` when
+    `past_due`/`canceling`); gone from it → `read_only` for
+    `SAAS_GRACE_DAYS` (core refuses its changes with 402 `READ_ONLY`), then
+    `off` (installation disabled `Not in your plan`, data kept, tokens
+    refused); bought again → back. Organisation `inactive`/`suspended` →
+    403 `ORGANIZATION_DISABLED` (members keep `/plan`, `/auth/me`, sign-out).
+    Enforced by `standingGuard` after authentication.
+  - Plugins gate their own features by tier: `GET /plan/plugin` →
+    `{ tier, status, access }`, and members' plugin session tokens carry
+    `tier` and `access` (`verifyPluginSession(...).tier`, `.canChange()`).
+  - erxes.io → core (Bearer `SAAS_PLATFORM_TOKEN`): `PUT
+    /core/v1/saas/organizations/{id}` creates (with owner), renames,
+    enables or disables a workspace; `GET` the same path returns usage.
+    erxes.io still provisions old erxes by writing its Mongo: it should call
+    this for new-core workspaces.
+  - Sign-in hand-off: erxes.io's existing link, `/gateway/pl:core/core-login?token=`
+    (also `/core/v1/saas/login`): HS256 `{ user: { email } }` signed with
+    `SAAS_JWT_TOKEN_SECRET`, ≤ 5 minutes, the workspace from the address's
+    subdomain (or `org`), each token once (`core_used_tokens`).
+  - UI: Settings › Plan (each plugin's tier, status, access) and a banner
+    (workspace disabled, plugin read-only, payment retrying).
 - Payments (`src/modules/payments`, drivers in `@erxes/payment-gateways`):
   gateway connections per organisation (QPay, test; credentials sealed and
   checked with the gateway); invoices for a plugin's or core's record with

@@ -26,10 +26,12 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
  *   });
  *   await core.forOrg(orgId).payments.refund({ id: invoice.id, reason: 'Out of stock' });
  *
- * Plan limits on SaaS (enforce your own features; self-hosted: included, no limits):
+ * Tiers on SaaS (erxes.io: free / plus / pro; self-hosted: pro, full):
  *
- *   const { included, limits, standing } = await core.forOrg(orgId).saas.pluginPlan();
- *   if (limits.employees != null && count >= limits.employees) throw new Error('Upgrade to add more');
+ *   const member = await verifyPluginSession(token, { coreUrl, plugin: 'hr' });
+ *   if (member.tier === 'free' && employees >= 20) throw new Error('Upgrade to Plus for more employees');
+ *   if (!member.canChange()) throw new Error('HR is read-only: buy it again on erxes.io');
+ *   // server-side jobs: await core.forOrg(orgId).saas.pluginPlan() → { tier, access }
  *
  * The client secret is only ever sent to `POST /plugins/token`; API calls use
  * 15-minute tokens, fetched and renewed here. Plugins on core's database can
@@ -153,6 +155,19 @@ export interface PluginMember {
   permissions: string[];
   /** `member.can('hr.leave.approve')` */
   can(action: string): boolean;
+  /**
+   * The plugin's tier in this organisation on erxes.io (`free`, `plus`,
+   * `pro`): gate paid features with it. Self-hosted: `pro`.
+   */
+  tier: 'free' | 'plus' | 'pro' | null;
+  /**
+   * `full`, `warning` (payment retrying / ending at period end: still
+   * works), `read_only` (left the plan: let them read and export, refuse
+   * changes). Self-hosted: `full`.
+   */
+  access: 'full' | 'warning' | 'read_only' | 'off';
+  /** `member.canChange()`: false while read-only. */
+  canChange(): boolean;
 }
 
 const jwksByCore = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
@@ -187,6 +202,8 @@ export const verifyPluginSession = async (
   }
 
   const granted = new Set(permissions.filter((action): action is string => typeof action === 'string'));
+  const tier = payload.tier === 'free' || payload.tier === 'plus' || payload.tier === 'pro' ? payload.tier : payload.tier === null ? null : 'pro';
+  const access = payload.access === 'warning' || payload.access === 'read_only' || payload.access === 'off' ? payload.access : 'full';
 
   return {
     userId: payload.sub,
@@ -194,6 +211,9 @@ export const verifyPluginSession = async (
     role,
     permissions: [...granted],
     can: (action: string) => role === 'owner' || granted.has(action),
+    tier,
+    access,
+    canChange: () => access === 'full' || access === 'warning',
   };
 };
 
@@ -277,6 +297,10 @@ export const verifyErxesAccessToken = async (token: string, options: { coreUrl: 
     role,
     permissions,
     can: (action: string) => role === 'owner' || permissions.includes(action),
+    // Not in these tokens: ask core (`saas.pluginPlan`) when the tier matters.
+    tier: payload.tier === 'free' || payload.tier === 'plus' || payload.tier === 'pro' ? payload.tier : 'pro',
+    access: payload.access === 'read_only' || payload.access === 'warning' || payload.access === 'off' ? payload.access : 'full',
+    canChange: () => payload.access !== 'read_only' && payload.access !== 'off',
     scope: typeof payload.scope === 'string' ? payload.scope.split(' ') : [],
   };
 };

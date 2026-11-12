@@ -1,92 +1,78 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 
-export const SubscriptionStatus = z.enum(['trialing', 'active', 'past_due', 'canceled', 'expired']);
+/** erxes.io's plugin tiers: Free is never billed; Plus and Pro have their own monthly prices. */
+export const PluginTier = z.enum(['free', 'plus', 'pro']);
+export type PluginTier = z.infer<typeof PluginTier>;
+
+/** A plugin's billing status on erxes.io: `past_due` while Stripe retries, `canceling` until the period ends. */
+export const EntitlementStatus = z.enum(['active', 'past_due', 'canceling']);
 
 /**
- * Where the organisation stands: `ok`; `warning` (payment late, or in the
- * grace period after the plan ended: everything still works); `read_only`
- * (the grace period is over: reads and exports only); `suspended` (nobody
- * gets in until erxes lifts it).
+ * What a plugin may do here: `full`; `warning` (payment retrying or ending
+ * at period end — everything still works); `read_only` (it left the plan:
+ * reads and exports for the grace period); `off` (not in the plan).
  */
-export const Standing = z.enum(['ok', 'warning', 'read_only', 'suspended']);
-export type Standing = z.infer<typeof Standing>;
+export const PluginAccess = z.enum(['full', 'warning', 'read_only', 'off']);
+export type PluginAccess = z.infer<typeof PluginAccess>;
+
+export const OrganizationStatus = z.enum(['active', 'suspended', 'inactive']);
 
 /**
- * The control plane (erxes.io billing) → core: everything an organisation's
- * subscription allows. `PUT /core/v1/saas/organizations/{id}`, signed with
- * `SAAS_SECRET` like webhooks (`Erxes-Signature: t=…,v1=…`). Creates the
- * organisation (with `owner`) the first time. `version` only grows: an older
- * update is ignored.
+ * erxes.io → core: create (or rename, or enable/disable) an organisation's
+ * workspace. `PUT /core/v1/saas/organizations/{id}` with
+ * `Authorization: Bearer <SAAS_PLATFORM_TOKEN>`. Plugins and tiers are not
+ * sent: core reads them from erxes.io's entitlement API.
  */
-export const SaasOrganizationUpdate = z.object({
-  version: z.number().int().min(1),
+export const SaasWorkspace = z.object({
   organization: z.object({
     subdomain: z.string().trim().toLowerCase().max(63),
     name: z.string().trim().min(1).max(100),
   }),
-  /** The first owner, when the organisation is new here (signs in through the dashboard hand-off). */
+  /** The owner, when the workspace is new here (signs in through erxes.io's hand-off). */
   owner: z.object({ email: z.string().trim().email().max(254), fullName: z.string().trim().max(200).optional() }).optional(),
-  subscription: z.object({
-    plan: z.string().trim().min(1).max(60),
-    planName: z.string().trim().max(100).optional(),
-    status: SubscriptionStatus,
-    currentPeriodEnd: z.string().datetime().nullable().optional(),
-    /** Changes keep working until then after an unpaid end (default: 7 days after the period). */
-    graceUntil: z.string().datetime().nullable().optional(),
-  }),
-  suspended: z.boolean().default(false),
-  suspendedReason: z.string().trim().max(300).optional(),
-  /** Plugins in the plan; `until`: still there until then (removed at period end). */
-  plugins: z
-    .array(
-      z.object({
-        name: z.string().regex(/^[a-z][a-z0-9_]{0,39}$/),
-        until: z.string().datetime().nullable().optional(),
-        limits: z.record(z.number().int().min(0).nullable()).optional(),
-      }),
-    )
-    .max(200),
-  /** `teamMembers`, and any others plugins read; null: unlimited. */
-  limits: z.record(z.number().int().min(0).nullable()).default({}),
-  manageUrl: z.string().url().max(500).optional(),
+  status: OrganizationStatus.optional(),
 });
-export type SaasOrganizationUpdate = z.infer<typeof SaasOrganizationUpdate>;
+export type SaasWorkspace = z.infer<typeof SaasWorkspace>;
 
-export const PlanInfo = z.object({
-  /** False on self-hosted installations: no plan, no limits. */
+export const SubscriptionInfo = z.object({
+  /** False on self-hosted installations: every plugin, no tiers. */
   saas: z.boolean(),
-  standing: Standing,
-  plan: z.string().nullable(),
-  planName: z.string().nullable(),
-  status: SubscriptionStatus.nullable(),
-  currentPeriodEnd: z.string().datetime().nullable(),
-  /** When changes stop working (read-only), if the plan isn't renewed. */
-  readOnlyAt: z.string().datetime().nullable(),
-  suspendedReason: z.string().nullable(),
-  plugins: z.array(z.object({ name: z.string(), title: z.string(), until: z.string().datetime().nullable(), installed: z.boolean() })),
-  limits: z.array(z.object({ key: z.string(), limit: z.number().int().nullable(), used: z.number().int().nullable() })),
+  organizationStatus: OrganizationStatus,
+  plugins: z.array(
+    z.object({
+      code: z.string(),
+      title: z.string(),
+      tier: PluginTier.nullable(),
+      status: EntitlementStatus.nullable(),
+      access: PluginAccess,
+      /** Read-only until then, then off (if it isn't bought again). */
+      readOnlyUntil: z.string().datetime().nullable(),
+      installed: z.boolean(),
+    }),
+  ),
+  /** Where the owner manages the subscription (erxes.io). */
   manageUrl: z.string().nullable(),
+  /** When erxes.io was last asked. */
+  checkedAt: z.string().datetime().nullable(),
 });
-export type PlanInfo = z.infer<typeof PlanInfo>;
+export type SubscriptionInfo = z.infer<typeof SubscriptionInfo>;
 
-/** What a plugin may use in this organisation: its own limits (`hr.employees`), and standing. */
+/** For a plugin: its tier here (gate Plus/Pro features with it) and what it may do. Self-hosted: `pro`, `full`. */
 export const PluginPlan = z.object({
   saas: z.boolean(),
-  standing: Standing,
-  plan: z.string().nullable(),
-  /** In the plan (always true on self-hosted). */
-  included: z.boolean(),
-  until: z.string().datetime().nullable(),
-  limits: z.record(z.number().int().nullable()),
+  tier: PluginTier.nullable(),
+  status: EntitlementStatus.nullable(),
+  access: PluginAccess,
+  readOnlyUntil: z.string().datetime().nullable(),
 });
 export type PluginPlan = z.infer<typeof PluginPlan>;
 
 export const saasContract = {
   plan: oc
-    .route({ method: 'GET', path: '/plan', summary: "The organisation's plan, standing, included plugins and limits with usage" })
-    .output(PlanInfo),
+    .route({ method: 'GET', path: '/plan', summary: "The organisation's subscription: each plugin's tier, status and access" })
+    .output(SubscriptionInfo),
   pluginPlan: oc
-    .route({ method: 'GET', path: '/plan/plugin', summary: 'For the calling plugin: whether it is in the plan, its limits, and the standing' })
+    .route({ method: 'GET', path: '/plan/plugin', summary: 'For the calling plugin: its tier and what it may do (read-only, off)' })
     .output(PluginPlan),
 };

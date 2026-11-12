@@ -47,9 +47,10 @@ export {
   PAYMENT_GATEWAY_KINDS,
   paymentGateways,
   paymentInvoices,
-  organizationPlans,
+  entitlements,
+  PLUGIN_TIERS,
   usedTokens,
-  SUBSCRIPTION_STATUSES,
+  ORGANIZATION_STATUSES,
   auditStreams,
   AUDIT_STREAM_FORMATS,
   paymentPluginSettings,
@@ -71,4 +72,4 @@ export {
   USER_ROLES,
   USER_STATUSES,
 } from './schema';
-export type { ActorType, EventFailureStatus, JobStatus, PluginStatus, StoredPluginManifest, ContentType, CustomValue, OrganizationSettings } from './schema';
+export type { ActorType, EntitledPlugin, EventFailureStatus, JobStatus, PluginStatus, StoredPluginManifest, ContentType, CustomValue, OrganizationSettings } from './schema';

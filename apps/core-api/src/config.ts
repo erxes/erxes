@@ -185,17 +185,22 @@ export const config = {
     allowPrivate: (process.env.OUTBOUND_ALLOW_PRIVATE ?? (isProduction ? 'false' : 'true')) === 'true',
   },
   /**
-   * SaaS (erxes.io): the control plane pushes each organisation's plan
-   * (`PUT /core/v1/saas/organizations/{id}`, signed with SAAS_SECRET) and core
-   * enforces it. Off: self-hosted, no plans or limits.
+   * SaaS (erxes.io): core reads each organisation's plugins and tiers from
+   * erxes.io's entitlement API and enforces them. Off: self-hosted, every
+   * plugin at its top tier, nothing to check.
    */
   saas: {
     enabled: process.env.SAAS === 'true',
-    secret: readSecret('SAAS_SECRET'),
-    /** Days changes keep working after an unpaid period ends, unless the plan says. */
+    /** erxes.io, whose `/api/platform/organizations/plugins?subdomain=` answers what each organisation has. */
+    platformUrl: (process.env.SAAS_PLATFORM_URL?.trim() || 'https://erxes.io').replace(/\/+$/, ''),
+    /** Bearer token both ways: core → erxes.io (PLATFORM_API_TOKEN there), erxes.io → core's /saas/*. */
+    platformToken: readSecret('SAAS_PLATFORM_TOKEN'),
+    /** erxes.io's sign-in hand-off key (its SAAS_JWT_TOKEN_SECRET, HS256). */
+    handoffSecret: readSecret('SAAS_JWT_TOKEN_SECRET'),
+    /** Days a plugin that left the plan stays read-only before it is turned off. */
     graceDays: readNumber('SAAS_GRACE_DAYS', 7),
-    /** Where the dashboard hand-off returns members after sign-in. */
-    dashboardUrl: process.env.SAAS_DASHBOARD_URL?.trim() || 'https://erxes.io',
+    /** Where owners manage the subscription; `{subdomain}` is replaced. */
+    billingUrl: process.env.SAAS_BILLING_URL?.trim() || 'https://erxes.io/organizations',
   },
   /** Secret → plugin name. */
   pluginKeys: readPluginKeys(),
@@ -245,8 +250,8 @@ if (isProduction && !config.auth.signingKey) {
   throw new Error('CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256');
 }
 
-if (config.saas.enabled && (!config.saas.secret || config.saas.secret.length < 32)) {
-  throw new Error('SAAS=true needs SAAS_SECRET (at least 32 characters), shared with the control plane');
+if (config.saas.enabled && (!config.saas.platformToken || config.saas.platformToken.length < 32)) {
+  throw new Error('SAAS=true needs SAAS_PLATFORM_TOKEN (at least 32 characters; erxes.io\'s PLATFORM_API_TOKEN)');
 }
 
 if (config.files.driver === 's3' && !config.files.s3.bucket) {

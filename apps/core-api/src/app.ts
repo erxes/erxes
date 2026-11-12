@@ -19,7 +19,7 @@ import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
 import { paymentCallbackRouter } from '~/modules/payments/payments.service';
 import { coreApi, openApiDocument } from '~/rpc';
 import { log } from '~/lib/log';
-import { saasRouter } from '~/modules/saas/saas.http';
+import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
 import { standingGuard } from '~/modules/saas/saas.service';
 
 /** Errors outside oRPC (auth, unknown routes) in the same shape as oRPC's. */
@@ -49,7 +49,9 @@ export const createApp = (): Express => {
   app.use('/core/v1/plugins/token', tokenLimit);
 
   // The SaaS control plane's own door: signed over the raw body, so before JSON parsing and member authentication.
+  // erxes.io's door and sign-in hand-off (its own token; also at the path old erxes used).
   app.use('/core/v1/saas', tokenLimit, saasRouter);
+  app.get('/gateway/pl\\:core/core-login', tokenLimit, saasLogin);
 
   app.use(express.json({ limit: '1mb' }));
 

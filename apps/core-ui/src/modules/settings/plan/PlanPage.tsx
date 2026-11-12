@@ -1,15 +1,38 @@
-import { IconApps, IconCreditCard, IconExternalLink, IconUsersGroup } from '@tabler/icons-react';
-import { Badge, Button, cn, Empty, PageContainer, ScrollArea, Spinner } from 'erxes-ui';
+import type { SubscriptionInfo } from '@erxes/core-contract';
+import { IconApps, IconCreditCard, IconExternalLink } from '@tabler/icons-react';
+import { Badge, Button, Empty, PageContainer, RelativeDateDisplay, ScrollArea, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { usePlan } from '~/modules/saas/usePlan';
 
-const STANDING = { ok: 'success', warning: 'warning', read_only: 'destructive', suspended: 'destructive' } as const;
-const day = (value: string) => new Date(value).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-const LIMIT_LABELS: Record<string, string> = { teamMembers: 'Team members' };
+type Row = SubscriptionInfo['plugins'][number];
 
-/** Settings › Plan (SaaS): the subscription, its standing, included plugins and limits with usage. */
+const TIER = { free: 'secondary', plus: 'info', pro: 'success' } as const;
+const ACCESS = { full: 'success', warning: 'warning', read_only: 'destructive', off: 'secondary' } as const;
+const day = (value: string) => new Date(value).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+
+const PluginRow = ({ plugin }: { plugin: Row }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'plan' });
+
+  return (
+    <li className="flex flex-wrap items-center gap-3 p-3 text-sm">
+      <span className="font-medium">{plugin.title}</span>
+      {plugin.tier && <Badge variant={TIER[plugin.tier]}>{t(`tier.${plugin.tier}`, plugin.tier)}</Badge>}
+      {plugin.access !== 'full' && <Badge variant={ACCESS[plugin.access]}>{t(`access.${plugin.access}`, plugin.access)}</Badge>}
+      {plugin.status === 'past_due' && <span className="text-xs text-warning">{t('past-due', 'payment retrying')}</span>}
+      {plugin.status === 'canceling' && <span className="text-xs text-muted-foreground">{t('canceling', 'ends at the end of the period')}</span>}
+      {plugin.readOnlyUntil && (
+        <span className="text-xs text-destructive">{t('read-only-until', 'read-only until {{date}}, then off', { date: day(plugin.readOnlyUntil) })}</span>
+      )}
+      {!plugin.installed && plugin.access !== 'off' && plugin.access !== 'read_only' && (
+        <span className="ml-auto text-xs text-muted-foreground">{t('not-installed', 'not installed')}</span>
+      )}
+    </li>
+  );
+};
+
+/** Settings › Plan (SaaS): what this workspace has on erxes.io — each plugin's tier, payment status and access. */
 export const PlanPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'plan' });
   const { data, isLoading } = usePlan();
@@ -25,7 +48,7 @@ export const PlanPage = () => {
             <Button asChild>
               <a href={data.manageUrl} target="_blank" rel="noreferrer">
                 <IconExternalLink />
-                {t('manage', 'Manage subscription')}
+                {t('manage', 'Manage on erxes.io')}
               </a>
             </Button>
           </PageHeader.End>
@@ -35,94 +58,51 @@ export const PlanPage = () => {
         <div className="mx-auto max-w-3xl space-y-6 p-6">
           {isLoading ? (
             <Spinner containerClassName="py-12" />
-          ) : !data?.saas || !data.plan ? (
+          ) : !data?.saas ? (
             <Empty className="py-16">
               <Empty.Header>
                 <Empty.Media variant="icon">
                   <IconCreditCard />
                 </Empty.Media>
                 <Empty.Title>{t('self-hosted', 'No plan: this installation is self-hosted')}</Empty.Title>
-                <Empty.Description>{t('self-hosted-description', 'Every plugin and feature is available, without limits.')}</Empty.Description>
+                <Empty.Description>{t('self-hosted-description', 'Every plugin and feature is available.')}</Empty.Description>
               </Empty.Header>
             </Empty>
           ) : (
             <>
-              <section className="space-y-3 rounded-lg border p-5">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-semibold">{data.planName ?? data.plan}</h2>
-                  <Badge variant={STANDING[data.standing]}>{t(`standing.${data.standing}`, data.standing)}</Badge>
-                  {data.status && <span className="text-sm text-muted-foreground">{t(`status.${data.status}`, data.status)}</span>}
-                </div>
-                <dl className="grid grid-cols-2 gap-y-1 text-sm">
-                  {data.currentPeriodEnd && (
-                    <>
-                      <dt className="text-muted-foreground">{data.status === 'active' || data.status === 'trialing' ? t('renews', 'Renews') : t('ended', 'Period ends')}</dt>
-                      <dd>{day(data.currentPeriodEnd)}</dd>
-                    </>
-                  )}
-                  {data.readOnlyAt && (
-                    <>
-                      <dt className="text-muted-foreground">{t('read-only-at', 'Read-only from')}</dt>
-                      <dd className={cn(data.standing === 'read_only' && 'text-destructive')}>{day(data.readOnlyAt)}</dd>
-                    </>
-                  )}
-                  {data.suspendedReason && (
-                    <>
-                      <dt className="text-muted-foreground">{t('suspended', 'Suspended')}</dt>
-                      <dd className="text-destructive">{data.suspendedReason}</dd>
-                    </>
-                  )}
-                </dl>
-              </section>
-              {data.limits.length > 0 && (
-                <section className="space-y-2">
-                  <h3 className="flex items-center gap-2 text-sm font-medium">
-                    <IconUsersGroup className="size-4" />
-                    {t('limits', 'Limits')}
-                  </h3>
-                  <ul className="divide-y rounded-lg border">
-                    {data.limits.map((limit) => {
-                      const ratio = limit.limit && limit.used !== null ? Math.min(1, limit.used / limit.limit) : null;
-
-                      return (
-                        <li key={limit.key} className="space-y-1.5 p-3 text-sm">
-                          <div className="flex items-center">
-                            <span>{t(`limit.${limit.key}`, LIMIT_LABELS[limit.key] ?? limit.key)}</span>
-                            <span className="ml-auto text-muted-foreground">
-                              {limit.used !== null ? `${limit.used} / ` : ''}
-                              {limit.limit ?? t('unlimited', 'unlimited')}
-                            </span>
-                          </div>
-                          {ratio !== null && (
-                            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                              <div className={cn('h-full rounded-full', ratio >= 1 ? 'bg-destructive' : ratio > 0.8 ? 'bg-warning' : 'bg-primary')} style={{ width: `${ratio * 100}%` }} />
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
+              <p className="text-sm text-muted-foreground">
+                {t('intro', 'Plugins are bought on erxes.io, one subscription for the workspace: each plugin at Free, Plus or Pro, alone or in a bundle.')}
+              </p>
+              {data.organizationStatus !== 'active' && (
+                <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                  {t('disabled', 'This workspace is disabled on erxes.io ({{status}}).', { status: data.organizationStatus })}
+                </p>
               )}
               <section className="space-y-2">
                 <h3 className="flex items-center gap-2 text-sm font-medium">
                   <IconApps className="size-4" />
-                  {t('plugins', 'Included plugins')}
+                  {t('plugins', 'Plugins')}
                 </h3>
                 {data.plugins.length ? (
                   <ul className="divide-y rounded-lg border">
                     {data.plugins.map((plugin) => (
-                      <li key={plugin.name} className="flex items-center gap-3 p-3 text-sm">
-                        <span className="font-medium">{plugin.title}</span>
-                        {!plugin.installed && <Badge variant="secondary">{t('not-installed', 'not installed')}</Badge>}
-                        {plugin.until && <span className="ml-auto text-xs text-muted-foreground">{t('until', 'until {{date}}', { date: day(plugin.until) })}</span>}
-                      </li>
+                      <PluginRow key={plugin.code} plugin={plugin} />
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-muted-foreground">{t('no-plugins', 'Your plan has no plugins yet.')}</p>
+                  <p className="text-sm text-muted-foreground">{t('no-plugins', 'No plugins yet: add them on erxes.io.')}</p>
                 )}
               </section>
+              {data.checkedAt && (
+                <p className="text-xs text-muted-foreground">
+                  {t('checked', 'Checked with erxes.io')}{' '}
+                  <RelativeDateDisplay value={data.checkedAt} asChild>
+                    <span>
+                      <RelativeDateDisplay.Value value={data.checkedAt} />
+                    </span>
+                  </RelativeDateDisplay>
+                </p>
+              )}
             </>
           )}
         </div>

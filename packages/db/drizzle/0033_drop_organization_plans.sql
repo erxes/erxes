@@ -1,0 +1,1 @@
+DROP TABLE "core_organization_plans" CASCADE;

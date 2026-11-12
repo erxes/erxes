@@ -12,7 +12,7 @@ import { pruneNotifications } from '~/modules/notifications/notifications.servic
 import { log } from '~/lib/log';
 import { purgeExpiredTrash } from '~/modules/trash/trash.service';
 import { sql } from 'drizzle-orm';
-import { reconcileExpiredPlugins } from '~/modules/saas/saas.service';
+import { refreshAllEntitlements } from '~/modules/saas/saas.service';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -35,8 +35,8 @@ export const startMaintenance = () => {
       await withSystem('cleanup: webhook deliveries', (tx) => pruneDeliveries(tx, config.retention.eventDays));
       // The recycle bin keeps things 30 days.
       await withSystem('cleanup: recycle bin', (tx) => purgeExpiredTrash(tx));
-      // SaaS: plugins whose paid period ended leave the plan.
-      await reconcileExpiredPlugins();
+      // SaaS: every workspace's plugins from erxes.io; read-only ones past their grace turn off.
+      await refreshAllEntitlements();
       await withSystem('cleanup: deletion counters', (tx) => tx.execute(sql`delete from core_deletion_counters where bucket < now() - interval '1 day'`));
       const handled = await withSystem('cleanup: events', (tx) =>
         pruneEvents(tx, config.retention.eventDays, CONSUMERS.map((consumer) => consumer.name)),

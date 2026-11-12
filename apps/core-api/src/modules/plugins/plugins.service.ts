@@ -7,7 +7,7 @@ import { type Actor, can, PLUGIN_ACCESS_TYP, type PluginCaller, type PluginServi
 import { HttpError } from '~/http/errors';
 import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { assertPluginInPlan } from '~/modules/saas/saas.service';
+import { accessOf, assertPluginInPlan, entitlementsOf, tierOf } from '~/modules/saas/saas.service';
 
 type PluginRow = typeof plugins.$inferSelect;
 type InstallationRow = typeof pluginInstallations.$inferSelect;
@@ -337,12 +337,18 @@ export const pluginSession = async (actor: Actor, name: string) => {
 
   if (!row) throw new HttpError(403, 'NOT_INSTALLED', `${name} is not installed in this organisation`);
 
+  // SaaS: the plugin's tier here (gate Plus/Pro features) and whether it may change anything.
+  const plan = await entitlementsOf(actor.orgId);
+  const access = accessOf(plan, name);
+
+  if (access === 'off') throw new HttpError(402, 'NOT_IN_PLAN', `${name} is not in your plan`);
+
   // The member's permissions within this plugin (`hr.leave.approve`, …), for its API to check.
   const permissions = (row.plugin.manifest?.permissions ?? [])
     .map((permission) => permission.action)
     .filter((action) => can(actor, action));
   const token = await signJwt(
-    { org: actor.orgId, role: actor.role, permissions },
+    { org: actor.orgId, role: actor.role, permissions, tier: tierOf(plan, name), access },
     { typ: PLUGIN_SESSION_TYP, audience: name, subject: actor.userId, expiresInSeconds: PLUGIN_SESSION_TTL_SECONDS },
   );
 

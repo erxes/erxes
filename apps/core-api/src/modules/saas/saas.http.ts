@@ -1,19 +1,22 @@
-import { SaasOrganizationUpdate } from '@erxes/core-contract';
+import { SaasWorkspace } from '@erxes/core-contract';
+import { withOrg } from '@erxes/core-db';
 import express, { Router, type Request, type Response } from 'express';
 import { config } from '~/config';
-import { sessionCookieOptions, SESSION_COOKIE } from '~/http/cookies';
 import { signAccessToken } from '~/http/auth';
+import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import { HttpError } from '~/http/errors';
 import { log } from '~/lib/log';
 import { sessionVersionOf } from '~/modules/auth/account.service';
-import { withOrg } from '@erxes/core-db';
-import { applySaasUpdate, redeemHandoff, saasUsage, verifySaasSignature } from './saas.service';
+import { applyWorkspace, platformAuthorized, redeemHandoff, refreshEntitlements, workspaceUsage } from './saas.service';
 
 /**
- * The control plane's side door (`/core/v1/saas/*`), only with SAAS=true:
- * - `PUT /organizations/:id`: the plan, plugins and limits (signed body);
- * - `GET /organizations/:id`: usage and what core holds (signature over "");
- * - `GET /login?token=`: the dashboard's sign-in hand-off.
+ * erxes.io's door into core (`/core/v1/saas/*`), only with SAAS=true. Calls
+ * from erxes.io carry `Authorization: Bearer <SAAS_PLATFORM_TOKEN>`:
+ * - `PUT /organizations/:id`: create, rename, enable or disable a workspace;
+ * - `POST /organizations/:id/refresh`: read its plugins from erxes.io now (after a purchase);
+ * - `GET /organizations/:id`: the workspace and its usage.
+ * And the members' sign-in hand-off: `GET /login?token=` (also at erxes.io's
+ * `/gateway/pl:core/core-login`).
  */
 export const saasRouter = Router();
 
@@ -27,7 +30,15 @@ const send = (res: Response, error: unknown) => {
   res.status(500).json({ code: 'INTERNAL', message: 'Try again' });
 };
 
-saasRouter.use((req, res, next) => {
+const fromPlatform = (req: Request, res: Response) => {
+  if (platformAuthorized(req.header('authorization'))) return true;
+
+  res.status(401).json({ code: 'UNAUTHORIZED', message: 'erxes.io platform token required' });
+
+  return false;
+};
+
+saasRouter.use((_req, res, next) => {
   if (!config.saas.enabled) {
     res.status(404).json({ code: 'NOT_FOUND', message: 'Not a SaaS deployment' });
     return;
@@ -36,41 +47,45 @@ saasRouter.use((req, res, next) => {
   next();
 });
 
-saasRouter.put('/organizations/:id', express.text({ type: '*/*', limit: '256kb' }), (req: Request, res: Response) => {
-  const body = typeof req.body === 'string' ? req.body : '';
+saasRouter.put('/organizations/:id', express.json({ limit: '64kb' }), (req: Request, res: Response) => {
+  if (!fromPlatform(req, res)) return;
 
-  if (!verifySaasSignature(req.header('erxes-signature'), body)) {
-    res.status(401).json({ code: 'INVALID_SIGNATURE', message: 'Signature missing, wrong or too old' });
+  const parsed = SaasWorkspace.safeParse(req.body);
+
+  if (!parsed.success) {
+    res.status(400).json({ code: 'INVALID_INPUT', message: 'Not a valid workspace', data: { issues: parsed.error.issues } });
     return;
   }
 
-  let input: SaasOrganizationUpdate;
-
-  try {
-    input = SaasOrganizationUpdate.parse(JSON.parse(body));
-  } catch (error) {
-    res.status(400).json({ code: 'INVALID_INPUT', message: 'Not a valid organisation update', data: { issues: (error as { issues?: unknown }).issues ?? null } });
-    return;
-  }
-
-  applySaasUpdate(req.params.id ?? '', input)
+  applyWorkspace(req.params.id ?? '', parsed.data)
     .then((result) => res.status(result.created ? 201 : 200).json(result))
     .catch((error: unknown) => send(res, error));
 });
 
-saasRouter.get('/organizations/:id', (req: Request, res: Response) => {
-  if (!verifySaasSignature(req.header('erxes-signature'), '')) {
-    res.status(401).json({ code: 'INVALID_SIGNATURE', message: 'Signature missing, wrong or too old' });
-    return;
-  }
+saasRouter.post('/organizations/:id/refresh', (req: Request, res: Response) => {
+  if (!fromPlatform(req, res)) return;
 
-  saasUsage(req.params.id ?? '')
+  refreshEntitlements(req.params.id ?? '')
+    .then((row) => (row ? res.json({ organizationStatus: row.orgStatus, plugins: row.plugins, lapsed: row.lapsed }) : send(res, new HttpError(404, 'NOT_FOUND', 'No such workspace'))))
+    .catch((error: unknown) => send(res, error));
+});
+
+saasRouter.get('/organizations/:id', (req: Request, res: Response) => {
+  if (!fromPlatform(req, res)) return;
+
+  workspaceUsage(req.params.id ?? '')
     .then((usage) => res.json(usage))
     .catch((error: unknown) => send(res, error));
 });
 
-saasRouter.get('/login', (req: Request, res: Response) => {
-  redeemHandoff(String(req.query.token ?? ''))
+/** Signs the member in from erxes.io's link, then opens the workspace. A refused link goes back to erxes.io. */
+export const saasLogin = (req: Request, res: Response) => {
+  if (!config.saas.enabled) {
+    res.status(404).json({ code: 'NOT_FOUND', message: 'Not a SaaS deployment' });
+    return;
+  }
+
+  redeemHandoff(String(req.query.token ?? ''), req.get('x-forwarded-host') ?? req.get('host'))
     .then(async ({ orgId, userId }) => {
       const version = await withOrg(orgId, () => sessionVersionOf(orgId, userId));
 
@@ -78,7 +93,9 @@ saasRouter.get('/login', (req: Request, res: Response) => {
       res.redirect(302, '/');
     })
     .catch((error: unknown) => {
-      log.warn('saas sign-in hand-off refused', { error: (error as Error).message });
-      res.redirect(302, `${config.saas.dashboardUrl}?signin=failed`);
+      log.warn('erxes.io sign-in hand-off refused', { error: (error as Error).message });
+      res.redirect(302, `${config.saas.platformUrl}/?signin=failed`);
     });
-});
+};
+
+saasRouter.get('/login', saasLogin);

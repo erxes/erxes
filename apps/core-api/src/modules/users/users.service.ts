@@ -13,7 +13,6 @@ import { forbidden, HttpError, notFound, pgCode } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { hashPassword } from '~/modules/auth/password';
-import { assertSeats } from '~/modules/saas/saas.service';
 
 type UserRow = typeof users.$inferSelect;
 type Status = UserRow['status'];
@@ -307,8 +306,6 @@ export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) =
   try {
     const values = await inviteValues(actor, input);
     const row = await client.transaction(async (tx) => {
-      await assertSeats(tx, actor.orgId, 1);
-
       const [inserted] = await tx.insert(users).values(values).returning();
 
       await auditInvites(tx, actor, [inserted!]);
@@ -353,8 +350,6 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
 
       throw new HttpError(409, 'EMAIL_TAKEN', `Already a team member: ${list.join(', ')}`, { emails: list });
     }
-
-    await assertSeats(tx, actor.orgId, values.length);
 
     try {
       const rows = await tx.insert(users).values(values).returning();
@@ -535,8 +530,6 @@ export const setUserDisabled = async (caller: Actor, id: string, disabled: boole
       : target.invitedBy && !target.passwordHash
         ? 'invited'
         : 'active';
-
-    if (!disabled && target.status === 'disabled') await assertSeats(tx, actor.orgId, 1);
 
     const [row] = await tx
       .update(users)

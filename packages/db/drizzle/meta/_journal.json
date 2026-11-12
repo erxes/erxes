@@ -232,6 +232,20 @@
       "when": 1794450642671,
       "tag": "0032_used_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794451823518,
+      "tag": "0033_drop_organization_plans",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794451824245,
+      "tag": "0034_entitlements",
+      "breakpoints": true
     }
   ]
 }

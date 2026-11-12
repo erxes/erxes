@@ -1,49 +1,45 @@
 import { sql } from 'drizzle-orm';
-import { bigint, boolean, check, foreignKey, jsonb, text, timestamp } from 'drizzle-orm/pg-core';
+import { check, foreignKey, jsonb, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
-export const SUBSCRIPTION_STATUSES = ['trialing', 'active', 'past_due', 'canceled', 'expired'] as const;
+export const ORGANIZATION_STATUSES = ['active', 'suspended', 'inactive'] as const;
+export const PLUGIN_TIERS = ['free', 'plus', 'pro'] as const;
 
-/** A plugin in the organisation's plan: until a date (removed at period end), with its own limits. */
-export interface PlanPlugin {
-  name: string;
-  until?: string | null;
-  limits?: Record<string, number | null>;
+/** One plugin the organisation has on erxes.io: its tier and billing status (`canceling` ends at `endsAt`). */
+export interface EntitledPlugin {
+  code: string;
+  tier: (typeof PLUGIN_TIERS)[number];
+  status: 'active' | 'past_due' | 'canceling';
+  endsAt?: string | null;
 }
 
 /**
- * What an organisation's SaaS subscription allows, as the control plane
- * (erxes.io billing) last said: plan and status, which plugins, and limits.
- * Pushed with a version; an older version never overwrites a newer one.
- * Only on SaaS deployments (`SAAS=true`); self-hosted has no row and no limits.
+ * What erxes.io (the SaaS profile: organisations, marketplace, Stripe)
+ * last said an organisation has — read from its entitlement API
+ * (`GET /api/platform/organizations/plugins?subdomain=`) and kept here, so
+ * an erxes.io outage never locks anyone out. One subscription per
+ * organisation on erxes.io; here, each plugin's tier and status.
+ * Only on SaaS deployments (`SAAS=true`).
  */
-export const organizationPlans = pgTable(
-  'organization_plans',
+export const entitlements = pgTable(
+  'entitlements',
   {
     orgId: text().primaryKey(),
-    plan: text().notNull(),
-    planName: text(),
-    status: text({ enum: SUBSCRIPTION_STATUSES }).notNull(),
-    currentPeriodEnd: timestamptz(),
-    /** After the period ends unpaid, changes keep working until then; read-only after. */
-    graceUntil: timestamptz(),
-    /** Turned off by erxes (abuse, unpaid for long, owner's request): nobody gets in. */
-    suspended: boolean().default(false).notNull(),
-    suspendedReason: text(),
-    plugins: jsonb().$type<PlanPlugin[]>().default([]).notNull(),
-    /** `teamMembers` and others; null or missing: unlimited. */
-    limits: jsonb().$type<Record<string, number | null>>().default({}).notNull(),
-    /** Where owners manage the subscription (erxes.io). */
-    manageUrl: text(),
-    version: bigint({ mode: 'number' }).notNull(),
-    syncedAt: timestamptz().defaultNow().notNull(),
+    /** erxes.io's organisation status: `inactive` / `suspended` keep everyone out. */
+    orgStatus: text({ enum: ORGANIZATION_STATUSES }).default('active').notNull(),
+    plugins: jsonb().$type<EntitledPlugin[]>().default([]).notNull(),
+    /** Plugins that left the plan, and when: read-only for the grace period, then turned off. */
+    lapsed: jsonb().$type<Record<string, string>>().default({}).notNull(),
+    fetchedAt: timestamptz().notNull(),
+    /** The last fetch that failed (the stored answer stays in force). */
+    lastError: text(),
   },
   (table) => [
-    check('core_organization_plans_status_check', sql`${table.status} IN ('trialing', 'active', 'past_due', 'canceled', 'expired')`),
-    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_organization_plans_org_id_fkey' }).onDelete('cascade'),
+    check('core_entitlements_org_status_check', sql`${table.orgStatus} IN ('active', 'suspended', 'inactive')`),
+    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_entitlements_org_id_fkey' }).onDelete('cascade'),
   ],
 );
 

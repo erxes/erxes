@@ -1440,41 +1440,33 @@
     "counts": "{{tags}} tags · {{links}} links · {{activities}} timeline entries"
   },
   "plan": {
-    "title": "Plan",
-    "manage": "Manage subscription",
-    "self-hosted": "No plan: this installation is self-hosted",
-    "self-hosted-description": "Every plugin and feature is available, without limits.",
-    "renews": "Renews",
-    "ended": "Period ends",
-    "read-only-at": "Read-only from",
-    "suspended": "Suspended",
-    "limits": "Limits",
-    "unlimited": "unlimited",
-    "plugins": "Included plugins",
+    "past-due": "payment retrying",
+    "canceling": "ends at the end of the period",
+    "read-only-until": "read-only until {{date}}, then off",
     "not-installed": "not installed",
-    "until": "until {{date}}",
-    "no-plugins": "Your plan has no plugins yet.",
-    "banner-suspended": "This organisation is suspended: {{reason}}",
-    "contact-erxes": "contact erxes",
-    "banner-read-only": "Your subscription has ended. You can still see and export everything; renew to make changes.",
-    "banner-warning": "Your subscription needs attention: changes stop working on {{date}}.",
-    "banner-warning-plain": "Your subscription needs attention.",
+    "title": "Plan",
+    "manage": "Manage on erxes.io",
+    "self-hosted": "No plan: this installation is self-hosted",
+    "self-hosted-description": "Every plugin and feature is available.",
+    "intro": "Plugins are bought on erxes.io, one subscription for the workspace: each plugin at Free, Plus or Pro, alone or in a bundle.",
+    "disabled": "This workspace is disabled on erxes.io ({{status}}).",
+    "plugins": "Plugins",
+    "no-plugins": "No plugins yet: add them on erxes.io.",
+    "checked": "Checked with erxes.io",
+    "banner-disabled": "This workspace is disabled on erxes.io.",
+    "banner-read-only": "{{plugins}} left your plan: read-only until {{date}}, then turned off. Buy it again to keep using it.",
+    "banner-past-due": "The payment for {{plugins}} didn't go through; erxes.io is retrying. Update your card to keep them.",
     "see-plan": "See your plan",
-    "standing": {
-      "ok": "In good standing",
+    "tier": {
+      "free": "Free",
+      "plus": "Plus",
+      "pro": "Pro"
+    },
+    "access": {
+      "full": "Full",
       "warning": "Needs attention",
       "read_only": "Read-only",
-      "suspended": "Suspended"
-    },
-    "status": {
-      "trialing": "Trial",
-      "active": "Active",
-      "past_due": "Payment overdue",
-      "canceled": "Canceled",
-      "expired": "Expired"
-    },
-    "limit": {
-      "teamMembers": "Team members"
+      "off": "Off"
     }
   }
 }
