@@ -53,6 +53,7 @@ export const armsOf = (step: AutomationStep): Arm[] => {
 const withArm = (step: AutomationStep, arm: string, steps: AutomationStep[]): AutomationStep => {
   if (step.type === 'branch' && (arm === 'then' || arm === 'else'))
     return { ...step, [arm]: steps };
+
   if (step.type === 'switch') {
     if (arm === 'otherwise') return { ...step, otherwise: steps };
 
@@ -63,6 +64,7 @@ const withArm = (step: AutomationStep, arm: string, steps: AutomationStep[]): Au
       cases: step.cases.map((item, at) => (at === index ? { ...item, steps } : item)),
     };
   }
+
   if (step.type === 'split') {
     const index = Number(arm.split(':')[1]);
 
@@ -158,7 +160,7 @@ export const moveStep = (steps: AutomationStep[], id: string, delta: -1 | 1): Au
   return updateList(steps, at.address, (list) => {
     const next = [...list];
 
-    [next[at.index], next[at.index + delta]] = [next[at.index + delta]!, next[at.index]!];
+    [next[at.index], next[at.index + delta]] = [next[at.index + delta], next[at.index]];
 
     return next;
   });
@@ -173,7 +175,7 @@ export const insertStep = (
 
 /** A copy with fresh ids (arms included), for "duplicate". */
 export const cloneStep = (step: AutomationStep): AutomationStep => {
-  const copy = { ...step, id: newStepId() } as AutomationStep;
+  const copy = { ...step, id: newStepId() };
 
   return armsOf(copy).reduce(
     (current, arm) => withArm(current, arm.key, arm.steps.map(cloneStep)),
@@ -190,6 +192,7 @@ export const STEP_TYPES = [
   'split',
   'stop',
 ] as const;
+
 export type StepType = (typeof STEP_TYPES)[number];
 
 /** A new action's starting inputs: an email goes to the record itself until told otherwise. */
@@ -206,6 +209,7 @@ export const newStep = (
   subject: 'customer' | 'company',
 ): AutomationStep => {
   const id = newStepId();
+
   const firstAction =
     actions.find(
       (item) => item.subject === null || item.subject === 'any' || item.subject === subject,
@@ -285,6 +289,7 @@ export const describeConditions = (
   if (!first) return plural(total, 'condition');
 
   const field = fields.find((item) => item.path === first.path);
+
   // Until the field list loads (or for a hand-typed path): `subject.primaryEmail` → "primary email".
   const name =
     field?.label ??
@@ -293,6 +298,7 @@ export const describeConditions = (
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/[._]/g, ' ')
       .toLowerCase();
+
   const more = total > 1 ? ` ${group.match === 'any' ? 'or' : 'and'} ${total - 1} more` : '';
 
   // Yes/no fields read as a statement: "Customer updated within the wait" / "… didn't happen".
@@ -326,6 +332,7 @@ export const describeTrigger = (
 
       return { title: label, detail: only ? `Only if ${only}` : null };
     }
+
     case 'schedule': {
       const when =
         trigger.every === 'hour'
@@ -343,9 +350,11 @@ export const describeTrigger = (
           : zoneLabel(trigger.timezone),
       };
     }
+
     case 'date': {
       const field =
         fields.find((item) => item.path === `subject.${trigger.field}`)?.label ?? trigger.field;
+
       const offset =
         trigger.offsetDays === 0
           ? 'On'
@@ -358,6 +367,7 @@ export const describeTrigger = (
         detail: `At ${trigger.at} (${zoneLabel(trigger.timezone)})`,
       };
     }
+
     default:
       return {
         title: 'Started by hand',
@@ -380,8 +390,11 @@ export const STEP_TITLES: Record<StepType, string> = {
 
 const valueText = (value: unknown): string => {
   if (Array.isArray(value)) return value.length ? plural(value.length, 'item') : '';
+
   if (value === true) return 'yes';
+
   if (value === false || value === undefined || value === null) return '';
+
   if (value === 'subject') return 'the record';
 
   return String(value);
@@ -404,6 +417,7 @@ export const describeStep = (
   switch (step.type) {
     case 'action': {
       const action = context.actions.find((item) => item.type === step.action);
+
       const shown = (action?.fields ?? [])
         .map((field) => {
           const value = step.input[field.key];
@@ -421,6 +435,7 @@ export const describeStep = (
               : field.type === 'lead_stage'
                 ? context.stages?.find((stage) => stage.id === value)?.name
                 : undefined;
+
           const text = named ?? valueText(value);
 
           return text ? `${field.label.split(' (')[0]}: ${text}` : null;
@@ -432,6 +447,7 @@ export const describeStep = (
         detail: shown.length ? truncate(shown.slice(0, 2).join(' · ')) : null,
       };
     }
+
     case 'delay':
       return {
         title:
@@ -446,6 +462,7 @@ export const describeStep = (
 
       return { title: step.label || label, detail: `At most ${unitWord(step.amount, step.unit)}` };
     }
+
     case 'branch': {
       const rule = describeConditions(step.conditions, context.fields);
 
@@ -454,6 +471,7 @@ export const describeStep = (
         detail: step.label ? rule : null,
       };
     }
+
     case 'switch':
       return {
         title:
@@ -500,6 +518,7 @@ export const stepProblems = (step: AutomationStep, actions: ActionInfo[]): strin
         })
         .map((field) => `Fill in ${field.label.toLowerCase()}`);
     }
+
     case 'branch':
       return step.conditions.rules.length ? [] : ['Add a condition'];
     case 'switch':
@@ -541,9 +560,11 @@ export const stepOutputFields = (
   context: { events: { type: string; label: string }[] },
 ): FieldInfo[] => {
   const out: FieldInfo[] = [];
+
   const walk = (list: AutomationStep[]): boolean => {
     for (const step of list) {
       if (step.id === id) return true;
+
       if (step.type === 'wait_for') {
         const label =
           step.label ||

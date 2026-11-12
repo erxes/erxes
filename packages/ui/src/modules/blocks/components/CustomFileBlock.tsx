@@ -1,13 +1,10 @@
-import { DefaultInlineContentSchema, DefaultStyleSchema, fileBlockConfig } from '@blocknote/core';
-import {
-  FileBlockWrapper,
-  ReactCustomBlockRenderProps,
-  createReactBlockSpec,
-  useUploadLoading,
-} from '@blocknote/react';
+import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
+import { fileBlockConfig } from '@blocknote/core';
+import type { ReactCustomBlockRenderProps } from '@blocknote/react';
+import { FileBlockWrapper, createReactBlockSpec, useUploadLoading } from '@blocknote/react';
 import { IconFile } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui/components';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { readImage } from 'erxes-ui/utils/core';
 
 type FileRenderProps = ReactCustomBlockRenderProps<
@@ -17,6 +14,7 @@ type FileRenderProps = ReactCustomBlockRenderProps<
 >;
 
 type FileBlockWrapperProps = Parameters<typeof FileBlockWrapper>[0];
+
 type FileWrapperRenderProps = Omit<FileBlockWrapperProps, 'buttonText' | 'buttonIcon' | 'children'>;
 
 const toFileWrapperProps = (props: FileRenderProps): FileWrapperRenderProps => ({

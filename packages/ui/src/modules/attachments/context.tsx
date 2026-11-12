@@ -5,14 +5,17 @@ const AttachmentContext = createContext<AttachmentContextType | null>(null);
 
 export const useAttachmentContext = (): AttachmentContextType => {
   const ctx = useContext(AttachmentContext);
+
   if (!ctx) {
     throw new Error('useAttachmentContext must be used within <Attachments.Root>');
   }
+
   return ctx;
 };
 
 function stripTypename<T extends object>(obj: T): T {
   const { __typename, ...rest } = obj as T & { __typename?: unknown };
+
   return rest as T;
 }
 
@@ -63,8 +66,10 @@ export const AttachmentRoot = ({
       try {
         if (onRemove) {
           const result = await onRemove(attachment, remaining);
+
           if (result === false) return;
         }
+
         setAttachments(remaining);
         await onSave?.(remaining);
       } catch (err) {

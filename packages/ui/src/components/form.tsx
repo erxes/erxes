@@ -1,14 +1,9 @@
 import * as React from 'react';
-import {
-  Controller,
-  ControllerProps,
-  FieldPath,
-  FieldValues,
-  FormProvider,
-  useFormContext,
-} from 'react-hook-form';
+import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
+import { Controller, FormProvider, useFormContext } from 'react-hook-form';
 
-import { Slot, Label as LabelPrimitive } from 'radix-ui';
+import type { Label as LabelPrimitive } from 'radix-ui';
+import { Slot } from 'radix-ui';
 
 import { Label } from './label';
 import { cn } from '../lib/utils';
@@ -75,6 +70,7 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
     );
   },
 );
+
 FormItem.displayName = 'FormItem';
 
 const FormLabel = React.forwardRef<
@@ -92,6 +88,7 @@ const FormLabel = React.forwardRef<
     />
   );
 });
+
 FormLabel.displayName = 'FormLabel';
 
 const FormControl = React.forwardRef<
@@ -104,12 +101,13 @@ const FormControl = React.forwardRef<
     <Slot.Root
       ref={ref}
       id={formItemId}
-      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+      aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
       aria-invalid={!!error}
       {...props}
     />
   );
 });
+
 FormControl.displayName = 'FormControl';
 
 const FormDescription = React.forwardRef<
@@ -127,6 +125,7 @@ const FormDescription = React.forwardRef<
     />
   );
 });
+
 FormDescription.displayName = 'FormDescription';
 
 const FormMessage = React.forwardRef<
@@ -151,6 +150,7 @@ const FormMessage = React.forwardRef<
     </p>
   );
 });
+
 FormMessage.displayName = 'FormMessage';
 
 export const Form = Object.assign(FormProvider, {

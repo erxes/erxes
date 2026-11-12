@@ -35,11 +35,14 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 
 type GatewayRow = typeof paymentGateways.$inferSelect;
+
 type InvoiceRow = typeof paymentInvoices.$inferSelect;
+
 type RefundRow = typeof paymentRefunds.$inferSelect;
 
 const configOf = (row: GatewayRow) => JSON.parse(unseal(row.configSealed)) as GatewayConfig;
 const driverOf = (row: GatewayRow) => createGateway(configOf(row), { cacheKey: row.id });
+
 const systemCaller = (orgId: string) =>
   ({ orgId, actorType: 'system', actorId: null, source: 'core' }) as never;
 
@@ -206,6 +209,7 @@ export const updateGateway = async (
 
 export const removeGateway = async (client: Db, actor: Actor, id: string) => {
   const row = await gatewayOrThrow(client, actor.orgId, id);
+
   const [used] = await client
     .select({ id: paymentInvoices.id })
     .from(paymentInvoices)
@@ -243,6 +247,7 @@ const callbackKey = () =>
       32,
     ),
   );
+
 const callbackSignature = (invoiceId: string) =>
   createHmac('sha256', callbackKey()).update(invoiceId).digest('base64url');
 
@@ -276,6 +281,7 @@ const resolveGateway = async (client: Db, caller: Caller, requested?: string) =>
           )
           .limit(1)
       : [];
+
   const allowed = settings?.allowedGatewayIds ?? [];
 
   if (requested && allowed.length && !allowed.includes(requested)) {
@@ -301,6 +307,7 @@ const resolveGateway = async (client: Db, caller: Caller, requested?: string) =>
       ),
     )
     .orderBy(paymentGateways.createdAt);
+
   const gateway =
     (!requested && active.find((row) => row.id === settings?.defaultGatewayId)) || active[0];
 
@@ -351,17 +358,20 @@ export const createInvoice = async (
   const gateway = await resolveGateway(client, caller, input.gatewayId);
 
   const id = newId();
+
   const callbackUrl = await appLink(
     client,
     caller.orgId,
     `/core/v1/payments/callback/${id}?sig=${callbackSignature(id)}`,
   );
+
   const created = await driverOf(gateway).createInvoice({
     invoiceId: id,
     amount: input.amount,
     description: input.description,
     callbackUrl,
   });
+
   const [row] = await client
     .insert(paymentInvoices)
     .values({
@@ -478,6 +488,7 @@ export const cancelInvoice = async (client: Db, caller: Caller, id: string) => {
   const { invoice, kind } = await refresh(client, caller.orgId, id);
 
   if (caller.actorType === 'plugin' && invoice.source !== caller.source) throw notFound('Invoice');
+
   if (invoice.status !== 'pending')
     throw new HttpError(409, 'NOT_PENDING', `The invoice is ${invoice.status}`);
 
@@ -580,6 +591,7 @@ export const refundInvoice = async (
         'PARTIAL_NOT_SUPPORTED',
         'This gateway does not refund: refund outside erxes and record it as manual',
       );
+
     if (driver.refunds === 'full' && (amount !== left || invoice.refundedAmount > 0)) {
       throw new HttpError(
         409,
@@ -587,6 +599,7 @@ export const refundInvoice = async (
         `${gateway.name} refunds whole payments only: refund the rest outside erxes and record it as manual`,
       );
     }
+
     if (!invoice.gatewayPaymentId)
       throw new HttpError(409, 'NOT_REFUNDABLE', 'The gateway gave no payment id to refund');
   }
@@ -641,6 +654,7 @@ export const refundInvoice = async (
     return { refund: toRefundDto(refund!), invoice: toInvoiceDto(invoice, gateway.kind) };
 
   const full = amount === left;
+
   const [updated] = await client
     .update(paymentInvoices)
     .set({
@@ -749,9 +763,11 @@ export const updatePluginSettings = async (
   if (!current) throw notFound('Plugin taking payments');
 
   const allowed = [...new Set(input.allowedGatewayIds)];
+
   const wanted = [
     ...new Set([...allowed, ...(input.defaultGatewayId ? [input.defaultGatewayId] : [])]),
   ];
+
   const found = wanted.length
     ? await client
         .select({ id: paymentGateways.id })
@@ -760,6 +776,7 @@ export const updatePluginSettings = async (
     : [];
 
   if (found.length !== wanted.length) throw notFound('Gateway');
+
   if (input.defaultGatewayId && allowed.length && !allowed.includes(input.defaultGatewayId)) {
     throw new HttpError(
       400,
@@ -828,6 +845,7 @@ export const listInvoices = async (
         .orderBy(...orderBy, desc(paymentInvoices.id))
         .limit(limit),
   );
+
   const kinds = new Map(
     (
       await client
@@ -853,6 +871,7 @@ export const payTestInvoice = async (client: Db, actor: Actor, id: string) => {
     .limit(1);
 
   if (!row) throw notFound('Invoice');
+
   if (row.kind !== 'test')
     throw new HttpError(400, 'NOT_TEST', 'Only invoices of the test gateway can be paid this way');
 
@@ -870,6 +889,7 @@ export const paymentCheckJob: JobDefinition = {
   atomic: true,
   async handle(job, tx) {
     const db = tx as Transaction;
+
     const { invoice } = await refresh(db, job.orgId, job.payload.invoiceId as string).catch(() => ({
       invoice: null,
     }));
@@ -893,6 +913,7 @@ paymentCallbackRouter.all('/payments/callback/:id', (req: Request, res: Response
 
   if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
     res.status(403).json({ error: 'invalid signature' });
+
     return;
   }
 

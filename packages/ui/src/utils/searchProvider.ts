@@ -1,4 +1,4 @@
-import {
+import type {
   ISearchProvider,
   TSearchPageInfo,
   TSearchPayload,
@@ -45,7 +45,7 @@ export const readArray = <TNode>(payload: TSearchPayload, alias: string): TNode[
 };
 
 export const readNumber = (payload: TSearchPayload, alias: string): number =>
-  typeof payload[alias] === 'number' ? (payload[alias] as number) : 0;
+  typeof payload[alias] === 'number' ? payload[alias] : 0;
 
 export const defineSearchProvider = <TNode>(
   definition: TSearchProviderDefinition<TNode>,
@@ -59,6 +59,7 @@ export const defineSearchProvider = <TNode>(
   selections: definition.selections,
   resolve: (payload) => {
     const { nodes, totalCount, pageInfo } = definition.select(payload);
+
     const items = nodes
       .map(definition.toItem)
       .filter((item): item is NonNullable<typeof item> => item !== null);

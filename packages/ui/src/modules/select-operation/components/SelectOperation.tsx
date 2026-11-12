@@ -84,6 +84,7 @@ export const SelectTriggerOperation = ({
       <RecordTableInlineCell.Trigger className="gap-1">{children}</RecordTableInlineCell.Trigger>
     );
   }
+
   if (variant === SelectTriggerVariant.CARD) {
     return (
       <Popover.Trigger asChild>
@@ -98,6 +99,7 @@ export const SelectTriggerOperation = ({
       </Popover.Trigger>
     );
   }
+
   if (variant === SelectTriggerVariant.FILTER) {
     return (
       <Popover.Trigger asChild>
@@ -149,6 +151,7 @@ export const SelectOperationContent = ({
   if (variant === SelectTriggerVariant.TABLE) {
     return <RecordTableInlineCell.Content>{children}</RecordTableInlineCell.Content>;
   }
+
   return (
     <Combobox.Content
       sideOffset={variant === SelectTriggerVariant.CARD ? 4 : 8}

@@ -73,6 +73,7 @@ export const renderEmail = <T extends EmailTemplate>(
   const content = (
     TEMPLATES[template] as (input: typeof data) => ReturnType<(typeof TEMPLATES)[T]>
   )(data);
+
   const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6f7f9;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#111">
 <table role="presentation" width="100%" style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;padding:32px">
 <tr><td><h1 style="font-size:20px;margin:0 0 16px">${escape(content.heading)}</h1>
@@ -84,6 +85,7 @@ ${
     : ''
 }
 </td></tr></table></body></html>`;
+
   const text = [
     content.heading,
     '',
@@ -102,12 +104,14 @@ export const loggedEmails: { to: string; subject: string; text: string }[] = [];
 const deliver = async (message: { to: string; subject: string; html: string; text: string }) => {
   if (config.email.driver === 'log') {
     loggedEmails.push({ to: message.to, subject: message.subject, text: message.text });
+
     if (loggedEmails.length > 100) loggedEmails.shift();
     log.info('email (not sent: EMAIL_DRIVER=log)', {
       to: message.to,
       subject: message.subject,
       text: message.text,
     });
+
     return;
   }
 

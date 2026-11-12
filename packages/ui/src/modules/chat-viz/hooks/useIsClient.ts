@@ -12,5 +12,6 @@ export function useIsClient(): boolean {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
   return isClient;
 }

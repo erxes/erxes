@@ -107,6 +107,7 @@ export const loadPluginComponent = async (remote: string, module: string) => {
   }
 
   const exports = await loadRemote<Record<string, unknown>>(key);
+
   const component = (exports?.default ?? exports?.[pascalCase(module)]) as
     | ComponentType
     | undefined;
@@ -115,7 +116,7 @@ export const loadPluginComponent = async (remote: string, module: string) => {
     throw new Error(`${key} has no default or ${pascalCase(module)} export`);
   }
 
-  components.set(key, component as ComponentType);
+  components.set(key, component);
 
-  return component as ComponentType;
+  return component;
 };

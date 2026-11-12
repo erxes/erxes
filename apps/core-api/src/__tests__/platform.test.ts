@@ -3,7 +3,7 @@ import { rm } from 'node:fs/promises';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { resolve } from 'node:path';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -37,11 +37,13 @@ describeWithDb('platform services', () => {
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const globex = await createOrganization({
       subdomain: 'globex',
       name: 'Globex',
@@ -103,6 +105,7 @@ describeWithDb('platform services', () => {
       headers,
       body: init.body === undefined ? undefined : JSON.stringify(init.body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -173,9 +176,11 @@ describeWithDb('platform services', () => {
         'text/html',
         Buffer.from('<script>1</script>'),
       );
+
       const done = await call(memberToken, `/files/${started.body.file.id}/complete`, {
         method: 'POST',
       });
+
       const got = await call(memberToken, `/files/${done.body.id}`);
       const download = await fetch(`${base}${got.body.downloadUrl}`);
 
@@ -188,6 +193,7 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { name: 'a.txt', contentType: 'text/plain', size: 3 },
       });
+
       const put = await fetch(`${base}${started.body.upload.url}`, {
         method: 'PUT',
         headers: started.body.upload.headers,
@@ -263,10 +269,12 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { name: 'a.txt', contentType: 'text/plain', size: 1 },
       });
+
       const image = await call(memberToken, '/files', {
         method: 'POST',
         body: { name: 'a.png', contentType: 'image/png', size: 1 },
       });
+
       const pdf = await call(memberToken, '/files', {
         method: 'POST',
         body: { name: 'Report.PDF', contentType: 'application/pdf', size: 1 },
@@ -362,6 +370,7 @@ describeWithDb('platform services', () => {
         entity: { type: 'leave', id: 'abc' },
         dedupeKey: 'leave-abc',
       };
+
       const first = await call(hr(), '/notifications', { method: 'POST', body });
       const retry = await call(hr(), '/notifications', { method: 'POST', body });
 
@@ -464,6 +473,7 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { firstName: 'Owned', primaryEmail: 'owned@mail.mn', ownerId: memberId },
       });
+
       const inbox = await call(memberToken, '/notifications?source=core');
 
       expect(inbox.body.data[0]).toMatchObject({
@@ -557,6 +567,7 @@ describeWithDb('platform services', () => {
       const { loggedEmails } = await import('~/modules/email/email');
       const { processJobs } = await import('~/modules/jobs/jobs');
       const { JOBS } = await import('~/modules/jobs/registry');
+
       const assign = async (name: string) => {
         await call(ownerToken, '/customers', {
           method: 'POST',
@@ -564,6 +575,7 @@ describeWithDb('platform services', () => {
         });
         await processJobs(JOBS);
       };
+
       const emailedAbout = (name: string) =>
         loggedEmails.some(
           (mail) => mail.subject === 'A customer was assigned to you' && mail.text.includes(name),
@@ -594,6 +606,7 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { firstName: 'Watched', primaryEmail: 'watched@mail.mn', ownerId: memberId },
       });
+
       const id = customer.body.id;
 
       await call(ownerToken, `/customers/${id}`, {
@@ -654,14 +667,17 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { firstName: 'Anu', primaryEmail: 'anu@mail.mn' },
       });
+
       const b = await call(ownerToken, '/customers', {
         method: 'POST',
         body: { firstName: 'Anu B', primaryEmail: 'anub@mail.mn' },
       });
+
       const tag = await call(ownerToken, '/tags', {
         method: 'POST',
         body: { type: 'customer', name: 'VIP' },
       });
+
       const company = await call(ownerToken, '/companies', {
         method: 'POST',
         body: { primaryName: 'Nomad LLC' },
@@ -717,6 +733,7 @@ describeWithDb('platform services', () => {
         memberToken,
         `/activities?targetType=customer&targetId=${a.body.id}`,
       );
+
       const types = merged.body.data.map((item: { type: string }) => item.type);
 
       expect(types[0]).toBe('customer.merged');
@@ -739,6 +756,7 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { firstName: 'Guest', primaryEmail: 'guest@mail.mn' },
       });
+
       const entry = {
         targetType: 'customer',
         targetId: customer.body.id,
@@ -749,6 +767,7 @@ describeWithDb('platform services', () => {
         actorUserId: memberId,
         dedupeKey: 'application-app1',
       };
+
       const first = await call(hr(), '/activities', { method: 'POST', body: entry });
       const retry = await call(hr(), '/activities', { method: 'POST', body: entry });
 
@@ -811,10 +830,12 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { currentPassword: 'nope', newPassword: 'Owner-pass-456' },
       });
+
       const same = await call(ownerToken, '/auth/password', {
         method: 'POST',
         body: { currentPassword: 'Owner-pass-123', newPassword: 'Owner-pass-123' },
       });
+
       const changed = await call(ownerToken, '/auth/password', {
         method: 'POST',
         body: { currentPassword: 'Owner-pass-123', newPassword: 'Owner-pass-456' },
@@ -947,6 +968,7 @@ describeWithDb('platform services', () => {
     it('publishes in the caller’s transaction: rolled back means never published', async () => {
       const { db } = await import('@erxes/core-db');
       const { sql } = await import('drizzle-orm');
+
       const customer = await call(ownerToken, '/customers', {
         method: 'POST',
         body: { firstName: 'Streamed', primaryEmail: 'streamed@mail.mn', ownerId: memberId },
@@ -1019,6 +1041,7 @@ describeWithDb('platform services', () => {
           ],
         },
       });
+
       const again = await call(hr(), '/events', {
         method: 'POST',
         body: { events: [{ type: 'hr.review.scheduled', dedupeKey: 'review-r1' }] },
@@ -1051,6 +1074,7 @@ describeWithDb('platform services', () => {
     it('takes plugin entries into the same log, filterable by source', async () => {
       const { db } = await import('@erxes/core-db');
       const { sql } = await import('drizzle-orm');
+
       const recorded = await call(hr(), '/audit', {
         method: 'POST',
         body: {
@@ -1184,6 +1208,7 @@ describeWithDb('platform services', () => {
       const csv = await fetch(`${base}/core/v1/audit/export?format=csv&source=hr`, {
         headers: { authorization: `Bearer ${ownerToken}` },
       });
+
       const text = await csv.text();
 
       expect(csv.headers.get('content-disposition')).toMatch(
@@ -1242,6 +1267,7 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { firstName: 'Noted', primaryEmail: 'noted@mail.mn' },
       });
+
       const id = customer.body.id;
 
       expect(
@@ -1290,6 +1316,7 @@ describeWithDb('platform services', () => {
         method: 'PATCH',
         body: { pinned: true },
       });
+
       const edited = await call(ownerToken, `/activities/notes/${note.body.id}`, {
         method: 'PATCH',
         body: { body: 'Call back on Tuesday' },
@@ -1303,10 +1330,12 @@ describeWithDb('platform services', () => {
         ownerToken,
         `/activities?targetType=customer&targetId=${id}&kind=notes`,
       );
+
       const changes = await call(
         ownerToken,
         `/activities?targetType=customer&targetId=${id}&kind=changes`,
       );
+
       const pins = await call(
         ownerToken,
         `/activities?targetType=customer&targetId=${id}&pinned=true`,
@@ -1331,6 +1360,7 @@ describeWithDb('platform services', () => {
         method: 'POST',
         body: { primaryName: 'Rollup LLC' },
       });
+
       const customer = await call(ownerToken, '/customers', {
         method: 'POST',
         body: { firstName: 'Rolled', primaryEmail: 'rolled@mail.mn' },
@@ -1348,6 +1378,7 @@ describeWithDb('platform services', () => {
         ownerToken,
         `/activities?targetType=company&targetId=${company.body.id}&kind=notes`,
       );
+
       const rolled = await call(
         ownerToken,
         `/activities?targetType=company&targetId=${company.body.id}&kind=notes&includeRelated=true`,

@@ -1,5 +1,6 @@
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
-import { flexRender, Header } from '@tanstack/react-table';
+import type { Header } from '@tanstack/react-table';
+import { flexRender } from '@tanstack/react-table';
 
 import { Table } from 'erxes-ui/components';
 import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
@@ -32,6 +33,7 @@ export const RecordTableHeader = ({
   showColumnSelector?: boolean;
 }) => {
   const { table } = useRecordTable();
+
   return (
     <Table.Header>
       {table.getHeaderGroups().map((headerGroup) => {
@@ -49,6 +51,7 @@ export const RecordTableHeader = ({
                 const headerContent = header.isPlaceholder
                   ? null
                   : flexRender(header.column.columnDef.header, header.getContext());
+
                 const isAnchor = showColumnSelector && header.id === anchorId;
                 const isCovered = showColumnSelector && header.id === coveredId;
 

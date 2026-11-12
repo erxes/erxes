@@ -13,11 +13,14 @@ export const useMembersById = (ids: (string | null | undefined)[]) => {
     queryFn: () => api.users.list({ limit: 100, status: 'active' }),
     staleTime: 60_000,
   });
+
   const known = useMemo(() => new Set((team.data?.data ?? []).map((user) => user.id)), [team.data]);
+
   const wanted = useMemo(
     () => [...new Set(ids.filter((id): id is string => Boolean(id) && !known.has(id!)))].sort(),
     [ids, known],
   );
+
   const query = useQuery({
     queryKey: ['users', 'by-id', wanted],
     queryFn: () => api.users.list({ ids: wanted.join(','), limit: 100 }),

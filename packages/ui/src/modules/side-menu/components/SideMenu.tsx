@@ -2,7 +2,7 @@ import { Separator, Tabs, Tooltip } from 'erxes-ui/components';
 import { SideMenuContext, useSideMenuContext } from '../context/SideMenuContext';
 import { forwardRef, useState } from 'react';
 
-import { Icon } from '@tabler/icons-react';
+import type { Icon } from '@tabler/icons-react';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const SideMenuRoot = forwardRef<
@@ -10,6 +10,7 @@ export const SideMenuRoot = forwardRef<
   React.ComponentProps<typeof Tabs>
 >(({ className, defaultValue, ...props }, ref) => {
   const [activeTab, setActiveTab] = useState<string | undefined>(defaultValue);
+
   return (
     <SideMenuContext.Provider value={{ activeTab, setActiveTab }}>
       <Tabs
@@ -24,6 +25,7 @@ export const SideMenuRoot = forwardRef<
     </SideMenuContext.Provider>
   );
 });
+
 SideMenuRoot.displayName = 'SideMenuRoot';
 
 export const SideMenuContent = forwardRef<
@@ -31,6 +33,7 @@ export const SideMenuContent = forwardRef<
   React.ComponentProps<typeof Tabs.Content>
 >(({ className, children, ...props }, ref) => {
   const { activeTab } = useSideMenuContext();
+
   if (!activeTab) {
     return null;
   }
@@ -48,6 +51,7 @@ export const SideMenuContent = forwardRef<
     </Tabs.Content>
   );
 });
+
 SideMenuContent.displayName = 'SideMenuContent';
 
 export const SideMenuContentHeader = forwardRef<
@@ -74,6 +78,7 @@ export const SideMenuContentHeader = forwardRef<
     </>
   );
 });
+
 SideMenuContentHeader.displayName = 'SideMenuContentHeader';
 
 export const SideMenuSidebar = forwardRef<HTMLDivElement, React.ComponentProps<typeof Tabs.List>>(
@@ -92,6 +97,7 @@ export const SideMenuSidebar = forwardRef<HTMLDivElement, React.ComponentProps<t
     );
   },
 );
+
 SideMenuSidebar.displayName = 'SideMenuSidebar';
 
 export const SideMenuTrigger = forwardRef<
@@ -102,6 +108,7 @@ export const SideMenuTrigger = forwardRef<
   }
 >(({ className, Icon, label, ...props }, ref) => {
   const { activeTab, setActiveTab } = useSideMenuContext();
+
   return (
     <Tooltip>
       <Tabs.Trigger

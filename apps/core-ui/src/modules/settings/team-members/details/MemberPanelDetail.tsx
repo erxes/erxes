@@ -110,6 +110,7 @@ const MemberDateField = ({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
+
         if (next) setDate(value);
         else if (date !== value) onSave(date);
       }}
@@ -159,6 +160,7 @@ const MemberPhoneField = ({
     if (digits && !isValid) {
       toast({ title: t('invalid-phone-number'), variant: 'destructive' });
       setPhone(value);
+
       return;
     }
 
@@ -167,6 +169,7 @@ const MemberPhoneField = ({
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
+
     if (next) setPhone(value);
     else save();
   };
@@ -228,6 +231,7 @@ const MemberDescriptionField = ({
         onChange={(event) => setDescription(event.currentTarget.value)}
         onKeyDown={(event) => {
           if (event.key === 'Escape') setDescription(value);
+
           if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             event.currentTarget.blur();

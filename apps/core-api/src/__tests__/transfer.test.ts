@@ -2,7 +2,7 @@ import { parse } from 'csv-parse/sync';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import readXlsxFile from 'read-excel-file/node';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import writeXlsxFile from 'write-excel-file/node';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -98,6 +98,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -143,6 +144,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
   beforeAll(async () => {
     const { users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
@@ -188,7 +190,9 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
       'Дорж,,dorj@x.mn,,,,,,31.02.1990',
       'Oyun,,oyun@x.mn,,,nobody@acme.mn,,,',
     ].join('\n');
+
     const file = await upload('people.csv', Buffer.from(csv));
+
     const created = await call(owner, 'POST', '/imports', {
       recordType: 'customer',
       fileId: file.id,
@@ -292,6 +296,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
     // Quiet by default: its events say so (automations skip them).
     const { events } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
+
     const [event] = await adminDb()
       .select()
       .from(events)
@@ -329,9 +334,11 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
     const vip = (await call(owner, 'GET', '/tags?type=customer')).body.data.find(
       (tag: { name: string }) => tag.name === 'VIP',
     ).id;
+
     const query = {
       filter: { match: 'all', rules: [{ path: 'subject.tagIds', op: 'contains', value: vip }] },
     };
+
     const csv = await call(owner, 'POST', '/exports', {
       recordType: 'customer',
       format: 'csv',

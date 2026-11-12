@@ -4,6 +4,7 @@ import type { ConditionGroup, ConditionRule } from '@erxes/core-contract';
 export const valueAt = (context: Record<string, unknown>, path: string): unknown =>
   path.split('.').reduce<unknown>((current, key) => {
     if (current === null || current === undefined) return undefined;
+
     if (Array.isArray(current) && /^\d+$/.test(key)) return current[Number(key)];
 
     return typeof current === 'object' ? (current as Record<string, unknown>)[key] : undefined;
@@ -17,8 +18,10 @@ const isEmpty = (value: unknown) =>
 
 const asNumber = (value: unknown) => {
   if (typeof value === 'number') return value;
+
   if (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value)))
     return Number(value);
+
   if (typeof value === 'string' && !Number.isNaN(Date.parse(value))) return Date.parse(value);
 
   return Number.NaN;
@@ -49,6 +52,7 @@ export const daysToAnniversary = (value: unknown, now = new Date()): number => {
   if (Number.isNaN(date.getTime())) return Number.NaN;
 
   const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
   const next = (year: number) => {
     // 29 February falls on 28 February in other years.
     const day = Math.min(
@@ -58,6 +62,7 @@ export const daysToAnniversary = (value: unknown, now = new Date()): number => {
 
     return Date.UTC(year, date.getUTCMonth(), day);
   };
+
   const thisYear = next(now.getUTCFullYear());
 
   return Math.round(
@@ -110,6 +115,7 @@ export const evaluateRule = (rule: ConditionRule, context: Record<string, unknow
 
       return at <= Date.now() && at >= Date.now() - span(expected);
     }
+
     case 'more_than_ago':
       return asTime(actual) < Date.now() - span(expected);
     case 'within_next': {
@@ -117,6 +123,7 @@ export const evaluateRule = (rule: ConditionRule, context: Record<string, unknow
 
       return at >= Date.now() && at <= Date.now() + span(expected);
     }
+
     case 'anniversary_within':
       return daysToAnniversary(actual) <= span(expected) / DAY;
     default:

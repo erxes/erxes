@@ -7,6 +7,7 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export const PLUGIN_STATUSES = ['active', 'disabled'] as const;
+
 export type PluginStatus = (typeof PLUGIN_STATUSES)[number];
 
 /**

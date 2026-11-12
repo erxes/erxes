@@ -16,6 +16,7 @@ const pluginRemotes = async (): Promise<PluginRemote[]> => {
       ),
     )
     .catch(() => [] as PluginRemote[]);
+
   const local = parsePluginRemotes();
   const names = new Set(local.map((remote) => remote.name));
 

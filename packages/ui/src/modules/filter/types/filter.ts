@@ -1,4 +1,4 @@
-import { Icon } from '@tabler/icons-react';
+import type { Icon } from '@tabler/icons-react';
 
 export interface IFilter {
   accessoryKey: string;
@@ -11,6 +11,7 @@ export interface IFilter {
 }
 
 export type FilterBarComponentPropsBase = Omit<IFilter, 'dropdown' | 'bar' | 'conditions'>;
+
 export interface FilterDropdownProps extends FilterBarComponentPropsBase {
   onOpenChange: (open: boolean) => void;
 }

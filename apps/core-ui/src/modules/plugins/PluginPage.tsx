@@ -69,9 +69,11 @@ class PluginBoundary extends Component<
 /** Renders a plugin's page module under `/<plugin path>/*`; the plugin draws its own sidebar. */
 export const PluginPage = ({ plugin }: { plugin: LoadedPlugin | undefined }) => {
   const module = plugin?.config.modules?.[0]?.name ?? plugin?.config.name ?? '';
+
   const [Page, setPage] = useState<ComponentType | null>(() =>
     plugin ? (loadedPluginComponent(plugin.remote, module) ?? null) : null,
   );
+
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 

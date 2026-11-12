@@ -51,6 +51,7 @@ export const useAppTabs = (apps: NavApp[]) => {
     // Remembered before it moved: start the app afresh instead of following the redirect.
     return path && !isMovedSettingsPath(path) ? path : undefined;
   };
+
   const open = (app: NavApp) => navigate(remembered(app) ?? `/${app.path}`);
 
   const close = (id: string) => {

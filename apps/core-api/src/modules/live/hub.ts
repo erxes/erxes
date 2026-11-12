@@ -28,6 +28,7 @@ class LiveHub extends EventEmitter {
   start(url: string | undefined = config.live.listenUrl) {
     if (!url) {
       log.info('live updates: off (no listen connection; browsers poll)');
+
       return;
     }
 
@@ -46,11 +47,13 @@ class LiveHub extends EventEmitter {
     client.on('notification', (message) => {
       if (message.channel === 'core_events') {
         this.emit('events');
+
         return;
       }
 
       if (message.channel === 'core_jobs') {
         this.emit('jobs');
+
         return;
       }
 

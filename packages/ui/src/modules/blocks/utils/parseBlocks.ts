@@ -1,4 +1,4 @@
-import { Block } from '@blocknote/core';
+import type { Block } from '@blocknote/core';
 
 const isValidBlocks = (blocks: unknown): blocks is Block[] =>
   Array.isArray(blocks) &&
@@ -22,6 +22,7 @@ export const parseBlocks = (content: unknown) => {
     if (isValidBlocks(blocks)) {
       return blocks;
     }
+
     return false;
   } catch {
     return false;

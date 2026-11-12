@@ -42,6 +42,7 @@ const STATUS = {
   expired: 'secondary',
   failed: 'destructive',
 } as const;
+
 const STATUSES = Object.keys(STATUS) as Invoice['status'][];
 
 /** One invoice: what was paid, its metadata and refunds, and a refund form for those allowed. */
@@ -50,21 +51,26 @@ const InvoiceDetails = ({ invoice, onClose }: { invoice: Invoice; onClose: () =>
   const can = useCan();
   const { toast } = useToast();
   const client = useQueryClient();
+
   const refunds = useQuery({
     queryKey: ['payments', 'refunds', invoice.id],
     queryFn: () => api.payments.refunds({ id: invoice.id }),
   });
+
   const left = invoice.refundable.amount;
   // A gateway that refunds whole payments only can't take part of it: record those as manual.
   const gatewayCanPartial = invoice.refundable.gateway === 'partial';
   const [amount, setAmount] = useState(String(left / 100));
   const [reason, setReason] = useState('');
+
   const [manual, setManual] = useState(
     invoice.refundable.gateway === 'none' ||
       (invoice.refundable.gateway === 'full' && invoice.refundedAmount > 0),
   );
+
   const cents = Math.round(Number(amount) * 100);
   const mustBeManual = !manual && !gatewayCanPartial && cents !== left;
+
   const refund = useMutation({
     mutationFn: () => api.payments.refund({ id: invoice.id, amount: cents, reason, manual }),
     onSuccess: (result) => {
@@ -76,6 +82,7 @@ const InvoiceDetails = ({ invoice, onClose }: { invoice: Invoice; onClose: () =>
           title: t('refund-refused', 'The gateway refused the refund'),
           description: result.refund.error ?? undefined,
         });
+
         return;
       }
 
@@ -219,6 +226,7 @@ const PluginSettingsRow = ({
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const { toast } = useToast();
   const client = useQueryClient();
+
   const save = useMutation({
     mutationFn: (next: Pick<PluginPaymentSettings, 'defaultGatewayId' | 'allowedGatewayIds'>) =>
       api.payments.updatePluginSettings({ plugin: settings.plugin, ...next }),
@@ -230,9 +238,12 @@ const PluginSettingsRow = ({
         description: messageOf(error),
       }),
   });
+
   const allowed = settings.allowedGatewayIds;
+
   const toggleAllowed = (id: string, on: boolean) => {
     const next = on ? [...allowed, id] : allowed.filter((item) => item !== id);
+
     const defaultGatewayId =
       settings.defaultGatewayId && next.length && !next.includes(settings.defaultGatewayId)
         ? null
@@ -301,12 +312,14 @@ const AddGateway = () => {
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<'qpay' | 'test'>('qpay');
   const [name, setName] = useState('QPay');
+
   const [qpay, setQpay] = useState({
     clientId: '',
     clientSecret: '',
     invoiceCode: '',
     sandbox: false,
   });
+
   const add = useMutation({
     mutationFn: () => {
       const config: GatewayConfig = kind === 'qpay' ? { kind, ...qpay } : { kind: 'test' };
@@ -416,23 +429,28 @@ export const PaymentsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const can = useCan();
   const client = useQueryClient();
+
   const gateways = useQuery({
     queryKey: ['payments', 'gateways'],
     queryFn: () => api.payments.gateways(),
     enabled: can('payments.manage'),
   });
+
   const [status, setStatus] = useState<Invoice['status'] | 'all'>('all');
   const [open, setOpen] = useState<Invoice | null>(null);
+
   const invoices = useQuery({
     queryKey: ['payments', 'invoices', status],
     queryFn: () => api.payments.invoices({ limit: 50, ...(status === 'all' ? {} : { status }) }),
     enabled: can('payments.manage'),
   });
+
   const pluginSettings = useQuery({
     queryKey: ['payments', 'plugins'],
     queryFn: () => api.payments.pluginSettings(),
     enabled: can('payments.manage'),
   });
+
   const toggle = useMutation({
     mutationFn: (gateway: { id: string; status: 'active' | 'disabled' }) =>
       api.payments.updateGateway({

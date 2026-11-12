@@ -1,6 +1,6 @@
 import React from 'react';
 import { useIcons } from '../hooks/useIcons';
-import { TablerIcon } from '@tabler/icons-react';
+import type { TablerIcon } from '@tabler/icons-react';
 
 export const IconComponent = React.forwardRef<
   TablerIcon,

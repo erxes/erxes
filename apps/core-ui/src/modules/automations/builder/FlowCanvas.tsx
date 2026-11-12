@@ -222,8 +222,10 @@ const StepList = ({
 }) => {
   const { t } = useTranslation('automations');
   const { events, stats, outputsBefore } = useContext(BuilderContext);
+
   const add = (index: number) =>
     flow.disabled ? undefined : (type: StepType) => flow.onAdd(address, index, type);
+
   const { stages } = useLeadStages();
 
   return (
@@ -235,8 +237,10 @@ const StepList = ({
           fields: [...flow.fields, ...outputsBefore(step.id)],
           stages,
         });
+
         const arms = armsOf(step);
         const look = LOOK[step.type];
+
         const action =
           step.type === 'action'
             ? flow.actions.find((item) => item.type === step.action)

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import { nextOccurrence } from '~/modules/automations/schedule';
 import { render } from '~/modules/automations/templates';
 

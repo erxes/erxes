@@ -37,6 +37,7 @@ export const signIn = async (
   host?: string,
 ) => {
   const email = input.email.trim().toLowerCase();
+
   const subdomain =
     input.subdomain?.trim().toLowerCase() ||
     subdomainFromHost(host) ||

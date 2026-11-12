@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 import { atomFamily } from 'jotai/utils';
-import { TEmails } from '../components/EmailField';
+import type { TEmails } from '../components/EmailField';
 
 export const showEmailInputFamilyState = atomFamily((recordId: string) => atom(false));
 

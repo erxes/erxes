@@ -1,4 +1,4 @@
-import { ImperativePanelHandle } from 'react-resizable-panels';
+import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { PreviewContext, usePreviewContext } from '../context/PreviewContext';
 import React from 'react';
 import { Button, Resizable, ScrollArea, Separator, ToggleGroup } from 'erxes-ui/components';
@@ -20,6 +20,7 @@ const PreviewProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const PreviewToolbar = ({ path }: { path?: string }) => {
   const { resizablePanelRef } = usePreviewContext();
+
   return (
     <ScrollArea>
       <ToggleGroup
@@ -68,6 +69,7 @@ export const View = React.forwardRef<
   } & Omit<React.ComponentProps<typeof Resizable.PanelGroup>, 'direction'>
 >(({ iframeSrc, ...props }, ref) => {
   const { resizablePanelRef } = usePreviewContext();
+
   return (
     <Resizable.PanelGroup
       className="relative z-10 flex-auto"

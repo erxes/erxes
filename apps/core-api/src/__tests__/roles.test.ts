@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
@@ -22,6 +22,7 @@ describeWithDb('roles and permissions', () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -31,6 +32,7 @@ describeWithDb('roles and permissions', () => {
 
   beforeAll(async () => {
     const { users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
@@ -73,8 +75,10 @@ describeWithDb('roles and permissions', () => {
 
     const member = (await call(await token(memberId), 'GET', '/auth/me')).body
       .permissions as string[];
+
     const admin = (await call(await token(adminId), 'GET', '/auth/me')).body
       .permissions as string[];
+
     const ownerPermissions = (await call(owner, 'GET', '/auth/me')).body.permissions as string[];
 
     expect(member).toEqual(expect.arrayContaining(['contacts.view', 'contacts.edit']));

@@ -1,9 +1,15 @@
 export * from './client';
+
 export * from './ids';
+
 export * from './migrate';
+
 export * from './scope';
+
 export * from './tenant';
+
 export * as schema from './schema';
+
 export {
   ACTIVITY_TARGETS,
   ACTOR_TYPES,
@@ -84,6 +90,7 @@ export {
   USER_ROLES,
   USER_STATUSES,
 } from './schema';
+
 export type {
   ActorType,
   EntitledPlugin,

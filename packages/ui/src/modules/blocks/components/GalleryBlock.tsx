@@ -1,7 +1,9 @@
-import { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
-import { createReactBlockSpec, ReactCustomBlockRenderProps, useResolveUrl } from '@blocknote/react';
+import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
+import type { ReactCustomBlockRenderProps } from '@blocknote/react';
+import { createReactBlockSpec, useResolveUrl } from '@blocknote/react';
 import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
-import { FC, useRef, useState } from 'react';
+import type { FC } from 'react';
+import { useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
 import { readImage } from 'erxes-ui/utils';
 import { Button, Spinner } from 'erxes-ui/components';
@@ -37,6 +39,7 @@ type GalleryRenderProps = ReactCustomBlockRenderProps<
 const parseImages = (raw: string): GalleryImage[] => {
   try {
     const parsed = JSON.parse(raw);
+
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
@@ -118,29 +121,37 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   const handleFiles = async (files: FileList | null) => {
     if (!files?.length || !uploadFile) return;
     setUploading(true);
+
     try {
       const results = await Promise.allSettled(
         Array.from(files).map(async (file) => {
           const uploadedFile = await uploadFile(file);
           const url = typeof uploadedFile === 'string' ? uploadedFile : uploadedFile.props?.url;
+
           if (typeof url !== 'string' || !url) {
             throw new Error(`Failed to upload ${file.name}`);
           }
+
           return { url };
         }),
       );
+
       const uploaded = results.flatMap((result) =>
         result.status === 'fulfilled' ? [result.value] : [],
       );
+
       const currentBlock = editor.getBlock(block.id);
+
       if (uploaded.length && currentBlock) {
         updateBlock({
           images: JSON.stringify([...parseImages(currentBlock.props.images), ...uploaded]),
         });
       }
+
       const failedNames = Array.from(files)
         .filter((_, index) => results[index].status === 'rejected')
         .map((file) => file.name);
+
       if (failedNames.length) {
         toast({
           title: 'Failed to upload gallery images',
@@ -156,6 +167,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
       });
     } finally {
       setUploading(false);
+
       if (inputRef.current) inputRef.current.value = '';
     }
   };
@@ -172,6 +184,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
 
   let uploadButtonLabel = 'Add more';
   let uploadButtonIcon = <IconPlus size={15} />;
+
   if (uploading) {
     uploadButtonLabel = 'Uploading...';
     uploadButtonIcon = <IconLoader2 size={15} className="animate-spin" />;
@@ -337,8 +350,10 @@ export const galleryBlock = createReactBlockSpec(galleryBlockConfig, {
 
       element.querySelectorAll('figure, img').forEach((el) => {
         if (el.closest('figure') && el.tagName !== 'FIGURE') return;
+
         if (el.tagName === 'FIGURE') {
-          const img = el.querySelector('img') as HTMLImageElement | null;
+          const img = el.querySelector('img');
+
           if (img?.src)
             images.push({
               url: img.src,
@@ -346,12 +361,14 @@ export const galleryBlock = createReactBlockSpec(galleryBlockConfig, {
             });
         } else {
           const img = el as HTMLImageElement;
+
           if (img.src) images.push({ url: img.src });
         }
       });
 
       return { images: JSON.stringify(images), columns };
     }
+
     return undefined;
   },
 });

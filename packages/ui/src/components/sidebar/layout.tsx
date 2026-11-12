@@ -18,6 +18,7 @@ export const SidebarInput = React.forwardRef<
     />
   );
 });
+
 SidebarInput.displayName = 'SidebarInput';
 
 export const SidebarHeader = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
@@ -32,6 +33,7 @@ export const SidebarHeader = React.forwardRef<HTMLDivElement, React.ComponentPro
     );
   },
 );
+
 SidebarHeader.displayName = 'SidebarHeader';
 
 export const SidebarFooter = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
@@ -46,6 +48,7 @@ export const SidebarFooter = React.forwardRef<HTMLDivElement, React.ComponentPro
     );
   },
 );
+
 SidebarFooter.displayName = 'SidebarFooter';
 
 export const SidebarSeparator = React.forwardRef<
@@ -61,6 +64,7 @@ export const SidebarSeparator = React.forwardRef<
     />
   );
 });
+
 SidebarSeparator.displayName = 'SidebarSeparator';
 
 export const SidebarContent = React.forwardRef<
@@ -80,4 +84,5 @@ export const SidebarContent = React.forwardRef<
     />
   );
 });
+
 SidebarContent.displayName = 'SidebarContent';

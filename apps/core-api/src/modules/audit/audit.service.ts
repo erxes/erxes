@@ -63,7 +63,7 @@ export const recordAudit = async (
       // Done by an automation's action: say which, on every entry.
       metadata: cause
         ? {
-            ...(entry.metadata ?? {}),
+            ...entry.metadata,
             automation: { id: cause.automationId, name: cause.automationName, run: cause.runId },
           }
         : (entry.metadata ?? null),
@@ -192,6 +192,7 @@ export const pruneAudit = (client: Db, maxDays: number) =>
           limit 5000
         )
       `);
+
       const count = result.rowCount ?? 0;
 
       removed += count;
@@ -262,6 +263,7 @@ export const auditSettings = async (client: Db, orgId: string) => {
     .from(organizations)
     .where(eq(organizations.id, orgId))
     .limit(1);
+
   const max = config.retention.auditDays;
 
   return {

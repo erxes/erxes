@@ -1,4 +1,4 @@
-import { beforeAll, expect, it } from 'vitest';
+import { beforeAll, expect, it } from 'vite-plus/test';
 import type { Actor } from '~/http/auth';
 import { adminDb, describeWithDb, useTestDatabase } from './db';
 
@@ -15,22 +15,22 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
     const { createOrganization } = await import('~/modules/organizations/organizations.service');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const memberId = newId();
 
-    await adminDb()
-      .insert(users)
-      .values({
-        id: memberId,
-        orgId: acme.organization.id,
-        email: 'm@acme.mn',
-        role: 'member',
-        status: 'active',
-      });
+    await adminDb().insert(users).values({
+      id: memberId,
+      orgId: acme.organization.id,
+      email: 'm@acme.mn',
+      role: 'member',
+      status: 'active',
+    });
     owner = {
       userId: acme.owner.id,
       orgId: acme.organization.id,
@@ -97,10 +97,13 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
   it('retries a failed event with backoff, then marks it dead; a manual retry gets it through', async () => {
     const { db } = await import('@erxes/core-db');
     const { retryFailures, MAX_ATTEMPTS } = await import('~/modules/events/processor');
+
     const { listEventFailures, retryEventFailures } =
       await import('~/modules/events/events.service');
+
     let broken = true;
     const handled: string[] = [];
+
     const flaky = {
       name: 'test.flaky',
       handle: async (_tx: unknown, event: { id: string; type: string }) => {
@@ -135,7 +138,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
 
     for (let attempt = 2; attempt <= MAX_ATTEMPTS; attempt += 1) {
       await due();
-      await retryFailures(flaky as never);
+      await retryFailures(flaky);
     }
 
     failures = await listEventFailures(adminDb(), owner, {});
@@ -152,7 +155,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
 
     broken = false;
     expect(await retryEventFailures(adminDb(), owner, { allDead: true })).toEqual({ retried: 1 });
-    await retryFailures(flaky as never);
+    await retryFailures(flaky);
 
     expect(handled).toEqual(['hr.other.happened', 'hr.flaky.happened']);
     expect((await listEventFailures(adminDb(), owner, {})).counts).toEqual({
@@ -164,8 +167,10 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
   it('dismisses failures, and keeps events until every consumer has passed them', async () => {
     const { db, events } = await import('@erxes/core-db');
     const { sql, eq } = await import('drizzle-orm');
+
     const { dismissEventFailures, listEventFailures, pruneEvents } =
       await import('~/modules/events/events.service');
+
     const failing = { name: 'test.failing', handle: async () => Promise.reject(new Error('nope')) };
     const passing = { name: 'test.passing', handle: async () => undefined };
 
@@ -221,6 +226,7 @@ describeWithDb('event failures, retention and audit checkpoints', () => {
     const { listCheckpoints, signAuditCheckpoints } = await import('~/modules/audit/checkpoints');
     const { publicJwks } = await import('~/lib/signing');
     const { createLocalJWKSet, jwtVerify } = await import('jose');
+
     const caller = {
       orgId: owner.orgId,
       actorType: 'user' as const,

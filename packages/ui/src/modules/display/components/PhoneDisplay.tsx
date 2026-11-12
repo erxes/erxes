@@ -1,4 +1,4 @@
-import { IPhoneFieldProps } from 'erxes-ui/modules/inputs';
+import type { IPhoneFieldProps } from 'erxes-ui/modules/inputs';
 import { Badge } from 'erxes-ui/components';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
 import { ValidationStatus } from 'erxes-ui/types';
@@ -16,6 +16,7 @@ export const PhoneDisplay = ({
   const values = formattedPhones.filter((item) => item.phone);
   const visible = maxVisible === undefined ? values : values.slice(0, maxVisible);
   const remaining = values.length - visible.length;
+
   return (
     <div
       className={

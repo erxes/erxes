@@ -34,9 +34,11 @@ const ColorPickerContext = createContext<ColorPickerContextValue | null>(null);
 
 const useColorPickerContext = () => {
   const context = useContext(ColorPickerContext);
+
   if (!context) {
     throw new Error('ColorPicker components must be used within ColorPickerProvider');
   }
+
   return context;
 };
 
@@ -128,6 +130,7 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
             value={(value || '').replace('#', '')}
             onAccept={(v) => {
               const newValue = '#' + v;
+
               if (value !== newValue) {
                 onValueChange?.(newValue);
               }

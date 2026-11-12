@@ -30,12 +30,15 @@ export const startMaintenance = () => {
       );
 
       await storage().sweepUploads?.(config.files.pendingTtlHours * HOUR);
+
       const audit = await withSystem('cleanup: audit', (tx) =>
         pruneAudit(tx, config.retention.auditDays),
       );
+
       const read = await withSystem('cleanup: notifications', (tx) =>
         pruneNotifications(tx, config.retention.readNotificationDays),
       );
+
       await withSystem('cleanup: webhook deliveries', (tx) =>
         pruneDeliveries(tx, config.retention.eventDays),
       );
@@ -46,6 +49,7 @@ export const startMaintenance = () => {
       await withSystem('cleanup: deletion counters', (tx) =>
         tx.execute(sql`delete from core_deletion_counters where bucket < now() - interval '1 day'`),
       );
+
       const handled = await withSystem('cleanup: events', (tx) =>
         pruneEvents(
           tx,
@@ -69,6 +73,7 @@ export const startMaintenance = () => {
     withSystem('cleanup: deleted files', (tx) => purgeDeletedFiles(tx)).catch((error: unknown) =>
       log.error('purging deleted files failed', { error }),
     );
+
   const purger = setInterval(purge, 60_000);
 
   purger.unref();

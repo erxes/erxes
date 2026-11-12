@@ -1,4 +1,5 @@
-import { IRecordTableCursorPageInfo, EnumCursorDirection } from '../types/RecordTableCursorTypes';
+import type { IRecordTableCursorPageInfo } from '../types/RecordTableCursorTypes';
+import { EnumCursorDirection } from '../types/RecordTableCursorTypes';
 
 interface ICursorResult<T> {
   pageInfo?: IRecordTableCursorPageInfo;

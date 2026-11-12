@@ -1,15 +1,9 @@
 import { Button, Dialog, Spinner } from 'erxes-ui/components';
 import { IconTrash, IconUpload, IconUserCircle } from '@tabler/icons-react';
-import React, {
-  MutableRefObject,
-  createContext,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import type { MutableRefObject } from 'react';
+import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
 
-import { ButtonProps } from './button';
+import type { ButtonProps } from './button';
 import { cn } from '../lib/utils';
 import { readImage } from 'erxes-ui/utils/core';
 import { useToast, useUpload } from 'erxes-ui/hooks';
@@ -95,6 +89,7 @@ type UploadPreviewPropsExtended = React.ComponentPropsWithoutRef<'div'> & {
   onUploadProgress?: () => void;
   onAllUploadsComplete?: () => void;
 };
+
 const UploadPreview = React.forwardRef<HTMLDivElement, UploadPreviewPropsExtended>(
   ({ className, onUploadStart, onUploadProgress, onAllUploadsComplete, ...props }, ref) => {
     const { isLoading, upload } = useUpload();

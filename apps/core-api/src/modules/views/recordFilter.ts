@@ -76,6 +76,7 @@ export const filterFields = async (
 ): Promise<FieldSpec[]> => {
   const isCompany = recordType === 'company' || recordType === 'company_lead';
   const table = isCompany ? companies : customers;
+
   const f = (
     path: string,
     label: string,
@@ -90,6 +91,7 @@ export const filterFields = async (
     group: 'fields',
     ...extra,
   });
+
   const stageNames =
     recordType !== 'customer'
       ? (
@@ -100,6 +102,7 @@ export const filterFields = async (
             .orderBy(asc(leadStages.order))
         ).map((stage) => stage.name)
       : [];
+
   const builtIn: FieldSpec[] = isCompany
     ? [
         f('primaryName', 'Name', 'text', sql`${companies.primaryName}`, { trigram: true }),
@@ -131,6 +134,7 @@ export const filterFields = async (
         f('department', 'Department', 'text', sql`${customers.department}`),
         f('code', 'Code', 'text', sql`${customers.code}`),
       ];
+
   // People and companies share the lifecycle; the leads list has its stage fields, the companies list (leads and customers) all of them.
   const lifecycle: FieldSpec[] = [
     ...(recordType === 'company'
@@ -162,6 +166,7 @@ export const filterFields = async (
         ]
       : []),
   ];
+
   const common: FieldSpec[] = [
     f('ownerId', 'Owner', 'member', sql`${table.ownerId}`),
     f('tagIds', 'Tags', 'tags', sql`null`),
@@ -172,6 +177,7 @@ export const filterFields = async (
       group: 'activity',
     }),
   ];
+
   const related: FieldSpec[] = isCompany
     ? [
         f(
@@ -197,6 +203,7 @@ export const filterFields = async (
           viaCompany: true,
         }),
       ];
+
   // Customers also filter by their company's properties.
   const custom = await client
     .select({
@@ -327,6 +334,7 @@ const compileDate = (
 ): SQL | undefined => {
   const day = dateOnly ? x : sql`(${x})::date`;
   const today = dateOnly ? sql`current_date` : sql`now()`;
+
   const shift = (sign: '+' | '-') =>
     dateOnly
       ? sql`(current_date ${sql.raw(sign)} ${interval(value)})::date`
@@ -361,12 +369,14 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
 
   if (op === 'exists')
     return spec.type === 'text' ? sql`coalesce(${x}, '') <> ''` : sql`${x} is not null`;
+
   if (op === 'not_exists') return not(compileValue(spec, { ...rule, op: 'exists' }, actor));
 
   if (spec.stageLookup && ['eq', 'neq', 'in', 'not_in'].includes(op)) {
     const names = (op === 'in' || op === 'not_in' ? list(rule.value) : [text(rule.value)]).map(
       (name) => name.toLowerCase(),
     );
+
     const ids = sql`(select ${leadStages.id} from ${leadStages} where ${leadStages.orgId} = ${actor.orgId} and lower(${leadStages.name}) = any(${textArray(names)}))`;
 
     return op === 'eq' || op === 'in'
@@ -377,25 +387,32 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
   switch (spec.type) {
     case 'number': {
       if (op === 'neq') return sql`(${x} is null or ${x} <> ${number(rule.value)})`;
-      if (COMPARE[op]) return sql`${x} ${sql.raw(COMPARE[op]!)} ${number(rule.value)}`;
+
+      if (COMPARE[op]) return sql`${x} ${sql.raw(COMPARE[op])} ${number(rule.value)}`;
       break;
     }
+
     case 'date': {
       const compiled = compileDate(x, op, rule.value, Boolean(spec.dateOnly), spec.monthDay);
 
       if (compiled) return compiled;
       break;
     }
+
     case 'member': {
       const id = (value: unknown) => (value === 'me' ? actor.userId : text(value));
 
       if (op === 'eq') return sql`${x} = ${id(rule.value)}`;
+
       if (op === 'neq') return sql`(${x} is null or ${x} <> ${id(rule.value)})`;
+
       if (op === 'in') return inArray(sql`${x}`, list(rule.value).map(id));
+
       if (op === 'not_in')
         return sql`(${x} is null or not ${inArray(sql`${x}`, list(rule.value).map(id))})`;
       break;
     }
+
     case 'select':
     case 'text': {
       // With a trigram index, "is" as a wildcard-free ILIKE uses it; otherwise lower() = lower().
@@ -420,8 +437,10 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
         default:
           break;
       }
+
       break;
     }
+
     default:
       break;
   }
@@ -437,8 +456,10 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
 const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule): SQL => {
   const v = valuesTable(custom.recordType);
   const record = custom.recordType === 'company' ? companies : customers;
+
   const has = (condition?: SQL) =>
     sql`exists (select 1 from ${v} where ${v.orgId} = ${record.orgId} and ${v.recordId} = ${record.id} and ${v.fieldId} = ${custom.fieldId}${condition ? sql` and ${condition}` : sql``})`;
+
   const positive = NEGATIVE[rule.op];
 
   if (positive) return not(compileCustom(spec, custom, { ...rule, op: positive }));
@@ -455,9 +476,10 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
       if (op === 'eq') return wanted ? has(sql`${v.boolValue}`) : not(has(sql`${v.boolValue}`));
       break;
     }
+
     case 'number':
       if (COMPARE[op])
-        return has(sql`${v.numberValue} ${sql.raw(COMPARE[op]!)} ${number(rule.value)}`);
+        return has(sql`${v.numberValue} ${sql.raw(COMPARE[op])} ${number(rule.value)}`);
       break;
     case 'date': {
       const compiled = compileDate(sql`${v.dateValue}`, op, rule.value, true);
@@ -465,6 +487,7 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
       if (compiled) return has(compiled);
       break;
     }
+
     case 'text': {
       const x = v.textValue;
 
@@ -485,6 +508,7 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
         default:
           break;
       }
+
       break;
     }
   }
@@ -496,8 +520,10 @@ const compileTags = (recordType: ViewRecordType, rule: ConditionRule): SQL => {
   const isCompany = recordType === 'company' || recordType === 'company_lead';
   const links = isCompany ? companyTags : customerTags;
   const record = isCompany ? companies.id : customers.id;
+
   const anyOf = (ids: string[]) =>
     sql`exists (select 1 from ${links} where ${links.recordId} = ${record} and ${inArray(links.tagId, ids)})`;
+
   const any = sql`exists (select 1 from ${links} where ${links.recordId} = ${record})`;
 
   switch (rule.op) {
@@ -532,6 +558,7 @@ const compileRule = (
   const spec = specs.get(rule.path);
 
   if (!spec) throw invalid(`Unknown field: ${rule.path}`);
+
   if (spec.type === 'tags') return compileTags(recordType, rule);
 
   if (spec.viaCompany) {

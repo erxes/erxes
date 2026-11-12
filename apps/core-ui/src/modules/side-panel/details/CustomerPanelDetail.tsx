@@ -47,7 +47,7 @@ const parseYmd = (value: string | null) => {
 
   const [year, month, day] = value.split('-').map(Number);
 
-  return new Date(year!, month! - 1, day!);
+  return new Date(year, month - 1, day);
 };
 
 const formatSlashDate = (date: Date) => toYmd(date).replaceAll('-', '/');
@@ -104,7 +104,7 @@ const CustomerSexField = ({ customer }: { customer: Customer }) => {
         <SexField
           value={value}
           onValueChange={(sex) => {
-            if (sex !== value) edit.mutate({ id: customer.id, sex: sex as Customer['sex'] });
+            if (sex !== value) edit.mutate({ id: customer.id, sex: sex });
             setOpen(false);
           }}
         />

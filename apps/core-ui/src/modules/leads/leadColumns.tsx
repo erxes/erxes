@@ -38,6 +38,7 @@ const LeadStageCell = ({
     setOpen(false);
 
     if (next.id === record.leadStageId) return;
+
     if (next.kind === 'disqualified') setDisqualifying(next.id);
     else move.mutate({ recordType, ids: [record.id], stageId: next.id });
   };

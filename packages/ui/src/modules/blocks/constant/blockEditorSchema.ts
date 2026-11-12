@@ -21,6 +21,7 @@ export const fontFamily = createStyleSpec(
     render: (value) => {
       const span = document.createElement('span');
       span.style.fontFamily = value;
+
       return {
         dom: span,
       };
@@ -37,6 +38,7 @@ const fontSizeStyle = createStyleSpec(
     render: (value) => {
       const span = document.createElement('span');
       span.style.fontSize = value;
+
       return { dom: span };
     },
   },

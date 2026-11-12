@@ -63,6 +63,7 @@ export const assertOutboundUrl = (raw: string) => {
   }
 
   if (url.username || url.password) throw new OutboundError("Don't put credentials in the address");
+
   if (!config.outbound.allowPrivate && isIP(url.hostname) && isPrivateAddress(url.hostname)) {
     throw new OutboundError('Private and local addresses are not allowed');
   }
@@ -78,7 +79,8 @@ const safeLookup: typeof dnsLookup = ((
   dnsLookup(hostname, { ...options, all: true }, (error, addresses) => {
     if (error) return callback(error);
 
-    const list = addresses as LookupAddress[];
+    const list = addresses;
+
     const bad =
       !config.outbound.allowPrivate && list.some((entry) => isPrivateAddress(entry.address));
 
@@ -112,11 +114,13 @@ export const postOutbound = (
       url = assertOutboundUrl(raw);
     } catch (error) {
       reject(error);
+
       return;
     }
 
     const started = Date.now();
     const send = url.protocol === 'https:' ? httpsRequest : httpRequest;
+
     const req = send(
       url,
       {

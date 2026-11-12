@@ -52,6 +52,7 @@ const TEXT_FIELDS = [
   'workStartedDate',
   'description',
 ] as const;
+
 type TextField = (typeof TEXT_FIELDS)[number];
 
 type ProfileValues = Record<TextField, string> & {
@@ -139,8 +140,7 @@ const ProfileForm = ({ user }: { user: User }) => {
   useEffect(() => form.reset(valuesOf(user)), [user, form]);
 
   const save = useMutation({
-    mutationFn: (patch: Record<string, unknown>) =>
-      api.users.update({ id: user.id, ...patch } as Parameters<typeof api.users.update>[0]),
+    mutationFn: (patch: Record<string, unknown>) => api.users.update({ id: user.id, ...patch }),
     onSuccess: (saved) => {
       form.reset(valuesOf(saved));
       void client.invalidateQueries({ queryKey: SESSION_KEY });
@@ -149,6 +149,7 @@ const ProfileForm = ({ user }: { user: User }) => {
     },
     onError: (error) => {
       if (isApiError(error, 'EMAIL_TAKEN')) form.setError('email', { message: error.message });
+
       if (isApiError(error, 'USERNAME_TAKEN'))
         form.setError('username', { message: error.message });
 
@@ -173,6 +174,7 @@ const ProfileForm = ({ user }: { user: User }) => {
 
     if (!Object.keys(patch).length) {
       toast({ title: t('no-changes', 'Nothing to save') });
+
       return;
     }
 
@@ -296,6 +298,7 @@ const ProfileForm = ({ user }: { user: User }) => {
 export const ProfileSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { user } = useSession();
+
   const { data: profile } = useQuery({
     queryKey: ['users', 'detail', user.id],
     queryFn: () => api.users.get({ id: user.id }),

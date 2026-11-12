@@ -60,6 +60,7 @@ export const BackgroundGradientAnimation = ({
       if (!interactiveRef.current) {
         return;
       }
+
       setCurX(curX + (tgX - curX) / 20);
       setCurY(curY + (tgY - curY) / 20);
       interactiveRef.current.style.transform = `translate(${Math.round(

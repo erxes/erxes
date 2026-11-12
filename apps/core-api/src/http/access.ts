@@ -318,6 +318,7 @@ export const publicPaths = (contract: Contract): Set<string> => {
     if (!('public' in policy)) continue;
 
     const [group, name] = path.split('.') as [keyof Contract, string];
+
     const procedure = (
       contract[group] as Record<string, { '~orpc': { route: { path?: string } } }>
     )[name]!;

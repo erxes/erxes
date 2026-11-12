@@ -23,7 +23,7 @@ export const PanelDescriptionField = ({
 
   /** Saves a changed description when its editor loses focus. */
   const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
-    if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+    if (event.currentTarget.contains(event.relatedTarget)) {
       return;
     }
 

@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -32,6 +32,7 @@ describeWithDb('list filters (search, tags, owner)', () => {
 
   const names = (page: Page) =>
     page.data.map((row) => row.firstName ?? row.primaryName ?? row.email).sort();
+
   const search = (path: string, query: Record<string, string>) =>
     call('GET', `${path}?${new URLSearchParams(query).toString()}`);
 

@@ -6,7 +6,7 @@ import {
   formatDateISOStringToRelativeDateShort,
 } from 'erxes-ui/utils/localization/formatDateISOStringToRelativeDate';
 import React from 'react';
-import { Except } from 'type-fest';
+import type { Except } from 'type-fest';
 
 type RelativeDateDisplayProps = {
   value: string;
@@ -39,6 +39,7 @@ const RelativeDateDisplayValue = ({ value, isShort }: RelativeDateDisplayProps) 
   if (isUndefinedOrNull(value)) {
     return null;
   }
+
   const relativeDate = formatDateISOStringToRelativeDate(value);
   const relativeDateShort = formatDateISOStringToRelativeDateShort(value);
 

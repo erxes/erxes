@@ -112,6 +112,7 @@ export const updateView = async (client: Db, actor: Actor, id: string, input: Vi
     );
 
   assertShareable(actor, input.shared);
+
   if (input.filter !== undefined)
     await compileRecordFilter(client, actor, row.recordType, input.filter);
 

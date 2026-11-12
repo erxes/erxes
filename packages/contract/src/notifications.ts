@@ -19,6 +19,7 @@ export const Notification = z.object({
   read: z.boolean(),
   createdAt: z.string().datetime(),
 });
+
 export type Notification = z.infer<typeof Notification>;
 
 export const NotificationInput = z.object({
@@ -41,6 +42,7 @@ export const NotificationInput = z.object({
   /** Retry-safe: one notification per recipient and key. */
   dedupeKey: DedupeKey.optional(),
 });
+
 export type NotificationInput = z.infer<typeof NotificationInput>;
 
 /**
@@ -69,6 +71,7 @@ export const CORE_NOTIFICATION_KINDS = [
   'core.export.ready',
   'core.security.new_sign_in',
 ] as const;
+
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];
 
 /** Security notices a member can't mute. */
@@ -82,6 +85,7 @@ export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = [
 
 /** Where a group of notifications goes: the inbox and email, the inbox only, or nowhere. */
 export const NotificationDelivery = z.enum(['email', 'inbox', 'off']);
+
 export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
 
 /**
@@ -155,6 +159,7 @@ export const NotificationSettings = z.object({
   /** Desktop notifications in this member's browsers (each browser also asks permission). */
   browser: z.boolean(),
 });
+
 export type NotificationSettings = z.infer<typeof NotificationSettings>;
 
 const boolQuery = z

@@ -15,7 +15,7 @@ import { DEFAULT_EMAIL_BLOCKS } from '../constant';
 import { EmailTableToolbar } from './EmailTableToolbar';
 import { EmailDocumentPlaceholder } from '../extensions/documentPlaceholder';
 import { EMAIL_TABLE_EXTENSIONS } from '../extensions/table';
-import { EmailEditorProps } from '../types';
+import type { EmailEditorProps } from '../types';
 
 // Maily hands every empty node a placeholder (`includeChildren: true`) and
 // returns '' for the ones that only hold other blocks. Replacing its option
@@ -97,6 +97,7 @@ export const EmailEditor = ({
   editable = true,
 }: EmailEditorProps) => {
   const [editor, setEditor] = useState<TiptapEditor | null>(null);
+
   const extensions: AnyExtension[] = [
     MailyKit,
     HTMLCodeBlockExtension,

@@ -50,6 +50,7 @@ const needSubject = (ctx: ActionContext, type: 'customer' | 'company') => {
 
 const text = (value: unknown) =>
   value === null || value === undefined ? undefined : String(value);
+
 const list = (value: unknown) =>
   Array.isArray(value) ? value.map(String) : value ? [String(value)] : [];
 
@@ -89,7 +90,7 @@ export const CORE_ACTIONS: CoreAction[] = [
 
       if (Array.isArray(changes.ownerId)) changes.ownerId = changes.ownerId[0];
 
-      const saved = await updateCustomer(ctx.tx, ctx.actor, id, changes as never);
+      const saved = await updateCustomer(ctx.tx, ctx.actor, id, changes);
 
       return { id: saved.id, changed: Object.keys(changes) };
     },
@@ -110,7 +111,7 @@ export const CORE_ACTIONS: CoreAction[] = [
 
       if (Array.isArray(changes.ownerId)) changes.ownerId = changes.ownerId[0];
 
-      const saved = await updateCompany(ctx.tx, ctx.actor, id, changes as never);
+      const saved = await updateCompany(ctx.tx, ctx.actor, id, changes);
 
       return { id: saved.id, changed: Object.keys(changes) };
     },
@@ -206,11 +207,13 @@ export const CORE_ACTIONS: CoreAction[] = [
         ctx.input.owner === true
           ? (ctx.context.subject as { ownerId?: string } | null)?.ownerId
           : undefined;
+
       const userIds = [...new Set([...list(ctx.input.userIds), ...(ownerId ? [ownerId] : [])])];
 
       if (!userIds.length) return { sent: 0 };
 
       const link = text(ctx.input.link);
+
       const result = await notify(
         ctx.tx,
         { orgId: ctx.orgId, actorType: 'system', actorId: null, source: 'core' } as never,
@@ -265,6 +268,7 @@ export const CORE_ACTIONS: CoreAction[] = [
           run: ctx.run.id,
         },
       );
+
       const extra = Object.fromEntries(
         Object.entries((ctx.input.headers ?? {}) as Record<string, unknown>)
           .filter(
@@ -274,6 +278,7 @@ export const CORE_ACTIONS: CoreAction[] = [
           )
           .map(([key, value]) => [key, String(value).slice(0, 2000)]),
       );
+
       const response = await postOutbound(String(ctx.input.url ?? ''), body, {
         ...extra,
         'Content-Type': 'application/json',
@@ -317,12 +322,14 @@ CORE_ACTIONS.push(
     ],
     run: async (ctx) => {
       const subjectEmail = (ctx.context.subject as { primaryEmail?: string } | null)?.primaryEmail;
+
       const to =
         String(ctx.input.to ?? '').trim() === 'subject'
           ? subjectEmail
             ? [subjectEmail]
             : []
           : list(String(ctx.input.to ?? '').split(','));
+
       const recipients = to
         .map((address) => address.trim())
         .filter((address) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
@@ -362,6 +369,7 @@ CORE_ACTIONS.push(
     ],
     run: async (ctx) => {
       const id = needSubject(ctx, 'customer');
+
       const value =
         ctx.input.value === '' || ctx.input.value === undefined ? null : ctx.input.value;
 
@@ -391,6 +399,7 @@ CORE_ACTIONS.push(
       const id = needSubject(ctx, 'customer');
       // A stage id (the picker); older steps saved its name.
       const wanted = String(ctx.input.stage ?? '').trim();
+
       const [stage] = await ctx.tx
         .select({ id: leadStages.id })
         .from(leadStages)
@@ -454,6 +463,7 @@ CORE_ACTIONS.push(
         .where(eq(automations.id, ctx.automation.id))
         .for('update')
         .limit(1);
+
       const turns = ((row?.state ?? {}) as { turns?: Record<string, number> }).turns ?? {};
       const position = (turns[ctx.step.id] ?? -1) + 1;
       const ownerId = members[position % members.length]!;
@@ -464,7 +474,7 @@ CORE_ACTIONS.push(
           state: sql`jsonb_set(${automations.state}, '{turns}', ${JSON.stringify({ ...turns, [ctx.step.id]: position })}::jsonb)`,
         })
         .where(eq(automations.id, ctx.automation.id));
-      await updateCustomer(ctx.tx, ctx.actor, id, { ownerId } as never);
+      await updateCustomer(ctx.tx, ctx.actor, id, { ownerId });
 
       return { ownerId };
     },
@@ -502,6 +512,7 @@ export const runPluginAction = async (
       expiresInSeconds: 300,
     },
   );
+
   const response = await postOutbound(
     `${url.replace(/\/+$/, '')}/automations/actions/${type}`,
     JSON.stringify({
@@ -550,6 +561,7 @@ export const actionCatalog = (
 
 export const pluginOfAction = async (client: Db, type: string) => {
   const name = type.split('.')[0]!;
+
   const [row] = await client
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)

@@ -213,15 +213,16 @@ const AddTag = ({ type }: { type: ContentType }) => {
   const [open, setOpen] = useState(false);
   const create = useTagCreate();
   const { tags } = useTags(type);
+
   const form = useForm<{ name: string; colorCode: string }>({
-    defaultValues: { name: '', colorCode: TAG_COLORS[0]! },
+    defaultValues: { name: '', colorCode: TAG_COLORS[0] },
   });
 
   return (
     <>
       <Button
         onClick={() => {
-          form.reset({ name: '', colorCode: TAG_COLORS[tags.length % TAG_COLORS.length]! });
+          form.reset({ name: '', colorCode: TAG_COLORS[tags.length % TAG_COLORS.length] });
           setOpen(true);
         }}
       >
@@ -237,6 +238,7 @@ const AddTag = ({ type }: { type: ContentType }) => {
         onSubmit={form.handleSubmit(({ name, colorCode }) => {
           if (!name.trim()) {
             form.setError('name', { message: 'Enter a name' });
+
             return;
           }
 

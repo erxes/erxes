@@ -26,11 +26,13 @@ export const SidebarMenuSub = React.forwardRef<HTMLUListElement, React.Component
     );
   },
 );
+
 SidebarMenuSub.displayName = 'SidebarMenuSub';
 
 export const SidebarMenuSubItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(
   ({ ...props }, ref) => <li ref={ref} {...props} />,
 );
+
 SidebarMenuSubItem.displayName = 'SidebarMenuSubItem';
 
 export const SidebarMenuSubButton = React.forwardRef<
@@ -61,4 +63,5 @@ export const SidebarMenuSubButton = React.forwardRef<
     />
   );
 });
+
 SidebarMenuSubButton.displayName = 'SidebarMenuSubButton';

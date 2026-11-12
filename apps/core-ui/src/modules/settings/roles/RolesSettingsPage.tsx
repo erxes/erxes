@@ -66,12 +66,14 @@ const RoleEditor = ({
     // My own permissions may have changed.
     void client.invalidateQueries({ queryKey: SESSION_KEY });
   };
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
       title: t('failed', 'Could not save the role'),
       description: messageOf(error),
     });
+
   const save = useMutation({
     mutationFn: () =>
       api.roles.update({
@@ -86,11 +88,13 @@ const RoleEditor = ({
     },
     onError,
   });
+
   const remove = useMutation({
     mutationFn: () => api.roles.remove({ key: role.key }),
     onSuccess: refresh,
     onError,
   });
+
   const dirty =
     name !== role.name ||
     (description || null) !== role.description ||
@@ -226,6 +230,7 @@ export const RolesSettingsPage = () => {
   const roles = useQuery({ queryKey: ROLES_KEY, queryFn: () => api.roles.list() });
   const catalog = useQuery({ queryKey: ['permissions'], queryFn: () => api.roles.permissions() });
   const [selected, setSelected] = useState<string>('member');
+
   const create = useMutation({
     mutationFn: () =>
       api.roles.create({ name: t('new-role', 'New role'), permissions: ['contacts.view'] }),
@@ -240,6 +245,7 @@ export const RolesSettingsPage = () => {
         description: messageOf(error),
       }),
   });
+
   const role = useMemo(
     () => roles.data?.data.find((item) => item.key === selected) ?? roles.data?.data[0],
     [roles.data, selected],

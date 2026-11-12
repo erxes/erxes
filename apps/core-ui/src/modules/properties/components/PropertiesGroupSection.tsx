@@ -103,6 +103,7 @@ const GroupShell = forwardRef<
   useEffect(() => {
     if (!toggled.current) setOpen(fields.length > 0);
   }, [fields.length]);
+
   const columns = useMemo(
     () => propertiesColumns(t, { fieldIds: fields.map((field) => field.id) }),
     [t, fields],
@@ -190,6 +191,7 @@ export const PropertiesGroupSection = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
+
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: group.id,
   });

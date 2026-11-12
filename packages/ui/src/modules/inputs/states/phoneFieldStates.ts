@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 import { atomFamily } from 'jotai/utils';
-import { TPhones } from '../components/PhoneField';
+import type { TPhones } from '../components/PhoneField';
 
 export const showPhoneInputFamilyState = atomFamily((recordId: string) => atom(false));
 

@@ -1,5 +1,5 @@
 import type { ThreadStore, User } from '@blocknote/core/comments';
-import { Block } from '@blocknote/core';
+import type { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
 import { useCallback, useEffect } from 'react';
 import { useErxesUpload, useUploadChunked, useToast } from 'erxes-ui/hooks';

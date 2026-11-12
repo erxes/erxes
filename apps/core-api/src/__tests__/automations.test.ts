@@ -1,6 +1,6 @@
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
@@ -25,6 +25,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -52,11 +53,13 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
 
   beforeAll(async () => {
     const { users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'o@acme.mn' },
     });
+
     const memberId = newId();
 
     orgId = acme.organization.id;
@@ -149,6 +152,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
       primaryEmail: 'bold@vip.mn',
       state: 'lead',
     });
+
     const other = await call(owner, 'POST', '/customers', {
       firstName: 'Plain',
       primaryEmail: 'plain@mail.mn',
@@ -201,6 +205,7 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
 
     // Changes it made are audited as the automation's.
     const audit = await call(owner, 'GET', `/audit?targetId=${vip.body.id}`);
+
     const byAutomation = audit.body.data.filter(
       (entry: { metadata?: { automation?: { id: string } } }) =>
         entry.metadata?.automation?.id === created.body.id,
@@ -355,7 +360,9 @@ describeWithDb('automations', { timeout: 300_000 }, () => {
     const unknown = await make([
       { id: 'x', type: 'action', action: 'core.rocket.launch', input: {} },
     ]);
+
     const missing = await make([{ id: 'x', type: 'action', action: 'core.note.add', input: {} }]);
+
     const wrongSubject = await make([
       { id: 'x', type: 'action', action: 'core.company.tag', input: { add: [] } },
     ]);

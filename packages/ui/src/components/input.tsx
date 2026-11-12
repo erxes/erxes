@@ -1,9 +1,10 @@
 import * as React from 'react';
 
-import { cva, VariantProps } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 
 import { cn } from 'erxes-ui/lib/utils';
-import { Except } from 'type-fest';
+import type { Except } from 'type-fest';
 import { IMaskInput } from 'react-imask';
 
 export const inputVariants = cva(

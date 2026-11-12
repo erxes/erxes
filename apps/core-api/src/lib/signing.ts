@@ -113,14 +113,18 @@ export const ISSUER = 'erxes-core';
 
 export const signJwt = (payload: JWTPayload, options: SignOptions): Promise<string> => {
   const { privateKey, current } = keys();
+
   let jwt = new SignJWT(payload)
     .setProtectedHeader({ alg: SIGNING_ALG, kid: current.kid, typ: options.typ })
     .setIssuer(ISSUER)
     .setIssuedAt();
 
   if (options.audience) jwt = jwt.setAudience(options.audience);
+
   if (options.subject) jwt = jwt.setSubject(options.subject);
+
   if (options.expiresInSeconds) jwt = jwt.setExpirationTime(`${options.expiresInSeconds}s`);
+
   if (options.jti) jwt = jwt.setJti(options.jti);
 
   return jwt.sign(privateKey);
@@ -132,6 +136,7 @@ export const verifyJwt = async <T extends JWTPayload>(
   options: { typ: string; audience?: string; maxTokenAge?: string },
 ): Promise<{ payload: T; kid: string }> => {
   const { byKid } = keys();
+
   const result = await jwtVerify<T>(
     token,
     (header) => {

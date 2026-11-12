@@ -16,6 +16,7 @@ import { publishCoreEvents } from '~/modules/events/events.service';
  */
 
 type StageRow = typeof leadStages.$inferSelect;
+
 type CustomerRow = typeof customers.$inferSelect;
 
 /** People and companies carry the same lifecycle columns. */
@@ -64,6 +65,7 @@ const firstStage = async (client: Db, orgId: string, kind: LeadStageKind) =>
 
 const leadCounts = async (client: Db, orgId: string, type: LeadRecordType = 'customer') => {
   const table = recordTable(type);
+
   const rows = await client
     .select({ stageId: table.leadStageId, count: sql<number>`count(*)::int` })
     .from(table)
@@ -125,6 +127,7 @@ export const createLeadStage = async (
         .select({ order: max(leadStages.order) })
         .from(leadStages)
         .where(eq(leadStages.orgId, actor.orgId));
+
       const [stage] = await tx
         .insert(leadStages)
         .values({
@@ -166,6 +169,7 @@ export const updateLeadStage = async (
       const current = stages.find((stage) => stage.id === id);
 
       if (!current) throw notFound('Lead stage');
+
       if (input.kind && input.kind !== 'open')
         assertOpenStageLeft(stages, (stage) => stage.id === id);
 
@@ -294,6 +298,7 @@ export const planLeadOnCreate = async (
   input: LeadInput,
 ): Promise<LeadPlan> => {
   const fallback = callerSource(caller);
+
   const origin = {
     source: input.source ?? fallback.source,
     sourceDetails: input.sourceDetails ?? (input.source ? {} : fallback.sourceDetails),
@@ -308,6 +313,7 @@ export const planLeadOnCreate = async (
   const stage = input.leadStageId
     ? await findStage(client, caller.orgId, input.leadStageId)
     : await firstStage(client, caller.orgId, 'open');
+
   const reason = stage?.kind === 'disqualified' ? (input.disqualifyReason ?? null) : null;
 
   return {
@@ -335,13 +341,16 @@ export const planLeadOnUpdate = async (
   const set: LeadPlan['set'] = {};
   const steps: LeadStep[] = [];
   const nextState = input.state ?? current.state;
+
   const currentStage = current.leadStageId
     ? await findStage(client, caller.orgId, current.leadStageId).catch(() => null)
     : null;
+
   const wanted =
     input.leadStageId && input.leadStageId !== current.leadStageId
       ? await findStage(client, caller.orgId, input.leadStageId)
       : null;
+
   const reason = input.disqualifyReason ?? null;
 
   if (current.state === 'lead' && nextState === 'customer') {
@@ -383,6 +392,7 @@ export const planLeadOnUpdate = async (
   }
 
   if (input.source !== undefined) set.source = input.source;
+
   if (input.sourceDetails !== undefined) set.sourceDetails = input.sourceDetails;
 
   return { set, steps };
@@ -455,12 +465,14 @@ export const recordLeadSteps = async (
 /** Leads among `ids` (others are refused). */
 const leadIds = async (client: Db, orgId: string, type: LeadRecordType, ids: string[]) => {
   const table = recordTable(type);
+
   const rows = await client
     .select({ id: table.id, state: table.state })
     .from(table)
     .where(and(eq(table.orgId, orgId), inArray(table.id, ids)));
 
   if (rows.length !== new Set(ids).size) throw notFound('Lead');
+
   if (rows.some((row) => row.state !== 'lead'))
     throw new HttpError(400, 'NOT_A_LEAD', 'Some of these are customers already');
 
@@ -518,6 +530,7 @@ export const convertLeads = async (
         state: 'customer',
         ...(input.ownerId ? { ownerId: input.ownerId } : {}),
       });
+
       if (input.companyId) await linkCustomerCompany(tx, actor, id, input.companyId);
       converted += 1;
     }
@@ -532,6 +545,7 @@ export const leadHistory = async (
   input: { recordType?: LeadRecordType; id: string },
 ) => {
   const type = input.recordType ?? 'customer';
+
   const rows = await client
     .select()
     .from(leadEvents)
@@ -639,6 +653,7 @@ export const leadReport = async (
       from stints group by to_stage_id
     `,
   );
+
   const byStage = new Map(stageRows.map((row) => [row.stage_id, row]));
 
   const cohort = (column: 'source' | 'owner_id') =>
@@ -651,6 +666,7 @@ export const leadReport = async (
         group by 1 order by 2 desc limit 20
       `,
     );
+
   const [sources, owners, reasons] = await Promise.all([
     cohort('source'),
     cohort('owner_id'),

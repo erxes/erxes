@@ -1,5 +1,5 @@
 import { Button, Sheet, Spinner, cn } from 'erxes-ui';
-import { FormEvent, ReactNode } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 
 /** Side sheet with a form: title, scrolling body, sticky footer. */
 export const FormSheet = ({

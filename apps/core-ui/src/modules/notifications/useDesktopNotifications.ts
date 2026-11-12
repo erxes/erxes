@@ -15,9 +15,12 @@ export const desktopSupported = () => typeof window !== 'undefined' && 'Notifica
 export const useDesktopNotifications = () => {
   const navigate = useNavigate();
   const { settings } = useNotificationSettings();
+
   const enabled =
     Boolean(settings?.browser) && desktopSupported() && Notification.permission === 'granted';
+
   const seen = useRef<Set<string> | null>(null);
+
   const latest = useQuery({
     queryKey: [...NOTIFICATIONS_KEY, 'desktop'],
     queryFn: () =>
@@ -36,6 +39,7 @@ export const useDesktopNotifications = () => {
     // What was there when the app opened isn't news.
     if (!seen.current) {
       if (latest.data) seen.current = new Set(items.map((item) => item.id));
+
       return;
     }
 

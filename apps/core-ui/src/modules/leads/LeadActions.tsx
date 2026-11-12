@@ -142,7 +142,7 @@ export const ConvertDialog = ({
 
   useEffect(() => {
     if (open) {
-      setOwnerId(leads.length === 1 ? (leads[0]!.ownerId ?? undefined) : undefined);
+      setOwnerId(leads.length === 1 ? (leads[0].ownerId ?? undefined) : undefined);
       setCompanyId(undefined);
     }
   }, [open, leads]);
@@ -270,7 +270,7 @@ export const LeadsBulkActions = ({
     <>
       <LeadStageMenu
         stages={stages}
-        value={leads.length === 1 ? leads[0]!.leadStageId : null}
+        value={leads.length === 1 ? leads[0].leadStageId : null}
         align="end"
         onSelect={(stage) =>
           stage.kind === 'disqualified'

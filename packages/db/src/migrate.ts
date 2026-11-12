@@ -75,6 +75,7 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
     migrationsFolder: folder,
     migrationsTable: MIGRATIONS_TABLE,
   });
+
   const { entries } = JSON.parse(readFileSync(join(folder, 'meta', '_journal.json'), 'utf8')) as {
     entries: { tag: string }[];
   };
@@ -92,6 +93,7 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
     const { rows } = await tx.execute<{ created_at: string | null }>(
       sql`SELECT created_at FROM ${migrationsTable} ORDER BY created_at DESC LIMIT 1`,
     );
+
     const last = Number(rows[0]?.created_at ?? 0);
     const applied: string[] = [];
 

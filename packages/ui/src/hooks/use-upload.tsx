@@ -67,6 +67,7 @@ export const useUpload = () => {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       let type = file.type;
+
       if (file.name.endsWith('.hwp')) {
         type = 'application/haansoft-hwp';
       }

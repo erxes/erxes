@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Input, InputProps } from 'erxes-ui/components';
+import type { InputProps } from 'erxes-ui/components';
+import { Input } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 
 export const TextFieldInput = React.forwardRef<HTMLInputElement, InputProps>(

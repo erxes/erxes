@@ -45,7 +45,7 @@ export const LeadStageMenu = ({
     <DropdownMenu.Content align={align} className="min-w-48">
       {stages.map((stage, index) => (
         <div key={stage.id}>
-          {index > 0 && stages[index - 1]!.kind !== stage.kind && <DropdownMenu.Separator />}
+          {index > 0 && stages[index - 1].kind !== stage.kind && <DropdownMenu.Separator />}
           <DropdownMenu.Item onSelect={() => stage.id !== value && onSelect(stage)}>
             <LeadStageBadge stage={stage} className="flex-1" />
             {stage.id === value && <IconCheck className="size-4 text-primary" />}
@@ -99,4 +99,5 @@ export const LeadStageTrigger = forwardRef<
     <IconChevronDown className="size-3 shrink-0 opacity-60" />
   </button>
 ));
+
 LeadStageTrigger.displayName = 'LeadStageTrigger';

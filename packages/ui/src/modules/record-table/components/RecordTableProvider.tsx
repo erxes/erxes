@@ -1,7 +1,7 @@
+import type { HTMLAttributes } from 'react';
 import {
   createContext,
   forwardRef,
-  HTMLAttributes,
   type ReactNode,
   useContext,
   useMemo,
@@ -10,23 +10,21 @@ import {
   useEffect,
 } from 'react';
 
-import {
+import type {
   ColumnDef,
   ColumnFiltersState,
   ColumnOrderState,
   ColumnPinningState,
   ColumnSizingState,
   VisibilityState,
-  getCoreRowModel,
   RowSelectionState,
   SortingState,
-  type TableOptions,
-  useReactTable,
 } from '@tanstack/react-table';
+import { getCoreRowModel, type TableOptions, useReactTable } from '@tanstack/react-table';
 
 import RecordTableContainer from 'erxes-ui/modules/record-table/components/RecordTableContainer';
 import { RecordTableDnDProvider } from 'erxes-ui/modules/record-table/components/RecordTableDnDProvider';
-import { IRecordTableContext } from 'erxes-ui/modules/record-table/types/recordTableTypes';
+import type { IRecordTableContext } from 'erxes-ui/modules/record-table/types/recordTableTypes';
 import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 import { useTablePreferences } from '../hooks/useTablePreferences';
 
@@ -34,9 +32,11 @@ const RecordTableContext = createContext<IRecordTableContext | null>(null);
 
 export function useRecordTable() {
   const context = useContext(RecordTableContext);
+
   if (!context) {
     throw new Error('useRecordTable must be used within a RecordTableProvider.');
   }
+
   return context;
 }
 
@@ -58,6 +58,7 @@ export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProvide
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
     const {
       prefs: {
         columnOrder,
@@ -68,14 +69,18 @@ export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProvide
       },
       savePrefs,
     } = useTablePreferences(tableId);
+
     const [colOrder, setColumnOrder] = useState<ColumnOrderState>(
       () => columnOrder || columns.map((c) => c.id || ''),
     );
+
     const [colVisibility, setColVisibility] = useState<VisibilityState>(columnVisibility || {});
     const [colSizing, setColSizing] = useState<ColumnSizingState>(columnSizing || {});
+
     const [colPinning, setColPinning] = useState<ColumnPinningState>(
       () => columnPinning || { left: stickyColumns ?? [] },
     );
+
     const stickyKey = (stickyColumns ?? []).join(',');
     const isPinningTouched = useRef(false);
     useEffect(() => {
@@ -129,6 +134,7 @@ export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProvide
       // A new column that should stick is pinned too (after the pinned column before it).
       const sticky = stickyKey ? stickyKey.split(',') : [];
       const known = savedStickyRef.current;
+
       const fresh = sticky.filter(
         (id) => ids.includes(id) && (!seenIds.current.has(id) || !known || !known.includes(id)),
       );
@@ -162,8 +168,10 @@ export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProvide
       .map((column) => column.id)
       .filter((id): id is string => typeof id === 'string' && isStructuralColumn(id))
       .join(',');
+
     const pinning = useMemo<ColumnPinningState>(() => {
       const left = colPinning.left ?? [];
+
       const structural = (structuralKey ? structuralKey.split(',') : []).filter(
         (id) => !left.includes(id),
       );
@@ -172,6 +180,7 @@ export const RecordTableProvider = forwardRef<HTMLDivElement, RecordTableProvide
 
       return { ...colPinning, left: [...structural, ...left] };
     }, [colPinning, structuralKey]);
+
     const table = useReactTable({
       data,
       columns,

@@ -1,7 +1,7 @@
 import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons-react';
 import { Button, ToggleGroup } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
-import { EmailPreviewDevice } from '../types';
+import type { EmailPreviewDevice } from '../types';
 
 /** Which width the rendered email is being read at. */
 export const EmailPreviewDeviceToggle = ({

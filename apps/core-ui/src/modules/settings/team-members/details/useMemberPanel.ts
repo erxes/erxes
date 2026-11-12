@@ -11,6 +11,7 @@ export const useMemberPanel = () => {
 
       next.delete(MEMBER_PANEL_QUERY_KEY);
       next.delete('tab');
+
       return next;
     });
 
@@ -27,6 +28,7 @@ export const useOpenMemberPanel = () => {
 
       next.set(MEMBER_PANEL_QUERY_KEY, id);
       next.set('tab', 'overview');
+
       return next;
     });
 };

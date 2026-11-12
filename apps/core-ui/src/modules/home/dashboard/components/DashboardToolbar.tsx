@@ -5,6 +5,7 @@ import { useDashboard } from '../context/DashboardProvider';
 
 export const DashboardToolbar = () => {
   const { t } = useTranslation('common', { keyPrefix: 'home.dashboard' });
+
   const { isEditing, isCustomized, startEditing, cancelEditing, finishEditing, resetLayout } =
     useDashboard();
 

@@ -31,6 +31,7 @@ export const CONDITION_OPERATORS = [
   /** The day and month fall within the next `amount` days (birthdays, anniversaries), whatever the year. */
   'anniversary_within',
 ] as const;
+
 export const ConditionOperator = z.enum(CONDITION_OPERATORS);
 
 /** The value of a relative-date rule: "within the last 30 days". */
@@ -38,6 +39,7 @@ export const RelativeAmount = z.object({
   amount: z.number().int().min(0).max(3650),
   unit: z.enum(['days', 'weeks', 'months']).default('days'),
 });
+
 export type RelativeAmount = z.infer<typeof RelativeAmount>;
 
 export const ConditionRule = z.object({
@@ -45,6 +47,7 @@ export const ConditionRule = z.object({
   op: ConditionOperator,
   value: z.unknown().optional(),
 });
+
 export type ConditionRule = z.infer<typeof ConditionRule>;
 
 export interface ConditionGroup {
@@ -62,6 +65,7 @@ export const ConditionGroup: z.ZodType<ConditionGroup> = z.lazy(() =>
 
 const StepId = z.string().regex(/^[a-z0-9]{1,24}$/i, 'letters and digits');
 const Label = z.string().trim().max(100).optional();
+
 const Duration = {
   amount: z.number().int().min(1).max(10_000),
   unit: z.enum(['minutes', 'hours', 'days']),
@@ -194,6 +198,7 @@ export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
 
 /** `HH:MM`, 24-hour. */
 const TimeOfDay = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'HH:MM');
+
 /** An IANA time zone (`Asia/Ulaanbaatar`). */
 const TimeZone = z
   .string()
@@ -214,6 +219,7 @@ export const Audience = z.object({
   /** Conditions on `subject.*`; empty: every record (at most 10,000 a run). */
   conditions: ConditionGroup.optional(),
 });
+
 export type Audience = z.infer<typeof Audience>;
 
 export const AutomationTrigger = z.discriminatedUnion('kind', [
@@ -251,6 +257,7 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
   /** Started by a member: on chosen records, or on every record that matches. */
   z.object({ kind: z.literal('manual'), audience: Audience.optional() }),
 ]);
+
 export type AutomationTrigger = z.infer<typeof AutomationTrigger>;
 
 /**
@@ -273,6 +280,7 @@ export const AutomationDefinition = z.object({
   /** At most this many runs start an hour (beyond it, events are skipped and counted). */
   maxRunsPerHour: z.number().int().min(1).max(100_000).optional(),
 });
+
 export type AutomationDefinition = z.infer<typeof AutomationDefinition>;
 
 export const AutomationStatus = z.enum(['draft', 'active', 'paused']);
@@ -294,6 +302,7 @@ export const Automation = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
+
 export type Automation = z.infer<typeof Automation>;
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
@@ -327,6 +336,7 @@ export const ActionField = z.object({
   /** The key of a `custom_field` input: this value takes that field's type (a date, a choice …). */
   sameTypeAs: z.string().optional(),
 });
+
 export type ActionField = z.infer<typeof ActionField>;
 
 export const ActionInfo = z.object({
@@ -338,6 +348,7 @@ export const ActionInfo = z.object({
   subject: z.enum(['customer', 'company', 'any']).nullable(),
   fields: z.array(ActionField),
 });
+
 export type ActionInfo = z.infer<typeof ActionInfo>;
 
 // ─── Runs ───────────────────────────────────────────────────────────────────
@@ -359,6 +370,7 @@ export const AutomationRun = z.object({
   startedAt: z.string().datetime(),
   finishedAt: z.string().datetime().nullable(),
 });
+
 export type AutomationRun = z.infer<typeof AutomationRun>;
 
 export const RunStep = z.object({
@@ -373,6 +385,7 @@ export const RunStep = z.object({
   startedAt: z.string().datetime(),
   finishedAt: z.string().datetime(),
 });
+
 export type RunStep = z.infer<typeof RunStep>;
 
 const Fields = {

@@ -101,6 +101,7 @@ const RECENT_LIMIT = 4;
 /** The last few picked of a kind, in this browser. */
 const useRecent = (kind: string) => {
   const key = `erxes_automation_recent_${kind}`;
+
   const read = (): string[] => {
     try {
       return JSON.parse(localStorage.getItem(key) ?? '[]') as string[];
@@ -108,12 +109,14 @@ const useRecent = (kind: string) => {
       return [];
     }
   };
+
   const [recent, setRecent] = useState(read);
 
   const remember = (type: string) => {
     const next = [type, ...recent.filter((item) => item !== type)].slice(0, RECENT_LIMIT);
 
     setRecent(next);
+
     try {
       localStorage.setItem(key, JSON.stringify(next));
     } catch {
@@ -186,6 +189,7 @@ export const CatalogPicker = ({
   const [search, setSearch] = useState('');
   const { recent, remember } = useRecent(kind);
   const selected = items.find((item) => item.type === value);
+
   const groups = useMemo(() => {
     const byKey = new Map<string, { group: Group; items: CatalogItem[] }>();
 
@@ -201,12 +205,16 @@ export const CatalogPicker = ({
       (a, b) => a.group.order - b.group.order || a.group.label.localeCompare(b.group.label),
     );
   }, [items]);
+
   const current = groups.find((entry) => entry.group.key === category) ?? null;
+
   const recentItems = recent
     .map((type) => items.find((item) => item.type === type))
     .filter((item): item is CatalogItem => Boolean(item));
+
   const groupName = (group: Group) =>
     group.source === 'core' ? t(`catalog-group.${group.label}`, group.label) : group.label;
+
   const countLabel = (count: number) =>
     kind === 'action'
       ? t('catalog-count-action', {
@@ -219,11 +227,13 @@ export const CatalogPicker = ({
           defaultValue_one: '{{count}} event',
           defaultValue_other: '{{count}} events',
         });
+
   const choose = (type: string) => {
     remember(type);
     onChange(type);
     setOpen(false);
   };
+
   const SelectedIcon = selected ? groupOf(selected).icon : IconBolt;
   const searching = search.trim().length > 0;
   // Searching from the categories looks everywhere; inside one, only there.

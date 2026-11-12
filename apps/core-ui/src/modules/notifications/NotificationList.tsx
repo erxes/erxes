@@ -53,6 +53,7 @@ const dayLabel = (iso: string, t: (key: string, fallback: string) => string, lan
   yesterday.setDate(today.getDate() - 1);
 
   if (date.toDateString() === today.toDateString()) return t('today', 'Today');
+
   if (date.toDateString() === yesterday.toDateString()) return t('yesterday', 'Yesterday');
 
   return date.toLocaleDateString(language, {
@@ -246,9 +247,11 @@ export const NotificationList = ({
   compact?: boolean;
 }) => {
   const { t, i18n } = useTranslation('common', { keyPrefix: 'notifications' });
+
   const members = useMembersById(
     notifications.map((item) => (item.actor.type === 'user' ? item.actor.id : null)),
   );
+
   const inboxBySource = new Map(inboxes.map((inbox) => [inbox.source, inbox]));
 
   if (loading) {

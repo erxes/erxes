@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { LiveClient, type LiveMessage } from '../live';
 
 /** EventSource stand-in: the test drives `emit`, `fail` and `close`. */
@@ -102,7 +102,7 @@ describe('LiveClient (one stream per browser)', () => {
 
     expect(FakeEventSource.open()).toHaveLength(1);
 
-    const source = FakeEventSource.open()[0]!;
+    const source = FakeEventSource.open()[0];
 
     source.emit('hello', { mode: 'live' });
     source.emit('timeline', { targets: [{ targetType: 'customer', targetId: 'c1' }] });
@@ -146,7 +146,7 @@ describe('LiveClient (one stream per browser)', () => {
     await tick();
     vi.useFakeTimers();
 
-    const first = FakeEventSource.open()[0]!;
+    const first = FakeEventSource.open()[0];
 
     first.emit('hello', { mode: 'live' });
     first.fail();
@@ -158,7 +158,7 @@ describe('LiveClient (one stream per browser)', () => {
     vi.advanceTimersByTime(1600);
     expect(FakeEventSource.open()).toHaveLength(1);
 
-    FakeEventSource.open()[0]!.emit('hello', { mode: 'live' });
+    FakeEventSource.open()[0].emit('hello', { mode: 'live' });
     expect(client.getMode()).toBe('live');
 
     client.stop();
@@ -171,7 +171,7 @@ describe('LiveClient (one stream per browser)', () => {
     await tick();
     vi.useFakeTimers();
 
-    FakeEventSource.open()[0]!.emit('bye', { reason: 'session-expired' });
+    FakeEventSource.open()[0].emit('bye', { reason: 'session-expired' });
     vi.advanceTimersByTime(60_000);
 
     expect(FakeEventSource.open()).toHaveLength(0);

@@ -14,6 +14,7 @@ export interface TestConfig {
 }
 
 export type GatewayConfig = QPayConfig | TestConfig;
+
 export type GatewayKind = GatewayConfig['kind'];
 
 export type PaymentLink = {

@@ -12,6 +12,7 @@ interface PhoneVerificationInputProps {
   onChange: (value: string) => void;
   inputValue: string;
 }
+
 export const PhoneVerificationInput = ({
   value,
   onChange,
@@ -44,6 +45,7 @@ export const PhoneVerificationInput = ({
       <Select.Content className="text-base font-medium shadow-lg">
         {PHONE_VALIDATION_STATUS_INFOS.map((info) => {
           const ItemIcon = PhoneIconComponents[info.icon];
+
           return (
             <Select.Item
               key={info.value}

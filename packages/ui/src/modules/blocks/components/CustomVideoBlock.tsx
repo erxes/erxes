@@ -1,19 +1,15 @@
-import {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  videoBlockConfig,
-  videoParse,
-} from '@blocknote/core';
+import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
+import { videoBlockConfig, videoParse } from '@blocknote/core';
+import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 import {
   createReactBlockSpec,
   FigureWithCaption,
-  ReactCustomBlockRenderProps,
   ResizableFileBlockWrapper,
   VideoBlock,
   VideoToExternalHTML,
 } from '@blocknote/react';
 import { IconVideo } from '@tabler/icons-react';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { getCloudflareStreamBase, parseVideoEmbedUrl } from 'erxes-ui/utils';
 
 type VideoRenderProps = ReactCustomBlockRenderProps<
@@ -91,6 +87,7 @@ export const customVideoBlock = createReactBlockSpec(videoBlockConfig, {
     const video = videoParse(element);
 
     if (video) return video;
+
     if (element.tagName === 'IFRAME' && element.closest('figure')) {
       return undefined;
     }
@@ -101,6 +98,7 @@ export const customVideoBlock = createReactBlockSpec(videoBlockConfig, {
         : element.tagName === 'FIGURE'
           ? element.querySelector('iframe')
           : null;
+
     const url = getVideoEmbedSource(iframe?.getAttribute('src') || '');
 
     if (!url) return undefined;

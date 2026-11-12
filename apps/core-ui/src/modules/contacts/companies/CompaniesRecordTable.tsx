@@ -9,6 +9,7 @@ import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
 export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
   const { list, loading, error, hasNextPage, hasPreviousPage, handleFetchMore } =
     useCompanies(state);
+
   const columns = useCompaniesColumns(state);
 
   if (error) {

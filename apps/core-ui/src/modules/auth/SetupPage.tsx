@@ -61,6 +61,7 @@ const Field = ({
 export const SetupPage = () => {
   const client = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {

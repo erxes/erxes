@@ -40,6 +40,7 @@ export const Company = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
+
 export type Company = z.infer<typeof Company>;
 
 /** A person as listed on a company, with the link. */
@@ -53,6 +54,7 @@ export const PersonRef = z.object({
   state: z.enum(['lead', 'customer']),
   link: ContactLink,
 });
+
 export type PersonRef = z.infer<typeof PersonRef>;
 
 export const CompanyFields = z.object({
@@ -74,14 +76,17 @@ export const CompanyFields = z.object({
   customFields: CustomFieldsPatch.optional(),
   ...LifecycleInput,
 });
+
 export type CompanyInput = z.infer<typeof CompanyFields>;
 
 const ID = z.object({ id: Id });
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
 const Ids = z.object({ ids: z.array(Id).min(1).max(100) });
+
 const MergeInput = z
   .object({ ids: z.array(Id).min(2).max(10), keepId: Id })
   .refine((value) => value.ids.includes(value.keepId), 'keepId must be one of ids');
+
 const TagChange = z.object({
   ids: z.array(Id).min(1).max(100),
   add: z.array(Id).max(50).default([]),

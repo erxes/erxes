@@ -1,6 +1,7 @@
-import { ExtractTablesWithRelations } from 'drizzle-orm';
-import { drizzle, NodePgDatabase, NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
-import { PgTransaction } from 'drizzle-orm/pg-core';
+import type { ExtractTablesWithRelations } from 'drizzle-orm';
+import type { NodePgDatabase, NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import type { PgTransaction } from 'drizzle-orm/pg-core';
 import { Pool, types } from 'pg';
 import * as schema from './schema';
 import { currentScope } from './scope';
@@ -9,12 +10,15 @@ import { currentScope } from './scope';
 types.setTypeParser(types.builtins.INT8, (value: string) => Number(value));
 
 export type Schema = typeof schema;
+
 export type Database = NodePgDatabase<Schema>;
+
 export type Transaction = PgTransaction<
   NodePgQueryResultHKT,
   Schema,
   ExtractTablesWithRelations<Schema>
 >;
+
 /** Either the pooled database or an open transaction. */
 export type Db = Database | Transaction;
 

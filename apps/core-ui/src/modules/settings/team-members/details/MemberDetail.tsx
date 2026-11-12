@@ -46,8 +46,10 @@ export const MemberDetail = ({
 
   const fallbackTitle = isPending ? <Skeleton className="h-4 w-32" /> : t('member-detail');
   const name = user ? memberName(user) : null;
+
   const title =
     user && permissions?.canEdit ? <MemberPanelName user={user} /> : (name ?? fallbackTitle);
+
   // Who may edit the member changes their picture from the header (as erxes does).
   const avatar = user ? (
     permissions?.canEdit ? (
@@ -65,8 +67,10 @@ export const MemberDetail = ({
 
   const renderBody = () => {
     if (isPending) return <Spinner containerClassName="py-12" />;
+
     if (error && !isApiError(error, 'NOT_FOUND'))
       return <MemberDetailErrorState message={messageOf(error)} />;
+
     if (!user) return <MemberDetailEmptyState />;
 
     const tabs: IRecordSidePanelTab[] = [

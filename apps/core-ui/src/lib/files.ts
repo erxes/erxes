@@ -19,6 +19,7 @@ const put = (
     request.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100));
     };
+
     request.onload = () =>
       request.status >= 200 && request.status < 300
         ? resolve()
@@ -78,7 +79,7 @@ export const coreFileStorage: FileStorageAdapter = {
     try {
       return (await uploadFile(file, options)).url;
     } catch (error) {
-      throw new Error(uploadErrorMessage(error));
+      throw new Error(uploadErrorMessage(error), { cause: error });
     }
   },
   async remove(address) {

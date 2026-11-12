@@ -1,13 +1,15 @@
-import { DefaultInlineContentSchema, DefaultStyleSchema, imageBlockConfig } from '@blocknote/core';
+import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
+import { imageBlockConfig } from '@blocknote/core';
+import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 import {
   createReactBlockSpec,
-  ReactCustomBlockRenderProps,
   ResizableFileBlockWrapper,
   useResolveUrl,
   useUploadLoading,
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
-import { CSSProperties, FC, SyntheticEvent, useEffect, useState } from 'react';
+import type { CSSProperties, FC, SyntheticEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Dialog, Spinner } from 'erxes-ui/components';
 
 const MAX_IMAGE_HEIGHT = 320;
@@ -76,6 +78,7 @@ type ImageRenderProps = ReactCustomBlockRenderProps<
 >;
 
 type FileBlockWrapperProps = Parameters<typeof ResizableFileBlockWrapper>[0];
+
 type FileBlockRenderProps = Omit<FileBlockWrapperProps, 'buttonText' | 'buttonIcon' | 'children'>;
 
 const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
@@ -92,6 +95,7 @@ const CustomImagePreview: FC<
 
   const src = downloadUrl ?? block.props.url;
   const isResolving = loadingState === 'loading';
+
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) => {
     setImgLoaded(true);
     onImageLoad(event);
@@ -217,11 +221,13 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const fileProps = toFileBlockProps(props);
   const imageStyle = getImageStyle(props.block.props.imageStyle);
   const previewWidth = props.block.props.previewWidth;
+
   const [imageDimensions, setImageDimensions] = useState<{
     url: string;
     width: number;
     height: number;
   }>();
+
   const maxWidth = getEditorMaxImageWidth(
     props.editor,
     imageStyle,
@@ -234,6 +240,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
       width: event.currentTarget.naturalWidth,
       height: event.currentTarget.naturalHeight,
     };
+
     setImageDimensions(dimensions);
 
     if (!previewWidth && props.editor.isEditable) {

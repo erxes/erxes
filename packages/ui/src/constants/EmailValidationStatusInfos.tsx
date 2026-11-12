@@ -4,6 +4,7 @@ export const EmailIconComponents = {
   IconCircleDashedCheck,
   IconCircleDashed,
 } as const;
+
 export type TEmailValidationStatusInfo = {
   label: string;
   value: string;

@@ -16,10 +16,12 @@ import { ContactState, LifecycleFields, LifecycleInput } from './leads';
 
 /** `lead`: not a customer yet (e.g. a form submission). */
 export const CustomerState = ContactState;
+
 export type CustomerState = z.infer<typeof CustomerState>;
 
 /** ISO/IEC 5218, as in erxes until now: 0 not known, 1 male, 2 female, 9 not applicable. */
 export const CustomerSex = z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(9)]);
+
 export type CustomerSex = z.infer<typeof CustomerSex>;
 
 /** A person the organisation works with; shared by every plugin. */
@@ -51,6 +53,7 @@ export const Customer = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
+
 export type Customer = z.infer<typeof Customer>;
 
 export const CustomerFields = z.object({
@@ -79,6 +82,7 @@ export const CustomerFields = z.object({
   customFields: CustomFieldsPatch.optional(),
   ...LifecycleInput,
 });
+
 export type CustomerInput = z.infer<typeof CustomerFields>;
 
 const identifies = (value: CustomerInput) =>
@@ -100,6 +104,7 @@ export const ContactLink = z.object({
   endedAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
 });
+
 export type ContactLink = z.infer<typeof ContactLink>;
 
 /** Setting a link: any of its attributes (others stay; a new link starts with none). */
@@ -118,14 +123,17 @@ export const CompanyRef = z.object({
   website: z.string().nullable(),
   link: ContactLink,
 });
+
 export type CompanyRef = z.infer<typeof CompanyRef>;
 
 const ID = z.object({ id: Id });
 const changes = (value: Record<string, unknown>) => Object.keys(value).some((key) => key !== 'id');
 const Ids = z.object({ ids: z.array(Id).min(1).max(100) });
+
 const MergeInput = z
   .object({ ids: z.array(Id).min(2).max(10), keepId: Id })
   .refine((value) => value.ids.includes(value.keepId), 'keepId must be one of ids');
+
 const TagChange = z.object({
   ids: z.array(Id).min(1).max(100),
   add: z.array(Id).max(50).default([]),

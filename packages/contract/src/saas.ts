@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 /** erxes.io's plugin tiers: Free is never billed; Plus and Pro have their own monthly prices. */
 export const PluginTier = z.enum(['free', 'plus', 'pro']);
+
 export type PluginTier = z.infer<typeof PluginTier>;
 
 /** A plugin's billing status on erxes.io: `past_due` while Stripe retries, `canceling` until the period ends. */
@@ -14,6 +15,7 @@ export const EntitlementStatus = z.enum(['active', 'past_due', 'canceling']);
  * reads and exports for the grace period); `off` (not in the plan).
  */
 export const PluginAccess = z.enum(['full', 'warning', 'read_only', 'off']);
+
 export type PluginAccess = z.infer<typeof PluginAccess>;
 
 export const OrganizationStatus = z.enum(['active', 'suspended', 'inactive']);
@@ -38,6 +40,7 @@ export const SaasWorkspace = z.object({
     .optional(),
   status: OrganizationStatus.optional(),
 });
+
 export type SaasWorkspace = z.infer<typeof SaasWorkspace>;
 
 export const SubscriptionInfo = z.object({
@@ -61,6 +64,7 @@ export const SubscriptionInfo = z.object({
   /** When erxes.io was last asked. */
   checkedAt: z.string().datetime().nullable(),
 });
+
 export type SubscriptionInfo = z.infer<typeof SubscriptionInfo>;
 
 /** For a plugin: its tier here (gate Plus/Pro features with it) and what it may do. Self-hosted: `pro`, `full`. */
@@ -71,6 +75,7 @@ export const PluginPlan = z.object({
   access: PluginAccess,
   readOnlyUntil: z.string().datetime().nullable(),
 });
+
 export type PluginPlan = z.infer<typeof PluginPlan>;
 
 export const saasContract = {

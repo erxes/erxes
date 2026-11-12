@@ -23,6 +23,7 @@ import { users } from './users';
  * itself (`system`: cleanups, imports). Ids only — names are resolved when shown.
  */
 export const ACTOR_TYPES = ['user', 'plugin', 'system'] as const;
+
 export type ActorType = (typeof ACTOR_TYPES)[number];
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
@@ -340,6 +341,7 @@ export const eventConsumers = pgTable('event_consumers', {
 });
 
 export const EVENT_FAILURE_STATUSES = ['retrying', 'dead'] as const;
+
 export type EventFailureStatus = (typeof EVENT_FAILURE_STATUSES)[number];
 
 /**

@@ -32,6 +32,7 @@ const LayoutItem = ({ field }: { field: Field }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: field.id,
   });
+
   const TypeIcon = FIELD_TYPES_OBJECT[field.type]?.icon;
 
   return (
@@ -67,6 +68,7 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const [items, setItems] = useState(fields);
   const { mutate, isPending } = useReorder('fields', fields[0]?.contentType ?? 'customer');
+
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 6 } }),
@@ -89,6 +91,7 @@ const GroupLayoutEditor = ({ fields, onClose }: { fields: Field[]; onClose: () =
 
     if (!changed.length) {
       onClose();
+
       return;
     }
 

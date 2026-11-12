@@ -33,6 +33,7 @@ export const transferColumns = async (
   recordType: TransferRecordType,
 ): Promise<Column[]> => {
   const isCompany = recordType === 'company';
+
   const builtIn: Column[] = isCompany
     ? [
         column('id', 'ID', { importable: true, default: false, aliases: ['_id'] }),
@@ -92,6 +93,7 @@ export const transferColumns = async (
         column('code', 'Code', { default: false, aliases: ['код'] }),
         column('description', 'Description', { default: false, aliases: ['notes', 'тайлбар'] }),
       ];
+
   const relations: Column[] = [
     column('owner', 'Owner', {
       group: 'relations',
@@ -115,6 +117,7 @@ export const transferColumns = async (
     column('createdAt', 'Created', { importable: false, default: false }),
     column('updatedAt', 'Updated', { importable: false, default: false }),
   ];
+
   const custom = await client
     .select({ id: fields.id, label: fields.label, type: fields.type, code: fields.code })
     .from(fields)
@@ -153,6 +156,7 @@ export const suggestMapping = (headers: string[], columns: Column[]): Record<str
       if (mapping[String(index)] || !header.trim()) return;
 
       const wanted = normalize(header);
+
       const match = importable.find(
         (item) => !taken.has(item.key) && pass(item).some((name) => normalize(name) === wanted),
       );
@@ -186,6 +190,7 @@ export const parseDate = (value: string): string => {
 
   if (!match) {
     match = /^(\d{1,2})[./](\d{1,2})[./](\d{4})$/.exec(text);
+
     if (match) [day, month, year] = [match[1], match[2], match[3]];
   }
 
@@ -204,6 +209,7 @@ export const parseBoolean = (value: string) => {
   const text = value.trim().toLowerCase();
 
   if (YES.has(text)) return true;
+
   if (NO.has(text)) return false;
 
   throw new CellError(`“${value}” is not yes or no`);
@@ -238,8 +244,11 @@ export const customValue = (type: FieldType | undefined, value: string): unknown
 /** A stored custom value as one cell. */
 export const customCell = (value: unknown): string | number => {
   if (Array.isArray(value)) return value.join('; ');
+
   if (value === true) return 'yes';
+
   if (value === false) return 'no';
+
   if (typeof value === 'number') return value;
 
   return value === null || value === undefined ? '' : String(value);

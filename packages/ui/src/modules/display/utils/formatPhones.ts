@@ -1,4 +1,4 @@
-import { TPhones } from 'erxes-ui/modules/inputs';
+import type { TPhones } from 'erxes-ui/modules/inputs';
 import { ValidationStatus } from 'erxes-ui/types';
 
 export function formatPhones(

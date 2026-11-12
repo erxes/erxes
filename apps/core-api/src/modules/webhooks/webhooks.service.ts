@@ -30,10 +30,12 @@ import { toEventDto } from '~/modules/events/events.service';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 
 type WebhookRow = typeof webhooks.$inferSelect;
+
 type DeliveryRow = typeof webhookDeliveries.$inferSelect;
 
 /** Deliveries retry for about a day (8 attempts), then the delivery is failed. */
 export const DELIVERY_ATTEMPTS = 8;
+
 /** An endpoint failing this many deliveries in a row is turned off. */
 export const DISABLE_AFTER_FAILURES = 50;
 
@@ -149,6 +151,7 @@ export const createWebhook = async (
   checkUrl(input.url);
 
   const secret = newSecret();
+
   const [row] = await client
     .insert(webhooks)
     .values({
@@ -283,6 +286,7 @@ const queueDelivery = async (
 /** Sends a `core.webhook.test` event to the endpoint now (and logs it like any delivery). */
 export const testWebhook = async (client: Db, actor: Actor, id: string) => {
   const webhook = await findWebhook(client, actor.orgId, id);
+
   const [event] = await client
     .insert(events)
     .values({
@@ -385,6 +389,7 @@ export const deliverJob: JobDefinition = {
   backoff: (attempt) => [60, 300, 1800, 7200, 18_000, 28_800, 28_800][attempt - 1] ?? 28_800,
   async handle(job) {
     const deliveryId = job.payload.deliveryId as string;
+
     const loaded = await withOrg(job.orgId, async (tx: Transaction) => {
       const [row] = await tx
         .select({ delivery: webhookDeliveries, webhook: webhooks, event: events })
@@ -422,6 +427,7 @@ export const deliverJob: JobDefinition = {
       organizationId: job.orgId,
       data: toEventDto(loaded.event),
     });
+
     const headers = {
       'Content-Type': 'application/json',
       'User-Agent': 'erxes-webhooks/1',
@@ -430,6 +436,7 @@ export const deliverJob: JobDefinition = {
       'Erxes-Delivery-Id': deliveryId,
       'Erxes-Signature': signPayload(unseal(loaded.webhook.secretSealed), body),
     };
+
     let outcome: {
       status: number | null;
       body: string | null;

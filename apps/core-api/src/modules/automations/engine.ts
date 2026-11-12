@@ -1,11 +1,11 @@
 import { AutomationDefinition, type AutomationStep } from '@erxes/core-contract';
+import type { events } from '@erxes/core-db';
 import {
   automationRuns,
   automationRunSteps,
   automations,
   automationVersions,
   type Db,
-  events,
   newId,
   pluginInstallations,
   roles,
@@ -26,11 +26,14 @@ import { evaluateGroup } from './conditions';
 import { render } from './templates';
 
 type RunRow = typeof automationRuns.$inferSelect;
+
 type AutomationRow = typeof automations.$inferSelect;
+
 type EventRow = typeof events.$inferSelect;
 
 /** Automations started by events that automations caused stop this deep. */
 export const MAX_CHAIN_DEPTH = 5;
+
 /** A run that loops through steps (branches can't, but be safe) stops after this many. */
 const MAX_STEPS_PER_RUN = 500;
 
@@ -42,10 +45,13 @@ export type Cursor = (number | string)[];
  */
 export const armSteps = (step: AutomationStep, arm: string): AutomationStep[] | null => {
   if (step.type === 'branch') return arm === 'then' ? step.then : arm === 'else' ? step.else : null;
+
   if (step.type === 'switch') {
     if (arm === 'otherwise') return step.otherwise;
+
     if (arm.startsWith('case:')) return step.cases[Number(arm.slice(5))]?.steps ?? null;
   }
+
   if (step.type === 'split' && arm.startsWith('path:'))
     return step.paths[Number(arm.slice(5))]?.steps ?? null;
 
@@ -83,6 +89,7 @@ export const nextCursor = (steps: AutomationStep[], cursor: Cursor): Cursor | nu
     const next = [...current.slice(0, -1), (current[current.length - 1] as number) + 1];
 
     if (stepAt(steps, next)) return next;
+
     if (current.length === 1) return null;
 
     current = current.slice(0, -2);
@@ -104,6 +111,7 @@ export const splitPath = (runId: string, step: Extract<AutomationStep, { type: '
 
   for (const [index, path] of step.paths.entries()) {
     seen += path.weight;
+
     if (roll < seen) return index;
   }
 
@@ -118,9 +126,10 @@ const subjectOf = async (tx: Db, orgId: string, type: string | null, id: string 
 
   if (!table) return null;
 
-  const result = await tx.execute<Record<string, unknown>>(
+  const result = await tx.execute(
     sql`select * from ${sql.identifier(table)} where org_id = ${orgId} and id = ${id} limit 1`,
   );
+
   const row = result.rows[0];
 
   if (!row) return null;
@@ -134,6 +143,7 @@ const subjectOf = async (tx: Db, orgId: string, type: string | null, id: string 
         value instanceof Date ? value.toISOString() : value,
       ]),
   );
+
   const tags = await tx.execute<{ tag_id: string }>(
     sql`select tag_id from ${sql.identifier(type === 'customer' ? 'core_customer_tags' : 'core_company_tags')} where org_id = ${orgId} and ${sql.identifier(`${type}_id`)} = ${id}`,
   );
@@ -274,6 +284,7 @@ export const advanceJob: JobDefinition = {
   backoff: (attempt) => [30, 120, 600, 1800][attempt - 1] ?? 3600,
   async handle(job, tx) {
     const db = tx as Transaction;
+
     const [run] = await db
       .select()
       .from(automationRuns)
@@ -294,18 +305,21 @@ export const advanceJob: JobDefinition = {
       .from(automations)
       .where(eq(automations.id, run.automationId))
       .limit(1);
+
     const definition = automation ? await definitionOf(db, run.automationId, run.version) : null;
 
     if (!automation || !definition) {
       await finish(db, run.id, 'failed', 'The automation or its version is gone');
+
       return;
     }
 
-    const cursor = run.cursor as Cursor;
+    const cursor = run.cursor;
     const step = stepAt(definition.steps, cursor);
 
     if (!step) {
       await finish(db, run.id, 'succeeded');
+
       return;
     }
 
@@ -316,6 +330,7 @@ export const advanceJob: JobDefinition = {
 
     if (count >= MAX_STEPS_PER_RUN) {
       await finish(db, run.id, 'failed', `Stopped after ${MAX_STEPS_PER_RUN} steps`);
+
       return;
     }
 
@@ -326,6 +341,7 @@ export const advanceJob: JobDefinition = {
     if (definition.goal && evaluateGroup(definition.goal, context)) {
       await db.update(automationRuns).set({ context }).where(eq(automationRuns.id, run.id));
       await finish(db, run.id, 'succeeded', undefined, true);
+
       return;
     }
 
@@ -365,6 +381,7 @@ export const advanceJob: JobDefinition = {
             .set({ status: 'waiting', waitingUntil: until, context, updatedAt: sql`now()` })
             .where(eq(automationRuns.id, run.id));
           await queueAdvance(db, run, cursor, until);
+
           return;
         }
       }
@@ -386,6 +403,7 @@ export const advanceJob: JobDefinition = {
           })
           .where(eq(automationRuns.id, run.id));
         await queueAdvance(db, run, cursor, until);
+
         return;
       }
 
@@ -395,10 +413,12 @@ export const advanceJob: JobDefinition = {
       input = render(step.input, context);
 
       const actor = await actorOf(db, run.orgId, automation.activatedBy);
+
       const subject =
         run.subjectType && run.subjectId
           ? { type: run.subjectType as 'customer' | 'company', id: run.subjectId }
           : null;
+
       const ctx = {
         tx: db,
         orgId: run.orgId,
@@ -410,6 +430,7 @@ export const advanceJob: JobDefinition = {
         input: input as Record<string, unknown>,
         context,
       };
+
       const core = CORE_ACTIONS.find((action) => action.type === step.action);
 
       output = await withRunCause(
@@ -423,6 +444,7 @@ export const advanceJob: JobDefinition = {
           if (core) return core.run(ctx);
 
           const plugin = await pluginOfAction(db, step.action);
+
           const [installed] = plugin
             ? await db
                 .select({ status: pluginInstallations.status })
@@ -475,7 +497,7 @@ export const advanceJob: JobDefinition = {
     if (!run || (run.status !== 'running' && run.status !== 'waiting')) return;
 
     const definition = await definitionOf(tx, run.automationId, run.version);
-    const step = definition ? stepAt(definition.steps, run.cursor as Cursor) : null;
+    const step = definition ? stepAt(definition.steps, run.cursor) : null;
 
     if (step)
       await logStep(tx, run, step, {
@@ -499,7 +521,7 @@ const continueAfter = async (
   entry: { input: unknown; output: unknown; next: Cursor | null; attempt: number; startedAt: Date },
 ) => {
   context.steps = {
-    ...((context.steps as Record<string, unknown>) ?? {}),
+    ...(context.steps ?? {}),
     [step.id]: { output: entry.output },
   };
   await logStep(db, run, step, {
@@ -513,6 +535,7 @@ const continueAfter = async (
   if (!entry.next) {
     await db.update(automationRuns).set({ context }).where(eq(automationRuns.id, run.id));
     await finish(db, run.id, 'succeeded');
+
     return;
   }
 
@@ -619,6 +642,7 @@ export const startRun = async (
           state: sql`jsonb_set(${automations.state}, '{skippedByLimit}', to_jsonb(coalesce((${automations.state}->>'skippedByLimit')::int, 0) + 1))`,
         })
         .where(eq(automations.id, automation.id));
+
       return null;
     }
   }
@@ -626,6 +650,7 @@ export const startRun = async (
   const subject = start.subject
     ? await subjectOf(tx, automation.orgId, start.subject.type, start.subject.id)
     : null;
+
   const [run] = await tx
     .insert(automationRuns)
     .values({
@@ -667,6 +692,7 @@ export const automationsConsumer: EventConsumer = {
         event: event.id,
         depth: event.depth,
       });
+
       return;
     }
 
@@ -695,6 +721,7 @@ export const automationsConsumer: EventConsumer = {
             .limit(1)
         )[0]
       : undefined;
+
     const subject = await subjectOf(tx, event.orgId, event.subjectType, event.subjectId);
     const context = { event: dto, subject, steps: {} };
 
@@ -717,7 +744,7 @@ export const automationsConsumer: EventConsumer = {
           event.subjectType && event.subjectId
             ? { type: event.subjectType, id: event.subjectId }
             : null,
-        event: dto as unknown as Record<string, unknown>,
+        event: dto,
         depth: event.depth,
       });
     }
@@ -756,7 +783,7 @@ const resumeWaiting = async (tx: Db, event: EventRow, dto: ReturnType<typeof toE
 
     if (run.waitEvent !== event.type) continue;
 
-    const cursor = run.cursor as Cursor;
+    const cursor = run.cursor;
     const step = stepAt(definition.steps, cursor);
 
     if (step?.type !== 'wait_for' || !evaluateGroup(step.conditions, { ...context, event: dto }))
@@ -786,7 +813,7 @@ export const retryRun = async (tx: Db, orgId: string, runId: string) => {
     )
     .returning();
 
-  if (run) await queueAdvance(tx, run, run.cursor as Cursor, new Date(Date.now() + 1));
+  if (run) await queueAdvance(tx, run, run.cursor, new Date(Date.now() + 1));
 
   return run ?? null;
 };

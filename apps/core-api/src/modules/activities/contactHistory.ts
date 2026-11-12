@@ -1,8 +1,6 @@
-import type { ContentType } from '@erxes/core-db';
-import { companies, customers, type Db } from '@erxes/core-db';
+import { type ContentType, companies, customers, type Db } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
-import { userCaller, type Caller } from '~/http/auth';
+import { type Actor, userCaller, type Caller } from '~/http/auth';
 import { type Changes, diffCustomFields, diffFields, mergeChanges } from '~/lib/changes';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
@@ -125,6 +123,7 @@ const notifyNewOwner = async (
 ) => {
   // A quiet import tells nobody about each row (the importer sees the summary).
   if (currentImport()?.quiet) return;
+
   if (!row.ownerId || row.ownerId === before || row.ownerId === actor.userId) {
     return;
   }
@@ -159,6 +158,7 @@ export const contactCreated = async (
     targetId: row.id,
     targetLabel: contactLabel(type, row),
   });
+
   // Created by a plugin: no owner was chosen, nobody to tell.
   if (!('actorType' in actor)) await notifyNewOwner(tx, actor, type, row, null);
 };
@@ -350,6 +350,7 @@ export const contactsLinked = async (
   linked: boolean,
 ) => {
   const verb = linked ? 'linked' : 'unlinked';
+
   // Each side's name goes with the entry, so the timeline reads at once (and
   // still says who it was after a deletion).
   const [names] = await tx

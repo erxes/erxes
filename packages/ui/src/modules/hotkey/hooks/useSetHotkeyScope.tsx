@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useSetAtom } from 'jotai';
 import { setHotkeyScopeState } from '../states/setHotkeyScopeState';
-import { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
+import type { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
 import { DEBUG_HOTKEY_SCOPE } from './useScopedHotKeysCallback';
 import { logDebug } from 'erxes-ui/utils/logDebug';
 

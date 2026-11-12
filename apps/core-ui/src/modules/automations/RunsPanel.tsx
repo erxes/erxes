@@ -38,23 +38,28 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
   const { toast } = useToast();
   const client = useQueryClient();
   const can = useCan();
+
   const { data, isLoading } = useQuery({
     queryKey: ['automations', 'run', run.id],
     queryFn: () => api.automations.run({ runId: run.id }),
     refetchInterval: run.status === 'running' || run.status === 'waiting' ? 3000 : false,
   });
+
   const refresh = () => void client.invalidateQueries({ queryKey: ['automations'] });
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
       title: t('failed', 'Something went wrong'),
       description: messageOf(error),
     });
+
   const retry = useMutation({
     mutationFn: () => api.automations.retryRun({ runId: run.id }),
     onSuccess: refresh,
     onError,
   });
+
   const cancel = useMutation({
     mutationFn: () => api.automations.cancelRun({ runId: run.id }),
     onSuccess: refresh,
@@ -166,11 +171,13 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
 export const RunsPanel = ({ automationId }: { automationId: string }) => {
   const { t } = useTranslation('automations');
   const [selected, setSelected] = useState<string | null>(null);
+
   const { data, isLoading } = useQuery({
     queryKey: ['automations', automationId, 'runs'],
     queryFn: () => api.automations.runs({ id: automationId, limit: 50 }),
     refetchInterval: 5000,
   });
+
   const runs = data?.data ?? [];
   const current = runs.find((run) => run.id === selected) ?? runs[0];
 

@@ -38,7 +38,7 @@ export function StringArrayInput({
       setActiveTagIndex={setActiveTagIndex}
       id={id}
       setTags={(newTags) => {
-        onValueChange((newTags as Tag[]).map((tag) => tag.text as string));
+        onValueChange((newTags as Tag[]).map((tag) => tag.text));
       }}
       styleClasses={{
         inlineTagsContainer: cn(

@@ -43,6 +43,7 @@ export const findChainBreak = async (client: Db, orgId: string, fromSeq?: number
            )::int as broken_at
     from chain
   `);
+
   const row = result.rows[0];
 
   return {
@@ -81,6 +82,7 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
     where (c.chain_seq is null or h.chain_seq > c.chain_seq)
       and (${orgId ?? null}::text is null or o.id = ${orgId ?? null}::text)
   `);
+
   let signed = 0;
 
   for (const head of heads.rows) {
@@ -115,6 +117,7 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
         subject: head.org_id,
       },
     );
+
     const inserted = await client
       .insert(auditCheckpoints)
       .values({
@@ -152,6 +155,7 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
     where c.org_id = ${orgId}
     order by c.chain_seq
   `);
+
   let checked = 0;
   let mismatchAt: number | null = null;
   const latest = rows.rows[rows.rows.length - 1];

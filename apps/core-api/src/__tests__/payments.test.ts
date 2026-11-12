@@ -1,6 +1,6 @@
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createGateway } from '@erxes/payment-gateways';
 import { verifyCoreEvent } from '@erxes/plugin-sdk';
@@ -11,6 +11,7 @@ import { pluginToken } from './plugin';
 describe('QPay driver', () => {
   it('gets a token, makes an invoice in tögrög with QR and bank links, and checks payment by invoice', async () => {
     const calls: { url: string; body: unknown; auth: string | null }[] = [];
+
     const fetchMock = vi.fn(async (url: string, init: RequestInit) => {
       const headers = new Headers(init.headers);
 
@@ -54,6 +55,7 @@ describe('QPay driver', () => {
         },
         { cacheKey: 'g-1' },
       );
+
       const created = await driver.createInvoice({
         invoiceId: 'inv-1',
         amount: 150_000,
@@ -116,6 +118,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -165,6 +168,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
       reference: { type: 'order', id: 'o1' },
       dedupeKey: 'order-o1',
     };
+
     const invoice = await call(hr, 'POST', '/payments/invoices', input);
 
     expect(invoice.status).toBe(201);
@@ -226,6 +230,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
     const { processEvents } = await import('~/modules/events/processor');
     const { processJobs } = await import('~/modules/jobs/jobs');
     const { JOBS } = await import('~/modules/jobs/registry');
+
     const flush = async () => {
       let idle = 0;
 
@@ -237,6 +242,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
     // The plugin's API: records what core delivers, after verifying it like a plugin would.
     const received: { type: string; payload: Record<string, unknown> }[] = [];
     const rejected: string[] = [];
+
     const pluginApi = createServer((req, res) => {
       let raw = '';
 
@@ -246,7 +252,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
           .then((event) => {
             received.push({
               type: event.type,
-              payload: event.data.payload as Record<string, unknown>,
+              payload: event.data.payload,
             });
             res.writeHead(204).end();
           })
@@ -256,6 +262,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
           });
       });
     }).listen(0);
+
     const apiUrl = `http://127.0.0.1:${(pluginApi.address() as AddressInfo).port}`;
 
     try {
@@ -272,10 +279,12 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
       ).toBe(200);
 
       const hr = await pluginToken(base, orgId);
+
       const second = await call(owner, 'POST', '/payments/gateways', {
         name: 'Test B',
         config: { kind: 'test' },
       });
+
       const third = await call(owner, 'POST', '/payments/gateways', {
         name: 'Test C',
         config: { kind: 'test' },
@@ -305,6 +314,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
       ).toBe(200);
 
       const metadata = { orderId: 'o9', lines: [{ sku: 'A', qty: 2 }] };
+
       const invoice = await call(hr, 'POST', '/payments/invoices', {
         amount: 100_000,
         description: 'Order #9',
@@ -318,6 +328,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
         refundedAmount: 0,
         refundable: { amount: 0, gateway: 'partial' },
       });
+
       // Not one it's allowed: refused. The first gateway (not allowed) can't be named.
       const first = (await call(owner, 'GET', '/payments/gateways')).body.data.find(
         (row: { name: string }) => row.name === 'Test',
@@ -440,6 +451,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
   it('refuses tampered or misdirected event deliveries', async () => {
     const { signJwt } = await import('~/lib/signing');
     const { bodyDigest, CORE_EVENT_TYP } = await import('~/modules/plugins/pluginEvents');
+
     const body = JSON.stringify({
       id: 'e1',
       type: 'core.payment.paid',
@@ -447,6 +459,7 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
       createdAt: new Date().toISOString(),
       data: {},
     });
+
     const token = (aud: string, sha = bodyDigest(body)) =>
       signJwt(
         { org: orgId, event: 'e1', sha },

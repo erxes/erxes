@@ -69,6 +69,7 @@ export class LiveClient {
 
   private setMode(mode: LiveMode, broadcast: boolean) {
     if (broadcast) this.channel?.postMessage({ event: 'mode', data: mode } satisfies Wire);
+
     if (this.mode === mode) return;
 
     this.mode = mode;
@@ -97,6 +98,7 @@ export class LiveClient {
             this.channel?.postMessage({ event: 'mode', data: this.mode } satisfies Wire);
         } else this.deliver(data, false);
       };
+
       // A follower asks the leader how things stand.
       this.channel.postMessage({ event: 'mode?' } satisfies Wire);
     }
@@ -114,6 +116,7 @@ export class LiveClient {
               // Granted after this tab stopped: give it straight back.
               if (this.users === 0 || request.signal.aborted) {
                 release();
+
                 return;
               }
 
@@ -207,6 +210,7 @@ export class LiveClient {
 
     window.removeEventListener('online', this.onOnline);
     this.leading = false;
+
     if (this.retryTimer) clearTimeout(this.retryTimer);
     this.retryTimer = null;
     this.source?.close();

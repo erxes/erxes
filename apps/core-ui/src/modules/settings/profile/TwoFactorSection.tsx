@@ -46,6 +46,7 @@ export const TwoFactorSection = () => {
   const [code, setCode] = useState('');
   const [password, setPassword] = useState('');
   const [codes, setCodes] = useState<string[] | null>(null);
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
@@ -62,6 +63,7 @@ export const TwoFactorSection = () => {
     onSuccess: setSetup,
     onError,
   });
+
   const enable = useMutation({
     mutationFn: () => api.auth.twoFactorEnable({ code }),
     onSuccess: ({ recoveryCodes }) => {
@@ -72,6 +74,7 @@ export const TwoFactorSection = () => {
     },
     onError,
   });
+
   const disable = useMutation({
     mutationFn: () => api.auth.twoFactorDisable({ password }),
     onSuccess: () => {
@@ -82,6 +85,7 @@ export const TwoFactorSection = () => {
     },
     onError,
   });
+
   const renew = useMutation({
     mutationFn: () => api.auth.twoFactorRecoveryCodes({ password }),
     onSuccess: ({ recoveryCodes }) => {

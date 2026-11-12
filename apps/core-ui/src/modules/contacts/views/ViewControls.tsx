@@ -27,6 +27,7 @@ export const AdvancedFilterButton = ({ recordType }: { recordType: ViewRecordTyp
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
+
         if (next) setDraft(advanced ?? { match: 'all', rules: [] });
       }}
     >
@@ -103,6 +104,7 @@ export const ViewDialog = ({
           setName(initial.name);
           setShared(initial.shared);
         }
+
         onOpenChange(next);
       }}
     >
@@ -118,6 +120,7 @@ export const ViewDialog = ({
           className="space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
+
             if (name.trim()) onSave({ name: name.trim(), shared });
           }}
         >

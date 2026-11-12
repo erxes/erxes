@@ -108,7 +108,7 @@ const CustomerSexCell = ({ customer }: { customer: Customer }) => {
         <SexField
           value={value}
           onValueChange={(sex) => {
-            if (sex !== value) edit.mutate({ id: customer.id, sex: sex as Customer['sex'] });
+            if (sex !== value) edit.mutate({ id: customer.id, sex: sex });
             setOpen(false);
           }}
         />

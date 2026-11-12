@@ -67,20 +67,19 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
   const parsed = ExportQuery.safeParse(req.query);
 
   if (!parsed.success) {
-    res
-      .status(400)
-      .json({
-        defined: false,
-        code: 'INVALID_INPUT',
-        status: 400,
-        message: 'The request is not valid',
-        data: { issues: parsed.error.issues },
-      });
+    res.status(400).json({
+      defined: false,
+      code: 'INVALID_INPUT',
+      status: 400,
+      message: 'The request is not valid',
+      data: { issues: parsed.error.issues },
+    });
+
     return;
   }
 
   const { format, ...filters } = parsed.data;
-  const scope = and(eq(auditLogs.orgId, actor.orgId), auditFilters(filters as AuditFilters));
+  const scope = and(eq(auditLogs.orgId, actor.orgId), auditFilters(filters));
   const stamp = new Date().toISOString().slice(0, 10);
 
   res.setHeader(
@@ -98,6 +97,7 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
 
     while (written < MAX_ROWS) {
       const cursor = after;
+
       // A short scoped transaction per batch: the export may stream for a while.
       const rows: (typeof auditLogs.$inferSelect)[] = await withOrg(actor.orgId, (tx) =>
         tx

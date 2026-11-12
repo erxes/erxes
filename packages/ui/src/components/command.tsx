@@ -3,7 +3,8 @@ import * as React from 'react';
 import { IconSearch } from '@tabler/icons-react';
 import { cva } from 'class-variance-authority';
 import { Command as CommandPrimitive } from 'cmdk';
-import { Dialog, DialogProps } from './dialog';
+import type { DialogProps } from './dialog';
+import { Dialog } from './dialog';
 import { cn } from '../lib/utils';
 import { useEffect, useRef } from 'react';
 import { mergeRefs } from 'react-merge-refs';
@@ -21,6 +22,7 @@ const CommandRoot = React.forwardRef<
     {...props}
   />
 ));
+
 CommandRoot.displayName = CommandPrimitive.displayName;
 
 type CommandDialogProps = DialogProps & {
@@ -150,6 +152,7 @@ const CommandSeparator = React.forwardRef<
     {...props}
   />
 ));
+
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
 
 const CommandItem = React.forwardRef<
@@ -191,6 +194,7 @@ const CommandActionItem = ({
     {trailing}
   </CommandItem>
 );
+
 CommandActionItem.displayName = 'CommandActionItem';
 
 const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
@@ -201,6 +205,7 @@ const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanE
     />
   );
 };
+
 CommandShortcut.displayName = 'CommandShortcut';
 
 export const Command = Object.assign(CommandRoot, {

@@ -1,4 +1,5 @@
-import { ButtonProps, Input, TextOverflowTooltip } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components';
+import { Input, TextOverflowTooltip } from 'erxes-ui/components';
 import React, { useState } from 'react';
 
 import { PopoverScoped } from 'erxes-ui/modules/hotkey';
@@ -36,9 +37,11 @@ export const NumberField = React.forwardRef<
   const handleAction = (e?: React.FormEvent) => {
     e?.preventDefault();
     const numValue = Number(editingValue) || 0;
+
     if (numValue !== value) {
       onSave?.(numValue);
     }
+
     setIsOpen(false);
   };
 
@@ -56,6 +59,7 @@ export const NumberField = React.forwardRef<
       open={isOpen}
       onOpenChange={(open: boolean) => {
         setIsOpen(open);
+
         if (open) {
           resetEditing();
         } else if (isEdited) {
@@ -87,10 +91,12 @@ export const NumberField = React.forwardRef<
                 setEditingValue(rawValue);
                 setIsEdited(true);
                 const numValue = Number(rawValue);
+
                 if (!isNaN(numValue)) {
                   onValueChange?.(numValue);
                 }
               }
+
               setIsOpen(true);
             }}
             onKeyDown={handleKeyDown}

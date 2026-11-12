@@ -25,7 +25,7 @@ try {
 
 const problems = [];
 
-for (const line of git('diff', '--name-status', `${base}`, 'HEAD', '--', `${DIR}/*.sql`)
+for (const line of git('diff', '--name-status', base, 'HEAD', '--', `${DIR}/*.sql`)
   .split('\n')
   .filter(Boolean)) {
   const [status, file] = line.split('\t');
@@ -52,6 +52,7 @@ before.forEach((tag, index) => {
 
 if (problems.length) {
   console.error('Applied migrations were changed. Add a new migration instead:');
+
   for (const problem of problems) console.error(`  ${problem}`);
   process.exit(1);
 }

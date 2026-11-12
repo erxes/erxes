@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -19,16 +19,19 @@ describeWithDb('customers (/core/v1/customers)', () => {
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const globex = await createOrganization({
       subdomain: 'globex',
       name: 'Globex',
       owner: { email: 'owner@globex.mn' },
     });
+
     const memberId = newId();
 
     await adminDb().insert(users).values({
@@ -157,6 +160,7 @@ describeWithDb('customers (/core/v1/customers)', () => {
     const listed = await update(ownerToken, created.body.id, {
       emails: ['tuul@c.mn', 'tuul@b.mn'],
     });
+
     expect(listed.body).toMatchObject({
       primaryEmail: 'tuul@b.mn',
       emails: ['tuul@b.mn', 'tuul@c.mn'],
@@ -184,10 +188,12 @@ describeWithDb('customers (/core/v1/customers)', () => {
     const byPhone = await call(ownerToken, '/customers?search=9900-11');
     const leads = await call(ownerToken, '/customers?state=lead');
     const first = await call(ownerToken, '/customers?limit=2');
+
     const rest = await call(
       ownerToken,
       `/customers?limit=10&cursor=${first.body.pageInfo.endCursor}`,
     );
+
     const reopen = await call(
       ownerToken,
       `/customers?limit=10&cursorMode=inclusive&cursor=${first.body.pageInfo.endCursor}`,
@@ -215,10 +221,12 @@ describeWithDb('customers (/core/v1/customers)', () => {
 
   it('lets only owners and admins delete customers', async () => {
     const created = await create(ownerToken, { firstName: 'Temp' });
+
     const asMember = await call(memberToken, '/customers/remove', {
       method: 'POST',
       body: JSON.stringify({ ids: [created.body.id] }),
     });
+
     const asOwner = await call(ownerToken, '/customers/remove', {
       method: 'POST',
       body: JSON.stringify({ ids: [created.body.id, 'missing'] }),

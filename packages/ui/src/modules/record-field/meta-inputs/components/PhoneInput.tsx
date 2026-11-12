@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { IconCheck } from '@tabler/icons-react';
 import { Combobox, Command, Input, Popover } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
-import parsePhoneNumberFromString, { CountryCode } from 'libphonenumber-js';
+import type { CountryCode } from 'libphonenumber-js';
+import parsePhoneNumberFromString from 'libphonenumber-js';
 import { CountryPhoneCodes } from 'erxes-ui/constants/CountryPhoneCodes';
-import { TCountryCode } from 'erxes-ui/types';
+import type { TCountryCode } from 'erxes-ui/types';
 import { formatPhoneNumber } from 'erxes-ui/utils/format';
 import { phoneSchema } from 'erxes-ui/modules/inputs/validations/phoneValidation';
 
@@ -38,6 +39,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     const displayValue = value && !value.startsWith('+') ? `+${value}` : value || '';
 
     let parsedNumber;
+
     try {
       parsedNumber = parsePhoneNumberFromString(displayValue);
     } catch {
@@ -45,6 +47,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     }
 
     const initialCountry = parsedNumber?.country;
+
     const [selectedCountry, setSelectedCountry] = useState<TCountryCode | undefined>(
       CountryPhoneCodes.find((c) => c.code === initialCountry),
     );
@@ -54,6 +57,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
         ? parsedNumber.formatInternational()
         : displayValue
       : selectedCountry?.dial_code || '';
+
     const [phoneNumber, setPhoneNumber] = useState<string>(() =>
       formatPhoneNumber({ value: initialValue || selectedCountry?.dial_code || '' }),
     );
@@ -62,28 +66,33 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     const [validationError, setValidationError] = useState<string>('');
 
     const validatePhone = (phone: string) => {
-      const cleanPhone = phone.replace(/[\s\-\()]/g, '');
+      const cleanPhone = phone.replace(/[\s\-()]/g, '');
 
       try {
         phoneSchema.parse({ phone: cleanPhone });
         setValidationError('');
         onValidationChange?.(true);
+
         return true;
       } catch (error: any) {
         const errorMessage = error.errors?.[0]?.message || 'Invalid phone number';
         setValidationError(errorMessage);
         onValidationChange?.(false, errorMessage);
+
         return false;
       }
     };
 
     const handleSelect = (phoneCode: string) => {
       const country = CountryPhoneCodes.find((c) => c.dial_code === phoneCode);
+
       if (country) {
         setSelectedCountry(country);
         setPhoneNumber(country.dial_code);
       }
+
       setOpen(false);
+
       if (ref && typeof ref !== 'function' && 'current' in ref) {
         ref.current?.focus();
       }
@@ -91,11 +100,13 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       let input = e.target.value;
+
       if (!input.startsWith('+')) {
         input = '+' + input;
       }
 
       let parsedNumber;
+
       try {
         parsedNumber = parsePhoneNumberFromString(input);
       } catch {
@@ -104,8 +115,10 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
 
       let countryToUse = selectedCountry;
       const countryCode = parsedNumber?.country;
+
       if (countryCode) {
         const newCountry = CountryPhoneCodes.find((c) => c.code === countryCode);
+
         if (newCountry) {
           setSelectedCountry(newCountry);
           countryToUse = newCountry;
@@ -124,6 +137,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
 
       onChange?.(cleanInput, countryToUse?.code as CountryCode);
     };
+
     const handleBlur = () => {
       if (!phoneNumber.startsWith('+')) {
         const updatedNumber = '+' + phoneNumber;
@@ -135,6 +149,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
         validatePhone(phoneNumber.replace(/[a-zA-Z\s]/g, ''));
       }
     };
+
     return (
       <div className={'flex items-center justify-start rounded gap-1'}>
         <Popover open={open} onOpenChange={setOpen}>
@@ -190,6 +205,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
                 onEnter?.(value || '');
                 e.preventDefault();
               }
+
               if (props.onKeyDown) {
                 props.onKeyDown(e);
               }

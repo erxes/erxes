@@ -1,11 +1,14 @@
-import { ReactNode, useCallback } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import type { ReactNode } from 'react';
+import { useCallback } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { createRoot } from 'react-dom/client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import { AlertDialog, ButtonProps, buttonVariants, Form, Input } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components';
+import { AlertDialog, buttonVariants, Form, Input } from 'erxes-ui/components';
 
 type OptionProps = {
   okLabel?: string;
@@ -43,7 +46,7 @@ const ConfirmDialog = ({ message, options, open, onConfirm, onDismiss }: Confirm
     confirmationValue = '',
     content,
     variants = {},
-  } = options || ({} as OptionProps);
+  } = options || {};
 
   const form = useForm<FormType>({
     mode: 'onBlur',

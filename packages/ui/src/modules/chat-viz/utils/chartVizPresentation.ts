@@ -22,6 +22,7 @@ export const getChartVizTrendDomain = ([dataMin, dataMax]: [number, number]): [n
   if (!Number.isFinite(dataMin) || !Number.isFinite(dataMax)) return [0, 1];
 
   const span = dataMax - dataMin;
+
   const padding =
     span === 0
       ? Math.max(Math.abs(dataMax) * 0.08, 1)

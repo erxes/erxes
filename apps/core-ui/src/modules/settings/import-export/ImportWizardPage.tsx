@@ -62,12 +62,14 @@ const useTags = (type: 'customer' | 'company') =>
 const downloadErrors = async (id: string, headers: string[]) => {
   const rows = (await api.transfer.importRows({ id, action: 'error', limit: 1000 })).data;
   const quote = (value: string) => `"${value.replace(/"/g, '""')}"`;
+
   const text = [
     '﻿' + ['Row', 'Error', ...headers].map(quote).join(','),
     ...rows.map((row) =>
       [String(row.rowNumber), row.error ?? '', ...row.cells].map(quote).join(','),
     ),
   ].join('\n');
+
   const link = document.createElement('a');
 
   link.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' }));
@@ -78,6 +80,7 @@ const downloadErrors = async (id: string, headers: string[]) => {
 
 const Counts = ({ imp }: { imp: Import }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+
   const items = [
     {
       key: 'create',
@@ -104,6 +107,7 @@ const Counts = ({ imp }: { imp: Import }) => {
       tone: 'destructive' as const,
     },
   ];
+
   const finished = imp.status === 'done' || imp.status === 'undone';
 
   return (
@@ -120,6 +124,7 @@ const Counts = ({ imp }: { imp: Import }) => {
 
 const ErrorRows = ({ imp }: { imp: Import }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'import-export' });
+
   const rows = useQuery({
     queryKey: [...IMPORTS_KEY, imp.id, 'errors', imp.status],
     queryFn: () => api.transfer.importRows({ id: imp.id, action: 'error', limit: 50 }),
@@ -179,34 +184,41 @@ export const ImportWizardPage = () => {
   const { confirm } = useConfirm();
   const client = useQueryClient();
   const { data: imp } = useImport(id);
+
   const columns = useTransferColumns(imp?.recordType ?? 'customer').filter(
     (column) => column.importable,
   );
+
   const members = useMembers();
   const tags = useTags(imp?.recordType === 'company' ? 'company' : 'customer');
   const set = (next: Import) => client.setQueryData([...IMPORTS_KEY, id], next);
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
       title: t('failed', 'Something went wrong'),
       description: messageOf(error),
     });
+
   const update = useMutation({
     mutationFn: (changes: { mapping?: Record<string, string>; options?: Partial<ImportOptions> }) =>
       api.transfer.updateImport({ id, ...changes }),
     onSuccess: set,
     onError,
   });
+
   const check = useMutation({
     mutationFn: () => api.transfer.checkImport({ id }),
     onSuccess: set,
     onError,
   });
+
   const start = useMutation({
     mutationFn: () => api.transfer.startImport({ id }),
     onSuccess: set,
     onError,
   });
+
   const undo = useMutation({
     mutationFn: () => api.transfer.undoImport({ id }),
     onSuccess: set,
@@ -333,6 +345,7 @@ export const ImportWizardPage = () => {
                 <div className="divide-y rounded-lg border">
                   {imp.headers.map((header, index) => {
                     const value = imp.mapping[String(index)] ?? IGNORE;
+
                     const samples = imp.sample
                       .map((row) => row[index])
                       .filter(Boolean)

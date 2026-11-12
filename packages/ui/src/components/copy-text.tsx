@@ -14,6 +14,7 @@ export const CopyText = ({ value, children, className }: CopyTextProps) => {
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
+
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);

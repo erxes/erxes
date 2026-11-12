@@ -2,7 +2,8 @@ import React from 'react';
 
 import { IconDots } from '@tabler/icons-react';
 
-import { Button, ButtonProps } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const RecordTableMoreButton = React.forwardRef<HTMLButtonElement, ButtonProps>(

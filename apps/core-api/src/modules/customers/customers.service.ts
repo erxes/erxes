@@ -1,15 +1,15 @@
 import type { CursorQuery, CustomerInput, CustomerSex } from '@erxes/core-contract';
-import type { CustomValue } from '@erxes/core-db';
+import type { CustomValue, Db } from '@erxes/core-db';
 import {
   companies,
   customerCompanies,
   customers,
-  Db,
   newId,
   users,
   withTransaction,
 } from '@erxes/core-db';
-import { and, arrayContains, asc, eq, getTableColumns, inArray, or, SQL, sql } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
+import { and, arrayContains, asc, eq, getTableColumns, inArray, or, sql } from 'drizzle-orm';
 import { type Actor, requirePermission, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { normalizeEmail, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
@@ -45,6 +45,7 @@ type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText'> & {
   tagIds: string[];
   customFields: Record<string, CustomValue>;
 };
+
 type State = CustomerRow['state'];
 
 export const toCustomerDto = (row: CustomerRow) => ({
@@ -146,6 +147,7 @@ const conflictFrom = async (
   }
 
   const byEmail = pgConstraint(error) === 'core_customers_org_primary_email_key';
+
   const [existing] = await client
     .select({ id: customers.id })
     .from(customers)
@@ -304,6 +306,7 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'customer', input.tagIds ?? []);
+
   const customFields = await applyCustomFields(
     client,
     actor.orgId,
@@ -311,6 +314,7 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
     {},
     input.customFields,
   );
+
   const lead = await planLeadOnCreate(client, userCaller(actor), {
     ...input,
     state: input.state ?? 'customer',
@@ -372,6 +376,7 @@ export const updateCustomer = async (
   await assertOwner(client, actor.orgId, input.ownerId);
 
   const changes: Partial<typeof customers.$inferInsert> = {};
+
   const tagIds =
     input.tagIds === undefined
       ? undefined
@@ -384,6 +389,7 @@ export const updateCustomer = async (
       { primary: current.primaryEmail, list: current.emails },
       normalizeEmail,
     );
+
     changes.primaryEmail = email.primary;
     changes.emails = email.list;
   }
@@ -395,6 +401,7 @@ export const updateCustomer = async (
       { primary: current.primaryPhone, list: current.phones },
       normalizePhone,
     );
+
     changes.primaryPhone = phone.primary;
     changes.phones = phone.list;
   }
@@ -409,6 +416,7 @@ export const updateCustomer = async (
           current.customFields,
           input.customFields,
         );
+
   const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
 
   try {
@@ -487,8 +495,10 @@ export const tagCustomers = async (
   input: { ids: string[]; add: string[]; remove: string[] },
 ) => {
   const add = await checkTagIds(client, actor.orgId, 'customer', input.add);
+
   const updated = await client.transaction(async (tx) => {
     const before = await tagsByCustomer(tx, actor.orgId, input.ids);
+
     const count = await changeTags(tx, actor.orgId, 'customer', input.ids, {
       add,
       remove: unique(input.remove),
@@ -557,14 +567,18 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
     }
 
     const keep = rows.find((row) => row.id === input.keepId)!;
+
     const others = ids
       .filter((id) => id !== keep.id)
       .map((id) => rows.find((row) => row.id === id)!);
+
     const otherIds = others.map((other) => other.id);
+
     const email = combineContacts(
       { primary: keep.primaryEmail, list: keep.emails },
       others.map((other) => ({ primary: other.primaryEmail, list: other.emails })),
     );
+
     const phone = combineContacts(
       { primary: keep.primaryPhone, list: keep.phones },
       others.map((other) => ({ primary: other.primaryPhone, list: other.phones })),
@@ -825,6 +839,7 @@ export const findOrCreateCustomer = async (
     source: input.source,
     sourceDetails: input.sourceDetails,
   });
+
   const id = await client.transaction(async (tx) => {
     const [row] = await tx
       .insert(customers)

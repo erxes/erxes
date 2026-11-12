@@ -3,7 +3,9 @@ import { testDriver } from './test';
 import type { DriverOptions, GatewayConfig, GatewayDriver } from './types';
 
 export * from './types';
+
 export { qpayDriver } from './qpay';
+
 export { testDriver } from './test';
 
 /**

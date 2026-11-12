@@ -2,6 +2,7 @@ import * as React from 'react';
 
 export const useComposedRef = <T extends HTMLElement>(forwardedRef: React.ForwardedRef<T>) => {
   const innerRef = React.useRef<T | null>(null);
+
   const setRef = React.useCallback(
     (node: T | null) => {
       innerRef.current = node;

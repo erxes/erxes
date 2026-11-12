@@ -30,6 +30,7 @@ export const MainOnboarding = () => {
   // Old erxes offered invites to owners; in the new core admins may invite too
   const canInvite = useCan()('team.invite');
   const steps = useMemo(() => getOnboardingSteps(canInvite), [canInvite]);
+
   const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } =
     usePreviousHotkeyScope();
 
@@ -111,6 +112,7 @@ export const MainOnboarding = () => {
             currentStep={currentStep}
             setCurrentStep={(index) => {
               const target = steps[index - 1];
+
               if (target && index <= currentStep) {
                 setCurrentStep(target.step);
               }

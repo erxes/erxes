@@ -15,10 +15,13 @@ export const useBlockEditorCommentComposer = (): {
   const { toast } = useToast();
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
+
   const saveComment = async (): Promise<void> => {
     const comments = editor.comments;
+
     if (!comments || !value.trim() || saving) return;
     setSaving(true);
+
     try {
       await comments.createThread({
         initialComment: {
@@ -42,5 +45,6 @@ export const useBlockEditorCommentComposer = (): {
       setSaving(false);
     }
   };
+
   return { value, setValue, saving, saveComment };
 };

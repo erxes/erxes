@@ -142,6 +142,7 @@ AnimationComponent.displayName = 'AnimationComponent';
 
 const splitText = (text: string, per: PerType) => {
   if (per === 'line') return text.split('\n');
+
   return text.split(/(\s+)/);
 };
 
@@ -149,6 +150,7 @@ const hasTransition = (
   variant?: Variant,
 ): variant is TargetAndTransition & { transition?: Transition } => {
   if (!variant) return false;
+
   return typeof variant === 'object' && 'transition' in variant;
 };
 

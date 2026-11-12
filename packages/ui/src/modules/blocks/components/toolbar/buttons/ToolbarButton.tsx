@@ -1,4 +1,5 @@
-import { ComponentPropsWithoutRef, ElementRef, forwardRef } from 'react';
+import type { ComponentPropsWithoutRef, ElementRef } from 'react';
+import { forwardRef } from 'react';
 import { Button } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 

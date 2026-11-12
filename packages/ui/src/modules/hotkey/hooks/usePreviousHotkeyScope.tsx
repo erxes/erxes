@@ -3,7 +3,7 @@ import { useSetHotkeyScope } from './useSetHotkeyScope';
 import { useCallback } from 'react';
 import { previousHotkeyScopeState } from '../states/internal/previousHotkeyScopeState';
 import { currentHotkeyScopeState } from '../states/internal/currentHotkeyScopeState';
-import { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
+import type { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
 import { DEBUG_HOTKEY_SCOPE } from './useScopedHotKeysCallback';
 import { logDebug } from 'erxes-ui/utils/logDebug';
 

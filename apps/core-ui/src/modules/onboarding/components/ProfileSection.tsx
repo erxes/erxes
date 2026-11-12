@@ -44,6 +44,7 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
   const { user } = session;
   const client = useQueryClient();
   const { toast } = useToast();
+
   const form = useForm<ProfileFormType>({
     resolver: zodResolver(getProfileFormSchema(tOnboarding)),
     defaultValues: {
@@ -52,7 +53,9 @@ export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
       username: user.username ?? '',
     },
   });
+
   const avatar = form.watch('avatar');
+
   const name =
     [form.watch('firstName'), form.watch('lastName')].filter(Boolean).join(' ') || user.email;
 

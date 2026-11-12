@@ -31,9 +31,11 @@ const StageRow = ({ stage, onRemove }: { stage: LeadStage; onRemove: () => void 
   const t = useLeadsT();
   const stageName = useStageName();
   const { update } = useLeadStageMutations();
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: stage.id,
   });
+
   // Default names show translated; saving another name keeps it as written.
   const shown = stageName(stage.name);
   const [name, setName] = useState(shown);

@@ -38,9 +38,11 @@ const CoreTabAppTab = ({
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: app.id,
   });
+
   const ref = useRef<HTMLDivElement | null>(null);
   const Icon = app.icon;
   const closeLabel = t('close-tab', { page: app.label, defaultValue: `Close ${app.label}` });
@@ -75,8 +77,10 @@ const CoreTabAppTab = ({
             // Middle click must not take focus before it closes the tab.
             if (event.button === 1) {
               event.preventDefault();
+
               return;
             }
+
             listeners?.onMouseDown?.(event);
           }}
           onAuxClick={(event) => {
@@ -88,11 +92,14 @@ const CoreTabAppTab = ({
           }}
           onKeyDown={(event) => {
             if (event.target !== event.currentTarget) return;
+
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();
               onSelect();
+
               return;
             }
+
             onKeyDown(event);
           }}
         >
@@ -173,6 +180,7 @@ export const CoreTabAppTabs = ({
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const listRef = useRef<HTMLDivElement | null>(null);
+
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 6 } }),
@@ -190,6 +198,7 @@ export const CoreTabAppTabs = ({
       Home: 0,
       End: tabs.length - 1,
     };
+
     const next = targets[event.key];
 
     if (next === undefined || next < 0 || next >= tabs.length) return;

@@ -17,6 +17,7 @@ export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): Gat
   const base = config.sandbox
     ? 'https://merchant-sandbox.qpay.mn/v2'
     : 'https://merchant.qpay.mn/v2';
+
   const cacheKey = `${options.cacheKey ?? config.clientId}:${config.sandbox ? 'sandbox' : 'live'}`;
   const fetcher = () => options.fetch ?? globalThis.fetch;
 
@@ -36,6 +37,7 @@ export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): Gat
       headers,
       signal: AbortSignal.timeout(15_000),
     });
+
     const text = await response.text();
 
     if (!response.ok)
@@ -91,6 +93,7 @@ export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): Gat
           callback_url: input.callbackUrl,
         }),
       });
+
       const urls = Array.isArray(body.urls)
         ? (body.urls as { name?: string; logo?: string; link?: string }[])
         : [];
@@ -119,12 +122,15 @@ export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): Gat
           offset: { page_number: 1, page_limit: 100 },
         }),
       });
+
       const rows = Array.isArray(body.rows) ? (body.rows as QPayPaymentRow[]) : [];
       const paidRows = rows.filter((row) => !row.payment_status || row.payment_status === 'PAID');
+
       const fromRows = paidRows.reduce(
         (sum, row) => sum + Math.round(Number(row.payment_amount ?? 0) * 100),
         0,
       );
+
       const paidAmount = rows.length ? fromRows : Math.round(Number(body.paid_amount ?? 0) * 100);
       const paymentId = paidRows[0]?.payment_id;
 

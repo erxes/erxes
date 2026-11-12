@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
@@ -26,6 +26,7 @@ describeWithDb(
         headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
+
       const text = await response.text();
 
       return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -33,11 +34,13 @@ describeWithDb(
 
     beforeAll(async () => {
       const { users, newId } = await import('@erxes/core-db');
+
       const acme = await createOrganization({
         subdomain: 'acme',
         name: 'Acme',
         owner: { email: 'o@acme.mn' },
       });
+
       const memberId = newId();
 
       orgId = acme.organization.id;
@@ -144,6 +147,7 @@ describeWithDb(
     it('searches and filters, keeps note history, and counts reactions', async () => {
       const customer = await call(owner, 'POST', '/customers', { firstName: 'Timeline' });
       const target = { targetType: 'customer', targetId: customer.body.id };
+
       const note = await call(owner, 'POST', '/activities/notes', {
         ...target,
         body: 'Wants the blue plan',

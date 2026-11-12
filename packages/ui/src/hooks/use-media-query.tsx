@@ -13,6 +13,7 @@ export function useMediaQuery(query: string): boolean {
 
       const mediaQuery = window.matchMedia(query);
       mediaQuery.addEventListener('change', onChange);
+
       return () => mediaQuery.removeEventListener('change', onChange);
     },
     [query],

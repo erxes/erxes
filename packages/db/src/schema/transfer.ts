@@ -17,6 +17,7 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export const TRANSFER_RECORD_TYPES = ['customer', 'lead', 'company'] as const;
+
 export const IMPORT_STATUSES = [
   'parsing',
   'mapping',
@@ -27,6 +28,7 @@ export const IMPORT_STATUSES = [
   'failed',
   'undone',
 ] as const;
+
 export const EXPORT_STATUSES = ['running', 'done', 'failed'] as const;
 
 export interface ImportOptions {

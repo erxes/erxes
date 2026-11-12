@@ -1,12 +1,11 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Kbd } from 'erxes-ui';
+import { Button, Kbd, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { ContactsBreadcrumb } from '../components/ContactsBreadcrumb';
 import { ContactsPageHeader } from '../components/ContactsPageHeader';
 import { useCreateHotkey } from '../customers/CustomersHeader';
 import { ExportButton, ImportButton } from '~/modules/transfer/TransferButtons';
-import { useMultiQueryState } from 'erxes-ui';
 
 /** Export with the list's quick filters (the advanced filter and search come from the address). */
 const CompaniesExportButton = () => {

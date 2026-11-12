@@ -16,6 +16,7 @@ export interface MultiSelectOption {
   /** Group the options by providing key. */
   [key: string]: string | boolean | undefined;
 }
+
 interface GroupOption {
   [key: string]: MultiSelectOption[];
 }
@@ -102,6 +103,7 @@ function transToGroupOption(options: MultiSelectOption[], groupBy?: string) {
   if (options.length === 0) {
     return {};
   }
+
   if (!groupBy) {
     return {
       '': options,
@@ -111,11 +113,14 @@ function transToGroupOption(options: MultiSelectOption[], groupBy?: string) {
   const groupOption: GroupOption = {};
   options.forEach((option) => {
     const key = (option[groupBy] as string) || '';
+
     if (!groupOption[key]) {
       groupOption[key] = [];
     }
+
     groupOption[key].push(option);
   });
+
   return groupOption;
 }
 
@@ -125,6 +130,7 @@ function removePickedOption(groupOption: GroupOption, picked: MultiSelectOption[
   for (const [key, value] of Object.entries(cloneOption)) {
     cloneOption[key] = value.filter((val) => !picked?.find((p) => p.value === val.value));
   }
+
   return cloneOption;
 }
 
@@ -134,6 +140,7 @@ function isOptionsExist(groupOption: GroupOption, targetOption: MultiSelectOptio
       return true;
     }
   }
+
   return false;
 }
 
@@ -199,9 +206,11 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
     const dropdownRef = React.useRef<HTMLDivElement>(null); // Added this
 
     const [selected, setSelected] = React.useState<MultiSelectOption[]>(value || []);
+
     const [options, setOptions] = React.useState<GroupOption>(
       transToGroupOption(arrayDefaultOptions, groupBy),
     );
+
     const [inputValue, setInputValue] = React.useState('');
     const debouncedSearchTerm = useDebounce(inputValue, delay || 500);
 
@@ -240,16 +249,19 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
     const handleKeyDown = React.useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>) => {
         const input = inputRef.current;
+
         if (input) {
           if (e.key === 'Delete' || e.key === 'Backspace') {
             if (input.value === '' && selected.length > 0) {
               const lastSelectOption = selected[selected.length - 1];
+
               // If last item is fixed, we should not remove it.
               if (!lastSelectOption.fixed) {
                 handleUnselect(selected[selected.length - 1]);
               }
             }
           }
+
           // This is not a default behavior of the <input /> field
           if (e.key === 'Escape') {
             input.blur();
@@ -285,7 +297,9 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
       if (!arrayOptions || onSearch) {
         return;
       }
+
       const newOption = transToGroupOption(arrayOptions || [], groupBy);
+
       if (JSON.stringify(newOption) !== JSON.stringify(options)) {
         setOptions(newOption);
       }
@@ -343,6 +357,7 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
 
     const CreatableItem = () => {
       if (!creatable) return undefined;
+
       if (
         isOptionsExist(options, [{ value: inputValue, label: inputValue }]) ||
         selected.find((s) => s.value === inputValue)
@@ -361,8 +376,10 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
           onSelect={(value: string) => {
             if (selected.length >= maxSelected) {
               onMaxSelected?.(selected.length);
+
               return;
             }
+
             setInputValue('');
             const newOptions = [...selected, { value, label: value }];
             setSelected(newOptions);
@@ -417,6 +434,7 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
           return value.toLowerCase().includes(search.toLowerCase()) ? 1 : -1;
         };
       }
+
       // Using default filter in `cmdk`. We don&lsquo;t have to provide it.
       return undefined;
     }, [creatable, commandProps?.filter]);
@@ -496,13 +514,16 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
                 if (!onScrollbar) {
                   setOpen(false);
                 }
+
                 inputProps?.onBlur?.(event);
               }}
               onFocus={(event) => {
                 setOpen(true);
+
                 if (triggerSearchOnFocus) {
                   onSearch?.(debouncedSearchTerm);
                 }
+
                 inputProps?.onFocus?.(event);
               }}
               placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
@@ -582,8 +603,10 @@ export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSe
                                 onSelect={() => {
                                   if (selected.length >= maxSelected) {
                                     onMaxSelected?.(selected.length);
+
                                     return;
                                   }
+
                                   setInputValue('');
                                   const newOptions = [...selected, option];
                                   setSelected(newOptions);

@@ -5,6 +5,7 @@ import { Id } from './common';
 
 /** The list a view belongs to: customers, leads (people), companies, company leads. */
 export const ViewRecordType = z.enum(['customer', 'lead', 'company', 'company_lead']);
+
 export type ViewRecordType = z.infer<typeof ViewRecordType>;
 
 /**
@@ -24,6 +25,7 @@ export const FilterField = z.object({
   /** Where it comes from, for grouping in the picker. */
   group: z.enum(['fields', 'lead', 'custom', 'company', 'activity']),
 });
+
 export type FilterField = z.infer<typeof FilterField>;
 
 export const ViewSort = z.object({
@@ -47,6 +49,7 @@ export const View = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
+
 export type View = z.infer<typeof View>;
 
 const ViewFields = {

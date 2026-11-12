@@ -42,7 +42,8 @@ export const loadSubjects = async (
 ) => {
   const table = type === 'customer' ? 'core_customers' : 'core_companies';
   const tags = type === 'customer' ? 'core_customer_tags' : 'core_company_tags';
-  const result = await tx.execute<Record<string, unknown>>(sql`
+
+  const result = await tx.execute(sql`
     select r.*, coalesce((select array_agg(t.tag_id) from ${sql.identifier(tags)} t where t.org_id = r.org_id and ${sql.raw(`t.${type}_id`)} = r.id), '{}') as tag_ids,
       ${customFieldsColumn(type, sql`r.id`)} as custom_fields
     from ${sql.identifier(table)} r
@@ -76,6 +77,7 @@ const enrollAudience = async (
         )})`
       : sql`true`,
   );
+
   let started = 0;
   let skipped = 0;
 
@@ -111,10 +113,12 @@ const dueByDate = async (
   const target = new Date(Date.UTC(today.year, today.month - 1, today.day - trigger.offsetDays));
   const iso = target.toISOString().slice(0, 10);
   const monthDay = iso.slice(5);
+
   const column =
     trigger.field === 'birthDate' && trigger.subject === 'customer'
       ? sql`r.birth_date::text`
       : sql`(select to_char(v.date_value, 'YYYY-MM-DD') from ${valuesTable(trigger.subject)} v where v.record_id = r.id and v.field_id = ${trigger.field} and v.date_value is not null limit 1)`;
+
   const match = trigger.yearly
     ? sql`substr(${column}, 6, 5) = ${monthDay}`
     : sql`substr(${column}, 1, 10) = ${iso}`;
@@ -132,6 +136,7 @@ export const fireJob: JobDefinition = {
   leaseSeconds: 600,
   async handle(job, tx) {
     const db = tx as Transaction;
+
     const [automation] = await db
       .select()
       .from(automations)
@@ -160,6 +165,7 @@ export const fireJob: JobDefinition = {
         });
     } else if (trigger.kind === 'date') {
       const { subjects, day } = await dueByDate(db, automation, trigger, new Date(at));
+
       const event = {
         type: 'date',
         occurredAt: at,
@@ -206,6 +212,7 @@ export const tickAutomations = () =>
       const definition = automation.activeVersion
         ? await definitionOf(tx, automation.id, automation.activeVersion)
         : null;
+
       const scheduledFor = automation.nextRunAt!;
 
       if (!definition) continue;
@@ -238,6 +245,7 @@ export const startNow = async (
 ) => {
   const startKey = `manual:${newId()}`;
   const event = { type: 'manual', occurredAt: new Date().toISOString(), payload: {} };
+
   const audience =
     definition.trigger.kind === 'manual' || definition.trigger.kind === 'schedule'
       ? definition.trigger.audience

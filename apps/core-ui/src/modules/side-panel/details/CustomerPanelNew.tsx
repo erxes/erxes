@@ -97,16 +97,19 @@ const orNull = (value: string) => value.trim() || null;
 export const CustomerPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
+
   const { state, leadStageId } = useSidePanelDraft<{
     state: Customer['state'];
     leadStageId?: string;
   }>('core:customer');
+
   const { back, canGoBack, close } = useSidePanel();
   const { toast } = useToast();
   const [companyIds, setCompanyIds] = useState<string[]>([]);
   const [linking, setLinking] = useState(false);
   const showCreated = useCreatedPanelRecord('core:customer');
   const create = useCustomerCreate();
+
   const form = useForm<TCustomerForm>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
@@ -124,6 +127,7 @@ export const CustomerPanelNew = () => {
       avatarUrl: null,
     },
   });
+
   const { errors } = form.formState;
 
   /** Returns to the previous record or closes a top-level unsaved draft. */

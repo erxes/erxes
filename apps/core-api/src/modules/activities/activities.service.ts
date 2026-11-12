@@ -136,6 +136,7 @@ export const assertTarget = async (
   targetId: string,
 ) => {
   const table = targetType === 'customer' ? customers : companies;
+
   const [row] = await client
     .select({ id: table.id })
     .from(table)
@@ -154,6 +155,7 @@ const CORE_TARGETS = new Set(['customer', 'company']);
 /** The plugin timeline a target type belongs to (from installed plugins' manifests), or null. */
 const pluginTimeline = async (client: Db, orgId: string, targetType: string) => {
   const [plugin] = targetType.split('.');
+
   const [row] = await client
     .select({ manifest: plugins.manifest })
     .from(plugins)
@@ -246,6 +248,7 @@ export const listActivities = async (
     eq(activities.targetType, query.targetType),
     eq(activities.targetId, query.targetId),
   );
+
   // A company's timeline can include what happened with its customers.
   const related =
     query.includeRelated && query.targetType === 'company'
@@ -265,6 +268,7 @@ export const listActivities = async (
           ),
         )
       : undefined;
+
   const kindFilter =
     query.kind === 'notes'
       ? isNote
@@ -313,6 +317,7 @@ export const listActivities = async (
   const memberIds = unique(
     page.data.flatMap((row) => (row.actorType === 'user' && row.actorId ? [row.actorId] : [])),
   );
+
   const members = memberIds.length
     ? await client
         .select({
@@ -323,6 +328,7 @@ export const listActivities = async (
         .from(users)
         .where(and(eq(users.orgId, actor.orgId), inArray(users.id, memberIds)))
     : [];
+
   const byId = new Map(members.map((member) => [member.id, member]));
 
   return {
@@ -456,6 +462,7 @@ export const updateNote = async (
   input: { body?: string; mentions?: string[]; fileIds?: string[]; pinned?: boolean },
 ) => {
   const note = await findNote(client, actor.orgId, id);
+
   const editing =
     input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
 
@@ -472,7 +479,9 @@ export const updateNote = async (
     input.fileIds === undefined
       ? data.fileIds
       : await checkFiles(client, actor.orgId, input.fileIds);
+
   const body = input.body ?? data.body;
+
   // Earlier wordings stay readable (the last 20).
   const history = [
     ...(((note.data as { history?: unknown[] }).history ?? []) as {
@@ -483,6 +492,7 @@ export const updateNote = async (
       ? [{ body: data.body, editedAt: (note.editedAt ?? note.occurredAt).toISOString() }]
       : []),
   ].slice(-20);
+
   const reactions = (note.data as { reactions?: Record<string, string[]> }).reactions;
 
   return client.transaction(async (tx) => {
@@ -544,6 +554,7 @@ const notifyTargetOwner = async (
   if (!CORE_TARGETS.has(input.targetType)) return;
 
   const table = input.targetType === 'customer' ? customers : companies;
+
   const [target] = await client
     .select({ ownerId: table.ownerId })
     .from(table)
@@ -646,8 +657,9 @@ export const reactToActivity = async (client: Db, actor: Actor, id: string, emoj
     await assertTimelineAccess(tx, { actor, orgId: actor.orgId }, row.targetType, row.targetId);
 
     const reactions = {
-      ...((row.data as { reactions?: Record<string, string[]> }).reactions ?? {}),
+      ...(row.data as { reactions?: Record<string, string[]> }).reactions,
     };
+
     const people = new Set(reactions[emoji] ?? []);
 
     if (people.has(actor.userId)) people.delete(actor.userId);
@@ -697,6 +709,7 @@ export const updatePluginActivity = async (
 ) => {
   const row = await pluginEntry(client, caller, ref);
   const reactions = (row.data as { reactions?: unknown }).reactions;
+
   const [saved] = await client
     .update(activities)
     .set({

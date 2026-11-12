@@ -1,6 +1,7 @@
 import { getFileStorage, REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { type FileError, type FileRejection, useDropzone } from 'react-dropzone';
+
 export interface FileWithPreview extends File {
   preview?: string;
   errors: readonly FileError[];
@@ -45,6 +46,7 @@ const uploadFile = async (file: File): Promise<FileUploadResponse> => {
 
   const formData = new FormData();
   formData.append('file', file);
+
   const response = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
     method: 'post',
     body: formData,
@@ -56,6 +58,7 @@ const uploadFile = async (file: File): Promise<FileUploadResponse> => {
   if (!response.ok) {
     return { name: file.name, message: data };
   }
+
   return { name: file.name, message: undefined, url: data };
 };
 
@@ -76,9 +79,11 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
     if (errors.length === 0 && successes.length === 0) {
       return false;
     }
+
     if (errors.length === 0 && successes.length === files.length) {
       return true;
     }
+
     return false;
   }, [errors.length, successes.length, files.length]);
 
@@ -89,12 +94,14 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
         .map((file) => {
           (file as FileWithPreview).preview = URL.createObjectURL(file);
           (file as FileWithPreview).errors = [];
+
           return file as FileWithPreview;
         });
 
       const invalidFiles = fileRejections.map(({ file, errors }) => {
         (file as FileWithPreview).preview = URL.createObjectURL(file);
         (file as FileWithPreview).errors = errors;
+
         return file as FileWithPreview;
       });
 
@@ -121,6 +128,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
     // [Joshen] This is to support handling partial successes
     // If any files didn't upload for any reason, hitting "Upload" again will only upload the files that had errors
     const filesWithErrors = errors.map((x) => x.name);
+
     const filesToUpload =
       filesWithErrors.length > 0
         ? [
@@ -139,18 +147,20 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
       (x): x is FileUploadResponse & { url: string } =>
         x.message === undefined && typeof x.url === 'string',
     );
+
     const newSuccesses = Array.from(
       new Set([...successes, ...responseSuccesses.map((x) => x.name)]),
     );
+
     setSuccesses(newSuccesses);
-    onFilesAdded?.([
-      ...responseSuccesses.map((x) => ({
+    onFilesAdded?.(
+      responseSuccesses.map((x) => ({
         name: x.name,
         url: x.url,
         type: filesToUpload.find((f) => f.name === x.name)?.type || '',
         size: filesToUpload.find((f) => f.name === x.name)?.size || 0,
       })),
-    ]);
+    );
     setLoading(false);
 
     setTimeout(() => {
@@ -167,13 +177,16 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
     // If the number of files doesn't exceed the maxFiles parameter, remove the error 'Too many files' from each file
     if (files.length <= maxFiles) {
       let changed = false;
+
       const newFiles = files.map((file) => {
         if (file.errors.some((e) => e.code === 'too-many-files')) {
           file.errors = file.errors.filter((e) => e.code !== 'too-many-files');
           changed = true;
         }
+
         return file;
       });
+
       if (changed) {
         setFiles(newFiles);
       }
@@ -203,6 +216,7 @@ export { useErxesUpload, type UseErxesUploadOptions, type UseErxesUploadReturn }
 export const useRemoveFile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const removeFile = useCallback(
     async (fileName: string, afterRemove: (status: string) => void) => {
       setIsLoading(true);
@@ -213,12 +227,14 @@ export const useRemoveFile = () => {
         try {
           await storage.remove(fileName);
           setIsLoading(false);
+
           return afterRemove('ok');
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Delete failed';
 
           setError(message);
           setIsLoading(false);
+
           return afterRemove(message);
         }
       }
@@ -231,13 +247,18 @@ export const useRemoveFile = () => {
         },
         body: `fileName=${fileName}`,
       });
+
       const data = await response.text();
+
       if (!response.ok) {
         setError(data);
         setIsLoading(false);
+
         return afterRemove(data);
       }
+
       setIsLoading(false);
+
       return afterRemove('ok');
     },
     [],

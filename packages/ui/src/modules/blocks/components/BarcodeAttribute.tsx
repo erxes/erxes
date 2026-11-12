@@ -1,5 +1,5 @@
+import type { BarcodeSize } from '../hooks/useBarcodeAttribute';
 import {
-  BarcodeSize,
   BARCODE_SIZE_PRESETS,
   BARCODE_DIMENSION_LIMITS,
   useBarcodeAttribute,
@@ -30,6 +30,7 @@ export const BarcodeAttribute = ({
 }: BarcodeAttributeProps) => {
   const canEdit = useBlockEditorEditable(editable);
   const barcodeRef = useRef<HTMLSpanElement>(null);
+
   const {
     form,
     size,
@@ -179,6 +180,7 @@ export const BarcodeAttribute = ({
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
+
               if (barcodeRef.current) onRemove(barcodeRef.current);
             }}
           >

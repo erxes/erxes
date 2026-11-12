@@ -7,8 +7,10 @@ import { type LiveSignal, liveHub } from './hub';
 
 const HEARTBEAT_MS = 25_000;
 const REVALIDATE_MS = 60_000;
+
 /** Signals arriving close together go out as one message. */
 const FLUSH_MS = 200;
+
 /** More distinct timelines than this in one flush: tell the browser to refetch everything. */
 const MAX_TIMELINES_PER_FLUSH = 50;
 
@@ -33,14 +35,13 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
   const open = openStreams.get(key) ?? 0;
 
   if (open >= config.live.maxStreamsPerUser) {
-    res
-      .status(429)
-      .json({
-        defined: false,
-        code: 'TOO_MANY_STREAMS',
-        status: 429,
-        message: 'Too many open streams',
-      });
+    res.status(429).json({
+      defined: false,
+      code: 'TOO_MANY_STREAMS',
+      status: 429,
+      message: 'Too many open streams',
+    });
+
     return;
   }
 
@@ -57,6 +58,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
 
   const send = (event: string, data: unknown = {}) =>
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+
   let inbox = false;
   let resync = false;
   const pluginTopics = new Map<string, Set<string>>();
@@ -70,6 +72,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
       send('resync');
     } else {
       if (inbox) send('inbox');
+
       if (timelines.size) send('timeline', { targets: [...timelines.values()] });
     }
 
@@ -104,6 +107,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
 
     flushTimer ??= setTimeout(flush, FLUSH_MS);
   };
+
   const onState = (connected: boolean) => send('hello', { mode: connected ? 'live' : 'polling' });
   const onResync = () => send('resync');
 
@@ -128,6 +132,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
     if (!req.headers.authorization && !sessionClaims(req)) {
       send('bye', { reason: 'session-expired' });
       res.end();
+
       return;
     }
 
@@ -154,6 +159,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
   req.on('close', () => {
     clearInterval(heartbeat);
     clearInterval(revalidate);
+
     if (flushTimer) clearTimeout(flushTimer);
     liveHub.off('closing', onClosing);
     liveHub.off('signal', onSignal);

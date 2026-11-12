@@ -2,7 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createLocalJWKSet, jwtVerify } from 'jose';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -52,6 +52,7 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
       code_challenge: challenge,
       code_challenge_method: 'S256',
     });
+
     const location = new URL(response.headers.get('location')!);
 
     return { location, code: location.searchParams.get('code')! };
@@ -163,11 +164,13 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
     const discovery = await fetch(`${base}/core/v1/.well-known/openid-configuration`).then(
       (r) => r.json() as Promise<{ jwks_uri: string }>,
     );
+
     const jwks = createLocalJWKSet(
       (await fetch(discovery.jwks_uri).then((r) => r.json())) as Parameters<
         typeof createLocalJWKSet
       >[0],
     );
+
     const { payload: id } = await jwtVerify(issued.body.id_token!, jwks, {
       issuer: 'erxes-core',
       audience: 'hr',
@@ -198,6 +201,7 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
   it('rotates refresh tokens, revokes the family when one is reused, and ends with sign out everywhere', async () => {
     const { verifier, challenge } = pkce();
     const { code } = await codeFor(challenge);
+
     const first = await token({
       grant_type: 'authorization_code',
       client_id: 'hr',
@@ -205,6 +209,7 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
       redirect_uri: redirect,
       code_verifier: verifier,
     });
+
     const second = await token({
       grant_type: 'refresh_token',
       client_id: 'hr',
@@ -236,6 +241,7 @@ describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300
 
     // A new sign-in, then "sign out everywhere" in erxes.
     const again = pkce();
+
     const fresh = await token({
       grant_type: 'authorization_code',
       client_id: 'hr',

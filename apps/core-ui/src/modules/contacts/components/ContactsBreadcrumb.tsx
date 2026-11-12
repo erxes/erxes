@@ -15,6 +15,7 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
     { path: ContactsPath.Leads, label: t('leads') },
     { path: ContactsPath.Companies, label: t('companies') },
   ];
+
   const currentSection = sections.find(({ path }) =>
     pathname.startsWith(`${ContactsPath.Index}${path}`),
   );

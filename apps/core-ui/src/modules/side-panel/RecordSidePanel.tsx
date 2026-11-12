@@ -58,14 +58,16 @@ const RecordSidePanelResizeHandle = ({
 
   /** Starts a pointer-specific resize and commits its final width once. */
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0 || event.isPrimary === false) return;
+    if (event.button !== 0 || !event.isPrimary) return;
     event.preventDefault();
     stopResize.current?.();
     const handle = event.currentTarget;
     const panel = handle.parentElement;
+
     if (!panel) return;
     const doc = handle.ownerDocument;
     const ownerWindow = doc.defaultView;
+
     if (!ownerWindow) return;
     const view = ownerWindow;
     const pointerId = event.pointerId;
@@ -82,10 +84,12 @@ const RecordSidePanelResizeHandle = ({
       panel.style.width = `${nextWidth}px`;
       handle.setAttribute('aria-valuenow', String(nextWidth));
     };
+
     /** Releases drag listeners and pointer capture, optionally committing the width. */
     function stop(commit = true) {
       if (stopResize.current !== stop) return;
       stopResize.current = null;
+
       if (frame !== null) view.cancelAnimationFrame(frame);
       doc.removeEventListener('pointermove', move, true);
       doc.removeEventListener('pointerup', end, true);
@@ -94,38 +98,50 @@ const RecordSidePanelResizeHandle = ({
       doc.removeEventListener('keydown', keyDown, true);
       handle.removeEventListener('lostpointercapture', end);
       view.removeEventListener('blur', blur);
+
       if (handle.hasPointerCapture?.(pointerId)) handle.releasePointerCapture(pointerId);
       doc.body.style.cursor = previousCursor;
       doc.body.style.userSelect = previousUserSelect;
+
       if (commit) {
         paint();
         setDragging(false);
+
         if (nextWidth !== startWidth) onWidthChangeRef.current(nextWidth);
       }
     }
+
     /** Paints a bounded width and recovers if a pointer release event was missed. */
     function move(moveEvent: PointerEvent) {
       if (moveEvent.pointerId !== pointerId) return;
+
       // Recover even when the browser/OS never delivered the release event.
       if ((moveEvent.buttons & 1) === 0) {
         stop();
+
         return;
       }
+
       nextWidth = clampWidth(startWidth + startX - moveEvent.clientX, maxWidth);
+
       if (frame === null) frame = view.requestAnimationFrame(paint);
     }
+
     /** Ends the resize only for the pointer that started it. */
     function end(endEvent: PointerEvent) {
       if (endEvent.pointerId === pointerId) stop();
     }
+
     /** Ends resizing when the browser window loses focus. */
     function blur() {
       stop();
     }
+
     /** Ends resizing when the document becomes hidden. */
     function visibilityChanged() {
       if (doc.visibilityState === 'hidden') stop();
     }
+
     /** Ends resizing on Escape without propagating the shortcut to the record. */
     function keyDown(keyEvent: KeyboardEvent) {
       if (keyEvent.key === 'Escape') {
@@ -165,13 +181,16 @@ const RecordSidePanelResizeHandle = ({
         onPointerDown={handlePointerDown}
         onKeyDown={(event) => {
           const step = event.shiftKey ? 64 : 16;
+
           const widths: Record<string, number> = {
             ArrowLeft: width + step,
             ArrowRight: width - step,
             Home: SIDE_PANEL_WIDTH.min,
             End: maxWidth,
           };
+
           const nextWidth = widths[event.key];
+
           if (nextWidth === undefined) return;
           event.preventDefault();
           onWidthChange(clampWidth(nextWidth, maxWidth));
@@ -216,12 +235,15 @@ const RecordSidePanelRoot = ({
   useLayoutEffect(() => {
     const changed = previousExpanded.current !== expanded;
     previousExpanded.current = expanded;
+
     if (!changed) return undefined;
     setEntering(false);
     const panel = panelRef.current;
+
     if (!panel?.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return undefined;
     }
+
     // Animate the committed layout without fading or restarting entry motion.
     const animation = panel.animate(
       [
@@ -233,6 +255,7 @@ const RecordSidePanelRoot = ({
       ],
       { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
     );
+
     return () => {
       animation?.cancel();
     };
@@ -243,12 +266,15 @@ const RecordSidePanelRoot = ({
     setInternalExpanded(!expanded);
     onExpandedChange?.(!expanded);
   }, [expanded, onExpandedChange]);
+
   const expansion = useMemo(
     () => ({ expanded, toggle: expandable ? toggle : undefined }),
     [expanded, expandable, toggle],
   );
+
   const upperBound = Math.max(SIDE_PANEL_WIDTH.min, maxWidth);
   const panelWidth = clampWidth(width, upperBound);
+
   return (
     <PanelExpansionContext.Provider value={expansion}>
       <aside
@@ -304,6 +330,7 @@ const RecordSidePanelHeader = ({
 
   useEffect(() => {
     if (!expand) return undefined;
+
     /** Expands only the active panel when the shortcut is not owned by an editor or dialog. */
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
@@ -318,6 +345,7 @@ const RecordSidePanelHeader = ({
         return;
 
       const target = event.target;
+
       if (
         target instanceof Element &&
         target.closest(
@@ -328,6 +356,7 @@ const RecordSidePanelHeader = ({
 
       const button = expandButtonRef.current;
       const panels = document.querySelectorAll('[data-record-side-panel]');
+
       if (
         !button ||
         button.closest('[hidden], [inert]') ||
@@ -341,7 +370,9 @@ const RecordSidePanelHeader = ({
       event.preventDefault();
       expand();
     };
+
     document.addEventListener('keydown', handleKeyDown);
+
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [expand]);
 
@@ -407,6 +438,7 @@ const RecordSidePanelHeader = ({
 const TAB_GAP = 4;
 const MORE_BUTTON_WIDTH = 96;
 const TAB_FALLBACK_WIDTH = 104;
+
 /** A tab's icon and the gap after it: dropped when that lets every tab fit. */
 const TAB_ICON_SPACE = 22;
 
@@ -426,10 +458,12 @@ const RecordSidePanelTabs = ({
   const expanded = controlledExpanded ?? contextExpanded;
   const splitOverview = expanded && Boolean(overviewTab);
   const navigationTabs = splitOverview ? tabs.filter((tab) => tab.value !== overviewTab) : tabs;
+
   const selectedValue =
     splitOverview && value === overviewTab
       ? expandedDefaultTab || navigationTabs[0]?.value || value
       : value;
+
   const [visitedTabs, setVisitedTabs] = useState<string[]>([]);
   useLayoutEffect(() => {
     if (overviewTab) {
@@ -475,16 +509,21 @@ const RecordSidePanelTabs = ({
     const candidates = tabsRef.current
       .filter((tab) => !splitOverview || tab.value !== overviewTab)
       .slice(0, visibleCount);
+
     const widths = candidates.map((tab) => tabWidths.current.get(tab.value) ?? TAB_FALLBACK_WIDTH);
     const style = getComputedStyle(bar);
+
     const available =
       bar.clientWidth -
       (parseFloat(style.paddingLeft) || 0) -
       (parseFloat(style.paddingRight) || 0);
+
     const total = widths.reduce((sum, width) => sum + width, 0) + TAB_GAP * (widths.length - 1);
+
     const moreTabs =
       tabsRef.current.filter((tab) => !splitOverview || tab.value !== overviewTab).length >
       visibleCount;
+
     const fitsCompact =
       !moreTabs && total > available && total - TAB_ICON_SPACE * widths.length <= available;
 
@@ -526,6 +565,7 @@ const RecordSidePanelTabs = ({
     }
 
     let frame = 0;
+
     // Measured in the next frame, outside the observer callback.
     const observer = new ResizeObserver(() => {
       cancelAnimationFrame(frame);
@@ -549,14 +589,17 @@ const RecordSidePanelTabs = ({
     measure();
   }, [shownCount, measure]);
   const activeIndex = navigationTabs.findIndex((tab) => tab.value === selectedValue);
+
   const visible =
     activeIndex >= shownCount
       ? [...navigationTabs.slice(0, shownCount - 1), navigationTabs[activeIndex]]
       : navigationTabs.slice(0, shownCount);
+
   const overflow = navigationTabs.filter((tab) => !visible.includes(tab));
 
   let contentLayout = 'flex flex-col';
   let navigationLayout = 'box-content items-center gap-1 h-9 px-2 border-b bg-background';
+
   if (splitOverview) {
     contentLayout =
       'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]';
@@ -680,8 +723,10 @@ const RecordSidePanelLayout = ({
   const detailTab =
     overviewTab ??
     props.tabs.find((tab) => tab.value === 'detail' || tab.value === 'overview')?.value;
+
   const activityTab =
     expandedDefaultTab ?? props.tabs.find((tab) => tab.value === 'activity')?.value;
+
   return (
     <>
       {header}

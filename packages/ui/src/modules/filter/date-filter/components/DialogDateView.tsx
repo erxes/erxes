@@ -9,7 +9,7 @@ import {
 import { useEffect, useId, useRef, useState } from 'react';
 import { getActiveTab } from '../utils/getActiveTab';
 import { parseDateRangeFromString } from '../utils/parseDateRangeFromString';
-import { DateRange } from 'react-day-picker';
+import type { DateRange } from 'react-day-picker';
 import { useFilterContext } from 'erxes-ui/modules';
 import { getYearsArray } from '../utils/getYears';
 import { cn } from 'erxes-ui/lib';
@@ -49,15 +49,18 @@ export const DateRangeDialogContent = ({
   onApply: (value: string) => void;
 }) => {
   const [tabs, setTabs] = useState('day');
+
   const [currentDateRange, setCurrentDateRange] = useState<DateRange | undefined>(
     parseDateRangeFromString(value || ''),
   );
+
   const [currentValue, setCurrentValue] = useState<string | null>(value ?? null);
 
   useEffect(() => {
     if (value) {
       setTabs(getActiveTab(value));
     }
+
     setCurrentValue(value ?? null);
     setCurrentDateRange(parseDateRangeFromString(value || ''));
   }, [value]);
@@ -67,8 +70,10 @@ export const DateRangeDialogContent = ({
 
     if (!value?.from) {
       setCurrentValue(null);
+
       return;
     }
+
     const to = value.to ?? value.from;
     setCurrentValue(`${value.from.toISOString()},${to.toISOString()}`);
   };

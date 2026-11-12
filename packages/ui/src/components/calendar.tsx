@@ -1,12 +1,6 @@
 import * as React from 'react';
-import {
-  DayFlag,
-  DayPicker,
-  DropdownNavProps,
-  DropdownProps,
-  SelectionState,
-  UI,
-} from 'react-day-picker';
+import type { DropdownNavProps, DropdownProps } from 'react-day-picker';
+import { DayFlag, DayPicker, SelectionState, UI } from 'react-day-picker';
 
 import {
   IconChevronDown,
@@ -55,8 +49,10 @@ export const Calendar = React.forwardRef<React.JSX.Element, CalendarProps>(
           value: String(_value),
         },
       } as React.ChangeEvent<HTMLSelectElement>;
+
       _e(_event);
     };
+
     return (
       <DayPicker
         showOutsideDays={showOutsideDays}

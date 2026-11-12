@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { hashPassword } from '~/modules/auth/password';
 import { codeAt, currentStep } from '~/modules/auth/totp';
@@ -19,6 +19,7 @@ describeWithDb('two-factor sign-in', { timeout: 240_000 }, () => {
       headers: { ...(cookie ? { cookie } : {}), 'content-type': 'application/json', origin: base },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return {
@@ -84,6 +85,7 @@ describeWithDb('two-factor sign-in', { timeout: 240_000 }, () => {
 
     // The code from the step after the one used to enable works, once.
     const code = codeAt(setup.body.secret, currentStep() + 1);
+
     const done = await call(null, 'POST', '/auth/sign-in/2fa', {
       challenge: first.body.challenge,
       code,
@@ -101,6 +103,7 @@ describeWithDb('two-factor sign-in', { timeout: 240_000 }, () => {
 
     // A recovery code works once.
     const [recovery] = enabled.body.recoveryCodes as string[];
+
     const viaRecovery = await call(null, 'POST', '/auth/sign-in/2fa', {
       challenge: (await signIn()).body.challenge,
       recoveryCode: recovery,

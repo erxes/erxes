@@ -1,4 +1,4 @@
-import { BoardContextProps } from '../types/boardTypes';
+import type { BoardContextProps } from '../types/boardTypes';
 import { createContext } from 'react';
 
 export const BoardContext = createContext<BoardContextProps>({

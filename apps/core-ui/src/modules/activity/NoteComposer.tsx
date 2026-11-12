@@ -22,7 +22,7 @@ export interface NoteDraft {
 const mentionAt = (text: string, caret: number) => {
   const match = /(^|\s)@([^\s@]{0,30})$/.exec(text.slice(0, caret));
 
-  return match ? { query: match[2]!.toLowerCase(), start: caret - match[2]!.length - 1 } : null;
+  return match ? { query: match[2].toLowerCase(), start: caret - match[2].length - 1 } : null;
 };
 
 const useActiveMembers = () =>
@@ -145,17 +145,20 @@ export const NoteComposer = ({
           (index) =>
             (index + (event.key === 'ArrowDown' ? 1 : suggestions.length - 1)) % suggestions.length,
         );
+
         return;
       }
 
       if (event.key === 'Enter' || event.key === 'Tab') {
         event.preventDefault();
-        pick(suggestions[highlight] ?? suggestions[0]!);
+        pick(suggestions[highlight] ?? suggestions[0]);
+
         return;
       }
 
       if (event.key === 'Escape') {
         setMention(null);
+
         return;
       }
     }
@@ -170,9 +173,7 @@ export const NoteComposer = ({
     <div
       className="relative rounded-lg border bg-background transition-[border-color,box-shadow] focus-within:border-primary/40 focus-within:ring-3 focus-within:ring-primary/10"
       onFocus={() => setActive(true)}
-      onBlur={(event) =>
-        !event.currentTarget.contains(event.relatedTarget as Node | null) && setActive(false)
-      }
+      onBlur={(event) => !event.currentTarget.contains(event.relatedTarget) && setActive(false)}
     >
       <Textarea
         ref={textarea}

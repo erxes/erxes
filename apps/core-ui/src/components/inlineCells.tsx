@@ -13,7 +13,7 @@ export const toYmd = (date: Date) =>
 export const formatYmd = (value: string) => {
   const [year, month, day] = value.split('-').map(Number);
 
-  return new Date(year!, month! - 1, day!).toLocaleDateString(undefined, {
+  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -113,6 +113,7 @@ export const MemberInlineCell = ({
                 value={`${memberName(member)} ${member.email}`}
                 onSelect={() => {
                   setOpen(false);
+
                   if (member.id !== value) onSave(member.id);
                 }}
               >

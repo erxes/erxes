@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { liveHub } from '~/modules/live/hub';
@@ -11,10 +11,12 @@ import { pluginToken } from './plugin';
 /** Reads Server-Sent Events from a stream until `until` matches or time runs out. */
 const openStream = async (url: string, token: string) => {
   const controller = new AbortController();
+
   const response = await fetch(url, {
     headers: { authorization: `Bearer ${token}` },
     signal: controller.signal,
   });
+
   const reader = response.body!.getReader();
   const decoder = new TextDecoder();
   const events: { event: string; data: unknown }[] = [];
@@ -88,11 +90,13 @@ describeWithDb('live updates (/core/v1/stream)', () => {
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const globex = await createOrganization({
       subdomain: 'globex',
       name: 'Globex',
@@ -176,11 +180,13 @@ describeWithDb('live updates (/core/v1/stream)', () => {
   it('wakes the event processor as soon as an event is published', async () => {
     const { startEventProcessor } = await import('~/modules/events/processor');
     const stop = startEventProcessor();
+
     const customer = await fetch(`${base}/core/v1/customers`, {
       method: 'POST',
       headers: { authorization: `Bearer ${ownerToken}`, 'content-type': 'application/json' },
       body: JSON.stringify({ firstName: 'Woken', primaryEmail: 'woken@mail.mn' }),
     }).then((response) => response.json() as Promise<{ id: string }>);
+
     const owner = await openStream(`${base}/core/v1/stream`, ownerToken);
 
     // Let the startup run finish, so the next one is triggered by the event.
@@ -205,6 +211,7 @@ describeWithDb('live updates (/core/v1/stream)', () => {
     });
 
     const started = Date.now();
+
     const signal = await owner.waitFor(
       (entry) =>
         entry.event === 'timeline' &&
@@ -225,6 +232,7 @@ describeWithDb('live updates (/core/v1/stream)', () => {
     const streams = await Promise.all(
       Array.from({ length: 10 }, () => openStream(`${base}/core/v1/stream`, memberToken)),
     );
+
     const extra = await openStream(`${base}/core/v1/stream`, memberToken);
 
     expect(streams.every((stream) => stream.status === 200)).toBe(true);

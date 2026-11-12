@@ -1,5 +1,6 @@
 import { cn } from 'erxes-ui/lib';
-import { VariantProps, cva } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 
 const spinnerVariants = cva('flex-col items-center justify-center flex-auto h-full', {
   variants: {

@@ -13,6 +13,7 @@ export const ActorRef = z.object({
   name: z.string().nullable().optional(),
   avatarUrl: z.string().nullable().optional(),
 });
+
 export type ActorRef = z.infer<typeof ActorRef>;
 
 /** A record in a plugin that an entry points at. */
@@ -20,6 +21,7 @@ export const EntityRef = z.object({
   type: z.string().trim().min(1).max(64),
   id: Id,
 });
+
 export type EntityRef = z.infer<typeof EntityRef>;
 
 /** An app path inside erxes (`/hr/leaves/abc`), never another site. */

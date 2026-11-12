@@ -86,6 +86,7 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
   });
 
   const size = Number(maxSizeMb);
+
   const sizeError =
     !Number.isInteger(size) || size < 1
       ? t('size-invalid', 'Enter a whole number of MB')
@@ -95,6 +96,7 @@ const LimitsForm = ({ settings, canEdit }: { settings: FileSettings; canEdit: bo
             defaultValue: `This server accepts up to ${settings.limitMb} MB`,
           })
         : null;
+
   const badType = types.find((option) => !VALID_TYPE.test(option.value.trim().toLowerCase()));
 
   return (

@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { currentToken, describeWithDb, useTestDatabase } from './db';
@@ -20,6 +20,7 @@ describeWithDb('customers for plugins (find or create)', () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -45,6 +46,7 @@ describeWithDb('customers for plugins (find or create)', () => {
 
   it('finds by email or phone (any of theirs), or creates — once, even when asked twice at once', async () => {
     const hr = await pluginToken(base, orgId);
+
     const [first, second] = await Promise.all([
       call(hr, 'POST', '/customers/find-or-create', {
         primaryEmail: 'Applicant@Mail.mn',

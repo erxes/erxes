@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -17,16 +17,19 @@ describeWithDb('tags, custom fields, companies and merge', () => {
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const globex = await createOrganization({
       subdomain: 'globex',
       name: 'Globex',
       owner: { email: 'owner@globex.mn' },
     });
+
     const memberId = newId();
 
     await adminDb().insert(users).values({
@@ -101,13 +104,16 @@ describeWithDb('tags, custom fields, companies and merge', () => {
     it('tags customers with their own type only and takes deleted tags off', async () => {
       const vip = await tag('customer', 'Gold');
       const companyTag = await tag('company', 'Partner');
+
       const created = await call(ownerToken, 'POST', '/customers', {
         firstName: 'Tagged',
         tagIds: [vip],
       });
+
       const wrongType = await call(ownerToken, 'PATCH', `/customers/${created.body.id}`, {
         tagIds: [companyTag],
       });
+
       const filtered = await call(ownerToken, 'GET', `/customers?tagIds=${vip}`);
 
       expect(created.body.tagIds).toEqual([vip]);
@@ -126,6 +132,7 @@ describeWithDb('tags, custom fields, companies and merge', () => {
       const b = await tag('customer', 'B');
       const one = await call(ownerToken, 'POST', '/customers', { firstName: 'One', tagIds: [a] });
       const two = await call(ownerToken, 'POST', '/customers', { firstName: 'Two' });
+
       const result = await call(ownerToken, 'POST', '/customers/tag', {
         ids: [one.body.id, two.body.id],
         add: [b],
@@ -156,18 +163,22 @@ describeWithDb('tags, custom fields, companies and merge', () => {
         type: 'select',
         options: ['Bronze', 'Silver'],
       });
+
       const visits = await call(ownerToken, 'POST', '/fields', {
         contentType: 'customer',
         label: 'Visits',
         type: 'number',
       });
+
       const created = await call(memberToken, 'POST', '/customers', {
         firstName: 'Custom',
         customFields: { [tier.body.id]: 'Silver', [visits.body.id]: 3 },
       });
+
       const wrong = await call(memberToken, 'PATCH', `/customers/${created.body.id}`, {
         customFields: { [tier.body.id]: 'Platinum' },
       });
+
       const cleared = await call(memberToken, 'PATCH', `/customers/${created.body.id}`, {
         customFields: { [visits.body.id]: null },
       });
@@ -195,6 +206,7 @@ describeWithDb('tags, custom fields, companies and merge', () => {
         label: 'Region',
         type: 'text',
       });
+
       const result = await call(ownerToken, 'POST', '/customers', {
         firstName: 'X',
         customFields: { [companyField.body.id]: 'North' },
@@ -212,9 +224,11 @@ describeWithDb('tags, custom fields, companies and merge', () => {
         website: 'nomad.mn',
         size: 40,
       });
+
       const duplicate = await call(memberToken, 'POST', '/companies', {
         primaryName: 'nomad tech',
       });
+
       const search = await call(memberToken, 'GET', '/companies?search=llc');
 
       expect(created.body).toMatchObject({
@@ -240,6 +254,7 @@ describeWithDb('tags, custom fields, companies and merge', () => {
 
       const ofCustomer = await call(ownerToken, 'GET', `/customers/${customer.body.id}/companies`);
       const ofCompany = await call(ownerToken, 'GET', `/customers?companyId=${company.body.id}`);
+
       const companiesOf = await call(
         ownerToken,
         'GET',
@@ -263,12 +278,14 @@ describeWithDb('tags, custom fields, companies and merge', () => {
       const t1 = await tag('customer', 'M1');
       const t2 = await tag('customer', 'M2');
       const company = await call(ownerToken, 'POST', '/companies', { primaryName: 'Merge Co' });
+
       const keep = await call(ownerToken, 'POST', '/customers', {
         state: 'lead',
         firstName: 'Bat',
         primaryEmail: 'bat@a.mn',
         tagIds: [t1],
       });
+
       const other = await call(ownerToken, 'POST', '/customers', {
         firstName: 'Batbold',
         lastName: 'Dorj',
@@ -323,10 +340,12 @@ describeWithDb('tags, custom fields, companies and merge', () => {
         primaryName: 'Gobi',
         website: null,
       });
+
       const other = await call(ownerToken, 'POST', '/companies', {
         primaryName: 'Gobi Cashmere',
         website: 'gobi.mn',
       });
+
       const merged = await call(ownerToken, 'POST', '/companies/merge', {
         ids: [keep.body.id, other.body.id],
         keepId: keep.body.id,
@@ -341,6 +360,7 @@ describeWithDb('tags, custom fields, companies and merge', () => {
     it('refuses to merge records of another organisation', async () => {
       const mine = await call(ownerToken, 'POST', '/customers', { firstName: 'Mine' });
       const theirs = await call(otherOrgToken, 'POST', '/customers', { firstName: 'Theirs' });
+
       const result = await call(ownerToken, 'POST', '/customers/merge', {
         ids: [mine.body.id, theirs.body.id],
         keepId: mine.body.id,

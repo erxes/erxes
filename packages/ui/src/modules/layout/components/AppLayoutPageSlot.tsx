@@ -16,6 +16,7 @@ export const AppLayoutPageSlot = ({ children }: PropsWithChildren) => {
   useLayoutEffect(() => {
     const element = ref.current;
     setTarget(element);
+
     return () => setTarget((current) => (current === element ? null : current));
   }, [setTarget]);
 

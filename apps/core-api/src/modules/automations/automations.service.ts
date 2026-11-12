@@ -39,6 +39,7 @@ import { render } from './templates';
 import { firstRunAt, startNow, triggerKey } from './triggers';
 
 type AutomationRow = typeof automations.$inferSelect;
+
 type RunRow = typeof automationRuns.$inferSelect;
 
 const statsOf = async (client: Db, orgId: string, ids: string[]) => {
@@ -61,13 +62,16 @@ const statsOf = async (client: Db, orgId: string, ids: string[]) => {
       ),
     )
     .groupBy(automationRuns.automationId, automationRuns.status);
+
   const stats = new Map<string, Automation['stats']>();
 
   for (const row of rows) {
     const entry = stats.get(row.automationId) ?? { running: 0, succeeded: 0, failed: 0 };
 
     if (row.status === 'running' || row.status === 'waiting') entry.running += row.count;
+
     if (row.status === 'succeeded') entry.succeeded += row.count;
+
     if (row.status === 'failed') entry.failed += row.count;
     stats.set(row.automationId, entry);
   }
@@ -137,14 +141,17 @@ export const automationCatalog = async (client: Db, orgId: string) => {
 const walk = (steps: AutomationStep[], visit: (step: AutomationStep) => void) => {
   for (const step of steps) {
     visit(step);
+
     if (step.type === 'branch') {
       walk(step.then, visit);
       walk(step.else, visit);
     }
+
     if (step.type === 'switch') {
       step.cases.forEach((item) => walk(item.steps, visit));
       walk(step.otherwise, visit);
     }
+
     if (step.type === 'split') step.paths.forEach((path) => walk(path.steps, visit));
   }
 };
@@ -158,6 +165,7 @@ const subjectOfTrigger = (
 
   if (trigger.kind === 'event')
     return triggers.find((item) => item.type === trigger.event)?.subject ?? null;
+
   if (trigger.kind === 'date') return trigger.subject;
 
   return trigger.audience?.type ?? null;
@@ -206,6 +214,7 @@ export const checkDefinition = async (
         problems.push(
           `Step ${step.id} waits for an event about the record, but runs aren't about one`,
         );
+
       if (!catalog.triggers.some((item) => item.type === step.event))
         problems.push(`Step ${step.id}: unknown event ${step.event}`);
     }
@@ -216,6 +225,7 @@ export const checkDefinition = async (
 
     if (!action) {
       problems.push(`Step ${step.id}: unknown action ${step.action}`);
+
       return;
     }
 
@@ -282,7 +292,7 @@ const publish = async (
     orgId: actor.orgId,
     automationId: row.id,
     version,
-    definition: definition as unknown as Record<string, unknown>,
+    definition: definition,
     publishedBy: actor.userId,
   });
 
@@ -304,6 +314,7 @@ export const listAutomations = async (
       ),
     )
     .orderBy(desc(automations.updatedAt));
+
   const stats = await statsOf(
     client,
     actor.orgId,
@@ -331,7 +342,7 @@ export const createAutomation = async (
       orgId: actor.orgId,
       name: input.name,
       description: input.description ?? null,
-      definition: input.definition as unknown as Record<string, unknown>,
+      definition: input.definition,
       triggerEvent: triggerKey(input.definition),
       createdBy: actor.userId,
     })
@@ -369,7 +380,7 @@ export const updateAutomation = async (
       ...(input.description !== undefined ? { description: input.description } : {}),
       ...(input.definition
         ? {
-            definition: input.definition as unknown as Record<string, unknown>,
+            definition: input.definition,
             triggerEvent: triggerKey(input.definition),
           }
         : {}),
@@ -505,6 +516,7 @@ const findRun = async (client: Db, orgId: string, runId: string) => {
 
 export const getRun = async (client: Db, actor: Actor, runId: string) => {
   const run = await findRun(client, actor.orgId, runId);
+
   const steps = await client
     .select()
     .from(automationRunSteps)
@@ -598,6 +610,7 @@ export const testAutomation = async (
   const definition = AutomationDefinition.parse(row.definition);
   const catalog = await automationCatalog(client, actor.orgId);
   const trigger = definition.trigger;
+
   const subject = input.subject
     ? await subjectOf(client, actor.orgId, input.subject.type, input.subject.id)
     : null;
@@ -606,6 +619,7 @@ export const testAutomation = async (
     throw notFound(input.subject.type === 'customer' ? 'Customer' : 'Company');
 
   const eventType = trigger.kind === 'event' ? trigger.event : trigger.kind;
+
   const context: Record<string, unknown> = {
     event: {
       type: eventType,
@@ -616,12 +630,14 @@ export const testAutomation = async (
     subject,
     steps: {},
   };
+
   const triggerConditions =
     trigger.kind === 'event' || trigger.kind === 'date'
       ? trigger.conditions
       : 'audience' in trigger
         ? trigger.audience?.conditions
         : undefined;
+
   const trace: {
     stepId: string;
     type: string;
@@ -629,6 +645,7 @@ export const testAutomation = async (
     input: unknown;
     problem: string | null;
   }[] = [];
+
   const goalMetAtStart = Boolean(definition.goal && evaluateGroup(definition.goal, context));
   let cursor: Cursor | null = [0];
 
@@ -664,6 +681,7 @@ export const testAutomation = async (
       }
 
       outcome = `Would run “${action?.label ?? step.action}”`;
+
       if (!action) problem = `Unknown action ${step.action}`;
       else if (action.subject && !subject)
         problem = 'Needs a customer or company: pick one to test with';
@@ -684,6 +702,7 @@ export const testAutomation = async (
         : 'Conditions don’t hold: “otherwise” path';
       output = { matched };
       next = [...cursor, matched ? 'then' : 'else', 0];
+
       if (!stepAt(definition.steps, next)) next = nextCursor(definition.steps, cursor);
     } else if (step.type === 'switch') {
       const chosen = step.cases.findIndex((item) => evaluateGroup(item.conditions, context));
@@ -694,6 +713,7 @@ export const testAutomation = async (
           : 'Otherwise';
       output = { case: chosen >= 0 ? chosen : 'otherwise' };
       next = [...cursor, chosen >= 0 ? `case:${chosen}` : 'otherwise', 0];
+
       if (!stepAt(definition.steps, next)) next = nextCursor(definition.steps, cursor);
     } else if (step.type === 'split') {
       const path = splitPath(`test:${input.subject?.id ?? 'none'}`, step);
@@ -701,6 +721,7 @@ export const testAutomation = async (
       outcome = `Path ${path + 1}${step.paths[path]!.label ? ` (${step.paths[path]!.label})` : ''} (chosen at random by weight)`;
       output = { path };
       next = [...cursor, `path:${path}`, 0];
+
       if (!stepAt(definition.steps, next)) next = nextCursor(definition.steps, cursor);
     } else {
       outcome = 'Stops here';
@@ -724,6 +745,7 @@ export const testAutomation = async (
 export const automationStats = async (client: Db, actor: Actor, id: string) => {
   const row = await findAutomation(client, actor.orgId, id);
   const since = sql`now() - interval '30 days'`;
+
   const [runs] = await client
     .select({
       total: sql<number>`count(*)::int`,
@@ -741,6 +763,7 @@ export const automationStats = async (client: Db, actor: Actor, id: string) => {
         sql`${automationRuns.startedAt} > ${since}`,
       ),
     );
+
   const steps = await client
     .select({
       stepId: automationRunSteps.stepId,
@@ -817,6 +840,7 @@ export const automationFields = async (
     { path: 'event.actor.type', label: 'Who did it (user, plugin, system)', type: 'text' as const },
     { path: 'event.payload', label: 'Event details', type: 'text' as const },
   ];
+
   const customer = [
     { path: 'subject.firstName', label: 'First name', type: 'text' as const },
     { path: 'subject.lastName', label: 'Last name', type: 'text' as const },
@@ -833,12 +857,14 @@ export const automationFields = async (
     { path: 'subject.birthDate', label: 'Birthday', type: 'date' as const },
     { path: 'subject.createdAt', label: 'Created', type: 'date' as const },
   ];
+
   const company = [
     { path: 'subject.primaryName', label: 'Name', type: 'text' as const },
     { path: 'subject.ownerId', label: 'Owner', type: 'member' as const },
     { path: 'subject.tagIds', label: 'Tags', type: 'tags' as const },
     { path: 'subject.createdAt', label: 'Created', type: 'date' as const },
   ];
+
   const custom = await client
     .select({
       id: fields.id,
@@ -851,6 +877,7 @@ export const automationFields = async (
     .where(
       and(eq(fields.orgId, actor.orgId), subject ? eq(fields.contentType, subject) : undefined),
     );
+
   const typeOf = (type: string) =>
     type === 'number'
       ? 'number'

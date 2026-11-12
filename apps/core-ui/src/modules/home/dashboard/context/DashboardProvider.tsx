@@ -95,6 +95,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
 
       setDraft((current) => {
         const list = current ?? layout.items;
+
         const item = fitToWidget(
           {
             id,

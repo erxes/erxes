@@ -134,6 +134,7 @@ const checkPermissions = async (client: Db, actor: Actor, permissions: string[])
   const known = new Set(
     (await permissionCatalog(client, actor.orgId)).map((permission) => permission.action),
   );
+
   const unknown = permissions.filter((action) => action !== '*' && !known.has(action));
 
   if (unknown.length) {
@@ -211,6 +212,7 @@ export const createRole = (
     requirePermission(actor, 'roles.manage');
 
     const permissions = await checkPermissions(tx, actor, input.permissions);
+
     const [row] = await tx
       .insert(roles)
       .values({
@@ -246,9 +248,11 @@ export const updateRole = (
     }
 
     const before = await roleOrThrow(tx, actor.orgId, key);
+
     const permissions = input.permissions
       ? await checkPermissions(tx, actor, input.permissions)
       : undefined;
+
     const [row] = await tx
       .update(roles)
       .set({

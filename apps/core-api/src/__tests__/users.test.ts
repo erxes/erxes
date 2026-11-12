@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -21,6 +21,7 @@ describeWithDb('team members (/core/v1/users)', () => {
       name: 'Acme',
       owner: { email: 'Owner@Acme.mn', fullName: 'Owner' },
     });
+
     const globex = await createOrganization({
       subdomain: 'globex',
       name: 'Globex',
@@ -73,7 +74,7 @@ describeWithDb('team members (/core/v1/users)', () => {
       headers: {
         'content-type': 'application/json',
         ...(token ? { authorization: `Bearer ${token}` } : {}),
-        ...(init.headers ?? {}),
+        ...init.headers,
       },
     });
 
@@ -127,10 +128,12 @@ describeWithDb('team members (/core/v1/users)', () => {
 
     const first = await call(ownerToken, '/users?limit=2');
     const next = await call(ownerToken, `/users?limit=2&cursor=${first.body.pageInfo.endCursor}`);
+
     const back = await call(
       ownerToken,
       `/users?limit=2&direction=backward&cursor=${next.body.pageInfo.startCursor}`,
     );
+
     const search = await call(ownerToken, '/users?search=dorj');
     const other = await call(otherOrgToken, '/users');
 
@@ -172,14 +175,17 @@ describeWithDb('team members (/core/v1/users)', () => {
       method: 'PATCH',
       body: JSON.stringify({ fullName: 'Member One' }),
     });
+
     const someoneElse = await call(memberToken, `/users/${other.body.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ fullName: 'Hacked' }),
     });
+
     const ownRole = await call(memberToken, `/users/${created.body.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ role: 'admin' }),
     });
+
     const inviteAsMember = await invite(memberToken, { email: 'x@acme.mn' });
 
     expect(self).toMatchObject({ status: 200, body: { fullName: 'Member One' } });
@@ -193,6 +199,7 @@ describeWithDb('team members (/core/v1/users)', () => {
       method: 'POST',
       body: '{}',
     });
+
     const demoteSelf = await call(ownerToken, `/users/${ownerId}`, {
       method: 'PATCH',
       body: JSON.stringify({ role: 'member' }),
@@ -213,10 +220,12 @@ describeWithDb('team members (/core/v1/users)', () => {
     const adminToken = signAccessToken(adminId, orgId);
 
     const promote = await invite(adminToken, { email: 'new-admin@acme.mn', role: 'admin' });
+
     const disableOwner = await call(adminToken, `/users/${ownerId}/disable`, {
       method: 'POST',
       body: '{}',
     });
+
     const makeOwner = await call(adminToken, `/users/${promote.body.id}`, {
       method: 'PATCH',
       body: JSON.stringify({ role: 'owner' }),
@@ -245,6 +254,7 @@ describeWithDb('team members (/core/v1/users)', () => {
       method: 'POST',
       body: '{}',
     });
+
     expect(disabled.body.status).toBe('disabled');
     expect((await call(tempToken, '/users')).status).toBe(401);
 
@@ -252,6 +262,7 @@ describeWithDb('team members (/core/v1/users)', () => {
       method: 'POST',
       body: '{}',
     });
+
     expect(enabled.body.status).toBe('active');
     // Enabling doesn't bring old sessions back; a new sign-in works.
     expect((await call(tempToken, '/users')).status).toBe(401);
@@ -262,6 +273,7 @@ describeWithDb('team members (/core/v1/users)', () => {
     const created = await invite(ownerToken, { email: 'pending@acme.mn' });
 
     await call(ownerToken, `/users/${created.body.id}/disable`, { method: 'POST', body: '{}' });
+
     const enabled = await call(ownerToken, `/users/${created.body.id}/enable`, {
       method: 'POST',
       body: '{}',
@@ -269,6 +281,7 @@ describeWithDb('team members (/core/v1/users)', () => {
 
     expect(enabled.body.status).toBe('invited');
   });
+
   const patch = (token: string, id: string, body: Record<string, unknown>) =>
     call(token, `/users/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
 
@@ -360,6 +373,7 @@ describeWithDb('team members (/core/v1/users)', () => {
       method: 'POST',
       body: JSON.stringify({ entries: [{ email: 'many6@acme.mn' }] }),
     });
+
     expect(asMember.status).toBe(403);
   });
 
@@ -377,6 +391,7 @@ describeWithDb('team members (/core/v1/users)', () => {
 
   it('sets a member password (owners and admins; owners only for owners; never their own)', async () => {
     const created = await invite(ownerToken, { email: 'reset@acme.mn' });
+
     const setPassword = (token: string, id: string, password: string) =>
       call(token, `/users/${id}/password`, { method: 'POST', body: JSON.stringify({ password }) });
 

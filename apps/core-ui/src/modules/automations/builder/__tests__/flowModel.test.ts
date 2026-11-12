@@ -1,5 +1,5 @@
 import type { ActionInfo, AutomationStep } from '@erxes/core-contract';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vite-plus/test';
 import {
   actionDefaults,
   cloneStep,
@@ -86,10 +86,10 @@ describe('flow model', () => {
   });
 
   it('duplicates with fresh ids all the way down', () => {
-    const copy = cloneStep(flow[2]!);
+    const copy = cloneStep(flow[2]);
 
     expect(copy.id).not.toBe('b');
-    expect((copy as { then: AutomationStep[] }).then[0]!.id).not.toBe('n');
+    expect((copy as { then: AutomationStep[] }).then[0].id).not.toBe('n');
   });
 
   it('names what each step does, with outputs of earlier steps as fields', () => {
@@ -102,10 +102,10 @@ describe('flow model', () => {
         type: 'boolean',
       },
     ]);
-    expect(describeStep(flow[2]!, { actions, events, fields: outputs }).title).toBe(
+    expect(describeStep(flow[2], { actions, events, fields: outputs }).title).toBe(
       'If Customer updated within the wait: no',
     );
-    expect(describeStep(flow[1]!, { actions, events, fields: [] })).toEqual({
+    expect(describeStep(flow[1], { actions, events, fields: [] })).toEqual({
       title: 'Customer updated',
       detail: 'At most 3 days',
     });
@@ -156,6 +156,7 @@ describe('action inputs', () => {
       { key: 'subject', label: 'Subject', type: 'text', required: true },
     ],
   };
+
   const move: ActionInfo = {
     type: 'core.lead.move',
     label: 'Move the lead to a stage',
@@ -164,6 +165,7 @@ describe('action inputs', () => {
     subject: 'customer',
     fields: [{ key: 'stage', label: 'Stage', type: 'lead_stage', required: true }],
   };
+
   const setField: ActionInfo = {
     type: 'core.customer.set_field',
     label: 'Set a custom field',

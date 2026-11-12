@@ -32,9 +32,11 @@ const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,200}$/;
 const PasswordForm = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { toast } = useToast();
+
   const form = useForm<PasswordValues>({
     defaultValues: { currentPassword: '', newPassword: '', confirm: '' },
   });
+
   const change = useMutation({
     mutationFn: (values: PasswordValues) =>
       api.auth.changePassword({
@@ -131,6 +133,7 @@ const deviceOf = (agent: string | null) => {
         : /Safari\//.test(agent)
           ? 'Safari'
           : agent.split(' ')[0];
+
   const system = /Mac OS X/.test(agent)
     ? 'macOS'
     : /Windows/.test(agent)
@@ -149,6 +152,7 @@ const deviceOf = (agent: string | null) => {
 /** Where and when I signed in; a failed attempt I don't recognise is worth a password change. */
 const SignIns = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
+
   const { data, isPending } = useQuery({
     queryKey: ['auth', 'sign-ins'],
     queryFn: () => api.auth.signIns(),
@@ -200,6 +204,7 @@ const SignOutEverywhere = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
   const { toast } = useToast();
   const signOut = useSignOut();
+
   const run = useMutation({
     mutationFn: () => signOut({ everywhere: true }),
     onError: (error) =>

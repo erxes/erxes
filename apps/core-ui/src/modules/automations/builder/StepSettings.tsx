@@ -66,6 +66,7 @@ const FieldInput = ({
   const { stages } = useLeadStages();
   const stageName = useStageName();
   const customFields = dataFields.filter((item) => item.path.startsWith('subject.customFields.'));
+
   const text = (multiline?: boolean) => (
     <TemplateInput
       value={String(value ?? '')}
@@ -189,6 +190,7 @@ const FieldInput = ({
         </div>
       );
     }
+
     case 'custom_field':
       return customFields.length ? (
         <Select value={String(value ?? '')} disabled={disabled} onValueChange={onChange}>
@@ -239,6 +241,7 @@ const FieldInput = ({
         </Select>
       );
     }
+
     case 'select':
       return (
         <Select value={String(value ?? '')} onValueChange={onChange} disabled={disabled}>
@@ -276,6 +279,7 @@ const FieldInput = ({
         />
       );
     }
+
     case 'json':
       return (
         <Textarea
@@ -352,8 +356,10 @@ export const StepSettings = ({
   const { t } = useTranslation('automations');
   const { events, outputsBefore } = useContext(BuilderContext);
   const outputs = outputsBefore(step.id);
+
   const action =
     step.type === 'action' ? actions.find((item) => item.type === step.action) : undefined;
+
   const recordFields = useAutomationFields(subject);
   const dataFields = [...recordFields, ...outputs];
 

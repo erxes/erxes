@@ -380,8 +380,10 @@ export const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLan
   if (existing?.any) return { seeded: false };
 
   const copy = COPY[language];
+
   const tag = async (type: 'customer' | 'company', name: string, colorCode: string) =>
     (await createTag(tx, actor, { type, name, colorCode })).id;
+
   const exampleCustomer = await tag('customer', copy.tags.example, '#94a3b8');
   const vip = await tag('customer', copy.tags.vip, '#f59e0b');
   const exampleCompany = await tag('company', copy.tags.example, '#94a3b8');
@@ -393,6 +395,7 @@ export const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLan
     type: 'select',
     options: copy.plan.options,
   });
+
   const renewal = await createField(tx, actor, {
     contentType: 'customer',
     label: copy.renewal,
@@ -422,6 +425,7 @@ export const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLan
 
   for (const person of copy.people) {
     const lead = person.stage !== undefined && stages[person.stage];
+
     const created = await createCustomer(tx, actor, {
       firstName: person.first,
       lastName: person.last,
@@ -495,6 +499,7 @@ export const exampleDataJob: JobDefinition = {
     if (!tx) return;
 
     const userId = String(job.payload.userId ?? '');
+
     const [member] = await tx
       .select({
         id: users.id,

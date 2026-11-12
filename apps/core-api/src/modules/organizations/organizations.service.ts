@@ -1,5 +1,6 @@
 import { seedLeadStages } from '~/modules/leads/leads.service';
-import { Db, newId, organizations, users, withSystem } from '@erxes/core-db';
+import type { Db } from '@erxes/core-db';
+import { newId, organizations, users, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { installPluginsForNewOrganization } from '~/modules/plugins/plugins.service';
@@ -48,6 +49,7 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
     .insert(organizations)
     .values({ id: input.id ?? newId(), subdomain, name: input.name.trim() })
     .returning();
+
   await seedRoles(tx, organization!.id);
   await seedLeadStages(tx, organization!.id);
 

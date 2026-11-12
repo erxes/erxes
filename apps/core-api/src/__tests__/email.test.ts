@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -23,6 +23,7 @@ describeWithDb('invitations and password resets by email', { timeout: 240_000 },
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return {

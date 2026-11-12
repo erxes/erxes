@@ -182,6 +182,7 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
   let editableTitle: ReactNode = title;
 
   if (customer) editableTitle = <CustomerPanelName customer={customer} />;
+
   if (company) editableTitle = <CompanyPanelName company={company} />;
 
   const tabs: IRecordSidePanelTab[] = [
@@ -235,8 +236,10 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
         ]
       : []),
   ];
+
   const tab =
     selectedTab && tabs.some((entry) => entry.value === selectedTab) ? selectedTab : DETAIL_TAB;
+
   const actions = (
     <>
       <LeadHeaderActions
@@ -363,6 +366,7 @@ const SidePanelColumn = () => {
   const [expanded] = useQueryState<boolean>('panelExpanded');
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
   // Contacts expand into their own pages.
   const recordPage =
     record && record.contentId !== NEW_RECORD_ID && isContactContentType(record.contentType)

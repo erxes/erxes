@@ -53,6 +53,7 @@ export const TemplateInput = ({
 
   const record = fields.filter((field) => field.path.startsWith('subject.'));
   const steps = fields.filter((field) => field.path.startsWith('steps.'));
+
   const shared = {
     ref,
     value,

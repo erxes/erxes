@@ -1,6 +1,7 @@
 import type { Session } from '@erxes/core-contract';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, ReactNode, useContext } from 'react';
+import type { ReactNode } from 'react';
+import { createContext, useContext } from 'react';
 import { api, isApiError } from '~/lib/api';
 
 export const SESSION_KEY = ['session'];

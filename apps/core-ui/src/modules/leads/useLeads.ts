@@ -34,6 +34,7 @@ export const useLeadStages = () => {
     queryKey: LEAD_STAGES_KEY,
     queryFn: () => api.leads.stages(),
   });
+
   const stages = query.data?.data ?? [];
 
   return {
@@ -110,6 +111,7 @@ export const useConvertLeads = () => {
 export const useLeadStageMutations = () => {
   const refresh = useRefreshLeads();
   const { toast } = useToast();
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',

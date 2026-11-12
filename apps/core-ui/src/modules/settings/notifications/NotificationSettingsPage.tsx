@@ -64,6 +64,7 @@ const GroupRow = ({
   onChange: (delivery: NotificationDelivery) => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'notifications.settings' });
+
   const hint = group.plugin
     ? t('plugin-hint', 'Everything {{name}} notifies you about', { name: group.label })
     : t(`hints.${group.key}`, GROUP_HINTS[group.key] ?? '');
@@ -113,11 +114,14 @@ const GroupRow = ({
 export const NotificationSettingsPage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notifications.settings' });
   const { settings, loading, update } = useNotificationSettings();
+
   const [permission, setPermission] = useState(() =>
     desktopSupported() ? Notification.permission : 'denied',
   );
+
   const core = (settings?.groups ?? []).filter((group) => !group.plugin);
   const plugins = (settings?.groups ?? []).filter((group) => group.plugin);
+
   const setGroup = (key: string, delivery: NotificationDelivery) =>
     update.mutate({ groups: { [key]: delivery } });
 
@@ -126,6 +130,7 @@ export const NotificationSettingsPage = () => {
       const answer = await Notification.requestPermission();
 
       setPermission(answer);
+
       if (answer !== 'granted') return;
     }
 

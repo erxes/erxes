@@ -33,11 +33,13 @@ export const ResetPasswordDialog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const userId = searchParams.get(RESET_PASSWORD_QUERY_KEY);
   const setPassword = useTeamMemberSetPassword();
+
   const form = useForm<TResetPasswordForm>({
     mode: 'onBlur',
     defaultValues: { newPassword: '', repeatPassword: '' },
     resolver: zodResolver(USER_RESET_PASSWORD_SCHEMA),
   });
+
   const { control, handleSubmit, reset, watch } = form;
   const [newPassword, repeatPassword] = watch(['newPassword', 'repeatPassword']);
 
@@ -46,6 +48,7 @@ export const ResetPasswordDialog = () => {
       const next = new URLSearchParams(previous);
 
       next.delete(RESET_PASSWORD_QUERY_KEY);
+
       return next;
     });
 

@@ -32,6 +32,7 @@ export const TeamMemberWorkStartedField = ({ user }: { user: User }) => {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
+
         if (next) setDraft(workStartedDate);
         else if (draft !== workStartedDate) edit.mutate({ id, workStartedDate: draft });
       }}

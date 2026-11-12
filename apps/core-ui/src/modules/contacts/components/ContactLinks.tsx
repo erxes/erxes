@@ -35,6 +35,7 @@ const linksKey = (side: Side, id: string) => ['contact-links', side, id];
 export const useContactLinks = (side: Side, id: string) => {
   const client = useQueryClient();
   const { toast } = useToast();
+
   const query = useQuery({
     queryKey: linksKey(side, id),
     queryFn: async (): Promise<LinkRow[]> =>
@@ -57,17 +58,20 @@ export const useContactLinks = (side: Side, id: string) => {
           })),
     enabled: Boolean(id),
   });
+
   const refresh = () => {
     void client.invalidateQueries({ queryKey: ['contact-links'] });
     void client.invalidateQueries({ queryKey: ['customers'] });
     void client.invalidateQueries({ queryKey: ['companies'] });
   };
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
       title: 'Could not update the link',
       description: messageOf(error),
     });
+
   const pair = (otherId: string) =>
     side === 'core:customer' ? { id, companyId: otherId } : { id: otherId, companyId: id };
 
@@ -84,6 +88,7 @@ export const useContactLinks = (side: Side, id: string) => {
     onSettled: refresh,
     onError,
   });
+
   const remove = useMutation({
     mutationFn: (otherId: string) => api.customers.unlinkCompany(pair(otherId)),
     onSettled: refresh,
@@ -224,6 +229,7 @@ export const ContactLinks = ({ side, id }: { side: Side; id: string }) => {
   const linked = rows.map((row) => row.id);
 
   if (loading) return <Spinner containerClassName="h-8 justify-start px-2" size="sm" />;
+
   if (error) return <p className="px-2 text-xs text-destructive">{messageOf(error)}</p>;
 
   return (

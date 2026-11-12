@@ -11,8 +11,10 @@ import { Appear } from './Appear';
 
 /** At least this long per step, so the steps read as progress, not a flash. */
 const STEP_MS = 650;
+
 /** Waiting longer than this for the example data offers to go on without it. */
 const SKIP_AFTER_MS = 10_000;
+
 /** And stops waiting altogether here (it still arrives; the lists refresh). */
 const GIVE_UP_MS = 120_000;
 
@@ -38,6 +40,7 @@ export const SetupScreen = ({
   const [canSkip, setCanSkip] = useState(false);
   const skipped = useRef(false);
   const session = useRef<Session | null>(null);
+
   const steps = [
     t('setup-workspace', 'Creating your workspace'),
     t('setup-settings', 'Setting up lead stages and settings'),

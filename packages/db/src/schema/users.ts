@@ -16,6 +16,7 @@ import { pgTable } from '../table';
 import { organizations } from './organizations';
 
 export const USER_STATUSES = ['invited', 'active', 'disabled'] as const;
+
 /** The built-in roles every organisation has. */
 export const USER_ROLES = ['owner', 'admin', 'member'] as const;
 

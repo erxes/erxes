@@ -54,6 +54,7 @@ signedFilesRouter.put('/:token', (req: Request, res: Response) => {
     .then(async () => {
       if (received !== grant.size) {
         await rm(partial, { force: true });
+
         return fail(res, 400, 'SIZE_MISMATCH', 'The file size differs from the one declared');
       }
 
@@ -62,6 +63,7 @@ signedFilesRouter.put('/:token', (req: Request, res: Response) => {
         await link(partial, target);
       } catch {
         await rm(partial, { force: true });
+
         return fail(res, 409, 'ALREADY_UPLOADED', 'This upload link was already used');
       }
 

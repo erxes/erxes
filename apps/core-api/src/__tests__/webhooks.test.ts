@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { currentToken, describeWithDb, useTestDatabase } from './db';
@@ -24,6 +24,7 @@ describeWithDb('webhooks', () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -47,22 +48,22 @@ describeWithDb('webhooks', () => {
   beforeAll(async () => {
     const { users, newId } = await import('@erxes/core-db');
     const { adminDb } = await import('./db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'o@acme.mn' },
     });
+
     const memberId = newId();
 
-    await adminDb()
-      .insert(users)
-      .values({
-        id: memberId,
-        orgId: acme.organization.id,
-        email: 'm@acme.mn',
-        role: 'member',
-        status: 'active',
-      });
+    await adminDb().insert(users).values({
+      id: memberId,
+      orgId: acme.organization.id,
+      email: 'm@acme.mn',
+      role: 'member',
+      status: 'active',
+    });
     owner = await currentToken(acme.owner.id, acme.organization.id);
     memberToken = await currentToken(memberId, acme.organization.id);
     api = createApp().listen(0);

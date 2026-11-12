@@ -35,13 +35,16 @@ const FullNameFieldProvider = ({
 
 export const FullNameValue = () => {
   const { fullName } = useFullNameField();
+
   if (fullName.replace(/\s/g, '').length === 0)
     return <span className="text-accent-foreground/70">Unknown</span>;
+
   return fullName;
 };
 
 const FullNameFieldContent = () => {
   const { firstName, lastName, setFirstName, setLastName } = useFullNameField();
+
   return (
     <div className="flex gap-px bg-border w-72 rounded shadow-sm">
       <Input
@@ -83,6 +86,7 @@ export const FullNameField = ({
 
   const handleOpenChange = (op: boolean) => {
     setOpen(op);
+
     if (!op) {
       onValueChange(firstNameState.trim(), lastNameState.trim());
     }
@@ -92,6 +96,7 @@ export const FullNameField = ({
     if (firstNameState === firstName && lastNameState === lastName) {
       return;
     }
+
     setFirstName(firstName || '');
     setLastName(lastName || '');
     // eslint-disable-next-line react-hooks/exhaustive-deps

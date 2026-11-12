@@ -63,10 +63,12 @@ function SanitizedChatVizMessage({
   // BASELINE payload. Freezing this while sliders move makes the chart
   // geometry visibly move; scaling per render would only relabel the ticks.
   const interactiveDomain = React.useMemo(() => getChartVizInteractiveDomain(payload), [payload]);
+
   const interactiveBarDomain = React.useMemo(
     () => getChartVizInteractiveDomain(payload, { includeZero: true }),
     [payload],
   );
+
   const controls = payload.controls ?? [];
 
   return (

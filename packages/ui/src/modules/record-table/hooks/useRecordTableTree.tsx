@@ -5,9 +5,11 @@ import { recordTableTreeHideChildrenAtomFamily } from '../states/RecordTableTree
 
 export const useRecordTableTreeContext = () => {
   const context = useContext(RecordTableTreeContext);
+
   if (!context) {
     throw new Error('useRecordTableTreeContext must be used within a RecordTableTreeProvider');
   }
+
   return context;
 };
 

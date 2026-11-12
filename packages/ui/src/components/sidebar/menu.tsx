@@ -1,6 +1,7 @@
 import * as React from 'react';
 
-import { VariantProps, cva } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 
 import { Skeleton } from 'erxes-ui/components/skeleton';
 import { Slot } from 'radix-ui';
@@ -18,6 +19,7 @@ export const SidebarMenu = React.forwardRef<HTMLUListElement, React.ComponentPro
     />
   ),
 );
+
 SidebarMenu.displayName = 'SidebarMenu';
 
 export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(
@@ -30,6 +32,7 @@ export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.ComponentPr
     />
   ),
 );
+
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
 const sidebarMenuButtonVariants = cva(
@@ -113,6 +116,7 @@ export const SidebarMenuButton = React.forwardRef<
     );
   },
 );
+
 SidebarMenuButton.displayName = 'SidebarMenuButton';
 
 export const SidebarMenuAction = React.forwardRef<
@@ -144,6 +148,7 @@ export const SidebarMenuAction = React.forwardRef<
     />
   );
 });
+
 SidebarMenuAction.displayName = 'SidebarMenuAction';
 
 export const SidebarMenuBadge = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
@@ -163,6 +168,7 @@ export const SidebarMenuBadge = React.forwardRef<HTMLDivElement, React.Component
     />
   ),
 );
+
 SidebarMenuBadge.displayName = 'SidebarMenuBadge';
 
 export const SidebarMenuSkeleton = React.forwardRef<
@@ -172,6 +178,7 @@ export const SidebarMenuSkeleton = React.forwardRef<
   }
 >(({ className, showIcon = false, ...props }, ref) => {
   const id = React.useId();
+
   // Stable width between 50 to 90%, derived from the instance id.
   const width = React.useMemo(() => {
     const hash = Array.from(id).reduce((sum, char) => sum + (char.codePointAt(0) ?? 0), 0);
@@ -199,4 +206,5 @@ export const SidebarMenuSkeleton = React.forwardRef<
     </div>
   );
 });
+
 SidebarMenuSkeleton.displayName = 'SidebarMenuSkeleton';

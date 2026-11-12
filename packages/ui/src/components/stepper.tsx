@@ -24,17 +24,21 @@ const StepItemContext = createContext<StepItemContextValue | undefined>(undefine
 
 const useStepper = () => {
   const context = useContext(StepperContext);
+
   if (!context) {
     throw new Error('useStepper must be used within a Stepper');
   }
+
   return context;
 };
 
 const useStepItem = () => {
   const context = useContext(StepItemContext);
+
   if (!context) {
     throw new Error('useStepItem must be used within a StepperItem');
   }
+
   return context;
 };
 
@@ -57,6 +61,7 @@ const StepperRoot = React.forwardRef<HTMLDivElement, StepperProps>(
         if (value === undefined) {
           setInternalStep(step);
         }
+
         onValueChange?.(step);
       },
       [value, onValueChange],
@@ -86,6 +91,7 @@ const StepperRoot = React.forwardRef<HTMLDivElement, StepperProps>(
     );
   },
 );
+
 StepperRoot.displayName = 'Stepper';
 
 interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -126,6 +132,7 @@ const StepperItem = React.forwardRef<HTMLDivElement, StepperItemProps>(
     );
   },
 );
+
 StepperItem.displayName = 'StepperItem';
 
 interface StepperTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -139,6 +146,7 @@ const StepperTrigger = React.forwardRef<HTMLButtonElement, StepperTriggerProps>(
 
     if (asChild) {
       const Comp = asChild ? Slot.Root : 'span';
+
       return (
         <Comp data-slot="stepper-trigger" className={className}>
           {children}
@@ -163,6 +171,7 @@ const StepperTrigger = React.forwardRef<HTMLButtonElement, StepperTriggerProps>(
     );
   },
 );
+
 StepperTrigger.displayName = 'StepperTrigger';
 
 interface StepperIndicatorProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -207,6 +216,7 @@ const StepperIndicator = React.forwardRef<HTMLDivElement, StepperIndicatorProps>
     );
   },
 );
+
 StepperIndicator.displayName = 'StepperIndicator';
 
 const StepperTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
@@ -227,6 +237,7 @@ const StepperTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<H
     );
   },
 );
+
 StepperTitle.displayName = 'StepperTitle';
 
 const StepperDescription = React.forwardRef<
@@ -242,6 +253,7 @@ const StepperDescription = React.forwardRef<
     />
   );
 });
+
 StepperDescription.displayName = 'StepperDescription';
 
 const StepperSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -259,6 +271,7 @@ const StepperSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<H
     );
   },
 );
+
 StepperSeparator.displayName = 'StepperSeparator';
 
 export const Stepper = Object.assign(StepperRoot, {

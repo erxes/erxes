@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { daysToAnniversary, evaluateRule } from '~/modules/automations/conditions';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -72,6 +72,7 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -99,11 +100,13 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
 
   beforeAll(async () => {
     const { users, roles, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'o@acme.mn' },
     });
+
     const orgId = acme.organization.id;
 
     ownerId = acme.owner.id;
@@ -127,6 +130,7 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
     base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 
     vip = (await call(owner, 'POST', '/tags', { name: 'VIP', type: 'customer' })).body.id;
+
     const spendField = await call(owner, 'POST', '/fields', {
       contentType: 'customer',
       label: 'Spend',
@@ -271,6 +275,7 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
         options: ['North', 'South'],
       })
     ).body.id;
+
     const isMember = (
       await call(owner, 'POST', '/fields', {
         contentType: 'customer',
@@ -278,6 +283,7 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
         type: 'boolean',
       })
     ).body.id;
+
     const renewal = (
       await call(owner, 'POST', '/fields', {
         contentType: 'customer',
@@ -285,6 +291,7 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
         type: 'date',
       })
     ).body.id;
+
     const retail = (await call(owner, 'GET', '/companies?search=retail')).body.data[0].id;
     const inTen = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
 
@@ -350,6 +357,7 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
     // Last activity: every timeline entry moves it; creation counts.
     const { activities, customers, newId } = await import('@erxes/core-db');
     const { eq, sql } = await import('drizzle-orm');
+
     const [dorj] = await adminDb()
       .select({ orgId: customers.orgId })
       .from(customers)
@@ -361,17 +369,15 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
     expect(
       await found(rule('subject.lastActivityAt', 'more_than_ago', { amount: 60, unit: 'days' })),
     ).toEqual(['Bat', 'Dorj', 'Saraa']);
-    await adminDb()
-      .insert(activities)
-      .values({
-        id: newId(),
-        orgId: dorj!.orgId,
-        targetType: 'customer',
-        targetId: ids.dorj!,
-        source: 'core',
-        type: 'customer.note',
-        actorType: 'system',
-      });
+    await adminDb().insert(activities).values({
+      id: newId(),
+      orgId: dorj!.orgId,
+      targetType: 'customer',
+      targetId: ids.dorj!,
+      source: 'core',
+      type: 'customer.note',
+      actorType: 'system',
+    });
     expect(
       await found(rule('subject.lastActivityAt', 'within_last', { amount: 1, unit: 'days' })),
     ).toEqual(['Dorj']);
@@ -404,6 +410,7 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
       filter: rule('subject.primaryEmail', 'contains', 'golf'),
       columns: ['firstName', 'primaryEmail'],
     };
+
     const mine = await call(member, 'POST', '/views', leads);
 
     expect(mine.status).toBe(201);
@@ -433,6 +440,7 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
       filter: rule('subject.tagIds', 'contains', vip),
       shared: true,
     });
+
     const seen = (await call(viewer, 'GET', '/views?recordType=customer')).body.data;
 
     expect(seen).toEqual([

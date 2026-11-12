@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { config } from '~/config';
 import { subdomainFromName } from '~/modules/setup/setup.service';
@@ -81,6 +81,7 @@ describeWithDb('first-run setup (/core/v1/setup)', () => {
       email: 'owner@acme.mn',
       password: owner.password,
     });
+
     expect(signIn.status).toBe(200);
   });
 

@@ -18,6 +18,7 @@ export const requestPluginToken = async (
       org,
     }),
   });
+
   const body = (await response.json()) as { access_token?: string; code?: string; scope?: string };
 
   return { status: response.status, body };

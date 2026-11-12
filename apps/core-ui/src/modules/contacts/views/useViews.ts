@@ -58,6 +58,7 @@ export const useViewState = (recordType: ViewRecordType) => {
   const query = useListQuery();
   const current = views.find((view) => view.id === query.viewId) ?? null;
   const filtered = Boolean(query.advanced || query.search);
+
   const changed = current
     ? !same(current.filter?.rules.length ? current.filter : null, query.advanced) ||
       (current.search ?? null) !== (query.search || null)
@@ -70,6 +71,7 @@ export const useViewMutations = (recordType: ViewRecordType) => {
   const client = useQueryClient();
   const { toast } = useToast();
   const refresh = () => void client.invalidateQueries({ queryKey: viewsKey(recordType) });
+
   // The sidebar changes at once; the refetch confirms it.
   const patch = (change: (list: View[]) => View[]) => {
     client.setQueryData<{ data: View[] }>(viewsKey(recordType), (old) =>
@@ -77,6 +79,7 @@ export const useViewMutations = (recordType: ViewRecordType) => {
     );
     refresh();
   };
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',

@@ -227,6 +227,7 @@ const localStorage: Storage = {
   async sweepUploads(olderThanMs) {
     const root = resolve(config.files.localDir, 'uploads');
     let removed = 0;
+
     const walk = async (dir: string): Promise<void> => {
       const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
 
@@ -253,6 +254,7 @@ const localStorage: Storage = {
 
 const s3Storage = (): Storage => {
   const { s3 } = config.files;
+
   const client = new S3Client({
     region: s3.region,
     endpoint: s3.endpoint,

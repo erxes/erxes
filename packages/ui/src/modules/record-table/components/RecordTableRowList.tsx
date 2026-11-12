@@ -35,5 +35,6 @@ export const RecordTableRowList = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [table.options.data, table.getState().columnOrder],
   );
+
   return table.getState().columnSizingInfo.isResizingColumn ? memoizedTableContent : tableContent;
 };

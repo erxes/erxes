@@ -51,7 +51,7 @@ export const PropertiesSettingsRoutes = () => (
       <Route
         index
         element={
-          <Navigate to={`${PROPERTIES_BASE_PATH}/${PROPERTY_TYPES[0]!.contentType}`} replace />
+          <Navigate to={`${PROPERTIES_BASE_PATH}/${PROPERTY_TYPES[0].contentType}`} replace />
         }
       />
       <Route path=":type/*" element={<PropertiesTypeRoutes />} />

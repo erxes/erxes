@@ -64,10 +64,12 @@ export const securityAlert = async (client: Db, orgId: string, input: AlertInput
     .from(organizations)
     .where(eq(organizations.id, orgId))
     .limit(1);
+
   const people = await client
     .select({ email: users.email })
     .from(users)
     .where(and(eq(users.orgId, orgId), inArray(users.id, recipients), eq(users.status, 'active')));
+
   const link = await appLink(client, orgId, input.link);
 
   for (const person of people) {
@@ -102,6 +104,7 @@ const describeDevice = (userAgent?: string | null) => {
         : /Safari\//.test(userAgent)
           ? 'Safari'
           : 'a browser';
+
   const system = /Windows/.test(userAgent)
     ? 'Windows'
     : /Mac OS X/.test(userAgent)
@@ -142,6 +145,7 @@ export const alertsFor = async (
   entries: Entry[],
 ) => {
   const actorUserId = actor.actorType === 'user' ? (actor.actorId ?? null) : null;
+
   const who = async () => {
     if (!actorUserId) return actor.actorType === 'plugin' ? `The ${actor.actorId} plugin` : 'erxes';
 
@@ -153,6 +157,7 @@ export const alertsFor = async (
 
     return row?.email ?? 'A team member';
   };
+
   const owners = (entry: Entry, title: string, body: string, link: string, email: boolean) =>
     securityAlert(client, actor.orgId, {
       key: `${entry.action}:${entry.targetId ?? ''}`,
@@ -188,8 +193,10 @@ export const alertsFor = async (
             true,
           );
         }
+
         break;
       }
+
       case 'settings.audit_retention_changed':
         await owners(
           entry,
@@ -231,6 +238,7 @@ export const alertsFor = async (
             true,
           );
         }
+
         break;
       case 'audit.exported':
         await owners(
@@ -270,6 +278,7 @@ export const alertsFor = async (
             email: true,
           });
         }
+
         break;
       case 'auth.sign_in_failed':
         await failedSignIns(client, actor.orgId, entry);

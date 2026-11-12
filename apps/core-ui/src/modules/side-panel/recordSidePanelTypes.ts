@@ -1,11 +1,13 @@
 import type { Icon } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
+
 export interface IRecordSidePanelTab {
   value: string;
   label: string;
   icon: Icon;
   content: ReactNode;
 }
+
 export type PanelExpansionContextValue = {
   expanded: boolean;
   // Missing when the panel cannot expand: its header draws no expand button.

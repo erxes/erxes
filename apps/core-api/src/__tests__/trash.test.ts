@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
@@ -21,6 +21,7 @@ describeWithDb('recycle bin and mass-deletion guard', { timeout: 300_000 }, () =
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -28,11 +29,13 @@ describeWithDb('recycle bin and mass-deletion guard', { timeout: 300_000 }, () =
 
   beforeAll(async () => {
     const { users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'o@acme.mn' },
     });
+
     const adminId = newId();
 
     orgId = acme.organization.id;
@@ -56,7 +59,9 @@ describeWithDb('recycle bin and mass-deletion guard', { timeout: 300_000 }, () =
       name: 'vip',
       colorCode: '#ff0000',
     });
+
     const company = await call(owner, 'POST', '/companies', { primaryName: 'Acme LLC' });
+
     const customer = await call(owner, 'POST', '/customers', {
       firstName: 'Saraa',
       primaryEmail: 'saraa@mail.mn',

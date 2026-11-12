@@ -1,6 +1,6 @@
 import { Combobox, Command } from 'erxes-ui/components';
 import { SexCodes } from 'erxes-ui/constants';
-import { SexCode } from 'erxes-ui/types';
+import type { SexCode } from 'erxes-ui/types';
 
 export const SexField = ({
   value,
@@ -18,7 +18,7 @@ export const SexField = ({
             key={key}
             value={val.label}
             onSelect={() => {
-              onValueChange(Number(key) as SexCode);
+              onValueChange(Number(key));
             }}
           >
             {val.label}

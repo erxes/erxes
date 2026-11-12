@@ -1,7 +1,7 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createLocalJWKSet, jwtVerify } from 'jose';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -20,11 +20,13 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const memberId = newId();
 
     orgId = acme.organization.id;
@@ -53,6 +55,7 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: init.body === undefined ? undefined : JSON.stringify(init.body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -88,6 +91,7 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
 
   it('cuts a plugin off the moment it is uninstalled, and only the owner decides', async () => {
     const token = await pluginToken(base, orgId);
+
     const notify = () =>
       call(token, '/notifications', {
         method: 'POST',
@@ -247,6 +251,7 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
     const jwks = (await fetch(`${base}/core/v1/.well-known/jwks.json`).then((response) =>
       response.json(),
     )) as Parameters<typeof createLocalJWKSet>[0];
+
     const { payload, protectedHeader } = await jwtVerify(
       session.body.token,
       createLocalJWKSet(jwks),
@@ -305,13 +310,11 @@ describeWithDb('plugin connection (registry, installations, tokens)', () => {
       scopes: ['notifications:write', 'events:write', 'live:write', 'audit:write'],
     });
 
-    const sent = await core
-      .forOrg(orgId)
-      .notifications.create({
-        userIds: [ownerId],
-        kind: 'hr.leave.requested',
-        title: 'From the SDK',
-      });
+    const sent = await core.forOrg(orgId).notifications.create({
+      userIds: [ownerId],
+      kind: 'hr.leave.requested',
+      title: 'From the SDK',
+    });
 
     expect(sent.created).toBe(1);
     expect(await core.signal(orgId, ['leaves'])).toEqual({ ok: true });

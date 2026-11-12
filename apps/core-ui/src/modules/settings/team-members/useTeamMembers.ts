@@ -11,6 +11,7 @@ export const USERS_KEY = ['users'];
 export const TEAM_MEMBERS_SESSION_KEY = TEAM_MEMBER_CURSOR_SESSION_KEY;
 
 export type UserUpdate = Parameters<typeof api.users.update>[0];
+
 export type InviteEntry = Parameters<typeof api.users.inviteMany>[0]['entries'][number];
 
 export const STATUS_LABEL: Record<UserStatus, string> = {
@@ -125,6 +126,7 @@ export const useTeamMembersDeactivate = () => {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       const results = await Promise.allSettled(ids.map((id) => api.users.disable({ id })));
+
       const failed = results.find(
         (result): result is PromiseRejectedResult => result.status === 'rejected',
       );

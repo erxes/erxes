@@ -55,6 +55,7 @@ export const Attribute = createReactInlineContentSpec(
               tr.doc.descendants((node, position) => {
                 if (found) return false;
                 const dom = props.editor.prosemirrorView?.nodeDOM(position);
+
                 if (
                   node.type.name === 'attribute' &&
                   dom instanceof HTMLElement &&
@@ -62,8 +63,10 @@ export const Attribute = createReactInlineContentSpec(
                 ) {
                   tr.delete(position, position + node.nodeSize);
                   found = true;
+
                   return false;
                 }
+
                 return true;
               });
             });

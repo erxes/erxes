@@ -83,6 +83,7 @@ const redeem = async (token: string, purpose: 'invite' | 'password_reset') => {
       )
       .limit(1),
   );
+
   const expected = row ? Buffer.from(row.secretHash) : Buffer.alloc(64);
   const given = Buffer.from(hash(secret));
 
@@ -94,11 +95,13 @@ const redeem = async (token: string, purpose: 'invite' | 'password_reset') => {
 /** Called when a member is invited without a password: the invitation email. */
 export const sendInvitation = async (tx: Db, actor: Actor, user: { id: string; email: string }) => {
   const token = await issue(tx, actor.orgId, user.id, 'invite');
+
   const [org] = await tx
     .select({ name: organizations.name })
     .from(organizations)
     .where(eq(organizations.id, actor.orgId))
     .limit(1);
+
   const [inviter] = await tx
     .select({ name: users.fullName, email: users.email })
     .from(users)
@@ -127,6 +130,7 @@ export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => 
     .limit(1);
 
   if (!user) throw new HttpError(404, 'NOT_FOUND', 'Team member not found');
+
   if (user.status !== 'invited')
     throw new HttpError(409, 'NOT_INVITED', 'This member has already joined');
 
@@ -148,6 +152,7 @@ export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => 
  */
 export const requestPasswordReset = async (input: { email: string; subdomain?: string }) => {
   const email = input.email.trim().toLowerCase();
+
   const members = await withSystem('password reset lookup', (tx) =>
     tx
       .select({
@@ -268,11 +273,13 @@ export const invitationInfo = async (token: string) => {
       .from(users)
       .where(eq(users.id, row.userId))
       .limit(1);
+
     const [org] = await tx
       .select({ name: organizations.name })
       .from(organizations)
       .where(eq(organizations.id, row.orgId))
       .limit(1);
+
     const [inviter] = user?.invitedBy
       ? await tx
           .select({ name: users.fullName, email: users.email })
@@ -311,6 +318,7 @@ export const acceptInvitation = async (input: {
     if (!used) throw invalidLink();
 
     const fullName = [input.firstName, input.lastName].filter(Boolean).join(' ') || undefined;
+
     const [user] = await tx
       .update(users)
       .set({

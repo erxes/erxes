@@ -32,10 +32,13 @@ const PropertiesCheckboxCell = ({ id }: { id: string }) => {
         onCheckedChange={(value) =>
           setSelectedFieldIds((prev) => {
             const isChecked = !!value;
+
             if (isChecked === !!prev[id]) return prev;
             const next = { ...prev };
+
             if (isChecked) next[id] = true;
             else delete next[id];
+
             return next;
           })
         }
@@ -60,6 +63,7 @@ const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
               if (value) next[id] = true;
               else delete next[id];
             });
+
             return next;
           })
         }
@@ -85,6 +89,7 @@ const PropertiesMoreColumnCell = ({ cell }: { cell: Cell<Field, unknown> }) => {
       if (!prev[field.id]) return prev;
       const next = { ...prev };
       delete next[field.id];
+
       return next;
     });
   };

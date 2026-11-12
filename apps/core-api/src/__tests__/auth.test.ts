@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -52,10 +52,12 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
 
   it('signs in, sets an HttpOnly session cookie and answers /me with it', async () => {
     const response = await signIn({ email: 'OWNER@acme.mn', password: 'correct horse' });
+
     const body = (await response.json()) as {
       user: { email: string; role: string };
       organization: { subdomain: string };
     };
+
     const setCookie = response.headers.getSetCookie().join(';');
 
     expect(response.status).toBe(200);
@@ -74,7 +76,9 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
     const cookie = sessionCookie(
       await signIn({ email: 'owner@acme.mn', password: 'correct horse' }),
     );
+
     const headers = { cookie, 'sec-fetch-site': 'same-origin' };
+
     const before = (await (await fetch(`${base}/core/v1/auth/me`, { headers })).json()) as {
       user: { onboardedAt: string | null };
     };
@@ -105,12 +109,15 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
     const cookie = sessionCookie(
       await signIn({ email: 'owner@umbrella.mn', password: 'pw-umbrella' }),
     );
+
     const headers = { cookie, 'sec-fetch-site': 'same-origin', 'content-type': 'application/json' };
+
     const get = async (path: string) =>
       (await (await fetch(`${base}/core/v1${path}`, { headers })).json()) as {
         totalCount: number;
         data: { name?: string; primaryName?: string; firstName?: string }[];
       };
+
     const onboard = () =>
       fetch(`${base}/core/v1/auth/onboarded`, {
         method: 'POST',
@@ -149,6 +156,7 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
 
   it('asks for the organisation when the email exists in several', async () => {
     const ambiguous = await signIn({ email: 'shared@x.mn', password: 'pw-globex' });
+
     const chosen = await signIn({
       email: 'shared@x.mn',
       password: 'pw-initech',
@@ -170,11 +178,13 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
       headers: { cookie, 'content-type': 'application/json', 'sec-fetch-site': 'cross-site' },
       body: JSON.stringify({ email: 'evil@acme.mn' }),
     });
+
     const sameSite = await fetch(`${base}/core/v1/users`, {
       method: 'POST',
       headers: { cookie, 'content-type': 'application/json', 'sec-fetch-site': 'same-origin' },
       body: JSON.stringify({ email: 'good@acme.mn' }),
     });
+
     const read = await fetch(`${base}/core/v1/users`, {
       headers: { cookie, 'sec-fetch-site': 'cross-site' },
     });
@@ -186,6 +196,7 @@ describeWithDb('sign-in (/core/v1/auth)', () => {
 
   it('refuses invited members (no password yet) and signs out', async () => {
     const invited = await signIn({ email: 'good@acme.mn', password: 'anything' });
+
     const out = await fetch(`${base}/core/v1/auth/sign-out`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

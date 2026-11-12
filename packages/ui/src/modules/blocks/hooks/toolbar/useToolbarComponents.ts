@@ -8,6 +8,7 @@ import { ToolbarRoot } from 'erxes-ui/modules/blocks/components/toolbar/ToolbarR
 
 export const useToolbarComponents = (): ReturnType<typeof useComponentsContext> => {
   const Components = useComponentsContext();
+
   return useMemo(
     () =>
       Components && {

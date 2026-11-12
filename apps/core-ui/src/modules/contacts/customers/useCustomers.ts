@@ -18,6 +18,7 @@ export const useCustomersFilters = (state: CustomerState) => {
     ownerId: string;
     stage: string;
   }>(['searchValue', 'tags', 'ownerId', 'stage']);
+
   const filter = useAdvancedFilterParam();
 
   return {

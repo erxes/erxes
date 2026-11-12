@@ -1,5 +1,6 @@
 import { Label, RadioGroup } from 'erxes-ui/components';
-import { forwardRef, useId, ComponentPropsWithoutRef, ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import { forwardRef, useId } from 'react';
 import { cn } from 'erxes-ui/lib';
 import { type RadioGroupProps } from './radio-group';
 
@@ -54,9 +55,11 @@ export interface ChoiceboxItemProps extends Omit<ComponentPropsWithoutRef<'div'>
   disabled?: boolean;
   children: ReactNode;
 }
+
 const ChoiceboxItem = forwardRef<HTMLLabelElement, ChoiceboxItemProps>(
   ({ className, value, title, disabled, children }, ref) => {
     const id = useId();
+
     return (
       <label
         key={`${id}-${value}`}

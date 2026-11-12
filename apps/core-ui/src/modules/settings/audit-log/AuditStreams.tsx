@@ -52,6 +52,7 @@ const AddStream = ({ onAdded }: { onAdded: (secret: string) => void }) => {
   const [url, setUrl] = useState(PRESETS.erxes.url);
   const [header, setHeader] = useState({ name: PRESETS.erxes.header, value: '' });
   const [from, setFrom] = useState<'now' | 'beginning'>('now');
+
   const create = useMutation({
     mutationFn: () =>
       api.audit.createStream({
@@ -170,12 +171,14 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
   const { confirm } = useConfirm();
   const client = useQueryClient();
   const refresh = () => void client.invalidateQueries({ queryKey: KEY });
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
       title: t('failed', 'Something went wrong'),
       description: messageOf(error),
     });
+
   const toggle = useMutation({
     mutationFn: () =>
       api.audit.updateStream({
@@ -185,11 +188,13 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
     onSuccess: refresh,
     onError,
   });
+
   const remove = useMutation({
     mutationFn: () => api.audit.removeStream({ id: stream.id }),
     onSuccess: refresh,
     onError,
   });
+
   const test = useMutation({
     mutationFn: () => api.audit.testStream({ id: stream.id }),
     onSuccess: (result) =>
@@ -202,6 +207,7 @@ const StreamRow = ({ stream }: { stream: AuditStream }) => {
       }),
     onError,
   });
+
   const failing = stream.consecutiveFailures > 0;
 
   return (
@@ -295,6 +301,7 @@ export const AuditStreams = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log.streams' });
   const [open, setOpen] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
+
   const streams = useQuery({
     queryKey: KEY,
     queryFn: () => api.audit.streams(),

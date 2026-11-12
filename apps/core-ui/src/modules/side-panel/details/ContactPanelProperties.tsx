@@ -44,6 +44,7 @@ const ContactProperties = ({
   const { sections, loading } = useFields(kind);
 
   if (loading || !values) return <Spinner containerClassName="py-6" />;
+
   if (sections.length === 0) return <EmptyProperties kind={kind} />;
 
   return (

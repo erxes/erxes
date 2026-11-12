@@ -30,13 +30,17 @@ export const RecordTableCursorProvider = ({
       offset,
     },
   );
+
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleScroll = () => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     const firstVisibleRow = scrollRef.current?.querySelector('.in-view');
+
     if (firstVisibleRow && sessionKey) {
       sessionStorage.setItem(sessionKey, firstVisibleRow.id);
     }
+
     debounceTimer.current = setTimeout(() => {
       try {
         sessionStorage.setItem(`${sessionKey}_scroll`, String(scrollRef.current?.scrollTop));
@@ -46,10 +50,13 @@ export const RecordTableCursorProvider = ({
       }
     }, 150);
   };
+
   useEffect(() => {
     if (!dataLength || loading) return;
+
     if (!scrollRef.current) return;
     const saved = sessionStorage.getItem(`${sessionKey}_scroll`);
+
     if (!saved) return;
     scrollRef.current.scrollTop = parseInt(saved, 10);
   }, [loading, dataLength, scrollRef, sessionKey]);
@@ -98,6 +105,7 @@ export const RecordTableBackwardSkeleton = ({
       handleInView={() => {
         setIsFetchBackward(true);
         handleFetchMore({ direction: EnumCursorDirection.BACKWARD });
+
         if (scrollRef.current) {
           distanceFromBottomRef.current =
             scrollRef.current.scrollHeight - scrollRef.current.scrollTop;

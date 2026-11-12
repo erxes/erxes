@@ -41,6 +41,7 @@ const Root = ({
     </PopoverPrimitive.Root>
   );
 };
+
 Root.displayName = 'CommandBar';
 
 const Value = React.forwardRef<
@@ -73,6 +74,7 @@ const Value = React.forwardRef<
     </div>
   );
 });
+
 Value.displayName = 'CommandBar.Value';
 
 const Bar = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(
@@ -89,6 +91,7 @@ const Bar = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div
     );
   },
 );
+
 Bar.displayName = 'CommandBar.Bar';
 
 export const CommandBar = Object.assign(Root, {

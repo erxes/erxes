@@ -26,6 +26,7 @@ export const useActivities = (
 ) => {
   const { kind = 'all', includeRelated = false, q, actorId, source } = filters;
   const refetchInterval = useLivePolling();
+
   const query = useInfiniteQuery({
     queryKey: [
       ...ACTIVITIES_KEY,
@@ -82,6 +83,7 @@ export const useNoteActions = () => {
   const client = useQueryClient();
   const { toast } = useToast();
   const refresh = () => client.invalidateQueries({ queryKey: ACTIVITIES_KEY });
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',

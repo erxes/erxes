@@ -1,6 +1,7 @@
 import type { CursorQuery, PageInfo } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
-import { and, asc, count, desc, eq, SQL, sql } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, sql } from 'drizzle-orm';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import { HttpError } from '~/http/errors';
 

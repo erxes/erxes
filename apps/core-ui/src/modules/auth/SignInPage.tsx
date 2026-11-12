@@ -30,6 +30,7 @@ export const SignInPage = () => {
   const [needsOrganization, setNeedsOrganization] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [challenge, setChallenge] = useState<string | null>(null);
+
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '', subdomain: '' },
@@ -56,6 +57,7 @@ export const SignInPage = () => {
 
       if ('challenge' in result) {
         setChallenge(result.challenge);
+
         return;
       }
 

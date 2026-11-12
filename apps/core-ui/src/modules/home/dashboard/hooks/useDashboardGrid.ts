@@ -26,6 +26,7 @@ const DROP_PREVIEW_ID = '__drop-preview__';
 export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: number) => {
   const { items, widgets, isEditing, setDraftItems, addWidget, draggingWidget, setDraggingWidget } =
     useDashboard();
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dropAt, setDropAt] = useState<Pick<TDashboardItem, 'x' | 'y'> | null>(null);
   const stopRef = useRef<(() => void) | null>(null);
@@ -85,6 +86,7 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
   const columnStep =
     (width - DASHBOARD_GRID_GAP * (DASHBOARD_GRID_COLUMNS - 1)) / DASHBOARD_GRID_COLUMNS +
     DASHBOARD_GRID_GAP;
+
   const rowStep = DASHBOARD_ROW_HEIGHT + DASHBOARD_GRID_GAP;
 
   const begin = (
@@ -145,6 +147,7 @@ export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: nu
       widget.maxSize?.w ?? DASHBOARD_GRID_COLUMNS,
       DASHBOARD_GRID_COLUMNS - item.x,
     );
+
     const maxH = widget.maxSize?.h ?? Infinity;
 
     begin(event, item, (columns, rows) => ({

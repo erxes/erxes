@@ -108,6 +108,7 @@ export const RoleKey = z
   .string()
   .trim()
   .regex(/^(owner|admin|member|r_[A-Za-z0-9]{6,40})$/, 'a role');
+
 export type RoleKey = z.infer<typeof RoleKey>;
 
 export const Role = z.object({
@@ -120,6 +121,7 @@ export const Role = z.object({
   editable: z.boolean(),
   members: z.number().int(),
 });
+
 export type Role = z.infer<typeof Role>;
 
 export const PermissionInfo = z.object({
@@ -131,6 +133,7 @@ export const PermissionInfo = z.object({
   source: z.string(),
   ownerOnly: z.boolean(),
 });
+
 export type PermissionInfo = z.infer<typeof PermissionInfo>;
 
 const RoleFields = {

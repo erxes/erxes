@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Cell } from '@tanstack/react-table';
+import type { Cell } from '@tanstack/react-table';
 
 import { Table } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib/utils';

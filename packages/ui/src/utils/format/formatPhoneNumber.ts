@@ -1,4 +1,5 @@
-import { AsYouType, CountryCode } from 'libphonenumber-js';
+import type { CountryCode } from 'libphonenumber-js';
+import { AsYouType } from 'libphonenumber-js';
 
 export const formatPhoneNumber = ({
   defaultCountry,

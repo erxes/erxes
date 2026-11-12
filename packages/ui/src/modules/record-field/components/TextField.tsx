@@ -1,4 +1,5 @@
-import { ButtonProps, Input, TextOverflowTooltip } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components';
+import { Input, TextOverflowTooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
@@ -41,6 +42,7 @@ export const TextField = React.forwardRef<
     /** Saves a changed text value and closes the inline editor. */
     const handleAction = (e?: React.FormEvent) => {
       e?.preventDefault();
+
       if (editingValue !== value) onSave?.(editingValue);
       setIsOpen(false);
     };
@@ -60,6 +62,7 @@ export const TextField = React.forwardRef<
         open={isOpen}
         onOpenChange={(open: boolean) => {
           setIsOpen(open);
+
           if (open) {
             setEditingValue(value);
           } else if (editingValue !== value) {

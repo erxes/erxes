@@ -1,4 +1,5 @@
-import { type ContentType, Db, newId, tags } from '@erxes/core-db';
+import type { Db } from '@erxes/core-db';
+import { type ContentType, newId, tags } from '@erxes/core-db';
 import { and, asc, eq, ilike, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';

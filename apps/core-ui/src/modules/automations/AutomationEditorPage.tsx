@@ -98,6 +98,7 @@ const StepInspector = ({
   const fields = useAutomationFields(subject);
   const place = locate(steps, step.id);
   const counts = stats.get(step.id);
+
   const { title } = describeStep(step, {
     actions,
     events,
@@ -203,15 +204,18 @@ export const AutomationEditorPage = () => {
   const client = useQueryClient();
   const can = useCan();
   const editable = can('automations.manage');
+
   const { data: automation, isLoading } = useQuery({
     queryKey: ['automations', id],
     queryFn: () => api.automations.get({ id }),
   });
+
   const catalog = useQuery({
     queryKey: ['automations', 'catalog'],
     queryFn: () => api.automations.catalog(),
     staleTime: 60_000,
   });
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [definition, setDefinition] = useState<AutomationDefinition | null>(null);
@@ -249,12 +253,14 @@ export const AutomationEditorPage = () => {
     client.setQueryData(['automations', id], next);
     void client.invalidateQueries({ queryKey: ['automations', 'list'] });
   };
+
   const onError = (error: unknown) => {
     const list = isApiError(error, 'INVALID_AUTOMATION')
       ? ((error.data as { problems?: string[] })?.problems ?? [])
       : [];
 
     setServerProblems(list);
+
     if (list.length) setSelected('settings');
     toast({
       variant: 'destructive',
@@ -262,6 +268,7 @@ export const AutomationEditorPage = () => {
       description: messageOf(error),
     });
   };
+
   const save = useMutation({
     mutationFn: () =>
       api.automations.update({
@@ -280,6 +287,7 @@ export const AutomationEditorPage = () => {
     },
     onError,
   });
+
   const activate = useMutation({
     mutationFn: async () => {
       await api.automations.update({
@@ -298,16 +306,19 @@ export const AutomationEditorPage = () => {
     },
     onError,
   });
+
   const pause = useMutation({
     mutationFn: () => api.automations.pause({ id }),
     onSuccess: refresh,
     onError,
   });
+
   const stats = useQuery({
     queryKey: ['automations', id, 'stats'],
     queryFn: () => api.automations.stats({ id }),
     refetchInterval: 15_000,
   });
+
   const start = useMutation({
     mutationFn: () => api.automations.start({ id }),
     onSuccess: (result) => {
@@ -318,6 +329,7 @@ export const AutomationEditorPage = () => {
     },
     onError,
   });
+
   const remove = useMutation({
     mutationFn: () => api.automations.remove({ id }),
     onSuccess: () => {
@@ -329,22 +341,27 @@ export const AutomationEditorPage = () => {
 
   const triggerDef = definition?.trigger;
   const triggers = catalog.data?.triggers ?? [];
+
   const eventInfo =
     triggerDef?.kind === 'event'
       ? triggers.find((item) => item.type === triggerDef.event)
       : undefined;
+
   const subject: 'customer' | 'company' =
     triggerDef?.kind === 'event'
       ? (eventInfo?.subject ?? 'customer')
       : triggerDef?.kind === 'date'
         ? triggerDef.subject
         : (triggerDef?.audience?.type ?? 'customer');
+
   const hasSubject =
     triggerDef?.kind === 'event'
       ? Boolean(eventInfo?.subject)
       : triggerDef?.kind === 'date' ||
         Boolean(triggerDef && 'audience' in triggerDef && triggerDef.audience);
+
   const fields = useAutomationFields(hasSubject ? subject : null);
+
   const actions = useMemo(
     () =>
       (catalog.data?.actions ?? []).filter(
@@ -354,10 +371,12 @@ export const AutomationEditorPage = () => {
       ),
     [catalog.data, hasSubject, subject],
   );
+
   const problems = useMemo(
     () => (definition ? flowProblems(definition.steps, actions) : new Map<string, string[]>()),
     [definition, actions],
   );
+
   const builder = useMemo(() => {
     const events = triggers.filter((item) => item.subject);
 
@@ -380,13 +399,16 @@ export const AutomationEditorPage = () => {
     const onKey = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
         event.preventDefault();
+
         if (editable && dirty && !save.isPending) save.mutate();
+
         return;
       }
 
       if (typing(event.target)) return;
 
       if (event.key === 'Escape') setSelected('settings');
+
       if (
         (event.key === 'Delete' || event.key === 'Backspace') &&
         editable &&
@@ -408,8 +430,10 @@ export const AutomationEditorPage = () => {
     return <Spinner containerClassName="py-12" />;
 
   const trigger = describeTrigger(definition.trigger, triggers, fields);
+
   const selectedStep =
     selected !== 'settings' && selected !== 'trigger' ? findStep(definition.steps, selected) : null;
+
   const totalProblems = [...problems.values()].reduce((sum, list) => sum + list.length, 0);
 
   return (

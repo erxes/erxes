@@ -1,9 +1,10 @@
 import { BlockEditorEditableContext } from '../hooks/useBlockEditorEditable';
 import { BlockEditorComments } from './BlockEditorComments';
-import { KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import type { KeyboardEvent, MouseEvent } from 'react';
+import { useRef, useState } from 'react';
 import { SuggestionMenuController, TableHandlesController } from '@blocknote/react';
 
-import { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
+import type { BlockEditorProps } from 'erxes-ui/modules/blocks/types';
 import { BlockNoteView } from '@blocknote/shadcn';
 import { SlashMenu } from 'erxes-ui/modules/blocks/components/SlashMenu';
 import { TableHandleWithRemove } from 'erxes-ui/modules/blocks/components/TableHandleWithRemove';
@@ -51,6 +52,7 @@ export const BlockEditor = ({
     if (editor.getActiveStyles().code && isCodeFormattingShortcut(e)) {
       e.preventDefault();
       e.stopPropagation();
+
       return;
     }
 
@@ -119,13 +121,16 @@ export const BlockEditor = ({
           onChange={() => {
             if (deletingText.current) {
               deletingText.current = false;
+
               if (isEmptyBlock(editor.getTextCursorPosition().block)) {
                 const view = editor._tiptapEditor.view;
+
                 if (view) {
                   view.dispatch(view.state.tr.setStoredMarks([]));
                 }
               }
             }
+
             onChange?.();
           }}
           comments={false}

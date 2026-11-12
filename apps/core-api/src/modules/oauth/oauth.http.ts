@@ -35,6 +35,7 @@ const SCOPES = new Set(['openid', 'profile', 'email', 'offline_access']);
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
 const base64url = (buffer: Buffer) => buffer.toString('base64url');
+
 const sameHash = (stored: string, value: string) => {
   const a = Buffer.from(stored);
   const b = Buffer.from(sha256(value));
@@ -110,6 +111,7 @@ oauthRouter.get('/authorize', (req: Request, res: Response, next) => {
 
     // Until the redirect address is known to be the client's, errors are shown here, never sent there.
     if (!client || !templates.length) return oauthError(res, 400, 'invalid_client', 'Unknown app');
+
     if (!query.redirect_uri)
       return oauthError(res, 400, 'invalid_request', 'redirect_uri is required');
 
@@ -136,6 +138,7 @@ oauthRouter.get('/authorize', (req: Request, res: Response, next) => {
       );
 
     if (query.response_type !== 'code') return back({ error: 'unsupported_response_type' });
+
     if (
       !query.code_challenge ||
       query.code_challenge_method !== 'S256' ||
@@ -204,10 +207,13 @@ const issueTokens = async (tx: Db, issued: Issued) => {
   if (!row || row.user.status !== 'active') return null;
 
   const actor = { role: row.user.role, permissions: row.permissions };
+
   const permissions = (row.manifest?.permissions ?? [])
     .map((item) => item.action)
     .filter((action) => can(actor, action));
+
   const scopes = issued.scope.split(' ');
+
   const access_token = await signJwt(
     {
       org: issued.orgId,
@@ -223,6 +229,7 @@ const issueTokens = async (tx: Db, issued: Issued) => {
       expiresInSeconds: ACCESS_TTL,
     },
   );
+
   const response: Record<string, unknown> = {
     access_token,
     token_type: 'Bearer',
@@ -291,6 +298,7 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
 
     if (body.grant_type === 'authorization_code') {
       const [id, secret] = (body.code ?? '').split('.');
+
       const [code] = id
         ? await withSystem('oauth code lookup', (tx) =>
             tx.select().from(oauthCodes).where(eq(oauthCodes.id, id)).limit(1),
@@ -350,6 +358,7 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
 
     if (body.grant_type === 'refresh_token') {
       const [id, secret] = (body.refresh_token ?? '').split('.');
+
       const [token] = id
         ? await withSystem('oauth refresh lookup', (tx) =>
             tx.select().from(oauthRefreshTokens).where(eq(oauthRefreshTokens.id, id)).limit(1),
@@ -390,6 +399,7 @@ tokenRouter.post('/token', (req: Request, res: Response, next) => {
             client: client.name,
             family: current.familyId,
           });
+
           return 'reused' as const;
         }
 

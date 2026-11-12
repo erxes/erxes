@@ -24,6 +24,7 @@ export const TeamMemberSidePanel = () => {
             const params = new URLSearchParams(previous);
 
             params.set('tab', next);
+
             return params;
           })
         }

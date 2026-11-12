@@ -74,6 +74,7 @@ const describe = (error: unknown) => {
 const claim = (queues: Map<string, JobDefinition>, limit: number) =>
   withSystem('jobs: claim', async (tx) => {
     const names = [...queues.keys()];
+
     const result = await tx.execute<{ id: string }>(sql`
       update ${jobs} j set
         status = 'running',
@@ -197,6 +198,7 @@ export const startJobWorker = (definitions: JobDefinition[], concurrency = 5) =>
 
     if (current) {
       again = true;
+
       return;
     }
 

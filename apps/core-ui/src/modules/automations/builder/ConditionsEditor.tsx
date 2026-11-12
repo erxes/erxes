@@ -41,11 +41,15 @@ const operatorsFor = (type: string | undefined) => {
       'not_exists',
     ] as const;
   }
+
   if (type === 'number')
     return ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'exists', 'not_exists'] as const;
+
   if (type === 'tags' || type === 'list')
     return ['contains', 'not_contains', 'exists', 'not_exists'] as const;
+
   if (type === 'boolean') return ['eq', 'neq'] as const;
+
   if (type === 'select' || type === 'member')
     return ['eq', 'neq', 'in', 'not_in', 'exists', 'not_exists'] as const;
 
@@ -54,6 +58,7 @@ const operatorsFor = (type: string | undefined) => {
 
 const NO_VALUE = new Set(['exists', 'not_exists']);
 const RELATIVE = new Set(['within_last', 'more_than_ago', 'within_next', 'anniversary_within']);
+
 const GROUP_LABELS: Record<string, string> = {
   fields: 'Fields',
   lead: 'Lead',
@@ -61,6 +66,7 @@ const GROUP_LABELS: Record<string, string> = {
   company: 'Company',
   activity: 'Activity',
 };
+
 const LIST_VALUE = new Set(['in', 'not_in']);
 
 const isRule = (rule: ConditionRule | ConditionGroup): rule is ConditionRule => !('match' in rule);
@@ -317,8 +323,10 @@ const GroupEditor = ({
   subject: 'customer' | 'company' | null;
 }) => {
   const { t } = useTranslation('automations');
+
   const update = (index: number, rule: ConditionRule | ConditionGroup) =>
     onChange({ ...group, rules: group.rules.map((item, at) => (at === index ? rule : item)) });
+
   const remove = (index: number) =>
     onChange({ ...group, rules: group.rules.filter((_, at) => at !== index) });
 

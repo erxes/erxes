@@ -17,7 +17,7 @@ import {
   IconVideo,
 } from '@tabler/icons-react';
 import { SuggestionMenu, SuggestionMenuItem } from './SuggestionMenu';
-import { DefaultReactSuggestionItem, SuggestionMenuProps } from '@blocknote/react';
+import type { DefaultReactSuggestionItem, SuggestionMenuProps } from '@blocknote/react';
 
 export const SlashMenu = ({
   items,

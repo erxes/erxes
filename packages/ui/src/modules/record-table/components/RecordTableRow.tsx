@@ -6,7 +6,7 @@ import { cn } from 'erxes-ui/lib/utils';
 import React from 'react';
 import { mergeRefs } from 'react-merge-refs';
 import { useRecordTable } from './RecordTableProvider';
-import { Row } from '@tanstack/react-table';
+import type { Row } from '@tanstack/react-table';
 
 export const RecordTableRow = React.forwardRef<
   HTMLTableRowElement,
@@ -16,6 +16,7 @@ export const RecordTableRow = React.forwardRef<
   }
 >(({ children, className, handleRowViewChange, original, ...props }, ref) => {
   const { table } = useRecordTable();
+
   const { ref: inViewRef, inView } = useInView({
     onChange: handleRowViewChange,
   });

@@ -1,5 +1,5 @@
 import { cn } from 'erxes-ui/lib';
-import { EmailPreviewDevice } from '../types';
+import type { EmailPreviewDevice } from '../types';
 
 export interface EmailPreviewFrameProps {
   html: string;

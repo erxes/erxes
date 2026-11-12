@@ -17,6 +17,7 @@ import { organizations } from './organizations';
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export const PAYMENT_GATEWAY_KINDS = ['qpay', 'test'] as const;
+
 export const INVOICE_STATUSES = [
   'pending',
   'paid',
@@ -25,6 +26,7 @@ export const INVOICE_STATUSES = [
   'expired',
   'failed',
 ] as const;
+
 export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
 export const REFUND_METHODS = ['gateway', 'manual'] as const;
 

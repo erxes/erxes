@@ -231,7 +231,7 @@ export const LeadReasons = ({ report }: { report: LeadReport }) => {
           <span className="w-40 shrink-0 truncate">{row.reason}</span>
           <Bar
             value={row.count}
-            max={report.reasons[0]!.count}
+            max={report.reasons[0].count}
             title={`${row.reason}: ${row.count}`}
           />
         </div>

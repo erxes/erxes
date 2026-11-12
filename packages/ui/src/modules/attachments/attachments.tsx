@@ -37,6 +37,7 @@ const DEFAULT_FILE_TYPES = new Set([
 
 function stripTypename<T extends object>(obj: T): T {
   const { __typename, ...rest } = obj as T & { __typename?: unknown };
+
   return rest as T;
 }
 
@@ -119,6 +120,7 @@ const AttachmentFiles = ({
         {fileAttachments.map((attachment) => {
           const isRemoving = removingUrl === attachment.url;
           const url = readImage(decodeURIComponent(attachment.url));
+
           return (
             <div
               key={attachment.url}
@@ -187,12 +189,16 @@ const AttachmentPreview = ({
   // Keyboard nav — only when dialog is open
   useEffect(() => {
     if (!open || mediaAttachments.length === 0) return;
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
+
       if (e.key === 'ArrowLeft')
         setCurrentIndex((i) => (i === 0 ? mediaAttachments.length - 1 : i - 1));
     };
+
     document.addEventListener('keydown', onKey);
+
     return () => document.removeEventListener('keydown', onKey);
   }, [open, mediaAttachments.length]);
 
@@ -200,6 +206,7 @@ const AttachmentPreview = ({
 
   const prev = () => setCurrentIndex((i) => (i === 0 ? mediaAttachments.length - 1 : i - 1));
   const next = () => setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
+
   const openPreview = (index: number) => {
     setCurrentIndex(index);
     setOpen(true);
@@ -215,6 +222,7 @@ const AttachmentPreview = ({
         <ScrollTrack label="Media attachments">
           {mediaAttachments.map((attachment, index) => {
             const isRemoving = removingUrl === attachment.url;
+
             return (
               <div
                 key={attachment.url}
@@ -351,12 +359,16 @@ const AttachmentVideo = ({ heading = 'Video Attachments' }: AttachmentVideoProps
 
   useEffect(() => {
     if (!open) return;
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') setCurrentIndex((i) => (i + 1) % videoAttachments.length);
+
       if (e.key === 'ArrowLeft')
         setCurrentIndex((i) => (i === 0 ? videoAttachments.length - 1 : i - 1));
     };
+
     document.addEventListener('keydown', onKey);
+
     return () => document.removeEventListener('keydown', onKey);
   }, [open, videoAttachments.length]);
 
@@ -375,6 +387,7 @@ const AttachmentVideo = ({ heading = 'Video Attachments' }: AttachmentVideoProps
         {videoAttachments.map((attachment, index) => {
           const isRemoving = removingUrl === attachment.url;
           const base = getCloudflareStreamBase(attachment.url);
+
           return (
             <div
               key={attachment.url}
@@ -507,6 +520,7 @@ const AttachmentAudio = ({ heading = 'Audio Attachments' }: AttachmentAudioProps
       <div className="flex flex-col gap-2" role="list" aria-label={heading}>
         {audioAttachments.map((attachment) => {
           const isRemoving = removingUrl === attachment.url;
+
           return (
             <div
               key={attachment.url}
@@ -547,6 +561,7 @@ export type AttachmentUploaderProps = {
 
 const AttachmentUploader = ({ onSave, id, label = 'Add attachments' }: AttachmentUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
+
   const [uploadProgress, setUploadProgress] = useState({
     uploaded: 0,
     total: 0,

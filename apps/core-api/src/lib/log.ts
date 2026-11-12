@@ -16,6 +16,7 @@ const threshold = LEVELS[(process.env.LOG_LEVEL as Level) ?? 'info'] ?? LEVELS.i
 
 const SECRET =
   /pass(word)?|secret|token|authorization|cookie|api[-_]?key|private|hash|signature|credential/i;
+
 const BEARER = /\b(Bearer\s+)[A-Za-z0-9._~+/=-]{8,}/g;
 const URL_PASSWORD = /(\/\/[^:/\s]+:)[^@/\s]+@/g;
 
@@ -35,7 +36,9 @@ export const redact = (value: unknown, depth = 0): unknown => {
   }
 
   if (typeof value === 'string') return scrubText(value);
+
   if (value === null || typeof value !== 'object' || depth > 5) return value;
+
   if (Array.isArray(value)) return value.slice(0, 50).map((item) => redact(item, depth + 1));
 
   return Object.fromEntries(
@@ -62,6 +65,7 @@ const write = (level: Level, message: string, fields?: Record<string, unknown>) 
     });
 
     (level === 'error' || level === 'warn' ? process.stderr : process.stdout).write(`${line}\n`);
+
     return;
   }
 

@@ -43,8 +43,10 @@ export const RecordTableHotkeyProvider = ({
 
 export const useRecordTableHotkey = () => {
   const context = useContext(RecordTableHotkeyContext);
+
   if (!context) {
     throw new Error('useRecordTableHotkey must be used within a RecordTableHotkeyProvider.');
   }
+
   return context;
 };

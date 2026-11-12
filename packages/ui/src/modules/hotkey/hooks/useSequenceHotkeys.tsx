@@ -1,4 +1,4 @@
-import { Keys, Options } from 'react-hotkeys-hook/dist/types';
+import type { Keys, Options } from 'react-hotkeys-hook/dist/types';
 import { usePreviousHotkeyScope } from './usePreviousHotkeyScope';
 import { useAtom } from 'jotai';
 import { pendingHotkeyState } from '../states/internal/pendingHotkeyState';
@@ -73,6 +73,7 @@ export const useSequenceHotkeys = (
     },
     [pendingHotkey, setPendingHotkey, scope, ...deps],
   );
+
   return {
     goBackToPreviousHotkeyScope,
   };

@@ -34,26 +34,31 @@ export const RecycleBinPage = () => {
   const { confirm } = useConfirm();
   const client = useQueryClient();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
   const { data, isLoading } = useQuery({
     queryKey: KEY,
     queryFn: () => api.trash.list({ limit: 500 }),
     enabled: can('contacts.delete'),
   });
+
   const members = useMembersById(
     (data?.data ?? []).map((item) => (item.deletedBy.type === 'user' ? item.deletedBy.id : null)),
   );
+
   const done = () => {
     setSelected(new Set());
     void client.invalidateQueries({ queryKey: KEY });
     void client.invalidateQueries({ queryKey: ['customers'] });
     void client.invalidateQueries({ queryKey: ['companies'] });
   };
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
       title: t('failed', 'Something went wrong'),
       description: messageOf(error),
     });
+
   const restore = useMutation({
     mutationFn: () => api.trash.restore({ ids: [...selected] }),
     onSuccess: (result) => {
@@ -68,6 +73,7 @@ export const RecycleBinPage = () => {
     },
     onError,
   });
+
   const purge = useMutation({
     mutationFn: () => api.trash.purge({ ids: [...selected] }),
     onSuccess: done,

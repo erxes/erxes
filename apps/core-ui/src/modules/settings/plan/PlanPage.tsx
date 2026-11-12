@@ -17,12 +17,14 @@ import { usePlan } from '~/modules/saas/usePlan';
 type Row = SubscriptionInfo['plugins'][number];
 
 const TIER = { free: 'secondary', plus: 'info', pro: 'success' } as const;
+
 const ACCESS = {
   full: 'success',
   warning: 'warning',
   read_only: 'destructive',
   off: 'secondary',
 } as const;
+
 const day = (value: string) =>
   new Date(value).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
 

@@ -1,3 +1,4 @@
+import type { TablerIcon } from '@tabler/icons-react';
 import {
   IconCoins,
   IconCurrencyAfghani,
@@ -50,10 +51,9 @@ import {
   IconCurrencyYen,
   IconCurrencyYuan,
   IconCurrencyZloty,
-  TablerIcon,
 } from '@tabler/icons-react';
 
-import { CurrencyCode } from 'erxes-ui/types';
+import type { CurrencyCode } from 'erxes-ui/types';
 
 export const CURRENCY_CODES: Record<CurrencyCode, { label: string; Icon: TablerIcon }> = {
   AED: { label: 'UAE dirham', Icon: IconCurrencyDirham },

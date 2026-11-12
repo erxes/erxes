@@ -29,6 +29,7 @@ export const saasRouter = Router();
 const send = (res: Response, error: unknown) => {
   if (error instanceof HttpError) {
     res.status(error.status).json({ code: error.code, message: error.message, data: error.data });
+
     return;
   }
 
@@ -47,6 +48,7 @@ const fromPlatform = (req: Request, res: Response) => {
 saasRouter.use((_req, res, next) => {
   if (!config.saas.enabled) {
     res.status(404).json({ code: 'NOT_FOUND', message: 'Not a SaaS deployment' });
+
     return;
   }
 
@@ -62,13 +64,12 @@ saasRouter.put(
     const parsed = SaasWorkspace.safeParse(req.body);
 
     if (!parsed.success) {
-      res
-        .status(400)
-        .json({
-          code: 'INVALID_INPUT',
-          message: 'Not a valid workspace',
-          data: { issues: parsed.error.issues },
-        });
+      res.status(400).json({
+        code: 'INVALID_INPUT',
+        message: 'Not a valid workspace',
+        data: { issues: parsed.error.issues },
+      });
+
       return;
     }
 
@@ -102,6 +103,7 @@ saasRouter.get('/organizations/:id', (req: Request, res: Response) => {
 export const saasLogin = (req: Request, res: Response) => {
   if (!config.saas.enabled) {
     res.status(404).json({ code: 'NOT_FOUND', message: 'Not a SaaS deployment' });
+
     return;
   }
 

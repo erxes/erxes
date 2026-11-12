@@ -19,11 +19,13 @@ export const VersionsPanel = ({
   const client = useQueryClient();
   const can = useCan();
   const [open, setOpen] = useState(false);
+
   const versions = useQuery({
     queryKey: ['automations', automationId, 'versions'],
     queryFn: () => api.automations.versions({ id: automationId }),
     enabled: open,
   });
+
   const restore = useMutation({
     mutationFn: (version: number) => api.automations.restoreVersion({ id: automationId, version }),
     onSuccess: (next) => {

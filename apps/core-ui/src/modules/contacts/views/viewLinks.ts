@@ -13,6 +13,7 @@ export const viewHref = (recordType: ViewRecordType, view: View) => {
   const params = new URLSearchParams({ view: view.id });
 
   if (view.filter?.rules.length) params.set('advanced', JSON.stringify(view.filter));
+
   if (view.search) params.set('searchValue', view.search);
 
   return `${VIEW_LIST_PATHS[recordType]}?${params.toString()}`;

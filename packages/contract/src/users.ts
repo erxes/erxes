@@ -6,7 +6,9 @@ import { RoleKey } from './roles';
 /** A role key: `owner`, `admin`, `member` or a custom role (`r_…`). See `./roles`. */
 export const UserRole = RoleKey;
 export const UserStatus = z.enum(['invited', 'active', 'disabled']);
+
 export type UserRole = z.infer<typeof UserRole>;
+
 export type UserStatus = z.infer<typeof UserStatus>;
 
 /** Social links a member can show (old erxes `users.links`). */
@@ -18,9 +20,13 @@ export const USER_LINK_NAMES = [
   'github',
   'instagram',
 ] as const;
+
 export const UserLinkName = z.enum(USER_LINK_NAMES);
+
 export type UserLinkName = z.infer<typeof UserLinkName>;
+
 export const UserLinks = z.record(z.string(), z.string());
+
 export type UserLinks = z.infer<typeof UserLinks>;
 
 /** A team member. Never carries credentials. */
@@ -52,6 +58,7 @@ export const User = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
+
 export type User = z.infer<typeof User>;
 
 const NameFields = {

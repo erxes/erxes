@@ -15,6 +15,7 @@ import { notify } from '~/modules/notifications/notifications.service';
 
 /** Deletions by one member or plugin in 5 minutes before owners are told … */
 export const ALERT_AT = Number(process.env.MASS_DELETE_ALERT ?? 100);
+
 /** … and before they are stopped: members refused, plugins suspended. Owners aren't limited. */
 export const STOP_AT = Number(process.env.MASS_DELETE_LIMIT ?? 500);
 
@@ -71,6 +72,7 @@ export const guardDeletions = async (
 
   const who = caller.actorType === 'plugin' ? `The ${caller.actorId} plugin` : 'A team member';
   const stop = total >= STOP_AT;
+
   const report = async (db: Db) => {
     const recipients = await owners(db, caller.orgId);
 
@@ -104,6 +106,7 @@ export const guardDeletions = async (
 
   if (!stop) {
     await report(tx);
+
     return;
   }
 

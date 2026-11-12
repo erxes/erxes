@@ -1,9 +1,7 @@
 import { Popover, type PopoverProps } from 'erxes-ui/components';
 import { usePreviousHotkeyScope } from '../hooks/usePreviousHotkeyScope';
-import {
-  UseHotkeysOptionsWithoutBuggyOptions,
-  useScopedHotkeys,
-} from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
+import type { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
+import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { Key } from 'erxes-ui/types';
 import { useLayoutEffect, useState } from 'react';
 import { currentHotkeyScopeState } from 'erxes-ui/modules/hotkey/states/internal/currentHotkeyScopeState';
@@ -39,6 +37,7 @@ export const PopoverScoped = ({
     const previousScope = store.get(currentHotkeyScopeState);
     const popoverScope = `${scope}.Popover`;
     setHotkeyScopeAndMemorizePreviousScope(popoverScope);
+
     return () => {
       // A different control may have taken focus before this popover closes.
       if (store.get(currentHotkeyScopeState).scope === popoverScope) {
@@ -53,7 +52,9 @@ export const PopoverScoped = ({
       if (!isOpen) {
         return;
       }
+
       onEnter?.();
+
       if (closeOnEnter) {
         _setOpen(false);
         onOpenChange?.(false, 'enter');

@@ -69,6 +69,7 @@ export const deliveryFor = (
   kind: string,
 ): NotificationDelivery => {
   if (UNMUTABLE_NOTIFICATION_KINDS.includes(kind)) return 'inbox';
+
   if (isMuted(settings.muted, source, kind)) return 'off';
 
   const group = notificationGroupOf(source, kind);
@@ -87,7 +88,7 @@ export const isMuted = (muted: string[] | undefined, source: string, kind: strin
 type Changes = Record<string, [unknown, unknown]>;
 
 const combineChanges = (earlier: Changes | undefined, later: Changes | undefined): Changes => {
-  const combined: Changes = { ...(earlier ?? {}) };
+  const combined: Changes = { ...earlier };
 
   for (const [field, [before, after]] of Object.entries(later ?? {})) {
     combined[field] = [field in combined ? combined[field]![0] : before, after];
@@ -112,6 +113,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
   await assertMember(client, caller.orgId, input.actorUserId);
 
   const wanted = unique(input.userIds);
+
   const members = await client
     .select({
       id: users.id,
@@ -132,6 +134,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
 
   const actorUserId =
     input.actorUserId ?? (caller.actorType === 'user' ? caller.actorId : undefined);
+
   const recipients = members
     .filter(
       (member) =>
@@ -140,6 +143,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
         deliveryFor(member.settings, caller.source, input.kind) !== 'off',
     )
     .map((member) => member.id);
+
   // Also by email: members who chose it for this group and haven't turned email off.
   const emailed = new Map(
     members
@@ -183,6 +187,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
         ),
       )
       .orderBy(desc(notifications.createdAt));
+
     const latest = new Map<string, NotificationRow>();
 
     recent.forEach((row) => latest.has(row.userId) || latest.set(row.userId, row));
@@ -245,6 +250,7 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
       .from(organizations)
       .where(eq(organizations.id, caller.orgId))
       .limit(1);
+
     const link = await appLink(client, caller.orgId, input.link ?? '/notifications');
 
     for (const row of toEmail) {
@@ -329,6 +335,7 @@ export const unreadCount = async (client: Db, actor: Actor, source?: string) => 
       ),
     )
     .groupBy(notifications.source);
+
   const bySource = Object.fromEntries(rows.map((row) => [row.source, row.count]));
 
   return { count: rows.reduce((total, row) => total + row.count, 0), bySource };
@@ -347,11 +354,14 @@ export const notificationSettings = async (
     .from(users)
     .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
     .limit(1);
+
   const settings: MemberSettings = user?.settings ?? {};
+
   const sources = await client
     .selectDistinct({ source: notifications.source })
     .from(notifications)
     .where(mine(actor));
+
   const installed = await client
     .select({ name: pluginInstallations.plugin, manifest: plugins.manifest })
     .from(pluginInstallations)
@@ -359,7 +369,9 @@ export const notificationSettings = async (
     .where(
       and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.status, 'active')),
     );
+
   const titles = new Map(installed.map((row) => [row.name, row.manifest?.title ?? row.name]));
+
   const pluginNames = [
     ...new Set([...installed.map((row) => row.name), ...sources.map((row) => row.source)]),
   ]
@@ -403,6 +415,7 @@ export const updateNotificationSettings = async (
   input: { groups?: Record<string, NotificationDelivery>; email?: boolean; browser?: boolean },
 ) => {
   const current = await notificationSettings(client, actor);
+
   const groups = Object.fromEntries(
     current.groups.filter((group) => !group.locked).map((group) => [group.key, group.delivery]),
   );
@@ -477,6 +490,7 @@ export const pruneNotifications = async (client: Db, days: number) => {
         limit 5000
       )
     `);
+
     const count = result.rowCount ?? 0;
 
     removed += count;

@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
@@ -24,6 +24,7 @@ describeWithDb('concurrent writes', () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -33,6 +34,7 @@ describeWithDb('concurrent writes', () => {
 
   beforeAll(async () => {
     const { users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
@@ -56,6 +58,7 @@ describeWithDb('concurrent writes', () => {
 
   it('two owners demoting each other at once: one wins, the organisation keeps an owner', async () => {
     const [a, b] = [await token(ownerA), await token(ownerB)];
+
     const results = await Promise.all([
       call(a, 'PATCH', `/users/${ownerB}`, { role: 'member' }),
       call(b, 'PATCH', `/users/${ownerA}`, { role: 'member' }),
@@ -65,6 +68,7 @@ describeWithDb('concurrent writes', () => {
 
     const { users } = await import('@erxes/core-db');
     const { and, eq } = await import('drizzle-orm');
+
     const owners = await adminDb()
       .select()
       .from(users)
@@ -81,6 +85,7 @@ describeWithDb('concurrent writes', () => {
 
   it('two owners disabling each other at once: never zero active owners', async () => {
     const [a, b] = [await token(ownerA), await token(ownerB)];
+
     const results = await Promise.all([
       call(a, 'POST', `/users/${ownerB}/disable`),
       call(b, 'POST', `/users/${ownerA}/disable`),
@@ -90,6 +95,7 @@ describeWithDb('concurrent writes', () => {
 
     const { users } = await import('@erxes/core-db');
     const { and, eq } = await import('drizzle-orm');
+
     const active = await adminDb()
       .select()
       .from(users)
@@ -105,16 +111,19 @@ describeWithDb('concurrent writes', () => {
 
   it('two edits of different custom fields at once: both are kept', async () => {
     const owner = await token(ownerA);
+
     const first = await call(owner, 'POST', '/fields', {
       contentType: 'customer',
       label: 'Shoe size',
       type: 'number',
     });
+
     const second = await call(owner, 'POST', '/fields', {
       contentType: 'customer',
       label: 'Nickname',
       type: 'text',
     });
+
     const customer = await call(owner, 'POST', '/customers', { firstName: 'Bat' });
 
     for (let round = 0; round < 3; round += 1) {
@@ -142,6 +151,7 @@ describeWithDb('concurrent writes', () => {
       contentType: 'text/plain',
       size: bytes.length,
     });
+
     const put = await fetch(`${base}${started.body.upload.url}`, {
       method: 'PUT',
       headers: started.body.upload.headers,
@@ -168,6 +178,7 @@ describeWithDb('concurrent writes', () => {
     const owner = await token(ownerA);
     const bytes = Buffer.from('checked bytes');
     const started = await startUpload(owner, bytes);
+
     const results = await Promise.all(
       [1, 2, 3].map(() => call(owner, 'POST', `/files/${started.file.id}/complete`)),
     );
@@ -187,6 +198,7 @@ describeWithDb('concurrent writes', () => {
       headers: started.upload.headers,
       body: Buffer.from('evil bytes!!!'),
     });
+
     const row = await fileRow(started.file.id);
     const { storage } = await import('~/modules/files/storage');
     const { readFile } = await import('node:fs/promises');
@@ -206,11 +218,13 @@ describeWithDb('concurrent writes', () => {
 
     for (let round = 0; round < 4; round += 1) {
       const started = await startUpload(owner, Buffer.from(`round ${round}`));
+
       const [completed] = await Promise.all([
         call(owner, 'POST', `/files/${started.file.id}/complete`),
         // Everything pending counts as stale here.
         withSystem('test cleanup', (tx) => pruneUploads(tx, 0)),
       ]);
+
       const row = await fileRow(started.file.id);
 
       if (row?.status === 'ready') {
@@ -253,6 +267,7 @@ describeWithDb('concurrent writes', () => {
     const { notify } = await import('~/modules/notifications/notifications.service');
     const { withOrg } = await import('@erxes/core-db');
     const caller = { orgId, actorType: 'user' as const, actorId: ownerA, source: 'core' };
+
     const send = (field: string) =>
       withOrg(orgId, (tx) =>
         notify(tx, caller, {
@@ -270,6 +285,7 @@ describeWithDb('concurrent writes', () => {
 
     const { notifications } = await import('@erxes/core-db');
     const { eq } = await import('drizzle-orm');
+
     const rows = await adminDb()
       .select()
       .from(notifications)

@@ -4,6 +4,7 @@ import { ConditionGroup } from './automations';
 import { Id } from './common';
 
 export const TransferRecordType = z.enum(['customer', 'lead', 'company']);
+
 export type TransferRecordType = z.infer<typeof TransferRecordType>;
 
 /** A column imports map to and exports write: built-in fields, properties (`customFields.<id>`), tags, owner, companies. */
@@ -16,6 +17,7 @@ export const TransferColumn = z.object({
   /** Exported unless the member unticks it. */
   default: z.boolean(),
 });
+
 export type TransferColumn = z.infer<typeof TransferColumn>;
 
 export const ImportOptions = z.object({
@@ -26,6 +28,7 @@ export const ImportOptions = z.object({
   createMissing: z.boolean().default(true),
   runAutomations: z.boolean().default(false),
 });
+
 export type ImportOptions = z.infer<typeof ImportOptions>;
 
 export const ImportStatus = z.enum([
@@ -67,6 +70,7 @@ export const Import = z.object({
   createdAt: z.string().datetime(),
   finishedAt: z.string().datetime().nullable(),
 });
+
 export type Import = z.infer<typeof Import>;
 
 export const ImportRow = z.object({
@@ -99,6 +103,7 @@ export const Export = z.object({
   createdAt: z.string().datetime(),
   finishedAt: z.string().datetime().nullable(),
 });
+
 export type Export = z.infer<typeof Export>;
 
 /** Imports from CSV or Excel (mapped, checked, run in the background, undoable) and exports of lists. */

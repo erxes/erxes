@@ -1,5 +1,6 @@
 import { cn, Separator } from 'erxes-ui';
-import { forwardRef, HTMLAttributes, ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
+import { forwardRef } from 'react';
 
 /*
  * Old erxes plugin UIs import a few helpers from `ui-modules`, which core-ui

@@ -54,26 +54,49 @@ export const coreContract = {
 };
 
 export * from './activities';
+
 export * from './automations';
+
 export * from './audit';
+
 export * from './auth';
+
 export * from './common';
+
 export * from './companies';
+
 export * from './customers';
+
 export * from './events';
+
 export * from './fields';
+
 export * from './files';
+
 export * from './leads';
+
 export * from './notifications';
+
 export * from './platform';
+
 export * from './organizations';
+
 export * from './payments';
+
 export * from './plugins';
+
 export * from './roles';
+
 export * from './saas';
+
 export * from './tags';
+
 export * from './trash';
+
 export * from './transfer';
+
 export * from './users';
+
 export * from './views';
+
 export * from './webhooks';

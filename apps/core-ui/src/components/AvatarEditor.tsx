@@ -81,6 +81,7 @@ export const AvatarEditor = ({
   className?: string;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'avatar' });
+
   const avatar = (
     <Avatar size="lg" className={cn('size-7 flex-none', className)}>
       <Avatar.Image src={readImage(src ?? undefined)} />

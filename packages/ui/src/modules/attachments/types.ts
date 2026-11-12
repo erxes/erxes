@@ -43,10 +43,13 @@ const EXT_TO_MIME: Record<string, string> = {
 
 export const parseFilesAsAttachments = (value: unknown): IAttachment[] => {
   let urls: string[] = [];
+
   if (!value) return [];
+
   if (typeof value === 'string' && value.trim()) {
     try {
       const parsed = JSON.parse(value);
+
       if (Array.isArray(parsed)) urls = parsed;
       else if (parsed?.url) urls = [parsed.url];
     } catch {
@@ -57,8 +60,10 @@ export const parseFilesAsAttachments = (value: unknown): IAttachment[] => {
   } else if (typeof value === 'object' && value !== null && 'url' in value) {
     urls = [(value as { url: string }).url];
   }
+
   return urls.map((url) => {
     const ext = url.split('?')[0].split('.').pop()?.toLowerCase() ?? '';
+
     return {
       url,
       name: url.split('/').pop() ?? url,

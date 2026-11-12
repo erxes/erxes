@@ -21,12 +21,15 @@ import { recordAudit } from './audit.service';
 import { securityAlert } from './alerts';
 
 type StreamRow = typeof auditStreams.$inferSelect;
+
 type AuditRow = typeof auditLogs.$inferSelect;
 
 /** Entries per request; a full batch is followed by the next at once. */
 const BATCH = 200;
+
 /** How often an idle stream looks for new entries. */
 const IDLE_SECONDS = 10;
+
 /** Owners hear about a stream failing this many times in a row. */
 const ALERT_AFTER_FAILURES = 10;
 
@@ -125,6 +128,7 @@ export const formatBatch = (
         },
       ]
     : [];
+
   const all = [...gapEntry, ...entries];
 
   if (format === 'datadog') {
@@ -206,6 +210,7 @@ export const listStreams = async (client: Db, actor: Actor) => {
     .from(auditStreams)
     .where(eq(auditStreams.orgId, actor.orgId))
     .orderBy(auditStreams.createdAt);
+
   const latest = await latestSeq(client, actor.orgId);
 
   return { data: rows.map((row) => toDto(row, latest)) };
@@ -226,6 +231,7 @@ export const createStream = async (
 
   const secret = `whsec_${randomBytes(24).toString('base64url')}`;
   const latest = await latestSeq(client, actor.orgId);
+
   const [row] = await client
     .insert(auditStreams)
     .values({
@@ -356,6 +362,7 @@ const organizationOf = async (client: Db, orgId: string) => {
 /** Sends one made-up entry now (nothing is advanced), to check the address and credentials. */
 export const testStream = async (client: Db, actor: Actor, id: string) => {
   const row = await streamOrThrow(client, actor.orgId, id);
+
   const sample: StreamEntry = {
     id: 'test',
     seq: null,
@@ -371,6 +378,7 @@ export const testStream = async (client: Db, actor: Actor, id: string) => {
     ip: null,
     userAgent: null,
   };
+
   const result = await send(
     row,
     formatBatch(
@@ -420,6 +428,7 @@ export const auditStreamJob: JobDefinition = {
         .where(and(eq(auditLogs.orgId, job.orgId), gt(auditLogs.chainSeq, row.cursorSeq)))
         .orderBy(asc(auditLogs.chainSeq))
         .limit(BATCH);
+
       const next = (seconds: number) =>
         enqueueJob(tx, {
           orgId: job.orgId,
@@ -432,18 +441,22 @@ export const auditStreamJob: JobDefinition = {
 
       if (!entries.length) {
         await next(IDLE_SECONDS);
+
         return;
       }
 
       const firstSeq = entries[0]!.chainSeq ?? row.cursorSeq + 1;
+
       const gap =
         firstSeq > row.cursorSeq + 1 ? { fromSeq: row.cursorSeq + 1, toSeq: firstSeq - 1 } : null;
+
       const body = formatBatch(
         row.format,
         { streamId, organization: await organizationOf(tx, job.orgId) },
         entries.map(streamEntry),
         gap,
       );
+
       const result = await send(row, body);
 
       if (result.ok) {
@@ -457,6 +470,7 @@ export const auditStreamJob: JobDefinition = {
           })
           .where(eq(auditStreams.id, streamId));
         await next(entries.length === BATCH ? 0 : IDLE_SECONDS);
+
         return;
       }
 

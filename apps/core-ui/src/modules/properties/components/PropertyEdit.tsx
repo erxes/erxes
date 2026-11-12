@@ -16,12 +16,14 @@ export const PropertyEdit = ({ contentType }: { contentType: ContentType }) => {
   const { id = '' } = useParams<{ id: string }>();
   const { fields, loading } = useAllFields(contentType);
   const field = fields.find((item) => item.id === id);
+
   const usage = useQuery({
     queryKey: [...FIELDS_KEY, 'usage', 'field', id],
     queryFn: () => api.fields.usage({ ids: id }),
     enabled: !!field,
     staleTime: 0,
   });
+
   const { toast } = useToast();
   const { mutate, isPending } = useEditProperty();
   const navigate = useNavigate();

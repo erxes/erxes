@@ -155,6 +155,7 @@ const shortTime = (iso: string, now: number, language: string, withDate: boolean
     const relative = new Intl.RelativeTimeFormat(language, { numeric: 'auto', style: 'narrow' });
 
     if (minutes < 1) return relative.format(0, 'second');
+
     if (minutes < 60) return relative.format(-minutes, 'minute');
 
     return relative.format(-Math.floor(minutes / 60), 'hour');
@@ -230,6 +231,7 @@ const CoreRecord = ({
   const company = useCompany(type === 'company' ? id : null);
   const query = type === 'customer' ? customer : company;
   const record = query.data;
+
   const name = customer.data
     ? customerTitle(customer.data)
     : company.data
@@ -277,13 +279,15 @@ const Sentence = ({
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
   const verb = verbOf(activity);
   const who = <span className="font-medium">{actor}</span>;
+
   const record =
     activity.targetType === 'customer'
       ? t('this-customer', 'this customer')
       : activity.targetType === 'company'
         ? t('this-company', 'this company')
         : t('this-record', 'this record');
-  const data = activity.data as Record<string, unknown>;
+
+  const data = activity.data;
 
   if (activity.source !== 'core') {
     return <>{activity.summary}</>;
@@ -305,6 +309,7 @@ const Sentence = ({
     case 'tagged': {
       const added = (data.added as string[] | undefined) ?? [];
       const removed = (data.removed as string[] | undefined) ?? [];
+
       const names = (ids: string[]) =>
         ids.map((id) => lookups.tags.get(id)?.name ?? 'a deleted tag').join(', ');
 
@@ -325,6 +330,7 @@ const Sentence = ({
         </>
       );
     }
+
     case 'merged':
       return (
         <>
@@ -354,6 +360,7 @@ const Sentence = ({
           </span>
         ) : null;
       };
+
       const reason = data.reason ? (
         <span className="text-muted-foreground"> · {String(data.reason)}</span>
       ) : null;
@@ -381,6 +388,7 @@ const Sentence = ({
           );
       }
     }
+
     case 'customer_linked':
     case 'customer_unlinked':
       return (
@@ -415,10 +423,12 @@ const useNoteFiles = (fileIds: string[]) =>
 /** A note's text with @mentions highlighted, and its attachments. */
 const NoteBody = ({ note, lookups }: { note: NoteData; lookups: Lookups }) => {
   const { data: files = [] } = useNoteFiles(note.fileIds ?? []);
+
   const names = (note.mentions ?? [])
     .map((id) => lookups.members.get(id))
     .filter(Boolean)
     .map((member) => `@${member!.fullName || member!.email}`);
+
   const pattern = names.length
     ? new RegExp(
         `(${names.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
@@ -536,19 +546,23 @@ const ActivityItem = ({
   const note = isNoteType(activity.type);
   const look = plugin ? catalog?.types.find((item) => item.type === activity.type) : undefined;
   const pluginIcon = (look?.icon && PLUGIN_ICONS[look.icon]) || IconPlug;
+
   const ItemIcon: Icon = plugin
     ? pluginIcon
     : note
       ? IconNote
       : (ICONS[verbOf(activity)] ?? IconHistory);
+
   const related = activity.targetType !== pageTarget.type || activity.targetId !== pageTarget.id;
   const actor = actorLabel(activity.actor, lookups.members);
+
   // Until the team is known, a placeholder rather than "A team member".
   const named =
     activity.actor.type !== 'user' ||
     !activity.actor.id ||
     Boolean(activity.actor.name) ||
     lookups.members.size > 0;
+
   const changes = activity.data.changes as Record<string, [unknown, unknown]> | undefined;
   let extra: ReactNode = null;
 
@@ -578,12 +592,14 @@ const ActivityItem = ({
   }
 
   const pinnedSection = pinnedList && activity.pinned;
+
   const onRelated = related && (
     <span className="text-muted-foreground">
       {' '}
       · {t('on', 'on')} <LinkedRecord type={activity.targetType} id={activity.targetId} />
     </span>
   );
+
   const edited =
     activity.editedAt &&
     (Array.isArray(activity.data.history) && activity.data.history.length ? (
@@ -591,10 +607,12 @@ const ActivityItem = ({
     ) : (
       <span className="text-xs text-muted-foreground">· {t('edited', 'edited')}</span>
     ));
+
   // The line joining the markers: from under this one to the next.
   const rail = !last && (
     <span className="absolute top-7 bottom-0 left-[11.5px] w-px bg-border" aria-hidden="true" />
   );
+
   const hasReactions = Object.keys(activity.reactions ?? {}).length > 0;
 
   // A note: who wrote it and when, the text, its files and reactions; actions on hover.
@@ -706,6 +724,7 @@ const dayLabel = (iso: string, t: (key: string, fallback: string) => string, lan
   yesterday.setDate(today.getDate() - 1);
 
   if (date.toDateString() === today.toDateString()) return t('today', 'Today');
+
   if (date.toDateString() === yesterday.toDateString()) return t('yesterday', 'Yesterday');
 
   return date.toLocaleDateString(language, {
@@ -744,9 +763,11 @@ export const ActivityTimeline = ({
   const [actorId, setActorId] = useState('all');
   const [source, setSource] = useState('all');
   const catalog = useActivityTypes();
+
   const sources = [
     ...new Set((catalog?.types ?? []).map((item) => item.source).filter((name) => name !== 'core')),
   ];
+
   const { activities, loading, updating, hasMore, loadingMore, loadMore } = useActivities(
     targetType,
     targetId,
@@ -758,25 +779,32 @@ export const ActivityTimeline = ({
       source: source === 'all' ? undefined : source,
     },
   );
+
   const { data: pinned = [] } = usePinnedNotes(targetType, targetId);
   const { add } = useNoteActions();
   const all = [...pinned, ...activities];
+
   const lookups = useChangeLookups(
-    (targetType === 'company' ? 'company' : 'customer') as ActivityTarget,
+    targetType === 'company' ? 'company' : 'customer',
     all.map((activity) => activity.data.changes as Record<string, [unknown, unknown]> | undefined),
     all.flatMap((activity) => [
       activity.actor.type === 'user' ? activity.actor.id : null,
       ...((activity.data.mentions as string[] | undefined) ?? []),
     ]),
   );
+
   const pageTarget = { type: targetType, id: targetId };
+
   const filterCount =
     (actorId !== 'all' ? 1 : 0) + (source !== 'all' ? 1 : 0) + (includeRelated ? 1 : 0);
+
   const kinds = KINDS.filter((item) => item.value !== 'plugins' || sources.length > 0);
+
   const closeSearch = () => {
     setSearch('');
     setSearchOpen(false);
   };
+
   const groups: { day: string; items: Activity[] }[] = [];
 
   for (const activity of activities) {

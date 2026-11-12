@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { formatBatch } from '~/modules/audit/streams';
 import { hashPassword } from '~/modules/auth/password';
@@ -24,6 +24,7 @@ describe('audit stream formats', () => {
     ip: '1.2.3.4',
     userAgent: null,
   };
+
   const context = { streamId: 's1', organization: { id: 'o1', subdomain: 'acme' } };
 
   it('speaks erxes, Datadog and Splunk, and names gaps in each', () => {
@@ -93,6 +94,7 @@ describeWithDb('audit streaming and security alerts', { timeout: 300_000 }, () =
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -270,6 +272,7 @@ describeWithDb('audit streaming and security alerts', { timeout: 300_000 }, () =
     // A sign-in from a device and address never seen: the member is told; a known device isn't news.
     const mac = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605 Safari/605';
     const windows = 'Mozilla/5.0 (Windows NT 10.0; Win64) Chrome/130.0 Safari/537';
+
     const signIn = async (agent: string, ip: string) =>
       (
         await call(

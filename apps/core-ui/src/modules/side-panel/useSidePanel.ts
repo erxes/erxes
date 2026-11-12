@@ -79,23 +79,28 @@ const draftId = () => Math.random().toString(36).slice(2, 12);
 export const useSidePanel = () => {
   const navigator = useContext(SidePanelNavigatorContext);
   const sourcePath = useContext(SidePanelRecordPathContext);
+
   const [queries, setRoute] = useMultiQueryState<{
     panel: string;
     panelHistory: string[];
     panelExpanded: boolean;
   }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY, 'panelExpanded']);
+
   const path = typeof queries.panel === 'string' ? queries.panel : null;
   const location = useLocation();
   const routerState = location.state as TRouterState;
   const saved = routerState?.sidePanel;
   const navigationState = saved?.path === path ? saved : undefined;
+
   /** Restores the active or retained record tab from panel navigation state. */
   const getTab = (targetPath: string | null): string =>
     targetPath === path
       ? navigationState?.tab || ''
       : navigationState?.history.find((entry) => entry.path === targetPath)?.tab || '';
+
   const tab = getTab(sourcePath ?? path);
   const historyKey = JSON.stringify(queries.panelHistory ?? null);
+
   const history = useMemo(() => {
     const entries: unknown = JSON.parse(historyKey);
 
@@ -107,6 +112,7 @@ export const useSidePanel = () => {
           .slice(-MAX_PANEL_HISTORY)
       : [];
   }, [historyKey]);
+
   const setHistory = useSetAtom(sidePanelHistoryState);
 
   useEffect(() => {
@@ -146,6 +152,7 @@ export const useSidePanel = () => {
       },
     );
   };
+
   const latest = useRef({ path, history, navigate, navigator, sourcePath });
 
   useLayoutEffect(() => {
@@ -173,6 +180,7 @@ export const useSidePanel = () => {
     }
 
     const scopedRecord = parseSidePanelRecord(current.sourcePath);
+
     const previousPath =
       previous.contentId === NEW_RECORD_ID &&
       scopedRecord?.contentType === previous.contentType &&
@@ -180,6 +188,7 @@ export const useSidePanel = () => {
       current.sourcePath
         ? current.sourcePath
         : getSidePanelRecordPath(previous);
+
     const nextPath = getSidePanelRecordPath(next);
     const nextHistory = current.history.map((entry) => (entry === previousPath ? nextPath : entry));
 

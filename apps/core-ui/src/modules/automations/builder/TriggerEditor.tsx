@@ -180,19 +180,24 @@ const DateTriggerSettings = ({
   disabled?: boolean;
 }) => {
   const { t, i18n } = useTranslation('automations');
+
   const dateFields = useAutomationFields(trigger.subject).filter(
     (field) => field.type === 'date' && field.path !== 'subject.createdAt',
   );
+
   const current = dateFields.find((field) => dateFieldKey(field.path) === trigger.field);
   const label = current?.label.replace(/ \(custom\)$/, '');
+
   // Mid-sentence: "birthday", but "VIP date" stays as it is.
   const fieldName = label
     ? /^.[a-zа-яөү]/.test(label)
-      ? label[0]!.toLowerCase() + label.slice(1)
+      ? label[0].toLowerCase() + label.slice(1)
       : label
     : t('the-date', 'the date');
+
   const when = trigger.offsetDays > 0 ? 'after' : trigger.offsetDays < 0 ? 'before' : 'on';
   const days = Math.abs(trigger.offsetDays);
+
   const setDays = (next: number, direction = when) =>
     onChange({
       ...trigger,
@@ -217,6 +222,7 @@ const DateTriggerSettings = ({
       day: 'numeric',
       year: trigger.yearly ? undefined : 'numeric',
     });
+
   const relation =
     when === 'on'
       ? t('date-on-the-day', 'on the day of')
@@ -224,6 +230,7 @@ const DateTriggerSettings = ({
           count: days,
           defaultValue: when === 'before' ? '{{count}} days before' : '{{count}} days after',
         });
+
   const record =
     trigger.subject === 'company'
       ? t('each-company', 'each company')
@@ -398,6 +405,7 @@ export const TriggerEditor = ({
   onStartNow?: () => void;
 }) => {
   const { t } = useTranslation('automations');
+
   const subject =
     trigger.kind === 'event'
       ? (events.find((event) => event.type === trigger.event)?.subject ?? null)
@@ -530,6 +538,7 @@ export const TriggerEditor = ({
                       )}
                       onClick={() => {
                         const current = trigger.weekdays ?? [1];
+
                         const next = on
                           ? current.filter((item) => item !== index + 1)
                           : [...current, index + 1].sort();

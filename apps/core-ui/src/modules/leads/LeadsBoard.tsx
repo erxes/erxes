@@ -44,6 +44,7 @@ import { useLeadsT, useStageName } from './i18n';
 const PAGE = 30;
 
 type BoardLead = Customer | Company;
+
 type Page = {
   data: BoardLead[];
   pageInfo: { hasNextPage: boolean; endCursor: string | null };
@@ -118,6 +119,7 @@ const CardBody = ({ lead }: { lead: BoardLead }) => {
   const t = useLeadsT();
   const days = daysSince(lead.leadStageChangedAt);
   const name = nameOf(lead) || t('board.unnamed');
+
   const contact = lead.primaryEmail
     ? { icon: IconMail, text: lead.primaryEmail }
     : lead.primaryPhone
@@ -176,6 +178,7 @@ const LeadCard = memo(function LeadCard({
   lead: BoardLead;
 }) {
   const { openRecord } = useSidePanel();
+
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: lead.id,
     data: { lead },
@@ -315,6 +318,7 @@ const moveInCache = (
   const board = boardKey(recordType);
   const from = [...board, lead.leadStageId];
   const to = [...board, toStageId];
+
   const moved = {
     ...lead,
     leadStageId: toStageId,
@@ -342,6 +346,7 @@ const moveInCache = (
       ...page,
       totalCount: index === 0 ? page.totalCount + 1 : page.totalCount,
     }));
+
     const last = pages.at(-1)!;
     const oldest = last.data.at(-1);
 
@@ -354,8 +359,8 @@ const moveInCache = (
     const index = at === -1 ? pages.length - 1 : at;
 
     pages[index] = {
-      ...pages[index]!,
-      data: [...pages[index]!.data, moved].sort(newerFirst),
+      ...pages[index],
+      data: [...pages[index].data, moved].sort(newerFirst),
     };
 
     return { ...data, pages };
@@ -395,10 +400,12 @@ export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
   const { openNewRecord } = useSidePanel();
   const t = useLeadsT();
   const [dragging, setDragging] = useState<BoardLead | null>(null);
+
   const [disqualify, setDisqualify] = useState<{
     id: string;
     stageId: string;
   } | null>(null);
+
   const sensors = useSensors(
     // A click opens the lead; only a real drag moves it.
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -444,6 +451,7 @@ export const LeadsBoard = ({ recordType }: { recordType: LeadRecordType }) => {
     const stage = stages.find((item) => item.id === over?.id);
 
     if (!lead || !stage || stage.id === lead.leadStageId) return;
+
     if (stage.kind === 'disqualified') setDisqualify({ id: lead.id, stageId: stage.id });
     else move(lead, stage.id);
   };

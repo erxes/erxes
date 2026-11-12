@@ -1,4 +1,4 @@
-import { beforeAll, expect, it } from 'vitest';
+import { beforeAll, expect, it } from 'vite-plus/test';
 import { adminDb, describeWithDb, useTestDatabase } from './db';
 
 describeWithDb('job queue', () => {
@@ -26,6 +26,7 @@ describeWithDb('job queue', () => {
     const { withOrg } = await import('@erxes/core-db');
     const { enqueueJob, processJobs } = await import('~/modules/jobs/jobs');
     const ran: string[] = [];
+
     const definition = {
       queue: 'test.echo',
       handle: async (job: { payload: Record<string, unknown> }) =>
@@ -53,7 +54,7 @@ describeWithDb('job queue', () => {
       ).toBeNull();
     });
 
-    await processJobs([definition as never]);
+    await processJobs([definition]);
     expect(ran).toEqual(['once']);
   });
 
@@ -75,9 +76,11 @@ describeWithDb('job queue', () => {
 
     // Atomic: the tag the failing handler wrote is rolled back with it.
     const tagId = newId();
+
     const failing = (await withOrg(orgId, (tx) =>
       enqueueJob(tx, { orgId, queue: 'test.atomic', maxAttempts: 2 }),
     ))!;
+
     const definition = {
       queue: 'test.atomic',
       atomic: true,
@@ -88,8 +91,8 @@ describeWithDb('job queue', () => {
       },
     };
 
-    await processJobs([definition as never]);
-    await processJobs([definition as never]);
+    await processJobs([definition]);
+    await processJobs([definition]);
 
     expect(await adminDb().select().from(tags).where(eq(tags.id, tagId))).toEqual([]);
     expect(await jobRow(failing)).toMatchObject({
@@ -108,6 +111,7 @@ describeWithDb('job queue', () => {
     const { withOrg } = await import('@erxes/core-db');
     const { enqueueJob, processJobs } = await import('~/modules/jobs/jobs');
     let runs = 0;
+
     const id = (await withOrg(orgId, (tx) =>
       enqueueJob(tx, { orgId, queue: 'test.later', runAt: new Date(Date.now() + 60_000) }),
     ))!;

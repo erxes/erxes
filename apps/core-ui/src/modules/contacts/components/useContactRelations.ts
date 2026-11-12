@@ -8,9 +8,11 @@ export const useContactRelations = (contentType: TContactContentType, contentId:
   const client = useQueryClient();
   const { toast } = useToast();
   const isCustomer = contentType === 'core:customer';
+
   const queryKey = isCustomer
     ? ['customers', 'companies', contentId]
     : ['customers', 'ofCompany', contentId];
+
   const query = useQuery({
     queryKey,
     queryFn: async () =>
@@ -21,6 +23,7 @@ export const useContactRelations = (contentType: TContactContentType, contentId:
           ),
     enabled: !!contentId,
   });
+
   const relatedIds = query.data ?? [];
 
   const save = useMutation({

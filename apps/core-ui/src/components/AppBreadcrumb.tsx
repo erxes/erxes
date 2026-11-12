@@ -15,6 +15,7 @@ export const AppBreadcrumb = ({ items }: { items: Crumb[] }) => (
       <Breadcrumb.List className="gap-1">
         {items.map((item, index) => {
           const Icon = item.icon;
+
           const link = (
             <Button variant="ghost" asChild>
               <Link to={item.to}>

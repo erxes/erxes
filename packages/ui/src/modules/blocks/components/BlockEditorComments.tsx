@@ -1,5 +1,5 @@
+import type { ComponentProps } from '@blocknote/react';
 import {
-  ComponentProps,
   ComponentsContext,
   FloatingComposerController,
   FloatingThreadController,
@@ -9,14 +9,8 @@ import {
   useFocusWithin,
 } from '@blocknote/react';
 import { components as blockNoteComponents } from '@blocknote/shadcn';
-import {
-  ComponentProps as ReactComponentProps,
-  forwardRef,
-  memo,
-  ReactNode,
-  useMemo,
-  useState,
-} from 'react';
+import type { ComponentProps as ReactComponentProps, ReactNode } from 'react';
+import { forwardRef, memo, useMemo, useState } from 'react';
 import { Avatar, Button, Card, Skeleton, Textarea } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { useBlockEditorCommentComposer } from '../hooks/useBlockEditorCommentComposer';
@@ -37,6 +31,7 @@ const CommentCard = forwardRef<HTMLDivElement, ComponentProps['Comments']['Card'
     </Card>
   ),
 );
+
 CommentCard.displayName = 'CommentCard';
 
 type CommentActionProps = ComponentProps['Generic']['Toolbar']['Button'] &
@@ -64,8 +59,10 @@ const CommentAction = forwardRef<HTMLButtonElement, CommentActionProps>(
     const isSave = children === dictionary.comments.save_button_text;
     const isIcon = variant === 'compact' && typeof children !== 'string';
     let actionClass = 'erxes-comment-secondary';
+
     if (isSave) actionClass = 'erxes-comment-save';
     else if (isIcon) actionClass = 'erxes-comment-icon';
+
     return (
       <Button
         {...props}
@@ -90,6 +87,7 @@ const CommentAction = forwardRef<HTMLButtonElement, CommentActionProps>(
     );
   },
 );
+
 CommentAction.displayName = 'CommentAction';
 
 const CommentReaction = forwardRef<HTMLButtonElement, ComponentProps['Generic']['Badge']['Root']>(
@@ -112,6 +110,7 @@ const CommentReaction = forwardRef<HTMLButtonElement, ComponentProps['Generic'][
     </Button>
   ),
 );
+
 CommentReaction.displayName = 'CommentReaction';
 
 const CommentPopoverContent = ({
@@ -141,6 +140,7 @@ const CommentDisplay = ({
   const [hovered, setHovered] = useState(false);
   const { focused, ref } = useFocusWithin();
   const actionsVisible = showActions !== false && (showActions !== 'hover' || hovered || focused);
+
   return (
     <article
       ref={ref}
@@ -251,6 +251,7 @@ export const BlockEditorComments = ({
   floatingThread: boolean;
 }) => {
   const base = useComponentsContext();
+
   const components = useMemo(
     () =>
       base && {
@@ -281,7 +282,9 @@ export const BlockEditorComments = ({
       },
     [base],
   );
+
   if (!components) return children;
+
   return (
     <ComponentsContext.Provider value={components}>
       {enabled && (

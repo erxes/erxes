@@ -58,21 +58,26 @@ export const AutomationsListPage = () => {
   const can = useCan();
   const navigate = useNavigate();
   const { toast } = useToast();
+
   const { data, isLoading } = useQuery({
     queryKey: ['automations', 'list'],
     queryFn: () => api.automations.list({}),
   });
+
   const catalog = useQuery({
     queryKey: ['automations', 'catalog'],
     queryFn: () => api.automations.catalog(),
     staleTime: 60_000,
   });
+
   const [picking, setPicking] = useState(false);
+
   const templates = useQuery({
     queryKey: ['automations', 'templates'],
     queryFn: () => api.automations.templates(),
     enabled: picking,
   });
+
   const create = useMutation({
     mutationFn: (from?: { name: string; definition: AutomationDefinition }) =>
       api.automations.create({
@@ -87,9 +92,11 @@ export const AutomationsListPage = () => {
         description: messageOf(error),
       }),
   });
+
   const client = useQueryClient();
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<'all' | Automation['status']>('all');
+
   const toggle = useMutation({
     mutationFn: (automation: Automation) =>
       automation.status === 'active'
@@ -103,8 +110,10 @@ export const AutomationsListPage = () => {
         description: messageOf(error),
       }),
   });
+
   const triggerLabel = (trigger: AutomationDefinition['trigger']) =>
     describeTrigger(trigger, catalog.data?.triggers ?? [], []).title;
+
   const shown = (data?.data ?? []).filter(
     (automation) =>
       (status === 'all' || automation.status === status) &&

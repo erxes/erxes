@@ -72,10 +72,12 @@ export const changeTags = async (
   change: { add: string[]; remove: string[] },
 ) => {
   const { links, records } = LINKS[type];
+
   const inScope = await client
     .select({ id: records.id })
     .from(records)
     .where(and(eq(records.orgId, orgId), inArray(records.id, recordIds)));
+
   const ids = inScope.map((record) => record.id);
 
   if (!ids.length) {

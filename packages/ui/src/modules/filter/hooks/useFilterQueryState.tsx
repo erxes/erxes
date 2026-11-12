@@ -1,4 +1,5 @@
-import { QueryState, useQueryState } from 'erxes-ui/hooks/use-query-state';
+import type { QueryState } from 'erxes-ui/hooks/use-query-state';
+import { useQueryState } from 'erxes-ui/hooks/use-query-state';
 import { recordTableCursorAtomFamily } from 'erxes-ui/modules/record-table/states/RecordTableCursorState';
 import { useSetAtom } from 'jotai';
 
@@ -16,6 +17,7 @@ export function useFilterQueryState<T>(
     query,
     (value: T | null) => {
       setQuery(value);
+
       if (cursorKey) {
         setCursor('');
       }

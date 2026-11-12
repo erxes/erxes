@@ -24,6 +24,7 @@ const VISIBLE = 5;
 
 const TAB =
   'relative flex h-9 shrink-0 items-center gap-1.5 px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground';
+
 const ACTIVE =
   'font-medium text-foreground after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary';
 
@@ -154,10 +155,12 @@ export const ViewTabs = ({
   const [adding, setAdding] = useState(false);
   // The open view stays visible even when it is past the first few.
   const visible = views.slice(0, VISIBLE);
+
   const shown =
     current && !visible.some((view) => view.id === current.id)
       ? [...visible.slice(0, VISIBLE - 1), current]
       : visible;
+
   const more = views.filter((view) => !shown.includes(view));
 
   return (

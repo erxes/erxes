@@ -18,6 +18,7 @@ export const TeamMemberMoreColumnCell = ({ cell }: { cell: Cell<User, unknown> }
   const permissions = useMemberPermissions(user);
   const can = useCan();
   const { toast } = useToast();
+
   const resend = useMutation({
     mutationFn: () => api.users.resendInvitation({ id: user.id }),
     onSuccess: () => toast({ title: t('invitation-resent', 'Invitation sent again') }),

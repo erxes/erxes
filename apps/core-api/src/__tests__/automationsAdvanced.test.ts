@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
@@ -24,6 +24,7 @@ describeWithDb(
         headers: { authorization: `Bearer ${owner}`, 'content-type': 'application/json' },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
+
       const text = await response.text();
 
       return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -76,6 +77,7 @@ describeWithDb(
 
     beforeAll(async () => {
       const { users, newId } = await import('@erxes/core-db');
+
       const acme = await createOrganization({
         subdomain: 'acme',
         name: 'Acme',
@@ -103,9 +105,11 @@ describeWithDb(
       const { eq, sql } = await import('drizzle-orm');
       const { tickAutomations } = await import('~/modules/automations/triggers');
       const lead = await call('POST', '/customers', { firstName: 'Lead', state: 'lead' });
+
       const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ulaanbaatar' }).format(
         new Date(),
       );
+
       const birthday = await call('POST', '/customers', {
         firstName: 'Born',
         birthDate: `1990-${today.slice(5)}`,
@@ -136,6 +140,7 @@ describeWithDb(
           },
         ],
       });
+
       const born = await create('Birthday', {
         trigger: {
           kind: 'date',
@@ -216,6 +221,7 @@ describeWithDb(
           },
         ],
       });
+
       const answered = await call('POST', '/customers', { firstName: 'Wait one' });
       const silent = await call('POST', '/customers', { firstName: 'Wait two' });
 
@@ -262,6 +268,7 @@ describeWithDb(
         ],
         goal: { match: 'all', rules: [{ path: 'subject.state', op: 'eq', value: 'customer' }] },
       });
+
       const prospect = await call('POST', '/customers', { firstName: 'Prospect', state: 'lead' });
 
       await flush();
@@ -276,6 +283,7 @@ describeWithDb(
 
     it('takes switch cases and A/B paths, sends emails, assigns round-robin, and counts each step', async () => {
       const { loggedEmails } = await import('~/modules/email/email');
+
       const id = await create('Route', {
         trigger: {
           kind: 'event',
@@ -325,10 +333,12 @@ describeWithDb(
           },
         ],
       });
+
       const mailed = await call('POST', '/customers', {
         firstName: 'Route mail',
         primaryEmail: 'route@mail.mn',
       });
+
       const one = await call('POST', '/customers', { firstName: 'Route one' });
       const two = await call('POST', '/customers', { firstName: 'Route two' });
 
@@ -382,7 +392,9 @@ describeWithDb(
           ],
         },
       });
+
       const sample = await call('POST', '/customers', { firstName: 'Sample', state: 'lead' });
+
       const test = await call('POST', `/automations/${draft.body.id}/test`, {
         subject: { type: 'customer', id: sample.body.id },
       });
@@ -472,7 +484,9 @@ describeWithDb(
           { id: 'n', type: 'action', action: 'core.note.add', input: { body: 'Started by hand' } },
         ],
       });
+
       const picked = await call('POST', '/customers', { firstName: 'Picked' });
+
       const started = await call('POST', `/automations/${id}/start`, {
         subjects: [picked.body.id],
       });

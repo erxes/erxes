@@ -29,6 +29,7 @@ const OWNER_ONLY = new Set(OWNER_ONLY_PERMISSIONS);
  */
 export const can = (actor: Pick<Actor, 'role' | 'permissions'>, action: string) => {
   if (actor.role === 'owner') return true;
+
   if (OWNER_ONLY.has(action)) return false;
 
   return actor.permissions.includes('*') || actor.permissions.includes(action);
@@ -248,6 +249,7 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
         permissions: user.permissions,
       };
       req.sessionVersion = claims.sv;
+
       return next();
     })
     .catch(next);
@@ -277,10 +279,12 @@ const authenticatePlugin = (req: Request, token: string, next: NextFunction) => 
 
       if (!payload.org) {
         req.pluginService = { plugin: payload.sub };
+
         return next();
       }
 
       const org = payload.org;
+
       const [installation] = await withOrg(org, (tx) =>
         tx
           .select({
@@ -303,6 +307,7 @@ const authenticatePlugin = (req: Request, token: string, next: NextFunction) => 
         orgId: payload.org,
         scopes: (payload.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
       };
+
       return next();
     })
     .catch(() => next(unauthorized()));

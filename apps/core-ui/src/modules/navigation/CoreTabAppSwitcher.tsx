@@ -58,6 +58,7 @@ export const CoreTabAppSwitcher = ({
   onSelect: (app: NavApp) => void;
 }) => {
   const [open, setOpen] = useState(false);
+
   const select = (app: NavApp) => {
     setOpen(false);
     onSelect(app);

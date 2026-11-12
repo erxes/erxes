@@ -41,6 +41,7 @@ const time = async (fn: () => Promise<unknown>) => {
 
   // A warm-up, then the median of three.
   await fn();
+
   for (let i = 0; i < 3; i += 1) {
     const started = performance.now();
 
@@ -68,6 +69,7 @@ const main = async () => {
       name: 'Bench',
       owner: { email: 'owner@bench.mn' },
     });
+
     const orgId = org.organization.id;
     const ownerId = org.owner.id;
 
@@ -146,11 +148,13 @@ const main = async () => {
     });
 
     const actor: Actor = { userId: ownerId, orgId, role: 'owner', permissions: ['*'] };
+
     const rule = (path: string, op: string, value?: unknown) =>
       JSON.stringify({
         match: 'all',
         rules: [{ path, op, ...(value === undefined ? {} : { value }) }],
       });
+
     const cases: [string, () => Promise<{ totalCount: number }>][] = [
       [
         'First page, no filter',
@@ -339,6 +343,7 @@ const main = async () => {
         () => withOrg(orgId, (tx) => listCompanies(tx, actor, { limit: 30 } as never)),
       ],
     ];
+
     const lines = [
       `| Filter (${rows.toLocaleString('en')} customers) | Matches | ms |`,
       '|---|---:|---:|',
@@ -347,6 +352,7 @@ const main = async () => {
     for (const [label, fn] of cases) {
       let count = 0;
       let capped = false;
+
       const ms = await time(async () => {
         const page = (await fn()) as { totalCount: number; totalCapped?: boolean };
         count = page.totalCount;

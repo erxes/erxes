@@ -53,6 +53,7 @@ const InfoCardContent = React.forwardRef<HTMLDivElement, React.ComponentProps<'d
     );
   },
 );
+
 InfoCardContent.displayName = 'InfoCardContent';
 
 export const InfoCard = Object.assign(InfoCardRoot, {

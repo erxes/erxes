@@ -19,7 +19,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useRemoveQueryStateByKey } from 'erxes-ui/hooks';
-import { Except } from 'type-fest';
+import type { Except } from 'type-fest';
 import { cn } from 'erxes-ui/lib';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -115,6 +115,7 @@ const FilterPopover = ({
   const { id } = useFilterContext();
   const [open, setOpen] = useAtom(openPopoverState(id));
   const setView = useSetAtom(filterPopoverViewState(id));
+
   const { setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope } =
     usePreviousHotkeyScope();
 
@@ -249,6 +250,7 @@ const FilterView = ({
 const FilterDialog = (props: React.ComponentPropsWithoutRef<typeof Dialog>) => {
   const { id, setOpenDialog, resetFilterState } = useFilterContext();
   const openDialog = useAtomValue(openDialogState(id));
+
   return (
     <Dialog
       open={openDialog}
@@ -351,6 +353,7 @@ const FilterBarCloseButton = React.forwardRef<
   }
 >(({ className, filterKey, ...props }, ref) => {
   const removeQuery = useRemoveQueryStateByKey();
+
   return (
     <Button
       ref={ref}
@@ -386,6 +389,7 @@ const FilterDialogStringView = ({ filterKey, label }: { filterKey: string; label
   };
 
   const isSearch = !label && filterKey === 'searchValue';
+
   const displayPlaceholder = isSearch
     ? t('filter.enter-search-text', 'Enter search text')
     : label || filterKey.charAt(0).toUpperCase() + filterKey.slice(1);
@@ -500,6 +504,7 @@ const FilterSearchValueTrigger = () => (
     Search
   </Filter.Item>
 );
+
 const FilterSearchValueBarItem = () => {
   const [searchValue] = useFilterQueryState<string>('searchValue');
 

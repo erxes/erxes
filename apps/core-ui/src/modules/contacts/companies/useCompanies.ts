@@ -18,6 +18,7 @@ export const useCompaniesFilters = (state: CompanyState = 'customer') => {
     ownerId: string;
     stage: string;
   }>(['searchValue', 'tags', 'ownerId', 'stage']);
+
   const filter = useAdvancedFilterParam();
 
   return {

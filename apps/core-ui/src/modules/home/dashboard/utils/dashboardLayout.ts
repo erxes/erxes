@@ -46,6 +46,7 @@ export const compactLayout = (items: TDashboardItem[], priorityId?: string): TDa
   const sorted = [...items].sort(
     (a, b) => byPosition(a, b) || Number(b.id === priorityId) - Number(a.id === priorityId),
   );
+
   const placed: TDashboardItem[] = [];
 
   for (const item of sorted) {

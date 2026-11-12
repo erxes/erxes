@@ -25,6 +25,7 @@ export const useTags = (type: ContentType) => {
     queryFn: () => api.tags.list({ type }),
     staleTime: 60_000,
   });
+
   const tags = useMemo(() => query.data?.data ?? [], [query.data]);
   const byId = useMemo(() => new Map(tags.map((tag) => [tag.id, tag])), [tags]);
 

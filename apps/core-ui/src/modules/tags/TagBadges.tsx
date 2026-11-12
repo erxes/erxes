@@ -23,11 +23,13 @@ export const TagBadges = ({
   placeholder?: string;
 }) => {
   const { byId } = useTags(type);
+
   const tags = ids.flatMap((id) => {
     const tag = byId.get(id);
 
     return tag ? [tag] : [];
   });
+
   const visible = max === undefined ? tags : tags.slice(0, max);
 
   if (!tags.length) {

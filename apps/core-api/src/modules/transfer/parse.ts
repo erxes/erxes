@@ -13,6 +13,7 @@ const isExcel = (name: string, contentType: string) =>
 /** The delimiter used most in the first line: `,`, `;` (European Excel) or a tab. */
 const delimiterOf = (text: string) => {
   const line = text.slice(0, text.search(/\r?\n/) === -1 ? undefined : text.search(/\r?\n/));
+
   const counts = [',', ';', '\t'].map(
     (delimiter) => [delimiter, line.split(delimiter).length - 1] as const,
   );
@@ -22,6 +23,7 @@ const delimiterOf = (text: string) => {
 
 const cellText = (value: unknown): string => {
   if (value === null || value === undefined) return '';
+
   if (value instanceof Date)
     return Number.isNaN(value.getTime()) ? '' : value.toISOString().slice(0, 10);
 
@@ -54,7 +56,7 @@ export const parseSheet = async (
         relax_quotes: true,
         skip_empty_lines: true,
         bom: true,
-      }) as string[][];
+      });
       table = table.map((row) => row.map(cellText));
     }
   } catch (error) {
@@ -66,7 +68,9 @@ export const parseSheet = async (
 
   if (!header.some((cell) => cell !== ''))
     throw new ParseError('The first row should name the columns');
+
   if (!rows.length) throw new ParseError('The file has no rows under its header');
+
   if (rows.length > MAX_IMPORT_ROWS)
     throw new ParseError(
       `At most ${MAX_IMPORT_ROWS.toLocaleString('en')} rows per import (this file has ${rows.length.toLocaleString('en')})`,

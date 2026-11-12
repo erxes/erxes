@@ -1,5 +1,5 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
-import { ColumnDef, Row, Table } from '@tanstack/react-table';
+import type { ColumnDef, Row, Table } from '@tanstack/react-table';
 
 const dragSelection = {
   owner: null as Table<unknown> | null,

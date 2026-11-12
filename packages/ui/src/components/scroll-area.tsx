@@ -23,6 +23,7 @@ const ScrollAreaMain = React.forwardRef<
     <ScrollAreaPrimitive.Corner />
   </ScrollAreaPrimitive.Root>
 ));
+
 ScrollAreaMain.displayName = ScrollAreaPrimitive.Root.displayName;
 
 const ScrollAreaRoot = React.forwardRef<
@@ -65,6 +66,7 @@ const ScrollBar = React.forwardRef<
     <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-scroll" />
   </ScrollAreaPrimitive.ScrollAreaScrollbar>
 ));
+
 ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName;
 
 export const ScrollArea = Object.assign(ScrollAreaMain, {

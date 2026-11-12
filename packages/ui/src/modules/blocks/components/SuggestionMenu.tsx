@@ -30,6 +30,7 @@ export const SuggestionMenuItem = React.forwardRef<
 
   useEffect(() => {
     setIsMounted(true);
+
     if (isSelected && !inView && isMounted) {
       itemRef.current?.scrollIntoView({
         block: 'nearest',

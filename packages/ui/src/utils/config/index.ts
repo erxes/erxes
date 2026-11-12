@@ -14,6 +14,7 @@ const getDefaultUrl = () => {
   if (NODE_ENV === 'development') {
     return 'http://localhost:4000';
   }
+
   return typeof window === 'undefined'
     ? '/gateway'
     : `${window.location.protocol}//${window.location.hostname}/gateway`;

@@ -324,6 +324,7 @@ const mn: typeof en = {
 };
 
 i18n.addResourceBundle('en', LEADS_NS, en, true, false);
+
 i18n.addResourceBundle('mn', LEADS_NS, mn, true, false);
 
 /** The lead screens' translator. */

@@ -1,7 +1,7 @@
 import { IMaskInput } from 'react-imask';
 import { cn } from 'erxes-ui/lib/utils';
 import { inputVariants } from 'erxes-ui/components/input';
-import { Except } from 'type-fest';
+import type { Except } from 'type-fest';
 
 export const NumberInput = ({
   onChange,

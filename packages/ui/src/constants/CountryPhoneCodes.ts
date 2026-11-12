@@ -1,4 +1,4 @@
-import { TCountryCode } from 'erxes-ui/types/CountryCode';
+import type { TCountryCode } from 'erxes-ui/types/CountryCode';
 
 export const CountryPhoneCodes: TCountryCode[] = [
   { name: 'Afghanistan', flag: '🇦🇫', code: 'AF', dial_code: '+93' },

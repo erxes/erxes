@@ -18,6 +18,7 @@ export const GatewayConfig = z.discriminatedUnion('kind', [
   /** Development and tests: invoices are paid by calling the test endpoint. */
   z.object({ kind: z.literal('test') }),
 ]);
+
 export type GatewayConfig = z.infer<typeof GatewayConfig>;
 
 export const PaymentGateway = z.object({
@@ -29,6 +30,7 @@ export const PaymentGateway = z.object({
   settings: z.record(z.unknown()),
   createdAt: z.string().datetime(),
 });
+
 export type PaymentGateway = z.infer<typeof PaymentGateway>;
 
 export const InvoiceStatus = z.enum([
@@ -73,6 +75,7 @@ export const Invoice = z.object({
   paidAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
 });
+
 export type Invoice = z.infer<typeof Invoice>;
 
 export const Refund = z.object({
@@ -87,6 +90,7 @@ export const Refund = z.object({
   requestedBy: z.object({ type: z.string(), id: z.string().nullable() }),
   createdAt: z.string().datetime(),
 });
+
 export type Refund = z.infer<typeof Refund>;
 
 /** How a plugin takes payments here: its default gateway, and the only ones it may use (none: any). */
@@ -96,6 +100,7 @@ export const PluginPaymentSettings = z.object({
   defaultGatewayId: Id.nullable(),
   allowedGatewayIds: z.array(Id),
 });
+
 export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
 
 /**

@@ -32,6 +32,7 @@ type DocumentPlaceholderRenderProps = ReactCustomBlockRenderProps<
 
 const DocumentPlaceholderBlockContent: FC<DocumentPlaceholderRenderProps> = ({ block }) => {
   const { documentId, documentName, documentCode, documentPreview } = block.props;
+
   const documentLabel = documentCode
     ? `Document placeholder - ${documentCode}`
     : 'Document placeholder';

@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { beforeAll, expect, it } from 'vitest';
+import { beforeAll, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { pluginRoleSql } from '../../scripts/plugin-role';
 import { adminDb, describeWithDb, testDatabaseUrl, useTestDatabase } from './db';

@@ -40,7 +40,7 @@ export const commonTagIds = (records: { tagIds: string[] }[]) =>
     ? []
     : records.reduce<string[]>(
         (common, record) => common.filter((id) => record.tagIds.includes(id)),
-        records[0]!.tagIds,
+        records[0].tagIds,
       );
 
 /** What changed between two tag selections, for the bulk tag endpoint. */

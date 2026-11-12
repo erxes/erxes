@@ -85,6 +85,7 @@ export const createCoreClient = (options: CoreClientOptions) => {
         org,
       }),
     });
+
     const body = (await response.json().catch(() => ({}))) as {
       access_token?: string;
       expires_in?: number;
@@ -134,6 +135,7 @@ export const createCoreClient = (options: CoreClientOptions) => {
 
             return fetcher(new Request(request, { headers }), init);
           };
+
           const response = await send(await tokenFor(org));
 
           // Uninstalled and reinstalled, or scopes changed: try once with a new token.
@@ -214,6 +216,7 @@ export const verifyPluginSession = async (
     typ: 'erxes-plugin-session+jwt',
     algorithms: ['ES256'],
   });
+
   const { role, permissions } = payload;
 
   if (
@@ -228,12 +231,14 @@ export const verifyPluginSession = async (
   const granted = new Set(
     permissions.filter((action): action is string => typeof action === 'string'),
   );
+
   const tier =
     payload.tier === 'free' || payload.tier === 'plus' || payload.tier === 'pro'
       ? payload.tier
       : payload.tier === null
         ? null
         : 'pro';
+
   const access =
     payload.access === 'warning' || payload.access === 'read_only' || payload.access === 'off'
       ? payload.access
@@ -331,9 +336,11 @@ export const verifyErxesAccessToken = async (
     typ: 'at+jwt',
     algorithms: ['ES256'],
   });
+
   const permissions = Array.isArray(payload.permissions)
     ? payload.permissions.filter((item): item is string => typeof item === 'string')
     : [];
+
   const role = typeof payload.role === 'string' ? payload.role : 'member';
 
   if (!payload.sub || typeof payload.org !== 'string') throw new Error('not an erxes access token');
@@ -371,6 +378,7 @@ const sha256 = async (text: string) => {
   const digest = new Uint8Array(
     await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)),
   );
+
   let binary = '';
 
   for (const byte of digest) binary += String.fromCharCode(byte);

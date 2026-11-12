@@ -26,11 +26,13 @@ export const verifyPassword = async (password: string, stored: string | null): P
   if (parts.length !== 6 || parts[0] !== 'scrypt') {
     // Same work as a real check, so timing does not reveal unknown accounts.
     await derive(password, randomBytes(16), N, R, P);
+
     return false;
   }
 
   const [, n, r, p, salt, hash] = parts as [string, string, string, string, string, string];
   const expected = Buffer.from(hash, 'base64url');
+
   const actual = await derive(
     password,
     Buffer.from(salt, 'base64url'),

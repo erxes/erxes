@@ -26,13 +26,16 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { accessOf, assertPluginInPlan, entitlementsOf, tierOf } from '~/modules/saas/saas.service';
 
 type PluginRow = typeof plugins.$inferSelect;
+
 type InstallationRow = typeof pluginInstallations.$inferSelect;
 
 /** Plugin server tokens (client credentials). */
 export const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
+
 /** Plugin UI tokens: a member's session for one plugin's API. */
 export const PLUGIN_SESSION_TTL_SECONDS = 5 * 60;
 export const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
+
 /** After rotation, the previous secret keeps working this long. */
 export const SECRET_OVERLAP_HOURS = 24;
 
@@ -210,6 +213,7 @@ export const issuePluginToken = async (input: {
   if (!row || row.status !== 'active') throw invalidClient();
 
   const current = sameHash(row.secretHash, hash);
+
   const previous =
     !current &&
     sameHash(row.previousSecretHash, hash) &&
@@ -222,6 +226,7 @@ export const issuePluginToken = async (input: {
 
   if (input.org) {
     const org = input.org;
+
     const installation = await withOrg(org, async (tx) => {
       const [found] = await tx
         .update(pluginInstallations)
@@ -251,6 +256,7 @@ export const issuePluginToken = async (input: {
     .where(eq(plugins.name, row.name));
 
   const scope = scopes.join(' ');
+
   const access_token = await signJwt(
     input.org ? { org: input.org, scope } : { scope: 'manifest' },
     {
@@ -344,11 +350,13 @@ const installPluginTx = (actor: Actor, name: string) =>
   db().transaction(async (tx) => {
     const row = await pluginOrThrow(tx, name);
     const scopes = requestedScopes(row);
+
     const [before] = await tx
       .select()
       .from(pluginInstallations)
       .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
       .limit(1);
+
     const [installation] = await tx
       .insert(pluginInstallations)
       .values({
@@ -385,6 +393,7 @@ const installPluginTx = (actor: Actor, name: string) =>
 export const uninstallPlugin = (actor: Actor, name: string) =>
   db().transaction(async (tx) => {
     const row = await pluginOrThrow(tx, name);
+
     const [installation] = await tx
       .update(pluginInstallations)
       .set({ status: 'disabled', updatedAt: sql`now()` })
@@ -436,6 +445,7 @@ export const pluginSession = async (actor: Actor, name: string) => {
   const permissions = (row.plugin.manifest?.permissions ?? [])
     .map((permission) => permission.action)
     .filter((action) => can(actor, action));
+
   const token = await signJwt(
     { org: actor.orgId, role: actor.role, permissions, tier: tierOf(plan, name), access },
     {

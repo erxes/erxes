@@ -69,6 +69,7 @@ export const pluginEventsConsumer: EventConsumer = {
         !patterns.some((pattern) => matchesPattern(pattern, event.type))
       )
         continue;
+
       if (!pluginMaySee(row.plugin, row.scopes, event)) continue;
 
       await enqueueJob(tx, {
@@ -97,12 +98,14 @@ export const pluginEventJob: JobDefinition = {
   backoff: (attempt) => [60, 300, 1800, 7200][attempt - 1] ?? 28_800,
   async handle(job) {
     const plugin = job.payload.plugin as string;
+
     const loaded = await withOrg(job.orgId, async (tx) => {
       const [event] = await tx
         .select()
         .from(events)
         .where(and(eq(events.orgId, job.orgId), eq(events.id, job.payload.eventId as string)))
         .limit(1);
+
       const [target] = await tx
         .select({ scopes: pluginInstallations.grantedScopes, manifest: plugins.manifest })
         .from(pluginInstallations)
@@ -119,6 +122,7 @@ export const pluginEventJob: JobDefinition = {
 
       return { event, target };
     });
+
     const url = loaded.target?.manifest?.api?.url;
 
     // Uninstalled, suspended, scopes taken away, or the event is gone: nothing to send.
@@ -131,6 +135,7 @@ export const pluginEventJob: JobDefinition = {
       createdAt: loaded.event.createdAt.toISOString(),
       data: toEventDto(loaded.event),
     });
+
     const token = await signJwt(
       { org: job.orgId, event: loaded.event.id, sha: bodyDigest(body) },
       {
@@ -140,6 +145,7 @@ export const pluginEventJob: JobDefinition = {
         expiresInSeconds: 300,
       },
     );
+
     const response = await postOutbound(`${url.replace(/\/+$/, '')}/events`, body, {
       'Content-Type': 'application/json',
       'User-Agent': 'erxes-events/1',

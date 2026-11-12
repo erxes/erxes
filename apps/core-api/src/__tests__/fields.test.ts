@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -17,26 +17,27 @@ describeWithDb('field groups, archiving and field settings', () => {
 
   beforeAll(async () => {
     const { db, users, newId } = await import('@erxes/core-db');
+
     const acme = await createOrganization({
       subdomain: 'acme',
       name: 'Acme',
       owner: { email: 'owner@acme.mn' },
     });
+
     const globex = await createOrganization({
       subdomain: 'globex',
       name: 'Globex',
       owner: { email: 'owner@globex.mn' },
     });
+
     const memberId = newId();
 
-    await adminDb()
-      .insert(users)
-      .values({
-        id: memberId,
-        orgId: acme.organization.id,
-        email: 'member@acme.mn',
-        status: 'active',
-      });
+    await adminDb().insert(users).values({
+      id: memberId,
+      orgId: acme.organization.id,
+      email: 'member@acme.mn',
+      status: 'active',
+    });
 
     ownerToken = signAccessToken(acme.owner.id, acme.organization.id);
     memberToken = signAccessToken(memberId, acme.organization.id);
@@ -91,6 +92,7 @@ describeWithDb('field groups, archiving and field settings', () => {
       contentType: 'customer',
       name: 'Loyalty Club',
     });
+
     const billing = await call(ownerToken, 'POST', '/field-groups', {
       contentType: 'customer',
       name: 'Billing',
@@ -138,6 +140,7 @@ describeWithDb('field groups, archiving and field settings', () => {
     const group = (
       await call(ownerToken, 'POST', '/field-groups', { contentType: 'customer', name: 'Contact' })
     ).body;
+
     const companyGroup = (
       await call(ownerToken, 'POST', '/field-groups', { contentType: 'company', name: 'Contact' })
     ).body;
@@ -188,12 +191,14 @@ describeWithDb('field groups, archiving and field settings', () => {
       label: 'Desk',
       type: 'phone',
     });
+
     const sizes = await call(ownerToken, 'POST', '/fields', {
       contentType: 'customer',
       label: 'Sizes',
       type: 'check',
       options: ['S', 'M', 'L'],
     });
+
     const notes = await call(ownerToken, 'POST', '/fields', {
       contentType: 'customer',
       label: 'Notes',
@@ -204,6 +209,7 @@ describeWithDb('field groups, archiving and field settings', () => {
       firstName: 'Bat',
       customFields: { [email.body.id]: 'not-an-email' },
     });
+
     expect(bad.body).toMatchObject({ code: 'INVALID_FIELD_VALUE' });
 
     const customer = await call(ownerToken, 'POST', '/customers', {
@@ -237,6 +243,7 @@ describeWithDb('field groups, archiving and field settings', () => {
       'GET',
       `/fields/usage?ids=${sizes.body.id},${email.body.id}`,
     );
+
     expect(usage.body).toMatchObject({
       records: 1,
       removable: false,
@@ -256,6 +263,7 @@ describeWithDb('field groups, archiving and field settings', () => {
     ).toMatchObject({
       code: 'FIELD_IN_USE',
     });
+
     // Unused: anything goes; options are needed for option types and dropped otherwise.
     const free = (
       await call(ownerToken, 'POST', '/fields', {
@@ -264,6 +272,7 @@ describeWithDb('field groups, archiving and field settings', () => {
         type: 'text',
       })
     ).body;
+
     expect((await call(ownerToken, 'PATCH', `/fields/${free.id}`, { type: 'radio' })).status).toBe(
       400,
     );
@@ -282,6 +291,7 @@ describeWithDb('field groups, archiving and field settings', () => {
       isVisible: false,
       validation: 'number',
     });
+
     expect(moved.body).toMatchObject({ groupId: group.id, isVisible: false, validation: null });
     expect(
       (await call(ownerToken, 'PATCH', `/fields/${phone.body.id}`, { groupId: companyGroup.id }))
@@ -293,6 +303,7 @@ describeWithDb('field groups, archiving and field settings', () => {
       'GET',
       `/fields?contentType=customer&groupId=${group.id}`,
     );
+
     expect(ids(inGroup.body)).toEqual([email.body.id, phone.body.id]);
 
     await call(ownerToken, 'POST', '/fields/order', {
@@ -316,6 +327,7 @@ describeWithDb('field groups, archiving and field settings', () => {
         type: 'text',
       })
     ).body;
+
     const company = (
       await call(ownerToken, 'POST', '/companies', {
         primaryName: 'Archive LLC',
@@ -333,8 +345,10 @@ describeWithDb('field groups, archiving and field settings', () => {
     expect(ids((await call(ownerToken, 'GET', '/fields?contentType=company')).body)).not.toContain(
       field.id,
     );
+
     const archived = (await call(ownerToken, 'GET', '/fields?contentType=company&archived=true'))
       .body;
+
     expect(archived.data.find((item) => item.id === field.id)?.archivedAt).toBeTruthy();
 
     expect((await call(ownerToken, 'GET', `/companies/${company.id}`)).body.customFields).toEqual({
@@ -380,6 +394,7 @@ describeWithDb('field groups, archiving and field settings', () => {
     const group = (
       await call(ownerToken, 'POST', '/field-groups', { contentType: 'company', name: 'Finance' })
     ).body;
+
     const field = (
       await call(ownerToken, 'POST', '/fields', {
         contentType: 'company',
@@ -388,6 +403,7 @@ describeWithDb('field groups, archiving and field settings', () => {
         groupId: group.id,
       })
     ).body;
+
     const company = (
       await call(ownerToken, 'POST', '/companies', {
         primaryName: 'Group LLC',
@@ -456,6 +472,7 @@ describeWithDb('field groups, archiving and field settings', () => {
         type: 'text',
       })
     ).body;
+
     const customer = (
       await call(ownerToken, 'POST', '/customers', {
         firstName: 'Old',

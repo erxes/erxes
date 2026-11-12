@@ -10,6 +10,7 @@ export const zonedToUtc = (
   timeZone: string,
 ) => {
   const guess = Date.UTC(year, month - 1, day, hour, minute);
+
   const offset = (instant: number) => {
     const parts = Object.fromEntries(
       new Intl.DateTimeFormat('en-US', {
@@ -35,6 +36,7 @@ export const zonedToUtc = (
       ) - instant
     );
   };
+
   const first = guess - offset(guess);
 
   return new Date(guess - offset(first));
@@ -53,6 +55,7 @@ export const zonedDate = (instant: Date, timeZone: string) => {
       .formatToParts(instant)
       .map((part) => [part.type, part.value]),
   );
+
   const weekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(parts.weekday!) + 1;
 
   return { year: Number(parts.year), month: Number(parts.month), day: Number(parts.day), weekday };
@@ -73,6 +76,7 @@ export const nextOccurrence = (trigger: Timed, after: Date): Date => {
 
     next.setUTCSeconds(0, 0);
     next.setUTCMinutes(minute);
+
     if (next.getTime() <= after.getTime()) next.setUTCHours(next.getUTCHours() + 1);
 
     return next;
@@ -83,6 +87,7 @@ export const nextOccurrence = (trigger: Timed, after: Date): Date => {
   // Look at most a year and a bit ahead, day by day.
   for (let offset = 0; offset < 400; offset += 1) {
     const day = new Date(Date.UTC(start.year, start.month - 1, start.day + offset));
+
     const date = {
       year: day.getUTCFullYear(),
       month: day.getUTCMonth() + 1,
@@ -97,6 +102,7 @@ export const nextOccurrence = (trigger: Timed, after: Date): Date => {
         !trigger.weekdays.includes(date.weekday)
       )
         continue;
+
       if (trigger.every === 'week' && !trigger.weekdays?.length && date.weekday !== 1) continue;
 
       if (trigger.every === 'month') {

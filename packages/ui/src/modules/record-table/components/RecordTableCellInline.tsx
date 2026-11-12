@@ -1,8 +1,8 @@
 import { Badge, Button, Popover } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib/utils';
 import React from 'react';
-import { Popover as PopoverPrimitive } from 'radix-ui';
-import { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey';
+import type { Popover as PopoverPrimitive } from 'radix-ui';
+import type { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey';
 
 export interface ReactTablePopoverProps extends React.ComponentPropsWithoutRef<
   typeof PopoverPrimitive.Root
@@ -98,6 +98,7 @@ export const RecordTableInlineAnchor = React.forwardRef<
     </Badge>
   );
 });
+
 RecordTableInlineAnchor.displayName = 'RecordTableInlineAnchor';
 
 export const RecordTableInlineCell = Object.assign(RecordTableCellDisplay, {

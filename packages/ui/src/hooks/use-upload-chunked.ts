@@ -60,6 +60,7 @@ export const useUploadChunked = () => {
         if (!data.key) {
           throw new Error('Upload completed but no file key was returned');
         }
+
         return data.key;
       }
 
@@ -157,6 +158,7 @@ export const useUploadChunked = () => {
       } catch (e) {
         const message = e instanceof Error ? e.message : 'Upload failed';
         setError(message);
+
         return null;
       } finally {
         setLoading(false);

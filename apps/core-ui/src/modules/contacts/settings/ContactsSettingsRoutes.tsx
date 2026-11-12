@@ -24,6 +24,7 @@ import { ContactsPath } from '../utils/contactDetailPath';
 const ContactsSettingsSidebar = () => {
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const can = useCan();
+
   const items = [
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
     { name: t('tags', 'Tags'), path: 'tags', icon: IconTag },

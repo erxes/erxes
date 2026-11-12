@@ -44,7 +44,9 @@ const useEventOptions = () => {
     queryFn: () => api.webhooks.eventTypes(),
     staleTime: 60_000,
   });
+
   const types = data?.data ?? [];
+
   const prefixes = [
     ...new Set(types.map((item) => item.type.split('.').slice(0, 2).join('.'))),
   ].map((prefix) => ({
@@ -100,6 +102,7 @@ const NewWebhook = ({ onCreated }: { onCreated: (secret: string) => void }) => {
   const [url, setUrl] = useState('');
   const [description, setDescription] = useState('');
   const [types, setTypes] = useState<MultiSelectOption[]>([]);
+
   const create = useMutation({
     mutationFn: () =>
       api.webhooks.create({
@@ -195,11 +198,13 @@ const statusBadge = (delivery: WebhookDelivery) =>
 const Deliveries = ({ webhook }: { webhook: Webhook }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
   const client = useQueryClient();
+
   const { data, isLoading } = useQuery({
     queryKey: [...KEY, webhook.id, 'deliveries'],
     queryFn: () => api.webhooks.deliveries({ id: webhook.id, limit: 30 }),
     refetchInterval: 10_000,
   });
+
   const redeliver = useMutation({
     mutationFn: (deliveryId: string) => api.webhooks.redeliver({ deliveryId }),
     onSuccess: () =>
@@ -207,6 +212,7 @@ const Deliveries = ({ webhook }: { webhook: Webhook }) => {
   });
 
   if (isLoading) return <Spinner containerClassName="py-4" />;
+
   if (!data?.data.length)
     return (
       <p className="px-4 py-3 text-sm text-muted-foreground">
@@ -258,12 +264,14 @@ const WebhookRow = ({
   const client = useQueryClient();
   const [open, setOpen] = useState(false);
   const refresh = () => void client.invalidateQueries({ queryKey: KEY });
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
       title: t('failed', 'Something went wrong'),
       description: messageOf(error),
     });
+
   const toggle = useMutation({
     mutationFn: () =>
       api.webhooks.update({
@@ -273,16 +281,19 @@ const WebhookRow = ({
     onSuccess: refresh,
     onError,
   });
+
   const remove = useMutation({
     mutationFn: () => api.webhooks.remove({ id: webhook.id }),
     onSuccess: refresh,
     onError,
   });
+
   const rotate = useMutation({
     mutationFn: () => api.webhooks.rotateSecret({ id: webhook.id }),
     onSuccess: ({ secret }) => onSecret(secret),
     onError,
   });
+
   const test = useMutation({
     mutationFn: () => api.webhooks.test({ id: webhook.id }),
     onSuccess: () => {
@@ -367,6 +378,7 @@ export const WebhooksSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'webhooks' });
   const can = useCan();
   const [secret, setSecret] = useState<string | null>(null);
+
   const { data, isLoading } = useQuery({
     queryKey: KEY,
     queryFn: () => api.webhooks.list(),

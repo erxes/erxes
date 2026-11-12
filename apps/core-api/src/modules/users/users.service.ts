@@ -1,12 +1,11 @@
 import { notify } from '~/modules/notifications/notifications.service';
-import { userCaller } from '~/http/auth';
+import { userCaller, type Actor, type Role, requirePermission } from '~/http/auth';
 import { diffRows } from '~/lib/changes';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { db, Db, newId, roles, users, withTransaction } from '@erxes/core-db';
 import { lockOrganization } from '~/lib/locks';
 import type { CursorQuery, UserLinkName } from '@erxes/core-contract';
 import { and, count, eq, ilike, inArray, ne, or, SQL, sql } from 'drizzle-orm';
-import { type Actor, type Role, requirePermission } from '~/http/auth';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { sendInvitation } from '~/modules/auth/tokens.service';
 import { forbidden, HttpError, notFound, pgCode } from '~/http/errors';
@@ -15,6 +14,7 @@ import { matchEveryWord } from '~/lib/search';
 import { hashPassword } from '~/modules/auth/password';
 
 type UserRow = typeof users.$inferSelect;
+
 type Status = UserRow['status'];
 
 /** The API shape: never the password hash or internal flags. */
@@ -64,11 +64,13 @@ const profileChanges = (
   current?: Pick<UserRow, 'firstName' | 'middleName' | 'lastName' | 'links'>,
 ) => {
   const set: Partial<typeof users.$inferInsert> = {};
+
   const parts = {
     firstName: blankToNull(input.firstName),
     middleName: blankToNull(input.middleName),
     lastName: blankToNull(input.lastName),
   };
+
   const partsGiven = Object.values(parts).some((value) => value !== undefined);
 
   if (partsGiven) {
@@ -98,7 +100,7 @@ const profileChanges = (
   }
 
   if (input.links) {
-    const links: Record<string, string> = { ...(current?.links ?? {}) };
+    const links: Record<string, string> = { ...current?.links };
 
     for (const [name, value] of Object.entries(input.links)) {
       if (value?.trim()) {
@@ -188,6 +190,7 @@ const findUser = async (client: Db, orgId: string, id: string, lock = false) => 
     .from(users)
     .where(and(eq(users.orgId, orgId), eq(users.id, id)))
     .limit(1);
+
   const [row] = lock ? await query.for('update') : await query;
 
   if (!row) {
@@ -316,6 +319,7 @@ export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) =
 
   try {
     const values = await inviteValues(actor, input);
+
     const row = await client.transaction(async (tx) => {
       const [inserted] = await tx.insert(users).values(values).returning();
 
@@ -435,6 +439,7 @@ export const updateUser = async (caller: Actor, id: string, input: UserChanges) 
         })
         .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
         .returning();
+
       const changes = diffRows(target, row!, ['lastSeenAt']);
 
       if (changes?.role && !self) {

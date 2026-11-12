@@ -1,7 +1,8 @@
 import { IconGripVertical } from '@tabler/icons-react';
 import { forwardRef } from 'react';
 
-import { Button, ButtonProps } from './button';
+import type { ButtonProps } from './button';
+import { Button } from './button';
 import { cn } from 'erxes-ui/lib';
 
 export type DragHandleProps = Omit<ButtonProps, 'asChild' | 'children' | 'size'>;

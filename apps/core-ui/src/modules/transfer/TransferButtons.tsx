@@ -41,6 +41,7 @@ export const ImportButton = ({ recordType }: { recordType: TransferRecordType })
       });
     } finally {
       setBusy(false);
+
       if (input.current) input.current.value = '';
     }
   };
@@ -81,6 +82,7 @@ export const ExportButton = ({
   const [chosen, setChosen] = useState<string[] | null>(null);
   const selected = chosen ?? columns.filter((column) => column.default).map((column) => column.key);
   const filtered = Boolean(list.advanced || list.search || query.tagIds?.length || query.ownerId);
+
   const start = useMutation({
     mutationFn: () =>
       api.transfer.createExport({

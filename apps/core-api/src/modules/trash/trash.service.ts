@@ -62,15 +62,18 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: RecordType, ids:
 
   const table = tableOf(type);
   const tagTable = tagTableOf(type);
+
   // Custom field values ride along in the row (`customFields`), as they did when they were a column.
   const rows = await tx
     .select({ ...getTableColumns(table), customFields: customFieldsColumn(type, table.id) })
     .from(table)
     .where(and(eq(table.orgId, caller.orgId), inArray(table.id, ids)));
+
   const tagRows = await tx
     .select()
     .from(tagTable)
     .where(and(eq(tagTable.orgId, caller.orgId), inArray(tagTable.recordId, ids)));
+
   const links = await tx
     .select()
     .from(customerCompanies)
@@ -83,6 +86,7 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: RecordType, ids:
         ),
       ),
     );
+
   const entries = await tx
     .select()
     .from(activities)
@@ -185,6 +189,7 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
     .select()
     .from(trash)
     .where(and(eq(trash.orgId, actor.orgId), inArray(trash.id, ids)));
+
   const failed: { id: string; reason: string }[] = [];
   let restored = 0;
 
@@ -227,6 +232,7 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
         for (const link of snapshot.links) {
           const other = type === 'customer' ? companies : customers;
           const otherId = type === 'customer' ? link.companyId : link.customerId;
+
           const [exists] = await tx
             .select({ id: other.id })
             .from(other)

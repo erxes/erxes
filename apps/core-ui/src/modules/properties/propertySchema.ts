@@ -65,6 +65,9 @@ export const propertySchema = z
   });
 
 export type IPropertyGroupForm = z.input<typeof propertyGroupSchema>;
+
 export type IPropertyGroupValues = z.output<typeof propertyGroupSchema>;
+
 export type IPropertyForm = z.input<typeof propertySchema>;
+
 export type IPropertyValues = z.output<typeof propertySchema>;

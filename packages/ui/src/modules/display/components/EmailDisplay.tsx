@@ -18,6 +18,7 @@ export const EmailDisplay = ({
   const values = emailsWithProperties.filter((item) => item.email);
   const visible = maxVisible === undefined ? values : values.slice(0, maxVisible);
   const remaining = values.length - visible.length;
+
   return (
     <div
       className={

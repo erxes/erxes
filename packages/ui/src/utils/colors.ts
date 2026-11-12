@@ -6,11 +6,13 @@ export interface OKLCHColor {
 
 export const stringToHslColor = (str: string, saturation: number, lightness: number) => {
   let hash = 0;
+
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
 
   const h = hash % 360;
+
   return `hsl(${h}, ${saturation}%, ${lightness}%)`;
 };
 
@@ -54,6 +56,7 @@ export const hexToOklch = (hex: string, onlyValue = false): string => {
 
   const C = Math.sqrt(a * a + b_ * b_);
   let h = Math.atan2(b_, a) * (180 / Math.PI);
+
   if (h < 0) h += 360;
 
   if (onlyValue) {

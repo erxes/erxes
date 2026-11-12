@@ -1,5 +1,6 @@
 import { IconCaretDownFilled } from '@tabler/icons-react';
-import { Button, ButtonProps } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components';
+import { Button } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { fixOrder } from 'erxes-ui/utils/fixOrder';
 import { useSetAtom } from 'jotai';
@@ -7,7 +8,7 @@ import React, { useEffect } from 'react';
 import { RecordTableTreeContext } from '../contexts/RecordTableTreeContext';
 import { useRecordTableTree } from '../hooks/useRecordTableTree';
 import { recordTableTreeHideChildrenAtomFamily } from '../states/RecordTableTreeState';
-import { IRecordTableTreeContext } from '../types/RecordTableTreeTypes';
+import type { IRecordTableTreeContext } from '../types/RecordTableTreeTypes';
 import { RecordTableRow } from './RecordTableRow';
 
 const RecordTableTreeProvider = ({ id, children, ordered, length }: IRecordTableTreeContext) => {
@@ -29,6 +30,7 @@ const RecordTableTreeIndentation = ({ order, name }: { order: string; name: stri
   const { ordered } = useRecordTableTree(fixedOrder || '');
 
   const level = fixedOrder?.match(/[/]/gi)?.length || 0;
+
   if (level <= 0 || !ordered) {
     return null;
   }
@@ -41,6 +43,7 @@ const RecordTableTreeIndentation = ({ order, name }: { order: string; name: stri
     </div>
   );
 };
+
 const RecordTableTreeRow = React.forwardRef<
   HTMLTableRowElement,
   React.ComponentProps<typeof RecordTableRow>

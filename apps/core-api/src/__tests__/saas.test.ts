@@ -1,7 +1,7 @@
 import { SignJWT } from 'jose';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { config } from '~/config';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -39,6 +39,7 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -75,7 +76,9 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
       platformCalls.push(`${req.headers.authorization} ${req.url}`);
 
       if (req.headers.authorization !== `Bearer ${PLATFORM_TOKEN}`) return res.writeHead(401).end();
+
       if (answer === 'down') return res.writeHead(503).end();
+
       if (!req.url?.includes('subdomain=cloud'))
         return res
           .writeHead(404, { 'content-type': 'application/json' })
@@ -100,6 +103,7 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
       platformToken: undefined,
       handoffSecret: undefined,
     });
+
     for (const each of [server, platform]) {
       each.closeAllConnections();
       await new Promise<void>((resolve) => each.close(() => resolve()));
@@ -112,6 +116,7 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
       name: 'Self',
       owner: { email: 'o@self.mn' },
     });
+
     const token = await currentToken(other.owner.id, other.organization.id);
 
     expect((await call('GET', '/plan', undefined, token)).body).toMatchObject({
@@ -162,6 +167,7 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
 
     // erxes.io's link opens the workspace once (the organisation from the address).
     const token = await handoff('OWNER@cloud.mn');
+
     const first = await fetch(`${base}/gateway/pl:core/core-login?token=${token}&isNext=true`, {
       redirect: 'manual',
       headers: { 'x-forwarded-host': 'cloud.next.erxes.io' },
@@ -193,6 +199,7 @@ describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
     ).toMatchObject({ tier: 'plus', access: 'full' });
 
     const session = await call('POST', '/plugins/hr/session');
+
     const claims = JSON.parse(
       Buffer.from(session.body.token.split('.')[1], 'base64url').toString(),
     );

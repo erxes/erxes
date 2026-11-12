@@ -46,7 +46,7 @@ const PropertyFormGroupField = ({
   // Nothing to choose when the record type has a single group.
   useEffect(() => {
     if (form.getValues('groupId') || groups.length !== 1) return;
-    form.setValue('groupId', groups[0]!.id, { shouldValidate: true });
+    form.setValue('groupId', groups[0].id, { shouldValidate: true });
   }, [groups, form]);
 
   return (
@@ -152,6 +152,7 @@ const PropertyFormSelectFields = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const type = form.watch('type');
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'options' });
+
   const savedValues = new Set(
     (form.formState.defaultValues?.options ?? []).map((option) => option?.value),
   );
@@ -286,6 +287,7 @@ export const PropertyForm = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
+
   const form = useForm<IPropertyForm, unknown, IPropertyValues>({
     resolver: zodResolver(propertySchema),
     defaultValues,
@@ -296,6 +298,7 @@ export const PropertyForm = ({
     !isEdit || (!usageLoading && !usageFailed && (usage?.records ?? 0) === 0)
       ? FIELD_TYPES.map(({ value }) => value)
       : getEditableTypes(defaultValues.type);
+
   const optionCounts = (fieldId && usage?.options[fieldId]) || {};
 
   return (
@@ -376,7 +379,9 @@ export const PropertyForm = ({
                   value={field.value}
                   onValueChange={(value) => {
                     field.onChange(value);
+
                     if (!hasOptions(value)) form.setValue('options', []);
+
                     if (value !== 'text' && value !== 'textarea') form.setValue('validation', null);
                   }}
                   disabled={allowedTypes.length < 2}

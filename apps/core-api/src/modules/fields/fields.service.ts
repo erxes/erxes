@@ -1,9 +1,9 @@
+import type { Db } from '@erxes/core-db';
 import {
   companies,
   type ContentType,
   customers,
   type CustomValue,
-  Db,
   fieldGroups,
   fields,
   newId,
@@ -16,12 +16,16 @@ import { lockRows } from '~/lib/locks';
 import { valuesTable } from './fieldValues';
 
 type FieldRow = typeof fields.$inferSelect;
+
 type GroupRow = typeof fieldGroups.$inferSelect;
+
 type FieldType = FieldRow['type'];
+
 type FieldValidation = NonNullable<FieldRow['validation']>;
 
 const OPTION_TYPES: readonly FieldType[] = ['select', 'multiselect', 'radio', 'check'];
 const TEXT_TYPES: readonly FieldType[] = ['text', 'textarea'];
+
 /** Types sharing a stored value (mirrors the contract's FIELD_TYPE_FAMILIES). */
 const TYPE_FAMILIES: readonly (readonly FieldType[])[] = [
   ['select', 'radio'],
@@ -30,6 +34,7 @@ const TYPE_FAMILIES: readonly (readonly FieldType[])[] = [
 ];
 
 const hasOptions = (type: FieldType) => OPTION_TYPES.includes(type);
+
 const sameFamily = (from: FieldType, to: FieldType) =>
   from === to || TYPE_FAMILIES.some((family) => family.includes(from) && family.includes(to));
 
@@ -161,6 +166,7 @@ const countRecords = async (client: Db, orgId: string, contentType: ContentType,
   }
 
   const values = valuesTable(contentType);
+
   const [row] = await client
     .select({ count: sql<number>`count(distinct ${values.recordId})::int` })
     .from(values)
@@ -172,13 +178,14 @@ const countRecords = async (client: Db, orgId: string, contentType: ContentType,
 /** Records holding each option of an option field. */
 const countOptions = async (client: Db, orgId: string, field: FieldRow) => {
   const values = valuesTable(field.contentType);
+
   const rows = await client
     .select({ value: values.textValue, count: sql<number>`count(*)::int` })
     .from(values)
     .where(and(eq(values.orgId, orgId), eq(values.fieldId, field.id), isNotNull(values.textValue)))
     .groupBy(values.textValue);
 
-  return Object.fromEntries(rows.map((row) => [row.value!, Number(row.count)]));
+  return Object.fromEntries(rows.map((row) => [row.value, Number(row.count)]));
 };
 
 const usageOf = async (client: Db, orgId: string, rows: FieldRow[]) => {
@@ -211,6 +218,7 @@ export const listFields = async (
 ) => {
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));
   const active = and(isNull(fields.archivedAt), isNull(fieldGroups.archivedAt));
+
   const rows = await client
     .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
     .from(fields)
@@ -243,6 +251,7 @@ export const fieldUsage = async (
         .select()
         .from(fields)
         .where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, input.ids ?? [])));
+
   const records = await usageOf(client, actor.orgId, rows);
   const options: Record<string, Record<string, number>> = {};
 
@@ -533,6 +542,7 @@ export const createFieldGroup = async (
   requireFieldManager(actor);
 
   const code = groupCode(input.code, input.name);
+
   const [last] = await client
     .select({ order: sql<number>`coalesce(max(${fieldGroups.order}), -1)` })
     .from(fieldGroups)
@@ -658,8 +668,10 @@ const checkText = (field: FieldRow, value: CustomValue) => {
   const text = value.trim();
 
   if (field.validation === 'email' && !EMAIL.test(text)) throw invalid(field, 'expected an email');
+
   if (field.validation === 'number' && !NUMBER.test(text))
     throw invalid(field, 'expected a number');
+
   if (field.validation === 'date' && Number.isNaN(Date.parse(text)))
     throw invalid(field, 'expected a date');
 
@@ -676,11 +688,14 @@ const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
       if (typeof value !== 'string' || !PHONE.test(value.trim()) || !/\d/.test(value)) {
         throw invalid(field, 'expected a phone number');
       }
+
       return value.trim();
     }
+
     case 'number':
       if (typeof value !== 'number' || !Number.isFinite(value))
         throw invalid(field, 'expected a number');
+
       return value;
     case 'date':
       if (
@@ -690,24 +705,30 @@ const checkValue = (field: FieldRow, value: CustomValue): CustomValue => {
       ) {
         throw invalid(field, 'expected a date (YYYY-MM-DD)');
       }
+
       return value;
     case 'boolean':
       if (typeof value !== 'boolean') throw invalid(field, 'expected yes or no');
+
       return value;
     case 'select':
     case 'radio':
       if (typeof value !== 'string' || !field.options.includes(value))
         throw invalid(field, 'not one of the options');
+
       return value;
     case 'multiselect':
     case 'check': {
       if (!Array.isArray(value) || value.some((item) => !field.options.includes(item))) {
         throw invalid(field, 'not among the options');
       }
+
       return unique(value);
     }
+
     case 'list': {
       if (!Array.isArray(value)) throw invalid(field, 'expected a list of text');
+
       return value.map((item) => item.trim()).filter(Boolean);
     }
   }
@@ -743,6 +764,7 @@ export const applyCustomFields = async (
     )
     // A field can't change type or go away while a value is being checked against it.
     .for('share', { of: fields });
+
   const byId = new Map(definitions.map((row) => [row.field.id, row]));
   const next = { ...current };
 

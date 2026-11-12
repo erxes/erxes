@@ -13,9 +13,11 @@ import { SharedTimeline } from './modules/activity/SharedTimeline';
 
 // erxes-ui's upload hooks (and plugin UIs) store files through core.
 setFileStorage(coreFileStorage);
+
 // Plugin UIs call their own API with a per-plugin token and hear live signals.
 // Plugin UIs show core's timeline for their own records.
 setRecordTimeline(SharedTimeline);
+
 setPluginRuntime({
   session: (name) => api.plugins.session({ name }),
   subscribe: pluginLive,

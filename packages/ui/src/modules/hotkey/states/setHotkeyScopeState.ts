@@ -1,8 +1,8 @@
 import { atom } from 'jotai';
 import { currentHotkeyScopeState } from './internal/currentHotkeyScopeState';
-import { HotkeyScope } from '../types/HotkeyScope';
+import type { HotkeyScope } from '../types/HotkeyScope';
 import { isDefined } from 'erxes-ui/utils/isDefined';
-import { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
+import type { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
 import { DEFAULT_HOTKEYS_SCOPE_CUSTOM_SCOPES } from '../constants/defaultHotkeysScopeCustomScopes';
 import { AppHotkeyScope } from '../types/AppHotkeyScope';
 import { internalHotkeysEnabledScopesState } from './internal/internalHotkeysEnabledScopeState';

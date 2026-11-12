@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 
 import { IconCaretDownFilled } from '@tabler/icons-react';
 
-import { Button, ButtonProps, Combobox, Command, Popover } from 'erxes-ui/components';
+import type { ButtonProps } from 'erxes-ui/components';
+import { Button, Combobox, Command, Popover } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import {
   SelectTreeContext,
@@ -11,7 +12,7 @@ import {
 import { useSelectTreeHide } from 'erxes-ui/modules/select-tree/hooks/useSelectTreeHide';
 import { hideChildrenAtomFamily } from '../states/selectTreeStates';
 import { useSetAtom } from 'jotai';
-import { ISelectTreeItem } from '../types/selectTreeTypes';
+import type { ISelectTreeItem } from '../types/selectTreeTypes';
 import { fixOrder } from 'erxes-ui/utils/fixOrder';
 
 export const SelectTreeRoot = ({
@@ -87,6 +88,7 @@ export const SelectTreeArrow = React.forwardRef<
 
 export const SelectTreeIndentation = ({ order }: { order: string }) => {
   const level = order?.match(/[/]/gi)?.length || 0;
+
   if (level <= 0) {
     return null;
   }

@@ -5,10 +5,10 @@ import { inputVariants } from 'erxes-ui/components/input';
 import { CURRENCY_CODES } from 'erxes-ui/constants';
 import { cn } from 'erxes-ui/lib/utils';
 import { CurrencyDisplay } from 'erxes-ui/modules/display/components/CurrencyDisplay';
-import { Currency, CurrencyCode } from 'erxes-ui/types';
+import type { Currency, CurrencyCode } from 'erxes-ui/types';
 import React, { useRef, useState } from 'react';
 import { IMaskInput } from 'react-imask';
-import { Except } from 'type-fest';
+import type { Except } from 'type-fest';
 
 const DEFAULT_DISPLAY_SCALE = 2;
 const DEFAULT_EDIT_SCALE = 12;
@@ -56,8 +56,10 @@ const CurrencyValueInput = React.forwardRef<
     const skipAcceptValueRef = useRef<string | null>(null);
 
     const fullValue = typeof value === 'number' && Number.isFinite(value) ? value.toString() : '';
+
     const roundedValue =
       typeof value === 'number' && Number.isFinite(value) ? value.toFixed(displayScale) : '';
+
     const displayValue = isFocused ? fullValue : roundedValue;
 
     return (
@@ -74,6 +76,7 @@ const CurrencyValueInput = React.forwardRef<
 
           if (skipAcceptValueRef.current === acceptedValue) {
             skipAcceptValueRef.current = null;
+
             return;
           }
 
@@ -142,7 +145,7 @@ const SelectCurrency = React.forwardRef<
             currencies={currencies}
             value={value}
             onSelect={(code) => {
-              onChange?.(code as CurrencyCode);
+              onChange?.(code);
               setOpen?.(false);
               _setOpen(false);
             }}
@@ -168,6 +171,7 @@ const SelectCurrencyCommand = ({
     if (a[0] === value) {
       return -1;
     }
+
     return 1;
   });
 

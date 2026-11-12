@@ -100,6 +100,7 @@ export const saveCustomFields = async (
         .where(and(eq(fields.orgId, orgId), inArray(fields.id, present)))
     ).map((field) => [field.id, field.type]),
   );
+
   const rows = present.flatMap((fieldId) =>
     types.has(fieldId)
       ? rowsOf({ orgId, recordId, fieldId }, types.get(fieldId)!, values[fieldId]!)

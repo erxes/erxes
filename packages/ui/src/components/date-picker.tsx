@@ -1,6 +1,8 @@
 import { IconCalendar, IconX } from '@tabler/icons-react';
-import { DateRange, Matcher, dateMatchModifiers } from 'react-day-picker';
-import { Calendar, CalendarProps } from 'erxes-ui/components/calendar';
+import type { DateRange, Matcher } from 'react-day-picker';
+import { dateMatchModifiers } from 'react-day-picker';
+import type { CalendarProps } from 'erxes-ui/components/calendar';
+import { Calendar } from 'erxes-ui/components/calendar';
 import { Button } from 'erxes-ui/components/button';
 import { Popover } from 'erxes-ui/components/popover';
 import React from 'react';
@@ -45,10 +47,13 @@ const DEFAULT_DISPLAY_FORMAT = 'MMM D, YYYY';
 
 const toDate = (value: unknown): Date | undefined => {
   if (value === null || value === undefined || value === '') return undefined;
+
   if (!(value instanceof Date) && typeof value !== 'string' && typeof value !== 'number') {
     return undefined;
   }
+
   const parsed = dayjs(value);
+
   return parsed.isValid() ? parsed.toDate() : undefined;
 };
 
@@ -60,6 +65,7 @@ const normalizeValue = (
 ): NormalizedValue => {
   if (mode === 'multiple') {
     if (!Array.isArray(value)) return undefined;
+
     return value.map(toDate).filter((date): date is Date => Boolean(date));
   }
 
@@ -67,8 +73,10 @@ const normalizeValue = (
     if (!value || typeof value !== 'object' || value instanceof Date) {
       return undefined;
     }
+
     if (Array.isArray(value)) return undefined;
     const from = toDate(value.from);
+
     return from ? { from, to: toDate(value.to) } : undefined;
   }
 
@@ -77,7 +85,9 @@ const normalizeValue = (
 
 const getAnchorDate = (value: NormalizedValue) => {
   if (value instanceof Date) return value;
+
   if (Array.isArray(value)) return value[0];
+
   return value?.from;
 };
 
@@ -164,6 +174,7 @@ const parseInputDate = (
   maxBound?: Date,
 ) => {
   const parsedDate = dayjs(text, format, true);
+
   return isWithinBounds(parsedDate, minBound, maxBound) ? parsedDate.toDate() : undefined;
 };
 
@@ -198,6 +209,7 @@ export const DatePicker = ({
   const normalizedValue = normalizeValue(value, mode);
   const singleDate = getSingleDate(normalizedValue, mode);
   const singleTime = singleDate?.getTime();
+
   const formatSingle = (outputFormat = format) =>
     singleDate ? dayjs(singleDate).format(outputFormat) : '';
 
@@ -212,12 +224,17 @@ export const DatePicker = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedText = maskInputText(e.target.value, format);
     setInputValue(formattedText);
+
     if (mode !== 'single') return;
+
     if (!formattedText) {
       if (clearable && singleDate) onChange(null);
+
       return;
     }
+
     const parsedDate = parseInputDate(formattedText, format, minBound, maxBound);
+
     if (parsedDate && !dateMatchModifiers(parsedDate, calendarDisabled)) {
       onChange(parsedDate);
     }
@@ -226,17 +243,20 @@ export const DatePicker = ({
   const parseTypedDate = () => {
     if (mode !== 'single' || !inputValue) return undefined;
     const parsedDate = parseInputDate(inputValue, getInputFormats(format), minBound, maxBound);
+
     return parsedDate && !dateMatchModifiers(parsedDate, calendarDisabled) ? parsedDate : undefined;
   };
 
   const commitTypedDate = (date: Date) => {
     setInputValue(dayjs(date).format(format));
+
     if (date.getTime() !== singleTime) onChange(date);
   };
 
   const handleInputBlur = () => {
     setIsFocused(false);
     const parsedDate = parseTypedDate();
+
     if (parsedDate) {
       commitTypedDate(parsedDate);
     } else {
@@ -246,16 +266,20 @@ export const DatePicker = ({
 
   const handleDateChange = (selectedDate: Date | Date[] | DateRange | undefined) => {
     if (!selectedDate) return;
+
     if (mode !== 'range' || (selectedDate as DateRange).to) {
       setIsOpen(false);
     }
+
     onChange(selectedDate);
   };
 
   const handleClear = () => {
     setInputValue('');
+
     if (hasValue) onChange(null);
     setIsOpen(false);
+
     if (mode === 'single') inputRef.current?.focus();
   };
 
@@ -271,14 +295,18 @@ export const DatePicker = ({
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const opensPopover = !inline && (e.key === 'Enter' || e.key === ' ');
+
     if (!opensPopover && e.key !== 'Enter') return;
     e.preventDefault();
     e.stopPropagation();
     const typedDate = e.key === 'Enter' ? parseTypedDate() : undefined;
+
     if (typedDate && typedDate.getTime() !== singleTime) {
       commitTypedDate(typedDate);
+
       return;
     }
+
     if (opensPopover) setIsOpen(true);
   };
 
@@ -400,8 +428,10 @@ function renderButtonContent(
     if (mode === 'multiple' && Array.isArray(value) && value.length) {
       return formatMultiple(value.length);
     }
+
     if (mode === 'range') {
       const rangeValue = value as DateRange;
+
       if (rangeValue?.from) {
         return rangeValue.to
           ? `${dayjs(rangeValue.from).format(format)} - ${dayjs(rangeValue.to).format(format)}`
@@ -409,5 +439,6 @@ function renderButtonContent(
       }
     }
   }
+
   return placeholder;
 }

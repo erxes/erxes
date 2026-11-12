@@ -10,6 +10,7 @@ import { verifyPassword } from './password';
 import { matchStep, newTotpSecret, otpauthUri } from './totp';
 
 const CHALLENGE_TYP = 'erxes-2fa-challenge+jwt';
+
 const hashCode = (code: string) =>
   createHash('sha256').update(code.replace(/[\s-]/g, '').toLowerCase()).digest('hex');
 

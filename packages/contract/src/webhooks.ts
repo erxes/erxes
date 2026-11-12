@@ -138,6 +138,7 @@ export const EventTypeInfo = z.object({
   /** The record it is about, when it is about a customer or company. */
   subject: z.enum(['customer', 'company']).nullable(),
 });
+
 export type EventTypeInfo = z.infer<typeof EventTypeInfo>;
 
 /** `core.customer.created`, `core.customer.*`, `hr.*` or `*`. */
@@ -167,6 +168,7 @@ export const Webhook = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
+
 export type Webhook = z.infer<typeof Webhook>;
 
 export const WebhookDelivery = z.object({
@@ -184,6 +186,7 @@ export const WebhookDelivery = z.object({
   deliveredAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
 });
+
 export type WebhookDelivery = z.infer<typeof WebhookDelivery>;
 
 const WebhookFields = {

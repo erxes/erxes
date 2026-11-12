@@ -82,6 +82,7 @@ export const runtimeRole = async () => {
     select current_user as name, r.rolbypassrls as bypass, r.rolsuper as superuser
     from pg_roles r where r.rolname = current_user
   `);
+
   const row = result.rows[0];
 
   return { name: row?.name ?? 'unknown', bypassesRls: Boolean(row?.bypass || row?.superuser) };

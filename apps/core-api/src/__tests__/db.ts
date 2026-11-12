@@ -2,7 +2,7 @@ import { closeDb, configureDb, runMigrations, schema } from '@erxes/core-db';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { randomBytes } from 'node:crypto';
 import { Client, Pool } from 'pg';
-import { afterAll, beforeAll, describe } from 'vitest';
+import { afterAll, beforeAll, describe } from 'vite-plus/test';
 
 const baseUrl = process.env.DATA_TEST_URL ?? '';
 
@@ -117,6 +117,7 @@ export const currentToken = async (userId: string, orgId: string) => {
   const { users } = await import('@erxes/core-db');
   const { eq } = await import('drizzle-orm');
   const { signAccessToken } = await import('~/http/auth');
+
   const [row] = await adminDb()
     .select({ sessionVersion: users.sessionVersion })
     .from(users)

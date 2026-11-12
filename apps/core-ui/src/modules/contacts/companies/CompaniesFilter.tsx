@@ -41,6 +41,7 @@ const CompaniesFilterPopover = ({ state }: { state: 'lead' | 'customer' }) => {
     ownerId: string;
     stage: string;
   }>(['tags', 'searchValue', 'ownerId', 'stage']);
+
   const hasFilters = Object.values(queries || {}).some((value) => value !== null);
   const { t } = useTranslation('contact', { keyPrefix: 'filter' });
   const { t: companyT } = useTranslation('contact', { keyPrefix: 'company' });

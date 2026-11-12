@@ -3,7 +3,7 @@ import { db, rootDb, withOrg, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -29,6 +29,7 @@ describeWithDb('tenant isolation', () => {
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -209,6 +210,7 @@ describeWithDb('tenant isolation', () => {
       activities: bIds.note!,
       notifications: bIds.note!,
     };
+
     const bodies: Record<string, unknown> = {
       'customers.update': { firstName: 'pwned' },
       'companies.update': { primaryName: 'pwned' },
@@ -219,6 +221,7 @@ describeWithDb('tenant isolation', () => {
       'users.setPassword': { password: 'Pwned-password-1' },
       'activities.updateNote': { body: 'pwned' },
     };
+
     let walked = 0;
 
     for (const [group, procedures] of Object.entries(coreContract)) {
@@ -231,8 +234,9 @@ describeWithDb('tenant isolation', () => {
 
         const url = path
           .replace('/core/v1', '')
-          .replace('{id}', idFor[group]!)
+          .replace('{id}', idFor[group])
           .replace('{companyId}', bIds.company!);
+
         const response = await call(
           a.token,
           method,
@@ -264,6 +268,7 @@ describeWithDb('tenant isolation', () => {
   it("can't link records across organisations, even bypassing row level security", async () => {
     const aCustomer = (await call(a.token, 'POST', '/customers', { firstName: 'Mine' })).body
       .id as string;
+
     const attempts = [
       sql`insert into core_customer_tags (org_id, customer_id, tag_id) values (${a.orgId}, ${aCustomer}, ${bIds.tag})`,
       sql`insert into core_customer_companies (org_id, customer_id, company_id) values (${a.orgId}, ${aCustomer}, ${bIds.company})`,

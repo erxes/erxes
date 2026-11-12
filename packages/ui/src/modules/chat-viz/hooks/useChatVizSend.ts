@@ -15,6 +15,7 @@ export function useChatVizSend(onSend: SendFn) {
   return useCallback(
     (payload: Omit<ChartVizPayload, 'type' | 'sentAt'>) => {
       const serialized = serializeChartVizPayload(payload);
+
       if (serialized) return onSend(serialized);
     },
     [onSend],

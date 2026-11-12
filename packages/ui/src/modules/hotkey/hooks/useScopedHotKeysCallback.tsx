@@ -1,4 +1,4 @@
-import { Hotkey, OptionsOrDependencyArray } from 'react-hotkeys-hook/dist/types';
+import type { Hotkey, OptionsOrDependencyArray } from 'react-hotkeys-hook/dist/types';
 import { useAtomCallback } from 'jotai/utils';
 import { useCallback } from 'react';
 import { internalHotkeysEnabledScopesState } from '../states/internal/internalHotkeysEnabledScopeState';
@@ -41,6 +41,7 @@ export const useScopedHotKeysCallback = (dependencies?: OptionsOrDependencyArray
               'color: gray; ',
             );
           }
+
           return;
         }
 
@@ -62,6 +63,7 @@ export const useScopedHotKeysCallback = (dependencies?: OptionsOrDependencyArray
               'color: gray;',
             );
           }
+
           keyboardEvent.stopPropagation();
           keyboardEvent.preventDefault();
           keyboardEvent.stopImmediatePropagation();

@@ -6,7 +6,9 @@ const ROLE: Record<string, string> = { owner: 'Owner', admin: 'Admin', member: '
 
 const value = (input: unknown) => {
   if (input === null || input === undefined || input === '') return 'empty';
+
   if (typeof input === 'string') return ROLE[input] ?? input;
+
   if (Array.isArray(input)) return input.length ? input.join(', ') : 'none';
 
   return JSON.stringify(input);
@@ -40,8 +42,8 @@ const humanize = (text: string) => text.replace(/[_.]/g, ' ');
  */
 export const auditSentence = (entry: AuditEntry): string => {
   const label = entry.targetLabel ?? entry.targetId ?? '';
-  const changes = entry.changes as Changes | null;
-  const metadata = (entry.metadata ?? {}) as Record<string, unknown>;
+  const changes = entry.changes;
+  const metadata = entry.metadata ?? {};
   const [record = '', verb = ''] = entry.action.split('.');
 
   switch (entry.action) {
@@ -107,6 +109,7 @@ export const auditSentence = (entry: AuditEntry): string => {
       record === 'field' ? 'property' : record === 'field_group' ? 'property group' : record;
 
     if (verb === 'updated' && changes) return `updated ${noun} ${label}: ${fields(changes)}`;
+
     if (verb === 'merged') {
       const names = (metadata.mergedNames as string[] | undefined) ?? [];
 

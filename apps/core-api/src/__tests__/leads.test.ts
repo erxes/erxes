@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { currentToken, describeWithDb, useTestDatabase } from './db';
@@ -22,6 +22,7 @@ describeWithDb(
         headers: { authorization: `Bearer ${owner}`, 'content-type': 'application/json' },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
+
       const text = await response.text();
 
       return { status: response.status, body: text ? JSON.parse(text) : null };
@@ -34,6 +35,7 @@ describeWithDb(
       leadCount: number;
       companyLeadCount: number;
     };
+
     const stages = async () => (await call('GET', '/lead-stages')).body.data as Stage[];
     const stage = async (name: string) => (await stages()).find((item) => item.name === name)!;
 
@@ -98,6 +100,7 @@ describeWithDb(
         id: string;
         firstName: string;
       }[];
+
       const bat = leads.find((lead) => lead.firstName === 'Bat')!.id;
       const dorj = leads.find((lead) => lead.firstName === 'Dorj')!.id;
 
@@ -121,6 +124,7 @@ describeWithDb(
           await call('GET', `/customers?state=lead&leadStageId=${(await stage('Contacted')).id}`)
         ).body.data.map((row: { id: string }) => row.id),
       ).toEqual([bat]);
+
       // The advanced filter names stages.
       const filter = encodeURIComponent(
         JSON.stringify({

@@ -23,6 +23,7 @@ export const TestPanel = ({
   const [recordId, setRecordId] = useState<string>('');
   const [assume, setAssume] = useState(false);
   const type = subject ?? 'customer';
+
   const records = useQuery({
     queryKey: ['automations', 'test-records', type, search],
     queryFn: async () =>
@@ -41,6 +42,7 @@ export const TestPanel = ({
           ),
     enabled: open,
   });
+
   const run = useMutation({
     mutationFn: () =>
       api.automations.test({

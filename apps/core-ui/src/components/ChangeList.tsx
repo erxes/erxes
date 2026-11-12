@@ -166,9 +166,11 @@ export const useChangeLookups = (
   const { tags } = useTags(contentType);
   const { fields } = useAllFields(contentType);
   const { fields: archivedFields } = useAllFields(contentType, { archived: true });
+
   const owners = changes.flatMap((change) =>
     (change?.ownerId ?? []).map((id) => (typeof id === 'string' ? id : null)),
   );
+
   const members = useMembersById([...extraMemberIds, ...owners]);
 
   return {

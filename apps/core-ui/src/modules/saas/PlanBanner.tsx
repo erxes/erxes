@@ -35,7 +35,7 @@ export const PlanBanner = () => {
       '{{plugins}} left your plan: read-only until {{date}}, then turned off. Buy it again to keep using it.',
       {
         plugins: readOnly.map((plugin) => plugin.title).join(', '),
-        date: day(readOnly[0]!.readOnlyUntil ?? new Date().toISOString()),
+        date: day(readOnly[0].readOnlyUntil ?? new Date().toISOString()),
       },
     );
   } else if (retrying.length) {

@@ -1,7 +1,7 @@
+import type { DragEndEvent } from '@dnd-kit/core';
 import {
   closestCenter,
   DndContext,
-  DragEndEvent,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
@@ -10,7 +10,7 @@ import {
 } from '@dnd-kit/core';
 import { restrictToFirstScrollableAncestor, restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
-import { ColumnOrderState } from '@tanstack/react-table';
+import type { ColumnOrderState } from '@tanstack/react-table';
 import type { OnChangeFn } from '@tanstack/table-core';
 
 interface RecordTableDnDProviderProps {
@@ -40,10 +40,12 @@ export const RecordTableDnDProvider = ({
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
+
     if (active && over && active.id !== over.id) {
       setColumnOrder((columnOrder) => {
         const oldIndex = columnOrder.indexOf(active.id as string);
         const newIndex = columnOrder.indexOf(over.id as string);
+
         return arrayMove(columnOrder, oldIndex, newIndex);
       });
     }

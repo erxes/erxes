@@ -89,6 +89,7 @@ export const createExport = async (
   },
 ) => {
   const available = await transferColumns(client, actor.orgId, input.recordType);
+
   const unknown = input.columns.find(
     (key) => !available.some((item) => item.key === key && item.exportable),
   );
@@ -145,6 +146,7 @@ const pageCells = async (
   const isCompany = recordType === 'company';
   const ids = rows.map((row) => String(row.id));
   const links = isCompany ? companyTags : customerTags;
+
   const tagRows =
     keys.includes('tags') && ids.length
       ? await tx
@@ -153,9 +155,11 @@ const pageCells = async (
           .innerJoin(tags, eq(tags.id, links.tagId))
           .where(and(eq(links.orgId, orgId), inArray(links.recordId, ids)))
       : [];
+
   const ownerIds = [
     ...new Set(rows.map((row) => row.ownerId).filter((id): id is string => typeof id === 'string')),
   ];
+
   const owners = new Map(
     keys.includes('owner') && ownerIds.length
       ? (
@@ -166,6 +170,7 @@ const pageCells = async (
         ).map((user) => [user.id, user.email] as const)
       : [],
   );
+
   const companyRows =
     !isCompany && keys.includes('companies') && ids.length
       ? await tx
@@ -176,6 +181,7 @@ const pageCells = async (
             and(eq(customerCompanies.orgId, orgId), inArray(customerCompanies.customerId, ids)),
           )
       : [];
+
   const customerCounts = new Map(
     isCompany && keys.includes('customerCount') && ids.length
       ? (
@@ -189,6 +195,7 @@ const pageCells = async (
         ).map((item) => [item.companyId, item.count] as const)
       : [],
   );
+
   const listOf = (items: { key: string; name: string }[], id: string) =>
     items
       .filter((item) => item.key === id)
@@ -203,25 +210,31 @@ const pageCells = async (
         return customCell(
           (row.customFields as Record<string, unknown>)[key.slice('customFields.'.length)],
         );
+
       if (key === 'tags')
         return listOf(
           tagRows.map((item) => ({ key: item.recordId, name: item.name })),
           id,
         );
+
       if (key === 'owner')
         return typeof row.ownerId === 'string' ? (owners.get(row.ownerId) ?? '') : '';
+
       if (key === 'companies')
         return listOf(
           companyRows.map((item) => ({ key: item.customerId, name: item.name })),
           id,
         );
+
       if (key === 'customerCount') return customerCounts.get(id) ?? 0;
+
       if (key === 'emails' || key === 'phones' || key === 'names')
         return Array.isArray(row[key]) ? (row[key] as string[]).join('; ') : '';
 
       const value = row[key];
 
       if (value instanceof Date) return value;
+
       if (typeof value === 'number') return value;
 
       return value === null || value === undefined ? '' : String(value);
@@ -260,6 +273,7 @@ export const exportRunJob: JobDefinition = {
             finishedAt: sql`now()`,
           })
           .where(eq(exports.id, row.id));
+
         return;
       }
 
@@ -270,12 +284,15 @@ export const exportRunJob: JobDefinition = {
         role: member.role,
         permissions: [],
       };
-      const where = await whereOf(tx, actor, row.recordType, row.query as Query);
+
+      const where = await whereOf(tx, actor, row.recordType, row.query);
       const table = row.recordType === 'company' ? companies : customers;
       const columns = await transferColumns(tx, job.orgId, row.recordType);
+
       const header = row.columns.map(
         (key) => columns.find((item) => item.key === key)?.label ?? key,
       );
+
       const body: Cell[][] = [];
       let last = '';
 
@@ -304,6 +321,7 @@ export const exportRunJob: JobDefinition = {
       const rows = body.slice(0, MAX_EXPORT_ROWS);
       const stamp = new Date().toISOString().slice(0, 10);
       const name = `${row.recordType === 'company' ? 'companies' : row.recordType === 'lead' ? 'leads' : 'customers'}-${stamp}.${row.format}`;
+
       const file =
         row.format === 'csv'
           ? Buffer.concat([
@@ -335,7 +353,9 @@ export const exportRunJob: JobDefinition = {
               ],
               { stickyRowsCount: 1 },
             ).toBuffer();
+
       const caller: Caller = userCaller(actor);
+
       const stored = await storeServerFile(tx, caller, {
         name,
         contentType:

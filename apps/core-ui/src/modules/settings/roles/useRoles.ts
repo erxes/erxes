@@ -11,6 +11,7 @@ export const useRoles = () => {
     queryFn: () => api.roles.list(),
     staleTime: 60_000,
   });
+
   const roles: Role[] = data?.data ?? [];
   const byKey = new Map(roles.map((role) => [role.key, role]));
 

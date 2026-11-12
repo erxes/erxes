@@ -18,6 +18,7 @@ export const TrashItem = z.object({
     activities: z.number().int(),
   }),
 });
+
 export type TrashItem = z.infer<typeof TrashItem>;
 
 /**

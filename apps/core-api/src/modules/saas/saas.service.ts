@@ -32,6 +32,7 @@ type Row = typeof entitlements.$inferSelect;
 export const NOT_IN_PLAN = 'Not in your plan';
 
 const DAY = 24 * 60 * 60 * 1000;
+
 /** erxes.io answers with `Cache-Control: max-age=30`: older than this, ask again (in the background). */
 const FRESH_MS = 30_000;
 
@@ -102,9 +103,11 @@ const askPlatform = async (
   );
 
   if (response.status === 404) return null;
+
   if (!response.ok) throw new Error(`erxes.io answered ${response.status}`);
 
   const body = (await response.json()) as PlatformAnswer;
+
   const details =
     body.details ??
     Object.entries(body.plugins ?? {}).map(([code, tier]) => ({ code, tier, status: 'active' }));
@@ -135,17 +138,20 @@ export const reconcilePlugins = async (tx: Db, orgId: string, row: Row, now = ne
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .where(eq(plugins.status, 'active'));
+
   const installed = new Map(
     (await tx.select().from(pluginInstallations).where(eq(pluginInstallations.orgId, orgId))).map(
       (item) => [item.plugin, item],
     ),
   );
+
   const changes: { plugin: string; change: 'installed' | 'resumed' | 'removed' }[] = [];
 
   for (const plugin of registered) {
     const access = accessOf(row, plugin.name, now);
     const installation = installed.get(plugin.name);
     const inPlan = access === 'full' || access === 'warning';
+
     const where = and(
       eq(pluginInstallations.orgId, orgId),
       eq(pluginInstallations.plugin, plugin.name),
@@ -249,6 +255,7 @@ export const refreshEntitlements = (orgId: string): Promise<Row | null> => {
         .where(eq(entitlements.orgId, orgId))
         .for('update')
         .limit(1);
+
       const now = new Date();
       const codes = new Set(answer.plugins.map((plugin) => plugin.code));
       const lapsed: Record<string, string> = {};
@@ -256,6 +263,7 @@ export const refreshEntitlements = (orgId: string): Promise<Row | null> => {
       // Kept while still gone; new when it just left; cleared when it's back.
       for (const [code, since] of Object.entries(before?.lapsed ?? {}))
         if (!codes.has(code)) lapsed[code] = since;
+
       for (const plugin of before?.plugins ?? [])
         if (!codes.has(plugin.code) && !lapsed[plugin.code])
           lapsed[plugin.code] = now.toISOString();
@@ -267,12 +275,15 @@ export const refreshEntitlements = (orgId: string): Promise<Row | null> => {
         fetchedAt: now,
         lastError: null,
       };
+
       const [row] = await tx
         .insert(entitlements)
         .values({ orgId, ...values })
         .onConflictDoUpdate({ target: entitlements.orgId, set: values })
         .returning();
+
       const changes = await reconcilePlugins(tx, orgId, row!, now);
+
       const describe = (list: EntitledPlugin[] = []) =>
         list
           .map((plugin) => `${plugin.code}:${plugin.tier}:${plugin.status}`)
@@ -333,6 +344,7 @@ export const entitlementsOf = async (orgId: string): Promise<Row | null> => {
 
   if (row) {
     cache.set(orgId, { row, at: Date.now() });
+
     if (Date.now() - row.fetchedAt.getTime() > FRESH_MS)
       void refreshEntitlements(orgId).catch(() => undefined);
 
@@ -352,6 +364,7 @@ export const refreshAllEntitlements = async () => {
   const orgs = await withSystem('saas: organisations', (tx) =>
     tx.select({ id: organizations.id }).from(organizations),
   );
+
   let refreshed = 0;
 
   for (const org of orgs) {
@@ -412,6 +425,7 @@ export const standingGuard = (
               `${req.plugin.plugin} is not in this organisation's plan`,
             ),
           );
+
         if (access === 'read_only' && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
           return next(
             new HttpError(
@@ -539,10 +553,12 @@ export const workspaceUsage = (orgId: string) =>
       .from(entitlements)
       .where(eq(entitlements.orgId, orgId))
       .limit(1);
+
     const [{ members } = { members: 0 }] = await tx
       .select({ members: sql<number>`count(*)::int` })
       .from(users)
       .where(and(eq(users.orgId, orgId), ne(users.status, 'disabled'), eq(users.isSupport, false)));
+
     const installed = await tx
       .select({
         plugin: pluginInstallations.plugin,
@@ -585,9 +601,11 @@ export const subscriptionInfo = async (client: Db, actor: Actor): Promise<Subscr
     .limit(1);
 
   if (org) subdomains.set(actor.orgId, org.subdomain);
+
   const registered = await client
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins);
+
   const active = new Set(
     (
       await client
@@ -598,6 +616,7 @@ export const subscriptionInfo = async (client: Db, actor: Actor): Promise<Subscr
         )
     ).map((item) => item.plugin),
   );
+
   const codes = [
     ...new Set([
       ...(row?.plugins ?? []).map((plugin) => plugin.code),
@@ -657,16 +676,19 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
     throw new HttpError(404, 'NOT_FOUND', 'Sign-in hand-off is not set up');
 
   const { jwtVerify } = await import('jose');
+
   const { payload } = await jwtVerify(token, new TextEncoder().encode(config.saas.handoffSecret), {
     algorithms: ['HS256'],
     maxTokenAge: '5m',
   });
+
   const claims = payload as {
     user?: { email?: unknown };
     email?: unknown;
     org?: unknown;
     exp?: number;
   };
+
   const email =
     typeof claims.user?.email === 'string'
       ? claims.user.email
@@ -677,6 +699,7 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
   if (!email || !claims.exp) throw new HttpError(400, 'INVALID_TOKEN', 'Not a sign-in link');
 
   const subdomain = subdomainFromHost(host) ?? config.auth.defaultSubdomain;
+
   const [org] = await withSystem('saas: hand-off organisation', (tx) =>
     tx
       .select({ id: organizations.id })

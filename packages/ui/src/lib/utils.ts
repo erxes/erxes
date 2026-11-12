@@ -11,6 +11,7 @@ export function fixNum(value: any, p = 4) {
   if (isNaN(cleanNumber)) {
     return 0;
   }
+
   const multiplier = 10 ** p;
 
   const big = Math.round(Number((cleanNumber * multiplier).toFixed(2)));

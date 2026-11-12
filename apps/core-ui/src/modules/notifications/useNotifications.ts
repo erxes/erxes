@@ -21,6 +21,7 @@ export const CORE_INBOX = 'core';
  */
 export const useUnreadCounts = () => {
   const refetchInterval = useLivePolling();
+
   const query = useQuery({
     queryKey: [...NOTIFICATIONS_KEY, 'unread-count'],
     queryFn: () => api.notifications.unreadCount({}),
@@ -45,6 +46,7 @@ export const useNotificationList = ({
   enabled = true,
 }: NotificationFilters & { enabled?: boolean }) => {
   const refetchInterval = useLivePolling();
+
   const query = useInfiniteQuery({
     queryKey: [
       ...NOTIFICATIONS_KEY,
@@ -81,6 +83,7 @@ export const useNotificationActions = () => {
   const client = useQueryClient();
   const { toast } = useToast();
   const refresh = () => client.invalidateQueries({ queryKey: NOTIFICATIONS_KEY });
+
   const onError = (error: unknown) =>
     toast({
       variant: 'destructive',
@@ -94,6 +97,7 @@ export const useNotificationActions = () => {
     onSuccess: refresh,
     onError,
   });
+
   const remove = useMutation({
     mutationFn: (notification: Notification) => api.notifications.remove({ id: notification.id }),
     onSuccess: refresh,
@@ -108,11 +112,13 @@ const SETTINGS_KEY = [...NOTIFICATIONS_KEY, 'settings'];
 export const useNotificationSettings = () => {
   const client = useQueryClient();
   const { toast } = useToast();
+
   const query = useQuery({
     queryKey: SETTINGS_KEY,
     queryFn: () => api.notifications.settings(),
     staleTime: 60_000,
   });
+
   const update = useMutation({
     mutationFn: (input: {
       groups?: Record<string, NotificationDelivery>;
@@ -156,6 +162,7 @@ export const useInboxes = (): Inbox[] => {
   const { plugins } = usePlugins();
   const { settings } = useNotificationSettings();
   const { bySource } = useUnreadCounts();
+
   const sources = [
     ...new Set([
       ...(settings?.groups ?? []).filter((group) => group.plugin).map((group) => group.key),

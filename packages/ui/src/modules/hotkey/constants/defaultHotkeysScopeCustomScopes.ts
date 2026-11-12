@@ -1,4 +1,4 @@
-import { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
+import type { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
 
 export const DEFAULT_HOTKEYS_SCOPE_CUSTOM_SCOPES: CustomHotkeyScopes = {
   commandMenu: true,

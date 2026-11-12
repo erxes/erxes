@@ -215,6 +215,7 @@ export const AcceptInvitationPage = () => {
   const token = params.get('token') ?? '';
   const client = useQueryClient();
   const navigate = useNavigate();
+
   const info = useQuery({
     queryKey: ['invitation', token],
     queryFn: () => api.auth.invitation({ token }),

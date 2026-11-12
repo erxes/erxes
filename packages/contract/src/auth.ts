@@ -9,6 +9,7 @@ export const Session = z.object({
   /** What the member may do (actions); owners have every one. */
   permissions: z.array(z.string()),
 });
+
 export type Session = z.infer<typeof Session>;
 
 /** At least 8 characters with a lower-case letter, an upper-case letter and a digit (as old erxes). */

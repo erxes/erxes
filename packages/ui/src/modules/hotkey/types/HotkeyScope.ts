@@ -1,4 +1,4 @@
-import { CustomHotkeyScopes } from './CustomHotkeyScope';
+import type { CustomHotkeyScopes } from './CustomHotkeyScope';
 
 export interface HotkeyScope {
   scope: string;

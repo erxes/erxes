@@ -109,6 +109,7 @@ export const pluginJson = async <T>(
     headers,
     body: json === undefined ? rest.body : JSON.stringify(json),
   });
+
   const text = await response.text();
   const body = text ? (JSON.parse(text) as unknown) : null;
 
@@ -146,6 +147,7 @@ export const useLiveSignal = (
     return runtime.subscribe((message) => {
       if ('resync' in message) {
         handler.current([...wanted]);
+
         return;
       }
 

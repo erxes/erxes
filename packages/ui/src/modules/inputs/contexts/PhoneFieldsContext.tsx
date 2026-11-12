@@ -1,6 +1,6 @@
 import { createContext } from 'react';
-import { ValidationStatus } from 'erxes-ui/types';
-import { TPhones } from '../components/PhoneField';
+import type { ValidationStatus } from 'erxes-ui/types';
+import type { TPhones } from '../components/PhoneField';
 
 export const PhoneFieldsContext = createContext<{
   recordId: string;

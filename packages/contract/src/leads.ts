@@ -4,6 +4,7 @@ import { Id } from './common';
 
 /** `open`: still being worked; `qualified`: ready to become a customer; `disqualified`: lost. */
 export const LeadStageKind = z.enum(['open', 'qualified', 'disqualified']);
+
 export type LeadStageKind = z.infer<typeof LeadStageKind>;
 
 /** Where people come from. Plugins and integrations may send others. */
@@ -38,6 +39,7 @@ export const SourceDetails = z
 
 /** Whom a lead action is about: people or companies (both go through the same stages). */
 export const LeadRecordType = z.enum(['customer', 'company']);
+
 export type LeadRecordType = z.infer<typeof LeadRecordType>;
 
 /** `lead`: not a customer yet. People and companies alike. */
@@ -81,6 +83,7 @@ export const LeadStage = z.object({
   /** Companies that are leads in it now. */
   companyLeadCount: z.number().int(),
 });
+
 export type LeadStage = z.infer<typeof LeadStage>;
 
 const StageFields = z.object({
@@ -104,6 +107,7 @@ export const LeadEvent = z.object({
   actorId: z.string().nullable(),
   createdAt: z.string().datetime(),
 });
+
 export type LeadEvent = z.infer<typeof LeadEvent>;
 
 const Count = z.object({ count: z.number().int() });
@@ -138,6 +142,7 @@ export const LeadReport = z.object({
   /** Disqualification reasons, most common first. */
   reasons: z.array(Count.extend({ reason: z.string() })),
 });
+
 export type LeadReport = z.infer<typeof LeadReport>;
 
 const Ids = z.array(Id).min(1).max(100);

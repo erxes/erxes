@@ -1,17 +1,17 @@
+import type { TableHandleMenuProps, TableHandleProps } from '@blocknote/react';
 import {
   AddButton,
   DeleteButton,
   TableHandle,
   TableHandleMenu,
-  TableHandleMenuProps,
-  TableHandleProps,
   useBlockNoteEditor,
   useComponentsContext,
   useDictionary,
 } from '@blocknote/react';
 import { isTableCell, mapTableCell } from '@blocknote/core';
 import { IconGripVertical } from '@tabler/icons-react';
-import { CSSProperties, useMemo } from 'react';
+import type { CSSProperties } from 'react';
+import { useMemo } from 'react';
 
 const COLORS = [
   'default',
@@ -57,6 +57,7 @@ const TableColorPicker = (props: TableHandleMenuProps) => {
   const Components = useComponentsContext();
   const dictionary = useDictionary();
   const tableHandles = editor.tableHandles;
+
   const currentCells = useMemo(() => {
     if (!tableHandles) {
       return [];
@@ -72,6 +73,7 @@ const TableColorPicker = (props: TableHandleMenuProps) => {
   }
 
   const firstCell = mapTableCell(currentCells[0].cell);
+
   const updateColor = (color: string, type: 'text' | 'background') => {
     const rows = props.block.content.rows.map((row) => ({
       ...row,
@@ -202,6 +204,7 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
         onClick={() => {
           requestAnimationFrame(() => {
             const block = editor.getBlock(props.block.id);
+
             if (block?.type !== 'table') return;
 
             const { insertedBlocks } = editor.replaceBlocks([block], [{ type: 'paragraph' }]);

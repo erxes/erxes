@@ -54,6 +54,7 @@ const companySchema = z.object({
 });
 
 type TCompanyForm = z.infer<typeof companySchema>;
+
 type TCompanyTextField = 'primaryName' | 'code' | 'primaryEmail' | 'primaryPhone' | 'website';
 
 const TEXT_FIELD_ICONS: Record<TCompanyTextField, Icon> = {
@@ -106,14 +107,17 @@ export const CompanyPanelNew = () => {
   const [linking, setLinking] = useState(false);
   const showCreated = useCreatedPanelRecord('core:company');
   const create = useCompanyCreate();
+
   const { state, leadStageId } = useSidePanelDraft<{
     state?: 'lead' | 'customer';
     leadStageId?: string;
   }>('core:company');
+
   const form = useForm<TCompanyForm>({
     resolver: zodResolver(companySchema),
     defaultValues: { primaryName: '', code: '', industry: [] },
   });
+
   const { errors } = form.formState;
 
   /** Returns to the previous record or closes a top-level company draft. */

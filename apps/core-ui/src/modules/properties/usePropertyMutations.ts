@@ -7,8 +7,11 @@ import { useCan, useSession } from '~/modules/auth/session';
 import { FIELD_GROUPS_KEY, FIELDS_KEY } from './useFields';
 
 type FieldCreate = Parameters<typeof api.fields.create>[0];
+
 type FieldUpdate = Parameters<typeof api.fields.update>[0];
+
 type GroupCreate = Parameters<typeof api.fieldGroups.create>[0];
+
 type GroupUpdate = Parameters<typeof api.fieldGroups.update>[0];
 
 /** Owners and admins manage properties (old `fieldsManage` / `fieldGroupsManage`). */
@@ -110,11 +113,13 @@ export const useFieldUsage = (target: TArchiveTarget | null) => {
 export const usePropertyArchive = () => {
   const refresh = usePropertiesRefresh();
   const { onError, success, t } = useFeedback();
+
   const done = (title: string, onDone: () => void) => () => {
     refresh(true);
     success(title);
     onDone();
   };
+
   const archive = useMutation({
     mutationFn: async (target: TArchiveTarget) => {
       if (target.kind === 'group') await api.fieldGroups.archive({ id: target.id });
@@ -122,6 +127,7 @@ export const usePropertyArchive = () => {
     },
     onError,
   });
+
   // The server checks again; the dialog's answer may be stale by now.
   const remove = useMutation({
     mutationFn: (target: TArchiveTarget) =>
@@ -143,6 +149,7 @@ export const usePropertyArchive = () => {
 export const usePropertyRestore = () => {
   const refresh = usePropertiesRefresh();
   const { onError, success, t } = useFeedback();
+
   const restore = useMutation({
     mutationFn: async ({ kind, id }: { kind: 'field' | 'group'; id: string }) => {
       if (kind === 'group') await api.fieldGroups.restore({ id });
