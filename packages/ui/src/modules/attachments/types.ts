@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type IAttachment = {
   url: string;
   name: string;
@@ -9,7 +11,7 @@ export type IAttachment = {
 export type AttachmentContextType = {
   attachments: IAttachment[];
   addAttachment: (attachment: IAttachment) => void;
-  handleRemoveAttachment: (e: React.MouseEvent, attachment: IAttachment) => void;
+  handleRemoveAttachment: (e: React.MouseEvent, attachment: IAttachment) => Promise<void>;
   resetAttachments: () => void;
   removingUrl: string | null;
   isLoading: boolean;
@@ -41,34 +43,39 @@ const EXT_TO_MIME: Record<string, string> = {
   pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 };
 
-export const parseFilesAsAttachments = (value: unknown): IAttachment[] => {
-  let urls: string[] = [];
+/** A list of addresses, or one `{ url }`. */
+const storedUrls = z.union([
+  z.array(z.string()),
+  z.object({ url: z.string().min(1) }).transform(({ url }) => [url]),
+]);
 
-  if (!value) return [];
+const urlsOf = (value: unknown): string[] => {
+  if (typeof value !== 'string') {
+    const parsed = storedUrls.safeParse(value);
 
-  if (typeof value === 'string' && value.trim()) {
-    try {
-      const parsed = JSON.parse(value);
-
-      if (Array.isArray(parsed)) urls = parsed;
-      else if (parsed?.url) urls = [parsed.url];
-    } catch {
-      urls = [value];
-    }
-  } else if (Array.isArray(value)) {
-    urls = value as string[];
-  } else if (typeof value === 'object' && value !== null && 'url' in value) {
-    urls = [(value as { url: string }).url];
+    return parsed.success ? parsed.data : [];
   }
 
-  return urls.map((url) => {
-    const ext = url.split('?')[0].split('.').pop()?.toLowerCase() ?? '';
+  if (!value.trim()) return [];
+
+  try {
+    const parsed = storedUrls.safeParse(JSON.parse(value));
+
+    return parsed.success ? parsed.data : [];
+  } catch {
+    return [value];
+  }
+};
+
+/** Attachments from a stored files value: a JSON string, an address, a list of them or `{ url }`. */
+export const parseFilesAsAttachments = (value: unknown): IAttachment[] =>
+  urlsOf(value).map((url) => {
+    const extension = /\.(\w+)(?:[?#].*)?$/.exec(url)?.[1]?.toLowerCase() ?? '';
 
     return {
       url,
       name: url.split('/').pop() ?? url,
       size: 0,
-      type: EXT_TO_MIME[ext] ?? 'application/octet-stream',
+      type: EXT_TO_MIME[extension] ?? 'application/octet-stream',
     };
   });
-};

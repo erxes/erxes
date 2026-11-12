@@ -44,7 +44,7 @@ type UploadRootProps = {
   value: string;
   onChange: (value: UploadValue) => void;
   multiple?: boolean;
-} & ComponentPropsWithoutRef<'div'>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'onChange'>;
 
 const UploadRoot = forwardRef<HTMLDivElement, UploadRootProps>(
   ({ className, value, onChange, multiple, ...rest }, ref) => {
