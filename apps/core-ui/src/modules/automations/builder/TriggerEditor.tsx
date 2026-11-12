@@ -191,7 +191,7 @@ const DateTriggerSettings = ({
   // Mid-sentence: "birthday", but "VIP date" stays as it is.
   const fieldName = label
     ? /^.[a-zа-яөү]/.test(label)
-      ? label[0].toLowerCase() + label.slice(1)
+      ? label.charAt(0).toLowerCase() + label.slice(1)
       : label
     : t('the-date', 'the date');
 

@@ -1,20 +1,12 @@
-import type { AutomationRun } from '@erxes/core-contract';
+import type { AutomationRun, RunStep } from '@erxes/core-contract';
 import { IconPlayerStop, IconRefresh } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Badge,
-  Button,
-  cn,
-  Empty,
-  RelativeDateDisplay,
-  ScrollArea,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
+import { Badge, Button, cn, Empty, RelativeDateDisplay, ScrollArea, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { api, messageOf } from '~/lib/api';
+import { QueryState } from '~/components/QueryState';
+import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
 
 const STATUS_VARIANT = {
@@ -25,6 +17,8 @@ const STATUS_VARIANT = {
   cancelled: 'secondary',
 } as const;
 
+const STEP_VARIANT = { succeeded: 'success', failed: 'destructive' } as const;
+
 const When = ({ value }: { value: string }) => (
   <RelativeDateDisplay value={value} asChild>
     <span>
@@ -33,38 +27,106 @@ const When = ({ value }: { value: string }) => (
   </RelativeDateDisplay>
 );
 
-const RunDetail = ({ run }: { run: AutomationRun }) => {
+const StepEntry = ({ step }: { step: RunStep }) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <li className="rounded-md border p-2 text-sm">
+      <div className="flex items-center gap-2">
+        <Badge
+          variant={
+            step.status === 'succeeded' || step.status === 'failed'
+              ? STEP_VARIANT[step.status]
+              : 'secondary'
+          }
+        >
+          {step.status}
+        </Badge>
+        <span className="font-mono text-xs">{step.type}</span>
+        <span className="text-xs text-muted-foreground">#{step.stepId}</span>
+        {step.attempt > 1 && (
+          <span className="text-xs text-muted-foreground">
+            · {t('attempt', 'attempt {{n}}', { n: step.attempt })}
+          </span>
+        )}
+        <span className="ml-auto text-xs text-muted-foreground">
+          <When value={step.finishedAt} />
+        </span>
+      </div>
+      {step.error && <p className="mt-1 font-mono text-xs text-destructive">{step.error}</p>}
+      {(step.input !== null || step.output !== null) && (
+        <details className="mt-1">
+          <summary className="cursor-pointer text-xs text-muted-foreground">
+            {t('details', 'Input and output')}
+          </summary>
+          <pre className="mt-1 max-h-60 overflow-auto rounded bg-muted p-2 text-[11px]">
+            {JSON.stringify({ input: step.input, output: step.output }, null, 2)}
+          </pre>
+        </details>
+      )}
+    </li>
+  );
+};
+
+/** Continue a failed run, or cancel one in progress. */
+const RunActions = ({ run }: { run: AutomationRun }) => {
   const { t } = useTranslation('automations');
   const { toast } = useToast();
   const client = useQueryClient();
-  const can = useCan();
+  const refresh = () => client.invalidateQueries({ queryKey: orpc.automations.key() });
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['automations', 'run', run.id],
-    queryFn: () => api.automations.run({ runId: run.id }),
-    refetchInterval: run.status === 'running' || run.status === 'waiting' ? 3000 : false,
-  });
-
-  const refresh = () => void client.invalidateQueries({ queryKey: ['automations'] });
-
-  const onError = (error: unknown) =>
+  const onError = (error: Error) =>
     toast({
       variant: 'destructive',
       title: t('failed', 'Something went wrong'),
       description: messageOf(error),
     });
 
-  const retry = useMutation({
-    mutationFn: () => api.automations.retryRun({ runId: run.id }),
-    onSuccess: refresh,
-    onError,
-  });
+  const retry = useMutation(
+    orpc.automations.retryRun.mutationOptions({ onSuccess: refresh, onError }),
+  );
+  const cancel = useMutation(
+    orpc.automations.cancelRun.mutationOptions({ onSuccess: refresh, onError }),
+  );
 
-  const cancel = useMutation({
-    mutationFn: () => api.automations.cancelRun({ runId: run.id }),
-    onSuccess: refresh,
-    onError,
-  });
+  return (
+    <span className="ml-auto flex gap-2">
+      {run.status === 'failed' && (
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={retry.isPending}
+          onClick={() => retry.mutate({ runId: run.id })}
+        >
+          <IconRefresh />
+          {t('retry', 'Continue from the failed step')}
+        </Button>
+      )}
+      {(run.status === 'running' || run.status === 'waiting') && (
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={cancel.isPending}
+          onClick={() => cancel.mutate({ runId: run.id })}
+        >
+          <IconPlayerStop />
+          {t('cancel', 'Cancel')}
+        </Button>
+      )}
+    </span>
+  );
+};
+
+const RunDetail = ({ run }: { run: AutomationRun }) => {
+  const { t } = useTranslation('automations');
+  const canManage = useCan()('automations.manage');
+
+  const detail = useQuery(
+    orpc.automations.run.queryOptions({
+      input: { runId: run.id },
+      refetchInterval: run.status === 'running' || run.status === 'waiting' ? 3000 : false,
+    }),
+  );
 
   return (
     <div className="space-y-3 p-4">
@@ -82,30 +144,7 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
         <span className="text-xs text-muted-foreground">
           {t('version', 'version {{version}}', { version: run.version })} · {run.eventType}
         </span>
-        <span className="ml-auto flex gap-2">
-          {run.status === 'failed' && can('automations.manage') && (
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={retry.isPending}
-              onClick={() => retry.mutate()}
-            >
-              <IconRefresh />
-              {t('retry', 'Continue from the failed step')}
-            </Button>
-          )}
-          {(run.status === 'running' || run.status === 'waiting') && can('automations.manage') && (
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={cancel.isPending}
-              onClick={() => cancel.mutate()}
-            >
-              <IconPlayerStop />
-              {t('cancel', 'Cancel')}
-            </Button>
-          )}
-        </span>
+        {canManage && <RunActions run={run} />}
       </div>
       {run.error && (
         <p className="rounded-md bg-destructive/10 p-2 font-mono text-xs text-destructive">
@@ -117,87 +156,41 @@ const RunDetail = ({ run }: { run: AutomationRun }) => {
           {t('waiting-until', 'Waiting until')} {new Date(run.waitingUntil).toLocaleString()}
         </p>
       )}
-      {isLoading ? (
-        <Spinner containerClassName="py-4" />
-      ) : (
-        <ol className="space-y-2">
-          {data?.steps.map((step) => (
-            <li key={step.id} className="rounded-md border p-2 text-sm">
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant={
-                    step.status === 'succeeded'
-                      ? 'success'
-                      : step.status === 'failed'
-                        ? 'destructive'
-                        : 'secondary'
-                  }
-                >
-                  {step.status}
-                </Badge>
-                <span className="font-mono text-xs">{step.type}</span>
-                <span className="text-xs text-muted-foreground">#{step.stepId}</span>
-                {step.attempt > 1 && (
-                  <span className="text-xs text-muted-foreground">
-                    · {t('attempt', 'attempt {{n}}', { n: step.attempt })}
-                  </span>
-                )}
-                <span className="ml-auto text-xs text-muted-foreground">
-                  <When value={step.finishedAt} />
-                </span>
-              </div>
-              {step.error && (
-                <p className="mt-1 font-mono text-xs text-destructive">{step.error}</p>
-              )}
-              {(step.input !== null || step.output !== null) && (
-                <details className="mt-1">
-                  <summary className="cursor-pointer text-xs text-muted-foreground">
-                    {t('details', 'Input and output')}
-                  </summary>
-                  <pre className="mt-1 max-h-60 overflow-auto rounded bg-muted p-2 text-[11px]">
-                    {JSON.stringify({ input: step.input, output: step.output }, null, 2)}
-                  </pre>
-                </details>
-              )}
-            </li>
-          ))}
-        </ol>
-      )}
+      <QueryState query={detail} className="py-4">
+        {({ steps }) => (
+          <ol className="space-y-2">
+            {steps.map((step) => (
+              <StepEntry key={step.id} step={step} />
+            ))}
+          </ol>
+        )}
+      </QueryState>
     </div>
   );
 };
 
-/** Runs of an automation, newest first; each opens its step-by-step log. */
-export const RunsPanel = ({ automationId }: { automationId: string }) => {
+const NoRuns = () => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <Empty className="py-16">
+      <Empty.Header>
+        <Empty.Title>{t('no-runs', 'No runs yet')}</Empty.Title>
+        <Empty.Description>
+          {t(
+            'no-runs-description',
+            'Runs appear here when the trigger event happens and its conditions hold.',
+          )}
+        </Empty.Description>
+      </Empty.Header>
+    </Empty>
+  );
+};
+
+const RunList = ({ runs }: { runs: AutomationRun[] }) => {
   const { t } = useTranslation('automations');
   const [selected, setSelected] = useState<string | null>(null);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['automations', automationId, 'runs'],
-    queryFn: () => api.automations.runs({ id: automationId, limit: 50 }),
-    refetchInterval: 5000,
-  });
-
-  const runs = data?.data ?? [];
   const current = runs.find((run) => run.id === selected) ?? runs[0];
-
-  if (isLoading) return <Spinner containerClassName="py-12" />;
-
-  if (!runs.length) {
-    return (
-      <Empty className="py-16">
-        <Empty.Header>
-          <Empty.Title>{t('no-runs', 'No runs yet')}</Empty.Title>
-          <Empty.Description>
-            {t(
-              'no-runs-description',
-              'Runs appear here when the trigger event happens and its conditions hold.',
-            )}
-          </Empty.Description>
-        </Empty.Header>
-      </Empty>
-    );
-  }
 
   return (
     <div className="flex min-h-0 flex-1">
@@ -231,5 +224,26 @@ export const RunsPanel = ({ automationId }: { automationId: string }) => {
         {current && <RunDetail key={current.id} run={current} />}
       </ScrollArea>
     </div>
+  );
+};
+
+/** Runs of an automation, newest first; each opens its step-by-step log. */
+export const RunsPanel = ({ automationId }: { automationId: string }) => {
+  const runs = useQuery(
+    orpc.automations.runs.queryOptions({
+      input: { id: automationId, limit: 50 },
+      refetchInterval: 5000,
+    }),
+  );
+
+  return (
+    <QueryState
+      query={runs}
+      className="py-12"
+      isEmpty={({ data }) => !data.length}
+      empty={<NoRuns />}
+    >
+      {({ data }) => <RunList runs={data} />}
+    </QueryState>
   );
 };

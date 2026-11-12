@@ -1,9 +1,8 @@
 import { CONDITION_OPERATORS, type ConditionGroup, type ConditionRule } from '@erxes/core-contract';
 import { IconBraces, IconPlus, IconX } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { Button, cn, Input, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { api } from '~/lib/api';
+import { LookupError, useMemberOptions, useTagOptions } from './lookupOptions';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 
 const OPERATOR_LABELS: Record<(typeof CONDITION_OPERATORS)[number], string> = {
@@ -137,27 +136,6 @@ const PathPicker = ({
   );
 };
 
-const useMembers = (enabled: boolean) =>
-  useQuery({
-    queryKey: ['conditions', 'members'],
-    queryFn: async () =>
-      (await api.users.list({ limit: 100 })).data.map((user) => ({
-        value: user.id,
-        label: user.fullName || user.email,
-      })),
-    staleTime: 60_000,
-    enabled,
-  }).data ?? [];
-
-const useTags = (type: 'customer' | 'company', enabled: boolean) =>
-  useQuery({
-    queryKey: ['conditions', 'tags', type],
-    queryFn: async () =>
-      (await api.tags.list({ type })).data.map((tag) => ({ value: tag.id, label: tag.name })),
-    staleTime: 60_000,
-    enabled,
-  }).data ?? [];
-
 const ValueInput = ({
   rule,
   field,
@@ -172,8 +150,8 @@ const ValueInput = ({
   subject: 'customer' | 'company' | null;
 }) => {
   const { t } = useTranslation('automations');
-  const members = useMembers(field?.type === 'member');
-  const tags = useTags(subject ?? 'customer', field?.type === 'tags');
+  const members = useMemberOptions(field?.type === 'member');
+  const tags = useTagOptions(subject ?? 'customer', field?.type === 'tags');
 
   if (RELATIVE.has(rule.op)) {
     const current = (rule.value ?? {}) as { amount?: number; unit?: string };
@@ -217,8 +195,9 @@ const ValueInput = ({
   }
 
   if ((field?.type === 'member' || field?.type === 'tags') && !LIST_VALUE.has(rule.op)) {
+    const { options: loaded, error } = field.type === 'member' ? members : tags;
     const options =
-      field.type === 'member' ? [{ value: 'me', label: t('me', 'Me') }, ...members] : tags;
+      field.type === 'member' ? [{ value: 'me', label: t('me', 'Me') }, ...loaded] : loaded;
 
     return (
       <Select value={String(rule.value ?? '')} onValueChange={onChange} disabled={disabled}>
@@ -231,6 +210,7 @@ const ValueInput = ({
               {option.label}
             </Select.Item>
           ))}
+          <LookupError error={error} />
         </Select.Content>
       </Select>
     );

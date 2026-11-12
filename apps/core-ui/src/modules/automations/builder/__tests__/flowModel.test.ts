@@ -16,25 +16,38 @@ import {
   stepOutputFields,
 } from '../flowModel';
 
+const wait: AutomationStep = {
+  id: 'w',
+  type: 'wait_for',
+  event: 'core.customer.updated',
+  amount: 3,
+  unit: 'days',
+};
+
+const branch: AutomationStep = {
+  id: 'b',
+  type: 'branch',
+  conditions: {
+    match: 'all',
+    rules: [{ path: 'steps.w.output.matched', op: 'eq', value: false }],
+  },
+  then: [{ id: 'n', type: 'action', action: 'core.notification.send', input: { title: 'Ping' } }],
+  else: [],
+};
+
 const flow: AutomationStep[] = [
   { id: 'a', type: 'action', action: 'core.customer.assign', input: {} },
-  { id: 'w', type: 'wait_for', event: 'core.customer.updated', amount: 3, unit: 'days' },
-  {
-    id: 'b',
-    type: 'branch',
-    conditions: {
-      match: 'all',
-      rules: [{ path: 'steps.w.output.matched', op: 'eq', value: false }],
-    },
-    then: [{ id: 'n', type: 'action', action: 'core.notification.send', input: { title: 'Ping' } }],
-    else: [],
-  },
+  wait,
+  branch,
 ];
 
-const actions = [
+const actions: ActionInfo[] = [
   {
     type: 'core.customer.assign',
     label: 'Assign an owner',
+    description: null,
+    source: 'core',
+    subject: null,
     fields: [
       { key: 'userIds', label: 'Members to rotate through', type: 'members', required: true },
     ],
@@ -42,9 +55,12 @@ const actions = [
   {
     type: 'core.notification.send',
     label: 'Notify team members',
+    description: null,
+    source: 'core',
+    subject: null,
     fields: [{ key: 'title', label: 'Title', type: 'text', required: true }],
   },
-] as unknown as ActionInfo[];
+];
 
 const events = [{ type: 'core.customer.updated', label: 'Customer updated' }];
 
@@ -78,18 +94,18 @@ describe('flow model', () => {
       input: { title: 'Pong' },
     });
 
-    expect((findStep(renamed, 'n') as unknown as { input: { title: string } }).input.title).toBe(
-      'Pong',
-    );
+    expect(findStep(renamed, 'n')).toMatchObject({ input: { title: 'Pong' } });
     expect(findStep(removeStep(flow, 'n'), 'n')).toBeNull();
     expect(countSteps(removeStep(flow, 'b'))).toBe(2);
   });
 
   it('duplicates with fresh ids all the way down', () => {
-    const copy = cloneStep(flow[2]);
+    const copy = cloneStep(branch);
+    const [inner] = copy.type === 'branch' ? copy.then : [];
 
     expect(copy.id).not.toBe('b');
-    expect((copy as { then: AutomationStep[] }).then[0].id).not.toBe('n');
+    expect(inner).toMatchObject({ type: 'action', action: 'core.notification.send' });
+    expect(inner?.id).not.toBe('n');
   });
 
   it('names what each step does, with outputs of earlier steps as fields', () => {
@@ -102,10 +118,10 @@ describe('flow model', () => {
         type: 'boolean',
       },
     ]);
-    expect(describeStep(flow[2], { actions, events, fields: outputs }).title).toBe(
+    expect(describeStep(branch, { actions, events, fields: outputs }).title).toBe(
       'If Customer updated within the wait: no',
     );
-    expect(describeStep(flow[1], { actions, events, fields: [] })).toEqual({
+    expect(describeStep(wait, { actions, events, fields: [] })).toEqual({
       title: 'Customer updated',
       detail: 'At most 3 days',
     });

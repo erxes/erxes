@@ -158,11 +158,9 @@ export const moveStep = (steps: AutomationStep[], id: string, delta: -1 | 1): Au
   if (!at || at.index + delta < 0 || at.index + delta >= at.length) return steps;
 
   return updateList(steps, at.address, (list) => {
-    const next = [...list];
+    const moved = list[at.index];
 
-    [next[at.index], next[at.index + delta]] = [next[at.index + delta], next[at.index]];
-
-    return next;
+    return moved ? list.toSpliced(at.index, 1).toSpliced(at.index + delta, 0, moved) : list;
   });
 };
 

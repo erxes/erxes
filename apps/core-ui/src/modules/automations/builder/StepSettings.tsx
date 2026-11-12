@@ -1,40 +1,20 @@
 import type { ActionField, ActionInfo, AutomationStep } from '@erxes/core-contract';
 import { IconAt, IconBuilding, IconPlus, IconTrash, IconUser } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { Button, Input, MultipleSelector, Select, Switch, Textarea } from 'erxes-ui';
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { api } from '~/lib/api';
 import { useStageName } from '~/modules/leads/i18n';
 import { useLeadStages } from '~/modules/leads/useLeads';
 import { ConditionsEditor } from './ConditionsEditor';
 import { FieldLabel } from './FieldLabel';
 import { CatalogPicker } from './CatalogPicker';
+import { LookupError, useMemberOptions, useTagOptions } from './lookupOptions';
 import { Segmented } from './Segmented';
 import { TemplateInput } from './TemplateInput';
 import { type FieldInfo, useAutomationFields } from './useAutomationFields';
 import { actionDefaults } from './flowModel';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
-
-const useMemberOptions = () =>
-  useQuery({
-    queryKey: ['automations', 'member-options'],
-    queryFn: async () =>
-      (await api.users.list({ limit: 100 })).data.map((user) => ({
-        value: user.id,
-        label: user.fullName || user.email,
-      })),
-    staleTime: 60_000,
-  }).data ?? [];
-
-const useTagOptions = (type: 'customer' | 'company') =>
-  useQuery({
-    queryKey: ['automations', 'tag-options', type],
-    queryFn: async () =>
-      (await api.tags.list({ type })).data.map((tag) => ({ value: tag.id, label: tag.name })),
-    staleTime: 60_000,
-  }).data ?? [];
 
 const asList = (value: unknown) =>
   Array.isArray(value) ? value.map(String) : value ? [String(value)] : [];
@@ -61,8 +41,8 @@ const FieldInput = ({
   dataFields: FieldInfo[];
 }) => {
   const { t } = useTranslation('automations');
-  const members = useMemberOptions();
-  const tags = useTagOptions(subject);
+  const members = useMemberOptions(field.type === 'members');
+  const tags = useTagOptions(subject, field.type === 'tags');
   const { stages } = useLeadStages();
   const stageName = useStageName();
   const customFields = dataFields.filter((item) => item.path.startsWith('subject.customFields.'));
@@ -259,24 +239,27 @@ const FieldInput = ({
       );
     case 'members':
     case 'tags': {
-      const options = field.type === 'members' ? members : tags;
+      const { options, error } = field.type === 'members' ? members : tags;
 
       return (
-        <MultipleSelector
-          value={asList(value).map(
-            (id) => options.find((option) => option.value === id) ?? { value: id, label: id },
-          )}
-          onChange={(next) => onChange(next.map((option) => option.value))}
-          defaultOptions={options}
-          options={options}
-          disabled={disabled}
-          placeholder={
-            field.type === 'members'
-              ? t('choose-members', 'Choose members…')
-              : t('choose-tags', 'Choose tags…')
-          }
-          hidePlaceholderWhenSelected
-        />
+        <>
+          <MultipleSelector
+            value={asList(value).map(
+              (id) => options.find((option) => option.value === id) ?? { value: id, label: id },
+            )}
+            onChange={(next) => onChange(next.map((option) => option.value))}
+            defaultOptions={options}
+            options={options}
+            disabled={disabled}
+            placeholder={
+              field.type === 'members'
+                ? t('choose-members', 'Choose members…')
+                : t('choose-tags', 'Choose tags…')
+            }
+            hidePlaceholderWhenSelected
+          />
+          <LookupError error={error} />
+        </>
       );
     }
 

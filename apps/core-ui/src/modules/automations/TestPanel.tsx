@@ -1,9 +1,145 @@
+import type { coreContract } from '@erxes/core-contract';
+import type { InferContractRouterOutputs } from '@orpc/contract';
 import { IconFlask } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Badge, Button, Input, Label, Select, Sheet, Spinner, Switch } from 'erxes-ui';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { api, messageOf } from '~/lib/api';
+import { messageOf, orpc } from '~/lib/api';
+import { LookupError } from './builder/lookupOptions';
+
+type TestResult = InferContractRouterOutputs<typeof coreContract>['automations']['test'];
+
+/** Up to 20 records of the type matching `search`, as picker options. */
+const useTestRecords = (type: 'customer' | 'company', search: string, enabled: boolean) => {
+  const input = { limit: 20, search: search || undefined };
+
+  const customers = useQuery(
+    orpc.customers.list.queryOptions({
+      input,
+      enabled: enabled && type === 'customer',
+      select: ({ data }) =>
+        data.map((row) => ({
+          id: row.id,
+          label:
+            [row.firstName, row.lastName].filter(Boolean).join(' ') || row.primaryEmail || row.id,
+        })),
+    }),
+  );
+
+  const companies = useQuery(
+    orpc.companies.list.queryOptions({
+      input,
+      enabled: enabled && type === 'company',
+      select: ({ data }) => data.map((row) => ({ id: row.id, label: row.primaryName ?? row.id })),
+    }),
+  );
+
+  const query = type === 'customer' ? customers : companies;
+
+  return { records: query.data ?? [], error: query.error };
+};
+
+const TestTrace = ({ result }: { result: TestResult }) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <div className="min-h-0 flex-1 space-y-2 overflow-auto">
+      <div className="flex gap-2">
+        <Badge variant={result.triggerMatches ? 'success' : 'warning'}>
+          {result.triggerMatches
+            ? t('trigger-matches', 'The trigger’s conditions hold')
+            : t('trigger-not', 'The trigger’s conditions don’t hold')}
+        </Badge>
+        {result.goalMetAtStart && (
+          <Badge variant="info">{t('goal-already', 'Goal already met')}</Badge>
+        )}
+      </div>
+      <ol className="space-y-2">
+        {result.trace.map((item, index) => (
+          <li key={`${item.stepId}-${index}`} className="rounded-md border p-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs text-muted-foreground">#{item.stepId}</span>
+              <span>{item.outcome}</span>
+            </div>
+            {item.problem && <p className="mt-1 text-xs text-destructive">{item.problem}</p>}
+            {item.input !== null && item.input !== undefined && (
+              <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-[11px]">
+                {JSON.stringify(item.input, null, 2)}
+              </pre>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+};
+
+/** Pick a record and run the test; mounted while the sheet is open. */
+const TestForm = ({
+  automationId,
+  type,
+}: {
+  automationId: string;
+  type: 'customer' | 'company';
+}) => {
+  const { t } = useTranslation('automations');
+  const id = useId();
+  const [search, setSearch] = useState('');
+  const [recordId, setRecordId] = useState('');
+  const [assume, setAssume] = useState(false);
+  const { records, error } = useTestRecords(type, search, true);
+  const run = useMutation(orpc.automations.test.mutationOptions());
+
+  return (
+    <>
+      <div className="space-y-2">
+        <Label htmlFor={`${id}-search`}>
+          {type === 'customer' ? t('test-customer', 'Customer') : t('test-company', 'Company')}
+        </Label>
+        <Input
+          id={`${id}-search`}
+          placeholder={t('search', 'Search…')}
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <Select value={recordId} onValueChange={setRecordId}>
+          <Select.Trigger aria-label={t('pick-record', 'Pick one')}>
+            <Select.Value placeholder={t('pick-record', 'Pick one')} />
+          </Select.Trigger>
+          <Select.Content>
+            {records.map((record) => (
+              <Select.Item key={record.id} value={record.id}>
+                {record.label}
+              </Select.Item>
+            ))}
+            <LookupError error={error} />
+          </Select.Content>
+        </Select>
+        <div className="flex items-center gap-2 text-sm">
+          <Switch id={`${id}-assume`} checked={assume} onCheckedChange={setAssume} />
+          <Label htmlFor={`${id}-assume`} className="font-normal">
+            {t('assume-event', 'Waits for events: assume the event happens')}
+          </Label>
+        </div>
+        <Button
+          disabled={run.isPending}
+          onClick={() =>
+            run.mutate({
+              id: automationId,
+              subject: recordId ? { type, id: recordId } : undefined,
+              assumeEventHappens: assume,
+            })
+          }
+        >
+          {run.isPending ? <Spinner size="sm" /> : t('run-test', 'Run the test')}
+        </Button>
+      </div>
+      {run.isError && <p className="text-sm text-destructive">{messageOf(run.error)}</p>}
+      {run.data && <TestTrace result={run.data} />}
+    </>
+  );
+};
 
 /**
  * Dry run of the working copy: pick a record, see which way each branch goes
@@ -19,38 +155,6 @@ export const TestPanel = ({
 }) => {
   const { t } = useTranslation('automations');
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [recordId, setRecordId] = useState<string>('');
-  const [assume, setAssume] = useState(false);
-  const type = subject ?? 'customer';
-
-  const records = useQuery({
-    queryKey: ['automations', 'test-records', type, search],
-    queryFn: async () =>
-      type === 'customer'
-        ? (await api.customers.list({ limit: 20, search: search || undefined })).data.map(
-            (row) => ({
-              id: row.id,
-              label:
-                [row.firstName, row.lastName].filter(Boolean).join(' ') ||
-                row.primaryEmail ||
-                row.id,
-            }),
-          )
-        : (await api.companies.list({ limit: 20, search: search || undefined })).data.map(
-            (row) => ({ id: row.id, label: row.primaryName ?? row.id }),
-          ),
-    enabled: open,
-  });
-
-  const run = useMutation({
-    mutationFn: () =>
-      api.automations.test({
-        id: automationId,
-        subject: recordId ? { type, id: recordId } : undefined,
-        assumeEventHappens: assume,
-      }),
-  });
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -71,66 +175,7 @@ export const TestPanel = ({
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
-        <div className="space-y-2">
-          <Label>
-            {type === 'customer' ? t('test-customer', 'Customer') : t('test-company', 'Company')}
-          </Label>
-          <Input
-            placeholder={t('search', 'Search…')}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-          <Select value={recordId} onValueChange={setRecordId}>
-            <Select.Trigger>
-              <Select.Value placeholder={t('pick-record', 'Pick one')} />
-            </Select.Trigger>
-            <Select.Content>
-              {(records.data ?? []).map((record) => (
-                <Select.Item key={record.id} value={record.id}>
-                  {record.label}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
-          <label className="flex items-center gap-2 text-sm">
-            <Switch checked={assume} onCheckedChange={setAssume} />
-            {t('assume-event', 'Waits for events: assume the event happens')}
-          </label>
-          <Button disabled={run.isPending} onClick={() => run.mutate()}>
-            {run.isPending ? <Spinner size="sm" /> : t('run-test', 'Run the test')}
-          </Button>
-        </div>
-        {run.isError && <p className="text-sm text-destructive">{messageOf(run.error)}</p>}
-        {run.data && (
-          <div className="min-h-0 flex-1 space-y-2 overflow-auto">
-            <div className="flex gap-2">
-              <Badge variant={run.data.triggerMatches ? 'success' : 'warning'}>
-                {run.data.triggerMatches
-                  ? t('trigger-matches', 'The trigger’s conditions hold')
-                  : t('trigger-not', 'The trigger’s conditions don’t hold')}
-              </Badge>
-              {run.data.goalMetAtStart && (
-                <Badge variant="info">{t('goal-already', 'Goal already met')}</Badge>
-              )}
-            </div>
-            <ol className="space-y-2">
-              {run.data.trace.map((item, index) => (
-                <li key={`${item.stepId}-${index}`} className="rounded-md border p-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-muted-foreground">#{item.stepId}</span>
-                    <span>{item.outcome}</span>
-                  </div>
-                  {item.problem && <p className="mt-1 text-xs text-destructive">{item.problem}</p>}
-                  {item.input !== null && item.input !== undefined && (
-                    <pre className="mt-1 max-h-40 overflow-auto rounded bg-muted p-2 text-[11px]">
-                      {JSON.stringify(item.input, null, 2)}
-                    </pre>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </div>
-        )}
+        {open && <TestForm automationId={automationId} type={subject ?? 'customer'} />}
       </Sheet.View>
     </Sheet>
   );
