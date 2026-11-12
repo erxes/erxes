@@ -50,6 +50,7 @@ const CLEAR = '__clear';
 const ChosenFieldValue = (props: ActionInputProps & { fieldInput: string }) => {
   const { t } = useTranslation('automations');
   const { value, onChange, disabled, input, dataFields, fieldInput } = props;
+
   const chosen = customFieldsOf(dataFields).find(
     (item) => fieldIdOf(item.path) === input[fieldInput],
   );
