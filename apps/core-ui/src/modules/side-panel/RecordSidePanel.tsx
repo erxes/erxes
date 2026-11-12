@@ -589,10 +589,11 @@ const RecordSidePanelTabs = ({
     measure();
   }, [shownCount, measure]);
   const activeIndex = navigationTabs.findIndex((tab) => tab.value === selectedValue);
+  const activeTab = navigationTabs[activeIndex];
 
   const visible =
-    activeIndex >= shownCount
-      ? [...navigationTabs.slice(0, shownCount - 1), navigationTabs[activeIndex]]
+    activeTab && activeIndex >= shownCount
+      ? [...navigationTabs.slice(0, shownCount - 1), activeTab]
       : navigationTabs.slice(0, shownCount);
 
   const overflow = navigationTabs.filter((tab) => !visible.includes(tab));
