@@ -163,7 +163,7 @@
     "snapshot-description": "Snapshot stored with this Mongo change event.",
     "no-snapshot": "No document snapshot was captured for this event."
   },
-  "records-found": "Records Found",
+  "records-found": "records found",
   "organization": {
     "settings": "Settings",
     "change-theme": "Change Theme",
@@ -1150,5 +1150,8 @@
     "anyone": "Anyone",
     "all-sources": "All sources",
     "core": "Core"
-  }
+  },
+  "records-found_one": "record found",
+  "empty-list": "Nothing here",
+  "empty-list-hint": "Add one, or change the filters and search."
 }

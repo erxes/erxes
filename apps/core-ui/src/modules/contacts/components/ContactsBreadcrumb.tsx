@@ -1,5 +1,5 @@
 import { IconBookmarksFilled } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { Breadcrumb, Button } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
@@ -56,7 +56,6 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
           )}
         </Breadcrumb.List>
       </Breadcrumb>
-      <Separator.Inline />
     </>
   );
 };

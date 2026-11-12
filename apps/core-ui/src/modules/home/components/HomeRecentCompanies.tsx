@@ -21,7 +21,7 @@ export const HomeRecentCompanies = () => {
         avatarUrl: company.avatarUrl,
         detail: company.industry || company.website,
         meta: new Date(company.createdAt).toLocaleDateString(i18n.language, { month: 'short', day: 'numeric' }),
-        to: `/contacts/companies?companyId=${company.id}`,
+        to: `/contacts/companies?panel=${encodeURIComponent(`/detail/company/${company.id}`)}`,
       }))}
     />
   );

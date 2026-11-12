@@ -77,6 +77,9 @@ const Bar = ({
   title: string;
 }) => (
   <div className="flex h-5 min-w-0 flex-1 items-center gap-2" title={title}>
+    <span className="w-10 shrink-0 text-sm tabular-nums">
+      {value.toLocaleString("en")}
+    </span>
     <div className="h-2.5 flex-1">
       <div
         className="h-full rounded-r bg-primary"
@@ -85,9 +88,6 @@ const Bar = ({
         }}
       />
     </div>
-    <span className="w-12 shrink-0 text-right text-sm tabular-nums">
-      {value.toLocaleString("en")}
-    </span>
   </div>
 );
 

@@ -112,7 +112,7 @@ export const TriggerEditor = ({
   return (
     <div className="space-y-5">
       <Field label={t('trigger-type', 'Starts')}>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid auto-rows-fr grid-cols-2 gap-2">
           {KINDS.map(({ kind, icon: Icon, label, hint }) => (
             <button
               key={kind}
@@ -134,7 +134,7 @@ export const TriggerEditor = ({
               </span>
               <span className="min-w-0">
                 <span className="block text-sm font-medium">{t(`trigger-${kind}-title`, label)}</span>
-                <span className="block text-xs leading-snug text-muted-foreground">{t(`trigger-${kind}-hint`, hint)}</span>
+                <span className="line-clamp-2 block text-xs leading-snug text-muted-foreground">{t(`trigger-${kind}-hint`, hint)}</span>
               </span>
             </button>
           ))}

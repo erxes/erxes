@@ -253,7 +253,8 @@
     "no-active-members": "No one was active in the last {{count}} days.",
     "inactive-members": "Not active in the last {{count}} days",
     "everyone-active": "Everyone was active in this period.",
-    "team-active-hours": "Team active hours"
+    "team-active-hours": "Team active hours",
+    "records-found_one": "{{totalCount}} record found"
   },
   "brands": {
     "_": "Brands",
@@ -911,7 +912,8 @@
     "date": "Date",
     "filter": "Filter",
     "no-email-deliveries-found": "No emails found yet",
-    "email-deliveries-description": " Every message erxes hands to your email provider shows up here, along with what the provider said about it."
+    "email-deliveries-description": " Every message erxes hands to your email provider shows up here, along with what the provider said about it.",
+    "records-found_one": "{{totalCount}} record found"
   },
   "email-ramp": {
     "sending-resumed": "Sending resumed",

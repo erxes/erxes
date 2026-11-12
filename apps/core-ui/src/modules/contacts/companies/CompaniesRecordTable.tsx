@@ -3,6 +3,7 @@ import { messageOf } from '~/lib/api';
 import { CompaniesCommandBar } from './CompaniesCommandBar';
 import { stickyWithStage } from '~/modules/leads/leadColumns';
 import { useCompaniesColumns } from './companiesColumns';
+import { EmptyList } from '../components/EmptyList';
 import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
 
 export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 'customer' }) => {
@@ -36,6 +37,7 @@ export const CompaniesRecordTable = ({ state = 'customer' }: { state?: 'lead' | 
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      {!loading && !list.length && <EmptyList />}
       <CompaniesCommandBar />
     </RecordTable.Provider>
   );

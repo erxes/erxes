@@ -136,7 +136,8 @@
     "records-found": "{{formatted}} records found",
     "activity-tag-added": "added tag",
     "activity-tag-removed": "removed tag",
-    "activity-tag": "tag"
+    "activity-tag": "tag",
+    "records-found_one": "{{formatted}} record found"
   },
   "lead": {
     "add": {

@@ -44,7 +44,7 @@ export const PanelField = ({
     >
       {children}
       {placeholder && (
-        <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center gap-1.5 text-xs text-muted-foreground/50">
           <Icon className="size-3.5 shrink-0" aria-hidden="true" />
           {placeholder}
         </span>

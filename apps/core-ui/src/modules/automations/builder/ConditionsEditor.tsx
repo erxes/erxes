@@ -54,9 +54,9 @@ const PathPicker = ({ value, fields, onChange, disabled }: { value: string; fiel
   const known = fields.some((field) => field.path === value);
 
   return (
-    <div className="flex gap-1">
+    <div className="flex min-w-0 gap-1">
       <Select value={known ? value : CUSTOM_PATH} onValueChange={(path) => onChange(path === CUSTOM_PATH ? '' : path)} disabled={disabled}>
-        <Select.Trigger className="h-8 w-48">
+        <Select.Trigger className="h-8 w-full min-w-0">
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
@@ -83,7 +83,7 @@ const PathPicker = ({ value, fields, onChange, disabled }: { value: string; fiel
       </Select>
       {!known && (
         <Input
-          className="h-8 w-48 font-mono text-xs"
+          className="h-8 w-full min-w-0 font-mono text-xs"
           placeholder="event.payload.amount"
           value={value}
           disabled={disabled}
@@ -131,7 +131,7 @@ const ValueInput = ({
     const current = (rule.value ?? {}) as { amount?: number; unit?: string };
 
     return (
-      <div className="flex items-center gap-1">
+      <div className="flex w-full items-center gap-1">
         <Input
           className="h-8 w-20"
           type="number"
@@ -144,7 +144,7 @@ const ValueInput = ({
           <span className="text-sm text-muted-foreground">{t('days', 'days')}</span>
         ) : (
           <Select value={current.unit ?? 'days'} disabled={disabled} onValueChange={(unit) => onChange({ amount: 0, ...current, unit })}>
-            <Select.Trigger className="h-8 w-28">
+            <Select.Trigger className="h-8 w-28 shrink-0">
               <Select.Value />
             </Select.Trigger>
             <Select.Content>
@@ -163,7 +163,7 @@ const ValueInput = ({
 
     return (
       <Select value={String(rule.value ?? '')} onValueChange={onChange} disabled={disabled}>
-        <Select.Trigger className="h-8 w-48">
+        <Select.Trigger className="h-8 w-full min-w-0">
           <Select.Value placeholder={t('choose', 'Choose…')} />
         </Select.Trigger>
         <Select.Content>
@@ -180,7 +180,7 @@ const ValueInput = ({
   if (LIST_VALUE.has(rule.op)) {
     return (
       <Input
-        className="h-8 w-56"
+        className="h-8 w-full min-w-0"
         disabled={disabled}
         placeholder={t('list-placeholder', 'a, b, c')}
         value={Array.isArray(rule.value) ? rule.value.join(', ') : String(rule.value ?? '')}
@@ -192,7 +192,7 @@ const ValueInput = ({
   if (field?.type === 'boolean') {
     return (
       <Select value={String(rule.value ?? 'true')} onValueChange={(value) => onChange(value === 'true')} disabled={disabled}>
-        <Select.Trigger className="h-8 w-28">
+        <Select.Trigger className="h-8 w-28 shrink-0">
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
@@ -206,7 +206,7 @@ const ValueInput = ({
   if (field?.options?.length) {
     return (
       <Select value={String(rule.value ?? '')} onValueChange={onChange} disabled={disabled}>
-        <Select.Trigger className="h-8 w-44">
+        <Select.Trigger className="h-8 w-full min-w-0">
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
@@ -222,7 +222,7 @@ const ValueInput = ({
 
   return (
     <Input
-      className="h-8 w-56"
+      className="h-8 w-full min-w-0"
       type={field?.type === 'date' ? 'date' : field?.type === 'number' ? 'number' : 'text'}
       disabled={disabled}
       placeholder={t('value-placeholder', 'value')}
@@ -259,7 +259,7 @@ const GroupEditor = ({
       <div className="flex items-center gap-2 text-sm">
         <span>{t('match-prefix', 'Match')}</span>
         <Select value={group.match} onValueChange={(match) => onChange({ ...group, match: match as 'all' | 'any' })} disabled={disabled}>
-          <Select.Trigger className="h-7 w-24">
+          <Select.Trigger className="h-8 w-24">
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
@@ -276,7 +276,8 @@ const GroupEditor = ({
       </div>
       {group.rules.map((rule, index) =>
         isRule(rule) ? (
-          <div key={index} className="flex flex-wrap items-center gap-2">
+          // Field and operator side by side, remove at the end; the value takes its own full line.
+          <div key={index} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2">
             <PathPicker value={rule.path} fields={fields} disabled={disabled} onChange={(path) => update(index, { ...rule, path })} />
             <Select
               value={rule.op}
@@ -290,7 +291,7 @@ const GroupEditor = ({
               }
               disabled={disabled}
             >
-              <Select.Trigger className="h-8 w-40">
+              <Select.Trigger className="h-8 w-full min-w-0">
                 <Select.Value />
               </Select.Trigger>
               <Select.Content>
@@ -301,18 +302,20 @@ const GroupEditor = ({
                 ))}
               </Select.Content>
             </Select>
-            {!NO_VALUE.has(rule.op) && (
-              <ValueInput
-                rule={rule}
-                field={fields.find((field) => field.path === rule.path)}
-                disabled={disabled}
-                subject={subject}
-                onChange={(value) => update(index, { ...rule, value })}
-              />
-            )}
-            <Button size="sm" variant="ghost" disabled={disabled} onClick={() => remove(index)}>
-              <IconX />
+            <Button size="icon" variant="ghost" className="size-8 text-muted-foreground" disabled={disabled} onClick={() => remove(index)} aria-label={t('remove', 'Remove')}>
+              <IconX className="size-4" />
             </Button>
+            {!NO_VALUE.has(rule.op) && (
+              <div className="col-span-2 flex min-w-0">
+                <ValueInput
+                  rule={rule}
+                  field={fields.find((field) => field.path === rule.path)}
+                  disabled={disabled}
+                  subject={subject}
+                  onChange={(value) => update(index, { ...rule, value })}
+                />
+              </div>
+            )}
           </div>
         ) : (
           <GroupEditor

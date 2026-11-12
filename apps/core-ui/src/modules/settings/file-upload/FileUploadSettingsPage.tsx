@@ -160,7 +160,7 @@ const StorageInfo = ({ settings }: { settings: FileSettings }) => {
               )
             : t(
                 'storage-local-description',
-                'Files are kept on the erxes server. For several servers or large files, set FILES_STORAGE=s3.',
+                'Files are kept on the erxes server. For many or large files, ask your administrator to use cloud storage.',
               )}
         </p>
         <p className="text-xs text-muted-foreground">

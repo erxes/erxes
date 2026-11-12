@@ -333,9 +333,7 @@ export const LeadStagesPage = () => {
                   className="h-8 flex-1"
                   maxLength={60}
                 />
-                <Button
-                  size="sm"
-                  onClick={add}
+                <Button size="sm" className="h-8" onClick={add}
                   disabled={!newName.trim() || create.isPending}
                 >
                   <IconPlus />

@@ -19,7 +19,7 @@ export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
       {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="mt-1.5 inline-block h-4 w-20" />
       ) : (
-        `${formatTotal(totalCount, totalCapped)} ${t('records-found')}`
+        `${formatTotal(totalCount, totalCapped)} ${t('records-found', { count: totalCapped ? 2 : totalCount })}`
       )}
     </div>
   );

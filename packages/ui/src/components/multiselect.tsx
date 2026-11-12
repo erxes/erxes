@@ -540,7 +540,7 @@ export const MultipleSelector = React.forwardRef<
                 },
                 inputProps?.className,
               )}
-              wrapperClassName="border-none rounded-lg overflow-hidden"
+              wrapperClassName="min-w-0 flex-1 basis-32 border-none rounded-lg overflow-hidden"
             />
             <button
               type="button"

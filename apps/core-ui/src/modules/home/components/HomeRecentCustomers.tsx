@@ -28,7 +28,7 @@ export const HomeRecentCustomers = () => {
         avatarUrl: customer.avatarUrl,
         detail: customerName(customer) ? customer.primaryEmail || customer.primaryPhone : null,
         meta: shortDate(customer.createdAt, i18n.language),
-        to: `/contacts/${customer.state === 'lead' ? 'leads' : 'customers'}?customerId=${customer.id}`,
+        to: `/contacts/${customer.state === 'lead' ? 'leads' : 'customers'}?panel=${encodeURIComponent(`/detail/customer/${customer.id}`)}`,
       }))}
     />
   );

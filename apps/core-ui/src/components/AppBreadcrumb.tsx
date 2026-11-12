@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { Breadcrumb, Button } from 'erxes-ui';
 import { type ComponentType, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -35,6 +35,5 @@ export const AppBreadcrumb = ({ items }: { items: Crumb[] }) => (
         })}
       </Breadcrumb.List>
     </Breadcrumb>
-    <Separator.Inline />
   </>
 );

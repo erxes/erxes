@@ -4,6 +4,7 @@ import { messageOf } from '~/lib/api';
 import { CustomersCommandBar } from './CustomersCommandBar';
 import { stickyWithStage } from '~/modules/leads/leadColumns';
 import { useCustomersColumns } from './customersColumns';
+import { EmptyList } from '../components/EmptyList';
 import { customersSessionKey, useCustomers } from './useCustomers';
 
 export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
@@ -37,6 +38,7 @@ export const CustomersRecordTable = ({ state }: { state: CustomerState }) => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      {!loading && !list.length && <EmptyList />}
       <CustomersCommandBar />
     </RecordTable.Provider>
   );

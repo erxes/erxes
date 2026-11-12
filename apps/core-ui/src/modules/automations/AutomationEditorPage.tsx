@@ -436,7 +436,7 @@ export const AutomationEditorPage = () => {
                               <button
                                 key={stepId}
                                 type="button"
-                                className="block w-full truncate text-left text-destructive hover:underline"
+                                className="block w-full text-left text-destructive hover:underline"
                                 onClick={() => setSelected(stepId)}
                               >
                                 {describeStep(step, { actions, events: builder.events, fields: [...fields, ...builder.outputsBefore(stepId)] }).title}: {list[0]}

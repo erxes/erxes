@@ -128,7 +128,7 @@ export const PluginsSettingsPage = () => {
                 </Empty.Media>
                 <Empty.Title>{t('empty', 'No plugins yet')}</Empty.Title>
                 <Empty.Description>
-                  {t('empty-description', 'Plugins appear here once they are registered with this erxes (pnpm plugin:secret <name>).')}
+                  {t('empty-description', 'Plugins appear here once your administrator connects them to this erxes.')}
                 </Empty.Description>
               </Empty.Header>
             </Empty>

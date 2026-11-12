@@ -108,7 +108,11 @@ export const RecycleBinPage = () => {
                   <Badge variant="secondary">{item.recordType === 'customer' ? t('customer', 'Customer') : t('company', 'Company')}</Badge>
                   <span className="font-medium">{item.label ?? item.recordId}</span>
                   <span className="text-xs text-muted-foreground">
-                    {t('counts', '{{tags}} tags · {{links}} links · {{activities}} timeline entries', item.counts)}
+                    {[
+                      t('count-tags', { count: item.counts.tags, defaultValue_one: '{{count}} tag', defaultValue_other: '{{count}} tags' }),
+                      t('count-links', { count: item.counts.links, defaultValue_one: '{{count}} link', defaultValue_other: '{{count}} links' }),
+                      t('count-activities', { count: item.counts.activities, defaultValue_one: '{{count}} timeline entry', defaultValue_other: '{{count}} timeline entries' }),
+                    ].join(' · ')}
                   </span>
                   <span className="ml-auto text-xs text-muted-foreground">
                     {actorLabel(item.deletedBy, members)} ·{' '}
