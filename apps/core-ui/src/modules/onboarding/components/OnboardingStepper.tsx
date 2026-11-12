@@ -11,20 +11,20 @@ export const OnboardingStepper = ({
 }) => {
   return (
     <>
-      {Array.from({ length: stepCount }).map((_, index) => {
-        const isActive = index === currentStep - 1;
+      {Array.from({ length: stepCount }, (_, index) => index + 1).map((step) => {
+        const isActive = step === currentStep;
 
         return (
           <Button
             variant="secondary"
-            key={index}
-            onClick={() => setCurrentStep(index + 1)}
-            disabled={index >= currentStep}
+            key={step}
+            onClick={() => setCurrentStep(step)}
+            disabled={step > currentStep}
             className={cn(
               'relative transition-all rounded-full p-0 size-3 hover:bg-primary hover:scale-110',
               isActive && 'bg-primary',
             )}
-            aria-label={`Go to step ${index + 1}`}
+            aria-label={`Go to step ${step}`}
             aria-current={isActive ? 'step' : undefined}
           >
             <span className="absolute inset-0 -m-3 md:-m-2" aria-hidden="true" />

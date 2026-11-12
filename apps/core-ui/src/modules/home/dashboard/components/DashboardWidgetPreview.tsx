@@ -7,23 +7,20 @@ const SOFT = 'fill-primary/25';
 const MUTED = 'fill-muted-foreground/20';
 const LINE = 'stroke-primary/70';
 
-const bars = [28, 40, 22, 48, 34, 52, 30, 44];
+const bars = [28, 40, 22, 48, 34, 52, 30, 44].map((height, index) => ({
+  x: 8 + index * 13.5,
+  height,
+  className: index % 3 === 1 ? SOFT : ACCENT,
+}));
+
 const linePoints = '6,46 22,38 38,42 54,24 70,30 86,16 102,22 114,12';
 const tableRows = [0, 1, 2, 3];
 const listRows = [0, 1, 2];
 const heatCells = Array.from({ length: 4 * 12 }, (_, index) => index);
 
 const PREVIEWS: Record<TDashboardWidgetPreview, ReactNode> = {
-  bar: bars.map((height, index) => (
-    <rect
-      key={index}
-      x={8 + index * 13.5}
-      y={56 - height}
-      width={9}
-      height={height}
-      rx={1.5}
-      className={index % 3 === 1 ? SOFT : ACCENT}
-    />
+  bar: bars.map(({ x, height, className }) => (
+    <rect key={x} x={x} y={56 - height} width={9} height={height} rx={1.5} className={className} />
   )),
   line: (
     <>

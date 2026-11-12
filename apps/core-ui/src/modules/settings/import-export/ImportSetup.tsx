@@ -86,8 +86,8 @@ export const ImportMapping = (props: SetupProps) => {
       </p>
       {columns.error && <p className="text-sm text-destructive">{messageOf(columns.error)}</p>}
       <div className="divide-y rounded-lg border">
-        {/* A file's columns are positional: the index is the column. */}
         {props.imp.headers.map((header, index) => (
+          // oxlint-disable-next-line react/no-array-index-key -- a file's columns are positional: the index is the column
           <MappingRow key={index} {...props} index={index} header={header} fields={fields} />
         ))}
       </div>
