@@ -1,5 +1,5 @@
 import type { Activity, ActivityTarget, FileInfo } from '@erxes/core-contract';
-import { IconProgress, IconSearch,
+import { IconAdjustmentsHorizontal, IconProgress, IconSearch,
   IconArrowsJoin,
   IconHistory,
   IconLink,
@@ -37,9 +37,8 @@ import { IconProgress, IconSearch,
   type Icon,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Button, cn, DropdownMenu, Empty, Input, RelativeDateDisplay, ScrollArea, Select, Skeleton, Spinner, Switch, useConfirm } from 'erxes-ui';
-import { useDeferredValue } from 'react';
-import { useState } from 'react';
+import { Badge, Button, cn, DropdownMenu, Empty, Input, Popover, ScrollArea, Select, Skeleton, Spinner, Switch, useConfirm } from 'erxes-ui';
+import { createContext, useContext, useDeferredValue, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -96,24 +95,95 @@ const PLUGIN_ICONS: Record<string, Icon> = {
 
 const verbOf = (activity: Activity) => activity.type.slice(activity.type.indexOf('.') + 1);
 
-/** A linked customer or company by name, opening its page; deleted ones say so. */
-const LinkedRecord = ({ type, id }: { type: string; id: string }) => {
-  if (type !== 'customer' && type !== 'company') return <span className="font-medium">{type} {id}</span>;
+/** The current minute, shared by every entry so relative times move on together. */
+const NowContext = createContext(Date.now());
 
-  return <CoreRecord type={type} id={id} />;
+const useMinuteClock = () => {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60_000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return now;
 };
 
-const CoreRecord = ({ type, id }: { type: ActivityTarget; id: string }) => {
+/**
+ * Short, so a line stays one line: today "now", "5m ago", "4h ago"; an
+ * earlier day (its date is the heading) the time, "14:32"; `withDate` adds
+ * the date where no heading gives it (pinned notes).
+ */
+const shortTime = (iso: string, now: number, language: string, withDate: boolean) => {
+  const date = new Date(iso);
+  const minutes = Math.floor((now - date.getTime()) / 60_000);
+
+  if (date.toDateString() === new Date(now).toDateString() && minutes >= 0) {
+    const relative = new Intl.RelativeTimeFormat(language, { numeric: 'auto', style: 'narrow' });
+
+    if (minutes < 1) return relative.format(0, 'second');
+    if (minutes < 60) return relative.format(-minutes, 'minute');
+
+    return relative.format(-Math.floor(minutes / 60), 'hour');
+  }
+
+  const time = date.toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit' });
+
+  if (!withDate) return time;
+
+  return `${date.toLocaleDateString(language, {
+    month: 'short',
+    day: 'numeric',
+    year: date.getFullYear() === new Date(now).getFullYear() ? undefined : 'numeric',
+  })}, ${time}`;
+};
+
+/** When an entry happened; the full date and time on hover. */
+const When = ({ iso, withDate = false, className }: { iso: string; withDate?: boolean; className?: string }) => {
+  const { i18n } = useTranslation();
+  const now = useContext(NowContext);
+
+  return (
+    <time
+      dateTime={iso}
+      title={new Date(iso).toLocaleString(i18n.language, { dateStyle: 'full', timeStyle: 'short' })}
+      className={cn('shrink-0 text-xs whitespace-nowrap text-muted-foreground tabular-nums', className)}
+    >
+      {shortTime(iso, now, i18n.language, withDate)}
+    </time>
+  );
+};
+
+/** A linked customer or company by name, opening its page; deleted ones say so. */
+const LinkedRecord = ({ type, id, fallback }: { type: string; id: string; fallback?: unknown }) => {
+  if (type !== 'customer' && type !== 'company') return <span className="font-medium">{type} {id}</span>;
+
+  return <CoreRecord type={type} id={id} fallback={typeof fallback === 'string' && fallback ? fallback : undefined} />;
+};
+
+/** The name as it is now; until it loads (or after a deletion), the name saved with the entry. */
+const CoreRecord = ({ type, id, fallback }: { type: ActivityTarget; id: string; fallback?: string }) => {
   const customer = useCustomer(type === 'customer' ? id : null);
   const company = useCompany(type === 'company' ? id : null);
   const query = type === 'customer' ? customer : company;
   const record = query.data;
   const name = customer.data ? customerTitle(customer.data) : company.data ? companyTitle(company.data) : null;
 
-  if (!record && query.isPending) return <Skeleton className="inline-block h-3.5 w-20 align-middle" />;
+  if (!record && query.isPending) {
+    return fallback ? (
+      <span className="font-medium">{fallback}</span>
+    ) : (
+      <Skeleton className="inline-block h-3.5 w-20 align-middle" />
+    );
+  }
 
   if (!record) {
-    return <span className="text-muted-foreground">{type === 'customer' ? 'a deleted customer' : 'a deleted company'}</span>;
+    return (
+      <span className="text-muted-foreground" title={type === 'customer' ? 'Deleted customer' : 'Deleted company'}>
+        {fallback ?? (type === 'customer' ? 'a deleted customer' : 'a deleted company')}
+      </span>
+    );
   }
 
   return (
@@ -187,7 +257,7 @@ const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: str
       return (
         <>
           {who} {verb === 'company_linked' ? t('linked', 'linked') : t('unlinked', 'unlinked')}{' '}
-          <LinkedRecord type="company" id={String(data.companyId)} />
+          <LinkedRecord type="company" id={String(data.companyId)} fallback={data.companyName} />
         </>
       );
     case 'lead': {
@@ -231,7 +301,7 @@ const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: str
       return (
         <>
           {who} {verb === 'customer_linked' ? t('linked', 'linked') : t('unlinked', 'unlinked')}{' '}
-          <LinkedRecord type="customer" id={String(data.customerId)} />
+          <LinkedRecord type="customer" id={String(data.customerId)} fallback={data.customerName} />
         </>
       );
     default:
@@ -356,10 +426,13 @@ const ActivityItem = ({
   lookups,
   last,
   pageTarget,
+  pinnedList = false,
 }: {
   activity: Activity;
   lookups: Lookups;
   last: boolean;
+  /** Shown under "Pinned", away from its day: the time says the date too. */
+  pinnedList?: boolean;
   /** The record whose timeline this is; entries of related records say whose they are. */
   pageTarget: { type: string; id: string };
 }) => {
@@ -379,12 +452,13 @@ const ActivityItem = ({
   const related = activity.targetType !== pageTarget.type || activity.targetId !== pageTarget.id;
   const actor = actorLabel(activity.actor, lookups.members);
   // Until the team is known, a placeholder rather than "A team member".
-  const named = activity.actor.type !== 'user' || !activity.actor.id || lookups.members.size > 0;
+  const named =
+    activity.actor.type !== 'user' || !activity.actor.id || Boolean(activity.actor.name) || lookups.members.size > 0;
   const changes = activity.data.changes as Record<string, [unknown, unknown]> | undefined;
   let extra: ReactNode = null;
 
   if (!plugin && changes) {
-    extra = <ChangeList changes={changes} lookups={lookups} />;
+    extra = <ChangeList changes={changes} lookups={lookups} className="mt-1.5" />;
   }
 
   if (note) {
@@ -406,13 +480,7 @@ const ActivityItem = ({
     );
   }
 
-  const when = (
-    <RelativeDateDisplay value={activity.occurredAt} asChild>
-      <span className="shrink-0 text-xs text-muted-foreground">
-        <RelativeDateDisplay.Value value={activity.occurredAt} />
-      </span>
-    </RelativeDateDisplay>
-  );
+  const pinnedSection = pinnedList && activity.pinned;
   const onRelated = related && (
     <span className="text-muted-foreground">
       {' '}
@@ -426,56 +494,63 @@ const ActivityItem = ({
     ) : (
       <span className="text-xs text-muted-foreground">· {t('edited', 'edited')}</span>
     ));
-  const rail = !last && <span className="absolute top-8 bottom-0 left-[13px] w-px bg-border" aria-hidden="true" />;
+  // The line joining the markers: from under this one to the next.
+  const rail = !last && <span className="absolute top-7 bottom-0 left-[11.5px] w-px bg-border" aria-hidden="true" />;
+  const hasReactions = Object.keys(activity.reactions ?? {}).length > 0;
 
-  // A note is a card: who wrote it and when, the text, its files and reactions; actions on hover.
+  // A note: who wrote it and when, the text, its files and reactions; actions on hover.
   if (note) {
     const member = activity.actor.type === 'user' && activity.actor.id ? lookups.members.get(activity.actor.id) : undefined;
 
     return (
-      <li className="group/note relative flex gap-3 pb-4">
+      <li className="group/note relative flex gap-3 pb-5">
         {rail}
-        <UserAvatar name={actor} src={member?.avatarUrl} className="relative z-[1] size-7 shrink-0 rounded-full ring-4 ring-background [&>*]:rounded-full" />
-        <div className="min-w-0 flex-1 pt-0.5">
+        <UserAvatar
+          name={actor}
+          src={member?.avatarUrl ?? activity.actor.avatarUrl ?? undefined}
+          className="relative z-[1] size-6 shrink-0 rounded-full text-[10px] ring-4 ring-background [&>*]:rounded-full"
+        />
+        <div className="min-w-0 flex-1">
           <div className="flex h-6 min-w-0 items-center gap-1.5 text-sm">
             {named ? <span className="truncate font-medium">{actor}</span> : <Skeleton className="h-3.5 w-24" />}
             {onRelated}
-            <span className="text-muted-foreground" aria-hidden="true">
-              ·
-            </span>
-            {when}
+            <When iso={activity.occurredAt} withDate={pinnedSection} />
             {edited}
             <span className="ml-auto flex shrink-0 items-center gap-0.5">
-              <Reactions activity={activity} />
-              {activity.pinned && <IconPin className="size-3.5 text-primary" aria-label={t('pinned', 'Pinned')} />}
+              {activity.pinned && !pinnedSection && (
+                <IconPin className="size-3.5 text-muted-foreground" aria-label={t('pinned', 'Pinned')} />
+              )}
               {!editing && <NoteActions activity={activity} onEdit={() => setEditing(true)} />}
             </span>
           </div>
-          <div className={cn('mt-0.5 text-foreground/90', activity.pinned && 'rounded-md bg-primary/[0.04] px-2 py-1.5 -mx-2')}>{extra}</div>
+          <div className="mt-1 text-foreground">{extra}</div>
+          {!editing && (
+            <div className={cn('mt-1.5 flex', !hasReactions && 'h-5 -mb-5 opacity-0 transition-opacity group-hover/note:opacity-100 has-[[data-state=open]]:opacity-100')}>
+              <Reactions activity={activity} />
+            </div>
+          )}
         </div>
       </li>
     );
   }
 
-  // Everything else: one line (icon, sentence, time), details below when there are any.
+  // Everything else: one line — marker, sentence, time — and details below when there are any.
   return (
-    <li className="group relative flex gap-3 pb-3">
+    <li className="relative flex gap-3 pb-4">
       {rail}
       <span
-        className="relative z-[1] flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground ring-4 ring-background"
+        className="relative z-[1] flex size-6 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground ring-4 ring-background"
         style={look?.color ? { color: look.color } : undefined}
       >
-        <ItemIcon className="size-3.5" />
+        <ItemIcon className="size-3" />
       </span>
-      <div className="min-w-0 flex-1 pt-1">
-        <div className="flex min-w-0 items-start gap-2">
-          <p className="min-w-0 flex-1 text-sm leading-5 text-muted-foreground [&_.font-medium]:text-foreground">
-            {named ? <Sentence activity={activity} actor={actor} lookups={lookups} /> : <Skeleton className="mt-1 h-3.5 w-48" />}
-            {onRelated}
-          </p>
-          {when}
-        </div>
-        {extra && <div className="mt-1">{extra}</div>}
+      <div className="min-w-0 flex-1">
+        <p className="text-sm leading-6 text-muted-foreground [&_.font-medium]:text-foreground">
+          {named ? <Sentence activity={activity} actor={actor} lookups={lookups} /> : <Skeleton className="mt-1 inline-block h-3.5 w-48" />}
+          {onRelated}
+          <When iso={activity.occurredAt} className="ml-2" />
+        </p>
+        {extra}
         {(plugin || activity.link) && (
           <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             {plugin && (
@@ -494,9 +569,11 @@ const ActivityItem = ({
             )}
           </div>
         )}
-        <div className="mt-0.5 hidden group-hover:flex">
-          <Reactions activity={activity} />
-        </div>
+        {hasReactions && (
+          <div className="mt-1 flex">
+            <Reactions activity={activity} />
+          </div>
+        )}
       </div>
     </li>
   );
@@ -536,6 +613,8 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
   const [kind, setKind] = useState<TimelineKind>('all');
   const [includeRelated, setIncludeRelated] = useState(false);
   const [search, setSearch] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const now = useMinuteClock();
   const q = useDeferredValue(search.trim());
   const [actorId, setActorId] = useState('all');
   const [source, setSource] = useState('all');
@@ -560,6 +639,12 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
     ]),
   );
   const pageTarget = { type: targetType, id: targetId };
+  const filterCount = (actorId !== 'all' ? 1 : 0) + (source !== 'all' ? 1 : 0) + (includeRelated ? 1 : 0);
+  const kinds = KINDS.filter((item) => item.value !== 'plugins' || sources.length > 0);
+  const closeSearch = () => {
+    setSearch('');
+    setSearchOpen(false);
+  };
   const groups: { day: string; items: Activity[] }[] = [];
 
   for (const activity of activities) {
@@ -571,6 +656,7 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
   }
 
   return (
+    <NowContext.Provider value={now}>
     <ScrollArea className="min-h-0 flex-1">
       <div className="space-y-3 px-4 pt-4">
         <NoteComposer
@@ -578,9 +664,9 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
           saving={add.isPending}
           onSubmit={(draft) => add.mutateAsync({ targetType, targetId, ...draft })}
         />
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <div className="flex rounded-md bg-muted p-0.5">
-            {KINDS.map((item) => (
+            {kinds.map((item) => (
               <button
                 key={item.value}
                 type="button"
@@ -594,56 +680,119 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
               </button>
             ))}
           </div>
-          <div className="ml-auto flex flex-wrap items-center gap-1.5">
-            <div className="relative">
-              <IconSearch className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="h-7 w-40 pl-7 text-xs"
-                placeholder={t('search', 'Search the timeline…')}
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-            </div>
-            <Select value={actorId} onValueChange={setActorId}>
-              <Select.Trigger className="h-7 w-32 text-xs">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="all">{t('anyone', 'Anyone')}</Select.Item>
-                {[...lookups.members.values()].map((member) => (
-                  <Select.Item key={member.id} value={member.id}>
-                    {member.fullName || member.email}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-            {sources.length > 0 && (
-              <Select value={source} onValueChange={setSource}>
-                <Select.Trigger className="h-7 w-28 text-xs">
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="all">{t('all-sources', 'All sources')}</Select.Item>
-                  <Select.Item value="core">{t('core', 'Core')}</Select.Item>
-                  {sources.map((name) => (
-                    <Select.Item key={name} value={name}>
-                      {pluginLabel(name)}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            )}
+          <div className="ml-auto flex items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn('size-7 text-muted-foreground', (searchOpen || search) && 'bg-accent text-foreground')}
+              aria-label={t('search', 'Search the timeline…')}
+              aria-pressed={searchOpen}
+              onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
+            >
+              <IconSearch className="size-4" />
+            </Button>
+            <Popover>
+              <Popover.Trigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn('relative size-7 text-muted-foreground', filterCount > 0 && 'text-foreground')}
+                  aria-label={t('filters', 'Filters')}
+                >
+                  <IconAdjustmentsHorizontal className="size-4" />
+                  {filterCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+                      {filterCount}
+                    </span>
+                  )}
+                </Button>
+              </Popover.Trigger>
+              <Popover.Content align="end" className="w-64 space-y-3 p-3">
+                <div className="space-y-1.5">
+                  <p className="text-xs font-medium text-muted-foreground">{t('who', 'Who')}</p>
+                  <Select value={actorId} onValueChange={setActorId}>
+                    <Select.Trigger className="h-8 w-full text-sm">
+                      <Select.Value />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value="all">{t('anyone', 'Anyone')}</Select.Item>
+                      {[...lookups.members.values()].map((member) => (
+                        <Select.Item key={member.id} value={member.id}>
+                          {member.fullName || member.email}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                </div>
+                {sources.length > 0 && (
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium text-muted-foreground">{t('source', 'Source')}</p>
+                    <Select value={source} onValueChange={setSource}>
+                      <Select.Trigger className="h-8 w-full text-sm">
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        <Select.Item value="all">{t('all-sources', 'All sources')}</Select.Item>
+                        <Select.Item value="core">{t('core', 'Core')}</Select.Item>
+                        {sources.map((name) => (
+                          <Select.Item key={name} value={name}>
+                            {pluginLabel(name)}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                )}
+                {targetType === 'company' && (
+                  <label className="flex items-center justify-between gap-2 text-sm">
+                    {t('include-customers', 'Include its customers')}
+                    <Switch checked={includeRelated} onCheckedChange={setIncludeRelated} />
+                  </label>
+                )}
+                {filterCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-full text-xs"
+                    onClick={() => {
+                      setActorId('all');
+                      setSource('all');
+                      setIncludeRelated(false);
+                    }}
+                  >
+                    {t('clear-filters', 'Clear filters')}
+                  </Button>
+                )}
+              </Popover.Content>
+            </Popover>
           </div>
         </div>
-        {targetType === 'company' && (
-          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Switch checked={includeRelated} onCheckedChange={setIncludeRelated} />
-            {t('include-customers', 'Include its customers')}
-          </label>
+        {searchOpen && (
+          <div className="relative">
+            <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              autoFocus
+              className="h-8 pr-8 pl-8 text-sm"
+              placeholder={t('search', 'Search the timeline…')}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') closeSearch();
+              }}
+            />
+            <button
+              type="button"
+              onClick={closeSearch}
+              className="absolute top-1/2 right-1.5 flex size-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+              aria-label={t('close-search', 'Close search')}
+            >
+              <IconX className="size-3.5" />
+            </button>
+          </div>
         )}
         {pinned.length > 0 && (
           <section>
-            <h3 className="flex items-center gap-1 pb-2 text-xs font-semibold text-primary uppercase">
+            <h3 className="flex items-center gap-1.5 pb-2 text-xs font-medium text-muted-foreground">
               <IconPin className="size-3.5" />
               {t('pinned', 'Pinned')}
             </h3>
@@ -655,6 +804,7 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
                   lookups={lookups}
                   last={index === pinned.length - 1}
                   pageTarget={pageTarget}
+                  pinnedList
                 />
               ))}
             </ol>
@@ -665,7 +815,7 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
         <div className="space-y-5 px-4 pt-4">
           {Array.from({ length: 5 }, (_, index) => (
             <div key={index} className="flex gap-3">
-              <Skeleton className="size-7 shrink-0 rounded-full" />
+              <Skeleton className="size-6 shrink-0 rounded-full" />
               <div className="flex-1 space-y-2 pt-1">
                 <Skeleton className="h-3.5 w-1/2" />
                 {index % 2 === 0 && <Skeleton className="h-3.5 w-4/5" />}
@@ -689,7 +839,7 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
         <div className={cn('px-4 pt-2 transition-opacity', updating && 'opacity-60')}>
           {groups.map((group, groupIndex) => (
             <section key={group.day}>
-              <h3 className="sticky top-0 z-10 bg-background/95 py-2 text-xs font-semibold text-muted-foreground uppercase backdrop-blur">
+              <h3 className="sticky top-0 z-10 flex items-center gap-3 bg-background py-2 text-xs font-medium text-muted-foreground after:h-px after:flex-1 after:bg-border">
                 {group.day}
               </h3>
               <ol>
@@ -715,5 +865,6 @@ export const ActivityTimeline = ({ targetType, targetId }: { targetType: string;
         </div>
       )}
     </ScrollArea>
+    </NowContext.Provider>
   );
 };

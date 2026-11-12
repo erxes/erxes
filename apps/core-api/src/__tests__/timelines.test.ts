@@ -102,6 +102,19 @@ describeWithDb('timelines: plugin records, search, logged calls, reactions, plug
     const list = (query: string) => call(owner, 'GET', `/activities?targetType=customer&targetId=${customer.body.id}&${query}`);
 
     expect((await list('q=blue')).body.data.map((item: { id: string }) => item.id)).toEqual([note.body.id]);
+
+    // Entries carry who did them (name, else email) and, for links, the other side's name.
+    expect((await list('kind=notes')).body.data.map((item: { actor: { name: string } }) => item.actor.name).sort()).toEqual([
+      'm@acme.mn',
+      'o@acme.mn',
+    ]);
+
+    const company = await call(owner, 'POST', '/companies', { primaryName: 'Timeline Co' });
+
+    await call(owner, 'PUT', `/customers/${customer.body.id}/companies/${company.body.id}`, {});
+    expect(
+      (await list('kind=all')).body.data.find((item: { type: string }) => item.type === 'customer.company_linked').data,
+    ).toEqual({ companyId: company.body.id, companyName: 'Timeline Co' });
     expect((await list(`actorId=${ownerId}&kind=notes`)).body.data).toHaveLength(1);
     expect((await list(`from=${encodeURIComponent(new Date(Date.now() + 60_000).toISOString())}`)).body.data).toEqual([]);
 

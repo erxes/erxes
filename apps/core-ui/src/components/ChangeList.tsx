@@ -1,4 +1,5 @@
 import type { ContentType, Field, Tag, User } from '@erxes/core-contract';
+import { cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { memberName, useMembersById } from '~/lib/members';
 import { useAllFields } from '~/modules/properties/useFields';
@@ -82,23 +83,52 @@ const fieldLabel = (field: string, lookups: Lookups, t: (key: string, fallback: 
   return t(`fields.${field}`, FIELD_LABELS[field] ?? field);
 };
 
-export const ChangeList = ({ changes, lookups }: { changes: Record<string, [unknown, unknown]>; lookups: Lookups }) => {
+/**
+ * What changed, field by field: the old value struck through, then the new
+ * one; a value set for the first time shows only the new one.
+ */
+export const ChangeList = ({
+  changes,
+  lookups,
+  className,
+}: {
+  changes: Record<string, [unknown, unknown]>;
+  lookups: Lookups;
+  className?: string;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'activity' });
 
   return (
-    <ul className="mt-1 space-y-0.5 text-xs">
-      {Object.entries(changes).map(([field, [before, after]]) => (
-        <li key={field} className="flex flex-wrap gap-1 text-muted-foreground">
-          <span className="font-medium text-foreground">{fieldLabel(field, lookups, t)}:</span>
-          <span className="line-through decoration-muted-foreground/50">{formatValue(field, before, lookups)}</span>
-          <span aria-hidden="true">→</span>
-          <span className="text-foreground">{formatValue(field, after, lookups)}</span>
-        </li>
-      ))}
-    </ul>
+    <dl
+      className={cn(
+        'grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 rounded-md bg-muted/60 px-2.5 py-1.5 text-xs',
+        className,
+      )}
+    >
+      {Object.entries(changes).map(([field, [before, after]]) => {
+        const from = formatValue(field, before, lookups);
+        const to = formatValue(field, after, lookups);
+
+        return (
+          <div key={field} className="contents">
+            <dt className="text-muted-foreground">{fieldLabel(field, lookups, t)}</dt>
+            <dd className="min-w-0 break-words text-foreground">
+              {from !== '—' && (
+                <>
+                  <span className="text-muted-foreground line-through decoration-muted-foreground/60">{from}</span>
+                  <span className="px-1 text-muted-foreground" aria-hidden="true">
+                    →
+                  </span>
+                </>
+              )}
+              {to === '—' ? <span className="text-muted-foreground italic">{t('cleared', 'cleared')}</span> : to}
+            </dd>
+          </div>
+        );
+      })}
+    </dl>
   );
 };
-
 
 /**
  * Names for the values in `changes` of a customer or company: owners, tags

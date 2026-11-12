@@ -3,11 +3,15 @@ import { Id } from './common';
 
 /**
  * Who did something: a team member (`id` = user id), a plugin (`id` = plugin
- * name, e.g. `hr`) or core itself (`system`). Names are resolved when shown.
+ * name, e.g. `hr`) or core itself (`system`). Names are resolved when shown,
+ * unless the response carries them.
  */
 export const ActorRef = z.object({
   type: z.enum(['user', 'plugin', 'system']),
   id: z.string().nullable(),
+  /** A team member's name and picture, where a list includes them (timelines), so it reads at once. */
+  name: z.string().nullable().optional(),
+  avatarUrl: z.string().nullable().optional(),
 });
 export type ActorRef = z.infer<typeof ActorRef>;
 

@@ -38,7 +38,7 @@ export const actorLabel = (actor: ActorRef, members: Map<string, User>, unknownM
   if (actor.type === 'user') {
     const member = actor.id ? members.get(actor.id) : undefined;
 
-    return member ? memberName(member) : unknownMember;
+    return member ? memberName(member) : actor.name || unknownMember;
   }
 
   if (actor.type === 'plugin') {

@@ -280,9 +280,17 @@ export const CatalogPicker = ({
       <Popover.Content
         align="start"
         sideOffset={6}
-        className="w-(--radix-popper-anchor-width) min-w-80 max-w-[40rem] p-0"
+        collisionPadding={12}
+        // Never taller than the room on its side: the list scrolls instead of
+        // the header and search being pushed off screen.
+        className="flex max-h-(--radix-popover-content-available-height) w-(--radix-popper-anchor-width) min-w-80 max-w-[40rem] flex-col p-0"
       >
-        <Command loop filter={matchWords} shouldFilter={searching}>
+        <Command
+          loop
+          filter={matchWords}
+          shouldFilter={searching}
+          className="min-h-0 flex-1"
+        >
           {current && (
             <div className="flex items-center gap-2 border-b px-2 py-1.5">
               <button
@@ -326,7 +334,7 @@ export const CatalogPicker = ({
                   : t("catalog-search-events", "Search events…")
             }
           />
-          <Command.List className="max-h-80">
+          <Command.List className="max-h-80 min-h-0 flex-1">
             <Command.Empty>
               {t("catalog-empty", "Nothing matches")}
             </Command.Empty>

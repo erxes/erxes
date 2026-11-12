@@ -1,5 +1,5 @@
 import type { Activity, ActivityInput, ActivityTarget, CursorQuery } from '@erxes/core-contract';
-import { activities, companies, customerCompanies, customers, type Db, files, newId, pluginInstallations, plugins } from '@erxes/core-db';
+import { activities, companies, customerCompanies, customers, type Db, files, newId, pluginInstallations, plugins, users } from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, like, ne, notLike, or, sql } from 'drizzle-orm';
 import { type Actor, type Caller, can, type PluginCaller, pluginCaller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
@@ -238,7 +238,28 @@ export const listActivities = async (
         .limit(limit),
   );
 
-  return { ...page, data: page.data.map(toActivityDto) };
+  // Who did each entry, in the same answer: the timeline reads at once
+  // instead of waiting for the team list.
+  const memberIds = unique(page.data.flatMap((row) => (row.actorType === 'user' && row.actorId ? [row.actorId] : [])));
+  const members = memberIds.length
+    ? await client
+        .select({ id: users.id, name: sql<string>`coalesce(nullif(${users.fullName}, ''), ${users.email})`, avatarUrl: users.avatarUrl })
+        .from(users)
+        .where(and(eq(users.orgId, actor.orgId), inArray(users.id, memberIds)))
+    : [];
+  const byId = new Map(members.map((member) => [member.id, member]));
+
+  return {
+    ...page,
+    data: page.data.map((row) => {
+      const dto = toActivityDto(row);
+      const member = row.actorId ? byId.get(row.actorId) : undefined;
+
+      return member && row.actorType === 'user'
+        ? { ...dto, actor: { ...dto.actor, name: member.name, avatarUrl: member.avatarUrl } }
+        : dto;
+    }),
+  };
 };
 
 // ─── Notes ──────────────────────────────────────────────────────────────────

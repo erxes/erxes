@@ -1,5 +1,6 @@
 import type { ContentType } from '@erxes/core-db';
-import { type Db } from '@erxes/core-db';
+import { companies, customers, type Db } from '@erxes/core-db';
+import { and, eq, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { userCaller, type Caller } from '~/http/auth';
 import { type Changes, diffCustomFields, diffFields, mergeChanges } from '~/lib/changes';
@@ -310,6 +311,14 @@ export const contactsLinked = async (
   linked: boolean,
 ) => {
   const verb = linked ? 'linked' : 'unlinked';
+  // Each side's name goes with the entry, so the timeline reads at once (and
+  // still says who it was after a deletion).
+  const [names] = await tx
+    .select({
+      customerName: sql<string | null>`(select coalesce(nullif(trim(concat_ws(' ', ${customers.firstName}, ${customers.lastName})), ''), ${customers.primaryEmail}, ${customers.primaryPhone}) from ${customers} where ${and(eq(customers.orgId, actor.orgId), eq(customers.id, customerId))})`,
+      companyName: sql<string | null>`(select ${companies.primaryName} from ${companies} where ${and(eq(companies.orgId, actor.orgId), eq(companies.id, companyId))})`,
+    })
+    .from(sql`(select 1) as one`);
 
   await publishCoreEvents(tx, userCaller(actor), {
     type: `core.customer.company_${verb}`,
@@ -318,7 +327,7 @@ export const contactsLinked = async (
   });
 
   await recordActivity(tx, userCaller(actor), [
-    { targetType: 'customer', targetId: customerId, type: `customer.company_${verb}`, data: { companyId } },
-    { targetType: 'company', targetId: companyId, type: `company.customer_${verb}`, data: { customerId } },
+    { targetType: 'customer', targetId: customerId, type: `customer.company_${verb}`, data: { companyId, companyName: names?.companyName ?? null } },
+    { targetType: 'company', targetId: companyId, type: `company.customer_${verb}`, data: { customerId, customerName: names?.customerName ?? null } },
   ]);
 };
