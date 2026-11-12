@@ -49,6 +49,11 @@ export {
   paymentInvoices,
   entitlements,
   views,
+  imports,
+  importRows,
+  exports,
+  IMPORT_STATUSES,
+  TRANSFER_RECORD_TYPES,
   VIEW_RECORD_TYPES,
   PLUGIN_TIERS,
   usedTokens,
@@ -74,4 +79,4 @@ export {
   USER_ROLES,
   USER_STATUSES,
 } from './schema';
-export type { ActorType, EntitledPlugin, EventFailureStatus, JobStatus, PluginStatus, StoredPluginManifest, ContentType, CustomValue, OrganizationSettings } from './schema';
+export type { ActorType, EntitledPlugin, ImportCounts, ImportOptions, EventFailureStatus, JobStatus, PluginStatus, StoredPluginManifest, ContentType, CustomValue, OrganizationSettings } from './schema';

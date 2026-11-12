@@ -65,6 +65,8 @@ export const CORE_NOTIFICATION_KINDS = [
   'core.automation.failed',
   'core.security.mass_deletion',
   'core.security.alert',
+  'core.import.done',
+  'core.export.ready',
   'core.security.new_sign_in',
 ] as const;
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];

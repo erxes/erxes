@@ -17,3 +17,4 @@ export * from './trash';
 export * from './auditStreams';
 export * from './saas';
 export * from './views';
+export * from './transfer';

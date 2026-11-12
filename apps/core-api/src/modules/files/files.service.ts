@@ -394,3 +394,40 @@ export const pruneUploads = async (client: Db, hours: number) => {
 
   return claimed.rowCount ?? 0;
 };
+
+/**
+ * A file core made itself (an export): stored under core's own key and ready
+ * at once — no upload link ever existed for it. Downloads go through
+ * `/files/:id/download` like any other file.
+ */
+export const storeServerFile = async (client: Db, caller: Caller, input: { name: string; contentType: string; body: Buffer }) => {
+  const id = newId();
+  const key = storageKey(caller.orgId, id);
+
+  await storage().write(key, input.body, input.contentType);
+
+  const [row] = await client
+    .insert(files)
+    .values({
+      id,
+      orgId: caller.orgId,
+      key,
+      name: input.name,
+      contentType: input.contentType,
+      size: input.body.length,
+      status: 'ready',
+      source: caller.source,
+      actorType: caller.actorType,
+      actorId: caller.actorId,
+    })
+    .returning();
+
+  return row!;
+};
+
+/** A ready file's bytes (imports read the uploaded file with it). */
+export const readFileBytes = async (client: Db, orgId: string, id: string) => {
+  const row = await readyFile(client, orgId, id);
+
+  return { row, body: await storage().read(row.key) };
+};

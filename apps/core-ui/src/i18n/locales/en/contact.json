@@ -292,5 +292,23 @@
     "delete-confirm": "Delete the view “{{name}}”? The records stay.",
     "delete": "Delete",
     "title": "Views"
+  },
+  "transfer": {
+    "upload-failed": "Could not start the import",
+    "import": "Import",
+    "export-started": "Export started",
+    "export-started-description": "You'll get a notification when the file is ready (Settings › Import & export).",
+    "export-failed": "Could not export",
+    "export": "Export",
+    "export-title": "Export",
+    "export-filtered": "The records this list shows now, with its filters.",
+    "export-all": "Every record in this list.",
+    "format": "Format",
+    "xlsx": "Excel (.xlsx)",
+    "csv": "CSV (UTF-8)",
+    "columns": "Columns",
+    "all-columns": "All",
+    "history": "Past exports",
+    "export-start": "Export"
   }
 }

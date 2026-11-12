@@ -7,6 +7,7 @@ import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { notify } from '~/modules/notifications/notifications.service';
 import { moveActivities, recordActivity, removeActivities } from './activities.service';
+import { currentImport } from '~/lib/causation';
 
 /**
  * What a customer or company change leaves behind, written in the same
@@ -113,6 +114,8 @@ const detailLink = (type: ContentType, id: string) =>
   `/contacts/${type === 'customer' ? 'customers' : 'companies'}/${encodeURIComponent(id)}`;
 
 const notifyNewOwner = async (tx: Db, actor: Actor, type: ContentType, row: ContactRow, before: string | null) => {
+  // A quiet import tells nobody about each row (the importer sees the summary).
+  if (currentImport()?.quiet) return;
   if (!row.ownerId || row.ownerId === before || row.ownerId === actor.userId) {
     return;
   }
@@ -189,7 +192,7 @@ export const contactUpdated = async (
   await notifyNewOwner(tx, actor, type, after, before.ownerId);
 
   // The owner kept their record: tell them what changed (a new owner was told above).
-  if (after.ownerId && after.ownerId === before.ownerId) {
+  if (after.ownerId && after.ownerId === before.ownerId && !currentImport()?.quiet) {
     await notifyOwners(tx, actor, type, [after.ownerId], {
       verb: 'updated',
       title: `${NOUN[type]} updated`,

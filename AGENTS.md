@@ -127,6 +127,29 @@ it is built.
   is the segment. UI: Advanced in the filter bar (the automation condition
   editor), views in the Contacts sidebar, Save / Update view; the filter and
   view live in the address (`advanced`, `view`).
+- Import and export (`src/modules/transfer`; permissions `contacts.import`,
+  `contacts.export`; Settings › Import & export):
+  - Import (customers, leads, companies) from CSV (UTF-8, BOM, `,` `;` tab)
+    or Excel (first sheet), ≤ 100,000 rows: uploaded through `/files`, parsed
+    by job `import.parse` into `core_import_rows`, columns suggested from
+    header names (English and Mongolian aliases, `columns.ts`). Options: mode
+    (`create` skips matches, `update`, `upsert`), match by email / phone /
+    code / id (companies: name), tags for every row, owner of new records,
+    create missing tags and companies, run automations (off: events carry
+    `_import.quiet`, automations and owner notices skip them).
+  - Check (`import.check`) is a dry run: every row goes through the real
+    services in a savepoint that is rolled back, so it reports exactly what
+    the run will do. Run (`import.run`): batches of 200, a savepoint per row,
+    the next batch queued in the same transaction (atomic jobs). Rows keep
+    their action, error and record; errors download as CSV. Undo (30 days)
+    sends created records to the recycle bin (no mass-deletion guard);
+    updates stay.
+  - Export (`export.run`): the list's own conditions (`customerListWhere` /
+    `companyListWhere`: quick filters, advanced filter, search), chosen
+    columns (tags, owner email and companies as text), CSV with BOM (formula
+    cells kept as text) or Excel; ≤ 100,000 rows; the file is stored by core
+    (`storeServerFile`; storage drivers gained `read`/`write`), audited
+    (`contacts.exported`), and the member is notified.
 - Tags (`core_tags`, per type) link through `core_customer_tags` /
   `core_company_tags` with foreign keys both ways, so deleting a tag or a record
   removes its links. Records still return `tagIds`.

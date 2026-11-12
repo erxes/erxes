@@ -18,6 +18,7 @@ import { usersContract } from './users';
 import { webhooksContract } from './webhooks';
 import { saasContract } from './saas';
 import { viewsContract } from './views';
+import { transferContract } from './transfer';
 
 export const CORE_API_VERSION = 'v1';
 
@@ -44,6 +45,7 @@ export const coreContract = {
   saas: saasContract,
   tags: tagsContract,
   trash: trashContract,
+  transfer: transferContract,
   users: usersContract,
   views: viewsContract,
   webhooks: webhooksContract,
@@ -68,6 +70,7 @@ export * from './roles';
 export * from './saas';
 export * from './tags';
 export * from './trash';
+export * from './transfer';
 export * from './users';
 export * from './views';
 export * from './webhooks';

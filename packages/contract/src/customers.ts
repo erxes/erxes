@@ -52,7 +52,7 @@ export const Customer = z.object({
 });
 export type Customer = z.infer<typeof Customer>;
 
-const CustomerFields = z.object({
+export const CustomerFields = z.object({
   state: CustomerState.optional(),
   firstName: text(100),
   middleName: text(100),

@@ -103,10 +103,11 @@ const conflictFrom = async (client: Db, orgId: string, error: unknown, name: str
   });
 };
 
-export const listCompanies = async (
+/** The list's conditions (filters, advanced filter, search): the list and exports use the same. */
+export const companyListWhere = async (
   client: Db,
   actor: Actor,
-  query: CursorQuery & {
+  query: {
     search?: string;
     ownerId?: string;
     tagIds?: string[];
@@ -159,6 +160,14 @@ export const listCompanies = async (
     );
   }
 
+  return and(...filters);
+};
+
+export const listCompanies = async (
+  client: Db,
+  actor: Actor,
+  query: CursorQuery & Parameters<typeof companyListWhere>[2],
+) => {
   const page = await keysetPage(
     client,
     {
@@ -167,7 +176,7 @@ export const listCompanies = async (
       createdAt: companies.createdAt,
       scope: eq(companies.orgId, actor.orgId),
     },
-    and(...filters),
+    await companyListWhere(client, actor, query),
     query,
     (where, orderBy, limit) => selectCompanies(client).where(where).orderBy(...orderBy).limit(limit),
   );
@@ -312,12 +321,13 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
   }
 };
 
-export const removeCompanies = async (client: Db, actor: Actor, ids: string[]) => {
-  requirePermission(actor, 'contacts.delete');
+export const removeCompanies = async (client: Db, actor: Actor, ids: string[], options: { undoingImport?: boolean } = {}) => {
+  // Undoing an import removes only what it created (its own permission is checked there).
+  if (!options.undoingImport) requirePermission(actor, 'contacts.delete');
 
   const removed = await client.transaction(async (tx) => {
-    // A runaway deletion is stopped; what is deleted goes to the recycle bin first.
-    await guardDeletions(tx, userCaller(actor), ids.length, 'companies', actor.role);
+    // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
+    if (!options.undoingImport) await guardDeletions(tx, userCaller(actor), ids.length, 'companies', actor.role);
     await moveToTrash(tx, userCaller(actor), 'company', ids);
 
     const rows = await tx

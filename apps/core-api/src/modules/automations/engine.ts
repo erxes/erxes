@@ -535,6 +535,9 @@ export const automationsConsumer: EventConsumer = {
       return;
     }
 
+    // Records from a quiet import start nothing (the import's own choice).
+    if ((event.payload as { _import?: { quiet?: boolean } } | null)?._import?.quiet) return;
+
     const candidates = await tx
       .select()
       .from(automations)

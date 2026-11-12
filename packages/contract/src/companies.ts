@@ -39,7 +39,7 @@ export const Company = z.object({
 });
 export type Company = z.infer<typeof Company>;
 
-const CompanyFields = z.object({
+export const CompanyFields = z.object({
   primaryName: z.string().trim().min(1).max(200).optional(),
   names: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
   avatarUrl: ImageAddress.nullable().optional(),

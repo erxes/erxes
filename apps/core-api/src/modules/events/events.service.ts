@@ -5,7 +5,7 @@ import { type Actor, type Caller, type PluginCaller, requirePermission, userCall
 import { recordAudit } from '~/modules/audit/audit.service';
 import { HttpError } from '~/http/errors';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
-import { currentRunCause } from '~/lib/causation';
+import { currentRunCause, currentImport } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
 import { assertTarget } from '~/modules/activities/activities.service';
 
@@ -45,6 +45,7 @@ export const publishCoreEvents = async (client: Db, caller: Caller, inputs: Core
   }
 
   const cause = currentRunCause();
+  const imported = currentImport();
 
   await client.insert(events).values(
     list.map((input) => ({
@@ -58,7 +59,7 @@ export const publishCoreEvents = async (client: Db, caller: Caller, inputs: Core
       entityId: input.entity?.id ?? null,
       actorType: caller.actorType,
       actorId: caller.actorId,
-      payload: input.payload ?? {},
+      payload: imported ? { ...(input.payload ?? {}), _import: { id: imported.importId, quiet: imported.quiet } } : (input.payload ?? {}),
       // Caused by an automation's action: that run, one level deeper.
       causedByRun: cause?.runId ?? null,
       depth: cause ? cause.depth + 1 : 0,

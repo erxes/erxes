@@ -9,7 +9,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { link, mkdir, readdir, rm, rmdir, stat, unlink } from 'node:fs/promises';
+import { link, mkdir, readdir, readFile, rm, rmdir, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 import { config } from '~/config';
 
@@ -46,6 +46,10 @@ export interface Storage {
   /** A short-lived link to read the object. */
   downloadUrl(key: string, request: DownloadRequest): Promise<string>;
   remove(key: string): Promise<void>;
+  /** The object's bytes (imports read uploaded files with it; up to the upload limit, so in memory). */
+  read(key: string): Promise<Buffer>;
+  /** Stores bytes core made itself (export files) under one of core's own keys. */
+  write(key: string, body: Buffer, contentType: string): Promise<void>;
   /**
    * Removes leftovers under `uploads/` older than `olderThanMs` (a link used
    * after its file was finished). S3: use a lifecycle rule on `uploads/` instead.
@@ -145,6 +149,16 @@ export const signedPath = (token: string) => `${CORE_API_PREFIX}/files/signed/${
 const expiry = (seconds: number) => Math.floor(Date.now() / 1000) + seconds;
 
 const localStorage: Storage = {
+  async read(key) {
+    return readFile(localPath(key));
+  },
+  async write(key, body) {
+    const path = localPath(key);
+
+    await mkdir(dirname(path), { recursive: true });
+    // Never over an existing object (core's keys are unique).
+    await writeFile(path, body, { flag: 'wx' });
+  },
   async uploadTarget(key, request) {
     await mkdir(dirname(localPath(key)), { recursive: true });
 
@@ -284,6 +298,14 @@ const s3Storage = (): Storage => {
     },
     async remove(key) {
       await client.send(new DeleteObjectCommand({ Bucket: s3.bucket, Key: key }));
+    },
+    async read(key) {
+      const object = await client.send(new GetObjectCommand({ Bucket: s3.bucket, Key: key }));
+
+      return Buffer.from(await object.Body!.transformToByteArray());
+    },
+    async write(key, body, contentType) {
+      await client.send(new PutObjectCommand({ Bucket: s3.bucket, Key: key, Body: body, ContentType: contentType, IfNoneMatch: '*' }));
     },
   };
 };

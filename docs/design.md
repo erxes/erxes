@@ -40,6 +40,7 @@
 | 35 | Audit log leaves erxes as it is written (streams to SIEM/log services, ordered by the hash chain, resumable, gaps named) and watches itself: security-relevant entries become alerts to owners and members that can't be muted. | Agreed |
 | 36 | SaaS with erxes.io: erxes.io (global-profile-v2) stays the source of plans — one subscription per organisation, each plugin at free/plus/pro — and core reads its entitlement API (cached, kept through outages). Core enforces it per plugin: in the plan, read-only for a grace period after leaving it, then off with data kept; disabled organisations are kept out. Plugins gate features by tier (from core and in session tokens). No numeric limits in core. | Agreed |
 | 37 | One filter language for core (the automation condition group), compiled to SQL; saved views instead of separate segments — always live, private or shared. Stored membership (enter/leave history) only if a marketing plugin needs it later. | Agreed |
+| 38 | Import and export as background jobs on the job queue: imports map, dry-run (the real services in rolled-back savepoints), run in batches, and can be undone; exports reproduce the list's exact filters. Imports are quiet by default (no automations or notifications per row). | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices

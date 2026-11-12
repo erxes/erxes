@@ -12,6 +12,8 @@ export const CORE_PERMISSIONS = [
   { action: 'contacts.edit', group: 'Contacts', label: 'Edit, tag and link customers and companies' },
   { action: 'contacts.delete', group: 'Contacts', label: 'Delete customers and companies' },
   { action: 'contacts.merge', group: 'Contacts', label: 'Merge duplicates' },
+  { action: 'contacts.import', group: 'Contacts', label: 'Import customers and companies from files' },
+  { action: 'contacts.export', group: 'Contacts', label: 'Export lists to CSV or Excel' },
   { action: 'notes.moderate', group: 'Contacts', label: "Edit and delete other people's notes" },
   { action: 'tags.manage', group: 'Tags', label: 'Create and rename tags' },
   { action: 'tags.delete', group: 'Tags', label: 'Delete tags' },

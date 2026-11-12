@@ -123,10 +123,11 @@ const conflictFrom = async (
   );
 };
 
-export const listCustomers = async (
+/** The list's conditions (filters, advanced filter, search): the list and exports use the same. */
+export const customerListWhere = async (
   client: Db,
   actor: Actor,
-  query: CursorQuery & {
+  query: {
     search?: string;
     state?: State;
     ownerId?: string;
@@ -184,6 +185,14 @@ export const listCustomers = async (
     );
   }
 
+  return and(...filters);
+};
+
+export const listCustomers = async (
+  client: Db,
+  actor: Actor,
+  query: CursorQuery & Parameters<typeof customerListWhere>[2],
+) => {
   const page = await keysetPage(
     client,
     {
@@ -192,7 +201,7 @@ export const listCustomers = async (
       createdAt: customers.createdAt,
       scope: eq(customers.orgId, actor.orgId),
     },
-    and(...filters),
+    await customerListWhere(client, actor, query),
     query,
     (where, orderBy, limit) => selectCustomers(client).where(where).orderBy(...orderBy).limit(limit),
   );
@@ -323,12 +332,13 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
   }
 };
 
-export const removeCustomers = async (client: Db, actor: Actor, ids: string[]) => {
-  requirePermission(actor, 'contacts.delete');
+export const removeCustomers = async (client: Db, actor: Actor, ids: string[], options: { undoingImport?: boolean } = {}) => {
+  // Undoing an import removes only what it created (its own permission is checked there).
+  if (!options.undoingImport) requirePermission(actor, 'contacts.delete');
 
   const removed = await client.transaction(async (tx) => {
-    // A runaway deletion is stopped; what is deleted goes to the recycle bin first.
-    await guardDeletions(tx, userCaller(actor), ids.length, 'customers', actor.role);
+    // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
+    if (!options.undoingImport) await guardDeletions(tx, userCaller(actor), ids.length, 'customers', actor.role);
     await moveToTrash(tx, userCaller(actor), 'customer', ids);
 
     const rows = await tx
