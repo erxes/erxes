@@ -49,6 +49,10 @@ DTO. Copy the `tags` procedures: `modules/tags/tags.service.ts` and `modules/tag
   middleware checks it before the handler, and a procedure without an entry doesn't compile.
 - Tokens core signs get their own JOSE `typ` (`signJwt`); `verifyJwt` checks it and parses the
   claims with a zod schema.
+- No network call inside a transaction: a slow remote would hold it and its row locks.
+  `postOutbound` (`src/lib/outbound.ts`) throws inside a tenant scope. A member procedure that
+  calls out uses `authedUnscoped`, reads in a short `withOrg` and calls out after it (see
+  `testStream`); a job reads, calls out, then writes in a second scope (`streamDelivery.ts`).
 - A write and its audit entry share one transaction: `audited(...)` in the router, or
   `recordAudit(tx, ...)` in the service. Core events go out in the same transaction with
   `publishCoreEvents(tx, ...)`.

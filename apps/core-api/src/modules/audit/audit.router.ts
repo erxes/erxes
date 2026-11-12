@@ -15,7 +15,7 @@ import {
   testStream,
   updateStream,
 } from '~/modules/audit/streams';
-import { authed, plugin } from '~/orpc';
+import { authed, plugin, authedUnscoped } from '~/orpc';
 
 export const auditRouter = {
   list: authed.audit.list.handler(({ input, context }) => listAudit(db(), context.actor, input)),
@@ -44,7 +44,7 @@ export const auditRouter = {
   removeStream: authed.audit.removeStream.handler(({ input, context }) =>
     removeStream(db(), context.actor, input.id),
   ),
-  testStream: authed.audit.testStream.handler(({ input, context }) =>
-    testStream(db(), context.actor, input.id),
+  testStream: authedUnscoped.audit.testStream.handler(({ input, context }) =>
+    testStream(context.actor, input.id),
   ),
 };

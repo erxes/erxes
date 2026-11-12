@@ -2,6 +2,7 @@ import { lookup as dnsLookup } from 'node:dns';
 import { request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { BlockList, isIP, type LookupFunction } from 'node:net';
+import { currentScope } from '@erxes/core-db';
 import { config } from '~/config';
 
 /**
@@ -96,13 +97,23 @@ export interface OutboundResponse {
   ms: number;
 }
 
-/** POSTs `body`; resolves with any HTTP answer, rejects on network errors and timeouts. */
+/**
+ * POSTs `body`; resolves with any HTTP answer, rejects on network errors and
+ * timeouts. Never inside a tenant scope: a slow remote would hold its
+ * transaction and row locks open. Read in a short scope, call out after it.
+ */
 export const postOutbound = async (
   raw: string,
   body: string,
   headers: Record<string, string>,
   timeoutMs = 10_000,
 ) => {
+  if (currentScope()) {
+    throw new Error(
+      'postOutbound was called inside a database transaction; call out after it ends',
+    );
+  }
+
   const url = assertOutboundUrl(raw);
   const started = Date.now();
   const send = url.protocol === 'https:' ? httpsRequest : httpRequest;

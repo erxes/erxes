@@ -3,7 +3,7 @@ import { fireJob } from '~/modules/automations/triggers';
 import { emailJob } from '~/modules/email/email';
 import { paymentCheckJob } from '~/modules/payments/payments.service';
 import { pluginEventJob } from '~/modules/plugins/pluginEvents';
-import { auditStreamJob } from '~/modules/audit/streams';
+import { auditStreamJob } from '~/modules/audit/streamDelivery';
 import { exportRunJob } from '~/modules/transfer/exports.service';
 import {
   importCheckJob,

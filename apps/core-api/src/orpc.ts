@@ -1,7 +1,7 @@
 import { coreContract } from '@erxes/core-contract';
 import { type Transaction, withOrg, withTransaction } from '@erxes/core-db';
 import { getLogger, type LoggerContext } from '@orpc/experimental-pino';
-import { implement } from '@orpc/server';
+import { implement, os } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { enforceAccess } from '~/http/access';
 import { type Actor, actorOf, callerOf, pluginOf, userCaller } from '~/http/auth';
@@ -20,38 +20,51 @@ export interface CoreContext extends LoggerContext {
  * Every procedure first passes the access map (`~/http/access`): the caller
  * must be allowed by the procedure's policy before its handler runs. It gets
  * `context.log`: the request's logger with its `requestId`, `orgId`,
- * `actorId` and the procedure (`rpc.method`).
+ * `actorId` and the procedure (`rpc.method`). Public procedures use `pub`
+ * and scope themselves.
  */
 export const pub = implement(coreContract)
   .$context<CoreContext>()
   .use(({ context, path, next }) => {
     enforceAccess(path.join('.'), context.req);
 
-    // The whole call runs in one transaction scoped to the caller's
-    // organisation (row level security); public procedures scope themselves.
-    const orgId = context.req.actor?.orgId ?? context.req.plugin?.orgId;
-    const log = getLogger(context) ?? context.req.log;
-
-    return orgId
-      ? withOrg(orgId, async () => next({ context: { log } }))
-      : next({ context: { log } });
+    return next({ context: { log: getLogger(context) ?? context.req.log } });
   });
+
+/**
+ * The whole call runs in one transaction scoped to the caller's organisation
+ * (row level security).
+ */
+const orgScoped = pub.use(({ context, next }) => {
+  const orgId = context.req.actor?.orgId ?? context.req.plugin?.orgId;
+
+  return orgId ? withOrg(orgId, async () => next()) : next();
+});
+
+const asMember = os
+  .$context<CoreContext>()
+  .middleware(({ context, next }) => next({ context: { actor: actorOf(context.req) } }));
 
 /**
  * Procedures for a signed-in member: `context.actor` is the caller (resolved
  * by the `authenticate` middleware; public paths never reach these).
  */
-export const authed = pub.use(({ context, next }) =>
-  next({ context: { actor: actorOf(context.req) } }),
-);
+export const authed = orgScoped.use(asMember);
+
+/**
+ * A member's procedure that calls out over the network: no transaction around
+ * the handler, so a slow remote holds none. Its service reads in a short
+ * `withOrg` scope and calls out after it.
+ */
+export const authedUnscoped = pub.use(asMember);
 
 /** Procedures for plugins only (a plugin token for an organisation). */
-export const plugin = pub.use(({ context, next }) =>
+export const plugin = orgScoped.use(({ context, next }) =>
   next({ context: { plugin: pluginOf(context.req) } }),
 );
 
 /** Procedures for members and plugins alike; `context.caller` says which. */
-export const anyone = pub.use(({ context, next }) =>
+export const anyone = orgScoped.use(({ context, next }) =>
   next({ context: { caller: callerOf(context.req), actor: context.req.actor ?? null } }),
 );
 
