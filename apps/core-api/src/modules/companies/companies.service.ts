@@ -19,7 +19,7 @@ import {
   contactsTagged,
   contactUpdated,
 } from '~/modules/activities/contactHistory';
-import { applyCustomFields } from '~/modules/fields/fields.service';
+import { applyCustomFields } from '~/modules/fields/customValues';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { changeTags, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
