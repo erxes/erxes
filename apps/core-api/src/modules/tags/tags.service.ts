@@ -67,16 +67,16 @@ export const createTag = async (
   try {
     const row = oneRow(
       await client
-      .insert(tags)
-      .values({
-        id: newId(),
-        orgId: actor.orgId,
-        type: input.type,
-        name: input.name,
-        colorCode: input.colorCode ?? null,
-        createdBy: actor.userId,
-      })
-      .returning(),
+        .insert(tags)
+        .values({
+          id: newId(),
+          orgId: actor.orgId,
+          type: input.type,
+          name: input.name,
+          colorCode: input.colorCode ?? null,
+          createdBy: actor.userId,
+        })
+        .returning(),
     );
 
     return toTagDto(row);
@@ -96,14 +96,14 @@ export const updateTag = async (
   try {
     const row = oneRow(
       await client
-      .update(tags)
-      .set({
-        ...(input.name !== undefined ? { name: input.name } : {}),
-        ...(input.colorCode !== undefined ? { colorCode: input.colorCode } : {}),
-        updatedAt: sql`now()`,
-      })
-      .where(and(eq(tags.orgId, actor.orgId), eq(tags.id, id)))
-      .returning(),
+        .update(tags)
+        .set({
+          ...(input.name !== undefined ? { name: input.name } : {}),
+          ...(input.colorCode !== undefined ? { colorCode: input.colorCode } : {}),
+          updatedAt: sql`now()`,
+        })
+        .where(and(eq(tags.orgId, actor.orgId), eq(tags.id, id)))
+        .returning(),
     );
 
     return toTagDto(row);

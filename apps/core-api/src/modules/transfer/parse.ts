@@ -1,5 +1,5 @@
 import { parse } from 'csv-parse/sync';
-import readXlsxFile from 'read-excel-file/node';
+import readXlsxFile, { type CellValue } from 'read-excel-file/node';
 
 /** More than this many rows is refused (split the file). */
 export const MAX_IMPORT_ROWS = 100_000;
@@ -21,13 +21,16 @@ const delimiterOf = (text: string) => {
   return counts.toSorted((a, b) => b[1] - a[1])[0]?.[0] ?? ',';
 };
 
-const cellText = (value: string | number | boolean | Date | null | undefined): string => {
-  if (value === null || value === undefined) return '';
+/** A CSV cell, or an Excel cell (read-excel-file types its dates as `typeof Date`; they are `Date`s). */
+const cellText = (value: CellValue | null | undefined): string => {
+  if (typeof value === 'string') return value.trim();
+
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
 
   if (value instanceof Date)
     return Number.isNaN(value.getTime()) ? '' : value.toISOString().slice(0, 10);
 
-  return String(value).trim();
+  return '';
 };
 
 /**

@@ -137,7 +137,7 @@ downloadRouter.get('/files/:id/download', async (req, res) => {
   const url = await withOrg(caller.orgId, async (tx) => {
     const row = await readyFile(tx, caller.orgId, req.params.id);
     const saving = req.query.download === '1';
-    const url = await downloadUrlOf(row, saving);
+    const address = await downloadUrlOf(row, saving);
 
     // Saving a copy is audited; showing a picture inline (avatars, previews) is not.
     if (saving) {
@@ -149,7 +149,7 @@ downloadRouter.get('/files/:id/download', async (req, res) => {
       });
     }
 
-    return url;
+    return address;
   });
 
   res.setHeader('Cache-Control', 'private, no-store');

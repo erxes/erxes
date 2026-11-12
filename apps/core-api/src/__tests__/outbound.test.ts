@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, expect, it, vi } from 'vite-plus/test';
+import { z } from 'zod';
 import { createApp } from '~/app';
 import { postOutbound } from '~/lib/outbound';
 import { hashPassword } from '~/modules/auth/password';
@@ -84,7 +85,8 @@ describeWithDb('calls out over the network', () => {
 
     expect(created.status).toBe(201);
 
-    const tested = call('POST', `/audit/streams/${created.body.stream.id}/test`);
+    const { stream } = z.object({ stream: z.object({ id: z.string() }) }).parse(created.body);
+    const tested = call('POST', `/audit/streams/${stream.id}/test`);
 
     // The slow endpoint has the request; nothing in the database waits on it.
     await vi.waitFor(() => expect(waiting).toHaveLength(1));
@@ -106,8 +108,10 @@ describeWithDb('calls out over the network', () => {
     waiting.shift()?.writeHead(200).end();
     await delivering;
 
-    const [stream] = (await call('GET', '/audit/streams')).body.data;
+    const listed = z
+      .object({ data: z.array(z.object({}).passthrough()) })
+      .parse((await call('GET', '/audit/streams')).body);
 
-    expect(stream).toMatchObject({ pending: 0, lastError: null, consecutiveFailures: 0 });
+    expect(listed.data[0]).toMatchObject({ pending: 0, lastError: null, consecutiveFailures: 0 });
   });
 });
