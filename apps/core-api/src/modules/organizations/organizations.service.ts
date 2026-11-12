@@ -1,3 +1,4 @@
+import { seedLeadStages } from '~/modules/leads/leads.service';
 import { Db, newId, organizations, users, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
@@ -48,6 +49,7 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
     .values({ id: input.id ?? newId(), subdomain, name: input.name.trim() })
     .returning();
   await seedRoles(tx, organization!.id);
+  await seedLeadStages(tx, organization!.id);
 
   const [owner] = await tx
     .insert(users)

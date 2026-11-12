@@ -10,6 +10,7 @@ import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton'
 import { MergeDialog } from '../components/MergeDialog';
 import { customerTitle } from '../components/ContactPicker';
 import { CustomersChangeState } from './CustomersChangeState';
+import { LeadsBulkActions } from '~/modules/leads/LeadActions';
 import { useCustomersMerge, useCustomersRemove, useCustomersTag } from './useCustomers';
 
 /** Actions on the selected rows, at the bottom of the screen (old core-ui). */
@@ -47,7 +48,7 @@ export const CustomersCommandBar = () => {
             onValueChange={(next) => tag.mutate({ ids: customerIds, ...tagChange(tagIds, next) })}
           />
           <Separator.Inline />
-          <CustomersChangeState customers={customers} />
+          {customers.every((customer) => customer.state === 'lead') ? <LeadsBulkActions leads={customers} /> : <CustomersChangeState customers={customers} />}
           {manager && (
             <>
               <Separator.Inline />

@@ -41,7 +41,7 @@ const operatorsFor = (type: string | undefined) => {
 
 const NO_VALUE = new Set(['exists', 'not_exists']);
 const RELATIVE = new Set(['within_last', 'more_than_ago', 'within_next', 'anniversary_within']);
-const GROUP_LABELS: Record<string, string> = { fields: 'Fields', custom: 'Properties', company: 'Company', activity: 'Activity' };
+const GROUP_LABELS: Record<string, string> = { fields: 'Fields', lead: 'Lead', custom: 'Properties', company: 'Company', activity: 'Activity' };
 const LIST_VALUE = new Set(['in', 'not_in']);
 
 const isRule = (rule: ConditionRule | ConditionGroup): rule is ConditionRule => !('match' in rule);

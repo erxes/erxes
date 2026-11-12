@@ -1,5 +1,5 @@
 import type { Activity, ActivityTarget, FileInfo } from '@erxes/core-contract';
-import {
+import { IconProgress,
   IconArrowsJoin,
   IconHistory,
   IconLink,
@@ -63,6 +63,7 @@ const ICONS: Record<string, Icon> = {
   customer_linked: IconLink,
   company_unlinked: IconLinkOff,
   customer_unlinked: IconLinkOff,
+  lead: IconProgress,
 };
 
 /**
@@ -199,6 +200,42 @@ const Sentence = ({ activity, actor, lookups }: { activity: Activity; actor: str
           <LinkedRecord type="company" id={String(data.companyId)} />
         </>
       );
+    case 'lead': {
+      const stage = (value: unknown) => {
+        const ref = value as { name?: string; color?: string } | null;
+
+        return ref ? (
+          <span className="inline-flex items-center gap-1 font-medium">
+            <span className="size-2 rounded-full" style={{ background: ref.color }} />
+            {ref.name}
+          </span>
+        ) : null;
+      };
+      const reason = data.reason ? <span className="text-muted-foreground"> · {String(data.reason)}</span> : null;
+
+      switch (data.event) {
+        case 'converted':
+          return (
+            <>
+              {who} {t('lead-converted', 'converted the lead to a customer')}
+            </>
+          );
+        case 'reopened':
+          return (
+            <>
+              {who} {t('lead-reopened', 'made them a lead again, at')} {stage(data.to)}
+              {reason}
+            </>
+          );
+        default:
+          return (
+            <>
+              {who} {t('lead-moved', 'moved the lead to')} {stage(data.to)}
+              {reason}
+            </>
+          );
+      }
+    }
     case 'customer_linked':
     case 'customer_unlinked':
       return (

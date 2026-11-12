@@ -274,6 +274,13 @@
       "when": 1794457439519,
       "tag": "0038_drop_custom_fields_json",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794460117871,
+      "tag": "0039_lead_stages",
+      "breakpoints": true
     }
   ]
 }

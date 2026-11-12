@@ -12,6 +12,7 @@ import {
   text,
   ImageAddress,
 } from './common';
+import { LeadSource, SourceDetails } from './leads';
 
 /** `lead`: not a customer yet (e.g. a form submission). */
 export const CustomerState = z.enum(['lead', 'customer']);
@@ -47,6 +48,17 @@ export const Customer = z.object({
   tagIds: z.array(z.string()),
   /** Custom field values by field id. */
   customFields: CustomFields,
+  /** The lead stage (`/lead-stages`); stays after conversion. */
+  leadStageId: z.string().nullable(),
+  leadStageChangedAt: z.string().datetime().nullable(),
+  disqualifyReason: z.string().nullable(),
+  /** Where they came from (`manual`, `form`, `plugin`, …). */
+  source: z.string().nullable(),
+  sourceDetails: z.record(z.string(), z.string()),
+  /** When the lead became a customer. */
+  convertedAt: z.string().datetime().nullable(),
+  /** Newest timeline entry (creation counts). */
+  lastActivityAt: z.string().datetime(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
@@ -77,6 +89,12 @@ export const CustomerFields = z.object({
   tagIds: z.array(Id).max(50).optional(),
   /** Sets the given custom fields; `null` clears one. Others stay. */
   customFields: CustomFieldsPatch.optional(),
+  /** A lead stage; moving to a disqualified one takes `disqualifyReason`. */
+  leadStageId: Id.optional(),
+  disqualifyReason: text(500),
+  /** Set when created (later changes are corrections). */
+  source: LeadSource.nullable().optional(),
+  sourceDetails: SourceDetails.optional(),
 });
 export type CustomerInput = z.infer<typeof CustomerFields>;
 
@@ -123,6 +141,8 @@ export const customersContract = {
         tagIds: IdList.optional(),
         /** Customers of this company. */
         companyId: Id.optional(),
+        /** Leads in this stage. */
+        leadStageId: Id.optional(),
         ids: IdList.optional(),
         /** An advanced filter: JSON of a condition group (`RecordFilter`), as views save it. */
         filter: z.string().max(20_000).optional(),
@@ -144,6 +164,9 @@ export const customersContract = {
           firstName: z.string().trim().max(100).optional(),
           lastName: z.string().trim().max(100).optional(),
           state: z.enum(['lead', 'customer']).optional(),
+          /** For a new one: where they came from (default: the plugin, or `manual`). */
+          source: LeadSource.optional(),
+          sourceDetails: SourceDetails.optional(),
         })
         .refine((value) => Boolean(value.primaryEmail || value.primaryPhone), 'an email or a phone is required'),
     )

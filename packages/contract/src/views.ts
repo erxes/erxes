@@ -21,7 +21,7 @@ export const FilterField = z.object({
   type: z.enum(['text', 'number', 'date', 'boolean', 'select', 'member', 'tags']),
   options: z.array(z.string()).optional(),
   /** Where it comes from, for grouping in the picker. */
-  group: z.enum(['fields', 'custom', 'company', 'activity']),
+  group: z.enum(['fields', 'lead', 'custom', 'company', 'activity']),
 });
 export type FilterField = z.infer<typeof FilterField>;
 

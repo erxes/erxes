@@ -142,6 +142,8 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
 
   it('filters by fields, custom fields, tags, owner, dates, the company and nested groups', async () => {
     expect(await found(rule('subject.state', 'eq', 'lead'))).toEqual(['Bat']);
+    expect(await found(rule('subject.state', 'in', ['lead']))).toEqual(['Bat']);
+    expect(await found(rule('subject.firstName', 'not_in', ['bat', 'dorj']))).toEqual(['Saraa']);
     expect(await found(rule('subject.primaryEmail', 'contains', 'GOLF'))).toEqual(['Bat']);
     expect(await found(rule('subject.primaryEmail', 'not_exists'))).toEqual(['Dorj']);
     expect(await found(rule('subject.tagIds', 'contains', vip))).toEqual(['Bat']);

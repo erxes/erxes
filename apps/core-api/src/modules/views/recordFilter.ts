@@ -1,5 +1,5 @@
-import { type ConditionGroup, type ConditionRule, type FilterField, RecordFilter, type ViewRecordType } from '@erxes/core-contract';
-import { companies, companyTags, type ContentType, customerCompanies, customers, customerTags, type Db, fields } from '@erxes/core-db';
+import { type ConditionGroup, type ConditionRule, type FilterField, LEAD_SOURCES, RecordFilter, type ViewRecordType } from '@erxes/core-contract';
+import { companies, companyTags, type ContentType, customerCompanies, customers, customerTags, type Db, fields, leadStages } from '@erxes/core-db';
 import { and, asc, eq, inArray, not, or, type SQL, sql } from 'drizzle-orm';
 import { valuesTable } from '~/modules/fields/fieldValues';
 import type { Actor } from '~/http/auth';
@@ -29,6 +29,8 @@ interface FieldSpec extends FilterField {
   monthDay?: SQL;
   /** Fields of the linked company: checked inside "has a company where …". */
   viaCompany?: boolean;
+  /** The lead stage: rules name stages, the column holds their ids. */
+  stageLookup?: boolean;
 }
 
 const invalid = (message: string) => new HttpError(400, 'INVALID_FILTER', message);
@@ -57,6 +59,10 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
     group: 'fields',
     ...extra,
   });
+  const stageNames =
+    recordType === 'lead'
+      ? (await client.select({ name: leadStages.name }).from(leadStages).where(eq(leadStages.orgId, orgId)).orderBy(asc(leadStages.order))).map((stage) => stage.name)
+      : [];
   const builtIn: FieldSpec[] = isCompany
     ? [
         f('primaryName', 'Name', 'text', sql`${companies.primaryName}`, { trigram: true }),
@@ -78,6 +84,15 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
         f('position', 'Position', 'text', sql`${customers.position}`),
         f('department', 'Department', 'text', sql`${customers.department}`),
         f('code', 'Code', 'text', sql`${customers.code}`),
+        f('source', 'Source', 'select', sql`${customers.source}`, { options: [...LEAD_SOURCES], group: 'lead' }),
+        f('convertedAt', 'Became a customer', 'date', sql`${customers.convertedAt}`, { group: 'lead' }),
+        ...(recordType === 'lead'
+          ? [
+              f('leadStageId', 'Lead stage', 'select', sql`${customers.leadStageId}`, { group: 'lead', stageLookup: true, options: stageNames }),
+              f('leadStageChangedAt', 'In this stage since', 'date', sql`${customers.leadStageChangedAt}`, { group: 'lead' }),
+              f('disqualifyReason', 'Disqualified because', 'text', sql`${customers.disqualifyReason}`, { group: 'lead' }),
+            ]
+          : []),
       ];
   const common: FieldSpec[] = [
     f('ownerId', 'Owner', 'member', sql`${table.ownerId}`),
@@ -132,6 +147,9 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
 };
 
 // ─── Compiling ──────────────────────────────────────────────────────────────
+
+/** A text array parameter (a JS array in a template becomes a list of parameters, not one array). */
+const textArray = (values: string[]) => sql`array[${sql.join(values.map((value) => sql`${value}`), sql`, `)}]::text[]`;
 
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
@@ -225,6 +243,13 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
   if (op === 'exists') return spec.type === 'text' ? sql`coalesce(${x}, '') <> ''` : sql`${x} is not null`;
   if (op === 'not_exists') return not(compileValue(spec, { ...rule, op: 'exists' }, actor));
 
+  if (spec.stageLookup && ['eq', 'neq', 'in', 'not_in'].includes(op)) {
+    const names = (op === 'in' || op === 'not_in' ? list(rule.value) : [text(rule.value)]).map((name) => name.toLowerCase());
+    const ids = sql`(select ${leadStages.id} from ${leadStages} where ${leadStages.orgId} = ${customers.orgId} and lower(${leadStages.name}) = any(${textArray(names)}))`;
+
+    return op === 'eq' || op === 'in' ? sql`${x} in ${ids}` : sql`(${x} is null or ${x} not in ${ids})`;
+  }
+
   switch (spec.type) {
     case 'number': {
       if (op === 'neq') return sql`(${x} is null or ${x} <> ${number(rule.value)})`;
@@ -263,9 +288,9 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
         case 'starts_with':
           return sql`${x} ilike ${`${escapeLike(text(rule.value))}%`}`;
         case 'in':
-          return sql`lower(${x}) = any(${list(rule.value).map((item) => item.toLowerCase())}::text[])`;
+          return sql`lower(${x}) = any(${textArray(list(rule.value).map((item) => item.toLowerCase()))})`;
         case 'not_in':
-          return sql`(${x} is null or not (lower(${x}) = any(${list(rule.value).map((item) => item.toLowerCase())}::text[])))`;
+          return sql`(${x} is null or not (lower(${x}) = any(${textArray(list(rule.value).map((item) => item.toLowerCase()))})))`;
         default:
           break;
       }
@@ -327,7 +352,7 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
         case 'starts_with':
           return has(sql`${x} ilike ${`${escapeLike(text(rule.value))}%`}`);
         case 'in':
-          return has(sql`lower(${x}) = any(${list(rule.value).map((item) => item.toLowerCase())}::text[])`);
+          return has(sql`lower(${x}) = any(${textArray(list(rule.value).map((item) => item.toLowerCase()))})`);
         default:
           break;
       }

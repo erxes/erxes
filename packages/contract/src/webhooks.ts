@@ -14,6 +14,8 @@ export const CORE_EVENT_TYPES = [
   { type: 'core.customer.tagged', label: 'Customer tagged', subject: 'customer' },
   { type: 'core.customer.company_linked', label: 'Customer linked to a company', subject: 'customer' },
   { type: 'core.customer.company_unlinked', label: 'Customer unlinked from a company', subject: 'customer' },
+  { type: 'core.lead.stage_changed', label: 'Lead moved to another stage', subject: 'customer' },
+  { type: 'core.lead.converted', label: 'Lead became a customer', subject: 'customer' },
   { type: 'core.company.created', label: 'Company created', subject: 'company' },
   { type: 'core.company.updated', label: 'Company updated', subject: 'company' },
   { type: 'core.company.deleted', label: 'Company deleted', subject: 'company' },

@@ -193,6 +193,17 @@ import {
 import { createStream, listStreams, removeStream, testStream, updateStream } from '~/modules/audit/streams';
 import { pluginPlan, subscriptionInfo } from '~/modules/saas/saas.service';
 import { createView, listFilterFields, listViews, removeView, updateView } from '~/modules/views/views.service';
+import {
+  convertLeads,
+  createLeadStage,
+  leadHistory,
+  leadReport,
+  listLeadStages,
+  moveLeads,
+  removeLeadStage,
+  reorderLeadStages,
+  updateLeadStage,
+} from '~/modules/leads/leads.service';
 import { transferColumns } from '~/modules/transfer/columns';
 import { createExport, listExports } from '~/modules/transfer/exports.service';
 import { checkImport, createImport, getImport, listImportRows, listImports, startImport, undoImport, updateImport } from '~/modules/transfer/imports.service';
@@ -561,6 +572,17 @@ export const coreRouter = pub.router({
     importRows: authed.transfer.importRows.handler(({ input: { id, ...query }, context }) => listImportRows(db(), context.actor, id, query)),
     exports: authed.transfer.exports.handler(({ context }) => listExports(db(), context.actor)),
     createExport: authed.transfer.createExport.handler(({ input, context }) => createExport(db(), context.actor, input)),
+  },
+  leads: {
+    stages: authed.leads.stages.handler(({ context }) => listLeadStages(db(), context.actor)),
+    createStage: authed.leads.createStage.handler(({ input, context }) => createLeadStage(db(), context.actor, input)),
+    updateStage: authed.leads.updateStage.handler(({ input: { id, ...changes }, context }) => updateLeadStage(db(), context.actor, id, changes)),
+    reorderStages: authed.leads.reorderStages.handler(({ input, context }) => reorderLeadStages(db(), context.actor, input.ids)),
+    removeStage: authed.leads.removeStage.handler(({ input, context }) => removeLeadStage(db(), context.actor, input.id, input.moveTo)),
+    move: authed.leads.move.handler(({ input, context }) => moveLeads(db(), context.actor, input)),
+    convert: authed.leads.convert.handler(({ input, context }) => convertLeads(db(), context.actor, input)),
+    history: authed.leads.history.handler(({ input, context }) => leadHistory(db(), context.actor, input.id)),
+    report: authed.leads.report.handler(({ input, context }) => leadReport(db(), context.actor, input)),
   },
   views: {
     list: authed.views.list.handler(({ input, context }) => listViews(db(), context.actor, input.recordType)),

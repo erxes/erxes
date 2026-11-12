@@ -1,6 +1,6 @@
 import type { ActionInfo } from '@erxes/core-contract';
-import { automations, type Db, plugins, type StoredPluginManifest } from '@erxes/core-db';
-import { eq, sql } from 'drizzle-orm';
+import { automations, type Db, leadStages, plugins, type StoredPluginManifest } from '@erxes/core-db';
+import { and, eq, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { postOutbound } from '~/lib/outbound';
@@ -277,6 +277,45 @@ CORE_ACTIONS.push(
       await updateCustomer(ctx.tx, ctx.actor, id, { customFields: { [String(ctx.input.fieldId)]: value } } as never);
 
       return { fieldId: ctx.input.fieldId, value };
+    },
+  },
+  {
+    type: 'core.lead.move',
+    label: 'Move the lead to a stage',
+    description: 'Move the lead to the stage with this name (see Settings › Lead stages)',
+    subject: 'customer',
+    fields: [
+      { key: 'stage', label: 'Stage name', type: 'text', required: true },
+      { key: 'reason', label: 'Reason (for a disqualified stage)', type: 'text', required: false },
+    ],
+    run: async (ctx) => {
+      const id = needSubject(ctx, 'customer');
+      const name = String(ctx.input.stage ?? '').trim().toLowerCase();
+      const [stage] = await ctx.tx
+        .select({ id: leadStages.id })
+        .from(leadStages)
+        .where(and(eq(leadStages.orgId, ctx.actor.orgId), sql`lower(${leadStages.name}) = ${name}`))
+        .limit(1);
+
+      if (!stage) throw new HttpError(400, 'INVALID_LEAD_STAGE', `No lead stage is called “${String(ctx.input.stage)}”`);
+
+      await updateCustomer(ctx.tx, ctx.actor, id, { leadStageId: stage.id, ...(ctx.input.reason ? { disqualifyReason: String(ctx.input.reason) } : {}) });
+
+      return { stageId: stage.id };
+    },
+  },
+  {
+    type: 'core.lead.convert',
+    label: 'Convert the lead to a customer',
+    description: 'The lead becomes a customer (nothing happens if it already is one)',
+    subject: 'customer',
+    fields: [],
+    run: async (ctx) => {
+      const id = needSubject(ctx, 'customer');
+
+      await updateCustomer(ctx.tx, ctx.actor, id, { state: 'customer' });
+
+      return { converted: true };
     },
   },
   {

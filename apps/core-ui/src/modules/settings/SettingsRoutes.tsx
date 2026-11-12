@@ -9,6 +9,7 @@ import { RolesSettingsPage } from './roles/RolesSettingsPage';
 import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
 import { PaymentsSettingsPage } from './payments/PaymentsSettingsPage';
 import { ImportExportPage } from './import-export/ImportExportPage';
+import { LeadStagesPage } from './lead-stages/LeadStagesPage';
 import { ImportWizardPage } from './import-export/ImportWizardPage';
 import { PlanPage } from './plan/PlanPage';
 import { RecycleBinPage } from './recycle-bin/RecycleBinPage';
@@ -26,6 +27,7 @@ export const SettingsRoutes = () => (
       <Route path="team-members/*" element={<TeamMemberSettingsRoutes />} />
       <Route path="tags" element={<TagsSettingsPage />} />
       <Route path="properties/*" element={<PropertiesSettingsRoutes />} />
+      <Route path="lead-stages" element={<LeadStagesPage />} />
       <Route path="file-upload" element={<FileUploadSettingsPage />} />
       <Route path="audit-log" element={<AuditLogPage />} />
       <Route path="event-delivery" element={<EventDeliveryPage />} />

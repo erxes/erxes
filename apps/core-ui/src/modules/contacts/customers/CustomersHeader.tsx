@@ -1,6 +1,7 @@
 import type { CustomerState } from '@erxes/core-contract';
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Kbd } from 'erxes-ui';
+import { IconChartFunnel, IconLayoutKanban, IconPlus, IconTable } from '@tabler/icons-react';
+import { Button, cn, Kbd, useQueryState } from 'erxes-ui';
+import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from '~/modules/side-panel/useSidePanel';
@@ -64,12 +65,44 @@ export const CustomerCreateButton = ({ state }: { state: CustomerState }) => {
   );
 };
 
+/** Leads: table or board, and the funnel report. */
+const LeadViewSwitch = () => {
+  const [view, setView] = useQueryState<string>('view');
+  const board = view === 'board';
+  const option = (active: boolean, onClick: () => void, Icon: typeof IconTable, label: string) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn('flex h-7 items-center gap-1.5 rounded px-2 text-sm text-muted-foreground', active && 'bg-background font-medium text-foreground shadow-xs')}
+    >
+      <Icon className="size-4" />
+      {label}
+    </button>
+  );
+
+  return (
+    <>
+      <Button variant="ghost" asChild>
+        <Link to="/contacts/leads/insights">
+          <IconChartFunnel />
+          Insights
+        </Link>
+      </Button>
+      <div className="flex rounded-md bg-muted p-0.5">
+        {option(!board, () => setView(null), IconTable, 'Table')}
+        {option(board, () => setView('board'), IconLayoutKanban, 'Board')}
+      </div>
+    </>
+  );
+};
+
 export const CustomersHeader = ({ state }: { state: CustomerState }) => (
   <ContactsPageHeader>
     <ContactsPageHeader.Start>
       <ContactsBreadcrumb />
     </ContactsPageHeader.Start>
     <ContactsPageHeader.End>
+      {state === 'lead' && <LeadViewSwitch />}
       <ImportButton recordType={state} />
       <CustomersExportButton state={state} />
       <CustomerCreateButton state={state} />

@@ -19,6 +19,7 @@ import { webhooksContract } from './webhooks';
 import { saasContract } from './saas';
 import { viewsContract } from './views';
 import { transferContract } from './transfer';
+import { leadsContract } from './leads';
 
 export const CORE_API_VERSION = 'v1';
 
@@ -37,6 +38,7 @@ export const coreContract = {
   fieldGroups: fieldGroupsContract,
   fields: fieldsContract,
   files: filesContract,
+  leads: leadsContract,
   notifications: notificationsContract,
   organizations: organizationsContract,
   payments: paymentsContract,
@@ -61,6 +63,7 @@ export * from './customers';
 export * from './events';
 export * from './fields';
 export * from './files';
+export * from './leads';
 export * from './notifications';
 export * from './platform';
 export * from './organizations';

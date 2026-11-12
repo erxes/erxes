@@ -3,6 +3,7 @@ import { CompaniesPage } from './companies/CompaniesPage';
 import { ContactDetailPage } from './components/ContactDetailPage';
 import { ContactsLayout } from './ContactsLayout';
 import { CustomersPage } from './customers/CustomersPage';
+import { LeadInsightsPage } from '~/modules/leads/LeadInsightsPage';
 
 /**
  * Every Contacts route, mounted at `contacts/*`: the lists, and each record's
@@ -14,6 +15,7 @@ export const ContactsRoutes = ({ notFound }: { notFound?: React.ReactNode }) => 
       <Route index element={<Navigate to="customers" replace />} />
       <Route path="customers" element={<CustomersPage key="customer" state="customer" />} />
       <Route path="leads" element={<CustomersPage key="lead" state="lead" />} />
+      <Route path="leads/insights" element={<LeadInsightsPage />} />
       <Route path="companies" element={<CompaniesPage />} />
       <Route path="customers/:id" element={<ContactDetailPage contentType="core:customer" />} />
       <Route path="leads/:id" element={<ContactDetailPage contentType="core:customer" />} />

@@ -23,12 +23,12 @@ export const AUTOMATION_TEMPLATES: { id: string; name: string; description: stri
   {
     id: 'lead-follow-up',
     name: 'Follow up on leads',
-    description: 'Assign new leads round-robin; if nothing changes in 3 days, remind the owner.',
+    description: 'Assign new leads round-robin; if they stay in their first stage for 3 days, remind the owner.',
     definition: {
       trigger: { kind: 'event', event: 'core.customer.created', conditions: { match: 'all', rules: [{ path: 'subject.state', op: 'eq', value: 'lead' }] } },
       steps: [
         { id: 'assign', type: 'action', action: 'core.customer.assign', input: { userIds: [] } },
-        { id: 'wait', type: 'wait_for', event: 'core.customer.updated', amount: 3, unit: 'days' },
+        { id: 'wait', type: 'wait_for', event: 'core.lead.stage_changed', amount: 3, unit: 'days' },
         {
           id: 'check',
           type: 'branch',

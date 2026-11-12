@@ -25,6 +25,7 @@ import { lockKey, lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
+import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/leads.service';
 
 type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText'> & { tagIds: string[]; customFields: Record<string, CustomValue> };
 type State = CustomerRow['state'];
@@ -49,6 +50,13 @@ export const toCustomerDto = (row: CustomerRow) => ({
   ownerId: row.ownerId,
   tagIds: row.tagIds,
   customFields: row.customFields,
+  leadStageId: row.leadStageId,
+  leadStageChangedAt: row.leadStageChangedAt?.toISOString() ?? null,
+  disqualifyReason: row.disqualifyReason,
+  source: row.source,
+  sourceDetails: row.sourceDetails,
+  convertedAt: row.convertedAt?.toISOString() ?? null,
+  lastActivityAt: row.lastActivityAt.toISOString(),
   createdAt: row.createdAt.toISOString(),
   updatedAt: row.updatedAt.toISOString(),
 });
@@ -141,6 +149,7 @@ export const customerListWhere = async (
     ownerId?: string;
     tagIds?: string[];
     companyId?: string;
+    leadStageId?: string;
     ids?: string[];
     filter?: string;
   },
@@ -156,6 +165,10 @@ export const customerListWhere = async (
 
   if (query.ownerId) {
     filters.push(eq(customers.ownerId, query.ownerId));
+  }
+
+  if (query.leadStageId) {
+    filters.push(eq(customers.leadStageId, query.leadStageId));
   }
 
   if (query.tagIds?.length) {
@@ -223,7 +236,7 @@ export const getCustomer = async (client: Db, actor: Actor, id: string) =>
 
 /** The plain columns of an input (contacts, tags and custom fields are resolved separately). */
 const scalarFields = (input: CustomerInput) => {
-  const { primaryEmail, emails, primaryPhone, phones, tagIds, customFields, ...rest } = input;
+  const { primaryEmail, emails, primaryPhone, phones, tagIds, customFields, leadStageId, disqualifyReason, source, sourceDetails, ...rest } = input;
 
   return rest;
 };
@@ -236,6 +249,7 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
   const tagIds = await checkTagIds(client, actor.orgId, 'customer', input.tagIds ?? []);
   const customFields = await applyCustomFields(client, actor.orgId, 'customer', {}, input.customFields);
+  const lead = await planLeadOnCreate(client, userCaller(actor), { ...input, state: input.state ?? 'customer' });
 
   try {
     const id = await client.transaction(async (tx) => {
@@ -250,11 +264,13 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
           emails: email.list,
           primaryPhone: phone.primary,
           phones: phone.list,
+          ...lead.set,
           createdBy: actor.userId,
         })
         .returning({ id: customers.id });
 
       await saveCustomFields(tx, actor.orgId, 'customer', row!.id, customFields, Object.keys(customFields));
+      await recordLeadSteps(tx, userCaller(actor), row!.id, lead.steps);
       await setRecordTags(tx, actor.orgId, 'customer', row!.id, tagIds);
       await contactCreated(tx, actor, 'customer', await findCustomer(tx, actor.orgId, row!.id));
 
@@ -307,18 +323,21 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
     input.customFields === undefined
       ? undefined
       : await applyCustomFields(client, actor.orgId, 'customer', current.customFields, input.customFields);
+  const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
 
   try {
     await client.transaction(async (tx) => {
       const updated = await tx
         .update(customers)
-        .set({ ...scalarFields(input), ...changes, updatedAt: sql`now()` })
+        .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
         .where(inOrg(actor.orgId, id))
         .returning({ id: customers.id });
 
       if (!updated.length) {
         throw notFound('Customer');
       }
+
+      await recordLeadSteps(tx, userCaller(actor), id, lead.steps);
 
       if (customFields) {
         await saveCustomFields(tx, actor.orgId, 'customer', id, customFields, Object.keys(input.customFields ?? {}));
@@ -563,7 +582,15 @@ export const unlinkCustomerCompany = async (client: Db, actor: Actor, id: string
 export const findOrCreateCustomer = async (
   client: Db,
   caller: Caller,
-  input: { primaryEmail?: string; primaryPhone?: string; firstName?: string; lastName?: string; state?: 'lead' | 'customer' },
+  input: {
+    primaryEmail?: string;
+    primaryPhone?: string;
+    firstName?: string;
+    lastName?: string;
+    state?: 'lead' | 'customer';
+    source?: string;
+    sourceDetails?: Record<string, string>;
+  },
 ) => {
   const email = input.primaryEmail ? normalizeEmail(input.primaryEmail) : null;
   const phone = input.primaryPhone ? normalizePhone(input.primaryPhone) : null;
@@ -589,10 +616,12 @@ export const findOrCreateCustomer = async (
 
   if (found) return { customer: toCustomerDto(await findCustomer(client, caller.orgId, found.id)), created: false };
 
+  const lead = await planLeadOnCreate(client, caller, { state: input.state ?? 'customer', source: input.source, sourceDetails: input.sourceDetails });
   const id = await client.transaction(async (tx) => {
     const [row] = await tx
       .insert(customers)
       .values({
+        ...lead.set,
         id: newId(),
         orgId: caller.orgId,
         state: input.state ?? 'customer',
@@ -606,6 +635,7 @@ export const findOrCreateCustomer = async (
       })
       .returning({ id: customers.id });
 
+    await recordLeadSteps(tx, caller, row!.id, lead.steps);
     await contactCreated(tx, caller, 'customer', await findCustomer(tx, caller.orgId, row!.id));
 
     return row!.id;

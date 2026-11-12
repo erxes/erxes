@@ -37,6 +37,7 @@ import { ContactDetailSection } from './ContactDetailSection';
 import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
+import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
 
 const SCOPE = 'side-panel-customer';
 
@@ -229,6 +230,7 @@ export const CustomerPanelDetail = ({
               <CustomerStateField customer={customer} />
             </PanelField>
           </ContactDetailSection>
+          <LeadPanelSection customer={customer} />
           <ContactDetailSection title={sectionT('contact', 'Contact')} nested>
             <PanelField
               icon={IconMail}

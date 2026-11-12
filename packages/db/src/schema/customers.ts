@@ -6,10 +6,12 @@ import {
   index,
   smallint,
   text,
+  jsonb,
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
+import { leadStages } from './leadStages';
 import { organizations } from './organizations';
 import { users } from './users';
 
@@ -40,6 +42,18 @@ export const customers = pgTable(
     code: text(),
     description: text(),
     ownerId: text(),
+    /** Where a lead stands (its organisation's lead stages); kept after conversion for reports. */
+    leadStageId: text(),
+    leadStageChangedAt: timestamp({ withTimezone: true, mode: 'date' }),
+    /** Why a lead was disqualified. */
+    disqualifyReason: text(),
+    /** Where the person came from (`manual`, `import`, `form`, `website`, `plugin`, …). */
+    source: text(),
+    /** More about the source: campaign, medium, referrer, page, the plugin or form. */
+    sourceDetails: jsonb().$type<Record<string, string>>().default({}).notNull(),
+    /** When the lead became a customer, and who converted it. */
+    convertedAt: timestamp({ withTimezone: true, mode: 'date' }),
+    convertedBy: text(),
     /**
      * When the newest timeline entry was made (creation counts); kept by a
      * trigger on core_activities, so "no activity for 60 days" is indexed.
@@ -83,6 +97,14 @@ export const customers = pgTable(
       .on(table.orgId, table.birthMonthDay)
       .where(sql`${table.birthMonthDay} IS NOT NULL`),
     index('core_customers_org_owner_idx').on(table.orgId, table.ownerId),
+    index('core_customers_org_lead_stage_idx').on(table.orgId, table.leadStageId, table.createdAt.desc()),
+    index('core_customers_org_source_idx').on(table.orgId, table.source),
+    index('core_customers_org_converted_idx').on(table.orgId, table.convertedAt).where(sql`${table.convertedAt} IS NOT NULL`),
+    foreignKey({
+      columns: [table.leadStageId],
+      foreignColumns: [leadStages.id],
+      name: 'core_customers_lead_stage_id_fkey',
+    }).onDelete('set null'),
     // "Contains" anywhere: search box, and filters on names, email and phone.
     index('core_customers_search_trgm_idx').using('gin', table.searchText.op('gin_trgm_ops')),
     index('core_customers_first_name_trgm_idx').using('gin', table.firstName.op('gin_trgm_ops')),

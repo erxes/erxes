@@ -12,11 +12,12 @@ export const customersSessionKey = (state: CustomerState) => `core_${state}s_cur
 
 /** The list filters, read from the URL (old core-ui query keys). */
 export const useCustomersFilters = (state: CustomerState) => {
-  const [{ searchValue, tags, ownerId }] = useMultiQueryState<{
+  const [{ searchValue, tags, ownerId, stage }] = useMultiQueryState<{
     searchValue: string;
     tags: string[];
     ownerId: string;
-  }>(['searchValue', 'tags', 'ownerId']);
+    stage: string;
+  }>(['searchValue', 'tags', 'ownerId', 'stage']);
   const filter = useAdvancedFilterParam();
 
   return {
@@ -25,6 +26,8 @@ export const useCustomersFilters = (state: CustomerState) => {
     search: searchValue || undefined,
     tagIds: tags?.length ? tags.join(',') : undefined,
     ownerId: ownerId || undefined,
+    // Leads: the stage tab.
+    leadStageId: state === 'lead' ? stage || undefined : undefined,
   };
 };
 

@@ -100,6 +100,16 @@ export const ACCESS = {
   'companies.merge': needs('contacts.merge'),
   'companies.tag': needs('contacts.edit'),
 
+  'leads.stages': needs('contacts.view'),
+  'leads.createStage': needs('properties.manage'),
+  'leads.updateStage': needs('properties.manage'),
+  'leads.reorderStages': needs('properties.manage'),
+  'leads.removeStage': needs('properties.manage'),
+  'leads.move': needs('contacts.edit'),
+  'leads.convert': needs('contacts.edit'),
+  'leads.history': needs('contacts.view'),
+  'leads.report': needs('contacts.view'),
+
   'customers.list': needs('contacts.view'),
   'customers.get': { member: 'contacts.view', plugin: 'customers:read' },
   'customers.findOrCreate': { member: 'contacts.create', plugin: 'customers:write' },
