@@ -10,7 +10,7 @@ import { pruneEvents } from '~/modules/events/events.service';
 import { CONSUMERS } from '~/modules/events/processor';
 import { pruneUploads, purgeDeletedFiles } from '~/modules/files/files.service';
 import { storage } from '~/modules/files/storage';
-import { pruneNotifications } from '~/modules/notifications/notifications.service';
+import { pruneNotifications } from '~/modules/notifications/inbox.service';
 import { refreshAllEntitlements } from '~/modules/saas/entitlements';
 import { purgeExpiredTrash } from '~/modules/trash/trash.service';
 import { pruneDeliveries } from '~/modules/webhooks/webhookDelivery';

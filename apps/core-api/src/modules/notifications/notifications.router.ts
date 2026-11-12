@@ -3,12 +3,14 @@ import { pluginCaller } from '~/http/auth';
 import {
   listNotifications,
   markRead,
-  notificationSettings,
-  notify,
   removeNotification,
   unreadCount,
+} from '~/modules/notifications/inbox.service';
+import { notify } from '~/modules/notifications/notifications.service';
+import {
+  notificationSettings,
   updateNotificationSettings,
-} from '~/modules/notifications/notifications.service';
+} from '~/modules/notifications/settings.service';
 import { authed, plugin } from '~/orpc';
 
 export const notificationsRouter = {
