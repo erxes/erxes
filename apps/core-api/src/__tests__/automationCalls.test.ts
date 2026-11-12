@@ -4,6 +4,7 @@ import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { settle } from './settle';
 
 /**
  * Steps that call other systems (webhooks, plugin actions) run outside the
@@ -30,16 +31,6 @@ describeWithDb('automation calls', { timeout: 120_000 }, () => {
     const text = await response.text();
 
     return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
-
-  const flush = async () => {
-    const { processEvents } = await import('~/modules/events/processor');
-    const { processJobs } = await import('~/modules/jobs/jobs');
-    const { JOBS } = await import('~/modules/jobs/registry');
-
-    for (let round = 0; round < 20; round += 1) {
-      if (!((await processEvents()) + (await processJobs(JOBS)))) return;
-    }
   };
 
   const portOf = (server: Server) => {
@@ -124,7 +115,7 @@ describeWithDb('automation calls', { timeout: 120_000 }, () => {
     };
 
     await call('POST', '/customers', { firstName: 'Slow' });
-    await flush();
+    await settle();
 
     expect(lockError).toBeNull();
 
@@ -143,7 +134,7 @@ describeWithDb('automation calls', { timeout: 120_000 }, () => {
     };
 
     await call('POST', '/customers', { firstName: 'Cancelled' });
-    await flush();
+    await settle();
 
     const runs = await call('GET', `/automations/${automationId}/runs`);
     const run = await call('GET', `/automations/runs/${runs.body.data[0].id}`);
