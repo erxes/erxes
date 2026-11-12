@@ -46,6 +46,7 @@
     "otpauth": "9.5.2",
     "pino": "10.4.0",
     "pino-http": "11.0.0",
+    "rate-limiter-flexible": "11.2.3",
     "read-excel-file": "^9.3.15",
     "write-excel-file": "^4.1.1",
     "zod": "^3.25.76"
