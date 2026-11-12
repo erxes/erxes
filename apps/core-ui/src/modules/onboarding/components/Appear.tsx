@@ -5,9 +5,8 @@ export const EASE_OUT_QUAD = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 export const EASE_SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
 
 /**
- * An entrance animation (old core-ui used framer-motion's
- * `initial → animate`): fades in from an offset and/or scale, through
- * tailwindcss-animate's `animate-in`, so no animation library is needed.
+ * An entrance animation: fades in from an offset and/or scale, through
+ * tailwindcss-animate's `animate-in`.
  */
 export const appearStyle = ({
   x = 0,

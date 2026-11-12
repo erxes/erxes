@@ -11,7 +11,7 @@ const password = z.union([
     .regex(/\d/, 'Add a digit'),
 ]);
 
-/** Old `USER_SUBMIT_SCHEMA`: one row per invitation. */
+/** One row per invitation. */
 export const USER_SUBMIT_SCHEMA = z.object({
   entries: z
     .object({

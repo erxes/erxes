@@ -4,7 +4,7 @@ import { useToast } from 'erxes-ui';
 import { useMemo } from 'react';
 import { messageOf, orpc } from '~/lib/api';
 
-/** Tag colours offered when creating one (old erxes palette). */
+/** Tag colours offered when creating one. */
 export const TAG_COLORS = [
   '#4f46e5',
   '#0ea5e9',

@@ -73,7 +73,7 @@ const ArchivedRow = ({
 
 const date = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '');
 
-/** Archived groups and fields, restorable (old "Archived" section). */
+/** Archived groups and fields, restorable. */
 export const PropertiesArchivedSection = ({ contentType }: { contentType: ContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groups, fields, error } = useArchivedProperties(contentType);

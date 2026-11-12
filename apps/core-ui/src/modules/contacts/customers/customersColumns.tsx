@@ -166,7 +166,7 @@ const identityColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
   },
 ];
 
-/** Customer columns, as in old core-ui. */
+/** Customer columns. */
 const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
   ...identityColumns(t),
   {

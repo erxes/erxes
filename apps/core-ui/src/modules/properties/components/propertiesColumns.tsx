@@ -18,7 +18,7 @@ import { FIELD_TYPES_OBJECT } from '../fieldTypes';
 import { archiveTargetState, selectedFieldIdsState } from '../states';
 import { useCanManageFields, useEditProperty } from '../usePropertyMutations';
 
-/** The edit page of a field (old `/:type/:groupId/:id`). */
+/** The edit page of a field. */
 export const propertyEditPath = (field: Field) =>
   `${PROPERTIES_BASE_PATH}/${field.contentType}/${field.groupId ?? 'ungrouped'}/${field.id}`;
 

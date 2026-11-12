@@ -1,5 +1,5 @@
 /* One Tailwind build for the whole app: erxes-ui's source styles (theme, page
    defaults, its own utilities), plus the utilities this app's code uses. */
 @import '../../../packages/ui/src/styles.css';
-@import './old-erxes.css';
+@import './app.css';
 @source './';

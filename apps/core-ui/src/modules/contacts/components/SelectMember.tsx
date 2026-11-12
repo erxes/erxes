@@ -84,7 +84,7 @@ const SelectMemberFormItem = ({
   );
 };
 
-/** Old ui-modules SelectMember: the inline cell, form item and filter parts contacts use. */
+/** The member picker's inline cell, form item and filter parts. */
 export const SelectMember = {
   InlineCell: SelectMemberInlineCell,
   FormItem: SelectMemberFormItem,

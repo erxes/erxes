@@ -1,7 +1,7 @@
 import { IconArrowMerge } from '@tabler/icons-react';
 import { Button, Tooltip } from 'erxes-ui';
 
-/** The command bar's Merge: only two records at a time, as in old erxes. */
+/** The command bar's Merge: only two records at a time. */
 export const MergeButton = ({
   label,
   tooltip,

@@ -8,7 +8,7 @@ import { useAdvancedFilterParam } from '../views/useViews';
 /** RecordTable remembers the scroll position per list under this key. */
 export const customersSessionKey = (state: CustomerState) => `core_${state}s_cursor`;
 
-/** The list filters, read from the URL (old core-ui query keys). */
+/** The list filters, read from the URL. */
 export const useCustomersFilters = (state: CustomerState) => {
   const [{ searchValue, tags, ownerId, stage }] = useMultiQueryState<{
     searchValue: string;

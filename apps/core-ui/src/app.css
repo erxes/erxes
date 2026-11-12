@@ -1,8 +1,6 @@
 /*
- * App-level styles carried over from old erxes core-ui (frontend/core-ui/src/styles.css):
- * the BlockNote editor (slash menu, toolbar, drag handle, headings, theme
- * variables), its comment cards, and the sidebar menu look. Left out: the
- * email builder import, call-center colours, assistant animations, seasonal frames.
+ * App-level styles: the BlockNote editor (slash menu, toolbar, drag handle,
+ * headings, theme variables), its comment cards, and the sidebar menu look.
  */
 .bn-shadcn {
   --background: 0 0% 100%;

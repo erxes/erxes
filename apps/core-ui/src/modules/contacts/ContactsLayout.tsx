@@ -130,7 +130,7 @@ const LeadsGroup = () => {
   );
 };
 
-/** The Contacts sidebar, as old core-ui's core module panel; Leads opens to Insights, People and Companies. */
+/** The Contacts sidebar; Leads opens to Insights, People and Companies. */
 const ContactsNavigation = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('contact');

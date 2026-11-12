@@ -5,7 +5,7 @@ import { type ReactNode, createContext, useContext, useState } from 'react';
 import { useTags } from './useTags';
 
 /*
- * Old ui-modules TagsSelect (tags-new) on core's tags: a provider holding the
+ * TagsSelect on core's tags: a provider holding the
  * selection, the searchable list with "create", the selected badges, and the
  * inline cell / trigger / filter shapes built from them. The caller saves.
  */

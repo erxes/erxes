@@ -4,7 +4,7 @@ import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
 /** Route base of the properties settings pages. */
 export const PROPERTIES_BASE_PATH = CONTACT_SETTINGS.properties;
 
-/** Record types with properties; `i18nKey` is old erxes's `content-type.*` key. */
+/** Record types with properties; `i18nKey` is its `content-type.*` key. */
 export const PROPERTY_TYPES = [
   { contentType: 'customer', i18nKey: 'core-customer', description: 'Customer' },
   { contentType: 'company', i18nKey: 'core-company', description: 'Company' },

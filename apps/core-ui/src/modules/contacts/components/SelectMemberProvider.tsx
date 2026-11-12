@@ -6,7 +6,7 @@ import { activeMembersQuery } from '~/lib/members';
 import { MembersInline, memberLabelText } from './MembersInline';
 
 /*
- * Old ui-modules SelectMember (team member picker) on core's users list:
+ * The team member picker on core's users list:
  * the selection, its value and the searchable list every part shares.
  */
 
@@ -99,7 +99,7 @@ const orderMembers = (members: User[], memberIds: string[], search: string) => {
   ];
 };
 
-/** Searchable active members, the selected ones first (old SelectMemberContent). */
+/** Searchable active members, the selected ones first. */
 export const SelectMemberContent = () => {
   const team = useQuery(activeMembersQuery());
   const { memberIds, onSelect } = useSelectMemberContext();

@@ -1,5 +1,5 @@
 import 'erxes-ui/fonts.css';
-// BlockNote's own styles for erxes-ui's block editor (menus, toolbar), as old core-ui loaded them.
+// BlockNote's own styles for erxes-ui's block editor (menus, toolbar).
 import '@blocknote/shadcn/style.css';
 import './styles.css';
 import { StrictMode } from 'react';

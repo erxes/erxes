@@ -5,8 +5,7 @@ import { DASHBOARD_DEFAULT_LAYOUT, DASHBOARD_MAX_ITEMS } from '../constants/dash
 import type { TDashboardItem } from '../types/dashboardTypes';
 
 /*
- * Old erxes saved the layout on the server (`dashboardLayoutSave`); the new
- * core has no such API yet, so it lives in this browser, per user.
+ * The layout is kept in this browser, per user: core has no API to save it.
  */
 const storageKey = (userId: string) => `erxes-home-dashboard:${userId}`;
 

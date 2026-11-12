@@ -12,7 +12,7 @@ const subscribe = (onChange: () => void) => {
   return () => query.removeEventListener('change', onChange);
 };
 
-/** Applies the chosen theme (light, dark or the system's) to <html>, as old core-ui. */
+/** Applies the chosen theme (light, dark or the system's) to <html>. */
 export const ThemeEffect = () => {
   const theme = useAtomValue(themeState);
   const systemDark = useSyncExternalStore(subscribe, () => window.matchMedia(DARK_QUERY).matches);

@@ -2,8 +2,7 @@ import { cn, PageHeader } from 'erxes-ui';
 import { forwardRef, type HTMLAttributes } from 'react';
 
 /*
- * Old ui-modules PageHeader details the compat stub leaves out: room for the
- * app sidebar's toggle when the sidebar is collapsed, and the first crumb
+ * Room for the app sidebar's toggle when the sidebar is collapsed, and the first crumb
  * pulled left so its icon lines up with the page content.
  */
 const PAGE_HEADER_PADDING_CLASS_NAME =

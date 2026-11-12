@@ -71,7 +71,7 @@ const GroupFields = ({
   );
 };
 
-/** Old erxes's group form, in a sheet. */
+/** The property group form, in a sheet. */
 export const PropertyGroupForm = ({
   isEdit,
   onSubmit,

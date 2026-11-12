@@ -8,7 +8,7 @@ export interface Crumb {
   icon?: ComponentType<{ className?: string }>;
 }
 
-/** Page breadcrumb as in old core-ui: app, then the section, as ghost links. */
+/** Page breadcrumb: app, then the section, as ghost links. */
 export const AppBreadcrumb = ({ items }: { items: Crumb[] }) => (
   <>
     <Breadcrumb>

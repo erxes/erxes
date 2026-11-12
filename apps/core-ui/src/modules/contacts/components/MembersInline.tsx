@@ -6,7 +6,7 @@ import { useSession } from '~/modules/auth/session';
 
 export const memberLabelText = (member: User) => member.fullName || member.username || member.email;
 
-/** A member's name, with the old "Inactive" badge for disabled ones. */
+/** A member's name, with an "Inactive" badge for disabled ones. */
 export const MemberLabel = ({ member }: { member: User }) =>
   member.status === 'active' ? (
     <>{memberLabelText(member)}</>
@@ -40,7 +40,7 @@ const MemberAvatars = ({ members, size }: { members: User[]; size: AvatarProps['
   </div>
 );
 
-/** Selected members: avatars, then the name (old MembersInline). */
+/** Selected members: avatars, then the name. */
 export const MembersInline = ({
   memberIds,
   placeholder,

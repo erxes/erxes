@@ -44,7 +44,7 @@ const PluginRoutes = () => {
 
 export const AppRoutes = () => (
   <Routes>
-    {/* First sign-in steps, full screen (old AppPath.MainOnboarding). */}
+    {/* First sign-in steps, full screen. */}
     <Route path="welcome" element={<MainOnboardingPage />} />
     <Route
       element={

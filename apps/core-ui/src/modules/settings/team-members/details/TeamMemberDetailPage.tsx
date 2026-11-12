@@ -4,7 +4,7 @@ import { MemberDetail } from './MemberDetail';
 import { RecordSidePanel } from './RecordSidePanel';
 import { ResetPasswordDialog } from './ResetPasswordDialog';
 
-/** The member's own page (old `TeamMemberDetailPage`): the record panel, expanded. */
+/** The member's own page: the record panel, expanded. */
 export const TeamMemberDetailPage = () => {
   const { id = '' } = useParams<{ id: string }>();
   const [tab, setTab] = useQueryState<string>('tab');

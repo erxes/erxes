@@ -27,8 +27,8 @@ const EmptyProperties = ({ kind }: { kind: 'customer' | 'company' }) => {
 };
 
 /**
- * A contact's custom fields, as their own panel tab (old FieldsInDetail,
- * `bare`): one collapsible card per field group, in group order.
+ * A contact's custom fields, as their own panel tab: one collapsible card per
+ * field group, in group order.
  */
 const ContactProperties = ({
   kind,

@@ -7,11 +7,11 @@ import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan, useSession } from '~/modules/auth/session';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from './constants';
 
-/** First and last name as old core-ui shows them, else the stored full name, else the email. */
+/** First and last name, else the stored full name, else the email. */
 export const memberName = (user: Pick<User, 'firstName' | 'lastName' | 'fullName' | 'email'>) =>
   [user.firstName, user.lastName].filter(Boolean).join(' ') || user.fullName || user.email;
 
-/** The list's filters (old `useTeamMemberVariables`): search, role and "Is active" (on unless switched off). */
+/** The list's filters: search, role and "Is active" (on unless switched off). */
 const useTeamMemberFilters = () => {
   const [{ searchValue, isActive, role }] = useMultiQueryState<{
     searchValue: string;
@@ -37,7 +37,7 @@ export const useTeamMembers = () => {
   });
 };
 
-/** One member (old `useUserDetail`). */
+/** One member. */
 export const useTeamMember = (id: string | null) =>
   useQuery(orpc.users.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id, retry: false }));
 
@@ -56,7 +56,7 @@ const useStoreMember = () => {
   };
 };
 
-/** Old `useUserEdit`: saves any member field, toasts on failure. */
+/** Saves any member field, toasts on failure. */
 export const useTeamMemberEdit = () => {
   const store = useStoreMember();
   const { toast } = useToast();
@@ -126,7 +126,7 @@ export const useTeamMembersDeactivate = () => {
   });
 };
 
-/** Old `useUsersInvite`: every row in one request, all or none. */
+/** Invites every row in one request, all or none. */
 export const useTeamMembersInvite = () => {
   const client = useQueryClient();
 
@@ -137,7 +137,7 @@ export const useTeamMembersInvite = () => {
   );
 };
 
-/** Old `useUserResetPassword`. */
+/** Sets a member's password. */
 export const useTeamMemberSetPassword = () => {
   const store = useStoreMember();
   const client = useQueryClient();

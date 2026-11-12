@@ -16,7 +16,7 @@ const lastLocationState = atomWithStorage<Record<string, string>>('core-tab:last
 });
 
 /**
- * Browser-like app tabs (old core-ui): opening an app adds a tab, a tab
+ * Browser-like app tabs: opening an app adds a tab, a tab
  * remembers where it was, closing the active tab moves to its neighbour.
  */
 export const useAppTabs = (apps: NavApp[]) => {

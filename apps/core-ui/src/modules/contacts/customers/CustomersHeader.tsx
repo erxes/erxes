@@ -22,7 +22,7 @@ const CustomersExportButton = ({ state }: { state: CustomerState }) => {
   );
 };
 
-/** `C` runs `action` unless typing somewhere or a dialog is open (old page hotkey). */
+/** `C` runs `action` unless typing somewhere or a dialog is open. */
 export const useCreateHotkey = (action: () => void) => {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

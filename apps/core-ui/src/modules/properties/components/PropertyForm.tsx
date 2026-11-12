@@ -207,7 +207,7 @@ const PropertyFormFooter = ({
   );
 };
 
-/** Old erxes's property form, as a full page (add and edit). */
+/** The property form, as a full page (add and edit). */
 export const PropertyForm = ({
   onSubmit,
   loading,

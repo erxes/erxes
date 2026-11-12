@@ -19,7 +19,7 @@ export const DashboardTileCrashState = ({ onRetry }: { onRetry: () => void }) =>
   );
 };
 
-/** What `react-error-boundary` did in old core-ui, for one tile. */
+/** Catches one tile's render error and shows its crash state. */
 export class DashboardTileErrorBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }

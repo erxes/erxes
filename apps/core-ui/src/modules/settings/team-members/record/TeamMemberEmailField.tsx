@@ -4,7 +4,7 @@ import { Badge, Input, Popover, RecordTableInlineCell } from 'erxes-ui';
 import { type ChangeEvent, useState } from 'react';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 
-/** Not verified until the member can sign in (old "Not verified" invitation status). */
+/** Not verified until the member can sign in. */
 export const EmailStatus = ({ status }: { status: User['status'] }) => {
   if (status === 'invited') {
     return <IconCircleDashed size={16} className="text-muted-foreground" />;

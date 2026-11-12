@@ -32,8 +32,7 @@ export const CompaniesTotalCount = ({ state = 'customer' }: { state?: 'lead' | '
   );
 };
 
-// Core lists filter by search, tags and owner; old erxes's date filters need
-// list filters core does not have yet.
+/** Company lists filter by search, tags and owner. */
 const CompaniesFilterPopover = ({ state }: { state: 'lead' | 'customer' }) => {
   const [queries] = useMultiQueryState<{
     tags: string[];

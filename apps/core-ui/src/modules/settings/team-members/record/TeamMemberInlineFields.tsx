@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { toYmd } from '~/components/inlineCells';
 import { useMemberPermissions, useTeamMemberEdit } from '../useTeamMembers';
 
-/** `YYYY-MM-DD` → old core-ui's `yyyy/MM/dd`. */
+/** `YYYY-MM-DD` → `yyyy/MM/dd`. */
 export const formatMemberDate = (value: string) => value.split('-').join('/');
 
 /** A local date for the calendar (a plain `new Date('YYYY-MM-DD')` is UTC midnight). */
@@ -14,7 +14,7 @@ export const ymdToDate = (value: string) => {
   return new Date(year ?? 1970, (month ?? 1) - 1, day ?? 1);
 };
 
-/** Old work started date cell: a calendar in a popover, saved when it closes. */
+/** Work start date cell: a calendar in a popover, saved when it closes. */
 export const TeamMemberWorkStartedField = ({ user }: { user: User }) => {
   const { id, workStartedDate } = user;
   const [open, setOpen] = useState(false);

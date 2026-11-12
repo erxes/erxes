@@ -1,4 +1,4 @@
-// Old ui-modules company constants (business types, industries).
+// Company business types and industries.
 export const COMPANY_BUSINESS_TYPES = [
   '',
   'Analyst',

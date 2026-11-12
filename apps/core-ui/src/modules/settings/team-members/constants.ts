@@ -9,15 +9,14 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 
-/** Old core-ui `/settings/team/members` is `/settings/team-members` here. */
 export const TEAM_MEMBERS_PATH = '/settings/team-members';
 
 export const teamMemberPath = (id: string) => `${TEAM_MEMBERS_PATH}/${id}`;
 
-/** The member open in the side panel beside the list (old `user_id`). */
+/** The member open in the side panel beside the list. */
 export const MEMBER_PANEL_QUERY_KEY = 'user_id';
 
-/** The member whose password is being set (old `reset_password_id`). */
+/** The member whose password is being set. */
 export const RESET_PASSWORD_QUERY_KEY = 'reset_password_id';
 
 export const TEAM_MEMBER_CURSOR_SESSION_KEY = 'core_team_members_cursor';

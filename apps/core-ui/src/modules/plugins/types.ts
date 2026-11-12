@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
 
-/** What a plugin UI exposes as `./config` (`CONFIG`), as for old core-ui. */
+/** What a plugin UI exposes as `./config` (`CONFIG`). */
 export interface PluginConfig {
   name: string;
   path: string;

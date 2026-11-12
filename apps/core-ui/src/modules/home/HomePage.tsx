@@ -23,7 +23,7 @@ const HomeLayout = () => {
   );
 };
 
-/** `/`: the greeting and the user's dashboard of widgets (old core-ui HomePage). */
+/** `/`: the greeting and the user's dashboard of widgets. */
 export const HomePage = () => (
   <DashboardProvider>
     <HomeLayout />

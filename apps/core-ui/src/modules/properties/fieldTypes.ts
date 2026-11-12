@@ -16,7 +16,7 @@ import {
 } from '@tabler/icons-react';
 import { oneOf } from '~/lib/text';
 
-/** The property types core supports, in old erxes's order, with its labels and icons. */
+/** The property types core supports, with their labels and icons, in menu order. */
 export const FIELD_TYPES_OBJECT: Record<
   FieldType,
   { value: FieldType; label: string; icon: Icon; i18nKey: string }

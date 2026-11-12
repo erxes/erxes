@@ -18,7 +18,7 @@ import { messageOf } from '~/lib/api';
 import { useCan, useSession } from '~/modules/auth/session';
 import { permissionsFor, useTeamMembersDeactivate } from '../useTeamMembers';
 
-/** Old `TeamMemberDeactivate`: skips yourself, the already deactivated, and owners you cannot manage. */
+/** Deactivates the selected members; skips yourself, the already deactivated, and owners you cannot manage. */
 const TeamMemberDeactivate = ({
   teamMembers,
   onCompleted,

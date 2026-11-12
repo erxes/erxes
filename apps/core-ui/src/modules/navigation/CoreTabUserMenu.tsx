@@ -21,7 +21,7 @@ import { CoreTabTooltip } from './CoreTabTooltip';
 const isThemeOption = (value: string): value is ThemeOption =>
   value === 'light' || value === 'dark' || value === 'system';
 
-/** Name and email at the top of the menu (old core-ui `User`). */
+/** Name and email at the top of the menu. */
 const UserIdentity = () => {
   const { user } = useSession();
 
@@ -35,7 +35,7 @@ const UserIdentity = () => {
   );
 };
 
-/** Light / dark / system as a three-icon toggle (old core-ui `ThemeSelector`). */
+/** Light / dark / system as a three-icon toggle. */
 const ThemeSelector = () => {
   const [theme, setTheme] = useAtom(themeState);
   const { t } = useTranslation('organization');
@@ -83,7 +83,7 @@ const ThemeSelector = () => {
 const languageName = (code: LanguageCode) =>
   Object.entries(INTL_LANGUAGES).find(([, locale]) => locale.startsWith(`${code}-`))?.[0] ?? code;
 
-/** Language submenu (old core-ui `SelectLanguages`). */
+/** Language submenu. */
 const SelectLanguages = () => {
   const { t, i18n } = useTranslation('organization');
 
@@ -111,7 +111,7 @@ const SelectLanguages = () => {
   );
 };
 
-/** The avatar at the end of the top bar (old core-ui `CoreTabUserMenu`). */
+/** The avatar at the end of the top bar. */
 export const CoreTabUserMenu = () => {
   const { user } = useSession();
   const signOut = useSignOut();

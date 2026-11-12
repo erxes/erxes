@@ -6,7 +6,7 @@ import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
 import { fieldGroupsQuery } from './useFields';
 
-/** Owners and admins manage properties (old `fieldsManage` / `fieldGroupsManage`). */
+/** Owners and admins manage properties. */
 export const useCanManageFields = () => useCan()('properties.manage');
 
 /** Refreshes every list a property change shows in (and records whose values went away). */

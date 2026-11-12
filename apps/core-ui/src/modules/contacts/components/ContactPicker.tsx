@@ -8,8 +8,8 @@ import { useCompany } from '../companies/useCompanies';
 import { customerName, useCustomer } from '../customers/useCustomers';
 
 /*
- * Old ui-modules SelectCustomer / SelectCompany content and ContactRecordChip,
- * on core's customers and companies lists.
+ * Customer and company pickers and the record chip, on core's customers and
+ * companies lists.
  */
 
 export type TContactKind = 'customer' | 'company';
@@ -179,7 +179,7 @@ const ContactOptionItem = ({
 
 /**
  * The searchable customer or company list of a picker: the selected ones
- * first, then the matches (old SelectCustomer.Content / SelectCompany.Content).
+ * first, then the matches.
  */
 export const SelectContactContent = ({
   kind,

@@ -30,7 +30,7 @@ export function InviteTeamMember() {
           </Dialog.Close>
         </Dialog.Header>
         <div className="flex flex-col gap-6 px-3 pb-3">
-          {/* Core sends no invitation email yet: say what a password does instead of old "notify". */}
+          {/* Core sends no invitation email, so this says what a password does. */}
           <span className="text-accent-foreground">
             {t(
               'invite-password-hint',

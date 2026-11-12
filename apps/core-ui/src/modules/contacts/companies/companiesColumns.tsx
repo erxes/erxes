@@ -161,7 +161,7 @@ const identityColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
   },
 ];
 
-/** Company columns, as in old core-ui. */
+/** Company columns. */
 const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
   ...identityColumns(t),
   {
