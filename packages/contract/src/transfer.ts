@@ -89,6 +89,8 @@ export const ExportQuery = z.object({
   ownerId: Id.optional(),
 });
 
+export type ExportQuery = z.infer<typeof ExportQuery>;
+
 export const Export = z.object({
   id: Id,
   recordType: TransferRecordType,

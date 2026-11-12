@@ -1,3 +1,4 @@
+import type { ExportQuery } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -135,7 +136,7 @@ export const exports = pgTable(
     recordType: text({ enum: TRANSFER_RECORD_TYPES }).notNull(),
     format: text({ enum: ['csv', 'xlsx'] }).notNull(),
     /** The list query: `filter` (condition group), `search`, `tagIds`, `ownerId`. */
-    query: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
+    query: jsonb().$type<ExportQuery>().default({}).notNull(),
     columns: jsonb().$type<string[]>().notNull(),
     status: text({ enum: EXPORT_STATUSES }).default('running').notNull(),
     rowCount: integer(),
