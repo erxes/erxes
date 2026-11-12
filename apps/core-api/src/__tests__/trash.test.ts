@@ -1,166 +1,111 @@
-import type { Server } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
-import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
-import { pluginToken } from './plugin';
+import { activities, customers, newId, users } from '@erxes/core-db';
+import { beforeAll, expect, it } from 'vite-plus/test';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { HR_SECRET } from './plugin';
+import { useTwoOrgs } from './support';
 
 describeWithDb('recycle bin and mass-deletion guard', { timeout: 300_000 }, () => {
   useTestDatabase();
 
-  let server: Server;
-  let base = '';
-  let orgId = '';
-  let owner = '';
-  let admin = '';
-
-  const call = async (token: string, method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
+  const t = useTwoOrgs();
+  const adminId = newId();
+  const admin = () => t.client({ user: adminId, org: t.ids.org });
 
   beforeAll(async () => {
-    const { users, newId } = await import('@erxes/core-db');
-
-    const acme = await createOrganization({
-      subdomain: 'acme',
-      name: 'Acme',
-      owner: { email: 'o@acme.mn' },
-    });
-
-    const adminId = newId();
-
-    orgId = acme.organization.id;
     await adminDb()
       .insert(users)
-      .values({ id: adminId, orgId, email: 'a@acme.mn', role: 'admin', status: 'active' });
-    owner = await currentToken(acme.owner.id, orgId);
-    admin = await currentToken(adminId, orgId);
-    server = createApp().listen(0);
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-  });
-
-  afterAll(async () => {
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+      .values({
+        id: adminId,
+        orgId: t.ids.org,
+        email: 'a@acme.mn',
+        role: 'admin',
+        status: 'active',
+      });
   });
 
   it('keeps deleted customers with their tags, links and timeline, and restores them whole', async () => {
-    const tag = await call(owner, 'POST', '/tags', {
-      type: 'customer',
-      name: 'vip',
-      colorCode: '#ff0000',
-    });
+    const owner = t.owner();
+    const tag = await owner.tags.create({ type: 'customer', name: 'vip', colorCode: '#ff0000' });
+    const company = await owner.companies.create({ primaryName: 'Acme LLC' });
 
-    const company = await call(owner, 'POST', '/companies', { primaryName: 'Acme LLC' });
-
-    const customer = await call(owner, 'POST', '/customers', {
+    const { id } = await owner.customers.create({
       firstName: 'Saraa',
       primaryEmail: 'saraa@mail.mn',
-      tagIds: [tag.body.id],
+      tagIds: [tag.id],
     });
 
-    await call(owner, 'PUT', `/customers/${customer.body.id}/companies/${company.body.id}`);
-    await call(owner, 'POST', '/activities/notes', {
-      targetType: 'customer',
-      targetId: customer.body.id,
-      body: 'Remember me',
-    });
+    await owner.customers.linkCompany({ id, companyId: company.id });
+    await owner.activities.addNote({ targetType: 'customer', targetId: id, body: 'Remember me' });
 
-    expect(
-      (await call(admin, 'POST', '/customers/remove', { ids: [customer.body.id] })).body,
-    ).toEqual({ removed: 1 });
-    expect((await call(owner, 'GET', `/customers/${customer.body.id}`)).status).toBe(404);
+    expect(await admin().customers.remove({ ids: [id] })).toEqual({ removed: 1 });
+    await expect(owner.customers.get({ id })).rejects.toMatchObject({ status: 404 });
 
-    const bin = await call(admin, 'GET', '/trash');
+    const [binned] = (await admin().trash.list({})).data;
 
-    expect(bin.body.data[0]).toMatchObject({
+    expect(binned).toMatchObject({
       recordType: 'customer',
-      recordId: customer.body.id,
+      recordId: id,
       label: 'Saraa',
       counts: { tags: 1, links: 1 },
     });
-    expect(bin.body.data[0].counts.activities).toBeGreaterThanOrEqual(2);
+    expect(binned?.counts.activities).toBeGreaterThanOrEqual(2);
+    expect(await admin().trash.restore({ ids: [binned?.id ?? ''] })).toEqual({
+      restored: 1,
+      failed: [],
+    });
 
-    expect(
-      (await call(admin, 'POST', '/trash/restore', { ids: [bin.body.data[0].id] })).body,
-    ).toEqual({ restored: 1, failed: [] });
+    const back = await owner.customers.get({ id });
 
-    const back = await call(owner, 'GET', `/customers/${customer.body.id}`);
-
-    expect(back.body).toMatchObject({ firstName: 'Saraa', primaryEmail: 'saraa@mail.mn' });
-    expect(back.body.tagIds ?? back.body.tags?.map((item: { id: string }) => item.id)).toContain(
-      tag.body.id,
-    );
-    expect(
-      (await call(owner, 'GET', `/customers/${customer.body.id}/companies`)).body.data.map(
-        (item: { id: string }) => item.id,
-      ),
-    ).toContain(company.body.id);
-
-    const timeline = await call(
-      owner,
-      'GET',
-      `/activities?targetType=customer&targetId=${customer.body.id}&kind=notes`,
+    expect(back).toMatchObject({ firstName: 'Saraa', primaryEmail: 'saraa@mail.mn' });
+    expect(back.tagIds).toContain(tag.id);
+    expect((await owner.customers.companies({ id })).data.map((item) => item.id)).toContain(
+      company.id,
     );
 
-    expect(timeline.body.data.map((item: { data: { body?: string } }) => item.data.body)).toContain(
-      'Remember me',
-    );
-    expect((await call(admin, 'GET', '/trash')).body.data).toEqual([]);
+    const notes = await owner.activities.list({
+      targetType: 'customer',
+      targetId: id,
+      kind: 'notes',
+    });
+
+    expect(notes.data.map((item) => item.data.body)).toContain('Remember me');
+    expect((await admin().trash.list({})).data).toEqual([]);
 
     // Purging for good is the owner's.
-    await call(admin, 'POST', '/customers/remove', { ids: [customer.body.id] });
+    await admin().customers.remove({ ids: [id] });
 
-    const again = (await call(admin, 'GET', '/trash')).body.data[0];
+    const ids = (await admin().trash.list({})).data.map((item) => item.id);
 
-    expect((await call(admin, 'POST', '/trash/purge', { ids: [again.id] })).status).toBe(403);
-    expect((await call(owner, 'POST', '/trash/purge', { ids: [again.id] })).body).toEqual({
-      purged: 1,
-    });
+    await expect(admin().trash.purge({ ids })).rejects.toMatchObject({ status: 403 });
+    expect(await owner.trash.purge({ ids })).toEqual({ purged: 1 });
   });
 
   it('stops a member deleting far too much at once, tells the owners, and keeps everything restorable', async () => {
-    const { customers, newId } = await import('@erxes/core-db');
     const ids = Array.from({ length: 45 }, () => newId());
 
     await adminDb()
       .insert(customers)
-      .values(ids.map((id, index) => ({ id, orgId, firstName: `Bulk ${index}` })));
+      .values(ids.map((id, index) => ({ id, orgId: t.ids.org, firstName: `Bulk ${index}` })));
 
-    expect(
-      (await call(admin, 'POST', '/customers/remove', { ids: ids.slice(0, 25) })).body,
-    ).toEqual({ removed: 25 });
-
-    const stopped = await call(admin, 'POST', '/customers/remove', { ids: ids.slice(25) });
-
-    expect(stopped.status).toBe(429);
-    expect(stopped.body.code).toBe('MASS_DELETE_STOPPED');
-    // Refused: nothing of the second batch was deleted.
-    expect((await call(owner, 'GET', `/customers/${ids[30]}`)).status).toBe(200);
-
-    const alerts = await call(owner, 'GET', '/notifications?kind=core.security.mass_deletion');
-
-    expect(alerts.body.data.length).toBeGreaterThanOrEqual(1);
-    // Owners are not limited.
-    expect((await call(owner, 'POST', '/customers/remove', { ids: ids.slice(25) })).body).toEqual({
-      removed: 20,
+    expect(await admin().customers.remove({ ids: ids.slice(0, 25) })).toEqual({ removed: 25 });
+    await expect(admin().customers.remove({ ids: ids.slice(25) })).rejects.toMatchObject({
+      status: 429,
+      code: 'MASS_DELETE_STOPPED',
     });
-    expect((await call(owner, 'GET', '/trash?limit=500')).body.data.length).toBe(45);
+    // Refused: nothing of the second batch was deleted.
+    expect((await t.owner().customers.get({ id: ids[30] ?? '' })).id).toBe(ids[30]);
+
+    const alerts = await t.owner().notifications.list({ kind: 'core.security.mass_deletion' });
+
+    expect(alerts.data.length).toBeGreaterThanOrEqual(1);
+    // Owners are not limited.
+    expect(await t.owner().customers.remove({ ids: ids.slice(25) })).toEqual({ removed: 20 });
+    expect((await t.owner().trash.list({ limit: 500 })).data).toHaveLength(45);
   });
 
   it('suspends a plugin that deletes far too much', async () => {
-    const { activities, newId } = await import('@erxes/core-db');
-    const hr = await pluginToken(base, orgId);
-    const customer = await call(owner, 'POST', '/customers', { firstName: 'Target' });
+    const hr = t.client(await t.pluginToken(HR_SECRET, t.ids.org));
+    const customer = await t.owner().customers.create({ firstName: 'Target' });
     const entries = Array.from({ length: 45 }, () => newId());
 
     await adminDb()
@@ -168,9 +113,9 @@ describeWithDb('recycle bin and mass-deletion guard', { timeout: 300_000 }, () =
       .values(
         entries.map((id) => ({
           id,
-          orgId,
+          orgId: t.ids.org,
           targetType: 'customer',
-          targetId: customer.body.id,
+          targetId: customer.id,
           source: 'hr',
           type: 'hr.x.y',
           summary: 'x',
@@ -179,24 +124,21 @@ describeWithDb('recycle bin and mass-deletion guard', { timeout: 300_000 }, () =
         })),
       );
 
-    let last = { status: 200, body: null as { code?: string } | null };
+    const removeAll = async () => {
+      for (const id of entries) await hr.activities.remove({ id });
+    };
 
-    for (const id of entries) {
-      last = await call(hr, 'DELETE', `/activities/${id}`);
+    await expect(removeAll()).rejects.toMatchObject({ code: 'MASS_DELETE_STOPPED' });
 
-      if (last.status !== 200) break;
-    }
-
-    expect(last.body?.code).toBe('MASS_DELETE_STOPPED');
-
-    const plugins = await call(owner, 'GET', '/plugins');
-    const state = plugins.body.data.find((plugin: { name: string }) => plugin.name === 'hr');
+    const state = (await t.owner().plugins.list({})).data.find((plugin) => plugin.name === 'hr');
 
     expect(state).toMatchObject({ installed: false });
-    expect(state.statusReason).toMatch(/Suspended/);
+    expect(state?.statusReason).toMatch(/Suspended/);
     // Its tokens stop working; installing again resumes it.
-    expect((await call(hr, 'DELETE', `/activities/${entries[44]}`)).status).toBe(401);
-    expect((await call(owner, 'POST', '/plugins/hr/install')).body).toMatchObject({
+    await expect(hr.activities.remove({ id: entries[44] ?? '' })).rejects.toMatchObject({
+      status: 401,
+    });
+    expect(await t.owner().plugins.install({ name: 'hr' })).toMatchObject({
       installed: true,
       statusReason: null,
     });
