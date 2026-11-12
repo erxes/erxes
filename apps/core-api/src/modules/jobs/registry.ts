@@ -10,7 +10,7 @@ import {
   importParseJob,
   importRunJob,
   importUndoJob,
-} from '~/modules/transfer/imports.service';
+} from '~/modules/transfer/importJobs';
 import { deliverJob } from '~/modules/webhooks/webhooks.service';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
 import type { JobDefinition } from './jobs';
