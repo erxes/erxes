@@ -16,7 +16,7 @@ export const useScopedHotkeys = (
 ) => {
   const [pendingHotkey, setPendingHotkey] = useAtom(pendingHotkeyState);
 
-  const callScopedHotkeyCallback = useScopedHotKeysCallback(dependencies);
+  const callScopedHotkeyCallback = useScopedHotKeysCallback();
 
   const enableOnContentEditable = isDefined(options?.enableOnContentEditable)
     ? options.enableOnContentEditable

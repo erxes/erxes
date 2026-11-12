@@ -72,11 +72,8 @@ export const NumberField = React.forwardRef<
         {children}
         <TextOverflowTooltip
           value={
-            (isOpen
-              ? editingValue.toString()
-              : formatValue
-                ? formatValue(value)
-                : value.toLocaleString()) ?? placeholder
+            (isOpen ? editingValue : formatValue ? formatValue(value) : value.toLocaleString()) ??
+            placeholder
           }
         />
       </RecordTableInlineCell.Trigger>
@@ -85,10 +82,10 @@ export const NumberField = React.forwardRef<
           <Input
             type="text"
             value={editingValue.toLocaleString()}
-            onChange={(e: any) => {
+            onChange={(e) => {
               const rawValue = e.target.value.replace(/,/g, '');
 
-              if (rawValue === '' || rawValue === '-' || rawValue.match(/^-?\d*\.?\d*$/)) {
+              if (/^-?\d*\.?\d*$/.test(rawValue)) {
                 setEditingValue(rawValue);
                 setIsEdited(true);
                 const numValue = Number(rawValue);

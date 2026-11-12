@@ -1,11 +1,9 @@
 import { useAtomCallback } from 'jotai/utils';
-import { useSetHotkeyScope } from './useSetHotkeyScope';
 import { useCallback } from 'react';
-import { previousHotkeyScopeState } from '../states/internal/previousHotkeyScopeState';
 import { currentHotkeyScopeState } from '../states/internal/currentHotkeyScopeState';
+import { previousHotkeyScopeState } from '../states/internal/previousHotkeyScopeState';
 import type { CustomHotkeyScopes } from '../types/CustomHotkeyScope';
-import { DEBUG_HOTKEY_SCOPE } from './useScopedHotKeysCallback';
-import { logDebug } from 'erxes-ui/utils/logDebug';
+import { useSetHotkeyScope } from './useSetHotkeyScope';
 
 export const usePreviousHotkeyScope = () => {
   const setHotKeyScope = useSetHotkeyScope();
@@ -19,10 +17,6 @@ export const usePreviousHotkeyScope = () => {
           return;
         }
 
-        if (DEBUG_HOTKEY_SCOPE) {
-          logDebug('DEBUG: goBackToPreviousHotkeyScope', previousHotkeyScope);
-        }
-
         setHotKeyScope(previousHotkeyScope.scope, previousHotkeyScope.customScopes);
       },
       [setHotKeyScope],
@@ -33,14 +27,6 @@ export const usePreviousHotkeyScope = () => {
     useCallback(
       (get, set, scope: string, customScopes?: CustomHotkeyScopes) => {
         const currentHotkeyScope = get(currentHotkeyScopeState);
-
-        if (DEBUG_HOTKEY_SCOPE) {
-          logDebug('DEBUG: setHotkeyScopeAndMemorizePreviousScope', {
-            currentHotkeyScope,
-            scope,
-            customScopes,
-          });
-        }
 
         setHotKeyScope(scope, customScopes);
         set(previousHotkeyScopeState, currentHotkeyScope);

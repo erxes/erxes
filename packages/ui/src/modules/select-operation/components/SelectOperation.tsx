@@ -83,13 +83,13 @@ export const SelectTriggerOperation = ({
   children: React.ReactNode;
   variant: `${SelectTriggerVariant}`;
 }) => {
-  if (variant === SelectTriggerVariant.TABLE) {
+  if (variant === 'table') {
     return (
       <RecordTableInlineCell.Trigger className="gap-1">{children}</RecordTableInlineCell.Trigger>
     );
   }
 
-  if (variant === SelectTriggerVariant.CARD) {
+  if (variant === 'card') {
     return (
       <Popover.Trigger asChild>
         <Badge
@@ -104,7 +104,7 @@ export const SelectTriggerOperation = ({
     );
   }
 
-  if (variant === SelectTriggerVariant.FILTER) {
+  if (variant === 'filter') {
     return (
       <Popover.Trigger asChild>
         <Filter.BarButton>{children}</Filter.BarButton>
@@ -112,7 +112,7 @@ export const SelectTriggerOperation = ({
     );
   }
 
-  if (variant === SelectTriggerVariant.FORM) {
+  if (variant === 'form') {
     return (
       <Form.Control>
         <Combobox.TriggerBase className="w-fit h-7 font-medium max-w-64">
@@ -122,7 +122,7 @@ export const SelectTriggerOperation = ({
     );
   }
 
-  if (variant === SelectTriggerVariant.ICON) {
+  if (variant === 'icon') {
     return (
       <Popover.Trigger asChild>
         <Button
@@ -152,15 +152,15 @@ export const SelectOperationContent = ({
   variant: `${SelectTriggerVariant}`;
   children: React.ReactNode;
 }) => {
-  if (variant === SelectTriggerVariant.TABLE) {
+  if (variant === 'table') {
     return <RecordTableInlineCell.Content>{children}</RecordTableInlineCell.Content>;
   }
 
   return (
     <Combobox.Content
-      sideOffset={variant === SelectTriggerVariant.CARD ? 4 : 8}
+      sideOffset={variant === 'card' ? 4 : 8}
       onClick={(e) => e.stopPropagation()}
-      onKeyDown={variant === SelectTriggerVariant.FORM ? handleFormContentTab : undefined}
+      onKeyDown={variant === 'form' ? handleFormContentTab : undefined}
     >
       {children}
     </Combobox.Content>
