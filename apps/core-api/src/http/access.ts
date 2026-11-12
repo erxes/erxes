@@ -268,9 +268,12 @@ const ACCESS = {
   'roles.remove': needs('roles.manage'),
 } as const satisfies Record<ProcedurePath, Policy>;
 
+/** ACCESS by the dotted path oRPC reports, which is a plain string at run time. */
+const POLICIES = new Map<string, Policy>(Object.entries(ACCESS));
+
 /** Checks the caller against the procedure's policy (oRPC middleware, every call). */
 export const enforceAccess = (path: string, req: Request) => {
-  const policy = (ACCESS as Record<string, Policy>)[path];
+  const policy = POLICIES.get(path);
 
   if (!policy) {
     // Unreachable while ACCESS satisfies the contract; fail closed regardless.

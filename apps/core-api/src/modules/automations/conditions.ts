@@ -1,4 +1,5 @@
 import type { ConditionGroup, ConditionRule } from '@erxes/core-contract';
+import { z } from 'zod';
 
 /** A value at a dotted path (`subject.customFields.abc`), or undefined. */
 export const valueAt = (context: Record<string, unknown>, path: string): unknown =>
@@ -38,11 +39,16 @@ const same = (a: unknown, b: unknown) =>
 const DAY = 86_400_000;
 
 /** `{ amount, unit }` → milliseconds (months as 30 days, like the SQL side's calendar months near enough for "in the last 3 months"). */
-const span = (value: unknown) => {
-  const { amount, unit } = (value ?? {}) as { amount?: unknown; unit?: unknown };
-  const n = typeof amount === 'number' && amount >= 0 ? amount : Number.NaN;
+const Span = z.object({ amount: z.number().min(0), unit: z.string().optional() });
 
-  return n * (unit === 'months' ? 30 * DAY : unit === 'weeks' ? 7 * DAY : DAY);
+const span = (value: unknown) => {
+  const parsed = Span.safeParse(value);
+
+  if (!parsed.success) return Number.NaN;
+
+  const { amount, unit } = parsed.data;
+
+  return amount * (unit === 'months' ? 30 * DAY : unit === 'weeks' ? 7 * DAY : DAY);
 };
 
 const asTime = (value: unknown) =>
