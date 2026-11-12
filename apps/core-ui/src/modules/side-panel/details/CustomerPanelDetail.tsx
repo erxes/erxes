@@ -1,9 +1,8 @@
-import type { Customer, CustomerState } from '@erxes/core-contract';
+import type { Customer } from '@erxes/core-contract';
 import {
   IconBriefcase,
   IconBuildingSkyscraper,
   IconCalendar,
-  IconCircle,
   IconGenderBigender,
   IconHash,
   IconMail,
@@ -38,6 +37,7 @@ import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
+import { LeadStageField } from '~/modules/leads/LeadStageField';
 
 const SCOPE = 'side-panel-customer';
 
@@ -154,29 +154,6 @@ const CustomerBirthDateField = ({ customer }: { customer: Customer }) => {
   );
 };
 
-/** Switches the contact between lead and customer states. */
-const CustomerStateField = ({ customer }: { customer: Customer }) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
-  const edit = useCustomerEdit();
-
-  return (
-    <Select
-      value={customer.state}
-      onValueChange={(state) => {
-        if (state !== customer.state) edit.mutate({ id: customer.id, state: state as CustomerState });
-      }}
-    >
-      <Select.Trigger className="h-7 rounded-sm px-2 shadow-none hover:bg-accent">
-        <Select.Value placeholder={t('state', 'State')} />
-      </Select.Trigger>
-      <Select.Content align="start">
-        <Select.Item value="lead">{t('state-lead', 'Lead')}</Select.Item>
-        <Select.Item value="customer">{t('state-customer', 'Customer')}</Select.Item>
-      </Select.Content>
-    </Select>
-  );
-};
-
 // The customer's fields as record table cells: click a value to edit it.
 export const CustomerPanelDetail = ({
   customerId,
@@ -226,9 +203,7 @@ export const CustomerPanelDetail = ({
             <PanelField icon={IconHash} label={addT('code', 'Code')}>
               <CustomerTextField customer={customer} code="code" placeholder={addT('code', 'Code')} />
             </PanelField>
-            <PanelField icon={IconCircle} label={addT('state', 'State')}>
-              <CustomerStateField customer={customer} />
-            </PanelField>
+            <LeadStageField recordType="customer" record={customer} />
           </ContactDetailSection>
           <LeadPanelSection recordType="customer" record={customer} />
           <ContactDetailSection title={sectionT('contact', 'Contact')} nested>

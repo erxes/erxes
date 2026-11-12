@@ -53,9 +53,12 @@ export const useCompanyEdit = () => {
 
   return useMutation({
     mutationFn: ({ id, ...body }: CompanyInput & { id: string }) => api.companies.update({ id, ...body }),
-    onSuccess: (company) => {
+    onSuccess: (company, input) => {
       patchCachedRecord(client, COMPANIES_KEY, company);
       client.setQueryData([...COMPANIES_KEY, 'detail', company.id], company);
+
+      // Lead ↔ customer moves it to the other list.
+      if (input.state) void client.invalidateQueries({ queryKey: [...COMPANIES_KEY, 'list'] });
     },
     onError: (error) => toast({ variant: 'destructive', title: 'Could not save the company', description: messageOf(error) }),
   });

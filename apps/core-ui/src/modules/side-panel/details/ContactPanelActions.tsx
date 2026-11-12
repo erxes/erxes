@@ -1,11 +1,11 @@
-import { IconDotsVertical, IconExternalLink, IconTrash } from '@tabler/icons-react';
+import { IconArrowBackUp, IconDotsVertical, IconExternalLink, IconTrash } from '@tabler/icons-react';
 import { Button, Command, Popover, useConfirm } from 'erxes-ui';
 import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCan, useSession } from '~/modules/auth/session';
-import { useCompaniesRemove } from '~/modules/contacts/companies/useCompanies';
-import { useCustomersRemove } from '~/modules/contacts/customers/useCustomers';
+import { useCompaniesRemove, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
+import { useCustomerEdit, useCustomersRemove } from '~/modules/contacts/customers/useCustomers';
 import { getContactDetailPath, getContactListPath } from '~/modules/contacts/utils/contactDetailPath';
 import { getSidePanelRecordPath } from '../sidePanelPaths';
 import { useSidePanel } from '../useSidePanel';
@@ -62,9 +62,12 @@ export const ContactPanelIdentity = ({
 export const ContactPanelActions = ({
   contentType,
   contentId,
+  state,
 }: {
   contentType: 'core:customer' | 'core:company';
   contentId: string;
+  /** A customer can be made a lead again from here. */
+  state?: 'lead' | 'customer';
 }) => {
   const { t } = useTranslation('contact');
   const { user } = useSession();
@@ -81,9 +84,13 @@ export const ContactPanelActions = ({
   const removeCustomers = useCustomersRemove();
   const removeCompanies = useCompaniesRemove();
   const remove = contentType === 'core:customer' ? removeCustomers : removeCompanies;
-  const canDelete = useCan()('contacts.delete');
+  const can = useCan();
+  const canDelete = can('contacts.delete');
+  const canReopen = state === 'customer' && can('contacts.edit');
+  const editCustomer = useCustomerEdit();
+  const editCompany = useCompanyEdit();
 
-  if (!canDelete) return null;
+  if (!canDelete && !canReopen) return null;
 
   const deleteContact = async () => {
     try {
@@ -126,6 +133,18 @@ export const ContactPanelActions = ({
           <Command>
             <Command.List className="p-0">
               <Command.Group className="p-1">
+                {canReopen && (
+                  <Command.Item
+                    onSelect={() => {
+                      setOpen(false);
+                      (contentType === 'core:customer' ? editCustomer : editCompany).mutate({ id: contentId, state: 'lead' });
+                    }}
+                  >
+                    <IconArrowBackUp />
+                    Make it a lead again
+                  </Command.Item>
+                )}
+                {canDelete && (
                 <Command.Item
                   className="text-destructive"
                   disabled={remove.isPending}
@@ -137,6 +156,7 @@ export const ContactPanelActions = ({
                   <IconTrash />
                   {t('action-delete', 'Delete')}
                 </Command.Item>
+                )}
               </Command.Group>
             </Command.List>
           </Command>

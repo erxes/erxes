@@ -203,7 +203,7 @@ const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => 
   const actions = (
     <>
       <LeadHeaderActions recordType={contactType === 'core:company' ? 'company' : 'customer'} record={contactType === 'core:company' ? company : customer} />
-      <ContactPanelActions contentType={contactType} contentId={record.contentId} />
+      <ContactPanelActions contentType={contactType} contentId={record.contentId} state={(contactType === 'core:company' ? company : customer)?.state} />
     </>
   );
 

@@ -24,7 +24,7 @@ export const LeadPanelSection = ({ record }: { recordType: LeadRecordType; recor
       {isLead && days !== null && (
         <PanelField icon={IconHourglass} label="In stage">
           <Text>
-            {`${stage?.name ?? 'No stage'} · ${days === 0 ? 'since today' : `${days} days`}`}
+            {days === 0 ? 'Since today' : `${days} days`}
             {stage?.kind === 'disqualified' && record.disqualifyReason ? ` · ${record.disqualifyReason}` : ''}
           </Text>
         </PanelField>

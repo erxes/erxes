@@ -22,6 +22,7 @@ import { ContactDescriptionField } from './ContactPanelDescription';
 import { ContactPanelRelationField } from './ContactPanelRelationField';
 import { ContactPanelTags } from './ContactPanelTags';
 import { LeadPanelSection } from '~/modules/leads/LeadPanelSection';
+import { LeadStageField } from '~/modules/leads/LeadStageField';
 
 const SCOPE = 'side-panel-company';
 
@@ -96,6 +97,7 @@ const CompanyFields = ({ companyId }: { companyId: string }) => {
           <PanelField icon={IconHash} label={t('field.code', 'Code')}>
             <CompanyTextField company={company} code="code" placeholder={t('field.code', 'Code')} />
           </PanelField>
+          <LeadStageField recordType="company" record={company} />
           <PanelField icon={IconWorld} label={t('field.website', 'Website')}>
             <CompanyTextField company={company} code="website" placeholder={t('field.website', 'Website')} />
           </PanelField>
