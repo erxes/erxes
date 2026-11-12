@@ -21,7 +21,7 @@ import { Button, cn, DropdownMenu } from 'erxes-ui';
 import { type ComponentType, Fragment, type ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLeadStages } from '~/modules/leads/useLeads';
-import { catalogIcon } from './CatalogPicker';
+import { catalogIcon } from './catalogGroups';
 import { armsOf, describeStep, type ListAddress, STEP_TITLES, type StepType } from './flowModel';
 import { BuilderContext } from './BuilderContext';
 import type { FieldInfo } from './useAutomationFields';
