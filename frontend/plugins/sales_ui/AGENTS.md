@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-11`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -24,6 +24,15 @@
   plugin routes.
 
 ## Current Capabilities
+
+- The automations POS module answers the template requirement kind
+  `sales:pos.pos` through its `templateRequirement` entry
+  (`PosTemplateRequirement`, `SelectPos`); the answer is the POS id a Create POS
+  order step takes as `posId`, and `usePosTemplateRequirement` names it
+  (`posDetail.name`) through `onLabel` for the finished wizard step. Up to six
+  POS show as cards (`TemplateRequirementOptions`), more as `SelectPos`; a new
+  one is made in place with `PosCreate`, whose `onCreateSuccess(posId)` picks
+  it, and the only POS is picked by itself.
 
 - Deals and POS orders export to CSV through the shared `ui-modules`
   `Export` button: the deals action bar exports the current pipeline, stage
@@ -346,6 +355,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   show a warning and are stripped on the next save. "Add field" (gated by
   `fieldsManage`) opens the shared `ui-modules` `PropertyAddSheet` for
   `core:customer` and places the new property on the form, visible.
+- The Create deal action form (`CreateDealActionConfigForm`) adds `productIds`
+  (product suggestions) and `items` (JSON lines, attribute placeholders) like
+  the POS order form, reusing its `products` / `order-items` translations;
+  `salesActionConfigFormSchema` keeps both, so saving does not strip them.
 - POS and pipeline "Automations" tabs (`PosAutomations`, `PipelineAutomations`)
   share `modules/automations` (`SourceAutomations` / `useSourceAutomations`,
   query `SalesSourceAutomations`): they list the automations whose trigger runs

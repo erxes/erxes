@@ -195,11 +195,21 @@ import {
   INotificationTemplateModel,
   loadNotificationTemplateClass,
 } from './modules/notificationTemplates/db/models/NotificationTemplates';
+import { ICurrencyRateDocument } from './modules/currencyRates/db/definitions/currencyRates';
+import {
+  ICurrencyRateModel,
+  loadCurrencyRateClass,
+} from './modules/currencyRates/db/models/CurrencyRates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
   loadAutomationWorkflowTemplateClass,
 } from './modules/automations/db/models/AutomationWorkflowTemplates';
+import {
+  ITemplateInstallationDocument,
+  ITemplateInstallationModel,
+  loadTemplateInstallationClass,
+} from './modules/template/db/models/Installations';
 import {
   IAutomationModel,
   loadClass as loadAutomationClass,
@@ -389,18 +399,6 @@ import {
   loadFileShareClass,
 } from '@/files/db/models/FileShares';
 import {
-  ITemplateCategoryModal,
-  loadTemplateCategoryClass,
-} from '@/template/db/models/Category';
-import {
-  ITemplateModal,
-  loadTemplateClass,
-} from '@/template/db/models/Template';
-import {
-  ITemplateCategoryDocument,
-  ITemplateDocument,
-} from '@/template/@types';
-import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
@@ -462,7 +460,9 @@ export interface IModels {
   AutomationExecutions: IExecutionModel;
   EmailTemplates: IEmailTemplateModel;
   NotificationTemplates: INotificationTemplateModel;
+  CurrencyRates: ICurrencyRateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
+  TemplateInstallations: ITemplateInstallationModel;
   Logs: ILogModel;
   Imports: IImportModel;
   Exports: IExportModel;
@@ -506,8 +506,6 @@ export interface IModels {
 
   NotificationSettings: Model<NotificationSettings>;
 
-  Template: ITemplateModal;
-  TemplateCategory: ITemplateCategoryModal;
   OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
   LdapConfigs: ILdapConfigModel;
@@ -796,6 +794,11 @@ export const loadClasses = (
     INotificationTemplateModel
   >('notification_templates', loadNotificationTemplateClass(models));
 
+  models.CurrencyRates = db.model<ICurrencyRateDocument, ICurrencyRateModel>(
+    'currency_rates',
+    loadCurrencyRateClass(models),
+  );
+
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,
     IAutomationWorkflowTemplateModel
@@ -803,6 +806,11 @@ export const loadClasses = (
     'automation_workflow_templates',
     loadAutomationWorkflowTemplateClass(models),
   );
+
+  models.TemplateInstallations = db.model<
+    ITemplateInstallationDocument,
+    ITemplateInstallationModel
+  >('template_installations', loadTemplateInstallationClass(models, subdomain));
 
   models.Notifications = db.model<
     INotificationDocument,
@@ -997,16 +1005,6 @@ export const loadClasses = (
     'file_shares',
     loadFileShareClass(models),
   );
-
-  models.Template = db.model<ITemplateDocument, ITemplateModal>(
-    'templates',
-    loadTemplateClass(models, subdomain),
-  );
-
-  models.TemplateCategory = db.model<
-    ITemplateCategoryDocument,
-    ITemplateCategoryModal
-  >('template_categories', loadTemplateCategoryClass(models));
 
   models.OAuthDeviceCodes = db.model<
     IOAuthDeviceCodeDocument,

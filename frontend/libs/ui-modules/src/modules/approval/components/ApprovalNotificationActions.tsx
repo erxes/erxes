@@ -56,25 +56,30 @@ export const ApprovalNotificationActions = ({
     }
   };
 
-  if (isRequester) {
-    return (
-      <Button
-        variant="outline"
-        disabled={loading}
-        onClick={() => handleAction('cancel')}
-      >
-        {loading ? <Spinner /> : <IconX />}
-        {t('cancel-request')}
-      </Button>
-    );
-  }
+  const cancelButton = (
+    <Button
+      variant="outline"
+      disabled={loading}
+      onClick={() => handleAction('cancel')}
+    >
+      {loading ? <Spinner /> : <IconX />}
+      {t('cancel-request')}
+    </Button>
+  );
 
+  // An automation asks on its owner's behalf, so the owner may be an approver
+  // of their own request; deciding comes first
   if (!isApprover) {
-    return <Badge variant="secondary">{t('waiting-for-approver')}</Badge>;
+    return isRequester ? (
+      cancelButton
+    ) : (
+      <Badge variant="secondary">{t('waiting-for-approver')}</Badge>
+    );
   }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {isRequester && cancelButton}
       <Button disabled={loading} onClick={() => handleAction('approve')}>
         {loading ? <Spinner /> : <IconCheck />}
         {t('approve')}

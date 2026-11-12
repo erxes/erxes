@@ -7,7 +7,6 @@ import {
   TAutomationOutputVariable,
   TAutomationFindObjectTargetDefinition,
   TAiKnowledgeSourceConfig,
-  TAiToolConfig,
   TAutomationSetPropertyTarget,
   TRecordReferencesConfig,
   normalizeAutomationConstantsForTransport,
@@ -45,7 +44,6 @@ type TAutomationConstantsResponse = {
   findObjectTargetsConst: TAutomationFindObjectTargetDefinition[];
   setPropertyTargetsConst: TWithPluginName<TAutomationSetPropertyTarget>[];
   aiKnowledgeSourcesConst: TWithPluginName<TAiKnowledgeSourceConfig>[];
-  aiToolsConst: TWithPluginName<TAiToolConfig>[];
   aiAgentRuntimePresetsConst: TAiAgentRuntimePreset[];
   workflowTemplatesConst: TWithPluginName<TAutomationBuiltInTemplate>[];
 };
@@ -248,10 +246,6 @@ export const getAutomationConstants =
         ...source,
         pluginName: 'core',
       })),
-      aiToolsConst: (normalizedCoreConstants.ai?.tools || []).map((tool) => ({
-        ...tool,
-        pluginName: 'core',
-      })),
       workflowTemplatesConst: (
         normalizedCoreConstants.workflowTemplates || []
       ).map((template) => ({ ...template, pluginName: 'core' })),
@@ -295,13 +289,6 @@ export const getAutomationConstants =
           pluginName,
         })),
       );
-      constants.aiToolsConst.push(
-        ...(ai?.tools || []).map((tool) => ({
-          ...tool,
-          pluginName,
-        })),
-      );
-
       for (const trigger of triggers) {
         constants.triggersConst.push({ ...trigger, pluginName });
 

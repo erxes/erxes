@@ -71,8 +71,12 @@
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
 - Automation remote entries under `src/widgets` for facebook, instagram, inbox,
-  discord, mail, form, knowledgebase, and ticket — trigger forms, action forms, node
+  discord, telegram, mail, form, knowledgebase, and ticket — trigger forms, action forms, node
   configuration content, bot management, and execution history renderers.
+- Telegram automation (`widgets/automations/modules/telegram`): trigger form
+  (chats: private only by default or private and groups; keyword filter) and
+  "Send Telegram Message" action form (required text with placeholders);
+  translations under `widgets.automations-telegram`.
 - Notification, relation, activity, and floating widgets exposed to the host.
 
 ### Does not own
@@ -88,6 +92,29 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Inbox automation remote entry routes `frontline:inbox.handoffs.create` to
+  `HandoffActionForm` (assignees via user placeholders, pause minutes, blank =
+  30) and `HandoffActionConfig`; other inbox actions keep the Messenger message
+  form. New copy uses `t(key, default)` because frontline strings live in the
+  gateway locales.
+
+- Form automation remote entry routes `frontline:form.links.create` to
+  `CreateFormLinkActionForm` (form picker reusing `SelectTriggerForm`, days
+  valid, blank = 30) and `CreateFormLinkActionConfig`. Ticket detail shows
+  `TicketFormResponses` from `getTicket.formResponses` (hidden when empty).
+- Ticket detail description editor reads its content once;
+  `hooks/useSyncTicketDescription.ts` pulls a description written elsewhere
+  (automation, another user, via `ticketChanged`) into the editor unless it is
+  focused or holds an unsaved edit, and marks that change so the debounced
+  save does not write it back. Our own saves are recognised by the sent value.
+- Ticket SLA: pipeline settings tab `sla` (`pages/PipelineSlaPage.tsx`,
+  `pipelines/components/sla/PipelineSlaPolicy.tsx`, form in
+  `pipelines/hooks/usePipelineSlaForm.ts`) edits `slaPolicy` through
+  `updatePipeline`; ticket detail shows `TicketSlaStatus` (due, met, warned,
+  breached per clock, `hooks/useTicketSlaStatus.ts`). The ticket automation
+  remote entry routes the "Ticket SLA" trigger to `TicketSlaTriggerForm` /
+  `TicketSlaTriggerNodeContent` (clock and phase choices).
 
 - Home dashboard tiles: every report chart (conversation open/resolved/source/
   tag/responses/list, ticket status summary/date/source/tags/custom
@@ -224,7 +251,22 @@
   status together and already clears the ones below when a choice above them
   changes. It reports `{ channelId, pipelineId, status }` upward only once a
   status is picked — there is no separate readiness call, and a half-made
-  choice leaves the install closed.
+  choice leaves the install closed. `frontline:facebook.bot` is answered by
+  `FacebookTemplateRequirement` (facebook module) with `FacebookBotSelector`;
+  the answer is the bot id a Messenger trigger's `botId` takes. With no bot it
+  offers connecting one in a new tab and reloads the list on window focus, so
+  the wizard keeps its answers. Up to six bots show as cards
+  (`TemplateRequirementOptions`) with "Connect another page" in a new tab, since
+  connecting signs in to Facebook and the bot form needs the bots page panel;
+  more use `FacebookBotSelector`. The only bot, or one that appears after the
+  list reloads, is picked (`useTemplateRequirementOptions`). It names the
+  chosen bot as `bot · page` through `onLabel`.
+- The Facebook and Instagram execution history names link "See Conversation"
+  to the inbox with `target.erxesApiId`; a run without it (from before the
+  trigger carried it) shows no conversation link rather than a wrong one.
+- The Facebook remote entry edits and summarizes
+  `frontline:facebook.customerMessages.create` with the Messenger reply form
+  and node content (`customerMessages` beside `messages`).
 
 - Polls are split across two routes, mirroring how forms are laid out.
   `frontline/settings/channels/:id/polls` manages the channel's polls: the

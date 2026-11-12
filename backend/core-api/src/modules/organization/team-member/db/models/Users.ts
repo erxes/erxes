@@ -35,11 +35,13 @@ import {
   generateUserInvitationActivityLog,
 } from '../../meta/activity-log';
 import { buildProfilePatch, IProfilePatch } from '../utils/profilePatch';
+import { toLoggedUser } from '../../loggedUser';
 
 const SALT_WORK_FACTOR = 10;
 
 // Must match the core-ui appearance options.
 const USER_APPEARANCE_LAYOUTS = ['default', 'notch', 'sidebar'];
+const USER_APPEARANCE_NAV_POSITIONS = ['start', 'end'];
 const USER_APPEARANCE_FRAME_COLORS = [
   'indigo',
   'graphite',
@@ -176,6 +178,11 @@ export interface IUserModel extends Model<IUserDocument> {
   revokeSessions(_id: string, sessionId?: string): Promise<boolean>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
+  setAvailability(
+    _id: string,
+    doc: { status?: string | null; until?: Date | null; reason?: string | null },
+    setBy: string,
+  ): Promise<IUserDocument | null>;
 }
 
 export const loadUserClass = (
@@ -219,8 +226,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: _id,
-          currentDocument: updated.toObject(),
-          prevDocument: prev.toObject(),
+          currentDocument: toLoggedUser(updated),
+          prevDocument: toLoggedUser(prev),
         });
       }
 
@@ -406,7 +413,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       return user;
@@ -486,8 +493,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
 
         // Generate activity logs for changed activity fields
@@ -546,7 +553,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       createActivityLog(generateUserInvitationActivityLog(user));
@@ -591,7 +598,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       return user;
@@ -690,8 +697,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
 
         await generateUserUpdateActivityLogs(
@@ -737,7 +744,7 @@ export const loadUserClass = (
 
     public static async configAppearance(
       _id: string,
-      { layout, frameColor }: IUserAppearance,
+      { layout, frameColor, navPosition }: IUserAppearance,
     ) {
       if (!layout || !USER_APPEARANCE_LAYOUTS.includes(layout)) {
         throw new Error(`Unknown appearance layout: ${layout}`);
@@ -747,9 +754,16 @@ export const loadUserClass = (
         throw new Error(`Unknown appearance frame color: ${frameColor}`);
       }
 
+      if (
+        navPosition &&
+        !USER_APPEARANCE_NAV_POSITIONS.includes(navPosition)
+      ) {
+        throw new Error(`Unknown appearance nav position: ${navPosition}`);
+      }
+
       await models.Users.updateOne(
         { _id },
-        { $set: { appearance: { layout, frameColor } } },
+        { $set: { appearance: { layout, frameColor, navPosition } } },
       );
 
       return models.Users.findOne({ _id });
@@ -773,8 +787,8 @@ export const loadUserClass = (
           sendDbEventLog({
             action: 'update',
             docId: updatedUser._id,
-            currentDocument: updatedUser.toObject(),
-            prevDocument: user.toObject(),
+            currentDocument: toLoggedUser(updatedUser),
+            prevDocument: toLoggedUser(user),
           });
           await generateUserUpdateActivityLogs(
             { models, subdomain },
@@ -793,8 +807,8 @@ export const loadUserClass = (
           sendDbEventLog({
             action: 'update',
             docId: updatedUser._id,
-            currentDocument: updatedUser.toObject(),
-            prevDocument: user.toObject(),
+            currentDocument: toLoggedUser(updatedUser),
+            prevDocument: toLoggedUser(user),
           });
           await generateUserUpdateActivityLogs(
             { models, subdomain },
@@ -1213,8 +1227,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
         await generateUserUpdateActivityLogs(
           { models, subdomain },
@@ -1223,6 +1237,64 @@ export const loadUserClass = (
           createActivityLog,
         );
       }
+      return updatedUser;
+    }
+
+    /**
+     * Declares whether a member takes new work. No status clears the
+     * declaration; an `until` in the past is refused, since it would mean
+     * nothing.
+     */
+    public static async setAvailability(
+      _id: string,
+      doc: { status?: string | null; until?: Date | null; reason?: string | null },
+      setBy: string,
+    ) {
+      const user = await models.Users.findOne({ _id });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const status = doc.status || undefined;
+
+      if (status && !['available', 'unavailable'].includes(status)) {
+        throw new Error('Availability must be available or unavailable');
+      }
+
+      const until = doc.until ? new Date(doc.until) : undefined;
+
+      if (until && (Number.isNaN(until.getTime()) || until <= new Date())) {
+        throw new Error('Until must be in the future');
+      }
+
+      const update = status
+        ? {
+            $set: {
+              availability: {
+                status,
+                until,
+                reason: doc.reason?.trim() || undefined,
+                setBy,
+                setAt: new Date(),
+              },
+            },
+          }
+        : { $unset: { availability: '' } };
+
+      await models.Users.updateOne({ _id }, update);
+
+      const updatedUser = await models.Users.findOne({ _id });
+
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
+        });
+      }
+
       return updatedUser;
     }
   }

@@ -8,9 +8,12 @@ import {
   FRAME_THEMES,
   FrameColor,
   FrameStyle,
+  NAV_POSITIONS,
+  NavPosition,
   frameFillVars,
   isAppearanceLayout,
   isFrameColor,
+  isNavPosition,
   resolveFrameStyle,
 } from '@/app/constants/appearance';
 import { useAppearance } from '@/app/hooks/useAppearance';
@@ -30,6 +33,15 @@ const swatchProps = (color: FrameColor) => {
     : { className: 'frame-fill', style: frameFillVars(style) };
 };
 
+// Position labels name the actual edge for the chosen layout.
+const POSITION_LABELS: Record<
+  'notch' | 'sidebar',
+  Record<NavPosition, string>
+> = {
+  notch: { start: 'top', end: 'bottom' },
+  sidebar: { start: 'left', end: 'right' },
+};
+
 const swatchClassName =
   'h-auto gap-2 rounded-lg border py-1.5 pr-3 pl-1.5 data-[state=on]:border-primary data-[state=on]:ring-1 data-[state=on]:ring-primary';
 
@@ -37,18 +49,22 @@ const swatchClassName =
 const LayoutPreview = ({
   layout,
   frame,
+  navPosition,
 }: {
   layout: AppearanceLayout;
   frame: FrameStyle;
+  navPosition: NavPosition;
 }) => {
   const framed = layout !== 'default';
+  const atEnd = framed && navPosition === 'end';
 
   return (
     <div
       className={cn(
         'flex h-24 w-full overflow-hidden rounded-md border bg-background',
         framed && 'frame-fill',
-        layout === 'sidebar' ? 'flex-row' : 'flex-col',
+        layout === 'sidebar' && (atEnd ? 'flex-row-reverse' : 'flex-row'),
+        layout !== 'sidebar' && (atEnd ? 'flex-col-reverse' : 'flex-col'),
       )}
       style={framed ? frameFillVars(frame) : undefined}
     >
@@ -75,9 +91,9 @@ const LayoutPreview = ({
       <div
         className={cn(
           'flex-1 bg-background p-2',
-          framed && 'mb-1 mr-1 rounded-sm',
-          layout === 'notch' && 'ml-1',
-          layout === 'sidebar' && 'mt-1',
+          framed && 'rounded-sm',
+          layout === 'notch' && (atEnd ? 'mx-1 mt-1' : 'mx-1 mb-1'),
+          layout === 'sidebar' && (atEnd ? 'my-1 ml-1' : 'my-1 mr-1'),
         )}
       >
         <span className="block h-2 w-1/2 rounded-sm bg-muted" />
@@ -92,6 +108,8 @@ export const AppearanceSettings = () => {
   const { appearance, setAppearance } = useAppearance();
   const frame = resolveFrameStyle(appearance.frameColor);
   const frameDisabled = appearance.layout === 'default';
+  const positionLabels =
+    appearance.layout === 'default' ? null : POSITION_LABELS[appearance.layout];
 
   const onFrameChange = (value: string) => {
     if (isFrameColor(value)) {
@@ -144,7 +162,11 @@ export const AppearanceSettings = () => {
               value={layout}
               className="h-auto flex-col items-stretch gap-2 rounded-lg border p-2 data-[state=on]:border-primary data-[state=on]:bg-primary/5 data-[state=on]:ring-1 data-[state=on]:ring-primary"
             >
-              <LayoutPreview layout={layout} frame={frame} />
+              <LayoutPreview
+                layout={layout}
+                frame={frame}
+                navPosition={appearance.navPosition}
+              />
               <span className="text-sm font-medium">
                 {t(`appearance-${layout}`)}
               </span>
@@ -152,6 +174,48 @@ export const AppearanceSettings = () => {
           ))}
         </ToggleGroup>
       </section>
+
+      {positionLabels && (
+        <section className="space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold">
+              {t('appearance-position', 'Position')}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {t(
+                'appearance-position-description',
+                'Which edge of the frame the app tabs sit on.',
+              )}
+            </p>
+          </div>
+          <ToggleGroup
+            className="flex justify-start gap-3"
+            type="single"
+            value={appearance.navPosition}
+            onValueChange={(value) => {
+              if (isNavPosition(value)) {
+                setAppearance({ navPosition: value });
+              }
+            }}
+          >
+            {NAV_POSITIONS.map((position) => {
+              const label = positionLabels[position];
+
+              return (
+                <ToggleGroup.Item
+                  key={position}
+                  value={position}
+                  className={swatchClassName}
+                >
+                  <span className="px-1.5 text-sm">
+                    {t(`appearance-position-${label}`)}
+                  </span>
+                </ToggleGroup.Item>
+              );
+            })}
+          </ToggleGroup>
+        </section>
+      )}
 
       <section className="space-y-3">
         <div>

@@ -2,6 +2,8 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { redis, userActivityTrackingKey } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { getSessionState } from '@/auth/session';
+import { resolveMemberAvailability } from 'erxes-api-shared/core-modules';
+import { requestAvailabilitySettings } from '../../availability';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
@@ -32,6 +34,24 @@ export default {
     { models }: IContext,
   ) {
     return (await models.Users.getIdentityProvider(user._id)) || null;
+  },
+
+  async availability(
+    user: IUserDocument & { segmentIds?: string[] },
+    _args: undefined,
+    context: IContext,
+  ) {
+    const settings = await requestAvailabilitySettings(context, context.models);
+    const declared = user.availability;
+
+    return {
+      ...resolveMemberAvailability(user, settings),
+      declaredStatus: declared?.status,
+      declaredUntil: declared?.until,
+      declaredReason: declared?.reason,
+      setBy: declared?.setBy,
+      setAt: declared?.setAt,
+    };
   },
 
   async sessionState(
