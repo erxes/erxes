@@ -1,20 +1,11 @@
 import { importRows, imports, withOrg } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { readyFile } from '~/modules/files/files.service';
-import { storage } from '~/modules/files/storage';
+import { readFileBytes } from '~/modules/files/files.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { suggestMapping, transferColumns } from './columns';
 import { EMPTY, fail, importOrThrow } from './importState';
 import { ParseError, parseSheet } from './parse';
-
-/** The import still waiting to be parsed, with its file, or null. */
-const parsing = (orgId: string, id: string) =>
-  withOrg(orgId, async (tx) => {
-    const row = await importOrThrow(tx, orgId, id);
-
-    return row.status === 'parsing' ? { row, file: await readyFile(tx, orgId, row.fileId) } : null;
-  });
 
 /** Stores the parsed rows and the suggested mapping, unless another run already did. */
 const storeSheet = (orgId: string, id: string, sheet: Awaited<ReturnType<typeof parseSheet>>) =>
@@ -61,18 +52,16 @@ export const importParseJob = defineJob({
   async handle(job) {
     const { orgId } = job;
     const { importId } = job.payload;
-    const found = await parsing(orgId, importId);
+    const row = await withOrg(orgId, (tx) => importOrThrow(tx, orgId, importId));
 
-    if (!found) return;
+    if (row.status !== 'parsing') return;
 
-    const body = await storage().read(found.file.key);
+    const { row: file, body } = await readFileBytes(orgId, row.fileId);
 
-    const sheet = await parseSheet(body, found.file.name, found.file.contentType).catch(
-      (error: unknown) => {
-        if (error instanceof ParseError) return error;
-        throw error;
-      },
-    );
+    const sheet = await parseSheet(body, file.name, file.contentType).catch((error: unknown) => {
+      if (error instanceof ParseError) return error;
+      throw error;
+    });
 
     if (sheet instanceof ParseError) {
       await withOrg(orgId, (tx) => fail(tx, importId, sheet.message));

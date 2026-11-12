@@ -1,4 +1,4 @@
-import { events, withOrg } from '@erxes/core-db';
+import { events } from '@erxes/core-db';
 import { parse } from 'csv-parse/sync';
 import { eq } from 'drizzle-orm';
 import readXlsxFile from 'read-excel-file/node';
@@ -90,12 +90,9 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
   /** A file as if uploaded through /files. */
   const upload = (name: string, body: Buffer) =>
-    withOrg(t.ids.org, (tx) =>
-      storeServerFile(
-        tx,
-        { orgId: t.ids.org, actorType: 'user', actorId: t.ids.owner, source: 'core' },
-        { name, contentType: 'text/csv', body },
-      ),
+    storeServerFile(
+      { orgId: t.ids.org, actorType: 'user', actorId: t.ids.owner, source: 'core' },
+      { name, contentType: 'text/csv', body },
     );
 
   /** The file a finished export wrote. */
@@ -105,7 +102,7 @@ describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
 
     if (!fileId) throw new Error(`export ${id} has no file`);
 
-    return (await withOrg(t.ids.org, (tx) => readFileBytes(tx, t.ids.org, fileId))).body;
+    return (await readFileBytes(t.ids.org, fileId)).body;
   };
 
   const names = async () =>

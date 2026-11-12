@@ -75,7 +75,7 @@ describeWithDb('concurrent file writes', () => {
       const [completed] = await Promise.allSettled([
         t.owner().files.complete({ id: file.id }),
         // Everything pending counts as stale here.
-        withSystem('test cleanup', (tx) => pruneUploads(tx, 0)),
+        withSystem('test cleanup', (tx) => pruneUploads(tx, 0)).then(() => purgeDeletedFiles()),
       ]);
 
       const [row] = await adminDb().select().from(files).where(eq(files.id, file.id));
@@ -107,12 +107,12 @@ describeWithDb('concurrent file writes', () => {
 
     // Storage is down: the tombstone stays for the next run.
     setStorage({ ...real, remove: () => Promise.reject(new Error('storage is down')) });
-    expect(await withSystem('test purge', (tx) => purgeDeletedFiles(tx))).toBe(0);
+    expect(await purgeDeletedFiles()).toBe(0);
     expect((await fileRow(file.id)).status).toBe('deleting');
     expect(await real.stat(key)).not.toBeNull();
 
     setStorage(real);
-    expect(await withSystem('test purge', (tx) => purgeDeletedFiles(tx))).toBeGreaterThanOrEqual(1);
+    expect(await purgeDeletedFiles()).toBeGreaterThanOrEqual(1);
     expect(await fileExists(file.id)).toBe(false);
     expect(await real.stat(key)).toBeNull();
   });

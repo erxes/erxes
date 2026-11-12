@@ -31,6 +31,8 @@ const cleanup = async () => {
     pruneUploads(tx, config.files.pendingTtlHours),
   );
 
+  await purgeDeletedFiles();
+
   await storage().sweepUploads?.(config.files.pendingTtlHours * HOUR);
 
   const audit = await withSystem('cleanup: audit', (tx) =>
@@ -89,12 +91,7 @@ export const startMaintenance = () => {
     setTimeout(attempt('cleanup', cleanup), MINUTE),
     setInterval(attempt('cleanup', cleanup), HOUR),
     // Deleted files lose their bytes within a minute (retried while storage fails).
-    setInterval(
-      attempt('purging deleted files', () =>
-        withSystem('cleanup: deleted files', (tx) => purgeDeletedFiles(tx)),
-      ),
-      MINUTE,
-    ),
+    setInterval(attempt('purging deleted files', purgeDeletedFiles), MINUTE),
     // Scheduled and date automations.
     setInterval(attempt('automation scheduling', tickAutomations), MINUTE),
     // Signed audit checkpoints: tampering is caught back to the last one.

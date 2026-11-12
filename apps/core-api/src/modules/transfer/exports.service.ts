@@ -66,25 +66,22 @@ const whereOf = (client: Db, actor: Actor, recordType: TransferRecordType, query
       });
 };
 
-/** Pages through the list (by id, so nothing is missed or repeated), writes the file, tells the member. */
+/**
+ * Pages through the list (by id, so nothing is missed or repeated), writes the
+ * file to storage outside any scope, then marks the export done and tells the member.
+ */
 export const exportRunJob = defineJob({
   queue: 'export.run',
   leaseSeconds: 900,
   payload: z.object({ exportId: z.string() }),
   async handle(job) {
-    await withOrg(job.orgId, async (tx) => {
-      const [row] = await tx
-        .select()
-        .from(exports)
-        .where(and(eq(exports.orgId, job.orgId), eq(exports.id, job.payload.exportId)))
-        .limit(1);
+    const built = await prepareExport(job.orgId, job.payload.exportId);
 
-      if (!row || row.status !== 'running') return;
+    if (!built) return;
 
-      const actor = await exporter(tx, row);
+    const stored = await storeServerFile(userCaller(built.actor), built.file);
 
-      if (actor) await runExport(tx, actor, row);
-    });
+    await withOrg(job.orgId, (tx) => finishExport(tx, built, stored.id));
   },
   async onDead(job, error, tx) {
     await tx
@@ -227,36 +224,64 @@ const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
   return body;
 };
 
-const runExport = async (tx: Db, actor: Actor, row: ExportRow) => {
+/** The export's file in memory: its rows read in one scope, written to storage after it. */
+const buildExport = async (tx: Db, actor: Actor, row: ExportRow) => {
   const columns = await transferColumns(tx, row.orgId, row.recordType);
   const header = row.columns.map((key) => columns.find((item) => item.key === key)?.label ?? key);
   const body = await collectRows(tx, actor, row);
   const rows = body.slice(0, MAX_EXPORT_ROWS);
   const stamp = new Date().toISOString().slice(0, 10);
   const plural = { company: 'companies', lead: 'leads', customer: 'customers' }[row.recordType];
-  const name = `${plural}-${stamp}.${row.format}`;
 
-  const stored = await storeServerFile(tx, userCaller(actor), {
-    name,
-    contentType:
-      row.format === 'csv'
-        ? 'text/csv'
-        : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    body: await exportFile(row.format, header, rows),
+  return {
+    actor,
+    row,
+    rowCount: rows.length,
+    cut: body.length > MAX_EXPORT_ROWS,
+    file: {
+      name: `${plural}-${stamp}.${row.format}`,
+      contentType:
+        row.format === 'csv'
+          ? 'text/csv'
+          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      body: await exportFile(row.format, header, rows),
+    },
+  };
+};
+
+/** The running export and its file, or null when it is no longer running. */
+const prepareExport = (orgId: string, exportId: string) =>
+  withOrg(orgId, async (tx) => {
+    const [row] = await tx
+      .select()
+      .from(exports)
+      .where(and(eq(exports.orgId, orgId), eq(exports.id, exportId)))
+      .limit(1);
+
+    if (!row || row.status !== 'running') return null;
+
+    const actor = await exporter(tx, row);
+
+    return actor ? buildExport(tx, actor, row) : null;
   });
+
+type BuiltExport = Awaited<ReturnType<typeof buildExport>>;
+
+/** Marks the export done with its stored file and tells the member who asked. */
+const finishExport = async (tx: Db, built: BuiltExport, fileId: string) => {
+  const { row, rowCount, file } = built;
 
   await tx
     .update(exports)
-    .set({ status: 'done', rowCount: rows.length, fileId: stored.id, finishedAt: sql`now()` })
+    .set({ status: 'done', rowCount, fileId, finishedAt: sql`now()` })
     .where(eq(exports.id, row.id));
   await notify(tx, systemCaller(row.orgId), {
     userIds: [row.createdBy],
     kind: 'core.export.ready',
-    title: `Your export is ready: ${rows.length.toLocaleString('en')} ${row.recordType === 'company' ? 'companies' : 'records'}`,
-    body:
-      body.length > MAX_EXPORT_ROWS
-        ? `Only the first ${MAX_EXPORT_ROWS.toLocaleString('en')}: narrow the filter for the rest.`
-        : name,
+    title: `Your export is ready: ${rowCount.toLocaleString('en')} ${row.recordType === 'company' ? 'companies' : 'records'}`,
+    body: built.cut
+      ? `Only the first ${MAX_EXPORT_ROWS.toLocaleString('en')}: narrow the filter for the rest.`
+      : file.name,
     link: `/contacts/settings/import-export?export=${row.id}`,
     entity: { type: 'export', id: row.id },
   }).catch((error: unknown) => log.warn({ err: error }, 'could not tell the exporter'));

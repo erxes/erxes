@@ -1,4 +1,3 @@
-import { withOrg } from '@erxes/core-db';
 import { expect, it } from 'vite-plus/test';
 import { storeServerFile } from '~/modules/files/files.service';
 import { describeWithDb, useTestDatabase } from './db';
@@ -12,12 +11,9 @@ describeWithDb('imports of files that cannot be read', { timeout: 120_000 }, () 
 
   /** A file as if uploaded through /files. */
   const upload = (name: string, body: string) =>
-    withOrg(t.ids.org, (tx) =>
-      storeServerFile(
-        tx,
-        { orgId: t.ids.org, actorType: 'user', actorId: t.ids.owner, source: 'core' },
-        { name, contentType: 'text/csv', body: Buffer.from(body) },
-      ),
+    storeServerFile(
+      { orgId: t.ids.org, actorType: 'user', actorId: t.ids.owner, source: 'core' },
+      { name, contentType: 'text/csv', body: Buffer.from(body) },
     );
 
   it('fails the import with the reason the file could not be read', async () => {
