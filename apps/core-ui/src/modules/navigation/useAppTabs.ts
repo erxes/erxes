@@ -2,6 +2,7 @@ import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { isMovedSettingsPath } from '~/modules/contacts/settings/paths';
 import { appOfPath, type NavApp, SETTINGS_APP } from './apps';
 
 /** App ids open as tabs, in order. */
@@ -24,7 +25,8 @@ export const useAppTabs = (apps: NavApp[]) => {
   const routeApp = appOfPath([...apps, SETTINGS_APP], pathname);
 
   useEffect(() => {
-    if (!routeApp) {
+    // An address that only redirects elsewhere (Settings › Tags moved to Contacts) isn't remembered.
+    if (!routeApp || isMovedSettingsPath(pathname)) {
       return;
     }
 
@@ -39,7 +41,13 @@ export const useAppTabs = (apps: NavApp[]) => {
     }
   }, [routeApp, pathname, search, setLastLocation, setOpenIds]);
 
-  const open = (app: NavApp) => navigate(lastLocation[app.id] ?? `/${app.path}`);
+  const remembered = (app: NavApp) => {
+    const path = lastLocation[app.id];
+
+    // Remembered before it moved: start the app afresh instead of following the redirect.
+    return path && !isMovedSettingsPath(path) ? path : undefined;
+  };
+  const open = (app: NavApp) => navigate(remembered(app) ?? `/${app.path}`);
 
   const close = (id: string) => {
     const index = openIds.indexOf(id);
