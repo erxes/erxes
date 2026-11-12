@@ -1,3 +1,4 @@
+import * as contract from '@erxes/core-contract';
 import { coreContract, CORE_API_PREFIX } from '@erxes/core-contract';
 import { OpenAPIGenerator } from '@orpc/openapi';
 import { CONTEXT_LOGGER_SYMBOL, LoggingHandlerPlugin } from '@orpc/experimental-pino';
@@ -5,6 +6,7 @@ import { OpenAPIHandler } from '@orpc/openapi/node';
 import { onError, ORPCError, ValidationError } from '@orpc/server';
 import { ZodToJsonSchemaConverter } from '@orpc/zod';
 import type { RequestHandler } from 'express';
+import { z } from 'zod';
 import { coreRouter } from '~/router';
 import { logger } from '~/logger';
 
@@ -51,12 +53,25 @@ export const coreApi: RequestHandler = async (req, res, next) => {
  * The contract as an OpenAPI document: served at `/core/v1/openapi.json` and
  * committed as `packages/contract/openapi.json` (`pnpm openapi`).
  */
+/**
+ * The contract's named object schemas (`Customer`, `Invoice`, …) become
+ * `components.schemas` and are referenced by `$ref`, not repeated inline.
+ */
+const commonSchemas = Object.fromEntries(
+  Object.entries(contract).flatMap(([name, value]) =>
+    /^[A-Z]/.test(name) && value instanceof z.ZodObject
+      ? [[name, { schema: value, strategy: 'output' as const }]]
+      : [],
+  ),
+);
+
 export const generateOpenApi = () =>
   new OpenAPIGenerator({ schemaConverters: [new ZodToJsonSchemaConverter()] }).generate(
     coreContract,
     {
       info: { title: 'erxes core', version: 'v1' },
       servers: [{ url: CORE_API_PREFIX }],
+      commonSchemas,
     },
   );
 
