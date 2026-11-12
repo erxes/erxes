@@ -1,38 +1,27 @@
 import { sql } from 'drizzle-orm';
-import type { Server } from 'node:http';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
-import { createApp } from '~/app';
+import { beforeAll, expect, it } from 'vite-plus/test';
+import { fireJob } from '~/modules/automations/triggers';
+import { processEvents } from '~/modules/events/processor';
+import { processJobs } from '~/modules/jobs/jobs';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { type CoreClient, useTestServer } from './support';
+
+const runCount = async (automationId: string) => {
+  const { rows } = await adminDb().execute<{ count: number }>(
+    sql`select count(*)::int as count from core_automation_runs where automation_id = ${automationId}`,
+  );
+
+  return rows[0]?.count;
+};
 
 /** Which records automations start for: their custom fields count, and no audience is cut short. */
 describeWithDb('automation subjects', { timeout: 300_000 }, () => {
   useTestDatabase();
 
-  let api: Server;
-  let base = '';
-  let owner = '';
+  const server = useTestServer();
+  let owner: CoreClient;
   let orgId = '';
-
-  const call = async (method: string, path: string, body?: unknown) => {
-    const response = await fetch(`${base}/core/v1${path}`, {
-      method,
-      headers: { authorization: `Bearer ${owner}`, 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-
-    const text = await response.text();
-
-    return { status: response.status, body: text ? JSON.parse(text) : null };
-  };
-
-  const runCount = async (automationId: string) => {
-    const { rows } = await adminDb().execute<{ count: number }>(
-      sql`select count(*)::int as count from core_automation_runs where automation_id = ${automationId}`,
-    );
-
-    return rows[0]?.count;
-  };
 
   beforeAll(async () => {
     const acme = await createOrganization({
@@ -42,75 +31,54 @@ describeWithDb('automation subjects', { timeout: 300_000 }, () => {
     });
 
     orgId = acme.organization.id;
-    owner = await currentToken(acme.owner.id, orgId);
-    api = createApp().listen(0);
-
-    const address = api.address();
-
-    if (!address || typeof address === 'string') throw new Error('not listening on a port');
-
-    base = `http://127.0.0.1:${address.port}`;
-  });
-
-  afterAll(async () => {
-    api.closeAllConnections();
-    await new Promise<void>((resolve) => api.close(() => resolve()));
+    owner = server.client({ user: acme.owner.id, org: orgId });
   });
 
   it("starts event automations on the record's custom fields", async () => {
-    const { processEvents } = await import('~/modules/events/processor');
-
-    const tier = await call('POST', '/fields', {
+    const tier = await owner.fields.create({
       contentType: 'customer',
       label: 'Tier',
       type: 'select',
       options: ['Bronze', 'Gold'],
     });
 
-    const created = await call('POST', '/automations', {
+    const automation = await owner.automations.create({
       name: 'Gold welcome',
       definition: {
         trigger: {
+          kind: 'event',
           event: 'core.customer.created',
           conditions: {
             match: 'all',
-            rules: [{ path: `subject.customFields.${tier.body.id}`, op: 'eq', value: 'Gold' }],
+            rules: [{ path: `subject.customFields.${tier.id}`, op: 'eq', value: 'Gold' }],
           },
         },
         steps: [{ id: 'stop', type: 'stop' }],
       },
     });
 
-    await call('POST', `/automations/${created.body.id}/activate`);
+    await owner.automations.activate({ id: automation.id });
 
-    const gold = await call('POST', '/customers', {
+    const gold = await owner.customers.create({
       firstName: 'Gold',
-      customFields: { [tier.body.id]: 'Gold' },
+      customFields: { [tier.id]: 'Gold' },
     });
 
-    await call('POST', '/customers', {
-      firstName: 'Bronze',
-      customFields: { [tier.body.id]: 'Bronze' },
-    });
+    await owner.customers.create({ firstName: 'Bronze', customFields: { [tier.id]: 'Bronze' } });
     await processEvents();
 
-    const runs = await call('GET', `/automations/${created.body.id}/runs`);
+    const runs = await owner.automations.runs({ id: automation.id });
 
-    expect(runs.body.data.map((run: { subject: { id: string } }) => run.subject.id)).toEqual([
-      gold.body.id,
-    ]);
+    expect(runs.data.map((run) => run.subject?.id)).toEqual([gold.id]);
   });
 
   it('enrolls every record of an audience past 10,000, a page per job', async () => {
-    const { processJobs } = await import('~/modules/jobs/jobs');
-    const { fireJob } = await import('~/modules/automations/triggers');
-
     await adminDb().execute(sql`
       insert into core_customers (id, org_id, first_name)
       select 'bulk' || lpad(g::text, 6, '0'), ${orgId}, 'Bulk' from generate_series(1, 10050) g
     `);
 
-    const created = await call('POST', '/automations', {
+    const automation = await owner.automations.create({
       name: 'Everyone',
       definition: {
         trigger: {
@@ -127,16 +95,16 @@ describeWithDb('automation subjects', { timeout: 300_000 }, () => {
       },
     });
 
-    await call('POST', `/automations/${created.body.id}/activate`);
+    await owner.automations.activate({ id: automation.id });
 
-    const started = await call('POST', `/automations/${created.body.id}/start`, {});
-
-    expect(started.body).toMatchObject({ continuing: true });
+    expect(await owner.automations.start({ id: automation.id })).toMatchObject({
+      continuing: true,
+    });
 
     while (await processJobs([fireJob])) {
       // Each page queues the next.
     }
 
-    expect(await runCount(created.body.id)).toBe(10_050);
+    expect(await runCount(automation.id)).toBe(10_050);
   });
 });
