@@ -302,6 +302,13 @@
       "when": 1794504698479,
       "tag": "0042_automation_runs_prunable",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794504750013,
+      "tag": "0043_automation_triggers_kind",
+      "breakpoints": true
     }
   ]
 }

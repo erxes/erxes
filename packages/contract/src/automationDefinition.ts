@@ -262,13 +262,8 @@ export type AutomationTrigger = z.infer<typeof AutomationTrigger>;
  */
 export const Reentry = z.enum(['always', 'once', 'daily']);
 
-/** Before an older shape: `{ event, conditions }` was the only trigger. */
-const LegacyTrigger = z
-  .object({ event: z.string(), conditions: ConditionGroup.optional() })
-  .transform((trigger) => ({ kind: 'event' as const, ...trigger }));
-
 export const AutomationDefinition = z.object({
-  trigger: z.union([AutomationTrigger, LegacyTrigger]),
+  trigger: AutomationTrigger,
   steps: z.array(AutomationStep).min(1).max(100),
   reentry: Reentry.default('always'),
   /** Once these hold, the record leaves the automation (checked before each step and while waiting). */

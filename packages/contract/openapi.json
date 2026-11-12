@@ -325,255 +325,292 @@
           "trigger": {
             "anyOf": [
               {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "kind": {
-                        "const": "event"
-                      },
-                      "event": {
-                        "type": "string",
-                        "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
-                      },
-                      "conditions": {
-                        "type": "object",
-                        "properties": {
-                          "match": {
-                            "enum": [
-                              "all",
-                              "any"
-                            ],
-                            "type": "string"
-                          },
-                          "rules": {
-                            "type": "array",
-                            "items": {
-                              "anyOf": [
-                                {
-                                  "$ref": "#/components/schemas/ConditionRule"
-                                },
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "match": {
-                                      "enum": [
-                                        "all",
-                                        "any"
-                                      ],
-                                      "type": "string"
-                                    },
-                                    "rules": {
-                                      "type": "array",
-                                      "items": {
-                                        "anyOf": [
-                                          {
-                                            "$ref": "#/components/schemas/ConditionRule"
-                                          },
-                                          {
-                                            "type": "object",
-                                            "properties": {
-                                              "match": {},
-                                              "rules": {}
-                                            }
-                                          }
-                                        ]
-                                      },
-                                      "maxItems": 50
-                                    }
-                                  },
-                                  "required": [
-                                    "match",
-                                    "rules"
-                                  ]
-                                }
-                              ]
-                            },
-                            "maxItems": 50
-                          }
-                        },
-                        "required": [
-                          "match",
-                          "rules"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "kind",
-                      "event"
-                    ]
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "event"
                   },
-                  {
+                  "event": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                  },
+                  "conditions": {
                     "type": "object",
                     "properties": {
-                      "kind": {
-                        "const": "schedule"
-                      },
-                      "every": {
+                      "match": {
                         "enum": [
-                          "hour",
-                          "day",
-                          "week",
-                          "month"
+                          "all",
+                          "any"
                         ],
                         "type": "string"
                       },
-                      "at": {
-                        "default": "09:00",
-                        "type": "string",
-                        "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                      },
-                      "weekdays": {
+                      "rules": {
                         "type": "array",
                         "items": {
-                          "type": "integer",
-                          "minimum": 1,
-                          "maximum": 7
+                          "anyOf": [
+                            {
+                              "$ref": "#/components/schemas/ConditionRule"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "match": {
+                                  "enum": [
+                                    "all",
+                                    "any"
+                                  ],
+                                  "type": "string"
+                                },
+                                "rules": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "$ref": "#/components/schemas/ConditionRule"
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "match": {
+                                            "enum": [
+                                              "all",
+                                              "any"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "rules": {
+                                            "type": "array",
+                                            "items": {
+                                              "anyOf": [
+                                                {},
+                                                {
+                                                  "type": "null"
+                                                }
+                                              ]
+                                            },
+                                            "maxItems": 50
+                                          }
+                                        },
+                                        "required": [
+                                          "match",
+                                          "rules"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "maxItems": 50
+                                }
+                              },
+                              "required": [
+                                "match",
+                                "rules"
+                              ]
+                            }
+                          ]
                         },
-                        "maxItems": 7
-                      },
-                      "dayOfMonth": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 31
-                      },
-                      "timezone": {
-                        "default": "Asia/Ulaanbaatar",
-                        "type": "string",
-                        "maxLength": 60
-                      },
-                      "audience": {
-                        "$ref": "#/components/schemas/Audience"
+                        "maxItems": 50
                       }
                     },
                     "required": [
-                      "kind",
-                      "every"
+                      "match",
+                      "rules"
                     ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "event"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "schedule"
                   },
-                  {
+                  "every": {
+                    "enum": [
+                      "hour",
+                      "day",
+                      "week",
+                      "month"
+                    ],
+                    "type": "string"
+                  },
+                  "at": {
+                    "default": "09:00",
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "weekdays": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 7
+                    },
+                    "maxItems": 7
+                  },
+                  "dayOfMonth": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 31
+                  },
+                  "timezone": {
+                    "default": "Asia/Ulaanbaatar",
+                    "type": "string",
+                    "maxLength": 60
+                  },
+                  "audience": {
+                    "$ref": "#/components/schemas/Audience"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "every"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "date"
+                  },
+                  "subject": {
+                    "enum": [
+                      "customer",
+                      "company"
+                    ],
+                    "type": "string"
+                  },
+                  "field": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "offsetDays": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": -365,
+                    "maximum": 365
+                  },
+                  "yearly": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "at": {
+                    "default": "09:00",
+                    "type": "string",
+                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "timezone": {
+                    "default": "Asia/Ulaanbaatar",
+                    "type": "string",
+                    "maxLength": 60
+                  },
+                  "conditions": {
                     "type": "object",
                     "properties": {
-                      "kind": {
-                        "const": "date"
-                      },
-                      "subject": {
+                      "match": {
                         "enum": [
-                          "customer",
-                          "company"
+                          "all",
+                          "any"
                         ],
                         "type": "string"
                       },
-                      "field": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 64
-                      },
-                      "offsetDays": {
-                        "default": 0,
-                        "type": "integer",
-                        "minimum": -365,
-                        "maximum": 365
-                      },
-                      "yearly": {
-                        "default": false,
-                        "type": "boolean"
-                      },
-                      "at": {
-                        "default": "09:00",
-                        "type": "string",
-                        "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                      },
-                      "timezone": {
-                        "default": "Asia/Ulaanbaatar",
-                        "type": "string",
-                        "maxLength": 60
-                      },
-                      "conditions": {
-                        "type": "object",
-                        "properties": {
-                          "match": {
-                            "enum": [
-                              "all",
-                              "any"
-                            ],
-                            "type": "string"
-                          },
-                          "rules": {
-                            "type": "array",
-                            "items": {
-                              "anyOf": [
-                                {
-                                  "$ref": "#/components/schemas/ConditionRule"
-                                },
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "match": {
-                                      "enum": [
-                                        "all",
-                                        "any"
-                                      ],
-                                      "type": "string"
-                                    },
-                                    "rules": {
-                                      "type": "array",
-                                      "items": {
-                                        "anyOf": [
-                                          {
-                                            "$ref": "#/components/schemas/ConditionRule"
-                                          },
-                                          {
-                                            "type": "object",
-                                            "properties": {
-                                              "match": {},
-                                              "rules": {}
-                                            }
-                                          }
-                                        ]
-                                      },
-                                      "maxItems": 50
-                                    }
-                                  },
-                                  "required": [
-                                    "match",
-                                    "rules"
-                                  ]
-                                }
-                              ]
+                      "rules": {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "$ref": "#/components/schemas/ConditionRule"
                             },
-                            "maxItems": 50
-                          }
+                            {
+                              "type": "object",
+                              "properties": {
+                                "match": {
+                                  "enum": [
+                                    "all",
+                                    "any"
+                                  ],
+                                  "type": "string"
+                                },
+                                "rules": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "$ref": "#/components/schemas/ConditionRule"
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "match": {
+                                            "enum": [
+                                              "all",
+                                              "any"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "rules": {
+                                            "type": "array",
+                                            "items": {
+                                              "anyOf": [
+                                                {},
+                                                {
+                                                  "type": "null"
+                                                }
+                                              ]
+                                            },
+                                            "maxItems": 50
+                                          }
+                                        },
+                                        "required": [
+                                          "match",
+                                          "rules"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "maxItems": 50
+                                }
+                              },
+                              "required": [
+                                "match",
+                                "rules"
+                              ]
+                            }
+                          ]
                         },
-                        "required": [
-                          "match",
-                          "rules"
-                        ]
+                        "maxItems": 50
                       }
                     },
                     "required": [
-                      "kind",
-                      "subject",
-                      "field"
-                    ]
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "kind": {
-                        "const": "manual"
-                      },
-                      "audience": {
-                        "$ref": "#/components/schemas/Audience"
-                      }
-                    },
-                    "required": [
-                      "kind"
+                      "match",
+                      "rules"
                     ]
                   }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "field"
                 ]
               },
-              {}
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "manual"
+                  },
+                  "audience": {
+                    "$ref": "#/components/schemas/Audience"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
             ]
           },
           "steps": {
@@ -5353,6 +5390,7 @@
           }
         },
         "required": [
+          "trigger",
           "steps"
         ]
       },
@@ -12037,391 +12075,14 @@
                       "trigger": {
                         "anyOf": [
                           {
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "kind": {
-                                    "const": "event"
-                                  },
-                                  "event": {
-                                    "type": "string",
-                                    "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
-                                  },
-                                  "conditions": {
-                                    "type": "object",
-                                    "properties": {
-                                      "match": {
-                                        "enum": [
-                                          "all",
-                                          "any"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "rules": {
-                                        "type": "array",
-                                        "items": {
-                                          "anyOf": [
-                                            {
-                                              "$ref": "#/components/schemas/ConditionRule"
-                                            },
-                                            {
-                                              "type": "object",
-                                              "properties": {
-                                                "match": {
-                                                  "enum": [
-                                                    "all",
-                                                    "any"
-                                                  ],
-                                                  "type": "string"
-                                                },
-                                                "rules": {
-                                                  "type": "array",
-                                                  "items": {
-                                                    "anyOf": [
-                                                      {
-                                                        "anyOf": [
-                                                          {},
-                                                          {}
-                                                        ]
-                                                      },
-                                                      {
-                                                        "not": {}
-                                                      }
-                                                    ]
-                                                  },
-                                                  "maxItems": 50
-                                                }
-                                              },
-                                              "required": [
-                                                "match",
-                                                "rules"
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        "maxItems": 50
-                                      }
-                                    },
-                                    "required": [
-                                      "match",
-                                      "rules"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "kind",
-                                  "event"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "kind": {
-                                    "const": "schedule"
-                                  },
-                                  "every": {
-                                    "enum": [
-                                      "hour",
-                                      "day",
-                                      "week",
-                                      "month"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "at": {
-                                    "default": "09:00",
-                                    "type": "string",
-                                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                                  },
-                                  "weekdays": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "integer",
-                                      "minimum": 1,
-                                      "maximum": 7
-                                    },
-                                    "maxItems": 7
-                                  },
-                                  "dayOfMonth": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 31
-                                  },
-                                  "timezone": {
-                                    "default": "Asia/Ulaanbaatar",
-                                    "type": "string",
-                                    "maxLength": 60
-                                  },
-                                  "audience": {
-                                    "type": "object",
-                                    "properties": {
-                                      "type": {
-                                        "enum": [
-                                          "customer",
-                                          "company"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "conditions": {
-                                        "type": "object",
-                                        "properties": {
-                                          "match": {
-                                            "enum": [
-                                              "all",
-                                              "any"
-                                            ],
-                                            "type": "string"
-                                          },
-                                          "rules": {
-                                            "type": "array",
-                                            "items": {
-                                              "anyOf": [
-                                                {
-                                                  "$ref": "#/components/schemas/ConditionRule"
-                                                },
-                                                {
-                                                  "type": "object",
-                                                  "properties": {
-                                                    "match": {
-                                                      "enum": [
-                                                        "all",
-                                                        "any"
-                                                      ],
-                                                      "type": "string"
-                                                    },
-                                                    "rules": {
-                                                      "type": "array",
-                                                      "items": {
-                                                        "anyOf": [
-                                                          {},
-                                                          {
-                                                            "not": {}
-                                                          }
-                                                        ]
-                                                      },
-                                                      "maxItems": 50
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "match",
-                                                    "rules"
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            "maxItems": 50
-                                          }
-                                        },
-                                        "required": [
-                                          "match",
-                                          "rules"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "type"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "kind",
-                                  "every"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "kind": {
-                                    "const": "date"
-                                  },
-                                  "subject": {
-                                    "enum": [
-                                      "customer",
-                                      "company"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "field": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 64
-                                  },
-                                  "offsetDays": {
-                                    "default": 0,
-                                    "type": "integer",
-                                    "minimum": -365,
-                                    "maximum": 365
-                                  },
-                                  "yearly": {
-                                    "default": false,
-                                    "type": "boolean"
-                                  },
-                                  "at": {
-                                    "default": "09:00",
-                                    "type": "string",
-                                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                                  },
-                                  "timezone": {
-                                    "default": "Asia/Ulaanbaatar",
-                                    "type": "string",
-                                    "maxLength": 60
-                                  },
-                                  "conditions": {
-                                    "type": "object",
-                                    "properties": {
-                                      "match": {
-                                        "enum": [
-                                          "all",
-                                          "any"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "rules": {
-                                        "type": "array",
-                                        "items": {
-                                          "anyOf": [
-                                            {
-                                              "$ref": "#/components/schemas/ConditionRule"
-                                            },
-                                            {
-                                              "type": "object",
-                                              "properties": {
-                                                "match": {
-                                                  "enum": [
-                                                    "all",
-                                                    "any"
-                                                  ],
-                                                  "type": "string"
-                                                },
-                                                "rules": {
-                                                  "type": "array",
-                                                  "items": {
-                                                    "anyOf": [
-                                                      {
-                                                        "anyOf": [
-                                                          {},
-                                                          {}
-                                                        ]
-                                                      },
-                                                      {
-                                                        "not": {}
-                                                      }
-                                                    ]
-                                                  },
-                                                  "maxItems": 50
-                                                }
-                                              },
-                                              "required": [
-                                                "match",
-                                                "rules"
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        "maxItems": 50
-                                      }
-                                    },
-                                    "required": [
-                                      "match",
-                                      "rules"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "kind",
-                                  "subject",
-                                  "field"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "kind": {
-                                    "const": "manual"
-                                  },
-                                  "audience": {
-                                    "type": "object",
-                                    "properties": {
-                                      "type": {
-                                        "enum": [
-                                          "customer",
-                                          "company"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "conditions": {
-                                        "type": "object",
-                                        "properties": {
-                                          "match": {
-                                            "enum": [
-                                              "all",
-                                              "any"
-                                            ],
-                                            "type": "string"
-                                          },
-                                          "rules": {
-                                            "type": "array",
-                                            "items": {
-                                              "anyOf": [
-                                                {
-                                                  "$ref": "#/components/schemas/ConditionRule"
-                                                },
-                                                {
-                                                  "type": "object",
-                                                  "properties": {
-                                                    "match": {
-                                                      "enum": [
-                                                        "all",
-                                                        "any"
-                                                      ],
-                                                      "type": "string"
-                                                    },
-                                                    "rules": {
-                                                      "type": "array",
-                                                      "items": {
-                                                        "anyOf": [
-                                                          {},
-                                                          {
-                                                            "not": {}
-                                                          }
-                                                        ]
-                                                      },
-                                                      "maxItems": 50
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "match",
-                                                    "rules"
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            "maxItems": 50
-                                          }
-                                        },
-                                        "required": [
-                                          "match",
-                                          "rules"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "type"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "kind"
-                                ]
-                              }
-                            ]
-                          },
-                          {
                             "type": "object",
                             "properties": {
+                              "kind": {
+                                "const": "event"
+                              },
                               "event": {
-                                "type": "string"
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
                               },
                               "conditions": {
                                 "type": "object",
@@ -12486,7 +12147,320 @@
                               }
                             },
                             "required": [
+                              "kind",
                               "event"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "schedule"
+                              },
+                              "every": {
+                                "enum": [
+                                  "hour",
+                                  "day",
+                                  "week",
+                                  "month"
+                                ],
+                                "type": "string"
+                              },
+                              "at": {
+                                "default": "09:00",
+                                "type": "string",
+                                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                              },
+                              "weekdays": {
+                                "type": "array",
+                                "items": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 7
+                                },
+                                "maxItems": 7
+                              },
+                              "dayOfMonth": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 31
+                              },
+                              "timezone": {
+                                "default": "Asia/Ulaanbaatar",
+                                "type": "string",
+                                "maxLength": 60
+                              },
+                              "audience": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "enum": [
+                                      "customer",
+                                      "company"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "conditions": {
+                                    "type": "object",
+                                    "properties": {
+                                      "match": {
+                                        "enum": [
+                                          "all",
+                                          "any"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "rules": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "$ref": "#/components/schemas/ConditionRule"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "match": {
+                                                  "enum": [
+                                                    "all",
+                                                    "any"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "rules": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "anyOf": [
+                                                      {
+                                                        "anyOf": [
+                                                          {},
+                                                          {}
+                                                        ]
+                                                      },
+                                                      {
+                                                        "not": {}
+                                                      }
+                                                    ]
+                                                  },
+                                                  "maxItems": 50
+                                                }
+                                              },
+                                              "required": [
+                                                "match",
+                                                "rules"
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        "maxItems": 50
+                                      }
+                                    },
+                                    "required": [
+                                      "match",
+                                      "rules"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "type"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "every"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "date"
+                              },
+                              "subject": {
+                                "enum": [
+                                  "customer",
+                                  "company"
+                                ],
+                                "type": "string"
+                              },
+                              "field": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              "offsetDays": {
+                                "default": 0,
+                                "type": "integer",
+                                "minimum": -365,
+                                "maximum": 365
+                              },
+                              "yearly": {
+                                "default": false,
+                                "type": "boolean"
+                              },
+                              "at": {
+                                "default": "09:00",
+                                "type": "string",
+                                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                              },
+                              "timezone": {
+                                "default": "Asia/Ulaanbaatar",
+                                "type": "string",
+                                "maxLength": 60
+                              },
+                              "conditions": {
+                                "type": "object",
+                                "properties": {
+                                  "match": {
+                                    "enum": [
+                                      "all",
+                                      "any"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "rules": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "$ref": "#/components/schemas/ConditionRule"
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "match": {
+                                              "enum": [
+                                                "all",
+                                                "any"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "rules": {
+                                              "type": "array",
+                                              "items": {
+                                                "anyOf": [
+                                                  {
+                                                    "$ref": "#/components/schemas/ConditionRule"
+                                                  },
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "match": {},
+                                                      "rules": {}
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "maxItems": 50
+                                            }
+                                          },
+                                          "required": [
+                                            "match",
+                                            "rules"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    "maxItems": 50
+                                  }
+                                },
+                                "required": [
+                                  "match",
+                                  "rules"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "subject",
+                              "field"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "manual"
+                              },
+                              "audience": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "enum": [
+                                      "customer",
+                                      "company"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "conditions": {
+                                    "type": "object",
+                                    "properties": {
+                                      "match": {
+                                        "enum": [
+                                          "all",
+                                          "any"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "rules": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "$ref": "#/components/schemas/ConditionRule"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "match": {
+                                                  "enum": [
+                                                    "all",
+                                                    "any"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "rules": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "anyOf": [
+                                                      {
+                                                        "anyOf": [
+                                                          {},
+                                                          {}
+                                                        ]
+                                                      },
+                                                      {
+                                                        "not": {}
+                                                      }
+                                                    ]
+                                                  },
+                                                  "maxItems": 50
+                                                }
+                                              },
+                                              "required": [
+                                                "match",
+                                                "rules"
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        "maxItems": 50
+                                      }
+                                    },
+                                    "required": [
+                                      "match",
+                                      "rules"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "type"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind"
                             ]
                           }
                         ]
@@ -15388,391 +15362,14 @@
                       "trigger": {
                         "anyOf": [
                           {
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "kind": {
-                                    "const": "event"
-                                  },
-                                  "event": {
-                                    "type": "string",
-                                    "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
-                                  },
-                                  "conditions": {
-                                    "type": "object",
-                                    "properties": {
-                                      "match": {
-                                        "enum": [
-                                          "all",
-                                          "any"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "rules": {
-                                        "type": "array",
-                                        "items": {
-                                          "anyOf": [
-                                            {
-                                              "$ref": "#/components/schemas/ConditionRule"
-                                            },
-                                            {
-                                              "type": "object",
-                                              "properties": {
-                                                "match": {
-                                                  "enum": [
-                                                    "all",
-                                                    "any"
-                                                  ],
-                                                  "type": "string"
-                                                },
-                                                "rules": {
-                                                  "type": "array",
-                                                  "items": {
-                                                    "anyOf": [
-                                                      {
-                                                        "anyOf": [
-                                                          {},
-                                                          {}
-                                                        ]
-                                                      },
-                                                      {
-                                                        "not": {}
-                                                      }
-                                                    ]
-                                                  },
-                                                  "maxItems": 50
-                                                }
-                                              },
-                                              "required": [
-                                                "match",
-                                                "rules"
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        "maxItems": 50
-                                      }
-                                    },
-                                    "required": [
-                                      "match",
-                                      "rules"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "kind",
-                                  "event"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "kind": {
-                                    "const": "schedule"
-                                  },
-                                  "every": {
-                                    "enum": [
-                                      "hour",
-                                      "day",
-                                      "week",
-                                      "month"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "at": {
-                                    "default": "09:00",
-                                    "type": "string",
-                                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                                  },
-                                  "weekdays": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "integer",
-                                      "minimum": 1,
-                                      "maximum": 7
-                                    },
-                                    "maxItems": 7
-                                  },
-                                  "dayOfMonth": {
-                                    "type": "integer",
-                                    "minimum": 1,
-                                    "maximum": 31
-                                  },
-                                  "timezone": {
-                                    "default": "Asia/Ulaanbaatar",
-                                    "type": "string",
-                                    "maxLength": 60
-                                  },
-                                  "audience": {
-                                    "type": "object",
-                                    "properties": {
-                                      "type": {
-                                        "enum": [
-                                          "customer",
-                                          "company"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "conditions": {
-                                        "type": "object",
-                                        "properties": {
-                                          "match": {
-                                            "enum": [
-                                              "all",
-                                              "any"
-                                            ],
-                                            "type": "string"
-                                          },
-                                          "rules": {
-                                            "type": "array",
-                                            "items": {
-                                              "anyOf": [
-                                                {
-                                                  "$ref": "#/components/schemas/ConditionRule"
-                                                },
-                                                {
-                                                  "type": "object",
-                                                  "properties": {
-                                                    "match": {
-                                                      "enum": [
-                                                        "all",
-                                                        "any"
-                                                      ],
-                                                      "type": "string"
-                                                    },
-                                                    "rules": {
-                                                      "type": "array",
-                                                      "items": {
-                                                        "anyOf": [
-                                                          {},
-                                                          {
-                                                            "not": {}
-                                                          }
-                                                        ]
-                                                      },
-                                                      "maxItems": 50
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "match",
-                                                    "rules"
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            "maxItems": 50
-                                          }
-                                        },
-                                        "required": [
-                                          "match",
-                                          "rules"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "type"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "kind",
-                                  "every"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "kind": {
-                                    "const": "date"
-                                  },
-                                  "subject": {
-                                    "enum": [
-                                      "customer",
-                                      "company"
-                                    ],
-                                    "type": "string"
-                                  },
-                                  "field": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "maxLength": 64
-                                  },
-                                  "offsetDays": {
-                                    "default": 0,
-                                    "type": "integer",
-                                    "minimum": -365,
-                                    "maximum": 365
-                                  },
-                                  "yearly": {
-                                    "default": false,
-                                    "type": "boolean"
-                                  },
-                                  "at": {
-                                    "default": "09:00",
-                                    "type": "string",
-                                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
-                                  },
-                                  "timezone": {
-                                    "default": "Asia/Ulaanbaatar",
-                                    "type": "string",
-                                    "maxLength": 60
-                                  },
-                                  "conditions": {
-                                    "type": "object",
-                                    "properties": {
-                                      "match": {
-                                        "enum": [
-                                          "all",
-                                          "any"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "rules": {
-                                        "type": "array",
-                                        "items": {
-                                          "anyOf": [
-                                            {
-                                              "$ref": "#/components/schemas/ConditionRule"
-                                            },
-                                            {
-                                              "type": "object",
-                                              "properties": {
-                                                "match": {
-                                                  "enum": [
-                                                    "all",
-                                                    "any"
-                                                  ],
-                                                  "type": "string"
-                                                },
-                                                "rules": {
-                                                  "type": "array",
-                                                  "items": {
-                                                    "anyOf": [
-                                                      {
-                                                        "anyOf": [
-                                                          {},
-                                                          {}
-                                                        ]
-                                                      },
-                                                      {
-                                                        "not": {}
-                                                      }
-                                                    ]
-                                                  },
-                                                  "maxItems": 50
-                                                }
-                                              },
-                                              "required": [
-                                                "match",
-                                                "rules"
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        "maxItems": 50
-                                      }
-                                    },
-                                    "required": [
-                                      "match",
-                                      "rules"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "kind",
-                                  "subject",
-                                  "field"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "kind": {
-                                    "const": "manual"
-                                  },
-                                  "audience": {
-                                    "type": "object",
-                                    "properties": {
-                                      "type": {
-                                        "enum": [
-                                          "customer",
-                                          "company"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "conditions": {
-                                        "type": "object",
-                                        "properties": {
-                                          "match": {
-                                            "enum": [
-                                              "all",
-                                              "any"
-                                            ],
-                                            "type": "string"
-                                          },
-                                          "rules": {
-                                            "type": "array",
-                                            "items": {
-                                              "anyOf": [
-                                                {
-                                                  "$ref": "#/components/schemas/ConditionRule"
-                                                },
-                                                {
-                                                  "type": "object",
-                                                  "properties": {
-                                                    "match": {
-                                                      "enum": [
-                                                        "all",
-                                                        "any"
-                                                      ],
-                                                      "type": "string"
-                                                    },
-                                                    "rules": {
-                                                      "type": "array",
-                                                      "items": {
-                                                        "anyOf": [
-                                                          {},
-                                                          {
-                                                            "not": {}
-                                                          }
-                                                        ]
-                                                      },
-                                                      "maxItems": 50
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "match",
-                                                    "rules"
-                                                  ]
-                                                }
-                                              ]
-                                            },
-                                            "maxItems": 50
-                                          }
-                                        },
-                                        "required": [
-                                          "match",
-                                          "rules"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "type"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "kind"
-                                ]
-                              }
-                            ]
-                          },
-                          {
                             "type": "object",
                             "properties": {
+                              "kind": {
+                                "const": "event"
+                              },
                               "event": {
-                                "type": "string"
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
                               },
                               "conditions": {
                                 "type": "object",
@@ -15837,7 +15434,320 @@
                               }
                             },
                             "required": [
+                              "kind",
                               "event"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "schedule"
+                              },
+                              "every": {
+                                "enum": [
+                                  "hour",
+                                  "day",
+                                  "week",
+                                  "month"
+                                ],
+                                "type": "string"
+                              },
+                              "at": {
+                                "default": "09:00",
+                                "type": "string",
+                                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                              },
+                              "weekdays": {
+                                "type": "array",
+                                "items": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 7
+                                },
+                                "maxItems": 7
+                              },
+                              "dayOfMonth": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 31
+                              },
+                              "timezone": {
+                                "default": "Asia/Ulaanbaatar",
+                                "type": "string",
+                                "maxLength": 60
+                              },
+                              "audience": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "enum": [
+                                      "customer",
+                                      "company"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "conditions": {
+                                    "type": "object",
+                                    "properties": {
+                                      "match": {
+                                        "enum": [
+                                          "all",
+                                          "any"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "rules": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "$ref": "#/components/schemas/ConditionRule"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "match": {
+                                                  "enum": [
+                                                    "all",
+                                                    "any"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "rules": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "anyOf": [
+                                                      {
+                                                        "anyOf": [
+                                                          {},
+                                                          {}
+                                                        ]
+                                                      },
+                                                      {
+                                                        "not": {}
+                                                      }
+                                                    ]
+                                                  },
+                                                  "maxItems": 50
+                                                }
+                                              },
+                                              "required": [
+                                                "match",
+                                                "rules"
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        "maxItems": 50
+                                      }
+                                    },
+                                    "required": [
+                                      "match",
+                                      "rules"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "type"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "every"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "date"
+                              },
+                              "subject": {
+                                "enum": [
+                                  "customer",
+                                  "company"
+                                ],
+                                "type": "string"
+                              },
+                              "field": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 64
+                              },
+                              "offsetDays": {
+                                "default": 0,
+                                "type": "integer",
+                                "minimum": -365,
+                                "maximum": 365
+                              },
+                              "yearly": {
+                                "default": false,
+                                "type": "boolean"
+                              },
+                              "at": {
+                                "default": "09:00",
+                                "type": "string",
+                                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                              },
+                              "timezone": {
+                                "default": "Asia/Ulaanbaatar",
+                                "type": "string",
+                                "maxLength": 60
+                              },
+                              "conditions": {
+                                "type": "object",
+                                "properties": {
+                                  "match": {
+                                    "enum": [
+                                      "all",
+                                      "any"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "rules": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "$ref": "#/components/schemas/ConditionRule"
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "match": {
+                                              "enum": [
+                                                "all",
+                                                "any"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "rules": {
+                                              "type": "array",
+                                              "items": {
+                                                "anyOf": [
+                                                  {
+                                                    "$ref": "#/components/schemas/ConditionRule"
+                                                  },
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "match": {},
+                                                      "rules": {}
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "maxItems": 50
+                                            }
+                                          },
+                                          "required": [
+                                            "match",
+                                            "rules"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    "maxItems": 50
+                                  }
+                                },
+                                "required": [
+                                  "match",
+                                  "rules"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "subject",
+                              "field"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "manual"
+                              },
+                              "audience": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "enum": [
+                                      "customer",
+                                      "company"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "conditions": {
+                                    "type": "object",
+                                    "properties": {
+                                      "match": {
+                                        "enum": [
+                                          "all",
+                                          "any"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "rules": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "$ref": "#/components/schemas/ConditionRule"
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "match": {
+                                                  "enum": [
+                                                    "all",
+                                                    "any"
+                                                  ],
+                                                  "type": "string"
+                                                },
+                                                "rules": {
+                                                  "type": "array",
+                                                  "items": {
+                                                    "anyOf": [
+                                                      {
+                                                        "anyOf": [
+                                                          {},
+                                                          {}
+                                                        ]
+                                                      },
+                                                      {
+                                                        "not": {}
+                                                      }
+                                                    ]
+                                                  },
+                                                  "maxItems": 50
+                                                }
+                                              },
+                                              "required": [
+                                                "match",
+                                                "rules"
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        "maxItems": 50
+                                      }
+                                    },
+                                    "required": [
+                                      "match",
+                                      "rules"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "type"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "kind"
                             ]
                           }
                         ]
