@@ -59,10 +59,6 @@ export class PapaApiError extends Error {
 
 const isUnauthorized = (status: number) => status === 401 || status === 403;
 
-/** Papa answers malformed bodies with "Илгээсэн мэдээлэл зөрүүтэй байна". */
-const isValidationError = (error: unknown) =>
-  error instanceof PapaApiError && /зөрүүтэй/i.test(error.message);
-
 /**
  * Thin typed client for the Papa Logistic organization API. Every Papa endpoint
  * is a JSON POST that answers with `{ success, message, data }`.
@@ -170,10 +166,9 @@ export class PapaClient {
   }
 
   /**
-   * Papa's docs show two request shapes for the quote: the field table
-   * (district, coordinates, address) and the example body Papa's own tests
-   * send (`order_type` + `to_point_id`). The example comes first; a
-   * validation refusal retries with the table shape.
+   * Papa prices a delivery only to one of its catalog points: the body needs
+   * `order_type` and the `to_point_id` nearest the destination (verified on
+   * dev; the district/coordinate fields from the docs' table are ignored).
    */
   public async quote(input: IPapaQuoteInput) {
     const pointId = await this.findNearestPoint(
@@ -181,69 +176,41 @@ export class PapaClient {
       input.to_longitude,
     );
 
-    if (pointId) {
-      try {
-        return await this.call<IPapaQuote>('/parcel_order/dynamic/calculate', {
-          order_type: 'PARCEL_ORDER',
-          size: input.size,
-          address_id: input.address_id,
-          to_point_id: pointId,
-        });
-      } catch (error) {
-        if (!isValidationError(error)) {
-          throw error;
-        }
-      }
-    }
-
-    try {
-      return await this.call<IPapaQuote>(
-        '/parcel_order/dynamic/calculate',
-        input,
+    if (!pointId) {
+      throw new PapaApiError(
+        'Papa has no delivery point within about 1 km of this location; check the coordinates',
+        400,
+        '/point/elastic',
       );
-    } catch (error) {
-      if (!pointId && isValidationError(error)) {
-        throw new PapaApiError(
-          'Papa has no delivery point within about 1 km of this location; check the coordinates',
-          error instanceof PapaApiError ? error.status : 0,
-          '/point/elastic',
-        );
-      }
-
-      throw error;
     }
+
+    return this.call<IPapaQuote>('/parcel_order/dynamic/calculate', {
+      order_type: 'PARCEL_ORDER',
+      size: input.size,
+      address_id: input.address_id,
+      to_point_id: pointId,
+    });
   }
 
-  /** Same two shapes as `quote`: the example puts the quote in the cargo. */
-  public async createDynamicOrder(input: IPapaDynamicCreateInput) {
+  /** Papa takes the quote inside the cargo as `dynamic_price_id` (verified on dev). */
+  public createDynamicOrder(input: IPapaDynamicCreateInput) {
     const { quote_id: quoteId, ...rest } = input;
 
-    try {
-      return await this.call<IPapaDynamicOrder>(
-        '/parcel_order/dynamic/create',
-        {
-          ...rest,
-          is_description: rest.is_description ?? false,
-          description: rest.description ?? null,
-          is_audio: false,
-          audio_id: null,
-          cargo: {
-            ...rest.cargo,
-            dynamic_price_id: quoteId,
-            is_rural_transfer: false,
-            is_image: false,
-            image: null,
-            schedule_type: 'THREE_HOURS',
-          },
-        },
-      );
-    } catch (error) {
-      if (!isValidationError(error)) {
-        throw error;
-      }
-    }
-
-    return this.call<IPapaDynamicOrder>('/parcel_order/dynamic/create', input);
+    return this.call<IPapaDynamicOrder>('/parcel_order/dynamic/create', {
+      ...rest,
+      is_description: rest.is_description ?? false,
+      description: rest.description ?? null,
+      is_audio: false,
+      audio_id: null,
+      cargo: {
+        ...rest.cargo,
+        dynamic_price_id: quoteId,
+        is_rural_transfer: false,
+        is_image: false,
+        image: null,
+        schedule_type: 'THREE_HOURS',
+      },
+    });
   }
 
   public confirmDynamicOrder(id: string) {

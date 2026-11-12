@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -105,6 +105,23 @@
   use the `sales` namespace in the gateway's `locales/{en,mn}/sales.json`;
   request numbers and paidType labels use translation interpolation. Original
   bank responses and user-authored notes are never translated.
+- Papa Logistic delivery (`modules/pos/papa`). The POS Delivery tab adds
+  `PapaSettings` under the existing delivery form: `PapaAccountForm` saves the
+  workspace's Papa credentials (`salesPapaConfigSave`; the secret is write-only,
+  shown as saved through `hasSecret`) and `PapaPosForm` saves the POS's
+  `deliveryConfig.papa` (`enabled`, pickup `addressId` with an inline
+  `PapaAddressForm` that registers a new Papa address, `carTypeGroups`
+  `car` / `light`, `categoryId`, `conditionId`, default `size`). The POS order
+  panel has a Delivery tab (`PapaDeliveryPanel`, record panel tab `delivery`):
+  the full-page order view (`PosRecordDetailPage`) adds the same
+  `delivery` tab after Payments; for `type: 'delivery'` orders it quotes (district, address, coordinates,
+  size), sends (receiver phone normalized to 8 digits, driver note, receiver
+  pays), shows status, price, pickup code, delivery code, driver and vehicle,
+  approves the driver's photo, marks a started delivery as delivered
+  (confirm dialog), refreshes and cancels. The account form shows staff
+  phone/email/name fields while `salesPapaConfig.staffId` is empty, so saving
+  can create the Papa staff member. It polls every 15s
+  while the delivery can still change (`PAPA_ACTIVE_STATUSES`).
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
@@ -677,6 +694,36 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   the watcher never exits. With Sales enabled, `pnpm dev:uis` generates types,
   starts the watcher, then starts the host and Sales remote.
 
+- Papa JSON (`papaDelivery`, `deliveryConfig.papa`, `salesPapaReferences`,
+  `salesPapaAddresses`, the photo proof) is narrowed in
+  `pos/papa/utils/papaJson.ts`. Papa does not document its reference row
+  shape, so rows need only an `id`; labels fall back from `name` to `title`,
+  `code`, then `id`, and unreadable rows are skipped rather than failing the
+  form.
+- `PapaPosForm` re-reads `salesPosSettingsDetail` network-only and spreads
+  the saved `deliveryConfig` before writing `papa`, because the delivery form
+  above saves the same JSON field without refetching. Never save
+  `deliveryConfig.papa` from cached POS detail.
+- The POS Papa form unlocks once `salesPapaConfig.staffId` is set (the
+  credentials worked), even when no callback was registered; the account
+  card then warns that live updates need an https gateway domain.
+- The quote form's map (`PapaLocationMap`, `react-leaflet` with
+  OpenStreetMap tiles and a `divIcon` pin, so no bundled marker images) sets
+  latitude/longitude by click or drag and follows typed coordinates. Address
+  search (`usePapaAddressSearch`) asks OpenStreetMap Nominatim once per click,
+  limited to Mongolia, retrying once without the last address part after a
+  one-second pause: Nominatim forbids search-as-you-type and more than one
+  request per second. Never wire it to keystrokes.
+- Papa mutations refetch `salesPosOrderPapaDelivery` for that order; the tab
+  never reads Papa state from `salesPosOrderDetail`.
+- The Delivery tab pre-fills from `posOrder.deliveryInfo` (`orderDeliveryDefaults`):
+  `address` / `phone` / `marker`, or the ecommerce (dts.mn) parts `city`,
+  `district`, `street`, `detail` joined as the address, `haveBaby`,
+  `callBefore`, `onlyAfternoon` written into the driver note, and `district`
+  matched to a Papa location by name or short name (`matchPapaDistrict`,
+  only when exactly one matches). These checkouts send no coordinates.
+- Papa labels use `t(key, 'English default')`; their Mongolian strings are
+  not yet in the gateway `sales.json` locales.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Whether loyalty is on is read at runtime (`useLoyaltyEnabled`, the loaded `pluginsConfigState`), never with `isEnabled('loyalty')`: that reads a build-time env that deployments such as SaaS do not set, which hid the Tier tab, the deal list's points column and the board card badge.
 - Expandable navigation rows end in the host sidebar's chevron:
@@ -794,6 +841,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   as part of a Sales migration layer.
 - Compose the codegen schema with `pnpm nx run gateway:schema:compose --skip-nx-cache --parallel=2`.
 - `pnpm nx run sales_ui:codegen --skip-nx-cache`
+- Papa smoke: connect the Papa account on a POS's Delivery tab, add a pickup
+  address, enable Papa and save; on a delivery order's Delivery tab get a
+  price, send it, and confirm status, codes and driver update as the dev
+  driver requests accept, start and finish it.
 - `pnpm nx build sales_ui`
 - Codegen startup smoke: with `src/gql/` absent, both the production build and
   `ENABLED_PLUGINS=sales pnpm dev:uis` must generate it before booting. During

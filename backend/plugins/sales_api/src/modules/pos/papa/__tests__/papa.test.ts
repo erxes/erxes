@@ -287,25 +287,8 @@ describe('PapaClient', () => {
     });
   });
 
-  it('retries the quote in the table shape when Papa refuses the example', async () => {
+  it('explains a location with no Papa point near it, without quoting', async () => {
     const calls: TCall[] = [];
-    const client = new PapaClient(
-      credentials,
-      new MemoryStore(),
-      fakeFetch((call) => {
-        if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
-        if (call.url.endsWith('/point/elastic')) return ok([{ id: 'point1' }]);
-        return call.body.to_point_id ? refused : ok({ id: 'quote2' });
-      }, calls),
-    );
-
-    const quote = await client.quote(quoteInput);
-
-    expect(quote.id).toBe('quote2');
-    expect(calls[calls.length - 1].body).toEqual(quoteInput);
-  });
-
-  it('explains a location with no Papa point near it', async () => {
     const client = new PapaClient(
       credentials,
       new MemoryStore(),
@@ -313,24 +296,21 @@ describe('PapaClient', () => {
         if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
         if (call.url.endsWith('/point/elastic')) return ok([]);
         return refused;
-      }, []),
+      }, calls),
     );
 
     await expect(client.quote(quoteInput)).rejects.toThrow('no delivery point');
+    expect(calls.some((call) => call.url.endsWith('/calculate'))).toBe(false);
   });
 
-  it('creates with the quote in cargo.dynamic_price_id, else top-level', async () => {
+  it('creates with the quote in cargo.dynamic_price_id', async () => {
     const calls: TCall[] = [];
-    let attempt = 0;
     const client = new PapaClient(
       credentials,
       new MemoryStore(),
       fakeFetch((call) => {
         if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
-        attempt += 1;
-        return attempt === 1
-          ? refused
-          : ok({ id: 'p1', parcel_order_status: 'NEW' });
+        return ok({ id: 'p1', parcel_order_status: 'NEW' });
       }, calls),
     );
 
@@ -349,15 +329,15 @@ describe('PapaClient', () => {
         other_receive_phone: '99112233',
       },
     });
-    const [first, second] = calls
+    const creates = calls
       .filter((call) => call.url.endsWith('/dynamic/create'))
       .map((call) => call.body);
+    const cargo = creates[0].cargo as Record<string, unknown>;
 
     expect(created.id).toBe('p1');
-    expect(first.quote_id).toBeUndefined();
-    expect((first.cargo as Record<string, unknown>).dynamic_price_id).toBe(
-      'quote1',
-    );
-    expect(second.quote_id).toBe('quote1');
+    expect(creates).toHaveLength(1);
+    expect(creates[0].quote_id).toBeUndefined();
+    expect(cargo.dynamic_price_id).toBe('quote1');
+    expect(cargo.schedule_type).toBe('THREE_HOURS');
   });
 });
