@@ -56,6 +56,8 @@ export const cursorPageOf = <T extends z.ZodTypeAny>(item: T) =>
     pageInfo: PageInfo,
     /** Records matching the filters, across all pages. */
     totalCount: z.number().int(),
+    /** Big lists stop counting: `totalCount` is the cap and there are more ("10,000+"). */
+    totalCapped: z.boolean().optional(),
   });
 
 /** Records that tags and custom fields attach to. */

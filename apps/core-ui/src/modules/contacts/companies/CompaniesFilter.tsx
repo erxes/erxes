@@ -4,18 +4,19 @@ import { useTranslation } from 'react-i18next';
 import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
 import { COMPANIES_SESSION_KEY, useCompanies } from './useCompanies';
+import { formatTotal } from '~/lib/cursorList';
 import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
 
 export const CompaniesTotalCount = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { totalCount } = useCompanies();
+  const { totalCount, totalCapped } = useCompanies();
 
   return (
     <div className="h-7 whitespace-nowrap text-sm font-medium leading-7 text-muted-foreground">
       {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="mt-1.5 inline-block h-4 w-20" />
       ) : (
-        t('records-found', { count: totalCount })
+        t('records-found', { count: totalCount, formatted: formatTotal(totalCount, totalCapped) })
       )}
     </div>
   );

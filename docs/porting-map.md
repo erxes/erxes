@@ -24,5 +24,5 @@ rewrite data access; "rewrite" = new design; "drop" = not in core.
 | `core-ui` contacts (customers, leads, companies) | `apps/core-ui/src/modules/contacts` | Rewrite on REST, same UX | Done (side panel without activity yet) |
 | `core-ui` settings › team members | `apps/core-ui/src/modules/settings/team-members` | Rewrite on REST, same UX | Done (no structure fields, permissions) |
 | `libs/erxes-ui` | `packages/ui` | Copied; backward-compatible fixes only | Done |
-| `core-api/modules/forms` fields (properties) | `core_fields` + `custom_fields` jsonb | Rewrite | Done (customers, companies) |
+| `core-api/modules/forms` fields (properties) | `core_fields` + typed value rows (`core_*_field_values`) | Rewrite | Done (customers, companies) |
 | `core-ui` create owner (`/create-owner`) | `/core/v1/setup` + `SetupPage` | Rewrite | Done |

@@ -12,7 +12,12 @@ export interface CursorPage<T> {
   data: T[];
   pageInfo: PageInfo;
   totalCount: number;
+  /** Big lists stop counting at `totalCount`: there are more. */
+  totalCapped?: boolean;
 }
+
+/** A list's total as people read it: 1,234 or, when counting stopped, 10,000+. */
+export const formatTotal = (totalCount: number, capped?: boolean) => `${totalCount.toLocaleString('en')}${capped ? '+' : ''}`;
 
 export interface CursorParams {
   limit: number;
@@ -96,6 +101,7 @@ export const useCursorList = <T extends { id: string }>({
   return {
     list: pages.flatMap((page) => page.data),
     totalCount: pages[0]?.totalCount,
+    totalCapped: pages[0]?.totalCapped ?? false,
     hasNextPage: query.hasNextPage,
     hasPreviousPage: query.hasPreviousPage,
     loading: !ready || query.isPending,

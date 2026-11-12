@@ -36,6 +36,8 @@ export {
   CUSTOMER_STATES,
   customers,
   customerTags,
+  customerFieldValues,
+  companyFieldValues,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
   fieldGroups,

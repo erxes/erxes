@@ -1,22 +1,49 @@
 import { type ConditionGroup, type ConditionRule, type FilterField, RecordFilter, type ViewRecordType } from '@erxes/core-contract';
-import { activities, companies, companyTags, customerCompanies, customers, customerTags, type Db, fields } from '@erxes/core-db';
-import { and, eq, inArray, not, or, type SQL, sql } from 'drizzle-orm';
+import { companies, companyTags, type ContentType, customerCompanies, customers, customerTags, type Db, fields } from '@erxes/core-db';
+import { and, asc, eq, inArray, not, or, type SQL, sql } from 'drizzle-orm';
+import { valuesTable } from '~/modules/fields/fieldValues';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 
 type FieldType = FilterField['type'];
 
+/** A custom field, filtered through its typed value rows. */
+interface CustomSpec {
+  /** Whose values: the record's own, or (customers) the linked company's. */
+  recordType: ContentType;
+  fieldId: string;
+  /** The value column. */
+  storage: 'text' | 'number' | 'date' | 'bool';
+}
+
 /** One filterable thing: how it reads in SQL for the list's table. */
 interface FieldSpec extends FilterField {
-  /** The value as SQL (for `tags`: unused; for `company.*`: a column of `core_companies`). */
+  /** The value as SQL (for `tags` and custom fields: unused; for `company.*`: a column of `core_companies`). */
   expr: SQL;
-  /** Custom multi-select / checkbox values are JSON arrays. */
-  array?: boolean;
+  custom?: CustomSpec;
+  /** Only a day, no time (dates compare as dates so their indexes apply). */
+  dateOnly?: boolean;
+  /** Text with a trigram index: "is" is an ILIKE without wildcards so the index serves it. */
+  trigram?: boolean;
+  /** Birthday: "anniversary within" reads this stored month * 100 + day column. */
+  monthDay?: SQL;
   /** Fields of the linked company: checked inside "has a company where …". */
   viaCompany?: boolean;
 }
 
 const invalid = (message: string) => new HttpError(400, 'INVALID_FILTER', message);
+
+const STORAGE: Record<string, CustomSpec['storage']> = { number: 'number', date: 'date', boolean: 'bool' };
+
+const FILTER_TYPE: Record<string, FieldType> = {
+  number: 'number',
+  date: 'date',
+  boolean: 'boolean',
+  select: 'select',
+  radio: 'select',
+  multiselect: 'select',
+  check: 'select',
+};
 
 /** Built-in fields, custom fields (`customFields.<id>`), the linked company's fields and activity. */
 export const filterFields = async (client: Db, orgId: string, recordType: ViewRecordType): Promise<FieldSpec[]> => {
@@ -32,7 +59,7 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
   });
   const builtIn: FieldSpec[] = isCompany
     ? [
-        f('primaryName', 'Name', 'text', sql`${companies.primaryName}`),
+        f('primaryName', 'Name', 'text', sql`${companies.primaryName}`, { trigram: true }),
         f('primaryEmail', 'Email', 'text', sql`${companies.primaryEmail}`),
         f('primaryPhone', 'Phone', 'text', sql`${companies.primaryPhone}`),
         f('website', 'Website', 'text', sql`${companies.website}`),
@@ -42,12 +69,12 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
         f('code', 'Code', 'text', sql`${companies.code}`),
       ]
     : [
-        f('firstName', 'First name', 'text', sql`${customers.firstName}`),
-        f('lastName', 'Last name', 'text', sql`${customers.lastName}`),
+        f('firstName', 'First name', 'text', sql`${customers.firstName}`, { trigram: true }),
+        f('lastName', 'Last name', 'text', sql`${customers.lastName}`, { trigram: true }),
         f('primaryEmail', 'Email', 'text', sql`${customers.primaryEmail}`),
-        f('primaryPhone', 'Phone', 'text', sql`${customers.primaryPhone}`),
+        f('primaryPhone', 'Phone', 'text', sql`${customers.primaryPhone}`, { trigram: true }),
         ...(recordType === 'customer' ? [f('state', 'State', 'select', sql`${customers.state}`, { options: ['lead', 'customer'] })] : []),
-        f('birthDate', 'Birthday', 'date', sql`${customers.birthDate}`),
+        f('birthDate', 'Birthday', 'date', sql`${customers.birthDate}`, { dateOnly: true, monthDay: sql`${customers.birthMonthDay}` }),
         f('position', 'Position', 'text', sql`${customers.position}`),
         f('department', 'Department', 'text', sql`${customers.department}`),
         f('code', 'Code', 'text', sql`${customers.code}`),
@@ -57,13 +84,8 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
     f('tagIds', 'Tags', 'tags', sql`null`),
     f('createdAt', 'Created', 'date', sql`${table.createdAt}`),
     f('updatedAt', 'Updated', 'date', sql`${table.updatedAt}`),
-    f(
-      'lastActivityAt',
-      'Last activity',
-      'date',
-      sql`(select max(${activities.createdAt}) from ${activities} where ${activities.orgId} = ${table.orgId} and ${activities.targetType} = ${isCompany ? 'company' : 'customer'} and ${activities.targetId} = ${table.id})`,
-      { group: 'activity' },
-    ),
+    // Kept by the timeline itself (creation counts), so indexed.
+    f('lastActivityAt', 'Last activity', 'date', sql`${table.lastActivityAt}`, { group: 'activity' }),
   ];
   const related: FieldSpec[] = isCompany
     ? [
@@ -76,46 +98,35 @@ export const filterFields = async (client: Db, orgId: string, recordType: ViewRe
         ),
       ]
     : [
-        f('company.primaryName', 'Company name', 'text', sql`${companies.primaryName}`, { group: 'company', viaCompany: true }),
+        f('company.primaryName', 'Company name', 'text', sql`${companies.primaryName}`, { group: 'company', viaCompany: true, trigram: true }),
         f('company.industry', 'Company industry', 'text', sql`${companies.industry}`, { group: 'company', viaCompany: true }),
         f('company.size', 'Company employees', 'number', sql`${companies.size}`, { group: 'company', viaCompany: true }),
       ];
+  // Customers also filter by their company's properties.
   const custom = await client
-    .select({ id: fields.id, label: fields.label, type: fields.type, options: fields.options })
+    .select({ id: fields.id, contentType: fields.contentType, label: fields.label, type: fields.type, options: fields.options })
     .from(fields)
-    .where(and(eq(fields.orgId, orgId), eq(fields.contentType, isCompany ? 'company' : 'customer')));
+    .where(and(eq(fields.orgId, orgId), isCompany ? eq(fields.contentType, 'company') : undefined))
+    .orderBy(asc(fields.order));
 
   return [
     ...builtIn,
     ...common,
     ...related,
     ...custom.map((field): FieldSpec => {
-      const key = sql.raw(`'${field.id.replace(/'/g, "''")}'`);
-      const raw = sql`(${table.customFields} ->> ${key})`;
-      const options = Array.isArray(field.options)
-        ? (field.options as unknown[]).map((option) =>
-            typeof option === 'object' && option ? String((option as { value?: unknown; label?: unknown }).value ?? (option as { label?: unknown }).label) : String(option),
-          )
-        : undefined;
-      const spec = { path: `subject.customFields.${field.id}`, label: field.label, group: 'custom' as const, options };
+      const ofCompany = field.contentType === 'company' && !isCompany;
 
-      switch (field.type) {
-        case 'number':
-          return { ...spec, type: 'number', expr: sql`(case when jsonb_typeof(${table.customFields} -> ${key}) = 'number' then ${raw}::numeric end)` };
-        case 'date':
-          return { ...spec, type: 'date', expr: sql`(case when ${raw} ~ '^\\d{4}-\\d{2}-\\d{2}' then ${raw}::date end)` };
-        case 'boolean':
-          return { ...spec, type: 'boolean', expr: sql`(${table.customFields} -> ${key})` };
-        case 'multiselect':
-        case 'check':
-        case 'list':
-          return { ...spec, type: 'select', expr: sql`(${table.customFields} -> ${key})`, array: true };
-        case 'select':
-        case 'radio':
-          return { ...spec, type: 'select', expr: raw };
-        default:
-          return { ...spec, type: 'text', expr: raw };
-      }
+      return {
+        path: ofCompany ? `subject.company.customFields.${field.id}` : `subject.customFields.${field.id}`,
+        label: ofCompany ? `Company ${field.label}` : field.label,
+        group: ofCompany ? 'company' : 'custom',
+        type: FILTER_TYPE[field.type] ?? 'text',
+        options: field.options.length ? field.options : undefined,
+        expr: sql`null`,
+        dateOnly: field.type === 'date',
+        viaCompany: ofCompany,
+        custom: { recordType: field.contentType, fieldId: field.id, storage: STORAGE[field.type] ?? 'text' },
+      };
     }),
   ];
 };
@@ -153,7 +164,7 @@ const interval = (value: unknown): SQL => {
   return unit === 'months' ? sql`make_interval(months => ${n}::int)` : unit === 'weeks' ? sql`make_interval(weeks => ${n}::int)` : sql`make_interval(days => ${n}::int)`;
 };
 
-/** NEGATED ops on relations: "no linked company where …" rather than "a company where not …". */
+/** Negative ops on a relation or a custom field: "none where …" rather than "one where not …". */
 const NEGATIVE: Partial<Record<ConditionRule['op'], ConditionRule['op']>> = {
   neq: 'eq',
   not_contains: 'contains',
@@ -161,63 +172,69 @@ const NEGATIVE: Partial<Record<ConditionRule['op'], ConditionRule['op']>> = {
   not_exists: 'exists',
 };
 
+const COMPARE: Record<string, string> = { eq: '=', neq: '<>', gt: '>', gte: '>=', lt: '<', lte: '<=' };
+
+/** Month * 100 + day, as the stored birthday and the value index compute it. */
+const monthDayOf = (day: SQL) => sql`((extract(month from ${day}) * 100 + extract(day from ${day}))::smallint)`;
+
+/** "Within the next n days, any year", over a month-day expression; the window may run past 31 December. */
+const anniversary = (monthDay: SQL, value: unknown) => {
+  const days = number((value as { amount?: unknown } | undefined)?.amount);
+
+  if (days < 0 || days > 366) throw invalid('Between 0 and 366 days');
+
+  const from = monthDayOf(sql`current_date`);
+  const to = monthDayOf(sql`(current_date + ${days}::int)`);
+
+  return sql`(case when ${to} >= ${from} then ${monthDay} between ${from} and ${to} else (${monthDay} >= ${from} or ${monthDay} <= ${to}) end)`;
+};
+
+/** Date rules. Day-only values compare with days, so an index on them applies. */
+const compileDate = (x: SQL, op: ConditionRule['op'], value: unknown, dateOnly: boolean, monthDay?: SQL): SQL | undefined => {
+  const day = dateOnly ? x : sql`(${x})::date`;
+  const today = dateOnly ? sql`current_date` : sql`now()`;
+  const shift = (sign: '+' | '-') => (dateOnly ? sql`(current_date ${sql.raw(sign)} ${interval(value)})::date` : sql`now() ${sql.raw(sign)} ${interval(value)}`);
+
+  switch (op) {
+    case 'eq':
+    case 'gt':
+    case 'gte':
+    case 'lt':
+    case 'lte':
+      return sql`${day} ${sql.raw(COMPARE[op]!)} ${text(value)}::date`;
+    case 'neq':
+      return sql`(${x} is null or ${day} <> ${text(value)}::date)`;
+    case 'within_last':
+      return sql`(${x} <= ${today} and ${x} >= ${shift('-')})`;
+    case 'more_than_ago':
+      return sql`${x} < ${shift('-')}`;
+    case 'within_next':
+      return sql`(${x} >= ${dateOnly ? sql`current_date` : sql`now()`} and ${x} <= ${shift('+')})`;
+    case 'anniversary_within':
+      return sql`(${x} is not null and ${anniversary(monthDay ?? monthDayOf(x), value)})`;
+    default:
+      return undefined;
+  }
+};
+
+/** A built-in column (or a linked company's). */
 const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL => {
   const x = spec.expr;
   const op = rule.op;
 
-  if (op === 'exists') {
-    return spec.array ? sql`coalesce(jsonb_array_length(case when jsonb_typeof(${x}) = 'array' then ${x} end), 0) > 0` : spec.type === 'text' ? sql`coalesce(${x}, '') <> ''` : sql`${x} is not null`;
-  }
+  if (op === 'exists') return spec.type === 'text' ? sql`coalesce(${x}, '') <> ''` : sql`${x} is not null`;
   if (op === 'not_exists') return not(compileValue(spec, { ...rule, op: 'exists' }, actor));
 
   switch (spec.type) {
-    case 'boolean': {
-      const wanted = rule.value === true || rule.value === 'true';
-
-      if (op === 'eq') return sql`coalesce(${x}, 'false'::jsonb) = ${wanted ? sql`'true'::jsonb` : sql`'false'::jsonb`}`;
-      if (op === 'neq') return sql`coalesce(${x}, 'false'::jsonb) <> ${wanted ? sql`'true'::jsonb` : sql`'false'::jsonb`}`;
-      break;
-    }
     case 'number': {
-      const ops: Record<string, string> = { eq: '=', neq: '<>', gt: '>', gte: '>=', lt: '<', lte: '<=' };
-
-      if (ops[op]) return op === 'neq' ? sql`(${x} is null or ${x} <> ${number(rule.value)})` : sql`${x} ${sql.raw(ops[op]!)} ${number(rule.value)}`;
+      if (op === 'neq') return sql`(${x} is null or ${x} <> ${number(rule.value)})`;
+      if (COMPARE[op]) return sql`${x} ${sql.raw(COMPARE[op]!)} ${number(rule.value)}`;
       break;
     }
     case 'date': {
-      const day = sql`(${x})::date`;
+      const compiled = compileDate(x, op, rule.value, Boolean(spec.dateOnly), spec.monthDay);
 
-      switch (op) {
-        case 'eq':
-          return sql`${day} = ${text(rule.value)}::date`;
-        case 'neq':
-          return sql`(${x} is null or ${day} <> ${text(rule.value)}::date)`;
-        case 'gt':
-          return sql`${day} > ${text(rule.value)}::date`;
-        case 'gte':
-          return sql`${day} >= ${text(rule.value)}::date`;
-        case 'lt':
-          return sql`${day} < ${text(rule.value)}::date`;
-        case 'lte':
-          return sql`${day} <= ${text(rule.value)}::date`;
-        case 'within_last':
-          return sql`(${x} <= now() and ${x} >= now() - ${interval(rule.value)})`;
-        case 'more_than_ago':
-          return sql`${x} < now() - ${interval(rule.value)}`;
-        case 'within_next':
-          return sql`(${x} >= current_date and ${x} <= now() + ${interval(rule.value)})`;
-        case 'anniversary_within': {
-          // By day and month, whatever the year; the window may run past 31 December.
-          const days = number((rule.value as { amount?: unknown } | undefined)?.amount);
-          const md = sql`to_char(${x}, 'MMDD')`;
-          const from = sql`to_char(current_date, 'MMDD')`;
-          const to = sql`to_char(current_date + ${days}::int, 'MMDD')`;
-
-          return sql`(${x} is not null and case when ${to} >= ${from} then ${md} between ${from} and ${to} else (${md} >= ${from} or ${md} <= ${to}) end)`;
-        }
-        default:
-          break;
-      }
+      if (compiled) return compiled;
       break;
     }
     case 'member': {
@@ -231,19 +248,14 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
     }
     case 'select':
     case 'text': {
-      if (spec.array) {
-        if (op === 'eq' || op === 'contains') return sql`coalesce(${x}, '[]'::jsonb) ? ${text(rule.value)}`;
-        if (op === 'neq' || op === 'not_contains') return sql`not (coalesce(${x}, '[]'::jsonb) ? ${text(rule.value)})`;
-        if (op === 'in') return sql`coalesce(${x}, '[]'::jsonb) ?| ${list(rule.value)}::text[]`;
-        if (op === 'not_in') return sql`not (coalesce(${x}, '[]'::jsonb) ?| ${list(rule.value)}::text[])`;
-        break;
-      }
+      // With a trigram index, "is" as a wildcard-free ILIKE uses it; otherwise lower() = lower().
+      const is = (value: string) => (spec.trigram ? sql`${x} ilike ${escapeLike(value)}` : sql`lower(${x}) = lower(${value})`);
 
       switch (op) {
         case 'eq':
-          return sql`lower(${x}) = lower(${text(rule.value)})`;
+          return is(text(rule.value));
         case 'neq':
-          return sql`(${x} is null or lower(${x}) <> lower(${text(rule.value)}))`;
+          return sql`(${x} is null or not ${is(text(rule.value))})`;
         case 'contains':
           return sql`${x} ilike ${`%${escapeLike(text(rule.value))}%`}`;
         case 'not_contains':
@@ -261,6 +273,66 @@ const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL =
     }
     default:
       break;
+  }
+
+  throw invalid(`“${spec.label}” can't use “${op}”`);
+};
+
+/**
+ * A custom field: "has a value row where …" (an index lookup on the typed
+ * column); negative rules are "has no value row where …", so a record without
+ * a value counts as "is not X". Multi-choice fields match when any choice does.
+ */
+const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule): SQL => {
+  const v = valuesTable(custom.recordType);
+  const record = custom.recordType === 'company' ? companies : customers;
+  const has = (condition?: SQL) =>
+    sql`exists (select 1 from ${v} where ${v.orgId} = ${record.orgId} and ${v.recordId} = ${record.id} and ${v.fieldId} = ${custom.fieldId}${condition ? sql` and ${condition}` : sql``})`;
+  const positive = NEGATIVE[rule.op];
+
+  if (positive) return not(compileCustom(spec, custom, { ...rule, op: positive }));
+
+  const op = rule.op;
+
+  if (op === 'exists') return has();
+
+  switch (custom.storage) {
+    case 'bool': {
+      const wanted = rule.value === true || rule.value === 'true';
+
+      // No value reads as "no".
+      if (op === 'eq') return wanted ? has(sql`${v.boolValue}`) : not(has(sql`${v.boolValue}`));
+      break;
+    }
+    case 'number':
+      if (COMPARE[op]) return has(sql`${v.numberValue} ${sql.raw(COMPARE[op]!)} ${number(rule.value)}`);
+      break;
+    case 'date': {
+      const compiled = compileDate(sql`${v.dateValue}`, op, rule.value, true);
+
+      if (compiled) return has(compiled);
+      break;
+    }
+    case 'text': {
+      const x = v.textValue;
+
+      switch (op) {
+        case 'eq':
+          return has(sql`lower(${x}) = lower(${text(rule.value)})`);
+        // A choice field "contains" an option; a text or list field contains text.
+        case 'contains':
+          return spec.type === 'select'
+            ? has(sql`lower(${x}) = lower(${text(rule.value)})`)
+            : has(sql`${x} ilike ${`%${escapeLike(text(rule.value))}%`}`);
+        case 'starts_with':
+          return has(sql`${x} ilike ${`${escapeLike(text(rule.value))}%`}`);
+        case 'in':
+          return has(sql`lower(${x}) = any(${list(rule.value).map((item) => item.toLowerCase())}::text[])`);
+        default:
+          break;
+      }
+      break;
+    }
   }
 
   throw invalid(`“${spec.label}” can't use “${op}”`);
@@ -293,6 +365,9 @@ const compileTags = (recordType: ViewRecordType, rule: ConditionRule): SQL => {
   }
 };
 
+const compileField = (spec: FieldSpec, rule: ConditionRule, actor: Actor) =>
+  spec.custom ? compileCustom(spec, spec.custom, rule) : compileValue(spec, rule, actor);
+
 const compileRule = (rule: ConditionRule, specs: Map<string, FieldSpec>, recordType: ViewRecordType, actor: Actor): SQL => {
   const spec = specs.get(rule.path);
 
@@ -301,13 +376,13 @@ const compileRule = (rule: ConditionRule, specs: Map<string, FieldSpec>, recordT
 
   if (spec.viaCompany) {
     const positive = NEGATIVE[rule.op];
-    const inner = compileValue(spec, positive ? { ...rule, op: positive } : rule, actor);
+    const inner = compileField(spec, positive ? { ...rule, op: positive } : rule, actor);
     const linked = sql`exists (select 1 from ${customerCompanies} join ${companies} on ${companies.id} = ${customerCompanies.companyId} and ${companies.orgId} = ${customerCompanies.orgId} where ${customerCompanies.orgId} = ${customers.orgId} and ${customerCompanies.customerId} = ${customers.id} and ${inner})`;
 
     return positive ? not(linked) : linked;
   }
 
-  return compileValue(spec, rule, actor);
+  return compileField(spec, rule, actor);
 };
 
 const compileGroup = (group: ConditionGroup, specs: Map<string, FieldSpec>, recordType: ViewRecordType, actor: Actor, depth: number): SQL | undefined => {

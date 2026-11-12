@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { foreignKey, index, integer, jsonb, primaryKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
+import { foreignKey, index, integer, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { createdAt, type CustomValue, updatedAt } from './common';
+import { createdAt, updatedAt } from './common';
 import { customers } from './customers';
 import { organizations } from './organizations';
 import { users } from './users';
@@ -27,7 +27,12 @@ export const companies = pgTable(
     code: text(),
     description: text(),
     ownerId: text(),
-    customFields: jsonb().$type<Record<string, CustomValue>>().default({}).notNull(),
+    /** When the newest timeline entry was made (creation counts); kept by a trigger on core_activities. */
+    lastActivityAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    /** Names, emails, phones and code in lower case: what the search box searches (trigram indexed). */
+    searchText: text().generatedAlwaysAs(
+      sql`lower(core_join_text(names) || ' ' || primary_name || ' ' || core_join_text(emails) || ' ' || core_join_text(phones) || ' ' || coalesce(code, ''))`,
+    ),
     /** Companies merged into this one. */
     mergedIds: text().array().default(sql`'{}'::text[]`).notNull(),
     createdBy: text(),
@@ -37,6 +42,11 @@ export const companies = pgTable(
   (table) => [
     uniqueIndex('core_companies_org_primary_name_key').on(table.orgId, sql`lower(${table.primaryName})`),
     index('core_companies_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
+    index('core_companies_org_last_activity_idx').on(table.orgId, table.lastActivityAt),
+    index('core_companies_org_owner_idx').on(table.orgId, table.ownerId),
+    index('core_companies_org_industry_idx').on(table.orgId, sql`lower(${table.industry})`),
+    index('core_companies_search_trgm_idx').using('gin', table.searchText.op('gin_trgm_ops')),
+    index('core_companies_primary_name_trgm_idx').using('gin', table.primaryName.op('gin_trgm_ops')),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

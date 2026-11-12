@@ -1,10 +1,12 @@
 import type { CursorQuery, CustomerInput, CustomerSex } from '@erxes/core-contract';
+import type { CustomValue } from '@erxes/core-db';
 import { companies, customerCompanies, customers, Db, newId, users, withTransaction } from '@erxes/core-db';
-import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
+import { and, arrayContains, asc, eq, getTableColumns, inArray, or, SQL, sql } from 'drizzle-orm';
 import { type Actor, requirePermission, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { normalizeEmail, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
+import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { matchEveryWord } from '~/lib/search';
 import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import {
@@ -16,6 +18,7 @@ import {
   contactUpdated,
 } from '~/modules/activities/contactHistory';
 import { applyCustomFields } from '~/modules/fields/fields.service';
+import { customFieldsColumn, saveCustomFields } from '~/modules/fields/fieldValues';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 import { lockKey, lockRows } from '~/lib/locks';
@@ -23,7 +26,7 @@ import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 
-type CustomerRow = typeof customers.$inferSelect & { tagIds: string[] };
+type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText'> & { tagIds: string[]; customFields: Record<string, CustomValue> };
 type State = CustomerRow['state'];
 
 export const toCustomerDto = (row: CustomerRow) => ({
@@ -52,9 +55,14 @@ export const toCustomerDto = (row: CustomerRow) => ({
 
 const inOrg = (orgId: string, id: string) => and(eq(customers.orgId, orgId), eq(customers.id, id));
 
-/** Customers with their tag ids. */
-const selectCustomers = (client: Db) =>
-  client.select({ ...getTableColumns(customers), tagIds: tagIdsColumn('customer', customers.id) }).from(customers);
+/** Customers with their tag ids and custom field values. */
+const selectCustomers = (client: Db) => {
+  const { searchText: _searchText, ...columns } = getTableColumns(customers);
+
+  return client
+    .select({ ...columns, tagIds: tagIdsColumn('customer', customers.id), customFields: customFieldsColumn('customer', customers.id) })
+    .from(customers);
+};
 
 /** A customer by id; with `followMerges`, an id merged into another customer resolves to it. */
 const findCustomer = async (client: Db, orgId: string, id: string, followMerges = false) => {
@@ -174,13 +182,11 @@ export const customerListWhere = async (
 
   if (query.search) {
     filters.push(
+      // Names, emails, phones and code, in one trigram-indexed column.
       matchEveryWord(query.search, (pattern, phonePattern) =>
-        or(
-          sql`concat_ws(' ', ${customers.firstName}, ${customers.middleName}, ${customers.lastName}) ILIKE ${pattern}`,
-          sql`array_to_string(${customers.emails}, ' ') ILIKE ${pattern}`,
-          sql`array_to_string(${customers.phones}, ' ') ILIKE ${phonePattern}`,
-          ilike(customers.code, pattern),
-        ),
+        pattern === phonePattern
+          ? sql`${customers.searchText} LIKE ${pattern.toLowerCase()}`
+          : sql`(${customers.searchText} LIKE ${pattern.toLowerCase()} OR ${customers.searchText} LIKE ${phonePattern.toLowerCase()})`,
       ),
     );
   }
@@ -193,17 +199,20 @@ export const listCustomers = async (
   actor: Actor,
   query: CursorQuery & Parameters<typeof customerListWhere>[2],
 ) => {
-  const page = await keysetPage(
-    client,
-    {
-      table: customers,
-      id: customers.id,
-      createdAt: customers.createdAt,
-      scope: eq(customers.orgId, actor.orgId),
-    },
-    await customerListWhere(client, actor, query),
-    query,
-    (where, orderBy, limit) => selectCustomers(client).where(where).orderBy(...orderBy).limit(limit),
+  const page = await boundedList(Boolean(query.filter || query.search), async () =>
+    keysetPage(
+      client,
+      {
+        table: customers,
+        id: customers.id,
+        createdAt: customers.createdAt,
+        scope: eq(customers.orgId, actor.orgId),
+        countCap: LIST_COUNT_CAP,
+      },
+      await customerListWhere(client, actor, query),
+      query,
+      (where, orderBy, limit) => selectCustomers(client).where(where).orderBy(...orderBy).limit(limit),
+    ),
   );
 
   return { ...page, data: page.data.map(toCustomerDto) };
@@ -241,11 +250,11 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
           emails: email.list,
           primaryPhone: phone.primary,
           phones: phone.list,
-          customFields,
           createdBy: actor.userId,
         })
         .returning({ id: customers.id });
 
+      await saveCustomFields(tx, actor.orgId, 'customer', row!.id, customFields, Object.keys(customFields));
       await setRecordTags(tx, actor.orgId, 'customer', row!.id, tagIds);
       await contactCreated(tx, actor, 'customer', await findCustomer(tx, actor.orgId, row!.id));
 
@@ -294,15 +303,10 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
     changes.phones = phone.list;
   }
 
-  if (input.customFields !== undefined) {
-    changes.customFields = await applyCustomFields(
-      client,
-      actor.orgId,
-      'customer',
-      current.customFields,
-      input.customFields,
-    );
-  }
+  const customFields =
+    input.customFields === undefined
+      ? undefined
+      : await applyCustomFields(client, actor.orgId, 'customer', current.customFields, input.customFields);
 
   try {
     await client.transaction(async (tx) => {
@@ -314,6 +318,10 @@ export const updateCustomer = async (client: Db, actor: Actor, id: string, input
 
       if (!updated.length) {
         throw notFound('Customer');
+      }
+
+      if (customFields) {
+        await saveCustomFields(tx, actor.orgId, 'customer', id, customFields, Object.keys(input.customFields ?? {}));
       }
 
       if (tagIds) {
@@ -456,10 +464,6 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
         emails: email.list,
         primaryPhone: phone.primary,
         phones: phone.list,
-        customFields: combineCustomFields(
-          keep.customFields,
-          others.map((other) => other.customFields),
-        ),
         mergedIds: unique([
           ...keep.mergedIds,
           ...otherIds,
@@ -468,6 +472,10 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
         updatedAt: sql`now()`,
       })
       .where(inOrg(actor.orgId, keep.id));
+
+    const combined = combineCustomFields(keep.customFields, others.map((other) => other.customFields));
+
+    await saveCustomFields(tx, actor.orgId, 'customer', keep.id, combined, Object.keys(combined));
 
     const merged = await findCustomer(tx, actor.orgId, keep.id);
 

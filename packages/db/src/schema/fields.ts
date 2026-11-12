@@ -57,7 +57,7 @@ export const fieldGroups = pgTable(
 
 /**
  * Custom fields ("properties") an organisation adds to customers or companies.
- * Values live in the record's `custom_fields` JSON, keyed by field id.
+ * Values live in core_customer_field_values / core_company_field_values.
  */
 export const fields = pgTable(
   'fields',

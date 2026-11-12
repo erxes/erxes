@@ -13,6 +13,7 @@ import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
+import { valuesTable } from './fieldValues';
 
 type FieldRow = typeof fields.$inferSelect;
 type GroupRow = typeof fieldGroups.$inferSelect;
@@ -150,30 +151,25 @@ const countRecords = async (client: Db, orgId: string, contentType: ContentType,
     return 0;
   }
 
-  const table = recordsTable(contentType);
+  const values = valuesTable(contentType);
   const [row] = await client
-    .select({ count: sql<number>`count(*)::int` })
-    .from(table)
-    .where(and(eq(table.orgId, orgId), sql`${table.customFields} ?| ${textArray(ids)}`));
+    .select({ count: sql<number>`count(distinct ${values.recordId})::int` })
+    .from(values)
+    .where(and(eq(values.orgId, orgId), inArray(values.fieldId, ids)));
 
   return Number(row?.count ?? 0);
 };
 
 /** Records holding each option of an option field. */
 const countOptions = async (client: Db, orgId: string, field: FieldRow) => {
-  const table = recordsTable(field.contentType);
-  const value = sql`${table.customFields} -> ${field.id}::text`;
-  const rows = await client.execute<{ value: string; count: number }>(sql`
-    SELECT item AS value, count(*)::int AS count
-    FROM ${table},
-      LATERAL jsonb_array_elements_text(
-        CASE jsonb_typeof(${value}) WHEN 'array' THEN ${value} ELSE jsonb_build_array(${value}) END
-      ) AS item
-    WHERE ${table.orgId} = ${orgId} AND ${table.customFields} ? ${field.id}::text
-    GROUP BY item
-  `);
+  const values = valuesTable(field.contentType);
+  const rows = await client
+    .select({ value: values.textValue, count: sql<number>`count(*)::int` })
+    .from(values)
+    .where(and(eq(values.orgId, orgId), eq(values.fieldId, field.id), isNotNull(values.textValue)))
+    .groupBy(values.textValue);
 
-  return Object.fromEntries(rows.rows.map((row) => [row.value, Number(row.count)]));
+  return Object.fromEntries(rows.map((row) => [row.value!, Number(row.count)]));
 };
 
 const usageOf = async (client: Db, orgId: string, rows: FieldRow[]) => {
@@ -460,13 +456,8 @@ export const removeField = async (client: Db, actor: Actor, id: string) => {
   return client.transaction(async (tx) => {
     await lockRows(tx, 'core_fields', actor.orgId, [id]);
 
-    const field = await findField(tx, actor.orgId, id);
-    const table = recordsTable(field.contentType);
-
-    await tx
-      .update(table)
-      .set({ customFields: sql`${table.customFields} - ${id}::text` })
-      .where(and(eq(table.orgId, actor.orgId), sql`${table.customFields} ? ${id}::text`));
+    await findField(tx, actor.orgId, id);
+    // Its values go with it (foreign key).
     await tx.delete(fields).where(and(eq(fields.orgId, actor.orgId), eq(fields.id, id)));
 
     return { ok: true as const };

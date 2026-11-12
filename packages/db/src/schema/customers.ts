@@ -4,14 +4,12 @@ import {
   date,
   foreignKey,
   index,
-  jsonb,
   smallint,
   text,
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import type { CustomValue } from './common';
 import { organizations } from './organizations';
 import { users } from './users';
 
@@ -42,7 +40,19 @@ export const customers = pgTable(
     code: text(),
     description: text(),
     ownerId: text(),
-    customFields: jsonb().$type<Record<string, CustomValue>>().default({}).notNull(),
+    /**
+     * When the newest timeline entry was made (creation counts); kept by a
+     * trigger on core_activities, so "no activity for 60 days" is indexed.
+     */
+    lastActivityAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    /** Birthday as month * 100 + day (1231), for "birthday in the next 7 days". */
+    birthMonthDay: smallint().generatedAlwaysAs(
+      sql`((extract(month from birth_date) * 100 + extract(day from birth_date))::smallint)`,
+    ),
+    /** Names, emails, phones and code in lower case: what the search box searches (trigram indexed). */
+    searchText: text().generatedAlwaysAs(
+      sql`lower(coalesce(first_name, '') || ' ' || coalesce(middle_name, '') || ' ' || coalesce(last_name, '') || ' ' || core_join_text(emails) || ' ' || core_join_text(phones) || ' ' || coalesce(code, ''))`,
+    ),
     /** Customers merged into this one (their ids keep resolving here). */
     mergedIds: text().array().default(sql`'{}'::text[]`).notNull(),
     createdBy: text(),
@@ -68,6 +78,17 @@ export const customers = pgTable(
       table.id.desc(),
     ),
     index('core_customers_org_state_idx').on(table.orgId, table.state),
+    index('core_customers_org_last_activity_idx').on(table.orgId, table.lastActivityAt),
+    index('core_customers_org_birth_month_day_idx')
+      .on(table.orgId, table.birthMonthDay)
+      .where(sql`${table.birthMonthDay} IS NOT NULL`),
+    index('core_customers_org_owner_idx').on(table.orgId, table.ownerId),
+    // "Contains" anywhere: search box, and filters on names, email and phone.
+    index('core_customers_search_trgm_idx').using('gin', table.searchText.op('gin_trgm_ops')),
+    index('core_customers_first_name_trgm_idx').using('gin', table.firstName.op('gin_trgm_ops')),
+    index('core_customers_last_name_trgm_idx').using('gin', table.lastName.op('gin_trgm_ops')),
+    index('core_customers_primary_email_trgm_idx').using('gin', table.primaryEmail.op('gin_trgm_ops')),
+    index('core_customers_primary_phone_trgm_idx').using('gin', table.primaryPhone.op('gin_trgm_ops')),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

@@ -1,5 +1,6 @@
 import type { Audience, AutomationDefinition } from '@erxes/core-contract';
 import { automations, type Db, newId, type Transaction, withSystem } from '@erxes/core-db';
+import { customFieldsColumn, valuesTable } from '~/modules/fields/fieldValues';
 import { and, eq, lte, sql } from 'drizzle-orm';
 import { log } from '~/lib/log';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
@@ -32,7 +33,8 @@ export const loadSubjects = async (tx: Db, orgId: string, type: 'customer' | 'co
   const table = type === 'customer' ? 'core_customers' : 'core_companies';
   const tags = type === 'customer' ? 'core_customer_tags' : 'core_company_tags';
   const result = await tx.execute<Record<string, unknown>>(sql`
-    select r.*, coalesce((select array_agg(t.tag_id) from ${sql.identifier(tags)} t where t.org_id = r.org_id and ${sql.raw(`t.${type}_id`)} = r.id), '{}') as tag_ids
+    select r.*, coalesce((select array_agg(t.tag_id) from ${sql.identifier(tags)} t where t.org_id = r.org_id and ${sql.raw(`t.${type}_id`)} = r.id), '{}') as tag_ids,
+      ${customFieldsColumn(type, sql`r.id`)} as custom_fields
     from ${sql.identifier(table)} r
     where r.org_id = ${orgId} and ${where}
     order by r.created_at
@@ -90,7 +92,7 @@ const dueByDate = async (tx: Db, automation: AutomationRow, trigger: Extract<Aut
   const column =
     trigger.field === 'birthDate' && trigger.subject === 'customer'
       ? sql`r.birth_date::text`
-      : sql`(r.custom_fields ->> ${trigger.field})`;
+      : sql`(select to_char(v.date_value, 'YYYY-MM-DD') from ${valuesTable(trigger.subject)} v where v.record_id = r.id and v.field_id = ${trigger.field} and v.date_value is not null limit 1)`;
   const match = trigger.yearly ? sql`substr(${column}, 6, 5) = ${monthDay}` : sql`substr(${column}, 1, 10) = ${iso}`;
 
   return { subjects: await loadSubjects(tx, automation.orgId, trigger.subject, match), day: `${today.year}-${String(today.month).padStart(2, '0')}-${String(today.day).padStart(2, '0')}` };
@@ -129,7 +131,7 @@ export const fireJob: JobDefinition = {
           eventId: `date:${day}:${subject.id}`,
           eventType: 'date',
           subject: { type: trigger.subject, id: subject.id },
-          event: { ...event, payload: { ...event.payload, date: subject[trigger.field === 'birthDate' ? 'birthDate' : 'customFields'] } },
+          event: { ...event, payload: { ...event.payload, date: trigger.field === 'birthDate' ? subject.birthDate : (subject.customFields as Record<string, unknown> | undefined)?.[trigger.field] } },
         });
       }
     }

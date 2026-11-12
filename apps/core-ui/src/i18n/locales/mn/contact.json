@@ -133,7 +133,7 @@
     "merge-result": "Нийлүүлсэн компани",
     "merge-no-conflicts": "Зөрчилдөх талбар алга. Хоёр компанийн мэдээллийг нэгтгэнэ.",
     "merged-success": "Компаниуд амжилттай нийлүүлэгдлээ",
-    "records-found": "{{count}} бүртгэл олдлоо",
+    "records-found": "{{formatted}} бүртгэл олдлоо",
     "activity-tag-added": "таг нэмсэн",
     "activity-tag-removed": "таг хассан",
     "activity-tag": "таг"

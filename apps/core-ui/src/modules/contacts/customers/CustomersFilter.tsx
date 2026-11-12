@@ -6,17 +6,18 @@ import { TagsFilter } from '~/modules/tags/TagsSelect';
 import { SelectMember } from '../components/SelectMember';
 import { AdvancedFilterButton, SaveViewButton } from '../views/ViewControls';
 import { customersSessionKey, useCustomers } from './useCustomers';
+import { formatTotal } from '~/lib/cursorList';
 
 export const CustomerTotalCount = ({ state }: { state: CustomerState }) => {
   const { t } = useTranslation();
-  const { totalCount } = useCustomers(state);
+  const { totalCount, totalCapped } = useCustomers(state);
 
   return (
     <div className="h-7 whitespace-nowrap text-sm font-medium leading-7 text-muted-foreground">
       {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="mt-1.5 inline-block h-4 w-20" />
       ) : (
-        `${totalCount} ${t('records-found')}`
+        `${formatTotal(totalCount, totalCapped)} ${t('records-found')}`
       )}
     </div>
   );

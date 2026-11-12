@@ -6,6 +6,7 @@ import {
   companies,
   customerCompanies,
   customers,
+  type CustomValue,
   type Db,
   newId,
   tags,
@@ -15,6 +16,7 @@ import { and, desc, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
 import { type Actor, type Caller, requirePermission, userCaller } from '~/http/auth';
 import { pgCode } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { customFieldsColumn, saveCustomFields } from '~/modules/fields/fieldValues';
 import { publishCoreEvents } from '~/modules/events/events.service';
 
 export const TRASH_DAYS = 30;
@@ -24,13 +26,13 @@ type RecordType = 'customer' | 'company';
 const tableOf = (type: RecordType) => (type === 'customer' ? customers : companies);
 const tagTableOf = (type: RecordType) => (type === 'customer' ? customerTags : companyTags);
 
-/** JSON dates back to Date for timestamp columns (and nothing else). */
+/** JSON dates back to Date for timestamp columns (and nothing else); generated columns are left to the database. */
 const revive = (table: Parameters<typeof getTableColumns>[0], row: Record<string, unknown>) => {
-  const columns = getTableColumns(table) as Record<string, { columnType: string }>;
+  const columns = getTableColumns(table) as Record<string, { columnType: string; generated?: unknown }>;
 
   return Object.fromEntries(
     Object.entries(row)
-      .filter(([key]) => key in columns)
+      .filter(([key]) => key in columns && !columns[key]!.generated)
       .map(([key, value]) => [key, columns[key]!.columnType === 'PgTimestamp' && typeof value === 'string' ? new Date(value) : value]),
   );
 };
@@ -49,7 +51,11 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: RecordType, ids:
 
   const table = tableOf(type);
   const tagTable = tagTableOf(type);
-  const rows = await tx.select().from(table).where(and(eq(table.orgId, caller.orgId), inArray(table.id, ids)));
+  // Custom field values ride along in the row (`customFields`), as they did when they were a column.
+  const rows = await tx
+    .select({ ...getTableColumns(table), customFields: customFieldsColumn(type, table.id) })
+    .from(table)
+    .where(and(eq(table.orgId, caller.orgId), inArray(table.id, ids)));
   const tagRows = await tx
     .select()
     .from(tagTable)
@@ -150,6 +156,11 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
     try {
       await client.transaction(async (tx) => {
         await tx.insert(tableOf(type)).values(revive(tableOf(type), snapshot.row) as never);
+
+        // Values of fields deleted since are dropped.
+        const customFields = (snapshot.row.customFields ?? {}) as Record<string, CustomValue>;
+
+        await saveCustomFields(tx, actor.orgId, type, item.recordId, customFields, Object.keys(customFields));
 
         const tagIds = snapshot.tagIds.length
           ? (await tx.select({ id: tags.id }).from(tags).where(and(eq(tags.orgId, actor.orgId), inArray(tags.id, snapshot.tagIds)))).map((tag) => tag.id)

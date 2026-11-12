@@ -1,6 +1,6 @@
 import type { Export, TransferRecordType } from '@erxes/core-contract';
 import { companies, companyTags, customerCompanies, customers, customerTags, type Db, exports, newId, tags, type Transaction, users } from '@erxes/core-db';
-import { and, asc, eq, gt, inArray, sql } from 'drizzle-orm';
+import { and, asc, eq, getTableColumns, gt, inArray, sql } from 'drizzle-orm';
 import { stringify } from 'csv-stringify/sync';
 import writeXlsxFile from 'write-excel-file/node';
 import { type Actor, type Caller, userCaller } from '~/http/auth';
@@ -13,6 +13,7 @@ import { storeServerFile } from '~/modules/files/files.service';
 import { enqueueJob, type JobDefinition } from '~/modules/jobs/jobs';
 import { notify } from '~/modules/notifications/notifications.service';
 import { customCell, transferColumns } from './columns';
+import { customFieldsColumn } from '~/modules/fields/fieldValues';
 
 type ExportRow = typeof exports.$inferSelect;
 
@@ -199,7 +200,7 @@ export const exportRunJob: JobDefinition = {
 
       while (body.length < MAX_EXPORT_ROWS) {
         const page = (await tx
-          .select()
+          .select({ ...getTableColumns(table), customFields: customFieldsColumn(row.recordType === 'company' ? 'company' : 'customer', table.id) })
           .from(table)
           .where(and(eq(table.orgId, job.orgId), where, last ? gt(table.id, last) : undefined))
           .orderBy(asc(table.id))

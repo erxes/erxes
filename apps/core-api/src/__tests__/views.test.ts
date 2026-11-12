@@ -183,6 +183,48 @@ describeWithDb('advanced filters and saved views', { timeout: 300_000 }, () => {
     expect(await found(rule('subject.tagIds', 'exists'), '/customers?state=customer')).toEqual([]);
   });
 
+  it('filters by company properties, treats a missing value as "not", and keeps last activity from the timeline', async () => {
+    const region = (await call(owner, 'POST', '/fields', { contentType: 'company', label: 'Region', type: 'select', options: ['North', 'South'] })).body.id;
+    const isMember = (await call(owner, 'POST', '/fields', { contentType: 'customer', label: 'Member', type: 'boolean' })).body.id;
+    const renewal = (await call(owner, 'POST', '/fields', { contentType: 'customer', label: 'Renewal', type: 'date' })).body.id;
+    const retail = (await call(owner, 'GET', '/companies?search=retail')).body.data[0].id;
+    const inTen = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
+
+    expect((await call(owner, 'PATCH', `/companies/${retail}`, { customFields: { [region]: 'North' } })).status).toBe(200);
+    expect((await call(owner, 'PATCH', `/customers/${ids.bat}`, { customFields: { [isMember]: true, [renewal]: inTen } })).status).toBe(200);
+    expect((await call(owner, 'PATCH', `/customers/${ids.dorj}`, { customFields: { [isMember]: false } })).status).toBe(200);
+
+    // Customers by their company's properties.
+    expect(await found(rule(`subject.company.customFields.${region}`, 'eq', 'north'))).toEqual(['Saraa']);
+    expect(await found(rule(`subject.company.customFields.${region}`, 'neq', 'North'))).toEqual(['Bat', 'Dorj']);
+    // No value is "no"; "is not" includes records without a value.
+    expect(await found(rule(`subject.customFields.${isMember}`, 'eq', true))).toEqual(['Bat']);
+    expect(await found(rule(`subject.customFields.${isMember}`, 'eq', false))).toEqual(['Dorj', 'Saraa']);
+    expect(await found(rule(`subject.customFields.${spend}`, 'neq', 200))).toEqual(['Bat', 'Saraa']);
+    expect(await found(rule(`subject.customFields.${spend}`, 'not_exists'))).toEqual(['Saraa']);
+    expect(await found(rule(`subject.customFields.${interests}`, 'not_contains', 'golf'))).toEqual(['Dorj', 'Saraa']);
+    expect(await found(rule(`subject.customFields.${renewal}`, 'within_next', { amount: 2, unit: 'weeks' }))).toEqual(['Bat']);
+    expect(await found(rule(`subject.customFields.${renewal}`, 'anniversary_within', { amount: 12 }))).toEqual(['Bat']);
+
+    // Values read back as before, and a deleted field takes its values with it.
+    expect((await call(owner, 'GET', `/customers/${ids.bat}`)).body.customFields).toEqual({ [spend]: 1500, [interests]: ['golf'], [isMember]: true, [renewal]: inTen });
+
+    // Last activity: every timeline entry moves it; creation counts.
+    const { activities, customers, newId } = await import('@erxes/core-db');
+    const { eq, sql } = await import('drizzle-orm');
+    const [dorj] = await adminDb().select({ orgId: customers.orgId }).from(customers).where(eq(customers.id, ids.dorj!));
+
+    await adminDb().update(customers).set({ lastActivityAt: sql`now() - interval '90 days'` });
+    expect(await found(rule('subject.lastActivityAt', 'more_than_ago', { amount: 60, unit: 'days' }))).toEqual(['Bat', 'Dorj', 'Saraa']);
+    await adminDb()
+      .insert(activities)
+      .values({ id: newId(), orgId: dorj!.orgId, targetType: 'customer', targetId: ids.dorj!, source: 'core', type: 'customer.note', actorType: 'system' });
+    expect(await found(rule('subject.lastActivityAt', 'within_last', { amount: 1, unit: 'days' }))).toEqual(['Dorj']);
+
+    // The search box: every word somewhere in names, emails, phones or code.
+    expect((await call(owner, 'GET', '/customers?search=SHOP%20saraa')).body.data.map((row: { firstName: string }) => row.firstName)).toEqual(['Saraa']);
+  });
+
   it('refuses filters that do not fit', async () => {
     expect((await found(rule('subject.nope', 'eq', 'x'))).code).toBe('INVALID_FILTER');
     expect((await found(rule(`subject.customFields.${spend}`, 'contains', 'x'))).code).toBe('INVALID_FILTER');

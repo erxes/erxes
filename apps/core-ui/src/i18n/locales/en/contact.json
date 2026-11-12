@@ -133,7 +133,7 @@
     "merge-result": "Merged company",
     "merge-no-conflicts": "No conflicting fields. Values from both companies will be combined.",
     "merged-success": "Companies merged successfully",
-    "records-found": "{{count}} records found",
+    "records-found": "{{formatted}} records found",
     "activity-tag-added": "added tag",
     "activity-tag-removed": "removed tag",
     "activity-tag": "tag"

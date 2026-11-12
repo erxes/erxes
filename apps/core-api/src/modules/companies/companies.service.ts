@@ -1,3 +1,4 @@
+import type { CustomValue } from '@erxes/core-db';
 import type { CompanyInput, CursorQuery } from '@erxes/core-contract';
 import { companies, customerCompanies, Db, newId, users, withTransaction } from '@erxes/core-db';
 import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
@@ -15,6 +16,8 @@ import {
   contactUpdated,
 } from '~/modules/activities/contactHistory';
 import { applyCustomFields } from '~/modules/fields/fields.service';
+import { customFieldsColumn, saveCustomFields } from '~/modules/fields/fieldValues';
+import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
 import { lockRows } from '~/lib/locks';
@@ -22,7 +25,7 @@ import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
 
-type CompanyRow = typeof companies.$inferSelect & { tagIds: string[] };
+type CompanyRow = Omit<typeof companies.$inferSelect, 'searchText'> & { tagIds: string[]; customFields: Record<string, CustomValue> };
 
 export const toCompanyDto = (row: CompanyRow) => ({
   id: row.id,
@@ -48,9 +51,14 @@ export const toCompanyDto = (row: CompanyRow) => ({
 
 const inOrg = (orgId: string, id: string) => and(eq(companies.orgId, orgId), eq(companies.id, id));
 
-/** Companies with their tag ids. */
-const selectCompanies = (client: Db) =>
-  client.select({ ...getTableColumns(companies), tagIds: tagIdsColumn('company', companies.id) }).from(companies);
+/** Companies with their tag ids and custom field values. */
+const selectCompanies = (client: Db) => {
+  const { searchText: _searchText, ...columns } = getTableColumns(companies);
+
+  return client
+    .select({ ...columns, tagIds: tagIdsColumn('company', companies.id), customFields: customFieldsColumn('company', companies.id) })
+    .from(companies);
+};
 
 const findCompany = async (client: Db, orgId: string, id: string, followMerges = false) => {
   const [row] = await selectCompanies(client)
@@ -148,10 +156,9 @@ export const companyListWhere = async (
     filters.push(
       matchEveryWord(query.search, (pattern, phonePattern) =>
         or(
-          sql`array_to_string(${companies.names}, ' ') ILIKE ${pattern}`,
-          ilike(companies.primaryName, pattern),
-          sql`array_to_string(${companies.emails}, ' ') ILIKE ${pattern}`,
-          sql`array_to_string(${companies.phones}, ' ') ILIKE ${phonePattern}`,
+          // Names, emails, phones and code, in one trigram-indexed column.
+          sql`${companies.searchText} LIKE ${pattern.toLowerCase()}`,
+          pattern === phonePattern ? undefined : sql`${companies.searchText} LIKE ${phonePattern.toLowerCase()}`,
           ilike(companies.website, pattern),
           ilike(companies.industry, pattern),
           ilike(companies.code, pattern),
@@ -168,17 +175,20 @@ export const listCompanies = async (
   actor: Actor,
   query: CursorQuery & Parameters<typeof companyListWhere>[2],
 ) => {
-  const page = await keysetPage(
-    client,
-    {
-      table: companies,
-      id: companies.id,
-      createdAt: companies.createdAt,
-      scope: eq(companies.orgId, actor.orgId),
-    },
-    await companyListWhere(client, actor, query),
-    query,
-    (where, orderBy, limit) => selectCompanies(client).where(where).orderBy(...orderBy).limit(limit),
+  const page = await boundedList(Boolean(query.filter || query.search), async () =>
+    keysetPage(
+      client,
+      {
+        table: companies,
+        id: companies.id,
+        createdAt: companies.createdAt,
+        scope: eq(companies.orgId, actor.orgId),
+        countCap: LIST_COUNT_CAP,
+      },
+      await companyListWhere(client, actor, query),
+      query,
+      (where, orderBy, limit) => selectCompanies(client).where(where).orderBy(...orderBy).limit(limit),
+    ),
   );
 
   return { ...page, data: page.data.map(toCompanyDto) };
@@ -221,11 +231,11 @@ export const createCompany = async (
           emails: email.list,
           primaryPhone: phone.primary,
           phones: phone.list,
-          customFields,
           createdBy: actor.userId,
         })
         .returning({ id: companies.id });
 
+      await saveCustomFields(tx, actor.orgId, 'company', row!.id, customFields, Object.keys(customFields));
       await setRecordTags(tx, actor.orgId, 'company', row!.id, tagIds);
       await contactCreated(tx, actor, 'company', await findCompany(tx, actor.orgId, row!.id));
 
@@ -286,15 +296,10 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
     changes.phones = phone.list;
   }
 
-  if (input.customFields !== undefined) {
-    changes.customFields = await applyCustomFields(
-      client,
-      actor.orgId,
-      'company',
-      current.customFields,
-      input.customFields,
-    );
-  }
+  const customFields =
+    input.customFields === undefined
+      ? undefined
+      : await applyCustomFields(client, actor.orgId, 'company', current.customFields, input.customFields);
 
   try {
     await client.transaction(async (tx) => {
@@ -306,6 +311,10 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
 
       if (!updated.length) {
         throw notFound('Company');
+      }
+
+      if (customFields) {
+        await saveCustomFields(tx, actor.orgId, 'company', id, customFields, Object.keys(input.customFields ?? {}));
       }
 
       if (tagIds) {
@@ -431,14 +440,14 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
         emails: email.list,
         primaryPhone: phone.primary,
         phones: phone.list,
-        customFields: combineCustomFields(
-          keep.customFields,
-          others.map((other) => other.customFields),
-        ),
         mergedIds: unique([...keep.mergedIds, ...otherIds, ...others.flatMap((other) => other.mergedIds)]),
         updatedAt: sql`now()`,
       })
       .where(inOrg(actor.orgId, keep.id));
+
+    const combined = combineCustomFields(keep.customFields, others.map((other) => other.customFields));
+
+    await saveCustomFields(tx, actor.orgId, 'company', keep.id, combined, Object.keys(combined));
 
     const merged = await findCompany(tx, actor.orgId, keep.id);
 

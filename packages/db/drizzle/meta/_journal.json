@@ -260,6 +260,20 @@
       "when": 1794454272503,
       "tag": "0036_imports_exports",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794457438729,
+      "tag": "0037_field_values_and_search",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794457439519,
+      "tag": "0038_drop_custom_fields_json",
+      "breakpoints": true
     }
   ]
 }
