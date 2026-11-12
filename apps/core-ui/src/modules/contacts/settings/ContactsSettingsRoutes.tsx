@@ -42,8 +42,8 @@ const ContactsSettingsSidebar = () => {
         </Sidebar.Menu>
       </Sidebar.Header>
       <Sidebar.Content className="styled-scroll gap-1">
+        {/* No heading: the sidebar's title already says "Contacts settings". */}
         <Sidebar.Group>
-          <Sidebar.GroupLabel>{t('contacts-settings', 'Contacts settings')}</Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
               {items.map((item) => (
