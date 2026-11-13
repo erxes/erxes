@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { currentUserState } from 'ui-modules';
 
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
@@ -50,6 +51,7 @@ export const ProductsList = ({
   tickUsed: boolean;
   compact?: boolean;
 }) => {
+  const { t } = useTranslation('sales');
   const containerRef = useRef<HTMLDivElement>(null);
   const [isNarrow, setIsNarrow] = useState(compact);
 
@@ -391,9 +393,9 @@ export const ProductsList = ({
           <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
             <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">
               <Dialog.Header className="sr-only">
-                <Dialog.Title>Products</Dialog.Title>
+                <Dialog.Title>{t('products')}</Dialog.Title>
                 <Dialog.Description>
-                  Expanded product management view
+                  {t('expanded-product-management-view')}
                 </Dialog.Description>
               </Dialog.Header>
               {productWorkspace}
