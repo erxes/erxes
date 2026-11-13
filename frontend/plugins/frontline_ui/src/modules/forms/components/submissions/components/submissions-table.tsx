@@ -19,6 +19,7 @@ import { useSidePanel } from 'ui-modules';
 import { FORM_SUBMISSION_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 import { IFormSubmission } from '../types';
 import type { IFormField } from '@/forms/types/formTypes';
+import { getFormAvatarUrl } from '@/forms/utils/getFormAvatarUrl';
 import {
   IconCheckbox,
   IconCircleDashedCheck,
@@ -201,9 +202,7 @@ function buildColumnsAndRows(
             <Avatar size={'lg'}>
               <Avatar.Image
                 src={readImage(
-                  decodeURIComponent(
-                    parseFilesAsAttachments(value)[0]?.url ?? '',
-                  ),
+                  decodeURIComponent(getFormAvatarUrl(value) ?? ''),
                 )}
                 alt="avatar"
               />

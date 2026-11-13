@@ -13,6 +13,7 @@ import {
   getFormWidgetResource,
   normalizeFormWidgetData,
 } from '@/inbox/conversation-messages/utils/formWidget';
+import { getFormAvatarUrl } from '@/forms/utils/getFormAvatarUrl';
 import { useTranslation } from 'react-i18next';
 import {
   Avatar,
@@ -22,7 +23,6 @@ import {
   Textarea,
   Upload,
   cn,
-  parseFilesAsAttachments,
   readImage,
 } from 'erxes-ui';
 
@@ -104,9 +104,7 @@ export const ConversationFormDisplay = ({
               item.type === 'core:customer:avatar' ||
               item.type === 'core:company:avatar';
             const avatar = isAvatar
-              ? getFormWidgetResource(
-                  parseFilesAsAttachments(item.value)[0]?.url,
-                )
+              ? getFormWidgetResource(getFormAvatarUrl(item.value))
               : undefined;
 
             return (
