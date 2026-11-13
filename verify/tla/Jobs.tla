@@ -6,7 +6,7 @@
 (* one SQL statement, one handler run, or a commit.                        *)
 (*                                                                         *)
 (* Time is abstract. A claim's lease is "running" until Expire ends it.    *)
-(* Every claim on one queue gets the same lease length (jobs.ts:157-163),  *)
+(* Every claim on one queue gets the same lease length (jobs.ts:150-157),  *)
 (* so leases end in the order they were taken: Expire ends the oldest.     *)
 (* run_at and backoff only delay a claim, so a queued job is due at once.  *)
 (*                                                                         *)
@@ -164,7 +164,7 @@ Fail(w) ==
   /\ pc' = [pc EXCEPT ![w] = "idle"]
   /\ UNCHANGED <<tx, attempts, maxAttempts, leases, claimNo, effects, retries>>
 
-\* retryDeadJobs (jobs.ts:313-333): one more attempt for a dead job.
+\* retryDeadJobs (jobs.ts:336-355): one more attempt for a dead job.
 Retry ==
   /\ status = "dead"
   /\ retries < MaxRetries

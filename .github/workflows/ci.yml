@@ -1,5 +1,5 @@
-# erxes core: static checks, tests on Postgres, builds, container images with a
-# vulnerability scan and a smoke test of the whole stack. The three run side by
+# erxes core: static checks, tests on Postgres, builds, TLA+ model checks, container images with a
+# vulnerability scan and a smoke test of the whole stack. The four run side by
 # side; images go to GHCR on pushes to postgre only after all of them pass.
 # Require the `Check` job in branch protection.
 name: CI
@@ -92,6 +92,30 @@ jobs:
         env:
           DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
 
+  models:
+    name: TLA+ models
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ERXES_VERIFY_CACHE: ${{ github.workspace }}/../erxes-verify
+      TLC_OUT: ${{ github.workspace }}/../tlc
+    steps:
+      - uses: actions/checkout@v7
+      # The pinned Java and tla2tools.jar; the script checks their checksums either way.
+      - uses: actions/cache@v5
+        with:
+          path: ${{ env.ERXES_VERIFY_CACHE }}
+          key: tla-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/verify-models.sh') }}
+      - name: Real designs pass, broken designs fail
+        run: tools/verify-models.sh
+      - name: Keep TLC's output and counterexample traces
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: tlc-traces
+          path: ${{ env.TLC_OUT }}/*.log
+          if-no-files-found: ignore
+
   images:
     name: Images, scan and smoke test
     runs-on: ubuntu-latest
@@ -140,7 +164,7 @@ jobs:
   check:
     # The job to require. It fails when any job above failed, was cancelled or was skipped.
     name: Check
-    needs: [static, integration, images]
+    needs: [static, integration, models, images]
     if: always()
     runs-on: ubuntu-latest
     steps:

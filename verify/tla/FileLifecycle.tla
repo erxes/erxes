@@ -15,12 +15,12 @@
 (* Both drivers are explored (driver is picked in Init):                   *)
 (*  - s3: a PUT replaces the upload object; promote copies only the version*)
 (*    stat saw (CopySourceIfMatch, storage.ts:327-338).                    *)
-(*  - local: the link writes once (hard link, files.http.ts:66-72);        *)
+(*  - local: the link writes once (hard link, files.http.ts:67-72);        *)
 (*    promote hard-links and never replaces the target (storage.ts:224-234)*)
 (*                                                                         *)
 (* Left out: storeServerFile (ready at once, no link), the size-mismatch   *)
 (* branch of completeUpload (both drivers refuse a body of another length, *)
-(* files.http.ts:52-63 and storage.ts:289-298), audit rows, several files, *)
+(* files.http.ts:53-64 and storage.ts:289-298), audit rows, several files, *)
 (* and time (any pending row counts as old enough for the prune).          *)
 (***************************************************************************)
 EXTENDS Naturals
@@ -225,7 +225,7 @@ PurgeDelete ==
   /\ ppc' = "idle"
   /\ UNCHANGED <<driver, rowKey, store, puts, lock, pc, seen, checked, rpc, pkey, served>>
 
-\* GET /files/:id/download (files.http.ts:134-155) and getFile (184-194): a
+\* GET /files/:id/download (files.http.ts:134-157) and getFile (184-194): a
 \* link only for a ready row (readyFile, 205-213), to the row's key.
 Download ==
   /\ row = "ready" \/ ("download_pending" \in Broken /\ row = "pending")
