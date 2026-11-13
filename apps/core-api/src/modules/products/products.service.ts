@@ -114,7 +114,6 @@ export const createProduct = async (
       currency,
       plugins,
       id,
-      orgId: caller.orgId,
       createdBy: caller.actorId,
     });
   } catch (error) {

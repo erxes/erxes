@@ -82,7 +82,6 @@ export const createFieldGroup = async (
         .insert(fieldGroups)
         .values({
           id: newId(),
-          orgId: actor.orgId,
           contentType: input.contentType,
           name: input.name,
           code,

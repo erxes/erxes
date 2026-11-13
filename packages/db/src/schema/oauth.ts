@@ -1,5 +1,5 @@
 import { foreignKey, index, integer, text, timestamp } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { orgIdColumn, pgTable } from '../table';
 import { createdAt } from './common';
 import { organizations } from './organizations';
 
@@ -14,7 +14,7 @@ export const oauthCodes = pgTable(
   'oauth_codes',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     clientId: text().notNull(),
     userId: text().notNull(),
     codeHash: text().notNull(),
@@ -44,7 +44,7 @@ export const oauthRefreshTokens = pgTable(
   'oauth_refresh_tokens',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     clientId: text().notNull(),
     userId: text().notNull(),
     familyId: text().notNull(),

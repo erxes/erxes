@@ -73,7 +73,6 @@ export const createUpload = async (
       .insert(files)
       .values({
         id,
-        orgId: caller.orgId,
         key,
         name: input.name,
         contentType: input.contentType,
@@ -353,7 +352,6 @@ export const storeServerFile = async (
         .insert(files)
         .values({
           id,
-          orgId: caller.orgId,
           key,
           name: input.name,
           contentType: input.contentType,

@@ -175,7 +175,6 @@ export const addGateway = async (
       .insert(paymentGateways)
       .values({
         id,
-        orgId: actor.orgId,
         kind: input.config.kind,
         name: input.name,
         configSealed: seal(JSON.stringify(input.config)),

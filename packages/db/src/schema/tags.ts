@@ -1,7 +1,7 @@
 import { CONTENT_TYPES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, primaryKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { companies } from './companies';
 import { customers } from './customers';
@@ -12,7 +12,7 @@ export const tags = pgTable(
   'tags',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     type: text({ enum: CONTENT_TYPES }).notNull(),
     name: text().notNull(),
     colorCode: text(),
@@ -49,7 +49,7 @@ const tagLinks = (
   return pgTable(
     name,
     {
-      orgId: text().notNull(),
+      orgId: orgIdColumn(),
       recordId: text(recordColumn).notNull(),
       tagId: text().notNull(),
       createdAt: createdAt(),

@@ -88,7 +88,6 @@ const installPluginTx = async (actor: Actor, name: string) => {
   const [installation] = await tx
     .insert(pluginInstallations)
     .values({
-      orgId: actor.orgId,
       plugin: name,
       grantedScopes: scopes,
       installedBy: actor.userId,

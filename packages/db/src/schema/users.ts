@@ -13,7 +13,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { organizations } from './organizations';
 
 /**
@@ -25,7 +25,7 @@ import { organizations } from './organizations';
 export const roles = pgTable(
   'roles',
   {
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     key: text().notNull(),
     name: text().notNull(),
     description: text(),
@@ -53,7 +53,7 @@ export const users = pgTable(
   'users',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     email: text().notNull(),
     username: text(),
     /** Display name; kept in step with first/middle/last name. */

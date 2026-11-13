@@ -92,7 +92,6 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
       .insert(paymentInvoices)
       .values({
         id,
-        orgId: caller.orgId,
         gatewayId: gateway.id,
         source: caller.source,
         referenceType: input.reference.type,

@@ -17,7 +17,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -32,7 +32,7 @@ export const automations = pgTable(
   'automations',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     name: text().notNull(),
     description: text(),
     status: text({ enum: AUTOMATION_STATUSES }).default('draft').notNull(),
@@ -71,7 +71,7 @@ export const automations = pgTable(
 export const automationVersions = pgTable(
   'automation_versions',
   {
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     automationId: text().notNull(),
     version: integer().notNull(),
     definition: jsonb().$type<Record<string, unknown>>().notNull(),
@@ -96,7 +96,7 @@ export const automationRuns = pgTable(
   'automation_runs',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     automationId: text().notNull(),
     version: integer().notNull(),
     eventId: text().notNull(),
@@ -157,7 +157,7 @@ export const automationRunSteps = pgTable(
   'automation_run_steps',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     runId: text().notNull(),
     stepId: text().notNull(),
     type: text().notNull(),

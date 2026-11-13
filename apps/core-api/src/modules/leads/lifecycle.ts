@@ -243,7 +243,6 @@ export const recordLeadSteps = async (
   await tx.insert(leadEvents).values(
     steps.map(({ id, step }) => ({
       id: newId(),
-      orgId: caller.orgId,
       customerId: recordType === 'customer' ? id : null,
       companyId: recordType === 'company' ? id : null,
       event: step.event,

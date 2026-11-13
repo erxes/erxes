@@ -8,7 +8,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt } from './common';
 import { customers } from './customers';
 import { organizations } from './organizations';
@@ -25,7 +25,7 @@ export const customerLogins = pgTable(
   'customer_logins',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     customerId: text().notNull(),
     kind: text({ enum: CUSTOMER_LOGIN_KINDS }).notNull(),
     /** Normalised: lower-case email, phone without formatting. */
@@ -58,7 +58,7 @@ export const customerCodes = pgTable(
   'customer_codes',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     kind: text({ enum: CUSTOMER_LOGIN_KINDS }).notNull(),
     value: text().notNull(),
     purpose: text({ enum: CUSTOMER_CODE_PURPOSES }).notNull(),
@@ -102,7 +102,7 @@ export const customerSessions = pgTable(
   'customer_sessions',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     customerId: text().notNull(),
     /** The plugin whose app holds it. */
     clientId: text().notNull(),

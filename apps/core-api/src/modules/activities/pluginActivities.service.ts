@@ -70,7 +70,6 @@ export const createPluginActivity = async (
     .insert(activities)
     .values({
       id: newId(),
-      orgId: caller.orgId,
       targetType: input.targetType,
       targetId: input.targetId,
       source: caller.plugin,

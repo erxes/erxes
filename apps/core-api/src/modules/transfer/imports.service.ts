@@ -83,7 +83,6 @@ export const createImport = async (
       .insert(imports)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         recordType: input.recordType,
         fileId: file.id,
         fileName: file.name,

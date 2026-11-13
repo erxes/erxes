@@ -77,7 +77,6 @@ const publish = async (
   const version = (row.activeVersion ?? 0) + 1;
 
   await client.insert(automationVersions).values({
-    orgId: actor.orgId,
     automationId: row.id,
     version,
     definition,
@@ -128,7 +127,6 @@ export const createAutomation = async (
 ) => {
   const values = {
     id: newId(),
-    orgId: actor.orgId,
     name: input.name,
     description: input.description ?? null,
     definition: input.definition,

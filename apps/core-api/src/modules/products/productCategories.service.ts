@@ -80,7 +80,6 @@ export const createCategory = async (
         .insert(productCategories)
         .values({
           id: newId(),
-          orgId: caller.orgId,
           name: input.name,
           parentId: input.parentId ?? null,
           createdBy: caller.actorId,

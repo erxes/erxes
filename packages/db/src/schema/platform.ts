@@ -11,7 +11,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 import { users } from './users';
@@ -32,7 +32,7 @@ export const files = pgTable(
   'files',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     /** Object key in the storage driver: `<orgId>/<yyyy>/<mm>/<id>`. */
     key: text().notNull(),
     name: text().notNull(),
@@ -75,7 +75,7 @@ export const notifications = pgTable(
   'notifications',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     userId: text().notNull(),
     /** `core` or the plugin that sent it. */
     source: text().notNull(),
@@ -138,7 +138,7 @@ export const activities = pgTable(
   'activities',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     /** `customer`, `company`, or a plugin's record type (`hr.employee`). */
     targetType: text().notNull(),
     targetId: text().notNull(),
@@ -205,7 +205,7 @@ export const auditLogs = pgTable(
   'audit_logs',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     actorType: text({ enum: ACTOR_TYPES }).notNull(),
     actorId: text(),
     /** `<record>.<verb>`: `customer.deleted`, `user.role_changed`, `auth.signed_in`. */
@@ -258,7 +258,7 @@ export const auditLogs = pgTable(
 export const auditCheckpoints = pgTable(
   'audit_checkpoints',
   {
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     chainSeq: bigint({ mode: 'number' }).notNull(),
     hash: text().notNull(),
     /** Signing key id (`kid` in the published JWKS). */

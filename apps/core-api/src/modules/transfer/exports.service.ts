@@ -133,7 +133,6 @@ export const createExport = async (
       .insert(exports)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         recordType: input.recordType,
         format: input.format,
         columns: input.columns,

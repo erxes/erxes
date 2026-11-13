@@ -10,7 +10,7 @@ import {
   smallint,
   text,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { orgIdColumn, pgTable } from '../table';
 import { companies } from './companies';
 import { customers } from './customers';
 import { fields } from './fields';
@@ -38,7 +38,7 @@ const fieldValues = (name: keyof typeof RECORDS) => {
   return pgTable(
     name,
     {
-      orgId: text().notNull(),
+      orgId: orgIdColumn(),
       recordId: text().notNull(),
       fieldId: text().notNull(),
       position: smallint().default(0).notNull(),

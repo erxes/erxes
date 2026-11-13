@@ -13,7 +13,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -39,7 +39,7 @@ export const events = pgTable(
     txId: xid8()
       .default(sql`pg_current_xact_id()`)
       .notNull(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     /** `core` or the plugin that published it. */
     source: text().notNull(),
     /** Namespaced by source: `core.customer.created`, `hr.leave.approved`. */
@@ -103,7 +103,7 @@ export const eventFailures = pgTable(
   {
     consumer: text().notNull(),
     eventId: text().notNull(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     status: text({ enum: EVENT_FAILURE_STATUSES }).default('retrying').notNull(),
     attempts: integer().default(1).notNull(),
     lastError: text().notNull(),

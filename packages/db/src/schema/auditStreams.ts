@@ -1,6 +1,6 @@
 import { AUDIT_STREAM_FORMATS, AUDIT_STREAM_STATUSES } from '../enums';
 import { bigint, check, foreignKey, index, integer, text, timestamp } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -16,7 +16,7 @@ export const auditStreams = pgTable(
   'audit_streams',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     name: text().notNull(),
     url: text().notNull(),
     format: text({ enum: AUDIT_STREAM_FORMATS }).default('erxes').notNull(),

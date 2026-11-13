@@ -92,7 +92,6 @@ export const createCompany = async (
           .values({
             ...scalarFields(input),
             id: newId(),
-            orgId: actor.orgId,
             primaryName,
             names: name.list,
             primaryEmail: email.primary,

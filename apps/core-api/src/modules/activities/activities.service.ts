@@ -59,7 +59,6 @@ export const recordActivity = async (
   await client.insert(activities).values(
     list.map((entry) => ({
       id: newId(),
-      orgId: caller.orgId,
       targetType: entry.targetType,
       targetId: entry.targetId,
       source: 'core',
@@ -204,7 +203,6 @@ export const addNote = async (
       .insert(activities)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         targetType: input.targetType,
         targetId: input.targetId,
         source: 'core',

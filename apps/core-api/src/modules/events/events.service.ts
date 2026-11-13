@@ -61,7 +61,6 @@ export const publishCoreEvents = async (
   await client.insert(events).values(
     list.map((input) => ({
       id: newId(),
-      orgId: caller.orgId,
       source: 'core',
       type: input.type,
       subjectType: input.subject?.type ?? null,
@@ -118,7 +117,6 @@ export const publishPluginEvents = async (
     .values(
       inputs.map((input) => ({
         id: newId(),
-        orgId: caller.orgId,
         source: caller.plugin,
         type: input.type,
         version: input.version,

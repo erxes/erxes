@@ -11,7 +11,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { leadStages } from './leadStages';
 import { organizations } from './organizations';
 import { users } from './users';
@@ -24,7 +24,7 @@ export const customers = pgTable(
   'customers',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     state: text({ enum: CUSTOMER_STATES }).default('customer').notNull(),
     firstName: text(),
     middleName: text(),

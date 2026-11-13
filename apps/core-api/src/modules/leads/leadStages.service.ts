@@ -84,7 +84,6 @@ export const createLeadStage = async (
 
   const stage = {
     id: newId(),
-    orgId: actor.orgId,
     name: input.name,
     kind: input.kind ?? 'open',
     color: input.color ?? '#64748b',

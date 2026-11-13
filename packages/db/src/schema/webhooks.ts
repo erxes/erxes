@@ -1,6 +1,6 @@
 import { WEBHOOK_DELIVERY_STATUSES, WEBHOOK_STATUSES } from '../enums';
 import { check, foreignKey, index, integer, text, timestamp } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -15,7 +15,7 @@ export const webhooks = pgTable(
   'webhooks',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     url: text().notNull(),
     description: text(),
     /** Event types, `<prefix>.*`, or `*` for everything. */
@@ -47,7 +47,7 @@ export const webhookDeliveries = pgTable(
   'webhook_deliveries',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     webhookId: text().notNull(),
     eventId: text().notNull(),
     eventType: text().notNull(),

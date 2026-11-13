@@ -7,7 +7,7 @@ Copy `packages/db/src/schema/tags.ts`: an org-scoped table with a named unique i
 foreign key to `organizations` and a check constraint.
 
 1. Edit `packages/db/src/schema/<domain>.ts` with `pgTable` from `../table` (it adds the `core_`
-   prefix). A table with an organisation's data gets `orgId: text().notNull()`, a foreign key
+   prefix). A table with an organisation's data gets `orgId: orgIdColumn()` from `../table` (filled from the scope on insert), a foreign key
    `core_<table>_org_id_fkey` to `organizations.id` with `onDelete('cascade')`, and indexes that lead
    with `orgId`. Spell every index and constraint name out with the full table name.
 2. Ids are `text().primaryKey()` filled by `newId()`. A column with a fixed set of values uses

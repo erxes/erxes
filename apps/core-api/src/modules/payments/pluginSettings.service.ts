@@ -97,7 +97,6 @@ export const updatePluginSettings = async (
   await client
     .insert(paymentPluginSettings)
     .values({
-      orgId: actor.orgId,
       plugin: input.plugin,
       defaultGatewayId: input.defaultGatewayId,
       allowedGatewayIds: allowed,

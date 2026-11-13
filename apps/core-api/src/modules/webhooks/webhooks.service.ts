@@ -116,7 +116,6 @@ export const createWebhook = async (
       .insert(webhooks)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         url: input.url,
         description: input.description ?? null,
         eventTypes: [...new Set(input.eventTypes)],

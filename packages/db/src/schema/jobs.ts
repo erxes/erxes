@@ -10,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -30,7 +30,7 @@ export const jobs = pgTable(
   'jobs',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     /** What to do: `webhook.deliver`, `automation.step`, … */
     queue: text().notNull(),
     payload: jsonb().$type<Record<string, unknown>>().default({}).notNull(),

@@ -1,6 +1,6 @@
 import { type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '../enums';
 import { boolean, check, foreignKey, index, jsonb, text } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { type ConditionGroup, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -18,7 +18,7 @@ export const views = pgTable(
   'views',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     recordType: text({ enum: VIEW_RECORD_TYPES }).notNull(),
     name: text().notNull(),
     filter: jsonb().$type<ConditionGroup>(),

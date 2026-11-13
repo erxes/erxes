@@ -240,7 +240,6 @@ export const createRole = async (
     await tx
       .insert(roles)
       .values({
-        orgId: actor.orgId,
         key: `r_${newId()}`,
         name: input.name,
         description: input.description ?? null,

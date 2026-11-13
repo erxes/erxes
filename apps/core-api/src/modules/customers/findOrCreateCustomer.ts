@@ -82,7 +82,6 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
       .values({
         ...lead.set,
         id: newId(),
-        orgId: caller.orgId,
         state: input.state ?? 'customer',
         firstName: input.firstName ?? null,
         lastName: input.lastName ?? null,

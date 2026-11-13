@@ -87,7 +87,6 @@ export const createStream = async (
       .insert(auditStreams)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         name: input.name,
         url: input.url,
         format: input.format,

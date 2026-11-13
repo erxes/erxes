@@ -175,7 +175,6 @@ export const createField = async (
         .insert(fields)
         .values({
           id: newId(),
-          orgId: actor.orgId,
           contentType: input.contentType,
           groupId: input.groupId ?? null,
           label: input.label,

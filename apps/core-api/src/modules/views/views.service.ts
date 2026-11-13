@@ -95,7 +95,6 @@ export const createView = async (
       .insert(views)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         recordType: input.recordType,
         name: input.name,
         filter: input.filter ?? null,

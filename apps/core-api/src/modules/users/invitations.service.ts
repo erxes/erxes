@@ -21,7 +21,6 @@ interface InviteInput {
 /** A new member row: with a password they can sign in at once, otherwise they stay invited. */
 const inviteValues = async (actor: Actor, input: InviteInput) => ({
   id: newId(),
-  orgId: actor.orgId,
   email: input.email.trim().toLowerCase(),
   ...(input.fullName ? { ...splitFullName(input.fullName), fullName: input.fullName } : {}),
   username: input.username ?? null,

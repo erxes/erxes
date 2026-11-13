@@ -17,7 +17,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { type ConditionGroup, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -61,7 +61,7 @@ export const imports = pgTable(
   'imports',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     recordType: text({ enum: TRANSFER_RECORD_TYPES }).notNull(),
     fileId: text().notNull(),
     fileName: text().notNull(),
@@ -99,7 +99,7 @@ export const imports = pgTable(
 export const importRows = pgTable(
   'import_rows',
   {
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     importId: text().notNull(),
     /** 1-based, after the header (as people count rows in a spreadsheet: row 2 is the first). */
     rowNumber: integer().notNull(),
@@ -125,7 +125,7 @@ export const exports = pgTable(
   'exports',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     recordType: text({ enum: TRANSFER_RECORD_TYPES }).notNull(),
     format: text({ enum: EXPORT_FORMATS }).notNull(),
     /** The list query: `filter` (condition group), `search`, `tagIds`, `ownerId`. */

@@ -1,7 +1,7 @@
 import { LEAD_STAGE_KINDS } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, integer, text, uniqueIndex } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -13,7 +13,7 @@ export const leadStages = pgTable(
   'lead_stages',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     name: text().notNull(),
     kind: text({ enum: LEAD_STAGE_KINDS }).default('open').notNull(),
     /** `#rrggbb` */

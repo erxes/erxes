@@ -10,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { inList, pgTable } from '../table';
+import { inList, orgIdColumn, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -22,7 +22,7 @@ export const fieldGroups = pgTable(
   'field_groups',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     contentType: text({ enum: FIELD_CONTENT_TYPES }).notNull(),
     name: text().notNull(),
     code: text().notNull(),
@@ -56,7 +56,7 @@ export const fields = pgTable(
   'fields',
   {
     id: text().primaryKey(),
-    orgId: text().notNull(),
+    orgId: orgIdColumn(),
     contentType: text({ enum: FIELD_CONTENT_TYPES }).notNull(),
     /** The group it is listed in; fields made before groups have none. */
     groupId: text(),

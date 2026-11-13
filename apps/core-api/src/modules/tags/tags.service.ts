@@ -72,7 +72,6 @@ export const createTag = async (
         .insert(tags)
         .values({
           id: newId(),
-          orgId: actor.orgId,
           type: input.type,
           name: input.name,
           colorCode: input.colorCode ?? null,

@@ -253,7 +253,6 @@ export const testWebhook = async (client: Db, actor: Actor, id: string) => {
       .insert(events)
       .values({
         id: newId(),
-        orgId: actor.orgId,
         source: 'core',
         type: 'core.webhook.test',
         actorType: 'user',

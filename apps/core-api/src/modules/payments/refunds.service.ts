@@ -207,7 +207,6 @@ export const refundInvoice = async (client: Db, caller: Caller, input: RefundInp
       .insert(paymentRefunds)
       .values({
         id: newId(),
-        orgId: caller.orgId,
         invoiceId: invoice.id,
         amount,
         reason: input.reason,

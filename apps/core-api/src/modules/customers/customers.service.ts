@@ -58,7 +58,6 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
           .values({
             ...scalarFields(input),
             id: newId(),
-            orgId: actor.orgId,
             state: input.state ?? 'customer',
             primaryEmail: email.primary,
             emails: email.list,
@@ -240,7 +239,7 @@ const upsertLinks = async (
 ) => {
   const rows = await tx
     .insert(customerCompanies)
-    .values(ids.map((customerId) => ({ orgId: actor.orgId, customerId, companyId, ...attributes })))
+    .values(ids.map((customerId) => ({ customerId, companyId, ...attributes })))
     .onConflictDoUpdate({
       target: [customerCompanies.customerId, customerCompanies.companyId],
       set: { ...attributes, updatedAt: sql`now()` },

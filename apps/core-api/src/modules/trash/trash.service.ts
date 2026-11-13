@@ -106,7 +106,6 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids
     .values(
       rows.map((row) => ({
         id: newId(),
-        orgId: caller.orgId,
         recordType: type,
         recordId: row.id,
         label: labelOf(type, row),
