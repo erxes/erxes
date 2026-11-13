@@ -476,8 +476,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(tailwindcss@4.3.5)
       type-fest:
-        specifier: 4.39.1
-        version: 4.39.1
+        specifier: 5.10.0
+        version: 5.10.0
       use-debounce:
         specifier: ^10.1.1
         version: 10.1.1(react@19.3.1)
@@ -7376,10 +7376,6 @@ packages:
   type-check@0.3.2:
     resolution: {integrity: sha512-ZCmOJdvOWDBYJlzAoFkC+Q0+bUyEOS1ltgp1MGU03fqHG+dbi9tBFU2Rd9QKiDZFAYrhPh2JUf7rZRIuHRKtOg==}
     engines: {node: '>= 0.8.0'}
-
-  type-fest@4.39.1:
-    resolution: {integrity: sha512-uW9qzd66uyHYxwyVBYiwS4Oi0qZyUqwjU+Oevr6ZogYiXt99EOYtwvzMSLw1c3lYo2HzJsep/NB23iEVEgjG/w==}
-    engines: {node: '>=16'}
 
   type-fest@5.10.0:
     resolution: {integrity: sha512-NoSdpq/WEiAg5sjmBkmV/hfxv6HJH4NqPNrqjtSO5CwRmpsDfaf4begxW34KdJykH/l1yHtwBWQkCRdoXO8mPA==}
@@ -14913,8 +14909,6 @@ snapshots:
     dependencies:
       prelude-ls: 1.1.2
     optional: true
-
-  type-fest@4.39.1: {}
 
   type-fest@5.10.0:
     dependencies:
