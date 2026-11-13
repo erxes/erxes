@@ -1,0 +1,28 @@
+{
+  "name": "consumer-plugin-rsbuild",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc && rsbuild build && node one-react.ts"
+  },
+  "dependencies": {
+    "@erxes/core-contract": "file:../packs/erxes-core-contract.tgz",
+    "@erxes/plugin-sdk": "file:../packs/erxes-plugin-sdk.tgz",
+    "erxes-ui": "file:../packs/erxes-ui.tgz",
+    "i18next": "^24.2.3",
+    "jotai": "^2.20.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-i18next": "^15.7.4",
+    "react-router-dom": "^7.18.5"
+  },
+  "devDependencies": {
+    "@module-federation/rsbuild-plugin": "2.9.3",
+    "@rsbuild/core": "^2.3.2",
+    "@rsbuild/plugin-react": "^2.1.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "~7.0.2"
+  }
+}

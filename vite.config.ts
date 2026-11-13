@@ -33,7 +33,9 @@ export default defineConfig({
     ],
     categories: { correctness: 'error', suspicious: 'error' },
     options: { typeAware: true, typeCheck: true },
-    ignorePatterns: ['dist/**', 'coverage/**'],
+    // consumers/ installs the packed packages outside the workspace, so their imports
+    // resolve only there; consumers/run.sh type-checks them (CI's packages job).
+    ignorePatterns: ['dist/**', 'coverage/**', 'consumers/**'],
     rules: {
       'vite-plus/prefer-vite-plus-imports': 'error',
       'anti-slop/no-reduce-accumulator-copy': 'error',

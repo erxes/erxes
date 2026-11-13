@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["src", "rsbuild.config.ts", "one-react.ts"]
+}
