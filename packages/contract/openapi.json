@@ -8594,30 +8594,8 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "gatewayKind": {
-            "enum": [
-              "qpay",
-              "test"
-            ],
-            "type": "string"
-          },
           "source": {
             "type": "string"
-          },
-          "reference": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string"
-              },
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "type",
-              "id"
-            ]
           },
           "amount": {
             "type": "integer",
@@ -8670,28 +8648,6 @@
             "type": "integer",
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
-          },
-          "refundable": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "gateway": {
-                "enum": [
-                  "partial",
-                  "full",
-                  "none"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "amount",
-              "gateway"
-            ]
           },
           "payment": {
             "type": "object",
@@ -8781,14 +8737,56 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "gatewayKind": {
+            "enum": [
+              "qpay",
+              "test"
+            ],
+            "type": "string"
+          },
+          "reference": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ]
+          },
+          "refundable": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "gateway": {
+                "enum": [
+                  "partial",
+                  "full",
+                  "none"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "gateway"
+            ]
           }
         },
         "required": [
           "id",
           "gatewayId",
-          "gatewayKind",
           "source",
-          "reference",
           "amount",
           "currency",
           "description",
@@ -8797,11 +8795,13 @@
           "lines",
           "paidAmount",
           "refundedAmount",
-          "refundable",
           "payment",
           "expiresAt",
           "paidAt",
-          "createdAt"
+          "createdAt",
+          "gatewayKind",
+          "reference",
+          "refundable"
         ]
       },
       "InvoiceLine": {
@@ -9604,16 +9604,16 @@
             ],
             "type": "string"
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "settings": {
             "type": "object",
             "propertyNames": {
               "type": "string"
             },
             "additionalProperties": {}
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -9621,8 +9621,8 @@
           "kind",
           "name",
           "status",
-          "settings",
-          "createdAt"
+          "createdAt",
+          "settings"
         ]
       },
       "PermissionInfo": {
@@ -10181,9 +10181,6 @@
           "plugin": {
             "type": "string"
           },
-          "title": {
-            "type": "string"
-          },
           "defaultGatewayId": {
             "anyOf": [
               {
@@ -10203,13 +10200,16 @@
               "minLength": 1,
               "maxLength": 64
             }
+          },
+          "title": {
+            "type": "string"
           }
         },
         "required": [
           "plugin",
-          "title",
           "defaultGatewayId",
-          "allowedGatewayIds"
+          "allowedGatewayIds",
+          "title"
         ]
       },
       "PluginPlan": {
@@ -10571,6 +10571,10 @@
               }
             ]
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "requestedBy": {
             "type": "object",
             "properties": {
@@ -10592,10 +10596,6 @@
               "type",
               "id"
             ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -10606,8 +10606,8 @@
           "method",
           "status",
           "error",
-          "requestedBy",
-          "createdAt"
+          "createdAt",
+          "requestedBy"
         ]
       },
       "RelativeAmount": {
