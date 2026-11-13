@@ -173,9 +173,9 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Build and pack erxes-ui, @erxes/core-contract and @erxes/plugin-sdk
+      - name: Build and pack @erxes/ui, @erxes/core-contract and @erxes/plugin-sdk
         run: |
-          filters=(--filter erxes-ui --filter @erxes/core-contract --filter @erxes/plugin-sdk)
+          filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk)
           pnpm "${filters[@]}" build
           pnpm "${filters[@]}" exec pnpm pack --pack-destination "$RUNNER_TEMP/packs"
       - name: A plugin UI and a plugin server build against the tarballs

@@ -1,4 +1,9 @@
-# erxes-ui
+# @erxes/ui
+
+Published as `@erxes/ui` under the `v2-next` dist-tag and imported as `erxes-ui`: plugins install
+`"erxes-ui": "npm:@erxes/ui@v2-next"`, `apps/core-ui` depends on `"erxes-ui": "workspace:@erxes/ui@*"`,
+and the Module Federation shared key is `erxes-ui`. The `latest` and `next` tags belong to old
+erxes's 3.x.
 
 The design system core-ui and plugin UIs share: UI primitives, layout, record tables, filters,
 the block editor, hooks and shared state. In the workspace `exports` point at `src/` and

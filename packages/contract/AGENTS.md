@@ -51,7 +51,7 @@ the type check in the contract, the services and core-ui.
 
 ## Versioning
 
-The package is `0.0.0` and not published yet. This policy starts with the first published version.
+The package is a `0.1.0-v2.N` prerelease on npm's `v2-next` dist-tag. This policy starts with `1.0.0`.
 
 - Semver on the published contract (and the SDK built from it).
 - Additive changes are a minor version: a new procedure, a new optional input field, a new output
