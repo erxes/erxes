@@ -103,16 +103,14 @@ const PropertiesMoreColumnCell = ({ field }: { field: Field }) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <RecordTable.MoreButton onClick={(event) => event.stopPropagation()} />
-      </DropdownMenu.Trigger>
+      <DropdownMenu.Trigger
+        render={<RecordTable.MoreButton onClick={(event) => event.stopPropagation()} />}
+      />
       <DropdownMenu.Content className="min-w-48" onClick={(event) => event.stopPropagation()}>
-        <DropdownMenu.Item asChild>
-          <Link to={propertyEditPath(field)}>
-            <IconEdit />
-            {t('edit', 'Edit')}
-          </Link>
-        </DropdownMenu.Item>
+        <DropdownMenu.LinkItem render={<Link to={propertyEditPath(field)} />}>
+          <IconEdit />
+          {t('edit', 'Edit')}
+        </DropdownMenu.LinkItem>
         <DropdownMenu.Item onClick={handleRemove}>
           <IconTrash />
           {t('remove', 'Remove')}

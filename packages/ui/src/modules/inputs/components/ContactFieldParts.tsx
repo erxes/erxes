@@ -74,10 +74,12 @@ export const ContactFieldOptions = ({
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button variant="secondary" className="w-full font-medium size-8 shrink-0" size="icon">
-          <IconDots />
-        </Button>
+      <DropdownMenu.Trigger
+        render={
+          <Button variant="secondary" className="w-full font-medium size-8 shrink-0" size="icon" />
+        }
+      >
+        <IconDots />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
         side="right"
@@ -100,14 +102,14 @@ export const ContactFieldOptions = ({
             <DropdownMenu.RadioGroup value={status}>
               <DropdownMenu.RadioItem
                 value={ValidationStatus.Valid}
-                onSelect={() => setStatus(ValidationStatus.Valid)}
+                onClick={() => setStatus(ValidationStatus.Valid)}
               >
                 <IconCircleDashedCheck className="text-success" />
                 Verified
               </DropdownMenu.RadioItem>
               <DropdownMenu.RadioItem
                 value={ValidationStatus.Invalid}
-                onSelect={() => setStatus(ValidationStatus.Invalid)}
+                onClick={() => setStatus(ValidationStatus.Invalid)}
               >
                 <IconCircleDashed className="text-muted-foreground" />
                 Unverified

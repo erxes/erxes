@@ -90,25 +90,27 @@ const CategoryRow = ({
       </span>
       {manage && (
         <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={t('category.actions', 'Category actions')}
-            >
-              <IconDots />
-            </Button>
+          <DropdownMenu.Trigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t('category.actions', 'Category actions')}
+              />
+            }
+          >
+            <IconDots />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
-            <DropdownMenu.Item onSelect={() => onOpen({ mode: 'add', parentId: category.id })}>
+            <DropdownMenu.Item onClick={() => onOpen({ mode: 'add', parentId: category.id })}>
               <IconPlus /> {t('category.add-sub', 'Add subcategory')}
             </DropdownMenu.Item>
-            <DropdownMenu.Item onSelect={() => onOpen({ mode: 'edit', category })}>
+            <DropdownMenu.Item onClick={() => onOpen({ mode: 'edit', category })}>
               <IconEdit /> {t('category.edit', 'Rename or move category')}
             </DropdownMenu.Item>
             <DropdownMenu.Item
               className="text-destructive"
-              onSelect={() => removeCategory(category)}
+              onClick={() => removeCategory(category)}
             >
               <IconTrash /> {t('actions.delete', 'Delete')}
             </DropdownMenu.Item>

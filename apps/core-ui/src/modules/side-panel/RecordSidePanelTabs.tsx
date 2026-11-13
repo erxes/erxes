@@ -88,15 +88,15 @@ const TabBar = ({
       </Tabs.List>
       {overflow.length > 0 && (
         <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button variant="ghost" size="sm" className="text-accent-foreground">
-              {t('more', '+{{count}} More', { count: overflow.length })}
-              <IconChevronDown />
-            </Button>
+          <DropdownMenu.Trigger
+            render={<Button variant="ghost" size="sm" className="text-accent-foreground" />}
+          >
+            {t('more', '+{{count}} More', { count: overflow.length })}
+            <IconChevronDown />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="start">
             {overflow.map((tab) => (
-              <DropdownMenu.Item key={tab.value} onSelect={() => onValueChange(tab.value)}>
+              <DropdownMenu.Item key={tab.value} onClick={() => onValueChange(tab.value)}>
                 <tab.icon />
                 {tab.label}
               </DropdownMenu.Item>

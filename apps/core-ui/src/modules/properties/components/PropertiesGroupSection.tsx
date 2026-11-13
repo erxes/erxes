@@ -42,23 +42,25 @@ const PropertiesGroupActions = ({
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7 shrink-0"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <IconDots />
-        </Button>
+      <DropdownMenu.Trigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 shrink-0"
+            onClick={(event) => event.stopPropagation()}
+          />
+        }
+      >
+        <IconDots />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="min-w-48" onClick={(event) => event.stopPropagation()}>
-        <DropdownMenu.Item asChild>
-          <Link to={`${propertiesPath(contentType)}/${group.id}/add`}>
-            <IconPlus />
-            {t('add-field', 'Add field')}
-          </Link>
-        </DropdownMenu.Item>
+        <DropdownMenu.LinkItem
+          render={<Link to={`${propertiesPath(contentType)}/${group.id}/add`} />}
+        >
+          <IconPlus />
+          {t('add-field', 'Add field')}
+        </DropdownMenu.LinkItem>
         <DropdownMenu.Item onClick={() => setActivePropertyGroup(group)}>
           <IconEdit />
           {t('edit', 'Edit')}

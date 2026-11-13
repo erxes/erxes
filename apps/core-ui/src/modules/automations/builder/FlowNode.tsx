@@ -46,17 +46,14 @@ const AddButton = ({ onAdd }: { onAdd: (type: StepType) => void }) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <button
-          type="button"
-          aria-label={t('add-step', 'Add step')}
-          className={cn(
-            'relative z-10 flex size-6 items-center justify-center gap-1 rounded-full border bg-background text-muted-foreground shadow-xs transition',
-            'hover:border-primary hover:text-primary-text focus-visible:border-primary focus-visible:text-primary-text focus-visible:outline-none',
-          )}
-        >
-          <IconPlus className="size-3.5" />
-        </button>
+      <DropdownMenu.Trigger
+        aria-label={t('add-step', 'Add step')}
+        className={cn(
+          'relative z-10 flex size-6 items-center justify-center gap-1 rounded-full border bg-background text-muted-foreground shadow-xs transition',
+          'hover:border-primary hover:text-primary-text focus-visible:border-primary focus-visible:text-primary-text focus-visible:outline-none',
+        )}
+      >
+        <IconPlus className="size-3.5" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="center" className="w-72">
         {ADD_CHOICES.map(({ type, hint }) => {

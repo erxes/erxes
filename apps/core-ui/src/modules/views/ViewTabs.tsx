@@ -117,42 +117,37 @@ const ViewMenu = ({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <button
-            type="button"
-            aria-label={t('actions', { name: view.name })}
-            className="flex h-5 w-0 shrink-0 items-center justify-center overflow-hidden rounded text-muted-foreground opacity-0 transition-[width,margin,opacity] duration-150 hover:bg-muted hover:text-foreground focus-visible:ml-1 focus-visible:w-5 focus-visible:opacity-100 group-hover/tab:ml-1 group-hover/tab:w-5 group-hover/tab:opacity-100 data-[state=open]:ml-1 data-[state=open]:w-5 data-[state=open]:opacity-100 motion-reduce:transition-none"
-          >
-            <IconDotsVertical className="size-3.5" />
-          </button>
+        <DropdownMenu.Trigger
+          aria-label={t('actions', { name: view.name })}
+          className="flex h-5 w-0 shrink-0 items-center justify-center overflow-hidden rounded text-muted-foreground opacity-0 transition-[width,margin,opacity] duration-150 hover:bg-muted hover:text-foreground focus-visible:ml-1 focus-visible:w-5 focus-visible:opacity-100 group-hover/tab:ml-1 group-hover/tab:w-5 group-hover/tab:opacity-100 data-popup-open:ml-1 data-popup-open:w-5 data-popup-open:opacity-100 motion-reduce:transition-none"
+        >
+          <IconDotsVertical className="size-3.5" />
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="start" className="min-w-48">
           {view.editable && (
-            <DropdownMenu.Item onSelect={() => setRenaming(true)}>
+            <DropdownMenu.Item onClick={() => setRenaming(true)}>
               <IconPencil />
               {t('rename')}
             </DropdownMenu.Item>
           )}
-          <DropdownMenu.Item onSelect={duplicate}>
+          <DropdownMenu.Item onClick={duplicate}>
             <IconCopy />
             {t('duplicate')}
           </DropdownMenu.Item>
           {view.editable && canShare && (
-            <DropdownMenu.Item
-              onSelect={() => update.mutate({ id: view.id, shared: !view.shared })}
-            >
+            <DropdownMenu.Item onClick={() => update.mutate({ id: view.id, shared: !view.shared })}>
               {view.shared ? <IconLock /> : <IconUsers />}
               {view.shared ? t('private') : t('share')}
             </DropdownMenu.Item>
           )}
-          <DropdownMenu.Item onSelect={() => void copyLink(view)}>
+          <DropdownMenu.Item onClick={() => void copyLink(view)}>
             <IconLink />
             {t('copy-link')}
           </DropdownMenu.Item>
           {view.editable && (
             <>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item className="text-destructive" onSelect={deleteView}>
+              <DropdownMenu.Item className="text-destructive" onClick={deleteView}>
                 <IconTrash />
                 {t('delete')}
               </DropdownMenu.Item>
@@ -181,16 +176,14 @@ const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => v
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <button type="button" className={cn(TAB, FOCUS, 'data-[state=open]:bg-accent/60')}>
-          <IconStack2 />
-          {t('more', { count: views.length })}
-          <IconChevronDown className="opacity-60" />
-        </button>
+      <DropdownMenu.Trigger className={cn(TAB, FOCUS, 'data-popup-open:bg-accent/60')}>
+        <IconStack2 />
+        {t('more', { count: views.length })}
+        <IconChevronDown className="opacity-60" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="start" className="max-h-80 min-w-52 overflow-y-auto">
         {views.map((view) => (
-          <DropdownMenu.Item key={view.id} onSelect={() => onOpen(view)}>
+          <DropdownMenu.Item key={view.id} onClick={() => onOpen(view)}>
             {view.shared ? <IconUsers /> : <IconLock />}
             <span className="truncate">{view.name}</span>
           </DropdownMenu.Item>

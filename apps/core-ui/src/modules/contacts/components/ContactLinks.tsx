@@ -74,31 +74,33 @@ const LinkMenu = ({
   return (
     <Popover open={editing} onOpenChange={setEditing}>
       <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <Button
-            ref={menuButton}
-            variant="ghost"
-            size="icon"
-            className="size-7 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
-            aria-label="Link options"
-          >
-            <IconDots className="size-4" />
-          </Button>
+        <DropdownMenu.Trigger
+          render={
+            <Button
+              ref={menuButton}
+              variant="ghost"
+              size="icon"
+              className="size-7 opacity-0 group-hover:opacity-100 data-popup-open:opacity-100"
+              aria-label="Link options"
+            />
+          }
+        >
+          <IconDots className="size-4" />
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
-          <DropdownMenu.Item onSelect={() => setEditing(true)}>
+          <DropdownMenu.Item onClick={() => setEditing(true)}>
             {row.link.role ? 'Change role' : 'Add role'}
           </DropdownMenu.Item>
           <DropdownMenu.Item
-            onSelect={() => onChange({ isPrimaryContact: !row.link.isPrimaryContact })}
+            onClick={() => onChange({ isPrimaryContact: !row.link.isPrimaryContact })}
           >
             {row.link.isPrimaryContact ? 'Not the main contact' : 'Make main contact'}
           </DropdownMenu.Item>
-          <DropdownMenu.Item onSelect={() => onChange({ ended: !former })}>
+          <DropdownMenu.Item onClick={() => onChange({ ended: !former })}>
             {former ? 'Works there again' : 'Left the company'}
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
-          <DropdownMenu.Item className="text-destructive" onSelect={onUnlink}>
+          <DropdownMenu.Item className="text-destructive" onClick={onUnlink}>
             Unlink
           </DropdownMenu.Item>
         </DropdownMenu.Content>

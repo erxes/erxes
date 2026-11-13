@@ -26,19 +26,17 @@ const ExportMenu = ({ filters }: { filters: Filters }) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button variant="outline">
-          <IconDownload />
-          {t('export', 'Export')}
-        </Button>
+      <DropdownMenu.Trigger render={<Button variant="outline" />}>
+        <IconDownload />
+        {t('export', 'Export')}
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end">
-        <DropdownMenu.Item asChild>
-          <a href={exportUrl(filters, 'csv')}>{t('export-csv', 'CSV (spreadsheets)')}</a>
-        </DropdownMenu.Item>
-        <DropdownMenu.Item asChild>
-          <a href={exportUrl(filters, 'json')}>{t('export-json', 'JSON (SIEM, scripts)')}</a>
-        </DropdownMenu.Item>
+        <DropdownMenu.LinkItem href={exportUrl(filters, 'csv')}>
+          {t('export-csv', 'CSV (spreadsheets)')}
+        </DropdownMenu.LinkItem>
+        <DropdownMenu.LinkItem href={exportUrl(filters, 'json')}>
+          {t('export-json', 'JSON (SIEM, scripts)')}
+        </DropdownMenu.LinkItem>
       </DropdownMenu.Content>
     </DropdownMenu>
   );
