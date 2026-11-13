@@ -4,6 +4,7 @@
   "private": true,
   "description": "erxes design system: UI primitives, layout, hooks and shared frontend state (source, compiled by the apps)",
   "license": "AGPL-3.0-only",
+  "type": "module",
   "sideEffects": [
     "**/*.css"
   ],

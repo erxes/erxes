@@ -6,7 +6,7 @@ import { pluginReact } from '@rsbuild/plugin-react';
 import tailwindcss from '@tailwindcss/postcss';
 import { resolve } from 'node:path';
 
-const ui = resolve(__dirname, '../../packages/ui/src');
+const ui = resolve(import.meta.dirname, '../../packages/ui/src');
 
 // oxlint-disable-next-line node/no-process-env -- a build tool's config: the dev server's port and API address come from the shell
 const { WEB_PORT, CORE_API_URL } = process.env;

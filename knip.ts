@@ -9,7 +9,7 @@ const config: KnipConfig = {
       // Copied from the HR plugin as a whole, with its vendored ESLint Stylistic rule.
       ignore: ['tools/lint/anti-slop/**'],
     },
-    // Entries from package.json (main, exports), rsbuild.config.ts and tsup.config.ts count too.
+    // Entries from package.json (main, exports), rsbuild.config.ts and tsdown.config.ts count too.
     'apps/core-api': {
       entry: ['scripts/*.ts', 'src/**/*.test.ts'],
       project: ['src/**/*.ts', 'scripts/**/*.ts'],

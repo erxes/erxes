@@ -16,7 +16,8 @@ const migrationsTable = sql`${sql.identifier('public')}.${sql.identifier(MIGRATI
  * copied by the API build), or this package's `drizzle/`.
  */
 export const migrationsFolder = (): string => {
-  const candidates = [resolve(__dirname, 'drizzle'), resolve(__dirname, '..', 'drizzle')];
+  const here = import.meta.dirname;
+  const candidates = [resolve(here, 'drizzle'), resolve(here, '..', 'drizzle')];
 
   const found = candidates.find((candidate) =>
     existsSync(join(candidate, 'meta', '_journal.json')),

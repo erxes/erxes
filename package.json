@@ -2,6 +2,7 @@
   "name": "erxes",
   "private": true,
   "license": "AGPL-3.0-only",
+  "type": "module",
   "scripts": {
     "dev": "pnpm --parallel --filter @erxes/core-api --filter @erxes/core-ui dev",
     "dev:api": "pnpm --filter @erxes/core-api dev",

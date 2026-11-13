@@ -8,7 +8,7 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { BatchSpanProcessor, NoopSpanProcessor } from '@opentelemetry/sdk-trace';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { ORPCInstrumentation } from '@orpc/otel';
-import { version } from '../package.json';
+import packageJson from '../package.json' with { type: 'json' };
 import { config } from '~/config';
 
 /**
@@ -21,7 +21,10 @@ import { config } from '~/config';
  */
 const sdk = new NodeSDK({
   resource: defaultResource().merge(
-    resourceFromAttributes({ [ATTR_SERVICE_NAME]: 'erxes-core', [ATTR_SERVICE_VERSION]: version }),
+    resourceFromAttributes({
+      [ATTR_SERVICE_NAME]: 'erxes-core',
+      [ATTR_SERVICE_VERSION]: packageJson.version,
+    }),
   ),
   spanProcessors: [
     config.otel.endpoint
