@@ -20,25 +20,20 @@ export const setOrders = async (
   table: typeof fields | typeof fieldGroups | typeof leadStages,
   orders: { id: string; order: number }[],
 ) => {
-  if (orders.length) {
+  // An id listed twice gets its last order, as one update per item gave it.
+  const orderOf = new Map(orders.map(({ id, order }) => [id, order]));
+
+  if (orderOf.size) {
     await client
       .update(table)
       .set({
         order: sql`case ${sql.join(
-          orders.map(({ id, order }) => sql`when ${table.id} = ${id} then ${order}::int`),
+          Array.from(orderOf, ([id, order]) => sql`when ${table.id} = ${id} then ${order}::int`),
           sql` `,
         )} end`,
         updatedAt: sql`now()`,
       })
-      .where(
-        and(
-          eq(table.orgId, orgId),
-          inArray(
-            table.id,
-            orders.map(({ id }) => id),
-          ),
-        ),
-      );
+      .where(and(eq(table.orgId, orgId), inArray(table.id, Array.from(orderOf.keys()))));
   }
 
   return { ok: true as const };

@@ -122,10 +122,6 @@ export const usageOf = async (
 
 /** Records holding each option of each of `rows` (option fields), by field id, in one query. */
 export const optionCounts = async (client: Db, orgId: string, rows: FieldRow[]) => {
-  const options: Record<string, Record<string, number>> = Object.fromEntries(
-    rows.map((row) => [row.id, {}]),
-  );
-
   const selects = byValuesTable(rows).map(
     ({ values, ids }) =>
       sql`select ${values.fieldId} as field_id, ${values.textValue} as value, count(*)::int as count
@@ -134,19 +130,28 @@ export const optionCounts = async (client: Db, orgId: string, rows: FieldRow[]) 
         group by 1, 2`,
   );
 
-  if (!selects.length) return options;
+  const counted = selects.length
+    ? (
+        await client.execute<{ field_id: string; value: string; count: number }>(
+          sql.join(selects, sql` union all `),
+        )
+      ).rows
+    : [];
 
-  const counted = await client.execute<{ field_id: string; value: string; count: number }>(
-    sql.join(selects, sql` union all `),
+  // `fromEntries`, not assignment: an option may be called `__proto__`.
+  return Object.fromEntries(
+    rows.map(
+      (row) =>
+        [
+          row.id,
+          Object.fromEntries(
+            counted
+              .filter((count) => count.field_id === row.id)
+              .map((count) => [count.value, count.count] as const),
+          ),
+        ] as const,
+    ),
   );
-
-  for (const row of counted.rows) {
-    const field = options[row.field_id];
-
-    if (field) field[row.value] = row.count;
-  }
-
-  return options;
 };
 
 /** The next `order` after the last field or group of a content type. */
