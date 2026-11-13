@@ -21,17 +21,17 @@ const MERGE_FILLED = [
 ] as const;
 
 /** People links and tags move to the kept company before the others go. */
-const moveRelations = async (tx: Db, orgId: string, keepId: string, otherIds: string[]) => {
+const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await tx.execute(sql`
-    INSERT INTO ${customerCompanies} (org_id, customer_id, company_id)
-    SELECT ${orgId}, customer_id, ${keepId} FROM ${customerCompanies}
+    INSERT INTO ${customerCompanies} (customer_id, company_id)
+    SELECT customer_id, ${keepId} FROM ${customerCompanies}
     WHERE company_id IN (${sql.join(
       otherIds.map((id) => sql`${id}`),
       sql`, `,
     )})
     ON CONFLICT DO NOTHING
   `);
-  await copyTags(tx, orgId, 'company', otherIds, keepId);
+  await copyTags(tx, 'company', otherIds, keepId);
 };
 
 /** The kept company's columns after the merge: the others' names become extra names. */
@@ -86,7 +86,7 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
   const others = ids.filter((id) => id !== keep.id).flatMap((id) => byId.get(id) ?? []);
   const otherIds = others.map((other) => other.id);
 
-  await moveRelations(tx, actor.orgId, keep.id, otherIds);
+  await moveRelations(tx, keep.id, otherIds);
   await tx.delete(companies).where(inArray(companies.id, otherIds));
 
   await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(keep.id));

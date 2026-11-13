@@ -98,19 +98,13 @@ export const changeTags = async (
 };
 
 /** Gives `toId` every tag of `fromIds` (merge, before the others are deleted). */
-export const copyTags = async (
-  client: Db,
-  orgId: string,
-  type: ContentType,
-  fromIds: string[],
-  toId: string,
-) => {
+export const copyTags = async (client: Db, type: ContentType, fromIds: string[], toId: string) => {
   const { links } = LINKS[type];
 
   await client.execute(sql`
-    insert into ${links} (org_id, ${sql.raw(type === 'customer' ? 'customer_id' : 'company_id')}, tag_id, created_at)
-    select org_id, ${toId}, tag_id, created_at from ${links}
-    where ${eq(links.orgId, orgId)} and ${inArray(links.recordId, fromIds)}
+    insert into ${links} (${sql.raw(type === 'customer' ? 'customer_id' : 'company_id')}, tag_id, created_at)
+    select ${toId}, tag_id, created_at from ${links}
+    where ${inArray(links.recordId, fromIds)}
     on conflict do nothing
   `);
 };

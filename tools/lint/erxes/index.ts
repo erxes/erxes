@@ -162,10 +162,11 @@ const noOrgFilterRule = defineRule({
 
         const [left, right] = node.arguments;
 
-        const column =
-          isOrgId(left) && isColumn(left) ? right : isOrgId(right) && isColumn(right) ? left : null;
+        // Any `x.orgId` counts (a table can come from a lookup, `LINKS[type]`); only a join
+        // to a known table's column is allowed.
+        const other = isOrgId(left) ? right : isOrgId(right) ? left : null;
 
-        if (column && !isColumn(column)) context.report({ node, messageId: 'filter' });
+        if (other && !isColumn(other)) context.report({ node, messageId: 'filter' });
       },
       TaggedTemplateExpression(node) {
         if (node.tag.type !== 'Identifier' || node.tag.name !== 'sql') return;
@@ -180,7 +181,7 @@ const noOrgFilterRule = defineRule({
           // `org_id = ${value}`, or `${table.orgId} = ${value}`
           const filter =
             (/\borg_id\s*=\s*$/.test(before) && !isColumn(value)) ||
-            (isOrgId(value) && isColumn(value) && /^\s*=\s*$/.test(between) && !isColumn(next));
+            (isOrgId(value) && /^\s*=\s*$/.test(between) && !isColumn(next));
 
           if (filter) context.report({ node, messageId: 'filter' });
         });

@@ -31,17 +31,17 @@ const MERGE_FILLED = [
 ] as const;
 
 /** Company links and tags move to the kept customer before the others go. */
-const moveRelations = async (tx: Db, orgId: string, keepId: string, otherIds: string[]) => {
+const moveRelations = async (tx: Db, keepId: string, otherIds: string[]) => {
   await tx.execute(sql`
-    INSERT INTO ${customerCompanies} (org_id, customer_id, company_id)
-    SELECT ${orgId}, ${keepId}, company_id FROM ${customerCompanies}
+    INSERT INTO ${customerCompanies} (customer_id, company_id)
+    SELECT ${keepId}, company_id FROM ${customerCompanies}
     WHERE customer_id IN (${sql.join(
       otherIds.map((id) => sql`${id}`),
       sql`, `,
     )})
     ON CONFLICT DO NOTHING
   `);
-  await copyTags(tx, orgId, 'customer', otherIds, keepId);
+  await copyTags(tx, 'customer', otherIds, keepId);
 
   // They sign in as the kept customer from now on, and stay signed in.
   const ofOthers = (table: typeof customerLogins | typeof customerSessions) =>
@@ -114,7 +114,7 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
   const others = ids.filter((id) => id !== keep.id).flatMap((id) => byId.get(id) ?? []);
   const otherIds = others.map((other) => other.id);
 
-  await moveRelations(tx, actor.orgId, keep.id, otherIds);
+  await moveRelations(tx, keep.id, otherIds);
   // Deleting first frees their primary email and phone for the kept customer.
   await tx.delete(customers).where(inArray(customers.id, otherIds));
 

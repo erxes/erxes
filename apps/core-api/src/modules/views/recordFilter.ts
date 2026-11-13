@@ -213,7 +213,7 @@ const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule)
   const record = RECORDS[custom.recordType];
 
   const has = (condition?: SQL) =>
-    sql`exists (select 1 from ${v} where ${v.orgId} = ${record.orgId} and ${v.recordId} = ${record.id} and ${v.fieldId} = ${custom.fieldId}${condition ? sql` and ${condition}` : sql``})`;
+    sql`exists (select 1 from ${v} where ${v.recordId} = ${record.id} and ${v.fieldId} = ${custom.fieldId}${condition ? sql` and ${condition}` : sql``})`;
 
   const positive = NEGATIVE[rule.op];
 
