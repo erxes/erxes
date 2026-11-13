@@ -61,9 +61,13 @@ jobs:
         run: pnpm build
 
   integration:
-    name: Tests on Postgres
+    name: Tests on Postgres (${{ matrix.shard }}/2)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # The tests are the longest job; two runners halve them.
+    strategy:
+      matrix:
+        shard: [1, 2]
     services:
       postgres:
         image: postgres:16
@@ -84,7 +88,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Tests (API test files run in parallel, each on its own database as a role without BYPASSRLS)
-        run: pnpm test
+        run: pnpm test --shard=${{ matrix.shard }}/2
         env:
           DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
 
