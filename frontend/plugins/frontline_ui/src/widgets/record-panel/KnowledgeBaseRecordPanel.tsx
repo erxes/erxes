@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { IRecordPanelProps, useSidePanel } from 'ui-modules';
 import { ArticleDrawer } from '@/knowledgebase/articles/components/ArticleDrawer';
+import { ArticleMediaSlot } from '@/knowledgebase/articles/components/ArticleMediaSlot';
 import { useArticleDetail } from '@/knowledgebase/articles/hooks/useArticles';
 import {
   useDuplicateArticle,
@@ -27,6 +28,7 @@ import {
 import { CategoryDrawer } from '@/knowledgebase/categories/components/CategoryDrawer';
 import { useConfirmRemoveCategory } from '@/knowledgebase/categories/hooks/useConfirmRemoveCategory';
 import {
+  ARTICLE_MEDIA_TAB,
   KB_RECORD_CONTENT_TYPES,
   KB_DRAFT_CONTENT_TYPES,
   KNOWLEDGE_BASE_PATH,
@@ -273,17 +275,20 @@ const ArticlePanel = (props: IRecordPanelProps) => {
       loading={loading || placementLoading}
       error={error || placementError}
     >
-      {article && (
-        <ArticleDrawer
-          key={article._id}
-          articleId={article._id}
-          article={article}
-          topicId={topicId}
-          categoryId={article.categoryId || ''}
-          section={props.view === 'tab' && props.tab === 'media' ? 'media' : 'detail'}
-          onClose={close}
-        />
-      )}
+      {article &&
+        (props.view === 'tab' && props.tab === ARTICLE_MEDIA_TAB ? (
+          <ArticleMediaSlot key={article._id} articleId={article._id} />
+        ) : (
+          <ArticleDrawer
+            key={article._id}
+            articleId={article._id}
+            article={article}
+            topicId={topicId}
+            categoryId={article.categoryId || ''}
+            mediaTab
+            onClose={close}
+          />
+        ))}
     </KnowledgeBasePanelView>
   );
 };

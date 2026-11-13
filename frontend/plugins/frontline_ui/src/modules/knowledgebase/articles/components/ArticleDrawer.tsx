@@ -18,13 +18,25 @@ import {
   Switch,
   Tooltip,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useArticleDetail } from '@/knowledgebase/articles/hooks/useArticles';
 import { useSaveArticle } from '@/knowledgebase/articles/hooks/useArticleMutations';
-import { ARTICLE_STATUSES, REACTIONS } from '@/knowledgebase/constants';
+import {
+  articleMediaSlotsState,
+  getArticleSlotKey,
+} from '@/knowledgebase/articles/states/articleMediaSlotsState';
+import {
+  ARTICLE_CONTENT_TAB,
+  ARTICLE_MEDIA_TAB,
+  ARTICLE_STATUSES,
+  REACTIONS,
+} from '@/knowledgebase/constants';
 import { KbImageUpload } from '@/knowledgebase/shared/components/TopicAppearanceFields';
 import { KbFormSheet } from '@/knowledgebase/shared/components/KbFormSheet';
 import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
@@ -194,8 +206,6 @@ type TArticleMediaFieldsProps = TArticleFieldsProps & {
   invalidateUpdates: (field: string) => void;
 };
 
-type TArticleSection = 'detail' | 'media';
-
 const TruncatedRequiredLabel = ({ label }: { label: string }) => (
   <Tooltip.Provider delayDuration={100}>
     <Tooltip>
@@ -271,7 +281,6 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
             )}
           />
         </div>
-
       </KbFormSection.Content>
     </KbFormSection>
   );
@@ -381,17 +390,11 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
           control={form.control}
           name="reactionChoices"
           render={({ field }) => (
-            <KbFormItem
-              label={t('kb-reaction-choices', 'Reaction Choices')}
-              className={
-                field.value?.length
-                  ? '[&>div>div:nth-child(2)>svg]:!hidden'
-                  : undefined
-              }
-            >
+            <KbFormItem label={t('kb-reaction-choices', 'Reaction Choices')}>
               <Form.Control>
                 <MultipleSelector
                   options={REACTIONS}
+                  hidePlaceholderWhenSelected
                   value={(field.value ?? []).map((choice) => ({
                     value: choice,
                     label:
@@ -539,9 +542,15 @@ const ArticleFormFields = ({
   captureUpdate,
   invalidateUpdates,
   disabled,
-  section,
-}: TArticleMediaFieldsProps & { section: TArticleSection }) =>
-  section === 'media' ? (
+  mediaTab,
+  mediaSlot,
+  contentSlot,
+}: TArticleMediaFieldsProps & {
+  mediaTab: boolean;
+  mediaSlot?: HTMLElement;
+  contentSlot?: HTMLElement;
+}) => {
+  const mediaFields = (
     <ArticleMediaFields
       form={form}
       t={t}
@@ -549,20 +558,32 @@ const ArticleFormFields = ({
       invalidateUpdates={invalidateUpdates}
       disabled={disabled}
     />
-  ) : (
+  );
+
+  return (
     <div className="flex flex-col gap-3">
       <ArticleContentFields form={form} t={t} />
       <ArticlePublishingFields form={form} t={t} />
-      <ArticleBodyFields form={form} t={t} />
+      {contentSlot ? (
+        createPortal(<ArticleBodyFields form={form} t={t} />, contentSlot)
+      ) : (
+        <ArticleBodyFields form={form} t={t} />
+      )}
+      {mediaSlot
+        ? createPortal(mediaFields, mediaSlot)
+        : !mediaTab && mediaFields}
     </div>
   );
+};
 
 export const ArticleDrawer = ({
   articleId,
   article: loadedArticle,
   topicId,
   categoryId,
-  section = 'detail',
+  closeOnSave = true,
+  mediaTab = false,
+  contentTab = false,
   onClose,
   onSaved,
 }: {
@@ -570,7 +591,9 @@ export const ArticleDrawer = ({
   article?: IArticleDetail;
   topicId: string;
   categoryId: string;
-  section?: TArticleSection;
+  closeOnSave?: boolean;
+  mediaTab?: boolean;
+  contentTab?: boolean;
   onClose: () => void;
   onSaved?: () => void;
 }) => {
@@ -582,6 +605,16 @@ export const ArticleDrawer = ({
   );
   const article = loadedArticle ?? fetchedArticle;
   const { saveArticle, loading } = useSaveArticle();
+  const mediaSlots = useAtomValue(articleMediaSlotsState);
+  const mediaSlot =
+    mediaTab && articleId
+      ? mediaSlots[getArticleSlotKey(articleId, ARTICLE_MEDIA_TAB)]
+      : undefined;
+  const contentSlot =
+    contentTab && articleId
+      ? mediaSlots[getArticleSlotKey(articleId, ARTICLE_CONTENT_TAB)]
+      : undefined;
+  const [fieldsKey, setFieldsKey] = useState(0);
 
   const form = useForm<TArticleForm>({
     resolver: zodResolver(articleSchema),
@@ -635,8 +668,13 @@ export const ArticleDrawer = ({
   const isEditing = Boolean(articleId || createdId);
 
   const cancel = () => {
-    clearDraft();
-    onClose();
+    if (closeOnSave) {
+      clearDraft();
+      onClose();
+      return;
+    }
+    form.reset();
+    setFieldsKey((key) => key + 1);
   };
 
   const submit = form.handleSubmit(async (values) => {
@@ -658,7 +696,7 @@ export const ArticleDrawer = ({
 
     if (!markSaved(values, submittedValues)) return;
     onSaved?.();
-    if (isActive()) onClose();
+    if (closeOnSave && isActive()) onClose();
   });
 
   return (
@@ -675,12 +713,15 @@ export const ArticleDrawer = ({
     >
       <Form {...form}>
         <ArticleFormFields
+          key={fieldsKey}
           form={form}
           t={t}
           captureUpdate={captureUpdate}
           invalidateUpdates={invalidateUpdates}
           disabled={loading || saving}
-          section={section}
+          mediaTab={mediaTab}
+          mediaSlot={mediaSlot}
+          contentSlot={contentSlot}
         />
       </Form>
     </KbFormSheet>
