@@ -125,6 +125,16 @@ export interface IAutomationDoc {
   approvalLockState?: ApprovalLockState;
   duplicatedFrom?: string;
   duplicatedFromName?: string;
+  folderId?: string;
+}
+export interface IAutomationFolder {
+  _id: string;
+  name: string;
+  icon?: string;
+  installationId?: string;
+  createdAt?: string;
+  automationCount: number;
+  activeCount: number;
 }
 export interface IAutomationNote {
   id: string;

@@ -10,6 +10,7 @@ import {
   orderTemplateRequirements,
 } from '@/template/utils/templateWizard';
 import { useMutation } from '@apollo/client';
+import { installedPathOf } from '@/template/utils/installedPath';
 import { useToast } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -54,9 +55,18 @@ export const useTemplateWizard = (template?: TTemplate) => {
   }, [template, ordered, currentUser?._id]);
 
   const [install, { loading: installing }] = useMutation<{
-    templateInstall: { _id: string };
+    templateInstall: {
+      _id: string;
+      partIds?: Record<string, string>;
+      automationIds?: Record<string, string>;
+    };
   }>(TEMPLATE_INSTALL, {
-    refetchQueries: [{ query: TEMPLATE_INSTALLATIONS }],
+    // Lists that show what it made
+    refetchQueries: [
+      { query: TEMPLATE_INSTALLATIONS },
+      'AutomationsMain',
+      'AutomationFolders',
+    ],
   });
 
   const remaining = countUnansweredTemplateSteps(ordered, answers);
@@ -133,9 +143,10 @@ export const useTemplateWizard = (template?: TTemplate) => {
     })
       .then(({ data }) => {
         toast({ variant: 'success', title: t('installed-toast') });
-        navigate(
-          `/templates/installations/${data?.templateInstall._id}?installed=1`,
-        );
+
+        if (data?.templateInstall) {
+          navigate(installedPathOf(template, data.templateInstall));
+        }
       })
       .catch((error: Error) =>
         toast({

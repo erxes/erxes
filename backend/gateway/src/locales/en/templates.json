@@ -57,5 +57,15 @@
   "installed-title": "{{name}} is installed",
   "review-and-switch-on": "Review and switch on",
   "created-parts": "Also created",
-  "remove-hint": "Removing takes away its automations and what it created, except anything already holding data."
+  "remove-hint": "Removing takes away its automations and what it created, except anything already holding data.",
+  "group-all": "All",
+  "group-solution": "Solutions",
+  "group-automation": "Automations",
+  "group-segment": "Segments",
+  "plugin-all": "All apps",
+  "segment-count_one": "{{count}} segment",
+  "segment-count_other": "{{count}} segments",
+  "no-templates-filtered": "No templates here",
+  "no-templates-filtered-body": "Try another group or app.",
+  "install-note-segment": "Segments are created ready to use and stay when you remove the installation."
 }

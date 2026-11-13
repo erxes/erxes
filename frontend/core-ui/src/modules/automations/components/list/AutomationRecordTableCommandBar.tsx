@@ -3,6 +3,7 @@ import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/react-table';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { AutomationRemoveButtonCommandBar } from '@/automations/components/list/AutomationRemoveButtonCommandBar';
+import { AutomationMoveToFolderCommandBar } from '@/automations/components/list/folders/AutomationMoveToFolderCommandBar';
 import { Can, TagsSelect } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -67,6 +68,12 @@ export const AutomationRecordTableCommandBar = () => {
                 },
               })}
             />
+          </>
+        </Can>
+        <Can action="automationsUpdate">
+          <>
+            <Separator.Inline />
+            <AutomationMoveToFolderCommandBar rows={selectedRows} />
           </>
         </Can>
         <Can action="automationsDelete">

@@ -9,12 +9,20 @@ templates core used to have: that module was removed; this one owns the name.
 - `registry.ts` lists what enabled plugins declare and hides a template whose
   trigger or step types automations does not know, or whose requirement kind
   has no enabled owner (`core` and `automations` kinds always do).
-- `installTemplate` (`db/models/Installations.ts`): every requirement answered
+- `installTemplate` (`db/utils.ts`): every requirement answered
   or it refuses; an `automations:aiAgent` answer is resolved server side to
   that agent's connection, so a key never travels through the wizard and the
-  stored answer is the agent id; parts are created first, then one draft
-  automation per journey; a failure removes what was created. Activating stays
-  a person's act.
+  stored answer is the agent id; parts are created first, then (with two or
+  more journeys) an automation folder named after the template
+  (`installationId` set), then one draft automation per journey filed in it;
+  a failure removes what was created. Activating stays a person's act.
+- A template's group is read, never declared (`templateGroupOf`, shared
+  `templates/group.ts`): no journeys = `segment`, one = `automation`, more =
+  `solution`. A journey-less template may only create `core:segments.segment`
+  parts (`validateTemplate`). A segment part no journey reads
+  (`templatePartKeysUsedByJourneys`) is created listed (no `ownedBy`), saved
+  with `listed: true`, and stays when the installation is removed; one a
+  journey reads stays automation-owned. A failed install removes either.
 - A journey may declare `workflows` (key, inputs, output, flow): installed as
   the automation's workflow nodes, run by an AI agent helper tool whose
   `connects` value is the workflow key; empty inputs become tool parameters
@@ -64,7 +72,9 @@ templates core used to have: that module was removed; this one owns the name.
 - An installation (`template_installations`) records template id, version,
   answers, part ids and automation ids. Installed copies never follow later
   template versions. Removing one deletes its automations and agent only while
-  none of the automations is active.
+  none of the automations is active; its folder goes too unless someone moved
+  another automation into it. `src/commands/backfillAutomationFolders.ts`
+  gives installations made before folders their folder (safe to rerun).
 - A template card is drawn from the flow, not by hand: `buildJourneyPreview`
   (`preview.ts`) gives each journey's trigger, entry step and up to three
   branches (the journey's `highlights` with short tile names, else the steps
@@ -81,7 +91,12 @@ templates core used to have: that module was removed; this one owns the name.
   `ui-modules` `TemplateRequirementOptions` (cards, the last one makes a new
   record in place or in a new tab) and `useTemplateRequirementOptions` (picks
   the only option, or the one that appears after it was made).
-- Installing lands on `/templates/installations/:id?installed=1`: the page
+- After installing, `installedPathOf` (core-ui `template/utils`) opens what a
+  small template made: an `automation` in the builder, a `segment` on its
+  page; a `solution` lands on `/templates/installations/:id?installed=1`. The
+  gallery filters by `?group=` and `?plugin=`; Automations and Segments link
+  "From template" to their group.
+- The installation page
   reads the template again for journey icons and part names
   (`useTemplateInstallationView`; without it, names come from the record),
   says it was just installed, and lists each draft automation to review and

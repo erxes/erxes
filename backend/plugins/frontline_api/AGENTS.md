@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-12`
+- **Last synchronized:** `2026-11-13`
 
 ## Scope
 
@@ -1638,6 +1638,16 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   peer never matches, so a redial to a different branch opens its own
   conversation. Joining a call never rewrites the conversation's
   `integrationId`; only the queue owner or the answering operator does.
+- A call picked up only on a follow-me target is not answered in the inbox.
+  The PBX books a `FOLLOWME[...]` leg as `Dial` / `ANSWERED` whether a person
+  or the target's IVR picked up, so `deriveInboxCallStatus` (`cdrUtils.ts`)
+  drops follow-me legs before reading the status: the conversation content
+  and `callHistoryDetail` show `NO ANSWER` unless an operator answered on an
+  extension or voicemail took the call. `selectRelevantCdr` prefers the
+  operator-answered leg and falls back to the follow-me leg, so its recording
+  stays reachable, and `mapCdrToCallHistory` reports a follow-me leg as
+  `Inbound` with the caller as `customerPhone`. The call reports keep
+  `deriveCallStatusFromLegs` and still count a forwarded call as answered.
 - `callHistories` / `callHistoriesTotalCount` leave out a call the operator
   only rang on when another extension answered it: a call is the operator's
   missed call only when nobody answered. The check reads the call's other CDR
@@ -1965,7 +1975,9 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   on one trunk, call a queue whose failover is an extension with follow-me and
   confirm one conversation, on the queue's integration. The same flag runs
   `callHistories.mongo.spec.ts`: ring two operators, let one answer, and the
-  other's history must not list the call.
+  other's history must not list the call. `inboxCallStatus.test.ts` runs
+  without the flag: a call answered only on a follow-me target reads
+  `NO ANSWER`.
 - Instagram: connect Post before Messenger for the same account and confirm each
   event reaches its own inbox. A new sender with an unavailable profile must
   still be linked to a Core customer; failed Repair must not report success.

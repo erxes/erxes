@@ -15,6 +15,7 @@ export const types = `
     name: String
     description: String
     icon: String
+    group: String
     requirements: JSON
     parts: JSON
     journeys: [TemplateJourney]

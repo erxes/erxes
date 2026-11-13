@@ -8,6 +8,8 @@ export const TEMPLATE_INSTALL = gql`
   ) {
     templateInstall(pluginName: $pluginName, id: $id, answers: $answers) {
       _id
+      partIds
+      automationIds
     }
   }
 `;

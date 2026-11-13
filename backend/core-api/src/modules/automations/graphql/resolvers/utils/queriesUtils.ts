@@ -74,6 +74,8 @@ export const generateAutomationsFilter = (params: IListArgs) => {
     updatedAtFrom,
     updatedAtTo,
     triggerSegmentId,
+    folderId,
+    withoutFolder,
   } = params;
 
   const filter: any = {
@@ -88,6 +90,12 @@ export const generateAutomationsFilter = (params: IListArgs) => {
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (folderId) {
+    filter.folderId = folderId;
+  } else if (withoutFolder) {
+    filter.folderId = { $in: [null, ''] };
   }
 
   if (tagIds) {
