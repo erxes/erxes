@@ -136,7 +136,6 @@ export const mn: typeof en = {
     report: 'Тайлан',
   },
   views: {
-    all: 'Бүгд',
     'all-customers': 'Бүх харилцагч',
     'all-leads': 'Бүх потенциал харилцагч',
     'all-companies': 'Бүх компани',

@@ -132,7 +132,6 @@ export const en = {
     report: 'Report',
   },
   views: {
-    all: 'All',
     'all-customers': 'All customers',
     'all-leads': 'All leads',
     'all-companies': 'All companies',
