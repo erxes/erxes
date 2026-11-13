@@ -17,7 +17,9 @@ DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres vp run te
 `.github/workflows/ci.yml` lists the gates CI runs; `Check` is the job to require. `check`, `fix` and
 `test` are tasks in `vite.config.ts`: a rerun with no edits replays the last result in under a
 second, and a miss names the changed file. `check` also runs `tools/check-docs.ts`, which fails when
-an AGENTS.md or SKILL.md names a path, script or function the repo doesn't have.
+an AGENTS.md or SKILL.md names a path, script or function the repo doesn't have, and
+`tools/check-escapes.ts`, which fails on any lint-disable or `@ts-ignore`/`@ts-expect-error` comment.
+Lint config is in `tools/config/`; the files a rule is off for are in `tools/config/exceptions.ts`.
 
 ## Invariants
 

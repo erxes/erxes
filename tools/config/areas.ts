@@ -20,6 +20,7 @@ export const areas = [
       'apps/core-api/scripts/**',
       'apps/core-api/src/__tests__/**',
       'packages/db/drizzle.config.ts',
+      'apps/core-ui/rsbuild.config.ts',
       '{tools,e2e}/**',
       'vite.config.ts',
     ],

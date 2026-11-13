@@ -37,7 +37,10 @@ export const rules = {
   'typescript/no-floating-promises': 'error',
   'typescript/no-misused-promises': 'error',
   'typescript/no-non-null-assertion': 'error',
-  'typescript/ban-ts-comment': 'error',
+  'typescript/ban-ts-comment': [
+    'error',
+    { 'ts-expect-error': true, 'ts-ignore': true, 'ts-nocheck': true, 'ts-check': false },
+  ],
   'typescript/no-deprecated': 'error',
   'typescript/only-throw-error': 'error',
   'typescript/prefer-promise-reject-errors': 'error',

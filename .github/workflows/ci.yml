@@ -51,6 +51,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Format, lint, types and knip
         run: pnpm exec vp run check
+      # A deliberate raise is a rule change in its own PR, labelled gate-change.
+      - name: No bundle budget grew against the base
+        if: env.BASE_SHA != '' && env.BASE_SHA != '0000000000000000000000000000000000000000' && !contains(github.event.pull_request.labels.*.name, 'gate-change')
+        run: node tools/check-escapes.ts "$BASE_SHA"
       - name: Migrations and openapi.json match the schema and contract
         run: pnpm check:generated
       - name: Applied migrations unchanged

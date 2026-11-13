@@ -125,7 +125,6 @@ export const RecordTableProvider = <TData extends RowData>({
     () => null,
   );
 
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- tanstack's Table is invariant in its row type; the shared context holds any table, and readers treat rows as RowData
   const shared = table as unknown as RecordTableInstance;
   const headPrefix = useId();
 

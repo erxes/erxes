@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import { createInstance } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import enAutomations from './locales/en/automations.json';
 import enCommon from './locales/en/common.json';
@@ -35,7 +35,8 @@ const savedLanguage = (): LanguageCode => {
   return LANGUAGES.find((language) => language.code === saved)?.code ?? 'en';
 };
 
-// oxlint-disable-next-line import/no-named-as-default-member -- i18next's documented setup; the named `use` reads as React's hook
+const i18n = createInstance();
+
 void i18n.use(initReactI18next).init({
   // One namespace per area, as components name it in useTranslation('contact'|…).
   resources: {
