@@ -358,6 +358,13 @@
       "when": 1794596742138,
       "tag": "0050_rate_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1794607796113,
+      "tag": "0051_rate_limits_unlogged",
+      "breakpoints": true
     }
   ]
 }
