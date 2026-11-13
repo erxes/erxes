@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import * as RechartsPrimitive from 'recharts';
 import type { LegendPayload } from 'recharts/types/component/DefaultLegendContent';
 import type { Payload } from 'recharts/types/component/DefaultTooltipContent';

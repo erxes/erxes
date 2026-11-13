@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Accordion as AccordionPrimitive } from 'radix-ui';
 import { IconChevronDown } from '@tabler/icons-react';

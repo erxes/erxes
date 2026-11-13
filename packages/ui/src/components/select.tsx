@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Select as SelectPrimitive } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 import { IconCheck, IconChevronDown, IconChevronUp } from '@tabler/icons-react';

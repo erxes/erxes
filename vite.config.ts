@@ -43,6 +43,8 @@ const decided = [
     name,
     message: "One zod: import { z } from 'zod' (zod 4 classic).",
   })),
+  { name: 'react', importNames: ['forwardRef'], message: 'React 19: take ref from the props.' },
+  { name: 'react-merge-refs', message: "Merge refs with composeRefs from 'radix-ui/internal'." },
 ];
 
 // Packages are shared with plugins and never reach into an app.

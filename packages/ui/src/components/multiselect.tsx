@@ -1,7 +1,7 @@
 import { IconX } from '@tabler/icons-react';
 import { Command } from 'erxes-ui/components/command';
 import { cn } from 'erxes-ui/lib/utils';
-import * as React from 'react';
+import React from 'react';
 import { withoutPicked } from './multiselect-options';
 import { CreatableItem, MultiSelectEmpty, OptionGroups, SelectedBadge } from './multiselect-parts';
 import {

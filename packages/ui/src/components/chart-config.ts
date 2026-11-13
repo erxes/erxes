@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { z } from 'zod';
 
 /** CSS selector prefix per theme. */

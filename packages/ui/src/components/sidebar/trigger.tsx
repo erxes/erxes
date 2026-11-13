@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';

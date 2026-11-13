@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';

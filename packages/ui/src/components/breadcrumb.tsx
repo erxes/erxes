@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { IconDots } from '@tabler/icons-react';
 import { Separator } from './separator';

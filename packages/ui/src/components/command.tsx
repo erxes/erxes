@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { IconSearch } from '@tabler/icons-react';
 import { cva } from 'class-variance-authority';
@@ -6,7 +6,6 @@ import { Command as CommandPrimitive } from 'cmdk';
 import type { DialogProps } from './dialog';
 import { Dialog } from './dialog';
 import { cn } from '../lib/utils';
-import { useEffect, useRef } from 'react';
 import { composeRefs } from 'radix-ui/internal';
 
 const CommandRoot = ({

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Input } from 'erxes-ui/components/input';
 import { ScrollArea } from 'erxes-ui/components/scroll-area';

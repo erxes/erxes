@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
 import { type VariantProps } from 'class-variance-authority';
 

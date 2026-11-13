@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Tooltip } from 'erxes-ui/components/tooltip';
 import { useIsMobile } from 'erxes-ui/hooks/use-mobile';

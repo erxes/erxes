@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { SIDEBAR_WIDTH_MOBILE } from './constants';
 import { Sheet } from 'erxes-ui/components/sheet';

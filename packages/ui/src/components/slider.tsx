@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Slider as SliderPrimitive } from 'radix-ui';
 
 import { cn } from 'erxes-ui/lib/utils';

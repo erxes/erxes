@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { SidebarTreeIndicator } from 'erxes-ui/components/sidebar-tree-indicator';
 import { Slot } from 'radix-ui';

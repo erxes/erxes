@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
 import { IconCheck } from '@tabler/icons-react';
