@@ -2,13 +2,17 @@ import { Slider as SliderPrimitive } from '@base-ui/react/slider';
 
 import { cn } from 'erxes-ui/lib/utils';
 
-const Slider = ({
+/** `value={n}` hands `onValueChange` a number, `value={[from, to]}` an array. */
+export type SliderProps<Value extends number | readonly number[]> =
+  SliderPrimitive.Root.Props<Value> & {
+    hideThumb?: boolean;
+  };
+
+export const Slider = <Value extends number | readonly number[]>({
   className,
   hideThumb,
   ...props
-}: SliderPrimitive.Root.Props & {
-  hideThumb?: boolean;
-}) => (
+}: SliderProps<Value>) => (
   <SliderPrimitive.Root
     thumbAlignment="edge"
     className={cn('relative flex w-full touch-none select-none items-center', className)}
@@ -24,5 +28,3 @@ const Slider = ({
     </SliderPrimitive.Control>
   </SliderPrimitive.Root>
 );
-
-export { Slider };
