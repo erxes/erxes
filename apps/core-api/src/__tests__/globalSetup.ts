@@ -22,6 +22,26 @@ export const admin = async (url: string, statement: string) => {
   }
 };
 
+/**
+ * Drops a test database once its connections are gone. `Pool.end()` resolves
+ * before its connections finish closing, and a forced drop that kills one
+ * mid-goodbye surfaces as an uncaught pg error, so it waits up to 5 s first.
+ */
+export const dropDatabase = async (url: string, name: string) => {
+  await admin(
+    url,
+    `
+      DO $$ BEGIN
+        FOR attempt IN 1..50 LOOP
+          EXIT WHEN NOT EXISTS (SELECT 1 FROM pg_stat_activity WHERE datname = '${name}');
+          PERFORM pg_sleep(0.1);
+        END LOOP;
+      END $$;
+    `,
+  );
+  await admin(url, `DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
+};
+
 /** The same server, another database. */
 export const databaseUrl = (url: string, name: string) => {
   const parsed = new URL(url);
@@ -63,7 +83,7 @@ export const setup = async (project: TestProject) => {
   }
 
   return async () => {
-    if (url && template) await admin(url, `DROP DATABASE IF EXISTS ${template} WITH (FORCE)`);
+    if (url && template) await dropDatabase(url, template);
 
     // Every file's uploads share one folder (keys start with the org id).
     if (files) await rm(files, { recursive: true, force: true });
