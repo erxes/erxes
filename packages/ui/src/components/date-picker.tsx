@@ -127,9 +127,13 @@ const PickerPopover = ({
   children: ReactNode;
 }) => (
   <Popover open={open} onOpenChange={onOpenChange}>
-    <div className="relative inline-block w-full">
-      <Popover.Trigger asChild>{trigger}</Popover.Trigger>
-    </div>
+    {/* The anchor is the wrapper: the single-date text input takes no ref, so as the
+        trigger's child it left the calendar unpositioned, above the viewport. */}
+    <Popover.Anchor asChild>
+      <div className="relative inline-block w-full">
+        <Popover.Trigger asChild>{trigger}</Popover.Trigger>
+      </div>
+    </Popover.Anchor>
     <Popover.Content
       align="start"
       {...contentProps}
