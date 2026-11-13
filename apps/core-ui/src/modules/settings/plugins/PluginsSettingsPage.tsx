@@ -56,6 +56,8 @@ const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
 
   const isNew = (scope: string) => plugin.installed && !plugin.grantedScopes.includes(scope);
 
+  if (!plugin.requestedScopes.length) return null;
+
   return (
     <div className="pl-13 text-sm">
       <p className="mb-1 text-xs font-medium text-muted-foreground uppercase">

@@ -157,7 +157,7 @@ export const NoGateways = () => {
         <Empty.Description>
           {t(
             'empty-description',
-            'Connect QPay so plugins can take payments for orders, bookings and more.',
+            'Connect a payment gateway so plugins can take payments for orders, bookings and more.',
           )}
         </Empty.Description>
       </Empty.Header>

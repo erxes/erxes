@@ -25,7 +25,7 @@ const SearchSelect = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger id={id} className="h-8 w-full shadow-xs" disabled={disabled}>
+      <Combobox.Trigger id={id} className="w-full shadow-xs" disabled={disabled}>
         <Combobox.Value value={chosen?.label ?? value} placeholder={placeholder} />
       </Combobox.Trigger>
       <Combobox.Content>

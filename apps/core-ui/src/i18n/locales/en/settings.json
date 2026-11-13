@@ -715,7 +715,7 @@
     "title": "Payments",
     "gateways": "Gateways",
     "empty": "No gateway yet",
-    "empty-description": "Connect QPay so plugins can take payments for orders, bookings and more.",
+    "empty-description": "Connect a payment gateway so plugins can take payments for orders, bookings and more.",
     "sandbox-badge": "sandbox",
     "turn-off": "Turn off",
     "turn-on": "Turn on",
