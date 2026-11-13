@@ -14,10 +14,16 @@ const { WEB_PORT, CORE_API_URL } = process.env;
 /**
  * Libraries shared with plugin UIs as single instances. Plugin UIs declare the
  * same names with `import: false`, so the host must provide every one of them.
+ * A shared name matches only that exact import, so React's entry points are
+ * listed one by one: a remote that bundles its own `react/jsx-runtime` breaks
+ * as soon as its React differs from the host's.
  */
 const SHARED = [
   'react',
+  'react/jsx-runtime',
+  'react/jsx-dev-runtime',
   'react-dom',
+  'react-dom/client',
   'react-router',
   'react-router-dom',
   'erxes-ui',

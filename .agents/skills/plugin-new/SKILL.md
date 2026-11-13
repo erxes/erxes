@@ -290,8 +290,12 @@ scope rather than working around it.
 
 - Module Federation remote `shop_ui`; shared singletons with
   `{ singleton: true, requiredVersion: false, import: false }`: `react`,
-  `react-dom`, `react-router`, `react-router-dom`, `erxes-ui`, `jotai`,
-  `react-i18next`, `@tanstack/react-query`.
+  `react/jsx-runtime`, `react/jsx-dev-runtime`, `react-dom`,
+  `react-dom/client`, `react-router`, `react-router-dom`, `erxes-ui`, `jotai`,
+  `react-i18next`, `@tanstack/react-query` (the `SHARED` list in
+  `apps/core-ui/rsbuild.config.ts`). A shared name matches only that exact
+  import, so a remote that leaves out `react/jsx-runtime` bundles its own and
+  breaks when its React version differs from the host's.
 - `./config` exports `CONFIG: { name: 'shop', path: 'shop', icon, modules, checkAccess? }`;
   the first module renders under `/shop/*` (default export, or the PascalCase
   name `Shop`).
