@@ -1,9 +1,13 @@
 {
   "name": "erxes-ui",
-  "version": "0.0.0",
-  "private": true,
+  "version": "4.0.0-next.0",
   "description": "erxes design system: UI primitives, layout, hooks and shared frontend state",
   "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erxes/erxes.git",
+    "directory": "packages/ui"
+  },
   "files": [
     "dist"
   ],

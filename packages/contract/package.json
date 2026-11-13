@@ -1,8 +1,13 @@
 {
   "name": "@erxes/core-contract",
-  "version": "0.0.0",
+  "version": "4.0.0-next.0",
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
   "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erxes/erxes.git",
+    "directory": "packages/contract"
+  },
   "files": [
     "dist"
   ],
