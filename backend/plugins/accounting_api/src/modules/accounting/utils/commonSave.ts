@@ -111,6 +111,7 @@ function getJournalHandler(journal: string) {
     tax: handleMain,
     exchangeDiff: handleMain,
     fxaDep: handleMain,
+    fxaDeferredTax: handleMain,
     cash: handleSingleTr,
     bank: handleSingleTr,
     receivable: handleSingleTr,

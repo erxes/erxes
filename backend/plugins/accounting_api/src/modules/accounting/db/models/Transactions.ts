@@ -36,13 +36,13 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   createPTransaction(
     docs: ITransaction[],
     userId: string,
-    options?: { skipAccountPermission?: boolean },
+    options?: { skipAccountPermission?: boolean; preservePtrIds?: boolean },
   ): Promise<ITransactionDocument[]>;
   updatePTransaction(
     parentId: string,
     docs: (ITransaction & { _id?: string })[],
     userId: string,
-    options?: { skipAccountPermission?: boolean },
+    options?: { skipAccountPermission?: boolean; preservePtrIds?: boolean },
   ): Promise<ITransactionDocument[]>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -463,7 +463,10 @@ export const loadTransactionClass = (
     public static async createPTransaction(
       docs: ITransaction[],
       userId: string,
-      options: { skipAccountPermission?: boolean } = {},
+      options: {
+        skipAccountPermission?: boolean;
+        preservePtrIds?: boolean;
+      } = {},
     ) {
       docs = normalizeParentWorkflowDocs(docs, userId);
       if (!options.skipAccountPermission) {
@@ -493,11 +496,12 @@ export const loadTransactionClass = (
 
         for (const doc of docs) {
           const cleanDoc = cleanCreatePTransactionDoc(doc);
+          const rowPtrId = options.preservePtrIds ? doc.ptrId || ptrId : ptrId;
 
           if (!parentId) {
             const firstTrs = await commonSave(subdomain, models, userId, {
               ...cleanDoc,
-              ptrId,
+              ptrId: rowPtrId,
             });
             parentId = firstTrs.mainTr.parentId;
             ptrNumber = await this.getPtrNumber(firstTrs.mainTr);
@@ -523,7 +527,7 @@ export const loadTransactionClass = (
           } else {
             const trs = await commonSave(subdomain, models, userId, {
               ...cleanDoc,
-              ptrId,
+              ptrId: rowPtrId,
               parentId,
               number: cleanDoc.number ?? ptrNumber,
               ptrNumber,
@@ -588,7 +592,10 @@ export const loadTransactionClass = (
       parentId: string,
       docs: (ITransaction & { _id?: string })[],
       userId: string,
-      options: { skipAccountPermission?: boolean } = {},
+      options: {
+        skipAccountPermission?: boolean;
+        preservePtrIds?: boolean;
+      } = {},
     ) {
       const oldGroupTrs = await models.Transactions.find({ parentId }).lean();
       const oldTrs = oldGroupTrs.filter((tr) => !tr.originId);
@@ -664,7 +671,12 @@ export const loadTransactionClass = (
             subdomain,
             models,
             userId,
-            { ...cleanDoc, ptrId, parentId, ptrNumber },
+            {
+              ...cleanDoc,
+              ptrId: options.preservePtrIds ? doc.ptrId || ptrId : ptrId,
+              parentId,
+              ptrNumber,
+            },
             oldTrs.find((ot) => ot._id === doc._id),
           );
           transactions.push(trs.mainTr);
@@ -679,7 +691,7 @@ export const loadTransactionClass = (
           const { cleanDoc } = normalizeTransactionRelAccounts(doc);
           const trs = await commonSave(subdomain, models, userId, {
             ...cleanDoc,
-            ptrId,
+            ptrId: options.preservePtrIds ? doc.ptrId || ptrId : ptrId,
             parentId,
             ptrNumber,
           });

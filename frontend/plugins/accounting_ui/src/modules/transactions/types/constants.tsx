@@ -45,6 +45,8 @@ export enum TrJournalEnum {
   FXA_SALE = 'fxaSale',
   FXA_CAPITAL = 'fxaCapital',
   FXA_REVALUATION = 'fxaRevaluation',
+  FXA_REVALUATION_RESULT = 'fxaRevaluationResult',
+  FXA_DEFERRED_TAX = 'fxaDeferredTax',
 }
 
 export const TR_JOURNAL_LABELS = {
@@ -73,6 +75,8 @@ export const TR_JOURNAL_LABELS = {
 
   [TrJournalEnum.FXA_CAPITAL]: 'fixed-asset-capitalization',
   [TrJournalEnum.FXA_REVALUATION]: 'fixed-asset-revaluation',
+  [TrJournalEnum.FXA_REVALUATION_RESULT]: 'fixed-asset-revaluation-result',
+  [TrJournalEnum.FXA_DEFERRED_TAX]: 'fixed-asset-deferred-tax',
   [TrJournalEnum.FXA_INCOME]: 'fixed-asset-acquisition',
   [TrJournalEnum.FXA_OUT]: 'fixed-asset-disposal',
   [TrJournalEnum.FXA_DEP]: 'fixed-asset-depreciation',
@@ -89,6 +93,7 @@ export const TR_JOURNAL_LABELS = {
 export const TR_PERFECT_JOURNALS = [
   TrJournalEnum.INV_MOVE,
   TrJournalEnum.FXA_MOVE,
+  TrJournalEnum.FXA_REVALUATION,
 ];
 
 export type TrJournalGroupItem = {
@@ -228,6 +233,8 @@ export const TR_RECORD_JOURNAL_GROUPS: TrRecordJournalGroup[] = [
       TrJournalEnum.FXA_SALE_COST,
       TrJournalEnum.FXA_CAPITAL,
       TrJournalEnum.FXA_REVALUATION,
+      TrJournalEnum.FXA_REVALUATION_RESULT,
+      TrJournalEnum.FXA_DEFERRED_TAX,
     ],
   },
 ];

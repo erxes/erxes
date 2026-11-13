@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import { FxaAccountMatchingWarning } from '@/transactions/transaction-form/components/forms/FxaAccountMatchingWarning';
+import { useFixedAssetAccountConfigs } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
@@ -47,11 +49,34 @@ export const FxaChangeTable = ({
       ),
     [valuationMap],
   );
-  const mixedDirections = useFxaCapitalPreview({
+  const {
+    configs,
+    loading: taxAccountsLoading,
+    error: taxAccountsError,
+    refetch: refetchTaxAccounts,
+  } = useFixedAssetAccountConfigs();
+  const hasAssets = valuations.length > 0;
+  useEffect(() => {
+    if (!hasAssets) return;
+    const refresh = () => {
+      void refetchTaxAccounts().catch(() => undefined);
+    };
+    window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
+  }, [hasAssets, refetchTaxAccounts]);
+  const taxAccounts = useMemo(
+    () =>
+      taxAccountsLoading || taxAccountsError
+        ? undefined
+        : Object.fromEntries(configs.map((row) => [row.accountId, row.value])),
+    [configs, taxAccountsLoading, taxAccountsError],
+  );
+  const { mixedDirections, error: taxError } = useFxaCapitalPreview({
     form,
     index,
     trDoc,
     valuation: valuations,
+    taxAccounts,
   });
   if (
     !trDoc ||
@@ -113,6 +138,23 @@ export const FxaChangeTable = ({
             : 'fxa-capital-help',
         )}
       </p>
+      {taxError &&
+        ([
+          'fxa-capital-tax-accounts-required',
+          'fxa-revaluation-accounts-required',
+        ].includes(taxError) ? (
+          <FxaAccountMatchingWarning message={t(taxError)} />
+        ) : (
+          <p role="alert" className="text-sm text-destructive">
+            {t(taxError)}
+          </p>
+        ))}
+      {taxAccountsError &&
+        valuations.length > 0 &&
+        (trDoc.journal === TrJournalEnum.FXA_REVALUATION ||
+          valuations.some((row) => row.hasTaxDepreciation)) && (
+          <FxaAccountMatchingWarning message={taxAccountsError.message} />
+        )}
       {mixedDirections && (
         <p role="alert" className="text-sm text-destructive">
           {t('fxa-capital-mixed-direction')}

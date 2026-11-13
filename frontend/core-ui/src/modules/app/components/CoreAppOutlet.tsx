@@ -8,7 +8,6 @@ import { NavigationCorePanelContent } from '@/navigation/components/app-sidebar/
 import { Outlet, useLocation } from 'react-router-dom';
 import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
 import { DataExtensionsContextNavigation } from '@/data-extensions/components/DataExtensionsSidebar';
-import { TemplatesContextNavigation } from '@/templates/components/TemplatesContextNavigation';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
 import { SETTINGS_TAB_ID } from '@/navigation/hooks/useAppTabs';
@@ -31,10 +30,6 @@ const getCoreModuleSidebar = (
 ) => {
   if (pathname.startsWith(`/${AppPath.Segments}`)) {
     return <SegmentsContextNavigation />;
-  }
-
-  if (pathname.startsWith('/templates')) {
-    return <TemplatesContextNavigation />;
   }
 
   if (pathname.startsWith(`/${AppPath.Documents}`)) {

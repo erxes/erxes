@@ -1,16 +1,22 @@
+import { buildFxaRevaluationPreview } from '@/transactions/transaction-form/components/forms/hooks/fxaRevaluationPreview';
 import {
   allocateFxaDepreciation,
   getTotalFxaDepreciation,
+  getFxaRevaluationTaxTotal,
 } from '@/transactions/transaction-form/components/helpers/fxaDepreciation';
-import type { ResultOf } from '@graphql-typed-document-node/core';
-import { FXA_CAPITAL_VALUATION } from '@/transactions/transaction-form/graphql/queries/fxaCapitalValuation';
 import { TTrDoc } from '@/transactions/transaction-form/types/JournalForms';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { TrJournalEnum, TR_SIDES } from '@/transactions/types/constants';
+import {
+  buildFxaCapitalTaxPreview,
+  type TFxaCapitalValuation,
+  type TFxaCapitalTaxAccounts,
+} from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalTaxPreview';
 
-export type TFxaCapitalValuation = ResultOf<
-  typeof FXA_CAPITAL_VALUATION
->['fixedAssetCapitalValuation'];
+export type {
+  TFxaCapitalValuation,
+  TFxaCapitalTaxAccounts,
+} from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalTaxPreview';
 
 export const allocateRevaluationPreview = (
   change: number,
@@ -31,6 +37,7 @@ export const allocateRevaluationPreview = (
 const buildFxaCapitalAssetPreview = (
   trDoc: TTrDoc,
   valuation: TFxaCapitalValuation,
+  taxAccounts?: TFxaCapitalTaxAccounts,
 ) => {
   if (
     trDoc.journal !== TrJournalEnum.FXA_CAPITAL &&
@@ -49,13 +56,30 @@ const buildFxaCapitalAssetPreview = (
   const revaluation = trDoc.journal === TrJournalEnum.FXA_REVALUATION;
   const sourceDetails: ITrDetail[] = trDoc.details;
   const costDelta = info.originalCost - valuation.originalCost;
+  const bookTotal =
+    getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation;
   const depreciationDelta =
-    ((getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation) -
-      valuation.preDeprecation) /
-    valuation.count;
+    (bookTotal - valuation.preDeprecation) / valuation.count;
   const locationDepreciation = allocateFxaDepreciation(
-    getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation,
+    bookTotal,
     valuation.locations.map((location) => location.count),
+  );
+  let totalTax = bookTotal;
+  if (revaluation) {
+    totalTax = getFxaRevaluationTaxTotal(
+      bookTotal,
+      valuation.preDeprecation,
+      valuation.taxPreDeprecation,
+    );
+  } else if (valuation.hasTaxDepreciation) {
+    totalTax =
+      getTotalFxaDepreciation(trDoc.details, 'taxPreDeprecation') ??
+      valuation.taxPreDeprecation ??
+      valuation.preDeprecation;
+  }
+  const locationTax = allocateFxaDepreciation(
+    totalTax,
+    valuation.locations.map((row) => row.count),
   );
   const round = (amount: number) =>
     Math.round(Math.abs(amount) * 10000) / 10000;
@@ -94,6 +118,8 @@ const buildFxaCapitalAssetPreview = (
     followInfos: {
       ...info,
       preDeprecation: locationDepreciation[index],
+      taxPreDeprecation: locationTax[index],
+      incomeTaxRate: info.incomeTaxRate ?? valuation.incomeTaxRate ?? undefined,
       revaluationLoss: undefined,
       revaluationReserve: undefined,
       ...(revaluation
@@ -151,7 +177,15 @@ const buildFxaCapitalAssetPreview = (
         },
       ]
     : [];
+  const tax = buildFxaCapitalTaxPreview(trDoc, valuation, details, taxAccounts);
+  const revaluationResult = buildFxaRevaluationPreview(
+    trDoc,
+    details,
+    taxAccounts,
+  );
+  follows.push(...revaluationResult.follows, ...tax.follows);
   return {
+    error: revaluationResult.error || tax.error,
     details,
     side: costDelta < 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
     follows,
@@ -161,6 +195,7 @@ const buildFxaCapitalAssetPreview = (
 export const buildFxaCapitalPreview = (
   trDoc: TTrDoc,
   valuationInput: TFxaCapitalValuation | TFxaCapitalValuation[],
+  taxAccounts?: TFxaCapitalTaxAccounts,
 ) => {
   if (
     trDoc.journal !== TrJournalEnum.FXA_CAPITAL &&
@@ -180,6 +215,7 @@ export const buildFxaCapitalPreview = (
   const details: typeof trDoc.details = [];
   const follows = new Map<string, ITransaction>();
   const sides = new Set<string>();
+  let error: string | undefined;
   for (const group of groups.values()) {
     const fixedAssetId = group[0].fixedAssetId;
     if (!fixedAssetId) {
@@ -193,18 +229,21 @@ export const buildFxaCapitalPreview = (
     const result = buildFxaCapitalAssetPreview(
       { ...trDoc, details: group },
       valuation,
+      taxAccounts,
     );
     if (!result) return undefined;
     details.push(...result.details);
+    error = error || result.error;
     if (result.details.some((detail) => detail.amount > 0.005))
       sides.add(result.side);
     for (const follow of result.follows) {
-      const previous = follows.get(follow.originType || '');
+      const key = `${follow.originType}:${follow.side}`;
+      const previous = follows.get(key);
       if (previous) {
         previous.details.push(...follow.details);
         previous.sumDt = (previous.sumDt || 0) + (follow.sumDt || 0);
         previous.sumCt = (previous.sumCt || 0) + (follow.sumCt || 0);
-      } else follows.set(follow.originType || '', follow);
+      } else follows.set(key, follow);
     }
   }
   return {
@@ -212,26 +251,36 @@ export const buildFxaCapitalPreview = (
     follows: [...follows.values()],
     side: [...sides][0] || TR_SIDES.DEBIT,
     mixedDirections: sides.size > 1,
+    error,
   };
 };
 
-// Replace only this source journal's generated depreciation follows.
+// Replace this source journal's generated depreciation and loaded tax follows.
 export const mergeFxaDepreciationFollows = (
   previous: ITransaction[],
   follows: ITransaction[],
   originId: string,
+  replaceTax = false,
 ): ITransaction[] => {
   const remaining = previous.filter(
     (row) =>
       row.originId !== originId ||
       (row.originType !== TrJournalEnum.FXA_DEP_IN &&
-        row.originType !== TrJournalEnum.FXA_DEP_OUT),
+        row.originType !== TrJournalEnum.FXA_DEP_OUT &&
+        !(
+          replaceTax &&
+          (row.originType === TrJournalEnum.FXA_DEFERRED_TAX ||
+            row.originType === TrJournalEnum.FXA_REVALUATION_RESULT)
+        )),
   );
   const next = [
     ...remaining,
     ...follows.map((row) => {
       const saved = previous.find(
-        (old) => old.originId === originId && old.originType === row.originType,
+        (old) =>
+          old.originId === originId &&
+          old.originType === row.originType &&
+          old.side === row.side,
       );
       return {
         ...saved,
@@ -241,6 +290,7 @@ export const mergeFxaDepreciationFollows = (
           const savedDetail = saved?.details.find(
             (old) =>
               old.fixedAssetId === detail.fixedAssetId &&
+              old.accountId === detail.accountId &&
               (old.branchId || '') === (detail.branchId || '') &&
               (old.departmentId || '') === (detail.departmentId || ''),
           );

@@ -39,6 +39,14 @@ export interface IAutomationTrigger<TConfig = any> {
   workflowId?: string;
 }
 
+// Runs the workflow once per list item, one child after another; each item
+// is handed to the workflow as the value of `itemInput`.
+export interface IAutomationWorkflowForEach {
+  items: string;
+  itemInput: string;
+  onItemError?: 'continue' | 'stop';
+}
+
 export interface IAutomationWorkflow {
   id: string;
   // Empty for converted (containment) workflows that own their actions;
@@ -53,6 +61,7 @@ export interface IAutomationWorkflow {
     entryActionId?: string;
     // name -> default binding expression, e.g. { customerId: "{{ trigger.customerId }}" }
     inputs?: Record<string, string>;
+    forEach?: IAutomationWorkflowForEach;
     [key: string]: any;
   };
   actions?: IAutomationAction[];

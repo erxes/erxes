@@ -1,4 +1,5 @@
 import { WaitEventConfigContent } from '@/automations/components/builder/nodes/actions/waitEvent/components/WaitEventConfigContent';
+import { WaitEventTimeoutSection } from '@/automations/components/builder/nodes/actions/waitEvent/components/WaitEventTimeoutSection';
 import { useWaitEventConfigForm } from '@/automations/components/builder/nodes/actions/waitEvent/hooks/useWaitEventConfigForm';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { Form, IconComponent, Select } from 'erxes-ui';
@@ -64,6 +65,11 @@ export const WaitEventConfigForm = ({
             <Form.Message />
           </Form.Item>
         )}
+      />
+
+      <WaitEventTimeoutSection
+        currentAction={currentAction}
+        currentActionIndex={currentActionIndex}
       />
 
       <WaitEventConfigContent

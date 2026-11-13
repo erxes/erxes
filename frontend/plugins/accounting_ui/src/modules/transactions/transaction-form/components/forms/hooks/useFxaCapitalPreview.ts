@@ -10,6 +10,7 @@ import {
   buildFxaCapitalPreview,
   mergeFxaDepreciationFollows,
   TFxaCapitalValuation,
+  TFxaCapitalTaxAccounts,
 } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
 
 export const useFxaCapitalPreview = ({
@@ -17,17 +18,21 @@ export const useFxaCapitalPreview = ({
   index,
   trDoc,
   valuation,
+  taxAccounts,
 }: {
   form: ITransactionGroupForm;
   index: number;
   trDoc?: TTrDoc;
   valuation?: TFxaCapitalValuation | TFxaCapitalValuation[];
-}): boolean => {
+  taxAccounts?: TFxaCapitalTaxAccounts;
+}): { mixedDirections: boolean; error?: string } => {
   const setFollows = useSetAtom(followTrDocsState);
   const preview = useMemo(
     () =>
-      trDoc && valuation ? buildFxaCapitalPreview(trDoc, valuation) : undefined,
-    [trDoc, valuation],
+      trDoc && valuation
+        ? buildFxaCapitalPreview(trDoc, valuation, taxAccounts)
+        : undefined,
+    [trDoc, valuation, taxAccounts],
   );
   useEffect(() => {
     if (
@@ -48,8 +53,12 @@ export const useFxaCapitalPreview = ({
         previous,
         preview?.mixedDirections ? [] : preview?.follows || [],
         trDoc._id,
+        taxAccounts !== undefined,
       ),
     );
-  }, [form, index, preview, setFollows, trDoc]);
-  return preview?.mixedDirections || false;
+  }, [form, index, preview, setFollows, trDoc, taxAccounts]);
+  return {
+    mixedDirections: preview?.mixedDirections || false,
+    error: preview?.error,
+  };
 };

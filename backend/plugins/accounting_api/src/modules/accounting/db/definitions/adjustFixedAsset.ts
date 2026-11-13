@@ -11,6 +11,11 @@ export const adjustFixedAssetSchema = new Schema({
     optional: true,
     label: 'Depreciation expense account',
   },
+  taxExpenseAccountId: {
+    type: String,
+    optional: true,
+    label: 'Income tax expense account',
+  },
   status: {
     type: String,
     default: ADJ_FXA_STATUSES.DRAFT,
@@ -56,6 +61,8 @@ export const adjustFxaDetailSchema = new Schema({
     default: 0,
     label: 'Period depreciation',
   },
+  taxDepreciationAmount: { type: Number, optional: true },
+  taxAccumulatedDepreciation: { type: Number, optional: true },
   revaluationLoss: { type: Number, default: 0 },
   revaluationReserve: { type: Number, default: 0 },
   transactionId: { type: String, optional: true, label: 'Transaction' },

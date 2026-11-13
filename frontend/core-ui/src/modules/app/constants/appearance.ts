@@ -5,6 +5,11 @@ import { CSSProperties } from 'react';
 export const APPEARANCE_LAYOUTS = ['default', 'notch', 'sidebar'] as const;
 export type AppearanceLayout = (typeof APPEARANCE_LAYOUTS)[number];
 
+// Which edge the navigation sits on in a framed layout: start is top (notch)
+// or left (sidebar), end is bottom or right. Must match the backend check.
+export const NAV_POSITIONS = ['start', 'end'] as const;
+export type NavPosition = (typeof NAV_POSITIONS)[number];
+
 export type FrameEffect = 'aurora' | 'snow' | 'petals';
 
 // Each frame has a light and a dark tone; the `.dark` class picks one in CSS
@@ -62,6 +67,9 @@ export const isAppearanceLayout = (
   value?: string | null,
 ): value is AppearanceLayout =>
   APPEARANCE_LAYOUTS.includes(value as AppearanceLayout);
+
+export const isNavPosition = (value?: string | null): value is NavPosition =>
+  NAV_POSITIONS.includes(value as NavPosition);
 
 export const isFrameColor = (value?: string | null): value is FrameColor =>
   !!value &&

@@ -1,3 +1,6 @@
+jest.mock('../trPermissions', () => ({
+  assertCanWriteTransactionAccounts: jest.fn(),
+}));
 import type { IModels } from '~/connectionResolvers';
 import type { ITransaction } from '../../@types/transaction';
 import type { IAdjustFxaDetail } from '../../@types/adjustFixedAsset';
@@ -45,6 +48,10 @@ const setup = ({
   transactions,
   priorDepreciation,
   method = 'straightLine',
+  annualDepreciationRate = 12,
+  taxAnnualDepreciationRate,
+  hasTaxDepreciation,
+  incomeTaxRate,
   salvageValue = 0,
   acquisitionDate = '2026-01-01',
   snapshotHasAsset = true,
@@ -52,6 +59,10 @@ const setup = ({
   transactions: ITransaction[];
   priorDepreciation?: number;
   method?: string;
+  annualDepreciationRate?: number;
+  taxAnnualDepreciationRate?: number;
+  hasTaxDepreciation?: boolean;
+  incomeTaxRate?: number;
   salvageValue?: number;
   acquisitionDate?: string;
   snapshotHasAsset?: boolean;
@@ -60,10 +71,13 @@ const setup = ({
     if (transaction.journal !== JOURNALS.FXA_INCOME) continue;
     for (const detail of transaction.details) {
       detail.accountId = 'asset-account';
+      detail.followInfos = { ...detail.followInfos, incomeTaxRate };
       detail.followInfos = {
         ...detail.followInfos,
         depreciationMethod: method,
-        annualDepreciationRate: 12,
+        annualDepreciationRate,
+        taxAnnualDepreciationRate,
+        hasTaxDepreciation,
         salvageValue,
         depreciationStartDate: new Date(acquisitionDate),
       };
@@ -635,7 +649,7 @@ test('a zero-depreciation period closes its snapshots without creating a zero jo
   const models = {
     AdjustFxaDetails: { find: () => query([]) },
     AdjustFixedAssets: { updateAdjustFixedAsset: update },
-    Transactions: { createPTransaction: create },
+    Transactions: { createPTransaction: create, find: () => query([]) },
   };
   const result = await createAdjustFixedAssetTransaction({
     models: models as unknown as IModels,
@@ -667,3 +681,50 @@ test('adjustment carries a total depreciation amount once across multiple units'
   expect(detail.depreciationAmount).toBeCloseTo(3 / 31, 8);
   expect(detail.accumulatedDepreciation).toBeCloseTo(60 + 3 / 31, 8);
 });
+
+test('1000 book depreciation and 600 tax depreciation cache separately and produce a 40 deferred tax asset at 10 percent', async () => {
+  const fixture = setup({
+    annualDepreciationRate: 100,
+    taxAnnualDepreciationRate: 60,
+    hasTaxDepreciation: true,
+    incomeTaxRate: 10,
+    transactions: [
+      entry(JOURNALS.FXA_INCOME, '2026-01-01', 12000, TR_SIDES.DEBIT),
+    ],
+  });
+  const [detail] = await fixture.run('2026-01-31');
+  expect(detail.error).toBe('');
+  expect(detail.depreciationAmount).toBeCloseTo(1000);
+  expect(detail.accumulatedDepreciation).toBeCloseTo(1000);
+  expect(detail.taxDepreciationAmount).toBeCloseTo(600);
+  expect(detail.taxAccumulatedDepreciation).toBeCloseTo(600);
+  expect(detail).not.toHaveProperty('temporaryDifference');
+  expect(detail).not.toHaveProperty('deferredTaxAsset');
+  expect(detail).not.toHaveProperty('deferredTaxLiability');
+});
+
+test.each([false, undefined])(
+  'tax toggle %s makes tax depreciation equal book even with different saved tax rules',
+  async (hasTaxDepreciation) => {
+    const fixture = setup({
+      annualDepreciationRate: 100,
+      taxAnnualDepreciationRate: 60,
+      hasTaxDepreciation,
+      incomeTaxRate: 10,
+      transactions: [
+        entry(JOURNALS.FXA_INCOME, '2026-01-01', 12000, TR_SIDES.DEBIT),
+      ],
+    });
+    const [detail] = await fixture.run('2026-01-31');
+    expect(detail.error).toBe('');
+    expect(detail.taxDepreciationAmount).toBeCloseTo(
+      detail.depreciationAmount || 0,
+    );
+    expect(detail.taxAccumulatedDepreciation).toBeCloseTo(
+      detail.accumulatedDepreciation || 0,
+    );
+    expect(detail).not.toHaveProperty('temporaryDifference');
+    expect(detail).not.toHaveProperty('deferredTaxAsset');
+    expect(detail).not.toHaveProperty('deferredTaxLiability');
+  },
+);

@@ -13,13 +13,13 @@ jest.mock(
   }),
 );
 
-jest.mock('erxes-ui', () => ({}), { virtual: true });
+jest.mock('erxes-ui', () => ({}));
 jest.mock(
   '@/transactions/transaction-form/components/forms/FxaDepreciationFields',
   () => ({ FxaDepreciationFields: () => null }),
 );
 
-jest.mock('ui-modules', () => ({}), { virtual: true });
+jest.mock('ui-modules', () => ({}));
 
 test('owner synchronization keeps detail metadata intact without creating a root detail array', () => {
   const { result } = renderHook(() =>

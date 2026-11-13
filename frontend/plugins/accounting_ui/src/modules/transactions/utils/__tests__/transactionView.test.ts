@@ -3,11 +3,9 @@ import { JOURNALS_BY_JOURNAL } from '../../transaction-form/contants/defaultValu
 import { TrJournalEnum } from '../../types/constants';
 import { fxaIncomeDetailSchema } from '../../transaction-form/contants/transactionSchema';
 
-jest.mock(
-  'ui-modules',
-  () => ({ CustomerType: { CUSTOMER: 'customer', COMPANY: 'company' } }),
-  { virtual: true },
-);
+jest.mock('ui-modules', () => ({
+  CustomerType: { CUSTOMER: 'customer', COMPANY: 'company' },
+}));
 
 const transaction = (
   journal: TrJournalEnum,

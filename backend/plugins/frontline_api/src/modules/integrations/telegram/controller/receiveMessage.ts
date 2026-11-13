@@ -1,4 +1,9 @@
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+import {
+  TELEGRAM_MESSAGE_TRIGGER_TYPE,
+  TTelegramTriggerTarget,
+} from '@/integrations/telegram/meta/automation/types';
 import { ITelegramBotDocument } from '@/integrations/telegram/@types/bot';
 import { ITelegramConversationMessageDocument } from '@/integrations/telegram/@types/conversationMessages';
 import { telegramMessageSchema } from '@/integrations/telegram/utils/message';
@@ -71,7 +76,18 @@ export const receiveTelegramMessage = async ({
     customer,
   );
 
-  return getOrCreateMessage(
+  const isEdit = (message.edit_date ?? 0) > 0;
+  // A retried webhook finds the message already linked and must not re-enrol
+  const alreadyLinked =
+    !isEdit &&
+    !!(await models.TelegramConversationMessages.exists({
+      integrationId,
+      chatId: String(message.chat.id),
+      messageId: String(message.message_id),
+      erxesApiId: { $ne: null },
+    }));
+
+  const stored = await getOrCreateMessage(
     models,
     subdomain,
     conversation,
@@ -79,4 +95,31 @@ export const receiveTelegramMessage = async ({
     customer,
     updateId,
   );
+
+  if (
+    !isEdit &&
+    !alreadyLinked &&
+    customer?.erxesApiId &&
+    conversation.erxesApiId
+  ) {
+    const target: TTelegramTriggerTarget = {
+      _id: stored._id,
+      content: stored.content,
+      conversationId: conversation.erxesApiId,
+      customerId: customer.erxesApiId,
+      integrationId,
+      chatId: stored.chatId,
+      chatType: conversation.chatType,
+      attachments: stored.attachments,
+      createdAt: stored.createdAt,
+    };
+
+    sendAutomationTrigger(
+      subdomain,
+      { type: TELEGRAM_MESSAGE_TRIGGER_TYPE, targets: [target] },
+      { transport: 'trpc' },
+    );
+  }
+
+  return stored;
 };

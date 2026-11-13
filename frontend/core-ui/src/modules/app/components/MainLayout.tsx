@@ -15,7 +15,11 @@ import {
   useEnterAnimation,
 } from '@/navigation/hooks/useEnterAnimation';
 import { useRef } from 'react';
-import { resolveFrameStyle } from '@/app/constants/appearance';
+import {
+  AppearanceLayout,
+  NavPosition,
+  resolveFrameStyle,
+} from '@/app/constants/appearance';
 import { FrameBackdrop } from '@/app/components/FrameBackdrop';
 import { GlobalSidebar } from '@/global-sidebar/components/GlobalSidebar';
 import { useAppearanceValue } from '@/app/hooks/useAppearance';
@@ -25,6 +29,15 @@ import { SupportAccessBanner } from '@/settings/support-access/components/Suppor
 import { useTranslation } from 'react-i18next';
 
 const MAIN_CONTENT_ID = 'main-content';
+
+// The card keeps a gap on every frame edge except the one the navigation is on.
+const FRAMED_CARD_MARGINS: Record<
+  Exclude<AppearanceLayout, 'default'>,
+  Record<NavPosition, string>
+> = {
+  notch: { start: 'mx-2 mb-2', end: 'mx-2 mt-2' },
+  sidebar: { start: 'my-2 mr-2', end: 'my-2 ml-2' },
+};
 
 const SkipToMainContent = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
@@ -69,9 +82,10 @@ const AppWorkspace = () => {
 
 export const DefaultLayout = () => {
   const [inPreview] = useQueryState<boolean>('inPreview');
-  const { layout, frameColor } = useAppearanceValue();
+  const { layout, frameColor, navPosition } = useAppearanceValue();
   const isSidebar = layout === 'sidebar';
   const isFramed = layout !== 'default';
+  const isEnd = isFramed && navPosition === 'end';
   const frame = isFramed ? resolveFrameStyle(frameColor) : null;
 
   if (inPreview) {
@@ -97,16 +111,20 @@ export const DefaultLayout = () => {
         <div
           className={cn(
             'relative flex min-w-0 flex-1 overflow-hidden',
-            !isSidebar && 'flex-col',
+            isSidebar && isEnd && 'flex-row-reverse',
+            !isSidebar && (isEnd ? 'flex-col-reverse' : 'flex-col'),
           )}
         >
           {!isFramed && <SupportAccessBanner />}
-          <CoreTab orientation={isSidebar ? 'vertical' : 'horizontal'} />
+          <CoreTab
+            orientation={isSidebar ? 'vertical' : 'horizontal'}
+            position={isEnd ? 'end' : 'start'}
+          />
           <div
             className={cn(
               'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
-              isFramed && 'mb-2 mr-2 rounded-md bg-background shadow-sm',
-              isFramed && (isSidebar ? 'mt-2' : 'ml-2'),
+              isFramed && 'rounded-md bg-background shadow-sm',
+              layout !== 'default' && FRAMED_CARD_MARGINS[layout][navPosition],
             )}
           >
             {isFramed && <SupportAccessBanner />}

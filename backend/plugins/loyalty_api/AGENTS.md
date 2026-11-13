@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -102,6 +102,7 @@
 - `VoucherCampaign.autoIssue`, mutations `voucherCampaignSetAutoIssue(_id, kind, segmentId, parts)` / `voucherCampaignRemoveAutoIssue(_id, kind)` (permission `loyaltyCampaignUpdate`).
 - `VoucherCampaign.validity {count, unit}` (`VoucherValidityInput`); voucher campaign `startDate`/`endDate` may be null.
 - Automation action `loyalty:score.score.create` declares `inputs` `totalAmount`, `paidAmount`, `items`.
+- Find object target `loyalty:score.accounts` (Loyalty account; `findLoyaltyObject`, `src/meta/automations/findObject.ts`) by `_id`, `number`, or `ownerId` (customer accounts only). Its object is a readable view, not the stored document: `number`, `status`, `ownerId`, `wallets` (name, balance, pending, tier name, expiringSoon) and `vouchers` (title, kind, value, expiresAt, status) from `getOwnerSummary`. It declares an AI agent `lookup` (`customerField: 'ownerId'`, no `byFields`); its output leaves `ownerId` out.
 - Automation trigger `loyalty:score.tier` (Tier changed) with output `_id`, `ownerType`, `customerId` (reference to `core:customer`), `accountTypeName`, `fromTier`, `toTier`, `direction`.
 - Metadata, permission, automation, and after-process handlers under `src/meta`.
 
