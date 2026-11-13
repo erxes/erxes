@@ -2,7 +2,6 @@ import React from 'react';
 
 import { IconDots } from '@tabler/icons-react';
 import { Separator } from './separator';
-import { Slot } from 'radix-ui';
 import { cn } from '../lib/utils';
 
 const BreadcrumbRoot = ({
@@ -24,24 +23,14 @@ const BreadcrumbItem = ({ ref, className, ...props }: React.ComponentProps<'li'>
   <li ref={ref} className={cn('inline-flex items-center gap-1.5', className)} {...props} />
 );
 
-const BreadcrumbLink = ({
-  ref,
-  asChild,
-  className,
-  ...props
-}: React.ComponentProps<'a'> & {
-  asChild?: boolean;
-}) => {
-  const Comp = asChild ? Slot.Root : 'a';
-
-  return (
-    <Comp
-      ref={ref}
-      className={cn('text-muted-foreground transition-colors hover:text-foreground', className)}
-      {...props}
-    />
-  );
-};
+const BreadcrumbLink = ({ className, children, ...props }: React.ComponentProps<'a'>) => (
+  <a
+    className={cn('text-muted-foreground transition-colors hover:text-foreground', className)}
+    {...props}
+  >
+    {children}
+  </a>
+);
 
 const BreadcrumbPage = ({ ref, className, ...props }: React.ComponentProps<'span'>) => (
   <span
