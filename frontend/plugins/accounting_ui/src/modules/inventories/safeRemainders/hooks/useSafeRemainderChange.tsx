@@ -46,6 +46,7 @@ const commonOptions = (
       toast({
         title: getI18n().t('success', { ns: 'accounting' }),
         description: getI18n().t(successMessage, { ns: 'accounting' }),
+        variant: 'success',
       });
       options?.onCompleted?.(data);
     },

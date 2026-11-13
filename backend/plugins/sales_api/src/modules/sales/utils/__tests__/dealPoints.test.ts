@@ -211,6 +211,8 @@ describe('syncWrittenDealPoints — writes outside the deal mutations count too'
   const askedOf = () =>
     (sendTRPCMessage as jest.Mock).mock.calls.map(([call]) => call.action);
 
+  const addScoreLogs = jest.fn();
+
   const syncWritten = (
     written: (TDealDoc & { _id: string })[],
     before?: (TDealDoc & { _id: string })[],
@@ -221,7 +223,7 @@ describe('syncWrittenDealPoints — writes outside the deal mutations count too'
       subdomain: 'test',
       models: {
         ...models,
-        Deals: { find: () => ({ lean: async () => written }) },
+        Deals: { find: () => ({ lean: async () => written }), addScoreLogs },
       } as never,
       before: before as never,
       dealIds: before ? undefined : written.map(({ _id }) => _id),
@@ -230,6 +232,39 @@ describe('syncWrittenDealPoints — writes outside the deal mutations count too'
 
   beforeEach(() => {
     (sendTRPCMessage as jest.Mock).mockReset();
+    addScoreLogs.mockReset();
+  });
+
+  it('links the entries loyalty wrote to the deal', async () => {
+    (sendTRPCMessage as jest.Mock).mockResolvedValue({ scoreLogId: 'log-1' });
+
+    await syncWritten([{ _id: 'deal-1', ...deal('won') }]);
+
+    expect(addScoreLogs).toHaveBeenCalledWith('deal-1', ['log-1']);
+  });
+
+  it('links a recalculation reversal with its replacement', async () => {
+    (sendTRPCMessage as jest.Mock).mockResolvedValue({
+      scoreLogId: 'log-2',
+      scoreLogIds: ['rev-1', 'log-2'],
+    });
+
+    await syncWritten([{ _id: 'deal-1', ...deal('won') }]);
+
+    expect(addScoreLogs).toHaveBeenCalledWith('deal-1', ['rev-1', 'log-2']);
+  });
+
+  it('links refund entries to the deal', async () => {
+    (sendTRPCMessage as jest.Mock).mockImplementation(async ({ action }) =>
+      action === 'refund' ? [{ _id: 'refund-1' }] : null,
+    );
+
+    await syncWritten(
+      [{ _id: 'deal-1', ...deal('lost') }],
+      [{ _id: 'deal-1', ...deal('won') }],
+    );
+
+    expect(addScoreLogs).toHaveBeenCalledWith('deal-1', ['refund-1']);
   });
 
   it('earns for a deal created straight into an earning stage', async () => {
@@ -314,6 +349,7 @@ describe('planDealPoints — the tier a purchase sets', () => {
           find: () => ({
             lean: async () => [{ _id: 'deal-1', ...deal('won') }],
           }),
+          addScoreLogs: jest.fn(),
         },
       } as never,
       dealIds: ['deal-1'],

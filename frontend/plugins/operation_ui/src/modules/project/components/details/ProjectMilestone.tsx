@@ -1,4 +1,4 @@
-import { ProgressDot } from '@/project/components/details/Progress';
+import { ProgressDot } from '@/operation/components/progress/ScopeProgress';
 import { useGetProjectProgressByMilestone } from '@/project/hooks/useGetProjectProgressByMilestone';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChartConfig, ChartContainer, HoverCard } from 'erxes-ui';

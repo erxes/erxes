@@ -4,6 +4,7 @@ import {
   ActionResultFields,
   ActionResultJson,
   ActionResultLayout,
+  ActionResultRaw,
   ActionResultStatus,
 } from './ActionResultParts';
 
@@ -19,4 +20,5 @@ export const ActionResult = Object.assign(ActionResultLayout, {
   Field: ActionResultField,
   Body: ActionResultBody,
   Json: ActionResultJson,
+  Raw: ActionResultRaw,
 });

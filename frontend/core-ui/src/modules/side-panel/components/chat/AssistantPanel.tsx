@@ -3,15 +3,13 @@ import { useAtom } from 'jotai';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from 'erxes-ui';
-import {
-  RecordSidePanel,
-  SIDE_PANEL_CHAT_PATH,
-  sidePanelWidthState,
-  usePermissionCheck,
-  useSidePanel,
-} from 'ui-modules';
+import { RecordSidePanel, usePermissionCheck } from 'ui-modules';
 
-import { agentPanelModeState } from '@/agent/states/agentPanelStates';
+import {
+  agentPanelModeState,
+  assistantPanelWidthState,
+} from '@/agent/states/agentPanelStates';
+import { useGlobalSidebar } from '@/global-sidebar/hooks/useGlobalSidebar';
 
 const SidePanelChat = lazy(() =>
   import('./SidePanelChat').then((module) => ({
@@ -25,12 +23,12 @@ const LENS_WIDTH = 440;
 const getMaxWidth = () =>
   Math.max(320, Math.min(1200, window.innerWidth - 320));
 
-/** Floating Lens or docked Companion; the routed chat stays mounted in both. */
+/** Global sidebar tool: floating Lens or docked Companion; the chat stays mounted in both. */
 export const AssistantPanel = () => {
   const reduceMotion = useReducedMotion();
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { open, path, close } = useSidePanel();
-  const [width, setWidth] = useAtom(sidePanelWidthState);
+  const { tool, close } = useGlobalSidebar();
+  const [width, setWidth] = useAtom(assistantPanelWidthState);
   const [mode, setMode] = useAtom(agentPanelModeState);
   const [maxWidth, setMaxWidth] = useState(getMaxWidth);
   useEffect(() => {
@@ -40,7 +38,7 @@ export const AssistantPanel = () => {
   }, []);
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const allowed = isLoaded && hasActionPermission('agentsChat');
-  const visible = open && path === SIDE_PANEL_CHAT_PATH && allowed;
+  const visible = tool === 'assistant' && allowed;
   const lens = mode === 'lens';
   const everOpened = useRef(false);
   if (visible) everOpened.current = true;

@@ -40,11 +40,9 @@ export const AutomationSettingsRoutes = () => {
         <Route
           path={AutomationSettingsRoutesPath.Bots}
           element={<AutomationsBotsSettingsPage />}
-        />
-        <Route
-          path={AutomationSettingsRoutesPath.BotDetail}
-          element={<AutomationBotDetailSettingsPage />}
-        />
+        >
+          <Route path=":type" element={<AutomationBotDetailSettingsPage />} />
+        </Route>
 
         <Route
           path={AutomationSettingsRoutesPath.Agents}

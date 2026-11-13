@@ -23,6 +23,8 @@ type TFxaDisposalInstance = {
 };
 
 type TFxaDisposalSummary = {
+  branchId?: string;
+  departmentId?: string;
   detailId?: string;
   fixedAssetId?: string;
   count: number;
@@ -46,9 +48,9 @@ export const buildFxaDisposalPreviewSummaries = (
       const perUnitAccumulated = currentCount
         ? (fixedAsset?.accumulatedDepreciation || 0) / currentCount
         : 0;
-      const unitDepreciation =
-        detail.followInfos?.preDeprecation ?? perUnitAccumulated;
-      const accumulatedDepreciation = fixNum(unitDepreciation * count);
+      const accumulatedDepreciation = fixNum(
+        detail.followInfos?.preDeprecation ?? perUnitAccumulated * count,
+      );
       let bookValue = fixNum(
         fixedAsset?.bookValue
           ? (fixedAsset.bookValue / (currentCount || count || 1)) * count
@@ -61,6 +63,8 @@ export const buildFxaDisposalPreviewSummaries = (
       return {
         detailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
+        branchId: detail.branchId ?? '',
+        departmentId: detail.departmentId ?? '',
         count,
         originalCost,
         accumulatedDepreciation,
@@ -74,11 +78,11 @@ const buildMainDetails = (
   summaries: TFxaDisposalSummary[],
 ) =>
   details.map((detail) => {
-    const summary = summaries.find(
-      (item) =>
-        item.detailId === detail._id ||
-        item.fixedAssetId === detail.fixedAssetId,
-    );
+    const summary =
+      summaries.find((item) => item.detailId === detail._id) ||
+      summaries.find(
+        (item) => !item.detailId && item.fixedAssetId === detail.fixedAssetId,
+      );
 
     if (!summary) {
       return detail;
@@ -129,11 +133,14 @@ const buildFollowDetails = ({
           originId: summary.detailId,
           originType,
           fixedAssetId: summary.fixedAssetId,
+          branchId: summary.branchId,
+          departmentId: summary.departmentId,
           accountId: accountId || '',
-          count: summary.count,
-          unitPrice: summary.count
-            ? fixNum(summary[amountKey] / summary.count)
-            : 0,
+          count: amountKey === 'accumulatedDepreciation' ? 0 : summary.count,
+          unitPrice:
+            amountKey !== 'accumulatedDepreciation' && summary.count
+              ? fixNum(summary[amountKey] / summary.count)
+              : 0,
           amount: summary[amountKey],
         } as ITrDetail),
     );
@@ -161,8 +168,8 @@ const buildFollowTr = ({
     parentId: trDoc.parentId,
     journal,
     side,
-    branchId: trDoc.branchId,
-    departmentId: trDoc.departmentId,
+    branchId: '',
+    departmentId: '',
     customerId: trDoc.customerId,
     customerType: trDoc.customerType,
     description: trDoc.description,
@@ -184,6 +191,7 @@ export const useFxaDisposalFollowTrs = ({
     control: form.control,
     name: `trDocs.${journalIndex}`,
   }) as ITransaction;
+  const date = useWatch({ control: form.control, name: 'date' });
   const setFollowTrDocs = useSetAtom(followTrDocsState);
   const fixedAssetIds = useMemo(
     () =>
@@ -197,7 +205,12 @@ export const useFxaDisposalFollowTrs = ({
     [trDoc?.details],
   );
   const { data: queryData, loading } = useQuery(FIXED_ASSETS_QUERY, {
-    variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
+    variables: {
+      ids: fixedAssetIds,
+      limit: fixedAssetIds.length,
+      date,
+      excludeTransactionId: trDoc?.parentId ? trDoc._id : undefined,
+    },
     skip: !fixedAssetIds.length,
   });
   const data = toGraphqlView(queryData);

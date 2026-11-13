@@ -4,33 +4,15 @@ import { IAdjustInventory } from '../types/AdjustInventory';
 import { Link } from 'react-router-dom';
 import {
   RecordTable,
-  Input,
   RecordTableInlineCell,
   CurrencyFormatedDisplay,
   CurrencyCode,
-  PopoverScoped,
 } from 'erxes-ui';
 import { IconFile, IconMoneybag } from '@tabler/icons-react';
-import { useState } from 'react';
 
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`transaction-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
-};
+const DescriptionCell = ({ value }: { value?: string }) => (
+  <RecordTableInlineCell>{value}</RecordTableInlineCell>
+);
 
 // const DateCell = ({ getValue }: any) => {
 //   return (
@@ -184,9 +166,7 @@ export const adjustDetailTableColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
+    cell: ({ getValue }) => <DescriptionCell value={getValue() as string} />,
     size: 300,
   },
 ];

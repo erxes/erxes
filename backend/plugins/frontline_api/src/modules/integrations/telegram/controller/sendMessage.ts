@@ -25,7 +25,9 @@ import { splitTelegramReplyText } from '../utils/replyText';
 const telegramReplySchema = z.object({
   integrationId: z.string().min(1),
   conversationId: z.string().min(1),
-  userId: z.string().min(1),
+  // An automation sends with fromBot instead of a user
+  userId: z.string().min(1).nullish(),
+  fromBot: z.boolean().nullish(),
   content: z.string(),
   internal: z.boolean().nullish(),
   attachments: z.array(telegramReplyAttachmentSchema).max(10).nullish(),
@@ -70,12 +72,17 @@ export const sendTelegramReply = async ({
     integrationId,
     conversationId,
     userId,
+    fromBot,
     content,
     internal,
     attachments,
     poll,
     replyToMessageId,
   } = parsed.data;
+
+  if (!userId && !fromBot) {
+    throw new Error('A Telegram reply needs a sender');
+  }
 
   if (internal) {
     throw new Error('Internal notes must stay in the inbox');
@@ -229,7 +236,8 @@ export const sendTelegramReply = async ({
       conversationId: conversation._id,
       content: partText,
       createdAt: new Date(sent.date * 1000),
-      userId,
+      ...(userId ? { userId } : {}),
+      ...(fromBot ? { fromBot: true } : {}),
       pollId: sent.poll?.id,
       poll: sent.poll ? normalizeTelegramPoll(sent.poll) : undefined,
       metadata: { replyTo: quote, mediaGroupId: sent.media_group_id },

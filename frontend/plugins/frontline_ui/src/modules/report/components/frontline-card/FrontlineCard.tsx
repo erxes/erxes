@@ -9,6 +9,7 @@ import {
   IconLayoutColumns,
   IconLayoutList,
 } from '@tabler/icons-react';
+import { useReportChartEmbedded } from './ReportChartEmbed';
 
 type FrontlineCardContextValue = {
   title?: string;
@@ -46,7 +47,7 @@ type FrontlineCardRootProps = {
   onColSpanChange?: (span: 6 | 12) => void;
 };
 
-export function FrontlineCardRoot({
+function SortableCardRoot({
   id,
   title,
   description,
@@ -102,6 +103,35 @@ export function FrontlineCardRoot({
   );
 }
 
+// The host frame already draws the border, title and drag handle.
+function EmbeddedCardRoot({
+  title,
+  description,
+  children,
+  className,
+  colSpan = 6,
+}: FrontlineCardRootProps) {
+  return (
+    <FrontlineCardContext.Provider
+      value={{ title, description, className, colSpan }}
+    >
+      <div className={cn('flex min-h-full w-full flex-col', className)}>
+        {children}
+      </div>
+    </FrontlineCardContext.Provider>
+  );
+}
+
+export function FrontlineCardRoot(props: FrontlineCardRootProps) {
+  const embedded = useReportChartEmbedded();
+
+  return embedded ? (
+    <EmbeddedCardRoot {...props} />
+  ) : (
+    <SortableCardRoot {...props} />
+  );
+}
+
 export function FrontlineCardHeader({
   filter,
   titleAccessory,
@@ -112,10 +142,17 @@ export function FrontlineCardHeader({
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { title, dragHandleProps, colSpan, onColSpanChange } =
     useFrontlineCardContext();
+  const embedded = useReportChartEmbedded();
 
   const toggleColSpan = () => {
     onColSpanChange?.(colSpan === 6 ? 12 : 6);
   };
+
+  // Filters, chart type and save/export belong to the report page; an
+  // embedded chart is drawn from its stored config.
+  if (embedded) {
+    return null;
+  }
 
   return (
     <Card.Header

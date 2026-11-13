@@ -45,7 +45,7 @@ export const CategoryField = ({
           <Form.Label>{t('category')}</Form.Label>
 
           <Form.Control>
-            <div className="flex gap-2">
+            <div className="flex items-start gap-2">
               <MultipleSelector
                 value={options.filter((o) =>
                   (field.value || []).includes(o.value),
@@ -60,7 +60,8 @@ export const CategoryField = ({
               <Button
                 type="button"
                 variant="outline"
-                size="lg"
+                size="icon"
+                className="shrink-0"
                 onClick={toggleInput}
               >
                 <IconPlus
@@ -92,7 +93,8 @@ export const CategoryField = ({
               <Button
                 type="button"
                 variant="outline"
-                size="lg"
+                size="icon"
+                className="shrink-0"
                 disabled={!newCategoryName.trim() || addingCategory}
                 onClick={async () => {
                   const id = await createCategory();

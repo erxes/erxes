@@ -2,7 +2,9 @@ import {
   AUTOMATION_STATUSES,
   IAutomationDocument,
   IAutomationExecutionDocument,
+  materializeBuiltInTemplate,
   splitType,
+  TTemplateAnswers,
 } from 'erxes-api-shared/core-modules';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import {
@@ -301,6 +303,14 @@ export const automationQueries = {
     return models.AutomationExecutions.getExecutionCounts(automationIds);
   },
 
+  async automationRecentRuns(
+    _root,
+    { automationIds }: { automationIds: string[] },
+    { models }: IContext,
+  ) {
+    return models.AutomationExecutions.getRecentRuns(automationIds);
+  },
+
   /**
    * Execution stats of one automation: run status breakdown, daily buckets and
    * per action node counts/durations.
@@ -327,6 +337,39 @@ export const automationQueries = {
 
   async automationConstants() {
     return withoutConfigJsonSchemas(await getAutomationConstants());
+  },
+
+  /**
+   * A built-in workflow template as the actions it would add to a flow, for
+   * both the install preview and the install itself, so they never differ.
+   */
+  async automationBuiltInTemplateMaterialize(
+    _root,
+    {
+      pluginName,
+      templateId,
+      answers,
+      usedIds,
+    }: {
+      pluginName: string;
+      templateId: string;
+      answers?: TTemplateAnswers;
+      usedIds?: string[];
+    },
+  ) {
+    const { workflowTemplatesConst } = await getAutomationConstants();
+    const template = workflowTemplatesConst.find(
+      (item) => item.pluginName === pluginName && item.id === templateId,
+    );
+
+    if (!template) {
+      throw new Error('This template is not available');
+    }
+
+    return materializeBuiltInTemplate(template, {
+      answers: answers || {},
+      usedIds: usedIds || [],
+    });
   },
 
   async automationNodeCatalog() {

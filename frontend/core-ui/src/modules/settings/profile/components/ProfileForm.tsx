@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { SubmitHandler } from 'react-hook-form';
 
 import {
@@ -11,9 +11,12 @@ import { ProfileLoading } from '@/settings/profile/components/ProfileLoading';
 import { useProfile } from '@/settings/profile/hooks/useProfile';
 import {
   FormType,
+  getProfilePatch,
+  getProfileValuesAfterSave,
+  normalizeProfileLinks,
   useProfileForm,
 } from '@/settings/profile/hooks/useProfileForm';
-import { Button, Form, Spinner, Upload } from 'erxes-ui';
+import { Button, Form, Spinner, Upload, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const ProfileForm = () => {
@@ -21,27 +24,68 @@ export const ProfileForm = () => {
     keyPrefix: 'profile',
   });
   const { form } = useProfileForm();
+  const { dirtyFields } = form.formState;
+  const saveInProgressRef = useRef(false);
 
   const { loading, profileUpdate, profile, updating } = useProfile();
 
   const submitHandler: SubmitHandler<FormType> = useCallback(
     (data) => {
+      const patch = getProfilePatch(data, dirtyFields);
+      if (Object.keys(patch).length === 0) {
+        toast({ title: t('no-profile-changes', 'No profile changes to save') });
+        return;
+      }
+      const submittedValues = structuredClone(form.getValues());
       profileUpdate({
-        variables: data,
+        variables: patch,
+        onStart: () => {
+          saveInProgressRef.current = true;
+        },
+        onCompleted: ({ usersEditProfilePatch: saved }) => {
+          const currentValues = structuredClone(form.getValues());
+          // Saved values become the baseline; only later edits stay dirty.
+          form.reset({
+            username: saved.username,
+            positionIds: saved.positionIds ?? [],
+            email: saved.email,
+            details: saved.details,
+            links: normalizeProfileLinks(saved.links),
+          });
+          form.reset(
+            getProfileValuesAfterSave(
+              form.getValues(),
+              submittedValues,
+              currentValues,
+            ),
+            { keepDefaultValues: true },
+          );
+        },
+        onSettled: () => {
+          saveInProgressRef.current = false;
+        },
       });
     },
-    [profileUpdate],
+    [dirtyFields, form, profileUpdate, t],
   );
 
   useEffect(() => {
-    if (profile && Object.keys(profile).length > 0) {
-      form.reset({
-        username: profile.username,
-        positionIds: profile.positionIds,
-        email: profile.email,
-        details: profile.details,
-        links: profile.links,
-      });
+    // Apollo cache effects can run before the mutation's completion callback.
+    if (
+      !saveInProgressRef.current &&
+      profile &&
+      Object.keys(profile).length > 0
+    ) {
+      form.reset(
+        {
+          username: profile.username,
+          positionIds: profile.positionIds ?? [],
+          email: profile.email,
+          details: profile.details,
+          links: normalizeProfileLinks(profile.links),
+        },
+        { keepDirtyValues: true },
+      );
     }
   }, [profile, form]);
 
@@ -51,18 +95,35 @@ export const ProfileForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(submitHandler)} className="grid gap-5">
+      <form
+        onSubmit={form.handleSubmit(submitHandler, () => {
+          toast({
+            title: t('error-updating-profile'),
+            description: t(
+              'check-profile-fields',
+              'Please check the profile fields for invalid values.',
+            ),
+            variant: 'destructive',
+          });
+        })}
+        className="grid gap-5"
+      >
         <div className="flex flex-col gap-4">
           <Form.Label>{t('profile-picture')}</Form.Label>
           <Form.Field
             control={form.control}
             name="details.avatar"
-            render={({ field }: { field: any }) => (
+            render={({ field }) => (
               <Form.Item>
                 <Form.Control>
                   <Upload.Root
                     {...field}
-                    onChange={(fileInfo: any) => field.onChange(fileInfo?.url)}
+                    value={field.value ?? ''}
+                    onChange={(fileInfo) =>
+                      field.onChange(
+                        fileInfo && 'url' in fileInfo ? fileInfo.url : '',
+                      )
+                    }
                   >
                     <Upload.Preview />
                     <div className="flex flex-col gap-2">

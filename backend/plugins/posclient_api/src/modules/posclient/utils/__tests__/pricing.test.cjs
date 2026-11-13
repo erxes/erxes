@@ -181,15 +181,17 @@ test('saving again rebuilds bonuses and removes them below the threshold', async
   assert.equal(reduced.items[0].unitPrice, 100);
 });
 
-test('passes the order creation timestamp to loyalty pricing', async () => {
+test('passes the order creation time as the order moment, checkout stays now', async () => {
   const f = fixture({});
   await f.run([paidItem()], new Date('2020-01-06T10:30:00Z'));
-  assert.equal(f.request().input.date, '2020-01-06T10:30:00.000Z');
+  assert.equal(f.request().input.orderCreatedAt, '2020-01-06T10:30:00.000Z');
+  assert.equal(f.request().input.date, undefined);
 });
 
-test('new orders omit the date so loyalty evaluates at now', async () => {
+test('new orders omit both times so loyalty evaluates at now', async () => {
   const f = fixture({});
   await f.run([paidItem()]);
+  assert.equal(f.request().input.orderCreatedAt, undefined);
   assert.equal(f.request().input.date, undefined);
 });
 
@@ -242,7 +244,7 @@ function previewFixture(order) {
   };
 }
 
-test('saved-order previews price at creation time within POS/sub-token scope', async () => {
+test('saved-order previews pass their creation time within POS/sub-token scope', async () => {
   const createdAt = new Date('2020-01-06T10:30:00Z');
   const f = previewFixture({ createdAt });
   await f.run('saved-order');
@@ -257,7 +259,7 @@ test('saved-order previews price at creation time within POS/sub-token scope', a
   );
 });
 
-test('unsaved previews omit the pricing date', async () => {
+test('unsaved previews omit the order creation time', async () => {
   const f = previewFixture();
   await f.run();
   assert.equal(f.doc().createdAt, undefined);
@@ -268,4 +270,33 @@ test('previews reject unknown orders and orders outside the current POS scope', 
   const f = previewFixture(null);
   await assert.rejects(f.run('other-order'), { message: 'Order not found' });
   assert.equal(f.doc(), undefined);
+});
+
+test('pricing discounts carry the plans behind them by name', async () => {
+  const reason = {
+    planId: 'hh',
+    planName: 'Happy hour',
+    kind: 'discount',
+    value: 10,
+    window: { type: 'daily', startTime: '18:00', endTime: '21:00' },
+    matchedMoment: 'orderCreated',
+  };
+  const f = fixture({
+    'paid-a': { value: 10, bonusProducts: [], reasons: [reason] },
+  });
+  const { items } = await f.run([paidItem()]);
+  const info = items[0].discountInfos.find(({ type }) => type === 'pricing');
+
+  assert.equal(info.title, 'Happy hour');
+  assert.equal(info.reasons.length, 1);
+  assert.equal(info.reasons[0].matchedMoment, 'orderCreated');
+});
+
+test('pricing discounts without reasons keep the generic title', async () => {
+  const f = fixture({ 'paid-a': { value: 10, bonusProducts: [] } });
+  const { items } = await f.run([paidItem()]);
+  const info = items[0].discountInfos.find(({ type }) => type === 'pricing');
+
+  assert.equal(info.title, 'Pricing discount');
+  assert.equal(info.reasons, undefined);
 });

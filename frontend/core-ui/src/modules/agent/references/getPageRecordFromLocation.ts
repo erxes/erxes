@@ -59,10 +59,22 @@ const LOCATION_RECORD_MATCHERS: {
   },
 ];
 
+// A contact's own page carries its id in the path.
+const CONTACT_PAGE = /^\/contacts\/(customers|leads|companies)\/([^/]+)/;
+
 export const getPageRecordFromLocation = (
   pathname: string,
   search: string,
 ): IAgentPageRecord | undefined => {
+  const contactPage = CONTACT_PAGE.exec(pathname);
+
+  if (contactPage) {
+    return {
+      type: contactPage[1] === 'companies' ? 'company' : 'customer',
+      id: contactPage[2],
+    };
+  }
+
   const params = new URLSearchParams(search);
 
   for (const matcher of LOCATION_RECORD_MATCHERS) {

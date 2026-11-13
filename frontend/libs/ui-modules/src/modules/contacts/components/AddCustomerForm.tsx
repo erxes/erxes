@@ -24,6 +24,7 @@ import {
   ICustomerFormValues,
 } from '../customer-fields/customerFormSchema';
 import { CustomerSystemFields } from '../customer-fields/CustomerSystemFields';
+import { DataExtensionCreateFields } from '../../data-extensions/components/DataExtensionCreateFields';
 
 const hasValue = (value: unknown) =>
   value !== undefined && value !== null && String(value).trim() !== '';
@@ -141,6 +142,10 @@ export function AddCustomerForm({
               </InfoCard.Content>
             </InfoCard>
           )}
+          <DataExtensionCreateFields
+            recordType={state === 'lead' ? 'core:lead' : 'core:customer'}
+            className="mt-4"
+          />
         </ScrollArea>
 
         <div className="flex shrink-0 justify-end gap-1 bg-background p-2.5 border-t">

@@ -5,6 +5,7 @@ import { formatEmails } from 'erxes-ui/modules/display/utils/formatEmails';
 import { ValidationStatus } from 'erxes-ui/types';
 
 export const EmailDisplay = ({
+  maxVisible,
   primaryEmail,
   emails,
   emailValidationStatus,
@@ -18,12 +19,22 @@ export const EmailDisplay = ({
     emailValidationStatus,
   );
 
+  const values = emailsWithProperties.filter((item) => item.email);
+  const visible =
+    maxVisible === undefined ? values : values.slice(0, maxVisible);
+  const remaining = values.length - visible.length;
   return (
-    <div className="flex gap-2">
-      {emailsWithProperties.map(
+    <div
+      className={
+        maxVisible === undefined
+          ? 'flex gap-2'
+          : 'flex min-w-0 max-w-full items-center gap-1'
+      }
+    >
+      {visible.map(
         (email) =>
           email.email && (
-            <span key={email.email} className="inline-flex">
+            <span key={email.email} className="inline-flex min-w-0">
               {onEmailClick ? (
                 // Rendered inside table/detail triggers, which are buttons
                 // themselves, so the chip is a span acting as a button.
@@ -31,7 +42,7 @@ export const EmailDisplay = ({
                   asChild
                   size="sm"
                   variant="secondary"
-                  className="h-6 w-fit rounded-sm border gap-1 cursor-pointer hover:bg-primary/10 hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+                  className="min-w-0 max-w-full h-6 w-fit rounded-sm border gap-1 cursor-pointer hover:bg-primary/10 hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <span
                     role="button"
@@ -60,22 +71,27 @@ export const EmailDisplay = ({
                       ) : (
                         <IconCircleDashed className="text-muted-foreground size-4" />
                       ))}
-                    {email.email}
+                    <span className="truncate">{email.email}</span>
                   </span>
                 </Button>
               ) : (
-                <Badge variant="secondary">
+                <Badge variant="secondary" className="min-w-0">
                   {email.isPrimary &&
                     (email.status === ValidationStatus.Valid ? (
                       <IconCircleDashedCheck className="text-success size-4" />
                     ) : (
                       <IconCircleDashed className="text-muted-foreground size-4" />
                     ))}
-                  {email.email}
+                  <span className="truncate">{email.email}</span>
                 </Badge>
               )}
             </span>
           ),
+      )}
+      {remaining > 0 && (
+        <Badge variant="secondary" className="shrink-0 text-muted-foreground">
+          +{remaining}
+        </Badge>
       )}
     </div>
   );

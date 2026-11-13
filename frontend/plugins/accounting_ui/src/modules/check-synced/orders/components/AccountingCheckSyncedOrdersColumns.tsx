@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 import {
   Checkbox,
+  formatAmount,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -50,7 +51,13 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     header: () => <HeaderCell icon={IconCurrencyDollar} labelKey="amount" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={String(cell.getValue() || '')} />
+        <TextOverflowTooltip
+          value={
+            typeof cell.getValue() === 'number'
+              ? formatAmount(cell.getValue<number>())
+              : ''
+          }
+        />
       </RecordTableInlineCell>
     ),
   },
@@ -72,7 +79,9 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     header: () => <HeaderCell icon={IconCategory} labelKey="sync-status" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={t((cell.getValue() as string) || 'skipped')} />
+        <TextOverflowTooltip
+          value={t((cell.getValue() as string) || 'skipped')}
+        />
       </RecordTableInlineCell>
     ),
   },

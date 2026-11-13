@@ -7,9 +7,13 @@ import { AutomationStatsOverview } from '@/automations/components/builder/stats/
 import { AutomationStatsWindowNav } from '@/automations/components/builder/stats/components/AutomationStatsWindowNav';
 import { useAutomationStatsActivity } from '@/automations/components/builder/stats/hooks/useAutomationStatsActivity';
 import { useAutomationStats } from '@/automations/components/builder/stats/hooks/useAutomationStats';
+import { useAutomationStatsWindow } from '@/automations/components/builder/stats/hooks/useAutomationStatsWindow';
+import { AutomationStatsNodesProvider } from '@/automations/components/builder/stats/context/AutomationStatsNodesContext';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { Button, PageSubHeader, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router';
 
 const AutomationStatsSkeleton = () => (
   <div className="flex flex-col gap-4">
@@ -25,8 +29,15 @@ const AutomationStatsSkeleton = () => (
 
 export const AutomationStats = () => {
   const { t } = useTranslation('automations');
-  const { stats, loading, error, refetch, window } = useAutomationStats();
-  const activity = useAutomationStatsActivity();
+  const { id } = useParams();
+  const window = useAutomationStatsWindow();
+  const { stats, loading, error, refetch } = useAutomationStats({
+    automationId: id,
+    beginDate: window.beginDate,
+    endDate: window.endDate,
+  });
+  const activity = useAutomationStatsActivity(id);
+  const { actions, workflows } = useAutomationNodes();
 
   const handleRefresh = () => {
     refetch();
@@ -34,46 +45,50 @@ export const AutomationStats = () => {
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
-      <PageSubHeader>
-        <AutomationStatsFilter />
-        <div className="ml-auto flex items-center gap-1">
-          <AutomationStatsWindowNav {...window} />
-          <Button variant="ghost" disabled={loading} onClick={handleRefresh}>
-            <IconRefresh />
-          </Button>
-        </div>
-      </PageSubHeader>
-
-      <div className="flex-1 min-h-0 overflow-y-auto bg-sidebar p-4">
-        {loading && <AutomationStatsSkeleton />}
-
-        {!loading && error && (
-          <div className="flex items-center gap-2 rounded-lg border bg-background p-4 text-sm">
-            <IconAlertTriangle className="size-4 text-destructive" />
-            <span className="flex-auto text-muted-foreground">
-              {error.message}
-            </span>
-            <Button variant="secondary" onClick={() => refetch()}>
-              {t('stats-retry')}
+    <AutomationStatsNodesProvider actions={actions} workflows={workflows}>
+      <div className="flex flex-col flex-1 min-h-0">
+        <PageSubHeader>
+          <AutomationStatsFilter />
+          <div className="ml-auto flex items-center gap-1">
+            <AutomationStatsWindowNav {...window} />
+            <Button variant="ghost" disabled={loading} onClick={handleRefresh}>
+              <IconRefresh />
             </Button>
           </div>
-        )}
+        </PageSubHeader>
 
-        {!loading && !error && stats && (
-          <div className="flex flex-col gap-4">
-            <AutomationStatsOverview stats={stats} />
-            <AutomationStatsActivity {...activity} />
-            <AutomationStatsChart
-              timeSeries={stats.timeSeries}
-              beginDate={window.beginDate}
-              endDate={window.endDate}
-            />
-            <AutomationStatsErrorMessages errorMessages={stats.errorMessages} />
-            <AutomationStatsNodes nodes={stats.nodes} />
-          </div>
-        )}
+        <div className="flex-1 min-h-0 overflow-y-auto bg-sidebar p-4">
+          {loading && <AutomationStatsSkeleton />}
+
+          {!loading && error && (
+            <div className="flex items-center gap-2 rounded-lg border bg-background p-4 text-sm">
+              <IconAlertTriangle className="size-4 text-destructive" />
+              <span className="flex-auto text-muted-foreground">
+                {error.message}
+              </span>
+              <Button variant="secondary" onClick={() => refetch()}>
+                {t('stats-retry')}
+              </Button>
+            </div>
+          )}
+
+          {!loading && !error && stats && (
+            <div className="flex flex-col gap-4">
+              <AutomationStatsOverview stats={stats} />
+              <AutomationStatsActivity {...activity} />
+              <AutomationStatsChart
+                timeSeries={stats.timeSeries}
+                beginDate={window.beginDate}
+                endDate={window.endDate}
+              />
+              <AutomationStatsErrorMessages
+                errorMessages={stats.errorMessages}
+              />
+              <AutomationStatsNodes nodes={stats.nodes} />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </AutomationStatsNodesProvider>
   );
 };

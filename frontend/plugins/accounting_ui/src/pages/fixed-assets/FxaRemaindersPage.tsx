@@ -1,3 +1,4 @@
+import { IconMoneybag } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { PageSubHeader } from 'erxes-ui';
 import { FxaRemainderFilters } from '~/modules/fixedAssets/remainders/components/FxaRemainderFilters';
@@ -12,6 +13,7 @@ export const FxaRemaindersPage = () => {
       <AccountingHeader
         returnLink="/accounting/fixed-assets/remainders"
         returnText={t('remainder')}
+        icon={IconMoneybag}
         skipSettings={true}
       />
       <PageSubHeader>

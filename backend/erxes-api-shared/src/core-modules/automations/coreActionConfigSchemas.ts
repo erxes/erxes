@@ -23,6 +23,14 @@ export const delayActionConfigSchema = z.object({
     'How long to wait, counted in `type` units: a number or its digits.',
   ),
   type: z.enum(['minute', 'hour', 'day', 'month', 'year']),
+  workingTime: described(
+    z.boolean(),
+    "Count only working hours (minutes, hours), or land on the next working moment (days and longer; 0 waits only for opening). Hours come from the record's branch, else branchId.",
+  ).optional(),
+  branchId: described(
+    z.string(),
+    '_id of the branch whose working hours apply when the record names none.',
+  ).optional(),
 });
 
 const isBlocksText = (value: string) => {
@@ -360,6 +368,19 @@ export const waitEventActionConfigSchema = z
     targetTypeId: requiredText('id of the trigger or action waited on.'),
     segmentId: z.string().optional(),
     webhookConfig: z.record(z.string(), z.unknown()).optional(),
+    timeout: described(
+      z.object({
+        value: z.union([z.number(), z.string()]),
+        unit: z.enum(['minutes', 'hours', 'days']),
+      }),
+      'Longest wait, at most 30 days; then the step ends with outcome timedOut. No timeout waits until the event.',
+    ).optional(),
+    met: nextAction(
+      'when the event happens, on a node with a timeout; the node\'s nextActionId otherwise',
+    ),
+    timedOut: nextAction(
+      'when the wait times out; without it the flow continues on the main path',
+    ),
   })
   .refine(
     ({ targetType, segmentId }) =>
@@ -370,7 +391,80 @@ export const waitEventActionConfigSchema = z
     },
   );
 
+export const WAIT_EVENT_MAX_TIMEOUT_MINUTES = 30 * 24 * 60;
+
+const WAIT_EVENT_UNIT_MINUTES = { minutes: 1, hours: 60, days: 24 * 60 } as const;
+
+/** Minutes a wait may last, or undefined when it waits until the event. */
+export const readWaitEventTimeoutMinutes = (timeout: unknown) => {
+  if (!timeout || typeof timeout !== 'object') {
+    return undefined;
+  }
+
+  const { value, unit } = timeout as { value?: unknown; unit?: unknown };
+  const amount = Number(value);
+  const unitMinutes =
+    WAIT_EVENT_UNIT_MINUTES[unit as keyof typeof WAIT_EVENT_UNIT_MINUTES];
+
+  if (!unitMinutes || !Number.isFinite(amount) || amount <= 0) {
+    return undefined;
+  }
+
+  return Math.min(amount * unitMinutes, WAIT_EVENT_MAX_TIMEOUT_MINUTES);
+};
+
+export const sendNotificationActionConfigSchema = z.object({
+  userIds: requiredText(
+    'Team member _ids notified, comma-separated, or a {{ }} variable, as text.',
+  ),
+  title: requiredText('Notification title; {{ }} placeholders allowed.'),
+  message: described(
+    z.string(),
+    'Notification body; {{ }} placeholders allowed.',
+  ).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+});
+
+export const APPROVAL_DEFAULT_TIMEOUT_HOURS = 72;
+export const APPROVAL_MAX_TIMEOUT_HOURS = 30 * 24;
+
+export const approvalActionConfigSchema = z.object({
+  approverIds: requiredText(
+    'Team member _ids who may approve, comma-separated, or a {{ }} variable, as text. The first decision wins.',
+  ),
+  summary: requiredText(
+    'What is asked to be approved; {{ }} placeholders allowed.',
+  ),
+  timeoutHours: described(
+    z.union([z.number(), z.string()]),
+    'Hours to wait for a decision; 72 when absent, at most 30 days. On timeout the flow takes rejected with decision expired.',
+  ).optional(),
+  approved: nextAction('when approved'),
+  rejected: nextAction('when rejected or expired'),
+});
+
+export const pickMemberActionConfigSchema = z.object({
+  candidateIds: requiredText(
+    'Team member _ids to choose from, comma-separated, or a {{ }} variable, as text. Inactive and unavailable members are left out.',
+  ),
+  method: described(
+    z.enum(['roundRobin', 'random']),
+    'How one member is chosen among the available: roundRobin (default) takes turns, random picks any.',
+  ).optional(),
+  // Required: work that reaches nobody is lost silently
+  fallbackUserId: requiredText(
+    'Team member _id picked when nobody among the candidates is available.',
+  ),
+});
+
+export type TPickMemberActionConfig = z.infer<typeof pickMemberActionConfigSchema>;
+
+export type TApprovalActionConfig = z.infer<typeof approvalActionConfigSchema>;
+
 export type TDelayActionConfig = z.infer<typeof delayActionConfigSchema>;
+export type TSendNotificationActionConfig = z.infer<
+  typeof sendNotificationActionConfigSchema
+>;
 export type TSendEmailActionConfig = z.infer<
   typeof sendEmailActionConfigSchema
 >;

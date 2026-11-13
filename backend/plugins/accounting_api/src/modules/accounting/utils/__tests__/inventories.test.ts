@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { AggregateOptions, PipelineStage } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
   JOURNALS,
@@ -344,7 +345,18 @@ describe('fixRelatedMainJournal', () => {
 
 describe('adjustRunning', () => {
   it('groups inventory costs by detail location before falling back to transaction location', async () => {
-    const aggregate = jest.fn().mockResolvedValue([]);
+    const aggregate = jest.fn(
+      async (pipeline: PipelineStage[], options?: AggregateOptions) => {
+        if (
+          pipeline.some((stage) => '$sort' in stage) &&
+          !options?.allowDiskUse
+        ) {
+          throw new Error('Sort exceeded memory limit of 104857600 bytes');
+        }
+        return [];
+      },
+    );
+    const allowDiskUse = jest.fn().mockReturnThis();
     const models = {
       Transactions: {
         aggregate,
@@ -364,6 +376,7 @@ describe('adjustRunning', () => {
           lean: jest.fn().mockResolvedValue([]),
           countDocuments: jest.fn().mockResolvedValue(0),
           sort: jest.fn().mockReturnThis(),
+          allowDiskUse,
           skip: jest.fn().mockReturnThis(),
           limit: jest.fn().mockReturnThis(),
         }),
@@ -399,6 +412,11 @@ describe('adjustRunning', () => {
         error: expect.stringMatching(/.+/),
       }),
     );
+    expect(allowDiskUse).toHaveBeenCalledWith(true);
+    expect(aggregate).toHaveBeenCalledTimes(12);
+    for (const [, options] of aggregate.mock.calls) {
+      expect(options).toEqual({ allowDiskUse: true });
+    }
     expect(aggregate).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
@@ -416,6 +434,7 @@ describe('adjustRunning', () => {
           }),
         }),
       ]),
+      { allowDiskUse: true },
     );
     expect(aggregate).toHaveBeenCalledWith(
       expect.arrayContaining([
@@ -426,6 +445,7 @@ describe('adjustRunning', () => {
           }),
         },
       ]),
+      { allowDiskUse: true },
     );
     expect(aggregate).toHaveBeenCalledWith(
       expect.arrayContaining([
@@ -436,6 +456,7 @@ describe('adjustRunning', () => {
           }),
         },
       ]),
+      { allowDiskUse: true },
     );
   });
 });

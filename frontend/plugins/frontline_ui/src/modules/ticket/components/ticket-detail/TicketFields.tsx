@@ -1,6 +1,6 @@
 import { ActivityList } from '@/activity/components/ActivityList';
-import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
-import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
+import { TicketSlaStatus } from '@/ticket/components/ticket-detail/TicketSlaStatus';
+import { TicketFormResponses } from '@/ticket/components/ticket-detail/TicketFormResponses';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
 import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
@@ -14,7 +14,8 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
-import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import { useSyncTicketDescription } from '@/ticket/hooks/useSyncTicketDescription';
+import { useTicketDetailPermissions } from '@/ticket/hooks/useTicketDetailPermissions';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import type { TicketFieldsProps } from '@/ticket/types/ticketDetail';
 import { toTicketAttachments } from '@/ticket/utils/ticketAttachments';
@@ -31,9 +32,10 @@ import {
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DataExtensionRecordSection } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { AttachmentProvider } from '@/ticket/components/attachments/AttachmentContext';
-import AttachmentUploader from '@/ticket/components/attachments/AttachmentUploader';
+import { TicketAttachments } from '@/ticket/components/attachments/TicketAttachments';
 
 const LockedField = ({
   message,
@@ -135,30 +137,27 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
     initialContent: descriptionContent,
     placeholder: t('description-ellipsis'),
   });
-  const { pipeline } = useGetPipeline(pipelineId ?? undefined);
-  const { status: currentStatus } = useGetTicketStatusById(
-    statusId ?? undefined,
-  );
-  const { canEditTicket, canMoveTicket } = useTicketPermissions({
-    pipeline,
-    status: currentStatus
-      ? {
-          value: currentStatus._id,
-          memberIds: currentStatus.memberIds,
-          canMoveMemberIds: currentStatus.canMoveMemberIds,
-          canEditMemberIds: currentStatus.canEditMemberIds,
-          visibilityType: currentStatus.visibilityType,
-        }
-      : undefined,
-  });
+  const { canEditTicket, canMoveTicket } = useTicketDetailPermissions(ticket);
 
   const { updateTicket } = useUpdateTicket();
   const [name, setName] = useState(_name ?? '');
+
+  const { markDescriptionSent, consumeExternalChange } =
+    useSyncTicketDescription({
+      editor,
+      description,
+      descriptionContent,
+      loadedDescriptionRef,
+      parseDescription,
+    });
 
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
     if (content) {
       content.pop();
+      if (consumeExternalChange()) {
+        loadedDescriptionRef.current = content as Block[];
+      }
       setDescriptionContent(content as Block[]);
     }
   };
@@ -188,10 +187,12 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
     ) {
       return;
     }
+    const nextDescription = JSON.stringify(debouncedDescriptionContent);
+    markDescriptionSent(nextDescription);
     updateTicket({
       variables: {
         _id: ticketId,
-        description: JSON.stringify(debouncedDescriptionContent),
+        description: nextDescription,
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -311,7 +312,17 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             disabled={!canEditTicket}
           />
         </div>
-        <AttachmentUploader id={ticketId} attachments={ticketAttachments} />
+        <TicketSlaStatus sla={ticket?.sla} />
+        <TicketFormResponses responses={ticket?.formResponses} />
+        <DataExtensionRecordSection
+          recordType="frontline:ticket"
+          recordId={ticketId}
+        />
+        <TicketAttachments
+          id={ticketId}
+          attachments={ticketAttachments}
+          canEdit={canEditTicket}
+        />
         <Separator className="mt-4" />
         <div className="min-h-56 overflow-y-auto">
           <BlockEditor

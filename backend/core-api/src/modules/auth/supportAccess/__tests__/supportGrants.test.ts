@@ -41,6 +41,7 @@ const staff = (overrides: Partial<ISupportStaff> = {}): ISupportStaff => ({
   name: 'Bat',
   email: 'bat@erxes.io',
   reason: 'Setup: pipeline',
+  trusted: false,
   ...overrides,
 });
 
@@ -273,6 +274,27 @@ describe('allow window', () => {
       outcome: 'off',
     });
     await expect(supportUser()).resolves.toBeNull();
+  });
+});
+
+describe('trusted staff', () => {
+  it('enter without approval, as the allow window would let them', async () => {
+    const visit = await models.SupportGrants.enter(staff({ trusted: true }));
+    const grant = await models.SupportGrants.findOne({});
+
+    expect(visit.outcome).toBe('entered');
+    expect(grant).toMatchObject({ status: 'approved', autoApproved: true });
+  });
+
+  it('stay out when off', async () => {
+    await models.SupportGrants.savePolicy({
+      mode: 'off',
+      permissionGroupIds: [],
+    });
+
+    await expect(
+      models.SupportGrants.enter(staff({ trusted: true })),
+    ).resolves.toEqual({ outcome: 'off' });
   });
 });
 

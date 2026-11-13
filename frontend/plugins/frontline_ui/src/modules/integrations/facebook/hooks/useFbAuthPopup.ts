@@ -27,6 +27,7 @@ export const useFbAuthPopup = (onClose?: () => void) => {
       popupRef.current = popup;
       setIsPopupOpen(true);
     }
+    return Boolean(popup);
   };
 
   useEffect(() => {

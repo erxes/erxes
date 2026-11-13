@@ -10,12 +10,6 @@ export const ADJ_FXA_STATUSES = {
   ALL: ['draft', 'publish', 'running', 'process', 'complete'],
 };
 
-export const DEFERRED_TAX_TYPES = {
-  ASSET: 'asset',
-  LIABILITY: 'liability',
-  ALL: ['asset', 'liability'],
-};
-
 export interface IAdjustFxaDetail {
   adjustId: string;
   fixedAssetId?: string;
@@ -24,28 +18,15 @@ export interface IAdjustFxaDetail {
   branchId?: string;
   departmentId?: string;
 
+  count?: number;
   originalCost: number;
   salvageValue?: number;
-  openingBookValue?: number;
-  preDeprecation?: number;
+  accumulatedDepreciation?: number;
   depreciationAmount?: number;
-  bookDepreciationAmount?: number;
-  closingAccumulatedDepreciation?: number;
-  closingBookValue?: number;
-
-  openingTaxBase?: number;
-  openingTaxAccumulatedDepreciation?: number;
   taxDepreciationAmount?: number;
-  closingTaxAccumulatedDepreciation?: number;
-  closingTaxBase?: number;
-
-  openingTemporaryDifference?: number;
-  temporaryDifferenceAmount?: number;
-  closingTemporaryDifference?: number;
-  deferredTaxAmount?: number;
-  deferredTaxType?: string;
-  deferredTaxTransactionId?: string;
-  deferredTaxTrDetailId?: string;
+  taxAccumulatedDepreciation?: number;
+  revaluationLoss?: number;
+  revaluationReserve?: number;
 
   transactionId?: string;
   transactionDetailId?: string;
@@ -63,6 +44,8 @@ export interface IAdjustFxaDetailDocument extends IAdjustFxaDetail, Document {
 }
 
 export interface IAdjustFixedAsset extends ICommonAdjusting {
+  expenseAccountId?: string;
+  taxExpenseAccountId?: string;
   date: Date;
   description: string;
   status: string;

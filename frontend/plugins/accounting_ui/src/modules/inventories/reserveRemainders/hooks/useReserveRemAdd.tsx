@@ -28,6 +28,7 @@ export const useReserveRemAdd = (
         toast({
           title: t('success'),
           description: t('reserve-remainder-created'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },

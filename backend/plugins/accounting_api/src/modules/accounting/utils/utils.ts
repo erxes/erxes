@@ -14,7 +14,16 @@ export const createOrUpdateTr = async (
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ): Promise<ITransactionDocument> => {
+  const isDepreciation = [
+    JOURNALS.FXA_DEP,
+    JOURNALS.FXA_DEP_IN,
+    JOURNALS.FXA_DEP_OUT,
+  ].includes(doc.journal);
   for (const detail of doc.details) {
+    if (isDepreciation) {
+      detail.count = 0;
+      detail.unitPrice = 0;
+    }
     if (!detail.branchId) {
       detail.branchId = doc.branchId;
     }

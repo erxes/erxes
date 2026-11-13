@@ -124,7 +124,7 @@ export const ElementsPanel = ({
           </div>
         </div>
 
-        <div className="overflow-y-auto flex-1 p-3 space-y-2">
+        <div className="styled-scroll overflow-y-auto flex-1 p-3 space-y-2">
           {!filteredElements.length && (
             <p className="py-6 text-sm text-center text-muted-foreground">
               {search ? t('no-elements-found') : t('no-elements-available')}

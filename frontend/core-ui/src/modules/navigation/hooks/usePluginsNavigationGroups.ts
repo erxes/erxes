@@ -2,7 +2,7 @@ import { IUIConfig } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { type ElementType, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
+import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { getPlatformMismatch } from '~/plugins/utils/pluginConfigSchema';
 
@@ -10,10 +10,9 @@ export const usePluginsModules = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
   const { isLoaded, hasPluginPermission, isWildcard } = usePermissionCheck();
 
-  const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'core-modules' });
 
-  const CORE_MODULES = GET_CORE_MODULES(t, version);
+  const CORE_MODULES = GET_CORE_MODULES(t);
 
   const modules = useMemo(() => {
     if (pluginsMetaData) {
@@ -33,7 +32,7 @@ export const usePluginsModules = () => {
       return [...CORE_MODULES, ...pluginsModules] as IUIConfig['modules'];
     }
     return CORE_MODULES;
-  }, [pluginsMetaData, t, version, isLoaded, isWildcard, hasPluginPermission]);
+  }, [pluginsMetaData, t, isLoaded, isWildcard, hasPluginPermission]);
 
   return modules;
 };

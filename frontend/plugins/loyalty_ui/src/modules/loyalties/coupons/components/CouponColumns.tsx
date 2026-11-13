@@ -58,7 +58,7 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-const statusVariant = (status?: string) => {
+export const couponStatusVariant = (status?: string) => {
   if (status === 'new') return 'success';
   if (status === 'in_use') return 'default';
   return 'secondary';
@@ -123,7 +123,7 @@ export const couponColumns = (
       const status = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <Badge variant={statusVariant(status)} className="capitalize">
+          <Badge variant={couponStatusVariant(status)} className="capitalize">
             {status?.replace('_', ' ') || '—'}
           </Badge>
         </RecordTableInlineCell>

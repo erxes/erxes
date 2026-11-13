@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -98,6 +98,62 @@
 
 ## Current Capabilities
 
+- Automation action `frontline:inbox.handoffs.create` ("Hand off to a person",
+  `inbox/meta/automation/handoffAction.ts`): resolves the run's inbox
+  conversation (Messenger target, Facebook/Instagram provider conversation,
+  or conversation trigger) through `resolveInboxConversationId`, sets
+  `automatedReplyControl` to `handoff_requested` with reason `automation` and
+  `pausedUntil = now + pauseMinutes` (default 30, capped at a week), and
+  assigns `assignTo` users; skips with `no-conversation` otherwise.
+  `inbox/services/automatedReplyPause.ts` (`isAutomatedReplyPaused`) is the
+  pause check for the Messenger widget trigger and Instagram message trigger:
+  a pause ends at `pausedUntil`, or 30 minutes after `updatedAt` when unset
+  (an operator reply's `human_active`), and an ended pause is reset to
+  `active`/`timeout_expired`. Facebook keeps its idle-based check on the same
+  field (`handoffPauseMinutes`).
+- Automation action `frontline:form.links.create` ("Create form link",
+  `form/meta/automation/createFormLinkAction.ts`): signs a form link token
+  (`form/formLink.ts`, audience `erxes-form-link`, secret derived from
+  `JWT_TOKEN_SECRET`, `expiresInDays` default 30, max 365) carrying `linkId`,
+  `formId`, the target's `customerId` / first `customerIds`, and
+  `aboutRecord` = the trigger type without its relation (a ticket is
+  `frontline:tickets.tickets`) + target `_id`. Output `url`
+  (`${WIDGETS_DOMAIN}/live/<channelId>/<formId>?t=<token>`), `expiresAt`,
+  `formId`; skips `form-not-found` without a form channel. Sending the link
+  is left to message/email steps.
+- `widgetsSaveLead` / `cpWidgetsSaveLead` take `linkToken`: an invalid or
+  expired token returns `status: 'error'` (`linkInvalid`); a valid one sets
+  the customer from the token (browser `cachedCustomerId` ignored) and stamps
+  `aboutRecord` on every submission row and `linkId` on the first one (sparse
+  unique index), so a link takes one answer (`status: 'alreadySubmitted'`).
+  "Form submitted" output adds `aboutRecordType` / `aboutRecordId`.
+  Answers stay on submissions only; `Ticket.formResponses`
+  (`form/formResponses.ts`) groups rows by `groupId`, newest first. The live
+  form page in `apps/frontline-widgets` reads `?t=` and sends it.
+- Ticket SLA per pipeline (`pipeline.slaPolicy`: `enabled`, one rule per
+  priority 0-4 with `firstResponseMinutes` / `resolutionMinutes`,
+  `warnBeforeMinutes`; normalized by `normalizeSlaPolicy` in
+  `ticket/utils/sla.ts`). `Ticket.syncSla` writes `ticket.sla` (due times,
+  marks, `<clock>WarnedAt` / `<clock>BreachedAt`) after create/update of
+  `SLA_INPUT_FIELDS`, widget ticket create and automation setProperty. Due
+  times count the ticket branch's working hours (`utils/slaCalendar.ts`), else
+  clock time; no pause. First response = a non-internal team note
+  (`Note.ts`) or an operator conversation reply, which marks every open ticket
+  of that customer (`utils/slaResponse.ts`); AI replies do not count.
+  Resolution is marked while the status is closing, cleared on reopen; a
+  resolved ticket also stops the first-response clock (`stoppedOf`). Checks
+  are delayed jobs on queue `ticketSla` (`utils/slaQueue.ts`, job id carries
+  the due time; worker `utils/slaWorker.ts` also resyncs a pipeline after a
+  policy change). A tripped flag fires the custom trigger "Ticket SLA"
+  (`trigger/checkSlaTrigger.ts`, relation `sla`, events
+  `firstResponse`/`resolution` × `warning`/`breached`, re-enrollment on).
+  No SLA report exists.
+- Ticket numbers follow the pipeline's `numberConfig` (`{year}`, `{month}`,
+  `{day}`) plus a zero-padded counter of `numberSize`, counted from 0 per
+  config through `lastNum` (`assignTicketNumber` in
+  `ticket/utils/nameAndNumber.ts`, called by `Ticket.addTicket` and on a
+  pipeline move); without `numberSize` the number is a timestamp. The counter
+  is read then written, not atomic. `nameConfig` is stored but not applied.
 - Telegram bot setup and webhook status; private chats, groups, channels and
   forum topics; text, files, media, polls, edits, observed reactions and visible
   fallbacks. Long replies split into complete ordered text chunks, with caption
@@ -199,6 +255,40 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- `frontline:facebook.customerMessages.create` ("Message the customer on
+  Messenger", `messages/customerMessage.ts`) sends to the customer of any run
+  record (`target.customerId`, or the customer of a customer trigger) in
+  their latest Messenger conversation, on `config.botId`'s page when set:
+  within 24 hours of their last message freely, within 7 days with the
+  `HUMAN_AGENT` tag, otherwise a visible `outside-7-days` skip. It does not
+  touch automated-reply control. The builder edits it with the Messenger
+  reply form.
+- One template for core's Templates page ships through
+  `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
+  `frontline.complaint-employee` (v8). Parts (`meta/templates/parts.ts`,
+  `meta.templateParts`): `frontline:tickets.pipeline` (a "Complaints" channel
+  of the chosen members and a pipeline with the default statuses, numbering
+  `C{year}-` with size 4, an SLA
+  policy by priority, refs for the new, open, in-progress and resolved
+  statuses; kept while it has tickets) and `frontline:forms.rating` (a 1-5
+  radio question and a comment; refs `formId`, `ratingFieldId`; kept once
+  answered). Six journeys:
+  - Messenger chat: an AI agent part replies itself; helper workflows
+    `file_complaint` (owner by `pickMember`, priority 1-4 via `inputHints`),
+    `add_to_complaint`, `escalate`; the `request_compensation` handoff
+    first has the agent tell the customer it was asked (a handoff ends the
+    agent's turn with no text), then `approval`, and an AI agent step words each decision, sent
+    with the customer message action.
+  - SLA warning and SLA missed on the desk pipeline (notify the owner;
+    reassign to an available supervisor).
+  - Work started and resolved (status changed): the customer message action
+    sends the organization's texts; resolved adds a rating form link.
+  - Low rating (form submitted, rating below 3): Find object on
+    `aboutRecordId`, Manage properties reopens it, the supervisors are told.
+  `src/meta/templates/__tests__` covers both parts and checks the installed
+  shape against the engine's config schemas.
+  Steps that change the found ticket (add to it, reopen) name it with the
+  step's `target`, which sets `targetActionId`; `refs` cannot do that.
 - The Facebook/Instagram comment reply action resolves placeholders in the
   picked text variant with the same two passes as the message action
   (`replaceOutputPlaceholders`, then `{{ prevAction.* }}`) before queueing it;
@@ -379,6 +469,14 @@
   integration attaches to the caller's personal channel regardless of kind.
 - Receives Facebook and Instagram webhooks over Express and turns them into
   customers, conversations, comment conversations, and post conversations.
+- `POST /instagram` verifies `x-hub-signature-256` / `x-hub-signature` with
+  `INSTAGRAM_APP_SECRET` (`src/modules/integrations/instagram/webhookSignature.ts`).
+  Meta signs the bytes it sent (compact JSON, non-ASCII as `\uXXXX`, `/` as
+  `\/`, `object` before `entry`); a relay that parses and re-serializes the
+  body changes those bytes, so the check also tries that Meta encoding rebuilt
+  from the parsed body, in both the received and the Meta key order. Every
+  candidate is still an HMAC under the app secret; a wrong secret, a tampered
+  body, or a missing header answers `401`.
 - Instagram DMs select only `instagram-messenger` integrations; comments select
   `instagram-post`. Sender profile fields are optional, as in Facebook: keep the
   Instagram user ID and use the comment author username when profile lookup is
@@ -684,6 +782,22 @@ reconciles and sends messages; `db/` owns provider mappings; `client.ts` owns
 Bot API calls; `graphql/` owns bot setup, status, chat labels and link previews.
 The root router mounts its authenticated webhook at `/telegram`.
 
+Telegram automation lives in `meta/automation/`: trigger
+`frontline:telegram.messages` ("Telegram Message") and action
+`frontline:telegram.messages.create` ("Send Telegram Message").
+`receiveTelegramMessage` enrols only a new, unedited customer message that was
+not already linked (a retried webhook does not re-enrol); the target
+(`TTelegramTriggerTarget`) carries the inbox `conversationId`, so handoff,
+open tickets and AI memory work unchanged. `checkCustomTrigger` answers private
+chats unless `chatTypes: 'all'`, applies the comma keyword filter, stays out of
+a conversation a person took over (`isAutomatedReplyPaused`) and sends a
+typing action. The send action calls `sendTelegramReply` with `fromBot: true`
+(no `userId`; the inbox reply path forces `fromBot: false`), stores
+`fromBot` on the Telegram message and mirrors the reply into the inbox flagged
+`fromBot`. AI context: last 12 older messages (bot / agent / customer),
+memory scope `frontline:telegram.conversation`, `openTickets`. Text only: no
+buttons, files or proactive sends.
+
 | Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
@@ -705,6 +819,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                                                                                                       | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                                        |
 | Call Pro                 | `src/modules/integrations/callpro/`                                                                                                                              | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                                           |
 | Call operator resolution | `src/modules/integrations/call/services/operatorResolution.ts`                                                                                                   | Which peer call integration (`CallIntegrations.findPeers`: same trunk or phone) owns the extension that rang or answered                                                                                               |
+| Call queue routing       | `src/modules/integrations/call/services/queueRouting.ts`                                                                                                         | Which peer call integration owns the queue a leg or event names (`QUEUE[n]` action type, CTI `queue`); re-homes the call's sessions, CDR legs and conversation to it                                                     |
 | Call reporting           | `src/modules/reports/callReportService.ts`                                                                                                                       | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                                     |
 | Call SLA report          | `src/modules/reports/callSlaService.ts`                                                                                                                          | Inbound answered ÷ offered, callbacks count as answered, missed reasons, series, queues, breaches                                                                                                                      |
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
@@ -1488,6 +1603,50 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Local Invariants
 
+- The messenger widget reads its automation from core (`automation.find`,
+  `getMessengerAutomation` / `getMessengerGetStarted` in `modules/inbox/utils.ts`)
+  and sends triggers with `sendAutomationTrigger`; it never calls the
+  automations service directly or gates on `isEnabled('automations')`, which
+  is false wherever automations runs as a service.
+- A form link is addressed by its form's channel. The template rating form
+  part makes its own channel when none is given (`refs.ownChannelId`) and
+  removes only that one with the form.
+- A Messenger or Instagram message trigger's target is the channel's own
+  message: its `conversationId` is the page's thread, not the inbox
+  conversation. The trigger adds `erxesApiId` (the inbox conversation) to the
+  target, as comment triggers already do; anything opening the inbox uses it.
+- Automation node and template icons (`icon` in automation constants and
+  `meta/templates`) are Tabler names the erxes-ui icon registry has
+  (the keys of `ALL_ICONS` in
+  `frontend/libs/erxes-ui/src/modules/icons/components/TablerIcons.ts`; an
+  aliased import such as `IconMessageCircle` is not one); any
+  other name draws as a placeholder in the builder and the template gallery.
+- A call leg or CTI event that names a queue belongs to the peer call
+  integration whose `queues` contains it, and only to that one: when several
+  integrations share a trunk and phone, the queue decides the channel, the
+  answering operator's integration never overrides it, and the call's sessions,
+  CDR legs and conversation are moved to the queue owner as soon as the queue
+  is known (`queueRouting.ts`). A leg without a queue keeps the trunk match.
+- A call leg is tied to its call across the whole peer group, never only
+  inside the integration it was posted under: a leg without a queue lands on
+  whichever peer the bridge posted it under, and a follow-me leg carries its
+  own `uniqueid` and no `linkedid`. `receiveCdr` therefore looks for the
+  call's conversation in CDR legs of every peer that share the PBX `session`
+  id, and both `receiveCdr` and `/call/event` accept a sibling session on
+  another peer while that session is still `ringing` or `active`
+  (`CallSessions.findSibling({ peerInboxIds })`). An ended session on another
+  peer never matches, so a redial to a different branch opens its own
+  conversation. Joining a call never rewrites the conversation's
+  `integrationId`; only the queue owner or the answering operator does.
+- `callHistories` / `callHistoriesTotalCount` leave out a call the operator
+  only rang on when another extension answered it: a call is the operator's
+  missed call only when nobody answered. The check reads the call's other CDR
+  legs by `uniqueid` (human-answered: `ANSWERED`, `billsec > 0`, `Queue` or
+  `Dial`, not `VM`, `dstchannelExt` not the operator's own) and runs after the
+  status, type and search filters, and never for the `connected` filter. A
+  follow-me leg answers under its own `uniqueid`, so it does not clear the
+  queue legs of the same call.
+
 - Removing a Facebook integration keeps its page's bot, marked `broken` with its config intact. `facebookCreateIntegration` reconnects such a bot through `FacebookBots.reconnectByPageId` (new token and account, then `repair`, which re-syncs and verifies the profile); a failed reconnect is logged on the bot and never undoes the integration.
 - `FacebookBots.connectBotPageMessenger` sends `persistent_menu` only when the bot has a menu item of its own (Get Started is then prepended), and deletes `persistent_menu` and `ice_breakers` from `/me/messenger_profile` when they are empty — a field left out of the POST keeps its old value on Facebook. `greeting` is not in the DELETE whitelist (Graph error #100), so it is never sent there. `get_started` is always sent. `buildExpectedPersistentMenus` follows the same rule, so an empty menu checks as healthy.
 - Every automation action declares a `configSchema` (`src/meta/automationConfigSchemas.ts`) with exactly what its handler reads or refuses: messenger/Facebook/Instagram messages (bot `messages`, buttons and quick replies branch through `optionalConnects`; `botId` defaults to the trigger's bot), Facebook/Instagram comment replies, Discord, mail send/draft and ticket create (`channelId`, `pipelineId`, `statusId`, `name`). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Ticket create also declares `validateConfig` (`src/meta/automationConfigValidators.ts`): its channel, pipeline and status exist and belong together.
@@ -1554,6 +1713,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
+- Ticket Manage properties re-reads each written ticket (after the SLA sync)
+  and publishes `ticketChanged:<id>` and `ticketListChanged` through
+  `ticket/utils/publishTicketChanged.ts`, so open screens update without a
+  refresh. Any new server-side ticket write must publish the same way.
 
 - A media id (`<messageId>-<index>`, `facebook/meta/automation/utils/turnTaking.ts`)
   is the only way automation media reaches a ticket; `resolveConversationMedia`
@@ -1796,6 +1959,13 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
   new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
+- Call: `CALL_MONGO_TESTS=1 npx jest --config backend/plugins/frontline_api/jest.config.ts backend/plugins/frontline_api/src/modules/integrations/call/__tests__/peerLegs.mongo.spec.ts`
+  replays a call whose legs are posted under different peer integrations
+  against a throwaway local database. Smoke: with several call integrations
+  on one trunk, call a queue whose failover is an extension with follow-me and
+  confirm one conversation, on the queue's integration. The same flag runs
+  `callHistories.mongo.spec.ts`: ring two operators, let one answer, and the
+  other's history must not list the call.
 - Instagram: connect Post before Messenger for the same account and confirm each
   event reaches its own inbox. A new sender with an unavailable profile must
   still be linked to a Core customer; failed Repair must not report success.

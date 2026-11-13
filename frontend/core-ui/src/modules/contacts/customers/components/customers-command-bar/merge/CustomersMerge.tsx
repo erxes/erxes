@@ -1,18 +1,18 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
-import { MergeSheet } from './MergeSheet';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { CUSTOMERS_MERGE_PANEL, MergeSheet } from './MergeSheet';
+import { useSidePanel } from 'ui-modules';
+import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
 import { ICustomer } from '@/contacts/types/customerType';
 import { MergingFieldContainer } from './MergingFieldContainer';
 import { MergeMap, FieldType } from './MergeMap';
-import { ChoiceboxGroup, useToast } from 'erxes-ui';
+import { ChoiceboxGroup, RecordTable, useToast } from 'erxes-ui';
 import { useMergeCustomers } from '@/contacts/customers/hooks/useMergeCustomers';
 import { ApolloError } from '@apollo/client';
-import { Row } from '@tanstack/table-core';
 
 interface MergeProps {
   disabled?: boolean;
   customers: ICustomer[];
-  rows: Row<ICustomer>[];
 }
 
 interface FieldMapping {
@@ -22,7 +22,8 @@ interface FieldMapping {
   parentKey?: string;
 }
 
-const getCustomerMergeName = (customer: ICustomer) => {
+const getCustomerMergeName = (customer?: ICustomer) => {
+  if (!customer) return '';
   const { firstName, middleName, lastName } = customer;
   const fullName = [firstName, middleName, lastName].filter(Boolean).join(' ');
 
@@ -33,14 +34,23 @@ const getCustomerMergeName = (customer: ICustomer) => {
 
 export const CustomersMerge = ({
   disabled = false,
-  customers,
-  rows,
+  customers: selectedCustomers,
 }: MergeProps) => {
+  const [customers, setCustomers] = useState(selectedCustomers);
+  const mergeSession = useRef(0);
   const { toast } = useToast();
+  const { table } = RecordTable.useRecordTable();
+  const panel = useSidePanel();
+  const currentPanel = useRef(panel);
+  useLayoutEffect(() => {
+    currentPanel.current = panel;
+  }, [panel]);
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
-  const { mergeCustomers } = useMergeCustomers();
+  const { mergeCustomers, loading } = useMergeCustomers();
   const handleSave = () => {
+    if (loading) return;
+    const session = mergeSession.current;
     mergeCustomers({
       variables: {
         customerIds: customers.map((customer) => customer._id),
@@ -54,10 +64,14 @@ export const CustomersMerge = ({
         });
       },
       onCompleted: () => {
-        rows.forEach((row) => {
-          row.toggleSelected(false);
-        });
-        setSheetOpen(false);
+        table.resetRowSelection(true);
+        if (session === mergeSession.current) {
+          const mergePath = getModulePanelPath(CUSTOMERS_MERGE_PANEL);
+          if (currentPanel.current.path === mergePath) {
+            currentPanel.current.dismissPath(mergePath);
+          }
+          setSheetOpen(false);
+        }
         toast({
           title: t('success-title'),
           variant: 'success',
@@ -257,12 +271,23 @@ export const CustomersMerge = ({
       setValue({ ...value, [key]: newValue });
     }
   };
-  if (disabled) return <MergeSheet disabled />;
+  useEffect(() => {
+    if (!sheetOpen) setCustomers(selectedCustomers);
+  }, [selectedCustomers, sheetOpen]);
+  const changeOpen = (next: boolean) => {
+    if (next && !sheetOpen) {
+      mergeSession.current += 1;
+      setCustomers([...selectedCustomers]);
+    }
+    setSheetOpen(next);
+  };
+  if (disabled && !sheetOpen) return <MergeSheet disabled />;
   return (
     <MergeSheet
       className="p-6 flex gap-2 items-start"
       open={sheetOpen}
-      onOpenChange={setSheetOpen}
+      saving={loading}
+      onOpenChange={changeOpen}
       notice={t('merge-notice', {
         first: getCustomerMergeName(customers[0]),
         second: getCustomerMergeName(customers[1]),

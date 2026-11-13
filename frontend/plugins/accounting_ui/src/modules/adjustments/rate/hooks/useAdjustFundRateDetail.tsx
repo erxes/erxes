@@ -21,7 +21,7 @@ export const useAdjustFundRateDetail = (
     subscribeToMore,
   } = useQuery(ADJUST_FUND_RATE_DETAIL_QUERY, {
     ...options,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
   });
   const data = toGraphqlView(queryData);
 
@@ -29,10 +29,10 @@ export const useAdjustFundRateDetail = (
     const adjustId = options?.variables?._id;
 
     if (!adjustId) {
-      return;
+      return undefined;
     }
 
-    const unsubscribe = subscribeToMore({
+    return subscribeToMore({
       document: ACCOUNTING_ADJUST_FUND_RATE_CHANGED,
       variables: { adjustId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -46,10 +46,6 @@ export const useAdjustFundRateDetail = (
         };
       },
     });
-
-    return () => {
-      unsubscribe();
-    };
   }, [options?.variables?._id, subscribeToMore]);
 
   return {

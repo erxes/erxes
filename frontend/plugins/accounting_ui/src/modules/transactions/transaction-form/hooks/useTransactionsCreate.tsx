@@ -4,15 +4,21 @@ import { useMutation } from '@apollo/client';
 import { ACC_TRANSACTIONS_CREATE } from '../graphql/mutations/accTransactionsCreate';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
 import { useTransactionsVariables } from '../../hooks/useTransactionVars';
+import {
+  buildTransactionEditPath,
+  getTransactionReturnPath,
+} from '../../utils/transactionNavigation';
 
 export const useTransactionsCreate = (
   options?: GraphqlMutationOptions<typeof ACC_TRANSACTIONS_CREATE>,
 ) => {
   const { t } = useTranslation('accounting');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get('returnTo');
   const variables = useTransactionsVariables();
 
   const [_createTransaction, { loading }] = useMutation(
@@ -37,6 +43,7 @@ export const useTransactionsCreate = (
         toast({
           title: t('success'),
           description: t('transactions-created-successfully'),
+          variant: 'success',
         });
         options?.onCompleted?.(data);
       },
@@ -54,8 +61,8 @@ export const useTransactionsCreate = (
         const newParentId = data?.accTransactionsCreate?.[0]?.parentId;
 
         const pathname = newParentId
-          ? `/accounting/transaction/edit?parentId=${newParentId}`
-          : '/accounting/main';
+          ? buildTransactionEditPath({ parentId: newParentId, returnTo })
+          : getTransactionReturnPath(returnTo);
 
         navigate(pathname);
       },

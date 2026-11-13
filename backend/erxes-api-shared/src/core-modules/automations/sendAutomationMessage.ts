@@ -175,28 +175,20 @@ export const sendAutomationRun = (
     });
 };
 
-export type TDeferredCompletion = {
-  executionId: string;
-  actionId: string;
-  jobId: string;
-  status: 'success' | 'error' | 'dropped';
-  result?: any;
-};
-
 /**
- * Reports a deferred action back to the automations service. The plugin that
- * queued the work owns the callback, so this is the other half of the marker
- * returned from `receiveActions`.
+ * The automations service is reached by its registered address, never through
+ * `isEnabled`: it is a service of every deployment, not a plugin anyone lists.
  */
-export const sendAutomationDeferredCompletion = async (
+const mutateAutomationsService = async (
   subdomain: string,
-  completion: TDeferredCompletion,
-): Promise<void> => {
+  path: string,
+  input: unknown,
+) => {
   const address = await redis.get('erxes-service-automations');
 
   if (!address) {
     throw new Error(
-      'Missing address for sendAutomationDeferredCompletion. Ensure service discovery has erxes-service-automations set.',
+      `Missing address for ${path}. Ensure service discovery has erxes-service-automations set.`,
     );
   }
 
@@ -215,5 +207,61 @@ export const sendAutomationDeferredCompletion = async (
     ],
   });
 
-  await client.mutation('automations.completeDeferredAction', completion);
+  return await client.mutation(path, input);
+};
+
+export type TDeferredCompletion = {
+  executionId: string;
+  actionId: string;
+  jobId: string;
+  status: 'success' | 'error' | 'dropped';
+  result?: any;
+};
+
+/**
+ * Reports a deferred action back to the automations service. The plugin that
+ * queued the work owns the callback, so this is the other half of the marker
+ * returned from `receiveActions`.
+ */
+export const sendAutomationDeferredCompletion = async (
+  subdomain: string,
+  completion: TDeferredCompletion,
+): Promise<void> => {
+  await mutateAutomationsService(
+    subdomain,
+    'automations.completeDeferredAction',
+    completion,
+  );
+};
+
+/** Moves on the runs an automation held while it was not active. */
+export const sendAutomationResumeWaiting = async (
+  subdomain: string,
+  automationId: string,
+): Promise<void> => {
+  await mutateAutomationsService(
+    subdomain,
+    'automations.resumeWaitingExecutions',
+    { automationId },
+  );
+};
+
+export type TAutomationApprovalDecision = {
+  executionId: string;
+  actionId: string;
+  decision: 'approved' | 'rejected';
+  userId?: string;
+  reason?: string;
+};
+
+/** Hands an approval step's decision to the run waiting on it. */
+export const sendAutomationApprovalDecision = async (
+  subdomain: string,
+  decision: TAutomationApprovalDecision,
+): Promise<void> => {
+  await mutateAutomationsService(
+    subdomain,
+    'automations.resolveApproval',
+    decision,
+  );
 };
