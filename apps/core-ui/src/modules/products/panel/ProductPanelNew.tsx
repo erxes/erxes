@@ -1,7 +1,13 @@
 import { ProductKind } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconCurrencyDollar, IconHash, IconPackage, IconTag } from '@tabler/icons-react';
-import { Button, Form, Input, Select, useToast } from 'erxes-ui';
+import {
+  IconCategory,
+  IconCurrencyDollar,
+  IconHash,
+  IconPackage,
+  IconTag,
+} from '@tabler/icons-react';
+import { Button, cn, Form, Input, Select, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm, useFormContext, useWatch, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +19,7 @@ import { useSession } from '~/modules/auth/session';
 import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from '~/modules/side-panel/PanelForm';
 import { NewContactForm } from '~/modules/side-panel/details/NewContactForm';
 import { useCreatedPanelRecord } from '~/modules/side-panel/useCreatedPanelRecord';
+import { CategoryPicker } from '../categories/CategoryPicker';
 import { PRODUCT_CONTENT_TYPE, useOpenProduct, useProductCreate } from '../useProducts';
 import { productFieldError } from './productErrors';
 
@@ -43,6 +50,7 @@ const newProductSchema = (t: Translate) =>
       price: z.string().trim(),
       currency: z.string(),
       code: z.string().trim().max(100, t('form.too-long', 'Too long')),
+      categoryId: z.string().nullable(),
     })
     .refine((values) => isPrice(values.price, values.currency), {
       path: ['price'],
@@ -67,6 +75,7 @@ const useProductSave = (form: UseFormReturn<TNewProduct>) => {
         name: values.name,
         kind: values.kind,
         code: values.code || null,
+        categoryId: values.categoryId,
         price: fromAmountInput(values.price || '0', values.currency),
         currency: values.currency,
       });
@@ -121,6 +130,29 @@ const KindRow = () => {
               </Select.Item>
             </Select.Content>
           </Select>
+        )}
+      />
+    </PanelFormRow>
+  );
+};
+
+/** Where the product sits in the catalog's category tree, or none. */
+const CategoryRow = () => {
+  const { t } = useTranslation('product');
+  const { control } = useFormContext<TNewProduct>();
+
+  return (
+    <PanelFormRow icon={IconCategory} label={t('fields.category', 'Category')}>
+      <Form.Field
+        control={control}
+        name="categoryId"
+        render={({ field }) => (
+          <CategoryPicker
+            value={field.value}
+            onChange={field.onChange}
+            noneLabel={t('category.none', 'No category')}
+            className={cn(INPUT_CLASS_NAME, 'h-7')}
+          />
         )}
       />
     </PanelFormRow>
@@ -184,6 +216,7 @@ export const ProductPanelNew = () => {
       price: '',
       currency: organization.currency,
       code: '',
+      categoryId: null,
     },
   });
 
@@ -210,6 +243,7 @@ export const ProductPanelNew = () => {
         />
       </PanelFormRow>
       <KindRow />
+      <CategoryRow />
       <PriceRow />
       <PanelFormRow icon={IconHash} label={t('fields.code', 'Code')} error={errors.code?.message}>
         <Input
