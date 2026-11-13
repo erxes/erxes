@@ -1,28 +1,39 @@
+import { AUTOMATION_STATUSES, automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AutomationDefinition } from './automationDefinition';
 import { ActionInfo, AutomationRun, RunStatus, RunStep } from './automationRuns';
-import { CursorQuery, cursorPageOf, Id } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
 
-export const AutomationStatus = z.enum(['draft', 'active', 'paused']);
+export const AutomationStatus = z.enum(AUTOMATION_STATUSES);
 
-export const Automation = z.object({
+export const Automation = createSelectSchema(automations, {
   id: Id,
-  name: z.string(),
-  description: z.string().nullable(),
-  status: AutomationStatus,
   definition: AutomationDefinition,
-  /** The version runs start with (null until first activated). */
-  activeVersion: z.int().nullable(),
-  activatedBy: z.string().nullable(),
-  stats: z.object({
-    running: z.int(),
-    succeeded: z.int(),
-    failed: z.int(),
-  }),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-});
+  activeVersion: () => z.int(),
+  createdAt: isoDate,
+  updatedAt: isoDate,
+})
+  .pick({
+    id: true,
+    name: true,
+    description: true,
+    status: true,
+    definition: true,
+    /** The version runs start with (null until first activated). */
+    activeVersion: true,
+    activatedBy: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    stats: z.object({
+      running: z.int(),
+      succeeded: z.int(),
+      failed: z.int(),
+    }),
+  });
 
 export type Automation = z.infer<typeof Automation>;
 
@@ -47,11 +58,11 @@ export const DryRunStep = z.object({
 
 export type DryRunStep = z.infer<typeof DryRunStep>;
 
-const Fields = {
-  name: z.string().trim().min(1).max(120),
-  description: z.string().trim().max(500).nullable().optional(),
-  definition: AutomationDefinition,
-};
+const Fields = createUpdateSchema(automations, {
+  name: (name) => name.trim().min(1).max(120),
+  description: (value) => value.trim().max(500),
+  definition: AutomationDefinition.optional(),
+}).pick({ name: true, description: true, definition: true });
 
 /**
  * Automations: when an event happens (and its conditions hold), run steps —
@@ -90,7 +101,7 @@ export const automationsContract = {
     .output(Automation),
   create: oc
     .route({ method: 'POST', path: '/automations', successStatus: 201 })
-    .input(z.object(Fields))
+    .input(Fields.required({ name: true, definition: true }))
     .output(Automation),
   update: oc
     .route({
@@ -99,14 +110,7 @@ export const automationsContract = {
       summary:
         'Change an automation; an active one publishes a new version (runs in progress keep theirs)',
     })
-    .input(
-      z.object({
-        id: Id,
-        name: Fields.name.optional(),
-        description: Fields.description,
-        definition: Fields.definition.optional(),
-      }),
-    )
+    .input(Fields.extend({ id: Id }))
     .output(Automation),
   activate: oc
     .route({

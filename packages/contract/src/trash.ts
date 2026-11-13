@@ -1,23 +1,33 @@
+import { ACTOR_TYPES, trash } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id } from './common';
+import { Id, isoDate } from './common';
 
-export const TrashItem = z.object({
+export const TrashItem = createSelectSchema(trash, {
   id: Id,
-  recordType: z.enum(['customer', 'company']),
   recordId: Id,
-  label: z.string().nullable(),
-  deletedBy: z.object({ type: z.enum(['user', 'plugin', 'system']), id: z.string().nullable() }),
-  deletedAt: z.iso.datetime(),
-  /** When it is gone for good. */
-  purgeAt: z.iso.datetime(),
-  /** What comes back with it. */
-  counts: z.object({
-    tags: z.int(),
-    links: z.int(),
-    activities: z.int(),
-  }),
-});
+  deletedAt: isoDate,
+  purgeAt: isoDate,
+})
+  .pick({
+    id: true,
+    recordType: true,
+    recordId: true,
+    label: true,
+    deletedAt: true,
+    /** When it is gone for good. */
+    purgeAt: true,
+  })
+  .extend({
+    deletedBy: z.object({ type: z.enum(ACTOR_TYPES), id: z.string().nullable() }),
+    /** What comes back with it. */
+    counts: z.object({
+      tags: z.int(),
+      links: z.int(),
+      activities: z.int(),
+    }),
+  });
 
 export type TrashItem = z.infer<typeof TrashItem>;
 

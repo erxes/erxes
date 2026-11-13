@@ -743,6 +743,14 @@
               }
             ]
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "stats": {
             "type": "object",
             "properties": {
@@ -767,14 +775,6 @@
               "succeeded",
               "failed"
             ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -785,9 +785,9 @@
           "definition",
           "activeVersion",
           "activatedBy",
-          "stats",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "stats"
         ]
       },
       "AutomationDefinition": {
@@ -5933,34 +5933,6 @@
           "eventType": {
             "type": "string"
           },
-          "subject": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "enum": [
-                      "customer",
-                      "company"
-                    ],
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  }
-                },
-                "required": [
-                  "type",
-                  "id"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "status": {
             "enum": [
               "running",
@@ -5970,9 +5942,6 @@
               "cancelled"
             ],
             "type": "string"
-          },
-          "goalReached": {
-            "type": "boolean"
           },
           "error": {
             "anyOf": [
@@ -6009,6 +5978,37 @@
                 "type": "null"
               }
             ]
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "customer",
+                      "company"
+                    ],
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "type",
+                  "id"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "goalReached": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -6017,13 +6017,13 @@
           "version",
           "eventId",
           "eventType",
-          "subject",
           "status",
-          "goalReached",
           "error",
           "waitingUntil",
           "startedAt",
-          "finishedAt"
+          "finishedAt",
+          "subject",
+          "goalReached"
         ]
       },
       "Company": {
@@ -6707,6 +6707,41 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
+          "payload": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "subject": {
             "anyOf": [
               {
@@ -6747,41 +6782,6 @@
           },
           "actor": {
             "$ref": "#/components/schemas/ActorRef"
-          },
-          "payload": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {}
-          },
-          "summary": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "link": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "occurredAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -6789,14 +6789,14 @@
           "source",
           "type",
           "version",
-          "subject",
-          "entity",
-          "actor",
           "payload",
           "summary",
           "link",
           "occurredAt",
-          "createdAt"
+          "createdAt",
+          "subject",
+          "entity",
+          "actor"
         ]
       },
       "CursorQuery": {
@@ -11083,6 +11083,14 @@
               }
             ]
           },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purgeAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "deletedBy": {
             "type": "object",
             "properties": {
@@ -11109,14 +11117,6 @@
               "type",
               "id"
             ]
-          },
-          "deletedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "purgeAt": {
-            "type": "string",
-            "format": "date-time"
           },
           "counts": {
             "type": "object",
@@ -11149,9 +11149,9 @@
           "recordType",
           "recordId",
           "label",
-          "deletedBy",
           "deletedAt",
           "purgeAt",
+          "deletedBy",
           "counts"
         ]
       },
