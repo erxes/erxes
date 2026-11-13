@@ -1,7 +1,7 @@
 import React from 'react';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { cn } from '../lib/utils';
-import { Button } from './button';
+import { Button, buttonVariants } from './button';
 import { IconX } from '@tabler/icons-react';
 
 type CommandBarProps = React.PropsWithChildren<{
@@ -54,15 +54,18 @@ const Value = ({
 }) => {
   return (
     <div className="flex items-center -space-x-px">
-      <Button
-        variant="outline"
-        className={cn('shadow-none border-dashed border', onClose && 'rounded-r-none', className)}
-        asChild
+      <div
+        ref={ref}
+        className={cn(
+          buttonVariants({ variant: 'outline' }),
+          'shadow-none border-dashed border',
+          onClose && 'rounded-r-none',
+          className,
+        )}
+        {...props}
       >
-        <div ref={ref} {...props}>
-          {children}
-        </div>
-      </Button>
+        {children}
+      </div>
       {onClose && (
         <Button
           variant="outline"

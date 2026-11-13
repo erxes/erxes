@@ -9,7 +9,15 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { Badge, Button, cn, Collapsible, DropdownMenu, RecordTable } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  cn,
+  Collapsible,
+  DropdownMenu,
+  RecordTable,
+  buttonVariants,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -119,18 +127,18 @@ const GroupShell = ({
     >
       <div className="relative flex items-center gap-1">
         {handle ?? <span className="size-7 shrink-0" />}
-        <Collapsible.Trigger asChild>
-          <Button variant="secondary" className="w-full justify-start font-medium">
-            <Collapsible.TriggerIcon />
-            {name}
-            <Badge variant="secondary" className="ml-1">
-              {fields.length}
-            </Badge>
-          </Button>
+        <Collapsible.Trigger
+          render={<Button variant="secondary" className="w-full justify-start font-medium" />}
+        >
+          <Collapsible.TriggerIcon />
+          {name}
+          <Badge variant="secondary" className="ml-1">
+            {fields.length}
+          </Badge>
         </Collapsible.Trigger>
         {actions ?? <span className="size-7 shrink-0" />}
       </div>
-      <Collapsible.Content className="pt-2">
+      <Collapsible.Panel className="pt-2">
         {fields.length === 0 ? (
           <div className="rounded-md border py-10 text-center text-sm text-muted-foreground">
             {t('no-fields-found', 'No fields found')}
@@ -154,15 +162,13 @@ const GroupShell = ({
         )}
         {manager && (
           <div className="flex items-center justify-end mt-2">
-            <Button variant="secondary" asChild>
-              <Link to={addPath}>
-                <IconPlus />
-                {t('add-field', 'Add field')}
-              </Link>
-            </Button>
+            <Link to={addPath} className={buttonVariants({ variant: 'secondary' })}>
+              <IconPlus />
+              {t('add-field', 'Add field')}
+            </Link>
           </div>
         )}
-      </Collapsible.Content>
+      </Collapsible.Panel>
     </Collapsible>
   );
 };

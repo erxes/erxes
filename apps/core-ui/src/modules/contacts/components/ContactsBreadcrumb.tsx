@@ -1,5 +1,5 @@
 import { IconBookmarksFilled } from '@tabler/icons-react';
-import { Breadcrumb, Button } from 'erxes-ui';
+import { Breadcrumb, buttonVariants } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
@@ -25,23 +25,22 @@ export const ContactsBreadcrumb = ({ title }: { title?: ReactNode }) => {
       <Breadcrumb>
         <Breadcrumb.List className="gap-1">
           <Breadcrumb.Item>
-            <Button variant="ghost" asChild>
-              <Link to={ContactsPath.Index}>
-                <IconBookmarksFilled />
-                {t('core-modules.contacts')}
-              </Link>
-            </Button>
+            <Link to={ContactsPath.Index} className={buttonVariants({ variant: 'ghost' })}>
+              <IconBookmarksFilled />
+              {t('core-modules.contacts')}
+            </Link>
           </Breadcrumb.Item>
           {currentSection && (
             <>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <Breadcrumb.Page>
-                  <Button variant="ghost" asChild>
-                    <Link to={`${ContactsPath.Index}${currentSection.path}`}>
-                      {currentSection.label}
-                    </Link>
-                  </Button>
+                  <Link
+                    to={`${ContactsPath.Index}${currentSection.path}`}
+                    className={buttonVariants({ variant: 'ghost' })}
+                  >
+                    {currentSection.label}
+                  </Link>
                 </Breadcrumb.Page>
               </Breadcrumb.Item>
             </>

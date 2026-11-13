@@ -1,5 +1,5 @@
 import { IconArrowBackUp, IconDots, IconExternalLink, IconTrash } from '@tabler/icons-react';
-import { Button, Command, Popover, useConfirm } from 'erxes-ui';
+import { Button, Command, Popover, useConfirm, cn, buttonVariants } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -36,17 +36,16 @@ export const ContactPanelWebsiteLink = ({ website }: { website?: string | null }
   if (!websiteUrl) return null;
 
   return (
-    <Button variant="ghost" size="icon" className="size-7" asChild>
-      <a
-        href={websiteUrl.href}
-        target="_blank"
-        rel="noreferrer"
-        aria-label={website ?? undefined}
-        title={website ?? undefined}
-      >
-        <IconExternalLink className="size-4" aria-hidden="true" />
-      </a>
-    </Button>
+    <a
+      href={websiteUrl.href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={website ?? undefined}
+      title={website ?? undefined}
+      className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'size-7')}
+    >
+      <IconExternalLink className="size-4" aria-hidden="true" />
+    </a>
   );
 };
 

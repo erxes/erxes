@@ -1,6 +1,5 @@
-import React from 'react';
-
-import { Slot } from 'radix-ui';
+import type React from 'react';
+import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from 'erxes-ui/lib/utils';
@@ -33,30 +32,10 @@ export const buttonVariants = cva(
   },
 );
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-}
+export type ButtonProps = React.ComponentProps<typeof ButtonPrimitive> &
+  VariantProps<typeof buttonVariants>;
 
-export const Button = ({
-  ref,
-  className,
-  variant,
-  size,
-  asChild = false,
-  children,
-  ...props
-}: ButtonProps & React.RefAttributes<HTMLButtonElement>) => {
-  const Comp = asChild ? Slot.Root : 'button';
-
-  return (
-    <Comp
-      className={cn(buttonVariants({ variant, size, className }))}
-      type="button"
-      ref={ref}
-      {...props}
-    >
-      {children}
-    </Comp>
-  );
-};
+/** A native button by default. Links styled as buttons put `buttonVariants` on the link instead. */
+export const Button = ({ className, variant, size, ...props }: ButtonProps) => (
+  <ButtonPrimitive className={cn(buttonVariants({ variant, size, className }))} {...props} />
+);

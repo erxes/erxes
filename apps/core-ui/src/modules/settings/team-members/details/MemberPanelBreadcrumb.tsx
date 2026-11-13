@@ -1,5 +1,5 @@
 import { IconUsers } from '@tabler/icons-react';
-import { Breadcrumb, Button } from 'erxes-ui';
+import { Breadcrumb, buttonVariants } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -12,12 +12,10 @@ export const MemberPanelBreadcrumb = ({ title }: { title: ReactNode }) => {
     <Breadcrumb className="min-w-0 pl-[var(--navigation-panel-toggle-space,0rem)]">
       <Breadcrumb.List className="min-w-0 flex-nowrap gap-1">
         <Breadcrumb.Item className="shrink-0">
-          <Button variant="ghost" asChild>
-            <Link to={TEAM_MEMBERS_PATH}>
-              <IconUsers />
-              {t('team-members', 'Team members')}
-            </Link>
-          </Button>
+          <Link to={TEAM_MEMBERS_PATH} className={buttonVariants({ variant: 'ghost' })}>
+            <IconUsers />
+            {t('team-members', 'Team members')}
+          </Link>
         </Breadcrumb.Item>
         <Breadcrumb.Separator />
         <Breadcrumb.Item className="min-w-0">

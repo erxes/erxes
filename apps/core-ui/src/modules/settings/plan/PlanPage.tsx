@@ -2,13 +2,13 @@ import type { SubscriptionInfo } from '@erxes/core-contract';
 import { IconApps, IconCreditCard, IconExternalLink } from '@tabler/icons-react';
 import {
   Badge,
-  Button,
   Empty,
   PageContainer,
   RelativeDateDisplay,
   ScrollArea,
   Spinner,
   PageHeader,
+  buttonVariants,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
@@ -148,12 +148,10 @@ export const PlanPage = () => {
         </PageHeader.Start>
         {data?.manageUrl && (
           <PageHeader.End>
-            <Button asChild>
-              <a href={data.manageUrl} target="_blank" rel="noreferrer">
-                <IconExternalLink />
-                {t('manage', 'Manage on erxes.io')}
-              </a>
-            </Button>
+            <a href={data.manageUrl} target="_blank" rel="noreferrer" className={buttonVariants()}>
+              <IconExternalLink />
+              {t('manage', 'Manage on erxes.io')}
+            </a>
           </PageHeader.End>
         )}
       </PageHeader>

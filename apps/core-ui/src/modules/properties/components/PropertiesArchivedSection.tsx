@@ -93,20 +93,22 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: FieldC
     <Collapsible className="group">
       <div className="flex items-center gap-1">
         <span className="size-7 shrink-0" />
-        <Collapsible.Trigger asChild>
-          <Button
-            variant="secondary"
-            className="w-full justify-start font-medium text-muted-foreground"
-          >
-            <Collapsible.TriggerIcon />
-            {t('archived', 'Archived')}
-            <Badge variant="secondary" className="ml-1">
-              {total}
-            </Badge>
-          </Button>
+        <Collapsible.Trigger
+          render={
+            <Button
+              variant="secondary"
+              className="w-full justify-start font-medium text-muted-foreground"
+            />
+          }
+        >
+          <Collapsible.TriggerIcon />
+          {t('archived', 'Archived')}
+          <Badge variant="secondary" className="ml-1">
+            {total}
+          </Badge>
         </Collapsible.Trigger>
       </div>
-      <Collapsible.Content className="pt-2">
+      <Collapsible.Panel className="pt-2">
         <div className="flex flex-col divide-y rounded-md border">
           {groups.map((group) => (
             <ArchivedRow
@@ -141,7 +143,7 @@ export const PropertiesArchivedSection = ({ contentType }: { contentType: FieldC
             />
           ))}
         </div>
-      </Collapsible.Content>
+      </Collapsible.Panel>
     </Collapsible>
   );
 };

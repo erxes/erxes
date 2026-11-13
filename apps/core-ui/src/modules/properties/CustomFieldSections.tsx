@@ -1,6 +1,6 @@
 import type { CustomValue, FieldContentType } from '@erxes/core-contract';
 import { IconListDetails } from '@tabler/icons-react';
-import { Button, Collapsible, Spinner } from 'erxes-ui';
+import { Button, Collapsible, Spinner, buttonVariants } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { messageOf } from '~/lib/api';
@@ -16,9 +16,9 @@ const EmptyProperties = ({ contentType }: { contentType: FieldContentType }) => 
     <h3 className="font-semibold text-muted-foreground">No properties found </h3>
     <div className="my-2 flex flex-col items-center justify-center gap-2">
       <p className="text-muted-foreground">Get started by creating your first property.</p>
-      <Button size="sm" asChild>
-        <Link to={propertiesPath(contentType)}>Create property</Link>
-      </Button>
+      <Link to={propertiesPath(contentType)} className={buttonVariants({ size: 'sm' })}>
+        Create property
+      </Link>
     </div>
   </div>
 );
@@ -59,18 +59,20 @@ export const CustomFieldSections = ({
           className="group flex flex-col rounded-xl bg-foreground/5 p-1 pt-0"
         >
           <div className="flex h-7 shrink-0 items-center justify-between pr-1">
-            <Collapsible.Trigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 gap-1.5 px-1 font-mono text-xs font-medium uppercase"
-              >
-                <Collapsible.TriggerIcon className="size-3" />
-                {group?.name ?? 'Properties'}
-              </Button>
+            <Collapsible.Trigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 gap-1.5 px-1 font-mono text-xs font-medium uppercase"
+                />
+              }
+            >
+              <Collapsible.TriggerIcon className="size-3" />
+              {group?.name ?? 'Properties'}
             </Collapsible.Trigger>
           </div>
-          <Collapsible.Content>
+          <Collapsible.Panel>
             <div className="flex flex-col gap-1 rounded-lg bg-background p-3 shadow-sm">
               {fields.map((field) => (
                 <PanelField
@@ -87,7 +89,7 @@ export const CustomFieldSections = ({
                 </PanelField>
               ))}
             </div>
-          </Collapsible.Content>
+          </Collapsible.Panel>
         </Collapsible>
       ))}
     </div>

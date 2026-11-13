@@ -1,5 +1,5 @@
 import { Badge } from 'erxes-ui/components/badge';
-import { Button } from 'erxes-ui/components/button';
+import { Button, buttonVariants } from 'erxes-ui/components/button';
 import { Popover } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
 import React, { use, useId } from 'react';
@@ -59,28 +59,17 @@ const RecordTableCellContent = ({
   );
 };
 
-const RecordTableCellDisplay = ({
-  ref,
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof Button>) => {
-  return (
-    <Button
-      variant="ghost"
-      className={cn(
-        'h-8 px-2 w-full justify-start text-left font-normal rounded-none overflow-hidden',
-        className,
-      )}
-      ref={ref}
-      asChild
-      tabIndex={-1}
-      {...props}
-    >
-      <div>{children}</div>
-    </Button>
-  );
-};
+const RecordTableCellDisplay = ({ className, ...props }: React.ComponentProps<'div'>) => (
+  <div
+    className={cn(
+      buttonVariants({ variant: 'ghost' }),
+      'h-8 px-2 w-full justify-start text-left font-normal rounded-none overflow-hidden',
+      className,
+    )}
+    tabIndex={-1}
+    {...props}
+  />
+);
 
 const RecordTableInlineAnchor = ({
   ref,
