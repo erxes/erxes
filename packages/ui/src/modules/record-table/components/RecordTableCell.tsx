@@ -1,3 +1,8 @@
+// TanStack Table v8 hands out one mutable table, row and column object and changes what their
+// getters return in place. Compiled, these reads would be cached on objects that never change,
+// and selection, sizing and column order would stop showing. TanStack Table 9's store fixes this.
+'use no memo';
+
 import React from 'react';
 
 import type { Cell } from '@tanstack/react-table';
@@ -5,10 +10,16 @@ import type { Cell } from '@tanstack/react-table';
 import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const RecordTableCell = React.forwardRef<
-  HTMLTableCellElement,
-  React.HTMLAttributes<HTMLTableCellElement> & { cell: Cell<unknown, unknown> }
->(({ children, className, cell, style, ...props }, ref) => {
+export const RecordTableCell = ({
+  ref,
+  children,
+  className,
+  cell,
+  style,
+  ...props
+}: React.HTMLAttributes<HTMLTableCellElement> & {
+  cell: Cell<unknown, unknown>;
+} & React.RefAttributes<HTMLTableCellElement>) => {
   const { column } = cell;
 
   return (
@@ -37,4 +48,4 @@ export const RecordTableCell = React.forwardRef<
       {children}
     </Table.Cell>
   );
-});
+};

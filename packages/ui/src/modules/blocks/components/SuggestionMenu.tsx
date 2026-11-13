@@ -1,12 +1,16 @@
 import { buttonVariants } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
 import React, { useEffect, useRef } from 'react';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 
-export const SuggestionMenu = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }
->(({ children, className, ...props }, ref) => (
+export const SuggestionMenu = ({
+  ref,
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+  children: React.ReactNode;
+} & React.RefAttributes<HTMLDivElement>) => (
   <div
     ref={ref}
     {...props}
@@ -17,13 +21,16 @@ export const SuggestionMenu = React.forwardRef<
   >
     <div className="overflow-auto flex flex-col gap-px h-full">{children}</div>
   </div>
-));
+);
 
 // The editor keeps focus: items are picked with the arrow keys there, or by mouse here.
-export const SuggestionMenuItem = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement> & { isSelected: boolean }
->(({ isSelected, ...props }, ref) => {
+export const SuggestionMenuItem = ({
+  ref,
+  isSelected,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  isSelected: boolean;
+} & React.RefAttributes<HTMLButtonElement>) => {
   const itemRef = useRef<HTMLButtonElement>(null);
   const mounted = useRef(false);
 
@@ -38,7 +45,7 @@ export const SuggestionMenuItem = React.forwardRef<
 
   return (
     <button
-      ref={mergeRefs([itemRef, ref])}
+      ref={composeRefs(itemRef, ref)}
       type="button"
       aria-pressed={isSelected}
       tabIndex={-1}
@@ -55,4 +62,4 @@ export const SuggestionMenuItem = React.forwardRef<
       )}
     />
   );
-});
+};

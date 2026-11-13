@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -31,30 +31,35 @@ export interface BadgeProps
   onClose?: () => void;
 }
 
-export const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
-  ({ className, variant, children, onClose, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(badgeVariants({ variant }), onClose && 'pr-1', className)}
-        {...props}
-      >
-        {children}
-        {onClose && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }}
-            className="size-3.5 p-0 hover:bg-transparent flex-none"
-            asChild
-          >
-            <IconX className="size-3.5 flex-none" />
-          </Button>
-        )}
-      </div>
-    );
-  },
-);
+export const Badge = ({
+  ref,
+  className,
+  variant,
+  children,
+  onClose,
+  ...props
+}: BadgeProps & React.RefAttributes<HTMLDivElement>) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(badgeVariants({ variant }), onClose && 'pr-1', className)}
+      {...props}
+    >
+      {children}
+      {onClose && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          className="size-3.5 p-0 hover:bg-transparent flex-none"
+          asChild
+        >
+          <IconX className="size-3.5 flex-none" />
+        </Button>
+      )}
+    </div>
+  );
+};

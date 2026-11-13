@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -8,7 +8,7 @@ import { Separator } from 'erxes-ui/components/separator';
 import { cn } from 'erxes-ui/lib/utils';
 import { Portal } from 'radix-ui';
 import { sidebarPanelOpenState } from 'erxes-ui/state/sidebarPanelState';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 import { useTranslation } from 'react-i18next';
 
 const SIDEBAR_PANEL_SLOT = '[data-sidebar-panel-slot]';
@@ -67,10 +67,12 @@ const useSidebarPanelSlot = (panelRef: React.RefObject<HTMLDivElement | null>, o
   return { slot, claimed };
 };
 
-export const SidebarPanelTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
+export const SidebarPanelTrigger = ({
+  ref,
+  className,
+  onClick,
+  ...props
+}: React.ComponentProps<typeof Button>) => {
   const hidden = React.useContext(SidebarPanelInnerTriggerHiddenContext);
   const [open, setOpen] = useAtom(sidebarPanelOpenState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
@@ -101,17 +103,19 @@ export const SidebarPanelTrigger = React.forwardRef<
       {open ? <IconLayoutSidebarLeftCollapse /> : <IconLayoutSidebarLeftExpand />}
     </Button>
   );
-});
+};
 
-SidebarPanelTrigger.displayName = 'SidebarPanelTrigger';
-
-export const SidebarPanel = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'> & {
-    label?: React.ReactNode;
-    actions?: React.ReactNode;
-  }
->(({ className, children, label, actions, ...props }, ref) => {
+export const SidebarPanel = ({
+  ref,
+  className,
+  children,
+  label,
+  actions,
+  ...props
+}: React.ComponentProps<'div'> & {
+  label?: React.ReactNode;
+  actions?: React.ReactNode;
+}) => {
   const open = useAtomValue(sidebarPanelOpenState);
   const panelRef = React.useRef<HTMLDivElement>(null);
   const { slot, claimed } = useSidebarPanelSlot(panelRef, open);
@@ -119,7 +123,7 @@ export const SidebarPanel = React.forwardRef<
 
   return (
     <div
-      ref={mergeRefs([panelRef, ref])}
+      ref={composeRefs(panelRef, ref)}
       data-sidebar="panel"
       data-state={open ? 'expanded' : 'collapsed'}
       className={cn(
@@ -156,6 +160,4 @@ export const SidebarPanel = React.forwardRef<
       </SidebarPanelInnerTriggerHiddenContext.Provider>
     </div>
   );
-});
-
-SidebarPanel.displayName = 'SidebarPanel';
+};

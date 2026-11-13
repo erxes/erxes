@@ -37,24 +37,20 @@ const InfoCardRoot = ({
   );
 };
 
-const InfoCardContent = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
-  ({ children, className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'flex flex-col gap-3 bg-background rounded-lg p-3 shadow-sm flex-auto',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  },
-);
-
-InfoCardContent.displayName = 'InfoCardContent';
+const InfoCardContent = ({ ref, children, className, ...props }: React.ComponentProps<'div'>) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'flex flex-col gap-3 bg-background rounded-lg p-3 shadow-sm flex-auto',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
 
 export const InfoCard = Object.assign(InfoCardRoot, {
   Content: InfoCardContent,

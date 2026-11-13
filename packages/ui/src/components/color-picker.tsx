@@ -76,10 +76,12 @@ const ColorPickerProvider = ({
   );
 };
 
-const ColorPickerTrigger = React.forwardRef<
-  React.ElementRef<typeof Combobox.TriggerBase>,
-  React.ComponentPropsWithoutRef<typeof Combobox.TriggerBase>
->(({ className, children, ...props }, ref) => {
+const ColorPickerTrigger = ({
+  ref,
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof Combobox.TriggerBase>) => {
   return (
     <Combobox.TriggerBase
       ref={ref}
@@ -90,9 +92,7 @@ const ColorPickerTrigger = React.forwardRef<
       {children}
     </Combobox.TriggerBase>
   );
-});
-
-ColorPickerTrigger.displayName = 'ColorPickerTrigger';
+};
 
 const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) => {
   const { value, onValueChange, colors } = useColorPickerContext();
@@ -147,15 +147,20 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
   );
 };
 
-const ColorPickerRoot = React.forwardRef<
-  React.ElementRef<typeof Combobox.TriggerBase>,
-  Omit<React.ComponentPropsWithoutRef<typeof Combobox.TriggerBase>, 'value'> & {
-    value?: string;
-    onValueChange?: (value: string) => void;
-    colors?: Record<string, string>;
-    scope?: string;
-  }
->(({ value, onValueChange, colors, scope, className, ...props }, ref) => {
+const ColorPickerRoot = ({
+  ref,
+  value,
+  onValueChange,
+  colors,
+  scope,
+  className,
+  ...props
+}: Omit<React.ComponentPropsWithoutRef<typeof Combobox.TriggerBase>, 'value'> & {
+  value?: string;
+  onValueChange?: (value: string) => void;
+  colors?: Record<string, string>;
+  scope?: string;
+} & React.RefAttributes<React.ComponentRef<typeof Combobox.TriggerBase>>) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -179,9 +184,7 @@ const ColorPickerRoot = React.forwardRef<
       <ColorPickerContent setOpen={setOpen} />
     </ColorPickerProvider>
   );
-});
-
-ColorPickerRoot.displayName = 'ColorPickerRoot';
+};
 
 export const ColorPicker = Object.assign(ColorPickerRoot, {
   Provider: ColorPickerProvider,

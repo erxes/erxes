@@ -5,16 +5,19 @@ import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import { Popover } from './popover';
 import { Command } from './command';
 import { useInView } from 'react-intersection-observer';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
 
-const ComboboxTriggerBase = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentPropsWithoutRef<typeof Button> & {
-    hideChevron?: boolean;
-  }
->(({ className, children, hideChevron = false, ...props }, ref) => {
+const ComboboxTriggerBase = ({
+  ref,
+  className,
+  children,
+  hideChevron = false,
+  ...props
+}: React.ComponentProps<typeof Button> & {
+  hideChevron?: boolean;
+}) => {
   return (
     <Popover.Trigger asChild>
       <Button
@@ -33,14 +36,16 @@ const ComboboxTriggerBase = React.forwardRef<
       </Button>
     </Popover.Trigger>
   );
-});
+};
 
-const ComboboxTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentPropsWithoutRef<typeof Button> & {
-    hideChevron?: boolean;
-  }
->(({ children, hideChevron = false, ...props }, ref) => {
+const ComboboxTrigger = ({
+  ref,
+  children,
+  hideChevron = false,
+  ...props
+}: React.ComponentProps<typeof Button> & {
+  hideChevron?: boolean;
+}) => {
   return (
     <ComboboxTriggerBase {...props} ref={ref}>
       {children}
@@ -49,18 +54,20 @@ const ComboboxTrigger = React.forwardRef<
       )}
     </ComboboxTriggerBase>
   );
-});
+};
 
-ComboboxTrigger.displayName = 'ComboboxTrigger';
-
-const ComboboxValue = React.forwardRef<
-  HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement> & {
-    placeholder?: string;
-    loading?: boolean;
-    value?: string | React.JSX.Element;
-  }
->(({ value, className, placeholder, loading, ...props }, ref) => {
+const ComboboxValue = ({
+  ref,
+  value,
+  className,
+  placeholder,
+  loading,
+  ...props
+}: React.HTMLAttributes<HTMLSpanElement> & {
+  placeholder?: string;
+  loading?: boolean;
+  value?: string | React.JSX.Element;
+} & React.RefAttributes<HTMLSpanElement>) => {
   if (loading) {
     return <Skeleton className="w-full flex-1 h-4" />;
   }
@@ -74,14 +81,13 @@ const ComboboxValue = React.forwardRef<
       {value || placeholder || ''}
     </span>
   );
-});
+};
 
-ComboboxValue.displayName = 'ComboboxValue';
-
-const ComboboxContent = React.forwardRef<
-  React.ElementRef<typeof Popover.Content>,
-  React.ComponentPropsWithoutRef<typeof Popover.Content>
->(({ className, ...props }, ref) => {
+const ComboboxContent = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<typeof Popover.Content>) => {
   return (
     <Popover.Content
       ref={ref}
@@ -91,16 +97,16 @@ const ComboboxContent = React.forwardRef<
       className={cn('p-0 min-w-72 w-(--radix-popper-anchor-width) max-w-96', className)}
     />
   );
-});
+};
 
-ComboboxContent.displayName = 'ComboboxContent';
-
-const ComboboxCheck = React.forwardRef<
-  React.ElementRef<typeof IconCheck>,
-  React.ComponentPropsWithoutRef<typeof IconCheck> & {
-    checked?: boolean;
-  }
->(({ className, checked, ...props }, ref) => {
+const ComboboxCheck = ({
+  ref,
+  className,
+  checked,
+  ...props
+}: React.ComponentProps<typeof IconCheck> & {
+  checked?: boolean;
+}) => {
   if (!checked) {
     return null;
   }
@@ -114,9 +120,7 @@ const ComboboxCheck = React.forwardRef<
       {...props}
     />
   );
-});
-
-ComboboxCheck.displayName = 'ComboboxCheck';
+};
 
 const ComboboxChipTrigger = ({
   label,
@@ -184,14 +188,18 @@ const ComboboxChipTrigger = ({
   );
 };
 
-const ComboboxFetchMore = React.forwardRef<
-  React.ElementRef<typeof Command.Item>,
-  React.ComponentPropsWithoutRef<typeof Command.Item> & {
-    totalCount: number;
-    currentLength: number;
-    fetchMore: () => void;
-  }
->(({ className, totalCount, currentLength, fetchMore, ...props }, ref) => {
+const ComboboxFetchMore = ({
+  ref,
+  className,
+  totalCount,
+  currentLength,
+  fetchMore,
+  ...props
+}: React.ComponentProps<typeof Command.Item> & {
+  totalCount: number;
+  currentLength: number;
+  fetchMore: () => void;
+}) => {
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && fetchMore(),
   });
@@ -201,7 +209,7 @@ const ComboboxFetchMore = React.forwardRef<
   }
 
   return (
-    <Command.Item ref={mergeRefs([ref, bottomRef])} {...props} className={cn(className)}>
+    <Command.Item ref={composeRefs(ref, bottomRef)} {...props} className={cn(className)}>
       <Spinner
         className="size-4 text-muted-foreground"
         containerClassName="w-auto flex-none mr-2"
@@ -209,17 +217,18 @@ const ComboboxFetchMore = React.forwardRef<
       Load more...
     </Command.Item>
   );
-});
+};
 
-ComboboxFetchMore.displayName = 'ComboboxFetchMore';
-
-const ComboboxEmpty = React.forwardRef<
-  React.ElementRef<typeof Command.Empty>,
-  React.ComponentPropsWithoutRef<typeof Command.Empty> & {
-    loading?: boolean;
-    error?: Pick<Error, 'message'> | null;
-  }
->(({ className, loading, error, ...props }, ref) => {
+const ComboboxEmpty = ({
+  ref,
+  className,
+  loading,
+  error,
+  ...props
+}: React.ComponentProps<typeof Command.Empty> & {
+  loading?: boolean;
+  error?: Pick<Error, 'message'> | null;
+}) => {
   return (
     <Command.Empty ref={ref} {...props} className={cn(className)}>
       {loading ? (
@@ -238,7 +247,7 @@ const ComboboxEmpty = React.forwardRef<
       )}
     </Command.Empty>
   );
-});
+};
 
 export const Combobox = {
   TriggerBase: ComboboxTriggerBase,

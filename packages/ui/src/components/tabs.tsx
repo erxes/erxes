@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Tabs as TabsPrimitive } from 'radix-ui';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
@@ -36,10 +36,12 @@ type TTabsVariant = VariantProps<typeof tabsListVariants>['variant'];
 
 const TabsVariantContext = React.createContext<TTabsVariant>('underline');
 
-const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & VariantProps<typeof tabsListVariants>
->(({ className, variant, ...props }, ref) => (
+const TabsList = ({
+  ref,
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.List> & VariantProps<typeof tabsListVariants>) => (
   <TabsVariantContext.Provider value={variant ?? 'underline'}>
     <TabsPrimitive.List
       ref={ref}
@@ -47,15 +49,15 @@ const TabsList = React.forwardRef<
       {...props}
     />
   </TabsVariantContext.Provider>
-));
+);
 
-TabsList.displayName = TabsPrimitive.List.displayName;
-
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> &
-    VariantProps<typeof tabsTriggerVariants>
->(({ className, variant, ...props }, ref) => {
+const TabsTrigger = ({
+  ref,
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Trigger> &
+  VariantProps<typeof tabsTriggerVariants>) => {
   const listVariant = React.useContext(TabsVariantContext);
 
   return (
@@ -65,22 +67,19 @@ const TabsTrigger = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
-
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
+const TabsContent = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Content>) => (
   <TabsPrimitive.Content
     ref={ref}
     className={cn('focus-visible:outline-hidden', className)}
     {...props}
   />
-));
-
-TabsContent.displayName = TabsPrimitive.Content.displayName;
+);
 
 export const Tabs = Object.assign(TabsPrimitive.Root, {
   List: TabsList,

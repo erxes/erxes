@@ -1,19 +1,14 @@
-import * as React from 'react';
+import React from 'react';
 import { Tooltip as TooltipPrimitive } from 'radix-ui';
 import { cn } from '../lib/utils';
 
-const TooltipRoot = ({
+const TooltipContent = ({
+  ref,
+  className,
+  sideOffset = 8,
+  children,
   ...props
-}: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>) => (
-  <TooltipPrimitive.Root delayDuration={0} {...props} />
-);
-
-TooltipRoot.displayName = TooltipPrimitive.Root.displayName;
-
-const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 8, children, ...props }, ref) => (
+}: React.ComponentProps<typeof TooltipPrimitive.Content>) => (
   <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
       ref={ref}
@@ -27,9 +22,7 @@ const TooltipContent = React.forwardRef<
       {children}
     </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
-));
-
-TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+);
 
 export const Tooltip = Object.assign(TooltipPrimitive.Root, {
   Provider: TooltipPrimitive.Provider,

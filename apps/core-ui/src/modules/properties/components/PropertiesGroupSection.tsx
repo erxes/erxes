@@ -11,15 +11,7 @@ import {
 } from '@tabler/icons-react';
 import { Badge, Button, cn, Collapsible, DropdownMenu, RecordTable } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import {
-  type CSSProperties,
-  forwardRef,
-  type ReactNode,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { propertiesPath } from '../constants';
@@ -80,19 +72,26 @@ const PropertiesGroupActions = ({
   );
 };
 
+type GroupShellProps = {
+  name: string;
+  fields: Field[];
+  addPath: string;
+  handle?: ReactNode;
+  actions?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+} & React.RefAttributes<HTMLDivElement>;
+
 /** A group's header and its fields table; `handle` and `actions` are the manager's controls. */
-const GroupShell = forwardRef<
-  HTMLDivElement,
-  {
-    name: string;
-    fields: Field[];
-    addPath: string;
-    handle?: ReactNode;
-    actions?: ReactNode;
-    className?: string;
-    style?: CSSProperties;
-  }
->(({ name, fields, addPath, handle, actions, className, style }, ref) => {
+const GroupShell = ({
+  name,
+  fields,
+  addPath,
+  handle,
+  actions,
+  className,
+  ...rest
+}: GroupShellProps) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
   const [open, setOpen] = useState(fields.length > 0);
@@ -110,9 +109,8 @@ const GroupShell = forwardRef<
 
   return (
     <Collapsible
-      ref={ref}
+      {...rest}
       className={cn('group', className)}
-      style={style}
       open={open}
       onOpenChange={(value) => {
         toggled.current = true;
@@ -167,9 +165,7 @@ const GroupShell = forwardRef<
       </Collapsible.Content>
     </Collapsible>
   );
-});
-
-GroupShell.displayName = 'GroupShell';
+};
 
 /** A field group: drag handle, collapsible header with its count, actions and its fields. */
 export const PropertiesGroupSection = ({

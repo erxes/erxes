@@ -66,7 +66,7 @@ export const RecordTableProvider = <TData,>({
     tableId,
   });
 
-  // oxlint-disable-next-line react/incompatible-library -- tanstack's useReactTable returns a mutable table; the app runs without the React Compiler, so nothing memoizes it
+  // oxlint-disable-next-line react/incompatible-library -- tanstack's useReactTable returns a mutable table: the compiler skips this component, and the record-table files that read the table opt out with 'use no memo'
   const table = useReactTable({
     data,
     columns,

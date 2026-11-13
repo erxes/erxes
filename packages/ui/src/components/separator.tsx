@@ -1,11 +1,14 @@
-import * as React from 'react';
+import React from 'react';
 import { Separator as SeparatorPrimitive } from 'radix-ui';
 import { cn } from '../lib/utils';
 
-const SeparatorRoot = React.forwardRef<
-  React.ElementRef<typeof SeparatorPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
->(({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => (
+const SeparatorRoot = ({
+  ref,
+  className,
+  orientation = 'horizontal',
+  decorative = true,
+  ...props
+}: React.ComponentProps<typeof SeparatorPrimitive.Root>) => (
   <SeparatorPrimitive.Root
     ref={ref}
     decorative={decorative}
@@ -17,14 +20,14 @@ const SeparatorRoot = React.forwardRef<
     )}
     {...props}
   />
-));
+);
 
-SeparatorRoot.displayName = SeparatorPrimitive.Root.displayName;
-
-const SeparatorInline = React.forwardRef<
-  React.ElementRef<typeof SeparatorPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
->(({ className, orientation = 'vertical', ...props }, ref) => {
+const SeparatorInline = ({
+  ref,
+  className,
+  orientation = 'vertical',
+  ...props
+}: React.ComponentProps<typeof SeparatorPrimitive.Root>) => {
   return (
     <SeparatorPrimitive.Root
       ref={ref}
@@ -36,9 +39,7 @@ const SeparatorInline = React.forwardRef<
       {...props}
     />
   );
-});
-
-SeparatorInline.displayName = 'Separator.Inline';
+};
 
 export const Separator = Object.assign(SeparatorRoot, {
   Inline: SeparatorInline,

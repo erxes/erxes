@@ -1,10 +1,10 @@
-import type { ReactElement } from 'react';
+import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
 
 import { iconsState } from '../states/iconsState';
 
-export const IconsProvider = ({ children }: { children: ReactElement }) => {
+export const IconsProvider = ({ children }: { children: ReactNode }) => {
   const setIcons = useSetAtom(iconsState);
 
   useEffect(() => {

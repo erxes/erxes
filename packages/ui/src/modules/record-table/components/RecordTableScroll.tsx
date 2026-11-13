@@ -1,12 +1,13 @@
 import { ScrollArea } from 'erxes-ui/components/scroll-area';
 
-import { forwardRef } from 'react';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const RecordTableScroll = forwardRef<
-  React.ElementRef<typeof ScrollArea>,
-  React.ComponentPropsWithoutRef<typeof ScrollArea>
->(({ children, className, ...props }, ref) => {
+export const RecordTableScroll = ({
+  ref,
+  children,
+  className,
+  ...props
+}: React.ComponentProps<typeof ScrollArea>) => {
   return (
     <ScrollArea
       ref={ref}
@@ -18,6 +19,4 @@ export const RecordTableScroll = forwardRef<
       <ScrollArea.Bar orientation="horizontal" className="z-10" />
     </ScrollArea>
   );
-});
-
-RecordTableScroll.displayName = 'RecordTableScroll';
+};

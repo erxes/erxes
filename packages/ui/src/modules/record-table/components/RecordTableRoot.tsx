@@ -3,10 +3,12 @@ import React from 'react';
 import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const RecordTableRoot = React.forwardRef<
-  HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, style, ...props }, ref) => {
+export const RecordTableRoot = ({
+  ref,
+  className,
+  style,
+  ...props
+}: React.ComponentProps<'table'>) => {
   return (
     <Table
       ref={ref}
@@ -15,4 +17,4 @@ export const RecordTableRoot = React.forwardRef<
       {...props}
     />
   );
-});
+};

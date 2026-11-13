@@ -13,12 +13,13 @@ type RelativeDateDisplayProps = {
   isShort?: boolean;
 };
 
-const RelativeDateDisplayTooltip = React.forwardRef<
-  React.ElementRef<typeof Tooltip.Trigger>,
-  Except<React.ComponentPropsWithoutRef<typeof Tooltip.Trigger>, 'value'> & {
-    value: string;
-  }
->(({ value, ...props }, ref) => {
+const RelativeDateDisplayTooltip = ({
+  ref,
+  value,
+  ...props
+}: Except<React.ComponentPropsWithoutRef<typeof Tooltip.Trigger>, 'value'> & {
+  value: string;
+} & React.RefAttributes<React.ComponentRef<typeof Tooltip.Trigger>>) => {
   if (isUndefinedOrNull(value)) {
     return null;
   }
@@ -31,9 +32,7 @@ const RelativeDateDisplayTooltip = React.forwardRef<
       </Tooltip>
     </Tooltip.Provider>
   );
-});
-
-RelativeDateDisplayTooltip.displayName = 'RelativeDateDisplayTooltip';
+};
 
 const RelativeDateDisplayValue = ({ value, isShort }: RelativeDateDisplayProps) => {
   if (isUndefinedOrNull(value)) {

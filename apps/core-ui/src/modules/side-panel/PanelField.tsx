@@ -1,6 +1,5 @@
 import { IconForms, type Icon } from '@tabler/icons-react';
 import { cn, Label, RecordTableInlineCell } from 'erxes-ui';
-import { forwardRef } from 'react';
 import { PanelLabel } from './PanelLabel';
 
 // One field in the side panel: its label, then the value as a record table
@@ -54,18 +53,17 @@ export const PanelField = ({
 );
 
 // A table cell trigger with the panel's rounded hover.
-export const PanelFieldTrigger = forwardRef<
-  React.ElementRef<typeof RecordTableInlineCell.Trigger>,
-  React.ComponentPropsWithoutRef<typeof RecordTableInlineCell.Trigger>
->(({ className, ...props }, ref) => (
+export const PanelFieldTrigger = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<typeof RecordTableInlineCell.Trigger>) => (
   <RecordTableInlineCell.Trigger
     ref={ref}
     className={cn('rounded-sm font-normal', className)}
     {...props}
   />
-));
-
-PanelFieldTrigger.displayName = 'PanelFieldTrigger';
+);
 
 // Text fields from erxes-ui draw a shadow; in the panel they stay flat.
 export const PANEL_TEXT_FIELD_CLASS_NAME = 'rounded-sm shadow-none font-normal';

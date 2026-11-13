@@ -152,7 +152,7 @@ const useCloseOnOutsidePress = (
 /** Selection, options, open state and the actions MultipleSelector's parts use. */
 export const useMultipleSelector = (
   props: MultipleSelectorProps,
-  ref: React.ForwardedRef<MultipleSelectorRef>,
+  ref: React.Ref<MultipleSelectorRef> | undefined,
 ) => {
   const { maxSelected = Number.MAX_SAFE_INTEGER, creatable = false, onSearch } = props;
   const inputRef = useRef<HTMLInputElement>(null);

@@ -1,6 +1,6 @@
 import type { ProductCategory } from '@erxes/core-contract';
 import { Button, Dialog, Input, Label, Spinner, useToast } from 'erxes-ui';
-import { type FormEvent, useId, useState } from 'react';
+import { type SubmitEvent, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isApiError, messageOf } from '~/lib/api';
 import { CategoryPicker } from '../categories/CategoryPicker';
@@ -72,7 +72,7 @@ const CategoryForm = ({ target, onDone }: { target: CategoryDialogTarget; onDone
 
   const { save, errors, saving } = useCategorySave(editing, onDone);
 
-  const submit = (event: FormEvent) => {
+  const submit = (event: SubmitEvent) => {
     event.preventDefault();
     save(name.trim(), parentId);
   };

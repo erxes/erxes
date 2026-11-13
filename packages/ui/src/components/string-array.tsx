@@ -1,70 +1,64 @@
-'use client';
+import { useState, type ClipboardEvent, type KeyboardEvent } from 'react';
+import { Badge } from './badge';
 
-import { type Tag, TagInput } from 'emblor';
-import { cn } from 'erxes-ui/lib/utils';
-import { useState } from 'react';
-import { handleStringArrayPaste } from '../utils/string-array';
-
+/**
+ * A list of short strings as removable badges. Enter or a comma adds the typed text,
+ * Backspace in the empty input removes the last one, and pasted lines add one each.
+ */
 export function StringArrayInput({
   value,
   onValueChange,
-  id,
-  placeholder,
-  styleClasses,
-  onBlur,
-  splitOnPaste = false,
+  placeholder = 'Add a tag',
 }: {
   value: string[];
   onValueChange: (value: string[]) => void;
-  id?: string;
   placeholder?: string;
-  styleClasses?: {
-    inlineTagsContainer?: string;
-    input?: string;
-    tag?: {
-      body?: string;
-      closeButton?: string;
-    };
-  };
-  onBlur?: () => void;
-  splitOnPaste?: boolean;
 }) {
-  const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
-  const tags: Tag[] = value.map((text) => ({ id: text, text }));
+  const [draft, setDraft] = useState('');
+
+  const add = (texts: string[]) => {
+    const next = [...new Set([...value, ...texts.map((text) => text.trim()).filter(Boolean)])];
+
+    if (next.length !== value.length) onValueChange(next);
+    setDraft('');
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      add([draft]);
+    } else if (event.key === 'Backspace' && !draft && value.length > 0) {
+      onValueChange(value.slice(0, -1));
+    }
+  };
+
+  const onPaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    const lines = event.clipboardData.getData('text').split(/\r\n|\r|\n/);
+
+    if (lines.length < 2) return;
+    event.preventDefault();
+    add(lines);
+  };
 
   return (
-    <TagInput
-      activeTagIndex={activeTagIndex}
-      placeholder={placeholder || 'Add a tag'}
-      setActiveTagIndex={setActiveTagIndex}
-      id={id}
-      setTags={(next) => {
-        const nextTags = typeof next === 'function' ? next(tags) : next;
-
-        onValueChange(nextTags.map((tag) => tag.text));
-      }}
-      styleClasses={{
-        inlineTagsContainer: cn(
-          'rounded bg-background border-none transition-[color,box-shadow] focus-within:shadow-focus outline-none min-h-7 h-auto p-0 px-1 gap-1 flex-wrap',
-          styleClasses?.inlineTagsContainer,
-        ),
-        input: cn('w-full min-w-[80px] shadow-none px-2 h-7', styleClasses?.input),
-        tag: {
-          body: cn(
-            'h-6 relative bg-background border border-input hover:bg-background rounded-md font-medium text-xs ps-2 pe-5',
-            styleClasses?.tag?.body,
-          ),
-          closeButton: cn(
-            'absolute -inset-y-px -end-px p-0 rounded-e-md flex size-6 transition-[color,box-shadow] outline-none text-muted-foreground/80 hover:text-foreground',
-            styleClasses?.tag?.closeButton,
-          ),
-        },
-      }}
-      tags={tags}
-      onBlur={onBlur}
-      inputProps={{
-        onPaste: (event) => splitOnPaste && handleStringArrayPaste({ event, value, onValueChange }),
-      }}
-    />
+    <div className="flex min-h-7 flex-wrap items-center gap-1 rounded-sm bg-background px-1 shadow-xs focus-within:shadow-focus">
+      {value.map((text) => (
+        <Badge
+          key={text}
+          variant="secondary"
+          onClose={() => onValueChange(value.filter((item) => item !== text))}
+        >
+          {text}
+        </Badge>
+      ))}
+      <input
+        value={draft}
+        placeholder={placeholder}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={onKeyDown}
+        onPaste={onPaste}
+        className="h-7 min-w-20 flex-1 bg-transparent px-2 text-sm outline-hidden placeholder:text-accent-foreground/70"
+      />
+    </div>
   );
 }

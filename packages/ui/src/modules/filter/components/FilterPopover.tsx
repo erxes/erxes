@@ -18,12 +18,14 @@ import {
   openPopoverState,
 } from '../states/filterStates';
 
-export const FilterTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentPropsWithoutRef<typeof Button> & {
-    isFiltered?: boolean;
-  }
->(({ isFiltered, className, ...props }, ref) => {
+export const FilterTrigger = ({
+  ref,
+  isFiltered,
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof Button> & {
+  isFiltered?: boolean;
+} & React.RefAttributes<HTMLButtonElement>) => {
   const { t } = useTranslation();
 
   return (
@@ -49,7 +51,7 @@ export const FilterTrigger = React.forwardRef<
       </Tooltip>
     </Tooltip.Provider>
   );
-});
+};
 
 export const FilterPopover = ({
   scope,
@@ -85,14 +87,19 @@ export const FilterPopover = ({
   );
 };
 
-export const FilterItem = React.forwardRef<
-  React.ComponentRef<typeof Command.Item>,
-  Except<React.ComponentPropsWithoutRef<typeof Command.Item>, 'value'> & {
-    value: string;
-    inDialog?: boolean;
-    active?: boolean;
-  }
->(({ children, value, inDialog, className, active, ...props }, ref) => {
+export const FilterItem = ({
+  ref,
+  children,
+  value,
+  inDialog,
+  className,
+  active,
+  ...props
+}: Except<React.ComponentPropsWithoutRef<typeof Command.Item>, 'value'> & {
+  value: string;
+  inDialog?: boolean;
+  active?: boolean;
+} & React.RefAttributes<React.ComponentRef<typeof Command.Item>>) => {
   const { id } = useFilterContext();
   const setDialogView = useSetAtom(filterDialogViewState(id));
   const setOpenDialog = useSetAtom(openDialogState(id));
@@ -121,12 +128,14 @@ export const FilterItem = React.forwardRef<
       <IconChevronRight className="w-4 h-4 ml-auto" />
     </Command.Item>
   );
-});
+};
 
-export const FilterCommandItem = React.forwardRef<
-  React.ComponentRef<typeof Command.Item>,
-  React.ComponentPropsWithoutRef<typeof Command.Item>
->(({ className, onSelect, ...props }, ref) => {
+export const FilterCommandItem = ({
+  ref,
+  className,
+  onSelect,
+  ...props
+}: React.ComponentProps<typeof Command.Item>) => {
   const { id } = useFilterContext();
   const setOpen = useSetAtom(openPopoverState(id));
 
@@ -143,7 +152,7 @@ export const FilterCommandItem = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
 const FilterBackButton = () => {
   const { id } = useFilterContext();
@@ -193,10 +202,12 @@ export const FilterView = ({
   );
 };
 
-export const FilterCommandInput = React.forwardRef<
-  HTMLInputElement,
-  React.ComponentPropsWithoutRef<typeof Command.Input>
->(({ className, ...props }, ref) => {
+export const FilterCommandInput = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof Command.Input> &
+  React.RefAttributes<HTMLInputElement>) => {
   return (
     <div className="relative">
       <Command.Input ref={ref} className={cn('pr-8', className)} {...props} />
@@ -205,7 +216,7 @@ export const FilterCommandInput = React.forwardRef<
       </Kbd>
     </div>
   );
-});
+};
 
 export const FilterSearchValueTrigger = () => (
   <FilterItem value="searchValue" inDialog>

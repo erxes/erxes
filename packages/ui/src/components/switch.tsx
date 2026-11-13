@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Switch as SwitchPrimitives } from 'radix-ui';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'erxes-ui/lib/utils';
@@ -33,13 +33,13 @@ const switchThumbVariants = cva(
   },
 );
 
-export const Switch = React.forwardRef<
-  React.ElementRef<typeof SwitchPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root> & VariantProps<typeof switchVariants>
->(({ className, size, ...props }, ref) => (
+export const Switch = ({
+  ref,
+  className,
+  size,
+  ...props
+}: React.ComponentProps<typeof SwitchPrimitives.Root> & VariantProps<typeof switchVariants>) => (
   <SwitchPrimitives.Root className={cn(switchVariants({ size }), className)} {...props} ref={ref}>
     <SwitchPrimitives.Thumb className={switchThumbVariants({ size })} />
   </SwitchPrimitives.Root>
-));
-
-Switch.displayName = SwitchPrimitives.Root.displayName;
+);

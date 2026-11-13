@@ -23,7 +23,7 @@ const RecordEntry = ({
     <div
       hidden={!active}
       aria-hidden={!active}
-      {...(!active ? { inert: '' } : {})}
+      inert={!active}
       className={active ? 'flex min-h-0 flex-1 flex-col' : 'hidden'}
     >
       <SidePanelDraftContext.Provider value={draft}>

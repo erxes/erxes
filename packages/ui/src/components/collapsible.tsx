@@ -4,10 +4,7 @@ import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
 import { IconCaretDownFilled } from '@tabler/icons-react';
 
-const TriggerButton = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentPropsWithoutRef<typeof Button>
->(({ className, ...props }, ref) => {
+const TriggerButton = ({ ref, className, ...props }: React.ComponentProps<typeof Button>) => {
   return (
     <CollapsiblePrimitive.CollapsibleTrigger asChild ref={ref}>
       <Button
@@ -18,12 +15,13 @@ const TriggerButton = React.forwardRef<
       />
     </CollapsiblePrimitive.CollapsibleTrigger>
   );
-});
+};
 
-const TriggerIcon = React.forwardRef<
-  React.ElementRef<typeof IconCaretDownFilled>,
-  React.ComponentPropsWithoutRef<typeof IconCaretDownFilled>
->(({ className, ...props }, ref) => {
+const TriggerIcon = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<typeof IconCaretDownFilled>) => {
   return (
     <IconCaretDownFilled
       className={cn(
@@ -34,7 +32,7 @@ const TriggerIcon = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
 export const Collapsible = Object.assign(CollapsiblePrimitive.Root, {
   Trigger: CollapsiblePrimitive.CollapsibleTrigger,

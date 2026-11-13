@@ -7,24 +7,24 @@ import { cn } from 'erxes-ui/lib/utils';
 import { useFilterContext } from '../hooks/useFilterContext';
 import { useFilterQueryState } from '../hooks/useFilterQueryState';
 
-export const FilterBar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn('flex flex-wrap items-center gap-2 flex-1', className)}
-        {...props}
-      />
-    );
-  },
-);
+export const FilterBar = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+  return (
+    <div
+      ref={ref}
+      className={cn('flex flex-wrap items-center gap-2 flex-1', className)}
+      {...props}
+    />
+  );
+};
 
-export const FilterBarCloseButton = React.forwardRef<
-  React.ComponentRef<typeof Button>,
-  Except<React.ComponentPropsWithoutRef<typeof Button>, 'value'> & {
-    filterKey?: string;
-  }
->(({ className, filterKey, ...props }, ref) => {
+export const FilterBarCloseButton = ({
+  ref,
+  className,
+  filterKey,
+  ...props
+}: Except<React.ComponentPropsWithoutRef<typeof Button>, 'value'> & {
+  filterKey?: string;
+} & React.RefAttributes<React.ComponentRef<typeof Button>>) => {
   const removeQuery = useRemoveQueryStateByKey();
 
   return (
@@ -39,14 +39,17 @@ export const FilterBarCloseButton = React.forwardRef<
       <IconX />
     </Button>
   );
-});
+};
 
-export const FilterBarItem = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & {
-    queryKey?: string;
-  }
->(({ className, queryKey, children, ...props }, ref) => {
+export const FilterBarItem = ({
+  ref,
+  className,
+  queryKey,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+  queryKey?: string;
+} & React.RefAttributes<HTMLDivElement>) => {
   const [query] = useFilterQueryState<string>(queryKey || 'root');
 
   if (queryKey && !query) {
@@ -66,30 +69,31 @@ export const FilterBarItem = React.forwardRef<
       <FilterBarCloseButton filterKey={queryKey} />
     </div>
   );
-});
+};
 
-export const FilterBarName = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'bg-background rounded-l [&>svg]:size-4 flex items-center px-2 gap-2 w-fit',
-          className,
-        )}
-        {...props}
-      />
-    );
-  },
-);
+export const FilterBarName = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'bg-background rounded-l [&>svg]:size-4 flex items-center px-2 gap-2 w-fit',
+        className,
+      )}
+      {...props}
+    />
+  );
+};
 
-export const FilterBarButton = React.forwardRef<
-  React.ComponentRef<typeof Button>,
-  Except<React.ComponentPropsWithoutRef<typeof Button>, 'value'> & {
-    inDialog?: boolean;
-    filterKey?: string;
-  }
->(({ className, inDialog, filterKey, ...props }, ref) => {
+export const FilterBarButton = ({
+  ref,
+  className,
+  inDialog,
+  filterKey,
+  ...props
+}: Except<React.ComponentPropsWithoutRef<typeof Button>, 'value'> & {
+  inDialog?: boolean;
+  filterKey?: string;
+} & React.RefAttributes<React.ComponentRef<typeof Button>>) => {
   const { setDialogView, setOpenDialog } = useFilterContext();
 
   return (
@@ -110,7 +114,7 @@ export const FilterBarButton = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
 export const FilterSearchValueBarItem = () => {
   const [searchValue] = useFilterQueryState<string>('searchValue');

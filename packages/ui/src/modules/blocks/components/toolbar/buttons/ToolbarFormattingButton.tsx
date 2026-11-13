@@ -2,27 +2,25 @@ import type { ToolbarFormattingButtonProps } from 'erxes-ui/modules/blocks/types
 import { useCodeActive } from 'erxes-ui/modules/blocks/hooks/toolbar/useCodeActive';
 import { CODE_INCOMPATIBLE_CONTROLS } from 'erxes-ui/modules/blocks/constant/toolbar/codeIncompatibleControls';
 import { components } from '@blocknote/shadcn';
-import { forwardRef } from 'react';
 
-export const ToolbarFormattingButton = forwardRef<HTMLButtonElement, ToolbarFormattingButtonProps>(
-  (props, ref) => {
-    const codeActive = useCodeActive();
+export const ToolbarFormattingButton = ({
+  ref,
+  ...props
+}: ToolbarFormattingButtonProps & React.RefAttributes<HTMLButtonElement>) => {
+  const codeActive = useCodeActive();
 
-    const codeIncompatible = CODE_INCOMPATIBLE_CONTROLS.includes(props['data-test'] ?? '');
-    const disabledByCode = codeActive && codeIncompatible;
+  const codeIncompatible = CODE_INCOMPATIBLE_CONTROLS.includes(props['data-test'] ?? '');
+  const disabledByCode = codeActive && codeIncompatible;
 
-    const isDisabled = props.isDisabled === true || disabledByCode;
+  const isDisabled = props.isDisabled === true || disabledByCode;
 
-    const buttonProps = {
-      ...props,
-      ref,
-      disabled: props.disabled === true || isDisabled,
-      isDisabled,
-      isSelected: disabledByCode && props.isSelected !== undefined ? false : props.isSelected,
-    };
+  const buttonProps = {
+    ...props,
+    ref,
+    disabled: props.disabled === true || isDisabled,
+    isDisabled,
+    isSelected: disabledByCode && props.isSelected !== undefined ? false : props.isSelected,
+  };
 
-    return <components.FormattingToolbar.Button {...buttonProps} />;
-  },
-);
-
-ToolbarFormattingButton.displayName = 'ToolbarFormattingButton';
+  return <components.FormattingToolbar.Button {...buttonProps} />;
+};

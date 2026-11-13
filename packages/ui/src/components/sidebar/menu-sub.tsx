@@ -1,48 +1,51 @@
-import * as React from 'react';
+import React from 'react';
 
 import { SidebarTreeIndicator } from 'erxes-ui/components/sidebar-tree-indicator';
 import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 
-export const SidebarMenuSub = React.forwardRef<HTMLUListElement, React.ComponentProps<'ul'>>(
-  ({ className, children, ...props }, ref) => {
-    const subRef = React.useRef<HTMLUListElement>(null);
+export const SidebarMenuSub = ({
+  ref,
+  className,
+  children,
+  ...props
+}: React.ComponentProps<'ul'>) => {
+  const subRef = React.useRef<HTMLUListElement>(null);
 
-    return (
-      <ul
-        ref={mergeRefs([subRef, ref])}
-        data-sidebar="menu-sub"
-        className={cn(
-          'relative ml-3.5 flex min-w-0 translate-x-px flex-col gap-1 pl-2.5 py-0.5',
-          'group-data-[collapsible=icon]:hidden',
-          className,
-        )}
-        {...props}
-      >
-        <SidebarTreeIndicator as="li" containerRef={subRef} />
-        {children}
-      </ul>
-    );
-  },
+  return (
+    <ul
+      ref={composeRefs(subRef, ref)}
+      data-sidebar="menu-sub"
+      className={cn(
+        'relative ml-3.5 flex min-w-0 translate-x-px flex-col gap-1 pl-2.5 py-0.5',
+        'group-data-[collapsible=icon]:hidden',
+        className,
+      )}
+      {...props}
+    >
+      <SidebarTreeIndicator as="li" containerRef={subRef} />
+      {children}
+    </ul>
+  );
+};
+
+export const SidebarMenuSubItem = ({ ref, ...props }: React.ComponentProps<'li'>) => (
+  <li ref={ref} {...props} />
 );
 
-SidebarMenuSub.displayName = 'SidebarMenuSub';
-
-export const SidebarMenuSubItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(
-  ({ ...props }, ref) => <li ref={ref} {...props} />,
-);
-
-SidebarMenuSubItem.displayName = 'SidebarMenuSubItem';
-
-export const SidebarMenuSubButton = React.forwardRef<
-  HTMLAnchorElement,
-  React.ComponentProps<'a'> & {
-    asChild?: boolean;
-    size?: 'sm' | 'md';
-    isActive?: boolean;
-  }
->(({ asChild = false, size = 'md', isActive, className, ...props }, ref) => {
+export const SidebarMenuSubButton = ({
+  ref,
+  asChild = false,
+  size = 'md',
+  isActive,
+  className,
+  ...props
+}: React.ComponentProps<'a'> & {
+  asChild?: boolean;
+  size?: 'sm' | 'md';
+  isActive?: boolean;
+}) => {
   const Comp = asChild ? Slot.Root : 'a';
 
   return (
@@ -62,6 +65,4 @@ export const SidebarMenuSubButton = React.forwardRef<
       {...props}
     />
   );
-});
-
-SidebarMenuSubButton.displayName = 'SidebarMenuSubButton';
+};

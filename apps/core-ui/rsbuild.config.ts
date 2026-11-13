@@ -1,5 +1,7 @@
 import { pluginModuleFederation } from '@module-federation/rsbuild-plugin';
 import { defineConfig } from '@rsbuild/core';
+import { pluginBabel } from '@rsbuild/plugin-babel';
+import reactCompiler from 'babel-plugin-react-compiler';
 import { pluginReact } from '@rsbuild/plugin-react';
 import tailwindcss from '@tailwindcss/postcss';
 import { resolve } from 'node:path';
@@ -33,6 +35,15 @@ const SHARED = [
 export default defineConfig({
   plugins: [
     pluginReact(),
+    // The React Compiler memoizes components and hooks, so a state change re-renders only
+    // what reads it. Babel runs it on our own source before SWC; node_modules stay as shipped.
+    pluginBabel({
+      include: [resolve(__dirname, 'src'), ui],
+      babelLoaderOptions: (options) => {
+        options.plugins ??= [];
+        options.plugins.unshift(reactCompiler);
+      },
+    }),
     pluginModuleFederation({
       name: 'core',
       // The host exposes nothing and loads remotes at runtime, so there are no

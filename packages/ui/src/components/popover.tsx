@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
@@ -13,12 +13,16 @@ const PopoverPortal = ({
   <PopoverPrimitive.Portal {...props} />
 );
 
-const PopoverContent = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
-    disableTransition?: boolean;
-  }
->(({ className, align = 'center', disableTransition, sideOffset = 4, ...props }, ref) => (
+const PopoverContent = ({
+  ref,
+  className,
+  align = 'center',
+  disableTransition,
+  sideOffset = 4,
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Content> & {
+  disableTransition?: boolean;
+}) => (
   <PopoverPortal>
     <PopoverPrimitive.Content
       ref={ref}
@@ -33,9 +37,7 @@ const PopoverContent = React.forwardRef<
       {...props}
     />
   </PopoverPortal>
-));
-
-PopoverContent.displayName = PopoverPrimitive.Content.displayName;
+);
 
 export const Popover = Object.assign(PopoverPrimitive.Root, {
   Trigger: PopoverPrimitive.Trigger,

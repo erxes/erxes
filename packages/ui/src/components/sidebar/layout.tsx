@@ -1,14 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 
 import { Input } from 'erxes-ui/components/input';
 import { ScrollArea } from 'erxes-ui/components/scroll-area';
 import { Separator } from 'erxes-ui/components/separator';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const SidebarInput = React.forwardRef<
-  React.ElementRef<typeof Input>,
-  React.ComponentProps<typeof Input>
->(({ className, ...props }, ref) => {
+export const SidebarInput = ({ ref, className, ...props }: React.ComponentProps<typeof Input>) => {
   return (
     <Input
       ref={ref}
@@ -17,44 +14,35 @@ export const SidebarInput = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
-SidebarInput.displayName = 'SidebarInput';
+export const SidebarHeader = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="header"
+      className={cn('flex flex-col gap-2 p-2', className)}
+      {...props}
+    />
+  );
+};
 
-export const SidebarHeader = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        data-sidebar="header"
-        className={cn('flex flex-col gap-2 p-2', className)}
-        {...props}
-      />
-    );
-  },
-);
+export const SidebarFooter = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="footer"
+      className={cn('flex flex-col gap-2 p-2', className)}
+      {...props}
+    />
+  );
+};
 
-SidebarHeader.displayName = 'SidebarHeader';
-
-export const SidebarFooter = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        data-sidebar="footer"
-        className={cn('flex flex-col gap-2 p-2', className)}
-        {...props}
-      />
-    );
-  },
-);
-
-SidebarFooter.displayName = 'SidebarFooter';
-
-export const SidebarSeparator = React.forwardRef<
-  React.ElementRef<typeof Separator>,
-  React.ComponentProps<typeof Separator>
->(({ className, ...props }, ref) => {
+export const SidebarSeparator = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<typeof Separator>) => {
   return (
     <Separator
       ref={ref}
@@ -63,14 +51,14 @@ export const SidebarSeparator = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
-SidebarSeparator.displayName = 'SidebarSeparator';
-
-export const SidebarContent = React.forwardRef<
-  React.ElementRef<typeof ScrollArea>,
-  React.ComponentProps<typeof ScrollArea>
->(({ className, viewportClassName, ...props }, ref) => {
+export const SidebarContent = ({
+  ref,
+  className,
+  viewportClassName,
+  ...props
+}: React.ComponentProps<typeof ScrollArea>) => {
   return (
     <ScrollArea
       ref={ref}
@@ -83,6 +71,4 @@ export const SidebarContent = React.forwardRef<
       {...props}
     />
   );
-});
-
-SidebarContent.displayName = 'SidebarContent';
+};

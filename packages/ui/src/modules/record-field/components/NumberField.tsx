@@ -6,27 +6,37 @@ import React, { useState } from 'react';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
-export const NumberField = React.forwardRef<
-  HTMLButtonElement,
-  ButtonProps & {
+type NumberFieldProps = ButtonProps &
+  React.RefAttributes<HTMLButtonElement> & {
     placeholder?: string;
     value: number;
     scope: string;
     onValueChange?: (value: number) => void;
     onSave?: (value: number) => void;
     formatValue?: (value: number) => string;
-  }
->(({ placeholder, value, scope, onSave, onValueChange, formatValue, children, ...props }, ref) => {
+  };
+
+export const NumberField = ({
+  placeholder,
+  value,
+  scope,
+  onSave,
+  onValueChange,
+  formatValue,
+  children,
+  ...props
+}: NumberFieldProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [editingValue, setEditingValue] = useState(String(value));
   const [isEdited, setIsEdited] = useState(false);
+  const shown = isOpen ? editingValue : formatValue ? formatValue(value) : value.toLocaleString();
 
   const resetEditing = () => {
     setEditingValue(String(value));
     setIsEdited(false);
   };
 
-  const handleAction = (e?: React.FormEvent) => {
+  const handleAction = (e?: React.SubmitEvent) => {
     e?.preventDefault();
     const numValue = Number(editingValue) || 0;
 
@@ -59,14 +69,9 @@ export const NumberField = React.forwardRef<
         }
       }}
     >
-      <RecordTableInlineCell.Trigger {...props} ref={ref}>
+      <RecordTableInlineCell.Trigger {...props}>
         {children}
-        <TextOverflowTooltip
-          value={
-            (isOpen ? editingValue : formatValue ? formatValue(value) : value.toLocaleString()) ??
-            placeholder
-          }
-        />
+        <TextOverflowTooltip value={shown ?? placeholder} />
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content asChild>
         <form onSubmit={handleAction}>
@@ -98,4 +103,4 @@ export const NumberField = React.forwardRef<
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );
-});
+};
