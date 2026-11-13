@@ -612,5 +612,13 @@
   },
   "query-state": {
     "retry": "Try again"
+  },
+  "region": {
+    "country": "Country",
+    "currency": "Currency",
+    "choose-country": "Choose a country",
+    "choose-currency": "Choose a currency",
+    "search": "Search",
+    "no-match": "Nothing matches"
   }
 }

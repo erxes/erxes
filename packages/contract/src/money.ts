@@ -4,6 +4,9 @@ import { z } from 'zod';
 const isCountry = (code: string): code is keyof typeof countryToCurrency =>
   Object.hasOwn(countryToCurrency, code);
 
+/** Every country `Country` accepts (ISO 3166-1 alpha-2), for pickers. */
+export const COUNTRIES = Object.keys(countryToCurrency);
+
 /** An ISO 3166-1 alpha-2 country code (`MN`, `US`, `DE`). */
 export const Country = z
   .string()

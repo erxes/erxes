@@ -611,5 +611,13 @@
   },
   "query-state": {
     "retry": "Дахин оролдох"
+  },
+  "region": {
+    "country": "Улс",
+    "currency": "Валют",
+    "choose-country": "Улсаа сонгоно уу",
+    "choose-currency": "Валютаа сонгоно уу",
+    "search": "Хайх",
+    "no-match": "Тохирох зүйл алга"
   }
 }

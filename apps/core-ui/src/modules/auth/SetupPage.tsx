@@ -1,9 +1,11 @@
-import { NewPassword } from '@erxes/core-contract';
+import { currencyOfCountry, NewPassword } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Input, Spinner } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
+import { useForm, useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { CountrySelect, CurrencySelect } from '~/components/RegionSelect';
 import { isApiError, messageOf, orpc } from '~/lib/api';
 import { useSignedIn } from '~/modules/auth/session';
 import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLayout';
@@ -11,6 +13,8 @@ import { AuthBanner, AuthenticationLayout } from './components/AuthenticationLay
 const schema = z
   .object({
     organizationName: z.string().trim().min(1, 'Enter the organization name').max(100),
+    country: z.string(),
+    currency: z.string(),
     firstName: z.string().trim().min(1, 'Enter your first name').max(100),
     lastName: z.string().trim().max(100),
     email: z.string().trim().email('Enter a valid email'),
@@ -23,6 +27,8 @@ const schema = z
   });
 
 type Values = z.infer<typeof schema>;
+
+const LABEL_CLASS_NAME = 'font-sans text-sm font-medium normal-case leading-none text-foreground';
 
 const Field = ({
   name,
@@ -39,9 +45,7 @@ const Field = ({
     name={name}
     render={({ field }) => (
       <Form.Item>
-        <Form.Label className="font-sans text-sm font-medium normal-case leading-none text-foreground">
-          {label}
-        </Form.Label>
+        <Form.Label className={LABEL_CLASS_NAME}>{label}</Form.Label>
         <Form.Control>
           <Input {...field} type={type} autoComplete={autoComplete} />
         </Form.Control>
@@ -50,6 +54,47 @@ const Field = ({
     )}
   />
 );
+
+/** Where the organisation works; choosing a country also picks its currency, still editable. */
+const RegionFields = () => {
+  const { t } = useTranslation('common', { keyPrefix: 'region' });
+  const { control, setValue } = useFormContext<Values>();
+
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <Form.Field
+        control={control}
+        name="country"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label className={LABEL_CLASS_NAME}>{t('country', 'Country')}</Form.Label>
+            <Form.Control>
+              <CountrySelect
+                value={field.value}
+                onChange={(country) => {
+                  field.onChange(country);
+                  setValue('currency', currencyOfCountry(country) ?? '');
+                }}
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={control}
+        name="currency"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label className={LABEL_CLASS_NAME}>{t('currency', 'Currency')}</Form.Label>
+            <Form.Control>
+              <CurrencySelect value={field.value} onChange={field.onChange} />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+    </div>
+  );
+};
 
 /** Creates the organisation and its owner, then signs in. */
 const useSetup = () => {
@@ -83,6 +128,8 @@ export const SetupPage = () => {
     resolver: zodResolver(schema),
     defaultValues: {
       organizationName: '',
+      country: '',
+      currency: '',
       firstName: '',
       lastName: '',
       email: '',
@@ -91,8 +138,14 @@ export const SetupPage = () => {
     },
   });
 
-  const onSubmit = form.handleSubmit(({ confirmPassword, lastName, ...values }) =>
-    setup.mutate({ ...values, lastName: lastName || undefined }),
+  const onSubmit = form.handleSubmit(
+    ({ confirmPassword, lastName, country, currency, ...values }) =>
+      setup.mutate({
+        ...values,
+        lastName: lastName || undefined,
+        country: country || undefined,
+        currency: currency || undefined,
+      }),
   );
 
   return (
@@ -112,6 +165,7 @@ export const SetupPage = () => {
             noValidate
           >
             <Field name="organizationName" label="Organization name" autoComplete="organization" />
+            <RegionFields />
             <div className="grid grid-cols-2 gap-3">
               <Field name="firstName" label="First name" autoComplete="given-name" />
               <Field name="lastName" label="Last name" autoComplete="family-name" />
