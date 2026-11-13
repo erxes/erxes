@@ -162,10 +162,15 @@ const TagsSelectRoot = ({
   placeholder?: string;
 }) => (
   <TagsSelectProvider {...props}>
-    <Popover.Trigger asChild>
-      <Button variant={variant} className={cn('w-min text-sm font-medium shadow-xs', className)}>
-        <TagsSelectValue placeholder={placeholder} />
-      </Button>
+    <Popover.Trigger
+      render={
+        <Button
+          variant={variant}
+          className={cn('w-min text-sm font-medium shadow-xs', className)}
+        />
+      }
+    >
+      <TagsSelectValue placeholder={placeholder} />
     </Popover.Trigger>
     <Combobox.Content className="w-[200px] p-0" align="start">
       <TagsSelectContent />

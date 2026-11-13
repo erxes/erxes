@@ -89,11 +89,9 @@ const ColorCell = ({ tag }: { tag: Tag }) => {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <RecordTableInlineCell.Trigger>
-          <TagDot color={tag.colorCode} className="size-3" />
-        </RecordTableInlineCell.Trigger>
-      </Popover.Trigger>
+      <RecordTableInlineCell.Trigger>
+        <TagDot color={tag.colorCode} className="size-3" />
+      </RecordTableInlineCell.Trigger>
       <Popover.Content className="w-auto p-3">
         <ColorSwatches
           value={tag.colorCode}

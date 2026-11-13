@@ -32,14 +32,11 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
         </button>
       ))}
       <Popover>
-        <Popover.Trigger asChild>
-          <button
-            type="button"
-            className="inline-flex h-5 items-center rounded-full px-1 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover/note:opacity-100 hover:bg-accent data-[state=open]:opacity-100"
-            aria-label={t('react', 'React')}
-          >
-            <IconMoodPlus className="size-3.5" />
-          </button>
+        <Popover.Trigger
+          className="inline-flex h-5 items-center rounded-full px-1 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover/note:opacity-100 hover:bg-accent data-popup-open:opacity-100"
+          aria-label={t('react', 'React')}
+        >
+          <IconMoodPlus className="size-3.5" />
         </Popover.Trigger>
         <Popover.Content className="w-auto p-1" align="start">
           <div className="flex gap-1">
@@ -66,11 +63,7 @@ export const NoteHistory = ({ history }: { history: { body: string; editedAt: st
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <button type="button" className="hover:underline">
-          · {t('edited', 'edited')}
-        </button>
-      </Popover.Trigger>
+      <Popover.Trigger className="hover:underline">· {t('edited', 'edited')}</Popover.Trigger>
       <Popover.Content className="w-80 space-y-2 text-sm" align="start">
         <p className="text-xs font-medium text-muted-foreground">
           {t('earlier-versions', 'Earlier versions')}

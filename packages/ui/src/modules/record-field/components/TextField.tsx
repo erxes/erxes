@@ -53,7 +53,15 @@ export const TextField = ({
       modal={false}
       scope={scope}
       open={isOpen}
-      onOpenChange={(open: boolean) => {
+      onOpenChange={(open, details) => {
+        // Escape drops the draft instead of saving it.
+        if (details?.reason === 'escape-key') {
+          setEditingValue(value);
+          setIsOpen(false);
+
+          return;
+        }
+
         setIsOpen(open);
 
         if (open) {
@@ -71,28 +79,19 @@ export const TextField = ({
         {children}
         <TextOverflowTooltip value={(isOpen ? editingValue : value) || placeholder} />
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content
-        asChild
-        onEscapeKeyDown={(event) => {
-          event.preventDefault();
-          setEditingValue(value);
-          setIsOpen(false);
-        }}
-      >
-        <form onSubmit={handleAction}>
-          <Input
-            placeholder={placeholder}
-            value={editingValue}
-            onChange={(e) => {
-              setEditingValue(e.target.value);
-              onValueChange?.(e.target.value);
-            }}
-            onKeyDown={handleKeyDown}
-          />
-          <button type="submit" className="sr-only">
-            Save
-          </button>
-        </form>
+      <RecordTableInlineCell.Content render={<form onSubmit={handleAction} />}>
+        <Input
+          placeholder={placeholder}
+          value={editingValue}
+          onChange={(e) => {
+            setEditingValue(e.target.value);
+            onValueChange?.(e.target.value);
+          }}
+          onKeyDown={handleKeyDown}
+        />
+        <button type="submit" className="sr-only">
+          Save
+        </button>
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );

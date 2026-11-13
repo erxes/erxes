@@ -1,47 +1,55 @@
-import React from 'react';
-import { Popover as PopoverPrimitive } from 'radix-ui';
+import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import { cn } from 'erxes-ui/lib/utils';
 
-export type PopoverProps = React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Root>;
+export type PopoverProps = PopoverPrimitive.Root.Props;
 
-const popoverClassName =
-  'z-50 w-72 rounded-md bg-background p-4 shadow-lg outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0';
+export type PopoverChangeDetails = PopoverPrimitive.Root.ChangeEventDetails;
 
-const PopoverPortal = ({
-  ...props
-}: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Portal>) => (
-  <PopoverPrimitive.Portal {...props} />
-);
+export type PopoverContentProps = PopoverPrimitive.Popup.Props &
+  Pick<
+    PopoverPrimitive.Positioner.Props,
+    'side' | 'sideOffset' | 'align' | 'alignOffset' | 'collisionPadding' | 'anchor'
+  > & {
+    disableTransition?: boolean;
+  };
 
+/** The popup sits in a positioner, which sets `--anchor-width` and `--available-height` for it. */
 const PopoverContent = ({
-  ref,
   className,
-  align = 'center',
-  disableTransition,
+  side = 'bottom',
   sideOffset = 4,
+  align = 'center',
+  alignOffset = 0,
+  collisionPadding = 0,
+  anchor,
+  disableTransition,
   ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content> & {
-  disableTransition?: boolean;
-}) => (
-  <PopoverPortal>
-    <PopoverPrimitive.Content
-      ref={ref}
-      align={align}
+}: PopoverContentProps) => (
+  <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Positioner
+      className="isolate z-50"
+      side={side}
       sideOffset={sideOffset}
-      className={cn(
-        popoverClassName,
-        !disableTransition &&
-          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-        className,
-      )}
-      {...props}
-    />
-  </PopoverPortal>
+      align={align}
+      alignOffset={alignOffset}
+      collisionPadding={collisionPadding}
+      anchor={anchor}
+    >
+      <PopoverPrimitive.Popup
+        className={cn(
+          'w-72 rounded-md bg-background p-4 shadow-lg outline-hidden data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0',
+          !disableTransition &&
+            'data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          className,
+        )}
+        {...props}
+      />
+    </PopoverPrimitive.Positioner>
+  </PopoverPrimitive.Portal>
 );
 
 export const Popover = Object.assign(PopoverPrimitive.Root, {
   Trigger: PopoverPrimitive.Trigger,
   Content: PopoverContent,
-  Anchor: PopoverPrimitive.Anchor,
   Close: PopoverPrimitive.Close,
 });

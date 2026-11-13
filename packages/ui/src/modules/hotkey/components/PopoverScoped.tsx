@@ -1,4 +1,4 @@
-import { Popover, type PopoverProps } from 'erxes-ui/components/popover';
+import { Popover, type PopoverChangeDetails, type PopoverProps } from 'erxes-ui/components/popover';
 import { usePreviousHotkeyScope } from '../hooks/usePreviousHotkeyScope';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import type { Options as HotkeyOptions } from 'react-hotkeys-hook';
@@ -17,7 +17,8 @@ export const PopoverScoped = ({
   open,
   ...props
 }: Omit<PopoverProps, 'onOpenChange'> & {
-  onOpenChange?: (open: boolean, reason?: 'enter' | 'close') => void;
+  /** Closing on Enter passes no details. */
+  onOpenChange?: (open: boolean, details?: PopoverChangeDetails) => void;
   scope?: string;
   onEnter?: () => void;
   closeOnEnter?: boolean;
@@ -56,7 +57,7 @@ export const PopoverScoped = ({
 
       if (closeOnEnter) {
         _setOpen(false);
-        onOpenChange?.(false, 'enter');
+        onOpenChange?.(false);
       }
     },
     scope ? scope + '.Popover' : currentHotkeyScope.scope,
@@ -73,9 +74,9 @@ export const PopoverScoped = ({
       modal
       {...props}
       open={isOpen}
-      onOpenChange={(op) => {
-        _setOpen(op);
-        onOpenChange?.(op, 'close');
+      onOpenChange={(next, details) => {
+        _setOpen(next);
+        onOpenChange?.(next, details);
       }}
     />
   );

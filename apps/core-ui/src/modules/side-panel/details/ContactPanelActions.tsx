@@ -130,16 +130,18 @@ export const ContactPanelActions = ({
       aria-label={t('contact-actions', 'Contact actions')}
     >
       <Popover open={open} onOpenChange={setOpen}>
-        <Popover.Trigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            aria-label={t('actions', 'Actions')}
-            title={t('actions', 'Actions')}
-          >
-            <IconDots className="size-4" />
-          </Button>
+        <Popover.Trigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              aria-label={t('actions', 'Actions')}
+              title={t('actions', 'Actions')}
+            />
+          }
+        >
+          <IconDots className="size-4" />
         </Popover.Trigger>
         <Popover.Content className="min-w-[280px] p-0" align="end" side="bottom" sideOffset={8}>
           <Command>

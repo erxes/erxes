@@ -73,33 +73,31 @@ export const NumberField = ({
         {children}
         <TextOverflowTooltip value={shown ?? placeholder} />
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content asChild>
-        <form onSubmit={handleAction}>
-          <Input
-            type="text"
-            value={editingValue.toLocaleString()}
-            onChange={(e) => {
-              const rawValue = e.target.value.replace(/,/g, '');
+      <RecordTableInlineCell.Content render={<form onSubmit={handleAction} />}>
+        <Input
+          type="text"
+          value={editingValue.toLocaleString()}
+          onChange={(e) => {
+            const rawValue = e.target.value.replace(/,/g, '');
 
-              if (/^-?\d*\.?\d*$/.test(rawValue)) {
-                setEditingValue(rawValue);
-                setIsEdited(true);
-                const numValue = Number(rawValue);
+            if (/^-?\d*\.?\d*$/.test(rawValue)) {
+              setEditingValue(rawValue);
+              setIsEdited(true);
+              const numValue = Number(rawValue);
 
-                if (!isNaN(numValue)) {
-                  onValueChange?.(numValue);
-                }
+              if (!isNaN(numValue)) {
+                onValueChange?.(numValue);
               }
+            }
 
-              setIsOpen(true);
-            }}
-            onKeyDown={handleKeyDown}
-          />
+            setIsOpen(true);
+          }}
+          onKeyDown={handleKeyDown}
+        />
 
-          <button type="submit" className="sr-only">
-            Save
-          </button>
-        </form>
+        <button type="submit" className="sr-only">
+          Save
+        </button>
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );

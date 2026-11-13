@@ -147,21 +147,23 @@ export const NotificationsBell = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <CoreTabTooltip label={t('title', 'Notifications')}>
-        <Popover.Trigger asChild>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            aria-label={
-              count
-                ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` })
-                : t('title', 'Notifications')
-            }
-            className={cn(coreTabIconClassName(open), 'relative')}
-          >
-            <IconBell className="size-4" />
-            <BellIndicators count={count} />
-          </Button>
+        <Popover.Trigger
+          render={
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              aria-label={
+                count
+                  ? t('title-unread', { count, defaultValue: `Notifications, ${count} unread` })
+                  : t('title', 'Notifications')
+              }
+              className={cn(coreTabIconClassName(open), 'relative')}
+            />
+          }
+        >
+          <IconBell className="size-4" />
+          <BellIndicators count={count} />
         </Popover.Trigger>
       </CoreTabTooltip>
       <Popover.Content align="end" className="w-[26rem] p-0">

@@ -125,24 +125,26 @@ const PickerPopover = ({
   trigger: ReactNode;
   contentProps: DatePickerProps['popoverContentProps'];
   children: ReactNode;
-}) => (
-  <Popover open={open} onOpenChange={onOpenChange}>
-    {/* The anchor is the wrapper: the single-date text input takes no ref, so as the
-        trigger's child it left the calendar unpositioned, above the viewport. */}
-    <Popover.Anchor asChild>
-      <div className="relative inline-block w-full">
-        <Popover.Trigger asChild>{trigger}</Popover.Trigger>
+}) => {
+  // The wrapper is the anchor: the single-date text input opens the popover itself and takes no ref.
+  const anchorRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <div ref={anchorRef} className="relative inline-block w-full">
+        {trigger}
       </div>
-    </Popover.Anchor>
-    <Popover.Content
-      align="start"
-      {...contentProps}
-      className={cn('w-auto p-0', contentProps?.className)}
-    >
-      {children}
-    </Popover.Content>
-  </Popover>
-);
+      <Popover.Content
+        align="start"
+        anchor={anchorRef}
+        {...contentProps}
+        className={cn('w-auto p-0', contentProps?.className)}
+      >
+        {children}
+      </Popover.Content>
+    </Popover>
+  );
+};
 
 /** Open state, the normalized value, bounds and the select and clear handlers. */
 const useDatePicker = ({
@@ -292,13 +294,13 @@ export const DatePicker = (props: DatePickerProps) => {
         o.mode === 'single' ? (
           singleInput
         ) : (
-          <Button
-            variant={o.variant}
+          <Popover.Trigger
+            render={<Button variant={o.variant} />}
             disabled={isDisabled}
             className={cn('w-full justify-start text-left font-normal', o.className)}
           >
             {describeValue(normalizedValue, o.format, o.formatMultiple) ?? o.placeholder}
-          </Button>
+          </Popover.Trigger>
         )
       }
       contentProps={o.popoverContentProps}

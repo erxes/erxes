@@ -70,16 +70,18 @@ export const BarcodeSizeSettings = ({
 
   return (
     <Popover open={settingsOpen} onOpenChange={handleSettingsOpenChange}>
-      <Popover.Trigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          aria-label="Barcode settings"
-          title="Barcode settings"
-        >
-          <IconSettings />
-        </Button>
+      <Popover.Trigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="Barcode settings"
+            title="Barcode settings"
+          />
+        }
+      >
+        <IconSettings />
       </Popover.Trigger>
       <Popover.Content
         className="w-64 text-foreground"

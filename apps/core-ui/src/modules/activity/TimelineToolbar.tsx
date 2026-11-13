@@ -100,20 +100,22 @@ const FilterPopover = (props: FiltersProps) => {
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn('relative size-7 text-muted-foreground', count > 0 && 'text-foreground')}
-          aria-label={t('filters', 'Filters')}
-        >
-          <IconAdjustmentsHorizontal className="size-4" />
-          {count > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
-              {count}
-            </span>
-          )}
-        </Button>
+      <Popover.Trigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn('relative size-7 text-muted-foreground', count > 0 && 'text-foreground')}
+            aria-label={t('filters', 'Filters')}
+          />
+        }
+      >
+        <IconAdjustmentsHorizontal className="size-4" />
+        {count > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+            {count}
+          </span>
+        )}
       </Popover.Trigger>
       <Popover.Content align="end" className="w-64 space-y-3 p-3">
         <FilterSelects {...props} />

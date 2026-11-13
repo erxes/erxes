@@ -117,21 +117,23 @@ const FilterButton = ({ count, onClick }: { count: number; onClick: () => void }
 
   return (
     <IconTip label={t('label')} hotkey="F">
-      <Popover.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={t('label')}
-          aria-keyshortcuts="F"
-          className={cn(
-            'h-7 min-w-7 gap-1 px-1.5 text-muted-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground',
-            count > 0 && 'bg-accent text-foreground',
-          )}
-          onClick={onClick}
-        >
-          <IconFilter2 className="size-4" />
-          {count > 0 && <span className="text-xs tabular-nums">{count}</span>}
-        </Button>
+      <Popover.Trigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={t('label')}
+            aria-keyshortcuts="F"
+            className={cn(
+              'h-7 min-w-7 gap-1 px-1.5 text-muted-foreground data-popup-open:bg-accent data-popup-open:text-foreground',
+              count > 0 && 'bg-accent text-foreground',
+            )}
+            onClick={onClick}
+          />
+        }
+      >
+        <IconFilter2 className="size-4" />
+        {count > 0 && <span className="text-xs tabular-nums">{count}</span>}
       </Popover.Trigger>
     </IconTip>
   );

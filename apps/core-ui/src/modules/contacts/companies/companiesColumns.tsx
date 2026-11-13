@@ -57,9 +57,7 @@ const CompanyMoreColumnCell = ({ company }: { company: Company }) => {
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="h-full w-full" />
-      </Popover.Trigger>
+      <Popover.Trigger render={<RecordTable.MoreButton className="h-full w-full" />} />
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>

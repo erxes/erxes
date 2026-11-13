@@ -16,16 +16,18 @@ export const MemberPanelActions = ({ user }: { user: User }) => {
 
   return (
     <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-      <Popover.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7"
-          aria-label={t('actions')}
-          title={t('actions')}
-        >
-          <IconDots className="size-4" />
-        </Button>
+      <Popover.Trigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            aria-label={t('actions')}
+            title={t('actions')}
+          />
+        }
+      >
+        <IconDots className="size-4" />
       </Popover.Trigger>
       <Combobox.Content align="end" className="min-w-[280px] p-0">
         <Command>

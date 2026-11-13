@@ -68,16 +68,18 @@ export const CoreTabAppSwitcher = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <CoreTabTooltip label="Open app">
-        <Popover.Trigger asChild>
-          <Button
-            type="button"
-            size="icon"
-            variant="ghost"
-            aria-label="Open app"
-            className={coreTabIconClassName(open)}
-          >
-            <IconGridDots className="size-4" />
-          </Button>
+        <Popover.Trigger
+          render={
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              aria-label="Open app"
+              className={coreTabIconClassName(open)}
+            />
+          }
+        >
+          <IconGridDots className="size-4" />
         </Popover.Trigger>
       </CoreTabTooltip>
       <Popover.Content
