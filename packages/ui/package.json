@@ -87,13 +87,14 @@
     "@types/react-dom": "19.3.0",
     "jotai": "^3.0.2",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "react-i18next": "^18.0.1"
   },
   "peerDependencies": {
     "jotai": "^3.0.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-i18next": "^15.1.1",
+    "react-i18next": "^18.0.1",
     "react-router-dom": "^7.1.1"
   }
 }
