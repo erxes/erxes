@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { Company } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useQueryState, useToast } from 'erxes-ui';
@@ -13,7 +14,7 @@ export const companiesSessionKey = (state: CompanyState) =>
 
 /** The list filters, read from the URL; `state` splits companies that are customers from company leads. */
 export const useCompaniesFilters = (state: CompanyState = 'customer') => {
-  const [searchValue] = useQueryState<string>('searchValue');
+  const [searchValue] = useQueryState('searchValue', z.string());
 
   return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
 };

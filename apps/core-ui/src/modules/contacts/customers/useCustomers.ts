@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { Customer, CustomerState } from '@erxes/core-contract';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useQueryState, useToast } from 'erxes-ui';
@@ -10,7 +11,7 @@ export const customersSessionKey = (state: CustomerState) => `core_${state}s_cur
 
 /** The list filters, read from the URL: the search and the filter (views save both). */
 export const useCustomersFilters = (state: CustomerState) => {
-  const [searchValue] = useQueryState<string>('searchValue');
+  const [searchValue] = useQueryState('searchValue', z.string());
 
   return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
 };

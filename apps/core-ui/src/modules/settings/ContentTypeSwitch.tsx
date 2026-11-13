@@ -1,9 +1,10 @@
+import { z } from 'zod';
 import type { ContentType } from '@erxes/core-contract';
 import { Button, cn, useQueryState } from 'erxes-ui';
 
 /** Customers / Companies switch for settings that exist per record type (`?type=`). */
 export const useContentTypeParam = (): [ContentType, (type: ContentType) => void] => {
-  const [type, setType] = useQueryState<string>('type');
+  const [type, setType] = useQueryState('type', z.string());
 
   return [
     type === 'company' ? 'company' : 'customer',

@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import React, { useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +36,7 @@ export const FilterDialogStringView = ({
 }) => {
   const { t } = useTranslation();
   const { setDialogView, setOpenDialog, sessionKey } = useFilterContext();
-  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey ?? '');
+  const [query, setQuery] = useFilterQueryState(filterKey, z.string(), sessionKey ?? '');
   const [dialogSearch, setDialogSearch] = useState(query ?? '');
 
   const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {

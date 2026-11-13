@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { IconCheck } from '@tabler/icons-react';
 import { Command, Filter, useFilterContext, useFilterQueryState } from 'erxes-ui';
 import type { ComponentType } from 'react';
@@ -19,7 +20,7 @@ export const OptionFilter = {
   ),
   View: ({ filterKey, options }: OptionFilterProps) => {
     const { sessionKey } = useFilterContext();
-    const [value, setValue] = useFilterQueryState<string>(filterKey, sessionKey);
+    const [value, setValue] = useFilterQueryState(filterKey, z.string(), sessionKey);
 
     return (
       <Filter.View filterKey={filterKey}>
@@ -42,7 +43,7 @@ export const OptionFilter = {
   },
   Bar: ({ filterKey, label, icon: Icon, options }: OptionFilterProps) => {
     const { sessionKey } = useFilterContext();
-    const [value] = useFilterQueryState<string>(filterKey, sessionKey);
+    const [value] = useFilterQueryState(filterKey, z.string(), sessionKey);
 
     return (
       <Filter.BarItem queryKey={filterKey}>

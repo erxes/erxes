@@ -10,6 +10,7 @@ import {
   IconWebhook,
   type TablerIcon,
 } from '@tabler/icons-react';
+import { jsonOf } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -137,7 +138,7 @@ export const useCatalogLabels = (kind: string) => {
 
 const RECENT_LIMIT = 4;
 
-const RecentTypes = z.array(z.string()).catch([]);
+const RecentTypes = z.array(z.string());
 
 /** The last few picked of a kind, in this browser (none in a private window). */
 export const useRecent = (kind: string) => {
@@ -145,7 +146,7 @@ export const useRecent = (kind: string) => {
 
   const [recent, setRecent] = useState(() => {
     try {
-      return RecentTypes.parse(JSON.parse(localStorage.getItem(key) ?? '[]'));
+      return jsonOf(RecentTypes).safeParse(localStorage.getItem(key)).data ?? [];
     } catch {
       return [];
     }

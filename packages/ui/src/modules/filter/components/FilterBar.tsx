@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import React from 'react';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import type { Except } from 'type-fest';
@@ -50,7 +51,7 @@ export const FilterBarItem = ({
 }: React.HTMLAttributes<HTMLDivElement> & {
   queryKey?: string;
 } & React.RefAttributes<HTMLDivElement>) => {
-  const [query] = useFilterQueryState<string>(queryKey || 'root');
+  const [query] = useFilterQueryState(queryKey || 'root', z.string());
 
   if (queryKey && !query) {
     return null;
@@ -117,7 +118,7 @@ export const FilterBarButton = ({
 };
 
 export const FilterSearchValueBarItem = () => {
-  const [searchValue] = useFilterQueryState<string>('searchValue');
+  const [searchValue] = useFilterQueryState('searchValue', z.string());
 
   return (
     <FilterBarItem queryKey="searchValue">

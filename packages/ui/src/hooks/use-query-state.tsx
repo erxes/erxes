@@ -5,6 +5,8 @@ import {
   type Location,
   type NavigateOptions,
 } from 'react-router-dom';
+import { z } from 'zod';
+import { jsonOf } from 'erxes-ui/utils/json';
 
 interface ISearchParamsDraft {
   location: Location<unknown>;
@@ -57,41 +59,30 @@ const updateSearchParamsDraft = (
   }
 };
 
-/** Decodes a JSON query value; search text and plain strings stay as written. */
-const parseQueryValue = (value: string | null, key: string): unknown => {
-  if (!value) return null;
+/**
+ * The query value in the form its schema takes: as written (strings), else as
+ * JSON (numbers, booleans, arrays, objects). Anyone can edit a URL, so a value
+ * that fits neither is undefined, read as absent.
+ */
+const queryInput = (schema: z.ZodType, value: string | null) => {
+  if (!value) return undefined;
 
-  if (key === 'searchValue') return value;
+  if (schema.safeParse(value).success) return value;
 
-  try {
-    return JSON.parse(value) as unknown;
-  } catch {
-    return value;
-  }
+  const decoded = jsonOf(z.json()).safeParse(value);
+
+  return decoded.success && schema.safeParse(decoded.data).success ? decoded.data : undefined;
 };
 
 /** Strings as written, everything else (numbers, booleans, objects) as JSON. */
 const toQueryString = (value: unknown) =>
   typeof value === 'string' ? value : JSON.stringify(value);
 
-type QueryTypes = Record<string, unknown>;
+type QuerySchemas = Record<string, z.ZodType>;
 
-type QueryValues<T extends QueryTypes> = {
-  [K in keyof T]: T[K] | null;
-};
-
-/**
- * The query values for `keys`, typed as the caller names them (`useQueryState<string>`).
- * The URL is whatever was written there; plugins rely on this contract, so the values
- * are not checked against the type.
- */
-const readQueries = <T extends QueryTypes>(params: URLSearchParams, keys: (keyof T)[]) => {
-  const values = Object.fromEntries(
-    keys.map((key) => [key, parseQueryValue(params.get(String(key)), String(key))]),
-  );
-
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- caller-named query types are the plugin contract of useQueryState; URL values are not validated
-  return values as QueryValues<T>;
+/** Values to write; null removes the key, a missing key stays as it is. */
+type QueryValues<S extends QuerySchemas> = {
+  [K in keyof S]?: z.output<S[K]> | null;
 };
 
 export type QueryState<T> = [
@@ -100,19 +91,16 @@ export type QueryState<T> = [
 ];
 
 /** Reads and updates one URL query value while preserving concurrent query changes. */
-export function useQueryState<T>(
+export function useQueryState<S extends z.ZodType>(
   queryKey: string,
-  options?: {
-    defaultValue?: T;
-  },
-): QueryState<T> {
+  schema: S,
+): QueryState<z.output<S>> {
   const [searchParams, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
-  const query = readQueries<Record<string, T>>(searchParams, [queryKey])[queryKey] ?? null;
-  const value = query ?? options?.defaultValue ?? null;
+  const value = schema.safeParse(queryInput(schema, searchParams.get(queryKey))).data ?? null;
 
   /** Updates the requested query key without discarding other pending query changes. */
-  const setQuery = (next: T | null, navigationOptions?: NavigateOptions) => {
+  const setQuery = (next: z.output<S> | null, navigationOptions?: NavigateOptions) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);
 
@@ -137,24 +125,35 @@ export function useQueryState<T>(
   return [value, setQuery];
 }
 
-/** Reads and updates several query values through one shared navigation draft. */
-export function useMultiQueryState<T extends QueryTypes>(
-  queryKeys: (keyof T)[],
-): [
-  QueryValues<T>,
-  (values: Partial<QueryValues<T>>, navigationOptions?: NavigateOptions) => void,
-] {
+/**
+ * Reads and updates several query values through one shared navigation draft.
+ * Each key's value is checked against its schema; absent and invalid ones are undefined.
+ */
+export function useMultiQueryState<S extends QuerySchemas>(schemas: S) {
   const [searchParams, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
-  const queries = readQueries<T>(searchParams, queryKeys);
+
+  const queries = z
+    .object(schemas)
+    .partial()
+    .parse(
+      Object.fromEntries(
+        Object.entries(schemas).map(([key, schema]) => [
+          key,
+          queryInput(schema, searchParams.get(key)),
+        ]),
+      ),
+    );
 
   /** Applies a batch without discarding other query changes from the same event. */
-  const setQueries = (values: Partial<QueryValues<T>>, navigationOptions?: NavigateOptions) => {
+  const setQueries = (values: QueryValues<S>, navigationOptions?: NavigateOptions) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);
     let hasChanges = false;
 
     for (const [key, value] of Object.entries(values)) {
+      if (value === undefined) continue;
+
       if (value !== null) {
         const stringValue = toQueryString(value);
 
@@ -178,7 +177,7 @@ export function useMultiQueryState<T extends QueryTypes>(
     });
   };
 
-  return [queries, setQueries];
+  return [queries, setQueries] as const;
 }
 
 /** Creates a remover that preserves the remaining query values and router state. */

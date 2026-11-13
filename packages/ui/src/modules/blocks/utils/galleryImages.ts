@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { jsonOf } from 'erxes-ui/utils/json';
 
 const galleryImageSchema = z.object({ url: z.string(), caption: z.string().optional() });
 
@@ -6,13 +7,7 @@ export type GalleryImage = z.infer<typeof galleryImageSchema>;
 
 /** A gallery block stores its images as a JSON string prop; anything unreadable is no images. */
 export const parseGalleryImages = (raw: string): GalleryImage[] => {
-  try {
-    const parsed = z.array(galleryImageSchema).safeParse(JSON.parse(raw));
-
-    return parsed.success ? parsed.data : [];
-  } catch {
-    return [];
-  }
+  return jsonOf(z.array(galleryImageSchema)).safeParse(raw).data ?? [];
 };
 
 /** The stored column count, kept between 2 and 4; 3 when unset. */

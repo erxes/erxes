@@ -1,6 +1,7 @@
 import { IconArchive } from '@tabler/icons-react';
 import { Toggle, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { IconTip } from '~/components/IconTip';
 import { ListFilter } from '~/modules/views/filter/ListFilter';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
@@ -9,7 +10,7 @@ import { PRODUCTS_SESSION_KEY, useProducts } from '../useProducts';
 /** Shows archived products instead of the active ones. */
 const ArchivedToggle = () => {
   const { t } = useTranslation('product');
-  const [archived, setArchived] = useQueryState<boolean>('archived');
+  const [archived, setArchived] = useQueryState('archived', z.boolean());
   const label = t('status.archived', 'Archived');
 
   return (

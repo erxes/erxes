@@ -1,4 +1,5 @@
-import type { User, UserRole } from '@erxes/core-contract';
+import { type User, UserRole } from '@erxes/core-contract';
+import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -13,11 +14,11 @@ export const memberName = (user: Pick<User, 'firstName' | 'lastName' | 'fullName
 
 /** The list's filters: search, role and "Is active" (on unless switched off). */
 const useTeamMemberFilters = () => {
-  const [{ searchValue, isActive, role }] = useMultiQueryState<{
-    searchValue: string;
-    isActive: boolean;
-    role: UserRole;
-  }>(['searchValue', 'isActive', 'role']);
+  const [{ searchValue, isActive, role }] = useMultiQueryState({
+    searchValue: z.string(),
+    isActive: z.boolean(),
+    role: UserRole,
+  });
 
   return {
     search: searchValue || undefined,

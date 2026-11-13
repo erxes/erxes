@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { LeadReport } from '@erxes/core-contract';
 import { IconChartFunnel, type TablerIcon } from '@tabler/icons-react';
 import {
@@ -111,8 +112,8 @@ const LeadReportSections = ({ report }: { report: LeadReport }) => {
  */
 export const LeadsReportPage = ({ inContacts = false }: { inContacts?: boolean }) => {
   const t = useLeadsT();
-  const [kind, setKind] = useQueryState<string>('kind');
-  const [daysParam, setDays] = useQueryState<string>('days');
+  const [kind, setKind] = useQueryState('kind', z.string());
+  const [daysParam, setDays] = useQueryState('days', z.string());
   const recordType = kind === 'companies' ? 'company' : 'customer';
   const days = REPORT_RANGES.find((range) => range === daysParam) ?? '30';
   const { data: report, error, isPending } = useLeadReportFor(recordType, Number(days));

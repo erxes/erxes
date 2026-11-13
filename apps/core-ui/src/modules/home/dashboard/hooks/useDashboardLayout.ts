@@ -1,3 +1,4 @@
+import { jsonOf } from 'erxes-ui';
 import { useState } from 'react';
 import { z } from 'zod';
 import { useSession } from '~/modules/auth/session';
@@ -21,12 +22,11 @@ const StoredItem = z.object({
 /** The saved tiles; ones that no longer parse are dropped. */
 const read = (userId: string): TDashboardItem[] | null => {
   try {
-    const raw = localStorage.getItem(storageKey(userId));
-    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    const saved = jsonOf(z.array(z.unknown())).safeParse(localStorage.getItem(storageKey(userId)));
 
-    if (!Array.isArray(parsed)) return null;
+    if (!saved.success) return null;
 
-    return parsed
+    return saved.data
       .flatMap((item) => {
         const tile = StoredItem.safeParse(item);
 

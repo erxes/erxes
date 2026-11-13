@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { PageContainer, useQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -17,7 +18,7 @@ export const RecordPage = ({ contentType }: { contentType: TPanelContentType }) 
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { openRecord } = useSidePanel();
-  const [tab, setTab] = useQueryState<string>('tab');
+  const [tab, setTab] = useQueryState('tab', z.string());
   const listPath = panelRecordType(contentType)?.listPath(pathname) ?? '/';
   const record = useMemo(() => ({ contentType, contentId: id }), [contentType, id]);
 
