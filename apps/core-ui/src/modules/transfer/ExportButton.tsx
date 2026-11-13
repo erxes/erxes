@@ -140,11 +140,9 @@ export const ExportButton = ({ recordType }: { recordType: TransferRecordType })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button variant="outline">
-          <IconDownload />
-          {t('export', 'Export')}
-        </Button>
+      <Dialog.Trigger render={<Button variant="outline" />}>
+        <IconDownload />
+        {t('export', 'Export')}
       </Dialog.Trigger>
       <Dialog.Content className="sm:max-w-lg">
         <Dialog.HeaderCombined

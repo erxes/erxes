@@ -3,8 +3,6 @@ import React, { useEffect, useRef } from 'react';
 import { IconSearch } from '@tabler/icons-react';
 import { cva } from 'class-variance-authority';
 import { Command as CommandPrimitive } from 'cmdk';
-import type { DialogProps } from './dialog';
-import { Dialog } from './dialog';
 import { cn, mergeRefs } from '../lib/utils';
 
 const CommandRoot = ({
@@ -21,24 +19,6 @@ const CommandRoot = ({
     {...props}
   />
 );
-
-type CommandDialogProps = DialogProps & {
-  dialogContentClassName?: string;
-};
-
-const CommandDialog = ({ children, dialogContentClassName, ...props }: CommandDialogProps) => {
-  return (
-    <Dialog {...props}>
-      <Dialog.Content
-        className={cn('overflow-hidden p-0 rounded-lg border-0', dialogContentClassName)}
-      >
-        <CommandRoot className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
-          {children}
-        </CommandRoot>
-      </Dialog.Content>
-    </Dialog>
-  );
-};
 
 const commanInputVariants = cva(
   'flex h-8 w-full rounded-md px-3 text-sm font-medium outline-hidden placeholder:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50',
@@ -195,7 +175,6 @@ const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanE
 };
 
 export const Command = Object.assign(CommandRoot, {
-  Dialog: CommandDialog,
   Input: CommandInput,
   List: CommandList,
   Empty: CommandEmpty,

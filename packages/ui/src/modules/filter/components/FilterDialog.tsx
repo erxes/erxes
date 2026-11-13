@@ -69,11 +69,7 @@ export const FilterDialogStringView = ({
           onChange={(e) => setDialogSearch(e.target.value)}
         />
         <Dialog.Footer className="sm:space-x-3">
-          <Dialog.Close asChild>
-            <Button variant="outline" size="lg">
-              Cancel
-            </Button>
-          </Dialog.Close>
+          <Dialog.Close render={<Button variant="outline" size="lg" />}>Cancel</Dialog.Close>
           <Button size="lg" type="submit">
             Apply
           </Button>

@@ -10,11 +10,9 @@ export function InviteTeamMember() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('invite-team-members')}
-        </Button>
+      <Dialog.Trigger render={<Button />}>
+        <IconPlus />
+        {t('invite-team-members')}
       </Dialog.Trigger>
       <Dialog.Content className="max-w-md xl:max-w-lg p-0">
         <Dialog.Header className="px-3 py-[13px] border-b border-muted">
@@ -23,15 +21,17 @@ export function InviteTeamMember() {
             {t('invite-team-members')}
           </Dialog.Title>
           <Dialog.Description className="sr-only">{t('add-new-account')}</Dialog.Description>
-          <Dialog.Close asChild>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute right-2 top-2"
-              aria-label={t('close', { ns: 'common' })}
-            >
-              <IconX />
-            </Button>
+          <Dialog.Close
+            render={
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute right-2 top-2"
+                aria-label={t('close', { ns: 'common' })}
+              />
+            }
+          >
+            <IconX />
           </Dialog.Close>
         </Dialog.Header>
         <div className="flex flex-col gap-6 px-3 pb-3">
