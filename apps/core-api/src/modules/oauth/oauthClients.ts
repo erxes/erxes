@@ -6,8 +6,8 @@ import { z } from 'zod';
 
 export const SCOPES = new Set(['openid', 'profile', 'email', 'offline_access']);
 
-/** A form or query parameter: text, or missing (a repeated or nested one counts as missing). */
-export const param = z.string().optional().catch(undefined);
+/** A form or query parameter: text, or missing (a repeated or nested one fails the parse). */
+export const param = z.string().optional();
 
 export const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
 

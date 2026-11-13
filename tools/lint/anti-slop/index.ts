@@ -8,6 +8,7 @@ import { noForbiddenTermInSymbolNamesRule } from './rules/no-shape-in-symbol-nam
 import { noUnknownTypeAliasesRule } from './rules/no-unknown-type-aliases.ts';
 import { noWidenThenAssertRule } from './rules/no-widen-then-assert.ts';
 import { requireReadableSpacingRule } from './rules/require-readable-spacing.ts';
+import { noZodCatchRule } from './rules/no-zod-catch.ts';
 
 /** Generic Oxlint rules that reject low-evidence and low-signal implementation patterns. */
 const antiSlopPlugin = eslintCompatPlugin({
@@ -21,6 +22,7 @@ const antiSlopPlugin = eslintCompatPlugin({
     'no-unknown-type-aliases': noUnknownTypeAliasesRule,
     'no-widen-then-assert': noWidenThenAssertRule,
     'require-readable-spacing': requireReadableSpacingRule,
+    'no-zod-catch': noZodCatchRule,
   },
 });
 

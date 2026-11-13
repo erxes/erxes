@@ -10,7 +10,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Headers a member may add to a webhook: plain names, not ones the transport owns. */
 const extraHeaders = (value: unknown) =>
   Object.fromEntries(
-    Object.entries(z.record(z.string(), z.unknown()).catch({}).parse(value))
+    Object.entries(z.record(z.string(), z.unknown()).safeParse(value).data ?? {})
       .filter(
         ([key]) =>
           /^[A-Za-z0-9-]{1,60}$/.test(key) &&

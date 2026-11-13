@@ -13,6 +13,8 @@ describe('session security', () => {
   useTestDatabase();
 
   const server = useTestServer();
+  // A second app on the same database, as another replica would be.
+  const replica = useTestServer();
   let memberId = '';
 
   beforeAll(async () => {
@@ -53,6 +55,14 @@ describe('session security', () => {
         () => true,
         () => false,
       );
+
+  /** A sign-in from one outside address: odd attempts go to the replica, even ones to the first app. */
+  const signInFrom = (index: number) =>
+    fetch((index % 2 ? replica : server).url('/core/v1/auth/sign-in'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-forwarded-for': '203.0.113.7' },
+      body: '{}',
+    });
 
   it('ends other sessions when a member changes their password, keeping this one', async () => {
     const laptop = await signedIn(MEMBER, 'Member-pass-1');
@@ -117,6 +127,21 @@ describe('session security', () => {
     await expect(server.browser().api.auth.signIn(OWNER)).rejects.toMatchObject({
       status: 429,
       code: 'TOO_MANY_ATTEMPTS',
+    });
+  });
+
+  it('counts sign-ins per address across replicas: 20 a minute in total, not per app', async () => {
+    for (let index = 0; index < 20; index += 1)
+      expect((await signInFrom(index)).status).not.toBe(429);
+
+    const limited = await signInFrom(20);
+
+    expect(limited.status).toBe(429);
+    expect(Number(limited.headers.get('retry-after'))).toBeGreaterThan(0);
+    expect(await limited.json()).toMatchObject({
+      defined: false,
+      code: 'TOO_MANY_REQUESTS',
+      status: 429,
     });
   });
 });

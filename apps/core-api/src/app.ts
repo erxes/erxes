@@ -7,7 +7,7 @@ import type { Logger, SerializedRequest } from 'pino';
 import { pinoHttp } from 'pino-http';
 import { logger } from '~/logger';
 import { authenticate } from '~/http/auth';
-import { customerCodeLimit, signInLimit, tokenLimit, uploadLimit } from '~/http/rateLimit';
+import { createRateLimits } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
@@ -93,6 +93,7 @@ const errorBody = (status: number, code: string, message: string, data?: unknown
 
 export const createApp = (log: Logger = logger): Express => {
   const app = express();
+  const limit = createRateLimits();
 
   app.disable('x-powered-by');
   app.set('trust proxy', 'loopback, linklocal, uniquelocal');
@@ -100,7 +101,7 @@ export const createApp = (log: Logger = logger): Express => {
   app.use(requestContext);
 
   // Signed file links stream bytes: before the JSON parser and sign-in.
-  app.use('/core/v1/files/signed', uploadLimit, signedFilesRouter);
+  app.use('/core/v1/files/signed', limit.upload, signedFilesRouter);
 
   // Plugins' customer apps call these from their own origins (decision 42).
   app.use(['/core/v1/customer-auth', '/core/v1/customer'], customerCors);
@@ -114,15 +115,15 @@ export const createApp = (log: Logger = logger): Express => {
       '/core/v1/auth/password-reset',
       '/core/v1/auth/invitation',
     ],
-    signInLimit,
+    limit.signIn,
   );
-  app.use(['/core/v1/plugins/token', '/core/v1/customer-auth/refresh'], tokenLimit);
-  app.use(CUSTOMER_CODE_PATHS, customerCodeLimit);
+  app.use(['/core/v1/plugins/token', '/core/v1/customer-auth/refresh'], limit.token);
+  app.use(CUSTOMER_CODE_PATHS, limit.customerCode);
 
   // The SaaS control plane's own door: signed over the raw body, so before JSON parsing and member authentication.
   // erxes.io's door and sign-in hand-off (its own token; also at the path old erxes used).
-  app.use('/core/v1/saas', tokenLimit, saasRouter);
-  app.get('/gateway/pl\\:core/core-login', tokenLimit, saasLogin);
+  app.use('/core/v1/saas', limit.token, saasRouter);
+  app.get('/gateway/pl\\:core/core-login', limit.token, saasLogin);
 
   app.use(express.json({ limit: '1mb' }));
 
@@ -164,7 +165,7 @@ export const createApp = (log: Logger = logger): Express => {
   app.use('/core/v1', paymentCallbackRouter);
 
   // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
-  app.use('/core/v1/oauth', tokenLimit, oauthRouter);
+  app.use('/core/v1/oauth', limit.token, oauthRouter);
   app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
 
   // Every /core/v1 route needs a signed-in member or a plugin key.

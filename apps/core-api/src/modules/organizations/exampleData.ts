@@ -210,7 +210,7 @@ export const exampleDataJob = defineJob({
   queue: 'organization.example_data',
   atomic: true,
   leaseSeconds: 900,
-  payload: z.object({ userId: z.string(), language: ExampleLanguage.catch('en') }),
+  payload: z.object({ userId: z.string(), language: ExampleLanguage.default('en') }),
   async handle(job, tx) {
     const [member] = await tx
       .select({

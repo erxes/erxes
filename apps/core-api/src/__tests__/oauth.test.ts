@@ -1,3 +1,4 @@
+import { verifyErxesAccessToken } from '@erxes/plugin-sdk';
 import { createHash, randomBytes } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
@@ -169,6 +170,15 @@ describe('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300_000 }
     });
 
     expect(access).toMatchObject({ role: 'owner', permissions: ['hr.leave.approve'] });
+    // The SDK reads the claims core signs; the plan isn't among them, so no plan and no access.
+    expect(
+      await verifyErxesAccessToken(issued.access_token, { coreUrl: server.url(''), plugin: 'hr' }),
+    ).toMatchObject({
+      role: 'owner',
+      permissions: ['hr.leave.approve'],
+      tier: null,
+      access: 'off',
+    });
 
     const userinfo = await fetch(server.url('/core/v1/oauth/userinfo'), {
       headers: server.headers(issued.access_token),

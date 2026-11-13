@@ -61,6 +61,7 @@ export {
   pluginInstallations,
   productCategories,
   products,
+  rateLimits,
   roles,
   plugins,
   tags,

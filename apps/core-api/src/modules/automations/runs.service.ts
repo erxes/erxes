@@ -146,9 +146,7 @@ export const startAutomation = async (
 };
 
 /** Runs skipped by the hourly limit, counted in the automation's working state. */
-const SkippedByLimit = z
-  .object({ skippedByLimit: z.int().default(0) })
-  .catch({ skippedByLimit: 0 });
+const SkippedByLimit = z.object({ skippedByLimit: z.int() });
 
 const countWhere = (filter: SQL | undefined) => sql<number>`count(*) filter (where ${filter})::int`;
 
@@ -189,7 +187,7 @@ export const automationStats = async (client: Db, actor: Actor, id: string) => {
   return {
     runs: runs ?? { total: 0, running: 0, succeeded: 0, failed: 0, cancelled: 0, goalReached: 0 },
     steps,
-    skippedByLimit: SkippedByLimit.parse(row.state).skippedByLimit,
+    skippedByLimit: SkippedByLimit.safeParse(row.state).data?.skippedByLimit ?? 0,
   };
 };
 

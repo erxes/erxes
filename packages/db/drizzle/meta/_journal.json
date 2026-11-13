@@ -351,6 +351,13 @@
       "when": 1794581038367,
       "tag": "0049_customer_app_sign_in",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794596742138,
+      "tag": "0050_rate_limits",
+      "breakpoints": true
     }
   ]
 }

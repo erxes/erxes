@@ -28,6 +28,9 @@ export const oauthRouter = Router();
 
 const CODE_SECONDS = 60;
 
+/** RFC 6749 3.1: a parameter sent twice (or nested) is an invalid request. */
+const REPEATED = 'Send each parameter once, as text';
+
 const AuthorizeQuery = z.object({
   client_id: param,
   redirect_uri: param,
@@ -129,7 +132,10 @@ const codeRedirect = (
 };
 
 oauthRouter.get('/authorize', async (req: Request, res: Response) => {
-  const query = AuthorizeQuery.parse(req.query);
+  const { data: query } = AuthorizeQuery.safeParse(req.query);
+
+  if (!query) return oauthError(res, 400, 'invalid_request', REPEATED);
+
   const client = await clientOf(query.client_id);
   const templates = client?.manifest?.oauth?.redirectUris ?? [];
 
@@ -162,27 +168,27 @@ oauthRouter.get('/authorize', async (req: Request, res: Response) => {
   );
 });
 
-const TokenForm = z
-  .object({
-    client_id: param,
-    grant_type: param,
-    code: param,
-    redirect_uri: param,
-    code_verifier: param,
-    refresh_token: param,
-  })
-  .catch({});
+const TokenForm = z.object({
+  client_id: param,
+  grant_type: param,
+  code: param,
+  redirect_uri: param,
+  code_verifier: param,
+  refresh_token: param,
+});
 
-const RevokeForm = z.object({ token: param }).catch({});
+const RevokeForm = z.object({ token: param });
 
 const tokenRouter = Router();
 
 tokenRouter.use(express.urlencoded({ extended: false, limit: '16kb' }));
 
 tokenRouter.post('/token', async (req: Request, res: Response) => {
-  const form = TokenForm.parse(req.body);
+  const { data: form } = TokenForm.safeParse(req.body);
 
   res.set('Cache-Control', 'no-store');
+
+  if (!form) return oauthError(res, 400, 'invalid_request', REPEATED);
 
   const client = await clientOf(form.client_id);
 
@@ -211,7 +217,7 @@ tokenRouter.post('/token', async (req: Request, res: Response) => {
 
 /** Ends a refresh token's family (logging out of the app). Always 200, as RFC 7009 asks. */
 tokenRouter.post('/revoke', async (req: Request, res: Response) => {
-  await revokeFamily(RevokeForm.parse(req.body).token);
+  await revokeFamily(RevokeForm.safeParse(req.body).data?.token);
 
   res.status(200).json({});
 });
