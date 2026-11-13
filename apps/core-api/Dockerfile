@@ -4,6 +4,8 @@
 # and dist/plugin-role.js (see deploy/docker-compose.yml).
 FROM node:22-bookworm-slim AS build
 RUN npm install -g pnpm@11.5.2
+# The root `prepare` script installs git hooks; the image has no git and never commits.
+ENV VP_GIT_HOOKS=0
 WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 # Every workspace manifest, so the frozen lockfile matches.
