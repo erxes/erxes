@@ -96,15 +96,12 @@ jobs:
     name: TLA+ models
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      ERXES_VERIFY_CACHE: ${{ github.workspace }}/../erxes-verify
-      TLC_OUT: ${{ github.workspace }}/../tlc
     steps:
       - uses: actions/checkout@v7
       # The pinned Java and tla2tools.jar; the script checks their checksums either way.
       - uses: actions/cache@v6
         with:
-          path: ${{ env.ERXES_VERIFY_CACHE }}
+          path: ~/.cache/erxes-verify
           key: tla-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/verify-models.sh') }}
       - name: Real designs pass, broken designs fail
         run: tools/verify-models.sh
@@ -113,7 +110,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: tlc-traces
-          path: ${{ env.TLC_OUT }}/*.log
+          path: .scratch/tlc/*.log
           if-no-files-found: ignore
 
   images:
