@@ -3,6 +3,13 @@ import { z } from 'zod';
 export const Id = z.string().min(1).max(64);
 
 /**
+ * A timestamp column as the API sends it, an ISO string. Give it to
+ * `createSelectSchema` as a refinement (`{ createdAt: isoDate }`), so a
+ * nullable column stays nullable.
+ */
+export const isoDate = () => z.iso.datetime();
+
+/**
  * Keyset ("cursor") paging, newest first. A cursor is the id of a record in
  * the list: `forward` returns older records after it, `backward` newer ones
  * before it. `inclusive` also returns the cursor record itself, which lets a

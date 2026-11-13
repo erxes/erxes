@@ -1,10 +1,10 @@
 import { tags } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ContentType, Id } from './common';
+import { ContentType, Id, isoDate } from './common';
 
-export const Tag = createSelectSchema(tags, { id: Id, createdAt: z.iso.datetime() }).pick({
+export const Tag = createSelectSchema(tags, { id: Id, createdAt: isoDate }).pick({
   id: true,
   type: true,
   name: true,
@@ -15,7 +15,7 @@ export const Tag = createSelectSchema(tags, { id: Id, createdAt: z.iso.datetime(
 
 export type Tag = z.infer<typeof Tag>;
 
-const TagInput = createInsertSchema(tags, {
+const TagFields = createUpdateSchema(tags, {
   name: (name) => name.trim().min(1).max(100),
   colorCode: (color) => color.regex(/^#[0-9a-fA-F]{6}$/, '#rrggbb'),
 }).pick({ type: true, name: true, colorCode: true });
@@ -33,13 +33,13 @@ export const tagsContract = {
       successStatus: 201,
       summary: 'Create a tag. 409 TAG_EXISTS when the name is taken for the type',
     })
-    .input(TagInput)
+    .input(TagFields.required({ type: true, name: true }))
     .output(Tag),
   update: oc
     .route({ method: 'PATCH', path: '/tags/{id}' })
     .input(
-      z
-        .object({ id: Id, ...TagInput.omit({ type: true }).partial().shape })
+      TagFields.omit({ type: true })
+        .extend({ id: Id })
         .refine((value) => Object.keys(value).some((key) => key !== 'id'), 'nothing to update'),
     )
     .output(Tag),
