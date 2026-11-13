@@ -20,6 +20,7 @@ export const MessengerFrame = ({
   pageName,
   profileUrl,
   pageUrl,
+  hasMenu,
   isMenuOpen,
   onToggleMenu,
   composerValue,
@@ -32,6 +33,7 @@ export const MessengerFrame = ({
   profileUrl?: string;
   // The real page on Facebook, so it can be found without searching there.
   pageUrl?: string;
+  hasMenu: boolean;
   isMenuOpen: boolean;
   onToggleMenu: () => void;
   // Typing here is how the preview tries a direct message.
@@ -94,21 +96,23 @@ export const MessengerFrame = ({
       {overlay}
 
       <div className="flex items-center gap-2 border-t px-3 py-2">
-        <button
-          type="button"
-          onClick={onToggleMenu}
-          className={cn(
-            'flex size-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors',
-            isMenuOpen && 'bg-primary/10 text-primary',
-          )}
-          aria-label="Persistent menu"
-        >
-          {isMenuOpen ? (
-            <IconX className="size-4" />
-          ) : (
-            <IconMenu2 className="size-4" />
-          )}
-        </button>
+        {hasMenu && (
+          <button
+            type="button"
+            onClick={onToggleMenu}
+            className={cn(
+              'flex size-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors',
+              isMenuOpen && 'bg-primary/10 text-primary',
+            )}
+            aria-label="Persistent menu"
+          >
+            {isMenuOpen ? (
+              <IconX className="size-4" />
+            ) : (
+              <IconMenu2 className="size-4" />
+            )}
+          </button>
+        )}
         <input
           value={composerValue}
           onChange={(event) => onComposerChange(event.currentTarget.value)}

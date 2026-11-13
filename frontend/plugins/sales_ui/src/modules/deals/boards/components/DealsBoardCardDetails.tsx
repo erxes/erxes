@@ -1,4 +1,5 @@
 import {
+  Icon,
   IconBuilding,
   IconBuildingSkyscraper,
   IconGitBranch,
@@ -10,8 +11,8 @@ import { Avatar, Tooltip, cn } from 'erxes-ui';
 export interface DealCardProductItem {
   _id?: string | null;
   name: string;
-  quantity: number;
-  unitPrice: number;
+  quantity?: number | null;
+  unitPrice?: number | null;
   amount: number;
   currency?: string;
 }
@@ -24,9 +25,11 @@ export interface DealCardRelationItem {
 
 type DealCardProductsProps = {
   items: DealCardProductItem[];
-  label: string;
+  label: React.ReactNode;
   totalLabel: string;
+  icon?: Icon;
   muted?: boolean;
+  maxVisible?: number;
 };
 
 type DealCardRelationDetailsProps = {
@@ -80,13 +83,15 @@ export const DealCardProducts = ({
   items,
   label,
   totalLabel,
+  icon: ItemIcon = IconPackage,
   muted,
+  maxVisible = MAX_VISIBLE_PRODUCTS,
 }: DealCardProductsProps) => {
   if (!items.length) {
     return null;
   }
 
-  const visibleItems = items.slice(0, MAX_VISIBLE_PRODUCTS);
+  const visibleItems = items.slice(0, maxVisible);
   const remainingCount = items.length - visibleItems.length;
   const totals = items.reduce<Record<string, number>>((result, item) => {
     const currency = item.currency || '';
@@ -102,9 +107,9 @@ export const DealCardProducts = ({
           muted && 'opacity-60',
         )}
       >
-        <div className="flex items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="flex items-center justify-between gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           <span className="flex min-w-0 items-center gap-1.5">
-            <IconPackage className="size-3.5 shrink-0" />
+            <ItemIcon className="size-3.5 shrink-0" />
             <span className="truncate">{label}</span>
           </span>
           <span className="shrink-0 tabular-nums">{items.length}</span>
@@ -124,12 +129,14 @@ export const DealCardProducts = ({
                   </Tooltip.Trigger>
                   <Tooltip.Content>{item.name}</Tooltip.Content>
                 </Tooltip>
-                <div className="text-[9px] leading-3 text-muted-foreground tabular-nums">
-                  {item.quantity.toLocaleString()} ×{' '}
-                  {formatAmount(item.unitPrice, item.currency)}
-                </div>
+                {item.quantity != null && item.unitPrice != null && (
+                  <div className="text-xs text-muted-foreground tabular-nums">
+                    {item.quantity.toLocaleString()} ×{' '}
+                    {formatAmount(item.unitPrice, item.currency)}
+                  </div>
+                )}
               </div>
-              <span className="shrink-0 pb-0.5 text-[10px] font-medium text-foreground tabular-nums">
+              <span className="shrink-0 pb-0.5 text-xs font-medium text-foreground tabular-nums">
                 {formatAmount(item.amount, item.currency)}
               </span>
             </div>
@@ -137,15 +144,13 @@ export const DealCardProducts = ({
           {remainingCount > 0 && (
             <Tooltip delayDuration={200}>
               <Tooltip.Trigger asChild>
-                <span className="w-fit cursor-default text-[11px] text-muted-foreground hover:text-foreground">
+                <span className="w-fit cursor-default text-xs text-muted-foreground hover:text-foreground">
                   +{remainingCount}
                 </span>
               </Tooltip.Trigger>
               <Tooltip.Content>
                 <TooltipItemList
-                  items={items
-                    .slice(MAX_VISIBLE_PRODUCTS)
-                    .map((item) => item.name)}
+                  items={items.slice(maxVisible).map((item) => item.name)}
                 />
               </Tooltip.Content>
             </Tooltip>
@@ -155,7 +160,7 @@ export const DealCardProducts = ({
           {Object.entries(totals).map(([currency, total]) => (
             <div
               key={currency || 'no-currency'}
-              className="flex items-center justify-between gap-3 text-[11px] font-semibold"
+              className="flex items-center justify-between gap-3 text-xs font-semibold"
             >
               <span className="text-muted-foreground">{totalLabel}</span>
               <span className="shrink-0 tabular-nums">

@@ -10,6 +10,7 @@ import {
   IconArrowBackUp,
 } from '@tabler/icons-react';
 import {
+  Badge,
   Command,
   Combobox,
   Popover,
@@ -188,7 +189,7 @@ const ExecutionDateCell = ({ row }: CellContext<JobExecution, unknown>) => (
 );
 const ExecutionNameCell = ({ row }: CellContext<JobExecution, unknown>) => (
   <RecordTableInlineCell>
-    {row.original.jobs.map((job) => job.jobName || job.jobId).join(', ')}
+    {row.original.jobs.map((job) => job.jobName || '-').join(', ')}
   </RecordTableInlineCell>
 );
 const ExecutionQuantityCell = ({ row }: CellContext<JobExecution, unknown>) => (
@@ -222,11 +223,25 @@ function ExecutionDepartmentCell({ cell }: CellContext<JobExecution, unknown>) {
     </RecordTableInlineCell>
   );
 }
+const EXECUTION_STATUS_VARIANTS: Record<
+  string,
+  'secondary' | 'info' | 'success' | 'warning' | 'destructive'
+> = {
+  draft: 'secondary',
+  posting: 'info',
+  posted: 'success',
+  undoing: 'warning',
+  error: 'destructive',
+};
 const ExecutionStatusCell = ({ row }: CellContext<JobExecution, unknown>) => {
   const { t } = useTranslation('accounting');
   return (
     <RecordTableInlineCell>
-      {t('production-status-' + row.original.status)}
+      <Badge
+        variant={EXECUTION_STATUS_VARIANTS[row.original.status] || 'secondary'}
+      >
+        {t('production-status-' + row.original.status)}
+      </Badge>
     </RecordTableInlineCell>
   );
 };

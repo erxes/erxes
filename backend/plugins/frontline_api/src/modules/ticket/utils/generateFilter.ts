@@ -12,6 +12,7 @@ import {
   getSupervisedDepartmentIds,
   isPipelineRestricted,
 } from '@/ticket/utils/ticketVisibility';
+import { buildTeamMemberRestriction } from '@/ticket/utils/teamMemberRestriction';
 
 const isPipelineHidden = (pipeline: any, userId?: string) =>
   pipeline.visibility === 'private' &&
@@ -126,6 +127,17 @@ export const generateFilter = async (
     }
   }
 
+  if (subdomain && user && !skipPipelineVisibility) {
+    const teamMemberRestriction = await buildTeamMemberRestriction(
+      subdomain,
+      user,
+    );
+
+    if (teamMemberRestriction) {
+      andConditions.push(teamMemberRestriction);
+    }
+  }
+
   if (filter.myTicketsOnly && userId) {
     ownershipOrCondition = [{ assigneeId: userId }, { createdBy: userId }];
   }
@@ -138,6 +150,15 @@ export const generateFilter = async (
 
   if (filter.status) {
     filterQuery.status = filter.status;
+  }
+
+  // The tickets of these customers / companies.
+  if (filter.customerId) {
+    filterQuery.customerId = filter.customerId;
+  }
+
+  if (filter.companyId) {
+    filterQuery.companyId = filter.companyId;
   }
 
   if (filter.statusId) {

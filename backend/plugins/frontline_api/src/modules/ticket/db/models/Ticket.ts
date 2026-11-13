@@ -16,6 +16,17 @@ import {
   notifyTicketOwner,
 } from '@/ticket/utils/cpNotifications';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { TTicketSlaClock, TTicketSlaPhase } from '@/ticket/@types/sla';
+import {
+  computeTicketSla,
+  isSlaCheckDue,
+  isSlaEqual,
+  pendingSlaChecks,
+  slaFlagOf,
+} from '@/ticket/utils/sla';
+import { loadBranchCalendar } from '@/ticket/utils/slaCalendar';
+import { scheduleSlaChecks } from '@/ticket/utils/slaQueue';
+import { assignTicketNumber } from '@/ticket/utils/nameAndNumber';
 
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
@@ -37,12 +48,35 @@ export interface ITicketModel extends Model<ITicketDocument> {
     subdomain: string;
   }): Promise<ITicketDocument>;
   removeTicket(_id: string[]): Promise<{ ok: number }>;
+  syncSla(_id: string, subdomain: string): Promise<void>;
+  markSlaFirstResponse(ids: string[], at?: Date): Promise<void>;
+  checkSlaDue(input: {
+    _id: string;
+    clock: TTicketSlaClock;
+    phase: TTicketSlaPhase;
+    dueAt: Date;
+  }): Promise<boolean>;
 }
+
+// What a ticket's SLA is computed from.
+const SLA_INPUT_FIELDS = ['priority', 'statusId', 'statusType', 'pipelineId', 'branchId'];
 
 export const loadTicketClass = (
   models: IModels,
   { sendDbEventLog }: EventDispatcherReturn,
 ) => {
+  // A ticket is saved even when its SLA cannot be worked out right now.
+  const syncSlaSafely = async (_id: string, subdomain: string) => {
+    try {
+      await models.Ticket.syncSla(_id, subdomain);
+    } catch (error) {
+      console.error(
+        `Ticket ${_id} SLA sync failed:`,
+        error instanceof Error ? error.message : error,
+      );
+    }
+  };
+
   class Ticket {
     public static async getTicket(_id: string): Promise<ITicketDocument> {
       const ticket = await models.Ticket.findOne({ _id });
@@ -113,7 +147,7 @@ export const loadTicketClass = (
       const ticket = await models.Ticket.create({
         ...doc,
         subscribedUserIds: [userId],
-        number: new Date().getTime().toString(),
+        number: await assignTicketNumber(models, doc.pipelineId),
       });
       if (doc.assigneeId && doc.assigneeId !== userId) {
         await createNotifications({
@@ -122,6 +156,7 @@ export const loadTicketClass = (
           fromUserId: userId,
           subdomain,
           notificationType: 'ticketAssignee',
+          event: 'frontline:tickets:ticketAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
         });
@@ -132,6 +167,9 @@ export const loadTicketClass = (
         docId: ticket._id,
         currentDocument: ticket.toObject(),
       });
+
+      await syncSlaSafely(ticket._id, subdomain);
+
       return ticket;
     }
 
@@ -206,7 +244,7 @@ export const loadTicketClass = (
           module: 'STATUS',
         });
 
-        rest.number = new Date().getTime().toString();
+        rest.number = await assignTicketNumber(models, doc.pipelineId);
         rest.statusId = newStatus?._id;
       }
 
@@ -232,6 +270,7 @@ export const loadTicketClass = (
           fromUserId: userId,
           subdomain,
           notificationType: 'ticketAssignee',
+          event: 'frontline:tickets:ticketAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
         });
@@ -274,6 +313,7 @@ export const loadTicketClass = (
           fromUserId: userId,
           subdomain,
           notificationType: 'updateTicket',
+          event: 'frontline:tickets:ticketUpdated',
           userIds,
           action: 'updated',
         });
@@ -297,7 +337,135 @@ export const loadTicketClass = (
           prevDocument: ticket.toObject(),
         });
       }
+
+      if (detail && SLA_INPUT_FIELDS.some((field) => field in rest)) {
+        await syncSlaSafely(detail._id, subdomain);
+      }
+
       return detail;
+    }
+
+    /**
+     * Brings a ticket's SLA in line with its pipeline policy, priority, branch
+     * hours and status, and arms the warning and breach checks it still needs.
+     * Safe to call after any change; it writes only when something moved.
+     */
+    public static async syncSla(_id: string, subdomain: string) {
+      const ticket = await models.Ticket.findOne({ _id });
+
+      if (!ticket) {
+        return;
+      }
+
+      const pipeline = ticket.pipelineId
+        ? await models.Pipeline.findOne(
+            { _id: ticket.pipelineId },
+            { slaPolicy: 1 },
+          ).lean()
+        : null;
+      const policy = pipeline?.slaPolicy;
+      const sla = computeTicketSla({
+        policy,
+        priority: ticket.priority,
+        createdAt: ticket.createdAt || new Date(),
+        statusType: ticket.statusType,
+        calendar: policy?.enabled
+          ? await loadBranchCalendar(subdomain, ticket.branchId)
+          : undefined,
+        current: ticket.sla,
+      });
+
+      if (!isSlaEqual(sla, ticket.sla)) {
+        const detail = await models.Ticket.findOneAndUpdate(
+          { _id },
+          sla ? { $set: { sla } } : { $unset: { sla: 1 } },
+          { new: true },
+        );
+
+        if (detail) {
+          sendDbEventLog({
+            action: 'update',
+            docId: detail._id,
+            currentDocument: detail.toObject(),
+            prevDocument: ticket.toObject(),
+          });
+        }
+      }
+
+      await scheduleSlaChecks(
+        subdomain,
+        _id,
+        pendingSlaChecks(sla, policy?.warnBeforeMinutes),
+      );
+    }
+
+    /** Stops the first-response clock of tickets still waiting for a reply. */
+    public static async markSlaFirstResponse(ids: string[], at = new Date()) {
+      const tickets = await models.Ticket.find({
+        _id: { $in: ids },
+        'sla.firstResponseDueAt': { $exists: true },
+        'sla.firstRespondedAt': { $exists: false },
+      });
+
+      for (const ticket of tickets) {
+        const detail = await models.Ticket.findOneAndUpdate(
+          { _id: ticket._id, 'sla.firstRespondedAt': { $exists: false } },
+          { $set: { 'sla.firstRespondedAt': at } },
+          { new: true },
+        );
+
+        if (detail) {
+          sendDbEventLog({
+            action: 'update',
+            docId: detail._id,
+            currentDocument: detail.toObject(),
+            prevDocument: ticket.toObject(),
+          });
+        }
+      }
+    }
+
+    /**
+     * A scheduled warning or breach: marks it when it still applies, which is
+     * the change SLA automation triggers react to. False when it no longer
+     * applies (answered, resolved, or the due time moved).
+     */
+    public static async checkSlaDue({
+      _id,
+      clock,
+      phase,
+      dueAt,
+    }: {
+      _id: string;
+      clock: TTicketSlaClock;
+      phase: TTicketSlaPhase;
+      dueAt: Date;
+    }) {
+      const ticket = await models.Ticket.findOne({ _id });
+
+      if (!ticket || !isSlaCheckDue(ticket.sla, { clock, phase, dueAt })) {
+        return false;
+      }
+
+      const flag = `sla.${slaFlagOf(clock, phase)}`;
+      const detail = await models.Ticket.findOneAndUpdate(
+        { _id, [flag]: { $exists: false } },
+        { $set: { [flag]: new Date() } },
+        { new: true },
+      );
+
+      if (!detail) {
+        return false;
+      }
+
+      sendDbEventLog({
+        action: 'update',
+        docId: detail._id,
+        currentDocument: detail.toObject(),
+        prevDocument: ticket.toObject(),
+      });
+
+      return true;
     }
 
     public static async removeTicket(_ids: string[]): Promise<{ ok: number }> {

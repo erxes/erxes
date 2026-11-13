@@ -5,7 +5,6 @@ import {
   randomAlphanumeric,
   sanitizeFilename,
 } from 'erxes-api-shared/utils';
-import { fileTypeFromBuffer } from 'file-type/core';
 import FormData from 'form-data';
 import * as fs from 'fs';
 import fetch from 'node-fetch';
@@ -317,6 +316,9 @@ const uploadFileCloudflare = async (
   const { CLOUDFLARE_BUCKET_NAME, CLOUDFLARE_USE_CDN } =
     await getFileUploadConfigs(models);
 
+  // file-type is ESM-only; load it dynamically so nodenext does not
+  // downlevel it to require
+  const { fileTypeFromBuffer } = await import('file-type/core');
   const detectedType = await fileTypeFromBuffer(fs.readFileSync(file.filepath));
 
   if (path.extname(file.originalFilename).toLowerCase() === `.jfif`) {

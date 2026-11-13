@@ -2,9 +2,11 @@ import { useDirectMailTemplateSelector } from '@/integrations/mail/composer/hook
 import { IconTemplate } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { EmailTemplatePicker } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const DirectMailTemplateSelector = () => {
   const { disabled, selectTemplate } = useDirectMailTemplateSelector();
+  const { t } = useTranslation('frontline');
   return (
     <EmailTemplatePicker
       disabled={disabled}
@@ -16,8 +18,8 @@ export const DirectMailTemplateSelector = () => {
         variant="ghost"
         size="icon"
         className="size-7 rounded-sm"
-        title="Email templates"
-        aria-label="Email templates"
+        title={t('email-templates')}
+        aria-label={t('email-templates')}
         disabled={disabled}
       >
         <IconTemplate className="size-4" />

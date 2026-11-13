@@ -1,17 +1,12 @@
-import { AiAgentBot } from '@/automations/components/settings/components/agents/components/bot/AiAgentBot';
 import { TAiAgentStepStatus } from '@/automations/components/settings/components/agents/constants/aiAgentSteps';
+import { AiAgentBot } from '@/automations/components/settings/components/agents/components/bot/AiAgentBot';
 import { useAiAgentDetailContext } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
 import { useAiAgentProfile } from '@/automations/components/settings/components/agents/hooks/useAiAgentProfile';
-import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { useSessionTab } from '@/automations/hooks/useSessionTab';
-import {
-  IconAlertTriangle,
-  IconDeviceFloppy,
-  IconX,
-} from '@tabler/icons-react';
-import { Badge, BadgeProps, Button, cn, Sheet } from 'erxes-ui';
-import { ApprovalLockButton } from 'ui-modules';
-
+import { IconAlertTriangle, IconArrowBackUp } from '@tabler/icons-react';
+import { Badge, Button, cn, BadgeProps } from 'erxes-ui';
+import { Link, useSearchParams } from 'react-router';
+import { parseAutomationReturnLink } from 'ui-modules';
 const HEADLINE_VARIANTS: Record<TAiAgentStepStatus, BadgeProps['variant']> = {
   error: 'destructive',
   warning: 'warning',
@@ -20,10 +15,8 @@ const HEADLINE_VARIANTS: Record<TAiAgentStepStatus, BadgeProps['variant']> = {
   hint: 'success',
   done: 'success',
 };
-
 export const AiAgentProfileBar = () => {
-  const { detail, headline, setStep, openMemory, save, requestClose } =
-    useAiAgentDetailContext();
+  const { headline, setStep, openMemory } = useAiAgentDetailContext();
   const { name, pose, missingParts, summary, memoryChips } =
     useAiAgentProfile();
   const [botSize, setBotSize] = useSessionTab('aiAgentBotSize', 'compact', [
@@ -31,7 +24,9 @@ export const AiAgentProfileBar = () => {
     'large',
   ]);
   const isLarge = botSize === 'large';
-
+  // Set when another module sent the user here to create an agent.
+  const [searchParams] = useSearchParams();
+  const returnTo = parseAutomationReturnLink(searchParams);
   return (
     <header className="shrink-0 border-b px-5 py-3">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -47,9 +42,7 @@ export const AiAgentProfileBar = () => {
 
         <div className="min-w-40 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Sheet.Title className="truncate text-base font-semibold">
-              {name}
-            </Sheet.Title>
+            <span className="truncate text-base font-semibold">{name}</span>
             <Badge variant={HEADLINE_VARIANTS[headline.status]}>
               {headline.label}
             </Badge>
@@ -59,38 +52,20 @@ export const AiAgentProfileBar = () => {
               </span>
             )}
           </div>
-          <Sheet.Description className="truncate text-sm text-muted-foreground">
-            {summary}
-          </Sheet.Description>
+          <p className="truncate text-sm text-muted-foreground">{summary}</p>
         </div>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2">
-          {headline.status !== 'done' && (
-            <Button variant="outline" onClick={() => setStep(headline.step)}>
-              {headline.cta} →
+        <div className="ml-auto flex shrink-0 items-center gap-1 self-start">
+          {returnTo && (
+            <Button variant="ghost" size="sm" asChild>
+              <Link to={returnTo.path}>
+                <IconArrowBackUp className="shrink-0" />
+                <span className="max-w-40 truncate">
+                  Back to {returnTo.label || 'previous page'}
+                </span>
+              </Link>
             </Button>
           )}
-          {detail?._id && (
-            <ApprovalLockButton
-              contentType={
-                AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT
-              }
-              contentId={detail._id}
-              action="edit"
-            />
-          )}
-          <Button onClick={save}>
-            <IconDeviceFloppy className="size-4" />
-            Save
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={requestClose}
-            aria-label="Close"
-          >
-            <IconX />
-          </Button>
         </div>
       </div>
 
@@ -110,7 +85,6 @@ export const AiAgentProfileBar = () => {
           <span className="mr-1 text-xs text-muted-foreground">Memory</span>
           {memoryChips.map((chip) => {
             const Icon = chip.icon;
-
             return (
               <Button
                 key={chip.key}

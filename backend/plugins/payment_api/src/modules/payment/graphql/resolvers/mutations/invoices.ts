@@ -3,12 +3,8 @@ import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
 import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
 import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
+import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
-import {
-  enqueuePaidInvoiceCallback,
-  resolvePaymentForInvoice,
-  sendPaidInvoiceQrEmail,
-} from '~/modules/payment/services/paidInvoiceCallback';
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
   async generateInvoiceUrl(
@@ -19,7 +15,22 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
+    if (input.contentType && input.contentTypeId) {
+      const pendingInvoice = await models.Invoices.findOne({
+        contentType: input.contentType,
+        contentTypeId: input.contentTypeId,
+        amount: input.amount,
+        paymentIds: input.paymentIds,
+        status: PAYMENT_STATUS.PENDING,
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      })
+        .sort({ createdAt: -1 })
+        .lean();
 
+      if (pendingInvoice) {
+        return buildInvoiceUrl(subdomain, pendingInvoice._id);
+      }
+    }
     const invoice = await models.Invoices.createInvoice(
       { ...input },
       subdomain,
@@ -78,45 +89,21 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { _id }: { _id: string },
     { subdomain, models }: IContext,
   ) {
-    const status = await models.Invoices.checkInvoice(_id, subdomain);
+    const { status, claimed } = await models.Invoices.checkInvoiceAndClaim(
+      _id,
+      subdomain,
+    );
 
-    if (status === 'paid') {
-      const invoice = await models.Invoices.getInvoice({ _id }, true);
-
-      const payment = await resolvePaymentForInvoice(models, invoice);
-
-      enqueuePaidInvoiceCallback(
-        subdomain,
-        models,
-        invoice,
-        payment,
-        'invoicesCheck',
-      );
-
-      if (invoice.callback) {
-        // Fire callback – do not await
-        fetch(invoice.callback, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            _id: invoice._id,
-            amount: invoice.amount,
-            status: 'paid',
-          }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status} – ${res.statusText}`);
-            }
-          })
-          .catch((err) => {
-            console.error(
-              `[invoicesCheck] Callback failed for invoice ${_id}:`,
-              err,
-            );
-          });
+    // notify only if this call moved the invoice to paid; if this fails,
+    // notifyPending stays set and the pending-invoice cron retries
+    if (status === 'paid' && claimed) {
+      try {
+        await notifyPaidInvoice(models, subdomain, _id);
+      } catch (err) {
+        console.error(
+          `[invoicesCheck] Failed to queue paid notifications for invoice ${_id}:`,
+          err,
+        );
       }
     }
 
@@ -129,67 +116,25 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { _id }: { _id: string },
     { subdomain, models }: IContext,
   ) {
-    const status = await models.Invoices.checkInvoice(_id, subdomain);
+    const { status, claimed } = await models.Invoices.checkInvoiceAndClaim(
+      _id,
+      subdomain,
+    );
 
-    if (status === 'paid') {
-      const invoice = await models.Invoices.getInvoice({ _id }, true);
-
-      const payment = await resolvePaymentForInvoice(models, invoice);
-
-      enqueuePaidInvoiceCallback(
-        subdomain,
-        models,
-        invoice,
-        payment,
-        'cpInvoicesCheck',
-      );
-
-      if (invoice.callback) {
-        // Fire callback – do not await
-        fetch(invoice.callback, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            _id: invoice._id,
-            amount: invoice.amount,
-            status: 'paid',
-          }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status} – ${res.statusText}`);
-            }
-          })
-          .catch((err) => {
-            console.error(
-              `[invoicesCheck] Callback failed for invoice ${_id}:`,
-              err,
-            );
-          });
+    // notify only if this call moved the invoice to paid; if this fails,
+    // notifyPending stays set and the pending-invoice cron retries
+    if (status === 'paid' && claimed) {
+      try {
+        await notifyPaidInvoice(models, subdomain, _id);
+      } catch (err) {
+        console.error(
+          `[invoicesCheck] Failed to queue paid notifications for invoice ${_id}:`,
+          err,
+        );
       }
     }
 
     return status;
-  },
-
-  async invoiceScanBarcode(
-    _root,
-    { code, eventSlug }: { code: string; eventSlug?: string },
-    { models }: IContext,
-  ) {
-    const scanned = await models.Invoices.scanBarcode(code, eventSlug);
-
-    graphqlPubsub.publish(`invoiceUpdated:${scanned._id}`, {
-      invoiceUpdated: scanned,
-    });
-
-    graphqlPubsub.publish('invoiceScanned', {
-      invoiceScanned: scanned,
-    });
-
-    return scanned;
   },
 
   async invoicesRemove(
@@ -220,7 +165,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
   async invoiceEdit(
     _root,
     { _id, input }: { _id: string; input: IInvoiceEditInput },
-    { models, subdomain, checkPermission }: IContext,
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('paymentInvoiceEdit');
 
@@ -273,19 +218,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
           status: updated.status,
         },
       });
-
-      if (doc.status === PAYMENT_STATUS.PAID) {
-        const paidInvoice = await models.Invoices.getInvoice({ _id }, true);
-        const payment = await resolvePaymentForInvoice(models, paidInvoice);
-
-        sendPaidInvoiceQrEmail(
-          subdomain,
-          models,
-          paidInvoice,
-          payment,
-          'invoiceEdit',
-        );
-      }
     }
 
     return updated;
@@ -329,10 +261,6 @@ mutations.invoicesCheck.wrapperConfig = {
 };
 
 mutations.cpInvoiceCreate.wrapperConfig = {
-  skipPermission: true,
-};
-
-mutations.invoiceScanBarcode.wrapperConfig = {
   skipPermission: true,
 };
 

@@ -1,3 +1,4 @@
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { EmailTemplatesSettingsRoutes } from '@/emailTemplates/components/EmailTemplatesSettingsRoutes';
@@ -14,9 +15,27 @@ import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPor
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
 
+const AgentSettingsRoutes = lazy(() =>
+  import('~/pages/settings/agent/AgentSettingsRoutes').then((module) => ({
+    default: module.AgentSettingsRoutes,
+  })),
+);
+
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
     default: module.SettingsProfilePage,
+  })),
+);
+
+const SettingsMyActivity = lazy(() =>
+  import('~/pages/settings/account/MyActivityPage').then((module) => ({
+    default: module.SettingsMyActivityPage,
+  })),
+);
+
+const SettingsAppearance = lazy(() =>
+  import('~/pages/settings/account/AppearancePage').then((module) => ({
+    default: module.SettingsAppearancePage,
   })),
 );
 
@@ -35,6 +54,28 @@ const SettingsMailConfig = lazy(() =>
   import('~/pages/settings/workspace/MailConfigPage').then((module) => ({
     default: module.MailConfigPage,
   })),
+);
+const SettingsTwoFactor = lazy(() =>
+  import('~/pages/settings/account/TwoFactorPage').then((module) => ({
+    default: module.TwoFactorPage,
+  })),
+);
+const SecuritySettings = lazy(() =>
+  import('~/pages/settings/workspace/SecuritySettingsPage').then((module) => ({
+    default: module.SecuritySettingsPage,
+  })),
+);
+const LdapSettings = lazy(() =>
+  import('~/pages/settings/workspace/LdapSettingsPage').then((module) => ({
+    default: module.LdapSettingsPage,
+  })),
+);
+const SupportAccessSettings = lazy(() =>
+  import('~/pages/settings/workspace/SupportAccessSettingsPage').then(
+    (module) => ({
+      default: module.SupportAccessSettingsPage,
+    }),
+  ),
 );
 const GeneralSettings = lazy(() =>
   import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
@@ -76,6 +117,11 @@ const ProductsSettingsRoutes = lazy(() =>
       default: module.ProductsSettingRoutes,
     }),
   ),
+);
+const ExchangeRatesPage = lazy(() =>
+  import('~/pages/settings/workspace/ExchangeRatesPage').then((module) => ({
+    default: module.ExchangeRatesPage,
+  })),
 );
 const BrandsSettingsRoutes = lazy(() =>
   import('~/pages/settings/workspace/BrandsPage').then((module) => ({
@@ -159,6 +205,14 @@ export function SettingsRoutes() {
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
         <Route
+          path={SettingsPath.MyActivity}
+          element={<SettingsMyActivity />}
+        />
+        <Route
+          path={SettingsPath.Appearance}
+          element={<SettingsAppearance />}
+        />
+        <Route
           path={SettingsPath.NotificationCatchAll}
           element={<SettingsNotificationRoutes />}
         />
@@ -166,6 +220,7 @@ export function SettingsRoutes() {
           path={SettingsPath.ChangePassword}
           element={<SettingsChangePassword />}
         />
+        <Route path={SettingsPath.TwoFactor} element={<SettingsTwoFactor />} />
         {/* <Route
           path={SettingsPath.Experience}
           element={<SettingsExperiencePage />}
@@ -182,6 +237,20 @@ export function SettingsRoutes() {
             element={<SettingsMailConfig />}
           />
         )}
+        <Route path={SettingsWorkspacePath.Ldap} element={<LdapSettings />} />
+        <Route
+          path={SettingsWorkspacePath.SupportAccess}
+          element={<SupportAccessSettings />}
+        />
+        {/* Kept so links to the old LDAP address still land */}
+        <Route
+          path="ldap"
+          element={<Navigate to={`../${SettingsWorkspacePath.Ldap}`} replace />}
+        />
+        <Route
+          path={SettingsWorkspacePath.Security}
+          element={<SecuritySettings />}
+        />
         <Route
           path={SettingsWorkspacePath.EmailTemplatesCatchAll}
           element={<EmailTemplatesSettingsRoutes />}
@@ -230,8 +299,22 @@ export function SettingsRoutes() {
           element={<BrandsSettingsRoutes />}
         />
         <Route
+          path={SettingsWorkspacePath.ExchangeRates}
+          element={<ExchangeRatesPage />}
+        />
+        <Route
           path={SettingsWorkspacePath.ProductsCatchAll}
           element={<ProductsSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.AgentCatchAll}
+          element={
+            <PermissionRouteGuard module="agents">
+              <Suspense fallback={<div />}>
+                <AgentSettingsRoutes />
+              </Suspense>
+            </PermissionRouteGuard>
+          }
         />
         <Route
           path={SettingsWorkspacePath.AutomationsCatchAll}

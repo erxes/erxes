@@ -28,25 +28,32 @@ import { useRemoveResponse } from '../hooks/useRemoveResponse';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
 import { ChannelResourceType } from '@/channels/types';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSidePanel } from 'ui-modules';
+import { RESPONSE_TEMPLATE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 
+/** Renders response template row actions and the move dialog. */
 const ResponseMoreCell = ({
   cell,
 }: {
   cell: Cell<IResponseTemplate, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
   const { _id, channelId } = cell.row.original;
-  const navigate = useNavigate();
+  const { openRecord } = useSidePanel();
   const { removeResponse, loading } = useRemoveResponse();
   const { confirm } = useConfirm();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
 
+  /** Closes the menu and opens the response template editor. */
   const handleEdit = () => {
-    navigate(`/frontline/settings/channels/${channelId}/response/${_id}`);
+    setMenuOpen(false);
+    openRecord({ contentType: RESPONSE_TEMPLATE_CONTENT_TYPE, contentId: _id });
   };
 
+  /** Confirms and removes the selected response template. */
   const handleDelete = () => {
     confirm({
       message: t(
@@ -59,39 +66,41 @@ const ResponseMoreCell = ({
     });
   };
 
+  const menuContent = (
+    <Command shouldFilter={false}>
+      <Command.List>
+        <Command.Item value="edit" onSelect={handleEdit}>
+          <IconEdit /> {t('edit', 'Edit')}
+        </Command.Item>
+        <Command.Item
+          value="move"
+          onSelect={() => {
+            setMenuOpen(false);
+            setMoveOpen(true);
+          }}
+        >
+          <IconArrowBarToRight />
+          {t('move-to-channel', 'Move to Channel')}
+        </Command.Item>
+        <Command.Item
+          value="delete"
+          onSelect={handleDelete}
+          className="text-destructive"
+        >
+          {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+          {t('delete', 'Delete')}
+        </Command.Item>
+      </Command.List>
+    </Command>
+  );
+
   return (
     <>
       <Popover open={menuOpen} onOpenChange={setMenuOpen}>
         <Popover.Trigger asChild>
           <RecordTable.MoreButton className="w-full h-full" />
         </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item value="edit" onSelect={handleEdit}>
-                <IconEdit /> {t('edit', 'Edit')}
-              </Command.Item>
-              <Command.Item
-                value="move"
-                onSelect={() => {
-                  setMenuOpen(false);
-                  setMoveOpen(true);
-                }}
-              >
-                <IconArrowBarToRight />
-                {t('move-to-channel', 'Move to Channel')}
-              </Command.Item>
-              <Command.Item
-                value="delete"
-                onSelect={handleDelete}
-                className="text-destructive"
-              >
-                {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
-                {t('delete', 'Delete')}
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
+        <Combobox.Content>{menuContent}</Combobox.Content>
       </Popover>
       <MoveToChannelDialog
         open={moveOpen}
@@ -104,17 +113,21 @@ const ResponseMoreCell = ({
   );
 };
 
+/** Opens a response template from its name cell. */
 const ResponseNameCell = ({
   cell,
 }: {
   cell: Cell<IResponseTemplate, unknown>;
 }) => {
-  const navigate = useNavigate();
-  const { _id, channelId } = cell.row.original;
+  const { openRecord } = useSidePanel();
+  const { _id } = cell.row.original;
   return (
     <RecordTableInlineCell
       onClick={() =>
-        navigate(`/frontline/settings/channels/${channelId}/response/${_id}`)
+        openRecord({
+          contentType: RESPONSE_TEMPLATE_CONTENT_TYPE,
+          contentId: _id,
+        })
       }
     >
       {cell.getValue() as string}
@@ -122,8 +135,11 @@ const ResponseNameCell = ({
   );
 };
 
+/** Builds the response template table columns. */
 export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
   return [
     {
       id: 'more',
@@ -181,8 +197,11 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
   ];
 };
 
+/** Lists channel response templates with loading and empty states. */
 export const ResponseList = ({ channelId }: { channelId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
   const responseColumns = useResponseColumns();
   const [{ searchValue }] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',
@@ -225,6 +244,15 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
     );
   }
 
+  const tableBody = (
+    <RecordTable.Body>
+      <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+      {isInitialLoad && <RecordTable.RowSkeleton rows={40} />}
+      <RecordTable.RowList />
+      <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+    </RecordTable.Body>
+  );
+
   return (
     <RecordTable.Provider
       columns={responseColumns}
@@ -238,16 +266,7 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
       >
         <RecordTable>
           <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-            {isInitialLoad && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
+          {tableBody}
         </RecordTable>
       </RecordTable.CursorProvider>
     </RecordTable.Provider>

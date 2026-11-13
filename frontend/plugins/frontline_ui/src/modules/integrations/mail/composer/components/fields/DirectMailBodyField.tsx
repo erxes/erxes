@@ -5,6 +5,7 @@ import {
   ScrollArea,
   usePreviousHotkeyScope,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const BodyField = () => {
   const {
@@ -15,6 +16,7 @@ export const BodyField = () => {
     failedDelivery,
   } = useDirectMailComposerContext();
   const disabled = sending || Boolean(failedDelivery);
+  const { t } = useTranslation('frontline');
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
@@ -28,7 +30,7 @@ export const BodyField = () => {
           render={({ field, fieldState }) => (
             <Form.Item
               role="group"
-              aria-label="Email message"
+              aria-label={t('email-message')}
               aria-describedby={
                 fieldState.error ? 'direct-mail-body-error' : undefined
               }

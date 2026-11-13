@@ -1,7 +1,6 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
-import { agentMeta } from '~/utils/agentMeta';
 import { notificationService } from '@/clientportal/services';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
@@ -97,12 +96,6 @@ export const cpNotificationTrpcRouter = t.router({
       }),
 
     list: t.procedure
-      .meta(
-        agentMeta(
-          'List notifications previously sent to a portal user: { cpUserId, clientPortalId?, isRead?, limit?, skip? }. Returns { list, totalCount }. Get cpUserId from cpUsers.list.',
-          { module: 'clientPortal', action: 'clientPortalRead' },
-        ),
-      )
       .input(
         z.object({
           cpUserId: z.string(),

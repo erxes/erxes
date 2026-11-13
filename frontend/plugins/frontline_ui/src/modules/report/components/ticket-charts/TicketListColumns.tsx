@@ -128,7 +128,7 @@ const toPropertyText = (
 };
 
 const PropertyCell = ({ field, value }: { field: IField; value: unknown }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const text = toPropertyText(field, value, t);
 
   return (
@@ -266,7 +266,7 @@ export const TicketListColumnDefaults = ({
 };
 
 export const useTicketExportColumns = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { fields } = useFields({ contentType: 'frontline:ticket' });
 
   return useCallback(
@@ -307,7 +307,7 @@ export const useTicketExportColumns = () => {
 };
 
 export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { channels } = useGetChannels();
   const { fields } = useFields({ contentType: 'frontline:ticket' });
 

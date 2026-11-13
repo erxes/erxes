@@ -36,6 +36,7 @@ import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
 import { buildFlatTree, getDepthPrefix } from '@/cms/menus/menuUtils';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { MenuItem } from '../types/menuDrawerTypes';
+import { CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME } from '@/cms/shared/constants/recordTable';
 
 interface MenusRecordTableProps {
   clientPortalId: string;
@@ -417,7 +418,7 @@ export const MenusRecordTable = ({
       <RecordTable.Provider
         columns={columns}
         data={orderedMenus}
-        className="h-full m-3 pb-1"
+        className={`h-full m-3 pb-1 ${CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME}`}
         stickyColumns={['drag', 'more', 'checkbox', 'label']}
         tableId="content_menus_record_table"
       >
@@ -426,7 +427,9 @@ export const MenusRecordTable = ({
             <RecordTable>
               <RecordTable.Header />
               <RecordTable.Body>
-                {loading && <RecordTable.RowSkeleton rows={10} />}
+                {loading && !orderedMenus.length && (
+                  <RecordTable.RowSkeleton rows={10} />
+                )}
                 <RecordTable.RowList Row={CustomRow} />
               </RecordTable.Body>
             </RecordTable>

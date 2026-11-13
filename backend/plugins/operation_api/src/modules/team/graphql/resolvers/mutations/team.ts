@@ -100,6 +100,7 @@ export const teamMutations = {
       fromUserId: user._id,
       subdomain,
       notificationType: 'team',
+      event: 'operation:team:teamMemberAdded',
       userIds: memberIds,
       action: 'teamAddMembers',
       models,

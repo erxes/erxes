@@ -3,6 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
     "module": "commonjs",
+    "moduleResolution": "node10",
+    "declaration": false,
+    "noEmit": true,
+    "allowJs": true,
     "isolatedModules": true,
     "types": ["jest", "node"]
   },
@@ -10,6 +14,7 @@
     "jest.config.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "src/**/__tests__/**"
   ]
 }

@@ -15,7 +15,7 @@ export const MessageTriggerConditionsList = ({
 }: {
   currentTriggerId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { formState, watch } = useFormContext<TMessageTriggerForm>();
   const botId = watch('botId');
   const { claims } = useFacebookBotTriggerClaims(botId, currentTriggerId);

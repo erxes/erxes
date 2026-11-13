@@ -66,7 +66,7 @@ export const JobCosts = ({
         )}
       </div>
       {enabled && (
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
           <Table className="min-w-[560px]" aria-label={title}>
             <Table.Header>
               <Table.Row>
@@ -99,7 +99,7 @@ export const JobCosts = ({
                                 {field.value || '-'}
                               </RecordTableInlineCell.Trigger>
                             </Form.Control>
-                            <RecordTableInlineCell.Content>
+                            <RecordTableInlineCell.Content className="min-w-0">
                               <Input {...field} />
                             </RecordTableInlineCell.Content>
                           </PopoverScoped>
@@ -126,7 +126,7 @@ export const JobCosts = ({
                                 {field.value?.toLocaleString() ?? 0}
                               </RecordTableInlineCell.Trigger>
                             </Form.Control>
-                            <RecordTableInlineCell.Content>
+                            <RecordTableInlineCell.Content className="min-w-0">
                               <CurrencyField.ValueInput
                                 value={field.value}
                                 onChange={(value) => field.onChange(value ?? 0)}

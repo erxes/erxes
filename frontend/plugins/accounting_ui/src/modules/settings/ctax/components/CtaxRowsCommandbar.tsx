@@ -34,7 +34,7 @@ export const CtaxRowsDelete = () => {
   const { removeCtaxRows, loading } = useCtaxRowsRemove();
 
   const handleDelete = () => {
-    confirm({
+    void confirm({
       message: t('are-you-sure-you-want-to-delete-these-city-tax-rows'),
       options: {
         okLabel: t('delete'),
@@ -45,7 +45,7 @@ export const CtaxRowsDelete = () => {
         .getFilteredSelectedRowModel()
         .rows.map((row) => row.original._id);
 
-      removeCtaxRows({
+      void removeCtaxRows({
         variables: { ctaxRowIds },
         onError: (error: Error) => {
           toast({
@@ -59,6 +59,7 @@ export const CtaxRowsDelete = () => {
           toast({
             title: t('success'),
             description: t('city-tax-row-deleted-successfully'),
+            variant: 'success',
           });
         },
       });

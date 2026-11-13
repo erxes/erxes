@@ -6,10 +6,26 @@ import {
   AUTOMATION_NON_DEFERRABLE_CORE_ACTIONS,
   AUTOMATION_CORE_TRIGGER_TYPES,
   AUTOMATION_EMAIL_RECIPIENTS_TYPES,
+  aiAgentActionConfigSchema,
+  delayActionConfigSchema,
+  findObjectActionConfigSchema,
+  ifActionConfigSchema,
+  messageProActionConfigSchema,
+  outgoingWebhookActionConfigSchema,
+  sendEmailActionConfigSchema,
+  sendNotificationActionConfigSchema,
+  approvalActionConfigSchema,
+  pickMemberActionConfigSchema,
+  setPropertyActionConfigSchema,
+  splitActionConfigSchema,
+  transformActionConfigSchema,
+  waitEventActionConfigSchema,
   TAutomationActionFolks,
 } from 'erxes-api-shared/core-modules';
 import {
   AI_AGENT_ACTION_OUTPUT,
+  APPROVAL_ACTION_OUTPUT,
+  PICK_MEMBER_ACTION_OUTPUT,
   FIND_OBJECT_ACTION_OUTPUT,
   MESSAGE_PRO_ACTION_OUTPUT,
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
@@ -17,6 +33,14 @@ import {
   TRANSFORM_ACTION_OUTPUT,
 } from './actionOutputs';
 import { CORE_FIND_OBJECT_TARGETS_CONST } from './findObjectTargets';
+import {
+  validateAiAgentConfig,
+  validateMessageProConfig,
+  validateSendEmailSenders,
+  validateSendNotificationConfig,
+  validateApprovalConfig,
+  validatePickMemberConfig,
+} from './configValidators';
 import { CORE_PRODUCT_KNOWLEDGE_SOURCE_KEY } from '~/modules/products/meta/automations';
 import {
   COMPANY_TRIGGER_OUTPUT,
@@ -166,6 +190,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
         { key: 'yes', label: 'Yes', type: TAutomationActionFolks.SUCCESS },
         { key: 'no', label: 'No', type: TAutomationActionFolks.ERROR },
       ],
+      configSchema: ifActionConfigSchema,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.SPLIT,
@@ -175,6 +200,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
         'Create conditional branches to route workflows based on criteria',
       group: CORE_ACTION_GROUPS.LOGIC_AND_DECISIONS,
       allowTargetFromActions: true,
+      configSchema: splitActionConfigSchema,
     },
     // Data Operations
     {
@@ -197,6 +223,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       ],
       isTargetSource: true,
       output: FIND_OBJECT_ACTION_OUTPUT,
+      configSchema: findObjectActionConfigSchema,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.TRANSFORM,
@@ -208,6 +235,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       allowTargetFromActions: true,
       output: TRANSFORM_ACTION_OUTPUT,
       isTargetSource: true,
+      configSchema: transformActionConfigSchema,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.SET_PROPERTY,
@@ -216,6 +244,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       description: 'Update record properties.',
       group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
       allowTargetFromActions: true,
+      configSchema: setPropertyActionConfigSchema,
     },
     // Communication & Integrations
     {
@@ -227,6 +256,52 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       emailRecipientsConst: AUTOMATION_EMAIL_RECIPIENTS_TYPES,
       allowTargetFromActions: true,
       output: SEND_EMAIL_ACTION_OUTPUT,
+      configSchema: sendEmailActionConfigSchema,
+      validateConfig: validateSendEmailSenders,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.APPROVAL,
+      icon: 'IconChecklist',
+      label: 'Ask for approval',
+      description:
+        'Wait until a team member approves or rejects, then continue on that branch',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      folks: [
+        {
+          key: 'approved',
+          label: 'Approved',
+          type: TAutomationActionFolks.SUCCESS,
+        },
+        {
+          key: 'rejected',
+          label: 'Rejected',
+          type: TAutomationActionFolks.ERROR,
+        },
+      ],
+      output: APPROVAL_ACTION_OUTPUT,
+      configSchema: approvalActionConfigSchema,
+      validateConfig: validateApprovalConfig,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.PICK_MEMBER,
+      icon: 'IconUserSearch',
+      label: 'Pick a team member',
+      description:
+        'Choose one available team member, taking turns or at random; use the result to assign',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
+      output: PICK_MEMBER_ACTION_OUTPUT,
+      configSchema: pickMemberActionConfigSchema,
+      validateConfig: validatePickMemberConfig,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.SEND_NOTIFICATION,
+      icon: 'IconBell',
+      label: 'Notify team members',
+      description:
+        'Send an in-app notification to team members, from the automation owner',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      configSchema: sendNotificationActionConfigSchema,
+      validateConfig: validateSendNotificationConfig,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK,
@@ -236,6 +311,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       allowTargetFromActions: true,
       output: OUTGOING_WEBHOOK_ACTION_OUTPUT,
+      configSchema: outgoingWebhookActionConfigSchema,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.MESSAGE_PRO,
@@ -245,6 +321,8 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       allowTargetFromActions: true,
       output: MESSAGE_PRO_ACTION_OUTPUT,
+      configSchema: messageProActionConfigSchema,
+      validateConfig: validateMessageProConfig,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
@@ -254,6 +332,8 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
         'Use a configured AI agent to generate text, route topics, or classify structured data.',
       group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       output: AI_AGENT_ACTION_OUTPUT,
+      configSchema: aiAgentActionConfigSchema,
+      validateConfig: validateAiAgentConfig,
     },
     // Timing & Delays
     {
@@ -264,6 +344,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       label: 'Delay',
       description: 'Delay the next action.',
       group: CORE_ACTION_GROUPS.TIMING_AND_DELAYS,
+      configSchema: delayActionConfigSchema,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
@@ -273,6 +354,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       label: 'Wait event',
       description: 'Delay until event is triggered',
       group: CORE_ACTION_GROUPS.TIMING_AND_DELAYS,
+      configSchema: waitEventActionConfigSchema,
     },
   ],
 };

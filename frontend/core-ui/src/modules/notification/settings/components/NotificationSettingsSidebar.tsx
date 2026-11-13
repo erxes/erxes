@@ -1,12 +1,26 @@
-import { IconSettings } from '@tabler/icons-react';
+import { IconMail, IconPalette, IconSettings } from '@tabler/icons-react';
 import { Sidebar } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { currentUserState, useVersion } from 'ui-modules';
+import { Can, currentUserState, useVersion } from 'ui-modules';
 import { useNotificationPluginsTypes } from '../hooks/useNotificationPluginsTypes';
 
 const NOTIFICATION_CONFIG_PATH = '/settings/notification/config';
+
+// workspace settings, kept apart from each member's own preferences
+const WORKSPACE_LINKS = [
+  {
+    path: '/settings/notification/brand',
+    labelKey: 'brand',
+    icon: IconPalette,
+  },
+  {
+    path: '/settings/notification/templates',
+    labelKey: 'email-templates',
+    icon: IconMail,
+  },
+];
 
 export const NotificationSettingsSidebar = () => {
   const { event } = useParams<{ event: string }>();
@@ -47,6 +61,28 @@ export const NotificationSettingsSidebar = () => {
           </Sidebar.GroupContent>
         </Sidebar.Group>
       ))}
+      <Can action="notificationTemplatesManage">
+        <Sidebar.Group>
+          <Sidebar.GroupLabel>{notificationT('workspace')}</Sidebar.GroupLabel>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              {WORKSPACE_LINKS.map(({ path, labelKey, icon: Icon }) => (
+                <Sidebar.MenuItem key={path}>
+                  <Sidebar.MenuButton
+                    isActive={pathname.startsWith(path)}
+                    asChild
+                  >
+                    <Link to={path}>
+                      <Icon />
+                      <span>{notificationT(labelKey)}</span>
+                    </Link>
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              ))}
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
+      </Can>
       {currentUser?.isOwner && isOs && (
         <Sidebar.Footer className="sticky bottom-0 mt-auto bg-sidebar">
           <Sidebar.Menu>

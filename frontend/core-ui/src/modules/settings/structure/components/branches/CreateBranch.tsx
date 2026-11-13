@@ -1,123 +1,119 @@
-import { useTranslation } from 'react-i18next';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Kbd,
-  Sheet,
-  Spinner,
-  usePreviousHotkeyScope,
-  useScopedHotkeys,
-  useSetHotkeyScope,
-  useToast,
-} from 'erxes-ui';
-import React, { useState } from 'react';
-import { BranchHotKeyScope, TBranchForm } from '../../types/branch';
-import { BranchForm } from './BranchForm';
-import { useBranchForm } from '../../hooks/useBranchForm';
+import { StructureCreateForm } from '@/settings/structure/components/StructureCreateForm';
+import { StructureCreateButton } from '@/settings/structure/components/StructureFormActions';
+import { useStructureFormFeedback } from '@/settings/structure/hooks/useStructureFormFeedback';
 import { SubmitHandler } from 'react-hook-form';
-import { useBranchAdd } from '../../hooks/useBranchActions';
-import { Can, usePermissionCheck } from 'ui-modules';
-
+import { TBranchForm, BranchHotKeyScope } from '../../types/branch';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+} from '@/side-panel/hooks/usePagePanel';
+import { useTranslation } from 'react-i18next';
+import { IconGitBranch } from '@tabler/icons-react';
+import { useScopedHotkeys } from 'erxes-ui';
+import { useEffect } from 'react';
+import { BranchForm } from '@/settings/structure/components/branches/BranchForm';
+import { useBranchForm } from '@/settings/structure/hooks/useBranchForm';
+import {
+  useBranchAdd,
+  useBranchEdit,
+} from '@/settings/structure/hooks/useBranchActions';
+import { useBranchCreateSheet } from '@/settings/structure/hooks/useStructureCreateSheet';
+import { usePermissionCheck, RecordSidePanel } from 'ui-modules';
 export const CreateBranch = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const {
-    methods,
-    methods: { handleSubmit },
-  } = useBranchForm();
-  const [open, setOpen] = useState<boolean>(false);
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
+  const { methods } = useBranchForm();
+  const { target, isOpen, openSheet, closeSheet } = useBranchCreateSheet();
   const { handleAdd, loading } = useBranchAdd();
-  const { toast } = useToast();
-  const setHotkeyScope = useSetHotkeyScope();
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const { handleEdit } = useBranchEdit();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canManageBranches = isLoaded && hasActionPermission('branchesManage');
+  const presetParentId = target?.parentId;
 
-  const onOpen = () => {
-    setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(BranchHotKeyScope.BranchAddSheet);
-  };
-
-  const onClose = () => {
-    setHotkeyScope(BranchHotKeyScope.BranchSettingsPage);
-    setOpen(false);
-  };
-
+  // A chart "+" opens the sheet with its parent already chosen
+  useEffect(() => {
+    methods.setValue('parentId', presetParentId ?? '');
+  }, [presetParentId, methods]);
   useScopedHotkeys(
     `c`,
     () => {
       if (!canManageBranches) return;
-      onOpen();
+      openSheet();
     },
     BranchHotKeyScope.BranchSettingsPage,
   );
-  useScopedHotkeys(`esc`, () => onClose(), BranchHotKeyScope.BranchAddSheet);
-
-  const submitHandler: SubmitHandler<TBranchForm> = React.useCallback(
-    async (data) => {
-      handleAdd({
-        variables: data,
-        onCompleted: () => {
-          toast({
-            title: t('success'),
-            variant: 'success',
-            description: t('branch-created'),
-          });
-          methods.reset();
-          setOpen(false);
-        },
-        onError: (error) =>
-          toast({
-            title: t('error'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
+  useScopedHotkeys(`esc`, () => closeSheet(), BranchHotKeyScope.BranchAddSheet);
+  const pagePanel = usePagePanel({
+    expandable: false,
+    requiredPermission: 'branchesManage',
+    name: 'settings/structure/branches/CreateBranch',
+    onOpenChange: (open) => (open ? openSheet() : closeSheet()),
+    open: isOpen,
+  });
+  const feedback = useStructureFormFeedback({
+    isCurrent: pagePanel.isCurrent,
+    message: t('branch-created'),
+    onSuccess: () => {
+      methods.reset();
+      closeSheet();
     },
-    [handleAdd],
-  );
+  });
+  const submitHandler: SubmitHandler<TBranchForm> = (data) => {
+    const insertBefore = target?.insertBefore;
+    handleAdd({
+      variables: data,
+      onCompleted: ({ branchesAdd }) => {
+        if (insertBefore) {
+          // The backend rebuilds `order` from the code, so it must be sent
+          handleEdit({
+            variables: {
+              id: insertBefore._id,
+              code: insertBefore.code,
+              parentId: branchesAdd._id,
+            },
+            onError: feedback.onError,
+          });
+        }
+        feedback.onCompleted();
+      },
+      onError: feedback.onError,
+    });
+  };
+
   return (
-    <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Can action="branchesManage">
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus /> {t('create-branch')}
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
-      </Can>
-      <Sheet.View
-        className="p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <Form {...methods}>
-          <form
-            onSubmit={handleSubmit(submitHandler)}
-            className=" flex flex-col gap-0 w-full h-full"
-          >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                <IconGitBranch size={16} />
-                {t('create-branch-title')}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+    <>
+      <StructureCreateButton
+        permission="branchesManage"
+        onClick={pagePanel.onOpen}
+        label={t('create-branch')}
+      />
+      {createPortal(
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+          {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+            <StructureCreateForm
+              header={
+                <RecordSidePanel.Header
+                  avatar={<IconGitBranch size={16} />}
+                  title={t('create-branch-title')}
+                  {...pagePanel.headerProps}
+                />
+              }
+              methods={methods}
+              onSubmit={submitHandler}
+              onCancel={closeSheet}
+              saving={loading}
+              saveLabel={t('create')}
+            >
               <BranchForm />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                {t('cancel')}
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : t('create')}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+            </StructureCreateForm>
+          ) : (
+            <PagePanelStatus entry={pagePanel} />
+          )}
+        </div>,
+        pagePanel,
+      )}
+    </>
   );
 };

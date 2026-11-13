@@ -1,4 +1,4 @@
-import { useProjects } from '@/project/hooks/useGetProjects';
+import { useGetProject } from '@/project/hooks/useGetProject';
 import { IProject } from '@/project/types';
 import { cn } from 'erxes-ui';
 import { forwardRef } from 'react';
@@ -10,16 +10,12 @@ export const ProjectInline = forwardRef<
     projectId: string | null | undefined;
   } & React.HTMLAttributes<HTMLDivElement>
 >(({ project, projectId, className, ...props }, ref) => {
-  const { projects } = useProjects({
-    variables: {
-      _ids: projectId ? [projectId] : [],
-    },
-    skip: Boolean(project) || !projectId,
+  const { project: fetchedProject } = useGetProject(projectId, {
+    skip: Boolean(project),
+    subscribe: false,
   });
 
-  const name =
-    projects?.find((project) => project._id === projectId)?.name ||
-    project?.name;
+  const name = project?.name || fetchedProject?.name;
 
   return (
     <div

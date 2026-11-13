@@ -1,66 +1,56 @@
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
-import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
+import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
+import { useQuery } from '@apollo/client';
 import { IconTicketOff } from '@tabler/icons-react';
-import { ScrollArea, Separator, useQueryState } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { Spinner, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
+  getHostContacts,
   IRelationWidgetProps,
-  useCreateMultipleRelations,
-  useRelations,
+  RelationWidgetEmptyState,
+  RelationWidgetList,
 } from 'ui-modules';
 import { TicketWidget } from './TicketWidget';
 
+// The most tickets listed for one customer or company.
+const CONTACT_RECORDS_LIMIT = 50;
+
+/**
+ * The tickets of the host's customer and company, found by the contact on
+ * the tickets themselves; "+" creates one for them (createTicket saves the
+ * contact).
+ */
 export const TicketRelationWidget = ({
   contentId,
   contentType,
   customerId,
   companyId,
+  customerIds,
+  companyIds,
 }: IRelationWidgetProps) => {
   const { t } = useTranslation('frontline');
-  const { ownEntities } = useRelations({
+  const contacts = getHostContacts({
+    contentType,
+    contentId,
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
+  });
+  const customerTickets = useQuery(GET_TICKETS, {
     variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'frontline:ticket',
+      filter: { customerId: contacts.customerId, limit: CONTACT_RECORDS_LIMIT },
     },
+    skip: !contacts.customerId,
+  });
+  const companyTickets = useQuery(GET_TICKETS, {
+    variables: {
+      filter: { companyId: contacts.companyId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.companyId,
   });
 
-  const { createMultipleRelations } = useCreateMultipleRelations();
-
-  const onComplete = (ticketId: string) => {
-    const createRelation = (ct: string, cid: string) => ({
-      entities: [
-        { contentType: ct, contentId: cid },
-        { contentType: 'frontline:ticket', contentId: ticketId },
-      ],
-    });
-
-    const relationKeys = new Set<string>();
-
-    const relations = [
-      [contentType, contentId],
-      ...(customerId ? [['core:customer', customerId]] : []),
-      ...(companyId ? [['core:company', companyId]] : []),
-    ]
-      .filter(([ct, cid]) => {
-        const key = `${ct}:${cid}`;
-        if (relationKeys.has(key)) {
-          return false;
-        }
-        relationKeys.add(key);
-        return true;
-      })
-      .map(([ct, cid]) => createRelation(ct, cid));
-
-    createMultipleRelations(relations);
-  };
-
-  const setTicketCreateDefaultValues = useSetAtom(
-    ticketCreateDefaultValuesState,
-  );
   const [conversationId] = useQueryState<string | null>('conversationId');
 
   const { conversationDetail } = useConversationDetail({
@@ -70,52 +60,60 @@ export const TicketRelationWidget = ({
     skip: !conversationId,
   });
 
-  useEffect(() => {
-    if (!conversationDetail?.integration?.channelId) return;
-    setTicketCreateDefaultValues({
-      channelId: conversationDetail?.integration.channelId || undefined,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationDetail]);
+  if (customerTickets.loading || companyTickets.loading) {
+    return <Spinner containerClassName="py-20" />;
+  }
 
-  if (ownEntities?.length === 0) {
+  // The host itself is not listed among its contacts' tickets.
+  const ticketIds = [
+    ...new Set(
+      [
+        ...(customerTickets.data?.getTickets?.list || []),
+        ...(companyTickets.data?.getTickets?.list || []),
+      ].flatMap((ticket) =>
+        ticket && ticket._id !== contentId ? [ticket._id] : [],
+      ),
+    ),
+  ];
+
+  if (ticketIds.length === 0) {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconTicketOff />
-        </div>
-        <span className="text-sm">
-          {t('no-tickets-to-display', 'No tickets to display at the moment.')}
-        </span>
+      <RelationWidgetEmptyState
+        icon={IconTicketOff}
+        message={t(
+          'no-tickets-to-display',
+          'No tickets to display at the moment.',
+        )}
+      >
         <AddTicketSheet
-          onComplete={onComplete}
+          contacts={contacts}
+          defaults={{
+            channelId: conversationDetail?.integration?.channelId || undefined,
+          }}
           variant="secondary"
-          isRelation={true}
+          isRelation
         />
-      </div>
+      </RelationWidgetEmptyState>
     );
   }
 
   return (
-    <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">
-          {t('tickets', 'Tickets')}
-        </span>
+    <RelationWidgetList
+      label={t('tickets', 'Tickets')}
+      actions={
         <AddTicketSheet
-          onComplete={onComplete}
+          contacts={contacts}
+          defaults={{
+            channelId: conversationDetail?.integration?.channelId || undefined,
+          }}
           variant="secondary"
-          isRelation={true}
+          isRelation
         />
-      </div>
-      <Separator />
-      <ScrollArea className="flex-auto">
-        <div className="flex flex-col gap-4 p-4">
-          {ownEntities?.map((entity) => (
-            <TicketWidget key={entity.contentId} ticketId={entity.contentId} />
-          ))}
-        </div>
-      </ScrollArea>
-    </>
+      }
+    >
+      {ticketIds.map((ticketId) => (
+        <TicketWidget key={ticketId} ticketId={ticketId} />
+      ))}
+    </RelationWidgetList>
   );
 };

@@ -164,8 +164,9 @@ const MemberInlineEffectComponent = ({
       _id: memberId,
     },
     skip,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first',
   });
+  // Keep the latest status event authoritative if an older lookup arrives late.
   const { data: statusChangedData } = useSubscription<{
     userStatusChanged?: IUser;
   }>(USER_STATUS_CHANGED, {

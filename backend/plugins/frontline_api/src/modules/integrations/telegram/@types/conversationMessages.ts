@@ -25,6 +25,7 @@ export interface ITelegramConversationMessage {
   pollUpdateAt?: Date;
   customerId?: string;
   userId?: string;
+  fromBot?: boolean;
   senderName?: string;
   processingToken?: string;
   processingUntil?: Date;

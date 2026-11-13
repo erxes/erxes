@@ -247,6 +247,10 @@ const normalizeFlow = (value: unknown): unknown => {
   return value;
 };
 
+/** Compares a single value (a node's config) the way whole flows are compared. */
+export const valueFingerprint = (value: unknown) =>
+  JSON.stringify(normalizeFlow(value ?? {}));
+
 const flowFingerprint = ({ triggers, actions, workflows }: TAutomationFlow) =>
   JSON.stringify(
     normalizeFlow({

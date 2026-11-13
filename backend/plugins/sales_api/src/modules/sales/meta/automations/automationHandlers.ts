@@ -25,6 +25,35 @@ const getSalesSetPropertyModel = (models: IModels, module: string) => {
   throw new Error(`Unsupported sales set property module: ${module}`);
 };
 
+// A contact's deals ("Customer deals" / "Company deals") are the deals
+// keeping that contact (`customerId` / `companyId`), not core relations.
+const CONTACT_DEAL_FIELDS: Record<string, 'customerId' | 'companyId'> = {
+  'core:customer': 'customerId',
+  'core:company': 'companyId',
+};
+
+const getDealSetPropertySelector = async (
+  args: Parameters<typeof getSetPropertySelector>[0],
+) => {
+  const contactField =
+    args.relation?.relatedContentType === 'sales:deal'
+      ? CONTACT_DEAL_FIELDS[args.relation.contentType]
+      : undefined;
+
+  if (!contactField) {
+    return getSetPropertySelector(args);
+  }
+
+  // The contact's id: the trigger's (or the target action's) record.
+  const { _id } = await getSetPropertySelector({
+    ...args,
+    relation: undefined,
+    targetPath: '_id',
+  });
+
+  return { [contactField]: _id };
+};
+
 export const salesAutomationHandlers = {
   checkCustomTrigger: async (
     {
@@ -85,7 +114,7 @@ export const salesAutomationHandlers = {
     const { action, execution, targetType } = data;
     const { module, rules, setPropertyTarget } = action.config;
     const model = getSalesSetPropertyModel(models, module);
-    const selector = await getSetPropertySelector({
+    const selector = await getDealSetPropertySelector({
       subdomain,
       module,
       execution,

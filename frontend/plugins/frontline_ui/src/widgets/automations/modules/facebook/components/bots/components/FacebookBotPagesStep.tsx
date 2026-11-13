@@ -21,7 +21,7 @@ const getBotPageIds = (bots: { pageId?: string | null }[]) =>
   );
 
 export const FacebookBotPagesStep = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [selectedPage, setSelectedPage] = useAtom(selectedFacebookPageAtom);
 
   const { facebookGetPages, loading } = useFacebookPages();
@@ -45,7 +45,7 @@ export const FacebookBotPagesStep = () => {
   }, [botPageIds, selectedPage, setSelectedPage]);
 
   return (
-    <div className="flex-1 overflow-hidden p-4 pt-0">
+    <div className="min-h-0 flex-1 overflow-hidden p-4 pt-0">
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
@@ -59,8 +59,12 @@ export const FacebookBotPagesStep = () => {
             })}
           </div>
         </div>
-        <RadioGroup value={selectedPage} onValueChange={setSelectedPage}>
-          <Command.List>
+        <RadioGroup
+          className="min-h-0 flex-1 overflow-hidden"
+          value={selectedPage}
+          onValueChange={setSelectedPage}
+        >
+          <Command.List className="max-h-none overflow-y-auto">
             <FacebookBotPagesStepContent
               loading={loading || botsLoading}
               facebookGetPages={pages}
@@ -79,6 +83,7 @@ const FacebookBotPagesStepContent = ({
   loading: boolean;
   facebookGetPages: FacebookPageOption[];
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [selectedPage, setSelectedPage] = useAtom(selectedFacebookPageAtom);
 
   const handleSelect = (page: FacebookPageOption) => {
@@ -119,7 +124,7 @@ const FacebookBotPagesStepContent = ({
         </div>
         {page.isBotUsed && (
           <span className="ml-auto text-xs text-muted-foreground">
-            Already used by bot
+            {t('already-used-by-bot')}
           </span>
         )}
       </Command.Item>

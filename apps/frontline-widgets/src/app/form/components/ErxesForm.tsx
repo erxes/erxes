@@ -10,8 +10,10 @@ import {
   Spinner,
   Switch,
   Textarea,
+  toast,
   Upload,
 } from 'erxes-ui';
+import { readFormLinkToken } from '../utils/formUtils';
 import { IAttachment, IFormFieldLogic, IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
 import { useErxesForm } from '../context/erxesFormContext';
@@ -160,11 +162,29 @@ export const ErxesForm = ({
         }),
         browserInfo,
         cachedCustomerId: customerId || undefined,
+        linkToken: readFormLinkToken(),
       },
       onCompleted: (data) => {
+        const result = data?.widgetsSaveLead;
+
+        if (result?.status === 'error') {
+          toast({
+            title: result.errors?.[0]?.text || 'Could not submit the form',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        if (result?.status === 'alreadySubmitted') {
+          toast({ title: 'You have already answered this form' });
+        }
+
         setFormValues({});
         setShowConfirmation(true);
-        setCustomerId(data?.widgetsSaveLead?.customerId || '');
+
+        if (result?.customerId) {
+          setCustomerId(result.customerId);
+        }
       },
     });
   };

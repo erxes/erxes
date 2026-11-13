@@ -23,9 +23,15 @@ export const currentUser = gql`
       links
       emailSignatures
       getNotificationByEmail
+      appearance {
+        layout
+        frameColor
+        navPosition
+      }
       configs
       isOnboarded
       hasPassword
+      passwordManagedBy
       isShowNotification
     }
   }

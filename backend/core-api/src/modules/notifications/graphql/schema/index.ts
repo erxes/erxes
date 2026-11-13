@@ -4,7 +4,8 @@ export const types = `
   type NotificationModuleEvent {
     name:String,
     title:String,
-    description:String
+    description:String,
+    defaultChannels:[String]
   }
 
   type NotificationModule {
@@ -216,6 +217,7 @@ const NOTIFICATIONS_QUERIES_PARAMS = `
   endDate:String,
   fromUserId:String,
   module:String,
+  plugin:String,
   unreadFirst:Boolean
 `;
 

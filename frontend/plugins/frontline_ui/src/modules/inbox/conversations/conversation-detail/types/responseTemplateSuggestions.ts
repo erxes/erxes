@@ -9,4 +9,5 @@ export type ResponseTemplateSuggestion = ReturnType<
 export type ResponseTemplateSuggestionsOptions = {
   editor: ComposerBlockEditor;
   enabled: boolean;
+  channelId?: string;
 };

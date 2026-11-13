@@ -72,5 +72,6 @@
   "change-to-approve": "What you are approving",
   "change-apply-failed": "Approved, but it could not be carried out: {{reason}}",
   "status-applyFailed": "Not carried out",
-  "request-gone": "This request no longer exists."
+  "request-gone": "This request no longer exists.",
+  "requested-change": "Asked for"
 }

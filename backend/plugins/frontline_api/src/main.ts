@@ -6,6 +6,7 @@ import { startFacebookCommentOutboxWorker } from '@/integrations/facebook/commen
 import { startFacebookInputTimeoutWorker } from '@/integrations/facebook/meta/automation/messages/inputWait';
 import { startCustomDomainWorker } from '@/customdomain/worker';
 import { startScheduledPublishWorker } from '@/knowledgebase/utils/scheduledPublish';
+import { startTicketSlaWorker } from '@/ticket/utils/slaWorker';
 import {
   createCoreModuleProducerHandler,
   TImportExportProducers,
@@ -31,6 +32,8 @@ import {
 } from '~/meta/import-export/export/exportHandlers';
 import { frontlineReferences } from '~/meta/references';
 import segments from '~/meta/segments';
+import { templates } from '~/meta/templates';
+import { templateParts } from '~/meta/templates/parts';
 
 const ticketImportTypes = [
   {
@@ -81,6 +84,7 @@ startPlugin({
     startFacebookInputTimeoutWorker();
     startCustomDomainWorker();
     startScheduledPublishWorker();
+    startTicketSlaWorker();
   },
 
   apolloServerContext: async (subdomain, context) => {
@@ -102,6 +106,11 @@ startPlugin({
   },
 
   meta: {
+    templates,
+    templateParts,
+    // Tickets keep their own customerId / companyId; core tells frontline
+    // when a contact is merged or removed.
+    contactFields: { contentTypes: ['frontline:ticket'] },
     importExport: {
       import: {
         types: ticketImportTypes,

@@ -6,21 +6,14 @@ export const SALES_SEGMENT_RELATIONS: SegmentRelationMeta[] = [
     label: 'Deals',
     subjectType: 'core:contacts.customers',
     relatedType: 'sales:sales.deals',
-    join: {
-      via: 'relation',
-      subjectRecordType: 'core:customer',
-      relatedRecordType: 'sales:deal',
-    },
+    // Deals keep their customer and company themselves.
+    join: { via: 'field', on: 'related', path: 'customerId' },
   },
   {
     key: 'company.deals',
     label: 'Deals',
     subjectType: 'core:contacts.companies',
     relatedType: 'sales:sales.deals',
-    join: {
-      via: 'relation',
-      subjectRecordType: 'core:company',
-      relatedRecordType: 'sales:deal',
-    },
+    join: { via: 'field', on: 'related', path: 'companyId' },
   },
 ];

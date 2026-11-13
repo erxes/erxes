@@ -9,7 +9,7 @@ import { TBranchForm } from '../types/branch';
 import { useToast } from 'erxes-ui';
 
 interface AddBranchResult {
-  branchesAdd: TBranchForm;
+  branchesAdd: TBranchForm & { _id: string };
 }
 
 export function useBranchAdd(

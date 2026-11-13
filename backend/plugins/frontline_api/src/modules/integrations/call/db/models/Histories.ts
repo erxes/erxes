@@ -45,6 +45,8 @@ const CALL_HISTORY_CONSTANTS = {
   },
 } as const;
 
+const NO_CALL_LEGS = '__none__';
+
 const ERROR_MESSAGES = {
   INTEGRATION_NOT_FOUND: 'Integration not found',
   OPERATOR_NOT_FOUND: 'Operator not found',
@@ -89,15 +91,17 @@ export const loadCallHistoryClass = (models: IModels) => {
       user: IUserDocument,
     ): Promise<number> {
       try {
-        const { integration, operator } = await this.validateUserIntegration(
-          models,
-          user,
-          filterOptions.integrationId,
-        );
+        const { integration, operator, inboxIds } =
+          await this.validateUserIntegration(
+            models,
+            user,
+            filterOptions.integrationId,
+          );
 
         const pipeline = this.buildCdrPipeline(
           operator,
           integration,
+          inboxIds,
           filterOptions,
           {
             forCount: true,
@@ -137,17 +141,20 @@ export const loadCallHistoryClass = (models: IModels) => {
         throw new Error(ERROR_MESSAGES.OPERATOR_NOT_FOUND);
       }
 
-      return { integration, operator };
+      const peers = await models.CallIntegrations.findPeers(integration);
+      const inboxIds = peers.map((peer) => peer.inboxId);
+
+      return { integration, operator, inboxIds };
     }
 
     private static buildCdrPipeline(
       operator: any,
       integration: any,
+      inboxIds: string[],
       filterOptions: ICallHistoryFilterOptions,
       { forCount }: { forCount?: boolean } = {},
     ): any[] {
       const ext = operator?.gsUsername ? String(operator.gsUsername) : '';
-      const integrationId = filterOptions.integrationId;
 
       const extVals: (string | number)[] = /^\d+$/.test(ext)
         ? [ext, Number(ext)]
@@ -164,8 +171,8 @@ export const loadCallHistoryClass = (models: IModels) => {
       const match: any = involvement.length
         ? { $or: involvement }
         : { _id: null };
-      if (integrationId && involvement.length) {
-        match.inboxIntegrationId = integrationId;
+      if (inboxIds.length && involvement.length) {
+        match.inboxIntegrationId = { $in: inboxIds };
       }
 
       const dateRange: any = {};
@@ -278,6 +285,46 @@ export const loadCallHistoryClass = (models: IModels) => {
         });
       }
 
+      if (callStatus !== CALL_HISTORY_CONSTANTS.CALL_STATUS.CONNECTED) {
+        pipeline.push(
+          {
+            $addFields: {
+              _unansweredCall: {
+                $cond: [
+                  '$isAnswered',
+                  NO_CALL_LEGS,
+                  { $ifNull: ['$_id', NO_CALL_LEGS] },
+                ],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: models.CallCdrs.collection.name,
+              localField: '_unansweredCall',
+              foreignField: 'uniqueid',
+              as: '_callLegs',
+            },
+          },
+          {
+            $match: {
+              _callLegs: {
+                $not: {
+                  $elemMatch: {
+                    disposition: /^answered$/i,
+                    billsec: { $gt: 0 },
+                    lastapp: { $in: ['Queue', 'Dial'] },
+                    actionType: { $not: /VM/ },
+                    dstchannelExt: { $nin: extVals },
+                  },
+                },
+              },
+            },
+          },
+          { $project: { _callLegs: 0, _unansweredCall: 0 } },
+        );
+      }
+
       if (forCount) {
         pipeline.push({ $count: 'n' });
         return pipeline;
@@ -321,15 +368,17 @@ export const loadCallHistoryClass = (models: IModels) => {
       user: IUserDocument,
     ): Promise<(Partial<ICallHistory> & { _id: string })[]> {
       try {
-        const { integration, operator } = await this.validateUserIntegration(
-          models,
-          user,
-          filterOptions.integrationId,
-        );
+        const { integration, operator, inboxIds } =
+          await this.validateUserIntegration(
+            models,
+            user,
+            filterOptions.integrationId,
+          );
 
         const pipeline = this.buildCdrPipeline(
           operator,
           integration,
+          inboxIds,
           filterOptions,
         );
 

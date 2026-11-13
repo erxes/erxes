@@ -9,7 +9,7 @@ export const MessageFileAttachment = ({
 }: {
   attachment: IAttachment;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const name = attachmentName(attachment) || t('file', 'File');
 
   return (

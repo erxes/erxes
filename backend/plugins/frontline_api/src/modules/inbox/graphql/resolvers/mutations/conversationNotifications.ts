@@ -1,5 +1,6 @@
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
+import { sendNotification } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
@@ -138,7 +139,7 @@ const sendAgentMobileNotification = async (
   title: string,
   content: string,
 ) => {
-  const data: Record<string, string> = {
+  const pushData: Record<string, string> = {
     type: 'messenger',
     id: String(conversation._id),
     conversationId: String(conversation._id),
@@ -146,28 +147,29 @@ const sendAgentMobileNotification = async (
   };
 
   if (conversation.integrationId) {
-    data.integrationId = String(conversation.integrationId);
+    pushData.integrationId = String(conversation.integrationId);
   }
 
   if (conversation.customerId) {
-    data.customerId = String(conversation.customerId);
+    pushData.customerId = String(conversation.customerId);
   }
 
   try {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'notifications',
-      action: 'sendMobileNotification',
-      input: {
-        title,
-        body: strip(content),
-        receivers: conversationNotifReceivers(conversation, userId, false),
-        customerId: conversation.customerId,
-        conversationId: conversation._id,
-        data,
-      },
+    // push only, on the channels each agent's settings resolve to
+    await sendNotification(subdomain, {
+      title,
+      message: strip(content),
+      type: 'info',
+      kind: 'user',
+      fromUserId: userId,
+      userIds: conversationNotifReceivers(conversation, userId, false),
+      contentType: 'frontline:inbox.conversation',
+      contentTypeId: conversation._id,
+      action: 'messageAdded',
+      notificationType: 'chat_message',
+      event: 'frontline:conversations:conversationAddMessage',
+      inApp: false,
+      pushData,
     });
   } catch (e) {
     debugError(`Failed to send mobile notification: ${e.message}`);

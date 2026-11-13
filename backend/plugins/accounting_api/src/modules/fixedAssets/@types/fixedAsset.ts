@@ -9,21 +9,8 @@ export interface IFixedAsset {
 
   propertiesData?: Record<string, unknown>;
 
-  accountId?: string;
-  count?: number;
-  currentCount?: number;
-  originalCost?: number;
-  acquisitionDate?: Date;
-  depreciationStartDate?: Date;
   transactionId?: string;
   transactionDetailId?: string;
-
-  depreciationMethod?: string;
-  annualDepreciationRate?: number;
-  salvageValue?: number;
-  taxDepreciationMethod?: string;
-  taxAnnualDepreciationRate?: number;
-  taxSalvageValue?: number;
 
   createdAt?: Date;
   updatedAt?: Date;

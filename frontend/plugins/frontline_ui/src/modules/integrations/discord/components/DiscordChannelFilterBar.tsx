@@ -15,7 +15,9 @@ export const DiscordChannelFilterBar = ({
 }: {
   iconOnly?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [integrationId] = useQueryState<string>('integrationId');
 
   const selectedIds = useMemo(

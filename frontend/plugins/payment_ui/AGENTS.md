@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -14,22 +14,21 @@
 
 - Payment method (gateway) settings CRUD surface: list, add sheet, edit sheet, command bar.
 - Per-kind payment configuration forms (QuickQR, Khanbank, and the generic field-driven kinds).
-- The "create deal on payment" configuration UI on a payment method.
-- Invoice list page, invoice filters, barcode-scan flow, and invoice counts state.
+- Invoice list page, invoice filters, and invoice counts state.
 - Corporate gateway surfaces for Khanbank, Golomt, and TDB (configs, accounts, transactions).
 - The `invoices` relation widget contributed to other record detail views.
 
 ### Does not own
 
-- Payment/invoice persistence, gateway calls, callbacks, or deal creation — those live in `payment_api`.
-- Sales boards, pipelines, and stages — consumed through `ui-modules` selectors, never re-implemented.
+- Payment/invoice persistence, gateway calls, or callbacks — those live in `payment_api`.
 - Translation files: `payment` namespace JSON lives in `backend/gateway/src/locales/*/payment.json`.
 
 ## Current Capabilities
 
 - Create, edit, and remove payment methods with kind-specific Zod validation and toast feedback.
-- Configure a payment method to auto-create a sales deal (`dealEnabled` + board/pipeline/stage).
-- Browse invoices with kind/status filters, live scan subscription, and total-count state.
+- Browse invoices with kind/status filters and total-count state.
+- Show each invoice's payment method (read-only "Payment Method" column in the invoice table and
+  badges on the `invoices` relation widget card), derived from the invoice's `transactions`.
 - Edit an invoice's description, amount, and status either inline in the table cells or through
   the row's **more → Edit** sheet form; both surfaces require the `paymentInvoiceEdit` action and
   disappear/fall back to read-only without it.
@@ -38,16 +37,16 @@
 
 ## Architecture
 
-| Area              | Path                                                    | Responsibility                                                 |
-| ----------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
+| Area              | Path                                                    | Responsibility                                                                |
+| ----------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | Federation config | `src/config.tsx`                                        | `IUIConfig`: `navigationGroup` (Payment app tab) + `invoices` relation widget |
-| Dev server config | `rspack.config.ts`                                      | Module Federation development serving and watch ignore rules    |
-| Pages             | `src/pages/payment`                                     | Invoices, payment settings, corporate gateway route entries    |
-| Payment module    | `src/modules/payment`                                   | Payment/invoice GraphQL documents, hooks, types, Jotai state   |
-| Invoice cells     | `src/modules/payment/components/InvoiceInlineCells.tsx` | Permission-aware inline editors for the invoice table          |
-| Settings module   | `src/modules/settings/payment/components`               | Payment method table, sheets, and all configuration forms      |
-| Corporate gateway | `src/modules/corporateGateway/<bank>`                   | Bank-specific configs, accounts, and transaction containers    |
-| Widgets           | `src/widgets`                                           | Exposed widget entries, including the invoices relation widget |
+| Dev server config | `rspack.config.ts`                                      | Module Federation development serving and watch ignore rules                  |
+| Pages             | `src/pages/payment`                                     | Invoices, payment settings, corporate gateway route entries                   |
+| Payment module    | `src/modules/payment`                                   | Payment/invoice GraphQL documents, hooks, types, Jotai state                  |
+| Invoice cells     | `src/modules/payment/components/InvoiceInlineCells.tsx` | Permission-aware inline editors for the invoice table                         |
+| Settings module   | `src/modules/settings/payment/components`               | Payment method table, sheets, and all configuration forms                     |
+| Corporate gateway | `src/modules/corporateGateway/<bank>`                   | Bank-specific configs, accounts, and transaction containers                   |
+| Widgets           | `src/widgets`                                           | Exposed widget entries, including the invoices relation widget                |
 
 ## Contracts
 
@@ -63,12 +62,10 @@
 
 ### Consumes
 
-- `erxes-ui` primitives (`Form`, `Switch`, `Sheet`, `RecordTable`, `Combobox`, `Command`, …).
-- `ui-modules`: `SettingsHeader`, `IRelationWidgetProps`, `usePermissionCheck`, and the sales
-  selectors `SelectBoard` / `SelectPipeline` / `SelectStage`.
+- `erxes-ui` primitives (`Form`, `Sheet`, `RecordTable`, `Combobox`, `Command`, …).
+- `ui-modules`: `SettingsHeader`, `IRelationWidgetProps`, `usePermissionCheck`.
 - Gateway GraphQL: `payments`, `paymentsTotalCount`, `invoices`, `qpayGetDistricts`,
-  `paymentAdd`, `paymentEdit`, `paymentRemove`, `invoiceEdit`, `invoiceScanBarcode`,
-  `invoiceScanned`.
+  `paymentAdd`, `paymentEdit`, `paymentRemove`, `invoiceEdit`.
 - Permission action `paymentInvoiceEdit`, declared by `payment_api`.
 - `react-i18next` namespace `payment`.
 
@@ -81,6 +78,9 @@
 
 ## Local Invariants
 
+- The settings sidebar starts with a sticky core-style "Exit settings" row
+  (`Sidebar.Header` + `Sidebar.MenuButton` `Link`, `sidebar.exit-settings`) to the
+  app's main page; the title stays plain text and there is no footer Back link.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
 - Sales board/pipeline/stage pickers must come from `ui-modules`. Do not add payment-local
   GraphQL documents for `salesBoards` / `salesPipelines` / `salesStages`.
@@ -92,9 +92,6 @@
   `import { Form } from 'erxes-ui'`.
 - Because `Form` is shared, sub-forms must not receive it as a prop. They take only
   `form: UseFormReturn<FieldValues>` and import `Form` themselves.
-- Deal config field names are fixed: `dealEnabled`, `dealBoardId`, `dealPipelineId`,
-  `dealStageId`. Turning `dealEnabled` off clears the three ids.
-- Changing the board clears pipeline and stage; changing the pipeline clears stage.
 - Every GraphQL operation name stays prefixed/unique for this plugin.
 - Invoice inline editors must fall back to the read-only cell whenever
   `usePermissionCheck()` is still loading or `paymentInvoiceEdit` is missing — never render an
@@ -105,6 +102,11 @@
   resolves. `PaymentForm`'s `onSubmit` is `async` and awaits the mutation, so a failure keeps
   the sheet open with the entered values and reports the error through a `destructive` toast.
   Never call `onCancel()` before the awaited mutation.
+- Invoice payment method comes from `getInvoicePaymentMethods` in `InvoiceInlineCells.tsx`: the
+  distinct `paymentKind`s of `paid` transactions; if none are paid, the latest transaction's kind
+  shown as a muted (`secondary`) badge; `-` when there are no transactions. Kind labels resolve
+  through `PAYMENT_KINDS[...].name`, falling back to the raw kind. Keep `transactions.paymentKind`
+  in the `invoices` query.
 - Translation keys live outside this plugin (`backend/gateway/src/locales/*/payment.json`), so
   new UI text must reuse existing keys of the `payment` namespace.
 
@@ -112,5 +114,5 @@
 
 - `pnpm nx lint payment_ui`
 - `pnpm nx build payment_ui`
-- Smoke: Payment → Settings (`/payment/settings/methods`) → add/edit a payment method, toggle **Create deal on payment**,
-  pick board → pipeline → stage, save, and confirm the row updates without a page refresh.
+- Smoke: Payment → Settings (`/payment/settings/methods`) → add/edit a payment method, save,
+  and confirm the row updates without a page refresh.

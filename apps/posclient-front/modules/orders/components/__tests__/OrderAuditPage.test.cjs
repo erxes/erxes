@@ -119,3 +119,40 @@ test("cart changes use array lengths and retain item-specific removal details", 
   assert.match(html, /Устгасан/)
   assert.match(html, /3 → 0/)
 })
+
+test("deleted covers display their own ID, dates, payment amounts and terminal responses", () => {
+  const html = renderToStaticMarkup(
+    React.createElement(AuditChanges, {
+      log: {
+        _id: "log",
+        coverId: "cover-deleted",
+        source: "cover",
+        action: "delete",
+        changes: [
+          {
+            field: "cover",
+            oldValue: {
+              beginDate: "2026-10-28T00:00:00Z",
+              endDate: "2026-10-29T00:00:00Z",
+              details: [
+                {
+                  paidType: "TDBCard",
+                  paidSummary: [{ amount: 1200 }],
+                  terminalResults: [{ response: "Bank settlement receipt" }],
+                },
+              ],
+            },
+            newValue: null,
+          },
+        ],
+      },
+    })
+  )
+  assert.match(html, /Хаалтын мэдээлэл/)
+  assert.match(html, /cover-deleted/)
+  assert.match(html, /2026-10-28/)
+  assert.match(html, /TDBCard/)
+  assert.match(html, /1200/)
+  assert.match(html, /Bank settlement receipt/)
+  assert.doesNotMatch(html, /Захиалгын өөрчлөлт/)
+})

@@ -1,24 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
-import { formatDate as format } from '@/utils/graphqlDate';
 import { Button, useQueryState, useToast } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import { useState, type RefObject } from 'react';
-import { currentOrganizationState } from 'ui-modules';
+import { useJournalReportOrganizationName } from '@/journal-reports/hooks/useJournalReportOrganizationName';
+import { formatReportPeriodQuery } from '@/journal-reports/utils/reportNavigation';
 import { ReportRules } from '../types/reportsMap';
 import { exportJournalReportExcel } from '../utils/exportJournalReportExcel';
 
 interface IReportExcelExportButtonProps {
   reportContainerRef: RefObject<HTMLDivElement>;
 }
-
-const formatQueryDate = (value: unknown) => {
-  if (typeof value !== 'string' || !value) {
-    return '';
-  }
-
-  return format(new Date(value), 'yyyy-MM-dd');
-};
 
 export const ReportExcelExportButton = ({
   reportContainerRef,
@@ -27,7 +18,7 @@ export const ReportExcelExportButton = ({
   const [report] = useQueryState<string>('report');
   const [fromDate] = useQueryState<string>('fromDate');
   const [toDate] = useQueryState<string>('toDate');
-  const organization = useAtomValue(currentOrganizationState);
+  const { organizationName, loading } = useJournalReportOrganizationName();
   const { toast } = useToast();
   const [exporting, setExporting] = useState(false);
 
@@ -43,14 +34,18 @@ export const ReportExcelExportButton = ({
     try {
       await exportJournalReportExcel(reportContainerRef.current, {
         title,
-        organizationName: organization?.name || '',
-        dateRange: [formatQueryDate(fromDate), formatQueryDate(toDate)]
+        organizationName,
+        dateRange: [
+          formatReportPeriodQuery(fromDate),
+          formatReportPeriodQuery(toDate),
+        ]
           .filter(Boolean)
           .join(' - '),
       });
       toast({
         title: t('success'),
         description: t('report-downloaded-as-an-excel-file'),
+        variant: 'success',
       });
     } catch (error) {
       toast({
@@ -71,7 +66,7 @@ export const ReportExcelExportButton = ({
       type="button"
       variant="outline"
       onClick={handleExport}
-      disabled={exporting || !reportCode}
+      disabled={exporting || loading || !reportCode}
       className="print:hidden"
     >
       <IconFileSpreadsheet />

@@ -17,7 +17,7 @@ export const SendSurveyDialog = ({
   channelId?: string;
   disabled?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 

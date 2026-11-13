@@ -10,7 +10,7 @@ export const FacebookTextMessage = ({
   index,
   message,
 }: FacebookMessageProps<{ type: 'text' }>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { control, setValue } = useReplyMessageAction();
   const limit = (message.buttons || []).length ? 640 : 2000;
 

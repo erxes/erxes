@@ -1,3 +1,4 @@
+import { markConversationTicketsResponded } from '@/ticket/utils/slaResponse';
 import { authorizeConversationAccess } from '@/inbox/utils/conversationAccess';
 import type { IConversationMessageAdd } from '@/inbox/@types/conversationMessages';
 import { resolveForwardedSnapshotForMessage } from '@/inbox/forwardedMessage';
@@ -118,6 +119,7 @@ export const conversationMessageMutations = {
           fromUserId: userId,
           subdomain,
           notificationType: 'internalNote',
+          event: 'frontline:conversations:conversationMention',
           userIds,
           action: 'created',
         });
@@ -205,6 +207,7 @@ export const conversationMessageMutations = {
         conversation,
         userId,
       });
+      await markConversationTicketsResponded(models, conversation._id);
 
       publishMessage(models, dbMessage, conversation.customerId);
 

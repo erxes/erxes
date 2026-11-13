@@ -38,12 +38,19 @@ const NotificationContext = createContext<NotificationSettingsContext | null>(
 
 export const NotificationSettingsProvider = ({
   children,
+  pluginName: pluginProp,
+  moduleName: moduleProp,
 }: {
   children: React.ReactNode;
+  // given by a plugin's own settings page; otherwise read from the route
+  pluginName?: string;
+  moduleName?: string;
 }) => {
   const { event } = useParams<{ event: string }>();
 
-  const [pluginName, moduleName] = (event || '').split(':');
+  const [routePlugin, routeModule] = (event || '').split(':');
+  const pluginName = pluginProp ?? routePlugin;
+  const moduleName = moduleProp ?? routeModule;
 
   const { pluginsNotifications } = useNotificationPluginsTypes();
   const { notificationSettings } = useNotificationSettings();
@@ -52,27 +59,55 @@ export const NotificationSettingsProvider = ({
 
   const pluginRecord = notificationSettings?.events?.[pluginName];
 
-  const plugin: NotificationSettingsPlugin = {
-    name: pluginName,
-    enabled: pluginRecord?.enabled ?? true,
-    channels: pluginRecord?.channels ?? [],
-  };
-
   const currentPlugin = pluginsNotifications?.find(
     (p) => p.pluginName === pluginName,
   );
 
+  // A level the user never saved stands in for what the events declare as
+  // their default, the same way the sender reads it.
+  const pluginDefaultChannels = [
+    ...new Set(
+      (currentPlugin?.modules || []).flatMap((m) =>
+        (m.events || []).flatMap((e) => e.defaultChannels || []),
+      ),
+    ),
+  ];
+
+  const plugin: NotificationSettingsPlugin = {
+    name: pluginName,
+    enabled: pluginRecord?.enabled ?? true,
+    channels: pluginRecord?.channels ?? pluginDefaultChannels,
+  };
+
+  const moduleConfig = currentPlugin?.modules?.find(
+    (m) => m.name === moduleName,
+  );
+
+  const moduleRecord =
+    notificationSettings?.events?.[`${pluginName}:${moduleName}`];
+
   const currentModule = {
-    ...currentPlugin?.modules?.find((m) => m.name === moduleName),
-    ...notificationSettings?.events?.[`${pluginName}:${moduleName}`],
+    ...moduleConfig,
+    ...moduleRecord,
+    enabled:
+      moduleRecord?.enabled ??
+      moduleConfig?.events?.some((e) => e.defaultChannels?.length),
   } as PluginsNotificationConfigModules & { enabled?: boolean };
 
   const currentEvents =
     currentModule?.events?.map((event) => ({
       ...event,
-      ...notificationSettings?.events?.[
+      ...(notificationSettings?.events?.[
         `${pluginName}:${moduleName}:${event.name}`
-      ],
+      ] ??
+        (event.defaultChannels?.length
+          ? {
+              enabled: true,
+              mutedChannels: plugin.channels.filter(
+                (c) => !event.defaultChannels?.includes(c),
+              ),
+            }
+          : {})),
     })) || [];
 
   const toggleChannel = async (channel: string) => {
@@ -125,7 +160,8 @@ export const NotificationSettingsProvider = ({
           event: `${pluginName}:${moduleName}:${e.name}`,
           enabled: true,
           channels: plugin.channels,
-          mutedChannels: [],
+          // an event with a default keeps it; any other takes every channel
+          mutedChannels: e.mutedChannels ?? [],
         }),
       ),
     ]);

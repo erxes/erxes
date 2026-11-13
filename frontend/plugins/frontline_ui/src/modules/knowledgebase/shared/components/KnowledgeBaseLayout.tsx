@@ -28,7 +28,9 @@ export const KnowledgeBaseLayout = ({
   actions?: ReactNode;
   children: ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { topics } = useTopics();
 
   const rootLabel = t('knowledge-base', 'Knowledge Base');

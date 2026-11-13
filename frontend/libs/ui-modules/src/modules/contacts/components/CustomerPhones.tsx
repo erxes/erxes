@@ -1,3 +1,4 @@
+import { TPhoneValidationStatus } from '../types/Customer';
 import {
   type IPhoneFieldProps,
   PhoneDisplay,
@@ -10,15 +11,18 @@ import { useCustomerEdit } from 'ui-modules/modules/contacts/hooks';
 
 interface CustomerPhonesProps {
   _id: string;
+  maxVisible?: number;
   primaryPhone: string;
   phones: string[];
-  phoneValidationStatus?: `${ValidationStatus}`;
+  // Any stored status; only valid/invalid are marked.
+  phoneValidationStatus?: TPhoneValidationStatus;
   scope?: string;
   Trigger: React.ComponentType<{ children: React.ReactNode }>;
 }
 
 export function CustomerPhones({
   _id,
+  maxVisible,
   primaryPhone,
   phones: _phones,
   phoneValidationStatus,
@@ -54,7 +58,7 @@ export function CustomerPhones({
   return (
     <PopoverScoped scope={scope}>
       <Trigger>
-        <PhoneDisplay {...phoneProps} />
+        <PhoneDisplay {...phoneProps} maxVisible={maxVisible} />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
         <PhoneField

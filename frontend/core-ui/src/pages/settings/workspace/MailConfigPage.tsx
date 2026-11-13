@@ -1,26 +1,23 @@
 import { SettingsBreadcrumbs } from '@/settings/components/SettingsBreadcrumbs';
-import { MailConfigForm } from '@/settings/mail-config/components/MailConfigForm';
+import { MailConfigSenders } from '@/settings/mail-config/components/MailConfigSenders';
+import { MailConfigSending } from '@/settings/mail-config/components/MailConfigSending';
+import { MailConfigTemplate } from '@/settings/mail-config/components/MailConfigTemplate';
+import { useMailConfigView } from '@/settings/mail-config/hooks/useMailConfigView';
 import { PageContainer, ScrollArea } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 
 export function MailConfigPage() {
-  const { t } = useTranslation('settings', {
-    keyPrefix: 'mail-config',
-  });
+  const { view } = useMailConfigView();
+
   return (
     <PageContainer>
       <SettingsBreadcrumbs />
-      <ScrollArea.Root>
-        <section className="mx-auto max-w-2xl w-full relative">
-          <h2 className="font-semibold text-lg mt-4 mb-12 px-4">
-            {t('mail-service')}
-          </h2>
-          <div className="flex flex-col gap-8 px-4 w-full h-auto">
-            <MailConfigForm />
-          </div>
+      <ScrollArea className="h-full">
+        <section className="mx-auto max-w-2xl w-full px-4 pb-10">
+          {view === 'sending' && <MailConfigSending />}
+          {view === 'senders' && <MailConfigSenders />}
+          {view === 'template' && <MailConfigTemplate />}
         </section>
-        <ScrollArea.Bar />
-      </ScrollArea.Root>
+      </ScrollArea>
     </PageContainer>
   );
 }

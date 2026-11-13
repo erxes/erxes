@@ -5,7 +5,7 @@ import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
 import { Button, Input, Label, NumberInput } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectProductsBulk } from 'ui-modules';
+import { SelectProductsBulk, usePermissionCheck } from 'ui-modules';
 import {
   applyFooterDiscountAmount,
   applyFooterDiscountPercent,
@@ -101,12 +101,22 @@ export const ProductFooter = ({
   onAddProducts,
   onSave,
 }: ProductFooterProps) => {
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEditDiscounts = isLoaded && hasActionPermission('dealsEdit');
   const [discountPercentDraft, setDiscountPercentDraft] = useState<
     Record<string, string>
   >({});
   const [discountAmountDraft, setDiscountAmountDraft] = useState<
     Record<string, string>
   >({});
+  const rowIdsKey = productsData.map((product) => product._id).join(',');
+  const [draftRowIdsKey, setDraftRowIdsKey] = useState(rowIdsKey);
+
+  if (draftRowIdsKey !== rowIdsKey) {
+    setDraftRowIdsKey(rowIdsKey);
+    setDiscountPercentDraft({});
+    setDiscountAmountDraft({});
+  }
 
   const parseDraftNumber = (value: string) => {
     const parsed = Number(value.replace(/,/g, ''));
@@ -252,6 +262,7 @@ export const ProductFooter = ({
                   </span>
                   <Input
                     id={`discount-percent-${currency}`}
+                    readOnly={!canEditDiscounts}
                     className="h-8 w-20 tabular-nums"
                     inputMode="numeric"
                     placeholder={t('set-percent', 'Set percent')}
@@ -266,6 +277,7 @@ export const ProductFooter = ({
                   <span className="text-xs text-muted-foreground">%</span>
                   <Input
                     id={`discount-amount-${currency}`}
+                    readOnly={!canEditDiscounts}
                     className="h-8 w-32 tabular-nums"
                     inputMode="numeric"
                     placeholder={t('set-amount', 'Set amount')}

@@ -1,3 +1,4 @@
+import { AutomationBotPanel } from '~/widgets/automations/components/AutomationBotsPage';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -33,7 +34,7 @@ export const AutomationFbBotFormContent = ({
   // The page came from the caller, so the selector and its gate are dropped.
   isPageFixed?: boolean;
 } = {}) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { form, facebookMessengerBot } = useFbBotFormContext();
   const [activeTab, setActiveTab] = useAtom(facebookBotFormTabState);
   const { onSave, onSaveloading } = useFacebookBotSave(
@@ -54,7 +55,7 @@ export const AutomationFbBotFormContent = ({
 
   return (
     <>
-      <Sheet.Content className="overflow-y-auto p-4">
+      <Sheet.Content className="min-h-0 flex-1 overflow-y-auto p-4">
         <Form {...form}>
           {isPageFixed ? (
             <div className="flex items-center pb-2">
@@ -115,7 +116,7 @@ export const AutomationFbBotFormContent = ({
           </div>
         </Form>
       </Sheet.Content>
-      <Sheet.Footer>
+      <Sheet.Footer className="shrink-0">
         <Button
           disabled={onSaveloading}
           onClick={form.handleSubmit(onSave, (error) =>
@@ -139,28 +140,28 @@ const FbBotFormSecondarySheet = ({
   accountId: string;
   pageId: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [isOpenAccountSheet, setOpenAccountSheet] = useAtom(
     isOpenFacebookBotSecondarySheet,
   );
 
   return (
-    <Sheet open={isOpenAccountSheet} onOpenChange={setOpenAccountSheet}>
+    <>
       <div className="flex justify-between items-center pb-2">
         <FacebookPageInfo accountId={accountId} pageId={pageId} />
-        <Sheet.Trigger asChild>
-          <Button>{t('select-page')}</Button>
-        </Sheet.Trigger>
+        <Button onClick={() => setOpenAccountSheet(true)}>
+          {t('select-page')}
+        </Button>
       </div>
       <Separator />
-      <Sheet.View>
-        {isOpenAccountSheet && (
+      {isOpenAccountSheet && (
+        <AutomationBotPanel onClose={() => setOpenAccountSheet(false)}>
           <FacebookBotPageSelectorSteps
             accountId={accountId}
             step={accountId ? 2 : 1}
           />
-        )}
-      </Sheet.View>
-    </Sheet>
+        </AutomationBotPanel>
+      )}
+    </>
   );
 };

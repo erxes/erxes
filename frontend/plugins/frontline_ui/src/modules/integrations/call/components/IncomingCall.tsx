@@ -18,7 +18,9 @@ import { TAddCallCustomer } from '@/integrations/call/hooks/useAddCustomer';
 import { ICustomer } from '@/integrations/call/types/callTypes';
 
 export const IncomingCallAudio = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const audioRef = useRef<HTMLAudioElement>(null);
   const sip = useAtomValue(sipStateAtom);
   useEffect(() => {
@@ -64,7 +66,9 @@ export const IncomingCall = ({
   integrationName: string;
   loading: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const sipState = useAtomValue(sipStateAtom);
 
   const phoneNumber = extractPhoneNumberFromCounterpart(

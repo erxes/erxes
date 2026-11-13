@@ -29,6 +29,27 @@ import { SegmentConditionValue } from './SegmentConditionValue';
 import { SegmentReferenceValue } from './SegmentReferenceValue';
 import { SegmentRelationFilters } from './SegmentRelationFilters';
 
+// The workspace's own Data Extensions first, then the type's built-in
+// fields and custom properties, each under a heading: a long list of
+// built-ins would otherwise hide what the workspace added below the fold.
+const PROPERTY_GROUPS = [
+  { key: 'dataExtensions', prefix: 'dataExtensions.' },
+  { key: 'properties', prefix: 'propertiesData.' },
+];
+
+const groupPropertyOptions = (options: TSegmentField[]) => {
+  const groupOf = (option: TSegmentField) =>
+    PROPERTY_GROUPS.find(({ prefix }) => option.key.includes(prefix))?.key ||
+    'fields';
+
+  return ['dataExtensions', 'fields', 'properties']
+    .map((key) => ({
+      key,
+      options: options.filter((option) => groupOf(option) === key),
+    }))
+    .filter((group) => group.options.length);
+};
+
 export const SegmentCondition = ({
   path,
   onRemove,
@@ -91,7 +112,7 @@ export const SegmentCondition = ({
             'flex flex-auto items-center gap-2 rounded-md',
             'border border-dashed bg-muted px-3 py-1.5 text-sm',
             !stepped &&
-              (propertyTypes.length > 1 ? 'min-w-[564px]' : 'min-w-[436px]'),
+              (propertyTypes.length > 1 ? 'min-w-[604px]' : 'min-w-[436px]'),
             stepped && 'min-w-0',
           )}
         >
@@ -123,7 +144,7 @@ export const SegmentCondition = ({
         )}
       >
         {propertyTypes.length > 1 && (
-          <div className="w-[120px] shrink-0">
+          <div className="w-[160px] shrink-0">
             <Select
               value={
                 selectedType?.relationKey || selectedType?.contentType || ''
@@ -189,14 +210,21 @@ export const SegmentCondition = ({
                     <Command.Input placeholder={t('search-properties')} />
                     <Command.List className="max-h-64">
                       <Command.Empty>{t('no-property-found')}</Command.Empty>
-                      {options.map((option: TSegmentField) => (
-                        <Command.Item
-                          key={option.key}
-                          value={fieldLabel(fieldType, option)}
-                          onSelect={() => selectField(option)}
+                      {groupPropertyOptions(options).map((group) => (
+                        <Command.Group
+                          key={group.key}
+                          heading={t(`property-group.${group.key}`)}
                         >
-                          {fieldLabel(fieldType, option)}
-                        </Command.Item>
+                          {group.options.map((option) => (
+                            <Command.Item
+                              key={option.key}
+                              value={fieldLabel(fieldType, option)}
+                              onSelect={() => selectField(option)}
+                            >
+                              {fieldLabel(fieldType, option)}
+                            </Command.Item>
+                          ))}
+                        </Command.Group>
                       ))}
                     </Command.List>
                   </Command>
@@ -276,7 +304,7 @@ export const SegmentCondition = ({
         <p
           className={cn(
             'flex items-start gap-1.5 pt-1 text-xs text-muted-foreground',
-            stepped ? 'pl-1' : 'pl-[128px]',
+            stepped ? 'pl-1' : 'pl-[168px]',
           )}
         >
           <IconInfoCircle className="size-3.5 shrink-0 mt-px" />

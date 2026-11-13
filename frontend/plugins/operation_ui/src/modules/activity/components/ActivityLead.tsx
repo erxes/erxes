@@ -12,19 +12,25 @@ export const ActivityLead = ({
   const { previousValue, newValue } = metadata ?? {};
 
   return (
-    <div className="inline-flex items-center gap-1">
+    <div className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
       {t('changed-lead')}{' '}
       {previousValue && (
         <>
           {t('from')}
-          <Badge variant="secondary" className="flex-none">
+          <Badge
+            variant="secondary"
+            className="min-w-0 max-w-full [&_span]:truncate"
+          >
             <MembersInline memberIds={[previousValue]} />
           </Badge>
         </>
       )}
       {t('to')}
       {newValue && (
-        <Badge variant="secondary" className="flex-none">
+        <Badge
+          variant="secondary"
+          className="min-w-0 max-w-full [&_span]:truncate"
+        >
           <MembersInline memberIds={[newValue]} />
         </Badge>
       )}

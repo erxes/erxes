@@ -1,12 +1,12 @@
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { Button, Form, ScrollArea, Sheet } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   formSetupStepAtom,
+  formEditingFieldDirtyAtom,
   resetFormSetupAtom,
 } from '../states/formSetupStates';
-import { UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
+import { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,7 +14,7 @@ import {
   FORM_SETUP_STEPS_LENGTH,
 } from '@/forms/constants/formStatesDefaultValues';
 
-export const FormMutateLayout = ({
+export const FormMutateLayout = <T extends FieldValues>({
   children,
   title,
   description,
@@ -25,13 +25,14 @@ export const FormMutateLayout = ({
   children: React.ReactNode;
   title: string;
   description: string;
-  form: UseFormReturn<z.infer<any>>;
-  onSubmit?: (values: z.infer<any>) => void;
+  form: UseFormReturn<T>;
+  onSubmit?: (values: T) => void;
   isLoading?: boolean;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  const dirtyField = useAtomValue(formEditingFieldDirtyAtom);
   const [step, setStep] = useAtom(formSetupStepAtom);
-  const { id } = useParams<{ id: string }>();
+  const { id, formId } = useParams<{ id: string; formId: string }>();
 
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ export const FormMutateLayout = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) => {
+          if (dirtyField || isLoading) return;
           onSubmit?.(values);
           setStep((prev) =>
             prev === FORM_SETUP_STEPS.CONFIRMATION ? prev : prev + 1,
@@ -70,21 +72,23 @@ export const FormMutateLayout = ({
           <Button
             variant="secondary"
             className="mr-auto bg-border"
+            type="button"
+            disabled={dirtyField}
             onClick={handleCancel}
           >
             {t('cancel', 'Cancel')}
           </Button>
           <FormMutateLayoutPreviousStepButton />
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || dirtyField}>
             {isLoading
-              ? id
+              ? formId
                 ? t('updating-form', 'Updating form...')
                 : t('creating-form', 'Creating form...')
               : step === FORM_SETUP_STEPS.CONFIRMATION
-                ? id
-                  ? t('update-form', 'Update form')
-                  : t('create-form', 'Create form')
-                : t('next-step', 'Next step')}
+              ? formId
+                ? t('update-form', 'Update form')
+                : t('create-form', 'Create form')
+              : t('next-step', 'Next step')}
           </Button>
         </Sheet.Footer>
       </form>
@@ -94,13 +98,15 @@ export const FormMutateLayout = ({
 
 export const FormMutateLayoutPreviousStepButton = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  const dirtyField = useAtomValue(formEditingFieldDirtyAtom);
   const [step, setStep] = useAtom(formSetupStepAtom);
   return (
     <Button
       variant="secondary"
       className="bg-border"
-      onClick={() => setStep(step - 1)}
-      disabled={step === FORM_SETUP_STEPS.GENERAL}
+      type="button"
+      onClick={() => !dirtyField && setStep(step - 1)}
+      disabled={dirtyField || step === FORM_SETUP_STEPS.GENERAL}
     >
       {t('previous-step', 'Previous step')}
     </Button>

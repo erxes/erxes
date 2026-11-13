@@ -1,8 +1,9 @@
+import { RecordSidePanel } from 'ui-modules';
 import {
   selectedInstagramAccountAtom,
   selectedInstagramPageAtom,
 } from '@/integrations/instagram/states/instagramStates';
-import { Badge, Button, cn, Sheet } from 'erxes-ui';
+import { Badge, Button, cn } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,15 +18,13 @@ const useActionButton = (accountId?: string) => {
   const selectedAccountId =
     useAtomValue(selectedInstagramAccountAtom) || accountId;
   const selectedPageId = useAtomValue(selectedInstagramPageAtom);
-  const [isOpenAccountSheet, setOpenAccountSheet] = useAtom(
-    isOpenInstagramBotSecondarySheet,
-  );
+  const [, setOpenAccountSheet] = useAtom(isOpenInstagramBotSecondarySheet);
 
   const isLastStep = activeStep === 2 && selectedAccountId && selectedPageId;
 
   const onClick = () => {
     if (isLastStep) {
-      isOpenAccountSheet && setOpenAccountSheet(false);
+      setOpenAccountSheet(false);
       return;
     }
     setStep(activeStep + 1);
@@ -40,38 +39,42 @@ const useActionButton = (accountId?: string) => {
     onClick,
     activeStep,
     setStep,
+    close: () => setOpenAccountSheet(false),
   };
 };
 
 export const InstagramBotPageSelectorSteps = ({
   step,
   accountId,
-}: {
+}: Readonly<{
   step: number;
   accountId?: string;
-}) => {
+}>) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
-  const { onClick, disabled, text, activeStep, setStep } =
+  const { onClick, disabled, text, activeStep, setStep, close } =
     useActionButton(accountId);
 
   useEffect(() => {
     setStep(step);
-  }, [step]);
+  }, [step, setStep]);
 
   return (
     <>
-      <Sheet.Header className="p-5 h-auto py-2">
-        <div className="flex items-center gap-2">
-          <Badge className="rounded-xl text-xs font-mono">
-            STEP {activeStep}
-          </Badge>
-          <h2 className="text-primary font-semibold text-base">
-            {t('connect-page', 'Connect Page')}
-          </h2>
-        </div>
-        <Sheet.Close />
-      </Sheet.Header>
-      <Sheet.Content>
+      <RecordSidePanel.Header
+        title={
+          <div className="flex items-center gap-2">
+            <Badge className="rounded-xl text-xs font-mono">
+              STEP {activeStep}
+            </Badge>
+            <h2 className="text-primary font-semibold text-base">
+              {t('connect-page', 'Connect Page')}
+            </h2>
+          </div>
+        }
+        onBack={close}
+        onClose={close}
+      />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <div className="p-5 flex flex-col gap-3">
           <div className="flex items-center gap-1 w-full">
             {Array.from({ length: 2 }).map((_, index) => (
@@ -92,8 +95,8 @@ export const InstagramBotPageSelectorSteps = ({
           <InstagramBotPageAccountsStep accountId={accountId} />
         )}
         {activeStep === 2 && <InstagramBotPagesStep />}
-      </Sheet.Content>
-      <Sheet.Footer>
+      </div>
+      <div className="flex shrink-0 justify-end gap-2 border-t p-3">
         <Button
           variant="secondary"
           className="bg-border"
@@ -105,7 +108,7 @@ export const InstagramBotPageSelectorSteps = ({
         <Button onClick={onClick} disabled={disabled}>
           {text}
         </Button>
-      </Sheet.Footer>
+      </div>
     </>
   );
 };

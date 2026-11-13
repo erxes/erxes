@@ -1,69 +1,31 @@
-import { Button, Spinner } from 'erxes-ui';
+import { ContactRelationWidget } from '@/widgets/core-widgets/ContactRelationWidget';
 import {
   CompanyWidget,
   IRelationWidgetProps,
-  SelectCompaniesBulk,
-  useManageRelations,
-  useRelations,
+  RelationWidgetEmptyState,
 } from 'ui-modules';
-import { IconBuildingSkyscraper, IconPlus } from '@tabler/icons-react';
+import { IconBuildingSkyscraper } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-export const CompanyWidgets = ({
-  contentId,
-  contentType,
-  companyId,
-}: IRelationWidgetProps) => {
+/** Shows reciprocal company links for contacts and explicit host fields for other records. */
+export const CompanyWidgets = (props: IRelationWidgetProps) => {
+  const { companyId } = props;
   const { t } = useTranslation('common', { keyPrefix: 'widgets' });
-  const { manageRelations } = useManageRelations();
-  const { ownEntities, loading } = useRelations({
-    variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'core:company',
-    },
-    skip: companyId ? true : false,
-  });
 
-  const handleSelectCompanies = (companyIds: string[]) => {
-    manageRelations({
-      contentType,
-      contentId,
-      relatedContentType: 'core:company',
-      relatedContentIds: companyIds,
-    });
-  };
-
-  if (loading) {
-    return <Spinner className="size-4" />;
-  }
-
-  const companyIds = companyId
-    ? [companyId]
-    : ownEntities?.map((entity) => entity.contentId);
-
-  if (ownEntities?.length === 0) {
+  if (props.contentType === 'core:customer') {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconBuildingSkyscraper />
-        </div>
-        <span className="text-sm">{t('no-companies')}</span>
-        <SelectCompaniesBulk onSelect={handleSelectCompanies}>
-          <Button variant="outline" size="sm">
-            <IconPlus className="mr-2 h-4 w-4" />
-            {t('add-company')}
-          </Button>
-        </SelectCompaniesBulk>
-      </div>
+      <ContactRelationWidget {...props} relatedContentType="core:company" />
     );
   }
 
-  return (
-    <CompanyWidget
-      companyIds={companyIds}
-      scope=" "
-      onManageCompanies={handleSelectCompanies}
-    />
-  );
+  if (!companyId) {
+    return (
+      <RelationWidgetEmptyState
+        icon={IconBuildingSkyscraper}
+        message={t('no-companies')}
+      />
+    );
+  }
+
+  return <CompanyWidget companyIds={[companyId]} scope=" " />;
 };

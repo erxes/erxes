@@ -21,19 +21,21 @@ import { useTranslation } from 'react-i18next';
 export const BroadcastTemplateRequirement = ({
   requirement,
   value,
+  defaultValue,
   dependsOnValue,
   disabled,
   onChange,
 }: {
   requirement: TBuiltInTemplateRequirement;
   value: unknown;
+  defaultValue?: unknown;
   dependsOnValue: unknown;
   disabled: boolean;
   onChange: (value: unknown | null) => void;
 }) => {
   const { t } = useTranslation('broadcasts');
   const [pluginName, moduleName] = splitAutomationNodeType(requirement.kind);
-  const isAnswered = value !== undefined && value !== null;
+  const isAnswered = value !== undefined && value !== null && value !== '';
   const isCoreKind = isCoreTemplateRequirement(requirement.kind);
 
   return (
@@ -75,6 +77,8 @@ export const BroadcastTemplateRequirement = ({
           <CoreTemplateRequirement
             kind={requirement.kind}
             value={value}
+            input={requirement.input}
+            defaultValue={defaultValue}
             onChange={onChange}
           />
         )}

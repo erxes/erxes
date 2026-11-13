@@ -21,7 +21,7 @@ export const useComposerGallery = ({
   disabled,
   onUploadingChange,
 }: ComposerGalleryProps): ComposerGalleryResult => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [open, setOpen] = useState(
     () => !getGalleryImages(block.props.images).length,
   );

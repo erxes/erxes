@@ -1,7 +1,10 @@
 import {
+  AUTOMATION_STATUSES,
   IAutomationDocument,
   IAutomationExecutionDocument,
+  materializeBuiltInTemplate,
   splitType,
+  TTemplateAnswers,
 } from 'erxes-api-shared/core-modules';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import {
@@ -17,6 +20,12 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { IAutomationActivityParams } from '../../db/models/Executions';
 import { sanitizeAiAgent, sanitizeAiAgents } from '../../utils/aiAgent';
+import {
+  getAutomationNodeCatalog,
+  getAutomationNodeSchema,
+  withoutConfigJsonSchemas,
+} from '../../utils/automationAuthoring';
+import { checkAutomationGraph } from '../../utils/automationGraphCheck';
 import {
   generateAutomationHistoriesFilter,
   generateAutomationStatsFilter,
@@ -294,6 +303,14 @@ export const automationQueries = {
     return models.AutomationExecutions.getExecutionCounts(automationIds);
   },
 
+  async automationRecentRuns(
+    _root,
+    { automationIds }: { automationIds: string[] },
+    { models }: IContext,
+  ) {
+    return models.AutomationExecutions.getRecentRuns(automationIds);
+  },
+
   /**
    * Execution stats of one automation: run status breakdown, daily buckets and
    * per action node counts/durations.
@@ -319,7 +336,75 @@ export const automationQueries = {
   },
 
   async automationConstants() {
-    return getAutomationConstants();
+    return withoutConfigJsonSchemas(await getAutomationConstants());
+  },
+
+  /**
+   * A built-in workflow template as the actions it would add to a flow, for
+   * both the install preview and the install itself, so they never differ.
+   */
+  async automationBuiltInTemplateMaterialize(
+    _root,
+    {
+      pluginName,
+      templateId,
+      answers,
+      usedIds,
+    }: {
+      pluginName: string;
+      templateId: string;
+      answers?: TTemplateAnswers;
+      usedIds?: string[];
+    },
+  ) {
+    const { workflowTemplatesConst } = await getAutomationConstants();
+    const template = workflowTemplatesConst.find(
+      (item) => item.pluginName === pluginName && item.id === templateId,
+    );
+
+    if (!template) {
+      throw new Error('This template is not available');
+    }
+
+    return materializeBuiltInTemplate(template, {
+      answers: answers || {},
+      usedIds: usedIds || [],
+    });
+  },
+
+  async automationNodeCatalog() {
+    return getAutomationNodeCatalog();
+  },
+
+  async automationNodeSchema(_root, { type }: { type: string }) {
+    return getAutomationNodeSchema(type);
+  },
+
+  /** Dry run of a save: what it would refuse, and what still blocks activation. */
+  async automationValidate(
+    _root,
+    {
+      _id,
+      ...doc
+    }: Partial<
+      Pick<IAutomationDocument, 'status' | 'triggers' | 'actions' | 'workflows'>
+    > & {
+      _id?: string;
+    },
+    { models, subdomain }: IContext,
+  ) {
+    const previous = _id ? await models.Automations.getAutomation(_id) : null;
+
+    return checkAutomationGraph(subdomain, {
+      next: {
+        status: doc.status ?? previous?.status ?? AUTOMATION_STATUSES.DRAFT,
+        triggers: doc.triggers ?? previous?.triggers ?? [],
+        actions: doc.actions ?? previous?.actions ?? [],
+        workflows: doc.workflows ?? previous?.workflows ?? [],
+      },
+      previous,
+      scope: 'report',
+    });
   },
 
   async automationSetPropertyTargets(

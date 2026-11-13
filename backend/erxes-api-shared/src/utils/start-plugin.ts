@@ -1,8 +1,8 @@
-import './sentry-instrument';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
+import * as Sentry from '@sentry/node';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -10,96 +10,30 @@ import * as dotenv from 'dotenv';
 import express, {
   Request as ApiRequest,
   Response as ApiResponse,
-  Application,
   Router,
 } from 'express';
+import rateLimit from 'express-rate-limit';
 import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
-import rateLimit from 'express-rate-limit';
-import { startPayments } from '../common-modules/payment/worker';
-import type {
-  IPropertyMeta,
-  LogsConfigs,
-  SegmentConfigs,
-  TApprovalConfig,
-  TRecordReferencesConfig,
-} from '../core-modules';
+import { IMainContext } from '../core-types';
 import {
-  initApproval,
-  initPropertyProducers,
-  initRecordReferences,
-  initSegmentProducers,
-  startAutomations,
-} from '../core-modules';
-import { AutomationConfigs } from '../core-modules/automations/types';
-import type { ImportExportConfigs } from '../core-modules/import-export/types';
-import { startImportExportWorker } from '../core-modules/import-export/worker';
-import { IMainContext, IPermissionConfig } from '../core-types';
-import {
-  generateApolloContext,
-  startBeforeResolvers,
-  wrapApolloResolvers,
   expectedErrorPlugin,
+  generateApolloContext,
+  wrapApolloResolvers,
 } from './apollo';
-import { BeforeResolversConfig } from './apollo/beforeResolvers';
-import { extractUserFromHeader } from './headers';
-import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
+import { initApiHandlers, TApiHandler } from './initApiHandlers';
+import { initPluginMeta, IPluginMeta } from './initPluginMeta';
 import { closeMongooose } from './mongo';
-import {
-  initializePluginConfig,
-  joinErxesGateway,
-  leaveErxesGateway,
-} from './service-discovery';
+import './sentry-instrument';
+import { joinErxesGateway, leaveErxesGateway } from './service-discovery';
 import { createTRPCContext } from './trpc';
-import { mountAgentTools } from './agent-tools';
-import { applyTrustProxy, getSubdomain } from './utils';
-import * as Sentry from '@sentry/node';
+import { applyTrustProxy } from './utils';
 
 export const MAX_HEADER_BYTES = 64 * 1024;
 
 dotenv.config();
 
-enum API_METHODS {
-  GET = 'get',
-  POST = 'post',
-  PUT = 'put',
-  PATCH = 'patch',
-  DELETE = 'delete',
-}
-
-type TAPIMethod = keyof typeof API_METHODS;
-
-type IMeta = {
-  automations?: AutomationConfigs;
-  segments?: SegmentConfigs;
-  logs?: LogsConfigs;
-  afterProcess?: AfterProcessConfigs;
-  payments?: any;
-  notifications?: any;
-  tags?: any;
-  documents?: {
-    types: {
-      label: string;
-      contentType: string;
-    }[];
-  };
-  properties?: IPropertyMeta;
-  references?: TRecordReferencesConfig;
-  approval?: TApprovalConfig;
-  permissions?: IPermissionConfig;
-  beforeResolvers?: BeforeResolversConfig;
-  importExport?: ImportExportConfigs;
-  relations?: {
-    subscribedTypes: string[];
-  };
-};
-
-type ApiHandler = {
-  method: TAPIMethod;
-  path: string;
-  resolver: (req: ApiRequest, res: ApiResponse) => Promise<void> | void;
-};
 type ResolverObject = {
   [key: string]: (...args: any[]) => any;
 };
@@ -111,12 +45,20 @@ type GraphqlResolver = {
 type ConfigTypes = {
   name: string;
   port: number;
-  graphql: () => Promise<{
+  /**
+   * Omit for a plugin with no GraphQL API (REST over `/pl:<name>` only).
+   * List it in ENABLED_PLUGINS_NO_GRAPHQL so the gateway leaves it out of
+   * the supergraph instead of waiting for its `/graphql`.
+   */
+  graphql?: () => Promise<{
     resolvers: GraphqlResolver;
     typeDefs: DocumentNode;
   }>;
   expressRouter?: Router;
-  apolloServerContext: (
+  // Mounted before the shared body parsers, for routes that parse their own
+  // bodies with a tighter limit.
+  routerBeforeBodyParsers?: Router;
+  apolloServerContext?: (
     subdomain: string,
     context: any,
     req: ApiRequest,
@@ -124,7 +66,7 @@ type ConfigTypes = {
   ) => Promise<IMainContext>;
   onServerInit?: (app: express.Express) => Promise<void>;
   middlewares?: any;
-  apiHandlers?: ApiHandler[];
+  apiHandlers?: TApiHandler[];
   hasSubscriptions?: boolean;
   corsOptions?: any;
   subscriptionPluginPath?: any;
@@ -135,15 +77,7 @@ type ConfigTypes = {
       context: any,
     ) => Promise<TContext>;
   };
-  /**
-   * tRPC procedure paths to exclude from the agent capability manifest.
-   * Agent-tools endpoints are mounted automatically on every plugin that
-   * supplies a `trpcAppRouter`. Only procedures declaring
-   * `.meta({ agent: { permission } })` appear in the manifest; this list
-   * removes specific annotated procedures when needed.
-   */
-  agentToolsExclude?: string[];
-  meta?: IMeta;
+  meta?: IPluginMeta;
 };
 
 export async function startPlugin(
@@ -156,6 +90,7 @@ export async function startPlugin(
     // api configs
     corsOptions = {},
     expressRouter,
+    routerBeforeBodyParsers,
     middlewares,
     apiHandlers,
     // graphql
@@ -165,8 +100,6 @@ export async function startPlugin(
     apolloServerContext,
     trpcAppRouter,
     onServerInit,
-    // agent capability endpoint exclusions
-    agentToolsExclude,
     // meta
     meta,
   } = configs || {};
@@ -181,6 +114,10 @@ export async function startPlugin(
   applyTrustProxy(app);
   app.disable('x-powered-by');
   app.use(cors(corsOptions));
+
+  if (routerBeforeBodyParsers) {
+    app.use(routerBeforeBodyParsers);
+  }
   app.use(
     express.json({
       limit: '15mb',
@@ -211,36 +148,7 @@ export async function startPlugin(
   }
 
   if (apiHandlers) {
-    for (const handler of apiHandlers) {
-      const { method, path, resolver } = handler;
-
-      type LowercaseMethod = (typeof API_METHODS)[TAPIMethod];
-
-      // Ensure `method` is one of the keys
-      const METHOD = API_METHODS[method] as LowercaseMethod;
-      type TApiMethodApp = Record<
-        LowercaseMethod,
-        Application[LowercaseMethod]
-      >;
-
-      (app as TApiMethodApp)[METHOD](
-        path,
-        async (req: ApiRequest, res: ApiResponse) => {
-          return await logHandler(async () => await resolver(req, res), {
-            subdomain: getSubdomain(req),
-            source: 'webhook',
-            action: method,
-            payload: {
-              path,
-              headers: req.headers,
-              body: req.body,
-              query: req?.query,
-            },
-            userId: extractUserFromHeader(req.headers)?._id,
-          });
-        },
-      );
-    }
+    initApiHandlers(app, apiHandlers);
   }
 
   if (hasSubscriptions) {
@@ -280,19 +188,6 @@ export async function startPlugin(
         createContext: createTRPCContext(createContext),
       }),
     );
-  }
-
-  // Agent capability endpoints are mounted automatically on every plugin with
-  // a tRPC router. The manifest is admit-only: only procedures declaring
-  // `.meta({ agent: { permission } })` are exposed, so an empty router
-  // produces an empty manifest and zero callable tools.
-  if (trpcAppRouter) {
-    mountAgentTools(app, {
-      plugin: name,
-      trpcRouter: trpcAppRouter.router,
-      createContext: trpcAppRouter.createContext,
-      exclude: agentToolsExclude || [],
-    });
   }
 
   app.use((req: any, _res, next) => {
@@ -361,11 +256,10 @@ export async function startPlugin(
     });
   });
 
-  const generateApolloServer = async () => {
-    // const services = await getServices();
-    // debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
-
-    const { typeDefs, resolvers } = await graphql();
+  const generateApolloServer = async (
+    loadSchema: NonNullable<ConfigTypes['graphql']>,
+  ) => {
+    const { typeDefs, resolvers } = await loadSchema();
 
     return new ApolloServer({
       schema: buildSubgraphSchema([
@@ -383,88 +277,44 @@ export async function startPlugin(
     });
   };
 
-  const apolloServer = await generateApolloServer();
-  await apolloServer.start();
+  const hasGraphql = Boolean(graphql);
 
-  app.use(
-    '/graphql',
-    expressMiddleware(apolloServer, {
-      context: generateApolloContext<IMainContext>(apolloServerContext),
-    }),
-  );
+  if (graphql) {
+    if (!apolloServerContext) {
+      throw new Error('apolloServerContext is required when graphql is set');
+    }
+
+    const apolloServer = await generateApolloServer(graphql);
+    await apolloServer.start();
+
+    app.use(
+      '/graphql',
+      expressMiddleware(apolloServer, {
+        context: generateApolloContext<IMainContext>(apolloServerContext),
+      }),
+    );
+  }
 
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: PORT }, resolve),
   );
 
   console.log(
-    `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
+    hasGraphql
+      ? `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`
+      : `🚀 ${name} api ready at http://localhost:${PORT} (no graphql)`,
   );
 
   await joinErxesGateway({
     name,
     port: PORT,
     hasSubscriptions,
+    hasGraphql,
     meta,
   });
 
   if (meta) {
-    const {
-      automations,
-      segments,
-      afterProcess,
-      notifications,
-      payments,
-      beforeResolvers,
-      references,
-      importExport,
-      approval,
-      properties,
-    } = meta || {};
-
-    if (beforeResolvers) {
-      await startBeforeResolvers(app, name, beforeResolvers);
-    }
-
-    if (afterProcess) {
-      await startAfterProcess(app, name, afterProcess);
-    }
-
-    if (references) {
-      await initRecordReferences(app, name, references);
-    }
-
-    if (approval) {
-      await initApproval(app, name, approval);
-    }
-
-    if (automations) {
-      await startAutomations(app, name, automations);
-    }
-
-    if (segments) {
-      await initSegmentProducers(app, name, segments);
-    }
-
-    if (properties?.valueUsage) {
-      initPropertyProducers(app, properties.valueUsage);
-    }
-
-    if (notifications) {
-      await initializePluginConfig(name, 'notifications', notifications);
-    }
-
-    if (importExport) {
-      startImportExportWorker({
-        pluginName: name,
-        config: importExport,
-        app,
-      });
-    }
-
-    if (payments) {
-      await startPayments(name, payments);
-    }
+    await initPluginMeta(app, name, meta);
   } // end meta if
 
   if (onServerInit) {

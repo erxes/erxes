@@ -1,6 +1,11 @@
+import {
+  applyContactFieldsSync,
+  TContactFieldsSync,
+} from 'erxes-api-shared/core-modules';
 import { posTrpcRouter } from '@/pos/trpc/pos';
 import { dealTrpcRouter } from '@/sales/trpc/deal';
 import { documentTrpcRouter } from '@/sales/trpc/document';
+import { dataExtensionsTrpcRouter } from '~/trpc/dataExtensions';
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -39,6 +44,7 @@ export const appRouter = t.mergeRouters(
   dealTrpcRouter,
   posTrpcRouter,
   documentTrpcRouter,
+  dataExtensionsTrpcRouter,
   t.router({
     fields: t.router({
       getFieldList: createFieldListProcedure(
@@ -54,6 +60,19 @@ export const appRouter = t.mergeRouters(
           return [];
         },
       ),
+    }),
+  }),
+  t.router({
+    contactFields: t.router({
+      // Core broadcasts contact merges and removals; sales saves its deals'
+      // contacts itself otherwise.
+      sync: t.procedure
+        .input(z.custom<TContactFieldsSync>())
+        .mutation(async ({ ctx, input }) => {
+          const { models } = ctx;
+
+          await applyContactFieldsSync([models.Deals], input);
+        }),
     }),
   }),
 );

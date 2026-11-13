@@ -9,6 +9,7 @@ import {
   RadioGroup,
   Spinner,
   Tooltip,
+  toast,
 } from 'erxes-ui';
 import {
   TFacebookAccount,
@@ -88,7 +89,9 @@ const FacebookAccountRow = ({
 };
 
 export const FacebookGetAccounts = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { isPost } = useFbIntegrationContext();
   const integrationKind = isPost ? 'facebook-post' : 'facebook-messenger';
   const { facebookGetAccounts, loading, refetch } =
@@ -107,18 +110,96 @@ export const FacebookGetAccounts = () => {
 
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
-    popupWindow(
+    const opened = popupWindow(
       `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=${integrationKind}`,
       'Facebook Login',
       660,
       750,
     );
+    if (!opened) {
+      setIsLoggingIn(false);
+      toast({
+        title: t('popup-blocked', 'Allow popups and try connecting again.'),
+        variant: 'destructive',
+      });
+    }
   };
 
   const onNext = () => setActiveStep(2);
 
   const filteredAccounts = facebookGetAccounts.filter((account) =>
     (account.name ?? '').toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const accountCount = loading ? (
+    <>
+      <Spinner className="w-3 h-3" />
+      {t('loading-accounts')}
+    </>
+  ) : (
+    t('accounts-found', { count: filteredAccounts.length })
+  );
+
+  const loginLabel = isLoggingIn ? (
+    <>
+      <Spinner className="w-4 h-4 mr-2" />
+      {t('connecting-to-facebook')}
+    </>
+  ) : (
+    <>
+      <IconBrandFacebook className="w-4 h-4 mr-2 text-blue-600" />
+      {t('connect-facebook-account')}
+    </>
+  );
+
+  const accountPicker = (
+    <Command className="flex-1">
+      <div className="p-1">
+        <Command.Primitive.Input asChild>
+          <Input
+            placeholder={t('search-for-an-account')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Command.Primitive.Input>
+      </div>
+
+      <div className="flex justify-between items-center px-1 py-2">
+        <div className="text-sm text-muted-foreground flex items-center gap-2">
+          {accountCount}
+        </div>
+
+        <Button
+          variant="outline"
+          className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 font-medium"
+          onClick={handleFacebookLogin}
+          disabled={isLoggingIn}
+        >
+          {loginLabel}
+        </Button>
+      </div>
+
+      <RadioGroup
+        value={selectedAccount}
+        onValueChange={(value) =>
+          setSelectedAccount(selectedAccount === value ? undefined : value)
+        }
+        className="flex-1 overflow-hidden"
+      >
+        <Command.List className="max-h-none overflow-y-auto">
+          {filteredAccounts.map((account) => (
+            <FacebookAccountRow
+              key={account._id}
+              account={account}
+              selectedAccount={selectedAccount}
+              onSelect={(id) =>
+                setSelectedAccount(selectedAccount === id ? undefined : id)
+              }
+            />
+          ))}
+        </Command.List>
+      </RadioGroup>
+    </Command>
   );
 
   return (
@@ -137,70 +218,7 @@ export const FacebookGetAccounts = () => {
       <FacebookIntegrationFormSteps title={t('connect-accounts')} step={1} />
 
       <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col">
-        <Command className="flex-1">
-          <div className="p-1">
-            <Command.Primitive.Input asChild>
-              <Input
-                placeholder={t('search-for-an-account')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </Command.Primitive.Input>
-          </div>
-
-          <div className="flex justify-between items-center px-1 py-2">
-            <div className="text-sm text-muted-foreground flex items-center gap-2">
-              {loading ? (
-                <>
-                  <Spinner className="w-3 h-3" />
-                  {t('loading-accounts')}
-                </>
-              ) : (
-                t('accounts-found', { count: filteredAccounts.length })
-              )}
-            </div>
-
-            <Button
-              variant="outline"
-              className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 font-medium"
-              onClick={handleFacebookLogin}
-              disabled={isLoggingIn}
-            >
-              {isLoggingIn ? (
-                <>
-                  <Spinner className="w-4 h-4 mr-2" />
-                  {t('connecting-to-facebook')}
-                </>
-              ) : (
-                <>
-                  <IconBrandFacebook className="w-4 h-4 mr-2 text-blue-600" />
-                  {t('connect-facebook-account')}
-                </>
-              )}
-            </Button>
-          </div>
-
-          <RadioGroup
-            value={selectedAccount}
-            onValueChange={(value) =>
-              setSelectedAccount(selectedAccount === value ? undefined : value)
-            }
-            className="flex-1 overflow-hidden"
-          >
-            <Command.List className="max-h-none overflow-y-auto">
-              {filteredAccounts.map((account) => (
-                <FacebookAccountRow
-                  key={account._id}
-                  account={account}
-                  selectedAccount={selectedAccount}
-                  onSelect={(id) =>
-                    setSelectedAccount(selectedAccount === id ? undefined : id)
-                  }
-                />
-              ))}
-            </Command.List>
-          </RadioGroup>
-        </Command>
+        {accountPicker}
       </div>
     </FacebookIntegrationFormLayout>
   );

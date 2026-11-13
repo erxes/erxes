@@ -3,6 +3,7 @@ import { Button, Command, Dialog, Input, Spinner, stripHtml } from 'erxes-ui';
 import type { IConversation } from '@/inbox/types/Conversation';
 import type { ForwardMessageDialogProps } from '@/inbox/conversation-messages/types/forwardMessage';
 import { useForwardMessage } from '@/inbox/conversation-messages/hooks/useForwardMessage';
+import { useTranslation } from 'react-i18next';
 
 const ConversationOption = ({
   conversation,
@@ -13,11 +14,12 @@ const ConversationOption = ({
   selected: boolean;
   onSelect: () => void;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const customer = conversation.customer;
   const name =
     [customer?.firstName, customer?.lastName].filter(Boolean).join(' ') ||
     conversation.integration?.name ||
-    'Conversation';
+    t('conversation');
 
   return (
     <Command.Item
@@ -69,6 +71,7 @@ const ForwardMessageDialogContent = ({
   open,
   onOpenChange,
 }: ForwardMessageDialogProps) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const {
     form,
     preview,
@@ -83,11 +86,9 @@ const ForwardMessageDialogContent = ({
   return (
     <Dialog.Content className="max-w-lg">
       <Dialog.Header>
-        <Dialog.Title>Forward message</Dialog.Title>
+        <Dialog.Title>{t('forward-message')}</Dialog.Title>
         <Dialog.Description>
-          Choose another conversation. erxes keeps a snapshot of the forwarded
-          message. Instagram recipients receive the note, text, and attachments,
-          but not the snapshot metadata.
+          {t('forward-message-description')}
         </Dialog.Description>
       </Dialog.Header>
       <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">
@@ -106,13 +107,13 @@ const ForwardMessageDialogContent = ({
       <Input
         {...form.register('note')}
         disabled={retryCount !== undefined}
-        placeholder="Add a note (optional)"
+        placeholder={t('forward-note-placeholder')}
       />
       {retryCount !== undefined && (
         <p className="text-sm text-muted-foreground">
           {retryCount > 0
-            ? `${retryCount} attachment(s) remain. The text and delivered files will not be sent again.`
-            : 'This message has already been delivered.'}
+            ? t('forward-attachments-remain', { count: retryCount })
+            : t('message-already-delivered')}
         </p>
       )}
       <Dialog.Footer>
@@ -121,7 +122,7 @@ const ForwardMessageDialogContent = ({
           variant="ghost"
           onClick={() => onOpenChange(false)}
         >
-          Cancel
+          {t('cancel')}
         </Button>
         <Button
           type="button"
@@ -129,7 +130,7 @@ const ForwardMessageDialogContent = ({
           onClick={form.handleSubmit(handleForward)}
         >
           {loading && <Spinner size="sm" />}{' '}
-          {retryCount === undefined ? 'Forward' : 'Retry attachments'}
+          {retryCount === undefined ? t('forward') : t('retry-attachments')}
         </Button>
       </Dialog.Footer>
     </Dialog.Content>

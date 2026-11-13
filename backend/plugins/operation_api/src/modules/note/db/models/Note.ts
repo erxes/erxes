@@ -92,6 +92,7 @@ export const loadNoteClass = (models: IModels) => {
           fromUserId: doc.createdBy,
           subdomain,
           notificationType: 'note',
+          event: 'operation:note:noteMention',
           userIds,
           action: 'note',
           models,

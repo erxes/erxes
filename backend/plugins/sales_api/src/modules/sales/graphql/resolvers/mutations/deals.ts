@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
 import {
-  createRelations,
+  setDealContacts,
   getCompanyIds,
   getCustomerIds,
   getNewOrder,
@@ -14,6 +14,7 @@ import { normalizeProductCurrencies } from '~/modules/sales/utils/productCurrenc
 import { normalizeProductUomInfo } from '~/modules/sales/utils/productUom';
 import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
 import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
+import { checkProductRowPermissions } from '~/modules/sales/utils/productPricePermissions';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -34,10 +35,6 @@ export const dealMutations: Record<string, Resolver> = {
   ) {
     await checkPermission('dealsAdd');
 
-    if (doc.productsData !== undefined) {
-      await checkPermission('dealsProductsEdit');
-    }
-
     return await addDeal({ models, subdomain, user, doc });
   },
 
@@ -52,7 +49,12 @@ export const dealMutations: Record<string, Resolver> = {
     await checkPermission('dealsEdit');
 
     if (doc.productsData !== undefined) {
-      await checkPermission('dealsProductsEdit');
+      const deal = await models.Deals.getDeal(_id);
+      await checkProductRowPermissions(
+        checkPermission,
+        doc.productsData,
+        deal.productsData,
+      );
     }
 
     return await editDeal({ models, subdomain, _id, processId, doc, user });
@@ -176,10 +178,6 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('No Item Found');
     }
 
-    if (item.productsData?.length) {
-      await checkPermission('dealsProductsEdit');
-    }
-
     const doc = {
       ...item,
       _id: undefined,
@@ -207,8 +205,6 @@ export const dealMutations: Record<string, Resolver> = {
       })),
     };
 
-    delete doc.sourceConversationIds;
-
     for (const param of [
       'productsData',
       'paymentsData',
@@ -226,14 +222,10 @@ export const dealMutations: Record<string, Resolver> = {
 
     const clone = await models.Deals.createDeal(doc);
 
-    const companyIds = await getCompanyIds(subdomain, _id);
-    const customerIds = await getCustomerIds(subdomain, _id);
+    const [companyId] = await getCompanyIds(subdomain, models, _id);
+    const [customerId] = await getCustomerIds(subdomain, models, _id);
 
-    await createRelations(subdomain, {
-      dealId: clone._id,
-      companyIds,
-      customerIds,
-    });
+    await setDealContacts(models, { dealId: clone._id, companyId, customerId });
 
     await copyChecklists(models, {
       contentType: 'deal',
@@ -296,7 +288,6 @@ export const dealMutations: Record<string, Resolver> = {
     { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    await checkPermission('dealsProductsEdit');
     return createProductsData({ models, subdomain, processId, dealId, docs });
   },
 
@@ -316,7 +307,6 @@ export const dealMutations: Record<string, Resolver> = {
     { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    await checkPermission('dealsProductsEdit');
     if (!dealId || !dataId) {
       throw new Error('dealId and dataId are required');
     }
@@ -338,6 +328,12 @@ export const dealMutations: Record<string, Resolver> = {
     if (!oldPData) {
       throw new Error('Deals productData not found');
     }
+
+    await checkProductRowPermissions(
+      checkPermission,
+      [{ ...doc, _id: dataId }],
+      [oldPData],
+    );
 
     const productsData = await normalizeProductCurrencies(
       subdomain,
@@ -532,7 +528,7 @@ export const dealMutations: Record<string, Resolver> = {
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    await checkPermission('dealsProductsEdit');
+    await checkPermission('dealsProductsDelete');
     if (!dealId) {
       throw new Error('dealId is required');
     }

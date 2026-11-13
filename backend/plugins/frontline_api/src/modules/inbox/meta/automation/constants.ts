@@ -3,6 +3,10 @@ import type {
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
 import type { IConversation } from '@/inbox/@types/conversations';
+import {
+  handoffActionConfigSchema,
+  messengerMessageActionConfigSchema,
+} from '~/meta/automationConfigSchemas';
 
 const CONVERSATION_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
   {
@@ -158,11 +162,22 @@ export const inboxAutomationConstants = {
       moduleName: 'inbox',
       collectionName: 'messages',
       method: 'create',
+      configSchema: messengerMessageActionConfigSchema,
       icon: 'IconMessage',
       label: 'Send Erxes Messenger Message',
       description: 'Send a message to the Erxes Messenger widget conversation',
       isAvailableOptionalConnect: true,
       output: inboxMessageActionOutput,
+    },
+    {
+      moduleName: 'inbox',
+      collectionName: 'handoffs',
+      method: 'create',
+      configSchema: handoffActionConfigSchema,
+      icon: 'IconUsersGroup',
+      label: 'Hand off to a person',
+      description:
+        'Pause automated replies on the conversation and assign team members',
     },
   ],
 };

@@ -1,6 +1,8 @@
-import { useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
+import { useSocialIntegrationCreate } from '@/integrations/hooks/useSocialIntegrationCreate';
 import {
   CREATE_EM_MESSENGER_MUTATION,
+  EDIT_EM_MESSENGER_MUTATION,
   SAVE_EM_CONFIGS_MUTATION,
   SAVE_EM_APPEARANCE_MUTATION,
   SAVE_EM_TICKET_CONFIG_MUTATION,
@@ -13,9 +15,16 @@ import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emCon
 import { erxesMessengerSetupValuesAtom } from '@/integrations/erxes-messenger/states/EMStateValues';
 
 export const useCreateMessenger = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  const client = useApolloClient();
+  const { runCreate, loading: pending } = useSocialIntegrationCreate();
   const [createMessengerMutation, { loading: createLoading }] = useMutation(
     CREATE_EM_MESSENGER_MUTATION,
+  );
+  const [editMessengerMutation, { loading: editLoading }] = useMutation(
+    EDIT_EM_MESSENGER_MUTATION,
   );
   const [saveConfigsMutation, { loading: saveConfigsLoading }] = useMutation(
     SAVE_EM_CONFIGS_MUTATION,
@@ -29,79 +38,68 @@ export const useCreateMessenger = () => {
 
   const createMessenger = (
     configFormValues: z.infer<typeof EM_CONFIG_SCHEMA>,
-    onComplete?: () => void,
   ) => {
     const { createVariables, saveConfigVariables, uiOptions } =
       readVariables(configFormValues);
-
-    createMessengerMutation({
-      variables: createVariables,
-      refetchQueries: ['Integrations', 'ErxesMessengerIntegrationDetail'],
-      async onCompleted({ integrationsCreateMessengerIntegration }) {
-        if (!integrationsCreateMessengerIntegration) return;
-
-        const { _id } = integrationsCreateMessengerIntegration;
-
-        // Run all three saves in parallel and wait for every one to finish
-        // before refetching — guarantees integrationDetail reflects ALL
-        // updated fields (messengerData + uiOptions + ticketConfigId) at once.
-        await Promise.all([
-          saveConfigsMutation({
-            variables: {
-              _id,
-              brandId: createVariables.brandId,
-              ...saveConfigVariables,
-            },
-          }).catch((e) =>
-            toast({
-              title: t('failed-to-save-configs'),
-              description: e.message,
-              variant: 'destructive',
-            }),
-          ),
-          saveAppearanceMutation({
-            variables: {
-              _id,
-              brandId: configFormValues.brandId,
-              uiOptions,
-            },
-          }).catch((e) =>
-            toast({
-              title: t('failed-to-save-appearance'),
-              description: e.message,
-              variant: 'destructive',
-            }),
-          ),
-          saveTicketConfigMutation({
-            variables: {
-              _id,
-              configIds: configFormValues.ticketConfigIds,
-            },
-          }).catch((e) =>
-            toast({
-              title: t('failed-to-save-ticket-config'),
-              description: e.message,
-              variant: 'destructive',
-            }),
-          ),
-        ]);
-
-        onComplete?.();
-      },
-      onError(e) {
-        toast({
-          title: t('failed-to-create-messenger'),
-          description: e.message,
-          variant: 'destructive',
-        });
-      },
+    return runCreate(async (created, existingId) => {
+      const id = existingId
+        ? (
+            await editMessengerMutation({
+              variables: { id: existingId, ...createVariables },
+            })
+          ).data?.integrationsEditMessengerIntegration?._id
+        : (
+            await createMessengerMutation({
+              variables: createVariables,
+            })
+          ).data?.integrationsCreateMessengerIntegration?._id;
+      if (!id) throw new Error(t('failed-to-create-messenger'));
+      created(id);
+      const results = await Promise.allSettled([
+        saveConfigsMutation({
+          variables: {
+            _id: id,
+            brandId: createVariables.brandId,
+            ...saveConfigVariables,
+          },
+        }),
+        saveAppearanceMutation({
+          variables: { _id: id, brandId: configFormValues.brandId, uiOptions },
+        }),
+        saveTicketConfigMutation({
+          variables: { _id: id, configIds: configFormValues.ticketConfigIds },
+        }),
+      ]);
+      const failed = results.find((result) => result.status === 'rejected');
+      if (failed?.status === 'rejected') throw failed.reason;
+      const [configs, appearance, tickets] = results;
+      if (
+        configs.status !== 'fulfilled' ||
+        !configs.value.data?.integrationsSaveMessengerConfigs?._id ||
+        appearance.status !== 'fulfilled' ||
+        !appearance.value.data?.integrationsSaveMessengerAppearanceData?._id ||
+        tickets.status !== 'fulfilled' ||
+        !tickets.value.data?.integrationsSaveMessengerTicketData?._id
+      )
+        throw new Error(t('failed-to-create-messenger'));
+      await client.refetchQueries({
+        include: [
+          'Integrations',
+          'ErxesMessengerIntegrationDetail',
+          'ChannelIntegrationsPeek',
+        ],
+      });
+      toast({ title: t('integration-added') });
+      return id;
     });
   };
 
   return {
     createMessenger,
     loading:
+      pending ||
       createLoading ||
+      editLoading ||
       saveConfigsLoading ||
       saveAppearanceLoading ||
       saveTicketConfigLoading,

@@ -13,7 +13,7 @@ import type {
 } from '~/gql/graphql';
 
 export const useUpdateTicketStatus = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.status' });
   const { toast } = useToast();
   const [updateStatus, { loading, error }] = useMutation(UPDATE_TICKET_STATUS);
 
@@ -29,6 +29,10 @@ export const useUpdateTicketStatus = () => {
         options?.onCompleted?.(data);
       },
       onError: (error) => {
+        if (options.onError) {
+          options.onError(error);
+          return;
+        }
         toast({
           title: t('error', 'Error'),
           description: t('update-failed', 'Update failed: {{message}}', {

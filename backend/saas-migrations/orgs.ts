@@ -2,23 +2,6 @@ export type OrgPair = { source: string; target: string };
 
 export const ORG_PAIRS: OrgPair[] = [
   // { source: 'belty', target: 'bbelty' }, done
-  // { source: 'cmlbrotherss', target: 'cmlbrothers' }, done
-  // { source: 'hipay', target: 'newhipay' }, done
-  // { source: 'greatdate', target: 'newgreatdate' }, done
-  // { source: 'tsembiibuteel', target: 'tsembiibuteelnew' }, done
-  // { source: 'tsembiiauto', target: 'tsembiiautonew' }, done
-  // { source: 'dboil', target: 'dboilnew' }, done
-
-  // { source: 'newmilestone', target: 'nnewmilestone' },
-  // { source: 'sukgarden', target: 'sukgardennew' },
-  // { source: 'tansagamttan', target: 'tansagamttannew' },
-  // { source: 'dermaestheticllc', target: 'dermaestheticnew' },
-  // { source: 'burensukh', target: 'burensukhnew' },
-  // { source: 'burensukhburen', target: 'bburensukhburen' },
-  // { source: 'tsemtsgerkharsh', target: 'newtsemtsgerkharsh' },
-  // { source: 'trillionlounge', target: 'trillionloungenew' },
-  // { source: 'cargolink', target: 'cargolinknew' },
-  { source: 'e-sight', target: 'esight' },
 ];
 
 export function resolveOrgPairs(args: string[]): OrgPair[] {
@@ -28,6 +11,34 @@ export function resolveOrgPairs(args: string[]): OrgPair[] {
     return [{ source: SOURCE_SUBDOMAIN, target: TARGET_SUBDOMAIN }];
   }
 
+  return slicePairs(filterPairs(args), args);
+}
+
+function slicePairs(pairs: OrgPair[], args: string[]): OrgPair[] {
+  const numberArg = (name: string): number | undefined => {
+    const arg = args.find((a) => a.startsWith(`--${name}=`));
+
+    if (!arg) {
+      return undefined;
+    }
+
+    const value = Number(arg.slice(name.length + 3));
+
+    if (!Number.isInteger(value) || value < 0) {
+      console.error(`--${name} must be a non-negative integer`);
+      process.exit(1);
+    }
+
+    return value;
+  };
+
+  const skip = numberArg('skip') ?? 0;
+  const limit = numberArg('limit');
+
+  return pairs.slice(skip, limit === undefined ? undefined : skip + limit);
+}
+
+function filterPairs(args: string[]): OrgPair[] {
   const orgArg = args.find((a) => a.startsWith('--org='));
 
   if (!orgArg) {

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { readImage, toast } from 'erxes-ui';
 import { FRONTLINE_INSTAGRAM_COPY_IMAGE } from '@/integrations/instagram/graphql/queries/copyInstagramImage';
 import { toPngBlob } from '@/inbox/conversation-messages/utils/copyAttachment';
+import { useTranslation } from 'react-i18next';
 
 type CopyMessageImageTarget = {
   conversationId: string;
@@ -42,6 +43,7 @@ const fetchProxiedImageBlob = async (
 };
 
 export const useCopyMessageImage = (target: CopyMessageImageTarget) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const client = useApolloClient();
   const [copied, setCopied] = useState(false);
   const [copying, setCopying] = useState(false);
@@ -64,9 +66,8 @@ export const useCopyMessageImage = (target: CopyMessageImageTarget) => {
       timer.current = setTimeout(() => setCopied(false), 1500);
     } catch {
       toast({
-        title: 'Could not copy image',
-        description:
-          'The image is unavailable for copying. Open it to save it.',
+        title: t('could-not-copy-image'),
+        description: t('image-unavailable-for-copying'),
         variant: 'destructive',
       });
     } finally {

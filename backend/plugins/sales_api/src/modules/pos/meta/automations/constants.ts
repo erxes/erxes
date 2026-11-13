@@ -12,6 +12,7 @@ import {
 import { IPosOrder } from '~/modules/pos/@types/orders';
 import { posOrderPaidAmount, posOrderPurchaseItems } from './purchase';
 import { resolvePosOrderPaymentUrl } from './resolvers/resolvePosOrderPaymentUrl';
+import { posOrderCreateActionConfigSchema } from './configSchemas';
 
 type TPosOrderAutomationTarget = IPosOrder & {
   _id?: string;
@@ -144,7 +145,9 @@ const POS_ORDER_OUTPUT: TAutomationRuntimeOutputDefinition<TPosOrderAutomationTa
           .join(', '),
       link: ({ source }) =>
         source.posId && source._id
-          ? `/sales/pos/${source.posId}/orders?pos_order_id=${source._id}`
+          ? `/sales/pos/${source.posId}/orders?${new URLSearchParams({
+              panel: `/detail/sales:pos.orders/${source._id}`,
+            }).toString()}`
           : '',
       onlinePaymentUrl: ({ subdomain, source }) =>
         resolvePosOrderPaymentUrl({ source, subdomain }),
@@ -185,6 +188,7 @@ export const posAutomationConstants = {
       moduleName: 'pos',
       collectionName: 'orders',
       method: 'create',
+      configSchema: posOrderCreateActionConfigSchema,
       icon: 'IconShoppingCartPlus',
       label: 'Create POS order',
       description: 'Create a POS order record.',

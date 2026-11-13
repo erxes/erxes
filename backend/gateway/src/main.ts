@@ -15,9 +15,12 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import { retryGetProxyTargets } from '~/proxy/targets';
 import { startRouter, stopRouter } from '~/apollo-router';
+import { csrfMiddleware } from '~/middlewares/csrfMiddleware';
 import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
 import {
+  applyDataExtensionsProxy,
+  refuseDataExtensionsPluginProxy,
   applyProxiesCoreless,
   applyProxyToCore,
   proxyReq,
@@ -25,6 +28,7 @@ import {
 
 import {
   applyTrustProxy,
+  decodeAgentToolsAuthHeader,
   DEFAULT_JOB_OPTIONS,
   getPlugin,
   getPlugins,
@@ -96,7 +100,12 @@ const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
   max: 5000, // generous global cap per IP
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.path === '/health' || req.path.startsWith('/bullmq-board'),
+  // Signed agent calls all originate from core-api's address; a per-IP cap
+  // would throttle every tenant's agent together.
+  skip: (req) =>
+    req.path === '/health' ||
+    req.path.startsWith('/bullmq-board') ||
+    decodeAgentToolsAuthHeader(req.headers) !== null,
 });
 
 app.use(gatewayRateLimiter);
@@ -148,6 +157,7 @@ app.use(async (req, res, next) => {
   return cors(corsOptions)(req, res, next);
 });
 
+app.use(csrfMiddleware(corsOptions.origin.filter(Boolean)));
 app.use(userMiddleware);
 
 app.use('/bullmq-board', serverAdapter.getRouter());
@@ -180,6 +190,8 @@ app.get('/locales/:lng/:file', async (req, res) => {
 
   return res.json(locale);
 });
+
+refuseDataExtensionsPluginProxy(app);
 
 app.use('/pl:serviceName', async (req, res) => {
   try {
@@ -240,6 +252,7 @@ async function start() {
 
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
+    applyDataExtensionsProxy(app, global.currentTargets);
     applyProxiesCoreless(app);
     applyProxyToCore(app, global.currentTargets);
 

@@ -1,3 +1,8 @@
+import {
+  INotificationsConfig,
+  TNotificationEventKey,
+} from 'erxes-api-shared/core-modules';
+
 export const notifications = {
   plugin: 'operation',
 
@@ -13,30 +18,51 @@ export const notifications = {
           title: 'Task Assigned',
           description: 'Triggered when a user is assigned to a task',
         },
+      ],
+    },
+    {
+      name: 'note',
+      description: 'Note Notifications',
+      icon: 'IconNote',
+
+      events: [
         {
-          name: 'taskStatus',
-          title: 'Task Status changed',
-          description: 'Triggered when a task status is changed',
+          name: 'noteMention',
+          title: 'Mentioned in note',
+          description:
+            'Triggered when a user is mentioned in a task, project or triage note',
         },
       ],
     },
     {
-      name: 'project',
-      description: 'Project Notifications',
-      icon: 'IconClipboard',
+      name: 'triage',
+      description: 'Triage Notifications',
+      icon: 'IconInbox',
 
       events: [
         {
-          name: 'projectAssignee',
-          title: 'Project Assigned',
-          description: 'Triggered when a user is assigned to a project',
+          name: 'triageCreated',
+          title: 'Triage created',
+          description: "Triggered when a triage is added to the user's team",
         },
+      ],
+    },
+    {
+      name: 'team',
+      description: 'Team Notifications',
+      icon: 'IconUsersGroup',
+
+      events: [
         {
-          name: 'projectStatus',
-          title: 'Project Status changed',
-          description: 'Triggered when a project status is changed',
+          name: 'teamMemberAdded',
+          title: 'Added to team',
+          description: 'Triggered when a user is added to a team',
         },
       ],
     },
   ],
-};
+} as const satisfies INotificationsConfig;
+
+export type TOperationNotificationEvent = TNotificationEventKey<
+  typeof notifications
+>;

@@ -19,7 +19,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const Conversations = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const {
     totalCount,
     conversations,

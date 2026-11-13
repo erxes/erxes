@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-11-08`
 
 ## Scope
 
@@ -22,10 +22,19 @@
 
 ## Current Capabilities
 
+- Pricing common, price, quantity, expiry, and condition forms share
+  `src/modules/pricing/components/PriceAdjustFactorLabel.tsx`: a keyboard-focusable
+  info tooltip explaining factors -2 through 3 and the inclusive -10 to +10
+  limit through English/Mongolian loyalty translations. All five forms validate
+  factors as integers in that range through `schemas/priceAdjustFactorSchema.ts`;
+  condition rules use the Zod resolver and other forms use field validation.
+  Blank factors in the string-based rule forms retain their existing zero default.
+
 - Renders pricing list/detail/create/edit UI under `src/modules/pricing` and
   `src/pages/pricing`.
 - Pricing detail forms edit general targeting, options, participants, price,
-  quantity, repeat, expiry, and rules sections.
+  quantity, schedule, expiry, and rules sections.
+- The Options card's Schedule section (`edit-pricing/components/schedule/ScheduleSection.tsx`, editor state in `useScheduleEditor`, row words in `useScheduleWindowLabel`) lists the plan's windows by type, adds and edits them in `ScheduleWindowSheet` (form + zod in `useScheduleWindowForm`, `utils/schedule.ts`): repeats every day, week (days with Weekdays / Weekend shortcuts), month (days 1–31) or year (month/day range via `ScheduleMonthDayPicker`, may cross the new year), start and end time or All day saved as `00:00`–`24:00`, "+1 day" when a window runs past midnight. It draws daily and weekly windows on a week grid (`ScheduleWeekGrid`), keeps closed dates (`ScheduleClosedDates`), picks when the discount is checked (`ScheduleMomentSelect`: at checkout, when the order was created, either; each with an example) and checks the unsaved schedule at an order-created and a checkout time (`ScheduleCheck` / `useScheduleCheck`, query `PricingPlanScheduleCheck`), saying which moment matched which window and the organization's time zone. Saving writes `activeWindows`, `closedDates`, `scheduleMoment` and `isRepeatEnabled` (any window) through `pricingPlanEdit`; a backend refusal shows its own message. A plan with a priority cannot add windows, and a scheduled plan offers only the None priority on the General tab.
 - Pricing general edit forms allow selected start and end dates to be cleared.
 - The Rules card has a Conditions tab (`edit-pricing/components/conditions/ConditionRulesInfo.tsx`, list state in `usePricingConditionRules`): a list like the quantity rules, one row per core condition (by code, names from core `productConditions` via `pricingProductConditions`; a code with no condition shows as removed and still saves), edited in `ConditionRuleSheet` (form + zod in `useConditionRuleForm`: condition, discount type default / subtraction / percentage / bonus, value or bonus product, price adjust type without `truncate`, factor), saved as the plan's `conditionRules` through `pricingPlanEdit`; codes must be unique per plan. `FixedPricingTable` has no condition columns. Deleted products (`productStatus: 'deleted'`) stay listed there but read-only, marked "Not available".
 - Pricing priority selection includes none, public, POS base, and scoped base pricing; POS-base and scoped-base plans hide participant targeting.
@@ -65,6 +74,7 @@
 - The relation widget (`./relationWidget`, `Widgets.tsx`) shows an owner's score summary on customers, companies and users, and on any other record (a deal, a POS order) tabs (`RecordLoyaltyWidget`): first the points that record moved — campaign, owner, earned/spent/given back, when, description, total (`ScoreTargetHistoryWidget`, query `LoyaltyTargetScoreLogs` = `scoreLogs(targetId)`, polled every 10 s while open since the record's plugin writes them), then one tab per customer linked to it through core relations (`useRecordLoyaltyTabs` / `useRelations`, plus the host's `customerId`) with that customer's score summary. Before this, a deal's id was read as an owner id and the summary showed nothing.
 - The wallet form's General section sets who may earn (everyone, client portal members on customer wallets, or a segment's members via the loyalty `SelectSegment`); the automation result and the cashier preview name the `not-eligible` skip.
 - Account controls follow permissions (`useLoyaltyAccountPermissions` over `usePermissionCheck`): freeze/unfreeze (card and row menu) only with `loyaltyAccountFreeze`; without `loyaltyAccountSetTier` the tier shows as a read-only badge.
+- Home dashboard widgets (`./dashboardWidget` → `src/widgets/dashboard/DashboardWidgets.tsx`, declared as `widgets.dashboardWidgets`; core types them `loyalty:<name>`): `scoreSummary` (`ScoreStatCards` from `ScoreSummaryWidget.tsx` over `ScoreLogStatistics`; config campaign optional + last 7/30/90 days or all time), `recentScoreLogs` (10 latest `ScoreLogs`; config campaign optional), `recentVouchers` (10 latest `VouchersMain`; config issued by `createdAt` or redeemed = `status: used` by `usedAt`), `recentCoupons` (10 latest `CouponsMain`, no config). Catalog `preview` kinds: `scoreSummary` `kpi`, `recentScoreLogs` and `recentVouchers` `list`, `recentCoupons` `table`. Each tile is a `DashboardWidgetCard` with a View all link to its loyalty page and `LoyaltyDashboardBody` loading/error(retry)/empty states; config forms are React Hook Form + Zod and fall back to defaults when the stored config no longer parses. No tier-change tile: `loyaltyTierLogs` requires an account or target.
 - Record picker widget (`./recordPickerWidget`, declared as `widgets.recordPickerWidgets` `{ name: 'scoreCampaign', contentType: 'loyalty:score.campaigns' }`): other plugins' forms render it through `ui-modules` `RecordPickerWidget` to pick a score campaign; it is `SelectScoreCampaign` limited to active campaigns (`status="active"`) plus New (`LoyaltyScoreCreateSheet`, picks what it creates) and Edit (mounts `LoyaltyScoreEditSheet` only in the picker that asked, via `editScoreId`) (`widgets/recordPicker`).
 - Relation settings widget (`./relationSettingsWidget`, declared as `widgets.relationSettingsWidgets` in `config.tsx`): shown as its own "Loyalty" tab on other plugins' settings pages (`RelationSettingsWidget`). Given a purchase context (trigger type, scopes, buyer attribution, `returnTo`) it lists the connections first and folds the setup behind "Add loyalty workflow" (`AddLoyaltyWorkflow`: a kind tab, scope picker and the kind's fields; "New campaign" / "New wallet" open `LoyaltyScoreCreateSheet` / `LoyaltyAccountTypeFormSheet` in place and pick what they create via `onCreated`, so nothing needs leaving the source's page) — Give points (Adjust score, campaign picker) and Set tier, by purchase history only (a tier from one purchase is the source's own built-in setting): offered only when the chosen scope carries `history` (otherwise a note says tiers are set in the source's own settings); wallets with active tiers, period this month / quarter / year / between dates (`TierHistoryFields`), the shared `TierBandsFields` (an amount range per tier and only-upgrade), and Connect first creates automation-owned customer segments from `utils/tierHistorySegments.ts` (trigger: sum of the scope's purchases in the period ≥ the lowest band; one per tier for its band), then seeds a Customer trigger on that segment with `reEnrollmentRules: ['relation:children.0']` and a `purchaseSource` marker (the source trigger and scope), a split with one segment branch per tier (highest first) and a fixed Set tier on each with `keepHigherTier` from only-upgrade; a failure removes the segments it made) — and shows connections in loyalty terms ("campaign ← scope", status, an on/off switch that sets the automation's status through `automationsEdit` (`LoyaltySourceAutomationSetStatus`; core validates activation, off for an incomplete step), Details opens the builder, Disconnect deletes the automation after a confirm) for the automations that run loyalty Adjust score or Set tier on that trigger (or on a Customer trigger whose `purchaseSource` names it), matching a trigger to the scope whose every key it shares (query `LoyaltySourceAutomations`), reads what the host already does on its own from `context.config.loyalty` (`{ earnCampaignIds, tierWalletIds }`, `readLoyaltyBuiltIn`; anything else ignored) and lists those as read-only "Built in" rows (an inactive campaign flagged), flags an automation feeding a campaign or wallet the host also feeds built in ("Also set built in; keep one"), warns only when neither built-in rows nor an active complete automation give points to an active campaign, disconnecting through `LoyaltySourceAutomationRemove` (evicted from the Apollo cache), and "Connect" seeds the builder with the scope's trigger and an Adjust score already holding the chosen campaign. It renders nothing without a trigger and never knows which plugin hosts it.
 - A saved score campaign's sheet has an Automations tab (`ScoreCampaignAutomations` / `useScoreCampaignAutomations`) listing the automations giving its points (Adjust score with this `campaignId`) and, when its account type has tiers, the ones setting those tiers (Set tier with that `accountTypeId`), each linking to the builder, with a create button under each list (a point automation from here counts every row). Automations are also started where the rule lives (`useCampaignAutomationSeeds`, campaign id from `ScoreCampaignProvider`): each base/bonus row of the earning table has, in its row menu (`EarnRowActions`, with delete), an item that opens an unsaved builder with only an Adjust score action (campaign, add, that row's `earnRowKeys`) and no trigger, enabled once the row is saved; a "Create tier automation" button above the table seeds an empty customer trigger, a split with one branch per active tier (highest first) and a Set tier on each branch. Both seeds and the Automations tab's edit links carry `returnTo` (this page, labelled with the campaign title) so the builder offers a way back, kept after the first save. Account types carry no automation section.
@@ -84,6 +94,7 @@
 | Pricing contracts     | `src/modules/pricing/graphql/**`, `src/modules/pricing/types.ts`                                          | GraphQL documents and TypeScript form/API types.                                        |
 | Loyalty account types | `src/modules/loyalties/settings/account-type/**`, `src/pages/loyalties-config/LoyaltyAccountTypePage.tsx` | Account list, sectioned form sheet, legacy field banner, and campaign account selector. |
 | Owner loyalty account | `src/modules/loyalties/accounts/**`, `src/modules/loyalties/scores/components/ScoreSummaryWidget.tsx`     | Account card, tier select and freeze dialog in the relation widget.                     |
+| Home dashboard widgets | `src/widgets/dashboard/**` | `./dashboardWidget` remote: module switch, view tiles, config forms and schemas (`dashboardWidgetConfig.ts`). |
 | Score campaigns       | `src/modules/loyalties/settings/score/**`                                                                 | Score campaign list, create sheet, and edit sheet.                                      |
 
 ## Contracts
@@ -100,6 +111,7 @@
   `LoyaltyAccountTypesAdoptCampaignFields`, `LoyaltyAccountOfOwner`,
   `LoyaltyAccountFreeze`, `LoyaltyAccountUnfreeze`, and `LoyaltyAccountSetTier`.
 - Birthday reward operations `LoyaltyBirthdayVoucherCampaign`, `LoyaltyBirthdaySegments`, `LoyaltyBirthdayBroadcast`, `LoyaltyBirthdayAutomation`, `LoyaltyBirthdayBroadcastAdd`, `LoyaltyBirthdayBroadcastFollow`, `LoyaltyBirthdayBroadcastUnfollow`, `LoyaltyBirthdayBroadcastRemove`, `LoyaltyBirthdayAutomationAdd`, `LoyaltyBirthdayAutomationSetStatus`, `LoyaltyBirthdayAutomationRemove`, `LoyaltyBirthdayRewardSet`, `LoyaltyBirthdayRewardRemove`.
+- `./dashboardWidget` remote receiving `ui-modules` `IDashboardWidgetProps`; modules `scoreSummary`, `recentScoreLogs`, `recentVouchers`, `recentCoupons`, labels under the `dashboard.*` keys of `loyalty.json`.
 - `PricingPlans` queries request `pricingPlansCount` with the same filters as
   the list and page through `page`/`perPage`.
 
@@ -139,7 +151,7 @@
   sidebar. The plugin owns its settings at `/loyalty/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
   `LoyaltySettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
-  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  "<Plugin> settings" whose sidebar starts with a sticky core-style "Exit settings" row linking back to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends
@@ -167,14 +179,30 @@
 - Changing a score campaign's owner type clears its account type; archived account types
   are listed in the campaign selector only when the campaign already uses one.
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
+- `widgets.dashboardWidgets` names in `config.tsx` and `LOYALTY_DASHBOARD_MODULES` stay identical; renaming one orphans tiles users already placed. Dashboard tiles reuse the existing loyalty queries and add no backend contract.
 - Loyalty list filters (donates, spin, coupons, assignments, agents, lotteries, scores, vouchers, accounts) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation
 
+- Pricing help smoke: in English and Mongolian, hover or focus the info icon
+  beside the factor label in all five pricing forms; confirm translated steps
+  and the limit appear, the form does not submit, and the input still has its label.
+- Factor validation smoke: all five forms accept -10, -1, 0, and 10, and reject
+  -11, 11, and fractional values with a translated inline error.
+
+- `pnpm nx lint loyalty_ui`
 - `pnpm nx build loyalty_ui`
+- Dashboard smoke: on Home add each loyalty widget, set a campaign/period/kind where asked, confirm the tile shows data or its empty state, and that View all opens the matching loyalty page.
 - Account types smoke scenario: create an account type, bind it to a new score campaign,
   archive it, and confirm the campaign still opens while the selector hides the
   archived account type for other campaigns.
+- Pricing schedule smoke: on Options, add an every-week Mon–Fri 18:00–21:00
+  window and an every-week Friday 22:00–02:00 window; the grid shows
+  Saturday's 00–02 spill. Check order 20:50 / checkout 21:10 on a Friday: "At
+  checkout" says not discounted, "When the order was created" says discounted.
+  Add an every-year 12/15 → 1/15 window; its row says it crosses the new year.
+  Save, reload, and everything stays. On a plan with a priority, Add window is
+  disabled.
 - Pricing detail smoke scenario: open a pricing plan, go to Options, choose a
   board and pipeline, reopen each selector, choose `none`, save, and confirm the
   saved plan no longer has those board/pipeline constraints.
@@ -182,6 +210,11 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-11-08` — Pricing schedule windows
+
+- **Summary:** The Options card's Repeat rules gave way to a Schedule: windows that repeat every day, week, month or year, past midnight or all day, closed dates, a week grid, a choice of when the discount is checked and a check of the unsaved schedule at two times.
+- **Affected areas:** `modules/pricing/edit-pricing/components/schedule/**`, `modules/pricing/hooks/{useScheduleEditor,useScheduleWindowForm,useScheduleWindowLabel,useScheduleCheck}.ts`, `modules/pricing/utils/schedule.ts`, `modules/pricing/edit-pricing/components/options/OptionsInfo.tsx`, `modules/pricing/edit-pricing/components/general/{GeneralFormFields,GeneralInfo}.tsx`, `modules/pricing/components/{PricingOptionSelect,PricingPrioritySelect}.tsx`, `modules/pricing/{types,graphql/queries}.ts` (removed `edit-pricing/components/repeat/**`); `schedule-*`, `weekday-short-*`, `priority-blocked-by-schedule` translations.
 
 ### `2026-10-14` — Issued vouchers: list, detail and actions
 
@@ -234,9 +267,3 @@
 - **Summary:** The Wallets page tells when the next period run is, what it will do and how the last runs went.
 - **Affected areas:** `settings/account-type/{components/LoyaltyPeriodRunPanel.tsx,hooks/useLoyaltyPeriodRunStatus.ts,graphql/loyaltyAccountTypeQueries.ts,hooks/useLoyaltyAccountTypeMutations.ts}`, `pages/loyalties-config/LoyaltyAccountTypePage.tsx`; `period-run-*` translations.
 - **Contracts changed:** Consumes GraphQL `loyaltyPeriodRunStatus`.
-
-### `2026-09-30` — Loyalty settings pages in the settings menu
-
-- **Summary:** Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment and Coupon moved from the inner config sidebar into the platform settings menu; the "Configs" item and the unused duplicate `components/LoyaltySettings.tsx` are gone.
-- **Affected areas:** `src/LoyaltySettingsNavigation.tsx`, `modules/loyalties/settings/{constants/settingRoutes.ts,components/LoyaltyLayout.tsx,components/LoyaltyBreadcrumb.tsx}`; `LoyaltySidebar.tsx` removed.
-- **Contracts changed:** None (routes unchanged).

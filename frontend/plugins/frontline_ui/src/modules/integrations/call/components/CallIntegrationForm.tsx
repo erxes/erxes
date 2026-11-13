@@ -1,12 +1,21 @@
+import {
+  IntegrationNameField,
+  IntegrationBrandField,
+} from '@/integrations/components/IntegrationFormFields';
+import {
+  PanelFormLayout,
+  useSidePanel,
+  PanelFormRow,
+  PANEL_INPUT_CLASS_NAME,
+  SelectMember,
+} from 'ui-modules';
+
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Sheet, Form, Input, Checkbox, Spinner } from 'erxes-ui';
+import { Button, Form, Input } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
 import { z } from 'zod';
-import { SelectMember, SelectBrand } from 'ui-modules';
-import { useAtomValue } from 'jotai';
-import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 
 export const CallIntegrationForm = ({
   form,
@@ -17,7 +26,10 @@ export const CallIntegrationForm = ({
   onSubmit: (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => void;
   loading?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { close } = useSidePanel();
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'operators',
@@ -29,39 +41,18 @@ export const CallIntegrationForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col flex-auto overflow-hidden"
       >
-        <CallIntegrationFormLayout
-          actions={
-            <Button
-              type="submit"
-              onClick={() => form.handleSubmit(onSubmit)}
-              disabled={loading}
-            >
-              {loading && <Spinner size="sm" />}
-              {t('save')}
-            </Button>
-          }
-        >
-          <Form.Field
-            name="name"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('name')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+        <PanelFormLayout onCancel={close} saving={loading}>
+          <IntegrationNameField />
           <Form.Field
             name="phone"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('phone-number')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
+                <PanelFormRow label={t('phone-number')}>
+                  <Form.Control>
+                    <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
+                  </Form.Control>
+                  <Form.Message />
+                </PanelFormRow>
               </Form.Item>
             )}
           />
@@ -69,42 +60,26 @@ export const CallIntegrationForm = ({
             name="websocketServer"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('websocket-server')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
+                <PanelFormRow label={t('websocket-server')}>
+                  <Form.Control>
+                    <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
+                  </Form.Control>
+                  <Form.Message />
+                </PanelFormRow>
               </Form.Item>
             )}
           />
-          <Form.Field
-            name="brandId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('brand')} <span className="text-destructive">*</span>
-                </Form.Label>
-                <Form.Control>
-                  <SelectBrand
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder={t('select-a-brand')}
-                    className="w-full"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          <IntegrationBrandField required />
           <Form.Field
             name="queues"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('queues')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
+                <PanelFormRow label={t('queues')}>
+                  <Form.Control>
+                    <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
+                  </Form.Control>
+                  <Form.Message />
+                </PanelFormRow>
               </Form.Item>
             )}
           />
@@ -113,11 +88,12 @@ export const CallIntegrationForm = ({
             name="srcTrunk"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('source-trunk')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
+                <PanelFormRow label={t('source-trunk')}>
+                  <Form.Control>
+                    <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
+                  </Form.Control>
+                  <Form.Message />
+                </PanelFormRow>
               </Form.Item>
             )}
           />
@@ -125,25 +101,26 @@ export const CallIntegrationForm = ({
             name="dstTrunk"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('destination-trunk')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
+                <PanelFormRow label={t('destination-trunk')}>
+                  <Form.Control>
+                    <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
+                  </Form.Control>
+                  <Form.Message />
+                </PanelFormRow>
               </Form.Item>
             )}
           />
           <div className="font-medium">{t('operators')}</div>
           {fields.map((field, index) => (
             <div
-              className="col-span-2 border-b last-of-type:border-b-0 border-dashed pb-4 last-of-type:pb-0"
+              className="col-span-full border-b last-of-type:border-b-0 border-dashed pb-4 last-of-type:pb-0"
               key={field.id}
             >
-              <div className="flex gap-4 w-full">
+              <div className="flex flex-col gap-3 w-full">
                 <Form.Field
                   name={`operators.${index}.userId`}
                   render={({ field }) => (
-                    <Form.Item className="flex-auto w-1/3">
+                    <Form.Item className="flex-auto">
                       <Form.Label>{t('operator')}</Form.Label>
                       <SelectMember.FormItem
                         value={field.value}
@@ -159,7 +136,7 @@ export const CallIntegrationForm = ({
                     <Form.Item className="flex-auto">
                       <Form.Label>{t('username')}</Form.Label>
                       <Form.Control>
-                        <Input {...field} />
+                        <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -171,7 +148,7 @@ export const CallIntegrationForm = ({
                     <Form.Item className="flex-auto">
                       <Form.Label>{t('password')}</Form.Label>
                       <Form.Control>
-                        <Input {...field} />
+                        <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -189,7 +166,7 @@ export const CallIntegrationForm = ({
             </div>
           ))}
           <Button
-            className="col-span-2"
+            className="col-span-full"
             variant="secondary"
             onClick={() =>
               append({
@@ -202,38 +179,8 @@ export const CallIntegrationForm = ({
             <IconPlus />
             {t('add-operator')}
           </Button>
-        </CallIntegrationFormLayout>
+        </PanelFormLayout>
       </form>
     </Form>
-  );
-};
-
-export const CallIntegrationFormLayout = ({
-  children,
-  actions,
-}: {
-  children: React.ReactNode;
-  actions: React.ReactNode;
-}) => {
-  const { t } = useTranslation('frontline');
-  const callEditSheet = useAtomValue(callEditSheetAtom);
-  return (
-    <>
-      <Sheet.Header>
-        <Sheet.Title>{callEditSheet ? t('edit-call') : t('add-call')}</Sheet.Title>
-        <Sheet.Close />
-      </Sheet.Header>
-      <Sheet.Content className="overflow-auto p-4 styled-scroll">
-        <div className="grid grid-cols-2 gap-4">{children}</div>
-      </Sheet.Content>
-      <Sheet.Footer>
-        <Sheet.Close asChild>
-          <Button className="mr-auto text-muted-foreground" variant="ghost">
-            {t('cancel')}
-          </Button>
-        </Sheet.Close>
-        {actions}
-      </Sheet.Footer>
-    </>
   );
 };

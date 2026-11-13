@@ -18,6 +18,37 @@ type TFieldActions = {
   saving: boolean;
 };
 
+/** Explains field availability and offers the existing create-visibility action. */
+const TicketLayoutFieldHint = ({
+  item,
+  actions,
+}: {
+  item: TTicketLayoutField;
+  actions: TFieldActions;
+}) => {
+  const { t } = useTranslation('frontline');
+  if (item.unsupported) {
+    return t(
+      'unsupported-type-hint',
+      'Saved with an unsupported type; fix it in Settings → Properties',
+    );
+  }
+  if (item.createOn) return item.typeLabel;
+  return (
+    <>
+      {t('off-for-create', 'Off for create')} ·{' '}
+      <button
+        type="button"
+        className="text-primary hover:underline"
+        disabled={actions.saving}
+        onClick={() => actions.setCreateOn(item, true)}
+      >
+        {t('turn-on', 'Turn on')}
+      </button>
+    </>
+  );
+};
+
 /**
  * Every field the form can hold. The checkbox puts it on this pipeline's form;
  * "Show on create" and "Required" are the Settings → Properties rules, shared
@@ -39,6 +70,7 @@ export const TicketLayoutFieldsPanel = ({
     item.name.toLowerCase().includes(search.trim().toLowerCase()),
   );
 
+  /** Places or removes a field, enabling create visibility before placement. */
   const toggleOnForm = async (item: TTicketLayoutField, on: boolean) => {
     if (!on) {
       api.unplaceItem(item.id);
@@ -108,26 +140,7 @@ export const TicketLayoutFieldsPanel = ({
                   )}
                 </div>
                 <span className="truncate text-xs text-muted-foreground">
-                  {item.unsupported ? (
-                    t(
-                      'unsupported-type-hint',
-                      'Saved with an unsupported type; fix it in Settings → Properties',
-                    )
-                  ) : item.createOn ? (
-                    item.typeLabel
-                  ) : (
-                    <>
-                      {t('off-for-create', 'Off for create')} ·{' '}
-                      <button
-                        type="button"
-                        className="text-primary hover:underline"
-                        disabled={actions.saving}
-                        onClick={() => actions.setCreateOn(item, true)}
-                      >
-                        {t('turn-on', 'Turn on')}
-                      </button>
-                    </>
-                  )}
+                  <TicketLayoutFieldHint item={item} actions={actions} />
                 </span>
               </div>
               <Switch

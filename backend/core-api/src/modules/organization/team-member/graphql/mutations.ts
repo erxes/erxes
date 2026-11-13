@@ -3,20 +3,20 @@ import {
   IEmailSignature,
   ILink,
   IUser,
+  IUserAppearance,
   Resolver,
 } from 'erxes-api-shared/core-types';
 import {
-  authCookieOptions,
-  getEnv,
   getPlugin,
   getPlugins,
-  getSaasOrganizationDetail,
   graphqlPubsub,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
-import { saveValidatedToken } from '~/modules/auth/utils';
+import { readSessionCookie, startSession } from '~/modules/auth/session';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
+import type { IProfilePatch } from '../db/utils/profilePatch';
+import { saveTeamAvailabilitySettings } from '../availability';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -36,7 +36,7 @@ const publishUserStatusChanged = (
   ]);
 };
 
-const validatePermissionGroupIds = async (
+export const validatePermissionGroupIds = async (
   models: IModels,
   permissionGroupIds: string[],
 ) => {
@@ -151,15 +151,29 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     return models.Users.resetMemberPassword(args);
   },
 
+  async usersRevokeSessions(
+    _parent: undefined,
+    { _id, sessionId }: { _id: string; sessionId?: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersResetPassword');
+
+    return models.Users.revokeSessions(_id, sessionId);
+  },
+
   /*
    * Change user password
    */
   async usersChangePassword(
     _parent: undefined,
     args: { currentPassword: string; newPassword: string },
-    { user, models }: IContext,
+    { user, models, requestInfo }: IContext,
   ) {
-    return models.Users.changePassword({ _id: user._id, ...args });
+    return models.Users.changePassword({
+      _id: user._id,
+      ...args,
+      keepSid: readSessionCookie(requestInfo.cookies),
+    });
   },
 
   /*
@@ -190,13 +204,21 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       };
     }
 
+    const previous = await models.Users.getUser(_id);
     const updatedUser = await models.Users.updateUser(_id, updatedDoc);
 
     if (args.departmentIds || args.branchIds) {
       await models.UserMovements.manageUserMovement({
         user: updatedUser,
+        createdBy: user._id,
       });
     }
+
+    models.UserMovements.notifyStructureChanges({
+      previous,
+      updated: updatedUser,
+      createdBy: user._id,
+    });
 
     if (unitId !== undefined) {
       await models.Units.updateMany(
@@ -217,6 +239,14 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   /*
    * Edit user profile
    */
+  async usersEditProfilePatch(
+    _parent: undefined,
+    patch: IProfilePatch,
+    { user, models }: IContext,
+  ) {
+    return models.Users.patchProfile(user._id, patch);
+  },
+
   async usersEditProfile(
     _parent: undefined,
     {
@@ -373,7 +403,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     }: {
       token: string;
     },
-    { res, models, requestInfo, subdomain }: IContext,
+    { req, res, models, subdomain }: IContext,
   ) {
     const user = await models.Users.findOne({
       registrationToken,
@@ -386,17 +416,9 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       throw new Error('Token is invalid or has expired');
     }
 
-    const [token] = await models.Users.createTokens(
-      user,
-      models.Users.getSecret(),
-    );
-
-    await saveValidatedToken(token, user);
-
     await models.Users.updateOne(
       { _id: user._id },
       {
-        $push: { validatedTokens: token },
         $set: { isActive: true },
         $unset: {
           registrationToken: '',
@@ -405,34 +427,14 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       },
     );
 
-    const sameSite = getEnv({ name: 'SAME_SITE' });
-    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-    const VERSION = getEnv({ name: 'VERSION' });
-
-    if (VERSION === 'saas') {
-      const organization = await getSaasOrganizationDetail({ subdomain });
-
-      const cookieOptions: any = authCookieOptions();
-
-      if (organization.domain && organization.dnsStatus === 'active') {
-        cookieOptions.secure = true;
-        cookieOptions.sameSite = 'none';
-      }
-
-      res.cookie('auth-token', token, cookieOptions);
-    } else {
-      const cookieOptions: any = { secure: requestInfo.secure };
-
-      if (
-        sameSite &&
-        sameSite === 'none' &&
-        res.req.headers.origin !== DOMAIN
-      ) {
-        cookieOptions.sameSite = sameSite;
-      }
-
-      res.cookie('auth-token', token, authCookieOptions(cookieOptions));
-    }
+    await startSession({
+      models,
+      subdomain,
+      userId: user._id,
+      method: 'invitation',
+      req,
+      res,
+    });
 
     await sendOnboardNotification(subdomain, models, user._id);
 
@@ -452,6 +454,45 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     { user, models }: IContext,
   ) {
     return models.Users.configGetNotificationByEmail(user._id, isAllowed);
+  },
+
+  async usersConfigAppearance(
+    _parent: undefined,
+    appearance: IUserAppearance,
+    { user, models }: IContext,
+  ) {
+    return models.Users.configAppearance(user._id, appearance);
+  },
+
+  async usersSetAvailability(
+    _parent: undefined,
+    {
+      _id,
+      status,
+      until,
+      reason,
+    }: { _id: string; status?: string | null; until?: Date | null; reason?: string | null },
+    { user, models, checkPermission }: IContext,
+  ) {
+    // Anyone declares their own; declaring for others is a manager's right.
+    if (user._id !== _id) {
+      await checkPermission('teamMembersSetAvailability');
+    }
+
+    return models.Users.setAvailability(_id, { status, until, reason }, user._id);
+  },
+
+  async teamAvailabilitySettingsUpdate(
+    _parent: undefined,
+    args: { segmentId?: string | null; precedence?: string | null },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersSetAvailability');
+
+    return saveTeamAvailabilitySettings(models, {
+      segmentId: args.segmentId || undefined,
+      precedence: args.precedence === 'manual' ? 'manual' : 'segment',
+    });
   },
 
   async usersSetChatStatus(

@@ -6,6 +6,7 @@ import {
   LEAD_LOAD_TYPES,
   LEAD_SUCCESS_ACTIONS,
 } from '~/modules/inbox/db/definitions/constants';
+import type { TFormAboutRecord } from '~/modules/form/formLink';
 import { field } from './utils';
 
 export interface IForm {
@@ -28,6 +29,8 @@ export interface IForm {
   channelId?: string;
   leadData?: ILeadData;
   integrationId?: string;
+  conversionRevision?: number;
+  activeSubmissions?: { token: string; expiresAt: Date }[];
 }
 
 export interface IFormSubmissionFilter {
@@ -96,6 +99,10 @@ export interface IFormSubmission {
   submittedAt?: Date;
   groupId?: string;
   conversationId?: string;
+  // The record this answer is about (a rated ticket), set only from a signed link.
+  aboutRecord?: TFormAboutRecord;
+  // On one row of a linked answer, so a link admits a single answer.
+  linkId?: string;
 }
 
 export interface IFormSubmissionDocument extends IFormSubmission, Document {
@@ -116,8 +123,25 @@ export const formSubmissionSchema = schemaWrapper(
     formFieldId: field({ type: String, optional: true }),
     groupId: field({ type: String, optional: true }),
     conversationId: field({ type: String, optional: true }),
+    aboutRecord: field({
+      type: new Schema(
+        {
+          type: { type: String, required: true },
+          id: { type: String, required: true },
+        },
+        { _id: false },
+      ),
+      optional: true,
+    }),
+    linkId: field({ type: String, optional: true }),
   }),
 );
+
+formSubmissionSchema.index({ linkId: 1 }, { unique: true, sparse: true });
+formSubmissionSchema.index({ 'aboutRecord.id': 1, 'aboutRecord.type': 1 });
+
+// Conversion checks read one field in stable order without scanning other forms.
+formSubmissionSchema.index({ formId: 1, formFieldId: 1, _id: 1 });
 
 export const calloutSchema = new Schema(
   {
@@ -293,6 +317,11 @@ export const leadDataSchema = new Schema(
 export const formSchema = schemaWrapper(
   new Schema<IForm>({
     _id: mongooseStringRandomId,
+    conversionRevision: { type: Number, default: 0 },
+    activeSubmissions: {
+      type: [new Schema({ token: String, expiresAt: Date }, { _id: false })],
+      default: undefined,
+    },
     name: field({ type: String, required: true }),
     title: field({ type: String, optional: true }),
     type: field({ type: String, required: true }),

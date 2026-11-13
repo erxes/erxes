@@ -19,6 +19,7 @@ import {
   Sheet,
   useBlockEditor,
 } from 'erxes-ui';
+import { DataExtensionCreateFields } from 'ui-modules';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -32,10 +33,13 @@ export const AddProjectForm = ({
   onClose,
   onComplete,
   task,
+  contacts,
 }: {
   onClose: () => void;
   onComplete?: (projectId: string) => void;
   task?: ITask;
+  // Customers / companies the project is created for; linked on the server.
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
   const { t } = useTranslation('operation');
   const navigate = useNavigate();
@@ -84,8 +88,13 @@ export const AddProjectForm = ({
     const project = await createProject({
       variables: {
         ...data,
+        ...contacts,
         description: JSON.stringify(descriptionContent),
       },
+      // The project keeps its contacts itself; project lists (contacts'
+      // included) are read again.
+      update: (cache) =>
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'getProjects' }),
     });
 
     if (project?.data?.createProject?.convertedFromId) {
@@ -264,6 +273,10 @@ export const AddProjectForm = ({
               )}
             />
           </div>
+          <DataExtensionCreateFields
+            recordType="operation:project"
+            className="mt-4"
+          />
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor

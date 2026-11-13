@@ -149,7 +149,9 @@ function CallQueueRate({
   value: number;
   variant: 'destructive' | 'success';
 }>) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const roundedValue = Math.round(value);
 
   return (
@@ -185,7 +187,9 @@ function CallQueueSummaryCell({
   basePath: string;
   item: ICallQueueListItem;
 }>) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const {
     queue,
     queuechairman,
@@ -249,7 +253,9 @@ function CallQueueSummaryCell({
 }
 
 function useGetColumns(basePath: string): ColumnDef<ICallQueueListItem>[] {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   return [
     {
       header: t('queue'),

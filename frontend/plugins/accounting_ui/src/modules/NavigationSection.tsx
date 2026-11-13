@@ -8,10 +8,11 @@ import { useTranslation } from 'react-i18next';
 const matchesPath = (pathname: string, path: string) =>
   pathname === path || pathname.startsWith(`${path}/`);
 
-type TNavigationSectionItem = {
+export type TNavigationSectionItem = {
   name: string;
   icon: ElementType;
   path: string;
+  exact?: boolean;
 };
 
 export const NavigationSection = ({
@@ -68,7 +69,9 @@ export const NavigationSection = ({
           <div className="min-h-0 overflow-hidden">
             <Sidebar.Sub className="border-l">
               {items.map((item) => {
-                const isActive = matchesPath(pathname, `/${item.path}`);
+                const isActive = item.exact
+                  ? pathname === `/${item.path}`
+                  : matchesPath(pathname, `/${item.path}`);
 
                 return (
                   <Sidebar.SubItem key={item.path}>

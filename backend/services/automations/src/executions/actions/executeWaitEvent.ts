@@ -9,8 +9,10 @@ import {
   IAutomationAction,
   IAutomationExecAction,
   IAutomationExecutionDocument,
+  readWaitEventTimeoutMinutes,
 } from 'erxes-api-shared/core-modules';
-import { getEnv } from 'erxes-api-shared/utils';
+import { getEnv, sendWorkerQueue } from 'erxes-api-shared/utils';
+import { waitEventNextActionId } from '../resolveWaitEvent';
 import { AutomationActionError } from '../errorCodes';
 const WAIT_EVENT_DESCRIPTION_MAP = {
   custom: 'Webhook is received',
@@ -50,7 +52,10 @@ export const executeWaitEvent = async (
     );
   }
 
-  if (!action.nextActionId) {
+  // With timeout branches the main path lives in config.met.
+  const responseActionId = waitEventNextActionId(action, 'met');
+
+  if (!responseActionId) {
     throw new AutomationActionError(
       'Wait event action must have a next action to continue execution after the wait condition is met',
       AUTOMATION_ERROR_CODES.CONFIG_INVALID,
@@ -68,11 +73,13 @@ export const executeWaitEvent = async (
     await setExecutionWaitAction(models, {
       executionId: execution._id,
       currentActionId: action.id,
-      responseActionId: action.nextActionId,
+      responseActionId,
       automationId: execution.automationId,
       condition: {
         type: EXECUTE_WAIT_TYPES.IS_IN_SEGMENT,
-        targetId: targetTypeId || execution.targetId,
+        // The trigger's record; targetTypeId names the trigger node, and a
+        // wait is matched by the record that changed
+        targetId: execution.targetId,
         segmentId,
       },
     });
@@ -100,7 +107,7 @@ export const executeWaitEvent = async (
     await setExecutionWaitAction(models, {
       executionId: execution._id,
       currentActionId: action.id,
-      responseActionId: action.nextActionId,
+      responseActionId,
       automationId: execution.automationId,
       condition: {
         type: EXECUTE_WAIT_TYPES.IS_IN_SEGMENT,
@@ -114,16 +121,14 @@ export const executeWaitEvent = async (
   if (targetType === 'custom') {
     const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-    const combined = `${execution._id}:${action.id}:${
-      action.nextActionId
-    }:${new Date().toISOString()}`;
+    const combined = `${execution._id}:${action.id}:${responseActionId}:${new Date().toISOString()}`;
     const hash = crypto.createHash('sha256').update(combined).digest('hex');
     const endpoint = hash.substring(0, 24);
 
     await setExecutionWaitAction(models, {
       executionId: execution._id,
       currentActionId: action.id,
-      responseActionId: action.nextActionId,
+      responseActionId,
       automationId: execution.automationId,
       condition: {
         type: EXECUTE_WAIT_TYPES.WEBHOOK,
@@ -138,6 +143,26 @@ export const executeWaitEvent = async (
   execution.startWaitingDate = new Date();
   execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
   await execution.save();
+
+  const timeoutMinutes = readWaitEventTimeoutMinutes(action.config?.timeout);
+
+  if (timeoutMinutes) {
+    const expiresAt = new Date(Date.now() + timeoutMinutes * 60_000);
+
+    await sendWorkerQueue('automations', 'action').add(
+      'expireWait',
+      { subdomain, data: { executionId: execution._id, actionId: action.id } },
+      {
+        delay: timeoutMinutes * 60_000,
+        // One clock per wait, however often the step is entered.
+        jobId: `wait-expire-${execution._id}-${action.id}-${execution.startWaitingDate.getTime()}`,
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    );
+
+    return { ...actionResponse, expiresAt };
+  }
 
   return actionResponse;
 };

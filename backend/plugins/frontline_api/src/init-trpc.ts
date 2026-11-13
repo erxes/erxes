@@ -1,3 +1,7 @@
+import {
+  applyContactFieldsSync,
+  TContactFieldsSync,
+} from 'erxes-api-shared/core-modules';
 import { initTRPC } from '@trpc/server';
 
 import { ITRPCContext } from 'erxes-api-shared/utils';
@@ -12,6 +16,7 @@ import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
 import { mailTrpcRouter } from './modules/integrations/mail/trpc/mail';
 import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
+import { dataExtensionsTrpcRouter } from './trpc/dataExtensions';
 import { generateTicketFields } from './modules/ticket/meta/fields/fieldUtils';
 
 export type FrontlineTRPCContext = ITRPCContext<{ models: IModels }>;
@@ -26,6 +31,7 @@ export const appRouter = t.mergeRouters(
   formTrpcRouter,
   ticketTrpcRouter,
   relationTrpcRouter,
+  dataExtensionsTrpcRouter,
   t.router({
     fields: t.router({
       getFieldList: t.procedure
@@ -49,6 +55,19 @@ export const appRouter = t.mergeRouters(
           }
 
           return [];
+        }),
+    }),
+  }),
+  t.router({
+    contactFields: t.router({
+      // Core broadcasts contact merges and removals; frontline saves its
+      // tickets' contacts itself otherwise.
+      sync: t.procedure
+        .input(z.custom<TContactFieldsSync>())
+        .mutation(async ({ ctx, input }) => {
+          const { models } = ctx;
+
+          await applyContactFieldsSync([models.Ticket], input);
         }),
     }),
   }),

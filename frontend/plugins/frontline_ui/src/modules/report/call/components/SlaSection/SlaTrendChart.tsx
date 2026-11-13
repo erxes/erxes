@@ -25,7 +25,7 @@ const CHART_CONFIG = {
 export const SlaTrendChart = memo(function SlaTrendChart({
   data,
 }: SlaTrendChartProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
 
   const chartData = useMemo(
     () =>

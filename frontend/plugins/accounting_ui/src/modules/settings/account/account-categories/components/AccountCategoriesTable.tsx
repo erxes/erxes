@@ -6,13 +6,10 @@ import {
   Popover,
   RecordTable,
   RecordTableTree,
-  Skeleton,
-  Table,
   TextField,
   cn,
   toast,
   useConfirm,
-  useQueryState,
 } from 'erxes-ui';
 import { IconEdit, IconFolderOff, IconTrash } from '@tabler/icons-react';
 
@@ -22,41 +19,17 @@ import { AddAccountCategory } from '@/settings/account/account-categories/compon
 import { IAccountCategory } from '@/settings/account/account-categories/types/AccountCategory';
 import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
 import type { TFunction } from 'i18next';
-import { accountCategoryDetailAtom } from '@/settings/account/account-categories/states/accountCategoryStates';
 import { useAccountCategoriesRemove } from '@/settings/account/account-categories/hooks/useAccountCategoriesRemove';
 import { useAccountCategoryEdit } from '@/settings/account/account-categories/hooks/useAccountCategoryEdit';
 import { useFilteredAccountCategories } from '@/settings/account/account-categories/hooks/useFilteredAccountCategories';
 import { useMemo } from 'react';
-import { useSetAtom } from 'jotai';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { ACCOUNT_CATEGORY_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
 import { useTranslation } from 'react-i18next';
 
 type AccountCategoryRow = IAccountCategory & {
   hasChildren: boolean;
   isContext?: boolean;
-};
-
-const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const { t } = useTranslation('accounting');
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {accountCategoriesColumns(t).map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
 };
 
 export const AccountCategoriesTable = () => {
@@ -102,10 +75,10 @@ export const AccountCategoriesTable = () => {
       }
       stickyColumns={['more', 'checkbox', 'code']}
       tableId="accounting_account_categories_record_table"
-      className="relative"
+      className="relative m-3"
     >
       <RecordTableTree
-        id="product-categories"
+        id="accounting-account-categories"
         ordered
         length={visibleCategories.length}
       >
@@ -124,9 +97,7 @@ export const AccountCategoriesTable = () => {
                   />
                 )}
               />
-              {isInitialLoading && (
-                <AccountCategoriesInitialSkeleton rows={20} />
-              )}
+              {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
@@ -191,14 +162,12 @@ const AccountCategoryMoreColumnCell = ({
   cell: Cell<AccountCategoryRow, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState<string>('accountCategoryId');
-  const setAccountCategoryDetail = useSetAtom(accountCategoryDetailAtom);
+  const { openDetail } = useSettingsPanel(ACCOUNT_CATEGORY_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { removeAccountCategories } = useAccountCategoriesRemove();
 
   const handleEdit = () => {
-    setAccountCategoryDetail(cell.row.original);
-    setOpen(cell.row.original._id);
+    openDetail(cell.row.original._id);
   };
 
   const handleDelete = () =>
@@ -222,6 +191,7 @@ const AccountCategoryMoreColumnCell = ({
           toast({
             title: t('success'),
             description: t('account-category-deleted-successfully'),
+            variant: 'success',
           });
         },
       });

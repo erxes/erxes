@@ -5,7 +5,7 @@ import { getEnv } from '../utils';
  *
  * A tool that answers with an unbounded payload (an open-ended `find`, a fat
  * aggregation) stalls the agent run and freezes the chat UI while the model
- * ingests it. Every `/agent-tools/call` result is therefore capped at a
+ * ingests it. Every agent GraphQL result is therefore capped at a
  * serialized byte budget — mirroring the 64KB output cap code mode already
  * enforces — and oversized results are rejected with actionable guidance so
  * the model retries with a narrower call instead of the platform streaming an

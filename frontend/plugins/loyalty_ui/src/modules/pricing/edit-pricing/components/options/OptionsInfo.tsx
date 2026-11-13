@@ -1,18 +1,18 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button, Form, InfoCard, Label, useToast } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
-import { IPricingPlanDetail } from '@/pricing/types';
+import {
+  IPricingActiveWindow,
+  IPricingPlanDetail,
+  PricingScheduleMoment,
+} from '@/pricing/types';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import { SelectBoardFormItem } from '@/pricing/hooks/useSelectBoard';
 import { SelectPipelineFormItem } from '@/pricing/hooks/useSelectPipeline';
-import {
-  RepeatRuleSheet,
-  type RepeatRuleConfig,
-  type RepeatRuleType,
-} from '@/pricing/edit-pricing/components/repeat/RepeatRuleSheet';
+import { ScheduleSection } from '@/pricing/edit-pricing/components/schedule/ScheduleSection';
+import { toWindowInput } from '@/pricing/utils/schedule';
 
 interface OptionsInfoProps {
   pricingId?: string;
@@ -32,147 +32,48 @@ interface OptionsSnapshot {
   branchIds: string[];
   boardId: string;
   pipelineId: string;
-  repeatRules: RepeatRuleConfig[];
+  schedule: ScheduleState;
 }
 
+interface ScheduleState {
+  activeWindows: IPricingActiveWindow[];
+  closedDates: string[];
+  scheduleMoment: PricingScheduleMoment;
+}
+
+const EMPTY_SCHEDULE: ScheduleState = {
+  activeWindows: [],
+  closedDates: [],
+  scheduleMoment: 'checkout',
+};
+
+const getSchedule = (pricingDetail: IPricingPlanDetail): ScheduleState => ({
+  activeWindows: (pricingDetail.activeWindows || []).map(toWindowInput),
+  closedDates: pricingDetail.closedDates || [],
+  scheduleMoment: pricingDetail.scheduleMoment || 'checkout',
+});
+
 const OPTIONS_FORM_ID = 'pricing-options-form';
-
-const NUMBER_TO_WEEKDAY: Record<string, string> = {
-  '0': 'sunday',
-  '1': 'monday',
-  '2': 'tuesday',
-  '3': 'wednesday',
-  '4': 'thursday',
-  '5': 'friday',
-  '6': 'saturday',
-};
-
-const WEEKDAY_TO_NUMBER: Record<string, string> = {
-  monday: '1',
-  tuesday: '2',
-  wednesday: '3',
-  thursday: '4',
-  friday: '5',
-  saturday: '6',
-  sunday: '0',
-};
-
-const WEEKDAY_TO_LABEL: Record<string, string> = {
-  monday: 'Monday',
-  tuesday: 'Tuesday',
-  wednesday: 'Wednesday',
-  thursday: 'Thursday',
-  friday: 'Friday',
-  saturday: 'Saturday',
-  sunday: 'Sunday',
-};
-
-const getWeekDayFromValue = (value: string) =>
-  NUMBER_TO_WEEKDAY[value] || value;
-
-const getRepeatRuleType = (value?: string): RepeatRuleType => {
-  switch (value) {
-    case 'everyYear':
-    case 'everyMonth':
-    case 'everyWeek':
-    case 'everyDay':
-      return value;
-    default:
-      return 'everyDay';
-  }
-};
-
-const isoToTime = (isoString?: string): string | null => {
-  if (!isoString) return null;
-
-  const date = new Date(isoString);
-  if (Number.isNaN(date.getTime())) return null;
-
-  const hours = String(date.getUTCHours()).padStart(2, '0');
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-
-  return `${hours}:${minutes}`;
-};
-
-const timeToIso = (time: string): string => {
-  const [hours, minutes] = time.split(':');
-  const now = new Date();
-  const year = now.getUTCFullYear();
-  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(now.getUTCDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}T${hours.padStart(2, '0')}:${minutes.padStart(
-    2,
-    '0',
-  )}:00.000Z`;
-};
-
-const getRepeatRules = (
-  pricingDetail?: IPricingPlanDetail,
-): RepeatRuleConfig[] =>
-  pricingDetail?.repeatRules?.flatMap((rule, index): RepeatRuleConfig[] => {
-    const baseRule: Omit<RepeatRuleConfig, '_id' | 'weekDay' | 'monthDay'> = {
-      ruleType: getRepeatRuleType(rule.type),
-      startTime: isoToTime(rule.dayStartValue),
-      endTime: isoToTime(rule.dayEndValue),
-      startDate: rule.yearStartValue || null,
-      endDate: rule.yearEndValue || null,
-    };
-
-    if (rule.weekValue?.length) {
-      return rule.weekValue.map((weekValue, weekIndex) => ({
-        ...baseRule,
-        _id: `rule_${index}_week_${weekIndex}`,
-        weekDay: getWeekDayFromValue(weekValue.value),
-        monthDay: null,
-      }));
-    }
-
-    if (rule.monthValue?.length) {
-      return rule.monthValue.map((monthValue, monthIndex) => ({
-        ...baseRule,
-        _id: `rule_${index}_month_${monthIndex}`,
-        weekDay: null,
-        monthDay: monthValue.value,
-      }));
-    }
-
-    return [
-      {
-        ...baseRule,
-        _id: `rule_${index}`,
-        weekDay: null,
-        monthDay: null,
-      },
-    ];
-  }) || [];
 
 const normalizeIds = (values: string[] = []) =>
   [...values].filter(Boolean).sort((a, b) => a.localeCompare(b));
 
-const normalizeRepeatRules = (rules: RepeatRuleConfig[] = []) =>
-  rules.map((rule) => ({
-    ruleType: rule.ruleType,
-    startTime: rule.startTime || null,
-    endTime: rule.endTime || null,
-    weekDay: rule.weekDay || null,
-    monthDay: rule.monthDay || null,
-    startDate: rule.startDate || null,
-    endDate: rule.endDate || null,
-  }));
-
 const getOptionsSnapshot = ({
   values,
-  repeatRules,
+  schedule,
 }: {
   values: OptionsFormValues;
-  repeatRules: RepeatRuleConfig[];
+  schedule: ScheduleState;
 }): OptionsSnapshot => ({
   departmentIds: normalizeIds(values.departmentIds),
   branchIds: normalizeIds(values.branchIds),
   boardId: values.boardId || '',
   pipelineId: values.pipelineId || '',
-  repeatRules: normalizeRepeatRules(repeatRules),
+  schedule: {
+    activeWindows: schedule.activeWindows.map(toWindowInput),
+    closedDates: [...schedule.closedDates].sort(),
+    scheduleMoment: schedule.scheduleMoment,
+  },
 });
 
 export const OptionsInfo = ({
@@ -184,8 +85,7 @@ export const OptionsInfo = ({
   const { toast } = useToast();
   const { t } = useTranslation('loyalty');
 
-  const [repeatRules, setRepeatRules] = useState<RepeatRuleConfig[]>([]);
-  const [editingRule, setEditingRule] = useState<RepeatRuleConfig | null>(null);
+  const [schedule, setSchedule] = useState<ScheduleState>(EMPTY_SCHEDULE);
   const [initialSnapshot, setInitialSnapshot] =
     useState<OptionsSnapshot | null>(null);
 
@@ -203,7 +103,7 @@ export const OptionsInfo = ({
   const watchedValues = form.watch();
   const currentSnapshot = getOptionsSnapshot({
     values: watchedValues,
-    repeatRules,
+    schedule,
   });
   const hasChanges =
     !!initialSnapshot &&
@@ -216,7 +116,7 @@ export const OptionsInfo = ({
 
     const departmentIds = pricingDetail.departmentIds || [];
     const branchIds = pricingDetail.branchIds || [];
-    const rules = getRepeatRules(pricingDetail);
+    const nextSchedule = getSchedule(pricingDetail);
 
     const values: OptionsFormValues = {
       departmentIds,
@@ -227,8 +127,8 @@ export const OptionsInfo = ({
 
     reset(values);
 
-    setRepeatRules(rules);
-    setInitialSnapshot(getOptionsSnapshot({ values, repeatRules: rules }));
+    setSchedule(nextSchedule);
+    setInitialSnapshot(getOptionsSnapshot({ values, schedule: nextSchedule }));
   }, [pricingDetail, reset]);
 
   useEffect(() => {
@@ -257,60 +157,16 @@ export const OptionsInfo = ({
     setValue('pipelineId', '', { shouldDirty: true });
   };
 
-  const handleRuleAdded = (rule: RepeatRuleConfig) => {
-    setRepeatRules((prev) => [
-      ...prev,
-      { ...rule, _id: rule._id || `${Date.now()}_${prev.length}` },
-    ]);
-  };
-
-  const handleRuleUpdated = (rule: RepeatRuleConfig) => {
-    setRepeatRules((prev) =>
-      prev.map((existingRule) =>
-        existingRule._id === rule._id
-          ? { ...existingRule, ...rule }
-          : existingRule,
-      ),
-    );
-  };
-
-  const handleRuleDelete = (rule: RepeatRuleConfig) => {
-    setRepeatRules((prev) =>
-      prev.filter((existingRule) => existingRule._id !== rule._id),
-    );
-  };
+  const updateSchedule = (change: Partial<ScheduleState>) =>
+    setSchedule((prev) => ({ ...prev, ...change }));
 
   const handleSave = async (values: OptionsFormValues) => {
     if (!pricingId) return;
-
-    const mappedRepeatRules = repeatRules.map((rule) => {
-      const dayKey = rule.weekDay?.toLowerCase() || '';
-
-      return {
-        type: rule.ruleType,
-        dayStartValue: rule.startTime ? timeToIso(rule.startTime) : undefined,
-        dayEndValue: rule.endTime ? timeToIso(rule.endTime) : undefined,
-        weekValue: rule.weekDay
-          ? [
-              {
-                label: WEEKDAY_TO_LABEL[dayKey] || rule.weekDay,
-                value: WEEKDAY_TO_NUMBER[dayKey] || rule.weekDay,
-              },
-            ]
-          : undefined,
-        monthValue: rule.monthDay
-          ? [{ label: rule.monthDay, value: rule.monthDay }]
-          : undefined,
-        yearStartValue: rule.startDate || undefined,
-        yearEndValue: rule.endDate || undefined,
-      };
-    });
 
     const departmentIds = values.departmentIds;
     const branchIds = values.branchIds;
     const boardId = values.boardId || null;
     const pipelineId = values.pipelineId || null;
-    const nextRepeatRules = mappedRepeatRules;
 
     try {
       await editPricing({
@@ -320,8 +176,10 @@ export const OptionsInfo = ({
         boardId,
         pipelineId,
         stageId: null,
-        isRepeatEnabled: nextRepeatRules.length > 0,
-        repeatRules: nextRepeatRules,
+        isRepeatEnabled: schedule.activeWindows.length > 0,
+        activeWindows: schedule.activeWindows.map(toWindowInput),
+        closedDates: schedule.closedDates,
+        scheduleMoment: schedule.scheduleMoment,
       });
 
       const savedValues: OptionsFormValues = {
@@ -332,18 +190,17 @@ export const OptionsInfo = ({
       };
 
       reset(savedValues);
-      setInitialSnapshot(
-        getOptionsSnapshot({ values: savedValues, repeatRules }),
-      );
+      setInitialSnapshot(getOptionsSnapshot({ values: savedValues, schedule }));
 
       toast({
         title: t('options-updated'),
         description: t('changes-saved'),
       });
-    } catch {
+    } catch (error) {
       toast({
         title: t('failed-to-update-options'),
-        description: t('unexpected-error'),
+        description:
+          error instanceof Error ? error.message : t('unexpected-error'),
         variant: 'destructive',
       });
     }
@@ -450,61 +307,25 @@ export const OptionsInfo = ({
 
               <div className="flex items-center my-4">
                 <div className="flex-1 border-t" />
-                <Label className="mx-2">{t('repeat')}</Label>
+                <Label className="mx-2">{t('schedule')}</Label>
                 <div className="flex-1 border-t" />
               </div>
 
-              <section className="space-y-4">
-                <div className="space-y-4">
-                  <div className="flex justify-end">
-                    <RepeatRuleSheet
-                      onRuleAdded={handleRuleAdded}
-                      onRuleUpdated={handleRuleUpdated}
-                      editingRule={editingRule}
-                      onEditComplete={() => setEditingRule(null)}
-                    />
-                  </div>
-
-                  {repeatRules.length === 0 ? (
-                    <div className="py-6 text-sm text-center text-muted-foreground">
-                      {t('no-repeat-rules')}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {repeatRules.map((rule) => (
-                        <div
-                          key={rule._id}
-                          className="flex items-center px-3 py-2 text-sm border rounded-lg"
-                        >
-                          <div className="flex-1 truncate">{rule.ruleType}</div>
-
-                          <div className="flex justify-end w-20 gap-1">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              type="button"
-                              aria-label={t('edit-repeat-rule')}
-                              onClick={() => setEditingRule(rule)}
-                            >
-                              <IconEdit size={14} />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              type="button"
-                              className="text-destructive"
-                              aria-label={t('delete-repeat-rule')}
-                              onClick={() => handleRuleDelete(rule)}
-                            >
-                              <IconTrash size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </section>
+              <ScheduleSection
+                windows={schedule.activeWindows}
+                closedDates={schedule.closedDates}
+                scheduleMoment={schedule.scheduleMoment}
+                onWindowsChange={(activeWindows) =>
+                  updateSchedule({ activeWindows })
+                }
+                onClosedDatesChange={(closedDates) =>
+                  updateSchedule({ closedDates })
+                }
+                onScheduleMomentChange={(scheduleMoment) =>
+                  updateSchedule({ scheduleMoment })
+                }
+                blockedByPriority={!!pricingDetail?.priority}
+              />
             </form>
           </Form>
         </InfoCard.Content>

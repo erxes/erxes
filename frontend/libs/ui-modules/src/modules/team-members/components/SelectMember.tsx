@@ -1,4 +1,4 @@
-import { memberOptions } from '../utils/memberOptions';
+import { memberOptions } from 'ui-modules/modules/team-members/utils/memberOptions';
 import { useSubscription } from '@apollo/client';
 import { IconPlus, IconUser } from '@tabler/icons-react';
 import {
@@ -23,11 +23,12 @@ import { useDebounce } from 'use-debounce';
 import {
   SelectMemberContext,
   useSelectMemberContext,
-} from '../contexts/SelectMemberContext';
-import { USER_STATUS_CHANGED } from '../graphql/subscriptions/userStatusChanged';
-import { IUser } from '../types/TeamMembers';
-import { MembersInline } from './MembersInline';
+} from 'ui-modules/modules/team-members/contexts/SelectMemberContext';
+import { USER_STATUS_CHANGED } from 'ui-modules/modules/team-members/graphql/subscriptions/userStatusChanged';
+import { IUser } from 'ui-modules/modules/team-members/types/TeamMembers';
+import { MembersInline } from 'ui-modules/modules/team-members/components/MembersInline';
 
+/** Owns selected member objects and dispatches single or multiple selection changes. */
 const SelectMemberProvider = ({
   children,
   mode = 'single',
@@ -50,6 +51,7 @@ const SelectMemberProvider = ({
   const [_members, setMembers] = useState<IUser[]>(members || []);
   const isSingleMode = mode === 'single';
 
+  /** Clears, replaces, or toggles a selection unless the selector is disabled. */
   const onSelect = (member: IUser | null) => {
     if (disabled) return;
     if (!member) {
@@ -61,7 +63,8 @@ const SelectMemberProvider = ({
     if (isSingleMode) {
       setMembers([member]);
       setOpen?.(false);
-      return onValueChange?.(member._id);
+      onValueChange?.(member._id);
+      return;
     }
     const arrayValue = Array.isArray(value) ? value : [];
 
@@ -99,6 +102,7 @@ const SelectMemberProvider = ({
   );
 };
 
+/** Displays selected members with the requested inactive and unassigned behavior. */
 const SelectMemberValue = ({
   placeholder,
   size,
@@ -124,6 +128,7 @@ const SelectMemberValue = ({
   );
 };
 
+/** Allows removing a selected inactive user while preventing new inactive assignments. */
 const SelectMemberCommandItem = ({
   user,
   inactive = user.isActive === false,
@@ -156,6 +161,7 @@ const SelectMemberCommandItem = ({
   );
 };
 
+/** Clears the assignment through the shared selection handler. */
 const SelectMemberNoAssigneeItem = () => {
   const { onSelect, memberIds, disabled } = useSelectMemberContext();
   const isNoAssigneeSelected =
@@ -177,6 +183,7 @@ const SelectMemberNoAssigneeItem = () => {
   );
 };
 
+/** Loads searchable members and keeps selected inactive users available for removal. */
 const SelectMemberContent = () => {
   const currentUser = useAtomValue(currentUserState);
   const [search, setSearch] = useState('');
@@ -256,6 +263,7 @@ const SelectMemberContent = () => {
   );
 };
 
+/** Adds the member assignment option to the filter menu. */
 export const SelectMemberFilterItem = ({
   value,
   label,
@@ -271,6 +279,7 @@ export const SelectMemberFilterItem = ({
   );
 };
 
+/** Applies member selections to the configured URL filter key. */
 export const SelectMemberFilterView = ({
   onValueChange,
   queryKey,
@@ -302,6 +311,29 @@ export const SelectMemberFilterView = ({
   );
 };
 
+/** Displays the member filter trigger and searchable picker within its provider. */
+const SelectMemberFilterPopover = ({
+  open,
+  onOpenChange,
+  queryKey,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  queryKey?: string;
+}) => (
+  <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover.Trigger asChild>
+      <Filter.BarButton filterKey={queryKey || 'assignedTo'}>
+        <SelectMemberValue />
+      </Filter.BarButton>
+    </Popover.Trigger>
+    <Combobox.Content>
+      <SelectMemberContent />
+    </Combobox.Content>
+  </Popover>
+);
+
+/** Displays and edits the active member filter in a popover. */
 export const SelectMemberFilterBar = ({
   iconOnly,
   onValueChange,
@@ -343,16 +375,11 @@ export const SelectMemberFilterBar = ({
           setOpen(false);
         }}
       >
-        <Popover open={open} onOpenChange={setOpen}>
-          <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={queryKey || 'assignedTo'}>
-              <SelectMemberValue />
-            </Filter.BarButton>
-          </Popover.Trigger>
-          <Combobox.Content>
-            <SelectMemberContent />
-          </Combobox.Content>
-        </Popover>
+        <SelectMemberFilterPopover
+          open={open}
+          onOpenChange={setOpen}
+          queryKey={queryKey}
+        />
       </SelectMemberProvider>
     </Filter.BarItem>
   );
@@ -365,6 +392,7 @@ export const SelectMemberInlineCell = React.forwardRef<
       scope?: string;
       placeholder?: string;
       size?: AvatarProps['size'];
+      showInactive?: boolean;
     }
 >(
   (
@@ -373,6 +401,9 @@ export const SelectMemberInlineCell = React.forwardRef<
       value,
       onValueChange,
       members,
+      allowUnassigned,
+      disabled = false,
+      showInactive,
       size = 'lg',
       scope,
       placeholder,
@@ -388,15 +419,22 @@ export const SelectMemberInlineCell = React.forwardRef<
         value={value}
         onValueChange={onValueChange}
         members={members}
+        allowUnassigned={allowUnassigned}
+        disabled={disabled}
         setOpen={setOpen}
       >
         <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
           <RecordTableInlineCell.Trigger
             ref={ref}
+            disabled={disabled}
             {...props}
             className={cn(className, 'text-xs')}
           >
-            <SelectMemberValue placeholder={placeholder ?? ''} size={size} />
+            <SelectMemberValue
+              placeholder={placeholder ?? ''}
+              size={size}
+              showInactive={showInactive}
+            />
           </RecordTableInlineCell.Trigger>
           <RecordTableInlineCell.Content>
             <SelectMemberContent />
@@ -409,6 +447,7 @@ export const SelectMemberInlineCell = React.forwardRef<
 
 SelectMemberInlineCell.displayName = 'SelectMemberInlineCell';
 
+/** Connects a member picker to the shared form control. */
 export const SelectMemberFormItem = ({
   onValueChange,
   className,
@@ -444,6 +483,7 @@ export const SelectMemberFormItem = ({
   );
 };
 
+/** Renders an editable owner value in a record detail view. */
 export const SelectMemberDetail = ({
   onValueChange,
   className,
@@ -489,18 +529,22 @@ export const SelectMemberDetail = ({
   );
 };
 
+/** Renders the scoped member combobox with configurable selection mode. */
 export const SelectMemberRoot = ({
   onValueChange,
   className,
   size,
   placeholder,
   scope,
+  showInactive,
+  disabled = false,
   ...props
 }: Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> & {
   className?: string;
   size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
   placeholder?: string;
   scope?: string;
+  showInactive?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -510,13 +554,19 @@ export const SelectMemberRoot = ({
         if (props.mode !== 'multiple') setOpen(false);
       }}
       {...props}
+      disabled={disabled}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <Combobox.Trigger
+          disabled={disabled}
           className={cn('w-full inline-flex', className)}
           variant="outline"
         >
-          <SelectMemberValue size={size} placeholder={placeholder} />
+          <SelectMemberValue
+            size={size}
+            placeholder={placeholder}
+            showInactive={showInactive}
+          />
         </Combobox.Trigger>
         <Combobox.Content>
           <SelectMemberContent />
@@ -526,6 +576,7 @@ export const SelectMemberRoot = ({
   );
 };
 
+/** Renders a compact member picker for a custom detail layout. */
 export const SelectMemberCustomDetail = ({
   onValueChange,
   className,

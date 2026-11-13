@@ -17,9 +17,15 @@ import { CSS } from '@dnd-kit/utilities';
 import { Button, Popover, ScrollArea, cn } from 'erxes-ui';
 import { IconApps, IconGridDots, IconGripVertical } from '@tabler/icons-react';
 
+import {
+  CoreTabTooltip,
+  useCoreTabSide,
+} from '@/navigation/components/core-tab/CoreTabTooltip';
+import { CoreTabFavoritesSection } from '@/navigation/components/core-tab/CoreTabFavorites';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { navigationActivityOrderState } from '@/navigation/states/navigationActivityOrderState';
 import { moveAppTab } from '@/navigation/utils/appTabs';
+import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
 import { sortNavigationActivitiesByOrder } from '@/navigation/utils/navigationActivityOrder';
 import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
 import { useAtom } from 'jotai';
@@ -64,7 +70,6 @@ const CoreTabAppSwitcherItem = ({
     >
       <Icon className="size-4 shrink-0" />
       <span className="flex-1 truncate text-left">{activity.label}</span>
-      {/* Hover hint that the item can be dragged to reorder. */}
       <IconGripVertical
         aria-hidden
         className={cn(
@@ -76,7 +81,6 @@ const CoreTabAppSwitcherItem = ({
   );
 };
 
-/** One section of the switcher; its items can be dragged to reorder them. */
 const CoreTabAppSwitcherGroup = ({
   activeActivityId,
   activities,
@@ -144,10 +148,6 @@ const CoreTabAppSwitcherGroup = ({
   );
 };
 
-/**
- * Lists every plugin and core module; the tab row only fits so many. Items
- * are dragged within their group to set the user's order.
- */
 export const CoreTabAppSwitcher = ({
   activeActivityId,
   activities,
@@ -158,6 +158,7 @@ export const CoreTabAppSwitcher = ({
   onSelect: (activity: INavigationActivity) => void;
 }>) => {
   const [open, setOpen] = useState(false);
+  const side = useCoreTabSide();
   const [order, setOrder] = useAtom(navigationActivityOrderState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { promoted, rest } = splitPromotedNavigationActivities(
@@ -172,7 +173,6 @@ export const CoreTabAppSwitcher = ({
     order,
   );
 
-  // Stores both groups' full order, so ids not yet ordered get a fixed place.
   const moveActivity = (fromId: string, toId: string) =>
     setOrder(
       moveAppTab(
@@ -189,25 +189,30 @@ export const CoreTabAppSwitcher = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <Button
-          aria-label={t('open-plugin')}
-          className="size-7 shrink-0"
-          size="icon"
-          title={t('open-plugin')}
-          type="button"
-          variant="ghost"
-        >
-          <IconGridDots className="size-4" />
-        </Button>
-      </Popover.Trigger>
+      <CoreTabTooltip label={t('open-plugin')}>
+        <Popover.Trigger asChild>
+          <Button
+            aria-label={t('open-plugin')}
+            className={coreTabIconClassName(open)}
+            size="icon"
+            type="button"
+            variant="ghost"
+          >
+            <IconGridDots className="size-4" />
+          </Button>
+        </Popover.Trigger>
+      </CoreTabTooltip>
       <Popover.Content
         align="start"
         className="flex max-h-[var(--radix-popover-content-available-height)] w-80 flex-col overflow-hidden rounded-xl border-border/60 p-1.5 shadow-lg"
-        side="bottom"
+        side={side}
         sideOffset={8}
       >
-        <ScrollArea className="min-h-0 flex-auto">
+        <ScrollArea
+          className="min-h-0 flex-auto"
+          viewportClassName="[&>div]:block! [&>div]:min-w-0"
+        >
+          <CoreTabFavoritesSection onNavigate={() => setOpen(false)} />
           <CoreTabAppSwitcherGroup
             activeActivityId={activeActivityId}
             activities={pluginActivities}

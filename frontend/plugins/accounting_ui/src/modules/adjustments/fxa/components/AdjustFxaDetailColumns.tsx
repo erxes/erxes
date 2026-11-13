@@ -1,3 +1,4 @@
+import { BranchesInline, DepartmentsInline } from 'ui-modules';
 import type { TFunction } from 'i18next';
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -9,7 +10,7 @@ import {
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { AccountsInline } from '@/settings/account/components/AccountsInline';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
-import { IAdjustFxaDetail } from '../types/AdjustFixedAsset';
+import { IAdjustFxaDetail } from '@/adjustments/fxa/types/AdjustFixedAsset';
 
 const formatNumber = (value?: number) =>
   typeof value === 'number'
@@ -76,45 +77,107 @@ export const adjustFxaDetailColumns = (
     size: 240,
   },
   {
-    id: 'originalCost',
+    id: 'branchId',
+    accessorKey: 'branchId',
     header: () => (
-      <RecordTable.InlineHead icon={IconCashBanknote} label={t('cost')} />
+      <RecordTable.InlineHead icon={IconBuildingBank} label={t('branch')} />
     ),
-    accessorKey: 'originalCost',
-    cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        <BranchesInline
+          branchIds={row.original.branchId ? [row.original.branchId] : []}
+          placeholder="-"
+        />
+      </RecordTableInlineCell>
+    ),
   },
   {
-    id: 'openingBookValue',
+    id: 'departmentId',
+    accessorKey: 'departmentId',
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuildingBank} label={t('department')} />
+    ),
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        <DepartmentsInline
+          departmentIds={
+            row.original.departmentId ? [row.original.departmentId] : []
+          }
+          placeholder="-"
+        />
+      </RecordTableInlineCell>
+    ),
+  },
+  ...(
+    [
+      ['count', 'quantity'],
+      ['originalCost', 'cost'],
+      ['accumulatedDepreciation', 'accumulated-depreciation'],
+      ['taxDepreciationAmount', 'tax-depreciation'],
+      ['taxAccumulatedDepreciation', 'tax-accumulated-depreciation'],
+      ['temporaryDifference', 'depreciation-temporary-difference'],
+      ['deferredTaxAsset', 'deferred-tax-assets'],
+      ['deferredTaxLiability', 'deferred-tax-liabilities'],
+      ['revaluationLoss', 'fxa-revaluation-loss-balance'],
+      ['revaluationReserve', 'fxa-revaluation-reserve-balance'],
+    ] as const
+  ).map(
+    ([field, label]): ColumnDef<IAdjustFxaDetail> => ({
+      id: field,
+      accessorKey: field,
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconCashBanknote}
+          label={t(label)}
+        />
+      ),
+      cell: ({ row }) => <NumberCell value={row.original[field]} />,
+    }),
+  ),
+  {
+    id: 'previousBookValue',
     header: () => (
       <RecordTable.InlineHead
         icon={IconCashBanknote}
         label={t('opening-balance')}
       />
     ),
-    accessorKey: 'openingBookValue',
-    cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
+    cell: ({ row }) => (
+      <NumberCell
+        value={
+          (row.original.previous?.originalCost || 0) -
+          (row.original.previous?.accumulatedDepreciation || 0)
+        }
+      />
+    ),
   },
   {
-    id: 'bookDepreciationAmount',
+    id: 'depreciationAmount',
     header: () => (
       <RecordTable.InlineHead
         icon={IconCashBanknote}
         label={t('depreciation')}
       />
     ),
-    accessorKey: 'bookDepreciationAmount',
+    accessorKey: 'depreciationAmount',
     cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
   },
   {
-    id: 'closingBookValue',
+    id: 'bookValue',
     header: () => (
       <RecordTable.InlineHead
         icon={IconCashBanknote}
         label={t('closing-balance')}
       />
     ),
-    accessorKey: 'closingBookValue',
-    cell: ({ getValue }) => <NumberCell value={getValue<number>()} />,
+    cell: ({ row }) => (
+      <NumberCell
+        value={
+          (row.original.originalCost || 0) -
+          (row.original.accumulatedDepreciation || 0)
+        }
+      />
+    ),
   },
   {
     id: 'error',

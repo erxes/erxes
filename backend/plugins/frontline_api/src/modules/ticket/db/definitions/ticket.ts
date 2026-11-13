@@ -1,3 +1,4 @@
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
@@ -11,6 +12,21 @@ const ticketSourceSurveySchema = new Schema(
     optionText: { type: String, label: 'Survey option text' },
     voteCount: { type: Number, label: 'Vote count at creation' },
     threshold: { type: Number, label: 'Configured threshold' },
+  },
+  { _id: false },
+);
+
+const ticketSlaSchema = new Schema(
+  {
+    priority: { type: Number },
+    firstResponseDueAt: { type: Date },
+    resolutionDueAt: { type: Date },
+    firstRespondedAt: { type: Date },
+    resolvedAt: { type: Date },
+    firstResponseWarnedAt: { type: Date },
+    firstResponseBreachedAt: { type: Date },
+    resolutionWarnedAt: { type: Date },
+    resolutionBreachedAt: { type: Date },
   },
   { _id: false },
 );
@@ -68,7 +84,19 @@ export const ticketSchema = schemaWrapper(
         optional: true,
         label: 'Properties data',
       },
-      companyIds: { type: [String], label: 'Companies' },
+      // The ticket's one customer and one company, kept on the ticket.
+      customerId: {
+        type: String,
+        label: 'Customer',
+        default: null,
+        index: true,
+      },
+      companyId: {
+        type: String,
+        label: 'Company',
+        default: null,
+        index: true,
+      },
       customerFieldData: {
         type: Schema.Types.Mixed,
         optional: true,
@@ -78,6 +106,7 @@ export const ticketSchema = schemaWrapper(
         type: ticketSourceSurveySchema,
         label: 'Survey that triggered this ticket',
       },
+      sla: { type: ticketSlaSchema, label: 'SLA', default: undefined },
     },
     {
       timestamps: true,
@@ -87,3 +116,6 @@ export const ticketSchema = schemaWrapper(
 
 ticketSchema.index({ assigneeId: 1 }, { sparse: true });
 ticketSchema.index({ assignedMembers: 1 }, { sparse: true });
+
+// Data Extension values are written only through the owner contract.
+applyDataExtensionsNamespace(ticketSchema);

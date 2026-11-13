@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 
 export const projectSchema = new Schema(
   {
@@ -13,6 +14,9 @@ export const projectSchema = new Schema(
       required: true,
     },
     tagIds: { type: [String], label: 'Tag IDs' },
+    // The project's one customer and one company, kept on the project.
+    customerId: { type: String, label: 'Customer', default: null, index: true },
+    companyId: { type: String, label: 'Company', default: null, index: true },
     startDate: { type: Date, label: 'Start Date', default: null },
     targetDate: { type: Date, label: 'Target Date', default: null },
     leadId: { type: String, label: 'Lead ID', default: null },
@@ -29,3 +33,8 @@ export const projectSchema = new Schema(
     timestamps: true,
   },
 );
+
+projectSchema.index({ customerId: 1 });
+projectSchema.index({ companyId: 1 });
+
+applyDataExtensionsNamespace(projectSchema);

@@ -13,7 +13,9 @@ export const ArchiveIntegration = ({
   name: string;
   isActive: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { confirm } = useConfirm();
   const [archiveIntegration, { loading }] = useMutation(ARCHIVE_INTEGRATION, {
     refetchQueries: [

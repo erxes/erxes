@@ -4,7 +4,9 @@ import { isDefined, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const useCallUserIntegration = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { data, loading } = useQuery(CALL_USER_INTEGRATIONS, {
     onError: (e) => {
       toast({

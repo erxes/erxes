@@ -7,22 +7,15 @@ export const TICKET_SEGMENT_RELATIONS: SegmentRelationMeta[] = [
     label: 'Tickets',
     subjectType: 'core:contacts.customers',
     relatedType: TICKET_TYPE,
-    join: {
-      via: 'relation',
-      subjectRecordType: 'core:customer',
-      relatedRecordType: 'frontline:ticket',
-    },
+    // Tickets keep their customer and company themselves.
+    join: { via: 'field', on: 'related', path: 'customerId' },
   },
   {
     key: 'company.tickets',
     label: 'Tickets',
     subjectType: 'core:contacts.companies',
     relatedType: TICKET_TYPE,
-    join: {
-      via: 'relation',
-      subjectRecordType: 'core:company',
-      relatedRecordType: 'frontline:ticket',
-    },
+    join: { via: 'field', on: 'related', path: 'companyId' },
   },
   {
     key: 'user.assignedTickets',

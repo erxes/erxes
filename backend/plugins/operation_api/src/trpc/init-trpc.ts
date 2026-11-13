@@ -1,3 +1,7 @@
+import {
+  applyContactFieldsSync,
+  TContactFieldsSync,
+} from 'erxes-api-shared/core-modules';
 import { initTRPC } from '@trpc/server';
 
 import { ITRPCContext } from 'erxes-api-shared/utils';
@@ -8,6 +12,7 @@ import {
   generateTaskFields,
 } from '~/modules/fields/fieldUtils';
 import { taskTrpcRouter } from '~/modules/task/trpc/task';
+import { dataExtensionsTrpcRouter } from '~/trpc/dataExtensions';
 
 export type OperationTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -22,6 +27,7 @@ export const appRouter = t.mergeRouters(
     },
   }),
   taskTrpcRouter,
+  dataExtensionsTrpcRouter,
   t.router({
     fields: t.router({
       getFieldList: t.procedure
@@ -51,6 +57,22 @@ export const appRouter = t.mergeRouters(
           }
 
           return [];
+        }),
+    }),
+  }),
+  t.router({
+    contactFields: t.router({
+      // Core broadcasts contact merges and removals; operation saves its
+      // records' contacts itself otherwise.
+      sync: t.procedure
+        .input(z.custom<TContactFieldsSync>())
+        .mutation(async ({ ctx, input }) => {
+          const { models } = ctx;
+
+          await applyContactFieldsSync(
+            [models.Task, models.Project, models.Triage],
+            input,
+          );
         }),
     }),
   }),

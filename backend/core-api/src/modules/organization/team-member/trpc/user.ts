@@ -1,19 +1,13 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
-import { agentMeta } from '~/utils/agentMeta';
+import { resolveTeamAvailability } from '../availability';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const userTrpcRouter = t.router({
   users: t.router({
     find: t.procedure
-      .meta(
-        agentMeta(
-          'List team members (staff users): { query, fields? }, e.g. { query: { email: "a@b.com" } } or { query: { isActive: true } }. Use fields to limit columns, e.g. { _id: 1, email: 1, "detail.fullName": 1 }. Use to resolve a person\'s name/email to their user _id (needed for ownerId, assignee, etc.).',
-          { module: 'teamMembers', action: 'teamMembersRead' },
-        ),
-      )
       .input(
         z.object({
           query: z.record(z.any()),
@@ -26,13 +20,13 @@ export const userTrpcRouter = t.router({
 
         return models.Users.find(query, fields);
       }),
+    // Whether each member takes new work now, as automations pick people.
+    availability: t.procedure
+      .input(z.object({ userIds: z.array(z.string()) }))
+      .query(async ({ ctx, input }) =>
+        resolveTeamAvailability(ctx.models, input.userIds),
+      ),
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single team member by { _id }, { email }, { username }, or any MongoDB-style query. Returns {} when nothing matches.',
-          { module: 'teamMembers', action: 'teamMembersRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
       const query = input?.query || input?.selector || input;
@@ -80,12 +74,6 @@ export const userTrpcRouter = t.router({
       }),
 
     getCount: t.procedure
-      .meta(
-        agentMeta(
-          'Count team members matching a filter: { query? }, e.g. { query: { isActive: true } }.',
-          { module: 'teamMembers', action: 'teamMembersRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
       const { query } = input;

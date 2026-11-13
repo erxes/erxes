@@ -1,3 +1,5 @@
+import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
+import { useSidePanel } from 'ui-modules';
 import {
   IconBook,
   IconInbox,
@@ -13,7 +15,6 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  useQueryState,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { ReactNode, useMemo, useState } from 'react';
@@ -37,8 +38,7 @@ const cellScope = (helpCenter: IHelpCenter, field: string) =>
 
 type THelpCenterTextField = {
   [K in keyof THelpCenterPatch]-?: THelpCenterPatch[K] extends
-    | string
-    | undefined
+    string | undefined
     ? K
     : never;
 }[keyof THelpCenterPatch];
@@ -179,12 +179,16 @@ const TitleCell = ({
   cell: Cell<IHelpCenter, unknown>;
   t: TFunction;
 }) => {
-  const [, setEditId] = useQueryState<string>('editId');
+  const { openRecord } = useSidePanel();
   const { _id, title } = cell.row.original;
 
   return (
     <InlineTextCell cell={cell} field="title" placeholder={t('unnamed-topic')}>
-      <RecordTableInlineCell.Anchor onClick={() => setEditId(_id)}>
+      <RecordTableInlineCell.Anchor
+        onClick={() =>
+          openRecord({ contentType: HELP_CENTER_CONTENT_TYPE, contentId: _id })
+        }
+      >
         {title || t('unnamed-topic')}
       </RecordTableInlineCell.Anchor>
     </InlineTextCell>
@@ -266,7 +270,9 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
 ];
 
 export const useHelpCenterColumns = (): ColumnDef<IHelpCenter>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
 
   return useMemo(() => createHelpCenterColumns(t), [t]);
 };

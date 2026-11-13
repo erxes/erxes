@@ -41,6 +41,7 @@ interface ResponseTemplate {
 interface ResponseTemplateSelectorProps {
   onSelect: (content: string, templateId?: string) => void;
   disabled?: boolean;
+  defaultChannelId?: string;
   children: ReactNode;
 }
 
@@ -63,7 +64,7 @@ const TemplateListSkeleton = (): JSX.Element => (
 );
 
 const TemplateListEmpty = ({ search }: { search: string }): JSX.Element => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
@@ -74,13 +75,15 @@ const TemplateListEmpty = ({ search }: { search: string }): JSX.Element => {
 
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
-> = ({ onSelect, disabled, children }) => {
-  const { t } = useTranslation('frontline');
+> = ({ onSelect, disabled, defaultChannelId, children }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [viewMode, setViewMode] = useAtom(responseListViewAtom);
-  const [selectedChannel, setSelectedChannel] = useState<string>('');
+  const [selectedChannel, setSelectedChannel] = useState<string>(
+    defaultChannelId ?? '',
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef(false);
@@ -100,6 +103,10 @@ export const ResponseTemplateSelector: React.FC<
       },
     },
   });
+
+  useEffect(() => {
+    setSelectedChannel(defaultChannelId ?? '');
+  }, [defaultChannelId]);
 
   useEffect(() => {
     refetch({

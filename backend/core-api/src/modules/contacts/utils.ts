@@ -1,11 +1,13 @@
 import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import {
   buildSearchTokenFilter,
+  escapeRegExp,
+  ExpectedError,
   ISearchTokenConfig,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { CONTACT_STATUSES } from './constants';
+import { CONTACT_ROLES, CONTACT_STATUSES } from './constants';
 
 export const generateFilter = async (
   subdomain: string,
@@ -47,10 +49,11 @@ export const generateFilter = async (
     if (searchConfig?.enabled) {
       Object.assign(filter, buildSearchTokenFilter(searchValue, searchConfig));
     } else {
-      const regex = { $regex: searchValue, $options: 'i' };
+      const regex = { $regex: escapeRegExp(searchValue), $options: 'i' };
 
       filter['$or'] = [
         { searchText: regex },
+        { primaryName: regex },
         { primaryEmail: regex },
         { emails: regex },
         { primaryPhone: regex },
@@ -282,4 +285,21 @@ export const customersCount = async ({
   }
 
   return counts;
+};
+
+/** Validates a role list and returns the update that stores it. */
+export const buildContactRolesUpdate = (roles: string[]) => {
+  const contactRoles = Array.from(new Set(roles));
+  const unknown = contactRoles.filter((role) => !CONTACT_ROLES.includes(role));
+
+  if (unknown.length) {
+    throw new ExpectedError(
+      `Unknown contact roles: ${unknown.join(', ')}`,
+      'BAD_USER_INPUT',
+    );
+  }
+
+  return contactRoles.length
+    ? { $set: { contactRoles } }
+    : { $unset: { contactRoles: '' as const } };
 };

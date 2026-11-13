@@ -15,7 +15,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { ticketViewAtom } from '@/ticket/states/ticketViewState';
 import { lazy, Suspense, useState } from 'react';
-import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
+import { TicketDetailLink } from '@/ticket/components/ticket-detail/TicketDetailLink';
 import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { TicketStatusesFallback } from '@/ticket/components/TicketPipelineFallback';
 
@@ -32,7 +32,7 @@ const TicketsBoard = lazy(() =>
 );
 
 export const TicketsViewControl = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [view, setView] = useAtom(ticketViewAtom);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -106,7 +106,7 @@ export const TicketsView = () => {
   return (
     <Suspense>
       {view === 'list' ? <TicketsRecordTable /> : <TicketsBoard />}
-      <TicketDetailSheet />
+      <TicketDetailLink />
     </Suspense>
   );
 };

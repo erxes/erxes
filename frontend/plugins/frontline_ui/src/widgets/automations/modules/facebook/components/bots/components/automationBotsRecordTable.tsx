@@ -1,43 +1,45 @@
-import { IconArchive } from '@tabler/icons-react';
-import { Label, RecordTable } from 'erxes-ui';
+import { AutomationBotsEmptyState } from '~/widgets/automations/components/AutomationBotsEmptyState';
+import { AutomationBotsPage } from '~/widgets/automations/components/AutomationBotsPage';
+import { type AutomationRemoteEntryTypes } from 'ui-modules';
+import { RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AutomationBotSheetForm } from '~/widgets/automations/modules/facebook/components/bots/components/AutomationBotSheetForm';
 import { automationFacebookBotsColumns } from '~/widgets/automations/modules/facebook/components/bots/components/automationFacebookBotsColumns';
 import { useAutomationBotsRecordTable } from '~/widgets/automations/modules/facebook/components/bots/hooks/useAutomationBotsRecordTable';
 
-export const AutomationBotsRecordTable = () => {
-  const { t } = useTranslation('frontline');
+export const AutomationBotsRecordTable = ({
+  renderHeader,
+  listHeader,
+}: Readonly<AutomationRemoteEntryTypes['automationBotsContent']>) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { facebookMessengerBots, loading } = useAutomationBotsRecordTable();
 
   return (
-    <>
-      <AutomationBotSheetForm />
-      <RecordTable.Provider
-        columns={automationFacebookBotsColumns}
-        data={facebookMessengerBots || []}
-        className="h-full"
-        tableId="frontline_facebook_automation_bots_record_table"
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header showColumnSelector />
-            <RecordTable.Body>
-              {loading && <RecordTable.RowSkeleton rows={10} />}
-              <RecordTable.RowList />
-              {!loading && facebookMessengerBots.length === 0 && (
-                <tr className="h-[80vh]">
-                  <td colSpan={5} className="py-10 text-center">
-                    <div className="flex flex-col items-center justify-center text-muted-foreground">
-                      <IconArchive className="w-8 h-8 mb-2" />
-                      <Label>{t('no-results', 'No results')}</Label>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
-    </>
+    <AutomationBotsPage
+      actions={<AutomationBotSheetForm />}
+      renderHeader={renderHeader}
+      listHeader={listHeader}
+    >
+      {!loading && facebookMessengerBots.length === 0 ? (
+        <AutomationBotsEmptyState platform="facebook" />
+      ) : (
+        <RecordTable.Provider
+          columns={automationFacebookBotsColumns(t)}
+          data={facebookMessengerBots || []}
+          className="min-h-0 flex-1"
+          tableId="frontline_facebook_automation_bots_record_table"
+        >
+          <RecordTable.Scroll>
+            <RecordTable>
+              <RecordTable.Header showColumnSelector />
+              <RecordTable.Body>
+                {loading && <RecordTable.RowSkeleton rows={10} />}
+                <RecordTable.RowList />
+              </RecordTable.Body>
+            </RecordTable>
+          </RecordTable.Scroll>
+        </RecordTable.Provider>
+      )}
+    </AutomationBotsPage>
   );
 };

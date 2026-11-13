@@ -1,3 +1,4 @@
+import { sendContactFieldsSync } from '@/relations/utils/contactFieldsSync';
 import {
   customerSchema,
   customerSearchTokenConfig,
@@ -23,7 +24,10 @@ import {
   IUpdateMessengerCustomerParams,
   IVisitorContactInfoParams,
 } from '../../@types/customer';
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  carryDataExtensionValues,
+  EventDispatcherReturn,
+} from 'erxes-api-shared/core-modules';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
 import { screenNewAddresses } from '~/utils/email/screenNewAddresses';
 
@@ -158,6 +162,14 @@ export const loadCustomerClass = (
       type: 'customer',
       newTypeId: newCustomerId,
       oldTypeIds: oldCustomerIds,
+    });
+
+    // Records keeping their customers as fields move to the merged one too.
+    await sendContactFieldsSync(subdomain, {
+      action: 'merge',
+      kind: 'customer',
+      oldIds: oldCustomerIds,
+      newId: newCustomerId,
     });
   };
 
@@ -377,6 +389,13 @@ export const loadCustomerClass = (
         docIds: customerIds,
         prevDocuments,
       });
+
+      await sendContactFieldsSync(subdomain, {
+        action: 'remove',
+        kind: 'customer',
+        ids: customerIds,
+      });
+
       return response;
     }
 
@@ -399,6 +418,7 @@ export const loadCustomerClass = (
 
       let emails: string[] = [];
       let phones: string[] = [];
+      let contactRoles: string[] = [];
 
       if (customerFields.primaryEmail) {
         emails.push(customerFields.primaryEmail);
@@ -436,6 +456,8 @@ export const loadCustomerClass = (
         // Merging customer`s state for new customer
         state = customer.state;
 
+        contactRoles = contactRoles.concat(customer.contactRoles || []);
+
         await models.Customers.findByIdAndUpdate(customer._id, {
           $set: { status: 'deleted' },
         });
@@ -448,6 +470,7 @@ export const loadCustomerClass = (
       // Removing Duplicated Emails from customer
       emails = Array.from(new Set(emails));
       phones = Array.from(new Set(phones));
+      contactRoles = Array.from(new Set(contactRoles));
 
       // Creating customer with properties
       const customer = await this.createCustomer(
@@ -460,9 +483,13 @@ export const loadCustomerClass = (
           emails,
           phones,
           state,
+          ...(contactRoles.length ? { contactRoles } : {}),
         },
         user,
       );
+
+      // Merge order follows the stored order, as propertiesData does above.
+      await carryDataExtensionValues(models.Customers, customer._id, customers);
 
       await updateCustomerMergeReferences(customerIds, customer._id);
 

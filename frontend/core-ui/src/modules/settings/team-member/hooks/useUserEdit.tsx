@@ -5,6 +5,7 @@ import {
 } from '@apollo/client';
 import { mutations } from '@/settings/team-member/graphql';
 import { useToast } from 'erxes-ui';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const useUsersDetailEdit = () => {
@@ -65,8 +66,12 @@ export const useUserEdit = () => {
     },
   });
 
-  const usersEdit = ({ variables, ...options }: MutationHookOptions) => {
-    _usersEdit({
+  const usersEdit = ({
+    variables,
+    onSettled,
+    ...options
+  }: MutationHookOptions & { onSettled?: () => void }) => {
+    void _usersEdit({
       ...options,
       variables,
       update: (cache, { data: { usersEdit } }) => {
@@ -83,10 +88,43 @@ export const useUserEdit = () => {
         });
       },
       refetchQueries: ['UserDetail'],
-    });
+    }).finally(() => onSettled?.());
   };
 
   return { usersEdit, loading };
+};
+
+export const useUserObjectEdit = <T extends object>(
+  _id: string,
+  field: 'details' | 'links',
+  saved?: T,
+) => {
+  const { usersEdit } = useUserEdit();
+  const pendingChanges = useRef<Record<string, unknown>>({});
+  const pendingCount = useRef(0);
+
+  return (changed: Record<string, unknown>) => {
+    pendingChanges.current = { ...pendingChanges.current, ...changed };
+
+    const next: Record<string, unknown> = {
+      ...saved,
+      ...pendingChanges.current,
+    };
+    delete next.__typename;
+
+    pendingCount.current += 1;
+
+    usersEdit({
+      variables: { _id, [field]: next },
+      onSettled: () => {
+        pendingCount.current -= 1;
+
+        if (!pendingCount.current) {
+          pendingChanges.current = {};
+        }
+      },
+    });
+  };
 };
 
 export const useUserCustomFieldEdit = () => {
@@ -117,7 +155,7 @@ export const useUsersStatusEdit = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['Users'],
+      refetchQueries: ['Users', 'UserDetail'],
     });
   };
   return { editStatus: mutate, loading };

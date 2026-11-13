@@ -1,14 +1,24 @@
+import { createIntegrationFormDraft } from '@/integrations/hooks/useIntegrationDraft';
+import { Button, Form, Spinner } from 'erxes-ui';
+import { useSidePanel } from 'ui-modules';
+
+import { useIntegrationChannelId } from '@/integrations/components/IntegrationPanelForm';
+import {
+  IntegrationNameField,
+  IntegrationBrandField,
+} from '@/integrations/components/IntegrationFormFields';
 import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
 import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
-import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
+import { useSocialIntegrationCreate } from '@/integrations/hooks/useSocialIntegrationCreate';
+import { useEffect } from 'react';
 import { IntegrationType } from '@/types/Integration';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input } from 'erxes-ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router';
+
 import { useTranslation } from 'react-i18next';
-import { SelectBrands } from 'ui-modules';
+
 import type { z } from 'zod';
 import {
   activeFacebookFormStepAtom,
@@ -21,9 +31,15 @@ import {
   FacebookIntegrationFormSteps,
 } from '@/integrations/facebook/components/FacebookIntegrationForm';
 
+const useFormDraft =
+  createIntegrationFormDraft<z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>>();
+
 export const FacebookIntegrationSetup = () => {
-  const { t } = useTranslation('frontline');
-  const { id: channelId } = useParams();
+  const { close } = useSidePanel();
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  const channelId = useIntegrationChannelId();
   const { isPost } = useFbIntegrationContext();
   const form = useForm<z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>>({
     resolver: zodResolver(FACEBOOK_INTEGRATION_SCHEMA),
@@ -32,33 +48,72 @@ export const FacebookIntegrationSetup = () => {
       brandId: '',
     },
   });
+  const { clearDraft, isActive } = useFormDraft(form);
 
   const accountId = useAtomValue(selectedFacebookAccountAtom);
   const pageId = useAtomValue(selectedFacebookPageAtom);
 
-  const { addIntegration, loading } = useIntegrationAdd();
+  const { createIntegration, createdId, loading } =
+    useSocialIntegrationCreate();
 
   const resetFacebookForm = useSetAtom(resetFacebookAddStateAtom);
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
 
-  const onNext = (data: z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>) => {
-    addIntegration({
+  useEffect(() => {
+    if (!createdId || !isActive()) return;
+    clearDraft();
+    resetFacebookForm();
+    close();
+  }, [createdId, isActive, clearDraft, resetFacebookForm, close]);
+
+  const onNext = (data: z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>) =>
+    createIntegration({
       variables: {
         kind: isPost
           ? IntegrationType.FACEBOOK_POST
           : IntegrationType.FACEBOOK_MESSENGER,
         name: data.name,
         accountId,
-        channelId: channelId as string,
+        channelId: channelId || '',
         brandId: data.brandId,
         data: {
           pageIds: [pageId],
         },
       },
-      refetchQueries: ['Integrations'],
+      refetchQueries: ['Integrations', 'FacebookGetIntegrations'],
+      awaitRefetchQueries: true,
     });
-    resetFacebookForm();
-  };
+
+  const setupFields = (
+    <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
+      <IntegrationNameField
+        label={t('integration-name')}
+        description={t('integration-name-description')}
+      />
+
+      <IntegrationBrandField
+        outerRow
+        variant="form-item"
+        description={t('choose-brand-description')}
+      />
+    </div>
+  );
+  const actions = (
+    <>
+      <Button
+        variant="secondary"
+        className="bg-border"
+        disabled={loading || Boolean(createdId)}
+        onClick={() => setActiveStep(2)}
+      >
+        {t('previous-step')}
+      </Button>
+      <Button type="submit" disabled={loading || Boolean(createdId)}>
+        {loading && <Spinner size="sm" />}
+        {t('save')}
+      </Button>
+    </>
+  );
 
   return (
     <Form {...form}>
@@ -66,62 +121,12 @@ export const FacebookIntegrationSetup = () => {
         className="flex flex-col flex-1"
         onSubmit={form.handleSubmit(onNext)}
       >
-        <FacebookIntegrationFormLayout
-          actions={
-            <>
-              <Button
-                variant="secondary"
-                className="bg-border"
-                onClick={() => setActiveStep(2)}
-              >
-                {t('previous-step')}
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {t('save')}
-              </Button>
-            </>
-          }
-        >
+        <FacebookIntegrationFormLayout actions={actions}>
           <FacebookIntegrationFormSteps
             title={t('integration-setup')}
             step={3}
           />
-          <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
-            <Form.Field
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('integration-name')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Description>
-                    {t('integration-name-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              name="brandId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('brand')}</Form.Label>
-                  <Form.Control>
-                    <SelectBrands.FormItem
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Description>
-                    {t('choose-brand-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
+          {setupFields}
         </FacebookIntegrationFormLayout>
       </form>
     </Form>

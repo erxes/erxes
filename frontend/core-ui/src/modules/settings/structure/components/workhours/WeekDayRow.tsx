@@ -14,7 +14,7 @@ export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
   const isInactive = form.watch(`${weekDay}.inactive`) as boolean;
 
   return (
-    <div className="flex items-center gap-3 py-3" id={weekDay}>
+    <div className="flex shrink-0 flex-wrap items-center gap-3 py-4" id={weekDay}>
       <Form.Field
         control={form.control}
         name={`${weekDay}.inactive`}
@@ -35,23 +35,26 @@ export const WeekDayRow = ({ weekDay }: { weekDay: WorkDay }) => {
           {t('not-working-day')}
         </span>
       )) || (
-        <div className="flex items-center gap-8 ml-auto">
-          <div className="flex items-center gap-3">
-            <WorkTimeField name={`${weekDay}.startFrom`} />
-            <span className="font-medium text-sm text-accent-foreground">
-              {t('to')}
+        <div className="grid w-full min-w-0 grid-cols-1 gap-3 @min-[640px]/record-panel:grid-cols-2">
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              {t('working-hours-label')}
             </span>
-            <WorkTimeField name={`${weekDay}.endTo`} />
+            <div className="flex flex-wrap items-center gap-2">
+              <WorkTimeField name={`${weekDay}.startFrom`} />
+              <span className="text-sm text-accent-foreground">{t('to')}</span>
+              <WorkTimeField name={`${weekDay}.endTo`} />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <legend className="font-medium text-sm text-accent-foreground">
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
               {t('lunch')}
-            </legend>
-            <WorkTimeField name={`${weekDay}.lunchStartFrom`} />
-            <span className="font-medium text-sm text-accent-foreground">
-              {t('to')}
             </span>
-            <WorkTimeField name={`${weekDay}.lunchEndTo`} />
+            <div className="flex flex-wrap items-center gap-2">
+              <WorkTimeField name={`${weekDay}.lunchStartFrom`} />
+              <span className="text-sm text-accent-foreground">{t('to')}</span>
+              <WorkTimeField name={`${weekDay}.lunchEndTo`} />
+            </div>
           </div>
         </div>
       )}

@@ -7,6 +7,7 @@ import { MessageActions } from '@/inbox/conversation-messages/components/Message
 import { MESSAGE_ACTION_BAR_CLASS } from '@/inbox/conversation-messages/constants/messageActions';
 import { MessageWrapper } from '@/inbox/conversation-messages/components/MessageWrapper';
 import type { IMessage } from '@/inbox/types/Conversation';
+import { useTranslation } from 'react-i18next';
 
 type FormWidgetMessageProps = {
   message: IMessage;
@@ -19,6 +20,7 @@ export const FormWidgetMessage = ({
   isDeleted,
   additionalActions,
 }: FormWidgetMessageProps) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [actionsOpen, setActionsOpen] = useState(false);
 
   return (
@@ -35,7 +37,7 @@ export const FormWidgetMessage = ({
               variant="ghost"
               size="icon"
               className="size-8 shrink-0 rounded-full bg-background shadow-sm md:hidden"
-              aria-label="Message actions"
+              aria-label={t('message-actions')}
               onClick={() => setActionsOpen(true)}
             >
               <IconDots className="size-4" />
@@ -52,7 +54,9 @@ export const FormWidgetMessage = ({
             className="rounded-t-2xl rounded-b-none bg-background px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]"
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
-            <div className="mb-3 text-sm font-semibold">Message actions</div>
+            <div className="mb-3 text-sm font-semibold">
+              {t('message-actions')}
+            </div>
             <div className="flex min-h-12 items-center justify-center gap-1 rounded-xl border bg-muted/35 p-2">
               <MessageActions additionalActions={additionalActions} />
             </div>

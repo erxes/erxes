@@ -55,6 +55,16 @@ export const scoreLogSchema = schemaWrapper(
         label: 'Source Score Log',
         optional: true,
       },
+      replacedByScoreLogId: {
+        type: String,
+        label: 'Replaced by score log',
+        optional: true,
+      },
+      lotDatesFrom: {
+        type: Date,
+        label: 'Lot dates from',
+        optional: true,
+      },
     },
     {
       timestamps: true,
@@ -89,6 +99,9 @@ scoreLogSchema.index({
   targetId: 1,
   action: 1,
 });
+
+// A correction chain is walked back from the entry that replaced another.
+scoreLogSchema.index({ replacedByScoreLogId: 1 }, { sparse: true });
 
 // A period reset reads what each account moved since the period began.
 scoreLogSchema.index({

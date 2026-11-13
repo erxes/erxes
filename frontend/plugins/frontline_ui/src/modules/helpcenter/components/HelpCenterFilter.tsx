@@ -7,7 +7,9 @@ import { HELP_CENTER_FILTER_ID } from '@/helpcenter/constants';
 import { HelpCenterHotKeyScope } from '@/helpcenter/types';
 
 const HelpCenterFilterPopover = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     brand: string;
@@ -51,7 +53,9 @@ const HelpCenterFilterPopover = () => {
 };
 
 export const HelpCenterFilter = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     brand: string;

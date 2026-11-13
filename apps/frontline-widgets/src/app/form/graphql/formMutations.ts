@@ -85,12 +85,14 @@ export const FORM_WIDGET_SAVE_LEAD = gql`
     $submissions: [FieldValueInput]
     $browserInfo: JSON!
     $cachedCustomerId: String
+    $linkToken: String
   ) {
     widgetsSaveLead(
       formId: $formId
       submissions: $submissions
       browserInfo: $browserInfo
       cachedCustomerId: $cachedCustomerId
+      linkToken: $linkToken
     ) {
       status
       conversationId

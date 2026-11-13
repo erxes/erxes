@@ -1,11 +1,16 @@
 import { IBroadcastMethodEnum } from '@/broadcast/types';
-import { Sheet, useMultiQueryState } from 'erxes-ui';
-import { useBroadcastContacts } from '../hooks/useBroadcastContacts';
-import { useBroadcastScheduleRange } from '../hooks/useBroadcastScheduleRange';
-import { useBroadcastSegmentSeed } from '../hooks/useBroadcastSegmentSeed';
-import { BroadcastMethod } from './list/BroadcastMethod';
-import { BroadcastSteps } from './steps/BroadcastSteps';
-import { BroadcastStepsSheetView } from './steps/BroadcastStepsSheetView';
+import { SidePanelRecordPathContext } from 'ui-modules';
+import {
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
+import { useMultiQueryState } from 'erxes-ui';
+import { useBroadcastContacts } from '@/broadcast/hooks/useBroadcastContacts';
+import { useBroadcastScheduleRange } from '@/broadcast/hooks/useBroadcastScheduleRange';
+import { useBroadcastSegmentSeed } from '@/broadcast/hooks/useBroadcastSegmentSeed';
+import { BroadcastMethod } from '@/broadcast/components/list/BroadcastMethod';
+import { BroadcastSteps } from '@/broadcast/components/steps/BroadcastSteps';
+import { BroadcastStepsSheetView } from '@/broadcast/components/steps/BroadcastStepsSheetView';
 
 /**
  * Creating a campaign, opened by choosing a method.
@@ -25,11 +30,9 @@ export const BroadcastSheet = ({
     method: IBroadcastMethodEnum;
     editMessageId: string;
   }>(['method', 'editMessageId']);
-
   const { clearRange } = useBroadcastScheduleRange();
   const { clearContacts } = useBroadcastContacts();
   const { clearSeedSegment } = useBroadcastSegmentSeed();
-
   const handleClose = () => {
     // The days picked on the calendar and the contact picked in the list were
     // for this campaign; leaving them behind would quietly carry them into the
@@ -37,19 +40,27 @@ export const BroadcastSheet = ({
     clearRange();
     clearContacts();
     clearSeedSegment();
-    setQueryParams({ method: null });
+    setQueryParams({
+      method: null,
+    });
   };
-
+  const pagePanel = usePagePanel({
+    maxWidth: 1200,
+    defaultWidth: 900,
+    name: 'broadcast/BroadcastSheet',
+    open: !!method && !editMessageId,
+    onOpenChange: (open) => !open && handleClose(),
+    identity: editMessageId || 'new',
+  });
   return (
-    <Sheet
-      open={!!method && !editMessageId}
-      onOpenChange={(open) => !open && handleClose()}
-    >
-      {showTrigger && <BroadcastMethod />}
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        {showTrigger && <BroadcastMethod />}
 
-      <BroadcastStepsSheetView method={method}>
-        <BroadcastSteps onClose={handleClose} />
-      </BroadcastStepsSheetView>
-    </Sheet>
+        <BroadcastStepsSheetView method={method}>
+          <BroadcastSteps onClose={handleClose} />
+        </BroadcastStepsSheetView>
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };

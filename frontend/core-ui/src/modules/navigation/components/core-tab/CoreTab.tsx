@@ -1,34 +1,42 @@
-import { Button, activePluginState, cn } from 'erxes-ui';
+import { Button, Tooltip, activePluginState, cn } from 'erxes-ui';
 import { IconInbox, IconSearch, IconSettings } from '@tabler/icons-react';
-import { INBOX_TAB_ID, useAppTabs } from '@/navigation/hooks/useAppTabs';
-import { isOrganizationSettingsPath } from '@/navigation/utils/navigationActivities';
+import {
+  INBOX_TAB_ID,
+  SETTINGS_TAB_ID,
+  useAppTabs,
+} from '@/navigation/hooks/useAppTabs';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { CoreTabAppSwitcher } from '@/navigation/components/core-tab/CoreTabAppSwitcher';
 import { CoreTabAppTabs } from '@/navigation/components/core-tab/CoreTabAppTabs';
-import { CoreTabFavorites } from '@/navigation/components/core-tab/CoreTabFavorites';
+import {
+  CoreTabSideContext,
+  CoreTabTooltip,
+} from '@/navigation/components/core-tab/CoreTabTooltip';
 import { CoreTabUserMenu } from '@/navigation/components/core-tab/CoreTabUserMenu';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { NotificationCount } from '@/notification/components/MyInboxNavigationItem';
 import { OrgLogoIcon } from '@/auth/components/Logo';
 import { currentOrganizationState } from 'ui-modules';
+import { AssistantButton } from '@/agent/components/AssistantButton';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
+import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
 import { useEffect } from 'react';
+import { NavPosition } from '@/app/constants/appearance';
 import { useTranslation } from 'react-i18next';
 
-const coreTabIconClassName = (active: boolean) =>
-  cn(
-    'relative size-7 shrink-0',
-    active && 'bg-primary/10 text-primary hover:bg-primary/15',
-  );
+export type CoreTabOrientation = 'horizontal' | 'vertical';
 
 /**
- * The only navigation core draws: a top bar of browser-like app tabs plus
- * global actions. Everything below it, sidebar included, belongs to the
- * open app.
+ * The only navigation core draws: browser-like app tabs plus global actions,
+ * as a top bar or (sidebar appearance) a left icon rail. Everything beside it,
+ * app sidebars included, belongs to the open app.
  */
-export const CoreTab = () => {
+export const CoreTab = ({
+  orientation = 'horizontal',
+  position = 'start',
+}: Readonly<{ orientation?: CoreTabOrientation; position?: NavPosition }>) => {
   const {
     activities,
     closeOtherTabs,
@@ -45,79 +53,98 @@ export const CoreTab = () => {
   const setSearchOpen = useSetAtom(globalSearchOpenState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const vertical = orientation === 'vertical';
+  const atEnd = position === 'end';
   const routeActivityId = routeActivity?.id;
   const isInboxActive = routeActivityId === INBOX_TAB_ID;
-  const { pathname } = useLocation();
-  const isOrganizationSettings = isOrganizationSettingsPath(pathname);
+  const isSettingsActive = routeActivityId === SETTINGS_TAB_ID;
   const inboxActivity = activities.find(
     (activity) => activity.id === INBOX_TAB_ID,
   );
+  const settingsActivity = activities.find(
+    (activity) => activity.id === SETTINGS_TAB_ID,
+  );
+  // Inbox and organization settings have their own entry points.
   const appActivities = activities.filter(
-    (activity) => activity.id !== INBOX_TAB_ID,
+    (activity) =>
+      activity.id !== INBOX_TAB_ID && activity.id !== SETTINGS_TAB_ID,
   );
   const companyName =
     organization?.orgShortName || organization?.name || 'erxes';
 
-  // Search scopes to the open plugin; the inbox tab is not a plugin.
+  // Search scopes to the open plugin; inbox and settings tabs are not plugins.
   useEffect(() => {
     if (
       routeActivityId &&
       routeActivityId !== INBOX_TAB_ID &&
+      routeActivityId !== SETTINGS_TAB_ID &&
       routeActivityId !== activeActivityId
     ) {
       setActiveActivityId(routeActivityId);
     }
   }, [activeActivityId, routeActivityId, setActiveActivityId]);
 
-  return (
-    <header className="flex h-10 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
+  const brand = (
+    <CoreTabTooltip label={companyName}>
       <Button
         asChild
-        className="size-7 shrink-0 px-0"
+        className={cn(coreTabIconClassName(), 'px-0')}
         size="icon"
         variant="ghost"
       >
-        <Link aria-label={companyName} title={companyName} to={AppPath.Index}>
+        <Link aria-label={companyName} to={AppPath.Index}>
           <span className="flex size-6 items-center justify-center rounded-md border border-border/60 bg-background shadow-xs [&>img]:size-4! [&>svg]:size-4!">
             <OrgLogoIcon className="text-primary" />
           </span>
         </Link>
       </Button>
-      <CoreTabAppSwitcher
-        activeActivityId={routeActivityId || null}
-        activities={appActivities}
-        onSelect={selectActivity}
-      />
-      <CoreTabAppTabs
-        activeTabId={routeActivityId}
-        tabs={tabs}
-        onClose={closeTab}
-        onCloseOthers={closeOtherTabs}
-        onCloseToRight={closeTabsToRight}
-        onMove={moveTab}
-        onSelect={selectTab}
-      />
-      <div className="flex shrink-0 items-center gap-0.5">
-        <Button
-          aria-keyshortcuts="Control+M Meta+M"
-          aria-label={t('search')}
-          className="h-7 gap-2 px-2.5 text-muted-foreground"
-          title={t('search')}
-          type="button"
-          variant="ghost"
-          onClick={() => setSearchOpen(true)}
-        >
-          <IconSearch className="size-4" />
-          <span className="hidden text-sm font-normal lg:inline">
-            {t('search')}
-          </span>
-        </Button>
-        <CoreTabFavorites />
+    </CoreTabTooltip>
+  );
+
+  const switcher = (
+    <CoreTabAppSwitcher
+      activeActivityId={routeActivityId || null}
+      activities={appActivities}
+      onSelect={selectActivity}
+    />
+  );
+
+  const appTabs = (
+    <CoreTabAppTabs
+      activeTabId={routeActivityId}
+      orientation={orientation}
+      tabs={tabs}
+      onClose={closeTab}
+      onCloseOthers={closeOtherTabs}
+      onCloseToRight={closeTabsToRight}
+      onMove={moveTab}
+      onSelect={selectTab}
+    />
+  );
+
+  const search = (
+    <CoreTabTooltip label={t('search')} shortcut="⌘M">
+      <Button
+        aria-keyshortcuts="Control+M Meta+M"
+        aria-label={t('search')}
+        className={cn(coreTabIconClassName(), 'text-muted-foreground')}
+        size="icon"
+        type="button"
+        variant="ghost"
+        onClick={() => setSearchOpen(true)}
+      >
+        <IconSearch className="size-4" />
+      </Button>
+    </CoreTabTooltip>
+  );
+
+  const actions = (
+    <>
+      <CoreTabTooltip label={sidebarT('my-inbox')}>
         <Button
           aria-label={sidebarT('my-inbox')}
           className={coreTabIconClassName(isInboxActive)}
           size="icon"
-          title={sidebarT('my-inbox')}
           type="button"
           variant="ghost"
           onClick={() => inboxActivity && selectActivity(inboxActivity)}
@@ -125,22 +152,56 @@ export const CoreTab = () => {
           <IconInbox className="size-4" />
           <NotificationCount dot />
         </Button>
+      </CoreTabTooltip>
+      <AssistantButton />
+      <CoreTabTooltip label={t('app-settings', 'Settings')}>
         <Button
-          asChild
-          className={coreTabIconClassName(isOrganizationSettings)}
+          aria-label={t('app-settings', 'Settings')}
+          className={coreTabIconClassName(isSettingsActive)}
           size="icon"
+          type="button"
           variant="ghost"
+          onClick={() => settingsActivity && selectActivity(settingsActivity)}
         >
-          <Link
-            aria-label={t('organization-settings')}
-            title={t('organization-settings')}
-            to={`/${AppPath.Settings}`}
-          >
-            <IconSettings className="size-4" />
-          </Link>
+          <IconSettings className="size-4" />
         </Button>
-        <CoreTabUserMenu />
-      </div>
-    </header>
+      </CoreTabTooltip>
+      <CoreTabUserMenu />
+    </>
+  );
+
+  if (vertical) {
+    return (
+      <CoreTabSideContext.Provider value={atEnd ? 'left' : 'right'}>
+        <Tooltip.Provider delayDuration={300}>
+          <nav
+            aria-label={t('plugins')}
+            className="flex w-12 shrink-0 flex-col items-center gap-2 px-1.5 py-2 dark:text-primary-foreground"
+          >
+            {brand}
+            {switcher}
+            {search}
+            {appTabs}
+            <div className="flex flex-col items-center gap-0.5">{actions}</div>
+          </nav>
+        </Tooltip.Provider>
+      </CoreTabSideContext.Provider>
+    );
+  }
+
+  return (
+    <CoreTabSideContext.Provider value={atEnd ? 'top' : 'bottom'}>
+      <Tooltip.Provider delayDuration={300}>
+        <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2 group-data-[framed=true]/layout:border-b-0 group-data-[framed=true]/layout:bg-transparent dark:group-data-[framed=true]/layout:text-primary-foreground">
+          {brand}
+          {switcher}
+          {appTabs}
+          <div className="flex shrink-0 items-center gap-0.5">
+            {search}
+            {actions}
+          </div>
+        </header>
+      </Tooltip.Provider>
+    </CoreTabSideContext.Provider>
   );
 };

@@ -1,7 +1,14 @@
 import {
   AutomationConstants,
+  TAutomationFindObjectTargetDefinition,
   TAutomationRuntimeOutputDefinition,
 } from 'erxes-api-shared/core-modules';
+import {
+  adjustScoreActionConfigSchema,
+  awardSpinActionConfigSchema,
+  issueVoucherActionConfigSchema,
+  setTierActionConfigSchema,
+} from './configSchemas';
 import { TierChangedTarget } from './types';
 
 const TIER_CHANGED_OUTPUT: TAutomationRuntimeOutputDefinition<TierChangedTarget> =
@@ -23,7 +30,36 @@ const TIER_CHANGED_OUTPUT: TAutomationRuntimeOutputDefinition<TierChangedTarget>
     ],
   };
 
+export const LOYALTY_ACCOUNT_FIND_OBJECT_TYPE = 'loyalty:score.accounts';
+
+const LOYALTY_ACCOUNT_FIND_OBJECT_TARGET: TAutomationFindObjectTargetDefinition =
+  {
+    value: LOYALTY_ACCOUNT_FIND_OBJECT_TYPE,
+    label: 'Loyalty account',
+    lookupFields: [
+      { value: '_id', label: 'ID' },
+      { value: 'number', label: 'Number' },
+      { value: 'ownerId', label: 'Customer ID' },
+    ],
+    output: {
+      variables: [
+        { key: 'number', label: 'Account number' },
+        { key: 'status', label: 'Status' },
+        { key: 'wallets', label: 'Balances' },
+        { key: 'vouchers', label: 'Usable vouchers' },
+      ],
+    },
+    lookup: {
+      description:
+        "The customer's own loyalty balances as they are now: points per wallet, " +
+        'tier, points expiring soon and vouchers they can use. status: active, ' +
+        'frozen or closed. Call it before stating any balance, tier or voucher.',
+      customerField: 'ownerId',
+    },
+  };
+
 export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
+  findObjectTargets: [LOYALTY_ACCOUNT_FIND_OBJECT_TARGET],
   triggers: [
     {
       moduleName: 'score',
@@ -45,6 +81,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconTagPlus',
       label: 'Issue voucher',
       description: 'Issue a voucher',
+      configSchema: issueVoucherActionConfigSchema,
     },
     {
       moduleName: 'score',
@@ -52,6 +89,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconMoneybagPlus',
       label: 'Adjust score',
       description: 'Give loyalty points for a purchase',
+      configSchema: adjustScoreActionConfigSchema,
       // Filled by the trigger's own plugin (its `actionInputs`); points paid
       // with are recorded by the selling side, not by this action.
       inputs: [
@@ -66,6 +104,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconStairs',
       label: 'Set tier',
       description: "Set a loyalty tier on the owner's account",
+      configSchema: setTierActionConfigSchema,
       // With amount bands the tier comes from the purchase; the trigger's own
       // plugin fills it (its `actionInputs`).
       inputs: [{ key: 'totalAmount', label: 'Total amount', type: 'number' }],
@@ -76,6 +115,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconTrophy',
       label: 'Award spin',
       description: 'Give a spin reward',
+      configSchema: awardSpinActionConfigSchema,
     },
   ],
 };

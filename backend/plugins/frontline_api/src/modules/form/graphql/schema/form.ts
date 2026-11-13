@@ -208,6 +208,7 @@ export const mutations = `
       submissions: [FieldValueInput]
       browserInfo: JSON!
       cachedCustomerId: String
+      linkToken: String
     ): SaveFormResponse
 
   cpWidgetsSaveLead(
@@ -215,6 +216,7 @@ export const mutations = `
     submissions: [FieldValueInput]
     browserInfo: JSON!
     cachedCustomerId: String
+    linkToken: String
   ): SaveFormResponse
 
 

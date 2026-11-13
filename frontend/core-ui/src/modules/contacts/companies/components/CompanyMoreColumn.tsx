@@ -3,8 +3,7 @@ import { IconEdit } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
-import { Can } from 'ui-modules';
+import { Can, useSidePanel } from 'ui-modules';
 
 export const CompanyMoreColumnCell = ({
   cell,
@@ -12,14 +11,8 @@ export const CompanyMoreColumnCell = ({
   cell: Cell<TCompany, unknown>;
 }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { openRecord } = useSidePanel();
   const { _id } = cell.row.original;
-
-  const setOpen = (companyId: string) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('companyId', companyId);
-    setSearchParams(newSearchParams);
-  };
 
   return (
     <Popover>
@@ -31,7 +24,12 @@ export const CompanyMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={() => setOpen(_id)}>
+            <Command.Item
+              value="edit"
+              onSelect={() =>
+                openRecord({ contentType: 'core:company', contentId: _id })
+              }
+            >
               <IconEdit /> {t('action-edit')}
             </Command.Item>
           </Command.List>

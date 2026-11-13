@@ -73,6 +73,10 @@ query accountingVatRowDetail($id: String!) {
     name
     number
     percent
+    kind
+    status
+    tabCount
+    isBold
   }
 }
 `);

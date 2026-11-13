@@ -12,8 +12,10 @@ import {
   getProviderMessageId,
 } from '@/inbox/conversation-messages/utils/message';
 import { IntegrationType } from '@/types/Integration';
+import { useTranslation } from 'react-i18next';
 
 export const useReactionTarget = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const message = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
   const currentUser = useAtomValue(currentUserState);
@@ -33,7 +35,7 @@ export const useReactionTarget = () => {
     conversationId,
     messageId,
     disabled: !messageId,
-    disabledReason: 'This message has no provider ID to react to',
+    disabledReason: t('reaction-no-provider-id'),
     selectedReactions,
     reactions: isInstagram ? REACTIONS.slice(0, 1) : REACTIONS,
   };

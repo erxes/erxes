@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   Alert,
   ChartContainer,
@@ -59,7 +60,7 @@ export const FacebookActivity = ({
   colSpan = 6,
   onColSpanChange,
 }: FacebookActivityProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useFacebookChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -259,6 +260,7 @@ export const FacebookActivityAreaChart = memo(
 export const FacebookActivityBarChart = memo(function FacebookActivityBarChart({
   points,
 }: ActivityChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <ChartContainer
       config={activityChartConfig}
@@ -274,10 +276,10 @@ export const FacebookActivityBarChart = memo(function FacebookActivityBarChart({
         <Bar
           dataKey="conversations"
           fill="var(--primary)"
-          name="Conversations"
+          name={t('conversations-label')}
         />
-        <Bar dataKey="messages" fill="var(--chart-2)" name="Messages" />
-        <Bar dataKey="comments" fill="var(--success)" name="Comments" />
+        <Bar dataKey="messages" fill="var(--chart-2)" name={t('messages')} />
+        <Bar dataKey="comments" fill="var(--success)" name={t('comments')} />
         <Legend content={<CustomLegendContent />} />
         <Tooltip content={<ChartTooltipContent />} />
       </BarChart>
@@ -288,11 +290,12 @@ export const FacebookActivityBarChart = memo(function FacebookActivityBarChart({
 export const FacebookActivityTable = memo(function FacebookActivityTable({
   points,
 }: ActivityChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={points}
-        columns={activityTableColumns}
+        columns={activityTableColumns(t)}
         className="m-3"
       >
         <RecordTable.Scroll>
@@ -314,10 +317,12 @@ const numberCell = (value: number) => (
   </RecordTableInlineCell>
 );
 
-export const activityTableColumns: ColumnDef<FacebookActivityPoint>[] = [
+export const activityTableColumns = (
+  t: TFunction,
+): ColumnDef<FacebookActivityPoint>[] => [
   {
     id: 'date',
-    header: 'Date',
+    header: t('date'),
     accessorKey: 'date',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs">
@@ -327,21 +332,21 @@ export const activityTableColumns: ColumnDef<FacebookActivityPoint>[] = [
   },
   {
     id: 'conversations',
-    header: 'Conversations',
+    header: t('conversations-label'),
     accessorKey: 'conversations',
     cell: ({ cell }) => numberCell(cell.getValue() as number),
     size: 40,
   },
   {
     id: 'messages',
-    header: 'Messages',
+    header: t('messages'),
     accessorKey: 'messages',
     cell: ({ cell }) => numberCell(cell.getValue() as number),
     size: 40,
   },
   {
     id: 'comments',
-    header: 'Comments',
+    header: t('comments'),
     accessorKey: 'comments',
     cell: ({ cell }) => numberCell(cell.getValue() as number),
     size: 40,

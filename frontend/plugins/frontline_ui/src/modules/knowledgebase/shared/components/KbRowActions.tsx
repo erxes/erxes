@@ -1,12 +1,6 @@
 import { IconEdit, IconTrash, type Icon } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import {
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  useQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -18,16 +12,17 @@ export type TKbRowAction = {
 };
 
 export const KbRowActions = ({
-  id,
+  onEdit,
   actions = [],
   onDelete,
 }: {
-  id: string;
+  onEdit: () => void;
   actions?: TKbRowAction[];
   onDelete: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
-  const [, setEditId] = useQueryState<string>('editId');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const [open, setOpen] = useState(false);
 
   const items: TKbRowAction[] = [
@@ -36,7 +31,7 @@ export const KbRowActions = ({
       value: 'edit',
       icon: IconEdit,
       label: t('edit'),
-      onSelect: () => setEditId(id),
+      onSelect: onEdit,
     },
     {
       value: 'delete',

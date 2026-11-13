@@ -40,6 +40,23 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'notificationTemplates',
+      description: 'Notification email templates',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All templates' }],
+
+      actions: [
+        {
+          title: 'Manage notification templates',
+          name: 'notificationTemplatesManage',
+          description:
+            'Edit, publish and revert notification emails and the email brand',
+        },
+      ],
+    },
+    {
       name: 'contacts',
       description: 'Contact management',
       scopeField: null,
@@ -202,6 +219,39 @@ export const permissions: IPermissionConfig = {
           title: 'Files admin',
           name: 'filesAdmin',
           description: 'See and download every file and folder (read only); each use is logged',
+        },
+      ],
+    },
+    {
+      name: 'data-extensions',
+      description: 'Data Extensions field definitions',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'View Data Extensions fields',
+          name: 'dataExtensionsRead',
+          description: 'View the extension fields defined for each record type',
+          always: true,
+        },
+        {
+          title: 'Manage Data Extensions fields',
+          name: 'dataExtensionsManage',
+          description: 'Add, edit, archive and restore extension fields',
+        },
+        {
+          title: 'View custom object records',
+          name: 'dataExtensionRecordsRead',
+          description: 'See records of tenant-defined objects such as Contracts',
+          always: true,
+        },
+        {
+          title: 'Manage custom object records',
+          name: 'dataExtensionRecordsManage',
+          description: 'Create, edit and delete records of tenant-defined objects',
         },
       ],
     },
@@ -463,6 +513,17 @@ export const permissions: IPermissionConfig = {
           description: 'Reset team member password',
         },
         {
+          title: 'Set member availability',
+          name: 'teamMembersSetAvailability',
+          description:
+            'Mark other team members available or unavailable and choose the segment that marks them busy',
+        },
+        {
+          title: 'View member activity',
+          name: 'teamMembersViewActivity',
+          description: 'See when and how long other team members are active',
+        },
+        {
           title: 'Import team members',
           name: 'teamMembersImportManage',
           description: 'Import team members',
@@ -655,6 +716,26 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'templates',
+      description: 'Templates that install solutions such as AI employees',
+      scopeField: null,
+      ownerFields: ['createdBy'],
+      scopes: [{ name: 'all', description: 'All installations' }],
+      actions: [
+        {
+          title: 'View templates',
+          name: 'templatesRead',
+          description: 'View templates and their installations',
+          always: true,
+        },
+        {
+          title: 'Install templates',
+          name: 'templatesInstall',
+          description: 'Install a template or remove an installation',
+        },
+      ],
+    },
+    {
       name: 'automations',
       description: 'Automation management',
       scopeField: null,
@@ -747,6 +828,34 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'agents',
+      description: 'AI agents',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All agents access' }],
+
+      actions: [
+        {
+          title: 'View agents',
+          name: 'showAgents',
+          description: 'View agents',
+          always: true,
+        },
+        {
+          title: 'Use agents chat',
+          name: 'agentsChat',
+          description: 'Use agents chat',
+        },
+        {
+          title: 'Manage agents settings',
+          name: 'manageAgentsSettings',
+          description:
+            'Manage tenant-wide agents settings (code mode toggle)',
+        },
+      ],
+    },
   ],
   defaultGroups: [
     {
@@ -794,6 +903,17 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'data-extensions',
+          actions: [
+            'dataExtensionsRead',
+            'dataExtensionsManage',
+            'dataExtensionRecordsRead',
+            'dataExtensionRecordsManage',
+          ],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
           module: 'tags',
           actions: ['tagsCreate', 'tagsUpdate', 'tagsDelete', 'tagsTag'],
           scope: 'all',
@@ -836,6 +956,7 @@ export const permissions: IPermissionConfig = {
             'teamMembersUpdate',
             'teamMembersRemove',
             'teamMembersResetPassword',
+            'teamMembersViewActivity',
             'teamMembersImportManage',
             'teamMembersExportManage',
           ],
@@ -910,6 +1031,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat', 'manageAgentsSettings'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
           module: 'files',
           actions: ['filesRead'],
           scope: 'all',
@@ -950,6 +1077,12 @@ export const permissions: IPermissionConfig = {
           module: 'broadcasts',
           actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat'],
+          scope: 'all',
         },
         // What each person sees inside Files is decided by folder access.
         {
@@ -1097,6 +1230,12 @@ export const permissions: IPermissionConfig = {
           module: 'internalNotes',
           actions: ['internalNotesManage'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents'],
+          scope: 'all',
         },
         {
           plugin: 'core',

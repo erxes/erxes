@@ -1,22 +1,28 @@
 import { paymentTypesAtom } from "@/store/config.store"
-import { isCoverAmountsFetchedAtom } from "@/store/cover.store"
+import {
+  isCoverAmountsFetchedAtom,
+  coverStatusAtom,
+  terminalFetchBusyAtom,
+} from "@/store/cover.store"
 import { useAtomValue } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
 
-import Capitron from "./capitron"
+import { Capitron } from "./capitron"
 import CashAmounts from "./cash-amounts"
 import CustomAmounts from "./custom-amounts"
-import Description from "./description"
-import Golomt from "./golomt"
-import Khaan from "./Khaan"
-import Tdb from "./tdb"
+import { Description } from "./description"
+import { Golomt } from "./golomt"
+import { Khaan } from "./Khaan"
+import { TDB as Tdb } from "./tdb"
 
 const { KHANBANK, GOLOMT, TDB, CAPITRON } = BANK_CARD_TYPES
 
-const Amounts = () => {
+export const Amounts = () => {
   const isFetched = useAtomValue(isCoverAmountsFetchedAtom)
   const paymentTypes = useAtomValue(paymentTypesAtom)
+  const status = useAtomValue(coverStatusAtom)
+  const busy = useAtomValue(terminalFetchBusyAtom)
 
   if (!isFetched) {
     return null
@@ -26,7 +32,10 @@ const Amounts = () => {
     paymentTypes?.find((pt) => pt.type === type)
 
   return (
-    <div className="my-4 grid md:grid-cols-2 gap-2">
+    <fieldset
+      disabled={busy || status === "confirm" || status === "confirming"}
+      className="my-4 grid md:grid-cols-2 gap-2"
+    >
       <div className="space-y-2">
         <CashAmounts />
         <Description />
@@ -38,8 +47,6 @@ const Amounts = () => {
         {showBank(TDB) && <Tdb />}
         {showBank(CAPITRON) && <Capitron />}
       </div>
-    </div>
+    </fieldset>
   )
 }
-
-export default Amounts

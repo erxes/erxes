@@ -1,6 +1,11 @@
-import { Avatar, Button, DropdownMenu, readImage } from 'erxes-ui';
+import { Avatar, Button, DropdownMenu, cn, readImage } from 'erxes-ui';
 
 import { AppPath } from '@/types/paths/AppPath';
+import {
+  CoreTabTooltip,
+  useCoreTabSide,
+} from '@/navigation/components/core-tab/CoreTabTooltip';
+import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
 import { IconChevronRight } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { SelectLanguages } from '@/navigation/components/footer/SelectLanguages';
@@ -17,34 +22,36 @@ export const CoreTabUserMenu = () => {
   const { handleLogout } = useAuth();
   const { t: organizationT } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const side = useCoreTabSide();
   const userDetails = currentUser?.details;
   const userName = userDetails?.fullName || sidebarT('profile');
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          aria-label={sidebarT('profile')}
-          className="size-7 shrink-0 p-0"
-          size="icon"
-          title={userName}
-          variant="ghost"
-        >
-          <Avatar className="size-6 rounded-md">
-            <Avatar.Image
-              src={readImage(userDetails?.avatar || '')}
-              alt={userName}
-            />
-            <Avatar.Fallback className="rounded-md text-xs">
-              {userName.charAt(0)}
-            </Avatar.Fallback>
-          </Avatar>
-        </Button>
-      </DropdownMenu.Trigger>
+      <CoreTabTooltip label={userName}>
+        <DropdownMenu.Trigger asChild>
+          <Button
+            aria-label={sidebarT('profile')}
+            className={cn(coreTabIconClassName(), 'p-0')}
+            size="icon"
+            variant="ghost"
+          >
+            <Avatar className="size-6 rounded-md">
+              <Avatar.Image
+                src={readImage(userDetails?.avatar || '')}
+                alt={userName}
+              />
+              <Avatar.Fallback className="rounded-md text-xs">
+                {userName.charAt(0)}
+              </Avatar.Fallback>
+            </Avatar>
+          </Button>
+        </DropdownMenu.Trigger>
+      </CoreTabTooltip>
       <DropdownMenu.Content
         align="end"
         className="w-56 min-w-56! space-y-1 p-1.5"
-        side="bottom"
+        side={side}
         sideOffset={8}
       >
         <DropdownMenu.Item asChild className="p-2">

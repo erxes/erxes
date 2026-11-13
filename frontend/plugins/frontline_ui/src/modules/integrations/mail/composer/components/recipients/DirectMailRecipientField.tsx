@@ -15,7 +15,7 @@ export const RecipientRow = () => {
         className="text-xs leading-5 text-muted-foreground"
         htmlFor={`direct-mail-${fieldName}`}
       >
-        {fieldName === 'to' ? 'To' : t(fieldName)}
+        {fieldName === 'to' ? t('mail-to') : t(fieldName)}
       </Label>
       <VerifiedEmailField />
       {(fieldName === 'to' || fieldName === 'cc') && (

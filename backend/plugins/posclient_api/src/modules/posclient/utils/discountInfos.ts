@@ -1,11 +1,31 @@
 import { IOrderItemInput } from '~/modules/posclient/@types/types';
 
+// Loyalty's word on which plan priced a line and, for a scheduled plan, the
+// window and purchase moment that matched.
+export interface IPricingReason {
+  planId: string;
+  planName: string;
+  kind: 'discount' | 'bonus';
+  value: number;
+  window?: {
+    type: string;
+    startTime: string;
+    endTime: string;
+    weekDays?: number[];
+    monthDays?: number[];
+    fromMonthDay?: string;
+    toMonthDay?: string;
+  };
+  matchedMoment?: 'checkout' | 'orderCreated';
+}
+
 export interface IDiscountInfo {
   // Known values: "pricing", "voucher", "score", "hand".
   type: string;
   title?: string;
   amount?: number;
   percent?: number;
+  reasons?: IPricingReason[];
 }
 
 const HAND_TYPE = 'hand';
@@ -71,8 +91,8 @@ export const ensureHandDiscountInfo = (
         manualPercent > 0
           ? manualPercent
           : baseAmount > 0
-            ? fixAmount((amount * 100) / baseAmount)
-            : 0,
+          ? fixAmount((amount * 100) / baseAmount)
+          : 0,
     });
   }
 

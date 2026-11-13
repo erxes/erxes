@@ -21,9 +21,14 @@ export enum AppPath {
 
   Segments = 'segments',
   SegmentsCatchAll = `/${Segments}/*`,
+  DataExtensions = 'data-extensions',
+  DataExtensionsCatchAll = `/${DataExtensions}/*`,
   Automations = 'automations',
   AutomationsCatchAll = `/${Automations}/*`,
   MyInbox = 'my-inbox',
+  // Redirect only; Assistant has no full-page surface. `/agent/*` belongs to
+  // the Company Brain plugin.
+  AssistantCatchAll = 'assistant/*',
   MyInboxCatchAll = `/${MyInbox}/*`,
   Logs = 'logs',
   LogsCatchAll = `/${Logs}/*`,
@@ -37,10 +42,10 @@ export enum AppPath {
   FilesCatchAll = `/${Files}/*`,
 
   Broadcasts = 'broadcasts',
-  BroadcastsCatchAll = `/${Broadcasts}/*`,
-
   Templates = 'templates',
   TemplatesCatchAll = `/${Templates}/*`,
+  BroadcastsCatchAll = `/${Broadcasts}/*`,
+
 
   ImportExport = 'import-export',
   ImportExportCatchAll = `/${ImportExport}/*`,

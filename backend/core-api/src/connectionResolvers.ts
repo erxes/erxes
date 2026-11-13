@@ -1,6 +1,26 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
 import { IOAuthClientAppDocument } from '@/auth/db/definitions/oauthClientApps';
 import {
+  IAuthIdentityDocument,
+  ILdapConfigDocument,
+} from '@/auth/db/definitions/ldap';
+import {
+  IAuthIdentityModel,
+  ILdapConfigModel,
+  loadAuthIdentityClass,
+  loadLdapConfigClass,
+} from '@/auth/db/models/Ldap';
+import { ITwoFactorDocument } from '@/auth/db/definitions/twoFactor';
+import {
+  ITwoFactorModel,
+  loadTwoFactorClass,
+} from '@/auth/db/models/TwoFactors';
+import { ISupportGrantDocument } from '@/auth/db/definitions/supportAccess';
+import {
+  ISupportGrantModel,
+  loadSupportGrantClass,
+} from '@/auth/db/models/SupportAccess';
+import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
 } from '@/auth/db/models/OAuthClientApps';
@@ -40,6 +60,11 @@ import {
   IFavoritesModel,
   loadFavoritesClass,
 } from '@/organization/settings/db/models/Favorites';
+import { IDashboardLayoutDocument } from '@/organization/settings/db/definitions/dashboardLayouts';
+import {
+  IDashboardLayoutModel,
+  loadDashboardLayoutClass,
+} from '@/organization/settings/db/models/DashboardLayouts';
 import {
   IBranchDocument,
   IDepartmentDocument,
@@ -96,8 +121,12 @@ import {
   AiAgentDocument,
   aiAgentSchema,
   IActivityLogDocument,
+  IUserActivityDailyDocument,
   IAutomationDocument,
+  getDataExtensionModels,
   IAutomationExecutionDocument,
+  IDataExtensionFieldModel,
+  IDataExtensionSchemaVersionModel,
   IEmailAddressDocument,
   IEmailDeliveryDocument,
   IEmailRampDocument,
@@ -161,11 +190,26 @@ import {
   IEmailTemplateModel,
   loadEmailTemplateClass,
 } from './modules/emailTemplates/db/models/EmailTemplates';
+import { INotificationTemplateDocument } from './modules/notificationTemplates/db/definitions/notificationTemplates';
+import {
+  INotificationTemplateModel,
+  loadNotificationTemplateClass,
+} from './modules/notificationTemplates/db/models/NotificationTemplates';
+import { ICurrencyRateDocument } from './modules/currencyRates/db/definitions/currencyRates';
+import {
+  ICurrencyRateModel,
+  loadCurrencyRateClass,
+} from './modules/currencyRates/db/models/CurrencyRates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
   loadAutomationWorkflowTemplateClass,
 } from './modules/automations/db/models/AutomationWorkflowTemplates';
+import {
+  ITemplateInstallationDocument,
+  ITemplateInstallationModel,
+  loadTemplateInstallationClass,
+} from './modules/template/db/models/Installations';
 import {
   IAutomationModel,
   loadClass as loadAutomationClass,
@@ -350,25 +394,32 @@ import {
 import { IFilePinDocument } from '@/files/db/definitions/pins';
 import { IFileShareDocument } from '@/files/db/definitions/shares';
 import { IFilePinModel, loadFilePinClass } from '@/files/db/models/FilePins';
-import { IFileShareModel, loadFileShareClass } from '@/files/db/models/FileShares';
 import {
-  ITemplateCategoryModal,
-  loadTemplateCategoryClass,
-} from '@/template/db/models/Category';
-import {
-  ITemplateModal,
-  loadTemplateClass,
-} from '@/template/db/models/Template';
-import {
-  ITemplateCategoryDocument,
-  ITemplateDocument,
-} from '@/template/@types';
+  IFileShareModel,
+  loadFileShareClass,
+} from '@/files/db/models/FileShares';
 import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
+import {
+  IUserActivitiesModel,
+  loadUserActivitiesClass,
+} from '@/logs/db/models/UserActivities';
+import { IAgentsConnectionsDocument } from '@/agents/@types/connection';
+import {
+  IAgentsConnectionModel,
+  loadAgentsConnectionClass,
+} from '@/agents/db/models/Connection';
+import { IAgentsSettingsDocument } from '@/agents/@types/settings';
+import {
+  IAgentsSettingsModel,
+  loadAgentsSettingsClass,
+} from '@/agents/db/models/Settings';
 
 export interface IModels {
+  DataExtensionFields: IDataExtensionFieldModel;
+  DataExtensionSchemaVersions: IDataExtensionSchemaVersionModel;
   Brands: IBrandModel;
   Customers: ICustomerModel;
   Companies: ICompanyModel;
@@ -403,11 +454,15 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
+  DashboardLayouts: IDashboardLayoutModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
   EmailTemplates: IEmailTemplateModel;
+  NotificationTemplates: INotificationTemplateModel;
+  CurrencyRates: ICurrencyRateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
+  TemplateInstallations: ITemplateInstallationModel;
   Logs: ILogModel;
   Imports: IImportModel;
   Exports: IExportModel;
@@ -423,6 +478,7 @@ export interface IModels {
 
   AiAgents: IAiAgentModel;
   ActivityLogs: IActivityLogsModel;
+  UserActivities: IUserActivitiesModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
   BroadcastTraces: IBroadcastTraceModel;
@@ -450,10 +506,15 @@ export interface IModels {
 
   NotificationSettings: Model<NotificationSettings>;
 
-  Template: ITemplateModal;
-  TemplateCategory: ITemplateCategoryModal;
   OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
+  LdapConfigs: ILdapConfigModel;
+  AuthIdentities: IAuthIdentityModel;
+  TwoFactors: ITwoFactorModel;
+  SupportGrants: ISupportGrantModel;
+
+  AgentsConnection: IAgentsConnectionModel;
+  AgentsSettings: IAgentsSettingsModel;
 }
 
 export interface IContext extends IMainContext {
@@ -697,6 +758,11 @@ export const loadClasses = (
     loadFavoritesClass(models),
   );
 
+  models.DashboardLayouts = db.model<
+    IDashboardLayoutDocument,
+    IDashboardLayoutModel
+  >('dashboard_layouts', loadDashboardLayoutClass(models));
+
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
     'documents',
     loadDocumentClass(models, subdomain),
@@ -723,6 +789,16 @@ export const loadClasses = (
     loadEmailTemplateClass(models),
   );
 
+  models.NotificationTemplates = db.model<
+    INotificationTemplateDocument,
+    INotificationTemplateModel
+  >('notification_templates', loadNotificationTemplateClass(models));
+
+  models.CurrencyRates = db.model<ICurrencyRateDocument, ICurrencyRateModel>(
+    'currency_rates',
+    loadCurrencyRateClass(models),
+  );
+
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,
     IAutomationWorkflowTemplateModel
@@ -730,6 +806,11 @@ export const loadClasses = (
     'automation_workflow_templates',
     loadAutomationWorkflowTemplateClass(models),
   );
+
+  models.TemplateInstallations = db.model<
+    ITemplateInstallationDocument,
+    ITemplateInstallationModel
+  >('template_installations', loadTemplateInstallationClass(models, subdomain));
 
   models.Notifications = db.model<
     INotificationDocument,
@@ -898,7 +979,7 @@ export const loadClasses = (
 
   models.Files = db.model<IFileDocument, IFileModel>(
     'files',
-    loadFileClass(models),
+    loadFileClass(models, subdomain),
   );
   models.FileFolders = db.model<IFileFolderDocument, IFileFolderModel>(
     'files_folders',
@@ -925,16 +1006,6 @@ export const loadClasses = (
     loadFileShareClass(models),
   );
 
-  models.Template = db.model<ITemplateDocument, ITemplateModal>(
-    'templates',
-    loadTemplateClass(models, subdomain),
-  );
-
-  models.TemplateCategory = db.model<
-    ITemplateCategoryDocument,
-    ITemplateCategoryModal
-  >('template_categories', loadTemplateCategoryClass(models));
-
   models.OAuthDeviceCodes = db.model<
     IOAuthDeviceCodeDocument,
     Model<IOAuthDeviceCodeDocument>
@@ -944,6 +1015,39 @@ export const loadClasses = (
     IOAuthRefreshTokenDocument,
     Model<IOAuthRefreshTokenDocument>
   >('oauth_refresh_tokens', oauthRefreshTokenSchema);
+
+  models.LdapConfigs = db.model<ILdapConfigDocument, ILdapConfigModel>(
+    'ldap_configs',
+    loadLdapConfigClass(models),
+  );
+
+  models.AuthIdentities = db.model<IAuthIdentityDocument, IAuthIdentityModel>(
+    'auth_identities',
+    loadAuthIdentityClass(models, subdomain),
+  );
+
+  models.TwoFactors = db.model<ITwoFactorDocument, ITwoFactorModel>(
+    'auth_two_factors',
+    loadTwoFactorClass(models, subdomain),
+  );
+
+  models.SupportGrants = db.model<ISupportGrantDocument, ISupportGrantModel>(
+    'auth_support_grants',
+    loadSupportGrantClass(models, subdomain),
+  );
+
+  // Per-user BYOK agents connection; one document per user per tenant.
+  models.AgentsConnection = db.model<
+    IAgentsConnectionsDocument,
+    IAgentsConnectionModel
+  >('agents_user_connections', loadAgentsConnectionClass(models));
+
+  // Tenant-wide agents settings singleton (admin-controlled code mode flag).
+  models.AgentsSettings = db.model<
+    IAgentsSettingsDocument,
+    IAgentsSettingsModel
+  >('agents_settings', loadAgentsSettingsClass(models));
+  Object.assign(models, getDataExtensionModels(db));
 
   const db_name = db.name;
 
@@ -956,6 +1060,11 @@ export const loadClasses = (
     'logs',
     loadLogsClass(models),
   );
+
+  models.UserActivities = logDb.model<
+    IUserActivityDailyDocument,
+    IUserActivitiesModel
+  >('user_activity_daily', loadUserActivitiesClass(models));
 
   return models;
 };

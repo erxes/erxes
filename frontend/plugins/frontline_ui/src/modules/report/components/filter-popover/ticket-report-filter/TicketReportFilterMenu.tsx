@@ -26,7 +26,7 @@ export const TicketReportFilterMenu = ({
   hasFilters: boolean;
   onClear: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <Command>
       <Filter.CommandInput

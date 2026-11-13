@@ -15,6 +15,34 @@ export const types = `
     threshold: Int
   }
 
+  type TicketFormAnswer {
+    fieldId: String
+    label: String
+    type: String
+    value: JSON
+  }
+
+  type TicketFormResponse {
+    _id: String!
+    formId: String
+    formTitle: String
+    customerId: String
+    submittedAt: Date
+    answers: [TicketFormAnswer]
+  }
+
+  type TicketSla {
+    priority: Int
+    firstResponseDueAt: Date
+    resolutionDueAt: Date
+    firstRespondedAt: Date
+    resolvedAt: Date
+    firstResponseWarnedAt: Date
+    firstResponseBreachedAt: Date
+    resolutionWarnedAt: Date
+    resolutionBreachedAt: Date
+  }
+
   type Ticket {
     _id: String!
     name: String
@@ -45,9 +73,12 @@ export const types = `
     propertiesData: JSON
     state: String
     attachments: [Attachment]
-    companyIds: [String]
+    customerId: String
+    companyId: String
     customerFieldData: JSON
     sourceSurvey: TicketSourceSurvey
+    sla: TicketSla
+    formResponses: [TicketFormResponse]
   }
   type RemoveResponse {
     ok: Int!
@@ -82,6 +113,8 @@ export const types = `
     createdBy: String
     labelIds: [String]
     tagIds: [String]
+    customerId: String
+    companyId: String
     startDate: Date
     targetDate: Date
     channelId: String
@@ -137,7 +170,8 @@ const createTicketParams = `
   state: String
   propertiesData: JSON
   attachments: [AttachmentInput]
-  companyIds: [String]
+  customerId: String
+  companyId: String
   customerFieldData: JSON
 `;
 
@@ -161,7 +195,8 @@ const updateTicketParams = `
   state: String
   propertiesData: JSON
   attachments: [AttachmentInput]
-  companyIds: [String]
+  customerId: String
+  companyId: String
   customerFieldData: JSON
 `;
 

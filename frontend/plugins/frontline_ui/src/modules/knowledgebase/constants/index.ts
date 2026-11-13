@@ -69,6 +69,18 @@ import {
 
 export const KNOWLEDGE_BASE_PATH = '/frontline/knowledgebase';
 
+export const KB_RECORD_CONTENT_TYPES = {
+  article: 'frontline:knowledgebase.article',
+  topic: 'frontline:knowledgebase.topic',
+  category: 'frontline:knowledgebase.category',
+} as const;
+
+export const KB_DRAFT_CONTENT_TYPES = {
+  article: 'frontline:article',
+  topic: 'frontline:topic',
+  category: 'frontline:category',
+} as const;
+
 export const TOPICS_PER_PAGE = 100;
 export const CATEGORIES_PER_PAGE = 100;
 export const ARTICLES_PER_PAGE = 100;
@@ -178,14 +190,14 @@ export const REACTIONS = REACTION_ICONS.map(([name, label]) => ({
 }));
 
 const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English',
-  mn: 'Mongolian',
-  zh: 'Chinese',
-  ja: 'Japanese',
-  ko: 'Korean',
-  ru: 'Russian',
+  en: 'language-english',
+  mn: 'language-mongolian',
+  zh: 'language-chinese',
+  ja: 'language-japanese',
+  ko: 'language-korean',
+  ru: 'language-russian',
 };
 
 export const LANGUAGES = Object.entries(LANGUAGE_NAMES).map(
-  ([value, label]) => ({ value, label }),
+  ([value, labelKey]) => ({ value, labelKey }),
 );

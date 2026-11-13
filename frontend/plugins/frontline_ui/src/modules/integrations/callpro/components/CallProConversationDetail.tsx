@@ -7,7 +7,9 @@ import { CallProCustomerSelect } from '@/integrations/callpro/components/CallPro
 import { useCallProCustomersByPhone } from '@/integrations/callpro/hooks/useCallProCustomersByPhone';
 
 export const CallProConversationDetail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [conversationId] = useQueryState<string>('conversationId');
 
   const { conversationDetail, loading } = useConversationDetail({
@@ -115,7 +117,9 @@ const CallProCustomerPicker = ({
   loading: boolean;
   children: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   return (
     <div className="flex flex-col gap-2">

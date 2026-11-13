@@ -26,7 +26,9 @@ import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPa
 import { useIgAuthPopup } from '@/integrations/instagram/hooks/useIgAuthPopup';
 
 export const InstagramGetAccounts = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { instagramGetAccounts, loading, refetch } = useInstagramAccounts();
   const {
     instagramGetPages,
@@ -46,12 +48,13 @@ export const InstagramGetAccounts = () => {
 
   const handleInstagramLogin = () => {
     setIsLoggingIn(true);
-    popupWindow(
+    const opened = popupWindow(
       `${REACT_APP_API_URL}/pl:frontline/instagram/iglogin`,
       'Instagram Login',
       660,
       750,
     );
+    if (!opened) setIsLoggingIn(false);
   };
 
   const onNext = () => setActiveStep(2);

@@ -1,4 +1,3 @@
-import { IconRadar } from '@tabler/icons-react';
 import {
   Badge,
   RelativeDateDisplay,
@@ -78,10 +77,6 @@ export const TrackedDataWidgets = ({
 
   return (
     <SideMenu.Content value="trackedData" className="bg-sidebar">
-      <SideMenu.Header
-        label={t('tracked-data', 'Tracked data')}
-        Icon={IconRadar}
-      />
       {loading ? (
         <Spinner containerClassName="py-6" />
       ) : (

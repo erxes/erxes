@@ -27,6 +27,7 @@ export function RenderPluginsComponent({
   props,
   withMascot,
   quiet,
+  onLoadError,
 }: {
   pluginName: string;
   remoteModuleName: string;
@@ -37,6 +38,9 @@ export function RenderPluginsComponent({
    * widgets) that must never take page space.
    */
   quiet?: boolean;
+  // The remote could not be loaded or crashed, e.g. so the host can show
+  // something else in its place.
+  onLoadError?: () => void;
 }) {
   const configs = useAtomValue(pluginsConfigState);
   const pluginName = resolvePluginRemoteName(requestedPluginName, configs);
@@ -75,6 +79,7 @@ export function RenderPluginsComponent({
 
         setPlugin(() => remoteComponent);
       } catch (error) {
+        onLoadError?.();
         setHasError({
           message:
             error instanceof Error ? error.message : 'Failed to load plugin',
@@ -123,6 +128,7 @@ export function RenderPluginsComponent({
         }
         resetKeys={[pluginName, remoteModuleName]}
         onError={(error, info) => {
+          onLoadError?.();
           // The fallback hides the error; keep it visible for debugging.
           console.error(
             `[${pluginName}/${remoteModuleName}] render failed`,

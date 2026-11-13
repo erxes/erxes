@@ -13,7 +13,6 @@ import {
   Button,
   Separator,
   TextOverflowTooltip,
-  useQueryState,
 } from 'erxes-ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -26,16 +25,10 @@ export const ticketBoardItemAtom = atom(
 );
 
 export const TicketCard = ({ id, column }: BoardCardProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const ticket = useAtomValue(ticketBoardItemAtom)(id);
   const [, setActiveTicket] = useTicketDetailSheet();
-  const [, setSelectedTab] = useQueryState<string>('tab');
   const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
-
-  const openTicketTab = (tab: 'overview' | 'properties') => {
-    setSelectedTab(tab);
-    setActiveTicket(id);
-  };
 
   if (!ticket) {
     return null;
@@ -111,8 +104,8 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
       <TicketCardDetails
         tagIds={compactList(tagIds)}
         propertiesData={isRecord(propertiesData) ? propertiesData : undefined}
-        onTagsOverflowClick={() => openTicketTab('overview')}
-        onPropertiesOverflowClick={() => openTicketTab('properties')}
+        onTagsOverflowClick={() => setActiveTicket(id)}
+        onPropertiesOverflowClick={() => setActiveTicket(id)}
       />
       <Separator />
       <div className="h-9 flex items-center justify-between px-1.5">

@@ -1,12 +1,11 @@
+import { useSidePanel } from 'ui-modules';
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { Button, Sheet, Spinner } from 'erxes-ui';
 import { useEMEditSave } from '@/integrations/erxes-messenger/hooks/useEMEditSave';
-import { useAtom, useSetAtom } from 'jotai';
-import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-// Every step keeps its values in its own atom, so jumping never loses input.
 const EM_STEP_LABEL_KEYS = [
   'appearance',
   'greeting',
@@ -16,6 +15,7 @@ const EM_STEP_LABEL_KEYS = [
   'config',
 ];
 
+/** Arranges messenger setup steps with navigation, cancel, and save controls. */
 export const EMLayout = ({
   children,
   actions,
@@ -26,12 +26,12 @@ export const EMLayout = ({
   title: string;
 }) => {
   const { t } = useTranslation('frontline');
+  const { close } = useSidePanel();
   const [step, setStep] = useAtom(erxesMessengerSetupStepAtom);
-  const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
   const editSave = useEMEditSave();
 
   const handleCancel = () => {
-    resetErxesMessengerSetup();
+    close();
   };
 
   return (
@@ -47,7 +47,7 @@ export const EMLayout = ({
         />
         {children}
       </Sheet.Content>
-      <Sheet.Footer>
+      <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1 flex-wrap">
         <Button
           variant="secondary"
           className="mr-auto bg-border"
@@ -71,8 +71,11 @@ export const EMLayout = ({
   );
 };
 
+/** Returns to the previous messenger setup step when one is available. */
 export const EMLayoutPreviousStepButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [step, setStep] = useAtom(erxesMessengerSetupStepAtom);
   return (
     <Button

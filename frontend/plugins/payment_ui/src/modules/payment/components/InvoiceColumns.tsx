@@ -1,8 +1,8 @@
 import {
   IconAlignLeft,
   IconCalendarPlus,
+  IconCreditCard,
   IconHash,
-  IconQrcode,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -14,6 +14,7 @@ import {
 import {
   InvoiceAmountCell,
   InvoiceDescriptionCell,
+  InvoicePaymentMethodCell,
   InvoiceStatusCell,
 } from '~/modules/payment/components/InvoiceInlineCells';
 import { InvoiceMoreColumnCell } from '~/modules/payment/components/InvoiceMoreColumn';
@@ -85,34 +86,19 @@ export const invoicesColumns = (
     cell: ({ cell }) => <InvoiceStatusCell invoice={cell.row.original} />,
   },
   {
-    id: 'scannedAt',
-    accessorKey: 'scannedAt',
+    id: 'paymentMethod',
+    accessorFn: (invoice) =>
+      (invoice.transactions || []).map((tr) => tr.paymentKind).join(','),
     header: () => (
-      <RecordTable.InlineHead label={t('scanned')} icon={IconQrcode} />
+      <RecordTable.InlineHead
+        label={t('payment-method-label')}
+        icon={IconCreditCard}
+      />
     ),
-    cell: ({ row }) => {
-      const { scannedAt, ticketCount = 1 } = row.original as IInvoice;
-      const scannedCount = Math.max(
-        (row.original as IInvoice).scannedCount || 0,
-        scannedAt ? 1 : 0,
-      );
-
-      if (scannedCount === 0) {
-        return (
-          <RecordTableInlineCell>
-            <Badge variant="secondary">{t('not-scanned')}</Badge>
-          </RecordTableInlineCell>
-        );
-      }
-
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={scannedCount >= ticketCount ? 'success' : 'warning'}>
-            {scannedCount} / {ticketCount}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <InvoicePaymentMethodCell invoice={cell.row.original} />
+    ),
+    size: 200,
   },
   {
     id: 'createdAt',

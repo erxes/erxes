@@ -1,5 +1,10 @@
-import { Accordion, Form, Input, Select, Textarea, Switch } from 'erxes-ui';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
+import { ReactNode } from 'react';
+import { Accordion, Form, Input, Select, Textarea, Switch, cn } from 'erxes-ui';
+import {
+  type FieldValues,
+  type UseFormReturn,
+  useWatch,
+} from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CategoryField } from './CategoryField';
 import { TagField } from './TagField';
@@ -14,10 +19,10 @@ export interface PostUrlSource {
   count?: number | null;
 }
 
-export interface SelectOption {
+export type SelectOption = {
   label: string;
   value: string;
-}
+};
 
 export interface CustomType {
   _id: string;
@@ -74,6 +79,55 @@ interface ContentTabProps {
   handleLanguageChange: (lang: string) => void;
 }
 
+const SidebarSection = ({
+  title,
+  first,
+  children,
+}: {
+  title: ReactNode;
+  first?: boolean;
+  children: ReactNode;
+}) => (
+  <section className={cn('flex flex-col gap-4', !first && 'border-t pt-4')}>
+    <h4 className="text-sm font-semibold text-foreground">{title}</h4>
+    {children}
+  </section>
+);
+
+const SeoSearchPreview = ({
+  form,
+  domain,
+}: {
+  form: UseFormReturn<FieldValues>;
+  domain?: string;
+}) => {
+  const { t } = useTranslation('content');
+  const [title, seoTitle, description, seoDescription, slug] = useWatch({
+    control: form.control,
+    name: ['title', 'seoTitle', 'description', 'seoDescription', 'slug'],
+  });
+  const url = [domain, slug].filter(Boolean).join('/');
+
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-medium text-muted-foreground">
+        {t('search-preview')}
+      </span>
+      <div className="flex flex-col gap-0.5 rounded-md border bg-accent/30 p-3">
+        {url && (
+          <span className="truncate text-xs text-muted-foreground">{url}</span>
+        )}
+        <span className="truncate text-sm font-medium text-primary">
+          {seoTitle || title || t('post-title-placeholder')}
+        </span>
+        <p className="line-clamp-2 text-xs text-muted-foreground">
+          {seoDescription || description || t('seo-description-placeholder')}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 export const ContentTab = ({
   form,
   categories,
@@ -98,144 +152,177 @@ export const ContentTab = ({
 
   return (
     <>
-      {availableLanguages.length > 0 && (
-        <LanguageSelector
-          selectedLanguage={selectedLanguage}
-          languageOptions={languageOptions}
-          onLanguageChange={handleLanguageChange}
-        />
-      )}
-
-      <Form.Field
-        control={form.control}
-        name="type"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>
-              {t('post-type')}
-              {isTranslationMode && (
-                <span className="ml-2 text-xs text-gray-500">
-                  ({t('shared-across-languages')})
-                </span>
-              )}
-            </Form.Label>
-            <Form.Control>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <Select.Trigger>
-                  <Select.Value placeholder={t('choose-type')} />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="post">{t('post')}</Select.Item>
-                  {customTypes.map((type) => (
-                    <Select.Item key={type._id} value={type._id}>
-                      {type.label}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+      <SidebarSection title={t('general')} first>
+        {availableLanguages.length > 0 && (
+          <LanguageSelector
+            selectedLanguage={selectedLanguage}
+            languageOptions={languageOptions}
+            onLanguageChange={handleLanguageChange}
+          />
         )}
-      />
 
-      {canShowUrlField && postUrlField === 'slug' && (
         <Form.Field
           control={form.control}
-          name="slug"
+          name="type"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{POST_URL_FIELD_LABELS.slug}</Form.Label>
+              <Form.Label>
+                {t('post-type')}
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-gray-500">
+                    ({t('shared-across-languages')})
+                  </span>
+                )}
+              </Form.Label>
               <Form.Control>
-                <div className="flex items-center gap-2">
-                  <Input
-                    {...field}
-                    className="flex-1"
-                    placeholder="optional-post-url-slug"
-                  />
-                  {fullPost && (
-                    <PostPublicUrlButton
-                      post={fullPost}
-                      cmsConfig={cmsConfig}
-                      iconOnly
-                    />
-                  )}
-                </div>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value placeholder={t('choose-type')} />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="post">{t('post')}</Select.Item>
+                    {customTypes.map((type) => (
+                      <Select.Item key={type._id} value={type._id}>
+                        {type.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
               </Form.Control>
-              <Form.Description>{t('slug-leave-empty-desc')}</Form.Description>
               <Form.Message />
             </Form.Item>
           )}
         />
-      )}
 
-      {canShowUrlField && generatedPostUrlField && (
-        <Form.Item>
-          <Form.Label>
-            {POST_URL_FIELD_LABELS[generatedPostUrlField]}
-          </Form.Label>
-          <Form.Control>
-            <div className="flex items-center gap-2">
-              <Input
-                value={getGeneratedPostUrlValue(
-                  generatedPostUrlField,
-                  fullPost,
-                )}
-                className="flex-1"
-                placeholder={t('generated-after-save')}
-                readOnly
-              />
-              {fullPost && (
-                <PostPublicUrlButton
-                  post={fullPost}
-                  cmsConfig={cmsConfig}
-                  iconOnly
-                />
-              )}
-            </div>
-          </Form.Control>
-          <Form.Description>
-            {POST_URL_FIELD_DESCRIPTIONS[generatedPostUrlField]}
-          </Form.Description>
-        </Form.Item>
-      )}
+        {canShowUrlField && postUrlField === 'slug' && (
+          <Form.Field
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{POST_URL_FIELD_LABELS.slug}</Form.Label>
+                <Form.Control>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      {...field}
+                      className="flex-1"
+                      placeholder="optional-post-url-slug"
+                    />
+                    {fullPost && (
+                      <PostPublicUrlButton
+                        post={fullPost}
+                        cmsConfig={cmsConfig}
+                        iconOnly
+                      />
+                    )}
+                  </div>
+                </Form.Control>
+                <Form.Description>
+                  {t('slug-leave-empty-desc')}
+                </Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
 
-      <Form.Field
-        control={form.control}
-        name="description"
-        render={({ field }) => (
+        {canShowUrlField && generatedPostUrlField && (
           <Form.Item>
             <Form.Label>
-              {t('short-description')}
-              {isTranslationMode && (
-                <span className="ml-2 text-xs text-blue-600">
-                  ({selectedLanguage})
-                </span>
-              )}
+              {POST_URL_FIELD_LABELS[generatedPostUrlField]}
             </Form.Label>
             <Form.Control>
-              <Textarea
-                {...field}
-                placeholder={t('description-here')}
-                rows={8}
-                maxLength={500}
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  value={getGeneratedPostUrlValue(
+                    generatedPostUrlField,
+                    fullPost,
+                  )}
+                  className="flex-1"
+                  placeholder={t('generated-after-save')}
+                  readOnly
+                />
+                {fullPost && (
+                  <PostPublicUrlButton
+                    post={fullPost}
+                    cmsConfig={cmsConfig}
+                    iconOnly
+                  />
+                )}
+              </div>
             </Form.Control>
-            <div className="text-xs text-muted-foreground text-right">
-              {t('x-of-500-chars', { count: field.value?.length || 0 })}
-            </div>
-            <Form.Message />
+            <Form.Description>
+              {POST_URL_FIELD_DESCRIPTIONS[generatedPostUrlField]}
+            </Form.Description>
           </Form.Item>
         )}
-      />
+
+        <Form.Field
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                {t('short-description')}
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-blue-600">
+                    ({selectedLanguage})
+                  </span>
+                )}
+              </Form.Label>
+              <Form.Control>
+                <Textarea
+                  {...field}
+                  placeholder={t('description-here')}
+                  rows={4}
+                  maxLength={500}
+                />
+              </Form.Control>
+              <div className="text-xs text-muted-foreground text-right">
+                {t('x-of-500-chars', { count: field.value?.length || 0 })}
+              </div>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      </SidebarSection>
+
+      <SidebarSection title={t('organize')}>
+        <CategoryField
+          form={form}
+          categories={categories}
+          websiteId={websiteId}
+        />
+        <TagField form={form} tags={tags} websiteId={websiteId} />
+
+        <Form.Field
+          control={form.control}
+          name="featured"
+          render={({ field }) => (
+            <Form.Item className="flex items-center justify-between gap-4 space-y-0">
+              <div className="flex flex-col gap-0.5">
+                <Form.Label>{t('featured')}</Form.Label>
+                <Form.Description>{t('featured-desc')}</Form.Description>
+              </div>
+              <Form.Control>
+                <Switch
+                  checked={Boolean(field.value)}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+      </SidebarSection>
 
       {!isTranslationMode && (
-        <Accordion type="single" collapsible className="rounded-md border">
+        <Accordion type="single" collapsible className="border-t">
           <Accordion.Item value="seo" className="border-b-0">
-            <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
+            <Accordion.Trigger className="cursor-pointer py-4 text-left text-sm font-semibold hover:no-underline">
               {t('seo')}
             </Accordion.Trigger>
-            <Accordion.Content className="space-y-4 px-4 pb-4">
+            <Accordion.Content className="space-y-4 pb-1">
+              <SeoSearchPreview form={form} domain={cmsConfig?.domain} />
               <Form.Field
                 control={form.control}
                 name="seoTitle"
@@ -280,31 +367,6 @@ export const ContentTab = ({
           </Accordion.Item>
         </Accordion>
       )}
-
-      <CategoryField
-        form={form}
-        categories={categories}
-        websiteId={websiteId}
-      />
-      <TagField form={form} tags={tags} websiteId={websiteId} />
-
-      <Form.Field
-        control={form.control}
-        name="featured"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('featured')}</Form.Label>
-            <Form.Description>{t('featured-desc')}</Form.Description>
-            <Form.Control>
-              <Switch
-                checked={Boolean(field.value)}
-                onCheckedChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
     </>
   );
 };

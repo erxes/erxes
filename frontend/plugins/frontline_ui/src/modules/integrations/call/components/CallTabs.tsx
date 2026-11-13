@@ -21,7 +21,9 @@ import { useAtom, useAtomValue } from 'jotai';
 import { TAddCallCustomer } from '@/integrations/call/hooks/useAddCustomer';
 
 export const CallTabs = ({ keypad }: { keypad: React.ReactNode }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [callUi, setCallUi] = useAtom(callUiAtom);
 
   return (
@@ -85,7 +87,9 @@ export const CallButton = ({
 }: {
   addCustomer: TAddCallCustomer;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { startCall } = useSip();
   const sipState = useAtomValue(sipStateAtom);
   const [callConfig] = useAtom(callConfigAtom);

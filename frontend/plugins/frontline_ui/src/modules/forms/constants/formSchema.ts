@@ -61,6 +61,7 @@ export const FORM_CONTENT_SCHEMA = z.object({
         z.object({
           id: z.string(),
           type: z.string(),
+          expectedType: z.string().optional(),
           label: z.string(),
           description: z.string(),
           placeholder: z.string().optional(),
@@ -122,7 +123,7 @@ export const LEAD_DATA_SCHEMA = z
         z.object({
           name: z.string().optional().catch(undefined),
           description: z.string().optional().catch(undefined),
-          order: z.number().catch(0),
+          order: z.number().optional().catch(undefined),
         }),
       )
       .optional()

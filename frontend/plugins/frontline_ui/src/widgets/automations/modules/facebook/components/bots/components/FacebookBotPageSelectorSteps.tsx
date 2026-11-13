@@ -1,8 +1,9 @@
+import { RecordSidePanel } from 'ui-modules';
 import {
   selectedFacebookAccountAtom,
   selectedFacebookPageAtom,
 } from '@/integrations/facebook/states/facebookStates';
-import { Badge, Button, cn, Sheet } from 'erxes-ui';
+import { Badge, Button, cn } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,21 +12,19 @@ import { FacebookBotPagesStep } from '~/widgets/automations/modules/facebook/com
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
 
 const useActionButton = (accountId?: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [activeStep, setStep] = useState(1);
 
   const selectedAccountId =
     useAtomValue(selectedFacebookAccountAtom) || accountId;
   const selectedPageId = useAtomValue(selectedFacebookPageAtom);
-  const [isOpenAccountSheet, setOpenAccountSheet] = useAtom(
-    isOpenFacebookBotSecondarySheet,
-  );
+  const [, setOpenAccountSheet] = useAtom(isOpenFacebookBotSecondarySheet);
 
   const isLastStep = activeStep === 2 && selectedAccountId && selectedPageId;
 
   const onClick = () => {
     if (isLastStep) {
-      isOpenAccountSheet && setOpenAccountSheet(false);
+      setOpenAccountSheet(false);
       return;
     }
     setStep(activeStep + 1);
@@ -40,39 +39,42 @@ const useActionButton = (accountId?: string) => {
     onClick,
     activeStep,
     setStep,
+    close: () => setOpenAccountSheet(false),
   };
 };
 
 export const FacebookBotPageSelectorSteps = ({
   step,
   accountId,
-}: {
+}: Readonly<{
   step: number;
   accountId?: string;
-}) => {
-  const { t } = useTranslation('frontline');
-  const { onClick, disabled, text, activeStep, setStep } =
+}>) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
+  const { onClick, disabled, text, activeStep, setStep, close } =
     useActionButton(accountId);
 
   useEffect(() => {
     setStep(step);
-  }, [step]);
+  }, [step, setStep]);
 
   return (
     <>
-      <Sheet.Header className="p-5 h-auto py-2">
-        <div className="flex items-center gap-2">
-          <Badge className="rounded-xl text-xs font-mono">
-            STEP {activeStep}
-          </Badge>
-          <h2 className="text-primary font-semibold text-base">
-            {t('connect-page', 'Connect Page')}
-          </h2>
-        </div>
-
-        <Sheet.Close />
-      </Sheet.Header>
-      <Sheet.Content>
+      <RecordSidePanel.Header
+        title={
+          <div className="flex items-center gap-2">
+            <Badge className="rounded-xl text-xs font-mono">
+              STEP {activeStep}
+            </Badge>
+            <h2 className="text-primary font-semibold text-base">
+              {t('connect-page', 'Connect Page')}
+            </h2>
+          </div>
+        }
+        onBack={close}
+        onClose={close}
+      />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <div className="p-5 flex flex-col gap-3">
           <div className="flex items-center gap-1 w-full">
             {Array.from({ length: 2 }).map((_, index) => (
@@ -93,8 +95,8 @@ export const FacebookBotPageSelectorSteps = ({
           <FacebookBotPageAccountsStep accountId={accountId} />
         )}
         {activeStep === 2 && <FacebookBotPagesStep />}
-      </Sheet.Content>
-      <Sheet.Footer>
+      </div>
+      <div className="flex shrink-0 justify-end gap-2 border-t p-3">
         <Button
           variant="secondary"
           className="bg-border"
@@ -106,7 +108,7 @@ export const FacebookBotPageSelectorSteps = ({
         <Button onClick={onClick} disabled={disabled}>
           {text}
         </Button>
-      </Sheet.Footer>
+      </div>
     </>
   );
 };

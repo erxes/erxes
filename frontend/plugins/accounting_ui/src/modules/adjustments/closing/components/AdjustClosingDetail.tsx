@@ -27,6 +27,7 @@ import {
   Tabs,
   TextOverflowTooltip,
   Tooltip,
+  useConfirm,
 } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -41,6 +42,7 @@ import { tbalanceColumns } from '~/modules/transactions/transaction-form/compone
 import { useTransactionsDetail } from '~/modules/transactions/transaction-form/hooks/useTransactionsDetail';
 import { ITBalanceTransaction } from '~/modules/transactions/transaction-form/types/TBalance';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
+import { getTransactionNumbers } from '@/adjustments/utils/getTransactionNumbers';
 import {
   IAdjustClosing,
   IAdjustClosingDetailItem,
@@ -54,6 +56,7 @@ import {
 import { useAdjustClosingPublish } from '../hooks/useAdjustClosingPublish';
 import { useAdjustClosingEntryRemove } from '../hooks/useAdjustClosingRemove';
 import { useAdjustClosingCancel } from '../hooks/useAdjustClosingCancel';
+import { notifyMutationResult } from '@/utils/graphqlMutation';
 import { useAdjustClosingEdit } from '../hooks/useAdjustClosingEdit';
 
 interface AdjustClosingDetailProps {
@@ -94,10 +97,10 @@ const formatStructureLabel = (
 
   const label = labelMap[id];
   if (!label) {
-    return id;
+    return '-';
   }
 
-  return [label.code, label.title].filter(Boolean).join(' - ') || id;
+  return [label.code, label.title].filter(Boolean).join(' - ') || '-';
 };
 
 const getBranchLabel = (
@@ -168,7 +171,7 @@ const ClosingAccountCell = ({
         Boolean(id),
       )}
       permissionMode="read"
-      placeholder={row.original.accountId || '-'}
+      placeholder="-"
     />
   </RecordTableInlineCell>
 );
@@ -203,25 +206,22 @@ const ClosingPercentCell = ({
   </RecordTableInlineCell>
 );
 
-const ClosingMainTransactionCell = ({
-  row,
-}: CellContext<TClosingEntryRow, unknown>) => (
+const ClosingTransactionCell = ({
+  transactionId,
+  transactionNumbers,
+}: {
+  transactionId?: string;
+  transactionNumbers: Map<string, string>;
+}) => (
   <RecordTableInlineCell>
-    {row.original.mainAccTrId || '-'}
-  </RecordTableInlineCell>
-);
-
-const ClosingIntegrateTransactionCell = ({
-  row,
-}: CellContext<TClosingEntryRow, unknown>) => (
-  <RecordTableInlineCell>
-    {row.original.integrateTrId || '-'}
+    {(transactionId && transactionNumbers.get(transactionId)) || '-'}
   </RecordTableInlineCell>
 );
 
 const createClosingEntryColumns = (
   t: TFunction<'accounting'>,
   onPercentChange: TPercentChangeHandler,
+  transactionNumbers: Map<string, string>,
 ): ColumnDef<TClosingEntryRow>[] => [
   {
     id: 'accountId',
@@ -250,14 +250,24 @@ const createClosingEntryColumns = (
     id: 'mainAccTrId',
     accessorKey: 'mainAccTrId',
     header: () => <RecordTable.InlineHead label={t('Main transaction')} />,
-    cell: ClosingMainTransactionCell,
+    cell: ({ row }) => (
+      <ClosingTransactionCell
+        transactionId={row.original.mainAccTrId}
+        transactionNumbers={transactionNumbers}
+      />
+    ),
     size: 220,
   },
   {
     id: 'integrateTrId',
     accessorKey: 'integrateTrId',
     header: () => <RecordTable.InlineHead label={t('Integrate transaction')} />,
-    cell: ClosingIntegrateTransactionCell,
+    cell: ({ row }) => (
+      <ClosingTransactionCell
+        transactionId={row.original.integrateTrId}
+        transactionNumbers={transactionNumbers}
+      />
+    ),
     size: 220,
   },
 ];
@@ -270,6 +280,7 @@ const ClosingActionButtons = ({
   onDelete,
   onPublish,
   onRun,
+  removeLoading,
   runLoading,
   status,
 }: {
@@ -280,6 +291,7 @@ const ClosingActionButtons = ({
   onDelete: () => void;
   onPublish: () => void;
   onRun: () => void;
+  removeLoading: boolean;
   runLoading: boolean;
   status?: string;
 }) => {
@@ -305,8 +317,9 @@ const ClosingActionButtons = ({
             variant="secondary"
             className="text-destructive"
             onClick={onDelete}
+            disabled={removeLoading}
           >
-            <IconTrashX />
+            {removeLoading ? <Spinner /> : <IconTrashX />}
             {t('delete')}
           </Button>
         </>
@@ -347,6 +360,7 @@ const ClosingActionButtons = ({
 
 export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const { t } = useTranslation('accounting');
+  const { confirm } = useConfirm();
   const { adjustClosingDetail, loading } = useAdjustClosingDetail({
     variables: { _id: id ?? '' },
     skip: !id,
@@ -371,7 +385,8 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   } = useAdjustClosingRun(id ?? '');
   const { publishAdjust } = useAdjustClosingPublish(id ?? '');
   const { cancelAdjust } = useAdjustClosingCancel(id ?? '');
-  const { removeAdjust } = useAdjustClosingEntryRemove();
+  const { removeAdjust, loading: removeLoading } =
+    useAdjustClosingEntryRemove();
 
   const closingDetails = useMemo(
     () => adjustClosingDetail?.details ?? [],
@@ -422,7 +437,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const transactionColumns = useMemo(
     () =>
       tbalanceColumns(t).filter(
-        (column) => column.id !== 'more' && !column.id?.includes('inv'),
+        (column) => column.id !== 'more' && !column.id?.includes('details'),
       ),
     [t],
   );
@@ -451,8 +466,16 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const handlePublish = () => publishAdjust();
   const handleCancel = () => cancelAdjust();
   const handleDelete = () => {
-    if (id) {
-      removeAdjust(id);
+    if (id && !removeLoading) {
+      void confirm({
+        message: t('Are you sure you want to delete this adjustment?'),
+      }).then(() =>
+        removeAdjust(id, {
+          onError: (error) => notifyMutationResult(false, error.message),
+          onCompleted: () =>
+            notifyMutationResult(true, t('Adjustment deleted successfully')),
+        }),
+      );
     }
   };
 
@@ -468,9 +491,13 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
     [adjustClosingEdit, id],
   );
 
+  const transactionNumbers = useMemo(
+    () => getTransactionNumbers(transactions),
+    [transactions],
+  );
   const columns = useMemo(
-    () => createClosingEntryColumns(t, handlePercentChange),
-    [handlePercentChange, t],
+    () => createClosingEntryColumns(t, handlePercentChange, transactionNumbers),
+    [handlePercentChange, t, transactionNumbers],
   );
 
   if (loading || detailsLoading || branchesLoading || departmentsLoading) {
@@ -516,6 +543,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
               onCalculate={handleCalculate}
               onCancel={handleCancel}
               onDelete={handleDelete}
+              removeLoading={removeLoading}
               onPublish={handlePublish}
               onRun={handleRun}
               runLoading={runLoading}

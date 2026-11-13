@@ -1,4 +1,6 @@
-import { saveValidatedToken } from '@/auth/utils';
+import { AuthIdentityProvider } from '@/auth/db/definitions/ldap';
+import { LoginError } from '@/auth/loginError';
+import { revokeUserSession, revokeUserSessions } from '@/auth/session';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import {
@@ -18,12 +20,12 @@ import {
   ILink,
   IPropertyField,
   IUser,
+  IUserAppearance,
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { redis } from 'erxes-api-shared/utils';
-import * as jwt from 'jsonwebtoken';
-import { Model } from 'mongoose';
+import { escapeRegExp, redis } from 'erxes-api-shared/utils';
+import { FilterQuery, Model, PipelineStage } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
@@ -32,8 +34,27 @@ import {
   generateUserUpdateActivityLogs,
   generateUserInvitationActivityLog,
 } from '../../meta/activity-log';
+import { buildProfilePatch, IProfilePatch } from '../utils/profilePatch';
+import { toLoggedUser } from '../../loggedUser';
 
 const SALT_WORK_FACTOR = 10;
+
+// Must match the core-ui appearance options.
+const USER_APPEARANCE_LAYOUTS = ['default', 'notch', 'sidebar'];
+const USER_APPEARANCE_NAV_POSITIONS = ['start', 'end'];
+const USER_APPEARANCE_FRAME_COLORS = [
+  'indigo',
+  'graphite',
+  'forest',
+  'plum',
+  'erxes',
+  'new-year',
+  'march-8',
+  'seasonal',
+];
+
+const exactPattern = (value: string) =>
+  new RegExp(`^${escapeRegExp(value)}$`, 'i');
 
 interface IEditProfile {
   username?: string;
@@ -59,6 +80,15 @@ interface IInviteParams {
   permissionGroupIds?: string[];
 }
 
+interface IProvisionedUserParams {
+  email: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  permissionGroupIds: string[];
+  isActive?: boolean;
+}
+
 interface ILoginParams {
   email: string;
   password?: string;
@@ -74,6 +104,15 @@ interface IPasswordParams {
 export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
+  isDirectoryUser(userId: string): Promise<boolean>;
+  getIdentityProvider(
+    userId: string,
+  ): Promise<AuthIdentityProvider | undefined>;
+  isSupportUser(userId: string): Promise<boolean>;
+  staffQuery(
+    query: FilterQuery<IUserDocument>,
+  ): Promise<FilterQuery<IUserDocument>>;
+  assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;
     idsToExclude?: string | string[];
@@ -89,7 +128,12 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     values: Record<string, unknown>,
   ): Promise<IUserDocument | null>;
-  editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
+  editProfile(
+    _id: string,
+    doc: IEditProfile,
+    pipeline?: PipelineStage[],
+  ): Promise<IUserDocument>;
+  patchProfile(_id: string, doc: IProfilePatch): Promise<IUserDocument>;
   generateUserCode(): Promise<string>;
   generateUserCodeField(): Promise<void>;
   configEmailSignatures(
@@ -100,9 +144,14 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     isAllowed: boolean,
   ): Promise<IUserDocument>;
+  configAppearance(
+    _id: string,
+    appearance: IUserAppearance,
+  ): Promise<IUserDocument | null>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
+  createProvisionedUser(params: IProvisionedUserParams): Promise<IUserDocument>;
   resendInvitation({ email }: { email: string }): Promise<string>;
   comparePassword(password: string, userPassword: string): Promise<boolean>;
   resetPassword(params: {
@@ -111,19 +160,12 @@ export interface IUserModel extends Model<IUserDocument> {
   }): Promise<IUserDocument>;
   resetMemberPassword(params: IPasswordParams): Promise<IUserDocument>;
   changePassword(
-    params: IPasswordParams & { currentPassword: string },
+    params: IPasswordParams & { currentPassword: string; keepSid?: string },
   ): Promise<IUserDocument>;
   forgotPassword(email: string): Promise<string>;
-  createTokens(_user: IUserDocument, secret: string): Promise<string[]>;
-  refreshTokens(refreshToken: string): Promise<
-    | {
-        token: string;
-        refreshToken: string;
-        user: IUserDocument;
-      }
-    | Record<string, never>
-  >;
-  login(params: ILoginParams): Promise<{ token: string; refreshToken: string }>;
+  login(
+    params: ILoginParams,
+  ): Promise<{ user: IUserDocument; method: 'password' | 'ldap' }>;
   checkLoginAuth({
     email,
     password,
@@ -132,9 +174,15 @@ export interface IUserModel extends Model<IUserDocument> {
     password?: string;
   }): Promise<IUserDocument>;
   getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
-  logout(_user: IUserDocument, token: string): Promise<string>;
+  logout(_user: IUserDocument, legacyToken?: string): Promise<string>;
+  revokeSessions(_id: string, sessionId?: string): Promise<boolean>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
+  setAvailability(
+    _id: string,
+    doc: { status?: string | null; until?: Date | null; reason?: string | null },
+    setBy: string,
+  ): Promise<IUserDocument | null>;
 }
 
 export const loadUserClass = (
@@ -178,8 +226,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: _id,
-          currentDocument: updated.toObject(),
-          prevDocument: prev.toObject(),
+          currentDocument: toLoggedUser(updated),
+          prevDocument: toLoggedUser(prev),
         });
       }
 
@@ -194,6 +242,62 @@ export const loadUserClass = (
       }
 
       return user;
+    }
+
+    public static async isDirectoryUser(userId: string) {
+      return Boolean(
+        await models.AuthIdentities.exists({ provider: 'ldap', userId }),
+      );
+    }
+
+    public static async getIdentityProvider(userId: string) {
+      const identity = await models.AuthIdentities.findOne(
+        { userId },
+        { provider: 1 },
+      ).lean();
+
+      return identity?.provider;
+    }
+
+    public static async isSupportUser(userId: string) {
+      return (await this.getIdentityProvider(userId)) === 'erxes_support';
+    }
+
+    // Support accounts act in the tenant but aren't staff: no lists, pickers or counts
+    public static async staffQuery(query: FilterQuery<IUserDocument>) {
+      const supportUserIds = await models.AuthIdentities.find({
+        provider: 'erxes_support',
+      }).distinct('userId');
+
+      return {
+        $and: [
+          query,
+          {
+            role: { $ne: USER_ROLES.SYSTEM },
+            ...(supportUserIds.length ? { _id: { $nin: supportUserIds } } : {}),
+          },
+        ],
+      };
+    }
+
+    // Linked users sign in at their provider, so a local password would be a second way in
+    public static async assertLocalPassword(userId: string) {
+      const provider = await this.getIdentityProvider(userId);
+
+      if (provider === 'ldap') {
+        throw new Error('Password is managed by the directory');
+      }
+
+      if (provider === 'erxes_support') {
+        throw new Error('Support accounts have no password');
+      }
+    }
+
+    // Name and groups come from the grant, so nobody edits a support account by hand
+    public static async assertEditable(userId: string) {
+      if (await this.isSupportUser(userId)) {
+        throw new Error('Support accounts are managed by support access');
+      }
     }
 
     public static checkPassword(password: string) {
@@ -226,8 +330,12 @@ export const loadUserClass = (
       }
 
       // Checking if user has email
+      // Login matches either field, so an email may not be another member's username
       if (email) {
-        previousEntry = await models.Users.findUsers({ ...query, email });
+        previousEntry = await models.Users.findUsers({
+          ...query,
+          $or: [{ email }, { username: exactPattern(email) }],
+        });
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
@@ -247,7 +355,10 @@ export const loadUserClass = (
 
       //Checking username
       if (username) {
-        previousEntry = await models.Users.findOne({ ...query, username });
+        previousEntry = await models.Users.findOne({
+          ...query,
+          $or: [{ username }, { email: exactPattern(username) }],
+        });
 
         // Checking if duplicated
         if (previousEntry) {
@@ -302,7 +413,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       return user;
@@ -318,6 +429,8 @@ export const loadUserClass = (
         throw new Error('User not found');
       }
 
+      await this.assertEditable(_id);
+
       doc.password = (doc.password ?? '').trim();
       doc.email = (doc.email ?? '').toLowerCase().trim();
 
@@ -330,6 +443,7 @@ export const loadUserClass = (
 
       // change password
       if (doc.password) {
+        await this.assertLocalPassword(_id);
         this.checkPassword(doc.password);
 
         doc.password = await this.generatePassword(doc.password);
@@ -379,8 +493,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
 
         // Generate activity logs for changed activity fields
@@ -439,12 +553,55 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       createActivityLog(generateUserInvitationActivityLog(user));
 
       return token;
+    }
+
+    /**
+     * Create a password-less user whose identity lives in an external directory
+     */
+    public static async createProvisionedUser({
+      email,
+      username,
+      firstName,
+      lastName,
+      permissionGroupIds,
+      isActive = true,
+    }: IProvisionedUserParams) {
+      email = email.toLowerCase().trim();
+
+      await models.Users.checkDuplication({ email });
+
+      const usernameTaken = username
+        ? await models.Users.exists({
+            $or: [{ username }, { email: exactPattern(username) }],
+          })
+        : null;
+
+      const user = await models.Users.create({
+        email,
+        ...(username && !usernameTaken ? { username } : {}),
+        details: {
+          firstName,
+          lastName,
+          fullName: [firstName, lastName].filter(Boolean).join(' '),
+        },
+        isActive,
+        code: await this.generateUserCode(),
+        ...(permissionGroupIds.length ? { permissionGroupIds } : {}),
+      });
+
+      sendDbEventLog({
+        action: 'create',
+        docId: user._id,
+        currentDocument: toLoggedUser(user),
+      });
+
+      return user;
     }
 
     /**
@@ -479,6 +636,18 @@ export const loadUserClass = (
     /*
      * Update user profile
      */
+    public static async patchProfile(_id: string, doc: IProfilePatch) {
+      const pipeline = buildProfilePatch(doc);
+      return models.Users.editProfile(
+        _id,
+        {
+          username: doc.username?.trim(),
+          email: doc.email?.trim().toLowerCase(),
+        },
+        pipeline,
+      );
+    }
+
     public static async editProfile(
       _id: string,
       {
@@ -489,8 +658,15 @@ export const loadUserClass = (
         employeeId,
         positionIds,
       }: IEditProfile,
+      pipeline?: PipelineStage[],
     ) {
       const user = await models.Users.getUser(_id);
+
+      await this.assertEditable(_id);
+
+      if (pipeline && username) {
+        await this.checkDuplication({ username, idsToExclude: _id });
+      }
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
@@ -503,18 +679,26 @@ export const loadUserClass = (
         });
       }
 
-      await models.Users.updateOne(
-        { _id },
-        { $set: { username, email, details, links, employeeId, positionIds } },
-      );
-
-      const updatedUser = await models.Users.findOne({ _id });
+      let updatedUser: IUserDocument | null;
+      if (pipeline) {
+        updatedUser = await models.Users.findOneAndUpdate({ _id }, pipeline, {
+          new: true,
+        });
+      } else {
+        await models.Users.updateOne(
+          { _id },
+          {
+            $set: { username, email, details, links, employeeId, positionIds },
+          },
+        );
+        updatedUser = await models.Users.findOne({ _id });
+      }
       if (updatedUser) {
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
 
         await generateUserUpdateActivityLogs(
@@ -558,6 +742,33 @@ export const loadUserClass = (
       return models.Users.findOne({ _id });
     }
 
+    public static async configAppearance(
+      _id: string,
+      { layout, frameColor, navPosition }: IUserAppearance,
+    ) {
+      if (!layout || !USER_APPEARANCE_LAYOUTS.includes(layout)) {
+        throw new Error(`Unknown appearance layout: ${layout}`);
+      }
+
+      if (frameColor && !USER_APPEARANCE_FRAME_COLORS.includes(frameColor)) {
+        throw new Error(`Unknown appearance frame color: ${frameColor}`);
+      }
+
+      if (
+        navPosition &&
+        !USER_APPEARANCE_NAV_POSITIONS.includes(navPosition)
+      ) {
+        throw new Error(`Unknown appearance nav position: ${navPosition}`);
+      }
+
+      await models.Users.updateOne(
+        { _id },
+        { $set: { appearance: { layout, frameColor, navPosition } } },
+      );
+
+      return models.Users.findOne({ _id });
+    }
+
     /*
      * Remove user
      */
@@ -576,8 +787,8 @@ export const loadUserClass = (
           sendDbEventLog({
             action: 'update',
             docId: updatedUser._id,
-            currentDocument: updatedUser.toObject(),
-            prevDocument: user.toObject(),
+            currentDocument: toLoggedUser(updatedUser),
+            prevDocument: toLoggedUser(user),
           });
           await generateUserUpdateActivityLogs(
             { models, subdomain },
@@ -589,14 +800,15 @@ export const loadUserClass = (
         return updatedUser;
       } else {
         await models.Users.updateOne({ _id }, { $set: { isActive: false } });
+        await revokeUserSessions(subdomain, _id);
 
         const updatedUser = await models.Users.findOne({ _id });
         if (updatedUser) {
           sendDbEventLog({
             action: 'update',
             docId: updatedUser._id,
-            currentDocument: updatedUser.toObject(),
-            prevDocument: user.toObject(),
+            currentDocument: toLoggedUser(updatedUser),
+            prevDocument: toLoggedUser(user),
           });
           await generateUserUpdateActivityLogs(
             { models, subdomain },
@@ -658,6 +870,8 @@ export const loadUserClass = (
         throw new Error('Password reset token is invalid or has expired.');
       }
 
+      await this.assertLocalPassword(user._id);
+
       if (!newPassword) {
         throw new Error('Password is required.');
       }
@@ -674,6 +888,8 @@ export const loadUserClass = (
         },
       );
 
+      await revokeUserSessions(subdomain, user._id);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -689,6 +905,8 @@ export const loadUserClass = (
     }) {
       const user = await models.Users.getUser(_id);
 
+      await this.assertLocalPassword(user._id);
+
       if (!newPassword) {
         throw new Error('Password is required.');
       }
@@ -700,6 +918,8 @@ export const loadUserClass = (
         { $set: { password: await this.generatePassword(newPassword) } },
       );
 
+      await revokeUserSessions(subdomain, user._id);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -710,10 +930,13 @@ export const loadUserClass = (
       _id,
       currentPassword,
       newPassword,
+      keepSid,
     }: {
       _id: string;
       currentPassword: string;
       newPassword: string;
+      // The caller's own session survives; every other one is signed out
+      keepSid?: string;
     }) {
       // Password can not be empty string
       if (newPassword === '') {
@@ -723,6 +946,8 @@ export const loadUserClass = (
       this.checkPassword(newPassword);
 
       const user = await models.Users.getUser(_id);
+
+      await this.assertLocalPassword(user._id);
 
       // check current password ============
       const valid = await this.comparePassword(currentPassword, user.password);
@@ -739,6 +964,8 @@ export const loadUserClass = (
         },
       );
 
+      await revokeUserSessions(subdomain, user._id, keepSid);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -754,6 +981,8 @@ export const loadUserClass = (
       if (!user) {
         throw new Error('Invalid email');
       }
+
+      await this.assertLocalPassword(user._id);
 
       // create the random token
       const buffer = await crypto.randomBytes(20);
@@ -788,64 +1017,7 @@ export const loadUserClass = (
     }
 
     /*
-     * Creates regular and refresh tokens using given user information
-     */
-    public static async createTokens(_user: IUserDocument, secret: string) {
-      const user = {
-        _id: _user._id,
-        isOwner: _user.isOwner,
-      };
-
-      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
-
-      const createRefreshToken = await jwt.sign({ user }, secret, {
-        expiresIn: '7d',
-      });
-
-      return [createToken, createRefreshToken];
-    }
-
-    /*
-     * Renews tokens
-     */
-    public static async refreshTokens(refreshToken: string) {
-      let _id = '';
-
-      try {
-        // validate refresh token
-        const { user }: any = jwt.verify(refreshToken, this.getSecret());
-
-        _id = user._id;
-        // if refresh token is expired then force to login
-      } catch (e: any) {
-        return {};
-      }
-
-      const dbUser = await models.Users.findOne({ _id, isActive: true });
-
-      if (!dbUser) {
-        return {};
-      }
-
-      // recreate tokens
-      const [newToken, newRefreshToken] = await this.createTokens(
-        dbUser,
-        this.getSecret(),
-      );
-
-      if (newToken) {
-        await saveValidatedToken(newToken, dbUser);
-      }
-
-      return {
-        token: newToken,
-        refreshToken: newRefreshToken,
-        user: dbUser,
-      };
-    }
-
-    /*
-     * Validates user credentials and generates tokens
+     * Validates user credentials; the caller starts the session
      */
     public static async login({
       email,
@@ -858,32 +1030,39 @@ export const loadUserClass = (
     }) {
       email = (email || '').toLowerCase().trim();
 
-      const user = await models.Users.findOne({
-        $or: [
-          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
-          { username: { $regex: new RegExp(`^${email}$`, 'i') } },
-        ],
-        isActive: true,
-      });
+      const loginPattern = exactPattern(email);
 
-      if (!user?.password) {
-        // user with provided email not found
-        throw new Error('Invalid login');
-      }
-      const valid = await this.comparePassword(password, user.password);
+      const findActive = (field: 'email' | 'username') =>
+        models.Users.findOne({
+          [field]: { $regex: loginPattern },
+          isActive: true,
+        });
 
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
-      }
-      // create tokens
-      const [token, refreshToken] = await this.createTokens(
-        user,
-        this.getSecret(),
-      );
+      // One identifier can be one member's email and another's username; the email wins
+      const localUser =
+        (await findActive('email')) || (await findActive('username'));
 
-      if (token) {
-        await saveValidatedToken(token, user);
+      const isDirectoryUser = localUser
+        ? await this.isDirectoryUser(localUser._id)
+        : false;
+
+      let user: IUserDocument;
+      let method: 'password' | 'ldap' = 'password';
+
+      // Directory-linked users never fall back to a local password
+      if (localUser && !isDirectoryUser) {
+        const valid = localUser.password
+          ? await this.comparePassword(password, localUser.password)
+          : false;
+
+        if (!valid) {
+          throw new LoginError('invalid_credentials');
+        }
+
+        user = localUser;
+      } else {
+        user = await models.AuthIdentities.authenticateLdap(email, password);
+        method = 'ldap';
       }
 
       // storing tokens in user collection.
@@ -901,40 +1080,47 @@ export const loadUserClass = (
       await user.updateOne({ $set: { registrationToken: null } });
 
       const loginActivityLog = generateLoginActivityLog(user, {
-        method: 'email/password',
+        method,
         deviceToken,
       });
       createActivityLog(loginActivityLog, user._id);
 
-      return {
-        token,
-        refreshToken,
-      };
+      return { user, method };
+    }
+
+    /**
+     * Signs a member out of one session, or of every device when no id is given.
+     * The account stays active, so they can sign in again.
+     */
+    public static async revokeSessions(_id: string, sessionId?: string) {
+      const user = await models.Users.getUser(_id);
+
+      if (sessionId) {
+        return revokeUserSession(subdomain, user._id, sessionId);
+      }
+
+      await revokeUserSessions(subdomain, user._id);
+
+      return true;
     }
 
     /**
      * Logging out user from database
      */
-    public static async logout(user: IUserDocument, currentToken: string) {
-      const validatedToken = await redis.get(
-        `user_token_${user._id}_${currentToken}`,
-      );
-
-      if (validatedToken) {
-        await redis.del(`user_token_${user._id}_${currentToken}`);
-
-        await models.Users.updateOne(
-          { _id: user._id },
-          { $set: { lastSeenAt: new Date() } },
-        );
-
-        const logoutActivityLog = generateLogoutActivityLog(user);
-        createActivityLog(logoutActivityLog);
-
-        return 'loggedout';
+    public static async logout(user: IUserDocument, legacyToken?: string) {
+      if (legacyToken) {
+        await redis.del(`user_token_${user._id}_${legacyToken}`);
       }
 
-      return 'token not found';
+      await models.Users.updateOne(
+        { _id: user._id },
+        { $set: { lastSeenAt: new Date() } },
+      );
+
+      const logoutActivityLog = generateLogoutActivityLog(user);
+      createActivityLog(logoutActivityLog);
+
+      return 'loggedout';
     }
 
     public static async generateUserCodeField() {
@@ -1041,8 +1227,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
         await generateUserUpdateActivityLogs(
           { models, subdomain },
@@ -1051,6 +1237,64 @@ export const loadUserClass = (
           createActivityLog,
         );
       }
+      return updatedUser;
+    }
+
+    /**
+     * Declares whether a member takes new work. No status clears the
+     * declaration; an `until` in the past is refused, since it would mean
+     * nothing.
+     */
+    public static async setAvailability(
+      _id: string,
+      doc: { status?: string | null; until?: Date | null; reason?: string | null },
+      setBy: string,
+    ) {
+      const user = await models.Users.findOne({ _id });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const status = doc.status || undefined;
+
+      if (status && !['available', 'unavailable'].includes(status)) {
+        throw new Error('Availability must be available or unavailable');
+      }
+
+      const until = doc.until ? new Date(doc.until) : undefined;
+
+      if (until && (Number.isNaN(until.getTime()) || until <= new Date())) {
+        throw new Error('Until must be in the future');
+      }
+
+      const update = status
+        ? {
+            $set: {
+              availability: {
+                status,
+                until,
+                reason: doc.reason?.trim() || undefined,
+                setBy,
+                setAt: new Date(),
+              },
+            },
+          }
+        : { $unset: { availability: '' } };
+
+      await models.Users.updateOne({ _id }, update);
+
+      const updatedUser = await models.Users.findOne({ _id });
+
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
+        });
+      }
+
       return updatedUser;
     }
   }
@@ -1071,6 +1315,20 @@ type ICommonUserMovement = {
   processId?: string;
 };
 
+type TStructureType = 'branch' | 'department' | 'position';
+
+const STRUCTURE_NOTIFICATION_TYPES: Record<string, string | undefined> = {
+  department: 'departmentAssigneeChanged',
+  branch: 'branchAssigneeChanged',
+  position: 'positionAssigneeChanged',
+};
+
+const STRUCTURE_FIELDS = {
+  branch: 'branchIds',
+  department: 'departmentIds',
+  position: 'positionIds',
+} as const;
+
 type IUserStructureAssignee = {
   subdomain: string;
   models: IModels;
@@ -1089,6 +1347,11 @@ export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
   manageUserMovement(
     params: ICommonUserMovement,
   ): Promise<IUserMovementDocument>;
+  notifyStructureChanges(params: {
+    previous: IUserDocument;
+    updated: IUserDocument;
+    createdBy: string;
+  }): void;
 }
 
 export const loadUserMovemmentClass = (
@@ -1211,6 +1474,8 @@ export const loadUserMovemmentClass = (
 
     public static async manageUserMovement(params: ICommonUserMovement) {
       const user = params.user as IUserDocument;
+      // who made the change, not whose record it is
+      const createdBy = params.createdBy || user._id;
 
       for (const contentType of ['department', 'branch']) {
         const contentTypeIds = user[`${contentType}Ids`] || [];
@@ -1227,7 +1492,7 @@ export const loadUserMovemmentClass = (
           userId: user._id,
           contentType,
           contentTypeId: movement.contentTypeId,
-          createdBy: user._id,
+          createdBy,
           status: USER_MOVEMENT_STATUSES.REMOVED,
           isActive: false,
         }));
@@ -1274,7 +1539,7 @@ export const loadUserMovemmentClass = (
               contentType,
               contentTypeId,
               userId: user._id,
-              createdBy: user._id,
+              createdBy,
               isActive: true,
             });
           }
@@ -1354,8 +1619,86 @@ export const loadUserMovemmentClass = (
       return 'edited';
     }
 
+    // the one sender for both ways a member joins or leaves a structure
+    static notifyStructureAssignees({
+      contentType,
+      contentTypeId,
+      createdBy,
+      action,
+      targetUserIds,
+    }: {
+      contentType: string;
+      contentTypeId: string;
+      createdBy?: string;
+      action: string;
+      targetUserIds: string[];
+    }) {
+      const notificationType = STRUCTURE_NOTIFICATION_TYPES[contentType];
+      // the member who made the change is not told about it
+      const userIds = targetUserIds.filter((id) => id !== createdBy);
+
+      if (!createdBy || !notificationType || !userIds.length) {
+        return;
+      }
+
+      const assigned = action === 'assigned';
+
+      sendNotification(subdomain, {
+        title: assigned
+          ? `Assigned to ${contentType}`
+          : `Unassigned from ${contentType}`,
+        message: assigned
+          ? `You have been assigned to ${contentType}.`
+          : `You have been unassigned from ${contentType}.`,
+        type: 'info',
+        fromUserId: createdBy,
+        userIds,
+        contentType: `core:structure.${contentType}`,
+        contentTypeId,
+        action,
+        priority: 'medium',
+        notificationType,
+        event: `core:structure:${notificationType}`,
+      }).catch((e: Error) =>
+        console.error(`Structure notification failed: ${e.message}`),
+      );
+    }
+
+    // a member's own record changed: tell them about each structure joined or left
+    public static notifyStructureChanges({
+      previous,
+      updated,
+      createdBy,
+    }: {
+      previous: IUserDocument;
+      updated: IUserDocument;
+      createdBy: string;
+    }) {
+      for (const contentType of Object.keys(
+        STRUCTURE_FIELDS,
+      ) as TStructureType[]) {
+        const field = STRUCTURE_FIELDS[contentType];
+        const before = previous[field] || [];
+        const after = updated[field] || [];
+
+        for (const [action, contentTypeIds] of [
+          ['assigned', after.filter((id) => !before.includes(id))],
+          ['removed', before.filter((id) => !after.includes(id))],
+        ] as const) {
+          for (const contentTypeId of contentTypeIds) {
+            this.notifyStructureAssignees({
+              contentType,
+              contentTypeId,
+              createdBy,
+              action,
+              targetUserIds: [updated._id],
+            });
+          }
+        }
+      }
+    }
+
     static async handleUsersStructureAssignee({
-      subdomain,
       models,
       fieldName,
       contentType,
@@ -1374,18 +1717,14 @@ export const loadUserMovemmentClass = (
         [fieldName]: { $ne: contentTypeId },
       }).distinct('_id');
 
-      for (const { title, message, targetUserIds, update, action } of [
+      for (const { targetUserIds, update, action } of [
         {
           action: 'removed',
-          title: `Unassigned from ${contentType}`,
-          message: `You have been unassigned from ${contentType}.`,
           targetUserIds: removedAssigneeUserIds,
           update: { $pull: { [fieldName]: contentTypeId } },
         },
         {
           action: 'assigned',
-          title: `Assigned to ${contentType}`,
-          message: `You have been assigned to ${contentType}.`,
           targetUserIds: newlyAssignedUserIds,
           update: { $addToSet: { [fieldName]: contentTypeId } },
         },
@@ -1405,26 +1744,13 @@ export const loadUserMovemmentClass = (
               action,
             });
 
-            if (createdBy) {
-              const notificationType = {
-                department: 'departmentAssigneeChanged',
-                branch: 'branchAssigneeChanged',
-                position: 'positionAssigneeChanged',
-              }[contentType];
-
-              sendNotification(subdomain, {
-                title,
-                message,
-                type: 'info',
-                fromUserId: createdBy,
-                userIds: targetUserIds,
-                contentType: `core:structure.${contentType}`,
-                contentTypeId,
-                action,
-                priority: 'medium',
-                notificationType,
-              });
-            }
+            this.notifyStructureAssignees({
+              contentType,
+              contentTypeId,
+              createdBy,
+              action,
+              targetUserIds,
+            });
           }
         }
       }

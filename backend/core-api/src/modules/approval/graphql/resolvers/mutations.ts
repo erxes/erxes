@@ -17,6 +17,7 @@ import { PipelineStage } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '~/modules/documents/types';
 import { applyApprovedChange } from '~/modules/approval/applyApprovedChange';
+import { notifyRejectedChange } from '~/modules/approval/rejectChange';
 import { ensureApprovalRequestIndexes } from '~/modules/approval/db/ensureIndexes';
 
 const unique = (ids: string[]) => [...new Set(ids.filter(Boolean))];
@@ -376,7 +377,7 @@ export const approvalMutations = {
   async approvalRequestReject(
     _root: undefined,
     { _id, reason }: { _id: string; reason?: string },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const request = await models.ApprovalRequests.getRequest(_id);
     assertPending(request);
@@ -408,13 +409,18 @@ export const approvalMutations = {
       );
     }
 
+    await notifyRejectedChange(subdomain, rejected, {
+      rejecterId: user._id,
+      reason,
+    });
+
     return rejected;
   },
 
   async approvalRequestCancel(
     _root: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const request = await models.ApprovalRequests.getRequest(_id);
     assertPending(request);
@@ -440,6 +446,8 @@ export const approvalMutations = {
         'CONFLICT',
       );
     }
+
+    await notifyRejectedChange(subdomain, cancelled, { reason: 'cancelled' });
 
     return cancelled;
   },

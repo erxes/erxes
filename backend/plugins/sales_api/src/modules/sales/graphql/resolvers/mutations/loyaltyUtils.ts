@@ -14,6 +14,7 @@ const createBonusProductDataId = (productId: string) => {
 
 export const checkLoyalties = async (
   subdomain: string,
+  models: IModels,
   _id: string,
   deal: IDeal,
 ) => {
@@ -24,7 +25,7 @@ export const checkLoyalties = async (
     return deal.productsData;
   }
 
-  const [customerId] = (await getCustomerIds(subdomain, _id)) || [];
+  const [customerId] = (await getCustomerIds(subdomain, models, _id)) || [];
 
   if (!customerId) {
     return deal.productsData;
@@ -91,7 +92,7 @@ export const checkLoyalties = async (
 export const checkPricing = async (
   subdomain: string,
   models: IModels,
-  deal: IDeal & { _id?: string },
+  deal: IDeal & { _id?: string; createdAt?: Date },
 ) => {
   const activeProductsData =
     deal.productsData?.filter((pd) => pd.tickUsed && !pd.bonusCount) || [];
@@ -110,13 +111,13 @@ export const checkPricing = async (
   let pricingCustomerId = '';
 
   if (deal._id) {
-    const [companyId] = (await getCompanyIds(subdomain, deal._id)) || [];
+    const [companyId] = (await getCompanyIds(subdomain, models, deal._id)) || [];
 
     if (companyId) {
       customerType = 'company';
       pricingCustomerId = companyId;
     } else {
-      const [customerId] = (await getCustomerIds(subdomain, deal._id)) || [];
+      const [customerId] = (await getCustomerIds(subdomain, models, deal._id)) || [];
       pricingCustomerId = customerId || '';
     }
   }
@@ -127,10 +128,12 @@ export const checkPricing = async (
     module: 'pricing',
     action: 'checkPricing',
     input: {
+      // Checkout is now; the plan picks which moment its schedule reads.
+      orderCreatedAt: deal.createdAt,
       prioritizeRule: 'exclude',
       totalAmount,
-      departmentId: deal.departmentIds?.[0] || '',
       branchId: deal.branchIds?.[0] || '',
+      departmentId: deal.departmentIds?.[0] || '',
       pipelineId: stage.pipelineId,
       customerType,
       customerId: pricingCustomerId,

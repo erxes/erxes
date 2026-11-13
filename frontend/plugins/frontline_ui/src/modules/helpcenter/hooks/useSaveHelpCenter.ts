@@ -5,8 +5,10 @@ import { HELP_CENTER_CONFIG_UPDATE } from '@/helpcenter/graphql/mutations/helpCe
 import { GET_HELP_CENTERS } from '@/helpcenter/graphql/queries/getHelpCenters';
 import { IHelpCenterConfigInput } from '@/helpcenter/types';
 
-export const useSaveHelpCenter = ({ onSaved }: { onSaved: () => void }) => {
-  const { t } = useTranslation('frontline');
+export const useSaveHelpCenter = () => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
 
   const [updateConfig, { loading }] = useMutation(HELP_CENTER_CONFIG_UPDATE, {
     refetchQueries: [GET_HELP_CENTERS],
@@ -14,11 +16,19 @@ export const useSaveHelpCenter = ({ onSaved }: { onSaved: () => void }) => {
   });
 
   const saveHelpCenter = (config: IHelpCenterConfigInput) => {
-    const isEditing = !!config._id;
+    const isEditing = Boolean(config._id);
 
     return updateConfig({
       variables: { config },
-      onCompleted: () => {
+      onCompleted: ({ helpCenterConfigUpdate }) => {
+        if (!helpCenterConfigUpdate) {
+          toast({
+            title: t('error'),
+            description: t('something-went-wrong'),
+            variant: 'destructive',
+          });
+          return;
+        }
         toast({
           title: t('success'),
           description: isEditing
@@ -26,7 +36,6 @@ export const useSaveHelpCenter = ({ onSaved }: { onSaved: () => void }) => {
             : t('help-center-created', 'Help center created'),
           variant: 'success',
         });
-        onSaved();
       },
       onError: (error) => {
         toast({

@@ -40,6 +40,7 @@ import {
   SelectTriggerVariant,
 } from '@/operation/components/SelectOperation';
 import { useProjects } from '@/project/hooks/useGetProjects';
+import { useCachedMembers } from '@/operation/hooks/useCachedMembers';
 
 const SelectAssigneeProvider = SelectMember.Provider;
 
@@ -248,16 +249,25 @@ const SelectAssigneeValue = ({
 }) => {
   const { t } = useTranslation('operation');
   const { memberIds, members, setMembers } = useSelectMemberContext();
-  if (variant === SelectTriggerVariant.CARD) {
+  if (
+    variant === SelectTriggerVariant.CARD ||
+    variant === SelectTriggerVariant.TABLE
+  ) {
     return (
       <MembersInline.Provider
         memberIds={memberIds}
         members={members}
+        placeholder={placeholder || t('select-assignee')}
         allowUnassigned
         showInactive
         updateMembers={setMembers}
       >
-        <MembersInline.Avatar />
+        <MembersInline.Avatar
+          className={
+            variant === SelectTriggerVariant.TABLE ? 'size-5' : undefined
+          }
+        />
+        {variant === SelectTriggerVariant.TABLE && <MembersInline.Title />}
       </MembersInline.Provider>
     );
   }
@@ -420,6 +430,7 @@ const SelectAssigneeTaskRoot = ({
   const navigate = useNavigate();
   const { teamId } = useParams();
   const [internalValue, setInternalValue] = useState(value);
+  const cachedMembers = useCachedMembers(value);
 
   useEffect(() => {
     setInternalValue(value);
@@ -475,6 +486,7 @@ const SelectAssigneeTaskRoot = ({
     <SelectAssigneeProvider
       value={internalValue ?? undefined}
       onValueChange={handleValueChange}
+      members={cachedMembers}
       mode="single"
       allowUnassigned
     >
@@ -489,6 +501,7 @@ const SelectAssigneeTaskRoot = ({
 };
 
 export const SelectAssigneeTaskFormItem = ({
+  variant = 'form',
   value,
   onValueChange,
   scope,
@@ -500,6 +513,8 @@ export const SelectAssigneeTaskFormItem = ({
   scope?: string;
   teamIds?: string[] | string;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -513,12 +528,12 @@ export const SelectAssigneeTaskFormItem = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form" label={label}>
-          <SelectAssigneeValue />
+        <SelectTriggerOperation variant={variant} label={label}>
+          <SelectAssigneeValue variant={variant} />
         </SelectTriggerOperation>
-        <Combobox.Content>
+        <SelectOperationContent variant={variant}>
           <SelectTeamMemberContent teamIds={teamIds} exclude={false} />
-        </Combobox.Content>
+        </SelectOperationContent>
       </PopoverScoped>
     </SelectAssigneeProvider>
   );

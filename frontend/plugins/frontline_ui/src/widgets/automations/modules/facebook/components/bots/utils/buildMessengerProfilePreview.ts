@@ -47,6 +47,8 @@ export type TMessengerIceBreakerPreviewItem = {
 export type TMessengerProfilePreview = {
   greeting?: string;
   greetingWarning?: string;
+  getStartedTitle: string;
+  // Empty when the bot has no menu of its own: Facebook then shows none.
   items: TMessengerMenuPreviewItem[];
   iceBreakers: TMessengerIceBreakerPreviewItem[];
   droppedIceBreakerCount: number;
@@ -74,19 +76,15 @@ export const buildMessengerProfilePreview = ({
   greetText,
   isEnabledBackBtn,
 }: TPreviewInput): TMessengerProfilePreview => {
-  const items: TMessengerMenuPreviewItem[] = [
-    {
-      key: GET_STARTED_KEY,
-      title: getStartedText?.trim() || FACEBOOK_GET_STARTED_TITLE,
-      kind: 'getStarted',
-    },
-  ];
+  const getStartedTitle = getStartedText?.trim() || FACEBOOK_GET_STARTED_TITLE;
+  const menuItems: TMessengerMenuPreviewItem[] = [];
 
   let droppedCount = 0;
   let hasBackButtonMenu = false;
 
   for (const { _id, type, text, link } of persistentMenus) {
-    const title = type === 'back_button' ? text || BACK_BUTTON_FALLBACK_TITLE : text;
+    const title =
+      type === 'back_button' ? text || BACK_BUTTON_FALLBACK_TITLE : text;
 
     if (!title) {
       droppedCount += 1;
@@ -94,7 +92,7 @@ export const buildMessengerProfilePreview = ({
     }
 
     if (type === 'link' && link) {
-      items.push({
+      menuItems.push({
         key: _id,
         sourceId: _id,
         title,
@@ -109,7 +107,7 @@ export const buildMessengerProfilePreview = ({
       hasBackButtonMenu = true;
     }
 
-    items.push({
+    menuItems.push({
       key: _id,
       sourceId: _id,
       title,
@@ -123,13 +121,21 @@ export const buildMessengerProfilePreview = ({
   }
 
   if (Boolean(isEnabledBackBtn) && !hasBackButtonMenu) {
-    items.push({
+    menuItems.push({
       key: 'auto-back',
       title: BACK_BUTTON_FALLBACK_TITLE,
       kind: 'postback',
       sourceType: 'back_button',
     });
   }
+
+  // Mirrors the server: Get Started joins the menu only when there is a menu.
+  const items: TMessengerMenuPreviewItem[] = menuItems.length
+    ? [
+        { key: GET_STARTED_KEY, title: getStartedTitle, kind: 'getStarted' },
+        ...menuItems,
+      ]
+    : [];
 
   const greeting = greetText?.trim() ? greetText : undefined;
   const previewIceBreakers = iceBreakers
@@ -144,6 +150,7 @@ export const buildMessengerProfilePreview = ({
       greeting && greeting.length > FACEBOOK_GREETING_LIMIT
         ? `Facebook truncates the greeting at ${FACEBOOK_GREETING_LIMIT} characters.`
         : undefined,
+    getStartedTitle,
     items,
     droppedCount,
     isOverLimit: items.length > FACEBOOK_PERSISTENT_MENU_LIMIT,

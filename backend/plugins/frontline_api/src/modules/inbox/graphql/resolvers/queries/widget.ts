@@ -1,5 +1,4 @@
 import {
-  isEnabled,
   markResolvers,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -8,6 +7,10 @@ import * as momentTz from 'moment-timezone';
 import { IModels, IContext } from '~/connectionResolvers';
 import { IIntegrationDocument } from '~/modules/inbox/@types/integrations';
 import { toCustomerConversationView } from '@/inbox/utils/customerConversationView';
+import {
+  getMessengerAutomation,
+  getMessengerGetStarted,
+} from '~/modules/inbox/utils';
 import {
   assertOwnsConversation,
   assertOwnsTicket,
@@ -120,31 +123,14 @@ export const widgetQueries: Record<string, Resolver> = {
 
       if (!integration) return null;
 
-      type GetStartedCondition = { isSelected?: boolean } | any;
-
-      let getStartedCondition: GetStartedCondition = false;
-
-      if (await isEnabled('automations')) {
-        const getStarted = await sendTRPCMessage({
+      // The messenger's own automation, as the connect mutation reads it
+      const getStartedCondition = getMessengerGetStarted(
+        await getMessengerAutomation(
           subdomain,
-          pluginName: 'automations',
-          method: 'query',
-          module: 'triggers',
-          action: 'find',
-          input: {
-            query: {
-              triggerType: 'inbox:messages',
-              botId: integration._id,
-            },
-          },
-        }).catch((error) => {
-          throw error;
-        });
-
-        getStartedCondition = (
-          getStarted[0]?.triggers[0]?.config?.conditions || []
-        ).find((condition) => condition.type === 'getStarted');
-      }
+          (integration.messengerData as { automationId?: string } | undefined)
+            ?.automationId,
+        ),
+      );
 
       const messengerData = integration.messengerData || {
         supporterIds: [],
@@ -340,7 +326,7 @@ export const widgetQueries: Record<string, Resolver> = {
     // Ticket numbers are guessable, so only the customer's own count.
     const ticket = await models.Ticket.findOne({
       number,
-      _id: { $in: await getOwnedTicketIds(subdomain, session) },
+      _id: { $in: await getOwnedTicketIds(subdomain, session, models) },
     });
 
     if (!ticket) {
@@ -353,7 +339,12 @@ export const widgetQueries: Record<string, Resolver> = {
     { contentId }: { contentId: string },
     { models, subdomain, req }: IContext,
   ) {
-    await assertOwnsTicket(subdomain, requireWidgetSession(req), contentId);
+    await assertOwnsTicket(
+      subdomain,
+      requireWidgetSession(req),
+      contentId,
+      models,
+    );
 
     const notes = await models.Note.getNotes({ contentId });
 
@@ -368,7 +359,12 @@ export const widgetQueries: Record<string, Resolver> = {
     { contentId }: { contentId: string },
     { models, subdomain, req }: IContext,
   ) {
-    await assertOwnsTicket(subdomain, requireWidgetSession(req), contentId);
+    await assertOwnsTicket(
+      subdomain,
+      requireWidgetSession(req),
+      contentId,
+      models,
+    );
 
     return (await models.Activity.find({ contentId })) || [];
   },
@@ -380,6 +376,7 @@ export const widgetQueries: Record<string, Resolver> = {
     const ticketIds = await getOwnedTicketIds(
       subdomain,
       requireWidgetSession(req),
+      models,
     );
 
     return models.Ticket.find({ _id: { $in: ticketIds } });

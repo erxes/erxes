@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useId, useState } from 'react';
 import { TBranchForm } from '../../types/branch';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
-import { Collapsible, Form, Input, PhoneInput, Textarea } from 'erxes-ui';
+import { Collapsible, Form, Input, PhoneInput, Textarea, cn } from 'erxes-ui';
 import { SelectBranches, SelectMember } from 'ui-modules';
 import { IconChevronDown } from '@tabler/icons-react';
 import {
@@ -10,8 +10,15 @@ import {
   CodeField,
   DeletedStatusField,
 } from '../StructureFormFields';
+import { BranchLocationField } from './location/BranchLocationField';
 
-export const BranchForm = () => {
+export const BranchForm = ({
+  showLocation = true,
+  compact = false,
+}: {
+  showLocation?: boolean;
+  compact?: boolean;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { control, formState } = useFormContext<TBranchForm>();
   const [linksOpen, setLinksOpen] = useState(false);
@@ -21,7 +28,7 @@ export const BranchForm = () => {
   const wasDeleted = formState.defaultValues?.status === 'deleted';
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className={cn('grid grid-cols-2 gap-4', compact && 'gap-x-3 gap-y-4')}>
       <TitleField control={control} />
       <CodeField control={control} />
       <Form.Field
@@ -120,7 +127,12 @@ export const BranchForm = () => {
         open={linksOpen}
         onOpenChange={setLinksOpen}
       >
-        <Collapsible.Trigger className="flex items-center justify-between w-full py-3">
+        <Collapsible.Trigger
+          className={cn(
+            'flex items-center justify-between w-full py-3',
+            compact && 'py-2',
+          )}
+        >
           <Form.Label>{t('links')}</Form.Label>
           <IconChevronDown size={16} className="text-accent-foreground" />
         </Collapsible.Trigger>
@@ -128,64 +140,7 @@ export const BranchForm = () => {
           <LinkFields />
         </Collapsible.Content>
       </Collapsible>
-      <Form.Field
-        control={control}
-        name="radius"
-        render={({ field }) => (
-          <Form.Item className="col-span-2">
-            <Form.Label>{t('radius')}</Form.Label>
-            <Form.Control>
-              <Input
-                value={field.value ?? ''}
-                onChange={(e) =>
-                  field.onChange(
-                    e.currentTarget.value === ''
-                      ? 0
-                      : Number(e.currentTarget.value),
-                  )
-                }
-                inputMode="numeric"
-                placeholder={t('radius')}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="coordinate.latitude"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('latitude')}</Form.Label>
-            <Form.Control>
-              <Input
-                {...field}
-                value={field.value ?? ''}
-                placeholder={t('latitude')}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="coordinate.longitude"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('longitude')}</Form.Label>
-            <Form.Control>
-              <Input
-                {...field}
-                value={field.value ?? ''}
-                placeholder={t('longitude')}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+      {showLocation && <BranchLocationField />}
       {wasDeleted && <DeletedStatusField control={control} />}
     </div>
   );

@@ -1,3 +1,4 @@
+import { withAccountingDiskUse } from './utils/accountingDiskUse';
 import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
@@ -47,7 +48,7 @@ import {
   IAdjustFxaDetailModel,
   loadAdjustFixedAssetClass,
   loadAdjustFxaDetailClass,
-} from './modules/accounting/db/models/FixedAssets';
+} from './modules/accounting/db/models/AdjustFixedAssets';
 import {
   IPermissionModel,
   loadPermissionClass,
@@ -144,7 +145,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
-  commonQuerySelector: any;
+  commonQuerySelector: Record<string, unknown>;
 }
 
 export const loadClasses = (
@@ -157,19 +158,23 @@ export const loadClasses = (
 
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'accountings_configs',
-    loadConfigClass(
-      models,
-      subdomain,
-      accountingEventHandlers('accounting', 'accountings_configs'),
+    withAccountingDiskUse(
+      loadConfigClass(
+        models,
+        subdomain,
+        accountingEventHandlers('accounting', 'accountings_configs'),
+      ),
     ),
   );
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
     'accounts',
-    loadAccountClass(
-      models,
-      subdomain,
-      accountingEventHandlers('accounting', 'accounts'),
+    withAccountingDiskUse(
+      loadAccountClass(
+        models,
+        subdomain,
+        accountingEventHandlers('accounting', 'accounts'),
+      ),
     ),
   );
 
@@ -178,117 +183,149 @@ export const loadClasses = (
     IAccountCategoryModel
   >(
     'account_categories',
-    loadAccountCategoryClass(
-      models,
-      subdomain,
-      accountingEventHandlers('accounting', 'account_categories'),
+    withAccountingDiskUse(
+      loadAccountCategoryClass(
+        models,
+        subdomain,
+        accountingEventHandlers('accounting', 'account_categories'),
+      ),
     ),
   );
 
   models.AdjustDebtRates = db.model<
     IAdjustDebtRateDocument,
     IAdjustDebtRatesModels
-  >('adjust_debt_rates', loadAdjustDebtRatesClass(models));
+  >(
+    'adjust_debt_rates',
+    withAccountingDiskUse(loadAdjustDebtRatesClass(models)),
+  );
 
   models.AdjustFundRates = db.model<
     IAdjustFundRateDocument,
     IAdjustFundRatesModels
-  >('adjust_fund_rates', loadAdjustRatesClass(models));
+  >('adjust_fund_rates', withAccountingDiskUse(loadAdjustRatesClass(models)));
 
   models.AdjustInventories = db.model<
     IAdjustInventoryDocument,
     IAdjustInventoriesModel
-  >('adjust_inventories', loadAdjustInventoriesClass(models, subdomain));
+  >(
+    'adjust_inventories',
+    withAccountingDiskUse(loadAdjustInventoriesClass(models, subdomain)),
+  );
 
   models.AdjustInvDetails = db.model<
     IAdjustInvDetailDocument,
     IAdjustInvDetailsModel
-  >('adjust_inv_details', loadAdjustInvDetailsClass(models, subdomain));
+  >(
+    'adjust_inv_details',
+    withAccountingDiskUse(loadAdjustInvDetailsClass(models, subdomain)),
+  );
 
   models.FixedAssetCategories = db.model<
     IFixedAssetCategoryDocument,
     IFixedAssetCategoryModel
-  >('fixed_asset_categories', loadFixedAssetCategoryClass());
+  >(
+    'fixed_asset_categories',
+    withAccountingDiskUse(loadFixedAssetCategoryClass()),
+  );
 
   models.FixedAssets = db.model<IFixedAssetDocument, IFixedAssetModel>(
     'fixed_assets',
-    loadFixedAssetClass(),
+    withAccountingDiskUse(loadFixedAssetClass()),
   );
 
   models.FxaOwnerRecords = db.model<
     IFxaOwnerRecordDocument,
     IFxaOwnerRecordModel
-  >('fxa_owner_records', loadFxaOwnerRecordClass());
+  >('fxa_owner_records', withAccountingDiskUse(loadFxaOwnerRecordClass()));
 
   models.AdjustFixedAssets = db.model<
     IAdjustFixedAssetDocument,
     IAdjustFixedAssetModel
-  >('adjust_fixed_assets', loadAdjustFixedAssetClass(models));
+  >(
+    'adjust_fixed_assets',
+    withAccountingDiskUse(loadAdjustFixedAssetClass(models, subdomain)),
+  );
 
   models.AdjustFxaDetails = db.model<
     IAdjustFxaDetailDocument,
     IAdjustFxaDetailModel
-  >('adjust_fxa_details', loadAdjustFxaDetailClass(models));
+  >(
+    'adjust_fxa_details',
+    withAccountingDiskUse(loadAdjustFxaDetailClass(models)),
+  );
 
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'accounting_permissions',
-    loadPermissionClass(models, subdomain),
+    withAccountingDiskUse(loadPermissionClass(models, subdomain)),
   );
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'accountings_transactions',
-    loadTransactionClass(
-      models,
-      subdomain,
-      accountingEventHandlers('accounting', 'transactions'),
+    withAccountingDiskUse(
+      loadTransactionClass(
+        models,
+        subdomain,
+        accountingEventHandlers('accounting', 'transactions'),
+      ),
     ),
   );
 
   models.TransactionCounters = db.model<ITransactionCounterDocument>(
     'accountings_transaction_counters',
-    transactionCounterSchema,
+    withAccountingDiskUse(transactionCounterSchema),
     'accountings_transaction_counters',
   );
 
   models.VatRows = db.model<IVatRowDocument, IVatRowModel>(
     'vat_rows',
-    loadVatRowClass(models, subdomain),
+    withAccountingDiskUse(loadVatRowClass(models, subdomain)),
   );
   models.CtaxRows = db.model<ICtaxRowDocument, ICtaxRowModel>(
     'ctax_rows',
-    loadCtaxRowClass(models, subdomain),
+    withAccountingDiskUse(loadCtaxRowClass(models, subdomain)),
   );
 
   models.AdjustClosings = db.model<
     IAdjustClosingDocument,
     IAdjustClosingEntryModel
-  >('adjust_closings', loadAdjustClosingClass(models, subdomain));
+  >(
+    'adjust_closings',
+    withAccountingDiskUse(loadAdjustClosingClass(models, subdomain)),
+  );
 
   models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
     'inventories_reserverems',
-    loadReserveRemClass(models, subdomain),
+    withAccountingDiskUse(loadReserveRemClass(models, subdomain)),
   );
   models.SafeRemainderItems = db.model<
     ISafeRemainderItemDocument,
     ISafeRemainderItemModel
-  >('safe_remainder_items', loadSafeRemainderItemClass(models));
+  >(
+    'safe_remainder_items',
+    withAccountingDiskUse(loadSafeRemainderItemClass(models)),
+  );
   models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
     'safe_remainders',
-    loadSafeRemainderClass(models),
+    withAccountingDiskUse(loadSafeRemainderClass(models)),
   );
   models.Jobs = db.model<IJobDocument, IJobModel>(
     'inventories_jobs',
-    loadJobClass(
-      models,
-      accountingEventHandlers('accounting', 'inventories_jobs'),
+    withAccountingDiskUse(
+      loadJobClass(
+        models,
+        accountingEventHandlers('accounting', 'inventories_jobs'),
+      ),
     ),
   );
   models.JobExecutions = db.model<IJobExecutionDocument, IJobExecutionModel>(
     'job_executions',
-    loadJobExecutionClass(
-      models,
-      subdomain,
-      accountingEventHandlers('accounting', 'job_executions'),
+    withAccountingDiskUse(
+      loadJobExecutionClass(
+        models,
+        subdomain,
+        accountingEventHandlers('accounting', 'job_executions'),
+      ),
     ),
     'job_executions',
   );

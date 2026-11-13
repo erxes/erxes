@@ -1,3 +1,4 @@
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 import {
   attachmentSchema,
   customFieldSchema,
@@ -142,6 +143,9 @@ export const dealSchema = schemaWrapper(
       assignedUserIds: { type: [String] },
       watchedUserIds: { type: [String] },
       labelIds: { type: [String] },
+      // The deal's one customer and one company, kept on the deal.
+      customerId: { type: String, default: null, index: true },
+      companyId: { type: String, default: null, index: true },
       attachments: { type: [attachmentSchema], label: 'Attachments' },
       stageId: { type: String, index: true },
       initialStageId: {
@@ -152,14 +156,6 @@ export const dealSchema = schemaWrapper(
       searchText: { type: String, optional: true, index: true },
       priority: { type: String, optional: true, label: 'Priority' },
       // TODO remove after migration
-      sourceConversationId: { type: String, optional: true },
-      sourceConversationIds: { type: [String], optional: true },
-      sourceInvoiceId: {
-        type: String,
-        optional: true,
-        index: true,
-        label: 'Source invoice',
-      },
       timeTrack: {
         type: timeTrackSchema,
       },
@@ -238,6 +234,12 @@ export const dealSchema = schemaWrapper(
         optional: true,
         label: 'Broker ID',
       },
+      scoreLogIds: {
+        type: [String],
+        optional: true,
+        index: true,
+        label: 'Loyalty score logs',
+      },
     },
     {
       timestamps: true,
@@ -248,3 +250,6 @@ dealSchema.index({ stageId: 1, status: 1, createdAt: -1, _id: 1 });
 dealSchema.index({ stageId: 1, status: 1, parentId: 1 });
 dealSchema.index({ parentId: 1, order: 1, _id: 1, status: 1 });
 dealSchema.index({ stageId: 1, number: 1 });
+
+// Data Extension values are written only through the owner contract.
+applyDataExtensionsNamespace(dealSchema);

@@ -199,7 +199,7 @@ export const planDealPoints = async ({
 
   // Earning and paying with points go to the same, first customer.
   const [customerId] =
-    customerIds ?? ((await getCustomerIds(subdomain, dealId)) || []);
+    customerIds ?? ((await getCustomerIds(subdomain, models, dealId)) || []);
 
   if (!customerId) {
     if (spends.some(({ pointsPaymentAmount }) => pointsPaymentAmount > 0)) {
@@ -354,6 +354,7 @@ const askVoucher = (
  */
 export const syncDealVoucher = async ({
   subdomain,
+  models,
   dealId,
   previousVoucherId,
   voucherId,
@@ -361,6 +362,7 @@ export const syncDealVoucher = async ({
   userId,
 }: {
   subdomain: string;
+  models: IModels;
   dealId: string;
   previousVoucherId?: string;
   voucherId?: string;
@@ -381,7 +383,7 @@ export const syncDealVoucher = async ({
     return;
   }
 
-  const [customerId] = (await getCustomerIds(subdomain, dealId)) || [];
+  const [customerId] = (await getCustomerIds(subdomain, models, dealId)) || [];
 
   if (!customerId) {
     throw new Error('Attach a customer to use their voucher');
@@ -433,7 +435,7 @@ export const refundDealPoints = (
   dealId: string,
   description: string,
   actorId?: string,
-) =>
+): Promise<{ _id?: string }[] | null> =>
   askLoyalty(subdomain, 'refund', { targetId: dealId, description, actorId });
 
 /**
@@ -464,11 +466,15 @@ export const syncDealPoints = async ({
   });
 
   if (plan.kind === 'refund') {
-    await refundDealPoints(
+    const refunds = await refundDealPoints(
       subdomain,
       dealId,
       'Deal moved to a refund stage',
       userId,
+    );
+    await models.Deals.addScoreLogs(
+      dealId,
+      (refunds || []).map(({ _id }) => _id),
     );
     await returnDealVouchers(subdomain, dealId, userId);
     await releaseDealVouchers(subdomain, dealId, userId);
@@ -479,9 +485,64 @@ export const syncDealPoints = async ({
     return;
   }
 
+  // The deal lists the ledger entries it caused; what loyalty wrote before a
+  // later call failed is linked too.
+  const linked: (string | undefined)[] = [];
+
+  try {
+    await spendAndEarn({
+      subdomain,
+      models,
+      dealId,
+      deal,
+      oldDeal,
+      userId,
+      plan,
+      linked,
+    });
+  } finally {
+    await models.Deals.addScoreLogs(dealId, linked);
+  }
+};
+
+// What loyalty wrote for one call; a correction writes a reversal too, and
+// an older loyalty names only the one entry.
+type TLoyaltyWrite = {
+  _id?: string;
+  scoreLogId?: string;
+  scoreLogIds?: string[];
+};
+
+const writtenIds = (ids: string[] | undefined, id: string | undefined) =>
+  ids?.length ? ids : [id];
+
+const spendAndEarn = async ({
+  subdomain,
+  models,
+  dealId,
+  deal,
+  oldDeal,
+  userId,
+  plan,
+  linked,
+}: {
+  subdomain: string;
+  models: IModels;
+  dealId: string;
+  deal: IDeal;
+  oldDeal?: IDeal;
+  userId?: string;
+  plan: Extract<TDealPointsPlan, { kind: 'sync' }>;
+  linked: (string | undefined)[];
+}) => {
   try {
     for (const input of spendInputs(dealId, plan, userId)) {
-      await askLoyalty(subdomain, 'spend', input);
+      const log: TLoyaltyWrite | null = await askLoyalty(
+        subdomain,
+        'spend',
+        input,
+      );
+      linked.push(...writtenIds(log?.scoreLogIds, log?._id));
     }
   } catch (error) {
     // Checked before the save, so only a race lands here; the deal goes back
@@ -506,16 +567,21 @@ export const syncDealPoints = async ({
   await confirmDealVouchers(subdomain, dealId, deal, plan.customerId, userId);
 
   for (const { campaignId, totalAmount, paidAmount, items } of plan.earns) {
-    await askLoyalty(subdomain, 'earn', {
-      ownerType: 'customer',
-      ownerId: plan.customerId,
-      campaignId,
-      targetId: dealId,
-      targetType: DEAL_TARGET_TYPE,
-      serviceName: 'sales',
-      actorId: userId,
-      purchase: { totalAmount, paidAmount, items },
-    });
+    const earned: TLoyaltyWrite | null = await askLoyalty(
+      subdomain,
+      'earn',
+      {
+        ownerType: 'customer',
+        ownerId: plan.customerId,
+        campaignId,
+        targetId: dealId,
+        targetType: DEAL_TARGET_TYPE,
+        serviceName: 'sales',
+        actorId: userId,
+        purchase: { totalAmount, paidAmount, items },
+      },
+    );
+    linked.push(...writtenIds(earned?.scoreLogIds, earned?.scoreLogId));
   }
 
   // Never given back: a tier is set again by the next purchase, not undone.

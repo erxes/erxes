@@ -1,3 +1,4 @@
+import type { TTicketSla } from './sla';
 import { TCreatedVia } from 'erxes-api-shared/core-types';
 import {
   IListParams,
@@ -52,9 +53,11 @@ export interface ITicket {
   isSubscribed?: boolean;
   propertiesData?: IPropertyField;
   attachments?: IAttachment[];
-  companyIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
   customerFieldData?: any;
   sourceSurvey?: ITicketSourceSurvey;
+  sla?: TTicketSla | null;
 }
 
 export interface ITicketUpdate extends ITicket {

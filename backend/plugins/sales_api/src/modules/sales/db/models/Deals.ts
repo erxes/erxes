@@ -38,6 +38,7 @@ export interface IDealModel extends Model<IDealDocument> {
     userId: string,
   ): Promise<IDealDocument | null>;
   removeDeals(_ids: string[]): Promise<{ n: number; ok: number }>;
+  addScoreLogs(_id: string, scoreLogIds: (string | undefined)[]): Promise<void>;
 }
 
 export const loadDealClass = (
@@ -56,14 +57,6 @@ export const loadDealClass = (
     /** Create deal */
     public static async createDeal(doc: IDeal) {
       await assertDealBoardIsActive(models, doc.stageId);
-      // Prevent duplicate conversion from conversation
-      if (doc.sourceConversationIds?.length) {
-        const existing = await models.Deals.findOne({
-          sourceConversationIds: { $in: doc.sourceConversationIds },
-        });
-        if (existing) throw new Error('Already converted a deal');
-      }
-
       // Calculate totals
       if (doc.productsData) {
         doc.productsData = normalizeProductDiscountInfos(
@@ -155,6 +148,24 @@ export const loadDealClass = (
       );
 
       return updatedDeal;
+    }
+
+    // A link to loyalty's ledger, not a change to the deal: no event log, so
+    // deal-updated automations do not run on every point movement.
+    public static async addScoreLogs(
+      _id: string,
+      scoreLogIds: (string | undefined)[],
+    ) {
+      const ids = scoreLogIds.filter((id): id is string => !!id);
+
+      if (!ids.length) {
+        return;
+      }
+
+      await models.Deals.updateOne(
+        { _id },
+        { $addToSet: { scoreLogIds: { $each: ids } } },
+      );
     }
 
     public static async removeDeals(_ids: string[]) {

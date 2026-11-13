@@ -27,7 +27,7 @@ const CHART_CONFIG = {
 export const VolumeChart = memo(function VolumeChart({
   data,
 }: VolumeChartProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartData = useMemo(
     () =>
       data.map((d) => ({
@@ -85,7 +85,7 @@ export const VolumeChart = memo(function VolumeChart({
         />
         <Bar
           dataKey="answered"
-          name="Answered"
+          name={t('answered')}
           fill="var(--success)"
           radius={[3, 3, 0, 0]}
           maxBarSize={18}

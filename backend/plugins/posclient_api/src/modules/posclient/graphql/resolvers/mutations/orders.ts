@@ -463,9 +463,10 @@ export const ordersEdit = async (
 
   await cleanOrderItems(doc._id, doc.items, models);
 
+  // The stored start, never the client's, is the order's created moment.
   const preparedDoc = await prepareOrderDoc(
     subdomain,
-    doc,
+    { ...doc, createdAt: order.createdAt },
     config,
     models,
     posUser,
@@ -814,9 +815,8 @@ const orderMutations: Record<string, Resolver> = {
           pluginName: 'sales',
           module: 'pos',
           action: 'createOrUpdateOrders',
-          input: {
-            query: { action: 'statusToDone', order, posToken: config.token },
-          },
+          // Flat like every other sync: sales reads action and order here
+          input: { action: 'statusToDone', order, posToken: config.token },
           defaultValue: {},
         });
       } catch (e) {
@@ -1369,6 +1369,17 @@ const orderMutations: Record<string, Resolver> = {
         },
       };
     }
+    // The deal keeps the order's customer itself.
+    const contactKind = order.customerType || 'customer';
+
+    if (order.customerId && contactKind === 'customer') {
+      dealData.customerId = order.customerId;
+    }
+
+    if (order.customerId && contactKind === 'company') {
+      dealData.companyId = order.customerId;
+    }
+
     const deal = await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
@@ -1377,37 +1388,6 @@ const orderMutations: Record<string, Resolver> = {
       input: dealData,
       defaultValue: null,
     });
-    if (order.customerId) {
-      if (
-        order.customerId &&
-        deal._id &&
-        ['customer', 'company'].includes(order.customerType || 'customer')
-      ) {
-        // conformity to relation
-        await sendTRPCMessage({
-          subdomain,
-          method: 'mutation',
-          pluginName: 'core',
-          module: 'relation',
-          action: 'createRelation',
-          input: {
-            relation: {
-              entities: [
-                {
-                  contentType: 'sales:deal',
-                  contentId: deal._id,
-                },
-                {
-                  contentType: `core:${order.customerType || 'customer'}`,
-                  contentId: order.customerId,
-                },
-              ],
-            },
-          },
-          defaultValue: null,
-        });
-      }
-    }
 
     await models.Orders.updateOne(
       { _id: order._id },

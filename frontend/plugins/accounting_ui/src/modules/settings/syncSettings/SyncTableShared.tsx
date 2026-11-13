@@ -1,51 +1,45 @@
 import type { TFunction } from 'i18next';
 import { ColumnDef, Row } from '@tanstack/table-core';
-import {
-  RecordTable,
-  RecordTableInlineCell,
-  Skeleton,
-  Table,
-  useQueryState,
-} from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { useMemo } from 'react';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconRefreshOff } from '@tabler/icons-react';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddAccountingConfig } from '@/settings/syncSettings/AddAccountingConfig';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
-import { accountingConfigDetailAtom } from '@/settings/states/accountingConfigState';
 import { IConfig } from '@/settings/types/Config';
 import { useAccountingConfigs } from '@/settings/hooks/useAccountingConfigs';
-import { EditAccountingConfig } from '@/settings/syncSettings/EditAccountingConfig';
+import { useAccountingConfigEdit } from '@/settings/hooks/useAccountingConfigEdit';
+import { getSyncConfigContentType } from '@/settings/constants/settingsPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 
-export const SyncInitialSkeleton = ({
-  rows = 20,
-  columns,
-}: {
-  rows?: number;
-  columns: ColumnDef<IConfig>[];
-}) => {
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {columns.map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
+type TPendingSyncConfigUpdate = {
+  value: Record<string, unknown>;
+  queue: Promise<unknown>;
+};
+
+const pendingSyncConfigUpdates = new Map<string, TPendingSyncConfigUpdate>();
+
+export const useSyncConfigValueUpdate = (config: IConfig) => {
+  const { editConfig } = useAccountingConfigEdit();
+
+  return (key: string, fieldValue?: string[] | string) => {
+    const pending = pendingSyncConfigUpdates.get(config._id);
+    const value = {
+      ...(pending?.value ?? config.value),
+      [key]: Array.isArray(fieldValue) ? fieldValue[0] : fieldValue,
+    };
+
+    const queue = (pending?.queue ?? Promise.resolve())
+      .catch(() => undefined)
+      .then(() => editConfig({ id: config._id, subId: config.subId, value }))
+      .finally(() => {
+        if (pendingSyncConfigUpdates.get(config._id)?.queue === queue) {
+          pendingSyncConfigUpdates.delete(config._id);
+        }
+      });
+
+    pendingSyncConfigUpdates.set(config._id, { value, queue });
+  };
 };
 
 export const SyncLinkCell = ({
@@ -55,16 +49,18 @@ export const SyncLinkCell = ({
   row: Row<IConfig>;
   renderVal: string;
 }) => {
-  const [, setOpen] = useQueryState<string>('configId', { defaultValue: '' });
-  const setAccountDetail = useSetAtom(accountingConfigDetailAtom);
+  const { openDetail } = useSettingsPanel(
+    getSyncConfigContentType(row.original.code),
+  );
   return (
-    <RecordTableInlineCell
-      onClick={() => {
-        setAccountDetail(row.original.value);
-        setOpen(row.original._id);
-      }}
-    >
-      {renderVal}
+    <RecordTableInlineCell>
+      {renderVal ? (
+        <RecordTableInlineCell.Anchor
+          onClick={() => openDetail(row.original._id)}
+        >
+          {renderVal}
+        </RecordTableInlineCell.Anchor>
+      ) : null}
     </RecordTableInlineCell>
   );
 };
@@ -121,18 +117,17 @@ export const SyncConfigTable = ({
       data={isInitialLoading ? [] : configs || []}
       stickyColumns={stickyColumns}
       tableId={tableId}
-      className="relative"
+      className="relative m-3"
     >
-      <RecordTable>
-        <RecordTable.Header showColumnSelector={showColumnSelector} />
-        <RecordTable.Body>
-          <RecordTable.RowList />
-          {isInitialLoading && (
-            <SyncInitialSkeleton rows={20} columns={columns} />
-          )}
-        </RecordTable.Body>
-      </RecordTable>
-      <EditAccountingConfig code={code} />
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header showColumnSelector={showColumnSelector} />
+          <RecordTable.Body>
+            <RecordTable.RowList />
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
       {isEmpty && (
         <AccountingEmptyState
           overlay

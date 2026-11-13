@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -27,6 +27,11 @@
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 - Provides main routes under `/mongolian`, including put responses, by-date
   summaries, duplicated put responses, sync Erkhet, and MS Dynamic workflows.
+- The app sidebar's Put Response and Erkhet Sync rows
+  (`src/modules/MainNavigation.tsx`) unfold their pages (`PUT_RESPONSE_ROUTES`,
+  `SYNC_ERKHET_ROUTES`) through the `ui-modules` `PluginNavigationItem`;
+  picking a page resets that page's table cursor, and those pages render no
+  in-page side panel. MS Dynamic keeps its `MSDynamicSidebar` panel.
 - Provides settings routes for eBarimt, MS Dynamic, product places, sync Erkhet,
   and exchange rates.
 - Mongolian settings shells preserve a bounded content height so settings
@@ -36,6 +41,15 @@
   summary quantity display, and clean tax price display.
 - Product places settings include stage, split, print, and default product
   filter configuration screens under `mongolian/settings/product-places/*`.
+  The settings sidebar's Product places row (`src/modules/SettingsNavigation.tsx`)
+  unfolds these four pages (`PRODUCT_PLACES_SETTINGS_ROUTES` in
+  `src/modules/productplaces/constants/settingRoutes.ts`) through the
+  `ui-modules` `PluginNavigationItem`, so product places pages render
+  no in-page side panel. `ProductPlacesConfigManager` renders each page's
+  `SettingsHeader`: `ProductPlacesBreadcrumb` (Product place, then the
+  current page label from the same routes map) and the Add config button;
+  the page body carries no separate title row, and an empty list shows the
+  `erxes-ui` `Empty` state (`no-configs-yet`) with no button of its own.
 - Product places configuration screens render code-scoped `mnConfigs` rows in
   `RecordTable` lists and manage create/edit/delete through a right-side
   `Sheet`; place, split, and print config rows display board, pipeline, and
@@ -58,6 +72,17 @@
   `sessionCode` matches the current tab's `sessionStorage.sessioncode`.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
+- The Put Response table shows status as an `erxes-ui` `Badge` from
+  `getPutResponseStatus` (success, error for non-`SUCCESS`, inactive for
+  `state: 'inactive'`), the same helper the deal widget uses, and the sending
+  user from `userId` through the `ui-modules` `MembersInline` (`-` when empty).
+  `inactiveId` is filled only on return / re-send records that cancel an
+  earlier bill, so ordinary receipts leave it blank.
+- The Put Response table pins the `more` and Bill ID (`id`) columns while
+  scrolling horizontally. Its `tableId` is
+  `mongolian_ebarimt_put_response_record_table_v2`: saved `localStorage` table
+  preferences override `stickyColumns`, so changing the default pinning needs
+  a new `tableId` suffix.
 - Put response pagination preserves the full loaded range's start/end cursors,
   prepends backward pages, and allows only one load-more request at a time.
 - Registers a product remainder provider that lets shared product choosers
@@ -65,10 +90,26 @@
   sales pipeline.
 - Prints deal eBarimt responses in a popup receipt template that supports
   configured `headerText`, `footerText`, and optional receipt logo images.
+- Shows a deal's eBarimt on the deal sheet rail: relation widget `ebarimt`
+  (`contentTypes: ['sales:deal']`, `./relationWidget` →
+  `src/widgets/relation/RelationWidget.tsx` → `DealEbarimt` in
+  `src/modules/ebarimt/deal-ebarimt`) lists `putResponses(contentType: "deal",
+  contentId)` (`mongolianDealPutResponses`, latest 20) with ДДТД, bill type,
+  receipt date in the organization `TIMEZONE`, status (success, inactive for
+  `state: 'inactive'`, error with its message) and amount / VAT / city tax.
+  The header Print receipt button prints every active receipt with an id and
+  each row's printer icon prints that receipt, directly through
+  `printEbarimtResponses` (the same popup receipt as the floating widget);
+  a blocked pop-up shows an `allow-popups-to-print` toast.
+- The Put Response list row's more-menu Print (`print`) button prints that row's
+  eBarimt receipt through the same `printEbarimtResponses` popup; it is
+  disabled for rows without a bill `id` or with `state: 'inactive'`. Receipt
+  mapping, printability, and the `TIMEZONE` date display live in
+  `src/modules/ebarimt/put-response/utils/putResponsePrint.ts`, shared by the
+  list and the deal widget.
 - Uses `erxes-ui`, `ui-modules`, Apollo Client, Jotai, React Router, React Hook
   Form, Zod, and `react-i18next` following plugin-local patterns.
-- Put response rows tolerate missing or invalid bill `date` values by falling
-  back to `createdAt` or rendering an empty marker.
+- Put response list dates interpret timezone-less receipt timestamps (`yyyy-MM-dd HH:mm:ss`) as UTC and format them in the organization’s `TIMEZONE` (UTC when unset) as `yyyy-MM-dd HH:mm:ss`. Explicit timezone offsets are preserved when parsing. The table reads `TIMEZONE` through core `configsGetValue`. Missing or invalid receipt dates fall back to `createdAt`, formatted normally in browser local time, then `-`. This conversion is display-only; stored receipt values remain unchanged, and dates are not shown relatively.
 
 ## Architecture
 
@@ -81,21 +122,25 @@
 | Main routes        | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx`              | Route tree mounted under `/mongolian`.                             |
 | Settings routes    | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx`          | Settings route tree mounted by the plugin's own `settings/*` route.            |
 | eBarimt            | `frontend/plugins/mongolian_ui/src/modules/ebarimt`                        | eBarimt put responses, filters, tables, and settings UI.           |
-| eBarimt print      | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`              | Popup receipt HTML for deal eBarimt responses.                     |
+| eBarimt print      | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`              | Popup receipt HTML and `printEbarimtResponses` for deal eBarimt responses. |
+| Deal eBarimt       | `frontend/plugins/mongolian_ui/src/modules/ebarimt/deal-ebarimt`           | A deal's put responses on its rail, with direct receipt print.     |
 | Erkhet sync        | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`                    | Erkhet checking, sync, and settings UI.                            |
 | Product remainders | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync/product-remainders` | Provides the Module Federation product chooser remainder provider. |
 | MS Dynamic         | `frontend/plugins/mongolian_ui/src/modules/msdynamic`                      | MS Dynamic checking, sync history, and settings UI.                |
 | Product places     | `frontend/plugins/mongolian_ui/src/modules/productplaces`                  | Product place settings and UI.                                     |
 | Exchange rates     | `frontend/plugins/mongolian_ui/src/modules/exchangeRates`                  | Exchange rate list and related UI.                                 |
 | Pages              | `frontend/plugins/mongolian_ui/src/pages`                                  | Route-level page composition.                                      |
-| Widgets            | `frontend/plugins/mongolian_ui/src/widgets`                                | Plugin widget exports only.                                        |
+| Widgets            | `frontend/plugins/mongolian_ui/src/widgets`                                | Plugin widget exports only (`relation/RelationWidget.tsx` named `RelationWidget`). |
 
 ## Contracts
 
 ### Provides
 
 - Module Federation exposes: `./config`, `./mongolian`,
-  `./widgets`, and `./floatingWidget`.
+  `./widgets`, `./relationWidget`, and `./floatingWidget`.
+- `widgets.relationWidgets: [{ name: 'ebarimt', contentTypes: ['sales:deal'] }]`:
+  the deal's eBarimt tab, read by the deal's own `_id`, never through its
+  customer or company.
 - Frontend routes mounted by `./mongolian`, including
   `/mongolian/put-response/*`, `/mongolian/sync-erkhet/*`, and
   `/mongolian/msdynamic/*`.
@@ -123,6 +168,9 @@
 - Apollo GraphQL contracts exposed by the Mongolian backend and platform
   services used by the existing feature GraphQL documents.
 - Shared `ui-modules` product chooser remainder provider contract.
+- `PluginNavigationItem` from `ui-modules` for app and settings sidebar rows
+  with sub-pages; core-ui supplies the expanding row through
+  `pluginSettingsSlotsState`, and a host without it falls back to a plain link.
 - React Router host mounting contracts from core UI Module Federation.
 - Translation namespace `mongolian`.
 
@@ -141,9 +189,18 @@
 - Sync Erkhet settings config tables share `ErkhetConfigRecordTable`, which owns
   row selection, sticky structural columns, and vertical scrolling for the list
   pane.
+- The Sync Erkhet general config form (`SyncErkhetGeneralConfigForm`) renders
+  its fields from `GENERAL_CONFIG_SECTIONS` (field names per section) and
+  `GENERAL_CONFIG_LABELS` (label key; placeholder is `enter-<label>`) as
+  bordered section cards with a two-column field grid; the full-width body
+  scrolls and the Save button stays in a fixed footer bar.
 
 ## Local Invariants
 
+- Settings config tables (eBarimt and product places) show an empty list with
+  the shared `SettingsEmptyState` (`src/modules/shared/components`, built on
+  the `erxes-ui` `Empty` state) and no add button inside the table; the add
+  action lives only in the page header.
 - The plugin owns its whole app sidebar. `src/modules/MongolianMain.tsx` (the `./mongolian`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="mongolian"`) with
   `MongolianSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
@@ -153,7 +210,7 @@
   sidebar. The plugin owns its settings at `/mongolian/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
   `MongolianSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
-  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  "<Plugin> settings" whose sidebar starts with a sticky core-style "Exit settings" row linking back to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends
@@ -163,7 +220,13 @@
   no `./mongolianSettings` expose; old `/settings/mongolian/…` URLs are redirected
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Page header breadcrumbs follow the shared pattern: crumbs are default ghost `Button`s (no `font-semibold`), the first crumb carries a 16px icon in the default text color, crumbs are separated by `Separator.Inline` or `Breadcrumb.Separator`, and settings pages carry no favorite toggle.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout`, `ErkhetSettings`, `PutResponseLayout`, `SyncErkhetLayout` and `MsdynamicLayout` render their panel beside the header column.
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `SettingsLayout` (whose `sidebar` is optional), `ErkhetSettings` and `MsdynamicLayout` render their panel beside the header column.
+- A section with five or fewer static pages unfolds them under its sidebar row
+  through `PluginNavigationItem` instead of an in-page `Sidebar.Panel` (put
+  response and Erkhet sync in the app sidebar, product places in settings);
+  sub-pages backed by a cursor table pass an `onClick` that resets that
+  table's cursor. Sections with more pages (MS Dynamic, eBarimt settings, sync
+  Erkhet settings) keep their panel.
 - Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 - Keep integration-specific files inside the owning integration folder unless a
   shared plugin folder already exists for that concern.
@@ -180,6 +243,9 @@
   panes so nested tables and forms remain scrollable.
 - Put response cursor skeletons receive query loading state, including fetch-more;
   page merges use the public `mergeCursorData` helper to preserve both boundaries.
+- eBarimt put response receipts print through `printEbarimtResponses`, not the
+  `ui-modules` `PrintDocument` sheet: no backend registers a document type or
+  replacer for put responses, so a template sheet opens with nothing to print.
 - The product remainder provider must no-op when no sales `pipelineId` or no
   `remainderConfig` exists for that pipeline.
 
@@ -188,15 +254,29 @@
 - `pnpm exec eslint frontend/plugins/mongolian_ui/src`
 - `pnpm exec eslint frontend/plugins/mongolian_ui/src/modules/productplaces frontend/plugins/mongolian_ui/src/pages/productplaces`
 - `pnpm nx build mongolian_ui`
-- No `test` target is currently defined in `project.json`; add and document one
-  before introducing tested behavior.
+- `pnpm nx test mongolian_ui` (inferred Jest target; `jest.config.ts` runs
+  jsdom with `~/*` and `@/*` mappers).
+- Deal eBarimt smoke scenario: open a deal whose stage issued an eBarimt; the
+  rail's eBarimt tab lists its receipts, Print receipt opens the receipt popup
+  with ДДТД, date, lottery and items and starts printing; a deal without
+  receipts shows `no-deal-ebarimt`.
 - Product places smoke scenario: configure split/place/print settings for a
   sales stage, move a deal with products into that stage, and verify the
   floating widget prints branch, department, product, customer, header, and
   footer data without a manual refresh.
+- App navigation smoke scenario: open `/mongolian/put-response`; the Put
+  Response row unfolds Put Response, By Date, and Duplicated with the current
+  page highlighted and no in-page side panel, and Erkhet Sync unfolds its five
+  check pages the same way.
+- Product places navigation smoke scenario: open
+  `/mongolian/settings/product-places`; the Product places row in the settings
+  sidebar unfolds the four pages with the current page highlighted and no
+  in-page side panel; the page header shows the Product place breadcrumb
+  with the current page name and the Add config button, which opens the
+  config sheet.
 - Put response smoke scenario: open `/mongolian/put-response/put-response` with
   rows where `date` is `null`; the table renders without `Invalid time value`
-  and displays `createdAt` relatively when available.
+  and displays `createdAt` as `yyyy-MM-dd HH:mm:ss` in browser local time when available; receipt `date` of `2026-11-03 10:32:06` displays as `2026-11-03 18:32:06` when organization `TIMEZONE` is `Asia/Ulaanbaatar`, regardless of browser timezone, with no ago suffix or stored-data changes.
 - Put response pagination smoke scenario: open the list from its first page,
   scroll forward through multiple pages, and verify no backward request appears
   after appending a page; backward loads prepend rows and preserve the end cursor.

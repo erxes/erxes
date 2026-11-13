@@ -40,7 +40,9 @@ const updateView = (
 };
 
 export const useCustomDomainActions = (helpCenterId: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const variables = { helpCenterId };
 
   const onError = (error: Error) =>

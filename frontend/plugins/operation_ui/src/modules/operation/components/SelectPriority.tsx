@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { IconFlag } from '@tabler/icons-react';
 import React, { useState } from 'react';
 import {
   Combobox,
@@ -73,7 +74,8 @@ const SelectPriorityBadgeValue = ({
 
   if (!value) {
     return (
-      <span className="text-accent-foreground/80">
+      <span className="flex items-center gap-2 text-muted-foreground">
+        <IconFlag className="size-4 shrink-0" aria-hidden="true" />
         {placeholder || t('select-priority')}
       </span>
     );
@@ -182,7 +184,6 @@ const SelectPriorityFilterView = ({ queryKey }: { queryKey?: string }) => {
 
 const SelectPriorityFilterBar = ({
   scope,
-  iconOnly,
   queryKey,
 }: {
   scope?: string;
@@ -212,6 +213,7 @@ const SelectPriorityFilterBar = ({
 };
 
 export const SelectPriorityFormItem = ({
+  variant = 'form',
   value,
   onValueChange,
   label,
@@ -219,6 +221,8 @@ export const SelectPriorityFormItem = ({
   value: number;
   onValueChange: (value: number) => void;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -230,12 +234,16 @@ export const SelectPriorityFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="form" label={label}>
-          <SelectPriorityValue />
+        <SelectTriggerOperation variant={variant} label={label}>
+          {variant === SelectTriggerVariant.TABLE ? (
+            <SelectPriorityBadgeValue />
+          ) : (
+            <SelectPriorityValue />
+          )}
         </SelectTriggerOperation>
-        <Combobox.Content>
+        <SelectOperationContent variant={variant}>
           <SelectPriorityContent />
-        </Combobox.Content>
+        </SelectOperationContent>
       </PopoverScoped>
     </SelectPriorityProvider>
   );

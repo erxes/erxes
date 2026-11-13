@@ -1,6 +1,6 @@
 import { GET_PROJECT_PROGRESS_BY_MILESTONE } from '@/project/graphql/queries/getProjectProgressByMilestone';
-import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
-import { useQuery, useSubscription } from '@apollo/client';
+import { useRefetchOnTaskListChange } from '@/task/hooks/useRefetchOnTaskListChange';
+import { useQuery } from '@apollo/client';
 
 export const useGetProjectProgressByMilestone = (projectId?: string | null) => {
   const { data, loading, refetch } = useQuery(
@@ -13,13 +13,10 @@ export const useGetProjectProgressByMilestone = (projectId?: string | null) => {
 
   const projectProgressByMilestone = data?.milestoneProgress;
 
-  useSubscription(TASK_LIST_CHANGED, {
-    variables: { filter: { projectId } },
+  useRefetchOnTaskListChange({
+    filter: { projectId },
     skip: !projectId,
-    ignoreResults: true,
-    onData: () => {
-      refetch();
-    },
+    refetch,
   });
 
   return { projectProgressByMilestone, loading, refetch };

@@ -14,7 +14,7 @@ export const ChannelSelect = ({
   value = [],
   onValueChange,
 }: ChannelSelectProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { channels, loading } = useGetChannels();
   const [open, setOpen] = useState(false);
 

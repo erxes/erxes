@@ -1,5 +1,4 @@
 import {
-  Alert,
   ChartContainer,
   ChartTooltipContent,
   cn,
@@ -7,6 +6,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineChartCard } from '../frontline-card/FrontlineChartCard';
 import { useConversationSources } from '@/report/hooks/useConversationSource';
 import {
   Area,
@@ -35,6 +35,7 @@ import { useAtom } from 'jotai';
 import { getReportChartTypeAtom } from '@/report/states';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import { DataKey } from 'recharts/types/util/types';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
@@ -67,7 +68,7 @@ export const ConversationSource = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationSourceProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
@@ -122,72 +123,20 @@ export const ConversationSource = ({
     </>
   );
 
-  if (loading || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="Conversation statistics by source"
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="Conversation statistics by source"
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>
-              {error.message || 'Failed to load conversation sources'}
-            </Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (!conversationSources || conversationSources.length === 0) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="No conversation sources found."
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
   return (
-    <FrontlineCard
+    <FrontlineChartCard
       id={id}
       title={title}
-      description="Conversation statistics by source"
+      description={t('conversation-statistics-by-source')}
+      emptyDescription={t('no-conversation-sources-found')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
+      filter={filterEl}
+      loading={loading || !filtersRestored}
+      error={error}
+      errorFallback={t('failed-to-load-conversation-sources')}
+      isEmpty={!conversationSources || conversationSources.length === 0}
     >
-      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -221,13 +170,14 @@ export const ConversationSource = ({
           onNext={handleNext}
         />
       </FrontlineCard.Content>
-    </FrontlineCard>
+    </FrontlineChartCard>
   );
 };
 
 export const SourceBarChart = memo(function SourceBarChart({
   conversationSources,
 }: SourceChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -271,9 +221,9 @@ export const SourceBarChart = memo(function SourceBarChart({
         <YAxis
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count">
+        <Bar dataKey="count" fill="var(--primary)" name={t('count')}>
           <LabelList
             dataKey="count"
             position="top"
@@ -291,6 +241,7 @@ export const SourceBarChart = memo(function SourceBarChart({
 export const SourceLineChart = memo(function SourceLineChart({
   conversationSources,
 }: SourceChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -372,7 +323,7 @@ export const SourceLineChart = memo(function SourceLineChart({
           domain={countYAxisDomain}
           tickLine={false}
           axisLine={false}
-          label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+          label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
         />
         <YAxis
           yAxisId="percentage"
@@ -381,7 +332,7 @@ export const SourceLineChart = memo(function SourceLineChart({
           tickLine={false}
           axisLine={false}
           label={{
-            value: 'Percentage (%)',
+            value: t('percentage-percent'),
             angle: 90,
             position: 'insideRight',
           }}
@@ -513,6 +464,7 @@ export const SourcePieChart = memo(function SourcePieChart({
 export const SourceRadarChart = memo(function SourceRadarChart({
   conversationSources,
 }: SourceChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({
       count: {
@@ -598,7 +550,7 @@ export const SourceRadarChart = memo(function SourceRadarChart({
             if (name === 'Percentage') {
               return [
                 props.payload.percentageOriginal?.toFixed(1) + '%',
-                'Percentage',
+                t('percentage'),
               ];
             }
             return [value, name];
@@ -612,11 +564,12 @@ export const SourceRadarChart = memo(function SourceRadarChart({
 export const SourceRecordTableChart = memo(function SourceRecordTableChart({
   conversationSources,
 }: SourceChartProps) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={conversationSources}
-        columns={sourceRecordTableColumns}
+        columns={sourceRecordTableColumns(t)}
         className="m-3"
       >
         <RecordTable.Scroll>
@@ -632,10 +585,12 @@ export const SourceRecordTableChart = memo(function SourceRecordTableChart({
   );
 });
 
-export const sourceRecordTableColumns: ColumnDef<SourceData>[] = [
+export const sourceRecordTableColumns = (
+  t: TFunction,
+): ColumnDef<SourceData>[] => [
   {
     id: '_id',
-    header: 'Source',
+    header: t('source'),
     accessorKey: '_id',
     cell: ({ cell }) => {
       return (
@@ -648,7 +603,7 @@ export const sourceRecordTableColumns: ColumnDef<SourceData>[] = [
   },
   {
     id: 'name',
-    header: 'Name',
+    header: t('name'),
     accessorKey: 'name',
     cell: ({ cell }) => {
       return (
@@ -660,7 +615,7 @@ export const sourceRecordTableColumns: ColumnDef<SourceData>[] = [
   },
   {
     id: 'count',
-    header: 'Data',
+    header: t('data'),
     accessorKey: 'count',
     cell: ({ cell }) => {
       const { count, percentage } = cell.row.original || {};

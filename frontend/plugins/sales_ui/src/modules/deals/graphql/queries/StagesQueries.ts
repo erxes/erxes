@@ -12,8 +12,8 @@ export const GET_STAGES = gql(`
     $isAll: Boolean
     $pipelineId: String
     $search: String
-    $customerIds: [String]
-    $companyIds: [String]
+    $customerId: String
+    $companyId: String
     $assignedUserIds: [String]
     $labelIds: [String]
     $extraParams: JSON
@@ -36,8 +36,8 @@ export const GET_STAGES = gql(`
       isAll: $isAll
       pipelineId: $pipelineId
       search: $search
-      customerIds: $customerIds
-      companyIds: $companyIds
+      customerId: $customerId
+      companyId: $companyId
       assignedUserIds: $assignedUserIds
       labelIds: $labelIds
       extraParams: $extraParams
@@ -83,8 +83,8 @@ export const GET_CONVERSION_STAGES = gql(`
     $isAll: Boolean
     $pipelineId: String
     $search: String
-    $customerIds: [String]
-    $companyIds: [String]
+    $customerId: String
+    $companyId: String
     $assignedUserIds: [String]
     $labelIds: [String]
     $extraParams: JSON
@@ -107,8 +107,8 @@ export const GET_CONVERSION_STAGES = gql(`
       isAll: $isAll
       pipelineId: $pipelineId
       search: $search
-      customerIds: $customerIds
-      companyIds: $companyIds
+      customerId: $customerId
+      companyId: $companyId
       assignedUserIds: $assignedUserIds
       labelIds: $labelIds
       extraParams: $extraParams

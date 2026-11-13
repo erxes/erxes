@@ -32,9 +32,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import CoverItemAction from "./cover-item-action"
+import { CoverItemAction } from "./cover-item-action"
 
 const statuses = [
+  { value: "draft", icon: CircleIcon },
+  { value: "reconf", icon: XCircleIcon },
+  { value: "confirming", icon: CircleIcon },
   {
     value: "confirm",
     icon: CheckCircle2Icon,
@@ -156,7 +159,7 @@ export default function DataTable({ data = [] }: { data?: Cover[] }) {
       rowSelection,
     },
   })
-  const rows = table.getRowModel().rows;
+  const rows = table.getRowModel().rows
 
   return (
     <div className="w-full py-4">

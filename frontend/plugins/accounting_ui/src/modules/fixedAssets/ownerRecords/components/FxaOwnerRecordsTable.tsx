@@ -7,16 +7,15 @@ import {
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
+  Badge,
   Combobox,
   Command,
   Popover,
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
-  Table,
 } from 'erxes-ui';
-import { useMemo } from 'react';
-import { SelectMember } from 'ui-modules';
+import { useMemo, useState } from 'react';
+import { SelectMember, useSidePanel } from 'ui-modules';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
@@ -26,11 +25,16 @@ import {
   IFixedAssetCategory,
   IFxaOwnerRecord,
 } from '@/settings/fixed-assets/types/FixedAsset';
-import { FxaOwnerRecordActionSheet } from '@/fixedAssets/ownerRecords/components/FxaOwnerRecordActionSheet';
+import { FXA_OWNER_RECORD_CONTENT_TYPES } from '@/fixedAssets/ownerRecords/constants/ownerRecordPanel';
 
 const OWNER_RECORD_STATUS_LABELS: Record<string, string> = {
   active: 'active',
   inactive: 'inactive',
+};
+
+const OWNER_RECORD_STATUS_VARIANTS: Record<string, 'success' | 'secondary'> = {
+  active: 'success',
+  inactive: 'secondary',
 };
 
 const OWNER_RECORD_ACTION_LABELS: Record<string, string> = {
@@ -57,6 +61,8 @@ const FxaOwnerRecordMoreCell = ({
   cell: Cell<TFxaOwnerRecordRow, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
+  const { openNewRecord } = useSidePanel();
+  const [menuOpen, setMenuOpen] = useState(false);
   const record = cell.row.original;
   const defaultValues = {
     fixedAssetId: record.fixedAssetId || '',
@@ -65,38 +71,46 @@ const FxaOwnerRecordMoreCell = ({
     count: record.count || 1,
   };
 
+  const openAction = (
+    contentType: string,
+    defaults: Record<string, unknown>,
+  ) => {
+    setMenuOpen(false);
+    openNewRecord(contentType, defaults);
+  };
+
   return (
-    <Popover>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <FxaOwnerRecordActionSheet
-              mode="transfer"
-              defaultValues={{
-                ...defaultValues,
-                fromOwnerId: record.ownerId || '',
-              }}
+            <Command.Item
+              value="move"
+              onSelect={() =>
+                openAction(FXA_OWNER_RECORD_CONTENT_TYPES.transfer, {
+                  ...defaultValues,
+                  fromOwnerId: record.ownerId || '',
+                })
+              }
             >
-              <Command.Item value="move">
-                <IconArrowRight />
-                {t('transfer')}
-              </Command.Item>
-            </FxaOwnerRecordActionSheet>
-            <FxaOwnerRecordActionSheet
-              mode="handOver"
-              defaultValues={{
-                ...defaultValues,
-                ownerId: record.ownerId || '',
-              }}
+              <IconArrowRight />
+              {t('transfer')}
+            </Command.Item>
+            <Command.Item
+              value="out"
+              onSelect={() =>
+                openAction(FXA_OWNER_RECORD_CONTENT_TYPES.handOver, {
+                  ...defaultValues,
+                  ownerId: record.ownerId || '',
+                })
+              }
             >
-              <Command.Item value="out">
-                <IconCircleOff />
-                {t('cancel')}
-              </Command.Item>
-            </FxaOwnerRecordActionSheet>
+              <IconCircleOff />
+              {t('cancel')}
+            </Command.Item>
           </Command.List>
         </Command>
       </Combobox.Content>
@@ -219,7 +233,15 @@ const getFxaOwnerRecordColumns = (
 
       return (
         <RecordTableInlineCell>
-          {t(OWNER_RECORD_STATUS_LABELS[status] || '') || status || '-'}
+          {status ? (
+            <Badge
+              variant={OWNER_RECORD_STATUS_VARIANTS[status] || 'secondary'}
+            >
+              {t(OWNER_RECORD_STATUS_LABELS[status] || '') || status}
+            </Badge>
+          ) : (
+            '-'
+          )}
         </RecordTableInlineCell>
       );
     },
@@ -237,27 +259,6 @@ const getFxaOwnerRecordColumns = (
     size: 140,
   },
 ];
-
-const FxaOwnerRecordsSkeleton = ({ rows = 20 }: { rows?: number }) => {
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, (_, index) => `owner-skeleton-${index}`),
-    [rows],
-  );
-
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {Array.from({ length: 9 }, (_, index) => (
-            <Table.Cell key={`${rowKey}-${index}`} className="border-r-0 px-2">
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
 
 export const FxaOwnerRecordsTable = () => {
   const { t } = useTranslation('accounting');
@@ -315,7 +316,7 @@ export const FxaOwnerRecordsTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
-            {isInitialLoading && <FxaOwnerRecordsSkeleton rows={20} />}
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
             {!isInitialLoading && totalCount > records.length && (
               <RecordTable.RowSkeleton
                 rows={4}

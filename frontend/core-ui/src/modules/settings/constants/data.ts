@@ -4,8 +4,12 @@ import {
   TSettingPath,
 } from '@/types/paths/SettingsPath';
 import {
+  IconActivity,
+  IconLayoutDashboard,
   IconAdjustmentsAlt,
+  IconArrowsExchange,
   IconBolt,
+  IconBroadcast,
   IconBuilding,
   IconChessKnight,
   IconFile,
@@ -18,7 +22,9 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
+  IconDeviceMobileCheck,
   IconShoppingCart,
+  IconSparkles,
   IconShieldCheck,
   IconShieldLock,
   IconTag,
@@ -129,6 +135,16 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsPath.Profile,
     },
     {
+      name: t('my-activity', 'My activity'),
+      icon: IconActivity,
+      path: SettingsPath.MyActivity,
+    },
+    {
+      name: t('appearance', 'Appearance'),
+      icon: IconLayoutDashboard,
+      path: SettingsPath.Appearance,
+    },
+    {
       name: t('notification'),
       icon: IconNotification,
       path: SettingsPath.Notification,
@@ -137,6 +153,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('change-password'),
       icon: IconPassword,
       path: SettingsPath.ChangePassword,
+    },
+    {
+      name: t('two-factor', 'Two-factor authentication'),
+      icon: IconDeviceMobileCheck,
+      path: SettingsPath.TwoFactor,
     },
   ],
   nav: [
@@ -166,6 +187,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Brands,
     },
     {
+      name: t('exchange-rates', 'Exchange rates'),
+      icon: IconArrowsExchange,
+      path: SettingsWorkspacePath.ExchangeRates,
+    },
+    {
       name: t('properties', 'Properties'),
       icon: IconHierarchy2,
       path: SettingsWorkspacePath.Properties,
@@ -190,6 +216,16 @@ export const SETTINGS_PATH_DATA = (
       icon: IconMessage,
       path: SettingsWorkspacePath.MessagePro,
     },
+    {
+      name: t('broadcast-config', 'Broadcast config'),
+      icon: IconBroadcast,
+      path: SettingsWorkspacePath.Broadcast,
+    },
+    {
+      name: t('agents', 'Agents'),
+      icon: IconSparkles,
+      path: SettingsWorkspacePath.Agent,
+    },
   ],
   developer: [
     {
@@ -206,6 +242,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('oauth-clients'),
       icon: IconShieldLock,
       path: SettingsWorkspacePath.OAuthClients,
+    },
+    {
+      name: t('security', 'Security'),
+      icon: IconShieldCheck,
+      path: SettingsWorkspacePath.Security,
     },
     {
       name: t('system-logs'),
@@ -264,7 +305,10 @@ export const GET_SETTINGS_PATH_DATA = (
 export type TSettingSubPath = {
   name: string;
   path: string;
+  onClick?: () => void;
 };
+
+export const SETTINGS_INLINE_TYPES_LIMIT = 5;
 
 type TSettingSubNavigation = {
   name: string;
@@ -287,6 +331,10 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       {
         name: t('Permission groups'),
         path: `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`,
+      },
+      {
+        name: t('Activity'),
+        path: `${TeamMembersPath.Index}${TeamMembersPath.TeamActivity}`,
       },
     ],
   },
@@ -325,6 +373,23 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       },
     ],
   },
+  [SettingsWorkspacePath.MailConfig]: {
+    name: sidebarT('mail-config'),
+    items: [
+      {
+        name: t('mail-config.view-sending'),
+        path: settingsPath(SettingsWorkspacePath.MailConfig),
+      },
+      {
+        name: t('mail-config.view-senders'),
+        path: `${settingsPath(SettingsWorkspacePath.MailConfig)}?view=senders`,
+      },
+      {
+        name: t('mail-config.view-template'),
+        path: `${settingsPath(SettingsWorkspacePath.MailConfig)}?view=template`,
+      },
+    ],
+  },
   [SettingsWorkspacePath.ImportExport]: {
     name: 'Import & Export',
     items: [
@@ -338,6 +403,33 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       },
     ],
   },
+  [SettingsWorkspacePath.Agent]: {
+    name: sidebarT('agents', 'Agents'),
+    items: [
+      { name: 'API key', path: `${settingsPath('agent')}/connection` },
+      { name: 'Code mode', path: `${settingsPath('agent')}/code-mode` },
+      { name: 'Approvals', path: `${settingsPath('agent')}/approvals` },
+      { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
+    ],
+  },
+  // How staff sign in: second factor, the company directory and erxes support
+  [SettingsWorkspacePath.Security]: {
+    name: sidebarT('security', 'Security'),
+    items: [
+      {
+        name: sidebarT('two-factor', 'Two-factor authentication'),
+        path: settingsPath(SettingsWorkspacePath.Security),
+      },
+      {
+        name: sidebarT('active-directory', 'Active Directory (LDAP)'),
+        path: settingsPath(SettingsWorkspacePath.Ldap),
+      },
+      {
+        name: sidebarT('support-access', 'Support access'),
+        path: settingsPath(SettingsWorkspacePath.SupportAccess),
+      },
+    ],
+  },
   contacts: {
     name: sidebarT('contacts', 'Contacts'),
     items: [
@@ -348,15 +440,18 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
 });
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
+  [SettingsWorkspacePath.Agent]: 'agents',
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',
   [SettingsWorkspacePath.Structure]: 'organization',
   [SettingsWorkspacePath.Tags]: 'tags',
   [SettingsWorkspacePath.Brands]: 'brands',
+  [SettingsWorkspacePath.ExchangeRates]: 'exchangeRates',
   [SettingsWorkspacePath.Properties]: 'properties',
   [SettingsWorkspacePath.Products]: 'products',
   [SettingsWorkspacePath.Automations]: 'automations',
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
   [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Security]: 'permissions',
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
   [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',

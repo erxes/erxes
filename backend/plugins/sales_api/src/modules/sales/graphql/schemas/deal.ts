@@ -32,9 +32,9 @@ const queryParams = `
   parentId:String
   pipelineId: String
   pipelineIds: [String]
-  customerIds: [String]
+  customerId: String
   vendorCustomerIds: [String]
-  companyIds: [String]
+  companyId: String
   assignedUserIds: [String]
   productIds: [String]
   closeDateType: String
@@ -126,6 +126,8 @@ export const types = `
 
     companies: [Company]
     customers: [Customer]
+    customerId: String
+    companyId: String
 
     tags: [Tag]
 
@@ -151,6 +153,115 @@ export const types = `
     list: [Deal],
     pageInfo: PageInfo
     totalCount: Int,
+  }
+
+  type SalesDealScoreLog {
+    dealId: String!
+    dealName: String
+    stageId: String
+    stageName: String
+    pipelineId: String
+    pipelineName: String
+    boardId: String
+    boardName: String
+    scoreLogId: String!
+  }
+
+  type SalesDealScoreLogList {
+    list: [SalesDealScoreLog]
+    totalCount: Int
+  }
+
+  type SalesDealScoreLogActionTotal {
+    action: String!
+    total: Float!
+    count: Int!
+  }
+
+  type SalesDealScoreLogPipelineTotal {
+    pipelineId: String
+    pipelineName: String
+    boardId: String
+    boardName: String
+    earned: Float!
+    spent: Float!
+    refunded: Float!
+    other: Float!
+    # What recalculated purchases changed, apart from what was first given.
+    recalculated: Float!
+    net: Float!
+  }
+
+  type SalesDealScoreLogDealTotal {
+    dealId: String!
+    dealName: String
+    pipelineName: String
+    earned: Float!
+    net: Float!
+  }
+
+  type SalesDealScoreLogGroupTotal {
+    id: String!
+    earned: Float!
+    spent: Float!
+    refunded: Float!
+    net: Float!
+  }
+
+  type SalesDealScoreLogInsights {
+    # Per action, without recalculations.
+    totals: [SalesDealScoreLogActionTotal!]!
+    # Every entry counted, recalculations included.
+    entryCount: Int!
+    recalculatedEarned: Float!
+    recalculatedSpent: Float!
+    net: Float!
+    dealCount: Int!
+    customerCount: Int!
+    byPipeline: [SalesDealScoreLogPipelineTotal!]!
+    topDeals: [SalesDealScoreLogDealTotal!]!
+    byAssignee: [SalesDealScoreLogGroupTotal!]!
+    byBranch: [SalesDealScoreLogGroupTotal!]!
+    topEarners: [SalesDealScoreLogGroupTotal!]!
+    topSpenders: [SalesDealScoreLogGroupTotal!]!
+  }
+
+  # What a source calls a loyalty entry; recalculations go apart.
+  enum SalesScoreLogKind {
+    earned
+    spent
+    refunded
+    recalculated
+    other
+  }
+
+  # One period of a timeline, keyed as the timeline keys it.
+  input SalesScoreLogPeriod {
+    interval: SalesDealScoreLogInterval!
+    timezone: String!
+    key: String!
+  }
+
+  enum SalesDealScoreLogInterval {
+    day
+    week
+    month
+  }
+
+  type SalesDealScoreLogPeriod {
+    key: String!
+    earned: Float!
+    spent: Float!
+    refunded: Float!
+    other: Float!
+    recalculated: Float!
+    net: Float!
+    cumulative: Float!
+  }
+
+  type SalesDealScoreLogTimeline {
+    interval: SalesDealScoreLogInterval!
+    buckets: [SalesDealScoreLogPeriod!]!
   }
 
   input IDealFilter {
@@ -179,8 +290,8 @@ const archivedDealsParams = `
   assignedUserIds: [String]
   labelIds: [String]
   productIds: [String]
-  companyIds: [String]
-  customerIds: [String]
+  companyId: String
+  customerId: String
   startDate: String
   endDate: String
 
@@ -194,6 +305,9 @@ export const queries = `
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
   dealLink(_id: String): JSON
   dealsTotalCount(stageId: String, initialStageId: String, ${queryParams}): Int
+  salesDealScoreLogs(stageId: String, initialStageId: String, page: Int, perPage: Int, kind: SalesScoreLogKind, period: SalesScoreLogPeriod, ${queryParams}): SalesDealScoreLogList
+  salesDealScoreLogInsights(stageId: String, initialStageId: String, ${queryParams}): SalesDealScoreLogInsights
+  salesDealScoreLogTimeline(interval: SalesDealScoreLogInterval!, timezone: String, stageId: String, initialStageId: String, ${queryParams}): SalesDealScoreLogTimeline
   dealsTotalAmounts(${queryParams}): [SalesTotalForType]
   
   archivedDeals(${archivedDealsParams}): DealsListResponse
@@ -218,7 +332,6 @@ const mutationParams = `
   isComplete: Boolean,
   priority: String,
   status: String,
-  sourceConversationIds: [String],
   propertiesData: JSON,
   tagIds: [String],
   branchIds: [String],
@@ -234,8 +347,8 @@ const mutationParams = `
 `;
 
 export const mutations = `
-  dealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
-  dealsEdit(_id: String!, name: String, ${mutationParams}): Deal
+  dealsAdd(name: String, companyId: String, customerId: String, labelIds: [String], ${mutationParams}): Deal
+  dealsEdit(_id: String!, name: String, companyId: String, customerId: String, ${mutationParams}): Deal
   dealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
   dealsRemove(_id: String!): Deal
   dealsWatch(_id: String!, isAdd: Boolean): Deal
@@ -245,7 +358,7 @@ export const mutations = `
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
 
-  cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
+  cpDealsAdd(name: String, companyId: String, customerId: String, labelIds: [String], ${mutationParams}): Deal
   cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
   cpDealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
   cpDealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON

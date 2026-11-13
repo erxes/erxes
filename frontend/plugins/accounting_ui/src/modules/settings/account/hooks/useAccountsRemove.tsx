@@ -25,10 +25,16 @@ export const useAccountsRemove = () => {
         toast({
           title: t('success'),
           description: t('account-deleted-successfully'),
+          variant: 'success',
         });
         options.onCompleted?.(data);
       },
       refetchQueries: ['accountingAccountsMain'],
+      update: (cache, result, updateOptions) => {
+        options.update?.(cache, result, updateOptions);
+        cache.evict({ fieldName: 'accountsMain' });
+        cache.gc();
+      },
     });
   };
 

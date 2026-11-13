@@ -1,4 +1,5 @@
-import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getDealOwner } from './utils';
+import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -55,6 +56,8 @@ type TDealForMovement = {
   branchIds?: string[];
   departmentIds?: string[];
   assignedUserIds?: string[];
+  customerId?: string | null;
+  companyId?: string | null;
 };
 
 type TMovementProductRow = {
@@ -133,7 +136,6 @@ const getProductLocation = ({
 };
 
 export const dealToMovementTrs = async ({
-  subdomain,
   models,
   userId,
   deal,
@@ -157,7 +159,9 @@ export const dealToMovementTrs = async ({
   );
 
   if (!activeProductsData?.length) {
-    return;
+    throw new Error(
+      'Deal has no selected products with positive quantity for inventory movement.',
+    );
   }
 
   let mainId = nanoid();
@@ -264,39 +268,9 @@ export const dealToMovementTrs = async ({
     details: [],
   };
 
-  const companyIds = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType,
-      contentId,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
-
-  if (companyIds?.length) {
-    moveTrDoc.customerType = 'company';
-    moveTrDoc.customerId = companyIds[0];
-  } else {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType,
-        contentId,
-        relatedContentType: 'core:customer',
-      },
-      defaultValue: [],
-    });
-
-    moveTrDoc.customerType = 'customer';
-    moveTrDoc.customerId = customerIds[0];
-  }
+  const owner = getDealOwner(deal);
+  moveTrDoc.customerType = owner.customerType;
+  moveTrDoc.customerId = owner.customerId;
 
   for (const row of movementRows) {
     const { productData, count, source, destination } = row;

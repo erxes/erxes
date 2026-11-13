@@ -16,7 +16,9 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
+import { useSidePanel } from 'ui-modules';
+import { RESPONSE_TEMPLATE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const stripHtml = (html?: string) =>
@@ -26,17 +28,101 @@ const stripHtml = (html?: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+/** Renders the response template edit and delete menu. */
+const ResponseCardActions = ({ responseId }: { responseId: string }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
+  const { openRecord } = useSidePanel();
+  const { removeResponse, loading } = useRemoveResponse();
+  const { confirm } = useConfirm();
+
+  const [open, setOpen] = useState(false);
+
+  /** Closes the menu and opens the response template editor. */
+  const handleEdit = () => {
+    setOpen(false);
+    openRecord({
+      contentType: RESPONSE_TEMPLATE_CONTENT_TYPE,
+      contentId: responseId,
+    });
+  };
+
+  /** Confirms and removes the selected response template. */
+  const handleDelete = () => {
+    confirm({
+      message: t(
+        'confirm-delete-response',
+        'Are you sure you want to delete this response?',
+      ),
+      options: { confirmationValue: 'delete' },
+    }).then(() => {
+      removeResponse({ variables: { id: responseId } });
+    });
+  };
+
+  const menuContent = (
+    <Command shouldFilter={false}>
+      <Command.List>
+        <Command.Item value="edit" onSelect={handleEdit}>
+          <IconEdit /> {t('edit', 'Edit')}
+        </Command.Item>
+        <Command.Item
+          value="delete"
+          onSelect={handleDelete}
+          className="text-destructive"
+        >
+          {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+          {t('delete', 'Delete')}
+        </Command.Item>
+      </Command.List>
+    </Command>
+  );
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger
+        onClick={(e) => e.stopPropagation()}
+        className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100 data-[state=open]:opacity-100"
+      >
+        <IconDots size={16} />
+      </Popover.Trigger>
+      <Combobox.Content onClick={(e) => e.stopPropagation()}>
+        {menuContent}
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
 export const ResponseCard = ({ response }: { response: IResponseTemplate }) => {
-  const { t } = useTranslation('frontline');
-  const navigate = useNavigate();
-  const { _id, channelId, name, content, createdAt, files } = response;
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
+  const { openRecord } = useSidePanel();
+  const { _id, name, content, createdAt, files } = response;
 
   const preview = stripHtml(content ?? undefined);
   const fileCount = files?.length ?? 0;
 
+  /** Opens this response template in the record panel. */
   const openDetails = () => {
-    navigate(`/frontline/settings/channels/${channelId}/response/${_id}`);
+    openRecord({ contentType: RESPONSE_TEMPLATE_CONTENT_TYPE, contentId: _id });
   };
+
+  const createdDate = createdAt && (
+    <Tooltip.Provider>
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <span className="text-xs text-muted-foreground">
+            {format(new Date(createdAt), 'MMM d, yyyy')}
+          </span>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {format(new Date(createdAt), 'MMM d, yyyy HH:mm')}
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
+  );
 
   return (
     <Card
@@ -55,7 +141,7 @@ export const ResponseCard = ({ response }: { response: IResponseTemplate }) => {
         <Card.Title className="min-w-0 flex-1 truncate text-sm font-semibold leading-tight">
           {name}
         </Card.Title>
-        <ResponseCardActions channelId={channelId ?? ''} responseId={_id} />
+        <ResponseCardActions responseId={_id} />
       </div>
 
       <Card.Description className="line-clamp-3 min-h-[3rem] text-xs">
@@ -75,75 +161,8 @@ export const ResponseCard = ({ response }: { response: IResponseTemplate }) => {
         ) : (
           <span />
         )}
-        {createdAt && (
-          <Tooltip.Provider>
-            <Tooltip>
-              <Tooltip.Trigger asChild>
-                <span className="text-xs text-muted-foreground">
-                  {format(new Date(createdAt), 'MMM d, yyyy')}
-                </span>
-              </Tooltip.Trigger>
-              <Tooltip.Content>
-                {format(new Date(createdAt), 'MMM d, yyyy HH:mm')}
-              </Tooltip.Content>
-            </Tooltip>
-          </Tooltip.Provider>
-        )}
+        {createdDate}
       </div>
     </Card>
-  );
-};
-
-const ResponseCardActions = ({
-  channelId,
-  responseId,
-}: {
-  channelId: string;
-  responseId: string;
-}) => {
-  const navigate = useNavigate();
-  const { removeResponse, loading } = useRemoveResponse();
-  const { confirm } = useConfirm();
-
-  const handleEdit = () => {
-    navigate(
-      `/frontline/settings/channels/${channelId}/response/${responseId}`,
-    );
-  };
-
-  const handleDelete = () => {
-    confirm({
-      message: 'Are you sure you want to delete this response?',
-      options: { confirmationValue: 'delete' },
-    }).then(() => {
-      removeResponse({ variables: { id: responseId } });
-    });
-  };
-
-  return (
-    <Popover>
-      <Popover.Trigger
-        onClick={(e) => e.stopPropagation()}
-        className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100 data-[state=open]:opacity-100"
-      >
-        <IconDots size={16} />
-      </Popover.Trigger>
-      <Combobox.Content onClick={(e) => e.stopPropagation()}>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
-            </Command.Item>
-            <Command.Item
-              value="delete"
-              onSelect={handleDelete}
-              className="text-destructive"
-            >
-              {loading ? <Spinner size="sm" /> : <IconTrash />} Delete
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
   );
 };

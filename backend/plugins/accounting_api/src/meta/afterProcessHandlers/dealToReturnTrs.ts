@@ -72,10 +72,9 @@ export const dealToReturnTrs = async ({
   }).lean();
 
   if (!firstSaleTr) {
-    console.log(
-      'No sales receipt was found, so no return receipt is required.',
+    throw new Error(
+      'Deal sale transaction was not found for accounting return sync.',
     );
-    return;
   }
 
   if (config.returnType === 'delete') {

@@ -20,8 +20,10 @@ export const useAdjustInventoryDetails = (
     loading,
     error,
     fetchMore,
+    refetch,
   } = useQuery(ADJUST_INVENTORY_DETAILS_QUERY, {
     ...options,
+    fetchPolicy: 'cache-and-network',
     skip: !options?.variables?._id,
     variables: {
       _id: options?.variables?._id ?? '',
@@ -60,6 +62,7 @@ export const useAdjustInventoryDetails = (
     adjustInventoryDetails,
     adjustInventoryDetailsCount,
     handleFetchMore,
+    refetch,
     loading,
     error,
   };

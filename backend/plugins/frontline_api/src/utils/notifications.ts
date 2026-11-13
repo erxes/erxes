@@ -1,4 +1,5 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
+import { TFrontlineNotificationEvent } from '~/meta/notifications';
 
 const getTitle = (contentType: string) => {
   if (contentType === 'ticket') {
@@ -57,6 +58,7 @@ export const createNotifications = async ({
   notificationType,
   userIds,
   action,
+  event,
 }: {
   contentType: string;
   contentTypeId: string;
@@ -65,6 +67,7 @@ export const createNotifications = async ({
   notificationType: string;
   userIds: string[];
   action: string;
+  event: TFrontlineNotificationEvent;
 }) => {
   sendNotification(subdomain, {
     title: getTitle(contentType),
@@ -77,6 +80,7 @@ export const createNotifications = async ({
     contentType: `frontline:${contentType}`,
     contentTypeId,
     notificationType,
+    event,
     action,
     metadata: {
       contentTypeId,

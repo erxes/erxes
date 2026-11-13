@@ -17,26 +17,33 @@ import { toResponseTemplateText } from '@/responseTemplate/utils/toResponseTempl
 export const useResponseTemplateSuggestions = ({
   editor,
   enabled,
+  channelId,
 }: ResponseTemplateSuggestionsOptions) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { channels: availableChannels } = useGetChannels({ skip: !enabled });
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
+  const query = debouncedSearchValue.startsWith('/')
+    ? ''
+    : debouncedSearchValue;
   const [isDismissed, setIsDismissed] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [responseTemplateId, setResponseTemplateId] = useState<string | null>(
     null,
   );
   const { responses, isInitialLoad, isRefetching } = useGetResponses({
-    skip: !debouncedSearchValue || !enabled,
+    skip: !query || !enabled,
     variables: {
-      filter: { searchValue: debouncedSearchValue || undefined },
+      filter: {
+        channelId: channelId || undefined,
+        searchValue: query || undefined,
+      },
     },
   });
 
   const suggestions = useMemo<ResponseTemplateSuggestion[]>(
     () =>
-      debouncedSearchValue && enabled
+      query && enabled
         ? (responses || [])
             .slice(0, MAX_TEMPLATE_SUGGESTIONS)
             .map((response) => ({
@@ -44,10 +51,9 @@ export const useResponseTemplateSuggestions = ({
               preview: getPreviewText(response.content || ''),
             }))
         : [],
-    [debouncedSearchValue, enabled, responses],
+    [query, enabled, responses],
   );
-  const showSuggestionDropdown =
-    Boolean(debouncedSearchValue) && enabled && !isDismissed;
+  const showSuggestionDropdown = Boolean(query) && enabled && !isDismissed;
   const showSuggestions =
     showSuggestionDropdown &&
     !isInitialLoad &&

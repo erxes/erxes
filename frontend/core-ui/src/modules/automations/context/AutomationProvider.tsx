@@ -102,6 +102,7 @@ interface AutomationContextType {
   triggerConstMap: Map<string, IAutomationsTriggerConfigConstants>;
   isCreatePage: boolean;
   detail?: IAutomation;
+  refetchDetail?: () => Promise<void>;
   isReadOnly: boolean;
 }
 
@@ -110,10 +111,12 @@ const AutomationContext = createContext<AutomationContextType | null>(null);
 export const AutomationProvider = ({
   children,
   detail,
+  refetchDetail,
   scoped,
 }: {
   children: React.ReactNode;
   detail?: IAutomation;
+  refetchDetail?: () => Promise<void>;
   // Scoped providers (e.g. workflow edit sheet) keep their node selection in
   // local state instead of URL params, so they don't fight the main canvas.
   scoped?: boolean;
@@ -287,6 +290,7 @@ export const AutomationProvider = ({
         triggerConstMap,
         isCreatePage,
         detail,
+        refetchDetail,
         isReadOnly,
       }}
     >

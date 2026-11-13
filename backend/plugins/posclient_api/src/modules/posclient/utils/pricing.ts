@@ -1,7 +1,9 @@
+import { nanoid } from 'nanoid';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IOrderInput, IOrderItemInput } from '~/modules/posclient/@types/types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import {
+  IPricingReason,
   applyDiscountInfo,
   ensureHandDiscountInfo,
   recalculateDiscountFields,
@@ -10,7 +12,19 @@ import {
 type PricingDiscount = {
   value: number;
   bonusProducts: string[];
+  reasons?: IPricingReason[];
 };
+
+// The plans behind a line's discount, by name, so the cashier can tell why.
+const pricingTitle = (reasons: IPricingReason[] = []) =>
+  [
+    ...new Set(
+      reasons
+        .filter(({ kind, value }) => kind === 'discount' && value !== 0)
+        .map(({ planName }) => planName)
+        .filter(Boolean),
+    ),
+  ].join(' + ') || 'Pricing discount';
 
 type PricingResponse = Record<string, PricingDiscount>;
 type BonusProductsToAdd = Record<string, { count: number }>;
@@ -19,7 +33,7 @@ export const checkPricing = async (
   subdomain: string,
   doc: IOrderInput,
   config: IConfigDocument,
-) => {
+): Promise<IOrderInput> => {
   let pricing: PricingResponse = {};
 
   try {
@@ -29,10 +43,12 @@ export const checkPricing = async (
       module: 'pricing',
       action: 'checkPricing',
       input: {
+        // Checkout is now; the plan picks which moment its schedule reads.
+        orderCreatedAt: doc.createdAt?.toISOString(),
         prioritizeRule: 'exclude',
         totalAmount: doc.totalAmount,
-        departmentId: config.departmentId,
-        branchId: config.branchId,
+        branchId: config.branchId || '',
+        departmentId: config.departmentId || '',
         customerType: doc.customerType,
         customerId: doc.customerId,
         brokerType: doc.brokerType || '',
@@ -72,9 +88,14 @@ export const checkPricing = async (
         }
       }
 
+      const reasons = (discount.reasons || []).filter(
+        ({ kind }) => kind === 'discount',
+      );
+
       applyDiscountInfo(item, {
         type: 'pricing',
-        title: 'Pricing discount',
+        title: pricingTitle(reasons),
+        ...(reasons.length ? { reasons } : {}),
         amount: discount.value * item.count,
         percent: Number.parseFloat(
           ((discount.value / item.unitPrice) * 100).toFixed(2),
@@ -87,32 +108,17 @@ export const checkPricing = async (
   }
 
   for (const bonusProductId of Object.keys(bonusProductsToAdd)) {
-    const orderIndex = doc.items.findIndex(
-      (docItem: IOrderItemInput) => docItem.productId === bonusProductId,
-    );
+    // Keep paid quantities and prices intact, even for the same product.
+    // Generated lines are rebuilt by prepareOrderDoc on every save.
+    const bonusProduct: IOrderItemInput = {
+      _id: nanoid(),
+      productId: bonusProductId,
+      unitPrice: 0,
+      count: bonusProductsToAdd[bonusProductId].count,
+      isPackage: true,
+    };
 
-    if (orderIndex === -1) {
-      const bonusProduct: IOrderItemInput = {
-        _id: bonusProductId,
-        productId: bonusProductId,
-        unitPrice: 0,
-        count: bonusProductsToAdd[bonusProductId].count,
-      };
-
-      doc.items.push(bonusProduct);
-    } else {
-      const item = doc.items[orderIndex];
-      item.unitPrice = item.unitPrice || 0;
-
-      item.bonusCount = bonusProductsToAdd[bonusProductId].count;
-
-      if ((item.bonusCount || 0) > item.count) {
-        item.count = item.bonusCount || 0;
-      }
-      item.unitPrice = Math.floor(
-        (item.unitPrice * (item.count - (item.bonusCount || 0))) / item.count,
-      );
-    }
+    doc.items.push(bonusProduct);
   }
 
   return doc;

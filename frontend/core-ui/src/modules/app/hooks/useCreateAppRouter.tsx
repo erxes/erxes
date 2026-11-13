@@ -9,9 +9,11 @@ import { currentUserState, useVersion } from 'ui-modules';
 import { AppPath } from '@/types/paths/AppPath';
 import { AutomationRoutes } from '@/app/components/AutomationRoutes';
 import { BroadcastRoutes } from '@/app/components/BroadcastRoutes';
+import { TemplateRoutes } from '@/app/components/TemplateRoutes';
 import { ComponentsRoutes } from '../components/ComponentsRoutes';
 import { ContactsRoutes } from '@/app/components/ContactsRoutes';
 import { DefaultLayout } from '@/app/components/MainLayout';
+import { LegacyAgentRedirect } from '@/agent/components/LegacyAgentRedirect';
 import { DocumentsRoutes } from '@/app/components/DocumentsRoutes';
 import { FilesRoutes } from '@/app/components/FilesRoutes';
 import ForgotPasswordPage from '~/pages/auth/ForgotPasswordPage';
@@ -26,8 +28,8 @@ import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { Providers } from '~/providers';
 import { RouteErrorBoundary } from '@/error-handler/components/RouteErrorBoundary';
 import { SegmentRoutes } from '@/app/components/SegmentsRoutes';
+import { DataExtensionsRoutes } from '@/app/components/DataExtensionsRoutes';
 import { SettingsRoutes } from '@/app/components/SettingsRoutes';
-import { TemplateRoutes } from '../components/TemplateRoutes';
 import { UserProvider } from '@/auth/providers/UserProvider';
 import { getPluginsRoutes } from '@/app/hooks/usePluginsRouter';
 import { lazy } from 'react';
@@ -114,6 +116,15 @@ export const useCreateAppRouter = () => {
               />
 
               <Route
+                path={AppPath.DataExtensionsCatchAll}
+                element={
+                  <PermissionRouteGuard module="data-extensions">
+                    <DataExtensionsRoutes />
+                  </PermissionRouteGuard>
+                }
+              />
+
+              <Route
                 path={AppPath.AutomationsCatchAll}
                 element={
                   <PermissionRouteGuard module="automations">
@@ -153,16 +164,19 @@ export const useCreateAppRouter = () => {
                 }
               />
 
-              {isOS && (
-                <Route
-                  path={AppPath.TemplatesCatchAll}
-                  element={<TemplateRoutes />}
-                />
-              )}
+              <Route
+                path={AppPath.TemplatesCatchAll}
+                element={<TemplateRoutes />}
+              />
 
               <Route
                 path={AppPath.ImportExportCatchAll}
                 element={<ImportExportRoutes />}
+              />
+
+              <Route
+                path={AppPath.AssistantCatchAll}
+                element={<LegacyAgentRedirect />}
               />
 
               <Route

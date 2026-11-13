@@ -1,17 +1,8 @@
-export interface IPaymentDealConfig {
-  enabled?: boolean;
-  boardId?: string;
-  pipelineId?: string;
-  stageId?: string;
-}
-
 export interface IPayment {
   name: string;
   kind: string;
   status?: 'active' | 'inactive';
   config: any;
-  sendEmailOnPayment?: boolean;
-  dealConfig?: IPaymentDealConfig;
   createdAt?: Date;
 }
 
@@ -47,9 +38,6 @@ export interface IInvoice {
   description: string;
   invoiceNumber: string;
   status: string;
-  scannedAt?: Date;
-  scannedCount?: number;
-  ticketCount?: number;
   transactions: {
     amount: number;
     createdAt: Date;

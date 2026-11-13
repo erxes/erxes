@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { STATUS_TYPES } from '@/status/constants/types';
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 
 export const triageSchema = new Schema(
   {
@@ -14,13 +15,25 @@ export const triageSchema = new Schema(
     githubIssueNumber: { type: Number, label: 'GitHub Issue Number' },
     githubIssueUrl: { type: String, label: 'GitHub Issue URL' },
     githubRepoName: { type: String, label: 'GitHub Repo Name' },
+    // The triage's one customer and one company; carried to the task it
+    // becomes.
+    customerId: { type: String, label: 'Customer', default: null, index: true },
+    companyId: { type: String, label: 'Company', default: null, index: true },
+    // Task tags (tag type `operation:task`); carried to the task it becomes.
+    tagIds: { type: [String], label: 'Tag IDs' },
   },
   {
     timestamps: true,
   },
 );
 
+applyDataExtensionsNamespace(triageSchema);
+
 triageSchema.index(
   { githubRepoName: 1, githubIssueNumber: 1 },
   { unique: true, sparse: true },
 );
+
+triageSchema.index({ customerId: 1 });
+triageSchema.index({ companyId: 1 });
+

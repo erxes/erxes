@@ -10,7 +10,7 @@ interface SlaBreachTableProps {
 }
 
 export function SlaBreachTable({ breaches, breachCount }: SlaBreachTableProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
 
   const breachOutcome = (breach: SlaBreach): string => {
     if (breach.isPendingCallback) {

@@ -3,6 +3,7 @@ import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { conformityTrpcRouter } from '~/modules/conformities/trpc/conformity';
 import { contactTrpcRouter } from '~/modules/contacts/trpc';
+import { internalNoteTrpcRouter } from '~/modules/internalNote/trpc/internalNote';
 import { brandTrpcRouter } from '~/modules/organization/brand/trpc/brand';
 import { configTrpcRouter } from '~/modules/organization/settings/trpc/config';
 import { structureTrpcRouter } from '~/modules/organization/structure/trpc';
@@ -22,6 +23,8 @@ import { clientPortalNotificationTrpcRouter } from '@/clientportal/trpc';
 import { permissionTrpcRouter } from './modules/permissions/trpc/permission';
 import { documentTrpcRouter } from '~/modules/documents/trpc/document';
 import { approvalTrpcRouter } from './modules/approval/trpc/approval';
+import { dataExtensionsTrpcRouter } from '~/modules/data-extensions/trpc/dataExtensions';
+import { organizationTrpcRouter } from '@/organization/identity/trpc';
 
 export type CoreTRPCContext = ITRPCContext<{
   models: IModels;
@@ -44,6 +47,7 @@ export const appRouter = t.mergeRouters(
   configTrpcRouter,
   formsTrpcRouter,
   contactTrpcRouter,
+  internalNoteTrpcRouter,
   conformityTrpcRouter,
   relationTrpcRouter,
   userTrpcRouter,
@@ -62,6 +66,8 @@ export const appRouter = t.mergeRouters(
   permissionTrpcRouter,
   approvalTrpcRouter,
   documentTrpcRouter,
+  dataExtensionsTrpcRouter,
+  organizationTrpcRouter,
 );
 
 export type AppRouter = typeof appRouter;

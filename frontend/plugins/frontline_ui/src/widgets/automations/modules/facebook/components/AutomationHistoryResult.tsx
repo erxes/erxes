@@ -8,7 +8,7 @@ export const AutomationHistoryResult = ({
   action,
   result,
 }: AutomationExecutionActionResultProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const {
     blockedUntil,
     commentAttachments,

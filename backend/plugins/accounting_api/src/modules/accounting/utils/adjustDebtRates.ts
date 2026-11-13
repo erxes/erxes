@@ -613,6 +613,7 @@ const removeAdjustDebtRateTransaction = async (
 };
 
 export const calculateAdjustDebtRate = async (
+  subdomain: string,
   models: IModels,
   userId: string,
   adjust: IAdjustDebtRate,
@@ -644,12 +645,15 @@ export const calculateAdjustDebtRate = async (
       },
     );
 
-    graphqlPubsub.publish(`accountingAdjustDebtRateChanged:${adjust._id}`, {
-      accountingAdjustDebtRateChanged: await enrichDebtRateAdjustment(
-        models,
-        updatedAdjust,
-      ),
-    });
+    graphqlPubsub.publish(
+      `accountingAdjustDebtRateChanged:${subdomain}:${adjust._id}`,
+      {
+        accountingAdjustDebtRateChanged: await enrichDebtRateAdjustment(
+          models,
+          updatedAdjust,
+        ),
+      },
+    );
 
     return updatedAdjust;
   }
@@ -669,17 +673,21 @@ export const calculateAdjustDebtRate = async (
     },
   );
 
-  graphqlPubsub.publish(`accountingAdjustDebtRateChanged:${adjust._id}`, {
-    accountingAdjustDebtRateChanged: await enrichDebtRateAdjustment(
-      models,
-      updatedAdjust,
-    ),
-  });
+  graphqlPubsub.publish(
+    `accountingAdjustDebtRateChanged:${subdomain}:${adjust._id}`,
+    {
+      accountingAdjustDebtRateChanged: await enrichDebtRateAdjustment(
+        models,
+        updatedAdjust,
+      ),
+    },
+  );
 
   return updatedAdjust;
 };
 
 export const runAdjustDebtRate = async (
+  subdomain: string,
   models: IModels,
   userId: string,
   adjust: IAdjustDebtRate,
@@ -739,12 +747,15 @@ export const runAdjustDebtRate = async (
     },
   );
 
-  graphqlPubsub.publish(`accountingAdjustDebtRateChanged:${adjust._id}`, {
-    accountingAdjustDebtRateChanged: await enrichDebtRateAdjustment(
-      models,
-      updatedAdjust,
-    ),
-  });
+  graphqlPubsub.publish(
+    `accountingAdjustDebtRateChanged:${subdomain}:${adjust._id}`,
+    {
+      accountingAdjustDebtRateChanged: await enrichDebtRateAdjustment(
+        models,
+        updatedAdjust,
+      ),
+    },
+  );
 
   return updatedAdjust;
 };

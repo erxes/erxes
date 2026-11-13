@@ -4,9 +4,21 @@
     "rootDir": ".",
     "paths": {
       "~/*": ["./src/*"],
-      "@/*": ["./src/modules/*"]
+      "@/*": ["./src/modules/*"],
+      "@apollo/server/dist/esm/express4": [
+        "../../node_modules/@apollo/server/dist/cjs/express4/index.d.ts"
+      ],
+      "@mastra/core/llm/model/provider-options": [
+        "../../node_modules/@mastra/core/dist/llm/model/provider-options.d.ts"
+      ]
     },
     "types": ["node"]
   },
-  "exclude": ["node_modules", "dist", "**/*spec.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*spec.ts",
+    "**/__tests__/**",
+    "**/*.test.ts"
+  ]
 }

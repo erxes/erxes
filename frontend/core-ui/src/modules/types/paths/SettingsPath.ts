@@ -4,6 +4,9 @@ export enum SettingsPath {
   Index = 'settings/',
   Profile = 'profile',
   ChangePassword = 'change-password',
+  TwoFactor = 'two-factor',
+  MyActivity = 'my-activity',
+  Appearance = 'appearance',
   Notification = 'notification',
   NotificationCatchAll = 'notification/*',
   // Experience = 'experience',
@@ -29,6 +32,7 @@ export enum SettingsWorkspacePath {
   Products = 'products',
   ProductsCatchAll = 'products/*',
   Brands = 'brands',
+  ExchangeRates = 'exchange-rates',
   PropertiesCatchAll = 'properties/*',
   Automations = 'automations',
   AutomationsCatchAll = `${Automations}/*`,
@@ -36,10 +40,15 @@ export enum SettingsWorkspacePath {
   ClientPortals = 'client-portals',
   AppTokens = 'app-tokens',
   OAuthClients = 'oauth-clients',
+  Ldap = 'security/ldap',
+  SupportAccess = 'security/support-access',
+  Security = 'security',
   ClienPortalsCatchAll = 'client-portals/*',
   Logs = 'logs',
   Broadcast = 'broadcast',
   MessagePro = 'message-pro',
+  Agent = 'agent',
+  AgentCatchAll = 'agent/*',
 }
 
 export type TSettingPath = {

@@ -12,9 +12,12 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
   checkInvoice(_id: string, subdomain: string): Promise<string>;
+  checkInvoiceAndClaim(
+    _id: string,
+    subdomain: string,
+  ): Promise<{ status: string; claimed: boolean }>;
   removeInvoices(_ids: string[]): Promise<any>;
   markAsPaid(_id: string): Promise<string>;
-  scanBarcode(code: string, eventSlug?: string): Promise<IInvoiceDocument>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -32,7 +35,6 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
-
       if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
@@ -95,6 +97,20 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async checkInvoice(_id: string, subdomain: string) {
+      const { status } = await models.Invoices.checkInvoiceAndClaim(
+        _id,
+        subdomain,
+      );
+
+      return status;
+    }
+
+    /**
+     * Same as checkInvoice, but also reports whether THIS call moved the
+     * invoice from unpaid to paid. Only the caller with claimed: true should
+     * send paid notifications, so concurrent checks never notify twice.
+     */
+    public static async checkInvoiceAndClaim(_id: string, subdomain: string) {
       const unpaidTransactions = await models.Transactions.find({
         invoiceId: _id,
         status: 'pending',
@@ -102,27 +118,41 @@ export const loadInvoiceClass = (models: IModels) => {
 
       if (unpaidTransactions.length > 0) {
         try {
-          // Process transactions in parallel for better performance
-          const statusChecks = await Promise.all(
+          // Check every pending transaction in parallel. allSettled so that
+          // one provider failing (e.g. a transaction with an empty response)
+          // does not prevent the others from being updated.
+          const statusChecks = await Promise.allSettled(
             unpaidTransactions.map((transaction) =>
               models.Transactions.checkTransaction(transaction._id, subdomain),
             ),
           );
 
-          // Update transactions atomically using bulkWrite
-          const bulkOps = unpaidTransactions.map((transaction, index) => ({
-            updateOne: {
-              filter: {
-                _id: transaction._id,
-                status: 'pending', // Ensure status hasn't changed
-              },
-              update: {
-                $set: {
-                  status: statusChecks[index],
+          const bulkOps = unpaidTransactions.flatMap((transaction, index) => {
+            const result = statusChecks[index];
+
+            if (result.status === 'rejected') {
+              console.error(
+                `Error checking transaction ${transaction._id}: ${result.reason?.message}`,
+              );
+              return [];
+            }
+
+            return [
+              {
+                updateOne: {
+                  filter: {
+                    _id: transaction._id,
+                    status: 'pending', // Ensure status hasn't changed
+                  },
+                  update: {
+                    $set: {
+                      status: result.value,
+                    },
+                  },
                 },
               },
-            },
-          }));
+            ];
+          });
 
           if (bulkOps.length > 0) {
             await models.Transactions.bulkWrite(bulkOps);
@@ -170,22 +200,30 @@ export const loadInvoiceClass = (models: IModels) => {
             },
           );
 
-          return PAYMENT_STATUS.FAILED;
+          return { status: PAYMENT_STATUS.FAILED, claimed: false };
         }
 
-        return PAYMENT_STATUS.PENDING;
+        return { status: PAYMENT_STATUS.PENDING, claimed: false };
       }
 
       if (totalAmount[0].total < invoice.amount) {
-        return PAYMENT_STATUS.PENDING;
+        return { status: PAYMENT_STATUS.PENDING, claimed: false };
       }
 
-      await models.Invoices.updateOne(
-        { _id },
-        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
+      // Atomic pending -> paid transition: only one concurrent caller matches.
+      const result = await models.Invoices.updateOne(
+        { _id, status: { $ne: PAYMENT_STATUS.PAID } },
+        {
+          $set: {
+            status: PAYMENT_STATUS.PAID,
+            resolvedAt: new Date(),
+            // notification intent, saved atomically with the paid claim
+            notifyPending: true,
+          },
+        },
       );
 
-      return PAYMENT_STATUS.PAID;
+      return { status: PAYMENT_STATUS.PAID, claimed: result.modifiedCount > 0 };
     }
 
     public static async removeInvoices(_ids: string[]) {
@@ -206,74 +244,6 @@ export const loadInvoiceClass = (models: IModels) => {
       redis.removeInvoices(_ids);
 
       return 'removed';
-    }
-
-    public static async scanBarcode(code: string, eventSlug?: string) {
-      const invoice =
-        (await models.Invoices.findOne({ 'ticketCodes.code': code })) ||
-        (await models.Invoices.findOne({ invoiceNumber: code }));
-
-      if (!invoice) {
-        throw new Error(`Invoice not found for barcode: ${code}`);
-      }
-
-      if (invoice.status !== 'paid') {
-        throw new Error('Invoice is not paid');
-      }
-
-      const expectedEventSlug = eventSlug?.trim();
-      let storedEventSlug: string | undefined;
-      if (expectedEventSlug) {
-        storedEventSlug =
-          typeof invoice.data?.eventSlug === 'string'
-            ? invoice.data.eventSlug
-            : undefined;
-        if (storedEventSlug?.trim() !== expectedEventSlug) {
-          throw new Error('Ticket belongs to a different event');
-        }
-      }
-
-      const eventFilter = storedEventSlug
-        ? { 'data.eventSlug': storedEventSlug }
-        : {};
-
-      const hasTicketCodes =
-        Array.isArray(invoice.ticketCodes) && invoice.ticketCodes.length > 0;
-
-      if (hasTicketCodes) {
-        const scanned = await models.Invoices.findOneAndUpdate(
-          {
-            _id: invoice._id,
-            ...eventFilter,
-            ticketCodes: { $elemMatch: { code, scannedAt: null } },
-          },
-          {
-            $set: {
-              'ticketCodes.$.scannedAt': new Date(),
-              scannedAt: new Date(),
-            },
-          },
-          { new: true },
-        );
-
-        if (!scanned) {
-          throw new Error('Barcode already scanned');
-        }
-
-        return scanned;
-      }
-
-      const scanned = await models.Invoices.findOneAndUpdate(
-        { _id: invoice._id, ...eventFilter, scannedAt: null },
-        { $set: { scannedAt: new Date() } },
-        { new: true },
-      );
-
-      if (!scanned) {
-        throw new Error('Barcode already scanned');
-      }
-
-      return scanned;
     }
 
     public static async markAsPaid(_id: string) {
