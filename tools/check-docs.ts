@@ -16,7 +16,8 @@ const root = resolve(import.meta.dirname, '..');
 const git = (...args: string[]) =>
   execFileSync('git', args, { cwd: root, encoding: 'utf8' }).split('\n').filter(Boolean);
 
-const tracked = git('ls-files');
+// Untracked files count too, so a doc may name a file that isn't committed yet.
+const tracked = git('ls-files', '--cached', '--others', '--exclude-standard');
 const docs = tracked.filter((file) => /(^|\/)(AGENTS|SKILL)\.md$/.test(file));
 const basenames = new Set(tracked.map((file) => file.split('/').at(-1)));
 

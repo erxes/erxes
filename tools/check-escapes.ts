@@ -15,18 +15,30 @@ import { join, resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 const BUDGET_FILE = 'apps/core-ui/bundleBudget.ts';
 
-// Split so this file doesn't match itself.
-const ESCAPE = new RegExp(
-  ['(oxlint|eslint)-(disable|enable)', '@ts-(ignore|expect-error|nocheck)'].join('|'),
-);
+const ESCAPE = /(oxlint|eslint)-(disable|enable)|@ts-(ignore|expect-error|nocheck)/;
 
 const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8' });
 
 // consumers/ asserts with @ts-expect-error that the published types reject wrong calls;
-// tools/lint/anti-slop/vendor is ESLint Stylistic's code, kept as upstream wrote it.
-const sources = git('ls-files', '*.ts', '*.tsx', '*.js', '*.mjs')
+// tools/lint/anti-slop/vendor is ESLint Stylistic's code, kept as upstream wrote it; this file
+// names the comments it bans. Untracked files count too, so a new file is checked before its commit.
+const sources = git(
+  'ls-files',
+  '--cached',
+  '--others',
+  '--exclude-standard',
+  '*.ts',
+  '*.tsx',
+  '*.js',
+  '*.mjs',
+)
   .split('\n')
-  .filter((file) => file && !/^(consumers|tools\/lint\/anti-slop\/vendor)\//.test(file));
+  .filter(
+    (file) =>
+      file &&
+      file !== 'tools/check-escapes.ts' &&
+      !/^(consumers|tools\/lint\/anti-slop\/vendor)\//.test(file),
+  );
 
 const escapes = sources.flatMap((file) =>
   readFileSync(join(root, file), 'utf8')
