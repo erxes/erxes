@@ -5,6 +5,7 @@ import reactCompiler from 'babel-plugin-react-compiler';
 import { pluginReact } from '@rsbuild/plugin-react';
 import tailwindcss from '@tailwindcss/postcss';
 import { resolve } from 'node:path';
+import { pluginBundleBudget } from './bundleBudget';
 
 const ui = resolve(import.meta.dirname, '../../packages/ui/src');
 
@@ -59,6 +60,7 @@ export default defineConfig({
         SHARED.map((name) => [name, { singleton: true, requiredVersion: false }]),
       ),
     }),
+    pluginBundleBudget(),
   ],
   source: {
     entry: { index: './src/main.tsx' },

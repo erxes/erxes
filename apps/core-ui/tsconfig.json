@@ -10,5 +10,5 @@
       "erxes-ui/*": ["../../packages/ui/src/*"]
     }
   },
-  "include": ["src", "rsbuild.config.ts"]
+  "include": ["src", "rsbuild.config.ts", "bundleBudget.ts"]
 }
