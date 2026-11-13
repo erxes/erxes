@@ -229,10 +229,10 @@ export const leadsContract = {
     .route({
       method: 'GET',
       path: '/leads/{id}/history',
-      summary: "A lead's journey: created, every stage, converted",
+      summary: "A lead's journey, its last 200 steps: created, every stage, converted",
     })
     .input(z.object({ ...RecordTypeInput, id: Id }))
-    .output(listOf(LeadEvent)),
+    .output(z.object({ data: z.array(LeadEvent).max(200) })),
   report: oc
     .route({
       method: 'GET',

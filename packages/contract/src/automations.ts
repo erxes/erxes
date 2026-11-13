@@ -195,18 +195,22 @@ export const automationsContract = {
     .route({
       method: 'GET',
       path: '/automations/{id}/versions',
-      summary: 'Published versions, newest first',
+      summary: 'The 100 latest published versions, newest first',
     })
     .input(z.object({ id: Id }))
     .output(
-      listOf(
-        z.object({
-          version: z.int(),
-          publishedBy: z.string().nullable(),
-          createdAt: z.iso.datetime(),
-          definition: AutomationDefinition,
-        }),
-      ),
+      z.object({
+        data: z
+          .array(
+            z.object({
+              version: z.int(),
+              publishedBy: z.string().nullable(),
+              createdAt: z.iso.datetime(),
+              definition: AutomationDefinition,
+            }),
+          )
+          .max(100),
+      }),
     ),
   restoreVersion: oc
     .route({

@@ -251,16 +251,12 @@ export const removeAutomation = async (client: Db, actor: Actor, id: string) => 
 export const listVersions = async (client: Db, actor: Actor, id: string) => {
   await findAutomation(client, actor.orgId, id);
 
-  const rows = await wholeList((limit) =>
-    client
-      .select()
-      .from(automationVersions)
-      .where(
-        and(eq(automationVersions.orgId, actor.orgId), eq(automationVersions.automationId, id)),
-      )
-      .orderBy(desc(automationVersions.version))
-      .limit(limit),
-  );
+  const rows = await client
+    .select()
+    .from(automationVersions)
+    .where(and(eq(automationVersions.orgId, actor.orgId), eq(automationVersions.automationId, id)))
+    .orderBy(desc(automationVersions.version))
+    .limit(100);
 
   return {
     data: rows.map((row) => ({

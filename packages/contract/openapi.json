@@ -19352,7 +19352,7 @@
     "/automations/{id}/versions": {
       "get": {
         "operationId": "automations.versions",
-        "summary": "Published versions, newest first",
+        "summary": "The 100 latest published versions, newest first",
         "parameters": [
           {
             "name": "id",
@@ -19375,7 +19375,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
-                      "maxItems": 1000,
+                      "maxItems": 100,
                       "items": {
                         "type": "object",
                         "properties": {
@@ -22451,7 +22451,7 @@
     "/companies/{id}/people": {
       "get": {
         "operationId": "companies.people",
-        "summary": "The company's people: main contact first, then current, then former",
+        "summary": "The company's first 500 people: main contact first, then current, then former",
         "parameters": [
           {
             "name": "id",
@@ -22474,7 +22474,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
-                      "maxItems": 1000,
+                      "maxItems": 500,
                       "items": {
                         "$ref": "#/components/schemas/PersonRef"
                       }
@@ -26647,7 +26647,7 @@
     "/leads/{id}/history": {
       "get": {
         "operationId": "leads.history",
-        "summary": "A lead's journey: created, every stage, converted",
+        "summary": "A lead's journey, its last 200 steps: created, every stage, converted",
         "parameters": [
           {
             "name": "id",
@@ -26684,7 +26684,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
-                      "maxItems": 1000,
+                      "maxItems": 200,
                       "items": {
                         "$ref": "#/components/schemas/LeadEvent"
                       }
@@ -29992,7 +29992,7 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100,
-              "default": 30
+              "default": 50
             },
             "allowEmptyValue": true,
             "allowReserved": true
@@ -30419,7 +30419,7 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100,
-              "default": 30
+              "default": 50
             },
             "allowEmptyValue": true,
             "allowReserved": true

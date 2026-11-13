@@ -28,7 +28,9 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   a new failure gets a new code and old codes keep their meaning.
 - Lists of records that grow with use page with `keysetPage` (`cursorPageOf`; newest first, the
   cursor is a record id); small config lists use `wholeList` (`listOf`), which throws past
-  `LIST_MAX` rather than cut the list. `setup.test.ts` fails a list that is neither.
+  `LIST_MAX` rather than cut the list. A growing list the UI reads in one go (a company's people)
+  returns a window, its first N in the list's order, with `.max(N)` in the contract and N in the summary.
+  `setup.test.ts` fails a list with neither paging nor a max.
 - No query per item in a loop (`no-await-in-loop`): batch with `inArray` or a set-based update.
   Loops that are sequential on purpose go through `inOrder` or `repeatWhile` (`src/lib/sequence.ts`).
 - Tokens core signs get their own JOSE `typ` (`signJwt`); `verifyJwt` checks it and parses the claims.

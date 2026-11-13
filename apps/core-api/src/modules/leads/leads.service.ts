@@ -1,7 +1,6 @@
 import type { LeadRecordType } from '@erxes/core-contract';
 import { companies, customers, type Db, leadEvents } from '@erxes/core-db';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
-import { wholeList } from '~/lib/keyset';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { assertOwner } from '~/lib/guards';
@@ -189,8 +188,9 @@ export const leadHistory = async (
 ) => {
   const type = input.recordType ?? 'customer';
 
-  const rows = await wholeList((limit) =>
-    client
+  // The last 200 steps, oldest of them first.
+  const rows = (
+    await client
       .select()
       .from(leadEvents)
       .where(
@@ -199,9 +199,9 @@ export const leadHistory = async (
           eq(type === 'company' ? leadEvents.companyId : leadEvents.customerId, input.id),
         ),
       )
-      .orderBy(asc(leadEvents.createdAt))
-      .limit(limit),
-  );
+      .orderBy(desc(leadEvents.createdAt), desc(leadEvents.id))
+      .limit(200)
+  ).toReversed();
 
   return {
     data: rows.map((row) => ({
