@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const idsOf = (page: { data: { id: string }[] }) => page.data.map((item) => item.id);
 
 /** Companies, links between customers and companies, and merging records. */
-describeWithDb('companies and merge', () => {
+describe('companies and merge', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

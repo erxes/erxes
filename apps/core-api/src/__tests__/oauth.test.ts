@@ -1,10 +1,10 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 const REDIRECT = 'https://acme.hr.example.com/callback';
@@ -45,7 +45,7 @@ const refresh = (refreshToken = '') => ({
   refresh_token: refreshToken,
 });
 
-describeWithDb('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300_000 }, () => {
+describe('Sign in with erxes (OAuth 2.1 / OpenID Connect)', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const server = useTestServer();

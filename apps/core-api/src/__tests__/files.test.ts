@@ -1,10 +1,10 @@
-import { expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { describe, expect, it } from 'vite-plus/test';
+import { useTestDatabase } from './db';
 import { HR_SECRET } from './plugin';
 import { type CoreClient, useTwoOrgs } from './support';
 
 /** Two-step uploads, signed links, limits and who may see or delete a file. */
-describeWithDb('files', () => {
+describe('files', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

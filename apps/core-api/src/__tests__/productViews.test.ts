@@ -1,11 +1,11 @@
 import type { ConditionRule } from '@erxes/core-contract';
-import { expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { describe, expect, it } from 'vite-plus/test';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const where = (...rules: ConditionRule[]) => JSON.stringify({ match: 'all', rules });
 
-describeWithDb('product filters and views', { timeout: 120_000 }, () => {
+describe('product filters and views', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

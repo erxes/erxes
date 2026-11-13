@@ -1,10 +1,10 @@
 import { jobs, newId, tags, withOrg } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { defineJob, enqueueJob, processJobs, retryDeadJobs } from '~/modules/jobs/jobs';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 
 const jobRow = async (id: string) => {
   const [row] = await adminDb().select().from(jobs).where(eq(jobs.id, id));
@@ -12,7 +12,7 @@ const jobRow = async (id: string) => {
   return row;
 };
 
-describeWithDb('job queue', () => {
+describe('job queue', () => {
   useTestDatabase();
 
   let orgId = '';

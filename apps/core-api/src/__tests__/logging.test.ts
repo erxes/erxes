@@ -1,12 +1,12 @@
 // First, as in main.ts: tracing patches http, express and pg before they load.
 import { stopTracing } from '~/instrumentation';
 import pino from 'pino';
-import { afterAll, beforeAll, expect, it, vi } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { z } from 'zod';
 import { signAccessToken } from '~/http/auth';
 import { loggerOptions } from '~/logger';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 const Line = z.object({
@@ -37,7 +37,7 @@ const completed = (requestId: string | null) =>
     (entry) => entry.requestId === requestId && entry.msg === 'request completed',
   );
 
-describeWithDb('request logs', () => {
+describe('request logs', () => {
   useTestDatabase();
 
   const server = useTestServer(

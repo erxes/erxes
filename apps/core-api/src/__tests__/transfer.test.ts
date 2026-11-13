@@ -7,7 +7,7 @@ import writeXlsxFile from 'write-excel-file/node';
 import { readFileBytes, storeServerFile } from '~/modules/files/files.service';
 import { parseDate, suggestMapping } from '~/modules/transfer/columns';
 import { parseSheet } from '~/modules/transfer/parse';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -82,7 +82,7 @@ describe('reading files and suggesting columns', () => {
   });
 });
 
-describeWithDb('import and export of contacts', { timeout: 300_000 }, () => {
+describe('import and export of contacts', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

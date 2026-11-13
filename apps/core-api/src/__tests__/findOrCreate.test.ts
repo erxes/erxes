@@ -1,8 +1,8 @@
-import { expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { describe, expect, it } from 'vite-plus/test';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
-describeWithDb('customers for plugins (find or create)', () => {
+describe('customers for plugins (find or create)', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

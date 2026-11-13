@@ -1,12 +1,12 @@
 import { users } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /** What a member changes on their own account. */
-describeWithDb('own account', () => {
+describe('own account', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

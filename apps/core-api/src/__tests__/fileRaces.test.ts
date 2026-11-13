@@ -1,10 +1,10 @@
 import { files, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { readFile } from 'node:fs/promises';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { pruneUploads, purgeDeletedFiles } from '~/modules/files/files.service';
 import { localPath, setStorage, storage } from '~/modules/files/storage';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const fileRow = async (id: string) => {
@@ -19,7 +19,7 @@ const fileExists = async (id: string) =>
   (await adminDb().select().from(files).where(eq(files.id, id))).length > 0;
 
 /** Uploads racing completion, cleanup and deletion, against real Postgres and local storage. */
-describeWithDb('concurrent file writes', () => {
+describe('concurrent file writes', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

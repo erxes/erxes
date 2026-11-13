@@ -1,13 +1,13 @@
-import { expect, it, onTestFinished } from 'vite-plus/test';
+import { describe, expect, it, onTestFinished } from 'vite-plus/test';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { pluginApi } from './pluginApi';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
 const phone = { kind: 'goods' as const, name: 'Phone X', code: 'PX-1', price: 1_200_000_00 };
 
-describeWithDb('products', { timeout: 120_000 }, () => {
+describe('products', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

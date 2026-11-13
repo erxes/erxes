@@ -2,13 +2,10 @@ import { closeDb, configureDb, schema } from '@erxes/core-db';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { randomBytes } from 'node:crypto';
 import { Pool } from 'pg';
-import { afterAll, beforeAll, describe } from 'vite-plus/test';
-import { admin, databaseUrl, dropDatabase, TEST_RUNTIME_ROLE } from './globalSetup';
+import { afterAll, beforeAll } from 'vite-plus/test';
+import { admin, databaseUrl, dropDatabase, TEST_RUNTIME_ROLE, testServerUrl } from './globalSetup';
 
-const baseUrl = process.env.DATA_TEST_URL ?? '';
-
-/** Runs the suite only when DATA_TEST_URL points at a Postgres (CI sets it). */
-export const describeWithDb = baseUrl ? describe : describe.skip;
+const baseUrl = testServerUrl();
 
 let currentUrl = '';
 let ownerPool: Pool | null = null;

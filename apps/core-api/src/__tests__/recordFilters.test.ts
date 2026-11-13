@@ -1,12 +1,12 @@
 import { activities, customers, newId } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { rule, useContacts } from './contacts.fixture';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 
 const custom = (fieldId: string) => `subject.customFields.${fieldId}`;
 
-describeWithDb('advanced filters on contact lists', { timeout: 300_000 }, () => {
+describe('advanced filters on contact lists', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const t = useContacts();

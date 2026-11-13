@@ -1,8 +1,8 @@
 import { newId, users } from '@erxes/core-db';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
 import { loggedEmails } from '~/modules/email/email';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -13,7 +13,7 @@ const WINDOWS = 'Mozilla/5.0 (Windows NT 10.0; Win64) Chrome/130.0 Safari/537';
 const emailed = (to: string, subject: string) =>
   loggedEmails.some((email) => email.to === to && email.subject.includes(subject));
 
-describeWithDb('security alerts', { timeout: 300_000 }, () => {
+describe('security alerts', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

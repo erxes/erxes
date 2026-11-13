@@ -1,6 +1,6 @@
 import { eventConsumers, events } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { pruneEvents } from '~/modules/events/events.service';
 import {
   type EventConsumer,
@@ -8,7 +8,7 @@ import {
   retryFailures,
   runConsumer,
 } from '~/modules/events/processor';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /**
@@ -42,7 +42,7 @@ const due = () =>
   );
 
 /** Event delivery that survives failures (retries, dead events, manual retry) and event retention. */
-describeWithDb('event failures and retention', () => {
+describe('event failures and retention', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

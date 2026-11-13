@@ -1,9 +1,9 @@
 import { EventSourceParserStream, type EventSourceMessage } from 'eventsource-parser/stream';
-import { afterAll, beforeAll, expect, it, vi } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { z } from 'zod';
 import { startEventProcessor } from '~/modules/events/processor';
 import { liveHub } from '~/modules/live/hub';
-import { describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
+import { testDatabaseUrl, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const Hello = z.object({ mode: z.enum(['live', 'polling']) });
@@ -56,7 +56,7 @@ const openStream = async (url: string, headers: Record<string, string>) => {
   };
 };
 
-describeWithDb('live updates (/core/v1/stream)', () => {
+describe('live updates (/core/v1/stream)', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

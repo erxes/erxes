@@ -1,9 +1,9 @@
 import { automations } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { tickAutomations } from '~/modules/automations/triggers';
 import { makeDue, useAutomations } from './automations.fixture';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
 
 /** When the automation next fires on its own. */
@@ -16,7 +16,7 @@ const nextRunOf = async (id: string) => {
   return row?.nextRunAt?.getTime() ?? 0;
 };
 
-describeWithDb(
+describe(
   'automation triggers: schedules, dates, waits, goals and manual starts',
   { timeout: 600_000 },
   () => {

@@ -1,10 +1,10 @@
 import { paymentInvoices } from '@erxes/core-db';
 import { verifyCoreEvent } from '@erxes/plugin-sdk';
 import { eq } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { signJwt } from '~/lib/signing';
 import { bodyDigest, CORE_EVENT_TYP } from '~/modules/plugins/pluginEvents';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { pluginApi } from './pluginApi';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
@@ -16,7 +16,7 @@ const order = (id: string, amount = 1000) => ({
   reference: { type: 'order', id },
 });
 
-describeWithDb('payments', { timeout: 240_000 }, () => {
+describe('payments', { timeout: 240_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

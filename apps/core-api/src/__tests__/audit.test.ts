@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { pruneAudit } from '~/modules/audit/audit.service';
-import { adminDb, dbError, describeWithDb, useTestDatabase } from './db';
+import { adminDb, dbError, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /** Who changed what: core and plugin entries, the hash chain, retention and exports. */
-describeWithDb('audit log', () => {
+describe('audit log', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

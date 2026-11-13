@@ -1,10 +1,10 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
 import { loggedEmails } from '~/modules/email/email';
 import { processJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { type CoreClient, useTestServer } from './support';
 
 /** Sends what the jobs queued. */
@@ -22,7 +22,7 @@ const linkToken = (to: string, path: string) => {
 
 const OWNER = 'owner@acme.mn';
 
-describeWithDb('invitations and password resets by email', { timeout: 240_000 }, () => {
+describe('invitations and password resets by email', { timeout: 240_000 }, () => {
   useTestDatabase();
 
   const server = useTestServer();
