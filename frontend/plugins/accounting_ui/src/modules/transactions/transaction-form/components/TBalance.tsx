@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import { IconReceiptOff } from '@tabler/icons-react';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { followTrDocsState } from '../states/trStates';
 import { ITBalanceTransaction } from '../types/TBalance';
 import { ITransactionGroupForm } from '../types/JournalForms';
@@ -93,22 +95,32 @@ export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
     return tbalanceColumns(t);
   }, [trDocs, t]);
 
+  const tableData = [...rowsByPointer.values()].flat();
+
   return (
-    <RecordTable.Provider
-      columns={columns}
-      data={[...rowsByPointer.values()].flat()}
-      stickyColumns={['more', 'account']}
-      tableId="accounting_transaction_balance_record_table"
-      className="m-3"
-    >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <TBalanceTableRow />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
-    </RecordTable.Provider>
+    <>
+      <RecordTable.Provider
+        columns={columns}
+        data={tableData}
+        stickyColumns={['more', 'account']}
+        tableId="accounting_transaction_balance_record_table"
+        className="m-3"
+      >
+        <RecordTable.Scroll>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <TBalanceTableRow />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Scroll>
+      </RecordTable.Provider>
+      {!tableData.length && (
+        <AccountingEmptyState
+          icon={IconReceiptOff}
+          title={t('no-transactions')}
+        />
+      )}
+    </>
   );
 };

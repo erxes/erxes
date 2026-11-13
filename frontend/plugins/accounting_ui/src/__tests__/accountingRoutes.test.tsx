@@ -77,6 +77,7 @@ jest.mock('erxes-ui', () => {
     Breadcrumb: Object.assign(Passthrough, {
       List: Passthrough,
       Item: Passthrough,
+      Separator: () => null,
     }),
     Button,
     Empty: Object.assign(Passthrough, {
@@ -87,6 +88,7 @@ jest.mock('erxes-ui', () => {
       Content: Passthrough,
     }),
     Filter: Passthrough,
+    PageContainer: Passthrough,
     NavigationMenuLinkItem: ({
       name,
       path,

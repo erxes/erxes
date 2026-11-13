@@ -2,6 +2,7 @@ import type { IModels } from '~/connectionResolvers';
 import type { ITransaction } from '../../@types/transaction';
 import { JOURNALS, TR_SIDES, TR_STATUSES } from '../../@types/constants';
 import { getFxaCapitalValuation } from '../fxaCapitalValuation';
+import { getFxaIncomeTaxRates } from '../fxaIncomeTaxRates';
 
 const query = <T>(value: T) => ({
   sort() {
@@ -110,6 +111,77 @@ const fixture = () => {
   return { models: raw as unknown as IModels, entries, capital, selectors };
 };
 
+test('income tax rates stay asset-specific and follow dated capitalization and revaluation', async () => {
+  const { models, entries, capital } = fixture();
+  entries[0].details[0].followInfos = {
+    ...entries[0].details[0].followInfos,
+    incomeTaxRate: 10,
+  };
+  capital.details[0].followInfos = {
+    ...capital.details[0].followInfos,
+    incomeTaxRate: 20,
+  };
+  const revaluation = entry(JOURNALS.FXA_REVALUATION, '2026-03-01', 0, 0);
+  revaluation.details[0].followInfos = { incomeTaxRate: 50 };
+  entries.push(revaluation);
+  const details = [
+    {
+      fixedAssetId: 'asset',
+      accumulatedDepreciation: 1000,
+      taxAccumulatedDepreciation: 600,
+    },
+  ];
+  expect(
+    (await getFxaIncomeTaxRates(models, new Date('2026-01-31'), details)).get(
+      'asset',
+    ),
+  ).toBe(10);
+  expect(
+    (await getFxaIncomeTaxRates(models, new Date('2026-02-01'), details)).get(
+      'asset',
+    ),
+  ).toBe(20);
+  expect(
+    (await getFxaIncomeTaxRates(models, new Date('2026-03-01'), details)).get(
+      'asset',
+    ),
+  ).toBe(50);
+  capital.details[0].followInfos.incomeTaxRate = 0;
+  expect(
+    (await getFxaIncomeTaxRates(models, new Date('2026-02-01'), details)).get(
+      'asset',
+    ),
+  ).toBe(0);
+});
+
+test('rate lookup scopes correction reads and ignores unrelated details in a mixed-asset transaction', async () => {
+  const { models, capital, selectors } = fixture();
+  capital.details[0].followInfos = {
+    ...capital.details[0].followInfos,
+    incomeTaxRate: 20,
+  };
+  capital.details.push({
+    ...capital.details[0],
+    fixedAssetId: 'unrelated',
+    followInfos: { incomeTaxRate: NaN },
+  });
+  const rates = await getFxaIncomeTaxRates(models, new Date('2026-02-01'), [
+    {
+      fixedAssetId: 'asset',
+      accumulatedDepreciation: 1000,
+      taxAccumulatedDepreciation: 600,
+    },
+  ]);
+  expect(rates.get('asset')).toBe(20);
+  expect(rates.has('unrelated')).toBe(false);
+  expect(selectors).toContainEqual(
+    expect.objectContaining({
+      journal: { $in: [JOURNALS.FXA_REVALUATION, JOURNALS.FXA_CAPITAL] },
+      'details.fixedAssetId': { $in: ['asset'] },
+    }),
+  );
+});
+
 test('historical valuation excludes future capitalized cost and depreciation', async () => {
   const { models } = fixture();
   const result = await getFxaCapitalValuation(
@@ -186,4 +258,61 @@ test('an ordinary balancing journal does not change dated asset cost, depreciati
   expect(
     await getFxaCapitalValuation(models, 'asset', new Date('2026-02-01')),
   ).toEqual(before);
+});
+
+test('active tax valuation replays acquisition rules through the prior day and exposes opening totals on acquisition day', async () => {
+  const { models, entries } = fixture();
+  entries[0].details[0].followInfos = {
+    ...entries[0].details[0].followInfos,
+    hasTaxDepreciation: true,
+    taxPreDeprecation: 10,
+    taxAnnualDepreciationRate: 12,
+    taxDepreciationMethod: 'straightLine',
+    incomeTaxRate: 10,
+  };
+  const acquisition = await getFxaCapitalValuation(
+    models,
+    'asset',
+    new Date('2026-01-01'),
+  );
+  expect(acquisition.taxPreDeprecation).toBe(10);
+  const result = await getFxaCapitalValuation(
+    models,
+    'asset',
+    new Date('2026-02-01'),
+  );
+  expect(result.hasTaxDepreciation).toBe(true);
+  expect(result.taxPreDeprecation).toBeCloseTo(12);
+  expect(result.incomeTaxRate).toBe(10);
+});
+
+test('tax valuation sums split capital targets once before replaying later tax depreciation', async () => {
+  const { models, entries, capital } = fixture();
+  entries[0].details[0].followInfos = {
+    ...entries[0].details[0].followInfos,
+    hasTaxDepreciation: true,
+    taxPreDeprecation: 10,
+    taxAnnualDepreciationRate: 12,
+    taxDepreciationMethod: 'straightLine',
+    incomeTaxRate: 10,
+  };
+  capital.details = [
+    {
+      ...capital.details[0],
+      followInfos: { ...capital.details[0].followInfos, taxPreDeprecation: 20 },
+    },
+    {
+      ...capital.details[0],
+      branchId: 'other',
+      followInfos: { ...capital.details[0].followInfos, taxPreDeprecation: 10 },
+    },
+  ];
+  const result = await getFxaCapitalValuation(
+    models,
+    'asset',
+    new Date('2026-02-02'),
+  );
+  expect(result.taxPreDeprecation).toBeCloseTo(
+    30 + ((300 - 30) * 0.12) / 12 / 28,
+  );
 });

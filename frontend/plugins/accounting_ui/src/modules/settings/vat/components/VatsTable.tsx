@@ -54,6 +54,7 @@ export const VatRowMoreColumnCell = ({
           toast({
             title: t('success'),
             description: t('vat-rows-deleted-successfully'),
+            variant: 'success',
           });
         },
       });
@@ -116,6 +117,7 @@ export const VatRowsTable = () => {
       handleFetchMore={handleFetchMore}
       Commandbar={VatRowsCommandbar}
       tableId="accounting_vat_rows_record_table"
+      className="m-3"
     />
   );
 };

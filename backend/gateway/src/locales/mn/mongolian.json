@@ -727,6 +727,7 @@
   "only-has-return-bill-id": "Зөвхөн буцаах нэхэмжлэлийн дугаартай",
   "both": "Хоёулаа",
   "both-not": "Хоёулаа байхгүй",
+  "print": "Хэвлэх",
   "print-receipt": "Баримт хэвлэх",
   "ebarimt-responses-count": "Ебаримт ({{count}})",
   "no-deal-ebarimt": "Энэ хэлцэлд ебаримт гараагүй байна",

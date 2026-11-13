@@ -58,6 +58,8 @@ jest.mock('erxes-ui', () => {
       Cell: wrapper,
     }),
     RecordTable: { MoreButton: () => null },
+    RecordTableInlineCell: wrapper,
+    Skeleton: () => null,
     Checkbox: ({
       checked,
       onCheckedChange,

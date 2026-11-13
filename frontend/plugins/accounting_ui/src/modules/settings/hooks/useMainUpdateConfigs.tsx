@@ -24,6 +24,7 @@ export const useMainUpdateConfigs = () => {
         toast({
           title: t('success'),
           description: t('configuration-saved-successfully'),
+          variant: 'success',
         });
       },
     });

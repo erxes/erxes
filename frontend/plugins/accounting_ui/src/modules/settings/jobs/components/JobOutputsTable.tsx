@@ -94,7 +94,7 @@ export const JobOutputsTable = () => {
   const { t } = useTranslation('accounting');
   const { rows, loading, error, refetch, totalCount, handleFetchMore } =
     useJobOutputs();
-  if (error || (!loading && !rows.length))
+  if (error)
     return <JobListStatus error={error} retry={() => void refetch()} />;
   return (
     <SettingsRowsTable
@@ -104,8 +104,10 @@ export const JobOutputsTable = () => {
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={Commandbar}
-      tableId="accounting_job_outputs_record_table"
-      stickyColumns={['more']}
+      tableId="accounting_job_outputs_record_table_v2"
+      className="m-3"
+      emptyDescription={t('job-no-results')}
+      stickyColumns={['more', 'code', 'name']}
     />
   );
 };

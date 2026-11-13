@@ -35,6 +35,12 @@ const PosOrderEventTriggerNodeContent = lazy(() =>
   })),
 );
 
+const PosTemplateRequirement = lazy(() =>
+  import('./template/PosTemplateRequirement').then((module) => ({
+    default: module.PosTemplateRequirement,
+  })),
+);
+
 export const PosRemoteEntry = (props: AutomationRemoteEntryProps) => {
   return (
     <AutomationRemoteEntryWrapper
@@ -45,6 +51,7 @@ export const PosRemoteEntry = (props: AutomationRemoteEntryProps) => {
         triggerConfigContent: PosOrderEventTriggerNodeContent,
         actionNodeConfiguration: PosActionNodeContent,
         historyActionResult: PosActionHistoryResult,
+        templateRequirement: PosTemplateRequirement,
         historyName: ({
           target,
         }: AutomationExecutionHistoryNameProps<Record<string, unknown>>) =>

@@ -1,6 +1,11 @@
 import { KeyboardEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconChevronDown, IconChevronRight, IconX } from '@tabler/icons-react';
+import {
+  IconChevronDown,
+  IconChevronRight,
+  IconCornerDownRight,
+  IconX,
+} from '@tabler/icons-react';
 import { Button, Checkbox, Table } from 'erxes-ui';
 import { BranchBadge, DepartmentBadge } from 'ui-modules';
 import {
@@ -25,7 +30,7 @@ const activateRow = (
 
 const AssetName = ({ choice }: { choice: TFixedAssetChoice }) => (
   <span
-    className="block min-w-0 truncate text-xs font-normal"
+    className="block min-w-0 truncate text-xs"
     title={`${choice.asset.code} - ${choice.asset.name}`}
   >
     <span className="font-mono text-muted-foreground">{choice.asset.code}</span>
@@ -70,7 +75,7 @@ const ChoiceLocationCells = ({ choice }: { choice: TFixedAssetChoice }) => {
 export const FixedAssetChooserHeader = () => {
   const { t } = useTranslation('accounting');
   return (
-    <Table.Header>
+    <Table.Header className="sticky top-0 z-10">
       <Table.Row>
         <Table.Head className="w-8" />
         <Table.Head className="w-[32%]">{t('fixed-asset')}</Table.Head>
@@ -128,8 +133,9 @@ export const FixedAssetChooserRows = ({
           />
         </Table.Cell>
         <Table.Cell className="max-w-0 px-2 py-1">
-          <span className="block truncate pl-6 font-mono text-xs text-muted-foreground">
-            {choice.asset.code}
+          <span className="flex min-w-0 items-center gap-1.5 pl-2 font-mono text-xs text-muted-foreground">
+            <IconCornerDownRight className="size-3.5 shrink-0" />
+            <span className="truncate">{choice.asset.code}</span>
           </span>
         </Table.Cell>
         <ChoiceLocationCells choice={choice} />
@@ -143,7 +149,7 @@ export const FixedAssetChooserRows = ({
         aria-selected={false}
         onClick={chooseGroup}
         onKeyDown={(event) => activateRow(event, chooseGroup)}
-        className="h-8 cursor-pointer bg-muted/40 hover:bg-accent"
+        className="h-8 cursor-pointer [&>td]:bg-sidebar"
       >
         <Table.Cell
           className="w-8 p-2"
@@ -161,7 +167,7 @@ export const FixedAssetChooserRows = ({
           />
         </Table.Cell>
         <Table.Cell className="max-w-0 px-2 py-1">
-          <div className="flex items-center gap-1 min-w-0">
+          <div className="flex items-center gap-1 min-w-0 font-medium">
             <Button
               type="button"
               variant="ghost"
@@ -208,8 +214,11 @@ export const FixedAssetChooserRows = ({
               className="h-8"
             >
               <Table.Cell />
-              <Table.Cell className="px-2 py-1 pl-8 text-xs text-muted-foreground">
-                {item.asset.code}
+              <Table.Cell className="max-w-0 px-2 py-1">
+                <span className="flex min-w-0 items-center gap-1.5 pl-2 font-mono text-xs text-muted-foreground">
+                  <IconCornerDownRight className="size-3.5 shrink-0" />
+                  <span className="truncate">{item.asset.code}</span>
+                </span>
               </Table.Cell>
               <ChoiceLocationCells choice={{ asset: item.asset, location }} />
             </Table.Row>

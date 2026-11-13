@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-12`
 
 ## Scope
 
@@ -24,6 +24,15 @@
   plugin routes.
 
 ## Current Capabilities
+
+- The automations POS module answers the template requirement kind
+  `sales:pos.pos` through its `templateRequirement` entry
+  (`PosTemplateRequirement`, `SelectPos`); the answer is the POS id a Create POS
+  order step takes as `posId`, and `usePosTemplateRequirement` names it
+  (`posDetail.name`) through `onLabel` for the finished wizard step. Up to six
+  POS show as cards (`TemplateRequirementOptions`), more as `SelectPos`; a new
+  one is made in place with `PosCreate`, whose `onCreateSuccess(posId)` picks
+  it, and the only POS is picked by itself.
 
 - Deals and POS orders export to CSV through the shared `ui-modules`
   `Export` button: the deals action bar exports the current pipeline, stage
@@ -346,6 +355,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   show a warning and are stripped on the next save. "Add field" (gated by
   `fieldsManage`) opens the shared `ui-modules` `PropertyAddSheet` for
   `core:customer` and places the new property on the form, visible.
+- The Create deal action form (`CreateDealActionConfigForm`) adds `productIds`
+  (product suggestions) and `items` (JSON lines, attribute placeholders) like
+  the POS order form, reusing its `products` / `order-items` translations;
+  `salesActionConfigFormSchema` keeps both, so saving does not strip them.
 - POS and pipeline "Automations" tabs (`PosAutomations`, `PipelineAutomations`)
   share `modules/automations` (`SourceAutomations` / `useSourceAutomations`,
   query `SalesSourceAutomations`): they list the automations whose trigger runs
@@ -476,9 +489,13 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   erxes-ui's `ChartTooltip` / `ChartLegend` (another copy's store; the page
   crashes with `activeIndex` of undefined). erxes-ui's `ChartContainer` and
   `Chart*Content` components are safe.
-- Deal unit price (base and entry UOM), row discounts, and footer manual discounts
-  require `dealsProductsEdit`; restricted numeric cells remain readable. Row and bulk
-  product deletion controls require `dealsProductsDelete`.
+- Typing a lower price in the base unit price cell never lowers the unit
+  price, for any role: the unit price stays and the difference times quantity
+  becomes the row's `hand` discount (requires `dealsEdit`). Raising the unit
+  price, and editing the entry UOM price, require `dealsProductsEdit`; without
+  it a higher or negative price shows an error toast and the entry UOM price
+  is read-only. Row and footer manual discounts require `dealsEdit`. Row and
+  bulk product deletion controls require `dealsProductsDelete`.
 
 - The Sales Pipeline breadcrumb links to `/sales/deals` with the current
   `boardId` and `pipelineId`. `SalesSubNavigation` fills a missing board or
@@ -548,7 +565,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   Memoize filtered query collections by the source array; form synchronization
   and board effects rely on stable references when Apollo data is unchanged.
 - Memoize overview attachment inputs by the server attachment array so unrelated
-  rerenders cannot discard pending uploads. Relation-card section visibility
+  rerenders cannot discard pending uploads. Attachment `url` is an upload key:
+  file links open `${REACT_APP_API_URL}/read-file?key=<url>&name=<name>`
+  (absolute URLs pass through), never the bare key. Relation-card section visibility
   must use the same filtered collection passed to its renderer. Label forms
   report a missing pipeline before attempting either add or edit.
 - Deal printing owns typed documents for the public Core document service;
@@ -746,6 +765,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   identical.
 - Editing a row discount sets `hand` to the difference between requested total
   discount and existing automatic discount.
+- Newly added product rows start without a discount; they never inherit the
+  deal's current total discount percent (`hooks/useDealProductActions.tsx`).
+  Duplicated rows keep the source row's discount.
 - Editing the footer total discount clears current `hand` for each matching
   currency row and adds the footer amount/percent on top of automatic
   discounts.
@@ -753,7 +775,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `0` is still a real manual edit.
 - Footer handle percent and amount drafts are mutually exclusive per currency;
   editing one clears the other so both inputs derive from the same `hand`
-  discount state.
+  discount state. Both drafts reset when rows are added or removed, so the
+  inputs re-derive from the rows' `hand` discounts.
 - Advanced view controls discount metadata and extended product fields; Tax view
   controls only product tax percent/amount columns and footer total tax.
 - Deal start/close date selects: every variant opens a popover holding
@@ -778,10 +801,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 - POS product filters smoke: add/edit/clear all six group filter selections, save and reopen; verify persistence, immediate list refresh, tag descendants, and OR/global-exclusion behavior after sync.
 
-- Permission smoke: without `dealsProductsEdit`, base/entry prices and row/footer
-  discounts remain read-only; without `dealsProductsDelete`, row and bulk delete actions
-  are hidden. Grant each action independently and verify only its controls become
-  available.
+- Permission smoke: as Sales User, change a 1,000,000 unit price to 900,000 and
+  verify the price stays 1,000,000 with a 10% discount; row and footer discounts
+  are editable and rows can be deleted. On a deal with discounted rows, newly
+  added products arrive with a 0 discount. As Sales Admin, a lower price also
+  becomes a discount and a higher price changes the unit price. Without `dealsProductsDelete`, row and bulk delete actions are hidden.
 
 - `node --test frontend/plugins/sales_ui/src/modules/pos/pos-covers/components/__tests__/coverDetail.test.cjs`
 

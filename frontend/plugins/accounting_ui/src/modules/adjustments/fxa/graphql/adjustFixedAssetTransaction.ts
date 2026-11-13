@@ -1,10 +1,11 @@
 import { gql } from '~/gql';
 
 export const ADJUST_FIXED_ASSET_TRANSACTION = gql(`
-mutation accountingAdjustFixedAssetTransaction($adjustId: String!, $expenseAccountId: String!) {
+mutation accountingAdjustFixedAssetTransaction($adjustId: String!, $expenseAccountId: String!, $taxExpenseAccountId: String) {
   adjustFixedAssetTransaction(
     adjustId: $adjustId
     expenseAccountId: $expenseAccountId
+    taxExpenseAccountId: $taxExpenseAccountId
   ) {
     _id
     createdAt
@@ -14,6 +15,7 @@ mutation accountingAdjustFixedAssetTransaction($adjustId: String!, $expenseAccou
     date
     description
     expenseAccountId
+    taxExpenseAccountId
     status
     error
     warning

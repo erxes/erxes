@@ -2,17 +2,12 @@ import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
   IconCircleCheck,
-  IconCalculator,
   IconClockEdit,
   IconHelpSquareRounded,
-  IconPlayerPlay,
   IconRotateClockwise2,
-  IconTrashX,
-  IconEdit,
 } from '@tabler/icons-react';
 import {
-  Button,
-  DatePicker,
+  InfoCard,
   RecordTable,
   RecordTableInlineCell,
   Spinner,
@@ -41,13 +36,10 @@ import { useAccountsInline } from '@/settings/account/hooks/useAccounts';
 import type { IAccount } from '@/settings/account/types/Account';
 import { BranchBadge, DepartmentBadge } from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
-
-const DetailField = ({ label, value }: { label: string; value?: string }) => (
-  <div className="min-w-0">
-    <p className="text-xs text-muted-foreground">{label}</p>
-    <p className="truncate text-sm font-medium">{value || '-'}</p>
-  </div>
-);
+import { AdjustDetailField } from '@/adjustments/components/AdjustDetailField';
+import { AdjustRateDetailHeader } from '@/adjustments/components/AdjustRateDetailHeader';
+import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
+import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 
 const formatAmount = (amount?: number) =>
   typeof amount === 'number' ? amount.toLocaleString() : '-';
@@ -343,11 +335,7 @@ export const AdjustFundRateDetail = () => {
   );
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner />
-      </div>
-    );
+    return <Spinner />;
   }
 
   if (!id || !adjustFundRate) {
@@ -372,78 +360,65 @@ export const AdjustFundRateDetail = () => {
 
   return (
     <div className="m-3 flex flex-col gap-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="text-lg font-bold">{t('fund-rate-adjustment')}</h3>
-          <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 md:grid-cols-4 xl:grid-cols-7">
-            <DetailField
-              label={t('date')}
-              value={dayjs(adjustFundRate.date).format('YYYY-MM-DD')}
-            />
-            <DetailField
-              label={t('currency')}
-              value={adjustFundRate.currency}
-            />
-            <DetailField
-              label={t('Spot Rate')}
-              value={adjustFundRate.spotRate?.toFixed(4) || '-'}
-            />
-            <DetailField
-              label={t('Main Currency')}
-              value={adjustFundRate.mainCurrency}
-            />
-            <DetailField
-              label={t('Gain Account')}
-              value={formatAccount(
-                accountById[adjustFundRate.gainAccountId ?? ''],
-                adjustFundRate.gainAccountId,
-              )}
-            />
-            <DetailField
-              label={t('Loss Account')}
-              value={formatAccount(
-                accountById[adjustFundRate.lossAccountId ?? ''],
-                adjustFundRate.lossAccountId,
-              )}
-            />
-            <DetailField
-              label={t('status')}
-              value={t(adjustFundRate.status || 'draft')}
-            />
-          </div>
+      <AdjustRateDetailHeader
+        title={t('fund-rate-adjustment')}
+        calculateLoading={calculateLoading}
+        runLoading={runLoading}
+        removeLoading={removeLoading}
+        onCalculate={handleCalculate}
+        onRun={handleRun}
+        onEdit={() => openDetail(adjustFundRate._id)}
+        onDelete={handleDelete}
+      />
+
+      <InfoCard title={t('details')}>
+        <InfoCard.Content className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4 xl:grid-cols-6">
+          <AdjustDetailField
+            label={t('date')}
+            value={dayjs(adjustFundRate.date).format('YYYY-MM-DD')}
+          />
+          <AdjustDetailField
+            label={t('currency')}
+            value={adjustFundRate.currency}
+          />
+          <AdjustDetailField
+            label={t('Spot Rate')}
+            value={adjustFundRate.spotRate?.toFixed(4) || '-'}
+          />
+          <AdjustDetailField
+            label={t('Main Currency')}
+            value={adjustFundRate.mainCurrency}
+          />
+          <AdjustDetailField
+            label={t('status')}
+            value={
+              <AdjustStatusBadge status={adjustFundRate.status || 'draft'} />
+            }
+          />
+          <AdjustDetailField
+            label={t('Gain Account')}
+            value={formatAccount(
+              accountById[adjustFundRate.gainAccountId ?? ''],
+              adjustFundRate.gainAccountId,
+            )}
+          />
+          <AdjustDetailField
+            label={t('Loss Account')}
+            value={formatAccount(
+              accountById[adjustFundRate.lossAccountId ?? ''],
+              adjustFundRate.lossAccountId,
+            )}
+          />
           {adjustFundRate.description && (
-            <p className="mt-2 max-w-4xl truncate text-xs text-muted-foreground">
-              {adjustFundRate.description}
-            </p>
+            <div className="col-span-full">
+              <AdjustDetailField
+                label={t('description')}
+                value={adjustFundRate.description}
+              />
+            </div>
           )}
-        </div>
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button onClick={handleCalculate} disabled={calculateLoading}>
-            {calculateLoading ? <Spinner /> : <IconCalculator size={16} />}
-            {t('Calculate')}
-          </Button>
-          <Button onClick={handleRun} disabled={runLoading}>
-            {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
-            {t('run')}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => openDetail(adjustFundRate._id)}
-          >
-            <IconEdit size={16} />
-            {t('edit')}
-          </Button>
-          <Button
-            variant="outline"
-            className="text-destructive"
-            onClick={handleDelete}
-            disabled={removeLoading}
-          >
-            <IconTrashX size={16} />
-            {t('delete')}
-          </Button>
-        </div>
-      </div>
+        </InfoCard.Content>
+      </InfoCard>
 
       <StatusBar adjustFundRate={adjustFundRate} />
       {adjustFundRate.error && (
@@ -495,9 +470,10 @@ const CalculationGroups = ({
   const { t } = useTranslation('accounting');
   if (!groupedDetails.length) {
     return (
-      <div className="rounded-md border p-3 text-sm text-muted-foreground">
-        {t('No calculated account balances yet.')}
-      </div>
+      <AccountingEmptyState
+        description={t('No calculated account balances yet.')}
+        className="m-0"
+      />
     );
   }
 
@@ -563,26 +539,20 @@ const LinkedTransactionsTable = ({
   rows: TLinkedTransactionRow[];
 }) => {
   const { t } = useTranslation('accounting');
-  if (loading) {
-    return (
-      <div className="flex h-24 items-center justify-center rounded-md border">
-        <Spinner />
-      </div>
-    );
-  }
 
-  if (!rows.length) {
+  if (!loading && !rows.length) {
     return (
-      <div className="rounded-md border p-3 text-sm text-muted-foreground">
-        {t('No linked transactions yet.')}
-      </div>
+      <AccountingEmptyState
+        description={t('No linked transactions yet.')}
+        className="m-0"
+      />
     );
   }
 
   return (
     <RecordTable.Provider
       columns={linkedTransactionColumns(t)}
-      data={rows}
+      data={loading ? [] : rows}
       tableId="accounting_adjust_fund_rate_linked_transactions"
       className="rounded-md border"
     >
@@ -591,6 +561,7 @@ const LinkedTransactionsTable = ({
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
+            {loading && <RecordTable.RowSkeleton rows={4} />}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
@@ -615,26 +586,30 @@ const StatusBar = ({ adjustFundRate }: { adjustFundRate: IAdjustFundRate }) => {
   const renderIcon = (day: Date) => {
     if (isSameDay(day, new Date(current))) {
       if (adjustFundRate.status === 'draft') {
-        return <IconHelpSquareRounded className="h-5 w-5 text-blue-400" />;
+        return (
+          <IconHelpSquareRounded className="h-5 w-5 text-muted-foreground" />
+        );
       }
 
       if (adjustFundRate.status === 'process' && adjustFundRate.error) {
-        return <IconClockEdit className="h-5 w-5 text-orange-500" />;
+        return <IconClockEdit className="h-5 w-5 text-warning" />;
       }
 
       if (adjustFundRate.status === 'process') {
-        return <IconRotateClockwise2 className="h-5 w-5 text-yellow-500" />;
+        return <IconRotateClockwise2 className="h-5 w-5 text-info" />;
       }
 
-      return <IconCircleCheck className="h-5 w-5 text-green-500" />;
+      return <IconCircleCheck className="h-5 w-5 text-success" />;
     }
 
     if (isBefore(day, new Date(current))) {
-      return <IconCircleCheck className="h-5 w-5 text-green-500" />;
+      return <IconCircleCheck className="h-5 w-5 text-success" />;
     }
 
     if (isAfter(day, new Date(current))) {
-      return <IconHelpSquareRounded className="h-5 w-5 text-blue-400" />;
+      return (
+        <IconHelpSquareRounded className="h-5 w-5 text-muted-foreground" />
+      );
     }
 
     return undefined;
@@ -643,14 +618,7 @@ const StatusBar = ({ adjustFundRate }: { adjustFundRate: IAdjustFundRate }) => {
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-primary font-bold">
-          <DatePicker
-            value={new Date(start)}
-            onChange={() => null}
-            className="flex h-8 w-full"
-            disabled
-          />
-        </span>
+        <span className="font-medium">{format(start, 'yyyy-MM-dd')}</span>
         <span className="text-accent-foreground">{'->'}</span>
       </div>
       {days.map((day) => (
@@ -663,14 +631,7 @@ const StatusBar = ({ adjustFundRate }: { adjustFundRate: IAdjustFundRate }) => {
       ))}
       <div className="flex items-center gap-2 text-sm">
         <span className="text-accent-foreground">{'->'}</span>
-        <span className="text-primary font-bold">
-          <DatePicker
-            value={new Date(end)}
-            onChange={() => null}
-            className="flex h-8 w-full"
-            disabled
-          />
-        </span>
+        <span className="font-medium">{format(end, 'yyyy-MM-dd')}</span>
       </div>
     </div>
   );

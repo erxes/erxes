@@ -207,6 +207,21 @@ export const userSchema = schemaWrapper(
       optional: true,
       label: 'Last seen at',
     }),
+    availability: mongooseField({
+      type: new Schema(
+        {
+          status: { type: String, enum: ['available', 'unavailable'] },
+          until: { type: Date },
+          reason: { type: String },
+          setBy: { type: String },
+          setAt: { type: Date },
+        },
+        { _id: false },
+      ),
+      optional: true,
+      default: undefined,
+      label: 'Availability',
+    }),
   }),
 );
 

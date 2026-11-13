@@ -16,6 +16,21 @@ const ticketSourceSurveySchema = new Schema(
   { _id: false },
 );
 
+const ticketSlaSchema = new Schema(
+  {
+    priority: { type: Number },
+    firstResponseDueAt: { type: Date },
+    resolutionDueAt: { type: Date },
+    firstRespondedAt: { type: Date },
+    resolvedAt: { type: Date },
+    firstResponseWarnedAt: { type: Date },
+    firstResponseBreachedAt: { type: Date },
+    resolutionWarnedAt: { type: Date },
+    resolutionBreachedAt: { type: Date },
+  },
+  { _id: false },
+);
+
 export const ticketSchema = schemaWrapper(
   new Schema(
     {
@@ -91,6 +106,7 @@ export const ticketSchema = schemaWrapper(
         type: ticketSourceSurveySchema,
         label: 'Survey that triggered this ticket',
       },
+      sla: { type: ticketSlaSchema, label: 'SLA', default: undefined },
     },
     {
       timestamps: true,

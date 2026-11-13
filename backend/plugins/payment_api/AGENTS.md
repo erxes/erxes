@@ -6,8 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-11-06`
-
+- **Last synchronized:** `2026-11-12`
 ## Scope
 
 ### Owns
@@ -46,9 +45,9 @@
   `paymentInvoiceView` / `paymentInvoiceEdit`, plus the `payment:admin` and
   `payment:viewer` default groups) and enforces `paymentInvoiceEdit` on the
   `invoiceEdit` mutation.
-- The widget renders Pocket payments with a dedicated `PocketForm` that shows
-  the QR and, on mobile, a "Pocket апп-аар төлөх" button linking to the
-  `deeplink` returned by Pocket's `createInvoice`, which opens the Pocket app.
+- The widget renders Pocket payments with a dedicated `PocketForm`. On phones
+  it opens the Pocket app automatically through the `deeplink` returned by
+  Pocket's `createInvoice`; desktops and tablets get the QR only.
 
 ## Architecture
 
@@ -62,7 +61,8 @@
 | tRPC             | `src/trpc/`                                           | Service-to-service payment/invoice procedures                        |
 | Workers          | `src/workers/payments.ts`                             | BullMQ consumer for this plugin's `payments` queue                   |
 | Permissions      | `src/meta/permissions.ts`                             | `invoice` permission module, actions, and default permission groups  |
-| Widget Pocket UI | `src/widget/src/components/payments/PocketForm.tsx`   | Pocket QR plus mobile-only deeplink button; chosen in `PaymentDialog` |
+| Widget Pocket UI | `src/widget/src/components/payments/PocketForm.tsx`   | Pocket QR; phone-only deeplink auto-open with fallback buttons       |
+
 ## Contracts
 
 ### Provides
@@ -121,9 +121,12 @@
   backfill recomputes it.
 - In the widget, `kind === 'pocket'` must render `PocketForm`, not the shared
   `QrPayment`: `QrPayment`'s mobile branch shows bank-app `urls`, which Pocket
-  does not return, so Pocket users on mobile would see neither a QR nor a way to
-  open the app. The deeplink button is shown only when `useIsMobile()` is true
-  and `response.deeplink` exists; the QR is always shown as a fallback.
+  does not return. On phones only (user agent check: iPhone/iPod, Android with
+  "Mobile", HarmonyOS phones, or `userAgentData.mobile`), when
+  `response.deeplink` exists `PocketForm` opens the Pocket app automatically
+  once, and shows "Pocket апп-аар төлөх" / "QR кодоор төлөх" as a fallback.
+  iPads, Android tablets, desktops, and responses without a deeplink show the
+  QR only, so POS tablets never try to launch the app.
 ## Validation
 
 - `pnpm nx run payment_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
@@ -135,6 +138,8 @@
   user in `payment:viewer` (fails with `Permission required`).
 - Smoke: edit a pending invoice to `status: paid` and confirm `resolvedAt` is
   set and the `invoiceUpdated` subscription fires.
-- Smoke: open a Pocket invoice in the widget on desktop (QR shown, no button),
-  then on a phone with Pocket installed (QR plus button; tapping it opens
-  Pocket with the correct merchant and amount).
+- Smoke: choose Pocket on a phone with Pocket installed and confirm the app
+  opens automatically with the correct merchant and amount, and that returning
+  to the browser shows the fallback buttons. On desktop, an iPad, and an
+  Android tablet, confirm only the QR is shown and no deeplink launch is
+  attempted.

@@ -5,6 +5,7 @@ dotenv.config();
 import { Collection, Db, MongoClient } from 'mongodb';
 import { findOrganization } from '../../findOrganization';
 import { randomBytes } from 'crypto';
+import { requireChannelId } from './_channel';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -248,13 +249,14 @@ function htmlToBlocks(html: string): string {
   return JSON.stringify(blocks);
 }
 
+const WITHOUT_CHANNEL = {
+  $or: [{ channelId: { $exists: false } }, { channelId: { $in: ['', null] } }],
+};
+
 async function migrateResponseTemplates(): Promise<void> {
   console.log('\n🚀 Migrating response_templates → new Blocknote format');
-  console.log(`   channelId : ${STATIC_CHANNEL_ID}`);
 
-  const total = await TEMPLATES.countDocuments({
-    channelId: { $exists: false },
-  });
+  const total = await TEMPLATES.countDocuments(WITHOUT_CHANNEL);
   console.log(`📋 Pending  : ${total} document(s) without channelId`);
 
   if (total === 0) {
@@ -262,9 +264,10 @@ async function migrateResponseTemplates(): Promise<void> {
     return;
   }
 
-  const cursor = TEMPLATES.find({ channelId: { $exists: false } }).batchSize(
-    BATCH_SIZE,
-  );
+  const channelId = await requireChannelId(db);
+  console.log(`   channelId : ${channelId}`);
+
+  const cursor = TEMPLATES.find(WITHOUT_CHANNEL).batchSize(BATCH_SIZE);
 
   let bulk: any[] = [];
   let migratedCount = 0;
@@ -291,7 +294,7 @@ async function migrateResponseTemplates(): Promise<void> {
         update: {
           $set: {
             content: newContent,
-            channelId: STATIC_CHANNEL_ID,
+            channelId,
             files: doc.files || [],
             createdAt: doc.createdAt || new Date(),
             updatedAt: new Date(),
@@ -343,7 +346,7 @@ const command = async () => {
   console.log('═══════════════════════════════════════════════');
   console.log('  Response templates migration');
   console.log(`  HTML content → Blocknote JSON`);
-  console.log(`  channelId   : ${STATIC_CHANNEL_ID}`);
+  console.log(`  channelId   : ${STATIC_CHANNEL_ID || 'the target channel'}`);
   console.log('═══════════════════════════════════════════════');
 
   await migrateResponseTemplates().catch((e) =>

@@ -1,4 +1,6 @@
 import { ActivityList } from '@/activity/components/ActivityList';
+import { TicketSlaStatus } from '@/ticket/components/ticket-detail/TicketSlaStatus';
+import { TicketFormResponses } from '@/ticket/components/ticket-detail/TicketFormResponses';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
 import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
@@ -12,6 +14,7 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
+import { useSyncTicketDescription } from '@/ticket/hooks/useSyncTicketDescription';
 import { useTicketDetailPermissions } from '@/ticket/hooks/useTicketDetailPermissions';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import type { TicketFieldsProps } from '@/ticket/types/ticketDetail';
@@ -139,10 +142,22 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
   const { updateTicket } = useUpdateTicket();
   const [name, setName] = useState(_name ?? '');
 
+  const { markDescriptionSent, consumeExternalChange } =
+    useSyncTicketDescription({
+      editor,
+      description,
+      descriptionContent,
+      loadedDescriptionRef,
+      parseDescription,
+    });
+
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
     if (content) {
       content.pop();
+      if (consumeExternalChange()) {
+        loadedDescriptionRef.current = content as Block[];
+      }
       setDescriptionContent(content as Block[]);
     }
   };
@@ -172,10 +187,12 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
     ) {
       return;
     }
+    const nextDescription = JSON.stringify(debouncedDescriptionContent);
+    markDescriptionSent(nextDescription);
     updateTicket({
       variables: {
         _id: ticketId,
-        description: JSON.stringify(debouncedDescriptionContent),
+        description: nextDescription,
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -295,6 +312,8 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             disabled={!canEditTicket}
           />
         </div>
+        <TicketSlaStatus sla={ticket?.sla} />
+        <TicketFormResponses responses={ticket?.formResponses} />
         <DataExtensionRecordSection
           recordType="frontline:ticket"
           recordId={ticketId}

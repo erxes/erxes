@@ -26,15 +26,13 @@ export const TrRecordListPage = () => {
             returnText={t('journal-entries')}
             icon={IconListCheck}
           >
-            <div className="px-3">
-              <AddTransaction>
-                <Button>
-                  <IconPlus />
-                  {t('add-transaction')}
-                  <Kbd>C</Kbd>
-                </Button>
-              </AddTransaction>
-            </div>
+            <AddTransaction>
+              <Button>
+                <IconPlus />
+                {t('add-transaction')}
+                <Kbd>C</Kbd>
+              </Button>
+            </AddTransaction>
           </AccountingHeader>
           <PageSubHeader>
             <TransactionsFilter afterBar={<TrRecsTotalCount />} />

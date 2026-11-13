@@ -5,6 +5,7 @@ import { AutomationNodeType } from '@/automations/types';
 import { Edge } from '@xyflow/react';
 import type { IAutomationsActionFolkConfig } from 'ui-modules';
 import {
+  hasWaitEventTimeout,
   isBranchingOnError,
   resolveActionFolks,
 } from '@/automations/utils/automationBuilderUtils/actionFolks';
@@ -230,7 +231,11 @@ export const generateEdge = (
   }
 
   // A branching action has no plain exit; both of its edges are folk edges.
-  if (target && !isBranchingOnError(config)) {
+  if (
+    target &&
+    !isBranchingOnError(config) &&
+    !hasWaitEventTimeout(edge?.type, config)
+  ) {
     generatedEdges.push(buildPrimaryEdge(type, edge.id.toString(), target));
   }
   return generatedEdges.map((edge) =>

@@ -1,8 +1,8 @@
-import './sentry-instrument';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { buildSubgraphSchema } from '@apollo/subgraph';
+import * as Sentry from '@sentry/node';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -10,106 +10,30 @@ import * as dotenv from 'dotenv';
 import express, {
   Request as ApiRequest,
   Response as ApiResponse,
-  Application,
   Router,
 } from 'express';
+import rateLimit from 'express-rate-limit';
 import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
-import rateLimit from 'express-rate-limit';
-import { startPayments } from '../common-modules/payment/worker';
-import type { IContactFieldsMeta } from '../core-modules/contact-fields';
+import { IMainContext } from '../core-types';
 import {
-  type IAgentPluginMeta,
-  validateAgentPluginMeta,
-} from '../core-modules/agent';
-import type {
-  IPropertyMeta,
-  LogsConfigs,
-  SegmentConfigs,
-  TApprovalConfig,
-  TRecordReferencesConfig,
-} from '../core-modules';
-import {
-  initApproval,
-  initPropertyProducers,
-  initRecordReferences,
-  initSegmentProducers,
-  startAutomations,
-} from '../core-modules';
-import { AutomationConfigs } from '../core-modules/automations/types';
-import type { ImportExportConfigs } from '../core-modules/import-export/types';
-import { startImportExportWorker } from '../core-modules/import-export/worker';
-import { IMainContext, IPermissionConfig } from '../core-types';
-import {
-  generateApolloContext,
-  startBeforeResolvers,
-  wrapApolloResolvers,
   expectedErrorPlugin,
+  generateApolloContext,
+  wrapApolloResolvers,
 } from './apollo';
-import { BeforeResolversConfig } from './apollo/beforeResolvers';
-import { extractUserFromHeader } from './headers';
-import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
+import { initApiHandlers, TApiHandler } from './initApiHandlers';
+import { initPluginMeta, IPluginMeta } from './initPluginMeta';
 import { closeMongooose } from './mongo';
-import {
-  initializePluginConfig,
-  joinErxesGateway,
-  leaveErxesGateway,
-} from './service-discovery';
+import './sentry-instrument';
+import { joinErxesGateway, leaveErxesGateway } from './service-discovery';
 import { createTRPCContext } from './trpc';
-import { applyTrustProxy, getSubdomain } from './utils';
-import * as Sentry from '@sentry/node';
+import { applyTrustProxy } from './utils';
 
 export const MAX_HEADER_BYTES = 64 * 1024;
 
 dotenv.config();
 
-enum API_METHODS {
-  GET = 'get',
-  POST = 'post',
-  PUT = 'put',
-  PATCH = 'patch',
-  DELETE = 'delete',
-}
-
-type TAPIMethod = keyof typeof API_METHODS;
-
-type IMeta = {
-  automations?: AutomationConfigs;
-  segments?: SegmentConfigs;
-  logs?: LogsConfigs;
-  afterProcess?: AfterProcessConfigs;
-  payments?: any;
-  notifications?: any;
-  tags?: any;
-  documents?: {
-    types: {
-      label: string;
-      contentType: string;
-    }[];
-  };
-  properties?: IPropertyMeta;
-  references?: TRecordReferencesConfig;
-  approval?: TApprovalConfig;
-  permissions?: IPermissionConfig;
-  beforeResolvers?: BeforeResolversConfig;
-  importExport?: ImportExportConfigs;
-  relations?: {
-    subscribedTypes: string[];
-  };
-  // Record types keeping their own customerId / companyId; core tells the
-  // plugin when a contact is merged or removed (tRPC `contactFields.sync`).
-  contactFields?: IContactFieldsMeta;
-  // Text-only skills and agent-hidden GraphQL operations for the core AI
-  // assistant; core re-validates them when it reads service discovery.
-  agent?: IAgentPluginMeta;
-};
-
-type ApiHandler = {
-  method: TAPIMethod;
-  path: string;
-  resolver: (req: ApiRequest, res: ApiResponse) => Promise<void> | void;
-};
 type ResolverObject = {
   [key: string]: (...args: any[]) => any;
 };
@@ -142,7 +66,7 @@ type ConfigTypes = {
   ) => Promise<IMainContext>;
   onServerInit?: (app: express.Express) => Promise<void>;
   middlewares?: any;
-  apiHandlers?: ApiHandler[];
+  apiHandlers?: TApiHandler[];
   hasSubscriptions?: boolean;
   corsOptions?: any;
   subscriptionPluginPath?: any;
@@ -153,7 +77,7 @@ type ConfigTypes = {
       context: any,
     ) => Promise<TContext>;
   };
-  meta?: IMeta;
+  meta?: IPluginMeta;
 };
 
 export async function startPlugin(
@@ -224,36 +148,7 @@ export async function startPlugin(
   }
 
   if (apiHandlers) {
-    for (const handler of apiHandlers) {
-      const { method, path, resolver } = handler;
-
-      type LowercaseMethod = (typeof API_METHODS)[TAPIMethod];
-
-      // Ensure `method` is one of the keys
-      const METHOD = API_METHODS[method] as LowercaseMethod;
-      type TApiMethodApp = Record<
-        LowercaseMethod,
-        Application[LowercaseMethod]
-      >;
-
-      (app as TApiMethodApp)[METHOD](
-        path,
-        async (req: ApiRequest, res: ApiResponse) => {
-          return await logHandler(async () => await resolver(req, res), {
-            subdomain: getSubdomain(req),
-            source: 'webhook',
-            action: method,
-            payload: {
-              path,
-              headers: req.headers,
-              body: req.body,
-              query: req?.query,
-            },
-            userId: extractUserFromHeader(req.headers)?._id,
-          });
-        },
-      );
-    }
+    initApiHandlers(app, apiHandlers);
   }
 
   if (hasSubscriptions) {
@@ -419,71 +314,7 @@ export async function startPlugin(
   });
 
   if (meta) {
-    const {
-      automations,
-      segments,
-      afterProcess,
-      notifications,
-      payments,
-      beforeResolvers,
-      references,
-      importExport,
-      approval,
-      properties,
-      agent,
-    } = meta || {};
-
-    for (const { skill, reason } of validateAgentPluginMeta(agent).rejections) {
-      console.warn(
-        `[agent] ${name} ${
-          skill ? `skill "${skill}"` : 'metadata'
-        } ignored: ${reason}`,
-      );
-    }
-
-    if (beforeResolvers) {
-      await startBeforeResolvers(app, name, beforeResolvers);
-    }
-
-    if (afterProcess) {
-      await startAfterProcess(app, name, afterProcess);
-    }
-
-    if (references) {
-      await initRecordReferences(app, name, references);
-    }
-
-    if (approval) {
-      await initApproval(app, name, approval);
-    }
-
-    if (automations) {
-      await startAutomations(app, name, automations);
-    }
-
-    if (segments) {
-      await initSegmentProducers(app, name, segments);
-    }
-
-    if (properties?.valueUsage) {
-      initPropertyProducers(app, properties.valueUsage);
-    }
-
-    if (notifications) {
-      await initializePluginConfig(name, 'notifications', notifications);
-    }
-
-    if (importExport) {
-      await startImportExportWorker({
-        pluginName: name,
-        config: importExport,
-        app,
-      });
-    }
-
-    if (payments) {
-      await startPayments(name, payments);
-    }
+    await initPluginMeta(app, name, meta);
   } // end meta if
 
   if (onServerInit) {

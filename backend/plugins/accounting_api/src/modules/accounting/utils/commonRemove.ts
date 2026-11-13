@@ -216,6 +216,7 @@ async function handleFxaIncome(
   if (options?.validateOnly) return;
   await removeFollowTransactions(models, transaction._id, [
     TR_FOLLOW_TYPES.FXA_DEP_IN,
+    TR_FOLLOW_TYPES.FXA_DEFERRED_TAX,
   ]);
 }
 

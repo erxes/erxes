@@ -1,6 +1,24 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
+const slaRuleSchema = new Schema(
+  {
+    priority: { type: Number, required: true },
+    firstResponseMinutes: { type: Number },
+    resolutionMinutes: { type: Number },
+  },
+  { _id: false },
+);
+
+const slaPolicySchema = new Schema(
+  {
+    enabled: { type: Boolean, default: false },
+    rules: { type: [slaRuleSchema], default: [] },
+    warnBeforeMinutes: { type: Number },
+  },
+  { _id: false },
+);
+
 export const ticketPipelineSchema = new Schema(
   {
     _id: mongooseStringRandomId,
@@ -32,6 +50,8 @@ export const ticketPipelineSchema = new Schema(
     memberIds: [{ type: String }],
     // Rows of system codes and `property:<id>`; null means the default form.
     createLayout: { type: [[String]], default: undefined },
+    // Promised response and resolution times per priority, in working minutes.
+    slaPolicy: { type: slaPolicySchema, default: undefined },
   },
   {
     timestamps: true,

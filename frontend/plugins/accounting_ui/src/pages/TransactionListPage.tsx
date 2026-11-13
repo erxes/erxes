@@ -32,9 +32,7 @@ export const TransactionListPage = () => {
   return (
     <AccountingLayout>
       <AccountingHeader>
-        <div className="px-3">
-          <AddTransactionButton />
-        </div>
+        <AddTransactionButton />
       </AccountingHeader>
       <PageSubHeader>
         <TransactionsFilter afterBar={<TrsTotalCount />} />

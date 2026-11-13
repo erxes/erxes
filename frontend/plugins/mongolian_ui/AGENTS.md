@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -72,6 +72,17 @@
   `sessionCode` matches the current tab's `sessionStorage.sessioncode`.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
+- The Put Response table shows status as an `erxes-ui` `Badge` from
+  `getPutResponseStatus` (success, error for non-`SUCCESS`, inactive for
+  `state: 'inactive'`), the same helper the deal widget uses, and the sending
+  user from `userId` through the `ui-modules` `MembersInline` (`-` when empty).
+  `inactiveId` is filled only on return / re-send records that cancel an
+  earlier bill, so ordinary receipts leave it blank.
+- The Put Response table pins the `more` and Bill ID (`id`) columns while
+  scrolling horizontally. Its `tableId` is
+  `mongolian_ebarimt_put_response_record_table_v2`: saved `localStorage` table
+  preferences override `stickyColumns`, so changing the default pinning needs
+  a new `tableId` suffix.
 - Put response pagination preserves the full loaded range's start/end cursors,
   prepends backward pages, and allows only one load-more request at a time.
 - Registers a product remainder provider that lets shared product choosers
@@ -90,6 +101,12 @@
   each row's printer icon prints that receipt, directly through
   `printEbarimtResponses` (the same popup receipt as the floating widget);
   a blocked pop-up shows an `allow-popups-to-print` toast.
+- The Put Response list row's more-menu Print (`print`) button prints that row's
+  eBarimt receipt through the same `printEbarimtResponses` popup; it is
+  disabled for rows without a bill `id` or with `state: 'inactive'`. Receipt
+  mapping, printability, and the `TIMEZONE` date display live in
+  `src/modules/ebarimt/put-response/utils/putResponsePrint.ts`, shared by the
+  list and the deal widget.
 - Uses `erxes-ui`, `ui-modules`, Apollo Client, Jotai, React Router, React Hook
   Form, Zod, and `react-i18next` following plugin-local patterns.
 - Put response list dates interpret timezone-less receipt timestamps (`yyyy-MM-dd HH:mm:ss`) as UTC and format them in the organization’s `TIMEZONE` (UTC when unset) as `yyyy-MM-dd HH:mm:ss`. Explicit timezone offsets are preserved when parsing. The table reads `TIMEZONE` through core `configsGetValue`. Missing or invalid receipt dates fall back to `createdAt`, formatted normally in browser local time, then `-`. This conversion is display-only; stored receipt values remain unchanged, and dates are not shown relatively.
@@ -226,6 +243,9 @@
   panes so nested tables and forms remain scrollable.
 - Put response cursor skeletons receive query loading state, including fetch-more;
   page merges use the public `mergeCursorData` helper to preserve both boundaries.
+- eBarimt put response receipts print through `printEbarimtResponses`, not the
+  `ui-modules` `PrintDocument` sheet: no backend registers a document type or
+  replacer for put responses, so a template sheet opens with nothing to print.
 - The product remainder provider must no-op when no sales `pipelineId` or no
   `remainderConfig` exists for that pipeline.
 

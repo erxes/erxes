@@ -513,6 +513,12 @@ export const permissions: IPermissionConfig = {
           description: 'Reset team member password',
         },
         {
+          title: 'Set member availability',
+          name: 'teamMembersSetAvailability',
+          description:
+            'Mark other team members available or unavailable and choose the segment that marks them busy',
+        },
+        {
           title: 'View member activity',
           name: 'teamMembersViewActivity',
           description: 'See when and how long other team members are active',
@@ -706,6 +712,26 @@ export const permissions: IPermissionConfig = {
           title: 'Force release approval locks',
           name: 'approvalLocksForceRelease',
           description: 'Force release locked resources with a reason',
+        },
+      ],
+    },
+    {
+      name: 'templates',
+      description: 'Templates that install solutions such as AI employees',
+      scopeField: null,
+      ownerFields: ['createdBy'],
+      scopes: [{ name: 'all', description: 'All installations' }],
+      actions: [
+        {
+          title: 'View templates',
+          name: 'templatesRead',
+          description: 'View templates and their installations',
+          always: true,
+        },
+        {
+          title: 'Install templates',
+          name: 'templatesInstall',
+          description: 'Install a template or remove an installation',
         },
       ],
     },
