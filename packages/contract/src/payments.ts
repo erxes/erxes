@@ -1,6 +1,4 @@
 import {
-  INVOICE_STATUSES,
-  PAYMENT_GATEWAY_KINDS,
   paymentGateways,
   paymentInvoices,
   paymentPluginSettings,
@@ -9,31 +7,11 @@ import {
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { InvoiceStatus, PaymentGatewayKind } from './values';
 import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
 import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { PluginName } from './plugins';
-
-/**
- * The gateways core can connect, and where each works: the currencies it
- * takes and the countries it serves (empty: any). QPay is Mongolian; global
- * ones (Stripe …) join here as drivers in `@erxes/payment-gateways`.
- */
-export const PAYMENT_GATEWAYS = {
-  qpay: { currencies: ['MNT'], countries: ['MN'] },
-  test: { currencies: [], countries: [] },
-} as const satisfies Record<string, { currencies: string[]; countries: string[] }>;
-
-export const PaymentGatewayKind = z.enum(PAYMENT_GATEWAY_KINDS);
-
-export type PaymentGatewayKind = z.infer<typeof PaymentGatewayKind>;
-
-/** Does this kind of gateway take this currency? */
-export const gatewayTakes = (kind: PaymentGatewayKind, currency: string) => {
-  const { currencies } = PAYMENT_GATEWAYS[kind];
-
-  return currencies.length === 0 || currencies.some((code) => code === currency);
-};
 
 /** What each gateway needs (secrets are write-only: never returned). */
 export const GatewayConfig = z.discriminatedUnion('kind', [
@@ -59,8 +37,6 @@ export const PaymentGateway = createSelectSchema(paymentGateways, { id: Id, crea
   });
 
 export type PaymentGateway = z.infer<typeof PaymentGateway>;
-
-export const InvoiceStatus = z.enum(INVOICE_STATUSES);
 
 /** The caller's own data on an invoice (order lines, room number): at most 8 KB of JSON, returned in events. */
 export const InvoiceMetadata = z

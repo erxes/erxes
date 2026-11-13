@@ -1,4 +1,5 @@
-import { CORE_API_PREFIX, coreContract } from '@erxes/core-contract';
+import { CORE_API_PREFIX, type coreContract } from '@erxes/core-contract';
+import { coreRoutes } from '@erxes/core-contract/routes';
 import { createORPCClient, ORPCError } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
@@ -11,7 +12,7 @@ import type { z } from 'zod';
  * Calls return the result or throw an `ORPCError` (`code`, `status`, `data`).
  */
 const client: ContractRouterClient<typeof coreContract> = createORPCClient(
-  new OpenAPILink(coreContract, {
+  new OpenAPILink(coreRoutes, {
     url: () => `${window.location.origin}${CORE_API_PREFIX}`,
     fetch: (request, init) => globalThis.fetch(request, { ...init, credentials: 'same-origin' }),
   }),

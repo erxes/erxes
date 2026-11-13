@@ -22,6 +22,7 @@ export default defineConfig({
       'coverage/**',
       'packages/db/drizzle/**',
       'packages/contract/openapi.json',
+      'packages/contract/routes.json',
       'pnpm-lock.yaml',
     ],
   },
@@ -140,8 +141,12 @@ export default defineConfig({
         },
       },
       {
-        // Table definitions reach the browser through the contract (noDriver).
-        files: ['packages/db/src/schema/**', 'packages/db/src/table.ts'],
+        // Table definitions ship inside the published contract (noDriver).
+        files: [
+          'packages/db/src/schema/**',
+          'packages/db/src/table.ts',
+          'packages/db/src/enums.ts',
+        ],
         rules: {
           'no-restricted-imports': ['error', { paths: decided, patterns: [noApps, noDriver] }],
         },

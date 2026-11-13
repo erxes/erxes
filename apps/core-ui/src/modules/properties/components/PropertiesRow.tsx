@@ -1,10 +1,9 @@
-import { Field } from '@erxes/core-contract';
 import { cn, RecordTable } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import type { ComponentProps } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { selectedFieldIdsState } from '../states';
-import { propertyEditPath } from './propertiesColumns';
+import { FieldLocation, propertyEditPath } from './propertiesColumns';
 
 /** A property's row; clicking it opens the property. */
 export const PropertiesRow = ({
@@ -14,7 +13,7 @@ export const PropertiesRow = ({
 }: ComponentProps<typeof RecordTable.Row>) => {
   const navigate = useNavigate();
   const selectedFieldIds = useAtomValue(selectedFieldIdsState);
-  const parsed = Field.safeParse(original);
+  const parsed = FieldLocation.safeParse(original);
   const field = parsed.success ? parsed.data : undefined;
   const isSelected = Boolean(field && selectedFieldIds[field.id]);
 

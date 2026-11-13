@@ -1,11 +1,9 @@
+import { LEAD_STAGE_KINDS } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, integer, text, uniqueIndex } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
-
-/** `open`: still being worked; `qualified`: ready to become a customer; `disqualified`: not a fit (lost). */
-export const LEAD_STAGE_KINDS = ['open', 'qualified', 'disqualified'] as const;
 
 /**
  * The stages a lead moves through, the organisation's own (New → Contacted →

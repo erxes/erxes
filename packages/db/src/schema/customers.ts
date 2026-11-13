@@ -1,3 +1,4 @@
+import { CUSTOMER_STATES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -14,8 +15,6 @@ import { pgTable } from '../table';
 import { leadStages } from './leadStages';
 import { organizations } from './organizations';
 import { users } from './users';
-
-export const CUSTOMER_STATES = ['lead', 'customer'] as const;
 
 /** ISO/IEC 5218: 0 not known, 1 male, 2 female, 9 not applicable. */
 export type CustomerSex = 0 | 1 | 2 | 9;

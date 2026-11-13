@@ -2,6 +2,7 @@ import { companies, customerCompanies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { CustomerSex } from './values';
 import {
   CursorQuery,
   CustomFields,
@@ -26,11 +27,6 @@ import {
 export const CustomerState = ContactState;
 
 export type CustomerState = z.infer<typeof CustomerState>;
-
-/** ISO/IEC 5218, as in erxes until now: 0 not known, 1 male, 2 female, 9 not applicable. */
-export const CustomerSex = z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(9)]);
-
-export type CustomerSex = z.infer<typeof CustomerSex>;
 
 /** A person the organisation works with; shared by every plugin. */
 export const Customer = createSelectSchema(customers, {

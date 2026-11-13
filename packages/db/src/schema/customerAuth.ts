@@ -1,3 +1,4 @@
+import { CUSTOMER_CODE_PURPOSES, CUSTOMER_LOGIN_KINDS } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -15,13 +16,7 @@ import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
-/** How a customer signs in: a code sent to an email address or a phone. */
-export const CUSTOMER_LOGIN_KINDS = ['email', 'phone'] as const;
-
 export type CustomerLoginKind = (typeof CUSTOMER_LOGIN_KINDS)[number];
-
-/** What a sign-in code is for: signing in (or up), or adding a login to a signed-in customer. */
-export const CUSTOMER_CODE_PURPOSES = ['sign_in', 'add_login'] as const;
 
 /**
  * An email address or phone a customer proved with a code: they sign in with

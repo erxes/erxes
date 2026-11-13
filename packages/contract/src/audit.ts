@@ -1,7 +1,8 @@
-import { AUDIT_STREAM_FORMATS, auditLogs, auditStreams } from '@erxes/core-db/schema';
+import { auditLogs, auditStreams } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { AuditStreamFormat } from './values';
 import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
 import { ActorRef } from './platform';
 
@@ -30,9 +31,6 @@ export const AuditEntry = createSelectSchema(auditLogs, {
   .extend({ actor: ActorRef });
 
 export type AuditEntry = z.infer<typeof AuditEntry>;
-
-/** Who changed what in core (owners and admins). */
-export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 
 const StreamUrl = z
   .string()

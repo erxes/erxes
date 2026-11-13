@@ -1,75 +1,59 @@
-// TanStack Table v8 hands out one mutable table, row and column object and changes what their
-// getters return in place. Compiled, these reads would be cached on objects that never change,
-// and selection, sizing and column order would stop showing. TanStack Table 9's store fixes this.
-'use no memo';
-
 import React from 'react';
 
 import { useDndContext } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { Column, Header } from '@tanstack/react-table';
 import { cva } from 'class-variance-authority';
 
 import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 
-import { useRecordTable } from './RecordTableProvider';
+import type { Header, RowData } from '@tanstack/react-table';
+import { useRecordTableState, type RecordTableFeatures } from './RecordTableProvider';
+
+type RecordTableHeader = Header<RecordTableFeatures, RowData>;
 
 const recordTableHeadVariants = cva(
   'sticky z-2 top-0 transition-transform duration-200 whitespace-nowrap text-xs [&_svg]:flex-none',
   {
     variants: {
-      isDragging: {
-        true: 'z-3',
-      },
-      isPinned: {
-        left: 'z-3',
-        right: 'z-3',
-      },
+      isDragging: { true: 'z-3' },
+      pinned: { true: 'z-3' },
     },
   },
 );
 
+/** A header cell: drag it to reorder its column, drag its right edge to resize it. */
 export const RecordTableHead = ({
   header,
+  pinned,
   children,
   className,
   ...props
 }: React.ComponentProps<'th'> & {
-  header: Header<unknown, unknown>;
+  header: RecordTableHeader;
+  pinned: boolean;
 }) => {
-  const { column } = header;
+  const { id } = header.column;
 
   const { attributes, isDragging, listeners, setNodeRef, transform } = useSortable({
-    id: column.id,
-    disabled: !!column.getIsPinned(),
+    id,
+    disabled: pinned,
   });
 
   return (
     <Table.Head
       ref={setNodeRef}
-      className={cn(
-        recordTableHeadVariants({
-          isDragging,
-          isPinned:
-            column.getIsPinned() === 'left'
-              ? 'left'
-              : column.getIsPinned() === 'right'
-                ? 'right'
-                : null,
-        }),
-        className,
-      )}
+      className={cn(recordTableHeadVariants({ isDragging, pinned }), className)}
       style={{
-        width: `var(--header-${column.id}-width)`,
-        left: column.getIsPinned() === 'left' ? `${column.getStart('left')}px` : undefined,
+        width: `var(--header-${header.id}-width)`,
+        left: pinned ? `var(--col-${id}-start)` : undefined,
       }}
       {...props}
     >
       {children}
-      {!isStructuralColumn(column.id) && (
+      {!isStructuralColumn(id) && (
         <>
           <span
             {...attributes}
@@ -86,49 +70,61 @@ export const RecordTableHead = ({
           )}
 
           <RecordTableHeadSize header={header} />
-          <RecordTableOverLine column={column} isDragging={isDragging} />
+          <RecordTableOverLine columnId={id} isDragging={isDragging} />
         </>
       )}
     </Table.Head>
   );
 };
 
+/** While a column is dragged, the line on the side where it would land. */
 const RecordTableOverLine = ({
-  column,
+  columnId,
   isDragging,
 }: {
-  column: Column<unknown>;
+  columnId: string;
   isDragging: boolean;
 }) => {
   const { over, active } = useDndContext();
-  const { table } = useRecordTable();
-  const { columnOrder, columnPinning } = table.getState();
+  const activeId = active?.id === undefined ? undefined : String(active.id);
 
-  if (over?.id !== column.id || isDragging || !active?.id) return null;
+  const side = useRecordTableState(({ columnOrder, columnPinning }) => {
+    if (over?.id !== columnId || isDragging || !activeId) return null;
 
-  if (columnPinning.left?.includes(column.id)) return null;
+    if (columnPinning.start?.includes(columnId)) return null;
 
-  const isOnRight = columnOrder.indexOf(String(active.id)) < columnOrder.indexOf(column.id);
+    return columnOrder.indexOf(activeId) < columnOrder.indexOf(columnId) ? 'right' : 'left';
+  });
+
+  if (!side) return null;
 
   return (
     <div
       className={cn(
         'absolute top-0 w-0.5 bg-primary/40 h-screen',
-        isOnRight ? 'right-0' : 'left-0',
+        side === 'right' ? 'right-0' : 'left-0',
       )}
     />
   );
 };
 
 /** The handle that resizes a column; like the column reorder, it is pointer-only. */
-const RecordTableHeadSize = ({ header }: { header: Header<unknown, unknown> }) => (
-  <span
-    aria-hidden
-    className={cn(
-      'absolute bottom-0 cursor-col-resize w-4 h-full right-0 z-10 select-none touch-none after:absolute after:inset-y-2 after:w-px after:right-0 hover:after:bg-border',
-      header.column.getIsResizing() && 'after:w-0.5 hover:after:bg-primary after:inset-y-1',
-    )}
-    onMouseDown={header.getResizeHandler()}
-    onTouchStart={header.getResizeHandler()}
-  />
-);
+const RecordTableHeadSize = ({ header }: { header: RecordTableHeader }) => {
+  const resizing = useRecordTableState(
+    (state) => state.columnResizing.isResizingColumn === header.column.id,
+  );
+
+  const startResize = header.getResizeHandler();
+
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'absolute bottom-0 cursor-col-resize w-4 h-full right-0 z-10 select-none touch-none after:absolute after:inset-y-2 after:w-px after:right-0 hover:after:bg-border',
+        resizing && 'after:w-0.5 hover:after:bg-primary after:inset-y-1',
+      )}
+      onMouseDown={startResize}
+      onTouchStart={startResize}
+    />
+  );
+};

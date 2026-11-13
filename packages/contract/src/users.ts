@@ -1,4 +1,5 @@
-import { USER_STATUSES, users } from '@erxes/core-db/schema';
+import { USER_STATUSES } from '@erxes/core-db/enums';
+import { users } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -12,29 +13,11 @@ import {
   ImageAddress,
   isoDate,
 } from './common';
-import { RoleKey } from './roles';
+import { NewPassword, RoleKey, UserLinkName } from './values';
 
-/** A role key: `owner`, `admin`, `member` or a custom role (`r_…`). See `./roles`. */
-export const UserRole = RoleKey;
 export const UserStatus = z.enum(USER_STATUSES);
 
-export type UserRole = z.infer<typeof UserRole>;
-
 export type UserStatus = z.infer<typeof UserStatus>;
-
-/** Social links a member can show (old erxes `users.links`). */
-export const USER_LINK_NAMES = [
-  'facebook',
-  'twitter',
-  'website',
-  'discord',
-  'github',
-  'instagram',
-] as const;
-
-export const UserLinkName = z.enum(USER_LINK_NAMES);
-
-export type UserLinkName = z.infer<typeof UserLinkName>;
 
 export const UserLinks = z.record(z.string(), z.string());
 
@@ -44,7 +27,7 @@ export type UserLinks = z.infer<typeof UserLinks>;
 export const User = createSelectSchema(users, {
   id: Id,
   email: z.email(),
-  role: UserRole,
+  role: RoleKey,
   links: UserLinks,
   onboardedAt: isoDate,
   createdAt: isoDate,
@@ -126,7 +109,7 @@ const UserFields = createUpdateSchema(users, {
   links: z.partialRecord(UserLinkName, z.string().trim().max(500).nullable()).optional(),
   email: (email) => email.trim().check(z.email()).max(254),
   avatarUrl: () => ImageAddress,
-  role: () => UserRole,
+  role: () => RoleKey,
 }).pick({
   fullName: true,
   username: true,
@@ -145,23 +128,14 @@ const UserFields = createUpdateSchema(users, {
   role: true,
 });
 
-/** As sign-up (`NewPassword` in auth.ts, which imports this file). */
-const MemberPassword = z
-  .string()
-  .min(8, 'At least 8 characters')
-  .max(200)
-  .regex(/[a-z]/, 'Add a lower-case letter')
-  .regex(/[A-Z]/, 'Add an upper-case letter')
-  .regex(/\d/, 'Add a digit');
-
 const InviteEntry = z.object({
   email: z.string().trim().check(z.email()).max(254),
-  role: UserRole.refine(
+  role: RoleKey.refine(
     (role) => role !== 'owner',
     'invite as admin or member, then make them owner',
   ).default('member'),
   /** Given: the member can sign in at once (active). Otherwise they stay invited. */
-  password: MemberPassword.optional(),
+  password: NewPassword.optional(),
   ...UserFields.pick({ fullName: true, username: true }).shape,
 });
 
@@ -181,7 +155,7 @@ export const usersContract = {
         status: UserStatus.optional(),
         /** `true`: invited and active members; `false`: disabled ones. */
         isActive: QueryBoolean.optional(),
-        role: UserRole.optional(),
+        role: RoleKey.optional(),
         ids: IdList.optional(),
       }),
     )
@@ -232,7 +206,7 @@ export const usersContract = {
       summary:
         'Set another member’s password (owners and admins; an invited member becomes active)',
     })
-    .input(z.object({ id: Id, password: MemberPassword }))
+    .input(z.object({ id: Id, password: NewPassword }))
     .output(User),
   disable: oc
     .route({ method: 'POST', path: '/users/{id}/disable' })

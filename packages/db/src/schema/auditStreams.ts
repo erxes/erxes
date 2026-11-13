@@ -1,3 +1,4 @@
+import { AUDIT_STREAM_FORMATS, AUDIT_STREAM_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { bigint, check, foreignKey, index, integer, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
@@ -5,9 +6,6 @@ import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
-
-export const AUDIT_STREAM_FORMATS = ['erxes', 'datadog', 'splunk'] as const;
-export const AUDIT_STREAM_STATUSES = ['active', 'paused'] as const;
 
 /**
  * Sends an organisation's audit log, in chain order, to a log service as it

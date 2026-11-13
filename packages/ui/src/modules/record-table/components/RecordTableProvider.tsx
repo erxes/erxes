@@ -1,22 +1,44 @@
 import { createContext, useContext, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { shallow, useSelector } from '@tanstack/react-store';
 import {
-  getCoreRowModel,
-  useReactTable,
+  columnOrderingFeature,
+  columnPinningFeature,
+  columnResizingFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  rowSelectionFeature,
+  tableFeatures,
+  useTable,
   type ColumnDef,
-  type ColumnFiltersState,
-  type RowSelectionState,
-  type SortingState,
+  type RowData,
   type Table,
-  type TableOptions,
+  type TableState,
 } from '@tanstack/react-table';
 import { useColumnLayout } from '../hooks/useColumnLayout';
 import { readRow } from '../utils/rowFields';
 import { RecordTableContainer } from './RecordTableContainer';
 import { RecordTableDnDProvider } from './RecordTableDnDProvider';
 
+/** What every record table can do: reorder, pin, size, resize and hide columns, select rows. */
+const recordTableFeatures = tableFeatures({
+  columnOrderingFeature,
+  columnPinningFeature,
+  columnResizingFeature,
+  columnSizingFeature,
+  columnVisibilityFeature,
+  rowSelectionFeature,
+});
+
+export type RecordTableFeatures = typeof recordTableFeatures;
+
+/** A record table column for rows of `TData`. */
+export type RecordTableColumnDef<TData extends RowData> = ColumnDef<RecordTableFeatures, TData>;
+
+/** Rows are typed `RowData` here: every table shares this context, whatever its data. */
+export type RecordTableInstance = Table<RecordTableFeatures, RowData>;
+
 interface IRecordTableContext {
-  /** Rows are typed `unknown` here: every table shares this context, whatever its data. */
-  table: Table<unknown>;
+  table: RecordTableInstance;
   columnSelectorOpen: boolean;
   setColumnSelectorOpen: (open: boolean) => void;
 }
@@ -33,32 +55,43 @@ export function useRecordTable() {
   return context;
 }
 
+/**
+ * Subscribes to the table's state and renders from what `select` returns. The table, its rows,
+ * columns and headers are stable objects whose getters return new values as the state changes,
+ * so the compiler would cache those reads; call them inside `select`, never during render.
+ * `select` also runs again when the table's options (data, columns, layout) change.
+ */
+export const useRecordTableState = <T,>(
+  select: (state: TableState<RecordTableFeatures>, table: RecordTableInstance) => T,
+) => {
+  const { table } = useRecordTable();
+
+  return useSelector(table.store, (state) => select(state, table), { compare: shallow });
+};
+
 /** A row's `_id` or `id`, else tanstack's default (its index under its parent). */
 const getRowId = (row: unknown, index: number, parent?: { id: string }) =>
   readRow(row).id ?? (parent ? `${parent.id}.${index}` : String(index));
 
-export interface RecordTableProviderProps<TData> extends HTMLAttributes<HTMLDivElement> {
+export interface RecordTableProviderProps<
+  TData extends RowData,
+> extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
-  columns: ColumnDef<TData>[];
+  columns: RecordTableColumnDef<TData>[];
   data: TData[];
-  tableOptions?: Partial<TableOptions<TData>>;
   stickyColumns?: string[];
   tableId?: string;
 }
 
-export const RecordTableProvider = <TData,>({
+export const RecordTableProvider = <TData extends RowData>({
   children,
   columns,
   data,
-  tableOptions,
   stickyColumns,
   tableId,
   ...containerProps
 }: RecordTableProviderProps<TData>) => {
   const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const { state, setColumnOrder, ...layoutHandlers } = useColumnLayout({
     columnIds: columns.map((column) => column.id ?? ''),
@@ -66,25 +99,25 @@ export const RecordTableProvider = <TData,>({
     tableId,
   });
 
-  // oxlint-disable-next-line react/incompatible-library -- tanstack's useReactTable returns a mutable table: the compiler skips this component, and the record-table files that read the table opt out with 'use no memo'
-  const table = useReactTable({
-    data,
-    columns,
-    defaultColumn: { maxSize: 800 },
-    getCoreRowModel: getCoreRowModel(),
-    state: { ...state, sorting, columnFilters, rowSelection },
-    columnResizeMode: 'onChange',
-    onColumnOrderChange: setColumnOrder,
-    ...layoutHandlers,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onRowSelectionChange: setRowSelection,
-    getRowId,
-    ...tableOptions,
-  });
+  // The column layout is React state, so a layout change renders the table again. Row
+  // selection stays inside the table: a checkbox re-renders only what subscribes to it.
+  const table = useTable(
+    {
+      features: recordTableFeatures,
+      data,
+      columns,
+      defaultColumn: { maxSize: 800 },
+      state,
+      columnResizeMode: 'onChange',
+      onColumnOrderChange: setColumnOrder,
+      ...layoutHandlers,
+      getRowId,
+    },
+    () => null,
+  );
 
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- tanstack's Table is invariant in its row type; the shared context holds any table, and readers treat rows as unknown
-  const shared = table as unknown as Table<unknown>;
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- tanstack's Table is invariant in its row type; the shared context holds any table, and readers treat rows as RowData
+  const shared = table as unknown as RecordTableInstance;
 
   return (
     <RecordTableContext.Provider

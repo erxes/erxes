@@ -123,7 +123,7 @@ export { useUpload } from './hooks/use-upload';
 
 export { cn } from './lib/utils';
 
-export { Editor } from './modules/blocks/components/Editor';
+export { Editor } from './modules/blocks/components/LazyEditor';
 
 export { EmailDisplay } from './modules/display/components/EmailDisplay';
 
@@ -174,6 +174,8 @@ export { TextField } from './modules/record-field/components/TextField';
 export { PhoneInput } from './modules/record-field/meta-inputs/components/PhoneInput';
 
 export { RecordTable } from './modules/record-table/components/RecordTable';
+
+export type { RecordTableColumnDef } from './modules/record-table/components/RecordTableProvider';
 
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 

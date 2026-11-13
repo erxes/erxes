@@ -1,4 +1,5 @@
-import { RUN_STATUSES, automationRunSteps, automationRuns } from '@erxes/core-db/schema';
+import { RUN_STATUSES } from '@erxes/core-db/enums';
+import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { Id, isoDate } from './common';

@@ -1,6 +1,6 @@
-import type { Field } from '@erxes/core-contract';
+import { type Field, FieldContentType } from '@erxes/core-contract';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import type { Cell, ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Checkbox,
   DropdownMenu,
@@ -13,13 +13,21 @@ import type { TFunction } from 'i18next';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { z } from 'zod';
 import { propertiesPath } from '../constants';
 import { FIELD_TYPES_OBJECT } from '../fieldTypes';
 import { archiveTargetState, selectedFieldIdsState } from '../states';
 import { useCanManageFields, useEditProperty } from '../usePropertyMutations';
 
+/** What a field's edit page path needs; a row parses this, not the whole field. */
+export const FieldLocation = z.object({
+  id: z.string(),
+  contentType: FieldContentType,
+  groupId: z.string().nullable(),
+});
+
 /** The edit page of a field. */
-export const propertyEditPath = (field: Field) =>
+export const propertyEditPath = (field: z.infer<typeof FieldLocation>) =>
   `${propertiesPath(field.contentType)}/${field.groupId ?? 'ungrouped'}/${field.id}`;
 
 const PropertiesCheckboxCell = ({ id }: { id: string }) => {
@@ -73,10 +81,9 @@ const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
   );
 };
 
-const PropertiesMoreColumnCell = ({ cell }: { cell: Cell<Field, unknown> }) => {
+const PropertiesMoreColumnCell = ({ field }: { field: Field }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
-  const field = cell.row.original;
   const setArchiveTarget = useSetAtom(archiveTargetState);
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
 
@@ -116,10 +123,10 @@ const PropertiesMoreColumnCell = ({ cell }: { cell: Cell<Field, unknown> }) => {
   );
 };
 
-const PropertyVisibleCell = ({ cell, label }: { cell: Cell<Field, unknown>; label: string }) => {
+const PropertyVisibleCell = ({ field, label }: { field: Field; label: string }) => {
   const { mutate } = useEditProperty();
   const manager = useCanManageFields();
-  const { id, isVisible } = cell.row.original;
+  const { id, isVisible } = field;
 
   return (
     <RecordTableInlineCell>
@@ -140,7 +147,7 @@ const PropertyVisibleCell = ({ cell, label }: { cell: Cell<Field, unknown>; labe
 export const propertiesColumns = (
   t: TFunction,
   { fieldIds }: { fieldIds: string[] },
-): ColumnDef<Field>[] => [
+): RecordTableColumnDef<Field>[] => [
   {
     id: 'checkbox',
     accessorKey: 'checkbox',
@@ -207,12 +214,12 @@ export const propertiesColumns = (
     id: 'isVisible',
     accessorKey: 'isVisible',
     header: () => <RecordTable.InlineHead label={t('visible', 'Visible')} />,
-    cell: ({ cell }) => <PropertyVisibleCell cell={cell} label={t('visible', 'Visible')} />,
+    cell: ({ row }) => <PropertyVisibleCell field={row.original} label={t('visible', 'Visible')} />,
     size: 90,
   },
   {
     id: 'more',
-    cell: ({ cell }) => <PropertiesMoreColumnCell cell={cell} />,
+    cell: ({ row }) => <PropertiesMoreColumnCell field={row.original} />,
     size: 33,
   },
 ];

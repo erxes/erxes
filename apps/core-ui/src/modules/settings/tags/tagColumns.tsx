@@ -1,7 +1,7 @@
 import type { Tag } from '@erxes/core-contract';
 import { IconCalendarPlus, IconLabelFilled, IconPalette, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Button,
   cn,
@@ -154,7 +154,7 @@ const CreatedCell = ({ tag }: { tag: Tag }) => (
   </RelativeDateDisplay>
 );
 
-const deleteColumn: ColumnDef<Tag> = {
+const deleteColumn: RecordTableColumnDef<Tag> = {
   id: 'more',
   header: () => null,
   cell: ({ row }) => <DeleteCell tag={row.original} />,
@@ -162,7 +162,7 @@ const deleteColumn: ColumnDef<Tag> = {
 };
 
 /** The tag table's columns; managers also get Delete. */
-export const tagColumns = (manager: boolean): ColumnDef<Tag>[] => [
+export const tagColumns = (manager: boolean): RecordTableColumnDef<Tag>[] => [
   ...(manager ? [deleteColumn] : []),
   {
     id: 'color',

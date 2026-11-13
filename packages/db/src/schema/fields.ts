@@ -1,3 +1,4 @@
+import { FIELD_CONTENT_TYPES, FIELD_TYPES, FIELD_VALIDATIONS } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -10,25 +11,8 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { createdAt, FIELD_CONTENT_TYPES, updatedAt } from './common';
+import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
-
-export const FIELD_TYPES = [
-  'text',
-  'textarea',
-  'number',
-  'date',
-  'boolean',
-  'select',
-  'multiselect',
-  'radio',
-  'check',
-  'phone',
-  'list',
-] as const;
-
-/** Formats a text field's values must have. */
-export const FIELD_VALIDATIONS = ['number', 'email', 'date'] as const;
 
 /**
  * Groups that properties of a record type are organised in (old erxes field

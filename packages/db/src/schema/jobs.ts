@@ -1,3 +1,4 @@
+import { JOB_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -14,8 +15,6 @@ import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
-
-export const JOB_STATUSES = ['queued', 'running', 'dead'] as const;
 
 export type JobStatus = (typeof JOB_STATUSES)[number];
 

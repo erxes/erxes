@@ -1,3 +1,4 @@
+import { PRODUCT_KINDS, PRODUCT_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -12,9 +13,6 @@ import {
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
-
-export const PRODUCT_KINDS = ['goods', 'service'] as const;
-export const PRODUCT_STATUSES = ['active', 'archived'] as const;
 
 /** Groups of products, nested by `parentId`. */
 export const productCategories = pgTable(

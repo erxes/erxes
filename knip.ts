@@ -17,7 +17,9 @@ const config: KnipConfig = {
       project: ['src/**/*.ts', 'scripts/**/*.ts'],
     },
     'apps/core-ui': {
-      project: ['src/**/*.{ts,tsx,css}'],
+      // The opt-in perf scripts, run by hand with `pnpm perf` and `pnpm perf:seed`.
+      entry: ['e2e/perf/*.ts'],
+      project: ['src/**/*.{ts,tsx,css}', 'e2e/**/*.ts'],
     },
     'packages/contract': {
       project: ['src/**/*.ts'],

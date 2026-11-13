@@ -1,4 +1,4 @@
-import { CONTENT_TYPES, FIELD_CONTENT_TYPES } from '@erxes/core-db/schema';
+import { CONTENT_TYPES, FIELD_CONTENT_TYPES } from '@erxes/core-db/enums';
 import { z } from 'zod';
 
 export const Id = z.string().min(1).max(64);

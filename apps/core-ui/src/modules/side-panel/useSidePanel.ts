@@ -91,14 +91,17 @@ export const useSidePanel = () => {
   const setDraft = useSetAtom(sidePanelDraftState);
   const record = useMemo(() => parseSidePanelRecord(path), [path]);
 
+  // The open actions read the route at call time, so they keep one identity and the
+  // table cells that only open records skip rendering when the panel changes.
   const openPath = (nextPath: string, options?: IOpenRecordOptions) =>
     openPathIn(latest.current, nextPath, options, () => setSession((session) => session + 1));
 
   /** Opens a record; a repeated top-level draft starts a fresh session. */
   const openRecord = (entity: TRelationEntity, options?: IOpenRecordOptions) => {
+    const now = latest.current;
     const nextPath = getSidePanelRecordPath(entity);
 
-    if (nextPath !== path || entity.contentId !== NEW_RECORD_ID) {
+    if (nextPath !== now.path || entity.contentId !== NEW_RECORD_ID) {
       openPath(nextPath, options);
 
       return;
@@ -106,7 +109,7 @@ export const useSidePanel = () => {
 
     if (!options?.stack && !options?.replace) {
       setSession((session) => session + 1);
-      navigate(nextPath, [], false, '');
+      now.navigate(nextPath, [], false, '');
     }
   };
 
@@ -125,8 +128,9 @@ export const useSidePanel = () => {
     setDraft({ contentType, defaults });
 
     const entity = { contentType, contentId: NEW_RECORD_ID };
+    const now = latest.current;
 
-    if (navigator) navigator.openRecord(entity, options);
+    if (now.navigator) now.navigator.openRecord(entity, options);
     else openPath(`${getSidePanelRecordPath(entity)}/${draftId()}`, options);
   };
 

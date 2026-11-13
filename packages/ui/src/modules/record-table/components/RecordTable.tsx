@@ -11,7 +11,7 @@ import {
 import { RecordTableHead } from './RecordTableHead';
 import { RecordTableHeader } from './RecordTableHeader';
 import { RecordTableInlineHead } from './RecordTableInlineHead';
-import { RecordTableProvider, useRecordTable } from './RecordTableProvider';
+import { RecordTableProvider, useRecordTable, useRecordTableState } from './RecordTableProvider';
 import { RecordTableRoot } from './RecordTableRoot';
 import { RecordTableRow } from './RecordTableRow';
 import { RecordTableRowList } from './RecordTableRowList';
@@ -27,6 +27,7 @@ export const RecordTable = Object.assign(RecordTableRoot, {
   Body: Table.Body,
   Cell: RecordTableCell,
   useRecordTable,
+  useRecordTableState,
   RowSkeleton: RecordTableRowSkeleton,
   MoreButton: RecordTableMoreButton,
   checkboxColumn,

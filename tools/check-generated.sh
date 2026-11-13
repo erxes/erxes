@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Regenerates the committed artifacts and fails if any differ: migrations
-# (drizzle-kit, from packages/db/src/schema) and the OpenAPI document.
+# (drizzle-kit, from packages/db/src/schema), the OpenAPI document and routes.json.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-generated=(packages/db/drizzle packages/contract/openapi.json)
+generated=(packages/db/drizzle packages/contract/openapi.json packages/contract/routes.json)
 
 pnpm --silent db:check
 pnpm --silent db:generate
@@ -24,4 +24,4 @@ if [ -n "$drift" ]; then
   exit 1
 fi
 
-echo 'Migration snapshots and openapi.json match the schema and the contract.'
+echo 'Migration snapshots, openapi.json and routes.json match the schema and the contract.'

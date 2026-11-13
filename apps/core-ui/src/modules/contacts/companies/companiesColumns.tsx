@@ -14,7 +14,7 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Avatar,
   Combobox,
@@ -75,7 +75,8 @@ const CompanyMoreColumnCell = ({ company }: { company: Company }) => {
 
 /** The name, edited in place (Enter saves); the link opens the company. */
 const CompanyNameCell = ({ company }: { company: Company }) => {
-  const edit = useCompanyEdit();
+  // `mutate` keeps one identity, the mutation result does not.
+  const { mutate } = useCompanyEdit();
   const openCompany = useOpenCompany();
   const { id, primaryName } = company;
   const [editingName, setEditingName] = useState(primaryName);
@@ -90,10 +91,7 @@ const CompanyNameCell = ({ company }: { company: Company }) => {
   const handleEnter = () => {
     if (!editingName.trim() || editingName.trim() === primaryName) return;
 
-    edit.mutate(
-      { id, primaryName: editingName.trim() },
-      { onError: () => setEditingName(primaryName) },
-    );
+    mutate({ id, primaryName: editingName.trim() }, { onError: () => setEditingName(primaryName) });
   };
 
   return (
@@ -117,7 +115,7 @@ const textColumn = (
   label: string,
   size: number,
   valueOf: (company: Company) => string,
-): ColumnDef<Company> => ({
+): RecordTableColumnDef<Company> => ({
   id,
   accessorKey: id,
   header: () => <RecordTable.InlineHead icon={icon} label={label} />,
@@ -130,7 +128,7 @@ const textColumn = (
 });
 
 /** Selection, the picture and the name. */
-const identityColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
+const identityColumns = (t: (key: string) => string): RecordTableColumnDef<Company>[] => [
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
@@ -162,7 +160,7 @@ const identityColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
 ];
 
 /** Company columns. */
-const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
+const createCompanyColumns = (t: (key: string) => string): RecordTableColumnDef<Company>[] => [
   ...identityColumns(t),
   {
     id: 'emails',

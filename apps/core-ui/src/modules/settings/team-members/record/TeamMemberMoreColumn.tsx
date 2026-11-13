@@ -1,7 +1,7 @@
 import type { User } from '@erxes/core-contract';
 import { IconEdit, IconMailForward } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import type { Cell, ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import { Combobox, Command, Popover, RecordTable, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '~/lib/api';
 import { useCan } from '~/modules/auth/session';
@@ -10,11 +10,10 @@ import { useTranslation } from 'react-i18next';
 import { useOpenMemberPanel } from '../details/useMemberPanel';
 import { useMemberPermissions } from '../useTeamMembers';
 
-const TeamMemberMoreColumnCell = ({ cell }: { cell: Cell<User, unknown> }) => {
+const TeamMemberMoreColumnCell = ({ user }: { user: User }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [menuOpen, setMenuOpen] = useState(false);
   const openPanel = useOpenMemberPanel();
-  const user = cell.row.original;
   const permissions = useMemberPermissions(user);
   const can = useCan();
   const { toast } = useToast();
@@ -67,9 +66,9 @@ const TeamMemberMoreColumnCell = ({ cell }: { cell: Cell<User, unknown> }) => {
   );
 };
 
-export const teamMemberMoreColumn: ColumnDef<User> = {
+export const teamMemberMoreColumn: RecordTableColumnDef<User> = {
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
-  cell: TeamMemberMoreColumnCell,
+  cell: ({ row }) => <TeamMemberMoreColumnCell user={row.original} />,
   size: 33,
 };

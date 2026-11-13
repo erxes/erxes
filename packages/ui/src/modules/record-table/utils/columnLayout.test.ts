@@ -4,7 +4,7 @@ import { fitLayout, mergeColumnOrder, pinColumns, withStructuralFirst } from './
 const layout = {
   fittedTo: '',
   columnOrder: ['name', 'email'],
-  columnPinning: { left: ['name'] },
+  columnPinning: { start: ['name'], end: [] },
   seen: ['name', 'email'],
   sticky: ['name'],
   pinningTouched: false,
@@ -51,22 +51,26 @@ describe('fitLayout', () => {
       followSticky: false,
     });
 
-    expect(fitted.columnPinning.left).toEqual(['name', 'email']);
+    expect(fitted.columnPinning.start).toEqual(['name', 'email']);
 
-    const unpinned = { ...fitted, columnPinning: { left: ['name'] }, pinningTouched: true };
+    const unpinned = {
+      ...fitted,
+      columnPinning: { start: ['name'], end: [] },
+      pinningTouched: true,
+    };
 
     expect(
       fitLayout(unpinned, {
         ids: ['name', 'email'],
         sticky: ['name', 'email'],
         followSticky: false,
-      }).columnPinning.left,
+      }).columnPinning.start,
     ).toEqual(['name']);
   });
 
   it('follows the sticky columns until the member changes the pinning', () => {
     const fitted = fitLayout(layout, { ids: ['name', 'email'], sticky: [], followSticky: true });
 
-    expect(fitted.columnPinning.left).toEqual([]);
+    expect(fitted.columnPinning.start).toEqual([]);
   });
 });

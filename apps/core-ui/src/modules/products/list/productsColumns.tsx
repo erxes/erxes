@@ -11,7 +11,7 @@ import {
   IconRestore,
   IconTag,
 } from '@tabler/icons-react';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import { Badge, Combobox, Command, Popover, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -113,7 +113,7 @@ const PluginsCell = ({ names }: { names: string[] }) => {
 
 type Translate = (key: string, defaultValue: string) => string;
 
-const createColumns = (t: Translate): ColumnDef<Product>[] => [
+const createColumns = (t: Translate): RecordTableColumnDef<Product>[] => [
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,

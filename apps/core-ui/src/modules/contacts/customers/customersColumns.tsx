@@ -9,7 +9,7 @@ import {
   IconTags,
   IconUser,
 } from '@tabler/icons-react';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Avatar,
   Combobox,
@@ -72,7 +72,8 @@ const CustomerMoreColumnCell = ({ customer }: { customer: Customer }) => {
 };
 
 const CustomerNameCell = ({ customer }: { customer: Customer }) => {
-  const edit = useCustomerEdit();
+  // `mutate` keeps one identity, the mutation result does not.
+  const { mutate } = useCustomerEdit();
   const openCustomer = useOpenCustomer();
   const { id, firstName, middleName, lastName } = customer;
 
@@ -82,7 +83,7 @@ const CustomerNameCell = ({ customer }: { customer: Customer }) => {
       lastName={`${middleName || ''}${middleName ? ' ' : ''}${lastName || ''}`}
       scope={`customers-page.${id}.Name`}
       onSave={(nextFirstName, nextLastName) =>
-        edit.mutate({
+        mutate({
           id,
           firstName: nextFirstName || null,
           middleName: null,
@@ -131,7 +132,7 @@ const DateCell = ({ value }: { value: string }) => (
 );
 
 /** Selection, the picture and the name. */
-const identityColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
+const identityColumns = (t: (key: string) => string): RecordTableColumnDef<Customer>[] => [
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
@@ -167,7 +168,7 @@ const identityColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
 ];
 
 /** Customer columns. */
-const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
+const createCustomersColumns = (t: (key: string) => string): RecordTableColumnDef<Customer>[] => [
   ...identityColumns(t),
   {
     id: 'emails',

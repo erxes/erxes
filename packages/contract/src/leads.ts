@@ -1,4 +1,5 @@
-import { CUSTOMER_STATES, LEAD_STAGE_KINDS, leadEvents, leadStages } from '@erxes/core-db/schema';
+import { CUSTOMER_STATES, LEAD_STAGE_KINDS } from '@erxes/core-db/enums';
+import { leadEvents, leadStages } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

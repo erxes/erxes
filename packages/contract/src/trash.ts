@@ -1,4 +1,5 @@
-import { ACTOR_TYPES, trash } from '@erxes/core-db/schema';
+import { ACTOR_TYPES } from '@erxes/core-db/enums';
+import { trash } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';

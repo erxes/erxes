@@ -1,11 +1,10 @@
+import { LEAD_EVENTS } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { companies } from './companies';
 import { customers } from './customers';
 import { organizations } from './organizations';
-
-export const LEAD_EVENTS = ['created', 'stage', 'converted', 'reopened'] as const;
 
 /**
  * A lead's journey: where it entered, every stage move, its conversion to a

@@ -1,3 +1,4 @@
+import { EXPORT_STATUSES, IMPORT_STATUSES, TRANSFER_RECORD_TYPES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -23,21 +24,6 @@ export interface ExportQuery {
 }
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
-
-export const TRANSFER_RECORD_TYPES = ['customer', 'lead', 'company'] as const;
-
-export const IMPORT_STATUSES = [
-  'parsing',
-  'mapping',
-  'checking',
-  'checked',
-  'running',
-  'done',
-  'failed',
-  'undone',
-] as const;
-
-export const EXPORT_STATUSES = ['running', 'done', 'failed'] as const;
 
 export interface ImportOptions {
   /** `create`: new records only (existing ones skipped); `update`: existing only; `upsert`: both. */

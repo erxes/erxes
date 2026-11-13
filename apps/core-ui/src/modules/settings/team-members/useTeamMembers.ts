@@ -1,4 +1,4 @@
-import { type User, UserRole } from '@erxes/core-contract';
+import { type User, RoleKey } from '@erxes/core-contract';
 import { z } from 'zod';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
@@ -17,7 +17,7 @@ const useTeamMemberFilters = () => {
   const [{ searchValue, isActive, role }] = useMultiQueryState({
     searchValue: z.string(),
     isActive: z.boolean(),
-    role: UserRole,
+    role: RoleKey,
   });
 
   return {
