@@ -10417,6 +10417,25 @@
               "type": "string"
             }
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archivedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "customFields": {
             "type": "object",
             "propertyNames": {
@@ -10446,25 +10465,6 @@
                 }
               ]
             }
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "archivedAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "required": [
@@ -10485,10 +10485,10 @@
           "widthMm",
           "heightMm",
           "plugins",
-          "customFields",
           "createdAt",
           "updatedAt",
-          "archivedAt"
+          "archivedAt",
+          "customFields"
         ]
       },
       "ProductCategory": {
