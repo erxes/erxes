@@ -3,7 +3,7 @@ import {
   IconBookmark,
   IconChevronDown,
   IconCopy,
-  IconDots,
+  IconDotsVertical,
   IconLayoutList,
   IconLink,
   IconLock,
@@ -123,7 +123,7 @@ const ViewMenu = ({
             aria-label={t('actions', { name: view.name })}
             className="flex h-5 w-0 shrink-0 items-center justify-center overflow-hidden rounded text-muted-foreground opacity-0 transition-[width,margin,opacity] duration-150 hover:bg-muted hover:text-foreground focus-visible:ml-1 focus-visible:w-5 focus-visible:opacity-100 group-hover/tab:ml-1 group-hover/tab:w-5 group-hover/tab:opacity-100 data-[state=open]:ml-1 data-[state=open]:w-5 data-[state=open]:opacity-100 motion-reduce:transition-none"
           >
-            <IconDots className="size-3.5" />
+            <IconDotsVertical className="size-3.5" />
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="start" className="min-w-48">
