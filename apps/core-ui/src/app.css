@@ -54,10 +54,6 @@
   height: 100%;
 }
 
-.sales-description .bn-editor {
-  padding: 0;
-}
-
 .bn-shadcn .bn-editor {
   background-color: transparent;
 }
@@ -159,49 +155,6 @@
 
 [data-content-type='heading'][data-level='3'] {
   --level: 16px;
-}
-
-.document-block-editor > .bn-container {
-  display: flex;
-  align-items: flex-start;
-}
-.document-block-editor > .bn-container > .bn-editor {
-  flex: 1;
-  min-width: 0;
-}
-.document-block-editor .document-comments-sidebar {
-  flex: none;
-  min-width: 0;
-  width: 320px;
-  max-width: 40%;
-  padding: 12px;
-}
-.document-block-editor .bn-threads-sidebar {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  padding: 2px;
-  overflow: visible;
-}
-.document-comments-sidebar .erxes-comment-card {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.document-comments-sidebar .erxes-comment-card[data-selected='true'] {
-  border-color: var(--erxes-block-primary);
-  box-shadow: var(--shadow-focus);
-}
-.document-comments-sidebar .erxes-comment-card textarea {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-.document-comments-sidebar .bn-action-toolbar {
-  flex-wrap: wrap;
 }
 
 .erxes-blocknote {
