@@ -7,38 +7,26 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
 `apps/core-api/src/modules/tags/tags.service.ts`, `apps/core-api/src/modules/tags/tags.router.ts`,
 `apps/core-ui/src/modules/tags/useTags.ts`, and the `tags` tests in `apps/core-api/src/__tests__/contacts.test.ts`.
 
-1. Declare the procedure in `packages/contract/src/<domain>.ts`:
-   `oc.route({ method, path, successStatus, summary }).input(schema).output(schema)`. Input is one
-   object (path params, query and body merged). Name each new error code in the summary. Reuse
-   `Id`, `CursorQuery` and `cursorPageOf` from `common.ts`. A new group goes into `coreContract` in
-   `src/index.ts`. A row or input that mirrors a table starts from it, as `Tag` and `TagFields` do:
-   `createSelectSchema(table, { id: Id, createdAt: isoDate }).pick({ ... })` for output,
-   `createUpdateSchema(table, rules).pick({ ... })` for input (create adds `.required()`, update
-   `.extend({ id: Id })`). Pick columns by name, never `.omit()` from the table schema, so `orgId`, hashes and sealed
-   secrets stay out. The rules are in `packages/contract/AGENTS.md`.
+1. Declare the procedure in `packages/contract/src/<domain>.ts` by the rules in
+   `packages/contract/AGENTS.md`. A new group goes into `coreContract` in `src/index.ts`.
 2. Write the service in `apps/core-api/src/modules/<feature>/<feature>.service.ts`. It takes
-   `client: Db`, the `Actor` (or `Caller` for plugins) and the input, filters every query with
-   `eq(table.orgId, actor.orgId)`, and returns a DTO without credentials or `org_id`. Owner or
-   admin only: `requireManager(actor, message)`. Failures throw `HttpError(status, CODE, message)`.
-3. Give it a policy in `ACCESS` (`apps/core-api/src/http/policies.ts`): `MEMBER`, `MANAGER`, `OWNER`,
-   `PUBLIC`, `CUSTOMER` or `{ plugin: '<scope>' }`; the type check fails until it has one. Add the handler to
-   `modules/<feature>/<feature>.router.ts` with the builders from `src/orpc.ts`:
-   `authed.<group>.<name>.handler(({ input, context }) => ...)` for members, `plugin` for plugin
-   tokens, `anyone` for both, `customer` for signed-in customers (paths under `/customer/`),
-   `pub` for public procedures. A new group's router goes into
-   `coreRouter` in `src/router.ts`. Wrap a write in `audited(context.actor, (tx) => ..., entry)`
-   so the change and its audit entry share a transaction. Core events go out in that transaction
-   with `publishCoreEvents(tx, ...)`.
+   `client: Db`, the `Actor` (or `Caller` for plugins) and the input, and returns a DTO without
+   credentials or `org_id`. Its queries carry no org filter: the handler runs inside `withOrg`.
+   Failures throw `HttpError(status, CODE, message)`.
+3. Give it a policy in `ACCESS` (`apps/core-api/src/http/policies.ts`): `MEMBER`,
+   `needs('<permission>')`, `PUBLIC`, `CUSTOMER` or `{ plugin: '<scope>' }`; the type check fails
+   until it has one. Add the handler to `modules/<feature>/<feature>.router.ts` with a builder from
+   `src/orpc.ts` (`apps/core-api/AGENTS.md` says which). A new group's router goes into `coreRouter`
+   in `src/router.ts`. Wrap a write in `audited(context.actor, (tx) => ..., entry)` so the change
+   and its audit entry share a transaction.
 4. Call it from core-ui with `orpc.<group>.<name>.queryOptions({ input })` or `.mutationOptions()`
-   from `~/lib/api`, and invalidate with `orpc.<group>.key()`. Never write a query key or an API
-   type by hand: they come from the contract.
-5. Test it in `apps/core-api/src/__tests__/` through `useTestServer().client(token)` (plugins:
-   `client({ plugin: HR_SECRET, org })`): the happy
-   path, the error codes (`rejects.toMatchObject({ status, code })`), and a caller from another
-   organisation who gets 404 or an empty list.
-6. Run `pnpm openapi` and commit `packages/contract/openapi.json` with the change. Read its diff:
-   every difference is a change plugins see, except properties moving within an object. If plugins
-   already call the procedure, read `.agents/skills/plugin-contract/SKILL.md` first.
+   from `~/lib/api`, and invalidate with `orpc.<group>.key()`.
+5. Test it in `apps/core-api/src/__tests__/` through `useTestServer().client(...)`: the happy path,
+   each error code (`rejects.toMatchObject({ status, code })`), and a caller from the other
+   organisation of `useTwoOrgs()`, who gets 404 or an empty list.
+6. Run `pnpm openapi` and read the `packages/contract/openapi.json` diff: every difference is a
+   change plugins see, except properties moving within an object. If plugins already call the
+   procedure, follow `.agents/skills/plugin-contract/SKILL.md`.
 
-Done when `pnpm check`, `pnpm check:generated` and
-`DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes pnpm test` pass.
+Done when `pnpm check`, `pnpm check:generated` and `pnpm test` (with `DATA_TEST_URL`) pass, and the
+cross-organisation case is among the tests.

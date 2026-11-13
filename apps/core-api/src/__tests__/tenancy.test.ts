@@ -8,8 +8,9 @@ const tag = (id: string, org: string) =>
   sql`insert into core_tags (id, org_id, type, name) values (${id}, ${org}, 'customer', 'x')`;
 
 /**
- * Tenant isolation in the database: row level security on every organisation
- * table and scopes that fail closed. `tenantWalk.test.ts` walks the API.
+ * Tenant isolation in the database: scopes that fail closed and keep to their
+ * organisation. `pnpm check:rls` checks every table has row level security;
+ * `tenantWalk.test.ts` walks the API.
  */
 describe('tenant isolation (database)', () => {
   useTestDatabase();
@@ -23,31 +24,6 @@ describe('tenant isolation (database)', () => {
     ).id;
     theirs.company = (await t.other().companies.create({ primaryName: 'Globex LLC' })).id;
     theirs.tag = (await t.other().tags.create({ type: 'customer', name: 'vip' })).id;
-  });
-
-  it('has row level security, forced, on every table that belongs to an organisation', async () => {
-    const result = await adminDb().execute<{
-      table_name: string;
-      rls: boolean;
-      forced: boolean;
-      policies: number;
-    }>(sql`
-      select c.relname as table_name, c.relrowsecurity as rls, c.relforcerowsecurity as forced,
-             (select count(*)::int from pg_policies p where p.tablename = c.relname) as policies
-      from pg_class c
-      join pg_namespace n on n.oid = c.relnamespace and n.nspname = 'public'
-      where c.relkind = 'r' and c.relname like 'core\\_%'
-        and (exists (select 1 from information_schema.columns col where col.table_name = c.relname and col.column_name = 'org_id')
-             or c.relname = 'core_organizations')
-    `);
-
-    expect(result.rows.length).toBeGreaterThan(15);
-
-    const unprotected = result.rows
-      .filter((row) => !row.rls || !row.forced || row.policies === 0)
-      .map((row) => row.table_name);
-
-    expect(unprotected).toEqual([]);
   });
 
   it('runs as a role that does not bypass row level security', async () => {

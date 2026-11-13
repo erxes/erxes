@@ -22,6 +22,7 @@
     "bench:filters": "pnpm --filter @erxes/core-api bench:filters",
     "openapi": "pnpm --filter @erxes/core-api openapi",
     "check:generated": "tools/check-generated.sh",
+    "check:rls": "tools/check-rls.sh",
     "verify:models": "tools/verify-models.sh",
     "e2e": "playwright test -c e2e/playwright.config.ts"
   },

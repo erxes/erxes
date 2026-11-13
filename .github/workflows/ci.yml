@@ -81,6 +81,8 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U erxes -d erxes_ci"
           --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -89,10 +91,12 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # What lets queries rely on withOrg() instead of org filters (tools/check-rls.sql).
+      - name: Migrated schema has forced row level security on every org_id table and core_ names
+        if: matrix.shard == 1
+        run: pnpm check:rls
       - name: Tests (API test files run in parallel, each on its own database as a role without BYPASSRLS)
         run: pnpm test --shard=${{ matrix.shard }}/2
-        env:
-          DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
 
   models:
     name: TLA+ models

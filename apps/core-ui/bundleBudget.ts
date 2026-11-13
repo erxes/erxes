@@ -63,7 +63,7 @@ export const pluginBundleBudget = (): RsbuildPlugin => ({
 
       if (serverOnly.length > 0) {
         throw new Error(
-          `Server-only modules in the browser bundle (import values from a module that builds on no table, e.g. contract values.ts):\n  ${serverOnly.slice(0, 20).join('\n  ')}`,
+          `Server-only modules in the browser bundle. A value came from a contract module built on a table: import it from @erxes/core-contract's values.ts, and keep coreContract an import type:\n  ${serverOnly.slice(0, 20).join('\n  ')}`,
         );
       }
 
@@ -125,7 +125,7 @@ export const pluginBundleBudget = (): RsbuildPlugin => ({
 
       if (over.length > 0) {
         throw new Error(
-          `Over the JS budget in apps/core-ui/bundleBudget.ts: ${over.join(', ')}. Load less up front, or raise the budget and say why.`,
+          `Over the JS budget in apps/core-ui/bundleBudget.ts: ${over.join(', ')}. Load less up front: erxes-ui is one chunk every route loads, so a heavy part of it loads on first use (LazyEditor.tsx). Measure with pnpm --filter @erxes/core-ui perf (e2e/perf/measure.ts). A budget changes only in its own PR.`,
         );
       }
     });

@@ -51,6 +51,7 @@ export default defineConfig({
       'anti-slop/require-readable-spacing': 'error',
       // A malformed token claim must fail verification, never fall back to a value.
       'anti-slop/no-zod-catch': 'error',
+      'erxes/no-session-advisory-lock': 'error',
       // `const { secret, ...rest } = row` drops a field on purpose; Express
       // error handlers need all four parameters (`_next`).
       'no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: '^_' }],
@@ -136,7 +137,12 @@ export default defineConfig({
         rules: { 'node/no-process-env': 'off' },
       },
       {
-        files: ['packages/contract/**', 'packages/db/**'],
+        files: [
+          'packages/contract/**',
+          'packages/db/**',
+          'packages/plugin-sdk/**',
+          'packages/payment-gateways/**',
+        ],
         rules: {
           'no-restricted-imports': [
             'error',
