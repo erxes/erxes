@@ -25,7 +25,7 @@ env:
 
 jobs:
   static:
-    name: Static checks
+    name: Static checks and builds
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -57,9 +57,11 @@ jobs:
         run: pnpm exec vp test run --project lint
       - name: No critical advisories in production dependencies
         run: pnpm audit --prod --audit-level critical
+      - name: Build the API and the UI
+        run: pnpm build
 
   integration:
-    name: Tests on Postgres and builds
+    name: Tests on Postgres
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -85,8 +87,6 @@ jobs:
         run: pnpm test
         env:
           DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
-      - name: Build the API and the UI
-        run: pnpm build
 
   images:
     name: Images, scan and smoke test
