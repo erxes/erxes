@@ -1,5 +1,12 @@
 import { PLUGIN_ORG_HEADER } from '@erxes/core-contract';
-import { db, organizations, pluginInstallations, plugins, withSystem } from '@erxes/core-db';
+import {
+  db,
+  organizations,
+  pluginInstallations,
+  plugins,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -79,7 +86,9 @@ const identityFor = async (req: Request, name: string): Promise<Record<string, s
   const member = await cookieMember(req);
 
   if (member) {
-    const session = await pluginSession(member.actor, name);
+    const { actor } = member;
+    // In the member's organisation, as the `plugins.session` procedure runs.
+    const session = await withOrg(actor.orgId, () => pluginSession(actor, name));
 
     return {
       authorization: `Bearer ${session.token}`,

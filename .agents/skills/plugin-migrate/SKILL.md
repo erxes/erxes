@@ -34,7 +34,7 @@ below.
 | erxes 3.x                                                                                                                      | New core                                                                                                                                                                                                                                                |
 | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `joinErxesGateway` + Redis discovery; `ENABLED_PLUGINS*` on core                                                               | `CORE_PLUGIN_KEYS=<name>:<secret>` on core; plugin calls `core.registerManifest(manifest)` at startup; manifest `api.url` is its address                                                                                                                |
-| Gateway route `/pl:<name>/…`, gateway CORS                                                                                     | Plugin UI calls `pluginFetch('<name>', path)`; the API is reached at `manifest.api.url` and allows the core-ui origin                                                                                                                                   |
+| Gateway route `/pl:<name>/…`, gateway CORS                                                                                     | The same `/pl:<name>/…` paths on core's address: core forwards them to `manifest.api.url` (plugin-contract skill). Plugin UIs call `pluginFetch('<name>', path)` or build links with `pluginUrl`. No CORS: the plugin API is never called cross-origin  |
 | `extractUserFromHeader` (gateway `user` header)                                                                                | `verifyPluginSession(bearerOf(authorization), { coreUrl, plugin })` → `{ orgId, userId, role, permissions, can(), tier, access, canChange() }`                                                                                                          |
 | erxes owner check (`isOwner`)                                                                                                  | `member.role === 'owner'` (`can()` already lets owners do everything)                                                                                                                                                                                   |
 | Plugin permission catalog in its own `meta/`                                                                                   | manifest `permissions` (granted in core roles, carried in the session token). Plugin-specific reach (own / team / all) stays in the plugin, keyed by `member.userId`                                                                                    |
@@ -85,7 +85,7 @@ organisation `_id`), so existing `tenant_id` values stay valid.
    customer or company), `actions` for automations, `timelines` and
    `activityTypes`, `notificationKinds`; publish events where the plugin's
    records change. Optional, but this is what the move is for.
-7. **UI.** `CONFIG` instead of `IUIConfig`; API base via `pluginFetch`;
+7. **UI.** `CONFIG` instead of `IUIConfig`; API base `/pl:<name>` (`pluginFetch`, `pluginUrl`);
    shared singletons per plugin-new §6; settings as a pinned footer
    link with its own layout and "Exit settings"; remove GraphQL usage.
 8. **Standalone app.** Switch "Sign in with erxes" to the new OAuth endpoints
@@ -109,10 +109,10 @@ organisation `_id`), so existing `tenant_id` values stay valid.
 
 ## 5. Known gaps (raise with core, don't work around silently)
 
-- **Public routes without sign-in** (job applications, kiosk check-ins) can't
-  turn a subdomain into an organisation through core yet. Store a
-  per-organisation public key in the plugin's own settings table (set by a
-  member in the plugin's settings) and resolve it in the plugin.
+- **Public routes without sign-in** (job applications, kiosk check-ins, a
+  mobile app with the plugin's own tokens) take the organisation from
+  `verifyPluginOrg(req.headers['x-erxes-org'], opts)`: core signs the
+  organisation of the address the visitor opened. No subdomain lookups.
 - **Team members on the server** (names, emails for documents): no plugin
   scope yet; read them in the UI with the member's session.
 - **Email to outside addresses**: no plugin email API yet.

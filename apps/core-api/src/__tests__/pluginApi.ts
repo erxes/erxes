@@ -29,7 +29,17 @@ export const pluginApi = async (coreUrl: string, plugin = 'hr') => {
       raw += chunk.toString();
     });
     req.on('end', () => {
-      void receive(req.headers.authorization, raw).then((status) => res.writeHead(status).end());
+      if (req.url === '/events') {
+        void receive(req.headers.authorization, raw).then((status) => res.writeHead(status).end());
+
+        return;
+      }
+
+      // Anything else is a browser's request core forwarded: echoed back, with a
+      // cookie core must not pass on.
+      res
+        .writeHead(200, { 'content-type': 'application/json', 'set-cookie': 'plugin=1; Path=/' })
+        .end(JSON.stringify({ method: req.method, url: req.url, headers: req.headers, body: raw }));
     });
   }).listen(0);
 

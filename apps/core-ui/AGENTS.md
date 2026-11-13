@@ -15,7 +15,7 @@ The core React app (React 18, Rsbuild, React Query) and the Module Federation ho
   `GET /plugins`), plus `PUBLIC_PLUGINS` for development (`<remote>@<remoteEntry url>`,
   comma-separated, parsed in `remotes.ts`; it wins for the same remote).
 - `src/bootstrap.tsx` gives erxes-ui the plugin runtime (`setPluginRuntime`): plugin UIs call their
-  own API with a per-plugin session token (`pluginFetch`) and hear their live signals
+  own API through core at `/pl:<plugin>` (`pluginUrl`, `pluginFetch`) and hear their live signals
   (`useLiveSignal`, fed by `pluginLive` in `src/lib/live.ts`).
 
 ## Rules

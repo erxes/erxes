@@ -1,6 +1,6 @@
 ---
 name: plugin-contract
-description: Change what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema in packages/contract/src/events.ts, the core_publish_event, core_record_audit or core_live_signal SQL functions, packages/plugin-sdk, the SHARED list in apps/core-ui/rsbuild.config.ts, or exports of packages/ui.
+description: Change what plugins depend on. Use when changing or removing a procedure, field or error code in packages/contract, an event schema in packages/contract/src/events.ts, the core_publish_event, core_record_audit or core_live_signal SQL functions, packages/plugin-sdk, the SHARED list in apps/core-ui/rsbuild.config.ts, exports of packages/ui, or how /pl:<plugin> requests reach a plugin's API (plugins.proxy.ts, the identity headers).
 ---
 
 Plugins live in their own repos and upgrade on their own schedule, so every change here is either
@@ -25,6 +25,29 @@ additive or a versioned break. The HR plugin is the first consumer.
    (`.agents/skills/verify-feature/SKILL.md`), or call the changed procedure the way a plugin does,
    with a token from `POST /core/v1/plugins/token` (client credentials and `org`), or through
    `@erxes/plugin-sdk`'s `createCoreClient`.
+
+## How a browser reaches a plugin's API
+
+Core-api forwards `/pl:<plugin>/<path>` to `<manifest api.url>/<path>`
+(`apps/core-api/src/modules/plugins/plugins.proxy.ts`), so the browser only ever
+talks to core's address. The same path works in development (core-ui's dev
+server sends `/pl:` to core-api) and deployed (core-ui's nginx does).
+
+- The session cookie stays first-party. Core removes `Cookie` and the
+  plugin's `Set-Cookie`, and refuses a cookie-signed change from another site.
+- A signed-in member's request gets `Authorization: Bearer <plugin session>`
+  (`verifyPluginSession`: org, user, email, name, role, permissions, tier,
+  access) in place of whatever the browser sent.
+- Every request gets `x-erxes-org` (`PLUGIN_ORG_HEADER`, `verifyPluginOrg`):
+  the member's organisation, or for a visitor the address's (subdomain, then
+  `DEFAULT_SUBDOMAIN`, then the only organisation that installed the plugin).
+  A visitor keeps their own `Authorization` (the plugin's mobile tokens).
+- Both tokens are ES256, 5 minutes, `aud` the plugin, so neither works on core
+  or for another plugin, and a browser can't choose either.
+- Bodies stream through untouched (mounted before the JSON parser). A plugin
+  not installed in the member's organisation answers 403 `NOT_INSTALLED`.
+- Plugin UIs use `pluginUrl` / `pluginFetch` from erxes-ui. `/pl:<plugin>` is
+  part of the contract: changing it breaks every plugin UI and mobile app.
 
 Future (Phase 2): a CI diff of `openapi.json` against the base branch, and a packed consumer build.
 

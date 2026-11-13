@@ -36,15 +36,15 @@ Everything below uses `shop`.
 
 ## 1. The seven channels
 
-| #   | Direction              | What                                                 | How                                                                                                             |
-| --- | ---------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| 1   | plugin → core          | declare what the plugin adds                         | `core.registerManifest(manifest)` at startup (`PUT /core/v1/plugins/manifest`)                                  |
-| 2   | plugin → core          | call core for an organisation                        | `createCoreClient(...).forOrg(orgId).<group>.<procedure>(input)` — 15-min ES256 token, scopes from the manifest |
-| 3   | core-ui → plugin UI    | load the UI                                          | Module Federation remote `shop_ui` exposing `./config`                                                          |
-| 4   | plugin UI → plugin API | a member's request                                   | `pluginFetch('shop', path)` adds a 5-min session token; API checks `verifyPluginSession()`                      |
-| 5   | core → plugin API      | events it subscribed to                              | `POST <api>/events`, check `verifyCoreEvent()`; retried ~2 days                                                 |
-| 6   | core → plugin API      | automation actions                                   | `POST <api>/automations/actions/<type>`, check `verifyCoreCall()`; `Idempotency-Key: <run>:<step>`              |
-| 7   | plugin DB tx → core    | events, audit, live, in the plugin's own transaction | `core_publish_event()`, `core_record_audit()`, `core_live_signal()` (shared database only)                      |
+| #   | Direction              | What                                                 | How                                                                                                               |
+| --- | ---------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 1   | plugin → core          | declare what the plugin adds                         | `core.registerManifest(manifest)` at startup (`PUT /core/v1/plugins/manifest`)                                    |
+| 2   | plugin → core          | call core for an organisation                        | `createCoreClient(...).forOrg(orgId).<group>.<procedure>(input)` — 15-min ES256 token, scopes from the manifest   |
+| 3   | core-ui → plugin UI    | load the UI                                          | Module Federation remote `shop_ui` exposing `./config`                                                            |
+| 4   | plugin UI → plugin API | a member's request                                   | `pluginFetch('shop', path)` → core at `/pl:shop/…` adds a 5-min session token; API checks `verifyPluginSession()` |
+| 5   | core → plugin API      | events it subscribed to                              | `POST <api>/events`, check `verifyCoreEvent()`; retried ~2 days                                                   |
+| 6   | core → plugin API      | automation actions                                   | `POST <api>/automations/actions/<type>`, check `verifyCoreCall()`; `Idempotency-Key: <run>:<step>`                |
+| 7   | plugin DB tx → core    | events, audit, live, in the plugin's own transaction | `core_publish_event()`, `core_record_audit()`, `core_live_signal()` (shared database only)                        |
 
 ## 2. Repository layout
 
@@ -221,6 +221,10 @@ export const member = async (req) => {
 };
 ```
 
+- Routes without sign-in (`/pl:shop/public/…`, a mobile app with its own
+  tokens) take the organisation from `verifyPluginOrg(req.headers['x-erxes-org'], opts)`.
+  Core signs it from the address's subdomain (or `DEFAULT_SUBDOMAIN`, or the
+  only organisation that installed the plugin); without it there is none.
 - Check permissions with `m.can('shop.order.manage')` (owners can everything).
   Refuse changes when `!m.canChange()` (plan left: read-only); gate paid
   features on `m.tier` (`free` / `plus` / `pro`; self-hosted is `pro`).
@@ -299,8 +303,9 @@ scope rather than working around it.
 - `./config` exports `CONFIG: { name: 'shop', path: 'shop', icon, modules, checkAccess? }`;
   the first module renders under `/shop/*` (default export, or the PascalCase
   name `Shop`).
-- Data: `pluginFetch('shop', '/orders')` / `pluginJson(...)` from erxes-ui
-  (session token added; the API address comes from the manifest).
+- Data: `pluginFetch('shop', '/orders')` / `pluginJson(...)` from erxes-ui, links
+  and images with `pluginUrl('shop', '/files/1')`. All are `/pl:shop/…` on core's
+  address; core adds the member's session token on the way to `manifest.api.url`.
 - Live: `useLiveSignal('shop', ['orders'], refetch)`.
 - Timelines: `<RecordTimeline type="shop.order" id={order.id} />` (type listed
   in the manifest's `timelines`).
