@@ -11,7 +11,8 @@ foreign key to `organizations` and a check constraint.
    `core_<table>_org_id_fkey` to `organizations.id` with `onDelete('cascade')`, and indexes that lead
    with `orgId`. Spell every index and constraint name out with the full table name.
 2. Ids are `text().primaryKey()` filled by `newId()`. A column with a fixed set of values uses
-   `text({ enum: CONSTANTS })` or `.$type<...>()` plus a check constraint, so services read it
+   `text({ enum: CONSTANTS })` or `.$type<...>()` plus a check built with `inList(column, CONSTANTS)`
+   from `../table`, so services read it
    without casts. The constant goes in `src/enums.ts` and the schema imports it from `../enums`;
    the contract's `z.enum` reads the same array. A jsonb column's shape is a type in `src/schema`.
 3. A new table goes into `src/schema/index.ts`.
