@@ -1,4 +1,4 @@
-// First: tracing patches http, express and pg before they load.
+// Already loaded by `node --import` (see the file), which is what lets it patch http, express and pg.
 import { stopTracing } from '~/instrumentation';
 import { closeDb, configureDb, runMigrations, runtimeRole } from '@erxes/core-db';
 import { createApp } from '~/app';

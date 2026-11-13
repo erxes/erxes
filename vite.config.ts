@@ -244,7 +244,7 @@ export default defineConfig({
         files: [
           'vite.config.ts',
           'knip.ts',
-          'apps/core-api/tsup.config.ts',
+          '**/tsdown.config.ts',
           'apps/core-ui/rsbuild.config.ts',
           'packages/db/drizzle.config.ts',
           'tools/lint/*/index.ts',
@@ -311,9 +311,10 @@ export default defineConfig({
             MASS_DELETE_LIMIT: '40',
             FAILED_SIGN_IN_ALERT: '3',
             // One key for the whole run, so parallel files never race to write a key file.
-            CORE_SIGNING_KEY: generateKeyPairSync('ec', { namedCurve: 'P-256' })
-              .privateKey.export({ format: 'pem', type: 'pkcs8' })
-              .toString(),
+            CORE_SIGNING_KEY: generateKeyPairSync('ec', { namedCurve: 'P-256' }).privateKey.export({
+              format: 'pem',
+              type: 'pkcs8',
+            }),
             // logging.test.ts logs to its own destination.
             LOG_LEVEL: 'silent',
           },

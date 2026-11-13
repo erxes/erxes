@@ -70,7 +70,7 @@ const devKey = (): string => {
   }
 
   const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
-  const pem = privateKey.export({ format: 'pem', type: 'pkcs8' }).toString();
+  const pem = privateKey.export({ format: 'pem', type: 'pkcs8' });
 
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, pem, { mode: 0o600 });

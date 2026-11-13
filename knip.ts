@@ -9,7 +9,7 @@ const config: KnipConfig = {
       // Copied from the HR plugin as a whole, with its vendored ESLint Stylistic rule.
       ignore: ['tools/lint/anti-slop/**'],
     },
-    // Entries from package.json (main, exports), rsbuild.config.ts and tsup.config.ts count too.
+    // Entries from package.json (main, exports), rsbuild.config.ts and tsdown.config.ts count too.
     'apps/core-api': {
       entry: ['scripts/*.ts', 'src/**/*.test.ts'],
       project: ['src/**/*.ts', 'scripts/**/*.ts'],
@@ -31,6 +31,9 @@ const config: KnipConfig = {
     'packages/ui': {
       entry: ['src/**/*.{ts,tsx,css}'],
       project: ['src/**/*.{ts,tsx,css}'],
+      // Never imported, but the block editor's types name it, so the built .d.ts files
+      // import it and a consumer must be able to resolve it.
+      ignoreDependencies: ['@tiptap/core'],
     },
   },
 };

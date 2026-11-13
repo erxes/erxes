@@ -1,7 +1,10 @@
 # erxes-ui
 
 The design system core-ui and plugin UIs share: UI primitives, layout, record tables, filters,
-the block editor, hooks and shared state. It ships as source; `apps/core-ui` compiles it.
+the block editor, hooks and shared state. In the workspace `exports` point at `src/` and
+`apps/core-ui` compiles it. `pnpm build` (tsdown) writes the publishable `dist/`, one module and
+`.d.ts` per source file, and checks the packed package with publint and attw; `publishConfig`
+holds the `exports` a published copy uses.
 
 ## Who imports it
 

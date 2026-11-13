@@ -11,6 +11,123 @@
   "openapi": "3.1.1",
   "components": {
     "schemas": {
+      "ActionField": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "text",
+              "longtext",
+              "number",
+              "boolean",
+              "date",
+              "select",
+              "members",
+              "tags",
+              "json",
+              "custom_field",
+              "lead_stage",
+              "recipients"
+            ],
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean",
+            "default": false
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value",
+                "label"
+              ]
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "placeholder": {
+            "type": "string"
+          },
+          "sameTypeAs": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "type"
+        ]
+      },
+      "ActionInfo": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "enum": [
+                  "customer",
+                  "company",
+                  "any"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActionField"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "label",
+          "description",
+          "source",
+          "subject",
+          "fields"
+        ]
+      },
       "Activity": {
         "type": "object",
         "properties": {
@@ -191,37 +308,51 @@
           "summary"
         ]
       },
-      "NoteInput": {
+      "ActorRef": {
         "type": "object",
         "properties": {
-          "body": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 10000
+          "type": {
+            "enum": [
+              "user",
+              "plugin",
+              "system"
+            ],
+            "type": "string"
           },
-          "mentions": {
-            "type": "array",
-            "maxItems": 50,
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            },
-            "default": []
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
-          "fileIds": {
-            "type": "array",
-            "maxItems": 20,
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            },
-            "default": []
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
-          "body"
+          "type",
+          "id"
         ]
       },
       "Audience": {
@@ -326,6 +457,337 @@
         },
         "required": [
           "type"
+        ]
+      },
+      "AuditEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "actor": {
+            "$ref": "#/components/schemas/ActorRef"
+          },
+          "action": {
+            "type": "string"
+          },
+          "targetType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "targetId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "targetLabel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "changes": {
+            "anyOf": [
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "anyOf": [
+                        {},
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    {
+                      "anyOf": [
+                        {},
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "userAgent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "actor",
+          "action",
+          "targetType",
+          "targetId",
+          "targetLabel",
+          "changes",
+          "metadata",
+          "ip",
+          "userAgent",
+          "source",
+          "createdAt"
+        ]
+      },
+      "AuditStream": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "format": {
+            "enum": [
+              "erxes",
+              "datadog",
+              "splunk"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "paused"
+            ],
+            "type": "string"
+          },
+          "authHeaderName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cursorSeq": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pending": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "lastDeliveredAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastError": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "consecutiveFailures": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "url",
+          "format",
+          "status",
+          "authHeaderName",
+          "cursorSeq",
+          "pending",
+          "lastDeliveredAt",
+          "lastError",
+          "consecutiveFailures",
+          "createdAt"
+        ]
+      },
+      "Automation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "active",
+              "paused"
+            ],
+            "type": "string"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/AutomationDefinition"
+          },
+          "activeVersion": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "activatedBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "running": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "succeeded": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "failed": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "running",
+              "succeeded",
+              "failed"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "status",
+          "definition",
+          "activeVersion",
+          "activatedBy",
+          "stats",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "AutomationDefinition": {
@@ -5412,68 +5874,10 @@
           "steps"
         ]
       },
-      "ConditionRule": {
+      "AutomationFieldPath": {
         "type": "object",
         "properties": {
           "path": {
-            "type": "string",
-            "pattern": "^(event|subject|steps|run)(\\.[A-Za-z0-9_-]+)*$"
-          },
-          "op": {
-            "enum": [
-              "eq",
-              "neq",
-              "gt",
-              "gte",
-              "lt",
-              "lte",
-              "contains",
-              "not_contains",
-              "starts_with",
-              "in",
-              "not_in",
-              "exists",
-              "not_exists",
-              "within_last",
-              "more_than_ago",
-              "within_next",
-              "anniversary_within"
-            ],
-            "type": "string"
-          },
-          "value": {}
-        },
-        "required": [
-          "path",
-          "op"
-        ]
-      },
-      "RelativeAmount": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 3650
-          },
-          "unit": {
-            "enum": [
-              "days",
-              "weeks",
-              "months"
-            ],
-            "type": "string",
-            "default": "days"
-          }
-        },
-        "required": [
-          "amount"
-        ]
-      },
-      "ActionField": {
-        "type": "object",
-        "properties": {
-          "key": {
             "type": "string"
           },
           "label": {
@@ -5482,109 +5886,27 @@
           "type": {
             "enum": [
               "text",
-              "longtext",
               "number",
-              "boolean",
               "date",
-              "select",
-              "members",
+              "boolean",
+              "list",
+              "member",
               "tags",
-              "json",
-              "custom_field",
-              "lead_stage",
-              "recipients"
+              "select"
             ],
             "type": "string"
-          },
-          "required": {
-            "type": "boolean",
-            "default": false
           },
           "options": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "value": {
-                  "type": "string"
-                },
-                "label": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "value",
-                "label"
-              ]
+              "type": "string"
             }
-          },
-          "description": {
-            "type": "string"
-          },
-          "placeholder": {
-            "type": "string"
-          },
-          "sameTypeAs": {
-            "type": "string"
           }
         },
         "required": [
-          "key",
+          "path",
           "label",
           "type"
-        ]
-      },
-      "ActionInfo": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "source": {
-            "type": "string"
-          },
-          "subject": {
-            "anyOf": [
-              {
-                "enum": [
-                  "customer",
-                  "company",
-                  "any"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "fields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ActionField"
-            }
-          }
-        },
-        "required": [
-          "type",
-          "label",
-          "description",
-          "source",
-          "subject",
-          "fields"
         ]
       },
       "AutomationRun": {
@@ -5702,600 +6024,6 @@
           "waitingUntil",
           "startedAt",
           "finishedAt"
-        ]
-      },
-      "RunStep": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "stepId": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "status": {
-            "enum": [
-              "succeeded",
-              "failed",
-              "skipped"
-            ],
-            "type": "string"
-          },
-          "input": {
-            "anyOf": [
-              {},
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "output": {
-            "anyOf": [
-              {},
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "error": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "attempt": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "startedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "finishedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "stepId",
-          "type",
-          "status",
-          "error",
-          "attempt",
-          "startedAt",
-          "finishedAt"
-        ]
-      },
-      "Automation": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "status": {
-            "enum": [
-              "draft",
-              "active",
-              "paused"
-            ],
-            "type": "string"
-          },
-          "definition": {
-            "$ref": "#/components/schemas/AutomationDefinition"
-          },
-          "activeVersion": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "activatedBy": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "stats": {
-            "type": "object",
-            "properties": {
-              "running": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "succeeded": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "failed": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              }
-            },
-            "required": [
-              "running",
-              "succeeded",
-              "failed"
-            ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "description",
-          "status",
-          "definition",
-          "activeVersion",
-          "activatedBy",
-          "stats",
-          "createdAt",
-          "updatedAt"
-        ]
-      },
-      "AutomationFieldPath": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "text",
-              "number",
-              "date",
-              "boolean",
-              "list",
-              "member",
-              "tags",
-              "select"
-            ],
-            "type": "string"
-          },
-          "options": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "path",
-          "label",
-          "type"
-        ]
-      },
-      "DryRunStep": {
-        "type": "object",
-        "properties": {
-          "stepId": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "outcome": {
-            "type": "string"
-          },
-          "input": {
-            "anyOf": [
-              {},
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "problem": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "stepId",
-          "type",
-          "outcome",
-          "problem"
-        ]
-      },
-      "AuditEntry": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
-          },
-          "action": {
-            "type": "string"
-          },
-          "targetType": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "targetId": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "targetLabel": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "changes": {
-            "anyOf": [
-              {
-                "type": "object",
-                "propertyNames": {
-                  "type": "string"
-                },
-                "additionalProperties": {
-                  "type": "array",
-                  "prefixItems": [
-                    {
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    {
-                      "anyOf": [
-                        {},
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "metadata": {
-            "anyOf": [
-              {
-                "type": "object",
-                "propertyNames": {
-                  "type": "string"
-                },
-                "additionalProperties": {}
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "ip": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "userAgent": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "source": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "actor",
-          "action",
-          "targetType",
-          "targetId",
-          "targetLabel",
-          "changes",
-          "metadata",
-          "ip",
-          "userAgent",
-          "source",
-          "createdAt"
-        ]
-      },
-      "AuditStream": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "name": {
-            "type": "string"
-          },
-          "url": {
-            "type": "string"
-          },
-          "format": {
-            "enum": [
-              "erxes",
-              "datadog",
-              "splunk"
-            ],
-            "type": "string"
-          },
-          "status": {
-            "enum": [
-              "active",
-              "paused"
-            ],
-            "type": "string"
-          },
-          "authHeaderName": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "cursorSeq": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "pending": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "lastDeliveredAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "lastError": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "consecutiveFailures": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "url",
-          "format",
-          "status",
-          "authHeaderName",
-          "cursorSeq",
-          "pending",
-          "lastDeliveredAt",
-          "lastError",
-          "consecutiveFailures",
-          "createdAt"
-        ]
-      },
-      "Session": {
-        "type": "object",
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "organization": {
-            "$ref": "#/components/schemas/Organization"
-          },
-          "permissions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "user",
-          "organization",
-          "permissions"
-        ]
-      },
-      "CursorQuery": {
-        "type": "object",
-        "properties": {
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100,
-            "default": 30
-          },
-          "cursor": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "direction": {
-            "enum": [
-              "forward",
-              "backward"
-            ],
-            "type": "string",
-            "default": "forward"
-          },
-          "cursorMode": {
-            "enum": [
-              "inclusive",
-              "exclusive"
-            ],
-            "type": "string",
-            "default": "exclusive"
-          }
-        }
-      },
-      "ErrorBody": {
-        "type": "object",
-        "properties": {
-          "defined": {
-            "type": "boolean"
-          },
-          "code": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {}
-        },
-        "required": [
-          "defined",
-          "code",
-          "status",
-          "message"
-        ]
-      },
-      "PageInfo": {
-        "type": "object",
-        "properties": {
-          "hasNextPage": {
-            "type": "boolean"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "startCursor": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "endCursor": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "hasNextPage",
-          "hasPreviousPage",
-          "startCursor",
-          "endCursor"
         ]
       },
       "Company": {
@@ -6820,86 +6548,6 @@
           }
         }
       },
-      "PersonRef": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "firstName": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "lastName": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "primaryEmail": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "primaryPhone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "avatarUrl": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "state": {
-            "enum": [
-              "lead",
-              "customer"
-            ],
-            "type": "string"
-          },
-          "link": {
-            "$ref": "#/components/schemas/ContactLink"
-          }
-        },
-        "required": [
-          "id",
-          "firstName",
-          "lastName",
-          "primaryEmail",
-          "primaryPhone",
-          "avatarUrl",
-          "state",
-          "link"
-        ]
-      },
       "CompanyRef": {
         "type": "object",
         "properties": {
@@ -6941,6 +6589,42 @@
           "avatarUrl",
           "website",
           "link"
+        ]
+      },
+      "ConditionRule": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(event|subject|steps|run)(\\.[A-Za-z0-9_-]+)*$"
+          },
+          "op": {
+            "enum": [
+              "eq",
+              "neq",
+              "gt",
+              "gte",
+              "lt",
+              "lte",
+              "contains",
+              "not_contains",
+              "starts_with",
+              "in",
+              "not_in",
+              "exists",
+              "not_exists",
+              "within_last",
+              "more_than_ago",
+              "within_next",
+              "anniversary_within"
+            ],
+            "type": "string"
+          },
+          "value": {}
+        },
+        "required": [
+          "path",
+          "op"
         ]
       },
       "ContactLink": {
@@ -7001,6 +6685,149 @@
           },
           "ended": {
             "type": "boolean"
+          }
+        }
+      },
+      "CoreEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "source": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "customer",
+                      "company"
+                    ],
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "type",
+                  "id"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actor": {
+            "$ref": "#/components/schemas/ActorRef"
+          },
+          "payload": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "type",
+          "version",
+          "subject",
+          "entity",
+          "actor",
+          "payload",
+          "summary",
+          "link",
+          "occurredAt",
+          "createdAt"
+        ]
+      },
+      "CursorQuery": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 30
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "direction": {
+            "enum": [
+              "forward",
+              "backward"
+            ],
+            "type": "string",
+            "default": "forward"
+          },
+          "cursorMode": {
+            "enum": [
+              "inclusive",
+              "exclusive"
+            ],
+            "type": "string",
+            "default": "exclusive"
           }
         }
       },
@@ -7589,115 +7416,87 @@
           }
         }
       },
-      "CoreEvent": {
+      "DryRunStep": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "source": {
+          "stepId": {
             "type": "string"
           },
           "type": {
             "type": "string"
           },
-          "version": {
+          "outcome": {
+            "type": "string"
+          },
+          "input": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "problem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "stepId",
+          "type",
+          "outcome",
+          "problem"
+        ]
+      },
+      "EntityRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ]
+      },
+      "ErrorBody": {
+        "type": "object",
+        "properties": {
+          "defined": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          },
+          "status": {
             "type": "integer",
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
-          "subject": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "enum": [
-                      "customer",
-                      "company"
-                    ],
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  }
-                },
-                "required": [
-                  "type",
-                  "id"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "message": {
+            "type": "string"
           },
-          "entity": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/EntityRef"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
-          },
-          "payload": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {}
-          },
-          "summary": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "link": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "occurredAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
+          "data": {}
         },
         "required": [
-          "id",
-          "source",
-          "type",
-          "version",
-          "subject",
-          "entity",
-          "actor",
-          "payload",
-          "summary",
-          "link",
-          "occurredAt",
-          "createdAt"
+          "defined",
+          "code",
+          "status",
+          "message"
         ]
       },
       "EventFailure": {
@@ -7872,6 +7671,276 @@
           "userIds",
           "title"
         ]
+      },
+      "EventTypeInfo": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "enum": [
+                  "customer",
+                  "company"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "label",
+          "description",
+          "source",
+          "subject"
+        ]
+      },
+      "Export": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "recordType": {
+            "enum": [
+              "customer",
+              "lead",
+              "company"
+            ],
+            "type": "string"
+          },
+          "format": {
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "type": "string"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "enum": [
+              "running",
+              "done",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "rowCount": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fileId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdBy": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "recordType",
+          "format",
+          "columns",
+          "status",
+          "rowCount",
+          "fileId",
+          "error",
+          "createdBy",
+          "createdAt",
+          "finishedAt"
+        ]
+      },
+      "ExportQuery": {
+        "type": "object",
+        "properties": {
+          "filter": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "match": {
+                    "enum": [
+                      "all",
+                      "any"
+                    ],
+                    "type": "string"
+                  },
+                  "rules": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/ConditionRule"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "match": {
+                              "enum": [
+                                "all",
+                                "any"
+                              ],
+                              "type": "string"
+                            },
+                            "rules": {
+                              "type": "array",
+                              "maxItems": 50,
+                              "items": {
+                                "anyOf": [
+                                  {
+                                    "$ref": "#/components/schemas/ConditionRule"
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "match": {
+                                        "enum": [
+                                          "all",
+                                          "any"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "rules": {
+                                        "type": "array",
+                                        "maxItems": 50,
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "anyOf": [
+                                                {
+                                                  "$ref": "#/components/schemas/ConditionRule"
+                                                },
+                                                {}
+                                              ]
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "match",
+                                      "rules"
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "match",
+                            "rules"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "match",
+                  "rules"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "search": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "tagIds": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          "ownerId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        }
       },
       "Field": {
         "type": "object",
@@ -8199,16 +8268,90 @@
           "storage"
         ]
       },
-      "UploadTarget": {
+      "FilterField": {
         "type": "object",
         "properties": {
-          "method": {
-            "const": "PUT"
+          "path": {
+            "type": "string"
           },
-          "url": {
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "text",
+              "number",
+              "date",
+              "boolean",
+              "select",
+              "member",
+              "tags"
+            ],
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "group": {
+            "enum": [
+              "fields",
+              "lead",
+              "custom",
+              "company",
+              "activity"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "label",
+          "type",
+          "group"
+        ]
+      },
+      "Import": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "recordType": {
+            "enum": [
+              "customer",
+              "lead",
+              "company"
+            ],
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "parsing",
+              "mapping",
+              "checking",
+              "checked",
+              "running",
+              "done",
+              "failed",
+              "undone"
+            ],
             "type": "string"
           },
           "headers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mapping": {
             "type": "object",
             "propertyNames": {
               "type": "string"
@@ -8217,16 +8360,532 @@
               "type": "string"
             }
           },
+          "options": {
+            "$ref": "#/components/schemas/ImportOptions"
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "create": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "update": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "skip": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "error": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "rows",
+              "create",
+              "update",
+              "skip",
+              "error"
+            ]
+          },
+          "processed": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "sample": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "undoable": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "recordType",
+          "fileName",
+          "status",
+          "headers",
+          "mapping",
+          "options",
+          "counts",
+          "processed",
+          "sample",
+          "error",
+          "undoable",
+          "createdBy",
+          "createdAt",
+          "finishedAt"
+        ]
+      },
+      "ImportOptions": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "enum": [
+              "create",
+              "update",
+              "upsert"
+            ],
+            "type": "string"
+          },
+          "matchBy": {
+            "enum": [
+              "email",
+              "phone",
+              "code",
+              "id",
+              "name"
+            ],
+            "type": "string"
+          },
+          "tagIds": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          "ownerId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createMissing": {
+            "type": "boolean"
+          },
+          "runAutomations": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mode",
+          "matchBy",
+          "createMissing",
+          "runAutomations"
+        ]
+      },
+      "ImportRow": {
+        "type": "object",
+        "properties": {
+          "rowNumber": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "cells": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "action": {
+            "anyOf": [
+              {
+                "enum": [
+                  "create",
+                  "update",
+                  "skip",
+                  "error"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recordId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "rowNumber",
+          "cells",
+          "action",
+          "error",
+          "recordId"
+        ]
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "gatewayId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "gatewayKind": {
+            "enum": [
+              "qpay",
+              "test"
+            ],
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "paid",
+              "refunded",
+              "cancelled",
+              "expired",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoiceLine"
+            }
+          },
+          "paidAmount": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refundedAmount": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "refundable": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "gateway": {
+                "enum": [
+                  "partial",
+                  "full",
+                  "none"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "gateway"
+            ]
+          },
+          "payment": {
+            "type": "object",
+            "properties": {
+              "qrText": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "qrImage": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "shortUrl": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "logo": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "link": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "logo",
+                    "link"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "qrText",
+              "qrImage",
+              "shortUrl",
+              "links"
+            ]
+          },
           "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
             "type": "string",
             "format": "date-time"
           }
         },
         "required": [
-          "method",
-          "url",
-          "headers",
-          "expiresAt"
+          "id",
+          "gatewayId",
+          "gatewayKind",
+          "source",
+          "reference",
+          "amount",
+          "currency",
+          "description",
+          "status",
+          "metadata",
+          "lines",
+          "paidAmount",
+          "refundedAmount",
+          "refundable",
+          "payment",
+          "expiresAt",
+          "paidAt",
+          "createdAt"
+        ]
+      },
+      "InvoiceLine": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unitPrice": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "plugin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "productId",
+          "name",
+          "quantity",
+          "unitPrice",
+          "amount",
+          "plugin"
+        ]
+      },
+      "InvoiceLineInput": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "quantity": {
+            "type": "number",
+            "maximum": 1000000,
+            "exclusiveMinimum": 0
+          },
+          "unitPrice": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000000
+          },
+          "plugin": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,39}$"
+          }
+        },
+        "required": [
+          "quantity",
+          "unitPrice"
         ]
       },
       "LeadEvent": {
@@ -8590,6 +9249,39 @@
           "companyLeadCount"
         ]
       },
+      "NoteInput": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          },
+          "mentions": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "default": []
+          },
+          "fileIds": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "default": []
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
       "Notification": {
         "type": "object",
         "properties": {
@@ -8798,72 +9490,6 @@
           "browser"
         ]
       },
-      "ActorRef": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "enum": [
-              "user",
-              "plugin",
-              "system"
-            ],
-            "type": "string"
-          },
-          "id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "avatarUrl": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
-      },
-      "EntityRef": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          }
-        },
-        "required": [
-          "type",
-          "id"
-        ]
-      },
       "Organization": {
         "type": "object",
         "properties": {
@@ -8916,261 +9542,26 @@
           }
         }
       },
-      "Invoice": {
+      "PageInfo": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
+          "hasNextPage": {
+            "type": "boolean"
           },
-          "gatewayId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
+          "hasPreviousPage": {
+            "type": "boolean"
           },
-          "gatewayKind": {
-            "enum": [
-              "qpay",
-              "test"
-            ],
-            "type": "string"
-          },
-          "source": {
-            "type": "string"
-          },
-          "reference": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string"
-              },
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "type",
-              "id"
-            ]
-          },
-          "amount": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "currency": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "status": {
-            "enum": [
-              "pending",
-              "paid",
-              "refunded",
-              "cancelled",
-              "expired",
-              "failed"
-            ],
-            "type": "string"
-          },
-          "metadata": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {}
-          },
-          "lines": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InvoiceLine"
-            }
-          },
-          "paidAmount": {
+          "startCursor": {
             "anyOf": [
               {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ]
           },
-          "refundedAmount": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "refundable": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "gateway": {
-                "enum": [
-                  "partial",
-                  "full",
-                  "none"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "amount",
-              "gateway"
-            ]
-          },
-          "payment": {
-            "type": "object",
-            "properties": {
-              "qrText": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "qrImage": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "shortUrl": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "links": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "logo": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "link": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "name",
-                    "logo",
-                    "link"
-                  ]
-                }
-              }
-            },
-            "required": [
-              "qrText",
-              "qrImage",
-              "shortUrl",
-              "links"
-            ]
-          },
-          "expiresAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "paidAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "gatewayId",
-          "gatewayKind",
-          "source",
-          "reference",
-          "amount",
-          "currency",
-          "description",
-          "status",
-          "metadata",
-          "lines",
-          "paidAmount",
-          "refundedAmount",
-          "refundable",
-          "payment",
-          "expiresAt",
-          "paidAt",
-          "createdAt"
-        ]
-      },
-      "InvoiceLine": {
-        "type": "object",
-        "properties": {
-          "productId": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 64
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "name": {
-            "type": "string"
-          },
-          "quantity": {
-            "type": "number"
-          },
-          "unitPrice": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "amount": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "plugin": {
+          "endCursor": {
             "anyOf": [
               {
                 "type": "string"
@@ -9182,45 +9573,10 @@
           }
         },
         "required": [
-          "productId",
-          "name",
-          "quantity",
-          "unitPrice",
-          "amount",
-          "plugin"
-        ]
-      },
-      "InvoiceLineInput": {
-        "type": "object",
-        "properties": {
-          "productId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200
-          },
-          "quantity": {
-            "type": "number",
-            "maximum": 1000000,
-            "exclusiveMinimum": 0
-          },
-          "unitPrice": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 100000000000
-          },
-          "plugin": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9_]{0,39}$"
-          }
-        },
-        "required": [
-          "quantity",
-          "unitPrice"
+          "hasNextPage",
+          "hasPreviousPage",
+          "startCursor",
+          "endCursor"
         ]
       },
       "PaymentGateway": {
@@ -9269,44 +9625,45 @@
           "createdAt"
         ]
       },
-      "PluginPaymentSettings": {
+      "PermissionInfo": {
         "type": "object",
         "properties": {
-          "plugin": {
+          "action": {
             "type": "string"
           },
-          "title": {
+          "group": {
             "type": "string"
           },
-          "defaultGatewayId": {
+          "label": {
+            "type": "string"
+          },
+          "description": {
             "anyOf": [
               {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 64
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ]
           },
-          "allowedGatewayIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            }
+          "source": {
+            "type": "string"
+          },
+          "ownerOnly": {
+            "type": "boolean"
           }
         },
         "required": [
-          "plugin",
-          "title",
-          "defaultGatewayId",
-          "allowedGatewayIds"
+          "action",
+          "group",
+          "label",
+          "description",
+          "source",
+          "ownerOnly"
         ]
       },
-      "Refund": {
+      "PersonRef": {
         "type": "object",
         "properties": {
           "id": {
@@ -9314,34 +9671,7 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "invoiceId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "amount": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "reason": {
-            "type": "string"
-          },
-          "method": {
-            "enum": [
-              "gateway",
-              "manual"
-            ],
-            "type": "string"
-          },
-          "status": {
-            "enum": [
-              "succeeded",
-              "failed"
-            ],
-            "type": "string"
-          },
-          "error": {
+          "firstName": {
             "anyOf": [
               {
                 "type": "string"
@@ -9351,43 +9681,66 @@
               }
             ]
           },
-          "requestedBy": {
-            "type": "object",
-            "properties": {
-              "type": {
+          "lastName": {
+            "anyOf": [
+              {
                 "type": "string"
               },
-              "id": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+              {
+                "type": "null"
               }
-            },
-            "required": [
-              "type",
-              "id"
             ]
           },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
+          "primaryEmail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "primaryPhone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "lead",
+              "customer"
+            ],
+            "type": "string"
+          },
+          "link": {
+            "$ref": "#/components/schemas/ContactLink"
           }
         },
         "required": [
           "id",
-          "invoiceId",
-          "amount",
-          "reason",
-          "method",
-          "status",
-          "error",
-          "requestedBy",
-          "createdAt"
+          "firstName",
+          "lastName",
+          "primaryEmail",
+          "primaryPhone",
+          "avatarUrl",
+          "state",
+          "link"
         ]
       },
       "Plugin": {
@@ -9822,29 +10175,106 @@
           "version"
         ]
       },
-      "TokenResponse": {
+      "PluginPaymentSettings": {
         "type": "object",
         "properties": {
-          "access_token": {
+          "plugin": {
             "type": "string"
           },
-          "token_type": {
-            "const": "Bearer"
-          },
-          "expires_in": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "scope": {
+          "title": {
             "type": "string"
+          },
+          "defaultGatewayId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allowedGatewayIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
           }
         },
         "required": [
-          "access_token",
-          "token_type",
-          "expires_in",
-          "scope"
+          "plugin",
+          "title",
+          "defaultGatewayId",
+          "allowedGatewayIds"
+        ]
+      },
+      "PluginPlan": {
+        "type": "object",
+        "properties": {
+          "saas": {
+            "type": "boolean"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "enum": [
+                  "free",
+                  "plus",
+                  "pro"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "active",
+                  "past_due",
+                  "canceling"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "access": {
+            "enum": [
+              "full",
+              "warning",
+              "read_only",
+              "off"
+            ],
+            "type": "string"
+          },
+          "readOnlyUntil": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "saas",
+          "tier",
+          "status",
+          "access",
+          "readOnlyUntil"
         ]
       },
       "Product": {
@@ -10096,19 +10526,42 @@
           "createdAt"
         ]
       },
-      "PermissionInfo": {
+      "Refund": {
         "type": "object",
         "properties": {
-          "action": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "invoiceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "reason": {
             "type": "string"
           },
-          "group": {
+          "method": {
+            "enum": [
+              "gateway",
+              "manual"
+            ],
             "type": "string"
           },
-          "label": {
+          "status": {
+            "enum": [
+              "succeeded",
+              "failed"
+            ],
             "type": "string"
           },
-          "description": {
+          "error": {
             "anyOf": [
               {
                 "type": "string"
@@ -10118,20 +10571,65 @@
               }
             ]
           },
-          "source": {
-            "type": "string"
+          "requestedBy": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ]
           },
-          "ownerOnly": {
-            "type": "boolean"
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
-          "action",
-          "group",
-          "label",
-          "description",
-          "source",
-          "ownerOnly"
+          "id",
+          "invoiceId",
+          "amount",
+          "reason",
+          "method",
+          "status",
+          "error",
+          "requestedBy",
+          "createdAt"
+        ]
+      },
+      "RelativeAmount": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3650
+          },
+          "unit": {
+            "enum": [
+              "days",
+              "weeks",
+              "months"
+            ],
+            "type": "string",
+            "default": "days"
+          }
+        },
+        "required": [
+          "amount"
         ]
       },
       "Role": {
@@ -10181,69 +10679,77 @@
           "members"
         ]
       },
-      "PluginPlan": {
+      "RunStep": {
         "type": "object",
         "properties": {
-          "saas": {
-            "type": "boolean"
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           },
-          "tier": {
-            "anyOf": [
-              {
-                "enum": [
-                  "free",
-                  "plus",
-                  "pro"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "stepId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
           },
           "status": {
-            "anyOf": [
-              {
-                "enum": [
-                  "active",
-                  "past_due",
-                  "canceling"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "access": {
             "enum": [
-              "full",
-              "warning",
-              "read_only",
-              "off"
+              "succeeded",
+              "failed",
+              "skipped"
             ],
             "type": "string"
           },
-          "readOnlyUntil": {
+          "input": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
             "anyOf": [
               {
-                "type": "string",
-                "format": "date-time"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ]
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
-          "saas",
-          "tier",
+          "id",
+          "stepId",
+          "type",
           "status",
-          "access",
-          "readOnlyUntil"
+          "error",
+          "attempt",
+          "startedAt",
+          "finishedAt"
         ]
       },
       "SaasWorkspace": {
@@ -10301,6 +10807,28 @@
         },
         "required": [
           "organization"
+        ]
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/Organization"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "user",
+          "organization",
+          "permissions"
         ]
       },
       "SubscriptionInfo": {
@@ -10464,6 +10992,67 @@
           "createdAt"
         ]
       },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "const": "Bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "token_type",
+          "expires_in",
+          "scope"
+        ]
+      },
+      "TransferColumn": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "group": {
+            "enum": [
+              "fields",
+              "custom",
+              "relations"
+            ],
+            "type": "string"
+          },
+          "importable": {
+            "type": "boolean"
+          },
+          "exportable": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "group",
+          "importable",
+          "exportable",
+          "default"
+        ]
+      },
       "TrashItem": {
         "type": "object",
         "properties": {
@@ -10566,270 +11155,16 @@
           "counts"
         ]
       },
-      "Export": {
+      "UploadTarget": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
+          "method": {
+            "const": "PUT"
           },
-          "recordType": {
-            "enum": [
-              "customer",
-              "lead",
-              "company"
-            ],
-            "type": "string"
-          },
-          "format": {
-            "enum": [
-              "csv",
-              "xlsx"
-            ],
-            "type": "string"
-          },
-          "columns": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "status": {
-            "enum": [
-              "running",
-              "done",
-              "failed"
-            ],
-            "type": "string"
-          },
-          "rowCount": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "fileId": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 64
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "error": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "createdBy": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "finishedAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "recordType",
-          "format",
-          "columns",
-          "status",
-          "rowCount",
-          "fileId",
-          "error",
-          "createdBy",
-          "createdAt",
-          "finishedAt"
-        ]
-      },
-      "ExportQuery": {
-        "type": "object",
-        "properties": {
-          "filter": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "match": {
-                    "enum": [
-                      "all",
-                      "any"
-                    ],
-                    "type": "string"
-                  },
-                  "rules": {
-                    "type": "array",
-                    "maxItems": 50,
-                    "items": {
-                      "anyOf": [
-                        {
-                          "$ref": "#/components/schemas/ConditionRule"
-                        },
-                        {
-                          "type": "object",
-                          "properties": {
-                            "match": {
-                              "enum": [
-                                "all",
-                                "any"
-                              ],
-                              "type": "string"
-                            },
-                            "rules": {
-                              "type": "array",
-                              "maxItems": 50,
-                              "items": {
-                                "anyOf": [
-                                  {
-                                    "$ref": "#/components/schemas/ConditionRule"
-                                  },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "match": {
-                                        "enum": [
-                                          "all",
-                                          "any"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "rules": {
-                                        "type": "array",
-                                        "maxItems": 50,
-                                        "items": {
-                                          "anyOf": [
-                                            {
-                                              "anyOf": [
-                                                {
-                                                  "$ref": "#/components/schemas/ConditionRule"
-                                                },
-                                                {}
-                                              ]
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        }
-                                      }
-                                    },
-                                    "required": [
-                                      "match",
-                                      "rules"
-                                    ]
-                                  }
-                                ]
-                              }
-                            }
-                          },
-                          "required": [
-                            "match",
-                            "rules"
-                          ]
-                        }
-                      ]
-                    }
-                  }
-                },
-                "required": [
-                  "match",
-                  "rules"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "search": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "tagIds": {
-            "type": "array",
-            "maxItems": 50,
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            }
-          },
-          "ownerId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          }
-        }
-      },
-      "Import": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "recordType": {
-            "enum": [
-              "customer",
-              "lead",
-              "company"
-            ],
-            "type": "string"
-          },
-          "fileName": {
-            "type": "string"
-          },
-          "status": {
-            "enum": [
-              "parsing",
-              "mapping",
-              "checking",
-              "checked",
-              "running",
-              "done",
-              "failed",
-              "undone"
-            ],
+          "url": {
             "type": "string"
           },
           "headers": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "mapping": {
             "type": "object",
             "propertyNames": {
               "type": "string"
@@ -10838,261 +11173,16 @@
               "type": "string"
             }
           },
-          "options": {
-            "$ref": "#/components/schemas/ImportOptions"
-          },
-          "counts": {
-            "type": "object",
-            "properties": {
-              "rows": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "create": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "update": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "skip": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "error": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              }
-            },
-            "required": [
-              "rows",
-              "create",
-              "update",
-              "skip",
-              "error"
-            ]
-          },
-          "processed": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "sample": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "error": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "undoable": {
-            "type": "boolean"
-          },
-          "createdBy": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "createdAt": {
+          "expiresAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "finishedAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "required": [
-          "id",
-          "recordType",
-          "fileName",
-          "status",
+          "method",
+          "url",
           "headers",
-          "mapping",
-          "options",
-          "counts",
-          "processed",
-          "sample",
-          "error",
-          "undoable",
-          "createdBy",
-          "createdAt",
-          "finishedAt"
-        ]
-      },
-      "ImportOptions": {
-        "type": "object",
-        "properties": {
-          "mode": {
-            "enum": [
-              "create",
-              "update",
-              "upsert"
-            ],
-            "type": "string"
-          },
-          "matchBy": {
-            "enum": [
-              "email",
-              "phone",
-              "code",
-              "id",
-              "name"
-            ],
-            "type": "string"
-          },
-          "tagIds": {
-            "type": "array",
-            "maxItems": 50,
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            }
-          },
-          "ownerId": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 64
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "createMissing": {
-            "type": "boolean"
-          },
-          "runAutomations": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "mode",
-          "matchBy",
-          "createMissing",
-          "runAutomations"
-        ]
-      },
-      "ImportRow": {
-        "type": "object",
-        "properties": {
-          "rowNumber": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
-          "cells": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "action": {
-            "anyOf": [
-              {
-                "enum": [
-                  "create",
-                  "update",
-                  "skip",
-                  "error"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "error": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "recordId": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "rowNumber",
-          "cells",
-          "action",
-          "error",
-          "recordId"
-        ]
-      },
-      "TransferColumn": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "group": {
-            "enum": [
-              "fields",
-              "custom",
-              "relations"
-            ],
-            "type": "string"
-          },
-          "importable": {
-            "type": "boolean"
-          },
-          "exportable": {
-            "type": "boolean"
-          },
-          "default": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "key",
-          "label",
-          "group",
-          "importable",
-          "exportable",
-          "default"
+          "expiresAt"
         ]
       },
       "User": {
@@ -11293,51 +11383,6 @@
           "onboardedAt",
           "createdAt",
           "updatedAt"
-        ]
-      },
-      "FilterField": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "text",
-              "number",
-              "date",
-              "boolean",
-              "select",
-              "member",
-              "tags"
-            ],
-            "type": "string"
-          },
-          "options": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "group": {
-            "enum": [
-              "fields",
-              "lead",
-              "custom",
-              "company",
-              "activity"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "path",
-          "label",
-          "type",
-          "group"
         ]
       },
       "View": {
@@ -11543,51 +11588,6 @@
         "required": [
           "field",
           "direction"
-        ]
-      },
-      "EventTypeInfo": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "source": {
-            "type": "string"
-          },
-          "subject": {
-            "anyOf": [
-              {
-                "enum": [
-                  "customer",
-                  "company"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "label",
-          "description",
-          "source",
-          "subject"
         ]
       },
       "Webhook": {
