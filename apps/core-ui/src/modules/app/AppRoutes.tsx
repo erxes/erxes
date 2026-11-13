@@ -14,6 +14,11 @@ const ContactsRoutes = lazyNamed(
   'ContactsRoutes',
 );
 
+const ProductsRoutes = lazyNamed(
+  () => import('~/modules/products/ProductsRoutes'),
+  'ProductsRoutes',
+);
+
 const AutomationsRoutes = lazyNamed(
   () => import('~/modules/automations/AutomationsRoutes'),
   'AutomationsRoutes',
@@ -69,6 +74,7 @@ export const AppRoutes = () => (
     >
       <Route index element={<HomePage />} />
       <Route path="contacts/*" element={<ContactsRoutes notFound={<NotFoundPage />} />} />
+      <Route path="products/*" element={<ProductsRoutes notFound={<NotFoundPage />} />} />
       <Route path="automations/*" element={<AutomationsRoutes />} />
       <Route path="reports/*" element={<ReportsRoutes />} />
       <Route path="settings/*" element={<SettingsRoutes />} />

@@ -3,6 +3,7 @@ import {
   IconApps,
   IconBolt,
   IconChartPie,
+  IconPackage,
   IconSettings,
 } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
@@ -29,6 +30,7 @@ export const SETTINGS_APP: NavApp = {
 
 const CORE_APPS: NavApp[] = [
   { id: 'contacts', label: 'Contacts', icon: IconAddressBook, path: 'contacts', kind: 'core' },
+  { id: 'products', label: 'Products', icon: IconPackage, path: 'products', kind: 'core' },
   { id: 'automations', label: 'Automations', icon: IconBolt, path: 'automations', kind: 'core' },
   { id: 'reports', label: 'Reports', icon: IconChartPie, path: 'reports', kind: 'core' },
 ];
