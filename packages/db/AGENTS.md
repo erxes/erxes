@@ -1,44 +1,24 @@
 # @erxes/core-db
 
-Drizzle schema, client and migrator for core's tables.
+Drizzle schema, client and migrator for core's tables. Schema changes follow `.agents/skills/schema-change/SKILL.md`.
 
-## Layout
-
-- `src/schema/<domain>.ts` defines tables. `src/schema/index.ts` exports them for drizzle-kit and
-  the client, and as `@erxes/core-db/schema` for the contract, which builds its schemas from them
-  (`packages/contract/AGENTS.md`). The published contract copies that subpath, so schema files
-  import only `drizzle-orm`, `drizzle-orm/pg-core`, `../table`, `../enums` and each other: no Node,
-  `pg` or client. The
-  shapes a jsonb column stores (`ConditionGroup`, `ExportQuery`, `ViewSort`) are typed here, and
-  the db package never imports the contract.
-- `src/enums.ts` (`@erxes/core-db/enums`) has every `as const` value list: what the columns store,
-  the contract's z.enums accept and the config reads. It imports nothing, so browsers load it
-  without the tables. `erxes/no-inline-enum` (`tools/lint/erxes`) fails a `z.enum([...])`,
-  `pgEnum`, `{ enum: [...] }` or SQL `IN ('a', 'b')` written out anywhere else.
-- `src/table.ts` is `pgTable`, which prefixes every table with `core_`, and `inList(column, LIST)`,
-  a CHECK's `IN (...)` built from the list the column's `enum` uses.
-- `src/client.ts` has `configureDb`, `db()`, `withTransaction`, `Db` and `Transaction`.
-- `src/migrate.ts` has `runMigrations()`. The API runs it at startup in one transaction under
-  `pg_advisory_xact_lock(hashtext('core:migrate'))`, tracked in `public.__drizzle_migrations_core`.
-- `src/ids.ts` has `newId()`: 17-character text ids, like old erxes, so imported `_id`s stay valid.
-- `drizzle/` holds the generated SQL migrations and their snapshots.
-
-## Rules
-
-- The database is shared with plugins (`<plugin>_<name>` tables). Core touches only `core_*`
-  (`tablesFilter` in `drizzle.config.ts`). Index and constraint names repeat the full table name:
-  `core_tags_org_type_name_key`.
-- Every table that holds an organisation's data has `org_id` with a foreign key to
-  `core_organizations` (`onDelete('cascade')`), and its indexes lead with `org_id`.
-- Columns that hold a fixed set of values carry it in the type: `text({ enum: ... })` with an
-  array from `src/enums.ts`, or `.$type<...>()`, so services need no casts.
-- Schema change: edit `src/schema`, run `pnpm db:generate`, read the SQL, commit both together.
-  Never edit a released migration. Never use `drizzle-kit push`. `pnpm check:generated` fails when
-  the schema and `drizzle/` disagree.
-- Only transaction-scoped locks: core runs behind connection poolers.
-- Future (Phase 1): row-level security per organisation, a separate migration role, and migrations
-  moved out of API startup.
-
-## Check
-
-`pnpm check:generated`, then `pnpm test` with `DATA_TEST_URL` (each API test file migrates a new database).
+- `src/schema/<domain>.ts` defines tables with `pgTable` from `src/table.ts`, which adds `core_`.
+  The published contract copies the schema, so schema files import only drizzle, `../table`,
+  `../enums` and each other (`no-restricted-imports`). A jsonb column's shape is typed here; this
+  package never imports the contract.
+- `src/enums.ts` has every `as const` value list: what the columns store, the contract's z.enums
+  accept and the config reads. A CHECK builds its `IN (...)` from the column's list with
+  `inList(column, LIST)` from `src/table.ts`. `erxes/no-inline-enum` fails a list written out elsewhere.
+- `src/tenant.ts` scopes every query. `withOrg(orgId, fn)` opens one transaction for that
+  organisation, and `db()` inside it returns that transaction. `withSystem(reason, fn)` spans
+  organisations, for jobs and the lookups before one is known. `withOrgDetached` commits on its own
+  even when the surrounding scope rolls back (recording why a request was refused).
+- A table with an organisation's data has `org_id` with a cascading foreign key to
+  `core_organizations`, indexes that lead with `org_id`, and row level security in its migration:
+  `ENABLE` and `FORCE ROW LEVEL SECURITY` and `CREATE POLICY core_tenant`, as in
+  `drizzle/0020_auth_tokens.sql`. `pnpm check:rls` fails without them. A table without `org_id` is
+  listed in `tools/check-rls.sql` with the reason.
+- `runMigrations()` (`src/migrate.ts`) applies `drizzle/` in one transaction under an advisory
+  transaction lock. Production runs it with `pnpm db:migrate`; the API runs it at startup only when
+  `DATA_MIGRATE_ON_START` is on, the default outside production.
+- Released migrations never change (`db:check-applied` in CI). Never use `drizzle-kit push`.
