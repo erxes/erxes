@@ -1,26 +1,14 @@
-import { closeDb, configureDb, runMigrations, schema } from '@erxes/core-db';
+import { closeDb, configureDb, schema } from '@erxes/core-db';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { randomBytes } from 'node:crypto';
-import { Client, Pool } from 'pg';
+import { Pool } from 'pg';
 import { afterAll, beforeAll, describe } from 'vite-plus/test';
-import { TEST_RUNTIME_ROLE } from './globalSetup';
+import { admin, databaseUrl, TEST_RUNTIME_ROLE } from './globalSetup';
 
 const baseUrl = process.env.DATA_TEST_URL ?? '';
 
 /** Runs the suite only when DATA_TEST_URL points at a Postgres (CI sets it). */
 export const describeWithDb = baseUrl ? describe : describe.skip;
-
-const admin = async (statement: string, url = baseUrl) => {
-  const client = new Client({ connectionString: url });
-
-  await client.connect();
-
-  try {
-    await client.query(statement);
-  } finally {
-    await client.end();
-  }
-};
 
 let currentUrl = '';
 let ownerPool: Pool | null = null;
@@ -51,24 +39,15 @@ const sessionUrl = (url: string) => {
   return parsed.toString();
 };
 
-/** A throwaway database for this test file, migrated from packages/db/drizzle. */
+/** A throwaway database for this test file, copied from the run's migrated template. */
 export const useTestDatabase = () => {
   const name = `core_test_${randomBytes(4).toString('hex')}`;
 
   beforeAll(async () => {
-    // The runtime role is cluster-wide, created once per run (globalSetup.ts).
-    await admin(`CREATE DATABASE ${name}`);
+    // A copy of the run's migrated template, which already grants the runtime role (globalSetup.ts).
+    await admin(baseUrl, `CREATE DATABASE ${name} TEMPLATE ${process.env.CORE_TEST_TEMPLATE}`);
 
-    const url = new URL(baseUrl);
-    url.pathname = `/${name}`;
-
-    currentUrl = url.toString();
-
-    // Migrate as the owner, then grant the runtime role.
-    configureDb({ url: currentUrl, applicationName: 'erxes-core-test-migrate' });
-    await runMigrations();
-    await closeDb();
-    await admin(`SELECT core_grant_runtime('${TEST_RUNTIME_ROLE}')`, currentUrl);
+    currentUrl = databaseUrl(baseUrl, name);
 
     ownerPool = new Pool({
       connectionString: currentUrl,
@@ -95,7 +74,7 @@ export const useTestDatabase = () => {
     await ownerPool?.end();
     ownerPool = null;
     owner = null;
-    await admin(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
+    await admin(baseUrl, `DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
   });
 };
 
