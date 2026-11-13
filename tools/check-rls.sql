@@ -17,6 +17,7 @@ with no_org_id (table_name, tenant_key, reason) as (
     ('core_plugins', null, 'The deployment''s plugin registry. Installations per organisation are core_plugin_installations.'),
     ('core_event_consumers', null, 'Each stream consumer''s read position. A consumer reads every organisation''s events.'),
     ('core_used_tokens', null, 'Ids of used single-use sign-in links, unique across the deployment.'),
+    ('core_rate_limits', null, 'Request counts per client address, shared by every replica, before any organisation is known.'),
     ('__drizzle_migrations_core', null, 'The migration log.')
 ),
 relations as (
