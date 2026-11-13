@@ -12,8 +12,9 @@ const unit = (currency: string) => 10 ** currencyDigits(currency);
 export const formatMoney = (amount: number, currency: string, language: string) =>
   new Intl.NumberFormat(language, { style: 'currency', currency }).format(amount / unit(currency));
 
-/** An amount for a number input: 1250 USD → "12.5". */
-export const toAmountInput = (amount: number, currency: string) => String(amount / unit(currency));
+/** An amount for a number input, with all of the currency's decimals: 1250 USD → "12.50", 500 JPY → "500". */
+export const toAmountInput = (amount: number, currency: string) =>
+  (amount / unit(currency)).toFixed(currencyDigits(currency));
 
 /** What was typed in a number input, in the smallest unit: "12.5" USD → 1250. */
 export const fromAmountInput = (text: string, currency: string) =>

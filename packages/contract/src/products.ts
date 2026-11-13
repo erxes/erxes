@@ -110,6 +110,7 @@ export const productsContract = {
         search: z.string().trim().max(100).optional(),
         kind: ProductKind.optional(),
         status: ProductStatus.default('active'),
+        /** That category and its subcategories. */
         categoryId: Id.optional(),
         plugin: PluginName.optional(),
         all: QueryBoolean.default(false),

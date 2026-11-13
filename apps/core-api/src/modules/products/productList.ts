@@ -1,6 +1,6 @@
 import type { CursorQuery, Product, ProductKind, ProductStatus } from '@erxes/core-contract';
-import { type Db, products } from '@erxes/core-db';
-import { and, arrayContains, eq, ilike, inArray, or } from 'drizzle-orm';
+import { type Db, productCategories, products } from '@erxes/core-db';
+import { and, arrayContains, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { unique } from '~/lib/contacts';
 import { containsPattern, keysetPage } from '~/lib/keyset';
@@ -39,6 +39,17 @@ interface ProductQuery {
   all: boolean;
 }
 
+/** Products in a category or any of its subcategories. */
+const inCategory = (orgId: string, categoryId: string) => sql`${products.categoryId} in (
+  with recursive tree as (
+    select id from ${productCategories} where org_id = ${orgId} and id = ${categoryId}
+    union all
+    select c.id from ${productCategories} c join tree on c.parent_id = tree.id
+    where c.org_id = ${orgId}
+  )
+  select id from tree
+)`;
+
 /** A plugin lists the products it uses unless it asks for `all`; members may filter by plugin. */
 const usedBy = (caller: Caller, query: ProductQuery) => {
   const plugin = caller.actorType === 'plugin' && !query.all ? caller.source : query.plugin;
@@ -64,7 +75,7 @@ export const listProducts = async (
     and(
       eq(products.status, query.status),
       query.kind ? eq(products.kind, query.kind) : undefined,
-      query.categoryId ? eq(products.categoryId, query.categoryId) : undefined,
+      query.categoryId ? inCategory(caller.orgId, query.categoryId) : undefined,
       usedBy(caller, query),
       search && query.search
         ? or(

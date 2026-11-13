@@ -93,6 +93,18 @@ describeWithDb('products', { timeout: 120_000 }, () => {
     // A category with products can go; its products lose it. One with subcategories can't.
     const sub = await t.owner().productCategories.create({ name: 'Cases', parentId: category.id });
 
+    const inSub = await t
+      .owner()
+      .products.create({ kind: 'goods', name: 'Phone case', categoryId: sub.id });
+
+    // A category lists its subcategories' products too; the subcategory only its own.
+    const listed = async (categoryId: string) =>
+      (await t.owner().products.list({ categoryId })).data.map((p) => p.name).toSorted();
+
+    expect(await listed(category.id)).toEqual(['Phone X', 'Phone case']);
+    expect(await listed(sub.id)).toEqual(['Phone case']);
+    await t.owner().products.archive({ id: inSub.id });
+
     await expect(
       t.owner().productCategories.update({ id: category.id, parentId: sub.id }),
     ).rejects.toMatchObject({ code: 'INVALID_CATEGORY' });

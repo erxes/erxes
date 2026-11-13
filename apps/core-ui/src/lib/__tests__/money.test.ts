@@ -17,7 +17,9 @@ describe('money', () => {
     expect(fromAmountInput('12.5', 'USD')).toBe(1250);
     expect(fromAmountInput('500', 'JPY')).toBe(500);
     expect(fromAmountInput('1.234', 'KWD')).toBe(1234);
-    expect(toAmountInput(150_000, 'MNT')).toBe('1500');
+    expect(toAmountInput(150_000, 'MNT')).toBe('1500.00');
+    expect(toAmountInput(1250, 'USD')).toBe('12.50');
+    expect(toAmountInput(1234, 'KWD')).toBe('1.234');
     expect(toAmountInput(500, 'JPY')).toBe('500');
     expect(amountStep('JPY')).toBe(1);
     expect(amountStep('USD')).toBe(0.01);
