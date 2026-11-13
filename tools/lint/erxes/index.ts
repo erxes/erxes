@@ -76,10 +76,42 @@ const noInlineEnumRule = defineRule({
   },
 });
 
+const SESSION_LOCK = /\bpg_(try_)?advisory_lock(_shared)?\s*\(/i;
+
+/**
+ * Core runs behind connection poolers, so a session-level advisory lock stays
+ * on the pooled connection after the transaction that took it ends.
+ */
+const noSessionAdvisoryLockRule = defineRule({
+  meta: {
+    type: 'problem',
+    docs: { description: 'Disallow session-level Postgres advisory locks in SQL strings.' },
+    messages: {
+      sessionLock:
+        'pg_advisory_lock outlives the transaction on a pooled connection. Use pg_advisory_xact_lock (lockKey in apps/core-api/src/lib/locks.ts).',
+    },
+  },
+  createOnce(context) {
+    return {
+      Literal(node) {
+        if (typeof node.value === 'string' && SESSION_LOCK.test(node.value))
+          context.report({ node, messageId: 'sessionLock' });
+      },
+      TemplateElement(node) {
+        if (SESSION_LOCK.test(node.value.cooked ?? node.value.raw))
+          context.report({ node, messageId: 'sessionLock' });
+      },
+    };
+  },
+});
+
 /** Rules for erxes core's own conventions. */
 const erxesPlugin = eslintCompatPlugin({
   meta: { name: 'erxes' },
-  rules: { 'no-inline-enum': noInlineEnumRule },
+  rules: {
+    'no-inline-enum': noInlineEnumRule,
+    'no-session-advisory-lock': noSessionAdvisoryLockRule,
+  },
 });
 
 export default erxesPlugin;
