@@ -1,6 +1,10 @@
 **/node_modules
 **/dist
 **/coverage
+# Tests never reach an image, and leaving them out keeps a test-only change from rebuilding one.
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
 **/.test-files
 **/data
 .env
