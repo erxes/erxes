@@ -4,7 +4,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { AuditStreamFormat } from './values';
-import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
+import { cursorPageOf, CursorQuery, Id, isoDate, listOf } from './common';
 import { ActorRef } from './platform';
 
 export const AuditEntry = createSelectSchema(auditLogs, {
@@ -186,15 +186,18 @@ export const auditContract = {
     )
     .output(
       z.object({
-        data: z.array(
-          z.object({
-            chainSeq: z.int(),
-            hash: z.string(),
-            keyId: z.string(),
-            signature: z.string(),
-            createdAt: z.iso.datetime(),
-          }),
-        ),
+        // One page: at most `limit`.
+        data: z
+          .array(
+            z.object({
+              chainSeq: z.int(),
+              hash: z.string(),
+              keyId: z.string(),
+              signature: z.string(),
+              createdAt: z.iso.datetime(),
+            }),
+          )
+          .max(1000),
       }),
     ),
   settings: oc
@@ -214,7 +217,7 @@ export const auditContract = {
       path: '/audit/streams',
       summary: 'Where the audit log is streamed (owners)',
     })
-    .output(z.object({ data: z.array(AuditStream) })),
+    .output(listOf(AuditStream)),
   createStream: oc
     .route({
       method: 'POST',

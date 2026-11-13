@@ -189,7 +189,7 @@ export const usersContract = {
       summary: 'Invite several team members at once, all or none (owners and admins)',
     })
     .input(z.object({ entries: z.array(InviteEntry).min(1).max(50) }))
-    .output(z.object({ data: z.array(User) })),
+    .output(z.object({ data: z.array(User).max(50) })),
   update: oc
     .route({
       method: 'PATCH',

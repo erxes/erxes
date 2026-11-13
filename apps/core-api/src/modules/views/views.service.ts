@@ -2,6 +2,7 @@ import type { SORT_DIRECTIONS } from '@erxes/core-db/enums';
 import type { ConditionGroup, View, ViewRecordType } from '@erxes/core-contract';
 import { type Db, newId, views } from '@erxes/core-db';
 import { and, asc, eq, or, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, requirePermission } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
@@ -46,17 +47,20 @@ const toDto = (actor: Actor, row: Row): View => ({
 export const listViews = async (client: Db, actor: Actor, recordType: ViewRecordType) => {
   assertSees(actor, recordType);
 
-  const rows = await client
-    .select()
-    .from(views)
-    .where(
-      and(
-        eq(views.orgId, actor.orgId),
-        eq(views.recordType, recordType),
-        or(eq(views.shared, true), eq(views.createdBy, actor.userId)),
-      ),
-    )
-    .orderBy(sql`${views.shared} desc`, asc(sql`lower(${views.name})`));
+  const rows = await wholeList((limit) =>
+    client
+      .select()
+      .from(views)
+      .where(
+        and(
+          eq(views.orgId, actor.orgId),
+          eq(views.recordType, recordType),
+          or(eq(views.shared, true), eq(views.createdBy, actor.userId)),
+        ),
+      )
+      .orderBy(sql`${views.shared} desc`, asc(sql`lower(${views.name})`))
+      .limit(limit),
+  );
 
   return { data: rows.map((row) => toDto(actor, row)) };
 };

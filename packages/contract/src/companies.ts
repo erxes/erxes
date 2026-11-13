@@ -196,10 +196,10 @@ export const companiesContract = {
     .route({
       method: 'GET',
       path: '/companies/{id}/people',
-      summary: "The company's people: main contact first, then current, then former",
+      summary: "The company's first 500 people: main contact first, then current, then former",
     })
     .input(ID)
-    .output(z.object({ data: z.array(PersonRef) })),
+    .output(z.object({ data: z.array(PersonRef).max(500) })),
   linkPerson: oc
     .route({
       method: 'PUT',

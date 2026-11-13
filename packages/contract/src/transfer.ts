@@ -12,11 +12,16 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from './automationDefinition';
-import { Id, isoDate } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 export const TransferRecordType = z.enum(TRANSFER_RECORD_TYPES);
 
 export type TransferRecordType = z.infer<typeof TransferRecordType>;
+
+/** A page of imports or exports: 50, the most the lists showed before they paged. */
+const TransferPage = CursorQuery.extend({
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+}).prefault({});
 
 /** A column imports map to and exports write: built-in fields, properties (`customFields.<id>`), tags, owner, companies. */
 export const TransferColumn = z.object({
@@ -144,10 +149,11 @@ export const transferContract = {
       summary: 'What imports can fill and exports can write, for a record type',
     })
     .input(z.object({ recordType: TransferRecordType }))
-    .output(z.object({ data: z.array(TransferColumn) })),
+    .output(listOf(TransferColumn)),
   imports: oc
     .route({ method: 'GET', path: '/imports', summary: 'Imports, newest first' })
-    .output(z.object({ data: z.array(Import) })),
+    .input(TransferPage)
+    .output(cursorPageOf(Import)),
   import: oc
     .route({ method: 'GET', path: '/imports/{id}' })
     .input(z.object({ id: Id }))
@@ -213,10 +219,11 @@ export const transferContract = {
         limit: z.coerce.number().int().min(1).max(1000).default(200),
       }),
     )
-    .output(z.object({ data: z.array(ImportRow) })),
+    .output(z.object({ data: z.array(ImportRow).max(1000) })),
   exports: oc
     .route({ method: 'GET', path: '/exports', summary: 'Exports, newest first' })
-    .output(z.object({ data: z.array(Export) })),
+    .input(TransferPage)
+    .output(cursorPageOf(Export)),
   createExport: oc
     .route({
       method: 'POST',

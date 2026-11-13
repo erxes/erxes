@@ -11,7 +11,7 @@ import {
   roles,
   users,
 } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { type Actor, systemCaller } from '~/http/auth';
 import { logger } from '~/logger';
@@ -30,20 +30,45 @@ export type SubjectRef = { type: ContentType; id: string };
 export const subjectRefOf = (run: Pick<RunRow, 'subjectType' | 'subjectId'>): SubjectRef | null =>
   run.subjectType && run.subjectId ? { type: run.subjectType, id: run.subjectId } : null;
 
-export const definitionOf = async (tx: Db, automationId: string, version: number) => {
-  const [row] = await tx
-    .select({ definition: automationVersions.definition })
-    .from(automationVersions)
-    .where(
-      and(
-        eq(automationVersions.automationId, automationId),
-        eq(automationVersions.version, version),
-      ),
-    )
-    .limit(1);
+type VersionRef = { automationId: string; version: number };
 
-  return row ? AutomationDefinition.parse(row.definition) : null;
+/** The definitions of these automation versions in one query; look one up with `get(automationId, version)`. */
+export const definitionsOf = async (tx: Db, versions: VersionRef[]) => {
+  const rows = versions.length
+    ? await tx
+        .select({
+          automationId: automationVersions.automationId,
+          version: automationVersions.version,
+          definition: automationVersions.definition,
+        })
+        .from(automationVersions)
+        .where(
+          or(
+            ...versions.map((ref) =>
+              and(
+                eq(automationVersions.automationId, ref.automationId),
+                eq(automationVersions.version, ref.version),
+              ),
+            ),
+          ),
+        )
+    : [];
+
+  const byVersion = new Map(
+    rows.map((row) => [
+      `${row.automationId}@${row.version}`,
+      AutomationDefinition.parse(row.definition),
+    ]),
+  );
+
+  return {
+    get: (automationId: string, version: number) =>
+      byVersion.get(`${automationId}@${version}`) ?? null,
+  };
 };
+
+export const definitionOf = async (tx: Db, automationId: string, version: number) =>
+  (await definitionsOf(tx, [{ automationId, version }])).get(automationId, version);
 
 /**
  * The member an automation acts as, with their role's permissions read now:
@@ -164,21 +189,23 @@ export const continueAfter = async (
 export const ADVANCE_QUEUE = 'automation.advance';
 
 /** Queues the run's step at `cursor`, now or at `runAt` (a delay, a wait's time limit). */
+/** The job that advances a run at `cursor`. */
+export const advanceJob = (run: Pick<RunRow, 'id' | 'orgId'>, cursor: Cursor, runAt?: Date) => ({
+  orgId: run.orgId,
+  queue: ADVANCE_QUEUE,
+  payload: { runId: run.id },
+  runAt,
+  // One job per run, position and time: a step is never queued twice.
+  dedupeKey: `${run.id}:${cursor.join('.')}:${runAt ? runAt.getTime() : 'now'}`,
+  maxAttempts: 5,
+});
+
 export const queueAdvance = (
   tx: Db,
   run: Pick<RunRow, 'id' | 'orgId'>,
   cursor: Cursor,
   runAt?: Date,
-) =>
-  enqueueJob(tx, {
-    orgId: run.orgId,
-    queue: ADVANCE_QUEUE,
-    payload: { runId: run.id },
-    runAt,
-    // One job per run, position and time: a step is never queued twice.
-    dedupeKey: `${run.id}:${cursor.join('.')}:${runAt ? runAt.getTime() : 'now'}`,
-    maxAttempts: 5,
-  });
+) => enqueueJob(tx, advanceJob(run, cursor, runAt));
 
 /**
  * Tells whoever turned the automation on that a run failed, collapsed to one

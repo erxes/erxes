@@ -3,7 +3,7 @@ import { customers, type Db, newId } from '@erxes/core-db';
 import { and, arrayContains, eq, or, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
-import { lockKey } from '~/lib/locks';
+import { lockKeys } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 import { contactCreated } from '~/modules/activities/contactHistory';
 import { planLeadOnCreate, recordLeadSteps } from '~/modules/leads/lifecycle';
@@ -57,9 +57,10 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
   const email = input.primaryEmail ? normalizeEmail(input.primaryEmail) : null;
   const phone = input.primaryPhone ? normalizePhone(input.primaryPhone) : null;
 
-  for (const key of [...(email ? [`email:${email}`] : []), ...(phone ? [`phone:${phone}`] : [])]) {
-    await lockKey(client, `customer:${caller.orgId}:${key}`);
-  }
+  await lockKeys(client, [
+    ...(email ? [`customer:${caller.orgId}:email:${email}`] : []),
+    ...(phone ? [`customer:${caller.orgId}:phone:${phone}`] : []),
+  ]);
 
   const found = await findByContact(client, caller.orgId, email, phone);
 
@@ -95,7 +96,7 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
         .returning({ id: customers.id }),
     );
 
-    await recordLeadSteps(tx, caller, 'customer', row.id, lead.steps);
+    await recordLeadSteps(tx, caller, 'customer', [{ id: row.id, steps: lead.steps }]);
     await contactCreated(tx, caller, 'customer', await findCustomer(tx, caller.orgId, row.id));
 
     return row.id;

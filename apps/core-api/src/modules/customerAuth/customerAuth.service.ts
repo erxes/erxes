@@ -17,7 +17,8 @@ import { and, asc, count, desc, eq, gt, isNull, sql } from 'drizzle-orm';
 import { type CustomerCaller, systemCaller } from '~/http/auth';
 import { HttpError, notFound, pgConstraint } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
-import { lockKey } from '~/lib/locks';
+import { wholeList } from '~/lib/keyset';
+import { lockKeys } from '~/lib/locks';
 import { contactUpdated } from '~/modules/activities/contactHistory';
 import { findCustomer } from '~/modules/customers/customerRows';
 import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
@@ -56,7 +57,7 @@ const toLoginDto = (row: typeof customerLogins.$inferSelect): CustomerLogin => (
 });
 
 const lockLogin = (tx: Db, orgId: string, address: Address) =>
-  lockKey(tx, `customer-login:${orgId}:${address.kind}:${address.value}`);
+  lockKeys(tx, [`customer-login:${orgId}:${address.kind}:${address.value}`]);
 
 const findLogin = (tx: Db, orgId: string, address: Address) =>
   tx
@@ -252,13 +253,16 @@ export const updateMyProfile = (
 export const myLogins = (me: CustomerCaller) =>
   withOrg(me.orgId, async (tx) => ({
     data: (
-      await tx
-        .select()
-        .from(customerLogins)
-        .where(
-          and(eq(customerLogins.orgId, me.orgId), eq(customerLogins.customerId, me.customerId)),
-        )
-        .orderBy(asc(customerLogins.createdAt))
+      await wholeList((limit) =>
+        tx
+          .select()
+          .from(customerLogins)
+          .where(
+            and(eq(customerLogins.orgId, me.orgId), eq(customerLogins.customerId, me.customerId)),
+          )
+          .orderBy(asc(customerLogins.createdAt))
+          .limit(limit),
+      )
     ).map(toLoginDto),
   }));
 
@@ -309,7 +313,7 @@ export const confirmAddLogin = async (me: CustomerCaller, input: Address & { cod
 export const removeMyLogin = (me: CustomerCaller, id: string) =>
   withOrg(me.orgId, async (tx) => {
     // One removal at a time per customer: two at once can't remove the last two.
-    await lockKey(tx, `customer-logins:${me.orgId}:${me.customerId}`);
+    await lockKeys(tx, [`customer-logins:${me.orgId}:${me.customerId}`]);
 
     const mine = await tx
       .select({ id: customerLogins.id })
@@ -338,11 +342,14 @@ const activeSessions = (me: CustomerCaller) =>
 export const mySessions = (me: CustomerCaller) =>
   withOrg(me.orgId, async (tx) => ({
     data: (
-      await tx
-        .select()
-        .from(customerSessions)
-        .where(activeSessions(me))
-        .orderBy(desc(customerSessions.lastUsedAt))
+      await wholeList((limit) =>
+        tx
+          .select()
+          .from(customerSessions)
+          .where(activeSessions(me))
+          .orderBy(desc(customerSessions.lastUsedAt))
+          .limit(limit),
+      )
     ).map((row): CustomerSession => ({
       id: row.id,
       clientId: row.clientId,

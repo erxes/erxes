@@ -15,6 +15,7 @@ import {
   cursorPageOf,
   ImageAddress,
   isoDate,
+  listOf,
 } from './common';
 import {
   ContactState,
@@ -274,7 +275,7 @@ export const customersContract = {
       summary: "The customer's companies",
     })
     .input(ID)
-    .output(z.object({ data: z.array(CompanyRef) })),
+    .output(listOf(CompanyRef)),
   linkCompany: oc
     .route({
       method: 'PUT',

@@ -3,7 +3,7 @@ import { webhookDeliveries, webhooks } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate, listOf } from './common';
 
 /**
  * Events core publishes (plugins add theirs through their manifest). Webhooks
@@ -262,8 +262,8 @@ export const webhooksContract = {
       path: '/events/types',
       summary: "Event types to subscribe to or automate on: core's and installed plugins'",
     })
-    .output(z.object({ data: z.array(EventTypeInfo) })),
-  list: oc.route({ method: 'GET', path: '/webhooks' }).output(z.object({ data: z.array(Webhook) })),
+    .output(listOf(EventTypeInfo)),
+  list: oc.route({ method: 'GET', path: '/webhooks' }).output(listOf(Webhook)),
   create: oc
     .route({
       method: 'POST',

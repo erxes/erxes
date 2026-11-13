@@ -50,12 +50,11 @@ const moveRelations = async (tx: Db, orgId: string, keepId: string, otherIds: st
   await copyTags(tx, orgId, 'customer', otherIds, keepId);
 
   // They sign in as the kept customer from now on, and stay signed in.
-  for (const table of [customerLogins, customerSessions]) {
-    await tx
-      .update(table)
-      .set({ customerId: keepId })
-      .where(and(eq(table.orgId, orgId), inArray(table.customerId, otherIds)));
-  }
+  const ofOthers = (table: typeof customerLogins | typeof customerSessions) =>
+    and(eq(table.orgId, orgId), inArray(table.customerId, otherIds));
+
+  await tx.update(customerLogins).set({ customerId: keepId }).where(ofOthers(customerLogins));
+  await tx.update(customerSessions).set({ customerId: keepId }).where(ofOthers(customerSessions));
 };
 
 /** The kept customer's columns after the merge. */

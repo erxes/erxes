@@ -7,6 +7,7 @@ import {
   plugins,
 } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -16,28 +17,31 @@ export const listPluginSettings = async (
   client: Db,
   actor: Actor,
 ): Promise<{ data: PluginPaymentSettings[] }> => {
-  const rows = await client
-    .select({
-      plugin: pluginInstallations.plugin,
-      manifest: plugins.manifest,
-      settings: paymentPluginSettings,
-    })
-    .from(pluginInstallations)
-    .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
-    .leftJoin(
-      paymentPluginSettings,
-      and(
-        eq(paymentPluginSettings.orgId, pluginInstallations.orgId),
-        eq(paymentPluginSettings.plugin, pluginInstallations.plugin),
-      ),
-    )
-    .where(
-      and(
-        eq(pluginInstallations.orgId, actor.orgId),
-        sql`'payments:write' = any(${pluginInstallations.grantedScopes})`,
-      ),
-    )
-    .orderBy(pluginInstallations.plugin);
+  const rows = await wholeList((limit) =>
+    client
+      .select({
+        plugin: pluginInstallations.plugin,
+        manifest: plugins.manifest,
+        settings: paymentPluginSettings,
+      })
+      .from(pluginInstallations)
+      .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
+      .leftJoin(
+        paymentPluginSettings,
+        and(
+          eq(paymentPluginSettings.orgId, pluginInstallations.orgId),
+          eq(paymentPluginSettings.plugin, pluginInstallations.plugin),
+        ),
+      )
+      .where(
+        and(
+          eq(pluginInstallations.orgId, actor.orgId),
+          sql`'payments:write' = any(${pluginInstallations.grantedScopes})`,
+        ),
+      )
+      .orderBy(pluginInstallations.plugin)
+      .limit(limit),
+  );
 
   return {
     data: rows.map((row) => ({

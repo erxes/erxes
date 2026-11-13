@@ -1,12 +1,14 @@
 import type { AutomationDefinition } from '@erxes/core-contract';
 import { automationRuns, automations, type Db, type events, newId } from '@erxes/core-db';
-import { and, desc, eq, gt, sql } from 'drizzle-orm';
+import { and, eq, gt, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { inOrder } from '~/lib/sequence';
 import { toEventDto } from '~/modules/events/events.service';
 import type { EventConsumer } from '~/modules/events/processor';
+import { enqueueJobs } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
 import { nextCursor, stepAt } from './cursor';
-import { continueAfter, definitionOf, finishRun, log, queueAdvance, type SubjectRef } from './runs';
+import { advanceJob, continueAfter, definitionsOf, finishRun, log, type SubjectRef } from './runs';
 import { type Subject, subjectOf } from './subjects';
 
 type AutomationRow = typeof automations.$inferSelect;
@@ -22,40 +24,43 @@ export interface RunStart {
   subject: SubjectRef | null;
   event: Record<string, unknown>;
   depth?: number;
-  /** The subject as already loaded (an audience page), so it isn't read again. */
-  loaded?: Subject;
+  /** The subject as the caller loaded it (null: none, or it is gone). */
+  loaded: Subject | null;
 }
 
-/** Has this record already been through the automation, as its re-entry rule counts? */
+/** The records that already went through the automation, as its re-entry rule counts. */
 const enteredBefore = async (
   tx: Db,
   automationId: string,
   reentry: AutomationDefinition['reentry'],
-  subject: SubjectRef | null,
+  subjectIds: string[],
 ) => {
-  if (reentry === 'always' || !subject) return false;
+  if (reentry === 'always' || !subjectIds.length) return new Set<string | null>();
 
-  const [earlier] = await tx
-    .select({ id: automationRuns.id })
+  const earlier = await tx
+    .selectDistinct({ subjectId: automationRuns.subjectId })
     .from(automationRuns)
     .where(
       and(
         eq(automationRuns.automationId, automationId),
-        eq(automationRuns.subjectId, subject.id),
+        inArray(automationRuns.subjectId, subjectIds),
         reentry === 'daily'
           ? gt(automationRuns.startedAt, sql`now() - interval '1 day'`)
           : undefined,
       ),
-    )
-    .orderBy(desc(automationRuns.startedAt))
-    .limit(1);
+    );
 
-  return Boolean(earlier);
+  return new Set(earlier.map((row) => row.subjectId));
 };
 
-/** Over the hourly limit: counts the skip on the automation. */
-const overHourlyLimit = async (tx: Db, automationId: string, limit: number | undefined) => {
-  if (!limit) return false;
+/** How many of `wanted` runs the hourly limit leaves room for; counts the rest as skipped on the automation. */
+const hourlyRoom = async (
+  tx: Db,
+  automationId: string,
+  limit: number | undefined,
+  wanted: number,
+) => {
+  if (!limit || !wanted) return wanted;
 
   const [recent] = await tx
     .select({ count: sql<number>`count(*)::int` })
@@ -67,69 +72,116 @@ const overHourlyLimit = async (tx: Db, automationId: string, limit: number | und
       ),
     );
 
-  if ((recent?.count ?? 0) < limit) return false;
+  const room = Math.max(0, limit - (recent?.count ?? 0));
+  const skipped = wanted - Math.min(room, wanted);
 
-  await tx
-    .update(automations)
-    .set({
-      state: sql`jsonb_set(${automations.state}, '{skippedByLimit}', to_jsonb(coalesce((${automations.state}->>'skippedByLimit')::int, 0) + 1))`,
-    })
-    .where(eq(automations.id, automationId));
+  if (skipped)
+    await tx
+      .update(automations)
+      .set({
+        state: sql`jsonb_set(${automations.state}, '{skippedByLimit}', to_jsonb(coalesce((${automations.state}->>'skippedByLimit')::int, 0) + ${skipped}))`,
+      })
+      .where(eq(automations.id, automationId));
 
-  return true;
+  return room;
 };
 
 /**
- * Starts a run unless the record already went through (re-entry), the
- * hourly limit is reached, or this start already happened (same `eventId`).
+ * Starts one automation's runs, in the starts' order, except for records that
+ * already went through (re-entry), starts past the hourly limit, and starts
+ * that already happened (same `eventId`). A few statements for any number.
  */
+export const startRuns = async (
+  tx: Db,
+  automation: AutomationRow,
+  definition: AutomationDefinition,
+  starts: RunStart[],
+) => {
+  const version = automation.activeVersion;
+
+  if (!version || !starts.length) return [];
+
+  const entered = await enteredBefore(
+    tx,
+    automation.id,
+    definition.reentry,
+    starts.flatMap((start) => (start.subject ? [start.subject.id] : [])),
+  );
+
+  const started = await tx
+    .select({ eventId: automationRuns.eventId })
+    .from(automationRuns)
+    .where(
+      and(
+        eq(automationRuns.automationId, automation.id),
+        inArray(
+          automationRuns.eventId,
+          starts.map((start) => start.eventId),
+        ),
+      ),
+    );
+
+  // Starts that already happened, and repeats within `starts` (first wins), take
+  // no room under the hourly limit.
+  const eventIds = new Set(started.map((run) => run.eventId));
+
+  const fresh = starts.filter((start) => {
+    const subjectId = definition.reentry === 'always' ? undefined : start.subject?.id;
+
+    if (eventIds.has(start.eventId) || (subjectId && entered.has(subjectId))) return false;
+
+    eventIds.add(start.eventId);
+
+    if (subjectId) entered.add(subjectId);
+
+    return true;
+  });
+
+  const room = await hourlyRoom(tx, automation.id, definition.maxRunsPerHour, fresh.length);
+  const allowed = fresh.slice(0, room);
+
+  if (!allowed.length) return [];
+
+  const runs = await tx
+    .insert(automationRuns)
+    .values(
+      allowed.map((start) => ({
+        id: newId(),
+        orgId: automation.orgId,
+        automationId: automation.id,
+        version,
+        eventId: start.eventId,
+        eventType: start.eventType,
+        subjectType: start.subject?.type ?? null,
+        subjectId: start.subject?.id ?? null,
+        context: { event: start.event, subject: start.loaded, steps: {} },
+        depth: start.depth ?? 0,
+      })),
+    )
+    .onConflictDoNothing()
+    .returning();
+
+  await enqueueJobs(
+    tx,
+    runs.map((run) => advanceJob(run, [0])),
+  );
+
+  return runs;
+};
+
 export const startRun = async (
   tx: Db,
   automation: AutomationRow,
   definition: AutomationDefinition,
   start: RunStart,
-) => {
-  if (
-    !automation.activeVersion ||
-    (await enteredBefore(tx, automation.id, definition.reentry, start.subject)) ||
-    (await overHourlyLimit(tx, automation.id, definition.maxRunsPerHour))
-  )
-    return null;
-
-  const subject =
-    start.loaded ??
-    (start.subject
-      ? await subjectOf(tx, automation.orgId, start.subject.type, start.subject.id)
-      : null);
-
-  const [run] = await tx
-    .insert(automationRuns)
-    .values({
-      id: newId(),
-      orgId: automation.orgId,
-      automationId: automation.id,
-      version: automation.activeVersion,
-      eventId: start.eventId,
-      eventType: start.eventType,
-      subjectType: start.subject?.type ?? null,
-      subjectId: start.subject?.id ?? null,
-      context: { event: start.event, subject, steps: {} },
-      depth: start.depth ?? 0,
-    })
-    .onConflictDoNothing()
-    .returning();
-
-  if (run) await queueAdvance(tx, run, [0]);
-
-  return run ?? null;
-};
+) => (await startRuns(tx, automation, definition, [start]))[0] ?? null;
 
 /** Records from a quiet import (the import's own choice) start nothing. */
 const QuietImport = z
   .object({ _import: z.object({ quiet: z.boolean() }) })
   .transform(({ _import: mark }) => mark.quiet);
 
-const startRuns = async (tx: Db, event: EventRow, dto: ReturnType<typeof toEventDto>) => {
+const startTriggered = async (tx: Db, event: EventRow, dto: ReturnType<typeof toEventDto>) => {
   const candidates = await tx
     .select()
     .from(automations)
@@ -154,19 +206,30 @@ const startRuns = async (tx: Db, event: EventRow, dto: ReturnType<typeof toEvent
   const subject = await subjectOf(tx, event.orgId, event.subjectType, event.subjectId);
   const context = { event: dto, subject, steps: {} };
 
-  for (const automation of candidates) {
-    // Never an automation's own events.
-    if (!automation.activeVersion || cause?.automationId === automation.id) continue;
+  // Never an automation's own events.
+  const eligible = candidates.flatMap((automation) =>
+    automation.activeVersion && cause?.automationId !== automation.id
+      ? [{ automation, version: automation.activeVersion }]
+      : [],
+  );
 
-    const definition = await definitionOf(tx, automation.id, automation.activeVersion);
+  const definitions = await definitionsOf(
+    tx,
+    eligible.map(({ automation, version }) => ({ automationId: automation.id, version })),
+  );
 
-    if (
-      definition?.trigger.kind !== 'event' ||
-      !evaluateGroup(definition.trigger.conditions, context)
-    )
-      continue;
+  const matches = eligible.flatMap(({ automation, version }) => {
+    const definition = definitions.get(automation.id, version);
 
-    await startRun(tx, automation, definition, {
+    return definition?.trigger.kind === 'event' &&
+      evaluateGroup(definition.trigger.conditions, context)
+      ? [{ automation, definition }]
+      : [];
+  });
+
+  // Each automation checks its own re-entry and hourly limit, on one transaction.
+  await inOrder(matches, ({ automation, definition }) =>
+    startRun(tx, automation, definition, {
       eventId: event.id,
       eventType: event.type,
       subject:
@@ -175,8 +238,9 @@ const startRuns = async (tx: Db, event: EventRow, dto: ReturnType<typeof toEvent
           : null,
       event: dto,
       depth: event.depth,
-    });
-  }
+      loaded: subject,
+    }),
+  );
 };
 
 /**
@@ -201,17 +265,29 @@ const resumeWaiting = async (
     )
     .for('update', { skipLocked: true });
 
-  for (const run of waiting) {
-    const definition = await definitionOf(tx, run.automationId, run.version);
+  if (!waiting.length) return;
 
-    if (!definition) continue;
+  const definitions = await definitionsOf(tx, waiting);
 
-    const subject = await subjectOf(tx, run.orgId, run.subjectType, run.subjectId);
-    const context = { ...run.context, subject };
+  // Every run here is about this one record id: read it once per record type.
+  const subjects = new Map<string | null, Subject | null>();
+
+  await inOrder(new Set(waiting.map((run) => run.subjectType)), async (type) => {
+    subjects.set(type, await subjectOf(tx, event.orgId, type, subjectId));
+  });
+
+  // Each run advances on its own (finished, or past its wait), in turn on one transaction.
+  await inOrder(waiting, async (run) => {
+    const definition = definitions.get(run.automationId, run.version);
+
+    if (!definition) return;
+
+    const context = { ...run.context, subject: subjects.get(run.subjectType) ?? null };
 
     if (definition.goal && evaluateGroup(definition.goal, context)) {
       await finishRun(tx, run.id, 'succeeded', { goal: true, context });
-      continue;
+
+      return;
     }
 
     const step = stepAt(definition.steps, run.cursor);
@@ -221,7 +297,7 @@ const resumeWaiting = async (
       step?.type !== 'wait_for' ||
       !evaluateGroup(step.conditions, { ...context, event: dto })
     )
-      continue;
+      return;
 
     await continueAfter(tx, run, step, context, {
       input: null,
@@ -230,7 +306,7 @@ const resumeWaiting = async (
       attempt: 1,
       startedAt: new Date(),
     });
-  }
+  });
 };
 
 /**
@@ -256,6 +332,6 @@ export const automationsConsumer: EventConsumer = {
 
     if (QuietImport.safeParse(event.payload).data) return;
 
-    await startRuns(tx, event, dto);
+    await startTriggered(tx, event, dto);
   },
 };

@@ -6,6 +6,7 @@ import { notFound } from '~/http/errors';
 import { allOf } from '~/lib/conditions';
 import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
+import { deleteInBatches } from '~/lib/sequence';
 
 const toNotificationDto = (row: typeof notifications.$inferSelect): Notification => ({
   id: row.id,
@@ -136,25 +137,13 @@ export const removeNotification = async (client: Db, actor: Actor, id: string) =
 const PRUNE_BATCH = 5000;
 
 /** Deletes read notifications past the retention period (all organisations). */
-export const pruneNotifications = async (client: Db, days: number) => {
-  let removed = 0;
-
-  // In batches, oldest first.
-  for (let round = 0; round < 200; round += 1) {
-    const result = await client.execute(sql`
+export const pruneNotifications = (client: Db, days: number) =>
+  deleteInBatches(200, PRUNE_BATCH, () =>
+    client.execute(sql`
       delete from ${notifications} where id in (
         select id from ${notifications}
         where read_at is not null and read_at < now() - make_interval(days => ${days})
         limit ${PRUNE_BATCH}
       )
-    `);
-
-    const deleted = result.rowCount ?? 0;
-
-    removed += deleted;
-
-    if (deleted < PRUNE_BATCH) break;
-  }
-
-  return removed;
-};
+    `),
+  );

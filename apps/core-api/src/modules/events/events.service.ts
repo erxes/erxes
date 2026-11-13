@@ -10,10 +10,11 @@ import {
 } from '~/http/auth';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { HttpError } from '~/http/errors';
-import { assertMember, assertPluginNamespace } from '~/lib/guards';
+import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { currentRunCause, currentImport } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
-import { assertTarget } from '~/modules/activities/timelineAccess';
+import { deleteInBatches } from '~/lib/sequence';
+import { assertTargets } from '~/modules/activities/timelineAccess';
 
 type EventRow = typeof events.$inferSelect;
 
@@ -92,10 +93,6 @@ export const publishPluginEvents = async (
   for (const input of inputs) {
     assertPluginNamespace(caller.plugin, input.type);
 
-    if (input.subject) {
-      await assertTarget(client, caller.orgId, input.subject.type, input.subject.id);
-    }
-
     if (input.summary && !input.subject) {
       throw new HttpError(
         400,
@@ -103,9 +100,18 @@ export const publishPluginEvents = async (
         'A timeline summary needs a subject (customer or company)',
       );
     }
-
-    await assertMember(client, caller.orgId, input.actorUserId);
   }
+
+  await assertTargets(
+    client,
+    caller.orgId,
+    inputs.flatMap((input) => input.subject ?? []),
+  );
+  await assertMembers(
+    client,
+    caller.orgId,
+    inputs.map((input) => input.actorUserId),
+  );
 
   const inserted = await client
     .insert(events)
@@ -324,10 +330,8 @@ export const pruneEvents = async (
 
   if (positions.length < consumerNames.length) return 0;
 
-  let removed = 0;
-
-  for (let round = 0; round < 100; round += 1) {
-    const result = await client.execute(sql`
+  return deleteInBatches(100, batchSize, () =>
+    client.execute(sql`
       delete from ${events} e
       where e.id in (
         select id from ${events} old
@@ -343,14 +347,6 @@ export const pruneEvents = async (
           and not exists (select 1 from ${eventFailures} f where f.event_id = old.id)
         limit ${batchSize}
       )
-    `);
-
-    const count = result.rowCount ?? 0;
-
-    removed += count;
-
-    if (count < batchSize) break;
-  }
-
-  return removed;
+    `),
+  );
 };

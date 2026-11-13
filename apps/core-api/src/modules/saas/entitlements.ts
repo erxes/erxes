@@ -9,11 +9,12 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, lt, sql } from 'drizzle-orm';
+import { and, eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { systemCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
+import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { accessOf, type EntitlementRow, NOT_IN_PLAN } from './access';
@@ -23,6 +24,48 @@ const log = logger.child({ component: 'saas' });
 
 /** erxes.io answers with `Cache-Control: max-age=30`: older than this, ask again (in the background). */
 const FRESH_MS = 30_000;
+
+type Change = 'installed' | 'resumed' | 'removed';
+
+/** What a plugin's access asks of its installation, if anything. */
+const changeOf = (
+  access: ReturnType<typeof accessOf>,
+  installation: typeof pluginInstallations.$inferSelect | undefined,
+): Change | null => {
+  const inPlan = access === 'full' || access === 'warning';
+
+  if (inPlan && !installation) return 'installed';
+
+  if (inPlan && installation?.status === 'disabled' && installation.statusReason === NOT_IN_PLAN)
+    return 'resumed';
+
+  if (access === 'off' && installation?.status === 'active') return 'removed';
+
+  return null;
+};
+
+/** Turns installations on or off, in one update. */
+const setStatus = async (
+  tx: Db,
+  orgId: string,
+  list: { name: string }[],
+  status: { status: 'active' | 'disabled'; statusReason: string | null },
+) => {
+  if (!list.length) return;
+
+  await tx
+    .update(pluginInstallations)
+    .set({ ...status, updatedAt: sql`now()` })
+    .where(
+      and(
+        eq(pluginInstallations.orgId, orgId),
+        inArray(
+          pluginInstallations.plugin,
+          list.map((plugin) => plugin.name),
+        ),
+      ),
+    );
+};
 
 /**
  * Plugins follow their access: in the plan and not installed → installed
@@ -43,44 +86,33 @@ const reconcilePlugins = async (tx: Db, orgId: string, row: EntitlementRow, now 
     ),
   );
 
-  const changes: { plugin: string; change: 'installed' | 'resumed' | 'removed' }[] = [];
+  const changes = registered.flatMap((plugin) => {
+    const change = changeOf(accessOf(row, plugin.name, now), installed.get(plugin.name));
 
-  for (const plugin of registered) {
-    const access = accessOf(row, plugin.name, now);
-    const installation = installed.get(plugin.name);
-    const inPlan = access === 'full' || access === 'warning';
+    return change ? [{ plugin, change }] : [];
+  });
 
-    const where = and(
-      eq(pluginInstallations.orgId, orgId),
-      eq(pluginInstallations.plugin, plugin.name),
-    );
+  const named = (change: Change) =>
+    changes.filter((item) => item.change === change).map((item) => item.plugin);
 
-    if (inPlan && !installation) {
-      await tx
-        .insert(pluginInstallations)
-        .values({ orgId, plugin: plugin.name, grantedScopes: plugin.manifest?.scopes ?? [] })
-        .onConflictDoNothing();
-      changes.push({ plugin: plugin.name, change: 'installed' });
-    } else if (
-      inPlan &&
-      installation?.status === 'disabled' &&
-      installation.statusReason === NOT_IN_PLAN
-    ) {
-      await tx
-        .update(pluginInstallations)
-        .set({ status: 'active', statusReason: null, updatedAt: sql`now()` })
-        .where(where);
-      changes.push({ plugin: plugin.name, change: 'resumed' });
-    } else if (access === 'off' && installation?.status === 'active') {
-      await tx
-        .update(pluginInstallations)
-        .set({ status: 'disabled', statusReason: NOT_IN_PLAN, updatedAt: sql`now()` })
-        .where(where);
-      changes.push({ plugin: plugin.name, change: 'removed' });
-    }
-  }
+  const toInstall = named('installed');
 
-  return changes;
+  if (toInstall.length)
+    await tx
+      .insert(pluginInstallations)
+      .values(
+        toInstall.map((plugin) => ({
+          orgId,
+          plugin: plugin.name,
+          grantedScopes: plugin.manifest?.scopes ?? [],
+        })),
+      )
+      .onConflictDoNothing();
+
+  await setStatus(tx, orgId, named('resumed'), { status: 'active', statusReason: null });
+  await setStatus(tx, orgId, named('removed'), { status: 'disabled', statusReason: NOT_IN_PLAN });
+
+  return changes.map((item) => ({ plugin: item.plugin.name, change: item.change }));
 };
 
 /** Rows read on every request: kept 30 s per process, replaced at once when this process refreshes. */
@@ -310,13 +342,14 @@ export const refreshAllEntitlements = async () => {
 
   let refreshed = 0;
 
-  for (const org of orgs) {
-    await refreshEntitlements(org.id)
+  // One organisation at a time: erxes.io is asked once per organisation, not all at once.
+  await inOrder(orgs, (org) =>
+    refreshEntitlements(org.id)
       .then(() => (refreshed += 1))
       .catch((error: unknown) =>
         log.warn({ org: org.id, err: error }, 'entitlement refresh failed'),
-      );
-  }
+      ),
+  );
 
   await withSystem('saas: used tokens', (tx) =>
     tx.delete(usedTokens).where(lt(usedTokens.expiresAt, sql`now()`)),

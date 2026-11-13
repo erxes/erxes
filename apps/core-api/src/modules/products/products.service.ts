@@ -61,28 +61,38 @@ const announce = async (
   client: Db,
   caller: Caller,
   action: 'created' | 'updated' | 'archived' | 'restored',
-  row: ProductRow,
-  before?: ProductRow,
+  versions: { row: ProductRow; before?: ProductRow }[],
 ) => {
-  const changes = before
-    ? mergeChanges(
-        diffRows(before, row, ['archivedAt', 'customFields']),
-        diffCustomFields(before.customFields, row.customFields),
-      )
-    : null;
+  const changed = versions.map(({ row, before }) => ({
+    row,
+    changes: before
+      ? mergeChanges(
+          diffRows(before, row, ['archivedAt', 'customFields']),
+          diffCustomFields(before.customFields, row.customFields),
+        )
+      : null,
+  }));
 
-  await recordAudit(client, caller, {
-    action: `product.${action}`,
-    targetType: 'product',
-    targetId: row.id,
-    targetLabel: row.name,
-    changes,
-  });
-  await publishCoreEvents(client, caller, {
-    type: `core.product.${action}`,
-    entity: { type: 'product', id: row.id },
-    payload: { product: toProductDto(row), changed: Object.keys(changes ?? {}) },
-  });
+  await recordAudit(
+    client,
+    caller,
+    changed.map(({ row, changes }) => ({
+      action: `product.${action}`,
+      targetType: 'product',
+      targetId: row.id,
+      targetLabel: row.name,
+      changes,
+    })),
+  );
+  await publishCoreEvents(
+    client,
+    caller,
+    changed.map(({ row, changes }) => ({
+      type: `core.product.${action}`,
+      entity: { type: 'product', id: row.id },
+      payload: { product: toProductDto(row), changed: Object.keys(changes ?? {}) },
+    })),
+  );
 };
 
 /** A plugin that creates a product uses it; the price is in the organisation's currency unless set. */
@@ -122,7 +132,7 @@ export const createProduct = async (
 
   const row = await findProduct(client, caller.orgId, id);
 
-  await announce(client, caller, 'created', row);
+  await announce(client, caller, 'created', [{ row }]);
 
   return toProductDto(row);
 };
@@ -152,7 +162,7 @@ export const updateProduct = async (
 
   const row = await findProduct(client, caller.orgId, id);
 
-  await announce(client, caller, 'updated', row, before);
+  await announce(client, caller, 'updated', [{ row, before }]);
 
   return toProductDto(row);
 };
@@ -180,6 +190,14 @@ export const useProducts = async (client: Db, caller: Caller, ids: string[], use
   const changed = before.filter((row) => row.plugins.includes(plugin) !== used);
 
   if (changed.length) {
+    const where = and(
+      eq(products.orgId, caller.orgId),
+      inArray(
+        products.id,
+        changed.map((row) => row.id),
+      ),
+    );
+
     await client
       .update(products)
       .set({
@@ -188,24 +206,21 @@ export const useProducts = async (client: Db, caller: Caller, ids: string[], use
           : sql`array_remove(${products.plugins}, ${plugin})`,
         updatedAt: sql`now()`,
       })
-      .where(
-        and(
-          eq(products.orgId, caller.orgId),
-          inArray(
-            products.id,
-            changed.map((row) => row.id),
-          ),
-        ),
-      );
-  }
+      .where(where);
 
-  for (const previous of changed) {
+    const after = new Map(
+      (await client.select(productColumns).from(products).where(where)).map((row) => [row.id, row]),
+    );
+
     await announce(
       client,
       caller,
       'updated',
-      await findProduct(client, caller.orgId, previous.id),
-      previous,
+      changed.flatMap((previous) => {
+        const row = after.get(previous.id);
+
+        return row ? [{ row, before: previous }] : [];
+      }),
     );
   }
 
@@ -234,7 +249,9 @@ export const setProductStatus = async (
 
   const row = await findProduct(client, caller.orgId, id);
 
-  await announce(client, caller, status === 'archived' ? 'archived' : 'restored', row, before);
+  await announce(client, caller, status === 'archived' ? 'archived' : 'restored', [
+    { row, before },
+  ]);
 
   return toProductDto(row);
 };

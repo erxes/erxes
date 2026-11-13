@@ -26,8 +26,13 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   `publishCoreEvents(tx, ...)`.
 - Errors are `HttpError(status, code, message, data?)`, an `ORPCError`. Clients branch on `code`, so
   a new failure gets a new code and old codes keep their meaning.
-- Lists use keyset paging (`keysetPage` in `src/lib/keyset.ts`, `CursorQuery` in the contract),
-  newest first; the cursor is a record id.
+- Lists of records that grow with use page with `keysetPage` (`cursorPageOf`; newest first, the
+  cursor is a record id); small config lists use `wholeList` (`listOf`), which throws past
+  `LIST_MAX` rather than cut the list. A growing list the UI reads in one go (a company's people)
+  returns a window, its first N in the list's order, with `.max(N)` in the contract and N in the summary.
+  `setup.test.ts` fails a list with neither paging nor a max.
+- No query per item in a loop (`no-await-in-loop`): batch with `inArray` or a set-based update.
+  Loops that are sequential on purpose go through `inOrder` or `repeatWhile` (`src/lib/sequence.ts`).
 - Tokens core signs get their own JOSE `typ` (`signJwt`); `verifyJwt` checks it and parses the claims.
 - Settings are read only in `src/config.ts`. Secrets also read `<NAME>_FILE`.
 - `src/lib/crypto.ts` is the only file that imports `node:crypto`: `safeEqual`, `sha256`,

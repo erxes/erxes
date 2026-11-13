@@ -1,4 +1,4 @@
-import type { CursorQuery, PageInfo } from '@erxes/core-contract';
+import { type CursorQuery, LIST_MAX, type PageInfo } from '@erxes/core-contract';
 import type { Db } from '@erxes/core-db';
 import type { SQL } from 'drizzle-orm';
 import { and, asc, count, desc, eq, sql } from 'drizzle-orm';
@@ -24,6 +24,22 @@ const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${ch
 
 /** `%value%` for ILIKE, with the user's own `%`, `_` and `\` taken literally. */
 export const containsPattern = (value: string) => `%${escapeLike(value)}%`;
+
+/**
+ * A small config list read whole (`listOf` in the contract): `fetch` gets a
+ * limit of `LIST_MAX + 1`, and a list past `LIST_MAX` throws, so one that
+ * outgrew "small" fails loudly instead of losing rows. Page it with
+ * `keysetPage` then.
+ */
+export const wholeList = async <Row>(fetch: (limit: number) => Promise<Row[]>) => {
+  const rows = await fetch(LIST_MAX + 1);
+
+  if (rows.length > LIST_MAX) {
+    throw new Error(`A list read whole has more than ${LIST_MAX} rows; page it with keysetPage`);
+  }
+
+  return rows;
+};
 
 /**
  * Newest-first keyset paging over (created_at, id). The cursor is a record id;

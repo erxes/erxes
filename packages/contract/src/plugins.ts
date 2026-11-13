@@ -2,7 +2,7 @@ import { AUTOMATION_SUBJECTS, CONTENT_TYPES } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
-import { Id } from './common';
+import { Id, listOf } from './common';
 import { ActionField } from './automationRuns';
 import { Country } from './money';
 import { EventType } from './platform';
@@ -285,7 +285,7 @@ export const pluginsContract = {
       path: '/plugins',
       summary: 'Plugins of this deployment, and which are installed here',
     })
-    .output(z.object({ data: z.array(Plugin) })),
+    .output(listOf(Plugin)),
   install: oc
     .route({
       method: 'POST',

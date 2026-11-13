@@ -7,20 +7,20 @@
 (* statement, one storage call, or a commit.                               *)
 (*                                                                         *)
 (* Storage holds two keys. "upload" is the upload link's key               *)
-(* (files.service.ts:39-40, a fresh nonce per createUpload); "final" is    *)
-(* the file's own key (files.service.ts:43-47), which no link can write.   *)
+(* (files.service.ts:40-41, a fresh nonce per createUpload); "final" is    *)
+(* the file's own key (files.service.ts:44-48), which no link can write.   *)
 (* A stored object is the version number of the PUT that wrote it; 0 means *)
 (* nothing is stored.                                                      *)
 (*                                                                         *)
 (* Both drivers are explored (driver is picked in Init):                   *)
 (*  - s3: a PUT replaces the upload object; promote copies only the version*)
-(*    stat saw (CopySourceIfMatch, storage.ts:327-338).                    *)
+(*    stat saw (CopySourceIfMatch, storage.ts:328-339).                    *)
 (*  - local: the link writes once (hard link, files.http.ts:67-72);        *)
-(*    promote hard-links and never replaces the target (storage.ts:224-234)*)
+(*    promote hard-links and never replaces the target (storage.ts:225-235)*)
 (*                                                                         *)
 (* Left out: storeServerFile (ready at once, no link), the size-mismatch   *)
 (* branch of completeUpload (both drivers refuse a body of another length, *)
-(* files.http.ts:53-64 and storage.ts:289-298), audit rows, several files, *)
+(* files.http.ts:53-64 and storage.ts:290-299), audit rows, several files, *)
 (* and time (any pending row counts as old enough for the prune).          *)
 (***************************************************************************)
 EXTENDS Naturals
@@ -65,7 +65,7 @@ TypeOK ==
   /\ pkey \in Keys
   /\ served \subseteq 0..MaxPuts
 
-\* After createUpload (files.service.ts:53-98): a pending row on the upload key.
+\* After createUpload (files.service.ts:54-99): a pending row on the upload key.
 Init ==
   /\ driver \in {"local", "s3"}
   /\ row = "pending"
@@ -93,7 +93,7 @@ Put ==
   /\ UNCHANGED <<driver, row, rowKey, lock, pc, seen, checked, rpc, ppc, pkey, served>>
 
 (***************************************************************************)
-(* completeUpload (files.service.ts:123-181), one transaction that holds   *)
+(* completeUpload (files.service.ts:124-182), one transaction that holds   *)
 (* the row lock from lockRows until commit or rollback.                    *)
 (***************************************************************************)
 
@@ -119,7 +119,7 @@ CStat(c) ==
   /\ UNCHANGED <<driver, row, rowKey, store, puts, checked, rpc, ppc, pkey, served>>
 
 \* The first half of storage().promote (155): S3 CopyObject with
-\* CopySourceIfMatch (storage.ts:328-336), local link() (storage.ts:225-232).
+\* CopySourceIfMatch (storage.ts:329-337), local link() (storage.ts:226-233).
 \* A refusal is 409 UPLOAD_CHANGED (156-162) and rolls back.
 CopyOk(c) ==
   /\ store["upload"] # 0
@@ -135,8 +135,8 @@ CCopy(c) ==
        ELSE Release(c) /\ UNCHANGED store
   /\ UNCHANGED <<driver, row, rowKey, puts, seen, checked, rpc, ppc, pkey, served>>
 
-\* The second half of promote: DeleteObject on the upload key (storage.ts:337)
-\* or unlink (storage.ts:233).
+\* The second half of promote: DeleteObject on the upload key (storage.ts:338)
+\* or unlink (storage.ts:234).
 CDrop(c) ==
   /\ pc[c] = "copied"
   /\ store' = [store EXCEPT !["upload"] = 0]

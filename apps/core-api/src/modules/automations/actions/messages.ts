@@ -90,16 +90,16 @@ export const MESSAGE_ACTIONS: CoreAction[] = [
 
       if (!recipients.length) return { sent: 0, reason: 'no email address' };
 
-      for (const address of recipients) {
-        await sendEmail(ctx.tx, ctx.orgId, {
-          to: address,
-          template: 'message',
-          data: {
-            subject: (text(ctx.input.subject) ?? '').slice(0, 200),
-            body: (text(ctx.input.body) ?? '').slice(0, 20_000),
-          },
-        });
-      }
+      const data = {
+        subject: (text(ctx.input.subject) ?? '').slice(0, 200),
+        body: (text(ctx.input.body) ?? '').slice(0, 20_000),
+      };
+
+      await sendEmail(
+        ctx.tx,
+        ctx.orgId,
+        recipients.map((address) => ({ to: address, template: 'message', data })),
+      );
 
       return { sent: recipients.length, to: recipients };
     },

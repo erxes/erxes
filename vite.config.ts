@@ -148,6 +148,7 @@ export default defineConfig({
             'error',
             { paths: [routerBuilder, ...decided], patterns: [noApps] },
           ],
+          'no-await-in-loop': 'error',
         },
       },
       {
@@ -207,9 +208,12 @@ export default defineConfig({
       },
       {
         // Core's hashing, comparisons and random tokens all go through lib/crypto.ts.
+        // A query per item is an N+1 (here and in the packages above): batch it (`inArray`, a
+        // set-based update), or go through `inOrder`/`repeatWhile` (src/lib/sequence.ts) on purpose.
         files: ['apps/core-api/**'],
         rules: {
           'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
+          'no-await-in-loop': 'error',
         },
       },
       {
@@ -223,8 +227,9 @@ export default defineConfig({
       },
       {
         // A test file's describe callback holds all its cases; max-lines still bounds the file.
+        // A test takes its steps in order (a race, a session's lifetime); N+1s are a server concern.
         files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
-        rules: { 'max-lines-per-function': 'off' },
+        rules: { 'max-lines-per-function': 'off', 'no-await-in-loop': 'off' },
       },
       {
         // Tools load these through their default export.

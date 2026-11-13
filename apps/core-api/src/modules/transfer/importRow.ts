@@ -3,6 +3,7 @@ import type { Db } from '@erxes/core-db';
 import { ZodError } from 'zod';
 import { HttpError } from '~/http/errors';
 import { normalizeEmail } from '~/lib/contacts';
+import { inOrder } from '~/lib/sequence';
 import { createCompany, updateCompany } from '~/modules/companies/companies.service';
 import {
   createCustomer,
@@ -196,8 +197,12 @@ export const processRow = async (
       recordId = await saveRecord(sp, ctx, read.input, existing);
 
       if (read.refs.companies?.length && !ctx.isCompany) {
-        for (const companyId of await companyIds(sp, ctx, read.refs.companies, created))
-          await linkCustomerCompany(sp, ctx.actor, recordId, companyId);
+        const customerId = recordId;
+
+        // Each link runs the full link (its own checks, audit and events), one after another.
+        await inOrder(await companyIds(sp, ctx, read.refs.companies, created), (companyId) =>
+          linkCustomerCompany(sp, ctx.actor, customerId, companyId),
+        );
       }
 
       if (dry) throw new DryRun();

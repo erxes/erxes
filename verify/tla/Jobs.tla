@@ -6,19 +6,19 @@
 (* one SQL statement, one handler run, or a commit.                        *)
 (*                                                                         *)
 (* Time is abstract. A claim's lease is "running" until Expire ends it.    *)
-(* Every claim on one queue gets the same lease length (jobs.ts:150-157),  *)
+(* Every claim on one queue gets the same lease length (jobs.ts:168-175),  *)
 (* so leases end in the order they were taken: Expire ends the oldest.     *)
 (* run_at and backoff only delay a claim, so a queued job is due at once.  *)
 (*                                                                         *)
 (* Left out: the atomic handler's transaction (a non-atomic handler with   *)
 (* an external effect is the weaker case), dedupe keys (enqueueJob's       *)
-(* onConflictDoNothing, jobs.ts:60, adds no row), the onDead hook's own    *)
+(* onConflictDoNothing, jobs.ts:68, adds no row), the onDead hook's own    *)
 (* effects, organisation deletion (cascade), and several jobs.            *)
 (***************************************************************************)
 EXTENDS Naturals, FiniteSets
 
 CONSTANTS
-  Workers,      \* processes running processJobs (jobs.ts:263-291)
+  Workers,      \* processes running processJobs (jobs.ts:281-312)
   MaxAttempts,  \* core_jobs.max_attempts at enqueue
   MaxRetries,   \* times someone presses retry on a dead job
   Broken        \* deliberately broken designs, for the .broken-*.cfg checks
@@ -53,7 +53,7 @@ TypeOK ==
   /\ effects \in Nat
   /\ retries \in 0..MaxRetries
 
-\* enqueueJob (jobs.ts:48-64) inserted the row; its transaction is still open.
+\* enqueueJobs (jobs.ts:52-72) inserted the row; its transaction is still open.
 Init ==
   /\ tx = "open"
   /\ status = "queued"
@@ -90,10 +90,10 @@ Expire ==
   /\ leases' = leases \ {Min(leases)}
   /\ UNCHANGED <<tx, status, attempts, maxAttempts, lockedBy, pc, claimNo, effects, retries>>
 
-\* The claim statement (jobs.ts:147-167): one update over
+\* The claim statement (jobs.ts:165-185): one update over
 \* `select ... for update skip locked`, so two workers never take one row.
 \* It takes a due queued job, or a running one whose lease ran out and that
-\* has attempts left; the abandon statement just before it (jobs.ts:139-145)
+\* has attempts left; the abandon statement just before it (jobs.ts:157-163)
 \* made the others dead.
 Claimable ==
   /\ Visible
@@ -113,8 +113,8 @@ Claim(w) ==
   /\ claimNo' = [claimNo EXCEPT ![w] = attempts + 1]
   /\ UNCHANGED <<tx, maxAttempts, effects, retries>>
 
-\* The abandon statement (jobs.ts:139-145): a job whose worker stopped during
-\* its last attempt is dead; processJobs runs its onDead (jobs.ts:270-276).
+\* The abandon statement (jobs.ts:157-163): a job whose worker stopped during
+\* its last attempt is dead; processJobs runs its onDead (jobs.ts:289-297).
 Abandon ==
   /\ ~Has("reclaim_past_max") /\ ~Has("no_reclaim")
   /\ Visible
@@ -124,7 +124,7 @@ Abandon ==
   /\ lockedBy' = 0
   /\ UNCHANGED <<tx, attempts, maxAttempts, leases, pc, claimNo, effects, retries>>
 
-\* definition.handle(job) (jobs.ts:254): its effect happens, or it throws.
+\* definition.handle(job) (jobs.ts:272): its effect happens, or it throws.
 Run(w) ==
   /\ pc[w] = "claimed"
   /\ \/ effects' = effects + 1 /\ pc' = [pc EXCEPT ![w] = "succeeded"]
@@ -137,12 +137,12 @@ Crash(w) ==
   /\ pc' = [pc EXCEPT ![w] = "idle"]
   /\ UNCHANGED <<tx, status, attempts, maxAttempts, lockedBy, leases, claimNo, effects, retries>>
 
-\* heldBy (jobs.ts:200-201): the row is running under this worker's claim.
+\* heldBy (jobs.ts:218-219): the row is running under this worker's claim.
 \* The broken design matches on the id only (and on status = 'running' in
 \* fail), the way jobs.ts did before the fence.
 HeldBy(w) == status = "running" /\ attempts = claimNo[w]
 
-\* The delete after a successful run (jobs.ts:255). The broken design
+\* The delete after a successful run (jobs.ts:273). The broken design
 \* `ack_before_run` deletes the job first and runs it after.
 Ack(w) ==
   /\ \/ pc[w] = "succeeded"
@@ -153,7 +153,7 @@ Ack(w) ==
   /\ pc' = [pc EXCEPT ![w] = "idle"]
   /\ UNCHANGED <<tx, attempts, maxAttempts, leases, claimNo, effects, retries>>
 
-\* fail (jobs.ts:203-231): back to queued, or dead after the last attempt,
+\* fail (jobs.ts:221-249): back to queued, or dead after the last attempt,
 \* judged by the worker's own job row (claimNo).
 Fail(w) ==
   /\ pc[w] = "failed"
@@ -164,7 +164,7 @@ Fail(w) ==
   /\ pc' = [pc EXCEPT ![w] = "idle"]
   /\ UNCHANGED <<tx, attempts, maxAttempts, leases, claimNo, effects, retries>>
 
-\* retryDeadJobs (jobs.ts:336-355): one more attempt for a dead job.
+\* retryDeadJobs (jobs.ts:357-376): one more attempt for a dead job.
 Retry ==
   /\ status = "dead"
   /\ retries < MaxRetries

@@ -3,7 +3,7 @@ import { leadEvents, leadStages } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, isoDate } from './common';
+import { Id, isoDate, listOf } from './common';
 
 /** `open`: still being worked; `qualified`: ready to become a customer; `disqualified`: lost. */
 export const LeadStageKind = z.enum(LEAD_STAGE_KINDS);
@@ -173,7 +173,7 @@ export const leadsContract = {
       path: '/lead-stages',
       summary: 'The lead stages, in order, with how many leads each holds',
     })
-    .output(z.object({ data: z.array(LeadStage) })),
+    .output(listOf(LeadStage)),
   createStage: oc
     .route({ method: 'POST', path: '/lead-stages', successStatus: 201 })
     .input(StageFields.required({ name: true }))
@@ -229,10 +229,10 @@ export const leadsContract = {
     .route({
       method: 'GET',
       path: '/leads/{id}/history',
-      summary: "A lead's journey: created, every stage, converted",
+      summary: "A lead's journey, its last 200 steps: created, every stage, converted",
     })
     .input(z.object({ ...RecordTypeInput, id: Id }))
-    .output(z.object({ data: z.array(LeadEvent) })),
+    .output(z.object({ data: z.array(LeadEvent).max(200) })),
   report: oc
     .route({
       method: 'GET',

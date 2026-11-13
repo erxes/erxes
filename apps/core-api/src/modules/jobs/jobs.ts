@@ -9,6 +9,7 @@ import {
 } from '@erxes/core-db';
 import { and, eq, gte, inArray, lt, lte, or, sql } from 'drizzle-orm';
 import type { z } from 'zod';
+import { repeatWhile } from '~/lib/sequence';
 import { logger, traced } from '~/logger';
 import { liveHub } from '~/modules/live/hub';
 
@@ -52,24 +53,35 @@ export interface EnqueueInput {
   maxAttempts?: number;
 }
 
-/** Adds a job in the caller's transaction: it exists only if that commits. */
-export const enqueueJob = async (client: Db, input: EnqueueInput): Promise<string | null> => {
-  const [row] = await client
+/**
+ * Adds jobs in the caller's transaction, in one insert: they exist only if it
+ * commits. Returns the ids of those added (a taken `dedupeKey` adds nothing).
+ */
+export const enqueueJobs = async (client: Db, inputs: EnqueueInput[]) => {
+  if (!inputs.length) return [];
+
+  const rows = await client
     .insert(jobs)
-    .values({
-      id: newId(),
-      orgId: input.orgId,
-      queue: input.queue,
-      payload: input.payload ?? {},
-      runAt: input.runAt ?? sql`now()`,
-      dedupeKey: input.dedupeKey ?? null,
-      maxAttempts: input.maxAttempts ?? 8,
-    })
+    .values(
+      inputs.map((input) => ({
+        id: newId(),
+        orgId: input.orgId,
+        queue: input.queue,
+        payload: input.payload ?? {},
+        runAt: input.runAt ?? sql`now()`,
+        dedupeKey: input.dedupeKey ?? null,
+        maxAttempts: input.maxAttempts ?? 8,
+      })),
+    )
     .onConflictDoNothing()
     .returning({ id: jobs.id });
 
-  return row?.id ?? null;
+  return rows.map((row) => row.id);
 };
+
+/** Adds one job; its id, or null when its `dedupeKey` is taken. */
+export const enqueueJob = async (client: Db, input: EnqueueInput) =>
+  (await enqueueJobs(client, [input]))[0] ?? null;
 
 type PayloadJob<P> = Omit<JobRow, 'payload'> & { payload: P };
 
@@ -96,12 +108,18 @@ export const defineJob = <S extends z.ZodType<Record<string, unknown>, Record<st
     ? { ...options, atomic: true, handle: (row, tx) => definition.handle(parsed(row), tx) }
     : { ...options, handle: (row) => definition.handle(parsed(row)) };
 
+  type Input = Omit<EnqueueInput, 'queue' | 'payload'> & { payload: z.input<S> };
+
   return {
     ...job,
-    enqueue: (
-      client: Db,
-      input: Omit<EnqueueInput, 'queue' | 'payload'> & { payload: z.input<S> },
-    ) => enqueueJob(client, { ...input, queue: definition.queue }),
+    enqueue: (client: Db, input: Input) =>
+      enqueueJob(client, { ...input, queue: definition.queue }),
+    /** Many in one insert. */
+    enqueueAll: (client: Db, inputs: Input[]) =>
+      enqueueJobs(
+        client,
+        inputs.map((input) => ({ ...input, queue: definition.queue })),
+      ),
   };
 };
 
@@ -271,18 +289,19 @@ export const processJobs = async (definitions: JobDefinition[], concurrency = 5)
   const queues = new Map(definitions.map((definition) => [definition.queue, definition]));
   let handled = 0;
 
-  for (let round = 0; round < 100; round += 1) {
+  // A round claims, then runs its jobs side by side; the next round waits for them.
+  await repeatWhile(100, async () => {
     const { claimed, abandoned } = await claim(queues, concurrency);
 
-    for (const job of abandoned) {
-      const definition = queues.get(job.queue);
+    await Promise.all(
+      abandoned.flatMap((job) => {
+        log.error({ queue: job.queue, job: job.id, attempts: job.attempts }, 'job gave up');
 
-      log.error({ queue: job.queue, job: job.id, attempts: job.attempts }, 'job gave up');
+        const definition = queues.get(job.queue);
 
-      if (definition) await runOnDead(definition, job, LEASE_RAN_OUT);
-    }
-
-    if (!claimed.length) break;
+        return definition ? [runOnDead(definition, job, LEASE_RAN_OUT)] : [];
+      }),
+    );
 
     await Promise.all(
       claimed.flatMap((job) => {
@@ -292,7 +311,9 @@ export const processJobs = async (definitions: JobDefinition[], concurrency = 5)
       }),
     );
     handled += claimed.length;
-  }
+
+    return claimed.length > 0;
+  });
 
   return handled;
 };

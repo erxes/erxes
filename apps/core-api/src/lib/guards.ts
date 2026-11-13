@@ -1,6 +1,7 @@
 import { type Db, users } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { HttpError } from '~/http/errors';
+import { unique } from '~/lib/contacts';
 
 /** 400 INVALID_TYPE unless the type is namespaced by the calling plugin. */
 export const assertPluginNamespace = (plugin: string, type: string) => {
@@ -9,19 +10,27 @@ export const assertPluginNamespace = (plugin: string, type: string) => {
   }
 };
 
-const isMember = async (client: Db, orgId: string, userId: string) => {
-  const [row] = await client
+/** Whether every given user is a team member of the organisation (one query; empty ids are skipped). */
+const allMembers = async (client: Db, orgId: string, userIds: (string | null | undefined)[]) => {
+  const wanted = unique(userIds);
+
+  if (!wanted.length) return true;
+
+  const rows = await client
     .select({ id: users.id })
     .from(users)
-    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
-    .limit(1);
+    .where(and(eq(users.orgId, orgId), inArray(users.id, wanted)));
 
-  return Boolean(row);
+  return rows.length === wanted.length;
 };
 
-/** 400 INVALID_ACTOR unless the user is a team member of the organisation. */
-export const assertMember = async (client: Db, orgId: string, userId: string | undefined) => {
-  if (userId && !(await isMember(client, orgId, userId))) {
+/** 400 INVALID_ACTOR unless every user is a team member of the organisation. */
+export const assertMembers = async (
+  client: Db,
+  orgId: string,
+  userIds: (string | null | undefined)[],
+) => {
+  if (!(await allMembers(client, orgId, userIds))) {
     throw new HttpError(
       400,
       'INVALID_ACTOR',
@@ -36,7 +45,7 @@ export const assertOwner = async (
   orgId: string,
   ownerId: string | null | undefined,
 ) => {
-  if (ownerId && !(await isMember(client, orgId, ownerId))) {
+  if (!(await allMembers(client, orgId, [ownerId]))) {
     throw new HttpError(
       400,
       'INVALID_OWNER',

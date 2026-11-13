@@ -144,7 +144,8 @@ export const eventsContract = {
     .input(z.object({ status: EventFailureStatus.optional() }))
     .output(
       z.object({
-        data: z.array(EventFailure),
+        // The 200 most recently updated; `counts` covers all of them.
+        data: z.array(EventFailure).max(200),
         counts: z.object({ retrying: z.int(), dead: z.int() }),
       }),
     ),

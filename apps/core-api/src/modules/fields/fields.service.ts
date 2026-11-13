@@ -1,14 +1,13 @@
 import { FIELD_TYPE_FAMILIES } from '@erxes/core-contract';
 import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import type { Actor, Caller } from '~/http/auth';
 import { forbidden, HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
-import { oneRow } from '~/lib/rows';
+import { oneRow, setOrders } from '~/lib/rows';
 import {
-  countOptions,
-  countRecords,
   type FieldRow,
   type FieldType,
   fieldsOfGroup,
@@ -16,8 +15,8 @@ import {
   hasOptions,
   inUse,
   nextOrder,
+  optionCounts,
   requireFieldManager,
-  setOrders,
   taken,
   toFieldDto,
   usageOf,
@@ -99,19 +98,22 @@ export const listFields = async (
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));
   const active = and(isNull(fields.archivedAt), isNull(fieldGroups.archivedAt));
 
-  const rows = await client
-    .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
-    .from(fields)
-    .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
-    .where(
-      and(
-        eq(fields.orgId, caller.orgId),
-        eq(fields.contentType, input.contentType),
-        input.groupId ? eq(fields.groupId, input.groupId) : undefined,
-        input.archived ? archived : active,
-      ),
-    )
-    .orderBy(asc(fields.order), asc(fields.createdAt));
+  const rows = await wholeList((limit) =>
+    client
+      .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
+      .from(fields)
+      .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
+      .where(
+        and(
+          eq(fields.orgId, caller.orgId),
+          eq(fields.contentType, input.contentType),
+          input.groupId ? eq(fields.groupId, input.groupId) : undefined,
+          input.archived ? archived : active,
+        ),
+      )
+      .orderBy(asc(fields.order), asc(fields.createdAt))
+      .limit(limit),
+  );
 
   return { data: rows.map((row) => toFieldDto(row.field, row.groupArchivedAt)) };
 };
@@ -133,13 +135,15 @@ export const fieldUsage = async (
         .where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, input.ids ?? [])));
 
   const records = await usageOf(client, actor.orgId, rows);
-  const options: Record<string, Record<string, number>> = {};
 
-  if (records > 0) {
-    for (const row of rows.filter((field) => hasOptions(field.type))) {
-      options[row.id] = await countOptions(client, actor.orgId, row);
-    }
-  }
+  const options =
+    records > 0
+      ? await optionCounts(
+          client,
+          actor.orgId,
+          rows.filter((field) => hasOptions(field.type)),
+        )
+      : {};
 
   return { records, options, removable: records === 0 };
 };
@@ -210,10 +214,7 @@ interface FieldChanges {
 const typeChange = async (client: Db, orgId: string, field: FieldRow, input: FieldChanges) => {
   const type = input.type ?? field.type;
 
-  if (
-    !sameFamily(field.type, type) &&
-    (await countRecords(client, orgId, field.contentType, [field.id])) > 0
-  ) {
+  if (!sameFamily(field.type, type) && (await usageOf(client, orgId, [field])) > 0) {
     throw new HttpError(
       409,
       'FIELD_IN_USE',

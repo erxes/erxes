@@ -1,6 +1,7 @@
 import type { Plugin } from '@erxes/core-contract';
 import { type Db, db, pluginInstallations, plugins } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, type PluginCaller, userCaller } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
@@ -8,6 +9,7 @@ import { signJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { accessOf, tierOf } from '~/modules/saas/access';
 import { assertPluginInPlan, entitlementsOf } from '~/modules/saas/entitlements';
+import { textArray } from '~/modules/views/filterValues';
 import { requestedScopes } from './plugins.service';
 
 /** Plugin UI tokens: a member's session for one plugin's API. */
@@ -40,15 +42,21 @@ const toPluginDto = (
 };
 
 export const listPlugins = async (actor: Actor) => {
-  const rows = await db()
-    .select({ plugin: plugins, installation: pluginInstallations })
-    .from(plugins)
-    .leftJoin(
-      pluginInstallations,
-      and(eq(pluginInstallations.plugin, plugins.name), eq(pluginInstallations.orgId, actor.orgId)),
-    )
-    .where(eq(plugins.status, 'active'))
-    .orderBy(plugins.name);
+  const rows = await wholeList((limit) =>
+    db()
+      .select({ plugin: plugins, installation: pluginInstallations })
+      .from(plugins)
+      .leftJoin(
+        pluginInstallations,
+        and(
+          eq(pluginInstallations.plugin, plugins.name),
+          eq(pluginInstallations.orgId, actor.orgId),
+        ),
+      )
+      .where(eq(plugins.status, 'active'))
+      .orderBy(plugins.name)
+      .limit(limit),
+  );
 
   return { data: rows.map((row) => toPluginDto(row.plugin, row.installation)) };
 };
@@ -194,13 +202,10 @@ export const pluginSignal = async (
   caller: PluginCaller,
   input: { topics: string[]; userIds?: string[] },
 ) => {
-  await db().transaction(async (tx) => {
-    for (const topic of input.topics) {
-      await tx.execute(
-        sql`select core_live_signal(${caller.orgId}, ${caller.plugin}, ${topic}, ${input.userIds?.length ? input.userIds : null}::text[])`,
-      );
-    }
-  });
+  if (input.topics.length)
+    await db().execute(
+      sql`select core_live_signal(${caller.orgId}, ${caller.plugin}, topic, ${input.userIds?.length ? textArray(input.userIds) : sql`null::text[]`}) from unnest(${textArray(input.topics)}) as topic`,
+    );
 
   return { ok: true as const };
 };

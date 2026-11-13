@@ -8,6 +8,7 @@ import {
 } from '@erxes/core-db';
 import { createGateway } from '@erxes/payment-gateways';
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
@@ -149,11 +150,14 @@ const verifyGateway = async (id: string, settings: GatewayConfig) => {
 
 export const listGateways = async (client: Db, actor: Actor) => ({
   data: (
-    await client
-      .select()
-      .from(paymentGateways)
-      .where(eq(paymentGateways.orgId, actor.orgId))
-      .orderBy(paymentGateways.createdAt)
+    await wholeList((limit) =>
+      client
+        .select()
+        .from(paymentGateways)
+        .where(eq(paymentGateways.orgId, actor.orgId))
+        .orderBy(paymentGateways.createdAt)
+        .limit(limit),
+    )
   ).map(toGatewayDto),
 });
 

@@ -1,6 +1,7 @@
 import type { ProductCategory } from '@erxes/core-contract';
 import { type Db, newId, productCategories, products } from '@erxes/core-db';
 import { and, asc, eq, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import type { Caller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
@@ -54,11 +55,14 @@ const checkNotUnder = async (client: Db, orgId: string, id: string, parentId: st
 };
 
 export const listCategories = async (client: Db, caller: Caller) => {
-  const rows = await client
-    .select()
-    .from(productCategories)
-    .where(eq(productCategories.orgId, caller.orgId))
-    .orderBy(asc(sql`lower(${productCategories.name})`));
+  const rows = await wholeList((limit) =>
+    client
+      .select()
+      .from(productCategories)
+      .where(eq(productCategories.orgId, caller.orgId))
+      .orderBy(asc(sql`lower(${productCategories.name})`))
+      .limit(limit),
+  );
 
   return { data: rows.map(toCategoryDto) };
 };

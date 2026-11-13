@@ -3,6 +3,7 @@ import { and, asc, eq, gt, inArray, isNotNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { type Actor, systemCaller, userCaller } from '~/http/auth';
 import { withImportCause } from '~/lib/causation';
+import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { removeCompanies } from '~/modules/companies/companies.service';
@@ -64,7 +65,8 @@ const processBatch = async (tx: Db, ctx: Context, rows: Row[], dry: boolean) => 
   const { imp } = ctx;
 
   await withImportCause({ importId: imp.id, quiet: !imp.options.runAutomations }, async () => {
-    for (const row of rows) {
+    // Row after row, each in its own savepoint; later rows find what earlier ones created.
+    await inOrder(rows, async (row) => {
       const result = await processRow(tx, ctx, row, dry);
 
       await tx
@@ -75,7 +77,7 @@ const processBatch = async (tx: Db, ctx: Context, rows: Row[], dry: boolean) => 
           recordId: result.recordId ?? null,
         })
         .where(and(eq(importRows.importId, imp.id), eq(importRows.rowNumber, row.rowNumber)));
-    }
+    });
   });
 };
 

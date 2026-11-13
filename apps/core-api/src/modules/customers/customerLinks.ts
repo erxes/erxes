@@ -1,5 +1,6 @@
 import { companies, customerCompanies, type Db } from '@erxes/core-db';
 import { and, asc, eq, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { findCustomer } from './customerRows';
@@ -46,18 +47,21 @@ export const linkOrder = [
 export const customerCompaniesOf = async (client: Db, actor: Actor, id: string) => {
   await findCustomer(client, actor.orgId, id);
 
-  const rows = await client
-    .select({
-      id: companies.id,
-      primaryName: companies.primaryName,
-      avatarUrl: companies.avatarUrl,
-      website: companies.website,
-      ...linkColumns,
-    })
-    .from(customerCompanies)
-    .innerJoin(companies, eq(companies.id, customerCompanies.companyId))
-    .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.customerId, id)))
-    .orderBy(...linkOrder);
+  const rows = await wholeList((limit) =>
+    client
+      .select({
+        id: companies.id,
+        primaryName: companies.primaryName,
+        avatarUrl: companies.avatarUrl,
+        website: companies.website,
+        ...linkColumns,
+      })
+      .from(customerCompanies)
+      .innerJoin(companies, eq(companies.id, customerCompanies.companyId))
+      .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.customerId, id)))
+      .orderBy(...linkOrder)
+      .limit(limit),
+  );
 
   return {
     data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...company }) => ({

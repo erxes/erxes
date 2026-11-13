@@ -10,6 +10,7 @@ import { unique } from '~/lib/contacts';
 import { randomToken } from '~/lib/crypto';
 import { lockRows } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
+import { inOrder } from '~/lib/sequence';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { assertUploadAllowed, fileSettingsOf } from './fileSettings';
 import { canShowInline, storage } from './storage';
@@ -291,14 +292,15 @@ export const purgeDeletedFiles = async (olderThanSeconds = 0) => {
 
   const removed: string[] = [];
 
-  for (const row of rows) {
+  // One object at a time: the store never gets 500 deletes at once.
+  await inOrder(rows, async (row) => {
     try {
       await storage().remove(row.key);
       removed.push(row.id);
     } catch (error) {
       log.error({ key: row.key, err: error }, 'could not delete stored file; will retry');
     }
-  }
+  });
 
   if (!removed.length) return 0;
 

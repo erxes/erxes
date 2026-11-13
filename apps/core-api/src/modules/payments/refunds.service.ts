@@ -1,6 +1,7 @@
 import type { Refund } from '@erxes/core-contract';
 import { type Db, newId, paymentGateways, paymentInvoices, paymentRefunds } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import type { Caller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
@@ -237,11 +238,14 @@ export const listRefunds = async (client: Db, caller: Caller, id: string) => {
   if (!invoice || (caller.actorType === 'plugin' && invoice.source !== caller.source))
     throw notFound('Invoice');
 
-  const rows = await client
-    .select()
-    .from(paymentRefunds)
-    .where(and(eq(paymentRefunds.orgId, caller.orgId), eq(paymentRefunds.invoiceId, id)))
-    .orderBy(paymentRefunds.createdAt);
+  const rows = await wholeList((limit) =>
+    client
+      .select()
+      .from(paymentRefunds)
+      .where(and(eq(paymentRefunds.orgId, caller.orgId), eq(paymentRefunds.invoiceId, id)))
+      .orderBy(paymentRefunds.createdAt)
+      .limit(limit),
+  );
 
   return { data: rows.map(toRefundDto) };
 };

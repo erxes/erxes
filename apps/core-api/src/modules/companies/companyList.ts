@@ -100,6 +100,7 @@ export const listCompanies = async (
 export const companyPeople = async (client: Db, actor: Actor, id: string) => {
   await findCompany(client, actor.orgId, id);
 
+  // A window, not a page: the company panel reads one list.
   const rows = await client
     .select({
       id: customers.id,

@@ -12804,6 +12804,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/Automation"
                       }
@@ -19351,7 +19352,7 @@
     "/automations/{id}/versions": {
       "get": {
         "operationId": "automations.versions",
-        "summary": "Published versions, newest first",
+        "summary": "The 100 latest published versions, newest first",
         "parameters": [
           {
             "name": "id",
@@ -19374,6 +19375,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 100,
                       "items": {
                         "type": "object",
                         "properties": {
@@ -19473,6 +19475,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "type": "object",
                         "properties": {
@@ -19537,6 +19540,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/AutomationFieldPath"
                       }
@@ -20203,6 +20207,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "type": "object",
                         "properties": {
@@ -20345,6 +20350,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/AuditStream"
                       }
@@ -21442,7 +21448,7 @@
     "/auth/sign-ins": {
       "get": {
         "operationId": "auth.signIns",
-        "summary": "My recent sign-ins and failed attempts, newest first",
+        "summary": "My 15 most recent sign-ins and failed attempts, newest first",
         "responses": {
           "200": {
             "description": "OK",
@@ -21453,6 +21459,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 15,
                       "items": {
                         "type": "object",
                         "properties": {
@@ -22444,7 +22451,7 @@
     "/companies/{id}/people": {
       "get": {
         "operationId": "companies.people",
-        "summary": "The company's people: main contact first, then current, then former",
+        "summary": "The company's first 500 people: main contact first, then current, then former",
         "parameters": [
           {
             "name": "id",
@@ -22467,6 +22474,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 500,
                       "items": {
                         "$ref": "#/components/schemas/PersonRef"
                       }
@@ -23710,6 +23718,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/CompanyRef"
                       }
@@ -23951,6 +23960,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/CustomerLogin"
                       }
@@ -24164,6 +24174,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/CustomerSession"
                       }
@@ -24763,6 +24774,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 200,
                       "items": {
                         "$ref": "#/components/schemas/EventFailure"
                       }
@@ -24984,6 +24996,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/FieldGroup"
                       }
@@ -25355,6 +25368,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/Field"
                       }
@@ -26009,6 +26023,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 100,
                       "items": {
                         "$ref": "#/components/schemas/FileInfo"
                       }
@@ -26258,6 +26273,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/LeadStage"
                       }
@@ -26631,7 +26647,7 @@
     "/leads/{id}/history": {
       "get": {
         "operationId": "leads.history",
-        "summary": "A lead's journey: created, every stage, converted",
+        "summary": "A lead's journey, its last 200 steps: created, every stage, converted",
         "parameters": [
           {
             "name": "id",
@@ -26668,6 +26684,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 200,
                       "items": {
                         "$ref": "#/components/schemas/LeadEvent"
                       }
@@ -27204,6 +27221,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/PaymentGateway"
                       }
@@ -27826,6 +27844,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/Refund"
                       }
@@ -27855,6 +27874,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/PluginPaymentSettings"
                       }
@@ -28068,6 +28088,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/Plugin"
                       }
@@ -28267,6 +28288,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/ProductCategory"
                       }
@@ -29085,6 +29107,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 100,
                       "items": {
                         "$ref": "#/components/schemas/Product"
                       }
@@ -29143,6 +29166,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 100,
                       "items": {
                         "$ref": "#/components/schemas/Product"
                       }
@@ -29231,6 +29255,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/Role"
                       }
@@ -29316,6 +29341,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/PermissionInfo"
                       }
@@ -29508,6 +29534,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/Tag"
                       }
@@ -29677,6 +29704,57 @@
         "summary": "Deleted customers and companies, newest first (contacts.delete)",
         "parameters": [
           {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "forward",
+                "backward"
+              ],
+              "type": "string",
+              "default": "forward"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursorMode",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "inclusive",
+                "exclusive"
+              ],
+              "type": "string",
+              "default": "exclusive"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
             "name": "type",
             "in": "query",
             "schema": {
@@ -29685,18 +29763,6 @@
                 "company"
               ],
               "type": "string"
-            },
-            "allowEmptyValue": true,
-            "allowReserved": true
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 500,
-              "default": 100
             },
             "allowEmptyValue": true,
             "allowReserved": true
@@ -29715,10 +29781,23 @@
                       "items": {
                         "$ref": "#/components/schemas/TrashItem"
                       }
+                    },
+                    "pageInfo": {
+                      "$ref": "#/components/schemas/PageInfo"
+                    },
+                    "totalCount": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "totalCapped": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
-                    "data"
+                    "data",
+                    "pageInfo",
+                    "totalCount"
                   ]
                 }
               }
@@ -29885,6 +29964,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/TransferColumn"
                       }
@@ -29904,6 +29984,59 @@
       "get": {
         "operationId": "transfer.imports",
         "summary": "Imports, newest first",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "forward",
+                "backward"
+              ],
+              "type": "string",
+              "default": "forward"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursorMode",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "inclusive",
+                "exclusive"
+              ],
+              "type": "string",
+              "default": "exclusive"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -29917,10 +30050,23 @@
                       "items": {
                         "$ref": "#/components/schemas/Import"
                       }
+                    },
+                    "pageInfo": {
+                      "$ref": "#/components/schemas/PageInfo"
+                    },
+                    "totalCount": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "totalCapped": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
-                    "data"
+                    "data",
+                    "pageInfo",
+                    "totalCount"
                   ]
                 }
               }
@@ -30245,6 +30391,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/ImportRow"
                       }
@@ -30264,6 +30411,59 @@
       "get": {
         "operationId": "transfer.exports",
         "summary": "Exports, newest first",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "forward",
+                "backward"
+              ],
+              "type": "string",
+              "default": "forward"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursorMode",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "inclusive",
+                "exclusive"
+              ],
+              "type": "string",
+              "default": "exclusive"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -30277,10 +30477,23 @@
                       "items": {
                         "$ref": "#/components/schemas/Export"
                       }
+                    },
+                    "pageInfo": {
+                      "$ref": "#/components/schemas/PageInfo"
+                    },
+                    "totalCount": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "totalCapped": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
-                    "data"
+                    "data",
+                    "pageInfo",
+                    "totalCount"
                   ]
                 }
               }
@@ -31023,6 +31236,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 50,
                       "items": {
                         "$ref": "#/components/schemas/User"
                       }
@@ -31188,6 +31402,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/View"
                       }
@@ -31621,6 +31836,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/FilterField"
                       }
@@ -31650,6 +31866,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/EventTypeInfo"
                       }
@@ -31678,6 +31895,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "maxItems": 1000,
                       "items": {
                         "$ref": "#/components/schemas/Webhook"
                       }

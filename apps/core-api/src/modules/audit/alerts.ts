@@ -2,6 +2,7 @@ import { auditLogs, type Db, organizations, roles, users } from '@erxes/core-db'
 import { and, eq, gte, inArray, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { systemCaller } from '~/http/auth';
+import { inOrder } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { appLink, sendEmail } from '~/modules/email/email';
 import { notify } from '~/modules/notifications/notifications.service';
@@ -46,13 +47,15 @@ const emailAlert = async (client: Db, orgId: string, input: AlertInput, recipien
 
   const link = await appLink(client, orgId, input.link);
 
-  for (const person of people) {
-    await sendEmail(client, orgId, {
+  await sendEmail(
+    client,
+    orgId,
+    people.map((person) => ({
       to: person.email,
       template: 'security_alert',
       data: { organization: org?.name ?? 'erxes', title: input.title, body: input.body, link },
-    });
-  }
+    })),
+  );
 };
 
 /** A security notice: in the core inbox (can't be muted), and by email when it matters. */
@@ -178,7 +181,7 @@ type AlertActor = { orgId: string; actorType: string; actorId?: string | null };
 const alertsFor = async (client: Db, actor: AlertActor, entries: Entry[]) => {
   const actorUserId = actor.actorType === 'user' ? (actor.actorId ?? null) : null;
 
-  const who = async () => {
+  const lookupWho = async () => {
     if (!actorUserId) return actor.actorType === 'plugin' ? `The ${actor.actorId} plugin` : 'erxes';
 
     const [row] = await client
@@ -190,17 +193,18 @@ const alertsFor = async (client: Db, actor: AlertActor, entries: Entry[]) => {
     return row?.email ?? 'A team member';
   };
 
-  for (const entry of entries) {
+  let actorName: Promise<string> | undefined;
+  const who = () => (actorName ??= lookupWho());
+
+  // Each rule reads and alerts on its own, in the entries' order.
+  await inOrder(entries, async (entry) => {
     const memberRule = MEMBER_RULES[entry.action];
 
-    if (memberRule) {
-      await memberRule(client, actor.orgId, entry);
-      continue;
-    }
+    if (memberRule) return memberRule(client, actor.orgId, entry);
 
     const alert = OWNER_RULES[entry.action]?.(entry.targetLabel ?? entry.targetId ?? '', entry);
 
-    if (!alert) continue;
+    if (!alert) return;
 
     await securityAlert(client, actor.orgId, {
       key: `${entry.action}:${entry.targetId ?? ''}`,
@@ -210,7 +214,7 @@ const alertsFor = async (client: Db, actor: AlertActor, entries: Entry[]) => {
       email: alert.email,
       actorUserId,
     });
-  }
+  });
 };
 
 /** Runs the rules in a savepoint: an alert that fails never undoes the change it's about. */

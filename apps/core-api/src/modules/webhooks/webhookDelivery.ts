@@ -209,28 +209,39 @@ export const deliverJob = defineJob({
   },
 });
 
-/** Records a delivery and queues its first attempt (in the caller's transaction). */
-const queueDelivery = async (
+/** Records the event's delivery to each endpoint and queues their first attempts (in the caller's transaction). */
+const queueDeliveries = async (
   client: Db,
   orgId: string,
-  webhookId: string,
+  webhookIds: string[],
   event: { id: string; type: string },
 ) => {
-  const delivery = oneRow(
-    await client
-      .insert(webhookDeliveries)
-      .values({ id: newId(), orgId, webhookId, eventId: event.id, eventType: event.type })
-      .returning(),
+  if (!webhookIds.length) return [];
+
+  const deliveries = await client
+    .insert(webhookDeliveries)
+    .values(
+      webhookIds.map((webhookId) => ({
+        id: newId(),
+        orgId,
+        webhookId,
+        eventId: event.id,
+        eventType: event.type,
+      })),
+    )
+    .returning();
+
+  await deliverJob.enqueueAll(
+    client,
+    deliveries.map((delivery) => ({
+      orgId,
+      payload: { deliveryId: delivery.id },
+      dedupeKey: delivery.id,
+      maxAttempts: DELIVERY_ATTEMPTS,
+    })),
   );
 
-  await deliverJob.enqueue(client, {
-    orgId,
-    payload: { deliveryId: delivery.id },
-    dedupeKey: delivery.id,
-    maxAttempts: DELIVERY_ATTEMPTS,
-  });
-
-  return delivery;
+  return deliveries;
 };
 
 /** Sends a `core.webhook.test` event to the endpoint now (and logs it like any delivery). */
@@ -252,7 +263,7 @@ export const testWebhook = async (client: Db, actor: Actor, id: string) => {
       .returning(),
   );
 
-  return toDeliveryDto(await queueDelivery(client, actor.orgId, webhook.id, event));
+  return toDeliveryDto(oneRow(await queueDeliveries(client, actor.orgId, [webhook.id], event)));
 };
 
 export const listDeliveries = async (
@@ -298,10 +309,12 @@ export const redeliver = async (client: Db, actor: Actor, deliveryId: string) =>
   if (!delivery) throw notFound('Delivery');
 
   return toDeliveryDto(
-    await queueDelivery(client, actor.orgId, delivery.webhookId, {
-      id: delivery.eventId,
-      type: delivery.eventType,
-    }),
+    oneRow(
+      await queueDeliveries(client, actor.orgId, [delivery.webhookId], {
+        id: delivery.eventId,
+        type: delivery.eventType,
+      }),
+    ),
   );
 };
 
@@ -317,11 +330,16 @@ export const webhooksConsumer: EventConsumer = {
       .from(webhooks)
       .where(and(eq(webhooks.orgId, event.orgId), eq(webhooks.status, 'active')));
 
-    for (const endpoint of endpoints) {
-      if (endpoint.eventTypes.some((pattern) => matchesPattern(pattern, event.type))) {
-        await queueDelivery(tx, event.orgId, endpoint.id, event);
-      }
-    }
+    await queueDeliveries(
+      tx,
+      event.orgId,
+      endpoints
+        .filter((endpoint) =>
+          endpoint.eventTypes.some((pattern) => matchesPattern(pattern, event.type)),
+        )
+        .map((endpoint) => endpoint.id),
+      event,
+    );
   },
 };
 

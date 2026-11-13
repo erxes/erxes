@@ -15,6 +15,7 @@ import { appendFileSync } from 'node:fs';
 import { Client } from 'pg';
 import type { Actor } from '~/http/auth';
 import { randomToken } from '~/lib/crypto';
+import { inOrder } from '~/lib/sequence';
 import { listCompanies } from '~/modules/companies/companyList';
 import { listCustomers } from '~/modules/customers/customerList';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -107,12 +108,13 @@ const time = async (fn: () => Promise<unknown>) => {
 
   await fn();
 
-  for (let i = 0; i < 3; i += 1) {
+  // One at a time: runs side by side would time each other.
+  await inOrder([1, 2, 3], async () => {
     const started = performance.now();
 
     await fn();
     runs.push(performance.now() - started);
-  }
+  });
 
   const [, median = 0] = runs.toSorted((a, b) => a - b);
 
@@ -194,12 +196,12 @@ const bench = async (actor: Actor) => {
     ],
   ];
 
-  for (const [label, list] of lists) {
+  await inOrder(lists, async ([label, list]) => {
     const line = await measure(label, list);
 
     lines.push(line);
     say(line);
-  }
+  });
 
   if (process.env.GITHUB_STEP_SUMMARY)
     appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
