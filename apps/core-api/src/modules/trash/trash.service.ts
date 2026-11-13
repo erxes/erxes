@@ -177,9 +177,11 @@ const casing = new CasingCache('snake_case');
 const reinsert = async (
   tx: Db,
   table: PgTable,
-  rows: Snapshot['activities'],
+  rows: Record<string, unknown>[],
   options: { skipExisting: boolean },
 ) => {
+  if (!rows.length) return;
+
   const columns = Object.entries(getTableColumns(table)).flatMap(([key, column]) =>
     column.generated || !rows.some((row) => key in row)
       ? []
@@ -226,27 +228,34 @@ const restoreRelations = async (tx: Db, orgId: string, item: TrashRow) => {
   const otherIdOf = (link: Snapshot['links'][number]) =>
     type === 'customer' ? link.companyId : link.customerId;
 
-  const existing = snapshot.links.length
-    ? new Set(
-        (
-          await tx
-            .select({ id: other.id })
-            .from(other)
-            .where(and(eq(other.orgId, orgId), inArray(other.id, snapshot.links.map(otherIdOf))))
-        ).map((row) => row.id),
-      )
-    : new Set<string>();
+  if (!snapshot.links.length) return;
 
-  const links = snapshot.links.filter((link) => existing.has(otherIdOf(link)));
+  // The ids go as one jsonb parameter and `reinsert` takes one too: a company
+  // may hold more links than Postgres takes parameters (65,535).
+  const existing = new Set(
+    (
+      await tx
+        .select({ id: other.id })
+        .from(other)
+        .where(
+          and(
+            eq(other.orgId, orgId),
+            sql`${other.id} in (select jsonb_array_elements_text(${JSON.stringify(snapshot.links.map(otherIdOf))}::jsonb))`,
+          ),
+        )
+    ).map((row) => row.id),
+  );
 
-  if (links.length) {
-    await tx
-      .insert(customerCompanies)
-      .values(
-        links.map((link) => ({ orgId, customerId: link.customerId, companyId: link.companyId })),
-      )
-      .onConflictDoNothing();
-  }
+  await reinsert(
+    tx,
+    customerCompanies,
+    snapshot.links.flatMap((link) =>
+      existing.has(otherIdOf(link))
+        ? [{ orgId, customerId: link.customerId, companyId: link.companyId }]
+        : [],
+    ),
+    { skipExisting: true },
+  );
 };
 
 /** One record back, with its custom field values (of fields still existing), relations and timeline. */
@@ -268,7 +277,7 @@ const restoreItem = async (tx: Db, actor: Actor, item: TrashRow) => {
   );
   await restoreRelations(tx, actor.orgId, item);
 
-  if (entries.length) await reinsert(tx, activities, entries, { skipExisting: true });
+  await reinsert(tx, activities, entries, { skipExisting: true });
 
   await tx.delete(trash).where(eq(trash.id, item.id));
   await publishCoreEvents(tx, userCaller(actor), {
