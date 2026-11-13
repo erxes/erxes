@@ -72,10 +72,8 @@ const StreamStatus = ({ stream }: { stream: AuditStream }) => {
         <>
           {' · '}
           {t('last-sent', 'last sent')}{' '}
-          <RelativeDateDisplay value={stream.lastDeliveredAt} asChild>
-            <span>
-              <RelativeDateDisplay.Value value={stream.lastDeliveredAt} />
-            </span>
+          <RelativeDateDisplay value={stream.lastDeliveredAt} render={<span />}>
+            <RelativeDateDisplay.Value value={stream.lastDeliveredAt} />
           </RelativeDateDisplay>
         </>
       )}

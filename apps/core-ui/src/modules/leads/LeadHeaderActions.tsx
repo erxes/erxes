@@ -21,17 +21,20 @@ export const LeadHeaderActions = ({
 
   return (
     <>
-      <Tooltip delayDuration={200}>
-        <Tooltip.Trigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7 text-primary-text"
-            aria-label={t('actions.convert-to-customer')}
-            onClick={() => setConverting(true)}
-          >
-            <IconUserCheck className="size-4" />
-          </Button>
+      <Tooltip>
+        <Tooltip.Trigger
+          delay={200}
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 text-primary-text"
+              aria-label={t('actions.convert-to-customer')}
+              onClick={() => setConverting(true)}
+            />
+          }
+        >
+          <IconUserCheck className="size-4" />
         </Tooltip.Trigger>
         <Tooltip.Content>{t('actions.convert-to-customer')}</Tooltip.Content>
       </Tooltip>

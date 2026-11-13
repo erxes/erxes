@@ -30,22 +30,20 @@ export const FilterTrigger = ({
 
   return (
     <Tooltip.Provider>
-      <Tooltip delayDuration={0}>
-        <Tooltip.Trigger asChild>
-          <Popover.Trigger asChild>
-            <Button
-              ref={ref}
-              variant="ghost"
-              size={isFiltered ? 'icon' : 'default'}
-              // Its icon lines up with the page's content, as the first
-              // breadcrumb's does, with or without the label.
-              className={cn(isFiltered ? '-ml-1.5' : '-ml-2 pl-2', className)}
-              {...props}
-            >
-              <IconFilter2 className="w-4 h-4" />
-              {!isFiltered && t('filter._')}
-            </Button>
-          </Popover.Trigger>
+      <Tooltip>
+        <Tooltip.Trigger delay={0} render={<Popover.Trigger asChild />}>
+          <Button
+            ref={ref}
+            variant="ghost"
+            size={isFiltered ? 'icon' : 'default'}
+            // Its icon lines up with the page's content, as the first
+            // breadcrumb's does, with or without the label.
+            className={cn(isFiltered ? '-ml-1.5' : '-ml-2 pl-2', className)}
+            {...props}
+          >
+            <IconFilter2 className="w-4 h-4" />
+            {!isFiltered && t('filter._')}
+          </Button>
         </Tooltip.Trigger>
         <Tooltip.Content>{t('filter._')}</Tooltip.Content>
       </Tooltip>

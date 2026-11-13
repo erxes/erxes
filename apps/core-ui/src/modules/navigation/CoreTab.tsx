@@ -22,7 +22,7 @@ export const CoreTab = () => {
   const { routeApp, tabs, open, close, closeOthers, closeToRight, move } = useAppTabs(apps);
 
   return (
-    <Tooltip.Provider delayDuration={300}>
+    <Tooltip.Provider delay={300}>
       <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
         <CoreTabTooltip label={organization.name}>
           <Link

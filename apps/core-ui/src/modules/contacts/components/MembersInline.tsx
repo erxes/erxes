@@ -22,15 +22,18 @@ const MemberLabel = ({ member }: { member: User }) =>
 const MemberAvatars = ({ members, size }: { members: User[]; size: AvatarProps['size'] }) => (
   <div className={cn('flex', members.length > 1 && '-space-x-1.5')}>
     {members.slice(0, 3).map((member) => (
-      <Tooltip delayDuration={100} key={member.id}>
-        <Tooltip.Trigger asChild>
-          <Avatar
-            className={cn('bg-background', members.length > 1 && 'ring-2 ring-background')}
-            size={size}
-          >
-            <Avatar.Image src={readImage(member.avatarUrl)} />
-            <Avatar.Fallback>{memberLabelText(member).charAt(0)}</Avatar.Fallback>
-          </Avatar>
+      <Tooltip key={member.id}>
+        <Tooltip.Trigger
+          delay={100}
+          render={
+            <Avatar
+              className={cn('bg-background', members.length > 1 && 'ring-2 ring-background')}
+              size={size}
+            />
+          }
+        >
+          <Avatar.Image src={readImage(member.avatarUrl)} />
+          <Avatar.Fallback>{memberLabelText(member).charAt(0)}</Avatar.Fallback>
         </Tooltip.Trigger>
         <Tooltip.Content>
           <MemberLabel member={member} />

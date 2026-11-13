@@ -22,10 +22,12 @@ const InfoCardRoot = ({
         {!!description && (
           <Tooltip.Provider>
             <Tooltip>
-              <Tooltip.Trigger asChild>
-                <Button variant="ghost" size="icon" className="size-6 text-accent-foreground">
-                  <IconInfoCircle className="size-4" />
-                </Button>
+              <Tooltip.Trigger
+                render={
+                  <Button variant="ghost" size="icon" className="size-6 text-accent-foreground" />
+                }
+              >
+                <IconInfoCircle className="size-4" />
               </Tooltip.Trigger>
               <Tooltip.Content>{description}</Tooltip.Content>
             </Tooltip>

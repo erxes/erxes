@@ -39,10 +39,8 @@ const Refunds = ({ invoice }: { invoice: Invoice }) => {
               <span className="truncate text-muted-foreground">{item.error ?? item.reason}</span>
               <span className="ml-auto text-xs text-muted-foreground">
                 {item.method === 'manual' ? t('manual', 'manual') : t('via-gateway', 'gateway')} ·{' '}
-                <RelativeDateDisplay value={item.createdAt} asChild>
-                  <span>
-                    <RelativeDateDisplay.Value value={item.createdAt} />
-                  </span>
+                <RelativeDateDisplay value={item.createdAt} render={<span />}>
+                  <RelativeDateDisplay.Value value={item.createdAt} />
                 </RelativeDateDisplay>
               </span>
             </li>

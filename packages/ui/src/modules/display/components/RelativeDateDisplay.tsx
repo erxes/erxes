@@ -14,23 +14,18 @@ type RelativeDateDisplayProps = {
 };
 
 const RelativeDateDisplayTooltip = ({
-  ref,
   value,
   ...props
-}: Except<React.ComponentPropsWithoutRef<typeof Tooltip.Trigger>, 'value'> & {
-  value: string;
-} & React.RefAttributes<React.ComponentRef<typeof Tooltip.Trigger>>) => {
+}: Except<React.ComponentProps<typeof Tooltip.Trigger>, 'value'> & { value: string }) => {
   if (isUndefinedOrNull(value)) {
     return null;
   }
 
   return (
-    <Tooltip.Provider delayDuration={100}>
-      <Tooltip>
-        <Tooltip.Trigger className="truncate" {...props} ref={ref} />
-        <Tooltip.Content>{format(value, 'MMM dd, yyyy HH:mm')}</Tooltip.Content>
-      </Tooltip>
-    </Tooltip.Provider>
+    <Tooltip>
+      <Tooltip.Trigger delay={100} className="truncate" {...props} />
+      <Tooltip.Content>{format(value, 'MMM dd, yyyy HH:mm')}</Tooltip.Content>
+    </Tooltip>
   );
 };
 

@@ -122,10 +122,8 @@ const SaasPlan = ({ plan }: { plan: SubscriptionInfo }) => {
       {plan.checkedAt && (
         <p className="text-xs text-muted-foreground">
           {t('checked', 'Checked with erxes.io')}{' '}
-          <RelativeDateDisplay value={plan.checkedAt} asChild>
-            <span>
-              <RelativeDateDisplay.Value value={plan.checkedAt} />
-            </span>
+          <RelativeDateDisplay value={plan.checkedAt} render={<span />}>
+            <RelativeDateDisplay.Value value={plan.checkedAt} />
           </RelativeDateDisplay>
         </p>
       )}

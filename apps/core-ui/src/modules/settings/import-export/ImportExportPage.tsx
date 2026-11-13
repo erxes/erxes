@@ -38,10 +38,8 @@ const EXPORT_TONE: Record<Export['status'], 'success' | 'destructive' | 'info'> 
 };
 
 const When = ({ value }: { value: string }) => (
-  <RelativeDateDisplay value={value} asChild>
-    <span className="text-xs text-muted-foreground">
-      <RelativeDateDisplay.Value value={value} />
-    </span>
+  <RelativeDateDisplay value={value} render={<span className="text-xs text-muted-foreground" />}>
+    <RelativeDateDisplay.Value value={value} />
   </RelativeDateDisplay>
 );
 

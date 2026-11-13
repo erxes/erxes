@@ -49,7 +49,7 @@ const ThemeSelector = () => {
   return (
     <div className="flex h-7 items-center gap-2 px-2 text-sm font-medium">
       {t('theme')}
-      <Tooltip.Provider delayDuration={100}>
+      <Tooltip.Provider delay={100}>
         <ToggleGroup
           className="ml-auto h-6 gap-0.5 rounded bg-accent text-accent-foreground"
           onValueChange={([next]) => {

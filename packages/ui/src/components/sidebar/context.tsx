@@ -199,7 +199,7 @@ export const SidebarProvider = ({
 
   return (
     <SidebarContext.Provider value={contextValue}>
-      <Tooltip.Provider delayDuration={0}>
+      <Tooltip.Provider delay={0}>
         <div
           style={{ ...cssVariables, ...style }}
           className={cn(

@@ -58,10 +58,8 @@ const DeliveryRow = ({
           ` · ${t('attempts', { count: delivery.attempts, defaultValue: `${delivery.attempts} attempts` })}`}
       </span>
       <span className="ml-auto text-xs text-muted-foreground">
-        <RelativeDateDisplay value={delivery.createdAt} asChild>
-          <span>
-            <RelativeDateDisplay.Value value={delivery.createdAt} />
-          </span>
+        <RelativeDateDisplay value={delivery.createdAt} render={<span />}>
+          <RelativeDateDisplay.Value value={delivery.createdAt} />
         </RelativeDateDisplay>
       </span>
       <Button

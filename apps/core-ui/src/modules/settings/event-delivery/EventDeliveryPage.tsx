@@ -67,10 +67,8 @@ const useFailureActions = () => {
 };
 
 const When = ({ value }: { value: string }) => (
-  <RelativeDateDisplay value={value} asChild>
-    <span>
-      <RelativeDateDisplay.Value value={value} />
-    </span>
+  <RelativeDateDisplay value={value} render={<span />}>
+    <RelativeDateDisplay.Value value={value} />
   </RelativeDateDisplay>
 );
 

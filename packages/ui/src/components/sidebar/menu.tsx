@@ -88,7 +88,7 @@ export const SidebarMenuButton = ({
 
   return (
     <Tooltip>
-      <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
+      <Tooltip.Trigger render={button} />
       <Tooltip.Content
         side="right"
         align="center"

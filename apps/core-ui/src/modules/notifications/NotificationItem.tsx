@@ -69,10 +69,8 @@ const NotificationMeta = ({
           <span aria-hidden="true">·</span>
         </>
       )}
-      <RelativeDateDisplay value={notification.createdAt} asChild>
-        <span>
-          <RelativeDateDisplay.Value value={notification.createdAt} />
-        </span>
+      <RelativeDateDisplay value={notification.createdAt} render={<span />}>
+        <RelativeDateDisplay.Value value={notification.createdAt} />
       </RelativeDateDisplay>
       {inbox && notification.source !== 'core' && (
         <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">

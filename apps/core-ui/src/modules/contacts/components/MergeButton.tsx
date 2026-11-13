@@ -23,9 +23,9 @@ export const MergeButton = ({
   if (!disabled) return button;
 
   return (
-    <Tooltip delayDuration={0}>
-      <Tooltip.Trigger asChild>
-        <div className="inline-block">{button}</div>
+    <Tooltip>
+      <Tooltip.Trigger delay={0} render={<div className="inline-block" />}>
+        {button}
       </Tooltip.Trigger>
       <Tooltip.Content sideOffset={12}>
         <span>{tooltip}</span>

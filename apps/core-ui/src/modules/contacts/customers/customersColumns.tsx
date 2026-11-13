@@ -124,10 +124,11 @@ const CustomerSexCell = ({ customer }: { customer: Customer }) => {
 };
 
 const DateCell = ({ value }: { value: string }) => (
-  <RelativeDateDisplay value={value} asChild>
-    <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-      <RelativeDateDisplay.Value value={value} />
-    </RecordTableInlineCell>
+  <RelativeDateDisplay
+    value={value}
+    render={<RecordTableInlineCell className="text-xs font-medium text-muted-foreground" />}
+  >
+    <RelativeDateDisplay.Value value={value} />
   </RelativeDateDisplay>
 );
 

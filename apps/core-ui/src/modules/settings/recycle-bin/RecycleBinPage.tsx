@@ -102,10 +102,8 @@ const TrashRow = ({
       </span>
       <span className="ml-auto text-xs text-muted-foreground">
         {actorLabel(item.deletedBy, members)} ·{' '}
-        <RelativeDateDisplay value={item.deletedAt} asChild>
-          <span>
-            <RelativeDateDisplay.Value value={item.deletedAt} />
-          </span>
+        <RelativeDateDisplay value={item.deletedAt} render={<span />}>
+          <RelativeDateDisplay.Value value={item.deletedAt} />
         </RelativeDateDisplay>
       </span>
     </li>
