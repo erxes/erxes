@@ -1,6 +1,6 @@
 import type { Company, Customer } from '@erxes/core-contract';
 import { IconArrowUpRight } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { Avatar, Combobox, Command, readImage, Skeleton } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { orpc } from '~/lib/api';
@@ -127,8 +127,7 @@ const useContactOptions = (
 
   const customers = useQuery(
     orpc.customers.list.queryOptions({
-      input,
-      enabled: enabled && kind === 'customer',
+      input: enabled && kind === 'customer' ? input : skipToken,
       placeholderData: (previous) => previous,
       select: (page): IContactOption[] =>
         page.data.map((customer) => ({
@@ -141,8 +140,7 @@ const useContactOptions = (
 
   const companies = useQuery(
     orpc.companies.list.queryOptions({
-      input,
-      enabled: enabled && kind === 'company',
+      input: enabled && kind === 'company' ? input : skipToken,
       placeholderData: (previous) => previous,
       select: (page): IContactOption[] =>
         page.data.map((company) => ({

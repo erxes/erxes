@@ -1,5 +1,5 @@
 import type { FieldContentType } from '@erxes/core-contract';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
@@ -66,9 +66,11 @@ export type TArchiveTarget = ({ kind: 'fields'; ids: string[] } | { kind: 'group
 export const useFieldUsage = (target: TArchiveTarget | null) => {
   const { data, isFetching, error } = useQuery(
     orpc.fields.usage.queryOptions({
-      input:
-        target?.kind === 'group' ? { groupId: target.id } : { ids: (target?.ids ?? []).join(',') },
-      enabled: !!target,
+      input: !target
+        ? skipToken
+        : target.kind === 'group'
+          ? { groupId: target.id }
+          : { ids: target.ids.join(',') },
       staleTime: 0,
       gcTime: 0,
     }),

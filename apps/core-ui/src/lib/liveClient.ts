@@ -1,3 +1,4 @@
+import { jsonOf } from 'erxes-ui';
 import { z } from 'zod';
 
 /**
@@ -46,17 +47,11 @@ type Wire = z.infer<typeof wire>;
 
 /** An SSE event's JSON payload, or null (logged) when it isn't the expected shape. */
 const readEvent = <T>(event: MessageEvent<unknown>, schema: z.ZodType<T>) => {
-  try {
-    const parsed = schema.safeParse(
-      typeof event.data === 'string' ? JSON.parse(event.data) : undefined,
-    );
+  const parsed = jsonOf(schema).safeParse(event.data);
 
-    if (parsed.success) return parsed.data;
+  if (parsed.success) return parsed.data;
 
-    console.warn(`Ignored a malformed "${event.type}" live event`, parsed.error.issues);
-  } catch (error) {
-    console.warn(`Ignored a malformed "${event.type}" live event`, error);
-  }
+  console.warn(`Ignored a malformed "${event.type}" live event`, parsed.error.issues);
 
   return null;
 };

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { messageOf, orpc } from '~/lib/api';
 import { memberName } from '~/lib/members';
 import { tagsQuery } from '~/modules/tags/useTags';
@@ -7,9 +7,8 @@ import { tagsQuery } from '~/modules/tags/useTags';
 export const useMemberOptions = (enabled = true) => {
   const query = useQuery(
     orpc.users.list.queryOptions({
-      input: { limit: 100 },
+      input: enabled ? { limit: 100 } : skipToken,
       staleTime: 60_000,
-      enabled,
       select: ({ data }) => data.map((user) => ({ value: user.id, label: memberName(user) })),
     }),
   );
@@ -20,8 +19,7 @@ export const useMemberOptions = (enabled = true) => {
 /** A record type's tags as picker options. */
 export const useTagOptions = (type: 'customer' | 'company', enabled = true) => {
   const query = useQuery({
-    ...tagsQuery(type),
-    enabled,
+    ...tagsQuery(enabled ? type : skipToken),
     select: ({ data }) => data.map((tag) => ({ value: tag.id, label: tag.name })),
   });
 

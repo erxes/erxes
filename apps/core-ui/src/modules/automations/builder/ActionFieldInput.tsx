@@ -1,7 +1,8 @@
 import { IconAt, IconBuilding, IconUser } from '@tabler/icons-react';
-import { Input, Select, Switch, Textarea } from 'erxes-ui';
+import { Input, jsonOf, Select, Switch, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { textOf } from '~/lib/text';
 import {
   type ActionInputProps,
@@ -148,12 +149,18 @@ const JsonInput = ({ field, value, onChange, disabled }: ActionInputProps) => {
         onBlur={(event) => {
           const text = event.target.value.trim();
 
-          try {
-            onChange(text ? JSON.parse(text) : undefined);
+          if (!text) {
+            onChange(undefined);
             setInvalid(false);
-          } catch {
-            setInvalid(true);
+
+            return;
           }
+
+          const parsed = jsonOf(z.json()).safeParse(text);
+
+          if (parsed.success) onChange(parsed.data);
+
+          setInvalid(!parsed.success);
         }}
       />
       {invalid && (

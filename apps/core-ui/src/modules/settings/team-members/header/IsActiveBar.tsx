@@ -1,8 +1,9 @@
+import { z } from 'zod';
 import { Switch, useFilterContext, useQueryState } from 'erxes-ui';
 
 /** "Is active" in the filter popover: on lists invited and active members, off the deactivated ones. */
 export const IsActiveBar = () => {
-  const [isActive, setIsActive] = useQueryState<boolean>('isActive');
+  const [isActive, setIsActive] = useQueryState('isActive', z.boolean());
   const { resetFilterState } = useFilterContext();
 
   const currentValue = isActive ?? true;

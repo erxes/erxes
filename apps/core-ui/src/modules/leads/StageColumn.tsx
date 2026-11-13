@@ -1,7 +1,7 @@
 import type { LeadRecordType, LeadStage } from '@erxes/core-contract';
 import { useDroppable } from '@dnd-kit/core';
 import { IconPlus } from '@tabler/icons-react';
-import { type InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
+import { type InfiniteData, skipToken, useInfiniteQuery } from '@tanstack/react-query';
 import { Button, cn, Skeleton, Tooltip } from 'erxes-ui';
 import { memo, useEffect, useRef } from 'react';
 import { messageOf, orpc } from '~/lib/api';
@@ -29,18 +29,16 @@ const useStageLeads = (recordType: LeadRecordType, stageId: string) => {
 
   const customers = useInfiniteQuery(
     orpc.customers.list.infiniteOptions({
-      input: (page) => ({ ...page, ...people }),
+      input: recordType === 'customer' ? (page) => ({ ...page, ...people }) : skipToken,
       ...paging,
-      enabled: recordType === 'customer',
       select: column,
     }),
   );
 
   const companies = useInfiniteQuery(
     orpc.companies.list.infiniteOptions({
-      input: (page) => ({ ...page, ...companyFilters }),
+      input: recordType === 'company' ? (page) => ({ ...page, ...companyFilters }) : skipToken,
       ...paging,
-      enabled: recordType === 'company',
       select: column,
     }),
   );

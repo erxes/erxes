@@ -1,5 +1,5 @@
 import type { ActorRef, User } from '@erxes/core-contract';
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { orpc } from './api';
 
@@ -29,8 +29,8 @@ export const useMembersById = (ids: (string | null | undefined)[]) => {
 
   const query = useQuery(
     orpc.users.list.queryOptions({
-      input: { ids: wanted.join(','), limit: 100 },
-      enabled: team.isFetched && wanted.length > 0,
+      input:
+        team.isFetched && wanted.length > 0 ? { ids: wanted.join(','), limit: 100 } : skipToken,
       staleTime: 5 * 60_000,
       // Names already shown stay while more are looked up.
       placeholderData: (previous) => previous,

@@ -1,6 +1,7 @@
 import type { Product } from '@erxes/core-contract';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
@@ -17,10 +18,10 @@ export const useCanManageProducts = () => useCan()('products.manage');
 
 /** The list filters, read from the URL: the search, the filter (views save both) and archived or not. */
 export const useProductsFilters = () => {
-  const [{ searchValue, archived }] = useMultiQueryState<{
-    searchValue: string;
-    archived: boolean;
-  }>(['searchValue', 'archived']);
+  const [{ searchValue, archived }] = useMultiQueryState({
+    searchValue: z.string(),
+    archived: z.boolean(),
+  });
 
   return {
     search: searchValue || undefined,
@@ -44,7 +45,7 @@ export const useProducts = () => {
 };
 
 export const useProduct = (id: string | null) =>
-  useQuery(orpc.products.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id }));
+  useQuery(orpc.products.get.queryOptions({ input: id ? { id } : skipToken }));
 
 /** The side panel's name for products: `?panel=/detail/product/<id>`. */
 export const PRODUCT_CONTENT_TYPE = 'core:product';

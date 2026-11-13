@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { z } from 'zod';
+import { jsonOf } from './json';
 
 /**
  * How plugin UIs reach their own API and hear about changes. The host app
@@ -96,12 +97,16 @@ export const pluginFetch = async (
 
 const errorBody = z.object({ message: z.string() });
 
-/** JSON in, JSON out; non-2xx responses throw with the body's `message`. */
-export const pluginJson = async <T>(
+/**
+ * JSON in, JSON out, checked against `schema`. Non-2xx responses throw with the
+ * body's `message`; a 2xx body that isn't JSON of that shape throws a ZodError.
+ */
+export const pluginJson = async <S extends z.ZodType>(
   plugin: string,
   path: string,
+  schema: S,
   init: RequestInit & { json?: unknown } = {},
-): Promise<T> => {
+) => {
   const { json, ...rest } = init;
   const headers = new Headers(rest.headers);
 
@@ -114,20 +119,16 @@ export const pluginJson = async <T>(
   });
 
   const text = await response.text();
-  const body = text ? (JSON.parse(text) as unknown) : null;
 
   if (!response.ok) {
-    const parsed = errorBody.safeParse(body);
+    const message =
+      jsonOf(errorBody).safeParse(text).data?.message ??
+      `${response.status} ${response.statusText}`;
 
-    const message = parsed.success
-      ? parsed.data.message
-      : `${response.status} ${response.statusText}`;
-
-    throw Object.assign(new Error(message), { status: response.status, body });
+    throw Object.assign(new Error(message), { status: response.status, body: text });
   }
 
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- the caller names the response type (pluginJson<T>), the plugin contract; the plugin's own API defines the body
-  return body as T;
+  return jsonOf(schema).parse(text || 'null');
 };
 
 /**

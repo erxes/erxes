@@ -12,6 +12,7 @@ import {
   useFilterQueryState,
 } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
 import { messageOf } from '~/lib/api';
@@ -95,7 +96,7 @@ const RootMenu = ({ loading, error }: { loading: boolean; error: Error | null })
 /** The search, as a chip (it opens the search box). */
 const SearchChip = () => {
   const { t } = useTranslation('views', { keyPrefix: 'filter' });
-  const [searchValue] = useFilterQueryState<string>('searchValue');
+  const [searchValue] = useFilterQueryState('searchValue', z.string());
 
   return (
     <Filter.BarItem queryKey="searchValue">

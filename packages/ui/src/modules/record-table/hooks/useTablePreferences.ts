@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
+import { jsonOf } from 'erxes-ui/utils/json';
 
 const ids = z.array(z.string());
 
@@ -21,12 +22,9 @@ const readPrefs = (tableId: string | undefined): TablePrefs => {
   if (!tableId) return {};
 
   try {
-    const parsed = tablePrefsSchema.safeParse(
-      JSON.parse(localStorage.getItem(storageKey(tableId)) ?? '{}'),
-    );
-
-    return parsed.success ? parsed.data : {};
+    return jsonOf(tablePrefsSchema).safeParse(localStorage.getItem(storageKey(tableId))).data ?? {};
   } catch {
+    // localStorage itself throws when storage is blocked.
     return {};
   }
 };

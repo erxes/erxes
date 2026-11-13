@@ -203,6 +203,8 @@ export { formatPhoneNumber } from './utils/format/formatPhoneNumber';
 
 export { getPluginAssetsUrl } from './utils/getPluginAssetsUrl';
 
+export { jsonOf } from './utils/json';
+
 export {
   getPluginRuntime,
   pluginFetch,

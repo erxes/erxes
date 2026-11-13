@@ -1,5 +1,6 @@
+import { z } from 'zod';
 import type { Company } from '@erxes/core-contract';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useQueryState, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
@@ -13,7 +14,7 @@ export const companiesSessionKey = (state: CompanyState) =>
 
 /** The list filters, read from the URL; `state` splits companies that are customers from company leads. */
 export const useCompaniesFilters = (state: CompanyState = 'customer') => {
-  const [searchValue] = useQueryState<string>('searchValue');
+  const [searchValue] = useQueryState('searchValue', z.string());
 
   return { state, filter: useAdvancedFilterParam(), search: searchValue || undefined };
 };
@@ -33,7 +34,7 @@ export const useCompanies = (state: CompanyState = 'customer') => {
 };
 
 export const useCompany = (id: string | null) =>
-  useQuery(orpc.companies.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id }));
+  useQuery(orpc.companies.get.queryOptions({ input: id ? { id } : skipToken }));
 
 export const useCompanyEdit = () => {
   const client = useQueryClient();

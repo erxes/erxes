@@ -1,4 +1,4 @@
-import { useMultiQueryState } from 'erxes-ui';
+import { jsonOf, useMultiQueryState } from 'erxes-ui';
 import { atom, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -33,7 +33,7 @@ const RouterState = z
   .nullable()
   .catch(null);
 
-const PanelHistory = z.array(z.unknown()).catch([]);
+const PanelHistory = z.array(z.unknown());
 
 /** Updates panel history, active route, and per-record tabs in one navigation. */
 type PanelNavigate = (
@@ -49,13 +49,13 @@ type PanelNavigate = (
  * history entry's state, with `navigate` to change all of them at once.
  */
 export const usePanelRoute = (sourcePath: string | null) => {
-  const [queries, setRoute] = useMultiQueryState<{
-    panel: string;
-    panelHistory: string[];
-    panelExpanded: boolean;
-  }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY, 'panelExpanded']);
+  const [queries, setRoute] = useMultiQueryState({
+    [SIDE_PANEL_QUERY_KEY]: z.string(),
+    [SIDE_PANEL_HISTORY_QUERY_KEY]: PanelHistory,
+    panelExpanded: z.boolean(),
+  });
 
-  const path = typeof queries.panel === 'string' ? queries.panel : null;
+  const path = queries.panel ?? null;
   const location = useLocation();
   const routerState = RouterState.parse(location.state);
   const saved = routerState?.sidePanel;
@@ -67,11 +67,12 @@ export const usePanelRoute = (sourcePath: string | null) => {
       ? navigationState?.tab || ''
       : navigationState?.history.find((entry) => entry.path === targetPath)?.tab || '';
 
-  const historyKey = JSON.stringify(queries.panelHistory ?? null);
+  const historyKey = JSON.stringify(queries.panelHistory ?? []);
 
   const history = useMemo(
     () =>
-      PanelHistory.parse(JSON.parse(historyKey))
+      jsonOf(PanelHistory)
+        .parse(historyKey)
         .filter((entry): entry is string => typeof entry === 'string' && entry.startsWith('/'))
         .slice(-MAX_PANEL_HISTORY),
     [historyKey],

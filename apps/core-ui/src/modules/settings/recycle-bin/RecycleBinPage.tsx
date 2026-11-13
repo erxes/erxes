@@ -1,6 +1,6 @@
 import type { TrashItem, User } from '@erxes/core-contract';
 import { IconRestore, IconTrash, IconTrashX } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
   Button,
@@ -171,7 +171,7 @@ export const RecycleBinPage = () => {
   const { restore, purge } = useTrashActions(() => setSelected(new Set()));
 
   const trash = useQuery(
-    orpc.trash.list.queryOptions({ input: { limit: 500 }, enabled: can('contacts.delete') }),
+    orpc.trash.list.queryOptions({ input: can('contacts.delete') ? { limit: 500 } : skipToken }),
   );
 
   if (!can('contacts.delete')) return <Navigate to="/settings" replace />;

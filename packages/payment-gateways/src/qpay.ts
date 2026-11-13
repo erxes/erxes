@@ -50,15 +50,17 @@ const CheckAnswer = z.object({
   paid_amount: Amount.nullish(),
 });
 
-const parse = <T>(schema: z.ZodType<T>, body: unknown, what: string) => {
-  const parsed = schema.safeParse(body);
-
-  if (!parsed.success) throw new GatewayError(`QPay gave ${what}`);
-
-  return parsed.data;
+/** QPay's answer as `schema`; text that isn't JSON of that shape is a GatewayError saying what was missing. */
+const parse = <T>(schema: z.ZodType<T>, text: string, what: string) => {
+  try {
+    return schema.parse(JSON.parse(text));
+  } catch {
+    throw new GatewayError(`QPay gave ${what}`);
+  }
 };
 
-type Request = (path: string, init?: RequestInit) => Promise<unknown>;
+/** QPay's answer text, after a 2xx. */
+type Request = (path: string, init?: RequestInit) => Promise<string>;
 
 /** QPay's API with its access token, cached per connection and mode. */
 const qpayClient = (config: QPayConfig, options: DriverOptions) => {
@@ -89,13 +91,7 @@ const qpayClient = (config: QPayConfig, options: DriverOptions) => {
         response.status,
       );
 
-    try {
-      const body: unknown = text ? JSON.parse(text) : {};
-
-      return body;
-    } catch {
-      return {};
-    }
+    return text;
   };
 
   const token = async () => {

@@ -1,5 +1,11 @@
 import { IconPuzzle, type Icon } from '@tabler/icons-react';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  skipToken,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import type { ComponentType } from 'react';
 import { messageOf, orpc } from '~/lib/api';
@@ -48,14 +54,15 @@ export const useNotificationList = ({
 
   const query = useInfiniteQuery(
     orpc.notifications.list.infiniteOptions({
-      input: (page) => ({
-        ...page,
-        unread: unread ? 'true' : undefined,
-        source,
-        priority: important ? 'high' : undefined,
-      }),
+      input: enabled
+        ? (page) => ({
+            ...page,
+            unread: unread ? 'true' : undefined,
+            source,
+            priority: important ? 'high' : undefined,
+          })
+        : skipToken,
       ...forwardPaging(20),
-      enabled,
       refetchInterval,
     }),
   );

@@ -19,14 +19,17 @@ import { runCli, say } from './cli';
 const [name] = parseArgs({ allowPositionals: true }).positionals;
 
 const main = async () => {
+  if (!name) throw new Error('Usage: pnpm db:plugin-role <plugin name>');
+
   const password = randomBytes(24).toString('base64url');
+  const roleSql = pluginRoleSql(name, password);
 
   configureDb({
     ...config.data,
     url: config.data.migrationUrl ?? config.data.url,
     role: undefined,
   });
-  await rootDb().execute(sql.raw(pluginRoleSql(name ?? '', password)));
+  await rootDb().execute(sql.raw(roleSql));
   say(`Role erxes_plugin_${name} is ready. Its password (shown once):\n\n  ${password}\n`);
   say(
     `The plugin connects with it (DATA_URL), owns its ${name}_* tables, and reaches core only through core's plugin functions.`,
