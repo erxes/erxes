@@ -1,8 +1,13 @@
 {
   "name": "@erxes/core-contract",
-  "version": "0.0.0",
+  "version": "4.0.0-next.0",
   "description": "erxes core API contract (/core/v1) and event schemas, shared by core and plugins",
   "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erxes/erxes.git",
+    "directory": "packages/contract"
+  },
   "files": [
     "dist"
   ],
@@ -78,10 +83,13 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "@erxes/core-db": "workspace:^",
     "@orpc/contract": "1.16.2",
     "country-to-currency": "^3.0.2",
+    "drizzle-orm": "0.45.4",
     "drizzle-zod": "0.8.3",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@erxes/core-db": "workspace:^"
   }
 }

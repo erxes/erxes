@@ -299,21 +299,25 @@ importers:
 
   packages/contract:
     dependencies:
-      '@erxes/core-db':
-        specifier: workspace:^
-        version: link:../db
       '@orpc/contract':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)
       country-to-currency:
         specifier: ^3.0.2
         version: 3.0.2
+      drizzle-orm:
+        specifier: 0.45.4
+        version: 0.45.4(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(pg@8.23.1)
       drizzle-zod:
         specifier: 0.8.3
         version: 0.8.3(patch_hash=632f36b7ae2dc518abf61204f9f5142852c5e03df8f873e55b8c3121260a27ca)(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(pg@8.23.1))(zod@4.6.7)
       zod:
         specifier: ^4.6.7
         version: 4.6.7
+    devDependencies:
+      '@erxes/core-db':
+        specifier: workspace:^
+        version: link:../db
 
   packages/db:
     dependencies:

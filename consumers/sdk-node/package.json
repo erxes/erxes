@@ -1,0 +1,18 @@
+{
+  "name": "consumer-sdk-node",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc && node main.ts"
+  },
+  "dependencies": {
+    "@erxes/core-contract": "file:../packs/erxes-core-contract.tgz",
+    "@erxes/plugin-sdk": "file:../packs/erxes-plugin-sdk.tgz",
+    "jose": "^5.10.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "~7.0.2"
+  }
+}

@@ -1,0 +1,7 @@
+# Nothing here needs install scripts.
+allowBuilds:
+  core-js-pure: false
+
+# plugin-sdk depends on core-contract by version; take it from the tarball too.
+overrides:
+  '@erxes/core-contract': 'file:../packs/erxes-core-contract.tgz'
