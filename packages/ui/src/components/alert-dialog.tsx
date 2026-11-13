@@ -1,48 +1,39 @@
-import React from 'react';
+import React, { createContext, use, useRef, type RefObject } from 'react';
 
-import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
+import { AlertDialog as AlertDialogPrimitive } from '@base-ui/react/alert-dialog';
 
 import { buttonVariants } from './button';
 import { cn } from '../lib/utils';
 
-const AlertDialogRoot = AlertDialogPrimitive.Root;
-
-const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
-
-const AlertDialogPortal = AlertDialogPrimitive.Portal;
-
-const AlertDialogOverlay = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) => (
-  <AlertDialogPrimitive.Overlay
-    className={cn(
-      'fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      className,
-    )}
-    {...props}
-    ref={ref}
-  />
-);
+// Cancel takes focus when the dialog opens, unless the content names another element.
+const CancelRefContext = createContext<RefObject<HTMLButtonElement | null> | null>(null);
 
 const AlertDialogContent = ({
-  ref,
   className,
+  initialFocus,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Content>) => (
-  <AlertDialogPortal>
-    <AlertDialogOverlay />
-    <AlertDialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-top-1/2 sm:rounded-lg',
-        className,
-      )}
-      {...props}
-    />
-  </AlertDialogPortal>
-);
+}: AlertDialogPrimitive.Popup.Props) => {
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <CancelRefContext value={cancelRef}>
+      <AlertDialogPrimitive.Portal>
+        <AlertDialogPrimitive.Backdrop
+          forceRender
+          className="fixed inset-0 z-50 bg-black/80 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0"
+        />
+        <AlertDialogPrimitive.Popup
+          initialFocus={initialFocus ?? cancelRef}
+          className={cn(
+            'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-closed:slide-out-to-top-[48%] data-open:slide-in-from-top-1/2 sm:rounded-lg',
+            className,
+          )}
+          {...props}
+        />
+      </AlertDialogPrimitive.Portal>
+    </CancelRefContext>
+  );
+};
 
 const AlertDialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col space-y-2 text-center sm:text-left', className)} {...props} />
@@ -55,59 +46,40 @@ const AlertDialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDiv
   />
 );
 
-const AlertDialogTitle = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Title>) => (
-  <AlertDialogPrimitive.Title
-    ref={ref}
-    className={cn('text-lg font-semibold', className)}
-    {...props}
-  />
+const AlertDialogTitle = ({ className, ...props }: AlertDialogPrimitive.Title.Props) => (
+  <AlertDialogPrimitive.Title className={cn('text-lg font-semibold', className)} {...props} />
 );
 
 const AlertDialogDescription = ({
-  ref,
   className,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Description>) => (
+}: AlertDialogPrimitive.Description.Props) => (
   <AlertDialogPrimitive.Description
-    ref={ref}
     className={cn('text-sm text-muted-foreground', className)}
     {...props}
   />
 );
 
-const AlertDialogAction = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Action>) => (
-  <AlertDialogPrimitive.Action ref={ref} className={cn(buttonVariants(), className)} {...props} />
+/** Both buttons close the dialog; Action is the primary one. */
+const AlertDialogAction = ({ className, ...props }: AlertDialogPrimitive.Close.Props) => (
+  <AlertDialogPrimitive.Close className={cn(buttonVariants(), className)} {...props} />
 );
 
-const AlertDialogCancel = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) => (
-  <AlertDialogPrimitive.Cancel
-    ref={ref}
+const AlertDialogCancel = ({ className, ...props }: AlertDialogPrimitive.Close.Props) => (
+  <AlertDialogPrimitive.Close
+    ref={use(CancelRefContext)}
     className={cn(buttonVariants({ variant: 'outline' }), 'mt-2 sm:mt-0', className)}
     {...props}
   />
 );
 
-export const AlertDialog = Object.assign(AlertDialogRoot, {
+export const AlertDialog = Object.assign(AlertDialogPrimitive.Root, {
   Action: AlertDialogAction,
   Cancel: AlertDialogCancel,
   Content: AlertDialogContent,
   Description: AlertDialogDescription,
   Footer: AlertDialogFooter,
   Header: AlertDialogHeader,
-  Overlay: AlertDialogOverlay,
-  Portal: AlertDialogPortal,
   Title: AlertDialogTitle,
-  Trigger: AlertDialogTrigger,
+  Trigger: AlertDialogPrimitive.Trigger,
 });
