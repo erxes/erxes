@@ -95,10 +95,20 @@ const recheckInvoice = async (job: Job<IInvoiceRecheckJobData>) => {
         return `still pending (check ${attempt + 1})`;
       }
 
-      notifyNeeded = status === PAYMENT_STATUS.PAID && claimed;
-
-      if (notifyNeeded) {
+        if (status === PAYMENT_STATUS.PAID && claimed) {
+        notifyNeeded = true;
         log(`${subdomain}: invoice ${invoiceId} found paid, notifying`);
+      } else if (status === PAYMENT_STATUS.PAID) {
+        // Someone else claimed it between our read and the check. If their
+        // notification failed, notifyPending is still set and nobody else
+        // will retry it; notifyPaidInvoice dedupes by invoice id, so sending
+        // it here as well cannot notify twice.
+        const after = await models.Invoices.findOne(
+          { _id: invoiceId },
+          { notifyPending: 1 },
+        ).lean();
+
+        notifyNeeded = !!after?.notifyPending;
       }
     } catch (e) {
       logError(
