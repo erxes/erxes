@@ -4,15 +4,14 @@ import { Skeleton } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AvatarEditor } from '~/components/AvatarEditor';
-import { isApiError } from '~/lib/api';
 import { ActivityTimeline } from '~/modules/activity/ActivityTimeline';
 import { useCan } from '~/modules/auth/session';
 import { useCompany, useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { companyTitle, customerTitle } from '~/modules/contacts/components/ContactPicker';
 import { useCustomer, useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import { LeadHeaderActions } from '~/modules/leads/LeadHeaderActions';
+import { ContactsBreadcrumb } from '~/modules/contacts/components/ContactsBreadcrumb';
 import { CompanyPanelDetail } from './details/CompanyPanelDetail';
-import { ContactDetailHeader } from './details/ContactDetailHeader';
 import {
   ContactPanelActions,
   ContactPanelIdentity,
@@ -23,8 +22,9 @@ import { CompanyPanelName, CustomerPanelName } from './details/ContactPanelNames
 import { CompanyPanelProperties, CustomerPanelProperties } from './details/ContactPanelProperties';
 import { CustomerPanelDetail } from './details/CustomerPanelDetail';
 import { type IRecordSidePanelTab, RecordSidePanel, usePanelExpanded } from './RecordSidePanel';
+import { RecordPageHeader } from './RecordPageHeader';
 import type { IRecordViewProps } from './recordView';
-import { SidePanelEmpty } from './SidePanelEmpty';
+import { SidePanelFailed } from './SidePanelEmpty';
 import type { TRelationEntity } from './sidePanelPaths';
 import { useSidePanel } from './useSidePanel';
 
@@ -91,9 +91,7 @@ const useRecordHeading = ({ contentType, contentId }: TRelationEntity) => {
     };
   }
 
-  const notFound = isApiError(query.error) && query.error.status === 404;
-
-  return { state: notFound ? ('not-found' as const) : ('error' as const) };
+  return { failed: query.error };
 };
 
 /** Detail, Properties and Activity; a full page adds Description. */
@@ -163,39 +161,11 @@ const useContactTabs = ({
   ];
 };
 
-const SidePanelFailed = ({
-  state,
-  onBack,
-  onClose,
-}: {
-  state: 'error' | 'not-found';
-  onBack?: () => void;
-  onClose?: () => void;
-}) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-
-  return state === 'error' ? (
-    <SidePanelEmpty
-      title={t('error', 'Unable to load record')}
-      description={t('record-load-error', 'Please close the panel and try again.')}
-      onBack={onBack}
-      onClose={onClose}
-    />
-  ) : (
-    <SidePanelEmpty
-      title={t('not-found-title', 'Nothing here')}
-      description={t('record-not-found', 'This record no longer exists.')}
-      onBack={onBack}
-      onClose={onClose}
-    />
-  );
-};
-
 /** A saved customer or company: header, then Detail / Properties (/ Description) tabs. */
 export const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewProps) => {
   const expanded = usePanelExpanded();
   const { tab: selectedTab, setTab } = useSidePanel();
-  const { title, avatar, website, customer, company, state } = useRecordHeading(record);
+  const { title, avatar, website, customer, company, failed } = useRecordHeading(record);
   const contactType = record.contentType === 'core:company' ? 'core:company' : 'core:customer';
   const contact = customer ?? company;
 
@@ -205,7 +175,9 @@ export const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewPro
     description: contact ? contact.description || '' : undefined,
   });
 
-  if (state) return <SidePanelFailed state={state} onBack={onBack} onClose={onClose} />;
+  if (failed !== undefined) {
+    return <SidePanelFailed error={failed} onBack={onBack} onClose={onClose} />;
+  }
 
   let editableTitle: ReactNode = title;
 
@@ -233,7 +205,7 @@ export const SidePanelSavedRecord = ({ record, onBack, onClose }: IRecordViewPro
   return (
     <>
       {expanded ? (
-        <ContactDetailHeader title={title} actions={actions} />
+        <RecordPageHeader breadcrumb={<ContactsBreadcrumb title={title} />} actions={actions} />
       ) : (
         <RecordSidePanel.Header
           avatar={avatar}

@@ -3,6 +3,7 @@ import { AppLayout, AppLayoutFooterLink, NavigationMenuLinkItem, Sidebar } from 
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, Route, Routes } from 'react-router-dom';
+import { RecordPage } from '~/modules/side-panel/RecordPage';
 import { NestedViews } from '~/modules/views/NestedViews';
 import { ProductsPage } from './list/ProductsPage';
 import { PRODUCT_SETTINGS_PATH } from './paths';
@@ -48,11 +49,15 @@ const ProductsLayout = () => {
   );
 };
 
-/** Every Products route, mounted at `products/*`: the catalog and its settings. */
+/**
+ * Every Products route, mounted at `products/*`: the catalog, each product's
+ * own page (where the side panel's expand button leads) and its settings.
+ */
 export const ProductsRoutes = ({ notFound }: { notFound?: ReactNode }) => (
   <Routes>
     <Route element={<ProductsLayout />}>
       <Route index element={<ProductsPage />} />
+      <Route path=":id" element={<RecordPage contentType="core:product" />} />
       {notFound && <Route path="*" element={notFound} />}
     </Route>
     <Route path="settings/*" element={<ProductsSettingsRoutes />} />

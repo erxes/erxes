@@ -1,10 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ContactsSettingsRoutes } from './settings/ContactsSettingsRoutes';
 import { CompaniesPage } from './companies/CompaniesPage';
-import { ContactDetailPage } from './components/ContactDetailPage';
 import { ContactsLayout } from './ContactsLayout';
 import { CustomersPage } from './customers/CustomersPage';
 import { LeadsReportPage } from '~/modules/reports/ReportsRoutes';
+import { RecordPage } from '~/modules/side-panel/RecordPage';
 
 /**
  * Every Contacts route, mounted at `contacts/*`: the lists, and each record's
@@ -20,9 +20,9 @@ export const ContactsRoutes = ({ notFound }: { notFound?: React.ReactNode }) => 
       <Route path="leads/companies" element={<CompaniesPage key="company-lead" state="lead" />} />
       <Route path="leads/insights" element={<LeadsReportPage inContacts />} />
       <Route path="companies" element={<CompaniesPage />} />
-      <Route path="customers/:id" element={<ContactDetailPage contentType="core:customer" />} />
-      <Route path="leads/:id" element={<ContactDetailPage contentType="core:customer" />} />
-      <Route path="companies/:id" element={<ContactDetailPage contentType="core:company" />} />
+      <Route path="customers/:id" element={<RecordPage contentType="core:customer" />} />
+      <Route path="leads/:id" element={<RecordPage contentType="core:customer" />} />
+      <Route path="companies/:id" element={<RecordPage contentType="core:company" />} />
       {notFound && <Route path="*" element={notFound} />}
     </Route>
     {/* Its own layout, like a plugin's settings: the contacts sidebar gives way to the settings list. */}

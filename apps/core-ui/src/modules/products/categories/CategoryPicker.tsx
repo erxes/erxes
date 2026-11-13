@@ -1,4 +1,4 @@
-import { Combobox, Command, Popover } from 'erxes-ui';
+import { cn, Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '~/lib/api';
@@ -17,6 +17,7 @@ export const CategoryPicker = ({
   noneLabel,
   exclude,
   disabled,
+  className,
 }: {
   id?: string;
   value: string | null;
@@ -24,6 +25,8 @@ export const CategoryPicker = ({
   noneLabel: string;
   exclude?: Set<string>;
   disabled?: boolean;
+  /** The trigger's look, e.g. a side panel cell. */
+  className?: string;
 }) => {
   const { t } = useTranslation('product');
   const { tree, query } = useProductCategories();
@@ -37,7 +40,7 @@ export const CategoryPicker = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger id={id} disabled={disabled} className="h-8">
+      <Combobox.Trigger id={id} disabled={disabled} className={cn('h-8', className)}>
         <Combobox.Value
           value={selected?.path}
           placeholder={noneLabel}

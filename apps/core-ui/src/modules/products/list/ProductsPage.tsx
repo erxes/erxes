@@ -5,22 +5,20 @@ import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { ContactsPageHeader } from '~/modules/contacts/components/ContactsPageHeader';
 import { useCreateHotkey } from '~/modules/contacts/customers/CustomersHeader';
 import { ViewTabs } from '~/modules/views/ViewTabs';
-import { ProductSheet } from '../form/ProductSheet';
-import { useProductSheet } from '../form/useProductSheet';
 import { PRODUCTS_PATH } from '../paths';
-import { useCanManageProducts } from '../useProducts';
+import { useCanManageProducts, useOpenProduct } from '../useProducts';
 import { ProductsFilter } from './ProductsFilter';
 import { ProductsRecordTable } from './ProductsRecordTable';
 
-/** Opens an empty product in the sheet (`C` too). */
+/** Opens a new product in the side panel (`C` too). */
 const AddProductButton = () => {
   const { t } = useTranslation('product');
-  const { openNew } = useProductSheet();
+  const { openNewProduct } = useOpenProduct();
 
-  useCreateHotkey(openNew);
+  useCreateHotkey(openNewProduct);
 
   return (
-    <Button onClick={openNew}>
+    <Button onClick={openNewProduct}>
       <IconPlus />
       {t('add', 'Add product')}
       <Kbd>C</Kbd>
@@ -28,7 +26,7 @@ const AddProductButton = () => {
   );
 };
 
-/** Products: the organisation's catalog, with each product opening in a sheet. */
+/** Products: the organisation's catalog, with each product opening in the side panel. */
 export const ProductsPage = () => {
   const { t } = useTranslation('product');
   const manage = useCanManageProducts();
@@ -48,7 +46,6 @@ export const ProductsPage = () => {
         <ProductsFilter />
       </PageSubHeader>
       <ProductsRecordTable />
-      <ProductSheet />
     </PageContainer>
   );
 };

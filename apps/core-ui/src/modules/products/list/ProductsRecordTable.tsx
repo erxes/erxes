@@ -3,10 +3,10 @@ import { Button, Empty, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '~/lib/api';
 import { EmptyList } from '~/modules/contacts/components/EmptyList';
-import { useProductSheet } from '../form/useProductSheet';
 import {
   PRODUCTS_SESSION_KEY,
   useCanManageProducts,
+  useOpenProduct,
   useProducts,
   useProductsFilters,
 } from '../useProducts';
@@ -15,7 +15,7 @@ import { useProductsColumns } from './productsColumns';
 /** No products at all yet: what the catalog is for. */
 const NoProducts = () => {
   const { t } = useTranslation('product');
-  const { openNew } = useProductSheet();
+  const { openNewProduct } = useOpenProduct();
   const manage = useCanManageProducts();
 
   return (
@@ -33,7 +33,7 @@ const NoProducts = () => {
         </Empty.Description>
       </Empty.Header>
       {manage && (
-        <Button onClick={openNew}>
+        <Button onClick={openNewProduct}>
           <IconPlus />
           {t('add', 'Add product')}
         </Button>

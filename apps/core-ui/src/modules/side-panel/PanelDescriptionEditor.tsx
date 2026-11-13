@@ -59,15 +59,19 @@ const useSlashFocus = (readonly: boolean | undefined) => {
   return containerRef;
 };
 
-export const ContactDescriptionEditor = ({
+/** A record's description as a full-size tab, saved when the editor loses focus. */
+export const PanelDescriptionEditor = ({
   value,
   scope,
   readonly,
+  isHTML,
   onSave,
 }: {
   value: string;
   scope: string;
   readonly?: boolean;
+  /** Stores HTML instead of the editor's blocks. */
+  isHTML?: boolean;
   onSave: (description: string) => void;
 }) => {
   const containerRef = useSlashFocus(readonly);
@@ -100,6 +104,7 @@ export const ContactDescriptionEditor = ({
         }}
         scope={scope}
         readonly={readonly}
+        isHTML={isHTML}
         variant="default"
         className="h-full min-h-0 flex-1 rounded-none pt-0 shadow-none [&_.bn-container]:h-full [&_.bn-editor]:min-h-full [&_.bn-editor]:outline-none"
       />

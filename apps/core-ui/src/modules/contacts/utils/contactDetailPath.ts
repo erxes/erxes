@@ -7,9 +7,6 @@ export enum ContactsPath {
 
 export type TContactContentType = 'core:customer' | 'core:company';
 
-export const isContactContentType = (contentType: string): contentType is TContactContentType =>
-  contentType === 'core:customer' || contentType === 'core:company';
-
 /** The list a contact belongs to; a customer opened among leads stays there. */
 export const getContactListPath = (contentType: TContactContentType, pathname: string) => {
   const leads = `${ContactsPath.Index}${ContactsPath.Leads}`;

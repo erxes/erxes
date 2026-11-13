@@ -1,19 +1,13 @@
 import { useQueryState } from 'erxes-ui';
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useLayoutEffect } from 'react';
+import { type ComponentType, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import {
-  getContactDetailPath,
-  isContactContentType,
-} from '~/modules/contacts/utils/contactDetailPath';
-import { CompanyPanelNew } from './details/CompanyPanelNew';
-import { CustomerPanelNew } from './details/CustomerPanelNew';
+import { panelRecordType, recordPagePath } from './panelRecordTypes';
 import { RecordSidePanel } from './RecordSidePanel';
 import type { IRecordViewProps } from './recordView';
 import { SidePanelEmpty } from './SidePanelEmpty';
 import { SidePanelRecordStack } from './SidePanelRecordStack';
-import { SidePanelSavedRecord } from './SidePanelSavedRecord';
 import { NEW_RECORD_ID, SIDE_PANEL_ROOT_PATH } from './sidePanelPaths';
 import { sidePanelWidthState, useSidePanel } from './useSidePanel';
 
@@ -25,7 +19,12 @@ const getContentTypeLabel = (contentType: string) => {
 };
 
 // A record not created yet: its draft, saved as the record on Save.
-const SidePanelDraft = ({ record, onBack, onClose }: IRecordViewProps) => {
+const SidePanelDraft = ({
+  record,
+  onBack,
+  onClose,
+  New,
+}: IRecordViewProps & { New: ComponentType }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
 
   return (
@@ -38,7 +37,7 @@ const SidePanelDraft = ({ record, onBack, onClose }: IRecordViewProps) => {
         onClose={onClose}
       />
       <div className="flex flex-1 min-h-0 flex-col">
-        {record.contentType === 'core:customer' ? <CustomerPanelNew /> : <CompanyPanelNew />}
+        <New />
       </div>
     </>
   );
@@ -46,12 +45,13 @@ const SidePanelDraft = ({ record, onBack, onClose }: IRecordViewProps) => {
 
 /**
  * A record as the side panel shows it, or its draft. A record's own page
- * draws it too, expanded (`ContactDetailPage`).
+ * draws it too, expanded (`RecordPage`).
  */
 export const SidePanelRecord = (props: IRecordViewProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const type = panelRecordType(props.record.contentType);
 
-  if (!isContactContentType(props.record.contentType)) {
+  if (!type) {
     return (
       <SidePanelEmpty
         title={t('not-found-title', 'Nothing here')}
@@ -63,9 +63,9 @@ export const SidePanelRecord = (props: IRecordViewProps) => {
   }
 
   return props.record.contentId === NEW_RECORD_ID ? (
-    <SidePanelDraft {...props} />
+    <SidePanelDraft {...props} New={type.New} />
   ) : (
-    <SidePanelSavedRecord {...props} />
+    <type.View {...props} />
   );
 };
 
@@ -142,11 +142,8 @@ const SidePanelColumn = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  // Contacts expand into their own pages.
-  const recordPage =
-    record && record.contentId !== NEW_RECORD_ID && isContactContentType(record.contentType)
-      ? getContactDetailPath(record.contentType, record.contentId, pathname)
-      : null;
+  // Saved records expand into their own pages.
+  const recordPage = record ? recordPagePath(record, pathname) : null;
 
   return (
     <>

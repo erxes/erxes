@@ -6,7 +6,6 @@ import {
   IconCurrencyDollar,
   IconEdit,
   IconLabelFilled,
-  IconPackage,
   IconPhoto,
   IconPlug,
   IconRestore,
@@ -18,14 +17,13 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMoney } from '~/lib/money';
 import { useProductCategories } from '../categories/useProductCategories';
-import { useProductSheet } from '../form/useProductSheet';
-import { fileUrl } from '../productImages';
+import { ProductAvatar } from '../panel/ProductPanelImages';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
-import { useCanManageProducts, useProductStatus } from '../useProducts';
+import { useCanManageProducts, useOpenProduct, useProductStatus } from '../useProducts';
 
 const MoreCell = ({ product }: { product: Product }) => {
   const { t } = useTranslation('product');
-  const { openProduct } = useProductSheet();
+  const { openProduct } = useOpenProduct();
   const { archive, restore } = useProductStatus();
   const manage = useCanManageProducts();
   const archived = product.status === 'archived';
@@ -59,24 +57,14 @@ const MoreCell = ({ product }: { product: Product }) => {
   );
 };
 
-const ImageCell = ({ product }: { product: Product }) => {
-  const [main] = product.imageIds;
-
-  return (
-    <div className="flex h-8 items-center justify-center">
-      {main ? (
-        <img src={fileUrl(main)} alt="" className="size-6 rounded object-cover" />
-      ) : (
-        <span className="flex size-6 items-center justify-center rounded bg-muted text-muted-foreground">
-          <IconPackage className="size-4" />
-        </span>
-      )}
-    </div>
-  );
-};
+const ImageCell = ({ product }: { product: Product }) => (
+  <div className="flex h-8 items-center justify-center">
+    <ProductAvatar product={product} className="size-6" />
+  </div>
+);
 
 const NameCell = ({ product }: { product: Product }) => {
-  const { openProduct } = useProductSheet();
+  const { openProduct } = useOpenProduct();
 
   return (
     <RecordTableInlineCell>

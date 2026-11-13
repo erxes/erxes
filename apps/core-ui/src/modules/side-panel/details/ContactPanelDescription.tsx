@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useCompanyEdit } from '~/modules/contacts/companies/useCompanies';
 import { useCustomerEdit } from '~/modules/contacts/customers/useCustomers';
 import type { TContactContentType } from '~/modules/contacts/utils/contactDetailPath';
+import { PanelDescriptionEditor } from '../PanelDescriptionEditor';
 import { PanelDescriptionField } from '../PanelDescriptionField';
-import { ContactDescriptionEditor } from './ContactDescriptionEditor';
 
 interface IContactDescriptionProps {
   contentType: TContactContentType;
@@ -37,7 +37,7 @@ export const ContactDescriptionField = ({
   };
 
   return fullSize ? (
-    <ContactDescriptionEditor {...editorProps} readonly={readonly} />
+    <PanelDescriptionEditor {...editorProps} readonly={readonly} />
   ) : (
     <PanelDescriptionField {...editorProps} label={t('description', 'Description')} />
   );

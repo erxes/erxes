@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, useCursorList } from '~/lib/cursorList';
 import { useCan } from '~/modules/auth/session';
+import type { IOpenRecordOptions } from '~/modules/side-panel/recordView';
+import { useSidePanel } from '~/modules/side-panel/useSidePanel';
 import { useAdvancedFilterParam } from '~/modules/views/useViews';
 
 /** RecordTable remembers the scroll position of the list under this key. */
@@ -44,8 +46,22 @@ export const useProducts = () => {
 export const useProduct = (id: string | null) =>
   useQuery(orpc.products.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id }));
 
+/** The side panel's name for products: `?panel=/detail/product/<id>`. */
+export const PRODUCT_CONTENT_TYPE = 'core:product';
+
+/** Opens a product, or a new one, in the side panel. */
+export const useOpenProduct = () => {
+  const { openRecord, openNewRecord } = useSidePanel();
+
+  return {
+    openProduct: (id: string, options?: IOpenRecordOptions) =>
+      openRecord({ contentType: PRODUCT_CONTENT_TYPE, contentId: id }, options),
+    openNewProduct: () => openNewRecord(PRODUCT_CONTENT_TYPE),
+  };
+};
+
 /** Puts a saved product in every cached list and its own query, then refetches the lists. */
-const useStoreProduct = () => {
+export const useStoreProduct = () => {
   const client = useQueryClient();
 
   return (product: Product) => {
@@ -60,13 +76,6 @@ export const useProductCreate = () => {
   const store = useStoreProduct();
 
   return useMutation(orpc.products.create.mutationOptions({ onSuccess: store }));
-};
-
-/** Callers show failures next to the field they are about. */
-export const useProductUpdate = () => {
-  const store = useStoreProduct();
-
-  return useMutation(orpc.products.update.mutationOptions({ onSuccess: store }));
 };
 
 /** Archive or restore, with a toast either way. */

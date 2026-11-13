@@ -1,6 +1,6 @@
 import { matchPath } from 'react-router-dom';
 
-/** A record the side panel can show: `core:customer`, `core:company`, … */
+/** A record the side panel can show: `core:customer`, `core:company`, `core:product`, … */
 export interface TRelationEntity {
   contentType: string;
   contentId: string;
@@ -30,6 +30,7 @@ export const NEW_RECORD_ID = 'new';
 const TYPE_NAME_CONTENT_TYPES: Record<string, string> = {
   customer: 'core:customer',
   company: 'core:company',
+  product: 'core:product',
 };
 
 const CONTENT_TYPE_TYPE_NAMES = Object.fromEntries(

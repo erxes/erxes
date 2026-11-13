@@ -3,13 +3,11 @@
   "actions": {
     "archive": "Archive",
     "cancel": "Cancel",
-    "close": "Close",
     "create": "Create product",
     "delete": "Delete",
     "edit": "Edit",
     "open": "Open",
     "restore": "Restore",
-    "retry": "Try again",
     "save": "Save"
   },
   "add": "Add product",
@@ -60,31 +58,26 @@
     "name": "Name",
     "plugins": "Used by",
     "price": "Price",
-    "properties": "Properties",
     "unit": "Unit",
     "weight": "Weight (g)",
     "width": "Width (mm)"
   },
   "form": {
     "add-properties": "Add them in settings",
-    "currency-invalid": "A currency code, like MNT or USD",
     "name-required": "Enter a name",
     "no-plugins": "No apps installed",
     "all-plugins-chosen": "Every installed app is chosen",
     "no-properties": "No product properties yet.",
     "open-existing": "Open that product",
-    "plugins-hint": "Each app lists the products it uses.",
     "plugins-placeholder": "Choose the apps that sell or use it",
     "price-invalid": "Enter a price, like 12.50",
-    "too-long": "Too long",
-    "too-many-images": "Up to 20 images",
-    "unit-required": "Enter a unit, like pcs or kg",
-    "whole-number": "Enter a whole number"
+    "too-long": "Too long"
   },
   "images": {
     "add": "Add",
     "main": "Main",
     "make-main": "Make main",
+    "none": "No images",
     "remove": "Remove",
     "upload-failed": "Could not upload {{name}}",
     "uploading": "Uploading"
@@ -93,12 +86,16 @@
     "goods": "Goods",
     "service": "Service"
   },
-  "new-product": "New product",
-  "product": "Product",
+  "panel": {
+    "actions": "Product actions",
+    "general": "General",
+    "pricing": "Pricing",
+    "size": "Size and weight",
+    "usage": "Apps"
+  },
   "products": "Products",
   "restored-toast": "{{name}} restored",
   "save-failed": "Could not save the product",
-  "saved-toast": "{{name}} saved",
   "settings": {
     "categories": "Categories",
     "title": "Products settings"

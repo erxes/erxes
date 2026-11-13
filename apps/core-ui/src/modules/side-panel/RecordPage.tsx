@@ -1,27 +1,24 @@
 import { PageContainer, useQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { RecordSidePanel } from '~/modules/side-panel/RecordSidePanel';
-import {
-  type ISidePanelNavigator,
-  SidePanelNavigatorContext,
-} from '~/modules/side-panel/recordView';
-import { SidePanelRecord } from '~/modules/side-panel/SidePanelLayout';
-import { useSidePanel } from '~/modules/side-panel/useSidePanel';
-import { getContactListPath, type TContactContentType } from '../utils/contactDetailPath';
+import { panelRecordType, type TPanelContentType } from './panelRecordTypes';
+import { RecordSidePanel } from './RecordSidePanel';
+import { type ISidePanelNavigator, SidePanelNavigatorContext } from './recordView';
+import { SidePanelRecord } from './SidePanelLayout';
+import { useSidePanel } from './useSidePanel';
 
 /**
- * A customer or company on its own page (`/contacts/customers/:id`): the side
- * panel's record view at full size. Related records still open in the side
- * panel beside it.
+ * A record on its own page (`/contacts/customers/:id`, `/products/:id`): the
+ * side panel's record view at full size. Related records still open in the
+ * side panel beside it.
  */
-export const ContactDetailPage = ({ contentType }: { contentType: TContactContentType }) => {
+export const RecordPage = ({ contentType }: { contentType: TPanelContentType }) => {
   const { id = '' } = useParams<{ id: string }>();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { openRecord } = useSidePanel();
   const [tab, setTab] = useQueryState<string>('tab');
-  const listPath = getContactListPath(contentType, pathname);
+  const listPath = panelRecordType(contentType)?.listPath(pathname) ?? '/';
   const record = useMemo(() => ({ contentType, contentId: id }), [contentType, id]);
 
   const backToList = () => {

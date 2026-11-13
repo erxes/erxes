@@ -11,11 +11,16 @@ export const PanelDescriptionField = ({
   label,
   value,
   scope,
+  readonly,
+  isHTML,
   onSave,
 }: {
   label: React.ReactNode;
   value: string;
   scope: string;
+  readonly?: boolean;
+  /** Stores HTML instead of the editor's blocks. */
+  isHTML?: boolean;
   onSave: (value: string) => void;
 }) => {
   const latest = useRef(value);
@@ -48,6 +53,8 @@ export const PanelDescriptionField = ({
             latest.current = next;
           }}
           scope={scope}
+          readonly={readonly}
+          isHTML={isHTML}
           className="h-auto min-h-20 rounded-sm shadow-none hover:bg-accent focus-within:bg-background focus-within:shadow-focus"
         />
       </div>

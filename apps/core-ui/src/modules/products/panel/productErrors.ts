@@ -1,19 +1,18 @@
 import { z } from 'zod';
 import { errorData, isApiError } from '~/lib/api';
-import type { ProductFormValues } from './productFormValues';
 
 type Translate = (key: string, defaultValue: string) => string;
 
 const existing = z.object({ productId: z.string() });
 
-/** A save failure that belongs to one field; `productId` is the product that already has the code. */
-export interface ProductFieldError {
-  field: keyof ProductFormValues;
+/** A save failure about one field; `productId` is the product that already has the code. */
+interface ProductFieldError {
+  field: 'code' | 'barcode' | 'categoryId' | 'plugins' | 'imageIds';
   message: string;
   productId?: string;
 }
 
-/** Where a failed save shows its message, or null for a toast. */
+/** What a failed save was about, or null when it was not about one field. */
 export const productFieldError = (error: unknown, t: Translate): ProductFieldError | null => {
   if (isApiError(error, 'PRODUCT_CODE_EXISTS')) {
     return {

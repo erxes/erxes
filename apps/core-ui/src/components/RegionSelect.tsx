@@ -1,4 +1,4 @@
-import { Combobox, Command, Popover } from 'erxes-ui';
+import { cn, Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { countryOptions, currencyOptions, type RegionOption } from '~/lib/region';
@@ -8,6 +8,8 @@ interface SelectProps {
   value: string;
   disabled?: boolean;
   onChange: (value: string) => void;
+  /** The trigger's look, e.g. a side panel cell. */
+  className?: string;
 }
 
 /** A searchable list of options (by name or code), one of them chosen. */
@@ -16,6 +18,7 @@ const SearchSelect = ({
   value,
   disabled,
   onChange,
+  className,
   options,
   placeholder,
 }: SelectProps & { options: RegionOption[]; placeholder: string }) => {
@@ -25,7 +28,7 @@ const SearchSelect = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger id={id} className="w-full shadow-xs" disabled={disabled}>
+      <Combobox.Trigger id={id} className={cn('w-full shadow-xs', className)} disabled={disabled}>
         <Combobox.Value value={chosen?.label ?? value} placeholder={placeholder} />
       </Combobox.Trigger>
       <Combobox.Content>
