@@ -11,14 +11,12 @@ import { Tooltip } from 'erxes-ui/components/tooltip';
 import { cn } from 'erxes-ui/lib/utils';
 import { usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey/hooks/usePreviousHotkeyScope';
 import { useFilterContext } from '../hooks/useFilterContext';
-import { useFilterQueryState } from '../hooks/useFilterQueryState';
 import {
   filterDialogViewState,
   filterPopoverViewState,
   openDialogState,
   openPopoverState,
 } from '../states/filterStates';
-import { DateFilterCommand } from '../date-filter/components/DateFilterCommand';
 
 export const FilterTrigger = React.forwardRef<
   HTMLButtonElement,
@@ -192,33 +190,6 @@ export const FilterView = ({
       <FilterBackButton />
       {children}
     </FilterViewNesting.Provider>
-  );
-};
-
-export const FilterPopoverDateView = ({
-  filterKey,
-  label,
-}: {
-  filterKey: string;
-  label?: string;
-}) => {
-  const { resetFilterState, sessionKey } = useFilterContext();
-
-  // Reset the table cursor keyed by sessionKey (not filterKey) so picking a date
-  // preset clears pagination — consistent with FilterBarDate / DialogDateView.
-  const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey ?? '');
-
-  return (
-    <DateFilterCommand
-      focusOnMount
-      value={filterKey}
-      label={label}
-      selected={query ?? ''}
-      onSelect={(value) => {
-        setQuery(value);
-        resetFilterState();
-      }}
-    />
   );
 };
 
