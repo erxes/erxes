@@ -13,8 +13,14 @@ const rateLimit = (options: {
   max: number;
   key: (req: Request) => string | null;
 }) => {
+  const pool = getPool();
+
   const limiter = new RateLimiterPostgres({
-    storeClient: getPool(),
+    // The limiter names its statements; a transaction pooler (Supabase 6543)
+    // can't keep named statements, so they go to the pool unnamed.
+    storeClient: {
+      query: (query: { text: string; values?: unknown[] }) => pool.query(query.text, query.values),
+    },
     storeType: 'pool',
     tableName: getTableName(rateLimits),
     // The table comes from core's migrations, never from the limiter.
