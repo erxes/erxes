@@ -10,9 +10,9 @@
  */
 import { configureDb, rootDb } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
-import { randomBytes } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { config } from '~/config';
+import { randomToken } from '~/lib/crypto';
 import { pluginRoleSql } from '~/modules/plugins/pluginRole';
 import { runCli, say } from './cli';
 
@@ -21,7 +21,7 @@ const [name] = parseArgs({ allowPositionals: true }).positionals;
 const main = async () => {
   if (!name) throw new Error('Usage: pnpm db:plugin-role <plugin name>');
 
-  const password = randomBytes(24).toString('base64url');
+  const password = randomToken(24);
   const roleSql = pluginRoleSql(name, password);
 
   configureDb({

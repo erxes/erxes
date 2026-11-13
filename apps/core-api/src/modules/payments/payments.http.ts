@@ -1,7 +1,7 @@
 import { paymentInvoices, withSystem } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { Router } from 'express';
-import { timingSafeEqual } from 'node:crypto';
+import { safeEqual } from '~/lib/crypto';
 import { callbackSignature, refresh } from './invoiceState';
 
 /**
@@ -13,10 +13,9 @@ export const paymentCallbackRouter = Router();
 
 paymentCallbackRouter.all('/payments/callback/:id', async (req, res) => {
   const { id } = req.params;
-  const given = Buffer.from(typeof req.query.sig === 'string' ? req.query.sig : '');
-  const expected = Buffer.from(callbackSignature(id));
+  const given = typeof req.query.sig === 'string' ? req.query.sig : '';
 
-  if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
+  if (!safeEqual(given, callbackSignature(id))) {
     res.status(403).json({ error: 'invalid signature' });
 
     return;

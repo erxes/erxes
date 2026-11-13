@@ -1,9 +1,11 @@
+import type { FINISHED_RUN_STATUSES } from '@erxes/core-db/enums';
 import { AutomationDefinition, type AutomationStep } from '@erxes/core-contract';
 import {
   automationRuns,
   automationRunSteps,
   automations,
   automationVersions,
+  type ContentType,
   type Db,
   newId,
   roles,
@@ -23,7 +25,7 @@ export type RunRow = typeof automationRuns.$inferSelect;
 
 export type RunContext = Record<string, unknown>;
 
-export type SubjectRef = { type: 'customer' | 'company'; id: string };
+export type SubjectRef = { type: ContentType; id: string };
 
 export const subjectRefOf = (run: Pick<RunRow, 'subjectType' | 'subjectId'>): SubjectRef | null =>
   run.subjectType && run.subjectId ? { type: run.subjectType, id: run.subjectId } : null;
@@ -109,7 +111,7 @@ const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: StepEntry) =>
 export const finishRun = (
   tx: Db,
   runId: string,
-  status: 'succeeded' | 'failed' | 'cancelled',
+  status: (typeof FINISHED_RUN_STATUSES)[number],
   ending: { error?: string; goal?: boolean; context?: RunContext } = {},
 ) =>
   tx

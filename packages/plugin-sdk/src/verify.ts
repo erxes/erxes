@@ -1,4 +1,4 @@
-import { CORE_API_PREFIX, CoreEvent } from '@erxes/core-contract';
+import { CORE_API_PREFIX, CoreEvent, PluginAccess, PluginTier } from '@erxes/core-contract';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { z } from 'zod';
 
@@ -16,13 +16,13 @@ export interface PluginMember {
    * The plugin's tier in this organisation on erxes.io (`free`, `plus`,
    * `pro`): gate paid features with it. Self-hosted: `pro`.
    */
-  tier: 'free' | 'plus' | 'pro' | null;
+  tier: PluginTier | null;
   /**
    * `full`, `warning` (payment retrying / ending at period end: still
    * works), `read_only` (left the plan: let them read and export, refuse
    * changes). Self-hosted: `full`.
    */
-  access: 'full' | 'warning' | 'read_only' | 'off';
+  access: PluginAccess;
   /** `member.canChange()`: false while read-only. */
   canChange(): boolean;
 }
@@ -97,8 +97,7 @@ const verifyCoreToken = async <T>(
 };
 
 // A claim of the wrong type or an unknown value fails verification: it never grants access.
-const Tier = z.enum(['free', 'plus', 'pro']).nullable();
-const Access = z.enum(['full', 'warning', 'read_only', 'off']);
+const Tier = PluginTier.nullable();
 
 const member = (claims: {
   sub: string;
@@ -125,7 +124,7 @@ const SessionClaims = z.object({
   permissions: z.array(z.string()),
   // Core signs both (self-hosted: `pro` and `full`); null means no plan.
   tier: Tier,
-  access: Access,
+  access: PluginAccess,
 });
 
 /**
@@ -173,7 +172,7 @@ const AccessTokenClaims = z.object({
   // Core doesn't sign these into access tokens, so they read as no plan and
   // no access: ask core (`saas.pluginPlan`) when the plan matters.
   tier: Tier.default(null),
-  access: Access.default('off'),
+  access: PluginAccess.default('off'),
   scope: z.string().transform((scope) => scope.split(' ')),
 });
 

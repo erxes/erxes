@@ -1,10 +1,19 @@
 import type { LeadRecordType, LeadReport } from '@erxes/core-contract';
 import { type Db, leadEvents, leadStages } from '@erxes/core-db';
+import type { LEAD_EVENTS } from '@erxes/core-db/enums';
 import { type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { leadCounts, recordTable, stagesOf } from './stages';
+
+type LeadEventName = (typeof LEAD_EVENTS)[number];
+
+/** The events that start a record's time in the funnel. */
+const ENTERED: LeadEventName[] = ['created', 'reopened'];
+
+/** The events a record can be disqualified by. */
+const MOVED: LeadEventName[] = [...ENTERED, 'stage'];
 
 /** Postgres answers `numeric` (averages, percentiles) as strings. */
 const Count = z.coerce.number().int();
@@ -50,14 +59,14 @@ const totalsOf = async ({ client, orgId, table, col, inPeriod }: Scope) => {
       cohort as (select c.converted_at from period e join ${table} c on c.id = e.${col} where e.event = 'created'),
       conversions as (
         select extract(epoch from (e.created_at - coalesce(
-          (select min(x.created_at) from ${leadEvents} x where x.${col} = e.${col} and x.event in ('created', 'reopened') and x.created_at <= e.created_at),
+          (select min(x.created_at) from ${leadEvents} x where x.${col} = e.${col} and x.event in ${ENTERED} and x.created_at <= e.created_at),
           e.created_at))) / 86400 as days
         from period e where e.event = 'converted'
       )
       select
         (select count(*) from cohort)::int as created,
         (select count(*) from period where event = 'converted')::int as converted,
-        (select count(distinct e.${col}) from period e join ${leadStages} s on s.id = e.to_stage_id where s.kind = 'disqualified' and e.event in ('stage', 'created', 'reopened'))::int as disqualified,
+        (select count(distinct e.${col}) from period e join ${leadStages} s on s.id = e.to_stage_id where s.kind = 'disqualified' and e.event in ${MOVED})::int as disqualified,
         (select count(*) from cohort where converted_at is not null)::int as cohort_converted,
         (select percentile_cont(0.5) within group (order by days) from conversions) as median,
         (select avg(days) from conversions) as average

@@ -1,4 +1,4 @@
-import { CUSTOMER_STATES } from '../enums';
+import { CUSTOMER_SEXES, CUSTOMER_STATES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -11,7 +11,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { leadStages } from './leadStages';
 import { organizations } from './organizations';
 import { users } from './users';
@@ -140,7 +140,7 @@ export const customers = pgTable(
       foreignColumns: [users.id],
       name: 'core_customers_owner_id_fkey',
     }).onDelete('set null'),
-    check('core_customers_state_check', sql`${table.state} IN ('lead', 'customer')`),
-    check('core_customers_sex_check', sql`${table.sex} IN (0, 1, 2, 9)`),
+    check('core_customers_state_check', inList(table.state, CUSTOMER_STATES)),
+    check('core_customers_sex_check', inList(table.sex, CUSTOMER_SEXES)),
   ],
 );

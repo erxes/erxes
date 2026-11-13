@@ -1,4 +1,13 @@
-import { companies, customers, type Db, leadStages, roles, users } from '@erxes/core-db';
+import { LANGUAGES } from '@erxes/core-db/enums';
+import {
+  companies,
+  type ContentType,
+  customers,
+  type Db,
+  leadStages,
+  roles,
+  users,
+} from '@erxes/core-db';
 import { and, asc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actor } from '~/http/auth';
@@ -26,7 +35,7 @@ import { EXAMPLE_COPY_MN } from './exampleCopyMn';
  * are what real records get.
  */
 
-const ExampleLanguage = z.enum(['en', 'mn']);
+const ExampleLanguage = z.enum(LANGUAGES);
 
 export type ExampleLanguage = z.infer<typeof ExampleLanguage>;
 
@@ -44,7 +53,7 @@ const isoDay = (days: number) => {
 
 /** The tags and custom fields the example records use. */
 const seedLabels = async (tx: Db, actor: Actor, copy: ExampleCopy) => {
-  const tag = async (type: 'customer' | 'company', name: string, colorCode: string) =>
+  const tag = async (type: ContentType, name: string, colorCode: string) =>
     (await createTag(tx, actor, { type, name, colorCode })).id;
 
   return {

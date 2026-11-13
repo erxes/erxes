@@ -1,5 +1,13 @@
-import { type Db, jobs, newId, type Transaction, withOrg, withSystem } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import {
+  type Db,
+  type JobStatus,
+  jobs,
+  newId,
+  type Transaction,
+  withOrg,
+  withSystem,
+} from '@erxes/core-db';
+import { and, eq, gte, inArray, lt, lte, or, sql } from 'drizzle-orm';
 import type { z } from 'zod';
 import { logger, traced } from '~/logger';
 import { liveHub } from '~/modules/live/hub';
@@ -131,22 +139,22 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
   withSystem('jobs: claim', async (tx) => {
     const definitions = [...queues.values()];
 
-    const names = sql.join(
-      definitions.map((definition) => sql`${definition.queue}`),
-      sql`, `,
+    const inQueues = inArray(
+      jobs.queue,
+      definitions.map((definition) => definition.queue),
     );
+
+    const leaseRanOut = and(eq(jobs.status, 'running'), lt(jobs.lockedUntil, sql`now()`));
 
     const abandoned = await tx
       .update(jobs)
       .set({ status: 'dead', lockedUntil: null, lastError: LEASE_RAN_OUT, updatedAt: sql`now()` })
-      .where(
-        sql`${jobs.queue} in (${names}) and ${jobs.status} = 'running' and ${jobs.lockedUntil} < now() and ${jobs.attempts} >= ${jobs.maxAttempts}`,
-      )
+      .where(and(inQueues, leaseRanOut, gte(jobs.attempts, jobs.maxAttempts)))
       .returning();
 
     const result = await tx.execute<{ id: string }>(sql`
       update ${jobs} j set
-        status = 'running',
+        status = ${'running' satisfies JobStatus},
         attempts = j.attempts + 1,
         locked_until = now() + make_interval(secs => case j.queue
           ${sql.join(
@@ -158,8 +166,7 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
         updated_at = now()
       where j.id in (
         select id from ${jobs}
-        where queue in (${names})
-          and ((status = 'queued' and run_at <= now()) or (status = 'running' and locked_until < now()))
+        where ${and(inQueues, or(and(eq(jobs.status, 'queued'), lte(jobs.runAt, sql`now()`)), leaseRanOut))}
         order by run_at
         limit ${limit}
         for update skip locked

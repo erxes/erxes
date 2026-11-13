@@ -1,9 +1,8 @@
 import { verifyErxesAccessToken } from '@erxes/plugin-sdk';
-import { createHash, randomBytes } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword, randomToken, sha256 } from '~/lib/crypto';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { useTestDatabase } from './db';
 import { useTestServer } from './support';
@@ -26,9 +25,9 @@ const TokenAnswer = z.union([
 const Discovery = z.object({ jwks_uri: z.string() });
 
 const pkce = () => {
-  const verifier = randomBytes(32).toString('base64url');
+  const verifier = randomToken(32);
 
-  return { verifier, challenge: createHash('sha256').update(verifier).digest('base64url') };
+  return { verifier, challenge: sha256(verifier, 'base64url') };
 };
 
 /** The token request for an authorization code. */

@@ -10,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -44,10 +44,7 @@ export const fieldGroups = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_field_groups_org_id_fkey',
     }).onDelete('cascade'),
-    check(
-      'core_field_groups_content_type_check',
-      sql`${table.contentType} IN ('customer', 'company', 'product')`,
-    ),
+    check('core_field_groups_content_type_check', inList(table.contentType, FIELD_CONTENT_TYPES)),
   ],
 );
 
@@ -105,17 +102,11 @@ export const fields = pgTable(
       foreignColumns: [fieldGroups.id],
       name: 'core_fields_group_id_fkey',
     }).onDelete('set null'),
-    check(
-      'core_fields_content_type_check',
-      sql`${table.contentType} IN ('customer', 'company', 'product')`,
-    ),
-    check(
-      'core_fields_type_check',
-      sql`${table.type} IN ('text', 'textarea', 'number', 'date', 'boolean', 'select', 'multiselect', 'radio', 'check', 'phone', 'list')`,
-    ),
+    check('core_fields_content_type_check', inList(table.contentType, FIELD_CONTENT_TYPES)),
+    check('core_fields_type_check', inList(table.type, FIELD_TYPES)),
     check(
       'core_fields_validation_check',
-      sql`${table.validation} IS NULL OR ${table.validation} IN ('number', 'email', 'date')`,
+      sql`${table.validation} IS NULL OR ${inList(table.validation, FIELD_VALIDATIONS)}`,
     ),
   ],
 );

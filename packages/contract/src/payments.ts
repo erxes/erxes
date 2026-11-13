@@ -1,3 +1,4 @@
+import { GATEWAY_REFUND_KINDS, PAYMENT_GATEWAY_STATUSES } from '@erxes/core-db/enums';
 import {
   paymentGateways,
   paymentInvoices,
@@ -122,7 +123,7 @@ export const Invoice = createSelectSchema(paymentInvoices, {
     gatewayKind: PaymentGatewayKind,
     reference: z.object({ type: z.string(), id: z.string() }),
     /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
-    refundable: z.object({ amount: z.int(), gateway: z.enum(['partial', 'full', 'none']) }),
+    refundable: z.object({ amount: z.int(), gateway: z.enum(GATEWAY_REFUND_KINDS) }),
   });
 
 export type Invoice = z.infer<typeof Invoice>;
@@ -183,7 +184,7 @@ export const paymentsContract = {
         id: Id,
         name: z.string().trim().min(1).max(80).optional(),
         config: GatewayConfig.optional(),
-        status: z.enum(['active', 'disabled']).optional(),
+        status: z.enum(PAYMENT_GATEWAY_STATUSES).optional(),
       }),
     )
     .output(PaymentGateway),

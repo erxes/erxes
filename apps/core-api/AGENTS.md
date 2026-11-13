@@ -33,6 +33,9 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
   `/customer/*`, and customer tokens nowhere else.
 - `src/lib/signing.ts` signs and verifies every token core issues (plugin tokens, plugin sessions,
   audit checkpoints) with core's ES256 key; `src/modules/plugins/` is the plugin registry.
+- `src/lib/crypto.ts` is the only file that imports `node:crypto` (`no-restricted-imports`):
+  `safeEqual`, `sha256`, `hmacSha256`, `randomToken`, password hashing and sealing. Add a missing
+  helper there. `src/lib/secrets.ts` seals with keys derived from core's secret.
 - `src/lib/` has keyset paging, change diffs, merge helpers, search and guards.
 - `src/config.ts` is the only place that reads `process.env`.
 

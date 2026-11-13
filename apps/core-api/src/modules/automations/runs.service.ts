@@ -1,5 +1,6 @@
 import type { AutomationRun, CursorQuery, RunStep } from '@erxes/core-contract';
 import { automationRuns, automationRunSteps, type Db } from '@erxes/core-db';
+import { FINISHED_RUN_STATUSES } from '@erxes/core-db/enums';
 import { and, asc, eq, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { type Actor, userCaller } from '~/http/auth';
@@ -200,7 +201,7 @@ export const pruneRunDetails = async (client: Db, days: number) => {
   const result = await client.execute(sql`
     with old as (
       select r.id from ${automationRuns} r
-      where r.status in ('succeeded', 'failed', 'cancelled')
+      where r.status in ${FINISHED_RUN_STATUSES}
         and r.context <> '{}'::jsonb
         and r.finished_at < now() - make_interval(days => ${days})
       limit 1000

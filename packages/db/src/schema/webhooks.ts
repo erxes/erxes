@@ -1,7 +1,6 @@
 import { WEBHOOK_DELIVERY_STATUSES, WEBHOOK_STATUSES } from '../enums';
-import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, integer, text, timestamp } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -34,7 +33,7 @@ export const webhooks = pgTable(
   },
   (table) => [
     index('core_webhooks_org_idx').on(table.orgId, table.status),
-    check('core_webhooks_status_check', sql`${table.status} IN ('active', 'disabled')`),
+    check('core_webhooks_status_check', inList(table.status, WEBHOOK_STATUSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
@@ -71,10 +70,7 @@ export const webhookDeliveries = pgTable(
       table.createdAt.desc(),
     ),
     index('core_webhook_deliveries_created_idx').on(table.createdAt),
-    check(
-      'core_webhook_deliveries_status_check',
-      sql`${table.status} IN ('pending', 'succeeded', 'failed')`,
-    ),
+    check('core_webhook_deliveries_status_check', inList(table.status, WEBHOOK_DELIVERY_STATUSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

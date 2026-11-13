@@ -1,7 +1,6 @@
 import { AUTH_TOKEN_PURPOSES } from '../enums';
-import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, text, timestamp } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt } from './common';
 import { organizations } from './organizations';
 
@@ -26,7 +25,7 @@ export const authTokens = pgTable(
   },
   (table) => [
     index('core_auth_tokens_user_idx').on(table.orgId, table.userId, table.purpose),
-    check('core_auth_tokens_purpose_check', sql`${table.purpose} IN ('invite', 'password_reset')`),
+    check('core_auth_tokens_purpose_check', inList(table.purpose, AUTH_TOKEN_PURPOSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

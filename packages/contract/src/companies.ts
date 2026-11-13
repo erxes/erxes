@@ -1,3 +1,4 @@
+import { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import { companies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -133,7 +134,7 @@ export const companiesContract = {
     .input(
       CursorQuery.extend({
         search: z.string().trim().max(100).optional(),
-        state: z.enum(['lead', 'customer']).optional(),
+        state: z.enum(CUSTOMER_STATES).optional(),
         /** Leads in this stage. */
         leadStageId: Id.optional(),
         ownerId: Id.optional(),

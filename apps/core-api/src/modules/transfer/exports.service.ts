@@ -1,3 +1,4 @@
+import type { EXPORT_FORMATS } from '@erxes/core-db/enums';
 import type { Export, ExportQuery, TransferRecordType } from '@erxes/core-contract';
 import { companies, customers, type Db, exports, newId, users, withOrg } from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, gt, type SQL, sql } from 'drizzle-orm';
@@ -97,7 +98,7 @@ export const createExport = async (
   actor: Actor,
   input: {
     recordType: TransferRecordType;
-    format: 'csv' | 'xlsx';
+    format: (typeof EXPORT_FORMATS)[number];
     columns: string[];
     query: ExportQuery;
   },

@@ -1,4 +1,4 @@
-import { EVENT_FAILURE_STATUSES } from '@erxes/core-db/enums';
+import { EVENT_FAILURE_STATUSES, NOTIFICATION_PRIORITIES } from '@erxes/core-db/enums';
 import { eventFailures, events } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -13,7 +13,7 @@ export const EventNotify = z.object({
   title: z.string().trim().min(1).max(200),
   body: z.string().trim().max(2000).optional(),
   link: AppLink.optional(),
-  priority: z.enum(['normal', 'high']).optional(),
+  priority: z.enum(NOTIFICATION_PRIORITIES).optional(),
 });
 
 export const EventInput = createUpdateSchema(events, {

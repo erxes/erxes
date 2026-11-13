@@ -1,3 +1,4 @@
+import { FILE_STATUSES, FILE_STORAGES } from '@erxes/core-db/enums';
 import { files } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
@@ -9,7 +10,7 @@ export const FileInfo = createSelectSchema(files, {
   id: Id,
   size: () => z.int(),
   /** Files being deleted are never listed. */
-  status: z.enum(['pending', 'ready']),
+  status: z.enum(FILE_STATUSES).exclude(['deleting']),
   createdAt: isoDate,
 })
   .pick({
@@ -55,7 +56,7 @@ export const FileSettings = z.object({
   /** The deployment's limit; `maxSizeMb` can't go above it. */
   limitMb: z.int(),
   /** Where files are stored. */
-  storage: z.enum(['local', 's3']),
+  storage: z.enum(FILE_STORAGES),
 });
 
 export type FileSettings = z.infer<typeof FileSettings>;

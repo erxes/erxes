@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword } from '~/lib/crypto';
 import { codeAt, currentStep } from '~/modules/auth/totp';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { useTestDatabase } from './db';

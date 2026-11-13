@@ -11,9 +11,12 @@ Drizzle schema, client and migrator for core's tables.
   `pg` or client. The
   shapes a jsonb column stores (`ConditionGroup`, `ExportQuery`, `ViewSort`) are typed here, and
   the db package never imports the contract.
-- `src/enums.ts` (`@erxes/core-db/enums`) has the `as const` value lists the columns store and the
-  contract's z.enums accept. It imports nothing, so browsers load it without the tables.
-- `src/table.ts` is `pgTable`, which prefixes every table with `core_`.
+- `src/enums.ts` (`@erxes/core-db/enums`) has every `as const` value list: what the columns store,
+  the contract's z.enums accept and the config reads. It imports nothing, so browsers load it
+  without the tables. `erxes/no-inline-enum` (`tools/lint/erxes`) fails a `z.enum([...])`,
+  `pgEnum`, `{ enum: [...] }` or SQL `IN ('a', 'b')` written out anywhere else.
+- `src/table.ts` is `pgTable`, which prefixes every table with `core_`, and `inList(column, LIST)`,
+  a CHECK's `IN (...)` built from the list the column's `enum` uses.
 - `src/client.ts` has `configureDb`, `db()`, `withTransaction`, `Db` and `Transaction`.
 - `src/migrate.ts` has `runMigrations()`. The API runs it at startup in one transaction under
   `pg_advisory_xact_lock(hashtext('core:migrate'))`, tracked in `public.__drizzle_migrations_core`.

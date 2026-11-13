@@ -1,5 +1,6 @@
 import type { TrashItem } from '@erxes/core-contract';
 import {
+  type ContentType,
   activities,
   companyTags,
   customerTags,
@@ -22,18 +23,16 @@ import { publishCoreEvents } from '~/modules/events/events.service';
 
 const TRASH_DAYS = 30;
 
-type RecordType = 'customer' | 'company';
-
 type TrashRow = typeof trash.$inferSelect;
 
 type Snapshot = TrashRow['snapshot'];
 
-const tableOf = (type: RecordType) => (type === 'customer' ? customers : companies);
-const tagTableOf = (type: RecordType) => (type === 'customer' ? customerTags : companyTags);
+const tableOf = (type: ContentType) => (type === 'customer' ? customers : companies);
+const tagTableOf = (type: ContentType) => (type === 'customer' ? customerTags : companyTags);
 
 const text = (value: unknown) => (typeof value === 'string' && value ? value : null);
 
-const labelOf = (type: RecordType, row: Snapshot['row']) =>
+const labelOf = (type: ContentType, row: Snapshot['row']) =>
   type === 'customer'
     ? [row.firstName, row.lastName].map(text).filter(Boolean).join(' ') ||
       text(row.primaryEmail) ||
@@ -41,7 +40,7 @@ const labelOf = (type: RecordType, row: Snapshot['row']) =>
     : text(row.primaryName);
 
 /** Everything that goes to the bin with each record: its tags, links and timeline. */
-const companionsOf = async (tx: Db, orgId: string, type: RecordType, ids: string[]) => {
+const companionsOf = async (tx: Db, orgId: string, type: ContentType, ids: string[]) => {
   const tagTable = tagTableOf(type);
 
   const tagRows = await tx
@@ -84,7 +83,7 @@ const companionsOf = async (tx: Db, orgId: string, type: RecordType, ids: string
  * Before deleting: the records, their tags, links and timeline go to the bin
  * (same transaction). Restorable for 30 days.
  */
-export const moveToTrash = async (tx: Db, caller: Caller, type: RecordType, ids: string[]) => {
+export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids: string[]) => {
   if (!ids.length) return;
 
   const table = tableOf(type);
@@ -125,7 +124,7 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: RecordType, ids:
 export const listTrash = async (
   client: Db,
   actor: Actor,
-  query: { type?: RecordType; limit: number },
+  query: { type?: ContentType; limit: number },
 ) => {
   requirePermission(actor, 'contacts.delete');
 

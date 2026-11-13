@@ -1,3 +1,4 @@
+import { ACTOR_TYPES } from '@erxes/core-db/enums';
 import { z } from 'zod';
 import { Id } from './common';
 
@@ -7,7 +8,7 @@ import { Id } from './common';
  * unless the response carries them.
  */
 export const ActorRef = z.object({
-  type: z.enum(['user', 'plugin', 'system']),
+  type: z.enum(ACTOR_TYPES),
   id: z.string().nullable(),
   /** A team member's name and picture, where a list includes them (timelines), so it reads at once. */
   name: z.string().nullable().optional(),

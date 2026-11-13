@@ -8,9 +8,9 @@ import {
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, ne, sql } from 'drizzle-orm';
-import { timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
 import { HttpError, pgCode } from '~/http/errors';
+import { safeEqual } from '~/lib/crypto';
 import { insertOrganization } from '~/modules/organizations/organizations.service';
 import { forgetEntitlements, refreshEntitlements } from './entitlements';
 
@@ -21,10 +21,7 @@ export const platformAuthorized = (header: string | undefined) => {
 
   if (!token || !given) return false;
 
-  const a = Buffer.from(token);
-  const b = Buffer.from(given);
-
-  return a.length === b.length && timingSafeEqual(a, b);
+  return safeEqual(token, given);
 };
 
 /** Creates the organisation and its owner, or renames it; a taken subdomain is a 409. */

@@ -1,5 +1,4 @@
 import { CUSTOMER_CODE_PURPOSES, CUSTOMER_LOGIN_KINDS } from '../enums';
-import { sql } from 'drizzle-orm';
 import {
   check,
   foreignKey,
@@ -9,7 +8,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt } from './common';
 import { customers } from './customers';
 import { organizations } from './organizations';
@@ -47,7 +46,7 @@ export const customerLogins = pgTable(
       foreignColumns: [customers.id],
       name: 'core_customer_logins_customer_id_fkey',
     }).onDelete('cascade'),
-    check('core_customer_logins_kind_check', sql`${table.kind} IN ('email', 'phone')`),
+    check('core_customer_logins_kind_check', inList(table.kind, CUSTOMER_LOGIN_KINDS)),
   ],
 );
 
@@ -89,8 +88,8 @@ export const customerCodes = pgTable(
       foreignColumns: [customers.id],
       name: 'core_customer_codes_customer_id_fkey',
     }).onDelete('cascade'),
-    check('core_customer_codes_kind_check', sql`${table.kind} IN ('email', 'phone')`),
-    check('core_customer_codes_purpose_check', sql`${table.purpose} IN ('sign_in', 'add_login')`),
+    check('core_customer_codes_kind_check', inList(table.kind, CUSTOMER_LOGIN_KINDS)),
+    check('core_customer_codes_purpose_check', inList(table.purpose, CUSTOMER_CODE_PURPOSES)),
   ],
 );
 

@@ -2,8 +2,9 @@ import type { CustomerTokens } from '@erxes/core-contract';
 import { customerSessions, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { sha256 } from '~/lib/crypto';
 import { signJwt, verifyJwt } from '~/lib/signing';
-import { newSecret, sameHash, sha256, splitCredential } from '~/modules/oauth/oauthClients';
+import { newSecret, sameHash, splitCredential } from '~/modules/oauth/oauthClients';
 
 /** JOSE `typ` of customer access tokens; member and plugin checks never accept it. */
 const CUSTOMER_ACCESS_TYP = 'customer+jwt';

@@ -1,3 +1,4 @@
+import { AUDIT_STREAM_STARTS } from '@erxes/core-db/enums';
 import { auditLogs, auditStreams } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -228,7 +229,7 @@ export const auditContract = {
           format: AuditStreamFormat.default('erxes'),
           authHeader: AuthHeader.optional(),
           /** `now`: entries from here on; `beginning`: everything still kept, then new ones. */
-          from: z.enum(['now', 'beginning']).default('now'),
+          from: z.enum(AUDIT_STREAM_STARTS).default('now'),
         }),
     )
     .output(z.object({ stream: AuditStream, secret: z.string() })),

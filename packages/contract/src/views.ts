@@ -1,4 +1,9 @@
-import { VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
+import {
+  FILTER_FIELD_GROUPS,
+  FILTER_FIELD_TYPES,
+  SORT_DIRECTIONS,
+  VIEW_RECORD_TYPES,
+} from '@erxes/core-db/enums';
 import { views } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -23,17 +28,17 @@ export const RecordFilter = ConditionGroup;
 export const FilterField = z.object({
   path: z.string(),
   label: z.string(),
-  type: z.enum(['text', 'number', 'date', 'boolean', 'select', 'member', 'tags']),
+  type: z.enum(FILTER_FIELD_TYPES),
   options: z.array(z.string()).optional(),
   /** Where it comes from, for grouping in the picker. */
-  group: z.enum(['fields', 'lead', 'custom', 'company', 'activity']),
+  group: z.enum(FILTER_FIELD_GROUPS),
 });
 
 export type FilterField = z.infer<typeof FilterField>;
 
 export const ViewSort = z.object({
   field: z.string().max(100),
-  direction: z.enum(['asc', 'desc']),
+  direction: z.enum(SORT_DIRECTIONS),
 });
 
 export const View = createSelectSchema(views, {

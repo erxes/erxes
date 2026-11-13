@@ -2,12 +2,12 @@ import { Invoice } from '@erxes/core-contract';
 import { type Db, paymentGateways, paymentInvoices, withOrg } from '@erxes/core-db';
 import { GATEWAY_REFUNDS } from '@erxes/payment-gateways';
 import { and, eq, sql } from 'drizzle-orm';
-import { createHmac, hkdfSync } from 'node:crypto';
 import { z } from 'zod';
-import { config } from '~/config';
 import { systemCaller } from '~/http/auth';
 import { notFound } from '~/http/errors';
+import { hmacSha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
+import { coreKey } from '~/lib/secrets';
 import { logger } from '~/logger';
 import { publishCoreEvents } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
@@ -53,20 +53,9 @@ export const toInvoiceDto = (row: InvoiceRow, kind: GatewayRow['kind']): Invoice
   };
 };
 
-const callbackKey = () =>
-  Buffer.from(
-    hkdfSync(
-      'sha256',
-      config.auth.encryptionKey ?? config.auth.jwtSecret,
-      Buffer.alloc(0),
-      'erxes-payment-callback-v1',
-      32,
-    ),
-  );
-
 /** Signs the callback address given to the gateway, so callbacks for other ids are refused. */
 export const callbackSignature = (invoiceId: string) =>
-  createHmac('sha256', callbackKey()).update(invoiceId).digest('base64url');
+  hmacSha256(coreKey('erxes-payment-callback-v1'), invoiceId, 'base64url');
 
 /** What `core.payment.*` events carry about the invoice. */
 export const eventPayload = (invoice: InvoiceRow) => ({

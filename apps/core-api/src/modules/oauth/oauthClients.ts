@@ -1,22 +1,16 @@
 import { type Db, pluginInstallations, plugins, withSystem } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { Response } from 'express';
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
+import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 
 export const SCOPES = new Set(['openid', 'profile', 'email', 'offline_access']);
 
 /** A form or query parameter: text, or missing (a repeated or nested one fails the parse). */
 export const param = z.string().optional();
 
-export const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
-
-/** The PKCE S256 challenge of a verifier. */
-export const challengeOf = (verifier: string) =>
-  createHash('sha256').update(verifier).digest().toString('base64url');
-
 /** A new `<id>.<secret>` credential, of which only the secret's hash is stored. */
-export const newSecret = () => randomBytes(32).toString('base64url');
+export const newSecret = () => randomToken(32);
 
 /** `<id>.<secret>` split in two; either part may be empty. */
 export const splitCredential = (value: string | undefined) => {
@@ -25,12 +19,7 @@ export const splitCredential = (value: string | undefined) => {
   return { id, secret };
 };
 
-export const sameHash = (stored: string, value: string) => {
-  const a = Buffer.from(stored);
-  const b = Buffer.from(sha256(value));
-
-  return a.length === b.length && timingSafeEqual(a, b);
-};
+export const sameHash = (stored: string, value: string) => safeEqual(stored, sha256(value));
 
 export const oauthError = (res: Response, status: number, error: string, description: string) =>
   res.status(status).json({ error, error_description: description });

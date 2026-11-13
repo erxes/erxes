@@ -1,25 +1,25 @@
+import {
+  ENTITLEMENT_STATUSES,
+  ORGANIZATION_STATUSES,
+  PLUGIN_ACCESS,
+  PLUGIN_TIERS,
+} from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { OrganizationRegion } from './organizations';
 
 /** erxes.io's plugin tiers: Free is never billed; Plus and Pro have their own monthly prices. */
-export const PluginTier = z.enum(['free', 'plus', 'pro']);
+export const PluginTier = z.enum(PLUGIN_TIERS);
 
 export type PluginTier = z.infer<typeof PluginTier>;
 
-/** A plugin's billing status on erxes.io: `past_due` while Stripe retries, `canceling` until the period ends. */
-export const EntitlementStatus = z.enum(['active', 'past_due', 'canceling']);
+export const EntitlementStatus = z.enum(ENTITLEMENT_STATUSES);
 
-/**
- * What a plugin may do here: `full`; `warning` (payment retrying or ending
- * at period end — everything still works); `read_only` (it left the plan:
- * reads and exports for the grace period); `off` (not in the plan).
- */
-export const PluginAccess = z.enum(['full', 'warning', 'read_only', 'off']);
+export const PluginAccess = z.enum(PLUGIN_ACCESS);
 
 export type PluginAccess = z.infer<typeof PluginAccess>;
 
-export const OrganizationStatus = z.enum(['active', 'suspended', 'inactive']);
+export const OrganizationStatus = z.enum(ORGANIZATION_STATUSES);
 
 /**
  * erxes.io → core: create (or rename, or enable/disable) an organisation's

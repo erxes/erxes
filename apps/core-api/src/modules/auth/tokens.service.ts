@@ -1,3 +1,4 @@
+import type { AUTH_TOKEN_PURPOSES } from '@erxes/core-db/enums';
 import {
   authTokens,
   type Db,
@@ -8,17 +9,14 @@ import {
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { appLink, sendEmail } from '~/modules/email/email';
-import { hashPassword } from './password';
+import { hashPassword, randomToken, safeEqual, sha256 } from '~/lib/crypto';
 
 const INVITE_DAYS = 7;
 const RESET_MINUTES = 30;
-
-const hash = (secret: string) => createHash('sha256').update(secret).digest('hex');
 
 const invalidLink = () =>
   new HttpError(400, 'INVALID_LINK', 'This link is not valid any more: ask for a new one');
@@ -28,7 +26,7 @@ const issue = async (
   tx: Db,
   orgId: string,
   userId: string,
-  purpose: 'invite' | 'password_reset',
+  purpose: (typeof AUTH_TOKEN_PURPOSES)[number],
 ) => {
   await tx
     .update(authTokens)
@@ -43,14 +41,14 @@ const issue = async (
     );
 
   const id = newId();
-  const secret = randomBytes(32).toString('base64url');
+  const secret = randomToken(32);
 
   await tx.insert(authTokens).values({
     id,
     orgId,
     userId,
     purpose,
-    secretHash: hash(secret),
+    secretHash: sha256(secret),
     expiresAt:
       purpose === 'invite'
         ? sql`now() + make_interval(days => ${INVITE_DAYS})`
@@ -64,7 +62,7 @@ const issue = async (
  * Finds a valid, unused link. The id says where to look (the one lookup
  * before the organisation is known); the secret must match its hash.
  */
-const redeem = async (token: string, purpose: 'invite' | 'password_reset') => {
+const redeem = async (token: string, purpose: (typeof AUTH_TOKEN_PURPOSES)[number]) => {
   const [id, secret] = token.split('.');
 
   if (!id || !secret) throw invalidLink();
@@ -84,10 +82,7 @@ const redeem = async (token: string, purpose: 'invite' | 'password_reset') => {
       .limit(1),
   );
 
-  const expected = row ? Buffer.from(row.secretHash) : Buffer.alloc(64);
-  const given = Buffer.from(hash(secret));
-
-  if (!row || !timingSafeEqual(expected, given)) throw invalidLink();
+  if (!row || !safeEqual(row.secretHash, sha256(secret))) throw invalidLink();
 
   return row;
 };

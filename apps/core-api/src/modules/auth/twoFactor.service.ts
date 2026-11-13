@@ -1,12 +1,11 @@
 import { type Db, users, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import { createHash, randomBytes } from 'node:crypto';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { seal, unseal } from '~/lib/secrets';
 import { signJwt, verifyJwt } from '~/lib/signing';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { verifyPassword } from './password';
+import { randomToken, sha256, verifyPassword } from '~/lib/crypto';
 import { z } from 'zod';
 import { matchStep, newTotpSecret, otpauthUri } from './totp';
 
@@ -14,12 +13,11 @@ const CHALLENGE_TYP = 'erxes-2fa-challenge+jwt';
 
 const ChallengeClaims = z.object({ org: z.string(), sub: z.string() });
 
-const hashCode = (code: string) =>
-  createHash('sha256').update(code.replace(/[\s-]/g, '').toLowerCase()).digest('hex');
+const hashCode = (code: string) => sha256(code.replace(/[\s-]/g, '').toLowerCase());
 
 const newRecoveryCodes = () =>
   Array.from({ length: 10 }, () => {
-    const raw = randomBytes(5).toString('hex');
+    const raw = randomToken(5, 'hex');
 
     return `${raw.slice(0, 5)}-${raw.slice(5)}`;
   });

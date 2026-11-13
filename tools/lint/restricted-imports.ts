@@ -44,6 +44,13 @@ export const decided = [
   { name: 'react-merge-refs', message: "Merge refs with composeRefs from 'radix-ui/internal'." },
 ];
 
+// A stored hash, signature or token keeps its format only if one file makes it.
+export const nodeCrypto = ['node:crypto', 'crypto'].map((name) => ({
+  name,
+  message:
+    'Use apps/core-api/src/lib/crypto.ts (safeEqual, sha256, hmacSha256, randomToken), or add the helper there.',
+}));
+
 // Packages are shared with plugins and never reach into an app.
 export const noApps = {
   group: [

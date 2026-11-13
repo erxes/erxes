@@ -1,4 +1,12 @@
-import { IMPORT_STATUSES, TRANSFER_RECORD_TYPES } from '@erxes/core-db/enums';
+import {
+  EXPORT_FORMATS,
+  IMPORT_MATCH_KEYS,
+  IMPORT_MODES,
+  IMPORT_ROW_ACTIONS,
+  IMPORT_STATUSES,
+  TRANSFER_FIELD_GROUPS,
+  TRANSFER_RECORD_TYPES,
+} from '@erxes/core-db/enums';
 import { exports, importRows, imports } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
@@ -14,7 +22,7 @@ export type TransferRecordType = z.infer<typeof TransferRecordType>;
 export const TransferColumn = z.object({
   key: z.string(),
   label: z.string(),
-  group: z.enum(['fields', 'custom', 'relations']),
+  group: z.enum(TRANSFER_FIELD_GROUPS),
   importable: z.boolean(),
   exportable: z.boolean(),
   /** Exported unless the member unticks it. */
@@ -28,8 +36,8 @@ export type TransferColumn = z.infer<typeof TransferColumn>;
  * takes `.partial()` of this, where a default would overwrite the stored option.
  */
 export const ImportOptions = z.object({
-  mode: z.enum(['create', 'update', 'upsert']),
-  matchBy: z.enum(['email', 'phone', 'code', 'id', 'name']),
+  mode: z.enum(IMPORT_MODES),
+  matchBy: z.enum(IMPORT_MATCH_KEYS),
   tagIds: z.array(Id).max(50).optional(),
   ownerId: Id.nullable().optional(),
   createMissing: z.boolean(),
@@ -89,7 +97,7 @@ export type Import = z.infer<typeof Import>;
 export const ImportRow = createSelectSchema(importRows, {
   rowNumber: () => z.int(),
   cells: strings,
-  action: () => z.enum(['create', 'update', 'skip', 'error']),
+  action: () => z.enum(IMPORT_ROW_ACTIONS),
 }).pick({ rowNumber: true, cells: true, action: true, error: true, recordId: true });
 
 /** What an export reproduces: the list's filters as the member sees them. */
@@ -201,7 +209,7 @@ export const transferContract = {
     .input(
       z.object({
         id: Id,
-        action: z.enum(['create', 'update', 'skip', 'error']).optional(),
+        action: z.enum(IMPORT_ROW_ACTIONS).optional(),
         limit: z.coerce.number().int().min(1).max(1000).default(200),
       }),
     )
@@ -220,7 +228,7 @@ export const transferContract = {
     .input(
       z.object({
         recordType: TransferRecordType,
-        format: z.enum(['csv', 'xlsx']).default('csv'),
+        format: z.enum(EXPORT_FORMATS).default('csv'),
         columns: z.array(z.string().max(100)).min(1).max(200),
         query: ExportQuery.default({}),
       }),

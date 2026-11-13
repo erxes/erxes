@@ -1,8 +1,8 @@
 import { closeDb, configureDb, schema } from '@erxes/core-db';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { randomBytes } from 'node:crypto';
 import { Pool } from 'pg';
 import { afterAll, beforeAll } from 'vite-plus/test';
+import { randomToken } from '~/lib/crypto';
 import { admin, databaseUrl, dropDatabase, TEST_RUNTIME_ROLE, testServerUrl } from './globalSetup';
 
 const baseUrl = testServerUrl();
@@ -38,7 +38,7 @@ const sessionUrl = (url: string) => {
 
 /** A throwaway database for this test file, copied from the run's migrated template. */
 export const useTestDatabase = () => {
-  const name = `core_test_${randomBytes(4).toString('hex')}`;
+  const name = `core_test_${randomToken(4, 'hex')}`;
 
   beforeAll(async () => {
     // A copy of the run's migrated template, which already grants the runtime role (globalSetup.ts).

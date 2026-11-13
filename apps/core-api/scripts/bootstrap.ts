@@ -8,7 +8,7 @@ import { parseArgs } from 'node:util';
 import { config } from '~/config';
 import { runCli, say } from './cli';
 import { signAccessToken } from '~/http/auth';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword } from '~/lib/crypto';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 
 const { values } = parseArgs({

@@ -10,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -56,7 +56,7 @@ export const jobs = pgTable(
     uniqueIndex('core_jobs_dedupe_key')
       .on(table.orgId, table.queue, table.dedupeKey)
       .where(sql`${table.dedupeKey} IS NOT NULL`),
-    check('core_jobs_status_check', sql`${table.status} IN ('queued', 'running', 'dead')`),
+    check('core_jobs_status_check', inList(table.status, JOB_STATUSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

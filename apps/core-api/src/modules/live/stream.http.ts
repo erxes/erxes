@@ -1,3 +1,4 @@
+import type { LIVE_MODES } from '@erxes/core-db/enums';
 import { users, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import { Router, type Request } from 'express';
@@ -24,7 +25,7 @@ interface Target {
 /** The data of one stream message (`{}` for `inbox` and `resync`). */
 type StreamData =
   | Record<string, never>
-  | { mode: 'live' | 'polling' }
+  | { mode: (typeof LIVE_MODES)[number] }
   | { targets: Target[] }
   | { plugin: string; topics: string[] };
 

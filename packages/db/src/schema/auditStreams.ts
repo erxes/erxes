@@ -1,7 +1,6 @@
 import { AUDIT_STREAM_FORMATS, AUDIT_STREAM_STATUSES } from '../enums';
-import { sql } from 'drizzle-orm';
 import { bigint, check, foreignKey, index, integer, text, timestamp } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -38,11 +37,8 @@ export const auditStreams = pgTable(
   },
   (table) => [
     index('core_audit_streams_org_idx').on(table.orgId),
-    check(
-      'core_audit_streams_format_check',
-      sql`${table.format} IN ('erxes', 'datadog', 'splunk')`,
-    ),
-    check('core_audit_streams_status_check', sql`${table.status} IN ('active', 'paused')`),
+    check('core_audit_streams_format_check', inList(table.format, AUDIT_STREAM_FORMATS)),
+    check('core_audit_streams_status_check', inList(table.status, AUDIT_STREAM_STATUSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

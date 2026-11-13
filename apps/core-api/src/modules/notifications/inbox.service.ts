@@ -40,7 +40,7 @@ export const listNotifications = async (
   query: CursorQuery & {
     unread?: boolean;
     source?: string;
-    priority?: 'normal' | 'high';
+    priority?: Notification['priority'];
     kind?: string;
   },
 ) => {

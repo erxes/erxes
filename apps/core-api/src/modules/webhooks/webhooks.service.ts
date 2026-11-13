@@ -1,9 +1,10 @@
+import type { WEBHOOK_STATUSES } from '@erxes/core-db/enums';
 import { CORE_EVENT_TYPES, type EventTypeInfo, type Webhook } from '@erxes/core-contract';
 import { type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
-import { randomBytes } from 'node:crypto';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
+import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
 import { seal } from '~/lib/secrets';
@@ -63,8 +64,6 @@ export const matchesPattern = (pattern: string, type: string) =>
   pattern === type ||
   (pattern.endsWith('.*') && type.startsWith(pattern.slice(0, -1)));
 
-const newSecret = () => `whsec_${randomBytes(24).toString('base64url')}`;
-
 const checkUrl = (url: string) => {
   try {
     assertOutboundUrl(url);
@@ -106,7 +105,7 @@ export const createWebhook = async (
 ) => {
   checkUrl(input.url);
 
-  const secret = newSecret();
+  const secret = newSigningSecret();
 
   const row = oneRow(
     await client
@@ -134,7 +133,7 @@ export const createWebhook = async (
   return { webhook: toWebhookDto(row), secret };
 };
 
-const statusChange = (status: 'active' | 'disabled' | undefined) =>
+const statusChange = (status: (typeof WEBHOOK_STATUSES)[number] | undefined) =>
   status
     ? {
         status,
@@ -151,7 +150,7 @@ export const updateWebhook = async (
     url?: string;
     description?: string | null;
     eventTypes?: string[];
-    status?: 'active' | 'disabled';
+    status?: (typeof WEBHOOK_STATUSES)[number];
   },
 ) => {
   const before = await findWebhook(client, actor.orgId, id);
@@ -207,7 +206,7 @@ export const removeWebhook = async (client: Db, actor: Actor, id: string) => {
 
 export const rotateWebhookSecret = async (client: Db, actor: Actor, id: string) => {
   const row = await findWebhook(client, actor.orgId, id);
-  const secret = newSecret();
+  const secret = newSigningSecret();
 
   await client
     .update(webhooks)

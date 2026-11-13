@@ -149,7 +149,7 @@ describe('audit log', () => {
     expect(await pruneAudit(adminDb(), 365)).toBeGreaterThanOrEqual(2);
 
     const left = await adminDb().execute(
-      sql`select id from core_audit_logs where id in ('old-entry-1', 'old-entry-2')`,
+      sql`select id from core_audit_logs where id in ${['old-entry-1', 'old-entry-2']}`,
     );
 
     expect(left.rows).toHaveLength(0);

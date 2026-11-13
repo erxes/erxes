@@ -5,6 +5,7 @@ import {
   decided,
   noApps,
   noDriver,
+  nodeCrypto,
   routerBuilder,
   serverOnly,
 } from './tools/lint/restricted-imports';
@@ -31,6 +32,7 @@ export default defineConfig({
     jsPlugins: [
       { name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' },
       { name: 'anti-slop', specifier: './tools/lint/anti-slop/index.ts' },
+      { name: 'erxes', specifier: './tools/lint/erxes/index.ts' },
     ],
     categories: { correctness: 'error', suspicious: 'error' },
     options: { typeAware: true, typeCheck: true },
@@ -183,9 +185,35 @@ export default defineConfig({
         rules: { 'no-console': ['error', { allow: ['warn', 'error'] }] },
       },
       {
+        // Value lists are written once, in packages/db/src/enums.ts. apps/core-ui and
+        // packages/ui join once their Base UI rewrite lands.
+        files: [
+          'apps/core-api/**',
+          'packages/db/**',
+          'packages/contract/**',
+          'packages/plugin-sdk/**',
+        ],
+        rules: { 'erxes/no-inline-enum': 'error' },
+      },
+      {
+        files: ['packages/db/src/enums.ts'],
+        rules: { 'erxes/no-inline-enum': 'off' },
+      },
+      {
+        // Core's hashing, comparisons and random tokens all go through lib/crypto.ts.
+        files: ['apps/core-api/**'],
+        rules: {
+          'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
+        },
+      },
+      {
+        files: ['apps/core-api/src/lib/crypto.ts'],
+        rules: { 'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }] },
+      },
+      {
         // The one place that implements the contract; feature routers import its builders.
         files: ['apps/core-api/src/orpc.ts'],
-        rules: { 'no-restricted-imports': 'off' },
+        rules: { 'no-restricted-imports': ['error', { paths: [...decided, ...nodeCrypto] }] },
       },
       {
         // A test file's describe callback holds all its cases; max-lines still bounds the file.

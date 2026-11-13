@@ -1,3 +1,4 @@
+import type { SORT_DIRECTIONS } from '@erxes/core-db/enums';
 import type { ConditionGroup, View, ViewRecordType } from '@erxes/core-contract';
 import { type Db, newId, views } from '@erxes/core-db';
 import { and, asc, eq, or, sql } from 'drizzle-orm';
@@ -65,7 +66,7 @@ interface ViewInput {
   filter?: ConditionGroup | null;
   search?: string | null;
   columns?: string[] | null;
-  sort?: { field: string; direction: 'asc' | 'desc' } | null;
+  sort?: { field: string; direction: (typeof SORT_DIRECTIONS)[number] } | null;
   shared?: boolean;
 }
 

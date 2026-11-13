@@ -1,5 +1,5 @@
 import type { AutomationStep } from '@erxes/core-contract';
-import { createHash } from 'node:crypto';
+import { sha256 } from '~/lib/crypto';
 
 /**
  * Where a run is: step indexes and the arm taken at each nesting level,
@@ -81,7 +81,8 @@ export const sameCursor = (a: Cursor, b: Cursor) =>
 /** A split's path for a run: by weight, the same every time for the same run. */
 export const splitPath = (runId: string, step: Extract<AutomationStep, { type: 'split' }>) => {
   const total = step.paths.reduce((sum, path) => sum + path.weight, 0);
-  const roll = createHash('sha256').update(`${runId}:${step.id}`).digest().readUInt32BE(0) % total;
+  // The digest's first 4 bytes as a big-endian integer.
+  const roll = Number.parseInt(sha256(`${runId}:${step.id}`).slice(0, 8), 16) % total;
   let seen = 0;
 
   for (const [index, path] of step.paths.entries()) {

@@ -1,3 +1,4 @@
+import { ENTITLEMENT_STATUSES, PLUGIN_TIERS } from '@erxes/core-db/enums';
 import type { EntitledPlugin } from '@erxes/core-db';
 import { z } from 'zod';
 import { config } from '~/config';
@@ -9,8 +10,8 @@ import type { EntitlementRow } from './access';
  */
 const Entitled = z.object({
   code: z.string(),
-  tier: z.enum(['free', 'plus', 'pro']),
-  status: z.enum(['active', 'past_due', 'canceling']).default('active'),
+  tier: z.enum(PLUGIN_TIERS),
+  status: z.enum(ENTITLEMENT_STATUSES).default('active'),
 });
 
 /** erxes.io's answer: `details` per plugin, or the older `plugins` (code → tier). */

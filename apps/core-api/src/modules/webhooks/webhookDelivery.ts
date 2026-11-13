@@ -1,11 +1,12 @@
+import type { WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
 import type { CursorQuery, WebhookDelivery } from '@erxes/core-contract';
 import { type Db, events, newId, webhookDeliveries, webhooks, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import { createHmac } from 'node:crypto';
 import { z } from 'zod';
 import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { allOf } from '~/lib/conditions';
+import { hmacSha256 } from '~/lib/crypto';
 import { keysetPage } from '~/lib/keyset';
 import { postOutbound } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
@@ -51,8 +52,7 @@ export const signPayload = (
   secret: string,
   body: string,
   timestamp = Math.floor(Date.now() / 1000),
-) =>
-  `t=${timestamp},v1=${createHmac('sha256', secret).update(`${timestamp}.${body}`).digest('hex')}`;
+) => `t=${timestamp},v1=${hmacSha256(secret, `${timestamp}.${body}`, 'hex')}`;
 
 const loadDelivery = (orgId: string, deliveryId: string) =>
   withOrg(orgId, async (tx) => {
@@ -258,7 +258,7 @@ export const testWebhook = async (client: Db, actor: Actor, id: string) => {
 export const listDeliveries = async (
   client: Db,
   actor: Actor,
-  query: CursorQuery & { id: string; status?: 'pending' | 'succeeded' | 'failed' },
+  query: CursorQuery & { id: string; status?: (typeof WEBHOOK_DELIVERY_STATUSES)[number] },
 ) => {
   await findWebhook(client, actor.orgId, query.id);
 

@@ -1,9 +1,10 @@
+import type { AUDIT_STREAM_STARTS, AUDIT_STREAM_STATUSES } from '@erxes/core-db/enums';
 import type { AuditStream } from '@erxes/core-contract';
 import { auditLogs, auditStreams, type Db, newId, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import { randomBytes } from 'node:crypto';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
+import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
 import { seal } from '~/lib/secrets';
@@ -69,12 +70,12 @@ export const createStream = async (
     url: string;
     format: StreamRow['format'];
     authHeader?: { name: string; value: string };
-    from: 'now' | 'beginning';
+    from: (typeof AUDIT_STREAM_STARTS)[number];
   },
 ) => {
   checkUrl(input.url);
 
-  const secret = `whsec_${randomBytes(24).toString('base64url')}`;
+  const secret = newSigningSecret();
   const latest = await latestSeq(client, actor.orgId);
 
   const row = oneRow(
@@ -128,7 +129,7 @@ export const updateStream = async (
     url?: string;
     format?: StreamRow['format'];
     authHeader?: { name: string; value: string } | null;
-    status?: 'active' | 'paused';
+    status?: (typeof AUDIT_STREAM_STATUSES)[number];
   },
 ) => {
   const before = await streamOrThrow(client, actor.orgId, id);

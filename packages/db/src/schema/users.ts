@@ -1,4 +1,4 @@
-import { USER_STATUSES } from '../enums';
+import { type NOTIFICATION_DELIVERIES, USER_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -13,7 +13,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { organizations } from './organizations';
 
 /**
@@ -99,7 +99,7 @@ export const users = pgTable(
     notificationSettings: jsonb()
       .$type<{
         muted?: string[];
-        groups?: Record<string, 'email' | 'inbox' | 'off'>;
+        groups?: Record<string, (typeof NOTIFICATION_DELIVERIES)[number]>;
         email?: boolean;
         browser?: boolean;
       }>()
@@ -127,6 +127,6 @@ export const users = pgTable(
       foreignColumns: [roles.orgId, roles.key],
       name: 'core_users_role_fkey',
     }),
-    check('core_users_status_check', sql`${table.status} IN ('invited', 'active', 'disabled')`),
+    check('core_users_status_check', inList(table.status, USER_STATUSES)),
   ],
 );

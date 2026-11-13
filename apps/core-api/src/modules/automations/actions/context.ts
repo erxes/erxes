@@ -1,5 +1,5 @@
 import type { ActionInfo } from '@erxes/core-contract';
-import type { Db } from '@erxes/core-db';
+import type { ContentType, Db } from '@erxes/core-db';
 import { z } from 'zod';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
@@ -39,7 +39,7 @@ export type CoreAction = Omit<ActionInfo, 'source'> &
 
 export const idempotencyKey = (ctx: CallContext) => `${ctx.run.id}:${ctx.step.id}`;
 
-export const needSubject = (ctx: CallContext, type: 'customer' | 'company') => {
+export const needSubject = (ctx: CallContext, type: ContentType) => {
   if (ctx.subject?.type !== type) {
     throw new HttpError(
       400,

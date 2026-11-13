@@ -1,4 +1,10 @@
-import { AUTOMATION_STATUSES, CONTENT_TYPES, RUN_STATUSES, RUN_STEP_STATUSES } from '../enums';
+import {
+  AUTOMATION_STATUSES,
+  CONTENT_TYPES,
+  FINISHED_RUN_STATUSES,
+  RUN_STATUSES,
+  RUN_STEP_STATUSES,
+} from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -11,7 +17,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -52,7 +58,7 @@ export const automations = pgTable(
       .on(table.nextRunAt)
       .where(sql`${table.status} = 'active'`),
     uniqueIndex('core_automations_org_id_id_key').on(table.orgId, table.id),
-    check('core_automations_status_check', sql`${table.status} IN ('draft', 'active', 'paused')`),
+    check('core_automations_status_check', inList(table.status, AUTOMATION_STATUSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
@@ -134,13 +140,10 @@ export const automationRuns = pgTable(
     index('core_automation_runs_prunable_idx')
       .on(table.finishedAt)
       .where(
-        sql`${table.status} IN ('succeeded', 'failed', 'cancelled') AND ${table.context} <> '{}'::jsonb`,
+        sql`${inList(table.status, FINISHED_RUN_STATUSES)} AND ${table.context} <> '{}'::jsonb`,
       ),
     uniqueIndex('core_automation_runs_org_id_id_key').on(table.orgId, table.id),
-    check(
-      'core_automation_runs_status_check',
-      sql`${table.status} IN ('running', 'waiting', 'succeeded', 'failed', 'cancelled')`,
-    ),
+    check('core_automation_runs_status_check', inList(table.status, RUN_STATUSES)),
     foreignKey({
       columns: [table.orgId, table.automationId],
       foreignColumns: [automations.orgId, automations.id],
@@ -168,10 +171,7 @@ export const automationRunSteps = pgTable(
   },
   (table) => [
     index('core_automation_run_steps_run_idx').on(table.runId, table.finishedAt),
-    check(
-      'core_automation_run_steps_status_check',
-      sql`${table.status} IN ('succeeded', 'failed', 'skipped')`,
-    ),
+    check('core_automation_run_steps_status_check', inList(table.status, RUN_STEP_STATUSES)),
     foreignKey({
       columns: [table.orgId, table.runId],
       foreignColumns: [automationRuns.orgId, automationRuns.id],
