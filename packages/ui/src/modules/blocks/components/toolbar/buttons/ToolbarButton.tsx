@@ -11,8 +11,8 @@ export const ToolbarButton = ({
   <ShadCNDefaultComponents.Button.Button
     className={cn(
       'transition-none enabled:pointer-events-auto',
-      'hover:bg-(--color-primary)/15! hover:text-(--color-primary)!',
-      'aria-expanded:bg-(--color-primary)/10! aria-expanded:text-(--color-primary)!',
+      'hover:bg-(--color-primary)/15! hover:text-primary-text!',
+      'aria-expanded:bg-(--color-primary)/10! aria-expanded:text-primary-text!',
       typeof className === 'string' ? className : undefined,
     )}
     {...props}
