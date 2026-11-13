@@ -30,6 +30,12 @@ const TAB =
 
 const ACTIVE = 'bg-accent font-medium text-foreground hover:bg-accent';
 
+const FOCUS = 'outline-none focus-visible:ring-2 focus-visible:ring-ring/50';
+
+/** Scrolls the open tab into sight when the tabs overflow. */
+const reveal = (node: HTMLElement | null) =>
+  node?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+
 /** The open tab's mark that the list differs from it. */
 const EditedDot = () => {
   const { t } = useTranslation('views');
@@ -115,7 +121,7 @@ const ViewMenu = ({
           <button
             type="button"
             aria-label={t('actions', { name: view.name })}
-            className="flex size-5 items-center justify-center rounded text-muted-foreground opacity-0 hover:bg-muted group-hover/tab:opacity-100 data-[state=open]:opacity-100"
+            className="flex h-5 w-0 shrink-0 items-center justify-center overflow-hidden rounded text-muted-foreground opacity-0 transition-[width,margin,opacity] duration-150 hover:bg-muted hover:text-foreground focus-visible:ml-1 focus-visible:w-5 focus-visible:opacity-100 group-hover/tab:ml-1 group-hover/tab:w-5 group-hover/tab:opacity-100 data-[state=open]:ml-1 data-[state=open]:w-5 data-[state=open]:opacity-100 motion-reduce:transition-none"
           >
             <IconDots className="size-3.5" />
           </button>
@@ -176,7 +182,7 @@ const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => v
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <button type="button" className={TAB}>
+        <button type="button" className={cn(TAB, FOCUS, 'data-[state=open]:bg-accent/60')}>
           <IconStack2 />
           {t('more', { count: views.length })}
           <IconChevronDown className="opacity-60" />
@@ -264,7 +270,8 @@ export const ViewTabs = ({
     <>
       <button
         type="button"
-        className={cn(TAB, !current && ACTIVE)}
+        aria-current={current ? undefined : 'page'}
+        className={cn(TAB, FOCUS, !current && ACTIVE)}
         onClick={() => query.openView(null)}
       >
         <IconLayoutList />
@@ -279,16 +286,13 @@ export const ViewTabs = ({
       {shown.map((view) => (
         <div
           key={view.id}
-          className={cn(
-            'group/tab flex shrink-0 items-center',
-            TAB,
-            'pr-1',
-            current?.id === view.id && ACTIVE,
-          )}
+          ref={current?.id === view.id ? reveal : undefined}
+          className={cn('group/tab', TAB, 'gap-0', current?.id === view.id && ACTIVE)}
         >
           <button
             type="button"
-            className="flex items-center gap-1.5"
+            aria-current={current?.id === view.id ? 'page' : undefined}
+            className={cn('flex items-center gap-1.5 rounded-sm', FOCUS)}
             onClick={() => query.openView(view)}
             title={view.shared ? t('shared') : t('mine')}
           >

@@ -3,15 +3,8 @@ import { Toggle, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconTip } from '~/components/IconTip';
 import { ListFilter } from '~/modules/views/filter/ListFilter';
-import { RecordCount } from '~/modules/views/filter/RecordCount';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
 import { PRODUCTS_SESSION_KEY, useProducts } from '../useProducts';
-
-const TotalCount = () => {
-  const { totalCount, totalCapped } = useProducts();
-
-  return <RecordCount totalCount={totalCount} totalCapped={totalCapped} />;
-};
 
 /** Shows archived products instead of the active ones. */
 const ArchivedToggle = () => {
@@ -23,7 +16,7 @@ const ArchivedToggle = () => {
     <IconTip label={label}>
       <Toggle
         aria-label={label}
-        className="size-7 min-w-7 px-0"
+        className="size-7 min-w-7 px-0 data-[state=on]:bg-accent"
         pressed={archived === true}
         onPressedChange={(pressed) => setArchived(pressed ? true : null)}
       >
@@ -50,10 +43,16 @@ const useOptionLabel = () => {
 /** Filters the catalog by any field or property (`F`), saved with views; archived products on their own. */
 export const ProductsFilter = () => {
   const optionLabel = useOptionLabel();
+  const { totalCount, totalCapped } = useProducts();
 
   return (
-    <ListFilter recordType="product" sessionKey={PRODUCTS_SESSION_KEY} optionLabel={optionLabel}>
-      <TotalCount />
+    <ListFilter
+      recordType="product"
+      sessionKey={PRODUCTS_SESSION_KEY}
+      optionLabel={optionLabel}
+      totalCount={totalCount}
+      totalCapped={totalCapped}
+    >
       <ArchivedToggle />
     </ListFilter>
   );

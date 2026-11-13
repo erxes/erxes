@@ -22,7 +22,7 @@ export const LeadDisplayMenu = () => {
             variant="ghost"
             size="icon"
             aria-label={t('display')}
-            className="size-7 text-muted-foreground"
+            className="size-7 text-muted-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
           >
             <IconAdjustmentsHorizontal className="size-4" />
           </Button>

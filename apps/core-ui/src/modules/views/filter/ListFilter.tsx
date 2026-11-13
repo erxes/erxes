@@ -1,4 +1,5 @@
 import type { ViewRecordType } from '@erxes/core-contract';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { IconAdjustmentsHorizontal, IconFilter2, IconSearch } from '@tabler/icons-react';
 import {
   Button,
@@ -23,6 +24,7 @@ import { FieldMenu } from './FieldMenus';
 import { FIELD_ICONS } from './fieldIcons';
 import { type FilterPart, groupOf, inMenu, partsOf, withPart } from './filterRules';
 import { ListFilterContext, type ListFilterState, useListFilter } from './listFilterContext';
+import { RecordCount, type Total } from './RecordCount';
 import { RuleChips } from './RuleChips';
 
 /** Built-in fields first, the record's properties last. */
@@ -119,8 +121,9 @@ const FilterButton = ({ count, onClick }: { count: number; onClick: () => void }
           variant="ghost"
           size="sm"
           aria-label={t('label')}
+          aria-keyshortcuts="F"
           className={cn(
-            'h-7 min-w-7 gap-1 px-1.5 text-muted-foreground',
+            'h-7 min-w-7 gap-1 px-1.5 text-muted-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground',
             count > 0 && 'bg-accent text-foreground',
           )}
           onClick={onClick}
@@ -133,16 +136,25 @@ const FilterButton = ({ count, onClick }: { count: number; onClick: () => void }
   );
 };
 
-/** Inside `<Filter>`: its chips, the view's changes, the list's controls, then the menu (`F`). */
+interface ListFilterProps extends Total {
+  recordType: ViewRecordType;
+  optionLabel?: ListFilterState['optionLabel'];
+  /** The list's own icon controls (Archived, Display), just before the menu. */
+  children?: ReactNode;
+}
+
+/**
+ * Inside `<Filter>`: its chips, the view's changes and the count, then the
+ * list's controls and the menu (`F`).
+ */
 const ListFilterBar = ({
   recordType,
   optionLabel,
+  totalCount,
+  totalCapped,
   children,
-}: {
-  recordType: ViewRecordType;
-  optionLabel?: ListFilterState['optionLabel'];
-  children?: ReactNode;
-}) => {
+}: ListFilterProps) => {
+  const [chipsRef] = useAutoAnimate({ duration: 150 });
   const fieldsQuery = useFilterFields(recordType);
   const fields = fieldsQuery.data ?? [];
   const { advanced, setAdvanced, search } = useListQuery();
@@ -179,11 +191,16 @@ const ListFilterBar = ({
 
   return (
     <ListFilterContext.Provider value={state}>
-      <div className="flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none]">
+      <div
+        ref={chipsRef}
+        className="flex min-w-0 items-center gap-1 overflow-x-auto py-1 [scrollbar-width:none]"
+      >
         <SearchChip />
         <RuleChips />
       </div>
       <ViewChanges recordType={recordType} />
+      <RecordCount totalCount={totalCount} totalCapped={totalCapped} />
+      <div aria-hidden className="mx-1 h-4 w-px shrink-0 bg-border" />
       {children}
       <Filter.Popover scope={`${recordType}-list`}>
         <FilterButton count={parts.length + (search ? 1 : 0)} onClick={() => setEditing(null)} />
@@ -216,24 +233,15 @@ const ListFilterBar = ({
  * A list's filter bar: the menu of every field `views.fields` gives (`F`),
  * search, the advanced filter, and each condition as a chip. Conditions are
  * the list's filter (`useListQuery().advanced`), which views save.
- * `children` sit between the chips and the menu (the count, toggles).
  */
-export const ListFilter = ({
-  recordType,
-  sessionKey,
-  optionLabel,
-  children,
-}: {
-  recordType: ViewRecordType;
-  sessionKey: string;
-  optionLabel?: ListFilterState['optionLabel'];
-  children?: ReactNode;
-}) => (
-  <Filter id={`${recordType}-list-filter`} sessionKey={sessionKey}>
-    <Filter.Bar className="min-w-0 flex-nowrap justify-end gap-1">
-      <ListFilterBar recordType={recordType} optionLabel={optionLabel}>
-        {children}
-      </ListFilterBar>
-    </Filter.Bar>
-  </Filter>
-);
+export const ListFilter = ({ sessionKey, ...props }: ListFilterProps & { sessionKey: string }) => {
+  const [barRef] = useAutoAnimate({ duration: 150 });
+
+  return (
+    <Filter id={`${props.recordType}-list-filter`} sessionKey={sessionKey}>
+      <Filter.Bar ref={barRef} className="min-w-0 flex-nowrap justify-end gap-1">
+        <ListFilterBar {...props} />
+      </Filter.Bar>
+    </Filter>
+  );
+};
