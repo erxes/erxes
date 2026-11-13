@@ -65,7 +65,9 @@ export { Kbd } from './components/kbd';
 
 export { Label } from './components/label';
 
-export { MultipleSelector, type MultiSelectOption } from './components/multiselect';
+export { MultipleSelector } from './components/lazy-multiselect';
+
+export { type MultiSelectOption } from './components/multiselect';
 
 export { Popover } from './components/popover';
 
