@@ -54,8 +54,8 @@ export const productCategories = pgTable(
  * use a product: each sees its own by default. What only one plugin needs
  * (stock, storefront pages, delivery rules) stays in that plugin's tables,
  * keyed by the product id. Products are archived, never deleted: orders and
- * invoices keep pointing at them. Prices are in hundredths of the currency
- * unit, like invoices.
+ * invoices keep pointing at them. Prices are integers in the currency's
+ * smallest unit (cents: $12.50 → 1250), like invoices.
  */
 export const products = pgTable(
   'products',
@@ -73,7 +73,8 @@ export const products = pgTable(
     /** `pcs`, `kg`, `night`, `km` … */
     unit: text().default('pcs').notNull(),
     price: bigint({ mode: 'number' }).default(0).notNull(),
-    currency: text().default('MNT').notNull(),
+    /** ISO 4217; the organisation's currency when the product was made. */
+    currency: text().notNull(),
     /** Files in core's storage; the first is the main image. */
     imageIds: text()
       .array()

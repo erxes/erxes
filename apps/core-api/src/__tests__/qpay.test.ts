@@ -60,6 +60,7 @@ describe('QPay driver', () => {
       const created = await driver.createInvoice({
         invoiceId: 'inv-1',
         amount: 150_000,
+        currency: 'MNT',
         description: 'Order #1',
         callbackUrl: 'https://x/cb',
       });

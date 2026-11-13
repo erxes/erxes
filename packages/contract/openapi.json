@@ -8763,6 +8763,19 @@
           "name": {
             "type": "string"
           },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currency": {
+            "type": "string"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -8772,8 +8785,21 @@
           "id",
           "subdomain",
           "name",
+          "country",
+          "currency",
           "createdAt"
         ]
+      },
+      "OrganizationRegion": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
       },
       "Invoice": {
         "type": "object",
@@ -9258,6 +9284,12 @@
               }
             ]
           },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "ui": {
             "anyOf": [
               {
@@ -9343,6 +9375,7 @@
           "title",
           "version",
           "description",
+          "countries",
           "ui",
           "api",
           "installed",
@@ -9369,6 +9402,13 @@
           "description": {
             "type": "string",
             "maxLength": 500
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 250
           },
           "ui": {
             "type": "object",
@@ -10032,6 +10072,12 @@
           "organization": {
             "type": "object",
             "properties": {
+              "country": {
+                "type": "string"
+              },
+              "currency": {
+                "type": "string"
+              },
               "subdomain": {
                 "type": "string",
                 "maxLength": 63
@@ -20540,6 +20586,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "country": {
+                    "type": "string"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
                   "organizationName": {
                     "type": "string",
                     "minLength": 1,
@@ -25927,7 +25979,46 @@
     "/organization": {
       "get": {
         "operationId": "organizations.current",
-        "summary": "The organisation of the signed-in user or service token",
+        "summary": "The organisation of the signed-in member or the plugin token",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "organizations.update",
+        "summary": "Rename the organisation or change its country and currency. Products and invoices keep the currency they were made in; a new country without a currency also sets the country's currency",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -26195,7 +26286,7 @@
     "/payments/invoices": {
       "post": {
         "operationId": "payments.createInvoice",
-        "summary": "An invoice at a gateway for a record (plugins: payments:write). With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
+        "summary": "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the first allowed gateway that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
         "requestBody": {
           "required": true,
           "content": {
@@ -26214,8 +26305,7 @@
                     "maximum": 100000000000
                   },
                   "currency": {
-                    "default": "MNT",
-                    "const": "MNT"
+                    "type": "string"
                   },
                   "description": {
                     "type": "string",
@@ -27344,7 +27434,7 @@
       },
       "post": {
         "operationId": "products.create",
-        "summary": "Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS; 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
+        "summary": "Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS with the existing product's id in `data.productId` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
         "requestBody": {
           "required": true,
           "content": {
@@ -27422,7 +27512,7 @@
                     "maximum": 100000000000
                   },
                   "currency": {
-                    "const": "MNT"
+                    "type": "string"
                   },
                   "imageIds": {
                     "type": "array",
@@ -27632,7 +27722,7 @@
                     "maximum": 100000000000
                   },
                   "currency": {
-                    "const": "MNT"
+                    "type": "string"
                   },
                   "imageIds": {
                     "type": "array",

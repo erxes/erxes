@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { Organization } from './organizations';
+import { Organization, OrganizationRegion } from './organizations';
 import { User } from './users';
 
 export const Session = z.object({
@@ -38,7 +38,7 @@ export const authContract = {
         'First run: create the organisation and its owner, and sign in. 409 SETUP_DONE once an organisation exists; 403 SETUP_DISABLED where organisations come from the SaaS side',
     })
     .input(
-      z.object({
+      OrganizationRegion.extend({
         organizationName: z.string().trim().min(1).max(100),
         /** Defaults to one made from the name. */
         subdomain: z

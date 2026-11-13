@@ -1,130 +1,34 @@
-import type { CursorQuery, Product, ProductKind, ProductStatus } from '@erxes/core-contract';
+import type { ProductKind, ProductStatus } from '@erxes/core-contract';
 import { type Db, newId, products } from '@erxes/core-db';
-import { and, arrayContains, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { forbidden, HttpError } from '~/http/errors';
 import { diffRows } from '~/lib/changes';
 import { unique } from '~/lib/contacts';
-import { containsPattern, keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { getOrganization } from '~/modules/organizations/organizations.service';
 import {
   checkCategory,
   checkImages,
+  checkUnique,
   findProduct,
   pluginsFor,
   type ProductRow,
   productTaken,
 } from './productChecks';
-
-const toProductDto = (row: ProductRow): Product => ({
-  id: row.id,
-  kind: row.kind,
-  status: row.status,
-  name: row.name,
-  code: row.code,
-  barcode: row.barcode,
-  categoryId: row.categoryId,
-  description: row.description,
-  unit: row.unit,
-  price: row.price,
-  currency: row.currency,
-  imageIds: row.imageIds,
-  weightGrams: row.weightGrams,
-  lengthMm: row.lengthMm,
-  widthMm: row.widthMm,
-  heightMm: row.heightMm,
-  plugins: row.plugins,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-  archivedAt: row.archivedAt?.toISOString() ?? null,
-});
-
-interface ProductQuery {
-  search?: string;
-  kind?: ProductKind;
-  status: ProductStatus;
-  categoryId?: string;
-  plugin?: string;
-  all: boolean;
-}
-
-/** A plugin lists the products it uses unless it asks for `all`; members may filter by plugin. */
-const usedBy = (caller: Caller, query: ProductQuery) => {
-  const plugin = caller.actorType === 'plugin' && !query.all ? caller.source : query.plugin;
-
-  return plugin ? arrayContains(products.plugins, [plugin]) : undefined;
-};
-
-export const listProducts = async (
-  client: Db,
-  caller: Caller,
-  query: CursorQuery & ProductQuery,
-) => {
-  const search = query.search ? containsPattern(query.search) : undefined;
-
-  const page = await keysetPage(
-    client,
-    {
-      table: products,
-      id: products.id,
-      createdAt: products.createdAt,
-      scope: eq(products.orgId, caller.orgId),
-    },
-    and(
-      eq(products.status, query.status),
-      query.kind ? eq(products.kind, query.kind) : undefined,
-      query.categoryId ? eq(products.categoryId, query.categoryId) : undefined,
-      usedBy(caller, query),
-      search && query.search
-        ? or(
-            ilike(products.name, search),
-            ilike(products.code, search),
-            eq(products.barcode, query.search),
-          )
-        : undefined,
-    ),
-    query,
-    (where, orderBy, limit) =>
-      client
-        .select()
-        .from(products)
-        .where(where)
-        .orderBy(...orderBy)
-        .limit(limit),
-  );
-
-  return { ...page, data: page.data.map(toProductDto) };
-};
-
-export const getProduct = async (client: Db, caller: Caller, id: string) =>
-  toProductDto(await findProduct(client, caller.orgId, id));
-
-/** The given products in the order asked, archived ones too; unknown ids are left out. */
-export const lookupProducts = async (client: Db, caller: Caller, ids: string[]) => {
-  const wanted = unique(ids);
-
-  const rows = wanted.length
-    ? await client
-        .select()
-        .from(products)
-        .where(and(eq(products.orgId, caller.orgId), inArray(products.id, wanted)))
-    : [];
-
-  const byId = new Map(rows.map((row) => [row.id, toProductDto(row)]));
-
-  return { data: wanted.flatMap((id) => byId.get(id) ?? []) };
-};
+import { lookupProducts, toProductDto } from './productList';
 
 type ProductFields = Omit<
   Partial<typeof products.$inferInsert>,
   'id' | 'orgId' | 'status' | 'createdBy' | 'createdAt' | 'updatedAt' | 'archivedAt'
 >;
 
-/** Checks what the caller sends and returns the columns to write. */
-const writable = async (client: Db, caller: Caller, input: ProductFields) => {
+/** Checks what the caller sends and returns the columns to write. `self`: the product being changed. */
+const writable = async (client: Db, caller: Caller, input: ProductFields, self?: string) => {
   await checkCategory(client, caller.orgId, input.categoryId);
+  await checkUnique(client, caller.orgId, input, self);
 
   const imageIds = input.imageIds
     ? await checkImages(client, caller.orgId, input.imageIds)
@@ -159,6 +63,7 @@ const announce = async (
   });
 };
 
+/** A plugin that creates a product uses it; the price is in the organisation's currency unless set. */
 export const createProduct = async (
   client: Db,
   caller: Caller,
@@ -166,6 +71,7 @@ export const createProduct = async (
 ) => {
   const values = await writable(client, caller, input);
   const plugins = caller.actorType === 'plugin' ? [caller.source] : (values.plugins ?? []);
+  const currency = input.currency ?? (await getOrganization(client, caller.orgId)).currency;
 
   try {
     const row = oneRow(
@@ -175,6 +81,7 @@ export const createProduct = async (
           ...values,
           kind: input.kind,
           name: input.name,
+          currency,
           plugins,
           id: newId(),
           orgId: caller.orgId,
@@ -198,7 +105,7 @@ export const updateProduct = async (
   changes: ProductFields,
 ) => {
   const before = await findProduct(client, caller.orgId, id);
-  const values = await writable(client, caller, changes);
+  const values = await writable(client, caller, changes, id);
 
   try {
     const row = oneRow(

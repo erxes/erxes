@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@orpc/contract": "1.16.2",
+    "country-to-currency": "^3.0.2",
     "zod": "^3.25.76"
   }
 }

@@ -275,6 +275,9 @@ importers:
       '@orpc/contract':
         specifier: 1.16.2
         version: 1.16.2(@opentelemetry/api@1.10.0)
+      country-to-currency:
+        specifier: ^3.0.2
+        version: 3.0.2
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -5191,6 +5194,9 @@ packages:
 
   core-util-is@1.0.2:
     resolution: {integrity: sha512-3lqz5YjWTYnW6dlDa5TLaTCcShfar1e40rmcJVwCBJC6mWlFuj0eCHIElmG1g5kyuJ/GD+8Wn4FFCcz4gJPfaQ==}
+
+  country-to-currency@3.0.2:
+    resolution: {integrity: sha512-3P4ot+eEw4gykY9a9247mjEtmpirCqOgllL/nFPsrNbVLY0wwlwh5wcT6VZLiwpwer4ADW54ZRhlkhew7t+qeg==}
 
   crelt@1.0.7:
     resolution: {integrity: sha512-aK6BbWfhf4U/wCcLHKPJl/xa6VkVstRaPywWtMKGwuOLc/wZTyQYuoxgvZnNsBvv7Kg3YTBQYYBCggcviQczuA==}
@@ -12371,6 +12377,8 @@ snapshots:
 
   core-util-is@1.0.2:
     optional: true
+
+  country-to-currency@3.0.2: {}
 
   crelt@1.0.7: {}
 

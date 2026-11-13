@@ -32,6 +32,8 @@ export const setupRequired = async (client: Db) =>
 export const runSetup = async (input: {
   organizationName: string;
   subdomain?: string;
+  country?: string;
+  currency?: string;
   firstName: string;
   lastName?: string;
   email: string;
@@ -62,6 +64,8 @@ export const runSetup = async (input: {
     const created = await insertOrganization(tx, {
       name: input.organizationName,
       subdomain: input.subdomain || subdomainFromName(input.organizationName),
+      country: input.country,
+      currency: input.currency,
       owner: {
         email: input.email,
         fullName: [input.firstName, input.lastName].filter(Boolean).join(' '),

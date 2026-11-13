@@ -82,6 +82,8 @@ export * from './files';
 
 export * from './leads';
 
+export * from './money';
+
 export * from './notifications';
 
 export * from './platform';

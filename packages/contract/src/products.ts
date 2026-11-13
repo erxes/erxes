@@ -1,6 +1,7 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id, IdList, QueryBoolean } from './common';
+import { Currency } from './money';
 import { PluginName } from './plugins';
 
 export const ProductKind = z.enum(['goods', 'service']);
@@ -26,8 +27,9 @@ export const Product = z.object({
   categoryId: Id.nullable(),
   description: z.string().nullable(),
   unit: z.string(),
-  /** Hundredths of the currency unit (₮1,500 → 150000), like invoices. */
+  /** In the currency's smallest unit ($12.50 → 1250, ₮1,500 → 150000), like invoices. */
   price: z.number().int(),
+  /** ISO 4217; the organisation's currency unless set. */
   currency: z.string(),
   /** Core file ids; the first is the main image. */
   imageIds: z.array(Id),
@@ -64,7 +66,7 @@ const ProductFields = z.object({
   description: z.string().trim().max(10_000).nullable(),
   unit: z.string().trim().min(1).max(20),
   price: z.number().int().min(0).max(1_000_000_000_00),
-  currency: z.literal('MNT'),
+  currency: Currency,
   imageIds: z.array(Id).max(20),
   weightGrams: size,
   lengthMm: size,
@@ -116,7 +118,7 @@ export const productsContract = {
       path: '/products',
       successStatus: 201,
       summary:
-        'Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS; 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED',
+        "Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS with the existing product's id in `data.productId` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
     })
     .input(
       ProductFields.partial({

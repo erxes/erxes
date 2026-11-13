@@ -27,7 +27,7 @@ export const INVOICE_STATUSES = [
   'failed',
 ] as const;
 
-/** What an invoice is for, line by line; `amount` = quantity × unit price, in hundredths. */
+/** What an invoice is for, line by line; `amount` = quantity × unit price, in the smallest unit. */
 export interface InvoiceLine {
   productId: string | null;
   name: string;
@@ -75,8 +75,8 @@ export const paymentGateways = pgTable(
 /**
  * An invoice at a gateway, made for a plugin's (or core's) record — the
  * plugin keeps its own payment records; core keeps what the gateway needs
- * and announces `core.payment.paid`. Amounts are in hundredths of the
- * currency unit (integers: no rounding errors).
+ * and announces `core.payment.paid`. Amounts are integers in the currency's
+ * smallest unit (cents: $12.50 → 1250, ₮1,500 → 150000, ¥500 → 500).
  */
 export const paymentInvoices = pgTable(
   'payment_invoices',
@@ -89,9 +89,10 @@ export const paymentInvoices = pgTable(
     /** The plugin's own record (`order`, `abc123`). */
     referenceType: text().notNull(),
     referenceId: text().notNull(),
-    /** In hundredths of the currency unit (₮1,500.00 → 150000). */
+    /** In the currency's smallest unit (₮1,500.00 → 150000). */
     amount: bigint({ mode: 'number' }).notNull(),
-    currency: text().default('MNT').notNull(),
+    /** ISO 4217; the gateway must take it. */
+    currency: text().notNull(),
     description: text().notNull(),
     status: text({ enum: INVOICE_STATUSES }).default('pending').notNull(),
     /** The gateway's id for it, and what the payer needs (QR text and image, bank links). */
@@ -100,10 +101,10 @@ export const paymentInvoices = pgTable(
     /** The caller's own data (order lines, room number), returned in events. */
     metadata: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
     lines: jsonb().$type<InvoiceLine[]>().default([]).notNull(),
-    /** What the gateway says was paid (hundredths), and its payment id (for refunds). */
+    /** What the gateway says was paid, and its payment id (for refunds). */
     paidAmount: bigint({ mode: 'number' }),
     gatewayPaymentId: text(),
-    /** Refunded so far (hundredths); all of it → status `refunded`. */
+    /** Refunded so far; all of it → status `refunded`. */
     refundedAmount: bigint({ mode: 'number' }).default(0).notNull(),
     expiresAt: timestamptz().notNull(),
     paidAt: timestamptz(),

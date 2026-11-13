@@ -1,4 +1,4 @@
-import { GatewayConfig, type PaymentGateway } from '@erxes/core-contract';
+import { GatewayConfig, gatewayTakes, type PaymentGateway } from '@erxes/core-contract';
 import {
   type Db,
   newId,
@@ -36,9 +36,15 @@ const pluginSettingsOf = async (client: Db, caller: Caller) => {
 /**
  * The gateway an invoice goes through: the one asked for, else the plugin's
  * default (Settings › Payments), else the first active one — within the
- * gateways the owner allowed the plugin, if any are listed.
+ * gateways the owner allowed the plugin, if any are listed, that take the
+ * invoice's currency (QPay: MNT only).
  */
-export const resolveGateway = async (client: Db, caller: Caller, requested?: string) => {
+export const resolveGateway = async (
+  client: Db,
+  caller: Caller,
+  currency: string,
+  requested?: string,
+) => {
   const settings = await pluginSettingsOf(client, caller);
   const allowed = settings?.allowedGatewayIds ?? [];
 
@@ -66,19 +72,32 @@ export const resolveGateway = async (client: Db, caller: Caller, requested?: str
     )
     .orderBy(paymentGateways.createdAt);
 
-  const preferred = requested
-    ? undefined
-    : active.find((row) => row.id === settings?.defaultGatewayId);
-
-  const gateway = preferred ?? active[0];
-
-  if (!gateway) {
+  if (!active.length) {
     throw new HttpError(
       400,
       'NO_GATEWAY',
       requested
         ? 'That gateway is not connected or is turned off'
         : 'Connect a payment gateway first (Settings › Payments)',
+    );
+  }
+
+  const taking = active.filter((row) => gatewayTakes(row.kind, currency));
+
+  const preferred = requested
+    ? undefined
+    : taking.find((row) => row.id === settings?.defaultGatewayId);
+
+  const gateway = preferred ?? taking[0];
+
+  if (!gateway) {
+    throw new HttpError(
+      400,
+      'CURRENCY_NOT_SUPPORTED',
+      requested
+        ? `That gateway doesn't take ${currency}`
+        : `No connected gateway takes ${currency} (Settings › Payments)`,
+      { currency },
     );
   }
 

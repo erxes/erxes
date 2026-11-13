@@ -36,15 +36,23 @@ const upsertOrganization = async (tx: Transaction, orgId: string, input: SaasWor
     .for('update')
     .limit(1);
 
-  const { subdomain, name } = input.organization;
+  const { subdomain, name, country, currency } = input.organization;
 
   try {
     if (!org) {
       if (!input.owner)
         throw new HttpError(400, 'OWNER_REQUIRED', 'A new workspace needs its owner');
 
-      await insertOrganization(tx, { id: orgId, subdomain, name, owner: input.owner });
+      await insertOrganization(tx, {
+        id: orgId,
+        subdomain,
+        name,
+        country,
+        currency,
+        owner: input.owner,
+      });
     } else if (org.subdomain !== subdomain || org.name !== name) {
+      // Country and currency are the organisation's own settings after it is made.
       await tx
         .update(organizations)
         .set({ subdomain, name, updatedAt: sql`now()` })

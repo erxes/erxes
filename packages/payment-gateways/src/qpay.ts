@@ -189,7 +189,8 @@ const checkPayment = async (request: Request, gatewayInvoiceId: string, amount: 
 /**
  * QPay v2: token by client credentials; invoices with QR and bank app links;
  * payment check by invoice; cancel; refund of a whole (card) payment.
- * QPay takes amounts in tögrög; we keep hundredths.
+ * QPay takes amounts in tögrög; we keep hundredths (MNT's smallest unit). Core
+ * sends it MNT invoices only.
  */
 export const qpayDriver = (config: QPayConfig, options: DriverOptions = {}): GatewayDriver => {
   const client = qpayClient(config, options);

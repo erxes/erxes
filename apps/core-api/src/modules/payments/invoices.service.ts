@@ -7,6 +7,7 @@ import { keysetPage } from '~/lib/keyset';
 import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { getOrganization } from '~/modules/organizations/organizations.service';
 import { driverOf, resolveGateway } from './gateways.service';
 import { resolveInvoiceLines } from './invoiceLines';
 import {
@@ -40,7 +41,8 @@ const invoiceByDedupeKey = async (client: Db, caller: Caller, dedupeKey: string)
 interface InvoiceInput {
   gatewayId?: string;
   amount: number;
-  currency: 'MNT';
+  /** The organisation's unless given. */
+  currency?: string;
   description: string;
   reference: { type: string; id: string };
   expiresInMinutes: number;
@@ -57,11 +59,12 @@ const prepareInvoice = (caller: Caller, input: InvoiceInput) =>
     if (existing) return { existing };
 
     const lines = await resolveInvoiceLines(tx, caller.orgId, input.amount, input.lines ?? []);
-    const gateway = await resolveGateway(tx, caller, input.gatewayId);
+    const currency = input.currency ?? (await getOrganization(tx, caller.orgId)).currency;
+    const gateway = await resolveGateway(tx, caller, currency, input.gatewayId);
     const id = newId();
     const path = `/core/v1/payments/callback/${id}?sig=${callbackSignature(id)}`;
 
-    return { gateway, id, lines, callbackUrl: await appLink(tx, caller.orgId, path) };
+    return { gateway, id, lines, currency, callbackUrl: await appLink(tx, caller.orgId, path) };
   });
 
 /**
@@ -74,11 +77,12 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
 
   if (prepared.existing) return prepared.existing;
 
-  const { gateway, id, lines, callbackUrl } = prepared;
+  const { gateway, id, lines, currency, callbackUrl } = prepared;
 
   const created = await driverOf(gateway).createInvoice({
     invoiceId: id,
     amount: input.amount,
+    currency,
     description: input.description,
     callbackUrl,
   });
@@ -94,7 +98,7 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
         referenceType: input.reference.type,
         referenceId: input.reference.id,
         amount: input.amount,
-        currency: input.currency,
+        currency,
         description: input.description,
         gatewayInvoiceId: created.gatewayInvoiceId,
         payment: created.payment,

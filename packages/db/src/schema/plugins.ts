@@ -19,6 +19,8 @@ export interface StoredPluginManifest {
   title: string;
   version: string;
   description?: string;
+  /** Made for these countries (ISO 3166); none: everywhere. */
+  countries?: string[];
   ui?: { remote: string; entry: string };
   api?: { url: string };
   /** "Sign in with erxes" for the plugin's own app: where codes may be sent (`{subdomain}` allowed). */

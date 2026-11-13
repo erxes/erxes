@@ -188,7 +188,9 @@ const ACCESS = {
   'notifications.updateSettings': MEMBER,
   'notifications.create': { plugin: 'notifications:write' },
 
-  'organizations.current': MEMBER,
+  // Plugins read the country and currency (local rules, prices) of organisations that installed them.
+  'organizations.current': { member: 'any', plugin: 'installed' },
+  'organizations.update': needs('settings.manage'),
 
   'plugins.token': PUBLIC,
   'plugins.registerManifest': { plugin: 'manifest' },

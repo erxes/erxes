@@ -1,5 +1,5 @@
 import { type Db, files, pluginInstallations, productCategories, products } from '@erxes/core-db';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, ne, type SQL, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { forbidden, HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -90,7 +90,45 @@ export const pluginsFor = async (
   return wanted;
 };
 
-/** 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS for a code or barcode already in use. */
+/**
+ * 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS when another product has
+ * the code or barcode, with its id (`data.productId`): a plugin syncing its
+ * own catalog starts using that product instead of making a copy.
+ */
+export const checkUnique = async (
+  client: Db,
+  orgId: string,
+  input: { code?: string | null; barcode?: string | null },
+  self?: string,
+) => {
+  const same = (match: SQL) =>
+    client
+      .select({ id: products.id })
+      .from(products)
+      .where(and(eq(products.orgId, orgId), match, self ? ne(products.id, self) : undefined))
+      .limit(1)
+      .then(([row]) => row?.id);
+
+  const byCode = input.code
+    ? await same(sql`lower(${products.code}) = lower(${input.code})`)
+    : undefined;
+
+  if (byCode) {
+    throw new HttpError(409, 'PRODUCT_CODE_EXISTS', 'Another product has this code', {
+      productId: byCode,
+    });
+  }
+
+  const byBarcode = input.barcode ? await same(eq(products.barcode, input.barcode)) : undefined;
+
+  if (byBarcode) {
+    throw new HttpError(409, 'PRODUCT_BARCODE_EXISTS', 'Another product has this barcode', {
+      productId: byBarcode,
+    });
+  }
+};
+
+/** The same answers when two writes race past `checkUnique`. */
 export const productTaken = (error: unknown): never => {
   if (pgCode(error) === '23505') {
     const constraint = pgConstraint(error);

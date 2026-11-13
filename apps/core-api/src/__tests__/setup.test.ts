@@ -37,9 +37,10 @@ describeWithDb('first-run setup (/core/v1/setup)', () => {
   it('creates the organisation and owner, signs in, and only once', async () => {
     const browser = server.browser();
 
-    expect(await browser.api.auth.setup(owner)).toMatchObject({
+    // The country brings its currency.
+    expect(await browser.api.auth.setup({ ...owner, country: 'mn' })).toMatchObject({
       user: { email: 'owner@acme.mn', fullName: 'Bat Dorj', role: 'owner' },
-      organization: { name: 'Acme LLC', subdomain: 'acme-llc' },
+      organization: { name: 'Acme LLC', subdomain: 'acme-llc', country: 'MN', currency: 'MNT' },
     });
     expect(browser.cookie()).toMatch(/^erxes_session=./);
     expect(await required()).toBe(false);

@@ -5,11 +5,9 @@ import {
   removeCategory,
   updateCategory,
 } from '~/modules/products/productCategories.service';
+import { getProduct, listProducts, lookupProducts } from '~/modules/products/productList';
 import {
   createProduct,
-  getProduct,
-  listProducts,
-  lookupProducts,
   setProductStatus,
   updateProduct,
   useProducts,

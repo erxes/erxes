@@ -23,6 +23,10 @@ export const organizations = pgTable(
     id: text().primaryKey(),
     subdomain: text().notNull(),
     name: text().notNull(),
+    /** ISO 3166 alpha-2 (`MN`); null until chosen. */
+    country: text(),
+    /** ISO 4217 (`MNT`): what new products and invoices are in. */
+    currency: text().default('USD').notNull(),
     settings: jsonb().$type<OrganizationSettings>().default({}).notNull(),
     createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
     updatedAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),

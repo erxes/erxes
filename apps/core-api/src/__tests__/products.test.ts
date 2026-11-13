@@ -44,13 +44,22 @@ describeWithDb('products', { timeout: 120_000 }, () => {
     expect(created).toMatchObject({
       status: 'active',
       unit: 'pcs',
-      currency: 'MNT',
+      currency: 'USD',
       categoryId: category.id,
       plugins: [],
     });
+    // A taken code names the product that has it, so a plugin can use that one instead.
     await expect(
       t.owner().products.create({ ...phone, name: 'Copy', code: 'px-1' }),
-    ).rejects.toMatchObject({ status: 409, code: 'PRODUCT_CODE_EXISTS' });
+    ).rejects.toMatchObject({
+      status: 409,
+      code: 'PRODUCT_CODE_EXISTS',
+      data: { productId: created.id },
+    });
+    await t.owner().products.update({ id: created.id, code: 'PX-1', barcode: '865' });
+    await expect(
+      t.owner().products.create({ ...phone, code: null, barcode: '865' }),
+    ).rejects.toMatchObject({ code: 'PRODUCT_BARCODE_EXISTS', data: { productId: created.id } });
     await expect(
       t.owner().products.create({ ...phone, code: null, categoryId: 'nope' }),
     ).rejects.toMatchObject({ status: 400, code: 'INVALID_CATEGORY' });
@@ -59,7 +68,10 @@ describeWithDb('products', { timeout: 120_000 }, () => {
     ).rejects.toMatchObject({ status: 400, code: 'PLUGIN_NOT_INSTALLED' });
 
     // Members read it; changing it needs products.manage.
-    expect((await t.member().products.list({ search: 'px-1' })).data).toEqual([created]);
+    expect((await t.member().products.list({ search: 'px-1' })).data.map((p) => p.id)).toEqual([
+      created.id,
+    ]);
+    expect((await t.member().products.list({ search: '865' })).data).toHaveLength(1);
     await expect(t.member().products.update({ id: created.id, price: 1 })).rejects.toMatchObject({
       status: 403,
     });

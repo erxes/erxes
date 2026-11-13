@@ -1,10 +1,30 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id } from './common';
+import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { PluginName } from './plugins';
 
+/**
+ * The gateways core can connect, and where each works: the currencies it
+ * takes and the countries it serves (empty: any). QPay is Mongolian; global
+ * ones (Stripe …) join here as drivers in `@erxes/payment-gateways`.
+ */
+export const PAYMENT_GATEWAYS = {
+  qpay: { currencies: ['MNT'], countries: ['MN'] },
+  test: { currencies: [], countries: [] },
+} as const satisfies Record<string, { currencies: string[]; countries: string[] }>;
+
 export const PaymentGatewayKind = z.enum(['qpay', 'test']);
+
+export type PaymentGatewayKind = z.infer<typeof PaymentGatewayKind>;
+
+/** Does this kind of gateway take this currency? */
+export const gatewayTakes = (kind: PaymentGatewayKind, currency: string) => {
+  const { currencies } = PAYMENT_GATEWAYS[kind];
+
+  return currencies.length === 0 || currencies.some((code) => code === currency);
+};
 
 /** What each gateway needs (secrets are write-only: never returned). */
 export const GatewayConfig = z.discriminatedUnion('kind', [
@@ -57,9 +77,9 @@ export const InvoiceLine = z.object({
   productId: Id.nullable(),
   name: z.string(),
   quantity: z.number(),
-  /** Hundredths, like `amount`. */
+  /** In the smallest unit, like `amount`. */
   unitPrice: z.number().int(),
-  /** quantity × unit price, rounded to a hundredth. */
+  /** quantity × unit price, rounded to the smallest unit. */
   amount: z.number().int(),
   plugin: z.string().nullable(),
 });
@@ -88,14 +108,15 @@ export const Invoice = z.object({
   gatewayKind: PaymentGatewayKind,
   source: z.string(),
   reference: z.object({ type: z.string(), id: z.string() }),
-  /** Hundredths of the currency unit (₮1,500 → 150000). */
+  /** In the currency's smallest unit: $12.50 → 1250, ₮1,500 → 150000, ¥500 → 500 (`currencyDigits`). */
   amount: z.number().int(),
+  /** ISO 4217. */
   currency: z.string(),
   description: z.string(),
   status: InvoiceStatus,
   metadata: z.record(z.unknown()),
   lines: z.array(InvoiceLine),
-  /** What the gateway says was paid, and how much of it was given back (hundredths). */
+  /** What the gateway says was paid, and how much of it was given back. */
   paidAmount: z.number().int().nullable(),
   refundedAmount: z.number().int(),
   /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
@@ -182,13 +203,13 @@ export const paymentsContract = {
       path: '/payments/invoices',
       successStatus: 201,
       summary:
-        'An invoice at a gateway for a record (plugins: payments:write). With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT',
+        "An invoice at a gateway for a record (plugins: payments:write), in the organisation's currency unless `currency` says otherwise; without `gatewayId`, the first allowed gateway that takes the currency. 400 CURRENCY_NOT_SUPPORTED when the gateway doesn't take it. With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
     })
     .input(
       z.object({
         gatewayId: Id.optional(),
         amount: z.number().int().min(1).max(1_000_000_000_00),
-        currency: z.literal('MNT').default('MNT'),
+        currency: Currency.optional(),
         description: z.string().trim().min(1).max(255),
         reference: z.object({
           type: z.string().trim().min(1).max(60),

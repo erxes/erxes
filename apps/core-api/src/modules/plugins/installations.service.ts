@@ -27,6 +27,7 @@ const toPluginDto = (
     title: row.manifest?.title ?? row.name,
     version: row.manifest?.version ?? null,
     description: row.manifest?.description ?? null,
+    countries: row.manifest?.countries ?? [],
     ui: row.manifest?.ui ?? null,
     api: row.manifest?.api ?? null,
     installed,

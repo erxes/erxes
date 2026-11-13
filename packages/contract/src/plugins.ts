@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { EventPattern } from './webhooks';
 import { Id } from './common';
 import { ActionField } from './automationRuns';
+import { Country } from './money';
 import { EventType } from './platform';
 
 /** A plugin's name: its namespace everywhere (`hr` → `hr.leave.requested`, `/hr/*`). */
@@ -54,6 +55,12 @@ export const PluginManifest = z.object({
   title: z.string().trim().min(1).max(80),
   version: z.string().trim().min(1).max(40),
   description: z.string().trim().max(500).optional(),
+  /**
+   * The countries it is made for (ISO 3166: `['MN']` for eBarimt receipts);
+   * none: everywhere. Plugin lists offer it first to organisations there;
+   * anyone may still install it.
+   */
+  countries: z.array(Country).max(250).optional(),
   /** Module Federation remote: container name and `remoteEntry.js` address. */
   ui: z
     .object({
@@ -195,6 +202,8 @@ export const Plugin = z.object({
   title: z.string(),
   version: z.string().nullable(),
   description: z.string().nullable(),
+  /** Made for these countries (empty: everywhere). */
+  countries: z.array(z.string()),
   ui: z.object({ remote: z.string(), entry: z.string() }).nullable(),
   api: z.object({ url: z.string() }).nullable(),
   /** In this organisation: installed and active. */

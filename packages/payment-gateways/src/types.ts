@@ -34,8 +34,10 @@ export type PayerInstructions = {
 export interface CreateInvoiceInput {
   /** Our invoice id (sent as the merchant's reference). */
   invoiceId: string;
-  /** Hundredths of the currency unit (₮1,500 → 150000). */
+  /** In the currency's smallest unit (₮1,500 → 150000, $12.50 → 1250). */
   amount: number;
+  /** ISO 4217; core only sends currencies the gateway takes (`PAYMENT_GATEWAYS` in the contract). */
+  currency: string;
   description: string;
   /** Where the gateway tells us something happened (never trusted alone). */
   callbackUrl: string;
@@ -44,7 +46,7 @@ export interface CreateInvoiceInput {
 export interface PaymentCheck {
   /** Paid at least the invoice amount. */
   paid: boolean;
-  /** What the gateway says was paid, in hundredths. */
+  /** What the gateway says was paid, in the smallest unit. */
   paidAmount: number;
   /** The gateway's payment id (needed to refund it), when paid. */
   paymentId: string | null;
@@ -52,7 +54,7 @@ export interface PaymentCheck {
 
 export interface RefundInput {
   paymentId: string;
-  /** Hundredths; drivers with `refunds: 'full'` only accept the paid amount. */
+  /** In the smallest unit; drivers with `refunds: 'full'` only accept the paid amount. */
   amount: number;
   note: string;
   callbackUrl?: string;

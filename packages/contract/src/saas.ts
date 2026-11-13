@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
+import { OrganizationRegion } from './organizations';
 
 /** erxes.io's plugin tiers: Free is never billed; Plus and Pro have their own monthly prices. */
 export const PluginTier = z.enum(['free', 'plus', 'pro']);
@@ -27,7 +28,7 @@ export const OrganizationStatus = z.enum(['active', 'suspended', 'inactive']);
  * sent: core reads them from erxes.io's entitlement API.
  */
 export const SaasWorkspace = z.object({
-  organization: z.object({
+  organization: OrganizationRegion.extend({
     subdomain: z.string().trim().toLowerCase().max(63),
     name: z.string().trim().min(1).max(100),
   }),

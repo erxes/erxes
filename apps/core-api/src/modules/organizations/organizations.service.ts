@@ -1,8 +1,10 @@
 import { seedLeadStages } from '~/modules/leads/leadStages.service';
 import type { Db } from '@erxes/core-db';
 import { newId, organizations, users, withSystem } from '@erxes/core-db';
-import { eq } from 'drizzle-orm';
+import { currencyOfCountry } from '@erxes/core-contract';
+import { eq, sql } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
+import { diffRows } from '~/lib/changes';
 import { oneRow } from '~/lib/rows';
 import { installPluginsForNewOrganization } from '~/modules/plugins/plugins.service';
 import { seedRoles } from '~/modules/roles/roles.service';
@@ -13,8 +15,21 @@ export const toOrganizationDto = (row: typeof organizations.$inferSelect) => ({
   id: row.id,
   subdomain: row.subdomain,
   name: row.name,
+  country: row.country,
+  currency: row.currency,
   createdAt: row.createdAt.toISOString(),
 });
+
+interface Region {
+  country?: string;
+  currency?: string;
+}
+
+/** The currency to keep: the one asked for, else the new country's, else the current one. */
+const currencyFor = (input: Region, current: { country: string | null; currency: string }) =>
+  input.currency ??
+  (input.country && input.country !== current.country ? currencyOfCountry(input.country) : null) ??
+  current.currency;
 
 export const getOrganization = async (client: Db, orgId: string) => {
   const [row] = await client
@@ -30,7 +45,7 @@ export const getOrganization = async (client: Db, orgId: string) => {
   return row;
 };
 
-interface NewOrganization {
+interface NewOrganization extends Region {
   /** Given by the SaaS control plane; new otherwise. */
   id?: string;
   subdomain: string;
@@ -49,7 +64,13 @@ export const insertOrganization = async (tx: Db, input: NewOrganization) => {
   const organization = oneRow(
     await tx
       .insert(organizations)
-      .values({ id: input.id ?? newId(), subdomain, name: input.name.trim() })
+      .values({
+        id: input.id ?? newId(),
+        subdomain,
+        name: input.name.trim(),
+        country: input.country ?? null,
+        currency: currencyFor(input, { country: null, currency: 'USD' }),
+      })
       .returning(),
   );
 
@@ -87,4 +108,32 @@ export const createOrganization = async (input: NewOrganization) => {
 
     throw error;
   }
+};
+
+/**
+ * Renames the organisation or changes where it works. A new country without
+ * a currency also takes that country's currency; products and invoices keep
+ * the currency they were made in.
+ */
+export const updateOrganization = async (
+  tx: Db,
+  orgId: string,
+  input: Region & { name?: string },
+) => {
+  const before = await getOrganization(tx, orgId);
+
+  const row = oneRow(
+    await tx
+      .update(organizations)
+      .set({
+        name: input.name ?? before.name,
+        country: input.country ?? before.country,
+        currency: currencyFor(input, before),
+        updatedAt: sql`now()`,
+      })
+      .where(eq(organizations.id, orgId))
+      .returning(),
+  );
+
+  return { organization: toOrganizationDto(row), changes: diffRows(before, row, ['settings']) };
 };

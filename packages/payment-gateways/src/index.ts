@@ -12,7 +12,7 @@ export { testDriver } from './test';
  * The driver for a gateway connection:
  *
  *   const gateway = createGateway({ kind: 'qpay', clientId, clientSecret, invoiceCode, sandbox: false }, { cacheKey: connectionId });
- *   const { gatewayInvoiceId, payment } = await gateway.createInvoice({ invoiceId, amount: 150000, description, callbackUrl });
+ *   const { gatewayInvoiceId, payment } = await gateway.createInvoice({ invoiceId, amount: 150000, currency: 'MNT', description, callbackUrl });
  *   const { paid, paymentId } = await gateway.check(gatewayInvoiceId, 150000, {});
  */
 export const createGateway = (config: GatewayConfig, options: DriverOptions = {}): GatewayDriver =>
