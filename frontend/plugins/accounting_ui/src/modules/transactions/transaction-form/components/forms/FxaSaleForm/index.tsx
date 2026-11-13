@@ -13,6 +13,7 @@ import { FxaSaleAccountFields } from './FxaSaleAccountFields';
 import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
 import { useFxaDisposalFollowTrs } from '../hooks/useFxaDisposalFollowTrs';
 import { JournalEnum } from '~/modules/settings/account/types/Account';
+import { FxaOutAccountWarning } from '@/transactions/transaction-form/components/forms/FxaOutForm/FxaOutAccountWarning';
 
 export const FxaSaleForm = ({
   form,
@@ -64,6 +65,8 @@ export const FxaSaleForm = ({
           isSameSide
         />
       </div>
+
+      <FxaOutAccountWarning form={form} index={index} sale />
 
       <div className="pt-3">
         <RelAccountsForm form={form} index={index} />

@@ -13,6 +13,7 @@ import {
   ITrFollowInfos,
 } from '../@types/transaction';
 import { getFxaCapitalValuation } from './fxaCapitalValuation';
+import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
 
 export type TFxaOwnerRecordInput = {
   _id?: string;
@@ -80,6 +81,21 @@ export const getFxaDisposalFollowInfos = (
       followInfos.saleOutAccountId || followInfos.fixedAssetAccountId,
     saleCostAccountId:
       followInfos.saleCostAccountId || followInfos.lossAccountId,
+  };
+};
+
+export const resolveFxaDisposalAccounts = async (
+  models: IModels,
+  transaction: ITransaction | ITransactionDocument,
+): Promise<TFxaDisposalFollowInfos> => {
+  const followInfos = getFxaDisposalFollowInfos(transaction);
+  if (transaction.journal !== JOURNALS.FXA_SALE) return followInfos;
+  const accounts = await getFxaDepreciationAccounts(models);
+  return {
+    ...followInfos,
+    accumulatedDepreciationAccountId: accounts.get(
+      followInfos.saleOutAccountId || '',
+    ),
   };
 };
 
@@ -495,8 +511,8 @@ export const getFxaDisposalSummaries = async (
 export const validateFxaDisposalAccounts = (
   transaction: ITransaction | ITransactionDocument,
   summaries: TFxaDisposalSummary[],
+  followInfos = getFxaDisposalFollowInfos(transaction),
 ) => {
-  const followInfos = getFxaDisposalFollowInfos(transaction);
   const accumulatedDepreciation = summaries.reduce(
     (sum, summary) => sum + summary.accumulatedDepreciation,
     0,
@@ -546,6 +562,9 @@ export const prepareFxaOwnerRecordTransaction = async (
     })),
   };
   const summaries = await getFxaDisposalSummaries(models, source);
+
+  if (source.journal === JOURNALS.FXA_SALE)
+    source.followInfos = await resolveFxaDisposalAccounts(models, source);
 
   if (options.validateDisposalAccounts) {
     validateFxaDisposalAccounts(source, summaries);

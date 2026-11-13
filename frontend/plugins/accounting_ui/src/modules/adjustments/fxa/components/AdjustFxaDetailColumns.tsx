@@ -113,6 +113,11 @@ export const adjustFxaDetailColumns = (
       ['count', 'quantity'],
       ['originalCost', 'cost'],
       ['accumulatedDepreciation', 'accumulated-depreciation'],
+      ['taxDepreciationAmount', 'tax-depreciation'],
+      ['taxAccumulatedDepreciation', 'tax-accumulated-depreciation'],
+      ['temporaryDifference', 'depreciation-temporary-difference'],
+      ['deferredTaxAsset', 'deferred-tax-assets'],
+      ['deferredTaxLiability', 'deferred-tax-liabilities'],
       ['revaluationLoss', 'fxa-revaluation-loss-balance'],
       ['revaluationReserve', 'fxa-revaluation-reserve-balance'],
     ] as const
@@ -121,7 +126,10 @@ export const adjustFxaDetailColumns = (
       id: field,
       accessorKey: field,
       header: () => (
-        <RecordTable.InlineHead icon={IconCashBanknote} label={t(label)} />
+        <RecordTable.InlineHead
+          icon={IconCashBanknote}
+          label={t(label)}
+        />
       ),
       cell: ({ row }) => <NumberCell value={row.original[field]} />,
     }),

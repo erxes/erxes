@@ -42,6 +42,7 @@ export const PluginConfigsProvidersEffect = () => {
 
   useEffect(() => {
     if (remotes && remotes.length > 0) {
+      setLoadingPluginsConfig(true);
       const loadConfig = async () => {
         for (const remote of remotes) {
           try {
@@ -55,7 +56,6 @@ export const PluginConfigsProvidersEffect = () => {
 
             if (!validation.ok) {
               console.error(validation.message);
-              setLoadingPluginsConfig(false);
               continue;
             }
 
@@ -76,21 +76,20 @@ export const PluginConfigsProvidersEffect = () => {
               ...prev,
               [remote.name]: pluginConfig,
             }));
-            setTimeout(() => {
-              setLoadingPluginsConfig(false);
-            });
           } catch (error) {
             console.error(`Failed to load config from ${remote.name}:`, error);
-            setLoadingPluginsConfig(false);
           }
         }
+        setTimeout(() => {
+          setLoadingPluginsConfig(false);
+        });
       };
 
       loadConfig();
     } else {
       setLoadingPluginsConfig(false);
     }
-  }, [remotes, setPluginsConfig]);
+  }, [remotes, setPluginsConfig, setLoadingPluginsConfig]);
 
   return null;
 };

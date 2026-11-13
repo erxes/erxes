@@ -14,7 +14,15 @@ export type PanelExpansionContextValue = {
 
 export type RecordSidePanelResizeHandleProps = {
   width: number;
+  minWidth?: number;
   maxWidth: number;
+  // The resized pane's edge the handle sits on; dragging outwards widens it.
+  // A panel is resized from its start (left) edge.
+  edge?: 'start' | 'end';
+  label?: string;
+  className?: string;
+  // Paints a width while dragging; the pane's own width by default.
+  onResize?: (width: number) => void;
   onWidthChange: (width: number) => void;
 };
 

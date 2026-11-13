@@ -7,6 +7,7 @@ import {
   useRef,
 } from 'react';
 import {
+  NavigateOptions,
   UNSAFE_DataRouterStateContext,
   useLocation,
   useNavigate,
@@ -15,13 +16,16 @@ import {
 import { AppPath } from '@/types/paths/AppPath';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { IconInbox, IconSettings } from '@tabler/icons-react';
-import { appLastLocationState } from '@/navigation/states/appLastLocationState';
+import {
+  appLastLocationState,
+  notFoundLocationState,
+} from '@/navigation/states/appLastLocationState';
 import {
   findAppActivityByPath,
   isOrganizationSettingsPath,
 } from '@/navigation/utils/navigationActivities';
 import { openAppTabsState } from '@/navigation/states/openAppTabsState';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { useTranslation } from 'react-i18next';
 import {
@@ -48,7 +52,7 @@ export const useAppTabs = () => {
   const { t: navigationT } = useTranslation('common', {
     keyPrefix: 'navigation',
   });
-  const { pathname, search } = useLocation();
+  const { pathname, search, key } = useLocation();
   const navigate = useNavigate();
   // Observe existing editor blockers without registering a second blocker.
   const routerState = useContext(UNSAFE_DataRouterStateContext);
@@ -57,6 +61,7 @@ export const useAppTabs = () => {
   ).some((blocker) => blocker.state === 'blocked');
   const [storedTabIds, setStoredTabIds] = useAtom(openAppTabsState);
   const [lastLocations, setLastLocations] = useAtom(appLastLocationState);
+  const notFoundLocationKey = useAtomValue(notFoundLocationState);
 
   const activities = useMemo<INavigationActivity[]>(
     () => [
@@ -143,12 +148,22 @@ export const useAppTabs = () => {
       return;
     }
 
-    setLastLocations((current) =>
-      current[routeActivityId] === location
+    setLastLocations((current) => {
+      if (notFoundLocationKey === key) {
+        if (current[routeActivityId] !== location) {
+          return current;
+        }
+
+        const next = { ...current };
+        delete next[routeActivityId];
+        return next;
+      }
+
+      return current[routeActivityId] === location
         ? current
-        : { ...current, [routeActivityId]: location },
-    );
-  }, [location, routeActivityId, setLastLocations]);
+        : { ...current, [routeActivityId]: location };
+    });
+  }, [key, location, notFoundLocationKey, routeActivityId, setLastLocations]);
 
   // Whatever app the route lands on (a link, search, the inbox) gets a tab.
   useEffect(() => {
@@ -166,7 +181,14 @@ export const useAppTabs = () => {
   }, [tabActivities, routeActivityId, setStoredTabIds]);
 
   const go = useCallback(
-    (path: string, activityId?: string, closedIds?: string[]) => {
+    (
+      path: string,
+      {
+        activityId,
+        closedIds,
+        ...options
+      }: NavigateOptions & { activityId?: string; closedIds?: string[] } = {},
+    ) => {
       const deferredIds = [
         ...new Set([
           ...(getPendingNavigation()?.closedIds ?? []),
@@ -181,7 +203,7 @@ export const useAppTabs = () => {
         closedIds: deferredIds.length ? deferredIds : undefined,
       };
       startTransition(() => {
-        navigate(path);
+        navigate(path, options);
       });
     },
     [getPendingNavigation, location, navigate, routerState],
@@ -189,7 +211,13 @@ export const useAppTabs = () => {
 
   const resume = useCallback(
     (activity: INavigationActivity) =>
-      go(lastLocations[activity.id] || toHomePath(activity), activity.id),
+      go(
+        lastLocations[activity.id] || toHomePath(activity),
+        {
+          activityId: activity.id,
+          state: { appResumePath: toHomePath(activity) },
+        },
+      ),
     [go, lastLocations],
   );
 
@@ -252,7 +280,7 @@ export const useAppTabs = () => {
   /** Open (or switch to) an app; re-selecting the open app goes home. */
   const selectActivity = (activity: INavigationActivity) => {
     if (activity.id === getTargetActivityId()) {
-      go(toHomePath(activity), activity.id);
+      go(toHomePath(activity), { activityId: activity.id });
       return;
     }
 
@@ -298,11 +326,14 @@ export const useAppTabs = () => {
     if (fallback) {
       go(
         lastLocations[fallback.id] || toHomePath(fallback),
-        fallback.id,
-        deferredClosedIds,
+        {
+          activityId: fallback.id,
+          closedIds: deferredClosedIds,
+          state: { appResumePath: toHomePath(fallback) },
+        },
       );
     } else {
-      go(AppPath.Index, undefined, deferredClosedIds);
+      go(AppPath.Index, { closedIds: deferredClosedIds });
     }
   };
 

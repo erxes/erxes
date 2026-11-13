@@ -91,7 +91,8 @@ export const useTrRecordsDelete = () => {
                   className="flex items-center justify-between gap-3 px-3 py-1.5"
                 >
                   <span className="font-medium">
-                    {tr.number || '-'} · {t(getJournalLabel(tr.journal))}
+                    {tr.number || '-'} ·{' '}
+                    {t(getJournalLabel(tr.journal))}
                   </span>
                   <span className="text-muted-foreground tabular-nums">
                     {formatDate(tr.date)} ·{' '}

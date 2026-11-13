@@ -10,6 +10,7 @@ import { FxaOutAccountWarning } from '@/transactions/transaction-form/components
 import { TAddTransactionGroup } from '@/transactions/transaction-form/types/JournalForms';
 import { TrJournalEnum } from '@/transactions/types/constants';
 import { useAccountsInline } from '@/settings/account/hooks/useAccounts';
+import { FxaAccountMatchingWarning } from '@/transactions/transaction-form/components/forms/FxaAccountMatchingWarning';
 
 let mockConfigs: {
   accountId: string;
@@ -91,6 +92,19 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+test('shared capitalization/revaluation matching warnings include the account settings link', () => {
+  render(
+    <FxaAccountMatchingWarning message="Revaluation matching is missing" />,
+  );
+  expect(screen.getByRole('alert').textContent).toContain(
+    'Revaluation matching is missing',
+  );
+  expect(screen.getByRole('link').getAttribute('href')).toBe(
+    '/accounting/settings/fixed-assets/accounts-config',
+  );
+  expect(screen.getByRole('link').getAttribute('target')).toBe('_blank');
+});
+
 test('uses the configured assigned depreciation account instead of a manual override', () => {
   const { result } = renderHook(useFixture);
   render(<FxaOutAccountWarning form={result.current} index={0} />);
@@ -105,6 +119,35 @@ test('uses the configured assigned depreciation account instead of a manual over
       variables: { ids: ['asset-a', 'dep-a'], permissionMode: 'write' },
     }),
   );
+});
+
+test('sale uses its asset disposal account mapping rather than its revenue account and clears stale links', () => {
+  const { result } = renderHook(useFixture);
+  act(() => {
+    result.current.setValue('trDocs.0.journal', TrJournalEnum.FXA_SALE);
+    result.current.setValue('trDocs.0.details.0.accountId', 'revenue');
+    result.current.setValue('trDocs.0.followInfos.saleOutAccountId', 'asset-a');
+  });
+  render(<FxaOutAccountWarning form={result.current} index={0} sale />);
+  expect(
+    result.current.getValues(
+      'trDocs.0.followInfos.accumulatedDepreciationAccountId',
+    ),
+  ).toBe('dep-a');
+  expect(useAccountsInline).toHaveBeenCalledWith(
+    expect.objectContaining({
+      variables: { ids: ['asset-a', 'dep-a'], permissionMode: 'write' },
+    }),
+  );
+  act(() =>
+    result.current.setValue('trDocs.0.followInfos.saleOutAccountId', 'asset-b'),
+  );
+  expect(
+    result.current.getValues(
+      'trDocs.0.followInfos.accumulatedDepreciationAccountId',
+    ),
+  ).toBe('');
+  expect(screen.getByRole('alert')).toBeDefined();
 });
 
 test('changing to an unconfigured account clears stale depreciation and offers a settings link', () => {
