@@ -240,64 +240,68 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput | No
   const planned = await recipientsOf(client, caller, inputs);
   const collapsed = new Map<(typeof planned)[number], Set<string>>();
 
-  // Collapsing locks and reads per entity, so those inputs go one at a time.
-  await inOrder(planned, async (plan) => {
-    const { entity, collapseMinutes } = plan.input;
-
-    if (collapseMinutes && entity && plan.recipients.length)
-      collapsed.set(
-        plan,
-        await collapseRecent(
-          client,
-          caller,
-          { ...plan.input, entity, collapseMinutes },
-          plan.recipients,
-          plan.actorId,
-        ),
-      );
-  });
-
-  const pending = planned.flatMap((plan) => {
-    const { input: one, emails, actorType, actorId } = plan;
-
-    return plan.recipients
+  const rowsOf = (plan: (typeof planned)[number]) =>
+    plan.recipients
       .filter((userId) => !collapsed.get(plan)?.has(userId))
       .map((userId) => ({
-        input: one,
-        email: emails.get(userId),
+        input: plan.input,
+        email: plan.emails.get(userId),
         row: {
           id: newId(),
           orgId: caller.orgId,
           userId,
           source: caller.source,
-          kind: one.kind,
-          title: one.title,
-          body: one.body ?? null,
-          link: one.link ?? null,
-          entityType: one.entity?.type ?? null,
-          entityId: one.entity?.id ?? null,
-          data: one.data ?? {},
-          priority: one.priority ?? 'normal',
-          actorType,
-          actorId,
-          dedupeKey: one.dedupeKey ?? null,
+          kind: plan.input.kind,
+          title: plan.input.title,
+          body: plan.input.body ?? null,
+          link: plan.input.link ?? null,
+          entityType: plan.input.entity?.type ?? null,
+          entityId: plan.input.entity?.id ?? null,
+          data: plan.input.data ?? {},
+          priority: plan.input.priority ?? 'normal',
+          actorType: plan.actorType,
+          actorId: plan.actorId,
+          dedupeKey: plan.input.dedupeKey ?? null,
         },
       }));
+
+  /** The rows that were new (a `dedupeKey` retry inserts nothing). */
+  const insert = async (pending: ReturnType<typeof rowsOf>) => {
+    if (!pending.length) return [];
+
+    const inserted = new Set(
+      (
+        await client
+          .insert(notifications)
+          .values(pending.map(({ row }) => row))
+          .onConflictDoNothing()
+          .returning({ id: notifications.id })
+      ).map((row) => row.id),
+    );
+
+    return pending.filter(({ row }) => inserted.has(row.id));
+  };
+
+  const collapsing = planned.flatMap((plan) => {
+    const { entity, collapseMinutes } = plan.input;
+
+    return collapseMinutes && entity && plan.recipients.length
+      ? [{ plan, input: { ...plan.input, entity, collapseMinutes } }]
+      : [];
   });
 
-  const inserted = new Set(
-    pending.length
-      ? (
-          await client
-            .insert(notifications)
-            .values(pending.map(({ row }) => row))
-            .onConflictDoNothing()
-            .returning({ id: notifications.id })
-        ).map((row) => row.id)
-      : [],
-  );
+  const created: ReturnType<typeof rowsOf> = [];
 
-  const created = pending.filter(({ row }) => inserted.has(row.id));
+  // Collapsing locks and reads per entity, and folds into what the inputs
+  // before it created, so each of those inputs collapses and inserts in turn.
+  await inOrder(collapsing, async ({ plan, input: one }) => {
+    collapsed.set(plan, await collapseRecent(client, caller, one, plan.recipients, plan.actorId));
+    created.push(...(await insert(rowsOf(plan))));
+  });
+
+  const plain = planned.filter((plan) => !collapsing.some((entry) => entry.plan === plan));
+
+  created.push(...(await insert(plain.flatMap(rowsOf))));
 
   // New notifications only (a collapsed change was already announced).
   await emailNotified(
