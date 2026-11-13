@@ -24,6 +24,8 @@ export const LEAD_SOURCES = [
   'event',
   'partner',
   'plugin',
+  /** Signed up with a code on core's customer sign-in page. */
+  'sign_in',
   'api',
   'other',
 ] as const;

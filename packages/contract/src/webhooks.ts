@@ -52,6 +52,18 @@ export const CORE_EVENT_TYPES = [
     description: 'A person is unlinked from a company',
   },
   {
+    type: 'core.customer.signed_up',
+    label: 'Customer signed up',
+    subject: 'customer',
+    description: 'A person proves their first email address or phone and can sign in to apps',
+  },
+  {
+    type: 'core.customer.signed_in',
+    label: 'Customer signed in',
+    subject: 'customer',
+    description: 'A person signs in with a code',
+  },
+  {
     type: 'core.lead.stage_changed',
     label: 'Lead moved to another stage',
     subject: 'customer',

@@ -51,6 +51,18 @@ const HttpsUrl = z
   .max(500)
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
+/** Where an OAuth client's codes may be sent: exact addresses, `{subdomain}` allowed. */
+const RedirectUris = z
+  .array(
+    z
+      .string()
+      .trim()
+      .max(500)
+      .regex(/^https?:\/\/[^\s#]+$/, 'an http(s) address without a fragment'),
+  )
+  .min(1)
+  .max(20);
+
 export const PluginManifest = z.object({
   title: z.string().trim().min(1).max(80),
   version: z.string().trim().min(1).max(40),
@@ -78,20 +90,13 @@ export const PluginManifest = z.object({
    * exact addresses codes may be sent to; `{subdomain}` stands for the
    * organisation's (`https://{subdomain}.hr.erxes.io/auth/callback`).
    */
-  oauth: z
-    .object({
-      redirectUris: z
-        .array(
-          z
-            .string()
-            .trim()
-            .max(500)
-            .regex(/^https?:\/\/[^\s#]+$/, 'an http(s) address without a fragment'),
-        )
-        .min(1)
-        .max(20),
-    })
-    .optional(),
+  oauth: z.object({ redirectUris: RedirectUris }).optional(),
+  /**
+   * The plugin's app for customers (a shop, tracking, booking): customers sign
+   * in through core (`/customer-oauth/authorize`, PKCE) and come back to one of
+   * these addresses; `{subdomain}` stands for the organisation's.
+   */
+  customerApp: z.object({ redirectUris: RedirectUris }).optional(),
   scopes: z.array(PluginScope).max(PLUGIN_SCOPES.length).default([]),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z

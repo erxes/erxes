@@ -7416,6 +7416,181 @@
           }
         }
       },
+      "CustomerLogin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "kind": {
+            "enum": [
+              "email",
+              "phone"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUsedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "value",
+          "createdAt",
+          "lastUsedAt"
+        ]
+      },
+      "CustomerProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "firstName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "birthDate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "primaryEmail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "primaryPhone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "avatarUrl",
+          "birthDate",
+          "primaryEmail",
+          "primaryPhone",
+          "createdAt"
+        ]
+      },
+      "CustomerSession": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "clientId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "userAgent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUsedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "clientId",
+          "userAgent",
+          "createdAt",
+          "lastUsedAt",
+          "current"
+        ]
+      },
       "DryRunStep": {
         "type": "object",
         "properties": {
@@ -9930,6 +10105,24 @@
             ]
           },
           "oauth": {
+            "type": "object",
+            "properties": {
+              "redirectUris": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "pattern": "^https?:\\/\\/[^\\s#]+$"
+                }
+              }
+            },
+            "required": [
+              "redirectUris"
+            ]
+          },
+          "customerApp": {
             "type": "object",
             "properties": {
               "redirectUris": {
@@ -23618,6 +23811,665 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer/me": {
+      "get": {
+        "operationId": "customerAccount.me",
+        "summary": "The signed-in customer's profile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerProfile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "customerAccount.update",
+        "summary": "Change name, picture or birth date",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "lastName": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "avatarUrl": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 1000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "birthDate": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer/me/logins": {
+      "get": {
+        "operationId": "customerAccount.logins",
+        "summary": "Addresses I sign in with",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CustomerLogin"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "customerAccount.addLogin",
+        "summary": "Send a code to a new address to sign in with. 409 LOGIN_TAKEN when it is already a login, 429 TOO_MANY_CODES",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "email"
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "phone"
+                      },
+                      "value": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "pattern": "^\\+?[0-9 ()-]+$"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "value"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expiresInSeconds": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "expiresInSeconds"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer/me/logins/confirm": {
+      "post": {
+        "operationId": "customerAccount.confirmLogin",
+        "summary": "Add the address with its code. 400 INVALID_CODE, 409 LOGIN_TAKEN",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "email"
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email"
+                      },
+                      "code": {
+                        "type": "string",
+                        "pattern": "^\\d{6}$"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "value",
+                      "code"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "phone"
+                      },
+                      "value": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "pattern": "^\\+?[0-9 ()-]+$"
+                      },
+                      "code": {
+                        "type": "string",
+                        "pattern": "^\\d{6}$"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "value",
+                      "code"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerLogin"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer/me/logins/{id}": {
+      "delete": {
+        "operationId": "customerAccount.removeLogin",
+        "summary": "Stop signing in with an address. 409 LAST_LOGIN",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer/me/sessions": {
+      "get": {
+        "operationId": "customerAccount.sessions",
+        "summary": "Where I am signed in",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CustomerSession"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer/me/sessions/{id}": {
+      "delete": {
+        "operationId": "customerAccount.revokeSession",
+        "summary": "Sign out one browser or app",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer/me/sign-out-everywhere": {
+      "post": {
+        "operationId": "customerAccount.signOutEverywhere",
+        "summary": "Sign out of every browser and app (access tokens end within 15 minutes)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer-auth/config": {
+      "get": {
+        "operationId": "customerAuth.config",
+        "summary": "What the sign-in page shows: the organisation and the ways to sign in. 404 NOT_FOUND",
+        "parameters": [
+          {
+            "name": "organization",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 63
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "organization": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "subdomain": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "subdomain"
+                      ]
+                    },
+                    "kinds": {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "email",
+                          "phone"
+                        ],
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "organization",
+                    "kinds"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer-auth/code": {
+      "post": {
+        "operationId": "customerAuth.sendCode",
+        "summary": "Send a sign-in code to an email address or phone; the same answer whether or not it has an account. 429 TOO_MANY_CODES",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "email"
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email"
+                      },
+                      "organization": {
+                        "type": "string",
+                        "maxLength": 63
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "phone"
+                      },
+                      "value": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "pattern": "^\\+?[0-9 ()-]+$"
+                      },
+                      "organization": {
+                        "type": "string",
+                        "maxLength": 63
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "value"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expiresInSeconds": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "expiresInSeconds"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer-auth/sign-in": {
+      "post": {
+        "operationId": "customerAuth.signIn",
+        "summary": "Sign in (or up) with the code; sets the customer cookie. 400 INVALID_CODE (wrong, used, expired or 5 tries)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "email"
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email"
+                      },
+                      "organization": {
+                        "type": "string",
+                        "maxLength": 63
+                      },
+                      "code": {
+                        "type": "string",
+                        "pattern": "^\\d{6}$"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "value",
+                      "code"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "phone"
+                      },
+                      "value": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 32,
+                        "pattern": "^\\+?[0-9 ()-]+$"
+                      },
+                      "organization": {
+                        "type": "string",
+                        "maxLength": 63
+                      },
+                      "code": {
+                        "type": "string",
+                        "pattern": "^\\d{6}$"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "value",
+                      "code"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "customer": {
+                      "$ref": "#/components/schemas/CustomerProfile"
+                    },
+                    "created": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "customer",
+                    "created"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer-auth/sign-out": {
+      "post": {
+        "operationId": "customerAuth.signOut",
+        "summary": "Sign out of the sign-in page's browser session; apps stay signed in",
         "responses": {
           "200": {
             "description": "OK",
