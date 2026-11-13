@@ -238,11 +238,12 @@ export const PermissionModulesForm = ({
       </Sidebar.Content>
       <div className="w-[80%] overflow-auto styled-scroll">
         <div className="mx-auto max-w-3xl px-6">
-          {selectedPluginData && !labelsReady ? (
+          {selectedPluginData && !labelsReady && (
             <div className="flex justify-center py-16">
               <Spinner />
             </div>
-          ) : selectedPluginData ? (
+          )}
+          {selectedPluginData && labelsReady && (
             <div className="py-8 space-y-8">
               <div className="space-y-4">
                 {selectedPluginData.modules.map((module) => {
@@ -388,7 +389,8 @@ export const PermissionModulesForm = ({
                 })}
               </div>
             </div>
-          ) : (
+          )}
+          {!selectedPluginData && (
             <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
               <div className="mb-4 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary">
                 <IconPlugConnected size={32} stroke={1.5} />
