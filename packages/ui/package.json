@@ -46,6 +46,7 @@
     "build": "tsdown"
   },
   "dependencies": {
+    "@base-ui/react": "1.9.0",
     "@blocknote/core": "0.57.0",
     "@blocknote/react": "0.57.0",
     "@blocknote/shadcn": "0.57.0",
