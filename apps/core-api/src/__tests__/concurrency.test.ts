@@ -1,11 +1,7 @@
 import { files, jobs, newId, tags, withOrg, withSystem } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
-import {
-  pruneUploads,
-  purgeDeletedFiles,
-  readFileBytes,
-} from '~/modules/files/files.service';
+import { pruneUploads, purgeDeletedFiles, readFileBytes } from '~/modules/files/files.service';
 import { setStorage, storage } from '~/modules/files/storage';
 import { enqueueJob, type JobDefinition, processJobs } from '~/modules/jobs/jobs';
 import { adminDb, useTestDatabase } from './db';
@@ -19,13 +15,13 @@ import { useTwoOrgs } from './support';
 
 /** A promise someone else resolves: `open()` lets whoever awaits `opened` go on. */
 const gate = () => {
-  let open = () => {};
+  let resolve: (() => void) | undefined;
 
-  const opened = new Promise<void>((resolve) => {
-    open = resolve;
+  const opened = new Promise<void>((done) => {
+    resolve = done;
   });
 
-  return { open, opened };
+  return { open: () => resolve?.(), opened };
 };
 
 const fileRow = async (id: string) => {
@@ -39,6 +35,12 @@ const jobRow = async (id: string) => {
 
   return row;
 };
+
+/** Time passes beyond the job's lease, as for a worker that hangs or died. */
+const leaseRunsOut = (id: string) =>
+  adminDb().execute(
+    sql`update core_jobs set locked_until = now() - interval '1 second' where id = ${id}`,
+  );
 
 /** Resolves once some statement in the test database waits for a row lock. */
 const someoneWaitsForALock = async () => {
@@ -96,6 +98,15 @@ describe('concurrency', () => {
 
     return started.file;
   };
+
+  const enqueue = (queue: string, maxAttempts?: number) =>
+    withOrg(t.ids.org, async (tx) => {
+      const id = await enqueueJob(tx, { orgId: t.ids.org, queue, maxAttempts });
+
+      if (id === null) throw new Error(`${queue} was not enqueued`);
+
+      return id;
+    });
 
   describe('file lifecycle (verify/tla/FileLifecycle.tla)', () => {
     it('CompletionOwnsItsRow, DownloadsServeChecked: the prune skips a file being completed, and nobody reads it before it is ready', async () => {
@@ -161,21 +172,6 @@ describe('concurrency', () => {
   });
 
   describe('job queue (verify/tla/Jobs.tla)', () => {
-    const enqueue = (queue: string, maxAttempts?: number) =>
-      withOrg(t.ids.org, async (tx) => {
-        const id = await enqueueJob(tx, { orgId: t.ids.org, queue, maxAttempts });
-
-        if (id === null) throw new Error(`${queue} was not enqueued`);
-
-        return id;
-      });
-
-    /** Time passes beyond the job's lease, as for a worker that hangs or died. */
-    const leaseRunsOut = (id: string) =>
-      adminDb().execute(
-        sql`update core_jobs set locked_until = now() - interval '1 second' where id = ${id}`,
-      );
-
     it('EnqueueFollowsTransaction, NeverLost, AtLeastOnce: workers see a job only once its transaction commits, then run it once', async () => {
       let runs = 0;
 
