@@ -16,7 +16,7 @@ export const testServerUrl = () => {
   if (!url)
     throw new Error(
       'The API tests need a Postgres. Set DATA_TEST_URL to a superuser URL, e.g. ' +
-        'DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres pnpm test',
+        'DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres vp run test',
     );
 
   return url;

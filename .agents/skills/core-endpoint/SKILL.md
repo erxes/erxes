@@ -32,5 +32,5 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    change plugins see, except properties moving within an object. If plugins already call the
    procedure, follow `.agents/skills/plugin-contract/SKILL.md`.
 
-Done when `pnpm check`, `pnpm check:generated` and `pnpm test` (with `DATA_TEST_URL`) pass, and the
+Done when `vp run check`, `pnpm check:generated` and `vp run test` (with `DATA_TEST_URL`) pass, and the
 cross-organisation case is among the tests.

@@ -12,7 +12,22 @@ import {
 import { coreApiTestEnv } from './tools/test/core-api-env';
 import { noSkips } from './tools/test/no-skips';
 
+// The type check is tsrs (TypeScript 7) running as oxlint's tsgolint.
+const tsrs = 'OXLINT_TSGOLINT_PATH=node_modules/.bin/tsrs-lint';
+
+// Vite Task tracks the files each command reads; the lockfile is listed too, so an
+// install that changes a dependency always reruns the task.
+const tracked = { input: [{ auto: true }, 'pnpm-lock.yaml'] };
+
 export default defineConfig({
+  run: {
+    tasks: {
+      // A rerun with no edits replays the last result.
+      check: { command: `${tsrs} vp check && knip`, cache: tracked },
+      fix: { command: `${tsrs} vp check --fix`, cache: false },
+      test: { command: 'vp test run', cache: { ...tracked, env: ['DATA_TEST_URL'] } },
+    },
+  },
   staged: {
     '*': 'vp check --fix',
   },

@@ -11,7 +11,7 @@ pnpm install          # Node 26 (.node-version); installs the pre-commit hook
 docker compose up -d  # Postgres 18 on 127.0.0.1:5434
 cp .env.example .env
 pnpm dev              # API http://localhost:3400, UI http://localhost:3500
-DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres pnpm test
+DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres vp run test
 ```
 
 `.github/workflows/ci.yml` lists the gates CI runs; `Check` is the job to require.
@@ -32,7 +32,7 @@ DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres pnpm test
 - Ids are text (`newId()`, 17 characters), so records imported from old erxes keep their Mongo `_id`.
 - Start from the current `postgre` branch. Search with `rg -n` and `fd`; change code with your editor
   or `ast-grep`, never `sed -i`, python or `cat >`. Throwaway scripts go in `.scratch/`.
-- A handoff names the commits, the tails of `pnpm check`, `pnpm test` (with the count), `pnpm build`
+- A handoff names the commits, the tails of `vp run check`, `vp run test` (with the count), `pnpm build`
   and `pnpm check:generated`, what you saw in a browser for a UI change, and what you deferred and why.
 
 <!-- quality:start -->
@@ -44,7 +44,7 @@ enforce a rule; `review` marks the part no tool can check. The rewrite keeps eve
 architecture. Agents write the code and the checks judge it, so a green check lets a change ship
 without line-by-line review.
 
-- `pnpm check` is the type check: oxfmt, type-aware oxlint on tsrs and knip in about 10 s. Run it after each edit and before each commit; it replaces `tsc`. `pnpm fix` formats and autofixes. [pnpm check]
+- `vp run check` is the type check: oxfmt, type-aware oxlint on tsrs and knip in about 10 s. Run it after each edit and before each commit; it replaces `tsc`. `vp run fix` formats and autofixes. [vp run check]
 - Port what a feature does, not its code. Fix what the old code got wrong instead of carrying it over. [review]
 - Use a maintained library when one does the job. Keep dependencies near their latest release and off deprecated APIs. [typescript/no-deprecated, review]
 - One way to do each job. Search for the existing helper before writing one, merge the repeats you find, delete what nothing uses. [knip, review]
@@ -54,7 +54,7 @@ without line-by-line review.
 - Split a file or function that outgrows its limit by responsibility (router, service, queries). [max-lines, max-lines-per-function, review]
 - Finish the work in the change, with no TODO or FIXME left in code. [no-warning-comments]
 - Tests call the public interface (HTTP, the typed client, the rendered page) and assert what it does, never source strings or code shapes. [review]
-- Every test runs: a skipped test or an empty suite fails the run. A failing test gets its code or its wrong expectation fixed, never loosened or deleted. [pnpm test, review]
+- Every test runs: a skipped test or an empty suite fails the run. A failing test gets its code or its wrong expectation fixed, never loosened or deleted. [vp run test, review]
 - Log through the structured logger, with the facts as fields. A caught error is rethrown or logged with its context. [no-console, review]
 - Make the long-term change in one go, with no backward-compatibility shim, stopgap or speculative option. [review]
 - Docs, PRs and copy are short: plain words, active voice, what it does or the number. [review]

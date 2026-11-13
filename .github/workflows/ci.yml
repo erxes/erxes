@@ -50,7 +50,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Format, lint, types and knip
-        run: pnpm check
+        run: pnpm exec vp run check
       - name: Migrations and openapi.json match the schema and contract
         run: pnpm check:generated
       - name: Applied migrations unchanged
@@ -96,7 +96,7 @@ jobs:
         if: matrix.shard == 1
         run: pnpm check:rls
       - name: Tests (API test files run in parallel, each on its own database as a role without BYPASSRLS)
-        run: pnpm test --shard=${{ matrix.shard }}/2
+        run: pnpm exec vp run test --shard=${{ matrix.shard }}/2
 
   models:
     name: TLA+ models

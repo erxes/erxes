@@ -1,6 +1,6 @@
 import type { KnipConfig } from 'knip';
 
-// Unused files, exports and dependencies fail `pnpm check`.
+// Unused files, exports and dependencies fail `vp run check`.
 const config: KnipConfig = {
   workspaces: {
     '.': {
@@ -13,7 +13,7 @@ const config: KnipConfig = {
       },
       // Copied from the HR plugin as a whole, with its vendored ESLint Stylistic rule.
       ignore: ['tools/lint/anti-slop/**'],
-      // Oxlint runs its tsrs-lint binary through OXLINT_TSGOLINT_PATH in the check scripts.
+      // Oxlint runs its tsrs-lint binary through OXLINT_TSGOLINT_PATH in the check task.
       ignoreDependencies: ['tsrs'],
     },
     // Entries from package.json (main, exports), rsbuild.config.ts and tsdown.config.ts count too.
