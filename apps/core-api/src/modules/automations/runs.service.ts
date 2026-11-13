@@ -30,10 +30,9 @@ const toRunDto = (row: RunRow): AutomationRun => ({
 
 export const listRuns = async (
   client: Db,
-  actor: Actor,
   query: CursorQuery & { id: string; status?: RunRow['status'] },
 ) => {
-  await findAutomation(client, actor.orgId, query.id);
+  await findAutomation(client, query.id);
 
   const page = await keysetPage(
     client,
@@ -41,7 +40,7 @@ export const listRuns = async (
       table: automationRuns,
       id: automationRuns.id,
       createdAt: automationRuns.startedAt,
-      scope: sql`${eq(automationRuns.orgId, actor.orgId)} and ${eq(automationRuns.automationId, query.id)}`,
+      scope: eq(automationRuns.automationId, query.id),
       countCap: 10_000,
     },
     query.status ? eq(automationRuns.status, query.status) : undefined,
@@ -58,11 +57,11 @@ export const listRuns = async (
   return { ...page, data: page.data.map(toRunDto) };
 };
 
-const findRun = async (client: Db, orgId: string, runId: string) => {
+const findRun = async (client: Db, runId: string) => {
   const [row] = await client
     .select()
     .from(automationRuns)
-    .where(and(eq(automationRuns.orgId, orgId), eq(automationRuns.id, runId)))
+    .where(eq(automationRuns.id, runId))
     .limit(1);
 
   if (!row) throw notFound('Run');
@@ -70,13 +69,13 @@ const findRun = async (client: Db, orgId: string, runId: string) => {
   return row;
 };
 
-export const getRun = async (client: Db, actor: Actor, runId: string) => {
-  const run = await findRun(client, actor.orgId, runId);
+export const getRun = async (client: Db, runId: string) => {
+  const run = await findRun(client, runId);
 
   const steps = await client
     .select()
     .from(automationRunSteps)
-    .where(and(eq(automationRunSteps.orgId, actor.orgId), eq(automationRunSteps.runId, runId)))
+    .where(eq(automationRunSteps.runId, runId))
     .orderBy(asc(automationRunSteps.finishedAt));
 
   return {
@@ -96,20 +95,20 @@ export const getRun = async (client: Db, actor: Actor, runId: string) => {
   };
 };
 
-export const retryAutomationRun = async (client: Db, actor: Actor, runId: string) => {
-  await findRun(client, actor.orgId, runId);
+export const retryAutomationRun = async (client: Db, runId: string) => {
+  await findRun(client, runId);
 
-  const run = await retryRun(client, actor.orgId, runId);
+  const run = await retryRun(client, runId);
 
   if (!run) throw new HttpError(409, 'NOT_FAILED', 'Only a failed run can be retried');
 
   return toRunDto(run);
 };
 
-export const cancelAutomationRun = async (client: Db, actor: Actor, runId: string) => {
-  await findRun(client, actor.orgId, runId);
+export const cancelAutomationRun = async (client: Db, runId: string) => {
+  await findRun(client, runId);
 
-  const run = await cancelRun(client, actor.orgId, runId);
+  const run = await cancelRun(client, runId);
 
   if (!run)
     throw new HttpError(409, 'NOT_RUNNING', 'Only a running or waiting run can be cancelled');
@@ -124,7 +123,7 @@ export const startAutomation = async (
   id: string,
   subjects?: string[],
 ) => {
-  const row = await findAutomation(client, actor.orgId, id);
+  const row = await findAutomation(client, id);
 
   const definition =
     row.status === 'active' && row.activeVersion
@@ -152,11 +151,10 @@ const SkippedByLimit = z.object({ skippedByLimit: z.int() });
 const countWhere = (filter: SQL | undefined) => sql<number>`count(*) filter (where ${filter})::int`;
 
 /** The last 30 days: runs by outcome and each step's results. */
-export const automationStats = async (client: Db, actor: Actor, id: string) => {
-  const row = await findAutomation(client, actor.orgId, id);
+export const automationStats = async (client: Db, id: string) => {
+  const row = await findAutomation(client, id);
 
   const recent = and(
-    eq(automationRuns.orgId, actor.orgId),
     eq(automationRuns.automationId, id),
     sql`${automationRuns.startedAt} > now() - interval '30 days'`,
   );

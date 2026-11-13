@@ -103,12 +103,10 @@ export const publishPluginEvents = async (
 
   await assertTargets(
     client,
-    caller.orgId,
     inputs.flatMap((input) => input.subject ?? []),
   );
   await assertMembers(
     client,
-    caller.orgId,
     inputs.map((input) => input.actorUserId),
   );
 
@@ -171,7 +169,7 @@ export const listEvents = async (
       table: events,
       id: events.id,
       createdAt: events.createdAt,
-      scope: eq(events.orgId, actor.orgId),
+
       countCap: 10_000,
     },
     filters,
@@ -201,19 +199,13 @@ export const listEventFailures = async (
     .select({ failure: eventFailures, event: events })
     .from(eventFailures)
     .innerJoin(events, eq(events.id, eventFailures.eventId))
-    .where(
-      and(
-        eq(eventFailures.orgId, actor.orgId),
-        query.status ? eq(eventFailures.status, query.status) : undefined,
-      ),
-    )
+    .where(query.status ? eq(eventFailures.status, query.status) : undefined)
     .orderBy(desc(eventFailures.updatedAt))
     .limit(200);
 
   const counts = await client
     .select({ status: eventFailures.status, count: sql<number>`count(*)::int` })
     .from(eventFailures)
-    .where(eq(eventFailures.orgId, actor.orgId))
     .groupBy(eventFailures.status);
 
   return {
@@ -236,13 +228,10 @@ export const listEventFailures = async (
 
 type FailureRef = { consumer: string; eventId: string };
 
-const refsWhere = (orgId: string, refs: FailureRef[]) =>
-  and(
-    eq(eventFailures.orgId, orgId),
-    or(
-      ...refs.map((ref) =>
-        and(eq(eventFailures.consumer, ref.consumer), eq(eventFailures.eventId, ref.eventId)),
-      ),
+const refsWhere = (refs: FailureRef[]) =>
+  or(
+    ...refs.map((ref) =>
+      and(eq(eventFailures.consumer, ref.consumer), eq(eventFailures.eventId, ref.eventId)),
     ),
   );
 
@@ -261,11 +250,7 @@ export const retryEventFailures = async (
   const retried = await client
     .update(eventFailures)
     .set({ status: 'retrying', nextAttemptAt: sql`now()`, updatedAt: sql`now()` })
-    .where(
-      input.failures?.length
-        ? refsWhere(actor.orgId, input.failures)
-        : and(eq(eventFailures.orgId, actor.orgId), eq(eventFailures.status, 'dead')),
-    )
+    .where(input.failures?.length ? refsWhere(input.failures) : eq(eventFailures.status, 'dead'))
     .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
 
   if (retried.length) {
@@ -290,7 +275,7 @@ export const dismissEventFailures = async (
 
   const dismissed = await client
     .delete(eventFailures)
-    .where(refsWhere(actor.orgId, input.failures))
+    .where(refsWhere(input.failures))
     .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
 
   if (dismissed.length) {

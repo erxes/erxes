@@ -71,12 +71,8 @@ export const taken = (error: unknown): never => {
 export const inUse = (what: string) =>
   new HttpError(409, 'FIELD_IN_USE', `Records hold values of ${what}, so it can only be archived`);
 
-export const findGroup = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client
-    .select()
-    .from(fieldGroups)
-    .where(and(eq(fieldGroups.orgId, orgId), eq(fieldGroups.id, id)))
-    .limit(1);
+export const findGroup = async (client: Db, id: string) => {
+  const [row] = await client.select().from(fieldGroups).where(eq(fieldGroups.id, id)).limit(1);
 
   if (!row) {
     throw notFound('Field group');
@@ -85,11 +81,8 @@ export const findGroup = async (client: Db, orgId: string, id: string) => {
   return row;
 };
 
-export const fieldsOfGroup = (client: Db, orgId: string, groupId: string) =>
-  client
-    .select()
-    .from(fields)
-    .where(and(eq(fields.orgId, orgId), eq(fields.groupId, groupId)));
+export const fieldsOfGroup = (client: Db, groupId: string) =>
+  client.select().from(fields).where(eq(fields.groupId, groupId));
 
 /** Each content type's values table, with the ids of `rows` of that type. */
 const byValuesTable = (rows: Pick<FieldRow, 'id' | 'contentType'>[]) =>
@@ -99,14 +92,10 @@ const byValuesTable = (rows: Pick<FieldRow, 'id' | 'contentType'>[]) =>
   }));
 
 /** Records holding a value of any of `rows` (one query across content types). */
-export const usageOf = async (
-  client: Db,
-  orgId: string,
-  rows: Pick<FieldRow, 'id' | 'contentType'>[],
-) => {
+export const usageOf = async (client: Db, rows: Pick<FieldRow, 'id' | 'contentType'>[]) => {
   const counts = byValuesTable(rows).map(
     ({ values, ids }) =>
-      sql`(select count(distinct ${values.recordId}) from ${values} where ${and(eq(values.orgId, orgId), inArray(values.fieldId, ids))})`,
+      sql`(select count(distinct ${values.recordId}) from ${values} where ${inArray(values.fieldId, ids)})`,
   );
 
   if (!counts.length) return 0;
@@ -121,12 +110,12 @@ export const usageOf = async (
 };
 
 /** Records holding each option of each of `rows` (option fields), by field id, in one query. */
-export const optionCounts = async (client: Db, orgId: string, rows: FieldRow[]) => {
+export const optionCounts = async (client: Db, rows: FieldRow[]) => {
   const selects = byValuesTable(rows).map(
     ({ values, ids }) =>
       sql`select ${values.fieldId} as field_id, ${values.textValue} as value, count(*)::int as count
         from ${values}
-        where ${and(eq(values.orgId, orgId), inArray(values.fieldId, ids), isNotNull(values.textValue))}
+        where ${and(inArray(values.fieldId, ids), isNotNull(values.textValue))}
         group by 1, 2`,
   );
 
@@ -158,13 +147,12 @@ export const optionCounts = async (client: Db, orgId: string, rows: FieldRow[]) 
 export const nextOrder = async (
   client: Db,
   table: typeof fields | typeof fieldGroups,
-  orgId: string,
   contentType: FieldContentType,
 ) => {
   const [last] = await client
     .select({ order: sql<number>`coalesce(max(${table.order}), -1)` })
     .from(table)
-    .where(and(eq(table.orgId, orgId), eq(table.contentType, contentType)));
+    .where(eq(table.contentType, contentType));
 
   return (last?.order ?? -1) + 1;
 };

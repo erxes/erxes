@@ -87,11 +87,11 @@ export const callJob = defineJob({
     const output = await prepared.call();
 
     await withOrg(job.orgId, async (tx) => {
-      const run = await lockLiveRun(tx, job.orgId, job.payload.runId);
+      const run = await lockLiveRun(tx, job.payload.runId);
 
       if (run?.status !== 'running' || !sameCursor(run.cursor, job.payload.cursor)) return;
 
-      const subject = await subjectOf(tx, run.orgId, run.subjectType, run.subjectId);
+      const subject = await subjectOf(tx, run.subjectType, run.subjectId);
 
       await continueAfter(
         tx,
@@ -113,7 +113,7 @@ export const callJob = defineJob({
 
 /** What a call needs, read in a short transaction; null when the run moved on. */
 const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; cursor: Cursor }) => {
-  const run = await lockLiveRun(tx, orgId, payload.runId);
+  const run = await lockLiveRun(tx, payload.runId);
 
   if (run?.status !== 'running' || !sameCursor(run.cursor, payload.cursor)) return null;
 
@@ -125,7 +125,7 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
 
   const context = {
     ...run.context,
-    subject: await subjectOf(tx, orgId, run.subjectType, run.subjectId),
+    subject: await subjectOf(tx, run.subjectType, run.subjectId),
   };
 
   const ctx: CallContext = {
@@ -144,7 +144,7 @@ const prepareCall = async (tx: Db, orgId: string, payload: { runId: string; curs
 
   if (action && 'call' in action) return { ...prepared, call: () => action.call(ctx) };
 
-  const plugin = await pluginForAction(tx, orgId, step.action);
+  const plugin = await pluginForAction(tx, step.action);
 
   return { ...prepared, call: () => runPluginAction(ctx, plugin, step.action) };
 };
@@ -163,7 +163,7 @@ export const advanceJob = defineJob({
   leaseSeconds: 120,
   backoff,
   async handle(job, tx) {
-    const run = await lockLiveRun(tx, job.orgId, job.payload.runId);
+    const run = await lockLiveRun(tx, job.payload.runId);
     const loaded = run ? await loadStep(tx, run) : null;
 
     if (!run || !loaded) return;
@@ -175,7 +175,7 @@ export const advanceJob = defineJob({
     }
 
     const { automation, steps, goal, step } = loaded;
-    const subject = await subjectOf(tx, run.orgId, run.subjectType, run.subjectId);
+    const subject = await subjectOf(tx, run.subjectType, run.subjectId);
     const context = { ...run.context, subject };
 
     if (goal && evaluateGroup(goal, context)) {
@@ -218,7 +218,7 @@ export const advanceJob = defineJob({
     // Actions may have changed the subject: later steps see it as it is now.
     const after =
       step.type === 'action'
-        ? { ...context, subject: await subjectOf(tx, run.orgId, run.subjectType, run.subjectId) }
+        ? { ...context, subject: await subjectOf(tx, run.subjectType, run.subjectId) }
         : context;
 
     await continueAfter(tx, run, step, after, { ...outcome, attempt: job.attempts, startedAt });

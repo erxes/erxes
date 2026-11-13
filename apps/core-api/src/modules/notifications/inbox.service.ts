@@ -3,7 +3,6 @@ import { type Db, notifications } from '@erxes/core-db';
 import { and, count, eq, inArray, isNotNull, isNull, like, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
-import { allOf } from '~/lib/conditions';
 import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches } from '~/lib/sequence';
@@ -24,8 +23,7 @@ const toNotificationDto = (row: typeof notifications.$inferSelect): Notification
 });
 
 /** The member's own notifications. */
-export const mine = (actor: Actor) =>
-  allOf(eq(notifications.orgId, actor.orgId), eq(notifications.userId, actor.userId));
+export const mine = (actor: Actor) => eq(notifications.userId, actor.userId);
 
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 

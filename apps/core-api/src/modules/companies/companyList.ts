@@ -23,13 +23,13 @@ interface CompanyQuery {
 }
 
 /** Companies the customer is linked to. */
-const linkedTo = (client: Db, orgId: string, customerId: string) =>
+const linkedTo = (client: Db, customerId: string) =>
   inArray(
     companies.id,
     client
       .select({ id: customerCompanies.companyId })
       .from(customerCompanies)
-      .where(and(eq(customerCompanies.orgId, orgId), eq(customerCompanies.customerId, customerId))),
+      .where(eq(customerCompanies.customerId, customerId)),
   );
 
 const searchFor = (search: string) =>
@@ -60,7 +60,7 @@ export const companyListWhere = async (client: Db, actor: Actor, query: CompanyQ
     query.leadStageId ? eq(companies.leadStageId, query.leadStageId) : undefined,
     query.ownerId ? eq(companies.ownerId, query.ownerId) : undefined,
     query.tagIds?.length ? hasAnyTag('company', companies.id, query.tagIds) : undefined,
-    query.customerId ? linkedTo(client, actor.orgId, query.customerId) : undefined,
+    query.customerId ? linkedTo(client, query.customerId) : undefined,
     query.ids ? inArray(companies.id, query.ids.length ? query.ids : ['']) : undefined,
     query.search ? searchFor(query.search) : undefined,
   ];
@@ -80,7 +80,7 @@ export const listCompanies = async (
         table: companies,
         id: companies.id,
         createdAt: companies.createdAt,
-        scope: eq(companies.orgId, actor.orgId),
+
         countCap: LIST_COUNT_CAP,
       },
       await companyListWhere(client, actor, query),
@@ -97,8 +97,8 @@ export const listCompanies = async (
 };
 
 /** The company's people with their links: main contact first, then current, then former. */
-export const companyPeople = async (client: Db, actor: Actor, id: string) => {
-  await findCompany(client, actor.orgId, id);
+export const companyPeople = async (client: Db, id: string) => {
+  await findCompany(client, id);
 
   // A window, not a page: the company panel reads one list.
   const rows = await client
@@ -117,7 +117,7 @@ export const companyPeople = async (client: Db, actor: Actor, id: string) => {
     })
     .from(customerCompanies)
     .innerJoin(customers, eq(customers.id, customerCompanies.customerId))
-    .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, id)))
+    .where(eq(customerCompanies.companyId, id))
     .orderBy(...linkOrder)
     .limit(500);
 

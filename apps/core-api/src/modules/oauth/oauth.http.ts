@@ -1,5 +1,5 @@
 import { newId, oauthCodes, organizations, users, withOrg } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import express, { type Request, type Response, Router } from 'express';
 import { z } from 'zod';
 import { sessionClaims } from '~/http/auth';
@@ -70,7 +70,7 @@ const memberOfSession = async (req: Request) => {
       .select({ user: users, subdomain: organizations.subdomain })
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
-      .where(and(eq(users.orgId, claims.orgId), eq(users.id, claims.userId)))
+      .where(eq(users.id, claims.userId))
       .limit(1),
   );
 
@@ -104,7 +104,7 @@ const codeRedirect = (
   const scope = (query.scope ?? 'openid').split(' ').filter((item) => SCOPES.has(item));
 
   return withOrg(user.orgId, async (tx) => {
-    if (!(await installed(tx, user.orgId, client.name))) {
+    if (!(await installed(tx, client.name))) {
       return back({
         error: 'access_denied',
         error_description: `${clientTitle(client)} is not installed in your organisation`,
@@ -116,7 +116,6 @@ const codeRedirect = (
 
     await tx.insert(oauthCodes).values({
       id,
-      orgId: user.orgId,
       clientId: client.name,
       userId: user.id,
       codeHash: sha256(secret),
@@ -251,7 +250,7 @@ oauthRouter.get('/userinfo', async (req, res) => {
       .select({ user: users, subdomain: organizations.subdomain })
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
-      .where(and(eq(users.orgId, claims.org), eq(users.id, claims.sub)))
+      .where(eq(users.id, claims.sub))
       .limit(1),
   );
 

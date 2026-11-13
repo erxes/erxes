@@ -41,14 +41,13 @@ const toDto = (row: ExportRow): Export => ({
   finishedAt: row.finishedAt?.toISOString() ?? null,
 });
 
-export const listExports = async (client: Db, actor: Actor, query: CursorQuery) => {
+export const listExports = async (client: Db, query: CursorQuery) => {
   const page = await keysetPage(
     client,
     {
       table: exports,
       id: exports.id,
       createdAt: exports.createdAt,
-      scope: eq(exports.orgId, actor.orgId),
     },
     undefined,
     query,
@@ -117,7 +116,7 @@ export const createExport = async (
     query: ExportQuery;
   },
 ) => {
-  const available = await transferColumns(client, actor.orgId, input.recordType);
+  const available = await transferColumns(client, input.recordType);
 
   const unknown = input.columns.find(
     (key) => !available.some((item) => item.key === key && item.exportable),
@@ -164,7 +163,7 @@ const exporter = async (tx: Db, row: ExportRow): Promise<Actor | null> => {
   const [member] = await tx
     .select({ id: users.id, role: users.role, status: users.status })
     .from(users)
-    .where(and(eq(users.orgId, row.orgId), eq(users.id, row.createdBy)))
+    .where(eq(users.id, row.createdBy))
     .limit(1);
 
   if (member?.status === 'active') {
@@ -198,7 +197,7 @@ const pageOf = async (
         customFields: customFieldsColumn('company', companies.id),
       })
       .from(companies)
-      .where(and(eq(companies.orgId, row.orgId), where, last ? gt(companies.id, last) : undefined))
+      .where(and(where, last ? gt(companies.id, last) : undefined))
       .orderBy(asc(companies.id))
       .limit(PAGE);
   }
@@ -209,7 +208,7 @@ const pageOf = async (
       customFields: customFieldsColumn('customer', customers.id),
     })
     .from(customers)
-    .where(and(eq(customers.orgId, row.orgId), where, last ? gt(customers.id, last) : undefined))
+    .where(and(where, last ? gt(customers.id, last) : undefined))
     .orderBy(asc(customers.id))
     .limit(PAGE);
 };
@@ -230,7 +229,7 @@ const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
 
     if (!end) return false;
 
-    body.push(...(await pageCells(tx, row.orgId, row.recordType, page, row.columns)));
+    body.push(...(await pageCells(tx, row.recordType, page, row.columns)));
     last = end.id;
 
     return page.length === PAGE && body.length <= MAX_EXPORT_ROWS;
@@ -241,7 +240,7 @@ const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
 
 /** The export's file in memory: its rows read in one scope, written to storage after it. */
 const buildExport = async (tx: Db, actor: Actor, row: ExportRow) => {
-  const columns = await transferColumns(tx, row.orgId, row.recordType);
+  const columns = await transferColumns(tx, row.recordType);
   const header = row.columns.map((key) => columns.find((item) => item.key === key)?.label ?? key);
   const body = await collectRows(tx, actor, row);
   const rows = body.slice(0, MAX_EXPORT_ROWS);
@@ -267,11 +266,7 @@ const buildExport = async (tx: Db, actor: Actor, row: ExportRow) => {
 /** The running export and its file, or null when it is no longer running. */
 const prepareExport = (orgId: string, exportId: string) =>
   withOrg(orgId, async (tx) => {
-    const [row] = await tx
-      .select()
-      .from(exports)
-      .where(and(eq(exports.orgId, orgId), eq(exports.id, exportId)))
-      .limit(1);
+    const [row] = await tx.select().from(exports).where(eq(exports.id, exportId)).limit(1);
 
     if (!row || row.status !== 'running') return null;
 

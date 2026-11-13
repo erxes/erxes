@@ -11,8 +11,8 @@ import {
 import { authed } from '~/orpc';
 
 export const usersRouter = {
-  list: authed.users.list.handler(({ input, context }) => listUsers(db(), context.actor, input)),
-  get: authed.users.get.handler(({ input, context }) => getUser(db(), context.actor, input.id)),
+  list: authed.users.list.handler(({ input }) => listUsers(db(), input)),
+  get: authed.users.get.handler(({ input }) => getUser(db(), input.id)),
   invite: authed.users.invite.handler(({ input, context }) =>
     inviteUser(db(), context.actor, input),
   ),

@@ -22,11 +22,11 @@ export type ProductRow = typeof products.$inferSelect & {
   customFields: Record<string, CustomValue>;
 };
 
-export const findProduct = async (client: Db, orgId: string, id: string): Promise<ProductRow> => {
+export const findProduct = async (client: Db, id: string): Promise<ProductRow> => {
   const [row] = await client
     .select(productColumns)
     .from(products)
-    .where(and(eq(products.orgId, orgId), eq(products.id, id)))
+    .where(eq(products.id, id))
     .limit(1);
 
   if (!row) throw notFound('Product');
@@ -35,20 +35,20 @@ export const findProduct = async (client: Db, orgId: string, id: string): Promis
 };
 
 /** 400 INVALID_CATEGORY unless it is one of the organisation's categories. */
-export const checkCategory = async (client: Db, orgId: string, id: string | null | undefined) => {
+export const checkCategory = async (client: Db, id: string | null | undefined) => {
   if (!id) return;
 
   const [row] = await client
     .select({ id: productCategories.id })
     .from(productCategories)
-    .where(and(eq(productCategories.orgId, orgId), eq(productCategories.id, id)))
+    .where(eq(productCategories.id, id))
     .limit(1);
 
   if (!row) throw new HttpError(400, 'INVALID_CATEGORY', 'Unknown product category');
 };
 
 /** 400 INVALID_FILE unless every image is an uploaded file of the organisation. */
-export const checkImages = async (client: Db, orgId: string, ids: string[] | undefined) => {
+export const checkImages = async (client: Db, ids: string[] | undefined) => {
   const wanted = unique(ids ?? []);
 
   if (!wanted.length) return wanted;
@@ -56,7 +56,7 @@ export const checkImages = async (client: Db, orgId: string, ids: string[] | und
   const found = await client
     .select({ id: files.id })
     .from(files)
-    .where(and(eq(files.orgId, orgId), eq(files.status, 'ready'), inArray(files.id, wanted)));
+    .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
   if (found.length !== wanted.length) {
     throw new HttpError(400, 'INVALID_FILE', 'An image is not an uploaded file');
@@ -93,9 +93,7 @@ export const pluginsFor = async (
   const installed = await client
     .select({ plugin: pluginInstallations.plugin })
     .from(pluginInstallations)
-    .where(
-      and(eq(pluginInstallations.orgId, caller.orgId), inArray(pluginInstallations.plugin, wanted)),
-    );
+    .where(inArray(pluginInstallations.plugin, wanted));
 
   const missing = wanted.filter((name) => !installed.some((row) => row.plugin === name));
 
@@ -113,7 +111,6 @@ export const pluginsFor = async (
  */
 export const checkUnique = async (
   client: Db,
-  orgId: string,
   input: { code?: string | null; barcode?: string | null },
   self?: string,
 ) => {
@@ -121,7 +118,7 @@ export const checkUnique = async (
     client
       .select({ id: products.id })
       .from(products)
-      .where(and(eq(products.orgId, orgId), match, self ? ne(products.id, self) : undefined))
+      .where(and(match, self ? ne(products.id, self) : undefined))
       .limit(1)
       .then(([row]) => row?.id);
 

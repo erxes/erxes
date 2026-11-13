@@ -59,11 +59,7 @@ const pluginMaySee = (
 /** The event and the plugin's active installation, or null when there is nothing to send. */
 const loadDelivery = (orgId: string, plugin: string, eventId: string) =>
   withOrg(orgId, async (tx) => {
-    const [event] = await tx
-      .select()
-      .from(events)
-      .where(and(eq(events.orgId, orgId), eq(events.id, eventId)))
-      .limit(1);
+    const [event] = await tx.select().from(events).where(eq(events.id, eventId)).limit(1);
 
     const [target] = await tx
       .select({ scopes: pluginInstallations.grantedScopes, manifest: plugins.manifest })
@@ -71,7 +67,6 @@ const loadDelivery = (orgId: string, plugin: string, eventId: string) =>
       .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
       .where(
         and(
-          eq(pluginInstallations.orgId, orgId),
           eq(pluginInstallations.plugin, plugin),
           eq(pluginInstallations.status, 'active'),
           eq(plugins.status, 'active'),
@@ -160,13 +155,7 @@ export const pluginEventsConsumer: EventConsumer = {
       })
       .from(pluginInstallations)
       .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
-      .where(
-        and(
-          eq(pluginInstallations.orgId, event.orgId),
-          eq(pluginInstallations.status, 'active'),
-          eq(plugins.status, 'active'),
-        ),
-      );
+      .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
 
     const subscribed = installed.filter(
       (row) =>

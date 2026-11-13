@@ -111,7 +111,7 @@ export const saasLogin = async (req: Request, res: Response) => {
   }
 
   const { orgId, userId } = handoff;
-  const version = await withOrg(orgId, () => sessionVersionOf(orgId, userId));
+  const version = await withOrg(orgId, () => sessionVersionOf(userId));
 
   res.cookie(
     SESSION_COOKIE,

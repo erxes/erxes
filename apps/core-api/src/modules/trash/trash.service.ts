@@ -43,37 +43,25 @@ const labelOf = (type: ContentType, row: Snapshot['row']) =>
     : text(row.primaryName);
 
 /** Everything that goes to the bin with each record: its tags, links and timeline. */
-const companionsOf = async (tx: Db, orgId: string, type: ContentType, ids: string[]) => {
+const companionsOf = async (tx: Db, type: ContentType, ids: string[]) => {
   const tagTable = tagTableOf(type);
 
-  const tagRows = await tx
-    .select()
-    .from(tagTable)
-    .where(and(eq(tagTable.orgId, orgId), inArray(tagTable.recordId, ids)));
+  const tagRows = await tx.select().from(tagTable).where(inArray(tagTable.recordId, ids));
 
   const links = await tx
     .select()
     .from(customerCompanies)
     .where(
-      and(
-        eq(customerCompanies.orgId, orgId),
-        inArray(
-          type === 'customer' ? customerCompanies.customerId : customerCompanies.companyId,
-          ids,
-        ),
+      inArray(
+        type === 'customer' ? customerCompanies.customerId : customerCompanies.companyId,
+        ids,
       ),
     );
 
   const entries = await tx
     .select()
     .from(activities)
-    .where(
-      and(
-        eq(activities.orgId, orgId),
-        eq(activities.targetType, type),
-        inArray(activities.targetId, ids),
-      ),
-    );
+    .where(and(eq(activities.targetType, type), inArray(activities.targetId, ids)));
 
   return (id: string): Omit<Snapshot, 'row'> => ({
     tagIds: tagRows.filter((tag) => tag.recordId === id).map((tag) => tag.tagId),
@@ -95,11 +83,11 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids
   const rows = await tx
     .select({ ...getTableColumns(table), customFields: customFieldsColumn(type, table.id) })
     .from(table)
-    .where(and(eq(table.orgId, caller.orgId), inArray(table.id, ids)));
+    .where(inArray(table.id, ids));
 
   if (!rows.length) return;
 
-  const companions = await companionsOf(tx, caller.orgId, type, ids);
+  const companions = await companionsOf(tx, type, ids);
 
   await tx
     .insert(trash)
@@ -135,7 +123,7 @@ export const listTrash = async (
   // A record deleted again moves to the top: `deletedAt` is the position.
   const page = await keysetPage(
     client,
-    { table: trash, id: trash.id, createdAt: trash.deletedAt, scope: eq(trash.orgId, actor.orgId) },
+    { table: trash, id: trash.id, createdAt: trash.deletedAt },
     query.type ? eq(trash.recordType, query.type) : undefined,
     query,
     (where, orderBy, limit) =>
@@ -203,23 +191,20 @@ const reinsert = async (
 };
 
 /** The tags (those still existing) and links (to records still existing) of a restored record. */
-const restoreRelations = async (tx: Db, orgId: string, item: TrashRow) => {
+const restoreRelations = async (tx: Db, item: TrashRow) => {
   const { snapshot, recordId } = item;
   const type = item.recordType;
 
   const tagIds = snapshot.tagIds.length
-    ? (
-        await tx
-          .select({ id: tags.id })
-          .from(tags)
-          .where(and(eq(tags.orgId, orgId), inArray(tags.id, snapshot.tagIds)))
-      ).map((tag) => tag.id)
+    ? (await tx.select({ id: tags.id }).from(tags).where(inArray(tags.id, snapshot.tagIds))).map(
+        (tag) => tag.id,
+      )
     : [];
 
   if (tagIds.length) {
     await tx
       .insert(tagTableOf(type))
-      .values(tagIds.map((tagId) => ({ orgId, recordId, tagId })))
+      .values(tagIds.map((tagId) => ({ recordId, tagId })))
       .onConflictDoNothing();
   }
 
@@ -238,10 +223,7 @@ const restoreRelations = async (tx: Db, orgId: string, item: TrashRow) => {
         .select({ id: other.id })
         .from(other)
         .where(
-          and(
-            eq(other.orgId, orgId),
-            sql`${other.id} in (select jsonb_array_elements_text(${JSON.stringify(snapshot.links.map(otherIdOf))}::jsonb))`,
-          ),
+          sql`${other.id} in (select jsonb_array_elements_text(${JSON.stringify(snapshot.links.map(otherIdOf))}::jsonb))`,
         )
     ).map((row) => row.id),
   );
@@ -251,7 +233,7 @@ const restoreRelations = async (tx: Db, orgId: string, item: TrashRow) => {
     customerCompanies,
     snapshot.links.flatMap((link) =>
       existing.has(otherIdOf(link))
-        ? [{ orgId, customerId: link.customerId, companyId: link.companyId }]
+        ? [{ customerId: link.customerId, companyId: link.companyId }]
         : [],
     ),
     { skipExisting: true },
@@ -267,15 +249,8 @@ const restoreItem = async (tx: Db, actor: Actor, item: TrashRow) => {
 
   const customFields = row.customFields ?? {};
 
-  await saveCustomFields(
-    tx,
-    actor.orgId,
-    type,
-    item.recordId,
-    customFields,
-    Object.keys(customFields),
-  );
-  await restoreRelations(tx, actor.orgId, item);
+  await saveCustomFields(tx, type, item.recordId, customFields, Object.keys(customFields));
+  await restoreRelations(tx, item);
 
   await reinsert(tx, activities, entries, { skipExisting: true });
 
@@ -300,10 +275,7 @@ const restoreItem = async (tx: Db, actor: Actor, item: TrashRow) => {
 export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) => {
   requirePermission(actor, 'contacts.delete');
 
-  const items = await client
-    .select()
-    .from(trash)
-    .where(and(eq(trash.orgId, actor.orgId), inArray(trash.id, ids)));
+  const items = await client.select().from(trash).where(inArray(trash.id, ids));
 
   const failed: { id: string; reason: string }[] = [];
   let restored = 0;
@@ -335,7 +307,7 @@ export const purgeFromTrash = async (client: Db, actor: Actor, ids: string[]) =>
 
   const removed = await client
     .delete(trash)
-    .where(and(eq(trash.orgId, actor.orgId), inArray(trash.id, ids)))
+    .where(inArray(trash.id, ids))
     .returning({ recordType: trash.recordType, recordId: trash.recordId, label: trash.label });
 
   if (removed.length) {

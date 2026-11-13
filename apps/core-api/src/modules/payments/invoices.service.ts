@@ -26,13 +26,7 @@ const invoiceByDedupeKey = async (client: Db, caller: Caller, dedupeKey: string)
     .select({ invoice: paymentInvoices, kind: paymentGateways.kind })
     .from(paymentInvoices)
     .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
-    .where(
-      and(
-        eq(paymentInvoices.orgId, caller.orgId),
-        eq(paymentInvoices.source, caller.source),
-        eq(paymentInvoices.dedupeKey, dedupeKey),
-      ),
-    )
+    .where(and(eq(paymentInvoices.source, caller.source), eq(paymentInvoices.dedupeKey, dedupeKey)))
     .limit(1);
 
   return existing ? toInvoiceDto(existing.invoice, existing.kind) : null;
@@ -58,7 +52,7 @@ const prepareInvoice = (caller: Caller, input: InvoiceInput) =>
 
     if (existing) return { existing };
 
-    const lines = await resolveInvoiceLines(tx, caller.orgId, input.amount, input.lines ?? []);
+    const lines = await resolveInvoiceLines(tx, input.amount, input.lines ?? []);
     const currency = input.currency ?? (await getOrganization(tx, caller.orgId)).currency;
     const gateway = await resolveGateway(tx, caller, currency, input.gatewayId);
     const id = newId();
@@ -128,7 +122,7 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
  * and read those with a line for them (`reader`); only the owner changes one.
  */
 const visibleInvoice = async (caller: Caller, id: string, access: 'owner' | 'reader') => {
-  const { invoice } = await withOrg(caller.orgId, (tx) => invoiceWithGateway(tx, caller.orgId, id));
+  const { invoice } = await withOrg(caller.orgId, (tx) => invoiceWithGateway(tx, id));
   const hasLine = invoice.lines.some((line) => line.plugin === caller.source);
 
   if (
@@ -181,7 +175,6 @@ export const cancelInvoice = async (caller: Caller, id: string) => {
 
 export const listInvoices = async (
   client: Db,
-  actor: Actor,
   query: CursorQuery & { status?: Invoice['status']; source?: string; referenceId?: string },
 ) => {
   const page = await keysetPage(
@@ -190,7 +183,7 @@ export const listInvoices = async (
       table: paymentInvoices,
       id: paymentInvoices.id,
       createdAt: paymentInvoices.createdAt,
-      scope: eq(paymentInvoices.orgId, actor.orgId),
+
       countCap: 10_000,
     },
     and(
@@ -213,7 +206,6 @@ export const listInvoices = async (
       await client
         .select({ id: paymentGateways.id, kind: paymentGateways.kind })
         .from(paymentGateways)
-        .where(eq(paymentGateways.orgId, actor.orgId))
     ).map((row) => [row.id, row.kind]),
   );
 
@@ -226,7 +218,7 @@ export const listInvoices = async (
 /** Test gateway only: the payer "pays". Call it outside any scope. */
 export const payTestInvoice = async (actor: Actor, id: string) => {
   await withOrg(actor.orgId, async (tx) => {
-    const { gateway } = await invoiceWithGateway(tx, actor.orgId, id);
+    const { gateway } = await invoiceWithGateway(tx, id);
 
     if (gateway.kind !== 'test')
       throw new HttpError(

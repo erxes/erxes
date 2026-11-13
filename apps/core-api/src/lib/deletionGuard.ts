@@ -11,12 +11,12 @@ import { notify } from '~/modules/notifications/notifications.service';
 const log = logger.child({ component: 'deletions' });
 
 /** Adds `count` to the caller's counter and returns its deletions in the last 10 minutes. */
-const countDeletions = async (tx: Db, orgId: string, actor: string, count: number) => {
+const countDeletions = async (tx: Db, actor: string, count: number) => {
   const bucket = sql`date_bin('5 minutes', now(), timestamptz '2000-01-01')`;
 
   await tx
     .insert(deletionCounters)
-    .values({ orgId, actor, bucket, count })
+    .values({ actor, bucket, count })
     .onConflictDoUpdate({
       target: [deletionCounters.orgId, deletionCounters.actor, deletionCounters.bucket],
       set: { count: sql`${deletionCounters.count} + ${count}` },
@@ -28,7 +28,6 @@ const countDeletions = async (tx: Db, orgId: string, actor: string, count: numbe
     .from(deletionCounters)
     .where(
       and(
-        eq(deletionCounters.orgId, orgId),
         eq(deletionCounters.actor, actor),
         gte(deletionCounters.bucket, sql`now() - interval '10 minutes'`),
       ),
@@ -52,7 +51,7 @@ const reportMassDeletion = async (
   { caller, actor, total, what, stop }: MassDeletion,
 ) => {
   const who = caller.actorType === 'plugin' ? `The ${caller.actorId} plugin` : 'A team member';
-  const recipients = await ownerIds(client, caller.orgId);
+  const recipients = await ownerIds(client);
 
   await notify(client, systemCaller(caller.orgId), {
     userIds: recipients,
@@ -98,9 +97,7 @@ const recordStop = (deletion: MassDeletion) => {
         statusReason: `Suspended: ${total} deletions in a few minutes`,
         updatedAt: sql`now()`,
       })
-      .where(
-        and(eq(pluginInstallations.orgId, caller.orgId), eq(pluginInstallations.plugin, actorId)),
-      );
+      .where(eq(pluginInstallations.plugin, actorId));
     log.warn(
       {
         org: caller.orgId,
@@ -130,7 +127,7 @@ export const guardDeletions = async (
   if (count <= 0 || actorRole === 'owner') return;
 
   const actor = `${caller.actorType}:${caller.actorId ?? 'system'}`;
-  const total = await countDeletions(tx, caller.orgId, actor, count);
+  const total = await countDeletions(tx, actor, count);
 
   if (total < config.massDelete.alertAt) return;
 

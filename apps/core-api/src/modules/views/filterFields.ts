@@ -7,7 +7,7 @@ import {
   fields,
   leadStages,
 } from '@erxes/core-db';
-import { and, asc, eq, ne, sql } from 'drizzle-orm';
+import { asc, eq, ne, sql } from 'drizzle-orm';
 import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
 import { textArray } from './filterValues';
 import { productFields } from './productFilterFields';
@@ -64,11 +64,7 @@ const customerFields = (recordType: ViewRecordType): FieldSpec[] => [
 ];
 
 /** People and companies share the lifecycle; the leads list has its stage fields, the companies list (leads and customers) all of them. */
-const lifecycleFields = (
-  recordType: ViewRecordType,
-  orgId: string,
-  stageNames: string[],
-): FieldSpec[] => {
+const lifecycleFields = (recordType: ViewRecordType, stageNames: string[]): FieldSpec[] => {
   const table = isCompanyList(recordType) ? companies : customers;
 
   return [
@@ -94,7 +90,7 @@ const lifecycleFields = (
             group: 'lead',
             options: stageNames,
             lookup: (names) =>
-              sql`array(select ${leadStages.id} from ${leadStages} where ${leadStages.orgId} = ${orgId} and lower(${leadStages.name}) = any(${textArray(names.map((name) => name.toLowerCase()))}))`,
+              sql`array(select ${leadStages.id} from ${leadStages} where lower(${leadStages.name}) = any(${textArray(names.map((name) => name.toLowerCase()))}))`,
           }),
           field(
             'leadStageChangedAt',
@@ -154,7 +150,7 @@ const CUSTOMER_RELATED: FieldSpec[] = [
 ];
 
 /** The list's custom fields; customers also filter by their company's properties. */
-const customFields = async (client: Db, orgId: string, recordType: ViewRecordType) => {
+const customFields = async (client: Db, recordType: ViewRecordType) => {
   const isCompany = isCompanyList(recordType);
 
   const rows = await client
@@ -167,14 +163,11 @@ const customFields = async (client: Db, orgId: string, recordType: ViewRecordTyp
     })
     .from(fields)
     .where(
-      and(
-        eq(fields.orgId, orgId),
-        recordType === 'product'
-          ? eq(fields.contentType, 'product')
-          : isCompany
-            ? eq(fields.contentType, 'company')
-            : ne(fields.contentType, 'product'),
-      ),
+      recordType === 'product'
+        ? eq(fields.contentType, 'product')
+        : isCompany
+          ? eq(fields.contentType, 'company')
+          : ne(fields.contentType, 'product'),
     )
     .orderBy(asc(fields.order));
 
@@ -199,35 +192,27 @@ const customFields = async (client: Db, orgId: string, recordType: ViewRecordTyp
   });
 };
 
-const stageNamesOf = async (client: Db, orgId: string) =>
+const stageNamesOf = async (client: Db) =>
   (
-    await client
-      .select({ name: leadStages.name })
-      .from(leadStages)
-      .where(eq(leadStages.orgId, orgId))
-      .orderBy(asc(leadStages.order))
+    await client.select({ name: leadStages.name }).from(leadStages).orderBy(asc(leadStages.order))
   ).map((stage) => stage.name);
 
 /** Built-in fields, custom fields (`customFields.<id>`), the linked company's fields and activity. */
 export const filterFields = async (
   client: Db,
-  orgId: string,
   recordType: ViewRecordType,
 ): Promise<FieldSpec[]> => {
   if (recordType === 'product')
-    return [
-      ...(await productFields(client, orgId)),
-      ...(await customFields(client, orgId, recordType)),
-    ];
+    return [...(await productFields(client)), ...(await customFields(client, recordType))];
 
   const isCompany = isCompanyList(recordType);
-  const stageNames = recordType === 'customer' ? [] : await stageNamesOf(client, orgId);
+  const stageNames = recordType === 'customer' ? [] : await stageNamesOf(client);
 
   return [
     ...(isCompany ? COMPANY_FIELDS : customerFields(recordType)),
-    ...lifecycleFields(recordType, orgId, stageNames),
+    ...lifecycleFields(recordType, stageNames),
     ...commonFields(isCompany ? companies : customers),
     ...(isCompany ? COMPANY_RELATED : CUSTOMER_RELATED),
-    ...(await customFields(client, orgId, recordType)),
+    ...(await customFields(client, recordType)),
   ];
 };

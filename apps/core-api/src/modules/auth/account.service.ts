@@ -16,7 +16,7 @@ export const changeOwnPassword = async (
   const [user] = await db()
     .select({ email: users.email, passwordHash: users.passwordHash })
     .from(users)
-    .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
+    .where(eq(users.id, actor.userId))
     .limit(1);
 
   if (!user || !(await verifyPassword(input.currentPassword, user.passwordHash))) {
@@ -38,7 +38,7 @@ export const changeOwnPassword = async (
       sessionVersion: sql`${users.sessionVersion} + 1`,
       updatedAt: sql`now()`,
     })
-    .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)));
+    .where(eq(users.id, actor.userId));
   await recordAudit(tx, userCaller(actor), {
     action: 'auth.password_changed',
     targetType: 'user',
@@ -57,7 +57,7 @@ export const signOutEverywhere = async (actor: Actor) => {
   await tx
     .update(users)
     .set({ sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
-    .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)));
+    .where(eq(users.id, actor.userId));
   await recordAudit(tx, userCaller(actor), {
     action: 'auth.signed_out_everywhere',
     targetType: 'user',
@@ -68,11 +68,11 @@ export const signOutEverywhere = async (actor: Actor) => {
 };
 
 /** The member's current session version (to sign a session that survives a change). */
-export const sessionVersionOf = async (orgId: string, userId: string) => {
+export const sessionVersionOf = async (userId: string) => {
   const [row] = await db()
     .select({ sessionVersion: users.sessionVersion })
     .from(users)
-    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
+    .where(eq(users.id, userId))
     .limit(1);
 
   return row?.sessionVersion ?? 1;
@@ -91,7 +91,6 @@ export const mySignIns = async (actor: Actor) => {
     .from(auditLogs)
     .where(
       and(
-        eq(auditLogs.orgId, actor.orgId),
         eq(auditLogs.targetType, 'user'),
         eq(auditLogs.targetId, actor.userId),
         inArray(auditLogs.action, ['auth.signed_in', 'auth.sign_in_failed']),

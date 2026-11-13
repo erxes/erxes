@@ -96,12 +96,8 @@ export const createUpload = async (
   };
 };
 
-const findFile = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client
-    .select()
-    .from(files)
-    .where(and(eq(files.orgId, orgId), eq(files.id, id)))
-    .limit(1);
+const findFile = async (client: Db, id: string) => {
+  const [row] = await client.select().from(files).where(eq(files.id, id)).limit(1);
 
   if (!row) {
     throw notFound('File');
@@ -120,9 +116,9 @@ const isUploader = (row: FileRow, caller: Caller) =>
  * the cleanup of unfinished uploads can't take a file being completed.
  */
 export const completeUpload = async (client: Db, caller: Caller, id: string) => {
-  await lockRows(client, 'core_files', caller.orgId, [id]);
+  await lockRows(client, 'core_files', [id]);
 
-  const row = await findFile(client, caller.orgId, id);
+  const row = await findFile(client, id);
 
   if (!isUploader(row, caller) || row.status === 'deleting') {
     throw notFound('File');
@@ -163,7 +159,7 @@ export const completeUpload = async (client: Db, caller: Caller, id: string) => 
     await client
       .update(files)
       .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
-      .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), eq(files.status, 'pending')))
+      .where(and(eq(files.id, id), eq(files.status, 'pending')))
       .returning(),
   );
 
@@ -179,8 +175,8 @@ export const completeUpload = async (client: Db, caller: Caller, id: string) => 
 };
 
 /** A ready file and a short-lived link to read it. */
-export const getFile = async (client: Db, caller: Caller, id: string) => {
-  const row = await findFile(client, caller.orgId, id);
+export const getFile = async (client: Db, id: string) => {
+  const row = await findFile(client, id);
 
   if (row.status === 'deleting') throw notFound('File');
 
@@ -200,8 +196,8 @@ export const downloadUrlOf = (row: FileRow, forceDownload: boolean) =>
   });
 
 /** For `GET /files/:id/download`: the ready file in the caller's organisation. */
-export const readyFile = async (client: Db, orgId: string, id: string) => {
-  const row = await findFile(client, orgId, id);
+export const readyFile = async (client: Db, id: string) => {
+  const row = await findFile(client, id);
 
   if (row.status !== 'ready') {
     throw notFound('File');
@@ -210,7 +206,7 @@ export const readyFile = async (client: Db, orgId: string, id: string) => {
   return row;
 };
 
-export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
+export const listFiles = async (client: Db, ids: string[]) => {
   const wanted = unique(ids);
 
   if (!wanted.length) {
@@ -220,9 +216,7 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
   const rows = await client
     .select()
     .from(files)
-    .where(
-      and(eq(files.orgId, caller.orgId), eq(files.status, 'ready'), inArray(files.id, wanted)),
-    );
+    .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
   const byId = new Map(rows.map((row) => [row.id, toFileDto(row)]));
 
@@ -235,7 +229,7 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
  * bytes are gone; a failed removal is retried by the cleanup, never lost.
  */
 export const removeFile = async (client: Db, caller: Caller, actor: Actor | null, id: string) => {
-  const row = await findFile(client, caller.orgId, id);
+  const row = await findFile(client, id);
 
   if (row.status === 'deleting') throw notFound('File');
 
@@ -252,7 +246,7 @@ export const removeFile = async (client: Db, caller: Caller, actor: Actor | null
   const [claimed] = await client
     .update(files)
     .set({ status: 'deleting', updatedAt: sql`now()` })
-    .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), sql`${files.status} <> 'deleting'`))
+    .where(and(eq(files.id, id), sql`${files.status} <> 'deleting'`))
     .returning();
 
   if (!claimed) throw notFound('File');
@@ -371,7 +365,7 @@ export const storeServerFile = async (
  * read in a short scope and the bytes after it: call it outside any scope.
  */
 export const readFileBytes = async (orgId: string, id: string) => {
-  const row = await withOrg(orgId, (tx) => readyFile(tx, orgId, id));
+  const row = await withOrg(orgId, (tx) => readyFile(tx, id));
 
   return { row, body: await storage().read(row.key) };
 };

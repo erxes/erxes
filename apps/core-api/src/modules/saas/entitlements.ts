@@ -9,7 +9,7 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, inArray, lt, sql } from 'drizzle-orm';
+import { eq, inArray, lt, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { systemCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
@@ -47,7 +47,6 @@ const changeOf = (
 /** Turns installations on or off, in one update. */
 const setStatus = async (
   tx: Db,
-  orgId: string,
   list: { name: string }[],
   status: { status: 'active' | 'disabled'; statusReason: string | null },
 ) => {
@@ -57,12 +56,9 @@ const setStatus = async (
     .update(pluginInstallations)
     .set({ ...status, updatedAt: sql`now()` })
     .where(
-      and(
-        eq(pluginInstallations.orgId, orgId),
-        inArray(
-          pluginInstallations.plugin,
-          list.map((plugin) => plugin.name),
-        ),
+      inArray(
+        pluginInstallations.plugin,
+        list.map((plugin) => plugin.name),
       ),
     );
 };
@@ -74,16 +70,14 @@ const setStatus = async (
  * stay installed (their tokens can still read). Ones the owner uninstalled
  * stay uninstalled.
  */
-const reconcilePlugins = async (tx: Db, orgId: string, row: EntitlementRow, now = new Date()) => {
+const reconcilePlugins = async (tx: Db, row: EntitlementRow, now = new Date()) => {
   const registered = await tx
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .where(eq(plugins.status, 'active'));
 
   const installed = new Map(
-    (await tx.select().from(pluginInstallations).where(eq(pluginInstallations.orgId, orgId))).map(
-      (item) => [item.plugin, item],
-    ),
+    (await tx.select().from(pluginInstallations)).map((item) => [item.plugin, item]),
   );
 
   const changes = registered.flatMap((plugin) => {
@@ -102,15 +96,14 @@ const reconcilePlugins = async (tx: Db, orgId: string, row: EntitlementRow, now 
       .insert(pluginInstallations)
       .values(
         toInstall.map((plugin) => ({
-          orgId,
           plugin: plugin.name,
           grantedScopes: plugin.manifest?.scopes ?? [],
         })),
       )
       .onConflictDoNothing();
 
-  await setStatus(tx, orgId, named('resumed'), { status: 'active', statusReason: null });
-  await setStatus(tx, orgId, named('removed'), { status: 'disabled', statusReason: NOT_IN_PLAN });
+  await setStatus(tx, named('resumed'), { status: 'active', statusReason: null });
+  await setStatus(tx, named('removed'), { status: 'disabled', statusReason: NOT_IN_PLAN });
 
   return changes.map((item) => ({ plugin: item.plugin.name, change: item.change }));
 };
@@ -163,12 +156,7 @@ const lapsedAfter = (
 /** Stores erxes.io's answer, makes installations follow, and audits what changed as the system. */
 const storeAnswer = (orgId: string, name: string, answer: PlatformEntitlements) =>
   withOrg(orgId, async (tx) => {
-    const [before] = await tx
-      .select()
-      .from(entitlements)
-      .where(eq(entitlements.orgId, orgId))
-      .for('update')
-      .limit(1);
+    const [before] = await tx.select().from(entitlements).for('update').limit(1);
 
     const now = new Date();
 
@@ -188,7 +176,7 @@ const storeAnswer = (orgId: string, name: string, answer: PlatformEntitlements) 
         .returning(),
     );
 
-    const changes = await reconcilePlugins(tx, orgId, row, now);
+    const changes = await reconcilePlugins(tx, row, now);
 
     if (
       !before ||
@@ -226,7 +214,6 @@ const keepWithError = (orgId: string, error: unknown) => {
     const [row] = await tx
       .update(entitlements)
       .set({ lastError: message.slice(0, 300) })
-      .where(eq(entitlements.orgId, orgId))
       .returning();
 
     return row ?? null;
@@ -234,12 +221,7 @@ const keepWithError = (orgId: string, error: unknown) => {
 };
 
 const storedEntitlements = (orgId: string) =>
-  withOrg(
-    orgId,
-    async (tx) =>
-      (await tx.select().from(entitlements).where(eq(entitlements.orgId, orgId)).limit(1))[0] ??
-      null,
-  );
+  withOrg(orgId, async (tx) => (await tx.select().from(entitlements).limit(1))[0] ?? null);
 
 const fetchEntitlements = async (orgId: string) => {
   const [org] = await withSystem('saas: organisation', (tx) =>

@@ -143,11 +143,11 @@ const seedPerson = async (seeding: Seeding, person: Person) => {
   }
 };
 
-const hasContacts = async (tx: Db, orgId: string) => {
+const hasContacts = async (tx: Db) => {
   const [existing] = await tx
     .select({
-      any: sql<boolean>`exists (select 1 from ${customers} where ${customers.orgId} = ${orgId})
-        or exists (select 1 from ${companies} where ${companies.orgId} = ${orgId})`,
+      any: sql<boolean>`exists (select 1 from ${customers})
+        or exists (select 1 from ${companies})`,
     })
     .from(sql`(select 1) as one`);
 
@@ -162,7 +162,7 @@ const hasContacts = async (tx: Db, orgId: string) => {
 const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) => {
   await lockOrganization(tx, actor.orgId);
 
-  if (await hasContacts(tx, actor.orgId)) return { seeded: false };
+  if (await hasContacts(tx)) return { seeded: false };
 
   const copy = COPY[language];
   const labels = await seedLabels(tx, actor, copy);
@@ -185,7 +185,6 @@ const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) 
   const stages = await tx
     .select({ id: leadStages.id })
     .from(leadStages)
-    .where(eq(leadStages.orgId, actor.orgId))
     .orderBy(asc(leadStages.order));
 
   await inOrder(copy.people, (person) =>
@@ -232,7 +231,7 @@ export const exampleDataJob = defineJob({
       })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(and(eq(users.orgId, job.orgId), eq(users.id, job.payload.userId)))
+      .where(eq(users.id, job.payload.userId))
       .limit(1);
 
     // Only for an owner still with the organisation.

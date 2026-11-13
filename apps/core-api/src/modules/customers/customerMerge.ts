@@ -6,7 +6,7 @@ import {
   db,
   type Db,
 } from '@erxes/core-db';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { asc, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -51,7 +51,7 @@ const moveRelations = async (tx: Db, orgId: string, keepId: string, otherIds: st
 
   // They sign in as the kept customer from now on, and stay signed in.
   const ofOthers = (table: typeof customerLogins | typeof customerSessions) =>
-    and(eq(table.orgId, orgId), inArray(table.customerId, otherIds));
+    inArray(table.customerId, otherIds);
 
   await tx.update(customerLogins).set({ customerId: keepId }).where(ofOthers(customerLogins));
   await tx.update(customerSessions).set({ customerId: keepId }).where(ofOthers(customerSessions));
@@ -105,7 +105,7 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
   const tx = db();
 
   const rows = await selectCustomers(tx)
-    .where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, ids)))
+    .where(inArray(customers.id, ids))
     .orderBy(asc(customers.createdAt))
     .for('update');
 
@@ -122,20 +122,18 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
 
   await moveRelations(tx, actor.orgId, keep.id, otherIds);
   // Deleting first frees their primary email and phone for the kept customer.
-  await tx
-    .delete(customers)
-    .where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, otherIds)));
+  await tx.delete(customers).where(inArray(customers.id, otherIds));
 
-  await tx.update(customers).set(mergedColumns(keep, others)).where(inOrg(actor.orgId, keep.id));
+  await tx.update(customers).set(mergedColumns(keep, others)).where(inOrg(keep.id));
 
   const combined = combineCustomFields(
     keep.customFields,
     others.map((other) => other.customFields),
   );
 
-  await saveCustomFields(tx, actor.orgId, 'customer', keep.id, combined, Object.keys(combined));
+  await saveCustomFields(tx, 'customer', keep.id, combined, Object.keys(combined));
 
-  const merged = await findCustomer(tx, actor.orgId, keep.id);
+  const merged = await findCustomer(tx, keep.id);
 
   await contactsMerged(tx, actor, 'customer', merged, others);
 

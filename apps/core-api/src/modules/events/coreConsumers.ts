@@ -1,6 +1,6 @@
 import { EventNotify } from '@erxes/core-contract';
 import { activities, companies, customers, type events } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { notify } from '~/modules/notifications/notifications.service';
 import type { EventConsumer } from './processor';
@@ -35,7 +35,7 @@ export const timelineConsumer: EventConsumer = {
     const [subject] = await tx
       .select({ ownerId: table.ownerId })
       .from(table)
-      .where(and(eq(table.orgId, event.orgId), eq(table.id, subjectId)))
+      .where(eq(table.id, subjectId))
       .limit(1);
 
     if (!subject) {
@@ -46,7 +46,6 @@ export const timelineConsumer: EventConsumer = {
       .insert(activities)
       .values({
         id: event.id,
-        orgId: event.orgId,
         targetType: subjectType,
         targetId: subjectId,
         source: event.source,

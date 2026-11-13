@@ -1,5 +1,5 @@
 import { companies, customerCompanies, db, type Db } from '@erxes/core-db';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { asc, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -72,7 +72,7 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
   const tx = db();
 
   const rows = await selectCompanies(tx)
-    .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
+    .where(inArray(companies.id, ids))
     .orderBy(asc(companies.createdAt))
     .for('update');
 
@@ -87,20 +87,18 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
   const otherIds = others.map((other) => other.id);
 
   await moveRelations(tx, actor.orgId, keep.id, otherIds);
-  await tx
-    .delete(companies)
-    .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
+  await tx.delete(companies).where(inArray(companies.id, otherIds));
 
-  await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(actor.orgId, keep.id));
+  await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(keep.id));
 
   const combined = combineCustomFields(
     keep.customFields,
     others.map((other) => other.customFields),
   );
 
-  await saveCustomFields(tx, actor.orgId, 'company', keep.id, combined, Object.keys(combined));
+  await saveCustomFields(tx, 'company', keep.id, combined, Object.keys(combined));
 
-  const merged = await findCompany(tx, actor.orgId, keep.id);
+  const merged = await findCompany(tx, keep.id);
 
   await contactsMerged(tx, actor, 'company', merged, others);
 

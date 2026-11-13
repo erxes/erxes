@@ -83,13 +83,7 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
     tx
       .select({ id: users.id, status: users.status })
       .from(users)
-      .where(
-        and(
-          eq(users.orgId, orgId),
-          eq(sql`lower(${users.email})`, email.toLowerCase()),
-          ne(users.status, 'disabled'),
-        ),
-      )
+      .where(and(eq(sql`lower(${users.email})`, email.toLowerCase()), ne(users.status, 'disabled')))
       .limit(1),
   );
 

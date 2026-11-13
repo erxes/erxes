@@ -11,10 +11,10 @@ import {
 import { authed } from '~/orpc';
 
 export const webhooksRouter = {
-  eventTypes: authed.webhooks.eventTypes.handler(async ({ context }) => ({
-    data: await eventTypeCatalog(db(), context.actor.orgId),
+  eventTypes: authed.webhooks.eventTypes.handler(async () => ({
+    data: await eventTypeCatalog(db()),
   })),
-  list: authed.webhooks.list.handler(({ context }) => listWebhooks(db(), context.actor)),
+  list: authed.webhooks.list.handler(() => listWebhooks(db())),
   create: authed.webhooks.create.handler(({ input, context }) =>
     createWebhook(db(), context.actor, input),
   ),
@@ -30,9 +30,7 @@ export const webhooksRouter = {
   test: authed.webhooks.test.handler(({ input, context }) =>
     testWebhook(db(), context.actor, input.id),
   ),
-  deliveries: authed.webhooks.deliveries.handler(({ input, context }) =>
-    listDeliveries(db(), context.actor, input),
-  ),
+  deliveries: authed.webhooks.deliveries.handler(({ input }) => listDeliveries(db(), input)),
   redeliver: authed.webhooks.redeliver.handler(({ input, context }) =>
     redeliver(db(), context.actor, input.deliveryId),
   ),

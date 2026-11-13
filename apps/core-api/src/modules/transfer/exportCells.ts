@@ -11,7 +11,7 @@ import {
   users,
 } from '@erxes/core-db';
 import { stringify } from 'csv-stringify/sync';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import writeXlsxFile from 'write-excel-file/node';
 import { defuse } from '~/lib/csv';
 import { customCell } from './columns';
@@ -38,13 +38,7 @@ const namesOf = (rows: { recordId: string; name: string }[]): Names => {
 };
 
 /** What the chosen relation columns need for one page: tags, owners' emails, companies, customer counts. */
-const relationsOf = async (
-  tx: Db,
-  orgId: string,
-  isCompany: boolean,
-  rows: ExportRecord[],
-  keys: string[],
-) => {
+const relationsOf = async (tx: Db, isCompany: boolean, rows: ExportRecord[], keys: string[]) => {
   const ids = rows.map((row) => row.id);
   const links = isCompany ? companyTags : customerTags;
   const ownerIds = [...new Set(rows.flatMap((row) => (row.ownerId ? [row.ownerId] : [])))];
@@ -55,7 +49,7 @@ const relationsOf = async (
         .select({ recordId: links.recordId, name: tags.name })
         .from(links)
         .innerJoin(tags, eq(tags.id, links.tagId))
-        .where(and(eq(links.orgId, orgId), inArray(links.recordId, ids)))
+        .where(inArray(links.recordId, ids))
     : [];
 
   const owners =
@@ -63,7 +57,7 @@ const relationsOf = async (
       ? await tx
           .select({ id: users.id, email: users.email })
           .from(users)
-          .where(and(eq(users.orgId, orgId), inArray(users.id, ownerIds)))
+          .where(inArray(users.id, ownerIds))
       : [];
 
   const companyRows =
@@ -72,9 +66,7 @@ const relationsOf = async (
           .select({ recordId: customerCompanies.customerId, name: companies.primaryName })
           .from(customerCompanies)
           .innerJoin(companies, eq(companies.id, customerCompanies.companyId))
-          .where(
-            and(eq(customerCompanies.orgId, orgId), inArray(customerCompanies.customerId, ids)),
-          )
+          .where(inArray(customerCompanies.customerId, ids))
       : [];
 
   const counts =
@@ -82,7 +74,7 @@ const relationsOf = async (
       ? await tx
           .select({ companyId: customerCompanies.companyId, count: sql<number>`count(*)::int` })
           .from(customerCompanies)
-          .where(and(eq(customerCompanies.orgId, orgId), inArray(customerCompanies.companyId, ids)))
+          .where(inArray(customerCompanies.companyId, ids))
           .groupBy(customerCompanies.companyId)
       : [];
 
@@ -108,12 +100,11 @@ const plainCell = (value: unknown): Cell => {
 /** The cells of one page of records, in the chosen columns' order. */
 export const pageCells = async (
   tx: Db,
-  orgId: string,
   recordType: TransferRecordType,
   rows: ExportRecord[],
   keys: string[],
 ): Promise<Cell[][]> => {
-  const relations = await relationsOf(tx, orgId, recordType === 'company', rows, keys);
+  const relations = await relationsOf(tx, recordType === 'company', rows, keys);
 
   return rows.map((row) =>
     keys.map((key): Cell => {

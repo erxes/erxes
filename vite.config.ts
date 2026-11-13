@@ -218,6 +218,7 @@ export default defineConfig({
           'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
           'no-await-in-loop': 'error',
           'no-restricted-properties': ['error', oneTransaction],
+          'erxes/no-org-filter': 'error',
         },
       },
       {
@@ -238,6 +239,7 @@ export default defineConfig({
           'max-lines-per-function': 'off',
           'no-await-in-loop': 'off',
           'no-restricted-properties': 'off',
+          'erxes/no-org-filter': 'off',
         },
       },
       {

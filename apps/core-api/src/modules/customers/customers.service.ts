@@ -26,24 +26,18 @@ import { contactColumns, scalarFields } from './customerColumns';
 import { assertCompany } from './customerLinks';
 import { conflictFrom, findCustomer, inOrg, toCustomerDto } from './customerRows';
 
-export const getCustomer = async (client: Db, orgId: string, id: string) =>
-  toCustomerDto(await findCustomer(client, orgId, id, true));
+export const getCustomer = async (client: Db, id: string) =>
+  toCustomerDto(await findCustomer(client, id, true));
 
 export const createCustomer = async (client: Db, actor: Actor, input: CustomerInput) => {
-  await assertOwner(client, actor.orgId, input.ownerId);
+  await assertOwner(client, input.ownerId);
 
   const none = { primary: null, list: [] };
   const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
   const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
-  const tagIds = await checkTagIds(client, actor.orgId, 'customer', input.tagIds ?? []);
+  const tagIds = await checkTagIds(client, 'customer', input.tagIds ?? []);
 
-  const customFields = await applyCustomFields(
-    client,
-    actor.orgId,
-    'customer',
-    {},
-    input.customFields,
-  );
+  const customFields = await applyCustomFields(client, 'customer', {}, input.customFields);
 
   const lead = await planLeadOnCreate(client, userCaller(actor), {
     ...input,
@@ -69,26 +63,19 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
           .returning({ id: customers.id }),
       );
 
-      await saveCustomFields(
-        tx,
-        actor.orgId,
-        'customer',
-        created,
-        customFields,
-        Object.keys(customFields),
-      );
+      await saveCustomFields(tx, 'customer', created, customFields, Object.keys(customFields));
       await recordLeadSteps(tx, userCaller(actor), 'customer', [
         { id: created, steps: lead.steps },
       ]);
-      await setRecordTags(tx, actor.orgId, 'customer', created, tagIds);
-      await contactCreated(tx, actor, 'customer', await findCustomer(tx, actor.orgId, created));
+      await setRecordTags(tx, 'customer', created, tagIds);
+      await contactCreated(tx, actor, 'customer', await findCustomer(tx, created));
 
       return created;
     });
 
-    return toCustomerDto(await findCustomer(client, actor.orgId, id));
+    return toCustomerDto(await findCustomer(client, id));
   } catch (error) {
-    return conflictFrom(client, actor.orgId, error, {
+    return conflictFrom(client, error, {
       primaryEmail: email.primary,
       primaryPhone: phone.primary,
     });
@@ -102,29 +89,21 @@ export const updateCustomer = async (
   input: CustomerInput,
 ) => {
   // Custom fields are merged from what is stored: concurrent edits wait, then build on each other.
-  await lockRows(client, 'core_customers', actor.orgId, [id]);
+  await lockRows(client, 'core_customers', [id]);
 
-  const current = await findCustomer(client, actor.orgId, id);
+  const current = await findCustomer(client, id);
 
-  await assertOwner(client, actor.orgId, input.ownerId);
+  await assertOwner(client, input.ownerId);
 
   const changes = contactColumns(current, input);
 
   const tagIds =
-    input.tagIds === undefined
-      ? undefined
-      : await checkTagIds(client, actor.orgId, 'customer', input.tagIds);
+    input.tagIds === undefined ? undefined : await checkTagIds(client, 'customer', input.tagIds);
 
   const customFields =
     input.customFields === undefined
       ? undefined
-      : await applyCustomFields(
-          client,
-          actor.orgId,
-          'customer',
-          current.customFields,
-          input.customFields,
-        );
+      : await applyCustomFields(client, 'customer', current.customFields, input.customFields);
 
   const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
 
@@ -133,7 +112,7 @@ export const updateCustomer = async (
       const updated = await tx
         .update(customers)
         .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
-        .where(inOrg(actor.orgId, id))
+        .where(inOrg(id))
         .returning({ id: customers.id });
 
       if (!updated.length) {
@@ -145,19 +124,19 @@ export const updateCustomer = async (
       if (customFields) {
         const keys = Object.keys(input.customFields ?? {});
 
-        await saveCustomFields(tx, actor.orgId, 'customer', id, customFields, keys);
+        await saveCustomFields(tx, 'customer', id, customFields, keys);
       }
 
       if (tagIds) {
-        await setRecordTags(tx, actor.orgId, 'customer', id, tagIds);
+        await setRecordTags(tx, 'customer', id, tagIds);
       }
 
-      await contactUpdated(tx, actor, 'customer', current, await findCustomer(tx, actor.orgId, id));
+      await contactUpdated(tx, actor, 'customer', current, await findCustomer(tx, id));
     });
 
-    return toCustomerDto(await findCustomer(client, actor.orgId, id));
+    return toCustomerDto(await findCustomer(client, id));
   } catch (error) {
-    return conflictFrom(client, actor.orgId, error, {
+    return conflictFrom(client, error, {
       primaryEmail: changes.primaryEmail ?? current.primaryEmail,
       primaryPhone: changes.primaryPhone ?? current.primaryPhone,
     });
@@ -178,21 +157,18 @@ export const removeCustomers = async (
     await guardDeletions(client, userCaller(actor), ids.length, 'customers', actor.role);
   await moveToTrash(client, userCaller(actor), 'customer', ids);
 
-  const rows = await client
-    .delete(customers)
-    .where(and(eq(customers.orgId, actor.orgId), inArray(customers.id, ids)))
-    .returning();
+  const rows = await client.delete(customers).where(inArray(customers.id, ids)).returning();
 
   await contactsRemoved(client, actor, 'customer', rows);
 
   return { removed: rows.length };
 };
 
-const tagsByCustomer = async (client: Db, orgId: string, ids: string[]) => {
+const tagsByCustomer = async (client: Db, ids: string[]) => {
   const rows = await client
     .select({ id: customers.id, tagIds: tagIdsColumn('customer', customers.id) })
     .from(customers)
-    .where(and(eq(customers.orgId, orgId), inArray(customers.id, ids)));
+    .where(inArray(customers.id, ids));
 
   return new Map(rows.map((row) => [row.id, row.tagIds]));
 };
@@ -203,22 +179,16 @@ export const tagCustomers = async (
   actor: Actor,
   input: { ids: string[]; add: string[]; remove: string[] },
 ) => {
-  const add = await checkTagIds(client, actor.orgId, 'customer', input.add);
+  const add = await checkTagIds(client, 'customer', input.add);
 
-  const before = await tagsByCustomer(client, actor.orgId, input.ids);
+  const before = await tagsByCustomer(client, input.ids);
 
-  const count = await changeTags(client, actor.orgId, 'customer', input.ids, {
+  const count = await changeTags(client, 'customer', input.ids, {
     add,
     remove: unique(input.remove),
   });
 
-  await contactsTagged(
-    client,
-    actor,
-    'customer',
-    before,
-    await tagsByCustomer(client, actor.orgId, input.ids),
-  );
+  await contactsTagged(client, actor, 'customer', before, await tagsByCustomer(client, input.ids));
 
   return { updated: count };
 };
@@ -265,8 +235,8 @@ export const linkCustomerCompany = async (
   companyId: string,
   input: LinkInput = {},
 ) => {
-  await findCustomer(client, actor.orgId, id);
-  await assertCompany(client, actor.orgId, companyId);
+  await findCustomer(client, id);
+  await assertCompany(client, companyId);
 
   const attributes = {
     ...(input.role !== undefined ? { role: input.role?.trim() || null } : {}),
@@ -281,7 +251,6 @@ export const linkCustomerCompany = async (
       .set({ isPrimaryContact: false, updatedAt: sql`now()` })
       .where(
         and(
-          eq(customerCompanies.orgId, actor.orgId),
           eq(customerCompanies.companyId, companyId),
           eq(customerCompanies.isPrimaryContact, true),
           sql`${customerCompanies.customerId} <> ${id}`,
@@ -301,7 +270,7 @@ export const linkCustomersToCompany = async (
   ids: string[],
   companyId: string,
 ) => {
-  await assertCompany(tx, actor.orgId, companyId);
+  await assertCompany(tx, companyId);
   await upsertLinks(tx, actor, ids, companyId, {});
 };
 
@@ -311,17 +280,11 @@ export const unlinkCustomerCompany = async (
   id: string,
   companyId: string,
 ) => {
-  await findCustomer(client, actor.orgId, id);
+  await findCustomer(client, id);
 
   const unlinked = await client
     .delete(customerCompanies)
-    .where(
-      and(
-        eq(customerCompanies.orgId, actor.orgId),
-        eq(customerCompanies.customerId, id),
-        eq(customerCompanies.companyId, companyId),
-      ),
-    )
+    .where(and(eq(customerCompanies.customerId, id), eq(customerCompanies.companyId, companyId)))
     .returning({ customerId: customerCompanies.customerId });
 
   if (unlinked.length) {

@@ -361,7 +361,7 @@ export const startJobWorker = (definitions: JobDefinition[], concurrency = 5) =>
 };
 
 /** Dead jobs back to the queue (one more attempt each). */
-export const retryDeadJobs = (client: Db, orgId: string, ids: string[]) =>
+export const retryDeadJobs = (client: Db, ids: string[]) =>
   client
     .update(jobs)
     .set({
@@ -372,7 +372,6 @@ export const retryDeadJobs = (client: Db, orgId: string, ids: string[]) =>
     })
     .where(
       and(
-        eq(jobs.orgId, orgId),
         eq(jobs.status, 'dead'),
         sql`${jobs.id} in (${sql.join(
           ids.map((id) => sql`${id}`),

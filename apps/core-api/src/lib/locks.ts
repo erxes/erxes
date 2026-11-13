@@ -9,14 +9,13 @@ import { sql } from 'drizzle-orm';
 export const lockRows = async (
   client: Db,
   table: 'core_customers' | 'core_companies' | 'core_fields' | 'core_files' | 'core_products',
-  orgId: string,
   ids: string[],
 ) => {
   if (!ids.length) return;
 
   await client.execute(sql`
     select 1 from ${sql.identifier(table)}
-    where org_id = ${orgId} and id in (${sql.join(
+    where id in (${sql.join(
       ids.map((id) => sql`${id}`),
       sql`, `,
     )})

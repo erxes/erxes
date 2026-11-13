@@ -11,15 +11,15 @@ import { leadReport } from '~/modules/leads/report';
 import { authed } from '~/orpc';
 
 export const leadsRouter = {
-  stages: authed.leads.stages.handler(({ context }) => listLeadStages(db(), context.actor)),
+  stages: authed.leads.stages.handler(() => listLeadStages(db())),
   createStage: authed.leads.createStage.handler(({ input, context }) =>
     createLeadStage(db(), context.actor, input),
   ),
   updateStage: authed.leads.updateStage.handler(({ input: { id, ...changes }, context }) =>
     updateLeadStage(db(), context.actor, id, changes),
   ),
-  reorderStages: authed.leads.reorderStages.handler(({ input, context }) =>
-    reorderLeadStages(db(), context.actor, input.ids),
+  reorderStages: authed.leads.reorderStages.handler(({ input }) =>
+    reorderLeadStages(db(), input.ids),
   ),
   removeStage: authed.leads.removeStage.handler(({ input, context }) =>
     removeLeadStage(db(), context.actor, input.id, input.moveTo),
@@ -28,10 +28,6 @@ export const leadsRouter = {
   convert: authed.leads.convert.handler(({ input, context }) =>
     convertLeads(db(), context.actor, input),
   ),
-  history: authed.leads.history.handler(({ input, context }) =>
-    leadHistory(db(), context.actor, input),
-  ),
-  report: authed.leads.report.handler(({ input, context }) =>
-    leadReport(db(), context.actor, input),
-  ),
+  history: authed.leads.history.handler(({ input }) => leadHistory(db(), input)),
+  report: authed.leads.report.handler(({ input }) => leadReport(db(), input)),
 };

@@ -1,11 +1,10 @@
 import type { WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
 import type { CursorQuery, WebhookDelivery } from '@erxes/core-contract';
 import { type Db, events, newId, webhookDeliveries, webhooks, withOrg } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
-import { allOf } from '~/lib/conditions';
 import { hmacSha256 } from '~/lib/crypto';
 import { keysetPage } from '~/lib/keyset';
 import { postOutbound } from '~/lib/outbound';
@@ -61,7 +60,7 @@ const loadDelivery = (orgId: string, deliveryId: string) =>
       .from(webhookDeliveries)
       .innerJoin(webhooks, eq(webhooks.id, webhookDeliveries.webhookId))
       .leftJoin(events, eq(events.id, webhookDeliveries.eventId))
-      .where(and(eq(webhookDeliveries.orgId, orgId), eq(webhookDeliveries.id, deliveryId)))
+      .where(eq(webhookDeliveries.id, deliveryId))
       .limit(1);
 
     return row ?? null;
@@ -223,7 +222,6 @@ const queueDeliveries = async (
     .values(
       webhookIds.map((webhookId) => ({
         id: newId(),
-        orgId,
         webhookId,
         eventId: event.id,
         eventType: event.type,
@@ -246,7 +244,7 @@ const queueDeliveries = async (
 
 /** Sends a `core.webhook.test` event to the endpoint now (and logs it like any delivery). */
 export const testWebhook = async (client: Db, actor: Actor, id: string) => {
-  const webhook = await findWebhook(client, actor.orgId, id);
+  const webhook = await findWebhook(client, id);
 
   const event = oneRow(
     await client
@@ -267,10 +265,9 @@ export const testWebhook = async (client: Db, actor: Actor, id: string) => {
 
 export const listDeliveries = async (
   client: Db,
-  actor: Actor,
   query: CursorQuery & { id: string; status?: (typeof WEBHOOK_DELIVERY_STATUSES)[number] },
 ) => {
-  await findWebhook(client, actor.orgId, query.id);
+  await findWebhook(client, query.id);
 
   const page = await keysetPage(
     client,
@@ -278,10 +275,7 @@ export const listDeliveries = async (
       table: webhookDeliveries,
       id: webhookDeliveries.id,
       createdAt: webhookDeliveries.createdAt,
-      scope: allOf(
-        eq(webhookDeliveries.orgId, actor.orgId),
-        eq(webhookDeliveries.webhookId, query.id),
-      ),
+      scope: eq(webhookDeliveries.webhookId, query.id),
       countCap: 10_000,
     },
     query.status ? eq(webhookDeliveries.status, query.status) : undefined,
@@ -302,7 +296,7 @@ export const redeliver = async (client: Db, actor: Actor, deliveryId: string) =>
   const [delivery] = await client
     .select()
     .from(webhookDeliveries)
-    .where(and(eq(webhookDeliveries.orgId, actor.orgId), eq(webhookDeliveries.id, deliveryId)))
+    .where(eq(webhookDeliveries.id, deliveryId))
     .limit(1);
 
   if (!delivery) throw notFound('Delivery');
@@ -327,7 +321,7 @@ export const webhooksConsumer: EventConsumer = {
     const endpoints = await tx
       .select({ id: webhooks.id, eventTypes: webhooks.eventTypes })
       .from(webhooks)
-      .where(and(eq(webhooks.orgId, event.orgId), eq(webhooks.status, 'active')));
+      .where(eq(webhooks.status, 'active'));
 
     await queueDeliveries(
       tx,

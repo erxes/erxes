@@ -98,7 +98,6 @@ const isEmpty = (value: CustomValue) => value === '' || (Array.isArray(value) &&
  */
 export const applyCustomFields = async (
   client: Db,
-  orgId: string,
   contentType: FieldContentType,
   current: Record<string, CustomValue>,
   patch: Record<string, CustomValue | null> | undefined,
@@ -113,9 +112,7 @@ export const applyCustomFields = async (
     .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
     .from(fields)
     .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
-    .where(
-      and(eq(fields.orgId, orgId), eq(fields.contentType, contentType), inArray(fields.id, ids)),
-    )
+    .where(and(eq(fields.contentType, contentType), inArray(fields.id, ids)))
     // A field can't change type or go away while a value is being checked against it.
     .for('share', { of: fields });
 

@@ -1,5 +1,5 @@
 import type { Db, fieldGroups, fields, leadStages } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { inArray, sql } from 'drizzle-orm';
 
 /**
  * The row an insert's or update's `returning()` gave back. Callers have
@@ -16,7 +16,6 @@ export const oneRow = <T>(rows: T[]) => {
 /** Gives each row its `order`, in one update (`case id when … then … end`). */
 export const setOrders = async (
   client: Db,
-  orgId: string,
   table: typeof fields | typeof fieldGroups | typeof leadStages,
   orders: { id: string; order: number }[],
 ) => {
@@ -33,7 +32,7 @@ export const setOrders = async (
         )} end`,
         updatedAt: sql`now()`,
       })
-      .where(and(eq(table.orgId, orgId), inArray(table.id, Array.from(orderOf.keys()))));
+      .where(inArray(table.id, Array.from(orderOf.keys())));
   }
 
   return { ok: true as const };

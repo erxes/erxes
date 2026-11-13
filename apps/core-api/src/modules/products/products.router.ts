@@ -19,12 +19,8 @@ export const productsRouter = {
   list: anyone.products.list.handler(({ input, context }) =>
     listProducts(db(), context.caller, input),
   ),
-  get: anyone.products.get.handler(({ input, context }) =>
-    getProduct(db(), context.caller, input.id),
-  ),
-  lookup: anyone.products.lookup.handler(({ input, context }) =>
-    lookupProducts(db(), context.caller, input.ids),
-  ),
+  get: anyone.products.get.handler(({ input }) => getProduct(db(), input.id)),
+  lookup: anyone.products.lookup.handler(({ input }) => lookupProducts(db(), input.ids)),
   create: anyone.products.create.handler(({ input, context }) =>
     createProduct(db(), context.caller, input),
   ),
@@ -43,9 +39,7 @@ export const productsRouter = {
 };
 
 export const productCategoriesRouter = {
-  list: anyone.productCategories.list.handler(({ context }) =>
-    listCategories(db(), context.caller),
-  ),
+  list: anyone.productCategories.list.handler(() => listCategories(db())),
   create: anyone.productCategories.create.handler(({ input, context }) =>
     createCategory(db(), context.caller, input),
   ),

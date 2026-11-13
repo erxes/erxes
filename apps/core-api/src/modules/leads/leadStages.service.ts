@@ -1,6 +1,6 @@
 import type { LeadStageKind } from '@erxes/core-contract';
 import { companies, customers, type Db, leadStages, newId } from '@erxes/core-db';
-import { and, eq, max, sql } from 'drizzle-orm';
+import { eq, max, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
@@ -44,15 +44,12 @@ const toStageDto = (
 });
 
 /** Leads per stage, people and companies (one after another: `client` may be a transaction). */
-const countsOf = async (client: Db, orgId: string) =>
-  [
-    await leadCounts(client, orgId, 'customer'),
-    await leadCounts(client, orgId, 'company'),
-  ] as const;
+const countsOf = async (client: Db) =>
+  [await leadCounts(client, 'customer'), await leadCounts(client, 'company')] as const;
 
-export const listLeadStages = async (client: Db, actor: Actor) => {
-  const stages = await wholeList((limit) => stagesOf(client, actor.orgId).limit(limit));
-  const counts = await countsOf(client, actor.orgId);
+export const listLeadStages = async (client: Db) => {
+  const stages = await wholeList((limit) => stagesOf(client).limit(limit));
+  const counts = await countsOf(client);
 
   return { data: stages.map((stage) => toStageDto(stage, ...counts)) };
 };
@@ -77,10 +74,7 @@ export const createLeadStage = async (
   actor: Actor,
   input: { name: string; kind?: LeadStageKind; color?: string },
 ) => {
-  const [last] = await client
-    .select({ order: max(leadStages.order) })
-    .from(leadStages)
-    .where(eq(leadStages.orgId, actor.orgId));
+  const [last] = await client.select({ order: max(leadStages.order) }).from(leadStages);
 
   const stage = {
     id: newId(),
@@ -113,7 +107,7 @@ export const updateLeadStage = async (
   id: string,
   input: { name?: string; kind?: LeadStageKind; color?: string },
 ) => {
-  const stages = await stagesOf(client, actor.orgId);
+  const stages = await stagesOf(client);
 
   if (!stages.some((stage) => stage.id === id)) throw notFound('Lead stage');
 
@@ -122,7 +116,7 @@ export const updateLeadStage = async (
   const [stage] = await client
     .update(leadStages)
     .set({ ...input, updatedAt: sql`now()` })
-    .where(and(eq(leadStages.orgId, actor.orgId), eq(leadStages.id, id)))
+    .where(eq(leadStages.id, id))
     .returning()
     .catch(stageTaken);
 
@@ -130,11 +124,11 @@ export const updateLeadStage = async (
 
   await audit(client, actor, 'lead_stage.updated', stage);
 
-  return toStageDto(stage, ...(await countsOf(client, actor.orgId)));
+  return toStageDto(stage, ...(await countsOf(client)));
 };
 
-export const reorderLeadStages = async (client: Db, actor: Actor, ids: string[]) => {
-  const stages = await stagesOf(client, actor.orgId);
+export const reorderLeadStages = async (client: Db, ids: string[]) => {
+  const stages = await stagesOf(client);
 
   if (
     ids.length !== stages.length ||
@@ -146,21 +140,20 @@ export const reorderLeadStages = async (client: Db, actor: Actor, ids: string[])
 
   return setOrders(
     client,
-    actor.orgId,
     leadStages,
     ids.map((id, order) => ({ id, order })),
   );
 };
 
-const inStage = (table: typeof customers | typeof companies, orgId: string, stageId: string) =>
-  and(eq(table.orgId, orgId), eq(table.leadStageId, stageId));
+const inStage = (table: typeof customers | typeof companies, stageId: string) =>
+  eq(table.leadStageId, stageId);
 
 /** Everyone in a stage (leads, and customers who converted from it). */
-const peopleIn = async (tx: Db, orgId: string, stageId: string) => {
+const peopleIn = async (tx: Db, stageId: string) => {
   const [row] = await tx
     .execute<{ count: number }>(sql`
-    select (select count(*) from ${customers} where ${inStage(customers, orgId, stageId)})::int
-      + (select count(*) from ${companies} where ${inStage(companies, orgId, stageId)})::int as count
+    select (select count(*) from ${customers} where ${inStage(customers, stageId)})::int
+      + (select count(*) from ${companies} where ${inStage(companies, stageId)})::int as count
   `)
     .then((result) => result.rows);
 
@@ -168,19 +161,13 @@ const peopleIn = async (tx: Db, orgId: string, stageId: string) => {
 };
 
 /** Moves everyone in stage `from` to `to` (a stage of the organisation): people, then companies. */
-const moveEveryone = async (tx: Db, orgId: string, from: string, to: string) => {
-  await findStage(tx, orgId, to);
+const moveEveryone = async (tx: Db, from: string, to: string) => {
+  await findStage(tx, to);
 
   const moved = { leadStageId: to, leadStageChangedAt: sql`now()` };
 
-  await tx
-    .update(customers)
-    .set(moved)
-    .where(inStage(customers, orgId, from));
-  await tx
-    .update(companies)
-    .set(moved)
-    .where(inStage(companies, orgId, from));
+  await tx.update(customers).set(moved).where(inStage(customers, from));
+  await tx.update(companies).set(moved).where(inStage(companies, from));
 };
 
 /** Deletes a stage; everyone in it (leads, and customers who converted from it) moves to `moveTo`. */
@@ -190,13 +177,13 @@ export const removeLeadStage = async (
   id: string,
   moveTo: string | undefined,
 ) => {
-  const stages = await stagesOf(client, actor.orgId);
+  const stages = await stagesOf(client);
   const stage = stages.find((item) => item.id === id);
 
   if (!stage) throw notFound('Lead stage');
   assertOpenStageLeft(stages, (item) => item.id === id);
 
-  const count = await peopleIn(client, actor.orgId, id);
+  const count = await peopleIn(client, id);
 
   if (count) {
     if (!moveTo || moveTo === id)
@@ -207,12 +194,10 @@ export const removeLeadStage = async (
         { count },
       );
 
-    await moveEveryone(client, actor.orgId, id, moveTo);
+    await moveEveryone(client, id, moveTo);
   }
 
-  await client
-    .delete(leadStages)
-    .where(and(eq(leadStages.orgId, actor.orgId), eq(leadStages.id, id)));
+  await client.delete(leadStages).where(eq(leadStages.id, id));
   await audit(client, actor, 'lead_stage.deleted', stage);
 
   return { moved: count };

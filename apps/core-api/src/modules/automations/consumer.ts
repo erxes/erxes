@@ -147,7 +147,6 @@ export const startRuns = async (
     .values(
       allowed.map((start) => ({
         id: newId(),
-        orgId: automation.orgId,
         automationId: automation.id,
         version,
         eventId: start.eventId,
@@ -185,13 +184,7 @@ const startTriggered = async (tx: Db, event: EventRow, dto: ReturnType<typeof to
   const candidates = await tx
     .select()
     .from(automations)
-    .where(
-      and(
-        eq(automations.orgId, event.orgId),
-        eq(automations.status, 'active'),
-        eq(automations.triggerEvent, event.type),
-      ),
-    );
+    .where(and(eq(automations.status, 'active'), eq(automations.triggerEvent, event.type)));
 
   if (!candidates.length) return;
 
@@ -203,7 +196,7 @@ const startTriggered = async (tx: Db, event: EventRow, dto: ReturnType<typeof to
         .limit(1)
     : [];
 
-  const subject = await subjectOf(tx, event.orgId, event.subjectType, event.subjectId);
+  const subject = await subjectOf(tx, event.subjectType, event.subjectId);
   const context = { event: dto, subject, steps: {} };
 
   // Never an automation's own events.
@@ -256,13 +249,7 @@ const resumeWaiting = async (
   const waiting = await tx
     .select()
     .from(automationRuns)
-    .where(
-      and(
-        eq(automationRuns.orgId, event.orgId),
-        eq(automationRuns.subjectId, subjectId),
-        eq(automationRuns.status, 'waiting'),
-      ),
-    )
+    .where(and(eq(automationRuns.subjectId, subjectId), eq(automationRuns.status, 'waiting')))
     .for('update', { skipLocked: true });
 
   if (!waiting.length) return;
@@ -273,7 +260,7 @@ const resumeWaiting = async (
   const subjects = new Map<string | null, Subject | null>();
 
   await inOrder(new Set(waiting.map((run) => run.subjectType)), async (type) => {
-    subjects.set(type, await subjectOf(tx, event.orgId, type, subjectId));
+    subjects.set(type, await subjectOf(tx, type, subjectId));
   });
 
   // Each run advances on its own (finished, or past its wait), in turn on one transaction.

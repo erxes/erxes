@@ -1,6 +1,5 @@
 import { AutomationDefinition, type AutomationStep, type DryRunStep } from '@erxes/core-contract';
 import type { ContentType, Db } from '@erxes/core-db';
-import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { findAutomation } from './automations.service';
 import { evaluateGroup } from './conditions';
@@ -176,7 +175,6 @@ const trace = (dry: DryRun) => {
  */
 export const testAutomation = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: {
     subject?: { type: ContentType; id: string };
@@ -184,12 +182,12 @@ export const testAutomation = async (
     assumeEventHappens: boolean;
   },
 ) => {
-  const row = await findAutomation(client, actor.orgId, id);
+  const row = await findAutomation(client, id);
   const definition = AutomationDefinition.parse(row.definition);
   const { trigger } = definition;
 
   const subject = input.subject
-    ? await subjectOf(client, actor.orgId, input.subject.type, input.subject.id)
+    ? await subjectOf(client, input.subject.type, input.subject.id)
     : null;
 
   if (input.subject && !subject)
@@ -208,7 +206,7 @@ export const testAutomation = async (
 
   const dry: DryRun = {
     definition,
-    actions: (await automationCatalog(client, actor.orgId)).actions,
+    actions: (await automationCatalog(client)).actions,
     context,
     hasSubject: subject !== null,
     seed: `test:${input.subject?.id ?? 'none'}`,

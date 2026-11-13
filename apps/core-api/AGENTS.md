@@ -25,6 +25,11 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   another (lint bans `.transaction`). When you catch an error and go on (a unique violation you
   answer with the existing record, an import row or recycle-bin item that fails alone), run the
   part that may fail in `savepoint(fn)` from `@erxes/core-db`.
+- Row level security keeps every query to the scope's organisation, so no query filters on
+  `orgId` and no insert in `withOrg` sets it (`orgIdColumn()` fills it). `erxes/no-org-filter`
+  fails the filter. A `withSystem` job that needs one organisation's rows runs that part in
+  `withOrg(orgId, ...)`, which narrows the system scope until it returns. Only inserts under
+  `withSystem` (setup, plugin installs, audit, jobs, notifications) name `orgId`.
 - A write and its audit entry share that transaction: `audited(...)` in the router, or
   `recordAudit(tx, ...)` in the service. Core events go out in it too, with
   `publishCoreEvents(tx, ...)`.

@@ -1,5 +1,5 @@
 import { type Db, users, withOrg } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { seal, unseal } from '~/lib/secrets';
@@ -22,12 +22,8 @@ const newRecoveryCodes = () =>
     return `${raw.slice(0, 5)}-${raw.slice(5)}`;
   });
 
-const findMember = async (client: Db, orgId: string, userId: string) => {
-  const [row] = await client
-    .select()
-    .from(users)
-    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
-    .limit(1);
+const findMember = async (client: Db, userId: string) => {
+  const [row] = await client.select().from(users).where(eq(users.id, userId)).limit(1);
 
   if (!row) throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
 
@@ -35,7 +31,7 @@ const findMember = async (client: Db, orgId: string, userId: string) => {
 };
 
 const needPassword = async (client: Db, actor: Actor, password: string) => {
-  const member = await findMember(client, actor.orgId, actor.userId);
+  const member = await findMember(client, actor.userId);
 
   if (!(await verifyPassword(password, member.passwordHash))) {
     throw new HttpError(400, 'WRONG_PASSWORD', 'The password is not right');
@@ -46,7 +42,7 @@ const needPassword = async (client: Db, actor: Actor, password: string) => {
 
 /** A new secret for the app (not active until confirmed with a code). */
 export const setupTwoFactor = async (client: Db, actor: Actor) => {
-  const member = await findMember(client, actor.orgId, actor.userId);
+  const member = await findMember(client, actor.userId);
 
   if (member.totpEnabledAt)
     throw new HttpError(409, 'ALREADY_ENABLED', 'Two-factor sign-in is already on');
@@ -62,7 +58,7 @@ export const setupTwoFactor = async (client: Db, actor: Actor) => {
 };
 
 export const enableTwoFactor = async (client: Db, actor: Actor, code: string) => {
-  const member = await findMember(client, actor.orgId, actor.userId);
+  const member = await findMember(client, actor.userId);
 
   if (!member.totpPendingSealed) throw new HttpError(409, 'NOT_SET_UP', 'Start the setup first');
 
@@ -177,7 +173,7 @@ export const completeTwoFactor = async (input: {
     const [member] = await tx
       .select()
       .from(users)
-      .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
+      .where(eq(users.id, userId))
       .for('update')
       .limit(1);
 

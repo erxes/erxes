@@ -13,17 +13,13 @@ export const isCoreTarget = (targetType: string): targetType is ActivityTarget =
 const anyMissing = async (
   client: Db,
   table: typeof customers | typeof companies,
-  orgId: string,
   ids: string[],
 ) => {
   const wanted = unique(ids);
 
   if (!wanted.length) return false;
 
-  const rows = await client
-    .select({ id: table.id })
-    .from(table)
-    .where(and(eq(table.orgId, orgId), inArray(table.id, wanted)));
+  const rows = await client.select({ id: table.id }).from(table).where(inArray(table.id, wanted));
 
   return rows.length < wanted.length;
 };
@@ -31,19 +27,18 @@ const anyMissing = async (
 /** 404 unless every customer and company is the organisation's (a query per type). */
 export const assertTargets = async (
   client: Db,
-  orgId: string,
   targets: { type: ActivityTarget; id: string }[],
 ) => {
   const idsOf = (type: ActivityTarget) =>
     targets.filter((target) => target.type === type).map((target) => target.id);
 
-  if (await anyMissing(client, customers, orgId, idsOf('customer'))) throw notFound('Customer');
+  if (await anyMissing(client, customers, idsOf('customer'))) throw notFound('Customer');
 
-  if (await anyMissing(client, companies, orgId, idsOf('company'))) throw notFound('Company');
+  if (await anyMissing(client, companies, idsOf('company'))) throw notFound('Company');
 };
 
 /** The plugin timeline a target type belongs to (from installed plugins' manifests), or null. */
-const pluginTimeline = async (client: Db, orgId: string, targetType: string) => {
+const pluginTimeline = async (client: Db, targetType: string) => {
   const [plugin] = targetType.split('.');
 
   const [row] = await client
@@ -54,7 +49,6 @@ const pluginTimeline = async (client: Db, orgId: string, targetType: string) => 
       and(
         eq(plugins.name, plugin ?? ''),
         eq(plugins.status, 'active'),
-        eq(pluginInstallations.orgId, orgId),
         eq(pluginInstallations.status, 'active'),
       ),
     )
@@ -81,7 +75,7 @@ export const assertTimelineAccess = async (
   if (isCoreTarget(targetType)) {
     if (who.actor && !can(who.actor, 'contacts.view')) throw notAllowed('contacts.view');
 
-    return assertTargets(client, who.orgId, [{ type: targetType, id: targetId }]);
+    return assertTargets(client, [{ type: targetType, id: targetId }]);
   }
 
   if (who.plugin && !targetType.startsWith(`${who.plugin.plugin}.`)) {
@@ -92,7 +86,7 @@ export const assertTimelineAccess = async (
     );
   }
 
-  const timeline = await pluginTimeline(client, who.orgId, targetType);
+  const timeline = await pluginTimeline(client, targetType);
 
   if (!timeline)
     throw new HttpError(

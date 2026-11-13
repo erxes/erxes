@@ -122,12 +122,12 @@ const current = async (tx: Db, id: string) =>
   oneRow(await tx.select().from(paymentInvoices).where(eq(paymentInvoices.id, id)).limit(1));
 
 /** The organisation's invoice with its gateway. */
-export const invoiceWithGateway = async (tx: Db, orgId: string, id: string) => {
+export const invoiceWithGateway = async (tx: Db, id: string) => {
   const [row] = await tx
     .select({ invoice: paymentInvoices, gateway: paymentGateways })
     .from(paymentInvoices)
     .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
-    .where(and(eq(paymentInvoices.orgId, orgId), eq(paymentInvoices.id, id)))
+    .where(eq(paymentInvoices.id, id))
     .limit(1);
 
   if (!row) throw notFound('Invoice');
@@ -142,7 +142,7 @@ export const invoiceWithGateway = async (tx: Db, orgId: string, id: string) => {
  * checks running at once settle it once. Call it outside any scope.
  */
 export const refresh = async (orgId: string, id: string) => {
-  const { invoice, gateway } = await withOrg(orgId, (tx) => invoiceWithGateway(tx, orgId, id));
+  const { invoice, gateway } = await withOrg(orgId, (tx) => invoiceWithGateway(tx, id));
 
   if (invoice.status !== 'pending' || !invoice.gatewayInvoiceId) return { invoice, gateway };
 

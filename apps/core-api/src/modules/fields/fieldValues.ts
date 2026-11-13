@@ -58,7 +58,7 @@ type Row = typeof customerFieldValues.$inferInsert;
 
 /** The stored rows of one value of a field. */
 const rowsOf = (
-  base: Pick<Row, 'orgId' | 'recordId' | 'fieldId'>,
+  base: Pick<Row, 'recordId' | 'fieldId'>,
   fieldType: string,
   value: CustomValue,
 ): Row[] => {
@@ -83,7 +83,6 @@ const rowsOf = (
  */
 export const saveCustomFields = async (
   tx: Db,
-  orgId: string,
   type: FieldContentType,
   recordId: string,
   values: Record<string, CustomValue>,
@@ -104,7 +103,7 @@ export const saveCustomFields = async (
       await tx
         .select({ id: fields.id, type: fields.type })
         .from(fields)
-        .where(and(eq(fields.orgId, orgId), inArray(fields.id, present)))
+        .where(inArray(fields.id, present))
     ).map((field) => [field.id, field.type]),
   );
 
@@ -112,9 +111,7 @@ export const saveCustomFields = async (
     const fieldType = types.get(fieldId);
     const value = values[fieldId];
 
-    return fieldType && value !== undefined
-      ? rowsOf({ orgId, recordId, fieldId }, fieldType, value)
-      : [];
+    return fieldType && value !== undefined ? rowsOf({ recordId, fieldId }, fieldType, value) : [];
   });
 
   if (rows.length) await tx.insert(table).values(rows);

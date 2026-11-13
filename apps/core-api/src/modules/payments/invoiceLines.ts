@@ -1,6 +1,6 @@
 import type { InvoiceLineInput } from '@erxes/core-contract';
 import { type Db, type InvoiceLine, products } from '@erxes/core-db';
-import { and, eq, inArray } from 'drizzle-orm';
+import { inArray } from 'drizzle-orm';
 import { HttpError } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
@@ -12,7 +12,6 @@ import { unique } from '~/lib/contacts';
  */
 export const resolveInvoiceLines = async (
   tx: Db,
-  orgId: string,
   amount: number,
   lines: InvoiceLineInput[],
 ): Promise<InvoiceLine[]> => {
@@ -22,7 +21,7 @@ export const resolveInvoiceLines = async (
     ? await tx
         .select({ id: products.id, name: products.name })
         .from(products)
-        .where(and(eq(products.orgId, orgId), inArray(products.id, ids)))
+        .where(inArray(products.id, ids))
     : [];
 
   const names = new Map(found.map((product) => [product.id, product.name]));

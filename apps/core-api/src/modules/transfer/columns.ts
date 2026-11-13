@@ -1,6 +1,6 @@
 import type { TransferColumn, TransferRecordType } from '@erxes/core-contract';
 import { type Db, fields } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 type FieldType = (typeof fields.$inferSelect)['type'];
 
@@ -113,7 +113,6 @@ const relationColumns = (isCompany: boolean): Column[] => [
  */
 export const transferColumns = async (
   client: Db,
-  orgId: string,
   recordType: TransferRecordType,
 ): Promise<Column[]> => {
   const isCompany = recordType === 'company';
@@ -123,9 +122,7 @@ export const transferColumns = async (
   const custom = await client
     .select({ id: fields.id, label: fields.label, type: fields.type, code: fields.code })
     .from(fields)
-    .where(
-      and(eq(fields.orgId, orgId), eq(fields.contentType, isCompany ? 'company' : 'customer')),
-    );
+    .where(eq(fields.contentType, isCompany ? 'company' : 'customer'));
 
   return [
     ...builtIn,

@@ -31,7 +31,7 @@ export const activitiesRouter = {
   react: authed.activities.react.handler(({ input, context }) =>
     reactToActivity(db(), context.actor, input.id, input.emoji),
   ),
-  types: authed.activities.types.handler(({ context }) => activityTypes(db(), context.actor.orgId)),
+  types: authed.activities.types.handler(() => activityTypes(db())),
   update: plugin.activities.update.handler(({ input: { id, ...changes }, context }) =>
     updatePluginActivity(db(), context.plugin, id, changes),
   ),

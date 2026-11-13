@@ -1,6 +1,6 @@
 import type { CustomValue, Db } from '@erxes/core-db';
 import { companies } from '@erxes/core-db';
-import { and, arrayContains, eq, getTableColumns, or, sql } from 'drizzle-orm';
+import { arrayContains, eq, getTableColumns, or, sql } from 'drizzle-orm';
 import { HttpError, notFound, pgCode } from '~/http/errors';
 import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import { tagIdsColumn } from '~/modules/tags/tagLinks';
@@ -40,8 +40,7 @@ export const toCompanyDto = (row: CompanyRow) => ({
   updatedAt: row.updatedAt.toISOString(),
 });
 
-export const inOrg = (orgId: string, id: string) =>
-  and(eq(companies.orgId, orgId), eq(companies.id, id));
+export const inOrg = (id: string) => eq(companies.id, id);
 
 /** Companies with their tag ids and custom field values. */
 export const selectCompanies = (client: Db) => {
@@ -57,15 +56,10 @@ export const selectCompanies = (client: Db) => {
 };
 
 /** A company by id; with `followMerges`, an id merged into another company resolves to it. */
-export const findCompany = async (client: Db, orgId: string, id: string, followMerges = false) => {
+export const findCompany = async (client: Db, id: string, followMerges = false) => {
   const [row] = await selectCompanies(client)
     .where(
-      followMerges
-        ? and(
-            eq(companies.orgId, orgId),
-            or(eq(companies.id, id), arrayContains(companies.mergedIds, [id])),
-          )
-        : inOrg(orgId, id),
+      followMerges ? or(eq(companies.id, id), arrayContains(companies.mergedIds, [id])) : inOrg(id),
     )
     .orderBy(sql`${companies.id} = ${id} DESC`)
     .limit(1);
@@ -78,12 +72,7 @@ export const findCompany = async (client: Db, orgId: string, id: string, followM
 };
 
 /** A taken name → 409 naming the company that has it. */
-export const conflictFrom = async (
-  client: Db,
-  orgId: string,
-  error: unknown,
-  name: string,
-): Promise<never> => {
+export const conflictFrom = async (client: Db, error: unknown, name: string): Promise<never> => {
   if (pgCode(error) !== '23505') {
     throw error;
   }
@@ -91,7 +80,7 @@ export const conflictFrom = async (
   const [existing] = await client
     .select({ id: companies.id })
     .from(companies)
-    .where(and(eq(companies.orgId, orgId), sql`lower(${companies.primaryName}) = lower(${name})`))
+    .where(sql`lower(${companies.primaryName}) = lower(${name})`)
     .limit(1);
 
   throw new HttpError(409, 'COMPANY_EXISTS', 'A company with this name already exists', {

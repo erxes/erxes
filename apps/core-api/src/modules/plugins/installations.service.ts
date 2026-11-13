@@ -41,18 +41,12 @@ const toPluginDto = (
   };
 };
 
-export const listPlugins = async (actor: Actor) => {
+export const listPlugins = async () => {
   const rows = await wholeList((limit) =>
     db()
       .select({ plugin: plugins, installation: pluginInstallations })
       .from(plugins)
-      .leftJoin(
-        pluginInstallations,
-        and(
-          eq(pluginInstallations.plugin, plugins.name),
-          eq(pluginInstallations.orgId, actor.orgId),
-        ),
-      )
+      .leftJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
       .where(eq(plugins.status, 'active'))
       .orderBy(plugins.name)
       .limit(limit),
@@ -82,7 +76,7 @@ const installPluginTx = async (actor: Actor, name: string) => {
   const [before] = await tx
     .select()
     .from(pluginInstallations)
-    .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
+    .where(eq(pluginInstallations.plugin, name))
     .limit(1);
 
   const [installation] = await tx
@@ -132,7 +126,7 @@ export const uninstallPlugin = async (actor: Actor, name: string) => {
   const [installation] = await tx
     .update(pluginInstallations)
     .set({ status: 'disabled', updatedAt: sql`now()` })
-    .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
+    .where(eq(pluginInstallations.plugin, name))
     .returning();
 
   if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
@@ -161,7 +155,6 @@ export const pluginSession = async (actor: Actor, name: string) => {
       and(
         eq(plugins.name, name),
         eq(plugins.status, 'active'),
-        eq(pluginInstallations.orgId, actor.orgId),
         eq(pluginInstallations.status, 'active'),
       ),
     )

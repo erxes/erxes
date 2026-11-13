@@ -35,7 +35,6 @@ const cannotUse = (spec: FieldSpec, op: ConditionRule['op']) =>
 
 /** Whose list it is: the organisation, and the member "me" means (none for plugins). */
 export interface FilterScope {
-  orgId: string;
   userId: string | null;
 }
 
@@ -347,9 +346,7 @@ export const compileRecordFilter = async (
 
   const group = parseFilter(filter);
 
-  const specs = new Map(
-    (await filterFields(client, scope.orgId, recordType)).map((spec) => [spec.path, spec]),
-  );
+  const specs = new Map((await filterFields(client, recordType)).map((spec) => [spec.path, spec]));
 
   return compileGroup(group, { specs, recordType, scope }, 1);
 };

@@ -24,12 +24,8 @@ const taken = (error: unknown): never => {
   throw error;
 };
 
-const findTag = async (client: Db, orgId: string, id: string) => {
-  const [row] = await client
-    .select()
-    .from(tags)
-    .where(and(eq(tags.orgId, orgId), eq(tags.id, id)))
-    .limit(1);
+const findTag = async (client: Db, id: string) => {
+  const [row] = await client.select().from(tags).where(eq(tags.id, id)).limit(1);
 
   if (!row) {
     throw notFound('Tag');
@@ -38,18 +34,13 @@ const findTag = async (client: Db, orgId: string, id: string) => {
   return row;
 };
 
-export const listTags = async (
-  client: Db,
-  actor: Actor,
-  query: { type: ContentType; search?: string },
-) => {
+export const listTags = async (client: Db, query: { type: ContentType; search?: string }) => {
   const rows = await wholeList((limit) =>
     client
       .select()
       .from(tags)
       .where(
         and(
-          eq(tags.orgId, actor.orgId),
           eq(tags.type, query.type),
           query.search ? ilike(tags.name, containsPattern(query.search)) : undefined,
         ),
@@ -88,11 +79,10 @@ export const createTag = async (
 
 export const updateTag = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: { name?: string; colorCode?: string | null },
 ) => {
-  await findTag(client, actor.orgId, id);
+  await findTag(client, id);
 
   try {
     const row = oneRow(
@@ -103,7 +93,7 @@ export const updateTag = async (
           ...(input.colorCode !== undefined ? { colorCode: input.colorCode } : {}),
           updatedAt: sql`now()`,
         })
-        .where(and(eq(tags.orgId, actor.orgId), eq(tags.id, id)))
+        .where(eq(tags.id, id))
         .returning(),
     );
 
@@ -117,14 +107,14 @@ export const updateTag = async (
 export const removeTag = async (client: Db, actor: Actor, id: string) => {
   requirePermission(actor, 'tags.delete');
 
-  await findTag(client, actor.orgId, id);
-  await client.delete(tags).where(and(eq(tags.orgId, actor.orgId), eq(tags.id, id)));
+  await findTag(client, id);
+  await client.delete(tags).where(eq(tags.id, id));
 
   return { ok: true as const };
 };
 
 /** The given tag ids, deduplicated; 400 INVALID_TAG unless all are `type` tags of the organisation. */
-export const checkTagIds = async (client: Db, orgId: string, type: ContentType, ids: string[]) => {
+export const checkTagIds = async (client: Db, type: ContentType, ids: string[]) => {
   const wanted = unique(ids);
 
   if (!wanted.length) {
@@ -134,7 +124,7 @@ export const checkTagIds = async (client: Db, orgId: string, type: ContentType, 
   const found = await client
     .select({ id: tags.id })
     .from(tags)
-    .where(and(eq(tags.orgId, orgId), eq(tags.type, type), inArray(tags.id, wanted)));
+    .where(and(eq(tags.type, type), inArray(tags.id, wanted)));
 
   if (found.length !== wanted.length) {
     throw new HttpError(400, 'INVALID_TAG', `Unknown ${type} tag`);

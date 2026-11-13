@@ -21,13 +21,13 @@ interface CustomerQuery {
 }
 
 /** Customers linked to the company. */
-const linkedTo = (client: Db, orgId: string, companyId: string) =>
+const linkedTo = (client: Db, companyId: string) =>
   inArray(
     customers.id,
     client
       .select({ id: customerCompanies.customerId })
       .from(customerCompanies)
-      .where(and(eq(customerCompanies.orgId, orgId), eq(customerCompanies.companyId, companyId))),
+      .where(eq(customerCompanies.companyId, companyId)),
   );
 
 /** Names, emails, phones and code, in one trigram-indexed column. */
@@ -52,7 +52,7 @@ export const customerListWhere = async (client: Db, actor: Actor, query: Custome
     query.ownerId ? eq(customers.ownerId, query.ownerId) : undefined,
     query.leadStageId ? eq(customers.leadStageId, query.leadStageId) : undefined,
     query.tagIds?.length ? hasAnyTag('customer', customers.id, query.tagIds) : undefined,
-    query.companyId ? linkedTo(client, actor.orgId, query.companyId) : undefined,
+    query.companyId ? linkedTo(client, query.companyId) : undefined,
     query.ids ? inArray(customers.id, query.ids.length ? query.ids : ['']) : undefined,
     query.search ? searchFor(query.search) : undefined,
   ];
@@ -72,7 +72,7 @@ export const listCustomers = async (
         table: customers,
         id: customers.id,
         createdAt: customers.createdAt,
-        scope: eq(customers.orgId, actor.orgId),
+
         countCap: LIST_COUNT_CAP,
       },
       await customerListWhere(client, actor, query),

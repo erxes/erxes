@@ -46,12 +46,8 @@ export const toDto = (row: ImportRow, sample: string[][] = []): Import => ({
   finishedAt: row.finishedAt?.toISOString() ?? null,
 });
 
-export const importOrThrow = async (client: Db, orgId: string, id: string, lock = false) => {
-  const query = client
-    .select()
-    .from(imports)
-    .where(and(eq(imports.orgId, orgId), eq(imports.id, id)))
-    .limit(1);
+export const importOrThrow = async (client: Db, id: string, lock = false) => {
+  const query = client.select().from(imports).where(eq(imports.id, id)).limit(1);
 
   const [row] = await (lock ? query.for('update') : query);
 
@@ -81,7 +77,7 @@ export const memberActor = async (tx: Db, orgId: string, userId: string): Promis
     })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
+    .where(eq(users.id, userId))
     .limit(1);
 
   if (!row || row.status !== 'active')

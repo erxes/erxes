@@ -3,7 +3,6 @@ import { type Db, leadEvents, leadStages } from '@erxes/core-db';
 import type { LEAD_EVENTS } from '@erxes/core-db/enums';
 import { type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { leadCounts, recordTable, stagesOf } from './stages';
 
@@ -30,7 +29,6 @@ const rowsOf = async <T extends z.ZodType>(client: Db, row: T, query: SQL) =>
 /** The report's period and the SQL that picks one record type's lead events. */
 interface Scope {
   client: Db;
-  orgId: string;
   type: LeadRecordType;
   table: ReturnType<typeof recordTable>;
   /** `customer_id` or `company_id` on `core_lead_events`. */
@@ -50,12 +48,12 @@ const Totals = z.object({
 });
 
 /** Leads made, converted and lost in the period, and how long converting took. */
-const totalsOf = async ({ client, orgId, table, col, inPeriod }: Scope) => {
+const totalsOf = async ({ client, table, col, inPeriod }: Scope) => {
   const [totals] = await rowsOf(
     client,
     Totals,
     sql`
-      with period as (select e.* from ${leadEvents} e where e.org_id = ${orgId} and e.${col} is not null and ${inPeriod}),
+      with period as (select e.* from ${leadEvents} e where e.${col} is not null and ${inPeriod}),
       cohort as (select c.converted_at from period e join ${table} c on c.id = e.${col} where e.event = 'created'),
       conversions as (
         select extract(epoch from (e.created_at - coalesce(
@@ -77,7 +75,7 @@ const totalsOf = async ({ client, orgId, table, col, inPeriod }: Scope) => {
 };
 
 /** Each stint in a stage: from the event that put the lead there to the next one (or now, while still there). */
-const stintsOf = async ({ client, orgId, col, from, to }: Scope) => {
+const stintsOf = async ({ client, col, from, to }: Scope) => {
   const rows = await rowsOf(
     client,
     z.object({ stage_id: z.string(), reached: Count, average_days: Days }),
@@ -85,7 +83,7 @@ const stintsOf = async ({ client, orgId, col, from, to }: Scope) => {
       with stints as (
         select e.${col} as record_id, e.to_stage_id, e.created_at,
           lead(e.created_at) over (partition by e.${col} order by e.created_at, e.id) as left_at
-        from ${leadEvents} e where e.org_id = ${orgId} and e.${col} is not null and e.to_stage_id is not null
+        from ${leadEvents} e where e.${col} is not null and e.to_stage_id is not null
       )
       select to_stage_id as stage_id,
         count(distinct record_id) filter (where created_at >= ${from.toISOString()}::timestamptz and created_at < ${to.toISOString()}::timestamptz)::int as reached,
@@ -98,34 +96,33 @@ const stintsOf = async ({ client, orgId, col, from, to }: Scope) => {
 };
 
 /** The period's leads by a column of the record (source, owner), and how many converted. */
-const cohortBy = ({ client, orgId, table, col, inPeriod }: Scope, column: 'source' | 'owner_id') =>
+const cohortBy = ({ client, table, col, inPeriod }: Scope, column: 'source' | 'owner_id') =>
   rowsOf(
     client,
     z.object({ key: z.string().nullable(), count: Count, converted: Count }),
     sql`
       select c.${sql.raw(column)} as key, count(*)::int as count, count(c.converted_at)::int as converted
       from ${leadEvents} e join ${table} c on c.id = e.${col}
-      where e.org_id = ${orgId} and e.event = 'created' and e.${col} is not null and ${inPeriod}
+      where e.event = 'created' and e.${col} is not null and ${inPeriod}
       group by 1 order by 2 desc limit 20
     `,
   );
 
 /** Why leads were disqualified in the period, most common first. */
-const reasonsOf = ({ client, orgId, col, inPeriod }: Scope) =>
+const reasonsOf = ({ client, col, inPeriod }: Scope) =>
   rowsOf(
     client,
     z.object({ reason: z.string(), count: Count }),
     sql`
       select e.reason, count(*)::int as count
       from ${leadEvents} e join ${leadStages} s on s.id = e.to_stage_id
-      where e.org_id = ${orgId} and e.${col} is not null and s.kind = 'disqualified' and e.reason is not null and ${inPeriod}
+      where e.${col} is not null and s.kind = 'disqualified' and e.reason is not null and ${inPeriod}
       group by 1 order by 2 desc limit 10
     `,
   );
 
 const scopeOf = (
   client: Db,
-  actor: Actor,
   input: { recordType?: LeadRecordType; from?: string; to?: string },
 ): Scope => {
   const type = input.recordType ?? 'customer';
@@ -136,7 +133,6 @@ const scopeOf = (
 
   return {
     client,
-    orgId: actor.orgId,
     type,
     table: recordTable(type),
     col: sql.raw(type === 'company' ? 'company_id' : 'customer_id'),
@@ -153,12 +149,11 @@ const scopeOf = (
  */
 export const leadReport = async (
   client: Db,
-  actor: Actor,
   input: { recordType?: LeadRecordType; from?: string; to?: string },
 ): Promise<LeadReport> => {
-  const scope = scopeOf(client, actor, input);
-  const stages = await stagesOf(client, scope.orgId);
-  const counts = await leadCounts(client, scope.orgId, scope.type);
+  const scope = scopeOf(client, input);
+  const stages = await stagesOf(client);
+  const counts = await leadCounts(client, scope.type);
   const totals = await totalsOf(scope);
   const stints = await stintsOf(scope);
   const sources = await cohortBy(scope, 'source');

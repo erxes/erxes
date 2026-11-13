@@ -26,7 +26,6 @@ type Status = UserRow['status'];
 
 export const listUsers = async (
   client: Db,
-  actor: Actor,
   query: CursorQuery & {
     search?: string;
     status?: Status;
@@ -69,7 +68,7 @@ export const listUsers = async (
 
   const page = await keysetPage(
     client,
-    { table: users, id: users.id, createdAt: users.createdAt, scope: eq(users.orgId, actor.orgId) },
+    { table: users, id: users.id, createdAt: users.createdAt },
     and(...filters),
     query,
     (where, orderBy, limit) =>
@@ -84,8 +83,7 @@ export const listUsers = async (
   return { ...page, data: page.data.map(toUserDto) };
 };
 
-export const getUser = async (client: Db, actor: Actor, id: string) =>
-  toUserDto(await findUser(client, actor.orgId, id));
+export const getUser = async (client: Db, id: string) => toUserDto(await findUser(client, id));
 
 /** Who may change `target`'s email and role: owners guard owners, nobody changes their own role. */
 const checkUserChange = async (
@@ -126,7 +124,7 @@ const checkUserChange = async (
   if (
     target.role === 'owner' &&
     target.status === 'active' &&
-    (await otherActiveOwners(tx, actor.orgId, target.id)) === 0
+    (await otherActiveOwners(tx, target.id)) === 0
   ) {
     throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
   }
@@ -165,7 +163,7 @@ export const updateUser = async (caller: Actor, id: string, input: UserChanges) 
   const tx = db();
 
   const actor = await lockTeam(tx, caller);
-  const target = await findUser(tx, actor.orgId, id, true);
+  const target = await findUser(tx, id, true);
   const email = input.email?.trim().toLowerCase();
 
   await checkUserChange(tx, actor, target, { email, role: input.role });
@@ -180,7 +178,7 @@ export const updateUser = async (caller: Actor, id: string, input: UserChanges) 
           ...(input.role !== undefined ? { role: input.role } : {}),
           updatedAt: sql`now()`,
         })
-        .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
+        .where(eq(users.id, id))
         .returning(),
     );
 
@@ -204,7 +202,7 @@ export const setUserPassword = async (caller: Actor, id: string, password: strin
 
   requireTeamManager(actor);
 
-  const target = await findUser(tx, actor.orgId, id, true);
+  const target = await findUser(tx, id, true);
 
   if (target.id === actor.userId) {
     throw forbidden('OWN_ACCOUNT', 'Change your own password from your profile');
@@ -225,7 +223,7 @@ export const setUserPassword = async (caller: Actor, id: string, password: strin
         ...(target.status === 'invited' ? { status: 'active' as const } : {}),
         updatedAt: sql`now()`,
       })
-      .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
+      .where(eq(users.id, id))
       .returning(),
   );
 
@@ -254,7 +252,7 @@ export const setUserDisabled = async (caller: Actor, id: string, disabled: boole
 
   requireTeamManager(actor);
 
-  const target = await findUser(tx, actor.orgId, id, true);
+  const target = await findUser(tx, id, true);
 
   if (target.id === actor.userId) {
     throw forbidden('OWN_ACCOUNT', 'You cannot disable or enable your own account');
@@ -264,11 +262,7 @@ export const setUserDisabled = async (caller: Actor, id: string, disabled: boole
     throw forbidden('OWNER_ONLY', 'Only an owner can disable or enable an owner');
   }
 
-  if (
-    disabled &&
-    target.role === 'owner' &&
-    (await otherActiveOwners(tx, actor.orgId, target.id)) === 0
-  ) {
+  if (disabled && target.role === 'owner' && (await otherActiveOwners(tx, target.id)) === 0) {
     throw new HttpError(409, 'LAST_OWNER', 'The organisation must keep an active owner');
   }
 
@@ -285,7 +279,7 @@ export const setUserDisabled = async (caller: Actor, id: string, disabled: boole
       .update(users)
       // Either way old sessions end: enabling doesn't bring back tokens issued before.
       .set({ status, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
-      .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
+      .where(eq(users.id, id))
       .returning(),
   );
 

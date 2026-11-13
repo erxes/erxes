@@ -1,6 +1,6 @@
 import type { CustomValue, ProductKind, ProductStatus } from '@erxes/core-contract';
 import { type Db, newId, products } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { forbidden, HttpError } from '~/http/errors';
 import { diffCustomFields, diffRows, mergeChanges } from '~/lib/changes';
@@ -38,16 +38,14 @@ const writable = async (
   { customFields: patch, ...input }: ProductFields,
   before?: ProductRow,
 ) => {
-  await checkCategory(client, caller.orgId, input.categoryId);
-  await checkUnique(client, caller.orgId, input, before?.id);
+  await checkCategory(client, input.categoryId);
+  await checkUnique(client, input, before?.id);
 
-  const imageIds = input.imageIds
-    ? await checkImages(client, caller.orgId, input.imageIds)
-    : undefined;
+  const imageIds = input.imageIds ? await checkImages(client, input.imageIds) : undefined;
 
   const plugins = await pluginsFor(client, caller, input.plugins);
   const current = before?.customFields ?? {};
-  const customFields = await applyCustomFields(client, caller.orgId, 'product', current, patch);
+  const customFields = await applyCustomFields(client, 'product', current, patch);
 
   return {
     columns: { ...input, ...(imageIds ? { imageIds } : {}), plugins },
@@ -120,16 +118,9 @@ export const createProduct = async (
     return productTaken(error);
   }
 
-  await saveCustomFields(
-    client,
-    caller.orgId,
-    'product',
-    id,
-    customFields,
-    Object.keys(customFields),
-  );
+  await saveCustomFields(client, 'product', id, customFields, Object.keys(customFields));
 
-  const row = await findProduct(client, caller.orgId, id);
+  const row = await findProduct(client, id);
 
   await announce(client, caller, 'created', [{ row }]);
 
@@ -143,23 +134,23 @@ export const updateProduct = async (
   id: string,
   changes: ProductFields,
 ) => {
-  await lockRows(client, 'core_products', caller.orgId, [id]);
+  await lockRows(client, 'core_products', [id]);
 
-  const before = await findProduct(client, caller.orgId, id);
+  const before = await findProduct(client, id);
   const { columns, customFields, changedFields } = await writable(client, caller, changes, before);
 
   try {
     await client
       .update(products)
       .set({ ...columns, updatedAt: sql`now()` })
-      .where(and(eq(products.orgId, caller.orgId), eq(products.id, id)));
+      .where(eq(products.id, id));
   } catch (error) {
     return productTaken(error);
   }
 
-  await saveCustomFields(client, caller.orgId, 'product', id, customFields, changedFields);
+  await saveCustomFields(client, 'product', id, customFields, changedFields);
 
-  const row = await findProduct(client, caller.orgId, id);
+  const row = await findProduct(client, id);
 
   await announce(client, caller, 'updated', [{ row, before }]);
 
@@ -174,12 +165,12 @@ export const useProducts = async (client: Db, caller: Caller, ids: string[], use
 
   const wanted = unique(ids);
 
-  await lockRows(client, 'core_products', caller.orgId, wanted);
+  await lockRows(client, 'core_products', wanted);
 
   const before = await client
     .select(productColumns)
     .from(products)
-    .where(and(eq(products.orgId, caller.orgId), inArray(products.id, wanted)));
+    .where(inArray(products.id, wanted));
 
   if (before.length !== wanted.length) {
     throw new HttpError(400, 'INVALID_PRODUCT', 'Unknown product');
@@ -189,12 +180,9 @@ export const useProducts = async (client: Db, caller: Caller, ids: string[], use
   const changed = before.filter((row) => row.plugins.includes(plugin) !== used);
 
   if (changed.length) {
-    const where = and(
-      eq(products.orgId, caller.orgId),
-      inArray(
-        products.id,
-        changed.map((row) => row.id),
-      ),
+    const where = inArray(
+      products.id,
+      changed.map((row) => row.id),
     );
 
     await client
@@ -223,7 +211,7 @@ export const useProducts = async (client: Db, caller: Caller, ids: string[], use
     );
   }
 
-  return lookupProducts(client, caller, wanted);
+  return lookupProducts(client, wanted);
 };
 
 /** Archives (`archived`) or restores (`active`) a product; asking twice changes nothing. */
@@ -233,7 +221,7 @@ export const setProductStatus = async (
   id: string,
   status: ProductStatus,
 ) => {
-  const before = await findProduct(client, caller.orgId, id);
+  const before = await findProduct(client, id);
 
   if (before.status === status) return toProductDto(before);
 
@@ -244,9 +232,9 @@ export const setProductStatus = async (
       archivedAt: status === 'archived' ? sql`now()` : null,
       updatedAt: sql`now()`,
     })
-    .where(and(eq(products.orgId, caller.orgId), eq(products.id, id)));
+    .where(eq(products.id, id));
 
-  const row = await findProduct(client, caller.orgId, id);
+  const row = await findProduct(client, id);
 
   await announce(client, caller, status === 'archived' ? 'archived' : 'restored', [
     { row, before },

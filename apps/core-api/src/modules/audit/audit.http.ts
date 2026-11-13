@@ -1,7 +1,7 @@
 import { AUDIT_EXPORT_FORMATS } from '@erxes/core-db/enums';
 import { auditLogs, withOrg } from '@erxes/core-db';
 import { stringify } from 'csv-stringify/sync';
-import { and, desc, eq, type SQL, sql } from 'drizzle-orm';
+import { and, desc, type SQL, sql } from 'drizzle-orm';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { type Actor, actorOf, requirePermission, userCaller } from '~/http/auth';
@@ -135,7 +135,7 @@ auditExportRouter.get('/audit/export', async (req: Request, res: Response) => {
   }
 
   const { format, ...filters } = parsed.data;
-  const scope = and(eq(auditLogs.orgId, actor.orgId), auditFilters(filters));
+  const scope = auditFilters(filters);
   const stamp = new Date().toISOString().slice(0, 10);
 
   res.setHeader(

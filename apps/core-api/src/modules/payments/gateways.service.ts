@@ -23,12 +23,7 @@ const pluginSettingsOf = async (client: Db, caller: Caller) => {
   const [settings] = await client
     .select()
     .from(paymentPluginSettings)
-    .where(
-      and(
-        eq(paymentPluginSettings.orgId, caller.orgId),
-        eq(paymentPluginSettings.plugin, caller.source),
-      ),
-    )
+    .where(eq(paymentPluginSettings.plugin, caller.source))
     .limit(1);
 
   return settings ?? null;
@@ -62,7 +57,6 @@ export const resolveGateway = async (
     .from(paymentGateways)
     .where(
       and(
-        eq(paymentGateways.orgId, caller.orgId),
         eq(paymentGateways.status, 'active'),
         requested
           ? eq(paymentGateways.id, requested)
@@ -124,11 +118,11 @@ const toGatewayDto = (row: GatewayRow): PaymentGateway => ({
   createdAt: row.createdAt.toISOString(),
 });
 
-const gatewayOrThrow = async (client: Db, orgId: string, id: string) => {
+const gatewayOrThrow = async (client: Db, id: string) => {
   const [row] = await client
     .select()
     .from(paymentGateways)
-    .where(and(eq(paymentGateways.orgId, orgId), eq(paymentGateways.id, id)))
+    .where(eq(paymentGateways.id, id))
     .limit(1);
 
   if (!row) throw notFound('Gateway');
@@ -148,15 +142,10 @@ const verifyGateway = async (id: string, settings: GatewayConfig) => {
   }
 };
 
-export const listGateways = async (client: Db, actor: Actor) => ({
+export const listGateways = async (client: Db) => ({
   data: (
     await wholeList((limit) =>
-      client
-        .select()
-        .from(paymentGateways)
-        .where(eq(paymentGateways.orgId, actor.orgId))
-        .orderBy(paymentGateways.createdAt)
-        .limit(limit),
+      client.select().from(paymentGateways).orderBy(paymentGateways.createdAt).limit(limit),
     )
   ).map(toGatewayDto),
 });
@@ -200,7 +189,7 @@ export const updateGateway = async (
   id: string,
   input: { name?: string; config?: GatewayConfig; status?: GatewayRow['status'] },
 ) => {
-  const before = await gatewayOrThrow(client, actor.orgId, id);
+  const before = await gatewayOrThrow(client, id);
 
   if (input.config) {
     if (input.config.kind !== before.kind)
@@ -233,7 +222,7 @@ export const updateGateway = async (
 };
 
 export const removeGateway = async (client: Db, actor: Actor, id: string) => {
-  const row = await gatewayOrThrow(client, actor.orgId, id);
+  const row = await gatewayOrThrow(client, id);
 
   const [used] = await client
     .select({ id: paymentInvoices.id })
@@ -245,13 +234,10 @@ export const removeGateway = async (client: Db, actor: Actor, id: string) => {
 
   await client.delete(paymentGateways).where(eq(paymentGateways.id, id));
   // Plugins that used it go back to the organisation's other gateways.
-  await client
-    .update(paymentPluginSettings)
-    .set({
-      allowedGatewayIds: sql`array_remove(${paymentPluginSettings.allowedGatewayIds}, ${id})`,
-      defaultGatewayId: sql`nullif(${paymentPluginSettings.defaultGatewayId}, ${id})`,
-    })
-    .where(eq(paymentPluginSettings.orgId, actor.orgId));
+  await client.update(paymentPluginSettings).set({
+    allowedGatewayIds: sql`array_remove(${paymentPluginSettings.allowedGatewayIds}, ${id})`,
+    defaultGatewayId: sql`nullif(${paymentPluginSettings.defaultGatewayId}, ${id})`,
+  });
   await recordAudit(client, userCaller(actor), {
     action: 'payment.gateway_removed',
     targetType: 'payment_gateway',

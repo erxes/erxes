@@ -58,7 +58,7 @@ export const exchangeCode = async (
       .returning({ id: oauthCodes.id });
 
     // A code works once.
-    if (!used || !(await installed(tx, code.orgId, client.name))) return null;
+    if (!used || !(await installed(tx, client.name))) return null;
 
     const issued = await issueTokens(tx, code);
 
@@ -134,7 +134,7 @@ export const refreshGrant = async (client: OAuthClient, form: { refresh_token?: 
       current.expiresAt.getTime() < Date.now() ||
       user?.status !== 'active' ||
       user.version !== current.sessionVersion ||
-      !(await installed(tx, current.orgId, client.name))
+      !(await installed(tx, client.name))
     ) {
       return null;
     }

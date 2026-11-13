@@ -105,11 +105,96 @@ const noSessionAdvisoryLockRule = defineRule({
   },
 });
 
+const COMPARISONS = new Set(['eq', 'ne', 'inArray', 'notInArray']);
+
+/** `x.orgId`, the organisation column of a table, or a value someone carries. */
+const isOrgId = (node: ESTree.Node | undefined) =>
+  node?.type === 'MemberExpression' &&
+  node.property.type === 'Identifier' &&
+  node.property.name === 'orgId';
+
+/**
+ * Row level security keeps every query in a `withOrg` scope to that organisation, so a filter
+ * on org_id only repeats it. Comparing two tables' org_id columns (a join key) is fine; a
+ * table's org_id against a value, in drizzle (`eq(customers.orgId, actor.orgId)`) or in SQL
+ * (`where org_id = ${orgId}`), is reported.
+ */
+const noOrgFilterRule = defineRule({
+  meta: {
+    type: 'problem',
+    docs: { description: 'Disallow org_id filters: row level security scopes every query.' },
+    messages: {
+      filter:
+        "Row level security already keeps this query to the scope's organisation (withOrg), so delete the org_id filter. System work that needs one organisation's rows runs them in withOrg(orgId, ...) inside its withSystem scope.",
+    },
+  },
+  createOnce(context) {
+    // Tables: what a file imports from @erxes/core-db, and drizzle `alias(table, name)`es.
+    const tables = new Set<string>();
+
+    const isColumn = (node: ESTree.Node | undefined) =>
+      node?.type === 'MemberExpression' &&
+      node.object.type === 'Identifier' &&
+      tables.has(node.object.name);
+
+    return {
+      Program() {
+        tables.clear();
+      },
+      ImportDeclaration(node) {
+        if (!node.source.value.startsWith('@erxes/core-db')) return;
+
+        for (const specifier of node.specifiers) tables.add(specifier.local.name);
+      },
+      VariableDeclarator(node) {
+        const { id, init } = node;
+
+        if (
+          id.type === 'Identifier' &&
+          init?.type === 'CallExpression' &&
+          init.callee.type === 'Identifier' &&
+          init.callee.name === 'alias'
+        )
+          tables.add(id.name);
+      },
+      CallExpression(node) {
+        if (node.callee.type !== 'Identifier' || !COMPARISONS.has(node.callee.name)) return;
+
+        const [left, right] = node.arguments;
+
+        const column =
+          isOrgId(left) && isColumn(left) ? right : isOrgId(right) && isColumn(right) ? left : null;
+
+        if (column && !isColumn(column)) context.report({ node, messageId: 'filter' });
+      },
+      TaggedTemplateExpression(node) {
+        if (node.tag.type !== 'Identifier' || node.tag.name !== 'sql') return;
+
+        const { quasis, expressions } = node.quasi;
+
+        expressions.forEach((value, index) => {
+          const before = quasis[index]?.value.raw ?? '';
+          const between = quasis[index + 1]?.value.raw ?? '';
+          const next = expressions[index + 1];
+
+          // `org_id = ${value}`, or `${table.orgId} = ${value}`
+          const filter =
+            (/\borg_id\s*=\s*$/.test(before) && !isColumn(value)) ||
+            (isOrgId(value) && isColumn(value) && /^\s*=\s*$/.test(between) && !isColumn(next));
+
+          if (filter) context.report({ node, messageId: 'filter' });
+        });
+      },
+    };
+  },
+});
+
 /** Rules for erxes core's own conventions. */
 const erxesPlugin = eslintCompatPlugin({
   meta: { name: 'erxes' },
   rules: {
     'no-inline-enum': noInlineEnumRule,
+    'no-org-filter': noOrgFilterRule,
     'no-session-advisory-lock': noSessionAdvisoryLockRule,
   },
 });

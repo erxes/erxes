@@ -86,7 +86,7 @@ export const actorOf = async (tx: Db, orgId: string, userId: string | null): Pro
     })
     .from(users)
     .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
+    .where(eq(users.id, userId))
     .limit(1);
 
   if (row?.status !== 'active')
@@ -98,11 +98,11 @@ export const actorOf = async (tx: Db, orgId: string, userId: string | null): Pro
 export const RunPayload = z.object({ runId: z.string() });
 
 /** One run's row, locked for this transaction, if it is still in progress. */
-export const lockLiveRun = async (tx: Db, orgId: string, runId: string) => {
+export const lockLiveRun = async (tx: Db, runId: string) => {
   const [run] = await tx
     .select()
     .from(automationRuns)
-    .where(and(eq(automationRuns.orgId, orgId), eq(automationRuns.id, runId)))
+    .where(eq(automationRuns.id, runId))
     .for('update')
     .limit(1);
 
@@ -121,7 +121,6 @@ type StepEntry = {
 const logStep = (tx: Db, run: RunRow, step: AutomationStep, entry: StepEntry) =>
   tx.insert(automationRunSteps).values({
     id: newId(),
-    orgId: run.orgId,
     runId: run.id,
     stepId: step.id,
     type: step.type === 'action' ? step.action : step.type,
@@ -243,7 +242,7 @@ export const failRun = async (
   job: { orgId: string; attempts: number; payload: { runId: string; cursor?: Cursor } },
   error: string,
 ) => {
-  const run = await lockLiveRun(tx, job.orgId, job.payload.runId);
+  const run = await lockLiveRun(tx, job.payload.runId);
   const { cursor } = job.payload;
 
   // A call for a step the run already left (cancelled, retried) fails nothing.
@@ -265,17 +264,11 @@ export const failRun = async (
 };
 
 /** Continue a failed run at the step that failed. */
-export const retryRun = async (tx: Db, orgId: string, runId: string) => {
+export const retryRun = async (tx: Db, runId: string) => {
   const [run] = await tx
     .update(automationRuns)
     .set({ status: 'running', error: null, finishedAt: null, updatedAt: sql`now()` })
-    .where(
-      and(
-        eq(automationRuns.orgId, orgId),
-        eq(automationRuns.id, runId),
-        eq(automationRuns.status, 'failed'),
-      ),
-    )
+    .where(and(eq(automationRuns.id, runId), eq(automationRuns.status, 'failed')))
     .returning();
 
   // A new time in the key: the failed attempt's job may still hold the old one.
@@ -284,7 +277,7 @@ export const retryRun = async (tx: Db, orgId: string, runId: string) => {
   return run ?? null;
 };
 
-export const cancelRun = async (tx: Db, orgId: string, runId: string) => {
+export const cancelRun = async (tx: Db, runId: string) => {
   const [run] = await tx
     .update(automationRuns)
     .set({
@@ -295,11 +288,7 @@ export const cancelRun = async (tx: Db, orgId: string, runId: string) => {
       updatedAt: sql`now()`,
     })
     .where(
-      and(
-        eq(automationRuns.orgId, orgId),
-        eq(automationRuns.id, runId),
-        inArray(automationRuns.status, ['running', 'waiting']),
-      ),
+      and(eq(automationRuns.id, runId), inArray(automationRuns.status, ['running', 'waiting'])),
     )
     .returning();
 

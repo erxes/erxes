@@ -94,11 +94,7 @@ export const findExisting = async (
 
   const table = ctx.isCompany ? companies : customers;
 
-  const [row] = await tx
-    .select({ id: table.id })
-    .from(table)
-    .where(and(eq(table.orgId, ctx.actor.orgId), where))
-    .limit(1);
+  const [row] = await tx.select({ id: table.id }).from(table).where(where).limit(1);
 
   return row?.id ?? null;
 };
@@ -108,7 +104,7 @@ export const ownerId = async (tx: Db, ctx: Context, email: string) => {
     const [row] = await tx
       .select({ id: users.id })
       .from(users)
-      .where(and(eq(users.orgId, ctx.actor.orgId), eq(sql`lower(${users.email})`, email)))
+      .where(eq(sql`lower(${users.email})`, email))
       .limit(1);
 
     ctx.owners.set(email, row?.id ?? null);
@@ -171,7 +167,7 @@ export const tagIds = async (tx: Db, ctx: Context, names: string[], created: Cre
     tx
       .select({ id: tags.id, key: lower })
       .from(tags)
-      .where(and(eq(tags.orgId, ctx.actor.orgId), eq(tags.type, type), inArray(lower, keys))),
+      .where(and(eq(tags.type, type), inArray(lower, keys))),
   );
 
   const [first] = missing;
@@ -181,7 +177,6 @@ export const tagIds = async (tx: Db, ctx: Context, names: string[], created: Cre
 
   const rows = missing.map((name) => ({
     id: newId(),
-    orgId: ctx.actor.orgId,
     type,
     name,
     createdBy: ctx.actor.userId,
@@ -202,10 +197,7 @@ export const companyIds = async (tx: Db, ctx: Context, names: string[], created:
   const lower = sql<string>`lower(${companies.primaryName})`;
 
   const { byKey, missing } = await lookUpNames(ctx.companies, created, 'company', names, (keys) =>
-    tx
-      .select({ id: companies.id, key: lower })
-      .from(companies)
-      .where(and(eq(companies.orgId, ctx.actor.orgId), inArray(lower, keys))),
+    tx.select({ id: companies.id, key: lower }).from(companies).where(inArray(lower, keys)),
   );
 
   const [first] = missing;
@@ -226,10 +218,7 @@ export const companyIds = async (tx: Db, ctx: Context, names: string[], created:
 export const existingTags = async (tx: Db, ctx: Context, id: string) => {
   const links = ctx.isCompany ? companyTags : customerTags;
 
-  return (
-    await tx
-      .select({ tagId: links.tagId })
-      .from(links)
-      .where(and(eq(links.orgId, ctx.actor.orgId), eq(links.recordId, id)))
-  ).map((row) => row.tagId);
+  return (await tx.select({ tagId: links.tagId }).from(links).where(eq(links.recordId, id))).map(
+    (row) => row.tagId,
+  );
 };

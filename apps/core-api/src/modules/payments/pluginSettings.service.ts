@@ -15,7 +15,6 @@ import { recordAudit } from '~/modules/audit/audit.service';
 /** Installed plugins that may create invoices (`payments:write`), with their settings. */
 export const listPluginSettings = async (
   client: Db,
-  actor: Actor,
 ): Promise<{ data: PluginPaymentSettings[] }> => {
   const rows = await wholeList((limit) =>
     client
@@ -33,12 +32,7 @@ export const listPluginSettings = async (
           eq(paymentPluginSettings.plugin, pluginInstallations.plugin),
         ),
       )
-      .where(
-        and(
-          eq(pluginInstallations.orgId, actor.orgId),
-          sql`'payments:write' = any(${pluginInstallations.grantedScopes})`,
-        ),
-      )
+      .where(sql`'payments:write' = any(${pluginInstallations.grantedScopes})`)
       .orderBy(pluginInstallations.plugin)
       .limit(limit),
   );
@@ -54,19 +48,14 @@ export const listPluginSettings = async (
 };
 
 /** Every gateway named must be one of the organisation's, and the default one of the allowed. */
-const checkGateways = async (
-  client: Db,
-  actor: Actor,
-  allowed: string[],
-  fallback: string | null,
-) => {
+const checkGateways = async (client: Db, allowed: string[], fallback: string | null) => {
   const wanted = [...new Set([...allowed, ...(fallback ? [fallback] : [])])];
 
   const found = wanted.length
     ? await client
         .select({ id: paymentGateways.id })
         .from(paymentGateways)
-        .where(and(eq(paymentGateways.orgId, actor.orgId), inArray(paymentGateways.id, wanted)))
+        .where(inArray(paymentGateways.id, wanted))
     : [];
 
   if (found.length !== wanted.length) throw notFound('Gateway');
@@ -85,7 +74,7 @@ export const updatePluginSettings = async (
   actor: Actor,
   input: { plugin: string; defaultGatewayId: string | null; allowedGatewayIds: string[] },
 ) => {
-  const current = (await listPluginSettings(client, actor)).data.find(
+  const current = (await listPluginSettings(client)).data.find(
     (row) => row.plugin === input.plugin,
   );
 
@@ -93,7 +82,7 @@ export const updatePluginSettings = async (
 
   const allowed = [...new Set(input.allowedGatewayIds)];
 
-  await checkGateways(client, actor, allowed, input.defaultGatewayId);
+  await checkGateways(client, allowed, input.defaultGatewayId);
   await client
     .insert(paymentPluginSettings)
     .values({

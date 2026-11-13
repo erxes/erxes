@@ -23,9 +23,7 @@ import { anyone, authed, audited, recordOf } from '~/orpc';
 
 export const fieldsRouter = {
   list: anyone.fields.list.handler(({ input, context }) => listFields(db(), context.caller, input)),
-  usage: authed.fields.usage.handler(({ input, context }) =>
-    fieldUsage(db(), context.actor, input),
-  ),
+  usage: authed.fields.usage.handler(({ input }) => fieldUsage(db(), input)),
   create: authed.fields.create.handler(({ input, context }) =>
     audited(
       context.actor,
@@ -74,9 +72,7 @@ export const fieldsRouter = {
 };
 
 export const fieldGroupsRouter = {
-  list: authed.fieldGroups.list.handler(({ input, context }) =>
-    listFieldGroups(db(), context.actor, input),
-  ),
+  list: authed.fieldGroups.list.handler(({ input }) => listFieldGroups(db(), input)),
   create: authed.fieldGroups.create.handler(({ input, context }) =>
     audited(
       context.actor,

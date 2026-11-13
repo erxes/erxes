@@ -1,5 +1,5 @@
 import { db, type Db, newId, users } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { inArray, sql } from 'drizzle-orm';
 import { type Actor, type Role, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
@@ -94,7 +94,7 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
   const taken = await tx
     .select({ email: users.email })
     .from(users)
-    .where(and(eq(users.orgId, actor.orgId), inArray(sql`lower(${users.email})`, emails)));
+    .where(inArray(sql`lower(${users.email})`, emails));
 
   if (taken.length) {
     const list = taken.map(({ email }) => email.toLowerCase());

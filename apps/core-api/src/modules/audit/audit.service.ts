@@ -154,7 +154,7 @@ export const listAudit = async (client: Db, actor: Actor, query: CursorQuery & A
       table: auditLogs,
       id: auditLogs.id,
       createdAt: auditLogs.createdAt,
-      scope: eq(auditLogs.orgId, actor.orgId),
+
       countCap: 10_000,
     },
     filters,
@@ -203,7 +203,6 @@ export const recordPluginAudit = async (
 
   await assertMembers(
     client,
-    caller.orgId,
     entries.map((entry) => entry.actorUserId),
   );
 
@@ -242,7 +241,7 @@ export const recordPluginAudit = async (
 export const verifyAudit = async (client: Db, actor: Actor) => {
   requirePermission(actor, 'audit.view');
 
-  const chain = await findChainBreak(client, actor.orgId);
+  const chain = await findChainBreak(client);
   const checkpoints = await verifyCheckpoints(client, actor.orgId, chain.firstSeq);
 
   // An intact log gets a fresh checkpoint now, not at the next scheduled one.

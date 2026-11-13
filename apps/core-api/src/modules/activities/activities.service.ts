@@ -70,39 +70,26 @@ export const recordActivity = async (
   );
 };
 
-const targetsOf = (orgId: string, targetType: ActivityTarget, ids: string[]) =>
-  and(
-    eq(activities.orgId, orgId),
-    eq(activities.targetType, targetType),
-    inArray(activities.targetId, ids),
-  );
+const targetsOf = (targetType: ActivityTarget, ids: string[]) =>
+  and(eq(activities.targetType, targetType), inArray(activities.targetId, ids));
 
 /** Merged records: their timelines move to the record that was kept. */
 export const moveActivities = async (
   client: Db,
-  orgId: string,
   targetType: ActivityTarget,
   fromIds: string[],
   toId: string,
 ) => {
   if (!fromIds.length) return;
 
-  await client
-    .update(activities)
-    .set({ targetId: toId })
-    .where(targetsOf(orgId, targetType, fromIds));
+  await client.update(activities).set({ targetId: toId }).where(targetsOf(targetType, fromIds));
 };
 
 /** Deleted records: their timeline goes too (privacy: nothing is left behind). */
-export const removeActivities = async (
-  client: Db,
-  orgId: string,
-  targetType: ActivityTarget,
-  ids: string[],
-) => {
+export const removeActivities = async (client: Db, targetType: ActivityTarget, ids: string[]) => {
   if (!ids.length) return;
 
-  await client.delete(activities).where(targetsOf(orgId, targetType, ids));
+  await client.delete(activities).where(targetsOf(targetType, ids));
 };
 
 export const isNote = like(activities.type, '%.note');
@@ -123,7 +110,7 @@ const recordLink = (targetType: string, targetId: string) =>
 const snippet = (body: string) => (body.length > 140 ? `${body.slice(0, 140)}…` : body);
 
 /** 400 INVALID_FILE unless every file is a ready upload of the organisation. */
-const checkFiles = async (client: Db, orgId: string, fileIds: string[]) => {
+const checkFiles = async (client: Db, fileIds: string[]) => {
   const wanted = unique(fileIds);
 
   if (!wanted.length) return wanted;
@@ -131,7 +118,7 @@ const checkFiles = async (client: Db, orgId: string, fileIds: string[]) => {
   const found = await client
     .select({ id: files.id })
     .from(files)
-    .where(and(eq(files.orgId, orgId), eq(files.status, 'ready'), inArray(files.id, wanted)));
+    .where(and(eq(files.status, 'ready'), inArray(files.id, wanted)));
 
   if (found.length !== wanted.length) {
     throw new HttpError(400, 'INVALID_FILE', 'Attach files uploaded to this organisation');
@@ -162,11 +149,11 @@ const notifyMentions = async (
   });
 };
 
-const findNote = async (client: Db, orgId: string, id: string) => {
+const findNote = async (client: Db, id: string) => {
   const [row] = await client
     .select()
     .from(activities)
-    .where(and(eq(activities.orgId, orgId), eq(activities.id, id), isNote))
+    .where(and(eq(activities.id, id), isNote))
     .limit(1);
 
   if (!row) throw notFound('Note');
@@ -194,9 +181,9 @@ export const addNote = async (
 
   const mentions = unique(input.mentions);
 
-  await assertMembers(client, actor.orgId, mentions);
+  await assertMembers(client, mentions);
 
-  const fileIds = await checkFiles(client, actor.orgId, input.fileIds);
+  const fileIds = await checkFiles(client, input.fileIds);
 
   const row = oneRow(
     await client
@@ -222,19 +209,16 @@ export const addNote = async (
 /** The note's new data: text, mentions and files, with earlier wordings kept (the last 20). */
 const editedData = async (
   client: Db,
-  actor: Actor,
   note: ActivityRow,
   input: { body?: string; mentions?: string[]; fileIds?: string[] },
 ) => {
   const data = NoteData.parse(note.data);
   const mentions = input.mentions === undefined ? data.mentions : unique(input.mentions);
 
-  await assertMembers(client, actor.orgId, mentions);
+  await assertMembers(client, mentions);
 
   const fileIds =
-    input.fileIds === undefined
-      ? data.fileIds
-      : await checkFiles(client, actor.orgId, input.fileIds);
+    input.fileIds === undefined ? data.fileIds : await checkFiles(client, input.fileIds);
 
   const reworded = input.body !== undefined && input.body !== data.body;
   const editedAt = (note.editedAt ?? note.occurredAt).toISOString();
@@ -264,7 +248,7 @@ export const updateNote = async (
   id: string,
   input: { body?: string; mentions?: string[]; fileIds?: string[]; pinned?: boolean },
 ) => {
-  const note = await findNote(client, actor.orgId, id);
+  const note = await findNote(client, id);
 
   const editing =
     input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
@@ -273,7 +257,7 @@ export const updateNote = async (
     throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
   }
 
-  const edit = await editedData(client, actor, note, input);
+  const edit = await editedData(client, note, input);
 
   const row = oneRow(
     await client
@@ -282,7 +266,7 @@ export const updateNote = async (
         ...(editing ? { data: edit.data, editedAt: sql`now()` } : {}),
         ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
       })
-      .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
+      .where(eq(activities.id, id))
       .returning(),
   );
 
@@ -297,7 +281,7 @@ export const updateNote = async (
 };
 
 export const removeNote = async (client: Db, actor: Actor, id: string) => {
-  const note = await findNote(client, actor.orgId, id);
+  const note = await findNote(client, id);
 
   if (note.actorId !== actor.userId && !can(actor, 'notes.moderate')) {
     throw new HttpError(
@@ -307,9 +291,7 @@ export const removeNote = async (client: Db, actor: Actor, id: string) => {
     );
   }
 
-  await client
-    .delete(activities)
-    .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)));
+  await client.delete(activities).where(eq(activities.id, id));
 
   return { ok: true as const };
 };

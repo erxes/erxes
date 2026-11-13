@@ -1,15 +1,14 @@
 import { companies, customerCompanies, type Db } from '@erxes/core-db';
-import { and, asc, eq, sql } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
-import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { findCustomer } from './customerRows';
 
-export const assertCompany = async (client: Db, orgId: string, companyId: string) => {
+export const assertCompany = async (client: Db, companyId: string) => {
   const [company] = await client
     .select({ id: companies.id })
     .from(companies)
-    .where(and(eq(companies.orgId, orgId), eq(companies.id, companyId)))
+    .where(eq(companies.id, companyId))
     .limit(1);
 
   if (!company) {
@@ -44,8 +43,8 @@ export const linkOrder = [
   asc(customerCompanies.createdAt),
 ];
 
-export const customerCompaniesOf = async (client: Db, actor: Actor, id: string) => {
-  await findCustomer(client, actor.orgId, id);
+export const customerCompaniesOf = async (client: Db, id: string) => {
+  await findCustomer(client, id);
 
   const rows = await wholeList((limit) =>
     client
@@ -58,7 +57,7 @@ export const customerCompaniesOf = async (client: Db, actor: Actor, id: string) 
       })
       .from(customerCompanies)
       .innerJoin(companies, eq(companies.id, customerCompanies.companyId))
-      .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.customerId, id)))
+      .where(eq(customerCompanies.customerId, id))
       .orderBy(...linkOrder)
       .limit(limit),
   );

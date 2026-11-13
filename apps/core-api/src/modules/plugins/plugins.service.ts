@@ -9,7 +9,7 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { PLUGIN_ACCESS_TYP, type PluginService } from '~/http/auth';
 import { HttpError } from '~/http/errors';
@@ -125,7 +125,7 @@ const grantedScopes = async (row: PluginRow, org: string) => {
     const [found] = await tx
       .update(pluginInstallations)
       .set({ lastTokenAt: sql`now()` })
-      .where(and(eq(pluginInstallations.orgId, org), eq(pluginInstallations.plugin, row.name)))
+      .where(eq(pluginInstallations.plugin, row.name))
       .returning();
 
     return found;

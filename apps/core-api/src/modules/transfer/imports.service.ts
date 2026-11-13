@@ -38,14 +38,13 @@ const sampleOf = async (client: Db, id: string) =>
       .limit(5)
   ).map((row) => row.cells);
 
-export const listImports = async (client: Db, actor: Actor, query: CursorQuery) => {
+export const listImports = async (client: Db, query: CursorQuery) => {
   const page = await keysetPage(
     client,
     {
       table: imports,
       id: imports.id,
       createdAt: imports.createdAt,
-      scope: eq(imports.orgId, actor.orgId),
     },
     undefined,
     query,
@@ -61,8 +60,8 @@ export const listImports = async (client: Db, actor: Actor, query: CursorQuery) 
   return { ...page, data: page.data.map((row) => toDto(row)) };
 };
 
-export const getImport = async (client: Db, actor: Actor, id: string) => {
-  const row = await importOrThrow(client, actor.orgId, id);
+export const getImport = async (client: Db, id: string) => {
+  const row = await importOrThrow(client, id);
 
   return toDto(row, await sampleOf(client, id));
 };
@@ -73,7 +72,7 @@ export const createImport = async (
   actor: Actor,
   input: { recordType: TransferRecordType; fileId: string },
 ) => {
-  const file = await readyFile(client, actor.orgId, input.fileId);
+  const file = await readyFile(client, input.fileId);
 
   if (!/\.(csv|txt|tsv|xlsx)$/i.test(file.name))
     throw new HttpError(400, 'UNSUPPORTED_FILE', 'Import a .csv or .xlsx file');
@@ -103,13 +102,8 @@ export const createImport = async (
 };
 
 /** Each mapped field must be importable and take one column. */
-const checkMapping = async (
-  client: Db,
-  actor: Actor,
-  row: ImportRow,
-  mapping: Record<string, string>,
-) => {
-  const columns = await transferColumns(client, actor.orgId, row.recordType);
+const checkMapping = async (client: Db, row: ImportRow, mapping: Record<string, string>) => {
+  const columns = await transferColumns(client, row.recordType);
   const keys = Object.values(mapping);
   const unknown = keys.find((key) => !columns.some((item) => item.key === key && item.importable));
 
@@ -122,18 +116,17 @@ const checkMapping = async (
 /** Mapping and options can change until it runs; the check's results are cleared. */
 export const updateImport = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: { mapping?: Record<string, string>; options?: Partial<ImportOptions> },
 ) => {
-  const row = await importOrThrow(client, actor.orgId, id, true);
+  const row = await importOrThrow(client, id, true);
 
   if (!['mapping', 'checked'].includes(row.status))
     throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
 
   const mapping = input.mapping ?? row.mapping;
 
-  await checkMapping(client, actor, row, mapping);
+  await checkMapping(client, row, mapping);
 
   const options = { ...row.options, ...input.options };
 
@@ -163,8 +156,8 @@ export const updateImport = async (
   return toDto(next, await sampleOf(client, id));
 };
 
-const begin = async (client: Db, actor: Actor, id: string, status: 'checking' | 'running') => {
-  const row = await importOrThrow(client, actor.orgId, id, true);
+const begin = async (client: Db, id: string, status: 'checking' | 'running') => {
+  const row = await importOrThrow(client, id, true);
 
   if (row.status !== 'mapping' && row.status !== 'checked')
     throw new HttpError(409, 'IMPORT_LOCKED', `The import is ${row.status}`);
@@ -194,15 +187,13 @@ const begin = async (client: Db, actor: Actor, id: string, status: 'checking' | 
   return toDto(next);
 };
 
-export const checkImport = (client: Db, actor: Actor, id: string) =>
-  begin(client, actor, id, 'checking');
+export const checkImport = (client: Db, id: string) => begin(client, id, 'checking');
 
-export const startImport = (client: Db, actor: Actor, id: string) =>
-  begin(client, actor, id, 'running');
+export const startImport = (client: Db, id: string) => begin(client, id, 'running');
 
 /** Removes the records it created (to the recycle bin), within 30 days; what it updated stays. */
 export const undoImport = async (client: Db, actor: Actor, id: string) => {
-  const row = await importOrThrow(client, actor.orgId, id, true);
+  const row = await importOrThrow(client, id, true);
 
   if (!undoable(row))
     throw new HttpError(
@@ -237,11 +228,10 @@ export const undoImport = async (client: Db, actor: Actor, id: string) => {
 
 export const listImportRows = async (
   client: Db,
-  actor: Actor,
   id: string,
   input: { action?: Action; limit: number },
 ) => {
-  await importOrThrow(client, actor.orgId, id);
+  await importOrThrow(client, id);
 
   const rows = await client
     .select()

@@ -66,7 +66,6 @@ const assertNotLockedOut = async ({ user }: Account) => {
       .from(auditLogs)
       .where(
         and(
-          eq(auditLogs.orgId, user.orgId),
           eq(auditLogs.targetId, user.id),
           eq(auditLogs.action, 'auth.sign_in_failed'),
           sql`${auditLogs.createdAt} > now() - interval '15 minutes'`,
@@ -204,7 +203,7 @@ export const getSession = async (orgId: string, userId: string) =>
       .from(users)
       .innerJoin(organizations, eq(organizations.id, users.orgId))
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(and(eq(users.id, userId), eq(users.orgId, orgId)))
+      .where(eq(users.id, userId))
       .limit(1);
 
     if (!row) {
@@ -238,7 +237,7 @@ export const markOnboarded = async (
     await tx
       .update(users)
       .set({ onboardedAt: sql`coalesce(${users.onboardedAt}, now())` })
-      .where(and(eq(users.orgId, orgId), eq(users.id, userId)));
+      .where(eq(users.id, userId));
 
     // Queued with the change: seeded right after (see `exampleDataJob`).
     if (input.exampleData && actor.role === 'owner') {

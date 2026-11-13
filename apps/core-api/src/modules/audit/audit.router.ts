@@ -26,7 +26,7 @@ export const auditRouter = {
   checkpoints: authed.audit.checkpoints.handler(({ input, context }) => {
     requirePermission(context.actor, 'audit.view');
 
-    return listCheckpoints(db(), context.actor.orgId, input);
+    return listCheckpoints(db(), input);
   }),
   settings: authed.audit.settings.handler(({ context }) =>
     auditSettings(db(), context.actor.orgId),
@@ -34,7 +34,7 @@ export const auditRouter = {
   updateSettings: authed.audit.updateSettings.handler(({ input, context }) =>
     updateAuditSettings(db(), context.actor, input),
   ),
-  streams: authed.audit.streams.handler(({ context }) => listStreams(db(), context.actor)),
+  streams: authed.audit.streams.handler(() => listStreams(db())),
   createStream: authed.audit.createStream.handler(({ input, context }) =>
     createStream(db(), context.actor, input),
   ),

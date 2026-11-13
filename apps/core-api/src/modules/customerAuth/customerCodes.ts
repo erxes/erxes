@@ -36,12 +36,8 @@ const hashOf = (id: string, code: string) =>
 const lockAddress = (tx: Db, orgId: string, address: Address) =>
   lockKeys(tx, [`customer-code:${orgId}:${address.kind}:${address.value}`]);
 
-const forAddress = (orgId: string, address: Address) =>
-  and(
-    eq(customerCodes.orgId, orgId),
-    eq(customerCodes.kind, address.kind),
-    eq(customerCodes.value, address.value),
-  );
+const forAddress = (address: Address) =>
+  and(eq(customerCodes.kind, address.kind), eq(customerCodes.value, address.value));
 
 /**
  * Sends a new code to the address (the earlier ones stop working): 5 an hour,
@@ -63,12 +59,7 @@ export const sendCode = async (
       tooSoon: sql<boolean>`coalesce(bool_or(${customerCodes.createdAt} > now() - make_interval(secs => ${RESEND_SECONDS})), false)`,
     })
     .from(customerCodes)
-    .where(
-      and(
-        forAddress(organization.id, address),
-        gt(customerCodes.createdAt, sql`now() - interval '1 hour'`),
-      ),
-    );
+    .where(and(forAddress(address), gt(customerCodes.createdAt, sql`now() - interval '1 hour'`)));
 
   if (recent && (recent.count >= MAX_PER_HOUR || recent.tooSoon)) {
     throw new HttpError(
@@ -83,14 +74,13 @@ export const sendCode = async (
   await tx
     .update(customerCodes)
     .set({ usedAt: sql`now()` })
-    .where(and(forAddress(organization.id, address), isNull(customerCodes.usedAt)));
+    .where(and(forAddress(address), isNull(customerCodes.usedAt)));
 
   const id = newId();
   const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
 
   await tx.insert(customerCodes).values({
     id,
-    orgId: organization.id,
     kind: address.kind,
     value: address.value,
     purpose,
@@ -136,7 +126,7 @@ export const useCode = async (
     .from(customerCodes)
     .where(
       and(
-        forAddress(orgId, address),
+        forAddress(address),
         eq(customerCodes.purpose, purpose),
         isNull(customerCodes.usedAt),
         gt(customerCodes.expiresAt, sql`now()`),

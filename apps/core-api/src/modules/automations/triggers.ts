@@ -95,13 +95,7 @@ const enrollPage = async (
   enrollment: Enrollment,
   page: { after?: string; limit?: number } = {},
 ) => {
-  const subjects = await loadSubjects(
-    tx,
-    automation.orgId,
-    enrollment.type,
-    enrollment.where,
-    page,
-  );
+  const subjects = await loadSubjects(tx, enrollment.type, enrollment.where, page);
 
   const starts = subjects.flatMap((subject) => {
     const { eventId, event } = enrollment.startOf(subject);

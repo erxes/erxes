@@ -10,13 +10,13 @@ import { describeDevice, type Entry, OWNER_RULES } from './alertRules';
 
 const log = logger.child({ component: 'audit' });
 
-export const ownerIds = async (client: Db, orgId: string) =>
+export const ownerIds = async (client: Db) =>
   (
     await client
       .select({ id: users.id })
       .from(users)
       .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
-      .where(and(eq(users.orgId, orgId), eq(users.role, 'owner'), eq(users.status, 'active')))
+      .where(and(eq(users.role, 'owner'), eq(users.status, 'active')))
   ).map((row) => row.id);
 
 interface AlertInput {
@@ -43,7 +43,7 @@ const emailAlert = async (client: Db, orgId: string, input: AlertInput, recipien
   const people = await client
     .select({ email: users.email })
     .from(users)
-    .where(and(eq(users.orgId, orgId), inArray(users.id, recipients), eq(users.status, 'active')));
+    .where(and(inArray(users.id, recipients), eq(users.status, 'active')));
 
   const link = await appLink(client, orgId, input.link);
 
@@ -60,7 +60,7 @@ const emailAlert = async (client: Db, orgId: string, input: AlertInput, recipien
 
 /** A security notice: in the core inbox (can't be muted), and by email when it matters. */
 export const securityAlert = async (client: Db, orgId: string, input: AlertInput) => {
-  const recipients = input.userIds ?? (await ownerIds(client, orgId));
+  const recipients = input.userIds ?? (await ownerIds(client));
 
   if (!recipients.length) return;
 
@@ -91,7 +91,6 @@ const failedSignIns = async (client: Db, orgId: string, entry: Entry) => {
     .from(auditLogs)
     .where(
       and(
-        eq(auditLogs.orgId, orgId),
         eq(auditLogs.action, 'auth.sign_in_failed'),
         entry.targetId ? eq(auditLogs.targetId, key) : eq(auditLogs.targetLabel, key),
         gte(auditLogs.createdAt, sql`now() - interval '15 minutes'`),
@@ -119,7 +118,6 @@ const newDevice = async (client: Db, orgId: string, entry: Entry) => {
     .from(auditLogs)
     .where(
       and(
-        eq(auditLogs.orgId, orgId),
         eq(auditLogs.action, 'auth.signed_in'),
         eq(auditLogs.targetId, entry.targetId),
         gte(auditLogs.createdAt, sql`now() - interval '90 days'`),

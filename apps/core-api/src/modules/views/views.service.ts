@@ -53,7 +53,6 @@ export const listViews = async (client: Db, actor: Actor, recordType: ViewRecord
       .from(views)
       .where(
         and(
-          eq(views.orgId, actor.orgId),
           eq(views.recordType, recordType),
           or(eq(views.shared, true), eq(views.createdBy, actor.userId)),
         ),
@@ -111,11 +110,7 @@ export const createView = async (
 };
 
 const viewOrThrow = async (client: Db, actor: Actor, id: string) => {
-  const [row] = await client
-    .select()
-    .from(views)
-    .where(and(eq(views.orgId, actor.orgId), eq(views.id, id)))
-    .limit(1);
+  const [row] = await client.select().from(views).where(eq(views.id, id)).limit(1);
 
   // Someone else's private view doesn't exist for this member.
   if (!row || (!row.shared && row.createdBy !== actor.userId)) throw notFound('View');
@@ -176,8 +171,12 @@ export const listFilterFields = async (client: Db, actor: Actor, recordType: Vie
   assertSees(actor, recordType);
 
   return {
-    data: (await filterFields(client, actor.orgId, recordType)).map(
-      ({ path, label, type, options, group }) => ({ path, label, type, options, group }),
-    ),
+    data: (await filterFields(client, recordType)).map(({ path, label, type, options, group }) => ({
+      path,
+      label,
+      type,
+      options,
+      group,
+    })),
   };
 };

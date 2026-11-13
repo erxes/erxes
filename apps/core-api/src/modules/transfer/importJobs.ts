@@ -53,7 +53,7 @@ const contextOf = async (tx: Db, actor: Actor, imp: ImportRow): Promise<Context>
   imp,
   isCompany: imp.recordType === 'company',
   columns: new Map(
-    (await transferColumns(tx, imp.orgId, imp.recordType)).map((column) => [column.key, column]),
+    (await transferColumns(tx, imp.recordType)).map((column) => [column.key, column]),
   ),
   owners: new Map(),
   tags: new Map(),
@@ -136,7 +136,7 @@ const batchJob = (queue: 'import.check' | 'import.run', dry: boolean) => {
     // The first batch's `after` carries a nonce (`0:<id>`); later ones the last row number.
     payload: z.object({ importId: z.string(), after: z.union([z.string(), z.number()]) }),
     async handle({ orgId, payload }, tx) {
-      const imp = await importOrThrow(tx, orgId, payload.importId, true);
+      const imp = await importOrThrow(tx, payload.importId, true);
 
       if (imp.status !== (dry ? 'checking' : 'running')) return;
 
@@ -196,7 +196,7 @@ export const importUndoJob = defineJob({
     after: z.number().optional(),
   }),
   async handle({ orgId, payload }, tx) {
-    const imp = await importOrThrow(tx, orgId, payload.importId, true);
+    const imp = await importOrThrow(tx, payload.importId, true);
 
     if (imp.status !== 'running') return;
 

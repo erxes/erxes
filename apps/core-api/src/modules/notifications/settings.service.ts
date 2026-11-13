@@ -1,7 +1,7 @@
 import type { NotificationDelivery, NotificationSettings } from '@erxes/core-contract';
 import { CORE_NOTIFICATION_GROUPS } from '@erxes/core-contract';
 import { type Db, notifications, pluginInstallations, plugins, users } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import type { MemberSettings } from './delivery';
@@ -18,9 +18,7 @@ const pluginGroups = async (client: Db, actor: Actor) => {
     .select({ name: pluginInstallations.plugin, manifest: plugins.manifest })
     .from(pluginInstallations)
     .innerJoin(plugins, eq(plugins.name, pluginInstallations.plugin))
-    .where(
-      and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.status, 'active')),
-    );
+    .where(eq(pluginInstallations.status, 'active'));
 
   const titles = new Map(installed.map((row) => [row.name, row.manifest?.title ?? row.name]));
 
@@ -44,7 +42,7 @@ export const notificationSettings = async (
   const [user] = await client
     .select({ settings: users.notificationSettings })
     .from(users)
-    .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
+    .where(eq(users.id, actor.userId))
     .limit(1);
 
   const settings: MemberSettings = user?.settings ?? {};
@@ -103,10 +101,7 @@ export const updateNotificationSettings = async (
     browser: input.browser ?? current.browser,
   };
 
-  await client
-    .update(users)
-    .set({ notificationSettings: next })
-    .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)));
+  await client.update(users).set({ notificationSettings: next }).where(eq(users.id, actor.userId));
 
   return notificationSettings(client, actor);
 };

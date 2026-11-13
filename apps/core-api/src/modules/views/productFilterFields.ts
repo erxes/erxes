@@ -1,18 +1,17 @@
 import { type Db, PRODUCT_KINDS, productCategories, products } from '@erxes/core-db';
-import { asc, eq, type SQL, sql } from 'drizzle-orm';
+import { asc, type SQL, sql } from 'drizzle-orm';
 import { field, type FieldSpec } from './fieldSpec';
 import { textArray } from './filterValues';
 
 /** Categories by their path (`Drinks › Tea`): rules name paths, a category takes in its subcategories. */
-const categoryField = async (client: Db, orgId: string) => {
+const categoryField = async (client: Db) => {
   const rows = await client
     .select({
       id: productCategories.id,
       name: productCategories.name,
       parentId: productCategories.parentId,
     })
-    .from(productCategories)
-    .where(eq(productCategories.orgId, orgId));
+    .from(productCategories);
 
   const byId = new Map(rows.map((row) => [row.id, row]));
 
@@ -61,30 +60,26 @@ const categoryField = async (client: Db, orgId: string) => {
 };
 
 /** Values in use: the plugins using products, their currencies. */
-const distinctOf = async (client: Db, orgId: string, column: SQL<string>) =>
-  (
-    await client
-      .selectDistinct({ value: column })
-      .from(products)
-      .where(eq(products.orgId, orgId))
-      .orderBy(asc(column))
-  ).map((row) => row.value);
+const distinctOf = async (client: Db, column: SQL<string>) =>
+  (await client.selectDistinct({ value: column }).from(products).orderBy(asc(column))).map(
+    (row) => row.value,
+  );
 
 /** What the products list filters by (custom fields come with every list's). */
-export const productFields = async (client: Db, orgId: string): Promise<FieldSpec[]> => [
+export const productFields = async (client: Db): Promise<FieldSpec[]> => [
   field('name', 'Name', 'text', sql`${products.name}`),
   field('code', 'Code', 'text', sql`${products.code}`),
   field('barcode', 'Barcode', 'text', sql`${products.barcode}`),
   field('kind', 'Type', 'select', sql`${products.kind}`, { options: [...PRODUCT_KINDS] }),
-  await categoryField(client, orgId),
+  await categoryField(client),
   field('price', 'Price', 'number', sql`${products.price}`),
   field('currency', 'Currency', 'select', sql`${products.currency}`, {
-    options: await distinctOf(client, orgId, sql<string>`${products.currency}`),
+    options: await distinctOf(client, sql<string>`${products.currency}`),
   }),
   field('unit', 'Unit', 'text', sql`${products.unit}`),
   field('description', 'Description', 'text', sql`${products.description}`),
   field('plugins', 'Used by', 'select', sql`${products.plugins}`, {
-    options: await distinctOf(client, orgId, sql<string>`unnest(${products.plugins})`),
+    options: await distinctOf(client, sql<string>`unnest(${products.plugins})`),
     array: true,
   }),
   field('weightGrams', 'Weight (g)', 'number', sql`${products.weightGrams}`),

@@ -1,6 +1,6 @@
 import type { LIVE_MODES } from '@erxes/core-db/enums';
 import { users, withOrg } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { Router, type Request } from 'express';
 import { config } from '~/config';
 import { type Actor, actorOf, sessionClaims } from '~/http/auth';
@@ -98,7 +98,7 @@ const endReason = async (req: Request, actor: Actor) => {
     tx
       .select({ status: users.status, sessionVersion: users.sessionVersion })
       .from(users)
-      .where(and(eq(users.id, actor.userId), eq(users.orgId, actor.orgId)))
+      .where(eq(users.id, actor.userId))
       .limit(1),
   );
 

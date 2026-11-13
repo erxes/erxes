@@ -109,7 +109,7 @@ describe('job queue', () => {
       lastError: 'broke after writing',
     });
 
-    await withOrg(orgId, (tx) => retryDeadJobs(tx, orgId, [failing]));
+    await withOrg(orgId, (tx) => retryDeadJobs(tx, [failing]));
     expect(await jobRow(failing)).toMatchObject({ status: 'queued' });
   });
 

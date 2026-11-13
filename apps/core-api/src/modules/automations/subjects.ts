@@ -43,7 +43,6 @@ const toSubject = (row: z.infer<typeof Row>, type: SubjectType): Subject => ({
  */
 export const loadSubjects = async (
   tx: Db,
-  orgId: string,
   type: SubjectType,
   where: SQL = sql`true`,
   page: { after?: string; limit?: number } = {},
@@ -55,7 +54,7 @@ export const loadSubjects = async (
       coalesce((select array_agg(t.tag_id) from ${sql.identifier(tags)} t where t.org_id = r.org_id and t.${sql.identifier(key)} = r.id), '{}') as tag_ids,
       ${customFieldsColumn(type, sql`r.id`)} as custom_fields
     from ${sql.identifier(table)} r
-    where r.org_id = ${orgId} and ${where} ${page.after ? sql`and r.id > ${page.after}` : sql``}
+    where ${where} ${page.after ? sql`and r.id > ${page.after}` : sql``}
     order by r.id
     limit ${page.limit ?? SUBJECT_PAGE}
   `);
@@ -64,10 +63,10 @@ export const loadSubjects = async (
 };
 
 /** The record a run is about, as templates and conditions read it. */
-export const subjectOf = async (tx: Db, orgId: string, type: string | null, id: string | null) => {
+export const subjectOf = async (tx: Db, type: string | null, id: string | null) => {
   if (!isSubjectType(type) || !id) return null;
 
-  const [subject] = await loadSubjects(tx, orgId, type, sql`r.id = ${id}`, { limit: 1 });
+  const [subject] = await loadSubjects(tx, type, sql`r.id = ${id}`, { limit: 1 });
 
   return subject ?? null;
 };

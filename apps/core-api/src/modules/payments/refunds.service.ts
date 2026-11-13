@@ -40,7 +40,7 @@ const ownInvoice = async (client: Db, caller: Caller, id: string) => {
     .select({ invoice: paymentInvoices, gateway: paymentGateways })
     .from(paymentInvoices)
     .innerJoin(paymentGateways, eq(paymentGateways.id, paymentInvoices.gatewayId))
-    .where(and(eq(paymentInvoices.orgId, caller.orgId), eq(paymentInvoices.id, id)))
+    .where(eq(paymentInvoices.id, id))
     .for('update', { of: paymentInvoices })
     .limit(1);
 
@@ -51,17 +51,11 @@ const ownInvoice = async (client: Db, caller: Caller, id: string) => {
   return row;
 };
 
-const refundByDedupeKey = async (client: Db, caller: Caller, invoiceId: string, key: string) => {
+const refundByDedupeKey = async (client: Db, invoiceId: string, key: string) => {
   const [existing] = await client
     .select()
     .from(paymentRefunds)
-    .where(
-      and(
-        eq(paymentRefunds.orgId, caller.orgId),
-        eq(paymentRefunds.invoiceId, invoiceId),
-        eq(paymentRefunds.dedupeKey, key),
-      ),
-    )
+    .where(and(eq(paymentRefunds.invoiceId, invoiceId), eq(paymentRefunds.dedupeKey, key)))
     .limit(1);
 
   return existing ?? null;
@@ -190,7 +184,7 @@ export const refundInvoice = async (client: Db, caller: Caller, input: RefundInp
   const { invoice, gateway } = await ownInvoice(client, caller, input.id);
 
   const existing = input.dedupeKey
-    ? await refundByDedupeKey(client, caller, invoice.id, input.dedupeKey)
+    ? await refundByDedupeKey(client, invoice.id, input.dedupeKey)
     : null;
 
   if (existing)
@@ -231,7 +225,7 @@ export const listRefunds = async (client: Db, caller: Caller, id: string) => {
   const [invoice] = await client
     .select({ source: paymentInvoices.source })
     .from(paymentInvoices)
-    .where(and(eq(paymentInvoices.orgId, caller.orgId), eq(paymentInvoices.id, id)))
+    .where(eq(paymentInvoices.id, id))
     .limit(1);
 
   if (!invoice || (caller.actorType === 'plugin' && invoice.source !== caller.source))
@@ -241,7 +235,7 @@ export const listRefunds = async (client: Db, caller: Caller, id: string) => {
     client
       .select()
       .from(paymentRefunds)
-      .where(and(eq(paymentRefunds.orgId, caller.orgId), eq(paymentRefunds.invoiceId, id)))
+      .where(eq(paymentRefunds.invoiceId, id))
       .orderBy(paymentRefunds.createdAt)
       .limit(limit),
   );

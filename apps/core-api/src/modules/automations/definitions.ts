@@ -13,28 +13,21 @@ import {
   plugins,
 } from '@erxes/core-db';
 import { and, eq, inArray } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
 import { actionCatalog } from './actions/catalog';
 import { render } from './templates';
 
-const installedPlugins = (client: Db, orgId: string) =>
+const installedPlugins = (client: Db) =>
   client
     .select({ name: plugins.name, manifest: plugins.manifest })
     .from(plugins)
     .innerJoin(pluginInstallations, eq(pluginInstallations.plugin, plugins.name))
-    .where(
-      and(
-        eq(pluginInstallations.orgId, orgId),
-        eq(pluginInstallations.status, 'active'),
-        eq(plugins.status, 'active'),
-      ),
-    );
+    .where(and(eq(pluginInstallations.status, 'active'), eq(plugins.status, 'active')));
 
 /** The triggers and actions an organisation's automations can use. */
-export const automationCatalog = async (client: Db, orgId: string) => {
-  const triggers = await eventTypeCatalog(client, orgId);
+export const automationCatalog = async (client: Db) => {
+  const triggers = await eventTypeCatalog(client);
 
   return {
     triggers: triggers.map((item) => ({
@@ -44,7 +37,7 @@ export const automationCatalog = async (client: Db, orgId: string) => {
       source: item.source,
       subject: item.subject,
     })),
-    actions: actionCatalog(await installedPlugins(client, orgId)),
+    actions: actionCatalog(await installedPlugins(client)),
   };
 };
 
@@ -138,12 +131,7 @@ const stepProblems = (step: AutomationStep, catalog: Catalog, subject: SubjectKi
   return [];
 };
 
-const triggerProblems = async (
-  client: Db,
-  orgId: string,
-  definition: AutomationDefinition,
-  catalog: Catalog,
-) => {
+const triggerProblems = async (client: Db, definition: AutomationDefinition, catalog: Catalog) => {
   const trigger = definition.trigger;
 
   if (trigger.kind === 'event' && !catalog.triggers.some((item) => item.type === trigger.event))
@@ -154,13 +142,7 @@ const triggerProblems = async (
   const [field] = await client
     .select({ type: fields.type })
     .from(fields)
-    .where(
-      and(
-        eq(fields.orgId, orgId),
-        eq(fields.id, trigger.field),
-        inArray(fields.contentType, CONTENT_TYPES),
-      ),
-    )
+    .where(and(eq(fields.id, trigger.field), inArray(fields.contentType, CONTENT_TYPES)))
     .limit(1);
 
   return field?.type === 'date' ? [] : ['The date trigger needs a date field'];
@@ -234,17 +216,11 @@ const builtInFields = (subject?: ContentType) => {
 };
 
 /** Built-in fields of customers and companies, and the organisation's custom fields. */
-export const automationFields = async (client: Db, actor: Actor, subject?: ContentType) => {
+export const automationFields = async (client: Db, subject?: ContentType) => {
   const custom = await client
     .select({ id: fields.id, label: fields.label, type: fields.type, options: fields.options })
     .from(fields)
-    .where(
-      and(
-        eq(fields.orgId, actor.orgId),
-        // Automations run on contacts: product fields aren't theirs.
-        subject ? eq(fields.contentType, subject) : inArray(fields.contentType, CONTENT_TYPES),
-      ),
-    );
+    .where(subject ? eq(fields.contentType, subject) : inArray(fields.contentType, CONTENT_TYPES));
 
   return {
     data: [
@@ -266,14 +242,10 @@ export const automationFields = async (client: Db, actor: Actor, subject?: Conte
  * customer when the event isn't about one, delays without a length, repeated
  * step ids.
  */
-export const checkDefinition = async (
-  client: Db,
-  orgId: string,
-  definition: AutomationDefinition,
-) => {
-  const catalog = await automationCatalog(client, orgId);
+export const checkDefinition = async (client: Db, definition: AutomationDefinition) => {
+  const catalog = await automationCatalog(client);
   const subject = subjectOfTrigger(definition, catalog.triggers);
-  const problems = await triggerProblems(client, orgId, definition, catalog);
+  const problems = await triggerProblems(client, definition, catalog);
   const ids = new Set<string>();
 
   walk(definition.steps, (step) => {

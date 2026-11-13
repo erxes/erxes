@@ -1,5 +1,5 @@
 import { type Db, pluginInstallations, plugins, withSystem } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { Response } from 'express';
 import { z } from 'zod';
 import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
@@ -44,10 +44,10 @@ export type OAuthClient = NonNullable<Awaited<ReturnType<typeof clientOf>>>;
 export const clientTitle = (client: OAuthClient) => client.manifest?.title ?? client.name;
 
 /** Whether the organisation has the client's plugin installed. */
-export const installed = (tx: Db, orgId: string, clientId: string) =>
+export const installed = (tx: Db, clientId: string) =>
   tx
     .select({ status: pluginInstallations.status })
     .from(pluginInstallations)
-    .where(and(eq(pluginInstallations.orgId, orgId), eq(pluginInstallations.plugin, clientId)))
+    .where(eq(pluginInstallations.plugin, clientId))
     .limit(1)
     .then(([row]) => row?.status === 'active');

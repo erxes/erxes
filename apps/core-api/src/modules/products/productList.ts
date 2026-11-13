@@ -42,12 +42,11 @@ interface ProductQuery {
 }
 
 /** Products in a category or any of its subcategories. */
-const inCategory = (orgId: string, categoryId: string) => sql`${products.categoryId} in (
+const inCategory = (categoryId: string) => sql`${products.categoryId} in (
   with recursive tree as (
-    select id from ${productCategories} where org_id = ${orgId} and id = ${categoryId}
+    select id from ${productCategories} where id = ${categoryId}
     union all
     select c.id from ${productCategories} c join tree on c.parent_id = tree.id
-    where c.org_id = ${orgId}
   )
   select id from tree
 )`;
@@ -68,7 +67,7 @@ export const listProducts = async (
 
   const filter = await compileRecordFilter(
     client,
-    { orgId: caller.orgId, userId: caller.actorType === 'user' ? caller.actorId : null },
+    { userId: caller.actorType === 'user' ? caller.actorId : null },
     'product',
     query.filter,
   );
@@ -79,13 +78,12 @@ export const listProducts = async (
       table: products,
       id: products.id,
       createdAt: products.createdAt,
-      scope: eq(products.orgId, caller.orgId),
     },
     and(
       eq(products.status, query.status),
       filter,
       query.kind ? eq(products.kind, query.kind) : undefined,
-      query.categoryId ? inCategory(caller.orgId, query.categoryId) : undefined,
+      query.categoryId ? inCategory(query.categoryId) : undefined,
       usedBy(caller, query),
       search && query.search
         ? or(
@@ -108,18 +106,15 @@ export const listProducts = async (
   return { ...page, data: page.data.map(toProductDto) };
 };
 
-export const getProduct = async (client: Db, caller: Caller, id: string) =>
-  toProductDto(await findProduct(client, caller.orgId, id));
+export const getProduct = async (client: Db, id: string) =>
+  toProductDto(await findProduct(client, id));
 
 /** The given products in the order asked, archived ones too; unknown ids are left out. */
-export const lookupProducts = async (client: Db, caller: Caller, ids: string[]) => {
+export const lookupProducts = async (client: Db, ids: string[]) => {
   const wanted = unique(ids);
 
   const rows = wanted.length
-    ? await client
-        .select(productColumns)
-        .from(products)
-        .where(and(eq(products.orgId, caller.orgId), inArray(products.id, wanted)))
+    ? await client.select(productColumns).from(products).where(inArray(products.id, wanted))
     : [];
 
   const byId = new Map(rows.map((row) => [row.id, toProductDto(row)]));

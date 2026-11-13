@@ -1,6 +1,6 @@
 import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import { customers, type Db, newId } from '@erxes/core-db';
-import { and, arrayContains, eq, or, sql } from 'drizzle-orm';
+import { arrayContains, eq, or, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { lockKeys } from '~/lib/locks';
@@ -20,26 +20,18 @@ interface Contact {
 }
 
 /** The customer with this email or phone, as a primary one or among the others. */
-const findByContact = async (
-  client: Db,
-  orgId: string,
-  email: string | null,
-  phone: string | null,
-) => {
+const findByContact = async (client: Db, email: string | null, phone: string | null) => {
   const [found] = await client
     .select({ id: customers.id })
     .from(customers)
     .where(
-      and(
-        eq(customers.orgId, orgId),
-        or(
-          email
-            ? or(eq(customers.primaryEmail, email), arrayContains(customers.emails, [email]))
-            : undefined,
-          phone
-            ? or(eq(customers.primaryPhone, phone), arrayContains(customers.phones, [phone]))
-            : undefined,
-        ),
+      or(
+        email
+          ? or(eq(customers.primaryEmail, email), arrayContains(customers.emails, [email]))
+          : undefined,
+        phone
+          ? or(eq(customers.primaryPhone, phone), arrayContains(customers.phones, [phone]))
+          : undefined,
       ),
     )
     .orderBy(sql`${customers.primaryEmail} = ${email ?? ''} DESC`)
@@ -62,11 +54,11 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
     ...(phone ? [`customer:${caller.orgId}:phone:${phone}`] : []),
   ]);
 
-  const found = await findByContact(client, caller.orgId, email, phone);
+  const found = await findByContact(client, email, phone);
 
   if (found)
     return {
-      customer: toCustomerDto(await findCustomer(client, caller.orgId, found.id)),
+      customer: toCustomerDto(await findCustomer(client, found.id)),
       created: false,
     };
 
@@ -95,15 +87,10 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
   );
 
   await recordLeadSteps(client, caller, 'customer', [{ id: row.id, steps: lead.steps }]);
-  await contactCreated(
-    client,
-    caller,
-    'customer',
-    await findCustomer(client, caller.orgId, row.id),
-  );
+  await contactCreated(client, caller, 'customer', await findCustomer(client, row.id));
 
   return {
-    customer: toCustomerDto(await findCustomer(client, caller.orgId, row.id)),
+    customer: toCustomerDto(await findCustomer(client, row.id)),
     created: true,
   };
 };

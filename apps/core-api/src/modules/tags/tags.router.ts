@@ -3,7 +3,7 @@ import { createTag, listTags, removeTag, updateTag } from '~/modules/tags/tags.s
 import { authed, audited, recordOf } from '~/orpc';
 
 export const tagsRouter = {
-  list: authed.tags.list.handler(({ input, context }) => listTags(db(), context.actor, input)),
+  list: authed.tags.list.handler(({ input }) => listTags(db(), input)),
   create: authed.tags.create.handler(({ input, context }) =>
     audited(
       context.actor,
@@ -14,7 +14,7 @@ export const tagsRouter = {
   update: authed.tags.update.handler(({ input: { id, ...changes }, context }) =>
     audited(
       context.actor,
-      (tx) => updateTag(tx, context.actor, id, changes),
+      (tx) => updateTag(tx, id, changes),
       (tag) => ({ ...recordOf('tag', 'updated', id, tag), metadata: changes }),
     ),
   ),

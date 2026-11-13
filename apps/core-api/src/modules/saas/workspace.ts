@@ -5,6 +5,7 @@ import {
   pluginInstallations,
   type Transaction,
   users,
+  withOrg,
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, ne, sql } from 'drizzle-orm';
@@ -92,21 +93,17 @@ export const applyWorkspace = async (orgId: string, input: SaasWorkspace) => {
 
 /** What erxes.io may read back: the workspace and its usage. */
 export const workspaceUsage = (orgId: string) =>
-  withSystem('saas: usage', async (tx) => {
+  withOrg(orgId, async (tx) => {
     const [org] = await tx.select().from(organizations).where(eq(organizations.id, orgId)).limit(1);
 
     if (!org) throw new HttpError(404, 'NOT_FOUND', 'No such workspace');
 
-    const [row] = await tx
-      .select()
-      .from(entitlements)
-      .where(eq(entitlements.orgId, orgId))
-      .limit(1);
+    const [row] = await tx.select().from(entitlements).limit(1);
 
     const [{ members } = { members: 0 }] = await tx
       .select({ members: sql<number>`count(*)::int` })
       .from(users)
-      .where(and(eq(users.orgId, orgId), ne(users.status, 'disabled'), eq(users.isSupport, false)));
+      .where(and(ne(users.status, 'disabled'), eq(users.isSupport, false)));
 
     const installed = await tx
       .select({
@@ -114,8 +111,7 @@ export const workspaceUsage = (orgId: string) =>
         status: pluginInstallations.status,
         statusReason: pluginInstallations.statusReason,
       })
-      .from(pluginInstallations)
-      .where(eq(pluginInstallations.orgId, orgId));
+      .from(pluginInstallations);
 
     return {
       id: org.id,

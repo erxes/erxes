@@ -135,7 +135,7 @@ downloadRouter.get('/files/:id/download', async (req, res) => {
   const caller = callerOf(req);
 
   const url = await withOrg(caller.orgId, async (tx) => {
-    const row = await readyFile(tx, caller.orgId, req.params.id);
+    const row = await readyFile(tx, req.params.id);
     const saving = req.query.download === '1';
     const address = await downloadUrlOf(row, saving);
 
