@@ -33,9 +33,11 @@ const config: KnipConfig = {
     'packages/ui': {
       entry: ['src/**/*.{ts,tsx,css}'],
       project: ['src/**/*.{ts,tsx,css}'],
-      // Never imported, but the block editor's types name it, so the built .d.ts files
-      // import it and a consumer must be able to resolve it.
-      ignoreDependencies: ['@tiptap/core'],
+      // @tiptap/core: never imported, but the block editor's types name it, so the built
+      // .d.ts files import it and a consumer must be able to resolve it.
+      // erxes-ui: the package is @erxes/ui but imports itself as erxes-ui through
+      // tsconfig.json `paths`, as its consumers do; tsdown rewrites those to relative.
+      ignoreDependencies: ['@tiptap/core', 'erxes-ui'],
     },
   },
 };

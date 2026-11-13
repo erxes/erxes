@@ -1,6 +1,7 @@
 {
-  "name": "erxes-ui",
-  "version": "4.0.0-next.0",
+  "name": "@erxes/ui",
+  "version": "4.0.0-v2.0",
+  "private": false,
   "description": "erxes design system: UI primitives, layout, hooks and shared frontend state",
   "license": "AGPL-3.0-only",
   "repository": {
@@ -36,7 +37,10 @@
         "types": "./dist/*.d.ts",
         "default": "./dist/*.js"
       }
-    }
+    },
+    "access": "public",
+    "provenance": true,
+    "tag": "v2-next"
   },
   "scripts": {
     "build": "tsdown"

@@ -13,7 +13,7 @@ decisions, `docs/porting-map.md` what exists and what old erxes code it replaces
 | `apps/core-ui`              | `@erxes/core-ui`          | React app and Module Federation host for plugin UIs. Guide: `apps/core-ui/AGENTS.md`        |
 | `packages/contract`         | `@erxes/core-contract`    | zod + `@orpc/contract` API contract and event schemas. Guide: `packages/contract/AGENTS.md` |
 | `packages/db`               | `@erxes/core-db`          | Drizzle schema, client, migrations. Guide: `packages/db/AGENTS.md`                          |
-| `packages/ui`               | `erxes-ui`                | Design system shared with plugin UIs through Module Federation                              |
+| `packages/ui`               | `@erxes/ui`               | Design system shared with plugin UIs through Module Federation, imported as `erxes-ui`      |
 | `packages/plugin-sdk`       | `@erxes/plugin-sdk`       | Typed core client and token verification for plugin servers                                 |
 | `packages/payment-gateways` | `@erxes/payment-gateways` | Payment gateway adapters used by core's payments module                                     |
 
@@ -37,7 +37,10 @@ pnpm dev                     # API http://localhost:3400, UI http://localhost:35
 - `pnpm fix`: formats and applies lint autofixes.
 - `pnpm test`: every vitest project in `vite.config.ts`. The API tests need `DATA_TEST_URL` and fail
   without it, e.g. `DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes pnpm test`.
-- `pnpm build`: the API bundle and the publishable `dist/` of `@erxes/core-contract`, `@erxes/plugin-sdk` and `erxes-ui` (tsdown; the packages are checked with publint and attw), and the UI (Rsbuild).
+- `pnpm build`: the API bundle and the publishable `dist/` of `@erxes/core-contract`, `@erxes/plugin-sdk` and `@erxes/ui` (tsdown; the packages are checked with publint and attw), and the UI (Rsbuild).
+- Releasing the three packages: bump their `version` in a PR, then run `.github/workflows/release.yml`
+  (manually, or push a `v2-*` tag). It publishes each version not yet on npm under the `v2-next` dist-tag
+  only. `@erxes/ui` 3.x from old erxes owns `latest` and `next`.
 - `pnpm check:generated`: regenerates migrations and `packages/contract/openapi.json` and fails on drift.
 - `pnpm db:generate`, `pnpm openapi`, `pnpm bootstrap` (an organisation and owner from the command line),
   `pnpm plugin:secret <name>` (registers a plugin or rotates its client secret; the old one works 24 h more).
