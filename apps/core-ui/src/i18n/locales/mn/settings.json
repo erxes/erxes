@@ -624,6 +624,7 @@
     "installed": "Суулгасан",
     "not-installed": "Суулгаагүй",
     "needs-approval": "Нэмэлт эрх хүсч байна",
+    "made-for": "Зориулсан улс: {{countries}}",
     "approve": "Эрхийг зөвшөөрөх",
     "uninstall": "Устгах",
     "install": "Суулгах",

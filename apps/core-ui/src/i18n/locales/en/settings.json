@@ -635,6 +635,7 @@
     "installed": "Installed",
     "not-installed": "Not installed",
     "needs-approval": "Asks for more access",
+    "made-for": "Made for {{countries}}",
     "approve": "Approve access",
     "uninstall": "Uninstall",
     "install": "Install",

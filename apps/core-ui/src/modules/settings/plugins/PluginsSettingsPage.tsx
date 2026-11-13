@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '~/lib/api';
-import { useCan } from '~/modules/auth/session';
+import { countryNames } from '~/lib/region';
+import { useCan, useSession } from '~/modules/auth/session';
 
 /** What each scope lets a plugin do in core, in words. */
 const SCOPE_LABELS: Record<string, string> = {
@@ -78,6 +79,22 @@ const PluginScopes = ({ plugin }: { plugin: Plugin }) => {
   );
 };
 
+/** "Made for Mongolia" when the plugin names countries and this organisation's isn't one. */
+const MadeFor = ({ countries }: { countries: string[] }) => {
+  const { t, i18n } = useTranslation('settings', { keyPrefix: 'plugins' });
+  const { country } = useSession().organization;
+
+  if (!countries.length || (country && countries.includes(country))) return null;
+
+  return (
+    <span className="text-xs text-muted-foreground">
+      {t('made-for', 'Made for {{countries}}', {
+        countries: countryNames(countries, i18n.language),
+      })}
+    </span>
+  );
+};
+
 const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'plugins' });
   const change = usePluginChange(plugin);
@@ -102,6 +119,7 @@ const PluginCard = ({ plugin, isOwner }: { plugin: Plugin; isOwner: boolean }) =
             {plugin.needsApproval && (
               <Badge variant="warning">{t('needs-approval', 'Asks for more access')}</Badge>
             )}
+            <MadeFor countries={plugin.countries} />
           </div>
           {plugin.description && (
             <p className="text-sm text-muted-foreground">{plugin.description}</p>
