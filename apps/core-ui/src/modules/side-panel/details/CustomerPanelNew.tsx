@@ -1,4 +1,4 @@
-import { CustomerSex } from '@erxes/core-contract';
+import { CustomerExists, CustomerSex } from '@erxes/core-contract';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   type Icon,
@@ -29,9 +29,6 @@ import {
   NewContactForm,
   useFinishCreate,
 } from './NewContactForm';
-
-/** `CUSTOMER_EXISTS` names the field whose value another customer has. */
-const takenField = z.object({ field: z.enum(['primaryEmail', 'primaryPhone']) });
 
 // The ISO/IEC 5218 codes core stores.
 const CUSTOMER_SEX_OPTIONS = [
@@ -194,7 +191,7 @@ const useCustomerSave = (form: UseFormReturn<TCustomerForm>, companyIds: string[
       await finish(created.id, companyIds);
     } catch (error) {
       if (isApiError(error, 'CUSTOMER_EXISTS')) {
-        form.setError(errorData(error, takenField)?.field ?? 'primaryEmail', {
+        form.setError(errorData(error, CustomerExists)?.field ?? 'primaryEmail', {
           message: error.message,
         });
 

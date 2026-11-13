@@ -1,3 +1,4 @@
+import type { CustomerExists } from '@erxes/core-contract';
 import type { CustomValue, Db } from '@erxes/core-db';
 import { customers } from '@erxes/core-db';
 import { and, arrayContains, eq, getTableColumns, or, sql } from 'drizzle-orm';
@@ -110,6 +111,9 @@ export const conflictFrom = async (
     byEmail
       ? 'A customer with this email already exists'
       : 'A customer with this phone already exists',
-    { field: byEmail ? 'primaryEmail' : 'primaryPhone', id: existing?.id ?? null },
+    {
+      field: byEmail ? 'primaryEmail' : 'primaryPhone',
+      id: existing?.id ?? null,
+    } satisfies CustomerExists,
   );
 };

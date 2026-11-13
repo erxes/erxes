@@ -21,6 +21,9 @@ export const CUSTOMER_STATES = ['lead', 'customer'] as const;
 /** ISO/IEC 5218: not known, male, female, not applicable. */
 export const CUSTOMER_SEXES = [0, 1, 2, 9] as const;
 
+/** The fields no two customers share. A 409 `CUSTOMER_EXISTS` names the one that was taken. */
+export const CUSTOMER_UNIQUE_FIELDS = ['primaryEmail', 'primaryPhone'] as const;
+
 /** `open`: still being worked; `qualified`: ready to become a customer; `disqualified`: not a fit (lost). */
 export const LEAD_STAGE_KINDS = ['open', 'qualified', 'disqualified'] as const;
 

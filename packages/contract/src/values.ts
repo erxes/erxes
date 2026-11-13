@@ -2,9 +2,11 @@ import {
   AUDIT_STREAM_FORMATS,
   AUTOMATION_STATUSES,
   CUSTOMER_SEXES,
+  CUSTOMER_UNIQUE_FIELDS,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
   INVOICE_STATUSES,
+  LIVE_MODES,
   NOTIFICATION_DELIVERIES,
   PAYMENT_GATEWAY_KINDS,
   PRODUCT_KINDS,
@@ -29,6 +31,12 @@ export const RoleKey = z
   .regex(/^(owner|admin|member|r_[A-Za-z0-9]{6,40})$/, 'a role');
 
 export type RoleKey = z.infer<typeof RoleKey>;
+
+/** A role an invitation can give: any but owner, which goes to a member who has joined. */
+export const InviteRole = RoleKey.refine(
+  (role) => role !== 'owner',
+  'invite as admin or member, then make them owner',
+);
 
 /** At least 8 characters with a lower-case letter, an upper-case letter and a digit (as old erxes). */
 export const NewPassword = z
@@ -135,6 +143,17 @@ export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = [
 export const NotificationDelivery = z.enum(NOTIFICATION_DELIVERIES);
 
 export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
+
+/** How the live stream reaches this browser, in its `hello` event: pushing, or polling while it can't listen. */
+export const LiveMode = z.enum(LIVE_MODES);
+
+/** The `data` of a 409 `CUSTOMER_EXISTS`: the customer that has the value, and which field it is. */
+export const CustomerExists = z.object({
+  id: z.string().nullable(),
+  field: z.enum(CUSTOMER_UNIQUE_FIELDS),
+});
+
+export type CustomerExists = z.infer<typeof CustomerExists>;
 
 /**
  * Core's notifications in groups a member chooses for at once (each plugin

@@ -1,17 +1,7 @@
+import { InviteRole, NewPassword } from '@erxes/core-contract';
 import { z } from 'zod';
 
-/** Empty, or a password the API accepts (as sign-up). */
-const password = z.union([
-  z.literal(''),
-  z
-    .string()
-    .min(8, 'At least 8 characters')
-    .regex(/[a-z]/, 'Add a lower-case letter')
-    .regex(/[A-Z]/, 'Add an upper-case letter')
-    .regex(/\d/, 'Add a digit'),
-]);
-
-/** One row per invitation. */
+/** One row per invitation. An empty password leaves the member invited until they set one. */
 export const USER_SUBMIT_SCHEMA = z.object({
   entries: z
     .object({
@@ -21,8 +11,8 @@ export const USER_SUBMIT_SCHEMA = z.object({
         })
         .trim()
         .check(z.email('Please fill a valid email address')),
-      password,
-      role: z.enum(['member', 'admin']),
+      password: z.union([z.literal(''), NewPassword]),
+      role: InviteRole,
     })
     .array(),
 });

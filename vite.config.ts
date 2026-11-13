@@ -192,13 +192,14 @@ export default defineConfig({
         rules: { 'no-console': ['error', { allow: ['warn', 'error'] }] },
       },
       {
-        // Value lists are written once, in packages/db/src/enums.ts. apps/core-ui and
-        // packages/ui join once their Base UI rewrite lands.
+        // Value lists are written once, in packages/db/src/enums.ts.
         files: [
           'apps/core-api/**',
+          'apps/core-ui/**',
           'packages/db/**',
           'packages/contract/**',
           'packages/plugin-sdk/**',
+          'packages/ui/**',
         ],
         rules: { 'erxes/no-inline-enum': 'error' },
       },
