@@ -2,6 +2,7 @@ import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { CursorQuery, cursorPageOf, Id } from './common';
 import { DedupeKey } from './platform';
+import { PluginName } from './plugins';
 
 export const PaymentGatewayKind = z.enum(['qpay', 'test']);
 
@@ -47,6 +48,40 @@ export const InvoiceMetadata = z
   .record(z.unknown())
   .refine((value) => JSON.stringify(value).length <= 8192, 'at most 8 KB of JSON');
 
+/**
+ * What an invoice is for. `plugin`: whose line it is when one invoice pays
+ * for several plugins' records (an order and its delivery); that plugin
+ * hears the invoice's events too.
+ */
+export const InvoiceLine = z.object({
+  productId: Id.nullable(),
+  name: z.string(),
+  quantity: z.number(),
+  /** Hundredths, like `amount`. */
+  unitPrice: z.number().int(),
+  /** quantity × unit price, rounded to a hundredth. */
+  amount: z.number().int(),
+  plugin: z.string().nullable(),
+});
+
+export type InvoiceLine = z.infer<typeof InvoiceLine>;
+
+export const InvoiceLineInput = z.object({
+  productId: Id.optional(),
+  /** Defaults to the product's name. */
+  name: z.string().trim().min(1).max(200).optional(),
+  /** Up to 3 decimals (1.5 kg). */
+  quantity: z
+    .number()
+    .positive()
+    .max(1_000_000)
+    .refine((value) => Number.isInteger(value * 1000), 'at most 3 decimals'),
+  unitPrice: z.number().int().min(0).max(1_000_000_000_00),
+  plugin: PluginName.optional(),
+});
+
+export type InvoiceLineInput = z.infer<typeof InvoiceLineInput>;
+
 export const Invoice = z.object({
   id: Id,
   gatewayId: Id,
@@ -59,6 +94,7 @@ export const Invoice = z.object({
   description: z.string(),
   status: InvoiceStatus,
   metadata: z.record(z.unknown()),
+  lines: z.array(InvoiceLine),
   /** What the gateway says was paid, and how much of it was given back (hundredths). */
   paidAmount: z.number().int().nullable(),
   refundedAmount: z.number().int(),
@@ -145,7 +181,8 @@ export const paymentsContract = {
       method: 'POST',
       path: '/payments/invoices',
       successStatus: 201,
-      summary: 'An invoice at a gateway for a record (plugins: payments:write)',
+      summary:
+        'An invoice at a gateway for a record (plugins: payments:write). With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT',
     })
     .input(
       z.object({
@@ -166,6 +203,7 @@ export const paymentsContract = {
           .default(30),
         dedupeKey: DedupeKey.optional(),
         metadata: InvoiceMetadata.optional(),
+        lines: z.array(InvoiceLineInput).max(100).optional(),
       }),
     )
     .output(Invoice),

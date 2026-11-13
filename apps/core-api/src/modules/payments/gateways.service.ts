@@ -7,14 +7,83 @@ import {
   paymentPluginSettings,
 } from '@erxes/core-db';
 import { createGateway } from '@erxes/payment-gateways';
-import { and, eq, sql } from 'drizzle-orm';
-import { type Actor, userCaller } from '~/http/auth';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import { type Actor, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { seal, unseal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
 
 export type GatewayRow = typeof paymentGateways.$inferSelect;
+
+const pluginSettingsOf = async (client: Db, caller: Caller) => {
+  if (caller.actorType !== 'plugin') return null;
+
+  const [settings] = await client
+    .select()
+    .from(paymentPluginSettings)
+    .where(
+      and(
+        eq(paymentPluginSettings.orgId, caller.orgId),
+        eq(paymentPluginSettings.plugin, caller.source),
+      ),
+    )
+    .limit(1);
+
+  return settings ?? null;
+};
+
+/**
+ * The gateway an invoice goes through: the one asked for, else the plugin's
+ * default (Settings › Payments), else the first active one — within the
+ * gateways the owner allowed the plugin, if any are listed.
+ */
+export const resolveGateway = async (client: Db, caller: Caller, requested?: string) => {
+  const settings = await pluginSettingsOf(client, caller);
+  const allowed = settings?.allowedGatewayIds ?? [];
+
+  if (requested && allowed.length && !allowed.includes(requested)) {
+    throw new HttpError(
+      403,
+      'GATEWAY_NOT_ALLOWED',
+      'This plugin may not use that gateway (Settings › Payments)',
+    );
+  }
+
+  const active = await client
+    .select()
+    .from(paymentGateways)
+    .where(
+      and(
+        eq(paymentGateways.orgId, caller.orgId),
+        eq(paymentGateways.status, 'active'),
+        requested
+          ? eq(paymentGateways.id, requested)
+          : allowed.length
+            ? inArray(paymentGateways.id, allowed)
+            : undefined,
+      ),
+    )
+    .orderBy(paymentGateways.createdAt);
+
+  const preferred = requested
+    ? undefined
+    : active.find((row) => row.id === settings?.defaultGatewayId);
+
+  const gateway = preferred ?? active[0];
+
+  if (!gateway) {
+    throw new HttpError(
+      400,
+      'NO_GATEWAY',
+      requested
+        ? 'That gateway is not connected or is turned off'
+        : 'Connect a payment gateway first (Settings › Payments)',
+    );
+  }
+
+  return gateway;
+};
 
 const configOf = (row: GatewayRow) => GatewayConfig.parse(JSON.parse(unseal(row.configSealed)));
 

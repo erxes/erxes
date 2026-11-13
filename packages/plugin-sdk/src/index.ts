@@ -20,6 +20,14 @@
  *   });
  *   await core.forOrg(orgId).payments.refund({ id: invoice.id, reason: 'Out of stock' });
  *
+ * Products (scopes `products:read`, `products:write`): one catalog per organisation, shared by plugins.
+ *
+ *   const mine = await core.forOrg(orgId).products.list({});            // the ones this plugin uses
+ *   const found = await core.forOrg(orgId).products.list({ search: 'phone', all: true });
+ *   await core.forOrg(orgId).products.use({ ids: [found.data[0].id], used: true });
+ *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
+ *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
+ *
  * Tiers on SaaS (erxes.io: free / plus / pro; self-hosted: pro, full):
  *
  *   const member = await verifyPluginSession(token, { coreUrl, plugin: 'hr' });

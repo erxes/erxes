@@ -16,12 +16,26 @@ type EventRow = typeof events.$inferSelect;
 
 export const CORE_EVENT_TYP = 'erxes-core-event+jwt';
 
-const PaymentPayload = z.object({ source: z.string() });
+const PaymentPayload = z.object({
+  source: z.string(),
+  lines: z.array(z.object({ plugin: z.string().nullable() })).default([]),
+});
+
+/** The plugin's own invoice, or one with a line for it (an order and its delivery, paid at once). */
+const paymentConcerns = (plugin: string, payload: unknown) => {
+  const parsed = PaymentPayload.safeParse(payload);
+
+  return (
+    parsed.success &&
+    (parsed.data.source === plugin || parsed.data.lines.some((line) => line.plugin === plugin))
+  );
+};
 
 /**
- * May this plugin see this event? Payment events: its own invoices only
- * (`payments:read`); customers and companies: `customers:read`; anything
- * else from core or other plugins: `events:read`.
+ * May this plugin see this event? Payment events: its own invoices and those
+ * with a line for it (`payments:read`); customers and companies:
+ * `customers:read`; products: `products:read`; anything else from core or
+ * other plugins: `events:read`.
  */
 const pluginMaySee = (
   plugin: string,
@@ -31,14 +45,13 @@ const pluginMaySee = (
   if (event.source === plugin) return false;
 
   if (event.type.startsWith('core.payment.')) {
-    return (
-      scopes.includes('payments:read') &&
-      PaymentPayload.safeParse(event.payload).data?.source === plugin
-    );
+    return scopes.includes('payments:read') && paymentConcerns(plugin, event.payload);
   }
 
   if (event.type.startsWith('core.customer.') || event.type.startsWith('core.company.'))
     return scopes.includes('customers:read');
+
+  if (event.type.startsWith('core.product.')) return scopes.includes('products:read');
 
   return scopes.includes('events:read');
 };

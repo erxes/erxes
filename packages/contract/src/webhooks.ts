@@ -104,6 +104,30 @@ export const CORE_EVENT_TYPES = [
     description: 'A deleted company is restored from the recycle bin',
   },
   {
+    type: 'core.product.created',
+    label: 'Product added',
+    subject: null,
+    description: 'A product is added to the catalog (by a member or a plugin)',
+  },
+  {
+    type: 'core.product.updated',
+    label: 'Product updated',
+    subject: null,
+    description: 'A product’s fields, or the plugins that use it, change',
+  },
+  {
+    type: 'core.product.archived',
+    label: 'Product archived',
+    subject: null,
+    description: 'A product is taken out of lists; orders keep it',
+  },
+  {
+    type: 'core.product.restored',
+    label: 'Product restored',
+    subject: null,
+    description: 'An archived product is back in lists',
+  },
+  {
     type: 'core.payment.paid',
     label: 'Invoice paid',
     subject: null,

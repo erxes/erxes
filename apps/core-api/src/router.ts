@@ -6,6 +6,7 @@ import { notificationsRouter } from '~/modules/notifications/notifications.route
 import { authRouter } from '~/modules/auth/auth.router';
 import { automationsRouter } from '~/modules/automations/automations.router';
 import { paymentsRouter } from '~/modules/payments/payments.router';
+import { productCategoriesRouter, productsRouter } from '~/modules/products/products.router';
 import { webhooksRouter } from '~/modules/webhooks/webhooks.router';
 import { trashRouter } from '~/modules/trash/trash.router';
 import { rolesRouter } from '~/modules/roles/roles.router';
@@ -32,6 +33,8 @@ export const coreRouter = pub.router({
   auth: authRouter,
   automations: automationsRouter,
   payments: paymentsRouter,
+  productCategories: productCategoriesRouter,
+  products: productsRouter,
   webhooks: webhooksRouter,
   trash: trashRouter,
   roles: rolesRouter,

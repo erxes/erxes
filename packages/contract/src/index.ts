@@ -11,6 +11,7 @@ import { notificationsContract } from './notifications';
 import { organizationsContract } from './organizations';
 import { paymentsContract } from './payments';
 import { pluginsContract } from './plugins';
+import { productCategoriesContract, productsContract } from './products';
 import { rolesContract } from './roles';
 import { tagsContract } from './tags';
 import { trashContract } from './trash';
@@ -43,6 +44,8 @@ export const coreContract = {
   organizations: organizationsContract,
   payments: paymentsContract,
   plugins: pluginsContract,
+  productCategories: productCategoriesContract,
+  products: productsContract,
   roles: rolesContract,
   saas: saasContract,
   tags: tagsContract,
@@ -88,6 +91,8 @@ export * from './organizations';
 export * from './payments';
 
 export * from './plugins';
+
+export * from './products';
 
 export * from './roles';
 

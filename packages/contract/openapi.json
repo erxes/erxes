@@ -8837,6 +8837,12 @@
             "type": "object",
             "additionalProperties": {}
           },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvoiceLine"
+            }
+          },
           "paidAmount": {
             "anyOf": [
               {
@@ -8971,6 +8977,7 @@
           "description",
           "status",
           "metadata",
+          "lines",
           "paidAmount",
           "refundedAmount",
           "refundable",
@@ -8978,6 +8985,86 @@
           "expiresAt",
           "paidAt",
           "createdAt"
+        ]
+      },
+      "InvoiceLine": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unitPrice": {
+            "type": "integer"
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "plugin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "productId",
+          "name",
+          "quantity",
+          "unitPrice",
+          "amount",
+          "plugin"
+        ]
+      },
+      "InvoiceLineInput": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "unitPrice": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000000
+          },
+          "plugin": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,39}$"
+          }
+        },
+        "required": [
+          "quantity",
+          "unitPrice"
         ]
       },
       "PaymentGateway": {
@@ -9348,11 +9435,13 @@
                 "live:write",
                 "notifications:write",
                 "payments:read",
-                "payments:write"
+                "payments:write",
+                "products:read",
+                "products:write"
               ],
               "type": "string"
             },
-            "maxItems": 12
+            "maxItems": 14
           },
           "permissions": {
             "type": "array",
@@ -9579,6 +9668,214 @@
           "token_type",
           "expires_in",
           "scope"
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "kind": {
+            "enum": [
+              "goods",
+              "service"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "barcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "categoryId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "imageIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          "weightGrams": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lengthMm": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "widthMm": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "heightMm": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archivedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "name",
+          "code",
+          "barcode",
+          "categoryId",
+          "description",
+          "unit",
+          "price",
+          "currency",
+          "imageIds",
+          "weightGrams",
+          "lengthMm",
+          "widthMm",
+          "heightMm",
+          "plugins",
+          "createdAt",
+          "updatedAt",
+          "archivedAt"
+        ]
+      },
+      "ProductCategory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "parentId",
+          "createdAt"
         ]
       },
       "PermissionInfo": {
@@ -25898,7 +26195,7 @@
     "/payments/invoices": {
       "post": {
         "operationId": "payments.createInvoice",
-        "summary": "An invoice at a gateway for a record (plugins: payments:write)",
+        "summary": "An invoice at a gateway for a record (plugins: payments:write). With `lines`, their amounts add up to `amount`: 400 LINES_MISMATCH, INVALID_PRODUCT",
         "requestBody": {
           "required": true,
           "content": {
@@ -25958,6 +26255,13 @@
                   "metadata": {
                     "type": "object",
                     "additionalProperties": {}
+                  },
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/InvoiceLineInput"
+                    },
+                    "maxItems": 100
                   }
                 },
                 "required": [
@@ -26688,6 +26992,884 @@
                   "required": [
                     "ok"
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product-categories": {
+      "get": {
+        "operationId": "productCategories.list",
+        "summary": "Every category, by name",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ProductCategory"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "productCategories.create",
+        "summary": "409 CATEGORY_EXISTS (same name under the same parent); 400 INVALID_CATEGORY",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "parentId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductCategory"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product-categories/{id}": {
+      "patch": {
+        "operationId": "productCategories.update",
+        "summary": "409 CATEGORY_EXISTS; 400 INVALID_CATEGORY (unknown parent, or one of its own)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "parentId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductCategory"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "productCategories.remove",
+        "summary": "Delete an empty category; its products lose it. 409 CATEGORY_HAS_CHILDREN while it has subcategories",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "operationId": "products.list",
+        "summary": "Products, newest first. A plugin gets the products it uses unless `all`; members filter by `plugin`",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "default": 30,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "default": "forward",
+              "enum": [
+                "forward",
+                "backward"
+              ],
+              "type": "string"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "cursorMode",
+            "in": "query",
+            "schema": {
+              "default": "exclusive",
+              "enum": [
+                "inclusive",
+                "exclusive"
+              ],
+              "type": "string"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "goods",
+                "service"
+              ],
+              "type": "string"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "default": "active",
+              "enum": [
+                "active",
+                "archived"
+              ],
+              "type": "string"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "plugin",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{0,39}$"
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          },
+          {
+            "name": "all",
+            "in": "query",
+            "schema": {
+              "default": false,
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "enum": [
+                    "true",
+                    "false"
+                  ],
+                  "type": "string"
+                }
+              ]
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    },
+                    "pageInfo": {
+                      "$ref": "#/components/schemas/PageInfo"
+                    },
+                    "totalCount": {
+                      "type": "integer"
+                    },
+                    "totalCapped": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "pageInfo",
+                    "totalCount"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "products.create",
+        "summary": "Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS; 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "goods",
+                      "service"
+                    ],
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "code": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "barcode": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "categoryId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 10000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "price": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000000000
+                  },
+                  "currency": {
+                    "const": "MNT"
+                  },
+                  "imageIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "maxItems": 20
+                  },
+                  "weightGrams": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "lengthMm": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "widthMm": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "heightMm": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "plugins": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                    },
+                    "maxItems": 50
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "operationId": "products.get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "products.update",
+        "summary": "Change a product (`plugins`: members only). Errors as for create",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "goods",
+                      "service"
+                    ],
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "code": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "barcode": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "categoryId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 10000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "price": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000000000
+                  },
+                  "currency": {
+                    "const": "MNT"
+                  },
+                  "imageIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "maxItems": 20
+                  },
+                  "weightGrams": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "lengthMm": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "widthMm": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "heightMm": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "plugins": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                    },
+                    "maxItems": 50
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/lookup": {
+      "get": {
+        "operationId": "products.lookup",
+        "summary": "The given products (archived ones too), for order lines: `?ids=a,b`, at most 100",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 6500
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/use": {
+      "post": {
+        "operationId": "products.use",
+        "summary": "A plugin starts (`used`) or stops using products, so they appear in its lists (plugins only)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "minItems": 1,
+                    "maxItems": 100
+                  },
+                  "used": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "ids",
+                  "used"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}/archive": {
+      "post": {
+        "operationId": "products.archive",
+        "summary": "Take a product out of lists and pickers; orders and invoices keep it",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}/restore": {
+      "post": {
+        "operationId": "products.restore",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
                 }
               }
             }

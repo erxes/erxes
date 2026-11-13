@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { ContentType, Id, IdList } from './common';
+import { ContentType, Id, IdList, QueryBoolean } from './common';
 
 export const FieldType = z.enum([
   'text',
@@ -107,11 +107,6 @@ const Orders = z.object({
     .min(1)
     .max(500),
 });
-
-const QueryBoolean = z.union([
-  z.boolean(),
-  z.enum(['true', 'false']).transform((value) => value === 'true'),
-]);
 
 const Ok = z.object({ ok: z.literal(true) });
 

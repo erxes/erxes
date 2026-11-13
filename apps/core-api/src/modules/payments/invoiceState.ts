@@ -34,6 +34,7 @@ export const toInvoiceDto = (row: InvoiceRow, kind: GatewayRow['kind']): Invoice
     description: row.description,
     status: row.status,
     metadata: row.metadata,
+    lines: row.lines,
     paidAmount: row.paidAmount,
     refundedAmount: row.refundedAmount,
     refundable: {
@@ -75,6 +76,7 @@ export const eventPayload = (invoice: InvoiceRow) => ({
   amount: invoice.amount,
   currency: invoice.currency,
   metadata: invoice.metadata,
+  lines: invoice.lines,
 });
 
 /** Paid: once (a conditional update), then `core.payment.paid` for whoever waits on it. */

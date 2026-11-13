@@ -1,20 +1,14 @@
-import type { CursorQuery, Invoice } from '@erxes/core-contract';
-import {
-  type Db,
-  newId,
-  paymentGateways,
-  paymentInvoices,
-  paymentPluginSettings,
-  withOrg,
-} from '@erxes/core-db';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import type { CursorQuery, Invoice, InvoiceLineInput } from '@erxes/core-contract';
+import { type Db, newId, paymentGateways, paymentInvoices, withOrg } from '@erxes/core-db';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import type { Actor, Caller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { keysetPage } from '~/lib/keyset';
 import { logger } from '~/logger';
 import { appLink } from '~/modules/email/email';
 import { publishCoreEvents } from '~/modules/events/events.service';
-import { driverOf } from './gateways.service';
+import { driverOf, resolveGateway } from './gateways.service';
+import { resolveInvoiceLines } from './invoiceLines';
 import {
   callbackSignature,
   eventPayload,
@@ -25,75 +19,6 @@ import {
 } from './invoiceState';
 
 const log = logger.child({ component: 'payments' });
-
-const pluginSettingsOf = async (client: Db, caller: Caller) => {
-  if (caller.actorType !== 'plugin') return null;
-
-  const [settings] = await client
-    .select()
-    .from(paymentPluginSettings)
-    .where(
-      and(
-        eq(paymentPluginSettings.orgId, caller.orgId),
-        eq(paymentPluginSettings.plugin, caller.source),
-      ),
-    )
-    .limit(1);
-
-  return settings ?? null;
-};
-
-/**
- * The gateway an invoice goes through: the one asked for, else the plugin's
- * default (Settings › Payments), else the first active one — within the
- * gateways the owner allowed the plugin, if any are listed.
- */
-const resolveGateway = async (client: Db, caller: Caller, requested?: string) => {
-  const settings = await pluginSettingsOf(client, caller);
-  const allowed = settings?.allowedGatewayIds ?? [];
-
-  if (requested && allowed.length && !allowed.includes(requested)) {
-    throw new HttpError(
-      403,
-      'GATEWAY_NOT_ALLOWED',
-      'This plugin may not use that gateway (Settings › Payments)',
-    );
-  }
-
-  const active = await client
-    .select()
-    .from(paymentGateways)
-    .where(
-      and(
-        eq(paymentGateways.orgId, caller.orgId),
-        eq(paymentGateways.status, 'active'),
-        requested
-          ? eq(paymentGateways.id, requested)
-          : allowed.length
-            ? inArray(paymentGateways.id, allowed)
-            : undefined,
-      ),
-    )
-    .orderBy(paymentGateways.createdAt);
-
-  const preferred = requested
-    ? undefined
-    : active.find((row) => row.id === settings?.defaultGatewayId);
-
-  const gateway = preferred ?? active[0];
-
-  if (!gateway) {
-    throw new HttpError(
-      400,
-      'NO_GATEWAY',
-      requested
-        ? 'That gateway is not connected or is turned off'
-        : 'Connect a payment gateway first (Settings › Payments)',
-    );
-  }
-
-  return gateway;
-};
 
 const invoiceByDedupeKey = async (client: Db, caller: Caller, dedupeKey: string) => {
   const [existing] = await client
@@ -121,6 +46,7 @@ interface InvoiceInput {
   expiresInMinutes: number;
   dedupeKey?: string;
   metadata?: Record<string, unknown>;
+  lines?: InvoiceLineInput[];
 }
 
 /** What creating an invoice needs before asking the gateway, or the invoice its dedupe key already made. */
@@ -130,11 +56,12 @@ const prepareInvoice = (caller: Caller, input: InvoiceInput) =>
 
     if (existing) return { existing };
 
+    const lines = await resolveInvoiceLines(tx, caller.orgId, input.amount, input.lines ?? []);
     const gateway = await resolveGateway(tx, caller, input.gatewayId);
     const id = newId();
     const path = `/core/v1/payments/callback/${id}?sig=${callbackSignature(id)}`;
 
-    return { gateway, id, callbackUrl: await appLink(tx, caller.orgId, path) };
+    return { gateway, id, lines, callbackUrl: await appLink(tx, caller.orgId, path) };
   });
 
 /**
@@ -147,7 +74,7 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
 
   if (prepared.existing) return prepared.existing;
 
-  const { gateway, id, callbackUrl } = prepared;
+  const { gateway, id, lines, callbackUrl } = prepared;
 
   const created = await driverOf(gateway).createInvoice({
     invoiceId: id,
@@ -174,6 +101,7 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
         expiresAt: sql`now() + make_interval(mins => ${input.expiresInMinutes})`,
         dedupeKey: input.dedupeKey ?? null,
         metadata: input.metadata ?? {},
+        lines,
       })
       .onConflictDoNothing()
       .returning();
@@ -192,24 +120,33 @@ export const createInvoice = async (caller: Caller, input: InvoiceInput) => {
   });
 };
 
-/** The invoice, refreshed with its gateway; plugins see their own invoices only. */
-const visibleInvoice = async (caller: Caller, id: string) => {
+/**
+ * The invoice, refreshed with its gateway. Plugins see their own invoices,
+ * and read those with a line for them (`reader`); only the owner changes one.
+ */
+const visibleInvoice = async (caller: Caller, id: string, access: 'owner' | 'reader') => {
   const { invoice } = await withOrg(caller.orgId, (tx) => invoiceWithGateway(tx, caller.orgId, id));
+  const hasLine = invoice.lines.some((line) => line.plugin === caller.source);
 
-  if (caller.actorType === 'plugin' && invoice.source !== caller.source) throw notFound('Invoice');
+  if (
+    caller.actorType === 'plugin' &&
+    invoice.source !== caller.source &&
+    !(access === 'reader' && hasLine)
+  )
+    throw notFound('Invoice');
 
   return refresh(caller.orgId, id);
 };
 
 export const getInvoice = async (caller: Caller, id: string) => {
-  const { invoice, gateway } = await visibleInvoice(caller, id);
+  const { invoice, gateway } = await visibleInvoice(caller, id, 'reader');
 
   return toInvoiceDto(invoice, gateway.kind);
 };
 
 /** Cancels a pending invoice with the gateway (best effort), then here. Call it outside any scope. */
 export const cancelInvoice = async (caller: Caller, id: string) => {
-  const { invoice, gateway } = await visibleInvoice(caller, id);
+  const { invoice, gateway } = await visibleInvoice(caller, id, 'owner');
 
   if (invoice.status !== 'pending')
     throw new HttpError(409, 'NOT_PENDING', `The invoice is ${invoice.status}`);

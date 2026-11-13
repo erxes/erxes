@@ -53,6 +53,11 @@ export const CORE_PERMISSIONS = [
     label: 'Connect payment gateways and see invoices',
   },
   { action: 'payments.refund', group: 'Payments', label: 'Refund payments' },
+  {
+    action: 'products.manage',
+    group: 'Products',
+    label: 'Add, edit and archive products and categories',
+  },
   { action: 'automations.view', group: 'Automations', label: 'See automations and their runs' },
   {
     action: 'automations.manage',

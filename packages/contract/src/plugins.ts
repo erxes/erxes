@@ -29,6 +29,8 @@ export const PLUGIN_SCOPES = [
   'notifications:write',
   'payments:read',
   'payments:write',
+  'products:read',
+  'products:write',
 ] as const;
 
 export const PluginScope = z.enum(PLUGIN_SCOPES);

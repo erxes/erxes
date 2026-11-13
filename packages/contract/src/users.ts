@@ -1,6 +1,15 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { CursorQuery, Id, IdList, PhoneNumber, cursorPageOf, text, ImageAddress } from './common';
+import {
+  CursorQuery,
+  Id,
+  IdList,
+  PhoneNumber,
+  QueryBoolean,
+  cursorPageOf,
+  text,
+  ImageAddress,
+} from './common';
 import { RoleKey } from './roles';
 
 /** A role key: `owner`, `admin`, `member` or a custom role (`r_…`). See `./roles`. */
@@ -110,12 +119,6 @@ const MemberPassword = z
   .regex(/[a-z]/, 'Add a lower-case letter')
   .regex(/[A-Z]/, 'Add an upper-case letter')
   .regex(/\d/, 'Add a digit');
-
-/** `true`/`false` from a query string, or a boolean from a typed client. */
-const QueryBoolean = z.union([
-  z.boolean(),
-  z.enum(['true', 'false']).transform((value) => value === 'true'),
-]);
 
 const InviteEntry = z.object({
   email: z.string().trim().email().max(254),

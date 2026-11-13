@@ -26,6 +26,12 @@ export const PageInfo = z.object({
 
 export type PageInfo = z.infer<typeof PageInfo>;
 
+/** `true`/`false` from a query string, or a boolean from a typed client. */
+export const QueryBoolean = z.union([
+  z.boolean(),
+  z.enum(['true', 'false']).transform((value) => value === 'true'),
+]);
+
 /** Comma-separated ids in a query string (`?ids=a,b`), at most 100. */
 export const IdList = z
   .string()
