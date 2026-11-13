@@ -2,7 +2,7 @@
 // the lead board and the automation editor, plus per-route load (LCP, last long task, JS bytes,
 // script time). Opt-in, never in CI. Seed the org with seed.ts, serve `rsbuild preview`, then:
 //   UI_URL=http://localhost:3500 EMAIL=owner@acme.test PASSWORD=… CHROME=/path/to/chrome \
-//     node apps/core-ui/e2e/perf/measure.ts > before.json
+//     pnpm --silent --filter @erxes/core-ui perf > before.json
 // Each interaction is a scripted event timed to the next frame. "renders" counts the components
 // that ran, read from React's devtools hook. Medians over RUNS runs (default 3).
 import { CORE_API_PREFIX, coreContract } from '@erxes/core-contract';
