@@ -72,7 +72,8 @@ const CustomerMoreColumnCell = ({ customer }: { customer: Customer }) => {
 };
 
 const CustomerNameCell = ({ customer }: { customer: Customer }) => {
-  const edit = useCustomerEdit();
+  // `mutate` keeps one identity, the mutation result does not.
+  const { mutate } = useCustomerEdit();
   const openCustomer = useOpenCustomer();
   const { id, firstName, middleName, lastName } = customer;
 
@@ -82,7 +83,7 @@ const CustomerNameCell = ({ customer }: { customer: Customer }) => {
       lastName={`${middleName || ''}${middleName ? ' ' : ''}${lastName || ''}`}
       scope={`customers-page.${id}.Name`}
       onSave={(nextFirstName, nextLastName) =>
-        edit.mutate({
+        mutate({
           id,
           firstName: nextFirstName || null,
           middleName: null,

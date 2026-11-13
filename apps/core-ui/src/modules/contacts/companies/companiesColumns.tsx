@@ -75,7 +75,8 @@ const CompanyMoreColumnCell = ({ company }: { company: Company }) => {
 
 /** The name, edited in place (Enter saves); the link opens the company. */
 const CompanyNameCell = ({ company }: { company: Company }) => {
-  const edit = useCompanyEdit();
+  // `mutate` keeps one identity, the mutation result does not.
+  const { mutate } = useCompanyEdit();
   const openCompany = useOpenCompany();
   const { id, primaryName } = company;
   const [editingName, setEditingName] = useState(primaryName);
@@ -90,10 +91,7 @@ const CompanyNameCell = ({ company }: { company: Company }) => {
   const handleEnter = () => {
     if (!editingName.trim() || editingName.trim() === primaryName) return;
 
-    edit.mutate(
-      { id, primaryName: editingName.trim() },
-      { onError: () => setEditingName(primaryName) },
-    );
+    mutate({ id, primaryName: editingName.trim() }, { onError: () => setEditingName(primaryName) });
   };
 
   return (
