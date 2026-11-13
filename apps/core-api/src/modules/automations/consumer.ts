@@ -108,7 +108,35 @@ export const startRuns = async (
     starts.flatMap((start) => (start.subject ? [start.subject.id] : [])),
   );
 
-  const fresh = starts.filter((start) => !start.subject || !entered.has(start.subject.id));
+  const started = await tx
+    .select({ eventId: automationRuns.eventId })
+    .from(automationRuns)
+    .where(
+      and(
+        eq(automationRuns.automationId, automation.id),
+        inArray(
+          automationRuns.eventId,
+          starts.map((start) => start.eventId),
+        ),
+      ),
+    );
+
+  // Starts that already happened, and repeats within `starts` (first wins), take
+  // no room under the hourly limit.
+  const eventIds = new Set(started.map((run) => run.eventId));
+
+  const fresh = starts.filter((start) => {
+    const subjectId = definition.reentry === 'always' ? undefined : start.subject?.id;
+
+    if (eventIds.has(start.eventId) || (subjectId && entered.has(subjectId))) return false;
+
+    eventIds.add(start.eventId);
+
+    if (subjectId) entered.add(subjectId);
+
+    return true;
+  });
+
   const room = await hourlyRoom(tx, automation.id, definition.maxRunsPerHour, fresh.length);
   const allowed = fresh.slice(0, room);
 
