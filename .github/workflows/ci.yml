@@ -41,7 +41,7 @@ jobs:
           docker compose -f deploy/docker-compose.yml config --no-interpolate --format json |
             jq -e '[.services[] | select(.image | startswith("postgres")) | select(.ports or .network_mode == "host")] == []' > /dev/null ||
             { echo "::error file=deploy/docker-compose.yml::the postgres service publishes a port to the host"; exit 1; }
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -81,7 +81,7 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 20
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -102,12 +102,12 @@ jobs:
       CORE_UI_IMAGE: erxes-core-ui:local
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@v4
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           # The runner is thrown away after the job.
           cleanup: false
       - name: Build both images side by side
-        uses: docker/bake-action@v7
+        uses: docker/bake-action@59cb1203cd42bcefd40a1b6d73b589e48c86040e # v7.5.0
         with:
           source: .
           load: true
@@ -163,8 +163,8 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -178,7 +178,7 @@ jobs:
             echo "sha=sha-${GITHUB_SHA::12}"
           } >> "$GITHUB_OUTPUT"
       - name: Push both images
-        uses: docker/bake-action@v7
+        uses: docker/bake-action@59cb1203cd42bcefd40a1b6d73b589e48c86040e # v7.5.0
         with:
           source: .
           push: true

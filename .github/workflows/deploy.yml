@@ -42,7 +42,7 @@ jobs:
     env:
       TAG: ${{ inputs.tag || format('sha-{0}', github.event.workflow_run.head_sha) }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           sparse-checkout: deploy
