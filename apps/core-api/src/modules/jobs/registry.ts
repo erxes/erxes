@@ -9,6 +9,7 @@ import { importCheckJob, importRunJob, importUndoJob } from '~/modules/transfer/
 import { importParseJob } from '~/modules/transfer/importParse';
 import { deliverJob } from '~/modules/webhooks/webhookDelivery';
 import { exampleDataJob } from '~/modules/organizations/exampleData';
+import { smsJob } from '~/modules/sms/sms';
 import type { JobDefinition } from './jobs';
 
 /** Every kind of background job the worker runs. */
@@ -18,6 +19,7 @@ export const JOBS: JobDefinition[] = [
   callJob,
   fireJob,
   emailJob,
+  smsJob,
   paymentCheckJob,
   pluginEventJob,
   auditStreamJob,

@@ -119,6 +119,8 @@ const Env = z
     EMAIL_SMTP_URL: text,
     EMAIL_FROM: text,
 
+    SMS_DRIVER: optional(z.enum(['log'])),
+
     OUTBOUND_ALLOW_PRIVATE: flag,
 
     SAAS: flag,
@@ -315,6 +317,13 @@ export const config = {
     /** `smtps://user:pass@smtp.example.com:465` (SES, Mailgun, Postmark, …). */
     smtpUrl: env.EMAIL_SMTP_URL,
     from: env.EMAIL_FROM ?? 'erxes <no-reply@erxes.io>',
+  },
+  sms: {
+    /**
+     * How customer sign-in codes reach phones. `log` (development: written to
+     * the log, not sent); country providers are drivers in `modules/sms`.
+     */
+    driver: env.SMS_DRIVER ?? 'log',
   },
   outbound: {
     /**

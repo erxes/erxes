@@ -7,7 +7,7 @@ import type { Logger, SerializedRequest } from 'pino';
 import { pinoHttp } from 'pino-http';
 import { logger } from '~/logger';
 import { authenticate } from '~/http/auth';
-import { signInLimit, tokenLimit, uploadLimit } from '~/http/rateLimit';
+import { customerCodeLimit, signInLimit, tokenLimit, uploadLimit } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
@@ -16,12 +16,21 @@ import { HttpError } from '~/http/errors';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
+import { customerOAuthRouter } from '~/modules/customerAuth/customerOAuth.http';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
 import { standingGuard } from '~/modules/saas/saas.service';
 
 const REQUEST_ID = /^[\w.:-]{8,100}$/;
+
+/** Where customers ask for and type sign-in codes. */
+const CUSTOMER_CODE_PATHS = [
+  '/core/v1/customer-auth/code',
+  '/core/v1/customer-auth/sign-in',
+  '/core/v1/customer/me/logins',
+  '/core/v1/customer/me/logins/confirm',
+];
 
 /** The caller's `X-Request-Id` when it is a plain token, else a new one. Echoed on the response. */
 const requestId = (req: IncomingMessage, res: ServerResponse) => {
@@ -105,6 +114,7 @@ export const createApp = (log: Logger = logger): Express => {
     signInLimit,
   );
   app.use('/core/v1/plugins/token', tokenLimit);
+  app.use(CUSTOMER_CODE_PATHS, customerCodeLimit);
 
   // The SaaS control plane's own door: signed over the raw body, so before JSON parsing and member authentication.
   // erxes.io's door and sign-in hand-off (its own token; also at the path old erxes used).
@@ -153,6 +163,9 @@ export const createApp = (log: Logger = logger): Express => {
   // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
   app.use('/core/v1/oauth', tokenLimit, oauthRouter);
   app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
+
+  // Customers signing in to plugins' apps (decision 42): its own authentication too.
+  app.use('/core/v1/customer-oauth', tokenLimit, customerOAuthRouter);
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
   app.use(

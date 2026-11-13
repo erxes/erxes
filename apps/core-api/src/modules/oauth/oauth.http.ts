@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { sessionClaims } from '~/http/auth';
 import { ISSUER, verifyJwt } from '~/lib/signing';
 import {
+  allowedRedirect,
   clientOf,
   clientTitle,
   installed,
@@ -12,8 +13,12 @@ import {
   newSecret,
   oauthError,
   param,
+  redirectBack,
+  RevokeForm,
+  s256Challenge,
   SCOPES,
   sha256,
+  TokenForm,
 } from './oauthClients';
 import { exchangeCode, refreshGrant, revokeFamily } from './oauthGrants';
 
@@ -40,21 +45,6 @@ const AuthorizeQuery = z.object({
 });
 
 type AuthorizeRequest = z.infer<typeof AuthorizeQuery> & { redirect_uri: string };
-
-/** The redirect address, if the client lists it (with `{subdomain}` the organisation's). */
-const allowedRedirect = (templates: string[], given: string, subdomain: string | null) =>
-  templates.some(
-    (template) => (subdomain ? template.replaceAll('{subdomain}', subdomain) : template) === given,
-  );
-
-const withParams = (url: string, params: Record<string, string | undefined>) => {
-  const target = new URL(url);
-
-  for (const [key, value] of Object.entries(params))
-    if (value !== undefined) target.searchParams.set(key, value);
-
-  return target.toString();
-};
 
 /** The signed-in member behind the session cookie, if still valid. */
 const memberOfSession = async (req: Request) => {
@@ -83,18 +73,12 @@ const codeRedirect = (
   query: AuthorizeRequest,
   user: { orgId: string; id: string },
 ) => {
-  const back = (params: Record<string, string | undefined>) =>
-    withParams(query.redirect_uri, { ...params, state: query.state, iss: ISSUER });
+  const back = redirectBack(query);
+  const codeChallenge = s256Challenge(query);
 
   if (query.response_type !== 'code') return back({ error: 'unsupported_response_type' });
 
-  const codeChallenge = query.code_challenge;
-
-  if (
-    !codeChallenge ||
-    query.code_challenge_method !== 'S256' ||
-    !/^[A-Za-z0-9_-]{43}$/.test(codeChallenge)
-  ) {
+  if (!codeChallenge) {
     return back({ error: 'invalid_request', error_description: 'PKCE with S256 is required' });
   }
 
@@ -161,19 +145,6 @@ oauthRouter.get('/authorize', async (req: Request, res: Response) => {
     await codeRedirect(client, { ...query, redirect_uri: redirectUri }, member.user),
   );
 });
-
-const TokenForm = z
-  .object({
-    client_id: param,
-    grant_type: param,
-    code: param,
-    redirect_uri: param,
-    code_verifier: param,
-    refresh_token: param,
-  })
-  .catch({});
-
-const RevokeForm = z.object({ token: param }).catch({});
 
 const tokenRouter = Router();
 

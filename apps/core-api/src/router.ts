@@ -18,6 +18,10 @@ import { transferRouter } from '~/modules/transfer/transfer.router';
 import { leadsRouter } from '~/modules/leads/leads.router';
 import { viewsRouter } from '~/modules/views/views.router';
 import { customersRouter } from '~/modules/customers/customers.router';
+import {
+  customerAccountRouter,
+  customerAuthRouter,
+} from '~/modules/customerAuth/customerAuth.router';
 import { companiesRouter } from '~/modules/companies/companies.router';
 import { tagsRouter } from '~/modules/tags/tags.router';
 import { fieldsRouter, fieldGroupsRouter } from '~/modules/fields/fields.router';
@@ -46,6 +50,8 @@ export const coreRouter = pub.router({
   leads: leadsRouter,
   views: viewsRouter,
   customers: customersRouter,
+  customerAccount: customerAccountRouter,
+  customerAuth: customerAuthRouter,
   companies: companiesRouter,
   tags: tagsRouter,
   fields: fieldsRouter,

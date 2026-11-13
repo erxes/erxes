@@ -49,6 +49,16 @@ export const signInLimit = rateLimit({
   key: (req) => (req.method === 'POST' ? `auth:${ip(req)}` : null),
 });
 
+/**
+ * Customer sign-in codes, asked for and typed: 10 a minute per address (the
+ * codes themselves are limited per email and phone in the database).
+ */
+export const customerCodeLimit = rateLimit({
+  windowSeconds: 60,
+  max: 10,
+  key: (req) => (req.method === 'POST' ? `customer-code:${ip(req)}` : null),
+});
+
 /** Plugin token requests: 120 a minute per address. */
 export const tokenLimit = rateLimit({
   windowSeconds: 60,

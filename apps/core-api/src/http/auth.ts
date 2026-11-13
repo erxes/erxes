@@ -8,6 +8,7 @@ import { readCookies, SESSION_COOKIE } from '~/http/cookies';
 import { can, publicPaths } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { verifyJwt } from '~/lib/signing';
+import { customerOfToken } from '~/modules/customerAuth/customerSessions';
 
 /** A role key: `owner`, `admin`, `member` or a custom `r_…`. */
 export type Role = string;
@@ -63,8 +64,19 @@ declare global {
       pluginService?: PluginService;
       /** The member token's session version. */
       sessionVersion?: number;
+      /** A signed-in customer (`/customer/*` only). */
+      customer?: CustomerCaller;
     }
   }
+}
+
+/** A customer calling `/customer/*` with an access token from a plugin's app. */
+export interface CustomerCaller {
+  orgId: string;
+  customerId: string;
+  sessionId: string;
+  /** The plugin whose app the token was issued to. */
+  clientId: string;
 }
 
 export const userCaller = (actor: Actor): Caller => ({
@@ -151,7 +163,7 @@ const isSignedFilePath = (path: string) => path.startsWith('/files/signed/');
  * A cookie-signed change must come from erxes' own pages: browsers send the
  * cookie on cross-site requests too. Bearer-token calls are not affected.
  */
-const isCrossSiteWrite = (req: Request) => {
+export const isCrossSiteWrite = (req: Request) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return false;
   }
@@ -204,6 +216,18 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
 
   const header = req.headers.authorization ?? '';
   const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+
+  // A signed-in customer: their own routes only, and nobody else's token works there.
+  if (req.path.startsWith('/customer/')) {
+    const customer = bearer ? await customerOfToken(bearer) : null;
+
+    if (!customer) throw unauthorized();
+
+    req.customer = customer;
+    req.log.setBindings({ orgId: customer.orgId, customerId: customer.customerId });
+
+    return next();
+  }
 
   if (bearer && isPluginToken(bearer)) {
     await authenticatePlugin(req, bearer);

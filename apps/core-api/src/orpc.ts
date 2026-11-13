@@ -4,6 +4,7 @@ import { getLogger, type LoggerContext } from '@orpc/experimental-pino';
 import { implement, os } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { enforceAccess } from '~/http/access';
+import { HttpError } from '~/http/errors';
 import { type Actor, actorOf, callerOf, pluginOf, userCaller } from '~/http/auth';
 import { type AuditInput, recordAudit } from '~/modules/audit/audit.service';
 
@@ -73,6 +74,19 @@ const asCaller = os
   .middleware(({ context, next }) =>
     next({ context: { caller: callerOf(context.req), actor: context.req.actor ?? null } }),
   );
+
+/**
+ * Procedures for a signed-in customer (`/customer/*`): `context.customer`.
+ * No transaction around the handler: a wrong code's try must be saved even
+ * though the call fails, so services scope their own `withOrg`.
+ */
+export const customer = pub.use(({ context, next }) => {
+  const caller = context.req.customer;
+
+  if (!caller) throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+
+  return next({ context: { customer: caller } });
+});
 
 /** Procedures for members and plugins alike; `context.caller` says which. */
 export const anyone = orgScoped.use(asCaller);

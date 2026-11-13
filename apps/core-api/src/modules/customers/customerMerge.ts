@@ -1,4 +1,11 @@
-import { customerCompanies, customers, type Db, withTransaction } from '@erxes/core-db';
+import {
+  customerCompanies,
+  customerLogins,
+  customers,
+  customerSessions,
+  type Db,
+  withTransaction,
+} from '@erxes/core-db';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
@@ -41,6 +48,14 @@ const moveRelations = async (tx: Db, orgId: string, keepId: string, otherIds: st
     ON CONFLICT DO NOTHING
   `);
   await copyTags(tx, orgId, 'customer', otherIds, keepId);
+
+  // They sign in as the kept customer from now on, and stay signed in.
+  for (const table of [customerLogins, customerSessions]) {
+    await tx
+      .update(table)
+      .set({ customerId: keepId })
+      .where(and(eq(table.orgId, orgId), inArray(table.customerId, otherIds)));
+  }
 };
 
 /** The kept customer's columns after the merge. */

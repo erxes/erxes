@@ -20,11 +20,12 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    `client: Db`, the `Actor` (or `Caller` for plugins) and the input, filters every query with
    `eq(table.orgId, actor.orgId)`, and returns a DTO without credentials or `org_id`. Owner or
    admin only: `requireManager(actor, message)`. Failures throw `HttpError(status, CODE, message)`.
-3. Give it a policy in `ACCESS` (`apps/core-api/src/http/access.ts`): `MEMBER`, `MANAGER`, `OWNER`,
-   `PUBLIC` or `{ plugin: '<scope>' }`; the type check fails until it has one. Add the handler to
+3. Give it a policy in `ACCESS` (`apps/core-api/src/http/policies.ts`): `MEMBER`, `MANAGER`, `OWNER`,
+   `PUBLIC`, `CUSTOMER` or `{ plugin: '<scope>' }`; the type check fails until it has one. Add the handler to
    `modules/<feature>/<feature>.router.ts` with the builders from `src/orpc.ts`:
    `authed.<group>.<name>.handler(({ input, context }) => ...)` for members, `plugin` for plugin
-   tokens, `anyone` for both, `pub` for public procedures. A new group's router goes into
+   tokens, `anyone` for both, `customer` for signed-in customers (paths under `/customer/`),
+   `pub` for public procedures. A new group's router goes into
    `coreRouter` in `src/router.ts`. Wrap a write in `audited(context.actor, (tx) => ..., entry)`
    so the change and its audit entry share a transaction. Core events go out in that transaction
    with `publishCoreEvents(tx, ...)`.

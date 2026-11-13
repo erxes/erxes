@@ -24,8 +24,12 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
 - `src/modules/<feature>/<feature>.service.ts` has the logic. `<feature>.http.ts` is only for
   Express routes that stream bytes, files or events (file links, audit export, `/core/v1/stream`).
 - `src/http/` has auth (`actorOf`, `pluginOf`, `callerOf`, `requireManager`), the access map
-  (`access.ts`), the sign-in, token and upload rate limits (`rateLimit.ts`), cookies and
-  `HttpError`.
+  (`policies.ts`) and its check (`access.ts`), the sign-in, code, token and upload rate limits
+  (`rateLimit.ts`), cookies and `HttpError`.
+- `src/modules/customerAuth/` signs customers in for plugins' apps (decision 42): codes by email or
+  SMS (`modules/sms` drivers), browser and app sessions, `/customer-oauth/*` (OAuth 2.1 + PKCE)
+  and `/customer/me`. `authenticate` lets only customer tokens (`customer+jwt`) into
+  `/customer/*`, and customer tokens nowhere else.
 - `src/lib/signing.ts` signs and verifies every token core issues (plugin tokens, plugin sessions,
   audit checkpoints) with core's ES256 key; `src/modules/plugins/` is the plugin registry.
 - `src/lib/` has keyset paging, change diffs, merge helpers, search and guards.
@@ -34,7 +38,7 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
 ## How a request flows
 
 contract procedure (`packages/contract/src/<domain>.ts`) → its policy in `ACCESS`
-(`src/http/access.ts`) → handler in `src/modules/<feature>/<feature>.router.ts`
+(`src/http/policies.ts`) → handler in `src/modules/<feature>/<feature>.router.ts`
 (`authed`, `plugin` or `anyone` builder) → service (`client: Db`, the `Actor` or `Caller`, input) →
 DTO. Copy the `tags` procedures: `modules/tags/tags.service.ts` and `modules/tags/tags.router.ts`.
 
@@ -45,8 +49,9 @@ DTO. Copy the `tags` procedures: `modules/tags/tags.service.ts` and `modules/tag
 - Members use `authed` (`context.actor`), plugins use `plugin` (`context.plugin`), and `anyone` gives
   `context.caller` for both. Owner and admin checks are `requireManager(actor, message)` in the
   service.
-- Every procedure has a policy in `ACCESS` (`src/http/access.ts`): `public`, `member: any | manager |
-  owner`, or `plugin: <scope>` (`manifest` for the plugin's token without an organisation). One oRPC
+- Every procedure has a policy in `ACCESS` (`src/http/policies.ts`): `public`, `member: any | manager |
+  owner`, `plugin: <scope>` (`manifest` for the plugin's token without an organisation), or
+  `customer` (the `customer` builder; its services open their own `withOrg`). One oRPC
   middleware checks it before the handler, and a procedure without an entry doesn't compile.
 - Tokens core signs get their own JOSE `typ` (`signJwt`); `verifyJwt` checks it and parses the
   claims with a zod schema.

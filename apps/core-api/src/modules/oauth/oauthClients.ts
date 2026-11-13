@@ -3,6 +3,7 @@ import { and, eq } from 'drizzle-orm';
 import type { Response } from 'express';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
+import { ISSUER } from '~/lib/signing';
 
 export const SCOPES = new Set(['openid', 'profile', 'email', 'offline_access']);
 
@@ -34,6 +35,49 @@ export const sameHash = (stored: string, value: string) => {
 
 export const oauthError = (res: Response, status: number, error: string, description: string) =>
   res.status(status).json({ error, error_description: description });
+
+/** The redirect address, if the client lists it (with `{subdomain}` the organisation's). */
+export const allowedRedirect = (templates: string[], given: string, subdomain: string | null) =>
+  templates.some(
+    (template) => (subdomain ? template.replaceAll('{subdomain}', subdomain) : template) === given,
+  );
+
+const withParams = (url: string, params: Record<string, string | undefined>) => {
+  const target = new URL(url);
+
+  for (const [key, value] of Object.entries(params))
+    if (value !== undefined) target.searchParams.set(key, value);
+
+  return target.toString();
+};
+
+/** The app's address with the answer (`code` or `error`), its `state` and core as the issuer. */
+export const redirectBack =
+  (query: { redirect_uri: string; state?: string }) =>
+  (params: Record<string, string | undefined>) =>
+    withParams(query.redirect_uri, { ...params, state: query.state, iss: ISSUER });
+
+/** The PKCE challenge, when the request uses S256 properly (the only method allowed). */
+export const s256Challenge = (query: { code_challenge?: string; code_challenge_method?: string }) =>
+  query.code_challenge &&
+  query.code_challenge_method === 'S256' &&
+  /^[A-Za-z0-9_-]{43}$/.test(query.code_challenge)
+    ? query.code_challenge
+    : null;
+
+/** The token endpoint's form (OAuth: `application/x-www-form-urlencoded`). */
+export const TokenForm = z
+  .object({
+    client_id: param,
+    grant_type: param,
+    code: param,
+    redirect_uri: param,
+    code_verifier: param,
+    refresh_token: param,
+  })
+  .catch({});
+
+export const RevokeForm = z.object({ token: param, client_id: param }).catch({});
 
 /** An active plugin acting as an OAuth client. */
 export const clientOf = async (clientId: string | undefined) => {

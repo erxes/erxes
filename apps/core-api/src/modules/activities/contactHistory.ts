@@ -112,7 +112,7 @@ export const contactCreated = async (
 
 export const contactUpdated = async (
   tx: Db,
-  actor: Actor,
+  actor: Actor | Caller,
   type: ContentType,
   before: ContactRow,
   after: ContactRow,
@@ -123,7 +123,7 @@ export const contactUpdated = async (
     return;
   }
 
-  const caller = userCaller(actor);
+  const caller = 'actorType' in actor ? actor : userCaller(actor);
 
   await recordActivity(tx, caller, {
     targetType: type,
@@ -143,6 +143,10 @@ export const contactUpdated = async (
     targetLabel: contactLabel(type, after),
     changes,
   });
+
+  // Changed by the customer (core on their behalf): the owner sees it on the timeline.
+  if ('actorType' in actor) return;
+
   await notifyNewOwner(tx, actor, type, after, before.ownerId);
 
   // The owner kept their record: tell them what changed (a new owner was told above).

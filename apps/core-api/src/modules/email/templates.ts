@@ -39,6 +39,12 @@ export const EmailPayload = z.discriminatedUnion('template', [
       link: z.string(),
     }),
   }),
+  /** A customer's one-time sign-in code. */
+  z.object({
+    to: z.string(),
+    template: z.literal('sign_in_code'),
+    data: z.object({ organization: z.string(), code: z.string(), minutes: z.number() }),
+  }),
   /** A plain message (automations): a subject and text. */
   z.object({
     to: z.string(),
@@ -111,6 +117,20 @@ const contentOf = (email: EmailPayload): EmailContent => {
           `${data.organization} on erxes · change what you get by email in Settings › Notifications.`,
         ],
         button: { label: 'Open in erxes', link: data.link },
+      };
+    }
+
+    case 'sign_in_code': {
+      const { data } = email;
+
+      return {
+        subject: `${data.code} is your ${data.organization} code`,
+        heading: data.code,
+        lines: [
+          `Enter this code to sign in to ${data.organization}. It works once, for ${data.minutes} minutes.`,
+          "If you didn't ask for it, ignore this email: nobody can sign in without the code.",
+        ],
+        button: null,
       };
     }
 
