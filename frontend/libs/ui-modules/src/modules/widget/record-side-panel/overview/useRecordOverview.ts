@@ -51,10 +51,18 @@ export const useRecordOverview = ({
     ),
     onReorder: (order) => saveLayout({ order }),
     onToggleTab: (key) =>
-      saveLayout({
-        tabs: layout.tabs.includes(key)
-          ? layout.tabs.filter((pinnedKey) => pinnedKey !== key)
-          : [...layout.tabs, key],
+      setLayouts((previous) => {
+        const current = previous[contentType] || EMPTY_LAYOUT;
+
+        return {
+          ...previous,
+          [contentType]: {
+            ...current,
+            tabs: current.tabs.includes(key)
+              ? current.tabs.filter((pinnedKey) => pinnedKey !== key)
+              : [...current.tabs, key],
+          },
+        };
       }),
   };
 };
