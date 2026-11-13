@@ -1,4 +1,4 @@
-import { db, rootDb, runtimeRole, withOrg, withSystem } from '@erxes/core-db';
+import { db, rootDb, runtimeRole, savepoint, withOrg, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { adminDb, dbError, useTestDatabase } from './db';
@@ -7,6 +7,10 @@ import { useTwoOrgs } from './support';
 
 const tag = (id: string, org: string) =>
   sql`insert into core_tags (id, org_id, type, name) values (${id}, ${org}, 'customer', 'x')`;
+
+/** A tag in the scope's organisation (org_id from its default). */
+const named = (id: string) =>
+  sql`insert into core_tags (id, type, name) values (${id}, 'customer', ${id})`;
 
 /**
  * Tenant isolation in the database: scopes that fail closed and keep to their
@@ -88,6 +92,21 @@ describe('tenant isolation (database)', () => {
     }));
 
     expect(narrowed).toEqual({ inside: { n: 1 }, after: { n: 2 } });
+
+    // A savepoint inside a savepoint is its own: when both fail, both roll back.
+    const kept = await withOrg(t.ids.org, async (tx) => {
+      await savepoint(async (outer) => {
+        await outer.execute(named('sp-outer'));
+        await savepoint(async (inner) => {
+          await inner.execute(named('sp-inner'));
+          throw new Error('inner');
+        });
+      }).catch(() => undefined);
+
+      return (await tx.execute(sql`select id from core_tags where id like 'sp-%'`)).rows;
+    });
+
+    expect(kept).toEqual([]);
 
     for (let index = 0; index < 8; index += 1) {
       const leftover = await rootDb().execute<{ org: string | null; role: string }>(

@@ -92,7 +92,9 @@ export const savepoint = <T>(fn: (tx: Transaction) => Promise<T>) => {
 
   if (!current) throw new Error('savepoint() needs a withOrg or withSystem scope');
 
-  return current.tx.transaction(fn);
+  // The savepoint becomes the scope's transaction, so a savepoint inside it
+  // nests (its own name) instead of reusing this one's.
+  return current.tx.transaction((sp) => scopeStorage.run({ ...current, tx: sp }, () => fn(sp)));
 };
 
 /**
