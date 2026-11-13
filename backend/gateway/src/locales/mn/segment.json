@@ -268,5 +268,6 @@
   "delete-confirm": "\"{{name}}\" устгах уу?",
   "delete-selected-confirm": "Сонгосон {{total}} сегментийг устгахдаа итгэлтэй байна уу?",
   "segment-deleted": "Сегмент амжилттай устгагдлаа",
-  "segments-deleted": "Сегментүүд амжилттай устгагдлаа"
+  "segments-deleted": "Сегментүүд амжилттай устгагдлаа",
+  "from-template": "Template-ээс"
 }

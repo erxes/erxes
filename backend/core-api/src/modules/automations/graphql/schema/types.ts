@@ -79,6 +79,7 @@ const types = `
     notes: [AutomationNote]
     ownedBy: String
     ownerContentId: String
+    folderId: String
 
     duplicatedFrom: String
     duplicatedFromName: String
@@ -92,6 +93,18 @@ const types = `
 
   type AutomationNote {
     ${noteTypes}
+  }
+
+  type AutomationFolder {
+    _id: String!
+    name: String!
+    icon: String
+    installationId: String
+    createdBy: String
+    createdAt: Date
+    updatedAt: Date
+    automationCount: Int
+    activeCount: Int
   }
 
   type AutomationsListResponse {

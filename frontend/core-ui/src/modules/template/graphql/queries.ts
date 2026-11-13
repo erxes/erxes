@@ -7,6 +7,7 @@ const TEMPLATE_FIELDS = `
   name
   description
   icon
+  group
   requirements
   parts
   journeys {
