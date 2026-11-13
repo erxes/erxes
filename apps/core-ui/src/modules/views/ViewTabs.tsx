@@ -1,18 +1,22 @@
 import type { View, ViewRecordType } from '@erxes/core-contract';
 import {
+  IconBookmark,
   IconChevronDown,
   IconCopy,
   IconDots,
+  IconLayoutList,
   IconLink,
   IconLock,
   IconPencil,
   IconPlus,
+  IconStack2,
   IconTrash,
   IconUsers,
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { IconTip } from '~/components/IconTip';
 import { messageOf } from '~/lib/api';
 import { ViewDialog } from './ViewControls';
 import { viewHref } from './viewLinks';
@@ -22,10 +26,21 @@ import { useCanShareViews, useViewMutations, useViewState } from './useViews';
 const VISIBLE = 5;
 
 const TAB =
-  'relative flex h-9 shrink-0 items-center gap-1.5 px-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground';
+  'flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0';
 
-const ACTIVE =
-  'font-medium text-foreground after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary';
+const ACTIVE = 'bg-accent font-medium text-foreground hover:bg-accent';
+
+/** The open tab's mark that the list differs from it. */
+const EditedDot = () => {
+  const { t } = useTranslation('views');
+
+  return (
+    <span title={t('edited')} className="flex shrink-0 items-center">
+      <span aria-hidden className="size-1.5 rounded-full bg-primary" />
+      <span className="sr-only">{t('edited')}</span>
+    </span>
+  );
+};
 
 /** Copies a view's address, saying whether it worked. */
 const useCopyViewLink = (recordType: ViewRecordType) => {
@@ -162,8 +177,9 @@ const MoreViews = ({ views, onOpen }: { views: View[]; onOpen: (view: View) => v
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
         <button type="button" className={TAB}>
+          <IconStack2 />
           {t('more', { count: views.length })}
-          <IconChevronDown className="size-3.5" />
+          <IconChevronDown className="opacity-60" />
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="start" className="max-h-80 min-w-52 overflow-y-auto">
@@ -187,15 +203,17 @@ const NewViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 shrink-0 gap-1 px-2 text-muted-foreground"
-        onClick={() => setAdding(true)}
-      >
-        <IconPlus className="size-4" />
-        {t('new-view')}
-      </Button>
+      <IconTip label={t('new-view')}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('new-view')}
+          className="size-7 shrink-0 text-muted-foreground"
+          onClick={() => setAdding(true)}
+        >
+          <IconPlus className="size-4" />
+        </Button>
+      </IconTip>
       <ViewDialog
         recordType={recordType}
         open={adding}
@@ -231,7 +249,7 @@ export const ViewTabs = ({
   allLabel: string;
 }) => {
   const { t } = useTranslation('views');
-  const { views, error, current, query } = useViewState(recordType);
+  const { views, error, current, changed, query } = useViewState(recordType);
   // The open view stays visible even when it is past the first few.
   const visible = views.slice(0, VISIBLE);
 
@@ -249,7 +267,9 @@ export const ViewTabs = ({
         className={cn(TAB, !current && ACTIVE)}
         onClick={() => query.openView(null)}
       >
+        <IconLayoutList />
         {allLabel}
+        {!current && changed && <EditedDot />}
       </button>
       {error && (
         <span role="alert" className="text-xs text-destructive">
@@ -272,8 +292,9 @@ export const ViewTabs = ({
             onClick={() => query.openView(view)}
             title={view.shared ? t('shared') : t('mine')}
           >
-            {view.shared && <IconUsers className="size-3.5 opacity-60" />}
+            {view.shared ? <IconUsers /> : <IconBookmark />}
             <span className="max-w-40 truncate">{view.name}</span>
+            {current?.id === view.id && changed && <EditedDot />}
           </button>
           <ViewMenu
             view={view}

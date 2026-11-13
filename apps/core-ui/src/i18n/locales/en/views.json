@@ -22,9 +22,13 @@
   "save": "Save view",
   "save-new": "Save as new view",
   "update": "Update “{{name}}”",
+  "save-changes": "Save",
+  "count": "{{formatted}} records",
+  "count_one": "{{formatted}} record",
   "save-description": "Saves the filter and search; it always shows the latest records.",
   "save-failed": "Could not save the view",
   "filter": {
+    "label": "Filter",
     "add": "Add filter…",
     "search": "Search",
     "advanced": "Advanced filter",

@@ -101,9 +101,7 @@
     "action-delete": "Delete",
     "action-merge": "Merge",
     "confirm-delete-selected": "Are you sure you want to delete the {{count}} selected companies?",
-    "merge-tooltip": "You can only merge 2 companies",
-    "records-found": "{{formatted}} records found",
-    "records-found_one": "{{formatted}} record found"
+    "merge-tooltip": "You can only merge 2 companies"
   },
   "lead": {
     "add": {

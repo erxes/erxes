@@ -1,12 +1,23 @@
 import type { ViewRecordType } from '@erxes/core-contract';
-import { IconAdjustmentsHorizontal, IconSearch } from '@tabler/icons-react';
-import { Combobox, Command, Filter, useFilterContext, useFilterQueryState } from 'erxes-ui';
+import { IconAdjustmentsHorizontal, IconFilter2, IconSearch } from '@tabler/icons-react';
+import {
+  Button,
+  cn,
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useFilterQueryState,
+} from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { IconTip } from '~/components/IconTip';
 import { messageOf } from '~/lib/api';
 import { usePageHotkey } from '~/lib/usePageHotkey';
 import { isRule } from '~/modules/automations/builder/conditionOperators';
 import { type ListField, useFilterFields, useListQuery } from '../useViews';
+import { ViewChanges } from '../ViewControls';
 import { AdvancedFilterDialog } from './AdvancedFilterDialog';
 import { FieldMenu } from './FieldMenus';
 import { FIELD_ICONS } from './fieldIcons';
@@ -97,7 +108,32 @@ const SearchChip = () => {
   );
 };
 
-/** Inside `<Filter>`: the menu (opened with `F`), its chips and the advanced filter. */
+/** Opens the filter menu; it shows how many conditions apply. */
+const FilterButton = ({ count, onClick }: { count: number; onClick: () => void }) => {
+  const { t } = useTranslation('views', { keyPrefix: 'filter' });
+
+  return (
+    <IconTip label={t('label')} hotkey="F">
+      <Popover.Trigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={t('label')}
+          className={cn(
+            'h-7 min-w-7 gap-1 px-1.5 text-muted-foreground',
+            count > 0 && 'bg-accent text-foreground',
+          )}
+          onClick={onClick}
+        >
+          <IconFilter2 className="size-4" />
+          {count > 0 && <span className="text-xs tabular-nums">{count}</span>}
+        </Button>
+      </Popover.Trigger>
+    </IconTip>
+  );
+};
+
+/** Inside `<Filter>`: its chips, the view's changes, the list's controls, then the menu (`F`). */
 const ListFilterBar = ({
   recordType,
   optionLabel,
@@ -143,12 +179,15 @@ const ListFilterBar = ({
 
   return (
     <ListFilterContext.Provider value={state}>
+      <div className="flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none]">
+        <SearchChip />
+        <RuleChips />
+      </div>
+      <ViewChanges recordType={recordType} />
+      {children}
       <Filter.Popover scope={`${recordType}-list`}>
-        <Filter.Trigger
-          isFiltered={parts.length > 0 || Boolean(search)}
-          onClick={() => setEditing(null)}
-        />
-        <Combobox.Content className="w-80">
+        <FilterButton count={parts.length + (search ? 1 : 0)} onClick={() => setEditing(null)} />
+        <Combobox.Content align="end" className="w-80">
           <Filter.View>
             <RootMenu loading={fieldsQuery.isLoading} error={fieldsQuery.error} />
           </Filter.View>
@@ -169,9 +208,6 @@ const ListFilterBar = ({
         open={advancedOpen}
         onOpenChange={setAdvancedOpen}
       />
-      <SearchChip />
-      <RuleChips />
-      {children}
     </ListFilterContext.Provider>
   );
 };
@@ -180,7 +216,7 @@ const ListFilterBar = ({
  * A list's filter bar: the menu of every field `views.fields` gives (`F`),
  * search, the advanced filter, and each condition as a chip. Conditions are
  * the list's filter (`useListQuery().advanced`), which views save.
- * `children` follow the chips (toggles, the count).
+ * `children` sit between the chips and the menu (the count, toggles).
  */
 export const ListFilter = ({
   recordType,
@@ -194,7 +230,7 @@ export const ListFilter = ({
   children?: ReactNode;
 }) => (
   <Filter id={`${recordType}-list-filter`} sessionKey={sessionKey}>
-    <Filter.Bar>
+    <Filter.Bar className="min-w-0 flex-nowrap justify-end gap-1">
       <ListFilterBar recordType={recordType} optionLabel={optionLabel}>
         {children}
       </ListFilterBar>

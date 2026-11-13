@@ -1,40 +1,35 @@
 import { IconArchive } from '@tabler/icons-react';
-import { isUndefinedOrNull, Skeleton, Toggle, useQueryState } from 'erxes-ui';
+import { Toggle, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { formatTotal } from '~/lib/cursorList';
+import { IconTip } from '~/components/IconTip';
 import { ListFilter } from '~/modules/views/filter/ListFilter';
+import { RecordCount } from '~/modules/views/filter/RecordCount';
 import { pluginTitle, useInstalledPlugins } from '../useCatalogContext';
 import { PRODUCTS_SESSION_KEY, useProducts } from '../useProducts';
 
 const TotalCount = () => {
-  const { t } = useTranslation();
   const { totalCount, totalCapped } = useProducts();
 
-  return (
-    <div className="h-7 whitespace-nowrap text-sm font-medium leading-7 text-muted-foreground">
-      {isUndefinedOrNull(totalCount) ? (
-        <Skeleton className="mt-1.5 inline-block h-4 w-20" />
-      ) : (
-        `${formatTotal(totalCount, totalCapped)} ${t('records-found', { count: totalCapped ? 2 : totalCount })}`
-      )}
-    </div>
-  );
+  return <RecordCount totalCount={totalCount} totalCapped={totalCapped} />;
 };
 
 /** Shows archived products instead of the active ones. */
 const ArchivedToggle = () => {
   const { t } = useTranslation('product');
   const [archived, setArchived] = useQueryState<boolean>('archived');
+  const label = t('status.archived', 'Archived');
 
   return (
-    <Toggle
-      variant="outline"
-      pressed={archived === true}
-      onPressedChange={(pressed) => setArchived(pressed ? true : null)}
-    >
-      <IconArchive />
-      {t('status.archived', 'Archived')}
-    </Toggle>
+    <IconTip label={label}>
+      <Toggle
+        aria-label={label}
+        className="size-7 min-w-7 px-0"
+        pressed={archived === true}
+        onPressedChange={(pressed) => setArchived(pressed ? true : null)}
+      >
+        <IconArchive />
+      </Toggle>
+    </IconTip>
   );
 };
 
@@ -58,8 +53,8 @@ export const ProductsFilter = () => {
 
   return (
     <ListFilter recordType="product" sessionKey={PRODUCTS_SESSION_KEY} optionLabel={optionLabel}>
-      <ArchivedToggle />
       <TotalCount />
+      <ArchivedToggle />
     </ListFilter>
   );
 };

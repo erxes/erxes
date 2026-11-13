@@ -101,8 +101,7 @@
     "action-delete": "Устгах",
     "action-merge": "Нийлүүлэх",
     "confirm-delete-selected": "Сонгосон {{count}} компанийг устгахдаа итгэлтэй байна уу?",
-    "merge-tooltip": "Зөвхөн 2 компанийг нийлүүлэх боломжтой",
-    "records-found": "{{formatted}} бүртгэл олдлоо"
+    "merge-tooltip": "Зөвхөн 2 компанийг нийлүүлэх боломжтой"
   },
   "lead": {
     "add": {

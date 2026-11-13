@@ -1,8 +1,9 @@
 import type { ViewRecordType } from '@erxes/core-contract';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import { IconArrowBackUp, IconCopyPlus, IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, Dialog, Input, Label, Switch } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { IconTip } from '~/components/IconTip';
 import { useCanShareViews, useViewMutations, useViewState } from './useViews';
 
 interface ViewValues {
@@ -87,8 +88,11 @@ export const ViewDialog = ({
   );
 };
 
-/** "Save view" when the list shows something unsaved; "Update" too when a view of one's own is open and changed. */
-export const SaveViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
+/**
+ * While the list differs from the open view: reset it, save the changes to a
+ * view of one's own, or save the list as a new view.
+ */
+export const ViewChanges = ({ recordType }: { recordType: ViewRecordType }) => {
   const { t } = useTranslation('views');
   const { current, changed, query } = useViewState(recordType);
   const { create, update } = useViewMutations(recordType);
@@ -97,25 +101,53 @@ export const SaveViewButton = ({ recordType }: { recordType: ViewRecordType }) =
   if (!changed) return null;
 
   const values = { filter: query.advanced, search: query.search || null };
+  const saveNew = current ? t('save-new') : t('save');
 
   return (
-    <div className="flex items-center gap-1">
-      {current?.editable && (
+    <div className="flex shrink-0 items-center gap-0.5">
+      <IconTip label={t('reset')}>
         <Button
-          size="sm"
-          variant="secondary"
-          className="h-7"
-          disabled={update.isPending}
-          onClick={() => update.mutate({ id: current.id, ...values })}
+          variant="ghost"
+          size="icon"
+          aria-label={t('reset')}
+          className="size-7 text-muted-foreground"
+          onClick={() => query.openView(current)}
         >
+          <IconArrowBackUp />
+        </Button>
+      </IconTip>
+      {current?.editable ? (
+        <>
+          <IconTip label={t('update', { name: current.name })}>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-7 px-2"
+              disabled={update.isPending}
+              onClick={() => update.mutate({ id: current.id, ...values })}
+            >
+              <IconDeviceFloppy />
+              {t('save-changes')}
+            </Button>
+          </IconTip>
+          <IconTip label={saveNew}>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={saveNew}
+              className="size-7 text-muted-foreground"
+              onClick={() => setOpen(true)}
+            >
+              <IconCopyPlus />
+            </Button>
+          </IconTip>
+        </>
+      ) : (
+        <Button size="sm" variant="secondary" className="h-7 px-2" onClick={() => setOpen(true)}>
           <IconDeviceFloppy />
-          {t('update', { name: current.name })}
+          {saveNew}
         </Button>
       )}
-      <Button size="sm" variant="ghost" className="h-7" onClick={() => setOpen(true)}>
-        <IconDeviceFloppy />
-        {current ? t('save-new') : t('save')}
-      </Button>
       <ViewDialog
         recordType={recordType}
         open={open}

@@ -1,5 +1,6 @@
 import { IconAdjustmentsHorizontal, IconLayoutKanban, IconTable } from '@tabler/icons-react';
 import { Button, cn, Popover } from 'erxes-ui';
+import { IconTip } from '~/components/IconTip';
 import { useLeadView } from './leadView';
 import { useLeadsT } from './i18n';
 
@@ -15,12 +16,18 @@ export const LeadDisplayMenu = () => {
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <Button variant="ghost" size="sm" className="ml-auto h-7 gap-1.5 text-muted-foreground">
-          <IconAdjustmentsHorizontal className="size-4" />
-          {t('display')}
-        </Button>
-      </Popover.Trigger>
+      <IconTip label={t('display')}>
+        <Popover.Trigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t('display')}
+            className="size-7 text-muted-foreground"
+          >
+            <IconAdjustmentsHorizontal className="size-4" />
+          </Button>
+        </Popover.Trigger>
+      </IconTip>
       <Popover.Content align="end" className="w-64 p-3">
         <p className="mb-2 text-xs font-medium text-muted-foreground">{t('view')}</p>
         <div className="grid grid-cols-2 gap-2">
