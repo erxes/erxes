@@ -43,6 +43,7 @@
     "csv-stringify": "^6.9.0",
     "drizzle-orm": "0.45.4",
     "express": "^5.2.1",
+    "http-proxy-middleware": "^4.2.1",
     "import-in-the-middle": "^3.6.0",
     "ipaddr.js": "^2.5.0",
     "jose": "^5.9.6",

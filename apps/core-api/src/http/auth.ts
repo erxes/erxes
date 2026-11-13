@@ -191,6 +191,30 @@ const activeMember = async (claims: z.output<typeof AccessClaims>) => {
   return { userId: user.id, orgId: user.orgId, role: user.role, permissions: user.permissions };
 };
 
+/** The member a token names and the token's session version, or null when it no longer works. */
+const memberOf = async (token: string) => {
+  const claims = await accessClaimsOf(token);
+  const actor = claims && (await activeMember(claims));
+
+  return claims && actor ? { actor, sessionVersion: claims.sv } : null;
+};
+
+/**
+ * The member signed in with the session cookie, or null without a working
+ * one. A change signed by the cookie from another site is refused (403).
+ */
+export const cookieMember = async (req: Request) => {
+  const cookie = readCookies(req.headers.cookie)[SESSION_COOKIE];
+
+  if (!cookie) return null;
+
+  if (isCrossSiteWrite(req)) {
+    throw new HttpError(403, 'CROSS_SITE', 'Cross-site request blocked');
+  }
+
+  return memberOf(cookie);
+};
+
 /**
  * Requires a valid access token (Bearer header, or the session cookie set at
  * sign-in) whose user is still active in the token's organisation. Role and
@@ -211,23 +235,13 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
     return next();
   }
 
-  const cookie = bearer ? '' : (readCookies(req.headers.cookie)[SESSION_COOKIE] ?? '');
-  const token = bearer || cookie;
+  const member = bearer ? await memberOf(bearer) : await cookieMember(req);
 
-  if (!token) throw unauthorized();
+  if (!member) throw unauthorized();
 
-  if (cookie && isCrossSiteWrite(req)) {
-    throw new HttpError(403, 'CROSS_SITE', 'Cross-site request blocked');
-  }
-
-  const claims = await accessClaimsOf(token);
-  const actor = claims && (await activeMember(claims));
-
-  if (!claims || !actor) throw unauthorized();
-
-  req.actor = actor;
-  req.sessionVersion = claims.sv;
-  req.log.setBindings({ orgId: actor.orgId, actorId: actor.userId });
+  req.actor = member.actor;
+  req.sessionVersion = member.sessionVersion;
+  req.log.setBindings({ orgId: member.actor.orgId, actorId: member.actor.userId });
 
   return next();
 };
