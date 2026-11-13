@@ -42,7 +42,7 @@ jobs:
     env:
       TAG: ${{ inputs.tag || format('sha-{0}', github.event.workflow_run.head_sha) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           sparse-checkout: deploy
@@ -71,7 +71,7 @@ jobs:
              docker compose -f deploy/docker-compose.yml --env-file deploy/.env ps"
       - name: Check
         run: |
-          for i in $(seq 1 30); do
+          for _ in $(seq 1 30); do
             curl -fsS '${{ vars.DEPLOY_URL }}/core/v1/setup' >/dev/null && { echo "up: $TAG"; exit 0; }
             sleep 5
           done
