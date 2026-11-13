@@ -79,6 +79,16 @@ describe('tenant isolation (database)', () => {
 
     expect(all.rows[0]).toEqual({ n: 1, role: 'erxes_core_system' });
 
+    // withOrg inside it narrows to that organisation, and the system scope carries on after.
+    const count = sql`select count(distinct org_id)::int as n from core_users`;
+
+    const narrowed = await withSystem('test', async (tx) => ({
+      inside: (await withOrg(t.ids.otherOrg, (own) => own.execute(count))).rows[0],
+      after: (await tx.execute(count)).rows[0],
+    }));
+
+    expect(narrowed).toEqual({ inside: { n: 1 }, after: { n: 2 } });
+
     for (let index = 0; index < 8; index += 1) {
       const leftover = await rootDb().execute<{ org: string | null; role: string }>(
         sql`select nullif(current_setting('app.org_id', true), '') as org, current_user as role`,

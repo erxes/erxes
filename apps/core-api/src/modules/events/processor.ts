@@ -3,7 +3,7 @@ import {
   eventConsumers,
   eventFailures,
   events,
-  savepoint,
+  withOrg,
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
@@ -40,7 +40,7 @@ export const MAX_ATTEMPTS = RETRY_DELAYS_SECONDS.length + 1;
 
 const handleOnce = async (consumer: EventConsumer, event: EventRow) => {
   try {
-    await savepoint((tx) => consumer.handle(tx, event));
+    await withOrg(event.orgId, (tx) => consumer.handle(tx, event));
 
     return null;
   } catch (error) {

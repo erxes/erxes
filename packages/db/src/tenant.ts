@@ -18,7 +18,10 @@ import { currentScope, scopeStorage } from './scope';
  *   the few lookups before an organisation is known (sign-in discovery).
  *
  * Nested calls reuse the open transaction; asking for another organisation
- * inside a scope is a bug and throws.
+ * inside a scope is a bug and throws. `withOrg` inside `withSystem` narrows:
+ * `fn` runs in a savepoint as the runtime role for that organisation (an
+ * event consumer handling one organisation's event), and the system scope
+ * carries on after it.
  */
 export const withOrg = async <T>(
   orgId: string,
@@ -26,12 +29,26 @@ export const withOrg = async <T>(
 ): Promise<T> => {
   const current = currentScope();
 
-  if (current) {
-    if (current.orgId !== null && current.orgId !== orgId) {
-      throw new Error(`tenant scope mismatch: in ${current.orgId}, asked for ${orgId}`);
-    }
+  if (current?.orgId === orgId) return fn(current.tx);
 
-    return fn(current.tx);
+  if (current?.orgId) {
+    throw new Error(`tenant scope mismatch: in ${current.orgId}, asked for ${orgId}`);
+  }
+
+  if (current) {
+    return current.tx.transaction(async (sp) => {
+      // RESET ROLE goes back to the connection's role (the runtime role). On
+      // an error the savepoint's rollback undoes both settings.
+      await sp.execute(sql`reset role`);
+      await sp.execute(sql`select set_config('app.org_id', ${orgId}, true)`);
+
+      const result = await scopeStorage.run({ tx: sp, orgId }, () => fn(sp));
+
+      await sp.execute(sql`select set_config('app.org_id', '', true)`);
+      await sp.execute(sql`set local role erxes_core_system`);
+
+      return result;
+    });
   }
 
   return rootDb().transaction(async (tx) => {

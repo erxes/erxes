@@ -1,5 +1,5 @@
 import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core-contract';
-import { automations, type Db, newId, savepoint, withSystem } from '@erxes/core-db';
+import { automations, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, lte, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
@@ -242,7 +242,7 @@ export const tickAutomations = () =>
     await inOrder(due, (automation) => {
       const scheduledFor = automation.nextRunAt;
 
-      return savepoint(async (sp) => {
+      return withOrg(automation.orgId, async (sp) => {
         const definition = automation.activeVersion
           ? await definitionOf(sp, automation.id, automation.activeVersion)
           : null;
