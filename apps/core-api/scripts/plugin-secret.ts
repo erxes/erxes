@@ -2,18 +2,19 @@
  * Registers a plugin (if new) and gives it a new client secret, printed once.
  * The previous secret keeps working for 24 hours, so a running plugin can be
  * redeployed with the new one without downtime:
- *   pnpm plugin:secret -- hr
+ *   pnpm plugin:secret hr
  */
 import { configureDb, runMigrations } from '@erxes/core-db';
+import { parseArgs } from 'node:util';
 import { config } from '~/config';
 import { runCli, say } from './cli';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 
-const name = process.argv.slice(2).find((arg) => arg !== '--');
+const [name] = parseArgs({ allowPositionals: true }).positionals;
 
 const main = async () => {
   if (!name || !/^[a-z][a-z0-9_]{0,39}$/.test(name) || name === 'core') {
-    throw new Error('Usage: pnpm plugin:secret -- <plugin name>');
+    throw new Error('Usage: pnpm plugin:secret <plugin name>');
   }
 
   configureDb(config.data);

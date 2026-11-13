@@ -10,7 +10,7 @@ Use synthetic data only. Never point the app at a copy of production data.
    shared machine pick free ports with `PORT=<api> pnpm dev:api` and
    `WEB_PORT=<ui> CORE_API_URL=http://localhost:<api> pnpm dev:ui`, and a fresh database name in `DATA_URL`.
 2. Create an organisation: the UI shows "Initial Configuration Steps" on an empty database, or run
-   `pnpm bootstrap -- --subdomain acme --name "Acme" --email owner@acme.mn --password '<password>'`,
+   `pnpm bootstrap --subdomain acme --name "Acme" --email owner@acme.mn --password '<password>'`,
    which prints an access token for API calls.
 3. For permission changes, invite a member in Settings › Team members and set their password there,
    then repeat the journey as that member.

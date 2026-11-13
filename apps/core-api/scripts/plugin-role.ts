@@ -1,6 +1,6 @@
 /**
  * A plugin's own database role, for plugins that keep their tables in core's
- * database:  pnpm db:plugin-role -- hr
+ * database:  pnpm db:plugin-role hr
  *
  * `erxes_plugin_hr` may create and own `hr_*` tables, and reach core only
  * through core_publish_event / core_record_audit / core_live_signal (which
@@ -11,11 +11,12 @@
 import { configureDb, rootDb } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
+import { parseArgs } from 'node:util';
 import { config } from '~/config';
 import { pluginRoleSql } from '~/modules/plugins/pluginRole';
 import { runCli, say } from './cli';
 
-const name = process.argv.slice(2).find((arg) => arg !== '--');
+const [name] = parseArgs({ allowPositionals: true }).positionals;
 
 const main = async () => {
   const password = randomBytes(24).toString('base64url');

@@ -64,7 +64,7 @@ organisation `_id`), so existing `tenant_id` values stay valid.
 3. **Tenancy.** Take `orgId` from the token instead of the subdomain lookup.
    Delete the identity call and cache once no route needs them.
 4. **Database** — choose:
-   - **Move into core's database (recommended).** `pnpm db:plugin-role -- <name>`
+   - **Move into core's database (recommended).** `pnpm db:plugin-role <name>`
      in core; copy the plugin's tables over with `pg_dump --table '<name>_*'`
      and restore as that role; tracking table `__drizzle_migrations_<name>`
      and lock `hashtext('<name>:migrate')`. Add one migration that turns

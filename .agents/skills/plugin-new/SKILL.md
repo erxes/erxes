@@ -75,7 +75,7 @@ shop-plugin/
 ## 3. Register the plugin with core
 
 1. In core's environment: `CORE_PLUGIN_KEYS=shop:<secret of 32+ chars>`
-   (comma-separated for several). Rotate later with `pnpm plugin:secret -- shop`
+   (comma-separated for several). Rotate later with `pnpm plugin:secret shop`
    in `apps/core-api` (the old secret keeps working for 24 h).
 2. In the plugin's environment: `CORE_URL` (core's address, no `/core/v1`),
    `PLUGIN_SECRET`.
@@ -149,7 +149,7 @@ of the fixed icon names listed in the contract.
 **Shared database (default).** Tables live in core's PostgreSQL, owned by the
 plugin's role, under core's row-level security.
 
-1. Create the role once from the core repo: `pnpm db:plugin-role -- shop`
+1. Create the role once from the core repo: `pnpm db:plugin-role shop`
    (prints a password once) → plugin `DATA_URL=postgres://erxes_plugin_shop:…@…/…`.
    The role has no rights on `core_*` tables, can't bypass RLS, and can call
    only `core_publish_event`, `core_record_audit`, `core_live_signal`,

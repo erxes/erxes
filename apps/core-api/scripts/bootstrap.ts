@@ -1,7 +1,7 @@
 /**
  * Creates an organisation with its first owner and prints an access token,
  * until the sign-in slice exists:
- *   pnpm bootstrap -- --subdomain acme --name "Acme" --email owner@acme.mn --password '…'
+ *   pnpm bootstrap --subdomain acme --name "Acme" --email owner@acme.mn --password '…'
  */
 import { configureDb, runMigrations } from '@erxes/core-db';
 import { parseArgs } from 'node:util';
@@ -12,8 +12,6 @@ import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 
 const { values } = parseArgs({
-  // `pnpm bootstrap -- …` passes the `--` through
-  allowPositionals: true,
   options: {
     subdomain: { type: 'string' },
     name: { type: 'string' },

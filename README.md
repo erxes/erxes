@@ -15,9 +15,9 @@ pnpm dev                             # API http://localhost:3400, UI http://loca
 
 On a new database the UI opens "Initial Configuration Steps": create the
 organisation and its owner, and you are signed in. (Or create them from the
-command line: `pnpm bootstrap -- --subdomain acme --name "Acme" --email owner@acme.mn --password '<password>'`.)
+command line: `pnpm bootstrap --subdomain acme --name "Acme" --email owner@acme.mn --password '<password>'`.)
 Set `CORE_SETUP=false` where organisations come from the erxes SaaS service. Plugins
-register with `pnpm plugin:secret -- <name>` (or `CORE_PLUGIN_KEYS`) and send
+register with `pnpm plugin:secret <name>` (or `CORE_PLUGIN_KEYS`) and send
 their manifest (UI, API address, scopes); owners install them in Settings ›
 Plugins. To try a local plugin UI build, set `PUBLIC_PLUGINS`, e.g.
 `PUBLIC_PLUGINS=hr_ui@http://localhost:3025/remoteEntry.js pnpm dev:ui`.

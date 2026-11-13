@@ -1,18 +1,19 @@
 /**
  * Creates (if missing) and grants the API's runtime role: data access to
  * core's tables, no DDL, no BYPASSRLS. Run as the owner:
- *   pnpm db:grant -- erxes_app            (then set its password and use it in DATA_URL)
+ *   pnpm db:grant erxes_app            (then set its password and use it in DATA_URL)
  */
 import { configureDb, rootDb } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
+import { parseArgs } from 'node:util';
 import { config } from '~/config';
 import { runCli, say } from './cli';
 
-const role = process.argv.slice(2).find((arg) => arg !== '--');
+const [role] = parseArgs({ allowPositionals: true }).positionals;
 
 const main = async () => {
   if (!role || !/^[a-z_][a-z0-9_]{0,62}$/.test(role))
-    throw new Error('Usage: pnpm db:grant -- <role name>');
+    throw new Error('Usage: pnpm db:grant <role name>');
 
   configureDb({
     ...config.data,

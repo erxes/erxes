@@ -40,7 +40,7 @@ pnpm dev                     # API http://localhost:3400, UI http://localhost:35
 - `pnpm build`: the API bundle (tsup) and the UI (Rsbuild).
 - `pnpm check:generated`: regenerates migrations and `packages/contract/openapi.json` and fails on drift.
 - `pnpm db:generate`, `pnpm openapi`, `pnpm bootstrap` (an organisation and owner from the command line),
-  `pnpm plugin:secret -- <name>` (registers a plugin or rotates its client secret; the old one works 24 h more).
+  `pnpm plugin:secret <name>` (registers a plugin or rotates its client secret; the old one works 24 h more).
 - The pre-commit hook runs `vp staged` (`vp check --fix` on staged files). CI
   (`.github/workflows/ci.yml`) runs everything above; the `Check` job is the one to require.
 

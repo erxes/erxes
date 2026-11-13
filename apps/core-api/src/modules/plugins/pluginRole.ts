@@ -4,7 +4,7 @@
  */
 export const pluginRoleSql = (plugin: string, password?: string) => {
   if (!/^[a-z][a-z0-9_]{0,39}$/.test(plugin) || plugin === 'core')
-    throw new Error('Usage: pnpm db:plugin-role -- <plugin name>');
+    throw new Error('Usage: pnpm db:plugin-role <plugin name>');
 
   const role = `erxes_plugin_${plugin}`;
 

@@ -39,7 +39,7 @@ const start = async () => {
   const role = await runtimeRole();
 
   if (role.bypassesRls) {
-    const message = `the database role "${role.name}" bypasses row level security: tenant isolation is off. Use a runtime role (pnpm db:grant -- <role>).`;
+    const message = `the database role "${role.name}" bypasses row level security: tenant isolation is off. Use a runtime role (pnpm db:grant <role>).`;
 
     if (config.isProduction) throw new Error(message);
 
