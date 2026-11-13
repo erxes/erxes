@@ -1,4 +1,3 @@
-import type { ExportQuery } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -12,8 +11,16 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { createdAt, updatedAt } from './common';
+import { type ConditionGroup, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+
+/** What an export reproduces: the list's filters as the member saw them. */
+export interface ExportQuery {
+  filter?: ConditionGroup | null;
+  search?: string;
+  tagIds?: string[];
+  ownerId?: string;
+}
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 

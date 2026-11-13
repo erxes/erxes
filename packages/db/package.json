@@ -7,7 +7,8 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
@@ -15,7 +16,6 @@
     "db:check-applied": "tsx scripts/check-applied.ts"
   },
   "dependencies": {
-    "@erxes/core-contract": "workspace:^",
     "@opentelemetry/api": "1.10.0",
     "drizzle-orm": "0.45.4",
     "pg": "^8.13.1",

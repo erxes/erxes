@@ -1,4 +1,3 @@
-import type { CustomerSex } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -17,6 +16,9 @@ import { organizations } from './organizations';
 import { users } from './users';
 
 export const CUSTOMER_STATES = ['lead', 'customer'] as const;
+
+/** ISO/IEC 5218: 0 not known, 1 male, 2 female, 9 not applicable. */
+export type CustomerSex = 0 | 1 | 2 | 9;
 
 /** People the organisation works with, shared by every plugin. */
 export const customers = pgTable(
