@@ -5,8 +5,7 @@ import { cva } from 'class-variance-authority';
 import { Command as CommandPrimitive } from 'cmdk';
 import type { DialogProps } from './dialog';
 import { Dialog } from './dialog';
-import { cn } from '../lib/utils';
-import { composeRefs } from 'radix-ui/internal';
+import { cn, mergeRefs } from '../lib/utils';
 
 const CommandRoot = ({
   ref,
@@ -81,7 +80,7 @@ const CommandInput = ({
       >
         <IconSearch className="mr-2 h-4 w-4 shrink-0 opacity-50" />
         <CommandPrimitive.Input
-          ref={composeRefs(inputRef, ref)}
+          ref={mergeRefs(inputRef, ref)}
           className={cn(commanInputVariants({ variant: 'primary' }), 'pl-0', className)}
           {...props}
         />
@@ -92,7 +91,7 @@ const CommandInput = ({
   return (
     <div className={cn('flex items-center bg-background border-b', wrapperClassName)}>
       <CommandPrimitive.Input
-        ref={composeRefs(inputRef, ref)}
+        ref={mergeRefs(inputRef, ref)}
         className={cn(commanInputVariants({ variant: 'secondary' }), className)}
         {...props}
         placeholder={props.placeholder || 'Search'}

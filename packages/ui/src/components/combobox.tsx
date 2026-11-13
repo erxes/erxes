@@ -1,11 +1,10 @@
 import React from 'react';
 import { Button } from './button';
-import { cn } from '../lib/utils';
+import { cn, mergeRefs } from '../lib/utils';
 import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import { Popover } from './popover';
 import { Command } from './command';
 import { useOnInView } from 'react-intersection-observer';
-import { composeRefs } from 'radix-ui/internal';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
 
@@ -211,7 +210,7 @@ const ComboboxFetchMore = ({
   }
 
   return (
-    <Command.Item ref={composeRefs(ref, bottomRef)} {...props} className={cn(className)}>
+    <Command.Item ref={mergeRefs(ref, bottomRef)} {...props} className={cn(className)}>
       <Spinner
         className="size-4 text-muted-foreground"
         containerClassName="w-auto flex-none mr-2"

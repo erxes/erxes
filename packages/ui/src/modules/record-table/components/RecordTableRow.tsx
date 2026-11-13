@@ -1,8 +1,7 @@
 import { type HTMLAttributes } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { composeRefs } from 'radix-ui/internal';
 import { Table } from 'erxes-ui/components/table';
-import { cn } from 'erxes-ui/lib/utils';
+import { cn, mergeRefs } from 'erxes-ui/lib/utils';
 import { readRow } from '../utils/rowFields';
 import { useRecordTableState } from './RecordTableProvider';
 
@@ -38,7 +37,7 @@ export const RecordTableRow = ({
     <Table.Row
       data-state={selected ? 'selected' : undefined}
       {...props}
-      ref={composeRefs(ref, inViewRef)}
+      ref={mergeRefs(ref, inViewRef)}
       className={cn('h-cell', inView ? 'in-view' : 'out-of-view', className)}
       id={cursor ?? id}
     >
