@@ -26,6 +26,8 @@
   "team-member": {
     "_": "Team Member",
     "invite-team-members": "Invite team members",
+    "select-invite": "Select this invitation",
+    "select-all-invites": "Select all invitations",
     "notify": "Send an email and notify members that they've been invited!",
     "separate-emails": "Separate emails with comma, space, or Enter",
     "next": "Next",
