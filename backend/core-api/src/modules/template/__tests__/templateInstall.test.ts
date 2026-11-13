@@ -1,4 +1,5 @@
 import { TTemplate } from 'erxes-api-shared/core-modules';
+import { TRegisteredTemplate } from '@/template/registry';
 import { IModels } from '~/connectionResolvers';
 import { isTemplateAvailable } from '@/template/registry';
 import {
@@ -67,6 +68,15 @@ const template: TTemplate = {
   ],
 };
 
+const twoJourneys: TRegisteredTemplate = {
+  ...template,
+  pluginName: 'frontline',
+  journeys: [
+    ...template.journeys,
+    { ...template.journeys[0], key: 'follow-up', name: 'Follow up' },
+  ],
+};
+
 describe('isTemplateAvailable', () => {
   const nodeTypes = new Set([
     'frontline:telegram.messages',
@@ -122,6 +132,12 @@ const buildModels = ({ failAutomation = false } = {}) => {
       findOne: jest.fn(),
       deleteOne: jest.fn(),
     },
+    AutomationFolders: {
+      createFolder: jest
+        .fn()
+        .mockImplementation(async (doc) => ({ _id: 'folder-1', ...doc })),
+      deleteOne: jest.fn().mockResolvedValue(undefined),
+    },
   } as unknown as IModels;
 
   const partsApi = {
@@ -145,7 +161,10 @@ const buildModels = ({ failAutomation = false } = {}) => {
     models,
     created,
     partsApi,
-    install: (input: { answers: Record<string, unknown> }) =>
+    install: (input: {
+      answers: Record<string, unknown>;
+      template?: TRegisteredTemplate;
+    }) =>
       installTemplate({
         models,
         template: { ...template, pluginName: 'frontline' },
@@ -300,6 +319,7 @@ describe('install', () => {
     await expect(
       install({
         answers: { brain: 'source', bot: 'int-1' },
+        template: twoJourneys,
       }),
     ).rejects.toThrow('save failed');
 
@@ -307,6 +327,67 @@ describe('install', () => {
       expect.objectContaining({ type: 'automations:aiAgent' }),
     );
     expect(models.TemplateInstallations.create).not.toHaveBeenCalled();
+    expect(models.AutomationFolders.deleteOne).toHaveBeenCalledWith({
+      _id: 'folder-1',
+    });
+  });
+
+  it('files every automation in one folder named after the template', async () => {
+    const { models, created, install } = buildModels();
+
+    const installation = await install({
+      answers: { brain: 'source', bot: 'int-1' },
+      template: twoJourneys,
+    });
+
+    expect(models.AutomationFolders.createFolder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Sales employee',
+        installationId: installation._id,
+        createdBy: 'u1',
+      }),
+    );
+    expect(created).toHaveLength(2);
+    expect(created.every((doc) => doc.folderId === 'folder-1')).toBe(true);
+  });
+
+  it('makes no folder for a lone automation', async () => {
+    const { models, created, install } = buildModels();
+
+    await install({ answers: { brain: 'source', bot: 'int-1' } });
+
+    expect(models.AutomationFolders.createFolder).not.toHaveBeenCalled();
+    expect(created[0]).not.toHaveProperty('folderId');
+  });
+
+  it('lists a segment no journey reads', async () => {
+    const { partsApi, install } = buildModels();
+
+    const installation = await install({
+      answers: {},
+      template: {
+        id: 'new-customers',
+        version: 1,
+        name: 'New customers',
+        pluginName: 'core',
+        requirements: [],
+        parts: [
+          {
+            key: 'segment',
+            type: 'core:segments.segment',
+            defaults: { name: 'New customers' },
+          },
+        ],
+        journeys: [],
+      },
+    });
+
+    expect(partsApi.create).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'core:segments.segment', listed: true }),
+    );
+    expect(installation.parts).toEqual([
+      expect.objectContaining({ key: 'segment', listed: true }),
+    ]);
   });
 
   it('creates a plugin part through its owner and reads what came with it', async () => {
@@ -380,6 +461,33 @@ describe('splitTemplatePartType', () => {
 });
 
 describe('core segment part', () => {
+  it('lists a delivered segment and keeps it on removal', async () => {
+    const createSegment = jest.fn(async () => ({ _id: 'seg-2' }));
+    const removeSegments = jest.fn();
+    const api = createTemplatePartsApi(
+      { Segments: { createSegment, removeSegments } } as unknown as IModels,
+      'test',
+    );
+
+    await api.create({
+      type: 'core:segments.segment',
+      doc: { name: 'New customers' },
+      userId: 'u1',
+      listed: true,
+    });
+    expect(createSegment).toHaveBeenCalledWith({ name: 'New customers' }, 'u1');
+
+    await expect(
+      api.remove({
+        key: 'segment',
+        type: 'core:segments.segment',
+        _id: 'seg-2',
+        listed: true,
+      }),
+    ).resolves.toEqual({ removed: false, reason: 'A listed segment stays' });
+    expect(removeSegments).not.toHaveBeenCalled();
+  });
+
   it('creates the segment owned by the automations and removes it once', async () => {
     const createSegment = jest.fn(async () => ({ _id: 'seg-1' }));
     const removeSegments = jest.fn(async () => ({}));

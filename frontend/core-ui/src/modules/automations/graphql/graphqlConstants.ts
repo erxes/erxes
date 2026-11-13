@@ -27,6 +27,8 @@ export const AUTOMATION_MAIN_LIST_PARAMS = `
     $updatedAtTo: Date,
     $triggerTypes: [String],
     $actionTypes: [String],
+    $folderId: String,
+    $withoutFolder: Boolean,
   `;
 
 export const AUTOMATION_MAIN_LIST_PARAMS_DEFS = `
@@ -42,6 +44,8 @@ export const AUTOMATION_MAIN_LIST_PARAMS_DEFS = `
     updatedAtTo: $updatedAtTo
     triggerTypes: $triggerTypes
     actionTypes: $actionTypes
+    folderId: $folderId
+    withoutFolder: $withoutFolder
   `;
 
 export const AUTOMATION_HISTORIES_PARAMS = `

@@ -19,6 +19,8 @@ const queryParams = `
   triggerTypes: [String]
   actionTypes: [String]
   triggerSegmentId: String
+  folderId: String
+  withoutFolder: Boolean
 `;
 
 const historiesParams = `
@@ -47,6 +49,7 @@ const listParams = `
 
 const queries = `
   automationsMain(${listParams}): AutomationsListResponse
+  automationFolders: [AutomationFolder]
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
   cpAutomationDetail(_id: String!): Automation

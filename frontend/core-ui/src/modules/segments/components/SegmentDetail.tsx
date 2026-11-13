@@ -9,13 +9,14 @@ import {
 } from '@/side-panel/hooks/usePagePanel';
 import {
   IconPlus,
+  IconTemplate,
   IconCode,
   IconChartBar,
   IconBolt,
 } from '@tabler/icons-react';
 import { Button, ScrollArea, useQueryState, Spinner } from 'erxes-ui';
 import { type MutableRefObject, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Can,
@@ -200,9 +201,16 @@ export function SegmentDetail({ onRefresh, page = false }: Props) {
     <>
       {!page && (
         <Can action="segmentsManage">
-          <Button onClick={() => setIsCreatingNew(true)}>
-            <IconPlus /> {t('create-segment')}
-          </Button>
+          <>
+            <Button variant="outline" asChild>
+              <Link to="/templates?group=segment">
+                <IconTemplate /> {t('from-template')}
+              </Link>
+            </Button>
+            <Button onClick={() => setIsCreatingNew(true)}>
+              <IconPlus /> {t('create-segment')}
+            </Button>
+          </>
         </Can>
       )}
 

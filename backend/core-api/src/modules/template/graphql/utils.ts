@@ -1,4 +1,8 @@
-import { TTemplateRequirement } from 'erxes-api-shared/core-modules';
+import {
+  templateGroupOf,
+  TTemplateGroup,
+  TTemplateRequirement,
+} from 'erxes-api-shared/core-modules';
 import { TRegisteredTemplate, TTemplateNodeDetails } from '../registry';
 import {
   buildJourneyPreview,
@@ -13,6 +17,7 @@ export type TTemplateView = {
   name: string;
   description?: string;
   icon?: string;
+  group: TTemplateGroup;
   requirements: TTemplateRequirement[];
   parts: {
     key: string;
@@ -42,6 +47,7 @@ export const convertToTemplateView = (
   name: template.name,
   description: template.description,
   icon: template.icon,
+  group: templateGroupOf(template),
   requirements: template.requirements,
   parts: template.parts.map(({ key, type, label, icon, defaults }) => ({
     key,

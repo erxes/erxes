@@ -57,5 +57,15 @@
   "installed-title": "{{name}} суулгагдлаа",
   "review-and-switch-on": "Шалгаад асаах",
   "created-parts": "Хамт үүссэн",
-  "remove-hint": "Устгавал automation-ууд болон үүссэн зүйлс устна; өгөгдөлтэй болсон зүйл үлдэнэ."
+  "remove-hint": "Устгавал automation-ууд болон үүссэн зүйлс устна; өгөгдөлтэй болсон зүйл үлдэнэ.",
+  "group-all": "Бүгд",
+  "group-solution": "Шийдлүүд",
+  "group-automation": "Automation",
+  "group-segment": "Segment",
+  "plugin-all": "Бүх app",
+  "segment-count_one": "{{count}} segment",
+  "segment-count_other": "{{count}} segment",
+  "no-templates-filtered": "Энд template алга",
+  "no-templates-filtered-body": "Өөр бүлэг эсвэл app сонгоно уу.",
+  "install-note-segment": "Segment шууд хэрэглэхэд бэлэн үүснэ, installation устгахад үлдэнэ."
 }

@@ -24,6 +24,9 @@ export type TTemplateJourney = {
   };
 };
 
+// Read from what the template builds: no journeys, one, or several
+export type TTemplateGroup = 'segment' | 'automation' | 'solution';
+
 export type TTemplate = {
   id: string;
   pluginName: string;
@@ -31,6 +34,7 @@ export type TTemplate = {
   name: string;
   description?: string;
   icon?: string;
+  group: TTemplateGroup;
   requirements: TTemplateRequirement[];
   parts: {
     key: string;

@@ -54,7 +54,11 @@ export const TemplateWizardSummary = () => {
       <div className="hidden flex-col gap-4 lg:flex">
         <TemplateWizardProgress />
         <TemplateInstallButton className="w-full" />
-        <p className="text-xs text-muted-foreground">{t('install-note')}</p>
+        <p className="text-xs text-muted-foreground">
+          {template?.group === 'segment'
+            ? t('install-note-segment')
+            : t('install-note')}
+        </p>
         <Separator />
       </div>
 

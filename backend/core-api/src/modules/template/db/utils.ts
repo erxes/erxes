@@ -5,6 +5,7 @@ import {
   IAutomation,
   materializeTemplate,
   TEMPLATE_CORE_REQUIREMENT_KINDS,
+  templatePartKeysUsedByJourneys,
   TTemplateAnswers,
   TTemplatePartCreated,
   TTemplatePartProducers,
@@ -24,6 +25,7 @@ export type TTemplatePartsApi = {
     type: string;
     doc: Record<string, unknown>;
     userId: string;
+    listed?: boolean;
   }) => Promise<TTemplatePartCreated>;
   remove: (part: TInstalledPart) => Promise<TTemplatePartRemoved>;
 };
@@ -45,16 +47,17 @@ export const createTemplatePartsApi = (
   models: IModels,
   subdomain: string,
 ): TTemplatePartsApi => ({
-  create: async ({ type, doc, userId }) => {
+  create: async ({ type, doc, userId, listed }) => {
     if (type === CORE_TEMPLATE_PARTS.AI_AGENT_PART) {
       const agent = await models.AiAgents.createAgent(doc);
       return { _id: String(agent._id) };
     }
 
-    // Owned by the automations that use it: unlisted, never a name clash
+    // Owned by the automations that use it, unlisted, unless the template
+    // delivers it for people to use
     if (type === CORE_TEMPLATE_PARTS.SEGMENT_PART) {
       const segment = await models.Segments.createSegment(
-        { ...doc, ownedBy: 'automation' } as Parameters<
+        (listed ? doc : { ...doc, ownedBy: 'automation' }) as Parameters<
           IModels['Segments']['createSegment']
         >[0],
         userId,
@@ -78,12 +81,17 @@ export const createTemplatePartsApi = (
 
     return created;
   },
-  remove: async ({ type, _id, refs }) => {
+  remove: async ({ type, _id, refs, listed }) => {
     if (type === CORE_TEMPLATE_PARTS.AI_AGENT_PART) {
       if (await models.AiAgents.exists({ _id })) {
         await models.AiAgents.removeAgent(_id);
       }
       return { removed: true };
+    }
+
+    // Listed, it is anyone's to use now
+    if (type === CORE_TEMPLATE_PARTS.SEGMENT_PART && listed) {
+      return { removed: false, reason: 'A listed segment stays' };
     }
 
     // Removing its automations may have removed it already
@@ -197,13 +205,20 @@ export const installTemplate = async ({
 
   const createdParts: TInstalledPart[] = [];
   const automationIds: Record<string, string> = {};
+  let folderId: string | undefined;
+
+  const usedByJourneys = templatePartKeysUsedByJourneys(template);
 
   try {
     for (const part of parts) {
+      const listed =
+        part.type === CORE_TEMPLATE_PARTS.SEGMENT_PART &&
+        !usedByJourneys.has(part.key);
       const created = await partsApi.create({
         type: part.type,
         doc: part.doc,
         userId,
+        listed,
       });
 
       createdParts.push({
@@ -211,6 +226,7 @@ export const installTemplate = async ({
         type: part.type,
         _id: created._id,
         refs: created.refs,
+        ...(listed ? { listed } : {}),
       });
     }
 
@@ -225,11 +241,24 @@ export const installTemplate = async ({
       ),
     });
 
+    // One employee, one place in the automations list; a lone automation
+    // needs no folder of its own
+    if (automations.length > 1) {
+      const folder = await models.AutomationFolders.createFolder({
+        name: template.name,
+        icon: template.icon,
+        installationId,
+        createdBy: userId,
+      });
+      folderId = folder._id;
+    }
+
     for (const { name, triggers, actions, workflows, journey } of automations) {
       const created = await models.Automations.createAutomation(
         {
           name: name,
           status: AUTOMATION_STATUSES.DRAFT,
+          ...(folderId ? { folderId } : {}),
           triggers: triggers.map((trigger) => {
             const node = nodes.get(trigger.type) || {};
 
@@ -274,9 +303,17 @@ export const installTemplate = async ({
       Object.values(automationIds),
     ).catch(() => undefined);
 
-    // Nothing was made with them yet, so each one goes
+    if (folderId) {
+      await models.AutomationFolders.deleteOne({ _id: folderId }).catch(
+        () => undefined,
+      );
+    }
+
+    // Nothing was made with them yet, a listed segment included
     for (const part of [...createdParts].reverse()) {
-      await partsApi.remove(part).catch(() => undefined);
+      await partsApi
+        .remove({ ...part, listed: false })
+        .catch(() => undefined);
     }
 
     throw error;
