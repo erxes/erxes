@@ -1,6 +1,7 @@
 import { Sidebar } from 'erxes-ui';
 import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
+import { CrashBoundary } from '~/components/CrashBoundary';
 import { PageSpinner } from '~/components/PageSpinner';
 import { useLiveUpdates } from '~/lib/live';
 import { useDesktopNotifications } from '~/modules/notifications/useDesktopNotifications';
@@ -32,9 +33,11 @@ export const MainLayout = () => {
             tabIndex={-1}
             className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background outline-none"
           >
-            <Suspense fallback={<PageSpinner />}>
-              <Outlet />
-            </Suspense>
+            <CrashBoundary scope="page">
+              <Suspense fallback={<PageSpinner />}>
+                <Outlet />
+              </Suspense>
+            </CrashBoundary>
           </main>
           <SidePanelLayout />
         </div>
