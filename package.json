@@ -26,6 +26,12 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
+    "@axe-core/playwright": "^4.14.0",
+    "@erxes/core-contract": "workspace:*",
+    "@orpc/client": "1.16.2",
+    "@orpc/contract": "1.16.2",
+    "@orpc/openapi-client": "1.16.2",
+    "@playwright/test": "^1.65.0",
     "@types/node": "^26.6.6",
     "knip": "^6.45.1",
     "publint": "^0.3.25",
