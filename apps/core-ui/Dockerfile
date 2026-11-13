@@ -2,7 +2,7 @@
 # session cookie stays first-party. Build from the repository root:
 #   docker build -f apps/core-ui/Dockerfile -t erxes-core-ui .
 # Runtime: CORE_API_URL (default http://api:3400).
-FROM node:22-bookworm-slim AS build
+FROM node:24-bookworm-slim AS build
 RUN npm install -g pnpm@11.5.2
 # The root `prepare` script installs git hooks; the image has no git and never commits.
 ENV VP_GIT_HOOKS=0
@@ -23,7 +23,9 @@ COPY packages/ui packages/ui
 COPY apps/core-ui apps/core-ui
 RUN pnpm --filter @erxes/core-ui build
 
-FROM nginx:1.27-alpine
+FROM nginx:1.30-alpine
+# Alpine fixes reach the package repository before the nginx image is rebuilt.
+RUN apk upgrade --no-cache
 ENV CORE_API_URL=http://api:3400
 COPY apps/core-ui/deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /repo/apps/core-ui/dist /usr/share/nginx/html
