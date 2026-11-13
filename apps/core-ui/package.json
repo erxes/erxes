@@ -16,7 +16,7 @@
     "@dnd-kit/sortable": "9.0.0",
     "@dnd-kit/utilities": "3.2.2",
     "@erxes/core-contract": "workspace:*",
-    "@formkit/auto-animate": "0.8.2",
+    "@formkit/auto-animate": "0.10.2",
     "@hookform/resolvers": "7.0.6",
     "@module-federation/enhanced": "2.9.3",
     "@orpc/client": "1.16.2",

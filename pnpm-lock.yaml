@@ -209,8 +209,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/contract
       '@formkit/auto-animate':
-        specifier: 0.8.2
-        version: 0.8.2
+        specifier: 0.10.2
+        version: 0.10.2
       '@hookform/resolvers':
         specifier: 7.0.6
         version: 7.0.6(@standard-schema/spec@1.1.0)(ajv-formats@3.0.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.55.0(react@19.3.1))(zod@4.6.7)
@@ -395,8 +395,8 @@ importers:
         specifier: 3.2.2
         version: 3.2.2(react@19.3.1)
       '@formkit/auto-animate':
-        specifier: 0.8.2
-        version: 0.8.2
+        specifier: 0.10.2
+        version: 0.10.2
       '@hookform/resolvers':
         specifier: 7.0.6
         version: 7.0.6(@standard-schema/spec@1.1.0)(ajv-formats@3.0.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.55.0(react@19.3.1))(zod@4.6.7)
@@ -1346,8 +1346,8 @@ packages:
   '@formatjs/intl-localematcher@0.6.2':
     resolution: {integrity: sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA==}
 
-  '@formkit/auto-animate@0.8.2':
-    resolution: {integrity: sha512-SwPWfeRa5veb1hOIBMdzI+73te5puUBHmqqaF1Bu7FjvxlYSz/kJcZKSa9Cg60zL0uRNeJL2SbRxV6Jp6Q1nFQ==}
+  '@formkit/auto-animate@0.10.2':
+    resolution: {integrity: sha512-t2Z3y8b/zB3wPWwgpc6JDVm4q0ezb5vfe2mqfUrQJ7XziZY8iYuhocQ7eJdTzowRePihrNbZ/DNJoFa6Yi5blg==}
 
   '@grpc/grpc-js@1.14.7':
     resolution: {integrity: sha512-W4W/fcBMGRVtG6dW2c7cw2mnpS3hvbBd+oQXjh2iYFTZDk1JJmcNqkM5KSaPubQpamlUUurrlb7G1s9NJeERmQ==}
@@ -8694,7 +8694,7 @@ snapshots:
     dependencies:
       tslib: 2.9.1
 
-  '@formkit/auto-animate@0.8.2': {}
+  '@formkit/auto-animate@0.10.2': {}
 
   '@grpc/grpc-js@1.14.7':
     dependencies:
