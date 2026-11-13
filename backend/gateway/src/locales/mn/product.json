@@ -336,7 +336,22 @@
     "product-required": "Дор хаяж нэг бүтээгдэхүүн шаардлагатай",
     "price-invalid": "Үнэ сөрөг бус тоо байх ёстой",
     "status-draft": "Ноорог",
-    "status-active": "Идэвхтэй"
+    "status-active": "Идэвхтэй",
+    "packages": "Багцууд",
+    "details": "Дэлгэрэнгүй",
+    "media": "Медиа",
+    "actions": "Үйлдлүүд",
+    "enter-name": "Нэр оруулах",
+    "add-tags": "Шошго нэмэх",
+    "enter-description": "Тайлбар оруулах",
+    "total-from-products": "Бүтээгдэхүүн сонгоно уу",
+    "enter-percent": "Хөнгөлөлтгүй",
+    "enter-price": "Үнэ оруулах",
+    "status-archived": "Архивлагдсан",
+    "load-failed": "Багцыг ачаалж чадсангүй",
+    "retry": "Дахин оролдох",
+    "no-update-permission": "Та энэ багцыг харах боломжтой ч засах эрхгүй.",
+    "check-required-fields": "Шаардлагатай талбаруудыг бөглөнө үү"
   },
   "bulk-similarity": {
     "new-similarity": "Шинэ ижил төстэй",

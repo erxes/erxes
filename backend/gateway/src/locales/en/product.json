@@ -336,7 +336,22 @@
     "product-required": "At least one product is required",
     "price-invalid": "Price must be a non-negative number",
     "status-draft": "Draft",
-    "status-active": "Active"
+    "status-active": "Active",
+    "packages": "Packages",
+    "details": "Details",
+    "media": "Media",
+    "actions": "Actions",
+    "enter-name": "Enter name",
+    "add-tags": "Add tags",
+    "enter-description": "Enter description",
+    "total-from-products": "Choose products",
+    "enter-percent": "No discount",
+    "enter-price": "Enter price",
+    "status-archived": "Archived",
+    "load-failed": "Could not load the package",
+    "retry": "Retry",
+    "no-update-permission": "You can view this package but not edit it.",
+    "check-required-fields": "Please fill in the required fields"
   },
   "bulk-similarity": {
     "new-similarity": "New similarity",

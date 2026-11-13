@@ -1,22 +1,25 @@
 # Products module (core-ui)
 
 The `/settings/products` app: the product list, product detail and create in
-the record side panel, categories, UOMs, conditions and the other product
-settings pages. Backend rules live in `backend/core-api/src/modules/products`;
-shared pieces (`PRODUCT_FORM_SCHEMA`, `useAddProduct`, `ProductFilesUpload`,
-`useProductFileLinks`) live in `frontend/libs/ui-modules/src/modules/products`.
+the record side panel, packages in the same panel, categories, UOMs,
+conditions and the other product settings pages. Backend rules live in
+`backend/core-api/src/modules/products`; shared pieces (`PRODUCT_FORM_SCHEMA`,
+`useAddProduct`, `ProductFilesUpload`, `useProductFileLinks`) live in
+`frontend/libs/ui-modules/src/modules/products`.
 
 ## Layout
 
-| Path                                                     | Responsibility                                                    |
-| -------------------------------------------------------- | ----------------------------------------------------------------- |
-| `product-detail/components/panel/ProductRecordPanel.tsx` | A saved product in the side panel (also `/settings/products/:id`) |
-| `product-detail/components/panel/ProductPanelNew.tsx`    | Create: a draft drawn with the same tabs, kept until Create       |
-| `product-detail/components/panel/ProductPanelFields.tsx` | The Details cells; each saves on its own                          |
-| `product-detail/hooks/useProductPanelSave.ts`            | Queued `productsEdit` saves built from the cached product         |
-| `product-detail/utils/productFormValues.ts`              | Product ⇄ form values ⇄ `productsEdit` variables                  |
-| `hooks/useProductConditionToggle.ts`                     | Adds or removes one condition (`productsSetConditionCodes`)       |
-| `product-detail/components/panel/ProductPanelCells.tsx`  | Panel cells other record panels share (vendor, currency, errors)  |
+| Path                                                     | Responsibility                                                                              |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `product-detail/components/panel/ProductRecordPanel.tsx` | A saved product in the side panel (also `/settings/products/:id`)                           |
+| `product-detail/components/panel/ProductPanelNew.tsx`    | Create: a draft drawn with the same tabs, kept until Create                                 |
+| `product-detail/components/panel/ProductPanelFields.tsx` | The Details cells; each saves on its own                                                    |
+| `product-detail/hooks/useProductPanelSave.ts`            | Queued `productsEdit` saves built from the cached product                                   |
+| `product-detail/utils/productFormValues.ts`              | Product ⇄ form values ⇄ `productsEdit` variables                                            |
+| `hooks/useProductConditionToggle.ts`                     | Adds or removes one condition (`productsSetConditionCodes`)                                 |
+| `product-detail/components/panel/ProductPanelCells.tsx`  | Panel cells other record panels share (vendor, currency, errors)                            |
+| `packages/components/panel/PackageRecordPanel.tsx`       | A package in the side panel (`core:productPackage`, also `/settings/products/packages/:id`) |
+| `packages/hooks/usePackagePanelSave.ts`                  | Queued `productPackagesEdit` saves of one changed field each                                |
 
 ## Rules
 
@@ -49,9 +52,17 @@ shared pieces (`PRODUCT_FORM_SCHEMA`, `useAddProduct`, `ProductFilesUpload`,
 - `productsAdd` sends `currency` and `files` along with the other draft
   values; a product's `subUoms` may be `null`.
 - Legacy `?product_id=` links redirect to the side panel (`RecordDetailLink`).
+- `productPackagesEdit` sets only the fields it is sent, so a package panel
+  save sends just the change, one save at a time. A products change saves,
+  then the price follows the server's `totalPrice` and the discount
+  (`utils/packagePricing.ts`); a price or discount change sets the other.
+- Packages are read-only in the panel without `productsUpdate`; Delete
+  needs `productsDelete` and archives the package.
+- Legacy `?activePackageId=` links redirect to the side panel.
 
 ## Known limitations
 
 - Plugin form widgets (`FormWidgetSideTabs`) are not shown in the product
   panel, because no plugin registers one for `core:product`. A plugin that
   adds one needs a tab for it in `ProductRecordPanel` and `ProductPanelNew`.
+- Packages have no activity log.

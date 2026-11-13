@@ -74,6 +74,12 @@ const ProductsPackagePage = lazy(() =>
   })),
 );
 
+const PackageDetailPage = lazy(() =>
+  import('~/pages/products/PackageDetailPage').then((module) => ({
+    default: module.PackageDetailPage,
+  })),
+);
+
 export const ProductsSettingRoutes = () => {
   return (
     <Suspense fallback={<></>}>
@@ -95,6 +101,7 @@ export const ProductsSettingRoutes = () => {
         <Route path="product-rule" element={<ProductsProductRulePage />} />
         <Route path="conditions" element={<ProductsConditionsPage />} />
         <Route path="packages" element={<ProductsPackagePage />} />
+        <Route path="packages/:id" element={<PackageDetailPage />} />
         <Route path=":id" element={<ProductDetailPage />} />
       </Routes>
       <ProductsPageEffect />
