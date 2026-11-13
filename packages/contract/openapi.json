@@ -8405,15 +8405,6 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
-          "sample": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
           "error": {
             "anyOf": [
               {
@@ -8423,9 +8414,6 @@
                 "type": "null"
               }
             ]
-          },
-          "undoable": {
-            "type": "boolean"
           },
           "createdBy": {
             "type": "string",
@@ -8446,6 +8434,18 @@
                 "type": "null"
               }
             ]
+          },
+          "sample": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "undoable": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -8458,12 +8458,12 @@
           "options",
           "counts",
           "processed",
-          "sample",
           "error",
-          "undoable",
           "createdBy",
           "createdAt",
-          "finishedAt"
+          "finishedAt",
+          "sample",
+          "undoable"
         ]
       },
       "ImportOptions": {
@@ -11543,9 +11543,6 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "editable": {
-            "type": "boolean"
-          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -11553,6 +11550,9 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "editable": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -11565,9 +11565,9 @@
           "sort",
           "shared",
           "createdBy",
-          "editable",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "editable"
         ]
       },
       "ViewSort": {
@@ -30312,16 +30312,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "recordType": {
-                    "enum": [
-                      "customer",
-                      "lead",
-                      "company",
-                      "company_lead",
-                      "product"
-                    ],
-                    "type": "string"
-                  },
                   "name": {
                     "type": "string",
                     "minLength": 1,
@@ -30454,11 +30444,21 @@
                   },
                   "shared": {
                     "type": "boolean"
+                  },
+                  "recordType": {
+                    "enum": [
+                      "customer",
+                      "lead",
+                      "company",
+                      "company_lead",
+                      "product"
+                    ],
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "recordType",
-                  "name"
+                  "name",
+                  "recordType"
                 ]
               }
             }
