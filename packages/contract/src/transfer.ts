@@ -20,13 +20,17 @@ export const TransferColumn = z.object({
 
 export type TransferColumn = z.infer<typeof TransferColumn>;
 
+/**
+ * No zod defaults: the server sets them when it creates an import, and `updateImport`
+ * takes `.partial()` of this, where a default would overwrite the stored option.
+ */
 export const ImportOptions = z.object({
-  mode: z.enum(['create', 'update', 'upsert']).default('create'),
-  matchBy: z.enum(['email', 'phone', 'code', 'id', 'name']).default('email'),
+  mode: z.enum(['create', 'update', 'upsert']),
+  matchBy: z.enum(['email', 'phone', 'code', 'id', 'name']),
   tagIds: z.array(Id).max(50).optional(),
   ownerId: Id.nullable().optional(),
-  createMissing: z.boolean().default(true),
-  runAutomations: z.boolean().default(false),
+  createMissing: z.boolean(),
+  runAutomations: z.boolean(),
 });
 
 export type ImportOptions = z.infer<typeof ImportOptions>;
@@ -43,11 +47,11 @@ export const ImportStatus = z.enum([
 ]);
 
 const Counts = z.object({
-  rows: z.number().int(),
-  create: z.number().int(),
-  update: z.number().int(),
-  skip: z.number().int(),
-  error: z.number().int(),
+  rows: z.int(),
+  create: z.int(),
+  update: z.int(),
+  skip: z.int(),
+  error: z.int(),
 });
 
 export const Import = z.object({
@@ -57,24 +61,24 @@ export const Import = z.object({
   status: ImportStatus,
   headers: z.array(z.string()),
   /** Column index → field key; unmapped columns are ignored. */
-  mapping: z.record(z.string()),
+  mapping: z.record(z.string(), z.string()),
   options: ImportOptions,
   counts: Counts,
-  processed: z.number().int(),
+  processed: z.int(),
   /** The first rows, to check the mapping against. */
   sample: z.array(z.array(z.string())),
   error: z.string().nullable(),
   /** Its created records can still be removed (30 days). */
   undoable: z.boolean(),
   createdBy: Id,
-  createdAt: z.string().datetime(),
-  finishedAt: z.string().datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  finishedAt: z.iso.datetime().nullable(),
 });
 
 export type Import = z.infer<typeof Import>;
 
 export const ImportRow = z.object({
-  rowNumber: z.number().int(),
+  rowNumber: z.int(),
   cells: z.array(z.string()),
   action: z.enum(['create', 'update', 'skip', 'error']).nullable(),
   error: z.string().nullable(),
@@ -97,13 +101,13 @@ export const Export = z.object({
   format: z.enum(['csv', 'xlsx']),
   columns: z.array(z.string()),
   status: z.enum(['running', 'done', 'failed']),
-  rowCount: z.number().int().nullable(),
+  rowCount: z.int().nullable(),
   /** The file (download at `/files/{fileId}/download`). */
   fileId: Id.nullable(),
   error: z.string().nullable(),
   createdBy: Id,
-  createdAt: z.string().datetime(),
-  finishedAt: z.string().datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  finishedAt: z.iso.datetime().nullable(),
 });
 
 export type Export = z.infer<typeof Export>;
@@ -144,7 +148,7 @@ export const transferContract = {
     .input(
       z.object({
         id: Id,
-        mapping: z.record(z.string()).optional(),
+        mapping: z.record(z.string(), z.string()).optional(),
         options: ImportOptions.partial().optional(),
       }),
     )

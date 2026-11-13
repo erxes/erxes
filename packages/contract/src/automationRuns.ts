@@ -54,7 +54,7 @@ export const RunStatus = z.enum(['running', 'waiting', 'succeeded', 'failed', 'c
 export const AutomationRun = z.object({
   id: Id,
   automationId: Id,
-  version: z.number().int(),
+  version: z.int(),
   eventId: z.string(),
   eventType: z.string(),
   subject: z.object({ type: z.enum(['customer', 'company']), id: Id }).nullable(),
@@ -62,9 +62,9 @@ export const AutomationRun = z.object({
   /** Left early because the automation's goal was met. */
   goalReached: z.boolean(),
   error: z.string().nullable(),
-  waitingUntil: z.string().datetime().nullable(),
-  startedAt: z.string().datetime(),
-  finishedAt: z.string().datetime().nullable(),
+  waitingUntil: z.iso.datetime().nullable(),
+  startedAt: z.iso.datetime(),
+  finishedAt: z.iso.datetime().nullable(),
 });
 
 export type AutomationRun = z.infer<typeof AutomationRun>;
@@ -77,9 +77,9 @@ export const RunStep = z.object({
   input: z.unknown().nullable(),
   output: z.unknown().nullable(),
   error: z.string().nullable(),
-  attempt: z.number().int(),
-  startedAt: z.string().datetime(),
-  finishedAt: z.string().datetime(),
+  attempt: z.int(),
+  startedAt: z.iso.datetime(),
+  finishedAt: z.iso.datetime(),
 });
 
 export type RunStep = z.infer<typeof RunStep>;

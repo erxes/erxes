@@ -7,7 +7,7 @@ import { LIST_VALUE, RELATIVE } from './conditionOperators';
 import { LookupError, useMemberOptions, useTagOptions } from './lookupOptions';
 import type { FieldInfo } from './useAutomationFields';
 
-const RELATIVE_UNITS = RelativeAmount.shape.unit.removeDefault().options;
+const RELATIVE_UNITS = RelativeAmount.shape.unit.unwrap().options;
 
 /** What the rule holds so far: a half-typed amount is still shown. */
 const RelativeValue = z

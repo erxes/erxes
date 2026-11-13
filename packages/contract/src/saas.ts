@@ -35,7 +35,7 @@ export const SaasWorkspace = z.object({
   /** The owner, when the workspace is new here (signs in through erxes.io's hand-off). */
   owner: z
     .object({
-      email: z.string().trim().email().max(254),
+      email: z.string().trim().check(z.email()).max(254),
       fullName: z.string().trim().max(200).optional(),
     })
     .optional(),
@@ -56,14 +56,14 @@ export const SubscriptionInfo = z.object({
       status: EntitlementStatus.nullable(),
       access: PluginAccess,
       /** Read-only until then, then off (if it isn't bought again). */
-      readOnlyUntil: z.string().datetime().nullable(),
+      readOnlyUntil: z.iso.datetime().nullable(),
       installed: z.boolean(),
     }),
   ),
   /** Where the owner manages the subscription (erxes.io). */
   manageUrl: z.string().nullable(),
   /** When erxes.io was last asked. */
-  checkedAt: z.string().datetime().nullable(),
+  checkedAt: z.iso.datetime().nullable(),
 });
 
 export type SubscriptionInfo = z.infer<typeof SubscriptionInfo>;
@@ -74,7 +74,7 @@ export const PluginPlan = z.object({
   tier: PluginTier.nullable(),
   status: EntitlementStatus.nullable(),
   access: PluginAccess,
-  readOnlyUntil: z.string().datetime().nullable(),
+  readOnlyUntil: z.iso.datetime().nullable(),
 });
 
 export type PluginPlan = z.infer<typeof PluginPlan>;

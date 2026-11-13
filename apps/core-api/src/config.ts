@@ -26,7 +26,7 @@ const readSecret = (name: string) => {
 };
 
 /** Blank counts as unset; values are trimmed. */
-const optional = <T extends z.ZodTypeAny>(schema: T) =>
+const optional = <T extends z.ZodType>(schema: T) =>
   z.preprocess(
     (value) => (typeof value === 'string' ? value.trim() || undefined : value),
     schema.optional(),
@@ -40,7 +40,7 @@ const positive = (fallback: number) =>
   optional(z.coerce.number().positive()).transform((value) => value ?? fallback);
 
 const baseUrl = (fallback: string) =>
-  optional(z.string().url())
+  optional(z.url())
     .transform((value) => value ?? fallback)
     .transform((value) => value.replace(/\/+$/, ''));
 
@@ -84,7 +84,7 @@ const Env = z
 
     LOG_LEVEL: optional(z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])),
     LOG_FORMAT: optional(z.enum(['json', 'pretty'])),
-    OTEL_EXPORTER_OTLP_ENDPOINT: optional(z.string().url()),
+    OTEL_EXPORTER_OTLP_ENDPOINT: optional(z.url()),
 
     DATA_URL: text,
     DATA_MIGRATION_URL: text,

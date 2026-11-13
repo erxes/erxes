@@ -8,7 +8,7 @@ export const Tag = z.object({
   name: z.string(),
   /** `#rrggbb` */
   colorCode: z.string().nullable(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type Tag = z.infer<typeof Tag>;

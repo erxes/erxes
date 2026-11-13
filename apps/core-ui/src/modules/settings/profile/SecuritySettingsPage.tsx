@@ -43,7 +43,7 @@ const usePasswordSchema = () => {
       confirm: z.string(),
     })
     .refine((values) => values.confirm === values.newPassword, {
-      message: t('password-mismatch', 'The passwords differ'),
+      error: t('password-mismatch', 'The passwords differ'),
       path: ['confirm'],
     });
 };

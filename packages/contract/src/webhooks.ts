@@ -177,7 +177,7 @@ export const EventPattern = z
 const WebhookUrl = z
   .string()
   .trim()
-  .url()
+  .check(z.url())
   .max(2000)
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
@@ -188,9 +188,9 @@ export const Webhook = z.object({
   eventTypes: z.array(z.string()),
   status: z.enum(['active', 'disabled']),
   disabledReason: z.string().nullable(),
-  consecutiveFailures: z.number().int(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  consecutiveFailures: z.int(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export type Webhook = z.infer<typeof Webhook>;
@@ -201,14 +201,14 @@ export const WebhookDelivery = z.object({
   eventId: z.string(),
   eventType: z.string(),
   status: z.enum(['pending', 'succeeded', 'failed']),
-  attempts: z.number().int(),
-  responseStatus: z.number().int().nullable(),
+  attempts: z.int(),
+  responseStatus: z.int().nullable(),
   responseBody: z.string().nullable(),
   error: z.string().nullable(),
-  durationMs: z.number().int().nullable(),
-  nextAttemptAt: z.string().datetime().nullable(),
-  deliveredAt: z.string().datetime().nullable(),
-  createdAt: z.string().datetime(),
+  durationMs: z.int().nullable(),
+  nextAttemptAt: z.iso.datetime().nullable(),
+  deliveredAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
 });
 
 export type WebhookDelivery = z.infer<typeof WebhookDelivery>;

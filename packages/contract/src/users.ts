@@ -41,7 +41,7 @@ export type UserLinks = z.infer<typeof UserLinks>;
 /** A team member. Never carries credentials. */
 export const User = z.object({
   id: Id,
-  email: z.string().email(),
+  email: z.email(),
   username: z.string().nullable(),
   /** Display name: first, middle and last name, or what was given at invite. */
   fullName: z.string().nullable(),
@@ -63,9 +63,9 @@ export const User = z.object({
   description: z.string().nullable(),
   links: UserLinks,
   /** Finished the welcome steps; null shows them at the next sign-in. */
-  onboardedAt: z.string().datetime().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  onboardedAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export type User = z.infer<typeof User>;
@@ -108,7 +108,7 @@ const DetailFields = {
   workStartedDate: DateOnly.nullable().optional(),
   description: text(5000),
   /** Sets the given links; an empty string or `null` removes one. Others stay. */
-  links: z.record(UserLinkName, z.string().trim().max(500).nullable()).optional(),
+  links: z.partialRecord(UserLinkName, z.string().trim().max(500).nullable()).optional(),
 };
 
 /** As sign-up (`NewPassword` in auth.ts, which imports this file). */
@@ -121,7 +121,7 @@ const MemberPassword = z
   .regex(/\d/, 'Add a digit');
 
 const InviteEntry = z.object({
-  email: z.string().trim().email().max(254),
+  email: z.string().trim().check(z.email()).max(254),
   role: UserRole.refine(
     (role) => role !== 'owner',
     'invite as admin or member, then make them owner',
@@ -195,7 +195,7 @@ export const usersContract = {
           id: Id,
           ...NameFields,
           ...DetailFields,
-          email: z.string().trim().email().max(254).optional(),
+          email: z.string().trim().check(z.email()).max(254).optional(),
           avatarUrl: ImageAddress.nullable().optional(),
           role: UserRole.optional(),
         })

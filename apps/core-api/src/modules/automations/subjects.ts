@@ -16,7 +16,7 @@ export type SubjectType = keyof typeof TABLES;
 const isSubjectType = (type: string | null): type is SubjectType =>
   type === 'customer' || type === 'company';
 
-const Row = z.object({ id: z.string() }).passthrough();
+const Row = z.looseObject({ id: z.string() });
 
 const camelCase = (key: string) => key.replace(/_([a-z])/g, (_match, c: string) => c.toUpperCase());
 

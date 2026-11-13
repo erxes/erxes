@@ -38,6 +38,10 @@ const decided = [
   { name: 'moment', message: 'One date library: date-fns.' },
   { name: 'axios', message: 'Use fetch on the server and the typed oRPC client in the browser.' },
   { name: 'lodash', message: 'Use the platform (Array, Object, structuredClone) or es-toolkit.' },
+  ...['zod/v3', 'zod/v4-mini', 'zod/mini'].map((name) => ({
+    name,
+    message: "One zod: import { z } from 'zod' (zod 4 classic).",
+  })),
 ];
 
 // Packages are shared with plugins and never reach into an app.

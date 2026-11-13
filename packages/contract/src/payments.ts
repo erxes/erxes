@@ -48,8 +48,8 @@ export const PaymentGateway = z.object({
   name: z.string(),
   status: z.enum(['active', 'disabled']),
   /** Non-secret settings, for display (`invoiceCode`, `sandbox`). */
-  settings: z.record(z.unknown()),
-  createdAt: z.string().datetime(),
+  settings: z.record(z.string(), z.unknown()),
+  createdAt: z.iso.datetime(),
 });
 
 export type PaymentGateway = z.infer<typeof PaymentGateway>;
@@ -65,7 +65,7 @@ export const InvoiceStatus = z.enum([
 
 /** The caller's own data on an invoice (order lines, room number): at most 8 KB of JSON, returned in events. */
 export const InvoiceMetadata = z
-  .record(z.unknown())
+  .record(z.string(), z.unknown())
   .refine((value) => JSON.stringify(value).length <= 8192, 'at most 8 KB of JSON');
 
 /**
@@ -78,9 +78,9 @@ export const InvoiceLine = z.object({
   name: z.string(),
   quantity: z.number(),
   /** In the smallest unit, like `amount`. */
-  unitPrice: z.number().int(),
+  unitPrice: z.int(),
   /** quantity × unit price, rounded to the smallest unit. */
-  amount: z.number().int(),
+  amount: z.int(),
   plugin: z.string().nullable(),
 });
 
@@ -96,7 +96,7 @@ export const InvoiceLineInput = z.object({
     .positive()
     .max(1_000_000)
     .refine((value) => Number.isInteger(value * 1000), 'at most 3 decimals'),
-  unitPrice: z.number().int().min(0).max(1_000_000_000_00),
+  unitPrice: z.int().min(0).max(1_000_000_000_00),
   plugin: PluginName.optional(),
 });
 
@@ -109,18 +109,18 @@ export const Invoice = z.object({
   source: z.string(),
   reference: z.object({ type: z.string(), id: z.string() }),
   /** In the currency's smallest unit: $12.50 → 1250, ₮1,500 → 150000, ¥500 → 500 (`currencyDigits`). */
-  amount: z.number().int(),
+  amount: z.int(),
   /** ISO 4217. */
   currency: z.string(),
   description: z.string(),
   status: InvoiceStatus,
-  metadata: z.record(z.unknown()),
+  metadata: z.record(z.string(), z.unknown()),
   lines: z.array(InvoiceLine),
   /** What the gateway says was paid, and how much of it was given back. */
-  paidAmount: z.number().int().nullable(),
-  refundedAmount: z.number().int(),
+  paidAmount: z.int().nullable(),
+  refundedAmount: z.int(),
   /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
-  refundable: z.object({ amount: z.number().int(), gateway: z.enum(['partial', 'full', 'none']) }),
+  refundable: z.object({ amount: z.int(), gateway: z.enum(['partial', 'full', 'none']) }),
   /** For the payer: QR (text and PNG data), a short link, bank app links. */
   payment: z.object({
     qrText: z.string().nullable(),
@@ -128,9 +128,9 @@ export const Invoice = z.object({
     shortUrl: z.string().nullable(),
     links: z.array(z.object({ name: z.string(), logo: z.string().nullable(), link: z.string() })),
   }),
-  expiresAt: z.string().datetime(),
-  paidAt: z.string().datetime().nullable(),
-  createdAt: z.string().datetime(),
+  expiresAt: z.iso.datetime(),
+  paidAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
 });
 
 export type Invoice = z.infer<typeof Invoice>;
@@ -138,14 +138,14 @@ export type Invoice = z.infer<typeof Invoice>;
 export const Refund = z.object({
   id: Id,
   invoiceId: Id,
-  amount: z.number().int(),
+  amount: z.int(),
   reason: z.string(),
   /** `gateway`: sent through it; `manual`: the organisation paid it back itself and recorded it. */
   method: z.enum(['gateway', 'manual']),
   status: z.enum(['succeeded', 'failed']),
   error: z.string().nullable(),
   requestedBy: z.object({ type: z.string(), id: z.string().nullable() }),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type Refund = z.infer<typeof Refund>;
@@ -208,7 +208,7 @@ export const paymentsContract = {
     .input(
       z.object({
         gatewayId: Id.optional(),
-        amount: z.number().int().min(1).max(1_000_000_000_00),
+        amount: z.int().min(1).max(1_000_000_000_00),
         currency: Currency.optional(),
         description: z.string().trim().min(1).max(255),
         reference: z.object({
@@ -217,7 +217,6 @@ export const paymentsContract = {
         }),
         /** Minutes the invoice can be paid in (default 30). */
         expiresInMinutes: z
-          .number()
           .int()
           .min(1)
           .max(60 * 24 * 7)
@@ -251,7 +250,7 @@ export const paymentsContract = {
     .input(
       z.object({
         id: Id,
-        amount: z.number().int().min(1).optional(),
+        amount: z.int().min(1).optional(),
         reason: z.string().trim().min(1).max(255),
         manual: z.boolean().default(false),
         dedupeKey: DedupeKey.optional(),

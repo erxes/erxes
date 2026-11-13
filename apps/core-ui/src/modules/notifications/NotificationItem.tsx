@@ -10,7 +10,7 @@ import { UserAvatar } from '~/components/UserAvatar';
 import { type Inbox, useNotificationActions } from './useNotifications';
 
 /** Core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
-const Changes = z.record(z.tuple([z.unknown(), z.unknown()]));
+const Changes = z.record(z.string(), z.tuple([z.unknown(), z.unknown()]));
 
 type Changes = z.infer<typeof Changes>;
 

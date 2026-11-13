@@ -12,13 +12,13 @@ export const AuditEntry = z.object({
   targetId: z.string().nullable(),
   targetLabel: z.string().nullable(),
   /** `{ field: [before, after] }` */
-  changes: z.record(z.tuple([z.unknown(), z.unknown()])).nullable(),
-  metadata: z.record(z.unknown()).nullable(),
+  changes: z.record(z.string(), z.tuple([z.unknown(), z.unknown()])).nullable(),
+  metadata: z.record(z.string(), z.unknown()).nullable(),
   ip: z.string().nullable(),
   userAgent: z.string().nullable(),
   /** `core` or the plugin that recorded it. */
   source: z.string(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type AuditEntry = z.infer<typeof AuditEntry>;
@@ -29,7 +29,7 @@ export const AuditStreamFormat = z.enum(['erxes', 'datadog', 'splunk']);
 const StreamUrl = z
   .string()
   .trim()
-  .url()
+  .check(z.url())
   .max(2000)
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
@@ -50,12 +50,12 @@ export const AuditStream = z.object({
   status: z.enum(['active', 'paused']),
   authHeaderName: z.string().nullable(),
   /** The last chain position delivered, and how many entries wait. */
-  cursorSeq: z.number().int(),
-  pending: z.number().int(),
-  lastDeliveredAt: z.string().datetime().nullable(),
+  cursorSeq: z.int(),
+  pending: z.int(),
+  lastDeliveredAt: z.iso.datetime().nullable(),
   lastError: z.string().nullable(),
-  consecutiveFailures: z.number().int(),
-  createdAt: z.string().datetime(),
+  consecutiveFailures: z.int(),
+  createdAt: z.iso.datetime(),
 });
 
 export type AuditStream = z.infer<typeof AuditStream>;
@@ -74,8 +74,8 @@ export const auditContract = {
         actorId: z.string().trim().max(64).optional(),
         targetType: z.string().trim().max(64).optional(),
         targetId: Id.optional(),
-        from: z.string().datetime().optional(),
-        to: z.string().datetime().optional(),
+        from: z.iso.datetime().optional(),
+        to: z.iso.datetime().optional(),
         /** `core` or a plugin. */
         source: z.string().trim().max(40).optional(),
         ip: z.string().trim().max(64).optional(),
@@ -111,8 +111,8 @@ export const auditContract = {
               targetType: z.string().trim().max(64).optional(),
               targetId: z.string().trim().max(64).optional(),
               targetLabel: z.string().trim().max(300).optional(),
-              changes: z.record(z.tuple([z.unknown(), z.unknown()])).optional(),
-              metadata: z.record(z.unknown()).optional(),
+              changes: z.record(z.string(), z.tuple([z.unknown(), z.unknown()])).optional(),
+              metadata: z.record(z.string(), z.unknown()).optional(),
               /** The end user's address and browser, if the plugin knows them. */
               ip: z.string().trim().max(64).optional(),
               userAgent: z.string().trim().max(500).optional(),
@@ -122,7 +122,7 @@ export const auditContract = {
           .max(100),
       }),
     )
-    .output(z.object({ recorded: z.number().int() })),
+    .output(z.object({ recorded: z.int() })),
   verify: oc
     .route({
       method: 'GET',
@@ -133,19 +133,19 @@ export const auditContract = {
     .output(
       z.object({
         ok: z.boolean(),
-        checked: z.number().int(),
+        checked: z.int(),
         /** The first entry (chain position) where the chain breaks. */
-        brokenAt: z.number().int().nullable(),
+        brokenAt: z.int().nullable(),
         /**
          * Signed checkpoints (core's key, outside the database): they catch a
          * chain rewritten consistently and entries removed from its end.
          */
         checkpoints: z.object({
-          checked: z.number().int(),
-          latestSeq: z.number().int().nullable(),
-          latestAt: z.string().datetime().nullable(),
+          checked: z.int(),
+          latestSeq: z.int().nullable(),
+          latestAt: z.iso.datetime().nullable(),
           /** The first checkpoint the log no longer matches. */
-          mismatchAt: z.number().int().nullable(),
+          mismatchAt: z.int().nullable(),
         }),
       }),
     ),
@@ -166,11 +166,11 @@ export const auditContract = {
       z.object({
         data: z.array(
           z.object({
-            chainSeq: z.number().int(),
+            chainSeq: z.int(),
             hash: z.string(),
             keyId: z.string(),
             signature: z.string(),
-            createdAt: z.string().datetime(),
+            createdAt: z.iso.datetime(),
           }),
         ),
       }),
@@ -181,11 +181,11 @@ export const auditContract = {
       path: '/settings/audit',
       summary: 'How long the audit log keeps entries',
     })
-    .output(z.object({ retentionDays: z.number().int(), maxRetentionDays: z.number().int() })),
+    .output(z.object({ retentionDays: z.int(), maxRetentionDays: z.int() })),
   updateSettings: oc
     .route({ method: 'PUT', path: '/settings/audit', summary: 'Change audit retention (owners)' })
-    .input(z.object({ retentionDays: z.number().int().min(30).max(3650) }))
-    .output(z.object({ retentionDays: z.number().int(), maxRetentionDays: z.number().int() })),
+    .input(z.object({ retentionDays: z.int().min(30).max(3650) }))
+    .output(z.object({ retentionDays: z.int(), maxRetentionDays: z.int() })),
   streams: oc
     .route({
       method: 'GET',
@@ -238,7 +238,7 @@ export const auditContract = {
     .output(
       z.object({
         ok: z.boolean(),
-        status: z.number().int().nullable(),
+        status: z.int().nullable(),
         body: z.string().nullable(),
         error: z.string().nullable(),
         ms: z.number().nullable(),

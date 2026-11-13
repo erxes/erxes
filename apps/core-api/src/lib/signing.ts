@@ -146,7 +146,7 @@ export const signJwt = (payload: JWTPayload, options: SignOptions): Promise<stri
  */
 export const verifyJwt = async <T>(
   token: string,
-  claims: z.ZodType<T, z.ZodTypeDef, unknown>,
+  claims: z.ZodType<T>,
   options: { typ: string; audience?: string; maxTokenAge?: string },
 ) => {
   const { byKid } = keys();

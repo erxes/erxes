@@ -12,10 +12,10 @@ const storageKey = (userId: string) => `erxes-home-dashboard:${userId}`;
 const StoredItem = z.object({
   id: z.string(),
   type: z.string(),
-  x: z.number().int(),
-  y: z.number().int(),
-  w: z.number().int(),
-  h: z.number().int(),
+  x: z.int(),
+  y: z.int(),
+  w: z.int(),
+  h: z.int(),
 });
 
 /** The saved tiles; ones that no longer parse are dropped. */

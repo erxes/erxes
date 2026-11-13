@@ -50,7 +50,7 @@ const CheckAnswer = z.object({
   paid_amount: Amount.nullish(),
 });
 
-const parse = <T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, body: unknown, what: string) => {
+const parse = <T>(schema: z.ZodType<T>, body: unknown, what: string) => {
   const parsed = schema.safeParse(body);
 
   if (!parsed.success) throw new GatewayError(`QPay gave ${what}`);

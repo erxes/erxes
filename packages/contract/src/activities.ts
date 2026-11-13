@@ -50,16 +50,16 @@ export const Activity = z.object({
    * `tagged` → `{ added: ids, removed: ids }`; `merged` → `{ mergedIds }`;
    * `*_linked` → `{ customerId | companyId }`.
    */
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.unknown()),
   entity: EntityRef.nullable(),
   link: z.string().nullable(),
   actor: ActorRef,
   /** Notes only. */
   pinned: z.boolean(),
-  editedAt: z.string().datetime().nullable(),
+  editedAt: z.iso.datetime().nullable(),
   /** Emoji → the members who reacted. */
-  reactions: z.record(z.array(z.string())),
-  occurredAt: z.string().datetime(),
+  reactions: z.record(z.string(), z.array(z.string())),
+  occurredAt: z.iso.datetime(),
 });
 
 export type Activity = z.infer<typeof Activity>;
@@ -83,13 +83,13 @@ export const ActivityInput = z.object({
   type: EventType,
   /** The line shown on the timeline. */
   summary: z.string().trim().min(1).max(500),
-  data: z.record(z.unknown()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
   entity: EntityRef.optional(),
   link: AppLink.optional(),
   /** The team member who did it, if any. */
   actorUserId: Id.optional(),
   /** When it happened (defaults to now). */
-  occurredAt: z.string().datetime().optional(),
+  occurredAt: z.iso.datetime().optional(),
   /** Retry-safe: one entry per plugin and key. */
   dedupeKey: DedupeKey.optional(),
 });
@@ -113,8 +113,8 @@ export const activitiesContract = {
         q: z.string().trim().max(100).optional(),
         /** Done by this member. */
         actorId: Id.optional(),
-        from: z.string().datetime().optional(),
-        to: z.string().datetime().optional(),
+        from: z.iso.datetime().optional(),
+        to: z.iso.datetime().optional(),
         kind: TimelineKind.default('all'),
         /** Pinned notes only. */
         pinned: z
@@ -218,7 +218,7 @@ export const activitiesContract = {
       z.object({
         id: z.string().min(1).max(260),
         summary: z.string().trim().min(1).max(500).optional(),
-        data: z.record(z.unknown()).optional(),
+        data: z.record(z.string(), z.unknown()).optional(),
         link: AppLink.nullable().optional(),
       }),
     )

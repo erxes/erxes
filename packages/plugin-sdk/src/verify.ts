@@ -65,7 +65,7 @@ const verifyCoreToken = async <T>(
   token: string,
   options: VerifyOptions,
   typ: string,
-  claims: z.ZodType<T, z.ZodTypeDef, unknown>,
+  claims: z.ZodType<T>,
 ) => {
   const base = options.coreUrl.replace(/\/+$/, '');
   let jwks = jwksByCore.get(base);
