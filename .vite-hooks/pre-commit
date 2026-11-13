@@ -1,1 +1,1 @@
-vp staged
+OXLINT_TSGOLINT_PATH=node_modules/.bin/tsrs-lint vp staged

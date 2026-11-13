@@ -8,8 +8,8 @@
     "dev:api": "pnpm --filter @erxes/core-api dev",
     "dev:ui": "pnpm --filter @erxes/core-ui dev",
     "build": "pnpm -r build",
-    "check": "vp check && knip",
-    "fix": "vp check --fix",
+    "check": "OXLINT_TSGOLINT_PATH=node_modules/.bin/tsrs-lint vp check && knip",
+    "fix": "OXLINT_TSGOLINT_PATH=node_modules/.bin/tsrs-lint vp check --fix",
     "test": "vp test run",
     "prepare": "vp config --no-agent",
     "db:generate": "pnpm --filter @erxes/core-db db:generate",
@@ -29,6 +29,7 @@
     "knip": "^6.45.1",
     "publint": "^0.3.25",
     "tsdown": "^0.23.7",
+    "tsrs": "0.25.0-ts7.1.0-beta",
     "typescript": "~7.0.2",
     "vite-plus": "1.6.0"
   },
