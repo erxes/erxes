@@ -46,7 +46,7 @@ const EmbeddedVideo: FC<{ src: string; title: string }> = ({ src, title }) => (
   />
 );
 
-export const CustomVideoBlockContent: FC<VideoRenderProps> = (props) => {
+const CustomVideoBlockContent: FC<VideoRenderProps> = (props) => {
   // The same editor, typed for the file block wrapper: its generic schema doesn't
   // accept the video block's editor type directly.
   const fileEditor = useBlockNoteEditor<FileBlockSchema>();

@@ -17,10 +17,6 @@ export type AttachmentContextType = {
   isLoading: boolean;
 };
 
-export type AttachmentSavePayload = {
-  attachments: IAttachment[];
-};
-
 const EXT_TO_MIME: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',

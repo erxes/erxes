@@ -57,7 +57,7 @@ const InputMain = React.forwardRef<HTMLInputElement, InputProps>(
 InputMain.displayName = 'Input';
 
 /** A number with thousands separators; `onChange` gets the number, or '' when cleared. */
-export const InputNumber = ({
+const InputNumber = ({
   value,
   onChange,
   className,

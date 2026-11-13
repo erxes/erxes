@@ -98,5 +98,3 @@ export const BlockEditor = ({
     </div>
   );
 };
-
-export { Attribute, Mention } from './BlockEditorInlineContent';

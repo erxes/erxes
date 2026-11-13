@@ -138,6 +138,6 @@ const DateRangeDialogBody = ({ label, value, onApply }: DateRangeDialogProps) =>
   );
 };
 
-export const DateRangeDialogContent = (props: DateRangeDialogProps) => (
+const DateRangeDialogContent = (props: DateRangeDialogProps) => (
   <DateRangeDialogBody key={props.value ?? ''} {...props} />
 );

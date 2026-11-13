@@ -4,15 +4,6 @@ import { Popover } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
 import React from 'react';
 import type { Popover as PopoverPrimitive } from 'radix-ui';
-import type { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
-
-export interface ReactTablePopoverProps extends React.ComponentPropsWithoutRef<
-  typeof PopoverPrimitive.Root
-> {
-  scope?: string;
-  closeOnEnter?: boolean;
-  scopeOptions?: UseHotkeysOptionsWithoutBuggyOptions;
-}
 
 const RecordTableCellTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
@@ -81,7 +72,7 @@ const RecordTableCellDisplay = React.forwardRef<
 
 RecordTableCellDisplay.displayName = 'RecordTableCellDisplay';
 
-export const RecordTableInlineAnchor = React.forwardRef<
+const RecordTableInlineAnchor = React.forwardRef<
   React.ElementRef<typeof Badge>,
   React.ComponentPropsWithoutRef<typeof Badge>
 >(({ className, onClick, children, ...props }, ref) => {

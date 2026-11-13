@@ -1,7 +1,5 @@
-import type { DefaultReactSuggestionItem, SuggestionMenuProps } from '@blocknote/react';
+import type { DefaultReactSuggestionItem } from '@blocknote/react';
 import type { BLOCK_SCHEMA } from 'erxes-ui/modules/blocks/constant/blockEditorSchema';
-
-export type SlashMenuProps = SuggestionMenuProps<DefaultReactSuggestionItem>;
 
 export interface BlockEditorProps {
   editor: IBlockEditor;

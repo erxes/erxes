@@ -20,7 +20,7 @@ const defaultConfirm = (attachment: IAttachment) =>
 
 const NO_ATTACHMENTS: IAttachment[] = [];
 
-export type AttachmentRootProps = {
+type AttachmentRootProps = {
   children: React.ReactNode;
   initialAttachments?: IAttachment[];
   onSave?: (attachments: IAttachment[]) => Promise<void> | void;

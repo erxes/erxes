@@ -9,7 +9,7 @@ import { mergeRefs } from 'react-merge-refs';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
 
-export const ComboboxTriggerBase = React.forwardRef<
+const ComboboxTriggerBase = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button> & {
     hideChevron?: boolean;
@@ -35,7 +35,7 @@ export const ComboboxTriggerBase = React.forwardRef<
   );
 });
 
-export const ComboboxTrigger = React.forwardRef<
+const ComboboxTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button> & {
     hideChevron?: boolean;
@@ -53,23 +53,7 @@ export const ComboboxTrigger = React.forwardRef<
 
 ComboboxTrigger.displayName = 'ComboboxTrigger';
 
-export const ComboboxTriggerIcon = React.forwardRef<
-  React.ElementRef<typeof IconChevronDown>,
-  React.ComponentPropsWithoutRef<typeof IconChevronDown>
->(({ className, ...props }, ref) => {
-  return (
-    <IconChevronDown
-      ref={ref}
-      size={16}
-      strokeWidth={2}
-      aria-hidden="true"
-      className={cn('flex-none opacity-50', className)}
-      {...props}
-    />
-  );
-});
-
-export const ComboboxValue = React.forwardRef<
+const ComboboxValue = React.forwardRef<
   HTMLSpanElement,
   React.HTMLAttributes<HTMLSpanElement> & {
     placeholder?: string;
@@ -94,7 +78,7 @@ export const ComboboxValue = React.forwardRef<
 
 ComboboxValue.displayName = 'ComboboxValue';
 
-export const ComboboxContent = React.forwardRef<
+const ComboboxContent = React.forwardRef<
   React.ElementRef<typeof Popover.Content>,
   React.ComponentPropsWithoutRef<typeof Popover.Content>
 >(({ className, ...props }, ref) => {
@@ -111,7 +95,7 @@ export const ComboboxContent = React.forwardRef<
 
 ComboboxContent.displayName = 'ComboboxContent';
 
-export const ComboboxCheck = React.forwardRef<
+const ComboboxCheck = React.forwardRef<
   React.ElementRef<typeof IconCheck>,
   React.ComponentPropsWithoutRef<typeof IconCheck> & {
     checked?: boolean;
@@ -134,7 +118,7 @@ export const ComboboxCheck = React.forwardRef<
 
 ComboboxCheck.displayName = 'ComboboxCheck';
 
-export const ComboboxChipTrigger = ({
+const ComboboxChipTrigger = ({
   label,
   children,
   className,
@@ -200,7 +184,7 @@ export const ComboboxChipTrigger = ({
   );
 };
 
-export const ComboboxFetchMore = React.forwardRef<
+const ComboboxFetchMore = React.forwardRef<
   React.ElementRef<typeof Command.Item>,
   React.ComponentPropsWithoutRef<typeof Command.Item> & {
     totalCount: number;

@@ -24,7 +24,7 @@ const useMedia = (prefix: 'image/' | 'video/') => {
   return { media, open, setOpen, carousel, openAt, current: media[carousel.index] };
 };
 
-export type AttachmentPreviewProps = {
+type AttachmentPreviewProps = {
   heading?: string;
   className?: string;
   renderThumbnails?: (openPreview: (index: number) => void) => React.ReactNode;
@@ -129,7 +129,7 @@ const VideoPlayer = ({ attachment }: { attachment: IAttachment }) => {
   );
 };
 
-export type AttachmentVideoProps = {
+type AttachmentVideoProps = {
   heading?: string;
 };
 

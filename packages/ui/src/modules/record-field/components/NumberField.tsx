@@ -6,15 +6,6 @@ import React, { useState } from 'react';
 import { PopoverScoped } from 'erxes-ui/modules/hotkey/components/PopoverScoped';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table/components/RecordTableCellInline';
 
-export interface INumberFieldContainerProps {
-  placeholder?: string;
-  value: number;
-  field: string;
-  fieldId?: string;
-  _id: string;
-  scope?: string;
-}
-
 export const NumberField = React.forwardRef<
   HTMLButtonElement,
   ButtonProps & {

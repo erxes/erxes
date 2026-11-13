@@ -4,7 +4,7 @@ import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
 import { IconCaretDownFilled } from '@tabler/icons-react';
 
-export const TriggerButton = React.forwardRef<
+const TriggerButton = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button>
 >(({ className, ...props }, ref) => {
@@ -20,7 +20,7 @@ export const TriggerButton = React.forwardRef<
   );
 });
 
-export const TriggerIcon = React.forwardRef<
+const TriggerIcon = React.forwardRef<
   React.ElementRef<typeof IconCaretDownFilled>,
   React.ComponentPropsWithoutRef<typeof IconCaretDownFilled>
 >(({ className, ...props }, ref) => {

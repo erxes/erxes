@@ -1,4 +1,4 @@
-export type VideoEmbedProvider = 'youtube' | 'vimeo';
+type VideoEmbedProvider = 'youtube' | 'vimeo';
 
 export type VideoEmbedInfo = {
   provider: VideoEmbedProvider;

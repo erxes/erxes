@@ -12,7 +12,7 @@ import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUt
 
 import { useRecordTable } from './RecordTableProvider';
 
-export const recordTableHeadVariants = cva(
+const recordTableHeadVariants = cva(
   'sticky z-2 top-0 transition-transform duration-200 whitespace-nowrap text-xs [&_svg]:flex-none',
   {
     variants: {

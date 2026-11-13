@@ -63,7 +63,7 @@ const sheetVariants = cva(
   },
 );
 
-export const SheetPortal = ({
+const SheetPortal = ({
   ...props
 }: React.ComponentPropsWithoutRef<typeof SheetPrimitive.Portal>) => (
   <SheetPrimitive.Portal {...props} />
@@ -95,7 +95,7 @@ const SheetView = React.forwardRef<
 
 SheetView.displayName = SheetPrimitive.Content.displayName;
 
-export const SheetClose = React.forwardRef<
+const SheetClose = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Close>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Close>
 >(({ asChild, ...props }, ref) => {

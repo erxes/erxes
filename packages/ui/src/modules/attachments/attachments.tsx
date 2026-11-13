@@ -7,7 +7,7 @@ import { readImage } from 'erxes-ui/utils/core';
 import { useRef, useState } from 'react';
 import { AttachmentPreview, AttachmentVideo } from './attachment-media';
 import { Heading, RemoveAttachmentButton, ScrollTrack } from './attachment-parts';
-import { AttachmentRoot, useAttachmentContext, type AttachmentRootProps } from './context';
+import { AttachmentRoot, useAttachmentContext } from './context';
 import type { IAttachment } from './types';
 
 const DEFAULT_FILE_TYPES = new Set([
@@ -21,7 +21,7 @@ const DEFAULT_FILE_TYPES = new Set([
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ]);
 
-export type AttachmentFilesProps = {
+type AttachmentFilesProps = {
   /** Override the accepted MIME type set. */
   fileTypes?: Set<string>;
   heading?: string;
@@ -63,7 +63,7 @@ const AttachmentFiles = ({
   );
 };
 
-export type AttachmentAudioProps = {
+type AttachmentAudioProps = {
   heading?: string;
 };
 
@@ -100,7 +100,7 @@ const AttachmentAudio = ({ heading = 'Audio Attachments' }: AttachmentAudioProps
   );
 };
 
-export type AttachmentUploaderProps = {
+type AttachmentUploaderProps = {
   /** Called once a batch of files has uploaded, with all attachments. */
   onSave?: (attachments: IAttachment[]) => Promise<void> | void;
   id?: string;
@@ -172,7 +172,7 @@ const AttachmentUploader = ({ onSave, id, label = 'Add attachments' }: Attachmen
   );
 };
 
-export type AttachmentsInlineProps = {
+type AttachmentsInlineProps = {
   attachments: IAttachment[];
   /** Override the file MIME type set used to identify non-image files. */
   fileTypes?: Set<string>;
@@ -216,7 +216,3 @@ export const Attachments = {
   Uploader: AttachmentUploader,
   Inline: AttachmentsInline,
 } as const;
-
-export type { AttachmentRootProps };
-
-export type { AttachmentPreviewProps, AttachmentVideoProps } from './attachment-media';

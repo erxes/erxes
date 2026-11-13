@@ -49,7 +49,7 @@ export const ScrollTrack = ({ children, label }: { children: React.ReactNode; la
   );
 };
 
-export const useIsRemoving = (attachment: IAttachment) => {
+const useIsRemoving = (attachment: IAttachment) => {
   const { removingUrl, isLoading } = useAttachmentContext();
 
   return isLoading && removingUrl === attachment.url;
