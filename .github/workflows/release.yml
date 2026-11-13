@@ -1,0 +1,61 @@
+# Publishes @erxes/ui, @erxes/core-contract and @erxes/plugin-sdk to npm under the
+# `v2-next` dist-tag, with provenance. Versions are bumped in a PR, never here. A version
+# already on npm is skipped, so a rerun publishes only what is missing.
+# @erxes/ui's `latest` and `next` belong to old erxes's 3.x (publish-shared-libs.yml
+# on main, tags `[0-9]*`); this workflow never moves them.
+name: Release
+
+on:
+  push:
+    tags: ['v2-*']
+  workflow_dispatch:
+    inputs:
+      token:
+        description: Repo secret holding the npm token
+        type: choice
+        options: [NPM_PUBLISH, NPM_TOKEN]
+        default: NPM_PUBLISH
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # npm provenance
+
+jobs:
+  publish:
+    name: Publish to npm (v2-next)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - name: Build (tsdown checks each package with publint and attw) and pack
+        run: |
+          filters=(--filter @erxes/ui --filter @erxes/core-contract --filter @erxes/plugin-sdk)
+          pnpm "${filters[@]}" build
+          pnpm "${filters[@]}" exec pnpm pack --pack-destination "$RUNNER_TEMP/packs"
+      - name: Publish each version npm does not have yet
+        env:
+          NODE_AUTH_TOKEN: ${{ inputs.token == 'NPM_TOKEN' && secrets.NPM_TOKEN || secrets.NPM_PUBLISH }}
+        run: |
+          failed=0
+          # Alphabetical, so core-contract goes out before plugin-sdk, which depends on it.
+          for tgz in "$RUNNER_TEMP"/packs/*.tgz; do
+            manifest=$(tar -xzOf "$tgz" package/package.json)
+            spec="$(jq -r .name <<<"$manifest")@$(jq -r .version <<<"$manifest")"
+            if [ -n "$(npm view "$spec" version 2>/dev/null)" ]; then
+              echo "$spec is already on npm, skipped"
+              continue
+            fi
+            npm publish "$tgz" --tag v2-next --provenance --access public || { echo "::error::$spec failed to publish"; failed=1; }
+          done
+          exit "$failed"
