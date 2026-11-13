@@ -1,6 +1,7 @@
-# erxes core: static checks, tests on Postgres, builds, TLA+ model checks, container images with a
-# vulnerability scan and a smoke test of the whole stack. The four run side by
-# side; images go to GHCR on pushes to postgre only after all of them pass.
+# erxes core: static checks, tests on Postgres, builds, TLA+ model checks, container
+# images with a vulnerability scan and a smoke test of the whole stack, and the
+# packed shared packages checked outside the workspace. The five run side by side;
+# images go to GHCR on pushes to postgre only after all of them pass.
 # Require the `Check` job in branch protection.
 name: CI
 
@@ -158,10 +159,32 @@ jobs:
         if: always()
         run: docker compose -f deploy/docker-compose.yml --env-file deploy/.env logs --no-color --tail 300 || true
 
+  packages:
+    # A package that only works inside the monorepo (an import of an undeclared
+    # dependency, a file missing from `files`) fails here, before it is published.
+    name: Packed packages install and work outside the workspace
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build and pack erxes-ui, @erxes/core-contract and @erxes/plugin-sdk
+        run: |
+          filters=(--filter erxes-ui --filter @erxes/core-contract --filter @erxes/plugin-sdk)
+          pnpm "${filters[@]}" build
+          pnpm "${filters[@]}" exec pnpm pack --pack-destination "$RUNNER_TEMP/packs"
+      - name: A plugin UI and a plugin server build against the tarballs
+        run: consumers/run.sh "$RUNNER_TEMP/packs"
+
   check:
     # The job to require. It fails when any job above failed, was cancelled or was skipped.
     name: Check
-    needs: [static, integration, models, images]
+    needs: [static, integration, models, images, packages]
     if: always()
     runs-on: ubuntu-latest
     steps:
