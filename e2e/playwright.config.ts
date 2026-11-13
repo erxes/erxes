@@ -7,6 +7,7 @@ const { CI, E2E_BASE_URL } = process.env;
 /**
  * Daily flows in Chromium against a running stack on a fresh database. The setup
  * project creates the organisation through the API; every spec reuses its owner session.
+ * Each flow runs in the light and the dark theme, so axe checks contrast in both.
  */
 export default defineConfig({
   testDir: '.',
@@ -22,10 +23,10 @@ export default defineConfig({
   },
   projects: [
     { name: 'setup', testMatch: 'owner.setup.ts' },
-    {
-      name: 'chromium',
+    ...(['light', 'dark'] as const).map((colorScheme) => ({
+      name: colorScheme,
       dependencies: ['setup'],
-      use: { ...devices['Desktop Chrome'], storageState: OWNER_STATE },
-    },
+      use: { ...devices['Desktop Chrome'], colorScheme, storageState: OWNER_STATE },
+    })),
   ],
 });

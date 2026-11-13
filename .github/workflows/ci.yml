@@ -186,7 +186,7 @@ jobs:
     # The daily flows (e2e/*.spec.ts) in Chromium with an axe check on every page they visit,
     # against the same stack as the smoke test. A new runner is a fresh database: the specs
     # seed their synthetic data through the API.
-    name: Daily flows in Chromium, with axe
+    name: Daily flows in Chromium, light and dark, with axe
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:

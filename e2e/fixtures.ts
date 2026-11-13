@@ -55,9 +55,16 @@ export const coreClient = (request: APIRequestContext, baseURL: string | undefin
  * each rule with the elements that break it.
  */
 export const expectAccessible = async (page: Page) => {
-  // Colours are checked at rest, not halfway through a transition.
+  // Colours are checked at rest, not halfway through a fade or slide. Spinners and
+  // pulses loop forever, so only animations that end are waited for.
   await page.waitForFunction(() =>
-    document.getAnimations().every((animation) => animation.playState !== 'running'),
+    document
+      .getAnimations()
+      .every(
+        (animation) =>
+          animation.playState !== 'running' ||
+          animation.effect?.getTiming().iterations === Infinity,
+      ),
   );
 
   const { violations } = await new AxeBuilder({ page }).analyze();

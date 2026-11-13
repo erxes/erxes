@@ -14,9 +14,12 @@ Use synthetic data only. Never point the app at a copy of production data.
 2. Run the daily flows: `pnpm exec playwright install chromium-headless-shell` once, then
    `E2E_BASE_URL=http://localhost:<ui> pnpm e2e`. The setup project creates the organisation
    (owner `owner@e2e.test`, password `E2e-owner-pass-1`, in `e2e/fixtures.ts`), and every spec
-   seeds its own records through the API, so the specs run in parallel. Each page a spec visits
-   goes through `expectAccessible(page)`, which fails on serious or critical axe violations and
-   lists each rule with the element and the measured contrast. A failure leaves a trace:
+   seeds its own records through the API, so the specs run in parallel. Every spec runs in the
+   light and the dark theme (the `light` and `dark` projects). Each page a spec visits goes
+   through `expectAccessible(page)`, which fails on serious or critical axe violations and
+   lists each rule with the element and the measured contrast. Primary-coloured text
+   is `text-primary-text`, readable in both themes; `--primary` itself is for fills and
+   borders (`bg-primary`, `border-primary`), and reads at 2.6:1 as text in dark. A failure leaves a trace:
    `pnpm exec playwright show-trace e2e/test-results/<spec>/trace.zip`.
    - Fix a violation where it is caused: the core-ui component, or the erxes-ui part if every
      consumer shows it. Never disable an axe rule or filter it out of `expectAccessible`.

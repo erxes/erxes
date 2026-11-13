@@ -42,8 +42,8 @@ pnpm dev                     # API http://localhost:3400, UI http://localhost:35
   (manually, or push a `v2-*` tag). It publishes each version not yet on npm under the `v2-next` dist-tag
   only. `@erxes/ui` 3.x from old erxes owns `latest` and `next`.
 - `pnpm check:generated`: regenerates migrations and `packages/contract/openapi.json` and `routes.json`, and fails on drift.
-- `pnpm e2e`: the daily flows (`e2e/*.spec.ts`) in Chromium with an axe check on every page they
-  visit, against a running stack on a fresh database (`E2E_BASE_URL`, default `http://localhost:3500`).
+- `pnpm e2e`: the daily flows (`e2e/*.spec.ts`) in Chromium, light and dark, with an axe check on
+  every page they visit, against a running stack on a fresh database (`E2E_BASE_URL`, default `http://localhost:3500`).
   `.agents/skills/verify-feature/SKILL.md` says how to start one.
 - `pnpm db:generate`, `pnpm openapi`, `pnpm bootstrap` (an organisation and owner from the command line),
   `pnpm plugin:secret <name>` (registers a plugin or rotates its client secret; the old one works 24 h more).
