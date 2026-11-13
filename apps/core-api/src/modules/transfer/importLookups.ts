@@ -8,9 +8,10 @@ import {
   tags,
   users,
 } from '@erxes/core-db';
-import { and, eq, or, sql, type SQL } from 'drizzle-orm';
+import { and, eq, inArray, or, sql, type SQL } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
+import { inOrder } from '~/lib/sequence';
 import { createCompany } from '~/modules/companies/companies.service';
 import { CellError, type Column } from './columns';
 import type { ImportRow } from './importState';
@@ -120,92 +121,106 @@ export const ownerId = async (tx: Db, ctx: Context, email: string) => {
   return id;
 };
 
-const findTag = async (tx: Db, ctx: Context, key: string) => {
-  const [found] = await tx
-    .select({ id: tags.id })
-    .from(tags)
-    .where(
-      and(
-        eq(tags.orgId, ctx.actor.orgId),
-        eq(tags.type, ctx.isCompany ? 'company' : 'customer'),
-        eq(sql`lower(${tags.name})`, key),
-      ),
-    )
-    .limit(1);
+/**
+ * Ids by lower-cased name: from the batch's cache, then this row's creations,
+ * then one query for the rest (cached for the batch). `missing` are the names
+ * still unknown, one per name, in the row's order.
+ */
+const lookUpNames = async (
+  cache: Map<string, string>,
+  created: Created,
+  kind: 'tag' | 'company',
+  names: string[],
+  find: (keys: string[]) => Promise<{ id: string; key: string }[]>,
+) => {
+  const firstNames = new Map<string, string>();
 
-  return found?.id ?? null;
+  for (const name of names) {
+    if (!firstNames.has(name.toLowerCase())) firstNames.set(name.toLowerCase(), name);
+  }
+
+  const byKey = new Map<string, string>();
+
+  for (const key of firstNames.keys()) {
+    const id = cache.get(key) ?? created.get(`${kind}:${key}`);
+
+    if (id) byKey.set(key, id);
+  }
+
+  const unknown = [...firstNames.keys()].filter((key) => !byKey.has(key));
+
+  for (const row of unknown.length ? await find(unknown) : []) {
+    if (!byKey.has(row.key)) {
+      byKey.set(row.key, row.id);
+      cache.set(row.key, row.id);
+    }
+  }
+
+  return {
+    byKey,
+    missing: [...firstNames].flatMap(([key, name]) => (byKey.has(key) ? [] : [name])),
+  };
 };
 
-/** Tag ids by name; missing tags are created when the import allows it. */
+/** Tag ids by name; missing tags are created (one insert) when the import allows it. */
 export const tagIds = async (tx: Db, ctx: Context, names: string[], created: Created) => {
-  const ids: string[] = [];
+  const type: 'company' | 'customer' = ctx.isCompany ? 'company' : 'customer';
+  const lower = sql<string>`lower(${tags.name})`;
 
-  for (const name of names) {
-    const key = name.toLowerCase();
-    const known = ctx.tags.get(key) ?? created.get(`tag:${key}`);
-    const found = known ?? (await findTag(tx, ctx, key));
+  const { byKey, missing } = await lookUpNames(ctx.tags, created, 'tag', names, (keys) =>
+    tx
+      .select({ id: tags.id, key: lower })
+      .from(tags)
+      .where(and(eq(tags.orgId, ctx.actor.orgId), eq(tags.type, type), inArray(lower, keys))),
+  );
 
-    if (found) {
-      if (!known) ctx.tags.set(key, found);
-      ids.push(found);
+  const [first] = missing;
 
-      continue;
-    }
+  if (first !== undefined && !ctx.imp.options.createMissing)
+    throw new CellError(`Tags: no tag named “${first}”`);
 
-    if (!ctx.imp.options.createMissing) throw new CellError(`Tags: no tag named “${name}”`);
+  const rows = missing.map((name) => ({
+    id: newId(),
+    orgId: ctx.actor.orgId,
+    type,
+    name,
+    createdBy: ctx.actor.userId,
+  }));
 
-    const id = newId();
+  if (rows.length) await tx.insert(tags).values(rows);
 
-    await tx.insert(tags).values({
-      id,
-      orgId: ctx.actor.orgId,
-      type: ctx.isCompany ? 'company' : 'customer',
-      name,
-      createdBy: ctx.actor.userId,
-    });
-    created.set(`tag:${key}`, id);
-    ids.push(id);
+  for (const row of rows) {
+    created.set(`tag:${row.name.toLowerCase()}`, row.id);
+    byKey.set(row.name.toLowerCase(), row.id);
   }
 
-  return ids;
+  return names.flatMap((name) => byKey.get(name.toLowerCase()) ?? []);
 };
 
-const findCompany = async (tx: Db, ctx: Context, key: string) => {
-  const [found] = await tx
-    .select({ id: companies.id })
-    .from(companies)
-    .where(and(eq(companies.orgId, ctx.actor.orgId), eq(sql`lower(${companies.primaryName})`, key)))
-    .limit(1);
-
-  return found?.id ?? null;
-};
-
-/** Company ids by name; missing companies are created when the import allows it. */
+/** Company ids by name; missing companies are created (the full create, one after another) when the import allows it. */
 export const companyIds = async (tx: Db, ctx: Context, names: string[], created: Created) => {
-  const ids: string[] = [];
+  const lower = sql<string>`lower(${companies.primaryName})`;
 
-  for (const name of names) {
-    const key = name.toLowerCase();
-    const known = ctx.companies.get(key) ?? created.get(`company:${key}`);
-    const found = known ?? (await findCompany(tx, ctx, key));
+  const { byKey, missing } = await lookUpNames(ctx.companies, created, 'company', names, (keys) =>
+    tx
+      .select({ id: companies.id, key: lower })
+      .from(companies)
+      .where(and(eq(companies.orgId, ctx.actor.orgId), inArray(lower, keys))),
+  );
 
-    if (found) {
-      if (!known) ctx.companies.set(key, found);
-      ids.push(found);
+  const [first] = missing;
 
-      continue;
-    }
+  if (first !== undefined && !ctx.imp.options.createMissing)
+    throw new CellError(`Companies: no company named “${first}”`);
 
-    if (!ctx.imp.options.createMissing)
-      throw new CellError(`Companies: no company named “${name}”`);
+  await inOrder(missing, async (name) => {
+    const { id } = await createCompany(tx, ctx.actor, { primaryName: name });
 
-    const id = (await createCompany(tx, ctx.actor, { primaryName: name })).id;
+    created.set(`company:${name.toLowerCase()}`, id);
+    byKey.set(name.toLowerCase(), id);
+  });
 
-    created.set(`company:${key}`, id);
-    ids.push(id);
-  }
-
-  return ids;
+  return names.flatMap((name) => byKey.get(name.toLowerCase()) ?? []);
 };
 
 export const existingTags = async (tx: Db, ctx: Context, id: string) => {

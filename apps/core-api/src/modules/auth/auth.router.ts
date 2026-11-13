@@ -7,12 +7,8 @@ import {
   regenerateRecoveryCodes,
   setupTwoFactor,
 } from '~/modules/auth/twoFactor.service';
-import {
-  acceptInvitation,
-  invitationInfo,
-  requestPasswordReset,
-  resetPassword,
-} from '~/modules/auth/tokens.service';
+import { acceptInvitation, invitationInfo } from '~/modules/auth/tokens.service';
+import { requestPasswordReset, resetPassword } from '~/modules/auth/passwordReset.service';
 import { sessionClaims, signAccessToken } from '~/http/auth';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';

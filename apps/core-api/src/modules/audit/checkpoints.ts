@@ -1,6 +1,7 @@
 import { auditCheckpoints, type Db } from '@erxes/core-db';
 import { and, asc, eq, gt, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { inOrder } from '~/lib/sequence';
 import { currentKeyId, signJwt, verifyJwt } from '~/lib/signing';
 import { logger } from '~/logger';
 
@@ -53,19 +54,75 @@ export const findChainBreak = async (client: Db, orgId: string, fromSeq?: number
   };
 };
 
+type ChainHead = {
+  org_id: string;
+  head_seq: number;
+  head_hash: string;
+  last_seq: number | null;
+  last_hash: string | null;
+};
+
+/** Signs one organisation's head once its chain checks out; how many checkpoints it added (0 or 1). */
+const signHead = async (client: Db, head: ChainHead) => {
+  if (head.last_seq !== null) {
+    const [anchor] = await client
+      .execute<{ hash: string }>(sql`
+      select hash from core_audit_logs where org_id = ${head.org_id} and chain_seq = ${head.last_seq}
+    `)
+      .then((result) => result.rows);
+
+    // The last signed entry was changed: don't sign over it. (If retention
+    // removed it, the walk below starts from the oldest entry kept.)
+    if (anchor && anchor.hash !== head.last_hash) {
+      log.error(
+        { orgId: head.org_id, checkpoint: head.last_seq },
+        'the audit chain no longer matches its last checkpoint; not signing',
+      );
+
+      return 0;
+    }
+  }
+
+  const walk = await findChainBreak(client, head.org_id, head.last_seq ?? undefined);
+
+  if (walk.brokenAt !== null) {
+    log.error(
+      { orgId: head.org_id, brokenAt: walk.brokenAt },
+      'the audit chain breaks; not signing',
+    );
+
+    return 0;
+  }
+
+  const signature = await signJwt(
+    { org: head.org_id, seq: head.head_seq, hash: head.head_hash } satisfies z.input<
+      typeof CheckpointClaims
+    >,
+    { typ: CHECKPOINT_TYP, subject: head.org_id },
+  );
+
+  const inserted = await client
+    .insert(auditCheckpoints)
+    .values({
+      orgId: head.org_id,
+      chainSeq: head.head_seq,
+      hash: head.head_hash,
+      keyId: currentKeyId(),
+      signature,
+    })
+    .onConflictDoNothing()
+    .returning({ seq: auditCheckpoints.chainSeq });
+
+  return inserted.length;
+};
+
 /**
  * Signs the head of every organisation's audit chain that moved since its last
  * checkpoint — only after checking the entries added since then, so a chain
  * that was tampered with is never signed. Safe on several replicas at once.
  */
 export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
-  const heads = await client.execute<{
-    org_id: string;
-    head_seq: number;
-    head_hash: string;
-    last_seq: number | null;
-    last_hash: string | null;
-  }>(sql`
+  const heads = await client.execute<ChainHead>(sql`
     select o.id as org_id, h.chain_seq::int as head_seq, h.hash as head_hash, c.chain_seq::int as last_seq, c.hash as last_hash
     from core_organizations o
     join lateral (
@@ -84,59 +141,10 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
 
   let signed = 0;
 
-  for (const head of heads.rows) {
-    if (head.last_seq !== null) {
-      const [anchor] = await client
-        .execute<{ hash: string }>(sql`
-        select hash from core_audit_logs where org_id = ${head.org_id} and chain_seq = ${head.last_seq}
-      `)
-        .then((result) => result.rows);
-
-      // The last signed entry was changed: don't sign over it. (If retention
-      // removed it, the walk below starts from the oldest entry kept.)
-      if (anchor && anchor.hash !== head.last_hash) {
-        log.error(
-          { orgId: head.org_id, checkpoint: head.last_seq },
-          'the audit chain no longer matches its last checkpoint; not signing',
-        );
-        continue;
-      }
-    }
-
-    const walk = await findChainBreak(client, head.org_id, head.last_seq ?? undefined);
-
-    if (walk.brokenAt !== null) {
-      log.error(
-        { orgId: head.org_id, brokenAt: walk.brokenAt },
-        'the audit chain breaks; not signing',
-      );
-      continue;
-    }
-
-    const signature = await signJwt(
-      { org: head.org_id, seq: head.head_seq, hash: head.head_hash } satisfies z.input<
-        typeof CheckpointClaims
-      >,
-      {
-        typ: CHECKPOINT_TYP,
-        subject: head.org_id,
-      },
-    );
-
-    const inserted = await client
-      .insert(auditCheckpoints)
-      .values({
-        orgId: head.org_id,
-        chainSeq: head.head_seq,
-        hash: head.head_hash,
-        keyId: currentKeyId(),
-        signature,
-      })
-      .onConflictDoNothing()
-      .returning({ seq: auditCheckpoints.chainSeq });
-
-    signed += inserted.length;
-  }
+  // One organisation at a time, so a full chain walk per organisation keeps the load flat.
+  await inOrder(heads.rows, async (head) => {
+    signed += await signHead(client, head);
+  });
 
   return signed;
 };
@@ -161,40 +169,34 @@ export const verifyCheckpoints = async (client: Db, orgId: string, firstSeq: num
     order by c.chain_seq
   `);
 
-  let checked = 0;
-  let mismatchAt: number | null = null;
-  const latest = rows.rows[rows.rows.length - 1];
+  const latest = rows.rows.at(-1);
+  // The ones retention removed are skipped.
+  const kept = rows.rows.filter((row) => firstSeq !== null && row.chain_seq >= firstSeq);
 
-  for (const row of rows.rows) {
-    // Removed by retention.
-    if (firstSeq === null || row.chain_seq < firstSeq) continue;
+  // A signature that doesn't verify (or doesn't parse) is a break in the chain.
+  const holds = await Promise.all(
+    kept.map((row) =>
+      verifyJwt(row.signature, CheckpointClaims, { typ: CHECKPOINT_TYP })
+        .then(
+          (claims) =>
+            claims.org === orgId &&
+            claims.seq === row.chain_seq &&
+            claims.hash === row.hash &&
+            row.entry_hash === row.hash,
+        )
+        .catch(() => false),
+    ),
+  );
 
-    checked += 1;
-
-    // A signature that doesn't verify (or doesn't parse) is a break in the chain.
-    const valid = await verifyJwt(row.signature, CheckpointClaims, { typ: CHECKPOINT_TYP })
-      .then(
-        (claims) =>
-          claims.org === orgId && claims.seq === row.chain_seq && claims.hash === row.hash,
-      )
-      .catch(() => false);
-
-    if (!valid || row.entry_hash !== row.hash) {
-      mismatchAt = row.chain_seq;
-      break;
-    }
-  }
-
-  // Everything was removed, yet checkpoints say there were entries.
-  if (firstSeq === null && latest) {
-    mismatchAt = latest.chain_seq;
-  }
+  const firstBreak = holds.indexOf(false);
 
   return {
-    checked,
+    checked: firstBreak === -1 ? kept.length : firstBreak + 1,
     latestSeq: latest?.chain_seq ?? null,
     latestAt: latest ? new Date(latest.created_at).toISOString() : null,
-    mismatchAt,
+    // Everything was removed, yet checkpoints say there were entries.
+    mismatchAt:
+      firstSeq === null ? (latest?.chain_seq ?? null) : (kept[firstBreak]?.chain_seq ?? null),
   };
 };
 

@@ -78,7 +78,9 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
         customFields,
         Object.keys(customFields),
       );
-      await recordLeadSteps(tx, userCaller(actor), 'customer', created, lead.steps);
+      await recordLeadSteps(tx, userCaller(actor), 'customer', [
+        { id: created, steps: lead.steps },
+      ]);
       await setRecordTags(tx, actor.orgId, 'customer', created, tagIds);
       await contactCreated(tx, actor, 'customer', await findCustomer(tx, actor.orgId, created));
 
@@ -139,7 +141,7 @@ export const updateCustomer = async (
         throw notFound('Customer');
       }
 
-      await recordLeadSteps(tx, userCaller(actor), 'customer', id, lead.steps);
+      await recordLeadSteps(tx, userCaller(actor), 'customer', [{ id, steps: lead.steps }]);
 
       if (customFields) {
         const keys = Object.keys(input.customFields ?? {});
@@ -236,6 +238,31 @@ interface LinkInput {
   ended?: boolean;
 }
 
+/** Creates or changes the links of people to a company; new links go on both timelines. */
+const upsertLinks = async (
+  tx: Db,
+  actor: Actor,
+  ids: string[],
+  companyId: string,
+  attributes: { role?: string | null; isPrimaryContact?: boolean; endedAt?: Date | null },
+) => {
+  const rows = await tx
+    .insert(customerCompanies)
+    .values(ids.map((customerId) => ({ orgId: actor.orgId, customerId, companyId, ...attributes })))
+    .onConflictDoUpdate({
+      target: [customerCompanies.customerId, customerCompanies.companyId],
+      set: { ...attributes, updatedAt: sql`now()` },
+    })
+    .returning({ customerId: customerCompanies.customerId, created: sql<boolean>`xmax = 0` });
+
+  await contactsLinked(
+    tx,
+    actor,
+    rows.filter((row) => row.created).map(({ customerId }) => ({ customerId, companyId })),
+    true,
+  );
+};
+
 /**
  * Links a person and a company, or changes their link: role, main contact
  * (one per company: taking it moves it), left / back. Same from either side.
@@ -272,21 +299,21 @@ export const linkCustomerCompany = async (
         );
     }
 
-    const [row] = await tx
-      .insert(customerCompanies)
-      .values({ orgId: actor.orgId, customerId: id, companyId, ...attributes })
-      .onConflictDoUpdate({
-        target: [customerCompanies.customerId, customerCompanies.companyId],
-        set: { ...attributes, updatedAt: sql`now()` },
-      })
-      .returning({ created: sql<boolean>`xmax = 0` });
-
-    if (row?.created) {
-      await contactsLinked(tx, actor, id, companyId, true);
-    }
+    await upsertLinks(tx, actor, [id], companyId, attributes);
   });
 
   return { ok: true as const };
+};
+
+/** Links people to a company (converted leads), in one insert; a link already there stays as it is. */
+export const linkCustomersToCompany = async (
+  tx: Db,
+  actor: Actor,
+  ids: string[],
+  companyId: string,
+) => {
+  await assertCompany(tx, actor.orgId, companyId);
+  await upsertLinks(tx, actor, ids, companyId, {});
 };
 
 export const unlinkCustomerCompany = async (
@@ -309,7 +336,7 @@ export const unlinkCustomerCompany = async (
       .returning({ customerId: customerCompanies.customerId });
 
     if (unlinked.length) {
-      await contactsLinked(tx, actor, id, companyId, false);
+      await contactsLinked(tx, actor, [{ customerId: id, companyId }], false);
     }
   });
 

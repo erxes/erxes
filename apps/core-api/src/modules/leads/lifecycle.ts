@@ -6,7 +6,7 @@ import { HttpError } from '~/http/errors';
 import { currentImport } from '~/lib/causation';
 import { recordActivity } from '~/modules/activities/activities.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
-import { findStage, firstStage, type StageRow } from './stages';
+import { findStage, firstStage, type StageRow, stagesOf } from './stages';
 
 /**
  * A lead's lifecycle, planned by the customer and company services before
@@ -85,53 +85,45 @@ export const planLeadOnCreate = async (
 };
 
 interface Change {
-  client: Db;
   caller: Caller;
+  stages: StageRow[];
   current: Pick<CustomerRow, 'state' | 'leadStageId'>;
   currentStage: StageRow | null;
   /** The stage asked for, when it differs from the current one. */
   wanted: StageRow | null;
   reason: string | null;
+  now: Date;
 }
 
+const firstOf = (stages: StageRow[], kind: StageRow['kind']) =>
+  stages.find((stage) => stage.kind === kind) ?? null;
+
 /** Lead → customer: moved to the first qualified stage unless already in one. */
-const convert = async ({
-  client,
-  caller,
-  current,
-  currentStage,
-  wanted,
-}: Change): Promise<LeadPlan> => {
+const convert = ({ caller, stages, current, currentStage, wanted, now }: Change): LeadPlan => {
   let to = wanted ?? currentStage;
 
-  if (to?.kind !== 'qualified') to = (await firstStage(client, caller.orgId, 'qualified')) ?? to;
+  if (to?.kind !== 'qualified') to = firstOf(stages, 'qualified') ?? to;
 
   const set: LeadPlan['set'] = {
-    convertedAt: new Date(),
+    convertedAt: now,
     convertedBy: caller.actorType === 'user' ? caller.actorId : null,
     leadStageId: to?.id ?? null,
     disqualifyReason: null,
-    ...(to?.id === current.leadStageId ? {} : { leadStageChangedAt: new Date() }),
+    ...(to?.id === current.leadStageId ? {} : { leadStageChangedAt: now }),
   };
 
   return { set, steps: [{ event: 'converted', from: currentStage, to, reason: null }] };
 };
 
 /** Customer → lead: back to the first open stage, unless one was asked for. */
-const reopen = async ({
-  client,
-  caller,
-  currentStage,
-  wanted,
-  reason,
-}: Change): Promise<LeadPlan> => {
-  const to = wanted ?? (await firstStage(client, caller.orgId, 'open'));
+const reopen = ({ stages, currentStage, wanted, reason, now }: Change): LeadPlan => {
+  const to = wanted ?? firstOf(stages, 'open');
 
   const set: LeadPlan['set'] = {
     convertedAt: null,
     convertedBy: null,
     leadStageId: to?.id ?? null,
-    leadStageChangedAt: new Date(),
+    leadStageChangedAt: now,
     disqualifyReason: to?.kind === 'disqualified' ? reason : null,
   };
 
@@ -139,12 +131,12 @@ const reopen = async ({
 };
 
 /** The lifecycle part of a change: one step at most. */
-const lifecyclePlan = async (
+const lifecyclePlan = (
   change: Change,
   nextState: (typeof CUSTOMER_STATES)[number],
   input: LeadInput,
-): Promise<LeadPlan> => {
-  const { current, currentStage, wanted, reason } = change;
+): LeadPlan => {
+  const { current, currentStage, wanted, reason, now } = change;
 
   if (current.state === 'lead' && nextState === 'customer') return convert(change);
 
@@ -157,7 +149,7 @@ const lifecyclePlan = async (
     return {
       set: {
         leadStageId: wanted.id,
-        leadStageChangedAt: new Date(),
+        leadStageChangedAt: now,
         disqualifyReason: wanted.kind === 'disqualified' ? reason : null,
       },
       steps: [{ event: 'stage', from: currentStage, to: wanted, reason }],
@@ -171,31 +163,37 @@ const lifecyclePlan = async (
 };
 
 /**
- * A change to a customer: a stage move, a conversion (lead → customer: moved
- * to the first qualified stage unless already there), or a reopening
- * (customer → lead: back to the first open stage).
+ * A change to a customer or company, planned on the organisation's stages
+ * (loaded once for many records in bulk moves): a stage move, a conversion
+ * (lead → customer: moved to the first qualified stage unless already
+ * there), or a reopening (customer → lead: back to the first open stage).
+ * `asked` is the stage `input.leadStageId` names, found already.
  */
-export const planLeadOnUpdate = async (
-  client: Db,
-  caller: Caller,
-  current: Pick<CustomerRow, 'state' | 'leadStageId'>,
-  input: LeadInput,
-): Promise<LeadPlan> => {
-  const currentStage = current.leadStageId
-    ? await findStage(client, caller.orgId, current.leadStageId).catch((error: unknown) => {
-        if (error instanceof HttpError && error.code === 'INVALID_LEAD_STAGE') return null;
-
-        throw error;
-      })
-    : null;
-
-  const wanted =
-    input.leadStageId && input.leadStageId !== current.leadStageId
-      ? await findStage(client, caller.orgId, input.leadStageId)
-      : null;
-
-  const plan = await lifecyclePlan(
-    { client, caller, current, currentStage, wanted, reason: input.disqualifyReason ?? null },
+export const planLeadChange = ({
+  caller,
+  stages,
+  current,
+  input,
+  asked,
+  now = new Date(),
+}: {
+  caller: Caller;
+  stages: StageRow[];
+  current: Pick<CustomerRow, 'state' | 'leadStageId'>;
+  input: LeadInput;
+  asked: StageRow | null;
+  now?: Date;
+}): LeadPlan => {
+  const plan = lifecyclePlan(
+    {
+      caller,
+      stages,
+      current,
+      currentStage: stages.find((stage) => stage.id === current.leadStageId) ?? null,
+      wanted: asked?.id === current.leadStageId ? null : asked,
+      reason: input.disqualifyReason ?? null,
+      now,
+    },
     input.state ?? current.state,
     input,
   );
@@ -207,25 +205,47 @@ export const planLeadOnUpdate = async (
   return plan;
 };
 
+/** `planLeadChange` for one record, loading only the stages it needs. */
+export const planLeadOnUpdate = async (
+  client: Db,
+  caller: Caller,
+  current: Pick<CustomerRow, 'state' | 'leadStageId'>,
+  input: LeadInput,
+): Promise<LeadPlan> => {
+  const asked =
+    input.leadStageId && input.leadStageId !== current.leadStageId
+      ? await findStage(client, caller.orgId, input.leadStageId)
+      : null;
+
+  // The stages are needed for the current one, and for a conversion or reopening.
+  const stages =
+    current.leadStageId || (input.state ?? current.state) !== current.state
+      ? await stagesOf(client, caller.orgId)
+      : [];
+
+  return planLeadChange({ caller, stages, current, input, asked });
+};
+
 const stageRef = (stage: StageRow | null) =>
   stage ? { id: stage.id, name: stage.name, kind: stage.kind, color: stage.color } : null;
 
-/** Writes the steps: the lead's history, its timeline, and `core.lead.*` events for automations and webhooks. */
+/** Writes the records' steps: their history, their timelines, and `core.lead.*` events for automations and webhooks. */
 export const recordLeadSteps = async (
   tx: Db,
   caller: Caller,
   recordType: LeadRecordType,
-  recordId: string,
-  steps: LeadStep[],
+  records: { id: string; steps: LeadStep[] }[],
 ) => {
+  const steps = records.flatMap(({ id, steps: own }) => own.map((step) => ({ id, step })));
+
   if (!steps.length) return;
 
   await tx.insert(leadEvents).values(
-    steps.map((step) => ({
+    steps.map(({ id, step }) => ({
       id: newId(),
       orgId: caller.orgId,
-      customerId: recordType === 'customer' ? recordId : null,
-      companyId: recordType === 'company' ? recordId : null,
+      customerId: recordType === 'customer' ? id : null,
+      companyId: recordType === 'company' ? id : null,
       event: step.event,
       fromStageId: step.from?.id ?? null,
       toStageId: step.to?.id ?? null,
@@ -236,21 +256,24 @@ export const recordLeadSteps = async (
   );
 
   // Creation is on the timeline already (customer.created).
-  const moves = steps.map((step) => ({
-    event: step.event,
-    from: stageRef(step.from),
-    to: stageRef(step.to),
-    reason: step.reason,
-  }));
-
-  const changes = moves.filter((move) => move.event !== 'created');
+  const changes = steps
+    .filter(({ step }) => step.event !== 'created')
+    .map(({ id, step }) => ({
+      id,
+      data: {
+        event: step.event,
+        from: stageRef(step.from),
+        to: stageRef(step.to),
+        reason: step.reason,
+      },
+    }));
 
   await recordActivity(
     tx,
     caller,
-    changes.map((data) => ({
+    changes.map(({ id, data }) => ({
       targetType: recordType,
-      targetId: recordId,
+      targetId: id,
       type: `${recordType}.lead`,
       data,
     })),
@@ -258,10 +281,10 @@ export const recordLeadSteps = async (
   await publishCoreEvents(
     tx,
     caller,
-    changes.map((payload) => ({
-      type: payload.event === 'converted' ? 'core.lead.converted' : 'core.lead.stage_changed',
-      subject: { type: recordType, id: recordId },
-      payload,
+    changes.map(({ id, data }) => ({
+      type: data.event === 'converted' ? 'core.lead.converted' : 'core.lead.stage_changed',
+      subject: { type: recordType, id },
+      payload: data,
     })),
   );
 };

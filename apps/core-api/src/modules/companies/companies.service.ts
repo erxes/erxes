@@ -113,7 +113,7 @@ export const createCompany = async (
         customFields,
         Object.keys(customFields),
       );
-      await recordLeadSteps(tx, userCaller(actor), 'company', created, lead.steps);
+      await recordLeadSteps(tx, userCaller(actor), 'company', [{ id: created, steps: lead.steps }]);
       await setRecordTags(tx, actor.orgId, 'company', created, tagIds);
       await contactCreated(tx, actor, 'company', await findCompany(tx, actor.orgId, created));
 
@@ -210,7 +210,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
         throw notFound('Company');
       }
 
-      await recordLeadSteps(tx, userCaller(actor), 'company', id, lead.steps);
+      await recordLeadSteps(tx, userCaller(actor), 'company', [{ id, steps: lead.steps }]);
 
       if (customFields) {
         const keys = Object.keys(input.customFields ?? {});

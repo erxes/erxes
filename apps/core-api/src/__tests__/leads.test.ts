@@ -189,6 +189,56 @@ describe('leads: stages, moves, conversion, history and the report', { timeout: 
     });
   });
 
+  it('moves and converts many leads at once, from different stages', async () => {
+    const ids = await Promise.all(
+      ['Ganaa', 'Tuya', 'Oyun'].map(
+        async (firstName) => (await t.owner().customers.create({ firstName, state: 'lead' })).id,
+      ),
+    );
+
+    const [ganaa = '', tuya = ''] = ids;
+    const qualified = await stage('Qualified');
+
+    expect(
+      await t
+        .owner()
+        .leads.move({ ids, stageId: (await stage('Disqualified')).id, reason: 'Spam' }),
+    ).toEqual({ moved: 3 });
+    expect(await t.owner().leads.move({ ids: [tuya], stageId: qualified.id })).toEqual({
+      moved: 1,
+    });
+
+    const company = (await t.owner().companies.create({ primaryName: 'Steppe LLC' })).id;
+
+    expect(
+      await t.owner().leads.convert({ ids, companyId: company, ownerId: t.ids.member }),
+    ).toEqual({ converted: 3 });
+
+    for (const id of ids) {
+      expect(await t.owner().customers.get({ id })).toMatchObject({
+        state: 'customer',
+        ownerId: t.ids.member,
+        leadStageId: qualified.id,
+        disqualifyReason: null,
+      });
+      expect(idsOf((await t.owner().customers.companies({ id })).data)).toEqual([company]);
+    }
+
+    expect((await t.owner().leads.history({ id: ganaa })).data.map((entry) => entry.event)).toEqual(
+      ['created', 'stage', 'converted'],
+    );
+    expect((await t.owner().leads.history({ id: tuya })).data.at(-1)).toMatchObject({
+      event: 'converted',
+      fromStageId: qualified.id,
+      toStageId: qualified.id,
+    });
+
+    const assigned = await t.member().notifications.list({ kind: 'core.customer.assigned' });
+
+    expect(assigned.data).toHaveLength(3);
+    expect(assigned.data.map((item) => item.entity?.id)).toEqual(expect.arrayContaining(ids));
+  });
+
   it('links people to companies with a role, a main contact and an end', async () => {
     const company = (await t.owner().companies.create({ primaryName: 'People Co' })).id;
     const anna = (await t.owner().customers.create({ firstName: 'Anna' })).id;

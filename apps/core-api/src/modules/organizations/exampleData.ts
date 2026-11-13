@@ -12,6 +12,7 @@ import { and, asc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Actor } from '~/http/auth';
 import { lockOrganization } from '~/lib/locks';
+import { inOrder } from '~/lib/sequence';
 import { defineJob } from '~/modules/jobs/jobs';
 import { addNote } from '~/modules/activities/activities.service';
 import { createAutomation } from '~/modules/automations/automations.service';
@@ -167,7 +168,8 @@ const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) 
   const labels = await seedLabels(tx, actor, copy);
   const companyIds: string[] = [];
 
-  for (const company of copy.companies) {
+  // One record after another through the full create pipeline; the people link to these ids.
+  await inOrder(copy.companies, async (company) => {
     const created = await createCompany(tx, actor, {
       primaryName: company.name,
       industry: company.industry,
@@ -178,7 +180,7 @@ const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) 
     });
 
     companyIds.push(created.id);
-  }
+  });
 
   const stages = await tx
     .select({ id: leadStages.id })
@@ -186,9 +188,9 @@ const seedExampleData = async (tx: Db, actor: Actor, language: ExampleLanguage) 
     .where(eq(leadStages.orgId, actor.orgId))
     .orderBy(asc(leadStages.order));
 
-  for (const person of copy.people) {
-    await seedPerson({ tx, actor, copy, labels, stages, companyIds }, person);
-  }
+  await inOrder(copy.people, (person) =>
+    seedPerson({ tx, actor, copy, labels, stages, companyIds }, person),
+  );
 
   await createView(tx, actor, {
     recordType: 'customer',

@@ -15,6 +15,7 @@ import { PLUGIN_ACCESS_TYP, type PluginService } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
+import { inOrder } from '~/lib/sequence';
 import { signJwt } from '~/lib/signing';
 
 type PluginRow = typeof plugins.$inferSelect;
@@ -29,15 +30,17 @@ const SECRET_OVERLAP_HOURS = 24;
 export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
   row.manifest?.scopes ?? [...PLUGIN_SCOPES];
 
-const installAll = async (tx: Db, orgIds: string[], row: Pick<PluginRow, 'name' | 'manifest'>) => {
-  if (!orgIds.length) return;
+/** Installs every plugin row in every organisation, in one insert. */
+const installAll = async (
+  tx: Db,
+  orgIds: string[],
+  rows: Pick<PluginRow, 'name' | 'manifest'>[],
+) => {
+  const values = orgIds.flatMap((orgId) =>
+    rows.map((row) => ({ orgId, plugin: row.name, grantedScopes: requestedScopes(row) })),
+  );
 
-  await tx
-    .insert(pluginInstallations)
-    .values(
-      orgIds.map((orgId) => ({ orgId, plugin: row.name, grantedScopes: requestedScopes(row) })),
-    )
-    .onConflictDoNothing();
+  if (values.length) await tx.insert(pluginInstallations).values(values).onConflictDoNothing();
 };
 
 /**
@@ -68,7 +71,7 @@ const storeSecret = (name: string, hash: string) =>
         await installAll(
           tx,
           orgs.map((org) => org.id),
-          row,
+          [row],
         );
       }
 
@@ -90,11 +93,9 @@ const storeSecret = (name: string, hash: string) =>
   });
 
 /** Brings the registry in line with `CORE_PLUGIN_KEYS` (`name:secret`) at startup. */
-export const syncPluginSecrets = async () => {
-  for (const [secret, name] of config.pluginKeys) {
-    await storeSecret(name, sha256(secret));
-  }
-};
+export const syncPluginSecrets = () =>
+  // In order: one name may come with two secrets (a rotation), and the later one wins.
+  inOrder(config.pluginKeys, ([secret, name]) => storeSecret(name, sha256(secret)));
 
 /** A new random client secret for a plugin; the previous one works 24 more hours. Prints nowhere: the caller shows it once. */
 export const rotatePluginSecret = async (name: string) => {
@@ -112,9 +113,7 @@ export const installPluginsForNewOrganization = async (tx: Db, orgId: string) =>
 
   const rows = await tx.select().from(plugins).where(eq(plugins.status, 'active'));
 
-  for (const row of rows) {
-    await installAll(tx, [orgId], row);
-  }
+  await installAll(tx, [orgId], rows);
 };
 
 const invalidClient = () =>

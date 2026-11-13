@@ -5,7 +5,8 @@ import {
   type Role,
 } from '@erxes/core-contract';
 import { type Db, db, newId, pluginInstallations, plugins, roles, users } from '@erxes/core-db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import { wholeList } from '~/lib/keyset';
 import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
@@ -111,17 +112,20 @@ export const effectivePermissions = async (
 };
 
 export const listRoles = async (client: Db, actor: Actor) => {
-  const rows = await client
-    .select({
-      role: roles,
-      members: sql<number>`(select count(*)::int from ${users} u where u.org_id = ${roles.orgId} and u.role = ${roles.key} and u.status <> 'disabled')`,
-    })
-    .from(roles)
-    .where(eq(roles.orgId, actor.orgId))
-    .orderBy(
-      sql`case ${roles.key} when 'owner' then 0 when 'admin' then 1 when 'member' then 2 else 3 end`,
-      roles.name,
-    );
+  const rows = await wholeList((limit) =>
+    client
+      .select({
+        role: roles,
+        members: sql<number>`(select count(*)::int from ${users} u where u.org_id = ${roles.orgId} and u.role = ${roles.key} and u.status <> 'disabled')`,
+      })
+      .from(roles)
+      .where(eq(roles.orgId, actor.orgId))
+      .orderBy(
+        sql`case ${roles.key} when 'owner' then 0 when 'admin' then 1 when 'member' then 2 else 3 end`,
+        roles.name,
+      )
+      .limit(limit),
+  );
 
   return { data: rows.map((row) => toRoleDto(row.role, row.members)) };
 };
@@ -170,6 +174,8 @@ const checkPermissions = async (client: Db, actor: Actor, permissions: string[])
   return [...new Set(permissions)].toSorted();
 };
 
+const noSuchRole = () => new HttpError(404, 'ROLE_NOT_FOUND', 'No such role');
+
 const roleOrThrow = async (client: Db, orgId: string, key: string) => {
   const [row] = await client
     .select()
@@ -177,33 +183,47 @@ const roleOrThrow = async (client: Db, orgId: string, key: string) => {
     .where(and(eq(roles.orgId, orgId), eq(roles.key, key)))
     .limit(1);
 
-  if (!row) throw new HttpError(404, 'ROLE_NOT_FOUND', 'No such role');
+  if (!row) throw noSuchRole();
 
   return row;
 };
 
 /**
- * Assigning a role (invite, role change): it must exist, and hold nothing
- * beyond the assigner's own permissions (owners assign anything).
+ * Assigning roles (invite, role change): each must exist, and hold nothing
+ * beyond the assigner's own permissions (owners assign anything). One query
+ * for all of them; the first role that fails, in `keys` order, is the error.
  */
-export const assertAssignable = async (client: Db, actor: Actor, key: string) => {
-  const row = await roleOrThrow(client, actor.orgId, key);
+export const assertAssignable = async (client: Db, actor: Actor, keys: string | string[]) => {
+  const wanted = [...new Set([keys].flat())];
 
-  if (actor.role === 'owner') return row;
+  const rows = new Map(
+    (
+      await client
+        .select()
+        .from(roles)
+        .where(and(eq(roles.orgId, actor.orgId), inArray(roles.key, wanted)))
+    ).map((row) => [row.key, row]),
+  );
 
-  const wider = row.permissions.includes('*')
-    ? !actor.permissions.includes('*')
-    : row.permissions.some((action) => !can(actor, action));
+  for (const key of wanted) {
+    const row = rows.get(key);
 
-  if (wider) {
-    throw new HttpError(
-      403,
-      'BEYOND_OWN_PERMISSIONS',
-      `You can't give the ${row.name} role: it can do more than you`,
-    );
+    if (!row) throw noSuchRole();
+
+    const wider =
+      actor.role !== 'owner' &&
+      (row.permissions.includes('*')
+        ? !actor.permissions.includes('*')
+        : row.permissions.some((action) => !can(actor, action)));
+
+    if (wider) {
+      throw new HttpError(
+        403,
+        'BEYOND_OWN_PERMISSIONS',
+        `You can't give the ${row.name} role: it can do more than you`,
+      );
+    }
   }
-
-  return row;
 };
 
 export const createRole = (

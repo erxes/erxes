@@ -1,11 +1,13 @@
 import type { EXPORT_FORMATS } from '@erxes/core-db/enums';
-import type { Export, ExportQuery, TransferRecordType } from '@erxes/core-contract';
+import type { CursorQuery, Export, ExportQuery, TransferRecordType } from '@erxes/core-contract';
 import { companies, customers, type Db, exports, newId, users, withOrg } from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, gt, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { type Actor, systemCaller, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
+import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
+import { repeatWhile } from '~/lib/sequence';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { companyListWhere } from '~/modules/companies/companyList';
@@ -39,16 +41,28 @@ const toDto = (row: ExportRow): Export => ({
   finishedAt: row.finishedAt?.toISOString() ?? null,
 });
 
-export const listExports = async (client: Db, actor: Actor) => ({
-  data: (
-    await client
-      .select()
-      .from(exports)
-      .where(eq(exports.orgId, actor.orgId))
-      .orderBy(sql`${exports.createdAt} desc`)
-      .limit(50)
-  ).map(toDto),
-});
+export const listExports = async (client: Db, actor: Actor, query: CursorQuery) => {
+  const page = await keysetPage(
+    client,
+    {
+      table: exports,
+      id: exports.id,
+      createdAt: exports.createdAt,
+      scope: eq(exports.orgId, actor.orgId),
+    },
+    undefined,
+    query,
+    (where, orderBy, limit) =>
+      client
+        .select()
+        .from(exports)
+        .where(where)
+        .orderBy(...orderBy)
+        .limit(limit),
+  );
+
+  return { ...page, data: page.data.map(toDto) };
+};
 
 /** The list's conditions, exactly as the list shows them (leads are customers in the lead state). */
 const whereOf = (client: Db, actor: Actor, recordType: TransferRecordType, query: ExportQuery) => {
@@ -210,17 +224,18 @@ const collectRows = async (tx: Db, actor: Actor, row: ExportRow) => {
   const body: Cell[][] = [];
   let last = '';
 
-  while (body.length <= MAX_EXPORT_ROWS) {
+  // Page after page until a short one, or one page past the limit.
+  await repeatWhile(MAX_EXPORT_ROWS / PAGE + 1, async () => {
     const page = await pageOf(tx, row, where, last);
     const end = page.at(-1);
 
-    if (!end) break;
+    if (!end) return false;
 
     body.push(...(await pageCells(tx, row.orgId, row.recordType, page, row.columns)));
     last = end.id;
 
-    if (page.length < PAGE) break;
-  }
+    return page.length === PAGE && body.length <= MAX_EXPORT_ROWS;
+  });
 
   return body;
 };

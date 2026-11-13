@@ -1,4 +1,4 @@
-import type { TrashItem } from '@erxes/core-contract';
+import type { CursorQuery, TrashItem } from '@erxes/core-contract';
 import {
   type ContentType,
   activities,
@@ -12,11 +12,13 @@ import {
   tags,
   trash,
 } from '@erxes/core-db';
-import { and, desc, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, lt, sql } from 'drizzle-orm';
 import { CasingCache } from 'drizzle-orm/casing';
 import type { PgTable } from 'drizzle-orm/pg-core';
 import { type Actor, type Caller, requirePermission, userCaller } from '~/http/auth';
 import { pgCode } from '~/http/errors';
+import { keysetPage } from '~/lib/keyset';
+import { inOrder } from '~/lib/sequence';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { customFieldsColumn, saveCustomFields } from '~/modules/fields/fieldValues';
 import { publishCoreEvents } from '~/modules/events/events.service';
@@ -94,12 +96,14 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids
     .from(table)
     .where(and(eq(table.orgId, caller.orgId), inArray(table.id, ids)));
 
+  if (!rows.length) return;
+
   const companions = await companionsOf(tx, caller.orgId, type, ids);
 
-  for (const row of rows) {
-    await tx
-      .insert(trash)
-      .values({
+  await tx
+    .insert(trash)
+    .values(
+      rows.map((row) => ({
         id: newId(),
         orgId: caller.orgId,
         recordType: type,
@@ -109,36 +113,43 @@ export const moveToTrash = async (tx: Db, caller: Caller, type: ContentType, ids
         deletedByType: caller.actorType,
         deletedBy: caller.actorId,
         purgeAt: sql`now() + make_interval(days => ${TRASH_DAYS})`,
-      })
-      .onConflictDoUpdate({
-        target: [trash.orgId, trash.recordType, trash.recordId],
-        set: {
-          snapshot: sql`excluded.snapshot`,
-          deletedAt: sql`now()`,
-          purgeAt: sql`excluded.purge_at`,
-        },
-      });
-  }
+      })),
+    )
+    .onConflictDoUpdate({
+      target: [trash.orgId, trash.recordType, trash.recordId],
+      set: {
+        snapshot: sql`excluded.snapshot`,
+        deletedAt: sql`now()`,
+        purgeAt: sql`excluded.purge_at`,
+      },
+    });
 };
 
 export const listTrash = async (
   client: Db,
   actor: Actor,
-  query: { type?: ContentType; limit: number },
+  query: CursorQuery & { type?: ContentType },
 ) => {
   requirePermission(actor, 'contacts.delete');
 
-  const rows = await client
-    .select()
-    .from(trash)
-    .where(
-      and(eq(trash.orgId, actor.orgId), query.type ? eq(trash.recordType, query.type) : undefined),
-    )
-    .orderBy(desc(trash.deletedAt))
-    .limit(query.limit);
+  // A record deleted again moves to the top: `deletedAt` is the position.
+  const page = await keysetPage(
+    client,
+    { table: trash, id: trash.id, createdAt: trash.deletedAt, scope: eq(trash.orgId, actor.orgId) },
+    query.type ? eq(trash.recordType, query.type) : undefined,
+    query,
+    (where, orderBy, limit) =>
+      client
+        .select()
+        .from(trash)
+        .where(where)
+        .orderBy(...orderBy)
+        .limit(limit),
+  );
 
   return {
-    data: rows.map((row): TrashItem => ({
+    ...page,
+    data: page.data.map((row): TrashItem => ({
       id: row.id,
       recordType: row.recordType,
       recordId: row.recordId,
@@ -212,21 +223,29 @@ const restoreRelations = async (tx: Db, orgId: string, item: TrashRow) => {
 
   const other = type === 'customer' ? companies : customers;
 
-  for (const link of snapshot.links) {
-    const otherId = type === 'customer' ? link.companyId : link.customerId;
+  const otherIdOf = (link: Snapshot['links'][number]) =>
+    type === 'customer' ? link.companyId : link.customerId;
 
-    const [exists] = await tx
-      .select({ id: other.id })
-      .from(other)
-      .where(and(eq(other.orgId, orgId), eq(other.id, otherId)))
-      .limit(1);
+  const existing = snapshot.links.length
+    ? new Set(
+        (
+          await tx
+            .select({ id: other.id })
+            .from(other)
+            .where(and(eq(other.orgId, orgId), inArray(other.id, snapshot.links.map(otherIdOf))))
+        ).map((row) => row.id),
+      )
+    : new Set<string>();
 
-    if (exists) {
-      await tx
-        .insert(customerCompanies)
-        .values({ orgId, customerId: link.customerId, companyId: link.companyId })
-        .onConflictDoNothing();
-    }
+  const links = snapshot.links.filter((link) => existing.has(otherIdOf(link)));
+
+  if (links.length) {
+    await tx
+      .insert(customerCompanies)
+      .values(
+        links.map((link) => ({ orgId, customerId: link.customerId, companyId: link.companyId })),
+      )
+      .onConflictDoNothing();
   }
 };
 
@@ -280,7 +299,8 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
   const failed: { id: string; reason: string }[] = [];
   let restored = 0;
 
-  for (const item of items) {
+  // One savepoint after another on the request's connection, so each item fails alone.
+  await inOrder(items, async (item) => {
     try {
       await client.transaction((tx) => restoreItem(tx, actor, item));
       restored += 1;
@@ -295,7 +315,7 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
               : 'It could not be restored',
       });
     }
-  }
+  });
 
   return { restored, failed };
 };

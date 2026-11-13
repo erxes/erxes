@@ -26,6 +26,7 @@ import { dirname, join, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { config } from '~/config';
 import { hmacSha256, safeEqual } from '~/lib/crypto';
+import { inOrder } from '~/lib/sequence';
 
 interface UploadRequest {
   contentType: string;
@@ -239,7 +240,7 @@ const localStorage: Storage = {
     const walk = async (dir: string): Promise<void> => {
       const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
 
-      for (const entry of entries) {
+      await inOrder(entries, async (entry) => {
         const path = join(dir, entry.name);
 
         if (entry.isDirectory()) {
@@ -249,7 +250,7 @@ const localStorage: Storage = {
           await rm(path, { force: true });
           removed += 1;
         }
-      }
+      });
     };
 
     await walk(root);

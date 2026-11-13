@@ -7,12 +7,13 @@ import { HttpError } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { lockKeys } from '~/lib/locks';
+import { inOrder } from '~/lib/sequence';
 import { appLink, sendEmail } from '~/modules/email/email';
 import { deliveryFor } from './delivery';
 
 type NotificationRow = typeof notifications.$inferSelect;
 
-type NotifyInput = Omit<NotificationInput, 'priority'> & {
+export type NotifyInput = Omit<NotificationInput, 'priority'> & {
   priority?: NotificationInput['priority'];
   /**
    * Core only: within this many minutes, a repeat from the same actor about
@@ -45,19 +46,13 @@ const combineChanges = (first: Changes, then: Changes) => {
 };
 
 /**
- * The members to notify: unknown ids are an error; members who are not
- * active, who turned this off, or who caused it are skipped. `emails` are
- * the addresses of those who also want it by email.
+ * For each input, the members to notify (one query for all of them): unknown
+ * ids are an error; members who are not active, who turned this off, or who
+ * caused it are skipped. `emails` are the addresses of those who also want it
+ * by email. `actorType` and `actorId` are who the notification is from.
  */
-const recipientsOf = async (
-  client: Db,
-  caller: Caller,
-  input: NotifyInput,
-  actorUserId: string | undefined,
-) => {
-  const wanted = unique(input.userIds);
-
-  const members = await client
+const recipientsOf = async (client: Db, caller: Caller, inputs: NotifyInput[]) => {
+  const rows = await client
     .select({
       id: users.id,
       email: users.email,
@@ -65,36 +60,62 @@ const recipientsOf = async (
       settings: users.notificationSettings,
     })
     .from(users)
-    .where(and(eq(users.orgId, caller.orgId), inArray(users.id, wanted)));
-
-  if (members.length !== wanted.length) {
-    throw new HttpError(
-      400,
-      'INVALID_RECIPIENT',
-      'Some recipients are not team members of this organisation',
+    .where(
+      and(
+        eq(users.orgId, caller.orgId),
+        inArray(users.id, unique(inputs.flatMap((input) => input.userIds))),
+      ),
     );
-  }
 
-  const delivered = members.map((member) => ({
-    ...member,
-    delivery: deliveryFor(member.settings, caller.source, input.kind),
-  }));
+  const members = new Map(rows.map((member) => [member.id, member]));
 
-  const recipients = delivered
-    .filter(
-      (member) =>
-        member.status === 'active' && member.id !== actorUserId && member.delivery !== 'off',
-    )
-    .map((member) => member.id);
+  return inputs.map((input) => {
+    const wanted = unique(input.userIds);
+    const delivered = wanted.flatMap((id) => members.get(id) ?? []);
 
-  // Also by email: members who chose it for this group and haven't turned email off.
-  const emails = new Map(
-    delivered
-      .filter((member) => member.settings.email !== false && member.delivery === 'email')
-      .map((member) => [member.id, member.email]),
-  );
+    if (delivered.length !== wanted.length) {
+      throw new HttpError(
+        400,
+        'INVALID_RECIPIENT',
+        'Some recipients are not team members of this organisation',
+      );
+    }
 
-  return { wanted: wanted.length, recipients, emails };
+    const actorUserId =
+      input.actorUserId ?? (caller.actorType === 'user' ? caller.actorId : undefined);
+
+    const delivery = new Map(
+      delivered.map((member) => [
+        member.id,
+        deliveryFor(member.settings, caller.source, input.kind),
+      ]),
+    );
+
+    const recipients = delivered
+      .filter(
+        (member) =>
+          member.status === 'active' &&
+          member.id !== actorUserId &&
+          delivery.get(member.id) !== 'off',
+      )
+      .map((member) => member.id);
+
+    // Also by email: members who chose it for this group and haven't turned email off.
+    const emails = new Map(
+      delivered
+        .filter((member) => member.settings.email !== false && delivery.get(member.id) === 'email')
+        .map((member) => [member.id, member.email]),
+    );
+
+    return {
+      input,
+      wanted: wanted.length,
+      recipients,
+      emails,
+      actorType: actorUserId ? ('user' as const) : caller.actorType,
+      actorId: actorUserId ?? caller.actorId,
+    };
+  });
 };
 
 /**
@@ -170,10 +191,9 @@ const collapseRecent = async (
 const emailNotified = async (
   client: Db,
   caller: Caller,
-  input: NotifyInput,
-  addresses: string[],
+  emails: { to: string; input: NotifyInput }[],
 ) => {
-  if (!addresses.length) return;
+  if (!emails.length) return;
 
   const [org] = await client
     .select({ name: organizations.name })
@@ -181,95 +201,116 @@ const emailNotified = async (
     .where(eq(organizations.id, caller.orgId))
     .limit(1);
 
-  const link = await appLink(client, caller.orgId, input.link ?? '/notifications');
+  const app = await appLink(client, caller.orgId, '');
 
   await sendEmail(
     client,
     caller.orgId,
-    addresses.map((to) => ({
+    emails.map(({ to, input }) => ({
       to,
       template: 'notification' as const,
       data: {
         organization: org?.name ?? 'erxes',
         title: input.title,
         body: input.body ?? null,
-        link,
+        link: `${app}${input.link ?? '/notifications'}`,
       },
     })),
   );
 };
 
 /**
- * Sends a notification to team members' inboxes, from core or a plugin
- * (`caller.source`). Unknown ids are an error; members who are not active,
- * and the member who caused it, are skipped. With a `dedupeKey`, a retry
- * creates nothing new.
+ * Sends notifications to team members' inboxes, from core or a plugin
+ * (`caller.source`), one input or many at once. Unknown ids are an error;
+ * members who are not active, and the member who caused it, are skipped.
+ * With a `dedupeKey`, a retry creates nothing new.
  */
-export const notify = async (client: Db, caller: Caller, input: NotifyInput) => {
-  assertPluginNamespace(caller.source, input.kind);
-  await assertMembers(client, caller.orgId, [input.actorUserId]);
+export const notify = async (client: Db, caller: Caller, input: NotifyInput | NotifyInput[]) => {
+  const inputs = Array.isArray(input) ? input : [input];
 
-  const actorUserId =
-    input.actorUserId ?? (caller.actorType === 'user' ? caller.actorId : undefined);
+  if (!inputs.length) return { created: 0, skipped: 0 };
 
-  const { wanted, recipients, emails } = await recipientsOf(client, caller, input, actorUserId);
+  inputs.forEach((one) => assertPluginNamespace(caller.source, one.kind));
+  await assertMembers(
+    client,
+    caller.orgId,
+    inputs.map((one) => one.actorUserId),
+  );
 
-  if (!recipients.length) {
-    return { created: 0, skipped: wanted };
-  }
+  const planned = await recipientsOf(client, caller, inputs);
+  const collapsed = new Map<(typeof planned)[number], Set<string>>();
 
-  const actorType = actorUserId ? ('user' as const) : caller.actorType;
-  const actorId = actorUserId ?? caller.actorId;
-  const { entity, collapseMinutes } = input;
+  // Collapsing locks and reads per entity, so those inputs go one at a time.
+  await inOrder(planned, async (plan) => {
+    const { entity, collapseMinutes } = plan.input;
 
-  const collapsed =
-    collapseMinutes && entity
-      ? await collapseRecent(
+    if (collapseMinutes && entity && plan.recipients.length)
+      collapsed.set(
+        plan,
+        await collapseRecent(
           client,
           caller,
-          { ...input, entity, collapseMinutes },
-          recipients,
+          { ...plan.input, entity, collapseMinutes },
+          plan.recipients,
+          plan.actorId,
+        ),
+      );
+  });
+
+  const pending = planned.flatMap((plan) => {
+    const { input: one, emails, actorType, actorId } = plan;
+
+    return plan.recipients
+      .filter((userId) => !collapsed.get(plan)?.has(userId))
+      .map((userId) => ({
+        input: one,
+        email: emails.get(userId),
+        row: {
+          id: newId(),
+          orgId: caller.orgId,
+          userId,
+          source: caller.source,
+          kind: one.kind,
+          title: one.title,
+          body: one.body ?? null,
+          link: one.link ?? null,
+          entityType: one.entity?.type ?? null,
+          entityId: one.entity?.id ?? null,
+          data: one.data ?? {},
+          priority: one.priority ?? 'normal',
+          actorType,
           actorId,
-        )
-      : new Set<string>();
+          dedupeKey: one.dedupeKey ?? null,
+        },
+      }));
+  });
 
-  const pending = recipients.filter((userId) => !collapsed.has(userId));
+  const inserted = new Set(
+    pending.length
+      ? (
+          await client
+            .insert(notifications)
+            .values(pending.map(({ row }) => row))
+            .onConflictDoNothing()
+            .returning({ id: notifications.id })
+        ).map((row) => row.id)
+      : [],
+  );
 
-  if (!pending.length) {
-    return { created: 0, skipped: wanted - collapsed.size };
-  }
-
-  const inserted = await client
-    .insert(notifications)
-    .values(
-      pending.map((userId) => ({
-        id: newId(),
-        orgId: caller.orgId,
-        userId,
-        source: caller.source,
-        kind: input.kind,
-        title: input.title,
-        body: input.body ?? null,
-        link: input.link ?? null,
-        entityType: entity?.type ?? null,
-        entityId: entity?.id ?? null,
-        data: input.data ?? {},
-        priority: input.priority ?? 'normal',
-        actorType,
-        actorId,
-        dedupeKey: input.dedupeKey ?? null,
-      })),
-    )
-    .onConflictDoNothing()
-    .returning({ userId: notifications.userId });
+  const created = pending.filter(({ row }) => inserted.has(row.id));
 
   // New notifications only (a collapsed change was already announced).
   await emailNotified(
     client,
     caller,
-    input,
-    inserted.flatMap((row) => emails.get(row.userId) ?? []),
+    created.flatMap(({ input: one, email }) => (email ? [{ to: email, input: one }] : [])),
   );
 
-  return { created: inserted.length, skipped: wanted - inserted.length - collapsed.size };
+  // Skipped: wanted, but neither notified anew nor folded into an unread one.
+  const uncollapsed = planned.reduce(
+    (sum, plan) => sum + plan.wanted - (collapsed.get(plan)?.size ?? 0),
+    0,
+  );
+
+  return { created: created.length, skipped: uncollapsed - created.length };
 };

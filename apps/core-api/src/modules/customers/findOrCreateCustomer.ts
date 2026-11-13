@@ -96,7 +96,7 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
         .returning({ id: customers.id }),
     );
 
-    await recordLeadSteps(tx, caller, 'customer', row.id, lead.steps);
+    await recordLeadSteps(tx, caller, 'customer', [{ id: row.id, steps: lead.steps }]);
     await contactCreated(tx, caller, 'customer', await findCustomer(tx, caller.orgId, row.id));
 
     return row.id;

@@ -2,10 +2,11 @@ import type { Audience, AutomationDefinition, ConditionGroup } from '@erxes/core
 import { automations, type Db, newId, withSystem } from '@erxes/core-db';
 import { and, eq, lte, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { inOrder } from '~/lib/sequence';
 import { valuesTable } from '~/modules/fields/fieldValues';
 import { defineJob } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
-import { startRun } from './consumer';
+import { startRun, startRuns } from './consumer';
 import { definitionOf, log } from './runs';
 import { nextOccurrence, zonedDate } from './schedule';
 import { loadSubjects, SUBJECT_PAGE, type Subject, type SubjectType } from './subjects';
@@ -102,29 +103,28 @@ const enrollPage = async (
     page,
   );
 
-  let started = 0;
-
-  for (const subject of subjects) {
+  const starts = subjects.flatMap((subject) => {
     const { eventId, event } = enrollment.startOf(subject);
 
-    if (!evaluateGroup(enrollment.conditions, { event, subject, steps: {} })) continue;
+    return evaluateGroup(enrollment.conditions, { event, subject, steps: {} })
+      ? [
+          {
+            eventId,
+            eventType: enrollment.eventType,
+            subject: { type: enrollment.type, id: subject.id },
+            event,
+            loaded: subject,
+          },
+        ]
+      : [];
+  });
 
-    const run = await startRun(tx, automation, definition, {
-      eventId,
-      eventType: enrollment.eventType,
-      subject: { type: enrollment.type, id: subject.id },
-      event,
-      loaded: subject,
-    });
-
-    if (run) started += 1;
-  }
-
+  const runs = await startRuns(tx, automation, definition, starts);
   const last = subjects.at(-1)?.id;
 
   return {
-    started,
-    skipped: subjects.length - started,
+    started: runs.length,
+    skipped: subjects.length - runs.length,
     next: last && subjects.length === (page.limit ?? SUBJECT_PAGE) ? last : null,
   };
 };
@@ -199,6 +199,7 @@ export const fireJob = defineJob({
         eventType: 'schedule',
         subject: null,
         event: { type: 'schedule', occurredAt: at, payload: { every: trigger.every } },
+        loaded: null,
       });
 
       return;
@@ -237,10 +238,11 @@ export const tickAutomations = () =>
       .for('update', { skipLocked: true })
       .limit(200);
 
-    for (const automation of due) {
+    // One savepoint after another on this transaction.
+    await inOrder(due, (automation) => {
       const scheduledFor = automation.nextRunAt;
 
-      await tx
+      return tx
         .transaction(async (savepoint) => {
           const definition = automation.activeVersion
             ? await definitionOf(savepoint, automation.id, automation.activeVersion)
@@ -260,7 +262,7 @@ export const tickAutomations = () =>
         .catch((error: unknown) =>
           log.error({ automation: automation.id, err: error }, 'could not schedule an automation'),
         );
-    }
+    });
 
     return due.length;
   });
@@ -323,6 +325,7 @@ export const startNow = async (
     eventType: 'manual',
     subject: null,
     event,
+    loaded: null,
   });
 
   return { started: run ? 1 : 0, skipped: run ? 0 : 1, continuing: false };

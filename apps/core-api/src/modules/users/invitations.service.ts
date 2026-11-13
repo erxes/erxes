@@ -5,7 +5,7 @@ import { HttpError } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { hashPassword } from '~/lib/crypto';
-import { sendInvitation } from '~/modules/auth/tokens.service';
+import { sendInvitations } from '~/modules/auth/tokens.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { splitFullName } from './userProfile';
 import { conflictFrom, requireTeamManager, toUserDto, type UserRow } from './userRows';
@@ -45,9 +45,11 @@ const announceInvites = async (tx: Db, actor: Actor, rows: UserRow[]) => {
     })),
   );
 
-  for (const row of rows) {
-    if (row.status === 'invited') await sendInvitation(tx, actor, row);
-  }
+  await sendInvitations(
+    tx,
+    actor,
+    rows.filter((row) => row.status === 'invited'),
+  );
 };
 
 export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) => {
@@ -75,9 +77,11 @@ export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) =
 export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
   requireTeamManager(actor, 'team.invite');
 
-  for (const role of new Set(entries.map((entry) => entry.role))) {
-    await assertAssignable(db(), actor, role);
-  }
+  await assertAssignable(
+    db(),
+    actor,
+    entries.map((entry) => entry.role),
+  );
 
   const emails = entries.map((entry) => entry.email.trim().toLowerCase());
   const repeated = [...new Set(emails.filter((email, index) => emails.indexOf(email) !== index))];

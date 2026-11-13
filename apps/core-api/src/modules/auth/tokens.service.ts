@@ -8,7 +8,7 @@ import {
   withOrg,
   withSystem,
 } from '@erxes/core-db';
-import { and, eq, gt, isNull, sql } from 'drizzle-orm';
+import { and, eq, gt, inArray, isNull, sql } from 'drizzle-orm';
 import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -16,16 +16,19 @@ import { appLink, sendEmail } from '~/modules/email/email';
 import { hashPassword, randomToken, safeEqual, sha256 } from '~/lib/crypto';
 
 const INVITE_DAYS = 7;
-const RESET_MINUTES = 30;
+export const RESET_MINUTES = 30;
 
-const invalidLink = () =>
+export const invalidLink = () =>
   new HttpError(400, 'INVALID_LINK', 'This link is not valid any more: ask for a new one');
 
-/** A new single-use link for the member; earlier unused ones for the same purpose stop working. */
-const issue = async (
+/**
+ * A new single-use link for each member, in one insert; earlier unused ones
+ * for the same purpose stop working. Each member comes back with their `token`.
+ */
+export const issue = async <T extends { id: string }>(
   tx: Db,
   orgId: string,
-  userId: string,
+  members: T[],
   purpose: (typeof AUTH_TOKEN_PURPOSES)[number],
 ) => {
   await tx
@@ -34,35 +37,39 @@ const issue = async (
     .where(
       and(
         eq(authTokens.orgId, orgId),
-        eq(authTokens.userId, userId),
+        inArray(
+          authTokens.userId,
+          members.map((member) => member.id),
+        ),
         eq(authTokens.purpose, purpose),
         isNull(authTokens.usedAt),
       ),
     );
 
-  const id = newId();
-  const secret = randomToken(32);
+  const tokens = members.map((member) => ({ member, id: newId(), secret: randomToken(32) }));
 
-  await tx.insert(authTokens).values({
-    id,
-    orgId,
-    userId,
-    purpose,
-    secretHash: sha256(secret),
-    expiresAt:
-      purpose === 'invite'
-        ? sql`now() + make_interval(days => ${INVITE_DAYS})`
-        : sql`now() + make_interval(mins => ${RESET_MINUTES})`,
-  });
+  await tx.insert(authTokens).values(
+    tokens.map(({ member, id, secret }) => ({
+      id,
+      orgId,
+      userId: member.id,
+      purpose,
+      secretHash: sha256(secret),
+      expiresAt:
+        purpose === 'invite'
+          ? sql`now() + make_interval(days => ${INVITE_DAYS})`
+          : sql`now() + make_interval(mins => ${RESET_MINUTES})`,
+    })),
+  );
 
-  return `${id}.${secret}`;
+  return tokens.map(({ member, id, secret }) => ({ ...member, token: `${id}.${secret}` }));
 };
 
 /**
  * Finds a valid, unused link. The id says where to look (the one lookup
  * before the organisation is known); the secret must match its hash.
  */
-const redeem = async (token: string, purpose: (typeof AUTH_TOKEN_PURPOSES)[number]) => {
+export const redeem = async (token: string, purpose: (typeof AUTH_TOKEN_PURPOSES)[number]) => {
   const [id, secret] = token.split('.');
 
   if (!id || !secret) throw invalidLink();
@@ -87,9 +94,15 @@ const redeem = async (token: string, purpose: (typeof AUTH_TOKEN_PURPOSES)[numbe
   return row;
 };
 
-/** Called when a member is invited without a password: the invitation email. */
-export const sendInvitation = async (tx: Db, actor: Actor, user: { id: string; email: string }) => {
-  const token = await issue(tx, actor.orgId, user.id, 'invite');
+/** Called when members are invited without a password: their invitation emails, sent at once. */
+export const sendInvitations = async (
+  tx: Db,
+  actor: Actor,
+  invited: { id: string; email: string }[],
+) => {
+  if (!invited.length) return;
+
+  const issued = await issue(tx, actor.orgId, invited, 'invite');
 
   const [org] = await tx
     .select({ name: organizations.name })
@@ -103,16 +116,22 @@ export const sendInvitation = async (tx: Db, actor: Actor, user: { id: string; e
     .where(eq(users.id, actor.userId))
     .limit(1);
 
-  await sendEmail(tx, actor.orgId, {
-    to: user.email,
-    template: 'invitation',
-    data: {
-      organization: org?.name ?? 'erxes',
-      inviter: inviter?.name || inviter?.email || 'A teammate',
-      link: await appLink(tx, actor.orgId, `/accept-invitation?token=${encodeURIComponent(token)}`),
-      days: INVITE_DAYS,
-    },
-  });
+  const app = await appLink(tx, actor.orgId, '');
+
+  await sendEmail(
+    tx,
+    actor.orgId,
+    issued.map((user) => ({
+      to: user.email,
+      template: 'invitation' as const,
+      data: {
+        organization: org?.name ?? 'erxes',
+        inviter: inviter?.name || inviter?.email || 'A teammate',
+        link: `${app}/accept-invitation?token=${encodeURIComponent(user.token)}`,
+        days: INVITE_DAYS,
+      },
+    })),
+  );
 };
 
 export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => {
@@ -129,7 +148,7 @@ export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => 
   if (user.status !== 'invited')
     throw new HttpError(409, 'NOT_INVITED', 'This member has already joined');
 
-  await sendInvitation(tx, actor, user);
+  await sendInvitations(tx, actor, [user]);
   await recordAudit(tx, userCaller(actor), {
     action: 'user.invitation_sent',
     targetType: 'user',
@@ -138,125 +157,6 @@ export const resendInvitation = async (tx: Db, actor: Actor, userId: string) => 
   });
 
   return { ok: true as const };
-};
-
-/**
- * Emails a reset link to an active member with this email (at the given
- * organisation, else every organisation they belong to). The answer never
- * says whether one exists; at most 5 links an hour per member.
- */
-export const requestPasswordReset = async (input: { email: string; subdomain?: string }) => {
-  const email = input.email.trim().toLowerCase();
-
-  const members = await withSystem('password reset lookup', (tx) =>
-    tx
-      .select({
-        id: users.id,
-        orgId: users.orgId,
-        organization: organizations.name,
-        subdomain: organizations.subdomain,
-      })
-      .from(users)
-      .innerJoin(organizations, eq(organizations.id, users.orgId))
-      .where(
-        and(
-          sql`lower(${users.email}) = ${email}`,
-          eq(users.status, 'active'),
-          input.subdomain
-            ? sql`lower(${organizations.subdomain}) = ${input.subdomain.toLowerCase()}`
-            : undefined,
-        ),
-      )
-      .limit(10),
-  );
-
-  for (const member of members) {
-    await withOrg(member.orgId, async (tx) => {
-      const [recent] = await tx
-        .select({ count: sql<number>`count(*)::int` })
-        .from(authTokens)
-        .where(
-          and(
-            eq(authTokens.orgId, member.orgId),
-            eq(authTokens.userId, member.id),
-            eq(authTokens.purpose, 'password_reset'),
-            gt(authTokens.createdAt, sql`now() - interval '1 hour'`),
-          ),
-        );
-
-      if ((recent?.count ?? 0) >= 5) return;
-
-      const token = await issue(tx, member.orgId, member.id, 'password_reset');
-
-      await sendEmail(tx, member.orgId, {
-        to: email,
-        template: 'password_reset',
-        data: {
-          organization: member.organization,
-          link: await appLink(
-            tx,
-            member.orgId,
-            `/reset-password?token=${encodeURIComponent(token)}`,
-          ),
-          minutes: RESET_MINUTES,
-        },
-      });
-      await recordAudit(
-        tx,
-        { orgId: member.orgId, actorType: 'user', actorId: member.id, source: 'core' },
-        {
-          action: 'auth.password_reset_requested',
-          targetType: 'user',
-          targetId: member.id,
-          targetLabel: email,
-        },
-      );
-    });
-  }
-
-  return { ok: true as const };
-};
-
-/** Sets the new password, ends every other session, uses up the link. */
-export const resetPassword = async (input: { token: string; password: string }) => {
-  const row = await redeem(input.token, 'password_reset');
-  const passwordHash = await hashPassword(input.password);
-
-  await withOrg(row.orgId, async (tx) => {
-    const [used] = await tx
-      .update(authTokens)
-      .set({ usedAt: sql`now()` })
-      .where(and(eq(authTokens.id, row.id), isNull(authTokens.usedAt)))
-      .returning({ id: authTokens.id });
-
-    // Used twice at once: only one wins.
-    if (!used) throw invalidLink();
-
-    const [user] = await tx
-      .update(users)
-      .set({
-        passwordHash,
-        sessionVersion: sql`${users.sessionVersion} + 1`,
-        updatedAt: sql`now()`,
-      })
-      .where(and(eq(users.orgId, row.orgId), eq(users.id, row.userId), eq(users.status, 'active')))
-      .returning({ email: users.email });
-
-    if (!user) throw invalidLink();
-
-    await recordAudit(
-      tx,
-      { orgId: row.orgId, actorType: 'user', actorId: row.userId, source: 'core' },
-      {
-        action: 'auth.password_reset',
-        targetType: 'user',
-        targetId: row.userId,
-        targetLabel: user.email,
-      },
-    );
-  });
-
-  return { orgId: row.orgId, userId: row.userId };
 };
 
 export const invitationInfo = async (token: string) => {

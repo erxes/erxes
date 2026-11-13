@@ -59,7 +59,6 @@ BEGIN
 END $lock$;
 `;
 
-/** drizzle-kit's `meta/_journal.json`: the migrations in order. */
 /** drizzle-kit's `meta/_journal.json`: the migrations in the order they apply. */
 export const Journal = z.object({ entries: z.array(z.object({ tag: z.string() })) });
 
@@ -97,29 +96,33 @@ export const runMigrations = async (folder = migrationsFolder()): Promise<string
     );
 
     const last = Number(rows[0]?.created_at ?? 0);
-    const applied: string[] = [];
 
-    for (const [index, migration] of migrations.entries()) {
-      // Only newer migrations run: when merging branches, renumber yours
-      // after the other branch's and give them newer timestamps.
-      if (migration.folderMillis <= last) {
-        continue;
-      }
+    // Only newer migrations run: when merging branches, renumber yours
+    // after the other branch's and give them newer timestamps.
+    const pending = migrations.flatMap((migration, index) =>
+      migration.folderMillis > last
+        ? [{ migration, tag: entries[index]?.tag ?? String(migration.folderMillis) }]
+        : [],
+    );
 
-      for (const statement of migration.sql) {
-        if (statement.trim()) {
-          await tx.execute(sql.raw(statement));
-        }
-      }
+    if (!pending.length) return [];
 
-      await tx.execute(
-        sql`INSERT INTO ${migrationsTable} (hash, created_at) VALUES (${migration.hash}, ${migration.folderMillis})`,
-      );
-      applied.push(entries[index]?.tag ?? String(migration.folderMillis));
-    }
+    // One parameterless string runs as a simple query: every statement in order, in this
+    // transaction. A newline before each `;` ends a trailing `--` comment first.
+    const script = pending
+      .flatMap(({ migration }) => migration.sql.filter((statement) => statement.trim()))
+      .join('\n;\n');
 
-    if (applied.length) await tx.execute(sql.raw(LOCK_DOWN));
+    if (script) await tx.execute(sql.raw(script));
 
-    return applied;
+    await tx.execute(
+      sql`INSERT INTO ${migrationsTable} (hash, created_at) VALUES ${sql.join(
+        pending.map(({ migration }) => sql`(${migration.hash}, ${migration.folderMillis})`),
+        sql`, `,
+      )}`,
+    );
+    await tx.execute(sql.raw(LOCK_DOWN));
+
+    return pending.map(({ tag }) => tag);
   });
 };

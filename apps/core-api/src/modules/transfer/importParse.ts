@@ -1,6 +1,7 @@
 import { importRows, imports, withOrg } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { inOrder } from '~/lib/sequence';
 import { readFileBytes } from '~/modules/files/files.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { suggestMapping, transferColumns } from './columns';
@@ -16,16 +17,22 @@ const storeSheet = (orgId: string, id: string, sheet: Awaited<ReturnType<typeof 
 
     const { headers, rows } = sheet;
 
-    for (let start = 0; start < rows.length; start += 1000) {
-      await tx.insert(importRows).values(
+    // 1000 rows per insert keeps each statement under the parameter limit.
+    const starts = Array.from(
+      { length: Math.ceil(rows.length / 1000) },
+      (_, chunk) => chunk * 1000,
+    );
+
+    await inOrder(starts, (start) =>
+      tx.insert(importRows).values(
         rows.slice(start, start + 1000).map((cells, index) => ({
           orgId,
           importId: row.id,
           rowNumber: start + index + 2,
           cells,
         })),
-      );
-    }
+      ),
+    );
 
     const columns = await transferColumns(tx, orgId, row.recordType);
 

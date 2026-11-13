@@ -6,6 +6,7 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { type Actor, actorOf, requirePermission, userCaller } from '~/http/auth';
 import { defuse } from '~/lib/csv';
+import { repeatWhile } from '~/lib/sequence';
 import { auditFilters, recordAudit } from './audit.service';
 
 const MAX_ROWS = 100_000;
@@ -73,10 +74,11 @@ const writeEntries = async (
   let after: Pick<AuditRow, 'createdAt' | 'id'> | undefined;
   let written = 0;
 
-  while (written < MAX_ROWS) {
+  // A short scoped transaction per batch: the export may stream for a while.
+  await repeatWhile(Math.ceil(MAX_ROWS / BATCH), async () => {
     const cursor = after;
+    const limit = Math.min(BATCH, MAX_ROWS - written);
 
-    // A short scoped transaction per batch: the export may stream for a while.
     const rows = await withOrg(actor.orgId, (tx) =>
       tx
         .select()
@@ -90,18 +92,18 @@ const writeEntries = async (
           ),
         )
         .orderBy(desc(auditLogs.createdAt), desc(auditLogs.id))
-        .limit(Math.min(BATCH, MAX_ROWS - written)),
+        .limit(limit),
     );
-
-    after = rows.at(-1);
-
-    if (!after) break;
 
     for (const row of rows) {
       res.write(line(format, row, written === 0));
       written += 1;
     }
-  }
+
+    after = rows.at(-1);
+
+    return rows.length === limit && written < MAX_ROWS;
+  });
 
   return written;
 };

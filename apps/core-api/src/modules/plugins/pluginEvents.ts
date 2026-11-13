@@ -168,23 +168,21 @@ export const pluginEventsConsumer: EventConsumer = {
         ),
       );
 
-    for (const row of installed) {
-      const patterns = row.manifest?.subscriptions ?? [];
+    const subscribed = installed.filter(
+      (row) =>
+        row.manifest?.api?.url &&
+        (row.manifest.subscriptions ?? []).some((pattern) => matchesPattern(pattern, event.type)) &&
+        pluginMaySee(row.plugin, row.scopes, event),
+    );
 
-      if (
-        !row.manifest?.api?.url ||
-        !patterns.some((pattern) => matchesPattern(pattern, event.type))
-      )
-        continue;
-
-      if (!pluginMaySee(row.plugin, row.scopes, event)) continue;
-
-      await pluginEventJob.enqueue(tx, {
+    await pluginEventJob.enqueueAll(
+      tx,
+      subscribed.map((row) => ({
         orgId: event.orgId,
         payload: { plugin: row.plugin, eventId: event.id },
         dedupeKey: `${row.plugin}:${event.id}`,
         maxAttempts: 10,
-      });
-    }
+      })),
+    );
   },
 };

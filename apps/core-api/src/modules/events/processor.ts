@@ -1,5 +1,6 @@
 import { type Db, eventConsumers, eventFailures, events, withSystem } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
+import { inOrder, repeatWhile } from '~/lib/sequence';
 import { liveHub } from '~/modules/live/hub';
 import { describeError } from '~/modules/jobs/jobs';
 import { webhooksConsumer } from '~/modules/webhooks/webhookDelivery';
@@ -106,27 +107,37 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
       batch.map((row) => row.id),
     );
 
-    // In commit order: the batch's, not the lookup's.
-    for (const event of batch.flatMap((row) => byId.get(row.id) ?? [])) {
-      const error = await handleOnce(tx, consumer, event);
+    const failures: { event: EventRow; error: string }[] = [];
 
-      if (error) {
+    // In commit order: the batch's, not the lookup's.
+    await inOrder(
+      batch.flatMap((row) => byId.get(row.id) ?? []),
+      async (event) => {
+        const error = await handleOnce(tx, consumer, event);
+
+        if (!error) return;
+
         log.error(
           { consumer: consumer.name, eventId: event.id, type: event.type, error },
           'could not handle an event; retrying later',
         );
-        await tx
-          .insert(eventFailures)
-          .values({
+        failures.push({ event, error });
+      },
+    );
+
+    if (failures.length)
+      await tx
+        .insert(eventFailures)
+        .values(
+          failures.map(({ event, error }) => ({
             consumer: consumer.name,
             eventId: event.id,
             orgId: event.orgId,
             lastError: error,
             ...afterAttempt(1),
-          })
-          .onConflictDoNothing();
-      }
-    }
+          })),
+        )
+        .onConflictDoNothing();
 
     await tx.execute(
       sql`update ${eventConsumers} set last_tx_id = ${last.tx_id}::xid8, last_seq = ${last.seq}, updated_at = now() where name = ${consumer.name}`,
@@ -157,19 +168,17 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
       due.rows.map((row) => row.event_id),
     );
 
-    for (const failure of due.rows) {
+    const handled: string[] = [];
+
+    // Each retry in its own savepoint, one after another on this transaction.
+    await inOrder(due.rows, async (failure) => {
       const event = byId.get(failure.event_id);
-
-      const where = and(
-        eq(eventFailures.consumer, consumer.name),
-        eq(eventFailures.eventId, failure.event_id),
-      );
-
       const error = event ? await handleOnce(tx, consumer, event) : null;
 
       if (!error) {
-        await tx.delete(eventFailures).where(where);
-        continue;
+        handled.push(failure.event_id);
+
+        return;
       }
 
       const attempts = failure.attempts + 1;
@@ -185,8 +194,20 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
       await tx
         .update(eventFailures)
         .set({ attempts, lastError: error, ...next, updatedAt: sql`now()` })
-        .where(where);
-    }
+        .where(
+          and(
+            eq(eventFailures.consumer, consumer.name),
+            eq(eventFailures.eventId, failure.event_id),
+          ),
+        );
+    });
+
+    if (handled.length)
+      await tx
+        .delete(eventFailures)
+        .where(
+          and(eq(eventFailures.consumer, consumer.name), inArray(eventFailures.eventId, handled)),
+        );
 
     return due.rows.length;
   });
@@ -195,17 +216,14 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
 const drain = async (consumer: EventConsumer) => {
   let handled = 0;
 
-  for (let round = 0; round < 10; round += 1) {
-    if (!(await retryFailures(consumer))) break;
-  }
-
-  for (let round = 0; round < 50; round += 1) {
+  await repeatWhile(10, async () => (await retryFailures(consumer)) > 0);
+  await repeatWhile(50, async () => {
     const read = await runConsumer(consumer);
 
     handled += read;
 
-    if (!read) break;
-  }
+    return read > 0;
+  });
 
   return handled;
 };
