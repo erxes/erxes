@@ -8,7 +8,8 @@ test('an owner invites a member', async ({ page }) => {
   await expectAccessible(page);
 
   await page.getByRole('button', { name: 'Invite team members' }).click();
-  const dialog = page.getByRole('dialog');
+  // By name: a toast is a dialog too, and the success toast opens as this one closes.
+  const dialog = page.getByRole('dialog', { name: 'Invite team members' });
 
   await dialog.getByRole('textbox').first().fill(email);
   await expectAccessible(page);
