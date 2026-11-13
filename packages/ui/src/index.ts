@@ -45,6 +45,8 @@ export { CopyText } from './components/copy-text';
 
 export { DatePicker } from './components/date-picker';
 
+export { DateInput, TimeField } from './components/date-time-input';
+
 export { Dialog } from './components/dialog';
 
 export { DragHandle } from './components/drag-handle';
@@ -65,7 +67,7 @@ export { Kbd } from './components/kbd';
 
 export { Label } from './components/label';
 
-export { MultipleSelector } from './components/lazy-multiselect';
+export { MultipleSelector, Slider } from './components/on-demand';
 
 export { type MultiSelectOption } from './components/multiselect';
 

@@ -4,6 +4,7 @@ import { IconSearch } from '@tabler/icons-react';
 import { cva } from 'class-variance-authority';
 import { Command as CommandPrimitive } from 'cmdk';
 import { cn, mergeRefs } from '../lib/utils';
+import { Dialog } from './dialog';
 
 const CommandRoot = ({
   ref,
@@ -18,6 +19,30 @@ const CommandRoot = ({
     )}
     {...props}
   />
+);
+
+/** A command palette in a dialog. The title names the dialog for screen readers; it isn't shown. */
+const CommandDialog = ({
+  title,
+  description,
+  className,
+  children,
+  ...props
+}: Omit<React.ComponentProps<typeof Dialog>, 'children'> & {
+  children: React.ReactNode;
+  title: string;
+  description?: string;
+  className?: string;
+}) => (
+  <Dialog {...props}>
+    <Dialog.Content className={cn('overflow-hidden p-0 rounded-lg border-0', className)}>
+      <Dialog.Title className="sr-only">{title}</Dialog.Title>
+      {description && <Dialog.Description className="sr-only">{description}</Dialog.Description>}
+      <CommandRoot className="**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+        {children}
+      </CommandRoot>
+    </Dialog.Content>
+  </Dialog>
 );
 
 const commanInputVariants = cva(
@@ -175,6 +200,7 @@ const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanE
 };
 
 export const Command = Object.assign(CommandRoot, {
+  Dialog: CommandDialog,
   Input: CommandInput,
   List: CommandList,
   Empty: CommandEmpty,
