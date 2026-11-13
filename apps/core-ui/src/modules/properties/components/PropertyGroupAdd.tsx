@@ -1,6 +1,6 @@
 import type { FieldContentType, FieldGroup } from '@erxes/core-contract';
 import { Button, Sheet } from 'erxes-ui';
-import { type ReactNode, useState } from 'react';
+import { type ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAddPropertyGroup } from '../usePropertyMutations';
 import { PropertyGroupForm } from './PropertyGroupForm';
@@ -13,18 +13,25 @@ export const AddPropertyGroup = ({
 }: {
   contentType: FieldContentType;
   onAdded?: (group: FieldGroup) => void;
-  trigger?: ReactNode;
+  trigger?: ReactElement;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const [open, setOpen] = useState(false);
   const { mutate, isPending } = useAddPropertyGroup();
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        {trigger ?? <Button variant="outline">{t('add-group', 'Add Group')}</Button>}
+    <Sheet
+      open={open}
+      onOpenChange={(next, details) => {
+        // Escape keeps the form open, so a half-filled group isn't lost.
+        if (details.reason === 'escape-key') return details.cancel();
+        setOpen(next);
+      }}
+    >
+      <Sheet.Trigger render={trigger ?? <Button variant="outline" />}>
+        {trigger ? undefined : t('add-group', 'Add Group')}
       </Sheet.Trigger>
-      <Sheet.View className="p-0" onEscapeKeyDown={(event) => event.preventDefault()}>
+      <Sheet.View className="p-0">
         {open && (
           <PropertyGroupForm
             onSubmit={(data) =>
