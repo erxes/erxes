@@ -186,7 +186,6 @@ export const ProductPluginsRow = ({ product }: { product: Product }) => {
         onChange={(chosen) =>
           edit.mutate({ id: product.id, plugins: chosen.map((option) => option.value) })
         }
-        defaultOptions={options}
         options={options}
         disabled={!manage}
         placeholder={t('form.plugins-placeholder', 'Choose the apps that sell or use it')}

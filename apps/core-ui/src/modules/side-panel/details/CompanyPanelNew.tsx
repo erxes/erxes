@@ -108,7 +108,7 @@ const BusinessRows = () => {
             <MultipleSelector
               placeholder={t('field.industry', 'Industries')}
               hidePlaceholderWhenSelected
-              defaultOptions={INDUSTRY_OPTIONS}
+              options={INDUSTRY_OPTIONS}
               value={field.value}
               onChange={field.onChange}
               className="min-h-7 text-xs"
