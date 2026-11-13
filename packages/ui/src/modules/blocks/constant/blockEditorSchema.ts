@@ -19,13 +19,12 @@ const fontFamily = createStyleSpec(
     propSchema: 'string',
   },
   {
+    // The styled text goes inside the span: the HTML export appends it to contentDOM.
     render: (value) => {
       const span = document.createElement('span');
       span.style.fontFamily = value;
 
-      return {
-        dom: span,
-      };
+      return { dom: span, contentDOM: span };
     },
   },
 );
@@ -40,7 +39,7 @@ const fontSize = createStyleSpec(
       const span = document.createElement('span');
       span.style.fontSize = value;
 
-      return { dom: span };
+      return { dom: span, contentDOM: span };
     },
     // Pasted HTML keeps its font sizes.
     parse: (element) => element.style.fontSize || undefined,
