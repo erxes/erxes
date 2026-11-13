@@ -48,7 +48,9 @@ const OuterPage = createContext<((nested: boolean) => void) | null>(null);
 /**
  * Development only: `dispatchEvent(new CustomEvent('erxes:crash', { detail: 'page' }))`
  * in the browser console makes the next render throw, to try the fallback. Page boundaries
- * nest (MainLayout, then a module layout), and only the innermost throws. The state lives
+ * nest (MainLayout, then a module layout), and only the innermost throws. Fire it on a
+ * rendered page: during a navigation the module layout is not mounted yet, so MainLayout's
+ * boundary takes it. The state lives
  * below the boundary, so "Try again" remounts it and the page recovers.
  */
 const DevCrash = ({ scope, children }: { scope: CrashScope; children: ReactNode }) => {
