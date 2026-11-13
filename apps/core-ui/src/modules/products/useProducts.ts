@@ -1,5 +1,5 @@
 import type { Product } from '@erxes/core-contract';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
@@ -45,7 +45,7 @@ export const useProducts = () => {
 };
 
 export const useProduct = (id: string | null) =>
-  useQuery(orpc.products.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id }));
+  useQuery(orpc.products.get.queryOptions({ input: id ? { id } : skipToken }));
 
 /** The side panel's name for products: `?panel=/detail/product/<id>`. */
 export const PRODUCT_CONTENT_TYPE = 'core:product';

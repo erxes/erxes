@@ -1,5 +1,5 @@
 import { IconDownload, IconShieldCheck } from '@tabler/icons-react';
-import { type InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
+import { type InfiniteData, skipToken, useInfiniteQuery } from '@tanstack/react-query';
 import { Button, DropdownMenu, Empty, PageContainer, PageHeader, ScrollArea } from 'erxes-ui';
 import { useDeferredValue, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -89,9 +89,8 @@ export const AuditLogPage = () => {
   const list = useInfiniteQuery(
     orpc.audit.list.infiniteOptions({
       ...forwardPaging(50),
-      input: (page) => ({ ...page, ...queryOf(deferred) }),
+      input: canSee ? (page) => ({ ...page, ...queryOf(deferred) }) : skipToken,
       select: flatten,
-      enabled: canSee,
     }),
   );
 

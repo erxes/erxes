@@ -7,7 +7,7 @@ import {
   IconPinnedOff,
   IconX,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { Button, cn, DropdownMenu, Skeleton, useConfirm } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,8 +46,7 @@ const segments = (body: string, mentions: string[]) => {
 const NoteFiles = ({ fileIds }: { fileIds: string[] }) => {
   const files = useQuery(
     orpc.files.list.queryOptions({
-      input: { ids: fileIds.toSorted().join(',') },
-      enabled: fileIds.length > 0,
+      input: fileIds.length > 0 ? { ids: fileIds.toSorted().join(',') } : skipToken,
       select: (page) => page.data,
     }),
   );

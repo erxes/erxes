@@ -1,5 +1,5 @@
 import type { FieldContentType } from '@erxes/core-contract';
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { Button, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -18,7 +18,7 @@ export const PropertyEdit = ({ contentType }: { contentType: FieldContentType })
   const field = fields.find((item) => item.id === id);
 
   const usage = useQuery(
-    orpc.fields.usage.queryOptions({ input: { ids: id }, enabled: !!field, staleTime: 0 }),
+    orpc.fields.usage.queryOptions({ input: field ? { ids: id } : skipToken, staleTime: 0 }),
   );
 
   const { toast } = useToast();

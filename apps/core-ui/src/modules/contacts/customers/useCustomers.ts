@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { Customer, CustomerState } from '@erxes/core-contract';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useQueryState, useToast } from 'erxes-ui';
 import { messageOf, orpc } from '~/lib/api';
 import { patchCachedRecord, removeCachedRecords, useCursorList } from '~/lib/cursorList';
@@ -31,7 +31,7 @@ export const useCustomers = (state: CustomerState) => {
 };
 
 export const useCustomer = (id: string | null) =>
-  useQuery(orpc.customers.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id }));
+  useQuery(orpc.customers.get.queryOptions({ input: id ? { id } : skipToken }));
 
 export const useCustomerEdit = () => {
   const client = useQueryClient();

@@ -1,5 +1,5 @@
 import type { ContactLink } from '@erxes/core-contract';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { messageOf, orpc } from '~/lib/api';
 
@@ -27,8 +27,7 @@ export const linkNewContact = (side: ContactSide, id: string, otherIds: string[]
 const useLinkRows = (side: ContactSide, id: string) => {
   const companies = useQuery(
     orpc.customers.companies.queryOptions({
-      input: { id },
-      enabled: side === 'core:customer' && Boolean(id),
+      input: side === 'core:customer' && id ? { id } : skipToken,
       select: (page): LinkRow[] =>
         page.data.map((company) => ({
           id: company.id,
@@ -41,8 +40,7 @@ const useLinkRows = (side: ContactSide, id: string) => {
 
   const people = useQuery(
     orpc.companies.people.queryOptions({
-      input: { id },
-      enabled: side === 'core:company' && Boolean(id),
+      input: side === 'core:company' && id ? { id } : skipToken,
       select: (page): LinkRow[] =>
         page.data.map((person) => ({
           id: person.id,

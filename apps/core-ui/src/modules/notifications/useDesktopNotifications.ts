@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orpc } from '~/lib/api';
@@ -24,8 +24,9 @@ export const useDesktopNotifications = () => {
   // A failed check stays quiet: the next live signal or poll tries again.
   const latest = useQuery(
     orpc.notifications.list.queryOptions({
-      input: { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' },
-      enabled,
+      input: enabled
+        ? { limit: 5, unread: 'true', direction: 'forward', cursorMode: 'exclusive' }
+        : skipToken,
     }),
   );
 

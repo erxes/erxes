@@ -1,5 +1,11 @@
 import type { ContentType } from '@erxes/core-contract';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  type SkipToken,
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { useMemo } from 'react';
 import { messageOf, orpc } from '~/lib/api';
@@ -17,8 +23,11 @@ export const TAG_COLORS = [
 ];
 
 /** All tags of a type (an organisation has few): one request and cache entry per type. */
-export const tagsQuery = (type: ContentType) =>
-  orpc.tags.list.queryOptions({ input: { type }, staleTime: 60_000 });
+export const tagsQuery = (type: ContentType | SkipToken) =>
+  orpc.tags.list.queryOptions({
+    input: type === skipToken ? skipToken : { type },
+    staleTime: 60_000,
+  });
 
 /** All tags of a type, with a by-id lookup. */
 export const useTags = (type: ContentType) => {

@@ -1,5 +1,5 @@
 import type { Session } from '@erxes/core-contract';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { createContext, useContext } from 'react';
@@ -8,7 +8,13 @@ import { isApiError, messageOf, orpc } from '~/lib/api';
 
 /** Whether the installation still needs its first organisation (asked only when signed out). */
 export const useSetupStatus = (enabled: boolean) =>
-  useQuery(orpc.auth.setupStatus.queryOptions({ enabled, staleTime: 60_000, retry: false }));
+  useQuery(
+    orpc.auth.setupStatus.queryOptions({
+      input: enabled ? undefined : skipToken,
+      staleTime: 60_000,
+      retry: false,
+    }),
+  );
 
 /** The signed-in member and organisation; a 401 means signed out (`isSignedOut`). */
 export const useSessionQuery = () =>

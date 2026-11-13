@@ -1,7 +1,7 @@
 import type { coreContract } from '@erxes/core-contract';
 import type { InferContractRouterOutputs } from '@orpc/contract';
 import { IconFlask } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
 import { Badge, Button, Input, Label, Select, Sheet, Spinner, Switch } from 'erxes-ui';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,8 +16,7 @@ const useTestRecords = (type: 'customer' | 'company', search: string, enabled: b
 
   const customers = useQuery(
     orpc.customers.list.queryOptions({
-      input,
-      enabled: enabled && type === 'customer',
+      input: enabled && type === 'customer' ? input : skipToken,
       select: ({ data }) =>
         data.map((row) => ({
           id: row.id,
@@ -29,8 +28,7 @@ const useTestRecords = (type: 'customer' | 'company', search: string, enabled: b
 
   const companies = useQuery(
     orpc.companies.list.queryOptions({
-      input,
-      enabled: enabled && type === 'company',
+      input: enabled && type === 'company' ? input : skipToken,
       select: ({ data }) => data.map((row) => ({ id: row.id, label: row.primaryName ?? row.id })),
     }),
   );

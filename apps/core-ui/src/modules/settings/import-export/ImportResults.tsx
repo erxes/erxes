@@ -1,7 +1,7 @@
 import type { Import, ImportRow } from '@erxes/core-contract';
 import type { z } from 'zod';
 import { IconAlertTriangle, IconCheck, IconDownload } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
 import { Badge, Button, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -81,8 +81,7 @@ export const ErrorRows = ({ imp }: { imp: Import }) => {
 
   const rows = useQuery(
     orpc.transfer.importRows.queryOptions({
-      input: { id: imp.id, action: 'error', limit: 50 },
-      enabled: imp.counts.error > 0,
+      input: imp.counts.error > 0 ? { id: imp.id, action: 'error', limit: 50 } : skipToken,
     }),
   );
 

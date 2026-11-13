@@ -1,6 +1,6 @@
 import type { EventFailure } from '@erxes/core-contract';
 import { IconAlertTriangle, IconPlugConnected, IconRefresh, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
   Button,
@@ -218,9 +218,8 @@ export const EventDeliveryPage = () => {
 
   const failures = useQuery(
     orpc.events.failures.queryOptions({
-      input: { status: status === 'all' ? undefined : status },
+      input: canSee ? { status: status === 'all' ? undefined : status } : skipToken,
       refetchInterval: 30_000,
-      enabled: canSee,
     }),
   );
 

@@ -1,5 +1,5 @@
 import { IconCheck, IconCopy, IconWebhook } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import {
   Button,
   Dialog,
@@ -87,7 +87,9 @@ export const WebhooksSettingsPage = () => {
   const can = useCan();
   const [secret, setSecret] = useState<string | null>(null);
 
-  const webhooks = useQuery(orpc.webhooks.list.queryOptions({ enabled: can('webhooks.manage') }));
+  const webhooks = useQuery(
+    orpc.webhooks.list.queryOptions({ input: can('webhooks.manage') ? undefined : skipToken }),
+  );
 
   if (!can('webhooks.manage')) return <Navigate to="/settings" replace />;
 

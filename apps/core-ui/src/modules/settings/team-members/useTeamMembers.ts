@@ -1,6 +1,6 @@
 import { type User, UserRole } from '@erxes/core-contract';
 import { z } from 'zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMultiQueryState, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
@@ -40,7 +40,7 @@ export const useTeamMembers = () => {
 
 /** One member. */
 export const useTeamMember = (id: string | null) =>
-  useQuery(orpc.users.get.queryOptions({ input: { id: id ?? '' }, enabled: !!id, retry: false }));
+  useQuery(orpc.users.get.queryOptions({ input: id ? { id } : skipToken, retry: false }));
 
 /** Puts a changed member everywhere it is shown: lists, its detail and, for yourself, the session. */
 const useStoreMember = () => {

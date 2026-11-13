@@ -1,6 +1,6 @@
 import { type Invoice, InvoiceStatus } from '@erxes/core-contract';
 import { IconCash } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { Badge, PageContainer, PageHeader, ScrollArea, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -140,7 +140,10 @@ const CurrencyNote = () => {
 export const PaymentsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const canManage = useCan()('payments.manage');
-  const gateways = useQuery(orpc.payments.gateways.queryOptions({ enabled: canManage }));
+
+  const gateways = useQuery(
+    orpc.payments.gateways.queryOptions({ input: canManage ? undefined : skipToken }),
+  );
 
   if (!canManage) return <Navigate to="/settings" replace />;
 
