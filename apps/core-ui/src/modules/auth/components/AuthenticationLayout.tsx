@@ -8,16 +8,18 @@ export const AuthBanner = () => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
 
   return (
-    // Dark in both themes, so it takes the dark tokens and its text keeps its contrast.
-    <div className="dark relative z-10 hidden h-dvh overflow-hidden bg-background lg:block lg:w-1/2">
+    // Dark in both themes: the foreground colour in light, the background in dark.
+    <div className="relative z-10 hidden h-dvh overflow-hidden bg-foreground lg:block lg:w-1/2 dark:bg-background">
       <Polygons />
       <div className="flex h-full w-full flex-col items-center justify-center text-primary-foreground">
         <div className="absolute top-7">
           <Logo />
         </div>
         <div className="flex max-w-[500px] flex-col justify-center gap-2">
-          <h1 className="text-2xl font-semibold leading-7 text-foreground">{t('banner-title')}</h1>
-          <p className="text-lg font-medium leading-6 text-muted-foreground">
+          <h1 className="text-2xl font-semibold leading-7 text-background dark:text-foreground">
+            {t('banner-title')}
+          </h1>
+          <p className="text-lg font-medium leading-6 text-background/70 dark:text-muted-foreground">
             {t('banner-description')}
           </p>
         </div>

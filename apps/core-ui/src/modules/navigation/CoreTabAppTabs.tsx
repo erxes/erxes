@@ -113,6 +113,7 @@ const TabMenu = ({
 const CoreTabAppTab = ({
   app,
   active,
+  tabbable,
   onSelect,
   onClose,
   onKeyDown,
@@ -120,6 +121,8 @@ const CoreTabAppTab = ({
 }: TabMenuActions & {
   app: NavApp;
   active: boolean;
+  /** The one tab Tab stops on: the active one, else the first (Settings has no app tab). */
+  tabbable: boolean;
   onSelect: () => void;
   onClose: () => void;
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
@@ -149,7 +152,7 @@ const CoreTabAppTab = ({
           }}
           role="tab"
           aria-selected={active}
-          tabIndex={active ? 0 : -1}
+          tabIndex={tabbable ? 0 : -1}
           title={app.label}
           data-active={active}
           className={cn(
@@ -246,6 +249,8 @@ export const CoreTabAppTabs = ({
     listRef.current?.querySelectorAll<HTMLElement>('[role="tab"]')[next]?.focus();
   };
 
+  const tabbableId = tabs.some((tab) => tab.id === activeId) ? activeId : tabs[0]?.id;
+
   return (
     <DndContext
       autoScroll={false}
@@ -267,6 +272,7 @@ export const CoreTabAppTabs = ({
               key={app.id}
               app={app}
               active={app.id === activeId}
+              tabbable={app.id === tabbableId}
               canCloseOthers={tabs.length > 1}
               canCloseToRight={index < tabs.length - 1}
               onSelect={() => onSelect(app)}
