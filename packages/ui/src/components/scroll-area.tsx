@@ -1,76 +1,62 @@
-import React from 'react';
-import { ScrollArea as ScrollAreaPrimitive } from 'radix-ui';
+import { ScrollArea as ScrollAreaPrimitive } from '@base-ui/react/scroll-area';
 import { cn } from '../lib/utils';
 
 const ScrollAreaMain = ({
-  ref,
   className,
   children,
   scrollBarClassName,
   viewportClassName,
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
+}: ScrollAreaPrimitive.Root.Props & {
   scrollBarClassName?: string;
   viewportClassName?: string;
 }) => (
-  <ScrollAreaPrimitive.Root
-    className={cn('relative overflow-hidden', className)}
-    ref={ref}
-    {...props}
-  >
-    <ScrollAreaPrimitive.Viewport
-      className={cn('h-full w-full rounded-[inherit]', viewportClassName)}
-    >
-      {children}
-    </ScrollAreaPrimitive.Viewport>
+  <ScrollAreaPrimitive.Root className={cn('relative overflow-hidden', className)} {...props}>
+    <ScrollAreaViewport className={viewportClassName}>{children}</ScrollAreaViewport>
     <ScrollBar className={scrollBarClassName} />
     <ScrollAreaPrimitive.Corner />
   </ScrollAreaPrimitive.Root>
 );
 
-const ScrollAreaRoot = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof ScrollAreaMain>) => (
-  <ScrollAreaPrimitive.Root
-    ref={ref}
-    className={cn('relative overflow-hidden', className)}
-    {...props}
-  />
+const ScrollAreaRoot = ({ className, ...props }: ScrollAreaPrimitive.Root.Props) => (
+  <ScrollAreaPrimitive.Root className={cn('relative overflow-hidden', className)} {...props} />
 );
 
+/** Content is laid out as a table at least as wide as the viewport, the way Radix wrapped it. */
 const ScrollAreaViewport = ({
-  ref,
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.Viewport>) => (
+}: ScrollAreaPrimitive.Viewport.Props) => (
   <ScrollAreaPrimitive.Viewport
-    ref={ref}
     className={cn('h-full w-full rounded-[inherit]', className)}
     {...props}
-  />
+  >
+    <ScrollAreaPrimitive.Content style={{ minWidth: '100%', display: 'table' }}>
+      {children}
+    </ScrollAreaPrimitive.Content>
+  </ScrollAreaPrimitive.Viewport>
 );
 
+/** Shows while the pointer is over the area or it scrolls, and hides 600ms after, as Radix's hover type did. */
 const ScrollBar = ({
-  ref,
   className,
   orientation = 'vertical',
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) => (
-  <ScrollAreaPrimitive.ScrollAreaScrollbar
-    ref={ref}
+}: ScrollAreaPrimitive.Scrollbar.Props) => (
+  <ScrollAreaPrimitive.Scrollbar
     orientation={orientation}
     className={cn(
       'flex touch-none select-none transition-colors',
+      'pointer-events-none opacity-0 transition-opacity delay-600 duration-0 data-hovering:pointer-events-auto data-hovering:opacity-100 data-hovering:delay-0 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:delay-0',
       orientation === 'vertical' && 'h-full w-2.5 border-l border-l-transparent p-px',
       orientation === 'horizontal' && 'h-2.5 flex-col border-t border-t-transparent p-px',
       className,
     )}
     {...props}
   >
-    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-scroll" />
-  </ScrollAreaPrimitive.ScrollAreaScrollbar>
+    <ScrollAreaPrimitive.Thumb className="relative flex-1 rounded-full bg-scroll" />
+  </ScrollAreaPrimitive.Scrollbar>
 );
 
 export const ScrollArea = Object.assign(ScrollAreaMain, {
