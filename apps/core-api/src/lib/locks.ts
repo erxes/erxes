@@ -32,6 +32,18 @@ export const lockRows = async (
 export const lockOrganization = (client: Db, orgId: string) =>
   client.execute(sql`select 1 from core_organizations where id = ${orgId} for update`);
 
-/** A transaction-scoped lock on any key (released at commit or rollback). */
-export const lockKey = (client: Db, key: string) =>
-  client.execute(sql`select pg_advisory_xact_lock(hashtext(${key}))`);
+/**
+ * Transaction-scoped locks on any keys (released at commit or rollback), in
+ * one statement. Keys are locked in a fixed order, so two callers can't deadlock.
+ */
+export const lockKeys = async (client: Db, keys: string[]) => {
+  if (!keys.length) return;
+
+  await client.execute(sql`
+    select pg_advisory_xact_lock(hashtext(key))
+    from unnest(array[${sql.join(
+      keys.toSorted().map((key) => sql`${key}`),
+      sql`, `,
+    )}]::text[]) as key
+  `);
+};

@@ -5,7 +5,7 @@ import { config } from '~/config';
 import { HttpError } from '~/http/errors';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
 import { hmacSha256, randomInt, safeEqual } from '~/lib/crypto';
-import { lockKey } from '~/lib/locks';
+import { lockKeys } from '~/lib/locks';
 import { sendEmail } from '~/modules/email/email';
 import { sendSms } from '~/modules/sms/sms';
 
@@ -34,7 +34,7 @@ const hashOf = (id: string, code: string) =>
 
 /** One code at a time per address, across replicas. */
 const lockAddress = (tx: Db, orgId: string, address: Address) =>
-  lockKey(tx, `customer-code:${orgId}:${address.kind}:${address.value}`);
+  lockKeys(tx, [`customer-code:${orgId}:${address.kind}:${address.value}`]);
 
 const forAddress = (orgId: string, address: Address) =>
   and(

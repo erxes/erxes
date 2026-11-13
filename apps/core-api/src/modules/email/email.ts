@@ -62,5 +62,8 @@ export const emailJob = defineJob({
  * Queues an email in the caller's transaction (rolled back = never sent);
  * the `email.send` job delivers it, retrying when the server refuses.
  */
-export const sendEmail = (client: Db, orgId: string, email: EmailPayload) =>
-  emailJob.enqueue(client, { orgId, payload: email, maxAttempts: 6 });
+export const sendEmail = (client: Db, orgId: string, email: EmailPayload | EmailPayload[]) =>
+  emailJob.enqueueAll(
+    client,
+    (Array.isArray(email) ? email : [email]).map((payload) => ({ orgId, payload, maxAttempts: 6 })),
+  );

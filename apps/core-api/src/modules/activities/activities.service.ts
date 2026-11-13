@@ -6,7 +6,7 @@ import { can } from '~/http/access';
 import { type Actor, type Caller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import { assertMember } from '~/lib/guards';
+import { assertMembers } from '~/lib/guards';
 import { oneRow } from '~/lib/rows';
 import { notify } from '~/modules/notifications/notifications.service';
 import { assertTimelineAccess, isCoreTarget } from './timelineAccess';
@@ -141,11 +141,6 @@ const checkFiles = async (client: Db, orgId: string, fileIds: string[]) => {
   return wanted;
 };
 
-/** Every mentioned member must be one of the organisation's. */
-const checkMentions = async (client: Db, orgId: string, mentions: string[]) => {
-  for (const userId of mentions) await assertMember(client, orgId, userId);
-};
-
 /** Mentioned members hear about it (people already mentioned before an edit don't, again). */
 const notifyMentions = async (
   tx: Db,
@@ -200,7 +195,7 @@ export const addNote = async (
 
   const mentions = unique(input.mentions);
 
-  await checkMentions(client, actor.orgId, mentions);
+  await assertMembers(client, actor.orgId, mentions);
 
   const fileIds = await checkFiles(client, actor.orgId, input.fileIds);
 
@@ -238,7 +233,7 @@ const editedData = async (
   const data = NoteData.parse(note.data);
   const mentions = input.mentions === undefined ? data.mentions : unique(input.mentions);
 
-  await checkMentions(client, actor.orgId, mentions);
+  await assertMembers(client, actor.orgId, mentions);
 
   const fileIds =
     input.fileIds === undefined

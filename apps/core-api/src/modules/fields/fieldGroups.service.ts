@@ -2,7 +2,7 @@ import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erx
 import { and, asc, eq, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
-import { oneRow } from '~/lib/rows';
+import { oneRow, setOrders } from '~/lib/rows';
 import {
   fieldsOfGroup,
   findGroup,
@@ -10,7 +10,6 @@ import {
   inUse,
   nextOrder,
   requireFieldManager,
-  setOrders,
   taken,
   toFieldGroupDto,
   usageOf,

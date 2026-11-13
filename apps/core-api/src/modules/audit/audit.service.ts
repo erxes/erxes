@@ -5,11 +5,12 @@ import { config } from '~/config';
 import { type Actor, type Caller, type PluginCaller, requirePermission } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError } from '~/http/errors';
-import { assertMember, assertPluginNamespace } from '~/lib/guards';
+import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
 import type { Changes } from '~/lib/changes';
 import { currentRunCause } from '~/lib/causation';
 import { keysetPage } from '~/lib/keyset';
+import { deleteInBatches, inOrder } from '~/lib/sequence';
 import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
 import { raiseAlerts } from './alerts';
 
@@ -179,11 +180,8 @@ export const pruneAudit = (client: Db, maxDays: number) =>
   client.transaction(async (tx) => {
     await tx.execute(sql`set local core.audit_prune = 'on'`);
 
-    let removed = 0;
-
-    // In batches: a long backlog never becomes one huge delete.
-    for (let round = 0; round < 200; round += 1) {
-      const result = await tx.execute(sql`
+    return deleteInBatches(200, 5000, () =>
+      tx.execute(sql`
         delete from ${auditLogs} where id in (
           select a.id from ${auditLogs} a join ${organizations} o on o.id = a.org_id
           where a.created_at < now() - make_interval(days => least(
@@ -192,16 +190,8 @@ export const pruneAudit = (client: Db, maxDays: number) =>
           ))
           limit 5000
         )
-      `);
-
-      const count = result.rowCount ?? 0;
-
-      removed += count;
-
-      if (count < 5000) break;
-    }
-
-    return removed;
+      `),
+    );
   });
 
 /** Plugins record their own actions in the organisation's one audit log. */
@@ -210,26 +200,37 @@ export const recordPluginAudit = async (
   caller: PluginCaller,
   entries: (AuditInput & { actorUserId?: string })[],
 ) => {
-  for (const entry of entries) {
-    assertPluginNamespace(caller.plugin, entry.action);
-    await assertMember(client, caller.orgId, entry.actorUserId);
+  for (const entry of entries) assertPluginNamespace(caller.plugin, entry.action);
+
+  await assertMembers(
+    client,
+    caller.orgId,
+    entries.map((entry) => entry.actorUserId),
+  );
+
+  // Each entry's actor is a member acting through the plugin, or the plugin itself.
+  // Neighbours with the same actor share one insert; the log keeps the order sent.
+  const runs: { actorUserId?: string; entries: AuditInput[] }[] = [];
+
+  for (const { actorUserId, ...rest } of entries) {
+    const last = runs.at(-1);
+
+    if (last && last.actorUserId === actorUserId) last.entries.push(rest);
+    else runs.push({ actorUserId, entries: [rest] });
   }
 
-  // One entry per actor: a member acting through the plugin, or the plugin itself.
-  for (const entry of entries) {
-    const { actorUserId, ...rest } = entry;
-
-    await recordAudit(
+  await inOrder(runs, (run) =>
+    recordAudit(
       client,
       {
         orgId: caller.orgId,
-        actorType: actorUserId ? 'user' : 'plugin',
-        actorId: actorUserId ?? caller.plugin,
+        actorType: run.actorUserId ? 'user' : 'plugin',
+        actorId: run.actorUserId ?? caller.plugin,
         source: caller.plugin,
       },
-      rest,
-    );
-  }
+      run.entries,
+    ),
+  );
 
   return { recorded: entries.length };
 };

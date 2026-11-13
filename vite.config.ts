@@ -137,6 +137,15 @@ export default defineConfig({
         rules: { 'node/no-process-env': 'off' },
       },
       {
+        // A query per item is an N+1: batch it (`inArray`, a set-based update). Work that is
+        // sequential on purpose goes through `inOrder` or `repeatWhile` (apps/core-api/src/lib/sequence.ts).
+        files: [
+          'apps/core-api/src/**',
+          'packages/{db,contract,plugin-sdk,payment-gateways}/src/**',
+        ],
+        rules: { 'no-await-in-loop': 'error' },
+      },
+      {
         files: [
           'packages/contract/**',
           'packages/db/**',
@@ -223,8 +232,9 @@ export default defineConfig({
       },
       {
         // A test file's describe callback holds all its cases; max-lines still bounds the file.
+        // A test takes its steps in order (a race, a session's lifetime); N+1s are a server concern.
         files: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
-        rules: { 'max-lines-per-function': 'off' },
+        rules: { 'max-lines-per-function': 'off', 'no-await-in-loop': 'off' },
       },
       {
         // Tools load these through their default export.

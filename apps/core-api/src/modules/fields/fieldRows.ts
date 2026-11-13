@@ -91,54 +91,62 @@ export const fieldsOfGroup = (client: Db, orgId: string, groupId: string) =>
     .from(fields)
     .where(and(eq(fields.orgId, orgId), eq(fields.groupId, groupId)));
 
-/** Records of `contentType` holding a value of any of `ids`. */
-export const countRecords = async (
+/** Each content type's values table, with the ids of `rows` of that type. */
+const byValuesTable = (rows: Pick<FieldRow, 'id' | 'contentType'>[]) =>
+  unique(rows.map((row) => row.contentType)).map((contentType) => ({
+    values: valuesTable(contentType),
+    ids: rows.filter((row) => row.contentType === contentType).map((row) => row.id),
+  }));
+
+/** Records holding a value of any of `rows` (one query across content types). */
+export const usageOf = async (
   client: Db,
   orgId: string,
-  contentType: FieldContentType,
-  ids: string[],
+  rows: Pick<FieldRow, 'id' | 'contentType'>[],
 ) => {
-  if (!ids.length) {
-    return 0;
-  }
+  const counts = byValuesTable(rows).map(
+    ({ values, ids }) =>
+      sql`(select count(distinct ${values.recordId}) from ${values} where ${and(eq(values.orgId, orgId), inArray(values.fieldId, ids))})`,
+  );
 
-  const values = valuesTable(contentType);
+  if (!counts.length) return 0;
 
-  const [row] = await client
-    .select({ count: sql<number>`count(distinct ${values.recordId})::int` })
-    .from(values)
-    .where(and(eq(values.orgId, orgId), inArray(values.fieldId, ids)));
+  const {
+    rows: [row],
+  } = await client.execute<{ records: number }>(
+    sql`select (${sql.join(counts, sql` + `)})::int as records`,
+  );
 
-  return row?.count ?? 0;
+  return row?.records ?? 0;
 };
 
-/** Records holding each option of an option field. */
-export const countOptions = async (client: Db, orgId: string, field: FieldRow) => {
-  const values = valuesTable(field.contentType);
+/** Records holding each option of each of `rows` (option fields), by field id, in one query. */
+export const optionCounts = async (client: Db, orgId: string, rows: FieldRow[]) => {
+  const options: Record<string, Record<string, number>> = Object.fromEntries(
+    rows.map((row) => [row.id, {}]),
+  );
 
-  const rows = await client
-    .select({ value: values.textValue, count: sql<number>`count(*)::int` })
-    .from(values)
-    .where(and(eq(values.orgId, orgId), eq(values.fieldId, field.id), isNotNull(values.textValue)))
-    .groupBy(values.textValue);
+  const selects = byValuesTable(rows).map(
+    ({ values, ids }) =>
+      sql`select ${values.fieldId} as field_id, ${values.textValue} as value, count(*)::int as count
+        from ${values}
+        where ${and(eq(values.orgId, orgId), inArray(values.fieldId, ids), isNotNull(values.textValue))}
+        group by 1, 2`,
+  );
 
-  return Object.fromEntries(rows.map((row) => [row.value, row.count]));
-};
+  if (!selects.length) return options;
 
-/** Records holding a value of any of `rows`. */
-export const usageOf = async (client: Db, orgId: string, rows: FieldRow[]) => {
-  let records = 0;
+  const counted = await client.execute<{ field_id: string; value: string; count: number }>(
+    sql.join(selects, sql` union all `),
+  );
 
-  for (const contentType of unique(rows.map((row) => row.contentType))) {
-    records += await countRecords(
-      client,
-      orgId,
-      contentType,
-      rows.filter((row) => row.contentType === contentType).map((row) => row.id),
-    );
+  for (const row of counted.rows) {
+    const field = options[row.field_id];
+
+    if (field) field[row.value] = row.count;
   }
 
-  return records;
+  return options;
 };
 
 /** The next `order` after the last field or group of a content type. */
@@ -154,22 +162,4 @@ export const nextOrder = async (
     .where(and(eq(table.orgId, orgId), eq(table.contentType, contentType)));
 
   return (last?.order ?? -1) + 1;
-};
-
-export const setOrders = async (
-  client: Db,
-  orgId: string,
-  table: typeof fields | typeof fieldGroups,
-  orders: { id: string; order: number }[],
-) => {
-  await client.transaction(async (tx) => {
-    for (const { id, order } of orders) {
-      await tx
-        .update(table)
-        .set({ order, updatedAt: sql`now()` })
-        .where(and(eq(table.orgId, orgId), eq(table.id, id)));
-    }
-  });
-
-  return { ok: true as const };
 };

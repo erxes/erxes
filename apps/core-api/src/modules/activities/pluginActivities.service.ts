@@ -4,7 +4,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { type PluginCaller, pluginCaller } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { guardDeletions } from '~/lib/deletionGuard';
-import { assertMember, assertPluginNamespace } from '~/lib/guards';
+import { assertMembers, assertPluginNamespace } from '~/lib/guards';
 import { oneRow } from '~/lib/rows';
 import { notify } from '~/modules/notifications/notifications.service';
 import { type ActivityRow, reactionsOf, toActivityDto } from './activities.service';
@@ -64,7 +64,7 @@ export const createPluginActivity = async (
     input.targetType,
     input.targetId,
   );
-  await assertMember(client, caller.orgId, input.actorUserId);
+  await assertMembers(client, caller.orgId, [input.actorUserId]);
 
   const [inserted] = await client
     .insert(activities)

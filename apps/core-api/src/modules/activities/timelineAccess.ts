@@ -1,31 +1,45 @@
 import type { ActivityTarget } from '@erxes/core-contract';
 import { companies, customers, type Db, pluginInstallations, plugins } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { can } from '~/http/access';
 import type { Actor, PluginCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
+import { unique } from '~/lib/contacts';
 
 /** Customers and companies: the timelines core keeps itself. */
 export const isCoreTarget = (targetType: string): targetType is ActivityTarget =>
   targetType === 'customer' || targetType === 'company';
 
-export const assertTarget = async (
+const anyMissing = async (
   client: Db,
+  table: typeof customers | typeof companies,
   orgId: string,
-  targetType: ActivityTarget,
-  targetId: string,
+  ids: string[],
 ) => {
-  const table = targetType === 'customer' ? customers : companies;
+  const wanted = unique(ids);
 
-  const [row] = await client
+  if (!wanted.length) return false;
+
+  const rows = await client
     .select({ id: table.id })
     .from(table)
-    .where(and(eq(table.orgId, orgId), eq(table.id, targetId)))
-    .limit(1);
+    .where(and(eq(table.orgId, orgId), inArray(table.id, wanted)));
 
-  if (!row) {
-    throw notFound(targetType === 'customer' ? 'Customer' : 'Company');
-  }
+  return rows.length < wanted.length;
+};
+
+/** 404 unless every customer and company is the organisation's (a query per type). */
+export const assertTargets = async (
+  client: Db,
+  orgId: string,
+  targets: { type: ActivityTarget; id: string }[],
+) => {
+  const idsOf = (type: ActivityTarget) =>
+    targets.filter((target) => target.type === type).map((target) => target.id);
+
+  if (await anyMissing(client, customers, orgId, idsOf('customer'))) throw notFound('Customer');
+
+  if (await anyMissing(client, companies, orgId, idsOf('company'))) throw notFound('Company');
 };
 
 /** The plugin timeline a target type belongs to (from installed plugins' manifests), or null. */
@@ -67,7 +81,7 @@ export const assertTimelineAccess = async (
   if (isCoreTarget(targetType)) {
     if (who.actor && !can(who.actor, 'contacts.view')) throw notAllowed('contacts.view');
 
-    return assertTarget(client, who.orgId, targetType, targetId);
+    return assertTargets(client, who.orgId, [{ type: targetType, id: targetId }]);
   }
 
   if (who.plugin && !targetType.startsWith(`${who.plugin.plugin}.`)) {

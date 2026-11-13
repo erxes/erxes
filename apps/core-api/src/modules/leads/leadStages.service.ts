@@ -3,6 +3,7 @@ import { companies, customers, type Db, leadStages, newId } from '@erxes/core-db
 import { and, eq, max, sql } from 'drizzle-orm';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound, pgCode } from '~/http/errors';
+import { setOrders } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { findStage, leadCounts, type StageRow, stagesOf } from './stages';
 
@@ -150,42 +151,43 @@ export const reorderLeadStages = async (client: Db, actor: Actor, ids: string[])
       throw new HttpError(400, 'INVALID_INPUT', 'List every stage exactly once');
     }
 
-    for (const [order, id] of ids.entries()) {
-      await tx
-        .update(leadStages)
-        .set({ order, updatedAt: sql`now()` })
-        .where(and(eq(leadStages.orgId, actor.orgId), eq(leadStages.id, id)));
-    }
-
-    return { ok: true as const };
+    return setOrders(
+      tx,
+      actor.orgId,
+      leadStages,
+      ids.map((id, order) => ({ id, order })),
+    );
   });
+
+const inStage = (table: typeof customers | typeof companies, orgId: string, stageId: string) =>
+  and(eq(table.orgId, orgId), eq(table.leadStageId, stageId));
 
 /** Everyone in a stage (leads, and customers who converted from it). */
 const peopleIn = async (tx: Db, orgId: string, stageId: string) => {
-  let count = 0;
+  const [row] = await tx
+    .execute<{ count: number }>(sql`
+    select (select count(*) from ${customers} where ${inStage(customers, orgId, stageId)})::int
+      + (select count(*) from ${companies} where ${inStage(companies, orgId, stageId)})::int as count
+  `)
+    .then((result) => result.rows);
 
-  for (const table of [customers, companies]) {
-    const [used] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(table)
-      .where(and(eq(table.orgId, orgId), eq(table.leadStageId, stageId)));
-
-    count += used?.count ?? 0;
-  }
-
-  return count;
+  return row?.count ?? 0;
 };
 
-/** Moves everyone in stage `from` to `to` (a stage of the organisation). */
+/** Moves everyone in stage `from` to `to` (a stage of the organisation): people, then companies. */
 const moveEveryone = async (tx: Db, orgId: string, from: string, to: string) => {
   await findStage(tx, orgId, to);
 
-  for (const table of [customers, companies]) {
-    await tx
-      .update(table)
-      .set({ leadStageId: to, leadStageChangedAt: sql`now()` })
-      .where(and(eq(table.orgId, orgId), eq(table.leadStageId, from)));
-  }
+  const moved = { leadStageId: to, leadStageChangedAt: sql`now()` };
+
+  await tx
+    .update(customers)
+    .set(moved)
+    .where(inStage(customers, orgId, from));
+  await tx
+    .update(companies)
+    .set(moved)
+    .where(inStage(companies, orgId, from));
 };
 
 /** Deletes a stage; everyone in it (leads, and customers who converted from it) moves to `moveTo`. */

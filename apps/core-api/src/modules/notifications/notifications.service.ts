@@ -5,8 +5,8 @@ import { z } from 'zod';
 import type { Caller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { unique } from '~/lib/contacts';
-import { assertMember, assertPluginNamespace } from '~/lib/guards';
-import { lockKey } from '~/lib/locks';
+import { assertMembers, assertPluginNamespace } from '~/lib/guards';
+import { lockKeys } from '~/lib/locks';
 import { appLink, sendEmail } from '~/modules/email/email';
 import { deliveryFor } from './delivery';
 
@@ -109,10 +109,9 @@ const collapseRecent = async (
   actorId: string | null,
 ) => {
   // One collapse at a time per entity and actor: changes combine, none is lost.
-  await lockKey(
-    client,
+  await lockKeys(client, [
     `notify:${caller.orgId}:${input.kind}:${input.entity.type}:${input.entity.id}:${actorId}`,
-  );
+  ]);
 
   const recent = await client
     .select()
@@ -135,21 +134,33 @@ const collapseRecent = async (
 
   recent.forEach((row) => latest.has(row.userId) || latest.set(row.userId, row));
 
-  for (const row of latest.values()) {
-    const changes = combineChanges(
-      Changes.parse(row.data.changes),
-      Changes.parse(input.data?.changes),
-    );
+  const rows = [...latest.values()];
+
+  if (rows.length) {
+    // Each row's own data, combined with this one's, in one update.
+    const data = rows.map((row) => {
+      const changes = combineChanges(
+        Changes.parse(row.data.changes),
+        Changes.parse(input.data?.changes),
+      );
+
+      return sql`when ${notifications.id} = ${row.id} then ${JSON.stringify({ ...row.data, ...input.data, changes })}::jsonb`;
+    });
 
     await client
       .update(notifications)
       .set({
         title: input.title,
         body: input.body ?? null,
-        data: { ...row.data, ...input.data, changes },
+        data: sql`case ${sql.join(data, sql` `)} end`,
         createdAt: sql`now()`,
       })
-      .where(eq(notifications.id, row.id));
+      .where(
+        inArray(
+          notifications.id,
+          rows.map((row) => row.id),
+        ),
+      );
   }
 
   return new Set(latest.keys());
@@ -172,18 +183,20 @@ const emailNotified = async (
 
   const link = await appLink(client, caller.orgId, input.link ?? '/notifications');
 
-  for (const to of addresses) {
-    await sendEmail(client, caller.orgId, {
+  await sendEmail(
+    client,
+    caller.orgId,
+    addresses.map((to) => ({
       to,
-      template: 'notification',
+      template: 'notification' as const,
       data: {
         organization: org?.name ?? 'erxes',
         title: input.title,
         body: input.body ?? null,
         link,
       },
-    });
-  }
+    })),
+  );
 };
 
 /**
@@ -194,7 +207,7 @@ const emailNotified = async (
  */
 export const notify = async (client: Db, caller: Caller, input: NotifyInput) => {
   assertPluginNamespace(caller.source, input.kind);
-  await assertMember(client, caller.orgId, input.actorUserId);
+  await assertMembers(client, caller.orgId, [input.actorUserId]);
 
   const actorUserId =
     input.actorUserId ?? (caller.actorType === 'user' ? caller.actorId : undefined);
