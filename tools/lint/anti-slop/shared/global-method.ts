@@ -2,8 +2,8 @@ import { resolveVariable } from './scope.ts';
 
 import type { ESTree, SourceCode } from 'vite-plus/lint/plugins';
 
-function isGlobalReflect(sourceCode: SourceCode, expression: ESTree.Expression): boolean {
-  if (expression.type !== 'Identifier' || expression.name !== 'Reflect') return false;
+function isGlobal(sourceCode: SourceCode, expression: ESTree.Expression, name: string): boolean {
+  if (expression.type !== 'Identifier' || expression.name !== name) return false;
 
   if (sourceCode.isGlobalReference(expression)) return true;
   const variable = resolveVariable(sourceCode, expression);
@@ -11,15 +11,16 @@ function isGlobalReflect(sourceCode: SourceCode, expression: ESTree.Expression):
   return variable === null || variable.defs.length === 0;
 }
 
-/** Reports whether a call target names one method on the global Reflect object. */
-export function isGlobalReflectMethodCall(
+/** Reports whether a call target names one method on a global object, such as `Reflect.get`. */
+export function isGlobalMethodCall(
   sourceCode: SourceCode,
   callee: ESTree.Expression,
+  objectName: string,
   methodName: string,
 ): boolean {
   if (!('property' in callee) || !('object' in callee) || !('computed' in callee)) return false;
 
-  if (!isGlobalReflect(sourceCode, callee.object)) return false;
+  if (!isGlobal(sourceCode, callee.object, objectName)) return false;
   const property = callee.property;
 
   return callee.computed

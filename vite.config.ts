@@ -99,12 +99,24 @@ export default defineConfig({
     ignorePatterns: ['dist/**', 'coverage/**'],
     rules: {
       'vite-plus/prefer-vite-plus-imports': 'error',
+      'anti-slop/json-parse-through-schema': 'error',
+      'anti-slop/no-chained-type-assertions': 'error',
+      'anti-slop/no-known-value-widening': 'error',
+      'anti-slop/no-module-mocking': 'error',
+      'anti-slop/no-query-enabled': 'error',
+      'anti-slop/no-react-forwardref': 'error',
+      'anti-slop/no-silent-catch': 'error',
+      'anti-slop/no-sql-raw': 'error',
       'anti-slop/no-reduce-accumulator-copy': 'error',
       'anti-slop/no-object-parameters': 'error',
       'anti-slop/no-reflect-apply': 'error',
       'anti-slop/no-reflect-get': 'error',
+      'anti-slop/no-runtime-typeof': 'error',
       'anti-slop/no-shape-in-symbol-names': 'error',
+      'anti-slop/no-unknown-parameters': 'error',
+      'anti-slop/no-unknown-returns': 'error',
       'anti-slop/no-unknown-type-aliases': 'error',
+      'anti-slop/no-unsafe-dictionary-type': 'error',
       'anti-slop/no-widen-then-assert': 'error',
       'anti-slop/require-readable-spacing': 'error',
       // `const { secret, ...rest } = row` drops a field on purpose; Express
@@ -138,6 +150,20 @@ export default defineConfig({
       // `name || email`: an empty string falls back on purpose; for other types `??` is meant.
       'typescript/prefer-nullish-coalescing': ['error', { ignorePrimitives: { string: true } }],
       'typescript/consistent-type-imports': 'error',
+      'typescript/no-unnecessary-condition': 'error',
+      // `if (name)` and `if (flag)` on optional strings and booleans read as meant (an empty
+      // string is absent, as in prefer-nullish-coalescing). Numbers, objects and mixed unions
+      // still need an explicit check: `if (count)` skips 0.
+      'typescript/strict-boolean-expressions': [
+        'error',
+        { allowNullableString: true, allowNullableBoolean: true },
+      ],
+      'typescript/no-unnecessary-type-assertion': 'error',
+      'typescript/restrict-template-expressions': 'error',
+      'typescript/no-base-to-string': 'error',
+      'typescript/await-thenable': 'error',
+      'vitest/no-disabled-tests': 'error',
+      'vitest/no-focused-tests': 'error',
       'unicorn/prefer-node-protocol': 'error',
       'unicorn/throw-new-error': 'error',
       // An automation branch step's `then` arm is a stored list of steps (the definition
@@ -199,6 +225,26 @@ export default defineConfig({
             { paths: [routerBuilder, ...decided], patterns: [noApps] },
           ],
         },
+      },
+      {
+        // The contract is what plugins and the OpenAPI document see, so every field has a shape.
+        files: ['packages/contract/src/**'],
+        rules: { 'anti-slop/no-untyped-zod': 'error' },
+      },
+      {
+        // The one JSON blob schema: data the API stores and returns without reading its fields.
+        files: ['packages/contract/src/json.ts'],
+        rules: { 'anti-slop/no-untyped-zod': 'off' },
+      },
+      {
+        // Files that run SQL text: migration files, and the role and grant DDL scripts.
+        files: [
+          'packages/db/src/migrate.ts',
+          'apps/core-api/scripts/grant.ts',
+          'apps/core-api/scripts/plugin-role.ts',
+          'apps/core-api/src/__tests__/pluginRoles.test.ts',
+        ],
+        rules: { 'anti-slop/no-sql-raw': 'off' },
       },
       {
         files: ['apps/core-ui/src/**', 'packages/ui/**'],

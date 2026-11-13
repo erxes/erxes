@@ -1,6 +1,6 @@
 import { defineRule } from 'vite-plus/lint/plugins';
 
-import { isGlobalReflectMethodCall } from '../shared/reflect-method.ts';
+import { isGlobalMethodCall } from '../shared/global-method.ts';
 
 /** Ban Reflect.apply, which bypasses ordinary typed function calls. */
 export const noReflectApplyRule = defineRule({
@@ -20,7 +20,7 @@ export const noReflectApplyRule = defineRule({
       CallExpression(node) {
         if (node.callee.type === 'Super' || node.callee.type === 'V8IntrinsicExpression') return;
 
-        if (isGlobalReflectMethodCall(context.sourceCode, node.callee, 'apply')) {
+        if (isGlobalMethodCall(context.sourceCode, node.callee, 'Reflect', 'apply')) {
           context.report({ node, messageId: 'reflectApply' });
         }
       },
