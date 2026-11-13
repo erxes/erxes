@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
-import { logger, type RsbuildPlugin } from '@rsbuild/core';
+import { logger, type RsbuildPlugin, type Rspack } from '@rsbuild/core';
 
 /**
  * The most gzipped JS, in kB, a cold visit to each route may load: the app shell plus the
@@ -25,14 +25,47 @@ const BUDGET_KB: Record<string, number> = {
 const ROUTES_MODULE = './src/modules/app/AppRoutes.tsx';
 const SHELL_REQUESTS = new Set(['./bootstrap', '~/modules/app/AppRoutes']);
 
-/** Fails a production build when a route's JS goes over its budget or has none. */
+/**
+ * Modules that must never reach the browser: drizzle and core's tables. The contract's
+ * root exports both table-built schemas and plain values, so one value import from the
+ * wrong module would ship every table. `packages/db/src/enums.ts` imports nothing and
+ * is what the contract's values build on.
+ */
+const SERVER_ONLY =
+  /[\\/]node_modules[\\/](drizzle-orm|drizzle-zod)[\\/]|[\\/]packages[\\/]db[\\/](?!src[\\/]enums\.ts$)/;
+
+/** A module's name and those of the modules concatenated into it. */
+const namesOf = (module: Rspack.StatsModule): string[] => [
+  module.name ?? '',
+  ...(module.modules ?? []).flatMap(namesOf),
+];
+
+/**
+ * Fails a production build when a route's JS goes over its budget or has none, or when
+ * a browser chunk holds a server-only module.
+ */
 export const pluginBundleBudget = (): RsbuildPlugin => ({
   name: 'core:bundle-budget',
   setup(api) {
     api.onAfterEnvironmentCompile(({ stats, environment, isWatch }) => {
       if (isWatch || !stats || environment.config.mode !== 'production') return;
 
-      const { chunks = [] } = stats.toJson({ all: false, chunks: true, chunkOrigins: true });
+      const { chunks = [] } = stats.toJson({
+        all: false,
+        chunks: true,
+        chunkOrigins: true,
+        chunkModules: true,
+        nestedModules: true,
+      });
+
+      const shipped = chunks.flatMap((chunk) => chunk.modules ?? []).flatMap(namesOf);
+      const serverOnly = [...new Set(shipped.filter((name) => SERVER_ONLY.test(name)))];
+
+      if (serverOnly.length > 0) {
+        throw new Error(
+          `Server-only modules in the browser bundle (import values from a module that builds on no table, e.g. contract values.ts):\n  ${serverOnly.slice(0, 20).join('\n  ')}`,
+        );
+      }
 
       const jsFiles = (selected: typeof chunks) =>
         selected.flatMap((chunk) => chunk.files ?? []).filter((file) => file.endsWith('.js'));
