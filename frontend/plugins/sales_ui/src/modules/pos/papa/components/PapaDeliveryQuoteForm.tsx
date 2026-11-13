@@ -2,11 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconMapSearch } from '@tabler/icons-react';
 import { Button, Form, Input, Select } from 'erxes-ui';
 import { LatLngLiteral } from 'leaflet';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { usePapaAddressSearch } from '../hooks/usePapaAddressSearch';
+import {
+  findAddressAt,
+  usePapaAddressSearch,
+} from '../hooks/usePapaAddressSearch';
 import { usePapaReferences } from '../hooks/usePapaReferences';
 import {
   IOrderDeliveryDefaults,
@@ -69,6 +72,9 @@ export const PapaDeliveryQuoteForm = ({
 }: PapaDeliveryQuoteFormProps) => {
   const { t } = useTranslation('sales');
   const { references, loading } = usePapaReferences();
+  // The address the map last filled in; typed text is never overwritten.
+  const mapAddress = useRef<string | null>(null);
+  const lookupId = useRef(0);
   const previousSize = PAPA_SIZES.find((size) => size === previous?.size);
 
   const form = useForm<TPapaQuoteForm>({
@@ -100,6 +106,41 @@ export const PapaDeliveryQuoteForm = ({
   );
 
   const { search, searching } = usePapaAddressSearch(setPosition);
+
+  // A map pick fills an empty (or map-filled) address with what
+  // OpenStreetMap knows there: one request per click or drag, as Nominatim
+  // requires; a slower answer for an older pick is ignored.
+  const pickOnMap = useCallback(
+    async (place: LatLngLiteral) => {
+      setPosition(place);
+
+      const current = form.getValues('toAddress').trim();
+
+      if (current && current !== mapAddress.current) {
+        return;
+      }
+
+      const id = ++lookupId.current;
+      const address = await findAddressAt(place).catch(
+        () => null,
+      );
+
+      if (!address || id !== lookupId.current) {
+        return;
+      }
+
+      if (form.getValues('toAddress').trim() !== current) {
+        return;
+      }
+
+      mapAddress.current = address;
+      form.setValue('toAddress', address, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    },
+    [form, setPosition],
+  );
 
   // Pre-select the checkout's district once Papa's locations have loaded.
   useEffect(() => {
@@ -170,11 +211,16 @@ export const PapaDeliveryQuoteForm = ({
           )}
         />
         <div className="space-y-1">
-          <PapaLocationMap position={position} onChange={setPosition} />
+          <PapaLocationMap
+            position={position}
+            onChange={(place) => {
+              void pickOnMap(place);
+            }}
+          />
           <p className="text-xs text-muted-foreground">
             {t(
               'papa-map-hint',
-              'Click the delivery spot or drag the pin; the coordinates below follow it.',
+              'Click the delivery spot or drag the pin; the coordinates follow it, and an empty address is filled from the map.',
             )}
           </p>
         </div>

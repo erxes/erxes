@@ -184,12 +184,26 @@ export class PapaClient {
       );
     }
 
-    return this.call<IPapaQuote>('/parcel_order/dynamic/calculate', {
-      order_type: 'PARCEL_ORDER',
-      size: input.size,
-      address_id: input.address_id,
-      to_point_id: pointId,
-    });
+    try {
+      return await this.call<IPapaQuote>('/parcel_order/dynamic/calculate', {
+        order_type: 'PARCEL_ORDER',
+        size: input.size,
+        address_id: input.address_id,
+        to_point_id: pointId,
+      });
+    } catch (error) {
+      // Papa answers "мэдээлэл буруу" when the pickup address is outside
+      // its coverage (verified on dev); its own text names neither.
+      if (error instanceof PapaApiError && /буруу/i.test(error.message)) {
+        throw new PapaApiError(
+          `${error.message}. Papa refused the POS pickup address: choose one inside Papa's delivery area in the POS Delivery settings`,
+          error.status,
+          error.path,
+        );
+      }
+
+      throw error;
+    }
   }
 
   /** Papa takes the quote inside the cargo as `dynamic_price_id` (verified on dev). */

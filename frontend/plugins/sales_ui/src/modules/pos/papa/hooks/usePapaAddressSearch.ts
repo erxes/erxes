@@ -6,10 +6,48 @@ import { z } from 'zod';
 
 // Nominatim's usage policy forbids search-as-you-type: one request per click.
 const NOMINATIM_SEARCH_URL = 'https://nominatim.openstreetmap.org/search';
+const NOMINATIM_REVERSE_URL = 'https://nominatim.openstreetmap.org/reverse';
 
 const nominatimPlacesSchema = z.array(
   z.object({ lat: z.string(), lon: z.string() }).passthrough(),
 );
+
+const nominatimReverseSchema = z
+  .object({ display_name: z.string().optional() })
+  .passthrough();
+
+/** Drops the country and postcode Nominatim appends; drivers need the rest. */
+const trimDisplayName = (name: string) =>
+  name
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part && !/^\d{5,}$/.test(part) && !/^Монгол/.test(part))
+    .join(', ')
+    .slice(0, 500);
+
+/** The address OpenStreetMap knows for a map spot, in Mongolian for the driver. */
+export const findAddressAt = async (
+  place: LatLngLiteral,
+): Promise<string | null> => {
+  const params = new URLSearchParams({
+    lat: String(place.lat),
+    lon: String(place.lng),
+    format: 'json',
+    zoom: '18',
+    'accept-language': 'mn',
+  });
+  const response = await fetch(`${NOMINATIM_REVERSE_URL}?${params}`);
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const { display_name: name } = nominatimReverseSchema.parse(
+    await response.json(),
+  );
+
+  return name ? trimDisplayName(name) || null : null;
+};
 
 const findPlace = async (
   query: string,

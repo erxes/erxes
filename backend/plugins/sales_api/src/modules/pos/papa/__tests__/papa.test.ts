@@ -303,6 +303,23 @@ describe('PapaClient', () => {
     expect(calls.some((call) => call.url.endsWith('/calculate'))).toBe(false);
   });
 
+  it('names the pickup address when Papa calls the quote wrong', async () => {
+    const client = new PapaClient(
+      credentials,
+      new MemoryStore(),
+      fakeFetch((call) => {
+        if (call.url.endsWith('/auth/token')) return ok({ access_token: 't' });
+        if (call.url.endsWith('/point/elastic')) return ok([{ id: 'point1' }]);
+        return {
+          status: 400,
+          json: { success: false, message: 'Илгээсэн мэдээлэл буруу байна' },
+        };
+      }, []),
+    );
+
+    await expect(client.quote(quoteInput)).rejects.toThrow('pickup address');
+  });
+
   it('creates with the quote in cargo.dynamic_price_id', async () => {
     const calls: TCall[] = [];
     const client = new PapaClient(
