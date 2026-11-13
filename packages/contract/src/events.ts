@@ -1,6 +1,8 @@
+import { EVENT_FAILURE_STATUSES, eventFailures, events } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { cursorPageOf, CursorQuery, Id } from './common';
+import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
 import { ActivityTarget } from './activities';
 import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
 
@@ -13,58 +15,86 @@ export const EventNotify = z.object({
   priority: z.enum(['normal', 'high']).optional(),
 });
 
-export const EventInput = z.object({
-  /** Namespaced by the plugin: `hr.leave.approved`. */
-  type: EventType,
+export const EventInput = createUpdateSchema(events, {
+  type: () => EventType,
   version: z.int().min(1).max(100).default(1),
   payload: z
     .record(z.string(), z.unknown())
     .refine((value) => JSON.stringify(value).length <= 32_000, 'at most 32 KB')
     .default({}),
-  /** The customer or company it concerns: with `summary`, it goes on their timeline. */
-  subject: z.object({ type: ActivityTarget, id: Id }).optional(),
   summary: z.string().trim().min(1).max(500).optional(),
   link: AppLink.optional(),
-  entity: EntityRef.optional(),
   notify: EventNotify.optional(),
-  actorUserId: Id.optional(),
-  occurredAt: z.iso.datetime().optional(),
-  /** Retry-safe: one event per plugin and key. */
+  occurredAt: () => z.iso.datetime(),
   dedupeKey: DedupeKey.optional(),
-});
+})
+  .pick({
+    /** Namespaced by the plugin: `hr.leave.approved`. */
+    type: true,
+    version: true,
+    payload: true,
+    summary: true,
+    link: true,
+    notify: true,
+    occurredAt: true,
+    /** Retry-safe: one event per plugin and key. */
+    dedupeKey: true,
+  })
+  .required({ type: true })
+  .extend({
+    /** The customer or company it concerns: with `summary`, it goes on their timeline. */
+    subject: z.object({ type: ActivityTarget, id: Id }).optional(),
+    entity: EntityRef.optional(),
+    actorUserId: Id.optional(),
+  });
 
 export type EventInput = z.infer<typeof EventInput>;
 
-export const CoreEvent = z.object({
+export const CoreEvent = createSelectSchema(events, {
   id: Id,
-  source: z.string(),
-  type: z.string(),
-  version: z.int(),
-  subject: z.object({ type: ActivityTarget, id: Id }).nullable(),
-  entity: EntityRef.nullable(),
-  actor: ActorRef,
+  version: () => z.int(),
   payload: z.record(z.string(), z.unknown()),
-  summary: z.string().nullable(),
-  link: z.string().nullable(),
-  occurredAt: z.iso.datetime(),
-  createdAt: z.iso.datetime(),
-});
+  occurredAt: isoDate,
+  createdAt: isoDate,
+})
+  .pick({
+    id: true,
+    source: true,
+    type: true,
+    version: true,
+    payload: true,
+    summary: true,
+    link: true,
+    occurredAt: true,
+    createdAt: true,
+  })
+  .extend({
+    subject: z.object({ type: ActivityTarget, id: Id }).nullable(),
+    entity: EntityRef.nullable(),
+    actor: ActorRef,
+  });
 
 export type CoreEvent = z.infer<typeof CoreEvent>;
 
-export const EventFailureStatus = z.enum(['retrying', 'dead']);
+export const EventFailureStatus = z.enum(EVENT_FAILURE_STATUSES);
 
 /** An event a consumer (timeline, notifications, …) could not handle. */
-export const EventFailure = z.object({
-  consumer: z.string(),
-  status: EventFailureStatus,
-  attempts: z.int(),
-  lastError: z.string(),
-  nextAttemptAt: z.iso.datetime().nullable(),
-  firstFailedAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  event: CoreEvent,
-});
+export const EventFailure = createSelectSchema(eventFailures, {
+  attempts: () => z.int(),
+  nextAttemptAt: isoDate,
+  firstFailedAt: isoDate,
+  updatedAt: isoDate,
+})
+  .pick({
+    consumer: true,
+    status: true,
+    attempts: true,
+    lastError: true,
+    nextAttemptAt: true,
+    firstFailedAt: true,
+    updatedAt: true,
+  })
+  .extend({ event: CoreEvent });
 
 export type EventFailure = z.infer<typeof EventFailure>;
 

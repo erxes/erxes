@@ -11,7 +11,11 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    `oc.route({ method, path, successStatus, summary }).input(schema).output(schema)`. Input is one
    object (path params, query and body merged). Name each new error code in the summary. Reuse
    `Id`, `CursorQuery` and `cursorPageOf` from `common.ts`. A new group goes into `coreContract` in
-   `src/index.ts`.
+   `src/index.ts`. A row or input that mirrors a table starts from it, as `Tag` and `TagFields` do:
+   `createSelectSchema(table, { id: Id, createdAt: isoDate }).pick({ ... })` for output,
+   `createUpdateSchema(table, rules).pick({ ... })` for input (create adds `.required()`, update
+   `.extend({ id: Id })`). Pick columns by name, never `.omit()` from the table schema, so `orgId`, hashes and sealed
+   secrets stay out. The rules are in `packages/contract/AGENTS.md`.
 2. Write the service in `apps/core-api/src/modules/<feature>/<feature>.service.ts`. It takes
    `client: Db`, the `Actor` (or `Caller` for plugins) and the input, filters every query with
    `eq(table.orgId, actor.orgId)`, and returns a DTO without credentials or `org_id`. Owner or
@@ -24,14 +28,16 @@ Copy the tags endpoints, which touch every layer: `packages/contract/src/tags.ts
    `coreRouter` in `src/router.ts`. Wrap a write in `audited(context.actor, (tx) => ..., entry)`
    so the change and its audit entry share a transaction. Core events go out in that transaction
    with `publishCoreEvents(tx, ...)`.
-4. Call it from core-ui with `api.<group>.<name>()` from `~/lib/api` inside `useQuery` or
-   `useMutation`, and update or invalidate the module's query key.
+4. Call it from core-ui with `orpc.<group>.<name>.queryOptions({ input })` or `.mutationOptions()`
+   from `~/lib/api`, and invalidate with `orpc.<group>.key()`. Never write a query key or an API
+   type by hand: they come from the contract.
 5. Test it in `apps/core-api/src/__tests__/` through `useTestServer().client(token)` (plugins:
    `client({ plugin: HR_SECRET, org })`): the happy
    path, the error codes (`rejects.toMatchObject({ status, code })`), and a caller from another
    organisation who gets 404 or an empty list.
-6. Run `pnpm openapi` and commit `packages/contract/openapi.json` with the change. If plugins already
-   call the procedure, read `.agents/skills/plugin-contract/SKILL.md` first.
+6. Run `pnpm openapi` and commit `packages/contract/openapi.json` with the change. Read its diff:
+   every difference is a change plugins see, except properties moving within an object. If plugins
+   already call the procedure, read `.agents/skills/plugin-contract/SKILL.md` first.
 
 Done when `pnpm check`, `pnpm check:generated` and
 `DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes pnpm test` pass.

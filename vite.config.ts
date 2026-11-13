@@ -1,77 +1,14 @@
 import { generateKeyPairSync, randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 import { configDefaults, defineConfig } from 'vite-plus';
+import {
+  decided,
+  noApps,
+  noDriver,
+  routerBuilder,
+  serverOnly,
+} from './tools/lint/restricted-imports';
 import { noSkips } from './tools/test/no-skips';
-
-// Procedures are built from the contract in one place, so every route goes
-// through the same context and access checks.
-const routerBuilder = {
-  name: '@orpc/server',
-  importNames: ['implement', 'os'],
-  message:
-    'Build procedures with the builders from apps/core-api/src/orpc.ts, in modules/<feature>/<feature>.router.ts.',
-};
-
-// Decisions recorded as bans: each message says what to use instead.
-const decided = [
-  {
-    name: 'graphile-worker',
-    message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
-  },
-  {
-    name: 'bullmq',
-    message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
-  },
-  {
-    name: 'ioredis',
-    message: 'Realtime is the Postgres LISTEN/NOTIFY hub (modules/live); core has no Redis.',
-  },
-  {
-    name: 'redis',
-    message: 'Realtime is the Postgres LISTEN/NOTIFY hub (modules/live); core has no Redis.',
-  },
-  {
-    name: '@apollo/client',
-    message: 'Core has no GraphQL. Call core through the typed oRPC client.',
-  },
-  { name: 'graphql', message: 'Core has no GraphQL. Call core through the typed oRPC client.' },
-  { name: 'dayjs', message: 'One date library: date-fns.' },
-  { name: 'moment', message: 'One date library: date-fns.' },
-  { name: 'axios', message: 'Use fetch on the server and the typed oRPC client in the browser.' },
-  { name: 'lodash', message: 'Use the platform (Array, Object, structuredClone) or es-toolkit.' },
-  ...['zod/v3', 'zod/v4-mini', 'zod/mini'].map((name) => ({
-    name,
-    message: "One zod: import { z } from 'zod' (zod 4 classic).",
-  })),
-  { name: 'react', importNames: ['forwardRef'], message: 'React 19: take ref from the props.' },
-  { name: 'react-merge-refs', message: "Merge refs with composeRefs from 'radix-ui/internal'." },
-];
-
-// Packages are shared with plugins and never reach into an app.
-const noApps = {
-  group: [
-    '@erxes/core-api',
-    '@erxes/core-api/*',
-    '@erxes/core-ui',
-    '@erxes/core-ui/*',
-    '**/apps/**',
-  ],
-  message: 'Packages and the UI never import an app. Move the shared code into a package.',
-};
-
-// Browser code runs without Node and without the database.
-const serverOnly = {
-  group: [
-    '@erxes/core-db',
-    '@erxes/core-db/*',
-    'pg',
-    'pg/*',
-    'drizzle-orm',
-    'drizzle-orm/*',
-    'node:*',
-  ],
-  message: 'Browser code calls core through the contract client, never the database or Node.',
-};
 
 export default defineConfig({
   staged: {
@@ -198,6 +135,13 @@ export default defineConfig({
             'error',
             { paths: [routerBuilder, ...decided], patterns: [noApps] },
           ],
+        },
+      },
+      {
+        // Table definitions reach the browser through the contract (noDriver).
+        files: ['packages/db/src/schema/**', 'packages/db/src/table.ts'],
+        rules: {
+          'no-restricted-imports': ['error', { paths: decided, patterns: [noApps, noDriver] }],
         },
       },
       {

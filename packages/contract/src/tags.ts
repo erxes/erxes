@@ -1,25 +1,24 @@
+import { tags } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { ContentType, Id } from './common';
+import { ContentType, Id, isoDate } from './common';
 
-export const Tag = z.object({
-  id: Id,
-  type: ContentType,
-  name: z.string(),
+export const Tag = createSelectSchema(tags, { id: Id, createdAt: isoDate }).pick({
+  id: true,
+  type: true,
+  name: true,
   /** `#rrggbb` */
-  colorCode: z.string().nullable(),
-  createdAt: z.iso.datetime(),
+  colorCode: true,
+  createdAt: true,
 });
 
 export type Tag = z.infer<typeof Tag>;
 
-const color = z
-  .string()
-  .regex(/^#[0-9a-fA-F]{6}$/, '#rrggbb')
-  .nullable()
-  .optional();
-
-/** Labels for customers and companies. Plugins keep their own tags. */
+const TagFields = createUpdateSchema(tags, {
+  name: (name) => name.trim().min(1).max(100),
+  colorCode: (color) => color.regex(/^#[0-9a-fA-F]{6}$/, '#rrggbb'),
+}).pick({ type: true, name: true, colorCode: true });
 
 /** Labels for customers and companies. Plugins keep their own tags. */
 export const tagsContract = {
@@ -34,15 +33,13 @@ export const tagsContract = {
       successStatus: 201,
       summary: 'Create a tag. 409 TAG_EXISTS when the name is taken for the type',
     })
-    .input(
-      z.object({ type: ContentType, name: z.string().trim().min(1).max(100), colorCode: color }),
-    )
+    .input(TagFields.required({ type: true, name: true }))
     .output(Tag),
   update: oc
     .route({ method: 'PATCH', path: '/tags/{id}' })
     .input(
-      z
-        .object({ id: Id, name: z.string().trim().min(1).max(100).optional(), colorCode: color })
+      TagFields.omit({ type: true })
+        .extend({ id: Id })
         .refine((value) => Object.keys(value).some((key) => key !== 'id'), 'nothing to update'),
     )
     .output(Tag),

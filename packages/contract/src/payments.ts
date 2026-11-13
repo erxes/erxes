@@ -1,6 +1,15 @@
+import {
+  INVOICE_STATUSES,
+  PAYMENT_GATEWAY_KINDS,
+  paymentGateways,
+  paymentInvoices,
+  paymentPluginSettings,
+  paymentRefunds,
+} from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { CursorQuery, cursorPageOf, Id } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
 import { Currency } from './money';
 import { DedupeKey } from './platform';
 import { PluginName } from './plugins';
@@ -15,7 +24,7 @@ export const PAYMENT_GATEWAYS = {
   test: { currencies: [], countries: [] },
 } as const satisfies Record<string, { currencies: string[]; countries: string[] }>;
 
-export const PaymentGatewayKind = z.enum(['qpay', 'test']);
+export const PaymentGatewayKind = z.enum(PAYMENT_GATEWAY_KINDS);
 
 export type PaymentGatewayKind = z.infer<typeof PaymentGatewayKind>;
 
@@ -42,26 +51,16 @@ export const GatewayConfig = z.discriminatedUnion('kind', [
 
 export type GatewayConfig = z.infer<typeof GatewayConfig>;
 
-export const PaymentGateway = z.object({
-  id: Id,
-  kind: PaymentGatewayKind,
-  name: z.string(),
-  status: z.enum(['active', 'disabled']),
-  /** Non-secret settings, for display (`invoiceCode`, `sandbox`). */
-  settings: z.record(z.string(), z.unknown()),
-  createdAt: z.iso.datetime(),
-});
+export const PaymentGateway = createSelectSchema(paymentGateways, { id: Id, createdAt: isoDate })
+  .pick({ id: true, kind: true, name: true, status: true, createdAt: true })
+  .extend({
+    /** Non-secret settings, for display (`invoiceCode`, `sandbox`). */
+    settings: z.record(z.string(), z.unknown()),
+  });
 
 export type PaymentGateway = z.infer<typeof PaymentGateway>;
 
-export const InvoiceStatus = z.enum([
-  'pending',
-  'paid',
-  'refunded',
-  'cancelled',
-  'expired',
-  'failed',
-]);
+export const InvoiceStatus = z.enum(INVOICE_STATUSES);
 
 /** The caller's own data on an invoice (order lines, room number): at most 8 KB of JSON, returned in events. */
 export const InvoiceMetadata = z
@@ -102,61 +101,84 @@ export const InvoiceLineInput = z.object({
 
 export type InvoiceLineInput = z.infer<typeof InvoiceLineInput>;
 
-export const Invoice = z.object({
+const int = () => z.int();
+
+export const Invoice = createSelectSchema(paymentInvoices, {
   id: Id,
   gatewayId: Id,
-  gatewayKind: PaymentGatewayKind,
-  source: z.string(),
-  reference: z.object({ type: z.string(), id: z.string() }),
-  /** In the currency's smallest unit: $12.50 → 1250, ₮1,500 → 150000, ¥500 → 500 (`currencyDigits`). */
-  amount: z.int(),
-  /** ISO 4217. */
-  currency: z.string(),
-  description: z.string(),
-  status: InvoiceStatus,
+  amount: int,
   metadata: z.record(z.string(), z.unknown()),
   lines: z.array(InvoiceLine),
-  /** What the gateway says was paid, and how much of it was given back. */
-  paidAmount: z.int().nullable(),
-  refundedAmount: z.int(),
-  /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
-  refundable: z.object({ amount: z.int(), gateway: z.enum(['partial', 'full', 'none']) }),
-  /** For the payer: QR (text and PNG data), a short link, bank app links. */
+  paidAmount: int,
+  refundedAmount: int,
   payment: z.object({
     qrText: z.string().nullable(),
     qrImage: z.string().nullable(),
     shortUrl: z.string().nullable(),
     links: z.array(z.object({ name: z.string(), logo: z.string().nullable(), link: z.string() })),
   }),
-  expiresAt: z.iso.datetime(),
-  paidAt: z.iso.datetime().nullable(),
-  createdAt: z.iso.datetime(),
-});
+  expiresAt: isoDate,
+  paidAt: isoDate,
+  createdAt: isoDate,
+})
+  .pick({
+    id: true,
+    gatewayId: true,
+    source: true,
+    /** In the currency's smallest unit: $12.50 → 1250, ₮1,500 → 150000, ¥500 → 500 (`currencyDigits`). */
+    amount: true,
+    /** ISO 4217. */
+    currency: true,
+    description: true,
+    status: true,
+    metadata: true,
+    lines: true,
+    /** What the gateway says was paid, and how much of it was given back. */
+    paidAmount: true,
+    refundedAmount: true,
+    /** For the payer: QR (text and PNG data), a short link, bank app links. */
+    payment: true,
+    expiresAt: true,
+    paidAt: true,
+    createdAt: true,
+  })
+  .extend({
+    gatewayKind: PaymentGatewayKind,
+    reference: z.object({ type: z.string(), id: z.string() }),
+    /** What can still be refunded, and how the gateway refunds (`full`: only the whole payment). */
+    refundable: z.object({ amount: z.int(), gateway: z.enum(['partial', 'full', 'none']) }),
+  });
 
 export type Invoice = z.infer<typeof Invoice>;
 
-export const Refund = z.object({
+export const Refund = createSelectSchema(paymentRefunds, {
   id: Id,
   invoiceId: Id,
-  amount: z.int(),
-  reason: z.string(),
-  /** `gateway`: sent through it; `manual`: the organisation paid it back itself and recorded it. */
-  method: z.enum(['gateway', 'manual']),
-  status: z.enum(['succeeded', 'failed']),
-  error: z.string().nullable(),
-  requestedBy: z.object({ type: z.string(), id: z.string().nullable() }),
-  createdAt: z.iso.datetime(),
-});
+  amount: int,
+  createdAt: isoDate,
+})
+  .pick({
+    id: true,
+    invoiceId: true,
+    amount: true,
+    reason: true,
+    /** `gateway`: sent through it; `manual`: the organisation paid it back itself and recorded it. */
+    method: true,
+    status: true,
+    error: true,
+    createdAt: true,
+  })
+  .extend({ requestedBy: z.object({ type: z.string(), id: z.string().nullable() }) });
 
 export type Refund = z.infer<typeof Refund>;
 
 /** How a plugin takes payments here: its default gateway, and the only ones it may use (none: any). */
-export const PluginPaymentSettings = z.object({
-  plugin: z.string(),
-  title: z.string(),
-  defaultGatewayId: Id.nullable(),
-  allowedGatewayIds: z.array(Id),
-});
+export const PluginPaymentSettings = createSelectSchema(paymentPluginSettings, {
+  defaultGatewayId: () => Id,
+  allowedGatewayIds: () => z.array(Id),
+})
+  .pick({ plugin: true, defaultGatewayId: true, allowedGatewayIds: true })
+  .extend({ title: z.string() });
 
 export type PluginPaymentSettings = z.infer<typeof PluginPaymentSettings>;
 

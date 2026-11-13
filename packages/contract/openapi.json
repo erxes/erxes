@@ -167,16 +167,6 @@
             },
             "additionalProperties": {}
           },
-          "entity": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/EntityRef"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "link": {
             "anyOf": [
               {
@@ -186,12 +176,6 @@
                 "type": "null"
               }
             ]
-          },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
-          },
-          "pinned": {
-            "type": "boolean"
           },
           "editedAt": {
             "anyOf": [
@@ -204,6 +188,26 @@
               }
             ]
           },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actor": {
+            "$ref": "#/components/schemas/ActorRef"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
           "reactions": {
             "type": "object",
             "propertyNames": {
@@ -215,10 +219,6 @@
                 "type": "string"
               }
             }
-          },
-          "occurredAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -229,13 +229,13 @@
           "type",
           "summary",
           "data",
-          "entity",
           "link",
+          "editedAt",
+          "occurredAt",
+          "entity",
           "actor",
           "pinned",
-          "editedAt",
-          "reactions",
-          "occurredAt"
+          "reactions"
         ]
       },
       "ActivityInput": {
@@ -278,18 +278,10 @@
             },
             "additionalProperties": {}
           },
-          "entity": {
-            "$ref": "#/components/schemas/EntityRef"
-          },
           "link": {
             "type": "string",
             "maxLength": 500,
             "pattern": "^\\/(?!\\/)[^\\s]*$"
-          },
-          "actorUserId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
           },
           "occurredAt": {
             "type": "string",
@@ -299,6 +291,14 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 200
+          },
+          "entity": {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          "actorUserId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           }
         },
         "required": [
@@ -467,9 +467,6 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
-          },
           "action": {
             "type": "string"
           },
@@ -577,11 +574,13 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/ActorRef"
           }
         },
         "required": [
           "id",
-          "actor",
           "action",
           "targetType",
           "targetId",
@@ -591,7 +590,8 @@
           "ip",
           "userAgent",
           "source",
-          "createdAt"
+          "createdAt",
+          "actor"
         ]
       },
       "AuditStream": {
@@ -638,11 +638,6 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
-          "pending": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
           "lastDeliveredAt": {
             "anyOf": [
               {
@@ -672,6 +667,11 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "pending": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
           }
         },
         "required": [
@@ -682,11 +682,11 @@
           "status",
           "authHeaderName",
           "cursorSeq",
-          "pending",
           "lastDeliveredAt",
           "lastError",
           "consecutiveFailures",
-          "createdAt"
+          "createdAt",
+          "pending"
         ]
       },
       "Automation": {
@@ -743,6 +743,14 @@
               }
             ]
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "stats": {
             "type": "object",
             "properties": {
@@ -767,14 +775,6 @@
               "succeeded",
               "failed"
             ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -785,9 +785,9 @@
           "definition",
           "activeVersion",
           "activatedBy",
-          "stats",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "stats"
         ]
       },
       "AutomationDefinition": {
@@ -5933,34 +5933,6 @@
           "eventType": {
             "type": "string"
           },
-          "subject": {
-            "anyOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "enum": [
-                      "customer",
-                      "company"
-                    ],
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  }
-                },
-                "required": [
-                  "type",
-                  "id"
-                ]
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "status": {
             "enum": [
               "running",
@@ -5970,9 +5942,6 @@
               "cancelled"
             ],
             "type": "string"
-          },
-          "goalReached": {
-            "type": "boolean"
           },
           "error": {
             "anyOf": [
@@ -6009,6 +5978,37 @@
                 "type": "null"
               }
             ]
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "customer",
+                      "company"
+                    ],
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "type",
+                  "id"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "goalReached": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -6017,13 +6017,13 @@
           "version",
           "eventId",
           "eventType",
-          "subject",
           "status",
-          "goalReached",
           "error",
           "waitingUntil",
           "startedAt",
-          "finishedAt"
+          "finishedAt",
+          "subject",
+          "goalReached"
         ]
       },
       "Company": {
@@ -6157,42 +6157,6 @@
               }
             ]
           },
-          "tagIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "customFields": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            },
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "maxLength": 5000
-                },
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "array",
-                  "maxItems": 50,
-                  "items": {
-                    "type": "string",
-                    "maxLength": 200
-                  }
-                }
-              ]
-            }
-          },
           "state": {
             "enum": [
               "lead",
@@ -6272,6 +6236,42 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customFields": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 5000
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "array",
+                  "maxItems": 50,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              ]
+            }
           }
         },
         "required": [
@@ -6290,8 +6290,6 @@
           "code",
           "description",
           "ownerId",
-          "tagIds",
-          "customFields",
           "state",
           "leadStageId",
           "leadStageChangedAt",
@@ -6301,7 +6299,9 @@
           "convertedAt",
           "lastActivityAt",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "tagIds",
+          "customFields"
         ]
       },
       "CompanyFields": {
@@ -6455,6 +6455,51 @@
               }
             ]
           },
+          "state": {
+            "enum": [
+              "lead",
+              "customer"
+            ],
+            "type": "string"
+          },
+          "leadStageId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "disqualifyReason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceDetails": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "maxLength": 50
+            },
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
           "tagIds": {
             "type": "array",
             "maxItems": 50,
@@ -6499,51 +6544,6 @@
                   "type": "null"
                 }
               ]
-            }
-          },
-          "state": {
-            "enum": [
-              "lead",
-              "customer"
-            ],
-            "type": "string"
-          },
-          "leadStageId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "disqualifyReason": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 500
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "source": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "sourceDetails": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "maxLength": 50
-            },
-            "additionalProperties": {
-              "type": "string",
-              "maxLength": 500
             }
           }
         }
@@ -6707,6 +6707,41 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
+          "payload": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "subject": {
             "anyOf": [
               {
@@ -6747,41 +6782,6 @@
           },
           "actor": {
             "$ref": "#/components/schemas/ActorRef"
-          },
-          "payload": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {}
-          },
-          "summary": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "link": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "occurredAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -6789,14 +6789,14 @@
           "source",
           "type",
           "version",
-          "subject",
-          "entity",
-          "actor",
           "payload",
           "summary",
           "link",
           "occurredAt",
-          "createdAt"
+          "createdAt",
+          "subject",
+          "entity",
+          "actor"
         ]
       },
       "CursorQuery": {
@@ -6994,42 +6994,6 @@
               }
             ]
           },
-          "tagIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "customFields": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            },
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "maxLength": 5000
-                },
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "array",
-                  "maxItems": 50,
-                  "items": {
-                    "type": "string",
-                    "maxLength": 200
-                  }
-                }
-              ]
-            }
-          },
           "state": {
             "enum": [
               "lead",
@@ -7109,6 +7073,42 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customFields": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 5000
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "array",
+                  "maxItems": 50,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              ]
+            }
           }
         },
         "required": [
@@ -7128,8 +7128,6 @@
           "code",
           "description",
           "ownerId",
-          "tagIds",
-          "customFields",
           "state",
           "leadStageId",
           "leadStageChangedAt",
@@ -7139,7 +7137,9 @@
           "convertedAt",
           "lastActivityAt",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "tagIds",
+          "customFields"
         ]
       },
       "CustomerFields": {
@@ -7323,6 +7323,51 @@
               }
             ]
           },
+          "state": {
+            "enum": [
+              "lead",
+              "customer"
+            ],
+            "type": "string"
+          },
+          "leadStageId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "disqualifyReason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceDetails": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "maxLength": 50
+            },
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
           "tagIds": {
             "type": "array",
             "maxItems": 50,
@@ -7367,51 +7412,6 @@
                   "type": "null"
                 }
               ]
-            }
-          },
-          "state": {
-            "enum": [
-              "lead",
-              "customer"
-            ],
-            "type": "string"
-          },
-          "leadStageId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "disqualifyReason": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 500
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "source": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "sourceDetails": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "maxLength": 50
-            },
-            "additionalProperties": {
-              "type": "string",
-              "maxLength": 500
             }
           }
         }
@@ -7576,6 +7576,28 @@
             "additionalProperties": {},
             "default": {}
           },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "link": {
+            "type": "string",
+            "maxLength": 500,
+            "pattern": "^\\/(?!\\/)[^\\s]*$"
+          },
+          "notify": {
+            "$ref": "#/components/schemas/EventNotify"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dedupeKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
           "subject": {
             "type": "object",
             "properties": {
@@ -7597,35 +7619,13 @@
               "id"
             ]
           },
-          "summary": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 500
-          },
-          "link": {
-            "type": "string",
-            "maxLength": 500,
-            "pattern": "^\\/(?!\\/)[^\\s]*$"
-          },
           "entity": {
             "$ref": "#/components/schemas/EntityRef"
-          },
-          "notify": {
-            "$ref": "#/components/schemas/EventNotify"
           },
           "actorUserId": {
             "type": "string",
             "minLength": 1,
             "maxLength": 64
-          },
-          "occurredAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "dedupeKey": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200
           }
         },
         "required": [
@@ -8211,15 +8211,15 @@
           "source": {
             "type": "string"
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "uploadedBy": {
             "$ref": "#/components/schemas/ActorRef"
           },
           "url": {
             "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -8229,9 +8229,9 @@
           "size",
           "status",
           "source",
+          "createdAt",
           "uploadedBy",
-          "url",
-          "createdAt"
+          "url"
         ]
       },
       "FileSettings": {
@@ -8405,15 +8405,6 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
-          "sample": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
           "error": {
             "anyOf": [
               {
@@ -8423,9 +8414,6 @@
                 "type": "null"
               }
             ]
-          },
-          "undoable": {
-            "type": "boolean"
           },
           "createdBy": {
             "type": "string",
@@ -8446,6 +8434,18 @@
                 "type": "null"
               }
             ]
+          },
+          "sample": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "undoable": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -8458,12 +8458,12 @@
           "options",
           "counts",
           "processed",
-          "sample",
           "error",
-          "undoable",
           "createdBy",
           "createdAt",
-          "finishedAt"
+          "finishedAt",
+          "sample",
+          "undoable"
         ]
       },
       "ImportOptions": {
@@ -8594,30 +8594,8 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "gatewayKind": {
-            "enum": [
-              "qpay",
-              "test"
-            ],
-            "type": "string"
-          },
           "source": {
             "type": "string"
-          },
-          "reference": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string"
-              },
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "type",
-              "id"
-            ]
           },
           "amount": {
             "type": "integer",
@@ -8670,28 +8648,6 @@
             "type": "integer",
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
-          },
-          "refundable": {
-            "type": "object",
-            "properties": {
-              "amount": {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              "gateway": {
-                "enum": [
-                  "partial",
-                  "full",
-                  "none"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "amount",
-              "gateway"
-            ]
           },
           "payment": {
             "type": "object",
@@ -8781,14 +8737,56 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "gatewayKind": {
+            "enum": [
+              "qpay",
+              "test"
+            ],
+            "type": "string"
+          },
+          "reference": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ]
+          },
+          "refundable": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "gateway": {
+                "enum": [
+                  "partial",
+                  "full",
+                  "none"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "gateway"
+            ]
           }
         },
         "required": [
           "id",
           "gatewayId",
-          "gatewayKind",
           "source",
-          "reference",
           "amount",
           "currency",
           "description",
@@ -8797,11 +8795,13 @@
           "lines",
           "paidAmount",
           "refundedAmount",
-          "refundable",
           "payment",
           "expiresAt",
           "paidAt",
-          "createdAt"
+          "createdAt",
+          "gatewayKind",
+          "reference",
+          "refundable"
         ]
       },
       "InvoiceLine": {
@@ -8896,18 +8896,6 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "recordType": {
-            "enum": [
-              "customer",
-              "company"
-            ],
-            "type": "string"
-          },
-          "recordId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
           "event": {
             "enum": [
               "created",
@@ -8963,19 +8951,31 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "recordType": {
+            "enum": [
+              "customer",
+              "company"
+            ],
+            "type": "string"
+          },
+          "recordId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           }
         },
         "required": [
           "id",
-          "recordType",
-          "recordId",
           "event",
           "fromStageId",
           "toStageId",
           "reason",
           "actorType",
           "actorId",
-          "createdAt"
+          "createdAt",
+          "recordType",
+          "recordId"
         ]
       },
       "LeadReport": {
@@ -9319,16 +9319,6 @@
               }
             ]
           },
-          "entity": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/EntityRef"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "data": {
             "type": "object",
             "propertyNames": {
@@ -9343,15 +9333,25 @@
             ],
             "type": "string"
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "actor": {
             "$ref": "#/components/schemas/ActorRef"
           },
           "read": {
             "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -9361,12 +9361,12 @@
           "title",
           "body",
           "link",
-          "entity",
           "data",
           "priority",
+          "createdAt",
+          "entity",
           "actor",
-          "read",
-          "createdAt"
+          "read"
         ]
       },
       "NotificationGroupSetting": {
@@ -9404,16 +9404,6 @@
       "NotificationInput": {
         "type": "object",
         "properties": {
-          "userIds": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 500,
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            }
-          },
           "kind": {
             "type": "string",
             "maxLength": 100,
@@ -9433,9 +9423,6 @@
             "maxLength": 500,
             "pattern": "^\\/(?!\\/)[^\\s]*$"
           },
-          "entity": {
-            "$ref": "#/components/schemas/EntityRef"
-          },
           "data": {
             "type": "object",
             "propertyNames": {
@@ -9451,21 +9438,34 @@
             "type": "string",
             "default": "normal"
           },
-          "actorUserId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
           "dedupeKey": {
             "type": "string",
             "minLength": 1,
             "maxLength": 200
+          },
+          "userIds": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 500,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          "entity": {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          "actorUserId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           }
         },
         "required": [
-          "userIds",
           "kind",
-          "title"
+          "title",
+          "userIds"
         ]
       },
       "NotificationSettings": {
@@ -9604,16 +9604,16 @@
             ],
             "type": "string"
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "settings": {
             "type": "object",
             "propertyNames": {
               "type": "string"
             },
             "additionalProperties": {}
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -9621,8 +9621,8 @@
           "kind",
           "name",
           "status",
-          "settings",
-          "createdAt"
+          "createdAt",
+          "settings"
         ]
       },
       "PermissionInfo": {
@@ -10181,9 +10181,6 @@
           "plugin": {
             "type": "string"
           },
-          "title": {
-            "type": "string"
-          },
           "defaultGatewayId": {
             "anyOf": [
               {
@@ -10203,13 +10200,16 @@
               "minLength": 1,
               "maxLength": 64
             }
+          },
+          "title": {
+            "type": "string"
           }
         },
         "required": [
           "plugin",
-          "title",
           "defaultGatewayId",
-          "allowedGatewayIds"
+          "allowedGatewayIds",
+          "title"
         ]
       },
       "PluginPlan": {
@@ -10417,6 +10417,25 @@
               "type": "string"
             }
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "archivedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "customFields": {
             "type": "object",
             "propertyNames": {
@@ -10446,25 +10465,6 @@
                 }
               ]
             }
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "archivedAt": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
           }
         },
         "required": [
@@ -10485,10 +10485,10 @@
           "widthMm",
           "heightMm",
           "plugins",
-          "customFields",
           "createdAt",
           "updatedAt",
-          "archivedAt"
+          "archivedAt",
+          "customFields"
         ]
       },
       "ProductCategory": {
@@ -10571,6 +10571,10 @@
               }
             ]
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "requestedBy": {
             "type": "object",
             "properties": {
@@ -10592,10 +10596,6 @@
               "type",
               "id"
             ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
@@ -10606,8 +10606,8 @@
           "method",
           "status",
           "error",
-          "requestedBy",
-          "createdAt"
+          "createdAt",
+          "requestedBy"
         ]
       },
       "RelativeAmount": {
@@ -11083,6 +11083,14 @@
               }
             ]
           },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purgeAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "deletedBy": {
             "type": "object",
             "properties": {
@@ -11109,14 +11117,6 @@
               "type",
               "id"
             ]
-          },
-          "deletedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "purgeAt": {
-            "type": "string",
-            "format": "date-time"
           },
           "counts": {
             "type": "object",
@@ -11149,9 +11149,9 @@
           "recordType",
           "recordId",
           "label",
-          "deletedBy",
           "deletedAt",
           "purgeAt",
+          "deletedBy",
           "counts"
         ]
       },
@@ -11238,9 +11238,6 @@
               "disabled"
             ],
             "type": "string"
-          },
-          "twoFactorEnabled": {
-            "type": "boolean"
           },
           "firstName": {
             "anyOf": [
@@ -11359,6 +11356,9 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "twoFactorEnabled": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -11369,7 +11369,6 @@
           "avatarUrl",
           "role",
           "status",
-          "twoFactorEnabled",
           "firstName",
           "middleName",
           "lastName",
@@ -11382,7 +11381,8 @@
           "links",
           "onboardedAt",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "twoFactorEnabled"
         ]
       },
       "View": {
@@ -11543,9 +11543,6 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "editable": {
-            "type": "boolean"
-          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -11553,6 +11550,9 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "editable": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -11565,9 +11565,9 @@
           "sort",
           "shared",
           "createdBy",
-          "editable",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "editable"
         ]
       },
       "ViewSort": {
@@ -20282,6 +20282,13 @@
                     ],
                     "type": "string"
                   },
+                  "status": {
+                    "enum": [
+                      "active",
+                      "paused"
+                    ],
+                    "type": "string"
+                  },
                   "authHeader": {
                     "anyOf": [
                       {
@@ -20306,13 +20313,6 @@
                         "type": "null"
                       }
                     ]
-                  },
-                  "status": {
-                    "enum": [
-                      "active",
-                      "paused"
-                    ],
-                    "type": "string"
                   }
                 }
               }
@@ -21638,6 +21638,51 @@
                       }
                     ]
                   },
+                  "state": {
+                    "enum": [
+                      "lead",
+                      "customer"
+                    ],
+                    "type": "string"
+                  },
+                  "leadStageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "disqualifyReason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "source": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceDetails": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  },
                   "tagIds": {
                     "type": "array",
                     "maxItems": 50,
@@ -21682,51 +21727,6 @@
                           "type": "null"
                         }
                       ]
-                    }
-                  },
-                  "state": {
-                    "enum": [
-                      "lead",
-                      "customer"
-                    ],
-                    "type": "string"
-                  },
-                  "leadStageId": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "disqualifyReason": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "source": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceDetails": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string",
-                      "maxLength": 50
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "maxLength": 500
                     }
                   }
                 },
@@ -21949,6 +21949,51 @@
                       }
                     ]
                   },
+                  "state": {
+                    "enum": [
+                      "lead",
+                      "customer"
+                    ],
+                    "type": "string"
+                  },
+                  "leadStageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "disqualifyReason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "source": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceDetails": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  },
                   "tagIds": {
                     "type": "array",
                     "maxItems": 50,
@@ -21993,51 +22038,6 @@
                           "type": "null"
                         }
                       ]
-                    }
-                  },
-                  "state": {
-                    "enum": [
-                      "lead",
-                      "customer"
-                    ],
-                    "type": "string"
-                  },
-                  "leadStageId": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "disqualifyReason": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "source": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceDetails": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string",
-                      "maxLength": 50
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "maxLength": 500
                     }
                   }
                 }
@@ -22765,6 +22765,51 @@
                       }
                     ]
                   },
+                  "state": {
+                    "enum": [
+                      "lead",
+                      "customer"
+                    ],
+                    "type": "string"
+                  },
+                  "leadStageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "disqualifyReason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "source": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceDetails": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  },
                   "tagIds": {
                     "type": "array",
                     "maxItems": 50,
@@ -22809,51 +22854,6 @@
                           "type": "null"
                         }
                       ]
-                    }
-                  },
-                  "state": {
-                    "enum": [
-                      "lead",
-                      "customer"
-                    ],
-                    "type": "string"
-                  },
-                  "leadStageId": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "disqualifyReason": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "source": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceDetails": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string",
-                      "maxLength": 50
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "maxLength": 500
                     }
                   }
                 }
@@ -23192,6 +23192,51 @@
                       }
                     ]
                   },
+                  "state": {
+                    "enum": [
+                      "lead",
+                      "customer"
+                    ],
+                    "type": "string"
+                  },
+                  "leadStageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "disqualifyReason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "source": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceDetails": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  },
                   "tagIds": {
                     "type": "array",
                     "maxItems": 50,
@@ -23236,51 +23281,6 @@
                           "type": "null"
                         }
                       ]
-                    }
-                  },
-                  "state": {
-                    "enum": [
-                      "lead",
-                      "customer"
-                    ],
-                    "type": "string"
-                  },
-                  "leadStageId": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "disqualifyReason": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "source": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceDetails": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string",
-                      "maxLength": 50
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "maxLength": 500
                     }
                   }
                 }
@@ -25204,15 +25204,15 @@
                     "source": {
                       "type": "string"
                     },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
                     "uploadedBy": {
                       "$ref": "#/components/schemas/ActorRef"
                     },
                     "url": {
                       "type": "string"
-                    },
-                    "createdAt": {
-                      "type": "string",
-                      "format": "date-time"
                     },
                     "downloadUrl": {
                       "anyOf": [
@@ -25232,9 +25232,9 @@
                     "size",
                     "status",
                     "source",
+                    "createdAt",
                     "uploadedBy",
                     "url",
-                    "createdAt",
                     "downloadUrl"
                   ]
                 }
@@ -30312,16 +30312,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "recordType": {
-                    "enum": [
-                      "customer",
-                      "lead",
-                      "company",
-                      "company_lead",
-                      "product"
-                    ],
-                    "type": "string"
-                  },
                   "name": {
                     "type": "string",
                     "minLength": 1,
@@ -30454,11 +30444,21 @@
                   },
                   "shared": {
                     "type": "boolean"
+                  },
+                  "recordType": {
+                    "enum": [
+                      "customer",
+                      "lead",
+                      "company",
+                      "company_lead",
+                      "product"
+                    ],
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "recordType",
-                  "name"
+                  "name",
+                  "recordType"
                 ]
               }
             }

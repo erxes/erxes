@@ -1,9 +1,17 @@
+import {
+  IMPORT_STATUSES,
+  TRANSFER_RECORD_TYPES,
+  exports,
+  importRows,
+  imports,
+} from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from './automationDefinition';
-import { Id } from './common';
+import { Id, isoDate } from './common';
 
-export const TransferRecordType = z.enum(['customer', 'lead', 'company']);
+export const TransferRecordType = z.enum(TRANSFER_RECORD_TYPES);
 
 export type TransferRecordType = z.infer<typeof TransferRecordType>;
 
@@ -35,16 +43,7 @@ export const ImportOptions = z.object({
 
 export type ImportOptions = z.infer<typeof ImportOptions>;
 
-export const ImportStatus = z.enum([
-  'parsing',
-  'mapping',
-  'checking',
-  'checked',
-  'running',
-  'done',
-  'failed',
-  'undone',
-]);
+export const ImportStatus = z.enum(IMPORT_STATUSES);
 
 const Counts = z.object({
   rows: z.int(),
@@ -54,36 +53,49 @@ const Counts = z.object({
   error: z.int(),
 });
 
-export const Import = z.object({
+const strings = () => z.array(z.string());
+
+export const Import = createSelectSchema(imports, {
   id: Id,
-  recordType: TransferRecordType,
-  fileName: z.string(),
-  status: ImportStatus,
-  headers: z.array(z.string()),
-  /** Column index → field key; unmapped columns are ignored. */
+  headers: strings,
   mapping: z.record(z.string(), z.string()),
   options: ImportOptions,
   counts: Counts,
-  processed: z.int(),
-  /** The first rows, to check the mapping against. */
-  sample: z.array(z.array(z.string())),
-  error: z.string().nullable(),
-  /** Its created records can still be removed (30 days). */
-  undoable: z.boolean(),
+  processed: () => z.int(),
   createdBy: Id,
-  createdAt: z.iso.datetime(),
-  finishedAt: z.iso.datetime().nullable(),
-});
+  createdAt: isoDate,
+  finishedAt: isoDate,
+})
+  .pick({
+    id: true,
+    recordType: true,
+    fileName: true,
+    status: true,
+    headers: true,
+    /** Column index → field key; unmapped columns are ignored. */
+    mapping: true,
+    options: true,
+    counts: true,
+    processed: true,
+    error: true,
+    createdBy: true,
+    createdAt: true,
+    finishedAt: true,
+  })
+  .extend({
+    /** The first rows, to check the mapping against. */
+    sample: z.array(z.array(z.string())),
+    /** Its created records can still be removed (30 days). */
+    undoable: z.boolean(),
+  });
 
 export type Import = z.infer<typeof Import>;
 
-export const ImportRow = z.object({
-  rowNumber: z.int(),
-  cells: z.array(z.string()),
-  action: z.enum(['create', 'update', 'skip', 'error']).nullable(),
-  error: z.string().nullable(),
-  recordId: z.string().nullable(),
-});
+export const ImportRow = createSelectSchema(importRows, {
+  rowNumber: () => z.int(),
+  cells: strings,
+  action: () => z.enum(['create', 'update', 'skip', 'error']),
+}).pick({ rowNumber: true, cells: true, action: true, error: true, recordId: true });
 
 /** What an export reproduces: the list's filters as the member sees them. */
 export const ExportQuery = z.object({
@@ -95,19 +107,27 @@ export const ExportQuery = z.object({
 
 export type ExportQuery = z.infer<typeof ExportQuery>;
 
-export const Export = z.object({
+export const Export = createSelectSchema(exports, {
   id: Id,
-  recordType: TransferRecordType,
-  format: z.enum(['csv', 'xlsx']),
-  columns: z.array(z.string()),
-  status: z.enum(['running', 'done', 'failed']),
-  rowCount: z.int().nullable(),
-  /** The file (download at `/files/{fileId}/download`). */
-  fileId: Id.nullable(),
-  error: z.string().nullable(),
+  columns: strings,
+  rowCount: () => z.int(),
+  fileId: () => Id,
   createdBy: Id,
-  createdAt: z.iso.datetime(),
-  finishedAt: z.iso.datetime().nullable(),
+  createdAt: isoDate,
+  finishedAt: isoDate,
+}).pick({
+  id: true,
+  recordType: true,
+  format: true,
+  columns: true,
+  status: true,
+  rowCount: true,
+  /** The file (download at `/files/{fileId}/download`). */
+  fileId: true,
+  error: true,
+  createdBy: true,
+  createdAt: true,
+  finishedAt: true,
 });
 
 export type Export = z.infer<typeof Export>;

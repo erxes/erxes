@@ -1,10 +1,12 @@
+import { VIEW_RECORD_TYPES, views } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { ConditionGroup } from './automationDefinition';
-import { Id } from './common';
+import { Id, isoDate } from './common';
 
 /** The list a view belongs to: customers, leads (people), companies, company leads, products. */
-export const ViewRecordType = z.enum(['customer', 'lead', 'company', 'company_lead', 'product']);
+export const ViewRecordType = z.enum(VIEW_RECORD_TYPES);
 
 export type ViewRecordType = z.infer<typeof ViewRecordType>;
 
@@ -33,33 +35,43 @@ export const ViewSort = z.object({
   direction: z.enum(['asc', 'desc']),
 });
 
-export const View = z.object({
+export const View = createSelectSchema(views, {
   id: Id,
-  recordType: ViewRecordType,
-  name: z.string(),
-  filter: ConditionGroup.nullable(),
-  search: z.string().nullable(),
-  columns: z.array(z.string()).nullable(),
-  sort: ViewSort.nullable(),
-  /** Seen by the whole team; otherwise only by its creator. */
-  shared: z.boolean(),
+  filter: () => ConditionGroup,
+  columns: () => z.array(z.string()),
+  sort: () => ViewSort,
   createdBy: Id,
-  /** The signed-in member may change or delete it. */
-  editable: z.boolean(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-});
+  createdAt: isoDate,
+  updatedAt: isoDate,
+})
+  .pick({
+    id: true,
+    recordType: true,
+    name: true,
+    filter: true,
+    search: true,
+    columns: true,
+    sort: true,
+    /** Seen by the whole team; otherwise only by its creator. */
+    shared: true,
+    createdBy: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    /** The signed-in member may change or delete it. */
+    editable: z.boolean(),
+  });
 
 export type View = z.infer<typeof View>;
 
-const ViewFields = {
-  name: z.string().trim().min(1).max(80),
-  filter: ConditionGroup.nullable().optional(),
-  search: z.string().trim().max(100).nullable().optional(),
-  columns: z.array(z.string().max(100)).max(100).nullable().optional(),
-  sort: ViewSort.nullable().optional(),
-  shared: z.boolean().optional(),
-};
+const ViewFields = createUpdateSchema(views, {
+  name: (name) => name.trim().min(1).max(80),
+  filter: () => ConditionGroup,
+  search: (search) => search.trim().max(100),
+  columns: () => z.array(z.string().max(100)).max(100),
+  sort: () => ViewSort,
+}).pick({ name: true, filter: true, search: true, columns: true, sort: true, shared: true });
 
 /** Saved lists (views) and what lists can be filtered by. */
 export const viewsContract = {
@@ -79,7 +91,7 @@ export const viewsContract = {
       summary:
         'Save a view (sharing it with the team needs contacts.edit; for products, products.manage)',
     })
-    .input(z.object({ recordType: ViewRecordType, ...ViewFields }))
+    .input(ViewFields.required({ name: true }).extend({ recordType: ViewRecordType }))
     .output(View),
   update: oc
     .route({
@@ -88,7 +100,7 @@ export const viewsContract = {
       summary:
         'Change a view (its creator; a shared one also members who may share: contacts.edit, products.manage)',
     })
-    .input(z.object({ id: Id, ...ViewFields, name: ViewFields.name.optional() }))
+    .input(ViewFields.extend({ id: Id }))
     .output(View),
   remove: oc
     .route({ method: 'DELETE', path: '/views/{id}' })

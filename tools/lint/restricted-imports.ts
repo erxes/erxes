@@ -1,0 +1,79 @@
+// The `no-restricted-imports` entries vite.config.ts gives each part of the repo.
+
+// Procedures are built from the contract in one place, so every route goes
+// through the same context and access checks.
+export const routerBuilder = {
+  name: '@orpc/server',
+  importNames: ['implement', 'os'],
+  message:
+    'Build procedures with the builders from apps/core-api/src/orpc.ts, in modules/<feature>/<feature>.router.ts.',
+};
+
+// Decisions recorded as bans: each message says what to use instead.
+export const decided = [
+  {
+    name: 'graphile-worker',
+    message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
+  },
+  {
+    name: 'bullmq',
+    message: 'Durable work goes through core_jobs (apps/core-api/src/modules/jobs).',
+  },
+  {
+    name: 'ioredis',
+    message: 'Realtime is the Postgres LISTEN/NOTIFY hub (modules/live); core has no Redis.',
+  },
+  {
+    name: 'redis',
+    message: 'Realtime is the Postgres LISTEN/NOTIFY hub (modules/live); core has no Redis.',
+  },
+  {
+    name: '@apollo/client',
+    message: 'Core has no GraphQL. Call core through the typed oRPC client.',
+  },
+  { name: 'graphql', message: 'Core has no GraphQL. Call core through the typed oRPC client.' },
+  { name: 'dayjs', message: 'One date library: date-fns.' },
+  { name: 'moment', message: 'One date library: date-fns.' },
+  { name: 'axios', message: 'Use fetch on the server and the typed oRPC client in the browser.' },
+  { name: 'lodash', message: 'Use the platform (Array, Object, structuredClone) or es-toolkit.' },
+  ...['zod/v3', 'zod/v4-mini', 'zod/mini'].map((name) => ({
+    name,
+    message: "One zod: import { z } from 'zod' (zod 4 classic).",
+  })),
+  { name: 'react', importNames: ['forwardRef'], message: 'React 19: take ref from the props.' },
+  { name: 'react-merge-refs', message: "Merge refs with composeRefs from 'radix-ui/internal'." },
+];
+
+// Packages are shared with plugins and never reach into an app.
+export const noApps = {
+  group: [
+    '@erxes/core-api',
+    '@erxes/core-api/*',
+    '@erxes/core-ui',
+    '@erxes/core-ui/*',
+    '**/apps/**',
+  ],
+  message: 'Packages and the UI never import an app. Move the shared code into a package.',
+};
+
+// Browser code runs without Node and without the database.
+export const serverOnly = {
+  group: [
+    '@erxes/core-db',
+    '@erxes/core-db/*',
+    'pg',
+    'pg/*',
+    'drizzle-orm',
+    'drizzle-orm/*',
+    'node:*',
+  ],
+  message: 'Browser code calls core through the contract client, never the database or Node.',
+};
+
+// The contract builds its schemas from the tables (`@erxes/core-db/schema`) and
+// core-ui bundles the contract, so table definitions import drizzle's column
+// builders and nothing that needs Node or a database connection.
+export const noDriver = {
+  group: ['pg', 'pg/*', 'node:*', 'drizzle-orm/node-postgres', '../*', '!../table'],
+  message: 'Table definitions reach the browser through the contract: no Node, driver or client.',
+};

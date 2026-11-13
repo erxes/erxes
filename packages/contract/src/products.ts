@@ -1,4 +1,11 @@
+import {
+  PRODUCT_KINDS,
+  PRODUCT_STATUSES,
+  productCategories,
+  products,
+} from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
   CursorQuery,
@@ -7,16 +14,17 @@ import {
   cursorPageOf,
   Id,
   IdList,
+  isoDate,
   QueryBoolean,
 } from './common';
 import { Currency } from './money';
 import { PluginName } from './plugins';
 
-export const ProductKind = z.enum(['goods', 'service']);
+export const ProductKind = z.enum(PRODUCT_KINDS);
 
 export type ProductKind = z.infer<typeof ProductKind>;
 
-export const ProductStatus = z.enum(['active', 'archived']);
+export const ProductStatus = z.enum(PRODUCT_STATUSES);
 
 export type ProductStatus = z.infer<typeof ProductStatus>;
 
@@ -25,72 +33,112 @@ export type ProductStatus = z.infer<typeof ProductStatus>;
  * same product id; what only one plugin needs (stock, storefront pages,
  * delivery rules) stays in that plugin, keyed by the id.
  */
-export const Product = z.object({
+const int = () => z.int();
+
+export const Product = createSelectSchema(products, {
   id: Id,
-  kind: ProductKind,
-  status: ProductStatus,
-  name: z.string(),
-  code: z.string().nullable(),
-  barcode: z.string().nullable(),
-  categoryId: Id.nullable(),
-  description: z.string().nullable(),
-  unit: z.string(),
-  /** In the currency's smallest unit ($12.50 → 1250, ₮1,500 → 150000), like invoices. */
-  price: z.int(),
-  /** ISO 4217; the organisation's currency unless set. */
-  currency: z.string(),
-  /** Core file ids; the first is the main image. */
-  imageIds: z.array(Id),
-  weightGrams: z.int().nullable(),
-  lengthMm: z.int().nullable(),
-  widthMm: z.int().nullable(),
-  heightMm: z.int().nullable(),
-  /** The plugins that use it (`ecom`, `tms`); each lists its own by default. */
-  plugins: z.array(z.string()),
-  /**
-   * The organisation's own product properties (brand, warranty, room
-   * capacity), set up in Settings › Properties, by field id. Every plugin
-   * sees them; what only one plugin needs stays in that plugin.
-   */
-  customFields: CustomFields,
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  archivedAt: z.iso.datetime().nullable(),
-});
+  categoryId: () => Id,
+  price: int,
+  imageIds: () => z.array(Id),
+  weightGrams: int,
+  lengthMm: int,
+  widthMm: int,
+  heightMm: int,
+  createdAt: isoDate,
+  updatedAt: isoDate,
+  archivedAt: isoDate,
+})
+  .pick({
+    id: true,
+    kind: true,
+    status: true,
+    name: true,
+    code: true,
+    barcode: true,
+    categoryId: true,
+    description: true,
+    unit: true,
+    /** In the currency's smallest unit ($12.50 → 1250, ₮1,500 → 150000), like invoices. */
+    price: true,
+    /** ISO 4217; the organisation's currency unless set. */
+    currency: true,
+    /** Core file ids; the first is the main image. */
+    imageIds: true,
+    weightGrams: true,
+    lengthMm: true,
+    widthMm: true,
+    heightMm: true,
+    /** The plugins that use it (`ecom`, `tms`); each lists its own by default. */
+    plugins: true,
+    createdAt: true,
+    updatedAt: true,
+    archivedAt: true,
+  })
+  .extend({
+    /**
+     * The organisation's own product properties (brand, warranty, room
+     * capacity), set up in Settings › Properties, by field id. Every plugin
+     * sees them; what only one plugin needs stays in that plugin.
+     */
+    customFields: CustomFields,
+  });
 
 export type Product = z.infer<typeof Product>;
 
-export const ProductCategory = z.object({
+export const ProductCategory = createSelectSchema(productCategories, {
   id: Id,
-  name: z.string(),
-  parentId: Id.nullable(),
-  createdAt: z.iso.datetime(),
-});
+  parentId: () => Id,
+  createdAt: isoDate,
+}).pick({ id: true, name: true, parentId: true, createdAt: true });
 
 export type ProductCategory = z.infer<typeof ProductCategory>;
 
-const size = z.int().min(0).max(100_000_000).nullable();
+const size = () => z.int().min(0).max(100_000_000);
 
-const ProductFields = z.object({
-  kind: ProductKind,
-  name: z.string().trim().min(1).max(200),
-  code: z.string().trim().min(1).max(100).nullable(),
-  barcode: z.string().trim().min(1).max(100).nullable(),
-  categoryId: Id.nullable(),
-  description: z.string().trim().max(10_000).nullable(),
-  unit: z.string().trim().min(1).max(20),
-  price: z.int().min(0).max(1_000_000_000_00),
-  currency: Currency,
-  imageIds: z.array(Id).max(20),
+/** What a create or update may set; every field is optional here. */
+const ProductFields = createUpdateSchema(products, {
+  name: (name) => name.trim().min(1).max(200),
+  code: (code) => code.trim().min(1).max(100),
+  barcode: (barcode) => barcode.trim().min(1).max(100),
+  categoryId: () => Id,
+  description: (value) => value.trim().max(10_000),
+  unit: (unit) => unit.trim().min(1).max(20),
+  price: () => z.int().min(0).max(1_000_000_000_00),
+  currency: () => Currency,
+  imageIds: () => z.array(Id).max(20),
   weightGrams: size,
   lengthMm: size,
   widthMm: size,
   heightMm: size,
   /** Members choose the plugins that use it; a plugin that creates a product uses it itself. */
-  plugins: z.array(PluginName).max(50),
-  /** Values by field id; `null` or empty clears one, fields left out stay. 400 INVALID_FIELD, INVALID_FIELD_VALUE. */
-  customFields: CustomFieldsPatch,
-});
+  plugins: () => z.array(PluginName).max(50),
+})
+  .pick({
+    kind: true,
+    name: true,
+    code: true,
+    barcode: true,
+    categoryId: true,
+    description: true,
+    unit: true,
+    price: true,
+    currency: true,
+    imageIds: true,
+    weightGrams: true,
+    lengthMm: true,
+    widthMm: true,
+    heightMm: true,
+    plugins: true,
+  })
+  .extend({
+    /** Values by field id; `null` or empty clears one, fields left out stay. 400 INVALID_FIELD, INVALID_FIELD_VALUE. */
+    customFields: CustomFieldsPatch.optional(),
+  });
+
+const CategoryFields = createUpdateSchema(productCategories, {
+  name: (name) => name.trim().min(1).max(100),
+  parentId: () => Id,
+}).pick({ name: true, parentId: true });
 
 /**
  * The organisation's catalog of goods and services, shared by every plugin.
@@ -139,7 +187,7 @@ export const productsContract = {
       summary:
         "Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS with the existing product's id in `data.productId` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
     })
-    .input(ProductFields.partial().required({ kind: true, name: true }))
+    .input(ProductFields.required({ kind: true, name: true }))
     .output(Product),
   update: oc
     .route({
@@ -148,9 +196,10 @@ export const productsContract = {
       summary: 'Change a product (`plugins`: members only). Errors as for create',
     })
     .input(
-      ProductFields.partial()
-        .extend({ id: Id })
-        .refine((value) => Object.keys(value).some((key) => key !== 'id'), 'nothing to update'),
+      ProductFields.extend({ id: Id }).refine(
+        (value) => Object.keys(value).some((key) => key !== 'id'),
+        'nothing to update',
+      ),
     )
     .output(Product),
   use: oc
@@ -188,9 +237,7 @@ export const productCategoriesContract = {
       successStatus: 201,
       summary: '409 CATEGORY_EXISTS (same name under the same parent); 400 INVALID_CATEGORY',
     })
-    .input(
-      z.object({ name: z.string().trim().min(1).max(100), parentId: Id.nullable().optional() }),
-    )
+    .input(CategoryFields.required({ name: true }))
     .output(ProductCategory),
   update: oc
     .route({
@@ -199,13 +246,10 @@ export const productCategoriesContract = {
       summary: '409 CATEGORY_EXISTS; 400 INVALID_CATEGORY (unknown parent, or one of its own)',
     })
     .input(
-      z
-        .object({
-          id: Id,
-          name: z.string().trim().min(1).max(100).optional(),
-          parentId: Id.nullable().optional(),
-        })
-        .refine((value) => Object.keys(value).some((key) => key !== 'id'), 'nothing to update'),
+      CategoryFields.extend({ id: Id }).refine(
+        (value) => Object.keys(value).some((key) => key !== 'id'),
+        'nothing to update',
+      ),
     )
     .output(ProductCategory),
   remove: oc

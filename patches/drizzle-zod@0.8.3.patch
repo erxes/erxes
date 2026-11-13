@@ -1,0 +1,13 @@
+diff --git a/index.mjs b/index.mjs
+index cb83b2bd36fb84f65a298ab0ddb0a29aadebaad7..b97e63a6f90cfb7da21de27598c4d76fc83075c6 100644
+--- a/index.mjs
++++ b/index.mjs
+@@ -1,4 +1,7 @@
+-import { z } from 'zod/v4';
++// Named imports, not zod's namespace: a namespace used as a value keeps every
++// zod export in a browser bundle, the ~260 KB of locales included.
++import { any, array, bigint, boolean, coerce, custom, date, enum as enum_, int, null as null_, number, object, record, string, tuple, union, uuid } from 'zod/v4';
++const z = { any, array, bigint, boolean, coerce, custom, date, enum: enum_, int, null: null_, number, object, record, string, tuple, union, uuid };
+ import { isTable, getTableColumns, getViewSelectedFields, is, Column, SQL, isView } from 'drizzle-orm';
+ 
+ const CONSTANTS = {

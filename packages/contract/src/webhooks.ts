@@ -1,6 +1,8 @@
+import { webhookDeliveries, webhooks } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { CursorQuery, cursorPageOf, Id } from './common';
+import { CursorQuery, cursorPageOf, Id, isoDate } from './common';
 
 /**
  * Events core publishes (plugins add theirs through their manifest). Webhooks
@@ -181,43 +183,59 @@ const WebhookUrl = z
   .max(2000)
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
-export const Webhook = z.object({
+const int = () => z.int();
+
+export const Webhook = createSelectSchema(webhooks, {
   id: Id,
-  url: z.string(),
-  description: z.string().nullable(),
-  eventTypes: z.array(z.string()),
-  status: z.enum(['active', 'disabled']),
-  disabledReason: z.string().nullable(),
-  consecutiveFailures: z.int(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  consecutiveFailures: int,
+  createdAt: isoDate,
+  updatedAt: isoDate,
+}).pick({
+  id: true,
+  url: true,
+  description: true,
+  eventTypes: true,
+  status: true,
+  disabledReason: true,
+  consecutiveFailures: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export type Webhook = z.infer<typeof Webhook>;
 
-export const WebhookDelivery = z.object({
+export const WebhookDelivery = createSelectSchema(webhookDeliveries, {
   id: Id,
   webhookId: Id,
-  eventId: z.string(),
-  eventType: z.string(),
-  status: z.enum(['pending', 'succeeded', 'failed']),
-  attempts: z.int(),
-  responseStatus: z.int().nullable(),
-  responseBody: z.string().nullable(),
-  error: z.string().nullable(),
-  durationMs: z.int().nullable(),
-  nextAttemptAt: z.iso.datetime().nullable(),
-  deliveredAt: z.iso.datetime().nullable(),
-  createdAt: z.iso.datetime(),
+  attempts: int,
+  responseStatus: int,
+  durationMs: int,
+  nextAttemptAt: isoDate,
+  deliveredAt: isoDate,
+  createdAt: isoDate,
+}).pick({
+  id: true,
+  webhookId: true,
+  eventId: true,
+  eventType: true,
+  status: true,
+  attempts: true,
+  responseStatus: true,
+  responseBody: true,
+  error: true,
+  durationMs: true,
+  nextAttemptAt: true,
+  deliveredAt: true,
+  createdAt: true,
 });
 
 export type WebhookDelivery = z.infer<typeof WebhookDelivery>;
 
-const WebhookFields = {
-  url: WebhookUrl,
-  description: z.string().trim().max(300).nullable().optional(),
-  eventTypes: z.array(EventPattern).min(1).max(100),
-};
+const WebhookFields = createUpdateSchema(webhooks, {
+  url: () => WebhookUrl,
+  description: (value) => value.trim().max(300),
+  eventTypes: () => z.array(EventPattern).min(1).max(100),
+}).pick({ url: true, description: true, eventTypes: true, status: true });
 
 /**
  * Webhooks: an organisation's endpoints get its events as signed POSTs
@@ -240,19 +258,11 @@ export const webhooksContract = {
       successStatus: 201,
       summary: 'Add an endpoint; the signing secret is returned once here',
     })
-    .input(z.object(WebhookFields))
+    .input(WebhookFields.omit({ status: true }).required({ url: true, eventTypes: true }))
     .output(z.object({ webhook: Webhook, secret: z.string() })),
   update: oc
     .route({ method: 'PATCH', path: '/webhooks/{id}' })
-    .input(
-      z.object({
-        id: Id,
-        url: WebhookFields.url.optional(),
-        description: WebhookFields.description,
-        eventTypes: WebhookFields.eventTypes.optional(),
-        status: z.enum(['active', 'disabled']).optional(),
-      }),
-    )
+    .input(WebhookFields.extend({ id: Id }))
     .output(Webhook),
   remove: oc
     .route({ method: 'DELETE', path: '/webhooks/{id}' })

@@ -1,26 +1,32 @@
+import { organizations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
-import { z } from 'zod';
-import { Id } from './common';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
+import type { z } from 'zod';
+import { Id, isoDate } from './common';
 import { Country, Currency } from './money';
 
-export const Organization = z.object({
-  id: Id,
-  subdomain: z.string(),
-  name: z.string(),
+export const Organization = createSelectSchema(organizations, { id: Id, createdAt: isoDate }).pick({
+  id: true,
+  subdomain: true,
+  name: true,
   /** Where the organisation works (ISO 3166, `MN`); null until chosen. Plugins use it for local rules (taxes, receipts). */
-  country: z.string().nullable(),
+  country: true,
   /** What it charges in (ISO 4217, `MNT`): new products and invoices default to it. */
-  currency: z.string(),
-  createdAt: z.iso.datetime(),
+  currency: true,
+  createdAt: true,
 });
 
 export type Organization = z.infer<typeof Organization>;
 
-/** Where an organisation works; the currency defaults to the country's. */
-export const OrganizationRegion = z.object({
+/** What an owner may change. */
+const OrganizationFields = createUpdateSchema(organizations, {
   country: Country.optional(),
-  currency: Currency.optional(),
+  currency: () => Currency,
+  name: (name) => name.trim().min(1).max(100),
 });
+
+/** Where an organisation works; the currency defaults to the country's. */
+export const OrganizationRegion = OrganizationFields.pick({ country: true, currency: true });
 
 export const organizationsContract = {
   current: oc
@@ -38,7 +44,7 @@ export const organizationsContract = {
         "Rename the organisation or change its country and currency. Products and invoices keep the currency they were made in; a new country without a currency also sets the country's currency",
     })
     .input(
-      OrganizationRegion.extend({ name: z.string().trim().min(1).max(100).optional() }).refine(
+      OrganizationFields.pick({ country: true, currency: true, name: true }).refine(
         (input) => Object.values(input).some((value) => value !== undefined),
         'Nothing to change',
       ),

@@ -1,5 +1,7 @@
+import { RUN_STATUSES, automationRunSteps, automationRuns } from '@erxes/core-db/schema';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id } from './common';
+import { Id, isoDate } from './common';
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
 
@@ -49,37 +51,56 @@ export type ActionInfo = z.infer<typeof ActionInfo>;
 
 // ─── Runs ───────────────────────────────────────────────────────────────────
 
-export const RunStatus = z.enum(['running', 'waiting', 'succeeded', 'failed', 'cancelled']);
+export const RunStatus = z.enum(RUN_STATUSES);
 
-export const AutomationRun = z.object({
+const int = () => z.int();
+
+export const AutomationRun = createSelectSchema(automationRuns, {
   id: Id,
   automationId: Id,
-  version: z.int(),
-  eventId: z.string(),
-  eventType: z.string(),
-  subject: z.object({ type: z.enum(['customer', 'company']), id: Id }).nullable(),
-  status: RunStatus,
-  /** Left early because the automation's goal was met. */
-  goalReached: z.boolean(),
-  error: z.string().nullable(),
-  waitingUntil: z.iso.datetime().nullable(),
-  startedAt: z.iso.datetime(),
-  finishedAt: z.iso.datetime().nullable(),
-});
+  version: int,
+  waitingUntil: isoDate,
+  startedAt: isoDate,
+  finishedAt: isoDate,
+})
+  .pick({
+    id: true,
+    automationId: true,
+    version: true,
+    eventId: true,
+    eventType: true,
+    status: true,
+    error: true,
+    waitingUntil: true,
+    startedAt: true,
+    finishedAt: true,
+  })
+  .extend({
+    subject: z.object({ type: z.enum(['customer', 'company']), id: Id }).nullable(),
+    /** Left early because the automation's goal was met. */
+    goalReached: z.boolean(),
+  });
 
 export type AutomationRun = z.infer<typeof AutomationRun>;
 
-export const RunStep = z.object({
+export const RunStep = createSelectSchema(automationRunSteps, {
   id: Id,
-  stepId: z.string(),
-  type: z.string(),
-  status: z.enum(['succeeded', 'failed', 'skipped']),
-  input: z.unknown().nullable(),
-  output: z.unknown().nullable(),
-  error: z.string().nullable(),
-  attempt: z.int(),
-  startedAt: z.iso.datetime(),
-  finishedAt: z.iso.datetime(),
+  input: () => z.unknown(),
+  output: () => z.unknown(),
+  attempt: int,
+  startedAt: isoDate,
+  finishedAt: isoDate,
+}).pick({
+  id: true,
+  stepId: true,
+  type: true,
+  status: true,
+  input: true,
+  output: true,
+  error: true,
+  attempt: true,
+  startedAt: true,
+  finishedAt: true,
 });
 
 export type RunStep = z.infer<typeof RunStep>;

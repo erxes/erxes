@@ -78,8 +78,10 @@
     "build": "tsdown"
   },
   "dependencies": {
+    "@erxes/core-db": "workspace:^",
     "@orpc/contract": "1.16.2",
     "country-to-currency": "^3.0.2",
+    "drizzle-zod": "0.8.3",
     "zod": "^4.6.7"
   }
 }

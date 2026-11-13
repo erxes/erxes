@@ -1,30 +1,38 @@
+import { AUDIT_STREAM_FORMATS, auditLogs, auditStreams } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { cursorPageOf, CursorQuery, Id } from './common';
+import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
 import { ActorRef } from './platform';
 
-export const AuditEntry = z.object({
+export const AuditEntry = createSelectSchema(auditLogs, {
   id: Id,
-  actor: ActorRef,
-  /** `<record>.<verb>`: `customer.deleted`, `user.role_changed`, `auth.signed_in`. */
-  action: z.string(),
-  targetType: z.string().nullable(),
-  targetId: z.string().nullable(),
-  targetLabel: z.string().nullable(),
-  /** `{ field: [before, after] }` */
-  changes: z.record(z.string(), z.tuple([z.unknown(), z.unknown()])).nullable(),
-  metadata: z.record(z.string(), z.unknown()).nullable(),
-  ip: z.string().nullable(),
-  userAgent: z.string().nullable(),
-  /** `core` or the plugin that recorded it. */
-  source: z.string(),
-  createdAt: z.iso.datetime(),
-});
+  changes: () => z.record(z.string(), z.tuple([z.unknown(), z.unknown()])),
+  metadata: () => z.record(z.string(), z.unknown()),
+  createdAt: isoDate,
+})
+  .pick({
+    id: true,
+    /** `<record>.<verb>`: `customer.deleted`, `user.role_changed`, `auth.signed_in`. */
+    action: true,
+    targetType: true,
+    targetId: true,
+    targetLabel: true,
+    /** `{ field: [before, after] }` */
+    changes: true,
+    metadata: true,
+    ip: true,
+    userAgent: true,
+    /** `core` or the plugin that recorded it. */
+    source: true,
+    createdAt: true,
+  })
+  .extend({ actor: ActorRef });
 
 export type AuditEntry = z.infer<typeof AuditEntry>;
 
 /** Who changed what in core (owners and admins). */
-export const AuditStreamFormat = z.enum(['erxes', 'datadog', 'splunk']);
+export const AuditStreamFormat = z.enum(AUDIT_STREAM_FORMATS);
 
 const StreamUrl = z
   .string()
@@ -42,21 +50,36 @@ const AuthHeader = z.object({
   value: z.string().trim().min(1).max(1000),
 });
 
-export const AuditStream = z.object({
+export const AuditStream = createSelectSchema(auditStreams, {
   id: Id,
-  name: z.string(),
-  url: z.string(),
-  format: AuditStreamFormat,
-  status: z.enum(['active', 'paused']),
-  authHeaderName: z.string().nullable(),
-  /** The last chain position delivered, and how many entries wait. */
-  cursorSeq: z.int(),
-  pending: z.int(),
-  lastDeliveredAt: z.iso.datetime().nullable(),
-  lastError: z.string().nullable(),
-  consecutiveFailures: z.int(),
-  createdAt: z.iso.datetime(),
-});
+  cursorSeq: () => z.int(),
+  consecutiveFailures: () => z.int(),
+  lastDeliveredAt: isoDate,
+  createdAt: isoDate,
+})
+  .pick({
+    id: true,
+    name: true,
+    url: true,
+    format: true,
+    status: true,
+    authHeaderName: true,
+    /** The last chain position delivered. */
+    cursorSeq: true,
+    lastDeliveredAt: true,
+    lastError: true,
+    consecutiveFailures: true,
+    createdAt: true,
+  })
+  .extend({
+    /** How many entries wait. */
+    pending: z.int(),
+  });
+
+const StreamFields = createUpdateSchema(auditStreams, {
+  name: (name) => name.trim().min(1).max(80),
+  url: () => StreamUrl,
+}).pick({ name: true, url: true, format: true, status: true });
 
 export type AuditStream = z.infer<typeof AuditStream>;
 
@@ -201,28 +224,19 @@ export const auditContract = {
       summary: 'Stream the audit log to a log service; the signing secret is shown once',
     })
     .input(
-      z.object({
-        name: z.string().trim().min(1).max(80),
-        url: StreamUrl,
-        format: AuditStreamFormat.default('erxes'),
-        authHeader: AuthHeader.optional(),
-        /** `now`: entries from here on; `beginning`: everything still kept, then new ones. */
-        from: z.enum(['now', 'beginning']).default('now'),
-      }),
+      StreamFields.omit({ status: true })
+        .required({ name: true, url: true })
+        .extend({
+          format: AuditStreamFormat.default('erxes'),
+          authHeader: AuthHeader.optional(),
+          /** `now`: entries from here on; `beginning`: everything still kept, then new ones. */
+          from: z.enum(['now', 'beginning']).default('now'),
+        }),
     )
     .output(z.object({ stream: AuditStream, secret: z.string() })),
   updateStream: oc
     .route({ method: 'PATCH', path: '/audit/streams/{id}' })
-    .input(
-      z.object({
-        id: Id,
-        name: z.string().trim().min(1).max(80).optional(),
-        url: StreamUrl.optional(),
-        format: AuditStreamFormat.optional(),
-        authHeader: AuthHeader.nullable().optional(),
-        status: z.enum(['active', 'paused']).optional(),
-      }),
-    )
+    .input(StreamFields.extend({ id: Id, authHeader: AuthHeader.nullable().optional() }))
     .output(AuditStream),
   removeStream: oc
     .route({ method: 'DELETE', path: '/audit/streams/{id}' })

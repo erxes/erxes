@@ -8,6 +8,8 @@ RUN npm install -g pnpm@11.5.2
 ENV VP_GIT_HOOKS=0
 WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+# pnpm applies these to dependencies on install (patchedDependencies).
+COPY patches patches
 # Every workspace manifest, so the frozen lockfile matches.
 COPY apps/core-api/package.json apps/core-api/
 COPY apps/core-ui/package.json apps/core-ui/
@@ -19,6 +21,8 @@ COPY packages/ui/package.json packages/ui/
 RUN pnpm install --frozen-lockfile --filter @erxes/core-ui...
 COPY tsconfig.base.json ./
 COPY packages/contract packages/contract
+# The contract builds its schemas from the table definitions (@erxes/core-db/schema).
+COPY packages/db/src packages/db/src
 COPY packages/ui packages/ui
 COPY apps/core-ui apps/core-ui
 RUN pnpm --filter @erxes/core-ui build

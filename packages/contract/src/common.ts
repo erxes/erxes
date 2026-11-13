@@ -1,6 +1,14 @@
+import { CONTENT_TYPES, FIELD_CONTENT_TYPES } from '@erxes/core-db/schema';
 import { z } from 'zod';
 
 export const Id = z.string().min(1).max(64);
+
+/**
+ * A timestamp column as the API sends it, an ISO string. Give it to
+ * `createSelectSchema` as a refinement (`{ createdAt: isoDate }`), so a
+ * nullable column stays nullable.
+ */
+export const isoDate = () => z.iso.datetime();
 
 /**
  * Keyset ("cursor") paging, newest first. A cursor is the id of a record in
@@ -70,12 +78,12 @@ export const cursorPageOf = <T extends z.ZodType>(item: T) =>
   });
 
 /** Records that tags and custom fields attach to. */
-export const ContentType = z.enum(['customer', 'company']);
+export const ContentType = z.enum(CONTENT_TYPES);
 
 export type ContentType = z.infer<typeof ContentType>;
 
 /** Records custom fields attach to: contacts, and the shared product catalog. */
-export const FieldContentType = z.enum([...ContentType.options, 'product']);
+export const FieldContentType = z.enum(FIELD_CONTENT_TYPES);
 
 export type FieldContentType = z.infer<typeof FieldContentType>;
 
@@ -103,9 +111,6 @@ export const PhoneNumber = z
   .min(3)
   .max(32)
   .regex(/^\+?[0-9 ()-]+$/, 'digits, spaces, brackets, dashes and a leading +');
-
-/** Optional text input: trimmed, `null` clears it. */
-export const text = (max: number) => z.string().trim().max(max).nullable().optional();
 
 /**
  * A picture's address: a full `http(s)` URL, or a file in core's file service

@@ -1,3 +1,7 @@
+import {
+  CONDITION_OPERATORS,
+  type ConditionGroup as StoredConditionGroup,
+} from '@erxes/core-db/schema';
 import { z } from 'zod';
 
 // ─── Definition ─────────────────────────────────────────────────────────────
@@ -8,27 +12,7 @@ export const ContextPath = z
   .trim()
   .regex(/^(event|subject|steps|run)(\.[A-Za-z0-9_-]+)*$/, 'a path like subject.primaryEmail');
 
-export const CONDITION_OPERATORS = [
-  'eq',
-  'neq',
-  'gt',
-  'gte',
-  'lt',
-  'lte',
-  'contains',
-  'not_contains',
-  'starts_with',
-  'in',
-  'not_in',
-  'exists',
-  'not_exists',
-  /** Dates relative to now; the value is `{ amount, unit }` (days, weeks, months). */
-  'within_last',
-  'more_than_ago',
-  'within_next',
-  /** The day and month fall within the next `amount` days (birthdays, anniversaries), whatever the year. */
-  'anniversary_within',
-] as const;
+export { CONDITION_OPERATORS };
 
 export const ConditionOperator = z.enum(CONDITION_OPERATORS);
 
@@ -48,10 +32,7 @@ export const ConditionRule = z.object({
 
 export type ConditionRule = z.infer<typeof ConditionRule>;
 
-export interface ConditionGroup {
-  match: 'all' | 'any';
-  rules: (ConditionRule | ConditionGroup)[];
-}
+export type ConditionGroup = StoredConditionGroup;
 
 /** Rules (or nested groups) that must all, or any, hold. */
 export const ConditionGroup: z.ZodType<ConditionGroup> = z.lazy(() =>

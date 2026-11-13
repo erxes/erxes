@@ -1,9 +1,11 @@
+import { CUSTOMER_STATES, LEAD_STAGE_KINDS, leadEvents, leadStages } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id } from './common';
+import { Id, isoDate } from './common';
 
 /** `open`: still being worked; `qualified`: ready to become a customer; `disqualified`: lost. */
-export const LeadStageKind = z.enum(['open', 'qualified', 'disqualified']);
+export const LeadStageKind = z.enum(LEAD_STAGE_KINDS);
 
 export type LeadStageKind = z.infer<typeof LeadStageKind>;
 
@@ -43,70 +45,83 @@ export const LeadRecordType = z.enum(['customer', 'company']);
 export type LeadRecordType = z.infer<typeof LeadRecordType>;
 
 /** `lead`: not a customer yet. People and companies alike. */
-export const ContactState = z.enum(['lead', 'customer']);
+export const ContactState = z.enum(CUSTOMER_STATES);
 
-/** The lifecycle every contact (person or company) carries. */
-export const LifecycleFields = {
-  state: ContactState,
-  /** The lead stage (`/lead-stages`); stays after conversion. */
-  leadStageId: z.string().nullable(),
-  leadStageChangedAt: z.iso.datetime().nullable(),
-  disqualifyReason: z.string().nullable(),
-  /** Where they came from (`manual`, `form`, `plugin`, …). */
-  source: z.string().nullable(),
+/**
+ * The lifecycle columns every contact (person or company) carries:
+ * `state`, `leadStageId` (stays after conversion), `leadStageChangedAt`,
+ * `disqualifyReason`, `source` (`manual`, `form`, `plugin`, …),
+ * `sourceDetails`, `convertedAt` and `lastActivityAt` (newest timeline
+ * entry, creation counts).
+ */
+export const LIFECYCLE_COLUMNS = {
+  state: true,
+  leadStageId: true,
+  leadStageChangedAt: true,
+  disqualifyReason: true,
+  source: true,
+  sourceDetails: true,
+  convertedAt: true,
+  lastActivityAt: true,
+} as const;
+
+/** How the lifecycle columns read (`createSelectSchema` refinements). */
+export const lifecycleRow = {
+  leadStageChangedAt: isoDate,
   sourceDetails: z.record(z.string(), z.string()),
-  /** When the lead became a customer. */
-  convertedAt: z.iso.datetime().nullable(),
-  /** Newest timeline entry (creation counts). */
-  lastActivityAt: z.iso.datetime(),
+  convertedAt: isoDate,
+  lastActivityAt: isoDate,
 };
 
-/** Lifecycle fields a create or update may set. */
-export const LifecycleInput = {
-  state: ContactState.optional(),
-  /** A lead stage; moving to a disqualified one takes `disqualifyReason`. */
+/**
+ * What a create or update may set (`createUpdateSchema` refinements): a lead
+ * stage (moving to a disqualified one takes `disqualifyReason`), and the
+ * source, set when created (later changes are corrections).
+ */
+export const lifecycleInput = {
   leadStageId: Id.optional(),
-  disqualifyReason: z.string().trim().max(500).nullable().optional(),
-  /** Set when created (later changes are corrections). */
-  source: LeadSource.nullable().optional(),
-  sourceDetails: SourceDetails.optional(),
+  disqualifyReason: () => z.string().trim().max(500),
+  source: () => LeadSource,
+  sourceDetails: () => SourceDetails,
 };
 
-export const LeadStage = z.object({
-  id: Id,
-  name: z.string(),
-  kind: LeadStageKind,
-  color: z.string(),
-  order: z.int(),
-  /** People who are leads in it now. */
-  leadCount: z.int(),
-  /** Companies that are leads in it now. */
-  companyLeadCount: z.int(),
-});
+/** The lifecycle columns a create or update may set. */
+export const LIFECYCLE_INPUT_COLUMNS = {
+  state: true,
+  leadStageId: true,
+  disqualifyReason: true,
+  source: true,
+  sourceDetails: true,
+} as const;
+
+export const LeadStage = createSelectSchema(leadStages, { id: Id, order: () => z.int() })
+  .pick({ id: true, name: true, kind: true, color: true, order: true })
+  .extend({
+    /** People who are leads in it now. */
+    leadCount: z.int(),
+    /** Companies that are leads in it now. */
+    companyLeadCount: z.int(),
+  });
 
 export type LeadStage = z.infer<typeof LeadStage>;
 
-const StageFields = z.object({
-  name: z.string().trim().min(1).max(60),
-  kind: LeadStageKind.optional(),
-  color: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/, '#rrggbb')
-    .optional(),
-});
+const StageFields = createUpdateSchema(leadStages, {
+  name: (name) => name.trim().min(1).max(60),
+  color: (color) => color.regex(/^#[0-9a-fA-F]{6}$/, '#rrggbb'),
+}).pick({ name: true, kind: true, color: true });
 
-export const LeadEvent = z.object({
-  id: Id,
-  recordType: LeadRecordType,
-  recordId: Id,
-  event: z.enum(['created', 'stage', 'converted', 'reopened']),
-  fromStageId: z.string().nullable(),
-  toStageId: z.string().nullable(),
-  reason: z.string().nullable(),
-  actorType: z.string(),
-  actorId: z.string().nullable(),
-  createdAt: z.iso.datetime(),
-});
+export const LeadEvent = createSelectSchema(leadEvents, { id: Id, createdAt: isoDate })
+  .pick({
+    id: true,
+    event: true,
+    fromStageId: true,
+    toStageId: true,
+    reason: true,
+    actorType: true,
+    actorId: true,
+    createdAt: true,
+  })
+  .extend({ recordType: LeadRecordType, recordId: Id });
 
 export type LeadEvent = z.infer<typeof LeadEvent>;
 
@@ -158,11 +173,11 @@ export const leadsContract = {
     .output(z.object({ data: z.array(LeadStage) })),
   createStage: oc
     .route({ method: 'POST', path: '/lead-stages', successStatus: 201 })
-    .input(StageFields)
+    .input(StageFields.required({ name: true }))
     .output(LeadStage),
   updateStage: oc
     .route({ method: 'PATCH', path: '/lead-stages/{id}' })
-    .input(StageFields.partial().extend({ id: Id }))
+    .input(StageFields.extend({ id: Id }))
     .output(LeadStage),
   reorderStages: oc
     .route({

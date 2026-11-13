@@ -1,9 +1,13 @@
-import type { ConditionGroup, View } from '@erxes/core-contract';
 import { sql } from 'drizzle-orm';
 import { boolean, check, foreignKey, index, jsonb, text } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { createdAt, updatedAt } from './common';
+import { type ConditionGroup, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
+
+export interface ViewSort {
+  field: string;
+  direction: 'asc' | 'desc';
+}
 
 /** Lists views belong to: customers, leads (people), companies, company leads, products. */
 export const VIEW_RECORD_TYPES = [
@@ -30,7 +34,7 @@ export const views = pgTable(
     search: text(),
     /** Column ids in order; null: the list's default columns. */
     columns: jsonb().$type<string[]>(),
-    sort: jsonb().$type<NonNullable<View['sort']>>(),
+    sort: jsonb().$type<ViewSort>(),
     shared: boolean().default(false).notNull(),
     createdBy: text().notNull(),
     createdAt: createdAt(),

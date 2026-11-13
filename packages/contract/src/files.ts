@@ -1,26 +1,37 @@
+import { files } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { Id, IdList } from './common';
+import { Id, IdList, isoDate } from './common';
 import { ActorRef } from './platform';
 
-export const FileInfo = z.object({
+export const FileInfo = createSelectSchema(files, {
   id: Id,
-  name: z.string(),
-  contentType: z.string(),
-  /** Bytes. */
-  size: z.int(),
+  size: () => z.int(),
+  /** Files being deleted are never listed. */
   status: z.enum(['pending', 'ready']),
-  /** `core` or the plugin that uploaded it. */
-  source: z.string(),
-  uploadedBy: ActorRef,
-  /**
-   * Stable address for signed-in members (`/core/v1/files/<id>/download`):
-   * it checks the session, then redirects to a short-lived storage link.
-   * Use it for `<img src>` and links.
-   */
-  url: z.string(),
-  createdAt: z.iso.datetime(),
-});
+  createdAt: isoDate,
+})
+  .pick({
+    id: true,
+    name: true,
+    contentType: true,
+    /** Bytes. */
+    size: true,
+    status: true,
+    /** `core` or the plugin that uploaded it. */
+    source: true,
+    createdAt: true,
+  })
+  .extend({
+    uploadedBy: ActorRef,
+    /**
+     * Stable address for signed-in members (`/core/v1/files/<id>/download`):
+     * it checks the session, then redirects to a short-lived storage link.
+     * Use it for `<img src>` and links.
+     */
+    url: z.string(),
+  });
 
 export type FileInfo = z.infer<typeof FileInfo>;
 

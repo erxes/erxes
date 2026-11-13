@@ -1,6 +1,8 @@
+import { activities } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { cursorPageOf, CursorQuery, Id } from './common';
+import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
 import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
 
 export const ActivityTarget = z.enum(['customer', 'company']);
@@ -37,30 +39,39 @@ export const CORE_ACTIVITY_TYPES = [
   'company.customer_unlinked',
 ] as const;
 
-export const Activity = z.object({
+export const Activity = createSelectSchema(activities, {
   id: Id,
-  targetType: z.string(),
   targetId: Id,
-  /** `core` or the plugin that recorded it. */
-  source: z.string(),
-  type: z.string(),
-  summary: z.string().nullable(),
-  /**
-   * Core types: `updated` → `{ changes: { field: [before, after] } }`;
-   * `tagged` → `{ added: ids, removed: ids }`; `merged` → `{ mergedIds }`;
-   * `*_linked` → `{ customerId | companyId }`.
-   */
   data: z.record(z.string(), z.unknown()),
-  entity: EntityRef.nullable(),
-  link: z.string().nullable(),
-  actor: ActorRef,
-  /** Notes only. */
-  pinned: z.boolean(),
-  editedAt: z.iso.datetime().nullable(),
-  /** Emoji → the members who reacted. */
-  reactions: z.record(z.string(), z.array(z.string())),
-  occurredAt: z.iso.datetime(),
-});
+  editedAt: isoDate,
+  occurredAt: isoDate,
+})
+  .pick({
+    id: true,
+    targetType: true,
+    targetId: true,
+    /** `core` or the plugin that recorded it. */
+    source: true,
+    type: true,
+    summary: true,
+    /**
+     * Core types: `updated` → `{ changes: { field: [before, after] } }`;
+     * `tagged` → `{ added: ids, removed: ids }`; `merged` → `{ mergedIds }`;
+     * `*_linked` → `{ customerId | companyId }`.
+     */
+    data: true,
+    link: true,
+    editedAt: true,
+    occurredAt: true,
+  })
+  .extend({
+    entity: EntityRef.nullable(),
+    actor: ActorRef,
+    /** Notes only. */
+    pinned: z.boolean(),
+    /** Emoji → the members who reacted. */
+    reactions: z.record(z.string(), z.array(z.string())),
+  });
 
 export type Activity = z.infer<typeof Activity>;
 
@@ -76,23 +87,36 @@ export const NoteInput = z.object({
 /** Which entries a timeline shows. */
 export const TimelineKind = z.enum(['all', 'notes', 'changes', 'plugins']);
 
-export const ActivityInput = z.object({
-  targetType: TimelineTarget,
-  targetId: Id,
-  /** Must start with the plugin's name: `ecom.order.paid`. */
-  type: EventType,
-  /** The line shown on the timeline. */
+export const ActivityInput = createUpdateSchema(activities, {
+  targetType: () => TimelineTarget,
+  targetId: () => Id,
+  type: () => EventType,
   summary: z.string().trim().min(1).max(500),
-  data: z.record(z.string(), z.unknown()).optional(),
-  entity: EntityRef.optional(),
+  data: () => z.record(z.string(), z.unknown()),
   link: AppLink.optional(),
-  /** The team member who did it, if any. */
-  actorUserId: Id.optional(),
-  /** When it happened (defaults to now). */
-  occurredAt: z.iso.datetime().optional(),
-  /** Retry-safe: one entry per plugin and key. */
+  occurredAt: () => z.iso.datetime(),
   dedupeKey: DedupeKey.optional(),
-});
+})
+  .pick({
+    targetType: true,
+    targetId: true,
+    /** Must start with the plugin's name: `ecom.order.paid`. */
+    type: true,
+    /** The line shown on the timeline. */
+    summary: true,
+    data: true,
+    link: true,
+    /** When it happened (defaults to now). */
+    occurredAt: true,
+    /** Retry-safe: one entry per plugin and key. */
+    dedupeKey: true,
+  })
+  .required({ targetType: true, targetId: true, type: true })
+  .extend({
+    entity: EntityRef.optional(),
+    /** The team member who did it, if any. */
+    actorUserId: Id.optional(),
+  });
 
 export type ActivityInput = z.infer<typeof ActivityInput>;
 
