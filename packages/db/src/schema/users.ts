@@ -13,7 +13,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { organizations } from './organizations';
 
 /**
@@ -127,6 +127,6 @@ export const users = pgTable(
       foreignColumns: [roles.orgId, roles.key],
       name: 'core_users_role_fkey',
     }),
-    check('core_users_status_check', sql`${table.status} IN ('invited', 'active', 'disabled')`),
+    check('core_users_status_check', inList(table.status, USER_STATUSES)),
   ],
 );

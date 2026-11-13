@@ -1,7 +1,7 @@
 import { LEAD_STAGE_KINDS } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, integer, text, uniqueIndex } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -30,9 +30,6 @@ export const leadStages = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_lead_stages_org_id_fkey',
     }).onDelete('cascade'),
-    check(
-      'core_lead_stages_kind_check',
-      sql`${table.kind} IN ('open', 'qualified', 'disqualified')`,
-    ),
+    check('core_lead_stages_kind_check', inList(table.kind, LEAD_STAGE_KINDS)),
   ],
 );

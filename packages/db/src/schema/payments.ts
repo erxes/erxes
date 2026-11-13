@@ -1,4 +1,10 @@
-import { INVOICE_STATUSES, PAYMENT_GATEWAY_KINDS, REFUND_METHODS, REFUND_STATUSES } from '../enums';
+import {
+  INVOICE_STATUSES,
+  PAYMENT_GATEWAY_KINDS,
+  PAYMENT_GATEWAY_STATUSES,
+  REFUND_METHODS,
+  REFUND_STATUSES,
+} from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -11,7 +17,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -41,16 +47,14 @@ export const paymentGateways = pgTable(
     name: text().notNull(),
     /** Sealed JSON of the gateway's settings (client id, secret, invoice code, …). */
     configSealed: text().notNull(),
-    status: text({ enum: ['active', 'disabled'] })
-      .default('active')
-      .notNull(),
+    status: text({ enum: PAYMENT_GATEWAY_STATUSES }).default('active').notNull(),
     createdBy: text(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (table) => [
     uniqueIndex('core_payment_gateways_org_id_id_key').on(table.orgId, table.id),
-    check('core_payment_gateways_kind_check', sql`${table.kind} IN ('qpay', 'test')`),
+    check('core_payment_gateways_kind_check', inList(table.kind, PAYMENT_GATEWAY_KINDS)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
@@ -114,10 +118,7 @@ export const paymentInvoices = pgTable(
     uniqueIndex('core_payment_invoices_dedupe_key')
       .on(table.orgId, table.source, table.dedupeKey)
       .where(sql`${table.dedupeKey} IS NOT NULL`),
-    check(
-      'core_payment_invoices_status_check',
-      sql`${table.status} IN ('pending', 'paid', 'refunded', 'cancelled', 'expired', 'failed')`,
-    ),
+    check('core_payment_invoices_status_check', inList(table.status, INVOICE_STATUSES)),
     check('core_payment_invoices_amount_check', sql`${table.amount} > 0`),
     check(
       'core_payment_invoices_refunded_check',
@@ -161,8 +162,8 @@ export const paymentRefunds = pgTable(
       .on(table.orgId, table.invoiceId, table.dedupeKey)
       .where(sql`${table.dedupeKey} IS NOT NULL`),
     check('core_payment_refunds_amount_check', sql`${table.amount} > 0`),
-    check('core_payment_refunds_method_check', sql`${table.method} IN ('gateway', 'manual')`),
-    check('core_payment_refunds_status_check', sql`${table.status} IN ('succeeded', 'failed')`),
+    check('core_payment_refunds_method_check', inList(table.method, REFUND_METHODS)),
+    check('core_payment_refunds_status_check', inList(table.status, REFUND_STATUSES)),
     foreignKey({
       columns: [table.orgId, table.invoiceId],
       foreignColumns: [paymentInvoices.orgId, paymentInvoices.id],

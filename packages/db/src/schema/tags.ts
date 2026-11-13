@@ -1,7 +1,7 @@
 import { CONTENT_TYPES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, primaryKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { companies } from './companies';
 import { customers } from './customers';
@@ -31,7 +31,7 @@ export const tags = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_tags_org_id_fkey',
     }).onDelete('cascade'),
-    check('core_tags_type_check', sql`${table.type} IN ('customer', 'company')`),
+    check('core_tags_type_check', inList(table.type, CONTENT_TYPES)),
   ],
 );
 

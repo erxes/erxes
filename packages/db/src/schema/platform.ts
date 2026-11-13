@@ -1,4 +1,4 @@
-import { ACTOR_TYPES, FILE_STATUSES, NOTIFICATION_PRIORITIES } from '../enums';
+import { ACTIVITY_TARGETS, ACTOR_TYPES, FILE_STATUSES, NOTIFICATION_PRIORITIES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -11,7 +11,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 import { users } from './users';
@@ -57,7 +57,7 @@ export const files = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_files_org_id_fkey',
     }).onDelete('cascade'),
-    check('core_files_status_check', sql`${table.status} IN ('pending', 'ready', 'deleting')`),
+    check('core_files_status_check', inList(table.status, FILE_STATUSES)),
     index('core_files_deleting_idx')
       .on(table.updatedAt)
       .where(sql`${table.status} = 'deleting'`),
@@ -122,7 +122,7 @@ export const notifications = pgTable(
       foreignColumns: [users.id],
       name: 'core_notifications_user_id_fkey',
     }).onDelete('cascade'),
-    check('core_notifications_priority_check', sql`${table.priority} IN ('normal', 'high')`),
+    check('core_notifications_priority_check', inList(table.priority, NOTIFICATION_PRIORITIES)),
   ],
 );
 
@@ -183,7 +183,7 @@ export const activities = pgTable(
     }).onDelete('cascade'),
     check(
       'core_activities_target_type_check',
-      sql`${table.targetType} IN ('customer', 'company') OR ${table.targetType} ~ '^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$'`,
+      sql`${inList(table.targetType, ACTIVITY_TARGETS)} OR ${table.targetType} ~ '^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$'`,
     ),
     index('core_activities_actor_idx').on(
       table.orgId,

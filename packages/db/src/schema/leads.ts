@@ -1,7 +1,7 @@
 import { LEAD_EVENTS } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, text, timestamp } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { companies } from './companies';
 import { customers } from './customers';
 import { organizations } from './organizations';
@@ -52,9 +52,6 @@ export const leadEvents = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_lead_events_org_id_fkey',
     }).onDelete('cascade'),
-    check(
-      'core_lead_events_event_check',
-      sql`${table.event} IN ('created', 'stage', 'converted', 'reopened')`,
-    ),
+    check('core_lead_events_event_check', inList(table.event, LEAD_EVENTS)),
   ],
 );

@@ -1,7 +1,6 @@
 import { VIEW_RECORD_TYPES } from '../enums';
-import { sql } from 'drizzle-orm';
 import { boolean, check, foreignKey, index, jsonb, text } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { type ConditionGroup, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -34,10 +33,7 @@ export const views = pgTable(
   },
   (table) => [
     index('core_views_org_type_idx').on(table.orgId, table.recordType),
-    check(
-      'core_views_record_type_check',
-      sql`${table.recordType} IN ('customer', 'lead', 'company', 'company_lead', 'product')`,
-    ),
+    check('core_views_record_type_check', inList(table.recordType, VIEW_RECORD_TYPES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

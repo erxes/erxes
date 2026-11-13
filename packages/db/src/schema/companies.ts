@@ -12,7 +12,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { customers } from './customers';
 import { leadStages } from './leadStages';
@@ -99,7 +99,7 @@ export const companies = pgTable(
       foreignColumns: [leadStages.id],
       name: 'core_companies_lead_stage_id_fkey',
     }).onDelete('set null'),
-    check('core_companies_state_check', sql`${table.state} IN ('lead', 'customer')`),
+    check('core_companies_state_check', inList(table.state, CUSTOMER_STATES)),
     index('core_companies_org_owner_idx').on(table.orgId, table.ownerId),
     index('core_companies_org_industry_idx').on(table.orgId, sql`lower(${table.industry})`),
     index('core_companies_search_trgm_idx').using('gin', table.searchText.op('gin_trgm_ops')),

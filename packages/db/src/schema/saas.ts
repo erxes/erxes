@@ -1,8 +1,7 @@
 import type { PLUGIN_TIERS } from '../enums';
 import { ORGANIZATION_STATUSES } from '../enums';
-import { sql } from 'drizzle-orm';
 import { check, foreignKey, jsonb, text, timestamp } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
@@ -37,10 +36,7 @@ export const entitlements = pgTable(
     lastError: text(),
   },
   (table) => [
-    check(
-      'core_entitlements_org_status_check',
-      sql`${table.orgStatus} IN ('active', 'suspended', 'inactive')`,
-    ),
+    check('core_entitlements_org_status_check', inList(table.orgStatus, ORGANIZATION_STATUSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

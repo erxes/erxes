@@ -10,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -113,8 +113,8 @@ export const products = pgTable(
       foreignColumns: [productCategories.orgId, productCategories.id],
       name: 'core_products_category_fkey',
     }),
-    check('core_products_kind_check', sql`${table.kind} IN ('goods', 'service')`),
-    check('core_products_status_check', sql`${table.status} IN ('active', 'archived')`),
+    check('core_products_kind_check', inList(table.kind, PRODUCT_KINDS)),
+    check('core_products_status_check', inList(table.status, PRODUCT_STATUSES)),
     check('core_products_price_check', sql`${table.price} >= 0`),
     check(
       'core_products_size_check',

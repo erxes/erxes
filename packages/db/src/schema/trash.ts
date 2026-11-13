@@ -1,5 +1,4 @@
-import { ACTOR_TYPES } from '../enums';
-import { sql } from 'drizzle-orm';
+import { ACTOR_TYPES, CONTENT_TYPES } from '../enums';
 import {
   check,
   foreignKey,
@@ -11,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import type { CustomValue } from './common';
 import { organizations } from './organizations';
 
@@ -40,7 +39,7 @@ export const trash = pgTable(
   {
     id: text().primaryKey(),
     orgId: text().notNull(),
-    recordType: text({ enum: ['customer', 'company'] }).notNull(),
+    recordType: text({ enum: CONTENT_TYPES }).notNull(),
     recordId: text().notNull(),
     /** Its name at deletion, for the bin's list. */
     label: text(),
@@ -55,7 +54,7 @@ export const trash = pgTable(
     uniqueIndex('core_trash_record_key').on(table.orgId, table.recordType, table.recordId),
     index('core_trash_org_idx').on(table.orgId, table.deletedAt.desc()),
     index('core_trash_purge_idx').on(table.purgeAt),
-    check('core_trash_record_type_check', sql`${table.recordType} IN ('customer', 'company')`),
+    check('core_trash_record_type_check', inList(table.recordType, CONTENT_TYPES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],

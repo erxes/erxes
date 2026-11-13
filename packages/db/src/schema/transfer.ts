@@ -1,5 +1,4 @@
-import { EXPORT_STATUSES, IMPORT_STATUSES, TRANSFER_RECORD_TYPES } from '../enums';
-import { sql } from 'drizzle-orm';
+import { EXPORT_FORMATS, EXPORT_STATUSES, IMPORT_STATUSES, TRANSFER_RECORD_TYPES } from '../enums';
 import {
   check,
   foreignKey,
@@ -11,7 +10,7 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { pgTable } from '../table';
+import { inList, pgTable } from '../table';
 import { type ConditionGroup, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
@@ -79,14 +78,8 @@ export const imports = pgTable(
   (table) => [
     index('core_imports_org_created_idx').on(table.orgId, table.createdAt.desc()),
     uniqueIndex('core_imports_org_id_id_key').on(table.orgId, table.id),
-    check(
-      'core_imports_record_type_check',
-      sql`${table.recordType} IN ('customer', 'lead', 'company')`,
-    ),
-    check(
-      'core_imports_status_check',
-      sql`${table.status} IN ('parsing', 'mapping', 'checking', 'checked', 'running', 'done', 'failed', 'undone')`,
-    ),
+    check('core_imports_record_type_check', inList(table.recordType, TRANSFER_RECORD_TYPES)),
+    check('core_imports_status_check', inList(table.status, IMPORT_STATUSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
@@ -127,7 +120,7 @@ export const exports = pgTable(
     id: text().primaryKey(),
     orgId: text().notNull(),
     recordType: text({ enum: TRANSFER_RECORD_TYPES }).notNull(),
-    format: text({ enum: ['csv', 'xlsx'] }).notNull(),
+    format: text({ enum: EXPORT_FORMATS }).notNull(),
     /** The list query: `filter` (condition group), `search`, `tagIds`, `ownerId`. */
     query: jsonb().$type<ExportQuery>().default({}).notNull(),
     columns: jsonb().$type<string[]>().notNull(),
@@ -141,12 +134,9 @@ export const exports = pgTable(
   },
   (table) => [
     index('core_exports_org_created_idx').on(table.orgId, table.createdAt.desc()),
-    check(
-      'core_exports_record_type_check',
-      sql`${table.recordType} IN ('customer', 'lead', 'company')`,
-    ),
-    check('core_exports_format_check', sql`${table.format} IN ('csv', 'xlsx')`),
-    check('core_exports_status_check', sql`${table.status} IN ('running', 'done', 'failed')`),
+    check('core_exports_record_type_check', inList(table.recordType, TRANSFER_RECORD_TYPES)),
+    check('core_exports_format_check', inList(table.format, EXPORT_FORMATS)),
+    check('core_exports_status_check', inList(table.status, EXPORT_STATUSES)),
     foreignKey({
       columns: [table.orgId],
       foreignColumns: [organizations.id],
