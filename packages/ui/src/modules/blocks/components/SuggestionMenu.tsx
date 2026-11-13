@@ -1,7 +1,7 @@
 import { buttonVariants } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
 import React, { useEffect, useRef } from 'react';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 
 export const SuggestionMenu = ({
   ref,
@@ -45,7 +45,7 @@ export const SuggestionMenuItem = ({
 
   return (
     <button
-      ref={mergeRefs([itemRef, ref])}
+      ref={composeRefs(itemRef, ref)}
       type="button"
       aria-pressed={isSelected}
       tabIndex={-1}

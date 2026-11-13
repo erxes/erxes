@@ -1,5 +1,5 @@
 import { useRef, useState, type RefObject, type InputHTMLAttributes } from 'react';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 import { Tooltip } from './tooltip';
 import { inputVariants } from './input';
 import { cn } from 'erxes-ui/lib/utils';
@@ -37,7 +37,7 @@ const TextOverflowTooltipRoot = ({
       <Tooltip {...tooltip}>
         <Tooltip.Trigger asChild>
           <span
-            ref={mergeRefs([innerRef, forwardedRef])}
+            ref={composeRefs(innerRef, forwardedRef)}
             className={cn('truncate w-full', className)}
           >
             {value}
@@ -76,7 +76,7 @@ const TextOverflowTooltipInput = ({
       <Tooltip {...tooltip}>
         <Tooltip.Trigger asChild>
           <input
-            ref={mergeRefs([innerRef, forwardedRef])}
+            ref={composeRefs(innerRef, forwardedRef)}
             value={value}
             onChange={(e) => onChange?.(e.target.value)}
             className={cn(inputVariants(), className)}

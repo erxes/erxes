@@ -7,7 +7,7 @@ import type { DialogProps } from './dialog';
 import { Dialog } from './dialog';
 import { cn } from '../lib/utils';
 import { useEffect, useRef } from 'react';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 
 const CommandRoot = ({
   ref,
@@ -82,7 +82,7 @@ const CommandInput = ({
       >
         <IconSearch className="mr-2 h-4 w-4 shrink-0 opacity-50" />
         <CommandPrimitive.Input
-          ref={mergeRefs([inputRef, ref])}
+          ref={composeRefs(inputRef, ref)}
           className={cn(commanInputVariants({ variant: 'primary' }), 'pl-0', className)}
           {...props}
         />
@@ -93,7 +93,7 @@ const CommandInput = ({
   return (
     <div className={cn('flex items-center bg-background border-b', wrapperClassName)}>
       <CommandPrimitive.Input
-        ref={mergeRefs([inputRef, ref])}
+        ref={composeRefs(inputRef, ref)}
         className={cn(commanInputVariants({ variant: 'secondary' }), className)}
         {...props}
         placeholder={props.placeholder || 'Search'}

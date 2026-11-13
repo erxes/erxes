@@ -8,7 +8,7 @@ import { Separator } from 'erxes-ui/components/separator';
 import { cn } from 'erxes-ui/lib/utils';
 import { Portal } from 'radix-ui';
 import { sidebarPanelOpenState } from 'erxes-ui/state/sidebarPanelState';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 import { useTranslation } from 'react-i18next';
 
 const SIDEBAR_PANEL_SLOT = '[data-sidebar-panel-slot]';
@@ -123,7 +123,7 @@ export const SidebarPanel = ({
 
   return (
     <div
-      ref={mergeRefs([panelRef, ref])}
+      ref={composeRefs(panelRef, ref)}
       data-sidebar="panel"
       data-state={open ? 'expanded' : 'collapsed'}
       className={cn(

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { SidebarTreeIndicator } from 'erxes-ui/components/sidebar-tree-indicator';
 import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
-import { mergeRefs } from 'react-merge-refs';
+import { composeRefs } from 'radix-ui/internal';
 
 export const SidebarMenuSub = ({
   ref,
@@ -15,7 +15,7 @@ export const SidebarMenuSub = ({
 
   return (
     <ul
-      ref={mergeRefs([subRef, ref])}
+      ref={composeRefs(subRef, ref)}
       data-sidebar="menu-sub"
       className={cn(
         'relative ml-3.5 flex min-w-0 translate-x-px flex-col gap-1 pl-2.5 py-0.5',
