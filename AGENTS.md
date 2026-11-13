@@ -24,8 +24,8 @@ in `vite.config.ts` enforces all three.
 ## Setup from a fresh clone
 
 ```sh
-pnpm install                 # Node 24 (.node-version), pnpm from packageManager; installs the pre-commit hook
-docker compose up -d         # Postgres 16 on 127.0.0.1:5434
+pnpm install                 # Node 26 (.node-version), pnpm from packageManager; installs the pre-commit hook
+docker compose up -d         # Postgres 18 on 127.0.0.1:5434
 cp .env.example .env
 pnpm dev                     # API http://localhost:3400, UI http://localhost:3500
 ```

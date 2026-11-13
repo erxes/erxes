@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.6",
     "knip": "^6.45.1",
     "publint": "^0.3.25",
     "tsdown": "^0.23.7",
@@ -33,7 +33,7 @@
     "vite-plus": "1.6.0"
   },
   "engines": {
-    "node": ">=24",
+    "node": ">=26",
     "pnpm": ">=11"
   },
   "packageManager": "pnpm@11.5.2"

@@ -2,7 +2,7 @@
 # session cookie stays first-party. Build from the repository root:
 #   docker build -f apps/core-ui/Dockerfile -t erxes-core-ui .
 # Runtime: CORE_API_URL (default http://api:3400).
-FROM node:24-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 RUN npm install -g pnpm@11.5.2
 # The root `prepare` script installs git hooks; the image has no git and never commits.
 ENV VP_GIT_HOOKS=0

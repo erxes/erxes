@@ -70,7 +70,7 @@ jobs:
         shard: [1, 2]
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: erxes
           POSTGRES_PASSWORD: ci-only-password

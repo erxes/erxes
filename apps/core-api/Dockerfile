@@ -3,7 +3,7 @@
 # Runs `node --import ./dist/instrumentation.js dist/main.js` (tracing loads
 # first, so it can patch http, express and pg); operators also get
 # dist/migrate.js, dist/grant.js and dist/plugin-role.js (see deploy/docker-compose.yml).
-FROM node:24-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 RUN npm install -g pnpm@11.5.2
 # The root `prepare` script installs git hooks; the image has no git and never commits.
 ENV VP_GIT_HOOKS=0
@@ -28,7 +28,7 @@ RUN pnpm --filter @erxes/core-api build \
  && pnpm --filter @erxes/core-api deploy --prod --legacy /out \
  && cp -r apps/core-api/dist /out/dist
 
-FROM node:24-bookworm-slim
+FROM node:26-bookworm-slim
 # The runtime only runs node; npm and corepack bring their own dependencies (and advisories).
 RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 ENV NODE_ENV=production PORT=3400

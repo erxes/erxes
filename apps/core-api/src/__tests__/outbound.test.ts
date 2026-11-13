@@ -1,7 +1,7 @@
 import { withOrg } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { once } from 'node:events';
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import { createServer, type Server, type ServerResponse } from 'node:http';
 import { afterAll, beforeAll, expect, it, vi } from 'vite-plus/test';
 import { postOutbound } from '~/lib/outbound';
 import { processJobs } from '~/modules/jobs/jobs';
@@ -27,7 +27,7 @@ describeWithDb('calls out over the network', () => {
   let receiver: Server;
   let receiverUrl = '';
   /** Requests the receiver holds until the test answers them. */
-  const waiting: ServerResponse<IncomingMessage>[] = [];
+  const waiting: ServerResponse[] = [];
 
   beforeAll(async () => {
     receiver = createServer((req, res) => {
