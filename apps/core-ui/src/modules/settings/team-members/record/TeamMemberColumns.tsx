@@ -7,7 +7,7 @@ import {
   IconShieldHalf,
   IconUser,
 } from '@tabler/icons-react';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import type { TFunction } from 'i18next';
 import {
   Avatar,
@@ -102,7 +102,7 @@ const InvitationStatusCell = ({ user, t }: { user: User; t: TFunction }) => (
   </RecordTableInlineCell>
 );
 
-export const teamMemberColumns = (t: TFunction): ColumnDef<User>[] => [
+export const teamMemberColumns = (t: TFunction): RecordTableColumnDef<User>[] => [
   teamMemberMoreColumn,
   RecordTable.checkboxColumnOf<User>(),
   {

@@ -1,18 +1,14 @@
-// TanStack Table v8 hands out one mutable table, row and column object and changes what their
-// getters return in place. Compiled, these reads would be cached on objects that never change,
-// and selection, sizing and column order would stop showing. TanStack Table 9's store fixes this.
-'use no memo';
-
 import type { HTMLAttributes, ReactNode } from 'react';
-import type { Table } from '@tanstack/react-table';
 import { cn } from 'erxes-ui/lib/utils';
 import { isFixedWidthColumn } from '../utils/columnUtils';
+import type { RecordTableInstance } from './RecordTableProvider';
 
 /**
- * Column sizes and widths as CSS variables. Fixed-width columns keep their pixel size and the
- * rest share the remaining width in proportion to their size.
+ * Column sizes, widths and pinned offsets as CSS variables, so resizing a column restyles the
+ * table without rendering its rows. Fixed-width columns keep their pixel size and the rest
+ * share the remaining width in proportion to their size.
  */
-const columnSizeVariables = (table: Table<unknown>) => {
+const columnSizeVariables = (table: RecordTableInstance) => {
   const headers = table.getFlatHeaders();
 
   const flexWidth = headers.reduce(
@@ -27,27 +23,32 @@ const columnSizeVariables = (table: Table<unknown>) => {
   };
 
   for (const header of headers) {
+    const { column } = header;
+
     const width =
-      isFixedWidthColumn(header.column) || !flexWidth
+      isFixedWidthColumn(column) || !flexWidth
         ? `${header.getSize()}px`
         : `${(header.getSize() / flexWidth) * 100}%`;
 
-    variables[`--header-${header.id}-size`] = header.getSize();
-    variables[`--col-${header.column.id}-size`] = header.column.getSize();
     variables[`--header-${header.id}-width`] = width;
-    variables[`--col-${header.column.id}-width`] = width;
+    variables[`--col-${column.id}-width`] = width;
+
+    if (column.getIsPinned() === 'start') {
+      variables[`--col-${column.id}-start`] = `${column.getStart('start')}px`;
+    }
   }
 
   return variables;
 };
 
+/** Renders again whenever the table's options change, which includes every layout change. */
 export const RecordTableContainer = ({
   table,
   className,
   children,
   style,
   ...props
-}: HTMLAttributes<HTMLDivElement> & { table: Table<unknown>; children: ReactNode }) => (
+}: HTMLAttributes<HTMLDivElement> & { table: RecordTableInstance; children: ReactNode }) => (
   <div
     {...props}
     style={{ ...columnSizeVariables(table), ...style }}

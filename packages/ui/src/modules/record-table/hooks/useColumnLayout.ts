@@ -33,7 +33,7 @@ export const useColumnLayout = ({
       {
         fittedTo: '',
         columnOrder: prefs.columnOrder ?? columnIds,
-        columnPinning: prefs.columnPinning ?? { left: stickyColumns },
+        columnPinning: prefs.columnPinning ?? { start: stickyColumns, end: [] },
         seen: prefs.columnOrder ?? columnIds,
         sticky: prefs.stickyColumns,
         pinningTouched: false,
@@ -62,10 +62,10 @@ export const useColumnLayout = ({
   const structuralKey = columnIds.filter(isStructuralColumn).join(',');
 
   const pinning = useMemo(() => {
-    const left = columnPinning.left ?? [];
-    const pinned = withStructuralFirst(left, structuralKey ? structuralKey.split(',') : []);
+    const { start } = columnPinning;
+    const pinned = withStructuralFirst(start, structuralKey ? structuralKey.split(',') : []);
 
-    return pinned === left ? columnPinning : { ...columnPinning, left: pinned };
+    return pinned === start ? columnPinning : { ...columnPinning, start: pinned };
   }, [columnPinning, structuralKey]);
 
   const setColumnOrder: OnChangeFn<ColumnOrderState> = (updater) =>

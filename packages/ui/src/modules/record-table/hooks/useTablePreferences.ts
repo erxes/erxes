@@ -6,7 +6,8 @@ const ids = z.array(z.string());
 
 const tablePrefsSchema = z.object({
   columnOrder: ids.optional(),
-  columnPinning: z.object({ left: ids.optional(), right: ids.optional() }).optional(),
+  // Strict: a layout saved with the older left/right pinning reads as none, not as unpinned.
+  columnPinning: z.strictObject({ start: ids, end: ids }).optional(),
   columnSizing: z.record(z.string(), z.number()).optional(),
   columnVisibility: z.record(z.string(), z.boolean()).optional(),
   /** The columns meant to stick when the pinning was saved (a newly sticky column is pinned once). */

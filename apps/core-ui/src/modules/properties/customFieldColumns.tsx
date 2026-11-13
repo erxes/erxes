@@ -1,5 +1,5 @@
 import type { CustomValue, Field } from '@erxes/core-contract';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import { RecordTable } from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { FIELD_TYPES_OBJECT } from './fieldTypes';
@@ -10,7 +10,7 @@ type WithCustomFields = { id: string; customFields: Record<string, CustomValue> 
 export const customFieldColumns = <Row extends WithCustomFields>(
   fields: Field[],
   renderCell: (row: Row, field: Field) => ReactNode,
-): ColumnDef<Row>[] =>
+): RecordTableColumnDef<Row>[] =>
   fields.map((field) => ({
     id: `field:${field.id}`,
     accessorFn: (row) => row.customFields[field.id],

@@ -1,6 +1,6 @@
 import type { Field } from '@erxes/core-contract';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import type { Cell, ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Checkbox,
   DropdownMenu,
@@ -73,10 +73,9 @@ const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
   );
 };
 
-const PropertiesMoreColumnCell = ({ cell }: { cell: Cell<Field, unknown> }) => {
+const PropertiesMoreColumnCell = ({ field }: { field: Field }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
-  const field = cell.row.original;
   const setArchiveTarget = useSetAtom(archiveTargetState);
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
 
@@ -116,10 +115,10 @@ const PropertiesMoreColumnCell = ({ cell }: { cell: Cell<Field, unknown> }) => {
   );
 };
 
-const PropertyVisibleCell = ({ cell, label }: { cell: Cell<Field, unknown>; label: string }) => {
+const PropertyVisibleCell = ({ field, label }: { field: Field; label: string }) => {
   const { mutate } = useEditProperty();
   const manager = useCanManageFields();
-  const { id, isVisible } = cell.row.original;
+  const { id, isVisible } = field;
 
   return (
     <RecordTableInlineCell>
@@ -140,7 +139,7 @@ const PropertyVisibleCell = ({ cell, label }: { cell: Cell<Field, unknown>; labe
 export const propertiesColumns = (
   t: TFunction,
   { fieldIds }: { fieldIds: string[] },
-): ColumnDef<Field>[] => [
+): RecordTableColumnDef<Field>[] => [
   {
     id: 'checkbox',
     accessorKey: 'checkbox',
@@ -207,12 +206,12 @@ export const propertiesColumns = (
     id: 'isVisible',
     accessorKey: 'isVisible',
     header: () => <RecordTable.InlineHead label={t('visible', 'Visible')} />,
-    cell: ({ cell }) => <PropertyVisibleCell cell={cell} label={t('visible', 'Visible')} />,
+    cell: ({ row }) => <PropertyVisibleCell field={row.original} label={t('visible', 'Visible')} />,
     size: 90,
   },
   {
     id: 'more',
-    cell: ({ cell }) => <PropertiesMoreColumnCell cell={cell} />,
+    cell: ({ row }) => <PropertiesMoreColumnCell field={row.original} />,
     size: 33,
   },
 ];

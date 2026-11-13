@@ -21,8 +21,8 @@ export const mergeColumnOrder = (saved: string[], ids: string[]) => {
 };
 
 /** Pins each `fresh` column after the pinned column that comes before it in `sticky`. */
-export const pinColumns = (left: string[], fresh: string[], sticky: string[]) => {
-  const result = [...left];
+export const pinColumns = (start: string[], fresh: string[], sticky: string[]) => {
+  const result = [...start];
 
   for (const id of fresh) {
     if (result.includes(id)) continue;
@@ -36,10 +36,10 @@ export const pinColumns = (left: string[], fresh: string[], sticky: string[]) =>
 };
 
 /** Structural columns (checkbox, more) stay first whenever any column is pinned. */
-export const withStructuralFirst = (left: string[], structural: string[]) => {
-  const missing = structural.filter((id) => !left.includes(id));
+export const withStructuralFirst = (start: string[], structural: string[]) => {
+  const missing = structural.filter((id) => !start.includes(id));
 
-  return left.length && missing.length ? [...missing, ...left] : left;
+  return start.length && missing.length ? [...missing, ...start] : start;
 };
 
 /** Identifies the columns and sticky columns a layout is fitted to. */
@@ -49,7 +49,7 @@ export interface ColumnLayout {
   /** The column ids and sticky columns the layout was last fitted to. */
   fittedTo: string;
   columnOrder: string[];
-  columnPinning: { left?: string[]; right?: string[] };
+  columnPinning: { start: string[]; end: string[] };
   /** Columns the layout has seen: a column added later is new. */
   seen: string[];
   /** What was meant to stick at the last fit; older saved layouts didn't say. */
@@ -71,13 +71,13 @@ export const fitLayout = (
     (id) => ids.includes(id) && (!layout.seen.includes(id) || !layout.sticky?.includes(id)),
   );
 
-  const left = followSticky && !layout.pinningTouched ? sticky : (layout.columnPinning.left ?? []);
+  const start = followSticky && !layout.pinningTouched ? sticky : layout.columnPinning.start;
 
   return {
     ...layout,
     fittedTo: fitKey(ids, sticky),
     columnOrder: mergeColumnOrder(layout.columnOrder, ids),
-    columnPinning: { ...layout.columnPinning, left: pinColumns(left, fresh, sticky) },
+    columnPinning: { ...layout.columnPinning, start: pinColumns(start, fresh, sticky) },
     seen: [...new Set([...layout.seen, ...ids])],
     sticky,
   };

@@ -1,46 +1,18 @@
-// TanStack Table v8 hands out one mutable table, row and column object and changes what their
-// getters return in place. Compiled, these reads would be cached on objects that never change,
-// and selection, sizing and column order would stop showing. TanStack Table 9's store fixes this.
-'use no memo';
-
-import { memo, type ComponentProps, type ComponentType } from 'react';
-import { flexRender, type Row as TableRow } from '@tanstack/react-table';
+import type { ComponentProps, ComponentType } from 'react';
+import { flexRender } from '@tanstack/react-table';
 import { cn } from 'erxes-ui/lib/utils';
 import { RecordTableCell } from './RecordTableCell';
 import { useRecordTable } from './RecordTableProvider';
 import { RecordTableRow } from './RecordTableRow';
 
-interface RowsProps {
-  rows: TableRow<unknown>[];
-  columnOrder: string[];
-  isResizing: boolean;
-  handleRowViewChange?: (id: string, inView: boolean) => void;
-  Row: ComponentType<ComponentProps<typeof RecordTableRow>>;
-}
+/** Past this many rows, a row out of view renders as an empty placeholder cell. */
+const VIRTUALIZE_AFTER = 200;
 
-const RowsBody = ({ rows, handleRowViewChange, Row }: RowsProps) =>
-  rows.map((row, rowIndex) => (
-    <Row
-      key={row.id}
-      original={row.original}
-      data-state={row.getIsSelected() && 'selected'}
-      handleRowViewChange={(inView) => handleRowViewChange?.(row.id, inView)}
-    >
-      {row.getVisibleCells().map((cell) => (
-        <RecordTableCell cell={cell} key={cell.id} className={cn(rowIndex === 0 && 'border-t')}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </RecordTableCell>
-      ))}
-    </Row>
-  ));
-
-// While a column is resized only its width variables change, so the rows are not re-rendered.
-const Rows = memo(
-  RowsBody,
-  (prev, next) =>
-    next.isResizing && prev.rows === next.rows && prev.columnOrder === next.columnOrder,
-);
-
+/**
+ * The rows, rendered again when the data or the column order, visibility or pinning changes.
+ * The leaf headers keep their identity while a column is resized (only CSS variables change
+ * then), so resizing renders no rows. Selection re-renders only the rows it touches.
+ */
 export const RecordTableRowList = ({
   handleRowViewChange,
   Row = RecordTableRow,
@@ -49,15 +21,39 @@ export const RecordTableRowList = ({
   Row?: ComponentType<ComponentProps<typeof RecordTableRow>>;
 }) => {
   const { table } = useRecordTable();
-  const { columnOrder, columnSizingInfo } = table.getState();
+  const { rows } = table.getRowModel();
+  const leafHeaders = table.getHeaderGroups().at(-1)?.headers ?? [];
+  const virtualize = rows.length > VIRTUALIZE_AFTER;
 
-  return (
-    <Rows
-      rows={table.getRowModel().rows}
-      columnOrder={columnOrder}
-      isResizing={Boolean(columnSizingInfo.isResizingColumn)}
-      handleRowViewChange={handleRowViewChange}
-      Row={Row}
-    />
-  );
+  return rows.map((row, rowIndex) => {
+    const cells = row.getAllCellsByColumnId();
+
+    return (
+      <Row
+        key={row.id}
+        rowId={row.id}
+        original={row.original}
+        columnCount={leafHeaders.length}
+        virtualize={virtualize}
+        handleRowViewChange={(inView) => handleRowViewChange?.(row.id, inView)}
+      >
+        {leafHeaders.map(({ column }) => {
+          const cell = cells[column.id];
+
+          return (
+            cell && (
+              <RecordTableCell
+                key={cell.id}
+                columnId={column.id}
+                pinned={column.getIsPinned() === 'start'}
+                className={cn(rowIndex === 0 && 'border-t')}
+              >
+                {flexRender(column.columnDef.cell, cell.getContext())}
+              </RecordTableCell>
+            )
+          );
+        })}
+      </Row>
+    );
+  });
 };

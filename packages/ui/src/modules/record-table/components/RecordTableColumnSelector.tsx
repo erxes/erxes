@@ -1,15 +1,14 @@
-// TanStack Table v8 hands out one mutable table, row and column object and changes what their
-// getters return in place. Compiled, these reads would be cached on objects that never change,
-// and selection, sizing and column order would stop showing. TanStack Table 9's store fixes this.
-'use no memo';
-
 import { isValidElement } from 'react';
 import { DropdownMenu } from 'erxes-ui/components/dropdown-menu';
 import { Button } from 'erxes-ui/components/button';
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import { Label } from 'erxes-ui/components/label';
 import { cn } from 'erxes-ui/lib/utils';
-import { useRecordTable } from './RecordTableProvider';
+import {
+  useRecordTable,
+  type RecordTableFeatures,
+  type RecordTableInstance,
+} from './RecordTableProvider';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
   DndContext,
@@ -28,10 +27,12 @@ import {
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
 import { IconSettings, IconGripVertical, IconPin, IconPinFilled } from '@tabler/icons-react';
-import { buildHeaderGroups, type Column, type Table } from '@tanstack/react-table';
+import { buildHeaderGroups, type Column, type RowData } from '@tanstack/react-table';
+
+type RecordTableColumn = Column<RecordTableFeatures, RowData>;
 
 /** The header text, or the `label` of an inline head component, or the column id. */
-const getColumnLabel = (column: Column<unknown>, table: Table<unknown>) => {
+const getColumnLabel = (column: RecordTableColumn, table: RecordTableInstance) => {
   const { header } = column.columnDef;
 
   if (typeof header === 'string') return header;
@@ -58,20 +59,23 @@ const getColumnLabel = (column: Column<unknown>, table: Table<unknown>) => {
   return column.id;
 };
 
+/** One column in the selector. Its state comes in as props: the column object is stable. */
 const SortableColumnItem = ({
   column,
   label,
+  visible,
+  pinned,
   isLastVisible,
 }: {
-  column: Column<unknown>;
+  column: RecordTableColumn;
   label: string;
+  visible: boolean;
+  pinned: boolean;
   isLastVisible: boolean;
 }) => {
-  const isPinned = !!column.getIsPinned();
-
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column.id,
-    disabled: isPinned,
+    disabled: pinned,
   });
 
   const style = {
@@ -92,7 +96,7 @@ const SortableColumnItem = ({
         {...attributes}
         {...listeners}
         className={`text-muted-foreground flex-none flex items-center ${
-          isPinned ? 'cursor-default opacity-30' : 'cursor-grab'
+          pinned ? 'cursor-default opacity-30' : 'cursor-grab'
         }`}
       >
         <IconGripVertical size={14} />
@@ -100,7 +104,7 @@ const SortableColumnItem = ({
 
       <Checkbox
         id={`col-visibility-${column.id}`}
-        checked={column.getIsVisible()}
+        checked={visible}
         disabled={isLastVisible}
         title={isLastVisible ? 'At least one column must stay visible' : undefined}
         onCheckedChange={(checked) => column.toggleVisibility(!!checked)}
@@ -116,15 +120,15 @@ const SortableColumnItem = ({
       <Button
         variant="ghost"
         size="icon"
-        title={isPinned ? 'Unpin column' : 'Pin column to left'}
-        aria-label={isPinned ? 'Unpin column' : 'Pin column to left'}
+        title={pinned ? 'Unpin column' : 'Pin column to left'}
+        aria-label={pinned ? 'Unpin column' : 'Pin column to left'}
         className="h-5 w-5 flex-none text-muted-foreground hover:text-foreground"
         onClick={(e) => {
           e.preventDefault();
-          column.pin(isPinned ? false : 'left');
+          column.pin(pinned ? false : 'start');
         }}
       >
-        {isPinned ? <IconPinFilled size={13} /> : <IconPin size={13} />}
+        {pinned ? <IconPinFilled size={13} /> : <IconPin size={13} />}
       </Button>
     </div>
   );
@@ -139,9 +143,16 @@ export const RecordTableColumnSelector = ({
 }) => {
   const { table, columnSelectorOpen, setColumnSelectorOpen } = useRecordTable();
 
+  // The table renders again on every layout change, so these reads are current.
   const columns = table
     .getAllLeafColumns()
-    .filter((col) => col.id !== 'checkbox' && col.id !== 'select' && col.id !== 'more');
+    .filter((col) => col.id !== 'checkbox' && col.id !== 'select' && col.id !== 'more')
+    .map((column) => ({
+      column,
+      label: getColumnLabel(column, table),
+      visible: column.getIsVisible(),
+      pinned: Boolean(column.getIsPinned()),
+    }));
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -153,18 +164,15 @@ export const RecordTableColumnSelector = ({
     useSensor(KeyboardSensor),
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
 
-    if (active && over && active.id !== over.id) {
-      const currentOrder = table.getState().columnOrder;
-      const oldIndex = currentOrder.indexOf(String(active.id));
-      const newIndex = currentOrder.indexOf(String(over.id));
-      table.setColumnOrder(arrayMove(currentOrder, oldIndex, newIndex));
-    }
+    table.setColumnOrder((order) =>
+      arrayMove(order, order.indexOf(String(active.id)), order.indexOf(String(over.id))),
+    );
   };
 
-  const visibleColumns = columns.filter((col) => col.getIsVisible());
+  const visibleColumns = columns.filter((item) => item.visible);
 
   if (columns.length === 0) return null;
 
@@ -188,15 +196,16 @@ export const RecordTableColumnSelector = ({
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={columns.map((col) => col.id)}
+            items={columns.map((item) => item.column.id)}
             strategy={verticalListSortingStrategy}
           >
-            {columns.map((column) => (
+            {columns.map((item) => (
               <SortableColumnItem
-                key={column.id}
-                column={column}
-                label={getColumnLabel(column, table)}
-                isLastVisible={visibleColumns.length === 1 && visibleColumns[0]?.id === column.id}
+                key={item.column.id}
+                {...item}
+                isLastVisible={
+                  visibleColumns.length === 1 && visibleColumns[0]?.column.id === item.column.id
+                }
               />
             ))}
           </SortableContext>

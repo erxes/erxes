@@ -7,7 +7,7 @@ import {
   IconProgress,
   IconWorld,
 } from '@tabler/icons-react';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Command,
   PopoverScoped,
@@ -98,7 +98,9 @@ const InStageCell = ({ changedAt }: { changedAt: string | null }) => {
 };
 
 /** The stage as a status pill, right after the name; click to move the lead. */
-const stageColumn = <T extends LeadRecord>(recordType: LeadRecordType): ColumnDef<T> => ({
+const stageColumn = <T extends LeadRecord>(
+  recordType: LeadRecordType,
+): RecordTableColumnDef<T> => ({
   id: 'leadStage',
   accessorKey: 'leadStageId',
   header: () => <LeadsHead label="stage" icon={IconProgress} />,
@@ -107,7 +109,7 @@ const stageColumn = <T extends LeadRecord>(recordType: LeadRecordType): ColumnDe
 });
 
 /** Days in the stage, after the name. */
-const inStageColumns = <T extends LeadRecord>(): ColumnDef<T>[] => [
+const inStageColumns = <T extends LeadRecord>(): RecordTableColumnDef<T>[] => [
   {
     id: 'inStage',
     accessorKey: 'leadStageChangedAt',
@@ -118,7 +120,9 @@ const inStageColumns = <T extends LeadRecord>(): ColumnDef<T>[] => [
 ];
 
 /** Every person and company: where they came from, and their newest timeline entry. */
-const originColumns = <T extends LeadRecord & { lastActivityAt: string }>(): ColumnDef<T>[] => [
+const originColumns = <
+  T extends LeadRecord & { lastActivityAt: string },
+>(): RecordTableColumnDef<T>[] => [
   {
     id: 'source',
     accessorKey: 'source',
@@ -152,11 +156,11 @@ const originColumns = <T extends LeadRecord & { lastActivityAt: string }>(): Col
  * `afterId` (the name); then origin columns, then `rest`.
  */
 export const withLifecycleColumns = <T extends LeadRecord & { lastActivityAt: string }>(
-  columns: ColumnDef<T>[],
+  columns: RecordTableColumnDef<T>[],
   afterId: string,
   recordType: LeadRecordType,
   isLead: boolean,
-  rest: ColumnDef<T>[],
+  rest: RecordTableColumnDef<T>[],
 ) => {
   if (!isLead) return [...columns, ...originColumns<T>(), ...rest];
 

@@ -175,6 +175,8 @@ export { PhoneInput } from './modules/record-field/meta-inputs/components/PhoneI
 
 export { RecordTable } from './modules/record-table/components/RecordTable';
 
+export type { RecordTableColumnDef } from './modules/record-table/components/RecordTableProvider';
+
 export { RecordTableInlineCell } from './modules/record-table/components/RecordTableCellInline';
 
 export { EnumCursorDirection } from './modules/record-table/types/RecordTableCursorTypes';

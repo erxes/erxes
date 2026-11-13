@@ -14,7 +14,7 @@ import {
   IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Avatar,
   Combobox,
@@ -117,7 +117,7 @@ const textColumn = (
   label: string,
   size: number,
   valueOf: (company: Company) => string,
-): ColumnDef<Company> => ({
+): RecordTableColumnDef<Company> => ({
   id,
   accessorKey: id,
   header: () => <RecordTable.InlineHead icon={icon} label={label} />,
@@ -130,7 +130,7 @@ const textColumn = (
 });
 
 /** Selection, the picture and the name. */
-const identityColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
+const identityColumns = (t: (key: string) => string): RecordTableColumnDef<Company>[] => [
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
@@ -162,7 +162,7 @@ const identityColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
 ];
 
 /** Company columns. */
-const createCompanyColumns = (t: (key: string) => string): ColumnDef<Company>[] => [
+const createCompanyColumns = (t: (key: string) => string): RecordTableColumnDef<Company>[] => [
   ...identityColumns(t),
   {
     id: 'emails',

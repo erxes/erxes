@@ -9,7 +9,7 @@ import {
   IconTags,
   IconUser,
 } from '@tabler/icons-react';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { RecordTableColumnDef } from 'erxes-ui';
 import {
   Avatar,
   Combobox,
@@ -131,7 +131,7 @@ const DateCell = ({ value }: { value: string }) => (
 );
 
 /** Selection, the picture and the name. */
-const identityColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
+const identityColumns = (t: (key: string) => string): RecordTableColumnDef<Customer>[] => [
   {
     id: 'more',
     header: () => <RecordTable.ColumnSelector />,
@@ -167,7 +167,7 @@ const identityColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
 ];
 
 /** Customer columns. */
-const createCustomersColumns = (t: (key: string) => string): ColumnDef<Customer>[] => [
+const createCustomersColumns = (t: (key: string) => string): RecordTableColumnDef<Customer>[] => [
   ...identityColumns(t),
   {
     id: 'emails',
