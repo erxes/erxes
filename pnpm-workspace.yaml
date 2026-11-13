@@ -13,3 +13,6 @@ allowBuilds:
 overrides:
   'vite@*': 'npm:@voidzero-dev/vite-plus-core@1.6.0'
   'vitest@*': '5.1.0'
+
+patchedDependencies:
+  drizzle-zod@0.8.3: patches/drizzle-zod@0.8.3.patch
