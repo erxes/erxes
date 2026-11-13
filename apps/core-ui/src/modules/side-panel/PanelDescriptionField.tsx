@@ -1,9 +1,6 @@
 import { Editor } from 'erxes-ui';
-import { useRef } from 'react';
 import { IconAlignLeft } from '@tabler/icons-react';
-
-// The editor reports its content this long after the last keystroke.
-const EDITOR_SETTLE_MS = 350;
+import { useSaveOnLeave } from './useSaveOnLeave';
 
 // Rich-text description across the panel's width. Like the other cells it
 // saves when you leave it, never while typing.
@@ -23,22 +20,7 @@ export const PanelDescriptionField = ({
   isHTML?: boolean;
   onSave: (value: string) => void;
 }) => {
-  const latest = useRef(value);
-  const saved = useRef(value);
-
-  /** Saves a changed description when its editor loses focus. */
-  const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
-    if (event.currentTarget.contains(event.relatedTarget)) {
-      return;
-    }
-
-    setTimeout(() => {
-      if (latest.current !== saved.current) {
-        saved.current = latest.current;
-        onSave(latest.current);
-      }
-    }, EDITOR_SETTLE_MS);
-  };
+  const { containerRef, onChange } = useSaveOnLeave({ value, readonly, onSave });
 
   return (
     <div className="flex flex-col gap-1.5 pt-2">
@@ -46,12 +28,10 @@ export const PanelDescriptionField = ({
         <IconAlignLeft className="size-3.5 shrink-0" aria-hidden="true" />
         {label}
       </span>
-      <div onBlur={handleBlur}>
+      <div ref={containerRef}>
         <Editor
           initialContent={value}
-          onChange={(next) => {
-            latest.current = next;
-          }}
+          onChange={onChange}
           scope={scope}
           label={label}
           readonly={readonly}
