@@ -322,21 +322,26 @@ tokens with `verifyErxesAccessToken(token, opts)` (same member fields plus
 ## 8. Customers in the plugin's app (optional)
 
 Core signs customers in (decision 42); a plugin never builds sign-up, sign-in,
-codes or password resets. One account per organisation: a customer signed in to
-one plugin's app is signed in to every other's without typing anything again.
+codes or password resets. One account per organisation: the same customer in
+every plugin's app. The app shows its own form and calls core directly; there
+is no redirect and no core page.
 
-1. Manifest: `customerApp: { redirectUris: ['https://{subdomain}.shop.example.com/callback'] }`.
-2. The app sends customers to `<core>/core/v1/customer-oauth/authorize` with
-   `response_type=code`, `client_id=shop`, `redirect_uri`, `state` and a PKCE
-   S256 challenge (`organization=<subdomain>` when neither address names it;
-   `prompt=login` to ask again). Core shows its sign-in page (a code by email
-   or SMS), then sends the browser back with `code`.
-3. The app trades it at `POST /customer-oauth/token` (form:
-   `grant_type=authorization_code`, `client_id`, `code`, `redirect_uri`,
-   `code_verifier`) for a 15-minute `access_token` and a 90-day
-   `refresh_token` (`grant_type=refresh_token`; rotates on every use, an old
-   one used again ends the session). Sign out: `POST /customer-oauth/revoke`
-   with `token` and `client_id`.
+1. Manifest: `customerApp: { origins: ['https://{subdomain}.shop.example.com'] }`
+   (`http://localhost:<port>` while developing). Browsers may call core's
+   `/customer-auth/*` and `/customer/*` only from these origins (CORS, no
+   cookies). A mobile app sends no origin and names the organisation with
+   `organization: '<subdomain>'`.
+2. Two calls sign a customer in (or up):
+   `POST <core>/core/v1/customer-auth/code` `{ clientId: 'shop', kind: 'email' | 'phone', value }`
+   sends a 6-digit code (the same answer for known and unknown addresses), then
+   `POST /customer-auth/sign-in` `{ clientId, kind, value, code }` returns
+   `{ accessToken, refreshToken, expiresIn, customer, created }`. The
+   organisation comes from core's address, else the app's origin, else
+   `organization`.
+3. The access token lasts 15 minutes. `POST /customer-auth/refresh`
+   `{ clientId, refreshToken }` returns new tokens; the refresh token rotates
+   on every use, lasts 90 days from its last use, and an old one used again
+   ends the session. Sign out: `POST /customer-auth/sign-out` `{ refreshToken }`.
 4. The plugin's API serves customers under `/customer/*` only, each route
    checking `verifyCustomerToken(req.headers.authorization, { coreUrl })` →
    `{ orgId, customerId, clientId }`, and keys every query by `orgId` and
