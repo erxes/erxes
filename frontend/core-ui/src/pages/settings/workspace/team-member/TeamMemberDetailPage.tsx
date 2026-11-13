@@ -27,9 +27,10 @@ export const TeamMemberDetailPage = () => {
     () => ({ contentType: USER_CONTENT_TYPE, contentId: id }),
     [id],
   );
+  const listPath = `${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`;
   const backToList = useCallback(
-    () => navigate(`${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`),
-    [navigate],
+    () => navigate(listPath),
+    [navigate, listPath],
   );
   const navigator = useMemo<ISidePanelNavigator>(
     () => ({
@@ -40,8 +41,9 @@ export const TeamMemberDetailPage = () => {
       back: backToList,
       canGoBack: false,
       close: backToList,
+      listPath,
     }),
-    [record, tab, setTab, openRecord, backToList],
+    [record, tab, setTab, openRecord, backToList, listPath],
   );
 
   return (

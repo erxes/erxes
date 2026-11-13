@@ -43,6 +43,7 @@ export const ContactDetailPage = ({
     back: backToList,
     canGoBack: false,
     close: backToList,
+    listPath,
   };
 
   return (
