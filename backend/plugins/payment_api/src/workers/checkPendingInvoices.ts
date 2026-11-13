@@ -177,25 +177,21 @@ const addOrgCheck = (subdomain: string) =>
   );
 
 const scheduleOrgChecks = async () => {
-  const subdomains =
-    getEnv({ name: 'VERSION' }) === 'saas'
-      ? (await getSaasOrganizationsByFilter({})).map((org) => org.subdomain)
-      : ['os'];
-
-  const results = await Promise.allSettled(subdomains.map(addOrgCheck));
-
-  const failed = results.filter((r) => r.status === 'rejected');
-
-  if (failed.length) {
-    // fail the scheduler job so it shows up in logs instead of silently passing
-    throw new Error(
-      `Failed to queue ${failed.length}/${subdomains.length} org checks: ${
-        (failed[0] as PromiseRejectedResult).reason?.message
-      }`,
-    );
-  }
-
-  return `scheduled ${subdomains.length}`;
+  // const subdomains =
+  //   getEnv({ name: 'VERSION' }) === 'saas'
+  //     ? (await getSaasOrganizationsByFilter({})).map((org) => org.subdomain)
+  //     : ['os'];
+  // const results = await Promise.allSettled(subdomains.map(addOrgCheck));
+  // const failed = results.filter((r) => r.status === 'rejected');
+  // if (failed.length) {
+  //   // fail the scheduler job so it shows up in logs instead of silently passing
+  //   throw new Error(
+  //     `Failed to queue ${failed.length}/${subdomains.length} org checks: ${
+  //       (failed[0] as PromiseRejectedResult).reason?.message
+  //     }`,
+  //   );
+  // }
+  // return `scheduled ${subdomains.length}`;
 };
 
 const checkOrg = async (job: Job) => {
