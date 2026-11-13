@@ -93,7 +93,7 @@ const runRecheck = async ({
         return `still pending (check ${attempt + 1})`;
       }
 
-        if (status === PAYMENT_STATUS.PAID && claimed) {
+      if (status === PAYMENT_STATUS.PAID && claimed) {
         notifyNeeded = true;
         log(`${subdomain}: invoice ${invoiceId} found paid, notifying`);
       } else if (status === PAYMENT_STATUS.PAID) {
@@ -157,10 +157,12 @@ const recheckInvoice = async (job: Job<IInvoiceRecheckJobData>) => {
     logError(
       `${data.subdomain}: re-check of invoice ${data.invoiceId} failed: ${e.message}`,
     );
+    // keep a notification retry on its extended limit
     await scheduleInvoiceRecheck(
       data.subdomain,
       data.invoiceId,
       (data.attempt ?? 0) + 1,
+      { forNotification: data.forNotification },
     );
 
     return 'failed, will retry';

@@ -27,6 +27,7 @@ export interface IInvoiceRecheckJobData {
   subdomain: string;
   invoiceId: string;
   attempt: number;
+  forNotification?: boolean;
 }
 
 /**
@@ -61,7 +62,7 @@ export const scheduleInvoiceRecheck = async (
 
   await sendWorkerQueue(INVOICE_RECHECK_SERVICE, INVOICE_RECHECK_QUEUE).add(
     INVOICE_RECHECK_QUEUE,
-    { subdomain: subdomain || 'os', invoiceId, attempt },
+    { subdomain: subdomain || 'os', invoiceId, attempt, forNotification },
     {
       delay,
       jobId: `${INVOICE_RECHECK_QUEUE}-${invoiceId}-${attempt}`,
