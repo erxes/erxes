@@ -34,11 +34,7 @@ const toStageDto = (
   people: Counts = new Map(),
   companyLeads: Counts = new Map(),
 ) => ({
-  id: stage.id,
-  name: stage.name,
-  kind: stage.kind,
-  color: stage.color,
-  order: stage.order,
+  ...stage,
   leadCount: people.get(stage.id) ?? 0,
   companyLeadCount: companyLeads.get(stage.id) ?? 0,
 });

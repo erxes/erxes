@@ -1,4 +1,3 @@
-import type { Plugin } from '@erxes/core-contract';
 import { type Db, db, pluginInstallations, plugins } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -19,7 +18,7 @@ const PLUGIN_SESSION_TYP = 'erxes-plugin-session+jwt';
 const toPluginDto = (
   row: typeof plugins.$inferSelect,
   installation?: typeof pluginInstallations.$inferSelect | null,
-): Plugin => {
+) => {
   const requested = requestedScopes(row);
   const installed = installation?.status === 'active';
   const granted = installed ? installation.grantedScopes : [];
@@ -37,7 +36,7 @@ const toPluginDto = (
     requestedScopes: requested,
     grantedScopes: granted,
     needsApproval: installed && requested.some((scope) => !granted.includes(scope)),
-    installedAt: installed ? installation.installedAt.toISOString() : null,
+    installedAt: installed ? installation.installedAt : null,
   };
 };
 

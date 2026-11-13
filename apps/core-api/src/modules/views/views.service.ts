@@ -1,5 +1,5 @@
 import type { SORT_DIRECTIONS } from '@erxes/core-db/enums';
-import type { ConditionGroup, View, ViewRecordType } from '@erxes/core-contract';
+import type { ConditionGroup, ViewRecordType } from '@erxes/core-contract';
 import { type Db, newId, views } from '@erxes/core-db';
 import { and, asc, eq, or, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -28,20 +28,7 @@ const assertSees = (actor: Actor, recordType: ViewRecordType) => {
 const mayEdit = (actor: Actor, row: Row) =>
   row.createdBy === actor.userId || (row.shared && can(actor, permissionsOf(row.recordType).share));
 
-const toDto = (actor: Actor, row: Row): View => ({
-  id: row.id,
-  recordType: row.recordType,
-  name: row.name,
-  filter: row.filter,
-  search: row.search,
-  columns: row.columns,
-  sort: row.sort,
-  shared: row.shared,
-  createdBy: row.createdBy,
-  editable: mayEdit(actor, row),
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-});
+const toDto = (actor: Actor, row: Row) => ({ ...row, editable: mayEdit(actor, row) });
 
 /** The member's own views and the team's shared ones, shared first, then by name. */
 export const listViews = async (client: Db, actor: Actor, recordType: ViewRecordType) => {

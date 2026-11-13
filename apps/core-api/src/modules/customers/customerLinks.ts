@@ -16,19 +16,6 @@ export const assertCompany = async (client: Db, companyId: string) => {
   }
 };
 
-/** A link as the API shows it. */
-export const linkDto = (row: {
-  role: string | null;
-  isPrimaryContact: boolean;
-  endedAt: Date | null;
-  createdAt: Date;
-}) => ({
-  role: row.role,
-  isPrimaryContact: row.isPrimaryContact,
-  endedAt: row.endedAt?.toISOString() ?? null,
-  createdAt: row.createdAt.toISOString(),
-});
-
 const linkColumns = {
   role: customerCompanies.role,
   isPrimaryContact: customerCompanies.isPrimaryContact,
@@ -65,7 +52,7 @@ export const customerCompaniesOf = async (client: Db, id: string) => {
   return {
     data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...company }) => ({
       ...company,
-      link: linkDto({ role, isPrimaryContact, endedAt, createdAt }),
+      link: { role, isPrimaryContact, endedAt, createdAt },
     })),
   };
 };

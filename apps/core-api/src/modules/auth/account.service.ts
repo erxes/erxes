@@ -100,12 +100,6 @@ export const mySignIns = async (actor: Actor) => {
     .limit(15);
 
   return {
-    data: rows.map((row) => ({
-      id: row.id,
-      success: row.action === 'auth.signed_in',
-      ip: row.ip,
-      userAgent: row.userAgent,
-      createdAt: row.createdAt.toISOString(),
-    })),
+    data: rows.map((row) => ({ ...row, success: row.action === 'auth.signed_in' })),
   };
 };

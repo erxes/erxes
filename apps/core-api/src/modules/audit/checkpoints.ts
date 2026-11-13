@@ -206,13 +206,5 @@ export const listCheckpoints = async (client: Db, query: { after?: number; limit
     .orderBy(asc(auditCheckpoints.chainSeq))
     .limit(query.limit);
 
-  return {
-    data: rows.map((row) => ({
-      chainSeq: row.chainSeq,
-      hash: row.hash,
-      keyId: row.keyId,
-      signature: row.signature,
-      createdAt: row.createdAt.toISOString(),
-    })),
-  };
+  return { data: rows };
 };

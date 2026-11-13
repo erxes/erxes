@@ -14,13 +14,7 @@ import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
-import {
-  type CustomerRow,
-  findCustomer,
-  inOrg,
-  selectCustomers,
-  toCustomerDto,
-} from './customerRows';
+import { type CustomerRow, findCustomer, inOrg, selectCustomers } from './customerRows';
 
 const MERGE_FILLED = [
   'firstName',
@@ -137,5 +131,5 @@ export const mergeCustomers = async (actor: Actor, input: { ids: string[]; keepI
 
   await contactsMerged(tx, actor, 'customer', merged, others);
 
-  return toCustomerDto(merged);
+  return merged;
 };

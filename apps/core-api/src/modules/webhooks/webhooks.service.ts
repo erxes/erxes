@@ -1,5 +1,5 @@
 import type { WEBHOOK_STATUSES } from '@erxes/core-db/enums';
-import { CORE_EVENT_TYPES, type EventTypeInfo, type Webhook } from '@erxes/core-contract';
+import { CORE_EVENT_TYPES, type EventTypeInfo } from '@erxes/core-contract';
 import { type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -10,20 +10,6 @@ import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
 import { seal } from '~/lib/secrets';
 import { recordAudit } from '~/modules/audit/audit.service';
-
-type WebhookRow = typeof webhooks.$inferSelect;
-
-const toWebhookDto = (row: WebhookRow): Webhook => ({
-  id: row.id,
-  url: row.url,
-  description: row.description,
-  eventTypes: row.eventTypes,
-  status: row.status,
-  disabledReason: row.disabledReason,
-  consecutiveFailures: row.consecutiveFailures,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-});
 
 /** Core's events and those of the plugins installed here. */
 export const eventTypeCatalog = async (client: Db): Promise<EventTypeInfo[]> => {
@@ -80,11 +66,9 @@ export const findWebhook = async (client: Db, id: string) => {
 };
 
 export const listWebhooks = async (client: Db) => ({
-  data: (
-    await wholeList((limit) =>
-      client.select().from(webhooks).orderBy(desc(webhooks.createdAt)).limit(limit),
-    )
-  ).map(toWebhookDto),
+  data: await wholeList((limit) =>
+    client.select().from(webhooks).orderBy(desc(webhooks.createdAt)).limit(limit),
+  ),
 });
 
 export const createWebhook = async (
@@ -118,7 +102,7 @@ export const createWebhook = async (
     metadata: { eventTypes: row.eventTypes },
   });
 
-  return { webhook: toWebhookDto(row), secret };
+  return { webhook: row, secret };
 };
 
 const statusChange = (status: (typeof WEBHOOK_STATUSES)[number] | undefined) =>
@@ -175,7 +159,7 @@ export const updateWebhook = async (
     },
   });
 
-  return toWebhookDto(row);
+  return row;
 };
 
 export const removeWebhook = async (client: Db, actor: Actor, id: string) => {

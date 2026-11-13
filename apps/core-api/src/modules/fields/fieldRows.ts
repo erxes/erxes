@@ -15,34 +15,10 @@ const OPTION_TYPES: readonly FieldType[] = ['select', 'multiselect', 'radio', 'c
 
 export const hasOptions = (type: FieldType) => OPTION_TYPES.includes(type);
 
-const iso = (date: Date | null | undefined) => (date ? date.toISOString() : null);
-
+/** A field archives with its group. */
 export const toFieldDto = (row: FieldRow, groupArchivedAt?: Date | null) => ({
-  id: row.id,
-  contentType: row.contentType,
-  groupId: row.groupId,
-  label: row.label,
-  code: row.code,
-  description: row.description,
-  icon: row.icon,
-  type: row.type,
-  validation: row.validation,
-  options: row.options,
-  isVisible: row.isVisible,
-  order: row.order,
-  archivedAt: iso(row.archivedAt ?? groupArchivedAt),
-  createdAt: row.createdAt.toISOString(),
-});
-
-export const toFieldGroupDto = (row: GroupRow) => ({
-  id: row.id,
-  contentType: row.contentType,
-  name: row.name,
-  code: row.code,
-  description: row.description,
-  order: row.order,
-  archivedAt: iso(row.archivedAt),
-  createdAt: row.createdAt.toISOString(),
+  ...row,
+  archivedAt: row.archivedAt ?? groupArchivedAt ?? null,
 });
 
 export const requireFieldManager = (actor: Actor) => requirePermission(actor, 'properties.manage');

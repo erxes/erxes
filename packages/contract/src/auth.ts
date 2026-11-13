@@ -1,6 +1,7 @@
 import { LANGUAGES } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
+import { isoDate } from './common';
 import { NewPassword } from './values';
 import { Organization, OrganizationRegion } from './organizations';
 import { User } from './users';
@@ -235,7 +236,7 @@ export const authContract = {
               success: z.boolean(),
               ip: z.string().nullable(),
               userAgent: z.string().nullable(),
-              createdAt: z.iso.datetime(),
+              createdAt: isoDate(),
             }),
           )
           .max(15),

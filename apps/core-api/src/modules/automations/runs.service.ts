@@ -1,4 +1,4 @@
-import type { AutomationRun, CursorQuery, RunStep } from '@erxes/core-contract';
+import type { CursorQuery } from '@erxes/core-contract';
 import { automationRuns, automationRunSteps, type Db } from '@erxes/core-db';
 import { FINISHED_RUN_STATUSES } from '@erxes/core-db/enums';
 import { and, asc, eq, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
@@ -13,19 +13,10 @@ import { startNow } from './triggers';
 
 type RunRow = typeof automationRuns.$inferSelect;
 
-const toRunDto = (row: RunRow): AutomationRun => ({
-  id: row.id,
-  automationId: row.automationId,
-  version: row.version,
-  eventId: row.eventId,
-  eventType: row.eventType,
+const toRunDto = (row: RunRow) => ({
+  ...row,
   subject: row.subjectType && row.subjectId ? { type: row.subjectType, id: row.subjectId } : null,
-  status: row.status,
   goalReached: Boolean(row.goalReachedAt),
-  error: row.error,
-  waitingUntil: row.waitingUntil?.toISOString() ?? null,
-  startedAt: row.startedAt.toISOString(),
-  finishedAt: row.finishedAt?.toISOString() ?? null,
 });
 
 export const listRuns = async (
@@ -80,18 +71,7 @@ export const getRun = async (client: Db, runId: string) => {
 
   return {
     run: toRunDto(run),
-    steps: steps.map((step): RunStep => ({
-      id: step.id,
-      stepId: step.stepId,
-      type: step.type,
-      status: step.status,
-      input: step.input,
-      output: step.output,
-      error: step.error,
-      attempt: step.attempt,
-      startedAt: step.startedAt.toISOString(),
-      finishedAt: step.finishedAt.toISOString(),
-    })),
+    steps,
   };
 };
 

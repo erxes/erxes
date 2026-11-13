@@ -1,4 +1,4 @@
-import { GatewayConfig, gatewayTakes, type PaymentGateway } from '@erxes/core-contract';
+import { GatewayConfig, gatewayTakes } from '@erxes/core-contract';
 import {
   type Db,
   newId,
@@ -109,14 +109,7 @@ const visibleSettings = (settings: GatewayConfig) =>
     ? { invoiceCode: settings.invoiceCode, sandbox: settings.sandbox, clientId: settings.clientId }
     : {};
 
-const toGatewayDto = (row: GatewayRow): PaymentGateway => ({
-  id: row.id,
-  kind: row.kind,
-  name: row.name,
-  status: row.status,
-  settings: visibleSettings(configOf(row)),
-  createdAt: row.createdAt.toISOString(),
-});
+const toGatewayDto = (row: GatewayRow) => ({ ...row, settings: visibleSettings(configOf(row)) });
 
 const gatewayOrThrow = async (client: Db, id: string) => {
   const [row] = await client

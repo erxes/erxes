@@ -1,4 +1,9 @@
-import type { CoreEvent, CursorQuery, EventFailure, EventInput } from '@erxes/core-contract';
+import {
+  CoreEvent,
+  type CursorQuery,
+  type EventFailure,
+  type EventInput,
+} from '@erxes/core-contract';
 import { type Db, eventConsumers, eventFailures, events, newId } from '@erxes/core-db';
 import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
 import {
@@ -18,20 +23,15 @@ import { assertTargets } from '~/modules/activities/timelineAccess';
 
 type EventRow = typeof events.$inferSelect;
 
-export const toEventDto = (row: EventRow): CoreEvent => ({
-  id: row.id,
-  source: row.source,
-  type: row.type,
-  version: row.version,
+const toEventDto = (row: EventRow) => ({
+  ...row,
   subject: row.subjectType && row.subjectId ? { type: row.subjectType, id: row.subjectId } : null,
   entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
   actor: { type: row.actorType, id: row.actorId },
-  payload: row.payload,
-  summary: row.summary,
-  link: row.link,
-  occurredAt: row.occurredAt.toISOString(),
-  createdAt: row.createdAt.toISOString(),
 });
+
+/** The event as the API sends it, for bodies outside the API: webhooks, plugin deliveries, automation runs. */
+export const eventJson = (row: EventRow) => CoreEvent.parse(toEventDto(row));
 
 export interface CoreEventInput {
   type: string;
@@ -209,16 +209,7 @@ export const listEventFailures = async (
     .groupBy(eventFailures.status);
 
   return {
-    data: rows.map(({ failure, event }): EventFailure => ({
-      consumer: failure.consumer,
-      status: failure.status,
-      attempts: failure.attempts,
-      lastError: failure.lastError,
-      nextAttemptAt: failure.nextAttemptAt?.toISOString() ?? null,
-      firstFailedAt: failure.firstFailedAt.toISOString(),
-      updatedAt: failure.updatedAt.toISOString(),
-      event: toEventDto(event),
-    })),
+    data: rows.map(({ failure, event }) => ({ ...failure, event: toEventDto(event) })),
     counts: {
       retrying: counts.find((row) => row.status === 'retrying')?.count ?? 0,
       dead: counts.find((row) => row.status === 'dead')?.count ?? 0,

@@ -6,10 +6,10 @@ import type { Actor } from '~/http/auth';
 import { boundedList, LIST_COUNT_CAP } from '~/lib/boundedList';
 import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
-import { linkDto, linkOrder } from '~/modules/customers/customerLinks';
+import { linkOrder } from '~/modules/customers/customerLinks';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
-import { findCompany, selectCompanies, toCompanyDto } from './companyRows';
+import { findCompany, selectCompanies } from './companyRows';
 
 interface CompanyQuery {
   search?: string;
@@ -68,12 +68,8 @@ export const companyListWhere = async (client: Db, actor: Actor, query: CompanyQ
   return and(...filters);
 };
 
-export const listCompanies = async (
-  client: Db,
-  actor: Actor,
-  query: CursorQuery & CompanyQuery,
-) => {
-  const page = await boundedList(Boolean(query.filter || query.search), async () =>
+export const listCompanies = (client: Db, actor: Actor, query: CursorQuery & CompanyQuery) =>
+  boundedList(Boolean(query.filter || query.search), async () =>
     keysetPage(
       client,
       {
@@ -92,9 +88,6 @@ export const listCompanies = async (
           .limit(limit),
     ),
   );
-
-  return { ...page, data: page.data.map(toCompanyDto) };
-};
 
 /** The company's people with their links: main contact first, then current, then former. */
 export const companyPeople = async (client: Db, id: string) => {
@@ -124,7 +117,7 @@ export const companyPeople = async (client: Db, id: string) => {
   return {
     data: rows.map(({ role, isPrimaryContact, endedAt, createdAt, ...person }) => ({
       ...person,
-      link: linkDto({ role, isPrimaryContact, endedAt, createdAt }),
+      link: { role, isPrimaryContact, endedAt, createdAt },
     })),
   };
 };

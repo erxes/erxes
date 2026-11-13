@@ -186,17 +186,6 @@ export const leadHistory = async (
   ).toReversed();
 
   return {
-    data: rows.map((row) => ({
-      id: row.id,
-      recordType: type,
-      recordId: input.id,
-      event: row.event,
-      fromStageId: row.fromStageId,
-      toStageId: row.toStageId,
-      reason: row.reason,
-      actorType: row.actorType,
-      actorId: row.actorId,
-      createdAt: row.createdAt.toISOString(),
-    })),
+    data: rows.map((row) => ({ ...row, recordType: type, recordId: input.id })),
   };
 };

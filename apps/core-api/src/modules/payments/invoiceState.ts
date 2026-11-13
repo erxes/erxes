@@ -20,23 +20,13 @@ export type InvoiceRow = typeof paymentInvoices.$inferSelect;
 /** The payer's part of the stored `payment` (the rest is the gateway's own state). */
 const PayerPart = Invoice.shape.payment.partial();
 
-export const toInvoiceDto = (row: InvoiceRow, kind: GatewayRow['kind']): Invoice => {
+export const toInvoiceDto = (row: InvoiceRow, kind: GatewayRow['kind']) => {
   const payment = PayerPart.safeParse(row.payment).data ?? {};
 
   return {
-    id: row.id,
-    gatewayId: row.gatewayId,
+    ...row,
     gatewayKind: kind,
-    source: row.source,
     reference: { type: row.referenceType, id: row.referenceId },
-    amount: row.amount,
-    currency: row.currency,
-    description: row.description,
-    status: row.status,
-    metadata: row.metadata,
-    lines: row.lines,
-    paidAmount: row.paidAmount,
-    refundedAmount: row.refundedAmount,
     refundable: {
       amount: row.status === 'paid' ? (row.paidAmount ?? row.amount) - row.refundedAmount : 0,
       gateway: GATEWAY_REFUNDS[kind],
@@ -47,9 +37,6 @@ export const toInvoiceDto = (row: InvoiceRow, kind: GatewayRow['kind']): Invoice
       shortUrl: payment.shortUrl ?? null,
       links: payment.links ?? [],
     },
-    expiresAt: row.expiresAt.toISOString(),
-    paidAt: row.paidAt?.toISOString() ?? null,
-    createdAt: row.createdAt.toISOString(),
   };
 };
 

@@ -7,7 +7,7 @@ import { lockKeys } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 import { contactCreated } from '~/modules/activities/contactHistory';
 import { planLeadOnCreate, recordLeadSteps } from '~/modules/leads/lifecycle';
-import { findCustomer, toCustomerDto } from './customerRows';
+import { findCustomer } from './customerRows';
 
 interface Contact {
   primaryEmail?: string;
@@ -58,7 +58,7 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
 
   if (found)
     return {
-      customer: toCustomerDto(await findCustomer(client, found.id)),
+      customer: await findCustomer(client, found.id),
       created: false,
     };
 
@@ -90,7 +90,7 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
   await contactCreated(client, caller, 'customer', await findCustomer(client, row.id));
 
   return {
-    customer: toCustomerDto(await findCustomer(client, row.id)),
+    customer: await findCustomer(client, row.id),
     created: true,
   };
 };

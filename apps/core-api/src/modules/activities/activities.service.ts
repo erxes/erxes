@@ -1,4 +1,4 @@
-import type { Activity, ActivityTarget } from '@erxes/core-contract';
+import type { ActivityTarget } from '@erxes/core-contract';
 import { activities, type Db, files, newId } from '@erxes/core-db';
 import { and, eq, inArray, like, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -19,21 +19,12 @@ const Reactions = z.record(z.string(), z.array(z.string()));
 export const reactionsOf = (data: Record<string, unknown>) =>
   Reactions.safeParse(data.reactions).data;
 
-export const toActivityDto = (row: ActivityRow): Activity => ({
-  id: row.id,
-  targetType: row.targetType,
-  targetId: row.targetId,
-  source: row.source,
-  type: row.type,
-  summary: row.summary,
-  data: row.data,
+export const toActivityDto = (row: ActivityRow) => ({
+  ...row,
   entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
-  link: row.link,
   actor: { type: row.actorType, id: row.actorId },
   pinned: row.pinnedAt !== null,
-  editedAt: row.editedAt?.toISOString() ?? null,
   reactions: reactionsOf(row.data) ?? {},
-  occurredAt: row.occurredAt.toISOString(),
 });
 
 export interface CoreActivity {

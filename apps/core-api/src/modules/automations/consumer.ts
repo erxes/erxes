@@ -1,9 +1,9 @@
-import type { AutomationDefinition } from '@erxes/core-contract';
+import type { AutomationDefinition, CoreEvent } from '@erxes/core-contract';
 import { automationRuns, automations, type Db, type events, newId } from '@erxes/core-db';
 import { and, eq, gt, inArray, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { inOrder } from '~/lib/sequence';
-import { toEventDto } from '~/modules/events/events.service';
+import { eventJson } from '~/modules/events/events.service';
 import type { EventConsumer } from '~/modules/events/processor';
 import { enqueueJobs } from '~/modules/jobs/jobs';
 import { evaluateGroup } from './conditions';
@@ -180,7 +180,7 @@ const QuietImport = z
   .object({ _import: z.object({ quiet: z.boolean() }) })
   .transform(({ _import: mark }) => mark.quiet);
 
-const startTriggered = async (tx: Db, event: EventRow, dto: ReturnType<typeof toEventDto>) => {
+const startTriggered = async (tx: Db, event: EventRow, dto: CoreEvent) => {
   const candidates = await tx
     .select()
     .from(automations)
@@ -240,12 +240,7 @@ const startTriggered = async (tx: Db, event: EventRow, dto: ReturnType<typeof to
  * Runs waiting on this record: ends those whose goal this change met, and
  * resumes those waiting for this event.
  */
-const resumeWaiting = async (
-  tx: Db,
-  event: EventRow,
-  subjectId: string,
-  dto: ReturnType<typeof toEventDto>,
-) => {
+const resumeWaiting = async (tx: Db, event: EventRow, subjectId: string, dto: CoreEvent) => {
   const waiting = await tx
     .select()
     .from(automationRuns)
@@ -304,7 +299,7 @@ const resumeWaiting = async (
 export const automationsConsumer: EventConsumer = {
   name: 'core.automations',
   async handle(tx, event: EventRow) {
-    const dto = toEventDto(event);
+    const dto = eventJson(event);
 
     if (event.subjectId) await resumeWaiting(tx, event, event.subjectId, dto);
 

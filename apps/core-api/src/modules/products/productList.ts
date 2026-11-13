@@ -1,35 +1,11 @@
-import type { CursorQuery, Product, ProductKind, ProductStatus } from '@erxes/core-contract';
+import type { CursorQuery, ProductKind, ProductStatus } from '@erxes/core-contract';
 import { type Db, productCategories, products } from '@erxes/core-db';
 import { and, arrayContains, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { unique } from '~/lib/contacts';
 import { containsPattern, keysetPage } from '~/lib/keyset';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
-import { findProduct, productColumns, type ProductRow } from './productChecks';
-
-export const toProductDto = (row: ProductRow): Product => ({
-  id: row.id,
-  kind: row.kind,
-  status: row.status,
-  name: row.name,
-  code: row.code,
-  barcode: row.barcode,
-  categoryId: row.categoryId,
-  description: row.description,
-  unit: row.unit,
-  price: row.price,
-  currency: row.currency,
-  imageIds: row.imageIds,
-  weightGrams: row.weightGrams,
-  lengthMm: row.lengthMm,
-  widthMm: row.widthMm,
-  heightMm: row.heightMm,
-  plugins: row.plugins,
-  customFields: row.customFields,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-  archivedAt: row.archivedAt?.toISOString() ?? null,
-});
+import { productColumns } from './productChecks';
 
 interface ProductQuery {
   search?: string;
@@ -72,7 +48,7 @@ export const listProducts = async (
     query.filter,
   );
 
-  const page = await keysetPage(
+  return keysetPage(
     client,
     {
       table: products,
@@ -102,12 +78,7 @@ export const listProducts = async (
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return { ...page, data: page.data.map(toProductDto) };
 };
-
-export const getProduct = async (client: Db, id: string) =>
-  toProductDto(await findProduct(client, id));
 
 /** The given products in the order asked, archived ones too; unknown ids are left out. */
 export const lookupProducts = async (client: Db, ids: string[]) => {
@@ -117,7 +88,7 @@ export const lookupProducts = async (client: Db, ids: string[]) => {
     ? await client.select(productColumns).from(products).where(inArray(products.id, wanted))
     : [];
 
-  const byId = new Map(rows.map((row) => [row.id, toProductDto(row)]));
+  const byId = new Map(rows.map((row) => [row.id, row]));
 
   return { data: wanted.flatMap((id) => byId.get(id) ?? []) };
 };

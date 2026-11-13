@@ -27,10 +27,9 @@ import { lockRows } from '~/lib/locks';
 import { guardDeletions } from '~/lib/deletionGuard';
 import { moveToTrash } from '~/modules/trash/trash.service';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
-import { type CompanyRow, conflictFrom, findCompany, inOrg, toCompanyDto } from './companyRows';
+import { type CompanyRow, conflictFrom, findCompany, inOrg } from './companyRows';
 
-export const getCompany = async (client: Db, id: string) =>
-  toCompanyDto(await findCompany(client, id, true));
+export const getCompany = (client: Db, id: string) => findCompany(client, id, true);
 
 const scalarFields = (input: CompanyInput) => {
   const {
@@ -106,7 +105,7 @@ export const createCompany = async (
       return created;
     });
 
-    return toCompanyDto(await findCompany(client, id));
+    return await findCompany(client, id);
   } catch (error) {
     return conflictFrom(client, error, primaryName);
   }
@@ -203,7 +202,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
       await contactUpdated(tx, actor, 'company', current, await findCompany(tx, id));
     });
 
-    return toCompanyDto(await findCompany(client, id));
+    return await findCompany(client, id);
   } catch (error) {
     return conflictFrom(client, error, changes.primaryName ?? current.primaryName);
   }

@@ -5,7 +5,6 @@ import { twoFactorChallenge } from './twoFactor.service';
 import { and, eq, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { HttpError } from '~/http/errors';
-import { toOrganizationDto } from '~/modules/organizations/organizations.service';
 import { toUserDto } from '~/modules/users/userRows';
 import { verifyPassword } from '~/lib/crypto';
 import type { Actor } from '~/http/auth';
@@ -212,7 +211,7 @@ export const getSession = async (orgId: string, userId: string) =>
 
     return {
       user: toUserDto(row.user),
-      organization: toOrganizationDto(row.organization),
+      organization: row.organization,
       // Spelled out for the UI: what this member may do.
       permissions: await effectivePermissions(tx, {
         orgId,

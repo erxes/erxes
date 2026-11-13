@@ -6,29 +6,10 @@ import { lockOrganization } from '~/lib/locks';
 
 export type UserRow = typeof users.$inferSelect;
 
-/** The API shape: never the password hash or internal flags. */
+/** The row with whether two-factor is on; the `User` schema leaves out the password hash and TOTP secret. */
 export const toUserDto = (row: UserRow) => ({
-  id: row.id,
-  email: row.email,
-  username: row.username,
-  fullName: row.fullName,
-  avatarUrl: row.avatarUrl,
-  role: row.role,
+  ...row,
   twoFactorEnabled: Boolean(row.totpEnabledAt),
-  status: row.status,
-  firstName: row.firstName,
-  middleName: row.middleName,
-  lastName: row.lastName,
-  shortName: row.shortName,
-  employeeId: row.employeeId,
-  phone: row.phone,
-  birthDate: row.birthDate,
-  workStartedDate: row.workStartedDate,
-  description: row.description,
-  links: row.links,
-  onboardedAt: row.onboardedAt?.toISOString() ?? null,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
 });
 
 export const requireTeamManager = (

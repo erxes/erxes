@@ -1,4 +1,4 @@
-import type { CursorQuery, TrashItem } from '@erxes/core-contract';
+import type { CursorQuery } from '@erxes/core-contract';
 import {
   type ContentType,
   activities,
@@ -137,14 +137,9 @@ export const listTrash = async (
 
   return {
     ...page,
-    data: page.data.map((row): TrashItem => ({
-      id: row.id,
-      recordType: row.recordType,
-      recordId: row.recordId,
-      label: row.label,
+    data: page.data.map((row) => ({
+      ...row,
       deletedBy: { type: row.deletedByType, id: row.deletedBy },
-      deletedAt: row.deletedAt.toISOString(),
-      purgeAt: row.purgeAt.toISOString(),
       counts: {
         tags: row.snapshot.tagIds.length,
         links: row.snapshot.links.length,

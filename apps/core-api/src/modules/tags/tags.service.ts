@@ -6,16 +6,6 @@ import { unique } from '~/lib/contacts';
 import { containsPattern, wholeList } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 
-type TagRow = typeof tags.$inferSelect;
-
-const toTagDto = (row: TagRow) => ({
-  id: row.id,
-  type: row.type,
-  name: row.name,
-  colorCode: row.colorCode,
-  createdAt: row.createdAt.toISOString(),
-});
-
 const taken = (error: unknown): never => {
   if (pgCode(error) === '23505') {
     throw new HttpError(409, 'TAG_EXISTS', 'A tag with this name already exists');
@@ -49,7 +39,7 @@ export const listTags = async (client: Db, query: { type: ContentType; search?: 
       .limit(limit),
   );
 
-  return { data: rows.map(toTagDto) };
+  return { data: rows };
 };
 
 export const createTag = async (
@@ -71,7 +61,7 @@ export const createTag = async (
         .returning(),
     );
 
-    return toTagDto(row);
+    return row;
   } catch (error) {
     return taken(error);
   }
@@ -97,7 +87,7 @@ export const updateTag = async (
         .returning(),
     );
 
-    return toTagDto(row);
+    return row;
   } catch (error) {
     return taken(error);
   }

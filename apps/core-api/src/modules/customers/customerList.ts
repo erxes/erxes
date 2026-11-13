@@ -7,7 +7,7 @@ import { keysetPage } from '~/lib/keyset';
 import { matchEveryWord } from '~/lib/search';
 import { hasAnyTag } from '~/modules/tags/tagLinks';
 import { compileRecordFilter } from '~/modules/views/recordFilter';
-import { type CustomerRow, selectCustomers, toCustomerDto } from './customerRows';
+import { type CustomerRow, selectCustomers } from './customerRows';
 
 interface CustomerQuery {
   search?: string;
@@ -60,12 +60,8 @@ export const customerListWhere = async (client: Db, actor: Actor, query: Custome
   return and(...filters);
 };
 
-export const listCustomers = async (
-  client: Db,
-  actor: Actor,
-  query: CursorQuery & CustomerQuery,
-) => {
-  const page = await boundedList(Boolean(query.filter || query.search), async () =>
+export const listCustomers = (client: Db, actor: Actor, query: CursorQuery & CustomerQuery) =>
+  boundedList(Boolean(query.filter || query.search), async () =>
     keysetPage(
       client,
       {
@@ -84,6 +80,3 @@ export const listCustomers = async (
           .limit(limit),
     ),
   );
-
-  return { ...page, data: page.data.map(toCustomerDto) };
-};

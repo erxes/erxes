@@ -5,7 +5,8 @@ import {
   removeCategory,
   updateCategory,
 } from '~/modules/products/productCategories.service';
-import { getProduct, listProducts, lookupProducts } from '~/modules/products/productList';
+import { findProduct } from '~/modules/products/productChecks';
+import { listProducts, lookupProducts } from '~/modules/products/productList';
 import {
   createProduct,
   setProductStatus,
@@ -19,7 +20,7 @@ export const productsRouter = {
   list: anyone.products.list.handler(({ input, context }) =>
     listProducts(db(), context.caller, input),
   ),
-  get: anyone.products.get.handler(({ input }) => getProduct(db(), input.id)),
+  get: anyone.products.get.handler(({ input }) => findProduct(db(), input.id)),
   lookup: anyone.products.lookup.handler(({ input }) => lookupProducts(db(), input.ids)),
   create: anyone.products.create.handler(({ input, context }) =>
     createProduct(db(), context.caller, input),

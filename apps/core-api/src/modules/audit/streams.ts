@@ -1,5 +1,4 @@
 import type { AUDIT_STREAM_STARTS, AUDIT_STREAM_STATUSES } from '@erxes/core-db/enums';
-import type { AuditStream } from '@erxes/core-contract';
 import { auditLogs, auditStreams, type Db, newId, withOrg } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -15,19 +14,9 @@ import { formatBatch, type StreamEntry } from './streamFormat';
 
 type StreamRow = typeof auditStreams.$inferSelect;
 
-const toDto = (row: StreamRow, latestSeq: number): AuditStream => ({
-  id: row.id,
-  name: row.name,
-  url: row.url,
-  format: row.format,
-  status: row.status,
-  authHeaderName: row.authHeaderName,
-  cursorSeq: row.cursorSeq,
+const toDto = (row: StreamRow, latestSeq: number) => ({
+  ...row,
   pending: Math.max(0, latestSeq - row.cursorSeq),
-  lastDeliveredAt: row.lastDeliveredAt?.toISOString() ?? null,
-  lastError: row.lastError,
-  consecutiveFailures: row.consecutiveFailures,
-  createdAt: row.createdAt.toISOString(),
 });
 
 const latestSeq = async (client: Db) => {

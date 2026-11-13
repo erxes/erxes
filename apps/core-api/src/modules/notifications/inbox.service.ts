@@ -7,21 +7,6 @@ import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches } from '~/lib/sequence';
 
-const toNotificationDto = (row: typeof notifications.$inferSelect): Notification => ({
-  id: row.id,
-  source: row.source,
-  kind: row.kind,
-  title: row.title,
-  body: row.body,
-  link: row.link,
-  entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
-  data: row.data,
-  priority: row.priority,
-  actor: { type: row.actorType, id: row.actorId },
-  read: row.readAt !== null,
-  createdAt: row.createdAt.toISOString(),
-});
-
 /** The member's own notifications. */
 export const mine = (actor: Actor) => eq(notifications.userId, actor.userId);
 
@@ -70,7 +55,15 @@ export const listNotifications = async (
         .limit(limit),
   );
 
-  return { ...page, data: page.data.map(toNotificationDto) };
+  return {
+    ...page,
+    data: page.data.map((row) => ({
+      ...row,
+      entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
+      actor: { type: row.actorType, id: row.actorId },
+      read: row.readAt !== null,
+    })),
+  };
 };
 
 /**

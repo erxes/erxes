@@ -6,7 +6,7 @@ import { sha256 } from '~/lib/crypto';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
 import type { EventConsumer } from '~/modules/events/processor';
-import { toEventDto } from '~/modules/events/events.service';
+import { eventJson } from '~/modules/events/events.service';
 import { defineJob } from '~/modules/jobs/jobs';
 import { matchesPattern } from '~/modules/webhooks/webhooks.service';
 
@@ -106,7 +106,7 @@ export const pluginEventJob = defineJob({
       type: event.type,
       organizationId: job.orgId,
       createdAt: event.createdAt.toISOString(),
-      data: toEventDto(event),
+      data: eventJson(event),
     });
 
     const token = await signJwt(

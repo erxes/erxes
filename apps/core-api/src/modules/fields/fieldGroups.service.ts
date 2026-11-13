@@ -12,7 +12,6 @@ import {
   nextOrder,
   requireFieldManager,
   taken,
-  toFieldGroupDto,
   usageOf,
 } from './fieldRows';
 
@@ -34,7 +33,7 @@ export const listFieldGroups = async (
       .limit(limit),
   );
 
-  return { data: rows.map(toFieldGroupDto) };
+  return { data: rows };
 };
 
 /** A code from a name: lower-case Latin letters and digits joined by `_`. */
@@ -89,7 +88,7 @@ export const createFieldGroup = async (
         .returning(),
     );
 
-    return toFieldGroupDto(row);
+    return row;
   } catch (error) {
     return taken(error);
   }
@@ -108,7 +107,7 @@ const updateGroupRow = async (
       .returning(),
   );
 
-  return toFieldGroupDto(row);
+  return row;
 };
 
 export const updateFieldGroup = async (
@@ -147,9 +146,7 @@ export const archiveFieldGroup = async (client: Db, actor: Actor, id: string) =>
 
   const group = await findGroup(client, id);
 
-  return group.archivedAt
-    ? toFieldGroupDto(group)
-    : updateGroupRow(client, id, { archivedAt: sql`now()` });
+  return group.archivedAt ? group : updateGroupRow(client, id, { archivedAt: sql`now()` });
 };
 
 export const restoreFieldGroup = async (client: Db, actor: Actor, id: string) => {

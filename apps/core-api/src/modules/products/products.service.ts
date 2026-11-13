@@ -1,4 +1,9 @@
-import type { CustomValue, ProductKind, ProductStatus } from '@erxes/core-contract';
+import {
+  type CustomValue,
+  Product,
+  type ProductKind,
+  type ProductStatus,
+} from '@erxes/core-contract';
 import { type Db, newId, products } from '@erxes/core-db';
 import { eq, inArray, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
@@ -21,7 +26,7 @@ import {
   type ProductRow,
   productTaken,
 } from './productChecks';
-import { lookupProducts, toProductDto } from './productList';
+import { lookupProducts } from './productList';
 
 type ProductFields = Omit<
   Partial<typeof products.$inferInsert>,
@@ -88,7 +93,7 @@ const announce = async (
     changed.map(({ row, changes }) => ({
       type: `core.product.${action}`,
       entity: { type: 'product', id: row.id },
-      payload: { product: toProductDto(row), changed: Object.keys(changes ?? {}) },
+      payload: { product: Product.parse(row), changed: Object.keys(changes ?? {}) },
     })),
   );
 };
@@ -124,7 +129,7 @@ export const createProduct = async (
 
   await announce(client, caller, 'created', [{ row }]);
 
-  return toProductDto(row);
+  return row;
 };
 
 /** Changes a product; custom fields are merged with what is stored (others' edits wait, then build on it). */
@@ -154,7 +159,7 @@ export const updateProduct = async (
 
   await announce(client, caller, 'updated', [{ row, before }]);
 
-  return toProductDto(row);
+  return row;
 };
 
 /** A plugin starts or stops using products: they appear in, or leave, its lists. */
@@ -223,7 +228,7 @@ export const setProductStatus = async (
 ) => {
   const before = await findProduct(client, id);
 
-  if (before.status === status) return toProductDto(before);
+  if (before.status === status) return before;
 
   await client
     .update(products)
@@ -240,5 +245,5 @@ export const setProductStatus = async (
     { row, before },
   ]);
 
-  return toProductDto(row);
+  return row;
 };

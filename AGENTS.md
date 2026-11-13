@@ -26,8 +26,9 @@ DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres pnpm test
   leave `orgId` to the column default (lint rule `erxes/no-org-filter`). System work that needs one
   organisation's rows runs them in `withOrg(orgId, ...)` inside its `withSystem` scope. The org comes
   from the token, never from input. `pnpm check:rls` fails a table with `org_id` and no forced RLS.
-- Services map rows to DTOs without credentials or `org_id`. Only a procedure that issues a token or
-  secret returns one.
+- Services return rows. The output schema declares the fields the API sends and encodes dates with
+  `isoDate`, so credentials and `org_id` stay out because no schema picks them. Only a procedure
+  that issues a token or secret returns one.
 - Ids are text (`newId()`, 17 characters), so records imported from old erxes keep their Mongo `_id`.
 - Start from the current `postgre` branch. Search with `rg -n` and `fd`; change code with your editor
   or `ast-grep`, never `sed -i`, python or `cat >`. Throwaway scripts go in `.scratch/`.

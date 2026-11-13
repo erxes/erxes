@@ -52,7 +52,8 @@ export const DeliveredEvent = z.object({
   type: z.string(),
   organizationId: z.string(),
   createdAt: z.string(),
-  data: CoreEvent,
+  // The JSON body carries ISO strings, where `CoreEvent` reads the row's dates.
+  data: CoreEvent.extend({ occurredAt: z.iso.datetime(), createdAt: z.iso.datetime() }),
 });
 
 export type DeliveredEvent = z.infer<typeof DeliveredEvent>;

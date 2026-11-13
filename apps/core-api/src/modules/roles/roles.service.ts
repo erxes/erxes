@@ -2,7 +2,6 @@ import {
   CORE_PERMISSIONS,
   OWNER_ONLY_PERMISSIONS,
   type PermissionInfo,
-  type Role,
 } from '@erxes/core-contract';
 import { type Db, db, newId, pluginInstallations, plugins, roles, users } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
@@ -53,12 +52,8 @@ export const seedRoles = (tx: Db, orgId: string) =>
     )
     .onConflictDoNothing();
 
-const toRoleDto = (row: RoleRow, members: number): Role => ({
-  key: row.key,
-  name: row.name,
-  description: row.description,
-  permissions: row.permissions,
-  builtin: row.builtin,
+const toRoleDto = (row: RoleRow, members: number) => ({
+  ...row,
   editable: !FIXED.has(row.key),
   members,
 });

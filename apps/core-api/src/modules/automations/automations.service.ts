@@ -43,17 +43,10 @@ const statsOf = async (client: Db, ids: string[]) => {
   return stats;
 };
 
-const toAutomationDto = (row: AutomationRow, stats = noRuns()): Automation => ({
-  id: row.id,
-  name: row.name,
-  description: row.description,
-  status: row.status,
+const toAutomationDto = (row: AutomationRow, stats = noRuns()) => ({
+  ...row,
   definition: AutomationDefinition.parse(row.definition),
-  activeVersion: row.activeVersion,
-  activatedBy: row.activatedBy,
   stats,
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
 });
 
 export const findAutomation = async (client: Db, id: string) => {
@@ -243,12 +236,7 @@ export const listVersions = async (client: Db, id: string) => {
     .limit(100);
 
   return {
-    data: rows.map((row) => ({
-      version: row.version,
-      publishedBy: row.publishedBy,
-      createdAt: row.createdAt.toISOString(),
-      definition: AutomationDefinition.parse(row.definition),
-    })),
+    data: rows.map((row) => ({ ...row, definition: AutomationDefinition.parse(row.definition) })),
   };
 };
 

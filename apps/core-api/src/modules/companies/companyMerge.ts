@@ -7,7 +7,7 @@ import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
 import { contactsMerged } from '~/modules/activities/contactHistory';
 import { saveCustomFields } from '~/modules/fields/fieldValues';
 import { copyTags } from '~/modules/tags/tagLinks';
-import { type CompanyRow, findCompany, inOrg, selectCompanies, toCompanyDto } from './companyRows';
+import { type CompanyRow, findCompany, inOrg, selectCompanies } from './companyRows';
 
 const MERGE_FILLED = [
   'avatarUrl',
@@ -102,5 +102,5 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
 
   await contactsMerged(tx, actor, 'company', merged, others);
 
-  return toCompanyDto(merged);
+  return merged;
 };

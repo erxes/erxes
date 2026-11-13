@@ -11,37 +11,6 @@ export type CustomerRow = Omit<typeof customers.$inferSelect, 'searchText'> & {
   customFields: Record<string, CustomValue>;
 };
 
-export const toCustomerDto = (row: CustomerRow) => ({
-  id: row.id,
-  state: row.state,
-  firstName: row.firstName,
-  middleName: row.middleName,
-  lastName: row.lastName,
-  avatarUrl: row.avatarUrl,
-  primaryEmail: row.primaryEmail,
-  emails: row.emails,
-  primaryPhone: row.primaryPhone,
-  phones: row.phones,
-  sex: row.sex,
-  birthDate: row.birthDate,
-  position: row.position,
-  department: row.department,
-  code: row.code,
-  description: row.description,
-  ownerId: row.ownerId,
-  tagIds: row.tagIds,
-  customFields: row.customFields,
-  leadStageId: row.leadStageId,
-  leadStageChangedAt: row.leadStageChangedAt?.toISOString() ?? null,
-  disqualifyReason: row.disqualifyReason,
-  source: row.source,
-  sourceDetails: row.sourceDetails,
-  convertedAt: row.convertedAt?.toISOString() ?? null,
-  lastActivityAt: row.lastActivityAt.toISOString(),
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-});
-
 export const inOrg = (id: string) => eq(customers.id, id);
 
 /** Customers with their tag ids and custom field values. */

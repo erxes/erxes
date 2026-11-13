@@ -1,4 +1,3 @@
-import type { Refund } from '@erxes/core-contract';
 import { type Db, newId, paymentGateways, paymentInvoices, paymentRefunds } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -23,16 +22,9 @@ interface RefundInput {
   dedupeKey?: string;
 }
 
-const toRefundDto = (row: RefundRow): Refund => ({
-  id: row.id,
-  invoiceId: row.invoiceId,
-  amount: row.amount,
-  reason: row.reason,
-  method: row.method,
-  status: row.status,
-  error: row.error,
+const toRefundDto = (row: RefundRow) => ({
+  ...row,
   requestedBy: { type: row.requestedByType, id: row.requestedBy },
-  createdAt: row.createdAt.toISOString(),
 });
 
 const ownInvoice = async (client: Db, caller: Caller, id: string) => {

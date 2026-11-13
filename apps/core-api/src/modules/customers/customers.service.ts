@@ -24,10 +24,9 @@ import { moveToTrash } from '~/modules/trash/trash.service';
 import { planLeadOnCreate, planLeadOnUpdate, recordLeadSteps } from '~/modules/leads/lifecycle';
 import { contactColumns, scalarFields } from './customerColumns';
 import { assertCompany } from './customerLinks';
-import { conflictFrom, findCustomer, inOrg, toCustomerDto } from './customerRows';
+import { conflictFrom, findCustomer, inOrg } from './customerRows';
 
-export const getCustomer = async (client: Db, id: string) =>
-  toCustomerDto(await findCustomer(client, id, true));
+export const getCustomer = (client: Db, id: string) => findCustomer(client, id, true);
 
 export const createCustomer = async (client: Db, actor: Actor, input: CustomerInput) => {
   await assertOwner(client, input.ownerId);
@@ -73,7 +72,7 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
       return created;
     });
 
-    return toCustomerDto(await findCustomer(client, id));
+    return await findCustomer(client, id);
   } catch (error) {
     return conflictFrom(client, error, {
       primaryEmail: email.primary,
@@ -134,7 +133,7 @@ export const updateCustomer = async (
       await contactUpdated(tx, actor, 'customer', current, await findCustomer(tx, id));
     });
 
-    return toCustomerDto(await findCustomer(client, id));
+    return await findCustomer(client, id);
   } catch (error) {
     return conflictFrom(client, error, {
       primaryEmail: changes.primaryEmail ?? current.primaryEmail,

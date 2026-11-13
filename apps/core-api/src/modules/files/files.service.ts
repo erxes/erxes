@@ -1,4 +1,3 @@
-import type { FileInfo } from '@erxes/core-contract';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { type Db, files, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
@@ -23,17 +22,12 @@ type FileRow = typeof files.$inferSelect;
 
 const downloadPath = (id: string) => `${CORE_API_PREFIX}/files/${id}/download`;
 
-const toFileDto = (row: FileRow): FileInfo => ({
-  id: row.id,
-  name: row.name,
-  contentType: row.contentType,
-  size: row.size,
+const toFileDto = (row: FileRow) => ({
+  ...row,
   // Deleting files are never listed; to callers they are gone.
-  status: row.status === 'ready' ? 'ready' : 'pending',
-  source: row.source,
+  status: row.status === 'ready' ? ('ready' as const) : ('pending' as const),
   uploadedBy: { type: row.actorType, id: row.actorId },
   url: downloadPath(row.id),
-  createdAt: row.createdAt.toISOString(),
 });
 
 /** Where an upload's bytes wait until core has checked them: a fresh name per upload. */

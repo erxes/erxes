@@ -1,9 +1,4 @@
-import type {
-  CustomerLogin,
-  CustomerProfile,
-  CustomerSession,
-  CustomerTokens,
-} from '@erxes/core-contract';
+import type { CustomerProfile, CustomerTokens } from '@erxes/core-contract';
 import {
   customerLogins,
   customers,
@@ -32,29 +27,6 @@ interface AppInput {
   clientId: string;
   organization?: string;
 }
-
-const profileOf = async (client: Db, id: string): Promise<CustomerProfile> => {
-  const row = await findCustomer(client, id);
-
-  return {
-    id: row.id,
-    firstName: row.firstName,
-    lastName: row.lastName,
-    avatarUrl: row.avatarUrl,
-    birthDate: row.birthDate,
-    primaryEmail: row.primaryEmail,
-    primaryPhone: row.primaryPhone,
-    createdAt: row.createdAt.toISOString(),
-  };
-};
-
-const toLoginDto = (row: typeof customerLogins.$inferSelect): CustomerLogin => ({
-  id: row.id,
-  kind: row.kind,
-  value: row.value,
-  createdAt: row.createdAt.toISOString(),
-  lastUsedAt: row.lastUsedAt?.toISOString() ?? null,
-});
 
 const lockLogin = (tx: Db, orgId: string, address: Address) =>
   lockKeys(tx, [`customer-login:${orgId}:${address.kind}:${address.value}`]);
@@ -185,7 +157,7 @@ export const signInWithCode = async (
       { type: 'core.customer.signed_in', subject, payload },
     ]);
 
-    return { ...tokens, customer: await profileOf(tx, customerId), created };
+    return { ...tokens, customer: await findCustomer(tx, customerId), created };
   });
 };
 
@@ -223,7 +195,7 @@ export const signOut = async (refreshToken: string) => {
 // The signed-in customer (`/customer/me`).
 
 export const myProfile = (me: CustomerCaller) =>
-  withOrg(me.orgId, (tx) => profileOf(tx, me.customerId));
+  withOrg(me.orgId, (tx) => findCustomer(tx, me.customerId));
 
 export const updateMyProfile = (
   me: CustomerCaller,
@@ -241,21 +213,19 @@ export const updateMyProfile = (
 
     await contactUpdated(tx, systemCaller(me.orgId), 'customer', before, after);
 
-    return profileOf(tx, me.customerId);
+    return findCustomer(tx, me.customerId);
   });
 
 export const myLogins = (me: CustomerCaller) =>
   withOrg(me.orgId, async (tx) => ({
-    data: (
-      await wholeList((limit) =>
-        tx
-          .select()
-          .from(customerLogins)
-          .where(eq(customerLogins.customerId, me.customerId))
-          .orderBy(asc(customerLogins.createdAt))
-          .limit(limit),
-      )
-    ).map(toLoginDto),
+    data: await wholeList((limit) =>
+      tx
+        .select()
+        .from(customerLogins)
+        .where(eq(customerLogins.customerId, me.customerId))
+        .orderBy(asc(customerLogins.createdAt))
+        .limit(limit),
+    ),
   }));
 
 /** Sends a code to a new address; refused when it already signs someone in. */
@@ -298,7 +268,7 @@ export const confirmAddLogin = async (me: CustomerCaller, input: Address & { cod
       throw pgConstraint(error)?.includes('primary') ? loginTaken() : error;
     });
 
-    return toLoginDto(row);
+    return row;
   });
 };
 
@@ -341,14 +311,7 @@ export const mySessions = (me: CustomerCaller) =>
           .orderBy(desc(customerSessions.lastUsedAt))
           .limit(limit),
       )
-    ).map((row): CustomerSession => ({
-      id: row.id,
-      clientId: row.clientId,
-      userAgent: row.userAgent,
-      createdAt: row.createdAt.toISOString(),
-      lastUsedAt: row.lastUsedAt.toISOString(),
-      current: row.id === me.sessionId,
-    })),
+    ).map((row) => ({ ...row, current: row.id === me.sessionId })),
   }));
 
 export const revokeMySession = (me: CustomerCaller, id: string) =>

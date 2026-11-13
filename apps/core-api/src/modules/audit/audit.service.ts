@@ -1,4 +1,4 @@
-import type { AuditEntry, CursorQuery } from '@erxes/core-contract';
+import type { CursorQuery } from '@erxes/core-contract';
 import { auditLogs, type Db, newId, organizations } from '@erxes/core-db';
 import { and, eq, gte, ilike, like, lte, or, sql } from 'drizzle-orm';
 import { config } from '~/config';
@@ -13,8 +13,6 @@ import { keysetPage } from '~/lib/keyset';
 import { deleteInBatches, inOrder } from '~/lib/sequence';
 import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
 import { raiseAlerts } from './alerts';
-
-type AuditRow = typeof auditLogs.$inferSelect;
 
 /** Who an entry is recorded for: a member, a plugin, or core itself. */
 export type AuditActor = Caller | { orgId: string; actorType: 'system'; actorId?: null };
@@ -86,21 +84,6 @@ export const recordAudit = async (
   );
 };
 
-const toAuditDto = (row: AuditRow): AuditEntry => ({
-  id: row.id,
-  actor: { type: row.actorType, id: row.actorId },
-  action: row.action,
-  targetType: row.targetType,
-  targetId: row.targetId,
-  targetLabel: row.targetLabel,
-  changes: row.changes,
-  metadata: row.metadata,
-  ip: row.ip,
-  userAgent: row.userAgent,
-  source: row.source,
-  createdAt: row.createdAt.toISOString(),
-});
-
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
 export interface AuditFilters {
@@ -168,7 +151,10 @@ export const listAudit = async (client: Db, actor: Actor, query: CursorQuery & A
         .limit(limit),
   );
 
-  return { ...page, data: page.data.map(toAuditDto) };
+  return {
+    ...page,
+    data: page.data.map((row) => ({ ...row, actor: { type: row.actorType, id: row.actorId } })),
+  };
 };
 
 /**

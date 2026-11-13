@@ -10,36 +10,6 @@ export type CompanyRow = Omit<typeof companies.$inferSelect, 'searchText'> & {
   customFields: Record<string, CustomValue>;
 };
 
-export const toCompanyDto = (row: CompanyRow) => ({
-  id: row.id,
-  primaryName: row.primaryName,
-  names: row.names,
-  avatarUrl: row.avatarUrl,
-  primaryEmail: row.primaryEmail,
-  emails: row.emails,
-  primaryPhone: row.primaryPhone,
-  phones: row.phones,
-  website: row.website,
-  industry: row.industry,
-  size: row.size,
-  businessType: row.businessType,
-  code: row.code,
-  description: row.description,
-  ownerId: row.ownerId,
-  tagIds: row.tagIds,
-  customFields: row.customFields,
-  state: row.state,
-  leadStageId: row.leadStageId,
-  leadStageChangedAt: row.leadStageChangedAt?.toISOString() ?? null,
-  disqualifyReason: row.disqualifyReason,
-  source: row.source,
-  sourceDetails: row.sourceDetails,
-  convertedAt: row.convertedAt?.toISOString() ?? null,
-  lastActivityAt: row.lastActivityAt.toISOString(),
-  createdAt: row.createdAt.toISOString(),
-  updatedAt: row.updatedAt.toISOString(),
-});
-
 export const inOrg = (id: string) => eq(companies.id, id);
 
 /** Companies with their tag ids and custom field values. */

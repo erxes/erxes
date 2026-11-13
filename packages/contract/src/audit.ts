@@ -194,7 +194,7 @@ export const auditContract = {
               hash: z.string(),
               keyId: z.string(),
               signature: z.string(),
-              createdAt: z.iso.datetime(),
+              createdAt: isoDate(),
             }),
           )
           .max(1000),

@@ -1,5 +1,5 @@
 import type { EXPORT_FORMATS } from '@erxes/core-db/enums';
-import type { CursorQuery, Export, ExportQuery, TransferRecordType } from '@erxes/core-contract';
+import type { CursorQuery, ExportQuery, TransferRecordType } from '@erxes/core-contract';
 import { companies, customers, type Db, exports, newId, users, withOrg } from '@erxes/core-db';
 import { and, asc, eq, getTableColumns, gt, type SQL, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -27,22 +27,8 @@ type ExportRow = typeof exports.$inferSelect;
 const MAX_EXPORT_ROWS = 100_000;
 const PAGE = 1000;
 
-const toDto = (row: ExportRow): Export => ({
-  id: row.id,
-  recordType: row.recordType,
-  format: row.format,
-  columns: row.columns,
-  status: row.status,
-  rowCount: row.rowCount,
-  fileId: row.fileId,
-  error: row.error,
-  createdBy: row.createdBy,
-  createdAt: row.createdAt.toISOString(),
-  finishedAt: row.finishedAt?.toISOString() ?? null,
-});
-
-export const listExports = async (client: Db, query: CursorQuery) => {
-  const page = await keysetPage(
+export const listExports = (client: Db, query: CursorQuery) =>
+  keysetPage(
     client,
     {
       table: exports,
@@ -59,9 +45,6 @@ export const listExports = async (client: Db, query: CursorQuery) => {
         .orderBy(...orderBy)
         .limit(limit),
   );
-
-  return { ...page, data: page.data.map(toDto) };
-};
 
 /** The list's conditions, exactly as the list shows them (leads are customers in the lead state). */
 const whereOf = (client: Db, actor: Actor, recordType: TransferRecordType, query: ExportQuery) => {
@@ -155,7 +138,7 @@ export const createExport = async (
     metadata: { format: input.format, columns: input.columns, query: input.query },
   });
 
-  return toDto(row);
+  return row;
 };
 
 /** The member who asked, or null (and the export failed) when they are no longer active. */

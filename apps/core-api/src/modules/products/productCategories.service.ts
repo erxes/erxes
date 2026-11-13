@@ -1,4 +1,3 @@
-import type { ProductCategory } from '@erxes/core-contract';
 import { type Db, newId, productCategories, products } from '@erxes/core-db';
 import { asc, eq, sql } from 'drizzle-orm';
 import { wholeList } from '~/lib/keyset';
@@ -7,15 +6,6 @@ import { HttpError, notFound, pgCode } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { checkCategory } from './productChecks';
-
-type CategoryRow = typeof productCategories.$inferSelect;
-
-const toCategoryDto = (row: CategoryRow): ProductCategory => ({
-  id: row.id,
-  name: row.name,
-  parentId: row.parentId,
-  createdAt: row.createdAt.toISOString(),
-});
 
 const taken = (error: unknown): never => {
   if (pgCode(error) === '23505') {
@@ -63,7 +53,7 @@ export const listCategories = async (client: Db) => {
       .limit(limit),
   );
 
-  return { data: rows.map(toCategoryDto) };
+  return { data: rows };
 };
 
 export const createCategory = async (
@@ -93,7 +83,7 @@ export const createCategory = async (
       targetLabel: row.name,
     });
 
-    return toCategoryDto(row);
+    return row;
   } catch (error) {
     return taken(error);
   }
@@ -128,7 +118,7 @@ export const updateCategory = async (
       targetLabel: row.name,
     });
 
-    return toCategoryDto(row);
+    return row;
   } catch (error) {
     return taken(error);
   }
