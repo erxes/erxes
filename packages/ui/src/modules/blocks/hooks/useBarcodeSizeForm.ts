@@ -6,7 +6,8 @@ import { z } from 'zod';
 import type { BarcodeSize } from './useBarcodeResize';
 import { BARCODE_DIMENSION_LIMITS } from './useBarcodeResize';
 
-const dimension = (limits: { min: number; max: number }) => z.int().min(limits.min).max(limits.max);
+const dimension = (limits: { min: number; max: number }) =>
+  z.number({ error: 'Enter a number' }).int().min(limits.min).max(limits.max);
 
 const barcodeSizeSchema = z.object({
   width: dimension(BARCODE_DIMENSION_LIMITS.width),

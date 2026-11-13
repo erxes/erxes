@@ -177,7 +177,8 @@ export const EventPattern = z
 const WebhookUrl = z
   .string()
   .trim()
-  .pipe(z.url().max(2000))
+  .check(z.url())
+  .max(2000)
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
 export const Webhook = z.object({

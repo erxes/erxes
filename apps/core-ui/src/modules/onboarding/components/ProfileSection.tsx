@@ -19,7 +19,8 @@ const getProfileFormSchema = (t: (key: string) => string) =>
       z
         .string()
         .trim()
-        .pipe(z.url(t('invalid-url')).max(1000)),
+        .check(z.url(t('invalid-url')))
+        .max(1000),
     ]),
     username: z
       .string()

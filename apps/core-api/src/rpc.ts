@@ -65,15 +65,15 @@ const commonSchemas = Object.fromEntries(
   ),
 );
 
+// Recursive schemas (automation steps, condition groups) unroll three levels deep.
+const converter = new ZodToJsonSchemaConverter({ maxLazyDepth: 3 });
+
 export const generateOpenApi = () =>
-  new OpenAPIGenerator({ schemaConverters: [new ZodToJsonSchemaConverter()] }).generate(
-    coreContract,
-    {
-      info: { title: 'erxes core', version: 'v1' },
-      servers: [{ url: CORE_API_PREFIX }],
-      commonSchemas,
-    },
-  );
+  new OpenAPIGenerator({ schemaConverters: [converter] }).generate(coreContract, {
+    info: { title: 'erxes core', version: 'v1' },
+    servers: [{ url: CORE_API_PREFIX }],
+    commonSchemas,
+  });
 
 let spec: ReturnType<typeof generateOpenApi> | undefined;
 

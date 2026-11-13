@@ -17,7 +17,7 @@ const PASSWORD_REVEAL_MS = 10_000;
 const LABEL = 'font-sans text-sm font-medium normal-case leading-none text-foreground';
 
 const schema = z.object({
-  email: z.string().trim().pipe(z.email('Enter your email')),
+  email: z.string().trim().check(z.email('Enter your email')),
   password: z.string().min(1, 'Enter your password'),
   subdomain: z.string().trim().optional(),
 });

@@ -12,7 +12,7 @@ const Entitled = z.object({
 
 /** erxes.io's answer: `details` per plugin, or the older `plugins` (code → tier). */
 const PlatformAnswer = z.object({
-  status: z.unknown(),
+  status: z.unknown().optional(),
   details: z.array(z.unknown()).optional(),
   plugins: z.record(z.string(), z.unknown()).optional(),
 });

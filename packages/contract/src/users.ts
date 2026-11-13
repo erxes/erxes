@@ -121,7 +121,7 @@ const MemberPassword = z
   .regex(/\d/, 'Add a digit');
 
 const InviteEntry = z.object({
-  email: z.string().trim().pipe(z.email().max(254)),
+  email: z.string().trim().check(z.email()).max(254),
   role: UserRole.refine(
     (role) => role !== 'owner',
     'invite as admin or member, then make them owner',
@@ -195,7 +195,7 @@ export const usersContract = {
           id: Id,
           ...NameFields,
           ...DetailFields,
-          email: z.string().trim().pipe(z.email().max(254)).optional(),
+          email: z.string().trim().check(z.email()).max(254).optional(),
           avatarUrl: ImageAddress.nullable().optional(),
           role: UserRole.optional(),
         })

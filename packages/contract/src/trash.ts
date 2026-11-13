@@ -35,7 +35,7 @@ export const trashContract = {
     .input(
       z.object({
         type: z.enum(['customer', 'company']).optional(),
-        limit: z.coerce.number().int().min(1).max(500).prefault(100),
+        limit: z.coerce.number().int().min(1).max(500).default(100),
       }),
     )
     .output(z.object({ data: z.array(TrashItem) })),

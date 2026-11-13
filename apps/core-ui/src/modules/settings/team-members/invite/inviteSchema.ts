@@ -20,11 +20,7 @@ export const USER_SUBMIT_SCHEMA = z.object({
           error: (issue) => (issue.input === undefined ? 'Required field' : undefined),
         })
         .trim()
-        .pipe(
-          z.email({
-            error: 'Please fill a valid email address',
-          }),
-        ),
+        .check(z.email('Please fill a valid email address')),
       password,
       role: z.enum(['member', 'admin']),
     })

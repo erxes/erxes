@@ -9,7 +9,7 @@ export const Id = z.string().min(1).max(64);
  * list reopen where the user left it.
  */
 export const CursorQuery = z.object({
-  limit: z.coerce.number().int().min(1).max(100).prefault(30),
+  limit: z.coerce.number().int().min(1).max(100).default(30),
   cursor: Id.optional(),
   direction: z.enum(['forward', 'backward']).default('forward'),
   cursorMode: z.enum(['inclusive', 'exclusive']).default('exclusive'),
@@ -95,7 +95,7 @@ export const CustomFields = z.record(Id, CustomValue);
 /** Changes to custom field values; `null` clears one. */
 export const CustomFieldsPatch = z.record(Id, CustomValue.nullable());
 
-export const EmailAddress = z.string().trim().toLowerCase().pipe(z.email().max(254));
+export const EmailAddress = z.string().trim().toLowerCase().check(z.email()).max(254);
 
 export const PhoneNumber = z
   .string()

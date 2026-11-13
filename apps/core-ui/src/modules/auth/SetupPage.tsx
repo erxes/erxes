@@ -17,7 +17,7 @@ const schema = z
     currency: z.string(),
     firstName: z.string().trim().min(1, 'Enter your first name').max(100),
     lastName: z.string().trim().max(100),
-    email: z.string().trim().pipe(z.email('Enter a valid email')),
+    email: z.string().trim().check(z.email('Enter a valid email')),
     password: NewPassword,
     confirmPassword: z.string(),
   })

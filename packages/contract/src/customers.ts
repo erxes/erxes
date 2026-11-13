@@ -174,7 +174,7 @@ export const customersContract = {
     .input(
       z
         .object({
-          primaryEmail: z.string().trim().pipe(z.email().max(254)).optional(),
+          primaryEmail: z.string().trim().check(z.email()).max(254).optional(),
           primaryPhone: z.string().trim().min(3).max(40).optional(),
           firstName: z.string().trim().max(100).optional(),
           lastName: z.string().trim().max(100).optional(),

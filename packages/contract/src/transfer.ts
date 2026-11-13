@@ -20,13 +20,17 @@ export const TransferColumn = z.object({
 
 export type TransferColumn = z.infer<typeof TransferColumn>;
 
+/**
+ * No zod defaults: the server sets them when it creates an import, and `updateImport`
+ * takes `.partial()` of this, where a default would overwrite the stored option.
+ */
 export const ImportOptions = z.object({
-  mode: z.enum(['create', 'update', 'upsert']).default('create'),
-  matchBy: z.enum(['email', 'phone', 'code', 'id', 'name']).default('email'),
+  mode: z.enum(['create', 'update', 'upsert']),
+  matchBy: z.enum(['email', 'phone', 'code', 'id', 'name']),
   tagIds: z.array(Id).max(50).optional(),
   ownerId: Id.nullable().optional(),
-  createMissing: z.boolean().default(true),
-  runAutomations: z.boolean().default(false),
+  createMissing: z.boolean(),
+  runAutomations: z.boolean(),
 });
 
 export type ImportOptions = z.infer<typeof ImportOptions>;
@@ -183,7 +187,7 @@ export const transferContract = {
       z.object({
         id: Id,
         action: z.enum(['create', 'update', 'skip', 'error']).optional(),
-        limit: z.coerce.number().int().min(1).max(1000).prefault(200),
+        limit: z.coerce.number().int().min(1).max(1000).default(200),
       }),
     )
     .output(z.object({ data: z.array(ImportRow) })),

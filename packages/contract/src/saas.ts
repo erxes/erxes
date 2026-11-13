@@ -35,7 +35,7 @@ export const SaasWorkspace = z.object({
   /** The owner, when the workspace is new here (signs in through erxes.io's hand-off). */
   owner: z
     .object({
-      email: z.string().trim().pipe(z.email().max(254)),
+      email: z.string().trim().check(z.email()).max(254),
       fullName: z.string().trim().max(200).optional(),
     })
     .optional(),

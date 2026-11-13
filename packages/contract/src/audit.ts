@@ -29,7 +29,8 @@ export const AuditStreamFormat = z.enum(['erxes', 'datadog', 'splunk']);
 const StreamUrl = z
   .string()
   .trim()
-  .pipe(z.url().max(2000))
+  .check(z.url())
+  .max(2000)
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
 /** A header the log service needs (`DD-API-KEY`, `Authorization: Splunk …`); its value is write-only. */
@@ -158,7 +159,7 @@ export const auditContract = {
     .input(
       z.object({
         after: z.coerce.number().int().min(0).optional(),
-        limit: z.coerce.number().int().min(1).max(1000).prefault(200),
+        limit: z.coerce.number().int().min(1).max(1000).default(200),
       }),
     )
     .output(

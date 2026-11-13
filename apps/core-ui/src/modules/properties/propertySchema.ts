@@ -7,7 +7,7 @@ const hasCode = (data: { code: string }) => data.code.length > 0;
 
 const CODE_REQUIRED = {
   path: ['code'],
-  message: 'Code is required when the name has no Latin letters or digits',
+  error: 'Code is required when the name has no Latin letters or digits',
 };
 
 const codeOf = (name: string) =>

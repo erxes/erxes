@@ -47,7 +47,8 @@ export const LiveTopic = z
 const HttpsUrl = z
   .string()
   .trim()
-  .pipe(z.url().max(500))
+  .check(z.url())
+  .max(500)
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
 export const PluginManifest = z.object({
