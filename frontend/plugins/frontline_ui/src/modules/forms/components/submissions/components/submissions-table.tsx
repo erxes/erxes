@@ -10,7 +10,6 @@ import {
   RelativeDateDisplay,
   isDefined,
   parseFilesAsAttachments,
-  readImage,
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
@@ -19,7 +18,7 @@ import { useSidePanel } from 'ui-modules';
 import { FORM_SUBMISSION_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 import { IFormSubmission } from '../types';
 import type { IFormField } from '@/forms/types/formTypes';
-import { getFormAvatarUrl } from '@/forms/utils/getFormAvatarUrl';
+import { getFormAvatarSrc } from '@/forms/utils/getFormAvatarUrl';
 import {
   IconCheckbox,
   IconCircleDashedCheck,
@@ -200,12 +199,7 @@ function buildColumnsAndRows(
         return (
           <RecordTableInlineCell>
             <Avatar size={'lg'}>
-              <Avatar.Image
-                src={readImage(
-                  decodeURIComponent(getFormAvatarUrl(value) ?? ''),
-                )}
-                alt="avatar"
-              />
+              <Avatar.Image src={getFormAvatarSrc(value)} alt="avatar" />
               <Avatar.Fallback>C</Avatar.Fallback>
             </Avatar>
           </RecordTableInlineCell>

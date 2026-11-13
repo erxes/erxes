@@ -1,3 +1,4 @@
+import { readImage } from 'erxes-ui';
 import { isRecord } from '@/shared/utils/isRecord';
 
 const toAvatarUrl = (value: unknown): string | undefined => {
@@ -22,3 +23,14 @@ export const getFormAvatarUrl = (value: unknown): string | undefined => {
 
   return toAvatarUrl(first);
 };
+
+const decodeAvatarUrl = (url: string): string => {
+  try {
+    return decodeURIComponent(url);
+  } catch {
+    return url;
+  }
+};
+
+export const getFormAvatarSrc = (value: unknown): string =>
+  readImage(decodeAvatarUrl(getFormAvatarUrl(value) ?? ''));

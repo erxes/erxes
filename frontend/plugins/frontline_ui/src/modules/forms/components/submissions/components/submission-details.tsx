@@ -10,12 +10,11 @@ import {
   Spinner,
   Textarea,
   parseFilesAsAttachments,
-  readImage,
 } from 'erxes-ui';
 import { useGetFormSubmissionDetails } from '../hooks/useGetFormSubmissionDetails';
 import { useSubmissionDetailsForm } from '../hooks/useSubmissionDetailsForm';
 import { ISubmissionItem } from '../types';
-import { getFormAvatarUrl } from '@/forms/utils/getFormAvatarUrl';
+import { getFormAvatarSrc } from '@/forms/utils/getFormAvatarUrl';
 import { format, parseISO } from 'date-fns';
 import {
   IconCheckbox,
@@ -64,10 +63,7 @@ const SubmissionFieldDisplay = ({
   ) {
     return (
       <Avatar size="xl">
-        <Avatar.Image
-          src={readImage(decodeURIComponent(getFormAvatarUrl(value) ?? ''))}
-          alt="avatar"
-        />
+        <Avatar.Image src={getFormAvatarSrc(value)} alt="avatar" />
         <Avatar.Fallback>C</Avatar.Fallback>
       </Avatar>
     );
