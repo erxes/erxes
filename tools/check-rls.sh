@@ -7,14 +7,16 @@ cd "$(dirname "$0")/.."
 
 server=${DATA_TEST_URL:?Set DATA_TEST_URL to a superuser URL, e.g. postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes}
 name="core_rls_check_$$"
-base=${server%%\?*}
-url="${base%/*}/$name${server#"$base"}"
+# The same server and options, another database (a dbname option would override the path).
+url=$(node -e 'const u = new URL(process.argv[1]); u.pathname = `/${process.argv[2]}`; u.searchParams.delete("dbname"); process.stdout.write(u.href)' "$server" "$name")
 
 psql "$server" -qX -v ON_ERROR_STOP=1 -c "CREATE DATABASE $name"
 trap 'psql "$server" -qX -c "DROP DATABASE IF EXISTS $name WITH (FORCE)"' EXIT
 
-# Set here so a local .env can't point the migration at another database or role.
-DATA_URL="$url" DATA_MIGRATION_URL="$url" DATA_RUNTIME_ROLE='' pnpm --silent db:migrate > /dev/null
+# Set here, blanks included, so a local .env can't point the migration at another database
+# or role: the environment wins over .env, and a blank setting counts as unset.
+DATA_URL="$url" DATA_MIGRATION_URL="$url" DATA_URL_FILE='' DATA_MIGRATION_URL_FILE='' \
+  DATA_RUNTIME_ROLE='' pnpm --silent db:migrate > /dev/null
 
 problems=$(psql "$url" -qXAt -v ON_ERROR_STOP=1 -f tools/check-rls.sql)
 
