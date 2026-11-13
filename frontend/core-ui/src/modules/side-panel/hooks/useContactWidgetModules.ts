@@ -1,18 +1,15 @@
 import { Icon } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
-import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
-
-export interface IContactWidgetModule {
-  pluginName: string;
-  name: string;
-  label?: string;
-  icon?: Icon;
-}
+import {
+  type IRecordOverviewSection,
+  pluginsConfigState,
+  usePermissionCheck,
+} from 'ui-modules';
 
 // The sections plugins add to a contact's overview (`widgets.contactWidgets`)
 // that the user may see.
-export const useContactWidgetModules = (): IContactWidgetModule[] => {
+export const useContactWidgetModules = (): IRecordOverviewSection[] => {
   const pluginsMetaData = useAtomValue(pluginsConfigState);
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
 

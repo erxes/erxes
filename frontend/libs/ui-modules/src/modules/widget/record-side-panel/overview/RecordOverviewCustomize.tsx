@@ -27,14 +27,14 @@ import {
 } from '@tabler/icons-react';
 import { Button, cn, Popover } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { TContactOverviewEntry } from './contactOverviewEntries';
+import type { TRecordOverviewEntry } from 'ui-modules/modules/widget/record-side-panel/overview/recordOverviewEntries';
 
 const CustomizeItem = ({
   entry,
   isTab,
   onToggleTab,
 }: {
-  entry: TContactOverviewEntry;
+  entry: TRecordOverviewEntry;
   isTab: boolean;
   onToggleTab: () => void;
 }) => {
@@ -94,17 +94,13 @@ const CustomizeItem = ({
   );
 };
 
-/**
- * Arranges a contact overview: drag modules into order, pin some as their
- * own panel tabs. Saved in this browser only.
- */
-export const ContactOverviewCustomize = ({
+export const RecordOverviewCustomize = ({
   entries,
   tabs,
   onReorder,
   onToggleTab,
 }: {
-  entries: TContactOverviewEntry[];
+  entries: TRecordOverviewEntry[];
   tabs: string[];
   onReorder: (keys: string[]) => void;
   onToggleTab: (key: string) => void;
