@@ -55,6 +55,11 @@ export const coreClient = (request: APIRequestContext, baseURL: string | undefin
  * each rule with the elements that break it.
  */
 export const expectAccessible = async (page: Page) => {
+  // Colours are checked at rest, not halfway through a transition.
+  await page.waitForFunction(() =>
+    document.getAnimations().every((animation) => animation.playState !== 'running'),
+  );
+
   const { violations } = await new AxeBuilder({ page }).analyze();
 
   const blocking = violations

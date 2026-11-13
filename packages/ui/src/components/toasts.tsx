@@ -94,6 +94,7 @@ const ToastClose = ({
       className,
     )}
     toast-close=""
+    aria-label="Close"
     {...props}
   >
     <IconX className="h-4 w-4" />

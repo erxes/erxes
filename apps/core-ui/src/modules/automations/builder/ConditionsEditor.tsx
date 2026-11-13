@@ -53,7 +53,7 @@ const RuleRow = ({
         }}
         disabled={disabled}
       >
-        <Select.Trigger className="h-8 w-full min-w-0">
+        <Select.Trigger className="h-8 w-full min-w-0" aria-label={t('operator', 'Operator')}>
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
@@ -110,7 +110,7 @@ const MatchSelect = ({
         onValueChange={(match) => onChange({ ...group, match: match === 'any' ? 'any' : 'all' })}
         disabled={disabled}
       >
-        <Select.Trigger className="h-8 w-24">
+        <Select.Trigger className="h-8 w-24" aria-label={t('match-prefix', 'Match')}>
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
