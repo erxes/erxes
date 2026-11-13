@@ -4,7 +4,7 @@ import { cn } from '../lib/utils';
 import { IconCheck, IconChevronDown, IconX } from '@tabler/icons-react';
 import { Popover } from './popover';
 import { Command } from './command';
-import { useInView } from 'react-intersection-observer';
+import { useOnInView } from 'react-intersection-observer';
 import { composeRefs } from 'radix-ui/internal';
 import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
@@ -200,8 +200,8 @@ const ComboboxFetchMore = ({
   currentLength: number;
   fetchMore: () => void;
 }) => {
-  const { ref: bottomRef } = useInView({
-    onChange: (inView) => inView && fetchMore(),
+  const bottomRef = useOnInView<HTMLDivElement>((inView) => {
+    if (inView) fetchMore();
   });
 
   if (currentLength >= totalCount || !totalCount || currentLength === 0) {
