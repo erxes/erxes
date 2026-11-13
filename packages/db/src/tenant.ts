@@ -7,9 +7,10 @@ import { currentScope, scopeStorage } from './scope';
  * Tenant isolation. Every core table with `org_id` has row level security
  * (forced, so the table owner obeys it too): a row is visible and writable
  * only when the transaction says it works for that organisation
- * (`app.org_id`, set locally with `set_config(…, true)`), or for the system
- * (`app.system`, jobs that span organisations). Settings are
- * transaction-local, so a pooled connection never carries them over.
+ * (`app.org_id`, set locally with `set_config(…, true)`). System work, jobs
+ * that span organisations, acts as `erxes_core_system` (`SET LOCAL ROLE`),
+ * which bypasses row level security. Both are transaction-local, so a pooled
+ * connection never carries them over.
  *
  * - `withOrg(orgId, fn)`: everything `db()` does inside runs in one
  *   transaction for that organisation (every API request does this).
@@ -55,7 +56,8 @@ export const withSystem = async <T>(
   }
 
   return rootDb().transaction(async (tx) => {
-    await tx.execute(sql`select set_config('app.system', 'on', true)`);
+    // drizzle/0052_system_role.sql; core_grant_runtime lets the runtime role take it.
+    await tx.execute(sql`set local role erxes_core_system`);
 
     return scopeStorage.run({ tx, orgId: null, reason }, () => fn(tx));
   });

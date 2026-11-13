@@ -2,6 +2,7 @@ import { db, rootDb, runtimeRole, withOrg, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { adminDb, dbError, useTestDatabase } from './db';
+import { TEST_RUNTIME_ROLE } from './globalSetup';
 import { useTwoOrgs } from './support';
 
 const tag = (id: string, org: string) =>
@@ -69,20 +70,22 @@ describe('tenant isolation (database)', () => {
       withOrg(t.ids.org, () => Promise.reject(new Error('rolled back'))),
     ).rejects.toThrow('rolled back');
 
-    for (let index = 0; index < 8; index += 1) {
-      const leftover = await rootDb().execute<{ org: string | null; system: string | null }>(
-        sql`select nullif(current_setting('app.org_id', true), '') as org, nullif(current_setting('app.system', true), '') as system`,
-      );
-
-      expect(leftover.rows[0]).toEqual({ org: null, system: null });
-    }
-
-    // The system scope sees across organisations (jobs only).
+    // The system scope sees across organisations (jobs only), as its own role.
     const all = await withSystem('test', (tx) =>
-      tx.execute(sql`select count(distinct org_id)::int as n from core_customers`),
+      tx.execute(
+        sql`select count(distinct org_id)::int as n, current_user as role from core_customers`,
+      ),
     );
 
-    expect(all.rows[0]).toEqual({ n: 1 });
+    expect(all.rows[0]).toEqual({ n: 1, role: 'erxes_core_system' });
+
+    for (let index = 0; index < 8; index += 1) {
+      const leftover = await rootDb().execute<{ org: string | null; role: string }>(
+        sql`select nullif(current_setting('app.org_id', true), '') as org, current_user as role`,
+      );
+
+      expect(leftover.rows[0]).toEqual({ org: null, role: TEST_RUNTIME_ROLE });
+    }
   });
 
   it("can't link records across organisations, even bypassing row level security", async () => {
