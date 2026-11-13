@@ -1,3 +1,4 @@
+import { ACTOR_TYPES, FILE_STATUSES, NOTIFICATION_PRIORITIES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -15,20 +16,11 @@ import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 import { users } from './users';
 
-/**
- * Who did something: a team member, a plugin (by name, e.g. `hr`) or core
- * itself (`system`: cleanups, imports). Ids only — names are resolved when shown.
- */
-export const ACTOR_TYPES = ['user', 'plugin', 'system'] as const;
-
 export type ActorType = (typeof ACTOR_TYPES)[number];
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 // ─── Files ──────────────────────────────────────────────────────────────────
-
-/** `deleting`: removed, waiting for storage to confirm the bytes are gone (retried until it does). */
-export const FILE_STATUSES = ['pending', 'ready', 'deleting'] as const;
 
 /**
  * Uploaded files: metadata only, the bytes live in the storage driver
@@ -74,8 +66,6 @@ export const files = pgTable(
 );
 
 // ─── Notifications ──────────────────────────────────────────────────────────
-
-export const NOTIFICATION_PRIORITIES = ['normal', 'high'] as const;
 
 /**
  * A team member's inbox. Core and plugins create them; one row per recipient.
@@ -137,8 +127,6 @@ export const notifications = pgTable(
 );
 
 // ─── Activity timeline ──────────────────────────────────────────────────────
-
-export const ACTIVITY_TARGETS = ['customer', 'company'] as const;
 
 /**
  * Timelines: what happened with a customer or company — or a plugin's own

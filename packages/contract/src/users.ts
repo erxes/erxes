@@ -1,4 +1,5 @@
-import { USER_STATUSES, users } from '@erxes/core-db/schema';
+import { USER_STATUSES } from '@erxes/core-db/enums';
+import { users } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

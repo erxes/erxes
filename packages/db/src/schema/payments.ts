@@ -1,3 +1,4 @@
+import { INVOICE_STATUSES, PAYMENT_GATEWAY_KINDS, REFUND_METHODS, REFUND_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -16,17 +17,6 @@ import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
-export const PAYMENT_GATEWAY_KINDS = ['qpay', 'test'] as const;
-
-export const INVOICE_STATUSES = [
-  'pending',
-  'paid',
-  'refunded',
-  'cancelled',
-  'expired',
-  'failed',
-] as const;
-
 /** What an invoice is for, line by line; `amount` = quantity × unit price, in the smallest unit. */
 export interface InvoiceLine {
   productId: string | null;
@@ -37,9 +27,6 @@ export interface InvoiceLine {
   /** The plugin the line belongs to, when one invoice pays for several (an order and its delivery). */
   plugin: string | null;
 }
-
-export const REFUND_STATUSES = ['succeeded', 'failed'] as const;
-export const REFUND_METHODS = ['gateway', 'manual'] as const;
 
 /**
  * An organisation's payment gateway connection (QPay, …). Credentials are

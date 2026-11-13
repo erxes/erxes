@@ -1,4 +1,5 @@
-import { FIELD_TYPES, FIELD_VALIDATIONS, fieldGroups, fields } from '@erxes/core-db/schema';
+import { FIELD_TYPES, FIELD_VALIDATIONS } from '@erxes/core-db/enums';
+import { fieldGroups, fields } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

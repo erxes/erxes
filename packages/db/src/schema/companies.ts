@@ -1,3 +1,4 @@
+import { CUSTOMER_STATES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -13,7 +14,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
-import { CUSTOMER_STATES, customers } from './customers';
+import { customers } from './customers';
 import { leadStages } from './leadStages';
 import { organizations } from './organizations';
 import { users } from './users';

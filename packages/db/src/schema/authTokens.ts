@@ -1,3 +1,4 @@
+import { AUTH_TOKEN_PURPOSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
@@ -5,8 +6,6 @@ import { createdAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
-
-export const AUTH_TOKEN_PURPOSES = ['invite', 'password_reset'] as const;
 
 /**
  * Single-use links sent by email (invitations, password resets). The link

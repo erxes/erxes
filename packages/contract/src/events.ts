@@ -1,4 +1,5 @@
-import { EVENT_FAILURE_STATUSES, eventFailures, events } from '@erxes/core-db/schema';
+import { EVENT_FAILURE_STATUSES } from '@erxes/core-db/enums';
+import { eventFailures, events } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

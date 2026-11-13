@@ -1,4 +1,5 @@
-import { VIEW_RECORD_TYPES, views } from '@erxes/core-db/schema';
+import { VIEW_RECORD_TYPES } from '@erxes/core-db/enums';
+import { views } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

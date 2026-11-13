@@ -1,3 +1,4 @@
+import { VIEW_RECORD_TYPES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { boolean, check, foreignKey, index, jsonb, text } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
@@ -8,15 +9,6 @@ export interface ViewSort {
   field: string;
   direction: 'asc' | 'desc';
 }
-
-/** Lists views belong to: customers, leads (people), companies, company leads, products. */
-export const VIEW_RECORD_TYPES = [
-  'customer',
-  'lead',
-  'company',
-  'company_lead',
-  'product',
-] as const;
 
 /**
  * A saved list: a name, a filter (the same condition language automations

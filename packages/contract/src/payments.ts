@@ -1,6 +1,5 @@
+import { INVOICE_STATUSES, PAYMENT_GATEWAY_KINDS } from '@erxes/core-db/enums';
 import {
-  INVOICE_STATUSES,
-  PAYMENT_GATEWAY_KINDS,
   paymentGateways,
   paymentInvoices,
   paymentPluginSettings,

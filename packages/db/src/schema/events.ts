@@ -1,3 +1,4 @@
+import { ACTOR_TYPES, CONTENT_TYPES, EVENT_FAILURE_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   bigint,
@@ -13,9 +14,8 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { CONTENT_TYPES, createdAt, updatedAt } from './common';
+import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
-import { ACTOR_TYPES } from './platform';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
@@ -90,8 +90,6 @@ export const eventConsumers = pgTable('event_consumers', {
   lastSeq: bigint({ mode: 'number' }).default(0).notNull(),
   updatedAt: updatedAt(),
 });
-
-export const EVENT_FAILURE_STATUSES = ['retrying', 'dead'] as const;
 
 export type EventFailureStatus = (typeof EVENT_FAILURE_STATUSES)[number];
 

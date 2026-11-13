@@ -1,7 +1,5 @@
-import {
-  CONDITION_OPERATORS,
-  type ConditionGroup as StoredConditionGroup,
-} from '@erxes/core-db/schema';
+import { CONDITION_OPERATORS } from '@erxes/core-db/enums';
+import type { ConditionGroup as StoredConditionGroup } from '@erxes/core-db/schema';
 import { z } from 'zod';
 
 // ─── Definition ─────────────────────────────────────────────────────────────

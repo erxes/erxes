@@ -1,12 +1,11 @@
+import type { PLUGIN_TIERS } from '../enums';
+import { ORGANIZATION_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, jsonb, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
-
-export const ORGANIZATION_STATUSES = ['active', 'suspended', 'inactive'] as const;
-export const PLUGIN_TIERS = ['free', 'plus', 'pro'] as const;
 
 /** One plugin the organisation has on erxes.io: its tier and billing status (`canceling` ends at `endsAt`). */
 export interface EntitledPlugin {

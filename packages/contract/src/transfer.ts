@@ -1,10 +1,5 @@
-import {
-  IMPORT_STATUSES,
-  TRANSFER_RECORD_TYPES,
-  exports,
-  importRows,
-  imports,
-} from '@erxes/core-db/schema';
+import { IMPORT_STATUSES, TRANSFER_RECORD_TYPES } from '@erxes/core-db/enums';
+import { exports, importRows, imports } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';

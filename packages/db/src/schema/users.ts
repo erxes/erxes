@@ -1,3 +1,4 @@
+import { USER_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -14,11 +15,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { organizations } from './organizations';
-
-export const USER_STATUSES = ['invited', 'active', 'disabled'] as const;
-
-/** The built-in roles every organisation has. */
-export const USER_ROLES = ['owner', 'admin', 'member'] as const;
 
 /**
  * Roles of an organisation: named sets of permissions (`contacts.delete`,

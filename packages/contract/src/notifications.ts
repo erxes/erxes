@@ -1,4 +1,5 @@
-import { NOTIFICATION_PRIORITIES, notifications } from '@erxes/core-db/schema';
+import { NOTIFICATION_PRIORITIES } from '@erxes/core-db/enums';
+import { notifications } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

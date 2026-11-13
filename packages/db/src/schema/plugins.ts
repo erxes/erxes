@@ -1,3 +1,4 @@
+import { PLUGIN_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
@@ -5,8 +6,6 @@ import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
-
-export const PLUGIN_STATUSES = ['active', 'disabled'] as const;
 
 export type PluginStatus = (typeof PLUGIN_STATUSES)[number];
 

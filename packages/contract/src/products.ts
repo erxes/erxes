@@ -1,9 +1,5 @@
-import {
-  PRODUCT_KINDS,
-  PRODUCT_STATUSES,
-  productCategories,
-  products,
-} from '@erxes/core-db/schema';
+import { PRODUCT_KINDS, PRODUCT_STATUSES } from '@erxes/core-db/enums';
+import { productCategories, products } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

@@ -1,3 +1,4 @@
+import { WEBHOOK_DELIVERY_STATUSES, WEBHOOK_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, integer, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
@@ -5,9 +6,6 @@ import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
-
-export const WEBHOOK_STATUSES = ['active', 'disabled'] as const;
-export const WEBHOOK_DELIVERY_STATUSES = ['pending', 'succeeded', 'failed'] as const;
 
 /**
  * Outgoing webhooks: an organisation's endpoint that receives its events

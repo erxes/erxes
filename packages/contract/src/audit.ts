@@ -1,4 +1,5 @@
-import { AUDIT_STREAM_FORMATS, auditLogs, auditStreams } from '@erxes/core-db/schema';
+import { AUDIT_STREAM_FORMATS } from '@erxes/core-db/enums';
+import { auditLogs, auditStreams } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

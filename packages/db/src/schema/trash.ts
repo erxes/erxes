@@ -1,3 +1,4 @@
+import { ACTOR_TYPES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -10,7 +11,6 @@ import {
   timestamp,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { ACTOR_TYPES } from './platform';
 import { pgTable } from '../table';
 import type { CustomValue } from './common';
 import { organizations } from './organizations';

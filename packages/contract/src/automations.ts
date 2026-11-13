@@ -1,4 +1,5 @@
-import { AUTOMATION_STATUSES, automations } from '@erxes/core-db/schema';
+import { AUTOMATION_STATUSES } from '@erxes/core-db/enums';
+import { automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';

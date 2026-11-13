@@ -1,7 +1,8 @@
+import { CONTENT_TYPES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { check, foreignKey, index, primaryKey, text, uniqueIndex } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { CONTENT_TYPES, createdAt, updatedAt } from './common';
+import { createdAt, updatedAt } from './common';
 import { companies } from './companies';
 import { customers } from './customers';
 import { organizations } from './organizations';

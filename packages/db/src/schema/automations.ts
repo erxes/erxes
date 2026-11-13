@@ -1,3 +1,4 @@
+import { AUTOMATION_STATUSES, CONTENT_TYPES, RUN_STATUSES, RUN_STEP_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import {
   check,
@@ -11,14 +12,10 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { CONTENT_TYPES, createdAt, updatedAt } from './common';
+import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
-
-export const AUTOMATION_STATUSES = ['draft', 'active', 'paused'] as const;
-export const RUN_STATUSES = ['running', 'waiting', 'succeeded', 'failed', 'cancelled'] as const;
-export const RUN_STEP_STATUSES = ['succeeded', 'failed', 'skipped'] as const;
 
 /**
  * An automation: a trigger (event type + conditions) and steps, validated by

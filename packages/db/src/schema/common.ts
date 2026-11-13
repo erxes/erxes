@@ -1,39 +1,12 @@
+import type { CONDITION_OPERATORS, CONTENT_TYPES, FIELD_CONTENT_TYPES } from '../enums';
 import { timestamp } from 'drizzle-orm/pg-core';
 
-/** Records that tags and custom fields attach to. */
-export const CONTENT_TYPES = ['customer', 'company'] as const;
-
 export type ContentType = (typeof CONTENT_TYPES)[number];
-
-/** Records custom fields attach to: contacts, and the shared product catalog. */
-export const FIELD_CONTENT_TYPES = [...CONTENT_TYPES, 'product'] as const;
 
 export type FieldContentType = (typeof FIELD_CONTENT_TYPES)[number];
 
 /** A custom field value: text, number, date (`YYYY-MM-DD`), yes/no or several options. */
 export type CustomValue = string | number | boolean | string[];
-
-export const CONDITION_OPERATORS = [
-  'eq',
-  'neq',
-  'gt',
-  'gte',
-  'lt',
-  'lte',
-  'contains',
-  'not_contains',
-  'starts_with',
-  'in',
-  'not_in',
-  'exists',
-  'not_exists',
-  /** Dates relative to now; the value is `{ amount, unit }` (days, weeks, months). */
-  'within_last',
-  'more_than_ago',
-  'within_next',
-  /** The day and month fall within the next `amount` days (birthdays, anniversaries), whatever the year. */
-  'anniversary_within',
-] as const;
 
 export type ConditionOperator = (typeof CONDITION_OPERATORS)[number];
 
