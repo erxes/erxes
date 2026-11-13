@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { IPermissionGroupPermission } from 'erxes-api-shared/core-types';
 import { getPlugins, getPlugin } from 'erxes-api-shared/utils';
 
 const mergePerm = (map: Map<string, any>, perm: any, plugin?: string) => {
@@ -52,7 +53,16 @@ export const permissionQueries = {
       if (!permissions?.defaultGroups) continue;
 
       for (const group of permissions.defaultGroups) {
-        groups.push({ ...group, plugin: name });
+        groups.push({
+          ...group,
+          plugin: name,
+          permissions: (group.permissions || []).map(
+            (perm: IPermissionGroupPermission) => ({
+              ...perm,
+              plugin: perm.plugin || name,
+            }),
+          ),
+        });
       }
     }
 
