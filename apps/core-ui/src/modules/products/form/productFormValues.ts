@@ -59,7 +59,7 @@ export const productFormSchema = (t: Translate) => {
       heightMm: size,
       plugins: z.array(z.string()),
       /** Changed custom field values only; `null` clears one. */
-      customFields: z.record(CustomValue.nullable()),
+      customFields: z.record(z.string(), CustomValue.nullable()),
     })
     .superRefine((values, context) => {
       if (Currency.safeParse(values.currency).success && !isPrice(values.price, values.currency)) {
