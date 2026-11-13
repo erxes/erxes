@@ -1,10 +1,10 @@
 import { IconPackage, IconPlus } from '@tabler/icons-react';
-import { Button, Kbd, PageContainer, PageSubHeader } from 'erxes-ui';
+import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { ContactsPageHeader } from '~/modules/contacts/components/ContactsPageHeader';
 import { useCreateHotkey } from '~/modules/contacts/customers/CustomersHeader';
-import { ViewTabs } from '~/modules/views/ViewTabs';
+import { ViewBar } from '~/modules/views/ViewBar';
 import { PRODUCTS_PATH } from '../paths';
 import { useCanManageProducts, useOpenProduct } from '../useProducts';
 import { ProductsFilter } from './ProductsFilter';
@@ -41,10 +41,9 @@ export const ProductsPage = () => {
         </ContactsPageHeader.Start>
         <ContactsPageHeader.End>{manage && <AddProductButton />}</ContactsPageHeader.End>
       </ContactsPageHeader>
-      <ViewTabs recordType="product" allLabel={t('all-products', 'All products')} />
-      <PageSubHeader>
+      <ViewBar recordType="product" allLabel={t('all-products', 'All products')}>
         <ProductsFilter />
-      </PageSubHeader>
+      </ViewBar>
       <ProductsRecordTable />
     </PageContainer>
   );

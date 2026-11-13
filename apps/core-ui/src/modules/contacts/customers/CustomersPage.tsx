@@ -1,10 +1,10 @@
 import type { CustomerState } from '@erxes/core-contract';
-import { PageContainer, PageSubHeader } from 'erxes-ui';
+import { PageContainer } from 'erxes-ui';
 import { LeadsBoard } from '~/modules/leads/LeadsBoard';
 import { useLeadView } from '~/modules/leads/leadView';
 import { CustomersFilter } from './CustomersFilter';
 import { CustomersHeader } from './CustomersHeader';
-import { ViewTabs } from '~/modules/views/ViewTabs';
+import { ViewBar } from '~/modules/views/ViewBar';
 import { useLeadsT } from '~/modules/leads/i18n';
 import { CustomersRecordTable } from './CustomersRecordTable';
 
@@ -21,13 +21,12 @@ export const CustomersPage = ({ state }: { state: CustomerState }) => {
   return (
     <PageContainer>
       <CustomersHeader state={state} />
-      <ViewTabs
+      <ViewBar
         recordType={state}
         allLabel={state === 'lead' ? t('views.all-leads') : t('views.all-customers')}
-      />
-      <PageSubHeader>
+      >
         <CustomersFilter state={state} />
-      </PageSubHeader>
+      </ViewBar>
       {board ? <LeadsBoard recordType="customer" /> : <CustomersRecordTable state={state} />}
     </PageContainer>
   );

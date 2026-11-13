@@ -1,9 +1,9 @@
-import { PageContainer, PageSubHeader } from 'erxes-ui';
+import { PageContainer } from 'erxes-ui';
 import { LeadsBoard } from '~/modules/leads/LeadsBoard';
 import { useLeadView } from '~/modules/leads/leadView';
 import { CompaniesFilter } from './CompaniesFilter';
 import { CompaniesHeader } from './CompaniesHeader';
-import { ViewTabs } from '~/modules/views/ViewTabs';
+import { ViewBar } from '~/modules/views/ViewBar';
 import { useLeadsT } from '~/modules/leads/i18n';
 import { CompaniesRecordTable } from './CompaniesRecordTable';
 
@@ -19,13 +19,12 @@ export const CompaniesPage = ({ state = 'customer' }: { state?: 'lead' | 'custom
   return (
     <PageContainer>
       <CompaniesHeader state={state} />
-      <ViewTabs
+      <ViewBar
         recordType={state === 'lead' ? 'company_lead' : 'company'}
         allLabel={state === 'lead' ? t('views.all-company-leads') : t('views.all-companies')}
-      />
-      <PageSubHeader>
+      >
         <CompaniesFilter state={state} />
-      </PageSubHeader>
+      </ViewBar>
       {board ? <LeadsBoard recordType="company" /> : <CompaniesRecordTable state={state} />}
     </PageContainer>
   );

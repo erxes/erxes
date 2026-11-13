@@ -7,7 +7,6 @@ import {
   IconLock,
   IconPencil,
   IconPlus,
-  IconRotate,
   IconTrash,
   IconUsers,
 } from '@tabler/icons-react';
@@ -15,7 +14,7 @@ import { Button, cn, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf } from '~/lib/api';
-import { SaveViewButton, ViewDialog } from './ViewControls';
+import { ViewDialog } from './ViewControls';
 import { viewHref } from './viewLinks';
 import { useCanShareViews, useViewMutations, useViewState } from './useViews';
 
@@ -221,10 +220,8 @@ const NewViewButton = ({ recordType }: { recordType: ViewRecordType }) => {
 };
 
 /**
- * Saved views as tabs above a list (as HubSpot and Attio): "All", then each
- * view (shared ones marked), the rest under "More"; a new view saves the list
- * as it is now. While the list differs from the open view: Save, Save as new,
- * Reset.
+ * Saved views as tabs (as HubSpot and Attio): "All", then each view (shared
+ * ones marked), the rest under "More"; a new view saves the list as it is now.
  */
 export const ViewTabs = ({
   recordType,
@@ -234,7 +231,7 @@ export const ViewTabs = ({
   allLabel: string;
 }) => {
   const { t } = useTranslation('views');
-  const { views, error, current, changed, query } = useViewState(recordType);
+  const { views, error, current, query } = useViewState(recordType);
   // The open view stays visible even when it is past the first few.
   const visible = views.slice(0, VISIBLE);
 
@@ -246,7 +243,7 @@ export const ViewTabs = ({
   const more = views.filter((view) => !shown.includes(view));
 
   return (
-    <div className="flex min-h-10 shrink-0 items-center gap-1 overflow-x-auto border-b px-3">
+    <>
       <button
         type="button"
         className={cn(TAB, !current && ACTIVE)}
@@ -290,23 +287,6 @@ export const ViewTabs = ({
       ))}
       {more.length > 0 && <MoreViews views={more} onOpen={query.openView} />}
       <NewViewButton recordType={recordType} />
-      {changed && (
-        <div className="ml-auto flex shrink-0 items-center gap-1 pl-2">
-          <span className="mr-1 hidden text-xs text-muted-foreground md:inline">
-            {current ? t('edited') : t('filtered')}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1 px-2 text-muted-foreground"
-            onClick={() => query.openView(current)}
-          >
-            <IconRotate className="size-3.5" />
-            {t('reset')}
-          </Button>
-          <SaveViewButton recordType={recordType} />
-        </div>
-      )}
-    </div>
+    </>
   );
 };
