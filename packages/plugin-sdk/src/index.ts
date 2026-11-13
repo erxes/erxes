@@ -29,6 +29,19 @@
  *   // An invoice may list what it pays for; `plugin` names another plugin's line (it gets the events):
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
+ * Customers (a shop, tracking, booking): core signs them in; the plugin never builds sign-up or
+ * sign-in. Declare `customerApp: { redirectUris: ['https://{subdomain}.shop.example.com/callback'] }`
+ * in the manifest; the app sends customers to `<coreUrl>/core/v1/customer-oauth/authorize`
+ * (OAuth 2.1, PKCE) and trades the code at `/customer-oauth/token`. Serve customers under
+ * `/customer/*`, keyed by the customer id:
+ *
+ *   app.use('/customer', async (req, res, next) => {
+ *     req.customer = await verifyCustomerToken(req.headers.authorization, { coreUrl })
+ *       .catch(() => null);                // { orgId, customerId, clientId }
+ *     return req.customer ? next() : res.sendStatus(401);
+ *   });
+ *   app.get('/customer/orders', (req) => orders.list(req.customer.orgId, req.customer.customerId));
+ *
  * Tiers on SaaS (erxes.io: free / plus / pro; self-hosted: pro, full):
  *
  *   const member = await verifyPluginSession(token, { coreUrl, plugin: 'hr' });

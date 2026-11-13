@@ -16,7 +16,7 @@ Sources of truth (read before deciding anything structural):
 - core repo `AGENTS.md`, section **Plugin connection** and **Automations**
 - `packages/contract/src/plugins.ts` (`PluginManifest`, `PLUGIN_SCOPES`)
 - `packages/plugin-sdk/src/index.ts` (every helper used here)
-- `apps/core-api/src/http/access.ts` (which procedures a scope opens)
+- `apps/core-api/src/http/policies.ts` (which procedures a scope opens)
 - `apps/core-api/src/__tests__/plugins.test.ts` → "works end to end through
   @erxes/plugin-sdk": a working plugin in 100 lines
 - the architecture page: https://claude.ai/artifact/QDZJgn3kNaGtWZNTQrmjHS
@@ -257,7 +257,7 @@ await shop.notifications.create({
 });
 ```
 
-What each scope opens (check `access.ts` for the full list):
+What each scope opens (check `policies.ts` for the full list):
 
 | Scope                              | Procedures                                                                                         |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -319,7 +319,32 @@ the manifest (`oauth.redirectUris`, `{subdomain}` allowed), verify access
 tokens with `verifyErxesAccessToken(token, opts)` (same member fields plus
 `scope`).
 
-## 8. Validation before calling it done
+## 8. Customers in the plugin's app (optional)
+
+Core signs customers in (decision 42); a plugin never builds sign-up, sign-in,
+codes or password resets. One account per organisation: a customer signed in to
+one plugin's app is signed in to every other's without typing anything again.
+
+1. Manifest: `customerApp: { redirectUris: ['https://{subdomain}.shop.example.com/callback'] }`.
+2. The app sends customers to `<core>/core/v1/customer-oauth/authorize` with
+   `response_type=code`, `client_id=shop`, `redirect_uri`, `state` and a PKCE
+   S256 challenge (`organization=<subdomain>` when neither address names it;
+   `prompt=login` to ask again). Core shows its sign-in page (a code by email
+   or SMS), then sends the browser back with `code`.
+3. The app trades it at `POST /customer-oauth/token` (form:
+   `grant_type=authorization_code`, `client_id`, `code`, `redirect_uri`,
+   `code_verifier`) for a 15-minute `access_token` and a 90-day
+   `refresh_token` (`grant_type=refresh_token`; rotates on every use, an old
+   one used again ends the session). Sign out: `POST /customer-oauth/revoke`
+   with `token` and `client_id`.
+4. The plugin's API serves customers under `/customer/*` only, each route
+   checking `verifyCustomerToken(req.headers.authorization, { coreUrl })` →
+   `{ orgId, customerId, clientId }`, and keys every query by `orgId` and
+   `customerId` from the token, never from the request.
+5. The app may call core's `/core/v1/customer/me` (profile, logins, sessions)
+   with the same token. Subscribe to `core.customer.signed_up` for welcome flows.
+
+## 9. Validation before calling it done
 
 1. `pnpm lint && pnpm typecheck && pnpm test` (tests on a real Postgres) and
    `pnpm build`; `pnpm db:check` if the repo has it.

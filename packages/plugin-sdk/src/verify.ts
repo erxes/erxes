@@ -60,12 +60,13 @@ interface VerifyOptions {
 
 const jwksByCore = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
-/** A token core signed (its public keys), for this plugin, of this kind, unexpired; its claims parsed. */
+/** A token core signed (its public keys), for this plugin (or `audience`), of this kind, unexpired; its claims parsed. */
 const verifyCoreToken = async <T>(
   token: string,
-  options: VerifyOptions,
+  options: Pick<VerifyOptions, 'coreUrl'> & { plugin?: string },
   typ: string,
   claims: z.ZodType<T>,
+  audience = options.plugin,
 ) => {
   const base = options.coreUrl.replace(/\/+$/, '');
   let jwks = jwksByCore.get(base);
@@ -75,9 +76,11 @@ const verifyCoreToken = async <T>(
     jwksByCore.set(base, jwks);
   }
 
+  if (!audience) throw new Error('no audience to check the token for');
+
   const { payload } = await jwtVerify(token, jwks, {
     issuer: 'erxes-core',
-    audience: options.plugin,
+    audience,
     typ,
     algorithms: ['ES256'],
   });
@@ -187,6 +190,40 @@ export const verifyErxesAccessToken = async (
   const claims = await verifyCoreToken(token, options, 'at+jwt', AccessTokenClaims);
 
   return { ...member(claims), scope: claims.scope };
+};
+
+/** A customer signed in through core (`/customer-oauth`), calling a plugin's `/customer/*` routes. */
+export interface CustomerSignIn {
+  orgId: string;
+  customerId: string;
+  /** The plugin whose app the customer signed in to (any app of the organisation may call). */
+  clientId: string;
+}
+
+const CustomerClaims = z
+  .object({ sub: z.string().min(1), org: z.string().min(1), client_id: z.string() })
+  .transform((claims): CustomerSignIn => ({
+    orgId: claims.org,
+    customerId: claims.sub,
+    clientId: claims.client_id,
+  }));
+
+/**
+ * Verifies a customer's access token from the `Authorization` header with
+ * core's public keys: issued by core for customers, unexpired. Key the
+ * customer's data by `orgId` and `customerId`. Signing out reaches plugins
+ * when the token expires (15 minutes); ask core (`GET /customer/me` with the
+ * same token) where that matters. Throws if not valid.
+ */
+export const verifyCustomerToken = async (
+  authorization: string | undefined | null,
+  options: { coreUrl: string },
+): Promise<CustomerSignIn> => {
+  const token = bearerOf(authorization);
+
+  if (!token) throw new Error('no customer token');
+
+  return verifyCoreToken(token, options, 'customer+jwt', CustomerClaims, 'erxes-customer');
 };
 
 const sha256 = async (text: string) => {
