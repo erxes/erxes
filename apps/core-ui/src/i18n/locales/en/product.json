@@ -1,0 +1,108 @@
+{
+  "actions": {
+    "archive": "Archive",
+    "cancel": "Cancel",
+    "close": "Close",
+    "create": "Create product",
+    "delete": "Delete",
+    "edit": "Edit",
+    "open": "Open",
+    "restore": "Restore",
+    "retry": "Try again",
+    "save": "Save"
+  },
+  "add": "Add product",
+  "archived-toast": "{{name}} archived",
+  "catalog": "Catalog",
+  "category": {
+    "actions": "Category actions",
+    "add": "Add category",
+    "add-sub": "Add subcategory",
+    "dialog-description": "Categories group products and can sit under one another.",
+    "edit": "Rename or move category",
+    "empty-description": "Categories group products, like Drinks › Coffee. Every app sees the same ones.",
+    "empty-title": "No categories yet",
+    "none": "No category",
+    "none-found": "No categories found",
+    "parent": "Under",
+    "remove-confirm": "Delete the category “{{name}}”?",
+    "remove-description": "Its products keep existing without a category.",
+    "remove-failed": "Could not delete the category",
+    "save-failed": "Could not save the category",
+    "search": "Search categories",
+    "top-level": "Top level"
+  },
+  "empty": {
+    "description": "Products are the goods and services you sell. Add each one once here; your shop, sales pipeline, invoices and other apps all use the same catalog.",
+    "title": "No products yet"
+  },
+  "errors": {
+    "barcode-exists": "Another product has this barcode.",
+    "category-exists": "A category with this name is already there.",
+    "category-has-children": "Move or delete its subcategories first.",
+    "code-exists": "Another product has this code.",
+    "invalid-category": "This category no longer exists. Pick another.",
+    "invalid-file": "An image did not finish uploading. Add it again.",
+    "invalid-parent": "Pick another parent: this one is gone or under this category.",
+    "plugin-not-installed": "A chosen plugin is not installed here."
+  },
+  "fields": {
+    "barcode": "Barcode",
+    "category": "Category",
+    "code": "Code",
+    "currency": "Currency",
+    "description": "Description",
+    "height": "Height (mm)",
+    "images": "Images",
+    "kind": "Kind",
+    "length": "Length (mm)",
+    "name": "Name",
+    "plugins": "Used by",
+    "price": "Price",
+    "properties": "Properties",
+    "unit": "Unit",
+    "weight": "Weight (g)",
+    "width": "Width (mm)"
+  },
+  "form": {
+    "add-properties": "Add them in settings",
+    "currency-invalid": "A currency code, like MNT or USD",
+    "name-required": "Enter a name",
+    "no-plugins": "No apps installed",
+    "all-plugins-chosen": "Every installed app is chosen",
+    "no-properties": "No product properties yet.",
+    "open-existing": "Open that product",
+    "plugins-hint": "Each app lists the products it uses.",
+    "plugins-placeholder": "Choose the apps that sell or use it",
+    "price-invalid": "Enter a price, like 12.50",
+    "too-long": "Too long",
+    "too-many-images": "Up to 20 images",
+    "unit-required": "Enter a unit, like pcs or kg",
+    "whole-number": "Enter a whole number"
+  },
+  "images": {
+    "add": "Add",
+    "main": "Main",
+    "make-main": "Make main",
+    "remove": "Remove",
+    "upload-failed": "Could not upload {{name}}",
+    "uploading": "Uploading"
+  },
+  "kind": {
+    "goods": "Goods",
+    "service": "Service"
+  },
+  "new-product": "New product",
+  "product": "Product",
+  "products": "Products",
+  "restored-toast": "{{name}} restored",
+  "save-failed": "Could not save the product",
+  "saved-toast": "{{name}} saved",
+  "settings": {
+    "categories": "Categories",
+    "title": "Products settings"
+  },
+  "status": {
+    "archived": "Archived"
+  }
+}

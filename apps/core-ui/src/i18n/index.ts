@@ -4,11 +4,13 @@ import enAutomations from './locales/en/automations.json';
 import enCommon from './locales/en/common.json';
 import enContact from './locales/en/contact.json';
 import enOrganization from './locales/en/organization.json';
+import enProduct from './locales/en/product.json';
 import enSettings from './locales/en/settings.json';
 import mnAutomations from './locales/mn/automations.json';
 import mnCommon from './locales/mn/common.json';
 import mnContact from './locales/mn/contact.json';
 import mnOrganization from './locales/mn/organization.json';
+import mnProduct from './locales/mn/product.json';
 import mnSettings from './locales/mn/settings.json';
 
 /*
@@ -41,6 +43,7 @@ void i18n.use(initReactI18next).init({
       settings: enSettings,
       organization: enOrganization,
       automations: enAutomations,
+      product: enProduct,
     },
     mn: {
       common: mnCommon,
@@ -48,11 +51,12 @@ void i18n.use(initReactI18next).init({
       settings: mnSettings,
       organization: mnOrganization,
       automations: mnAutomations,
+      product: mnProduct,
     },
   },
   lng: savedLanguage(),
   fallbackLng: 'en',
-  ns: ['common', 'contact', 'settings', 'organization', 'automations'],
+  ns: ['common', 'contact', 'settings', 'organization', 'automations', 'product'],
   defaultNS: 'common',
   fallbackNS: 'common',
   interpolation: { escapeValue: false },
