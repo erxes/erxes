@@ -467,9 +467,6 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "actor": {
-            "$ref": "#/components/schemas/ActorRef"
-          },
           "action": {
             "type": "string"
           },
@@ -577,11 +574,13 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/ActorRef"
           }
         },
         "required": [
           "id",
-          "actor",
           "action",
           "targetType",
           "targetId",
@@ -591,7 +590,8 @@
           "ip",
           "userAgent",
           "source",
-          "createdAt"
+          "createdAt",
+          "actor"
         ]
       },
       "AuditStream": {
@@ -638,11 +638,6 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
-          "pending": {
-            "type": "integer",
-            "minimum": -9007199254740991,
-            "maximum": 9007199254740991
-          },
           "lastDeliveredAt": {
             "anyOf": [
               {
@@ -672,6 +667,11 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "pending": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
           }
         },
         "required": [
@@ -682,11 +682,11 @@
           "status",
           "authHeaderName",
           "cursorSeq",
-          "pending",
           "lastDeliveredAt",
           "lastError",
           "consecutiveFailures",
-          "createdAt"
+          "createdAt",
+          "pending"
         ]
       },
       "Automation": {
@@ -20282,6 +20282,13 @@
                     ],
                     "type": "string"
                   },
+                  "status": {
+                    "enum": [
+                      "active",
+                      "paused"
+                    ],
+                    "type": "string"
+                  },
                   "authHeader": {
                     "anyOf": [
                       {
@@ -20306,13 +20313,6 @@
                         "type": "null"
                       }
                     ]
-                  },
-                  "status": {
-                    "enum": [
-                      "active",
-                      "paused"
-                    ],
-                    "type": "string"
                   }
                 }
               }
