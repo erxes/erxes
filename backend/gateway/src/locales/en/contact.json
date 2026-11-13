@@ -80,7 +80,8 @@
     "position": "Position",
     "department": "Department",
     "website": "Website",
-    "add-link": "Add link"
+    "add-link": "Add link",
+    "invalid-link": "Enter a valid web link"
   },
   "company": {
     "name": "Name",

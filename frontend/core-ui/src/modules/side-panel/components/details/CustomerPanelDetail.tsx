@@ -1,7 +1,10 @@
 import { ContactPanelTags } from '@/side-panel/components/details/ContactPanelTags';
 import { ContactDescriptionField } from '@/side-panel/components/details/ContactPanelDescription';
 import { ContactDetailSection } from '@/side-panel/components/details/ContactDetailSection';
-import { ContactPanelWebsiteLink } from '@/side-panel/components/details/ContactPanelActions';
+import {
+  ContactPanelWebsiteLink,
+  getWebsiteUrl,
+} from '@/side-panel/components/details/ContactPanelActions';
 import { ContactPanelRelationField } from '@/side-panel/components/details/ContactPanelRelationField';
 import {
   type Icon,
@@ -43,6 +46,7 @@ import {
   Spinner,
   Switch,
   TextField,
+  toast,
 } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -158,14 +162,24 @@ const CustomerLinksSection = ({ customer }: { customer: ICustomerDetail }) => {
                   'min-w-0 flex-1',
                   !value && 'text-muted-foreground',
                 )}
-                onSave={(next) =>
+                onSave={(next) => {
+                  const link = next.trim();
+
+                  if (link && !getWebsiteUrl(link)) {
+                    toast({
+                      title: t('invalid-link'),
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+
                   customerEdit({
                     variables: {
                       _id: customer._id,
-                      links: { ...links, [code]: next },
+                      links: { ...links, [code]: link },
                     },
-                  })
-                }
+                  });
+                }}
               />
               <ContactPanelWebsiteLink website={value} />
             </div>

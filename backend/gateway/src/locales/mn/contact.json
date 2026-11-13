@@ -80,7 +80,8 @@
     "position": "Албан тушаал",
     "department": "Хэлтэс",
     "website": "Вэбсайт",
-    "add-link": "Холбоос нэмэх"
+    "add-link": "Холбоос нэмэх",
+    "invalid-link": "Зөв вэб холбоос оруулна уу"
   },
   "company": {
     "name": "Нэр",
