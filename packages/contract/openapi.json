@@ -7142,6 +7142,32 @@
           "customFields"
         ]
       },
+      "CustomerExists": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "field": {
+            "enum": [
+              "primaryEmail",
+              "primaryPhone"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "field"
+        ]
+      },
       "CustomerFields": {
         "type": "object",
         "properties": {
