@@ -1,14 +1,30 @@
-import type { ContentType } from '@erxes/core-contract';
+import type { FieldContentType } from '@erxes/core-contract';
 import { CONTACT_SETTINGS } from '~/modules/contacts/settings/paths';
+import { PRODUCT_SETTINGS } from '~/modules/products/paths';
 
-/** Route base of the properties settings pages. */
-export const PROPERTIES_BASE_PATH = CONTACT_SETTINGS.properties;
+/**
+ * Record types with properties: the app settings that list them (`basePath`)
+ * and their `content-type.*` label key.
+ */
+export const PROPERTY_TYPES = {
+  customer: { basePath: CONTACT_SETTINGS.properties, i18nKey: 'core-customer', label: 'Customer' },
+  company: { basePath: CONTACT_SETTINGS.properties, i18nKey: 'core-company', label: 'Company' },
+  product: {
+    basePath: PRODUCT_SETTINGS.properties,
+    i18nKey: 'core-product',
+    label: 'Product & Service',
+  },
+} as const satisfies Record<FieldContentType, { basePath: string; i18nKey: string; label: string }>;
 
-/** Record types with properties; `i18nKey` is its `content-type.*` key. */
-export const PROPERTY_TYPES = [
-  { contentType: 'customer', i18nKey: 'core-customer', description: 'Customer' },
-  { contentType: 'company', i18nKey: 'core-company', description: 'Company' },
-] as const satisfies readonly { contentType: ContentType; i18nKey: string; description: string }[];
+/** The record types Contacts › Settings › Properties lists. */
+export const CONTACT_PROPERTY_TYPES = ['customer', 'company'] as const;
 
-export const isPropertyType = (value: string | undefined): value is ContentType =>
-  PROPERTY_TYPES.some((type) => type.contentType === value);
+/** A record type's properties page (its fields and groups). */
+export const propertiesPath = (contentType: FieldContentType) =>
+  `${PROPERTY_TYPES[contentType].basePath}/${contentType}`;
+
+/** Whether `value` is one of `types` (the record types one settings area lists). */
+export const isPropertyType = (
+  types: readonly FieldContentType[],
+  value: string | undefined,
+): value is FieldContentType => types.some((type) => type === value);

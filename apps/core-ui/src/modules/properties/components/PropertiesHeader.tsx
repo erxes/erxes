@@ -1,20 +1,21 @@
+import type { FieldContentType } from '@erxes/core-contract';
 import { IconHierarchy2, IconPlus } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageHeader } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Link, useMatch, useParams } from 'react-router-dom';
-import { PROPERTIES_BASE_PATH, PROPERTY_TYPES } from '../constants';
+import { Link, useMatch } from 'react-router-dom';
+import { PROPERTY_TYPES, propertiesPath } from '../constants';
 import { useCanManageFields } from '../usePropertyMutations';
 import { AddPropertyGroup } from './PropertyGroupAdd';
 
-export const PropertiesHeader = () => {
+export const PropertiesHeader = ({ contentType }: { contentType: FieldContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { type } = useParams<{ type: string }>();
   const manager = useCanManageFields();
-  const onList = !!useMatch(`${PROPERTIES_BASE_PATH}/:type`);
-  const onTypeAdd = useMatch(`${PROPERTIES_BASE_PATH}/:type/add`);
-  const onGroupAdd = useMatch(`${PROPERTIES_BASE_PATH}/:type/:groupId/add`);
+  const list = propertiesPath(contentType);
+  const onList = !!useMatch(list);
+  const onTypeAdd = useMatch(`${list}/add`);
+  const onGroupAdd = useMatch(`${list}/:groupId/add`);
   const onAdd = !!onTypeAdd || !!onGroupAdd;
-  const propertyType = PROPERTY_TYPES.find((item) => item.contentType === type);
+  const propertyType = PROPERTY_TYPES[contentType];
 
   return (
     <PageHeader>
@@ -23,24 +24,22 @@ export const PropertiesHeader = () => {
           <Breadcrumb.List className="gap-1">
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
-                <Link to={PROPERTIES_BASE_PATH}>
+                <Link to={propertyType.basePath}>
                   <IconHierarchy2 />
                   {t('properties', 'Properties')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
-            {propertyType && <Breadcrumb.Separator />}
-            {propertyType && (
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild className="capitalize">
-                  <Link to={`${PROPERTIES_BASE_PATH}/${propertyType.contentType}`}>
-                    {t(`content-type.${propertyType.i18nKey}`, propertyType.description)}{' '}
-                    {t('properties-suffix', 'properties')}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-            )}
-            {propertyType && !onList && (
+            <Breadcrumb.Separator />
+            <Breadcrumb.Item>
+              <Button variant="ghost" asChild className="capitalize">
+                <Link to={list}>
+                  {t(`content-type.${propertyType.i18nKey}`, propertyType.label)}{' '}
+                  {t('properties-suffix', 'properties')}
+                </Link>
+              </Button>
+            </Breadcrumb.Item>
+            {!onList && (
               <>
                 <Breadcrumb.Separator />
                 <Breadcrumb.Item>
@@ -56,11 +55,11 @@ export const PropertiesHeader = () => {
         </Breadcrumb>
       </PageHeader.Start>
       <PageHeader.End>
-        {propertyType && onList && manager && (
+        {onList && manager && (
           <>
-            <AddPropertyGroup contentType={propertyType.contentType} />
+            <AddPropertyGroup contentType={contentType} />
             <Button asChild>
-              <Link to={`${PROPERTIES_BASE_PATH}/${propertyType.contentType}/add`}>
+              <Link to={`${list}/add`}>
                 <IconPlus />
                 {t('add-field', 'Add field')}
               </Link>

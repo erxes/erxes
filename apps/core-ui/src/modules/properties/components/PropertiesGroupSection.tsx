@@ -22,7 +22,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { PROPERTIES_BASE_PATH } from '../constants';
+import { propertiesPath } from '../constants';
 import { activeLayoutGroupState, activePropertyGroupState, archiveTargetState } from '../states';
 import { useCanManageFields } from '../usePropertyMutations';
 import { propertiesColumns } from './propertiesColumns';
@@ -54,7 +54,7 @@ const PropertiesGroupActions = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="min-w-48" onClick={(event) => event.stopPropagation()}>
         <DropdownMenu.Item asChild>
-          <Link to={`${PROPERTIES_BASE_PATH}/${contentType}/${group.id}/add`}>
+          <Link to={`${propertiesPath(contentType)}/${group.id}/add`}>
             <IconPlus />
             {t('add-field', 'Add field')}
           </Link>
@@ -193,7 +193,7 @@ export const PropertiesGroupSection = ({
       ref={setNodeRef}
       name={group.name}
       fields={fields}
-      addPath={`${PROPERTIES_BASE_PATH}/${contentType}/${group.id}/add`}
+      addPath={`${propertiesPath(contentType)}/${group.id}/add`}
       className={cn(isDragging && 'z-10 opacity-40')}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       handle={
@@ -231,7 +231,7 @@ export const PropertiesUngroupedSection = ({
     <GroupShell
       name={t('ungrouped', 'Ungrouped')}
       fields={fields}
-      addPath={`${PROPERTIES_BASE_PATH}/${contentType}/add`}
+      addPath={`${propertiesPath(contentType)}/add`}
     />
   );
 };

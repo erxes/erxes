@@ -4,7 +4,7 @@ import { Button, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { messageOf, orpc } from '~/lib/api';
-import { PROPERTIES_BASE_PATH } from '../constants';
+import { propertiesPath } from '../constants';
 import { hasOptions } from '../fieldTypes';
 import { useAllFields } from '../useFields';
 import { useEditProperty } from '../usePropertyMutations';
@@ -26,7 +26,7 @@ export const PropertyEdit = ({ contentType }: { contentType: FieldContentType })
   const navigate = useNavigate();
 
   const handleClose = () => {
-    void navigate(`${PROPERTIES_BASE_PATH}/${contentType}`);
+    void navigate(propertiesPath(contentType));
   };
 
   if (error) {
@@ -42,7 +42,7 @@ export const PropertyEdit = ({ contentType }: { contentType: FieldContentType })
       <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
         {t('no-fields-found', 'No fields found')}
         <Button variant="secondary" asChild>
-          <Link to={`${PROPERTIES_BASE_PATH}/${contentType}`}>{t('cancel', 'Cancel')}</Link>
+          <Link to={propertiesPath(contentType)}>{t('cancel', 'Cancel')}</Link>
         </Button>
       </div>
     );

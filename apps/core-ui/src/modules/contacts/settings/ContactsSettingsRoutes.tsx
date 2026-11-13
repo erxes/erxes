@@ -9,6 +9,7 @@ import { AppLayout, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useCan } from '~/modules/auth/session';
+import { CONTACT_PROPERTY_TYPES } from '~/modules/properties/constants';
 import { ImportExportPage } from '~/modules/settings/import-export/ImportExportPage';
 import { ImportWizardPage } from '~/modules/settings/import-export/ImportWizardPage';
 import { LeadStagesPage } from '~/modules/settings/lead-stages/LeadStagesPage';
@@ -97,7 +98,10 @@ export const ContactsSettingsRoutes = () => (
   <Routes>
     <Route element={<ContactsSettingsLayout />}>
       <Route index element={<Navigate to="properties" replace />} />
-      <Route path="properties/*" element={<PropertiesSettingsRoutes />} />
+      <Route
+        path="properties/*"
+        element={<PropertiesSettingsRoutes types={CONTACT_PROPERTY_TYPES} />}
+      />
       <Route path="tags" element={<TagsSettingsPage />} />
       <Route path="lead-stages" element={<LeadStagesPage />} />
       <Route path="import-export" element={<ImportExportPage />} />

@@ -13,14 +13,14 @@ import type { TFunction } from 'i18next';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { PROPERTIES_BASE_PATH } from '../constants';
+import { propertiesPath } from '../constants';
 import { FIELD_TYPES_OBJECT } from '../fieldTypes';
 import { archiveTargetState, selectedFieldIdsState } from '../states';
 import { useCanManageFields, useEditProperty } from '../usePropertyMutations';
 
 /** The edit page of a field. */
 export const propertyEditPath = (field: Field) =>
-  `${PROPERTIES_BASE_PATH}/${field.contentType}/${field.groupId ?? 'ungrouped'}/${field.id}`;
+  `${propertiesPath(field.contentType)}/${field.groupId ?? 'ungrouped'}/${field.id}`;
 
 const PropertiesCheckboxCell = ({ id }: { id: string }) => {
   const [selectedFieldIds, setSelectedFieldIds] = useAtom(selectedFieldIdsState);
