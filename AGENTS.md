@@ -7,11 +7,10 @@ own repo, started with `npm create @erxes/plugin` (its migrate kit moves an erxe
 Each package's `AGENTS.md` has its rules.
 
 ```sh
-pnpm install          # Node 26 (.node-version); installs the pre-commit hook
-docker compose up -d  # Postgres 18 on 127.0.0.1:5434
-cp .env.example .env
-pnpm dev              # API http://localhost:3400, UI http://localhost:3500
-DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres vp run test
+pnpm install         # Node 26 (.node-version); installs the pre-commit hook
+vp run doctor        # Docker, Node, pnpm, disk and ports: one line per problem, with the fix
+vp run dev:stack up  # Postgres, API and UI for this checkout; prints the URLs and the sign-in
+vp run test          # on dev:stack's Postgres (.env.local); vp run dev:stack down when done
 ```
 
 `.github/workflows/ci.yml` lists the gates CI runs; `Check` is the job to require. `check`, `fix` and
