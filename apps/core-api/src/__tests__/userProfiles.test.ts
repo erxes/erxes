@@ -1,11 +1,11 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
+import { useTestDatabase } from './db';
 import { type CoreClient, type CoreInputs, useTwoOrgs } from './support';
 
 const emails = (page: { data: { email: string }[] }) => page.data.map((user) => user.email);
 
 /** Profile details, bulk invitations, passwords and emails of team members. */
-describeWithDb('team member profiles', () => {
+describe('team member profiles', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

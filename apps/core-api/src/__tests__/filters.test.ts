@@ -1,12 +1,12 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { type CoreClient, type CoreInputs, useTestServer } from './support';
 
 const sorted = (values: (string | null)[]) =>
   values.map((value) => value ?? '').toSorted((a, b) => a.localeCompare(b));
 
-describeWithDb('list filters (search, tags, owner)', () => {
+describe('list filters (search, tags, owner)', () => {
   useTestDatabase();
 
   const server = useTestServer();

@@ -1,10 +1,10 @@
 import { pluginInstallations, plugins } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { Client } from 'pg';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { pluginRoleSql } from '~/modules/plugins/pluginRole';
-import { adminDb, describeWithDb, testDatabaseUrl, useTestDatabase } from './db';
+import { adminDb, testDatabaseUrl, useTestDatabase } from './db';
 
 /** Runs `fn` on a connection acting as the testhr plugin's database role. */
 const asPlugin = async <T>(fn: (client: Client) => Promise<T>) => {
@@ -37,7 +37,7 @@ const idFrom = async (client: Client, statement: string, params: string[]) =>
   (await client.query<{ id: string | null }>(statement, params)).rows[0]?.id;
 
 /** A plugin's database role can't read, change or drop core data, and can't act as another plugin. */
-describeWithDb('plugin database roles', { timeout: 240_000 }, () => {
+describe('plugin database roles', { timeout: 240_000 }, () => {
   useTestDatabase();
 
   let orgA = '';

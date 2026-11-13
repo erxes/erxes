@@ -1,12 +1,12 @@
 import { newId, paymentGateways } from '@erxes/core-db';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { seal } from '~/lib/secrets';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const order = { amount: 1250, description: 'Order #1', reference: { type: 'order', id: '1' } };
 
-describeWithDb('countries and currencies', { timeout: 120_000 }, () => {
+describe('countries and currencies', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

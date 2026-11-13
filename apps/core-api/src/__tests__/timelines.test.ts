@@ -1,8 +1,8 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
-describeWithDb(
+describe(
   'timelines: plugin records, search, logged calls, reactions, plugin edits',
   { timeout: 300_000 },
   () => {

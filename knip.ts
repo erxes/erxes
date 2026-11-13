@@ -8,6 +8,8 @@ const config: KnipConfig = {
       project: ['tools/**/*.ts'],
       // Copied from the HR plugin as a whole, with its vendored ESLint Stylistic rule.
       ignore: ['tools/lint/anti-slop/**'],
+      // Oxlint runs its tsrs-lint binary through OXLINT_TSGOLINT_PATH in the check scripts.
+      ignoreDependencies: ['tsrs'],
     },
     // Entries from package.json (main, exports), rsbuild.config.ts and tsdown.config.ts count too.
     'apps/core-api': {

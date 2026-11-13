@@ -1,10 +1,10 @@
 import type { ORPCError } from '@orpc/client';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
 import { processJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 /** How a call failed, or null when it didn't. */
@@ -20,7 +20,7 @@ const failure = (call: Promise<unknown>) =>
 
 const OWNER = { email: 'owner@acme.mn', password: 'correct horse' };
 
-describeWithDb('sign-in (/core/v1/auth)', () => {
+describe('sign-in (/core/v1/auth)', () => {
   useTestDatabase();
 
   const server = useTestServer();

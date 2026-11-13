@@ -1,10 +1,10 @@
 import { newId, notifications, users, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { notify } from '~/modules/notifications/notifications.service';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 const Changes = z.object({ changes: z.record(z.string(), z.unknown()) });
@@ -17,7 +17,7 @@ const succeeded = async (calls: Promise<unknown>[]) =>
  * Races from the Phase 1 brief, each run with both sides at once against
  * real Postgres, asserting the final state.
  */
-describeWithDb('concurrent writes', () => {
+describe('concurrent writes', () => {
   useTestDatabase();
 
   const server = useTestServer();

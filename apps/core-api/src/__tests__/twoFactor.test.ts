@@ -1,11 +1,11 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
 import { codeAt, currentStep } from '~/modules/auth/totp';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTestServer } from './support';
 
-describeWithDb('two-factor sign-in', { timeout: 240_000 }, () => {
+describe('two-factor sign-in', { timeout: 240_000 }, () => {
   useTestDatabase();
 
   const server = useTestServer();

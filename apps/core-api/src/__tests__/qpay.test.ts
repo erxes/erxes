@@ -2,7 +2,7 @@ import { withOrg } from '@erxes/core-db';
 import { createGateway } from '@erxes/payment-gateways';
 import { describe, expect, it, vi } from 'vite-plus/test';
 import { addGateway } from '~/modules/payments/gateways.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /** What the fake QPay answers for each endpoint. */
@@ -104,7 +104,7 @@ describe('QPay driver', () => {
   });
 });
 
-describeWithDb('QPay gateways', () => {
+describe('QPay gateways', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

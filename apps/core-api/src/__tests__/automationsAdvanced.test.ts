@@ -1,7 +1,7 @@
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { loggedEmails } from '~/modules/email/email';
 import { type DefinitionInput, makeDue, useAutomations } from './automations.fixture';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { settle } from './settle';
 
 /** A note on every new company. */
@@ -10,7 +10,7 @@ const note = (body: string): DefinitionInput => ({
   steps: [{ id: 'n', type: 'action', action: 'core.note.add', input: { body } }],
 });
 
-describeWithDb('automations: paths, testing and operations', { timeout: 600_000 }, () => {
+describe('automations: paths, testing and operations', { timeout: 600_000 }, () => {
   useTestDatabase();
 
   const t = useAutomations();

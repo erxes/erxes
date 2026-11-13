@@ -1,8 +1,8 @@
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { rule, useContacts } from './contacts.fixture';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 
-describeWithDb('saved views', { timeout: 300_000 }, () => {
+describe('saved views', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const t = useContacts();

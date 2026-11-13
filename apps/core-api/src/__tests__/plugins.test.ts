@@ -3,14 +3,14 @@ import { plugins } from '@erxes/core-db';
 import { createCoreClient, verifyPluginSession } from '@erxes/plugin-sdk';
 import { eq, sql } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import type { z } from 'zod';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { HR_SECRET } from './plugin';
 import { useTwoOrgs } from './support';
 
-describeWithDb('plugin connection (registry, installations, tokens)', () => {
+describe('plugin connection (registry, installations, tokens)', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

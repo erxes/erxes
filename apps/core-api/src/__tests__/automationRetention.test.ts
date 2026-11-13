@@ -1,9 +1,9 @@
 import { withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { pruneRunDetails } from '~/modules/automations/runs.service';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
 import { type CoreClient, useTestServer } from './support';
 
@@ -11,7 +11,7 @@ import { type CoreClient, useTestServer } from './support';
 const prune = () => withSystem('test', (tx) => pruneRunDetails(tx, 90));
 
 /** Old finished runs lose their step log and context, and still count for re-entry. */
-describeWithDb('automation run retention', { timeout: 120_000 }, () => {
+describe('automation run retention', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const server = useTestServer();

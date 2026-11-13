@@ -1,7 +1,7 @@
 import { db, rootDb, runtimeRole, withOrg, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
-import { beforeAll, expect, it } from 'vite-plus/test';
-import { adminDb, dbError, describeWithDb, useTestDatabase } from './db';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
+import { adminDb, dbError, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const tag = (id: string, org: string) =>
@@ -11,7 +11,7 @@ const tag = (id: string, org: string) =>
  * Tenant isolation in the database: row level security on every organisation
  * table and scopes that fail closed. `tenantWalk.test.ts` walks the API.
  */
-describeWithDb('tenant isolation (database)', () => {
+describe('tenant isolation (database)', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

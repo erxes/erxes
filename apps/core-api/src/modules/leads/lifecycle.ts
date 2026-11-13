@@ -181,7 +181,11 @@ export const planLeadOnUpdate = async (
   input: LeadInput,
 ): Promise<LeadPlan> => {
   const currentStage = current.leadStageId
-    ? await findStage(client, caller.orgId, current.leadStageId).catch(() => null)
+    ? await findStage(client, caller.orgId, current.leadStageId).catch((error: unknown) => {
+        if (error instanceof HttpError && error.code === 'INVALID_LEAD_STAGE') return null;
+
+        throw error;
+      })
     : null;
 
   const wanted =

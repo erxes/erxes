@@ -1,12 +1,12 @@
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { loggedEmails } from '~/modules/email/email';
 import { processJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /** Plugin notifications, each member's inboxes, their settings and core's own notices. */
-describeWithDb('notifications', () => {
+describe('notifications', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

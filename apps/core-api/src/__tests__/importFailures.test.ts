@@ -1,10 +1,10 @@
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { storeServerFile } from '~/modules/files/files.service';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
-describeWithDb('imports of files that cannot be read', { timeout: 120_000 }, () => {
+describe('imports of files that cannot be read', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

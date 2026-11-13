@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { fireJob } from '~/modules/automations/triggers';
 import { processJobs } from '~/modules/jobs/jobs';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
 import { type CoreClient, useTestServer } from './support';
 
@@ -16,7 +16,7 @@ const runCount = async (automationId: string) => {
 };
 
 /** Which records automations start for: their custom fields count, and no audience is cut short. */
-describeWithDb('automation subjects', { timeout: 300_000 }, () => {
+describe('automation subjects', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const server = useTestServer();

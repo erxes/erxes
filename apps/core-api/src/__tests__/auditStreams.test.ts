@@ -1,10 +1,10 @@
 import { createHmac } from 'node:crypto';
 import { once } from 'node:events';
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { loggedEmails } from '~/modules/email/email';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -22,7 +22,7 @@ const Batch = z.object({
 
 const Signature = z.tuple([z.string(), z.string(), z.string()]);
 
-describeWithDb('audit streaming', { timeout: 300_000 }, () => {
+describe('audit streaming', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

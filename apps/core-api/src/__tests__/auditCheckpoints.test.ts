@@ -1,17 +1,17 @@
 import { auditCheckpoints } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { signAuditCheckpoints } from '~/modules/audit/checkpoints';
-import { adminDb, dbError, describeWithDb, useTestDatabase } from './db';
+import { adminDb, dbError, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const Jwks = z.object({ keys: z.array(z.record(z.string(), z.unknown())) });
 
 /** Signed audit checkpoints catch entries cut off the end of the chain. */
-describeWithDb('audit checkpoints', () => {
+describe('audit checkpoints', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

@@ -1,8 +1,8 @@
-import { expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { describe, expect, it } from 'vite-plus/test';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
-describeWithDb('product properties', { timeout: 120_000 }, () => {
+describe('product properties', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

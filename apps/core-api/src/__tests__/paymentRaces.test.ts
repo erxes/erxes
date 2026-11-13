@@ -1,8 +1,8 @@
 import { paymentInvoices } from '@erxes/core-db';
 import { eq, sql } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vite-plus/test';
 import { callbackSignature } from '~/modules/payments/invoiceState';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 const order = (id: string) => ({
@@ -11,7 +11,7 @@ const order = (id: string) => ({
   reference: { type: 'order', id },
 });
 
-describeWithDb('payments under concurrent calls', { timeout: 120_000 }, () => {
+describe('payments under concurrent calls', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

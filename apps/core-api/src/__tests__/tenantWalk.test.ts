@@ -1,6 +1,6 @@
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /** Bodies that would pass validation, so a refusal comes from the tenant check. */
@@ -21,7 +21,7 @@ const OpenApiPaths = z.object({
 });
 
 /** Every procedure walked as organisation A (Acme) against organisation B's (Globex) records. */
-describeWithDb('tenant isolation (API)', () => {
+describe('tenant isolation (API)', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

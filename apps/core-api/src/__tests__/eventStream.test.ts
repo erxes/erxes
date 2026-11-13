@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
-import { adminDb, dbError, describeWithDb, useTestDatabase } from './db';
+import { describe, expect, it } from 'vite-plus/test';
+import { adminDb, dbError, useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
 /** Events plugins and core publish, and what the processor makes of them. */
-describeWithDb('event stream', () => {
+describe('event stream', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

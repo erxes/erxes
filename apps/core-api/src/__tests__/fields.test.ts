@@ -1,11 +1,11 @@
-import { expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { describe, expect, it } from 'vite-plus/test';
+import { useTestDatabase } from './db';
 import { type CoreInputs, useTwoOrgs } from './support';
 
 const idsOf = (page: { data: { id: string }[] }) => page.data.map((item) => item.id);
 
 /** Field groups and the fields in them: codes, types, values and usage. Archiving: `fieldArchive.test.ts`. */
-describeWithDb('field groups and field settings', () => {
+describe('field groups and field settings', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

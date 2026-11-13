@@ -9,6 +9,19 @@ import type { TestProject } from 'vite-plus/test/node';
  */
 export const TEST_RUNTIME_ROLE = 'erxes_core_test_runtime';
 
+/** The Postgres server the API tests run on. Without it the run fails, it never skips. */
+export const testServerUrl = () => {
+  const url = process.env.DATA_TEST_URL;
+
+  if (!url)
+    throw new Error(
+      'The API tests need a Postgres. Set DATA_TEST_URL to a superuser URL, e.g. ' +
+        'DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres pnpm test',
+    );
+
+  return url;
+};
+
 /** Runs one statement on its own connection (CREATE and DROP DATABASE can't share one). */
 export const admin = async (url: string, statement: string) => {
   const client = new Client({ connectionString: url });
@@ -60,10 +73,10 @@ export const databaseUrl = (url: string, name: string) => {
  * than migrating its own.
  */
 export const setup = async (project: TestProject) => {
-  const url = process.env.DATA_TEST_URL;
+  const url = testServerUrl();
   const { CORE_TEST_TEMPLATE: template, FILES_LOCAL_DIR: files } = project.config.env;
 
-  if (url && template) {
+  if (template) {
     await admin(
       url,
       `
@@ -85,7 +98,7 @@ export const setup = async (project: TestProject) => {
   }
 
   return async () => {
-    if (url && template) await dropDatabase(url, template);
+    if (template) await dropDatabase(url, template);
 
     // Every file's uploads share one folder (keys start with the org id).
     if (files) await rm(files, { recursive: true, force: true });

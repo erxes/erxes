@@ -1,8 +1,8 @@
 import { users } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, currentToken, describeWithDb, useTestDatabase } from './db';
+import { adminDb, currentToken, useTestDatabase } from './db';
 import { type CoreClient, useTestServer } from './support';
 
 const emails = (page: { data: { email: string }[] }) => page.data.map((user) => user.email);
@@ -11,7 +11,7 @@ const emails = (page: { data: { email: string }[] }) => page.data.map((user) => 
 const activate = (id: string) =>
   adminDb().update(users).set({ status: 'active', passwordHash: 'set' }).where(eq(users.id, id));
 
-describeWithDb('team members (/core/v1/users)', () => {
+describe('team members (/core/v1/users)', () => {
   useTestDatabase();
 
   const server = useTestServer();

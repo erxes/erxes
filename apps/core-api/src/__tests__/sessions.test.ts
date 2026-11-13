@@ -1,15 +1,15 @@
 import { newId, users } from '@erxes/core-db';
-import { beforeAll, expect, it } from 'vite-plus/test';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 const OWNER = { email: 'owner@acme.mn', password: 'Owner-pass-1' };
 const MEMBER = 'member@acme.mn';
 
 /** Sessions end when they should: password change or reset, disable, sign out everywhere. */
-describeWithDb('session security', () => {
+describe('session security', () => {
   useTestDatabase();
 
   const server = useTestServer();

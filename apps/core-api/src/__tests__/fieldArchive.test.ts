@@ -1,11 +1,11 @@
-import { expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { describe, expect, it } from 'vite-plus/test';
+import { useTestDatabase } from './db';
 import { type CoreInputs, useTwoOrgs } from './support';
 
 const idsOf = (page: { data: { id: string }[] }) => page.data.map((item) => item.id);
 
 /** Archiving and deleting fields and field groups, and what that does to stored values. */
-describeWithDb('field archiving', () => {
+describe('field archiving', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

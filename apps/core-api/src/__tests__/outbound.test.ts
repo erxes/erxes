@@ -2,11 +2,11 @@ import { withOrg } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { once } from 'node:events';
 import { createServer, type Server, type ServerResponse } from 'node:http';
-import { afterAll, beforeAll, expect, it, vi } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { postOutbound } from '~/lib/outbound';
 import { processJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /** Connections of the API under test holding a transaction open while doing nothing. */
@@ -20,7 +20,7 @@ const idleInTransaction = async () => {
   return result.rows[0]?.count;
 };
 
-describeWithDb('calls out over the network', () => {
+describe('calls out over the network', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

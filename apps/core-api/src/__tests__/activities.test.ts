@@ -1,11 +1,11 @@
 import { activities } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
-import { expect, it } from 'vite-plus/test';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { describe, expect, it } from 'vite-plus/test';
+import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /** The customer and company timeline: core changes, plugin entries and notes. */
-describeWithDb('activity timeline', () => {
+describe('activity timeline', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

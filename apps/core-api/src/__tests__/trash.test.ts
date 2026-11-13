@@ -1,10 +1,10 @@
 import { activities, customers, newId, users } from '@erxes/core-db';
-import { beforeAll, expect, it } from 'vite-plus/test';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
+import { adminDb, useTestDatabase } from './db';
 import { HR_SECRET } from './plugin';
 import { useTwoOrgs } from './support';
 
-describeWithDb('recycle bin and mass-deletion guard', { timeout: 300_000 }, () => {
+describe('recycle bin and mass-deletion guard', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

@@ -1,8 +1,8 @@
 import { createServer, type Server } from 'node:http';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { type DefinitionInput, makeDue, useAutomations } from './automations.fixture';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { settle } from './settle';
 
 /** The automation an audit entry was made by. */
@@ -17,7 +17,7 @@ const later = (body: string): DefinitionInput => ({
   ],
 });
 
-describeWithDb('automations', { timeout: 300_000 }, () => {
+describe('automations', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const t = useAutomations();

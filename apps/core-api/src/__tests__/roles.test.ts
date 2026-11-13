@@ -1,10 +1,10 @@
 import { newId, users } from '@erxes/core-db';
 import { verifyPluginSession } from '@erxes/plugin-sdk';
-import { beforeAll, expect, it } from 'vite-plus/test';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { beforeAll, describe, expect, it } from 'vite-plus/test';
+import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
-describeWithDb('roles and permissions', () => {
+describe('roles and permissions', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

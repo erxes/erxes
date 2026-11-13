@@ -2,11 +2,11 @@ import { sql } from 'drizzle-orm';
 import { createHmac } from 'node:crypto';
 import { once } from 'node:events';
 import { createServer, type Server } from 'node:http';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { config } from '~/config';
 import { isPrivateAddress } from '~/lib/outbound';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
@@ -15,7 +15,7 @@ const Delivered = z.object({ type: z.string(), data: z.record(z.string(), z.unkn
 
 const Signature = z.tuple([z.string(), z.string(), z.string()]);
 
-describeWithDb('webhooks', () => {
+describe('webhooks', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();

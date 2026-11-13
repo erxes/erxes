@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { createServer, type IncomingMessage, type Server } from 'node:http';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
 import { type CoreClient, useTestServer } from './support';
 
@@ -15,7 +15,7 @@ const runIdOf = (req: IncomingMessage) =>
  * step's transaction: a slow remote must not hold a connection and the run's
  * row lock, and a run cancelled meanwhile must stay cancelled.
  */
-describeWithDb('automation calls', { timeout: 120_000 }, () => {
+describe('automation calls', { timeout: 120_000 }, () => {
   useTestDatabase();
 
   const server = useTestServer();

@@ -2,11 +2,11 @@ import { sql } from 'drizzle-orm';
 import { decodeJwt, SignJWT } from 'jose';
 import { once } from 'node:events';
 import { createServer, type Server } from 'node:http';
-import { afterAll, beforeAll, expect, it } from 'vite-plus/test';
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { config } from '~/config';
 import { createOrganization } from '~/modules/organizations/organizations.service';
-import { adminDb, describeWithDb, useTestDatabase } from './db';
+import { adminDb, useTestDatabase } from './db';
 import { useTestServer } from './support';
 
 const PLATFORM_TOKEN = 'erxes-io-platform-token-0123456789abcdefghij';
@@ -35,7 +35,7 @@ const handoff = (email: string) =>
     .setExpirationTime('5m')
     .sign(new TextEncoder().encode(HANDOFF_SECRET));
 
-describeWithDb('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
+describe('SaaS: entitlements from erxes.io', { timeout: 300_000 }, () => {
   useTestDatabase();
 
   const server = useTestServer();

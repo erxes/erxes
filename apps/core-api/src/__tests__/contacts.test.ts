@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
-import { describeWithDb, useTestDatabase } from './db';
+import { useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
 /** Tags and custom fields on contacts. Companies and merging: `companies.test.ts`. */
-describeWithDb('tags and custom fields', () => {
+describe('tags and custom fields', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();
