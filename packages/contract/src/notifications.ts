@@ -1,47 +1,64 @@
+import { NOTIFICATION_PRIORITIES, notifications } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { cursorPageOf, CursorQuery, Id } from './common';
+import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
 import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
 
-export const Notification = z.object({
+export const Notification = createSelectSchema(notifications, {
   id: Id,
-  /** `core` or the plugin that sent it. */
-  source: z.string(),
-  kind: z.string(),
-  title: z.string(),
-  body: z.string().nullable(),
-  link: z.string().nullable(),
-  entity: EntityRef.nullable(),
-  /** Details to show when opened; core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
   data: z.record(z.string(), z.unknown()),
-  priority: z.enum(['normal', 'high']),
-  actor: ActorRef,
-  read: z.boolean(),
-  createdAt: z.iso.datetime(),
-});
+  createdAt: isoDate,
+})
+  .pick({
+    id: true,
+    /** `core` or the plugin that sent it. */
+    source: true,
+    kind: true,
+    title: true,
+    body: true,
+    link: true,
+    /** Details to show when opened; core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
+    data: true,
+    priority: true,
+    createdAt: true,
+  })
+  .extend({ entity: EntityRef.nullable(), actor: ActorRef, read: z.boolean() });
 
 export type Notification = z.infer<typeof Notification>;
 
-export const NotificationInput = z.object({
-  /** Team members to notify (active members of the organisation). */
-  userIds: z.array(Id).min(1).max(500),
-  /** Must start with the plugin's name: `hr.leave.requested`. */
-  kind: EventType,
-  title: z.string().trim().min(1).max(200),
+export const NotificationInput = createUpdateSchema(notifications, {
+  kind: () => EventType,
+  title: (title) => title.trim().min(1).max(200),
   body: z.string().trim().max(2000).optional(),
   link: AppLink.optional(),
-  entity: EntityRef.optional(),
-  /** Details to show when opened (at most a few KB). */
-  data: z
-    .record(z.string(), z.unknown())
-    .refine((value) => JSON.stringify(value).length <= 8_000, 'at most 8 KB')
-    .optional(),
-  priority: z.enum(['normal', 'high']).default('normal'),
-  /** The team member who caused it, if any (shown as the sender). */
-  actorUserId: Id.optional(),
-  /** Retry-safe: one notification per recipient and key. */
+  data: () =>
+    z
+      .record(z.string(), z.unknown())
+      .refine((value) => JSON.stringify(value).length <= 8_000, 'at most 8 KB'),
+  priority: z.enum(NOTIFICATION_PRIORITIES).default('normal'),
   dedupeKey: DedupeKey.optional(),
-});
+})
+  .pick({
+    /** Must start with the plugin's name: `hr.leave.requested`. */
+    kind: true,
+    title: true,
+    body: true,
+    link: true,
+    /** Details to show when opened (at most a few KB). */
+    data: true,
+    priority: true,
+    /** Retry-safe: one notification per recipient and key. */
+    dedupeKey: true,
+  })
+  .required({ kind: true, title: true })
+  .extend({
+    /** Team members to notify (active members of the organisation). */
+    userIds: z.array(Id).min(1).max(500),
+    entity: EntityRef.optional(),
+    /** The team member who caused it, if any (shown as the sender). */
+    actorUserId: Id.optional(),
+  });
 
 export type NotificationInput = z.infer<typeof NotificationInput>;
 
