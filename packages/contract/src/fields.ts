@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { ContentType, Id, IdList, QueryBoolean } from './common';
+import { FieldContentType, Id, IdList, QueryBoolean } from './common';
 
 export const FieldType = z.enum([
   'text',
@@ -39,7 +39,7 @@ export type FieldValidation = z.infer<typeof FieldValidation>;
 /** A custom field ("property") on customers or companies. */
 export const Field = z.object({
   id: Id,
-  contentType: ContentType,
+  contentType: FieldContentType,
   /** The group it is listed in; `null` for fields made before groups. */
   groupId: Id.nullable(),
   label: z.string(),
@@ -66,7 +66,7 @@ export type Field = z.infer<typeof Field>;
 /** A group of custom fields of a record type. */
 export const FieldGroup = z.object({
   id: Id,
-  contentType: ContentType,
+  contentType: FieldContentType,
   name: z.string(),
   code: z.string(),
   description: z.string().nullable(),
@@ -125,7 +125,7 @@ export const fieldsContract = {
     })
     .input(
       z.object({
-        contentType: ContentType,
+        contentType: FieldContentType,
         groupId: Id.optional(),
         archived: QueryBoolean.optional(),
       }),
@@ -156,7 +156,7 @@ export const fieldsContract = {
     .input(
       z
         .object({
-          contentType: ContentType,
+          contentType: FieldContentType,
           label: z.string().trim().min(1).max(100),
           type: FieldType,
           options: options.optional(),
@@ -245,7 +245,7 @@ export const fieldGroupsContract = {
       path: '/field-groups',
       summary: 'Field groups of a record type, in order. Archived ones only with `archived=true`',
     })
-    .input(z.object({ contentType: ContentType, archived: QueryBoolean.optional() }))
+    .input(z.object({ contentType: FieldContentType, archived: QueryBoolean.optional() }))
     .output(z.object({ data: z.array(FieldGroup) })),
   create: oc
     .route({
@@ -257,7 +257,7 @@ export const fieldGroupsContract = {
     })
     .input(
       z.object({
-        contentType: ContentType,
+        contentType: FieldContentType,
         name: z.string().trim().min(1).max(100),
         code: code.optional(),
         description: description.nullable().optional(),

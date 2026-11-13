@@ -19,10 +19,10 @@ import {
   restoreField,
   updateField,
 } from '~/modules/fields/fields.service';
-import { authed, audited, recordOf } from '~/orpc';
+import { anyone, authed, audited, recordOf } from '~/orpc';
 
 export const fieldsRouter = {
-  list: authed.fields.list.handler(({ input, context }) => listFields(db(), context.actor, input)),
+  list: anyone.fields.list.handler(({ input, context }) => listFields(db(), context.caller, input)),
   usage: authed.fields.usage.handler(({ input, context }) =>
     fieldUsage(db(), context.actor, input),
   ),

@@ -48,6 +48,8 @@ export {
   leadEvents,
   LEAD_STAGE_KINDS,
   companyFieldValues,
+  productFieldValues,
+  FIELD_CONTENT_TYPES,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
   fieldGroups,
@@ -107,6 +109,7 @@ export type {
   PluginStatus,
   StoredPluginManifest,
   ContentType,
+  FieldContentType,
   CustomValue,
   OrganizationSettings,
 } from './schema';

@@ -1,4 +1,4 @@
-import { type ContentType, type Db, fieldGroups, fields } from '@erxes/core-db';
+import { type FieldContentType, type Db, fieldGroups, fields } from '@erxes/core-db';
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
@@ -95,7 +95,7 @@ export const fieldsOfGroup = (client: Db, orgId: string, groupId: string) =>
 export const countRecords = async (
   client: Db,
   orgId: string,
-  contentType: ContentType,
+  contentType: FieldContentType,
   ids: string[],
 ) => {
   if (!ids.length) {
@@ -146,7 +146,7 @@ export const nextOrder = async (
   client: Db,
   table: typeof fields | typeof fieldGroups,
   orgId: string,
-  contentType: ContentType,
+  contentType: FieldContentType,
 ) => {
   const [last] = await client
     .select({ order: sql<number>`coalesce(max(${table.order}), -1)` })

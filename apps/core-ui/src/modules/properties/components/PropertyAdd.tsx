@@ -1,4 +1,4 @@
-import type { ContentType } from '@erxes/core-contract';
+import type { FieldContentType } from '@erxes/core-contract';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { useAddProperty } from '../usePropertyMutations';
 import { PropertyForm } from './PropertyForm';
 
 /** Add a property (`/:type/add`, or `/:type/:groupId/add` for a group). */
-export const PropertyAdd = ({ contentType }: { contentType: ContentType }) => {
+export const PropertyAdd = ({ contentType }: { contentType: FieldContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groupId } = useParams<{ groupId: string }>();
   const { toast } = useToast();

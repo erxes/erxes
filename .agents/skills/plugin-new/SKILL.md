@@ -268,10 +268,18 @@ What each scope opens (check `access.ts` for the full list):
 | `notifications:write`              | `notifications.create` (to team members; kind in `notificationKinds`)                              |
 | `payments:read` / `payments:write` | invoices and refunds for its own records; `core.payment.*` events for its own invoices             |
 |                                    | and for invoices with a line for it (`lines[].plugin`), which it can read but not cancel           |
-| `products:read`                    | `products.list` (its own; `all: true` for the whole catalog), `.get`, `.lookup`, categories        |
-| `products:write`                   | `products.create` (it uses what it creates), `.update`, `.archive`, `.restore`, `.use`             |
-| `files:read` / `files:write`       | core's file service (two-step upload)                                                              |
-| `audit:write`, `live:write`        | `audit.record`, `plugins.signal`                                                                   |
+| `products:read`                    | `products.list` (its own; `all: true` for the whole catalog), `.get`, `.lookup`, categories,       |
+|                                    | `fields.list({ contentType: 'product' })` to label `product.customFields`                          |
+| `products:write`                   | `products.create` (it uses what it creates), `.update`, `.archive`, `.restore`, `.use`;            |
+|                                    | a taken code answers 409 with `data.productId`: `use` that product instead of copying it           |
+| (any installed plugin)             | `organizations.current`: the organisation's `country` and `currency` (bill and show prices in it)  |
+
+Money is an integer in the currency's smallest unit (`currencyDigits(currency)`
+from the contract: USD and MNT 2, JPY 0). Local rules (tax receipts, local
+gateways) belong in plugins; name the countries yours is made for in the
+manifest (`countries: ['MN']`).
+| `files:read` / `files:write` | core's file service (two-step upload) |
+| `audit:write`, `live:write` | `audit.record`, `plugins.signal` |
 
 Not open to plugins today: listing or searching customers and companies,
 reading team members, and emailing addresses outside the team. Use the

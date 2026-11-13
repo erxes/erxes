@@ -1,4 +1,4 @@
-import type { ContentType, Field, FieldGroup } from '@erxes/core-contract';
+import type { FieldContentType, Field, FieldGroup } from '@erxes/core-contract';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
@@ -33,7 +33,7 @@ const PropertiesGroupActions = ({
   contentType,
 }: {
   group: FieldGroup;
-  contentType: ContentType;
+  contentType: FieldContentType;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const setActivePropertyGroup = useSetAtom(activePropertyGroupState);
@@ -179,7 +179,7 @@ export const PropertiesGroupSection = ({
 }: {
   group: FieldGroup;
   fields: Field[];
-  contentType: ContentType;
+  contentType: FieldContentType;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const manager = useCanManageFields();
@@ -223,7 +223,7 @@ export const PropertiesUngroupedSection = ({
   contentType,
 }: {
   fields: Field[];
-  contentType: ContentType;
+  contentType: FieldContentType;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
 

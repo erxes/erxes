@@ -1,4 +1,10 @@
-import { type ContentType, type CustomValue, type Db, fieldGroups, fields } from '@erxes/core-db';
+import {
+  type FieldContentType,
+  type CustomValue,
+  type Db,
+  fieldGroups,
+  fields,
+} from '@erxes/core-db';
 import { and, eq, inArray } from 'drizzle-orm';
 import { HttpError } from '~/http/errors';
 import { unique } from '~/lib/contacts';
@@ -93,7 +99,7 @@ const isEmpty = (value: CustomValue) => value === '' || (Array.isArray(value) &&
 export const applyCustomFields = async (
   client: Db,
   orgId: string,
-  contentType: ContentType,
+  contentType: FieldContentType,
   current: Record<string, CustomValue>,
   patch: Record<string, CustomValue | null> | undefined,
 ) => {

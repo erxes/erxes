@@ -1,14 +1,14 @@
-import type { ContentType, Field, FieldGroup } from '@erxes/core-contract';
+import type { FieldContentType, Field, FieldGroup } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { orpc } from '~/lib/api';
 
 /** Field groups of a record type, in order (archived ones with `archived`). */
-export const fieldGroupsQuery = (contentType: ContentType, archived = false) =>
+export const fieldGroupsQuery = (contentType: FieldContentType, archived = false) =>
   orpc.fieldGroups.list.queryOptions({ input: { contentType, archived }, staleTime: 60_000 });
 
 export const useFieldGroups = (
-  contentType: ContentType,
+  contentType: FieldContentType,
   { archived = false }: { archived?: boolean } = {},
 ) => {
   const query = useQuery(fieldGroupsQuery(contentType, archived));
@@ -18,7 +18,7 @@ export const useFieldGroups = (
 
 /** Every field of a record type, hidden ones too (archived ones with `archived`). */
 export const useAllFields = (
-  contentType: ContentType,
+  contentType: FieldContentType,
   { archived = false }: { archived?: boolean } = {},
 ) => {
   const query = useQuery(
@@ -46,7 +46,7 @@ export const groupFields = (groups: FieldGroup[], fields: Field[]) => {
  * The organisation's visible custom fields of a record type, ordered by group
  * then by field, with their groups (`sections`).
  */
-export const useFields = (contentType: ContentType) => {
+export const useFields = (contentType: FieldContentType) => {
   const all = useAllFields(contentType);
   const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
 

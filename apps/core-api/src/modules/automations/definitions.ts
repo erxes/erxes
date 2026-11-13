@@ -3,8 +3,15 @@ import type {
   AutomationFieldPath,
   AutomationStep,
 } from '@erxes/core-contract';
-import { type Db, type FIELD_TYPES, fields, pluginInstallations, plugins } from '@erxes/core-db';
-import { and, eq } from 'drizzle-orm';
+import {
+  CONTENT_TYPES,
+  type Db,
+  type FIELD_TYPES,
+  fields,
+  pluginInstallations,
+  plugins,
+} from '@erxes/core-db';
+import { and, eq, inArray } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { eventTypeCatalog } from '~/modules/webhooks/webhooks.service';
@@ -146,7 +153,13 @@ const triggerProblems = async (
   const [field] = await client
     .select({ type: fields.type })
     .from(fields)
-    .where(and(eq(fields.orgId, orgId), eq(fields.id, trigger.field)))
+    .where(
+      and(
+        eq(fields.orgId, orgId),
+        eq(fields.id, trigger.field),
+        inArray(fields.contentType, CONTENT_TYPES),
+      ),
+    )
     .limit(1);
 
   return field?.type === 'date' ? [] : ['The date trigger needs a date field'];
@@ -229,7 +242,11 @@ export const automationFields = async (
     .select({ id: fields.id, label: fields.label, type: fields.type, options: fields.options })
     .from(fields)
     .where(
-      and(eq(fields.orgId, actor.orgId), subject ? eq(fields.contentType, subject) : undefined),
+      and(
+        eq(fields.orgId, actor.orgId),
+        // Automations run on contacts: product fields aren't theirs.
+        subject ? eq(fields.contentType, subject) : inArray(fields.contentType, CONTENT_TYPES),
+      ),
     );
 
   return {

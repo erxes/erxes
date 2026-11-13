@@ -1,7 +1,7 @@
-import { type ContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
+import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
-import type { Actor } from '~/http/auth';
-import { HttpError, notFound } from '~/http/errors';
+import type { Actor, Caller } from '~/http/auth';
+import { forbidden, HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { lockRows } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
@@ -54,7 +54,7 @@ const findField = async (client: Db, orgId: string, id: string) => {
 const checkGroup = async (
   client: Db,
   orgId: string,
-  contentType: ContentType,
+  contentType: FieldContentType,
   groupId: string | null | undefined,
 ) => {
   if (!groupId) {
@@ -94,9 +94,14 @@ const fieldDto = async (client: Db, row: FieldRow) =>
 
 export const listFields = async (
   client: Db,
-  actor: Actor,
-  input: { contentType: ContentType; groupId?: string; archived?: boolean },
+  caller: Caller,
+  input: { contentType: FieldContentType; groupId?: string; archived?: boolean },
 ) => {
+  // Plugins read product fields (with products:read) to show product values; contacts' fields stay members'.
+  if (caller.actorType === 'plugin' && input.contentType !== 'product') {
+    throw forbidden('FORBIDDEN', 'Plugins read product fields only');
+  }
+
   const archived = or(isNotNull(fields.archivedAt), isNotNull(fieldGroups.archivedAt));
   const active = and(isNull(fields.archivedAt), isNull(fieldGroups.archivedAt));
 
@@ -106,7 +111,7 @@ export const listFields = async (
     .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
     .where(
       and(
-        eq(fields.orgId, actor.orgId),
+        eq(fields.orgId, caller.orgId),
         eq(fields.contentType, input.contentType),
         input.groupId ? eq(fields.groupId, input.groupId) : undefined,
         input.archived ? archived : active,
@@ -149,7 +154,7 @@ export const createField = async (
   client: Db,
   actor: Actor,
   input: {
-    contentType: ContentType;
+    contentType: FieldContentType;
     label: string;
     type: FieldType;
     options?: string[];

@@ -1,4 +1,4 @@
-import type { ContentType } from '@erxes/core-contract';
+import type { FieldContentType } from '@erxes/core-contract';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Spinner, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import { useEditProperty } from '../usePropertyMutations';
 import { PropertyForm } from './PropertyForm';
 
 /** Edit a property (`/:type/:groupId/:id`). */
-export const PropertyEdit = ({ contentType }: { contentType: ContentType }) => {
+export const PropertyEdit = ({ contentType }: { contentType: FieldContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { id = '' } = useParams<{ id: string }>();
   const { fields, loading, error } = useAllFields(contentType);

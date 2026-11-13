@@ -21,6 +21,7 @@
  *   await core.forOrg(orgId).payments.refund({ id: invoice.id, reason: 'Out of stock' });
  *
  * Products (scopes `products:read`, `products:write`): one catalog per organisation, shared by plugins.
+ * Prices are integers in the organisation's currency's smallest unit (`organizations.current()`).
  *
  *   const mine = await core.forOrg(orgId).products.list({});            // the ones this plugin uses
  *   const found = await core.forOrg(orgId).products.list({ search: 'phone', all: true });

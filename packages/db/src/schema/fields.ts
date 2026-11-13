@@ -10,7 +10,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { CONTENT_TYPES, createdAt, updatedAt } from './common';
+import { createdAt, FIELD_CONTENT_TYPES, updatedAt } from './common';
 import { organizations } from './organizations';
 
 export const FIELD_TYPES = [
@@ -39,7 +39,7 @@ export const fieldGroups = pgTable(
   {
     id: text().primaryKey(),
     orgId: text().notNull(),
-    contentType: text({ enum: CONTENT_TYPES }).notNull(),
+    contentType: text({ enum: FIELD_CONTENT_TYPES }).notNull(),
     name: text().notNull(),
     code: text().notNull(),
     description: text(),
@@ -62,21 +62,21 @@ export const fieldGroups = pgTable(
     }).onDelete('cascade'),
     check(
       'core_field_groups_content_type_check',
-      sql`${table.contentType} IN ('customer', 'company')`,
+      sql`${table.contentType} IN ('customer', 'company', 'product')`,
     ),
   ],
 );
 
 /**
- * Custom fields ("properties") an organisation adds to customers or companies.
- * Values live in core_customer_field_values / core_company_field_values.
+ * Custom fields ("properties") an organisation adds to customers, companies
+ * or products. Values live in core_<type>_field_values.
  */
 export const fields = pgTable(
   'fields',
   {
     id: text().primaryKey(),
     orgId: text().notNull(),
-    contentType: text({ enum: CONTENT_TYPES }).notNull(),
+    contentType: text({ enum: FIELD_CONTENT_TYPES }).notNull(),
     /** The group it is listed in; fields made before groups have none. */
     groupId: text(),
     label: text().notNull(),
@@ -121,7 +121,10 @@ export const fields = pgTable(
       foreignColumns: [fieldGroups.id],
       name: 'core_fields_group_id_fkey',
     }).onDelete('set null'),
-    check('core_fields_content_type_check', sql`${table.contentType} IN ('customer', 'company')`),
+    check(
+      'core_fields_content_type_check',
+      sql`${table.contentType} IN ('customer', 'company', 'product')`,
+    ),
     check(
       'core_fields_type_check',
       sql`${table.type} IN ('text', 'textarea', 'number', 'date', 'boolean', 'select', 'multiselect', 'radio', 'check', 'phone', 'list')`,

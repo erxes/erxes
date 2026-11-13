@@ -1,14 +1,30 @@
-import { type Db, files, pluginInstallations, productCategories, products } from '@erxes/core-db';
-import { and, eq, inArray, ne, type SQL, sql } from 'drizzle-orm';
+import {
+  type CustomValue,
+  type Db,
+  files,
+  pluginInstallations,
+  productCategories,
+  products,
+} from '@erxes/core-db';
+import { and, eq, getTableColumns, inArray, ne, type SQL, sql } from 'drizzle-orm';
+import { customFieldsColumn } from '~/modules/fields/fieldValues';
 import type { Caller } from '~/http/auth';
 import { forbidden, HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 
-export type ProductRow = typeof products.$inferSelect;
+/** A product's columns and its custom field values (`{ fieldId: value }`). */
+export const productColumns = {
+  ...getTableColumns(products),
+  customFields: customFieldsColumn('product', products.id),
+};
 
-export const findProduct = async (client: Db, orgId: string, id: string) => {
+export type ProductRow = typeof products.$inferSelect & {
+  customFields: Record<string, CustomValue>;
+};
+
+export const findProduct = async (client: Db, orgId: string, id: string): Promise<ProductRow> => {
   const [row] = await client
-    .select()
+    .select(productColumns)
     .from(products)
     .where(and(eq(products.orgId, orgId), eq(products.id, id)))
     .limit(1);

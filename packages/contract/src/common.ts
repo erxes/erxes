@@ -74,6 +74,11 @@ export const ContentType = z.enum(['customer', 'company']);
 
 export type ContentType = z.infer<typeof ContentType>;
 
+/** Records custom fields attach to: contacts, and the shared product catalog. */
+export const FieldContentType = z.enum([...ContentType.options, 'product']);
+
+export type FieldContentType = z.infer<typeof FieldContentType>;
+
 /** A custom field value: text, number, date (`YYYY-MM-DD`), yes/no or several options. */
 export const CustomValue = z.union([
   z.string().max(5000),

@@ -4,8 +4,6 @@ import { z } from 'zod';
 const isCountry = (code: string): code is keyof typeof countryToCurrency =>
   Object.hasOwn(countryToCurrency, code);
 
-const CURRENCIES = new Set(Intl.supportedValuesOf('currency'));
-
 /** An ISO 3166-1 alpha-2 country code (`MN`, `US`, `DE`). */
 export const Country = z
   .string()
@@ -18,7 +16,10 @@ export const Currency = z
   .string()
   .trim()
   .toUpperCase()
-  .refine((code) => CURRENCIES.has(code), 'an ISO 4217 currency code, like MNT or USD');
+  .refine(
+    (code) => Intl.supportedValuesOf('currency').includes(code),
+    'an ISO 4217 currency code, like MNT or USD',
+  );
 
 export type Currency = z.infer<typeof Currency>;
 

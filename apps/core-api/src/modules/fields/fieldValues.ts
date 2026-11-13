@@ -1,22 +1,29 @@
 import {
   companyFieldValues,
-  type ContentType,
   customerFieldValues,
   type CustomValue,
   type Db,
+  type FieldContentType,
   fields,
+  productFieldValues,
 } from '@erxes/core-db';
 import { and, Column, eq, getTableName, inArray, is, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 
 /**
  * Custom field values live in typed rows (core_customer_field_values,
- * core_company_field_values): text, number, date or yes/no each in its own
- * indexed column, multi-choice fields one row per choice. Records still read
- * and write them as `{ [fieldId]: value }`; this is the translation.
+ * core_company_field_values, core_product_field_values): text, number, date
+ * or yes/no each in its own indexed column, multi-choice fields one row per
+ * choice. Records still read and write them as `{ [fieldId]: value }`; this
+ * is the translation.
  */
-export const valuesTable = (type: ContentType) =>
-  type === 'customer' ? customerFieldValues : companyFieldValues;
+const VALUES = {
+  customer: customerFieldValues,
+  company: companyFieldValues,
+  product: productFieldValues,
+};
+
+export const valuesTable = (type: FieldContentType) => VALUES[type];
 
 /** Field types holding several values (one row each, in order). */
 const LIST_FIELD_TYPES = ['multiselect', 'check', 'list'] as const;
@@ -27,7 +34,7 @@ const LIST_TYPES_SQL = sql.raw(`(${LIST_FIELD_TYPES.map((type) => `'${type}'`).j
  * A record's values as one JSON object (`{ fieldId: value }`), for a select:
  * one index lookup per record, so fine for pages and exports alike.
  */
-export const customFieldsColumn = (type: ContentType, recordId: PgColumn | SQL) => {
+export const customFieldsColumn = (type: FieldContentType, recordId: PgColumn | SQL) => {
   // Drizzle leaves columns unqualified in select lists: every name here is spelled out.
   const outer = is(recordId, Column)
     ? sql`${sql.identifier(getTableName(recordId.table))}.${sql.identifier(recordId.name)}`
@@ -77,7 +84,7 @@ const rowsOf = (
 export const saveCustomFields = async (
   tx: Db,
   orgId: string,
-  type: ContentType,
+  type: FieldContentType,
   recordId: string,
   values: Record<string, CustomValue>,
   fieldIds: string[],

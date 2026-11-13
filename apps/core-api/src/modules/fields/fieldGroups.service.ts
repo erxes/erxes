@@ -1,4 +1,4 @@
-import { type ContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
+import { type FieldContentType, type Db, fieldGroups, fields, newId } from '@erxes/core-db';
 import { and, asc, eq, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
 import type { Actor } from '~/http/auth';
 import { HttpError } from '~/http/errors';
@@ -19,7 +19,7 @@ import {
 export const listFieldGroups = async (
   client: Db,
   actor: Actor,
-  input: { contentType: ContentType; archived?: boolean },
+  input: { contentType: FieldContentType; archived?: boolean },
 ) => {
   const rows = await client
     .select()
@@ -61,7 +61,12 @@ const groupCode = (code: string | undefined, name: string) => {
 export const createFieldGroup = async (
   client: Db,
   actor: Actor,
-  input: { contentType: ContentType; name: string; code?: string; description?: string | null },
+  input: {
+    contentType: FieldContentType;
+    name: string;
+    code?: string;
+    description?: string | null;
+  },
 ) => {
   requireFieldManager(actor);
 

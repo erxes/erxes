@@ -7822,7 +7822,8 @@
           "contentType": {
             "enum": [
               "customer",
-              "company"
+              "company",
+              "product"
             ],
             "type": "string"
           },
@@ -7958,7 +7959,8 @@
           "contentType": {
             "enum": [
               "customer",
-              "company"
+              "company",
+              "product"
             ],
             "type": "string"
           },
@@ -9840,6 +9842,36 @@
               "type": "string"
             }
           },
+          "customFields": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 5000
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "maxItems": 50
+                }
+              ]
+            }
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -9878,6 +9910,7 @@
           "widthMm",
           "heightMm",
           "plugins",
+          "customFields",
           "createdAt",
           "updatedAt",
           "archivedAt"
@@ -23814,7 +23847,8 @@
             "schema": {
               "enum": [
                 "customer",
-                "company"
+                "company",
+                "product"
               ],
               "type": "string"
             },
@@ -23880,7 +23914,8 @@
                   "contentType": {
                     "enum": [
                       "customer",
-                      "company"
+                      "company",
+                      "product"
                     ],
                     "type": "string"
                   },
@@ -24171,7 +24206,8 @@
             "schema": {
               "enum": [
                 "customer",
-                "company"
+                "company",
+                "product"
               ],
               "type": "string"
             },
@@ -24249,7 +24285,8 @@
                   "contentType": {
                     "enum": [
                       "customer",
-                      "company"
+                      "company",
+                      "product"
                     ],
                     "type": "string"
                   },
@@ -27578,6 +27615,43 @@
                       "pattern": "^[a-z][a-z0-9_]{0,39}$"
                     },
                     "maxItems": 50
+                  },
+                  "customFields": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "maxLength": 5000
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "maxLength": 200
+                              },
+                              "maxItems": 50
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -27788,6 +27862,43 @@
                       "pattern": "^[a-z][a-z0-9_]{0,39}$"
                     },
                     "maxItems": 50
+                  },
+                  "customFields": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "maxLength": 5000
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "maxLength": 200
+                              },
+                              "maxItems": 50
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
                   }
                 }
               }

@@ -4,7 +4,7 @@ import { and, arrayContains, eq, ilike, inArray, or } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { unique } from '~/lib/contacts';
 import { containsPattern, keysetPage } from '~/lib/keyset';
-import { findProduct, type ProductRow } from './productChecks';
+import { findProduct, productColumns, type ProductRow } from './productChecks';
 
 export const toProductDto = (row: ProductRow): Product => ({
   id: row.id,
@@ -24,6 +24,7 @@ export const toProductDto = (row: ProductRow): Product => ({
   widthMm: row.widthMm,
   heightMm: row.heightMm,
   plugins: row.plugins,
+  customFields: row.customFields,
   createdAt: row.createdAt.toISOString(),
   updatedAt: row.updatedAt.toISOString(),
   archivedAt: row.archivedAt?.toISOString() ?? null,
@@ -76,7 +77,7 @@ export const listProducts = async (
     query,
     (where, orderBy, limit) =>
       client
-        .select()
+        .select(productColumns)
         .from(products)
         .where(where)
         .orderBy(...orderBy)
@@ -95,7 +96,7 @@ export const lookupProducts = async (client: Db, caller: Caller, ids: string[]) 
 
   const rows = wanted.length
     ? await client
-        .select()
+        .select(productColumns)
         .from(products)
         .where(and(eq(products.orgId, caller.orgId), inArray(products.id, wanted)))
     : [];

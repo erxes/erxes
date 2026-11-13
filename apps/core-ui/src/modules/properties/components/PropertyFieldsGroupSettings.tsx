@@ -1,4 +1,4 @@
-import type { ContentType } from '@erxes/core-contract';
+import type { FieldContentType } from '@erxes/core-contract';
 import {
   closestCenter,
   DndContext,
@@ -32,7 +32,7 @@ import { PropertyGroupEditSheet } from './PropertyGroupEdit';
 import { PropertyGroupLayoutSheet } from './PropertyGroupLayoutSheet';
 
 /** A record type's properties: its groups (drag to reorder) with their fields, then Archived. */
-export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: ContentType }) => {
+export const PropertyFieldsGroupSettings = ({ contentType }: { contentType: FieldContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groups, loading: groupsLoading, error: groupsError } = useFieldGroups(contentType);
   const { fields, loading: fieldsLoading, error: fieldsError } = useAllFields(contentType);

@@ -162,7 +162,8 @@ const ACCESS = {
   'fieldGroups.restore': needs('properties.manage'),
   'fieldGroups.remove': needs('properties.manage'),
 
-  'fields.list': MEMBER,
+  // Plugins read product fields only (the service refuses the rest).
+  'fields.list': { member: 'any', plugin: 'products:read' },
   'fields.usage': MEMBER,
   'fields.create': needs('properties.manage'),
   'fields.update': needs('properties.manage'),

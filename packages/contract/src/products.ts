@@ -1,6 +1,14 @@
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
-import { CursorQuery, cursorPageOf, Id, IdList, QueryBoolean } from './common';
+import {
+  CursorQuery,
+  CustomFields,
+  CustomFieldsPatch,
+  cursorPageOf,
+  Id,
+  IdList,
+  QueryBoolean,
+} from './common';
 import { Currency } from './money';
 import { PluginName } from './plugins';
 
@@ -39,6 +47,12 @@ export const Product = z.object({
   heightMm: z.number().int().nullable(),
   /** The plugins that use it (`ecom`, `tms`); each lists its own by default. */
   plugins: z.array(z.string()),
+  /**
+   * The organisation's own product properties (brand, warranty, room
+   * capacity), set up in Settings › Properties, by field id. Every plugin
+   * sees them; what only one plugin needs stays in that plugin.
+   */
+  customFields: CustomFields,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   archivedAt: z.string().datetime().nullable(),
@@ -74,6 +88,8 @@ const ProductFields = z.object({
   heightMm: size,
   /** Members choose the plugins that use it; a plugin that creates a product uses it itself. */
   plugins: z.array(PluginName).max(50),
+  /** Values by field id; `null` or empty clears one, fields left out stay. 400 INVALID_FIELD, INVALID_FIELD_VALUE. */
+  customFields: CustomFieldsPatch,
 });
 
 /**
@@ -120,23 +136,7 @@ export const productsContract = {
       summary:
         "Add a product. 409 PRODUCT_CODE_EXISTS / PRODUCT_BARCODE_EXISTS with the existing product's id in `data.productId` (a plugin can `use` it instead); 400 INVALID_CATEGORY, INVALID_FILE, PLUGIN_NOT_INSTALLED",
     })
-    .input(
-      ProductFields.partial({
-        code: true,
-        barcode: true,
-        categoryId: true,
-        description: true,
-        unit: true,
-        price: true,
-        currency: true,
-        imageIds: true,
-        weightGrams: true,
-        lengthMm: true,
-        widthMm: true,
-        heightMm: true,
-        plugins: true,
-      }),
-    )
+    .input(ProductFields.partial().required({ kind: true, name: true }))
     .output(Product),
   update: oc
     .route({

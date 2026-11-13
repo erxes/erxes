@@ -203,24 +203,33 @@ const customFields = async (client: Db, orgId: string, isCompany: boolean) => {
     .where(and(eq(fields.orgId, orgId), isCompany ? eq(fields.contentType, 'company') : undefined))
     .orderBy(asc(fields.order));
 
-  return rows.map((row): FieldSpec => {
-    const ofCompany = row.contentType === 'company' && !isCompany;
+  // Product fields belong to products, not contacts.
+  return rows.flatMap((row): FieldSpec[] => {
+    const recordType = row.contentType;
 
-    return {
-      path: ofCompany ? `subject.company.customFields.${row.id}` : `subject.customFields.${row.id}`,
-      label: ofCompany ? `Company ${row.label}` : row.label,
-      group: ofCompany ? 'company' : 'custom',
-      type: FILTER_TYPE[row.type] ?? 'text',
-      options: row.options.length ? row.options : undefined,
-      expr: sql`null`,
-      dateOnly: row.type === 'date',
-      viaCompany: ofCompany,
-      custom: {
-        recordType: row.contentType,
-        fieldId: row.id,
-        storage: STORAGE[row.type] ?? 'text',
+    if (recordType === 'product') return [];
+
+    const ofCompany = recordType === 'company' && !isCompany;
+
+    return [
+      {
+        path: ofCompany
+          ? `subject.company.customFields.${row.id}`
+          : `subject.customFields.${row.id}`,
+        label: ofCompany ? `Company ${row.label}` : row.label,
+        group: ofCompany ? 'company' : 'custom',
+        type: FILTER_TYPE[row.type] ?? 'text',
+        options: row.options.length ? row.options : undefined,
+        expr: sql`null`,
+        dateOnly: row.type === 'date',
+        viaCompany: ofCompany,
+        custom: {
+          recordType,
+          fieldId: row.id,
+          storage: STORAGE[row.type] ?? 'text',
+        },
       },
-    };
+    ];
   });
 };
 

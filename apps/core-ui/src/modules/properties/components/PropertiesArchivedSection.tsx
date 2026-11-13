@@ -1,4 +1,4 @@
-import type { ContentType } from '@erxes/core-contract';
+import type { FieldContentType } from '@erxes/core-contract';
 import { IconRestore, IconTrash } from '@tabler/icons-react';
 import { Badge, Button, Collapsible } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
@@ -8,7 +8,7 @@ import { archiveTargetState } from '../states';
 import { useAllFields, useFieldGroups } from '../useFields';
 import { useCanManageFields, usePropertyRestore } from '../usePropertyMutations';
 
-const useArchivedProperties = (contentType: ContentType) => {
+const useArchivedProperties = (contentType: FieldContentType) => {
   const { groups, error: groupsError } = useFieldGroups(contentType, { archived: true });
   const { fields, error: fieldsError } = useAllFields(contentType, { archived: true });
   const archivedGroupIds = new Set(groups.map((group) => group.id));
@@ -74,7 +74,7 @@ const ArchivedRow = ({
 const date = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '');
 
 /** Archived groups and fields, restorable. */
-export const PropertiesArchivedSection = ({ contentType }: { contentType: ContentType }) => {
+export const PropertiesArchivedSection = ({ contentType }: { contentType: FieldContentType }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { groups, fields, error } = useArchivedProperties(contentType);
   const { restoreField, restoreGroup, loading } = usePropertyRestore();

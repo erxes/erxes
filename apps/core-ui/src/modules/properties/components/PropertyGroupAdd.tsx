@@ -1,4 +1,4 @@
-import type { ContentType, FieldGroup } from '@erxes/core-contract';
+import type { FieldContentType, FieldGroup } from '@erxes/core-contract';
 import { Button, Sheet } from 'erxes-ui';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ export const AddPropertyGroup = ({
   onAdded,
   trigger,
 }: {
-  contentType: ContentType;
+  contentType: FieldContentType;
   onAdded?: (group: FieldGroup) => void;
   trigger?: ReactNode;
 }) => {

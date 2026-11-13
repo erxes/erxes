@@ -15,6 +15,7 @@ import { companies } from './companies';
 import { customers } from './customers';
 import { fields } from './fields';
 import { organizations } from './organizations';
+import { products } from './products';
 
 /**
  * Custom field ("property") values: one row per value, in a column of its
@@ -24,8 +25,14 @@ import { organizations } from './organizations';
  * order). One table per record type so the record side has a real foreign
  * key: deleting a record, or a field, removes its values.
  */
-const fieldValues = (name: 'customer_field_values' | 'company_field_values') => {
-  const records = name === 'customer_field_values' ? customers : companies;
+const RECORDS = {
+  customer_field_values: customers,
+  company_field_values: companies,
+  product_field_values: products,
+};
+
+const fieldValues = (name: keyof typeof RECORDS) => {
+  const records = RECORDS[name];
   const t = `core_${name}`;
 
   return pgTable(
@@ -93,3 +100,4 @@ const fieldValues = (name: 'customer_field_values' | 'company_field_values') => 
 
 export const customerFieldValues = fieldValues('customer_field_values');
 export const companyFieldValues = fieldValues('company_field_values');
+export const productFieldValues = fieldValues('product_field_values');
