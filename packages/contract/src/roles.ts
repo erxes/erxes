@@ -1,4 +1,6 @@
+import { roles } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
 /**
@@ -116,16 +118,13 @@ export const RoleKey = z
 
 export type RoleKey = z.infer<typeof RoleKey>;
 
-export const Role = z.object({
-  key: z.string(),
-  name: z.string(),
-  description: z.string().nullable(),
-  permissions: z.array(z.string()),
-  builtin: z.boolean(),
-  /** Owner and Admin are fixed; Member and custom roles can be edited. */
-  editable: z.boolean(),
-  members: z.int(),
-});
+export const Role = createSelectSchema(roles)
+  .pick({ key: true, name: true, description: true, permissions: true, builtin: true })
+  .extend({
+    /** Owner and Admin are fixed; Member and custom roles can be edited. */
+    editable: z.boolean(),
+    members: z.int(),
+  });
 
 export type Role = z.infer<typeof Role>;
 
@@ -141,11 +140,11 @@ export const PermissionInfo = z.object({
 
 export type PermissionInfo = z.infer<typeof PermissionInfo>;
 
-const RoleFields = {
-  name: z.string().trim().min(1).max(60),
-  description: z.string().trim().max(300).nullable().optional(),
-  permissions: z.array(PermissionAction).max(1000),
-};
+const RoleFields = createUpdateSchema(roles, {
+  name: (name) => name.trim().min(1).max(60),
+  description: (value) => value.trim().max(300),
+  permissions: () => z.array(PermissionAction).max(1000),
+}).pick({ name: true, description: true, permissions: true });
 
 export const rolesContract = {
   list: oc
@@ -169,7 +168,7 @@ export const rolesContract = {
       successStatus: 201,
       summary: 'Create a role (roles.manage)',
     })
-    .input(z.object(RoleFields))
+    .input(RoleFields.required({ name: true, permissions: true }))
     .output(Role),
   update: oc
     .route({
@@ -177,14 +176,7 @@ export const rolesContract = {
       path: '/roles/{key}',
       summary: 'Rename a role or change its permissions (roles.manage; not Owner or Admin)',
     })
-    .input(
-      z.object({
-        key: RoleKey,
-        ...RoleFields,
-        name: RoleFields.name.optional(),
-        permissions: RoleFields.permissions.optional(),
-      }),
-    )
+    .input(RoleFields.extend({ key: RoleKey }))
     .output(Role),
   remove: oc
     .route({

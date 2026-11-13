@@ -11239,9 +11239,6 @@
             ],
             "type": "string"
           },
-          "twoFactorEnabled": {
-            "type": "boolean"
-          },
           "firstName": {
             "anyOf": [
               {
@@ -11359,6 +11356,9 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "twoFactorEnabled": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -11369,7 +11369,6 @@
           "avatarUrl",
           "role",
           "status",
-          "twoFactorEnabled",
           "firstName",
           "middleName",
           "lastName",
@@ -11382,7 +11381,8 @@
           "links",
           "onboardedAt",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "twoFactorEnabled"
         ]
       },
       "View": {
