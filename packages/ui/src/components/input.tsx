@@ -34,27 +34,29 @@ export const inputVariants = cva(
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement> &
   Except<VariantProps<typeof inputVariants>, 'type'>;
 
-const InputMain = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, variant, ...props }, ref) => {
-    return (
-      <input
-        type={type}
-        autoComplete="off"
-        className={cn(
-          inputVariants({
-            type: type === 'file' ? 'file' : type === 'search' ? 'search' : 'default',
-            variant,
-          }),
-          className,
-        )}
-        ref={ref}
-        {...props}
-      />
-    );
-  },
-);
-
-InputMain.displayName = 'Input';
+const InputMain = ({
+  ref,
+  className,
+  type,
+  variant,
+  ...props
+}: InputProps & React.RefAttributes<HTMLInputElement>) => {
+  return (
+    <input
+      type={type}
+      autoComplete="off"
+      className={cn(
+        inputVariants({
+          type: type === 'file' ? 'file' : type === 'search' ? 'search' : 'default',
+          variant,
+        }),
+        className,
+      )}
+      ref={ref}
+      {...props}
+    />
+  );
+};
 
 /** A number with thousands separators; `onChange` gets the number, or '' when cleared. */
 const InputNumber = ({

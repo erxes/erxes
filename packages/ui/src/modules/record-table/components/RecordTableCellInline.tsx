@@ -5,10 +5,12 @@ import { cn } from 'erxes-ui/lib/utils';
 import React from 'react';
 import type { Popover as PopoverPrimitive } from 'radix-ui';
 
-const RecordTableCellTrigger = React.forwardRef<
-  React.ComponentRef<typeof Button>,
-  React.ComponentPropsWithoutRef<typeof Button>
->(({ children, className, ...props }, ref) => {
+const RecordTableCellTrigger = ({
+  ref,
+  children,
+  className,
+  ...props
+}: React.ComponentProps<typeof Button>) => {
   return (
     <Popover.Trigger asChild>
       <Button
@@ -24,12 +26,13 @@ const RecordTableCellTrigger = React.forwardRef<
       </Button>
     </Popover.Trigger>
   );
-});
+};
 
-const RecordTableCellContent = React.forwardRef<
-  React.ComponentRef<typeof PopoverPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
->(({ className, ...props }, ref) => {
+const RecordTableCellContent = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Content>) => {
   return (
     <Popover.Content
       align="start"
@@ -45,14 +48,14 @@ const RecordTableCellContent = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
-RecordTableCellTrigger.displayName = 'RecordTableCellTrigger';
-
-const RecordTableCellDisplay = React.forwardRef<
-  React.ComponentRef<typeof Button>,
-  React.ComponentPropsWithoutRef<typeof Button>
->(({ className, children, ...props }, ref) => {
+const RecordTableCellDisplay = ({
+  ref,
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof Button>) => {
   return (
     <Button
       variant="ghost"
@@ -68,14 +71,15 @@ const RecordTableCellDisplay = React.forwardRef<
       <div>{children}</div>
     </Button>
   );
-});
+};
 
-RecordTableCellDisplay.displayName = 'RecordTableCellDisplay';
-
-const RecordTableInlineAnchor = React.forwardRef<
-  React.ComponentRef<typeof Badge>,
-  React.ComponentPropsWithoutRef<typeof Badge>
->(({ className, onClick, children, ...props }, ref) => {
+const RecordTableInlineAnchor = ({
+  ref,
+  className,
+  onClick,
+  children,
+  ...props
+}: React.ComponentProps<typeof Badge>) => {
   return (
     <Badge
       ref={ref}
@@ -90,9 +94,7 @@ const RecordTableInlineAnchor = React.forwardRef<
       {children}
     </Badge>
   );
-});
-
-RecordTableInlineAnchor.displayName = 'RecordTableInlineAnchor';
+};
 
 export const RecordTableInlineCell = Object.assign(RecordTableCellDisplay, {
   Trigger: RecordTableCellTrigger,

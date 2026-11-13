@@ -2,7 +2,6 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { formatPhones } from 'erxes-ui/modules/display/utils/formatPhones';
 import { ValidationStatus } from 'erxes-ui/types/ValidationStatus';
 import { formatPhoneNumber } from 'erxes-ui/utils/format/formatPhoneNumber';
-import { forwardRef } from 'react';
 import { useContactFieldInput, type ContactFieldInput } from '../hooks/useContactFieldInput';
 import type { IPhoneField, IPhoneFieldProps, TPhones } from '../types/phoneField';
 import { ContactFieldOptions, ContactFieldValue } from './ContactFieldParts';
@@ -100,28 +99,22 @@ type PhoneFieldProps = IPhoneFieldProps &
   };
 
 /** A record's phones: the list with a menu per phone, and an input to add or edit one. */
-export const PhoneField = forwardRef<HTMLDivElement, PhoneFieldProps>(
-  (
-    {
-      recordId,
-      onValueChange,
-      onValidationStatusChange,
-      primaryPhone,
-      phones,
-      phoneValidationStatus,
-      ...props
-    },
-    ref,
-  ) => (
-    <div ref={ref} {...props}>
-      <PhoneFieldBody
-        key={recordId}
-        phones={formatPhones(primaryPhone, phones, phoneValidationStatus)}
-        onValueChange={(values) => onValueChange(toPhoneFieldProps(values))}
-        onValidationStatusChange={onValidationStatusChange}
-      />
-    </div>
-  ),
+export const PhoneField = ({
+  ref,
+  recordId,
+  onValueChange,
+  onValidationStatusChange,
+  primaryPhone,
+  phones,
+  phoneValidationStatus,
+  ...props
+}: PhoneFieldProps & React.RefAttributes<HTMLDivElement>) => (
+  <div ref={ref} {...props}>
+    <PhoneFieldBody
+      key={recordId}
+      phones={formatPhones(primaryPhone, phones, phoneValidationStatus)}
+      onValueChange={(values) => onValueChange(toPhoneFieldProps(values))}
+      onValidationStatusChange={onValidationStatusChange}
+    />
+  </div>
 );
-
-PhoneField.displayName = 'PhoneField';

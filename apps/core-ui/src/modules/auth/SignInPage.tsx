@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Form, Input, Spinner } from 'erxes-ui';
-import { forwardRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type ControllerRenderProps, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -25,10 +25,11 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 /** The password with a reveal button; a revealed password hides itself again after 10 s. */
-const PasswordInput = forwardRef<
-  HTMLDivElement,
-  { field: ControllerRenderProps<Values, 'password'> }
->(({ field, ...slotProps }, ref) => {
+const PasswordInput = ({
+  ref,
+  field,
+  ...slotProps
+}: { field: ControllerRenderProps<Values, 'password'> } & React.RefAttributes<HTMLDivElement>) => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const [shown, setShown] = useState(false);
 
@@ -61,9 +62,7 @@ const PasswordInput = forwardRef<
       </Button>
     </div>
   );
-});
-
-PasswordInput.displayName = 'PasswordInput';
+};
 
 const SignInTextField = ({
   name,

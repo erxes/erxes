@@ -3,16 +3,18 @@ import { Command } from 'erxes-ui/components/command';
 import { Popover } from 'erxes-ui/components/popover';
 import { cn } from 'erxes-ui/lib/utils';
 import { useIcons } from 'erxes-ui/modules/icons/hooks/useIcons';
-import { forwardRef, useState } from 'react';
+import { useState } from 'react';
 import { IconComponent } from './IconComponent';
 
-export const IconPicker = forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof Combobox.TriggerBase> & {
-    value?: string;
-    onValueChange?: (value: string | null) => void;
-  }
->(({ value, onValueChange, ...props }, ref) => {
+export const IconPicker = ({
+  ref,
+  value,
+  onValueChange,
+  ...props
+}: React.ComponentProps<typeof Combobox.TriggerBase> & {
+  value?: string;
+  onValueChange?: (value: string | null) => void;
+} & React.RefAttributes<HTMLButtonElement>) => {
   const { getIcons } = useIcons();
   const [_value, setValue] = useState(value);
   const [open, setOpen] = useState(false);
@@ -52,4 +54,4 @@ export const IconPicker = forwardRef<
       </Combobox.Content>
     </Popover>
   );
-});
+};

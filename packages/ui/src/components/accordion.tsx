@@ -7,23 +7,24 @@ import { cn } from '../lib/utils';
 
 const AccordionRoot = AccordionPrimitive.Root;
 
-const AccordionItem = React.forwardRef<
-  React.ComponentRef<typeof AccordionPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
->(({ className, ...props }, ref) => (
+const AccordionItem = ({
+  ref,
+  className,
+  ...props
+}: React.ComponentProps<typeof AccordionPrimitive.Item>) => (
   <AccordionPrimitive.Item
     ref={ref}
     className={cn('border-b border-border', className)}
     {...props}
   />
-));
+);
 
-AccordionItem.displayName = 'AccordionItem';
-
-const AccordionTrigger = React.forwardRef<
-  React.ComponentRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
+const AccordionTrigger = ({
+  ref,
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
       ref={ref}
@@ -40,14 +41,14 @@ const AccordionTrigger = React.forwardRef<
       />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
-));
+);
 
-AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
-
-const AccordionContent = React.forwardRef<
-  React.ComponentRef<typeof AccordionPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+const AccordionContent = ({
+  ref,
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof AccordionPrimitive.Content>) => (
   <AccordionPrimitive.Content
     ref={ref}
     className="overflow-y-clip text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
@@ -55,9 +56,7 @@ const AccordionContent = React.forwardRef<
   >
     <div className={cn('pb-4 pt-0', className)}>{children}</div>
   </AccordionPrimitive.Content>
-));
-
-AccordionContent.displayName = AccordionPrimitive.Content.displayName;
+);
 
 export const Accordion = Object.assign(AccordionRoot, {
   Item: AccordionItem,

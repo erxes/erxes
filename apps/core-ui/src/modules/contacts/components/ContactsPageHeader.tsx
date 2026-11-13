@@ -1,5 +1,4 @@
 import { cn, PageHeader } from 'erxes-ui';
-import { forwardRef, type HTMLAttributes } from 'react';
 
 /*
  * Room for the app sidebar's toggle when the sidebar is collapsed, and the first crumb
@@ -11,27 +10,24 @@ const PAGE_HEADER_PADDING_CLASS_NAME =
 const PAGE_HEADER_FIRST_CRUMB_CLASS_NAME =
   '[&>nav:first-of-type>ol>li:first-child_a]:-ml-2 [&>nav:first-of-type>ol>li:first-child_a]:pl-2 [&>nav:first-of-type>ol>li:first-child_button]:-ml-2 [&>nav:first-of-type>ol>li:first-child_button]:pl-2';
 
-const ContactsPageHeaderRoot = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, children, ...props }, ref) => (
-    <PageHeader ref={ref} className={cn(className, PAGE_HEADER_PADDING_CLASS_NAME)} {...props}>
-      {children}
-    </PageHeader>
-  ),
+const ContactsPageHeaderRoot = ({
+  ref,
+  className,
+  children,
+  ...props
+}: React.ComponentProps<'div'>) => (
+  <PageHeader ref={ref} className={cn(className, PAGE_HEADER_PADDING_CLASS_NAME)} {...props}>
+    {children}
+  </PageHeader>
 );
 
-ContactsPageHeaderRoot.displayName = 'ContactsPageHeader';
-
-const ContactsPageHeaderStart = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <PageHeader.Start
-      ref={ref}
-      className={cn(PAGE_HEADER_FIRST_CRUMB_CLASS_NAME, className)}
-      {...props}
-    />
-  ),
+const ContactsPageHeaderStart = ({ ref, className, ...props }: React.ComponentProps<'div'>) => (
+  <PageHeader.Start
+    ref={ref}
+    className={cn(PAGE_HEADER_FIRST_CRUMB_CLASS_NAME, className)}
+    {...props}
+  />
 );
-
-ContactsPageHeaderStart.displayName = 'ContactsPageHeaderStart';
 
 export const ContactsPageHeader = Object.assign(ContactsPageHeaderRoot, {
   Start: ContactsPageHeaderStart,

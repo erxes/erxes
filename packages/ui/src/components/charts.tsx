@@ -34,13 +34,17 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   return <style>{css}</style>;
 };
 
-const ChartContainer = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'> & {
-    config: ChartConfig;
-    children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
-  }
->(({ id, className, children, config, ...props }, ref) => {
+const ChartContainer = ({
+  ref,
+  id,
+  className,
+  children,
+  config,
+  ...props
+}: React.ComponentProps<'div'> & {
+  config: ChartConfig;
+  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
+}) => {
   const uniqueId = React.useId();
   const chartId = `chart-${id ?? uniqueId.replace(/:/g, '')}`;
 
@@ -60,9 +64,7 @@ const ChartContainer = React.forwardRef<
       </div>
     </ChartContext.Provider>
   );
-});
-
-ChartContainer.displayName = 'Chart';
+};
 
 type TooltipItem = Payload;
 
@@ -178,60 +180,63 @@ const TooltipRow = ({
   );
 };
 
-const ChartTooltipContent = React.forwardRef<HTMLDivElement, ChartTooltipContentProps>(
-  (props, ref) => {
-    const { active, payload, className, indicator = 'dot', hideLabel = false } = props;
+const ChartTooltipContent = ({
+  ref,
+  ...props
+}: ChartTooltipContentProps & React.RefAttributes<HTMLDivElement>) => {
+  const { active, payload, className, indicator = 'dot', hideLabel = false } = props;
 
-    if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) return null;
 
-    const nestLabel = payload.length === 1 && indicator !== 'dot';
-    const label = hideLabel ? null : <TooltipLabel {...props} payload={payload} />;
+  const nestLabel = payload.length === 1 && indicator !== 'dot';
+  const label = hideLabel ? null : <TooltipLabel {...props} payload={payload} />;
 
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl',
-          className,
-        )}
-      >
-        {nestLabel ? null : label}
-        <div className="grid gap-1.5">
-          {payload.map((item, index) => (
-            <div
-              key={keyOf(props.nameKey, item.name, item.dataKey)}
-              className={cn(
-                'flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground',
-                indicator === 'dot' && 'items-center',
-              )}
-            >
-              <TooltipRow
-                item={item}
-                index={index}
-                payload={payload}
-                props={props}
-                label={nestLabel ? label : null}
-              />
-            </div>
-          ))}
-        </div>
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl',
+        className,
+      )}
+    >
+      {nestLabel ? null : label}
+      <div className="grid gap-1.5">
+        {payload.map((item, index) => (
+          <div
+            key={keyOf(props.nameKey, item.name, item.dataKey)}
+            className={cn(
+              'flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground',
+              indicator === 'dot' && 'items-center',
+            )}
+          >
+            <TooltipRow
+              item={item}
+              index={index}
+              payload={payload}
+              props={props}
+              label={nestLabel ? label : null}
+            />
+          </div>
+        ))}
       </div>
-    );
-  },
-);
+    </div>
+  );
+};
 
-ChartTooltipContent.displayName = 'ChartTooltip';
-
-const ChartLegendContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'> & {
-    // Recharts passes its Legend props to the content element.
-    verticalAlign?: 'top' | 'middle' | 'bottom';
-    payload?: readonly LegendPayload[];
-    hideIcon?: boolean;
-    nameKey?: string;
-  }
->(({ className, hideIcon = false, payload, verticalAlign = 'bottom', nameKey }, ref) => {
+const ChartLegendContent = ({
+  ref,
+  className,
+  hideIcon = false,
+  payload,
+  verticalAlign = 'bottom',
+  nameKey,
+}: React.ComponentProps<'div'> & {
+  // Recharts passes its Legend props to the content element.
+  verticalAlign?: 'top' | 'middle' | 'bottom';
+  payload?: readonly LegendPayload[];
+  hideIcon?: boolean;
+  nameKey?: string;
+}) => {
   const { config } = useChart();
 
   if (!payload?.length) return null;
@@ -267,8 +272,6 @@ const ChartLegendContent = React.forwardRef<
       })}
     </div>
   );
-});
-
-ChartLegendContent.displayName = 'ChartLegend';
+};
 
 export { ChartContainer, ChartTooltipContent, ChartLegendContent };

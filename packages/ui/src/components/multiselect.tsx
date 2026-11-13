@@ -159,38 +159,37 @@ const searchFilter = (value: string, search: string) =>
   value.toLowerCase().includes(search.toLowerCase()) ? 1 : -1;
 
 /** Picks several options from a list or a search, shown as removable badges. */
-export const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
-  (props, ref) => {
-    const { commandProps, onSearch } = props;
-    const state = useMultipleSelector(props, ref);
-    const { dropdownRef } = state;
+export const MultipleSelector = ({
+  ref,
+  ...props
+}: MultipleSelectorProps & React.RefAttributes<MultipleSelectorRef>) => {
+  const { commandProps, onSearch } = props;
+  const state = useMultipleSelector(props, ref);
+  const { dropdownRef } = state;
 
-    const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-      const last = state.selected.at(-1);
-      const erases = event.key === 'Delete' || event.key === 'Backspace';
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const last = state.selected.at(-1);
+    const erases = event.key === 'Delete' || event.key === 'Backspace';
 
-      if (erases && !state.inputValue && last && !last.fixed) state.remove(last);
+    if (erases && !state.inputValue && last && !last.fixed) state.remove(last);
 
-      if (event.key === 'Escape') state.inputRef.current?.blur();
+    if (event.key === 'Escape') state.inputRef.current?.blur();
 
-      commandProps?.onKeyDown?.(event);
-    };
+    commandProps?.onKeyDown?.(event);
+  };
 
-    return (
-      <Command
-        ref={dropdownRef}
-        {...commandProps}
-        onKeyDown={onKeyDown}
-        className={cn('h-auto overflow-visible bg-transparent', commandProps?.className)}
-        // With onSearch the results are already filtered.
-        shouldFilter={commandProps?.shouldFilter ?? !onSearch}
-        filter={commandProps?.filter ?? (props.creatable ? searchFilter : undefined)}
-      >
-        <SelectorField props={props} state={state} />
-        <SelectorDropdown props={props} state={state} />
-      </Command>
-    );
-  },
-);
-
-MultipleSelector.displayName = 'MultipleSelector';
+  return (
+    <Command
+      ref={dropdownRef}
+      {...commandProps}
+      onKeyDown={onKeyDown}
+      className={cn('h-auto overflow-visible bg-transparent', commandProps?.className)}
+      // With onSearch the results are already filtered.
+      shouldFilter={commandProps?.shouldFilter ?? !onSearch}
+      filter={commandProps?.filter ?? (props.creatable ? searchFilter : undefined)}
+    >
+      <SelectorField props={props} state={state} />
+      <SelectorDropdown props={props} state={state} />
+    </Command>
+  );
+};

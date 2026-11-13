@@ -111,89 +111,83 @@ const usePhoneValidation = (onValidationChange: PhoneInputProps['onValidationCha
   return { validationError, validate };
 };
 
-export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
-  (
-    {
-      value,
-      onChange,
-      className,
-      defaultCountry,
-      placeholder,
-      onEnter,
-      onValidationChange,
-      onKeyDown,
-      onBlur,
-      ...props
-    },
-    ref,
-  ) => {
-    const [initial] = useState(() => parseInitialPhone(value, defaultCountry));
-    const [selectedCountry, setSelectedCountry] = useState(initial.country);
-    const [phoneNumber, setPhoneNumber] = useState(initial.text);
-    const { validationError, validate } = usePhoneValidation(onValidationChange);
+export const PhoneInput = ({
+  ref,
+  value,
+  onChange,
+  className,
+  defaultCountry,
+  placeholder,
+  onEnter,
+  onValidationChange,
+  onKeyDown,
+  onBlur,
+  ...props
+}: PhoneInputProps & React.RefAttributes<HTMLInputElement>) => {
+  const [initial] = useState(() => parseInitialPhone(value, defaultCountry));
+  const [selectedCountry, setSelectedCountry] = useState(initial.country);
+  const [phoneNumber, setPhoneNumber] = useState(initial.text);
+  const { validationError, validate } = usePhoneValidation(onValidationChange);
 
-    const handleSelect = (country: PhoneCountry) => {
-      setSelectedCountry(country);
-      setPhoneNumber(country.dial_code);
+  const handleSelect = (country: PhoneCountry) => {
+    setSelectedCountry(country);
+    setPhoneNumber(country.dial_code);
 
-      if (ref && typeof ref === 'object') {
-        ref.current?.focus();
-      }
-    };
+    if (ref && typeof ref === 'object') {
+      ref.current?.focus();
+    }
+  };
 
-    const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const input = withPlus(event.target.value);
-      const country = findCountry(parsePhoneNumberFromString(input)?.country) ?? selectedCountry;
-      const phone = withoutLetters(input);
+  const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = withPlus(event.target.value);
+    const country = findCountry(parsePhoneNumberFromString(input)?.country) ?? selectedCountry;
+    const phone = withoutLetters(input);
 
-      setSelectedCountry(country);
-      setPhoneNumber(formatPhoneNumber({ defaultCountry: country?.code, value: input }));
-      validate(phone);
-      onChange?.(phone, country?.code);
-    };
+    setSelectedCountry(country);
+    setPhoneNumber(formatPhoneNumber({ defaultCountry: country?.code, value: input }));
+    validate(phone);
+    onChange?.(phone, country?.code);
+  };
 
-    const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-      const text = withPlus(phoneNumber);
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const text = withPlus(phoneNumber);
 
-      if (text !== phoneNumber) {
-        setPhoneNumber(text);
-        onChange?.(withoutLetters(text), selectedCountry?.code);
-      }
+    if (text !== phoneNumber) {
+      setPhoneNumber(text);
+      onChange?.(withoutLetters(text), selectedCountry?.code);
+    }
 
-      validate(withoutLetters(text));
-      onBlur?.(event);
-    };
+    validate(withoutLetters(text));
+    onBlur?.(event);
+  };
 
-    return (
-      <div className="flex items-center justify-start rounded gap-1">
-        <CountrySelect selected={selectedCountry} onSelect={handleSelect} className={className} />
-        <div className="flex-1">
-          <Input
-            {...props}
-            value={phoneNumber}
-            onChange={handlePhoneChange}
-            onBlur={handleBlur}
-            placeholder={placeholder}
-            ref={ref}
-            className={cn(
-              'bg-accent',
-              validationError && 'border-destructive focus-visible:ring-destructive',
-              className,
-            )}
-            type="tel"
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                onEnter?.(value ?? '');
-                event.preventDefault();
-              }
+  return (
+    <div className="flex items-center justify-start rounded gap-1">
+      <CountrySelect selected={selectedCountry} onSelect={handleSelect} className={className} />
+      <div className="flex-1">
+        <Input
+          {...props}
+          value={phoneNumber}
+          onChange={handlePhoneChange}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          ref={ref}
+          className={cn(
+            'bg-accent',
+            validationError && 'border-destructive focus-visible:ring-destructive',
+            className,
+          )}
+          type="tel"
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              onEnter?.(value ?? '');
+              event.preventDefault();
+            }
 
-              onKeyDown?.(event);
-            }}
-          />
-        </div>
+            onKeyDown?.(event);
+          }}
+        />
       </div>
-    );
-  },
-);
-
-PhoneInput.displayName = 'PhoneInput';
+    </div>
+  );
+};

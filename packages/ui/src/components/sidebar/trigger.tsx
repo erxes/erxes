@@ -5,10 +5,12 @@ import { cn } from 'erxes-ui/lib/utils';
 import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react';
 import { useSidebar } from './context';
 
-export const SidebarTrigger = React.forwardRef<
-  React.ComponentRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
+export const SidebarTrigger = ({
+  ref,
+  className,
+  onClick,
+  ...props
+}: React.ComponentProps<typeof Button>) => {
   const { toggleSidebar, collapseState } = useSidebar();
 
   return (
@@ -32,6 +34,4 @@ export const SidebarTrigger = React.forwardRef<
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );
-});
-
-SidebarTrigger.displayName = 'SidebarTrigger';
+};

@@ -133,89 +133,83 @@ type SidebarProviderProps = React.ComponentProps<'div'> &
     sidebarWidthIcon?: string;
   };
 
-export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderProps>(
-  (
-    {
-      defaultOpen,
-      open: openProp,
-      onOpenChange,
-      collapseState: collapseStateProp,
-      defaultCollapseState,
-      onCollapseStateChange,
-      sidebarKeyboardShortcut = SIDEBAR_KEYBOARD_SHORTCUT,
-      sidebarWidth = SIDEBAR_WIDTH,
-      sidebarWidthIcon = SIDEBAR_WIDTH_ICON,
-      className,
-      style,
-      children,
-      ...props
-    },
-    ref,
-  ) => {
-    const isMobile = useIsMobile();
-    const [openMobile, setOpenMobile] = React.useState(false);
+export const SidebarProvider = ({
+  ref,
+  defaultOpen,
+  open: openProp,
+  onOpenChange,
+  collapseState: collapseStateProp,
+  defaultCollapseState,
+  onCollapseStateChange,
+  sidebarKeyboardShortcut = SIDEBAR_KEYBOARD_SHORTCUT,
+  sidebarWidth = SIDEBAR_WIDTH,
+  sidebarWidthIcon = SIDEBAR_WIDTH_ICON,
+  className,
+  style,
+  children,
+  ...props
+}: SidebarProviderProps & React.RefAttributes<HTMLDivElement>) => {
+  const isMobile = useIsMobile();
+  const [openMobile, setOpenMobile] = React.useState(false);
 
-    const { collapseState, open, setOpen, toggleOpen } = useSidebarState({
-      defaultOpen,
-      open: openProp,
-      onOpenChange,
-      collapseState: collapseStateProp,
-      defaultCollapseState,
-      onCollapseStateChange,
-    });
+  const { collapseState, open, setOpen, toggleOpen } = useSidebarState({
+    defaultOpen,
+    open: openProp,
+    onOpenChange,
+    collapseState: collapseStateProp,
+    defaultCollapseState,
+    onCollapseStateChange,
+  });
 
-    const toggleSidebar = React.useCallback(() => {
-      if (isMobile) {
-        setOpenMobile((wasOpen) => !wasOpen);
-      } else {
-        toggleOpen();
-      }
-    }, [isMobile, toggleOpen]);
+  const toggleSidebar = React.useCallback(() => {
+    if (isMobile) {
+      setOpenMobile((wasOpen) => !wasOpen);
+    } else {
+      toggleOpen();
+    }
+  }, [isMobile, toggleOpen]);
 
-    useScopedHotkeys(
-      sidebarKeyboardShortcut ? `Meta+${sidebarKeyboardShortcut}` : '__sidebar-shortcut-disabled__',
+  useScopedHotkeys(
+    sidebarKeyboardShortcut ? `Meta+${sidebarKeyboardShortcut}` : '__sidebar-shortcut-disabled__',
+    toggleSidebar,
+    AppHotkeyScope.Sidebar,
+  );
+
+  const contextValue = React.useMemo<ISidebarContext>(
+    () => ({
+      state: collapseState === 'collapsed' ? 'collapsed' : 'expanded',
+      collapseState,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
       toggleSidebar,
-      AppHotkeyScope.Sidebar,
-    );
+    }),
+    [collapseState, open, setOpen, isMobile, openMobile, toggleSidebar],
+  );
 
-    const contextValue = React.useMemo<ISidebarContext>(
-      () => ({
-        state: collapseState === 'collapsed' ? 'collapsed' : 'expanded',
-        collapseState,
-        open,
-        setOpen,
-        isMobile,
-        openMobile,
-        setOpenMobile,
-        toggleSidebar,
-      }),
-      [collapseState, open, setOpen, isMobile, openMobile, toggleSidebar],
-    );
+  const cssVariables: Record<`--${string}`, string> = {
+    '--sidebar-width': sidebarWidth,
+    '--sidebar-width-compact': SIDEBAR_WIDTH_COMPACT,
+    '--sidebar-width-icon': sidebarWidthIcon,
+  };
 
-    const cssVariables: Record<`--${string}`, string> = {
-      '--sidebar-width': sidebarWidth,
-      '--sidebar-width-compact': SIDEBAR_WIDTH_COMPACT,
-      '--sidebar-width-icon': sidebarWidthIcon,
-    };
-
-    return (
-      <SidebarContext.Provider value={contextValue}>
-        <Tooltip.Provider delayDuration={0}>
-          <div
-            style={{ ...cssVariables, ...style }}
-            className={cn(
-              'group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar',
-              className,
-            )}
-            ref={ref}
-            {...props}
-          >
-            {children}
-          </div>
-        </Tooltip.Provider>
-      </SidebarContext.Provider>
-    );
-  },
-);
-
-SidebarProvider.displayName = 'SidebarProvider';
+  return (
+    <SidebarContext.Provider value={contextValue}>
+      <Tooltip.Provider delayDuration={0}>
+        <div
+          style={{ ...cssVariables, ...style }}
+          className={cn(
+            'group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar',
+            className,
+          )}
+          ref={ref}
+          {...props}
+        >
+          {children}
+        </div>
+      </Tooltip.Provider>
+    </SidebarContext.Provider>
+  );
+};

@@ -1,6 +1,6 @@
 import { IconTrash, IconUpload, IconUserCircle } from '@tabler/icons-react';
 import type { ChangeEvent, ComponentPropsWithoutRef, RefObject, ReactNode } from 'react';
-import { createContext, forwardRef, useContext, useRef, useState } from 'react';
+import { createContext, useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, type ButtonProps } from './button';
 import { Dialog } from './dialog';
@@ -46,46 +46,49 @@ type UploadRootProps = {
   multiple?: boolean;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'onChange'>;
 
-const UploadRoot = forwardRef<HTMLDivElement, UploadRootProps>(
-  ({ className, value, onChange, multiple, ...rest }, ref) => {
-    const previewRef = useRef<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [previewUrl, setPreviewUrl] = useState<string | undefined>();
-    const [isImageFocused, setIsImageFocused] = useState(false);
-    const url = previewUrl ?? value;
+const UploadRoot = ({
+  ref,
+  className,
+  value,
+  onChange,
+  multiple,
+  ...rest
+}: UploadRootProps & React.RefAttributes<HTMLDivElement>) => {
+  const previewRef = useRef<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>();
+  const [isImageFocused, setIsImageFocused] = useState(false);
+  const url = previewUrl ?? value;
 
-    return (
-      <UploadContext.Provider
-        value={{
-          url,
-          multiple,
-          onChange,
-          fileInputRef,
-          previewRef,
-          setPreviewUrl,
-          chooseFile: () => fileInputRef.current?.click(),
-          setIsImageFocused,
-        }}
-      >
-        <Dialog open={isImageFocused} onOpenChange={setIsImageFocused}>
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-accent" />
-            <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-none w-auto bg-transparent border-0 p-0">
-              <img
-                src={readImage(url)}
-                alt="Focused view"
-                className="max-h-[90vh] max-w-[90vw] object-contain"
-              />
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog>
-        <div ref={ref} className={cn('flex gap-4', className)} {...rest} />
-      </UploadContext.Provider>
-    );
-  },
-);
-
-UploadRoot.displayName = 'UploadRoot';
+  return (
+    <UploadContext.Provider
+      value={{
+        url,
+        multiple,
+        onChange,
+        fileInputRef,
+        previewRef,
+        setPreviewUrl,
+        chooseFile: () => fileInputRef.current?.click(),
+        setIsImageFocused,
+      }}
+    >
+      <Dialog open={isImageFocused} onOpenChange={setIsImageFocused}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-accent" />
+          <Dialog.Content className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-none w-auto bg-transparent border-0 p-0">
+            <img
+              src={readImage(url)}
+              alt="Focused view"
+              className="max-h-[90vh] max-w-[90vw] object-contain"
+            />
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+      <div ref={ref} className={cn('flex gap-4', className)} {...rest} />
+    </UploadContext.Provider>
+  );
+};
 
 type UploadPreviewProps = {
   className?: string;
@@ -175,72 +178,74 @@ const UploadPreview = ({ className, ...callbacks }: UploadPreviewProps) => {
   );
 };
 
-const UploadButton = forwardRef<HTMLButtonElement, ButtonProps & { children?: ReactNode }>(
-  ({ children, className, ...props }, ref) => {
-    const { chooseFile } = useUploadContext();
-    const { t } = useTranslation('settings', { keyPrefix: 'profile' });
+const UploadButton = ({
+  ref,
+  children,
+  className,
+  ...props
+}: ButtonProps & { children?: ReactNode } & React.RefAttributes<HTMLButtonElement>) => {
+  const { chooseFile } = useUploadContext();
+  const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
-    return (
-      <Button ref={ref} className={cn('flex', className)} {...props} onClick={chooseFile}>
-        {children ?? (
-          <>
-            <IconUpload /> {t('upload')}
-          </>
-        )}
-      </Button>
-    );
-  },
-);
+  return (
+    <Button ref={ref} className={cn('flex', className)} {...props} onClick={chooseFile}>
+      {children ?? (
+        <>
+          <IconUpload /> {t('upload')}
+        </>
+      )}
+    </Button>
+  );
+};
 
-UploadButton.displayName = 'UploadButton';
+const RemoveButton = ({
+  ref,
+  children,
+  className,
+  ...props
+}: ButtonProps & { children?: ReactNode } & React.RefAttributes<HTMLButtonElement>) => {
+  const { remove } = useUpload();
+  const { url, previewRef, onChange, setPreviewUrl } = useUploadContext();
+  const { toast } = useToast();
 
-const RemoveButton = forwardRef<HTMLButtonElement, ButtonProps & { children?: ReactNode }>(
-  ({ children, className, ...props }, ref) => {
-    const { remove } = useUpload();
-    const { url, previewRef, onChange, setPreviewUrl } = useUploadContext();
-    const { toast } = useToast();
+  if (!url) return <div />;
 
-    if (!url) return <div />;
+  const handleRemove = () => {
+    if (previewRef.current) {
+      URL.revokeObjectURL(previewRef.current);
+      previewRef.current = null;
+    }
 
-    const handleRemove = () => {
-      if (previewRef.current) {
-        URL.revokeObjectURL(previewRef.current);
-        previewRef.current = null;
-      }
+    setPreviewUrl(undefined);
+    onChange({ url: '' });
 
-      setPreviewUrl(undefined);
-      onChange({ url: '' });
+    // A preview that never reached the storage has nothing to delete.
+    if (url.startsWith('data:') || url.startsWith('blob:')) return;
 
-      // A preview that never reached the storage has nothing to delete.
-      if (url.startsWith('data:') || url.startsWith('blob:')) return;
+    void remove({
+      fileName: url,
+      afterRemove: ({ status }) => {
+        if (status === 'ok') return;
 
-      void remove({
-        fileName: url,
-        afterRemove: ({ status }) => {
-          if (status === 'ok') return;
+        toast({
+          title: 'Could not delete the stored file',
+          description: 'It has been removed here, but the server still holds a copy.',
+          variant: 'destructive',
+        });
+      },
+    });
+  };
 
-          toast({
-            title: 'Could not delete the stored file',
-            description: 'It has been removed here, but the server still holds a copy.',
-            variant: 'destructive',
-          });
-        },
-      });
-    };
-
-    return (
-      <Button ref={ref} className={cn('flex', className)} {...props} onClick={handleRemove}>
-        {children ?? (
-          <>
-            <IconTrash /> Remove
-          </>
-        )}
-      </Button>
-    );
-  },
-);
-
-RemoveButton.displayName = 'RemoveButton';
+  return (
+    <Button ref={ref} className={cn('flex', className)} {...props} onClick={handleRemove}>
+      {children ?? (
+        <>
+          <IconTrash /> Remove
+        </>
+      )}
+    </Button>
+  );
+};
 
 export const Upload = {
   Root: UploadRoot,

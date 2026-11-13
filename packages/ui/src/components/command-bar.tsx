@@ -42,14 +42,15 @@ const Root = ({
   );
 };
 
-Root.displayName = 'CommandBar';
-
-const Value = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentPropsWithoutRef<'div'> & {
-    onClose?: () => void;
-  }
->(({ className, onClose, children, ...props }, ref) => {
+const Value = ({
+  ref,
+  className,
+  onClose,
+  children,
+  ...props
+}: React.ComponentProps<'div'> & {
+  onClose?: () => void;
+}) => {
   return (
     <div className="flex items-center -space-x-px">
       <Button
@@ -73,26 +74,20 @@ const Value = React.forwardRef<
       )}
     </div>
   );
-});
+};
 
-Value.displayName = 'CommandBar.Value';
-
-const Bar = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'relative flex items-center overflow-hidden rounded-lg p-1 shadow-focus bg-background gap-x-1',
-          className,
-        )}
-        {...props}
-      />
-    );
-  },
-);
-
-Bar.displayName = 'CommandBar.Bar';
+const Bar = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'relative flex items-center overflow-hidden rounded-lg p-1 shadow-focus bg-background gap-x-1',
+        className,
+      )}
+      {...props}
+    />
+  );
+};
 
 export const CommandBar = Object.assign(Root, {
   Value,

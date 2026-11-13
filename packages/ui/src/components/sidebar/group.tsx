@@ -3,28 +3,26 @@ import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const SidebarGroup = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        data-sidebar="group"
-        className={cn(
-          'relative flex w-full min-w-0 flex-col px-4 py-3 group-data-[collapsible=icon]:px-2',
-          className,
-        )}
-        {...props}
-      />
-    );
-  },
-);
+export const SidebarGroup = ({ ref, className, ...props }: React.ComponentProps<'div'>) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="group"
+      className={cn(
+        'relative flex w-full min-w-0 flex-col px-4 py-3 group-data-[collapsible=icon]:px-2',
+        className,
+      )}
+      {...props}
+    />
+  );
+};
 
-SidebarGroup.displayName = 'SidebarGroup';
-
-export const SidebarGroupLabel = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'> & { asChild?: boolean }
->(({ className, asChild = false, ...props }, ref) => {
+export const SidebarGroupLabel = ({
+  ref,
+  className,
+  asChild = false,
+  ...props
+}: React.ComponentProps<'div'> & { asChild?: boolean }) => {
   const Comp = asChild ? Slot.Root : 'div';
 
   return (
@@ -39,14 +37,14 @@ export const SidebarGroupLabel = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
-SidebarGroupLabel.displayName = 'SidebarGroupLabel';
-
-export const SidebarGroupAction = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<'button'> & { asChild?: boolean }
->(({ className, asChild = false, ...props }, ref) => {
+export const SidebarGroupAction = ({
+  ref,
+  className,
+  asChild = false,
+  ...props
+}: React.ComponentProps<'button'> & { asChild?: boolean }) => {
   const Comp = asChild ? Slot.Root : 'button';
 
   return (
@@ -63,19 +61,13 @@ export const SidebarGroupAction = React.forwardRef<
       {...props}
     />
   );
-});
+};
 
-SidebarGroupAction.displayName = 'SidebarGroupAction';
-
-export const SidebarGroupContent = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      data-sidebar="group-content"
-      className={cn('w-full text-sm', className)}
-      {...props}
-    />
-  ),
+export const SidebarGroupContent = ({ ref, className, ...props }: React.ComponentProps<'div'>) => (
+  <div
+    ref={ref}
+    data-sidebar="group-content"
+    className={cn('w-full text-sm', className)}
+    {...props}
+  />
 );
-
-SidebarGroupContent.displayName = 'SidebarGroupContent';

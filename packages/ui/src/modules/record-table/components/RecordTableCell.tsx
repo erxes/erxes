@@ -5,10 +5,16 @@ import type { Cell } from '@tanstack/react-table';
 import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const RecordTableCell = React.forwardRef<
-  HTMLTableCellElement,
-  React.HTMLAttributes<HTMLTableCellElement> & { cell: Cell<unknown, unknown> }
->(({ children, className, cell, style, ...props }, ref) => {
+export const RecordTableCell = ({
+  ref,
+  children,
+  className,
+  cell,
+  style,
+  ...props
+}: React.HTMLAttributes<HTMLTableCellElement> & {
+  cell: Cell<unknown, unknown>;
+} & React.RefAttributes<HTMLTableCellElement>) => {
   const { column } = cell;
 
   return (
@@ -37,4 +43,4 @@ export const RecordTableCell = React.forwardRef<
       {children}
     </Table.Cell>
   );
-});
+};

@@ -7,7 +7,7 @@ import {
   RecordTableInlineCell,
   cn,
 } from 'erxes-ui';
-import { forwardRef, useState } from 'react';
+import { useState } from 'react';
 import {
   SelectMemberFilterBar,
   SelectMemberFilterItem,
@@ -20,18 +20,24 @@ import {
 } from './SelectMemberProvider';
 
 /** The member as a record table cell; click to pick another. */
-const SelectMemberInlineCell = forwardRef<
-  React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
-  {
-    value?: string | null;
-    onValueChange?: (value: string[] | string | null) => void;
-    scope?: string;
-    placeholder?: string;
-    size?: AvatarProps['size'];
-    className?: string;
-    id?: string;
-  }
->(({ value, onValueChange, scope, placeholder, size = 'lg', className, id }, ref) => {
+const SelectMemberInlineCell = ({
+  ref,
+  value,
+  onValueChange,
+  scope,
+  placeholder,
+  size = 'lg',
+  className,
+  id,
+}: {
+  value?: string | null;
+  onValueChange?: (value: string[] | string | null) => void;
+  scope?: string;
+  placeholder?: string;
+  size?: AvatarProps['size'];
+  className?: string;
+  id?: string;
+} & React.RefAttributes<React.ComponentRef<typeof RecordTableInlineCell.Trigger>>) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -46,9 +52,7 @@ const SelectMemberInlineCell = forwardRef<
       </PopoverScoped>
     </SelectMemberProvider>
   );
-});
-
-SelectMemberInlineCell.displayName = 'SelectMemberInlineCell';
+};
 
 /** A member picker as a form control. */
 const SelectMemberFormItem = ({

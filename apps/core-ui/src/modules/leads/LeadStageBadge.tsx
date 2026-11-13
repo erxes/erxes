@@ -1,4 +1,3 @@
-import { forwardRef } from 'react';
 import type { LeadStage } from '@erxes/core-contract';
 import { IconCheck, IconChevronDown } from '@tabler/icons-react';
 import { cn, DropdownMenu } from 'erxes-ui';
@@ -77,10 +76,12 @@ export const LeadStagePill = ({ stage }: { stage?: LeadStage | null }) => (
  * The stage pill as a menu trigger. Forwards its ref: the menu measures the
  * button to sit under it (without it the menu opens at the window's corner).
  */
-export const LeadStageTrigger = forwardRef<
-  HTMLButtonElement,
-  { stage?: LeadStage | null } & React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ stage, ...props }, ref) => (
+export const LeadStageTrigger = ({
+  ref,
+  stage,
+  ...props
+}: { stage?: LeadStage | null } & React.ButtonHTMLAttributes<HTMLButtonElement> &
+  React.RefAttributes<HTMLButtonElement>) => (
   <button
     ref={ref}
     type="button"
@@ -98,6 +99,4 @@ export const LeadStageTrigger = forwardRef<
     <LeadStageBadge stage={stage} className="text-xs" />
     <IconChevronDown className="size-3 shrink-0 opacity-60" />
   </button>
-));
-
-LeadStageTrigger.displayName = 'LeadStageTrigger';
+);

@@ -1,12 +1,8 @@
-import type { ComponentPropsWithoutRef, ComponentRef } from 'react';
-import { forwardRef } from 'react';
+import type { ComponentProps } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const ToolbarButton = forwardRef<
-  ComponentRef<typeof Button>,
-  ComponentPropsWithoutRef<typeof Button>
->(({ className, ...props }, ref) => (
+export const ToolbarButton = ({ ref, className, ...props }: ComponentProps<typeof Button>) => (
   <Button
     ref={ref}
     className={cn(
@@ -17,6 +13,4 @@ export const ToolbarButton = forwardRef<
     )}
     {...props}
   />
-));
-
-ToolbarButton.displayName = 'ToolbarButton';
+);

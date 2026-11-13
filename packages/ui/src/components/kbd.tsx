@@ -5,12 +5,15 @@ import { cn } from 'erxes-ui/lib/utils';
 /**
  * This component is based on the `kbd` element and supports all of its props
  */
-export const Kbd = React.forwardRef<
-  HTMLElement,
-  React.ComponentPropsWithoutRef<'kbd'> & {
-    variant?: 'background' | 'foreground';
-  }
->(({ children, className, variant = 'background', ...props }, ref) => {
+export const Kbd = ({
+  ref,
+  children,
+  className,
+  variant = 'background',
+  ...props
+}: React.ComponentProps<'kbd'> & {
+  variant?: 'background' | 'foreground';
+}) => {
   return (
     <kbd
       {...props}
@@ -26,6 +29,4 @@ export const Kbd = React.forwardRef<
       {children}
     </kbd>
   );
-});
-
-Kbd.displayName = 'Kbd';
+};
