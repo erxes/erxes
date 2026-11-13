@@ -39,6 +39,7 @@ export default defineConfig({
       test: { command: 'vp test run', cache: { ...tracked, env: ['DATA_TEST_URL'] } },
       // A Postgres, API and UI for this checkout (tools/dev-stack.ts), and what it needs.
       'dev:stack': { command: 'node tools/dev-stack.ts', cache: false },
+      doctor: { command: 'node tools/doctor.ts', cache: false },
     },
   },
   staged: {
