@@ -131,7 +131,7 @@ const CUSTOMER_LINKS: { code: TLinkCode; icon: Icon; label?: string }[] = [
 const CustomerLinksSection = ({ customer }: { customer: ICustomerDetail }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { customerEdit } = useCustomerEdit();
+  const { customerEdit, loading } = useCustomerEdit();
   const [addedCodes, setAddedCodes] = useState<TLinkCode[]>([]);
   const links: Partial<Record<TLinkCode, string>> = { ...customer.links };
   const isShown = (code: TLinkCode) =>
@@ -152,6 +152,7 @@ const CustomerLinksSection = ({ customer }: { customer: ICustomerDetail }) => {
                 value={value}
                 placeholder="https://"
                 defaultOpen={!value}
+                disabled={loading}
                 className={cn(
                   PANEL_TEXT_FIELD_CLASS_NAME,
                   'min-w-0 flex-1',
