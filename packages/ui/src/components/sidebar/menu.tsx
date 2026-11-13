@@ -4,7 +4,7 @@ import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
 
 import { Skeleton } from 'erxes-ui/components/skeleton';
-import { Slot } from 'radix-ui';
+import { useRender } from '@base-ui/react/use-render';
 import { Tooltip } from 'erxes-ui/components/tooltip';
 import { cn } from 'erxes-ui/lib/utils';
 import { useSidebar } from './context';
@@ -28,7 +28,7 @@ export const SidebarMenuItem = ({ ref, className, ...props }: React.ComponentPro
 );
 
 const sidebarMenuButtonVariants = cva(
-  'peer/menu-button flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded p-2 text-left font-medium outline-hidden transition-[width,height,padding] hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary/10 data-[active=true]:text-primary-text data-[active=true]:[&>svg]:text-primary-text data-[active=true]:[&>svg]:animate-icon-pop motion-reduce:[&>svg]:animate-none [&>svg]:transition-transform active:[&>svg]:scale-90 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:bg-foreground/5 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:text-foreground group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:[&>svg]:text-foreground data-[state=open]:hover:bg-accent data-[state=active]:bg-primary/10 data-[state=active]:text-primary-text group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+  'peer/menu-button flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded p-2 text-left font-medium outline-hidden transition-[width,height,padding] hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary/10 data-[active=true]:text-primary-text data-[active=true]:[&>svg]:text-primary-text data-[active=true]:[&>svg]:animate-icon-pop motion-reduce:[&>svg]:animate-none [&>svg]:transition-transform active:[&>svg]:scale-90 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:bg-foreground/5 group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:text-foreground group-has-data-[sidebar=menu-sub]/menu-item:data-[active=true]:[&>svg]:text-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
   {
     variants: {
       variant: {
@@ -49,9 +49,9 @@ const sidebarMenuButtonVariants = cva(
   },
 );
 
+/** A button by default; pass `render={<Link />}` for a router link. */
 export const SidebarMenuButton = ({
-  ref,
-  asChild = false,
+  render,
   isActive = false,
   variant = 'default',
   size = 'default',
@@ -59,26 +59,24 @@ export const SidebarMenuButton = ({
   tooltipVisibility = 'collapsed',
   className,
   ...props
-}: React.ComponentProps<'button'> & {
-  asChild?: boolean;
+}: useRender.ComponentProps<'button'> & {
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof Tooltip.Content>;
   tooltipVisibility?: 'collapsed' | 'always';
-} & VariantProps<typeof sidebarMenuButtonVariants> &
-  React.RefAttributes<HTMLButtonElement>) => {
-  const Comp = asChild ? Slot.Root : 'button';
+} & VariantProps<typeof sidebarMenuButtonVariants>) => {
   const { isMobile, state } = useSidebar();
 
-  const button = (
-    <Comp
-      ref={ref}
-      data-sidebar="menu-button"
-      data-size={size}
-      data-active={isActive}
-      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-      {...props}
-    />
-  );
+  const button = useRender({
+    defaultTagName: 'button',
+    render,
+    props: {
+      'data-sidebar': 'menu-button',
+      'data-size': size,
+      'data-active': isActive,
+      ...props,
+      className: cn(sidebarMenuButtonVariants({ variant, size }), className),
+    },
+  });
 
   if (!tooltip) {
     return button;
@@ -99,21 +97,17 @@ export const SidebarMenuButton = ({
   );
 };
 
+/** An icon button beside a menu button, often a dropdown trigger through its `render` prop. */
 export const SidebarMenuAction = ({
-  ref,
   className,
-  asChild = false,
   showOnHover = false,
   ...props
 }: React.ComponentProps<'button'> & {
-  asChild?: boolean;
   showOnHover?: boolean;
 }) => {
-  const Comp = asChild ? Slot.Root : 'button';
-
   return (
-    <Comp
-      ref={ref}
+    <button
+      type="button"
       data-sidebar="menu-action"
       className={cn(
         'absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-foreground outline-hidden transition-transform hover:bg-accent [&>svg]:size-4 [&>svg]:shrink-0',
@@ -124,7 +118,7 @@ export const SidebarMenuAction = ({
         'peer-data-[size=lg]/menu-button:top-2.5',
         'group-data-[collapsible=icon]:hidden',
         showOnHover &&
-          'group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0',
+          'group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-popup-open:opacity-100 md:opacity-0',
         className,
       )}
       {...props}

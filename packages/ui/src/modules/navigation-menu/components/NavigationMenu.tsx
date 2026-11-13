@@ -42,21 +42,19 @@ export const NavigationMenuLinkItem = ({
       style={order === undefined ? undefined : { order }}
     >
       <Sidebar.MenuButton
-        asChild
         isActive={isActiveProp === true || isActive}
         ref={ref}
         className={className}
         {...props}
+        render={<Link to={fullPath} />}
       >
-        <Link to={fullPath}>
-          {IconComponent && (
-            <IconComponent
-              className={cn('text-accent-foreground', isActive && 'text-primary-text')}
-            />
-          )}
-          {label || <span className="min-w-0 flex-1 truncate capitalize">{name}</span>}
-          {children}
-        </Link>
+        {IconComponent && (
+          <IconComponent
+            className={cn('text-accent-foreground', isActive && 'text-primary-text')}
+          />
+        )}
+        {label || <span className="min-w-0 flex-1 truncate capitalize">{name}</span>}
+        {children}
       </Sidebar.MenuButton>
       {action}
       {controls?.renderActions({ name, path: fullPath, icon: IconComponent })}

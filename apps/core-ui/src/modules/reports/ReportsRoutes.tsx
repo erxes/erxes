@@ -43,14 +43,12 @@ const ReportsNavigation = () => {
           {REPORTS.map(({ path, label, icon: Icon }) => (
             <Sidebar.MenuItem key={path}>
               <Sidebar.MenuButton
-                asChild
                 className="px-2"
                 isActive={pathname.startsWith(`/reports/${path}`)}
+                render={<Link to={`/reports/${path}`} />}
               >
-                <Link to={`/reports/${path}`}>
-                  <Icon />
-                  <span>{t(label)}</span>
-                </Link>
+                <Icon />
+                <span>{t(label)}</span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           ))}

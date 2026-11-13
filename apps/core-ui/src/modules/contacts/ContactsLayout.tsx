@@ -67,11 +67,9 @@ const LeadsGroup = () => {
         <Sidebar.Sub>
           {LEAD_ITEMS.map(({ label, to, icon: Icon, views }) => (
             <Sidebar.SubItem key={to}>
-              <Sidebar.SubButton asChild isActive={active === to}>
-                <Link to={to}>
-                  <Icon />
-                  <span>{leadsT(label)}</span>
-                </Link>
+              <Sidebar.SubButton isActive={active === to} render={<Link to={to} />}>
+                <Icon />
+                <span>{leadsT(label)}</span>
               </Sidebar.SubButton>
               {views && <NestedViews recordType={views} indent />}
             </Sidebar.SubItem>
@@ -98,14 +96,12 @@ const ContactsNavigation = () => {
               return (
                 <Sidebar.MenuItem key={path}>
                   <Sidebar.MenuButton
-                    asChild
                     className="px-2"
                     isActive={pathname === fullPath || pathname.startsWith(`${fullPath}/`)}
+                    render={<Link to={fullPath} />}
                   >
-                    <Link to={fullPath}>
-                      <Icon />
-                      <span className="min-w-0 flex-1 truncate capitalize">{t(labelKey)}</span>
-                    </Link>
+                    <Icon />
+                    <span className="min-w-0 flex-1 truncate capitalize">{t(labelKey)}</span>
                   </Sidebar.MenuButton>
                   <NestedViews
                     recordType={path === ContactsPath.Companies ? 'company' : 'customer'}

@@ -74,11 +74,9 @@ export const AppLayoutFooterLink = ({
 
   return (
     <Sidebar.MenuItem>
-      <Sidebar.MenuButton asChild isActive={isActive}>
-        <Link to={fullPath}>
-          {Icon && <Icon />}
-          <span className="min-w-0 flex-1 truncate">{name}</span>
-        </Link>
+      <Sidebar.MenuButton isActive={isActive} render={<Link to={fullPath} />}>
+        {Icon && <Icon />}
+        <span className="min-w-0 flex-1 truncate">{name}</span>
       </Sidebar.MenuButton>
     </Sidebar.MenuItem>
   );

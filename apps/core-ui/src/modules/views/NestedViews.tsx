@@ -37,11 +37,15 @@ export const NestedViews = ({
     <Sidebar.Sub className={cn(indent && 'ml-5')}>
       {views.map((view) => (
         <Sidebar.SubItem key={view.id}>
-          <Sidebar.SubButton asChild size="sm" isActive={here && params.get('view') === view.id}>
-            <Link to={viewHref(recordType, view)} title={view.shared ? t('shared') : t('mine')}>
-              {view.shared ? <IconUsers /> : <IconLayoutList />}
-              <span className="truncate">{view.name}</span>
-            </Link>
+          <Sidebar.SubButton
+            size="sm"
+            isActive={here && params.get('view') === view.id}
+            render={
+              <Link to={viewHref(recordType, view)} title={view.shared ? t('shared') : t('mine')} />
+            }
+          >
+            {view.shared ? <IconUsers /> : <IconLayoutList />}
+            <span className="truncate">{view.name}</span>
           </Sidebar.SubButton>
         </Sidebar.SubItem>
       ))}

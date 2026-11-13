@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -6,7 +7,6 @@ import { useAtom, useAtomValue } from 'jotai';
 import { Button } from 'erxes-ui/components/button';
 import { Separator } from 'erxes-ui/components/separator';
 import { cn, mergeRefs } from 'erxes-ui/lib/utils';
-import { Portal } from 'radix-ui';
 import { sidebarPanelOpenState } from 'erxes-ui/state/sidebarPanelState';
 import { useTranslation } from 'react-i18next';
 
@@ -132,14 +132,15 @@ export const SidebarPanel = ({
       )}
       {...props}
     >
-      {slot && claimed && (
-        <Portal.Root asChild container={slot}>
+      {slot &&
+        claimed &&
+        createPortal(
           <span className="contents">
             <SidebarPanelTrigger className="size-7" />
             <Separator.Inline />
-          </span>
-        </Portal.Root>
-      )}
+          </span>,
+          slot,
+        )}
       {!open && !slot && (
         <div className="absolute top-2.5 left-2 z-20">
           <SidebarPanelTrigger className="size-7 border bg-background shadow-xs" />

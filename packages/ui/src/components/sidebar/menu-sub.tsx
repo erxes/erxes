@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { SidebarTreeIndicator } from 'erxes-ui/components/sidebar-tree-indicator';
-import { Slot } from 'radix-ui';
+import { useRender } from '@base-ui/react/use-render';
 import { cn, mergeRefs } from 'erxes-ui/lib/utils';
 
 export const SidebarMenuSub = ({
@@ -33,35 +33,32 @@ export const SidebarMenuSubItem = ({ ref, ...props }: React.ComponentProps<'li'>
   <li ref={ref} {...props} />
 );
 
+/** An anchor by default; pass `render={<Link />}` for a router link. */
 export const SidebarMenuSubButton = ({
-  ref,
-  asChild = false,
+  render,
   size = 'md',
   isActive,
   className,
   ...props
-}: React.ComponentProps<'a'> & {
-  asChild?: boolean;
+}: useRender.ComponentProps<'a'> & {
   size?: 'sm' | 'md';
   isActive?: boolean;
-}) => {
-  const Comp = asChild ? Slot.Root : 'a';
-
-  return (
-    <Comp
-      ref={ref}
-      data-sidebar="menu-sub-button"
-      data-size={size}
-      data-active={isActive}
-      className={cn(
+}) =>
+  useRender({
+    defaultTagName: 'a',
+    render,
+    props: {
+      'data-sidebar': 'menu-sub-button',
+      'data-size': size,
+      'data-active': isActive,
+      ...props,
+      className: cn(
         'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded px-2 outline-hidden font-normal hover:bg-accent focus-visible:ring-2 active:bg-accent disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
         'data-[active=true]:bg-primary/10 data-[active=true]:text-primary-text data-[active=true]:font-semibold data-[active=true]:[&>svg]:text-primary-text data-[active=true]:[&>svg]:animate-icon-pop motion-reduce:[&>svg]:animate-none [&>svg]:transition-transform active:[&>svg]:scale-90',
         size === 'sm' && 'text-xs',
         size === 'md' && 'text-sm',
         'group-data-[collapsible=icon]:hidden',
         className,
-      )}
-      {...props}
-    />
-  );
-};
+      ),
+    },
+  });
