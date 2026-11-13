@@ -173,7 +173,7 @@ export const callbackHandler = async (req, res) => {
       }
 
       // notify only if this callback moved the invoice to paid; if this
-      // fails, notifyPending stays set and the pending-invoice cron retries
+      // fails, notifyPending stays set and the invoice re-check worker retries
       if (claimed) {
         try {
           await notifyPaidInvoice(models, subdomain, invoice._id);
