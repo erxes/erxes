@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { Button, Input, Label, Spinner } from 'erxes-ui';
-import { type FormEvent, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { messageOf, orpc } from '~/lib/api';
 import { useSignedIn } from './session';
@@ -13,7 +13,7 @@ export const TwoFactorStep = ({ challenge, onBack }: { challenge: string; onBack
   const [code, setCode] = useState('');
   const verify = useMutation(orpc.auth.signInTwoFactor.mutationOptions({ onSuccess: signedIn }));
 
-  const submit = (event: FormEvent) => {
+  const submit = (event: SubmitEvent) => {
     event.preventDefault();
     verify.mutate(recovery ? { challenge, recoveryCode: code } : { challenge, code });
   };

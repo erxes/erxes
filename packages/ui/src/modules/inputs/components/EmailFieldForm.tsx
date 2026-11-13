@@ -28,7 +28,7 @@ export const EmailFieldForm = ({
   const inputRef = useFocusWhenShown(showInput);
   const label = editing ? 'Edit email' : 'Add email';
 
-  const save = (event: React.FormEvent<HTMLFormElement>) => {
+  const save = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!showInput) {

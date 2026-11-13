@@ -77,7 +77,7 @@ const ColorPickerProvider = ({
 };
 
 const ColorPickerTrigger = React.forwardRef<
-  React.ElementRef<typeof Combobox.TriggerBase>,
+  React.ComponentRef<typeof Combobox.TriggerBase>,
   React.ComponentPropsWithoutRef<typeof Combobox.TriggerBase>
 >(({ className, children, ...props }, ref) => {
   return (
@@ -148,7 +148,7 @@ const ColorPickerContent = ({ setOpen }: { setOpen?: (open: boolean) => void }) 
 };
 
 const ColorPickerRoot = React.forwardRef<
-  React.ElementRef<typeof Combobox.TriggerBase>,
+  React.ComponentRef<typeof Combobox.TriggerBase>,
   Omit<React.ComponentPropsWithoutRef<typeof Combobox.TriggerBase>, 'value'> & {
     value?: string;
     onValueChange?: (value: string) => void;

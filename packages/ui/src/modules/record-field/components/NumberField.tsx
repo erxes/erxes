@@ -26,7 +26,7 @@ export const NumberField = React.forwardRef<
     setIsEdited(false);
   };
 
-  const handleAction = (e?: React.FormEvent) => {
+  const handleAction = (e?: React.SubmitEvent) => {
     e?.preventDefault();
     const numValue = Number(editingValue) || 0;
 

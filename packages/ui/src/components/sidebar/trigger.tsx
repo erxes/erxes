@@ -6,7 +6,7 @@ import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tab
 import { useSidebar } from './context';
 
 export const SidebarTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
+  React.ComponentRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
   const { toggleSidebar, collapseState } = useSidebar();

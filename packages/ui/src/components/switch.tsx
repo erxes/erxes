@@ -34,7 +34,7 @@ const switchThumbVariants = cva(
 );
 
 export const Switch = React.forwardRef<
-  React.ElementRef<typeof SwitchPrimitives.Root>,
+  React.ComponentRef<typeof SwitchPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root> & VariantProps<typeof switchVariants>
 >(({ className, size, ...props }, ref) => (
   <SwitchPrimitives.Root className={cn(switchVariants({ size }), className)} {...props} ref={ref}>

@@ -1,5 +1,5 @@
 import { Button, Sheet, Spinner, cn } from 'erxes-ui';
-import type { FormEvent, ReactNode } from 'react';
+import type { SubmitEvent, ReactNode } from 'react';
 
 /** Side sheet with a form: title, scrolling body, sticky footer. */
 export const FormSheet = ({
@@ -16,7 +16,7 @@ export const FormSheet = ({
   onOpenChange: (open: boolean) => void;
   title: string;
   description?: string;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
   submitLabel?: string;
   submitting?: boolean;
   children: ReactNode;

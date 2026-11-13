@@ -38,7 +38,7 @@ export const FilterDialogStringView = ({
   const [query, setQuery] = useFilterQueryState<string>(filterKey, sessionKey ?? '');
   const [dialogSearch, setDialogSearch] = useState(query ?? '');
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setQuery(dialogSearch.length > 0 ? dialogSearch : null);
     setDialogView('root');

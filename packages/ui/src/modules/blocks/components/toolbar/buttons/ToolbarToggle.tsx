@@ -1,10 +1,10 @@
-import type { ComponentPropsWithoutRef, ElementRef } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef } from 'react';
 import { forwardRef } from 'react';
 import { Toggle } from 'erxes-ui/components/toggle';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const ToolbarToggle = forwardRef<
-  ElementRef<typeof Toggle>,
+  ComponentRef<typeof Toggle>,
   ComponentPropsWithoutRef<typeof Toggle>
 >(({ className, ...props }, ref) => (
   <Toggle

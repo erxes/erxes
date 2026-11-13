@@ -3,7 +3,7 @@ import { Separator as SeparatorPrimitive } from 'radix-ui';
 import { cn } from '../lib/utils';
 
 const SeparatorRoot = React.forwardRef<
-  React.ElementRef<typeof SeparatorPrimitive.Root>,
+  React.ComponentRef<typeof SeparatorPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
 >(({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => (
   <SeparatorPrimitive.Root
@@ -22,7 +22,7 @@ const SeparatorRoot = React.forwardRef<
 SeparatorRoot.displayName = SeparatorPrimitive.Root.displayName;
 
 const SeparatorInline = React.forwardRef<
-  React.ElementRef<typeof SeparatorPrimitive.Root>,
+  React.ComponentRef<typeof SeparatorPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
 >(({ className, orientation = 'vertical', ...props }, ref) => {
   return (

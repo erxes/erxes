@@ -129,7 +129,7 @@ export const RecordTableColumnSelector = ({
   children,
   align = 'start',
 }: {
-  children?: React.ReactElement;
+  children?: React.ReactNode;
   align?: 'start' | 'center' | 'end';
 }) => {
   const { table, columnSelectorOpen, setColumnSelectorOpen } = useRecordTable();

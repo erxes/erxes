@@ -24,7 +24,7 @@ const avatarVariants = cva('relative flex shrink-0 overflow-hidden rounded-full 
 export type AvatarProps = React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> &
   VariantProps<typeof avatarVariants>;
 
-const AvatarRoot = React.forwardRef<React.ElementRef<typeof AvatarPrimitive.Root>, AvatarProps>(
+const AvatarRoot = React.forwardRef<React.ComponentRef<typeof AvatarPrimitive.Root>, AvatarProps>(
   ({ className, size, ...props }, ref) => (
     <AvatarPrimitive.Root
       ref={ref}
@@ -37,7 +37,7 @@ const AvatarRoot = React.forwardRef<React.ElementRef<typeof AvatarPrimitive.Root
 AvatarRoot.displayName = AvatarPrimitive.Root.displayName;
 
 const AvatarImage = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Image>,
+  React.ComponentRef<typeof AvatarPrimitive.Image>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Image
@@ -50,7 +50,7 @@ const AvatarImage = React.forwardRef<
 AvatarImage.displayName = AvatarPrimitive.Image.displayName;
 
 const AvatarFallback = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Fallback>,
+  React.ComponentRef<typeof AvatarPrimitive.Fallback>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
 >(({ className, color, style, ...props }, ref) => {
   return (

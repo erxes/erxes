@@ -4,7 +4,7 @@ import { Slider as SliderPrimitive } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
 const Slider = React.forwardRef<
-  React.ElementRef<typeof SliderPrimitive.Root>,
+  React.ComponentRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> & {
     hideThumb?: boolean;
   }

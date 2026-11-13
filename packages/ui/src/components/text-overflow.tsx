@@ -5,7 +5,7 @@ import { inputVariants } from './input';
 import { cn } from 'erxes-ui/lib/utils';
 
 /** A tooltip that opens only while the element's text is cut off, measured when it would open. */
-function useOverflowTooltip<T extends HTMLElement>(ref: RefObject<T>) {
+function useOverflowTooltip<T extends HTMLElement>(ref: RefObject<T | null>) {
   const [open, setOpen] = useState(false);
 
   const onOpenChange = (next: boolean) => {

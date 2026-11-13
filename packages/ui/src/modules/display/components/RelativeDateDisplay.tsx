@@ -14,7 +14,7 @@ type RelativeDateDisplayProps = {
 };
 
 const RelativeDateDisplayTooltip = React.forwardRef<
-  React.ElementRef<typeof Tooltip.Trigger>,
+  React.ComponentRef<typeof Tooltip.Trigger>,
   Except<React.ComponentPropsWithoutRef<typeof Tooltip.Trigger>, 'value'> & {
     value: string;
   }

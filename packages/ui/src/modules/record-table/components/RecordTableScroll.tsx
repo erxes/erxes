@@ -4,7 +4,7 @@ import { forwardRef } from 'react';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const RecordTableScroll = forwardRef<
-  React.ElementRef<typeof ScrollArea>,
+  React.ComponentRef<typeof ScrollArea>,
   React.ComponentPropsWithoutRef<typeof ScrollArea>
 >(({ children, className, ...props }, ref) => {
   return (

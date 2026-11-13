@@ -110,7 +110,7 @@ const usePointerGesture = (layout: TDashboardItem[], steps: GridSteps) => {
  * would land. Only catalog cards drop here; files or text dragged in are refused.
  */
 const useCatalogDrop = (
-  containerRef: RefObject<HTMLElement>,
+  containerRef: RefObject<HTMLElement | null>,
   layout: TDashboardItem[],
   steps: GridSteps,
 ) => {
@@ -178,7 +178,7 @@ const useCatalogDrop = (
  * Tiles in grid positions and the pointer handling that moves, resizes and
  * drops them while editing. Positions snap to grid cells as the pointer moves.
  */
-export const useDashboardGrid = (containerRef: RefObject<HTMLElement>, width: number) => {
+export const useDashboardGrid = (containerRef: RefObject<HTMLElement | null>, width: number) => {
   const { items, widgets } = useDashboard();
   const steps = gridSteps(width);
 

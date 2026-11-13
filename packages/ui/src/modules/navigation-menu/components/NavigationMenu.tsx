@@ -6,7 +6,7 @@ import { forwardRef } from 'react';
 import { useNavigationMenuItemControls } from './NavigationMenuItemControls';
 
 export const NavigationMenuLinkItem = forwardRef<
-  React.ElementRef<typeof Sidebar.MenuButton>,
+  React.ComponentRef<typeof Sidebar.MenuButton>,
   React.ComponentProps<typeof Sidebar.MenuButton> & {
     name: string;
     icon?: React.ElementType;

@@ -32,7 +32,7 @@ export const TextField = React.forwardRef<
     }, [isOpen, value]);
 
     /** Saves a changed text value and closes the inline editor. */
-    const handleAction = (e?: React.FormEvent) => {
+    const handleAction = (e?: React.SubmitEvent) => {
       e?.preventDefault();
 
       if (editingValue !== value) onSave?.(editingValue);

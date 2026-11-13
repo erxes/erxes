@@ -88,7 +88,7 @@ type DateTextInputProps = DateDraftOptions & {
   isDisabled: boolean;
   placeholder: string;
   className?: string;
-  inputRef: RefObject<HTMLInputElement>;
+  inputRef: RefObject<HTMLInputElement | null>;
   onClear: () => void;
 };
 

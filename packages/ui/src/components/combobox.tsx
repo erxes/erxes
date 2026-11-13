@@ -10,7 +10,7 @@ import { Skeleton } from './skeleton';
 import { Spinner } from './spinner';
 
 const ComboboxTriggerBase = React.forwardRef<
-  React.ElementRef<typeof Button>,
+  React.ComponentRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button> & {
     hideChevron?: boolean;
   }
@@ -36,7 +36,7 @@ const ComboboxTriggerBase = React.forwardRef<
 });
 
 const ComboboxTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
+  React.ComponentRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button> & {
     hideChevron?: boolean;
   }
@@ -79,7 +79,7 @@ const ComboboxValue = React.forwardRef<
 ComboboxValue.displayName = 'ComboboxValue';
 
 const ComboboxContent = React.forwardRef<
-  React.ElementRef<typeof Popover.Content>,
+  React.ComponentRef<typeof Popover.Content>,
   React.ComponentPropsWithoutRef<typeof Popover.Content>
 >(({ className, ...props }, ref) => {
   return (
@@ -96,7 +96,7 @@ const ComboboxContent = React.forwardRef<
 ComboboxContent.displayName = 'ComboboxContent';
 
 const ComboboxCheck = React.forwardRef<
-  React.ElementRef<typeof IconCheck>,
+  React.ComponentRef<typeof IconCheck>,
   React.ComponentPropsWithoutRef<typeof IconCheck> & {
     checked?: boolean;
   }
@@ -185,7 +185,7 @@ const ComboboxChipTrigger = ({
 };
 
 const ComboboxFetchMore = React.forwardRef<
-  React.ElementRef<typeof Command.Item>,
+  React.ComponentRef<typeof Command.Item>,
   React.ComponentPropsWithoutRef<typeof Command.Item> & {
     totalCount: number;
     currentLength: number;
@@ -214,7 +214,7 @@ const ComboboxFetchMore = React.forwardRef<
 ComboboxFetchMore.displayName = 'ComboboxFetchMore';
 
 const ComboboxEmpty = React.forwardRef<
-  React.ElementRef<typeof Command.Empty>,
+  React.ComponentRef<typeof Command.Empty>,
   React.ComponentPropsWithoutRef<typeof Command.Empty> & {
     loading?: boolean;
     error?: Pick<Error, 'message'> | null;

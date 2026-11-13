@@ -1,4 +1,4 @@
-import { useCallback, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useCallback, useId, useRef, useState, type SubmitEvent, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AlertDialog } from 'erxes-ui/components/alert-dialog';
 import { buttonVariants, type ButtonProps } from 'erxes-ui/components/button';
@@ -36,7 +36,7 @@ const ConfirmationField = ({
   value: string;
   expected: string;
   error: boolean;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   onChange: (value: string) => void;
 }) => {
   const id = useId();
@@ -79,7 +79,7 @@ const ConfirmDialog = ({ message, options = {}, onConfirm, onDismiss }: ConfirmD
   const [mismatch, setMismatch] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const proceed = (event: FormEvent) => {
+  const proceed = (event: SubmitEvent) => {
     event.preventDefault();
 
     if (confirmationValue && typed !== confirmationValue) {

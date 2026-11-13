@@ -68,7 +68,7 @@ const useSidebarPanelSlot = (panelRef: React.RefObject<HTMLDivElement | null>, o
 };
 
 export const SidebarPanelTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
+  React.ComponentRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
   const hidden = React.useContext(SidebarPanelInnerTriggerHiddenContext);

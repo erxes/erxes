@@ -1,5 +1,5 @@
 import { IconTrash, IconUpload, IconUserCircle } from '@tabler/icons-react';
-import type { ChangeEvent, ComponentPropsWithoutRef, MutableRefObject, ReactNode } from 'react';
+import type { ChangeEvent, ComponentPropsWithoutRef, RefObject, ReactNode } from 'react';
 import { createContext, forwardRef, useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, type ButtonProps } from './button';
@@ -24,8 +24,8 @@ type IUploadContext = {
   multiple?: boolean;
   onChange: (value: UploadValue) => void;
   setPreviewUrl: (previewUrl: string | undefined) => void;
-  previewRef: MutableRefObject<string | null>;
-  fileInputRef: MutableRefObject<HTMLInputElement | null>;
+  previewRef: RefObject<string | null>;
+  fileInputRef: RefObject<HTMLInputElement | null>;
   chooseFile: () => void;
   setIsImageFocused: (isImageFocused: boolean) => void;
 };

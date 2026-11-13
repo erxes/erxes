@@ -11,7 +11,7 @@ const TooltipRoot = ({
 TooltipRoot.displayName = TooltipPrimitive.Root.displayName;
 
 const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 8, children, ...props }, ref) => (
   <TooltipPrimitive.Portal>

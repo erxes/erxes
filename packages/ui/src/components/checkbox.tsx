@@ -3,7 +3,7 @@ import { Checkbox as CheckboxPrimitive } from 'radix-ui';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
+  React.ComponentRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
 >(({ className, ...props }, ref) => (
   <CheckboxPrimitive.Root

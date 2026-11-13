@@ -55,7 +55,7 @@ export const PanelField = ({
 
 // A table cell trigger with the panel's rounded hover.
 export const PanelFieldTrigger = forwardRef<
-  React.ElementRef<typeof RecordTableInlineCell.Trigger>,
+  React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   React.ComponentPropsWithoutRef<typeof RecordTableInlineCell.Trigger>
 >(({ className, ...props }, ref) => (
   <RecordTableInlineCell.Trigger

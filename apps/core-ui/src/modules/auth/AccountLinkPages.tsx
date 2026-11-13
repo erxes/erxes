@@ -1,7 +1,7 @@
 import type { Session } from '@erxes/core-contract';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Input, Label, Spinner } from 'erxes-ui';
-import { type FormEvent, type ReactNode, useId, useState } from 'react';
+import { type SubmitEvent, type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { messageOf, orpc } from '~/lib/api';
@@ -88,7 +88,7 @@ export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const request = useMutation(orpc.auth.requestPasswordReset.mutationOptions());
 
-  const submit = (event: FormEvent) => {
+  const submit = (event: SubmitEvent) => {
     event.preventDefault();
     request.mutate({ email });
   };
@@ -175,7 +175,7 @@ const NewPasswordForm = ({
   const weak = password.length > 0 && !PASSWORD_RULE.test(password);
   const mismatch = repeat.length > 0 && repeat !== password;
 
-  const submit = (event: FormEvent) => {
+  const submit = (event: SubmitEvent) => {
     event.preventDefault();
     onSubmit({ password, firstName: firstName || undefined, lastName: lastName || undefined });
   };

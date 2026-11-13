@@ -6,7 +6,7 @@ import { Separator } from 'erxes-ui/components/separator';
 import { cn } from 'erxes-ui/lib/utils';
 
 export const SidebarInput = React.forwardRef<
-  React.ElementRef<typeof Input>,
+  React.ComponentRef<typeof Input>,
   React.ComponentProps<typeof Input>
 >(({ className, ...props }, ref) => {
   return (
@@ -52,7 +52,7 @@ export const SidebarFooter = React.forwardRef<HTMLDivElement, React.ComponentPro
 SidebarFooter.displayName = 'SidebarFooter';
 
 export const SidebarSeparator = React.forwardRef<
-  React.ElementRef<typeof Separator>,
+  React.ComponentRef<typeof Separator>,
   React.ComponentProps<typeof Separator>
 >(({ className, ...props }, ref) => {
   return (
@@ -68,7 +68,7 @@ export const SidebarSeparator = React.forwardRef<
 SidebarSeparator.displayName = 'SidebarSeparator';
 
 export const SidebarContent = React.forwardRef<
-  React.ElementRef<typeof ScrollArea>,
+  React.ComponentRef<typeof ScrollArea>,
   React.ComponentProps<typeof ScrollArea>
 >(({ className, viewportClassName, ...props }, ref) => {
   return (

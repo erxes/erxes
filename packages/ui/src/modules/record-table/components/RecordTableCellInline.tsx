@@ -6,7 +6,7 @@ import React from 'react';
 import type { Popover as PopoverPrimitive } from 'radix-ui';
 
 const RecordTableCellTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
+  React.ComponentRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button>
 >(({ children, className, ...props }, ref) => {
   return (
@@ -27,7 +27,7 @@ const RecordTableCellTrigger = React.forwardRef<
 });
 
 const RecordTableCellContent = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Content>,
+  React.ComponentRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
 >(({ className, ...props }, ref) => {
   return (
@@ -50,7 +50,7 @@ const RecordTableCellContent = React.forwardRef<
 RecordTableCellTrigger.displayName = 'RecordTableCellTrigger';
 
 const RecordTableCellDisplay = React.forwardRef<
-  React.ElementRef<typeof Button>,
+  React.ComponentRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button>
 >(({ className, children, ...props }, ref) => {
   return (
@@ -73,7 +73,7 @@ const RecordTableCellDisplay = React.forwardRef<
 RecordTableCellDisplay.displayName = 'RecordTableCellDisplay';
 
 const RecordTableInlineAnchor = React.forwardRef<
-  React.ElementRef<typeof Badge>,
+  React.ComponentRef<typeof Badge>,
   React.ComponentPropsWithoutRef<typeof Badge>
 >(({ className, onClick, children, ...props }, ref) => {
   return (
