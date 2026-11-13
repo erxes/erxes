@@ -76,7 +76,10 @@ const useRuleText = (rule: ConditionRule, field: ListField) => {
     };
   }
 
-  if (rule.op === 'contains') return { op, value: `“${textOf(rule.value)}”` };
+  // Text is quoted; a choice (a tag a list contains) reads as its label.
+  if (rule.op === 'contains' && field.type === 'text') {
+    return { op, value: `“${textOf(rule.value)}”` };
+  }
 
   const values = valuesOf(rule).map(labelOf);
 
