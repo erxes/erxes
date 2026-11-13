@@ -3,7 +3,7 @@
 // and selection, sizing and column order would stop showing. TanStack Table 9's store fixes this.
 'use no memo';
 
-import { useInView } from 'react-intersection-observer';
+import { useOnInView } from 'react-intersection-observer';
 import { Skeleton } from 'erxes-ui/components/skeleton';
 import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
@@ -21,12 +21,12 @@ export const RecordTableRowSkeleton = ({
   backward?: boolean;
   root?: Element | null;
 }) => {
-  const { ref } = useInView({
-    root: root ?? null,
-    onChange: (inView) => {
+  const ref = useOnInView<HTMLTableRowElement>(
+    (inView) => {
       if (inView) handleInView?.();
     },
-  });
+    { root: root ?? null },
+  );
 
   // Positions after the first row: the rows are identical, so a position is their identity.
   const restRows = [...Array(Math.max(rows - 1, 0)).keys()];

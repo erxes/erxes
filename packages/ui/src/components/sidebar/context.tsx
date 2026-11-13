@@ -170,9 +170,11 @@ export const SidebarProvider = ({
   }, [isMobile, toggleOpen]);
 
   useScopedHotkeys(
-    sidebarKeyboardShortcut ? `Meta+${sidebarKeyboardShortcut}` : '__sidebar-shortcut-disabled__',
+    `Meta+${sidebarKeyboardShortcut}`,
     toggleSidebar,
     AppHotkeyScope.Sidebar,
+    undefined,
+    { enabled: Boolean(sidebarKeyboardShortcut) },
   );
 
   const contextValue = React.useMemo<ISidebarContext>(
