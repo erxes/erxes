@@ -16,8 +16,8 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
 - A table with an organisation's data has `org_id` with a cascading foreign key to
   `core_organizations`, indexes that lead with `org_id`, and row level security in its migration:
   `ENABLE` and `FORCE ROW LEVEL SECURITY` and `CREATE POLICY core_tenant`, as in
-  `drizzle/0020_auth_tokens.sql`. `pnpm check:rls` fails without them. A table without `org_id` is
-  listed in `tools/check-rls.sql` with the reason.
+  `drizzle/0020_auth_tokens.sql`. `pnpm check:rls` fails a table with `org_id` and no forced RLS or
+  no `core_tenant` policy. A table without `org_id` is listed in `tools/check-rls.sql` with the reason.
 - `runMigrations()` (`src/migrate.ts`) applies `drizzle/` in one transaction under an advisory
   transaction lock. Production runs it with `pnpm db:migrate`; the API runs it at startup only when
   `DATA_MIGRATE_ON_START` is on, the default outside production.

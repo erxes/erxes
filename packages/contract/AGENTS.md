@@ -14,9 +14,11 @@ chain: at runtime they pass `coreRoutes` (`routes.json`) to `OpenAPILink` and im
   z.enums a UI lists, `RoleKey`, `NewPassword`. A value a UI imports goes here, or in another module
   with no table import (`common.ts`, `money.ts`, `automationDefinition.ts`).
 - `src/common.ts` has `Id`, `IdList`, `CursorQuery`, `cursorPageOf`, `isoDate`. `src/events.ts`
-  has the event schemas plugins publish. The `/core/v1/stream` messages are `LiveSignal` in
-  `apps/core-api/src/modules/live/hub.ts`: the stream is Server-Sent Events outside the router.
+  has the event schemas plugins publish. The `/core/v1/stream` messages are Server-Sent Events
+  outside the router: `StreamData` in `apps/core-api/src/modules/live/stream.http.ts`, read by
+  `apps/core-ui/src/lib/liveClient.ts`.
 - `openapi.json` and `routes.json` come from `pnpm openapi`.
+- The package has no import-time side effects (`sideEffects: false` in its package.json).
 
 ## Rules
 

@@ -4,7 +4,8 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
 
 A request goes contract procedure → its policy in `ACCESS` (`src/http/policies.ts`) → handler in
 `src/modules/<feature>/<feature>.router.ts` → service → DTO. Copy `modules/tags` for a new feature.
-`<feature>.http.ts` is only for Express routes that stream bytes, files or events.
+`<feature>.http.ts` is only for Express routes the contract can't describe: byte and event streams,
+OAuth's token and revoke endpoints, and callbacks from outside services (payments, SaaS).
 
 ## Rules
 

@@ -14,7 +14,7 @@ pnpm dev              # API http://localhost:3400, UI http://localhost:3500
 DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres pnpm test
 ```
 
-CI (`.github/workflows/ci.yml`) runs every script in `package.json`; `Check` is the job to require.
+`.github/workflows/ci.yml` lists the gates CI runs; `Check` is the job to require.
 
 ## Invariants
 
@@ -25,7 +25,8 @@ CI (`.github/workflows/ci.yml`) runs every script in `package.json`; `Check` is 
   and Postgres hides every other organisation's rows, so new queries carry no org filter. The org
   comes from the token, never from input. `pnpm check:rls` fails a table with `org_id` and no forced
   RLS. The `eq(table.orgId, …)` filters already in the code go in their own PR: leave them as they are.
-- Responses never carry credentials or `org_id`: services map rows to DTOs.
+- Services map rows to DTOs without credentials or `org_id`. Only a procedure that issues a token or
+  secret returns one.
 - Ids are text (`newId()`, 17 characters), so records imported from old erxes keep their Mongo `_id`.
 - Start from the current `postgre` branch. Search with `rg -n` and `fd`; change code with your editor
   or `ast-grep`, never `sed -i`, python or `cat >`. Throwaway scripts go in `.scratch/`.
@@ -36,23 +37,23 @@ CI (`.github/workflows/ci.yml`) runs every script in `package.json`; `Check` is 
 
 ## Quality
 
-Every erxes repo on the new stack has this section, unchanged. The brackets name the check that
-enforces a rule; `[review]` means no tool can. The rewrite keeps every feature and improves the
+Every erxes repo on the new stack has this section, unchanged. The brackets name the checks that
+enforce a rule; `review` marks the part no tool can check. The rewrite keeps every feature and improves the
 architecture. Agents write the code and the checks judge it, so a green check lets a change ship
 without line-by-line review.
 
 - `pnpm check` is the type check: oxfmt, type-aware oxlint on tsrs and knip in about 10 s. Run it after each edit and before each commit; it replaces `tsc`. `pnpm fix` formats and autofixes. [pnpm check]
 - Port what a feature does, not its code. Fix what the old code got wrong instead of carrying it over. [review]
-- Use a maintained library when one does the job. Keep dependencies near their latest release and off deprecated APIs. [typescript/no-deprecated]
-- One way to do each job. Search for the existing helper before writing one, merge the repeats you find, delete what nothing uses. [knip]
-- Types flow from the database schema to the contract to the UI. Infer them, so each shape is written once. [pnpm check:generated]
+- Use a maintained library when one does the job. Keep dependencies near their latest release and off deprecated APIs. [typescript/no-deprecated, review]
+- One way to do each job. Search for the existing helper before writing one, merge the repeats you find, delete what nothing uses. [knip, review]
+- Types flow from the database schema to the contract to the UI. Infer them, so each shape is written once. [pnpm check:generated, review]
 - Parse outside input with zod and narrow it, so the code needs no `any`, cast or `!`. [typescript/no-explicit-any, typescript/no-unsafe-type-assertion, typescript/no-non-null-assertion]
-- Lint and type rules are the spec: when one fires, fix the code. Silencing it is never the fix, whether by a disable comment, `@ts-ignore`, an override, an ignore, a weaker option or a raised limit. A rule that is wrong changes in its own PR. [typescript/ban-ts-comment]
-- Split a file or function that outgrows its limit by responsibility (router, service, queries). [max-lines, max-lines-per-function]
+- Lint and type rules are the spec: when one fires, fix the code. Silencing it is never the fix, whether by a disable comment, `@ts-ignore`, an override, an ignore, a weaker option or a raised limit. A rule that is wrong changes in its own PR. [typescript/ban-ts-comment, review]
+- Split a file or function that outgrows its limit by responsibility (router, service, queries). [max-lines, max-lines-per-function, review]
 - Finish the work in the change, with no TODO or FIXME left in code. [no-warning-comments]
 - Tests call the public interface (HTTP, the typed client, the rendered page) and assert what it does, never source strings or code shapes. [review]
-- Every test runs: a skipped test or an empty suite fails the run. A failing test gets its code or its wrong expectation fixed, never loosened or deleted. [pnpm test]
-- Log through the structured logger, with the facts as fields. [no-console]
+- Every test runs: a skipped test or an empty suite fails the run. A failing test gets its code or its wrong expectation fixed, never loosened or deleted. [pnpm test, review]
+- Log through the structured logger, with the facts as fields. A caught error is rethrown or logged with its context. [no-console, review]
 - Make the long-term change in one go, with no backward-compatibility shim, stopgap or speculative option. [review]
 - Docs, PRs and copy are short: plain words, active voice, what it does or the number. [review]
 

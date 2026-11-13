@@ -13,9 +13,11 @@ additive or a versioned breaking change. The HR plugin is the first consumer.
    - Module Federation: `SHARED` in `apps/core-ui/rsbuild.config.ts` lists the singletons the host
      provides, and plugins declare them with `import: false`. A plugin's `./config` exports
      `CONFIG` (`name`, `path`, `icon`, `modules`), and its first module renders under `/<path>/*`.
-     Core has no GraphQL, so a plugin UI that imports `@apollo/client` fails to load.
-2. Classify it. The packages are `0.1.0-v2.N` prereleases on npm's `v2-next` dist-tag; semver
-   starts at `1.0.0`.
+     Core has no GraphQL and doesn't provide `@apollo/client`, so a plugin UI that declares it
+     shared with `import: false` fails to load.
+2. Classify it. The packages are prereleases on npm's `v2-next` dist-tag (`0.1.0-v2.N` for the
+   contract and SDK, `4.0.0-v2.N` for `@erxes/ui`); this policy holds from each one's first
+   stable release.
    - Additive is a minor version: a new procedure, optional input field, output field or error code.
    - A breaking change is a major version: removing or renaming a procedure, path or field, making
      an input required or stricter, changing a field's type or meaning, reusing an error code.
