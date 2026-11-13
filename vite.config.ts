@@ -1,3 +1,4 @@
+import { generateKeyPairSync } from 'node:crypto';
 import { resolve } from 'node:path';
 import { configDefaults, defineConfig } from 'vite-plus';
 import { noSkips } from './tools/test/no-skips';
@@ -293,8 +294,9 @@ export default defineConfig({
           name: 'core-api',
           include: ['src/**/*.test.ts'],
           environment: 'node',
-          // Each test file gets its own throwaway database (src/__tests__/db.ts).
-          fileParallelism: false,
+          // Files run in parallel: each gets its own throwaway database (src/__tests__/db.ts),
+          // and the cluster-wide runtime role is created once before them.
+          globalSetup: [resolve(import.meta.dirname, 'apps/core-api/src/__tests__/globalSetup.ts')],
           env: {
             // A plugin key for the plugin-only endpoints (notifications, activities).
             CORE_PLUGIN_KEYS: 'hr:test-hr-plugin-key-0123456789abcdefghijklmnop',
@@ -305,10 +307,10 @@ export default defineConfig({
             MASS_DELETE_ALERT: '20',
             MASS_DELETE_LIMIT: '40',
             FAILED_SIGN_IN_ALERT: '3',
-            CORE_SIGNING_KEY_DEV_FILE: resolve(
-              import.meta.dirname,
-              'apps/core-api/.test-files/keys/signing-key.pem',
-            ),
+            // One key for the whole run, so parallel files never race to write a key file.
+            CORE_SIGNING_KEY: generateKeyPairSync('ec', { namedCurve: 'P-256' })
+              .privateKey.export({ format: 'pem', type: 'pkcs8' })
+              .toString(),
             // logging.test.ts logs to its own destination.
             LOG_LEVEL: 'silent',
           },

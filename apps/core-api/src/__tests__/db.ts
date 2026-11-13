@@ -3,17 +3,12 @@ import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { randomBytes } from 'node:crypto';
 import { Client, Pool } from 'pg';
 import { afterAll, beforeAll, describe } from 'vite-plus/test';
+import { TEST_RUNTIME_ROLE } from './globalSetup';
 
 const baseUrl = process.env.DATA_TEST_URL ?? '';
 
 /** Runs the suite only when DATA_TEST_URL points at a Postgres (CI sets it). */
 export const describeWithDb = baseUrl ? describe : describe.skip;
-
-/**
- * The API under test acts as this role: no BYPASSRLS, data rights only, like
- * production's runtime role — so row level security is really exercised.
- */
-const TEST_RUNTIME_ROLE = 'erxes_core_test_runtime';
 
 const admin = async (statement: string, url = baseUrl) => {
   const client = new Client({ connectionString: url });
@@ -61,16 +56,8 @@ export const useTestDatabase = () => {
   const name = `core_test_${randomBytes(4).toString('hex')}`;
 
   beforeAll(async () => {
+    // The runtime role is cluster-wide, created once per run (globalSetup.ts).
     await admin(`CREATE DATABASE ${name}`);
-    // Cluster-wide, once: the runtime role, and the right for the login to act as it.
-    await admin(`
-      DO $$ BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${TEST_RUNTIME_ROLE}') THEN
-          CREATE ROLE ${TEST_RUNTIME_ROLE} NOLOGIN NOBYPASSRLS NOSUPERUSER;
-        END IF;
-      END $$;
-    `).catch(() => undefined);
-    await admin(`GRANT ${TEST_RUNTIME_ROLE} TO current_user`).catch(() => undefined);
 
     const url = new URL(baseUrl);
     url.pathname = `/${name}`;
