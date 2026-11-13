@@ -12,7 +12,8 @@ Drizzle schema, client and migrator for core's tables. Schema changes follow `.a
 - `src/tenant.ts` scopes every query. `withOrg(orgId, fn)` opens one transaction for that
   organisation, and `db()` inside it returns that transaction. `withSystem(reason, fn)` spans
   organisations, for jobs and the lookups before one is known. `withOrgDetached` commits on its own
-  even when the surrounding scope rolls back (recording why a request was refused).
+  even when the surrounding scope rolls back (recording why a request was refused). `savepoint(fn)`
+  rolls back only `fn` when it throws, for errors the caller handles.
 - A table with an organisation's data has `org_id` with a cascading foreign key to
   `core_organizations`, indexes that lead with `org_id`, and row level security in its migration:
   `ENABLE` and `FORCE ROW LEVEL SECURITY` and `CREATE POLICY core_tenant`, as in

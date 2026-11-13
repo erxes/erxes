@@ -226,119 +226,122 @@ export const assertAssignable = async (client: Db, actor: Actor, keys: string | 
   }
 };
 
-export const createRole = (
+export const createRole = async (
   actor: Actor,
   input: { name: string; description?: string | null; permissions: string[] },
-) =>
-  db().transaction(async (tx) => {
-    requirePermission(actor, 'roles.manage');
+) => {
+  const tx = db();
 
-    const permissions = await checkPermissions(tx, actor, input.permissions);
+  requirePermission(actor, 'roles.manage');
 
-    const row = oneRow(
-      await tx
-        .insert(roles)
-        .values({
-          orgId: actor.orgId,
-          key: `r_${newId()}`,
-          name: input.name,
-          description: input.description ?? null,
-          permissions,
-        })
-        .returning(),
-    );
+  const permissions = await checkPermissions(tx, actor, input.permissions);
 
-    await recordAudit(tx, userCaller(actor), {
-      action: 'role.created',
-      targetType: 'role',
-      targetId: row.key,
-      targetLabel: row.name,
-      metadata: { permissions },
-    });
+  const row = oneRow(
+    await tx
+      .insert(roles)
+      .values({
+        orgId: actor.orgId,
+        key: `r_${newId()}`,
+        name: input.name,
+        description: input.description ?? null,
+        permissions,
+      })
+      .returning(),
+  );
 
-    return toRoleDto(row, 0);
+  await recordAudit(tx, userCaller(actor), {
+    action: 'role.created',
+    targetType: 'role',
+    targetId: row.key,
+    targetLabel: row.name,
+    metadata: { permissions },
   });
 
-export const updateRole = (
+  return toRoleDto(row, 0);
+};
+
+export const updateRole = async (
   actor: Actor,
   key: string,
   input: { name?: string; description?: string | null; permissions?: string[] },
-) =>
-  db().transaction(async (tx) => {
-    requirePermission(actor, 'roles.manage');
+) => {
+  const tx = db();
 
-    if (FIXED.has(key)) {
-      throw new HttpError(403, 'FIXED_ROLE', 'Owner and Admin roles can’t be changed');
-    }
+  requirePermission(actor, 'roles.manage');
 
-    const before = await roleOrThrow(tx, actor.orgId, key);
+  if (FIXED.has(key)) {
+    throw new HttpError(403, 'FIXED_ROLE', 'Owner and Admin roles can’t be changed');
+  }
 
-    const permissions = input.permissions
-      ? await checkPermissions(tx, actor, input.permissions)
-      : undefined;
+  const before = await roleOrThrow(tx, actor.orgId, key);
 
-    const row = oneRow(
-      await tx
-        .update(roles)
-        .set({
-          ...(input.name !== undefined ? { name: input.name } : {}),
-          ...(input.description !== undefined ? { description: input.description } : {}),
-          ...(permissions ? { permissions } : {}),
-          updatedAt: sql`now()`,
-        })
-        .where(and(eq(roles.orgId, actor.orgId), eq(roles.key, key)))
-        .returning(),
+  const permissions = input.permissions
+    ? await checkPermissions(tx, actor, input.permissions)
+    : undefined;
+
+  const row = oneRow(
+    await tx
+      .update(roles)
+      .set({
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.description !== undefined ? { description: input.description } : {}),
+        ...(permissions ? { permissions } : {}),
+        updatedAt: sql`now()`,
+      })
+      .where(and(eq(roles.orgId, actor.orgId), eq(roles.key, key)))
+      .returning(),
+  );
+
+  await recordAudit(tx, userCaller(actor), {
+    action: 'role.updated',
+    targetType: 'role',
+    targetId: key,
+    targetLabel: row.name,
+    changes: {
+      ...(input.name !== undefined && input.name !== before.name
+        ? { name: [before.name, input.name] }
+        : {}),
+      ...(permissions ? { permissions: [before.permissions, permissions] } : {}),
+    },
+  });
+
+  const [count] = await tx
+    .select({ members: sql<number>`count(*)::int` })
+    .from(users)
+    .where(and(eq(users.orgId, actor.orgId), eq(users.role, key)));
+
+  return toRoleDto(row, count?.members ?? 0);
+};
+
+export const removeRole = async (actor: Actor, key: string) => {
+  const tx = db();
+
+  requirePermission(actor, 'roles.manage');
+
+  const row = await roleOrThrow(tx, actor.orgId, key);
+
+  if (row.builtin) throw new HttpError(403, 'BUILTIN_ROLE', 'Built-in roles can’t be deleted');
+
+  const [count] = await tx
+    .select({ members: sql<number>`count(*)::int` })
+    .from(users)
+    .where(and(eq(users.orgId, actor.orgId), eq(users.role, key)));
+
+  if (count?.members) {
+    throw new HttpError(
+      409,
+      'ROLE_IN_USE',
+      `${count.members} members have this role: give them another one first`,
     );
+  }
 
-    await recordAudit(tx, userCaller(actor), {
-      action: 'role.updated',
-      targetType: 'role',
-      targetId: key,
-      targetLabel: row.name,
-      changes: {
-        ...(input.name !== undefined && input.name !== before.name
-          ? { name: [before.name, input.name] }
-          : {}),
-        ...(permissions ? { permissions: [before.permissions, permissions] } : {}),
-      },
-    });
-
-    const [count] = await tx
-      .select({ members: sql<number>`count(*)::int` })
-      .from(users)
-      .where(and(eq(users.orgId, actor.orgId), eq(users.role, key)));
-
-    return toRoleDto(row, count?.members ?? 0);
+  await tx.delete(roles).where(and(eq(roles.orgId, actor.orgId), eq(roles.key, key)));
+  await recordAudit(tx, userCaller(actor), {
+    action: 'role.deleted',
+    targetType: 'role',
+    targetId: key,
+    targetLabel: row.name,
   });
 
-export const removeRole = (actor: Actor, key: string) =>
-  db().transaction(async (tx) => {
-    requirePermission(actor, 'roles.manage');
-
-    const row = await roleOrThrow(tx, actor.orgId, key);
-
-    if (row.builtin) throw new HttpError(403, 'BUILTIN_ROLE', 'Built-in roles can’t be deleted');
-
-    const [count] = await tx
-      .select({ members: sql<number>`count(*)::int` })
-      .from(users)
-      .where(and(eq(users.orgId, actor.orgId), eq(users.role, key)));
-
-    if (count?.members) {
-      throw new HttpError(
-        409,
-        'ROLE_IN_USE',
-        `${count.members} members have this role: give them another one first`,
-      );
-    }
-
-    await tx.delete(roles).where(and(eq(roles.orgId, actor.orgId), eq(roles.key, key)));
-    await recordAudit(tx, userCaller(actor), {
-      action: 'role.deleted',
-      targetType: 'role',
-      targetId: key,
-      targetLabel: row.name,
-    });
-
-    return { ok: true as const };
-  });
+  return { ok: true as const };
+};

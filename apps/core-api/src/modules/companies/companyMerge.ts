@@ -1,4 +1,4 @@
-import { companies, customerCompanies, type Db, withTransaction } from '@erxes/core-db';
+import { companies, customerCompanies, db, type Db } from '@erxes/core-db';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
@@ -69,40 +69,40 @@ export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepI
     throw new HttpError(400, 'INVALID_INPUT', 'Choose at least two companies to merge');
   }
 
-  return withTransaction(async (tx) => {
-    const rows = await selectCompanies(tx)
-      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
-      .orderBy(asc(companies.createdAt))
-      .for('update');
+  const tx = db();
 
-    const byId = new Map(rows.map((row) => [row.id, row]));
-    const keep = byId.get(input.keepId);
+  const rows = await selectCompanies(tx)
+    .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
+    .orderBy(asc(companies.createdAt))
+    .for('update');
 
-    if (rows.length !== ids.length || !keep) {
-      throw notFound('Company');
-    }
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const keep = byId.get(input.keepId);
 
-    const others = ids.filter((id) => id !== keep.id).flatMap((id) => byId.get(id) ?? []);
-    const otherIds = others.map((other) => other.id);
+  if (rows.length !== ids.length || !keep) {
+    throw notFound('Company');
+  }
 
-    await moveRelations(tx, actor.orgId, keep.id, otherIds);
-    await tx
-      .delete(companies)
-      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
+  const others = ids.filter((id) => id !== keep.id).flatMap((id) => byId.get(id) ?? []);
+  const otherIds = others.map((other) => other.id);
 
-    await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(actor.orgId, keep.id));
+  await moveRelations(tx, actor.orgId, keep.id, otherIds);
+  await tx
+    .delete(companies)
+    .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
 
-    const combined = combineCustomFields(
-      keep.customFields,
-      others.map((other) => other.customFields),
-    );
+  await tx.update(companies).set(mergedColumns(keep, others)).where(inOrg(actor.orgId, keep.id));
 
-    await saveCustomFields(tx, actor.orgId, 'company', keep.id, combined, Object.keys(combined));
+  const combined = combineCustomFields(
+    keep.customFields,
+    others.map((other) => other.customFields),
+  );
 
-    const merged = await findCompany(tx, actor.orgId, keep.id);
+  await saveCustomFields(tx, actor.orgId, 'company', keep.id, combined, Object.keys(combined));
 
-    await contactsMerged(tx, actor, 'company', merged, others);
+  const merged = await findCompany(tx, actor.orgId, keep.id);
 
-    return toCompanyDto(merged);
-  });
+  await contactsMerged(tx, actor, 'company', merged, others);
+
+  return toCompanyDto(merged);
 };

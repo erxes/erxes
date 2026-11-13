@@ -73,48 +73,49 @@ const pluginOrThrow = async (client: Db, name: string) => {
   return row;
 };
 
-const installPluginTx = (actor: Actor, name: string) =>
-  db().transaction(async (tx) => {
-    const row = await pluginOrThrow(tx, name);
-    const scopes = requestedScopes(row);
+const installPluginTx = async (actor: Actor, name: string) => {
+  const tx = db();
 
-    const [before] = await tx
-      .select()
-      .from(pluginInstallations)
-      .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
-      .limit(1);
+  const row = await pluginOrThrow(tx, name);
+  const scopes = requestedScopes(row);
 
-    const [installation] = await tx
-      .insert(pluginInstallations)
-      .values({
-        orgId: actor.orgId,
-        plugin: name,
+  const [before] = await tx
+    .select()
+    .from(pluginInstallations)
+    .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
+    .limit(1);
+
+  const [installation] = await tx
+    .insert(pluginInstallations)
+    .values({
+      orgId: actor.orgId,
+      plugin: name,
+      grantedScopes: scopes,
+      installedBy: actor.userId,
+    })
+    .onConflictDoUpdate({
+      target: [pluginInstallations.orgId, pluginInstallations.plugin],
+      set: {
+        status: 'active',
+        statusReason: null,
         grantedScopes: scopes,
         installedBy: actor.userId,
-      })
-      .onConflictDoUpdate({
-        target: [pluginInstallations.orgId, pluginInstallations.plugin],
-        set: {
-          status: 'active',
-          statusReason: null,
-          grantedScopes: scopes,
-          installedBy: actor.userId,
-          updatedAt: sql`now()`,
-          installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
-        },
-      })
-      .returning();
+        updatedAt: sql`now()`,
+        installedAt: before?.status === 'active' ? before.installedAt : sql`now()`,
+      },
+    })
+    .returning();
 
-    await recordAudit(tx, userCaller(actor), {
-      action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',
-      targetType: 'plugin',
-      targetId: name,
-      targetLabel: row.manifest?.title ?? name,
-      changes: { scopes: [before?.status === 'active' ? before.grantedScopes : [], scopes] },
-    });
-
-    return toPluginDto(row, installation);
+  await recordAudit(tx, userCaller(actor), {
+    action: before?.status === 'active' ? 'plugin.scopes_approved' : 'plugin.installed',
+    targetType: 'plugin',
+    targetId: name,
+    targetLabel: row.manifest?.title ?? name,
+    changes: { scopes: [before?.status === 'active' ? before.grantedScopes : [], scopes] },
   });
+
+  return toPluginDto(row, installation);
+};
 
 /** Installs a plugin, or grants the scopes a newer version asks for. */
 export const installPlugin = async (actor: Actor, name: string) => {
@@ -124,27 +125,28 @@ export const installPlugin = async (actor: Actor, name: string) => {
 };
 
 /** Uninstalls: tokens stop working on the next request. Data stays in the plugin. */
-export const uninstallPlugin = (actor: Actor, name: string) =>
-  db().transaction(async (tx) => {
-    const row = await pluginOrThrow(tx, name);
+export const uninstallPlugin = async (actor: Actor, name: string) => {
+  const tx = db();
 
-    const [installation] = await tx
-      .update(pluginInstallations)
-      .set({ status: 'disabled', updatedAt: sql`now()` })
-      .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
-      .returning();
+  const row = await pluginOrThrow(tx, name);
 
-    if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
+  const [installation] = await tx
+    .update(pluginInstallations)
+    .set({ status: 'disabled', updatedAt: sql`now()` })
+    .where(and(eq(pluginInstallations.orgId, actor.orgId), eq(pluginInstallations.plugin, name)))
+    .returning();
 
-    await recordAudit(tx, userCaller(actor), {
-      action: 'plugin.uninstalled',
-      targetType: 'plugin',
-      targetId: name,
-      targetLabel: row.manifest?.title ?? name,
-    });
+  if (!installation) throw new HttpError(404, 'NOT_INSTALLED', `${name} is not installed`);
 
-    return toPluginDto(row, installation);
+  await recordAudit(tx, userCaller(actor), {
+    action: 'plugin.uninstalled',
+    targetType: 'plugin',
+    targetId: name,
+    targetLabel: row.manifest?.title ?? name,
   });
+
+  return toPluginDto(row, installation);
+};
 
 /**
  * A member's 5-minute token for one plugin's API: the plugin verifies it with

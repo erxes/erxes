@@ -21,8 +21,12 @@ OAuth's token and revoke endpoints, and callbacks from outside services (payment
   `postOutbound` (`src/lib/outbound.ts`) throws inside a tenant scope. A member procedure that
   calls out uses `authedUnscoped`, reads in a short `withOrg` and calls out after it (see
   `testStream`); a job reads, calls out, then writes in a second scope (`streamDelivery.ts`).
-- A write and its audit entry share one transaction: `audited(...)` in the router, or
-  `recordAudit(tx, ...)` in the service. Core events go out in the same transaction with
+- A request or job is one transaction, its `withOrg` or `withSystem` scope, so services never open
+  another (lint bans `.transaction`). When you catch an error and go on (a unique violation you
+  answer with the existing record, an import row or recycle-bin item that fails alone), run the
+  part that may fail in `savepoint(fn)` from `@erxes/core-db`.
+- A write and its audit entry share that transaction: `audited(...)` in the router, or
+  `recordAudit(tx, ...)` in the service. Core events go out in it too, with
   `publishCoreEvents(tx, ...)`.
 - Errors are `HttpError(status, code, message, data?)`, an `ORPCError`. Clients branch on `code`, so
   a new failure gets a new code and old codes keep their meaning.

@@ -1,4 +1,5 @@
-// The `no-restricted-imports` entries vite.config.ts gives each part of the repo.
+// The `no-restricted-imports` and `no-restricted-properties` entries vite.config.ts gives each
+// part of the repo.
 
 // Procedures are built from the contract in one place, so every route goes
 // through the same context and access checks.
@@ -88,4 +89,12 @@ export const serverOnly = {
 export const noDriver = {
   group: ['pg', 'pg/*', 'node:*', 'drizzle-orm/node-postgres', '../*', '!../table', '!../enums'],
   message: 'Table definitions ship inside the published contract: no Node, driver or client.',
+};
+
+// A request or job already runs in one transaction (withOrg / withSystem), so a nested
+// `.transaction()` only adds a savepoint, and that has one name.
+export const oneTransaction = {
+  property: 'transaction',
+  message:
+    "The request's withOrg/withSystem scope is already one transaction. To undo only part of it when you catch its error, use savepoint() from @erxes/core-db.",
 };

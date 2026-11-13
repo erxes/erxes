@@ -260,28 +260,26 @@ export const retryEventFailures = async (
     throw new HttpError(400, 'NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
   }
 
-  return client.transaction(async (tx) => {
-    const retried = await tx
-      .update(eventFailures)
-      .set({ status: 'retrying', nextAttemptAt: sql`now()`, updatedAt: sql`now()` })
-      .where(
-        input.failures?.length
-          ? refsWhere(actor.orgId, input.failures)
-          : and(eq(eventFailures.orgId, actor.orgId), eq(eventFailures.status, 'dead')),
-      )
-      .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
+  const retried = await client
+    .update(eventFailures)
+    .set({ status: 'retrying', nextAttemptAt: sql`now()`, updatedAt: sql`now()` })
+    .where(
+      input.failures?.length
+        ? refsWhere(actor.orgId, input.failures)
+        : and(eq(eventFailures.orgId, actor.orgId), eq(eventFailures.status, 'dead')),
+    )
+    .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
 
-    if (retried.length) {
-      await recordAudit(tx, userCaller(actor), {
-        action: 'event.failures_retried',
-        targetType: 'event',
-        metadata: { count: retried.length, failures: retried.slice(0, 50) },
-      });
-      await tx.execute(sql`select pg_notify('core_events', '')`);
-    }
+  if (retried.length) {
+    await recordAudit(client, userCaller(actor), {
+      action: 'event.failures_retried',
+      targetType: 'event',
+      metadata: { count: retried.length, failures: retried.slice(0, 50) },
+    });
+    await client.execute(sql`select pg_notify('core_events', '')`);
+  }
 
-    return { retried: retried.length };
-  });
+  return { retried: retried.length };
 };
 
 /** Gives up on failed events: they won't be retried or shown again. */
@@ -292,22 +290,20 @@ export const dismissEventFailures = async (
 ) => {
   requirePermission(actor, 'events.view');
 
-  return client.transaction(async (tx) => {
-    const dismissed = await tx
-      .delete(eventFailures)
-      .where(refsWhere(actor.orgId, input.failures))
-      .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
+  const dismissed = await client
+    .delete(eventFailures)
+    .where(refsWhere(actor.orgId, input.failures))
+    .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
 
-    if (dismissed.length) {
-      await recordAudit(tx, userCaller(actor), {
-        action: 'event.failures_dismissed',
-        targetType: 'event',
-        metadata: { count: dismissed.length, failures: dismissed.slice(0, 50) },
-      });
-    }
+  if (dismissed.length) {
+    await recordAudit(client, userCaller(actor), {
+      action: 'event.failures_dismissed',
+      targetType: 'event',
+      metadata: { count: dismissed.length, failures: dismissed.slice(0, 50) },
+    });
+  }
 
-    return { dismissed: dismissed.length };
-  });
+  return { dismissed: dismissed.length };
 };
 
 /**

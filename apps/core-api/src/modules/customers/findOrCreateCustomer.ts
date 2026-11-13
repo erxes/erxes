@@ -76,31 +76,35 @@ export const findOrCreateCustomer = async (client: Db, caller: Caller, input: Co
     sourceDetails: input.sourceDetails,
   });
 
-  const id = await client.transaction(async (tx) => {
-    const row = oneRow(
-      await tx
-        .insert(customers)
-        .values({
-          ...lead.set,
-          id: newId(),
-          orgId: caller.orgId,
-          state: input.state ?? 'customer',
-          firstName: input.firstName ?? null,
-          lastName: input.lastName ?? null,
-          primaryEmail: email,
-          emails: email ? [email] : [],
-          primaryPhone: phone,
-          phones: phone ? [phone] : [],
-          createdBy: caller.actorType === 'user' ? caller.actorId : null,
-        })
-        .returning({ id: customers.id }),
-    );
+  const row = oneRow(
+    await client
+      .insert(customers)
+      .values({
+        ...lead.set,
+        id: newId(),
+        orgId: caller.orgId,
+        state: input.state ?? 'customer',
+        firstName: input.firstName ?? null,
+        lastName: input.lastName ?? null,
+        primaryEmail: email,
+        emails: email ? [email] : [],
+        primaryPhone: phone,
+        phones: phone ? [phone] : [],
+        createdBy: caller.actorType === 'user' ? caller.actorId : null,
+      })
+      .returning({ id: customers.id }),
+  );
 
-    await recordLeadSteps(tx, caller, 'customer', [{ id: row.id, steps: lead.steps }]);
-    await contactCreated(tx, caller, 'customer', await findCustomer(tx, caller.orgId, row.id));
+  await recordLeadSteps(client, caller, 'customer', [{ id: row.id, steps: lead.steps }]);
+  await contactCreated(
+    client,
+    caller,
+    'customer',
+    await findCustomer(client, caller.orgId, row.id),
+  );
 
-    return row.id;
-  });
-
-  return { customer: toCustomerDto(await findCustomer(client, caller.orgId, id)), created: true };
+  return {
+    customer: toCustomerDto(await findCustomer(client, caller.orgId, row.id)),
+    created: true,
+  };
 };

@@ -199,28 +199,26 @@ export const addNote = async (
 
   const fileIds = await checkFiles(client, actor.orgId, input.fileIds);
 
-  return client.transaction(async (tx) => {
-    const row = oneRow(
-      await tx
-        .insert(activities)
-        .values({
-          id: newId(),
-          orgId: actor.orgId,
-          targetType: input.targetType,
-          targetId: input.targetId,
-          source: 'core',
-          type: `${input.targetType}.note`,
-          data: { body: input.body, mentions, fileIds },
-          actorType: 'user',
-          actorId: actor.userId,
-        })
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .insert(activities)
+      .values({
+        id: newId(),
+        orgId: actor.orgId,
+        targetType: input.targetType,
+        targetId: input.targetId,
+        source: 'core',
+        type: `${input.targetType}.note`,
+        data: { body: input.body, mentions, fileIds },
+        actorType: 'user',
+        actorId: actor.userId,
+      })
+      .returning(),
+  );
 
-    await notifyMentions(tx, actor, { ...input, id: row.id }, mentions);
+  await notifyMentions(client, actor, { ...input, id: row.id }, mentions);
 
-    return toActivityDto(row);
-  });
+  return toActivityDto(row);
 };
 
 /** The note's new data: text, mentions and files, with earlier wordings kept (the last 20). */
@@ -279,27 +277,25 @@ export const updateNote = async (
 
   const edit = await editedData(client, actor, note, input);
 
-  return client.transaction(async (tx) => {
-    const row = oneRow(
-      await tx
-        .update(activities)
-        .set({
-          ...(editing ? { data: edit.data, editedAt: sql`now()` } : {}),
-          ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
-        })
-        .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
-        .returning(),
-    );
+  const row = oneRow(
+    await client
+      .update(activities)
+      .set({
+        ...(editing ? { data: edit.data, editedAt: sql`now()` } : {}),
+        ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
+      })
+      .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
+      .returning(),
+  );
 
-    await notifyMentions(
-      tx,
-      actor,
-      { id, targetType: note.targetType, targetId: note.targetId, body: edit.data.body },
-      edit.added,
-    );
+  await notifyMentions(
+    client,
+    actor,
+    { id, targetType: note.targetType, targetId: note.targetId, body: edit.data.body },
+    edit.added,
+  );
 
-    return toActivityDto(row);
-  });
+  return toActivityDto(row);
 };
 
 export const removeNote = async (client: Db, actor: Actor, id: string) => {

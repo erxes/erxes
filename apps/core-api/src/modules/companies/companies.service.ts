@@ -1,6 +1,6 @@
 import type { Db } from '@erxes/core-db';
 import type { CompanyInput } from '@erxes/core-contract';
-import { companies, newId } from '@erxes/core-db';
+import { companies, newId, savepoint } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { type Actor, requirePermission, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
@@ -85,7 +85,7 @@ export const createCompany = async (
   });
 
   try {
-    const id = await client.transaction(async (tx) => {
+    const id = await savepoint(async (tx) => {
       const { id: created } = oneRow(
         await tx
           .insert(companies)
@@ -199,7 +199,7 @@ export const updateCompany = async (client: Db, actor: Actor, id: string, input:
   const lead = await planLeadOnUpdate(client, userCaller(actor), current, input);
 
   try {
-    await client.transaction(async (tx) => {
+    await savepoint(async (tx) => {
       const updated = await tx
         .update(companies)
         .set({ ...scalarFields(input), ...changes, ...lead.set, updatedAt: sql`now()` })
@@ -240,23 +240,19 @@ export const removeCompanies = async (
   // Undoing an import removes only what it created (its own permission is checked there).
   if (!options.undoingImport) requirePermission(actor, 'contacts.delete');
 
-  const removed = await client.transaction(async (tx) => {
-    // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
-    if (!options.undoingImport)
-      await guardDeletions(tx, userCaller(actor), ids.length, 'companies', actor.role);
-    await moveToTrash(tx, userCaller(actor), 'company', ids);
+  // A runaway deletion is stopped (not an import being undone); what is deleted goes to the recycle bin first.
+  if (!options.undoingImport)
+    await guardDeletions(client, userCaller(actor), ids.length, 'companies', actor.role);
+  await moveToTrash(client, userCaller(actor), 'company', ids);
 
-    const rows = await tx
-      .delete(companies)
-      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
-      .returning();
+  const rows = await client
+    .delete(companies)
+    .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
+    .returning();
 
-    await contactsRemoved(tx, actor, 'company', rows);
+  await contactsRemoved(client, actor, 'company', rows);
 
-    return rows;
-  });
-
-  return { removed: removed.length };
+  return { removed: rows.length };
 };
 
 const tagsByCompany = async (client: Db, orgId: string, ids: string[]) => {
@@ -275,24 +271,20 @@ export const tagCompanies = async (
 ) => {
   const add = await checkTagIds(client, actor.orgId, 'company', input.add);
 
-  const updated = await client.transaction(async (tx) => {
-    const before = await tagsByCompany(tx, actor.orgId, input.ids);
+  const before = await tagsByCompany(client, actor.orgId, input.ids);
 
-    const count = await changeTags(tx, actor.orgId, 'company', input.ids, {
-      add,
-      remove: unique(input.remove),
-    });
-
-    await contactsTagged(
-      tx,
-      actor,
-      'company',
-      before,
-      await tagsByCompany(tx, actor.orgId, input.ids),
-    );
-
-    return count;
+  const count = await changeTags(client, actor.orgId, 'company', input.ids, {
+    add,
+    remove: unique(input.remove),
   });
 
-  return { updated };
+  await contactsTagged(
+    client,
+    actor,
+    'company',
+    before,
+    await tagsByCompany(client, actor.orgId, input.ids),
+  );
+
+  return { updated: count };
 };

@@ -105,33 +105,31 @@ export const moveLeads = async (
 ) => {
   const type = input.recordType ?? 'customer';
 
-  return client.transaction(async (tx) => {
-    const stage = await findStage(tx, actor.orgId, input.stageId);
-    const rows = await lockLeads(tx, actor.orgId, type, input.ids);
-    const stages = await stagesOf(tx, actor.orgId);
-    const now = new Date();
+  const stage = await findStage(client, actor.orgId, input.stageId);
+  const rows = await lockLeads(client, actor.orgId, type, input.ids);
+  const stages = await stagesOf(client, actor.orgId);
+  const now = new Date();
 
-    const leadInput = {
-      leadStageId: stage.id,
-      ...(input.reason ? { disqualifyReason: input.reason } : {}),
-    };
+  const leadInput = {
+    leadStageId: stage.id,
+    ...(input.reason ? { disqualifyReason: input.reason } : {}),
+  };
 
-    const planned = rows.map((row) => ({
-      row,
-      plan: planLeadChange({
-        caller: userCaller(actor),
-        stages,
-        current: row,
-        input: leadInput,
-        asked: stage,
-        now,
-      }),
-    }));
+  const planned = rows.map((row) => ({
+    row,
+    plan: planLeadChange({
+      caller: userCaller(actor),
+      stages,
+      current: row,
+      input: leadInput,
+      asked: stage,
+      now,
+    }),
+  }));
 
-    await writePlans(tx, actor, type, planned, {});
+  await writePlans(client, actor, type, planned, {});
 
-    return { moved: rows.length };
-  });
+  return { moved: rows.length };
 };
 
 export const convertLeads = async (
@@ -144,41 +142,39 @@ export const convertLeads = async (
   if (type === 'company' && input.companyId)
     throw new HttpError(400, 'INVALID_INPUT', 'Companies are not linked to a company');
 
-  return client.transaction(async (tx) => {
-    const rows = await lockLeads(tx, actor.orgId, type, input.ids);
+  const rows = await lockLeads(client, actor.orgId, type, input.ids);
 
-    await assertOwner(tx, actor.orgId, input.ownerId);
+  await assertOwner(client, actor.orgId, input.ownerId);
 
-    const stages = await stagesOf(tx, actor.orgId);
-    const now = new Date();
+  const stages = await stagesOf(client, actor.orgId);
+  const now = new Date();
 
-    const planned = rows.map((row) => ({
-      row,
-      plan: planLeadChange({
-        caller: userCaller(actor),
-        stages,
-        current: row,
-        input: { state: 'customer' },
-        asked: null,
-        now,
-      }),
-    }));
+  const planned = rows.map((row) => ({
+    row,
+    plan: planLeadChange({
+      caller: userCaller(actor),
+      stages,
+      current: row,
+      input: { state: 'customer' },
+      asked: null,
+      now,
+    }),
+  }));
 
-    await writePlans(tx, actor, type, planned, {
-      state: 'customer',
-      ...(input.ownerId ? { ownerId: input.ownerId } : {}),
-    });
-
-    if (input.companyId)
-      await linkCustomersToCompany(
-        tx,
-        actor,
-        rows.map((row) => row.id),
-        input.companyId,
-      );
-
-    return { converted: rows.length };
+  await writePlans(client, actor, type, planned, {
+    state: 'customer',
+    ...(input.ownerId ? { ownerId: input.ownerId } : {}),
   });
+
+  if (input.companyId)
+    await linkCustomersToCompany(
+      client,
+      actor,
+      rows.map((row) => row.id),
+      input.companyId,
+    );
+
+  return { converted: rows.length };
 };
 
 export const leadHistory = async (

@@ -1,4 +1,4 @@
-import { db, type Db, newId, users, withTransaction } from '@erxes/core-db';
+import { db, type Db, newId, users } from '@erxes/core-db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { type Actor, type Role, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
@@ -59,15 +59,11 @@ export const inviteUser = async (client: Db, actor: Actor, input: InviteInput) =
   try {
     const values = await inviteValues(actor, input);
 
-    const row = await client.transaction(async (tx) => {
-      const inserted = oneRow(await tx.insert(users).values(values).returning());
+    const inserted = oneRow(await client.insert(users).values(values).returning());
 
-      await announceInvites(tx, actor, [inserted]);
+    await announceInvites(client, actor, [inserted]);
 
-      return inserted;
-    });
-
-    return toUserDto(row);
+    return toUserDto(inserted);
   } catch (error) {
     return conflictFrom(error);
   }
@@ -94,28 +90,28 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
 
   const values = await Promise.all(entries.map((entry) => inviteValues(actor, entry)));
 
-  return withTransaction(async (tx) => {
-    const taken = await tx
-      .select({ email: users.email })
-      .from(users)
-      .where(and(eq(users.orgId, actor.orgId), inArray(sql`lower(${users.email})`, emails)));
+  const tx = db();
 
-    if (taken.length) {
-      const list = taken.map(({ email }) => email.toLowerCase());
+  const taken = await tx
+    .select({ email: users.email })
+    .from(users)
+    .where(and(eq(users.orgId, actor.orgId), inArray(sql`lower(${users.email})`, emails)));
 
-      throw new HttpError(409, 'EMAIL_TAKEN', `Already a team member: ${list.join(', ')}`, {
-        emails: list,
-      });
-    }
+  if (taken.length) {
+    const list = taken.map(({ email }) => email.toLowerCase());
 
-    try {
-      const rows = await tx.insert(users).values(values).returning();
+    throw new HttpError(409, 'EMAIL_TAKEN', `Already a team member: ${list.join(', ')}`, {
+      emails: list,
+    });
+  }
 
-      await announceInvites(tx, actor, rows);
+  try {
+    const rows = await tx.insert(users).values(values).returning();
 
-      return { data: rows.map(toUserDto) };
-    } catch (error) {
-      return conflictFrom(error);
-    }
-  });
+    await announceInvites(tx, actor, rows);
+
+    return { data: rows.map(toUserDto) };
+  } catch (error) {
+    return conflictFrom(error);
+  }
 };

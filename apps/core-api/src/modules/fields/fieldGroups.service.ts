@@ -167,20 +167,18 @@ export const restoreFieldGroup = async (client: Db, actor: Actor, id: string) =>
 export const removeFieldGroup = async (client: Db, actor: Actor, id: string) => {
   requireFieldManager(actor);
 
-  return client.transaction(async (tx) => {
-    await findGroup(tx, actor.orgId, id);
+  await findGroup(client, actor.orgId, id);
 
-    const rows = await fieldsOfGroup(tx, actor.orgId, id);
+  const rows = await fieldsOfGroup(client, actor.orgId, id);
 
-    if ((await usageOf(tx, actor.orgId, rows)) > 0) {
-      throw inUse('its fields');
-    }
+  if ((await usageOf(client, actor.orgId, rows)) > 0) {
+    throw inUse('its fields');
+  }
 
-    await tx.delete(fields).where(and(eq(fields.orgId, actor.orgId), eq(fields.groupId, id)));
-    await tx
-      .delete(fieldGroups)
-      .where(and(eq(fieldGroups.orgId, actor.orgId), eq(fieldGroups.id, id)));
+  await client.delete(fields).where(and(eq(fields.orgId, actor.orgId), eq(fields.groupId, id)));
+  await client
+    .delete(fieldGroups)
+    .where(and(eq(fieldGroups.orgId, actor.orgId), eq(fieldGroups.id, id)));
 
-    return { ok: true as const };
-  });
+  return { ok: true as const };
 };

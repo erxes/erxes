@@ -76,29 +76,26 @@ export const createLeadStage = async (
   client: Db,
   actor: Actor,
   input: { name: string; kind?: LeadStageKind; color?: string },
-) =>
-  client
-    .transaction(async (tx) => {
-      const [last] = await tx
-        .select({ order: max(leadStages.order) })
-        .from(leadStages)
-        .where(eq(leadStages.orgId, actor.orgId));
+) => {
+  const [last] = await client
+    .select({ order: max(leadStages.order) })
+    .from(leadStages)
+    .where(eq(leadStages.orgId, actor.orgId));
 
-      const stage = {
-        id: newId(),
-        orgId: actor.orgId,
-        name: input.name,
-        kind: input.kind ?? 'open',
-        color: input.color ?? '#64748b',
-        order: (last?.order ?? -1) + 1,
-      };
+  const stage = {
+    id: newId(),
+    orgId: actor.orgId,
+    name: input.name,
+    kind: input.kind ?? 'open',
+    color: input.color ?? '#64748b',
+    order: (last?.order ?? -1) + 1,
+  };
 
-      await tx.insert(leadStages).values(stage);
-      await audit(tx, actor, 'lead_stage.created', stage);
+  await client.insert(leadStages).values(stage).catch(stageTaken);
+  await audit(client, actor, 'lead_stage.created', stage);
 
-      return toStageDto(stage);
-    })
-    .catch(stageTaken);
+  return toStageDto(stage);
+};
 
 /** Some stage of each kind a lead can be moved to must stay: at least one open one. */
 const assertOpenStageLeft = (stages: StageRow[], without: (stage: StageRow) => boolean) => {
@@ -116,49 +113,45 @@ export const updateLeadStage = async (
   actor: Actor,
   id: string,
   input: { name?: string; kind?: LeadStageKind; color?: string },
-) =>
-  client
-    .transaction(async (tx) => {
-      const stages = await stagesOf(tx, actor.orgId);
+) => {
+  const stages = await stagesOf(client, actor.orgId);
 
-      if (!stages.some((stage) => stage.id === id)) throw notFound('Lead stage');
+  if (!stages.some((stage) => stage.id === id)) throw notFound('Lead stage');
 
-      if (input.kind && input.kind !== 'open')
-        assertOpenStageLeft(stages, (stage) => stage.id === id);
+  if (input.kind && input.kind !== 'open') assertOpenStageLeft(stages, (stage) => stage.id === id);
 
-      const [stage] = await tx
-        .update(leadStages)
-        .set({ ...input, updatedAt: sql`now()` })
-        .where(and(eq(leadStages.orgId, actor.orgId), eq(leadStages.id, id)))
-        .returning();
-
-      if (!stage) throw notFound('Lead stage');
-
-      await audit(tx, actor, 'lead_stage.updated', stage);
-
-      return toStageDto(stage, ...(await countsOf(tx, actor.orgId)));
-    })
+  const [stage] = await client
+    .update(leadStages)
+    .set({ ...input, updatedAt: sql`now()` })
+    .where(and(eq(leadStages.orgId, actor.orgId), eq(leadStages.id, id)))
+    .returning()
     .catch(stageTaken);
 
-export const reorderLeadStages = async (client: Db, actor: Actor, ids: string[]) =>
-  client.transaction(async (tx) => {
-    const stages = await stagesOf(tx, actor.orgId);
+  if (!stage) throw notFound('Lead stage');
 
-    if (
-      ids.length !== stages.length ||
-      new Set(ids).size !== ids.length ||
-      stages.some((stage) => !ids.includes(stage.id))
-    ) {
-      throw new HttpError(400, 'INVALID_INPUT', 'List every stage exactly once');
-    }
+  await audit(client, actor, 'lead_stage.updated', stage);
 
-    return setOrders(
-      tx,
-      actor.orgId,
-      leadStages,
-      ids.map((id, order) => ({ id, order })),
-    );
-  });
+  return toStageDto(stage, ...(await countsOf(client, actor.orgId)));
+};
+
+export const reorderLeadStages = async (client: Db, actor: Actor, ids: string[]) => {
+  const stages = await stagesOf(client, actor.orgId);
+
+  if (
+    ids.length !== stages.length ||
+    new Set(ids).size !== ids.length ||
+    stages.some((stage) => !ids.includes(stage.id))
+  ) {
+    throw new HttpError(400, 'INVALID_INPUT', 'List every stage exactly once');
+  }
+
+  return setOrders(
+    client,
+    actor.orgId,
+    leadStages,
+    ids.map((id, order) => ({ id, order })),
+  );
+};
 
 const inStage = (table: typeof customers | typeof companies, orgId: string, stageId: string) =>
   and(eq(table.orgId, orgId), eq(table.leadStageId, stageId));
@@ -197,32 +190,31 @@ export const removeLeadStage = async (
   actor: Actor,
   id: string,
   moveTo: string | undefined,
-) =>
-  client.transaction(async (tx) => {
-    const stages = await stagesOf(tx, actor.orgId);
-    const stage = stages.find((item) => item.id === id);
+) => {
+  const stages = await stagesOf(client, actor.orgId);
+  const stage = stages.find((item) => item.id === id);
 
-    if (!stage) throw notFound('Lead stage');
-    assertOpenStageLeft(stages, (item) => item.id === id);
+  if (!stage) throw notFound('Lead stage');
+  assertOpenStageLeft(stages, (item) => item.id === id);
 
-    const count = await peopleIn(tx, actor.orgId, id);
+  const count = await peopleIn(client, actor.orgId, id);
 
-    if (count) {
-      if (!moveTo || moveTo === id)
-        throw new HttpError(
-          409,
-          'LEAD_STAGE_IN_USE',
-          `${count} leads are in this stage: choose where they move`,
-          { count },
-        );
+  if (count) {
+    if (!moveTo || moveTo === id)
+      throw new HttpError(
+        409,
+        'LEAD_STAGE_IN_USE',
+        `${count} leads are in this stage: choose where they move`,
+        { count },
+      );
 
-      await moveEveryone(tx, actor.orgId, id, moveTo);
-    }
+    await moveEveryone(client, actor.orgId, id, moveTo);
+  }
 
-    await tx
-      .delete(leadStages)
-      .where(and(eq(leadStages.orgId, actor.orgId), eq(leadStages.id, id)));
-    await audit(tx, actor, 'lead_stage.deleted', stage);
+  await client
+    .delete(leadStages)
+    .where(and(eq(leadStages.orgId, actor.orgId), eq(leadStages.id, id)));
+  await audit(client, actor, 'lead_stage.deleted', stage);
 
-    return { moved: count };
-  });
+  return { moved: count };
+};

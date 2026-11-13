@@ -176,23 +176,22 @@ export const listAudit = async (client: Db, actor: Actor, query: CursorQuery & A
  * deployment's AUDIT_RETENTION_DAYS). The table is append-only in the
  * database; only a transaction that sets `core.audit_prune` may delete.
  */
-export const pruneAudit = (client: Db, maxDays: number) =>
-  client.transaction(async (tx) => {
-    await tx.execute(sql`set local core.audit_prune = 'on'`);
+export const pruneAudit = async (client: Db, maxDays: number) => {
+  await client.execute(sql`set local core.audit_prune = 'on'`);
 
-    return deleteInBatches(200, 5000, () =>
-      tx.execute(sql`
-        delete from ${auditLogs} where id in (
-          select a.id from ${auditLogs} a join ${organizations} o on o.id = a.org_id
-          where a.created_at < now() - make_interval(days => least(
-            ${maxDays}::int,
-            coalesce((o.settings -> 'audit' ->> 'retentionDays')::int, ${maxDays}::int)
-          ))
-          limit 5000
-        )
-      `),
-    );
-  });
+  return deleteInBatches(200, 5000, () =>
+    client.execute(sql`
+      delete from ${auditLogs} where id in (
+        select a.id from ${auditLogs} a join ${organizations} o on o.id = a.org_id
+        where a.created_at < now() - make_interval(days => least(
+          ${maxDays}::int,
+          coalesce((o.settings -> 'audit' ->> 'retentionDays')::int, ${maxDays}::int)
+        ))
+        limit 5000
+      )
+    `),
+  );
+};
 
 /** Plugins record their own actions in the organisation's one audit log. */
 export const recordPluginAudit = async (
@@ -293,25 +292,23 @@ export const updateAuditSettings = async (
 
   const before = await auditSettings(client, actor.orgId);
 
-  await client.transaction(async (tx) => {
-    await tx
-      .update(organizations)
-      .set({
-        settings: sql`jsonb_set(${organizations.settings}, '{audit}', ${JSON.stringify({ retentionDays: input.retentionDays })}::jsonb)`,
-        updatedAt: sql`now()`,
-      })
-      .where(eq(organizations.id, actor.orgId));
-    await recordAudit(
-      tx,
-      { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
-      {
-        action: 'settings.audit_retention_changed',
-        targetType: 'organization',
-        targetId: actor.orgId,
-        changes: { retentionDays: [before.retentionDays, input.retentionDays] },
-      },
-    );
-  });
+  await client
+    .update(organizations)
+    .set({
+      settings: sql`jsonb_set(${organizations.settings}, '{audit}', ${JSON.stringify({ retentionDays: input.retentionDays })}::jsonb)`,
+      updatedAt: sql`now()`,
+    })
+    .where(eq(organizations.id, actor.orgId));
+  await recordAudit(
+    client,
+    { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
+    {
+      action: 'settings.audit_retention_changed',
+      targetType: 'organization',
+      targetId: actor.orgId,
+      changes: { retentionDays: [before.retentionDays, input.retentionDays] },
+    },
+  );
 
   return auditSettings(client, actor.orgId);
 };

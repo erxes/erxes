@@ -120,65 +120,64 @@ const isUploader = (row: FileRow, caller: Caller) =>
  * a second completion waits and returns the ready file (one audit entry), and
  * the cleanup of unfinished uploads can't take a file being completed.
  */
-export const completeUpload = async (client: Db, caller: Caller, id: string) =>
-  client.transaction(async (tx) => {
-    await lockRows(tx, 'core_files', caller.orgId, [id]);
+export const completeUpload = async (client: Db, caller: Caller, id: string) => {
+  await lockRows(client, 'core_files', caller.orgId, [id]);
 
-    const row = await findFile(tx, caller.orgId, id);
+  const row = await findFile(client, caller.orgId, id);
 
-    if (!isUploader(row, caller) || row.status === 'deleting') {
-      throw notFound('File');
-    }
+  if (!isUploader(row, caller) || row.status === 'deleting') {
+    throw notFound('File');
+  }
 
-    if (row.status === 'ready') {
-      return toFileDto(row);
-    }
+  if (row.status === 'ready') {
+    return toFileDto(row);
+  }
 
-    const stored = await storage().stat(row.key);
+  const stored = await storage().stat(row.key);
 
-    if (!stored) {
-      throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
-    }
+  if (!stored) {
+    throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
+  }
 
-    if (stored.size !== row.size) {
-      await storage().remove(row.key);
-      throw new HttpError(
-        409,
-        'UPLOAD_INCOMPLETE',
-        'The uploaded file does not match the declared size; upload it again',
-      );
-    }
-
-    const finalKey = storageKey(caller.orgId, id);
-
-    try {
-      await storage().promote(row.key, finalKey, stored);
-    } catch {
-      throw new HttpError(
-        409,
-        'UPLOAD_CHANGED',
-        'The file changed while it was being checked; upload it again',
-      );
-    }
-
-    const ready = oneRow(
-      await tx
-        .update(files)
-        .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
-        .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), eq(files.status, 'pending')))
-        .returning(),
+  if (stored.size !== row.size) {
+    await storage().remove(row.key);
+    throw new HttpError(
+      409,
+      'UPLOAD_INCOMPLETE',
+      'The uploaded file does not match the declared size; upload it again',
     );
+  }
 
-    await recordAudit(tx, caller, {
-      action: 'file.uploaded',
-      targetType: 'file',
-      targetId: id,
-      targetLabel: row.name,
-      metadata: { contentType: row.contentType, size: row.size },
-    });
+  const finalKey = storageKey(caller.orgId, id);
 
-    return toFileDto(ready);
+  try {
+    await storage().promote(row.key, finalKey, stored);
+  } catch {
+    throw new HttpError(
+      409,
+      'UPLOAD_CHANGED',
+      'The file changed while it was being checked; upload it again',
+    );
+  }
+
+  const ready = oneRow(
+    await client
+      .update(files)
+      .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
+      .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), eq(files.status, 'pending')))
+      .returning(),
+  );
+
+  await recordAudit(client, caller, {
+    action: 'file.uploaded',
+    targetType: 'file',
+    targetId: id,
+    targetLabel: row.name,
+    metadata: { contentType: row.contentType, size: row.size },
   });
+
+  return toFileDto(ready);
+};
 
 /** A ready file and a short-lived link to read it. */
 export const getFile = async (client: Db, caller: Caller, id: string) => {

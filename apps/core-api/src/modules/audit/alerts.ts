@@ -1,4 +1,4 @@
-import { auditLogs, type Db, organizations, roles, users } from '@erxes/core-db';
+import { auditLogs, type Db, organizations, roles, savepoint, users } from '@erxes/core-db';
 import { and, eq, gte, inArray, sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { systemCaller } from '~/http/auth';
@@ -222,7 +222,7 @@ export const raiseAlerts = async (client: Db, actor: AlertActor, entries: Entry[
   if (!entries.some((entry) => WATCHED.has(entry.action))) return;
 
   try {
-    await client.transaction((savepoint) => alertsFor(savepoint, actor, entries));
+    await savepoint((tx) => alertsFor(tx, actor, entries));
   } catch (error) {
     log.warn(
       { actions: entries.map((entry) => entry.action), err: error },

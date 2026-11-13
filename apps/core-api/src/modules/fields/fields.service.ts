@@ -312,39 +312,35 @@ export const restoreField = async (client: Db, actor: Actor, id: string) => {
 export const removeUnusedFields = async (client: Db, actor: Actor, ids: string[]) => {
   requireFieldManager(actor);
 
-  return client.transaction(async (tx) => {
-    await lockRows(tx, 'core_fields', actor.orgId, ids);
+  await lockRows(client, 'core_fields', actor.orgId, ids);
 
-    const rows = await tx
-      .select()
-      .from(fields)
-      .where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, ids)));
+  const rows = await client
+    .select()
+    .from(fields)
+    .where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, ids)));
 
-    if (rows.length !== unique(ids).length) {
-      throw notFound('Field');
-    }
+  if (rows.length !== unique(ids).length) {
+    throw notFound('Field');
+  }
 
-    if ((await usageOf(tx, actor.orgId, rows)) > 0) {
-      throw inUse(rows.length === 1 ? 'this field' : 'these fields');
-    }
+  if ((await usageOf(client, actor.orgId, rows)) > 0) {
+    throw inUse(rows.length === 1 ? 'this field' : 'these fields');
+  }
 
-    await tx.delete(fields).where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, ids)));
+  await client.delete(fields).where(and(eq(fields.orgId, actor.orgId), inArray(fields.id, ids)));
 
-    return { ok: true as const };
-  });
+  return { ok: true as const };
 };
 
 /** Deletes the field and its values on every record. */
 export const removeField = async (client: Db, actor: Actor, id: string) => {
   requireFieldManager(actor);
 
-  return client.transaction(async (tx) => {
-    await lockRows(tx, 'core_fields', actor.orgId, [id]);
+  await lockRows(client, 'core_fields', actor.orgId, [id]);
 
-    await findField(tx, actor.orgId, id);
-    // Its values go with it (foreign key).
-    await tx.delete(fields).where(and(eq(fields.orgId, actor.orgId), eq(fields.id, id)));
+  await findField(client, actor.orgId, id);
+  // Its values go with it (foreign key).
+  await client.delete(fields).where(and(eq(fields.orgId, actor.orgId), eq(fields.id, id)));
 
-    return { ok: true as const };
-  });
+  return { ok: true as const };
 };

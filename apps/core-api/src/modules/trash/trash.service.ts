@@ -9,6 +9,7 @@ import {
   customers,
   type Db,
   newId,
+  savepoint,
   tags,
   trash,
 } from '@erxes/core-db';
@@ -311,7 +312,7 @@ export const restoreFromTrash = async (client: Db, actor: Actor, ids: string[]) 
   // One savepoint after another on the request's connection, so each item fails alone.
   await inOrder(items, async (item) => {
     try {
-      await client.transaction((tx) => restoreItem(tx, actor, item));
+      await savepoint((tx) => restoreItem(tx, actor, item));
       restored += 1;
     } catch (error) {
       failed.push({

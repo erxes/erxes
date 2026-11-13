@@ -62,6 +62,21 @@ export const withSystem = async <T>(
 };
 
 /**
+ * Everything in a scope is already one transaction: its writes are saved
+ * together or not at all, so services never open another. `savepoint(fn)` is
+ * for an error the caller handles: when `fn` throws, only its own writes roll
+ * back and the scope's transaction stays usable, to look up what conflicted or
+ * to go on with the next item.
+ */
+export const savepoint = <T>(fn: (tx: Transaction) => Promise<T>) => {
+  const current = currentScope();
+
+  if (!current) throw new Error('savepoint() needs a withOrg or withSystem scope');
+
+  return current.tx.transaction(fn);
+};
+
+/**
  * A transaction of its own for the organisation, even inside another scope:
  * for what must be saved although the surrounding work is rolled back (a
  * guard that refuses the request but records why).

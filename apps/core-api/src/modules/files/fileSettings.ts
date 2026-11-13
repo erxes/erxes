@@ -122,29 +122,27 @@ export const updateFileSettings = async (
     allowedTypes: unique(input.allowedTypes),
   };
 
-  await client.transaction(async (tx) => {
-    await tx
-      .update(organizations)
-      .set({
-        settings: sql`jsonb_set(${organizations.settings}, '{files}', ${JSON.stringify(next)}::jsonb)`,
-        updatedAt: sql`now()`,
-      })
-      .where(eq(organizations.id, actor.orgId));
+  await client
+    .update(organizations)
+    .set({
+      settings: sql`jsonb_set(${organizations.settings}, '{files}', ${JSON.stringify(next)}::jsonb)`,
+      updatedAt: sql`now()`,
+    })
+    .where(eq(organizations.id, actor.orgId));
 
-    await recordAudit(
-      tx,
-      { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
-      {
-        action: 'settings.files_changed',
-        targetType: 'organization',
-        targetId: actor.orgId,
-        changes: {
-          maxSizeMb: [before.maxSizeMb, next.maxSizeMb],
-          allowedTypes: [before.allowedTypes, next.allowedTypes],
-        },
+  await recordAudit(
+    client,
+    { orgId: actor.orgId, actorType: 'user', actorId: actor.userId, source: 'core' },
+    {
+      action: 'settings.files_changed',
+      targetType: 'organization',
+      targetId: actor.orgId,
+      changes: {
+        maxSizeMb: [before.maxSizeMb, next.maxSizeMb],
+        allowedTypes: [before.allowedTypes, next.allowedTypes],
       },
-    );
-  });
+    },
+  );
 
   return fileSettingsOf(client, actor.orgId);
 };

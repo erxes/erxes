@@ -1,5 +1,5 @@
 import { coreContract } from '@erxes/core-contract';
-import { type Transaction, withOrg, withTransaction } from '@erxes/core-db';
+import { db, type Db, withOrg } from '@erxes/core-db';
 import { getLogger, type LoggerContext } from '@orpc/experimental-pino';
 import { implement, os } from '@orpc/server';
 import type { Request, Response } from 'express';
@@ -95,21 +95,20 @@ export const anyone = orgScoped.use(asCaller);
 export const anyoneUnscoped = pub.use(asCaller);
 
 /**
- * Runs a settings change and its audit entry in one transaction: both are
- * saved, or neither.
+ * Runs a settings change and its audit entry in the request's transaction:
+ * both are saved, or neither.
  */
-export const audited = <T>(
+export const audited = async <T>(
   actor: Actor,
-  run: (tx: Transaction) => Promise<T>,
+  run: (tx: Db) => Promise<T>,
   entry: (result: T) => AuditInput | AuditInput[],
-) =>
-  withTransaction(async (tx) => {
-    const result = await run(tx);
+) => {
+  const result = await run(db());
 
-    await recordAudit(tx, userCaller(actor), entry(result));
+  await recordAudit(db(), userCaller(actor), entry(result));
 
-    return result;
-  });
+  return result;
+};
 
 /** An audit entry for `<targetType>.<action>`, labelled with the record's label or name. */
 export const recordOf = (

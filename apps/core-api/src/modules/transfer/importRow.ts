@@ -1,5 +1,5 @@
 import { CompanyFields, CustomerFields } from '@erxes/core-contract';
-import type { Db } from '@erxes/core-db';
+import { type Db, savepoint } from '@erxes/core-db';
 import { ZodError } from 'zod';
 import { HttpError } from '~/http/errors';
 import { normalizeEmail } from '~/lib/contacts';
@@ -192,7 +192,7 @@ export const processRow = async (
   let recordId = existing ?? undefined;
 
   try {
-    await tx.transaction(async (sp) => {
+    await savepoint(async (sp) => {
       await completeInput(sp, ctx, read, existing, created);
       recordId = await saveRecord(sp, ctx, read.input, existing);
 

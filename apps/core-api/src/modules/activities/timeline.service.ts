@@ -156,42 +156,41 @@ export const listActivities = async (client: Db, actor: Actor, query: TimelineQu
 };
 
 /** Adds or takes back the member's reaction (row locked: two at once both count). */
-export const reactToActivity = async (client: Db, actor: Actor, id: string, emoji: string) =>
-  client.transaction(async (tx) => {
-    const [row] = await tx
-      .select()
-      .from(activities)
-      .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
-      .for('update')
-      .limit(1);
+export const reactToActivity = async (client: Db, actor: Actor, id: string, emoji: string) => {
+  const [row] = await client
+    .select()
+    .from(activities)
+    .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
+    .for('update')
+    .limit(1);
 
-    if (!row) throw notFound('Entry');
+  if (!row) throw notFound('Entry');
 
-    await assertTimelineAccess(tx, { actor, orgId: actor.orgId }, row.targetType, row.targetId);
+  await assertTimelineAccess(client, { actor, orgId: actor.orgId }, row.targetType, row.targetId);
 
-    const reactions = { ...reactionsOf(row.data) };
-    const people = new Set(reactions[emoji] ?? []);
+  const reactions = { ...reactionsOf(row.data) };
+  const people = new Set(reactions[emoji] ?? []);
 
-    if (people.has(actor.userId)) people.delete(actor.userId);
-    else {
-      if (!reactions[emoji] && Object.keys(reactions).length >= 20)
-        throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
-      people.add(actor.userId);
-    }
+  if (people.has(actor.userId)) people.delete(actor.userId);
+  else {
+    if (!reactions[emoji] && Object.keys(reactions).length >= 20)
+      throw new HttpError(400, 'TOO_MANY_REACTIONS', 'At most 20 different reactions');
+    people.add(actor.userId);
+  }
 
-    if (people.size) reactions[emoji] = [...people];
-    else delete reactions[emoji];
+  if (people.size) reactions[emoji] = [...people];
+  else delete reactions[emoji];
 
-    const saved = oneRow(
-      await tx
-        .update(activities)
-        .set({ data: { ...row.data, reactions } })
-        .where(eq(activities.id, id))
-        .returning(),
-    );
+  const saved = oneRow(
+    await client
+      .update(activities)
+      .set({ data: { ...row.data, reactions } })
+      .where(eq(activities.id, id))
+      .returning(),
+  );
 
-    return toActivityDto(saved);
-  });
+  return toActivityDto(saved);
+};
 
 const CORE_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
   note: { label: 'Note', icon: 'IconNote' },
