@@ -47,3 +47,5 @@ export * from './leadStages';
 export * from './leads';
 
 export * from './products';
+
+export * from './customerAuth';
