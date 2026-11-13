@@ -1,3 +1,4 @@
+import { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import { companies, customerCompanies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -208,7 +209,7 @@ export const customersContract = {
           primaryPhone: z.string().trim().min(3).max(40).optional(),
           firstName: z.string().trim().max(100).optional(),
           lastName: z.string().trim().max(100).optional(),
-          state: z.enum(['lead', 'customer']).optional(),
+          state: z.enum(CUSTOMER_STATES).optional(),
           /** For a new one: where they came from (default: the plugin, or `manual`). */
           source: CustomerFields.shape.source,
           sourceDetails: CustomerFields.shape.sourceDetails,

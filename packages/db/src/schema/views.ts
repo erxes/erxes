@@ -1,4 +1,4 @@
-import { VIEW_RECORD_TYPES } from '../enums';
+import { type SORT_DIRECTIONS, VIEW_RECORD_TYPES } from '../enums';
 import { boolean, check, foreignKey, index, jsonb, text } from 'drizzle-orm/pg-core';
 import { inList, pgTable } from '../table';
 import { type ConditionGroup, createdAt, updatedAt } from './common';
@@ -6,7 +6,7 @@ import { organizations } from './organizations';
 
 export interface ViewSort {
   field: string;
-  direction: 'asc' | 'desc';
+  direction: (typeof SORT_DIRECTIONS)[number];
 }
 
 /**

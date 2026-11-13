@@ -1,4 +1,9 @@
-import type { CONDITION_OPERATORS, CONTENT_TYPES, FIELD_CONTENT_TYPES } from '../enums';
+import type {
+  CONDITION_MATCHES,
+  CONDITION_OPERATORS,
+  CONTENT_TYPES,
+  FIELD_CONTENT_TYPES,
+} from '../enums';
 import { timestamp } from 'drizzle-orm/pg-core';
 
 export type ContentType = (typeof CONTENT_TYPES)[number];
@@ -20,7 +25,7 @@ export interface ConditionRule {
 
 /** Rules (or nested groups) that must all, or any, hold. */
 export interface ConditionGroup {
-  match: 'all' | 'any';
+  match: (typeof CONDITION_MATCHES)[number];
   rules: (ConditionRule | ConditionGroup)[];
 }
 

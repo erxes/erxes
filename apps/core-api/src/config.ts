@@ -1,3 +1,11 @@
+import {
+  BOOLEAN_STRINGS,
+  EMAIL_DRIVERS,
+  FILE_STORAGES,
+  LOG_FORMATS,
+  LOG_LEVELS,
+  SMS_DRIVERS,
+} from '@erxes/core-db/enums';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 
@@ -34,7 +42,7 @@ const optional = <T extends z.ZodType>(schema: T) =>
 
 const text = optional(z.string());
 
-const flag = optional(z.enum(['true', 'false']).transform((value) => value === 'true'));
+const flag = optional(z.enum(BOOLEAN_STRINGS).transform((value) => value === 'true'));
 
 const positive = (fallback: number) =>
   optional(z.coerce.number().positive()).transform((value) => value ?? fallback);
@@ -82,8 +90,8 @@ const Env = z
     NODE_ENV: text,
     PORT: positive(3400),
 
-    LOG_LEVEL: optional(z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])),
-    LOG_FORMAT: optional(z.enum(['json', 'pretty'])),
+    LOG_LEVEL: optional(z.enum(LOG_LEVELS)),
+    LOG_FORMAT: optional(z.enum(LOG_FORMATS)),
     OTEL_EXPORTER_OTLP_ENDPOINT: optional(z.url()),
 
     DATA_URL: text,
@@ -115,11 +123,11 @@ const Env = z
 
     APP_URL: baseUrl('http://localhost:3500'),
 
-    EMAIL_DRIVER: optional(z.enum(['smtp', 'log'])),
+    EMAIL_DRIVER: optional(z.enum(EMAIL_DRIVERS)),
     EMAIL_SMTP_URL: text,
     EMAIL_FROM: text,
 
-    SMS_DRIVER: optional(z.enum(['log'])),
+    SMS_DRIVER: optional(z.enum(SMS_DRIVERS)),
 
     OUTBOUND_ALLOW_PRIVATE: flag,
 
@@ -130,12 +138,7 @@ const Env = z
     SAAS_GRACE_DAYS: positive(7),
     SAAS_BILLING_URL: text,
 
-    FILES_STORAGE: optional(
-      z
-        .string()
-        .toLowerCase()
-        .pipe(z.enum(['local', 's3'])),
-    ),
+    FILES_STORAGE: optional(z.string().toLowerCase().pipe(z.enum(FILE_STORAGES))),
     FILES_LOCAL_DIR: text,
     FILES_MAX_SIZE_MB: positive(50),
     FILES_LINK_TTL_SECONDS: positive(300),

@@ -1,4 +1,10 @@
-import { CONTENT_TYPES, FIELD_CONTENT_TYPES } from '@erxes/core-db/enums';
+import {
+  BOOLEAN_STRINGS,
+  CONTENT_TYPES,
+  CURSOR_MODES,
+  FIELD_CONTENT_TYPES,
+  PAGE_DIRECTIONS,
+} from '@erxes/core-db/enums';
 import { z } from 'zod';
 
 export const Id = z.string().min(1).max(64);
@@ -19,8 +25,8 @@ export const isoDate = () => z.iso.datetime();
 export const CursorQuery = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(30),
   cursor: Id.optional(),
-  direction: z.enum(['forward', 'backward']).default('forward'),
-  cursorMode: z.enum(['inclusive', 'exclusive']).default('exclusive'),
+  direction: z.enum(PAGE_DIRECTIONS).default('forward'),
+  cursorMode: z.enum(CURSOR_MODES).default('exclusive'),
 });
 
 export type CursorQuery = z.infer<typeof CursorQuery>;
@@ -34,11 +40,11 @@ export const PageInfo = z.object({
 
 export type PageInfo = z.infer<typeof PageInfo>;
 
+/** `true`/`false` from a query string. */
+export const QueryFlag = z.enum(BOOLEAN_STRINGS).transform((value) => value === 'true');
+
 /** `true`/`false` from a query string, or a boolean from a typed client. */
-export const QueryBoolean = z.union([
-  z.boolean(),
-  z.enum(['true', 'false']).transform((value) => value === 'true'),
-]);
+export const QueryBoolean = z.union([z.boolean(), QueryFlag]);
 
 /** Comma-separated ids in a query string (`?ids=a,b`), at most 100. */
 export const IdList = z

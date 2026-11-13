@@ -1,4 +1,11 @@
-import { EXPORT_FORMATS, EXPORT_STATUSES, IMPORT_STATUSES, TRANSFER_RECORD_TYPES } from '../enums';
+import {
+  EXPORT_FORMATS,
+  EXPORT_STATUSES,
+  type IMPORT_MATCH_KEYS,
+  type IMPORT_MODES,
+  IMPORT_STATUSES,
+  TRANSFER_RECORD_TYPES,
+} from '../enums';
 import {
   check,
   foreignKey,
@@ -26,9 +33,9 @@ const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 export interface ImportOptions {
   /** `create`: new records only (existing ones skipped); `update`: existing only; `upsert`: both. */
-  mode: 'create' | 'update' | 'upsert';
+  mode: (typeof IMPORT_MODES)[number];
   /** How a row finds its existing record. */
-  matchBy: 'email' | 'phone' | 'code' | 'id' | 'name';
+  matchBy: (typeof IMPORT_MATCH_KEYS)[number];
   tagIds?: string[];
   ownerId?: string | null;
   /** Tags and companies named in the file but missing are created. */

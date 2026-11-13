@@ -4,7 +4,7 @@ import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { NotificationDelivery } from './values';
-import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
+import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
 import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
 
 export const Notification = createSelectSchema(notifications, {
@@ -113,20 +113,15 @@ export const NotificationSettings = z.object({
 
 export type NotificationSettings = z.infer<typeof NotificationSettings>;
 
-const boolQuery = z
-  .enum(['true', 'false'])
-  .transform((value) => value === 'true')
-  .optional();
-
 /** The signed-in member's inbox. Plugins create notifications with `create`. */
 export const notificationsContract = {
   list: oc
     .route({ method: 'GET', path: '/notifications', summary: 'My notifications, newest first' })
     .input(
       CursorQuery.extend({
-        unread: boolQuery,
+        unread: QueryFlag.optional(),
         source: z.string().trim().max(40).optional(),
-        priority: z.enum(['normal', 'high']).optional(),
+        priority: z.enum(NOTIFICATION_PRIORITIES).optional(),
         /** A kind, or a prefix ending in `.` or `*` (`core.customer.`). */
         kind: z.string().trim().max(100).optional(),
       }),

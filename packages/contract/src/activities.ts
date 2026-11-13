@@ -1,11 +1,12 @@
+import { ACTIVITY_TARGETS, TIMELINE_KINDS } from '@erxes/core-db/enums';
 import { activities } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
+import { cursorPageOf, CursorQuery, Id, isoDate, QueryFlag } from './common';
 import { ActorRef, AppLink, DedupeKey, EntityRef, EventType } from './platform';
 
-export const ActivityTarget = z.enum(['customer', 'company']);
+export const ActivityTarget = z.enum(ACTIVITY_TARGETS);
 
 export type ActivityTarget = z.infer<typeof ActivityTarget>;
 
@@ -85,7 +86,7 @@ export const NoteInput = z.object({
 });
 
 /** Which entries a timeline shows. */
-export const TimelineKind = z.enum(['all', 'notes', 'changes', 'plugins']);
+export const TimelineKind = z.enum(TIMELINE_KINDS);
 
 export const ActivityInput = createUpdateSchema(activities, {
   targetType: () => TimelineTarget,
@@ -141,15 +142,9 @@ export const activitiesContract = {
         to: z.iso.datetime().optional(),
         kind: TimelineKind.default('all'),
         /** Pinned notes only. */
-        pinned: z
-          .enum(['true', 'false'])
-          .transform((value) => value === 'true')
-          .optional(),
+        pinned: QueryFlag.optional(),
         /** A company's timeline with its customers' entries too. */
-        includeRelated: z
-          .enum(['true', 'false'])
-          .transform((value) => value === 'true')
-          .optional(),
+        includeRelated: QueryFlag.optional(),
       }),
     )
     .output(cursorPageOf(Activity)),

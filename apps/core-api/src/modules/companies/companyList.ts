@@ -1,3 +1,4 @@
+import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import type { CursorQuery } from '@erxes/core-contract';
 import { companies, customerCompanies, customers, type Db } from '@erxes/core-db';
 import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
@@ -12,7 +13,7 @@ import { findCompany, selectCompanies, toCompanyDto } from './companyRows';
 
 interface CompanyQuery {
   search?: string;
-  state?: 'lead' | 'customer';
+  state?: (typeof CUSTOMER_STATES)[number];
   leadStageId?: string;
   ownerId?: string;
   tagIds?: string[];

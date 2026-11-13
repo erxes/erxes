@@ -1,3 +1,4 @@
+import { CONTENT_TYPES, WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
 import { webhookDeliveries, webhooks } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -174,7 +175,7 @@ export const EventTypeInfo = z.object({
   /** `core` or the plugin that publishes it. */
   source: z.string(),
   /** The record it is about, when it is about a customer or company. */
-  subject: z.enum(['customer', 'company']).nullable(),
+  subject: z.enum(CONTENT_TYPES).nullable(),
 });
 
 export type EventTypeInfo = z.infer<typeof EventTypeInfo>;
@@ -302,9 +303,7 @@ export const webhooksContract = {
       path: '/webhooks/{id}/deliveries',
       summary: 'Recent deliveries, newest first',
     })
-    .input(
-      CursorQuery.extend({ id: Id, status: z.enum(['pending', 'succeeded', 'failed']).optional() }),
-    )
+    .input(CursorQuery.extend({ id: Id, status: z.enum(WEBHOOK_DELIVERY_STATUSES).optional() }))
     .output(cursorPageOf(WebhookDelivery)),
   redeliver: oc
     .route({

@@ -5,6 +5,7 @@ import type {
 } from '@erxes/core-contract';
 import {
   CONTENT_TYPES,
+  type ContentType,
   type Db,
   type FIELD_TYPES,
   fields,
@@ -224,7 +225,7 @@ const COMPANY_FIELDS: AutomationFieldPath[] = [
   { path: 'subject.createdAt', label: 'Created', type: 'date' },
 ];
 
-const builtInFields = (subject?: 'customer' | 'company') => {
+const builtInFields = (subject?: ContentType) => {
   if (subject === 'company') return COMPANY_FIELDS;
 
   if (subject === 'customer') return CUSTOMER_FIELDS;
@@ -233,11 +234,7 @@ const builtInFields = (subject?: 'customer' | 'company') => {
 };
 
 /** Built-in fields of customers and companies, and the organisation's custom fields. */
-export const automationFields = async (
-  client: Db,
-  actor: Actor,
-  subject?: 'customer' | 'company',
-) => {
+export const automationFields = async (client: Db, actor: Actor, subject?: ContentType) => {
   const custom = await client
     .select({ id: fields.id, label: fields.label, type: fields.type, options: fields.options })
     .from(fields)

@@ -34,7 +34,7 @@ export const toEventDto = (row: EventRow): CoreEvent => ({
 
 export interface CoreEventInput {
   type: string;
-  subject?: { type: 'customer' | 'company'; id: string };
+  subject?: EventInput['subject'];
   entity?: { type: string; id: string };
   payload?: Record<string, unknown>;
 }
@@ -144,7 +144,7 @@ export const listEvents = async (
   query: CursorQuery & {
     source?: string;
     type?: string;
-    subjectType?: 'customer' | 'company';
+    subjectType?: NonNullable<EventInput['subject']>['type'];
     subjectId?: string;
   },
 ) => {
@@ -189,7 +189,7 @@ export const listEvents = async (
 export const listEventFailures = async (
   client: Db,
   actor: Actor,
-  query: { status?: 'retrying' | 'dead' },
+  query: { status?: EventFailure['status'] },
 ) => {
   requirePermission(actor, 'events.view');
 

@@ -1,3 +1,4 @@
+import type { CUSTOMER_STATES } from '@erxes/core-db/enums';
 import { customers, type Db, newId } from '@erxes/core-db';
 import { and, arrayContains, eq, or, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
@@ -13,7 +14,7 @@ interface Contact {
   primaryPhone?: string;
   firstName?: string;
   lastName?: string;
-  state?: 'lead' | 'customer';
+  state?: (typeof CUSTOMER_STATES)[number];
   source?: string | null;
   sourceDetails?: Record<string, string>;
 }

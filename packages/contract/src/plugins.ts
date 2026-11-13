@@ -1,3 +1,4 @@
+import { AUTOMATION_SUBJECTS, CONTENT_TYPES } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { EventPattern } from './webhooks';
@@ -150,7 +151,7 @@ export const PluginManifest = z.object({
         type: EventType,
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
-        subject: z.enum(['customer', 'company', 'any']).optional(),
+        subject: z.enum(AUTOMATION_SUBJECTS).optional(),
         fields: z.array(ActionField).max(50).default([]),
       }),
     )
@@ -209,7 +210,7 @@ export const PluginManifest = z.object({
         type: EventType,
         label: z.string().trim().min(1).max(100),
         description: z.string().trim().max(300).optional(),
-        subject: z.enum(['customer', 'company']).optional(),
+        subject: z.enum(CONTENT_TYPES).optional(),
       }),
     )
     .max(500)

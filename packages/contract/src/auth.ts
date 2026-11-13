@@ -1,3 +1,4 @@
+import { LANGUAGES } from '@erxes/core-db/enums';
 import { oc } from '@orpc/contract';
 import { z } from 'zod';
 import { NewPassword } from './values';
@@ -205,7 +206,7 @@ export const authContract = {
           /** Fill a fresh organisation with example contacts, notes and an automation (owners; once, while it has no contacts). */
           exampleData: z.boolean().optional(),
           /** The language of the example data: the member's UI language. */
-          language: z.enum(['en', 'mn']).optional(),
+          language: z.enum(LANGUAGES).optional(),
         })
         .optional(),
     )

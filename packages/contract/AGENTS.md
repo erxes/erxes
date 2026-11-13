@@ -51,7 +51,8 @@ from `src/values.ts`, so a browser never loads a table or drizzle. The core-ui b
   - Override what drizzle-zod infers differently: `id: Id`, timestamps `isoDate`, integers
     `() => z.int()` (it adds the column's int32 or int53 bounds), jsonb columns their real shape.
   - Enums come from the arrays in `@erxes/core-db/enums`, the same ones the columns use:
-    `z.enum(CONTENT_TYPES)`, not a second list.
+    `z.enum(CONTENT_TYPES)`, not a second list. A new list goes into `enums.ts` first; lint
+    fails a `z.enum` with the values written out.
 - Check `openapi.json` after every change: zero difference unless the API is meant to change.
   Property order may move (computed fields come last); that is not a change.
 - The contract imports only `@erxes/core-db/schema` and `@erxes/core-db/enums` from the database

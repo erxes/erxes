@@ -1,3 +1,4 @@
+import type { AUTH_TOKEN_PURPOSES } from '@erxes/core-db/enums';
 import {
   authTokens,
   type Db,
@@ -25,7 +26,7 @@ const issue = async (
   tx: Db,
   orgId: string,
   userId: string,
-  purpose: 'invite' | 'password_reset',
+  purpose: (typeof AUTH_TOKEN_PURPOSES)[number],
 ) => {
   await tx
     .update(authTokens)
@@ -61,7 +62,7 @@ const issue = async (
  * Finds a valid, unused link. The id says where to look (the one lookup
  * before the organisation is known); the secret must match its hash.
  */
-const redeem = async (token: string, purpose: 'invite' | 'password_reset') => {
+const redeem = async (token: string, purpose: (typeof AUTH_TOKEN_PURPOSES)[number]) => {
   const [id, secret] = token.split('.');
 
   if (!id || !secret) throw invalidLink();

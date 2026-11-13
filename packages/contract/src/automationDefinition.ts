@@ -1,4 +1,12 @@
-import { CONDITION_OPERATORS } from '@erxes/core-db/enums';
+import {
+  CONDITION_MATCHES,
+  CONDITION_OPERATORS,
+  CONTENT_TYPES,
+  DELAY_UNITS,
+  REENTRY_RULES,
+  RELATIVE_DATE_UNITS,
+  SCHEDULE_INTERVALS,
+} from '@erxes/core-db/enums';
 import type { ConditionGroup as StoredConditionGroup } from '@erxes/core-db/schema';
 import { z } from 'zod';
 
@@ -17,7 +25,7 @@ export const ConditionOperator = z.enum(CONDITION_OPERATORS);
 /** The value of a relative-date rule: "within the last 30 days". */
 export const RelativeAmount = z.object({
   amount: z.int().min(0).max(3650),
-  unit: z.enum(['days', 'weeks', 'months']).default('days'),
+  unit: z.enum(RELATIVE_DATE_UNITS).default('days'),
 });
 
 export type RelativeAmount = z.infer<typeof RelativeAmount>;
@@ -35,7 +43,7 @@ export type ConditionGroup = StoredConditionGroup;
 /** Rules (or nested groups) that must all, or any, hold. */
 export const ConditionGroup: z.ZodType<ConditionGroup> = z.lazy(() =>
   z.object({
-    match: z.enum(['all', 'any']),
+    match: z.enum(CONDITION_MATCHES),
     rules: z.array(z.union([ConditionRule, ConditionGroup])).max(50),
   }),
 );
@@ -45,7 +53,7 @@ const Label = z.string().trim().max(100).optional();
 
 const Duration = {
   amount: z.int().min(1).max(10_000),
-  unit: z.enum(['minutes', 'hours', 'days']),
+  unit: z.enum(DELAY_UNITS),
 };
 
 /**
@@ -63,7 +71,7 @@ export type AutomationStep =
       id: string;
       type: 'delay';
       amount?: number;
-      unit?: 'minutes' | 'hours' | 'days';
+      unit?: (typeof DELAY_UNITS)[number];
       until?: string;
       label?: string;
     }
@@ -75,7 +83,7 @@ export type AutomationStep =
       conditions?: ConditionGroup;
       /** Give up after this long (the step's output says `matched: false`). */
       amount: number;
-      unit: 'minutes' | 'hours' | 'days';
+      unit: (typeof DELAY_UNITS)[number];
       label?: string;
     }
   | {
@@ -117,7 +125,7 @@ export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
         id: StepId,
         type: z.literal('delay'),
         amount: z.int().min(1).max(10_000).optional(),
-        unit: z.enum(['minutes', 'hours', 'days']).optional(),
+        unit: z.enum(DELAY_UNITS).optional(),
         /** A date to wait until (template allowed), instead of an amount. */
         until: z.string().max(200).optional(),
         label: Label,
@@ -190,7 +198,7 @@ const TimeZone = z
 
 /** Which records a scheduled or manual run goes through: none (one run), or each matching customer/company. */
 export const Audience = z.object({
-  type: z.enum(['customer', 'company']),
+  type: z.enum(CONTENT_TYPES),
   /** Conditions on `subject.*`; empty: every record. */
   conditions: ConditionGroup.optional(),
 });
@@ -207,7 +215,7 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
   /** On a schedule: every hour, day, week (on weekdays) or month (on a day), at a time, in a time zone. */
   z.object({
     kind: z.literal('schedule'),
-    every: z.enum(['hour', 'day', 'week', 'month']),
+    every: z.enum(SCHEDULE_INTERVALS),
     at: TimeOfDay.default('09:00'),
     /** 1 = Monday … 7 = Sunday (week). */
     weekdays: z.array(z.int().min(1).max(7)).max(7).optional(),
@@ -218,7 +226,7 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
   /** Around a date on each record: "3 days before contract end", "on the birthday" (every year). */
   z.object({
     kind: z.literal('date'),
-    subject: z.enum(['customer', 'company']),
+    subject: z.enum(CONTENT_TYPES),
     /** `birthDate` or a date custom field's id. */
     field: z.string().min(1).max(64),
     /** Days after (positive) or before (negative) the date. */
@@ -239,7 +247,7 @@ export type AutomationTrigger = z.infer<typeof AutomationTrigger>;
  * When the same customer or company may run through again:
  * every time, only once ever, or once a day.
  */
-export const Reentry = z.enum(['always', 'once', 'daily']);
+export const Reentry = z.enum(REENTRY_RULES);
 
 export const AutomationDefinition = z.object({
   trigger: AutomationTrigger,

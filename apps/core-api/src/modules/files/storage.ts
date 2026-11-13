@@ -10,6 +10,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
+import { FILE_GRANT_OPS } from '@erxes/core-db/enums';
 import {
   link,
   mkdir,
@@ -93,7 +94,7 @@ export const contentDisposition = (name: string, inline: boolean) => {
 
 /** What a signed local link allows: write (`put`) or read (`get`) one key, until `exp`. */
 const LocalGrant = z.object({
-  op: z.enum(['put', 'get']),
+  op: z.enum(FILE_GRANT_OPS),
   key: z.string(),
   exp: z.number(),
   /** put: exact size and type the bytes must have. */

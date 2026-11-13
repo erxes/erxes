@@ -1,3 +1,4 @@
+import type { AUDIT_STREAM_STARTS, AUDIT_STREAM_STATUSES } from '@erxes/core-db/enums';
 import type { AuditStream } from '@erxes/core-contract';
 import { auditLogs, auditStreams, type Db, newId, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
@@ -69,7 +70,7 @@ export const createStream = async (
     url: string;
     format: StreamRow['format'];
     authHeader?: { name: string; value: string };
-    from: 'now' | 'beginning';
+    from: (typeof AUDIT_STREAM_STARTS)[number];
   },
 ) => {
   checkUrl(input.url);
@@ -128,7 +129,7 @@ export const updateStream = async (
     url?: string;
     format?: StreamRow['format'];
     authHeader?: { name: string; value: string } | null;
-    status?: 'active' | 'paused';
+    status?: (typeof AUDIT_STREAM_STATUSES)[number];
   },
 ) => {
   const before = await streamOrThrow(client, actor.orgId, id);

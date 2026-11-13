@@ -1,3 +1,4 @@
+import { AUDIT_EXPORT_FORMATS } from '@erxes/core-db/enums';
 import { auditLogs, withOrg } from '@erxes/core-db';
 import { stringify } from 'csv-stringify/sync';
 import { and, desc, eq, type SQL, sql } from 'drizzle-orm';
@@ -11,7 +12,7 @@ const MAX_ROWS = 100_000;
 const BATCH = 1_000;
 
 const ExportQuery = z.object({
-  format: z.enum(['csv', 'json']).default('csv'),
+  format: z.enum(AUDIT_EXPORT_FORMATS).default('csv'),
   action: z.string().trim().max(100).optional(),
   actorId: z.string().trim().max(64).optional(),
   targetType: z.string().trim().max(64).optional(),
@@ -54,7 +55,7 @@ const cell = (value: AuditRow[(typeof COLUMNS)[number]]) =>
           : String(value),
   );
 
-const line = (format: 'csv' | 'json', row: AuditRow, first: boolean) => {
+const line = (format: (typeof AUDIT_EXPORT_FORMATS)[number], row: AuditRow, first: boolean) => {
   if (format === 'csv') return stringify([COLUMNS.map((column) => cell(row[column]))]);
 
   const { orgId: _org, prevHash: _prev, ...visible } = row;
@@ -66,7 +67,7 @@ const line = (format: 'csv' | 'json', row: AuditRow, first: boolean) => {
 const writeEntries = async (
   res: Response,
   actor: Actor,
-  format: 'csv' | 'json',
+  format: (typeof AUDIT_EXPORT_FORMATS)[number],
   scope: SQL | undefined,
 ) => {
   let after: Pick<AuditRow, 'createdAt' | 'id'> | undefined;

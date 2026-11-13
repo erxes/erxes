@@ -1,3 +1,4 @@
+import type { WEBHOOK_DELIVERY_STATUSES } from '@erxes/core-db/enums';
 import type { CursorQuery, WebhookDelivery } from '@erxes/core-contract';
 import { type Db, events, newId, webhookDeliveries, webhooks, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
@@ -257,7 +258,7 @@ export const testWebhook = async (client: Db, actor: Actor, id: string) => {
 export const listDeliveries = async (
   client: Db,
   actor: Actor,
-  query: CursorQuery & { id: string; status?: 'pending' | 'succeeded' | 'failed' },
+  query: CursorQuery & { id: string; status?: (typeof WEBHOOK_DELIVERY_STATUSES)[number] },
 ) => {
   await findWebhook(client, actor.orgId, query.id);
 

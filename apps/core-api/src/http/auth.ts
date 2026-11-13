@@ -1,4 +1,12 @@
-import { db, pluginInstallations, plugins, roles, users, withOrg } from '@erxes/core-db';
+import {
+  type ActorType,
+  db,
+  pluginInstallations,
+  plugins,
+  roles,
+  users,
+  withOrg,
+} from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
 import type { NextFunction, Request, Response } from 'express';
 import { decodeProtectedHeader, jwtVerify, SignJWT } from 'jose';
@@ -52,7 +60,7 @@ export interface PluginService {
  * `core` for members and core, else the plugin.
  */
 export type Caller = { orgId: string; source: string } & (
-  | { actorType: 'user' | 'plugin'; actorId: string }
+  | { actorType: Exclude<ActorType, 'system'>; actorId: string }
   | { actorType: 'system'; actorId: null }
 );
 

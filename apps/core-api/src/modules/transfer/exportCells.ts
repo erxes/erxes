@@ -1,3 +1,4 @@
+import type { EXPORT_FORMATS } from '@erxes/core-db/enums';
 import type { TransferRecordType } from '@erxes/core-contract';
 import {
   companies,
@@ -133,7 +134,11 @@ export const pageCells = async (
 };
 
 /** The export file: CSV (UTF-8 with a BOM) or Excel with a bold, sticky header. */
-export const exportFile = async (format: 'csv' | 'xlsx', header: string[], rows: Cell[][]) => {
+export const exportFile = async (
+  format: (typeof EXPORT_FORMATS)[number],
+  header: string[],
+  rows: Cell[][],
+) => {
   if (format === 'csv') {
     const lines = rows.map((cells) =>
       cells.map((cell) => (cell instanceof Date ? cell.toISOString() : defuse(String(cell ?? '')))),

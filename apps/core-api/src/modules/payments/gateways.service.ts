@@ -195,7 +195,7 @@ export const updateGateway = async (
   client: Db,
   actor: Actor,
   id: string,
-  input: { name?: string; config?: GatewayConfig; status?: 'active' | 'disabled' },
+  input: { name?: string; config?: GatewayConfig; status?: GatewayRow['status'] },
 ) => {
   const before = await gatewayOrThrow(client, actor.orgId, id);
 

@@ -1,3 +1,4 @@
+import type { WEBHOOK_STATUSES } from '@erxes/core-db/enums';
 import { CORE_EVENT_TYPES, type EventTypeInfo, type Webhook } from '@erxes/core-contract';
 import { type Db, newId, pluginInstallations, plugins, webhooks } from '@erxes/core-db';
 import { and, desc, eq, sql } from 'drizzle-orm';
@@ -132,7 +133,7 @@ export const createWebhook = async (
   return { webhook: toWebhookDto(row), secret };
 };
 
-const statusChange = (status: 'active' | 'disabled' | undefined) =>
+const statusChange = (status: (typeof WEBHOOK_STATUSES)[number] | undefined) =>
   status
     ? {
         status,
@@ -149,7 +150,7 @@ export const updateWebhook = async (
     url?: string;
     description?: string | null;
     eventTypes?: string[];
-    status?: 'active' | 'disabled';
+    status?: (typeof WEBHOOK_STATUSES)[number];
   },
 ) => {
   const before = await findWebhook(client, actor.orgId, id);

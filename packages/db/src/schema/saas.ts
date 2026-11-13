@@ -1,4 +1,4 @@
-import type { PLUGIN_TIERS } from '../enums';
+import type { ENTITLEMENT_STATUSES, PLUGIN_TIERS } from '../enums';
 import { ORGANIZATION_STATUSES } from '../enums';
 import { check, foreignKey, jsonb, text, timestamp } from 'drizzle-orm/pg-core';
 import { inList, pgTable } from '../table';
@@ -10,7 +10,7 @@ const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 export interface EntitledPlugin {
   code: string;
   tier: (typeof PLUGIN_TIERS)[number];
-  status: 'active' | 'past_due' | 'canceling';
+  status: (typeof ENTITLEMENT_STATUSES)[number];
   endsAt?: string | null;
 }
 

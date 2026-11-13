@@ -1,3 +1,4 @@
+import type { TIMELINE_KINDS } from '@erxes/core-db/enums';
 import type { CursorQuery } from '@erxes/core-contract';
 import {
   activities,
@@ -21,7 +22,7 @@ interface TimelineQuery extends CursorQuery {
   targetType: string;
   targetId: string;
   source?: string;
-  kind?: 'all' | 'notes' | 'changes' | 'plugins';
+  kind?: (typeof TIMELINE_KINDS)[number];
   pinned?: boolean;
   includeRelated?: boolean;
   q?: string;

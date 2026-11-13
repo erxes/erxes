@@ -1,3 +1,4 @@
+import type { CUSTOMER_CODE_PURPOSES } from '@erxes/core-db/enums';
 import { type CustomerLoginKind, customerCodes, type Db, newId } from '@erxes/core-db';
 import { and, desc, eq, gt, isNull, sql } from 'drizzle-orm';
 import { config } from '~/config';
@@ -25,7 +26,7 @@ export const addressOf = (input: Address): Address => ({
   value: input.kind === 'email' ? normalizeEmail(input.value) : normalizePhone(input.value),
 });
 
-type Purpose = 'sign_in' | 'add_login';
+type Purpose = (typeof CUSTOMER_CODE_PURPOSES)[number];
 
 /** Keyed with core's secret: a leaked table doesn't give the codes away by trying all million. */
 const hashOf = (id: string, code: string) =>

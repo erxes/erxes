@@ -1,8 +1,8 @@
-import { PLUGIN_STATUSES } from '../enums';
+import { type AUTOMATION_SUBJECTS, PLUGIN_STATUSES } from '../enums';
 import { sql } from 'drizzle-orm';
 import { foreignKey, index, jsonb, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
-import { createdAt, updatedAt } from './common';
+import { type ContentType, createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
 const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
@@ -33,7 +33,7 @@ export interface StoredPluginManifest {
     type: string;
     label: string;
     description?: string;
-    subject?: 'customer' | 'company';
+    subject?: ContentType;
   }[];
   /** Events it wants at `<api.url>/events` (patterns: `core.payment.*`). */
   subscriptions?: string[];
@@ -43,7 +43,7 @@ export interface StoredPluginManifest {
     type: string;
     label: string;
     description?: string;
-    subject?: 'customer' | 'company' | 'any';
+    subject?: (typeof AUTOMATION_SUBJECTS)[number];
     fields: {
       key: string;
       label: string;

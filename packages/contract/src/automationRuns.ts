@@ -1,4 +1,9 @@
-import { RUN_STATUSES } from '@erxes/core-db/enums';
+import {
+  ACTION_FIELD_TYPES,
+  AUTOMATION_SUBJECTS,
+  CONTENT_TYPES,
+  RUN_STATUSES,
+} from '@erxes/core-db/enums';
 import { automationRunSteps, automationRuns } from '@erxes/core-db/schema';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -14,20 +19,7 @@ import { Id, isoDate } from './common';
 export const ActionField = z.object({
   key: z.string(),
   label: z.string(),
-  type: z.enum([
-    'text',
-    'longtext',
-    'number',
-    'boolean',
-    'date',
-    'select',
-    'members',
-    'tags',
-    'json',
-    'custom_field',
-    'lead_stage',
-    'recipients',
-  ]),
+  type: z.enum(ACTION_FIELD_TYPES),
   required: z.boolean().default(false),
   options: z.array(z.object({ value: z.string(), label: z.string() })).optional(),
   description: z.string().optional(),
@@ -44,7 +36,7 @@ export const ActionInfo = z.object({
   description: z.string().nullable(),
   source: z.string(),
   /** Needs a customer or company as the run's subject. */
-  subject: z.enum(['customer', 'company', 'any']).nullable(),
+  subject: z.enum(AUTOMATION_SUBJECTS).nullable(),
   fields: z.array(ActionField),
 });
 
@@ -77,7 +69,7 @@ export const AutomationRun = createSelectSchema(automationRuns, {
     finishedAt: true,
   })
   .extend({
-    subject: z.object({ type: z.enum(['customer', 'company']), id: Id }).nullable(),
+    subject: z.object({ type: z.enum(CONTENT_TYPES), id: Id }).nullable(),
     /** Left early because the automation's goal was met. */
     goalReached: z.boolean(),
   });

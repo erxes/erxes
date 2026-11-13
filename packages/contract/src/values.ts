@@ -1,9 +1,11 @@
 import {
   AUDIT_STREAM_FORMATS,
   AUTOMATION_STATUSES,
+  CUSTOMER_SEXES,
   FIELD_TYPES,
   FIELD_VALIDATIONS,
   INVOICE_STATUSES,
+  NOTIFICATION_DELIVERIES,
   PAYMENT_GATEWAY_KINDS,
   PRODUCT_KINDS,
 } from '@erxes/core-db/enums';
@@ -54,7 +56,7 @@ export type UserLinkName = z.infer<typeof UserLinkName>;
 // ─── Records ────────────────────────────────────────────────────────────────
 
 /** ISO/IEC 5218, as in erxes until now: 0 not known, 1 male, 2 female, 9 not applicable. */
-export const CustomerSex = z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(9)]);
+export const CustomerSex = z.literal(CUSTOMER_SEXES);
 
 export type CustomerSex = z.infer<typeof CustomerSex>;
 
@@ -130,7 +132,7 @@ export const UNMUTABLE_NOTIFICATION_KINDS: readonly string[] = [
 ];
 
 /** Where a group of notifications goes: the inbox and email, the inbox only, or nowhere. */
-export const NotificationDelivery = z.enum(['email', 'inbox', 'off']);
+export const NotificationDelivery = z.enum(NOTIFICATION_DELIVERIES);
 
 export type NotificationDelivery = z.infer<typeof NotificationDelivery>;
 

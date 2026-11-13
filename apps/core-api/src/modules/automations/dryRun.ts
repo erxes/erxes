@@ -1,5 +1,5 @@
 import { AutomationDefinition, type AutomationStep, type DryRunStep } from '@erxes/core-contract';
-import type { Db } from '@erxes/core-db';
+import type { ContentType, Db } from '@erxes/core-db';
 import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { findAutomation } from './automations.service';
@@ -179,7 +179,7 @@ export const testAutomation = async (
   actor: Actor,
   id: string,
   input: {
-    subject?: { type: 'customer' | 'company'; id: string };
+    subject?: { type: ContentType; id: string };
     payload?: Record<string, unknown>;
     assumeEventHappens: boolean;
   },

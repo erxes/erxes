@@ -1,3 +1,4 @@
+import { AUTOMATION_FIELD_TYPES, CONTENT_TYPES } from '@erxes/core-db/enums';
 import { automations } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
@@ -40,7 +41,7 @@ export type Automation = z.infer<typeof Automation>;
 export const AutomationFieldPath = z.object({
   path: z.string(),
   label: z.string(),
-  type: z.enum(['text', 'number', 'date', 'boolean', 'list', 'member', 'tags', 'select']),
+  type: z.enum(AUTOMATION_FIELD_TYPES),
   options: z.array(z.string()).optional(),
 });
 
@@ -84,7 +85,7 @@ export const automationsContract = {
             /** A line on what it is, for pickers. */
             description: z.string().nullable().optional(),
             source: z.string(),
-            subject: z.enum(['customer', 'company']).nullable(),
+            subject: z.enum(CONTENT_TYPES).nullable(),
           }),
         ),
         actions: z.array(ActionInfo),
@@ -148,7 +149,7 @@ export const automationsContract = {
     .input(
       z.object({
         id: Id,
-        subject: z.object({ type: z.enum(['customer', 'company']), id: Id }).optional(),
+        subject: z.object({ type: z.enum(CONTENT_TYPES), id: Id }).optional(),
         /** Event fields for the trigger (type, payload); defaults to the trigger's event. */
         payload: z.record(z.string(), z.unknown()).optional(),
         /** Pretend waits for events end with the event happening. */
@@ -242,7 +243,7 @@ export const automationsContract = {
       summary:
         'Paths conditions and placeholders can use, with their types (custom fields included)',
     })
-    .input(z.object({ subject: z.enum(['customer', 'company']).optional() }))
+    .input(z.object({ subject: z.enum(CONTENT_TYPES).optional() }))
     .output(
       z.object({
         data: z.array(AutomationFieldPath),

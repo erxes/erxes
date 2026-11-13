@@ -1,4 +1,4 @@
-import { ACTOR_TYPES } from '@erxes/core-db/enums';
+import { ACTOR_TYPES, CONTENT_TYPES } from '@erxes/core-db/enums';
 import { trash } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema } from 'drizzle-zod';
@@ -45,7 +45,7 @@ export const trashContract = {
     })
     .input(
       z.object({
-        type: z.enum(['customer', 'company']).optional(),
+        type: z.enum(CONTENT_TYPES).optional(),
         limit: z.coerce.number().int().min(1).max(500).default(100),
       }),
     )

@@ -1,4 +1,5 @@
 import type { LeadRecordType } from '@erxes/core-contract';
+import type { CUSTOMER_STATES, LEAD_EVENTS } from '@erxes/core-db/enums';
 import { type companies, type customers, type Db, leadEvents, newId } from '@erxes/core-db';
 import type { Caller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
@@ -16,7 +17,7 @@ import { findStage, firstStage, type StageRow } from './stages';
 type CustomerRow = typeof customers.$inferSelect;
 
 export interface LeadStep {
-  event: 'created' | 'stage' | 'converted' | 'reopened';
+  event: (typeof LEAD_EVENTS)[number];
   from: StageRow | null;
   to: StageRow | null;
   reason: string | null;
@@ -29,7 +30,7 @@ export interface LeadPlan {
 }
 
 interface LeadInput {
-  state?: 'lead' | 'customer';
+  state?: (typeof CUSTOMER_STATES)[number];
   leadStageId?: string;
   disqualifyReason?: string | null;
   source?: string | null;
@@ -140,7 +141,7 @@ const reopen = async ({
 /** The lifecycle part of a change: one step at most. */
 const lifecyclePlan = async (
   change: Change,
-  nextState: 'lead' | 'customer',
+  nextState: (typeof CUSTOMER_STATES)[number],
   input: LeadInput,
 ): Promise<LeadPlan> => {
   const { current, currentStage, wanted, reason } = change;

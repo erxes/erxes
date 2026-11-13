@@ -1,3 +1,4 @@
+import { LIVE_MODES } from '@erxes/core-db/enums';
 import { EventSourceParserStream, type EventSourceMessage } from 'eventsource-parser/stream';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vite-plus/test';
 import { z } from 'zod';
@@ -6,7 +7,7 @@ import { liveHub } from '~/modules/live/hub';
 import { testDatabaseUrl, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 
-const Hello = z.object({ mode: z.enum(['live', 'polling']) });
+const Hello = z.object({ mode: z.enum(LIVE_MODES) });
 
 const Timeline = z.object({
   targets: z.array(z.object({ targetType: z.string(), targetId: z.string() })),
