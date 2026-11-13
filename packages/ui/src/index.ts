@@ -1,6 +1,8 @@
 // The public API of erxes-ui. Plugin UIs import these names from the host through
 // Module Federation, so removing one breaks them at runtime (see the plugin-contract skill).
 
+export { Accordion } from './components/accordion';
+
 export { AlertDialog } from './components/alert-dialog';
 
 export { Alert } from './components/alert';
@@ -24,6 +26,8 @@ export { type ChartConfig } from './components/chart-config';
 export { ChartContainer, ChartLegendContent, ChartTooltipContent } from './components/charts';
 
 export { Checkbox } from './components/checkbox';
+
+export { ChoiceboxGroup } from './components/choicebox-group';
 
 export { Collapsible } from './components/collapsible';
 

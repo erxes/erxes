@@ -98,6 +98,8 @@
 
   --spacing-cell: 33px;
 
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-spinner: spinner 0.96s linear infinite;
   --animate-bot-appear: bot-appear 0.3s ease-out 0.25s backwards;
   --animate-bot-rock: bot-rock 2.6s ease-in-out infinite;
@@ -130,6 +132,22 @@
 
   --ring-color: var(--ring);
 
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--accordion-panel-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--accordion-panel-height);
+    }
+    to {
+      height: 0;
+    }
+  }
   @keyframes spinner {
     from {
       opacity: 1;
