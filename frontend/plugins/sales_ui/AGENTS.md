@@ -821,12 +821,15 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 ## Validation
 
 - `pnpm nx test sales_ui` (jsdom Jest with `~/*` and `@/*` mappers; `useDealRelationTabs` scenarios: deal widgets, payment `invoices` by plugin, contact widgets left out)
-- Deal link smoke: a notification's Open deal, global and deals search, a
-  contact's Deals card, the loyalty points page and a pasted
-  `?salesItemId=` URL all open the deal panel and replace the key with `panel`.
+- Deal panel smoke: a contact's Deals card and a loyalty score-log row open
+  the deal panel directly through `openRecord`, with no `salesItemId` step.
+- Legacy deal link smoke: a notification's Open deal, a global or deals search
+  result and a pasted `?salesItemId=` URL on the deals board or the loyalty
+  points page open the deal panel and replace the key with `panel`.
 - Deal Relations smoke: the same deal's panel and page Relations tab show
-  Transactions and eBarimt sections with only that deal's records; with
-  neither plugin enabled the tab shows `deal-relations-empty`.
+  Transactions, eBarimt and Invoices sections with only that deal's records;
+  with accounting, mongolian and payment all disabled the tab shows
+  `deal-relations-empty`.
 
 - POS product filters smoke: add/edit/clear all six group filter selections, save and reopen; verify persistence, immediate list refresh, tag descendants, and OR/global-exclusion behavior after sync.
 
