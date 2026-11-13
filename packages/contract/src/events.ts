@@ -1,6 +1,6 @@
 import { EVENT_FAILURE_STATUSES, eventFailures, events } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
-import { createSelectSchema } from 'drizzle-zod';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { cursorPageOf, CursorQuery, Id, isoDate } from './common';
 import { ActivityTarget } from './activities';
@@ -15,25 +15,38 @@ export const EventNotify = z.object({
   priority: z.enum(['normal', 'high']).optional(),
 });
 
-export const EventInput = z.object({
-  /** Namespaced by the plugin: `hr.leave.approved`. */
-  type: EventType,
+export const EventInput = createUpdateSchema(events, {
+  type: () => EventType,
   version: z.int().min(1).max(100).default(1),
   payload: z
     .record(z.string(), z.unknown())
     .refine((value) => JSON.stringify(value).length <= 32_000, 'at most 32 KB')
     .default({}),
-  /** The customer or company it concerns: with `summary`, it goes on their timeline. */
-  subject: z.object({ type: ActivityTarget, id: Id }).optional(),
   summary: z.string().trim().min(1).max(500).optional(),
   link: AppLink.optional(),
-  entity: EntityRef.optional(),
   notify: EventNotify.optional(),
-  actorUserId: Id.optional(),
-  occurredAt: z.iso.datetime().optional(),
-  /** Retry-safe: one event per plugin and key. */
+  occurredAt: () => z.iso.datetime(),
   dedupeKey: DedupeKey.optional(),
-});
+})
+  .pick({
+    /** Namespaced by the plugin: `hr.leave.approved`. */
+    type: true,
+    version: true,
+    payload: true,
+    summary: true,
+    link: true,
+    notify: true,
+    occurredAt: true,
+    /** Retry-safe: one event per plugin and key. */
+    dedupeKey: true,
+  })
+  .required({ type: true })
+  .extend({
+    /** The customer or company it concerns: with `summary`, it goes on their timeline. */
+    subject: z.object({ type: ActivityTarget, id: Id }).optional(),
+    entity: EntityRef.optional(),
+    actorUserId: Id.optional(),
+  });
 
 export type EventInput = z.infer<typeof EventInput>;
 

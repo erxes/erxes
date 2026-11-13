@@ -7576,6 +7576,28 @@
             "additionalProperties": {},
             "default": {}
           },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "link": {
+            "type": "string",
+            "maxLength": 500,
+            "pattern": "^\\/(?!\\/)[^\\s]*$"
+          },
+          "notify": {
+            "$ref": "#/components/schemas/EventNotify"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dedupeKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
           "subject": {
             "type": "object",
             "properties": {
@@ -7597,35 +7619,13 @@
               "id"
             ]
           },
-          "summary": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 500
-          },
-          "link": {
-            "type": "string",
-            "maxLength": 500,
-            "pattern": "^\\/(?!\\/)[^\\s]*$"
-          },
           "entity": {
             "$ref": "#/components/schemas/EntityRef"
-          },
-          "notify": {
-            "$ref": "#/components/schemas/EventNotify"
           },
           "actorUserId": {
             "type": "string",
             "minLength": 1,
             "maxLength": 64
-          },
-          "occurredAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "dedupeKey": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200
           }
         },
         "required": [
