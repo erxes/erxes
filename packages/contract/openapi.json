@@ -6157,42 +6157,6 @@
               }
             ]
           },
-          "tagIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "customFields": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            },
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "maxLength": 5000
-                },
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "array",
-                  "maxItems": 50,
-                  "items": {
-                    "type": "string",
-                    "maxLength": 200
-                  }
-                }
-              ]
-            }
-          },
           "state": {
             "enum": [
               "lead",
@@ -6272,6 +6236,42 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customFields": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 5000
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "array",
+                  "maxItems": 50,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              ]
+            }
           }
         },
         "required": [
@@ -6290,8 +6290,6 @@
           "code",
           "description",
           "ownerId",
-          "tagIds",
-          "customFields",
           "state",
           "leadStageId",
           "leadStageChangedAt",
@@ -6301,7 +6299,9 @@
           "convertedAt",
           "lastActivityAt",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "tagIds",
+          "customFields"
         ]
       },
       "CompanyFields": {
@@ -6455,6 +6455,51 @@
               }
             ]
           },
+          "state": {
+            "enum": [
+              "lead",
+              "customer"
+            ],
+            "type": "string"
+          },
+          "leadStageId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "disqualifyReason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceDetails": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "maxLength": 50
+            },
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
           "tagIds": {
             "type": "array",
             "maxItems": 50,
@@ -6499,51 +6544,6 @@
                   "type": "null"
                 }
               ]
-            }
-          },
-          "state": {
-            "enum": [
-              "lead",
-              "customer"
-            ],
-            "type": "string"
-          },
-          "leadStageId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "disqualifyReason": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 500
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "source": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "sourceDetails": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "maxLength": 50
-            },
-            "additionalProperties": {
-              "type": "string",
-              "maxLength": 500
             }
           }
         }
@@ -6994,42 +6994,6 @@
               }
             ]
           },
-          "tagIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "customFields": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            },
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "maxLength": 5000
-                },
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "array",
-                  "maxItems": 50,
-                  "items": {
-                    "type": "string",
-                    "maxLength": 200
-                  }
-                }
-              ]
-            }
-          },
           "state": {
             "enum": [
               "lead",
@@ -7109,6 +7073,42 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "customFields": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 5000
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "array",
+                  "maxItems": 50,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              ]
+            }
           }
         },
         "required": [
@@ -7128,8 +7128,6 @@
           "code",
           "description",
           "ownerId",
-          "tagIds",
-          "customFields",
           "state",
           "leadStageId",
           "leadStageChangedAt",
@@ -7139,7 +7137,9 @@
           "convertedAt",
           "lastActivityAt",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "tagIds",
+          "customFields"
         ]
       },
       "CustomerFields": {
@@ -7323,6 +7323,51 @@
               }
             ]
           },
+          "state": {
+            "enum": [
+              "lead",
+              "customer"
+            ],
+            "type": "string"
+          },
+          "leadStageId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "disqualifyReason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceDetails": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "maxLength": 50
+            },
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
           "tagIds": {
             "type": "array",
             "maxItems": 50,
@@ -7367,51 +7412,6 @@
                   "type": "null"
                 }
               ]
-            }
-          },
-          "state": {
-            "enum": [
-              "lead",
-              "customer"
-            ],
-            "type": "string"
-          },
-          "leadStageId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
-          "disqualifyReason": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 500
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "source": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "sourceDetails": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "maxLength": 50
-            },
-            "additionalProperties": {
-              "type": "string",
-              "maxLength": 500
             }
           }
         }
@@ -8896,18 +8896,6 @@
             "minLength": 1,
             "maxLength": 64
           },
-          "recordType": {
-            "enum": [
-              "customer",
-              "company"
-            ],
-            "type": "string"
-          },
-          "recordId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 64
-          },
           "event": {
             "enum": [
               "created",
@@ -8963,19 +8951,31 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "recordType": {
+            "enum": [
+              "customer",
+              "company"
+            ],
+            "type": "string"
+          },
+          "recordId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           }
         },
         "required": [
           "id",
-          "recordType",
-          "recordId",
           "event",
           "fromStageId",
           "toStageId",
           "reason",
           "actorType",
           "actorId",
-          "createdAt"
+          "createdAt",
+          "recordType",
+          "recordId"
         ]
       },
       "LeadReport": {
@@ -21638,6 +21638,51 @@
                       }
                     ]
                   },
+                  "state": {
+                    "enum": [
+                      "lead",
+                      "customer"
+                    ],
+                    "type": "string"
+                  },
+                  "leadStageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "disqualifyReason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "source": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceDetails": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  },
                   "tagIds": {
                     "type": "array",
                     "maxItems": 50,
@@ -21682,51 +21727,6 @@
                           "type": "null"
                         }
                       ]
-                    }
-                  },
-                  "state": {
-                    "enum": [
-                      "lead",
-                      "customer"
-                    ],
-                    "type": "string"
-                  },
-                  "leadStageId": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "disqualifyReason": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "source": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceDetails": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string",
-                      "maxLength": 50
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "maxLength": 500
                     }
                   }
                 },
@@ -21949,6 +21949,51 @@
                       }
                     ]
                   },
+                  "state": {
+                    "enum": [
+                      "lead",
+                      "customer"
+                    ],
+                    "type": "string"
+                  },
+                  "leadStageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "disqualifyReason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "source": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceDetails": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  },
                   "tagIds": {
                     "type": "array",
                     "maxItems": 50,
@@ -21993,51 +22038,6 @@
                           "type": "null"
                         }
                       ]
-                    }
-                  },
-                  "state": {
-                    "enum": [
-                      "lead",
-                      "customer"
-                    ],
-                    "type": "string"
-                  },
-                  "leadStageId": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "disqualifyReason": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "source": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceDetails": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string",
-                      "maxLength": 50
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "maxLength": 500
                     }
                   }
                 }
@@ -22765,6 +22765,51 @@
                       }
                     ]
                   },
+                  "state": {
+                    "enum": [
+                      "lead",
+                      "customer"
+                    ],
+                    "type": "string"
+                  },
+                  "leadStageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "disqualifyReason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "source": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceDetails": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  },
                   "tagIds": {
                     "type": "array",
                     "maxItems": 50,
@@ -22809,51 +22854,6 @@
                           "type": "null"
                         }
                       ]
-                    }
-                  },
-                  "state": {
-                    "enum": [
-                      "lead",
-                      "customer"
-                    ],
-                    "type": "string"
-                  },
-                  "leadStageId": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "disqualifyReason": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "source": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceDetails": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string",
-                      "maxLength": 50
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "maxLength": 500
                     }
                   }
                 }
@@ -23192,6 +23192,51 @@
                       }
                     ]
                   },
+                  "state": {
+                    "enum": [
+                      "lead",
+                      "customer"
+                    ],
+                    "type": "string"
+                  },
+                  "leadStageId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "disqualifyReason": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "source": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceDetails": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  },
                   "tagIds": {
                     "type": "array",
                     "maxItems": 50,
@@ -23236,51 +23281,6 @@
                           "type": "null"
                         }
                       ]
-                    }
-                  },
-                  "state": {
-                    "enum": [
-                      "lead",
-                      "customer"
-                    ],
-                    "type": "string"
-                  },
-                  "leadStageId": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 64
-                  },
-                  "disqualifyReason": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "source": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "pattern": "^[a-z0-9][a-z0-9_.:-]{0,49}$"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "sourceDetails": {
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string",
-                      "maxLength": 50
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "maxLength": 500
                     }
                   }
                 }

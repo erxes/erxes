@@ -1,4 +1,6 @@
+import { companies, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import {
   CursorQuery,
@@ -9,73 +11,101 @@ import {
   IdList,
   PhoneNumber,
   cursorPageOf,
-  text,
   ImageAddress,
+  isoDate,
 } from './common';
 import { ContactLink, ContactLinkInput } from './customers';
-import { LifecycleFields, LifecycleInput } from './leads';
+import { LIFECYCLE_COLUMNS, LIFECYCLE_INPUT_COLUMNS, lifecycleInput, lifecycleRow } from './leads';
 
 /** An organisation the organisation works with; shared by every plugin. */
-export const Company = z.object({
+export const Company = createSelectSchema(companies, {
   id: Id,
-  primaryName: z.string(),
-  /** Every name, the primary one first. */
-  names: z.array(z.string()),
-  avatarUrl: z.string().nullable(),
-  primaryEmail: z.string().nullable(),
-  emails: z.array(z.string()),
-  primaryPhone: z.string().nullable(),
-  phones: z.array(z.string()),
-  website: z.string().nullable(),
-  industry: z.string().nullable(),
-  /** Number of employees. */
-  size: z.int().nullable(),
-  businessType: z.string().nullable(),
-  code: z.string().nullable(),
-  description: z.string().nullable(),
-  ownerId: z.string().nullable(),
-  tagIds: z.array(z.string()),
-  customFields: CustomFields,
-  ...LifecycleFields,
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-});
+  size: () => z.int(),
+  createdAt: isoDate,
+  updatedAt: isoDate,
+  ...lifecycleRow,
+})
+  .pick({
+    id: true,
+    primaryName: true,
+    /** Every name, the primary one first. */
+    names: true,
+    avatarUrl: true,
+    primaryEmail: true,
+    emails: true,
+    primaryPhone: true,
+    phones: true,
+    website: true,
+    industry: true,
+    /** Number of employees. */
+    size: true,
+    businessType: true,
+    code: true,
+    description: true,
+    ownerId: true,
+    ...LIFECYCLE_COLUMNS,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({ tagIds: z.array(z.string()), customFields: CustomFields });
 
 export type Company = z.infer<typeof Company>;
 
 /** A person as listed on a company, with the link. */
-export const PersonRef = z.object({
-  id: Id,
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  primaryEmail: z.string().nullable(),
-  primaryPhone: z.string().nullable(),
-  avatarUrl: z.string().nullable(),
-  state: z.enum(['lead', 'customer']),
-  link: ContactLink,
-});
+export const PersonRef = createSelectSchema(customers, { id: Id })
+  .pick({
+    id: true,
+    firstName: true,
+    lastName: true,
+    primaryEmail: true,
+    primaryPhone: true,
+    avatarUrl: true,
+    state: true,
+  })
+  .extend({ link: ContactLink });
 
 export type PersonRef = z.infer<typeof PersonRef>;
 
-export const CompanyFields = z.object({
-  primaryName: z.string().trim().min(1).max(200).optional(),
-  names: z.array(z.string().trim().min(1).max(200)).max(20).optional(),
-  avatarUrl: ImageAddress.nullable().optional(),
-  primaryEmail: EmailAddress.nullable().optional(),
-  emails: z.array(EmailAddress).max(20).optional(),
-  primaryPhone: PhoneNumber.nullable().optional(),
-  phones: z.array(PhoneNumber).max(20).optional(),
-  website: z.string().trim().max(500).nullable().optional(),
-  industry: text(200),
-  size: z.int().min(0).max(10_000_000).nullable().optional(),
-  businessType: text(200),
-  code: text(100),
-  description: text(5000),
-  ownerId: Id.nullable().optional(),
-  tagIds: z.array(Id).max(50).optional(),
-  customFields: CustomFieldsPatch.optional(),
-  ...LifecycleInput,
-});
+const companyName = () => z.string().trim().min(1).max(200);
+
+export const CompanyFields = createUpdateSchema(companies, {
+  primaryName: companyName,
+  names: () => z.array(companyName()).max(20),
+  avatarUrl: () => ImageAddress,
+  primaryEmail: () => EmailAddress,
+  emails: () => z.array(EmailAddress).max(20),
+  primaryPhone: () => PhoneNumber,
+  phones: () => z.array(PhoneNumber).max(20),
+  website: (website) => website.trim().max(500),
+  industry: (value) => value.trim().max(200),
+  size: () => z.int().min(0).max(10_000_000),
+  businessType: (value) => value.trim().max(200),
+  code: (code) => code.trim().max(100),
+  description: (value) => value.trim().max(5000),
+  ownerId: () => Id,
+  ...lifecycleInput,
+})
+  .pick({
+    primaryName: true,
+    names: true,
+    avatarUrl: true,
+    primaryEmail: true,
+    emails: true,
+    primaryPhone: true,
+    phones: true,
+    website: true,
+    industry: true,
+    size: true,
+    businessType: true,
+    code: true,
+    description: true,
+    ownerId: true,
+    ...LIFECYCLE_INPUT_COLUMNS,
+  })
+  .extend({
+    tagIds: z.array(Id).max(50).optional(),
+    customFields: CustomFieldsPatch.optional(),
+  });
 
 export type CompanyInput = z.infer<typeof CompanyFields>;
 
