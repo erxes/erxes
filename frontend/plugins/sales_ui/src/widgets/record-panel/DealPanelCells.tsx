@@ -6,7 +6,7 @@ import {
   IconProgress,
 } from '@tabler/icons-react';
 import { Combobox, Command, Popover, RecordTableInlineCell } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   PanelFieldTrigger,
   SelectBranches,
@@ -15,7 +15,6 @@ import {
   SelectDepartments,
   SelectMember,
   SelectStage,
-  TagsSelect,
 } from 'ui-modules';
 
 type TValue = string | string[];
@@ -75,35 +74,6 @@ export const DealPanelMemberCell = ({
         <SelectMember.Content />
       </PanelPopoverCell>
     </SelectMember.Provider>
-  );
-};
-
-export const DealPanelTagsCell = ({
-  value,
-  onValueChange,
-  placeholder,
-}: TCellProps & { placeholder?: string }) => {
-  const [open, setOpen] = useState(false);
-  const tagIds = useMemo(() => {
-    if (Array.isArray(value)) return value;
-    return value ? [value] : [];
-  }, [value]);
-
-  return (
-    <TagsSelect.Provider
-      value={tagIds}
-      mode="multiple"
-      type="sales:deal"
-      onValueChange={onValueChange}
-    >
-      <PanelPopoverCell
-        open={open}
-        onOpenChange={setOpen}
-        value={<TagsSelect.Value placeholder={placeholder} showValue />}
-      >
-        <TagsSelect.Content />
-      </PanelPopoverCell>
-    </TagsSelect.Provider>
   );
 };
 

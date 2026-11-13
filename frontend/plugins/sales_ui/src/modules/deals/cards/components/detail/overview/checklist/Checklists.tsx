@@ -9,11 +9,13 @@ export const Checklists = ({
   dealId,
   newChecklistId,
   compact,
+  bare,
 }: Readonly<{
   stageId?: string;
   dealId?: string;
   newChecklistId?: string;
   compact?: boolean;
+  bare?: boolean;
 }>) => {
   const { t } = useTranslation('sales');
   const { checklists, loading, error } = useChecklists({
@@ -51,21 +53,25 @@ export const Checklists = ({
     return null;
   }
 
+  const items = checklists.map((checklist) => (
+    <ChecklistItem
+      key={checklist._id}
+      item={checklist}
+      stageId={stageId}
+      focusNewItem={checklist._id === newChecklistId}
+      compact={compact}
+    />
+  ));
+
+  if (bare) {
+    return <div>{items}</div>;
+  }
+
   return (
     <>
       <div className="flex flex-col gap-2">
         <h4 className="text-sm font-medium">{t('checklists', 'Checklists')}</h4>
-        <div className="py-2">
-          {checklists.map((checklist) => (
-            <ChecklistItem
-              key={checklist._id}
-              item={checklist}
-              stageId={stageId}
-              focusNewItem={checklist._id === newChecklistId}
-              compact={compact}
-            />
-          ))}
-        </div>
+        <div className="py-2">{items}</div>
       </div>
       <Separator className="mt-1" />
     </>

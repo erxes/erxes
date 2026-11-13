@@ -215,10 +215,8 @@ const CompactFilterRows = ({
     <div className="mt-2 flex flex-wrap gap-2 empty:hidden">
       <ProductFilterBar filters={filters} onChange={onFiltersChange} />
     </div>
-    <div className="@container mt-1">
-      <div className="grid grid-cols-1 gap-x-3 @md:grid-cols-3">
-        {viewToggles}
-      </div>
+    <div className="mt-1 flex flex-wrap items-center gap-x-4">
+      {viewToggles}
     </div>
   </>
 );

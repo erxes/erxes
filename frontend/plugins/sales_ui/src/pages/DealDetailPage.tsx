@@ -1,6 +1,5 @@
 import {
   IconAlignLeft,
-  IconChecklist,
   IconHistory,
   IconLink,
   IconHierarchy2,
@@ -33,7 +32,6 @@ import { DealIdProvider } from '@/deals/context/DealIdContext';
 import { DealPanelActions } from '~/widgets/record-panel/DealPanelActions';
 import { DealPanelRelations } from '~/widgets/record-panel/DealPanelRelations';
 import {
-  DealPageChecklists,
   DealPageDescription,
   DealPageFields,
 } from '~/widgets/record-panel/DealPanelDetail';
@@ -49,7 +47,6 @@ import {
 const DETAIL_TAB = 'detail';
 const PRODUCTS_TAB = 'products';
 const DESCRIPTION_TAB = 'description';
-const CHECKLIST_TAB = 'checklist';
 const PROPERTIES_TAB = 'properties';
 const ACTIVITY_TAB = 'activity';
 const RELATIONS_TAB = 'relations';
@@ -131,12 +128,6 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
           content: <DealPageFields dealId={dealId} />,
         },
         {
-          value: RELATIONS_TAB,
-          label: t('relations'),
-          icon: IconLink,
-          content: <DealPanelRelations dealId={dealId} />,
-        },
-        {
           value: PRODUCTS_TAB,
           label: tSales('products'),
           icon: IconPackage,
@@ -149,10 +140,10 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
           content: <DealPageDescription dealId={dealId} />,
         },
         {
-          value: CHECKLIST_TAB,
-          label: tSales('checklist'),
-          icon: IconChecklist,
-          content: <DealPageChecklists dealId={dealId} />,
+          value: RELATIONS_TAB,
+          label: t('relations'),
+          icon: IconLink,
+          content: <DealPanelRelations dealId={dealId} />,
         },
         {
           value: PROPERTIES_TAB,

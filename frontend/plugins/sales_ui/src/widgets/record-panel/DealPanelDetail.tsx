@@ -27,7 +27,7 @@ import {
   IconFlag,
   IconGitBranch,
   IconLabel,
-  IconTags,
+  IconPlus,
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
@@ -35,6 +35,7 @@ import {
   cn,
   CopyText,
   isDefined,
+  RecordTableInlineCell,
   ScrollArea,
   Spinner,
   TextField,
@@ -45,6 +46,7 @@ import {
   PANEL_TEXT_FIELD_CLASS_NAME,
   PanelDescriptionField,
   PanelField,
+  TagsSelect,
 } from 'ui-modules';
 import {
   DealPanelBranchesCell,
@@ -53,8 +55,8 @@ import {
   DealPanelDepartmentsCell,
   DealPanelMemberCell,
   DealPanelOptionCell,
-  DealPanelTagsCell,
 } from '~/widgets/record-panel/DealPanelCells';
+import { DealDetailSection } from '~/widgets/record-panel/DealDetailSection';
 import { DealPanelStage } from '~/widgets/record-panel/DealPanelStage';
 import {
   DealPanelError,
@@ -152,17 +154,52 @@ const DealPanelBroker = ({ deal }: { deal: IDealDetail }) => {
   );
 };
 
+const DealPanelTags = ({ deal }: { deal: IDealDetail }) => {
+  const { t } = useTranslation('sales');
+  const tags = useListField(deal, 'tagIds');
+
+  return (
+    <DealDetailSection title={t('tags')}>
+      <TagsSelect.Provider
+        type="sales:deal"
+        mode="multiple"
+        scope={`${SCOPE}.tags`}
+        value={tags.value}
+        onValueChange={(value) => tags.setValue(toList(value))}
+      >
+        <RecordTableInlineCell.Trigger
+          className="rounded-sm"
+          aria-label={t('edit-tags')}
+        >
+          <TagsSelect.SelectedList
+            maxVisible={3}
+            className="min-w-0 overflow-hidden"
+          />
+          {!tags.value.length && (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <IconPlus className="size-3.5" aria-hidden="true" />
+              {t('add-tags')}
+            </span>
+          )}
+        </RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Content>
+          <TagsSelect.Content />
+        </RecordTableInlineCell.Content>
+      </TagsSelect.Provider>
+    </DealDetailSection>
+  );
+};
+
 const DealFields = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
   const { editDeals } = useDealsEdit();
   const { _id } = deal;
   const assignees = useListField(deal, 'assignedUserIds');
-  const tags = useListField(deal, 'tagIds');
   const branches = useListField(deal, 'branchIds');
   const departments = useListField(deal, 'departmentIds');
 
   return (
-    <div className="flex min-w-0 flex-col gap-1">
+    <div className="flex min-w-0 flex-col">
       {(deal.number || deal.status === 'archived') && (
         <div className="flex items-center gap-2 pb-1">
           {deal.number && (
@@ -180,79 +217,93 @@ const DealFields = ({ deal }: { deal: IDealDetail }) => {
           )}
         </div>
       )}
-      <PanelField icon={IconAlignLeft} label={t('name')}>
-        <TextField
-          scope={`${SCOPE}.name`}
-          value={deal.name || ''}
-          placeholder={t('deal-name')}
-          data-panel-inline=""
-          className={cn(
-            PANEL_TEXT_FIELD_CLASS_NAME,
-            'h-auto min-h-7 py-1.5 whitespace-normal [&>span]:whitespace-normal [&>span]:[overflow-wrap:anywhere]',
-          )}
-          onSave={(name) => {
-            const trimmed = name.trim();
-            if (trimmed && trimmed !== deal.name) {
-              editDeals({ variables: { _id, name: trimmed } });
-            }
-          }}
-        />
-      </PanelField>
-      <DealPanelStage deal={deal} />
-      <PanelField icon={IconUser} label={t('assigned-to')}>
-        <DealPanelMemberCell
-          value={assignees.value}
-          onValueChange={(value) => assignees.setValue(toList(value))}
-        />
-      </PanelField>
-      <PanelField icon={IconCalendar} label={t('start-date')}>
-        <DateSelectDeal
-          value={deal.startDate}
-          id={_id}
-          type="startDate"
-          placeholder={t('start-date')}
-        />
-      </PanelField>
-      <PanelField icon={IconCalendarDue} label={t('close-date')}>
-        <DateSelectDeal
-          value={deal.closeDate}
-          id={_id}
-          type="closeDate"
-          placeholder={t('close-date')}
-        />
-      </PanelField>
-      <PanelField icon={IconFlag} label={t('priority')}>
-        <SelectDealPriority
-          dealId={_id}
-          value={deal.priority || ''}
-          variant="table"
-          badge={false}
-        />
-      </PanelField>
-      <PanelField icon={IconLabel} label={t('labels')}>
-        <div className="[&_.-ml-1]:ml-0!">
-          <SelectLabels.FilterBar
-            filterKey=""
-            mode="multiple"
-            variant="table"
-            showLabels
-            pipelineId={deal.pipelineId || deal.pipeline?._id || undefined}
-            targetId={_id}
-            initialValue={
-              deal.labels?.filter(isDefined).map((label) => label._id || '') ||
-              []
-            }
+      <DealDetailSection title={t('general')} nested>
+        <PanelField icon={IconAlignLeft} label={t('name')}>
+          <TextField
+            scope={`${SCOPE}.name`}
+            value={deal.name || ''}
+            placeholder={t('deal-name')}
+            data-panel-inline=""
+            className={cn(
+              PANEL_TEXT_FIELD_CLASS_NAME,
+              'h-auto min-h-7 py-1.5 whitespace-normal [&>span]:whitespace-normal [&>span]:[overflow-wrap:anywhere]',
+            )}
+            onSave={(name) => {
+              const trimmed = name.trim();
+              if (trimmed && trimmed !== deal.name) {
+                editDeals({ variables: { _id, name: trimmed } });
+              }
+            }}
           />
-        </div>
-      </PanelField>
-      <PanelField icon={IconTags} label={t('tags')}>
-        <DealPanelTagsCell
-          value={tags.value}
-          placeholder={t('select-tags')}
-          onValueChange={(value) => tags.setValue(toList(value))}
-        />
-      </PanelField>
-      <PanelField icon={IconUsers} label={t('customers')}>
+        </PanelField>
+        <DealPanelStage deal={deal} />
+        <PanelField icon={IconUser} label={t('assigned-to')}>
+          <DealPanelMemberCell
+            value={assignees.value}
+            onValueChange={(value) => assignees.setValue(toList(value))}
+          />
+        </PanelField>
+        <PanelField icon={IconFlag} label={t('priority')}>
+          <SelectDealPriority
+            dealId={_id}
+            value={deal.priority || ''}
+            variant="table"
+            badge={false}
+          />
+        </PanelField>
+        <PanelField icon={IconLabel} label={t('labels')}>
+          <div className="[&_.-ml-1]:ml-0!">
+            <SelectLabels.FilterBar
+              filterKey=""
+              mode="multiple"
+              variant="table"
+              showLabels
+              pipelineId={deal.pipelineId || deal.pipeline?._id || undefined}
+              targetId={_id}
+              initialValue={
+                deal.labels
+                  ?.filter(isDefined)
+                  .map((label) => label._id || '') || []
+              }
+            />
+          </div>
+        </PanelField>
+      </DealDetailSection>
+      <DealDetailSection title={t('schedule')} nested>
+        <PanelField icon={IconCalendar} label={t('start-date')}>
+          <DateSelectDeal
+            value={deal.startDate}
+            id={_id}
+            type="startDate"
+            placeholder={t('start-date')}
+          />
+        </PanelField>
+        <PanelField icon={IconCalendarDue} label={t('close-date')}>
+          <DateSelectDeal
+            value={deal.closeDate}
+            id={_id}
+            type="closeDate"
+            placeholder={t('close-date')}
+          />
+        </PanelField>
+      </DealDetailSection>
+      <DealDetailSection title={t('organization')} nested>
+        <DealPanelBroker deal={deal} />
+        <PanelField icon={IconGitBranch} label={t('branch')}>
+          <DealPanelBranchesCell
+            value={branches.value}
+            onValueChange={(value) => branches.setValue(toList(value))}
+          />
+        </PanelField>
+        <PanelField icon={IconBuildingSkyscraper} label={t('department')}>
+          <DealPanelDepartmentsCell
+            value={departments.value}
+            onValueChange={(value) => departments.setValue(toList(value))}
+          />
+        </PanelField>
+      </DealDetailSection>
+      <DealPanelTags deal={deal} />
+      <DealDetailSection title={t('customers')}>
         <DealContactsField
           dealId={_id}
           kind="customer"
@@ -260,8 +311,8 @@ const DealFields = ({ deal }: { deal: IDealDetail }) => {
           label={t('customers')}
           value={deal.customers?.[0]?._id}
         />
-      </PanelField>
-      <PanelField icon={IconBuilding} label={t('companies')}>
+      </DealDetailSection>
+      <DealDetailSection title={t('companies')}>
         <DealContactsField
           dealId={_id}
           kind="company"
@@ -269,20 +320,7 @@ const DealFields = ({ deal }: { deal: IDealDetail }) => {
           label={t('companies')}
           value={deal.companies?.[0]?._id}
         />
-      </PanelField>
-      <DealPanelBroker deal={deal} />
-      <PanelField icon={IconGitBranch} label={t('branch')}>
-        <DealPanelBranchesCell
-          value={branches.value}
-          onValueChange={(value) => branches.setValue(toList(value))}
-        />
-      </PanelField>
-      <PanelField icon={IconBuildingSkyscraper} label={t('department')}>
-        <DealPanelDepartmentsCell
-          value={departments.value}
-          onValueChange={(value) => departments.setValue(toList(value))}
-        />
-      </PanelField>
+      </DealDetailSection>
     </div>
   );
 };
@@ -302,7 +340,7 @@ const DealPanelOverview = ({ deal }: { deal: IDealDetail }) => {
       <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
         <div className="grid gap-5 p-3 @3xl/record-panel:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] @3xl/record-panel:p-6">
           <DealFields deal={deal} />
-          <div className="flex min-w-0 flex-col gap-2">
+          <div className="flex min-w-0 flex-col gap-2 border-t pt-4 @3xl/record-panel:border-t-0 @3xl/record-panel:pt-0">
             <div className="flex flex-wrap items-center gap-2">
               <ChecklistOverview onCreated={setNewChecklistId} />
               <AttachmentUploader />
@@ -428,26 +466,36 @@ const DealDescription = ({ deal }: { deal: IDealDetail }) => {
   );
 };
 
-const DealChecklistsSection = ({ deal }: { deal: IDealDetail }) => {
+const DealPageChecklists = ({ deal }: { deal: IDealDetail }) => {
+  const { t } = useTranslation('sales');
   const [newChecklistId, setNewChecklistId] = useState<string>();
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <ChecklistOverview onCreated={setNewChecklistId} />
-      </div>
+    <DealDetailSection
+      title={t('checklists')}
+      action={
+        <ChecklistOverview label={t('add')} onCreated={setNewChecklistId} />
+      }
+    >
       <Checklists
         dealId={deal._id}
         stageId={deal.stageId ?? undefined}
         newChecklistId={newChecklistId}
+        compact
+        bare
       />
-    </div>
+    </DealDetailSection>
   );
 };
 
 export const DealPageFields = ({ dealId }: { dealId: string }) => (
-  <DealPageScroll dealId={dealId} className="p-3">
-    {(deal) => <DealFields deal={deal} />}
+  <DealPageScroll dealId={dealId} className="flex flex-col p-3">
+    {(deal) => (
+      <>
+        <DealFields deal={deal} />
+        <DealPageChecklists deal={deal} />
+      </>
+    )}
   </DealPageScroll>
 );
 
@@ -457,11 +505,5 @@ export const DealPageDescription = ({ dealId }: { dealId: string }) => (
     className="w-full max-w-5xl mx-auto px-4 py-6"
   >
     {(deal) => <DealDescription deal={deal} />}
-  </DealPageScroll>
-);
-
-export const DealPageChecklists = ({ dealId }: { dealId: string }) => (
-  <DealPageScroll dealId={dealId} className="w-full xl:max-w-3xl mx-auto p-6">
-    {(deal) => <DealChecklistsSection deal={deal} />}
   </DealPageScroll>
 );
