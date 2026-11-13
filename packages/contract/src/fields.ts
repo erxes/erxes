@@ -1,20 +1,10 @@
+import { FIELD_TYPES, FIELD_VALIDATIONS, fieldGroups, fields } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
+import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { FieldContentType, Id, IdList, QueryBoolean } from './common';
+import { FieldContentType, Id, IdList, isoDate, QueryBoolean } from './common';
 
-export const FieldType = z.enum([
-  'text',
-  'textarea',
-  'number',
-  'date',
-  'boolean',
-  'select',
-  'multiselect',
-  'radio',
-  'check',
-  'phone',
-  'list',
-]);
+export const FieldType = z.enum(FIELD_TYPES);
 
 export type FieldType = z.infer<typeof FieldType>;
 
@@ -32,47 +22,60 @@ export const FIELD_TYPE_FAMILIES: readonly (readonly FieldType[])[] = [
 ];
 
 /** Format a text field's values must have. */
-export const FieldValidation = z.enum(['number', 'email', 'date']);
+export const FieldValidation = z.enum(FIELD_VALIDATIONS);
 
 export type FieldValidation = z.infer<typeof FieldValidation>;
 
 /** A custom field ("property") on customers or companies. */
-export const Field = z.object({
+const int = () => z.int();
+
+export const Field = createSelectSchema(fields, {
   id: Id,
-  contentType: FieldContentType,
+  groupId: () => Id,
+  order: int,
+  archivedAt: isoDate,
+  createdAt: isoDate,
+}).pick({
+  id: true,
+  contentType: true,
   /** The group it is listed in; `null` for fields made before groups. */
-  groupId: Id.nullable(),
-  label: z.string(),
+  groupId: true,
+  label: true,
   /** A stable key for integrations. */
-  code: z.string().nullable(),
-  description: z.string().nullable(),
+  code: true,
+  description: true,
   /** A Tabler icon name. */
-  icon: z.string().nullable(),
-  type: FieldType,
+  icon: true,
+  type: true,
   /** Format text values must have. */
-  validation: FieldValidation.nullable(),
+  validation: true,
   /** Choices for select / multiselect / radio / check. */
-  options: z.array(z.string()),
+  options: true,
   /** Shown in record tables and the record panel. */
-  isVisible: z.boolean(),
-  order: z.int(),
+  isVisible: true,
+  order: true,
   /** Set while it (or its group) is archived: hidden, values kept. */
-  archivedAt: z.iso.datetime().nullable(),
-  createdAt: z.iso.datetime(),
+  archivedAt: true,
+  createdAt: true,
 });
 
 export type Field = z.infer<typeof Field>;
 
 /** A group of custom fields of a record type. */
-export const FieldGroup = z.object({
+export const FieldGroup = createSelectSchema(fieldGroups, {
   id: Id,
-  contentType: FieldContentType,
-  name: z.string(),
-  code: z.string(),
-  description: z.string().nullable(),
-  order: z.int(),
-  archivedAt: z.iso.datetime().nullable(),
-  createdAt: z.iso.datetime(),
+  order: int,
+  archivedAt: isoDate,
+  createdAt: isoDate,
+}).pick({
+  id: true,
+  contentType: true,
+  name: true,
+  code: true,
+  description: true,
+  order: true,
+  archivedAt: true,
+  createdAt: true,
 });
 
 export type FieldGroup = z.infer<typeof FieldGroup>;
@@ -98,8 +101,40 @@ const code = z
   .max(100)
   .regex(/^[A-Za-z0-9_.-]+$/, 'letters, digits, _ . -');
 
-const description = z.string().trim().max(1000);
-const icon = z.string().trim().max(100);
+const description = () => z.string().trim().max(1000);
+const label = () => z.string().trim().min(1).max(100);
+const order = () => z.int().min(0).max(100_000);
+
+/** What a field create or update may set. */
+const FieldFields = createUpdateSchema(fields, {
+  label,
+  options: () => options,
+  order,
+  groupId: () => Id,
+  code: () => code,
+  description,
+  icon: (icon) => icon.trim().max(100),
+}).pick({
+  contentType: true,
+  label: true,
+  type: true,
+  options: true,
+  order: true,
+  groupId: true,
+  code: true,
+  description: true,
+  icon: true,
+  validation: true,
+  isVisible: true,
+});
+
+/** What a field group create or update may set. */
+const GroupFields = createUpdateSchema(fieldGroups, {
+  name: label,
+  code: () => code,
+  description,
+  order,
+}).pick({ contentType: true, name: true, code: true, description: true, order: true });
 
 const Orders = z.object({
   orders: z
@@ -154,19 +189,8 @@ export const fieldsContract = {
       summary: 'Add a custom field (owners and admins). 409 FIELD_EXISTS for a taken label or code',
     })
     .input(
-      z
-        .object({
-          contentType: FieldContentType,
-          label: z.string().trim().min(1).max(100),
-          type: FieldType,
-          options: options.optional(),
-          groupId: Id.nullable().optional(),
-          code: code.nullable().optional(),
-          description: description.nullable().optional(),
-          icon: icon.nullable().optional(),
-          validation: FieldValidation.nullable().optional(),
-          isVisible: z.boolean().optional(),
-        })
+      FieldFields.omit({ order: true })
+        .required({ contentType: true, label: true, type: true })
         .refine(needsOptions, { path: ['options'], error: 'select fields need options' }),
     )
     .output(Field),
@@ -178,20 +202,8 @@ export const fieldsContract = {
         'Change a field. The type changes only within types sharing a stored value while records hold values (409 FIELD_IN_USE)',
     })
     .input(
-      z
-        .object({
-          id: Id,
-          label: z.string().trim().min(1).max(100).optional(),
-          type: FieldType.optional(),
-          options: options.optional(),
-          order: z.int().min(0).max(100_000).optional(),
-          groupId: Id.nullable().optional(),
-          code: code.nullable().optional(),
-          description: description.nullable().optional(),
-          icon: icon.nullable().optional(),
-          validation: FieldValidation.nullable().optional(),
-          isVisible: z.boolean().optional(),
-        })
+      FieldFields.omit({ contentType: true })
+        .extend({ id: Id })
         .refine(changes, 'nothing to update'),
     )
     .output(Field),
@@ -255,14 +267,7 @@ export const fieldGroupsContract = {
       summary:
         'Add a field group (owners and admins). The code defaults to the name; 409 FIELD_GROUP_EXISTS for a taken code',
     })
-    .input(
-      z.object({
-        contentType: FieldContentType,
-        name: z.string().trim().min(1).max(100),
-        code: code.optional(),
-        description: description.nullable().optional(),
-      }),
-    )
+    .input(GroupFields.omit({ order: true }).required({ contentType: true, name: true }))
     .output(FieldGroup),
   update: oc
     .route({
@@ -271,14 +276,8 @@ export const fieldGroupsContract = {
       summary: 'Rename a field group (owners and admins)',
     })
     .input(
-      z
-        .object({
-          id: Id,
-          name: z.string().trim().min(1).max(100).optional(),
-          code: code.optional(),
-          description: description.nullable().optional(),
-          order: z.int().min(0).max(100_000).optional(),
-        })
+      GroupFields.omit({ contentType: true })
+        .extend({ id: Id })
         .refine(changes, 'nothing to update'),
     )
     .output(FieldGroup),

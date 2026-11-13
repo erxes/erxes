@@ -1,3 +1,4 @@
+import { CONTENT_TYPES, FIELD_CONTENT_TYPES } from '@erxes/core-db/schema';
 import { z } from 'zod';
 
 export const Id = z.string().min(1).max(64);
@@ -77,12 +78,12 @@ export const cursorPageOf = <T extends z.ZodType>(item: T) =>
   });
 
 /** Records that tags and custom fields attach to. */
-export const ContentType = z.enum(['customer', 'company']);
+export const ContentType = z.enum(CONTENT_TYPES);
 
 export type ContentType = z.infer<typeof ContentType>;
 
 /** Records custom fields attach to: contacts, and the shared product catalog. */
-export const FieldContentType = z.enum([...ContentType.options, 'product']);
+export const FieldContentType = z.enum(FIELD_CONTENT_TYPES);
 
 export type FieldContentType = z.infer<typeof FieldContentType>;
 
