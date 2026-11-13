@@ -79,7 +79,7 @@ const CheckboxCell = <TData extends RowData>({
     >
       <Checkbox
         checked={selected}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(value) => row.toggleSelected(value)}
         aria-label="Select row"
       />
     </div>
@@ -103,8 +103,9 @@ const SelectAllCheckbox = () => {
   return (
     <div className="flex items-center justify-center h-8">
       <Checkbox
-        checked={all || (some && 'indeterminate')}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        checked={all}
+        indeterminate={!all && some}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(value)}
         aria-label="Select all rows"
       />
     </div>

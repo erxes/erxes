@@ -93,7 +93,7 @@ const PermissionList = ({
                     className="mt-0.5"
                     checked={granted.has(permission.action)}
                     disabled={!editable || permission.ownerOnly}
-                    onCheckedChange={(on) => onToggle(permission.action, on === true)}
+                    onCheckedChange={(on) => onToggle(permission.action, on)}
                   />
                   <span className="flex-1">
                     {permission.label}

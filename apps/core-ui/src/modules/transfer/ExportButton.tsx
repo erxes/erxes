@@ -41,9 +41,7 @@ const ColumnPicker = ({
               checked={selected.includes(column.key)}
               onCheckedChange={(on) =>
                 onChange(
-                  on === true
-                    ? [...selected, column.key]
-                    : selected.filter((key) => key !== column.key),
+                  on ? [...selected, column.key] : selected.filter((key) => key !== column.key),
                 )
               }
             />

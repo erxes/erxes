@@ -107,7 +107,7 @@ const SortableColumnItem = ({
         checked={visible}
         disabled={isLastVisible}
         title={isLastVisible ? 'At least one column must stay visible' : undefined}
-        onCheckedChange={(checked) => column.toggleVisibility(!!checked)}
+        onCheckedChange={(checked) => column.toggleVisibility(checked)}
       />
 
       <Label

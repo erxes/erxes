@@ -40,12 +40,10 @@ const PropertiesCheckboxCell = ({ id }: { id: string }) => {
         checked={!!selectedFieldIds[id]}
         onCheckedChange={(value) =>
           setSelectedFieldIds((prev) => {
-            const isChecked = !!value;
-
-            if (isChecked === !!prev[id]) return prev;
+            if (value === !!prev[id]) return prev;
             const next = { ...prev };
 
-            if (isChecked) next[id] = true;
+            if (value) next[id] = true;
             else delete next[id];
 
             return next;
@@ -64,7 +62,8 @@ const PropertiesHeaderCheckboxCell = ({ ids }: { ids: string[] }) => {
   return (
     <div className="flex items-center justify-center h-8">
       <Checkbox
-        checked={allSelected || (someSelected && 'indeterminate')}
+        checked={allSelected}
+        indeterminate={!allSelected && someSelected}
         onCheckedChange={(value) =>
           setSelectedFieldIds((prev) => {
             const next = { ...prev };

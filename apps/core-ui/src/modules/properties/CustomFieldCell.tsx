@@ -98,7 +98,7 @@ export const CustomFieldCell = ({
           <Checkbox
             checked={value === true}
             aria-label={field.label}
-            onCheckedChange={(checked) => onSave(checked === true ? true : null)}
+            onCheckedChange={(checked) => onSave(checked ? true : null)}
           />
         </RecordTableInlineCell>
       );

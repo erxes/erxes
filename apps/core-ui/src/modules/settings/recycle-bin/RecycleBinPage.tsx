@@ -76,11 +76,7 @@ const TrashRow = ({
 
   return (
     <li className="flex items-center gap-3 p-3 text-sm">
-      <Checkbox
-        aria-label={label}
-        checked={checked}
-        onCheckedChange={(on) => onCheckedChange(on === true)}
-      />
+      <Checkbox aria-label={label} checked={checked} onCheckedChange={onCheckedChange} />
       <Badge variant="secondary">
         {item.recordType === 'customer' ? t('customer', 'Customer') : t('company', 'Company')}
       </Badge>

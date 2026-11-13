@@ -1,22 +1,16 @@
-import React from 'react';
-import { Checkbox as CheckboxPrimitive } from 'radix-ui';
+import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const Checkbox = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentProps<typeof CheckboxPrimitive.Root>) => (
+export const Checkbox = ({ className, ...props }: CheckboxPrimitive.Root.Props) => (
   <CheckboxPrimitive.Root
-    ref={ref}
     className={cn(
-      'peer size-4 shrink-0 rounded border border-scroll outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=indeterminate]:border-primary data-[state=checked]:bg-primary data-[state=indeterminate]:bg-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:text-primary-foreground bg-background',
+      'peer inline-flex items-center justify-center size-4 shrink-0 rounded border border-scroll outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 data-disabled:cursor-not-allowed data-disabled:opacity-50 data-checked:border-primary data-indeterminate:border-primary data-checked:bg-primary data-indeterminate:bg-primary data-checked:text-primary-foreground data-indeterminate:text-primary-foreground bg-background',
       className,
     )}
     {...props}
   >
     <CheckboxPrimitive.Indicator className="flex items-center justify-center text-current">
-      {props.checked === 'indeterminate' ? (
+      {props.indeterminate ? (
         <svg
           width="9"
           height="9"
