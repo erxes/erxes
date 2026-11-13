@@ -9,7 +9,7 @@ export const Id = z.string().min(1).max(64);
  * list reopen where the user left it.
  */
 export const CursorQuery = z.object({
-  limit: z.coerce.number().int().min(1).max(100).default(30),
+  limit: z.coerce.number().int().min(1).max(100).prefault(30),
   cursor: Id.optional(),
   direction: z.enum(['forward', 'backward']).default('forward'),
   cursorMode: z.enum(['inclusive', 'exclusive']).default('exclusive'),
@@ -52,19 +52,19 @@ export const IdList = z
 export const ErrorBody = z.object({
   defined: z.boolean(),
   code: z.string(),
-  status: z.number().int(),
+  status: z.int(),
   message: z.string(),
   data: z.unknown().optional(),
 });
 
 export type ErrorBody = z.infer<typeof ErrorBody>;
 
-export const cursorPageOf = <T extends z.ZodTypeAny>(item: T) =>
+export const cursorPageOf = <T extends z.ZodType>(item: T) =>
   z.object({
     data: z.array(item),
     pageInfo: PageInfo,
     /** Records matching the filters, across all pages. */
-    totalCount: z.number().int(),
+    totalCount: z.int(),
     /** Big lists stop counting: `totalCount` is the cap and there are more ("10,000+"). */
     totalCapped: z.boolean().optional(),
   });
@@ -95,7 +95,7 @@ export const CustomFields = z.record(Id, CustomValue);
 /** Changes to custom field values; `null` clears one. */
 export const CustomFieldsPatch = z.record(Id, CustomValue.nullable());
 
-export const EmailAddress = z.string().trim().toLowerCase().email().max(254);
+export const EmailAddress = z.string().trim().toLowerCase().pipe(z.email().max(254));
 
 export const PhoneNumber = z
   .string()

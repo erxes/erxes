@@ -13,15 +13,15 @@ export const Automation = z.object({
   status: AutomationStatus,
   definition: AutomationDefinition,
   /** The version runs start with (null until first activated). */
-  activeVersion: z.number().int().nullable(),
+  activeVersion: z.int().nullable(),
   activatedBy: z.string().nullable(),
   stats: z.object({
-    running: z.number().int(),
-    succeeded: z.number().int(),
-    failed: z.number().int(),
+    running: z.int(),
+    succeeded: z.int(),
+    failed: z.int(),
   }),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export type Automation = z.infer<typeof Automation>;
@@ -129,8 +129,8 @@ export const automationsContract = {
     .input(z.object({ id: Id, subjects: z.array(Id).max(1000).optional() }))
     .output(
       z.object({
-        started: z.number().int(),
-        skipped: z.number().int(),
+        started: z.int(),
+        skipped: z.int(),
         /** The audience is larger than one page: the rest starts in the background. */
         continuing: z.boolean(),
       }),
@@ -147,7 +147,7 @@ export const automationsContract = {
         id: Id,
         subject: z.object({ type: z.enum(['customer', 'company']), id: Id }).optional(),
         /** Event fields for the trigger (type, payload); defaults to the trigger's event. */
-        payload: z.record(z.unknown()).optional(),
+        payload: z.record(z.string(), z.unknown()).optional(),
         /** Pretend waits for events end with the event happening. */
         assumeEventHappens: z.boolean().default(false),
       }),
@@ -169,22 +169,22 @@ export const automationsContract = {
     .output(
       z.object({
         runs: z.object({
-          total: z.number().int(),
-          running: z.number().int(),
-          succeeded: z.number().int(),
-          failed: z.number().int(),
-          cancelled: z.number().int(),
-          goalReached: z.number().int(),
+          total: z.int(),
+          running: z.int(),
+          succeeded: z.int(),
+          failed: z.int(),
+          cancelled: z.int(),
+          goalReached: z.int(),
         }),
         steps: z.array(
           z.object({
             stepId: z.string(),
-            succeeded: z.number().int(),
-            failed: z.number().int(),
-            skipped: z.number().int(),
+            succeeded: z.int(),
+            failed: z.int(),
+            skipped: z.int(),
           }),
         ),
-        skippedByLimit: z.number().int(),
+        skippedByLimit: z.int(),
       }),
     ),
   versions: oc
@@ -198,9 +198,9 @@ export const automationsContract = {
       z.object({
         data: z.array(
           z.object({
-            version: z.number().int(),
+            version: z.int(),
             publishedBy: z.string().nullable(),
-            createdAt: z.string().datetime(),
+            createdAt: z.iso.datetime(),
             definition: AutomationDefinition,
           }),
         ),

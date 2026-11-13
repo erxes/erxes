@@ -49,7 +49,7 @@ export const propertySchema = z
         values.forEach((value, index) => {
           if (value && values.indexOf(value) !== index) {
             ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+              code: 'custom',
               message: 'Value must be unique',
               path: [index, 'value'],
             });
@@ -61,7 +61,7 @@ export const propertySchema = z
   .refine(hasCode, CODE_REQUIRED)
   .refine((data) => !hasOptions(data.type) || (data.options?.length ?? 0) > 0, {
     path: ['options'],
-    message: 'Add at least one option',
+    error: 'Add at least one option',
   });
 
 export type IPropertyGroupForm = z.input<typeof propertyGroupSchema>;

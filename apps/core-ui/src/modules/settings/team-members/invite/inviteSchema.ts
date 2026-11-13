@@ -16,9 +16,15 @@ export const USER_SUBMIT_SCHEMA = z.object({
   entries: z
     .object({
       email: z
-        .string({ required_error: 'Required field' })
+        .string({
+          error: (issue) => (issue.input === undefined ? 'Required field' : undefined),
+        })
         .trim()
-        .email({ message: 'Please fill a valid email address' }),
+        .pipe(
+          z.email({
+            error: 'Please fill a valid email address',
+          }),
+        ),
       password,
       role: z.enum(['member', 'admin']),
     })

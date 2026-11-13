@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 /** Reads an entry's data with `schema`: the data, or null when it has another shape. */
 const reader =
-  <T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>) =>
+  <T>(schema: z.ZodType<T>) =>
   (activity: Pick<Activity, 'data'>) => {
     const parsed = schema.safeParse(activity.data);
 
@@ -19,7 +19,7 @@ const reader =
 const ids = z.array(z.string()).catch([]);
 
 /** `field → [before, after]`; the values are whatever the field holds. */
-const changes = z.record(z.tuple([z.unknown(), z.unknown()]));
+const changes = z.record(z.string(), z.tuple([z.unknown(), z.unknown()]));
 
 const note = z.object({
   body: z.string(),

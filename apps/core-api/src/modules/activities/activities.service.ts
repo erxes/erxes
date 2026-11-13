@@ -13,7 +13,7 @@ import { assertTimelineAccess, isCoreTarget } from './timelineAccess';
 
 export type ActivityRow = typeof activities.$inferSelect;
 
-const Reactions = z.record(z.array(z.string()));
+const Reactions = z.record(z.string(), z.array(z.string()));
 
 /** Members' reactions kept in an entry's data (emoji → user ids), or undefined. */
 export const reactionsOf = (data: Record<string, unknown>) =>

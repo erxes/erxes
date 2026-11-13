@@ -45,10 +45,7 @@ export type LiveMessage = z.infer<typeof liveMessage>;
 type Wire = z.infer<typeof wire>;
 
 /** An SSE event's JSON payload, or null (logged) when it isn't the expected shape. */
-const readEvent = <T>(
-  event: MessageEvent<unknown>,
-  schema: z.ZodType<T, z.ZodTypeDef, unknown>,
-) => {
+const readEvent = <T>(event: MessageEvent<unknown>, schema: z.ZodType<T>) => {
   try {
     const parsed = schema.safeParse(
       typeof event.data === 'string' ? JSON.parse(event.data) : undefined,

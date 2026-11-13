@@ -69,7 +69,7 @@ type PayloadJob<P> = Omit<JobRow, 'payload'> & { payload: P };
  * A job whose payload `handle` and `onDead` get parsed by `payload` (a payload
  * that doesn't parse fails the attempt), with `enqueue` typed to match.
  */
-export const defineJob = <S extends z.ZodType<Record<string, unknown>>>(
+export const defineJob = <S extends z.ZodType<Record<string, unknown>, Record<string, unknown>>>(
   definition: JobOptions & { payload: S } & Handler<PayloadJob<z.output<S>>> &
     DeadHook<PayloadJob<z.output<S>>>,
 ) => {

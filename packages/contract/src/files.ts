@@ -8,7 +8,7 @@ export const FileInfo = z.object({
   name: z.string(),
   contentType: z.string(),
   /** Bytes. */
-  size: z.number().int(),
+  size: z.int(),
   status: z.enum(['pending', 'ready']),
   /** `core` or the plugin that uploaded it. */
   source: z.string(),
@@ -19,7 +19,7 @@ export const FileInfo = z.object({
    * Use it for `<img src>` and links.
    */
   url: z.string(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type FileInfo = z.infer<typeof FileInfo>;
@@ -29,8 +29,8 @@ export const UploadTarget = z.object({
   method: z.literal('PUT'),
   url: z.string(),
   /** Send exactly these headers with the bytes. */
-  headers: z.record(z.string()),
-  expiresAt: z.string().datetime(),
+  headers: z.record(z.string(), z.string()),
+  expiresAt: z.iso.datetime(),
 });
 
 export type UploadTarget = z.infer<typeof UploadTarget>;
@@ -38,11 +38,11 @@ export type UploadTarget = z.infer<typeof UploadTarget>;
 /** What an organisation accepts (Settings → File upload). */
 export const FileSettings = z.object({
   /** Largest upload in MB. */
-  maxSizeMb: z.number().int().min(1),
+  maxSizeMb: z.int().min(1),
   /** MIME types (`image/png`), wildcards (`image/*`) or extensions (`.pdf`). Empty: any type. */
   allowedTypes: z.array(z.string()),
   /** The deployment's limit; `maxSizeMb` can't go above it. */
-  limitMb: z.number().int(),
+  limitMb: z.int(),
   /** Where files are stored. */
   storage: z.enum(['local', 's3']),
 });
@@ -78,7 +78,7 @@ export const filesContract = {
           .max(255)
           .regex(/^[a-z0-9][a-z0-9.+-]*\/[a-z0-9][a-z0-9.+-]*$/, 'type/subtype'),
         /** Bytes; the stored object must match it. */
-        size: z.number().int().min(0),
+        size: z.int().min(0),
       }),
     )
     .output(z.object({ file: FileInfo, upload: UploadTarget })),
@@ -130,7 +130,7 @@ export const filesContract = {
     })
     .input(
       z.object({
-        maxSizeMb: z.number().int().min(1).max(10_000),
+        maxSizeMb: z.int().min(1).max(10_000),
         allowedTypes: z.array(AllowedType).max(100),
       }),
     )

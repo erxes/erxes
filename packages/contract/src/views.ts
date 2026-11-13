@@ -46,8 +46,8 @@ export const View = z.object({
   createdBy: Id,
   /** The signed-in member may change or delete it. */
   editable: z.boolean(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export type View = z.infer<typeof View>;

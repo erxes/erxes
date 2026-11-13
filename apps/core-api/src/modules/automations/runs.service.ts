@@ -147,7 +147,7 @@ export const startAutomation = async (
 
 /** Runs skipped by the hourly limit, counted in the automation's working state. */
 const SkippedByLimit = z
-  .object({ skippedByLimit: z.number().int().default(0) })
+  .object({ skippedByLimit: z.int().default(0) })
   .catch({ skippedByLimit: 0 });
 
 const countWhere = (filter: SQL | undefined) => sql<number>`count(*) filter (where ${filter})::int`;

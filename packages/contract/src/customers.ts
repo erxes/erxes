@@ -50,8 +50,8 @@ export const Customer = z.object({
   /** Custom field values by field id. */
   customFields: CustomFields,
   ...LifecycleFields,
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export type Customer = z.infer<typeof Customer>;
@@ -101,8 +101,8 @@ export const ContactLink = z.object({
   /** The company's main contact (one per company). */
   isPrimaryContact: z.boolean(),
   /** No longer there; the link stays as history. */
-  endedAt: z.string().datetime().nullable(),
-  createdAt: z.string().datetime(),
+  endedAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
 });
 
 export type ContactLink = z.infer<typeof ContactLink>;
@@ -174,7 +174,7 @@ export const customersContract = {
     .input(
       z
         .object({
-          primaryEmail: z.string().trim().email().max(254).optional(),
+          primaryEmail: z.string().trim().pipe(z.email().max(254)).optional(),
           primaryPhone: z.string().trim().min(3).max(40).optional(),
           firstName: z.string().trim().max(100).optional(),
           lastName: z.string().trim().max(100).optional(),
@@ -218,7 +218,7 @@ export const customersContract = {
       summary: 'Delete customers (owners and admins)',
     })
     .input(Ids)
-    .output(z.object({ removed: z.number().int() })),
+    .output(z.object({ removed: z.int() })),
   merge: oc
     .route({
       method: 'POST',
@@ -235,7 +235,7 @@ export const customersContract = {
       summary: 'Add and remove tags on many customers',
     })
     .input(TagChange)
-    .output(z.object({ updated: z.number().int() })),
+    .output(z.object({ updated: z.int() })),
   companies: oc
     .route({
       method: 'GET',

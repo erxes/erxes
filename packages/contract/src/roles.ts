@@ -124,7 +124,7 @@ export const Role = z.object({
   builtin: z.boolean(),
   /** Owner and Admin are fixed; Member and custom roles can be edited. */
   editable: z.boolean(),
-  members: z.number().int(),
+  members: z.int(),
 });
 
 export type Role = z.infer<typeof Role>;

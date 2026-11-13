@@ -47,8 +47,7 @@ export const LiveTopic = z
 const HttpsUrl = z
   .string()
   .trim()
-  .url()
-  .max(500)
+  .pipe(z.url().max(500))
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
 export const PluginManifest = z.object({
@@ -214,7 +213,7 @@ export const Plugin = z.object({
   grantedScopes: z.array(z.string()),
   /** Asks for scopes the owner hasn't granted yet (a newer version). */
   needsApproval: z.boolean(),
-  installedAt: z.string().datetime().nullable(),
+  installedAt: z.iso.datetime().nullable(),
 });
 
 export type Plugin = z.infer<typeof Plugin>;
@@ -222,7 +221,7 @@ export type Plugin = z.infer<typeof Plugin>;
 export const TokenResponse = z.object({
   access_token: z.string(),
   token_type: z.literal('Bearer'),
-  expires_in: z.number().int(),
+  expires_in: z.int(),
   scope: z.string(),
 });
 
@@ -291,7 +290,7 @@ export const pluginsContract = {
     .output(
       z.object({
         token: z.string(),
-        expiresAt: z.string().datetime(),
+        expiresAt: z.iso.datetime(),
         apiUrl: z.string().nullable(),
       }),
     ),

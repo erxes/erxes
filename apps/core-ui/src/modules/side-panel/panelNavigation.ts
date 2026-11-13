@@ -21,7 +21,7 @@ export const sidePanelHistoryState = atom<string[]>([]);
 
 /** The history entry's state: the panel's tab and the tabs of the records behind it (kept with other state). */
 const RouterState = z
-  .object({
+  .looseObject({
     sidePanel: z
       .object({
         path: z.string().nullable(),
@@ -30,7 +30,6 @@ const RouterState = z
       })
       .optional(),
   })
-  .passthrough()
   .nullable()
   .catch(null);
 

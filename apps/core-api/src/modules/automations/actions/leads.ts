@@ -6,9 +6,7 @@ import { updateCustomer } from '~/modules/customers/customers.service';
 import { type CoreAction, list, needSubject, text } from './context';
 
 /** Round-robin positions per step, kept in the automation's working state. */
-const Turns = z
-  .object({ turns: z.record(z.string(), z.number().int()).default({}) })
-  .catch({ turns: {} });
+const Turns = z.object({ turns: z.record(z.string(), z.int()).default({}) }).catch({ turns: {} });
 
 /** Actions on a customer's lead lifecycle and ownership. */
 export const LEAD_ACTIONS: CoreAction[] = [

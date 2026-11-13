@@ -23,7 +23,7 @@ type NotifyInput = Omit<NotificationInput, 'priority'> & {
 };
 
 /** `{ field: [before, after] }`, as core's `*.updated` notifications carry. */
-const Changes = z.record(z.tuple([z.unknown(), z.unknown()])).optional();
+const Changes = z.record(z.string(), z.tuple([z.unknown(), z.unknown()])).optional();
 
 type Changes = z.infer<typeof Changes>;
 

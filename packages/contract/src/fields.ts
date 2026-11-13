@@ -55,10 +55,10 @@ export const Field = z.object({
   options: z.array(z.string()),
   /** Shown in record tables and the record panel. */
   isVisible: z.boolean(),
-  order: z.number().int(),
+  order: z.int(),
   /** Set while it (or its group) is archived: hidden, values kept. */
-  archivedAt: z.string().datetime().nullable(),
-  createdAt: z.string().datetime(),
+  archivedAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
 });
 
 export type Field = z.infer<typeof Field>;
@@ -70,9 +70,9 @@ export const FieldGroup = z.object({
   name: z.string(),
   code: z.string(),
   description: z.string().nullable(),
-  order: z.number().int(),
-  archivedAt: z.string().datetime().nullable(),
-  createdAt: z.string().datetime(),
+  order: z.int(),
+  archivedAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
 });
 
 export type FieldGroup = z.infer<typeof FieldGroup>;
@@ -80,9 +80,9 @@ export type FieldGroup = z.infer<typeof FieldGroup>;
 /** Whether records hold values of the fields asked about. */
 export const FieldUsage = z.object({
   /** Records holding a value of any of them. */
-  records: z.number().int(),
+  records: z.int(),
   /** Records holding each option, per field id (option fields only). */
-  options: z.record(Id, z.record(z.string(), z.number().int())),
+  options: z.record(Id, z.record(z.string(), z.int())),
   /** Nothing holds a value, so they can be deleted. */
   removable: z.boolean(),
 });
@@ -103,7 +103,7 @@ const icon = z.string().trim().max(100);
 
 const Orders = z.object({
   orders: z
-    .array(z.object({ id: Id, order: z.number().int().min(0).max(100_000) }))
+    .array(z.object({ id: Id, order: z.int().min(0).max(100_000) }))
     .min(1)
     .max(500),
 });
@@ -167,7 +167,7 @@ export const fieldsContract = {
           validation: FieldValidation.nullable().optional(),
           isVisible: z.boolean().optional(),
         })
-        .refine(needsOptions, { message: 'select fields need options', path: ['options'] }),
+        .refine(needsOptions, { path: ['options'], error: 'select fields need options' }),
     )
     .output(Field),
   update: oc
@@ -184,7 +184,7 @@ export const fieldsContract = {
           label: z.string().trim().min(1).max(100).optional(),
           type: FieldType.optional(),
           options: options.optional(),
-          order: z.number().int().min(0).max(100_000).optional(),
+          order: z.int().min(0).max(100_000).optional(),
           groupId: Id.nullable().optional(),
           code: code.nullable().optional(),
           description: description.nullable().optional(),
@@ -277,7 +277,7 @@ export const fieldGroupsContract = {
           name: z.string().trim().min(1).max(100).optional(),
           code: code.optional(),
           description: description.nullable().optional(),
-          order: z.number().int().min(0).max(100_000).optional(),
+          order: z.int().min(0).max(100_000).optional(),
         })
         .refine(changes, 'nothing to update'),
     )

@@ -32,7 +32,7 @@ export const isApiError = (error: unknown, code?: string): error is ORPCError<st
   error instanceof ORPCError && (code === undefined || error.code === code);
 
 /** A core error's `data`, when it has the shape `schema` describes. */
-export const errorData = <T>(error: unknown, schema: z.ZodType<T, z.ZodTypeDef, unknown>) => {
+export const errorData = <T>(error: unknown, schema: z.ZodType<T>) => {
   if (!isApiError(error)) return undefined;
 
   const parsed = schema.safeParse(error.data);

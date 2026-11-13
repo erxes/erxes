@@ -13,11 +13,11 @@ export const Notification = z.object({
   link: z.string().nullable(),
   entity: EntityRef.nullable(),
   /** Details to show when opened; core's `*.updated` kinds carry `{ changes: { field: [before, after] } }`. */
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.unknown()),
   priority: z.enum(['normal', 'high']),
   actor: ActorRef,
   read: z.boolean(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type Notification = z.infer<typeof Notification>;
@@ -33,7 +33,7 @@ export const NotificationInput = z.object({
   entity: EntityRef.optional(),
   /** Details to show when opened (at most a few KB). */
   data: z
-    .record(z.unknown())
+    .record(z.string(), z.unknown())
     .refine((value) => JSON.stringify(value).length <= 8_000, 'at most 8 KB')
     .optional(),
   priority: z.enum(['normal', 'high']).default('normal'),
@@ -189,7 +189,7 @@ export const notificationsContract = {
         'My unread notifications, in total and per inbox (core and each plugin); `source` for one inbox',
     })
     .input(z.object({ source: z.string().trim().max(40).optional() }))
-    .output(z.object({ count: z.number().int(), bySource: z.record(z.number().int()) })),
+    .output(z.object({ count: z.int(), bySource: z.record(z.string(), z.int()) })),
   markRead: oc
     .route({
       method: 'POST',
@@ -204,7 +204,7 @@ export const notificationsContract = {
         read: z.boolean().default(true),
       }),
     )
-    .output(z.object({ updated: z.number().int() })),
+    .output(z.object({ updated: z.int() })),
   remove: oc
     .route({
       method: 'DELETE',
@@ -239,5 +239,5 @@ export const notificationsContract = {
         'Notify team members (plugins only). `kind` starts with the plugin name. 400 INVALID_RECIPIENT for unknown or inactive members',
     })
     .input(NotificationInput)
-    .output(z.object({ created: z.number().int(), skipped: z.number().int() })),
+    .output(z.object({ created: z.int(), skipped: z.int() })),
 };

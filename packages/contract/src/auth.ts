@@ -49,7 +49,7 @@ export const authContract = {
           .optional(),
         firstName: z.string().trim().min(1).max(100),
         lastName: z.string().trim().max(100).optional(),
-        email: z.string().trim().email().max(254),
+        email: z.string().trim().pipe(z.email().max(254)),
         password: NewPassword,
       }),
     )
@@ -62,7 +62,7 @@ export const authContract = {
     })
     .input(
       z.object({
-        email: z.string().trim().email().max(254),
+        email: z.string().trim().pipe(z.email().max(254)),
         password: z.string().min(1).max(200),
         /** Needed only when the address does not name the organisation. */
         subdomain: z.string().trim().max(63).optional(),
@@ -84,7 +84,7 @@ export const authContract = {
     })
     .input(
       z.object({
-        email: z.string().trim().email().max(254),
+        email: z.string().trim().pipe(z.email().max(254)),
         subdomain: z.string().trim().max(63).optional(),
       }),
     )
@@ -241,7 +241,7 @@ export const authContract = {
             success: z.boolean(),
             ip: z.string().nullable(),
             userAgent: z.string().nullable(),
-            createdAt: z.string().datetime(),
+            createdAt: z.iso.datetime(),
           }),
         ),
       }),

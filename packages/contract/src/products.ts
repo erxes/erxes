@@ -36,15 +36,15 @@ export const Product = z.object({
   description: z.string().nullable(),
   unit: z.string(),
   /** In the currency's smallest unit ($12.50 → 1250, ₮1,500 → 150000), like invoices. */
-  price: z.number().int(),
+  price: z.int(),
   /** ISO 4217; the organisation's currency unless set. */
   currency: z.string(),
   /** Core file ids; the first is the main image. */
   imageIds: z.array(Id),
-  weightGrams: z.number().int().nullable(),
-  lengthMm: z.number().int().nullable(),
-  widthMm: z.number().int().nullable(),
-  heightMm: z.number().int().nullable(),
+  weightGrams: z.int().nullable(),
+  lengthMm: z.int().nullable(),
+  widthMm: z.int().nullable(),
+  heightMm: z.int().nullable(),
   /** The plugins that use it (`ecom`, `tms`); each lists its own by default. */
   plugins: z.array(z.string()),
   /**
@@ -53,9 +53,9 @@ export const Product = z.object({
    * sees them; what only one plugin needs stays in that plugin.
    */
   customFields: CustomFields,
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  archivedAt: z.string().datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  archivedAt: z.iso.datetime().nullable(),
 });
 
 export type Product = z.infer<typeof Product>;
@@ -64,12 +64,12 @@ export const ProductCategory = z.object({
   id: Id,
   name: z.string(),
   parentId: Id.nullable(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type ProductCategory = z.infer<typeof ProductCategory>;
 
-const size = z.number().int().min(0).max(100_000_000).nullable();
+const size = z.int().min(0).max(100_000_000).nullable();
 
 const ProductFields = z.object({
   kind: ProductKind,
@@ -79,7 +79,7 @@ const ProductFields = z.object({
   categoryId: Id.nullable(),
   description: z.string().trim().max(10_000).nullable(),
   unit: z.string().trim().min(1).max(20),
-  price: z.number().int().min(0).max(1_000_000_000_00),
+  price: z.int().min(0).max(1_000_000_000_00),
   currency: Currency,
   imageIds: z.array(Id).max(20),
   weightGrams: size,

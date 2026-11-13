@@ -14,7 +14,7 @@ const Entitled = z.object({
 const PlatformAnswer = z.object({
   status: z.unknown(),
   details: z.array(z.unknown()).optional(),
-  plugins: z.record(z.unknown()).optional(),
+  plugins: z.record(z.string(), z.unknown()).optional(),
 });
 
 export interface PlatformEntitlements {

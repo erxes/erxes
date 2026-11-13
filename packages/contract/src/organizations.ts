@@ -11,7 +11,7 @@ export const Organization = z.object({
   country: z.string().nullable(),
   /** What it charges in (ISO 4217, `MNT`): new products and invoices default to it. */
   currency: z.string(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type Organization = z.infer<typeof Organization>;

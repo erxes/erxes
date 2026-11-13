@@ -8,7 +8,7 @@ import { messageOf, orpc } from '~/lib/api';
 import { ONBOARDING_NS } from '../i18n';
 import { Appear, EASE_OUT_QUAD } from './Appear';
 
-const emailSchema = z.string().email();
+const emailSchema = z.email();
 
 /** Invites each address as a member (one call each); the result arrives as a toast. */
 const useInviteEmails = () => {

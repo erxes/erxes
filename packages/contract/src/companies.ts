@@ -29,7 +29,7 @@ export const Company = z.object({
   website: z.string().nullable(),
   industry: z.string().nullable(),
   /** Number of employees. */
-  size: z.number().int().nullable(),
+  size: z.int().nullable(),
   businessType: z.string().nullable(),
   code: z.string().nullable(),
   description: z.string().nullable(),
@@ -37,8 +37,8 @@ export const Company = z.object({
   tagIds: z.array(z.string()),
   customFields: CustomFields,
   ...LifecycleFields,
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export type Company = z.infer<typeof Company>;
@@ -67,7 +67,7 @@ export const CompanyFields = z.object({
   phones: z.array(PhoneNumber).max(20).optional(),
   website: z.string().trim().max(500).nullable().optional(),
   industry: text(200),
-  size: z.number().int().min(0).max(10_000_000).nullable().optional(),
+  size: z.int().min(0).max(10_000_000).nullable().optional(),
   businessType: text(200),
   code: text(100),
   description: text(5000),
@@ -144,7 +144,7 @@ export const companiesContract = {
       summary: 'Delete companies (owners and admins)',
     })
     .input(Ids)
-    .output(z.object({ removed: z.number().int() })),
+    .output(z.object({ removed: z.int() })),
   merge: oc
     .route({
       method: 'POST',
@@ -160,7 +160,7 @@ export const companiesContract = {
       summary: 'Add and remove tags on many companies',
     })
     .input(TagChange)
-    .output(z.object({ updated: z.number().int() })),
+    .output(z.object({ updated: z.int() })),
   people: oc
     .route({
       method: 'GET',

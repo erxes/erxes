@@ -16,9 +16,9 @@ export const EventNotify = z.object({
 export const EventInput = z.object({
   /** Namespaced by the plugin: `hr.leave.approved`. */
   type: EventType,
-  version: z.number().int().min(1).max(100).default(1),
+  version: z.int().min(1).max(100).default(1),
   payload: z
-    .record(z.unknown())
+    .record(z.string(), z.unknown())
     .refine((value) => JSON.stringify(value).length <= 32_000, 'at most 32 KB')
     .default({}),
   /** The customer or company it concerns: with `summary`, it goes on their timeline. */
@@ -28,7 +28,7 @@ export const EventInput = z.object({
   entity: EntityRef.optional(),
   notify: EventNotify.optional(),
   actorUserId: Id.optional(),
-  occurredAt: z.string().datetime().optional(),
+  occurredAt: z.iso.datetime().optional(),
   /** Retry-safe: one event per plugin and key. */
   dedupeKey: DedupeKey.optional(),
 });
@@ -39,15 +39,15 @@ export const CoreEvent = z.object({
   id: Id,
   source: z.string(),
   type: z.string(),
-  version: z.number().int(),
+  version: z.int(),
   subject: z.object({ type: ActivityTarget, id: Id }).nullable(),
   entity: EntityRef.nullable(),
   actor: ActorRef,
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
   summary: z.string().nullable(),
   link: z.string().nullable(),
-  occurredAt: z.string().datetime(),
-  createdAt: z.string().datetime(),
+  occurredAt: z.iso.datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type CoreEvent = z.infer<typeof CoreEvent>;
@@ -58,11 +58,11 @@ export const EventFailureStatus = z.enum(['retrying', 'dead']);
 export const EventFailure = z.object({
   consumer: z.string(),
   status: EventFailureStatus,
-  attempts: z.number().int(),
+  attempts: z.int(),
   lastError: z.string(),
-  nextAttemptAt: z.string().datetime().nullable(),
-  firstFailedAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  nextAttemptAt: z.iso.datetime().nullable(),
+  firstFailedAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   event: CoreEvent,
 });
 
@@ -86,7 +86,7 @@ export const eventsContract = {
         'Publish events (plugins only, up to 100). Types start with the plugin name; a dedupe key makes retries safe',
     })
     .input(z.object({ events: z.array(EventInput).min(1).max(100) }))
-    .output(z.object({ published: z.number().int(), duplicates: z.number().int() })),
+    .output(z.object({ published: z.int(), duplicates: z.int() })),
   list: oc
     .route({
       method: 'GET',
@@ -114,7 +114,7 @@ export const eventsContract = {
     .output(
       z.object({
         data: z.array(EventFailure),
-        counts: z.object({ retrying: z.number().int(), dead: z.number().int() }),
+        counts: z.object({ retrying: z.int(), dead: z.int() }),
       }),
     ),
   retryFailures: oc
@@ -129,7 +129,7 @@ export const eventsContract = {
         allDead: z.boolean().optional(),
       }),
     )
-    .output(z.object({ retried: z.number().int() })),
+    .output(z.object({ retried: z.int() })),
   dismissFailures: oc
     .route({
       method: 'POST',
@@ -137,5 +137,5 @@ export const eventsContract = {
       summary: 'Give up on failed events (owners and admins)',
     })
     .input(z.object({ failures: z.array(FailureRef).min(1).max(200) }))
-    .output(z.object({ dismissed: z.number().int() })),
+    .output(z.object({ dismissed: z.int() })),
 };

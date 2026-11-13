@@ -46,7 +46,7 @@ const customerSchema = z
     firstName: z.string(),
     middleName: z.string(),
     lastName: z.string(),
-    primaryEmail: z.union([z.literal(''), z.string().email('Invalid email format')]),
+    primaryEmail: z.union([z.literal(''), z.email('Invalid email format')]),
     primaryPhone: z.string(),
     ownerId: z.string(),
     code: z.string(),
@@ -64,7 +64,7 @@ const customerSchema = z
         values.primaryEmail ||
         values.primaryPhone.trim(),
       ),
-    { message: 'Fill in a name, an e-mail or a phone', path: ['firstName'] },
+    { path: ['firstName'], error: 'Fill in a name, an e-mail or a phone' },
   );
 
 type TCustomerForm = z.infer<typeof customerSchema>;

@@ -34,7 +34,7 @@ export const ConditionOperator = z.enum(CONDITION_OPERATORS);
 
 /** The value of a relative-date rule: "within the last 30 days". */
 export const RelativeAmount = z.object({
-  amount: z.number().int().min(0).max(3650),
+  amount: z.int().min(0).max(3650),
   unit: z.enum(['days', 'weeks', 'months']).default('days'),
 });
 
@@ -65,7 +65,7 @@ const StepId = z.string().regex(/^[a-z0-9]{1,24}$/i, 'letters and digits');
 const Label = z.string().trim().max(100).optional();
 
 const Duration = {
-  amount: z.number().int().min(1).max(10_000),
+  amount: z.int().min(1).max(10_000),
   unit: z.enum(['minutes', 'hours', 'days']),
 };
 
@@ -137,7 +137,7 @@ export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
       z.object({
         id: StepId,
         type: z.literal('delay'),
-        amount: z.number().int().min(1).max(10_000).optional(),
+        amount: z.int().min(1).max(10_000).optional(),
         unit: z.enum(['minutes', 'hours', 'days']).optional(),
         /** A date to wait until (template allowed), instead of an amount. */
         until: z.string().max(200).optional(),
@@ -182,7 +182,7 @@ export const AutomationStep: z.ZodType<AutomationStep> = z.lazy(
           .array(
             z.object({
               label: Label,
-              weight: z.number().int().min(1).max(100),
+              weight: z.int().min(1).max(100),
               steps: z.array(AutomationStep).max(100),
             }),
           )
@@ -231,8 +231,8 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     every: z.enum(['hour', 'day', 'week', 'month']),
     at: TimeOfDay.default('09:00'),
     /** 1 = Monday … 7 = Sunday (week). */
-    weekdays: z.array(z.number().int().min(1).max(7)).max(7).optional(),
-    dayOfMonth: z.number().int().min(1).max(31).optional(),
+    weekdays: z.array(z.int().min(1).max(7)).max(7).optional(),
+    dayOfMonth: z.int().min(1).max(31).optional(),
     timezone: TimeZone.default('Asia/Ulaanbaatar'),
     audience: Audience.optional(),
   }),
@@ -243,7 +243,7 @@ export const AutomationTrigger = z.discriminatedUnion('kind', [
     /** `birthDate` or a date custom field's id. */
     field: z.string().min(1).max(64),
     /** Days after (positive) or before (negative) the date. */
-    offsetDays: z.number().int().min(-365).max(365).default(0),
+    offsetDays: z.int().min(-365).max(365).default(0),
     /** Every year on the day (birthdays, anniversaries). */
     yearly: z.boolean().default(false),
     at: TimeOfDay.default('09:00'),
@@ -269,7 +269,7 @@ export const AutomationDefinition = z.object({
   /** Once these hold, the record leaves the automation (checked before each step and while waiting). */
   goal: ConditionGroup.optional(),
   /** At most this many runs start an hour (beyond it, events are skipped and counted). */
-  maxRunsPerHour: z.number().int().min(1).max(100_000).optional(),
+  maxRunsPerHour: z.int().min(1).max(100_000).optional(),
 });
 
 export type AutomationDefinition = z.infer<typeof AutomationDefinition>;

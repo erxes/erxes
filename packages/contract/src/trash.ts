@@ -8,14 +8,14 @@ export const TrashItem = z.object({
   recordId: Id,
   label: z.string().nullable(),
   deletedBy: z.object({ type: z.enum(['user', 'plugin', 'system']), id: z.string().nullable() }),
-  deletedAt: z.string().datetime(),
+  deletedAt: z.iso.datetime(),
   /** When it is gone for good. */
-  purgeAt: z.string().datetime(),
+  purgeAt: z.iso.datetime(),
   /** What comes back with it. */
   counts: z.object({
-    tags: z.number().int(),
-    links: z.number().int(),
-    activities: z.number().int(),
+    tags: z.int(),
+    links: z.int(),
+    activities: z.int(),
   }),
 });
 
@@ -35,7 +35,7 @@ export const trashContract = {
     .input(
       z.object({
         type: z.enum(['customer', 'company']).optional(),
-        limit: z.coerce.number().int().min(1).max(500).default(100),
+        limit: z.coerce.number().int().min(1).max(500).prefault(100),
       }),
     )
     .output(z.object({ data: z.array(TrashItem) })),
@@ -49,7 +49,7 @@ export const trashContract = {
     .input(z.object({ ids: z.array(Id).min(1).max(500) }))
     .output(
       z.object({
-        restored: z.number().int(),
+        restored: z.int(),
         failed: z.array(z.object({ id: Id, reason: z.string() })),
       }),
     ),
@@ -60,5 +60,5 @@ export const trashContract = {
       summary: 'Delete for good now (privacy requests; owners)',
     })
     .input(z.object({ ids: z.array(Id).min(1).max(500) }))
-    .output(z.object({ purged: z.number().int() })),
+    .output(z.object({ purged: z.int() })),
 };

@@ -50,15 +50,15 @@ export const LifecycleFields = {
   state: ContactState,
   /** The lead stage (`/lead-stages`); stays after conversion. */
   leadStageId: z.string().nullable(),
-  leadStageChangedAt: z.string().datetime().nullable(),
+  leadStageChangedAt: z.iso.datetime().nullable(),
   disqualifyReason: z.string().nullable(),
   /** Where they came from (`manual`, `form`, `plugin`, …). */
   source: z.string().nullable(),
   sourceDetails: z.record(z.string(), z.string()),
   /** When the lead became a customer. */
-  convertedAt: z.string().datetime().nullable(),
+  convertedAt: z.iso.datetime().nullable(),
   /** Newest timeline entry (creation counts). */
-  lastActivityAt: z.string().datetime(),
+  lastActivityAt: z.iso.datetime(),
 };
 
 /** Lifecycle fields a create or update may set. */
@@ -77,11 +77,11 @@ export const LeadStage = z.object({
   name: z.string(),
   kind: LeadStageKind,
   color: z.string(),
-  order: z.number().int(),
+  order: z.int(),
   /** People who are leads in it now. */
-  leadCount: z.number().int(),
+  leadCount: z.int(),
   /** Companies that are leads in it now. */
-  companyLeadCount: z.number().int(),
+  companyLeadCount: z.int(),
 });
 
 export type LeadStage = z.infer<typeof LeadStage>;
@@ -105,22 +105,22 @@ export const LeadEvent = z.object({
   reason: z.string().nullable(),
   actorType: z.string(),
   actorId: z.string().nullable(),
-  createdAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
 });
 
 export type LeadEvent = z.infer<typeof LeadEvent>;
 
-const Count = z.object({ count: z.number().int() });
+const Count = z.object({ count: z.int() });
 
 export const LeadReport = z.object({
   recordType: LeadRecordType,
-  from: z.string().datetime(),
-  to: z.string().datetime(),
+  from: z.iso.datetime(),
+  to: z.iso.datetime(),
   /** Leads made in the period. */
-  created: z.number().int(),
+  created: z.int(),
   /** Leads that became customers in the period. */
-  converted: z.number().int(),
-  disqualified: z.number().int(),
+  converted: z.int(),
+  disqualified: z.int(),
   /** converted ÷ (converted + disqualified + still open), of the period's leads; 0–1. */
   conversionRate: z.number(),
   /** Days from lead to customer: median and average, of the period's conversions. */
@@ -132,13 +132,13 @@ export const LeadReport = z.object({
       name: z.string(),
       kind: LeadStageKind,
       color: z.string(),
-      current: z.number().int(),
-      reached: z.number().int(),
+      current: z.int(),
+      reached: z.int(),
       averageDays: z.number().nullable(),
     }),
   ),
-  bySource: z.array(Count.extend({ source: z.string().nullable(), converted: z.number().int() })),
-  byOwner: z.array(Count.extend({ ownerId: z.string().nullable(), converted: z.number().int() })),
+  bySource: z.array(Count.extend({ source: z.string().nullable(), converted: z.int() })),
+  byOwner: z.array(Count.extend({ ownerId: z.string().nullable(), converted: z.int() })),
   /** Disqualification reasons, most common first. */
   reasons: z.array(Count.extend({ reason: z.string() })),
 });
@@ -180,7 +180,7 @@ export const leadsContract = {
         'Delete a stage; its leads move to `moveTo` (required when it has any). The last open stage stays',
     })
     .input(z.object({ id: Id, moveTo: Id.optional() }))
-    .output(z.object({ moved: z.number().int() })),
+    .output(z.object({ moved: z.int() })),
   move: oc
     .route({
       method: 'POST',
@@ -195,7 +195,7 @@ export const leadsContract = {
         reason: z.string().trim().max(500).optional(),
       }),
     )
-    .output(z.object({ moved: z.number().int() })),
+    .output(z.object({ moved: z.int() })),
   convert: oc
     .route({
       method: 'POST',
@@ -206,7 +206,7 @@ export const leadsContract = {
     .input(
       z.object({ ...RecordTypeInput, ids: Ids, ownerId: Id.optional(), companyId: Id.optional() }),
     )
-    .output(z.object({ converted: z.number().int() })),
+    .output(z.object({ converted: z.int() })),
   history: oc
     .route({
       method: 'GET',
@@ -225,8 +225,8 @@ export const leadsContract = {
     .input(
       z.object({
         ...RecordTypeInput,
-        from: z.string().datetime().optional(),
-        to: z.string().datetime().optional(),
+        from: z.iso.datetime().optional(),
+        to: z.iso.datetime().optional(),
       }),
     )
     .output(LeadReport),

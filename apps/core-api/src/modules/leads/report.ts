@@ -15,7 +15,7 @@ const Days = z.coerce
   .nullable()
   .transform((value) => (value === null ? null : Math.round(value * 10) / 10));
 
-const rowsOf = async <T extends z.ZodTypeAny>(client: Db, row: T, query: SQL) =>
+const rowsOf = async <T extends z.ZodType>(client: Db, row: T, query: SQL) =>
   z.array(row).parse((await client.execute(query)).rows);
 
 /** The report's period and the SQL that picks one record type's lead events. */

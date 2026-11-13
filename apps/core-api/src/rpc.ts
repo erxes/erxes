@@ -4,7 +4,7 @@ import { OpenAPIGenerator } from '@orpc/openapi';
 import { CONTEXT_LOGGER_SYMBOL, LoggingHandlerPlugin } from '@orpc/experimental-pino';
 import { OpenAPIHandler } from '@orpc/openapi/node';
 import { onError, ORPCError, ValidationError } from '@orpc/server';
-import { ZodToJsonSchemaConverter } from '@orpc/zod';
+import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 import { coreRouter } from '~/router';

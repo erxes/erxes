@@ -43,7 +43,7 @@ const companySchema = z.object({
   primaryName: z.string().trim().min(1, 'Company name is required'),
   code: z.string().optional(),
   ownerId: z.string().optional(),
-  primaryEmail: z.string().email('Invalid email').optional().or(z.literal('')),
+  primaryEmail: z.email('Invalid email').optional().or(z.literal('')),
   primaryPhone: z.string().optional(),
   website: z.string().optional(),
   industry: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
