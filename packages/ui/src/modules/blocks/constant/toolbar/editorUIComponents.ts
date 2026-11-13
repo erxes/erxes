@@ -1,20 +1,16 @@
-import type { BlockNoteView } from '@blocknote/shadcn';
-import { memo, type ComponentProps } from 'react';
-import { Tooltip } from 'erxes-ui/components/tooltip';
+import { ShadCNDefaultComponents } from '@blocknote/shadcn';
+import type { ShadCNComponents } from '@blocknote/shadcn';
 import { ToolbarButton } from 'erxes-ui/modules/blocks/components/toolbar/buttons/ToolbarButton';
 import { ToolbarToggle } from 'erxes-ui/modules/blocks/components/toolbar/buttons/ToolbarToggle';
+import { MenuCheckboxItem } from 'erxes-ui/modules/blocks/components/toolbar/menus/MenuCheckboxItem';
 
-// BlockNote 0.35 types these slots as ForwardRefExoticComponent. memo() returns the same
-// exotic component type around a plain function component, and the ref still passes as a prop.
-export const editorUIComponents: NonNullable<
-  ComponentProps<typeof BlockNoteView>['shadCNComponents']
-> = {
-  Button: { Button: memo(ToolbarButton) },
-  Toggle: { Toggle: memo(ToolbarToggle) },
-  Tooltip: {
-    Tooltip,
-    TooltipContent: memo(Tooltip.Content),
-    TooltipProvider: Tooltip.Provider,
-    TooltipTrigger: Tooltip.Trigger,
+// BlockNote's own base-ui tooltips stay: its toolbar buttons render through the
+// tooltip trigger's `render` prop, which the erxes (radix) Tooltip doesn't have.
+export const editorUIComponents: Partial<ShadCNComponents> = {
+  Button: { Button: ToolbarButton },
+  Toggle: { Toggle: ToolbarToggle },
+  DropdownMenu: {
+    ...ShadCNDefaultComponents.DropdownMenu,
+    DropdownMenuCheckboxItem: MenuCheckboxItem,
   },
 };

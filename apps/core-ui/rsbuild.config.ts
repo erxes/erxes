@@ -77,6 +77,11 @@ export default defineConfig({
     title: 'erxes',
     // The erxes "X" mark (OrgLogoIcon) on the brand colour, `--primary`.
     favicon: './src/favicon.svg',
+    meta: {
+      // BlockNote keeps its toolbar above a phone's virtual keyboard only when the
+      // keyboard resizes the page.
+      viewport: 'width=device-width, initial-scale=1, interactive-widget=resizes-content',
+    },
   },
   dev: {
     // Lazily compiled chunks break Module Federation shared singletons

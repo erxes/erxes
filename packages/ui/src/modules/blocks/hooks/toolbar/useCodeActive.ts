@@ -1,13 +1,7 @@
-import { useBlockNoteEditor, useEditorContentOrSelectionChange } from '@blocknote/react';
-import { useState } from 'react';
+import { useBlockNoteEditor, useEditorState } from '@blocknote/react';
 
-export const useCodeActive = (): boolean => {
+export const useCodeActive = () => {
   const editor = useBlockNoteEditor();
-  const [codeActive, setCodeActive] = useState(Boolean(editor.getActiveStyles().code));
 
-  useEditorContentOrSelectionChange(() => {
-    setCodeActive(Boolean(editor.getActiveStyles().code));
-  }, editor);
-
-  return codeActive;
+  return useEditorState({ editor, selector: () => Boolean(editor.getActiveStyles().code) });
 };

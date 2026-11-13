@@ -57,8 +57,7 @@ export const useBlockEditor = (args?: {
     const exportHTML = editor.blocksToHTMLLossy.bind(editor);
 
     // oxlint-disable-next-line react/immutability -- useCreateBlockNote builds the editor; plugins call its blocksToHTMLLossy, so the clean export can only wrap that method
-    editor.blocksToHTMLLossy = async (blocks) =>
-      removeCodeFormattingFromHTML(await exportHTML(blocks));
+    editor.blocksToHTMLLossy = (blocks) => removeCodeFormattingFromHTML(exportHTML(blocks));
 
     return () => {
       editor.blocksToHTMLLossy = exportHTML;

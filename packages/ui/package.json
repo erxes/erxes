@@ -46,9 +46,9 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "@blocknote/core": "0.35.0",
-    "@blocknote/react": "0.35.0",
-    "@blocknote/shadcn": "0.35.0",
+    "@blocknote/core": "0.57.0",
+    "@blocknote/react": "0.57.0",
+    "@blocknote/shadcn": "0.57.0",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/modifiers": "9.0.0",
     "@dnd-kit/sortable": "10.0.0",
@@ -59,7 +59,6 @@
     "@tabler/icons-react": "3.34.0",
     "@tanstack/react-store": "0.11.2",
     "@tanstack/react-table": "9.3.1",
-    "@tiptap/core": "2.27.3",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",

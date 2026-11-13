@@ -3,3 +3,5 @@
 @import '../../../packages/ui/src/styles.css';
 @import './app.css';
 @source './';
+/* BlockNote's shadcn skin styles its toolbar, menus and panels with Tailwind utilities. */
+@source '../node_modules/@blocknote/shadcn/dist';

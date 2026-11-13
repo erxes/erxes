@@ -1,15 +1,19 @@
+import { ShadCNDefaultComponents } from '@blocknote/shadcn';
+import type { ShadCNComponents } from '@blocknote/shadcn';
 import type { ComponentProps } from 'react';
-import { Toggle } from 'erxes-ui/components/toggle';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const ToolbarToggle = ({ ref, className, ...props }: ComponentProps<typeof Toggle>) => (
-  <Toggle
-    ref={ref}
+// The shadcn Toggle passes className through cva, which only takes strings.
+export const ToolbarToggle = ({
+  className,
+  ...props
+}: ComponentProps<ShadCNComponents['Toggle']['Toggle']>) => (
+  <ShadCNDefaultComponents.Toggle.Toggle
     className={cn(
       'transition-none enabled:pointer-events-auto',
-      'hover:bg-(--color-primary)/15! hover:text-(--color-primary)!',
-      'active:bg-(--color-primary)/15! data-[state=on]:bg-(--color-primary)/10! data-[state=on]:text-(--color-primary)!',
-      className,
+      'hover:bg-(--color-primary)/15! hover:text-primary-text!',
+      'active:bg-(--color-primary)/15! aria-pressed:bg-(--color-primary)/10! aria-pressed:text-primary-text!',
+      typeof className === 'string' ? className : undefined,
     )}
     {...props}
   />

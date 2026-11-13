@@ -1,5 +1,5 @@
-import type { DefaultBlockSchema } from '@blocknote/core';
-import type { DragHandleMenuProps, TableHandleMenuProps, TableHandleProps } from '@blocknote/react';
+import { TableHandlesExtension } from '@blocknote/core/extensions';
+import type { TableHandleMenuProps, TableHandleProps } from '@blocknote/react';
 import {
   AddButton,
   DeleteButton,
@@ -7,32 +7,58 @@ import {
   TableHandleMenu,
   useBlockNoteEditor,
   useComponentsContext,
+  useExtensionState,
 } from '@blocknote/react';
 import { IconGripVertical } from '@tabler/icons-react';
 import { createContext, useContext } from 'react';
 import { TableColorPicker } from './TableColorPicker';
 
-type HandlePosition = Pick<TableHandleMenuProps, 'orientation' | 'index'>;
+// TableHandle renders its menu with the handle's orientation, but types the menu as taking
+// no props, so the orientation reaches the menu through this context instead.
+const TableHandleOrientationContext = createContext<TableHandleMenuProps['orientation']>('row');
 
-// TableHandle renders its menu with { block, orientation, index }, but types the menu as
-// taking only { block }; the handle's position reaches the menu through this context instead.
-const TableHandlePositionContext = createContext<HandlePosition>({ orientation: 'row', index: 0 });
-
-const DeleteTableItem = ({ blockId }: { blockId: string }) => {
+const TableHandleMenuWithRemove = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
+  const orientation = useContext(TableHandleOrientationContext);
 
-  if (!Components) return null;
+  const { block, index } = useExtensionState(TableHandlesExtension, {
+    selector: (state) => ({
+      block: state?.block,
+      index: orientation === 'row' ? state?.rowIndex : state?.colIndex,
+    }),
+  });
+
+  if (!Components || !block) return null;
+
+  const isHeader = Boolean(
+    orientation === 'row' ? block.content.headerRows : block.content.headerCols,
+  );
+
+  const toggleHeader = () => {
+    const table = editor.getBlock(block.id);
+
+    if (table?.type !== 'table') return;
+
+    const header = isHeader ? undefined : 1;
+
+    editor.updateBlock(table, {
+      content: {
+        ...table.content,
+        ...(orientation === 'row' ? { headerRows: header } : { headerCols: header }),
+      },
+    });
+  };
 
   const deleteTable = () => {
     requestAnimationFrame(() => {
-      const block = editor.getBlock(blockId);
+      const table = editor.getBlock(block.id);
 
-      if (block?.type !== 'table') return;
+      if (table?.type !== 'table') return;
 
       const {
         insertedBlocks: [paragraph],
-      } = editor.replaceBlocks([block], [{ type: 'paragraph' }]);
+      } = editor.replaceBlocks([table], [{ type: 'paragraph' }]);
 
       if (paragraph) editor.setTextCursorPosition(paragraph, 'start');
       editor.focus();
@@ -40,53 +66,17 @@ const DeleteTableItem = ({ blockId }: { blockId: string }) => {
   };
 
   return (
-    <Components.Generic.Menu.Item className="bn-menu-item" onClick={deleteTable}>
-      Delete table
-    </Components.Generic.Menu.Item>
-  );
-};
-
-const TableHandleMenuWithRemove = ({
-  block,
-}: DragHandleMenuProps<{ table: DefaultBlockSchema['table'] }>) => {
-  const editor = useBlockNoteEditor();
-  const Components = useComponentsContext();
-  const { orientation, index } = useContext(TableHandlePositionContext);
-  const props = { block, orientation, index };
-
-  if (!Components) return null;
-
-  const isHeader = Boolean(
-    orientation === 'row' ? block.content.headerRows : block.content.headerCols,
-  );
-
-  const toggleHeader = () => {
-    const current = editor.getBlock(block.id);
-
-    if (current?.type !== 'table') return;
-
-    const header = isHeader ? undefined : 1;
-
-    editor.updateBlock(current, {
-      content: {
-        ...current.content,
-        ...(orientation === 'row' ? { headerRows: header } : { headerCols: header }),
-      },
-    });
-  };
-
-  return (
-    <TableHandleMenu {...props}>
-      <DeleteButton {...props} />
+    <TableHandleMenu orientation={orientation}>
+      <DeleteButton orientation={orientation} />
       {orientation === 'row' ? (
         <>
-          <AddButton {...props} orientation="row" side="above" />
-          <AddButton {...props} orientation="row" side="below" />
+          <AddButton orientation="row" side="above" />
+          <AddButton orientation="row" side="below" />
         </>
       ) : (
         <>
-          <AddButton {...props} orientation="column" side="left" />
-          <AddButton {...props} orientation="column" side="right" />
+          <AddButton orientation="column" side="left" />
+          <AddButton orientation="column" side="right" />
         </>
       )}
       {index === 0 && (
@@ -98,19 +88,19 @@ const TableHandleMenuWithRemove = ({
           {orientation === 'row' ? 'Header row' : 'Header column'}
         </Components.Generic.Menu.Item>
       )}
-      <TableColorPicker {...props} />
+      <TableColorPicker orientation={orientation} />
       <Components.Generic.Menu.Divider />
-      <DeleteTableItem blockId={block.id} />
+      <Components.Generic.Menu.Item className="bn-menu-item" onClick={deleteTable}>
+        Delete table
+      </Components.Generic.Menu.Item>
     </TableHandleMenu>
   );
 };
 
 export const TableHandleWithRemove = (props: TableHandleProps) => (
-  <TableHandlePositionContext.Provider
-    value={{ orientation: props.orientation, index: props.index }}
-  >
+  <TableHandleOrientationContext.Provider value={props.orientation}>
     <TableHandle {...props} tableHandleMenu={TableHandleMenuWithRemove}>
       <IconGripVertical size={24} data-test="tableHandle" />
     </TableHandle>
-  </TableHandlePositionContext.Provider>
+  </TableHandleOrientationContext.Provider>
 );

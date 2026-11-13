@@ -1,19 +1,25 @@
-import { useComponentsContext } from '@blocknote/react';
+import { useComponentsContext, usePortalElement } from '@blocknote/react';
 import { IconTextSize } from '@tabler/icons-react';
-import { useFontSize } from 'erxes-ui/modules/blocks/hooks/toolbar/useFontSize';
+import { useStringStyle } from 'erxes-ui/modules/blocks/hooks/toolbar/useStringStyle';
 
 const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72];
 
 export const FontSizeButton = () => {
   const Components = useComponentsContext();
-  const { currentSize, isFileBlock, handleSizeChange } = useFontSize();
+  const portalElement = usePortalElement();
+
+  const {
+    value: currentSize,
+    isFileBlock,
+    setValue: handleSizeChange,
+  } = useStringStyle('fontSize');
 
   if (!Components || isFileBlock) {
     return null;
   }
 
   return (
-    <Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Root portalElement={portalElement}>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           data-test="fontSize"

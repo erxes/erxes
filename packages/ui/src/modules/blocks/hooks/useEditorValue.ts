@@ -42,28 +42,16 @@ export const useEditorValue = ({
       return;
     }
 
-    let isActive = true;
-
-    const loadHTML = async () => {
-      try {
-        const blocks = await editor.tryParseHTMLToBlocks(initialContent);
-
-        if (isActive) load(blocks);
-      } catch {
-        // Legacy or plain-text content that doesn't parse keeps the editor as it is.
-      }
-    };
-
-    void loadHTML();
-
-    return () => {
-      isActive = false;
-    };
+    try {
+      load(editor.tryParseHTMLToBlocks(initialContent));
+    } catch {
+      // Legacy or plain-text content that doesn't parse keeps the editor as it is.
+    }
   }, [editor, initialContent]);
 
-  const emitChange = useDebouncedCallback(async () => {
+  const emitChange = useDebouncedCallback(() => {
     const value = isHTML
-      ? await editor.blocksToHTMLLossy(editor.document)
+      ? editor.blocksToHTMLLossy(editor.document)
       : JSON.stringify(editor.document);
 
     lastEditorOutputRef.current = value;
@@ -77,6 +65,6 @@ export const useEditorValue = ({
       return;
     }
 
-    void emitChange();
+    emitChange();
   };
 };

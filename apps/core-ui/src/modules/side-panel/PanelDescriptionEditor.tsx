@@ -1,8 +1,6 @@
 import { Editor } from 'erxes-ui';
-import { useEffect, useRef } from 'react';
-
-// Editor emits changes after a 300ms debounce.
-const EDITOR_SETTLE_MS = 350;
+import { useEffect, type RefObject } from 'react';
+import { useSaveOnLeave } from './useSaveOnLeave';
 
 const TYPING_TARGET =
   'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]';
@@ -36,9 +34,7 @@ const visibleEditor = (container: HTMLElement | null) => {
 };
 
 /** `/` focuses the description editor, unless it is read-only. */
-const useSlashFocus = (readonly: boolean | undefined) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
+const useSlashFocus = (containerRef: RefObject<HTMLDivElement | null>, readonly?: boolean) => {
   useEffect(() => {
     if (readonly) return undefined;
 
@@ -54,9 +50,7 @@ const useSlashFocus = (readonly: boolean | undefined) => {
     document.addEventListener('keydown', focusDescription);
 
     return () => document.removeEventListener('keydown', focusDescription);
-  }, [readonly]);
-
-  return containerRef;
+  }, [containerRef, readonly]);
 };
 
 /** A record's description as a full-size tab, saved when the editor loses focus. */
@@ -74,34 +68,15 @@ export const PanelDescriptionEditor = ({
   isHTML?: boolean;
   onSave: (description: string) => void;
 }) => {
-  const containerRef = useSlashFocus(readonly);
-  const latest = useRef(value);
-  const saved = useRef(value);
+  const { containerRef, onChange } = useSaveOnLeave({ value, readonly, onSave });
 
-  useEffect(() => {
-    latest.current = value;
-    saved.current = value;
-  }, [value]);
+  useSlashFocus(containerRef, readonly);
 
   return (
-    <div
-      ref={containerRef}
-      className="flex min-h-0 flex-1 flex-col p-3"
-      onBlur={(event) => {
-        if (event.currentTarget.contains(event.relatedTarget)) return;
-        setTimeout(() => {
-          if (!readonly && latest.current !== saved.current) {
-            saved.current = latest.current;
-            onSave(latest.current);
-          }
-        }, EDITOR_SETTLE_MS);
-      }}
-    >
+    <div ref={containerRef} className="flex min-h-0 flex-1 flex-col p-3">
       <Editor
         initialContent={value}
-        onChange={(description) => {
-          latest.current = description;
-        }}
+        onChange={onChange}
         scope={scope}
         readonly={readonly}
         isHTML={isHTML}

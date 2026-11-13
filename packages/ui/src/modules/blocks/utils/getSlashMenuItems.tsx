@@ -9,30 +9,8 @@ export const getSlashMenuItems = (
   editor: BlockEditorProps['editor'],
   additionalSlashMenuItems: BlockEditorProps['additionalSlashMenuItems'],
 ): Promise<DefaultReactSuggestionItem[]> => {
+  // The default items include Image and Video: the custom blocks keep their `url` prop.
   const items = getDefaultReactSlashMenuItems(editor);
-  const hasImageItem = items.some((item) => item.title === 'Image');
-  const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
-  const filePanelPlugin = editor.filePanel?.plugins[0];
-
-  if (!hasImageItem && hasCustomImageBlock && filePanelPlugin) {
-    items.splice(9, 0, {
-      title: editor.dictionary.slash_menu.image.title,
-      subtext: editor.dictionary.slash_menu.image.subtext,
-      aliases: editor.dictionary.slash_menu.image.aliases,
-      badge: undefined,
-      group: editor.dictionary.slash_menu.image.group,
-      onItemClick: () => {
-        const currentBlock = editor.getTextCursorPosition().block;
-        const insertedBlock = editor.insertBlocks([{ type: 'image' }], currentBlock, 'after')[0];
-
-        editor.transact((tr) =>
-          tr.setMeta(filePanelPlugin, {
-            block: insertedBlock,
-          }),
-        );
-      },
-    } satisfies DefaultReactSuggestionItem);
-  }
 
   if ('gallery' in editor.schema.blockSchema) {
     items.push({

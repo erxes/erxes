@@ -1,24 +1,12 @@
-import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
-import { fileBlockConfig } from '@blocknote/core';
+import { createFileBlockConfig } from '@blocknote/core';
 import type { ReactCustomBlockRenderProps } from '@blocknote/react';
-import {
-  FileBlockWrapper,
-  createReactBlockSpec,
-  useBlockNoteEditor,
-  useUploadLoading,
-} from '@blocknote/react';
+import { FileBlockWrapper, createReactBlockSpec, useUploadLoading } from '@blocknote/react';
 import { IconFile } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui/components/spinner';
 import type { FC } from 'react';
 import { readImage } from 'erxes-ui/utils/core';
 
-type FileRenderProps = ReactCustomBlockRenderProps<
-  typeof fileBlockConfig,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema
->;
-
-type FileBlockSchema = Parameters<typeof FileBlockWrapper>[0]['editor']['schema']['blockSchema'];
+type FileRenderProps = ReactCustomBlockRenderProps<typeof createFileBlockConfig>;
 
 const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
   const url = readImage(block.props.url);
@@ -43,9 +31,6 @@ const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
 
 const CustomFileBlockContent: FC<FileRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
-  // The same editor, typed for FileBlockWrapper: its generic schema doesn't accept
-  // the file block's editor type directly.
-  const fileEditor = useBlockNoteEditor<FileBlockSchema>();
 
   if (loading) {
     return (
@@ -59,17 +44,13 @@ const CustomFileBlockContent: FC<FileRenderProps> = (props) => {
   }
 
   return (
-    <FileBlockWrapper
-      block={props.block}
-      editor={fileEditor}
-      buttonText={props.editor.dictionary.file_blocks.file.add_button_text}
-      buttonIcon={<IconFile size={24} />}
-    >
+    <FileBlockWrapper {...props} buttonIcon={<IconFile size={24} />}>
       <CustomFilePreview block={props.block} />
     </FileBlockWrapper>
   );
 };
 
-export const customFileBlock = createReactBlockSpec(fileBlockConfig, {
+export const customFileBlock = createReactBlockSpec(createFileBlockConfig, {
+  meta: { fileBlockAccept: ['*/*'] },
   render: CustomFileBlockContent,
 });

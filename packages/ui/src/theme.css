@@ -45,6 +45,13 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
+  /* Cards and floating surfaces (BlockNote's toolbar, menus and panels) sit on the page background. */
+  --color-popover: var(--background);
+  --color-popover-foreground: var(--foreground);
+  --color-card: var(--background);
+  --color-card-foreground: var(--foreground);
+  --color-input: var(--input);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-text: var(--primary-text);

@@ -1,19 +1,13 @@
-import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
-import { imageBlockConfig } from '@blocknote/core';
+import { createImageBlockConfig } from '@blocknote/core';
 import type { ReactCustomBlockRenderProps } from '@blocknote/react';
-import {
-  createReactBlockSpec,
-  ResizableFileBlockWrapper,
-  useBlockNoteEditor,
-  useResolveUrl,
-  useUploadLoading,
-} from '@blocknote/react';
+import { createReactBlockSpec, useResolveUrl, useUploadLoading } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
 import type { CSSProperties, FC, SyntheticEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Button } from 'erxes-ui/components/button';
 import { Dialog } from 'erxes-ui/components/dialog';
 import { Spinner } from 'erxes-ui/components/spinner';
+import { MediaBlockWrapper } from './MediaBlockWrapper';
 
 const MAX_IMAGE_HEIGHT = 320;
 
@@ -62,6 +56,8 @@ const getImageStyleFromElement = (element: HTMLElement): ImageStyle => {
   return getImageStyle(explicitStyle);
 };
 
+const imageBlockConfig = createImageBlockConfig({});
+
 const customImageBlockConfig = {
   ...imageBlockConfig,
   propSchema: {
@@ -73,15 +69,7 @@ const customImageBlockConfig = {
   },
 };
 
-type ImageRenderProps = ReactCustomBlockRenderProps<
-  typeof customImageBlockConfig,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema
->;
-
-type FileBlockSchema = Parameters<
-  typeof ResizableFileBlockWrapper
->[0]['editor']['schema']['blockSchema'];
+type ImageRenderProps = ReactCustomBlockRenderProps<typeof customImageBlockConfig>;
 
 const CustomImagePreview: FC<
   Pick<ImageRenderProps, 'block'> & {
@@ -217,9 +205,6 @@ const ExternalImageHtml: FC<ImageRenderProps> = ({ block }) => {
 
 const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const loading = useUploadLoading(props.block.id);
-  // The same editor, typed for the file block wrapper: its generic schema doesn't
-  // accept the image block's editor type directly.
-  const fileEditor = useBlockNoteEditor<FileBlockSchema>();
   const imageStyle = getImageStyle(props.block.props.imageStyle);
   const previewWidth = props.block.props.previewWidth;
 
@@ -291,19 +276,22 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
       className="max-w-full [&>.bn-file-block-content-wrapper]:max-w-full"
       style={{ maxWidth: `min(100%, ${maxWidth}px)` }}
     >
-      <ResizableFileBlockWrapper
+      <MediaBlockWrapper
         block={props.block}
-        editor={fileEditor}
-        buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
         buttonIcon={<IconPhoto size={24} />}
+        onResize={(width) =>
+          props.editor.updateBlock(props.block, { props: { previewWidth: width } })
+        }
       >
         <CustomImagePreview block={props.block} onImageLoad={handleImageLoad} />
-      </ResizableFileBlockWrapper>
+      </MediaBlockWrapper>
     </div>
   );
 };
 
 export const customImageBlock = createReactBlockSpec(customImageBlockConfig, {
+  meta: { fileBlockAccept: ['image/*'] },
+  runsBefore: ['file'],
   render: CustomImageBlockContent,
   toExternalHTML: ExternalImageHtml,
   parse: (element) => {

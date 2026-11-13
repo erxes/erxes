@@ -4,6 +4,7 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
   createStyleSpec,
+  createStyleSpecFromTipTapMark,
 } from '@blocknote/core';
 import { Attribute, Mention } from '../components/BlockEditorInlineContent';
 import { customFileBlock } from 'erxes-ui/modules/blocks/components/CustomFileBlock';
@@ -18,18 +19,17 @@ const fontFamily = createStyleSpec(
     propSchema: 'string',
   },
   {
+    // The styled text goes inside the span: the HTML export appends it to contentDOM.
     render: (value) => {
       const span = document.createElement('span');
       span.style.fontFamily = value;
 
-      return {
-        dom: span,
-      };
+      return { dom: span, contentDOM: span };
     },
   },
 );
 
-const fontSizeStyle = createStyleSpec(
+const fontSize = createStyleSpec(
   {
     type: 'fontSize',
     propSchema: 'string',
@@ -39,37 +39,42 @@ const fontSizeStyle = createStyleSpec(
       const span = document.createElement('span');
       span.style.fontSize = value;
 
-      return { dom: span };
+      return { dom: span, contentDOM: span };
     },
+    // Pasted HTML keeps its font sizes.
+    parse: (element) => element.style.fontSize || undefined,
   },
 );
 
-const fontSize = {
-  ...fontSizeStyle,
-  implementation: {
-    ...fontSizeStyle.implementation,
-    mark: fontSizeStyle.implementation.mark.extend({
-      parseHTML() {
-        return [
-          ...(this.parent?.() ?? []),
-          {
-            style: 'font-size',
-            getAttrs: (value) => ({ stringValue: value }),
-          },
-        ];
+// Keep formatting saved underneath code so toggling it off restores it.
+const code = createStyleSpecFromTipTapMark(
+  defaultStyleSpecs.code.implementation.mark
+    .extend({
+      excludes: '',
+      priority: 1000,
+    })
+    .configure({
+      HTMLAttributes: {
+        class: [
+          'font-mono! font-normal! not-italic! no-underline!',
+          'text-(--color-foreground)! bg-(--color-muted)!',
+          '[&_*]:font-mono! [&_*]:font-normal!',
+          '[&_*]:not-italic! [&_*]:no-underline!',
+          '[&_*]:text-inherit! [&_*]:bg-transparent!',
+        ].join(' '),
       },
     }),
-  },
-};
+  'boolean',
+);
 
 export const BLOCK_SCHEMA = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    image: customImageBlock,
-    video: customVideoBlock,
-    file: customFileBlock,
-    gallery: galleryBlock,
-    documentPlaceholder: documentPlaceholderBlock,
+    image: customImageBlock(),
+    video: customVideoBlock(),
+    file: customFileBlock(),
+    gallery: galleryBlock(),
+    documentPlaceholder: documentPlaceholderBlock(),
   },
   inlineContentSpecs: {
     ...defaultInlineContentSpecs,
@@ -78,29 +83,7 @@ export const BLOCK_SCHEMA = BlockNoteSchema.create({
   },
   styleSpecs: {
     ...defaultStyleSpecs,
-    code: {
-      ...defaultStyleSpecs.code,
-      implementation: {
-        ...defaultStyleSpecs.code.implementation,
-        // Keep formatting saved underneath code so toggling it off restores it.
-        mark: defaultStyleSpecs.code.implementation.mark
-          .extend({
-            excludes: '',
-            priority: 1000,
-          })
-          .configure({
-            HTMLAttributes: {
-              class: [
-                'font-mono! font-normal! not-italic! no-underline!',
-                'text-(--color-foreground)! bg-(--color-muted)!',
-                '[&_*]:font-mono! [&_*]:font-normal!',
-                '[&_*]:not-italic! [&_*]:no-underline!',
-                '[&_*]:text-inherit! [&_*]:bg-transparent!',
-              ].join(' '),
-            },
-          }),
-      },
-    },
+    code,
     fontFamily,
     fontSize,
   },
