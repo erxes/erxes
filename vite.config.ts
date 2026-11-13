@@ -1,4 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { parseEnv } from 'node:util';
 import { configDefaults, defineConfig } from 'vite-plus';
 import {
   decided,
@@ -19,6 +21,15 @@ const tsrs = 'OXLINT_TSGOLINT_PATH=node_modules/.bin/tsrs-lint';
 // install that changes a dependency always reruns the task.
 const tracked = { input: [{ auto: true }, 'pnpm-lock.yaml'] };
 
+// `vp run dev:stack up` writes the test Postgres here; a DATA_TEST_URL set in the shell wins.
+const localEnv = resolve(import.meta.dirname, '.env.local');
+
+const localTestUrl = existsSync(localEnv)
+  ? parseEnv(readFileSync(localEnv, 'utf8')).DATA_TEST_URL
+  : undefined;
+
+if (localTestUrl) process.env.DATA_TEST_URL ??= localTestUrl;
+
 export default defineConfig({
   run: {
     tasks: {
@@ -26,6 +37,8 @@ export default defineConfig({
       check: { command: `${tsrs} vp check && knip`, cache: tracked },
       fix: { command: `${tsrs} vp check --fix`, cache: false },
       test: { command: 'vp test run', cache: { ...tracked, env: ['DATA_TEST_URL'] } },
+      // A Postgres, API and UI for this checkout (tools/dev-stack.ts), and what it needs.
+      'dev:stack': { command: 'node tools/dev-stack.ts', cache: false },
     },
   },
   staged: {

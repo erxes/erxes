@@ -5,15 +5,15 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file-if-exists=../../.env --import ./src/instrumentation.ts src/main.ts",
+    "dev": "tsx watch --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local --import ./src/instrumentation.ts src/main.ts",
     "build": "tsdown",
     "start": "node --enable-source-maps --import ./dist/instrumentation.js dist/main.js",
-    "bootstrap": "tsx --env-file-if-exists=../../.env scripts/bootstrap.ts",
-    "plugin:secret": "tsx --env-file-if-exists=../../.env scripts/plugin-secret.ts",
-    "db:migrate": "tsx --env-file-if-exists=../../.env scripts/migrate.ts",
-    "db:grant": "tsx --env-file-if-exists=../../.env scripts/grant.ts",
-    "db:plugin-role": "tsx --env-file-if-exists=../../.env scripts/plugin-role.ts",
-    "bench:filters": "tsx --env-file-if-exists=../../.env scripts/bench-filters.ts",
+    "bootstrap": "tsx --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local scripts/bootstrap.ts",
+    "plugin:secret": "tsx --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local scripts/plugin-secret.ts",
+    "db:migrate": "tsx --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local scripts/migrate.ts",
+    "db:grant": "tsx --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local scripts/grant.ts",
+    "db:plugin-role": "tsx --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local scripts/plugin-role.ts",
+    "bench:filters": "tsx --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local scripts/bench-filters.ts",
     "openapi": "tsx scripts/openapi.ts"
   },
   "dependencies": {

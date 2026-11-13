@@ -1,5 +1,6 @@
 import { test as setup } from '@playwright/test';
-import { coreClient, OWNER, OWNER_STATE } from './fixtures';
+import { coreClient, OWNER_STATE } from './fixtures';
+import { OWNER } from './owner';
 
 // First-run setup on the fresh database, through the same endpoint the setup screen calls.
 setup('the owner creates the organisation', async ({ request, baseURL }) => {
