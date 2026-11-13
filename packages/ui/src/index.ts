@@ -123,7 +123,7 @@ export { useUpload } from './hooks/use-upload';
 
 export { cn } from './lib/utils';
 
-export { Editor } from './modules/blocks/components/Editor';
+export { Editor } from './modules/blocks/components/LazyEditor';
 
 export { EmailDisplay } from './modules/display/components/EmailDisplay';
 
