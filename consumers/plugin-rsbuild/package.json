@@ -8,6 +8,7 @@
   "dependencies": {
     "@erxes/core-contract": "file:../packs/erxes-core-contract.tgz",
     "@erxes/plugin-sdk": "file:../packs/erxes-plugin-sdk.tgz",
+    "@tanstack/react-query": "^5.107.1",
     "erxes-ui": "file:../packs/erxes-ui.tgz",
     "i18next": "^24.2.3",
     "jotai": "^2.20.3",

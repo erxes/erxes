@@ -10,12 +10,13 @@ import { createHash } from 'node:crypto';
 import { once } from 'node:events';
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { text } from 'node:stream/consumers';
 import { z } from 'zod';
 
 // skipLibCheck hides a .d.ts import that does not resolve, and the type turns into
 // `any`. These fail the type check in that case.
 // @ts-expect-error a currency is a string
-export const wrongOrganization: Organization = { currency: 1 };
+export const wrongCurrency: Organization['currency'] = 1;
 // @ts-expect-error the client has no such group
 export const wrongGroup = (client: ReturnType<typeof createCoreClient>) => client.forOrg('o').nope;
 
@@ -32,6 +33,7 @@ for (const name of ['@erxes/core-contract', '@erxes/plugin-sdk']) {
 }
 
 const plugin = 'consumer';
+const clientSecret = 'a'.repeat(32);
 const pluginToken = 'plugin-token';
 const { publicKey, privateKey } = await generateKeyPair('ES256');
 const jwk = { ...(await exportJWK(publicKey)), kid: 'k1', alg: 'ES256', use: 'sig' };
@@ -45,7 +47,15 @@ const organization: Organization = {
   createdAt: new Date().toISOString(),
 };
 
-const core = createServer((request, response) => {
+// What core's POST /plugins/token accepts; anything else gets no token.
+const TokenRequest = z.object({
+  grant_type: z.literal('client_credentials'),
+  client_id: z.literal(plugin),
+  client_secret: z.literal(clientSecret),
+  org: z.literal(organization.id),
+});
+
+const core = createServer(async (request, response) => {
   const send = (status: number, body: unknown) =>
     response.writeHead(status, { 'content-type': 'application/json' }).end(JSON.stringify(body));
 
@@ -53,7 +63,9 @@ const core = createServer((request, response) => {
     case `GET ${CORE_API_PREFIX}/.well-known/jwks.json`:
       return send(200, { keys: [jwk] });
     case `POST ${CORE_API_PREFIX}/plugins/token`:
-      return send(200, { access_token: pluginToken, expires_in: 900 });
+      return TokenRequest.safeParse(JSON.parse(await text(request))).success
+        ? send(200, { access_token: pluginToken, expires_in: 900 })
+        : send(400, { code: 'INVALID_CLIENT' });
     case `GET ${CORE_API_PREFIX}/organization`:
       return request.headers.authorization === `Bearer ${pluginToken}`
         ? send(200, organization)
@@ -73,9 +85,14 @@ assert(address !== null && typeof address === 'object');
 const coreUrl = `http://127.0.0.1:${address.port}`;
 
 try {
-  const client = createCoreClient({ coreUrl, plugin, clientSecret: 'a'.repeat(32) });
+  const client = createCoreClient({ coreUrl, plugin, clientSecret });
 
   assert.deepEqual(await client.forOrg(organization.id).organizations.current(), organization);
+  await assert.rejects(
+    createCoreClient({ coreUrl, plugin, clientSecret: 'b'.repeat(32) })
+      .forOrg(organization.id)
+      .organizations.current(),
+  );
 
   const now = new Date().toISOString();
   const data: CoreEvent = {
@@ -121,7 +138,7 @@ try {
     /the body does not match the token/,
   );
 
-  console.log('sdk-node: exports load, core client and verifyCoreEvent work');
+  process.stdout.write('sdk-node: exports load, core client and verifyCoreEvent work\n');
 } finally {
   core.close();
 }
