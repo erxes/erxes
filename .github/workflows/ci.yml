@@ -1,6 +1,7 @@
-# erxes core: static checks, tests on Postgres, builds, container images and a
-# smoke test of the whole stack. Images go to GHCR on pushes to postgre once
-# everything passes. Require the `Check` job in branch protection.
+# erxes core: static checks, tests on Postgres, builds, container images with a
+# vulnerability scan and a smoke test of the whole stack. The three run side by
+# side; images go to GHCR on pushes to postgre only after all of them pass.
+# Require the `Check` job in branch protection.
 name: CI
 
 on:
@@ -24,14 +25,23 @@ env:
 
 jobs:
   static:
-    name: Static checks
+    name: Static checks and builds
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # What the applied-migrations check compares with: the pull request's or merge group's base, or the push's previous head.
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v6
+      - name: Fetch the base commit (only its migrations are read)
+        if: env.BASE_SHA != '' && env.BASE_SHA != '0000000000000000000000000000000000000000'
+        run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
+      - name: The deploy stack keeps Postgres off the host's ports
+        run: |
+          docker compose -f deploy/docker-compose.yml config --no-interpolate --format json |
+            jq -e '[.services[] | select(.image | startswith("postgres")) | select(.ports or .network_mode == "host")] == []' > /dev/null ||
+            { echo "::error file=deploy/docker-compose.yml::the postgres service publishes a port to the host"; exit 1; }
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -42,16 +52,22 @@ jobs:
       - name: Migrations and openapi.json match the schema and contract
         run: pnpm check:generated
       - name: Applied migrations unchanged
-        run: pnpm --filter @erxes/core-db db:check-applied "${{ github.event.pull_request.base.sha || github.event.before }}"
+        run: pnpm --filter @erxes/core-db db:check-applied "$BASE_SHA"
       - name: Lint plugin tests
         run: pnpm exec vp test run --project lint
       - name: No critical advisories in production dependencies
         run: pnpm audit --prod --audit-level critical
+      - name: Build the API and the UI
+        run: pnpm build
 
   integration:
-    name: Tests on Postgres and builds
+    name: Tests on Postgres (${{ matrix.shard }}/2)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # The tests are the longest job; two runners halve them.
+    strategy:
+      matrix:
+        shard: [1, 2]
     services:
       postgres:
         image: postgres:16
@@ -65,66 +81,54 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 20
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Tests (each API test file creates its own database and acts as a role without BYPASSRLS)
-        run: pnpm test
+      - name: Tests (API test files run in parallel, each on its own database as a role without BYPASSRLS)
+        run: pnpm test --shard=${{ matrix.shard }}/2
         env:
           DATA_TEST_URL: postgres://erxes:ci-only-password@127.0.0.1:5432/erxes_ci
-      - name: Build the API and the UI
-        run: pnpm build
 
   images:
-    name: Images and smoke test
-    needs: [static, integration]
+    name: Images, scan and smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
+    env:
+      # docker-bake.hcl's tags; the compose stack runs them.
+      CORE_API_IMAGE: erxes-core-api:local
+      CORE_UI_IMAGE: erxes-core-ui:local
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@v3
-      - name: Image names
-        id: names
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          # The runner is thrown away after the job.
+          cleanup: false
+      - name: Build both images side by side
+        uses: docker/bake-action@59cb1203cd42bcefd40a1b6d73b589e48c86040e # v7.5.0
+        with:
+          source: .
+          load: true
+          set: |
+            core-api.cache-from=type=gha,scope=core-api
+            core-api.cache-to=type=gha,scope=core-api,mode=max
+            core-ui.cache-from=type=gha,scope=core-ui
+            core-ui.cache-to=type=gha,scope=core-ui,mode=max
+      - name: No HIGH or CRITICAL vulnerabilities that have a fix
         run: |
-          owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
-          echo "api=ghcr.io/$owner/erxes-core-api" >> "$GITHUB_OUTPUT"
-          echo "ui=ghcr.io/$owner/erxes-core-ui" >> "$GITHUB_OUTPUT"
-          echo "sha=sha-${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
-      - name: Build API image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: apps/core-api/Dockerfile
-          load: true
-          tags: ${{ steps.names.outputs.api }}:${{ steps.names.outputs.sha }}
-          cache-from: type=gha,scope=core-api
-          cache-to: type=gha,scope=core-api,mode=max
-      - name: Build UI image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: apps/core-ui/Dockerfile
-          load: true
-          tags: ${{ steps.names.outputs.ui }}:${{ steps.names.outputs.sha }}
-          cache-from: type=gha,scope=core-ui
-          cache-to: type=gha,scope=core-ui,mode=max
+          for image in "$CORE_API_IMAGE" "$CORE_UI_IMAGE"; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy \
+              aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb \
+              image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$image"
+          done
       - name: Start the stack
-        env:
-          CORE_API_IMAGE: ${{ steps.names.outputs.api }}:${{ steps.names.outputs.sha }}
-          CORE_UI_IMAGE: ${{ steps.names.outputs.ui }}:${{ steps.names.outputs.sha }}
         run: |
           deploy/make-secrets.sh
           {
             echo "DATA_OWNER_PASSWORD=$(openssl rand -hex 16)"
             echo "DATA_APP_PASSWORD=$(openssl rand -hex 16)"
-            echo "CORE_API_IMAGE=$CORE_API_IMAGE"
-            echo "CORE_UI_IMAGE=$CORE_UI_IMAGE"
           } > deploy/.env
           docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d
       - name: Smoke test
@@ -132,15 +136,6 @@ jobs:
       - name: Stack logs
         if: always()
         run: docker compose -f deploy/docker-compose.yml --env-file deploy/.env logs --no-color --tail 300 || true
-      - name: Push to GHCR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/postgre'
-        run: |
-          echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin
-          for image in '${{ steps.names.outputs.api }}' '${{ steps.names.outputs.ui }}'; do
-            docker tag "$image:${{ steps.names.outputs.sha }}" "$image:postgre"
-            docker push "$image:${{ steps.names.outputs.sha }}"
-            docker push "$image:postgre"
-          done
 
   check:
     # The job to require. It fails when any job above failed, was cancelled or was skipped.
@@ -155,3 +150,43 @@ jobs:
         run: |
           echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
           echo "$RESULTS" | jq -e 'all(.[]; .result == "success")' > /dev/null
+
+  push:
+    # Rebuilt from the images job's layer cache, so these are the images that were scanned and smoke tested.
+    name: Push images to GHCR
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/postgre'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Image names
+        id: names
+        run: |
+          owner="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          {
+            echo "registry=ghcr.io/$owner"
+            echo "sha=sha-${GITHUB_SHA::12}"
+          } >> "$GITHUB_OUTPUT"
+      - name: Push both images
+        uses: docker/bake-action@59cb1203cd42bcefd40a1b6d73b589e48c86040e # v7.5.0
+        with:
+          source: .
+          push: true
+          # A target's first `tags=` replaces docker-bake.hcl's tag, the second adds one.
+          set: |
+            core-api.cache-from=type=gha,scope=core-api
+            core-ui.cache-from=type=gha,scope=core-ui
+            core-api.tags=${{ steps.names.outputs.registry }}/erxes-core-api:${{ steps.names.outputs.sha }}
+            core-api.tags=${{ steps.names.outputs.registry }}/erxes-core-api:postgre
+            core-ui.tags=${{ steps.names.outputs.registry }}/erxes-core-ui:${{ steps.names.outputs.sha }}
+            core-ui.tags=${{ steps.names.outputs.registry }}/erxes-core-ui:postgre

@@ -2,8 +2,10 @@
 #   docker build -f apps/core-api/Dockerfile -t erxes-core-api .
 # Runs `node dist/main.js`; operators also get dist/migrate.js, dist/grant.js
 # and dist/plugin-role.js (see deploy/docker-compose.yml).
-FROM node:22-bookworm-slim AS build
+FROM node:24-bookworm-slim AS build
 RUN npm install -g pnpm@11.5.2
+# The root `prepare` script installs git hooks; the image has no git and never commits.
+ENV VP_GIT_HOOKS=0
 WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 # Every workspace manifest, so the frozen lockfile matches.
@@ -22,10 +24,12 @@ COPY packages/payment-gateways packages/payment-gateways
 COPY packages/plugin-sdk packages/plugin-sdk
 COPY apps/core-api apps/core-api
 RUN pnpm --filter @erxes/core-api build \
- && pnpm --filter @erxes/core-api deploy --prod /out \
+ && pnpm --filter @erxes/core-api deploy --prod --legacy /out \
  && cp -r apps/core-api/dist /out/dist
 
-FROM node:22-bookworm-slim
+FROM node:24-bookworm-slim
+# The runtime only runs node; npm and corepack bring their own dependencies (and advisories).
+RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 ENV NODE_ENV=production PORT=3400
 WORKDIR /app
 COPY --from=build --chown=node:node /out/package.json ./

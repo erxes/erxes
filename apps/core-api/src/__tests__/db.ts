@@ -1,31 +1,14 @@
-import { closeDb, configureDb, runMigrations, schema } from '@erxes/core-db';
+import { closeDb, configureDb, schema } from '@erxes/core-db';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { randomBytes } from 'node:crypto';
-import { Client, Pool } from 'pg';
+import { Pool } from 'pg';
 import { afterAll, beforeAll, describe } from 'vite-plus/test';
+import { admin, databaseUrl, dropDatabase, TEST_RUNTIME_ROLE } from './globalSetup';
 
 const baseUrl = process.env.DATA_TEST_URL ?? '';
 
 /** Runs the suite only when DATA_TEST_URL points at a Postgres (CI sets it). */
 export const describeWithDb = baseUrl ? describe : describe.skip;
-
-/**
- * The API under test acts as this role: no BYPASSRLS, data rights only, like
- * production's runtime role — so row level security is really exercised.
- */
-const TEST_RUNTIME_ROLE = 'erxes_core_test_runtime';
-
-const admin = async (statement: string, url = baseUrl) => {
-  const client = new Client({ connectionString: url });
-
-  await client.connect();
-
-  try {
-    await client.query(statement);
-  } finally {
-    await client.end();
-  }
-};
 
 let currentUrl = '';
 let ownerPool: Pool | null = null;
@@ -56,32 +39,15 @@ const sessionUrl = (url: string) => {
   return parsed.toString();
 };
 
-/** A throwaway database for this test file, migrated from packages/db/drizzle. */
+/** A throwaway database for this test file, copied from the run's migrated template. */
 export const useTestDatabase = () => {
   const name = `core_test_${randomBytes(4).toString('hex')}`;
 
   beforeAll(async () => {
-    await admin(`CREATE DATABASE ${name}`);
-    // Cluster-wide, once: the runtime role, and the right for the login to act as it.
-    await admin(`
-      DO $$ BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${TEST_RUNTIME_ROLE}') THEN
-          CREATE ROLE ${TEST_RUNTIME_ROLE} NOLOGIN NOBYPASSRLS NOSUPERUSER;
-        END IF;
-      END $$;
-    `).catch(() => undefined);
-    await admin(`GRANT ${TEST_RUNTIME_ROLE} TO current_user`).catch(() => undefined);
+    // A copy of the run's migrated template, which already grants the runtime role (globalSetup.ts).
+    await admin(baseUrl, `CREATE DATABASE ${name} TEMPLATE ${process.env.CORE_TEST_TEMPLATE}`);
 
-    const url = new URL(baseUrl);
-    url.pathname = `/${name}`;
-
-    currentUrl = url.toString();
-
-    // Migrate as the owner, then grant the runtime role.
-    configureDb({ url: currentUrl, applicationName: 'erxes-core-test-migrate' });
-    await runMigrations();
-    await closeDb();
-    await admin(`SELECT core_grant_runtime('${TEST_RUNTIME_ROLE}')`, currentUrl);
+    currentUrl = databaseUrl(baseUrl, name);
 
     ownerPool = new Pool({
       connectionString: currentUrl,
@@ -108,7 +74,7 @@ export const useTestDatabase = () => {
     await ownerPool?.end();
     ownerPool = null;
     owner = null;
-    await admin(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
+    await dropDatabase(baseUrl, name);
   });
 };
 

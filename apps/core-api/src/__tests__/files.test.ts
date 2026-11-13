@@ -1,6 +1,4 @@
-import { rm } from 'node:fs/promises';
-import { resolve } from 'node:path';
-import { afterAll, expect, it } from 'vite-plus/test';
+import { expect, it } from 'vite-plus/test';
 import { describeWithDb, useTestDatabase } from './db';
 import { HR_SECRET } from './plugin';
 import { type CoreClient, useTwoOrgs } from './support';
@@ -10,10 +8,6 @@ describeWithDb('files', () => {
   useTestDatabase();
 
   const t = useTwoOrgs();
-
-  afterAll(() =>
-    rm(resolve(import.meta.dirname, '../../.test-files'), { recursive: true, force: true }),
-  );
 
   /** Starts an upload and sends the bytes to its signed link. */
   const upload = async (as: CoreClient, name: string, contentType: string, bytes: Buffer) => {

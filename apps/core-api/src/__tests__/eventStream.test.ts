@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { expect, it } from 'vite-plus/test';
-import { processEvents } from '~/modules/events/processor';
 import { adminDb, dbError, describeWithDb, useTestDatabase } from './db';
+import { settle } from './settle';
 import { useTwoOrgs } from './support';
 
 /** Events plugins and core publish, and what the processor makes of them. */
@@ -39,7 +39,7 @@ describeWithDb('event stream', () => {
       ),
     ).toMatch(/must start with "hr\."/);
 
-    await processEvents();
+    await settle();
 
     const timeline = await t
       .owner()
@@ -53,7 +53,7 @@ describeWithDb('event stream', () => {
     });
 
     // The owner hears about it in HR's inbox; running again changes nothing.
-    await processEvents();
+    await settle();
 
     const inbox = await t.member().notifications.list({ source: 'hr', kind: 'hr.contract.signed' });
 
@@ -83,7 +83,7 @@ describeWithDb('event stream', () => {
     expect(sent).toEqual({ published: 1, duplicates: 0 });
     expect(again).toEqual({ published: 0, duplicates: 1 });
 
-    await processEvents();
+    await settle();
 
     const inbox = await t.member().notifications.list({ kind: 'hr.review.scheduled' });
 

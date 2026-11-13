@@ -71,7 +71,7 @@ jobs:
              docker compose -f deploy/docker-compose.yml --env-file deploy/.env ps"
       - name: Check
         run: |
-          for i in $(seq 1 30); do
+          for _ in $(seq 1 30); do
             curl -fsS '${{ vars.DEPLOY_URL }}/core/v1/setup' >/dev/null && { echo "up: $TAG"; exit 0; }
             sleep 5
           done
