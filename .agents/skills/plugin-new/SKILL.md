@@ -6,8 +6,8 @@ description: Build a new plugin for the new erxes core (Postgres, branch postgre
 # New plugin for the erxes core
 
 A plugin is a product of its own: its own repo, API, tables, UI and release.
-Core shares people (team members, customers, companies), files, payments,
-notifications, events, timelines and automations. A plugin never reads or
+Core shares people (team members, customers, companies), files, products,
+payments, notifications, events, timelines and automations. A plugin never reads or
 writes `core_*` tables and never imports core code; it reaches core only
 through the channels below, using `@erxes/plugin-sdk`.
 
@@ -267,6 +267,9 @@ What each scope opens (check `access.ts` for the full list):
 | `events:write` / `events:read`     | `events.publish`; other plugins' events at `/events`                                               |
 | `notifications:write`              | `notifications.create` (to team members; kind in `notificationKinds`)                              |
 | `payments:read` / `payments:write` | invoices and refunds for its own records; `core.payment.*` events for its own invoices             |
+|                                    | and for invoices with a line for it (`lines[].plugin`), which it can read but not cancel           |
+| `products:read`                    | `products.list` (its own; `all: true` for the whole catalog), `.get`, `.lookup`, categories        |
+| `products:write`                   | `products.create` (it uses what it creates), `.update`, `.archive`, `.restore`, `.use`             |
 | `files:read` / `files:write`       | core's file service (two-step upload)                                                              |
 | `audit:write`, `live:write`        | `audit.record`, `plugins.signal`                                                                   |
 
