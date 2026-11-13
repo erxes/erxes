@@ -5,8 +5,14 @@ import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
 
-/** Lists views belong to: customers, leads (people), companies, company leads. */
-export const VIEW_RECORD_TYPES = ['customer', 'lead', 'company', 'company_lead'] as const;
+/** Lists views belong to: customers, leads (people), companies, company leads, products. */
+export const VIEW_RECORD_TYPES = [
+  'customer',
+  'lead',
+  'company',
+  'company_lead',
+  'product',
+] as const;
 
 /**
  * A saved list: a name, a filter (the same condition language automations
@@ -34,7 +40,7 @@ export const views = pgTable(
     index('core_views_org_type_idx').on(table.orgId, table.recordType),
     check(
       'core_views_record_type_check',
-      sql`${table.recordType} IN ('customer', 'lead', 'company', 'company_lead')`,
+      sql`${table.recordType} IN ('customer', 'lead', 'company', 'company_lead', 'product')`,
     ),
     foreignKey({
       columns: [table.orgId],

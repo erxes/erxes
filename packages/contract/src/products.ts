@@ -114,6 +114,8 @@ export const productsContract = {
         categoryId: Id.optional(),
         plugin: PluginName.optional(),
         all: QueryBoolean.default(false),
+        /** A filter on `views.fields({ recordType: 'product' })`: JSON of a condition group (`RecordFilter`), as views save it. */
+        filter: z.string().max(20_000).optional(),
       }),
     )
     .output(cursorPageOf(Product)),

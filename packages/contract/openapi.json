@@ -11353,7 +11353,8 @@
               "customer",
               "lead",
               "company",
-              "company_lead"
+              "company_lead",
+              "product"
             ],
             "type": "string"
           },
@@ -27658,6 +27659,16 @@
             },
             "allowEmptyValue": true,
             "allowReserved": true
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 20000
+            },
+            "allowEmptyValue": true,
+            "allowReserved": true
           }
         ],
         "responses": {
@@ -30258,7 +30269,8 @@
                 "customer",
                 "lead",
                 "company",
-                "company_lead"
+                "company_lead",
+                "product"
               ],
               "type": "string"
             },
@@ -30292,7 +30304,7 @@
       },
       "post": {
         "operationId": "views.create",
-        "summary": "Save a view (sharing it with the team needs contacts.edit)",
+        "summary": "Save a view (sharing it with the team needs contacts.edit; for products, products.manage)",
         "requestBody": {
           "required": true,
           "content": {
@@ -30305,7 +30317,8 @@
                       "customer",
                       "lead",
                       "company",
-                      "company_lead"
+                      "company_lead",
+                      "product"
                     ],
                     "type": "string"
                   },
@@ -30468,7 +30481,7 @@
     "/views/{id}": {
       "patch": {
         "operationId": "views.update",
-        "summary": "Change a view (its creator; a shared one also members with contacts.edit)",
+        "summary": "Change a view (its creator; a shared one also members who may share: contacts.edit, products.manage)",
         "parameters": [
           {
             "name": "id",
@@ -30689,7 +30702,8 @@
                 "customer",
                 "lead",
                 "company",
-                "company_lead"
+                "company_lead",
+                "product"
               ],
               "type": "string"
             },

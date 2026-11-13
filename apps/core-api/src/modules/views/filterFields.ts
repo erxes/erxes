@@ -1,42 +1,16 @@
-import { type FilterField, LEAD_SOURCES, type ViewRecordType } from '@erxes/core-contract';
+import { LEAD_SOURCES, type ViewRecordType } from '@erxes/core-contract';
 import {
   companies,
   customerCompanies,
   customers,
-  type ContentType,
   type Db,
   fields,
   leadStages,
 } from '@erxes/core-db';
-import { and, asc, eq, type SQL, sql } from 'drizzle-orm';
-
-type FieldType = FilterField['type'];
-
-/** A custom field, filtered through its typed value rows. */
-export interface CustomSpec {
-  /** Whose values: the record's own, or (customers) the linked company's. */
-  recordType: ContentType;
-  fieldId: string;
-  /** The value column. */
-  storage: 'text' | 'number' | 'date' | 'bool';
-}
-
-/** One filterable thing: how it reads in SQL for the list's table. */
-export interface FieldSpec extends FilterField {
-  /** The value as SQL (for `tags` and custom fields: unused; for `company.*`: a column of `core_companies`). */
-  expr: SQL;
-  custom?: CustomSpec;
-  /** Only a day, no time (dates compare as dates so their indexes apply). */
-  dateOnly?: boolean;
-  /** Text with a trigram index: "is" is an ILIKE without wildcards so the index serves it. */
-  trigram?: boolean;
-  /** Birthday: "anniversary within" reads this stored month * 100 + day column. */
-  monthDay?: SQL;
-  /** Fields of the linked company: checked inside "has a company where …". */
-  viaCompany?: boolean;
-  /** The lead stage: rules name stages, the column holds their ids. */
-  stageLookup?: boolean;
-}
+import { and, asc, eq, ne, sql } from 'drizzle-orm';
+import { type CustomSpec, field, type FieldSpec, type FieldType } from './fieldSpec';
+import { textArray } from './filterValues';
+import { productFields } from './productFilterFields';
 
 const STORAGE: Record<string, CustomSpec['storage']> = {
   number: 'number',
@@ -56,21 +30,6 @@ const FILTER_TYPE: Record<string, FieldType> = {
 
 export const isCompanyList = (recordType: ViewRecordType) =>
   recordType === 'company' || recordType === 'company_lead';
-
-const field = (
-  path: string,
-  label: string,
-  type: FieldType,
-  expr: SQL,
-  extra: Partial<FieldSpec> = {},
-): FieldSpec => ({
-  path: `subject.${path}`,
-  label,
-  type,
-  expr,
-  group: 'fields',
-  ...extra,
-});
 
 const COMPANY_FIELDS: FieldSpec[] = [
   field('primaryName', 'Name', 'text', sql`${companies.primaryName}`, { trigram: true }),
@@ -105,7 +64,11 @@ const customerFields = (recordType: ViewRecordType): FieldSpec[] => [
 ];
 
 /** People and companies share the lifecycle; the leads list has its stage fields, the companies list (leads and customers) all of them. */
-const lifecycleFields = (recordType: ViewRecordType, stageNames: string[]): FieldSpec[] => {
+const lifecycleFields = (
+  recordType: ViewRecordType,
+  orgId: string,
+  stageNames: string[],
+): FieldSpec[] => {
   const table = isCompanyList(recordType) ? companies : customers;
 
   return [
@@ -129,8 +92,9 @@ const lifecycleFields = (recordType: ViewRecordType, stageNames: string[]): Fiel
       : [
           field('leadStageId', 'Lead stage', 'select', sql`${table.leadStageId}`, {
             group: 'lead',
-            stageLookup: true,
             options: stageNames,
+            lookup: (names) =>
+              sql`array(select ${leadStages.id} from ${leadStages} where ${leadStages.orgId} = ${orgId} and lower(${leadStages.name}) = any(${textArray(names.map((name) => name.toLowerCase()))}))`,
           }),
           field(
             'leadStageChangedAt',
@@ -189,8 +153,10 @@ const CUSTOMER_RELATED: FieldSpec[] = [
   }),
 ];
 
-/** Custom fields; customers also filter by their company's properties. */
-const customFields = async (client: Db, orgId: string, isCompany: boolean) => {
+/** The list's custom fields; customers also filter by their company's properties. */
+const customFields = async (client: Db, orgId: string, recordType: ViewRecordType) => {
+  const isCompany = isCompanyList(recordType);
+
   const rows = await client
     .select({
       id: fields.id,
@@ -200,36 +166,36 @@ const customFields = async (client: Db, orgId: string, isCompany: boolean) => {
       options: fields.options,
     })
     .from(fields)
-    .where(and(eq(fields.orgId, orgId), isCompany ? eq(fields.contentType, 'company') : undefined))
+    .where(
+      and(
+        eq(fields.orgId, orgId),
+        recordType === 'product'
+          ? eq(fields.contentType, 'product')
+          : isCompany
+            ? eq(fields.contentType, 'company')
+            : ne(fields.contentType, 'product'),
+      ),
+    )
     .orderBy(asc(fields.order));
 
-  // Product fields belong to products, not contacts.
-  return rows.flatMap((row): FieldSpec[] => {
-    const recordType = row.contentType;
+  return rows.map((row): FieldSpec => {
+    const ofCompany = row.contentType === 'company' && !isCompany;
 
-    if (recordType === 'product') return [];
-
-    const ofCompany = recordType === 'company' && !isCompany;
-
-    return [
-      {
-        path: ofCompany
-          ? `subject.company.customFields.${row.id}`
-          : `subject.customFields.${row.id}`,
-        label: ofCompany ? `Company ${row.label}` : row.label,
-        group: ofCompany ? 'company' : 'custom',
-        type: FILTER_TYPE[row.type] ?? 'text',
-        options: row.options.length ? row.options : undefined,
-        expr: sql`null`,
-        dateOnly: row.type === 'date',
-        viaCompany: ofCompany,
-        custom: {
-          recordType,
-          fieldId: row.id,
-          storage: STORAGE[row.type] ?? 'text',
-        },
+    return {
+      path: ofCompany ? `subject.company.customFields.${row.id}` : `subject.customFields.${row.id}`,
+      label: ofCompany ? `Company ${row.label}` : row.label,
+      group: ofCompany ? 'company' : 'custom',
+      type: FILTER_TYPE[row.type] ?? 'text',
+      options: row.options.length ? row.options : undefined,
+      expr: sql`null`,
+      dateOnly: row.type === 'date',
+      viaCompany: ofCompany,
+      custom: {
+        recordType: row.contentType,
+        fieldId: row.id,
+        storage: STORAGE[row.type] ?? 'text',
       },
-    ];
+    };
   });
 };
 
@@ -248,14 +214,20 @@ export const filterFields = async (
   orgId: string,
   recordType: ViewRecordType,
 ): Promise<FieldSpec[]> => {
+  if (recordType === 'product')
+    return [
+      ...(await productFields(client, orgId)),
+      ...(await customFields(client, orgId, recordType)),
+    ];
+
   const isCompany = isCompanyList(recordType);
   const stageNames = recordType === 'customer' ? [] : await stageNamesOf(client, orgId);
 
   return [
     ...(isCompany ? COMPANY_FIELDS : customerFields(recordType)),
-    ...lifecycleFields(recordType, stageNames),
+    ...lifecycleFields(recordType, orgId, stageNames),
     ...commonFields(isCompany ? companies : customers),
     ...(isCompany ? COMPANY_RELATED : CUSTOMER_RELATED),
-    ...(await customFields(client, orgId, isCompany)),
+    ...(await customFields(client, orgId, recordType)),
   ];
 };

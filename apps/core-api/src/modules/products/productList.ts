@@ -4,6 +4,7 @@ import { and, arrayContains, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { unique } from '~/lib/contacts';
 import { containsPattern, keysetPage } from '~/lib/keyset';
+import { compileRecordFilter } from '~/modules/views/recordFilter';
 import { findProduct, productColumns, type ProductRow } from './productChecks';
 
 export const toProductDto = (row: ProductRow): Product => ({
@@ -37,6 +38,7 @@ interface ProductQuery {
   categoryId?: string;
   plugin?: string;
   all: boolean;
+  filter?: string;
 }
 
 /** Products in a category or any of its subcategories. */
@@ -64,6 +66,13 @@ export const listProducts = async (
 ) => {
   const search = query.search ? containsPattern(query.search) : undefined;
 
+  const filter = await compileRecordFilter(
+    client,
+    { orgId: caller.orgId, userId: caller.actorType === 'user' ? caller.actorId : null },
+    'product',
+    query.filter,
+  );
+
   const page = await keysetPage(
     client,
     {
@@ -74,6 +83,7 @@ export const listProducts = async (
     },
     and(
       eq(products.status, query.status),
+      filter,
       query.kind ? eq(products.kind, query.kind) : undefined,
       query.categoryId ? inCategory(caller.orgId, query.categoryId) : undefined,
       usedBy(caller, query),

@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { ConditionGroup } from './automationDefinition';
 import { Id } from './common';
 
-/** The list a view belongs to: customers, leads (people), companies, company leads. */
-export const ViewRecordType = z.enum(['customer', 'lead', 'company', 'company_lead']);
+/** The list a view belongs to: customers, leads (people), companies, company leads, products. */
+export const ViewRecordType = z.enum(['customer', 'lead', 'company', 'company_lead', 'product']);
 
 export type ViewRecordType = z.infer<typeof ViewRecordType>;
 
@@ -76,7 +76,8 @@ export const viewsContract = {
       method: 'POST',
       path: '/views',
       successStatus: 201,
-      summary: 'Save a view (sharing it with the team needs contacts.edit)',
+      summary:
+        'Save a view (sharing it with the team needs contacts.edit; for products, products.manage)',
     })
     .input(z.object({ recordType: ViewRecordType, ...ViewFields }))
     .output(View),
@@ -84,7 +85,8 @@ export const viewsContract = {
     .route({
       method: 'PATCH',
       path: '/views/{id}',
-      summary: 'Change a view (its creator; a shared one also members with contacts.edit)',
+      summary:
+        'Change a view (its creator; a shared one also members who may share: contacts.edit, products.manage)',
     })
     .input(z.object({ id: Id, ...ViewFields, name: ViewFields.name.optional() }))
     .output(View),

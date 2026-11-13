@@ -11,12 +11,13 @@ import {
   customers,
   customerTags,
   type Db,
-  leadStages,
+  type FieldContentType,
+  products,
 } from '@erxes/core-db';
 import { and, inArray, not, or, type SQL, sql } from 'drizzle-orm';
 import { valuesTable } from '~/modules/fields/fieldValues';
-import type { Actor } from '~/http/auth';
-import { type CustomSpec, type FieldSpec, filterFields, isCompanyList } from './filterFields';
+import type { CustomSpec, FieldSpec } from './fieldSpec';
+import { filterFields, isCompanyList } from './filterFields';
 import {
   COMPARE,
   compileDate,
@@ -32,23 +33,52 @@ import {
 const cannotUse = (spec: FieldSpec, op: ConditionRule['op']) =>
   invalid(`“${spec.label}” can't use “${op}”`);
 
-/** The lead stage: rules name stages, the column holds their ids. */
-const compileStage = (x: SQL, rule: ConditionRule, actor: Actor) => {
+/** Whose list it is: the organisation, and the member "me" means (none for plugins). */
+export interface FilterScope {
+  orgId: string;
+  userId: string | null;
+}
+
+/** Rules name records (a lead stage, a category); the column holds their ids. */
+const compileLookup = (x: SQL, rule: ConditionRule, lookup: (names: string[]) => SQL) => {
   const { op } = rule;
-
-  const names = (op === 'in' || op === 'not_in' ? list(rule.value) : [text(rule.value)]).map(
-    (name) => name.toLowerCase(),
-  );
-
-  const ids = sql`(select ${leadStages.id} from ${leadStages} where ${leadStages.orgId} = ${actor.orgId} and lower(${leadStages.name}) = any(${textArray(names)}))`;
+  const ids = lookup(op === 'in' || op === 'not_in' ? list(rule.value) : [text(rule.value)]);
 
   return op === 'eq' || op === 'in'
-    ? sql`${x} in ${ids}`
-    : sql`(${x} is null or ${x} not in ${ids})`;
+    ? sql`${x} = any(${ids})`
+    : sql`(${x} is null or not (${x} = any(${ids})))`;
 };
 
-const compileMember = (x: SQL, rule: ConditionRule, actor: Actor) => {
-  const id = (value: unknown) => (value === 'me' ? actor.userId : text(value));
+/** A `text[]` column: "is" and "contains" mean it has the value, "is any of" that it has one of them. */
+const compileArray = (x: SQL, rule: ConditionRule) => {
+  switch (rule.op) {
+    case 'eq':
+    case 'contains':
+      return sql`${x} @> ${textArray([text(rule.value)])}`;
+
+    case 'neq':
+    case 'not_contains':
+      return sql`not (${x} @> ${textArray([text(rule.value)])})`;
+
+    case 'in':
+      return sql`${x} && ${textArray(list(rule.value))}`;
+
+    case 'not_in':
+      return sql`not (${x} && ${textArray(list(rule.value))})`;
+
+    default:
+      return undefined;
+  }
+};
+
+const compileMember = (x: SQL, rule: ConditionRule, scope: FilterScope) => {
+  const id = (value: unknown) => {
+    if (value !== 'me') return text(value);
+
+    if (!scope.userId) throw invalid('“me” is a member; this caller is not one');
+
+    return scope.userId;
+  };
 
   switch (rule.op) {
     case 'eq':
@@ -113,26 +143,31 @@ const compileNumber = (x: SQL, rule: ConditionRule) => {
 };
 
 /** A built-in column (or a linked company's). */
-const compileValue = (spec: FieldSpec, rule: ConditionRule, actor: Actor): SQL => {
+const compileValue = (spec: FieldSpec, rule: ConditionRule, scope: FilterScope): SQL => {
   const x = spec.expr;
   const { op } = rule;
 
   if (op === 'exists')
-    return spec.type === 'text' ? sql`coalesce(${x}, '') <> ''` : sql`${x} is not null`;
+    return spec.array
+      ? sql`cardinality(${x}) > 0`
+      : spec.type === 'text'
+        ? sql`coalesce(${x}, '') <> ''`
+        : sql`${x} is not null`;
 
-  if (op === 'not_exists') return not(compileValue(spec, { ...rule, op: 'exists' }, actor));
+  if (op === 'not_exists') return not(compileValue(spec, { ...rule, op: 'exists' }, scope));
 
-  if (spec.stageLookup && ['eq', 'neq', 'in', 'not_in'].includes(op)) {
-    return compileStage(x, rule, actor);
+  if (spec.lookup && ['eq', 'neq', 'in', 'not_in'].includes(op)) {
+    return compileLookup(x, rule, spec.lookup);
   }
 
-  const compiled =
-    spec.type === 'number'
+  const compiled = spec.array
+    ? compileArray(x, rule)
+    : spec.type === 'number'
       ? compileNumber(x, rule)
       : spec.type === 'date'
         ? compileDate(x, op, rule.value, Boolean(spec.dateOnly), spec.monthDay)
         : spec.type === 'member'
-          ? compileMember(x, rule, actor)
+          ? compileMember(x, rule, scope)
           : spec.type === 'select' || spec.type === 'text'
             ? compileText(spec, rule)
             : undefined;
@@ -169,9 +204,14 @@ const customText = (x: SQL, spec: FieldSpec, rule: ConditionRule) => {
  * column); negative rules are "has no value row where …", so a record without
  * a value counts as "is not X". Multi-choice fields match when any choice does.
  */
+const RECORDS = { customer: customers, company: companies, product: products } satisfies Record<
+  FieldContentType,
+  unknown
+>;
+
 const compileCustom = (spec: FieldSpec, custom: CustomSpec, rule: ConditionRule): SQL => {
   const v = valuesTable(custom.recordType);
-  const record = custom.recordType === 'company' ? companies : customers;
+  const record = RECORDS[custom.recordType];
 
   const has = (condition?: SQL) =>
     sql`exists (select 1 from ${v} where ${v.orgId} = ${record.orgId} and ${v.recordId} = ${record.id} and ${v.fieldId} = ${custom.fieldId}${condition ? sql` and ${condition}` : sql``})`;
@@ -243,16 +283,16 @@ const compileTags = (recordType: ViewRecordType, rule: ConditionRule): SQL => {
   }
 };
 
-const compileField = (spec: FieldSpec, rule: ConditionRule, actor: Actor) =>
-  spec.custom ? compileCustom(spec, spec.custom, rule) : compileValue(spec, rule, actor);
+const compileField = (spec: FieldSpec, rule: ConditionRule, scope: FilterScope) =>
+  spec.custom ? compileCustom(spec, spec.custom, rule) : compileValue(spec, rule, scope);
 
 interface Compiling {
   specs: Map<string, FieldSpec>;
   recordType: ViewRecordType;
-  actor: Actor;
+  scope: FilterScope;
 }
 
-const compileRule = (rule: ConditionRule, { specs, recordType, actor }: Compiling): SQL => {
+const compileRule = (rule: ConditionRule, { specs, recordType, scope }: Compiling): SQL => {
   const spec = specs.get(rule.path);
 
   if (!spec) throw invalid(`Unknown field: ${rule.path}`);
@@ -261,13 +301,13 @@ const compileRule = (rule: ConditionRule, { specs, recordType, actor }: Compilin
 
   if (spec.viaCompany) {
     const positive = NEGATIVE[rule.op];
-    const inner = compileField(spec, positive ? { ...rule, op: positive } : rule, actor);
+    const inner = compileField(spec, positive ? { ...rule, op: positive } : rule, scope);
     const linked = sql`exists (select 1 from ${customerCompanies} join ${companies} on ${companies.id} = ${customerCompanies.companyId} and ${companies.orgId} = ${customerCompanies.orgId} where ${customerCompanies.orgId} = ${customers.orgId} and ${customerCompanies.customerId} = ${customers.id} and ${inner})`;
 
     return positive ? not(linked) : linked;
   }
 
-  return compileField(spec, rule, actor);
+  return compileField(spec, rule, scope);
 };
 
 const compileGroup = (
@@ -299,7 +339,7 @@ const parseFilter = (filter: string | ConditionGroup) => {
 /** A list's `filter` (JSON of a condition group) → one SQL condition on its table; 400 `INVALID_FILTER` when it doesn't fit. */
 export const compileRecordFilter = async (
   client: Db,
-  actor: Actor,
+  scope: FilterScope,
   recordType: ViewRecordType,
   filter: string | ConditionGroup | null | undefined,
 ) => {
@@ -308,8 +348,8 @@ export const compileRecordFilter = async (
   const group = parseFilter(filter);
 
   const specs = new Map(
-    (await filterFields(client, actor.orgId, recordType)).map((spec) => [spec.path, spec]),
+    (await filterFields(client, scope.orgId, recordType)).map((spec) => [spec.path, spec]),
   );
 
-  return compileGroup(group, { specs, recordType, actor }, 1);
+  return compileGroup(group, { specs, recordType, scope }, 1);
 };

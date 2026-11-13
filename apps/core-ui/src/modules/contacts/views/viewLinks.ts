@@ -6,6 +6,7 @@ export const VIEW_LIST_PATHS: Record<ViewRecordType, string> = {
   company: '/contacts/companies',
   lead: '/contacts/leads',
   company_lead: '/contacts/leads/companies',
+  product: '/products',
 };
 
 /** A view's address: its list with the view, its filter and its search in the query (as the list keeps them). */

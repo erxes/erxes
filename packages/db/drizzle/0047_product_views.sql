@@ -1,0 +1,2 @@
+ALTER TABLE "core_views" DROP CONSTRAINT "core_views_record_type_check";--> statement-breakpoint
+ALTER TABLE "core_views" ADD CONSTRAINT "core_views_record_type_check" CHECK ("core_views"."record_type" IN ('customer', 'lead', 'company', 'company_lead', 'product'));
