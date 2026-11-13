@@ -119,10 +119,30 @@ export const describeError = (error: unknown) => {
   return parts.join(' — ').slice(0, 2000);
 };
 
-/** Claims due jobs (and ones whose worker died) for these queues. */
+/** Why a job whose worker stopped during its last attempt is dead. */
+const LEASE_RAN_OUT = 'the worker stopped or timed out during the last attempt';
+
+/**
+ * Claims due jobs (and ones whose worker died) for these queues. A job whose
+ * lease ran out on its last attempt is not claimed again: it is dead, and
+ * returned as `abandoned` so its `onDead` runs.
+ */
 const claim = (queues: Map<string, JobDefinition>, limit: number) =>
   withSystem('jobs: claim', async (tx) => {
     const definitions = [...queues.values()];
+
+    const names = sql.join(
+      definitions.map((definition) => sql`${definition.queue}`),
+      sql`, `,
+    );
+
+    const abandoned = await tx
+      .update(jobs)
+      .set({ status: 'dead', lockedUntil: null, lastError: LEASE_RAN_OUT, updatedAt: sql`now()` })
+      .where(
+        sql`${jobs.queue} in (${names}) and ${jobs.status} = 'running' and ${jobs.lockedUntil} < now() and ${jobs.attempts} >= ${jobs.maxAttempts}`,
+      )
+      .returning();
 
     const result = await tx.execute<{ id: string }>(sql`
       update ${jobs} j set
@@ -138,10 +158,7 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
         updated_at = now()
       where j.id in (
         select id from ${jobs}
-        where queue in (${sql.join(
-          definitions.map((definition) => sql`${definition.queue}`),
-          sql`, `,
-        )})
+        where queue in (${names})
           and ((status = 'queued' and run_at <= now()) or (status = 'running' and locked_until < now()))
         order by run_at
         limit ${limit}
@@ -150,9 +167,9 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
       returning j.id
     `);
 
-    if (!result.rows.length) return [];
+    if (!result.rows.length) return { claimed: [], abandoned };
 
-    return tx
+    const claimed = await tx
       .select()
       .from(jobs)
       .where(
@@ -161,35 +178,35 @@ const claim = (queues: Map<string, JobDefinition>, limit: number) =>
           sql`, `,
         )})`,
       );
+
+    return { claimed, abandoned };
   });
+
+/** Runs a dead job's `onDead` in its organisation's transaction; a failing hook is logged. */
+const runOnDead = (definition: JobDefinition, job: JobRow, message: string) => {
+  const { onDead } = definition;
+
+  if (!onDead) return Promise.resolve();
+
+  return withOrg(job.orgId, (tx) => onDead(job, message, tx)).catch((hookError: unknown) =>
+    log.error({ queue: job.queue, job: job.id, err: hookError }, 'job onDead failed'),
+  );
+};
+
+/**
+ * Only the worker holding the job's latest claim may finish it: a worker whose
+ * lease ran out and was claimed again by another one changes nothing.
+ */
+const heldBy = (job: JobRow) =>
+  and(eq(jobs.id, job.id), eq(jobs.status, 'running'), eq(jobs.attempts, job.attempts));
 
 const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
   const message = describeError(error);
   const dead = job.attempts >= job.maxAttempts;
   const delay = (definition.backoff ?? defaultBackoff)(job.attempts);
+  const facts = { queue: job.queue, job: job.id, attempt: job.attempts, err: message };
 
-  if (dead)
-    log.error(
-      {
-        queue: job.queue,
-        job: job.id,
-        attempts: job.attempts,
-        err: message,
-      },
-      'job gave up',
-    );
-  else
-    log.warn(
-      {
-        queue: job.queue,
-        job: job.id,
-        attempt: job.attempts,
-        err: message,
-      },
-      'job failed; retrying',
-    );
-
-  await withOrg(job.orgId, (tx) =>
+  const updated = await withOrg(job.orgId, (tx) =>
     tx
       .update(jobs)
       .set({
@@ -199,17 +216,26 @@ const fail = async (definition: JobDefinition, job: JobRow, error: unknown) => {
         lastError: message,
         updatedAt: sql`now()`,
       })
-      .where(and(eq(jobs.id, job.id), eq(jobs.status, 'running'))),
+      .where(heldBy(job))
+      .returning({ id: jobs.id }),
   );
 
-  const { onDead } = definition;
-
-  if (dead && onDead) {
-    await withOrg(job.orgId, (tx) => onDead(job, message, tx)).catch((hookError: unknown) =>
-      log.error({ queue: job.queue, job: job.id, err: hookError }, 'job onDead failed'),
-    );
+  if (!updated.length) {
+    log.warn(facts, 'job failed after another worker claimed it; that worker decides');
+  } else if (dead) {
+    log.error(facts, 'job gave up');
+    await runOnDead(definition, job, message);
+  } else {
+    log.warn(facts, 'job failed; retrying');
   }
 };
+
+/** Thrown in an atomic job's transaction when another worker holds the job now. */
+class LeaseLost extends Error {
+  constructor() {
+    super('the lease ran out and another worker claimed the job');
+  }
+}
 
 /** Runs one claimed job to completion, retry or death, in a trace of its own. */
 const runJob = (definition: JobDefinition, job: JobRow) =>
@@ -218,11 +244,15 @@ const runJob = (definition: JobDefinition, job: JobRow) =>
       if (definition.atomic) {
         await withOrg(job.orgId, async (tx) => {
           await definition.handle(job, tx);
-          await tx.delete(jobs).where(eq(jobs.id, job.id));
+
+          const done = await tx.delete(jobs).where(heldBy(job)).returning({ id: jobs.id });
+
+          // Rolls the job's writes back: the worker that holds it now commits them.
+          if (!done.length) throw new LeaseLost();
         });
       } else {
         await definition.handle(job);
-        await withOrg(job.orgId, (tx) => tx.delete(jobs).where(eq(jobs.id, job.id)));
+        await withOrg(job.orgId, (tx) => tx.delete(jobs).where(heldBy(job)));
       }
     } catch (error) {
       await fail(definition, job, error);
@@ -235,7 +265,15 @@ export const processJobs = async (definitions: JobDefinition[], concurrency = 5)
   let handled = 0;
 
   for (let round = 0; round < 100; round += 1) {
-    const claimed = await claim(queues, concurrency);
+    const { claimed, abandoned } = await claim(queues, concurrency);
+
+    for (const job of abandoned) {
+      const definition = queues.get(job.queue);
+
+      log.error({ queue: job.queue, job: job.id, attempts: job.attempts }, 'job gave up');
+
+      if (definition) await runOnDead(definition, job, LEASE_RAN_OUT);
+    }
 
     if (!claimed.length) break;
 

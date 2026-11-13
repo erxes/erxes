@@ -21,7 +21,8 @@
     "plugin:secret": "pnpm --filter @erxes/core-api plugin:secret",
     "bench:filters": "pnpm --filter @erxes/core-api bench:filters",
     "openapi": "pnpm --filter @erxes/core-api openapi",
-    "check:generated": "tools/check-generated.sh"
+    "check:generated": "tools/check-generated.sh",
+    "verify:models": "tools/verify-models.sh"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",

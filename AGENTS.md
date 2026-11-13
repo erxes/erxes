@@ -51,6 +51,7 @@ pnpm dev                     # API http://localhost:3400, UI http://localhost:35
 | Add or change an endpoint in the contract, router or a service         | `.agents/skills/core-endpoint/SKILL.md`   |
 | Add or change a table, column, index or migration                      | `.agents/skills/schema-change/SKILL.md`   |
 | Show a behaviour change works in the running app                       | `.agents/skills/verify-feature/SKILL.md`  |
+| Change files or jobs code, or their TLA+ models in `verify/tla`        | `.agents/skills/verify-models/SKILL.md`   |
 | Change what plugins see: contract, events, OpenAPI, federation exports | `.agents/skills/plugin-contract/SKILL.md` |
 | Build a new plugin on this core                                        | `.agents/skills/plugin-new/SKILL.md`      |
 | Move an erxes 3.x plugin (HR, frontline …) onto this core              | `.agents/skills/plugin-migrate/SKILL.md`  |
