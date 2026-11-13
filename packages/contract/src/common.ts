@@ -112,9 +112,6 @@ export const PhoneNumber = z
   .max(32)
   .regex(/^\+?[0-9 ()-]+$/, 'digits, spaces, brackets, dashes and a leading +');
 
-/** Optional text input: trimmed, `null` clears it. */
-export const text = (max: number) => z.string().trim().max(max).nullable().optional();
-
 /**
  * A picture's address: a full `http(s)` URL, or a file in core's file service
  * (`/core/v1/files/<id>/download`, as uploads return).
