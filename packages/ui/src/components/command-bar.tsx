@@ -20,7 +20,8 @@ const Root = ({
 }: CommandBarProps) => {
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange} defaultOpen={defaultOpen}>
-      <PopoverPrimitive.Trigger
+      {/* Where the bar opens from; the page opens it, so it is an anchor, not a button. */}
+      <PopoverPrimitive.Anchor
         className={cn('fixed bottom-10 left-1/2 h-px w-px -translate-x-1/2 z-50')}
       />
 

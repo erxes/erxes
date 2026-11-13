@@ -187,7 +187,7 @@ export const SignInPage = () => {
       <AuthenticationLayout>
         <div className="flex flex-col items-center gap-3">
           <div className="text-xl font-semibold leading-none">{t('welcome')}</div>
-          <div className="text-center text-accent-foreground">{t('sign-in-to-continue')}</div>
+          <div className="text-center text-muted-foreground">{t('sign-in-to-continue')}</div>
         </div>
         {challenge ? (
           <TwoFactorStep challenge={challenge} onBack={() => setChallenge(null)} />

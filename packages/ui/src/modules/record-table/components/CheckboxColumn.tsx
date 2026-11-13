@@ -77,7 +77,11 @@ const CheckboxCell = <TData extends RowData>({
         event.stopPropagation();
       }}
     >
-      <Checkbox checked={selected} onCheckedChange={(value) => row.toggleSelected(!!value)} />
+      <Checkbox
+        checked={selected}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
     </div>
   );
 };

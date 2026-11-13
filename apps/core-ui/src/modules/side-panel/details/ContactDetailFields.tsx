@@ -67,6 +67,7 @@ export const ContactOwnerField = ({
         scope={scope}
         value={ownerId}
         placeholder={ownerId ? label : ''}
+        aria-label={ownerId ? undefined : label}
         className="rounded-sm"
         onValueChange={(next) => onChange(typeof next === 'string' ? next : null)}
       />

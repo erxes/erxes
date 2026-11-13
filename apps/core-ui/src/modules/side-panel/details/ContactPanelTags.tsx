@@ -35,12 +35,12 @@ export const ContactPanelTags = ({
           })
         }
       >
-        <RecordTableInlineCell.Trigger
-          className="rounded-sm"
-          aria-label={t('edit-tags', 'Edit tags')}
-        >
+        {/* Named by what it shows (the tags, or "Add tags"), so the spoken name matches the visible one. */}
+        <RecordTableInlineCell.Trigger className="rounded-sm">
           <TagsSelect.SelectedList maxVisible={3} className="min-w-0 overflow-hidden" />
-          {!tagIds?.length && (
+          {tagIds?.length ? (
+            <span className="sr-only">{t('edit-tags', 'Edit tags')}</span>
+          ) : (
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <IconPlus className="size-3.5" aria-hidden="true" />
               {t('add-tags', 'Add tags')}

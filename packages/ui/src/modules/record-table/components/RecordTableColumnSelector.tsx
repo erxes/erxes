@@ -180,7 +180,7 @@ export const RecordTableColumnSelector = ({
     <DropdownMenu open={columnSelectorOpen} onOpenChange={setColumnSelectorOpen}>
       <DropdownMenu.Trigger asChild>
         {children ?? (
-          <Button variant="ghost" className="h-full w-full rounded-none px-0">
+          <Button variant="ghost" aria-label="Columns" className="h-full w-full rounded-none px-0">
             <IconSettings />
           </Button>
         )}

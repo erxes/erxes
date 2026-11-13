@@ -154,7 +154,7 @@ export const SetupPage = () => {
       <AuthenticationLayout>
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="text-xl font-semibold leading-none">Initial Configuration Steps</div>
-          <div className="text-accent-foreground">
+          <div className="text-muted-foreground">
             Please fill out the following form to complete your installation
           </div>
         </div>

@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useId,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
 import { shallow, useSelector } from '@tanstack/react-store';
 import {
   columnOrderingFeature,
@@ -41,6 +48,8 @@ interface IRecordTableContext {
   table: RecordTableInstance;
   columnSelectorOpen: boolean;
   setColumnSelectorOpen: (open: boolean) => void;
+  /** The id of a column's header cell, unique per table: cells are named by their column. */
+  headId: (columnId: string) => string;
 }
 
 const RecordTableContext = createContext<IRecordTableContext | null>(null);
@@ -118,10 +127,16 @@ export const RecordTableProvider = <TData extends RowData>({
 
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- tanstack's Table is invariant in its row type; the shared context holds any table, and readers treat rows as RowData
   const shared = table as unknown as RecordTableInstance;
+  const headPrefix = useId();
 
   return (
     <RecordTableContext.Provider
-      value={{ table: shared, columnSelectorOpen, setColumnSelectorOpen }}
+      value={{
+        table: shared,
+        columnSelectorOpen,
+        setColumnSelectorOpen,
+        headId: (columnId) => `${headPrefix}-head-${columnId}`,
+      }}
     >
       <RecordTableDnDProvider setColumnOrder={setColumnOrder}>
         <RecordTableContainer table={shared} {...containerProps}>

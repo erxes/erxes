@@ -27,6 +27,8 @@ export interface IEditorProps {
   initialContent?: string;
   scope?: string;
   isHTML?: boolean;
+  /** What screen readers call the editor. */
+  label?: string;
   uploadFile?: (file: File) => Promise<string>;
 }
 

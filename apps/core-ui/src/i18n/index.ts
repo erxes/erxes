@@ -67,6 +67,12 @@ void i18n.use(initReactI18next).init({
   react: { useSuspense: false },
 });
 
-i18n.on('languageChanged', (language) => localStorage.setItem(LANGUAGE_KEY, language));
+// Screen readers pick their voice from <html lang>.
+document.documentElement.lang = i18n.language;
+
+i18n.on('languageChanged', (language) => {
+  localStorage.setItem(LANGUAGE_KEY, language);
+  document.documentElement.lang = language;
+});
 
 export { i18n };

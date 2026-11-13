@@ -15,7 +15,7 @@ export const PanelDescriptionField = ({
   isHTML,
   onSave,
 }: {
-  label: React.ReactNode;
+  label: string;
   value: string;
   scope: string;
   readonly?: boolean;
@@ -53,6 +53,7 @@ export const PanelDescriptionField = ({
             latest.current = next;
           }}
           scope={scope}
+          label={label}
           readonly={readonly}
           isHTML={isHTML}
           className="h-auto min-h-20 rounded-sm shadow-none hover:bg-accent focus-within:bg-background focus-within:shadow-focus"

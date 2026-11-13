@@ -46,7 +46,7 @@ export const AuthenticationLayout = ({ children }: { children: ReactNode }) => {
             <div className="-mx-px h-full w-auto space-y-6 rounded-b-xl border border-t-0 bg-background p-6 pt-8">
               {children}
             </div>
-            <div className="m-0 flex w-full flex-col space-y-1 px-0 py-5 text-accent-foreground">
+            <div className="m-0 flex w-full flex-col space-y-1 px-0 py-5 text-muted-foreground">
               <span className="text-center text-sm">{t('accept-terms-prefix')}</span>
               <span className="inline-flex justify-center gap-1 text-center text-sm">
                 <a

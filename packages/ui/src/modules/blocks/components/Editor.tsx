@@ -12,11 +12,13 @@ export const Editor = ({
   className,
   isHTML = false,
   uploadFile,
+  label,
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
   const editor = useBlockEditor({
     initialContent: parseBlocks(initialContent ?? '') || undefined,
     uploadFile,
+    label,
   });
 
   const handleChange = useEditorValue({ editor, initialContent, isHTML, onChange });

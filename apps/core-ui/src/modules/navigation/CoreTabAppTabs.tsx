@@ -11,7 +11,7 @@ import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modi
 import { horizontalListSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconArrowBarToRight, IconGripVertical, IconX } from '@tabler/icons-react';
-import { Button, cn, ContextMenu } from 'erxes-ui';
+import { cn, ContextMenu } from 'erxes-ui';
 import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NavApp } from './apps';
@@ -44,7 +44,10 @@ const TabIcon = ({
   </span>
 );
 
-/** ×, shown on the active tab and on hover; it never starts a drag. */
+/**
+ * ×, shown on the active tab and on hover; it never starts a drag. Pointer only, so it is
+ * not a control nested in role="tab": Delete and the context menu close the focused tab.
+ */
 const TabCloseButton = ({
   label,
   active,
@@ -54,17 +57,13 @@ const TabCloseButton = ({
   active: boolean;
   onClose: () => void;
 }) => (
-  <Button
-    aria-label={label}
+  <span
+    aria-hidden
     title={label}
     className={cn(
-      'size-5 shrink-0 rounded text-muted-foreground opacity-0 transition-[background-color,opacity] hover:bg-accent hover:text-foreground group-focus-within/tab:opacity-100 group-hover/tab:opacity-100',
+      'inline-flex size-5 shrink-0 cursor-pointer items-center justify-center rounded text-muted-foreground opacity-0 transition-[background-color,opacity] hover:bg-accent hover:text-foreground group-focus-within/tab:opacity-100 group-hover/tab:opacity-100',
       active && 'opacity-100',
     )}
-    size="icon"
-    type="button"
-    tabIndex={-1}
-    variant="ghost"
     onClick={(event) => {
       event.stopPropagation();
       onClose();
@@ -72,7 +71,7 @@ const TabCloseButton = ({
     onPointerDown={(event) => event.stopPropagation()}
   >
     <IconX className="size-3" />
-  </Button>
+  </span>
 );
 
 interface TabMenuActions {
@@ -183,6 +182,10 @@ const CoreTabAppTab = ({
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();
               onSelect();
+            } else if (event.key === 'Delete') {
+              // The keyboard's ×, as in the ARIA tabs pattern.
+              event.preventDefault();
+              onClose();
             } else onKeyDown(event);
           }}
         >

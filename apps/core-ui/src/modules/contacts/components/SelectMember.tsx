@@ -24,6 +24,7 @@ const SelectMemberInlineCell = ({
   size = 'lg',
   className,
   id,
+  'aria-label': ariaLabel,
 }: {
   value?: string | null;
   onValueChange?: (value: string[] | string | null) => void;
@@ -32,13 +33,20 @@ const SelectMemberInlineCell = ({
   size?: AvatarProps['size'];
   className?: string;
   id?: string;
+  /** Names the picker while it shows no member. */
+  'aria-label'?: string;
 } & React.RefAttributes<React.ComponentRef<typeof RecordTableInlineCell.Trigger>>) => {
   const [open, setOpen] = useState(false);
 
   return (
     <SelectMemberProvider value={value} onValueChange={onValueChange} setOpen={setOpen}>
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <RecordTableInlineCell.Trigger ref={ref} id={id} className={cn(className, 'text-xs')}>
+        <RecordTableInlineCell.Trigger
+          ref={ref}
+          id={id}
+          aria-label={ariaLabel}
+          className={cn(className, 'text-xs')}
+        >
           <SelectMemberValue placeholder={placeholder ?? ''} size={size} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
