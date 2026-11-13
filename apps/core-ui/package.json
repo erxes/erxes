@@ -38,10 +38,12 @@
   "devDependencies": {
     "@module-federation/rsbuild-plugin": "2.9.3",
     "@rsbuild/core": "^1.1.0",
+    "@rsbuild/plugin-babel": "1.2.1",
     "@rsbuild/plugin-react": "^1.1.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/qrcode": "^1.5.5",
     "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0"
+    "@types/react-dom": "19.3.0",
+    "babel-plugin-react-compiler": "1.0.0"
   }
 }
