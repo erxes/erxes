@@ -10,7 +10,6 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
-import { createHmac, timingSafeEqual } from 'node:crypto';
 import {
   link,
   mkdir,
@@ -25,6 +24,7 @@ import {
 import { dirname, join, resolve, sep } from 'node:path';
 import { z } from 'zod';
 import { config } from '~/config';
+import { hmacSha256, safeEqual } from '~/lib/crypto';
 
 interface UploadRequest {
   contentType: string;
@@ -111,10 +111,9 @@ const KEY =
   /^([A-Za-z0-9]+\/\d{4}\/\d{2}\/[A-Za-z0-9]+|uploads\/[A-Za-z0-9]+\/[A-Za-z0-9]+\/[a-f0-9]+)$/;
 
 const signingKey = () =>
-  createHmac('sha256', config.auth.jwtSecret).update('core-files-v1').digest();
+  Buffer.from(hmacSha256(config.auth.jwtSecret, 'core-files-v1', 'hex'), 'hex');
 
-const sign = (payload: string) =>
-  createHmac('sha256', signingKey()).update(payload).digest('base64url');
+const sign = (payload: string) => hmacSha256(signingKey(), payload, 'base64url');
 
 const signGrant = (grant: LocalGrant) => {
   const payload = Buffer.from(JSON.stringify(grant)).toString('base64url');
@@ -140,10 +139,7 @@ export const readGrant = (token: string): LocalGrant | null => {
     return null;
   }
 
-  const expected = Buffer.from(sign(payload));
-  const given = Buffer.from(signature);
-
-  if (expected.length !== given.length || !timingSafeEqual(expected, given)) {
+  if (!safeEqual(sign(payload), signature)) {
     return null;
   }
 

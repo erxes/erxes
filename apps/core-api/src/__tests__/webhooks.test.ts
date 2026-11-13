@@ -1,10 +1,10 @@
 import { sql } from 'drizzle-orm';
-import { createHmac } from 'node:crypto';
 import { once } from 'node:events';
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
 import { config } from '~/config';
+import { hmacSha256 } from '~/lib/crypto';
 import { isPrivateAddress } from '~/lib/outbound';
 import { adminDb, useTestDatabase } from './db';
 import { settle } from './settle';
@@ -78,9 +78,7 @@ describe('webhooks', () => {
         /^t=(\d+),v1=([a-f0-9]{64})$/.exec(first?.signature ?? '')?.slice(0, 3),
       );
 
-      expect(
-        createHmac('sha256', created.secret).update(`${time}.${first?.body}`).digest('hex'),
-      ).toBe(v1);
+      expect(hmacSha256(created.secret, `${time}.${first?.body}`, 'hex')).toBe(v1);
       expect(Delivered.parse(JSON.parse(first?.body ?? '{}')).data).toMatchObject({
         type: 'core.customer.created',
         subject: { type: 'customer' },

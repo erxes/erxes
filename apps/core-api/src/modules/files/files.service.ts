@@ -1,5 +1,4 @@
 import type { FileInfo } from '@erxes/core-contract';
-import { randomBytes } from 'node:crypto';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { type Db, files, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
@@ -8,6 +7,7 @@ import type { Actor, Caller } from '~/http/auth';
 import { can } from '~/http/access';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
+import { randomToken } from '~/lib/crypto';
 import { lockRows } from '~/lib/locks';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
@@ -36,8 +36,7 @@ const toFileDto = (row: FileRow): FileInfo => ({
 });
 
 /** Where an upload's bytes wait until core has checked them: a fresh name per upload. */
-const uploadKey = (orgId: string, id: string) =>
-  `uploads/${orgId}/${id}/${randomBytes(12).toString('hex')}`;
+const uploadKey = (orgId: string, id: string) => `uploads/${orgId}/${id}/${randomToken(12, 'hex')}`;
 
 /** `<org>/<yyyy>/<mm>/<id>`: grouped by organisation and month, never from user input. */
 const storageKey = (orgId: string, id: string) => {

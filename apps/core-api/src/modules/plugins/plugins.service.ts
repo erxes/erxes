@@ -10,10 +10,10 @@ import {
   withSystem,
 } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
 import { PLUGIN_ACCESS_TYP, type PluginService } from '~/http/auth';
 import { HttpError } from '~/http/errors';
+import { randomToken, safeEqual, sha256 } from '~/lib/crypto';
 import { oneRow } from '~/lib/rows';
 import { signJwt } from '~/lib/signing';
 
@@ -24,11 +24,6 @@ const PLUGIN_TOKEN_TTL_SECONDS = 15 * 60;
 
 /** After rotation, the previous secret keeps working this long. */
 const SECRET_OVERLAP_HOURS = 24;
-
-const hashSecret = (secret: string) => createHash('sha256').update(secret).digest('hex');
-
-const sameHash = (a: string | null, b: string) =>
-  a !== null && a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
 /** Scopes a plugin asks for: its manifest's, or (before it sent one) what plugins could always do. */
 export const requestedScopes = (row: Pick<PluginRow, 'manifest'>): string[] =>
@@ -97,15 +92,15 @@ const storeSecret = (name: string, hash: string) =>
 /** Brings the registry in line with `CORE_PLUGIN_KEYS` (`name:secret`) at startup. */
 export const syncPluginSecrets = async () => {
   for (const [secret, name] of config.pluginKeys) {
-    await storeSecret(name, hashSecret(secret));
+    await storeSecret(name, sha256(secret));
   }
 };
 
 /** A new random client secret for a plugin; the previous one works 24 more hours. Prints nowhere: the caller shows it once. */
 export const rotatePluginSecret = async (name: string) => {
-  const secret = `erxp_${randomBytes(32).toString('base64url')}`;
+  const secret = `erxp_${randomToken(32)}`;
 
-  await storeSecret(name, hashSecret(secret));
+  await storeSecret(name, sha256(secret));
 
   return secret;
 };
@@ -158,15 +153,16 @@ export const issuePluginToken = async (input: {
   org?: string;
 }) => {
   const [row] = await db().select().from(plugins).where(eq(plugins.name, input.client_id)).limit(1);
-  const hash = hashSecret(input.client_secret);
+  const hash = sha256(input.client_secret);
 
   if (!row || row.status !== 'active') throw invalidClient();
 
-  const current = sameHash(row.secretHash, hash);
+  const current = row.secretHash !== null && safeEqual(row.secretHash, hash);
 
   const previous =
     !current &&
-    sameHash(row.previousSecretHash, hash) &&
+    row.previousSecretHash !== null &&
+    safeEqual(row.previousSecretHash, hash) &&
     row.previousSecretExpiresAt !== null &&
     row.previousSecretExpiresAt.getTime() > Date.now();
 

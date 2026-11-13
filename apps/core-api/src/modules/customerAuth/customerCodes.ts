@@ -1,9 +1,9 @@
 import { type CustomerLoginKind, customerCodes, type Db, newId } from '@erxes/core-db';
 import { and, desc, eq, gt, isNull, sql } from 'drizzle-orm';
-import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import { config } from '~/config';
 import { HttpError } from '~/http/errors';
 import { normalizeEmail, normalizePhone } from '~/lib/contacts';
+import { hmacSha256, randomInt, safeEqual } from '~/lib/crypto';
 import { lockKey } from '~/lib/locks';
 import { sendEmail } from '~/modules/email/email';
 import { sendSms } from '~/modules/sms/sms';
@@ -29,14 +29,7 @@ type Purpose = 'sign_in' | 'add_login';
 
 /** Keyed with core's secret: a leaked table doesn't give the codes away by trying all million. */
 const hashOf = (id: string, code: string) =>
-  createHmac('sha256', config.auth.jwtSecret).update(`${id}:${code}`).digest('hex');
-
-const sameHash = (stored: string, given: string) => {
-  const a = Buffer.from(stored);
-  const b = Buffer.from(given);
-
-  return a.length === b.length && timingSafeEqual(a, b);
-};
+  hmacSha256(config.auth.jwtSecret, `${id}:${code}`, 'hex');
 
 /** One code at a time per address, across replicas. */
 const lockAddress = (tx: Db, orgId: string, address: Address) =>
@@ -155,7 +148,7 @@ export const useCode = async (
     return false;
   }
 
-  if (!sameHash(row.codeHash, hashOf(row.id, code))) {
+  if (!safeEqual(row.codeHash, hashOf(row.id, code))) {
     await tx
       .update(customerCodes)
       .set({ attempts: sql`${customerCodes.attempts} + 1` })

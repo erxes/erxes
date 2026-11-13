@@ -8,7 +8,7 @@ import { keysetPage } from '~/lib/keyset';
 import { oneRow } from '~/lib/rows';
 import { matchEveryWord } from '~/lib/search';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword } from '~/lib/crypto';
 import { notify } from '~/modules/notifications/notifications.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { profileChanges, type UserChanges } from './userProfile';

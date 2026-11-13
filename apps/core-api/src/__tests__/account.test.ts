@@ -1,7 +1,7 @@
 import { users } from '@erxes/core-db';
 import { eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword } from '~/lib/crypto';
 import { adminDb, useTestDatabase } from './db';
 import { useTwoOrgs } from './support';
 

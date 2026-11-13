@@ -3,7 +3,7 @@ import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { hashPassword, verifyPassword } from './password';
+import { hashPassword, verifyPassword } from '~/lib/crypto';
 
 /**
  * A member changes their own password, proving they know the current one.

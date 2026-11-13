@@ -1,7 +1,6 @@
 import { db } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import express, { type Express, type NextFunction, type Request, type Response } from 'express';
-import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Logger, SerializedRequest } from 'pino';
 import { pinoHttp } from 'pino-http';
@@ -13,6 +12,7 @@ import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
 import { HttpError } from '~/http/errors';
+import { randomUUID } from '~/lib/crypto';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';

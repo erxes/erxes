@@ -1,6 +1,6 @@
 import type { ORPCError } from '@orpc/client';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword } from '~/lib/crypto';
 import { processJobs } from '~/modules/jobs/jobs';
 import { JOBS } from '~/modules/jobs/registry';
 import { createOrganization } from '~/modules/organizations/organizations.service';

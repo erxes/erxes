@@ -1,16 +1,16 @@
-import {
-  createHash,
-  createPrivateKey,
-  createPublicKey,
-  generateKeyPairSync,
-  type KeyObject,
-} from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { type JWK, type JWTPayload, jwtVerify, SignJWT } from 'jose';
 import { z } from 'zod';
 import { config } from '~/config';
 import { logger } from '~/logger';
+import {
+  createPrivateKey,
+  createPublicKey,
+  generateKeyPairSync,
+  type KeyObject,
+  sha256,
+} from './crypto';
 
 const log = logger.child({ component: 'signing' });
 
@@ -30,8 +30,6 @@ interface PublicKey {
   jwk: JWK;
 }
 
-const base64url = (value: Buffer) => value.toString('base64url');
-
 const EcPublicJwk = z.object({
   kty: z.literal('EC'),
   crv: z.literal('P-256'),
@@ -47,10 +45,9 @@ const toPublic = (key: KeyObject): PublicKey => {
   const jwk = parsed.data;
 
   // RFC 7638: SHA-256 of the required members in lexicographic order.
-  const kid = base64url(
-    createHash('sha256')
-      .update(JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }))
-      .digest(),
+  const kid = sha256(
+    JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }),
+    'base64url',
   );
 
   return {

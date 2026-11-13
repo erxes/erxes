@@ -12,9 +12,9 @@
 import { CursorQuery } from '@erxes/core-contract';
 import { closeDb, configureDb, runMigrations, withOrg } from '@erxes/core-db';
 import { appendFileSync } from 'node:fs';
-import { randomBytes } from 'node:crypto';
 import { Client } from 'pg';
 import type { Actor } from '~/http/auth';
+import { randomToken } from '~/lib/crypto';
 import { listCompanies } from '~/modules/companies/companyList';
 import { listCustomers } from '~/modules/customers/customerList';
 import { createOrganization } from '~/modules/organizations/organizations.service';
@@ -206,7 +206,7 @@ const bench = async (actor: Actor) => {
 };
 
 const main = async () => {
-  const name = `core_bench_${randomBytes(4).toString('hex')}`;
+  const name = `core_bench_${randomToken(4, 'hex')}`;
   const url = new URL(baseUrl);
 
   url.pathname = `/${name}`;

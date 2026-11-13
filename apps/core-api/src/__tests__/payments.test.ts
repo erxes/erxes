@@ -3,7 +3,8 @@ import { verifyCoreEvent } from '@erxes/plugin-sdk';
 import { eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vite-plus/test';
 import { signJwt } from '~/lib/signing';
-import { bodyDigest, CORE_EVENT_TYP } from '~/modules/plugins/pluginEvents';
+import { sha256 } from '~/lib/crypto';
+import { CORE_EVENT_TYP } from '~/modules/plugins/pluginEvents';
 import { adminDb, useTestDatabase } from './db';
 import { pluginApi } from './pluginApi';
 import { settle } from './settle';
@@ -235,7 +236,7 @@ describe('payments', { timeout: 240_000 }, () => {
 
     const bearer = async (audience: string) =>
       `Bearer ${await signJwt(
-        { org: t.ids.org, event: 'e1', sha: bodyDigest(body) },
+        { org: t.ids.org, event: 'e1', sha: sha256(body, 'base64url') },
         { typ: CORE_EVENT_TYP, audience, subject: 'event:e1', expiresInSeconds: 60 },
       )}`;
 

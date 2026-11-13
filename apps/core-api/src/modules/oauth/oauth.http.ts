@@ -3,6 +3,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import express, { type Request, type Response, Router } from 'express';
 import { z } from 'zod';
 import { sessionClaims } from '~/http/auth';
+import { sha256 } from '~/lib/crypto';
 import { ISSUER, verifyJwt } from '~/lib/signing';
 import {
   clientOf,
@@ -13,7 +14,6 @@ import {
   oauthError,
   param,
   SCOPES,
-  sha256,
 } from './oauthClients';
 import { exchangeCode, refreshGrant, revokeFamily } from './oauthGrants';
 

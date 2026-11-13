@@ -1,6 +1,6 @@
 import { newId, users } from '@erxes/core-db';
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword } from '~/lib/crypto';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 import { adminDb, useTestDatabase } from './db';
 import { useTestServer } from './support';

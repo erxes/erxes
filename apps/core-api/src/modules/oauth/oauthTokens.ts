@@ -9,8 +9,9 @@ import {
 } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import { can } from '~/http/access';
+import { sha256 } from '~/lib/crypto';
 import { signJwt } from '~/lib/signing';
-import { newSecret, sha256 } from './oauthClients';
+import { newSecret } from './oauthClients';
 
 const ACCESS_TTL = 3600;
 const REFRESH_DAYS = 30;

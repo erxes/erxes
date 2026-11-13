@@ -1,9 +1,9 @@
 import { oauthCodes, oauthRefreshTokens, users, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, isNull, sql } from 'drizzle-orm';
+import { sha256 } from '~/lib/crypto';
 import { logger } from '~/logger';
 import { recordAudit } from '~/modules/audit/audit.service';
 import {
-  challengeOf,
   clientTitle,
   installed,
   type OAuthClient,
@@ -46,7 +46,7 @@ export const exchangeCode = async (
     return { refused: 'The code is not valid' };
   }
 
-  if (!form.code_verifier || challengeOf(form.code_verifier) !== code.codeChallenge) {
+  if (!form.code_verifier || sha256(form.code_verifier, 'base64url') !== code.codeChallenge) {
     return { refused: 'The PKCE verifier does not match' };
   }
 

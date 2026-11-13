@@ -4,7 +4,7 @@ import { type Actor, type Role, userCaller } from '~/http/auth';
 import { HttpError } from '~/http/errors';
 import { oneRow } from '~/lib/rows';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword } from '~/lib/crypto';
 import { sendInvitation } from '~/modules/auth/tokens.service';
 import { assertAssignable } from '~/modules/roles/roles.service';
 import { splitFullName } from './userProfile';

@@ -1,10 +1,10 @@
 import { withOrg } from '@erxes/core-db';
 import { createReadStream, createWriteStream } from 'node:fs';
-import { randomUUID } from 'node:crypto';
 import { link, rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import { Router, type Response } from 'express';
 import { config } from '~/config';
+import { randomUUID } from '~/lib/crypto';
 import { callerOf } from '~/http/auth';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { downloadUrlOf, readyFile } from './files.service';

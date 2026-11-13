@@ -1,9 +1,9 @@
 import { organizations, usedTokens, users, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { jwtVerify } from 'jose';
-import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { config } from '~/config';
+import { sha256 } from '~/lib/crypto';
 import { HttpError } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { subdomainFromHost } from '~/modules/auth/auth.service';
@@ -43,7 +43,7 @@ const useOnce = async (token: string, exp: number) => {
     tx
       .insert(usedTokens)
       .values({
-        jti: `saas:${createHash('sha256').update(token).digest('base64url')}`,
+        jti: `saas:${sha256(token, 'base64url')}`,
         expiresAt: new Date(exp * 1000),
       })
       .onConflictDoNothing()

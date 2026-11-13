@@ -5,6 +5,7 @@ import {
   decided,
   noApps,
   noDriver,
+  nodeCrypto,
   routerBuilder,
   serverOnly,
 } from './tools/lint/restricted-imports';
@@ -181,6 +182,17 @@ export default defineConfig({
         // The browser's console is where a page's problems show up.
         files: ['apps/core-ui/src/**'],
         rules: { 'no-console': ['error', { allow: ['warn', 'error'] }] },
+      },
+      {
+        // Core's hashing, comparisons and random tokens all go through lib/crypto.ts.
+        files: ['apps/core-api/**'],
+        rules: {
+          'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided, ...nodeCrypto] }],
+        },
+      },
+      {
+        files: ['apps/core-api/src/lib/crypto.ts'],
+        rules: { 'no-restricted-imports': ['error', { paths: [routerBuilder, ...decided] }] },
       },
       {
         // The one place that implements the contract; feature routers import its builders.

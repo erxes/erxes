@@ -3,7 +3,7 @@ import { type Db, organizations, withSystem } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import { config } from '~/config';
 import { HttpError } from '~/http/errors';
-import { hashPassword } from '~/modules/auth/password';
+import { hashPassword } from '~/lib/crypto';
 import { insertOrganization } from '~/modules/organizations/organizations.service';
 
 const hasOrganization = async (client: Db) => {

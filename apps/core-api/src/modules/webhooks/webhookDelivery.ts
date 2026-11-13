@@ -1,11 +1,11 @@
 import type { CursorQuery, WebhookDelivery } from '@erxes/core-contract';
 import { type Db, events, newId, webhookDeliveries, webhooks, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import { createHmac } from 'node:crypto';
 import { z } from 'zod';
 import type { Actor } from '~/http/auth';
 import { notFound } from '~/http/errors';
 import { allOf } from '~/lib/conditions';
+import { hmacSha256 } from '~/lib/crypto';
 import { keysetPage } from '~/lib/keyset';
 import { postOutbound } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
@@ -51,8 +51,7 @@ export const signPayload = (
   secret: string,
   body: string,
   timestamp = Math.floor(Date.now() / 1000),
-) =>
-  `t=${timestamp},v1=${createHmac('sha256', secret).update(`${timestamp}.${body}`).digest('hex')}`;
+) => `t=${timestamp},v1=${hmacSha256(secret, `${timestamp}.${body}`, 'hex')}`;
 
 const loadDelivery = (orgId: string, deliveryId: string) =>
   withOrg(orgId, async (tx) => {

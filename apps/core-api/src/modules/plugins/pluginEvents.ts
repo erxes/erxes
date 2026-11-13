@@ -1,8 +1,8 @@
 import { events, plugins, pluginInstallations, withOrg } from '@erxes/core-db';
 import { and, eq } from 'drizzle-orm';
-import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { logger } from '~/logger';
+import { sha256 } from '~/lib/crypto';
 import { postOutbound } from '~/lib/outbound';
 import { signJwt } from '~/lib/signing';
 import type { EventConsumer } from '~/modules/events/processor';
@@ -55,9 +55,6 @@ const pluginMaySee = (
 
   return scopes.includes('events:read');
 };
-
-/** The body's SHA-256 (base64url), bound into the token so the body can't be swapped. */
-export const bodyDigest = (body: string) => createHash('sha256').update(body).digest('base64url');
 
 /** The event and the plugin's active installation, or null when there is nothing to send. */
 const loadDelivery = (orgId: string, plugin: string, eventId: string) =>
@@ -118,7 +115,8 @@ export const pluginEventJob = defineJob({
     });
 
     const token = await signJwt(
-      { org: job.orgId, event: event.id, sha: bodyDigest(body) },
+      // The body's digest, so the body can't be swapped under the token.
+      { org: job.orgId, event: event.id, sha: sha256(body, 'base64url') },
       {
         typ: CORE_EVENT_TYP,
         audience: plugin,

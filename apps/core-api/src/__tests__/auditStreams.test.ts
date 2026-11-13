@@ -1,8 +1,8 @@
-import { createHmac } from 'node:crypto';
 import { once } from 'node:events';
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test';
 import { z } from 'zod';
+import { hmacSha256 } from '~/lib/crypto';
 import { loggedEmails } from '~/modules/email/email';
 import { useTestDatabase } from './db';
 import { settle } from './settle';
@@ -100,9 +100,7 @@ describe('audit streaming', { timeout: 300_000 }, () => {
       /t=(\d+),v1=([0-9a-f]+)/.exec(String(delivery?.headers['erxes-signature']))?.slice(0, 3),
     );
 
-    expect(
-      createHmac('sha256', created.secret).update(`${time}.${delivery?.body}`).digest('hex'),
-    ).toBe(v1);
+    expect(hmacSha256(created.secret, `${time}.${delivery?.body}`, 'hex')).toBe(v1);
     expect(delivery?.headers['dd-api-key']).toBe('k-123');
 
     // The endpoint goes down: nothing moves, the failure shows.

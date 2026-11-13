@@ -1,9 +1,9 @@
 import type { AuditStream } from '@erxes/core-contract';
 import { auditLogs, auditStreams, type Db, newId, withOrg } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
-import { randomBytes } from 'node:crypto';
 import { type Actor, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
+import { newSigningSecret } from '~/lib/crypto';
 import { assertOutboundUrl, OutboundError } from '~/lib/outbound';
 import { oneRow } from '~/lib/rows';
 import { seal } from '~/lib/secrets';
@@ -74,7 +74,7 @@ export const createStream = async (
 ) => {
   checkUrl(input.url);
 
-  const secret = `whsec_${randomBytes(24).toString('base64url')}`;
+  const secret = newSigningSecret();
   const latest = await latestSeq(client, actor.orgId);
 
   const row = oneRow(
