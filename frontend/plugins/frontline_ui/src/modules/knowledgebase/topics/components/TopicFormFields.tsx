@@ -6,7 +6,7 @@ import {
 import { Form, Select } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import type { UseFormReturn } from 'react-hook-form';
-import { SelectBrand } from 'ui-modules';
+import { PANEL_INPUT_CLASS_NAME, SelectBrand } from 'ui-modules';
 import { z } from 'zod';
 import { LANGUAGES } from '@/knowledgebase/constants';
 import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
@@ -113,7 +113,9 @@ export const TopicFormFields = ({
                 <KbFormItem label={t('language', 'Language')}>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Form.Control>
-                      <Select.Trigger className="w-full">
+                      <Select.Trigger
+                        className={panel ? PANEL_INPUT_CLASS_NAME : 'w-full'}
+                      >
                         <Select.Value
                           placeholder={t(
                             'select-language',

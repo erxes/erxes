@@ -90,7 +90,11 @@ const CategoryFormFields = ({
             render={({ field }) => (
               <KbFormItem label={t('icon', 'Icon')}>
                 <Form.Control>
-                  <IconPicker value={field.value} onChange={field.onChange} />
+                  <IconPicker
+                    variant="table"
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                 </Form.Control>
                 <Form.Message />
               </KbFormItem>
@@ -107,6 +111,7 @@ const CategoryFormFields = ({
               >
                 <Form.Control>
                   <SelectKbTopic
+                    variant="table"
                     value={field.value}
                     onValueChange={(nextTopicId) => {
                       if (nextTopicId === field.value) return;
@@ -138,6 +143,7 @@ const CategoryFormFields = ({
               <KbFormItem label={t('kb-parent-category', 'Parent category')}>
                 <Form.Control>
                   <SelectKbCategory
+                    variant="table"
                     topicId={selectedTopicId}
                     value={field.value}
                     excludeId={categoryId}

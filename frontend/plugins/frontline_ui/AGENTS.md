@@ -134,8 +134,13 @@
   The article record panel adds a Media tab beside Detail and Activity for
   image, attachment, and PDF uploads; Media edits belong to the Detail form
   and are saved with its single Save. The required Knowledge Base label is
-  truncated to one line with a tooltip. Detail places the Summary and Content
-  editors after publishing controls; on the full-screen page they move into a
+  truncated to one line with a tooltip. Knowledge base panel selects
+  (topic, category, parent category, icon, status, language, reaction choices)
+  use borderless panel triggers: `variant="table"` on `SelectKbTopic`,
+  `SelectKbCategory` and `IconPicker`, `PANEL_INPUT_CLASS_NAME` on `Select`
+  triggers. Summary and Content follow the panel description style: an
+  `IconAlignLeft` label and a borderless field that fills on hover. Detail
+  places the Summary and Content editors after publishing controls; on the full-screen page they move into a
   right-hand Content tab (the default tab) and render full width, falling back
   to the Detail column until that tab is mounted. The panel's expand button opens the
   article's full-screen page (`/frontline/knowledgebase/articles/:articleId`,

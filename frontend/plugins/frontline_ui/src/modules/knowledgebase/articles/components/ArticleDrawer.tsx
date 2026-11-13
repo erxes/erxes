@@ -6,7 +6,7 @@ import {
   KbFormSection,
 } from '@/knowledgebase/shared/components/KbFormLayout';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPaperclip, IconX } from '@tabler/icons-react';
+import { IconAlignLeft, IconPaperclip, IconX } from '@tabler/icons-react';
 import {
   Button,
   Editor,
@@ -16,12 +16,14 @@ import {
   readImage,
   Select,
   Switch,
+  Textarea,
   Tooltip,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm, type UseFormReturn } from 'react-hook-form';
+import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -250,6 +252,7 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
               >
                 <Form.Control>
                   <SelectKbTopic
+                    variant="table"
                     value={field.value}
                     onValueChange={(nextTopicId) => {
                       if (nextTopicId === field.value) return;
@@ -271,6 +274,7 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
               <KbFormItem required label={t('kb-category', 'Category')}>
                 <Form.Control>
                   <SelectKbCategory
+                    variant="table"
                     topicId={selectedTopicId}
                     value={field.value}
                     onValueChange={field.onChange}
@@ -289,26 +293,56 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
 const ArticleBodyFields = ({ form, t }: TArticleFieldsProps) => (
   <KbFormSection title={t('content-label', 'Content')}>
     <KbFormSection.Content>
-      <KbTextField
+      <Form.Field
         control={form.control}
         name="summary"
-        label={t('kb-summary', 'Summary')}
-        placeholder={t('kb-enter-article-summary', 'Enter article summary')}
-        multiline
+        render={({ field }) => (
+          <KbFormItem
+            wide
+            label={
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <IconAlignLeft className="size-3.5 shrink-0" aria-hidden />
+                {t('kb-summary', 'Summary')}
+              </span>
+            }
+          >
+            <Form.Control>
+              <Textarea
+                {...field}
+                value={field.value ?? ''}
+                placeholder={t(
+                  'kb-enter-article-summary',
+                  'Enter article summary',
+                )}
+                className="min-h-20 rounded-sm shadow-none hover:bg-accent focus-visible:bg-background focus-visible:shadow-focus"
+              />
+            </Form.Control>
+            <Form.Message />
+          </KbFormItem>
+        )}
       />
 
       <Form.Field
         control={form.control}
         name="content"
         render={({ field }) => (
-          <KbFormItem wide required label={t('content-label', 'Content')}>
+          <KbFormItem
+            wide
+            required
+            label={
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <IconAlignLeft className="size-3.5 shrink-0" aria-hidden />
+                {t('content-label', 'Content')}
+              </span>
+            }
+          >
             <Form.Control>
               <Editor
                 initialContent={field.value}
                 onChange={field.onChange}
                 scope="KnowledgeBaseArticleContent"
                 isHTML
-                className="h-auto min-h-40"
+                className="h-auto min-h-40 rounded-sm shadow-none hover:bg-accent focus-within:bg-background focus-within:shadow-focus"
               />
             </Form.Control>
             <Form.Message />
@@ -332,7 +366,7 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
             <KbFormItem label={t('status', 'Status')}>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Form.Control>
-                  <Select.Trigger className="w-full">
+                  <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
                     <Select.Value />
                   </Select.Trigger>
                 </Form.Control>
@@ -393,6 +427,7 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
             <KbFormItem label={t('kb-reaction-choices', 'Reaction Choices')}>
               <Form.Control>
                 <MultipleSelector
+                  className="shadow-none"
                   options={REACTIONS}
                   hidePlaceholderWhenSelected
                   value={(field.value ?? []).map((choice) => ({
