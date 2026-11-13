@@ -14,7 +14,10 @@ pnpm dev              # API http://localhost:3400, UI http://localhost:3500
 DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/postgres vp run test
 ```
 
-`.github/workflows/ci.yml` lists the gates CI runs; `Check` is the job to require.
+`.github/workflows/ci.yml` lists the gates CI runs; `Check` is the job to require. `check`, `fix` and
+`test` are tasks in `vite.config.ts`: a rerun with no edits replays the last result in under a
+second, and a miss names the changed file. `check` also runs `tools/check-docs.ts`, which fails when
+an AGENTS.md or SKILL.md names a path, script or function the repo doesn't have.
 
 ## Invariants
 

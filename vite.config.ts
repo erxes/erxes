@@ -34,7 +34,7 @@ export default defineConfig({
   run: {
     tasks: {
       // A rerun with no edits replays the last result.
-      check: { command: `${tsrs} vp check && knip`, cache: tracked },
+      check: { command: `${tsrs} vp check && knip && node tools/check-docs.ts`, cache: tracked },
       fix: { command: `${tsrs} vp check --fix`, cache: false },
       test: { command: 'vp test run', cache: { ...tracked, env: ['DATA_TEST_URL'] } },
       // A Postgres, API and UI for this checkout (tools/dev-stack.ts), and what it needs.

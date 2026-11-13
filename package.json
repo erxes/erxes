@@ -39,7 +39,8 @@
     "tsdown": "^0.23.7",
     "tsrs": "0.25.0-ts7.1.0-beta",
     "typescript": "~7.0.2",
-    "vite-plus": "1.6.0"
+    "vite-plus": "1.6.0",
+    "zod": "^4.6.7"
   },
   "engines": {
     "node": ">=26",
