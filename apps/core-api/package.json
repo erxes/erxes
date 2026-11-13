@@ -45,7 +45,7 @@
     "express": "^5.2.1",
     "import-in-the-middle": "^3.6.0",
     "ipaddr.js": "^2.5.0",
-    "jose": "^5.9.6",
+    "jose": "^6.2.17",
     "nodemailer": "^10.5.0",
     "otpauth": "9.5.2",
     "pg": "^8.23.1",
