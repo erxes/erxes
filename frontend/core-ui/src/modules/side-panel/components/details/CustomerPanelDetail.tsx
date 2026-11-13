@@ -1,22 +1,36 @@
 import { ContactPanelTags } from '@/side-panel/components/details/ContactPanelTags';
 import { ContactDescriptionField } from '@/side-panel/components/details/ContactPanelDescription';
 import { ContactDetailSection } from '@/side-panel/components/details/ContactDetailSection';
+import { ContactPanelWebsiteLink } from '@/side-panel/components/details/ContactPanelActions';
 import { ContactPanelRelationField } from '@/side-panel/components/details/ContactPanelRelationField';
 import {
+  type Icon,
   IconBell,
+  IconBrandFacebook,
+  IconBrandGithub,
+  IconBrandInstagram,
+  IconBrandLinkedin,
+  IconBrandX,
+  IconBrandYoutube,
+  IconBriefcase,
   IconCalendar,
   IconCircle,
   IconGenderBigender,
   IconHash,
   IconMail,
   IconPhone,
+  IconPlus,
+  IconSitemap,
   IconUser,
+  IconWorld,
 } from '@tabler/icons-react';
 import { useChangeCustomerState } from '@/contacts/customers/hooks/useChangeCustomerState';
 import { format } from 'date-fns';
 import {
+  Button,
   cn,
   DatePicker,
+  DropdownMenu,
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
@@ -51,37 +65,141 @@ const SCOPE = 'side-panel-customer';
 const toCellPhoneStatus = (status: ICustomerDetail['phoneValidationStatus']) =>
   status === 'valid' || status === 'invalid' ? status : undefined;
 
-/** Saves the customer code without submitting the other fields. */
-const CustomerCodeField = ({
+type TTextCode = 'code' | 'position' | 'department';
+
+const TEXT_FIELD_ICONS: Record<TTextCode, Icon> = {
+  code: IconHash,
+  position: IconBriefcase,
+  department: IconSitemap,
+};
+
+const CustomerTextField = ({
   customer,
+  code,
   placeholder,
 }: {
   customer: ICustomerDetail;
+  code: TTextCode;
   placeholder: string;
 }) => {
   const { customerEdit } = useCustomerEdit();
-  const value = customer.code || '';
+  const value = customer[code] || '';
+  const FieldIcon = TEXT_FIELD_ICONS[code];
 
   return (
     <TextField
-      scope={`${SCOPE}.code`}
+      scope={`${SCOPE}.${code}`}
       value={value}
       placeholder={placeholder}
       className={cn(
         PANEL_TEXT_FIELD_CLASS_NAME,
         !value && 'text-muted-foreground',
       )}
-      onSave={(code) =>
-        customerEdit({ variables: { _id: customer._id, code } })
+      onSave={(next) =>
+        customerEdit({ variables: { _id: customer._id, [code]: next } })
       }
     >
       {!value && (
-        <IconHash
+        <FieldIcon
           className="size-3.5 shrink-0 text-muted-foreground"
           aria-hidden="true"
         />
       )}
     </TextField>
+  );
+};
+
+type TLinkCode =
+  | 'website'
+  | 'facebook'
+  | 'instagram'
+  | 'twitter'
+  | 'linkedIn'
+  | 'youtube'
+  | 'github';
+
+const CUSTOMER_LINKS: { code: TLinkCode; icon: Icon; label?: string }[] = [
+  { code: 'website', icon: IconWorld },
+  { code: 'facebook', icon: IconBrandFacebook, label: 'Facebook' },
+  { code: 'instagram', icon: IconBrandInstagram, label: 'Instagram' },
+  { code: 'twitter', icon: IconBrandX, label: 'X (Twitter)' },
+  { code: 'linkedIn', icon: IconBrandLinkedin, label: 'LinkedIn' },
+  { code: 'youtube', icon: IconBrandYoutube, label: 'YouTube' },
+  { code: 'github', icon: IconBrandGithub, label: 'GitHub' },
+];
+
+const CustomerLinksSection = ({ customer }: { customer: ICustomerDetail }) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer' });
+  const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { customerEdit } = useCustomerEdit();
+  const [addedCodes, setAddedCodes] = useState<TLinkCode[]>([]);
+  const links: Partial<Record<TLinkCode, string>> = { ...customer.links };
+  const isShown = (code: TLinkCode) =>
+    Boolean(links[code]) || addedCodes.includes(code);
+  const shownLinks = CUSTOMER_LINKS.filter(({ code }) => isShown(code));
+  const hiddenLinks = CUSTOMER_LINKS.filter(({ code }) => !isShown(code));
+
+  return (
+    <ContactDetailSection title={sectionT('links')} nested>
+      {shownLinks.map(({ code, icon, label }) => {
+        const value = links[code] || '';
+
+        return (
+          <PanelField key={code} icon={icon} label={label ?? t('website')}>
+            <div className="flex min-w-0 items-center gap-1">
+              <TextField
+                scope={`${SCOPE}.links.${code}`}
+                value={value}
+                placeholder="https://"
+                defaultOpen={!value}
+                className={cn(
+                  PANEL_TEXT_FIELD_CLASS_NAME,
+                  'min-w-0 flex-1',
+                  !value && 'text-muted-foreground',
+                )}
+                onSave={(next) =>
+                  customerEdit({
+                    variables: {
+                      _id: customer._id,
+                      links: { ...links, [code]: next },
+                    },
+                  })
+                }
+              />
+              <ContactPanelWebsiteLink website={value} />
+            </div>
+          </PanelField>
+        );
+      })}
+      {hiddenLinks.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenu.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-fit px-2 text-xs font-normal text-muted-foreground"
+            >
+              <IconPlus className="size-3.5" aria-hidden="true" />
+              {t('add-link')}
+            </Button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            align="start"
+            onCloseAutoFocus={(event) => event.preventDefault()}
+          >
+            {hiddenLinks.map(({ code, icon: LinkIcon, label }) => (
+              <DropdownMenu.Item
+                key={code}
+                onSelect={() => setAddedCodes((prev) => [...prev, code])}
+              >
+                <LinkIcon className="size-4" aria-hidden="true" />
+                {label ?? t('website')}
+              </DropdownMenu.Item>
+            ))}
+          </DropdownMenu.Content>
+        </DropdownMenu>
+      )}
+    </ContactDetailSection>
   );
 };
 
@@ -257,9 +375,24 @@ export const CustomerPanelDetail = ({
               />
             </PanelField>
             <PanelField icon={IconHash} label={addT('code', 'Code')}>
-              <CustomerCodeField
+              <CustomerTextField
                 customer={customer}
+                code="code"
                 placeholder={addT('code', 'Code')}
+              />
+            </PanelField>
+            <PanelField icon={IconBriefcase} label={t('position')}>
+              <CustomerTextField
+                customer={customer}
+                code="position"
+                placeholder={t('position')}
+              />
+            </PanelField>
+            <PanelField icon={IconSitemap} label={t('department')}>
+              <CustomerTextField
+                customer={customer}
+                code="department"
+                placeholder={t('department')}
               />
             </PanelField>
             <PanelField icon={IconCircle} label={addT('state', 'State')}>
@@ -314,6 +447,7 @@ export const CustomerPanelDetail = ({
               <CustomerSubscribedField customer={customer} />
             </PanelField>
           </ContactDetailSection>
+          <CustomerLinksSection key={customer._id} customer={customer} />
           <ContactDetailSection title={sectionT('personal', 'Personal')} nested>
             <PanelField
               icon={IconGenderBigender}

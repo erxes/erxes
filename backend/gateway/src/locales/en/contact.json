@@ -76,7 +76,11 @@
     "action-merge-customers": "Merge {{mergeCount}} customers",
     "not-found": "Customer not found",
     "not-found-description": "There seems to be no customer with this ID.",
-    "selected": "{{selectedCount}} selected"
+    "selected": "{{selectedCount}} selected",
+    "position": "Position",
+    "department": "Department",
+    "website": "Website",
+    "add-link": "Add link"
   },
   "company": {
     "name": "Name",
