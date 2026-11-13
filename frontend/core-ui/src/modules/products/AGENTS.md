@@ -9,20 +9,20 @@ rules live in `backend/core-api/src/modules/products`; shared pieces
 
 ## Layout
 
-| Path                                                         | Responsibility                                                                                              |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `product-detail/components/panel/ProductRecordPanel.tsx`     | A saved product in the side panel (also `/settings/products/:id`)                                           |
-| `product-detail/components/panel/ProductPanelNew.tsx`        | Create: a draft drawn with the same tabs, kept until Create                                                 |
-| `product-detail/components/panel/ProductPanelFields.tsx`     | The Details cells; each saves on its own                                                                    |
-| `product-detail/hooks/useProductPanelSave.ts`                | Queued `productsEdit` saves built from the cached product                                                   |
-| `product-detail/utils/productFormValues.ts`                  | Product ⇄ form values ⇄ `productsEdit` variables                                                            |
-| `hooks/useProductConditionToggle.ts`                         | Adds or removes one condition (`productsSetConditionCodes`)                                                 |
-| `product-detail/components/panel/ProductPanelCells.tsx`      | Panel cells other record panels share (vendor, currency, errors)                                            |
-| `bulk-similarity/components/panel/SimilarityRecordPanel.tsx` | A similarity group in the side panel (`core:productSimilarity`, also `/settings/products/similarities/:id`) |
-| `bulk-similarity/components/panel/SimilarityPanelForm.tsx`   | The group's form as panel tabs, saved only on Save                                                          |
-| `packages/components/panel/PackageRecordPanel.tsx`           | A package in the side panel (`core:productPackage`, also `/settings/products/packages/:id`)                 |
-| `packages/components/panel/PackagePanelNew.tsx`              | Create a package: a draft with the same tabs, kept until Create                                             |
-| `packages/hooks/usePackagePanelSave.ts`                      | Queued `productPackagesEdit` saves of one changed field each                                                |
+| Path                                                         | Responsibility                                                                                                            |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `product-detail/components/panel/ProductRecordPanel.tsx`     | A saved product in the side panel (also `/settings/products/:id`)                                                         |
+| `product-detail/components/panel/ProductPanelNew.tsx`        | Create: a draft drawn with the same tabs, kept until Create                                                               |
+| `product-detail/components/panel/ProductPanelFields.tsx`     | The Details cells; each saves on its own                                                                                  |
+| `product-detail/hooks/useProductPanelSave.ts`                | Queued `productsEdit` saves built from the cached product                                                                 |
+| `product-detail/utils/productFormValues.ts`                  | Product ⇄ form values ⇄ `productsEdit` variables                                                                          |
+| `hooks/useProductConditionToggle.ts`                         | Adds or removes one condition (`productsSetConditionCodes`)                                                               |
+| `product-detail/components/panel/ProductPanelCells.tsx`      | Panel cells shared with packages and similarities (vendor, currency, errors)                                              |
+| `packages/components/panel/PackageRecordPanel.tsx`           | A package in the side panel (`core:productPackage`, also `/settings/products/packages/:id`)                               |
+| `packages/components/panel/PackagePanelNew.tsx`              | Create a package: a draft with the same tabs, kept until Create                                                           |
+| `packages/hooks/usePackagePanelSave.ts`                      | Queued `productPackagesEdit` saves of one changed field each                                                              |
+| `bulk-similarity/components/panel/SimilarityRecordPanel.tsx` | A similarity group in the side panel (`core:productSimilarity`, also `/settings/products/similarities/:id`) and its draft |
+| `bulk-similarity/components/panel/SimilarityPanelForm.tsx`   | The group's form as panel tabs, saved only on Save                                                                        |
 
 ## Rules
 
@@ -59,15 +59,14 @@ rules live in `backend/core-api/src/modules/products`; shared pieces
   save sends just the change, one save at a time. A products change saves,
   then the price follows the server's `totalPrice` and the discount
   (`utils/packagePricing.ts`); a price or discount change sets the other.
-- Packages are read-only in the panel without `productsUpdate`; Delete
-  needs `productsDelete` and archives the package.
-- Legacy `?activePackageId=` links redirect to the side panel.
 - A similarity group is never saved per field: Save regenerates its
   products. Cells write to the form; after Save, or Discard, the form is
   re-keyed so it and its editors read the saved group.
-- Similarity groups are read-only in the panel without `productsUpdate`;
-  Delete needs `productsDelete` and keeps the group's products.
-- Legacy `?similarityId=` links redirect to the side panel.
+- Packages and similarity groups are read-only in the panel without
+  `productsUpdate`; Delete needs `productsDelete`. Deleting a package
+  archives it; deleting a group keeps its products.
+- Legacy `?activePackageId=` and `?similarityId=` links redirect to the
+  side panel.
 
 ## Known limitations
 

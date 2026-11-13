@@ -4,14 +4,18 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   type IRecordViewProps,
+  NEW_RECORD_ID,
   RecordSidePanel,
   usePanelExpanded,
   usePermissionCheck,
   useSidePanel,
 } from 'ui-modules';
 import { ContactPanelIdentity } from '@/side-panel/components/details/ContactPanelActions';
+import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
 import { ProductPanelBreadcrumb } from '@/products/product-detail/components/panel/ProductPanelBreadcrumb';
 import { ProductsPath } from '@/types/paths/ProductsPath';
+import { SIMILARITY_CONTENT_TYPE } from '../../constants/similarityContentType';
+import { useAddSimilarity } from '../../hooks/useAddSimilarity';
 import { useEditSimilarity } from '../../hooks/useEditSimilarity';
 import { useProductSimilarity } from '../../hooks/useProductSimilarityDetail';
 import { IBulkSaveInput } from '../../types';
@@ -19,11 +23,52 @@ import { SimilarityPanelActions } from './SimilarityPanelActions';
 import { SimilarityPanelForm } from './SimilarityPanelForm';
 
 /**
+ * A similarity group not created yet: the same tabs, kept in the form until
+ * Create. The group then replaces the draft; Cancel leaves nothing behind.
+ */
+const SimilarityPanelNew = ({
+  onBack,
+  onClose,
+}: Omit<IRecordViewProps, 'record'>) => {
+  const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
+  const { back, canGoBack, close } = useSidePanel();
+  const showCreated = useCreatedPanelRecord(SIMILARITY_CONTENT_TYPE);
+  const { add, loading } = useAddSimilarity();
+  const [tab, setTab] = useState('detail');
+
+  const create = async (doc: IBulkSaveInput) => {
+    const created = await add(doc);
+    if (created?._id) showCreated(created._id);
+  };
+
+  return (
+    <>
+      {/* Leaving is offered again once Create has finished. */}
+      <RecordSidePanel.Header
+        title={t('new-similarity')}
+        onBack={loading ? undefined : onBack}
+        onClose={loading ? undefined : onClose}
+      />
+      <SimilarityPanelForm
+        tab={tab}
+        onTabChange={setTab}
+        saving={loading}
+        onSave={create}
+        onCancel={() => (canGoBack ? back() : close())}
+        cancelLabel={t('cancel')}
+        saveLabel={t('create', 'Create')}
+      />
+    </>
+  );
+};
+
+/**
  * A similarity group in the app's side panel
  * (`?panel=/detail/core:productSimilarity/<id>`): its shared product info,
  * images, variant fields and generated products as tabs. Save regenerates
  * the group's products, so changes wait for it. Expanded, it is the group's
- * own page. Without `productsUpdate` it is shown read-only.
+ * own page. A new group (`NEW_RECORD_ID`) is drawn the same way as a draft.
+ * Without `productsUpdate` it is shown read-only.
  */
 export const SimilarityRecordPanel = ({
   record,
@@ -31,15 +76,33 @@ export const SimilarityRecordPanel = ({
   onClose,
 }: IRecordViewProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
+  const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const similarityId = record.contentId;
+  const isNew = similarityId === NEW_RECORD_ID;
   const { hasActionPermission } = usePermissionCheck();
-  const { similarity, loading, error, refetch } =
-    useProductSimilarity(similarityId);
+  const { similarity, loading, error, refetch } = useProductSimilarity(
+    isNew ? undefined : similarityId,
+  );
   const { edit, loading: saving } = useEditSimilarity();
   const { tab, setTab, dismissPath, path } = useSidePanel();
   const expanded = usePanelExpanded();
   // A new form reads the saved group: after Save, and to put values back.
   const [version, setVersion] = useState(0);
+
+  if (isNew) {
+    return hasActionPermission('productsCreate') ? (
+      <SimilarityPanelNew onBack={onBack} onClose={onClose} />
+    ) : (
+      <>
+        <RecordSidePanel.Header
+          title={t('new-similarity')}
+          onBack={onBack}
+          onClose={onClose}
+        />
+        <div className="p-4">{panelT('access-denied', 'Access denied')}</div>
+      </>
+    );
+  }
 
   const title = t('similarity-detail', 'Similarity group');
 
