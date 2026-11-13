@@ -73,6 +73,8 @@ export default defineConfig({
   },
   html: {
     title: 'erxes',
+    // The erxes "X" mark (OrgLogoIcon) on the brand colour, `--primary`.
+    favicon: './src/favicon.svg',
   },
   dev: {
     // Lazily compiled chunks break Module Federation shared singletons
