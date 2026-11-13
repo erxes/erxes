@@ -30,7 +30,7 @@ const TabIcon = ({
     <Icon
       className={cn(
         'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0',
-        active && 'text-primary',
+        active && 'text-primary-text',
         dragging && 'opacity-0',
       )}
     />

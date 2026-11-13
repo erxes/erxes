@@ -24,7 +24,7 @@ export const Reactions = ({ activity }: { activity: Activity }) => {
           className={cn(
             'inline-flex h-5 items-center gap-1 rounded-full border px-1.5 text-[11px]',
             people.includes(user.id)
-              ? 'border-primary bg-primary/10 text-primary'
+              ? 'border-primary bg-primary/10 text-primary-text'
               : 'hover:bg-accent',
           )}
         >

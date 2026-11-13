@@ -57,7 +57,9 @@ const LeadStageCell = ({
               {stages.map((item) => (
                 <Command.Item key={item.id} value={item.id} onSelect={() => pick(item)}>
                   <LeadStageBadge stage={item} className="flex-1" />
-                  {item.id === record.leadStageId && <IconCheck className="size-4 text-primary" />}
+                  {item.id === record.leadStageId && (
+                    <IconCheck className="size-4 text-primary-text" />
+                  )}
                 </Command.Item>
               ))}
             </Command.List>

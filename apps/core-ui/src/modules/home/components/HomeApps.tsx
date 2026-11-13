@@ -45,7 +45,7 @@ export const HomeApps = ({
                   }
                 }}
               >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-text">
                   <Icon className="size-5" />
                 </span>
                 <span className="truncate">{app.label}</span>

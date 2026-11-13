@@ -34,7 +34,8 @@ const AppGroup = ({
               aria-current={active ? 'page' : undefined}
               className={cn(
                 'h-8 min-w-0 justify-start gap-2 px-2 text-sm font-medium',
-                active && 'bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary',
+                active &&
+                  'bg-primary/10 text-primary-text hover:bg-primary/15 hover:text-primary-text',
               )}
               onClick={() => onSelect(app)}
             >

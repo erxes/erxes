@@ -219,14 +219,14 @@
 :is([data-sidebar='menu-button'], [data-sidebar='menu-sub-button'], [data-nav-row]):not(
   [data-active='true'],
   [data-state='active'],
-  .text-primary
+  .text-primary-text
 ) {
   color: color-mix(in oklab, var(--foreground) 85%, transparent);
 }
 :is([data-sidebar='menu-button'], [data-sidebar='menu-sub-button'], [data-nav-row]):not(
     [data-active='true'],
     [data-state='active'],
-    .text-primary
+    .text-primary-text
   )
   svg {
   color: var(--muted-foreground);
@@ -234,12 +234,12 @@
 :is([data-sidebar='menu-button'], [data-sidebar='menu-sub-button'], [data-nav-row]):not(
     [data-active='true'],
     [data-state='active'],
-    .text-primary
+    .text-primary-text
   ):hover,
 :is([data-sidebar='menu-button'], [data-sidebar='menu-sub-button'], [data-nav-row]):not(
     [data-active='true'],
     [data-state='active'],
-    .text-primary
+    .text-primary-text
   ):hover
   svg {
   color: var(--foreground);

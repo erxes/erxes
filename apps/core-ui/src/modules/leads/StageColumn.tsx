@@ -159,7 +159,7 @@ export const StageColumn = memo(function StageColumn({
           <div
             className={cn(
               'flex h-24 shrink-0 items-center justify-center rounded-lg border border-dashed text-xs text-muted-foreground transition-colors',
-              target && 'border-primary/40 text-primary',
+              target && 'border-primary/40 text-primary-text',
             )}
           >
             {target ? t('board.drop-here') : t('board.empty')}

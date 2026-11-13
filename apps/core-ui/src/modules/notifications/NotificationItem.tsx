@@ -87,7 +87,7 @@ const NotificationMeta = ({
       {changeCount > 0 && (
         <button
           type="button"
-          className="relative inline-flex items-center gap-0.5 text-primary hover:underline"
+          className="relative inline-flex items-center gap-0.5 text-primary-text hover:underline"
           onClick={onToggle}
         >
           {t('changes', { count: changeCount, defaultValue: `${changeCount} changes` })}
@@ -134,7 +134,7 @@ const NotificationActions = ({
         }
         onClick={() => markRead.mutate({ ids: [notification.id], read: !notification.read })}
       >
-        <IconCheck className={cn('size-3.5', notification.read && 'text-primary')} />
+        <IconCheck className={cn('size-3.5', notification.read && 'text-primary-text')} />
       </Button>
       <Button
         size="icon"
@@ -165,7 +165,7 @@ const SenderAvatar = ({
     <span className="relative mt-0.5 shrink-0">
       <UserAvatar name={sender} src={src} className="size-7" />
       {InboxIcon && (
-        <span className="absolute -right-1 -bottom-1 flex size-4 items-center justify-center rounded-full border bg-background text-primary [&>svg]:size-2.5">
+        <span className="absolute -right-1 -bottom-1 flex size-4 items-center justify-center rounded-full border bg-background text-primary-text [&>svg]:size-2.5">
           <InboxIcon className="size-2.5" />
         </span>
       )}

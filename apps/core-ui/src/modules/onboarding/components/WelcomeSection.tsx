@@ -36,7 +36,7 @@ export const WelcomeSection = ({
             className="flex items-center gap-4 border-b py-4 last:border-b-0 animate-in"
             style={appearStyle({ y: 12, duration: 400, delay: 300 + index * 80 })}
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-text">
               <Icon className="size-5" />
             </span>
             <span className="flex flex-col">

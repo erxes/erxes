@@ -47,7 +47,7 @@ export const LeadStageMenu = ({
           {index > 0 && stages[index - 1]?.kind !== stage.kind && <DropdownMenu.Separator />}
           <DropdownMenu.Item onSelect={() => stage.id !== value && onSelect(stage)}>
             <LeadStageBadge stage={stage} className="flex-1" />
-            {stage.id === value && <IconCheck className="size-4 text-primary" />}
+            {stage.id === value && <IconCheck className="size-4 text-primary-text" />}
           </DropdownMenu.Item>
         </div>
       ))}

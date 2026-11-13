@@ -38,7 +38,7 @@ export const CustomFieldSelect = ({ value, onChange, disabled, dataFields }: Act
     return (
       <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
         {t('no-custom-fields', 'No custom fields yet.')}{' '}
-        <Link to={CONTACT_SETTINGS.properties} className="text-primary hover:underline">
+        <Link to={CONTACT_SETTINGS.properties} className="text-primary-text hover:underline">
           {t('add-in-properties', 'Add one in Properties')}
         </Link>
       </p>

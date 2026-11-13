@@ -115,7 +115,7 @@ const DropdownMenuRadioItem = ({
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'relative flex min-h-8 cursor-default select-none items-center rounded-sm text-sm pl-2 pr-8 outline-hidden transition-colors focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 data-[state=checked]:text-primary [&>svg]:size-4 [&>svg]:shrink-0 gap-2',
+      'relative flex min-h-8 cursor-default select-none items-center rounded-sm text-sm pl-2 pr-8 outline-hidden transition-colors focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50 data-[state=checked]:text-primary-text [&>svg]:size-4 [&>svg]:shrink-0 gap-2',
       className,
     )}
     {...props}

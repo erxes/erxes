@@ -15,6 +15,8 @@
 
     --primary: oklch(0.514 0.2276 276.98);
     --primary-foreground: oklch(0.9848 0 0);
+    /* Primary as text (links, active items): dark mode's --primary reads at 2.6:1 on dark surfaces. */
+    --primary-text: var(--primary);
 
     --secondary: oklch(0.8372 0.0563 288.17);
     --muted: oklch(0.9619 0 0);
@@ -72,6 +74,7 @@
 
     --primary: oklch(0.514 0.2276 276.98);
     --primary-foreground: oklch(0.9848 0 0);
+    --primary-text: oklch(0.7 0.15 276.98);
 
     --secondary: oklch(0.2219 0.0798 280.68);
     --muted: oklch(0.2591 0 0);
@@ -88,8 +91,8 @@
     --info: oklch(0.6261 0.1859 259.6);
     --success-text: var(--success);
     --warning-text: var(--warning);
-    --destructive-text: var(--destructive);
-    --info-text: var(--info);
+    --destructive-text: oklch(0.72 0.17 25.33);
+    --info-text: oklch(0.72 0.15 259.6);
 
     --scroll: oklch(0.3701 0.0113 285.84);
     --border: oklch(0.28 0.0104 285.76);

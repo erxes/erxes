@@ -46,7 +46,7 @@ const TemplateList = ({
                 <p className="flex items-center gap-2 font-medium">
                   <TriggerIcon
                     kind={template.definition.trigger.kind}
-                    className="size-4 text-primary"
+                    className="size-4 text-primary-text"
                   />
                   {template.name}
                 </p>

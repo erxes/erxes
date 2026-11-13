@@ -104,7 +104,7 @@ export const MainOnboarding = () => {
         <div className="absolute left-6 right-6 top-6 flex items-center gap-3 lg:left-10 lg:right-10 lg:top-8">
           <span
             key={currentStep}
-            className="text-xs font-semibold uppercase tracking-wider text-primary animate-in"
+            className="text-xs font-semibold uppercase tracking-wider text-primary-text animate-in"
             style={appearStyle({ y: -6, duration: 300 })}
           >
             Step {currentStep} of {steps.length}

@@ -70,7 +70,7 @@ export const MergeDialog = ({
               />
               <span className="flex w-full items-center justify-between gap-2 text-sm font-medium">
                 <span className="truncate">{record.title}</span>
-                {record.id === keepId && <span className="text-xs text-primary">Keep</span>}
+                {record.id === keepId && <span className="text-xs text-primary-text">Keep</span>}
               </span>
               {record.details.filter(Boolean).map((detail) => (
                 <span key={detail} className="truncate text-xs text-muted-foreground">

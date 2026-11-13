@@ -79,7 +79,7 @@ const AutomationRow = ({
       <span
         className={cn(
           'flex size-9 shrink-0 items-center justify-center rounded-lg',
-          active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
+          active ? 'bg-primary/10 text-primary-text' : 'bg-muted text-muted-foreground',
         )}
       >
         <TriggerIcon kind={automation.definition.trigger.kind} className="size-4" />

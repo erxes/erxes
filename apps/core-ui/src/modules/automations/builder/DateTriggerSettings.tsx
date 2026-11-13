@@ -78,7 +78,7 @@ const DateFieldSelect = ({
         {trigger.subject === 'company'
           ? t('no-company-dates', 'Companies have no date fields yet.')
           : t('no-customer-dates', 'Customers have no date fields yet.')}{' '}
-        <Link to={CONTACT_SETTINGS.properties} className="text-primary hover:underline">
+        <Link to={CONTACT_SETTINGS.properties} className="text-primary-text hover:underline">
           {t('add-date-property', 'Add a date property')}
         </Link>
       </p>
@@ -191,7 +191,7 @@ const DateSummary = ({ trigger, fieldName }: { trigger: DateTrigger; fieldName: 
 
   return (
     <div className="flex gap-2.5 rounded-lg bg-primary/5 p-3 text-sm">
-      <IconCalendarEvent className="mt-0.5 size-4 shrink-0 text-primary" />
+      <IconCalendarEvent className="mt-0.5 size-4 shrink-0 text-primary-text" />
       <div className="min-w-0 space-y-1">
         <p>
           {t('date-summary', {

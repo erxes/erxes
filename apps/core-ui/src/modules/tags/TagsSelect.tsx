@@ -113,7 +113,7 @@ const TagsSelectContent = () => {
             <TagInline tag={tag} />
             <IconCheck
               className={cn(
-                'h-4 w-4 text-primary',
+                'h-4 w-4 text-primary-text',
                 selectedIds.includes(tag.id) ? 'opacity-100' : 'opacity-0',
               )}
             />

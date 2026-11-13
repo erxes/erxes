@@ -33,7 +33,7 @@ export const CoreTab = () => {
           >
             <Link to="/" aria-label={organization.name}>
               <span className="flex size-6 items-center justify-center rounded-md border border-border/60 bg-background shadow-xs [&>svg]:size-4!">
-                <OrgLogoIcon className="text-primary" />
+                <OrgLogoIcon className="text-primary-text" />
               </span>
             </Link>
           </Button>

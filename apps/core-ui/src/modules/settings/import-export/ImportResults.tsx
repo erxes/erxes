@@ -200,7 +200,10 @@ export const ImportSummary = ({ imp, noun }: { imp: Import; noun: string }) => {
       </h2>
       <Counts imp={imp} />
       {imp.status === 'done' && (
-        <Link to={RECORD_PATHS[imp.recordType]} className="text-sm text-primary hover:underline">
+        <Link
+          to={RECORD_PATHS[imp.recordType]}
+          className="text-sm text-primary-text hover:underline"
+        >
           {t('open-list', 'Open {{noun}}', { noun })}
         </Link>
       )}

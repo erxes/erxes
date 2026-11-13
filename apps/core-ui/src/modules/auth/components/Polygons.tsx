@@ -32,9 +32,10 @@ const FORM_LOOK: HexLook = {
   outline: { stroke: 'var(--foreground)', strokeOpacity: 0.06 },
 };
 
+/** The banner is always dark (AuthenticationLayout), so its hexes are light lines on it. */
 const BANNER_LOOK: HexLook = {
-  fill: { fill: 'var(--background)', fillOpacity: 0.02 },
-  outline: { stroke: 'var(--background)', strokeOpacity: 0.05 },
+  fill: { fill: 'var(--foreground)', fillOpacity: 0.02 },
+  outline: { stroke: 'var(--foreground)', strokeOpacity: 0.05 },
 };
 
 /** Hexagons that fade out from the top centre. */

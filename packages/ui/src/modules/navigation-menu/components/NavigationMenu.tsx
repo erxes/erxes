@@ -50,7 +50,9 @@ export const NavigationMenuLinkItem = ({
       >
         <Link to={fullPath}>
           {IconComponent && (
-            <IconComponent className={cn('text-accent-foreground', isActive && 'text-primary')} />
+            <IconComponent
+              className={cn('text-accent-foreground', isActive && 'text-primary-text')}
+            />
           )}
           {label || <span className="min-w-0 flex-1 truncate capitalize">{name}</span>}
           {children}

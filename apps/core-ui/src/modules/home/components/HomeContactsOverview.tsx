@@ -30,7 +30,7 @@ const Stat = ({
       to={to}
       className="flex min-w-0 items-center gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-accent/60"
     >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-text">
         <Icon className="size-5" />
       </span>
       <span className="flex min-w-0 flex-col">

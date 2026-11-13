@@ -8,7 +8,7 @@ import type { Except } from 'type-fest';
 import { IMaskInput, type ReactElementProps } from 'react-imask';
 
 export const inputVariants = cva(
-  'flex h-7 w-full rounded-sm bg-background px-3 py-1 text-sm text-foreground shadow-xs transition-[color,box-shadow] placeholder:text-accent-foreground/70 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus',
+  'flex h-7 w-full rounded-sm bg-background px-3 py-1 text-sm text-foreground shadow-xs transition-[color,box-shadow] placeholder:text-accent-foreground focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 focus-visible:shadow-focus',
   {
     variants: {
       type: {

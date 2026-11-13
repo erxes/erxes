@@ -21,7 +21,7 @@ type NodeIcon = ComponentType<{ className?: string }>;
 /** How each kind of node looks: icon and colour (actions, waits, logic, ends). */
 export const LOOK: Record<StepType | 'trigger', { icon: NodeIcon; tone: string }> = {
   trigger: { icon: IconBolt, tone: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
-  action: { icon: IconBolt, tone: 'bg-primary/10 text-primary' },
+  action: { icon: IconBolt, tone: 'bg-primary/10 text-primary-text' },
   delay: { icon: IconClock, tone: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
   wait_for: { icon: IconHourglass, tone: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
   branch: { icon: IconGitBranch, tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400' },
@@ -52,7 +52,7 @@ const AddButton = ({ onAdd }: { onAdd: (type: StepType) => void }) => {
           aria-label={t('add-step', 'Add step')}
           className={cn(
             'relative z-10 flex size-6 items-center justify-center gap-1 rounded-full border bg-background text-muted-foreground shadow-xs transition',
-            'hover:border-primary hover:text-primary focus-visible:border-primary focus-visible:text-primary focus-visible:outline-none',
+            'hover:border-primary hover:text-primary-text focus-visible:border-primary focus-visible:text-primary-text focus-visible:outline-none',
           )}
         >
           <IconPlus className="size-3.5" />

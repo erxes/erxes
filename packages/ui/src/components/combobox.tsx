@@ -116,7 +116,7 @@ const ComboboxCheck = ({
       ref={ref}
       size={16}
       strokeWidth={2}
-      className={cn('size-4 text-primary ml-auto', className)}
+      className={cn('size-4 text-primary-text ml-auto', className)}
       {...props}
     />
   );

@@ -91,7 +91,10 @@ const NoteBody = ({ note, lookups }: { note: NoteData; lookups: Lookups }) => {
       <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
         {segments(note.body, names).map((part) =>
           part.mention ? (
-            <span key={part.at} className="rounded bg-primary/10 px-0.5 font-medium text-primary">
+            <span
+              key={part.at}
+              className="rounded bg-primary/10 px-0.5 font-medium text-primary-text"
+            >
               {part.text}
             </span>
           ) : (
