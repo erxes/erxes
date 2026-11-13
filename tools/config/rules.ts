@@ -57,7 +57,7 @@ export const rules = {
   'no-param-reassign': 'error',
   'prefer-const': 'error',
   'no-var': 'error',
-  // No TODO/FIXME/XXX left in code: finish it or don't write it.
+  // No task-marker comments left in code: finish it or don't write it.
   'no-warning-comments': 'error',
   // Express 5 passes a rejected handler promise to the error handler, so async
   // route handlers are safe; the rule guards Express 4.

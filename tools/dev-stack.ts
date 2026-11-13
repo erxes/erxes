@@ -22,7 +22,8 @@ export const stack = {
   ports: { postgres: base, api: base + 1, ui: base + 2 },
 };
 
-const postgres = `postgres://erxes:erxes_dev@127.0.0.1:${stack.ports.postgres}`;
+// No password: the throwaway server listens on 127.0.0.1 only and trusts local connections.
+const postgres = `postgres://erxes@127.0.0.1:${stack.ports.postgres}`;
 const api = `http://localhost:${stack.ports.api}`;
 const ui = `http://localhost:${stack.ports.ui}`;
 const state = resolve(root, '.scratch/dev-stack');
@@ -116,7 +117,7 @@ const startPostgres = async () => {
       ['run', '-d', '--name', stack.container, '--label', `erxes.dev-stack=${root}`],
       ['-p', `127.0.0.1:${stack.ports.postgres}:5432`, '--shm-size=512m'],
       ['--tmpfs', '/var/lib/postgresql', '-e', 'POSTGRES_USER=erxes'],
-      ['-e', 'POSTGRES_PASSWORD=erxes_dev', '-e', 'POSTGRES_DB=erxes', 'postgres:18'],
+      ['-e', 'POSTGRES_HOST_AUTH_METHOD=trust', '-e', 'POSTGRES_DB=erxes', 'postgres:18'],
     ].flat(),
   );
 

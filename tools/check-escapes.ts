@@ -48,7 +48,7 @@ const escapes = sources.flatMap((file) =>
 
 const budgets = (source: string) =>
   new Map(
-    [...source.matchAll(/^\s*'([^']+)': (\d+),$/gm)].map(([, route = '', kb = '']) => [
+    [...source.matchAll(/^ {2}'([^']+)': (\d+),$/gm)].map(([, route = '', kb = '']) => [
       route,
       Number(kb),
     ]),
@@ -75,6 +75,9 @@ const grown = (base: string) => {
 };
 
 const base = process.argv[2];
+
+if (base !== undefined && !/^[\w./]+$/.test(base)) throw new Error(`Not a commit: ${base}`);
+
 const problems = [...escapes, ...(base ? grown(base) : [])];
 
 for (const problem of problems) process.stderr.write(`${problem}\n`);
