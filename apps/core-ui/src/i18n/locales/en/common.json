@@ -620,21 +620,5 @@
     "choose-currency": "Choose a currency",
     "search": "Search",
     "no-match": "Nothing matches"
-  },
-  "customer-sign-in": {
-    "title": "Sign in to {{organization}}",
-    "to-continue": "to continue to {{app}}",
-    "address": "Email or phone",
-    "address-placeholder": "you@example.com or +976 8811 2233",
-    "address-invalid": "Enter an email address or a phone number",
-    "send-code": "Send me a code",
-    "no-password": "No password: we send a one-time code. New here? The code signs you up.",
-    "code": "Code",
-    "code-sent": "We sent a 6-digit code to {{address}}. It works for 10 minutes.",
-    "code-resent": "A new code is on its way.",
-    "sign-in": "Sign in",
-    "other-address": "Use another address",
-    "resend": "Send a new code",
-    "signed-in": "You're signed in. You can close this page."
   }
 }

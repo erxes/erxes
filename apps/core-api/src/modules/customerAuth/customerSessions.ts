@@ -1,13 +1,9 @@
+import type { CustomerTokens } from '@erxes/core-contract';
 import { customerSessions, type Db, newId, withOrg, withSystem } from '@erxes/core-db';
 import { and, eq, gt, isNull, sql } from 'drizzle-orm';
-import type { CookieOptions, Request } from 'express';
 import { z } from 'zod';
-import { readCookies } from '~/http/cookies';
 import { signJwt, verifyJwt } from '~/lib/signing';
 import { newSecret, sameHash, sha256, splitCredential } from '~/modules/oauth/oauthClients';
-
-/** The browser session on core's customer sign-in page. */
-export const CUSTOMER_COOKIE = 'erxes_customer';
 
 /** JOSE `typ` of customer access tokens; member and plugin checks never accept it. */
 const CUSTOMER_ACCESS_TYP = 'customer+jwt';
@@ -17,29 +13,43 @@ const CUSTOMER_AUDIENCE = 'erxes-customer';
 
 const SESSION_DAYS = 90;
 
-export const CUSTOMER_ACCESS_SECONDS = 900;
+const CUSTOMER_ACCESS_SECONDS = 900;
 
-export const customerCookieOptions = (req: Request): CookieOptions => ({
-  httpOnly: true,
-  sameSite: 'lax',
-  secure: req.secure,
-  path: '/',
-  maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000,
-});
-
-export interface CustomerSessionRef {
+interface CustomerSessionRef {
   orgId: string;
   customerId: string;
   sessionId: string;
 }
 
-/** A new session (browser: `clientId` null; app: the plugin); returns its `<id>.<secret>` token. */
+/** A 15-minute access token for core's `/customer/*` and every plugin's API. */
+const customerAccessToken = (ref: CustomerSessionRef, clientId: string) =>
+  signJwt(
+    { org: ref.orgId, client_id: clientId, sid: ref.sessionId },
+    {
+      typ: CUSTOMER_ACCESS_TYP,
+      audience: CUSTOMER_AUDIENCE,
+      subject: ref.customerId,
+      expiresInSeconds: CUSTOMER_ACCESS_SECONDS,
+    },
+  );
+
+const tokensFor = async (
+  ref: CustomerSessionRef,
+  clientId: string,
+  refreshToken: string,
+): Promise<CustomerTokens> => ({
+  accessToken: await customerAccessToken(ref, clientId),
+  refreshToken,
+  expiresIn: CUSTOMER_ACCESS_SECONDS,
+});
+
+/** A new session in the app (90 days from its last use) and its first tokens. */
 export const createSession = async (
   tx: Db,
   session: {
     orgId: string;
     customerId: string;
-    clientId: string | null;
+    clientId: string;
     userAgent?: string | null;
     ip?: string | null;
   },
@@ -58,11 +68,15 @@ export const createSession = async (
     expiresAt: sql`now() + make_interval(days => ${SESSION_DAYS})`,
   });
 
-  return { id, token: `${id}.${secret}` };
+  return tokensFor(
+    { orgId: session.orgId, customerId: session.customerId, sessionId: id },
+    session.clientId,
+    `${id}.${secret}`,
+  );
 };
 
-/** The session a token names (any organisation: the token is all a caller has). */
-const sessionOf = async (token: string | undefined) => {
+/** The session a refresh token names (any organisation: the token is all a caller has). */
+export const sessionOf = async (token: string | undefined) => {
   const { id, secret } = splitCredential(token);
 
   if (!id || !secret) return null;
@@ -74,37 +88,14 @@ const sessionOf = async (token: string | undefined) => {
   return row ? { row, secret } : null;
 };
 
-const live = (row: typeof customerSessions.$inferSelect) =>
-  !row.revokedAt && row.expiresAt.getTime() > Date.now();
-
-/** The customer signed in on core's sign-in page in this browser, if any. */
-export const browserSession = async (req: Request): Promise<CustomerSessionRef | null> => {
-  const found = await sessionOf(readCookies(req.headers.cookie)[CUSTOMER_COOKIE]);
-
-  if (
-    !found ||
-    found.row.clientId !== null ||
-    !live(found.row) ||
-    !sameHash(found.row.tokenHash, found.secret)
-  ) {
-    return null;
-  }
-
-  return { orgId: found.row.orgId, customerId: found.row.customerId, sessionId: found.row.id };
-};
+type FoundSession = NonNullable<Awaited<ReturnType<typeof sessionOf>>>;
 
 /**
- * Trades an app's refresh token for a new one. The previous token used again
- * means it leaked: the session ends.
+ * Trades the session's refresh token for new tokens. The previous token used
+ * again means it leaked: the session ends.
  */
-export const rotateSession = async (clientId: string, token: string | undefined) => {
-  const found = await sessionOf(token);
-
-  if (!found || found.row.clientId !== clientId) return null;
-
-  const { row, secret } = found;
-
-  return withOrg(row.orgId, async (tx) => {
+export const rotateSession = ({ row, secret }: FoundSession) =>
+  withOrg(row.orgId, async (tx) => {
     if (row.previousTokenHash && sameHash(row.previousTokenHash, secret)) {
       await tx
         .update(customerSessions)
@@ -137,20 +128,19 @@ export const rotateSession = async (clientId: string, token: string | undefined)
 
     if (!rotated) return null;
 
-    return {
-      ref: { orgId: row.orgId, customerId: row.customerId, sessionId: row.id },
-      token: `${row.id}.${next}`,
-    };
+    return tokensFor(
+      { orgId: row.orgId, customerId: row.customerId, sessionId: row.id },
+      row.clientId,
+      `${row.id}.${next}`,
+    );
   });
-};
 
-/** Ends the session a token (current or previous) belongs to. */
-export const revokeSessionToken = async (token: string | undefined, clientId: string | null) => {
+/** Ends the session a refresh token (current or previous) belongs to. */
+export const revokeSessionToken = async (token: string) => {
   const found = await sessionOf(token);
 
   if (
     !found ||
-    found.row.clientId !== clientId ||
     !(
       sameHash(found.row.tokenHash, found.secret) ||
       (found.row.previousTokenHash !== null && sameHash(found.row.previousTokenHash, found.secret))
@@ -167,22 +157,10 @@ export const revokeSessionToken = async (token: string | undefined, clientId: st
   );
 };
 
-/** A 15-minute access token for core's `/customer/*` and every plugin's API. */
-export const customerAccessToken = (ref: CustomerSessionRef, clientId: string) =>
-  signJwt(
-    { org: ref.orgId, client_id: clientId, sid: ref.sessionId },
-    {
-      typ: CUSTOMER_ACCESS_TYP,
-      audience: CUSTOMER_AUDIENCE,
-      subject: ref.customerId,
-      expiresInSeconds: CUSTOMER_ACCESS_SECONDS,
-    },
-  );
-
 const AccessClaims = z.object({
   sub: z.string().min(1),
   org: z.string().min(1),
-  client_id: z.string(),
+  client_id: z.string().min(1),
   sid: z.string().min(1),
 });
 

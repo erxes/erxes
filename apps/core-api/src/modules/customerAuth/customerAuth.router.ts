@@ -1,56 +1,38 @@
-import { isCrossSiteWrite } from '~/http/auth';
-import { readCookies } from '~/http/cookies';
-import { HttpError } from '~/http/errors';
+import { subdomainFromHost } from '~/modules/auth/auth.service';
 import { customer, pub, type CoreContext } from '~/orpc';
+import type { AppRequest } from './customerApps';
 import {
   confirmAddLogin,
   myLogins,
   myProfile,
   mySessions,
+  refreshTokens,
   removeMyLogin,
   revokeMySession,
   sendAddLoginCode,
   sendSignInCode,
-  signInConfig,
   signInWithCode,
+  signOut,
   signOutEverywhere,
   updateMyProfile,
 } from './customerAuth.service';
-import { CUSTOMER_COOKIE, customerCookieOptions, revokeSessionToken } from './customerSessions';
 
-/** Only core's own sign-in page may sign this browser in or out (no login CSRF). */
-const fromSignInPage = (context: CoreContext) => {
-  if (isCrossSiteWrite(context.req)) {
-    throw new HttpError(403, 'CROSS_SITE', 'Cross-site request blocked');
-  }
-
-  return readCookies(context.req.headers.cookie)[CUSTOMER_COOKIE];
-};
+const appRequest = ({ req }: CoreContext): AppRequest => ({
+  subdomain: subdomainFromHost(req.get('host')),
+  origin: req.get('origin'),
+});
 
 export const customerAuthRouter = {
-  config: pub.customerAuth.config.handler(({ input, context }) =>
-    signInConfig(input, context.req.get('host')),
-  ),
   sendCode: pub.customerAuth.sendCode.handler(({ input, context }) =>
-    sendSignInCode(input, context.req.get('host')),
+    sendSignInCode(input, appRequest(context)),
   ),
-  signIn: pub.customerAuth.signIn.handler(async ({ input, context }) => {
-    const previous = fromSignInPage(context);
-    const { token, ...result } = await signInWithCode(input, context.req.get('host'), previous);
-
-    context.res.cookie(CUSTOMER_COOKIE, token, customerCookieOptions(context.req));
-
-    return result;
-  }),
-  signOut: pub.customerAuth.signOut.handler(async ({ context }) => {
-    await revokeSessionToken(fromSignInPage(context), null);
-    context.res.clearCookie(CUSTOMER_COOKIE, {
-      ...customerCookieOptions(context.req),
-      maxAge: undefined,
-    });
-
-    return { ok: true as const };
-  }),
+  signIn: pub.customerAuth.signIn.handler(({ input, context }) =>
+    signInWithCode(input, appRequest(context)),
+  ),
+  refresh: pub.customerAuth.refresh.handler(({ input, context }) =>
+    refreshTokens(input, appRequest(context)),
+  ),
+  signOut: pub.customerAuth.signOut.handler(({ input }) => signOut(input.refreshToken)),
 };
 
 export const customerAccountRouter = {

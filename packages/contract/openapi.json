@@ -7551,14 +7551,7 @@
             "maxLength": 64
           },
           "clientId": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "string"
           },
           "userAgent": {
             "anyOf": [
@@ -7589,6 +7582,27 @@
           "createdAt",
           "lastUsedAt",
           "current"
+        ]
+      },
+      "CustomerTokens": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresIn"
         ]
       },
       "DryRunStep": {
@@ -10125,19 +10139,19 @@
           "customerApp": {
             "type": "object",
             "properties": {
-              "redirectUris": {
+              "origins": {
                 "type": "array",
                 "minItems": 1,
                 "maxItems": 20,
                 "items": {
                   "type": "string",
-                  "maxLength": 500,
-                  "pattern": "^https?:\\/\\/[^\\s#]+$"
+                  "maxLength": 200,
+                  "pattern": "^(https:\\/\\/(\\{subdomain\\}|[a-z0-9-]+)(\\.(\\{subdomain\\}|[a-z0-9-]+))+|http:\\/\\/(localhost|127\\.0\\.0\\.1))(:\\d{1,5})?$"
                 }
               }
             },
             "required": [
-              "redirectUris"
+              "origins"
             ]
           },
           "scopes": {
@@ -24168,7 +24182,7 @@
     "/customer/me/sessions/{id}": {
       "delete": {
         "operationId": "customerAccount.revokeSession",
-        "summary": "Sign out one browser or app",
+        "summary": "Sign out one app",
         "parameters": [
           {
             "name": "id",
@@ -24206,7 +24220,7 @@
     "/customer/me/sign-out-everywhere": {
       "post": {
         "operationId": "customerAccount.signOutEverywhere",
-        "summary": "Sign out of every browser and app (access tokens end within 15 minutes)",
+        "summary": "Sign out of every app (access tokens end within 15 minutes)",
         "responses": {
           "200": {
             "description": "OK",
@@ -24229,71 +24243,10 @@
         }
       }
     },
-    "/customer-auth/config": {
-      "get": {
-        "operationId": "customerAuth.config",
-        "summary": "What the sign-in page shows: the organisation and the ways to sign in. 404 NOT_FOUND",
-        "parameters": [
-          {
-            "name": "organization",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "maxLength": 63
-            },
-            "allowEmptyValue": true,
-            "allowReserved": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "organization": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "subdomain": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "name",
-                        "subdomain"
-                      ]
-                    },
-                    "kinds": {
-                      "type": "array",
-                      "items": {
-                        "enum": [
-                          "email",
-                          "phone"
-                        ],
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "required": [
-                    "organization",
-                    "kinds"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/customer-auth/code": {
       "post": {
         "operationId": "customerAuth.sendCode",
-        "summary": "Send a sign-in code to an email address or phone; the same answer whether or not it has an account. 429 TOO_MANY_CODES",
+        "summary": "Send a sign-in code to an email address or phone; the same answer whether or not it has an account. 400 UNKNOWN_APP, 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES",
         "requestBody": {
           "required": true,
           "content": {
@@ -24311,6 +24264,10 @@
                         "maxLength": 254,
                         "format": "email"
                       },
+                      "clientId": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                      },
                       "organization": {
                         "type": "string",
                         "maxLength": 63
@@ -24318,7 +24275,8 @@
                     },
                     "required": [
                       "kind",
-                      "value"
+                      "value",
+                      "clientId"
                     ]
                   },
                   {
@@ -24333,6 +24291,10 @@
                         "maxLength": 32,
                         "pattern": "^\\+?[0-9 ()-]+$"
                       },
+                      "clientId": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                      },
                       "organization": {
                         "type": "string",
                         "maxLength": 63
@@ -24340,7 +24302,8 @@
                     },
                     "required": [
                       "kind",
-                      "value"
+                      "value",
+                      "clientId"
                     ]
                   }
                 ]
@@ -24375,7 +24338,7 @@
     "/customer-auth/sign-in": {
       "post": {
         "operationId": "customerAuth.signIn",
-        "summary": "Sign in (or up) with the code; sets the customer cookie. 400 INVALID_CODE (wrong, used, expired or 5 tries)",
+        "summary": "Sign in (or up) with the code and get the app's tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_APP, 403 ORIGIN_NOT_ALLOWED",
         "requestBody": {
           "required": true,
           "content": {
@@ -24393,6 +24356,10 @@
                         "maxLength": 254,
                         "format": "email"
                       },
+                      "clientId": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                      },
                       "organization": {
                         "type": "string",
                         "maxLength": 63
@@ -24405,6 +24372,7 @@
                     "required": [
                       "kind",
                       "value",
+                      "clientId",
                       "code"
                     ]
                   },
@@ -24420,6 +24388,10 @@
                         "maxLength": 32,
                         "pattern": "^\\+?[0-9 ()-]+$"
                       },
+                      "clientId": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                      },
                       "organization": {
                         "type": "string",
                         "maxLength": 63
@@ -24432,6 +24404,7 @@
                     "required": [
                       "kind",
                       "value",
+                      "clientId",
                       "code"
                     ]
                   }
@@ -24448,6 +24421,17 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
                     "customer": {
                       "$ref": "#/components/schemas/CustomerProfile"
                     },
@@ -24456,6 +24440,9 @@
                     }
                   },
                   "required": [
+                    "accessToken",
+                    "refreshToken",
+                    "expiresIn",
                     "customer",
                     "created"
                   ]
@@ -24466,10 +24453,71 @@
         }
       }
     },
+    "/customer-auth/refresh": {
+      "post": {
+        "operationId": "customerAuth.refresh",
+        "summary": "New tokens for a refresh token; the old one stops working, and using it again ends the session. 401 INVALID_TOKEN, 403 ORIGIN_NOT_ALLOWED",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clientId": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                  },
+                  "refreshToken": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "clientId",
+                  "refreshToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerTokens"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/customer-auth/sign-out": {
       "post": {
         "operationId": "customerAuth.signOut",
-        "summary": "Sign out of the sign-in page's browser session; apps stay signed in",
+        "summary": "End the refresh token's session; the answer is ok either way",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "refreshToken"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",

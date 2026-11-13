@@ -1,16 +1,9 @@
-import {
-  CUSTOMER_LOGIN_KINDS,
-  customerLogins,
-  customerSessions,
-  customers,
-} from '@erxes/core-db/schema';
+import { customerLogins, customerSessions, customers } from '@erxes/core-db/schema';
 import { oc } from '@orpc/contract';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { EmailAddress, Id, ImageAddress, isoDate, PhoneNumber } from './common';
-
-/** Sign in with a code sent to an email address or a phone. */
-export const CustomerLoginKind = z.enum(CUSTOMER_LOGIN_KINDS);
+import { PluginName } from './plugins';
 
 /** The fields a request sends along with the address. */
 type AlongWith = NonNullable<Parameters<typeof z.object>[0]>;
@@ -22,7 +15,10 @@ const addressWith = <T extends AlongWith>(fields: T) =>
     z.object({ kind: z.literal('phone'), value: PhoneNumber, ...fields }),
   ]);
 
-/** The organisation's subdomain; defaults to the one in the address core is reached at. */
+/**
+ * The organisation's subdomain, for apps that reach core at an address without
+ * one (mobile apps); the subdomain in core's address wins.
+ */
 const organization = z.string().trim().toLowerCase().max(63).optional();
 
 const Code = z
@@ -61,7 +57,7 @@ export const CustomerLogin = createSelectSchema(customerLogins, {
 
 export type CustomerLogin = z.infer<typeof CustomerLogin>;
 
-/** Where the customer is signed in: core's sign-in page in a browser, or a plugin's app. */
+/** Where the customer is signed in: one row per sign-in to an app. */
 export const CustomerSession = createSelectSchema(customerSessions, {
   id: Id,
   createdAt: isoDate,
@@ -69,7 +65,7 @@ export const CustomerSession = createSelectSchema(customerSessions, {
 })
   .pick({
     id: true,
-    /** The plugin whose app it is; null: the browser on the sign-in page. */
+    /** The plugin whose app it is. */
     clientId: true,
     userAgent: true,
     createdAt: true,
@@ -81,50 +77,63 @@ export type CustomerSession = z.infer<typeof CustomerSession>;
 
 const CodeSent = z.object({ expiresInSeconds: z.int() });
 
+/** The plugin whose customer app calls: its name, with `customerApp` in its manifest. */
+const clientId = PluginName;
+
+const RefreshToken = z.string().max(200);
+
+/** The app's tokens: a 15-minute access token and a refresh token that rotates on each use. */
+export const CustomerTokens = z.object({
+  /** `Authorization: Bearer` for core's `/customer/*` and every plugin's `/customer/*`. */
+  accessToken: z.string(),
+  /** Trade it at `/customer-auth/refresh`; it lasts 90 days from its last use. */
+  refreshToken: z.string(),
+  /** Seconds the access token works. */
+  expiresIn: z.int(),
+});
+
+export type CustomerTokens = z.infer<typeof CustomerTokens>;
+
 /**
- * Customers sign in with a one-time code (decision 42). Public: the sign-in
- * page calls these, then sends the browser back to `/customer-oauth/authorize`.
+ * Customers sign in to a plugin's app with a one-time code (decision 42): the
+ * app's own form calls these. Public; browsers only from the app's origins.
  */
 export const customerAuthContract = {
-  config: oc
-    .route({
-      method: 'GET',
-      path: '/customer-auth/config',
-      summary:
-        'What the sign-in page shows: the organisation and the ways to sign in. 404 NOT_FOUND',
-    })
-    .input(z.object({ organization }))
-    .output(
-      z.object({
-        organization: z.object({ name: z.string(), subdomain: z.string() }),
-        kinds: z.array(CustomerLoginKind),
-      }),
-    ),
   sendCode: oc
     .route({
       method: 'POST',
       path: '/customer-auth/code',
       successStatus: 202,
       summary:
-        'Send a sign-in code to an email address or phone; the same answer whether or not it has an account. 429 TOO_MANY_CODES',
+        'Send a sign-in code to an email address or phone; the same answer whether or not it has an account. 400 UNKNOWN_APP, 403 ORIGIN_NOT_ALLOWED, 429 TOO_MANY_CODES',
     })
-    .input(addressWith({ organization }))
+    .input(addressWith({ clientId, organization }))
     .output(CodeSent),
   signIn: oc
     .route({
       method: 'POST',
       path: '/customer-auth/sign-in',
       summary:
-        'Sign in (or up) with the code; sets the customer cookie. 400 INVALID_CODE (wrong, used, expired or 5 tries)',
+        "Sign in (or up) with the code and get the app's tokens. 400 INVALID_CODE (wrong, used, expired or 5 tries), 400 UNKNOWN_APP, 403 ORIGIN_NOT_ALLOWED",
     })
-    .input(addressWith({ organization, code: Code }))
-    .output(z.object({ customer: CustomerProfile, created: z.boolean() })),
+    .input(addressWith({ clientId, organization, code: Code }))
+    .output(CustomerTokens.extend({ customer: CustomerProfile, created: z.boolean() })),
+  refresh: oc
+    .route({
+      method: 'POST',
+      path: '/customer-auth/refresh',
+      summary:
+        'New tokens for a refresh token; the old one stops working, and using it again ends the session. 401 INVALID_TOKEN, 403 ORIGIN_NOT_ALLOWED',
+    })
+    .input(z.object({ clientId, refreshToken: RefreshToken }))
+    .output(CustomerTokens),
   signOut: oc
     .route({
       method: 'POST',
       path: '/customer-auth/sign-out',
-      summary: "Sign out of the sign-in page's browser session; apps stay signed in",
+      summary: "End the refresh token's session; the answer is ok either way",
     })
+    .input(z.object({ refreshToken: RefreshToken }))
     .output(z.object({ ok: z.literal(true) })),
 };
 
@@ -174,7 +183,7 @@ export const customerAccountContract = {
     .route({
       method: 'DELETE',
       path: '/customer/me/sessions/{id}',
-      summary: 'Sign out one browser or app',
+      summary: 'Sign out one app',
     })
     .input(z.object({ id: Id }))
     .output(z.object({ ok: z.literal(true) })),
@@ -182,7 +191,7 @@ export const customerAccountContract = {
     .route({
       method: 'POST',
       path: '/customer/me/sign-out-everywhere',
-      summary: 'Sign out of every browser and app (access tokens end within 15 minutes)',
+      summary: 'Sign out of every app (access tokens end within 15 minutes)',
     })
     .output(z.object({ ok: z.literal(true) })),
 };

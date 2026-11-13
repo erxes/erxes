@@ -192,7 +192,7 @@ export const verifyErxesAccessToken = async (
   return { ...member(claims), scope: claims.scope };
 };
 
-/** A customer signed in through core (`/customer-oauth`), calling a plugin's `/customer/*` routes. */
+/** A customer signed in through core (`/customer-auth`), calling a plugin's `/customer/*` routes. */
 export interface CustomerSignIn {
   orgId: string;
   customerId: string;

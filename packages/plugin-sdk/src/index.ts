@@ -30,10 +30,11 @@
  *   //   lines: [{ productId, quantity: 1, unitPrice: 150000 }, { name: 'Delivery', quantity: 1, unitPrice: 10000, plugin: 'tms' }]
  *
  * Customers (a shop, tracking, booking): core signs them in; the plugin never builds sign-up or
- * sign-in. Declare `customerApp: { redirectUris: ['https://{subdomain}.shop.example.com/callback'] }`
- * in the manifest; the app sends customers to `<coreUrl>/core/v1/customer-oauth/authorize`
- * (OAuth 2.1, PKCE) and trades the code at `/customer-oauth/token`. Serve customers under
- * `/customer/*`, keyed by the customer id:
+ * sign-in. Declare `customerApp: { origins: ['https://{subdomain}.shop.example.com'] }` in the
+ * manifest. The app's own form makes two calls to core: `POST /core/v1/customer-auth/code`
+ * `{ clientId, kind, value }` sends a code, `POST /core/v1/customer-auth/sign-in` with the code
+ * returns `{ accessToken, refreshToken, expiresIn, customer }`; `/customer-auth/refresh` renews
+ * them. Serve customers under `/customer/*`, keyed by the customer id:
  *
  *   app.use('/customer', async (req, res, next) => {
  *     req.customer = await verifyCustomerToken(req.headers.authorization, { coreUrl })

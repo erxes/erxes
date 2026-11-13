@@ -16,7 +16,7 @@ import { HttpError } from '~/http/errors';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
-import { customerOAuthRouter } from '~/modules/customerAuth/customerOAuth.http';
+import { customerCors } from '~/modules/customerAuth/customerApps';
 import { paymentCallbackRouter } from '~/modules/payments/payments.http';
 import { coreApi, openApiDocument } from '~/rpc';
 import { saasLogin, saasRouter } from '~/modules/saas/saas.http';
@@ -102,6 +102,9 @@ export const createApp = (log: Logger = logger): Express => {
   // Signed file links stream bytes: before the JSON parser and sign-in.
   app.use('/core/v1/files/signed', uploadLimit, signedFilesRouter);
 
+  // Plugins' customer apps call these from their own origins (decision 42).
+  app.use(['/core/v1/customer-auth', '/core/v1/customer'], customerCors);
+
   // Guessing passwords and secrets: limited per address before anything else.
   app.use(
     [
@@ -113,7 +116,7 @@ export const createApp = (log: Logger = logger): Express => {
     ],
     signInLimit,
   );
-  app.use('/core/v1/plugins/token', tokenLimit);
+  app.use(['/core/v1/plugins/token', '/core/v1/customer-auth/refresh'], tokenLimit);
   app.use(CUSTOMER_CODE_PATHS, customerCodeLimit);
 
   // The SaaS control plane's own door: signed over the raw body, so before JSON parsing and member authentication.
@@ -163,9 +166,6 @@ export const createApp = (log: Logger = logger): Express => {
   // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
   app.use('/core/v1/oauth', tokenLimit, oauthRouter);
   app.get('/core/v1/.well-known/openid-configuration', openidConfiguration);
-
-  // Customers signing in to plugins' apps (decision 42): its own authentication too.
-  app.use('/core/v1/customer-oauth', tokenLimit, customerOAuthRouter);
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
   app.use(

@@ -44,7 +44,6 @@ export {
   CUSTOMER_LOGIN_KINDS,
   customerCodes,
   customerLogins,
-  customerOauthCodes,
   customerSessions,
   customers,
   customerTags,

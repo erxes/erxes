@@ -26,9 +26,10 @@ The `/core/v1` server: Express with oRPC's OpenAPI handler (plain REST and JSON)
 - `src/http/` has auth (`actorOf`, `pluginOf`, `callerOf`, `requireManager`), the access map
   (`policies.ts`) and its check (`access.ts`), the sign-in, code, token and upload rate limits
   (`rateLimit.ts`), cookies and `HttpError`.
-- `src/modules/customerAuth/` signs customers in for plugins' apps (decision 42): codes by email or
-  SMS (`modules/sms` drivers), browser and app sessions, `/customer-oauth/*` (OAuth 2.1 + PKCE)
-  and `/customer/me`. `authenticate` lets only customer tokens (`customer+jwt`) into
+- `src/modules/customerAuth/` signs customers in for plugins' apps (decision 42): the app calls
+  `/customer-auth/*` itself (codes by email or SMS through `modules/sms` drivers, one session per
+  app sign-in, rotating refresh tokens), `/customer/me`, and `customerCors` for the apps' origins
+  (`customerApps.ts`). `authenticate` lets only customer tokens (`customer+jwt`) into
   `/customer/*`, and customer tokens nowhere else.
 - `src/lib/signing.ts` signs and verifies every token core issues (plugin tokens, plugin sessions,
   audit checkpoints) with core's ES256 key; `src/modules/plugins/` is the plugin registry.

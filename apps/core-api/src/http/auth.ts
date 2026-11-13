@@ -8,6 +8,7 @@ import { readCookies, SESSION_COOKIE } from '~/http/cookies';
 import { can, publicPaths } from '~/http/access';
 import { HttpError } from '~/http/errors';
 import { verifyJwt } from '~/lib/signing';
+import { appServes } from '~/modules/customerAuth/customerApps';
 import { customerOfToken } from '~/modules/customerAuth/customerSessions';
 
 /** A role key: `owner`, `admin`, `member` or a custom `r_…`. */
@@ -163,7 +164,7 @@ const isSignedFilePath = (path: string) => path.startsWith('/files/signed/');
  * A cookie-signed change must come from erxes' own pages: browsers send the
  * cookie on cross-site requests too. Bearer-token calls are not affected.
  */
-export const isCrossSiteWrite = (req: Request) => {
+const isCrossSiteWrite = (req: Request) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return false;
   }
@@ -218,10 +219,13 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
   const bearer = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
 
   // A signed-in customer: their own routes only, and nobody else's token works there.
+  // The token's app must still serve the organisation, and a browser call its origin.
   if (req.path.startsWith('/customer/')) {
     const customer = bearer ? await customerOfToken(bearer) : null;
 
-    if (!customer) throw unauthorized();
+    if (!customer || !(await appServes(customer.clientId, customer.orgId, req.get('origin')))) {
+      throw unauthorized();
+    }
 
     req.customer = customer;
     req.log.setBindings({ orgId: customer.orgId, customerId: customer.customerId });

@@ -51,17 +51,19 @@ const HttpsUrl = z
   .max(500)
   .refine((value) => /^https?:\/\//.test(value), 'an http(s) address');
 
-/** Where an OAuth client's codes may be sent: exact addresses, `{subdomain}` allowed. */
-const RedirectUris = z
-  .array(
-    z
-      .string()
-      .trim()
-      .max(500)
-      .regex(/^https?:\/\/[^\s#]+$/, 'an http(s) address without a fragment'),
-  )
-  .min(1)
-  .max(20);
+/**
+ * A web origin a customer app runs at: `https://host[:port]`, where
+ * `{subdomain}` may stand for a whole label (the organisation's), or
+ * `http://localhost[:port]` while developing.
+ */
+const AppOrigin = z
+  .string()
+  .trim()
+  .max(200)
+  .regex(
+    /^(https:\/\/(\{subdomain\}|[a-z0-9-]+)(\.(\{subdomain\}|[a-z0-9-]+))+|http:\/\/(localhost|127\.0\.0\.1))(:\d{1,5})?$/,
+    'an origin: https://shop.example.com, https://{subdomain}.shop.example.com or http://localhost:3000',
+  );
 
 export const PluginManifest = z.object({
   title: z.string().trim().min(1).max(80),
@@ -90,13 +92,27 @@ export const PluginManifest = z.object({
    * exact addresses codes may be sent to; `{subdomain}` stands for the
    * organisation's (`https://{subdomain}.hr.erxes.io/auth/callback`).
    */
-  oauth: z.object({ redirectUris: RedirectUris }).optional(),
+  oauth: z
+    .object({
+      redirectUris: z
+        .array(
+          z
+            .string()
+            .trim()
+            .max(500)
+            .regex(/^https?:\/\/[^\s#]+$/, 'an http(s) address without a fragment'),
+        )
+        .min(1)
+        .max(20),
+    })
+    .optional(),
   /**
-   * The plugin's app for customers (a shop, tracking, booking): customers sign
-   * in through core (`/customer-oauth/authorize`, PKCE) and come back to one of
-   * these addresses; `{subdomain}` stands for the organisation's.
+   * The plugin's app for customers (a shop, tracking, booking). It signs
+   * customers in by calling `/customer-auth/*` itself (decision 42); browsers
+   * may call `/customer-auth/*` and `/customer/*` only from these origins.
+   * Apps without an origin (mobile) are limited by rate instead.
    */
-  customerApp: z.object({ redirectUris: RedirectUris }).optional(),
+  customerApp: z.object({ origins: z.array(AppOrigin).min(1).max(20) }).optional(),
   scopes: z.array(PluginScope).max(PLUGIN_SCOPES.length).default([]),
   /** Actions members can be granted (`hr.leave.approve`), shown in roles. */
   permissions: z

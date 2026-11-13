@@ -100,10 +100,9 @@ export const customerCodes = pgTable(
 );
 
 /**
- * A customer's signed-in session: the browser on core's sign-in page
- * (`clientId` null, the `erxes_customer` cookie) or a plugin's app (a refresh
- * token). App tokens rotate on every use; the previous one is kept, so using
- * it again (it leaked) ends the session.
+ * A customer signed in to a plugin's app, held as a refresh token. The token
+ * rotates on every use; the previous one is kept, so using it again (it
+ * leaked) ends the session.
  */
 export const customerSessions = pgTable(
   'customer_sessions',
@@ -111,8 +110,8 @@ export const customerSessions = pgTable(
     id: text().primaryKey(),
     orgId: text().notNull(),
     customerId: text().notNull(),
-    /** The plugin whose app holds it; null: the browser on core's sign-in page. */
-    clientId: text(),
+    /** The plugin whose app holds it. */
+    clientId: text().notNull(),
     tokenHash: text().notNull(),
     previousTokenHash: text(),
     userAgent: text(),
@@ -133,38 +132,6 @@ export const customerSessions = pgTable(
       columns: [table.customerId],
       foreignColumns: [customers.id],
       name: 'core_customer_sessions_customer_id_fkey',
-    }).onDelete('cascade'),
-  ],
-);
-
-/**
- * Authorization codes for customers signing in to a plugin's app (OAuth 2.1 +
- * PKCE): a minute, once, only the hash stored.
- */
-export const customerOauthCodes = pgTable(
-  'customer_oauth_codes',
-  {
-    id: text().primaryKey(),
-    orgId: text().notNull(),
-    clientId: text().notNull(),
-    customerId: text().notNull(),
-    codeHash: text().notNull(),
-    redirectUri: text().notNull(),
-    codeChallenge: text().notNull(),
-    expiresAt: timestamptz().notNull(),
-    usedAt: timestamptz(),
-    createdAt: createdAt(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.orgId],
-      foreignColumns: [organizations.id],
-      name: 'core_customer_oauth_codes_org_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.customerId],
-      foreignColumns: [customers.id],
-      name: 'core_customer_oauth_codes_customer_id_fkey',
     }).onDelete('cascade'),
   ],
 );

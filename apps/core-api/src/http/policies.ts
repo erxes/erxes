@@ -97,9 +97,9 @@ export const ACCESS = {
   'auth.changePassword': MEMBER,
   'auth.signIns': MEMBER,
 
-  'customerAuth.config': PUBLIC,
   'customerAuth.sendCode': PUBLIC,
   'customerAuth.signIn': PUBLIC,
+  'customerAuth.refresh': PUBLIC,
   'customerAuth.signOut': PUBLIC,
 
   'customerAccount.me': CUSTOMER,

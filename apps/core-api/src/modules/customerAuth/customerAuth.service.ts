@@ -1,6 +1,10 @@
-import type { CustomerLogin, CustomerProfile, CustomerSession } from '@erxes/core-contract';
+import type {
+  CustomerLogin,
+  CustomerProfile,
+  CustomerSession,
+  CustomerTokens,
+} from '@erxes/core-contract';
 import {
-  CUSTOMER_LOGIN_KINDS,
   customerLogins,
   customers,
   customerSessions,
@@ -8,56 +12,25 @@ import {
   newId,
   organizations,
   withOrg,
-  withSystem,
 } from '@erxes/core-db';
 import { and, asc, count, desc, eq, gt, isNull, sql } from 'drizzle-orm';
-import { config } from '~/config';
 import { type CustomerCaller, systemCaller } from '~/http/auth';
 import { HttpError, notFound, pgConstraint } from '~/http/errors';
 import { requestInfo } from '~/http/requestContext';
 import { lockKey } from '~/lib/locks';
 import { contactUpdated } from '~/modules/activities/contactHistory';
-import { subdomainFromHost } from '~/modules/auth/auth.service';
 import { findCustomer } from '~/modules/customers/customerRows';
 import { findOrCreateCustomer } from '~/modules/customers/findOrCreateCustomer';
 import { publishCoreEvents } from '~/modules/events/events.service';
+import { type AppRequest, appServes, customerAppFor } from './customerApps';
 import { type Address, addressOf, invalidCode, sendCode, useCode } from './customerCodes';
-import { createSession, revokeSessionToken } from './customerSessions';
+import { createSession, revokeSessionToken, rotateSession, sessionOf } from './customerSessions';
 
-/**
- * The organisation a customer signs in to: the one named, else the one in the
- * address core is reached at, else DEFAULT_SUBDOMAIN.
- */
-export const organizationOf = async (subdomain: string | undefined, host: string | undefined) => {
-  const name = subdomain || subdomainFromHost(host) || config.auth.defaultSubdomain;
-
-  const [row] = name
-    ? await withSystem('customer sign-in organisation', (tx) =>
-        tx
-          .select({
-            id: organizations.id,
-            name: organizations.name,
-            subdomain: organizations.subdomain,
-          })
-          .from(organizations)
-          .where(sql`lower(${organizations.subdomain}) = ${name.toLowerCase()}`)
-          .limit(1),
-      )
-    : [];
-
-  if (!row) throw notFound('Organisation');
-
-  return row;
-};
-
-export const signInConfig = async (input: { organization?: string }, host?: string) => {
-  const organization = await organizationOf(input.organization, host);
-
-  return {
-    organization: { name: organization.name, subdomain: organization.subdomain },
-    kinds: [...CUSTOMER_LOGIN_KINDS],
-  };
-};
+/** Which app signs in, and to which organisation (a subdomain, for apps without one in core's address). */
+interface AppInput {
+  clientId: string;
+  organization?: string;
+}
 
 const profileOf = async (client: Db, orgId: string, id: string): Promise<CustomerProfile> => {
   const row = await findCustomer(client, orgId, id);
@@ -173,27 +146,20 @@ const customerForLogin = async (tx: Db, orgId: string, address: Address) => {
 };
 
 /** Sends a sign-in code; the answer is the same whether or not the address has an account. */
-export const sendSignInCode = async (
-  input: Address & { organization?: string },
-  host: string | undefined,
-) => {
-  const organization = await organizationOf(input.organization, host);
+export const sendSignInCode = async (input: Address & AppInput, request: AppRequest) => {
+  const { organization } = await customerAppFor(input, request);
 
   return withOrg(organization.id, (tx) =>
     sendCode(tx, organization, addressOf(input), 'sign_in', { ip: requestInfo().ip }),
   );
 };
 
-/**
- * Signs in (or up) with a code: the browser on the sign-in page gets a session
- * (any earlier one there ends). Returns the session token for the cookie.
- */
+/** Signs in (or up) with a code: a new session in the app, and its tokens. */
 export const signInWithCode = async (
-  input: Address & { organization?: string; code: string },
-  host: string | undefined,
-  previous: string | undefined,
+  input: Address & AppInput & { code: string },
+  request: AppRequest,
 ) => {
-  const organization = await organizationOf(input.organization, host);
+  const { clientId, organization } = await customerAppFor(input, request);
   const address = addressOf(input);
 
   // Its own transaction: a wrong try counts even though this call fails.
@@ -203,36 +169,60 @@ export const signInWithCode = async (
 
   if (!valid) throw invalidCode();
 
-  await revokeSessionToken(previous, null);
-
   return withOrg(organization.id, async (tx) => {
     const { customerId, created, signedUp } = await customerForLogin(tx, organization.id, address);
 
     const { ip, userAgent } = requestInfo();
 
-    const session = await createSession(tx, {
+    const tokens = await createSession(tx, {
       orgId: organization.id,
       customerId,
-      clientId: null,
+      clientId,
       userAgent,
       ip,
     });
 
     const subject = { type: 'customer' as const, id: customerId };
+    const payload = { kind: address.kind, app: clientId };
 
     await publishCoreEvents(tx, systemCaller(organization.id), [
-      ...(signedUp
-        ? [{ type: 'core.customer.signed_up', subject, payload: { kind: address.kind } }]
-        : []),
-      { type: 'core.customer.signed_in', subject, payload: { kind: address.kind } },
+      ...(signedUp ? [{ type: 'core.customer.signed_up', subject, payload }] : []),
+      { type: 'core.customer.signed_in', subject, payload },
     ]);
 
-    return {
-      customer: await profileOf(tx, organization.id, customerId),
-      created,
-      token: session.token,
-    };
+    return { ...tokens, customer: await profileOf(tx, organization.id, customerId), created };
   });
+};
+
+const invalidToken = () =>
+  new HttpError(401, 'INVALID_TOKEN', 'The refresh token is not valid: sign in again');
+
+/** New tokens for the app's refresh token, while the app still serves the organisation. */
+export const refreshTokens = async (
+  input: { clientId: string; refreshToken: string },
+  request: AppRequest,
+): Promise<CustomerTokens> => {
+  const found = await sessionOf(input.refreshToken);
+
+  if (
+    !found ||
+    found.row.clientId !== input.clientId ||
+    !(await appServes(found.row.clientId, found.row.orgId, request.origin))
+  ) {
+    throw invalidToken();
+  }
+
+  const tokens = await rotateSession(found);
+
+  if (!tokens) throw invalidToken();
+
+  return tokens;
+};
+
+export const signOut = async (refreshToken: string) => {
+  await revokeSessionToken(refreshToken);
+
+  return { ok: true as const };
 };
 
 // The signed-in customer (`/customer/me`).
