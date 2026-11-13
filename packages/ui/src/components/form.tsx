@@ -2,8 +2,7 @@ import React from 'react';
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
 import { Controller, FormProvider, useFormContext } from 'react-hook-form';
 
-import type { Label as LabelPrimitive } from 'radix-ui';
-import { Slot } from 'radix-ui';
+import { useRender } from '@base-ui/react/use-render';
 
 import { Label } from './label';
 import { cn } from '../lib/utils';
@@ -69,36 +68,30 @@ const FormItem = ({ ref, className, ...props }: React.ComponentProps<'div'>) => 
   );
 };
 
-const FormLabel = ({
-  ref,
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<typeof Label> &
-  React.RefAttributes<React.ComponentRef<typeof LabelPrimitive.Root>>) => {
+const FormLabel = ({ className, ...props }: React.ComponentProps<typeof Label>) => {
   const { error, formItemId } = useFormField();
 
   return (
-    <Label
-      ref={ref}
-      className={cn(error && 'text-destructive', className)}
-      htmlFor={formItemId}
-      {...props}
-    />
+    <Label className={cn(error && 'text-destructive', className)} htmlFor={formItemId} {...props} />
   );
 };
 
-const FormControl = ({ ref, ...props }: React.ComponentProps<typeof Slot.Root>) => {
+/** Gives its one child the field's id and its description and error wiring. */
+const FormControl = ({
+  children,
+  ...props
+}: Omit<React.HTMLAttributes<HTMLElement>, 'children'> & { children: React.ReactElement }) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
-  return (
-    <Slot.Root
-      ref={ref}
-      id={formItemId}
-      aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
-      aria-invalid={!!error}
-      {...props}
-    />
-  );
+  return useRender({
+    render: children,
+    props: {
+      id: formItemId,
+      'aria-describedby': !error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`,
+      'aria-invalid': !!error,
+      ...props,
+    },
+  });
 };
 
 const FormDescription = ({ ref, className, ...props }: React.ComponentProps<'p'>) => {
