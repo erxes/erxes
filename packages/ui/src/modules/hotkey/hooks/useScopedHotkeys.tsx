@@ -1,51 +1,36 @@
-import { useAtom } from 'jotai';
-import { useHotkeys } from 'react-hotkeys-hook';
-import type { HotkeyCallback, Keys, Options } from 'react-hotkeys-hook/dist/types';
-import { pendingHotkeyState } from '../states/internal/pendingHotkeyState';
-import { useScopedHotKeysCallback } from './useScopedHotKeysCallback';
+import { useAtomCallback } from 'jotai/utils';
+import { useCallback } from 'react';
+import { type HotkeyCallback, type Keys, type Options, useHotkeys } from 'react-hotkeys-hook';
+import { internalHotkeysEnabledScopesState } from '../states/internal/internalHotkeysEnabledScopeState';
 
-export type UseHotkeysOptionsWithoutBuggyOptions = Omit<Options, 'enabled'>;
-
+/** Runs `callback` on `keys` only while `scope` is one of the enabled hotkey scopes. */
 export const useScopedHotkeys = (
   keys: Keys,
   callback: HotkeyCallback,
   scope: string,
   dependencies?: unknown[],
-  options?: UseHotkeysOptionsWithoutBuggyOptions,
+  options?: Options,
 ) => {
-  const [pendingHotkey, setPendingHotkey] = useAtom(pendingHotkeyState);
+  const isScopeEnabled = useAtomCallback(
+    useCallback((get) => get(internalHotkeysEnabledScopesState).includes(scope), [scope]),
+  );
 
-  const callScopedHotkeyCallback = useScopedHotKeysCallback();
-
-  const enableOnContentEditable = options?.enableOnContentEditable ?? true;
-  const enableOnFormTags = options?.enableOnFormTags ?? false;
   const preventDefault = (options?.preventDefault ?? true) === true;
-  const ignoreModifiers = options?.ignoreModifiers ?? false;
 
   return useHotkeys(
     keys,
-    (keyboardEvent, hotkeysEvent) =>
-      callScopedHotkeyCallback({
-        keyboardEvent,
-        hotkeysEvent,
-        callback: () => {
-          if (!pendingHotkey) {
-            callback(keyboardEvent, hotkeysEvent);
+    (keyboardEvent, hotkeysEvent) => {
+      if (!isScopeEnabled()) return;
 
-            return;
-          }
+      if (preventDefault) {
+        keyboardEvent.stopPropagation();
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopImmediatePropagation();
+      }
 
-          setPendingHotkey(null);
-        },
-        scope,
-        preventDefault,
-      }),
-    {
-      enableOnContentEditable,
-      enableOnFormTags,
-      ignoreModifiers,
-      ...options,
+      callback(keyboardEvent, hotkeysEvent);
     },
+    { enableOnContentEditable: true, ...options },
     dependencies,
   );
 };

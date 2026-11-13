@@ -1,7 +1,7 @@
 import { Popover, type PopoverProps } from 'erxes-ui/components/popover';
 import { usePreviousHotkeyScope } from '../hooks/usePreviousHotkeyScope';
-import type { UseHotkeysOptionsWithoutBuggyOptions } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { useScopedHotkeys } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
+import type { Options as HotkeyOptions } from 'react-hotkeys-hook';
 import { useLayoutEffect, useState } from 'react';
 import { currentHotkeyScopeState } from 'erxes-ui/modules/hotkey/states/internal/currentHotkeyScopeState';
 import { useAtomValue, useStore } from 'jotai';
@@ -22,7 +22,7 @@ export const PopoverScoped = ({
   onEnter?: () => void;
   closeOnEnter?: boolean;
   dependencies?: unknown[];
-  options?: UseHotkeysOptionsWithoutBuggyOptions;
+  options?: HotkeyOptions;
 }) => {
   const [_open, _setOpen] = useState(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
