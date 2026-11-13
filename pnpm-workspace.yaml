@@ -1,3 +1,15 @@
 packages:
   - apps/*
   - packages/*
+
+# Install scripts pnpm may run. esbuild's checks its platform binary; the others only print notices.
+allowBuilds:
+  core-js: false
+  core-js-pure: false
+  esbuild: true
+  protobufjs: false
+
+# Vite+ runs its own Vite build and Vitest version; dependencies must resolve to the same ones.
+overrides:
+  'vite@*': 'npm:@voidzero-dev/vite-plus-core@1.6.0'
+  'vitest@*': '5.1.0'

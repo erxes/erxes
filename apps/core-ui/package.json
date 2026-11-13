@@ -16,7 +16,7 @@
     "@dnd-kit/utilities": "3.2.2",
     "@erxes/core-contract": "workspace:*",
     "@hookform/resolvers": "3.10.0",
-    "@module-federation/enhanced": "0.6.16",
+    "@module-federation/enhanced": "2.9.3",
     "@orpc/client": "1.16.2",
     "@orpc/contract": "1.16.2",
     "@orpc/openapi-client": "1.16.2",
@@ -36,7 +36,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@module-federation/rsbuild-plugin": "0.6.16",
+    "@module-federation/rsbuild-plugin": "2.9.3",
     "@rsbuild/core": "^1.1.0",
     "@rsbuild/plugin-react": "^1.1.0",
     "@tailwindcss/postcss": "^4.0.0",

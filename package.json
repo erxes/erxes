@@ -30,15 +30,7 @@
   },
   "engines": {
     "node": ">=24",
-    "pnpm": ">=9"
+    "pnpm": ">=11"
   },
-  "packageManager": "pnpm@9.12.3",
-  "pnpm": {
-    "overrides": {
-      "koa@2": "^2.16.4",
-      "ws@8": "^8.21.0",
-      "vite@*": "npm:@voidzero-dev/vite-plus-core@1.6.0",
-      "vitest@*": "5.1.0"
-    }
-  }
+  "packageManager": "pnpm@11.5.2"
 }

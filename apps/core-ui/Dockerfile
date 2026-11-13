@@ -3,7 +3,7 @@
 #   docker build -f apps/core-ui/Dockerfile -t erxes-core-ui .
 # Runtime: CORE_API_URL (default http://api:3400).
 FROM node:22-bookworm-slim AS build
-RUN npm install -g pnpm@9.12.3
+RUN npm install -g pnpm@11.5.2
 WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 # Every workspace manifest, so the frozen lockfile matches.
