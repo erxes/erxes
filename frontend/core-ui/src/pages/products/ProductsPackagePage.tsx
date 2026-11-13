@@ -1,6 +1,6 @@
 import { ProductsHeader } from '@/products/components/ProductsHeader';
 import { ProductSidebar } from '@/products/components/ProductSidebar';
-import { PackageAddSheet } from '@/products/packages/components/PackageAddSheet';
+import { PackageAddButton } from '@/products/packages/components/PackageAddButton';
 import { PackagesRecordTable } from '@/products/packages/components/PackagesRecordTable';
 import { PackagesFilter } from '@/products/packages/components/PackagesFilter';
 import {
@@ -16,7 +16,7 @@ export const ProductsPackagePage = () => {
       <ProductSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <ProductsHeader>
-          <PackageAddSheet />
+          <PackageAddButton />
         </ProductsHeader>
         <div className="flex flex-col flex-auto overflow-hidden w-full">
           <PageSubHeader>

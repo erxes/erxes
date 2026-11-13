@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import {
   type IRecordSidePanelTab,
   type IRecordViewProps,
+  NEW_RECORD_ID,
   RecordSidePanel,
   usePanelExpanded,
   usePermissionCheck,
@@ -33,6 +34,7 @@ import {
 import { PackagePanelActions } from './PackagePanelActions';
 import { PackagePanelFields } from './PackagePanelFields';
 import { PackagePanelMedia } from './PackagePanelMedia';
+import { PackagePanelNew } from './PackagePanelNew';
 import { PackagePanelProducts } from './PackagePanelProducts';
 
 // A read-only package's changes are never sent.
@@ -65,7 +67,8 @@ const SavedPackageProducts = ({
  * A package in the app's side panel
  * (`?panel=/detail/core:productPackage/<id>`): its fields, cover image and
  * products as tabs, each change saved as it is made. Expanded, it is the
- * package's own page. Without `productsUpdate` it is shown read-only.
+ * package's own page. A new package (`NEW_RECORD_ID`) is drawn the same way
+ * as a draft. Without `productsUpdate` it is shown read-only.
  */
 export const PackageRecordPanel = ({
   record,
@@ -73,12 +76,34 @@ export const PackageRecordPanel = ({
   onClose,
 }: IRecordViewProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'package' });
+  const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const packageId = record.contentId;
+  const isNew = packageId === NEW_RECORD_ID;
   const { hasActionPermission } = usePermissionCheck();
-  const { package: pkg, loading, error, refetch } = usePackageDetail(packageId);
+  const {
+    package: pkg,
+    loading,
+    error,
+    refetch,
+  } = usePackageDetail(isNew ? null : packageId);
   const { save } = usePackagePanelSave(packageId);
   const { tab: selectedTab, setTab, dismissPath, path } = useSidePanel();
   const expanded = usePanelExpanded();
+
+  if (isNew) {
+    return hasActionPermission('productsCreate') ? (
+      <PackagePanelNew onBack={onBack} onClose={onClose} />
+    ) : (
+      <>
+        <RecordSidePanel.Header
+          title={t('new-package')}
+          onBack={onBack}
+          onClose={onClose}
+        />
+        <div className="p-4">{panelT('access-denied', 'Access denied')}</div>
+      </>
+    );
+  }
 
   const title = expanded
     ? pkg?.name || t('package-detail')

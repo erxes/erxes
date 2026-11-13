@@ -19,6 +19,7 @@ conditions and the other product settings pages. Backend rules live in
 | `hooks/useProductConditionToggle.ts`                     | Adds or removes one condition (`productsSetConditionCodes`)                                 |
 | `product-detail/components/panel/ProductPanelCells.tsx`  | Panel cells other record panels share (vendor, currency, errors)                            |
 | `packages/components/panel/PackageRecordPanel.tsx`       | A package in the side panel (`core:productPackage`, also `/settings/products/packages/:id`) |
+| `packages/components/panel/PackagePanelNew.tsx`          | Create a package: a draft with the same tabs, kept until Create                             |
 | `packages/hooks/usePackagePanelSave.ts`                  | Queued `productPackagesEdit` saves of one changed field each                                |
 
 ## Rules
