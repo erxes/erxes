@@ -296,6 +296,12 @@ importers:
       babel-plugin-react-compiler:
         specifier: 1.0.0
         version: 1.0.0
+      playwright-core:
+        specifier: ^1.65.0
+        version: 1.65.0
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
 
   packages/contract:
     dependencies:
@@ -6478,6 +6484,11 @@ packages:
   pirates@4.0.7:
     resolution: {integrity: sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA==}
     engines: {node: '>= 6'}
+
+  playwright-core@1.65.0:
+    resolution: {integrity: sha512-vNSKgH6YqtN7cdT/L334zo0a+YwkrpicyrHJlWWPIm/Q+Nn2SWInil01oT0mbu96U4GgoRtCYQD9CzJQgju+lA==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   pn@1.1.0:
     resolution: {integrity: sha512-2qHaIQr2VLRFoxe2nASzsV6ef4yOOH+Fi9FBOVH6cqeSgUnoyySPZkxzLuzd+RYOQTRpROA0ztTMqxROKSb/nA==}
@@ -13808,6 +13819,8 @@ snapshots:
       thread-stream: 4.2.1
 
   pirates@4.0.7: {}
+
+  playwright-core@1.65.0: {}
 
   pn@1.1.0:
     optional: true
