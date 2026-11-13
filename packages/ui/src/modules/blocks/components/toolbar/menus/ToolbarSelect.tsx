@@ -1,4 +1,4 @@
-import { useComponentsContext } from '@blocknote/react';
+import { useComponentsContext, usePortalElement } from '@blocknote/react';
 import type { ComponentProps } from '@blocknote/react';
 import { IconChevronDown } from '@tabler/icons-react';
 import { ToolbarMenuItem } from 'erxes-ui/modules/blocks/components/toolbar/menus/ToolbarMenuItem';
@@ -7,8 +7,10 @@ export const ToolbarSelect = ({
   items,
   className,
   isDisabled,
+  portalElement,
 }: ComponentProps['FormattingToolbar']['Select']) => {
   const Components = useComponentsContext();
+  const ambientPortalElement = usePortalElement();
   const selectedItem = items.find((item) => item.isSelected);
 
   if (!Components || !items.length) {
@@ -16,7 +18,7 @@ export const ToolbarSelect = ({
   }
 
   return (
-    <Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Root portalElement={portalElement ?? ambientPortalElement}>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           label={selectedItem?.text ?? 'Block type'}

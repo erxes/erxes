@@ -1,4 +1,3 @@
-import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
 import { createReactBlockSpec } from '@blocknote/react';
 import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 import { IconFileText } from '@tabler/icons-react';
@@ -21,13 +20,10 @@ const documentPlaceholderBlockConfig = {
     },
   },
   content: 'none' as const,
-  isFileBlock: false as const,
 };
 
 type DocumentPlaceholderRenderProps = ReactCustomBlockRenderProps<
-  typeof documentPlaceholderBlockConfig,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema
+  typeof documentPlaceholderBlockConfig
 >;
 
 const DocumentPlaceholderBlockContent: FC<DocumentPlaceholderRenderProps> = ({ block }) => {

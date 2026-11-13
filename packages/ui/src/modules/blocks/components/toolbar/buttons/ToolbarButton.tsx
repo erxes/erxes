@@ -1,15 +1,19 @@
+import { ShadCNDefaultComponents } from '@blocknote/shadcn';
+import type { ShadCNComponents } from '@blocknote/shadcn';
 import type { ComponentProps } from 'react';
-import { Button } from 'erxes-ui/components/button';
 import { cn } from 'erxes-ui/lib/utils';
 
-export const ToolbarButton = ({ ref, className, ...props }: ComponentProps<typeof Button>) => (
-  <Button
-    ref={ref}
+// The shadcn Button passes className through cva, which only takes strings.
+export const ToolbarButton = ({
+  className,
+  ...props
+}: ComponentProps<ShadCNComponents['Button']['Button']>) => (
+  <ShadCNDefaultComponents.Button.Button
     className={cn(
       'transition-none enabled:pointer-events-auto',
       'hover:bg-(--color-primary)/15! hover:text-(--color-primary)!',
-      'data-[state=open]:bg-(--color-primary)/10! data-[state=open]:text-(--color-primary)!',
-      className,
+      'aria-expanded:bg-(--color-primary)/10! aria-expanded:text-(--color-primary)!',
+      typeof className === 'string' ? className : undefined,
     )}
     {...props}
   />

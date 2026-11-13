@@ -1,4 +1,3 @@
-import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
 import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 
 export const galleryBlockConfig = {
@@ -15,8 +14,4 @@ export const galleryBlockConfig = {
   content: 'none' as const,
 };
 
-export type GalleryRenderProps = ReactCustomBlockRenderProps<
-  typeof galleryBlockConfig,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema
->;
+export type GalleryRenderProps = ReactCustomBlockRenderProps<typeof galleryBlockConfig>;

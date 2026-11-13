@@ -84,7 +84,9 @@ export const BlockEditor = ({
             triggerCharacter="/"
             getItems={(query) => getSlashMenuItems(query, editor, additionalSlashMenuItems)}
             suggestionMenuComponent={SlashMenu}
-            floatingOptions={slashMenuOnTop ? { placement: 'top-start' } : undefined}
+            floatingUIOptions={
+              slashMenuOnTop ? { useFloatingOptions: { placement: 'top-start' } } : undefined
+            }
           />
           {formattingToolbar && <Toolbar />}
           <TableHandlesController tableHandle={TableHandleWithRemove} />

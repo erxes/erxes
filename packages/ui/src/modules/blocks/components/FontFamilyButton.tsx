@@ -1,18 +1,24 @@
-import { useComponentsContext } from '@blocknote/react';
-import { useFontFamily } from 'erxes-ui/modules/blocks/hooks/toolbar/useFontFamily';
+import { useComponentsContext, usePortalElement } from '@blocknote/react';
+import { useStringStyle } from 'erxes-ui/modules/blocks/hooks/toolbar/useStringStyle';
 import { FONT_FAMILIES } from 'erxes-ui/modules/blocks/constant/toolbar/fontFamilies';
 import { IconTypography } from '@tabler/icons-react';
 
 export const FontFamilyButton = () => {
   const Components = useComponentsContext();
-  const { currentFont, isFileBlock, handleFontChange } = useFontFamily();
+  const portalElement = usePortalElement();
+
+  const {
+    value: currentFont,
+    isFileBlock,
+    setValue: handleFontChange,
+  } = useStringStyle('fontFamily');
 
   if (!Components || isFileBlock) {
     return null;
   }
 
   return (
-    <Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Root portalElement={portalElement}>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           data-test="fontFamily"

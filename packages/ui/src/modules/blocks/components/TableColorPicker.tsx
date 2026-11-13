@@ -1,8 +1,15 @@
-import type { TableHandleMenuProps } from '@blocknote/react';
-import { useBlockNoteEditor, useComponentsContext, useDictionary } from '@blocknote/react';
 import { mapTableCell } from '@blocknote/core';
+import { TableHandlesExtension } from '@blocknote/core/extensions';
+import type { TableHandleMenuProps } from '@blocknote/react';
+import {
+  useBlockNoteEditor,
+  useComponentsContext,
+  useDictionary,
+  useExtension,
+  useExtensionState,
+  usePortalElement,
+} from '@blocknote/react';
 import type { CSSProperties } from 'react';
-import { useMemo } from 'react';
 
 const COLORS = [
   'default',
@@ -74,27 +81,38 @@ const ColorMenuItems = ({
 };
 
 /** Text and background colors for the cells of one table row or column. */
-export const TableColorPicker = ({ block, orientation, index }: TableHandleMenuProps) => {
+export const TableColorPicker = ({ orientation }: TableHandleMenuProps) => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
   const dictionary = useDictionary();
-  const tableHandles = editor.tableHandles;
+  const portalElement = usePortalElement();
+  const tableHandles = useExtension(TableHandlesExtension);
 
-  const currentCells = useMemo(() => {
-    if (!tableHandles) return [];
+  const { block, index } = useExtensionState(TableHandlesExtension, {
+    selector: (state) => ({
+      block: state?.block,
+      index: orientation === 'row' ? state?.rowIndex : state?.colIndex,
+    }),
+  });
 
-    return orientation === 'row'
+  if (!Components || !block || index === undefined) return null;
+
+  const currentCells =
+    orientation === 'row'
       ? tableHandles.getCellsAtRowHandle(block, index)
       : tableHandles.getCellsAtColumnHandle(block, index);
-  }, [block, index, orientation, tableHandles]);
 
-  if (!Components || !tableHandles || currentCells.length === 0) return null;
+  if (currentCells.length === 0) return null;
 
   const cellProps = currentCells.map(({ cell }) => mapTableCell(cell).props);
   const selected = new Set(currentCells.map(({ row, col }) => `${row}:${col}`));
 
   const updateColor = (prop: ColorProp, color: string) => {
-    const rows = block.content.rows.map((row, rowIndex) => ({
+    const table = editor.getBlock(block.id);
+
+    if (table?.type !== 'table') return;
+
+    const rows = table.content.rows.map((row, rowIndex) => ({
       ...row,
       cells: row.cells.map((cell, colIndex) => {
         const tableCell = mapTableCell(cell);
@@ -105,12 +123,12 @@ export const TableColorPicker = ({ block, orientation, index }: TableHandleMenuP
       }),
     }));
 
-    editor.updateBlock(block, { content: { ...block.content, rows } });
-    editor.setTextCursorPosition(block);
+    editor.updateBlock(table, { content: { ...table.content, rows } });
+    editor.setTextCursorPosition(table);
   };
 
   return (
-    <Components.Generic.Menu.Root position="right" sub>
+    <Components.Generic.Menu.Root position="right" sub portalElement={portalElement}>
       <Components.Generic.Menu.Trigger sub>
         <Components.Generic.Menu.Item className="bn-menu-item" subTrigger>
           {dictionary.drag_handle.colors_menuitem}

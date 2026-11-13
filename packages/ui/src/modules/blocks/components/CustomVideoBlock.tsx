@@ -1,27 +1,19 @@
-import type { DefaultInlineContentSchema, DefaultStyleSchema } from '@blocknote/core';
-import { videoBlockConfig, videoParse } from '@blocknote/core';
+import { createVideoBlockConfig, videoParse } from '@blocknote/core';
 import type { ReactCustomBlockRenderProps } from '@blocknote/react';
 import {
   createReactBlockSpec,
   FigureWithCaption,
-  ResizableFileBlockWrapper,
-  useBlockNoteEditor,
   VideoBlock,
   VideoToExternalHTML,
 } from '@blocknote/react';
 import { IconVideo } from '@tabler/icons-react';
 import type { FC } from 'react';
+import { MediaBlockWrapper } from './MediaBlockWrapper';
 import { getCloudflareStreamBase, parseVideoEmbedUrl } from 'erxes-ui/utils/videoEmbed';
 
-type VideoRenderProps = ReactCustomBlockRenderProps<
-  typeof videoBlockConfig,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema
->;
+type VideoRenderProps = ReactCustomBlockRenderProps<typeof createVideoBlockConfig>;
 
-type FileBlockSchema = Parameters<
-  typeof ResizableFileBlockWrapper
->[0]['editor']['schema']['blockSchema'];
+const parseVideoElement = videoParse({});
 
 const getVideoEmbedSource = (url: string): string | undefined => {
   const embed = parseVideoEmbedUrl(url);
@@ -47,9 +39,6 @@ const EmbeddedVideo: FC<{ src: string; title: string }> = ({ src, title }) => (
 );
 
 const CustomVideoBlockContent: FC<VideoRenderProps> = (props) => {
-  // The same editor, typed for the file block wrapper: its generic schema doesn't
-  // accept the video block's editor type directly.
-  const fileEditor = useBlockNoteEditor<FileBlockSchema>();
   const src = getVideoEmbedSource(props.block.props.url);
 
   if (!src) {
@@ -57,14 +46,15 @@ const CustomVideoBlockContent: FC<VideoRenderProps> = (props) => {
   }
 
   return (
-    <ResizableFileBlockWrapper
+    <MediaBlockWrapper
       block={props.block}
-      editor={fileEditor}
-      buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
       buttonIcon={<IconVideo size={24} />}
+      onResize={(previewWidth) =>
+        props.editor.updateBlock(props.block, { props: { previewWidth } })
+      }
     >
       <EmbeddedVideo src={src} title={props.block.props.name} />
-    </ResizableFileBlockWrapper>
+    </MediaBlockWrapper>
   );
 };
 
@@ -84,11 +74,13 @@ const ExternalVideoHtml: FC<VideoRenderProps> = (props) => {
   );
 };
 
-export const customVideoBlock = createReactBlockSpec(videoBlockConfig, {
+export const customVideoBlock = createReactBlockSpec(createVideoBlockConfig, {
+  meta: { fileBlockAccept: ['video/*'] },
+  runsBefore: ['file'],
   render: CustomVideoBlockContent,
   toExternalHTML: ExternalVideoHtml,
   parse: (element) => {
-    const video = videoParse(element);
+    const video = parseVideoElement(element);
 
     if (video) return video;
 

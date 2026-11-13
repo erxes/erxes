@@ -1,9 +1,11 @@
+import type { FloatingUIOptions } from '@blocknote/react';
 import { getEditorVisibleBounds } from 'erxes-ui/modules/blocks/utils/toolbar/getEditorVisibleBounds';
-import type { ToolbarPositioningOptions } from 'erxes-ui/modules/blocks/types/toolbar/ToolbarPositioningOptions';
+
+type FloatingOptions = NonNullable<FloatingUIOptions['useFloatingOptions']>;
 
 export const getToolbarPositioning = (
   getEditorElement: () => HTMLElement | undefined,
-): ToolbarPositioningOptions => ({
+): FloatingOptions => ({
   middleware: [
     {
       name: 'editorBoundary',
