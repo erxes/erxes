@@ -31,6 +31,9 @@ const config: KnipConfig = {
     'packages/ui': {
       entry: ['src/**/*.{ts,tsx,css}'],
       project: ['src/**/*.{ts,tsx,css}'],
+      // Never imported, but the block editor's types name it, so the built .d.ts files
+      // import it and a consumer must be able to resolve it.
+      ignoreDependencies: ['@tiptap/core'],
     },
   },
 };

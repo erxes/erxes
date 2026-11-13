@@ -205,5 +205,4 @@ export const Command = Object.assign(CommandRoot, {
   ActionItem: CommandActionItem,
   Shortcut: CommandShortcut,
   Separator: CommandSeparator,
-  Primitive: CommandPrimitive,
 });

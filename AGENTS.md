@@ -37,7 +37,7 @@ pnpm dev                     # API http://localhost:3400, UI http://localhost:35
 - `pnpm fix`: formats and applies lint autofixes.
 - `pnpm test`: every vitest project in `vite.config.ts`. The API tests need `DATA_TEST_URL` and fail
   without it, e.g. `DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes pnpm test`.
-- `pnpm build`: the API bundle (tsdown) and the UI (Rsbuild).
+- `pnpm build`: the API bundle and the publishable `dist/` of `@erxes/core-contract`, `@erxes/plugin-sdk` and `erxes-ui` (tsdown; the packages are checked with publint and attw), and the UI (Rsbuild).
 - `pnpm check:generated`: regenerates migrations and `packages/contract/openapi.json` and fails on drift.
 - `pnpm db:generate`, `pnpm openapi`, `pnpm bootstrap` (an organisation and owner from the command line),
   `pnpm plugin:secret <name>` (registers a plugin or rotates its client secret; the old one works 24 h more).

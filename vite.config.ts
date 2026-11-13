@@ -244,7 +244,7 @@ export default defineConfig({
         files: [
           'vite.config.ts',
           'knip.ts',
-          'apps/core-api/tsdown.config.ts',
+          '**/tsdown.config.ts',
           'apps/core-ui/rsbuild.config.ts',
           'packages/db/drizzle.config.ts',
           'tools/lint/*/index.ts',

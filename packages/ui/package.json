@@ -2,21 +2,40 @@
   "name": "erxes-ui",
   "version": "0.0.0",
   "private": true,
-  "description": "erxes design system: UI primitives, layout, hooks and shared frontend state (source, compiled by the apps)",
+  "description": "erxes design system: UI primitives, layout, hooks and shared frontend state",
   "license": "AGPL-3.0-only",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./package.json": "./package.json",
     "./styles.css": "./src/styles.css",
     "./fonts.css": "./src/fonts.css",
     "./theme.css": "./src/theme.css",
     "./base.css": "./src/base.css",
     "./*": "./src/*"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json",
+      "./styles.css": "./dist/styles.css",
+      "./fonts.css": "./dist/fonts.css",
+      "./theme.css": "./dist/theme.css",
+      "./base.css": "./dist/base.css",
+      "./*": {
+        "types": "./dist/*.d.ts",
+        "default": "./dist/*.js"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsdown"
   },
   "dependencies": {
     "@blocknote/core": "0.35.0",
@@ -31,6 +50,7 @@
     "@module-federation/enhanced": "2.9.3",
     "@tabler/icons-react": "3.34.0",
     "@tanstack/react-table": "8.21.2",
+    "@tiptap/core": "2.27.3",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
