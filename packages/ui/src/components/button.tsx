@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from 'erxes-ui/lib/utils';
 
-export const buttonVariants = cva(
+const variants = cva(
   'inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 font-medium cursor-pointer',
   {
     variants: {
@@ -32,10 +32,17 @@ export const buttonVariants = cva(
   },
 );
 
+/**
+ * The size variants override the base padding, gap and text size, so the classes go through
+ * tailwind-merge. Without it a link styled as a small button gets whichever rule the CSS
+ * happens to list last.
+ */
+export const buttonVariants = (props?: Parameters<typeof variants>[0]) => cn(variants(props));
+
 export type ButtonProps = React.ComponentProps<typeof ButtonPrimitive> &
   VariantProps<typeof buttonVariants>;
 
 /** A native button by default. Links styled as buttons put `buttonVariants` on the link instead. */
 export const Button = ({ className, variant, size, ...props }: ButtonProps) => (
-  <ButtonPrimitive className={cn(buttonVariants({ variant, size, className }))} {...props} />
+  <ButtonPrimitive className={buttonVariants({ variant, size, className })} {...props} />
 );

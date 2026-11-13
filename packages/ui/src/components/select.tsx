@@ -56,7 +56,7 @@ const SelectTrigger = ({ className, children, ...props }: SelectPrimitive.Trigge
     {...props}
   >
     {children}
-    <SelectPrimitive.Icon render={<IconChevronDown className="w-4 h-4 opacity-50" />} />
+    <IconChevronDown aria-hidden className="w-4 h-4 opacity-50" />
   </SelectPrimitive.Trigger>
 );
 
