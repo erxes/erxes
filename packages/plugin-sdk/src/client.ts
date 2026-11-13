@@ -1,4 +1,5 @@
-import { CORE_API_PREFIX, coreContract, type PluginManifest } from '@erxes/core-contract';
+import { CORE_API_PREFIX, type coreContract, type PluginManifest } from '@erxes/core-contract';
+import { coreRoutes } from '@erxes/core-contract/routes';
 import { createORPCClient } from '@orpc/client';
 import type { ContractRouterClient } from '@orpc/contract';
 import { OpenAPILink } from '@orpc/openapi-client/fetch';
@@ -90,7 +91,7 @@ export const createCoreClient = (options: CoreClientOptions) => {
 
   const clientFor = (org?: string): CoreClient =>
     createORPCClient(
-      new OpenAPILink(coreContract, {
+      new OpenAPILink(coreRoutes, {
         url: `${base}${CORE_API_PREFIX}`,
         fetch: async (request, init) => {
           const send = async (token: string) => {

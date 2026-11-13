@@ -22,6 +22,7 @@ export default defineConfig({
       'coverage/**',
       'packages/db/drizzle/**',
       'packages/contract/openapi.json',
+      'packages/contract/routes.json',
       'pnpm-lock.yaml',
     ],
   },
