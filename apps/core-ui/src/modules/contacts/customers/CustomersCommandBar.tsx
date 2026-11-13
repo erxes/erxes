@@ -11,7 +11,6 @@ import { TagsSelect } from '~/modules/tags/TagsSelect';
 import { customerTitle } from '../components/ContactPicker';
 import { commonTagIds, MergeButton, tagChange } from '../components/MergeButton';
 import { MergeDialog } from '../components/MergeDialog';
-import { CustomersChangeState } from './CustomersChangeState';
 import { useCustomersMerge, useCustomersRemove, useCustomersTag } from './useCustomers';
 
 /** The Actions menu: delete the selected customers once confirmed. */
@@ -124,11 +123,11 @@ export const CustomersCommandBar = ({ rows }: { rows: Customer[] }) => {
             value={tagIds}
             onValueChange={(next) => tag.mutate({ ids: customerIds, ...tagChange(tagIds, next) })}
           />
-          <Separator.Inline />
-          {customers.every((customer) => customer.state === 'lead') ? (
-            <LeadsBulkActions recordType="customer" leads={customers} />
-          ) : (
-            <CustomersChangeState customers={customers} />
+          {customers.every((customer) => customer.state === 'lead') && (
+            <>
+              <Separator.Inline />
+              <LeadsBulkActions recordType="customer" leads={customers} />
+            </>
           )}
           {manager && (
             <>
