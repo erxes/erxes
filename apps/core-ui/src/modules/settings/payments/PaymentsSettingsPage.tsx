@@ -4,20 +4,22 @@ import { useQuery } from '@tanstack/react-query';
 import { Badge, PageContainer, PageHeader, ScrollArea, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { QueryState } from '~/components/QueryState';
 import { orpc } from '~/lib/api';
-import { useCan } from '~/modules/auth/session';
+import { useMoney } from '~/lib/money';
+import { useCan, useSession } from '~/modules/auth/session';
 import { AddGateway } from './AddGateway';
 import { GatewayList, NoGateways, PluginGatewaySettings } from './Gateways';
 import { InvoiceDetails } from './InvoiceDetails';
-import { money, STATUS_BADGE } from './invoiceStatus';
+import { STATUS_BADGE } from './invoiceStatus';
 
 type StatusFilter = Invoice['status'] | 'all';
 
 const InvoiceRow = ({ invoice, onOpen }: { invoice: Invoice; onOpen: () => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
+  const money = useMoney();
 
   return (
     <li>
@@ -117,6 +119,23 @@ const Invoices = () => {
   );
 };
 
+/** The organisation's currency, which new invoices take, and where to change it. */
+const CurrencyNote = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'payments' });
+  const { currency } = useSession().organization;
+
+  return (
+    <p className="text-sm text-muted-foreground">
+      {t('currency-note', 'New invoices are in {{currency}} unless a plugin names another.', {
+        currency,
+      })}{' '}
+      <Link to="/settings/general" className="text-primary hover:underline">
+        {t('change-currency', 'Change')}
+      </Link>
+    </p>
+  );
+};
+
 /** Settings › Payments: gateway connections, and invoices plugins made through them. */
 export const PaymentsSettingsPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
@@ -139,6 +158,7 @@ export const PaymentsSettingsPage = () => {
       </PageHeader>
       <ScrollArea className="flex-1">
         <div className="mx-auto max-w-4xl space-y-8 p-6">
+          <CurrencyNote />
           <QueryState
             query={gateways}
             isEmpty={({ data }) => !data.length}

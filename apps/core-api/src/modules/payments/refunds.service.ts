@@ -168,6 +168,7 @@ const applyRefund = async (
     targetLabel: invoice.description,
     metadata: {
       amount: refund.amount,
+      currency: invoice.currency,
       method: refund.method,
       reason: input.reason,
       source: invoice.source,

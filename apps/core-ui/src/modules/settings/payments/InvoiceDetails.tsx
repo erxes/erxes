@@ -17,11 +17,13 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QueryState } from '~/components/QueryState';
 import { messageOf, orpc } from '~/lib/api';
+import { amountStep, fromAmountInput, toAmountInput, useMoney } from '~/lib/money';
 import { useCan } from '~/modules/auth/session';
-import { money, STATUS_BADGE } from './invoiceStatus';
+import { STATUS_BADGE } from './invoiceStatus';
 
 const Refunds = ({ invoice }: { invoice: Invoice }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
+  const money = useMoney();
   const refunds = useQuery(orpc.payments.refunds.queryOptions({ input: { id: invoice.id } }));
 
   return (
@@ -55,6 +57,7 @@ const useRefund = (invoice: Invoice, onDone: () => void) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const { toast } = useToast();
   const client = useQueryClient();
+  const money = useMoney();
 
   return useMutation(
     orpc.payments.refund.mutationOptions({
@@ -92,10 +95,12 @@ const useRefund = (invoice: Invoice, onDone: () => void) => {
 const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const id = useId();
+  const money = useMoney();
+  const { currency } = invoice;
   const left = invoice.refundable.amount;
   // A gateway that refunds whole payments only can't take part of it: record those as manual.
   const gatewayCanPartial = invoice.refundable.gateway === 'partial';
-  const [amount, setAmount] = useState(String(left / 100));
+  const [amount, setAmount] = useState(toAmountInput(left, currency));
   const [reason, setReason] = useState('');
 
   const [manual, setManual] = useState(
@@ -104,8 +109,8 @@ const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void 
   );
 
   const refund = useRefund(invoice, onDone);
-  const cents = Math.round(Number(amount) * 100);
-  const mustBeManual = !manual && !gatewayCanPartial && cents !== left;
+  const units = fromAmountInput(amount, currency);
+  const mustBeManual = !manual && !gatewayCanPartial && units !== left;
 
   return (
     <div className="space-y-3 border-t pt-3">
@@ -115,13 +120,13 @@ const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void 
       </h3>
       <div className="space-y-1.5">
         <Label htmlFor={`${id}-amount`}>
-          {t('refund-amount', 'Amount (up to {{left}})', { left: money(left, invoice.currency) })}
+          {t('refund-amount', 'Amount (up to {{left}})', { left: money(left, currency) })}
         </Label>
         <Input
           id={`${id}-amount`}
           type="number"
-          min={0.01}
-          step={0.01}
+          min={amountStep(currency)}
+          step={amountStep(currency)}
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
         />
@@ -158,14 +163,14 @@ const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void 
         className="w-full"
         variant="destructive"
         disabled={
-          refund.isPending || !reason.trim() || !(cents > 0 && cents <= left) || mustBeManual
+          refund.isPending || !reason.trim() || !(units > 0 && units <= left) || mustBeManual
         }
-        onClick={() => refund.mutate({ id: invoice.id, amount: cents, reason, manual })}
+        onClick={() => refund.mutate({ id: invoice.id, amount: units, reason, manual })}
       >
         {refund.isPending ? (
           <Spinner size="sm" />
         ) : (
-          t('refund-confirm', 'Refund {{amount}}', { amount: money(cents || 0, invoice.currency) })
+          t('refund-confirm', 'Refund {{amount}}', { amount: money(units || 0, currency) })
         )}
       </Button>
     </div>
@@ -176,6 +181,7 @@ const RefundForm = ({ invoice, onDone }: { invoice: Invoice; onDone: () => void 
 export const InvoiceDetails = ({ invoice, onClose }: { invoice: Invoice; onClose: () => void }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'payments' });
   const can = useCan();
+  const money = useMoney();
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

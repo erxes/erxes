@@ -666,6 +666,11 @@
     "admin-everything": "Admins can do everything except owner-only actions — including whatever plugins add later."
   },
   "payments": {
+    "currency-note": "New invoices are in {{currency}} unless a plugin names another.",
+    "change-currency": "Change",
+    "takes-any": "Any currency",
+    "takes": "Takes {{currencies}}",
+    "takes-only": "Takes {{currencies}} only",
     "refund-refused": "The gateway refused the refund",
     "refunded": "Refunded {{amount}}",
     "refund-failed": "Could not refund",

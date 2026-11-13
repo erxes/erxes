@@ -62,7 +62,7 @@ const EntryRow = ({
   expanded: boolean;
   onToggle: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
+  const { t, i18n } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const who = actorLabel(entry.actor, members, t('deleted-member', 'A removed member'));
 
   const member =
@@ -111,7 +111,7 @@ const EntryRow = ({
             onClick={onToggle}
             className={cn('text-left', warning && 'font-medium')}
           >
-            {auditSentence(entry)}
+            {auditSentence(entry, i18n.language)}
           </button>
           {entry.source !== 'core' && (
             <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">

@@ -1,4 +1,5 @@
 import type { AuditEntry } from '@erxes/core-contract';
+import { formatMoney } from '~/lib/money';
 import { textOf } from '~/lib/text';
 
 type Changes = Record<string, [unknown, unknown]>;
@@ -31,17 +32,24 @@ const fields = (changes: Changes | null) => {
     : names.join(', ');
 };
 
-const money = (amount: unknown) =>
-  typeof amount === 'number' ? `₮${(amount / 100).toLocaleString()}` : '';
+/** A refund's amount; refunds recorded before invoices had other currencies were in MNT. */
+const refundAmount = (metadata: Record<string, unknown>, language: string) =>
+  typeof metadata.amount === 'number'
+    ? formatMoney(
+        metadata.amount,
+        typeof metadata.currency === 'string' ? metadata.currency : 'MNT',
+        language,
+      )
+    : '';
 
 const humanize = (text: string) => text.replace(/[_.]/g, ' ');
 
 /**
  * One readable sentence for an entry ("changed Bold's role from Member to
  * Admin"); the actor's name is shown next to it. Plugin actions read from
- * their names (`hr.employee.deleted` → "employee deleted").
+ * their names (`hr.employee.deleted` → "employee deleted"). Amounts read in `language`.
  */
-export const auditSentence = (entry: AuditEntry): string => {
+export const auditSentence = (entry: AuditEntry, language: string): string => {
   const label = entry.targetLabel ?? entry.targetId ?? '';
   const changes = entry.changes;
   const metadata = entry.metadata ?? {};
@@ -63,7 +71,7 @@ export const auditSentence = (entry: AuditEntry): string => {
     case 'audit.stream_removed':
       return `stopped streaming the audit log to ${label}`;
     case 'payment.refunded':
-      return `refunded ${money(metadata.amount)} of ${label}${metadata.method === 'manual' ? ' (paid back outside erxes)' : ''}: ${textOf(metadata.reason)}`;
+      return `refunded ${refundAmount(metadata, language)} of ${label}${metadata.method === 'manual' ? ' (paid back outside erxes)' : ''}: ${textOf(metadata.reason)}`;
     case 'payment.plugin_settings_updated':
       return `changed which payment gateways ${label} uses`;
     case 'auth.sign_in_failed':
@@ -72,6 +80,8 @@ export const auditSentence = (entry: AuditEntry): string => {
       return 'changed their password';
     case 'organization.created':
       return `created the organisation ${label}`;
+    case 'organization.updated':
+      return `changed the organisation's ${fields(changes) || 'details'}`;
     case 'user.invited':
       return `invited ${label} as ${value(metadata.role)}`;
     case 'user.role_changed':

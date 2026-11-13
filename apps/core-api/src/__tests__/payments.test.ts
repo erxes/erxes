@@ -198,8 +198,11 @@ describeWithDb('payments', { timeout: 240_000 }, () => {
         source: 'hr',
       });
 
-      // The audit log has each refund.
-      expect((await t.owner().audit.list({ action: 'payment.refunded' })).data).toHaveLength(2);
+      // The audit log has each refund, with the invoice's currency to read its amount in.
+      const refunds = (await t.owner().audit.list({ action: 'payment.refunded' })).data;
+
+      expect(refunds).toHaveLength(2);
+      expect(refunds.map((entry) => entry.metadata?.currency)).toEqual(['USD', 'USD']);
     } finally {
       await api.close();
     }
