@@ -134,7 +134,7 @@ export const continueAfter = async (
   context: RunContext,
   entry: { input: unknown; output: unknown; next: Cursor | null; attempt: number; startedAt: Date },
 ) => {
-  const steps = z.record(z.string(), z.unknown()).catch({}).parse(context.steps);
+  const steps = z.record(z.string(), z.unknown()).safeParse(context.steps).data ?? {};
   const updated = { ...context, steps: { ...steps, [step.id]: { output: entry.output } } };
 
   await logStep(tx, run, step, { status: 'succeeded', ...entry });

@@ -127,8 +127,7 @@ export const startRun = async (
 /** Records from a quiet import (the import's own choice) start nothing. */
 const QuietImport = z
   .object({ _import: z.object({ quiet: z.boolean() }) })
-  .transform(({ _import: mark }) => mark.quiet)
-  .catch(false);
+  .transform(({ _import: mark }) => mark.quiet);
 
 const startRuns = async (tx: Db, event: EventRow, dto: ReturnType<typeof toEventDto>) => {
   const candidates = await tx
@@ -255,7 +254,7 @@ export const automationsConsumer: EventConsumer = {
       return;
     }
 
-    if (QuietImport.parse(event.payload)) return;
+    if (QuietImport.safeParse(event.payload).data) return;
 
     await startRuns(tx, event, dto);
   },

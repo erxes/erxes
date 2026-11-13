@@ -3,11 +3,14 @@ import { z } from 'zod';
 import { config } from '~/config';
 import type { EntitlementRow } from './access';
 
-/** One plugin in erxes.io's answer; entries with an unknown code or tier are left out. */
+/**
+ * One plugin in erxes.io's answer; entries with an unknown code, tier or
+ * status are left out. A missing status is active.
+ */
 const Entitled = z.object({
   code: z.string(),
   tier: z.enum(['free', 'plus', 'pro']),
-  status: z.enum(['active', 'past_due', 'canceling']).catch('active'),
+  status: z.enum(['active', 'past_due', 'canceling']).default('active'),
 });
 
 /** erxes.io's answer: `details` per plugin, or the older `plugins` (code → tier). */

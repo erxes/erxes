@@ -114,7 +114,7 @@ export const parseBody = (body: string) => {
 /** The subject's fields some actions read (its owner, its email). */
 const SubjectFields = z
   .object({ ownerId: z.string().nullish(), primaryEmail: z.string().nullish() })
-  .nullish()
-  .catch(null);
+  .nullish();
 
-export const subjectFields = (ctx: CallContext) => SubjectFields.parse(ctx.context.subject);
+export const subjectFields = (ctx: CallContext) =>
+  SubjectFields.safeParse(ctx.context.subject).data ?? null;

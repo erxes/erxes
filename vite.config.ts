@@ -47,6 +47,8 @@ export default defineConfig({
       'anti-slop/no-unknown-type-aliases': 'error',
       'anti-slop/no-widen-then-assert': 'error',
       'anti-slop/require-readable-spacing': 'error',
+      // A malformed token claim must fail verification, never fall back to a value.
+      'anti-slop/no-zod-catch': 'error',
       // `const { secret, ...rest } = row` drops a field on purpose; Express
       // error handlers need all four parameters (`_next`).
       'no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: '^_' }],
@@ -214,6 +216,19 @@ export default defineConfig({
           'packages/plugin-sdk/src/index.ts',
         ],
         rules: { 'oxc/no-barrel-file': 'off' },
+      },
+      {
+        // The Base UI rewrite owns these files right now; they still read stored
+        // UI state with zod `.catch()`. Move them to `.default()` or `safeParse`
+        // and delete this entry once that rewrite lands.
+        files: [
+          'apps/core-ui/src/modules/activity/activityData.ts',
+          'apps/core-ui/src/modules/automations/builder/ConditionValueInput.tsx',
+          'apps/core-ui/src/modules/side-panel/panelNavigation.ts',
+          'apps/core-ui/src/modules/views/filter/filterRules.ts',
+          'packages/ui/src/modules/record-table/utils/rowFields.ts',
+        ],
+        rules: { 'anti-slop/no-zod-catch': 'off' },
       },
       {
         // Copied from the HR plugin (and ESLint Stylistic in vendor/). Kept as

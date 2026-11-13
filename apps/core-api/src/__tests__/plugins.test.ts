@@ -5,6 +5,7 @@ import { eq, sql } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { describe, expect, it } from 'vite-plus/test';
 import type { z } from 'zod';
+import { signJwt } from '~/lib/signing';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 import { adminDb, useTestDatabase } from './db';
 import { HR_SECRET } from './plugin';
@@ -225,5 +226,30 @@ describe('plugin connection (registry, installations, tokens)', () => {
     await expect(verifyPluginSession(token, { coreUrl, plugin: 'ecom' })).rejects.toThrow(
       'unexpected "aud" claim value',
     );
+
+    // Signed by core but with a claim it never issues: refused, not read as Pro with full access.
+    const session = {
+      org: t.ids.org,
+      role: 'member',
+      permissions: [],
+      tier: 'pro',
+      access: 'full',
+    };
+
+    for (const claims of [{ tier: 'enterprise' }, { access: 'admin' }, { tier: undefined }]) {
+      const forged = await signJwt(
+        { ...session, ...claims },
+        {
+          typ: 'erxes-plugin-session+jwt',
+          audience: 'hr',
+          subject: t.ids.member,
+          expiresInSeconds: 60,
+        },
+      );
+
+      await expect(verifyPluginSession(forged, { coreUrl, plugin: 'hr' })).rejects.toThrow(
+        'not an erxes erxes-plugin-session+jwt token',
+      );
+    }
   });
 });

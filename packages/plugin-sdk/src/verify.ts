@@ -27,7 +27,11 @@ export interface PluginMember {
   canChange(): boolean;
 }
 
-/** A member signed into a plugin's own app with "Sign in with erxes". */
+/**
+ * A member signed into a plugin's own app with "Sign in with erxes". Access
+ * tokens carry no plan, so `tier` is null and `access` is `off`: ask core
+ * (`saas.pluginPlan`) before gating on them.
+ */
 export interface ErxesSignIn extends PluginMember {
   scope: string[];
 }
@@ -92,12 +96,9 @@ const verifyCoreToken = async <T>(
   return parsed.data;
 };
 
-const Tier = z.enum(['free', 'plus', 'pro']);
+// A claim of the wrong type or an unknown value fails verification: it never grants access.
+const Tier = z.enum(['free', 'plus', 'pro']).nullable();
 const Access = z.enum(['full', 'warning', 'read_only', 'off']);
-
-const Strings = z
-  .array(z.unknown())
-  .transform((items) => items.filter((item): item is string => typeof item === 'string'));
 
 const member = (claims: {
   sub: string;
@@ -121,10 +122,10 @@ const SessionClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
   role: z.string(),
-  permissions: Strings,
-  // Absent or unknown means self-hosted: pro; null means no plan.
-  tier: z.union([Tier, z.null()]).catch('pro'),
-  access: Access.catch('full'),
+  permissions: z.array(z.string()),
+  // Core signs both (self-hosted: `pro` and `full`); null means no plan.
+  tier: Tier,
+  access: Access,
 });
 
 /**
@@ -167,15 +168,13 @@ export const verifyCoreCall = (token: string, options: VerifyOptions): Promise<C
 const AccessTokenClaims = z.object({
   sub: z.string().min(1),
   org: z.string(),
-  role: z.string().catch('member'),
-  permissions: Strings.catch([]),
-  // Not in these tokens: ask core (`saas.pluginPlan`) when the tier matters.
-  tier: Tier.catch('pro'),
-  access: Access.catch('full'),
-  scope: z
-    .string()
-    .transform((scope) => scope.split(' '))
-    .catch([]),
+  role: z.string(),
+  permissions: z.array(z.string()),
+  // Core doesn't sign these into access tokens, so they read as no plan and
+  // no access: ask core (`saas.pluginPlan`) when the plan matters.
+  tier: Tier.default(null),
+  access: Access.default('off'),
+  scope: z.string().transform((scope) => scope.split(' ')),
 });
 
 /**

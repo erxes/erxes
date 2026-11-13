@@ -31,14 +31,12 @@ export class CoreTokenError extends Error {
 }
 
 /** `POST /plugins/token`'s answer: a token, or an error's code and message. */
-const TokenAnswer = z
-  .object({
-    access_token: z.string().optional(),
-    expires_in: z.number().optional(),
-    code: z.string().optional(),
-    message: z.string().optional(),
-  })
-  .catch({});
+const TokenAnswer = z.object({
+  access_token: z.string().optional(),
+  expires_in: z.number().optional(),
+  code: z.string().optional(),
+  message: z.string().optional(),
+});
 
 export const createCoreClient = (options: CoreClientOptions) => {
   const fetcher = options.fetch ?? globalThis.fetch;
@@ -57,7 +55,8 @@ export const createCoreClient = (options: CoreClientOptions) => {
       }),
     });
 
-    const body = TokenAnswer.parse(await response.json().catch(() => ({})));
+    // An answer that isn't this shape carries no token: CoreTokenError below.
+    const body = TokenAnswer.safeParse(await response.json().catch(() => null)).data ?? {};
 
     if (!response.ok || !body.access_token) {
       throw new CoreTokenError(

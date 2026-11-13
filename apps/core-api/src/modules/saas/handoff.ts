@@ -8,15 +8,12 @@ import { HttpError } from '~/http/errors';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { subdomainFromHost } from '~/modules/auth/auth.service';
 
-/** erxes.io's claims; a claim of the wrong type counts as missing. */
+/** erxes.io's claims; a claim of the wrong type makes it not a sign-in link. */
 const HandoffClaims = z.object({
-  user: z
-    .object({ email: z.string().optional().catch(undefined) })
-    .optional()
-    .catch(undefined),
-  email: z.string().optional().catch(undefined),
-  org: z.string().optional().catch(undefined),
-  exp: z.number().optional().catch(undefined),
+  user: z.object({ email: z.string().optional() }).optional(),
+  email: z.string().optional(),
+  org: z.string().optional(),
+  exp: z.number().optional(),
 });
 
 /** The organisation: the token's `org`, else the address's subdomain. */
@@ -72,10 +69,11 @@ export const redeemHandoff = async (token: string, host: string | undefined) => 
     maxTokenAge: '5m',
   });
 
-  const claims = HandoffClaims.parse(payload);
-  const email = claims.user?.email ?? claims.email;
+  const { data: claims } = HandoffClaims.safeParse(payload);
+  const email = claims?.user?.email ?? claims?.email;
 
-  if (!email || !claims.exp) throw new HttpError(400, 'INVALID_TOKEN', 'Not a sign-in link');
+  if (!claims || !email || !claims.exp)
+    throw new HttpError(400, 'INVALID_TOKEN', 'Not a sign-in link');
 
   const orgId = await handoffOrganization(claims.org, host);
 

@@ -45,7 +45,7 @@ const audienceEnrollment = (
   startOf: (subject) => ({ eventId: `${startKey}:${subject.id}`, event }),
 });
 
-const CustomFields = z.record(z.string(), z.unknown()).catch({});
+const CustomFields = z.record(z.string(), z.unknown());
 
 /** The records whose date (moved by the offset) is today in the trigger's time zone. */
 const dateEnrollment = (trigger: DateTrigger, at: string): Enrollment => {
@@ -79,7 +79,7 @@ const dateEnrollment = (trigger: DateTrigger, at: string): Enrollment => {
           date:
             trigger.field === 'birthDate'
               ? subject.birthDate
-              : CustomFields.parse(subject.customFields)[trigger.field],
+              : CustomFields.safeParse(subject.customFields).data?.[trigger.field],
         },
       },
     }),

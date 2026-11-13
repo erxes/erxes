@@ -32,8 +32,8 @@ const InvoiceAnswer = z.object({
         link: z.string().nullish(),
       }),
     )
-    .catch([])
-    .default([]),
+    .nullish()
+    .transform((items) => items ?? []),
 });
 
 const CheckAnswer = z.object({
@@ -45,8 +45,8 @@ const CheckAnswer = z.object({
         payment_amount: Amount.nullish(),
       }),
     )
-    .catch([])
-    .default([]),
+    .nullish()
+    .transform((items) => items ?? []),
   paid_amount: Amount.nullish(),
 });
 
