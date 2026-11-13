@@ -35,6 +35,11 @@ const AcceptInvitationPage = lazyNamed(
   'AcceptInvitationPage',
 );
 
+const CustomerSignInPage = lazyNamed(
+  () => import('~/modules/auth/CustomerSignInPage'),
+  'CustomerSignInPage',
+);
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
 });
@@ -81,6 +86,9 @@ const SignedOut = () => {
 const Screen = () => {
   const { pathname } = useLocation();
   const session = useSessionQuery();
+
+  // Customers of the organisation's apps sign in here; it has nothing to do with team sessions.
+  if (pathname === '/customer-sign-in') return <CustomerSignInPage />;
 
   if (LINK_PAGES.has(pathname)) {
     return pathname === '/reset-password' ? <ResetPasswordPage /> : <AcceptInvitationPage />;
