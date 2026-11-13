@@ -33,6 +33,8 @@ export const dropDatabase = async (url: string, name: string) => {
     `
       DO $$ BEGIN
         FOR attempt IN 1..50 LOOP
+          -- pg_stat_activity is read once per transaction unless the snapshot is cleared.
+          PERFORM pg_stat_clear_snapshot();
           EXIT WHEN NOT EXISTS (SELECT 1 FROM pg_stat_activity WHERE datname = '${name}');
           PERFORM pg_sleep(0.1);
         END LOOP;
